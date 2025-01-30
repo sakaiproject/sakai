@@ -363,6 +363,9 @@ public class DiscussionTopicBean
 	      locked =  Boolean.TRUE.toString();
 	    }
     }
+
+    handleLockedAfterClosedCondition();
+
     return locked;
   }
 
@@ -399,6 +402,9 @@ public class DiscussionTopicBean
 	      locked =  Boolean.TRUE.toString();
 	    }
     }
+
+    handleLockedAfterClosedCondition();
+
     return Boolean.parseBoolean(locked);
   }
 
@@ -409,6 +415,18 @@ public class DiscussionTopicBean
   {
     log.debug("setTopicLocked(Boolean {})", locked);
     topic.setLocked(locked);
+  }
+
+  private void handleLockedAfterClosedCondition(){
+    Boolean availabilityRestricted = getTopic().getAvailabilityRestricted();
+
+    if(availabilityRestricted && locked.equals(Boolean.FALSE.toString())) {
+      Date closeDate = getTopic().getCloseDate();
+      if (closeDate != null && getTopic().getLockedAfterClosed() && closeDate.before(new Date())) {
+        setTopicLocked(true);
+        locked = Boolean.TRUE.toString();
+      }
+    }
   }
   
   

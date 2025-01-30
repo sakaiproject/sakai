@@ -64,4 +64,8 @@ public interface DiscussionTopic extends OpenTopic {
     public Boolean getRestrictPermissionsForGroups();
 
     public void setRestrictPermissionsForGroups(Boolean restrictPermissionsForGroups);
+
+    public Boolean getFaqTopic();
+
+    public void setFaqTopic(Boolean isFaqTopic);
 }

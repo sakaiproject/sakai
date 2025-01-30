@@ -21,7 +21,10 @@
 						});
 					</script>
 					<%@ include file="/jsp/privateMsg/pvtMenu.jsp" %>
-			  <sakai:tool_bar_message value="#{msgs.pvt_msgs_label} #{msgs.pvt_create_folder}" />
+
+			  <div class="page-header">
+				<sakai:tool_bar_message value="#{msgs.pvt_create_folder}" />
+			  </div>		
 			 
 				<div class="instruction">
 				  <h:outputText value="#{msgs.cdfm_required}"/> <h:outputText value="#{msgs.pvt_star}" styleClass="reqStarInline"/>
@@ -30,8 +33,8 @@
 			   <h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}" />
 			 
  <h:panelGrid styleClass="jsfFormTable" columns="2">
-			  <h:panelGroup styleClass="shorttext required">
-			      <h:outputLabel for="title">
+			  <h:panelGroup styleClass="shorttext required form-control-label">
+			      <h:outputLabel for="title" styleClass="w-100 me-4">
 				  <h:outputText value="#{msgs.pvt_star}" styleClass="reqStar"/>
 				  <h:outputText  value="#{msgs.pvt_folder_title}"/>
 				  </h:outputLabel>

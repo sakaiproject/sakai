@@ -1,6 +1,6 @@
 # Profile2
 
-Profile2 allows a user to create and manage their own profile within Sakai.  Users can also add connections, upload pictures, connect with Twitter and many of the other Sakai tools integrate with it.
+Profile2 allows a user to create and manage their own profile within Sakai.  Users can also add connections, upload pictures.
 
 Profile2 features a comprehensive privacy and preferences system and is massively configurable for your institution. 
 

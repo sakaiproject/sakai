@@ -18,9 +18,5 @@ $(document).ready(
         $(this).addClass('eventLogDeleted');
       }
     });
-    var element = document.getElementById("eventLogId:filteredUser");
-    if (element) {
-      element.placeholder = searchHint;
-    }
   }
 );

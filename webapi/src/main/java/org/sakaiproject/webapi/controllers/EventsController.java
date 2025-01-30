@@ -13,92 +13,55 @@
  ******************************************************************************/
 package org.sakaiproject.webapi.controllers;
 
-import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.entity.api.EntityManager;
-import org.sakaiproject.messaging.api.MessagingService;
-import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.messaging.api.UserMessagingService;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.Duration;
-
-import javax.annotation.Resource;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import lombok.extern.slf4j.Slf4j;
-
-import reactor.core.publisher.Flux;
 
 @Slf4j
 @RestController
 public class EventsController extends AbstractSakaiApiController {
 
-	@Resource
-	private EntityManager entityManager;
-
-	@Resource
-	private SecurityService securityService;
-
-	@Resource(name = "org.sakaiproject.component.api.ServerConfigurationService")
+	@Autowired
 	private ServerConfigurationService serverConfigurationService;
 
-	@Resource
-	private SiteService siteService;
+    @Autowired
+    private UserMessagingService userMessagingService;
 
-	@Resource
-	private UserDirectoryService userDirectoryService;
+    @GetMapping("/keys/sakaipush")
+    public ResponseEntity<String> getPushKey() {
 
-    @Resource
-    private MessagingService messagingService;
+        String home = serverConfigurationService.getSakaiHomePath();
+        String fileName = serverConfigurationService.getString(userMessagingService.PUSH_PUBKEY_PROPERTY, "sakai_push.key.pub");
 
-    @GetMapping("/users/{userId}/events")
-    public ResponseEntity<Flux<ServerSentEvent<String>>> streamEvents() {
+        try {
+            return ResponseEntity.ok(String.join("", Files.readAllLines(Paths.get(home, fileName))));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 
-        Session session = checkSakaiSession();
+    @PostMapping("/users/me/pushEndpoint")
+    public ResponseEntity setPushEndpoint(@RequestParam String endpoint,
+                                            @RequestParam(required = false) String auth,
+                                            @RequestParam(required = false) String userKey,
+                                            @RequestParam(required = false) String browserFingerprint) {
 
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
+		checkSakaiSession();
 
-        int pingSeconds = serverConfigurationService.getInt("sse.ping.interval.seconds", 59);
-        Flux<ServerSentEvent<String>> ping = Flux.interval(Duration.ofSeconds(pingSeconds))
-            .map(i -> ServerSentEvent.<String>builder().event("ping").build())
-            .doFinally(signalType -> log.debug("Ping flux ended with signal {}", signalType));
+        userMessagingService.subscribeToPush(endpoint, auth, userKey, browserFingerprint);
 
-        return ResponseEntity.ok().header("X-Accel-Buffering", "no")
-                .body(Flux.merge(ping, Flux.<ServerSentEvent<String>>create(emitter -> {
-
-                    messagingService.listen("USER#" + session.getUserId(), message -> {
-
-                        String event = "notifications";
-
-                        try {
-                            emitter.next(ServerSentEvent.<String>builder()
-                            .event(event)
-                            .data(mapper.writeValueAsString(message))
-                            .build());
-                        } catch (Exception e) {
-                            log.error("Failed to emit SSE event", e);
-                        }
-                    });
-
-                    messagingService.listen("GENERAL", message -> {
-
-                        try {
-                            emitter.next(ServerSentEvent.<String> builder()
-                            .data((new ObjectMapper()).writeValueAsString(message))
-                            .build());
-                        } catch (Exception e) {
-                            log.error("Failed to emit SSE event", e);
-                        }
-                    });
-                })));
+        return ResponseEntity.ok().build();
     }
 }

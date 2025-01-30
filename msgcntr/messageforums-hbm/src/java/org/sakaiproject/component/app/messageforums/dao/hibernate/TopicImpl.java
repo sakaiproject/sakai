@@ -83,6 +83,33 @@ public abstract class TopicImpl extends MutableEntityImpl implements Topic {
      * if availabilityRestricted, then this determines whether the topic is disabled or not
      */
     private Boolean availability = true;
+    private Boolean sendOpenCloseToCalendar;
+    private String calendarBeginId;
+    private String calendarEndId;
+
+    public String getCalendarEndId() {
+        return calendarEndId;
+    }
+
+    public void setCalendarEndId(String calendarEndId) {
+        this.calendarEndId = calendarEndId;
+    }
+
+    public String getCalendarBeginId() {
+        return calendarBeginId;
+    }
+
+    public void setCalendarBeginId(String calendarBeginId) {
+        this.calendarBeginId = calendarBeginId;
+    }
+
+    public Boolean getSendOpenCloseToCalendar() {
+        return sendOpenCloseToCalendar == null ? true : sendOpenCloseToCalendar;
+    }
+
+    public void setSendOpenCloseToCalendar(Boolean sendOpenCloseToCalendar) {
+        this.sendOpenCloseToCalendar = sendOpenCloseToCalendar;
+    }
 
     public List getMessages() {
         return Util.setToList(messagesSet);

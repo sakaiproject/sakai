@@ -14,11 +14,12 @@
        	<script src="/messageforums-tool/js/forum.js"></script>
        	<script src="/messageforums-tool/js/messages.js"></script>
        	<script>
-  			$(document).ready(function() {
+			$(document).ready(function() {
 				$(".messageBody").each(function(index){
-					var msgBody = $(this).html();
+					let msgBody = $(this).html();
 					msgBody = msgBody.replace(/\n/g,',').replace(/\s/g,' ').replace(/  ,/g,',');
-	  				msgcntr_word_count(msgBody);
+					const wordCountId = $(this).attr('id').substring(11, $(this).attr('id').length);
+					$("#wordCountSpan" + wordCountId).html(getWordCount(msgBody));
 				});
 				var menuLink = $('#forumsStatisticsMenuLink');
 				var menuLinkSpan = menuLink.closest('span');
@@ -106,22 +107,18 @@
 
 			<%-- the message the user wanted to see in the thread context --%>
 			<h:panelGroup rendered="#{ForumTool.selectedMsgId==msgDecorateBean.message.id}">
-				<f:verbatim><a name="boldMsg"></a></f:verbatim>
-				<f:verbatim><div class="hierItemBlock" style="border:1px solid #fc6;background:#ffe;padding:0 5px"></f:verbatim>
-					<f:verbatim>
-	  					<span id="messageBody" class="messageBody" style="display: none" class="messageBody">
-	  				</f:verbatim>
-	  					<h:outputText escape="false" value="#{msgDecorateBean.message.body}"/>
-					<f:verbatim>  					
-	  					</span>	
-	  					<span>
-	  						<i class="fa fa-plus-square" aria-hidden="true"></i>
-	  						&nbsp;
-	  					</span>
-	  				</f:verbatim>
-					<h:outputText value="#{msgs.cdfm_message_count}" />:&nbsp;<h:outputText value="#{msgDecorateBean.wordCount}"/>
-					<f:verbatim><a name="boldMsg"></a></f:verbatim>
-					<f:verbatim><p style="border-bottom:1px solid #ccc;padding-bottom:5px;height:100%;overflow:hidden;font-size:110% !important;color:#000;font-weight:bold"></f:verbatim>
+				<a name="boldMsg"></a>
+				<div class="hierItemBlock" style="border:1px solid #fc6;background:#ffe;padding:0 5px">
+						<span id="messageBody" class="messageBody" style="display: none" class="messageBody">
+							<h:outputText escape="false" value="#{msgDecorateBean.message.body}"/>
+						</span>	
+						<span>
+							<span class="fa fa-plus-square" aria-hidden="true"></span>
+						</span>
+						<h:outputText value="#{msgs.cdfm_message_count}: " escape="false" />
+						<span id="wordCountSpan<h:outputText value="#{stat.msgId}"/>"> </span>
+						<a name="boldMsg"></a>
+						<p style="border-bottom:1px solid #ccc;padding-bottom:5px;height:100%;overflow:hidden;font-size:110% !important;color:#000;font-weight:bold">
 						<h:panelGroup rendered="#{!msgDecorateBean.message.deleted}">
 							<h:outputText value="#{msgDecorateBean.message.title} - " />
 							<h:outputText rendered="#{mfStatisticsBean.pureAnon}" styleClass="anonymousAuthor" value="#{msgDecorateBean.anonAwareAuthor}" />

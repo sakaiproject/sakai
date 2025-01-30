@@ -45,6 +45,8 @@ import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
@@ -91,7 +93,10 @@ public class AuthorActionListener
 
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
-    log.debug("*****Log: inside AuthorActionListener =debugging ActionEvent: " + ae);
+    log.debug("*****Log: inside AuthorActionListener =debugging ActionEvent: {}", ae);
+
+    ToolSession currentToolSession = SessionManager.getCurrentToolSession();
+    currentToolSession.removeAttribute("NEW_ASSESSMENT_PREVIOUSLY_ASSOCIATED");
 
     // get service and managed bean
     AssessmentService assessmentService = new AssessmentService();
@@ -112,10 +117,9 @@ public class AuthorActionListener
 
     List templateList = assessmentService.getTitleOfAllActiveAssessmentTemplates();
     // get the managed bean, author and set the list
-    if (templateList.size()==1){   //<= only contains Default Template
-	author.setShowTemplateList(false);
-    }
-    else{
+    if (templateList.size() == 1) {   //<= only contains Default Template
+        author.setShowTemplateList(false);
+    } else {
       // remove Default Template
       removeDefaultTemplate(templateList);
       author.setAssessmentTemplateList(templateList);
@@ -302,7 +306,7 @@ public class AuthorActionListener
 				  (Map<String, Integer>) numberRetakeHash.get(publishedAssessmentId),
 				  (Map<String, Long>) actualNumberRetake.get(publishedAssessmentId),
 				  needResubmitList)) {
-			  f.setActiveStatus(true);
+			  f.setActiveStatus(2);
 			  activeList.add(f);
 
 			  // check pastDue (alters display for instructor)
@@ -310,8 +314,12 @@ public class AuthorActionListener
 				  f.setPastDue(true);
 			  }
 		  }
+		  else if (f.getStartDate() != null && (new Date()).before(f.getStartDate())) {
+			  f.setActiveStatus(1);
+			  inActiveList.add(f);
+		  }
 		  else {
-			  f.setActiveStatus(false);
+			  f.setActiveStatus(0);
 			  inActiveList.add(f);
 		  }
 

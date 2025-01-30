@@ -17,10 +17,10 @@ package org.sakaiproject.gradebookng.tool.panels;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -28,7 +28,6 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
-import org.sakaiproject.grading.api.GradingCategoryType;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
@@ -37,7 +36,7 @@ import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.grading.api.CourseGradeTransferBean;
-import org.sakaiproject.grading.api.GradeType;
+import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.grading.api.SortType;
 import org.sakaiproject.grading.api.model.Gradebook;
 
@@ -45,7 +44,7 @@ public class InstructorGradeSummaryGradesPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
-	GradingCategoryType configuredCategoryType;
+	Integer configuredCategoryType;
 
 	boolean isGroupedByCategory = false;
 	boolean categoriesEnabled = false;
@@ -66,8 +65,8 @@ public class InstructorGradeSummaryGradesPanel extends BasePanel {
 		final boolean groupedByCategoryByDefault = (Boolean) modelData.get("groupedByCategoryByDefault");
 
 		this.configuredCategoryType = gradebook.getCategoryType();
-		this.isGroupedByCategory = groupedByCategoryByDefault && this.configuredCategoryType != GradingCategoryType.NO_CATEGORY;
-		this.categoriesEnabled = this.configuredCategoryType != GradingCategoryType.NO_CATEGORY;
+		this.isGroupedByCategory = groupedByCategoryByDefault && !Objects.equals(this.configuredCategoryType, GradingConstants.CATEGORY_TYPE_NO_CATEGORY);
+		this.categoriesEnabled = !Objects.equals(this.configuredCategoryType, GradingConstants.CATEGORY_TYPE_NO_CATEGORY);
 	}
 
 	@Override
@@ -202,6 +201,6 @@ public class InstructorGradeSummaryGradesPanel extends BasePanel {
 	 * @return
 	 */
 	private boolean isCategoryWeightEnabled() {
-		return (this.configuredCategoryType == GradingCategoryType.WEIGHTED_CATEGORY) ? true : false;
+		return Objects.equals(this.configuredCategoryType, GradingConstants.CATEGORY_TYPE_WEIGHTED_CATEGORY);
 	}
 }

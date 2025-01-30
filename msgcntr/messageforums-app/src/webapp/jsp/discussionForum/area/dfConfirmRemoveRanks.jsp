@@ -15,7 +15,6 @@
         <link rel="stylesheet" href="/messageforums-tool/css/forum_rank.css" type="text/css" />
     
         <h:form id="revise">
-            <script src="/library/js/fluid/1.5/MyInfusion.js"></script>
             <script src="/messageforums-tool/js/forum_rank.js"></script>
             <script src="/messageforums-tool/js/forum.js"></script>
     

@@ -33,6 +33,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.util.ResourceLoader;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +54,8 @@ public class TimeUtil extends SpringBeanAutowiringSupport {
     private TimeZone m_client_timezone;
     private TimeZone m_server_timezone;
 
+    private static final ResourceLoader selectIndexMessages = new ResourceLoader(SamigoConstants.SELECT_INDEX_BUNDLE);
+
     public TimeUtil() {
         m_client_timezone = userTimeService.getLocalTimeZone();
         m_server_timezone = TimeZone.getDefault();
@@ -66,6 +69,7 @@ public class TimeUtil extends SpringBeanAutowiringSupport {
    * @param serverDate
    * @return
    */
+@Deprecated
 public String getDisplayDateTime(SimpleDateFormat ndf, Date serverDate) {
      //we can't format a null date
     if (serverDate == null) {
@@ -169,6 +173,26 @@ public Date parseISO8601String(final String dateString) {
 	  }
 
 	  return null;
+  }
+
+  /**
+   * Get the time in seconds and transform into a formatted Time
+   *
+   * @param seconds The time in seconds
+   * @return timeElapsedInString - formatted Time
+   */
+  public static String getFormattedTime(int seconds) {
+    String timeElapsedInString = "";
+    if ( ((int) seconds) > 0 ) {
+      int hr = ((int) seconds) / 3600;
+      int min = (((int) seconds) % 3600)/60;
+      int sec = (((int) seconds) % 3600)%60;
+      timeElapsedInString = "";
+      if (hr > 0) timeElapsedInString += hr + " " + selectIndexMessages.getString("hour") + " ";
+      if (min > 0) timeElapsedInString += min + " " + selectIndexMessages.getString("minutes") + " ";
+      if (sec > 0) timeElapsedInString += sec + " " + selectIndexMessages.getString("seconds") + " ";
+    }
+    return timeElapsedInString;
   }
  
 }

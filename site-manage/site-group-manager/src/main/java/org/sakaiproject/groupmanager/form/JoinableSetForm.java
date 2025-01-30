@@ -23,6 +23,10 @@ public class JoinableSetForm {
     private String groupTitle;
     private int groupNumber = 1;
     private int groupMaxMembers = 1;
+    private String joinableOpenDate;
+    private String joinableCloseDate;
+    private boolean sendMail;
+    private boolean setReminder;
     private boolean allowPreviewMembership;
     private boolean allowViewMembership;
     private boolean allowUnjoin;

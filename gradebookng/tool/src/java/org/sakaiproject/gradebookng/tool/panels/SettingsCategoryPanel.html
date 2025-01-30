@@ -1,24 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html>
 <html xmlns:wicket="http://wicket.apache.org">
 
 <body>
 <wicket:panel>
 
-	<div class="panel panel-default">
-		<div class="panel-heading" role="tab" id="settingsCategoriesHeader">
-			<h3 class="panel-title">
-				<a role="button" data-toggle="collapse" href="#settingsCategories" aria-expanded="false" aria-controls="settingsCategories">
-					<wicket:message key="settingspage.categories.heading">Categories & Weighting</wicket:message>
-				</a>
-			</h3>
-		</div>
-		<div wicket:id="settingsCategoriesPanel" id="settingsCategories" class="panel-collapse collapse" role="tabpanel" aria-labelledby="settingsCategoriesHeader">
-			<div class="panel-body">
+	<div class="accordion-item" id="settingsCategoriesHeader">
+		<h2 class="accordion-header">
+			<button class="accordion-button collapsed fw-bold"
+				type="button"
+				data-bs-toggle="collapse"
+				data-bs-target="#settingsCategories"
+				aria-expanded="false"
+				aria-controls="settingsCategories">
+				<wicket:message key="settingspage.categories.heading">Categories &amp; Weighting</wicket:message>
+			</button>
+		</h2>
+		<div wicket:id="settingsCategoriesPanel" id="settingsCategories" class="accordion-collapse collapse" aria-labelledby="settingsCategoriesHeader">
+			<div class="accordion-body">
 			
 				<div wicket:id="categoryType">
-					<div class="radio"><label><input wicket:id="none" type="radio"/><span><wicket:message key="settingspage.categories.none" /></span></label></div>
-					<div class="radio"><label><input wicket:id="categoriesOnly" type="radio"/><span><wicket:message key="settingspage.categories.categoriesonly" /></span></label></div>
-					<div class="radio"><label><input wicket:id="categoriesAndWeighting" type="radio"/><span><wicket:message key="settingspage.categories.categoriesweighting" /></span></label></div>
+					<div class="radio"><label><input class="me-1" wicket:id="none" type="radio"/><span><wicket:message key="settingspage.categories.none" /></span></label></div>
+					<div class="radio"><label><input class="me-1" wicket:id="categoriesOnly" type="radio"/><span><wicket:message key="settingspage.categories.categoriesonly" /></span></label></div>
+					<div class="radio"><label><input class="me-1" wicket:id="categoriesAndWeighting" type="radio"/><span><wicket:message key="settingspage.categories.categoriesweighting" /></span></label></div>
 				</div>
 				
 				<div class="instruction">
@@ -29,10 +33,10 @@
 
 				<div wicket:id="categoriesWrap">
 					<div class="gb-inline-wrap" wicket:id="categoriesOptionsWrap">
-						<div class="checkbox gb-inline-checkbox"><label><input wicket:id="dropHighest" type="checkbox"/><span><wicket:message key="settingspage.categories.drophighest" /></span></label></div>
-						<div class="checkbox gb-inline-checkbox"><label><input wicket:id="dropLowest" type="checkbox"/><span><wicket:message key="settingspage.categories.droplowest" /></span></label></div>
-						<div class="checkbox gb-inline-checkbox"><label><input wicket:id="keepHighest" type="checkbox"/><span><wicket:message key="settingspage.categories.keephighest" /></span></label></div>
-						<div class="checkbox gb-inline-checkbox"><label><input wicket:id="equalWeight" type="checkbox"/><span><wicket:message key="settingspage.categories.equalweight" /></span></label></div>
+						<div class="checkbox gb-inline-checkbox"><label><input class="me-1" wicket:id="dropHighest" type="checkbox"/><span><wicket:message key="settingspage.categories.drophighest" /></span></label></div>
+						<div class="checkbox gb-inline-checkbox"><label><input class="me-1" wicket:id="dropLowest" type="checkbox"/><span><wicket:message key="settingspage.categories.droplowest" /></span></label></div>
+						<div class="checkbox gb-inline-checkbox"><label><input class="me-1" wicket:id="keepHighest" type="checkbox"/><span><wicket:message key="settingspage.categories.keephighest" /></span></label></div>
+						<div class="checkbox gb-inline-checkbox"><label><input class="me-1" wicket:id="equalWeight" type="checkbox"/><span><wicket:message key="settingspage.categories.equalweight" /></span></label></div>
 					</div>
 					
 					<div class="instruction">
@@ -64,25 +68,28 @@
 						<tbody>
 							<tr wicket:id="categoriesView" class="gb-category-row">
 								<td>
-									<a href="javascript:void(0);" class="gb-category-sort-handle ui-sortable-handle"></a>
+									<a href="javascript:void(0);"
+											class="gb-category-sort-handle ui-sortable-handle"
+											wicket:message="title:sortgradeitems.sort_category_label,aria-label:sortgradeitems.sort_category_label">
+									</a>
 									<input wicket:id="categoryOrder" class="gb-category-order-field" type="hidden" />
 								</td>
 								<td>
 									<input wicket:id="name" type="text" class="form-control" />
 								</td>
 								<td class="gb-category-weight"><input wicket:id="weight" type="text" size="5" class="form-control" /></td>
-								<td class="gb-category-extracredit"><input wicket:id="extraCredit" type="checkbox" class="form-control" /></td>
+								<td class="gb-category-extracredit"><input wicket:id="extraCredit" type="checkbox" /></td>
 								<td><span wicket:id="numItems">0 items(s)</span></td>
 								<td class="gb-category-drophighest"><input wicket:id="categoryDropHighest" type="text" size="5" class="form-control" /></td>
 								<td class="gb-category-droplowest"><input wicket:id="categoryDropLowest" type="text" size="5" class="form-control" /></td>
 								<td class="gb-category-keephighest"><input wicket:id="categoryKeepHighest" type="text" size="5" class="form-control" /></td>
-								<td class="gb-category-equalweight"><input wicket:id="equalWeight" type="checkbox" class="form-control" /></td>
+								<td class="gb-category-equalweight"><input wicket:id="equalWeight" type="checkbox" /></td>
 								<td><button wicket:id="remove" type="button" class="btn btn-default btn-table"><wicket:message key="button.remove" /></button></td>
 							</tr>
 						</tbody>
 					</table>
 					<div>
-						<button wicket:id="addCategory" type="button" class="btn-add-category btn btn-default btn-sm"><wicket:message key="settingspage.categories.add" /></button>
+						<button wicket:id="addCategory" type="button" class="btn-link btn-add-category btn btn-default btn-sm"><wicket:message key="settingspage.categories.add" /></button>
 					</div>
 				</div>
 			</div>

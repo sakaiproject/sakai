@@ -33,7 +33,7 @@ public class RecurrenceRuleRestBean {
             count = rr.getCount();
             frequency = rr.getFrequency();
             interval = rr.getInterval();
-            until = rr.getUntil().getTime();
+            until = rr.getUntil() != null ? rr.getUntil().getTime() : 0;
         }
     }
 }

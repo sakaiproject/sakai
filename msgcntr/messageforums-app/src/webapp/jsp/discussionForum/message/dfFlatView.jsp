@@ -14,7 +14,6 @@
 	<!--jsp/discussionForum/message/dfFlatView.jsp-->
 		<script>includeLatestJQuery("msgcntr");</script>
   		<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/dialog.css" />
-		<script>includeWebjarLibrary("qtip2");</script>
 		<script src="/messageforums-tool/js/sak-10625.js"></script>
 		<script src="/messageforums-tool/js/forum.js"></script>
 		<script src="/messageforums-tool/js/dialog.js"></script>

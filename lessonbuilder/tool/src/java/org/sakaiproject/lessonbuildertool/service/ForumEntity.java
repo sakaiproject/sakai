@@ -201,6 +201,10 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	return 1;
     }
 
+    public boolean showAdditionalLink() {
+		return false;
+    }
+
     public boolean isUsable() {
 	return true;
     }

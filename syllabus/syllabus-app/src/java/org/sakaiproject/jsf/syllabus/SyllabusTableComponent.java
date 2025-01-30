@@ -28,7 +28,7 @@ public class SyllabusTableComponent extends HtmlDataTable
 	{
 		super();
 
-		setStyleClass("listHier lines");
+		setStyleClass("table table-striped table-bordered");
 		setCellpadding("0");
 		setCellspacing("0");
 		setSummary("When used in main edit list - message is: First column holds the syllabus item, second and third column hold links to move the item up or down the list, fourth column indicates if the item has been posted, last column has a checkbox, select to remove. When table is being used to display attachments message needs to be: First column holds the attachment name and a link to remove it from the list. Second column holds the size, third, the type, fourth the author, last column the person to edit the attachment last. Both messages need to come from the bundle.");

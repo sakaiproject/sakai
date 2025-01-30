@@ -29,21 +29,28 @@ $(function () {
 
 
     var initDeleteConfirmation = function() {
-      $(".pasystem-delete-btn").on("click", function(event) {
-        event.preventDefault();
-        event.stopPropagation();
 
-        var template = $("#pasystemDeleteConfirmationModalTemplate").html().trim().toString();
-        var trimPathTemplate = TrimPath.parseTemplate(template, "pasystemDeleteConfirmationModalTemplate");
+      document.querySelectorAll(".pasystem-delete-btn").forEach(b => {
 
-        var $modal = $(trimPathTemplate.process({
-                      recordType: $(this).data("record-type"),
-                      deleteURL: $(this).prop("href")
-                     }));
+        b.addEventListener("click", function (event) {
 
-        $(this).closest(".portletBody").append($modal);
+          event.preventDefault();
+          event.stopPropagation();
 
-        $modal.modal();
+          const template = document.getElementById("pasystemDeleteConfirmationModalTemplate")?.innerHTML.trim().toString();
+          const trimPathTemplate = TrimPath.parseTemplate(template, "pasystemDeleteConfirmationModalTemplate");
+
+          const modal = trimPathTemplate.process({
+                        recordType: this.dataset.recordType,
+                        deleteURL: this.href
+                        });
+
+          this.closest(".portletBody").insertAdjacentHTML('beforeend', modal);
+
+          const modalId = document.getElementById("pasystemDeleteConfirmationModal");
+          (new bootstrap.Modal(modalId)).show();
+
+        });
       });
     };
 

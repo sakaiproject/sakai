@@ -48,6 +48,11 @@ public class FakeData {
 	public final static String					USER_B_ID			= "user-b";
 	public final static String					USER_ID_PREFIX		= "user-";
 
+	// SESSIONs
+	public final static String					SESSION_ID_PREFIX		= "session-id-";
+	public final static String					SESSION_A_ID			= SESSION_ID_PREFIX + "a";
+	public final static String					SESSION_B_ID			= SESSION_ID_PREFIX  + "b";
+
 	// TOOLs & EVENTs
 	public final static String					TOOL_CHAT			= "sakai.chat";
 	public final static String					EVENT_CHATNEW		= "chat.new";

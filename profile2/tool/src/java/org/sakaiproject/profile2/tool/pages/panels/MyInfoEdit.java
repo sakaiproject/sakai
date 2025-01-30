@@ -16,6 +16,10 @@
 package org.sakaiproject.profile2.tool.pages.panels;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.AttributeModifier;
@@ -24,8 +28,10 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.attributes.AjaxCallListener;
 import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
+import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.HiddenField;
 import org.apache.wicket.markup.html.form.TextArea;
@@ -36,14 +42,16 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.profile2.logic.ProfileLogic;
-import org.sakaiproject.profile2.logic.ProfileWallLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.tool.components.IconWithToolTip;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
+import org.sakaiproject.util.ResourceLoader;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -55,33 +63,26 @@ public class MyInfoEdit extends Panel {
 	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
 	private SakaiProxy sakaiProxy;
 	
-	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileWallLogic")
-	private ProfileWallLogic wallLogic;
-	
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
 	private ProfileLogic profileLogic;
+
+    @SpringBean(name="org.sakaiproject.component.api.ServerConfigurationService")
+    private ServerConfigurationService serverConfigurationService;
 	
 	public MyInfoEdit(final String id, final UserProfile userProfile) {
 		super(id);
 		
         log.debug("MyInfoEdit()");
-
        
-		//this panel
 		final Component thisPanel = this;
 		
-		//get userId
 		final String userId = userProfile.getUserUuid();
-		
-		
-		//updates back to Account for some fields allowed?
-		//boolean updateAllowed = sakaiProxy.isAccountUpdateAllowed(userId);
 		
 		//heading
 		add(new Label("heading", new ResourceModel("heading.basic.edit")));
 				
 		//setup form		
-		Form form = new Form("form", new Model(userProfile));
+		Form<UserProfile> form = new Form<>("form", new Model<>(userProfile));
 		form.setOutputMarkupId(true);
 		
 		//form submit feedback
@@ -93,7 +94,7 @@ public class MyInfoEdit extends Panel {
 		Label editWarning = new Label("editWarning");
 		editWarning.setVisible(false);
 		if(sakaiProxy.isSuperUserAndProxiedToUser(userId)) {
-			editWarning.setDefaultModel(new StringResourceModel("text.edit.other.warning", null, new Object[]{ userProfile.getDisplayName() } ));
+			editWarning.setDefaultModel(new StringResourceModel("text.edit.other.warning").setParameters(userProfile.getDisplayName()));
 			editWarning.setEscapeModelStrings(false);
 			editWarning.setVisible(true);
 		}
@@ -102,35 +103,54 @@ public class MyInfoEdit extends Panel {
 		//nickname
 		WebMarkupContainer nicknameContainer = new WebMarkupContainer("nicknameContainer");
 		nicknameContainer.add(new Label("nicknameLabel", new ResourceModel("profile.nickname")));
-		TextField nickname = new TextField("nickname", new PropertyModel(userProfile, "nickname"));
+		TextField<String> nickname = new TextField<>("nickname", new PropertyModel<>(userProfile, "nickname"));
 		nickname.setMarkupId("nicknameinput");
 		nickname.setOutputMarkupId(true);
 		nicknameContainer.add(nickname);
 		form.add(nicknameContainer);
-		
-		//birthday
-		WebMarkupContainer birthdayContainer = new WebMarkupContainer("birthdayContainer");
-		birthdayContainer.add(new Label("birthdayLabel", new ResourceModel("profile.birthday")));
-		TextField birthday = new TextField("birthday", new PropertyModel(userProfile, "birthday"));
-		if (userProfile.getDateOfBirth() != null) {
-			String birthdayString = ProfileUtils.convertDateToString(userProfile.getDateOfBirth(), ProfileConstants.DEFAULT_DATE_FORMAT);
-			userProfile.setFormattedBirthday(birthdayString);
-		}
-		HiddenField birthdayAltField = new HiddenField("birthdayAltField", new PropertyModel(userProfile, "formattedBirthday"));
-		birthday.setMarkupId("birthdayinput");
-		birthday.setOutputMarkupId(true);
-		birthdayAltField.setMarkupId("birthdayAltField");
-		birthdayAltField.setOutputMarkupId(true);
-		birthdayContainer.add(birthday);
-		birthdayContainer.add(birthdayAltField);
-		//tooltip
-		birthdayContainer.add(new IconWithToolTip("birthdayToolTip", ProfileConstants.INFO_ICON, new ResourceModel("text.profile.birthyear.tooltip")));
-		form.add(birthdayContainer);
 
+        ResourceLoader messages = new ResourceLoader("ProfileApplication");
+
+		List<String> pronounOptions
+            = Stream.of(messages.getString("profile.pronouns.options").split(",")).map(String::trim)
+                .collect(Collectors.toList());
+
+        pronounOptions.add(messages.getString("profile.pronouns.usemyname"));
+        String enterMyOwn = messages.getString("profile.pronouns.entermyown");
+        pronounOptions.add(enterMyOwn);
+        pronounOptions.add(messages.getString("profile.pronouns.prefernottosay"));
+        String pronounsUnknown = messages.getString("profile.pronouns.unknown");
+        pronounOptions.add(pronounsUnknown);
+        boolean ownEntered = false;
+        if (pronounOptions.contains(userProfile.getPronouns())) {
+            userProfile.setPronounsSelected(userProfile.getPronouns());
+        } else if (StringUtils.isNotBlank(userProfile.getPronouns())) {
+            userProfile.setPronounsInput(userProfile.getPronouns());
+            userProfile.setPronounsSelected(enterMyOwn);
+            ownEntered = true;
+        } else {
+            userProfile.setPronounsSelected(pronounsUnknown);
+        }
+
+        WebMarkupContainer pronounsContainer = new WebMarkupContainer("pronounsContainer");
+        pronounsContainer.add(new Label("pronounsLabel", new ResourceModel("profile.pronouns")));
+        DropDownChoice<String> pronounsSelect = new DropDownChoice<>("pronounsSelect", new PropertyModel<>(userProfile, "pronounsSelected"), pronounOptions);
+        pronounsSelect.setOutputMarkupId(true);
+        pronounsSelect.add(new AttributeAppender("data-entermyown", new Model<String>(enterMyOwn)));
+        pronounsContainer.add(pronounsSelect);
+        TextField<String> pronouns = new TextField<>("pronounsInput", new PropertyModel<>(userProfile, "pronounsInput"));
+        pronouns.setOutputMarkupId(true);
+        if (ownEntered) {
+            pronouns.add(new AttributeAppender("style", new Model<String>("display: inline !important;")));
+        }
+        pronounsContainer.add(pronouns);
+        pronounsContainer.setVisible(serverConfigurationService.getBoolean("profile2.profile.pronouns.enabled", true));
+        form.add(pronounsContainer);
+		
 		//personal summary
 		WebMarkupContainer personalSummaryContainer = new WebMarkupContainer("personalSummaryContainer");
 		personalSummaryContainer.add(new Label("personalSummaryLabel", new ResourceModel("profile.summary")));
-		TextArea personalSummary = new TextArea("personalSummary", new PropertyModel(userProfile, "personalSummary"));
+		TextArea<String> personalSummary = new TextArea<>("personalSummary", new PropertyModel<>(userProfile, "personalSummary"));
 		personalSummary.setMarkupId("summaryinput");
 		//personalSummary.setEditorConfig(CKEditorConfig.createCkConfig());
 		personalSummary.setOutputMarkupId(true);		
@@ -139,7 +159,8 @@ public class MyInfoEdit extends Panel {
 		
 		//submit button
 		AjaxFallbackButton submitButton = new AjaxFallbackButton("submit", form) {
-			protected void onSubmit(AjaxRequestTarget target, Form form) {
+			@Override
+			protected void onSubmit(Optional<AjaxRequestTarget> targetOptional) {
 				//save() form, show message, then load display panel
 
 				if(save(form)) {
@@ -147,28 +168,22 @@ public class MyInfoEdit extends Panel {
 					//post update event
 					sakaiProxy.postEvent(ProfileConstants.EVENT_PROFILE_INFO_UPDATE, "/profile/"+userId, true);
 					
-					//post to wall if enabled
-					if (true == sakaiProxy.isWallEnabledGlobally() && false == sakaiProxy.isSuperUserAndProxiedToUser(userId)) {
-						wallLogic.addNewEventToWall(ProfileConstants.EVENT_PROFILE_INFO_UPDATE, sakaiProxy.getCurrentUserId());
-					}
-					
 					//repaint panel
 					Component newPanel = new MyInfoDisplay(id, userProfile);
 					newPanel.setOutputMarkupId(true);
 					thisPanel.replaceWith(newPanel);
-					if(target != null) {
+					targetOptional.ifPresent(target -> {
 						target.add(newPanel);
 						//resize iframe
 						target.appendJavaScript("setMainFrameHeight(window.name);");
-					}
+					});
 				
 				} else {
-					//String js = "alert('Failed to save information. Contact your system administrator.');";
-					//target.prependJavascript(js);
-					
-					formFeedback.setDefaultModel(new ResourceModel("error.profile.save.info.failed"));
-					formFeedback.add(new AttributeModifier("class", new Model<String>("save-failed-error")));	
-					target.add(formFeedback);
+					targetOptional.ifPresent(target -> {
+						formFeedback.setDefaultModel(new ResourceModel("error.profile.save.info.failed"));
+						formFeedback.add(new AttributeModifier("class", new Model<String>("save-failed-error")));
+						target.add(formFeedback);
+					});
 				}
 				
             }
@@ -187,21 +202,21 @@ public class MyInfoEdit extends Panel {
 		};
 		submitButton.setModel(new ResourceModel("button.save.changes"));
 		form.add(submitButton);
-		
         
 		//cancel button
 		AjaxFallbackButton cancelButton = new AjaxFallbackButton("cancel", new ResourceModel("button.cancel"), form) {
 			private static final long serialVersionUID = 1L;
 
-			protected void onSubmit(AjaxRequestTarget target, Form form) {
+			@Override
+			protected void onSubmit(Optional<AjaxRequestTarget> targetOptional) {
             	Component newPanel = new MyInfoDisplay(id, userProfile);
 				newPanel.setOutputMarkupId(true);
 				thisPanel.replaceWith(newPanel);
-				if(target != null) {
+				targetOptional.ifPresent(target -> {
 					target.add(newPanel);
 					//resize iframe
 					target.appendJavaScript("setMainFrameHeight(window.name);");
-				}
+				});
             	
             }
 			
@@ -209,22 +224,12 @@ public class MyInfoEdit extends Panel {
         cancelButton.setDefaultFormProcessing(false);
         form.add(cancelButton);
 		
-        //feedback stuff - make this a class and instance it with diff params
-        //WebMarkupContainer formFeedback = new WebMarkupContainer("formFeedback");
-		//formFeedback.add(new Label("feedbackMsg", "some message"));
-		//formFeedback.add(new AjaxIndicator("feedbackImg"));
-		//form.add(formFeedback);
-        
-        
-		
 		//add form to page
 		add(form);
-		
 	}
 	
 	//called when the form is to be saved
 	private boolean save(Form form) {
-		
 
 		//get the backing model
 		UserProfile userProfile = (UserProfile) form.getModelObject();
@@ -243,16 +248,15 @@ public class MyInfoEdit extends Panel {
 		String tNickname = ProfileUtils.truncate(userProfile.getNickname(), 255, false);
 		userProfile.setNickname(tNickname); //update form model
 		sakaiPerson.setNickname(tNickname);
-		
-		if(StringUtils.isNotBlank(userProfile.getBirthday())) {
-			Date convertedDate = ProfileUtils.convertStringToDate(userProfile.getFormattedBirthday(), ProfileConstants.DEFAULT_DATE_FORMAT);
-			userProfile.setDateOfBirth(convertedDate); //set in userProfile which backs the profile
-			sakaiPerson.setDateOfBirth(convertedDate); //set into sakaiPerson to be persisted to DB
-		} else {
-			userProfile.setDateOfBirth(null); //clear both fields
-			sakaiPerson.setDateOfBirth(null);
-		}
 
+        String pronounsInput = userProfile.getPronounsInput();
+        if (StringUtils.isNotBlank(pronounsInput)) {
+            sakaiPerson.setPronouns(pronounsInput);
+        } else {
+            sakaiPerson.setPronouns(userProfile.getPronounsSelected());
+        }
+        userProfile.setPronouns(sakaiPerson.getPronouns());
+		
 		//PRFL-467 store as given, and process when it is retrieved.
 		sakaiPerson.setNotes(userProfile.getPersonalSummary());
 		
@@ -272,7 +276,7 @@ public class MyInfoEdit extends Panel {
 			
 			return true;
 		} else {
-			log.info("Couldn't save SakaiPerson for: " + userId);
+            log.info("Couldn't save SakaiPerson for: {}", userId);
 			return false;
 		}
 	}

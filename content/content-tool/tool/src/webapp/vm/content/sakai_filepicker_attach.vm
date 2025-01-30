@@ -20,24 +20,78 @@ includeLatestJQuery('sakai_filepicker_attach.vm');
 
 <script type="text/javascript">
 	<!--
+
+	const ONE_KB = 1024;
+	const MAX_FILE_SIZE = $!maxUploadFileSize * ONE_KB  * ONE_KB;
+
 	function openCopyrightWindow(theURL,winName,winSettings) 
 	{ 
 		window.open(theURL,winName,winSettings);
 		return false;
 	}
-	function submitform(id)
+	    
+	function formatFileSize(bytes) {
+		if(bytes === 0) return '0 Bytes';
+		const K = 1000,
+			sizes = ['Bytes', 'KB', 'MB', 'GB'],
+			i = Math.floor(Math.log(bytes) / Math.log(K));
+		return parseFloat((bytes / Math.pow(K, i)).toFixed(1)) + ' ' + sizes[i];
+	}
+
+
+	function checkUploadFileSize() {
+		const uploadFileSize = document.getElementById('upload').files[0].size;
+		// return true if upload size is within the limit else returns false
+		return (uploadFileSize <= MAX_FILE_SIZE)
+	}
+
+	function submitform(id,needToCheckFileSize = false)  // default to not require file size check
 	{
-		var theForm = document.getElementById(id);
-		if(theForm && theForm.onsubmit)
-		{
-			theForm.onsubmit();
+		const theForm = document.getElementById(id);
+		if (!needToCheckFileSize) { 
+			if(theForm && theForm.onsubmit)
+			{
+				theForm.onsubmit();
+			}
+			if(theForm && theForm.submit)
+			{
+				theForm.submit();
+			}
 		}
-		if(theForm && theForm.submit)
-		{
-			theForm.submit();
+		else {
+			if (checkUploadFileSize()) {
+				showNotif('submitNotification','attachButton','attachForm');
+				if(theForm && theForm.onsubmit)
+				{
+					theForm.onsubmit();
+				}
+				if(theForm && theForm.submit)
+				{
+					theForm.submit();
+				}
+			} else {
+				const uploadFileSize = document.getElementById('upload').files[0].size;
+				const fileSizeString = formatFileSize(uploadFileSize);
+				const uploadFileName = document.getElementById('upload').files[0].name;
+				const errorMessage = `File size of ${uploadFileName} is ${fileSizeString} which exceeds the ${maxUploadFileSize} MB upload size limit.`;
+				const alertMessageEl = document.getElementById('alertMessage');
+				alertMessageEl.innerHTML = errorMessage;
+				alertMessageEl.classList.remove('d-none');
+				alertMessageEl.classList.add('d-inline-block');
+				document.getElementById('upload').value = '';
+
+				// add listeners to dispatch the error banner if different tab becomes selected
+				function removeSizeWarning() {
+					alertMessageEl.classList.remove('d-inline-block');
+					alertMessageEl.classList.add('d-none');
+				}
+
+				document.querySelector('[data-bs-target="#pickerShareLinkOption"]').addEventListener('click', removeSizeWarning);
+				document.querySelector('[data-bs-target="#pickerSelectFormResources"]').addEventListener('click', removeSizeWarning);
+
+			}
 		}
 	}
-	//-->
 </script>
 
 #if($!googledriveOn && $!googledriveUserAccount)
@@ -53,9 +107,7 @@ includeLatestJQuery('sakai_filepicker_attach.vm');
 <script src="/library/js/spinner.js" type="text/javascript"></script>
 
 <div class="portletBody specialLink" id="portletBody">
-	#if ($alertMessage)
-		<div class="alertMessage">$tlang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div><div style="display:block;clear:both" ></div>
-	#end
+	<div id="alertMessage" class="sak-banner-error d-none">$tlang.getString("gen.alert")</div><div class="clearfix"></div>
 	<h3 id="page-title">
 		#if($helper_title)
 			$helper_title
@@ -99,15 +151,6 @@ includeLatestJQuery('sakai_filepicker_attach.vm');
 	}
 	</script>
 
-	<script>
-		document.addEventListener("DOMContentLoaded", function(event){ 
-			$('#resourceTabs a').click(function (e) {
-				e.preventDefault();
-				$(this).tab('show');
-			});
-		});
-	</script>
-
 	<form name="attachForm" id="attachForm" action="#toolForm("FilePickerAction" "Main")" method="post" enctype="multipart/form-data">
 		<input type="hidden" name="source" value="0" />
 		<input type="hidden" name="collectionId" value="$formattedText.escapeHtml($collectionId)" />
@@ -120,7 +163,7 @@ includeLatestJQuery('sakai_filepicker_attach.vm');
 		#if($attached.isEmpty())
 		#else
 		
-		<div class="table-responsive">
+		<div class="table">
 			<table class="table table-striped table-bordered" cellspacing="0" cellpadding="0" summary="$tlang.getString("att.sellistsum")">
 				<caption class="skip" style="display:none">$tlang.getString("att.sellistcap")</caption>
 				<tr>
@@ -134,6 +177,9 @@ includeLatestJQuery('sakai_filepicker_attach.vm');
 				#foreach($att_item in $attached)
 					<tr>
 						<td headers="item">
+								#if($att_item.contentType.startsWith($MIME_TYPE_MICROSOFT))
+									<span class="fa fa-windows" aria-hidden="true"></span>
+								#end
 								<span class="$att_item.iconClass" aria-hidden="true"></span>
 								<span class="sr-only">$!att_item.hoverText</span>
 								<a href="$att_item.accessUrl" target="_blank" title="$tlang.getString('gen.type'): $att_item.hoverText   [$tlang.getString('gen.newwin')]">$formattedText.escapeHtml($att_item.displayName)</a>	
@@ -151,44 +197,44 @@ includeLatestJQuery('sakai_filepicker_attach.vm');
 		#end	
 
 		<ul class="nav nav-tabs" id="resourceTabs">
-			<li class="nav-item #if(!$!navigating_resources && !$!navigating_onedrive  && !$!navigating_googledrive) active #end">
-				<a class="nav-link" href="#pickerUploadOption">$tlang.getString("att.upl")</a>
+			<li class="nav-item">
+				<a class="nav-link #if(!$!navigating_resources && !$!navigating_onedrive  && !$!navigating_googledrive) active #end" data-bs-target="#pickerUploadOption" data-bs-toggle="tab">$tlang.getString("att.upl")</a>
 			</li>
 			<li class="nav-item">
-				<a class="nav-link" href="#pickerShareLinkOption">$tlang.getString("addi.or.url")</a>
+				<a class="nav-link" data-bs-target="#pickerShareLinkOption" data-bs-toggle="tab">$tlang.getString("addi.or.url")</a>
 			</li>
-			<li class="nav-item #if($!navigating_resources) active #end ">
-				<a class="nav-link" href="#pickerSelectFormResources">$tlang.getString("att.resource")</a>
+			<li class="nav-item">
+				<a class="nav-link #if($!navigating_resources) active #end" data-bs-target="#pickerSelectFormResources" data-bs-toggle="tab">$tlang.getString("att.resource")</a>
 			</li>
 			#if($!onedriveOn)
-			<li class="nav-item #if($!navigating_onedrive) active #end ">
-				<a class="nav-link" href="#pickerOneDrive"><span class="fa fa-windows" aria-hidden="true"></span> $tlang.getString("onedrive.integration")</a>
+			<li class="nav-item">
+				<a class="nav-link #if($!navigating_onedrive) active #end" data-bs-target="#pickerOneDrive" data-bs-toggle="tab"><span class="fa fa-windows" aria-hidden="true"></span> $tlang.getString("onedrive.integration")</a>
 			</li>
 			#end
 			#if($!googledriveOn)
-			<li class="nav-item #if($!navigating_googledrive) active #end ">
-				<a class="nav-link" href="#pickerGoogleDrive"><span class="fa fa-google" aria-hidden="true"></span> $tlang.getString("googledrive.integration")</a>
+			<li class="nav-item">
+				<a class="nav-link #if($!navigating_googledrive) active #end" data-bs-target="#pickerGoogleDrive" data-bs-toggle="tab"><span class="fa fa-google" aria-hidden="true"></span> $tlang.getString("googledrive.integration")</a>
 			</li>
 			#end
 		</ul>
 
-		<div class="container_filepicker">
-			<div class="tab-content panel panel-default joinLabel">
-				<div role="tabpanel" class="tab-pane #if(!$!navigating_resources && !$!navigating_onedrive && !$!navigating_googledrive) active #end panel-body" id="pickerUploadOption">
+		<div class="container_filepicker m-3">
+			<div class="tab-content joinLabel">
+				<div role="tabpanel" class="tab-pane #if(!$!navigating_resources && !$!navigating_onedrive && !$!navigating_googledrive) active #end" id="pickerUploadOption">
 					<div class="form-inline">
-						<div class="form-group">
+						<div class="form-group my-4">
 						    <label for="upload">$tlang.getString("att.upl")</label>
-						    <input type="file" name="upload" id="upload" class="upload" onchange="showNotif('submitnotifxxx','attachButton','attachForm'); document.getElementById('attachForm').action='#toolLinkParam("FilePickerAction" "doAttachupload" "special=upload&sakai_csrf_token=$formattedText.escapeUrl($sakai_csrf_token)")';submitform('attachForm');" #if($disable_attach_links) disabled="disabled"#end />
-							<span id="submitnotifxxx" class="messageProgress" style="visibility:hidden">$tlang.getString("processmessage.file")</span>
+							<input type="file" name="upload" id="upload" class="upload" onchange="document.getElementById('attachForm').action='#toolLinkParam("FilePickerAction" "doAttachupload" "special=upload&sakai_csrf_token=$formattedText.escapeUrl($sakai_csrf_token)")';submitform('attachForm',true);" #if($disable_attach_links) disabled="disabled"#end />
+							<span id="submitNotification" class="messageProgress" style="visibility:hidden">$tlang.getString("processmessage.file")</span>
 						</div>
 						<div class="form-group">
-							<span id="submitnotifxxx" class="messageProgress" style="visibility:hidden">$tlang.getString("processmessage.file")</span>
+							<span id="submitNotification" class="messageProgress" style="visibility:hidden">$tlang.getString("processmessage.file")</span>
 						</div>
 					</div>
 				</div>
-				<div role="tabpanel" class="tab-pane panel-body" id="pickerShareLinkOption">
+				<div role="tabpanel" class="tab-pane" id="pickerShareLinkOption">
 					<div class="form-inline">
-						<div class="form-group">
+						<div class="form-group my-4">
 							<label for="url">$tlang.getString("addi.or.url")</label>
 							<input type="text" size="40" name="url" id="url" oninput="document.getElementById('add_url').disabled=false;" onchange="document.getElementById('add_url').disabled=true;document.getElementById('attachForm').action='#toolLinkParam("FilePickerAction" "doAttachurl" "special=upload")';submitform('attachForm');" #if($disable_attach_links) disabled="disabled"#end />
 						</div>
@@ -197,7 +243,7 @@ includeLatestJQuery('sakai_filepicker_attach.vm');
 						</div>
 					</div>
 				</div>
-				<div role="tabpanel" class="tab-pane panel-body #if($!navigating_resources) active #end" id="pickerSelectFormResources">
+				<div role="tabpanel" class="tab-pane #if($!navigating_resources) active #end" id="pickerSelectFormResources">
 					<div class="form-inline">
 					      ###################### Find top level
 							        #set($topItem = "")
@@ -570,7 +616,7 @@ includeLatestJQuery('sakai_filepicker_attach.vm');
 						</div>
 					</div>
 				############################################# Begin OneDrive section
-				<div role="tabpanel" class="tab-pane panel-body #if($!navigating_onedrive) active #end" id="pickerOneDrive">
+				<div role="tabpanel" class="tab-pane #if($!navigating_onedrive) active #end " id="pickerOneDrive">
 					<div class="form-inline">
 					#if($!onedriveOn)
 						#parse("/vm/content/cloudstorage_onedrive_picker.vm")
@@ -579,7 +625,7 @@ includeLatestJQuery('sakai_filepicker_attach.vm');
 				</div>
 				############################################# end of OneDrive section
 				############################################# Begin GoogleDrive section
-				<div role="tabpanel" class="tab-pane panel-body #if($!navigating_googledrive) active #end" id="pickerGoogleDrive">
+				<div role="tabpanel" class="tab-pane #if($!navigating_googledrive) active #end" id="pickerGoogleDrive">
 					<div class="form-inline">
 					#if($!googledriveOn)
 						#parse("/vm/content/cloudstorage_googledrive_picker.vm")
@@ -608,6 +654,8 @@ $(document).ready(function () {
 		$(this).addClass('googlethumbnailsmall');
 		$(this).removeClass('googlethumbnailbig');
 	});
+
+	$('.nav-item.active').find('a').focus();
 });	
 
 if ( $(window).width() > portalSmallBreakPoint() ) { ## Don't go modal when mobile..

@@ -54,7 +54,8 @@ public class PublishRepublishNotificationListener implements ValueChangeListener
 	 * @param ae ValueChangeEvent
 	 * @throws AbortProcessingException
 	 */
-	public void processValueChange(ValueChangeEvent ae)
+	@Override
+    public void processValueChange(ValueChangeEvent ae)
 	throws AbortProcessingException {
 		AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
 		String currentSiteId = "";
@@ -77,7 +78,7 @@ public class PublishRepublishNotificationListener implements ValueChangeListener
 			startDateString = publishedAssessmentSettings.getStartDateInClientTimezoneString();
 		}
 		String newPos = ae.getNewValue().toString();
-		log.debug("**** ae.getNewValue : " + newPos);
+        log.debug("**** ae.getNewValue : {}", newPos);
 
 		if ("2".equals(newPos)) {
 			// set Subject
@@ -98,7 +99,7 @@ public class PublishRepublishNotificationListener implements ValueChangeListener
 			subject.append(title);
 			subject.append("\" ");
 			if (isEditPendingAssessmentFlow) {
-				if (startDateString == null || startDateString.trim().equals("")) {
+				if (startDateString == null || startDateString.trim().isEmpty()) {
 					subject.append(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "is_available_immediately"));
 				}
 				else {

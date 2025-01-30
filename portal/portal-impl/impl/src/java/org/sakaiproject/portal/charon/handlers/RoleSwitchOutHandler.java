@@ -18,12 +18,12 @@ package org.sakaiproject.portal.charon.handlers;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.PortalHandlerException;
@@ -36,7 +36,6 @@ import lombok.extern.slf4j.Slf4j;
 public class RoleSwitchOutHandler extends BasePortalHandler
 {
 	private static final String URL_FRAGMENT = "role-switch-out";
-	public static final String EVENT_ROLESWAP_EXIT = "roleswap.exit";
 
 	final EventTrackingService eventTrackingService;
 	final SecurityService securityService;
@@ -79,7 +78,7 @@ public class RoleSwitchOutHandler extends BasePortalHandler
 
 			try
 			{
-				String logoutUrl = ServerConfigurationService.getPortalUrl() + "/logout";
+				String roleExitUrl = ServerConfigurationService.getPortalUrl() + "/site/" + parts[2] + "/tool/" + parts[4] + "/";
 
 				activeSite.getPages().stream() // get all pages in site
 						.map(page -> page.getTools()) // tools for each page
@@ -90,9 +89,10 @@ public class RoleSwitchOutHandler extends BasePortalHandler
 				portalService.setResetState("true"); // flag the portal to reset
 				
 				// Post an event
-				eventTrackingService.post(eventTrackingService.newEvent(EVENT_ROLESWAP_EXIT, null, parts[2], false, NotificationService.NOTI_NONE));
+				eventTrackingService.post(eventTrackingService
+						.newEvent(UsageSessionService.EVENT_ROLEVIEW_EXIT, null, parts[2], false, NotificationService.NOTI_NONE));
 
-				res.sendRedirect(logoutUrl);
+				res.sendRedirect(roleExitUrl);
 				return RESET_DONE;
 			}
 			catch (Exception ex)

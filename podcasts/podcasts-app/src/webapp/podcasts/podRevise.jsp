@@ -9,7 +9,7 @@
 
 <f:view>
     <link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
-    <link href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
+    <link href="/library/skin/default-skin/tool.css" type="text/css" rel="stylesheet" media="all" />
 
   <sakai:view toolCssHref="./css/podcaster.css">
       <script>includeLatestJQuery("podRevise");</script>

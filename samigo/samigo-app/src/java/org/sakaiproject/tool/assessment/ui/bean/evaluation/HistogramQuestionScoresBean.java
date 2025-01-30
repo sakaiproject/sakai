@@ -25,14 +25,26 @@ import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+
+import org.sakaiproject.samigo.util.SamigoConstants;
+import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
+import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
+import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
+import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
+import org.sakaiproject.util.ResourceLoader;
 
 /* For evaluation: Histogram Question Scores backing bean. */
 @Slf4j
@@ -42,9 +54,14 @@ public class HistogramQuestionScoresBean implements Serializable {
   private String assessmentName;
   private String title;
 
+  private static final ResourceLoader evaluationMessages = new ResourceLoader(SamigoConstants.EVAL_BUNDLE);
+
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = -584855389374044609L;
   private String assessmentId;
+  private String publishedId;
+  private Long itemDataId;
+  private Collection agents;
   private String agent;
   private String groupName;
   private String maxScore; // heighest score
@@ -91,6 +108,12 @@ public class HistogramQuestionScoresBean implements Serializable {
   
   private String objectives;
   private String keywords;
+  @Getter @Setter
+  private Integer difficulty;
+  @Getter @Setter
+  private Long numberOfStudentsWithCorrectAnswers;
+  @Getter @Setter
+  private Long numberOfStudentsWithIncorrectAnswers;
 
   /**
    * Creates a new HistogramQuestionScoresBean object.
@@ -157,6 +180,54 @@ public class HistogramQuestionScoresBean implements Serializable {
   public void setTitle(String ptitle)
   {
     title = ptitle;
+  }
+
+  /**
+   * get the published id
+   *
+   * @return the id
+   */
+  public String getPublishedId()
+  {
+    return Validator.check(publishedId, "0");
+  }
+
+  /**
+   * set the publishedId id
+   *
+   * @param publishedId the id
+   */
+  public void setPublishedId(String publishedId)
+  {
+    this.publishedId = publishedId;
+  }
+  
+  /**
+   * get the agents id
+   *
+   * @return the id
+   */
+  public Collection getAgents()
+  {
+    return agents;
+  }
+
+  /**
+   * set the agents id
+   *
+   * @param agents the id
+   */
+  public void setAgents(Collection agents)
+  {
+    this.agents = agents;
+  }
+
+  public Long getItemDataId() {
+	  return itemDataId;
+  }
+
+  public void setItemDataId(Long itemDataId) {
+	  this.itemDataId = itemDataId;
   }
 
   /**
@@ -1155,4 +1226,83 @@ public class HistogramQuestionScoresBean implements Serializable {
   public void setKeywords(String keywords) {
       this.keywords = keywords;
   }
+
+  /**
+   * Get the Time stats as array based on bean.getAllSubmissions() getter:
+   *  - 1 for only best submissions (highest puntuation)
+   *  - 3 for all submissions type
+   * 
+   * @return timeStringArray (minimum time, average time and maximum time)
+   */
+  public ArrayList getTimeStatsArray() {
+    GradingService gradingService = new GradingService();
+    HistogramScoresBean bean = (HistogramScoresBean) ContextUtil.lookupBean("histogramScores");
+    ArrayList<Integer> timeStatsArray = new ArrayList<>(Collections.nCopies(4, 0));
+
+    if (bean.getAllSubmissions().equals("3")) {
+      List allSubmissionsList = gradingService.getAllSubmissions(this.getPublishedId());
+      for (Object submission : allSubmissionsList) {
+        AssessmentGradingData assessmentGradingAux = (AssessmentGradingData) submission;
+        timeStatsArray = this.getTimeStatsInSeconds(assessmentGradingAux.getItemGradingSet().toArray(new ItemGradingData[assessmentGradingAux.getItemGradingSet().size()]), timeStatsArray);
+      }
+    } else {
+      for (Object object : this.getAgents()) {
+        AgentResults agentResults = (AgentResults) object;
+        if (agentResults.getAssessmentGradingId() != -1) {
+          AssessmentGradingData assessmentGradingAux = gradingService.load(agentResults.getAssessmentGradingId().toString());
+          timeStatsArray = this.getTimeStatsInSeconds(assessmentGradingAux.getItemGradingSet().toArray(new ItemGradingData[assessmentGradingAux.getItemGradingSet().size()]), timeStatsArray);
+        }
+      }
+    }
+    if (timeStatsArray.get(0) > 0) {
+      timeStatsArray.set(0, timeStatsArray.get(0) / timeStatsArray.get(3));
+    }
+
+    ArrayList timeStringArray = new ArrayList<>();
+    timeStringArray.add(new String[]{evaluationMessages.getString("time_min") + ":", TimeUtil.getFormattedTime(timeStatsArray.get(1))});
+    timeStringArray.add(new String[]{evaluationMessages.getString("time_avg") + ":", TimeUtil.getFormattedTime(timeStatsArray.get(0))});
+    timeStringArray.add(new String[]{evaluationMessages.getString("time_max") + ":", TimeUtil.getFormattedTime(timeStatsArray.get(2))});
+    return timeStringArray;
+  }
+
+  /**
+   * Return the time Stats In Seconds:
+   *  - 0: for the average time (or the sum of all times in seconds)
+   *  - 1: for the minimum time
+   *  - 2: for the maximum time
+   *  - 3: for the counter (to get the average time)
+   * 
+   * @param itemGradingDataArray - ItemGradingData[]
+   * @param timeStatsArray - ArrayList<Integer>
+   * @return statsArray - ArrayList<Integer>
+   */
+  public ArrayList getTimeStatsInSeconds(ItemGradingData[] itemGradingDataArray, ArrayList<Integer> timeStatsArray) {
+    ArrayList<Integer> statsArray = timeStatsArray;
+    boolean firstTimeInside = timeStatsArray.get(0) == 0;
+
+    for (ItemGradingData itemGrading : itemGradingDataArray) {
+      if (Long.compare(this.getItemDataId(), itemGrading.getPublishedItemId()) == 0) {
+        int timeElapsedInSeconds;
+        try {
+          timeElapsedInSeconds = ((int) itemGrading.getSubmittedDate().getTime()) / 1000 - ((int) itemGrading.getAttemptDate().getTime()) / 1000;
+        } catch (Exception ex) {
+          log.error("Cannot resolve the submittedDate or the attemptDate, so it's a unanswered question, setting time as 0");
+          timeElapsedInSeconds = 0;
+        }
+        statsArray.set(0, statsArray.get(0) + timeElapsedInSeconds);
+        if (timeElapsedInSeconds > 0) {
+          if (firstTimeInside || timeElapsedInSeconds < statsArray.get(1)) {
+            statsArray.set(1, timeElapsedInSeconds);
+            firstTimeInside = false;
+          } 
+          if (timeElapsedInSeconds > statsArray.get(2)) {
+            statsArray.set(2, timeElapsedInSeconds);
+          }
+          statsArray.set(3, statsArray.get(3) + 1);
+        }
+      }
+    }
+    return statsArray;
+  }
+
 }

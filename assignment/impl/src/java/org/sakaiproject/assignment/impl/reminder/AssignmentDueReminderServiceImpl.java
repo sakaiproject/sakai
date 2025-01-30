@@ -188,8 +188,8 @@ public class AssignmentDueReminderServiceImpl implements AssignmentDueReminderSe
             assignmentTitle = assignment.getTitle().substring(0, 11) + "[...]";
         }
 
-        replacements.put("assignmentUrl", getAssignmentUrl(assignment));
-        replacements.put("assignmentTitle", assignmentTitle);
+        replacements.put("url", getAssignmentUrl(assignment));
+        replacements.put("title", assignmentTitle);
 
         replacements.put("siteUrl", site.getUrl());
         replacements.put("siteTitle", site.getTitle());

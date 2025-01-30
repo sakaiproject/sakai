@@ -1,7 +1,5 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/prefs/chef_membership.vm,v 1.10 2005/05/28 03:04:36 ggolden.umich.edu Exp $ -->
 
-<div id="dialog">
-</div>
 <script type="text/javascript">
 	$(document).ready(function(){
 		sakai.getSiteInfo('getSiteDesc','dialog','$tlang.getString("mb.nosd")','$tlang.getString("mb.nold")');
@@ -50,8 +48,8 @@
 		</div>
 
 		<form action="#toolForm("$action")" method="post" name="currentSitesForm" id="currentSitesForm">
-			<div class="table-responsive">
-				<table class="table table-responsive table-bordered table-striped table-hover" summary="$tlang.getString('joinable.list.summary')" id="currentSites">
+			<div class="table">
+				<table class="table table table-bordered table-striped table-hover" summary="$tlang.getString('joinable.list.summary')" id="currentSites">
 					<thead>
 						<tr>
 							#if ($checkboxCount > 0)
@@ -96,6 +94,7 @@
 									#if ($formattedText.escapeHtml($site.Description) != '')
 										$!membershipTextEdit.doPlainTextAndLimit($site.Description,65,"...")
 										<span class="itemAction"><a class="getSiteDesc" id="$site.Id" href="#">$tlang.getString("list.desc.more")</a></span>
+										<div id="dialog_$site.Id"></div>
 									#end
 								</td>
 							</tr>

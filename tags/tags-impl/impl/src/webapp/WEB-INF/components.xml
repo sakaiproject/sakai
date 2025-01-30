@@ -1,7 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+                           http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:component-scan base-package="org.sakaiproject.tags"/>
+    <tx:annotation-driven transaction-manager="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
 
     <bean id="org.sakaiproject.tags.api.TagService"
           class="org.sakaiproject.tags.impl.TagServiceImpl"
@@ -9,6 +18,7 @@
           destroy-method="destroy">
         <property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
         <property name="functionManager"><ref bean="org.sakaiproject.authz.api.FunctionManager"/></property>
+        <property name="tagAssociationRepository"><ref bean="org.sakaiproject.tags.api.TagAssociationRepository"/></property>
         <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
         <property name="tagCollections"><ref bean="org.sakaiproject.tags.api.TagCollections"/></property>
         <property name="tags"><ref bean="org.sakaiproject.tags.api.Tags"/></property>
@@ -40,6 +50,21 @@
 
     <bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
           class="org.sakaiproject.tags.impl.rest.TagServiceAdminEntityProvider">
+    </bean>
+
+    <!--  Hibernate persistence -->
+    <bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappings.tagservice"
+          class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+        <property name="annotatedClasses">
+            <list>
+                <value>org.sakaiproject.tags.api.TagAssociation</value>
+            </list>
+        </property>
+    </bean>
+	
+    <bean id="org.sakaiproject.tags.api.TagAssociationRepository"
+          class="org.sakaiproject.tags.impl.TagAssociationRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
     </bean>
 
     <!--  Import Tags Job  -->

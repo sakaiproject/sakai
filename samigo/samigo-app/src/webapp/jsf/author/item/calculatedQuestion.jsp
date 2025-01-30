@@ -46,9 +46,29 @@ confirmation dialog
 	<!-- AUTHORING -->
 	<script src="/samigo-app/js/authoring.js"></script>
 	<script>
-	$(document).ready(function() {
-		initCalcQuestion();
-	});
+		const addGlobalVariable = () => {
+			const globalVariable = prompt("<h:outputText value="#{authorMessages.calc_question_enter_global_variable}" escape="false"/>");
+			if (globalVariable) {
+				document.getElementById('globalvariablename').value = globalVariable;
+			}
+		}
+
+		document.addEventListener('DOMContentLoaded', () => {
+			initCalcQuestion();
+			const deleteLinks = document.querySelectorAll('a.sam-deleteglobalvariable');
+			[].forEach.call(deleteLinks, (link) => {
+				link.existingOnclick = link.onclick;
+				link.onclick = null;
+				link.addEventListener('click', (evt) => {
+					evt.preventDefault();
+					const shouldEvt = confirm("<h:outputText value="#{authorMessages.calc_question_delete_global_variable_confirm}" escape="false"/>");
+					if ( shouldEvt && evt.currentTarget.existingOnclick ) {
+						evt.currentTarget.existingOnclick();
+						evt.stopPropagation();
+					}
+				 })
+			});
+		}, false);
 	</script>
 
 </head>
@@ -105,8 +125,8 @@ confirmation dialog
 	</div>
 
 	<!-- 1 POINTS -->
-	<div class="form-group row">
-		<h:outputLabel for="answerptr" value="#{authorMessages.answer_point_value}" styleClass="col-md-4 form-control-label"/>
+	<div class="mb-3 row">
+		<h:outputLabel for="answerptr" value="#{authorMessages.answer_point_value}" styleClass="col-md-2 form-label"/>
 		<div class="col-md-2">
 			<h:inputText id="answerptr" label="#{authorMessages.pt}" value="#{itemauthor.currentItem.itemScore}" 
 							required="true" disabled="#{author.isEditPoolFlow}" styleClass="form-control">
@@ -116,8 +136,8 @@ confirmation dialog
 	  	</div>
 	</div>
 
-	<div class="form-group row">
-		<h:outputLabel for="itemScore" value="#{authorMessages.answer_point_value_display}" styleClass="col-md-4 form-control-label"/>
+	<div class="mb-3 row">
+		<h:outputLabel for="itemScore" value="#{authorMessages.answer_point_value_display}" styleClass="col-md-2 form-label"/>
 		<div class="col-md-5 samigo-inline-radio">
 			<h:selectOneRadio value="#{itemauthor.currentItem.itemScoreDisplayFlag}" id="itemScore">
 				<f:selectItem itemValue="true" itemLabel="#{authorMessages.yes}" />
@@ -130,101 +150,122 @@ confirmation dialog
 	<%@ include file="/jsf/author/inc/extraCreditSetting.jspf" %>
 
     <%-- 2 QUESTION TEXT --%>
-    <div class="longtext"> <h:outputLabel for="questionItemText_textinput" value="#{authorMessages.q_text}" />
-    <br/></div>
-	<div class="tier2">
-	  	<p><h:outputText value="#{authorMessages.calc_question_general_instructions1 }" /></p>
-	  	<label><h:outputText value="#{authorMessages.calc_question_instructions_label}"/></label>
-		<ol>
-			<li><h:outputText value="#{authorMessages.calc_question_simple_instructions_step_4}" /></li>
-			<li><h:outputText value="#{authorMessages.calc_question_simple_instructions_step_1}" /></li>
-			<ul>
-				<li><h:outputText value="#{authorMessages.calc_question_simple_instructions_step_1a}" /></li>
-			</ul>
-			<li><h:outputText value="#{authorMessages.calc_question_simple_instructions_step_2}" /></li>
-			<ul>
-				<li><h:outputText value="#{authorMessages.calc_question_simple_instructions_step_2a}" /></li>
-				<li><h:outputText value="#{authorMessages.calc_question_simple_instructions_step_2b}" /></li>
-			</ul>
-			<li><h:outputText value="#{authorMessages.calc_question_simple_instructions_step_3}" /></li>
-			<ol type="a">
-				<li><h:outputText value="#{authorMessages.calc_question_simple_instructions_step_3a}" /></li>
-				<li><h:outputText value="#{authorMessages.calc_question_simple_instructions_step_3b}" /></li>
-			</ol>
-		</ol>
-		<div class="mathjax-warning" style="display: none;">
-			<h:outputText value="#{authorMessages.accepted_characters}" escape="false"/>
-			<div class="sak-banner-warn">
-				<h:outputText value="#{authorMessages.mathjax_usage_warning}" escape="false"/>
-			</div>
+	<div>
+
+		<h3><h:outputText value="#{authorMessages.calc_question_general_instructsion_label}" /></h3>
+		<p><h:outputText value="#{authorMessages.calc_question_general_instructions1}" /></p>
+		<p><h:outputText value="#{authorMessages.calc_question_general_instructions2}" /></p>
+
+		<div class="card mb-3 px-3">
+			<h6><h:outputText value="#{authorMessages.calc_question_example_label1}" /></h6>
+			<p class="tier2"><h:outputText value="#{authorMessages.calc_question_example1}" /></p>
+			<p><i><h:outputText value="#{authorMessages.calc_question_example1_formula}" /></i></p>
+			<p><h:outputText value="#{authorMessages.calc_question_example1_student}" /></p>
 		</div>
-		<label><h:outputText value="#{authorMessages.calc_question_example_label}"/></label>
-		<p class="tier2"><h:outputText value="#{authorMessages.calc_question_example1}"/></p>
-		<p class="tier2"><h:outputText value="#{authorMessages.calc_question_example1_formula}"/></p>
+
+		<div class="card mb-3 px-3">
+			<h6><h:outputText value="#{authorMessages.calc_question_example_label2}" /></h6>
+			<p class="tier2"><h:outputText value="#{authorMessages.calc_question_example2}" /></p>
+			<p><i><h:outputText value="#{authorMessages.calc_question_example2_formula}" /></i></p>
+		</div>
+		
+		<hr>
+
+		<h3><h:outputText value="#{authorMessages.calc_question_instructions_label}" /></h3>
+		<p><h:outputText value="#{authorMessages.calc_question_walkthrough_label}" /></p>
+		<ol>
+			<li><h:outputText value="#{authorMessages.calc_question_walkthrough1}" /></li>
+			<li><h:outputText value="#{authorMessages.calc_question_walkthrough2}" /></li>
+			<li><h:outputText value="#{authorMessages.calc_question_walkthrough3}" /></li>
+			<li><h:outputText value="#{authorMessages.calc_question_walkthrough4}" /></li>
+			<li><h:outputText value="#{authorMessages.calc_question_walkthrough5}" /></li>
+			<li><h:outputText value="#{authorMessages.calc_question_walkthrough6}" /></li>
+		</ol>
+
+		<hr>
+
+		<h3><h:outputText value="#{authorMessages.calc_question_syntax_label}" /></h3>
+		<table class="table">
+			<thead>
+				<tr>
+					<th><h:outputText value="#{authorMessages.calc_question_syntax_function}" /></th>
+					<th><h:outputText value="#{authorMessages.calc_question_syntax_syntax}" /></th>
+					<th><h:outputText value="#{authorMessages.calc_question_syntax_description}" /></th>
+					<th><h:outputText value="#{authorMessages.calc_question_syntax_exameple}" /></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td><h:outputText value="#{authorMessages.calc_question_syntax_variable1}" /></td>
+					<td><h:outputText value="#{authorMessages.calc_question_syntax_variable2}" /></td>
+					<td><h:outputText value="#{authorMessages.calc_question_syntax_variable3}" /></td>
+					<td><h:outputText value="#{authorMessages.calc_question_syntax_variable4}" /></td>
+				</tr>
+				<tr>
+					<td><h:outputText value="#{authorMessages.calc_question_syntax_calculation1}" /></td>
+					<td><h:outputText value="#{authorMessages.calc_question_syntax_calculation2}" /></td>
+					<td><h:outputText value="#{authorMessages.calc_question_syntax_calculation3}" /></td>
+					<td>
+						<h:outputText value="#{authorMessages.calc_question_syntax_calculation4}" /><br />
+						<i><h:outputText value="#{authorMessages.calc_question_syntax_calculation5}" /></i>
+					</td>
+				</tr>
+				<tr>
+					<td><h:outputText value="#{authorMessages.calc_question_syntax_formula1}" /></td>
+					<td><h:outputText value="#{authorMessages.calc_question_syntax_formula2}" /></td>
+					<td><h:outputText value="#{authorMessages.calc_question_syntax_formula3}" /></td>
+					<td>
+						<h:outputText value="#{authorMessages.calc_question_example1}" /><br />
+						<i><h:outputText value="#{authorMessages.calc_question_example1_formula}" /></i>
+					</td>
+				</tr>
+				<tr>
+					<td><h:outputText value="#{authorMessages.calc_question_syntax_global1}" /></td>
+					<td><h:outputText value="#{authorMessages.calc_question_syntax_global2}" /></td>
+					<td><h:outputText value="#{authorMessages.calc_question_syntax_global3}" /></td>
+					<td><h:outputText value="#{authorMessages.calc_question_syntax_global4}" /></td>
+				</tr>
+			</tbody>
+		</table>
+
+		<h3><h:outputText value="#{authorMessages.calc_question_definition_label}" /></h3>
+		<p><h:outputText value="#{authorMessages.calc_question_definition1}" /></p>
+		<p><h:outputText value="#{authorMessages.calc_question_definition2}" /></p>
+		<p><h:outputText value="#{authorMessages.calc_question_definition3}" /></p>
+
+		<hr>
+
+		<h3><h:outputText value="#{authorMessages.calc_question_additional_label}" /></h3>
+		<ol>
+			<li><h:outputText value="#{authorMessages.calc_question_answer_variance}" /></li>
+			<li><h:outputText value="#{authorMessages.calc_question_answer_decimal}" /></li>
+			<li><h:outputFormat value="#{authorMessages.calc_question_simple_instructions_step_5}" escape="false" /></li>
+			<li><h:outputText value="#{authorMessages.calc_question_operators}" /></li>
+			<li><h:outputText value="#{authorMessages.calc_question_functions}" /></li>
+		</ol>
 
 		<div id="calcQShowHide" class="collapsed">
-		<h:outputLink onclick="$('#calcQInstructions').toggle();toggleCollapse(document.getElementById('calcQShowHide'));" value="#">
-			<h:outputText value="#{authorMessages.calc_question_hideshow}"/> 
-		</h:outputLink>
+			<h:outputLink onclick="$('#calcQInstructions').toggle();toggleCollapse(document.getElementById('calcQShowHide'));" value="#">
+				<h:outputText value="#{authorMessages.calc_question_hideshow}"/> 
+			</h:outputLink>
 		</div>
-		<div id="calcQInstructions" style='display:none;'>
-			<div class="longtext"><h:outputLabel value="#{authorMessages.calc_question_general_instructsion_label}" /></div>
-			<div class="tier2">
-				<h:outputText value="#{authorMessages.calc_question_general_instructions1 }" /><br/>
-				<h:outputText value="#{authorMessages.calc_question_general_instructions2 }" /><br/>
-				<h:outputText value="#{authorMessages.calc_question_general_instructions3 }" />
-			</div>
-			<div class="longtext"><h:outputLabel value="#{authorMessages.calc_question_walkthrough_label}" /></div>
-			<div class="tier2">
-				<ol>
-					<li><h:outputText value="#{authorMessages.calc_question_walkthrough1 }" /></li>
-					<li><h:outputText value="#{authorMessages.calc_question_walkthrough2 }" /></li>
-					<li><h:outputText value="#{authorMessages.calc_question_walkthrough3 }" /></li>
-					<li><h:outputText value="#{authorMessages.calc_question_walkthrough4 }" /></li>
-					<li><h:outputText value="#{authorMessages.calc_question_walkthrough5 }" /></li>
-					<li><h:outputText value="#{authorMessages.calc_question_walkthrough6 }" /></li>
-				</ol>
-			</div>
-			<div class="longtext"><h:outputLabel value="#{authorMessages.calc_question_var_label}" /></div>
-			<div class="tier2">
-				<h:outputText value="#{authorMessages.calc_question_define_vars}" />
-			</div>
-			<div class="longtext"><h:outputLabel value="#{authorMessages.calc_question_formula_label}" /></div>
-			<div class="tier2">
-				<h:outputText value="#{authorMessages.calc_question_answer_expression}" />
-			</div>
-			<div class="longtext"><h:outputLabel value="#{authorMessages.calc_question_example_label}" /></div>
-			<p class="tier2"><h:outputText value="#{authorMessages.calc_question_example2}" /></p>
-			<p class="tier2"><h:outputText value="#{authorMessages.calc_question_example2_formula}" /></p>
-
-			<div class="longtext"><h:outputLabel value="#{authorMessages.calc_question_calculation_label}" /></div>
-			<div class="tier2">
-				<h:outputText value="#{authorMessages.calc_question_define_calculations}" />
-			</div>			
-			<div class="longtext"><h:outputLabel value="#{authorMessages.calc_question_example_label}" /></div>
-			<div class="tier2">
-				<h:outputText value="#{authorMessages.calc_question_example3}" />
-			</div>
-
-			<div class="longtext"><h:outputLabel value="#{authorMessages.calc_question_additional_label}" /></div>
-			<div class="tier2">
-				<ul>
-					<li><h:outputText value="#{authorMessages.calc_question_answer_variance}" /></li>
-					<li><h:outputText value="#{authorMessages.calc_question_answer_decimal}" /></li>
-					<li><h:outputText value="#{authorMessages.calc_question_scientific_notation}" /></li>
-					<li><h:outputText value="#{authorMessages.calc_question_operators}" /></li>
-					<li><h:outputText value="#{authorMessages.calc_question_functions}" /></li>
-					<li><h:outputText value="#{authorMessages.calc_question_constants}" /></li>
-					<li><h:outputText value="#{authorMessages.calc_question_var_names}"/></li>
-					<li><h:outputText value="#{authorMessages.calc_question_unique_names}"/></li>
-				</ul>
-			</div>
+		<div id="calcQInstructions" class="pt-3" style='display:none;'>
+			<ol start="6">
+				<li><h:outputText value="#{authorMessages.calc_question_simple_instructions_step_4}" /></li>
+				<li><h:outputText value="#{authorMessages.calc_question_scientific_notation}" /></li>
+				<li><h:outputText value="#{authorMessages.calc_question_constants}" /></li>
+				<li><h:outputText value="#{authorMessages.calc_question_var_names}" /></li>
+				<li><h:outputText value="#{authorMessages.calc_question_unique_names}" /></li>
+			</ol>
 		</div>
 	  
 	  	<br/>
 	  
 	  <!-- WYSIWYG -->
 	  	<h:panelGrid>
+			<div class="longtext"> 
+				<h:outputLabel for="questionItemText_textinput" value="#{authorMessages.q_text}" />
+			</div>
 	   		<samigo:wysiwyg identity="questionItemText" rows="140" value="#{itemauthor.currentItem.instruction}" hasToggle="yes" mode="author">
 	     		<f:validateLength maximum="60000"/>
 	   		</samigo:wysiwyg>
@@ -296,6 +337,65 @@ confirmation dialog
 		<h:outputLabel value="<p>#{authorMessages.no_variables_defined}</p>" escape="false"
 				rendered="#{itemauthor.currentItem.calculatedQuestion.variablesList eq '[]'}"/>
 	</div>
+
+	<!-- display global variables -->
+	<div class="longtext">
+		<h:outputLabel value="#{authorMessages.calc_question_globalvar_label} " />
+	</div>
+	<div class="tier2 globalvariable">
+		<h:dataTable cellpadding="0" cellspacing="0" styleClass="listHier" columnClasses="first,name,formula" id="globalvariables" 
+				value="#{itemauthor.currentItem.calculatedQuestion.globalVariablesList}" var="globalvariable">
+	      <h:column>
+	        	<f:facet name="header">
+		    		<h:outputText value=""  />
+	    	    </f:facet>
+	          <h:outputText value="" />
+	      </h:column>
+
+	      <h:column>
+	        	<f:facet name="header">
+	          		<h:outputText value="#{authorMessages.calc_question_globalvarname_col}"  />
+	        	</f:facet>
+	          	<h:outputText escape="false" value="#{globalvariable.name}" rendered="#{globalvariable.active }" />
+	          	<h:outputText escape="false" value="#{globalvariable.name}" rendered="#{!globalvariable.active }" styleClass="disabledField" />
+	      </h:column>
+	
+	      <h:column>
+	        	<f:facet name="header">
+	          		<h:outputText value="#{authorMessages.calc_question_formula_col}"  />
+	        	</f:facet>
+	        	<h:inputTextarea value="#{globalvariable.text}"
+	        			cols="40" rows="3" 
+	        			disabled="#{!globalvariable.active}" 
+	        			styleClass="#{(!globalvariable.validFormula ? 'validationError' : '')} changeWatch"/>
+	      </h:column>
+
+	      <h:column>
+	        	<f:facet name="header">
+		    		<h:outputText value="#{authorMessages.calc_question_globalvardelete_col}" />
+	    	    </f:facet>
+	        	<h:commandLink styleClass="sam-deleteglobalvariable" title="#{authorMessages.calc_question_delete_global_variable_link}" action="calculatedQuestion" immediate="true" rendered="true" >
+		        	<h:panelGroup rendered="#{globalvariable.addedButNotExtracted}">
+		        		<span class="fa fa-trash" aria-hidden="true"></span>
+		        		<span class="sr-only"><h:outputText value="#{authorMessages.calc_question_delete_global_variable_link}" /></span>
+		        	</h:panelGroup>
+		        	<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.CalculatedQuestionDeleteGlobalVariableListener" />
+		        	<f:param name="globalvariabledelete" value="#{globalvariable.name}" />
+	        	</h:commandLink>
+	      </h:column>
+		<h:outputLabel value="<p>#{authorMessages.no_global_variables_defined}</p>" escape="false"
+				rendered="#{itemauthor.currentItem.calculatedQuestion.globalVariablesList eq '[]'}"/>
+	    </h:dataTable>
+	</div>
+
+	<h:commandButton rendered="#{itemauthor.target=='assessment' || itemauthor.target=='questionpool'}" 
+  			value="#{authorMessages.calc_question_add_global_variable_button}" 
+  			onclick="addGlobalVariable();"
+  			styleClass="active">
+  		<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.CalculatedQuestionAddGlobalVariableListener" />
+	</h:commandButton>
+	<input id="globalvariablename" type="hidden" name="globalvariablename" />
+	<br /><br />
 
 	<!-- display formulas -->
 	<div class="longtext">
@@ -405,11 +505,15 @@ confirmation dialog
 
 	<br/>
 	<br/>
+
+    <!-- 5a TIMED -->
+    <%@ include file="/jsf/author/item/timed.jsp" %>
+
     <!-- 6 PART -->
-	<h:panelGroup styleClass="form-group row" layout="block"
+	<h:panelGroup styleClass="mb-3 row" layout="block"
 					rendered="#{itemauthor.target == 'assessment' && !author.isEditPoolFlow}">		
-		<h:outputLabel for="assignToPart" value="#{authorMessages.assign_to_p}" styleClass="col-md-4 form-control-label"/>
-		<div class="col-md-8">
+		<h:outputLabel for="assignToPart" value="#{authorMessages.assign_to_p}" styleClass="col-md-2 form-label"/>
+		<div class="col-md-10">
 	  		<h:selectOneMenu id="assignToPart" value="#{itemauthor.currentItem.selectedSection}">
 	    		<f:selectItems  value="#{itemauthor.sectionSelectList}" />
 	  		</h:selectOneMenu>
@@ -417,10 +521,10 @@ confirmation dialog
 	</h:panelGroup>
 
     <!-- 7 POOL -->
-	<h:panelGroup styleClass="form-group row" layout="block"
+	<h:panelGroup styleClass="mb-3 row" layout="block"
 			rendered="#{itemauthor.target == 'assessment' && author.isEditPendingAssessmentFlow}">
-		<h:outputLabel for="assignToPool" value="#{authorMessages.assign_to_question_p}" styleClass="col-md-4 form-control-label"/>
-		<div class="col-md-8">
+		<h:outputLabel for="assignToPool" value="#{authorMessages.assign_to_question_p}" styleClass="col-md-2 form-label"/>
+		<div class="col-md-10">
 	  		<h:selectOneMenu id="assignToPool" value="#{itemauthor.currentItem.selectedPool}">
 	    		<f:selectItem itemValue="" itemLabel="#{authorMessages.select_a_pool_name}" />
 	     		<f:selectItems value="#{itemauthor.poolSelectList}" />
@@ -430,13 +534,15 @@ confirmation dialog
 
 	<!-- 8 FEEDBACK -->
 	<h:panelGroup rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'))}">
-		<div class="form-group row">
-			<h:outputLabel value="#{authorMessages.correct_incorrect_an}" styleClass="col-md-12 form-control-label"/>
+		<div class="mb-3 row">
+			<h2>
+				<h:outputText value="#{authorMessages.correct_incorrect_an}" styleClass="col-md-12 form-label"/>
+			</h2>
 		</div>
-		<div class="form-group row">
-			<h:outputLabel for="questionFeedbackCorrect_textinput" value="#{authorMessages.correct_answer_opti}" styleClass="col-md-4 form-control-label"/>
+		<div class="mb-3 row">
+			<h:outputLabel for="questionFeedbackCorrect_textinput" value="#{authorMessages.correct_answer_opti}" styleClass="form-label"/>
 			<!-- WYSIWYG -->
-			<div class="col-md-8">
+			<div class="col-md-10">
 				<h:panelGrid>
 					<samigo:wysiwyg identity="questionFeedbackCorrect" rows="140" value="#{itemauthor.currentItem.corrFeedback}" hasToggle="yes" mode="author">
 						<f:validateLength maximum="60000"/>
@@ -444,10 +550,10 @@ confirmation dialog
 				</h:panelGrid>
 			</div>
 		</div>
-		<div class="form-group row">
-			<h:outputLabel for="questionFeedbackIncorrect_textinput" value="#{authorMessages.incorrect_answer_op}" styleClass="col-md-4 form-control-label"/>
+		<div class="mb-3 row">
+			<h:outputLabel for="questionFeedbackIncorrect_textinput" value="#{authorMessages.incorrect_answer_op}" styleClass="form-label"/>
 			<!-- WYSIWYG -->
-			<div class="col-md-8">
+			<div class="col-md-10">
 				<h:panelGrid>
 					<samigo:wysiwyg identity="questionFeedbackIncorrect" rows="140" value="#{itemauthor.currentItem.incorrFeedback}" hasToggle="yes" mode="author">
 						<f:validateLength maximum="60000"/>
@@ -459,23 +565,23 @@ confirmation dialog
 
 	<!-- METADATA -->
 	<h:panelGroup rendered="#{itemauthor.showMetadata == 'true'}" styleClass="longtext">
-		<div class="form-group row">
-			<h:outputLabel value="Metadata" styleClass="col-md-12 form-control-label"/>
+		<div class="mb-3 row">
+			<h:outputLabel value="Metadata" styleClass="col-md-12 form-label"/>
 		</div>
-		<div class="form-group row">
-			<h:outputLabel for="obj" value="#{authorMessages.objective}" styleClass="col-md-4 form-control-label"/>
+		<div class="mb-3 row">
+			<h:outputLabel for="obj" value="#{authorMessages.objective}" styleClass="col-md-2 form-label"/>
 			<div class="col-md-5">
 				<h:inputText size="30" id="obj" value="#{itemauthor.currentItem.objective}" styleClass="form-control"/>
 			</div>
 		</div>
-		<div class="form-group row">
-			<h:outputLabel for="keyword" value="#{authorMessages.keyword}" styleClass="col-md-4 form-control-label"/>
+		<div class="mb-3 row">
+			<h:outputLabel for="keyword" value="#{authorMessages.keyword}" styleClass="col-md-2 form-label"/>
 			<div class="col-md-5">
 				<h:inputText size="30" id="keyword" value="#{itemauthor.currentItem.keyword}" styleClass="form-control"/>
 			</div>
 		</div>
-		<div  class="form-group row">
-			<h:outputLabel for="rubric" value="#{authorMessages.rubric_colon}" styleClass="col-md-4 form-control-label"/>
+		<div  class="mb-3 row">
+			<h:outputLabel for="rubric" value="#{authorMessages.rubric_colon}" styleClass="col-md-2 form-label"/>
 			<div class="col-md-5">
 				<h:inputText size="30" id="rubric" value="#{itemauthor.currentItem.rubric}" styleClass="form-control" />
 			</div>

@@ -1,0 +1,362 @@
+.#{$namespace}sakai-resources {
+	input, textarea{
+		max-width: 100%;
+	}
+
+	label {
+		vertical-align: top;
+	}
+
+	label[for="hidden_false_0"] {
+		padding-right: 2em;
+	}
+
+
+	input[type="checkbox"] + label{
+        display: inline;
+    }
+
+	.itemSummary {
+		@media #{$phone}{
+			th, td.header{
+				white-space: initial;
+			}
+			input[type="text"], textarea {
+				width: 100%;
+			}
+		}
+	}
+
+	table#groupTable_0 td {
+		margin-top: 0;
+		border-top: 0;
+		label {
+			padding-left: 0;
+		}
+	}
+
+	table.resourcesList{
+		tr{
+			&:first-child{
+				td, th{
+					font-size: #{$default-font-size};
+					font-family: $header-font-family;
+					font-weight: 700;
+					text-align: center;
+					a{
+						display: block;
+					}
+				}
+			}
+			&.inactive {
+				* {
+					color: var(--sakai-text-color-disabled) !important;
+				}
+				.resource-name, .resource-access, .resource-creator, .resource-modified, .resource-size {
+					font-style: italic;
+				}
+				.not-available {
+					font-size: initial;
+				}
+				button {
+					border:1px solid var(--sakai-border-color) !important;
+				}
+			} 
+		}
+
+		td.attach{
+			min-width: 32px;
+		}
+
+		@media #{$phone}{
+			display: block;
+			margin: 3em 0;
+			overflow: auto;
+		}
+	}
+
+	.tableActions {
+		display: block;
+		padding-bottom: 10px;
+		float: left;
+		clear: both;
+		width: 100%;
+	}
+
+	#navigatePanel {
+		height:388px;
+		width:auto;
+		z-index:100000;
+		min-width:300px;
+	}
+
+	#navigatePanelInner {
+		height:92%;
+		overflow:auto
+	}
+	#navigatePanel p.close{
+		margin:0 5px;
+	}
+
+	.navigatePanelControls{
+		padding:0 10px 5px 5px;
+		border-bottom:1px solid var(--sakai-border-color);
+	}
+	#navigatePanelSearch {
+	   font-size: 12px;
+		height: 23px;
+		margin-top: -1px;
+		width: 201px;
+	}
+	.jstree-search {
+		-webkit-border-radius: 5px;
+		-moz-border-radius: 5px;
+		border-radius: 5px;
+	}
+	.jstree-anchor.jstree-search {
+		@extend .sakai-colorize--sakai-color-gold--lighter-6;
+	}
+	.jstree-anchor:hover {
+		text-decoration:none !important;
+		@extend .sakai-colorize--sakai-color-gold--lighter-5;
+	}
+	.jstree-default .jstree-anchor, .jstree-default .jstree-wholerow {
+		transition: none;
+	}
+	@media (max-width: 768px) {
+		.jstree-default-responsive .jstree-anchor {
+			text-shadow: none;
+		}
+	}
+	#spinner {
+		color: var(--sakai-primary-color-1);
+		width:100%;
+		height:128px;
+		position: absolute;
+		top:20%;
+		text-align: center;
+	}
+	li[data_visible="false" ]{
+		.jstree-anchor{
+			font-style: oblique;
+			.jstree-icon{
+				@extend .fa;
+				@extend .fa-eye-slash;
+				margin: 0 20px 0 0;
+				&:before{
+					position: relative;
+					top: 5px;
+					color: var(--sakai-text-color-1);
+					padding: 0 0 0 26px;
+				}
+			}
+		}
+		* {
+			color: var(--sakai-text-color-2) !important;
+		}
+	}
+	/* move this one to tool-base.css as it goes along*/
+	.table th h3, .table th h4, .table th h5, .table th h6, .table td h3, .table td h4, .table td h5, .table td h6 {
+		display: inline;
+		font-size:1em;
+	}
+	td.actions2 .dropdown-toggle {
+		padding: 2px 6px;
+	}
+	td.actions2 .dropdown-header {
+		padding: 0 21px;
+	}
+	.table tr{
+		border-bottom: 1px solid var(--sakai-border-color);
+	}
+
+	.breadCrumb .btn-group button.breadProp {
+			padding-left:25px;
+			@include border-radius( 3px );
+			-webkit-border-top-right-radius: 25px !important;
+			-webkit-border-bottom-right-radius: 25px !important;
+			-moz-border-radius-topright: 25px !important;
+			-moz-border-radius-bottomright: 25px !important;
+			border-top-right-radius: 25px !important;
+			border-bottom-right-radius: 25px !important;
+			margin-right: -20px !important;
+	}
+
+	#navigate {
+		margin-right:10px !important;
+		@include border-radius( 3px );
+	}
+	.breadCrumb #navigatePanel + button {
+		padding-left:10px;
+	}
+
+	fieldset legend h4 {
+		margin: 0;
+	}
+	fieldset .form-group {
+		padding-top: 0.5em;
+	}
+
+	.instruction {
+		margin-top: 0;
+	}
+	
+	/* SAK-32289 : Overlapping texts when uploading a new resource too big */
+	.dz-error-message{
+		top: 150px !important;
+	}
+	
+	/* SAK-32371 : Resources doesnt use font awesome icons */
+	.fa, .si {
+		display : inline;
+		color : var(--button-text-color);
+		text-decoration: none;
+	}
+	
+	/* SAK-33897 - Restore + symbols in folders */
+	a.nil.fa-folder, .nil a.fa-folder {
+		position: relative;
+		&::after {
+			color: var(--sakai-text-color-inverted);
+			content: "+";
+			display: inline-block;
+			font-family: monospace;
+			font-size: 11px;
+			position: absolute;
+			right: $standard-space;
+			text-align: center;
+			top: 2px;
+		}
+	}
+
+	a.nil.fa-folder-open, .nil a.fa-folder-open {
+		position: relative;
+		&::after {
+			color: var(--sakai-text-color-inverted);
+			content: "-";
+			display: inline-block;
+			font-family: monospace;
+			font-size: 11px;
+			position: absolute;
+			right: $standard-space;
+			text-align: center;
+			top: 3px;
+		}
+	}
+
+	a.highlightlink {
+		text-decoration: none;
+
+		span.iconText {
+			margin-right: 0.1em;
+		}
+	}
+
+	.show {
+		display: block;
+	}
+
+	.hide {
+		display: none;
+	}
+
+	label.copyrightAlert {
+		width: 15.5em;
+	}
+
+	div.alertMessage {
+		display: none;
+		clear: both;
+	}
+
+	label[for="notify"] {
+		padding-left: $standard-spacing;
+		padding-right: 5px;
+	}
+
+	#content-display-columns-dropdown {
+		margin-left: auto;
+	}
+
+	.specialLink .resource-name {
+		position: relative;
+		top: 5px;
+	}
+
+	#content-display-columns-dropdown .btn {
+		color: var(--button-text-color);
+		background-color: var(--button-background);
+	}
+}
+
+/* this belongs to resources but it is accessed out of its namespace */
+.googlethumbnail {
+	float: right;
+	width: 5%;
+	border: 1.0px dashed;
+	border-color: var(--sakai-border-color);
+	border-radius: 5px;
+}
+
+.googlethumbnailbig {
+	width: 15%;
+}
+
+.googlethumbnailsmall {
+	width: 5%;
+}
+
+.jstree-container-ul.jstree-children{
+	li{
+		.fa-link{
+			margin: 0 10px 0 10px;
+		}
+		.fa-files-o{
+			margin-left: 10px;
+		}
+	}
+}
+
+.jstree-node {
+	&:not(.jstree-leaf) > .fa {
+		display: none;
+	}
+}
+
+.jstree-closed{
+	.fa-files-o, .fa-link{
+		display: none !important;
+	}
+}
+
+.no-attach 	> .fa-files-o{
+	display: none !important;
+}
+
+.is-folder {
+	> .fa-files-o, > .fa-link{
+		display: none;
+	}
+}
+
+.no-attach,.fa-files-o{
+	cursor:pointer;
+}
+
+.jstree-node a[href]:focus{
+	outline: 1px solid var(--focus-outline-color);
+}
+
+#resourceTabs {
+	.nav-item {
+		.nav-link.active {
+			border-top: 3px solid var(--tool-tab-active-highlight-color);
+			border-bottom: 2px solid var(--sakai-background-color-1);
+			margin-bottom: -1px;
+		}
+	}
+}
+
+.container_filepicker {
+	max-height: 350px;
+}

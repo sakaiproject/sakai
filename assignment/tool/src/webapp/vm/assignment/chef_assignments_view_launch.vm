@@ -1,79 +1,20 @@
 <!-- start: chef_assignments_view_launch.vm  -->
 <div class="portletBody">
 #if ($!assignment)
-<script>includeLatestJQuery('assignments');</script>
-## Some taken from basiclti/web-ifp/src/bundle/vm/main.vm
-#if ($!assignment.ContentLaunchNewWindow == true)
+<script type="module" src="/webcomponents/bundles/lti.js"></script>
+#if ($!newpage == true)
 <p>
-<a href="$value_ContentLaunchURL" class="btn btn-primary" id="launch$placement" role="button"
-   onclick="launch$placement(); return false;" target="LTI">$tlang.getString("external.tool.new.window")</a>
+ <sakai-lti-popup auto-launch="true" launch-url="$value_ContentLaunchURL"></sakai-lti-popup>
 </p>
-<script>
-function launch$placement(){
-    window.open('$!value_ContentLaunchURL','BasicLTI');
-    document.getElementById('launch$placement').setAttribute('onclick', 'location.reload(); return false;');
-    $('#launch$placement').text('$tlang.getString("external.tool.launched")');
-}
-
-// In 4 minutes this link will expire - so we need to refresh the page
-setTimeout(function(){
-    document.getElementById('launch$placement').setAttribute('onclick', 'location.reload(); return false;');
-    $('#launch$placement').text('$tlang.getString("external.tool.expired")');
-}, 4*60*1000);
-</script>
 #else
-<div class="wcwomenu"> ##style="padding:0; margin:-.3em -2em -1em -2em">
-<iframe
-    width="100%"
-    id="id$placement"
-    style="display:none; width:100%;padding:0 !important; height: 100%;"
-    frameborder="0"
-    marginwidth="0"
-    marginheight="0"
-    scrolling="auto"
-    allowfullscreen="true"
-    allow="$!browser-feature-allow"
-    src="$!value_ContentLaunchURL">
-</iframe>
-<script>
-window.addEventListener('message', function(e) {
-  var idval = 'id$placement';
-  console.debug("postMessage in assignments_view_launch.vm", idval, e);
-  try {
-    var message = JSON.parse(e.data);
-    if ( message.subject == 'lti.frameResize' ) {
-      var height = message.height;
-      if ( typeof height != 'string' || ! height.endsWith('px') ) height = height + 'px';
-      document.getElementById(idval).style.height = height;
-      document.getElementById(idval).style.width = '100%';
-      console.debug('Reveived lti.frameResize height='+height);
-    }
-  } catch (error) {
-   console.debug('lti.frameResize of '+idval+' failed');
-   console.debug(error);
-   console.debug(e);
-  }
-});
-
-$(document).ready( function() {
-    var foot = document.getElementById('footer');
-    var content = document.getElementById('content');
-
-    if ( content && foot ) {
-        var newHeight = ( foot.offsetTop - content.offsetTop ) - 10;
-        console.debug('newHeight', newHeight);
-        // https://stackoverflow.com/a/55406848/1994792
-        if ( newHeight > 400 ) {
-            document.getElementById('id$placement').style.height = newHeight+'px';
-        }
-    } else {
-        document.getElementById('id$placement').style.height = '400px';
-    }
-    $("#id$placement").show();
-});
-
-</script>
-</div>
+<p>
+<sakai-lti-iframe
+  allow-resize="yes"
+  launch-url="$!value_ContentLaunchURL"
+  height="$!height"
+  allow="$!browser-feature-allow">
+</sakai-lti-iframe>
+</p>
 #end
 #else
 <h4>$tlang.getString("external.tool.notavail")</h4>

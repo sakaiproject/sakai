@@ -25,6 +25,7 @@ package org.sakaiproject.lessonbuildertool.tool.producers;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -64,6 +65,7 @@ import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.lessonbuildertool.api.LessonBuilderConstants;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.SimplePageLogEntry;
@@ -76,7 +78,10 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
+
+import static org.sakaiproject.site.api.SiteService.PROP_PARENT_ID;
 
 
 /**
@@ -98,6 +103,8 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
     private MessageLocator messageLocator;
     private LocaleGetter localeGetter;
     private Map<String,String> imageToMimeMap;
+    private SiteService siteService;
+    private SessionManager sessionManager;
 
     private boolean somePagesHavePrerequisites = false;
     private long currentPageId = -1;
@@ -257,6 +264,30 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
         return false;
     }
 
+    public List findAllSites(int outputflag){   //get all sites that the current user can Update. Just names, just IDs, or whole sites.
+        List<Site> sites = siteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.UPDATE, null, null, null, org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC, null);
+        if (outputflag==1){ //return just site ID strings
+            List<String> siteids = new ArrayList<String>();
+            for (Site site: sites){
+                if(site.getTools(LessonBuilderConstants.TOOL_ID).size() > 0){    //filter...we only want ones with a Lessons instance
+                    siteids.add(site.getId());
+                }
+            }
+            Collections.reverse(siteids);   //it naturally lists them oldest to newest, but we want newest first
+            return siteids;
+        } else if(outputflag==2){   //return site names only
+            List<String> sitenames = new ArrayList<String>();
+            for (Site site: sites){
+                if(site.getTools(LessonBuilderConstants.TOOL_ID).size() > 0){    //filter...we only want ones with a Lessons instance
+                    sitenames.add(site.getTitle());
+                }
+            }
+            Collections.reverse(sitenames); //it naturally lists them oldest to newest, but we want newest first
+            return sitenames;
+        }
+        return sites;   //return the entire site data; note that this one is not filtered or reversed, and it's List<Site> instead of List<String> like the others.
+    }
+
     public void fillComponents(UIContainer tofill, ViewParameters viewparams, ComponentChecker checker) {
 
         if (((GeneralViewParameters) viewparams).getSendingPage() != -1) {
@@ -269,19 +300,37 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
                 return;
             }
         }
-
-        String returnView = ((GeneralViewParameters) viewparams).getReturnView();
-
-        UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localeGetter.get().getLanguage()))
-            .decorate(new UIFreeAttributeDecorator("xml:lang", localeGetter.get().getLanguage()));
-
-        boolean canEditPage = (simplePageBean.getEditPrivs() == 0);
-
         String source = ((GeneralViewParameters) viewparams).getSource();
         // summaryPage is the "index of pages". It has status icons and links, but isn't a chooser
         // otherwise we have the chooser page for the "add subpage" command
         boolean summaryPage = "summary".equals(source);
+        String returnView = ((GeneralViewParameters) viewparams).getReturnView();
 
+        UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localeGetter.get().getLanguage()))
+            .decorate(new UIFreeAttributeDecorator("xml:lang", localeGetter.get().getLanguage()));
+        String siteId = toolManager.getCurrentPlacement().getContext();
+        ToolSession toolSession = sessionManager.getCurrentToolSession();
+        if (toolSession.getAttribute("lessonbuilder.selectedsite") != null){    //if we selected another site earlier, use that ID
+            siteId = (String) toolSession.getAttribute("lessonbuilder.selectedsite");
+            toolSession.setAttribute("lessonbuilder.selectedsite", null);
+        }
+        Object sessionToken = sessionManager.getCurrentSession().getAttribute("sakai.csrf.token");
+        if ("anotherPage".equals(source) || toolSession.getAttribute("lessonbuilder.loadFromSite")!=null){   //this is all the stuff for picking a site to select a page from; we want it for Add Items From Another Page [anotherPage] only.
+            toolSession.setAttribute("lessonbuilder.loadFromSite", null);   //this tag needs to be cleared after the use above so it's accurate
+            if (StringUtils.isBlank(returnView)){   //as part of this case, the ReturnView was occasionally seen to be null, so we'll fill it here.
+                returnView = "reorder";
+            }
+            UIOutput.make(tofill, "site-dropdown-title", messageLocator.getMessage("simplepage.page.add.choose.site")); //caption for the dropdown: "Select A Site"
+            UIForm siteform = UIForm.make(tofill, "site-picker");   //form to receive input
+            if (sessionToken != null) {
+                UIInput.make(siteform, "csrf2", "simplePageBean.csrfToken", sessionToken.toString());
+            }
+            UICommand.make(siteform, "submitSite", messageLocator.getMessage("simplepage.chooser.select.site"), "#{simplePageBean.selectSite}");    //Submit button for the form
+            List<String> siteids = findAllSites(1);
+            List<String> sitenames = findAllSites(2);
+            UISelect.make(siteform, "pick-site", siteids.toArray(new String[1]), sitenames.toArray(new String[1]), "#{simplePageBean.selectedSite}", siteId);   //create the dropdown of sites
+        }
+        boolean canEditPage = (simplePageBean.getEditPrivs() == 0);
         if (summaryPage) {
             GeneralViewParameters view = new GeneralViewParameters(ShowPageProducer.VIEW_ID);
             // path defaults to null, which is next
@@ -328,7 +377,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
             }
         }
 
-        final String siteId = toolManager.getCurrentPlacement().getContext();
+        final String usableSiteId = siteId;  //"Final" version, for benefit of lambda expression later
 
         final List<ToolConfiguration> siteTools = simplePageToolDao.getSiteTools(siteId);
 
@@ -341,7 +390,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 
                 if (!existingSitePageToolIds.contains(tc.getPageId())) {
                     // No page has been created for this tool placement yet. Create one.
-                    SimplePage sp = simplePageToolDao.makePage(tc.getPageId(), siteId, tc.getTitle(), null, null);
+                    SimplePage sp = simplePageToolDao.makePage(tc.getPageId(), usableSiteId, tc.getTitle(), null, null);
                     if (simplePageToolDao.saveItem(sp, new ArrayList<String>(), "ignored", false)) {
                         SimplePageItem item = simplePageToolDao.makeItem(0, 0, SimplePageItem.PAGE, Long.toString(sp.getPageId()), sp.getTitle());
                         if (!simplePageToolDao.saveItem(item, new ArrayList<String>(), "ignored", false)) {
@@ -406,7 +455,6 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
         }
 
         UIForm form = UIForm.make(tofill, "page-picker");
-        Object sessionToken = SessionManager.getCurrentSession().getAttribute("sakai.csrf.token");
         if (sessionToken != null) {
             UIInput.make(form, "csrf", "simplePageBean.csrfToken", sessionToken.toString());
         }
@@ -707,6 +755,9 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
         togo.add(new NavigationCase("failure", new SimpleViewParameters(ForumPickerProducer.VIEW_ID)));
         togo.add(new NavigationCase("cancel", new SimpleViewParameters(ShowPageProducer.VIEW_ID)));
         togo.add(new NavigationCase("selectpage", new GeneralViewParameters(ReorderProducer.VIEW_ID)));
+        GeneralViewParameters selectsiteParams = new GeneralViewParameters(PagePickerProducer.VIEW_ID);
+        selectsiteParams.setSource("anotherPage");
+        togo.add(new NavigationCase("selectsite", selectsiteParams));
         return togo;
     }
 }

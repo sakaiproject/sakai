@@ -21,8 +21,8 @@
 
 package org.sakaiproject.coursemanagement.impl;
 
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -86,8 +86,8 @@ public class SiteTitleAdvisorCMS implements SiteTitleAdvisor
      */
     public String getUserSpecificSiteTitle( Site site, String userID, List<String> siteProviders )
     {
-        // Short circuit - only continue if sakai.property set to true
-        if( portalUseSectionTitle )
+        // Short circuit - only continue if sakai.property set to true, AND this is a course site (project sites don't have providers)
+        if( portalUseSectionTitle && site.isType( "course" ) )
         {
             // Get the user by the ID supplied
             User currentUser = null;
@@ -116,11 +116,11 @@ public class SiteTitleAdvisorCMS implements SiteTitleAdvisor
                 if( providerIDs == null )
                 {
                     String realmID = site.getReference();
-                    providerIDs = azgs.getProviderIDsForRealms( ((List<String>) Arrays.asList( new String[] {realmID} )) ).get( realmID );
+                    providerIDs = azgs.getProviderIDsForRealms( Collections.singletonList( realmID ) ).get( realmID );
                 }
 
                 // Short circuit - only continue if there are more than one provider ID (cross listed site)
-                if( CollectionUtils.isNotEmpty( providerIDs ) )
+                if( CollectionUtils.isNotEmpty( providerIDs ) && providerIDs.size() > 1 )
                 {
                     // Get the current user's section membership/role map
                     Map<String, String> sectionRoles = cms.findSectionRoles( currentUser.getEid() );
@@ -158,9 +158,10 @@ public class SiteTitleAdvisorCMS implements SiteTitleAdvisor
                             }
                         }
                     }
+
+                    // If the user is not enrolled in any sections with the preferred category, but they are enrolled in at least one section as a student; display a section title
                     if (titleOfSectionWithStudentRole != null)
                     {
-                        // The user is not enrolled in any sections with the preferred category, but they are enrolled in at least one section as a student; display a section title
                         return titleOfSectionWithStudentRole;
                     }
                 }

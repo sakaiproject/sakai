@@ -31,6 +31,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -187,32 +188,28 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 	return getPublishedAssessment(publishedId, false);
     }
 
-    public PublishedAssessmentData getPublishedAssessment(Long publishedId, boolean nocache) {
-	
-	PublishedAssessmentData ret = (PublishedAssessmentData)assessmentCache.get(publishedId.toString());
+	public PublishedAssessmentData getPublishedAssessment(Long publishedId, boolean nocache) {
+		PublishedAssessmentData data;
+		if (!nocache) {
+			data = (PublishedAssessmentData) assessmentCache.get(publishedId.toString());
+			if (data != null) return data;
+		}
 
-	if (!nocache && ret != null) {
-	    return ret;
+		try {
+			data = publishedAssessmentFacadeQueries.loadPublishedAssessment(publishedId);
+			// this will ignore retracted. I think that's right. Students
+			// we show dead and inactive, just not deleted
+			if (data.getStatus().equals(PublishedAssessmentFacade.DEAD_STATUS)) {
+				return null;
+			}
+			data.setComments(null);
+			assessmentCache.put(publishedId.toString(), data);
+		} catch (Exception e) {
+			log.warn("could not load published assessment [{}], {}", publishedId, e.toString());
+			return null;
+		}
+		return data;
 	}
-
-	try {
-	    ret = publishedAssessmentFacadeQueries.loadPublishedAssessment(publishedId);
-	    // this will ignore retracted. I think that's right. Students
-	    // we show dead and inactive, just not deleted
-	    if (ret.getStatus().equals(PublishedAssessmentFacade.DEAD_STATUS)) {
-		return null;
-	    }
-	} catch (Exception e) {
-	    return null;
-	}
-
-	if (ret != null) {
-	    ret.setComments(null);
-	    assessmentCache.put(publishedId.toString(), ret);
-	}
-
-	return ret;
-    }
 
     // type of the underlying object
     public int getType() {
@@ -371,6 +368,19 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
     public String getUrl() {
         return "/samigo-app/servlet/Login?id=" + getAssessmentAlias(id);
     }
+
+	public boolean showAdditionalLink() {
+		String userId = SessionManager.getCurrentSession().getUserId();
+		String siteId = ToolManager.getCurrentPlacement().getContext();
+
+		List<AssessmentGradingData> publishedAssessmentList =  pService.getBasicInfoOfLastOrHighestOrAverageSubmittedAssessmentsByScoringOption(userId, siteId, true);
+		publishedAssessmentList = publishedAssessmentList.stream()
+			.filter(publishedAssessment -> publishedAssessment.getPublishedAssessmentId().equals(id))
+			.collect(Collectors.toList());
+		log.debug("publishedAssessmentList {} / {}", publishedAssessmentList != null ? publishedAssessmentList.size() : null , publishedAssessmentList);
+
+		return publishedAssessmentList.size() > 0;
+	}
 
     // I don't think they have this
     public Date getDueDate() {

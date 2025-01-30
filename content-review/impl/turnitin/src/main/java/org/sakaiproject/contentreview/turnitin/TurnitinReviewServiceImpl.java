@@ -2280,13 +2280,13 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 					}
 				}
 			} catch (IdUnusedException e) {
-				log.error("Unable to fetch site in getAbsoluteInstructorInfo: " + siteId, e);
+				log.error("Unable to fetch site with id {}", siteId);
 			} catch (UserNotDefinedException e) {
-				log.error("Unable to fetch user in getAbsoluteInstructorInfo", e);
+				log.error("Unable to fetch current user on site with id {}", siteId);
 			}
 
 			if (inst == null) {
-				log.error("Instructor is null in getAbsoluteInstructorInfo");
+				log.error("Instructor is null. siteId: {}", siteId);
 			} else {
 				togo.put("uem", StringUtils.trimToEmpty(getEmail(inst)));
 				togo.put("ufn", StringUtils.trimToEmpty(inst.getFirstName()));

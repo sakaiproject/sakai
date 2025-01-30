@@ -46,8 +46,8 @@
     </div>
 
     <form name="participantForm" id="participantForm" action="#toolForm("$action")" method="post">
-        <div class="table-responsive">
-            <table class ="table table-responsive table-bordered table-striped table-hover" summary="$tlang.getString("sitegen.siteinfolist.partlist.summary")" id="siteMembers">
+        <div class="table table-responsive">
+            <table class ="table table table-bordered table-striped table-hover" summary="$tlang.getString("sitegen.siteinfolist.partlist.summary")" id="siteMembers">
                 <thead>
                     <tr>
                         <th id="name" scope="col">

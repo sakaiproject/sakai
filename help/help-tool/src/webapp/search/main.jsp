@@ -7,10 +7,7 @@
 <%@ taglib uri="http://sakaiproject.org/jsf/help" prefix="help" %>
 <%
 		response.setContentType("text/html; charset=UTF-8");
-		response.addDateHeader("Expires", System.currentTimeMillis() - (1000L * 60L * 60L * 24L * 365L));
-		response.addDateHeader("Last-Modified", System.currentTimeMillis());
-		response.addHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0");
-		response.addHeader("Pragma", "no-cache");
+		response.addHeader("Cache-Control", "no-store");
 %>
 <f:view>
 <sakai:view_container title="#{msgs.title_edit}">
@@ -24,7 +21,7 @@
 <h:outputText value="#{msgs.searching}" />
 </div>  
 
-<h:form id="helpSearchForm" style="padding:6px">
+<h:form id="helpSearchForm" styleClass="p-2">
       <%--<h:commandButton value="#{msgs.back}" onclick="history.back()" />
       <h:commandButton value="#{msgs.forward}" onclick="history.forward()" />      
       --%>
@@ -47,7 +44,7 @@
 </h:form>
 <sakai:group_box title="">
     <h:outputText value="#{SearchTool.numberOfResult}" />
-    <h:dataTable border="0" styleClass="listHier" value="#{SearchTool.searchResults}" var="result" summary="#{msgs.search_result_summary}">
+    <h:dataTable border="0" styleClass="listHier table table-striped" value="#{SearchTool.searchResults}" var="result" summary="#{msgs.search_result_summary}">
 	    <h:column>
 	    	<h:outputLink value="../content.hlp?docId=#{result.docId}" target="content" rendered="#{SearchTool.isRestEnabled}">
   	      <h:outputText value="#{result.name}"/>

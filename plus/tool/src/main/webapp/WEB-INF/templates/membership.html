@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    [(${sakaiHtmlHead})]
+  </head>
+  <body onload="setMainFrameHeight('Mainmercuryx710');setFocus(focus_path);"   class="Mrphs-container Mrphs-sakai-plus">
+    <div class="portletBody">
+        <h1><span th:text="#{plus.tool.memberships.title}">Context:</span> <span th:text="${context.title}">Sakai</span></h1>
+        <div th:if="${admin}">
+        <p>
+        <a th:href="@{/context/{id}(id=${context.id})}" th:text="#{plus.tool.memberships.context}" class="btn btn-secondary">Back to Context</a>
+        <a th:href="@{/contexts/{id}(id=${tenantId})}" th:text="#{plus.tool.all.contexts}" class="btn btn-secondary">All Contexts</a>
+        <a th:href="@{/}" th:text="#{plus.tool.all.tenants}" class="btn btn-secondary">All Tenants</a></p>
+        </div>
+        <div th:unless="${admin}">
+        <a th:href="@{/}" th:text="#{plus.tool.memberships.context}" class="btn btn-secondary">Back to Context</a>
+        </div>
+        <div th:if="${flashError}" class="sak-banner-error">
+            <p th:text="${flashError}" >Placeholder</p>
+        </div>
+        <div th:if="${flashSuccess}" class="sak-banner-success">
+            <p th:text="${flashSuccess}">Placeholder</p>
+        </div>
+        <div th:if="${memberships.empty}">
+            <p th:text="#{plus.tool.memberships.inactive.none}">All memberships are up to date</p>
+        </div>
+        <div th:unless="${memberships.empty}">
+            <p th:text="#{plus.tool.memberships.inactive}">Inactive memberships</p>
+            <ul>
+                <li th:each="entry : ${memberships}">
+                    <span th:text="${entry.subject.displayName}">displayName</span>
+                    (<span th:text="${entry.subject.email}">email</span>) | 
+                    <span th:text="${entry.updatedAt}">UpdatedAt</p>
+                </li>
+            </ul>
+            <p>
+            <form method="POST" th:action="@{/expire/{id}(id=${context.id})}">
+                <input type="submit" name="expire" th:value="#{plus.tool.memberships.remove}" class="btn btn-danger">
+            </form>
+            </p>
+            <p th:text="#{plus.tool.memberships.inactive.detail}">Inactive memberships detail</p>
+        </div>
+    </div>
+  </body>
+</html>

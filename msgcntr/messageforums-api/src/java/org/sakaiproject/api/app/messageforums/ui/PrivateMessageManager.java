@@ -65,7 +65,7 @@ public interface PrivateMessageManager {
     
     public void saveAreaAndForumSettings(Area area, PrivateForum forum);
     
-    public void savePrivateMessageArea(Area area);
+    public Area savePrivateMessageArea(Area area);
     
     public void saveForumSettings(PrivateForum forum);
     
@@ -123,9 +123,10 @@ public interface PrivateMessageManager {
      * @param message
      * @param recipients
      * @param asEmail
+     * @param readReceipt
      */
-    public void sendPrivateMessage(PrivateMessage message, Map<User, Boolean> recipients, boolean asEmail);
-    public void sendPrivateMessage(PrivateMessage message, Map<User, Boolean> recipients, boolean asEmail, List<MembershipItem> draftRecipients, List<MembershipItem> draftBccRecipients);
+    public Long sendPrivateMessage(PrivateMessage message, Map<User, Boolean> recipients, boolean asEmail, boolean readReceipt);
+    public Long sendPrivateMessage(PrivateMessage message, Map<User, Boolean> recipients, boolean asEmail, List<MembershipItem> draftRecipients, List<MembershipItem> draftBccRecipients, boolean readReceipt);
     
     
     /**
@@ -263,5 +264,7 @@ public interface PrivateMessageManager {
 	boolean isAllowToFieldMyGroups(User user, String contextId);
 
 	boolean isAllowToFieldMyGroupMembers(User user, String contextId);
+
+    public PrivateMessage getPrivateMessageByDecryptedId(String id) throws MessagingException;
     
 }

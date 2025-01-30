@@ -50,6 +50,7 @@ import org.sakaiproject.login.api.LoginCredentials;
 import org.sakaiproject.login.api.LoginRenderContext;
 import org.sakaiproject.login.api.LoginRenderEngine;
 import org.sakaiproject.login.api.LoginService;
+import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -333,7 +334,7 @@ public class SkinnableLogin extends HttpServlet implements Login {
 			// Trim off the force.login parameter from return URL if present
 			if ( returnUrl != null )
 			{
-				int where = returnUrl.indexOf("?force.login");
+				int where = returnUrl.indexOf("?" + Portal.PARAM_FORCE_LOGIN);
 				if ( where > 0 ) returnUrl = returnUrl.substring(0,where);
 			}
 
@@ -415,11 +416,7 @@ public class SkinnableLogin extends HttpServlet implements Login {
 		{
 			res.setContentType(contentType);
 		}
-		res.addDateHeader("Expires", System.currentTimeMillis()
-				- (1000L * 60L * 60L * 24L * 365L));
-		res.addDateHeader("Last-Modified", System.currentTimeMillis());
-		res.addHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0");
-		res.addHeader("Pragma", "no-cache");
+		res.addHeader("Cache-Control", "no-store");
 
 		// get the writer
 		PrintWriter out = res.getWriter();
@@ -477,6 +474,7 @@ public class SkinnableLogin extends HttpServlet implements Login {
 		rcontext.put("xloginChoice", xloginChoice);
 		rcontext.put("containerText", containerText);
 		rcontext.put("loginContainerUrl", loginContainerUrl);
+		rcontext.put("rloader", rb);
 
 		String eid = StringEscapeUtils.escapeHtml4(request.getParameter("eid"));
 		String pw = StringEscapeUtils.escapeHtml4(request.getParameter("pw"));
@@ -557,7 +555,7 @@ public class SkinnableLogin extends HttpServlet implements Login {
 		if (returnUrl == null)
 		{
 			returnUrl = serverConfigurationService.getPortalUrl();
-			log.info("complete: nowhere set to go, going to portal");
+			log.debug("Empty url detected changing to portal, session: [{}]", session);
 		}
 
 		// redirect to the done URL

@@ -1,0 +1,178 @@
+.#{$namespace}sakai-syllabus {
+
+  .editItem:hover {
+    padding-right: 18px;
+
+    position: relative;
+    cursor: pointer;
+
+    &:before {
+      @extend .fa;
+      @extend .fa-pencil;
+
+      color: var(--link-color);
+
+      position: absolute;
+      right: 0;
+    }
+
+    &.bodyInput {
+      &:before {
+        right: auto;
+        left: 0;
+      }
+    }
+  }
+
+  .bodyInput {
+    padding-left: 20px !important;
+    background-position: left top !important;
+    padding-right: 0 !important;
+  }
+
+  div.ui-tooltip {
+    max-width: 8000px;
+  }
+
+  a.draft {
+    color: var(--sakai-text-color-disabled) !important;
+  }
+
+  .accordion-items-container {
+    display: block;
+    margin: 20px 0;
+  }
+
+  .ui-state-active a {
+    color: var(--sakai-text-color-2) !important;
+    font-weight: bold;
+  }
+
+  /* IE has layout issues when sorting (see #5413) */
+  .group {
+    zoom: 1;
+  }
+
+  .actionIcon {
+    padding-right: .5em;
+  }
+
+  .startTimeInput, .endTimeInput {
+    padding-right: 22px;
+    margin-left: 4px;
+
+    &:hover {
+      padding-right: 22px;
+
+      &:before {
+        right: 4px;
+      }
+    }
+  }
+
+  .popupMessage {
+    background-color: var(--warnBanner-bgcolor);
+    position: absolute;
+    top: 20px;
+    z-index: 1000;
+    left: 30%;
+    right: 30%;
+    width: auto;
+  }
+
+  .editable-pre-wrapped {
+    white-space: normal;
+  }
+
+  // main listing page
+  #syllabus {
+    #accordion {
+      .ui-accordion {
+        margin-bottom: 20px;
+
+        .ui-accordion-header {
+          min-height: 42px;
+          padding: 12px 10px;
+          border-color: var(--sakai-border-color);
+          background: var(--sakai-background-color-2);
+
+          &.ui-accordion-header-active {
+            background: var(--sakai-active-color-2);
+          }
+
+          .edit-actions {
+            float: right;
+
+            .fa {
+              color: var(--sakai-text-color-1) !important;
+            }
+          }
+          .fa.fa-arrows {
+            color: var(--sakai-text-color-1) !important;
+          }
+
+          .editItemTitle {
+            font-weight: bold;
+            color: var(--sakai-primary-color-1);
+            padding-left: 0;
+            margin-left: 0;
+            display: inline-block;
+          }
+
+          .draft {
+            .editItemTitle {
+              margin-left: 5px;
+            }
+          }
+        }
+
+        .ui-accordion-content {
+          border-color: var(--sakai-border-color);
+        }
+      }
+    }
+  }
+  .delete-confirm {
+    .modified {
+      color: var(--warnBanner-color);
+      background: var(--warnBanner-bgcolor);
+    }
+    .remove {
+        background: var(--errorBanner-bgcolor);
+        margin: -8px;
+        padding: 8px;
+        text-align: center;
+    }
+    .fa-times {
+      color: var(--errorBanner-color);
+      
+    }
+  }
+
+  .radioOption {
+    background: none repeat scroll 0 0 var(--sakai-background-color-2);
+    border-radius: $button-radius;
+    padding: 0.5em;
+    width: 35em;
+
+    input[type="radio"] {
+      margin: 0 0.3em;
+    }
+  }
+  
+  .radioOptionSelected {
+    background: none repeat scroll 0 0 var(--sakai-active-color-1);
+  }
+
+  .clear-input-btn {
+    z-index: 3;
+    cursor: pointer;
+    width: 2.5em;
+    height: 2.5em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+  }
+
+}

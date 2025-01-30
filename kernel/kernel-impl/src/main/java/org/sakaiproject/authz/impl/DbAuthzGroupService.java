@@ -2034,13 +2034,13 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 				String maintainRole = result.getString(3);
 				String createdBy = result.getString(4);
 				String modifiedBy = result.getString(5);
-				java.sql.Timestamp ts = result.getTimestamp(6, sqlService().getCal());
+				java.sql.Timestamp ts = result.getTimestamp(6);
 				Instant createdOn = null;
 				if (ts != null)
 				{
 					createdOn = ts.toInstant();
 				}
-				ts = result.getTimestamp(7, sqlService().getCal());
+				ts = result.getTimestamp(7);
 				Instant modifiedOn = null;
 				if (ts != null)
 				{
@@ -2707,7 +2707,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			// if of Group Realm, get the containing Site Realm
 			String containingRealmId = null;
 			AuthzGroup containingRealm = null;
-			Reference ref = entityManager.newReference(realm.getId());
+			Reference ref = entityManager.newReference(realm.getReference());
 			if (SiteService.APPLICATION_ID.equals(ref.getType())
 				&& SiteService.GROUP_SUBTYPE.equals(ref.getSubType()))
 			{

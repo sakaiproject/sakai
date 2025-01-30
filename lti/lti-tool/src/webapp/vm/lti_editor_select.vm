@@ -1,0 +1,35 @@
+<div class="portletBody">
+#if ( $allTools )
+<style>
+.lti_tool_list {
+  list-style-type: none;
+}
+.lti_tool_item {
+border-bottom: 1px solid gray;
+}
+</style>
+<p>$tlang.getString("contentitem.tools")</p>
+<ul class="lti_tool_list">
+#foreach($tool in $allTools)
+<li>
+<p class="lti_tool_item">
+#if( $tool.get("fa_icon"))
+<i class="fa $tool.get("fa_icon")" aria-hidden="true"></i>
+#end
+<a href="$sakai_ActionURL.setPanel("ContentItemMain")&flow=$flow&tool_id=$tool.get("id")&returnUrl=$returnUrl">$tool.get('title')
+#if ( $tool.get('pl_linkselection') )
+<i class="fa fa-search" style="color:blue;" aria-hidden="true"></i>
+#end
+</a>
+#if ( $tool.get('description') )
+<br/>
+$tool.get('description')
+</p>
+#end
+</li>
+#end
+</ul>
+#else
+<p>$tlang.getString("contentitem.notools")</p>
+#end
+</div>

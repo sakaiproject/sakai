@@ -30,6 +30,7 @@ import org.sakaiproject.component.cover.ComponentManager;
  * @deprecated Static covers should not be used in favour of injection or lookup
  * via the component manager. This cover will be removed in a later version of the Kernel
  */
+@Deprecated
 public class ToolManager
 {
 	/** Possibly cached component instance. */
@@ -135,7 +136,13 @@ public class ToolManager
 		org.sakaiproject.tool.api.ToolManager manager = getInstance();
 		return manager.isVisible (site, config);
 	}
-	
+
+	public static boolean isHidden(org.sakaiproject.tool.api.Placement placement)
+	{
+		org.sakaiproject.tool.api.ToolManager manager = getInstance();
+		return manager.isHidden(placement);
+	}
+
 	public static String getLocalizedToolProperty(String toolId, String key){
 		org.sakaiproject.tool.api.ToolManager manager = getInstance();
 		if (manager == null) return null;

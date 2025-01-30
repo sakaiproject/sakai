@@ -4,17 +4,23 @@
 <body>
 	<wicket:panel>
 		<div class="gb-summary-grade-panel">
-			<div class="pull-left">
+			<div class="float-start">
 					<div wicket:id="course-grade-panel" class="gb-summary-course-grade">
-						<div class="panel panel-default">
-							<div class="panel-body">
+						<div class="card">
+							<div class="card-body">
 								<span id="summaryCourseGradeLabel" class="gb-summary-course-grade-label">
 									<strong><wicket:message key="label.studentsummary.coursegrade" /></strong>
 								</span>
 								<span class="gb-summary-course-grade-value" aria-labelledby="summaryCourseGradeLabel">
 									<span wicket:id="courseGrade">B+</span>
 								</span>
-								<a href="javascript:void(0);" class="gb-summary-grade-stats pull-right" wicket:message="title:studentsummary.gradebookitem.gradebookstats" wicket:id="courseGradeStatsLink"></a>
+								<div id="summaryCourseGradeComment" class="gb-summary-course-grade-label">
+									<strong><wicket:message key="label.studentsummary.coursegradecomment" />  </strong>
+									<span id="studentCourseGradeComment" class="gb-course-grade-comment">
+										<span wicket:id="studentCourseGradeComment">   </span>
+									</span>
+								</div>
+								<a href="javascript:void(0);" class="gb-summary-grade-stats float-end" wicket:message="title:studentsummary.gradebookitem.gradebookstats" wicket:id="courseGradeStatsLink"></a>
 							</div>
 						</div>
 					</div>

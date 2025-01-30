@@ -39,6 +39,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.spring.SpringBeanLocator;
+import org.sakaiproject.tool.assessment.business.entity.SebConfig;
+import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
@@ -56,6 +58,7 @@ import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.tool.assessment.util.TimeLimitValidator;
+import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.api.FormattedText;
 
 /**
@@ -67,6 +70,8 @@ import org.sakaiproject.util.api.FormattedText;
 @Slf4j
 public class ConfirmPublishAssessmentListener
     implements ActionListener {
+
+  private final String NEW_ASSESSMENT_PREVIOUSLY_ASSOCIATED = "NEW_ASSESSMENT_PREVIOUSLY_ASSOCIATED";
 
   //private static ContextUtil cu;
   private static final GradebookServiceHelper gbsHelper =
@@ -89,6 +94,7 @@ public class ConfirmPublishAssessmentListener
     SaveAssessmentSettings s = new SaveAssessmentSettings();
     AssessmentService assessmentService = new AssessmentService();
     AssessmentFacade assessment = assessmentService.getAssessment(assessmentId);
+    boolean isFromAssessmentSettings = Boolean.TRUE.toString().equals(ContextUtil.lookupParam("fromAssessmentSettings"));
     
     // Check permissions
     AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
@@ -199,9 +205,9 @@ public class ConfirmPublishAssessmentListener
     if (assessmentSettings.getAutoSubmit()) {
         boolean autoSubmitEnabled = ServerConfigurationService.getBoolean("samigo.autoSubmit.enabled", true);
 
-        // If late submissions not allowed and late submission date is null but due date is populated, set late submission date to due date
+        // If late submissions not allowed but due date is populated, set late submission date to due date
         if (assessmentSettings.getLateHandling() != null && AssessmentAccessControlIfc.NOT_ACCEPT_LATE_SUBMISSION.toString().equals(assessmentSettings.getLateHandling()) &&
-                retractDate == null && dueDate != null && autoSubmitEnabled) {
+                dueDate != null && autoSubmitEnabled) {
             assessmentSettings.setRetractDate(dueDate);
         }
 
@@ -221,6 +227,12 @@ public class ConfirmPublishAssessmentListener
             error = true;
         }
     }
+
+	// if auto-submit and late-submissions are disabled Set retract date to null
+	if ( !assessmentSettings.getAutoSubmit() && retractDate != null && 
+		assessmentSettings.getLateHandling() != null && AssessmentAccessControlIfc.NOT_ACCEPT_LATE_SUBMISSION.toString().equals(assessmentSettings.getLateHandling())){
+		assessmentSettings.setRetractDate(null);
+	}
 
     if (!isFromActionSelect) {
     	if (assessmentSettings.getReleaseTo().equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
@@ -379,15 +391,11 @@ public class ConfirmPublishAssessmentListener
     }
     
     //Gradebook right now only excep if total score >0 check if total score<=0 then throw error.
-    if(assessmentSettings.getToDefaultGradebook())
-	{
- 	    if(assessmentBean.getTotalScore()<=0)
-		{
- 	    	String gb_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "gradebook_exception_min_points");
-            context.addMessage(null, new FacesMessage(gb_err));
-            error=true;
-		}
-	}
+    if (StringUtils.equalsAnyIgnoreCase(assessmentSettings.getToDefaultGradebook(), EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString(), EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString()) && assessmentBean.getTotalScore() <= 0) {
+        String gb_err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "gradebook_exception_min_points");
+        context.addMessage(null, new FacesMessage(gb_err));
+        error=true;
+    }
 
     //#2b - check if gradebook exist, if so, if assessment title already exists in GB
     org.sakaiproject.grading.api.GradingService g = null;
@@ -396,7 +404,7 @@ public class ConfirmPublishAssessmentListener
             getBean("org.sakaiproject.grading.api.GradingService");
     }
     try{
-	if (assessmentSettings.getToDefaultGradebook() && gbsHelper.isAssignmentDefined(assessmentSettings.getTitle(), g)){
+	if (EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString().equals(assessmentSettings.getToDefaultGradebook()) && gbsHelper.isAssignmentDefined(assessmentSettings.getTitle(), g)){
         String gbConflict_err= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages" , "gbConflict_error");
         context.addMessage(null,new FacesMessage(gbConflict_err));
         error=true;
@@ -418,8 +426,41 @@ public class ConfirmPublishAssessmentListener
     	assessmentSettings.setObjectives(formattedText.convertFormattedTextToPlaintext(assessmentSettings.getObjectives()));
     	assessmentSettings.setRubrics(formattedText.convertFormattedTextToPlaintext(assessmentSettings.getRubrics()));
     	assessmentSettings.setPassword(formattedText.convertFormattedTextToPlaintext(StringUtils.trim(assessmentSettings.getPassword())));
+
+        SebConfig sebConfig = SebConfig.of(assessment.getAssessmentMetaDataMap());
+        // This has to happen if we are trying to publish from the assessment builder,
+        // but when publishing from the assessment settings we need to avoid it
+        if (!isFromAssessmentSettings && sebConfig.getConfigMode() != null) {
+            assessmentSettings.setSebConfigMode(sebConfig.getConfigMode().toString());
+            assessmentSettings.setSebExamKeys(StringUtils.join(sebConfig.getExamKeys(), "\n"));
+            assessmentSettings.setSebAllowUserQuitSeb(sebConfig.getAllowUserQuitSeb());
+            assessmentSettings.setSebShowTaskbar(sebConfig.getShowTaskbar());
+            assessmentSettings.setSebShowTime(sebConfig.getShowTime());
+            assessmentSettings.setSebShowKeyboardLayout(sebConfig.getShowKeyboardLayout());
+            assessmentSettings.setSebShowWifiControl(sebConfig.getShowWifiControl());
+            assessmentSettings.setSebAllowAudioControl(sebConfig.getAllowAudioControl());
+            assessmentSettings.setSebConfigUploadId(sebConfig.getConfigUploadId());
+            assessmentSettings.setSebAllowSpellChecking(sebConfig.getAllowSpellChecking());
+        }
     }
-    
+
+    List<SelectItem> existingGradebook = assessmentSettings.getExistingGradebook();
+    ToolSession currentToolSession = SessionManager.getCurrentToolSession();
+    for (SelectItem item : existingGradebook) {
+        String itemLabel = item.getLabel();
+        String itemValue = (String) item.getValue();
+        String gradebookName = assessmentSettings.getGradebookName();
+        boolean isNotPreviouslyAssociated = currentToolSession.getAttribute(NEW_ASSESSMENT_PREVIOUSLY_ASSOCIATED) == null;
+        if (itemLabel.split("\\(").length > 1 &&
+            StringUtils.equals(gradebookName, itemValue) &&
+            isNotPreviouslyAssociated) {
+                error = true;
+                currentToolSession.setAttribute(NEW_ASSESSMENT_PREVIOUSLY_ASSOCIATED, Boolean.TRUE);
+                String err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "addtogradebook.previouslyAssoc");
+                context.addMessage(null,new FacesMessage(err));
+        }
+    }
+
     if (error){
       assessmentSettings.setOutcomePublish("editAssessmentSettings");
       author.setIsErrorInSettings(true);
@@ -469,7 +510,9 @@ public class ConfirmPublishAssessmentListener
       author.setIsErrorInSettings(true);
       return;
     }
-    
+
+    currentToolSession.removeAttribute(NEW_ASSESSMENT_PREVIOUSLY_ASSOCIATED);
+
     //#4 - regenerate the core assessment list in autor bean again
     // sortString can be of these value:title,releaseTo,dueDate,startDate
     // get the managed bean, author and reset the list.
@@ -481,7 +524,6 @@ public class ConfirmPublishAssessmentListener
 	
 	PublishRepublishNotificationBean publishRepublishNotification = (PublishRepublishNotificationBean) ContextUtil.lookupBean("publishRepublishNotification");
 	publishRepublishNotification.setSendNotification(false);
-	publishRepublishNotification.setPrePopulateText(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","pre_populate_text_publish"));
 	assessmentSettings.setOutcomePublish("saveSettingsAndConfirmPublish"); // finally goto confirm
 	SetFromPageAsAuthorSettingsListener setFromPageAsAuthorSettingsListener = new SetFromPageAsAuthorSettingsListener();
 	setFromPageAsAuthorSettingsListener.processAction(null);

@@ -20,6 +20,7 @@ package org.sakaiproject.sitestats.tool.wicket.widget;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
@@ -27,6 +28,7 @@ import org.apache.wicket.ajax.AjaxChannel;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxIndicatorAware;
 import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
+import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxFallbackLink;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -48,7 +50,7 @@ public class WidgetTabs extends Panel implements IAjaxIndicatorAware {
 	}
 
 	public WidgetTabs(String id, List<AbstractTab> tabs, int selectedTab) {
-		super(id, new Model(Integer.valueOf(-1)));
+		super(id, new Model(-1));
 		setOutputMarkupId(true);
 		setVersioned(false);
 		this.setTabs(tabs);
@@ -106,7 +108,7 @@ public class WidgetTabs extends Panel implements IAjaxIndicatorAware {
 		if(selectedTab < 0 || selectedTab >= tabs.size()){
 			throw new IndexOutOfBoundsException();
 		}
-		setDefaultModelObject(Integer.valueOf(selectedTab));
+		setDefaultModelObject(selectedTab);
 		AbstractTab tab = getTabs().get(selectedTab);
 		WebMarkupContainer tabContents = null;
 		if(showTabContents) {
@@ -130,16 +132,17 @@ public class WidgetTabs extends Panel implements IAjaxIndicatorAware {
 	}
 
 	protected WebMarkupContainer newLink(String linkId, final int index) {
-		return new IndicatingAjaxFallbackLink(linkId) {
+		return new AjaxFallbackLink<Void>(linkId) {
 			private static final long	serialVersionUID	= 1L;
 
-			public void onClick(AjaxRequestTarget target) {
+			@Override
+			public void onClick(Optional<AjaxRequestTarget> targetOptional) {
 				setSelectedTab(index);
-				if(target != null){
+				targetOptional.ifPresent(target -> {
 					target.add(WidgetTabs.this);
 					target.appendJavaScript("setMainFrameHeightNoScroll(window.name, 0, 100);");
-				}
-				onAjaxUpdate(target);
+					onAjaxUpdate(target);
+				});
 			}
 		};
 	}
@@ -161,18 +164,16 @@ public class WidgetTabs extends Panel implements IAjaxIndicatorAware {
 		}
 		
 		public String getScript() {
-			StringBuilder buff = new StringBuilder();
-			buff.append("wicketAjaxGet('");
-			buff.append(getCallbackUrl());
-			buff.append(",function() {}, function() {}");
-			buff.append(",null, '").append(getAttributes().getChannel().getName()).append("'");
-			buff.append(")");
-			return buff.toString();
+			String buff = "wicketAjaxGet('" +
+					getCallbackUrl() +
+					",function() {}, function() {}" +
+					",null, '" + getAttributes().getChannel().getName() + "'" +
+					")";
+			return buff;
 		}
 		
 		@Override
-		protected void updateAjaxAttributes(AjaxRequestAttributes attributes)
-		{
+		protected void updateAjaxAttributes(AjaxRequestAttributes attributes) {
 			super.updateAjaxAttributes(attributes);
 			
 			attributes.setChannel(new AjaxChannel(getId()));

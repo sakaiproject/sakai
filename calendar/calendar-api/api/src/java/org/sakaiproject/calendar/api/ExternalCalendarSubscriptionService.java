@@ -24,6 +24,9 @@ package org.sakaiproject.calendar.api;
 import java.util.Collection;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.time.api.TimeRange;
+
 public interface ExternalCalendarSubscriptionService
 {
 
@@ -115,5 +118,32 @@ public interface ExternalCalendarSubscriptionService
 
 	/** Check if reference references a institutional external calendar */
 	public boolean isInstitutionalCalendar(String reference);
+
+	/**
+	 * Creates an id encoding the recurrence info into the id
+	 *
+	 * @param id the event id
+	 * @param range the recurrence range
+	 * @param sequence the sequence
+	 * @return an id
+	 */
+	static String encodeRecurrenceWithId(String id, TimeRange range, int sequence) {
+		return '!' + range.toString() + '!' + sequence + '!' + id;
+	}
+
+	/**
+	 * Detects if id has been encoded with recurrence info and decodes it
+	 * returning the original event id.
+	 * If the id is not encoded it simple returns the supplied id.
+	 *
+	 * @param encodedId an id
+	 * @return the original event id
+	 */
+	static String decodeIdFromRecurrence(String encodedId) {
+		if (StringUtils.countMatches(encodedId, '!') == 3) {
+			return StringUtils.split(encodedId, '!')[2];
+		}
+		return encodedId;
+	}
 
 }

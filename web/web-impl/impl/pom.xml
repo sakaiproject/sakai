@@ -4,7 +4,7 @@
   <parent>
     <artifactId>web-base</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>23-SNAPSHOT</version>
+    <version>25-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>sakai-web-impl</name>
@@ -42,6 +42,10 @@
     <dependency>
       <groupId>commons-codec</groupId>
       <artifactId>commons-codec</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-collections4</artifactId>
     </dependency>
   </dependencies>
   <build>

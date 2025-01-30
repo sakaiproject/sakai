@@ -8,7 +8,7 @@
     <parent>
         <artifactId>entitybroker</artifactId>
         <groupId>org.sakaiproject</groupId>
-        <version>23-SNAPSHOT</version>
+        <version>25-SNAPSHOT</version>
     </parent>
     <dependencies>
         <!-- internal dependencies -->
@@ -51,9 +51,8 @@
         </dependency>
         <!-- required for bean cloning and reflection -->
         <dependency>
-            <groupId>org.azeckoski</groupId>
+            <groupId>org.sakaiproject</groupId>
             <artifactId>reflectutils</artifactId>
-            <type>jar</type>
         </dependency>
         <!-- required for sending http requests -->
         <dependency>

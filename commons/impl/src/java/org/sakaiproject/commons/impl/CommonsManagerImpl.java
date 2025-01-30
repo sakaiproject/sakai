@@ -30,14 +30,9 @@ import org.sakaiproject.commons.api.datamodel.Comment;
 import org.sakaiproject.commons.api.datamodel.Post;
 import org.sakaiproject.commons.api.datamodel.PostLike;
 import org.sakaiproject.entity.api.Entity;
-import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.event.api.Event;
 import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
-import org.sakaiproject.profile2.model.BasicConnection;
-import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.util.api.FormattedText;
 
 
@@ -45,11 +40,10 @@ import org.sakaiproject.util.api.FormattedText;
  * @author Adrian Fish (adrian.r.fish@gmail.com)
  */
 @Setter @Slf4j
-public class CommonsManagerImpl implements CommonsManager, Observer {
+public class CommonsManagerImpl implements CommonsManager {
 
     private CommonsSecurityManager commonsSecurityManager;
     private PersistenceManager persistenceManager;
-    private ProfileConnectionsLogic profileConnectionsLogic;
     private SakaiProxy sakaiProxy;
     private FormattedText formattedText;
 
@@ -73,7 +67,6 @@ public class CommonsManagerImpl implements CommonsManager, Observer {
         log.info("Registered Commons functions.");
 
         sakaiProxy.registerEntityProducer(this);
-        sakaiProxy.addObserver(this);
     }
 
     private List<Post> getPosts(String siteId) throws Exception {
@@ -99,7 +92,6 @@ public class CommonsManagerImpl implements CommonsManager, Observer {
             if (query.isUserSite()) {
                 log.debug("Getting posts for a user site ...");
                 query.getFromIds().add(query.getCallerId());
-                query.getFromIds().addAll(getConnectionUserIds(sakaiProxy.getCurrentUserId()));
             }
             List<Post> unfilteredPosts = persistenceManager.getAllPost(query, true);
             cache.put(key, unfilteredPosts);
@@ -119,11 +111,7 @@ public class CommonsManagerImpl implements CommonsManager, Observer {
                 if (newOrUpdatedPost != null) {
                     String commonsId = post.getCommonsId();
                     List<String> contextIds = new ArrayList();
-                    if (persistenceManager.getCommons(commonsId).isSocial()) {
-                        contextIds = getConnectionUserIds(sakaiProxy.getCurrentUserId());
-                    } else {
-                        contextIds.add(post.getCommonsId());
-                    }
+                    contextIds.add(post.getCommonsId());
                     removeContextIdsFromCache(contextIds);
                     return newOrUpdatedPost;
                 } else {
@@ -147,13 +135,7 @@ public class CommonsManagerImpl implements CommonsManager, Observer {
                 if (persistenceManager.deletePost(post)) {
                     List<String> contextIds = new ArrayList();
                     String commonsId = post.getCommonsId();
-                    if (persistenceManager.getCommons(commonsId).isSocial()) {
-                        String userId = post.getCreatorId();
-                        // This is a social post. We need to invalidate the social caches of all this user's connections
-                        contextIds = getConnectionUserIds(userId);
-                    } else {
-                        contextIds.add(post.getCommonsId());
-                    }
+                    contextIds.add(post.getCommonsId());
                     // Invalidate all caches for this site
                     removeContextIdsFromCache(contextIds);
                     return true;
@@ -201,11 +183,7 @@ public class CommonsManagerImpl implements CommonsManager, Observer {
                 Comment savedComment = persistenceManager.saveComment(comment);
                 if (savedComment != null) {
                     List<String> contextIds = new ArrayList();
-                    if (persistenceManager.getCommons(commonsId).isSocial()) {
-                        contextIds = getConnectionUserIds(post.getCreatorId());
-                    } else {
-                        contextIds.add(commonsId);
-                    }
+                    contextIds.add(commonsId);
                     removeContextIdsFromCache(contextIds);
                     return savedComment;
                 }
@@ -223,12 +201,7 @@ public class CommonsManagerImpl implements CommonsManager, Observer {
             if (commonsSecurityManager.canCurrentUserDeleteComment(siteId, embedder, commentCreatorId, postCreatorId)
                     && persistenceManager.deleteComment(commentId)) {
                 List<String> contextIds = new ArrayList();
-                if (embedder.equals(CommonsConstants.SOCIAL)) {
-                    //Post post = persistenceManager.getPost(postId, false);
-                    contextIds = getConnectionUserIds(postCreatorId);
-                } else {
-                    contextIds.add(commonsId);
-                }
+                contextIds.add(commonsId);
                 removeContextIdsFromCache(contextIds);
                 return true;
             }
@@ -365,10 +338,6 @@ public class CommonsManagerImpl implements CommonsManager, Observer {
         return ids;
     }
 
-    public String getEntityDescription(Reference arg0) {
-        return null;
-    }
-
     public ResourceProperties getEntityResourceProperties(Reference ref) {
 
         try {
@@ -384,23 +353,12 @@ public class CommonsManagerImpl implements CommonsManager, Observer {
         }
     }
 
-    /**
-     * From EntityProducer
-     */
+    @Override
     public String getEntityUrl(Reference ref) {
         return getEntity(ref).getUrl();
     }
 
-    /**
-     * From EntityProducer
-     */
-    public HttpAccess getHttpAccess() {
-        return null;
-    }
-
-    /**
-     * From EntityProducer
-     */
+    @Override
     public String getLabel() {
         return "commons";
     }
@@ -423,12 +381,6 @@ public class CommonsManagerImpl implements CommonsManager, Observer {
 
         String siteId = parts[2];
         String subType = parts[3];
-        /*String entityId = parts[4];
-
-        if ("posts".equals(subType)) {
-            reference.set("commons", "posts", entityId, null, siteId);
-            return true;
-        }*/
 
         return false;
     }
@@ -459,34 +411,5 @@ public class CommonsManagerImpl implements CommonsManager, Observer {
 
         Cache cache = sakaiProxy.getCache(POST_CACHE);
         contextIds.forEach(contextId -> cache.remove(contextId));
-    }
-
-    private List<String> getConnectionUserIds(String userId) {
-
-        List<String> userIds = new ArrayList();
-        List<BasicConnection> conns
-            = profileConnectionsLogic.getBasicConnectionsForUser(userId);
-        conns.forEach(conn -> userIds.add(conn.getUuid()));
-        userIds.add(userId);
-        return userIds;
-    }
-
-    public void update(Observable o, final Object arg) {
-
-        if (arg instanceof Event) {
-            Event e = (Event) arg;
-            String event = e.getEvent();
-            if (ProfileConstants.EVENT_FRIEND_CONFIRM.equals(event)
-                || ProfileConstants.EVENT_FRIEND_REMOVE.equals(event)) {
-                String ref = e.getResource();
-                String[] pathParts = ref.split("/");
-                String from = e.getUserId();
-                String to = pathParts[2];
-                List<String> contextIds = new ArrayList();
-                contextIds.add(from);
-                contextIds.add(to);
-                removeContextIdsFromCache(contextIds);
-            }
-        }
     }
 }

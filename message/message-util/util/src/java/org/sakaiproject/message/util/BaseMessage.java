@@ -38,7 +38,6 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
 
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -182,14 +181,6 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		return this;
 	}
 
-	/**
-	 * Configuration: set the locks-in-db
-	 * 
-	 * @param path
-	 *        The storage path.
-     * @deprecated 7 April 2014 - this should be removed in sakai 11
-	 */
-	public void setCaching(String value) {} // intentionally blank - remove this later
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
@@ -210,7 +201,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		}
 		catch (Throwable t)
 		{
-			log.warn("init(): "+t, t);
+            log.warn("init(): {}", t, t);
 		}
 
 		// entity producer registration in the extension services
@@ -506,18 +497,6 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 	} // unlock3
 
 	/**
-	 * Return a list of all the defined channels.
-	 *
-	 * @return a list of MessageChannel (or extension) objects (may be empty).
-	 * @deprecated since 8 April 2014 (Sakai 10), this is not useful and would perform very badly
-	 */
-	public List<MessageChannel> getChannels()
-	{
-		List<MessageChannel> channels = m_storage.getChannels();
-		return channels;
-	} // getChannels
-
-	/**
 	 * check permissions for getChannel().
 	 * 
 	 * @param ref
@@ -529,6 +508,42 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		return unlockCheck(SECURE_READ, ref);
 
 	} // allowGetChannel
+
+	public boolean isMessageViewable(Message message) {
+
+		ResourceProperties messageProps = message.getProperties();
+
+		String siteId = m_entityManager.newReference(message.getReference()).getContext();
+
+		if (unlockCheck(SECURE_READ_DRAFT, m_siteService.siteReference(siteId))) {
+			return true;
+		}
+
+		if (message.getHeader().getDraft()) return false;
+
+		Instant now = Instant.now();
+		try {
+			Instant releaseDate = message.getProperties().getInstantProperty(RELEASE_DATE);
+
+			if (now.isBefore(releaseDate)) {
+				return false;
+			}
+		} catch (Exception e) {
+			// Just not using/set Release Date
+		}
+
+		try {
+			Instant retractDate = message.getProperties().getInstantProperty(RETRACT_DATE);
+
+			if (now.isAfter(retractDate)) {
+				return false;
+			}
+		} catch (Exception e) {
+			// Just not using/set Retract Date
+		}
+
+		return true;
+	}
 
 	/**
 	 * Return a specific channel.
@@ -647,11 +662,12 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		// But it *has* been added - so we should know this happenned one
 		// way or another.
 		String channel_reference = "";
-		if (channel != null) 
+		if (channel != null) {
 			channel_reference = channel.getReference();
-		else
+		} else {
 			log.info("addChannel: null channel returned from putChannel("+ref+")");
-		
+		}
+
 		Event event = m_eventTrackingService.newEvent(eventId(SECURE_CREATE), channel_reference, true);
 		m_eventTrackingService.post(event);
 
@@ -875,8 +891,9 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		Message m = ((BaseMessageChannelEdit) c).findMessage(ref.getId());
 
 		// check security on the message, if not public
-		if (m.getProperties().getProperty(ResourceProperties.PROP_PUBVIEW) == null ||
-			 !m.getProperties().getProperty(ResourceProperties.PROP_PUBVIEW).equals(Boolean.TRUE.toString()))
+		if (m != null
+				&& (m.getProperties().getProperty(ResourceProperties.PROP_PUBVIEW) == null
+                || !m.getProperties().getProperty(ResourceProperties.PROP_PUBVIEW).equals(Boolean.TRUE.toString())))
 		{
 			boolean isDraft = m.getHeader().getDraft();
 			if (!allowGetMessage(channelReference(ref.getContext(), ref.getContainer()), ref.getReference(), isDraft))
@@ -2665,6 +2682,12 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			removeFromFindMessagesCache(edit);
 
 			// track event
+			if (edit.getReference().contains("motd")) {
+				Event event = m_eventTrackingService.newEvent(EVENT_MOTD_NEW, edit.getReference(), true,
+							priority);
+				m_eventTrackingService.post(event);
+			}
+
 			Event event = m_eventTrackingService.newEvent(eventId(((BaseMessageEdit) edit).getEvent()), edit.getReference(), true,
 						priority);
 			m_eventTrackingService.post(event);
@@ -4017,7 +4040,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			}
 
 			// verify that the user has permission to add in the channel context
-			boolean allowed = (m_message != null) && (((BaseMessageEdit) m_message).m_channel).allowAddChannelMessage();
+			boolean allowed = ((BaseMessageEdit) m_message).getPropertiesEdit().get("selectedRoles") != null || ((m_message != null) && (((BaseMessageEdit) m_message).m_channel).allowAddChannelMessage());
 			if (!allowed)
 			{
 				throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), "access:channel", ((BaseMessageEdit) m_message).getReference());				

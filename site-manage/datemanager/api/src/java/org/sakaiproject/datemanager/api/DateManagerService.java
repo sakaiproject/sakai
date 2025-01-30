@@ -16,9 +16,11 @@
 package org.sakaiproject.datemanager.api;
 
 import java.util.Locale;
+import java.util.Optional;
 
 import org.json.simple.JSONArray;
 import org.sakaiproject.datemanager.api.model.DateManagerValidation;
+import org.sakaiproject.site.api.Site;
 
 public interface DateManagerService {
 
@@ -27,7 +29,9 @@ public interface DateManagerService {
 	// Global methods
 	public String getCurrentUserId();
 	public String getCurrentSiteId();
+	public Optional<Site> getCurrentSite();
 	public Locale getUserLocale();
+        public Locale getLocaleForCurrentSiteAndUser();
 	public String getMessage(String messageId);
 	public boolean currentSiteContainsTool(String commonId);
 	public String getToolTitle(String commonId);
@@ -56,11 +60,13 @@ public interface DateManagerService {
 	public JSONArray getResourcesForContext(String siteId);
 	public DateManagerValidation validateResources(String siteId, JSONArray resources) throws Exception;
 	public void updateResources(DateManagerValidation resourceValidation) throws Exception;
+	public void clearUpdateResourceLocks(DateManagerValidation resourceValidation) throws Exception;
 
 	// Calendar methods
 	public JSONArray getCalendarEventsForContext(String siteId);
 	public DateManagerValidation validateCalendarEvents(String siteId, JSONArray calendarEvents) throws Exception;
 	public void updateCalendarEvents(DateManagerValidation calendarValidation) throws Exception;
+	public void clearUpdateCalendarLocks(DateManagerValidation calendarValidation) throws Exception;
 
 	// Forum methods
 	public JSONArray getForumsForContext(String siteId);
@@ -71,9 +77,15 @@ public interface DateManagerService {
 	public JSONArray getAnnouncementsForContext(String siteId);
 	public DateManagerValidation validateAnnouncements(String siteId, JSONArray announcements) throws Exception;
 	public void updateAnnouncements(DateManagerValidation announcementValidation) throws Exception;
+	public void clearUpdateAnnouncementLocks(DateManagerValidation announcementValidation) throws Exception;
 
 	// Lessons methods
 	public JSONArray getLessonsForContext(String siteId);
 	public DateManagerValidation validateLessons(String siteId, JSONArray lessons) throws Exception;
 	public void updateLessons(DateManagerValidation lessonsValidation) throws Exception;
+
+	public DateManagerValidation validateTool(String toolId, int idx, String[][] columnsNames, String[] toolColumnsAux);
+	public void updateTool(String toolId, DateManagerValidation dateManagerValidation);
+
+	public boolean isChanged(String toolId, String[] columns);
 }

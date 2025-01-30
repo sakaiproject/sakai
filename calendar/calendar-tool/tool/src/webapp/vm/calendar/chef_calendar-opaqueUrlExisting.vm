@@ -15,7 +15,7 @@
 			$tlang.getString('ical_opaqueurl_myworkspace')
 		</p>
 	#end
-	<div class="well">
+	<div class="card mb-3 p-3">
 		<p>$tlang.getString("ical_opaqueurl_webcal")<br/>
 			<a href="$!webcalUrl" target="_new_">$webcalUrl</a>
 		</p>

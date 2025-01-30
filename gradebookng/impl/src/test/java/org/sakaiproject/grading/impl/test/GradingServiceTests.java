@@ -23,10 +23,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.AssessmentNotFoundException;
 import org.sakaiproject.grading.api.CategoryDefinition;
@@ -34,8 +37,8 @@ import org.sakaiproject.grading.api.CommentDefinition;
 import org.sakaiproject.grading.api.CourseGradeTransferBean;
 import org.sakaiproject.grading.api.GradebookInformation;
 import org.sakaiproject.grading.api.GradeDefinition;
-import org.sakaiproject.grading.api.GradeType;
 import org.sakaiproject.grading.api.GradingAuthz;
+import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.grading.api.GradingSecurityException;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.grading.api.model.CourseGrade;
@@ -47,10 +50,12 @@ import org.sakaiproject.grading.api.repository.LetterGradePercentMappingReposito
 import org.sakaiproject.grading.impl.GradingServiceImpl;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.plus.api.PlusService;
 import org.sakaiproject.util.ResourceLoader;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,11 +79,13 @@ import org.junit.runner.RunWith;
 public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContextTests {
 
     @Autowired private CourseGradeRepository courseGradeRepository;
+    @Autowired private EntityManager entityManager;
     @Autowired private GradingService gradingService;
     @Autowired private LetterGradePercentMappingRepository letterGradePercentMappingRepository;
     @Autowired private SecurityService securityService;
     @Autowired private SessionManager sessionManager;
     @Autowired private SiteService siteService;
+    @Autowired private PlusService plusService;
     @Autowired private UserDirectoryService userDirectoryService;
 
     private ResourceLoader resourceLoader;
@@ -347,7 +354,7 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
         def1.setDateRecorded(new Date());
         def1.setGrade("16.4");
         def1.setGradeComment("Great");
-        def1.setGradeEntryType(GradeType.POINTS);
+        def1.setGradeEntryType(GradingConstants.GRADE_TYPE_POINTS);
 
         GradeDefinition def2 = new GradeDefinition();
         def2.setStudentUid(user2);
@@ -355,7 +362,7 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
         def2.setDateRecorded(new Date());
         def2.setGrade("12.5");
         def2.setGradeComment("Good");
-        def2.setGradeEntryType(GradeType.POINTS);
+        def2.setGradeEntryType(GradingConstants.GRADE_TYPE_POINTS);
 
         gradingService.saveGradesAndComments(gradebook.getUid(), id, List.<GradeDefinition>of(def1, def2));
 
@@ -418,6 +425,20 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
 
         gradingService.deleteAssignmentScoreComment(gradebook.getUid(), ass1Id, user1);
         commentDefinition = gradingService.getAssignmentScoreComment(gradebook.getUid(), ass1Id, user1);
+        assertNull(commentDefinition);
+    }
+
+    @Test
+    public void courseGradeComment() {
+        Gradebook gradebook = createGradebook();
+        String comment = "This is your course grade.";
+
+        gradingService.setAssignmentScoreComment(gradebook.getUid(), gradingService.getCourseGradeId(gradebook.getId()), user1, comment);
+        CommentDefinition commentDefinition = gradingService.getAssignmentScoreComment(gradebook.getUid(), gradingService.getCourseGradeId(gradebook.getId()), user1);
+        assertEquals(comment, commentDefinition.getCommentText());
+
+        gradingService.deleteAssignmentScoreComment(gradebook.getUid(), gradingService.getCourseGradeId(gradebook.getId()), user1);
+        commentDefinition = gradingService.getAssignmentScoreComment(gradebook.getUid(), gradingService.getCourseGradeId(gradebook.getId()), user1);
         assertNull(commentDefinition);
     }
 
@@ -512,7 +533,7 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
 
         String perm = gradingService.getGradeViewFunctionForUserForStudentForItem(gradebook.getUid(), id, user1);
 
-        assertEquals(GradingService.gradePermission, perm);
+        assertEquals(GradingConstants.gradePermission, perm);
         
         switchToUser1();
 
@@ -587,12 +608,16 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
         assertThrows(IllegalArgumentException.class, () -> gradingService.getGradesWithoutCommentsForStudentsForItems(gradebook.getUid(), null, null));
 
         switchToUser2();
+        assertThrows(GradingSecurityException.class, () -> gradingService.getGradesWithoutCommentsForStudentsForItems(gradebook.getUid(), List.of(assId), List.of(user1)));
 
-        assertThrows(GradingSecurityException.class, () -> gradingService.getGradesWithoutCommentsForStudentsForItems(gradebook.getUid(), List.<Long>of(assId), List.<String>of(user1)));
+        switchToUser1(); // user1 should be able to view their own grades
+        Map<Long, List<GradeDefinition>> user1Grades = gradingService.getGradesWithoutCommentsForStudentsForItems(gradebook.getUid(), List.of(assId), List.of(user1));
+        assertEquals(1, user1Grades.size());
+        assertEquals(1, user1Grades.get(assId).size());
+        assertEquals(user1, user1Grades.get(assId).get(0).getStudentUid());
 
         switchToInstructor();
-
-        Map<Long, List<GradeDefinition>> gradeMap = gradingService.getGradesWithoutCommentsForStudentsForItems(gradebook.getUid(), List.<Long>of(assId), List.<String>of(user1));
+        Map<Long, List<GradeDefinition>> gradeMap = gradingService.getGradesWithoutCommentsForStudentsForItems(gradebook.getUid(), List.of(assId), List.of(user1));
 
         // The keys should be the assignment ids
         assertTrue(gradeMap.keySet().contains(assId));
@@ -602,8 +627,46 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
         assertEquals(grade, defs.get(0).getGrade());
         assertEquals(user1, defs.get(0).getStudentUid());
         assertEquals(instructor, defs.get(0).getGraderUid());
-        assertEquals(GradeType.POINTS, defs.get(0).getGradeEntryType());
+        assertEquals(GradingConstants.GRADE_TYPE_POINTS, defs.get(0).getGradeEntryType());
         assertNull(defs.get(0).getGradeComment());
+    }
+
+    @Test
+    public void getUrlForAssignment() {
+
+        Gradebook gradebook = createGradebook();
+
+        ToolConfiguration tc = mock(ToolConfiguration.class);
+        when(tc.getId()).thenReturn("123456");
+
+
+        Site site = mock(Site.class);
+        when(site.getToolForCommonId("sakai.gradebookng")).thenReturn(tc);
+
+        try {
+            when(siteService.getSite(gradebook.getUid())).thenReturn(site);
+        } catch (Exception e) {
+        }
+
+        String externalId = "bf3eeca2-1b97-4ead-b605-a8b50a0c6950";
+        String reference = "/ref/" + externalId;
+        String url = "http://localhost/portal/directtool/xhelkdh";
+        when(entityManager.getUrl(reference, Entity.UrlType.PORTAL)).thenReturn(Optional.of(url));
+        String title = "External One";
+        Double points = 55.3D;
+        Date dueDate = new Date();
+        String description = "The Sakai assignments tool";
+
+        gradingService.addExternalAssessment(gradebook.getUid(), externalId, "http://eggs.com", title, points, dueDate, description, "data", false, null, reference);
+        Assignment assignment = gradingService.getExternalAssignment(gradebook.getUid(), externalId);
+        assertEquals(url, gradingService.getUrlForAssignment(assignment));
+
+        // If the gradable reference hasn't been supplied, we should get the gradebook tool url
+        String gradebookUrl = "/portal/directtool/" + tc.getId();
+        title = "External Two";
+        gradingService.addExternalAssessment(gradebook.getUid(), "blah", "http://ham.com", title, points, dueDate, description, "data", false, null);
+        assignment = gradingService.getExternalAssignment(gradebook.getUid(), "blah");
+        assertEquals(gradebookUrl, gradingService.getUrlForAssignment(assignment));
     }
 
     private Long createAssignment1(Gradebook gradebook) {
@@ -678,6 +741,7 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
     private void switchToUser1() {
 
         when(sessionManager.getCurrentSessionUserId()).thenReturn(user1);
+        when(securityService.unlock(GradingAuthz.PERMISSION_VIEW_OWN_GRADES, "/site/" + siteId)).thenReturn(true);
         when(securityService.unlock(GradingAuthz.PERMISSION_EDIT_ASSIGNMENTS, "/site/" + siteId)).thenReturn(false);
         when(securityService.unlock(GradingAuthz.PERMISSION_GRADE_ALL, "/site/" + siteId)).thenReturn(false);
         try {
@@ -689,6 +753,7 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
     private void switchToUser2() {
 
         when(sessionManager.getCurrentSessionUserId()).thenReturn(user2);
+        when(securityService.unlock(GradingAuthz.PERMISSION_VIEW_OWN_GRADES, "/site/" + siteId)).thenReturn(true);
         when(securityService.unlock(GradingAuthz.PERMISSION_EDIT_ASSIGNMENTS, "/site/" + siteId)).thenReturn(false);
         when(securityService.unlock(GradingAuthz.PERMISSION_GRADE_ALL, "/site/" + siteId)).thenReturn(false);
         try {

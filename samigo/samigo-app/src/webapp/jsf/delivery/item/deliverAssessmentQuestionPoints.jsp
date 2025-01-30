@@ -16,7 +16,7 @@
 **********************************************************************************/
 --%>
 
-<p class="input-group-addon">
+<p class="input-group-addon ps-4 border-start-0">
   <%-- REVIEW ASSESSMENT --%>
   <h:outputText value="#{question.roundedMaxPointsToDisplay} #{deliveryMessages.pt}" rendered="#{delivery.actionString=='reviewAssessment'}"/>
   <%-- DELIVER ASSESSMENT --%>

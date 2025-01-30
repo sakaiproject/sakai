@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.sakaiproject</groupId>
     <artifactId>master</artifactId>
-    <version>23-SNAPSHOT</version>
+    <version>25-SNAPSHOT</version>
     <relativePath>../master/pom.xml</relativePath>
   </parent>
 
@@ -94,7 +94,7 @@
       </dependency>
       <!-- IMPL dependencies -->
       <dependency>
-        <groupId>org.azeckoski</groupId>
+        <groupId>org.sakaiproject</groupId>
         <artifactId>reflectutils</artifactId>
         <version>${reflectutils.version}</version>
       </dependency>

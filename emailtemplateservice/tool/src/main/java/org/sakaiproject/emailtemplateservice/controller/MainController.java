@@ -193,7 +193,7 @@ public class MainController {
         //key can't be null
         if (StringUtils.isBlank(emailTemplate.getKey())) {
             errors.add(messageSource.getMessage("error.nokey", null, loc));
-        } else if (emailTemplateService.templateExists(emailTemplate.getKey(), templateLocale)) {
+        } else if (emailTemplateService.templateExistsWithDifferentId(emailTemplate.getKey(), templateLocale, emailTemplate.getId())) {
             errors.add(messageSource.getMessage("error.duplicatekey", null, loc));
         }
 

@@ -99,12 +99,12 @@ public class ResourceConditionsHelper {
 			}
 			double assignmentPoints = 0;
 			try {
-				assignmentPoints = new Double(assignmentPointsString);
+				assignmentPoints = Double.parseDouble(assignmentPointsString);
 			} catch (NumberFormatException e) {
 				return;
 			}
 			if (((Double)argument < 0) || ((Double)argument > assignmentPoints)) {
-			    VelocityPortletPaneledAction.addAlert(state, rb.getFormattedMessage("conditions.condition.argument.outofrange", new String[] { assignmentPointsString }));
+			    VelocityPortletPaneledAction.addAlert(state, rb.getFormattedMessage("conditions.condition.argument.outofrange", assignmentPointsString));
 				return;
 			}
 			log.debug("argument: {}", argument);

@@ -27,7 +27,8 @@ import java.util.Date;
 import java.util.Stack;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.xerces.impl.dv.util.Base64;
+
+import java.util.Base64;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.Document;
@@ -35,7 +36,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.util.BaseResourceProperties;
@@ -200,8 +200,7 @@ public class RWikiEntityImpl implements RWikiEntity
 		content.setAttribute("enc", "BASE64");
 		try
 		{
-			String b64Content = Base64.encode(rwo.getContent()
-					.getBytes("UTF-8"));
+			String b64Content = Base64.getEncoder().encodeToString(rwo.getContent().getBytes("UTF-8"));
 			CDATASection t = doc.createCDATASection(b64Content);
 			stack.push(t);
 			content.appendChild(t);
@@ -260,8 +259,7 @@ public class RWikiEntityImpl implements RWikiEntity
 				CharacterData cdnode = (CharacterData) n;
 				try
 				{
-					content.append(new String(Base64.decode(cdnode.getData()),
-							"UTF-8"));
+					content.append(new String(Base64.getDecoder().decode(cdnode.getData()), "UTF-8"));
 				}
 				catch (Throwable t)
 				{

@@ -20,13 +20,18 @@ package org.sakaiproject.archive.impl;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+
 import lombok.extern.slf4j.Slf4j;
+import lombok.Setter;
 
 import org.apache.commons.codec.binary.Base64;
 
@@ -48,18 +53,23 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.util.Xml;
 
 @Slf4j
 public class SiteMerger {
 	protected static HashMap userIdTrans = new HashMap();
-	
+
 	/**********************************************/
 	/* Injected Dependencies                      */
 	/**********************************************/
+
+	@Setter private LTIService ltiService;
+
 	protected AuthzGroupService m_authzGroupService = null;
 	public void setAuthzGroupService(AuthzGroupService service) {
 		m_authzGroupService = service;
@@ -83,6 +93,11 @@ public class SiteMerger {
     protected EntityManager m_entityManager = null;
     public void setEntityManager(EntityManager m_entityManager) {
         this.m_entityManager = m_entityManager;
+    }
+
+    protected ServerConfigurationService m_serverConfigurationService;
+    public void setServerConfigurationService(ServerConfigurationService m_serverConfigurationService) {
+        this.m_serverConfigurationService = m_serverConfigurationService;
     }
 
     //	 only the resources created by the followinng roles will be imported
@@ -112,8 +127,11 @@ public class SiteMerger {
 
 		File[] files = null;
 
-		// see if the name is a directory
-		File file = new File(m_storagePath + fileName);
+		// See if the name is a rooted directory in tomcat.home
+		if ( ! fileName.startsWith("/") ) {
+			fileName = m_storagePath + fileName;
+		}
+		File file = new File(fileName);
 		if ((file == null) || (!file.exists()))
 		{
 			results.append("file: " + fileName + " not found.\n");
@@ -121,11 +139,11 @@ public class SiteMerger {
 			return results.toString();
 		} else {
 			try {
-				// Path outside archive location, discard !
-				File baseLocation = new File(m_storagePath);
-				if (!file.getCanonicalPath().startsWith(baseLocation.getCanonicalPath())) {
+				// Path must be within tomcat.home (one up from SakaiHome)
+				File baseLocation = new File(m_serverConfigurationService.getSakaiHomePath());
+				if (!file.getCanonicalPath().startsWith(baseLocation.getParent())) {
 					throw new Exception();
-		}
+				}
 			} catch (Exception ex) {
 				results.append("file: " + fileName + " not permitted.\n");
 				log.warn("merge(): file not permitted: " + file.getPath());
@@ -145,24 +163,47 @@ public class SiteMerger {
 
 		// track old to new attachment names
 		Map attachmentNames = new HashMap();		
+		Map<Long, Map<String, Object>> ltiContentItems = new HashMap();
 		
+		// The archive.xml is really a debug log, not actual archive data - it does not participate in any merge
+		for (int i = 0; i < files.length; i++)
+		{
+			if ((files[i] != null) && (files[i].getPath().indexOf("archive.xml") != -1))
+			{
+				files[i] = null;
+				break;
+			}
+		}
+
+		// Pull in the ltiContentItems for use in later merges
+		for (int i = 0; i < files.length; i++)
+		{
+			if ((files[i] != null) && (files[i].getPath().indexOf("basiclti.xml") != -1))
+			{
+				processLti(files[i].getPath(), siteId, results, ltiContentItems);
+				files[i] = null;
+				break;
+			}
+		}
+
 		// firstly, merge the users
 		for (int i = 0; i < files.length; i++)
 		{
 			if ((files[i] != null) && (files[i].getPath().indexOf("user.xml") != -1))
 			{
-				processMerge(files[i].getPath(), siteId, results, attachmentNames, null, filterSakaiServices, filteredSakaiServices, filterSakaiRoles, filteredSakaiRoles);
+				processMerge(files[i].getPath(), siteId, results, attachmentNames, ltiContentItems, null, filterSakaiServices, filteredSakaiServices, filterSakaiRoles, filteredSakaiRoles);
 				files[i] = null;
 				break;
 			}
 		}
 		
-		// see if there's a site definition
+		// see if there's a site definition which we will process at the end.
+		String siteFile = null;
 		for (int i = 0; i < files.length; i++)
 		{
 			if ((files[i] != null) && (files[i].getPath().indexOf("site.xml") != -1))
 			{
-				processMerge(files[i].getPath(), siteId, results, attachmentNames, creatorId, filterSakaiServices, filteredSakaiServices, filterSakaiRoles, filteredSakaiRoles);
+				siteFile = files[i].getPath();
 				files[i] = null;
 				break;
 			}
@@ -173,7 +214,7 @@ public class SiteMerger {
 		{
 			if ((files[i] != null) && (files[i].getPath().indexOf("attachment.xml") != -1))
 			{
-				processMerge(files[i].getPath(), siteId, results, attachmentNames, null, filterSakaiServices, filteredSakaiServices, filterSakaiRoles, filteredSakaiRoles);
+				processMerge(files[i].getPath(), siteId, results, attachmentNames, ltiContentItems, null, filterSakaiServices, filteredSakaiServices, filterSakaiRoles, filteredSakaiRoles);
 				files[i] = null;
 				break;
 			}
@@ -184,7 +225,14 @@ public class SiteMerger {
 		{
 			if (files[i] != null)
 				if (files[i].getPath().endsWith(".xml"))
-					processMerge(files[i].getPath(), siteId, results, attachmentNames, null, filterSakaiServices, filteredSakaiServices, filterSakaiRoles, filteredSakaiRoles);
+				{
+					processMerge(files[i].getPath(), siteId, results, attachmentNames, ltiContentItems, creatorId, filterSakaiServices, filteredSakaiServices, filterSakaiRoles, filteredSakaiRoles);
+				}
+		}
+
+		if (siteFile != null )
+		{
+			processMerge(siteFile, siteId, results, attachmentNames, ltiContentItems, creatorId, filterSakaiServices, filteredSakaiServices, filterSakaiRoles, filteredSakaiRoles);
 		}
 
 		return results.toString();
@@ -197,10 +245,11 @@ public class SiteMerger {
 	* @param siteId The id of the site to merge the content into.
 	* @param results A buffer to accumulate result messages.
 	* @param attachmentNames A map of old to new attachment names.
+	* @param ltiContentItems A map of LTI Content Items associated with this import
 	* @param useIdTrans A map of old WorkTools id to new Ctools id
 	* @param creatorId The creator id
 	*/
-	protected void processMerge(String fileName, String siteId, StringBuilder results, Map attachmentNames, String creatorId, boolean filterSakaiService, String[] filteredSakaiService, boolean filterSakaiRoles, String[] filteredSakaiRoles)
+	protected void processMerge(String fileName, String siteId, StringBuilder results, Map attachmentNames, Map<Long, Map<String, Object>> ltiContentItems, String creatorId, boolean filterSakaiService, String[] filteredSakaiService, boolean filterSakaiRoles, String[] filteredSakaiRoles)
 	{
 		// correct for windows backslashes
 		fileName = fileName.replace('\\', '/');
@@ -253,7 +302,7 @@ public class SiteMerger {
 				//if (system.equalsIgnoreCase(ArchiveService.FROM_WT))
 				//	mergeSite(siteId, fromSite, element, userIdTrans, creatorId);
 				//else
-				mergeSite(siteId, fromSite, element, new HashMap()/*empty userIdMap */, creatorId, filterSakaiRoles, filteredSakaiRoles);
+				mergeSite(siteId, fromSite, element, new HashMap()/*empty userIdMap */, creatorId, ltiContentItems, filterSakaiRoles, filteredSakaiRoles);
 			}
 			else if (element.getTagName().equals(UserDirectoryService.APPLICATION_ID))
 			{	;
@@ -289,7 +338,7 @@ public class SiteMerger {
 					EntityProducer service = (EntityProducer) ComponentManager.get(serviceName);
                     if (service == null) {
                         // find the service using the EntityManager
-                        List<EntityProducer> entityProducers = m_entityManager.getEntityProducers();
+                        Collection<EntityProducer> entityProducers = m_entityManager.getEntityProducers();
                         for (EntityProducer entityProducer : entityProducers) {
                             if (serviceName.equals(entityProducer.getClass().getName())
                                     || serviceName.equals(entityProducer.getLabel())
@@ -307,8 +356,8 @@ public class SiteMerger {
 						    if ((system.equalsIgnoreCase(ArchiveService.FROM_SAKAI) || system.equalsIgnoreCase(ArchiveService.FROM_SAKAI_2_8))) {
 						        if (checkSakaiService(filterSakaiService, filteredSakaiService, serviceName)) {
 						            // checks passed so now we attempt to do the merge
-		                            if (log.isDebugEnabled()) log.debug("Merging archive data for "+serviceName+" ("+fileName+") to site "+siteId);
-		                            msg = service.merge(siteId, element, fileName, fromSite, attachmentNames, new HashMap() /* empty userIdTran map */, usersListAllowImport);
+		                            log.debug("Merging archive data for {} ({}) to site {}", serviceName, fileName, siteId);
+		                            msg = service.merge(siteId, element, fileName, fromSite, creatorId, attachmentNames, ltiContentItems, new HashMap() /* empty userIdTran map */, usersListAllowImport);
 						        } else {
 						            log.warn("Skipping merge archive data for "+serviceName+" ("+fileName+") to site "+siteId+", checked filter failed (filtersOn="+filterSakaiService+", filters="+Arrays.toString(filteredSakaiService)+")");
 						        }
@@ -335,6 +384,69 @@ public class SiteMerger {
 		}
 
 	}	// processMerge
+
+	/**
+	* Read in the archive file and pull out Content Items
+	* @param fileName The site name (for the archive file) to read from.
+	* @param siteId The id of the site to merge the content into.
+	* @param results A buffer to accumulate result messages.
+	* @param ltiContentItems A map of LTI Content Items associated with this import
+	*/
+	protected void processLti(String fileName, String siteId, StringBuilder results, Map<Long, Map<String, Object>> ltiContentItems)
+	{
+		// correct for windows backslashes
+		fileName = fileName.replace('\\', '/');
+
+		if (log.isDebugEnabled())
+			log.debug("merge(): processing file: " + fileName);
+
+		// read the whole file into a DOM
+		Document doc = Xml.readDocument(fileName);
+		if (doc == null)
+		{
+			results.append("Error reading xml from: " + fileName + "\n");
+			return;
+		}
+
+		// verify the root element
+		Element root = doc.getDocumentElement();
+		if (!root.getTagName().equals("archive"))
+		{
+			results.append("File: " + fileName + " does not contain archive xml.  Found this root tag: " + root.getTagName() + "\n");
+			return;
+		}
+
+		// the children lti tools ARCHIVE_LTI_CONTENT_TAG
+		NodeList contentNodes = root.getElementsByTagName(LTIService.ARCHIVE_LTI_CONTENT_TAG);
+		final int length = contentNodes.getLength();
+		for(int i = 0; i < length; i++)
+		{
+			Node contentNode = contentNodes.item(i);
+			if (contentNode.getNodeType() != Node.ELEMENT_NODE) continue;
+			Element contentElement = (Element)contentNode;
+
+			Map<String, Object> content = new HashMap();
+			Map<String, Object> tool = new HashMap();
+			ltiService.mergeContent(contentElement, content, tool);
+			String contentErrors = ltiService.validateContent(content);
+			if ( contentErrors != null ) {
+				log.warn("import found invalid content tag {}", contentErrors);
+				continue;
+			}
+
+			String toolErrors = ltiService.validateTool(tool);
+			if ( toolErrors != null ) {
+				log.warn("import found invalid tool tag {}", toolErrors);
+				continue;
+			}
+			Long contentId = ltiService.getId(content);
+			if ( contentId > 0 ) {
+				content.put(LTIService.TOOL_IMPORT_MAP, tool);
+				ltiContentItems.put(contentId, content);
+			}
+		}
+
+	}	// processLti
 	
 	/**
 	* Merge the site definition from the site part of the archive file into the site service.
@@ -343,11 +455,12 @@ public class SiteMerger {
 	* @param fromSiteId The id of the site the archive was made from.
 	* @param element The XML DOM tree of messages to merge.
 	* @param creatorId The creator id
+	* @param ltiContentItems A map of LTI Content Items associated with this import
 	*/
-	protected void mergeSite(String siteId, String fromSiteId, Element element, HashMap useIdTrans, String creatorId, boolean filterSakaiRoles, String[] filteredSakaiRoles)
+	protected void mergeSite(String siteId, String fromSiteId, Element element, HashMap useIdTrans, String creatorId, Map<Long, Map<String,Object>> ltiContentItems, boolean filterSakaiRoles, String[] filteredSakaiRoles)
 	{
 		String source = "";
-					
+
 		Node parent = element.getParentNode();
 		if (parent.getNodeType() == Node.ELEMENT_NODE)
 		{
@@ -379,6 +492,36 @@ public class SiteMerger {
 					}
 				}
 				element3.setAttribute("toolId", toolId);
+
+				// If this is a sakai.web.168 that launches an LTI url
+				// import the associated content item and tool and re-link them
+				// to the tool placement
+				if ( LTIService.WEB_PORTLET.equals(toolId) ) {
+					Element foundProperty = null;
+					NodeList propertyChildren = element3.getElementsByTagName("property");
+					for(int i3 = 0; i3 < propertyChildren.getLength(); i3++)
+					{
+						Element propElement = (Element)propertyChildren.item(i3);
+						String propname = propElement.getAttribute("name");
+						if ( "source".equals(propname) ) {
+							String propvalue = Xml.decodeAttribute(propElement, "value");
+							if ( ltiService.getContentKeyFromLaunch(propvalue) > 0 ) {
+								foundProperty = propElement;
+								break;
+							}
+						}
+					}
+
+					if ( foundProperty != null ) {
+						Long contentKey = ltiService.mergeContentFromImport(element, siteId);
+						if ( contentKey != null ) {
+							Map<String, Object> theContent = ltiService.getContent(contentKey, siteId);
+							String launchUrl = ltiService.getContentLaunch(theContent);
+							Xml.encodeAttribute(foundProperty, "value", launchUrl);
+						}
+					}
+				}
+
 			}
 				
 			// merge the site info first

@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -31,7 +32,6 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
-import org.sakaiproject.grading.api.GradingCategoryType;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
@@ -42,7 +42,7 @@ import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.grading.api.CategoryScoreData;
 import org.sakaiproject.grading.api.CourseGradeTransferBean;
 import org.sakaiproject.grading.api.GradebookInformation;
-import org.sakaiproject.grading.api.GradeType;
+import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.grading.api.SortType;
 import org.sakaiproject.grading.api.model.Gradebook;
 
@@ -53,7 +53,7 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
-	GradingCategoryType configuredCategoryType;
+	Integer configuredCategoryType;
 
 	// used as a visibility flag. if any are released, show the table
 	boolean someAssignmentsReleased = false;
@@ -76,8 +76,8 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 		final boolean groupedByCategoryByDefault = (Boolean) modelData.get("groupedByCategoryByDefault");
 
 		this.configuredCategoryType = gradebook.getCategoryType();
-		this.isGroupedByCategory = groupedByCategoryByDefault && this.configuredCategoryType != GradingCategoryType.NO_CATEGORY;
-		this.categoriesEnabled = this.configuredCategoryType != GradingCategoryType.NO_CATEGORY;
+		this.isGroupedByCategory = groupedByCategoryByDefault && !Objects.equals(this.configuredCategoryType, GradingConstants.CATEGORY_TYPE_NO_CATEGORY);
+		this.categoriesEnabled = !Objects.equals(this.configuredCategoryType, GradingConstants.CATEGORY_TYPE_NO_CATEGORY);
 		this.isAssignmentsDisplayed = gradebook.getAssignmentsDisplayed();
 
 		final GradebookInformation settings = getSettings();
@@ -95,6 +95,10 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 		final String userId = (String) modelData.get("studentUuid");
 
 		final Gradebook gradebook = getGradebook();
+		String studentCourseGradeComment = this.businessService.getAssignmentGradeComment(businessService.getCurrentSiteId(), this.businessService.getCourseGradeId(gradebook.getId()), userId);
+		if (StringUtils.isEmpty(studentCourseGradeComment)){
+			studentCourseGradeComment = " -";
+		}
 		final CourseGradeFormatter courseGradeFormatter = new CourseGradeFormatter(
 				gradebook,
 				GbRole.STUDENT,
@@ -224,7 +228,7 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 		};
 
 		courseGradePanel.add(courseGradeStatsLink);
-
+		courseGradePanel.addOrReplace(new Label("studentCourseGradeComment", studentCourseGradeComment));
 		add(new AttributeModifier("data-studentid", userId));
 	}
 
@@ -247,7 +251,7 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 	 * @return
 	 */
 	private boolean isCategoryWeightEnabled() {
-		return this.configuredCategoryType == GradingCategoryType.WEIGHTED_CATEGORY;
+		return Objects.equals(this.configuredCategoryType, GradingConstants.CATEGORY_TYPE_WEIGHTED_CATEGORY);
 	}
 
 	private void storeAvgAndMarkIfDropped(final CategoryScoreData avg, final Long catId, final Map<Long, Double> categoryAverages,

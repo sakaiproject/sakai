@@ -25,7 +25,11 @@
                 #parse("/vm/morpheus/snippets/skipNav-snippet.vm")
 
                 ## IncludePage
-                #parse("/vm/morpheus/includePage.vm")
+                <div id="container" class="Mrphs-container Mrphs-container--portal $!{pageSiteType}">
+
+                    #parse("/vm/morpheus/includePage.vm")
+
+                </div>
 
             </div>
 

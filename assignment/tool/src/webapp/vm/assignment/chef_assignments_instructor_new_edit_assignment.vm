@@ -1,5 +1,6 @@
 <!-- start: chef_assignments_instructor_new_edit_assignment.vm  -->
 #set( $H = '-' )
+#set( $T = 'T' )
 #rubricsRequirements
 <!-- Initialize the Bootstrap-multiselect plugin: -->
 <script>
@@ -12,11 +13,30 @@
             filterPlaceholder: '$tlang.getString("asn.edit.searchgroup")',
             enableFiltering: true,
             enableCaseInsensitiveFiltering: true,
-            includeSelectAllOption: true
+            includeSelectAllOption: true,
+            templates: {
+                button: `
+                    <button type="button"
+                            class="btn btn-primary multiselect dropdown-toggle"
+                            data-bs-toggle="dropdown">
+                        <span class="multiselect-selected-text"></span>
+                        <i class="si si-caret-down-fill ps-2"></i>
+                    </button>
+                `,
+                filter: `
+                    <div class="multiselect-filter d-flex align-items-center"><i class="fa fa-sm fa-search text-muted"></i><input type="search" class="multiselect-search form-control" /></div>
+                `,
+            },
         });
         $('#selectedGroups').change(function(){
             ASN_INE.validateGroupSelection();
         });
+        ASN.checkIframeTags();
+
+        // Initialize tag selector
+        #if ($!tagsEnabled && $!allowAddTags)
+            window.syncTagSelectorInput("tag-selector", "tag_selector");
+        #end
     });
 </script>
 <script>
@@ -61,7 +81,6 @@
         {
 			document.getElementById('External_Tool_Fieldset').style.display = 'block';
 			document.getElementById('ltiSubmissionResubmitNote').style.display = 'block';
-			document.getElementById('assignToSection').style.display = 'none';
 			document.getElementById('site').checked = true;
 			document.getElementById('notificationOptions').style.display = 'none';
 			document.getElementById('notsendnotif').checked = true;
@@ -73,7 +92,6 @@
         } else {
 			document.getElementById('External_Tool_Fieldset').style.display = 'none';
 			document.getElementById('ltiSubmissionResubmitNote').style.display = 'none';
-			document.getElementById('assignToSection').style.display = 'block';
 			document.getElementById('notificationOptions').style.display = 'block';
 			document.getElementById('releaseGradeNotifications').style.display = 'block';
 			document.getElementById('additionalInformation').style.display = 'block';
@@ -126,7 +144,7 @@
 #javascript("/sakai-assignment-tool/js/instructorNewEdit.js")
 
 <div class="portletBody container-fluid">
-	#navBarOnClick( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "newAssignmentForm" "new" )
+	#navBarOnClick( $allowAddAssignment $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "newAssignmentForm" "new" )
 
 	<div class="page-header">
 		<h1>
@@ -139,14 +157,14 @@
 	</div>
 
 	#if ($alertMessage)
-		<div class="sak-banner-error" id="generalAlert">
+		<div class="sak-banner-error" id="generalAlert" role="alert" aria-live="assertive">
 			<strong>$tlang.getString("gen.alert")</strong> $alertMessage
 		</div>
 	#end
 
 	#set($submitnotif="submitnotifTop")
 
-	<form name="newAssignmentForm" id="newAssignmentForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;">
+	<form name="newAssignmentForm" id="newAssignmentForm" action="#toolForm("AssignmentAction")" method="post">
 		<input type="hidden" name="assignmentId" value="$!assignmentId" />
 		<input type="hidden" name="eventSubmit_doAssignment_form" value="" />
 		<input type="hidden" name="option" id="option" value="" />
@@ -157,13 +175,13 @@
 			<label for="$name_title" class="col-sm-12 form-control-label block">
 				$tlang.getString("gen.title")
 			</label>
-			<div class="col-sm-6">
-				<input name="$name_title" id="$name_title" type="text" value="$formattedText.escapeHtml($!value_title)" size="30" maxlength="100" class="form-control" placeholder="$tlang.getString("gen.title")" />
+			<div class="col-sm-8">
+				<input name="$name_title" id="$name_title" type="text" value="$formattedText.escapeHtml($!value_title)" maxlength="100" class="form-control" placeholder="$tlang.getString("gen.title")" />
 			</div>
 		</div>
 
 		<div class="longtext form-group row form-required">
-			<label for="new_assignment_instructions" class="block control-label col-sm-12">
+			<label for="$name_Description" class="block form-control-label col-sm-12">
 				$tlang.getString("gen.assinf")
 			</label>
 			<div class="col-sm-12">
@@ -259,28 +277,16 @@
 				$tlang.getString("gen.visible.date")
 			</label>
 			<div class="col-sm-6 form-inline">
-				<input type="text" id="visibledate" name="visibledate" class="form-control datepicker" value="">
+				<sakai-date-picker
+					label="$tlang.getString("gen.visible.date")"
+					hidden-prefix="new_assignment_visible_"
+					iso-date="$value_VisibleYear$H$value_VisibleMonth$H$value_VisibleDay$T$value_VisibleHour:$value_VisibleMin"
+					add-hidden-fields>
+				</sakai-date-picker>
 				<p class="text-muted small visibleDatePanel" #if(!$!new_assignment_visibletoggle)style="display:none;"#end>
 					$tlang.getString("gen.stuwonsee")
 				</p>
 			</div>
-
-			<script>
-				localDatePicker({
-					input:'#visibledate',
-					useTime:1,
-					val:"$value_VisibleYear$H$value_VisibleMonth$H$value_VisibleDay $value_VisibleHour:$value_VisibleMin",
-					parseFormat: 'YYYY-MM-DD HH:mm',
-					ashidden:{
-						month:"new_assignment_visiblemonth",
-						day:"new_assignment_visibleday",
-						year:"new_assignment_visibleyear",
-						hour:"new_assignment_visiblehour",
-						minute:"new_assignment_visiblemin"
-					}
-				});
-			</script>
-
 		</div>
 		#end
 
@@ -288,54 +294,37 @@
 			<label for="opendate" class="col-sm-2 form-control-label">
 				$tlang.getString("newassig.opedat")
 			</label>
-			<div class="col-sm-6 form-inline">
-				<input type="text" id="opendate" name="opendate" class="form-control datepicker" value="">
+			<div class="col-sm-3 form-inline">
+			    <div class="d-flex align-items-center">
+					<sakai-date-picker
+						id="opendate"
+						label="$tlang.getString("newassig.opedat")"
+						hidden-prefix="new_assignment_open_"
+						iso-date="$value_OpenYear$H$value_OpenMonth$H$value_OpenDay$T$value_OpenHour:$value_OpenMin"
+						add-hidden-fields>
+					</sakai-date-picker>
+				</div>	
 				<p class="text-muted small">
 					$tlang.getString("gen.stucantdo")
 				</p>
 			</div>
-
-			<script>
-			      localDatePicker({
-			      	input:'#opendate',
-			      	useTime:1,
-			      	val:"$value_OpenYear$H$value_OpenMonth$H$value_OpenDay $value_OpenHour:$value_OpenMin",
-			      	parseFormat: 'YYYY-MM-DD HH:mm',
-			      	ashidden:{
-			      		month:"new_assignment_openmonth",
-			      		day:"new_assignment_openday",
-			      		year:"new_assignment_openyear",
-			      		hour:"new_assignment_openhour",
-			      		minute:"new_assignment_openmin"
-			      	}
-			      });
-			</script>
-
 		</div>
 
 		<div class="form-group row form-required">
 			<label for="duedate" class="col-sm-2 form-control-label">
 				$tlang.getString("gen.duedat")
 			</label>
-			<div class="col-sm-6 form-inline">
-				<input type="text" id="duedate" name="duedate" class="form-control datepicker" value="">
+			<div class="col-sm-3 form-inline">
+				<div class="d-flex align-items-center">
+					<sakai-date-picker
+						id="duedate"
+						label="$tlang.getString("gen.duedat")"
+						hidden-prefix="new_assignment_due_"
+						iso-date="$value_DueYear$H$value_DueMonth$H$value_DueDay$T$value_DueHour:$value_DueMin"
+						add-hidden-fields>
+					</sakai-date-picker>
+				</div>	
 			</div>
-
-			<script>
-			      localDatePicker({
-			      	input:'#duedate',
-			      	useTime:1,
-			      	val:"$value_DueYear$H$value_DueMonth$H$value_DueDay $value_DueHour:$value_DueMin",
-			      	parseFormat: 'YYYY-MM-DD HH:mm',
-			      	ashidden:{
-			      		month:"new_assignment_duemonth",
-			      		day:"new_assignment_dueday",
-			      		year:"new_assignment_dueyear",
-			      		hour:"new_assignment_duehour",
-			      		minute:"new_assignment_duemin"
-			      	}
-			      });
-			</script>
  		</div>
 
 		<div class="form-group row form-required">
@@ -343,29 +332,20 @@
 				$tlang.getString("gen.acesubunt")
 			</label>
 			#if ($value_EnableCloseDate)
-			<div class="col-sm-6 form-inline">
-				<input type="text" id="closedate" name="closedate" class="form-control datepicker" value="">
+			<div class="col-sm-3 form-inline">
+			    <div class="d-flex align-items-center">
+					<sakai-date-picker
+						id="closedate"
+						label="$tlang.getString("gen.acesubunt")"
+						hidden-prefix="new_assignment_close_"
+						iso-date="$value_CloseYear$H$value_CloseMonth$H$value_CloseDay$T$value_CloseHour:$value_CloseMin"
+						add-hidden-fields>
+					</sakai-date-picker>
+				</div>
 				<p class="text-muted small">
 					$tlang.getString("gen.noasscan")
 				</p>
 			</div>
-
-			<script>
-			      localDatePicker({
-			      	input:'#closedate',
-			      	useTime:1,
-			      	val:"$value_CloseYear$H$value_CloseMonth$H$value_CloseDay $value_CloseHour:$value_CloseMin",
-			      	parseFormat: 'YYYY-MM-DD HH:mm',
-			      	ashidden:{
-			      		month:"new_assignment_closemonth",
-			      		day:"new_assignment_closeday",
-			      		year:"new_assignment_closeyear",
-			      		hour:"new_assignment_closehour",
-			      		minute:"new_assignment_closemin"
-			      	}
-			      });
-			</script>
-
  			#else
 				<select name="$name_CloseMonth" id="$name_CloseMonth" title="$tlang.getString("dateselectionwidget.month")" disabled="disabled">
 					#foreach ($i in [1..12])
@@ -524,18 +504,20 @@
                         class="form-control" maxlength="100"
                         placeholder="$tlang.getString('external.tool.placeholder')" value="$!value_ContentTitle">
 					<input type="hidden" id="returnContentId" name="$name_ContentId" value="$value_ContentId">
+					<input type="hidden" id="returnContentLaunchNewWindow" name="returnContentLaunchNewWindow">
+					<input type="hidden" id="returnContentToolNewpage" name="$name_ContentToolNewpage" value="$value_ContentToolNewpage">
                     <script>
                         window.returnContentItem = function (contentItem) {
-                            console.log("returnContentItem", contentItem);
+                            console.debug("returnContentItem", contentItem);
                             if ( ! Array.isArray(contentItem) ) return;
                             if ( contentItem.length != 1 ) return;
                             var item = contentItem[0];
-                            console.log("item", item);
+                            console.debug("item", item);
                             // Strangely, https://www.sakailms.org/spec/lti-ags/v2p0/releaseToStudent does not have an analog in Assignments
                             // Content Item Variant
                             if ( item && item.lineItem && item.lineItem.scoreConstraints ) {
                                 var scoreConstraints = item.lineItem.scoreConstraints;
-                                console.log("item.lineItem.scoreConstraints", scoreConstraints);
+                                console.debug("item.lineItem.scoreConstraints", scoreConstraints);
                                 if ( scoreConstraints.normalMaximum  ) {
                                     $("#new_assignment_grade_points").val(scoreConstraints.normalMaximum);
                                 }
@@ -578,6 +560,15 @@
                                     $("#closedate").val(tdate);
                                 }
                             }
+                            // Handle new page
+                            if ( item ) {
+                                if( item.tool_newpage == 2 ) {
+                                    $("#content-launch-new-window-checkbox").show();
+                                    $( "#$name_ContentLaunchNewWindow" ).prop( "checked", ( item.content_newpage == 1 ) );
+                                } else {
+                                    $("#content-launch-new-window-checkbox").hide();
+                                }
+                            }
                         };
                         window.returnContentTitle = function (newTitle) {
                             setTimeout(function(){
@@ -590,14 +581,14 @@
 			</div>
         </div>
 		<div class="form-group row">
-			<div class="col-sm-6" id="tempContentId">
-                    <a title="$tlang.getString('external.tool.find')" target="sakai-basiclti-admin-iframe" onclick="showExternalIframe(this.title, false);"
+			<div class="col-sm-6">
+                    <a title="$tlang.getString('external.tool.find')" target="sakai-lti-admin-iframe" onclick="showExternalIframe(this.title, false);"
                         class="btn btn-primary" role="button"
                         href="$findExternalToolUrl">$tlang.getString('external.tool.find')</a>
             </div>
 		</div>
 
-		<div class="checkbox">
+		<div class="checkbox" id="content-launch-new-window-checkbox" #if ($!value_ContentToolNewpage != 2) style="display:none;" #end>
 			<label for="$name_ContentLaunchNewWindow">
 			#if ($!value_ContentLaunchNewWindow == true)
 				<input id="$name_ContentLaunchNewWindow" name="$name_ContentLaunchNewWindow" type="checkbox" value="true" checked="checked" />
@@ -610,7 +601,7 @@
 		</fieldset>
         </div>
         <div id="external-modal-iframe-div" style="display:none" tabindex="-1" role="dialog">
-            <iframe name="sakai-basiclti-admin-iframe" id="sakai-basiclti-admin-iframe" src="/library/image/sakai/spinner.gif" tabindex="0"></iframe>
+            <iframe name="sakai-lti-admin-iframe" id="sakai-lti-admin-iframe" src="/library/image/sakai/spinner.gif" tabindex="0"></iframe>
         </div>
 <style>
 .ui-widget-overlay.ui-front {
@@ -629,8 +620,8 @@ function showExternalIframe(title, doreload) {
         open: function() {
             $("#external-modal-iframe-div").dialog("option", "width", modalDialogWidth());
             $("#external-modal-iframe-div").dialog("option", "height", modalDialogHeight());
-            $('#sakai-basiclti-admin-iframe').attr('width', '100%');
-            $('#sakai-basiclti-admin-iframe').attr('height', '100%');
+            $('#sakai-lti-admin-iframe').attr('width', '100%');
+            $('#sakai-lti-admin-iframe').attr('height', '100%');
             // https://stackoverflow.com/questions/1202079/prevent-jquery-ui-dialog-from-setting-focus-to-first-textbox
             $(this).parent().focus();
         },
@@ -638,7 +629,7 @@ function showExternalIframe(title, doreload) {
             if ( doreload ) {
                 location.reload();
             } else {
-                $('#sakai-basiclti-admin-iframe').attr('src','/library/image/sakai/spinner.gif');
+                $('#sakai-lti-admin-iframe').attr('src','/library/image/sakai/spinner.gif');
             }
         }
     });
@@ -646,8 +637,8 @@ function showExternalIframe(title, doreload) {
     $(window).resize(function() {
         $("#external-modal-iframe-div").dialog("option", "width", modalDialogWidth());
         $("#external-modal-iframe-div").dialog("option", "height", modalDialogHeight());
-        $('#sakai-basiclti-admin-iframe').attr('width', '100%');
-        $('#sakai-basiclti-admin-iframe').attr('height', '100%');
+        $('#sakai-lti-admin-iframe').attr('width', '100%');
+        $('#sakai-lti-admin-iframe').attr('height', '100%');
     });
 }
 //]]>
@@ -689,7 +680,7 @@ function showExternalIframe(title, doreload) {
 			#end
 		#end
 
-        <fieldset id="assignToSection" #if ($value_SubmissionType == 6) style = "display:none"#end>
+        <fieldset id="assignToSection">
 		<h4>$!tlang.getString('accessSectionHeader')</h4>
 		#parse("vm/assignment/instructor_new_edit/assignto_section.vm")
 		</fieldset>
@@ -701,13 +692,13 @@ function showExternalIframe(title, doreload) {
 			#set($resubmitStyle="display:none")
 		#end
 
-		<div id="allowResubmissionContainer" class="form-group row" #if ($value_SubmissionType == 4) style = "display:none"#end>
-			<label class="col-sm-2 control-label" for="allowResToggle">
+		<div id="allowResubmissionContainer" class="form-group" #if ($value_SubmissionType == 4) style = "display:none"#end>
+			<label class="form-control-label h4" for="allowResToggle">
 				$tlang.getString("allowResubmit")
 			</label>
-			<div class="col-sm-10">
+			<div class="d-inline-block ml-25">
 				<div id="tempAllowRes">
-					<input type="checkbox" id="allowResToggle" name ="allowResToggle" #if($!value_allowResubmitNumber) checked="checked"#end onclick="if(checked){document.getElementById('allowResubmitNumber').style.display = 'block';document.getElementById('allowResubmitTime').style.display = 'block';document.getElementById('resubmitNotification').style.display = 'block';ASN.resizeFrame();}else{document.getElementById('allowResubmitNumber').style.display = 'none';document.getElementById('allowResubmitTime').style.display = 'none';document.getElementById('resubmitNotification').style.display = 'none';}" />
+					<input type="checkbox" id="allowResToggle" name ="allowResToggle" #if($!value_allowResubmitNumber) checked="checked"#end onclick="ASN.changeResubmissionDate()" />
 				</div>
 			</div>
 		    <p class="sak-banner-info" id="ltiSubmissionResubmitNote" #if ($value_SubmissionType != 6) style = "display:none"#end>
@@ -715,12 +706,12 @@ function showExternalIframe(title, doreload) {
             </p>
 		</div>
 
-		<div class="form-group row" id="allowResubmitNumber" style="$!resubmitStyle">
-			<label for="allowResubmitNumber" class="col-sm-offset-1 col-sm-2 control-label">
+		<div class="form-group row ms-3" id="allowResubmitNumber" style="$!resubmitStyle">
+			<label for="allowResubmitNumberSelect" class="col-sm-offset-1 col-sm-3 control-label">
 				$tlang.getString("allow.resubmit.number")
 			</label>
 			<div class="col-sm-9">
-				<select name="$name_allowResubmitNumber" id="allowResubmitNumber" title="$tlang.getString("allow.resubmit.number")">
+				<select name="$name_allowResubmitNumber" id="allowResubmitNumberSelect" title="$tlang.getString("allow.resubmit.number")">
 					#foreach ($i in [1..10])
 						<option value="$i" #if($i==$!value_allowResubmitNumber)selected="selected"#end>
 							$i
@@ -732,35 +723,25 @@ function showExternalIframe(title, doreload) {
 		</div>
 
 		## only show date selection when allowed to resubmit
-		<div class="form-group row" id="allowResubmitTime" style="$!resubmitStyle">
+		<div class="form-group row ms-3" id="allowResubmitTime" style="$!resubmitStyle">
 			<label for="$name_ResubmitMonth" class="col-sm-offset-1 col-sm-2 control-label">
 				$tlang.getString("gen.resubmission") $tlang.getString("gen.acesubunt")
 			</label>
 			<div class="col-sm-6 form-inline">
-				<input type="text" id="resubmit" name="resubmit" class="datepicker" value="">
+				<sakai-date-picker
+					id="resubmissiondate"
+					label="$tlang.getString("gen.resubmission") $tlang.getString("gen.acesubunt")"
+					hidden-prefix="allow_resubmit_close_"
+					iso-date="$value_ResubmitYear$H$value_ResubmitMonth$H$value_ResubmitDay$T$value_ResubmitHour:$value_ResubmitMin"
+					add-hidden-fields>
+				</sakai-date-picker>
 			</div>
-
-			<script>
-			      localDatePicker({
-			      	input:'#resubmit',
-			      	useTime:1,
-			      	val:"$value_ResubmitYear$H$value_ResubmitMonth$H$value_ResubmitDay $value_ResubmitHour:$value_ResubmitMin",
-			      	parseFormat: 'YYYY-MM-DD HH:mm',
-			      	ashidden:{
-			      		month:"allow_resubmit_closeMonth",
-			      		day:"allow_resubmit_closeDay",
-			      		year:"allow_resubmit_closeYear",
-			      		hour:"allow_resubmit_closeHour",
-			      		minute:"allow_resubmit_closeMin"
-			      	}
-			      });
-			</script>
 		</div>
 
-		<div class="col-sm-offset-1 row" id="resubmitNotification" style="$!resubmitStyle">
-			<label>
+		<div class="col-sm-offset-1 row ms-3" id="resubmitNotification" style="$!resubmitStyle">
+			<strong>
 				$tlang.getString("send.submission.releasereturn.email.options")
-			</label>
+			</strong>
 			## whether to notify student about released grade and resubmission is available
 			<div class="radio">
 				<label>
@@ -1137,7 +1118,7 @@ function showExternalIframe(title, doreload) {
 			</div>
 			</div>
 		#end
-		#if(($!withGrade && $!withGradebook) || ($enableAnonGrading || $value_CheckAnonymousGrading))
+		#if($enableAnonGrading || $value_CheckAnonymousGrading)
 			<h4>$!tlang.getString('grading')</h4>
 		#end
 
@@ -1164,6 +1145,37 @@ function showExternalIframe(title, doreload) {
 
 	<a name="extraNodesTop"></a>
 
+	<div id="tagSection">
+	#if ($!tagsEnabled && $!allowAddTags)
+		<h4>$!tlang.getString('tags_header')</h4>
+		#set($assignmentParts = $assignmentId.split("/"))
+		#set($lastIndex = $assignmentParts.size() - 1)
+		#set($assignId = $assignmentParts.get($lastIndex))
+		<sakai-tag-selector id="tag-selector" selected-temp="$!tag_selector" collection-id="$siteId" item-id="$!assignId" add-new="true" tag-tool="$!tagTool" site-id="$siteId"></sakai-tag-selector>
+		<input type="hidden" name="tag_selector" id="tag_selector" />
+		<div class="checkbox">
+			<label for="$name_CheckAddInstructorTags">
+				<input id="$name_CheckAddInstructorTags" name="$name_CheckAddInstructorTags" type="checkbox" value="true"
+					#if ($!value_CheckAddInstructorTags)
+						checked="checked"
+					#end
+				/>
+				$tlang.getString('tags_instructor') $tlang.getString('tags_note')
+			</label>
+		</div>
+		<div class="checkbox">
+			<label for="$name_CheckAddGroupTags">
+				<input id="$name_CheckAddGroupTags" name="$name_CheckAddGroupTags" type="checkbox" value="true"
+					#if ($!value_CheckAddGroupTags)
+						checked="checked"
+					#end
+				/>
+				$tlang.getString('tags_groups') $tlang.getString('tags_note')
+			</label>
+		</div>
+	#end
+	</div>
+
     <div id="additionalInformation" #if ($value_SubmissionType == 6) style = "display:none"#end>
 	<h4>
 		$tlang.getString("additional_information")
@@ -1171,7 +1183,7 @@ function showExternalIframe(title, doreload) {
 
 	<div class="col-sm-6 row">
 		<table class="table table-striped" id="extraNodeLinkList">
-			<h5>$tlang.getString("supplement")</h5>
+			<h6>$tlang.getString("supplement")</h6>
 			<tr>
 				<td class="col-sm-2">
 					$tlang.getString("modelAnswer")
@@ -1433,7 +1445,7 @@ function showExternalIframe(title, doreload) {
 				</div>
 			</div>
 			## attachments for allpurpose item
-			<label for="allPurposeAttach" class="block">
+			<label for="allPurposeAttach" class="form-control-label block">
 					$tlang.getString("gen.att")
 			</label>
 			#set ($size = 0)
@@ -1482,67 +1494,43 @@ function showExternalIframe(title, doreload) {
 			<div class="form-group row">
 
 				<div class="col-sm-3">
-					<label for="allPurposeHide1">
+					<label for="allPurposeHide1" class="form-control-label">
 						<input name="allPurposeHide" id="allPurposeHide1" value="false" #if(!$!value_allPurposeHide)checked="checked"#end type="radio" />
 						$tlang.getString("allPurpose.show")
 					</label>
 				</div>
 
 				<div class="col-sm-9">
-					<div class="form-group row">
-						<label for="allPurposeShowFrom" class="col-sm-2">
+					<div class="form-group d-flex align-items-center justify-content-evenly">
+						<label for="allPurposeShowFrom" class="col-sm-2 form-control-label">
 							<input name="allPurposeShowFrom" id="allPurposeShowFrom" value="true" type="checkbox" #if ($value_allPurposeShowFrom) checked="checked" #end />
 							$tlang.getString("allPurpose.show.from")
 						</label>
 						<div class="col-sm-10">
-							<input type="text" id="allPurposeRelease" name="allPurposeRelease" class="datepicker" value="">
-
-							<script type="text/javascript">
-										localDatePicker({
-										input:'#allPurposeRelease',
-										useTime:1,
-										val:"$value_allPurposeReleaseYear$H$value_allPurposeReleaseMonth$H$value_allPurposeReleaseDay $value_allPurposeReleaseHour:$value_allPurposeReleaseMin",
-										parseFormat: 'YYYY-MM-DD HH:mm',
-										ashidden:{
-											month:"allPurpose_releaseMonth",
-											day:"allPurpose_releaseDay",
-											year:"allPurpose_releaseYear",
-											hour:"allPurpose_releaseHour",
-											minute:"allPurpose_releaseMin"
-										}
-									});
-							</script>
+							<sakai-date-picker
+								hidden-prefix="all_purpose_release_"
+								iso-date="$value_allPurposeReleaseYear$H$value_allPurposeReleaseMonth$H$value_allPurposeReleaseDay$T$value_allPurposeReleaseHour:$value_allPurposeReleaseMin"
+								add-hidden-fields>
+							</sakai-date-picker>
 						</div>
 					</div>
-					<div class="form-group row">
-						<label for="allPurposeShowTo" class="col-sm-2">
+					<div class="form-group d-flex align-items-center justify-content-evenly">
+						<label for="allPurposeShowTo" class="col-sm-2 form-control-label">
 							<input name="allPurposeShowTo" id="allPurposeShowTo" value="true" type="checkbox" #if ($!value_allPurposeShowTo) checked="checked" #end />
 							$tlang.getString("allPurpose.show.util")
 						</label>
 						<div class="col-sm-10">
-							<input type="text" id="allPurposeRetract" name="allPurposeRetract" class="datepicker" value="">
-
-							<script type="text/javascript">
-									localDatePicker({
-									input:'#allPurposeRetract',
-									useTime:1,
-									val:"$value_allPurposeRetractYear$H$value_allPurposeRetractMonth$H$value_allPurposeRetractDay $value_allPurposeRetractHour:$value_allPurposeRetractMin",
-									parseFormat: 'YYYY-MM-DD HH:mm',
-									ashidden:{
-										month:"allPurpose_retractMonth",
-										day:"allPurpose_retractDay",
-										year:"allPurpose_retractYear",
-										hour:"allPurpose_retractHour",
-										minute:"allPurpose_retractMin"
-									}
-								});
-							</script>
+							<sakai-date-picker
+								hidden-prefix="all_purpose_retract_"
+								iso-date="$value_allPurposeRetractYear$H$value_allPurposeRetractMonth$H$value_allPurposeRetractDay$T$value_allPurposeRetractHour:$value_allPurposeRetractMin"
+								add-hidden-fields>
+							</sakai-date-picker>
 						</div>
 					</div>
 				</div>
 			</div>
 			## Hide This Item Checkbox
-			<label for="allPurposeHide2">
+			<label for="allPurposeHide2" class="form-control-label">
 				<input name="allPurposeHide" id="allPurposeHide2" value="true" #if($!value_allPurposeHide)checked="checked"#end type="radio" />
 				$tlang.getString("allPurpose.show.hide")
 			</label>
@@ -1550,7 +1538,7 @@ function showExternalIframe(title, doreload) {
 			<div class="validationError alertMessage" id="allPurpose_userselect">
 				$tlang.getString("extraNodesRequired")
 			</div>
-			<div class="table-responsive">
+			<div class="table">
 			<table class="table table-striped table-bordered table-hover" id="allPurposeGroupLists">
 				<tbody>
 					#set ($roleCount=0)
@@ -1569,13 +1557,13 @@ function showExternalIframe(title, doreload) {
 						<tr>
 							<td class="groupCell">
 								<a href="javascript:void(0)" id="collapse_$roleCount" class="toggleRoleLink" style="display:none;" title="$collapseString">
-									<img src="/library/image/sakai/collapse.gif" alt="$collapseString" /><span class="members"><i class="icon-sakai--sakai-membership"></i></span>
+									<img src="/library/image/sakai/collapse.gif" alt="$collapseString" /><span class="members"><i class="si si-sakai-membership"></i></span>
 								</a>
 								<a href="javascript:void(0)" id="expand_$roleCount" class="toggleRoleLink" style="display:inline" title="$expandString">
-									<img src="/library/image/sakai/expand.gif"  alt="$expandString"/><span class="members"><i class="icon-sakai--sakai-membership"></i></span>
+									<img src="/library/image/sakai/expand.gif"  alt="$expandString"/><span class="members"><i class="si si-sakai-membership"></i></span>
 								</a>
 								<input id="$showInputString" name="showInputString_$roleCount" #if ($!value_allPurposeAccessList.contains($role)) checked="checked" #end type="checkbox" name="allPurpose_$role" class="selectAllMembers"/>
-								<label for="showInputString_$roleCount">
+								<label for="showInputString_$roleCount" class="form-control-label">
 									$role
 								</label>
 								(<span class="highlight countDisplay"></span> <span class="highlight">$tlang.getString("allPurpose.user.selection.count")</span>)
@@ -1585,7 +1573,7 @@ function showExternalIframe(title, doreload) {
 										#set($showInputString = "allPurpose_")
 										#set($showInputString = $showInputString.concat($user.getId()))
 										<li>
-											<label for="$showInputString" style="white-space:nowrap;padding:2px;width:90%;display:block" #if ($!value_allPurposeAccessList.contains($user.getId())) class="selectedItem" #else #set ($allSelected=false) #end>
+											<label for="$showInputString" class="form-control-label" style="white-space:nowrap;padding:2px;width:90%;display:block" #if ($!value_allPurposeAccessList.contains($user.getId())) class="selectedItem" #else #set ($allSelected=false) #end>
 												<input id="$showInputString" name="$showInputString" #if ($!value_allPurposeAccessList.contains($user.getId())) class="selectedItem" checked="checked" #set($userCount=$userCount + 1) #end type="checkbox" value="$user.Id"/>
 												$formattedText.escapeHtml($user.getDisplayName())
 											</label>

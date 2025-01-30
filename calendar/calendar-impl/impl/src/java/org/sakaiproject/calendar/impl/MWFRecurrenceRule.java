@@ -43,7 +43,7 @@ import org.w3c.dom.Element;
 public class MWFRecurrenceRule extends RecurrenceRuleBase
 {
 	/** The unique type / short frequency description. */
-	protected final static String FREQ = "MWF";
+	public final static String FREQ = "MWF";
 	private CalendarUtil calUtil = null;
 	/**
 	* Construct.

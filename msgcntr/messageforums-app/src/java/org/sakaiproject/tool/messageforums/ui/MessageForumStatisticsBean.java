@@ -34,8 +34,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
-import java.util.StringTokenizer;
 import java.util.TreeMap;
 
 import javax.faces.application.FacesMessage;
@@ -74,7 +74,7 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.GradeDefinition;
-import org.sakaiproject.grading.api.GradeType;
+import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
@@ -797,6 +797,60 @@ public class MessageForumStatisticsBean {
 				}
 			}
 
+			List<Object[]> studentAuthoredNewStats;
+			if (selectedAllTopicsTopicId != null && !"".equals(selectedAllTopicsTopicId)) {
+				studentAuthoredNewStats =
+						messageManager.findAuthoredNewMessageCountForAllStudentsByTopicId(
+								Long.parseLong(selectedAllTopicsTopicId));
+			} else {
+				studentAuthoredNewStats =
+						messageManager.findAuthoredNewMessageCountForAllStudentsByForumId(
+								Long.parseLong(selectedAllTopicsForumId));
+			}
+			for (Object[] authoredStat : studentAuthoredNewStats) {
+				DecoratedCompiledMessageStatistics userStats = tmpStatistics.get(authoredStat[0]);
+				if (userStats == null) {
+					userStats = new DecoratedCompiledMessageStatistics();
+					tmpStatistics.put((String) authoredStat[0], userStats);
+				}
+				Integer totalForum = 0;
+				if (userMessageTotal.containsKey((String) authoredStat[0])) {
+					totalForum = userMessageTotal.get((String) authoredStat[0]);
+				}
+				if (totalForum > 0) {
+					userStats.setAuthoredForumsNewAmt(((Long) authoredStat[1]).intValue());
+				} else {
+					userStats.setAuthoredForumsNewAmt(0);
+				}
+			}
+
+			List<Object[]> studentAuthoredRepliesStats;
+			if (selectedAllTopicsTopicId != null && !"".equals(selectedAllTopicsTopicId)) {
+				studentAuthoredRepliesStats =
+						messageManager.findAuthoredRepliesMessageCountForAllStudentsByTopicId(
+								Long.parseLong(selectedAllTopicsTopicId));
+			} else {
+				studentAuthoredRepliesStats =
+						messageManager.findAuthoredRepliesMessageCountForAllStudentsByForumId(
+								Long.parseLong(selectedAllTopicsForumId));
+			}
+			for (Object[] authoredStat : studentAuthoredRepliesStats) {
+				DecoratedCompiledMessageStatistics userStats = tmpStatistics.get(authoredStat[0]);
+				if (userStats == null) {
+					userStats = new DecoratedCompiledMessageStatistics();
+					tmpStatistics.put((String) authoredStat[0], userStats);
+				}
+				Integer totalForum = 0;
+				if (userMessageTotal.containsKey((String) authoredStat[0])) {
+					totalForum = userMessageTotal.get((String) authoredStat[0]);
+				}
+				if (totalForum > 0) {
+					userStats.setAuthoredForumsRepliesAmt(((Long) authoredStat[1]).intValue());
+				} else {
+					userStats.setAuthoredForumsRepliesAmt(0);
+				}
+			}
+
 			// now process the users from the list of site members to add display information
 			// this will also prune the list of members so only the papropriate ones are displayed
 			courseMemberMap = membershipManager.getAllCourseUsersAsMap();
@@ -1020,7 +1074,6 @@ public class MessageForumStatisticsBean {
 			userAuthoredInfo.setForumDate(msg.getCreated());
 			userAuthoredInfo.setForumSubject(msg.getTitle());
 			userAuthoredInfo.setMessage(msg.getBody());
-			userAuthoredInfo.setWordCount(new StringTokenizer(msg.getBody()).countTokens());
 			userAuthoredInfo.setMsgId(Long.toString(msg.getId()));
 			userAuthoredInfo.setTopicId(Long.toString(msg.getTopic().getId()));
 			userAuthoredInfo.setForumId(Long.toString(msg.getTopic().getOpenForum().getId()));
@@ -1100,7 +1153,6 @@ public class MessageForumStatisticsBean {
 				userAuthoredInfo.setForumDate(mesWithAttach.getCreated());
 				userAuthoredInfo.setForumSubject(mesWithAttach.getTitle());
 				userAuthoredInfo.setMessage(mesWithAttach.getBody());
-				userAuthoredInfo.setWordCount(new StringTokenizer(mesWithAttach.getBody()).countTokens());
 				userAuthoredInfo.setMsgId(selectedMsgId);
 				userAuthoredInfo.setTopicId(Long.toString(t.getId()));
 				userAuthoredInfo.setForumId(Long.toString(d.getId()));
@@ -1496,7 +1548,18 @@ public class MessageForumStatisticsBean {
 		toggleSort(AUTHORED_SORT);	    
 		return FORUM_STATISTICS_BY_TOPIC;
 	}
-	
+
+	public String toggleTopicAuthoredNewSort() {
+		toggleSort(AUTHORED_NEW_SORT);
+		return FORUM_STATISTICS_BY_TOPIC;
+	}
+
+	public String toggleTopicAuthoredRepliesSort() {
+		toggleSort(AUTHORED_REPLIES_SORT);
+		return FORUM_STATISTICS_BY_TOPIC;
+	}
+
+
 	public String toggleTopicReadSort()	{    
 		toggleSort(READ_SORT);	    
 		return FORUM_STATISTICS_BY_TOPIC;
@@ -2285,9 +2348,7 @@ public class MessageForumStatisticsBean {
 		httpServletResponse.setHeader("Content-Disposition", "attachment;filename=Stats-Grading-Users.csv");
 		try {
 			out = httpServletResponse.getOutputStream();
-			httpServletResponse.setHeader("Pragma", "No-Cache");
 			httpServletResponse.setHeader("Cache-Control", "no-cache,no-store,max-age=0");
-			httpServletResponse.setDateHeader("Expires", 1);
 
 			StringBuilder builderHeader = new StringBuilder();
 			builderHeader.append("Student ID,Name,Authored - New,Authored - Replies,Authored - Total,Read,Unread,Percent Read");
@@ -2338,9 +2399,7 @@ public class MessageForumStatisticsBean {
 		httpServletResponse.setHeader("Content-Disposition", "attachment;filename=Stats-Grading-Topics.csv");
 		try {
 			out = httpServletResponse.getOutputStream();
-			httpServletResponse.setHeader("Pragma", "No-Cache");
 			httpServletResponse.setHeader("Cache-Control", "no-cache,no-store,max-age=0");
-			httpServletResponse.setDateHeader("Expires", 1);
 
 			StringBuilder builderHeader = new StringBuilder();
 			builderHeader.append("Forum Title,Topic Title,Date,Total Messages");
@@ -2758,8 +2817,12 @@ public class MessageForumStatisticsBean {
 				defaultAssignName = forumManager.getForumById(Long.parseLong(selectedAllTopicsForumId)).getDefaultAssignName();
 			}
 			if (StringUtils.isNotBlank(defaultAssignName)) {
-				Assignment assignment = getGradingService().getAssignmentByNameOrId(toolManager.getCurrentPlacement().getContext(), defaultAssignName);
-				setDefaultSelectedAssign(assignment.getName());
+				try {
+					Assignment assignment = getGradingService().getAssignmentByNameOrId(toolManager.getCurrentPlacement().getContext(), defaultAssignName);
+					setDefaultSelectedAssign(assignment.getName());
+				} catch (Exception ex) {
+					log.warn("MessageForumStatisticsBean - setDefaultSelectedAssign: " + ex);
+				}
 			}
 		}
 		gradebookItemChosen = false;
@@ -2805,20 +2868,20 @@ public class MessageForumStatisticsBean {
 			GradingService gradingService = getGradingService();
 			if (gradingService == null) return returnVal;
 			
-			GradeType gradeEntryType = gradingService.getGradeEntryType(gradebookUid);
-			if (gradeEntryType == GradeType.LETTER) {
-			    gradeByLetter = true;
-			    gradeByPoints = false;
-			    gradeByPercent = false;
-			} else if (gradeEntryType == GradeType.PERCENTAGE) {
-			    gradeByPercent = true;
-			    gradeByPoints = false;
-			    gradeByLetter = false;
-			} else {
-			    gradeByPoints = true;
-			    gradeByPercent = false;
-			    gradeByLetter = false;
-			}        
+			Integer gradeEntryType = gradingService.getGradeEntryType(gradebookUid);
+            if (Objects.equals(gradeEntryType, GradingConstants.GRADE_TYPE_LETTER)) {
+                gradeByLetter = true;
+                gradeByPoints = false;
+                gradeByPercent = false;
+            } else if (Objects.equals(gradeEntryType, GradingConstants.GRADE_TYPE_PERCENTAGE)) {
+                gradeByPercent = true;
+                gradeByPoints = false;
+                gradeByLetter = false;
+            } else {
+                gradeByPoints = true;
+                gradeByPercent = false;
+                gradeByLetter = false;
+            }
 
 			Assignment assignment = gradingService.getAssignmentByNameOrId(gradebookUid, selAssignName);
 			if(assignment != null){
@@ -2994,7 +3057,7 @@ public class MessageForumStatisticsBean {
 		if (studentsWithInvalidGrades != null && !studentsWithInvalidGrades.isEmpty()) {
 		    // let's see if we can give the user additional information. Otherwise,
 		    // just use the generic error message
-		    if (gradingService.getGradeEntryType(gradebookUid) == GradeType.LETTER) {
+		    if (Objects.equals(GradingConstants.GRADE_TYPE_LETTER, gradingService.getGradeEntryType(gradebookUid))) {
 		        setErrorMessage(getResourceBundleString(GRADE_INVALID_GENERIC));
 		        return false;
 		    }

@@ -29,6 +29,9 @@ import java.util.Iterator;
 import java.util.HashSet;
 import java.util.Set;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.sakaiproject.tool.assessment.data.ifc.questionpool.QuestionPoolDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.questionpool.QuestionPoolItemIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.AgentDataIfc;
@@ -75,6 +78,7 @@ public class QuestionPoolData
   private Long intellectualPropertyId;
   private String organizationName;
   private Set questionPoolItems;
+  @Setter @Getter private Set questionPoolAccess;
   private Collection items = new ArrayList();
 
   private Long subPoolSize;

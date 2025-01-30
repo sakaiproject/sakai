@@ -11,7 +11,7 @@
 	<parent>
 		<groupId>org.sakaiproject.contentreview</groupId>
 		<artifactId>content-review-impl</artifactId>
-		<version>23-SNAPSHOT</version>
+		<version>25-SNAPSHOT</version>
 	</parent>
 
 	<properties>
@@ -45,6 +45,12 @@
 			<groupId>net.sf.json-lib</groupId>
 			<artifactId>json-lib</artifactId>
 			<classifier>jdk15</classifier>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-logging</groupId>
+					<artifactId>commons-logging</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject.assignment</groupId>
@@ -53,7 +59,6 @@
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpasyncclient</artifactId>
-			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
@@ -104,12 +109,6 @@
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
-		</dependency>
-
-		<!-- needed by hibernate unit tests -->
-		<dependency>
-			<groupId>org.javassist</groupId>
-			<artifactId>javassist</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>

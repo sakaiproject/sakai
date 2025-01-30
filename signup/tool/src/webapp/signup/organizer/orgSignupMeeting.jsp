@@ -4,17 +4,17 @@
 <%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t" %>
 <f:view locale="#{UserLocale.locale}">
 	<jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
-	   <jsp:setProperty name="msgs" property="baseName" value="messages"/>
+	   <jsp:setProperty name="msgs" property="baseName" value="signup"/>
 	</jsp:useBean>
 	<sakai:view_container title="Signup Tool">
 		<style type="text/css">
-			@import url("/sakai-signup-tool/css/signupStyle.css");
+			@import url("/sakai-signup-tool/css/signupStyle.css${Portal.CDNQuery}");
 		</style>
 		<style type="text/css" media="print">
-			@import url("/sakai-signup-tool/css/print.css");
+			@import url("/sakai-signup-tool/css/print.css${Portal.CDNQuery}");
 		</style>
 		<h:outputText value="#{Portal.latestJQuery}" escape="false"/>
-		<script src="/sakai-signup-tool/js/signupScript.js"></script>
+		<script src="/sakai-signup-tool/js/signupScript.js${Portal.CDNQuery}"></script>
 		<script>
 
 			var firstAttendee; 
@@ -258,7 +258,7 @@
 					</div>
 			 	</div>
 			 	<%-- show all meeting details when expanded--%>
-			 	<div id="meetingInfoDetails" styleClass="organizerToplevelTable">
+			 	<div id="meetingInfoDetails" styleClass="w-100">
 					<%-- title --%>
 					<div class="row">
 						<h:panelGroup styleClass="col-xs-12 col-md-3 titleColumn" layout="block">
@@ -406,11 +406,11 @@
 							<h:panelGrid columns="1" styleClass="published_siteGroupTable">
 								<h:panelGroup>
 									<h:outputLabel  id="imageOpen_publishedSiteGroup" style="display:none" styleClass="activeTag" onclick="showDetails('meeting:imageOpen_publishedSiteGroup','meeting:imageClose_publishedSiteGroup','meeting:publishedSiteGroups');">
-										<h:graphicImage value="/images/open.gif" alt="#{msgs.event_tool_tips_hide_details}" title="#{msgs.event_tool_tips_hide_details}" style="border:none" styleClass="openCloseImageIcon"/>
+										<span class="fa fa-caret-down openCloseImageIcon" aria-hidden="true" title="<h:outputText value='#{msgs.event_tool_tips_hide_details}'/>"></span>
 										<h:outputText value="#{msgs.event_hide_site_group_detail}" escape="false" />
 									</h:outputLabel>
 									<h:outputLabel id="imageClose_publishedSiteGroup" styleClass="activeTag" onclick="showDetails('meeting:imageOpen_publishedSiteGroup','meeting:imageClose_publishedSiteGroup','meeting:publishedSiteGroups');">
-										<h:graphicImage value="/images/closed.gif" alt="#{msgs.event_tool_tips_show_details}" title="#{msgs.event_tool_tips_show_details}" style="border:none" styleClass="openCloseImageIcon"/>
+										<span class="fa fa-caret-right openCloseImageIcon" aria-hidden="true" title="<h:outputText value='#{msgs.event_tool_tips_show_details}'/>"></span>
 										<h:outputText value="#{msgs.event_show_site_group_detail}" escape="false" />
 									</h:outputLabel>
 								</h:panelGroup>
@@ -470,7 +470,7 @@
 			 	</div>
 
 
-				<div class="table-responsive">
+				<div class="table">
 				<h:panelGrid columns="1">					
 					<%-- control email and the expand-collapse --%>			
 					<h:panelGrid  id="orgMeeting_191" columns="3" rendered="#{!OrganizerSignupMBean.announcementType}" columnClasses="titleColumn,valueColumn,alignRightColumn" styleClass="emailTable">										
@@ -506,7 +506,7 @@
 					 rendered="#{!OrganizerSignupMBean.announcementType}"
 					 columnClasses="orgTimeslotCol,orgMaxAttsCol,orgSlotStatusCol,orgGroupSync,orgWaiterStatusCol"	
 					 rowClasses="oddRow,evenRow"
-					 styleClass="signupTable">
+					 styleClass="signupTable table table-striped">
 							<!-- TS start and end times -->
 							<h:column>		   
 								<f:facet name="header">
@@ -635,7 +635,7 @@
 						   					</h:outputLink>
 						   				</h:panelGroup>
 						   				
-								   		<h:panelGroup  id="editAttendeesList" style="display: none;">		
+								   		<h:panelGroup  id="editAttendeesList" style="display: #{OrganizerSignupMBean.isShortList(timeSlotWrapper.positionInTSlist, 1) ? 'block' : 'none'}">		
 							   				<h:dataTable id="availableSpots" value="#{timeSlotWrapper.attendeeWrappers}" var="attendeeWrapper">
 							   					<h:column>
 							   						<h:panelGrid columns="2" columnClasses="editAddImages,attName"  rendered="#{attendeeWrapper.signupAttendee.attendeeUserId !=null}" id="editLink">
@@ -673,7 +673,7 @@
 								   								<f:param id="timeslotId" name="timeslotId" value="#{timeSlotWrapper.timeSlot.id}"/>
 								   								<f:param id="attendeeUserId" name="attendeeUserId" value="#{attendeeWrapper.signupAttendee.attendeeUserId}"/>				   										   								
 								   								<h:outputText value="#{attendeeWrapper.displayName}" title="#{attendeeWrapper.commentForTooltips}" style="cursor:pointer;" rendered="#{attendeeWrapper.signupAttendee.attendeeUserId !=null}"/>
-								   								<h:graphicImage title="Click to view/edit attendee's comment" value="/images/comment.gif" width="18" height="18" alt="#{msgs.event_view_comment_page_title}" style="border:none" styleClass="openCloseImageIcon" rendered="#{attendeeWrapper.comment}" />
+								   								<h:graphicImage title="#{msgs.label_view_edit_comment}" value="/images/comment.gif" width="18" height="18" alt="#{msgs.event_view_comment_page_title}" style="border:none" styleClass="openCloseImageIcon" rendered="#{attendeeWrapper.comment}" />
 								   							</h:commandLink>
 								   							<br />
 								   							<h:outputText id="attendeeInscriptionTime" rendered="#{OrganizerSignupMBean.getDisplayTimeFromInstant(attendeeWrapper.signupAttendee.inscriptionTime) != ''}" 
@@ -812,7 +812,7 @@
 								   					</h:outputLink>
 								   				</h:panelGroup>
 								   				
-									   			<h:panelGroup  id="editWaitingList" style="display: none;">
+									   			<h:panelGroup  id="editWaitingList" style="display: #{OrganizerSignupMBean.isShortList(timeSlotWrapper.positionInTSlist, 2) ? 'block' : 'none'}">
 										   			<h:dataTable id="waiterSpots" value="#{timeSlotWrapper.waitingList}" binding="#{OrganizerSignupMBean.waiterWrapperTable}" var="waiterWrapper">
 										   				<h:column>
 										   					<h:panelGrid columns="2" border="0" columnClasses="editAddImages,attName" rendered="#{waiterWrapper.signupAttendee.attendeeUserId !=null}">

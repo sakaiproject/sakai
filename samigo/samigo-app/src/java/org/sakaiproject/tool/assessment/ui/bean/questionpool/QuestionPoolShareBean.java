@@ -29,18 +29,28 @@ import java.util.List;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
+import javax.faces.component.html.HtmlDataTable;
 import javax.faces.context.FacesContext;
+import javax.faces.event.ValueChangeEvent;
+import javax.faces.model.SelectItem;
 
 import lombok.extern.slf4j.Slf4j;
+import lombok.Getter;
+import lombok.Setter;
+
+import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolData;
 import org.sakaiproject.tool.assessment.data.model.Tree;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.QuestionPoolAccessFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolIteratorFacade;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
 import org.sakaiproject.tool.assessment.business.questionpool.QuestionPoolTreeImpl;
+import org.sakaiproject.util.ResourceLoader;
 
 /* Question Pool share backing bean. */
 @Slf4j
@@ -64,15 +74,17 @@ public class QuestionPoolShareBean implements Serializable {
 	private boolean sortAscendingWithout = true;
   
 	// collections of Agents
-	private Collection<AgentFacade> agentsWithAccess;
-	private Collection<AgentFacade> agentsWithoutAccess;
+	@Setter @Getter private Collection<QuestionPoolAccessFacade> agentsWithAccess;
+	@Setter @Getter private Collection<QuestionPoolAccessFacade> agentsWithoutAccess;
+	@Setter @Getter private HtmlDataTable dataTable;
 
+	@Setter @Getter private List<SelectItem> accessTypes;
 
   	/**
   	 * Creates a new QuestionPoolShareBean object.
   	 */
-  	public QuestionPoolShareBean()
-  	{
+  	public QuestionPoolShareBean() {
+  		this.setAccessTypes(this.populateAccessTypes());
   	}
 
   	public String startSharePool()
@@ -108,7 +120,7 @@ public class QuestionPoolShareBean implements Serializable {
   		QuestionPoolService delegate = new QuestionPoolService();
   		Tree tree = null;
   		try { 		
-  			tree= new QuestionPoolTreeImpl((QuestionPoolIteratorFacade) delegate.getAllPoolsWithAccess(AgentFacade.getAgentString()));
+  			tree= new QuestionPoolTreeImpl((QuestionPoolIteratorFacade) delegate.getAllPoolsWithAccess(AgentFacade.getAgentString(), QuestionPoolAccessFacade.READ_ONLY));
   		}
   		catch(Exception e) {
   			log.error(e.getMessage(), e);
@@ -122,7 +134,9 @@ public class QuestionPoolShareBean implements Serializable {
   			String agentId = (String) iter.next();
           
   			try {
-  				delegate.removeQuestionPoolAccess(tree, agentId, getQuestionPoolId(), QuestionPoolData.READ_COPY);
+  				delegate.removeQuestionPoolAccess(tree, agentId, getQuestionPoolId());
+  				//Revoke question pool access
+  				EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_QUESTIONPOOL_REVOKE, "/sam/" +AgentFacade.getCurrentSiteId() + "/agentId=" + agentId + " poolId=" + getQuestionPoolId(), true));
   			}
   			catch(Exception e) {
   				log.error(e.getMessage(), e);
@@ -137,7 +151,9 @@ public class QuestionPoolShareBean implements Serializable {
   			String agentId = (String) iter.next();
           
   			try {
-  				delegate.addQuestionPoolAccess(tree, agentId, this.getQuestionPoolId(), QuestionPoolData.READ_COPY);
+  				delegate.addQuestionPoolAccess(tree, agentId, this.getQuestionPoolId(), this.getAccessType(agentId));
+  				//Grant question pool access
+  				EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_QUESTIONPOOL_GRANT, "/sam/" +AgentFacade.getCurrentSiteId() + "/agentId=" + agentId + " poolId=" + getQuestionPoolId() + " type=" + QuestionPoolData.READ_COPY, true));
   			}
   			catch(Exception e) {
   				log.error(e.getMessage(), e);
@@ -182,23 +198,6 @@ public class QuestionPoolShareBean implements Serializable {
 	        
 		agentsWithoutAccess = sortAscendingWithout ? (ArrayList)sort.sort() : (ArrayList)sort.sortDesc();
   	}
-
-  	  
-	public Collection<AgentFacade> getAgentsWithAccess() {
-		return agentsWithAccess;
-	}
-
-	public void setAgentsWithAccess(Collection<AgentFacade> agentsWithAccess) {
-		this.agentsWithAccess = agentsWithAccess;
-	}
-
-	public Collection<AgentFacade> getAgentsWithoutAccess() {
-		return agentsWithoutAccess;
-	}
-
-	public void setAgentsWithoutAccess(Collection<AgentFacade> agentsWithoutAccess) {
-		this.agentsWithoutAccess = agentsWithoutAccess;
-	}
 
 	public String getQuestionPoolOwnerId() {
 		return questionPoolOwnerId;
@@ -262,6 +261,39 @@ public class QuestionPoolShareBean implements Serializable {
 
 	public boolean isSortAscendingWithout() {
 		return sortAscendingWithout;
+	}
+
+	public void changeAccessTypeSelect(ValueChangeEvent event) {
+		Long value = (Long) event.getNewValue();
+		QuestionPoolAccessFacade accessType = (QuestionPoolAccessFacade) dataTable.getRowData();
+		accessType.setAccessTypeId(value);
+	}
+
+	private Long getAccessType(String agentId) {
+		int row = 0;
+		boolean found = false;
+		Long access = null;
+		while (!found) {
+			dataTable.setRowIndex(row);
+			QuestionPoolAccessFacade qpd = (QuestionPoolAccessFacade) dataTable.getRowData();
+			if (qpd.getAgentId().equals(agentId)) {
+				found = true;
+				access = qpd.getAccessTypeId();
+			}
+			row++;
+		}
+		return access;
+	}
+
+	private List<SelectItem> populateAccessTypes() {
+
+		ResourceLoader messages = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages");
+		List<SelectItem> accessTypes = new ArrayList<SelectItem>();
+		accessTypes.add(new SelectItem(QuestionPoolAccessFacade.READ_ONLY, messages.getString("read_only")));
+		accessTypes.add(new SelectItem(QuestionPoolAccessFacade.MODIFY, messages.getString("modify")));
+		accessTypes.add(new SelectItem(QuestionPoolAccessFacade.READ_WRITE, messages.getString("read_write")));
+		return accessTypes;
+
 	}
 
 }

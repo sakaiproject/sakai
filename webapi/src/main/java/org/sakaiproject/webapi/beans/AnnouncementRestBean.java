@@ -20,6 +20,8 @@ import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.site.api.Site;
 
+import org.apache.commons.lang3.BooleanUtils;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -34,6 +36,7 @@ public class AnnouncementRestBean {
     private String author;
     private String url;
     private long date;
+    private boolean highlighted;
 
     public AnnouncementRestBean(Site site, AnnouncementMessage am, String url) {
 
@@ -43,10 +46,13 @@ public class AnnouncementRestBean {
         subject = am.getAnnouncementHeader().getSubject();
         author = am.getAnnouncementHeader().getFrom().getDisplayName();
         date = am.getAnnouncementHeader().getInstant().toEpochMilli();
+
         ResourceProperties props = am.getProperties();
+        highlighted = BooleanUtils.toBoolean(props.getProperty("highlight"));
         try {
             date = props.getInstantProperty(AnnouncementService.RELEASE_DATE).toEpochMilli();
         } catch (EntityPropertyTypeException|EntityPropertyNotDefinedException e) { /*No action needed*/ }
+
         this.url = url;
     }
 }

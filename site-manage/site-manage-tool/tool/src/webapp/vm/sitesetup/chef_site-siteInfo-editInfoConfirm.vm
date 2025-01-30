@@ -10,7 +10,7 @@
 	</p>
 	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("sitediinf.alert") $alertMessage</div>#end
 	<form name="classInformationForm" method="post" action="#toolForm("SiteAction")">		
-			<div class="form-group row">
+			<div class="row">
 				<label class="col-sm-2 form-control-label">
 					$tlang.getString("sitediconf.sittit")
 				</label>
@@ -23,7 +23,7 @@
 				</div>
 			</div>
 			#if ($displaySiteAlias)
-				<div class="form-group row">
+				<div class="row">
 	 				<label class="col-sm-2 form-control-label">
 	 					$tlang.getString("newsc.url")
 	 				</label>
@@ -33,7 +33,7 @@
 	 			</div>
 	 		#end
 			#if ($!isCourseSite)
-				<div class="form-group row">
+				<div class="row">
 					<label class="col-sm-2 form-control-label">
 						$tlang.getString("sitediconf.term")
 					</label>
@@ -42,7 +42,7 @@
 					</div>
 				</div>
 			#end
-			<div class="form-group row">
+			<div class="row">
 				<label class="col-sm-2 form-control-label">
 					$tlang.getString("sitediconf.siteurls")
 				</label>
@@ -68,7 +68,7 @@
 					#end
 				</div>
 			</div>
-			<div class="form-group row">
+			<div class="row">
  				<label class="col-sm-2 form-control-label">
  					$tlang.getString("sitediconf.language")
  				</label>
@@ -89,7 +89,7 @@
  				</div>
  			</div>
 			#if($!description)
-				<div class="form-group row">
+				<div class="row">
 					<label class="col-sm-2 form-control-label">
 						$tlang.getString("sitediconf.des")
 					</label>
@@ -103,7 +103,7 @@
 				</div>
 			#end
 			#if ($!short_description)
-				<div class="form-group row">
+				<div class="row">
 					<label class="col-sm-2 form-control-label">
 						$tlang.getString("sitediconf.shodes")
 					</label>
@@ -118,7 +118,7 @@
 			#end
 			#if ($allowSkinChoice)
 				## course site
-				<div class="form-group row">
+				<div class="row">
 					<label class="col-sm-2 form-control-label">
 						$tlang.getString("sitediconf.app")
 					</label>
@@ -142,7 +142,7 @@
 				</div>
 			#else
 				## other sites
-				<div class="form-group row">
+				<div class="row">
 					<label class="col-sm-2 form-control-label">
 						$tlang.getString("newsc.icon")
 					</label>
@@ -159,7 +159,7 @@
 					</div>
 				</div>
 			#end
-			<div class="form-group row">
+			<div class="row">
 				<label class="col-sm-2 form-control-label">
 					$tlang.getString("sitediconf.sitconnam")
 				</label>
@@ -175,7 +175,7 @@
 					#end
 				</div>
 			</div>
-			<div class="form-group row">
+			<div class="row">
 				<label class="col-sm-2 form-control-label">
 					$tlang.getString("sitediconf.siticonema")
 				</label>
@@ -192,7 +192,7 @@
 				</div>
 			</div>
             #if ($isMathJaxInstalled)
-            <div class="form-group row">
+            <div class="row">
                 <label class="col-sm-2 form-control-label">
                     $tlang.getString("sinfo.mathjax.name")
                 </label>

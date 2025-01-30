@@ -91,8 +91,9 @@ should be included in file importing DeliveryMessages
        rendered="#{delivery.actionString=='reviewAssessment'
              || delivery.actionString=='gradeAssessment'}"
       >
-        <h:column rendered="#{delivery.feedback eq 'true' &&
-           delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'}">
+        <h:column rendered="#{(delivery.feedback eq 'true' && delivery.feedbackComponent.showCorrectResponse && 
+              delivery.feedbackComponent.showCorrection && !delivery.noFeedback=='true') 
+              || delivery.actionString=='gradeAssessment'}">
           <h:graphicImage id="image"
             rendered="#{responseAndCorrectStatus.isCorrect eq 'true'}"
             alt="#{deliveryMessages.alt_correct}" url="/images/checkmark.gif" >
@@ -154,7 +155,7 @@ should be included in file importing DeliveryMessages
 	
 <h:panelGroup rendered="#{delivery.feedback eq 'true'}">
   <f:verbatim><br /></f:verbatim>
-  <h:panelGroup rendered="#{delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'}" >
+  <h:panelGroup rendered="#{delivery.feedbackComponent.showCorrectResponse && delivery.feedbackComponent.showCorrection && !delivery.noFeedback=='true'}" >
     <f:verbatim><b></f:verbatim>
     <h:outputLabel for="answerKeyMC" value="#{deliveryMessages.ans_key}: " />
      <f:verbatim></b></f:verbatim>

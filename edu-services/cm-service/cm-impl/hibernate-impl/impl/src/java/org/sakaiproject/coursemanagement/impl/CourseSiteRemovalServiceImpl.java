@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
@@ -32,6 +33,7 @@ import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.CourseOffering;
 import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.coursemanagement.api.CourseSiteRemovalService;
+import org.sakaiproject.coursemanagement.util.CourseManagementConstants;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -193,12 +195,21 @@ public class CourseSiteRemovalServiceImpl extends HibernateDaoSupport implements
                     }
                 }
 
+                // Check if site is unset or set to auto
+                Site site = siteService.getSite(siteId);
+                ResourcePropertiesEdit siteProperties = site.getPropertiesEdit();
+                String publishTypeProperty = siteProperties.getProperty(CourseManagementConstants.SITE_PUBLISH_TYPE);
+
+                if (StringUtils.equalsAny(publishTypeProperty, CourseManagementConstants.SITE_PUBLISH_TYPE_MANUAL, CourseManagementConstants.SITE_PUBLISH_TYPE_SCHEDULED)) {
+                    // Skip all sites set to scheduled or manual publish
+                    continue;
+                }
+
                 // check permissions
                 if (!checkPermission(PERMISSION_COURSE_SITE_REMOVAL, siteId)) {
                     log.error("You do not have permission to {} the site with id {}", action, siteId);
                 } else if (action == CourseSiteRemovalService.Action.remove) {
                     // remove the course site
-                    Site site = siteService.getSite(siteId);
                     log.debug("{} removing course site {} ({}).", action, site.getTitle(), site.getId());
                     siteService.removeSite(site);
                     numSitesRemoved++;
@@ -209,12 +220,6 @@ public class CourseSiteRemovalServiceImpl extends HibernateDaoSupport implements
                     if (silentlyUnpublish) {
                         toUnpublish.add(siteId);
                     } else {
-                        Site site = siteService.getSite(siteId);
-
-                        // Add site property
-                        ResourcePropertiesEdit siteProperties = site.getPropertiesEdit();
-                        siteProperties.addProperty(SITE_PROPERTY_COURSE_SITE_REMOVAL, "set");
-
                         // Unpublish the site and commit site property addition
                         site.setPublished(false);
                         siteService.save(site);

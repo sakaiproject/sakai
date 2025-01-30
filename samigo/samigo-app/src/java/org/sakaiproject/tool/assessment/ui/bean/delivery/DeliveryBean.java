@@ -32,7 +32,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
@@ -77,6 +76,7 @@ import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.EventLogFacade;
@@ -88,6 +88,7 @@ import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.SaLengthException;
 import org.sakaiproject.tool.assessment.services.assessment.EventLogService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.services.assessment.SecureDeliverySeb;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI.Phase;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI.PhaseStatus;
@@ -124,9 +125,12 @@ public class DeliveryBean implements Serializable {
   //SAM-2517
   private UserTimeService userTimeService = ComponentManager.get(UserTimeService.class);
   private PreferencesService preferencesService = ComponentManager.get(PreferencesService.class);
+  private FormattedText formattedText = ComponentManager.get(FormattedText.class);
   
   private static final String MATHJAX_SRC_PATH_SAKAI_PROP = "portal.mathjax.src.path";
   private static final String MATHJAX_SRC_PATH = ServerConfigurationService.getString(MATHJAX_SRC_PATH_SAKAI_PROP);
+  
+  public static final String LINEAR_ACCESS = "1";
 
   @Getter @Setter
   private String assessmentId;
@@ -174,6 +178,8 @@ public class DeliveryBean implements Serializable {
   @Getter
   private String timeElapse;
   @Getter @Setter
+  private String backupTimeElapse;
+  @Getter @Setter
   private int sectionIndex;
   @Getter @Setter
   private boolean previous;
@@ -210,8 +216,6 @@ public class DeliveryBean implements Serializable {
   private FeedbackComponent feedbackComponent;
   @Getter @Setter
   private String feedbackComponentOption;
-  @Getter @Setter
-  private boolean onlyShowingIncorrect = false;
   @Getter @Setter
   private boolean feedbackOnDate;
   @Getter @Setter
@@ -257,6 +261,8 @@ public class DeliveryBean implements Serializable {
   private String courseName;
   @Getter @Setter
   private String timeLimit;
+  @Getter @Setter
+  private String backupTimeLimit;
   @Getter @Setter
   private int timeLimit_hour;
   @Getter @Setter
@@ -321,6 +327,8 @@ public class DeliveryBean implements Serializable {
   private boolean next_page;
   @Getter @Setter
   private boolean reload = true;
+  @Getter @Setter
+  private boolean nextEnabled;
 
   // daisy added these for SelectActionListener
   @Getter @Setter
@@ -335,6 +343,7 @@ public class DeliveryBean implements Serializable {
   private String takenHours;
   @Getter @Setter
   private String takenMinutes;
+  @Getter
   private AssessmentGradingData adata;
   @Getter
   private PublishedAssessmentFacade publishedAssessment;
@@ -349,6 +358,8 @@ public class DeliveryBean implements Serializable {
   @Getter @Setter
   private boolean hasTimeLimit;
   private boolean isMoreThanOneQuestion;
+  @Getter @Setter
+  private boolean toolHidden;
   @Getter @Setter
   private Integer scoringType;
   
@@ -379,7 +390,7 @@ public class DeliveryBean implements Serializable {
   private String javaScriptEnabledCheck;
 
   //cwent
-  @Setter @Getter
+  @Setter
   private String siteId;
 
   @Getter @Setter
@@ -399,6 +410,9 @@ public class DeliveryBean implements Serializable {
   // will be the new id which is not what we want in review assessment or grade assessment
   @Getter @Setter
   private Long assessmentGradingId;
+
+  @Getter @Setter
+  private Long nextAssessmentGradingId;
 
   @Getter @Setter
   private boolean fromTableOfContents;
@@ -422,6 +436,7 @@ public class DeliveryBean implements Serializable {
   @Getter @Setter
   private String secureDeliveryHTMLFragment;
 
+  @Getter @Setter
   private PhaseStatus secureDeliveryStatus = null;
 
   @Getter @Setter
@@ -447,6 +462,8 @@ public class DeliveryBean implements Serializable {
   private boolean firstTimeTaking;
   @Setter
   private boolean timeExpired = false;
+  @Setter @Getter
+  private boolean trackingQuestions = false;
   @Getter @Setter
   private long lastTimer=0;
 
@@ -456,8 +473,6 @@ public class DeliveryBean implements Serializable {
 
   private static final String ACCESSBASE = ServerConfigurationService.getAccessUrl();
   private static final String RECPATH = ServerConfigurationService.getString("samigo.recommendations.path");
-
-  private static final ResourceBundle eventLogMessages = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.EventLogMessages");
 
   private static final String questionProgressUnansweredPath = ServerConfigurationService.getString("samigo.questionprogress.unansweredpath", "/images/whiteBubble15.png");
   private static final String questionProgressAnsweredPath = ServerConfigurationService.getString("samigo.questionprogress.answeredpath", "/images/blackBubble15.png");
@@ -496,6 +511,15 @@ public class DeliveryBean implements Serializable {
   @Getter @Setter
   private String secureToken;
 
+  @Getter @Setter
+  private boolean sebSetup;
+
+  @Getter @Setter
+  private String sebConfigUploadLink;
+
+  @Getter @Setter
+  private String sebLaunchLink;
+
   /**
    * Creates a new DeliveryBean object.
    */
@@ -526,6 +550,12 @@ public class DeliveryBean implements Serializable {
     try{
       if (timeElapse!=null && !("").equals(timeElapse)
           && getTimeLimit()!=null && !("").equals(getTimeLimit())){
+        if (!"0".equals(timeElapse)) {
+          setBackupTimeElapse(timeElapse);
+        }
+        if (!"0".equals(getTimeLimit())) {
+          setBackupTimeLimit(getTimeLimit());
+        }
         double limit = (new Double(getTimeLimit()));
         double elapsed = (new Double(timeElapse));
         if (limit > elapsed)
@@ -632,7 +662,7 @@ public class DeliveryBean implements Serializable {
   }
 
   public Date getRetractDate() {
-    return isAcceptLateSubmission() ? retractDate : null;
+    return (publishedAssessment != null && isAcceptLateSubmission()) ? retractDate : null;
   }
 
   public String getGraderComment() {
@@ -796,7 +826,7 @@ public class DeliveryBean implements Serializable {
 	  setSecureDeliveryHTMLFragment( "" );
 	  setBlockDelivery( false );
 	  SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
-	  if ( secureDelivery.isSecureDeliveryAvaliable() ) {
+	  if (secureDelivery.isSecureDeliveryAvaliable(Long.valueOf(assessmentId))) {
 		  String moduleId = publishedAssessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY );
 		  if (moduleExists(moduleId)) {
 			  
@@ -814,9 +844,9 @@ public class DeliveryBean implements Serializable {
 	  if(eventLogDataList != null && eventLogDataList.size() > 0) {
 	 	  EventLogData eventLogData= (EventLogData) eventLogDataList.get(0);
 	 	  if (submitFromTimeoutPopup) {
-	 	    eventLogData.setErrorMsg(eventLogMessages.getString("timer_submit"));
+	 	    eventLogData.setErrorMsg("timer_submit");
 	 	  } else {
-	 	    eventLogData.setErrorMsg(eventLogMessages.getString("no_error"));
+	 	    eventLogData.setErrorMsg("no_error_user_submit");
 	 	  }
 	 	  Date endDate = new Date();
 	 	  eventLogData.setEndDate(endDate);
@@ -826,7 +856,7 @@ public class DeliveryBean implements Serializable {
 	 	      eventLogData.setEclipseTime(eclipseTime);
 	 	  } else {
 	 	      eventLogData.setEclipseTime(null);
-	 	      eventLogData.setErrorMsg(eventLogMessages.getString("error_take"));
+	 	      eventLogData.setErrorMsg("error_take");
 	 	  }
 
 		  String thisIp = ( (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest()).getRemoteAddr();
@@ -857,7 +887,7 @@ public class DeliveryBean implements Serializable {
 		  List eventLogDataList = eventService.getEventLogData(adata.getAssessmentGradingId());
 		  if(eventLogDataList != null && eventLogDataList.size() > 0) {
 			  eventLogData= (EventLogData) eventLogDataList.get(0);
-			  eventLogData.setErrorMsg(eventLogMessages.getString("error_submit"));
+			  eventLogData.setErrorMsg("error_submit");
 			  eventLogData.setEndDate(new Date());
 			  			  
 			  String thisIp = ( (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest()).getRemoteAddr();
@@ -1265,12 +1295,38 @@ public class DeliveryBean implements Serializable {
     if (StringUtils.isBlank(password)) {
     	return "passwordAccessError";
     }
-    if(StringUtils.isNotBlank(getSettings().getPassword()) && !StringUtils.equals(StringUtils.trim(password), StringUtils.trim(getSettings().getPassword()))) {
+    if(StringUtils.isNotBlank(getSettings().getPassword()) && !StringUtils.equals(StringUtils.trim(password), formattedText.convertFormattedTextToPlaintext(StringUtils.trim(getSettings().getPassword())))) {
     	return "passwordAccessError";
     }
 
 	// in post 2.1, clicking at Begin Assessment takes users to the 1st question.
 	return "takeAssessment";
+  }
+
+  public void validateSecureDeliveryPhase(Phase phase) {
+    String moduleId = getSecureDeliveryModuleId();
+
+    SecureDeliveryServiceAPI secureDeliveryService = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
+
+    if (moduleId != null) {
+      HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+
+      setSecureDeliveryStatus(secureDeliveryService.validatePhase(moduleId, phase, publishedAssessment, request));
+
+      setSecureDeliveryHTMLFragment(secureDeliveryService.getHTMLFragment(moduleId, publishedAssessment, request,
+          phase, secureDeliveryStatus, locale));
+    }
+  }
+
+  private String getSecureDeliveryModuleId() {
+    String moduleId = publishedAssessment.getAssessmentMetaDataByLabel(SecureDeliveryServiceAPI.MODULE_KEY);
+
+    SecureDeliveryServiceAPI secureDeliveryService = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
+
+    boolean isSecureDeliveryAvailable = secureDeliveryService.isSecureDeliveryAvaliable(publishedAssessment.getPublishedAssessmentId());
+    boolean moduleExists = moduleExists(moduleId);
+
+    return isSecureDeliveryAvailable && moduleExists ? moduleId : null;
   }
 
   public String validateIP() {
@@ -1326,23 +1382,19 @@ public class DeliveryBean implements Serializable {
       // should occur before timer check, so that timer will be stopped if access is denied
       setSecureDeliveryHTMLFragment( "" );
       setBlockDelivery( false );
-      SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
-      if ( "takeAssessment".equals(results) && secureDelivery.isSecureDeliveryAvaliable(publishedAssessment.getPublishedAssessmentId()) ) {
-   
-    	  String moduleId = publishedAssessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY );
-    	  if (moduleExists(moduleId)) {
-    		  HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
-    		  secureDeliveryStatus = secureDelivery.validatePhase(moduleId, Phase.ASSESSMENT_START, publishedAssessment, request );
-    		  setSecureDeliveryHTMLFragment( 
-				secureDelivery.getHTMLFragment(moduleId, publishedAssessment, request, Phase.ASSESSMENT_START, secureDeliveryStatus, locale));
-    		  setBlockDelivery( PhaseStatus.FAILURE == secureDeliveryStatus );
-    		  if ( PhaseStatus.SUCCESS == secureDeliveryStatus ) {
-    			  results = "takeAssessment";
-              } else {
-    			  results = "secureDeliveryError";
-    			  updatEventLog("error_secure_delivery");
-              }
-    	  }
+
+      if (SamigoConstants.OUTCOME_DELIVERY_TAKE_ASSESSMENT.equals(results) && getSecureDeliveryModuleId() != null) {
+        if (secureDeliveryStatus == null) {
+          validateSecureDeliveryPhase(Phase.ASSESSMENT_START);
+        }
+
+        if (PhaseStatus.SUCCESS.equals(secureDeliveryStatus)) {
+          results = SamigoConstants.OUTCOME_DELIVERY_TAKE_ASSESSMENT;
+        } else {
+          results = SamigoConstants.OUTCOME_DELIVERY_SECURE_DELIVERY_ERROR;
+          setBlockDelivery(true);
+          updatEventLog("error_secure_delivery");
+        }
       }
 
       // if results != "takeAssessment", stop the clock if it is a timed assessment
@@ -1389,7 +1441,7 @@ public class DeliveryBean implements Serializable {
 		 List eventLogDataList = eventService.getEventLogData(adata.getAssessmentGradingId());
 		 if(eventLogDataList != null && eventLogDataList.size() > 0) {
 			 eventLogData= (EventLogData) eventLogDataList.get(0);
-			 eventLogData.setErrorMsg(eventLogMessages.getString("error_access"));
+			 eventLogData.setErrorMsg("error_access");
 		 }
 		 
 		 String thisIp = ( (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest()).getRemoteAddr();
@@ -1491,7 +1543,7 @@ public class DeliveryBean implements Serializable {
 		  agentEid= "N/A";
 	  }
 	  eventLogData.setUserEid(agentEid);
-	  eventLogData.setTitle(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(publishedAssessment.getTitle()));
+	  eventLogData.setTitle(formattedText.convertFormattedTextToPlaintext(publishedAssessment.getTitle()));
 	  String site_id= AgentFacade.getCurrentSiteId();
 	  if(site_id == null) {
 		  //take assessment via url
@@ -1502,7 +1554,7 @@ public class DeliveryBean implements Serializable {
 	  eventLogData.setProcessId(null);
 	  eventLogData.setEndDate(null);
 	  eventLogData.setEclipseTime(null);
-	  eventLogData.setErrorMsg(eventLogMessages.getString(errorMsg));
+	  eventLogData.setErrorMsg(errorMsg);
 	  	  
 	  String thisIp = ( (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest()).getRemoteAddr();
 	  eventLogData.setIpAddress(thisIp);
@@ -1519,6 +1571,12 @@ public class DeliveryBean implements Serializable {
 
   public boolean getDoContinue() {
     return next_page;
+  }
+
+  public boolean isSebActive() {
+    SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
+    return secureDelivery.isSecureDeliveryAvaliable(Long.valueOf(assessmentId))
+        && StringUtils.equals(SecureDeliverySeb.MODULE_NAME, publishedAssessment.getAssessmentMetaDataByLabel(SecureDeliveryServiceAPI.MODULE_KEY));
   }
 
   public void setContinue(boolean docontinue) {
@@ -1961,6 +2019,19 @@ public class DeliveryBean implements Serializable {
     return hasAttachment;
   }
 
+  public boolean getShowFeedbackLink() {
+      return ("reviewAssessment".equals(getActionString())
+              || "takeAssessment".equals(getActionString())
+              || "takeAssessmentViaUrl".equals(getActionString())
+              || "previewAssessment".equals(getActionString()))
+             && ! ("1".equals(getNavigation()) && getPageContents().getIsNoParts())
+             && (getFeedbackComponent().getShowImmediate() || feedbackOnDate);
+  }
+
+  public boolean getShowReturnToAssessmentLink() {
+    return "reviewAssessment".equals(getActionString()) && !isAnonymousLogin() && !isToolHidden();
+  }
+
   public String checkBeforeProceed(boolean isSubmitForGrade, boolean isFromTimer, boolean isViaUrlLogin){
     // public method, who know if publishedAssessment is set, so check to be sure
     if (getPublishedAssessment() == null){
@@ -2119,20 +2190,25 @@ public class DeliveryBean implements Serializable {
 
     // Check 10: see if SecureDelivery is okay with this
     log.debug("check10-SecureDelivery");
+
     if (isViaUrlLogin) {
-        SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
-        if ( secureDelivery.isSecureDeliveryAvaliable(publishedAssessment.getPublishedAssessmentId()) ) {
-            String moduleId = publishedAssessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY );
-            if (moduleExists(moduleId)) {
-                HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
-                secureDeliveryStatus = secureDelivery.validatePhase(moduleId, Phase.ASSESSMENT_START, publishedAssessment, request );
-                setBlockDelivery( PhaseStatus.FAILURE == secureDeliveryStatus );
-                setSecureDeliveryHTMLFragment(secureDelivery.getHTMLFragment(moduleId, publishedAssessment, request, Phase.ASSESSMENT_START, secureDeliveryStatus, locale));
-                if ( PhaseStatus.FAILURE == secureDeliveryStatus ) {
-                    return "secureDeliveryError";
-                }
-            }          
+      String secureDeliveryModuleId = publishedAssessment.getAssessmentMetaDataByLabel(SecureDeliveryServiceAPI.MODULE_KEY);
+
+      if (secureDeliveryModuleId != null && !SecureDeliveryServiceAPI.NONE_ID.equals(secureDeliveryModuleId)) {
+        validateSecureDeliveryPhase(Phase.ASSESSMENT_START);
+
+        if (PhaseStatus.FAILURE.equals(secureDeliveryStatus)) {
+          // For SEB, we expect the first validation to fail, because no validation data is provided yet
+          // Also, we need to set sebSetup. With sebSetup the beginDelivery page will refresh once the validation data is sent
+          if(StringUtils.equals(secureDeliveryModuleId, SecureDeliverySeb.MODULE_NAME)) {
+            setSebSetup(true);
+          } else {
+            return SamigoConstants.OUTCOME_DELIVERY_SECURE_DELIVERY_ERROR;
+          }
         }
+      } else {
+        setSebSetup(false);
+      }
     }
 
     return "safeToProceed";
@@ -2339,12 +2415,10 @@ public class DeliveryBean implements Serializable {
   
 	private Site getCurrentSite(String id) {
 		Site site = null;
-		//Placement placement = ToolManager.getCurrentPlacement();
-		//String currentSiteId = placement.getContext();
 		try {
 			site = SiteService.getSite(id);
 		} catch (IdUnusedException e) {
-			log.error(e.getMessage(), e);
+			log.error("Site not found, possibly anonymous assessment");
 		}
 		return site;
 	}
@@ -2454,24 +2528,27 @@ public class DeliveryBean implements Serializable {
 	  }
 	  
 	  public String getTimeBeforeDueRetract(String timeLimit) {
+		  return getTimeBeforeDueRetract(timeLimit, beginTime);
+	  }
+	  public String getTimeBeforeDueRetract(String timeLimit, Date givenBeginTime) {
 		  boolean acceptLateSubmission = isAcceptLateSubmission();
 		  
 		  String finalTimeLimit = timeLimit;
 		  if (dueDate != null) {
 			  if (!acceptLateSubmission) {
-				  finalTimeLimit = getTimeBeforeDue(timeLimit);
+				  finalTimeLimit = getTimeBeforeDue(timeLimit, givenBeginTime);
 			  } else {
 				  if (totalSubmissions > 0) {
-					  finalTimeLimit = getTimeBeforeDue(timeLimit);
+					  finalTimeLimit = getTimeBeforeDue(timeLimit, givenBeginTime);
 				  } else {
 					  if (retractDate != null) {
-						  finalTimeLimit = getTimeBeforeRetract(timeLimit);
+						  finalTimeLimit = getTimeBeforeRetract(timeLimit, givenBeginTime);
 					  }
 				  }
 			  }
 		  } else {
 			  if (retractDate != null) {
-				  finalTimeLimit = getTimeBeforeRetract(timeLimit);
+				  finalTimeLimit = getTimeBeforeRetract(timeLimit, givenBeginTime);
 			  }
 		  }
 		 
@@ -2479,8 +2556,11 @@ public class DeliveryBean implements Serializable {
 	  }
 	  
 	  private String getTimeBeforeDue(String timeLimit) {
-		  if (timeLimit != null && Integer.parseInt(timeLimit) > 0 && beginTime != null) {
-			  int timeBeforeDue  = Math.round((dueDate.getTime() - beginTime.getTime())/1000.0f);
+		  return getTimeBeforeDue(timeLimit, beginTime);
+	  }
+	  private String getTimeBeforeDue(String timeLimit, Date givenBeginTime) {
+		  if (timeLimit != null && Integer.parseInt(timeLimit) > 0 && givenBeginTime != null) {
+			  int timeBeforeDue  = Math.round((dueDate.getTime() - givenBeginTime.getTime())/1000.0f);
 			  if (timeBeforeDue < Integer.parseInt(timeLimit)) {
 				  timeLimit = String.valueOf(timeBeforeDue);
 			  }
@@ -2493,9 +2573,12 @@ public class DeliveryBean implements Serializable {
 	  }
 	  
 	  private String getTimeBeforeRetract(String timeLimit) {
+		  return getTimeBeforeRetract(timeLimit, beginTime);
+	  }
+	  private String getTimeBeforeRetract(String timeLimit, Date givenBeginTime) {
 		  String returnedTime = timeLimit;
-		  if (timeLimit != null && Integer.parseInt(timeLimit) > 0 && beginTime != null) {
-			  int timeBeforeRetract  = Math.round((retractDate.getTime() - beginTime.getTime())/1000.0f);
+		  if (timeLimit != null && Integer.parseInt(timeLimit) > 0 && givenBeginTime != null) {
+			  int timeBeforeRetract  = Math.round((retractDate.getTime() - givenBeginTime.getTime())/1000.0f);
 			  if (timeBeforeRetract < Integer.parseInt(timeLimit)) {
 				  returnedTime = String.valueOf(timeBeforeRetract);
 			  }
@@ -2568,6 +2651,10 @@ public class DeliveryBean implements Serializable {
             }
             item.setReview(false);
             item.setRationale("");
+            
+            for (ItemGradingData itemgrading : item.getItemGradingDataArray()) {
+            	itemgrading.setAttemptDate(item.getAttemptDate());
+            }
           }
         }
 
@@ -2639,7 +2726,7 @@ public class DeliveryBean implements Serializable {
     }
     public String getMathJaxHeader(){
       Document headMJ = new Document("");
-      headMJ.appendElement("script").attr("src", "/library/js/mathjax-config.js");
+      headMJ.appendElement("script").attr("src", "/library/js/mathjax-config.js"+PortalUtils.getCDNQuery());
       headMJ.appendElement("script").attr("type", "text/javascript").attr("src", MATHJAX_SRC_PATH);
       return headMJ.toString();
     }
@@ -2684,5 +2771,17 @@ public class DeliveryBean implements Serializable {
         if(!Objects.equals(extendedTimeDeliveryService.getPublishedAssessmentId(), publishedAssessment.getPublishedAssessmentId())) {
             extendedTimeDeliveryService = new ExtendedTimeDeliveryService(publishedAssessment);
         }
+    }
+
+    public String getSebDownloadLink() {
+      return ServerConfigurationService.getString(SecureDeliverySeb.SEB_DOWNLOAD_LINK_PROPERTY, SecureDeliverySeb.SEB_DOWNLOAD_LINK_DEFAULT);
+    }
+    
+    public Boolean isTrackingQuestions() {
+    	return Boolean.valueOf(publishedAssessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.TRACK_QUESTIONS));
+    }
+
+    public Boolean getTrackingQuestions() {
+    	return Boolean.valueOf(publishedAssessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.TRACK_QUESTIONS));
     }
 }

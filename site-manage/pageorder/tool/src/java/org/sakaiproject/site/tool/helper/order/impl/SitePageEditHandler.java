@@ -120,6 +120,9 @@ public class SitePageEditHandler {
     private Set<String> defaultMultiTools
         = new HashSet(Arrays.asList(new String [] {"sakai.news", "sakai.iframe"}));
 
+    // List of tool permissions that we can never grant to students
+    List<String> instructorPermissionsOnly = Arrays.asList(SiteService.SECURE_UPDATE_SITE, SiteService.SITE_VISIT, "rubrics.manager.view");
+
     /**
      * Gets the current tool
      * @return Tool
@@ -465,7 +468,7 @@ public class SitePageEditHandler {
             return false;
         }
         List<String> permissions = getSingleToolPagePermissions(page).stream().flatMap(Collection::stream).collect(Collectors.toList());
-        return !(permissions.isEmpty() || permissions.contains(SiteService.SECURE_UPDATE_SITE) || permissions.contains(SiteService.SITE_VISIT));
+        return !(permissions.isEmpty() || instructorPermissionsOnly.stream().anyMatch(permissions::contains));
     }
 
     /**
@@ -508,6 +511,7 @@ public class SitePageEditHandler {
      * @throws IdUnusedException, PermissionException
      */
     public boolean enablePage(String pageId) throws SakaiException {
+
         EventTrackingService.post(
             EventTrackingService.newEvent(PAGE_ENABLE, "/site/" + site.getId() +
                                          "/page/" + pageId, false));

@@ -23,6 +23,7 @@ package org.sakaiproject.content.impl.serialize.impl.conversion;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.FormatStyle;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -195,6 +196,14 @@ public class ConversionTimeService implements TimeService
 		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.time.api.TimeService#newTimeRange(Instant, Instant)
+	 */
+	public TimeRange newTimeRange(Instant start, Instant end)
+	{
+		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
+	}
+
 	@Override
 	public String timeFormat(Date date, Locale locale, int df) {
 		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
@@ -250,4 +259,13 @@ public class ConversionTimeService implements TimeService
 		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
 	}
 
+	@Override
+	public String dateFromUtcToUserTimeZone(String utcDate, boolean formatted) {
+		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
+	}
+
+	@Override
+	public LocalDateTime dateFromUserTimeZoneToUtc(String zonedDate) {
+		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
+	}
 }

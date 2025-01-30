@@ -17,6 +17,7 @@ package org.sakaiproject.springframework.data;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -28,16 +29,16 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import org.sakaiproject.springframework.data.PersistableEntity;
-import org.sakaiproject.springframework.data.Repository;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Transactional(readOnly = true)
 public abstract class SpringCrudRepositoryImpl<T extends PersistableEntity<ID>, ID extends Serializable> implements SpringCrudRepository<T, ID> {
+
+    public static final int BATCH_SIZE = 100;
 
     @Getter
     private final Class<T> domainClass;
@@ -89,14 +90,21 @@ public abstract class SpringCrudRepositoryImpl<T extends PersistableEntity<ID>, 
     public Optional<T> findById(ID id) {
 
         Assert.notNull(id, "The id cannot be null");
-        return Optional.ofNullable((T) sessionFactory.getCurrentSession().get(domainClass, id));
+        return Optional.ofNullable(sessionFactory.getCurrentSession().get(domainClass, id));
     }
 
     @Override
     public T getById(ID id) {
 
         Assert.notNull(id, "The id cannot be null");
-        return (T) sessionFactory.getCurrentSession().load(domainClass, id);
+        return sessionFactory.getCurrentSession().load(domainClass, id);
+    }
+
+    @Override
+    public T getReferenceById(ID id) {
+
+        Assert.notNull(id, "The id cannot be null");
+        return sessionFactory.getCurrentSession().load(domainClass, id);
     }
 
     @Override
@@ -116,7 +124,7 @@ public abstract class SpringCrudRepositoryImpl<T extends PersistableEntity<ID>, 
 
         Criteria criteria = sessionFactory.getCurrentSession().createCriteria(domainClass);
         criteria.setFirstResult((int) pageable.getOffset());
-        criteria.setMaxResults((int) pageable.getPageSize());
+        criteria.setMaxResults(pageable.getPageSize());
         return new PageImpl(criteria.list());
     }
 
@@ -125,7 +133,7 @@ public abstract class SpringCrudRepositoryImpl<T extends PersistableEntity<ID>, 
 
         List<T> list = new ArrayList<>();
         if (ids != null) {
-            ids.forEach(id -> findById(id).ifPresent(found -> list.add(found)));
+            ids.forEach(id -> findById(id).ifPresent(list::add));
         }
         return list;
     }
@@ -133,13 +141,10 @@ public abstract class SpringCrudRepositoryImpl<T extends PersistableEntity<ID>, 
     @Override
     @Transactional
     public void delete(T entity) {
-
-        Session session = sessionFactory.getCurrentSession();
-
-        try {
-            session.delete(entity);
-        } catch (Exception he) {
-            session.delete(session.merge(entity));
+        if (entity != null) {
+            deleteById(entity.getId());
+        } else {
+            log.warn("Can not perform delete on a null entity");
         }
     }
 
@@ -161,7 +166,12 @@ public abstract class SpringCrudRepositoryImpl<T extends PersistableEntity<ID>, 
     @Override
     @Transactional
     public void deleteById(ID id) {
-        findById(id).ifPresent(found -> delete(found));
+        if (id != null) {
+            Session session = sessionFactory.getCurrentSession();
+            findById(id).ifPresent(session::delete);
+        } else {
+            log.warn("Can not perform delete with a null id");
+        }
     }
 
     /**

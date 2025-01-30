@@ -27,32 +27,29 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderColumn;
-import javax.persistence.PostLoad;
-import javax.persistence.PostUpdate;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-import lombok.ToString;
-
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-
-import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.springframework.data.PersistableEntity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @AllArgsConstructor
 @Data
@@ -60,7 +57,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor
 @Table(name = "rbc_rubric")
-@ToString(exclude = {"criterions", "toolItemAssociations"})
+@ToString(exclude = {"criteria", "associations"})
 public class Rubric implements PersistableEntity<Long>, Serializable, Cloneable {
 
     @Id
@@ -72,13 +69,17 @@ public class Rubric implements PersistableEntity<Long>, Serializable, Cloneable 
 
     private Boolean weighted = Boolean.FALSE;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "rubric_id")
+    @Column(nullable = false)
+    private Boolean draft = Boolean.FALSE;
+
+    @EqualsAndHashCode.Exclude
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "rubric")
     @OrderColumn(name = "order_index")
     private List<Criterion> criteria = new ArrayList<>();
 
-    @OneToMany(mappedBy = "rubric")
-    private List<ToolItemRubricAssociation> associations;
+    @EqualsAndHashCode.Exclude
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "rubric")
+    private List<ToolItemRubricAssociation> associations = new ArrayList<>();
 
     private Instant created;
 
@@ -92,37 +93,33 @@ public class Rubric implements PersistableEntity<Long>, Serializable, Cloneable 
 
     private Boolean shared = Boolean.FALSE;
 
+    @Column(name = "max_points")
+    private Double maxPoints = 0D;
+
+    private Boolean adhoc = Boolean.FALSE;
+
     @Transient
     private Boolean locked = Boolean.FALSE;
-
-    @PostLoad
-    @PostUpdate
-    public void determineLockStatus() {
-
-        if (getAssociations() != null && getAssociations().size() > 0) {
-            for (ToolItemRubricAssociation tira : getAssociations()) {
-                if (tira.getParameters() == null) {
-                    locked = true;
-                } else if (!tira.getParameters().containsKey(RubricsConstants.RBCS_SOFT_DELETED) || !tira.getParameters().get(RubricsConstants.RBCS_SOFT_DELETED)) {
-                    locked = true;
-                    break;
-                }
-            }
-        }
-    }
 
     public Rubric clone(String siteId) {
 
         Rubric clonedRubric = new Rubric();
-        clonedRubric.setId(null);
-        clonedRubric.setCreatorId(this.creatorId);
+        clonedRubric.setCreatorId(creatorId);
         clonedRubric.setOwnerId(siteId);
-        clonedRubric.setTitle(this.title);
-        clonedRubric.setWeighted(this.weighted);
+        clonedRubric.setTitle(title);
+        clonedRubric.setWeighted(weighted);
         clonedRubric.setLocked(false);
         clonedRubric.setShared(false);
-        clonedRubric.setCriteria(this.getCriteria().stream().map(c -> c.clone())
-            .collect(Collectors.toList()));
+        clonedRubric.setDraft(draft);
+        clonedRubric.getCriteria()
+                .addAll(this.getCriteria().stream()
+                        .map(c -> {
+                            Criterion clonedCriterion = c.clone();
+                            clonedCriterion.setRubric(clonedRubric);
+                            return clonedCriterion;
+                        })
+                        .collect(Collectors.toList()));
+        clonedRubric.setMaxPoints(maxPoints);
         return clonedRubric;
     }
 }

@@ -26,7 +26,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -38,6 +38,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Stack;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -63,9 +64,12 @@ import org.sakaiproject.announcement.api.AnnouncementMessageEdit;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeaderEdit;
 import org.sakaiproject.announcement.api.AnnouncementService;
+import org.sakaiproject.announcement.api.ViewableFilter;
 import org.sakaiproject.authz.api.FunctionManager;
+import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.entity.api.ContentExistsAware;
 import org.sakaiproject.entity.api.ContextObserver;
 import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.entity.api.Entity;
@@ -88,17 +92,23 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.javax.Filter;
 import org.sakaiproject.message.api.Message;
 import org.sakaiproject.message.api.MessageChannel;
+import org.sakaiproject.message.api.MessageChannelEdit;
 import org.sakaiproject.message.api.MessageEdit;
 import org.sakaiproject.message.api.MessageHeader;
 import org.sakaiproject.message.api.MessageHeaderEdit;
 import org.sakaiproject.message.util.BaseMessage;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteRemovalAdvisor;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.user.api.Preferences;
+import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.util.api.LinkMigrationHelper;
 import org.sakaiproject.util.MergedList;
+import org.sakaiproject.util.MergedListEntryProviderBase;
+import org.sakaiproject.util.MergedListEntryProviderFixedListWrapper;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
@@ -112,12 +122,8 @@ import org.w3c.dom.Element;
  */
 @Slf4j
 public abstract class BaseAnnouncementService extends BaseMessage implements AnnouncementService, ContextObserver,
-		EntityTransferrer
+		EntityTransferrer, ContentExistsAware, SiteRemovalAdvisor
 {
-	/** private constants definitions */
-	private final static String SAKAI_ANNOUNCEMENT_TOOL_ID = "sakai.announcements";
-	private static final String PORTLET_CONFIG_PARM_MERGED_CHANNELS = "mergedAnnouncementChannels";
-
 	
 	/** Messages, for the http access. */
 	protected static ResourceLoader rb = new ResourceLoader("annc-access");
@@ -131,6 +137,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 	@Setter private FunctionManager functionManager;
 	@Setter private AliasService aliasService;
 	@Setter private ToolManager toolManager;
+	@Setter private PreferencesService preferencesService;
 	@Resource(name="org.sakaiproject.util.api.LinkMigrationHelper")
 	private LinkMigrationHelper linkMigrationHelper;
 
@@ -704,45 +711,6 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 	/**
 	 * {@inheritDoc}
 	 */
-	public boolean isMessageViewable(AnnouncementMessage message) 
-	{
-		final ResourceProperties messageProps = message.getProperties();
-
-		final Instant now =  Instant.now();
-		try 
-		{
-			final Instant releaseDate = message.getProperties().getInstantProperty(RELEASE_DATE);
-
-			if (now.isBefore(releaseDate)) 
-			{
-				return false;
-			}
-		}
-		catch (Exception e) 
-		{
-			// Just not using/set Release Date
-		} 
-
-		try 
-		{
-			final Instant retractDate = message.getProperties().getInstantProperty(RETRACT_DATE);
-			
-			if (now.isAfter(retractDate)) 
-			{
-				return false;
-			}
-		}
-		catch (Exception e) 
-		{
-			// Just not using/set Retract Date
-		}
-		
-		return true;
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
 	public void contextCreated(String context, boolean toolPlacement)
 	{
 		if (toolPlacement) enableMessageChannel(context);
@@ -1057,14 +1025,15 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 	 *            if the user does not have read permission to the channel.
 	 * @exception NullPointerException
 	 */
-	public List getMessages(String channelReference,Filter filter, boolean ascending, boolean merged) throws IdUnusedException, PermissionException, NullPointerException
-	{
-		List<Message> messageList = new Vector();	
+	public List<AnnouncementMessage> getMessages(String channelReference,Filter filter, boolean ascending, boolean merged) throws IdUnusedException, PermissionException, NullPointerException {
+
+		List<AnnouncementMessage> messageList = new ArrayList<>();
+
 		filter = new PrivacyFilter(filter);  		// filter out drafts this user cannot see
 		Site site = null;
 		String initMergeList = null;
 	
-		try{
+		try {
 			site = m_siteService.getSite(getAnnouncementChannel(channelReference).getContext());
 
 			ToolConfiguration tc=site.getToolForCommonId(SAKAI_ANNOUNCEMENT_TOOL_ID);
@@ -1107,6 +1076,375 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 		return messageList;
 
 	} // getMessages
+
+	private class AnnouncementChannelReferenceMaker implements MergedList.ChannelReferenceMaker {
+
+		public String makeReference(String siteId) {
+			return channelReference(siteId, SiteService.MAIN_CONTAINER);
+		}
+	}
+
+	/**
+	 * Used by callback to convert channel references to channels.
+	 */
+	private class AnnouncementReferenceToChannelConverter implements
+			MergedListEntryProviderFixedListWrapper.ReferenceToChannelConverter
+	{
+		public Object getChannel(final String channelReference)
+		{
+			SecurityAdvisor advisor = getChannelAdvisor(channelReference);
+			try {
+				m_securityService.pushAdvisor(advisor);
+				return getAnnouncementChannel(channelReference);
+			}
+			catch (IdUnusedException e)
+			{
+				return null;
+			}
+			catch (PermissionException e)
+			{
+				log.warn("Permission denied for '{}' on '{}'", m_sessionManager.getCurrentSessionUserId(), channelReference);
+				return null;
+			} finally {
+				m_securityService.popAdvisor(advisor);
+			}
+		}
+	}
+
+	/**
+	 * Used to provide a interface to the MergedList class that is shared with the calendar action.
+	 */
+	class EntryProvider extends MergedListEntryProviderBase {
+
+		/** announcement channels from hidden sites */
+		private List<String> hiddenSites = new ArrayList<>();
+
+		public EntryProvider() {
+			this(false);
+		}
+
+		public EntryProvider(boolean includeHiddenSites) {
+
+			if (includeHiddenSites) {
+				List<String> excludedSiteIds = getExcludedSitesFromTabs();
+				if (excludedSiteIds != null) {
+					for (String siteId : excludedSiteIds) {
+						hiddenSites.add(channelReference(siteId, SiteService.MAIN_CONTAINER));
+					}
+				}
+			}
+		}
+
+		/*
+		 * (non-Javadoc)
+		 *
+		 * @see org.sakaiproject.util.MergedListEntryProviderBase#makeReference(java.lang.String)
+		 */
+		public Object makeObjectFromSiteId(String id) {
+
+			String channelReference = channelReference(id, SiteService.MAIN_CONTAINER);
+			Object channel = null;
+
+			if (channelReference != null) {
+				try {
+					channel = getChannel(channelReference);
+				} catch (IdUnusedException e) {
+					// The channel isn't there.
+				} catch (PermissionException e) {
+					// We can't see the channel
+				}
+			}
+
+			return channel;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 *
+		 * @see org.chefproject.actions.MergedEntryList.EntryProvider#allowGet(java.lang.Object)
+		 */
+		public boolean allowGet(String ref) {
+
+			SecurityAdvisor advisor = getChannelAdvisor(ref);
+			try {
+				m_securityService.pushAdvisor(advisor);
+				return (!hiddenSites.contains(ref) && allowGetChannel(ref));
+			} finally {
+				m_securityService.popAdvisor(advisor);
+			}
+
+		}
+
+		/*
+		 * (non-Javadoc)
+		 *
+		 * @see org.chefproject.actions.MergedEntryList.EntryProvider#getContext(java.lang.Object)
+		 */
+		public String getContext(Object obj) {
+
+			if (obj == null) {
+				return "";
+			}
+
+			AnnouncementChannel channel = (AnnouncementChannel) obj;
+			return channel.getContext();
+		}
+
+		/*
+		 * (non-Javadoc)
+		 *
+		 * @see org.chefproject.actions.MergedEntryList.EntryProvider#getReference(java.lang.Object)
+		 */
+		public String getReference(Object obj) {
+
+			if (obj == null) {
+				return "";
+			}
+
+			AnnouncementChannel channel = (AnnouncementChannel) obj;
+			return channel.getReference();
+		}
+
+		/*
+		 * (non-Javadoc)
+		 *
+		 * @see org.chefproject.actions.MergedEntryList.EntryProvider#getProperties(java.lang.Object)
+		 */
+		public ResourceProperties getProperties(Object obj) {
+
+			if (obj == null) {
+				return null;
+			}
+
+			AnnouncementChannel channel = (AnnouncementChannel) obj;
+			return channel.getProperties();
+		}
+	}
+
+	/**
+	 * Pulls excluded site ids from Tabs preferences
+	 */
+	private List<String> getExcludedSitesFromTabs() {
+
+	    Preferences prefs = preferencesService.getPreferences(m_sessionManager.getCurrentSessionUserId());
+	    ResourceProperties props = prefs.getProperties(PreferencesService.SITENAV_PREFS_KEY);
+	    List<String> l = props.getPropertyList("exclude");
+	    return l;
+	}
+
+	@Override
+	public Filter getMaxAgeInDaysAndAmountFilter(Integer maxAgeInDays, Integer amount) {
+
+		if (maxAgeInDays == null) maxAgeInDays = 10;
+
+		if (amount == null) amount = 100;
+
+		ViewableFilter viewableFilter = new ViewableFilter(null, null, amount, this);
+		long now = Instant.now().toEpochMilli();
+		Time afterDate = m_timeService.newTime(now - (maxAgeInDays * 24 * 60 * 60 * 1000));
+		viewableFilter.setFilter(new MessageSelectionFilter(afterDate, null, false));
+		return viewableFilter;
+	}
+
+	public List<AnnouncementMessage> getChannelMessages(String channelReference, Filter filter, boolean ascending,
+			String mergedChannelDelimitedList, boolean allUsersSites, boolean isSynopticTool, String siteId, Integer maxAgeInDays) throws PermissionException {
+
+		if (filter == null && maxAgeInDays != null) {
+			filter = getMaxAgeInDaysAndAmountFilter(maxAgeInDays, Integer.MAX_VALUE);
+		}
+
+		List<AnnouncementMessage> messageList = new ArrayList<>();
+
+		MergedList mergedAnnouncementList = new MergedList();
+
+		// TODO - MERGE FIX
+		String[] channelArrayFromConfigParameterValue = new String[0];
+
+		String currentUserId = m_sessionManager.getCurrentSessionUserId();
+
+		// Figure out the list of channel references that we'll be using.
+		// If we're on the workspace tab, we get everything.
+		// Don't do this if we're the super-user, since we'd be
+		// overwhelmed.
+
+		//loading merged announcement channel reference, for Synoptic Announcement Tool-SAK-5865
+		if (isSynopticTool) {
+
+			// If siteId is null, we assume that this call is for the user's home site
+			if (siteId == null) {
+				siteId = m_siteService.getUserSiteId(currentUserId);
+				channelReference = siteId;
+			}
+
+			Site site = null;
+			String initMergeList = null;
+			try {
+				site = m_siteService.getSite(siteId);
+				ToolConfiguration tc = site.getToolForCommonId(SAKAI_ANNOUNCEMENT_TOOL_ID);
+				if (tc != null){
+					initMergeList = tc.getPlacementConfig().getProperty(PORTLET_CONFIG_PARM_MERGED_CHANNELS);
+				}
+
+				if (allUsersSites && !m_securityService.isSuperUser()) {
+					String[] channelArrayFromConfigParameterValueBefore = null;
+
+					channelArrayFromConfigParameterValueBefore
+						= mergedAnnouncementList.getAllPermittedChannels(new AnnouncementChannelReferenceMaker());
+					if (channelArrayFromConfigParameterValueBefore !=null) {
+						int sizeBefore = channelArrayFromConfigParameterValueBefore.length;
+						List<String> channelIdStrArray = new ArrayList<>();
+						for (int q = 0; q < sizeBefore; q++) {
+							String channeIDD = channelArrayFromConfigParameterValueBefore[q];
+							String contextt = null;
+							Site siteDD = null;
+
+							try {
+								AnnouncementChannel annChannell = getAnnouncementChannel(channeIDD);
+								if (annChannell != null ) {
+									contextt = annChannell.getContext();
+								}
+								if (contextt != null) {
+									siteDD = m_siteService.getSite(contextt);
+								}
+								if ( siteDD != null && siteDD.isPublished()) {
+									channelIdStrArray.add(channeIDD);
+								}
+							} catch(IdUnusedException e) {
+								log.debug("No announcement channel for ID: {}", channeIDD);
+							} catch(PermissionException e) {
+								log.debug("Permission exception for channelID: {}", channeIDD, e);
+							} catch(Exception e) {
+								log.warn("ChannelID: {}", channeIDD, e);
+							}
+						}
+						if (channelIdStrArray.size() > 0) {
+							channelArrayFromConfigParameterValue = channelIdStrArray.toArray(new String[0]);
+						}
+					}
+					mergedAnnouncementList.loadChannelsFromDelimitedString(allUsersSites,
+							new MergedListEntryProviderFixedListWrapper(new EntryProvider(false), channelReference, channelArrayFromConfigParameterValue, new AnnouncementReferenceToChannelConverter()),
+							StringUtil.trimToZero(currentUserId),
+							channelArrayFromConfigParameterValue,
+							m_securityService.isSuperUser(),
+							siteId);
+				}
+				else
+				{
+					channelArrayFromConfigParameterValue = mergedAnnouncementList
+						.getChannelReferenceArrayFromDelimitedString(channelReference, initMergeList);
+
+					mergedAnnouncementList
+						.loadChannelsFromDelimitedString(allUsersSites,
+							new MergedListEntryProviderFixedListWrapper(
+								new EntryProvider(), channelReference, channelArrayFromConfigParameterValue,
+								new AnnouncementReferenceToChannelConverter()),
+							StringUtil.trimToZero(currentUserId), channelArrayFromConfigParameterValue, m_securityService.isSuperUser(),
+							siteId);
+				}
+
+			} catch (IdUnusedException e1) {
+				// TODO Auto-generated catch block
+			}
+		} else {
+			if (allUsersSites && !m_securityService.isSuperUser()) {
+				channelArrayFromConfigParameterValue = mergedAnnouncementList
+						.getAllPermittedChannels(new AnnouncementChannelReferenceMaker());
+			} else {
+				channelArrayFromConfigParameterValue = mergedAnnouncementList
+						.getChannelReferenceArrayFromDelimitedString(channelReference, mergedChannelDelimitedList);
+			}
+		}
+
+		mergedAnnouncementList.loadChannelsFromDelimitedString(
+				allUsersSites,
+				new MergedListEntryProviderFixedListWrapper(
+					new EntryProvider(),
+					channelReference,
+					channelArrayFromConfigParameterValue,
+					new AnnouncementReferenceToChannelConverter() ),
+				StringUtils.trimToEmpty(m_sessionManager.getCurrentSessionUserId()),
+				channelArrayFromConfigParameterValue,
+				m_securityService.isSuperUser(),
+				siteId);
+
+		Iterator channelsIt = mergedAnnouncementList.iterator();
+
+		while (channelsIt.hasNext()) {
+
+			MergedList.MergedEntry curEntry = (MergedList.MergedEntry) channelsIt.next();
+
+			// If this entry should not be merged, skip to the next one.
+			if (!curEntry.isMerged()) {
+				continue;
+			}
+
+			SecurityAdvisor advisor = getChannelAdvisor(curEntry.getReference());
+			try {
+				m_securityService.pushAdvisor(advisor);
+				AnnouncementChannel curChannel = (AnnouncementChannel) getChannel(curEntry.getReference());
+				if (curChannel != null) {
+					if (allowGetChannel(curChannel.getReference())) {
+						messageList.addAll(((List<AnnouncementMessage>) curChannel.getMessages(filter, ascending)).stream().map(m -> {
+
+								m.setOriginChannel(curEntry.getReference());
+								m.setOriginSite(curChannel.getContext());
+								return m;
+							}).collect(Collectors.toList()));
+					}
+				}
+			} catch (IdUnusedException e) {
+				log.debug("{}.getMessages()", this, e);
+			} catch (PermissionException e) {
+				log.debug("{}.getMessages()", this, e);
+			} finally {
+				m_securityService.popAdvisor(advisor);
+			}
+		}
+
+		return messageList.stream().filter(message -> {
+
+			List<String> selectedRoles = message.getProperties().getPropertyList("selectedRoles");
+			boolean isOwner = currentUserId.equals(message.getAnnouncementHeader().getFrom().getId());
+			if (selectedRoles == null || isOwner || m_securityService.isSuperUser()) {
+				return true;
+			} else {
+				String messageSiteId = m_entityManager.newReference(message.getReference()).getContext();
+				try {
+					Site site = m_siteService.getSite(messageSiteId);
+					return selectedRoles.contains(site.getMember(currentUserId).getRole().getId());
+				} catch (IdUnusedException idue) {
+					log.error("No site for id {}", messageSiteId);
+					return false;
+				}
+			}
+		}).collect(Collectors.toList());
+	}
+
+	/**
+	 * Gets a security advisor for reading announcements.
+	 * If <code>announcement.merge.visibility.strict</code> is set to <code>false</code>that allows messages from
+	 * other channels to be read when the current user
+	 * doesn't have permission. This is used to allow messages from merged sites to appear without the
+	 * current user having to be a member.
+	 * @param channelReference The entity reference of the channel in another site.
+	 * @return A security advisor that allows the current user access to that content.
+	 */
+	public SecurityAdvisor getChannelAdvisor(String channelReference) {
+
+		if (m_serverConfigurationService.getBoolean("announcement.merge.visibility.strict", false)) {
+			return (userId, function, reference) -> SecurityAdvisor.SecurityAdvice.PASS;
+		} else {
+			return (userId, function, reference) -> {
+				if (userId.equals(m_userDirectoryService.getCurrentUser().getId()) &&
+						AnnouncementService.SECURE_ANNC_READ.equals(function) &&
+						channelReference.equals(reference)) {
+					return SecurityAdvisor.SecurityAdvice.ALLOWED;
+				} else {
+					return SecurityAdvisor.SecurityAdvice.PASS;
+				}
+			};
+		}
+	}
 	
 	
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -1333,6 +1671,36 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 		}
 		
 		return null;
+	}
+
+	@Override
+	public List<Map<String, String>> getEntityMap(String fromContext) {
+
+		// get the channel associated with this site
+		String oChannelRef = channelReference(fromContext, SiteService.MAIN_CONTAINER);
+		try {
+			AnnouncementChannel oChannel = (AnnouncementChannel) getChannel(oChannelRef);
+			return ((List<AnnouncementMessage>) oChannel.getMessages(null, true)).stream()
+				.map(ann -> Map.of("id", ann.getId(), "title", ann.getAnnouncementHeader().getSubject())).collect(Collectors.toList());
+		} catch (Exception e) {
+			log.warn("Failed to get channel for ref {}", e.toString());
+		}
+		return Collections.EMPTY_LIST;
+	}
+
+	@Override
+	public boolean hasContent(String siteId) {
+
+		// get the channel associated with this site
+		String oChannelRef = channelReference(siteId, SiteService.MAIN_CONTAINER);
+		try {
+			AnnouncementChannel oChannel = (AnnouncementChannel) getChannel(oChannelRef);
+			return !oChannel.getMessages(null, true).isEmpty();
+		} catch (Exception e) {
+			log.warn("Failed to get channel for ref {}", e.toString());
+		}
+
+		return true;
 	}
 	
 	/**
@@ -1665,6 +2033,10 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 
 	public class BaseAnnouncementMessageEdit extends BaseMessageEdit implements AnnouncementMessageEdit
 	{
+		private String originChannel;
+
+		private String originSite;
+
 		/**
 		 * Construct.
 		 * 
@@ -1726,6 +2098,22 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 			return (AnnouncementMessageHeaderEdit) getHeader();
 
 		} // getAnnouncementHeaderEdit
+
+		public void setOriginChannel(String originChannel) {
+			this.originChannel = originChannel;
+		}
+
+		public String getOriginChannel() {
+			return this.originChannel;
+		}
+
+		public void setOriginSite(String originSite) {
+			this.originSite = originSite;
+		}
+
+		public String getOriginSite() {
+			return this.originSite;
+		}
 
 	} // class BasicAnnouncementMessageEdit
 
@@ -1972,5 +2360,42 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 		}
 
 		return Optional.of(super.getEntityUrl(r));
+	}
+
+	@Override
+	public void removed(Site site){
+		String siteId = site.getId();
+
+		List<String> ids = getChannelIds(siteId);
+		for (String id : ids){
+			String ref = channelReference(siteId, id);
+			try{
+				AnnouncementChannel announcementChannel = getAnnouncementChannel(ref);
+				List<Message> messages = announcementChannel.getMessages(null, true, null);
+				for(Message message : messages){
+					try{
+						announcementChannel.removeAnnouncementMessage(message.getId());
+					}catch (PermissionException e) {
+						log.error("The current user does not have permission to remove message  for context: {}", siteId, e);
+					}
+				}
+				MessageChannelEdit edit = editChannel(ref);
+				removeChannel(edit);
+			} catch (IdUnusedException e1) {
+				log.warn("No AnnouncementChannel found for site: " + siteId);
+			} catch (PermissionException e2) {
+				log.error("The current user does not have permission to access AnnouncementChannel for context: {}", siteId, e2);
+			} catch (InUseException e3) {
+				log.error("InUseException exception occurred for message channel for site: {}", siteId, e3);
+			}catch (Exception e) {
+				log.error("Unknown exception occurred in announcement service  for site: {}", siteId, e);
+			}
+		}
+		// remove any alias
+		try {
+			aliasService.removeTargetAliases("/announcement/announcement/" + siteId);
+		} catch (PermissionException e) {
+			log.error("The current user does not have permission to remove announcementChannel aliases for context: {}", siteId, e);
+		}
 	}
 }

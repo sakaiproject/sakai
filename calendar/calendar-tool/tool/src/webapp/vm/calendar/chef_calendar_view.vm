@@ -26,12 +26,11 @@
 
   const calendarDiv = document.getElementById('calendarDiv');
   // Initialize the Calendar
-  sakaiCalendar.initializeSakaiCalendar(calendarDiv);
-  // Set the current date based on the backend current date.
-  const currentDate = '$currentDate';
-  sakaiCalendar.gotoDate(currentDate);
-  // Set the default subview based on the backend value.
-  const defaultSubview = '$defaultSubview';
-  sakaiCalendar.setDefaultSubview(defaultSubview);
+  sakaiCalendar.initializeSakaiCalendar(calendarDiv, '$currentDate', '$defaultSubview');
+
+  const aspectRatio = '$aspectRatio';
+  sakaiCalendar.setAspectRatio(aspectRatio);
+  const scrollTime = '$scrollTime';
+  sakaiCalendar.setScrollTime(scrollTime);
 
 </script>

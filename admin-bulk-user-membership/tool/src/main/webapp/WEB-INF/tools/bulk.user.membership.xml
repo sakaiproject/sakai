@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<registration>
+    <tool id="bulk.user.membership" title="Bulk User Membership" description="Tool to do a bulk user membership">
+        <category name="sakai.admin" />
+    </tool>
+</registration>

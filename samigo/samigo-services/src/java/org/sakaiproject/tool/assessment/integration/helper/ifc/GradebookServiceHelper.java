@@ -49,8 +49,7 @@ public interface GradebookServiceHelper extends Serializable
   public boolean updateGradebook(PublishedAssessmentIfc publishedAssessment,
 		  GradingService g) throws Exception;
 
-  public boolean isAssignmentDefined(String assessmentTitle,
-		  GradingService g) throws Exception;
+  public boolean isAssignmentDefined(String assessmentTitle, GradingService g);
 
   public void updateExternalAssessmentScore(AssessmentGradingData ag,
 		  GradingService g) throws Exception;
@@ -65,4 +64,8 @@ public interface GradebookServiceHelper extends Serializable
 		  String publishedAssessmentId, GradingService g);
 
   public String getAppName();
+
+  public void updateExternalAssessmentScore(AssessmentGradingData ag, GradingService g, Long assignmentId) throws Exception;
+  public void updateExternalAssessmentScores(Long publishedAssessmentId, final Map<String, Double> studentUidsToScores, GradingService g, Long assignmentId) throws Exception;
+
 }

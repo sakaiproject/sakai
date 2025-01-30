@@ -33,9 +33,9 @@ function GradebookGradeSummary($content, blockout, modalTitle) {
     }, this));
   }
 
-  $("body").on("DOMNodeInserted", ".wicket-top-modal", function() {
-    self.positionModalAtTop($(this));
-  });
+  new MutationObserver(() => $(".wicket-top-modal").each((i, el) => self.positionModalAtTop($(el))))
+  .observe(document.body, { childList: true, subtree: true });
+
 };
 
 
@@ -75,7 +75,7 @@ GradebookGradeSummary.prototype.setupTabs = function() {
         $otherTab.trigger("click");
       });
       $(document.body).append($confirmationModal);
-      $confirmationModal.modal().modal('show');
+      const modal = new bootstrap.Modal($confirmationModal).toggle();
       $confirmationModal.on("hidden.bs.modal", function() {
         $confirmationModal.remove();
         $cloneOfTab.focus();
@@ -115,8 +115,9 @@ GradebookGradeSummary.prototype.setupStudentNavigation = function() {
 
   var currentStudentIndex = GbGradeTable.rowForStudent(this.studentId);
 
-  // get the students as they are currently rendered so the sorting/filtering is accurately reflected
-  const studentsAsRendered = GbGradeTable.instance.getDataAtCol(0);
+  const column = GbGradeTable.instance.getColumn("0");
+
+  const studentsAsRendered = column.getCells().map(cell => cell.getValue());
 
   var previousStudentId, nextStudentId;
   if (currentStudentIndex > 0) {
@@ -198,7 +199,7 @@ GradebookGradeSummary.prototype.bindModalClose = function() {
         self.$modal.find(".gb-summary-close").trigger("click");
       });
       $(document.body).append($confirmationModal);
-      $confirmationModal.modal().modal('show');
+      const modal = new bootstrap.Modal($confirmationModal).toggle();
       $confirmationModal.on("hidden.bs.modal", function() {
         $confirmationModal.remove();
         self.$content.find(".gb-summary-fake-close").focus();
@@ -229,7 +230,10 @@ GradebookGradeSummary.prototype.bindModalClose = function() {
 
 
 GradebookGradeSummary.prototype.setupPopovers = function() {
-  this.$content.find('[data-toggle="popover"]').popover();
+
+  this.$content[0].querySelectorAll('[data-bs-toggle="popover"]').forEach(el => {
+    (new bootstrap.Popover(el));
+  });
 };
 
 
@@ -261,28 +265,47 @@ GradebookGradeSummary.prototype.setupStudentView = function() {
 };
 
 
-GradebookGradeSummary.prototype._print = function(headerHTML, contentHTML, $container) {
-  $("#summaryForPrint").remove();
+GradebookGradeSummary.prototype._print = function(headerHTML, contentHTML) {
+  const printWindow = window.open("", "_blank");
 
-  var $iframe = $("<iframe id='summaryForPrint'>").hide();
-  $iframe.one("load", function() {
-    var $head = $iframe.contents().find("head");
-    $(document.head).find("link").each(function() {
-      if ($(this).is("[href*='tool.css']") || $(this).is("[href*='gradebookng-tool']")) {
-        $head.append($($(this).clone().attr("media", "all")[0].outerHTML));
-      }
-    });
-    setTimeout(function() {
-      $iframe.contents().find("body").empty();
-      $iframe.contents().find("body").append(headerHTML);
-      $iframe.contents().find("body").append(contentHTML);
+  if (!printWindow) {
+    alert("Please allow popups for this website to print the document.");
+    return;
+  }
 
-      $iframe[0].contentWindow.print();
-    }, 1000);
-  });
-  $container.append($iframe);
+  printWindow.document.open();
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <title>${document.title}</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      </head>
+      <body>
+        ${headerHTML}
+        ${contentHTML}
+      </body>
+    </html>
+  `);
+  printWindow.document.close();
+
+  const href = $("link[rel='stylesheet'][href*='tool.css']").attr("href");
+  if (href) {
+    printWindow.document.head.insertAdjacentHTML(
+      "beforeend",
+      `<link rel="stylesheet" type="text/css" href="${href.startsWith("http") ? href : window.location.origin + href}">`
+    );
+  }
+
+  printWindow.onload = function () {
+    setTimeout(() => {
+      printWindow.focus();
+      printWindow.print();
+      printWindow.close();
+    }, 100);
+  };
 };
-
 
 GradebookGradeSummary.prototype.setupTableSorting = function() {
   var $table = this.$content.find(".gb-summary-grade-panel table");
@@ -294,7 +317,7 @@ GradebookGradeSummary.prototype.setupTableSorting = function() {
 
   $table.tablesorter({
     theme : "bootstrap",
-    widthFixed: true,
+    widthFixed: false,
     headerTemplate : '{content} {icon}',
     widgets : [ "uitheme", "zebra", "stickyHeaders" ],
     widgetOptions : {

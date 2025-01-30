@@ -26,10 +26,13 @@ import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.Component;
+import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.html.IHeaderContributor;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.html.basic.Label;
+
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -76,6 +79,12 @@ public class GbGradeTable extends Panel implements IHeaderContributor {
 
 		setDefaultModel(model);
 
+		final String version = PortalUtils.getCDNQuery();
+
+		Label messagerLabel = new Label("messagerScript", "");
+		messagerLabel.add(new AttributeAppender("src", String.format("/webcomponents/bundles/gradebook.js%s", version)));
+		add(messagerLabel);
+
 		component = new WebMarkupContainer("gradeTable").setOutputMarkupId(true);
 
 		component.add(new AjaxEventBehavior("gbgradetable.action") {
@@ -105,6 +114,7 @@ public class GbGradeTable extends Panel implements IHeaderContributor {
 		add(component);
 	}
 
+	@Override
 	public void renderHead(final IHeaderResponse response) {
 		final GbGradeTableData gbGradeTableData = (GbGradeTableData) getDefaultModelObject();
 
@@ -114,15 +124,13 @@ public class GbGradeTable extends Panel implements IHeaderContributor {
 		response.render(JavaScriptHeaderItem.forUrl("/library/js/sakai-reminder.js"));
 
 		response.render(
-				JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/scripts/gradebook-gbgrade-table.js%s", version)));
+				JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/webjars/tabulator-tables/6.3.1/dist/js/tabulator.min.js%s", version)));
+		response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/webjars/tabulator-tables/6.3.1/dist/css/tabulator.min.css%s", version)));
 
 		response.render(
-				JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/webjars/handsontable/6.2.2/handsontable.full.min.js%s", version)));
-		response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/webjars/handsontable/6.2.2/handsontable.full.min.css%s", version)));
+				JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/scripts/gradebook-gbgrade-table.js%s", version)));
 
-		final GbGradebookData gradebookData = new GbGradebookData(
-				gbGradeTableData,
-				this);
+		final GbGradebookData gradebookData = new GbGradebookData(gbGradeTableData, this);
 
 		response.render(OnDomReadyHeaderItem.forScript(String.format("var tableData = %s", gradebookData.toScript())));
 

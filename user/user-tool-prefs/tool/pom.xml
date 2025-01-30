@@ -4,7 +4,7 @@
   <parent>
     <artifactId>user</artifactId>
     <groupId>org.sakaiproject.user</groupId>
-    <version>23-SNAPSHOT</version>
+    <version>25-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>sakai-user-tool-prefs</name>
@@ -31,8 +31,14 @@
     </dependency>
     <dependency>
       <groupId>org.apache.myfaces.tomahawk</groupId>
-      <artifactId>tomahawk</artifactId>
+      <artifactId>tomahawk21</artifactId>
       <version>1.1.14</version>
+      <exclusions>
+        <exclusion>
+          <groupId>commons-logging</groupId>
+          <artifactId>commons-logging</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <!-- pull through the JSF tool dependencies -->
     <dependency>
@@ -61,18 +67,6 @@
         <artifactId>sakai-portal-util</artifactId>
     </dependency>
 <!-- end Sakai integration dependencies -->
-    <dependency>
-      <groupId>commons-digester</groupId>
-      <artifactId>commons-digester</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-collections</groupId>
-      <artifactId>commons-collections</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-beanutils</groupId>
-      <artifactId>commons-beanutils</artifactId>
-    </dependency>
     <dependency>
       <groupId>org.jboss.weld.servlet</groupId>
       <artifactId>weld-servlet-shaded</artifactId>

@@ -73,15 +73,6 @@ public interface AreaManager
 	 */
 	public Area getAreaByContextIdAndTypeId(String contextId, String typeId);
 	
-	/** 
-	 * Get all Areas of the given type
-	 * @param typeId
-	 * @return
-	 * 
-	 * @deprecated since Jan 2008, seems never to have been used
-	 */
-	public Area getAreaByType(final String typeId);  
-	
 	/**
 	 * Get the private area for this site
 	 * @return
@@ -95,6 +86,7 @@ public interface AreaManager
 	 * 
 	 * @deprecated rather use getDiscussionArea(String)
 	 */
+	@Deprecated
 	public Area getDiscusionArea();
 	
 	/**

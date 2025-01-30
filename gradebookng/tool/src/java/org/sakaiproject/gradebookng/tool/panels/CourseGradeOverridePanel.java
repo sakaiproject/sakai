@@ -15,9 +15,9 @@
  */
 package org.sakaiproject.gradebookng.tool.panels;
 
-import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -31,7 +31,6 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
-import org.sakaiproject.grading.api.GradingCategoryType;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
@@ -40,6 +39,7 @@ import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.gradebookng.tool.component.GbFeedbackPanel;
 import org.sakaiproject.grading.api.CourseGradeTransferBean;
 import org.sakaiproject.grading.api.GradebookInformation;
+import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.grading.api.model.Gradebook;
 
 /**
@@ -87,8 +87,9 @@ public class CourseGradeOverridePanel extends BasePanel {
 
 		// heading
 		CourseGradeOverridePanel.this.window.setTitle(
-				(new StringResourceModel("heading.coursegrade", null,
-						new Object[] { studentUser.getDisplayName(), studentUser.getDisplayId() })).getString());
+				(new StringResourceModel("heading.coursegrade")
+						.setParameters(studentUser.getDisplayName(), studentUser.getDisplayId())).getString())
+				.setEscapeModelStrings(false);
 
 		// form model
 		// we are only dealing with the 'entered grade' so we use this directly
@@ -97,7 +98,7 @@ public class CourseGradeOverridePanel extends BasePanel {
 		// form
 		final Form<String> form = new Form<String>("form", formModel);
 
-		form.add(new Label("studentName", studentUser.getDisplayName()));
+		form.add(new Label("studentName", studentUser.getDisplayName()).setEscapeModelStrings(false));
 		form.add(new Label("studentEid", studentUser.getDisplayId()));
 		form.add(new Label("points", formatPoints(courseGrade, gradebook)));
 		form.add(new Label("calculated", courseGradeFormatter.format(courseGrade)));
@@ -110,7 +111,7 @@ public class CourseGradeOverridePanel extends BasePanel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+			public void onSubmit(final AjaxRequestTarget target) {
 				String newGrade = (String) form.getModelObject();
 				String gradeScale = null;
 
@@ -161,7 +162,7 @@ public class CourseGradeOverridePanel extends BasePanel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void onSubmit(final AjaxRequestTarget target, final Form<?> f) {
+			public void onSubmit(final AjaxRequestTarget target) {
 				CourseGradeOverridePanel.this.window.close(target);
 			}
 		};
@@ -173,7 +174,7 @@ public class CourseGradeOverridePanel extends BasePanel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void onSubmit(final AjaxRequestTarget target, final Form<?> f) {
+			public void onSubmit(final AjaxRequestTarget target) {
 				final boolean success = CourseGradeOverridePanel.this.businessService.updateCourseGrade(studentUuid, null, null);
 				if (success) {
 					getSession().success(getString("message.addcoursegradeoverride.success"));
@@ -207,15 +208,14 @@ public class CourseGradeOverridePanel extends BasePanel {
 		String rval;
 
 		// only display points if not weighted category type
-		final GradingCategoryType categoryType = gradebook.getCategoryType();
-		if (categoryType != GradingCategoryType.WEIGHTED_CATEGORY) {
+		final Integer categoryType = gradebook.getCategoryType();
+		if (!Objects.equals(categoryType, GradingConstants.CATEGORY_TYPE_WEIGHTED_CATEGORY)) {
 
 			final Double pointsEarned = courseGrade.getPointsEarned();
 			final Double totalPointsPossible = courseGrade.getTotalPointsPossible();
 
 			if (pointsEarned != null && totalPointsPossible != null) {
-				rval = new StringResourceModel("coursegrade.display.points-first", null,
-						new Object[] { pointsEarned, totalPointsPossible }).getString();
+				rval = new StringResourceModel("coursegrade.display.points-first").setParameters(pointsEarned, totalPointsPossible).getString();
 			} else {
 				rval = getString("coursegrade.display.points-none");
 			}

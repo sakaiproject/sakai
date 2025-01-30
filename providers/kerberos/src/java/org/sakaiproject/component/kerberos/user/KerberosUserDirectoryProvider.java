@@ -138,18 +138,6 @@ public class KerberosUserDirectoryProvider implements UserDirectoryProvider
 		m_knownusermsg = knownusermsg;
 	}
 
-	/**
-	 * Configuration: Cache TTL
-	 * 
-	 * @deprecated  No longer used. Use standard cache settings instead.
-	 * @param cachettl
-	 *        Time (in milliseconds) to cache authenticated usernames
-	 */
-	public void setCachettl(int cachettl)
-	{
-		log.warn(this + ".init(): Internal caching DEPRECATED -  Using standard cache settings instead.");
-	}
-
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
 	 *********************************************************************************************************************************************************************************************************************************************************/

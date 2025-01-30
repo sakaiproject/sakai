@@ -330,7 +330,7 @@ ASN.setupToggleAreas = function(toggler, togglee, openInit, speed){
     }
     else {
         $('.' + togglee).hide();
-        $('.collapse').hide();
+        $('.Mrphs-sakai-assignment-grades .collapse').hide();
         ASN.resizeFrame();
     }
     $('.' + toggler).click(function(){
@@ -494,6 +494,10 @@ ASN.checkEnableRemove = function()
 
     document.getElementById( "btnRemove" ).disabled = !selected;
     document.getElementById( "btnRemove" ).className = (selected ? "active" : "" );
+    document.getElementById( "btnPublish" ).disabled = !selected;
+    document.getElementById( "btnPublish" ).className = (selected ? "active" : "" );
+    document.getElementById( "btnUnpublish" ).disabled = !selected;
+    document.getElementById( "btnUnpublish" ).className = (selected ? "active" : "" );
 };
 
 ASN.checkEnableRestore = function()
@@ -698,11 +702,11 @@ ASN.enableSubmitUnlessNoFile = function(checkForFile)
 
     if (doEnable)
     {
-        btnPost.removeAttribute('disabled');
+        btnPost.disabled = false;
     }
     else
     {
-        btnPost.setAttribute('disabled', 'disabled');
+        btnPost.disabled = true;
     }
 };
 
@@ -965,6 +969,26 @@ ASN.changeVisibleDate = function()
 	}
 }
 
+ASN.changeResubmissionDate = function()
+{
+  if(document.getElementById("allowResToggle").checked)
+  {
+    document.getElementById('allowResubmitNumber').style.display = 'block';
+    document.getElementById('allowResubmitTime').style.display = 'block';
+    document.getElementById('resubmitNotification').style.display = 'block';
+    const closeDatePicker = document.getElementById('closedate');
+    const resubmitDatePicker = document.getElementById('resubmissiondate');
+    resubmitDatePicker.isoDate = closeDatePicker.isoDate;
+    ASN.resizeFrame();
+  }
+  else
+  {
+    document.getElementById('allowResubmitNumber').style.display = 'none';
+    document.getElementById('allowResubmitTime').style.display = 'none';
+    document.getElementById('resubmitNotification').style.display = 'none';
+  }
+}
+
 ASN.enableTimesheetSetupSection = function()
 {
     const el = document.getElementById('timesheetsetupsection');
@@ -983,8 +1007,79 @@ ASN.disableTimesheetSetupSection = function()
 }
 
 $(document).ready(() => {
+  //peer-review and self-report
+  $('body').on('rubric-association-loaded', e => {
+    const dontAssociateCheck = document.getElementById("dont-associate-radio");
+    const doAssociateCheck = document.getElementById("do-associate-radio");
+    const studentSelfReport = document.getElementById('rbcs-config-studentSelfReport');
+    const usePeerAssessment = document.getElementById("usePeerAssessment");
 
-  $("#infoImg").popover({html : true});
+    if(doAssociateCheck.checked) {
+      //page-loading
+      if (studentSelfReport.checked) {
+        // We do a click to hide "peerAssessmentOptions" container
+        if (usePeerAssessment.checked) {
+          usePeerAssessment.click();
+        }
+        usePeerAssessment.disabled = true;
+      } else {
+        usePeerAssessment.disabled = false;
+      }
+
+      if (usePeerAssessment.checked) {
+        studentSelfReport.disabled = true;
+        studentSelfReport.checked = false;
+      } else {
+        studentSelfReport.disabled = false;
+      }
+    }
+
+    doAssociateCheck.addEventListener("change", function() {
+        studentSelfReport.disabled = false;
+        studentSelfReport.checked = false;
+    });
+
+    dontAssociateCheck.addEventListener("change", function() {
+        usePeerAssessment.disabled = false;
+        studentSelfReport.checked = false;
+    });
+    
+    //event manage
+    studentSelfReport.addEventListener("change", function() {
+      if (studentSelfReport.checked) {
+        // We do a click to hide "peerAssessmentOptions" container
+        if (usePeerAssessment.checked) {
+          usePeerAssessment.click();
+        }
+        usePeerAssessment.disabled = true;
+      } else {
+        usePeerAssessment.disabled = false;
+      }
+    });
+    usePeerAssessment.addEventListener("change", function() {
+      if (usePeerAssessment.checked) {
+        studentSelfReport.disabled = true;
+        studentSelfReport.checked = false;
+      } else if (doAssociateCheck.checked) {
+        studentSelfReport.disabled = false;
+      }
+    });
+  });
+
+  $("#peer-accordion").accordion({
+    heightStyle: 'content',
+    active: 0,
+    collapsible: true,
+    change: function (event, ui) {
+      ASN.resizeFrame();
+    },
+    activate: function (event, ui) {
+      ASN.resizeFrame();
+    }
+  });
+
+  const infoLink = document.getElementById("infoImg");
+  infoLink && (new bootstrap.Popover(document.getElementById("infoImg")));
 
   const saveRubric = e => {
     [...document.getElementsByTagName("sakai-rubric-grading")].forEach(r => r. save());
@@ -1007,6 +1102,15 @@ $(document).ready(() => {
     [...document.getElementsByTagName("sakai-rubric-student-button")].forEach(b => promises.push(b.releaseEvaluation()));
     Promise.all(promises).then(() => ASN.submitForm('viewForm', 'releaseGrades', null, null));
   });
+
+  const releaseCommented = document.getElementById("releaseCommented");
+  releaseCommented && releaseCommented.addEventListener("click", ev =>
+      ASN.submitForm('viewForm', 'releaseCommented', null, null));
+
+  const confirmButton = document.getElementById("confirm");
+  confirmButton && confirmButton.addEventListener("click", saveRubric);
+  const postButton = document.getElementById("post");
+  postButton && postButton.addEventListener("click", saveRubric);
 
   // If grade is released, rubric must be released too
   const gradeIsReleasedInput = document.getElementById("grade-is-released");
@@ -1036,4 +1140,19 @@ ASN.grab = function (selectedItem) {
     li = $(selectedItem);
     $(li).removeClass("grabbing_cursor");
     $(li).addClass("grab_cursor");
+}
+
+ASN.clearShadowTags = function () {
+    const tagSelector = document.getElementById('tag_selector');
+    const tagSelectorVue = document.querySelector("sakai-tag-selector").shadowRoot;
+    if (tagSelector && tagSelectorVue) {
+      tagSelector.value = '';
+      tagSelectorVue.querySelectorAll('input[name="tag[]"').forEach((elem) => elem.remove());
+    }
+}
+
+ASN.checkIframeTags = function () {
+    if (inIframe()) {
+        document.getElementById('tagSection').style.display = 'none';
+    }
 }

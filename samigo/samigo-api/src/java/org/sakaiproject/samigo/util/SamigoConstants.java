@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.samigo.util;
 
+import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.event.api.NotificationService;
 
 /**
@@ -36,6 +37,8 @@ public final class SamigoConstants {
     public static final     String      EMAIL_TEMPLATE_ASSESSMENT_TIMED_SUBMITTED_FILE_NAME = "template-assessmentTimedSubmission.xml";
     public static final     String      EMAIL_TEMPLATE_AUTO_SUBMIT_ERRORS                   = "sam.assessmentAutoSubmitErrors";
     public static final     String      EMAIL_TEMPLATE_AUTO_SUBMIT_ERRORS_FILE_NAME         = "template-assessmentAutoSubmitErrors.xml";
+    public static final     String      EMAIL_TEMPLATE_ASSESSMENT_AVAILABLE_REMINDER        = "sam.assessmentAvailableReminder";
+    public static final     String      EMAIL_TEMPLATE_ASSESSMENT_AVAILABLE_FILE_NAME       = "template-assessmentAvailableReminder.xml";
 
     /*
      * Events
@@ -74,6 +77,11 @@ public final class SamigoConstants {
     public static final     String      EVENT_ASSESSMENT_PUBLISH                            = "sam.assessment.publish";
     public static final     String      EVENT_ASSESSMENT_ATTACHMENT_NEW                     = "sam.assessment.attachment.new";
     public static final     String      EVENT_ASSESSMENT_ATTACHMENT_DELETE                  = "sam.assessment.attachment.delete";
+    public static final     String      EVENT_ASSESSMENT_AVAILABLE                          = "sam.assessment.available";
+    public static final     String      EVENT_ASSESSMENT_UPDATE_AVAILABLE                   = "sam.assessment.update.available";
+    public static final     String      EVENT_ASSESSMENT_DELETE                             = "sam.assessment.delete";
+    public static final     String      EVENT_ASSESSMENT_ALLOW_RETAKE                       = "sam.assessment.allow_retake";
+
 
     //Published assessment events
     public static final     String      EVENT_PUBLISHED_ASSESSMENT_REVISE                   = "sam.pubassessment.revise";
@@ -83,6 +91,8 @@ public final class SamigoConstants {
     public static final     String      EVENT_PUBLISHED_ASSESSMENT_REPUBLISH                = "sam.pubassessment.republish";
     public static final     String      EVENT_PUBLISHED_ASSESSMENT_SETTING_EDIT             = "sam.pubsetting.edit";
     public static final     String      EVENT_PUBLISHED_ASSESSMENT_UNINDEXITEM              = "sam.pubassessment.unindexitem";
+    public static final     String      EVENT_PUBLISHED_ASSESSMENT_RETRACTED                = "sam.pubassessment.retracted";
+
 
     //Question pool events
     public static final     String      EVENT_QUESTIONPOOL_QUESTIONMOVED                    = "sam.questionpool.questionmoved";
@@ -90,6 +100,11 @@ public final class SamigoConstants {
     public static final     String      EVENT_QUESTIONPOOL_TRANSFER                         = "sam.questionpool.transfer";
     public static final     String      EVENT_QUESTIONPOOL_DELETE                           = "sam.questionpool.deleteitem";
     public static final     String      EVENT_QUESTIONPOOL_UNSHARE                          = "sam.questionpool.unshare";
+    public static final     String      EVENT_QUESTIONPOOL_ADD                              = "sam.questionpool.addpool";
+    public static final     String      EVENT_QUESTIONPOOL_REVOKE                           = "sam.questionpool.revoke";
+    public static final     String      EVENT_QUESTIONPOOL_GRANT                            = "sam.questionpool.grant";
+    public static final     String      EVENT_QUESTIONPOOL_COPY                             = "sam.questionpool.copypool";
+    public static final     String      EVENT_QUESTIONPOOL_MOVE                             = "sam.questionpool.movepool";
 
     //Other events
     public static final     String      EVENT_EMAIL                                         = "sam.email";
@@ -101,7 +116,8 @@ public final class SamigoConstants {
      * Notification Types
      */
     public static final     String      NOTI_PREFS_TYPE_SAMIGO                              = "sakai:samigo";
-
+    public static final     String      NOTI_PREFS_TYPE_SAMIGO_OPEN                         = "sakai:samigoOpen";
+    public static final     String      TOOL_ID                                             = "sakai.samigo";
 
     /*
      * Notification Defaults
@@ -132,6 +148,7 @@ public final class SamigoConstants {
     public static final		String		AUTHZ_TEMPLATE_CREATE								= "assessment.template.create";
     public static final		String		AUTHZ_TEMPLATE_EDIT_OWN								= "assessment.template.edit.own";
     public static final		String		AUTHZ_TEMPLATE_DELETE_OWN							= "assessment.template.delete.own";
+    public static final     String      AUTHZ_GROUP_DELETED                                 = "assessment.group.deleted";
 
     /*
      * Sakai.properties 
@@ -139,12 +156,51 @@ public final class SamigoConstants {
     public static final     String      SAK_PROP_AUTO_SUBMIT_ERROR_NOTIFICATION_ENABLED     = "samigo.email.autoSubmit.errorNotification.enabled";
     public static final     String      SAK_PROP_AUTO_SUBMIT_ERROR_NOTIFICATION_TO_ADDRESS  = "samigo.email.autoSubmit.errorNotification.toAddress";
     public static final     String      SAK_PROP_SUPPORT_EMAIL_ADDRESS                      = "mail.support";
+    public static final     String      SAK_PROP_EVENTLOG_IPADDRESS_ENABLED                 = "samigo.eventlog.ipaddress.enabled";
+
+    /*
+     * Sakai.properties defaults
+     */
+    public static final     boolean     SAK_PROP_DEFAULT_EVENTLOG_IPADDRESS_ENABLED                 = false;
 
     /*
      * Message Bundles
      */
     public static final     String      EVAL_BUNDLE                                         = "org.sakaiproject.tool.assessment.bundle.EvaluationMessages";
     public static final     String      AUTHOR_BUNDLE                                       = "org.sakaiproject.tool.assessment.bundle.AuthorMessages";
+    public static final     String      EVENT_LOG_BUNDLE                                    = "org.sakaiproject.tool.assessment.bundle.EventLogMessages";
+    public static final     String      DATA_TABLES_BUNDLE                                  = "org.sakaiproject.tool.assessment.bundle.DataTablesMessages";
+    public static final     String      QUESTION_POOL_BUNDLE                                = "org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages";
+    public static final     String      SELECT_INDEX_BUNDLE                                 = "org.sakaiproject.tool.assessment.bundle.SelectIndexMessages";
+
+    public static final     String      REFERENCE_ROOT                                      = Entity.SEPARATOR + "samigo";
+
+    /*
+     * Servlet Mappings
+     */
+    public static final     String      SERVLET_MAPPING_EXPORT_EVENT_LOG                    = "/samigo-app/servlet/ExportEventLog";
+    public static final     String      SERVLET_MAPPING_EXPORT_REPORT                       = "/samigo-app/servlet/ExportReport";
+
+    /*
+     * Author Outcomes
+     */
+    public static final     String      OUTCOME_AUTHOR_EDIT_ASSESSMENT                      = "editAssessment";
+
+    /*
+     * Delivery Outcomes
+     */
+    public static final     String      OUTCOME_DELIVERY_TAKE_ASSESSMENT                    = "takeAssessment";
+    public static final     String      OUTCOME_DELIVERY_SECURE_DELIVERY_ERROR              = "secureDeliveryError";
+
+    /*
+     * Evaluation Outcomes
+     */
+    public static final     String      OUTCOME_EVALUATION_QUESTION_SCORES                  = "questionScores";
+
+    /*
+     * Reference Prefixes
+     */
+    public static final     String      REFERENCE_PREFIX_QUESTIONPOOL                       = "/sam_questionpool";
 
     private SamigoConstants() {
     	throw new AssertionError();

@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
+import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -36,6 +39,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
+import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.wicket.component.SakaiAjaxButton;
 
 @Slf4j
@@ -57,7 +61,7 @@ public class SortGradeItemsPanel extends Panel {
 	public void onInitialize() {
 		super.onInitialize();
 
-		final List tabs = new ArrayList();
+		final List<ITab> tabs = new ArrayList<>();
 
 		final Map<String, Object> model = (Map<String, Object>) getDefaultModelObject();
 		final boolean categoriesEnabled = (boolean) model.get("categoriesEnabled");
@@ -68,11 +72,16 @@ public class SortGradeItemsPanel extends Panel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+			public void onSubmit(final AjaxRequestTarget target) {
 				final HttpServletRequest request = (HttpServletRequest) getRequest().getContainerRequest();
 				String[] ids = new String[0];
 				if (request.getParameterValues("id") != null) {
 					ids = request.getParameterValues("id");
+				}
+
+				String[] categoryIds = new String[0];
+				if (request.getParameterValues("category_id") != null) {
+					categoryIds = request.getParameterValues("category_id");
 				}
 
 				Map<Long, Integer> updates = new HashMap<>();
@@ -100,12 +109,31 @@ public class SortGradeItemsPanel extends Panel {
 							businessService.updateAssignmentOrder(assignmentId, order);
 						}
 					}
-				} catch (IdUnusedException e) {
+				} catch (IdUnusedException | PermissionException e) {
 					log.error(e.getMessage(), e);
 					error = true;
-				} catch (PermissionException e) {
-					log.error(e.getMessage(), e);
-					error = true;
+				}
+
+                Map<Long, Integer> catUpdates = new HashMap<>();
+
+				for (String id : categoryIds) {
+					String order = request.getParameter(String.format("category_%s[order]", id));
+					String current = request.getParameter(String.format("category_%s[current_order]", id));
+
+					if (!Objects.equals(current, order)) {
+						catUpdates.put(Long.valueOf(id), Integer.valueOf(order));
+					}
+				}
+
+				for (Long categoryId : catUpdates.keySet()) {
+					Integer order = catUpdates.get(categoryId);
+					Optional<CategoryDefinition> optCategory = businessService.getCategory(categoryId);
+					if (optCategory.isPresent()) {
+						optCategory.get().setCategoryOrder(order);
+						businessService.updateCategory(optCategory.get());
+					} else {
+						log.error("No category for id {}. This is not right ...", categoryId);
+					}
 				}
 
 				if (error) {
@@ -140,30 +168,28 @@ public class SortGradeItemsPanel extends Panel {
 			}
 		});
 
-		form.add(new AjaxBootstrapTabbedPanel("tabs", tabs) {
-			@Override
-			protected String getTabContainerCssClass() {
-				return "nav nav-tabs";
-			}
+		form.add(new AjaxBootstrapTabbedPanel<>("tabs", tabs) {
 
 			@Override
-			protected void onAjaxUpdate(final AjaxRequestTarget target) {
+			protected void onAjaxUpdate(Optional<AjaxRequestTarget> targetOptional) {
 				// ensure the submit button reflects the currently selected tab
 				// as form will only submit the status on that tab (not both!)
-				if (getSelectedTab() == 1) {
-					submit.replace(new Label("label", getString("sortgradeitems.submit")));
-					target.add(submit);
-				} else if (getTabs().size() > 1) {
-					submit.replace(new Label("label", getString("sortgradeitems.submitbycategory")));
-					target.add(submit);
-				}
-				super.onAjaxUpdate(target);
+				targetOptional.ifPresent(target -> {
+					if (getSelectedTab() == 1) {
+						submit.replace(new Label("label", getString("sortgradeitems.submit")));
+						target.add(submit);
+					} else if (getTabs().size() > 1) {
+						submit.replace(new Label("label", getString("sortgradeitems.submitbycategory")));
+						target.add(submit);
+					}
+				});
+				super.onAjaxUpdate(targetOptional);
 			}
 		});
 
 		SakaiAjaxButton cancel = new SakaiAjaxButton("cancel") {
 			@Override
-			public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+			public void onSubmit(final AjaxRequestTarget target) {
 				SortGradeItemsPanel.this.window.close(target);
 			}
 		};

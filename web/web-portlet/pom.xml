@@ -4,7 +4,7 @@
   <parent>
     <artifactId>web-base</artifactId>
     <groupId>org.sakaiproject</groupId> 
-    <version>23-SNAPSHOT</version>
+    <version>25-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>sakai-web-portlet</name>
@@ -33,15 +33,6 @@
             <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
-			<groupId>commons-httpclient</groupId>
-			<artifactId>commons-httpclient</artifactId>
-        </dependency>
-		<!-- remove when KNL-1105 is handled -->
-        <dependency>
-             <groupId>commons-validator</groupId>
-             <artifactId>commons-validator</artifactId>
-         </dependency>
-        <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
         </dependency>
@@ -58,16 +49,6 @@
     <dependency>
       <groupId>org.sakaiproject.velocity</groupId>
       <artifactId>sakai-velocity-util</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>logkit</groupId>
-      <artifactId>logkit</artifactId>
-      <version>1.2</version>
-    </dependency>
-    <dependency>
-      <groupId>oro</groupId>
-      <artifactId>oro</artifactId>
-      <version>2.0.8</version>
     </dependency>
   </dependencies>
   <build>

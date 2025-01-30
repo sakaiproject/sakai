@@ -15,37 +15,18 @@
  */
 package org.sakaiproject.profile2.tool.pages;
 
-
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.servlet.http.Cookie;
-
-import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.Component;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.extensions.ajax.markup.html.AjaxLazyLoadPanel;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.extensions.ajax.markup.html.tabs.AjaxTabbedPanel;
-import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
-import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.head.IHeaderResponse;
-import org.apache.wicket.markup.head.OnLoadHeaderItem;
 import org.apache.wicket.markup.head.StringHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.model.StringResourceModel;
-import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.util.cookies.CookieUtils;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.profile2.exception.ProfileNotDefinedException;
 import org.sakaiproject.profile2.exception.ProfilePreferencesNotDefinedException;
@@ -53,16 +34,8 @@ import org.sakaiproject.profile2.model.MyProfilePanelState;
 import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.SocialNetworkingInfo;
 import org.sakaiproject.profile2.model.UserProfile;
-import org.sakaiproject.profile2.tool.components.NotifyingAjaxLazyLoadPanel;
 import org.sakaiproject.profile2.tool.components.ProfileImage;
-import org.sakaiproject.profile2.tool.models.FriendAction;
-import org.sakaiproject.profile2.tool.pages.panels.FriendsFeed;
-import org.sakaiproject.profile2.tool.pages.panels.GalleryFeed;
-import org.sakaiproject.profile2.tool.pages.panels.KudosPanel;
 import org.sakaiproject.profile2.tool.pages.panels.MyProfilePanel;
-import org.sakaiproject.profile2.tool.pages.panels.MyStatusPanel;
-import org.sakaiproject.profile2.tool.pages.panels.MyWallPanel;
-import org.sakaiproject.profile2.tool.pages.windows.AddFriend;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
 import lombok.extern.slf4j.Slf4j;
@@ -83,14 +56,6 @@ public class MyProfile extends BasePage {
 		renderMyProfile(userUuid);
 	}
 
-	public MyProfile(PageParameters pageParameters) {
-
-		final String requestedTab = pageParameters.get(0).toString(ProfileConstants.PROFILE);
-
-		String userUuid = sakaiProxy.getCurrentUserId();
-		renderMyProfile(userUuid, requestedTab);
-	}
-	
 	/**
 	 * This constructor is called if we are viewing someone elses but in edit mode.
 	 * This will only be called if we were a superuser editing someone else's profile.
@@ -109,19 +74,16 @@ public class MyProfile extends BasePage {
 		renderMyProfile(userUuid);
 	}
 
-	private void renderMyProfile(final String userUuid) {
-	    renderMyProfile(userUuid, ProfileConstants.PROFILE);
-	}
-
 	/**
 	 * Does the actual rendering of the page
 	 * @param userUuid
 	 */
-	private void renderMyProfile(final String userUuid, final String requestedTab) {
+	private void renderMyProfile(final String userUuid) {
 
 		//don't do this for super users viewing other people's profiles as otherwise there is no way back to own profile
 		if (!sakaiProxy.isSuperUserAndProxiedToUser(userUuid)) {
-			disableLink(myProfileLink);
+			myProfileLink.setEnabled(false);
+			myProfileContainer.add(new AttributeModifier("class", "current"));
 		}
 
 		//add the feedback panel for any error messages
@@ -175,41 +137,10 @@ public class MyProfile extends BasePage {
 		userProfile.setUserUuid(userUuid);
 
 		userProfile.setNickname(sakaiPerson.getNickname());
-		userProfile.setDateOfBirth(sakaiPerson.getDateOfBirth());
 		userProfile.setDisplayName(userDisplayName);
-		//userProfile.setFirstName(userFirstName);
-		//userProfile.setLastName(userLastName);
-		//userProfile.setMiddleName(sakaiPerson.getInitials());
 
 		userProfile.setEmail(userEmail);
-		userProfile.setHomepage(sakaiPerson.getLabeledURI());
-		userProfile.setHomephone(sakaiPerson.getHomePhone());
-		userProfile.setWorkphone(sakaiPerson.getTelephoneNumber());
 		userProfile.setMobilephone(sakaiPerson.getMobile());
-		userProfile.setFacsimile(sakaiPerson.getFacsimileTelephoneNumber());
-
-		userProfile.setDepartment(sakaiPerson.getOrganizationalUnit());
-		userProfile.setPosition(sakaiPerson.getTitle());
-		userProfile.setSchool(sakaiPerson.getCampus());
-		userProfile.setRoom(sakaiPerson.getRoomNumber());
-
-		userProfile.setCourse(sakaiPerson.getEducationCourse());
-		userProfile.setSubjects(sakaiPerson.getEducationSubjects());
-
-		userProfile.setStaffProfile(sakaiPerson.getStaffProfile());
-		userProfile.setAcademicProfileUrl(sakaiPerson.getAcademicProfileUrl());
-		userProfile.setUniversityProfileUrl(sakaiPerson.getUniversityProfileUrl());
-		userProfile.setPublications(sakaiPerson.getPublications());
-
-		// business fields
-		userProfile.setBusinessBiography(sakaiPerson.getBusinessBiography());
-		userProfile.setCompanyProfiles(profileLogic.getCompanyProfiles(userUuid));
-
-		userProfile.setFavouriteBooks(sakaiPerson.getFavouriteBooks());
-		userProfile.setFavouriteTvShows(sakaiPerson.getFavouriteTvShows());
-		userProfile.setFavouriteMovies(sakaiPerson.getFavouriteMovies());
-		userProfile.setFavouriteQuotes(sakaiPerson.getFavouriteQuotes());
-		userProfile.setPersonalSummary(sakaiPerson.getNotes());
 
 		userProfile.setPhoneticPronunciation(sakaiPerson.getPhoneticPronunciation());
 		userProfile.setPronouns(sakaiPerson.getPronouns());
@@ -248,155 +179,50 @@ public class MyProfile extends BasePage {
 		/* SIDELINKS */
 		WebMarkupContainer sideLinks = new WebMarkupContainer("sideLinks");
 		int visibleSideLinksCount = 0;
-		
-		//ADMIN: ADD AS CONNECTION
-		if(sakaiProxy.isSuperUserAndProxiedToUser(userUuid)) {
 			
-			//init
-			boolean friend = false;
-			boolean friendRequestToThisPerson = false;
-			boolean friendRequestFromThisPerson = false;
-			String currentUserUuid = sakaiProxy.getCurrentUserId();
-			String nickname = userProfile.getNickname();
-			if(StringUtils.isBlank(nickname)) {
-				nickname="";
-			}
+        //ADMIN: LOCK/UNLOCK A PROFILE
+        WebMarkupContainer lockProfileContainer = new WebMarkupContainer("lockProfileContainer");
+        final Label lockProfileLabel = new Label("lockProfileLabel");
+        
+        final AjaxLink<Void> lockProfileLink = new AjaxLink<Void>("lockProfileLink") {
+            private static final long serialVersionUID = 1L;
 
-			//setup model to store the actions in the modal windows
-			final FriendAction friendActionModel = new FriendAction();
-
-			//setup friend status
-			friend = connectionsLogic.isUserXFriendOfUserY(userUuid, currentUserUuid);
-			if(!friend) {
-				friendRequestToThisPerson = connectionsLogic.isFriendRequestPending(currentUserUuid, userUuid);
-			}
-			if(!friend && !friendRequestToThisPerson) {
-				friendRequestFromThisPerson = connectionsLogic.isFriendRequestPending(userUuid, currentUserUuid);
-			}
+            public void onClick(AjaxRequestTarget target) {
+                //toggle it to be opposite of what it currently is, update labels and icons
+                boolean locked = isLocked();
+                if(sakaiProxy.toggleProfileLocked(userUuid, !locked)) {
+                    setLocked(!locked);
+                    log.info("MyProfile(): SuperUser toggled lock status of profile for " + userUuid + " to " + !locked);
+                    lockProfileLabel.setDefaultModel(new ResourceModel("link.profile.locked." + isLocked()));
+                    add(new AttributeModifier("title", new ResourceModel("text.profile.locked." + isLocked())));
+                    if(isLocked()){
+                        add(new AttributeModifier("class", new Model<String>("locked")));
+                    } else {
+                        add(new AttributeModifier("class", new Model<String>("unlocked")));
+                    }
+                    target.add(this);
+                }
+            }
+        };
 			
-			WebMarkupContainer addFriendContainer = new WebMarkupContainer("addFriendContainer");
-			final ModalWindow addFriendWindow = new ModalWindow("addFriendWindow");
-
-			//link
-			final AjaxLink<Void> addFriendLink = new AjaxLink<Void>("addFriendLink") {
-				private static final long serialVersionUID = 1L;
-				public void onClick(AjaxRequestTarget target) {
-	    			addFriendWindow.show(target);
-				}
-			};
-			final Label addFriendLabel = new Label("addFriendLabel");
-			addFriendLink.add(addFriendLabel);
-			addFriendContainer.add(addFriendLink);
-			
-			//setup link/label and windows
-			if(friend) {
-				addFriendLabel.setDefaultModel(new ResourceModel("text.friend.confirmed"));
-	    		addFriendLink.add(new AttributeModifier("class", new Model<String>("instruction connection-confirmed")));
-				addFriendLink.setEnabled(false);
-			} else if (friendRequestToThisPerson) {
-				addFriendLabel.setDefaultModel(new ResourceModel("text.friend.requested"));
-	    		addFriendLink.add(new AttributeModifier("class", new Model<String>("instruction connection-request")));
-				addFriendLink.setEnabled(false);
-			} else if (friendRequestFromThisPerson) {
-				//TODO (confirm pending friend request link)
-				//could be done by setting the content off the addFriendWindow.
-				//will need to rename some links to make more generic and set the onClick and setContent in here for link and window
-				addFriendLabel.setDefaultModel(new ResourceModel("text.friend.pending"));
-	    		addFriendLink.add(new AttributeModifier("class", new Model<String>("instruction connection-request")));
-				addFriendLink.setEnabled(false);
-			}  else {
-				addFriendLabel.setDefaultModel(new StringResourceModel("link.friend.add.name", null, new Object[]{ nickname } ));
-	    		addFriendLink.add(new AttributeModifier("class", new Model<String>("connection-add")));
-				addFriendWindow.setContent(new AddFriend(addFriendWindow.getContentId(), addFriendWindow, friendActionModel, currentUserUuid, userUuid)); 
-			}
-			
-			sideLinks.add(addFriendContainer);
-		
-			//ADD FRIEND MODAL WINDOW HANDLER 
-			addFriendWindow.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
-				private static final long serialVersionUID = 1L;
-	
-				public void onClose(AjaxRequestTarget target){
-	            	if(friendActionModel.isRequested()) { 
-	            		//friend was successfully requested, update label and link
-	            		addFriendLabel.setDefaultModel(new ResourceModel("text.friend.requested"));
-	            		addFriendLink.add(new AttributeModifier("class", new Model<String>("instruction")));
-	            		addFriendLink.setEnabled(false);
-	            		target.add(addFriendLink);
-	            	}
-	            }
-	        });
-			
-			add(addFriendWindow);
-		
-			if(sakaiProxy.isConnectionsEnabledGlobally()) {
-			visibleSideLinksCount++;
-      } else {
-        addFriendContainer.setVisible(false);
-      }
-			
-			
-			//ADMIN: LOCK/UNLOCK A PROFILE
-			WebMarkupContainer lockProfileContainer = new WebMarkupContainer("lockProfileContainer");
-			final Label lockProfileLabel = new Label("lockProfileLabel");
-			
-			final AjaxLink<Void> lockProfileLink = new AjaxLink<Void>("lockProfileLink") {
-				private static final long serialVersionUID = 1L;
-
-				public void onClick(AjaxRequestTarget target) {
-					//toggle it to be opposite of what it currently is, update labels and icons
-					boolean locked = isLocked();
-	    			if(sakaiProxy.toggleProfileLocked(userUuid, !locked)) {
-	    				setLocked(!locked);
-	    				log.info("MyProfile(): SuperUser toggled lock status of profile for " + userUuid + " to " + !locked);
-	    				lockProfileLabel.setDefaultModel(new ResourceModel("link.profile.locked." + isLocked()));
-	    				add(new AttributeModifier("title", new ResourceModel("text.profile.locked." + isLocked())));
-	    				if(isLocked()){
-	    					add(new AttributeModifier("class", new Model<String>("locked")));
-	    				} else {
-	    					add(new AttributeModifier("class", new Model<String>("unlocked")));
-	    				}
-	    				target.add(this);
-	    			}
-				}
-			};
-			
-			//set init icon for locked
-			if(isLocked()){
-				lockProfileLink.add(new AttributeModifier("class", new Model<String>("locked")));
-			} else {
-				lockProfileLink.add(new AttributeModifier("class", new Model<String>("unlocked")));
-			}
-			
-			lockProfileLink.add(lockProfileLabel);
-					
-			//setup link/label and windows with special property based on locked status
-			lockProfileLabel.setDefaultModel(new ResourceModel("link.profile.locked." + isLocked()));
-			lockProfileLink.add(new AttributeModifier("title", new ResourceModel("text.profile.locked." + isLocked())));
-			
-			lockProfileContainer.add(lockProfileLink);
-			
-			sideLinks.add(lockProfileContainer);
-			
-			visibleSideLinksCount++;
-
-			
-		} else {
-			//blank components
-			WebMarkupContainer addFriendContainer = new WebMarkupContainer("addFriendContainer");
-			addFriendContainer.add(new AjaxLink("addFriendLink") {
-				public void onClick(AjaxRequestTarget target) {}
-			}).add(new Label("addFriendLabel"));
-			sideLinks.add(addFriendContainer);
-			add(new WebMarkupContainer("addFriendWindow"));
-			
-			WebMarkupContainer lockProfileContainer = new WebMarkupContainer("lockProfileContainer");
-			lockProfileContainer.add(new AjaxLink("lockProfileLink") {
-				public void onClick(AjaxRequestTarget target) {}
-			}).add(new Label("lockProfileLabel"));
-			sideLinks.add(lockProfileContainer);
-		}
-		
+        //set init icon for locked
+        if(isLocked()){
+            lockProfileLink.add(new AttributeModifier("class", new Model<String>("locked")));
+        } else {
+            lockProfileLink.add(new AttributeModifier("class", new Model<String>("unlocked")));
+        }
+        
+        lockProfileLink.add(lockProfileLabel);
+                
+        //setup link/label and windows with special property based on locked status
+        lockProfileLabel.setDefaultModel(new ResourceModel("link.profile.locked." + isLocked()));
+        lockProfileLink.add(new AttributeModifier("title", new ResourceModel("text.profile.locked." + isLocked())));
+        
+        lockProfileContainer.add(lockProfileLink);
+        
+        sideLinks.add(lockProfileContainer);
+        
+        visibleSideLinksCount++;
 		
 		//hide entire list if no links to show
 		if(visibleSideLinksCount == 0) {
@@ -404,145 +230,12 @@ public class MyProfile extends BasePage {
 		}
 		
 		add(sideLinks);
-		
-		//status panel
-		Panel myStatusPanel = new MyStatusPanel("myStatusPanel", userProfile);
-		add(myStatusPanel);
-		
-		List<ITab> tabs = new ArrayList<ITab>();
 
-		AjaxTabbedPanel tabbedPanel = new AjaxTabbedPanel("myProfileTabs", tabs) {
-			
-			private static final long serialVersionUID = 1L;
-
-			// overridden so we can add tooltips to tabs
-			@Override
-			protected WebMarkupContainer newLink(String linkId, final int index) {
-				WebMarkupContainer link = super.newLink(linkId, index);
-				
-				if (ProfileConstants.TAB_INDEX_PROFILE == index) {
-					link.add(new AttributeModifier("title",
-							new ResourceModel("link.tab.profile.tooltip")));
-					
-				} else if (ProfileConstants.TAB_INDEX_WALL == index) {
-					link.add(new AttributeModifier("title",
-							new ResourceModel("link.tab.wall.tooltip")));	
-				}
-				return link;
-			}
-		};
+		MyProfilePanelState panelState = new MyProfilePanelState();
+	   	panelState.showSocialNetworkingDisplay = sakaiProxy.isSocialProfileEnabled();
+		panelState.showNamePronunciationDisplay = sakaiProxy.isNamePronunciationProfileEnabled();
 		
-		
-		CookieUtils utils = new CookieUtils();
-		Cookie tabCookie = utils.getCookie(ProfileConstants.TAB_COOKIE);
-		
-		if (sakaiProxy.isProfileFieldsEnabled()) {
-			tabs.add(new AbstractTab(new ResourceModel("link.tab.profile")) {
-	
-				private static final long serialVersionUID = 1L;
-	
-				@Override
-				public Panel getPanel(String panelId) {
-					setTabCookie(ProfileConstants.TAB_INDEX_PROFILE);
-					MyProfilePanelState panelState = new MyProfilePanelState();
-					panelState.showBusinessDisplay = sakaiProxy.isBusinessProfileEnabled();
-					panelState.showSocialNetworkingDisplay = sakaiProxy.isSocialProfileEnabled();
-					panelState.showInterestsDisplay = sakaiProxy.isInterestsProfileEnabled();
-					panelState.showStaffDisplay = sakaiProxy.isStaffProfileEnabled();
-					panelState.showStudentDisplay = sakaiProxy.isStudentProfileEnabled();
-					panelState.showNamePronunciationDisplay = sakaiProxy.isNamePronunciationProfileEnabled();
-					return new MyProfilePanel(panelId, userProfile,panelState);
-				}
-	
-			});
-		}
-		
-		// DEPRECATED: UNLESS THERE IS AN EXPRESSED DESIRE FOR THIS FUNCTIONALITY THE WALL WILL BE REMOVED FOR 13.
-		if (sakaiProxy.isWallEnabledGlobally()) {
-			
-			tabs.add(new AbstractTab(new ResourceModel("link.tab.wall")) {
-
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				public Panel getPanel(String panelId) {
-
-					setTabCookie(ProfileConstants.TAB_INDEX_WALL);
-					if (sakaiProxy.isSuperUser()) {
-						return new MyWallPanel(panelId, userUuid);
-					} else {
-						return new MyWallPanel(panelId);
-					}
-				}
-			});
-			
-			if (ProfileConstants.WALL.equals(requestedTab)
-					|| (sakaiProxy.isWallDefaultProfilePage() && null == tabCookie)) {
-				tabbedPanel.setSelectedTab(ProfileConstants.TAB_INDEX_WALL);
-			} else if (null != tabCookie) {
-				tabbedPanel.setSelectedTab(Integer.parseInt(tabCookie.getValue()));
-			}
-		}
-		
-		add(tabbedPanel);
-		
-		//kudos panel
-		add(new AjaxLazyLoadPanel("myKudos"){
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public Component getLazyLoadComponent(String markupId) {
-				if(sakaiProxy.isMyKudosEnabledGlobally() && prefs.isShowKudos()){
-										
-					int score = kudosLogic.getKudos(userUuid);
-					if(score > 0) {
-						return new KudosPanel(markupId, userUuid, userUuid, score);
-					}
-				} 
-				return new EmptyPanel(markupId);
-			}
-		});
-		
-		
-		//friends feed panel for self - lazy loaded
-		add(new NotifyingAjaxLazyLoadPanel("friendsFeed") {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-            public Component getLazyLoadComponent(String markupId) {
-							if(sakaiProxy.isConnectionsEnabledGlobally()) {
-            	return new FriendsFeed(markupId, userUuid, userUuid);
-            }
-							return new EmptyPanel(markupId);
-            }
-
-			@Override
-			public void renderHead(IHeaderResponse response) {
-				response.render(OnLoadHeaderItem.forScript("resizeFrame('grow');"));
-			}
-        });
-        	
-        	
-		//gallery feed panel
-		add(new NotifyingAjaxLazyLoadPanel("galleryFeed") {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public Component getLazyLoadComponent(String markupId) {
-				if (sakaiProxy.isProfileGalleryEnabledGlobally() && prefs.isShowGalleryFeed()) {
-					return new GalleryFeed(markupId, userUuid, userUuid)
-							.setOutputMarkupId(true);
-				} else {
-					return new EmptyPanel(markupId);
-				}
-			}
-
-			@Override
-			public void renderHead(IHeaderResponse response) {
-				response.render(OnLoadHeaderItem.forScript("resizeFrame('grow');"));
-			}
-			
-		});
+		add(new MyProfilePanel("myProfilePanel", userProfile, panelState));
 	}
 
 	@Override

@@ -11,10 +11,17 @@
     </head>
     <body>
         <div class="portletBody">
+            <div style="display:none;">
+                <span id="mailsender.attachment_size_limit" th:text="#{mailsender.attachment_size_limit}"/>
+                <span id="mailsender.attachment_size_limit_end" th:text="#{mailsender.attachment_size_limit_end}"/>
+                <span id="mailsender.zero_bytes" th:text="#{mailsender.zero_bytes}"/>
+                <span id="mailsender.unit_sizes" th:text="#{mailsender.unit_sizes}"/>
+                <span id="max-attachment-size" th:text="${comp.maxUploadFileSize}"/>
+            </div>
             <div id="menu" th:include="fragments/menus :: main (compose)" />
             <div th:if="${noemail}" th:utext="#{no.from.address}" class="sak-banner-error"/>
             <div th:if="${error != null}" th:text="${error}" class="sak-banner-error"/>
-            <form id="mainForm" method="post" th:action="@{/compose}" enctype="multipart/form-data" data-dirty="false" th:object="${emailEntry}">
+            <form id="mainForm" method="post" th:action="@{/compose}" enctype="multipart/form-data" data-dirty="false" th:object="${emailEntry}" class="d-grid">
                 <div class="page-header">
                     <h1 th:text="#{compose_toolbar}">Compose</h1>
                 </div>
@@ -36,84 +43,117 @@
                                 <input type="checkbox" id="mailsender-rcpt-all" name="rcptsall" onclick="RcptSelect.toggleSelectAll()" th:aria-label="#{a11y_rcpts_all}" th:title="#{a11y_rcpts_all}" value="true"/>
                                 <label th:text="#{select_rcpts_all}" for="mailsender-rcpt-all">All</label>
                             </li>
-                            <li role="presentation">
-                                <button type="button" id="mailsender-tab-roles" onclick="show(this.id)" th:text="#{select_rcpts_by_role}" class="btn-tab" role="tab" aria-controls="mailsender-roles" aria-selected="false">Roles</button>
+                            <li role="presentation" class="nav-item">
+                                <button type="button" id="mailsender-tab-roles" onclick="show(this.id)" th:text="#{select_rcpts_by_role}" class="btn-tab nav-link" role="tab" aria-controls="mailsender-roles" aria-selected="false">Roles</button>
                             </li>
-                            <li role="presentation">
-                                <button type="button" id="mailsender-tab-sections" onclick="show(this.id)" th:text="#{select_rcpts_by_section}" class="btn-tab" role="tab" aria-controls="mailsender-sections" aria-selected="false">Sections</button>
+                            <li role="presentation" class="nav-item">
+                                <button type="button" id="mailsender-tab-sections" onclick="show(this.id)" th:text="#{select_rcpts_by_section}" class="btn-tab nav-link" role="tab" aria-controls="mailsender-sections" aria-selected="false">Sections</button>
                             </li>
-                            <li role="presentation">
-                                <button type="button" id="mailsender-tab-groups" onclick="show(this.id)" th:text="#{select_rcpts_by_group}" class="btn-tab" role="tab" aria-controls="mailsender-groups" aria-selected="false">Groups</button>
+                            <li role="presentation" class="nav-item">
+                                <button type="button" id="mailsender-tab-groups" onclick="show(this.id)" th:text="#{select_rcpts_by_group}" class="btn-tab nav-link" role="tab" aria-controls="mailsender-groups" aria-selected="false">Groups</button>
                             </li>
                         </ul>
 
-                        <ul id="mailsender-roles" class="rolesArea hidden" role="tabpanel" aria-labelledBy="mailsender-tab-roles">
-                            <li th:if="${comp.getEmailRoles().size() == 0}" class="not-found">
-                                <span th:text="#{no.role.found}" aria-live="polite"/>
-                            </li>
-                            <li th:unless="${comp.getEmailRoles().size() == 0}" th:each="rol:${comp.getEmailRoles()}" class="userGroupsList">
-                                <input th:id="${rol.getRoleId()}" type="checkbox" name="rolename" th:value="${rol.getRoleId()}" onclick="RcptSelect.toggleSelectAll(this.id)" th:aria-label="#{a11y_rcpts_by_role(${rol.getRoleId()})}" th:title="#{a11y_rcpts_by_role(${rol.getRoleId()})}"></input>
-                                <button type="button" onclick="showIndividuals(this)" class="btn-transparent" th:aria-label="#{a11y_show_users(${rol.getRoleId()})}" th:title="#{a11y_show_users(${rol.getRoleId()})}" aria-expanded="false">
-                                    <b th:text="${rol.getRoleId()} "></b>
-                                    <i class="fa fa-angle-down" aria-hidden="true"></i>
-                                </button>
-                                <ul class="hidden scrollable-list" th:aria-label="${rol.getRoleId()}" tabindex="-1">
-                                    <li th:if="${comp.getUsersByRole(rol.getRoleId()).size() == 0}" aria-live="polite">
-                                        <span th:text="#{no.role.members.found}"/>
-                                    </li>
-                                    <li th:unless="${comp.getUsersByRole(rol.getRoleId()).size() == 0}" th:each="user:${comp.getUsersByRole(rol.getRoleId())}" >
-                                        <input th:id="'rol-'+(${user.getId()})" type="checkbox" name="user" th:value="${user.getId()}" onclick="RcptSelect.toggleIndividual(this.id)" th:attrappend="disabled=${user.getEmail().isEmpty()}?@{disabled}"/>
-                                        <label class="user-label" th:text="${user.getDisplayName()}+' ('+ ${user.getDisplayId()}+')'" th:for="'rol-'+(${user.getId()})"/>
-                                    </li>
-                                </ul> 
-                            </li>
+                        <ul id="mailsender-roles" class="rolesArea d-none" role="tabpanel" aria-labelledBy="mailsender-tab-roles">
+                            <th:block th:with="emailRoles=${comp.getEmailRoles()}">
+                                <li th:if="${emailRoles.size() == 0}" class="not-found">
+                                    <span th:text="#{no.role.found}" aria-live="polite"/>
+                                </li>
+                                <li th:unless="${emailRoles.size() == 0}" th:each="rol:${emailRoles}" class="userGroupsList">
+                                    <th:block th:with="roleUsers=${comp.getUsersByRole(rol.getRoleId())},roleId=${rol.getRoleId()}">
+                                        <input th:id="${roleId}" type="checkbox" name="rolename" th:value="${roleId}" 
+                                               onclick="RcptSelect.toggleSelectAll(this.id)" 
+                                               th:aria-label="#{a11y_rcpts_by_role(${roleId})}" 
+                                               th:title="#{a11y_rcpts_by_role(${roleId})}"></input>
+                                        <button type="button" onclick="showIndividuals(this)" class="btn btn-transparent" 
+                                                th:aria-label="#{a11y_show_users(${roleId})}" 
+                                                th:title="#{a11y_show_users(${roleId})}" aria-expanded="false">
+                                            <b th:text="${roleId} "></b>
+                                            <i class="fa fa-angle-down" aria-hidden="true"></i>
+                                        </button>
+                                        <ul class="d-none scrollable-list" th:aria-label="${roleId}" tabindex="-1">
+                                            <li th:if="${roleUsers.size() == 0}" aria-live="polite">
+                                                <span th:text="#{no.role.members.found}"/>
+                                            </li>
+                                            <li th:unless="${roleUsers.size() == 0}" th:each="user:${roleUsers}" >
+                                                <input th:id="'rol-'+(${user.getId()})" type="checkbox" name="user" th:value="${user.getId()}" onclick="RcptSelect.toggleIndividual(this.id)" th:attrappend="disabled=${user.getEmail().isEmpty()}?@{disabled}"/>
+                                                <label class="user-label" th:text="${user.getDisplayName()}+' ('+ ${user.getDisplayId()}+')'" th:for="'rol-'+(${user.getId()})"/>
+                                            </li>
+                                        </ul>
+                                    </th:block>
+                                </li>
+                            </th:block>
                         </ul>
-                        <ul id="mailsender-sections" class="rolesArea hidden" role="tabpanel" aria-labelledBy="mailsender-tab-sections">
-                            <li th:if="${comp.getEmailSections().size() == 0}" class="not-found">
-                                <span th:text="#{no.role.found}" aria-live="polite"/>
-                            </li>
-                            <li th:unless="${comp.getEmailSections().size() == 0}" th:each="rolsec:${comp.getEmailSections()}" class="userGroupsList">
-                                <input th:id="${rolsec.getRoleSingular()}" type="checkbox" name="rolesecname" th:value="${rolsec.getRoleId()}" onclick="RcptSelect.toggleSelectAll(this.id)" th:aria-label="#{a11y_rcpts_by_section(${rolsec.getRoleSingular()})}" th:title="#{a11y_rcpts_by_section(${rolsec.getRoleSingular()})}"></input>
-                                <button type="button" onclick="showIndividuals(this)" class="btn-transparent" th:aria-label="#{a11y_show_users(${rolsec.getRoleSingular()})}" th:title="#{a11y_show_users(${rolsec.getRoleSingular()})}" aria-expanded="false">
-                                    <b th:text="${rolsec.getRoleSingular()} "></b>
-                                    <i class="fa fa-angle-down" aria-hidden="true"></i>
-                                </button>
-                                <ul class="hidden scrollable-list" th:aria-label="${rolsec.getRoleSingular()}" tabindex="-1">
-                                    <li th:if="${comp.countUsersByGroup(rolsec.getRoleId()) == 0}" aria-live="polite">
-                                        <span th:text="#{no.role.members.found}"/>
-                                    </li>
-                                    <li th:unless="${comp.countUsersByGroup(rolsec.getRoleId()) == 0}" th:each="usersec:${comp.getUsersByGroup(rolsec.getRoleId())}">
-                                        <input th:id="'sec-'+${usersec.getId()}" type="checkbox" name="user" th:value="${usersec.getId()}" onclick="RcptSelect.toggleIndividual(this.id)" th:attrappend="disabled=${usersec.getEmail().isEmpty()}?@{disabled}" />
-                                        <label class="user-label" th:text="${usersec.getDisplayName()}+' ('+ ${usersec.getDisplayId()}+')'" th:for="'sec-'+${usersec.getId()}"/>
-                                    </li>
-                                </ul>
-                            </li>
+                        <ul id="mailsender-sections" class="rolesArea d-none" role="tabpanel" aria-labelledBy="mailsender-tab-sections">
+                            <th:block th:with="emailSections=${comp.getEmailSections()}">
+                                <li th:if="${emailSections.size() == 0}" class="not-found">
+                                    <span th:text="#{no.section.found}" aria-live="polite"/>
+                                </li>
+                                <li th:unless="${emailSections.size() == 0}" th:each="rolsec:${emailSections}" class="userGroupsList">
+                                    <th:block th:with="sectionUsers=${comp.getUsersByGroup(rolsec.getRoleId())},
+                                                      userCount=${comp.countUsersByGroup(rolsec.getRoleId())},
+                                                      roleSingular=${rolsec.getRoleSingular()},
+                                                      roleId=${rolsec.getRoleId()}">
+                                        <input th:id="${roleSingular}" type="checkbox" name="rolesecname" th:value="${roleId}" 
+                                               onclick="RcptSelect.toggleSelectAll(this.id)" 
+                                               th:aria-label="#{a11y_rcpts_by_section(${roleSingular})}" 
+                                               th:title="#{a11y_rcpts_by_section(${roleSingular})}"></input>
+                                        <button type="button" onclick="showIndividuals(this)" class="btn btn-transparent" 
+                                                th:aria-label="#{a11y_show_users(${roleSingular})}" 
+                                                th:title="#{a11y_show_users(${roleSingular})}" aria-expanded="false">
+                                            <b th:text="${roleSingular} "></b>
+                                            <i class="fa fa-angle-down" aria-hidden="true"></i>
+                                        </button>
+                                        <ul class="d-none scrollable-list" th:aria-label="${roleSingular}" tabindex="-1">
+                                            <li th:if="${userCount == 0}" aria-live="polite">
+                                                <span th:text="#{no.section.members.found}"/>
+                                            </li>
+                                            <li th:unless="${userCount == 0}" th:each="usersec:${sectionUsers}">
+                                                <input th:id="'sec-'+${usersec.getId()}" type="checkbox" name="user" th:value="${usersec.getId()}" onclick="RcptSelect.toggleIndividual(this.id)" th:attrappend="disabled=${usersec.getEmail().isEmpty()}?@{disabled}" />
+                                                <label class="user-label" th:text="${usersec.getDisplayName()}+' ('+ ${usersec.getDisplayId()}+')'" th:for="'sec-'+${usersec.getId()}"/>
+                                            </li>
+                                        </ul>
+                                    </th:block>
+                                </li>
+                            </th:block>
                         </ul>
-                        <ul id="mailsender-groups" class="rolesArea hidden" role="tabpanel" aria-labelledBy="mailsender-tab-groups">
-                            <li th:if="${comp.getEmailGroups().size() == 0}" class="not-found">
-                                <span th:text="#{no.role.found}" aria-live="polite"/>
-                            </li>
-                            <li th:unless="${comp.getEmailGroups().size() == 0}" th:each="rolg:${comp.getEmailGroups()}" class="userGroupsList">
-                                <input th:id="${rolg.getRoleSingular()}" type="checkbox" name="rolegname" th:value="${rolg.getRoleId()}" onclick="RcptSelect.toggleSelectAll(this.id)" th:aria-label="#{a11y_rcpts_by_group(${rolg.getRoleSingular()})}" th:title="#{a11y_rcpts_by_group(${rolg.getRoleSingular()})}"></input>
-                                <button type="button" onclick="showIndividuals(this)" class="btn-transparent" th:aria-label="#{a11y_show_users(${rolg.getRoleSingular()})}" th:title="#{a11y_show_users(${rolg.getRoleSingular()})}" aria-expanded="false">
-                                    <b th:text="${rolg.getRoleSingular()} "></b>
-                                    <i class="fa fa-angle-down" aria-hidden="true"></i>
-                                </button>
-                                <ul class="hidden scrollable-list" th:aria-label="${rolg.getRoleSingular()}" tabindex="-1">
-                                    <li th:if="${comp.countUsersByGroup(rolg.getRoleId()) == 0}" aria-live="polite">
-                                        <span th:text="#{no.role.members.found}"/>
-                                    </li>
-                                    <li th:unless="${comp.countUsersByGroup(rolg.getRoleId()) == 0}" th:each="userg:${comp.getUsersByGroup(rolg.getRoleId())}">
-                                        <input th:id="'gro-'+${userg.getId()}" type="checkbox" name="user" th:value="${userg.getId()}" onclick="RcptSelect.toggleIndividual(this.id)" th:attrappend="disabled=${userg.getEmail().isEmpty()}?@{disabled}" />
-                                        <label class="user-label" th:text="${userg.getDisplayName()}+' ('+ ${userg.getDisplayId()}+')'" th:for="'gro-'+${userg.getId()}"/>
-                                    </li>
-                                </ul>
-                            </li>
+                        <ul id="mailsender-groups" class="rolesArea d-none" role="tabpanel" aria-labelledBy="mailsender-tab-groups">
+                            <th:block th:with="emailGroups=${comp.getEmailGroups()}">
+                                <li th:if="${emailGroups.size() == 0}" class="not-found">
+                                    <span th:text="#{no.group.found}" aria-live="polite"/>
+                                </li>
+                                <li th:unless="${emailGroups.size() == 0}" th:each="rolg:${emailGroups}" class="userGroupsList">
+                                    <th:block th:with="groupUsers=${comp.getUsersByGroup(rolg.getRoleId())},
+                                                              userCount=${comp.countUsersByGroup(rolg.getRoleId())},
+                                                              roleSingular=${rolg.getRoleSingular()},
+                                                              roleId=${rolg.getRoleId()}">
+                                        <input th:id="${roleSingular}" type="checkbox" name="rolegname" th:value="${roleId}" 
+                                               onclick="RcptSelect.toggleSelectAll(this.id)" 
+                                               th:aria-label="#{a11y_rcpts_by_group(${roleSingular})}" 
+                                               th:title="#{a11y_rcpts_by_group(${roleSingular})}"></input>
+                                        <button type="button" onclick="showIndividuals(this)" class="btn btn-transparent" 
+                                                th:aria-label="#{a11y_show_users(${roleSingular})}" 
+                                                th:title="#{a11y_show_users(${roleSingular})}" aria-expanded="false">
+                                            <b th:text="${roleSingular} "></b>
+                                            <i class="fa fa-angle-down" aria-hidden="true"></i>
+                                        </button>
+                                        <ul class="d-none scrollable-list" th:aria-label="${roleSingular}" tabindex="-1">
+                                            <li th:if="${userCount == 0}" aria-live="polite">
+                                                <span th:text="#{no.group.members.found}"/>
+                                            </li>
+                                            <li th:unless="${userCount == 0}" th:each="userg:${groupUsers}">
+                                                <input th:id="'gro-'+${userg.getId()}" type="checkbox" name="user" th:value="${userg.getId()}" onclick="RcptSelect.toggleIndividual(this.id)" th:attrappend="disabled=${userg.getEmail().isEmpty()}?@{disabled}" />
+                                                <label class="user-label" th:text="${userg.getDisplayName()}+' ('+ ${userg.getDisplayId()}+')'" th:for="'gro-'+${userg.getId()}"/>
+                                            </li>
+                                        </ul>
+                                    </th:block>
+                                </li>
+                            </th:block>
                         </ul>
                     </div>
                 </div>
                 <div class="headervalue" id="otherRecipientsLink" >
-                    <button th:text="#{addotherrecipients}" onclick="RcptSelect.showOther();return false" class="btn-transparent link-color">Other Recipient(s):</button>
+                    <button th:text="#{addotherrecipients}" onclick="RcptSelect.showOther();return false" class="btn btn-transparent link-color">Other Recipient(s):</button>
                 </div>
 
                 <div class="section" id="otherRecipientsDiv" style="display:none">
@@ -139,12 +179,13 @@
                         <span class="headerkey"><img src="/mailsender-tool/content/images/paperclip.gif" alt="attachment_img" height="15" width="15" ></span>
                     </div>
                     <div id="attachInner" class="headervalue">
+                        <div id="attach-size-error" class="sak-banner-error" style="display:none; margin-top: 0">Attachment size exceeded message rendered here</div>
                         <div id="attachmentArea" name="attachmentArea"/>
                         <div id="attachLink"><img src="/mailsender-tool/content/images/paperclip.gif" alt="attachment_img" height="15" width="15" />
-                        <button onclick="MailSender.addAttachment('attachmentArea'); return false;" th:text="#{attachlink}" class="btn-transparent link-color">Attach a file</button>
+                        <button onclick="MailSender.addAttachment('attachmentArea'); return false;" th:text="#{attachlink}" class="btn btn-transparent link-color">Attach a file</button>
                         </div>
                         <div id="attachMoreLink" style="display:none">
-                            <button onclick="MailSender.addAttachment('attachmentArea'); return false;" th:text="#{attachmorelink}" class="btn-transparent link-color">Attach another file</button>
+                            <button onclick="MailSender.addAttachment('attachmentArea'); return false;" th:text="#{attachmorelink}" class="btn btn-transparent link-color">Attach another file</button>
                         </div>
                         </div>
                     </div>
@@ -197,47 +238,47 @@
                         button.setAttribute("aria-expanded", "true");
                     }
 
-                    if (button.nextElementSibling.className.includes("hidden")) {
-                        button.nextElementSibling.classList.remove("hidden");
+                    if (button.nextElementSibling.className.includes("d-none")) {
+                        button.nextElementSibling.classList.remove("d-none");
                     } else {
-                        button.nextElementSibling.classList.add("hidden");
+                        button.nextElementSibling.classList.add("d-none");
                     }
                 };
 
                 function show(id) {
                     switch (id) {
                         case "mailsender-tab-roles":
-                            roles.classList.remove("hidden");
+                            roles.classList.remove("d-none");
                             troles.classList.add("selected");
                             troles.setAttribute("aria-selected", "true");
-                            sections.classList.add("hidden");
+                            sections.classList.add("d-none");
                             tsections.classList.remove("selected");
                             tsections.setAttribute("aria-selected", "false");
-                            groups.classList.add("hidden");
+                            groups.classList.add("d-none");
                             tgroups.classList.remove("selected");
                             tgroups.setAttribute("aria-selected", "false")
                             break;
 
                         case "mailsender-tab-sections":
-                            sections.classList.remove("hidden");
+                            sections.classList.remove("d-none");
                             tsections.classList.add("selected");
                             tsections.setAttribute("aria-selected", "true");
-                            roles.classList.add("hidden");
+                            roles.classList.add("d-none");
                             troles.classList.remove("selected");
                             troles.setAttribute("aria-selected", "false");
-                            groups.classList.add("hidden");
+                            groups.classList.add("d-none");
                             tgroups.classList.remove("selected");
                             tgroups.setAttribute("aria-selected", "false");
                             break;
 
                         case "mailsender-tab-groups":
-                            groups.classList.remove("hidden");
+                            groups.classList.remove("d-none");
                             tgroups.classList.add("selected");
                             tgroups.setAttribute("aria-selected", "true");
-                            sections.classList.add("hidden");
+                            sections.classList.add("d-none");
                             tsections.classList.remove("selected");
                             tsections.setAttribute("aria-selected", "false");
-                            roles.classList.add("hidden");
+                            roles.classList.add("d-none");
                             troles.classList.remove("selected");
                             troles.setAttribute("aria-selected", "false");
                             break;

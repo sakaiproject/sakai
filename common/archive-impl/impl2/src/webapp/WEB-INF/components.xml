@@ -32,6 +32,7 @@
 				<value>DiscussionForumService</value>
 				<value>WebService</value>
 				<value>LessonBuilderEntityProducer</value>
+				<value>PollListManager</value>
 			</list>
 		</property>
 		<property name="mergeFilteredSakaiRoles">
@@ -55,6 +56,7 @@
 		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
 		<property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
+		<property name="ltiService" ref="org.sakaiproject.lti.api.LTIService" />
 		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
 		<property name="transactionTemplate">
 			<bean class="org.springframework.transaction.support.TransactionTemplate">
@@ -70,6 +72,8 @@
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
 		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
         <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
+		<property name="ltiService" ref="org.sakaiproject.lti.api.LTIService" />
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
 	</bean>
 	
 	<bean id="org_sakaiproject_archive_impl_SiteZipper"

@@ -7,31 +7,34 @@
     <div id="menu" th:include="fragments/menus :: main (index)" />
     <div class="page-header"><h1 th:text="#{index.header.grouplist}"></h1></div>
     <div class="sak-banner-info" th:if="${groupList.isEmpty()}" th:text="#{index.warning.groupempty}">No groups in this site.</div>
-    <div class="instruction" th:if="${anyGroupLocked}"><span class="fa fa-fw fa-lock" aria-hidden="true"></span> - <span aria-hidden="true" th:text="#{index.table.grouplocked.info}"></span></div>
+    <div class="sak-banner-error" th:if="${errorMessage != null}" th:text="${errorMessage}"></div>
+    <div class="instruction" th:if="${anyGroupLocked}"><span class="si si-locked" aria-hidden="true"></span> - <span aria-hidden="true" th:text="#{index.table.grouplocked.info}"></span></div>
     <form th:if="${!groupList.isEmpty()}" id="group-manager-form" action="#" th:action="@{/removeGroups}" th:object="${mainForm}" method="post">
       <table id="groupTable" class="table table-striped table-bordered table-hover">
         <thead>
           <tr>
             <th th:text="#{index.table.grouptitle}">Group Title</th>
-            <th class="hidden-xs" th:if="${anyGroupLocked}" th:text="#{index.table.grouplockedby}">Locked By</th>
+            <th class="d-none d-sm-table-cell" th:if="${anyGroupLocked}" th:text="#{index.table.grouplockedby}">Locked By</th>
             <th th:text="#{index.table.joinableset}">Joinable set</th>
-            <th class="hidden-xs" th:text="#{index.table.groupsize}">Size (Max)</th>
-            <th class="hidden-xs" th:text="#{index.table.groupmembers}">Members</th>
+            <th class="d-none d-sm-table-cell" th:text="#{index.table.groupsize}">Size (Max)</th>
+            <th th:text="#{index.table.groupmembers}">Members</th>
+            <th class="d-none d-sm-table-cell" th:if="${anyJoinableSetDate}" th:text="#{joinableset.label.opendate}">Open Date</th>
+            <th class="d-none d-sm-table-cell" th:if="${anyJoinableSetDate}" th:text="#{joinableset.label.closedate}">Close Date</th>
             <th><input type="checkbox" id="group-manager-index-select-all" th:text="| #{index.table.selectallnone}|"/></th>
           </tr>
         </thead>
         <tbody>
           <tr th:each="group : ${groupList}">
             <td>
-              <span th:if="${lockedGroupList.contains(group.id)}" class="fa fa-fw fa-lock" aria-hidden="true"></span>
+              <span th:if="${lockedGroupList.contains(group.id)}" class="si si-locked" aria-hidden="true"></span>
               <span th:if="${lockedGroupList.contains(group.id)}" class="sr-only" th:text="#{index.table.group.locked}"></span>
               <a th:if="${!lockedGroupList.contains(group.id)}" th:href="@{/group(groupId=${group.id})}" th:text="${group.title}"></a>
               <span th:if="${lockedGroupList.contains(group.id)}" th:text="${group.title}"></span>
             </td>
-            <td class="hidden-xs" th:if="${anyGroupLocked}">
+            <td class="d-none d-sm-table-cell" th:if="${anyGroupLocked}">
               <div th:if="${lockedGroupsEntityMap.get(group.id) != null }">
                 <div th:if="${!lockedGroupsEntityMap.get(group.id).get('assignments').isEmpty()}">
-                  <span class="group-locked-info collapsed" data-toggle="collapse" th:data-target="|#lockingassignments-${group.id}|" tabindex="0" role="button" th:text="#{index.table.assignments}"></span>
+                  <span class="group-locked-info collapsed" data-bs-toggle="collapse" th:data-bs-target="|#lockingassignments-${group.id}|" tabindex="0" role="button" th:text="#{index.table.assignments}"></span>
                   <div th:id="|lockingassignments-${group.id}|" class="collapse">
                     <ul th:each=" assigment : ${lockedGroupsEntityMap.get(group.id).get('assignments')}">
                       <li th:text="${assigment}"></li>
@@ -40,7 +43,7 @@
                 </div>
                 <div class="clearfix"></div>
                 <div th:if="${!lockedGroupsEntityMap.get(group.id).get('assessments').isEmpty()}">
-                <span class="group-locked-info collapsed" data-toggle="collapse" th:data-target="|#lockingassessments-${group.id}|" tabindex="0" role="button" th:text="#{index.table.assessments}"></span>
+                <span class="group-locked-info collapsed" data-bs-toggle="collapse" th:data-bs-target="|#lockingassessments-${group.id}|" tabindex="0" role="button" th:text="#{index.table.assessments}"></span>
                   <div th:id="|lockingassessments-${group.id}|" class="collapse">
                     <ul th:each=" assessment : ${lockedGroupsEntityMap.get(group.id).get('assessments')}">
                       <li th:text="${assessment}"></li>
@@ -50,11 +53,13 @@
               </div>
             </td>
             <td><a th:if="${groupJoinableSetMap.get(group.id) != null}" th:href="@{/joinableset(joinableSetId=${groupJoinableSetMap.get(group.id)})}" th:text="${groupJoinableSetMap.get(group.id)}"></a></td>
-            <td class="hidden-xs"><span th:text="${group.getMembers().size()}"></span> <span th:if="${groupJoinableSetSizeMap.get(group.id) != null}" th:text="'('+${groupJoinableSetSizeMap.get(group.id)}+')'"></span></td>
-            <td class="hidden-xs" th:text="${groupMemberMap.get(group.id)}"></td>
+            <td class="d-none d-sm-table-cell"><span th:text="${group.getMembers().size()}"></span> <span th:if="${groupJoinableSetSizeMap.get(group.id) != null}" th:text="'('+${groupJoinableSetSizeMap.get(group.id)}+')'"></span></td>
+            <td th:text="${groupMemberMap.get(group.id)}"></td>
+            <td class="d-none d-sm-table-cell" th:if="${anyJoinableSetDate}" th:text="${joinableSetOpenDateMap.get(groupJoinableSetMap.get(group.id))}"></td>
+            <td class="d-none d-sm-table-cell" th:if="${anyJoinableSetDate}" th:text="${joinableSetCloseDateMap.get(groupJoinableSetMap.get(group.id))}"></td>
             <td>
               <input class="group-manager-delete-checkbox" th:if="${!lockedForDeletionGroupList.contains(group.id)}" th:attr="groupInfo=|${group.title} - ${group.getMembers().size()} #{index.table.members}|" type="checkbox" name="deletedGroupList" th:field="*{deletedGroupList}" th:value="${group.id}" onchange="groupManager.checkSubmitButton();"/>
-              <span th:if="${lockedForDeletionGroupList.contains(group.id)}" class="fa fa-fw fa-lock" aria-hidden="true"></span>
+              <span th:if="${lockedForDeletionGroupList.contains(group.id)}" class="si si-locked" aria-hidden="true"></span>
               <span th:if="${lockedForDeletionGroupList.contains(group.id)}" class="sr-only" th:text="#{index.table.group.locked}"></span>
             </td>
           </tr>
@@ -62,22 +67,22 @@
       </table>
       <div class="act">
         <input accesskey="s" disabled="disabled" id="delete-groups-submit-button" type="submit" class="active" th:value="#{index.button.removechecked}"/>
-        <button type="button" accesskey="x" id="delete-groups-cancel-button" th:text="#{index.button.cancel}">Cancel</button>
+        <button type="button" class="btn btn-link" accesskey="x" id="delete-groups-cancel-button" th:text="#{index.button.cancel}">Cancel</button>
       </div>
       <div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" id="confirmation-modal">
         <div class="modal-dialog modal-md">
           <div class="modal-content">
             <div class="modal-header">
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span class="fa fa-times" aria-hidden="true"></span></button>
-              <h4 th:text="#{index.modal.confirm}" class="modal-title">Confirm</h4>
+              <h5 th:text="#{index.modal.confirm}" class="modal-title">Confirm</h5>
+              <button type="button" class="btn btn-link btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
               <div class="sak-banner-warn" th:text="#{index.modal.confirm.instruction}">You are about delete the following groups:</div>
               <ul id="deleted-groups-list"></ul>
             </div>
             <div class="modal-footer act">
-              <button type="button" class="active" id="modal-btn-confirm" th:text="#{index.modal.button.delete}" onclick="SPNR.disableControlsAndSpin( this, null );">Delete these groups</button>
-              <button type="button" id="modal-btn-cancel" th:text="#{index.button.cancel}">Cancel</button>
+              <button type="button" class="btn btn-link active" id="modal-btn-confirm" th:text="#{index.modal.button.delete}" onclick="SPNR.disableControlsAndSpin( this, null );">Delete these groups</button>
+              <button type="button" class="btn btn-link" data-bs-dismiss="modal" id="modal-btn-cancel" th:text="#{index.button.cancel}">Cancel</button>
             </div>
           </div>
         </div>

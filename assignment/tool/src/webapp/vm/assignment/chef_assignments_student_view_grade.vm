@@ -1,22 +1,5 @@
 <!-- start: chef_assignments_student_view_grade.vm  -->
 #rubricsRequirements
-<script>
-    $(document).ready(function () {
-        $("#accordion").accordion({
-                    heightStyle: 'content',
-                    active: 0,
-                    collapsible: true,
-                    change: function (event, ui) {
-                        ASN.resizeFrame();
-                    },
-                    activate: function (event, ui) {
-                        ASN.resizeFrame();
-                    }
-                }
-        );
-    });
-</script>
-
 ## Include other javascript specific to this page
 #javascript("/sakai-assignment-tool/js/studentViewSubmission.js")
 
@@ -53,9 +36,6 @@
         #end
         <span class="highlight"> - $!service.getSubmissionStatus($!submissionId, true)</span>
     </h3>
-    #if (!$!nonElectronicType)
-        #progressBar($!service.getProgressBarStatus($!submission))
-    #end
     #if ($alertMessage)
         <div class="sak-banner-error"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div>
     #end
@@ -129,44 +109,25 @@
                 </tr>
             #end
         #end
-        #if ($withGrade)
-            #set ($gradeScale = $!typeOfGradeString)
-            #if ($!submission.Graded && $!submission.GradeReleased)
-                <tr>
-                    <th>
-                        $tlang.getString("gen.gra")
-                    </th>
-                    <td class="highlight text-default">
-                        <strong>
-                            #if ($!assignment.TypeOfGrade.ordinal() != 1)
-                                #if ($!grade == $tlang.getString("pass") || $!grade == $tlang.getString("gen.checked"))
-                                    <span class="text-success">$!grade</span>
-                                #elseif ($!grade == $tlang.getString("fail"))
-                                    <span class="text-danger">$!grade</span>
-                                #else
-                                    $!grade
-                                #end
+        #set ($gradeScale = $!typeOfGradeString)
+        #if ($!submission.Graded && $!submission.GradeReleased)
+            <tr>
+                <th>
+                    $tlang.getString("gen.gra")
+                </th>
+                <td class="highlight text-default">
+                    <strong>
+                        #if ($!assignment.TypeOfGrade.ordinal() != 1)
+                            #if ($!grade == $tlang.getString("pass") || $!grade == $tlang.getString("gen.checked"))
+                                <span class="text-success">$!grade</span>
+                            #elseif ($!grade == $tlang.getString("fail"))
+                                <span class="text-danger">$!grade</span>
                             #else
-                                $tlang.getString("gen.nograd")
+                                $!grade
                             #end
-                            #if ($!assignment.TypeOfGrade.ordinal() == 3)
-                                ($tlang.getString("grade.max") $!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint))
-
-                                ## for grading via an external scoring service, if enabled for an associated gradebook item
-                                #if($scoringComponentEnabled)
-                                    #parse ("/vm/assignment/chef_assignments_scoring_agent.vm")
-                                #end
-                            #end
-                        </strong>
-                    </td>
-                </tr>
-            #else
-                <tr>
-                    <th>
-                        $tlang.getString("gen.grasca")
-                    </th>
-                    <td>
-                        $gradeScale
+                        #else
+                            $tlang.getString("gen.nograd")
+                        #end
                         #if ($!assignment.TypeOfGrade.ordinal() == 3)
                             ($tlang.getString("grade.max") $!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint))
 
@@ -175,9 +136,26 @@
                                 #parse ("/vm/assignment/chef_assignments_scoring_agent.vm")
                             #end
                         #end
-                    </td>
-                </tr>
-            #end
+                    </strong>
+                </td>
+            </tr>
+        #else
+            <tr>
+                <th>
+                    $tlang.getString("gen.grasca")
+                </th>
+                <td>
+                    $gradeScale
+                    #if ($!assignment.TypeOfGrade.ordinal() == 3)
+                        ($tlang.getString("grade.max") $!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint))
+
+                        ## for grading via an external scoring service, if enabled for an associated gradebook item
+                        #if($scoringComponentEnabled)
+                            #parse ("/vm/assignment/chef_assignments_scoring_agent.vm")
+                        #end
+                    #end
+                </td>
+            </tr>
         #end
 
         ## Display content-review results when appropriate. If the assignment is non-electronic, we show content-review results if they exist
@@ -317,12 +295,38 @@
         #end
     #end
 
-    #if ($submission.Graded && ($submission.GradeReleased || $returned))
+    #if($!rubricSelfReport)
+    <h1>$tlang.getString("autoevaluation")</h1>
+    <sakai-rubric-student
+        tool-id="sakai.assignment.grades"
+        entity-id="$assignment.Id"
+        instructor="true"
+        is-peer-or-self="true"
+        #if($!assignment.IsGroup)
+            evaluated-item-id="$submission.GroupId"
+            evaluated-item-owner-id="$submission.GroupId"
+        #else
+            evaluated-item-id="$currentUserId"
+            evaluated-item-owner-id="$currentUserId"
+        #end
+    ></sakai-rubric-student>
+    <p class="help-block">
+        $tlang.getString("reviewrubricreport")
+    </p>
+    <hr class="itemSeparator" />
+    #end
+    #if (!$rubricHiddenToStudent && $submission.Graded && ($submission.GradeReleased || $returned))
+    <h1>$tlang.getString("instructor_grading")</h1>
     <sakai-rubric-student
         site-id="$assignment.context"
         tool-id="sakai.assignment.grades"
         entity-id="$assignment.Id"
         evaluated-item-id="$submission.Id"
+        #if($!assignment.IsGroup)
+            evaluated-item-owner-id="$submission.GroupId"
+        #else
+            evaluated-item-owner-id="$currentUserId"
+        #end
         enable-pdf-export="$enablePdfExport"
     ></sakai-rubric-student>
     #end
@@ -350,7 +354,7 @@
         ## Show reviewer feedback from peer review (if exist and the peer review is closed)
         #if ($peerReviews)
             <h3>$tlang.getString("gen.peerReviews")</h3>
-            <div id="accordion">
+            <div id="peer-accordion">
                 #foreach($review in $peerReviews)
                     <h5>$review.assessorDisplayName</h5>
                     <div>
@@ -388,6 +392,17 @@
                                 #end
                             </ul>
                         #end
+                        <sakai-rubric-student
+                            tool-id="sakai.assignment.grades"
+                            entity-id="$assignment.Id"
+                            evaluated-item-id="$review.id.assessorUserId"
+                            is-peer-or-self="true"
+                            #if ($!assignment.isGroup)
+                                evaluated-item-owner-id="$submission.GroupId"
+                            #else
+                                evaluated-item-owner-id="$currentUserId"
+                            #end
+                        ></sakai-rubric-student>
                     </div>
                 #end
             </div>

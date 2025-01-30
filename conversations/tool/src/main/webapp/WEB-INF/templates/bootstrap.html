@@ -1,14 +1,14 @@
-!DOCTYPE html>
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <link media="all" href="/library/skin/tool_base.css" rel="stylesheet" type="text/css" />
-    <script type="module" th:src="@{~/webcomponents/conversations/sakai-conversations.js} + ${cdnQuery}"></script>
     [(${sakaiHtmlHead})]
   </head>
-  <body>
+  <body onload="setMainFrameHeight('Mainmercuryx710');setFocus(focus_path);"   class="Mrphs-container Mrphs-sakai-dropbox">
+    <script type="module" th:src="@{~/webcomponents/bundles/conversations.js} + ${cdnQuery}"></script>
+    <script>includeLatestJQuery('conversations');</script>
     <div class="portletBody">
-        <!--sakai-conversations th:topic-id="${topicId}" th:site-id="${siteId}" th:state="${state}" th:base-url="${baseUrl}"></sakai-conversations-->
         <sakai-conversations th:topic-id="${topicId}" th:post-id="${postId}" th:site-id="${siteId}" th:base-url="${baseUrl}"></sakai-conversations>
     </div>
   </body>

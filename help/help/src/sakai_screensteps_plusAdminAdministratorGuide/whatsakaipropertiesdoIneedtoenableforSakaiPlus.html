@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>What sakai.properties do I need to enable for Sakai Plus?</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta content="" name="description">
+<link href="../css/help.css" media="all" rel="stylesheet" type="text/css" charset="utf-8">
+<link href="/library/webjars/fontawesome/4.7.0/css/font-awesome.min.css" media="screen" rel="stylesheet">
+<link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
+<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="/library/js/headscripts.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" charset="utf-8">
+    includeWebjarLibrary('featherlight');
+    $(document).ready(function(){
+      $("a.screensteps-image-zoom").featherlight({
+        type: { image:true },
+        closeOnClick: 'anywhere'
+      }); 
+    });   
+</script>
+</head>
+<body>
+  <div><div>
+<div><h1 class="article-title">What sakai.properties do I need to enable for Sakai Plus?</h1></div>
+<div>
+
+
+
+    <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
+  <div id="text-content_233bffd4-fc60-4a33-bc38-cefd253d4f00" class="text-block-content">
+    <p>Set the following properties in the sakai.properties file to enable Sakai Plus in your Sakai instance.</p>
+  </div>
+</div>
+
+    <div class="step-instructions screensteps-textblock">
+  <div id="text-content_20012d72-022f-4cf5-98b0-152904662aa9" class="text-block-content">
+    <p># Needed for launches to work inside iframes</p>
+<p><code>sakai.cookieSameSite=none</code></p>
+<p># Not enabled by default</p>
+<p><code>plus.provider.enabled=true</code></p>
+<p><code>plus.tools.allowed=sakai.resources:sakai.site</code></p>
+  </div>
+</div>
+
+
+</div>
+</div></div>
+</body>
+</html>

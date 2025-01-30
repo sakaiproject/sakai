@@ -19,10 +19,8 @@ package org.sakaiproject.mailsender.logic.impl;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -33,9 +31,12 @@ import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.mailsender.logic.ComposeLogic;
+import org.sakaiproject.mailsender.logic.ConfigLogic;
 import org.sakaiproject.mailsender.logic.ExternalLogic;
+import org.sakaiproject.mailsender.model.ConfigEntry;
 import org.sakaiproject.mailsender.model.EmailRole;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
@@ -43,7 +44,6 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.comparator.UserSortNameComparator;
 
 import lombok.extern.slf4j.Slf4j;
@@ -59,6 +59,7 @@ public class ComposeLogicImpl implements ComposeLogic
 	protected ExternalLogic externalLogic;
 	protected ToolManager toolManager;
 	protected ServerConfigurationService serverConfigurationService;
+	protected ConfigLogic configLogic;
 	protected HashSet<String> ignoreRoles = new HashSet<String>();
 
 	/**
@@ -74,42 +75,35 @@ public class ComposeLogicImpl implements ComposeLogic
 		String realmId = externalLogic.getSiteRealmID();
 		AuthzGroup arole = authzGroupService.getAuthzGroup(realmId);
 
-		for (Iterator<?> i = arole.getRoles().iterator(); i.hasNext();)
-		{
-			Role r = (Role) i.next();
-			String rolename = r.getId();
-			if (includeRole(rolename)) {
-				String singular = null;
-				String plural = null;
-	
-				EmailRole configRole = findConfigRole(realmId, rolename, configRoles);
-				// check first for an override from config
-				if (configRole != null)
-				{
-					singular = configRole.getRoleSingular();
-					plural = configRole.getRolePlural();
-				}
-				// default case
-				else
-				{
-					singular = rolename;
-					plural = rolename;
-				}
-				// create email role and add to list
-				EmailRole emailrole = null;
-				if (getGroupAwareRole().equals(rolename))
-				{
-					emailrole = new EmailRole(realmId, rolename, singular, plural, EmailRole.Type.ROLE,
-							true);
-				}
-				else
-				{
-					emailrole = new EmailRole(realmId, rolename, singular, plural, EmailRole.Type.ROLE);
-				}
-				theRoles.add(emailrole);
-			}
-		}
-		Collections.sort(theRoles, new EmailRoleComparator(EmailRoleComparator.SORT_BY.PLURAL));
+        for (Role r : arole.getRoles()) {
+            String rolename = r.getId();
+            if (includeRole(rolename)) {
+                String singular = null;
+                String plural = null;
+
+                EmailRole configRole = findConfigRole(realmId, rolename, configRoles);
+                // check first for an override from config
+                if (configRole != null) {
+                    singular = configRole.getRoleSingular();
+                    plural = configRole.getRolePlural();
+                }
+                // default case
+                else {
+                    singular = rolename;
+                    plural = rolename;
+                }
+                // create email role and add to list
+                EmailRole emailrole = null;
+                if (getGroupAwareRole().equals(rolename)) {
+                    emailrole = new EmailRole(realmId, rolename, singular, plural, EmailRole.Type.ROLE,
+                            true);
+                } else {
+                    emailrole = new EmailRole(realmId, rolename, singular, plural, EmailRole.Type.ROLE);
+                }
+                theRoles.add(emailrole);
+            }
+        }
+		theRoles.sort(new EmailRoleComparator(EmailRoleComparator.SORT_BY.PLURAL));
 		return theRoles;
 	}
 
@@ -125,8 +119,6 @@ public class ComposeLogicImpl implements ComposeLogic
 
 	/**
 	 * Get the config roles defined in the tool configuration
-	 * 
-	 * @return
 	 */
 	private List<EmailRole> getConfigRoles()
 	{
@@ -170,18 +162,24 @@ public class ComposeLogicImpl implements ComposeLogic
 		ArrayList<EmailRole> roles = new ArrayList<EmailRole>();
 		Site currentSite = currentSite();
 
+		ConfigEntry ce = configLogic.getConfig();
+		boolean displayEmptyGroups = ce.isDisplayEmptyGroups();
+
 		Collection<Group> groups = currentSite.getGroups();
 		for (Group group : groups)
 		{
 			if (group.getProperties().getProperty("sections_category") == null)
 			{
-				String groupName = group.getTitle();
-				String groupId = group.getId();
-				roles.add(new EmailRole(groupId, groupId, groupName, groupName,
-						EmailRole.Type.GROUP));
+				boolean emptyGroup = group.getMembers().isEmpty();
+				if (displayEmptyGroups || !emptyGroup) {
+					String groupName = group.getTitle();
+					String groupId = group.getId();
+					roles.add(new EmailRole(groupId, groupId, groupName, groupName,
+							EmailRole.Type.GROUP));
+				}
 			}
 		}
-		Collections.sort(roles, new EmailRoleComparator(EmailRoleComparator.SORT_BY.PLURAL));
+		roles.sort(new EmailRoleComparator(EmailRoleComparator.SORT_BY.PLURAL));
 		return roles;
 	}
 
@@ -195,18 +193,24 @@ public class ComposeLogicImpl implements ComposeLogic
 		ArrayList<EmailRole> roles = new ArrayList<EmailRole>();
 		Site currentSite = currentSite();
 
+		ConfigEntry ce = configLogic.getConfig();
+		boolean displayEmptyGroups = ce.isDisplayEmptyGroups();
+
 		Collection<Group> groups = currentSite.getGroups();
 		for (Group group : groups)
 		{
 			if (group.getProperties().getProperty("sections_category") != null)
 			{
-				String groupName = group.getTitle();
-				String groupId = group.getId();
-				roles.add(new EmailRole(groupId, groupId, groupName, groupName,
-						EmailRole.Type.SECTION));
+				boolean emptyGroup = group.getMembers().isEmpty();
+				if (displayEmptyGroups || !emptyGroup) {
+					String groupName = group.getTitle();
+					String groupId = group.getId();
+					roles.add(new EmailRole(groupId, groupId, groupName, groupName,
+							EmailRole.Type.SECTION));
+				}
 			}
 		}
-		Collections.sort(roles, new EmailRoleComparator(EmailRoleComparator.SORT_BY.PLURAL));
+		roles.sort(new EmailRoleComparator(EmailRoleComparator.SORT_BY.PLURAL));
 		return roles;
 	}
 
@@ -225,21 +229,17 @@ public class ComposeLogicImpl implements ComposeLogic
 			String realmId = externalLogic.getSiteRealmID();
 			AuthzGroup arole = authzGroupService.getAuthzGroup(realmId);
 
-			for (Iterator<?> i = arole.getRoles().iterator(); i.hasNext();)
-			{
-				Role r = (Role) i.next();
-				String rolename = r.getId();
-				for (int t = 0; t < gartokens.length; t++)
-				{
-					if (gartokens[t].trim().equals(rolename.trim()))
-					{
-						retval = rolename;
-						break;
-					}
-				}
-				if (retval != null)
-					break;
-			}
+            for (Role r : arole.getRoles()) {
+                String rolename = r.getId();
+                for (String gartoken : gartokens) {
+                    if (gartoken.trim().equals(rolename.trim())) {
+                        retval = rolename;
+                        break;
+                    }
+                }
+                if (retval != null)
+                    break;
+            }
 		}
 		catch (GroupNotDefinedException e)
 		{
@@ -271,12 +271,11 @@ public class ComposeLogicImpl implements ComposeLogic
 		return defaultRole;
 	}
 
-	public List<User> getUsers() throws IdUnusedException
+	@Override
+    public List<User> getUsers() throws IdUnusedException
 	{
-		ArrayList<User> users = new ArrayList<User>();
 		Set<String> userIds = getUserIds();
-		compileUsers(users, userIds);
-		return users;
+		return getSortedUsers(userIds);
 	}
 
 	protected Set<String> getUserIds() throws IdUnusedException
@@ -295,12 +294,11 @@ public class ComposeLogicImpl implements ComposeLogic
 	 * 
 	 * @see org.sakaiproject.mailsender.logic.ComposeLogic#getUsersByRole(String)
 	 */
-	public List<User> getUsersByRole(String role) throws IdUnusedException
+	@Override
+    public List<User> getUsersByRole(String role) throws IdUnusedException
 	{
-		ArrayList<User> users = new ArrayList<User>();
 		Set<String> userIds = getUserIdsByRole(role);
-		compileUsers(users, userIds);
-		return users;
+		return getSortedUsers(userIds);
 	}
 
 	protected Set<String> getUserIdsByRole(String role) throws IdUnusedException
@@ -339,12 +337,11 @@ public class ComposeLogicImpl implements ComposeLogic
 	 * 
 	 * @see org.sakaiproject.mailsender.logic.ComposeLogic#getUsersByGroup(String)
 	 */
-	public List<User> getUsersByGroup(String groupId) throws IdUnusedException
+	@Override
+    public List<User> getUsersByGroup(String groupId) throws IdUnusedException
 	{
-		ArrayList<User> users = new ArrayList<User>();
 		Set<String> userIds = getUserIdsByGroup(groupId);
-		compileUsers(users, userIds);
-		return users;
+		return getSortedUsers(userIds);
 	}
 
 	protected Set<String> getUserIdsByGroup(String groupId) throws IdUnusedException
@@ -357,6 +354,16 @@ public class ComposeLogicImpl implements ComposeLogic
 		// to save repeating the logic in the presentation layer.
 		userIds.remove(curUser);
 		return userIds;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @see org.sakaiproject.mailsender.logic.ComposeLogic#getMaxUploadFileSize()
+	 */
+	public int getMaxUploadFileSize()
+	{
+		return serverConfigurationService.getInt(EmailService.MAIL_SENDFROMSAKAI_MAXSIZE, EmailService.DEFAULT_MAXSIZE);
 	}
 
 	/**
@@ -381,7 +388,7 @@ public class ComposeLogicImpl implements ComposeLogic
 
 	/**
 	 * Dependency injection method
-	 * 
+	 *
 	 * @param ss
 	 */
 	public void setSiteService(SiteService ss)
@@ -439,6 +446,15 @@ public class ComposeLogicImpl implements ComposeLogic
 	}
 
 	/**
+	 * Dependency injection method
+	 *
+	 * @param configLogic
+	 */
+	public void setConfigLogic(ConfigLogic configLogic) {
+		this.configLogic = configLogic;
+	}
+
+	/**
 	 * Inject method for setting any roles that should be ignored.
 	 *
 	 * @param ignoreRoles
@@ -464,30 +480,17 @@ public class ComposeLogicImpl implements ComposeLogic
 	protected Site currentSite() throws IdUnusedException
 	{
 		String siteId = externalLogic.getSiteID();
-		Site currentSite = siteService.getSite(siteId);
-		return currentSite;
+        return siteService.getSite(siteId);
 	}
 
 	/**
-	 * Compile a list of users based on user IDs. Does not include the current user.
-	 * 
-	 * @param users
-	 * @param userIds
+	 * Compile a list of users based on user IDs. Invalid users are not included.
 	 */
-	private void compileUsers(ArrayList<User> users, Set<String> userIds)
+	private List<User> getSortedUsers(Set<String> userIds)
 	{
-		for (String userId : userIds)
-		{
-			try
-			{
-				users.add(userDirectoryService.getUser(userId));
-			}
-			catch (UserNotDefinedException e)
-			{
-				log.warn("Unable to retrieve user: " + userId);
-			}
-		}
-		Collections.sort(users, new UserSortNameComparator());
+		List<User> users = this.userDirectoryService.getUsers(userIds);
+		users.sort(new UserSortNameComparator());
+		return users;
 	}
 
 	/**

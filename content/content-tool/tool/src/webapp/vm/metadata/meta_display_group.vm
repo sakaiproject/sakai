@@ -13,16 +13,16 @@
 $groupMetadataType.add($groupMetadataLevel, $metadataType)
 $groupMetadataValue.add($groupMetadataLevel, $metadataValue)
 
-<div id="${metadataType.uniqueName}${suffix}-panel" class="panel panel-default">
+<div id="${metadataType.uniqueName}${suffix}-panel" class="card">
     <div class="panel-heading container-fluid">
         <h4 class="panel-title">
-            <a data-toggle="collapse" data-target="#metadataDiv_${metadataType.uniqueName}${suffix}" href="#metadataDiv_${metadataType.uniqueName}${suffix}">
+            <a data-bs-toggle="collapse" data-bs-target="#metadataDiv_${metadataType.uniqueName}${suffix}" href="#metadataDiv_${metadataType.uniqueName}${suffix}">
               #printMetadataName($metadataType)
             </a>
         </h4>
     </div>
     <div id="metadataDiv_${metadataType.uniqueName}${suffix}" class="panel-collapse collapse">
-        <div class="panel-body">
+        <div class="card-body">
           #foreach($metadataType in $groupMetadataType.get($groupMetadataLevel).metadataTypes)
           ## The #set directive is ignored if the value given evaluates to null, to avoid keeping old values
           ## an empty string is set.

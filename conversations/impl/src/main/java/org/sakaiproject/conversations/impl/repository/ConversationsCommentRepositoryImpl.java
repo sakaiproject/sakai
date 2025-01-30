@@ -43,7 +43,7 @@ public class ConversationsCommentRepositoryImpl extends SpringCrudRepositoryImpl
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaQuery<ConversationsComment> query = cb.createQuery(ConversationsComment.class);
         Root<ConversationsComment> comment = query.from(ConversationsComment.class);
-        query.where(cb.equal(comment.get("postId"), postId))
+        query.where(cb.equal(comment.get("post").get("id"), postId))
             .orderBy(cb.desc(comment.get("metadata").get("created")));
 
         return session.createQuery(query).list();
@@ -70,7 +70,7 @@ public class ConversationsCommentRepositoryImpl extends SpringCrudRepositoryImpl
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaDelete<ConversationsComment> delete = cb.createCriteriaDelete(ConversationsComment.class);
         Root<ConversationsComment> comment = delete.from(ConversationsComment.class);
-        delete.where(cb.equal(comment.get("postId"), postId));
+        delete.where(cb.equal(comment.get("post").get("id"), postId));
 
         return session.createQuery(delete).executeUpdate();
     }
@@ -83,7 +83,7 @@ public class ConversationsCommentRepositoryImpl extends SpringCrudRepositoryImpl
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaUpdate<ConversationsComment> update = cb.createCriteriaUpdate(ConversationsComment.class);
         Root<ConversationsComment> comment = update.from(ConversationsComment.class);
-        update.set("locked", locked).where(cb.equal(comment.get("postId"), postId));
+        update.set("locked", locked).where(cb.equal(comment.get("post").get("id"), postId));
         return session.createQuery(update).executeUpdate();
     }
 
@@ -107,7 +107,7 @@ public class ConversationsCommentRepositoryImpl extends SpringCrudRepositoryImpl
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaDelete<ConversationsComment> delete = cb.createCriteriaDelete(ConversationsComment.class);
         Root<ConversationsComment> comment = delete.from(ConversationsComment.class);
-        delete.where(cb.equal(comment.get("topicId"), topicId));
+        delete.where(cb.equal(comment.get("topic").get("id"), topicId));
 
         return session.createQuery(delete).executeUpdate();
     }

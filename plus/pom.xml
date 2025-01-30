@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.sakaiproject</groupId>
+    <artifactId>master</artifactId>
+    <version>25-SNAPSHOT</version>
+    <relativePath>../master/pom.xml</relativePath>
+  </parent>
+
+  <name>SakaiPlus LTI Advantage Provider</name>
+  <groupId>org.sakaiproject.plus</groupId>
+  <artifactId>sakai-plus-base</artifactId>
+  <version>25-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <modules>
+    <module>api</module>
+    <module>impl</module>
+    <module>provider</module>
+    <module>tool</module>
+  </modules>
+
+  <build>
+    <sourceDirectory>src/main/java</sourceDirectory>
+    <resources>
+        <resource>
+            <directory>${basedir}/src/main/resources</directory>
+            <includes>
+                <include>**/*</include>
+            </includes>
+        </resource>
+    </resources>
+    <plugins>
+      <plugin>
+        <artifactId>maven-war-plugin</artifactId>
+        <configuration>
+          <warSourceDirectory>src/main/webapp</warSourceDirectory>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.sakaiproject.plus</groupId>
+        <artifactId>sakai-plus-api</artifactId>
+        <version>${project.version}</version>
+        <scope>provided</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+</project>

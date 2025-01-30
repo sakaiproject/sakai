@@ -48,7 +48,7 @@
     <!-- The single space in this regex is from KNL-1346 -->
 
     <regexp name="onsiteURL" value="([\p{L}\p{N}\\\.\#@\$% \+&amp;;\-_~,\?=/!]+|\#(\w)+)" />
-    <regexp name="offsiteURL" value="(\s)*((ht|f)tp(s?)://|mailto:)[\p{L}\p{N}]+[\p{L}\p{N}\p{Zs}\.\#@\$% \+&amp;;:\-_~,\?=/!\(\)]*(\s)*" />
+    <regexp name="offsiteURL" value="(\s)*((ht|f)tp(s?)://|mailto:|tel:)[\p{L}\p{N}]+[\p{L}\p{N}\p{Zs}\.\#@\$% \+&amp;;:\-_~,\?=/!\(\)]*(\s)*" />
 
     <regexp name="boolean" value="^$|(true|false)" />
     <regexp name="singlePrintable" value="[a-zA-Z0-9]{1}" /> <!-- \w allows the '_' character -->
@@ -1083,6 +1083,13 @@
                  <regexp name="anything"/>
              </regexp-list>
          </attribute>
+
+         <attribute name="sandbox" description="The sandbox attribute enables an extra set of restrictions for the content in the iframe.">
+            <regexp-list>
+                <regexp name="anything" />
+            </regexp-list>
+         </attribute>
+
     </common-attributes>
 
     <!--
@@ -1162,6 +1169,11 @@
             <attribute name="mozallowfullscreen">
                 <regexp-list>
                     <regexp name="boolean"/>
+                </regexp-list>
+            </attribute>
+            <attribute name="sandbox">
+                <regexp-list>
+                    <regexp name="anything"/>
                 </regexp-list>
             </attribute>
         </tag>
@@ -2716,6 +2728,21 @@
                 <literal value="inherit"/>
             </literal-list>
         </property>
+
+        <property name="background-size" description="If a background image is specified, this property specifies how the image is sized.">
+            <literal-list>
+                <literal value="auto"/>
+                <literal value="cover"/>
+                <literal value="contain"/>
+                <literal value="initial"/>
+                <literal value="inherit"/>
+            </literal-list>
+            <regexp-list>
+                <regexp name="length"/>
+                <regexp name="percentage"/>
+            </regexp-list>
+        </property>
+
 
         <!-- Begin simple properties -->
         <property name="border-collapse" default="collapse" description="">

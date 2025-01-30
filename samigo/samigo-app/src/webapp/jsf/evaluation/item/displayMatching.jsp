@@ -29,8 +29,8 @@ include file for displaying matching questions
    <h:outputText value="#{itemText.sequence}#{evaluationMessages.dot} #{itemText.text}" escape="false" />
    <h:dataTable value="#{itemText.answerArrayWithDistractorSorted}" var="answer">
      <h:column>
-       <h:outputText value="" rendered="#{answer.isCorrect}" title="#{evaluationMessages.alt_correct}" styleClass="icon-sakai--check feedBackCheck" />
-       <h:outputText value="" rendered="#{!answer.isCorrect}" title="#{evaluationMessages.alt_incorrect}" styleClass="icon-sakai--delete feedBackCross" />
+       <h:outputText value="" rendered="#{answer.isCorrect}" title="#{evaluationMessages.alt_correct}" styleClass="si si-check-lg" />
+       <h:outputText value="" rendered="#{!answer.isCorrect}" title="#{evaluationMessages.alt_incorrect}" styleClass="si si-remove feedBackCross" />
      </h:column>
      <h:column>
 		 <h:outputText value="#{evaluationMessages.none_above}" rendered="#{answer.text eq 'none_above'}" />	

@@ -48,7 +48,7 @@ public class ErrorPage extends BasePage {
 		final String code = RandomStringUtils.randomAlphanumeric(10);
 		log.error("User supplied error code for the above stacktrace: {}", code);
 
-		final Label error = new Label("error", new StringResourceModel("errorpage.text", null, new Object[] { code }));
+		final Label error = new Label("error", new StringResourceModel("errorpage.text").setParameters(code));
 		error.setEscapeModelStrings(false);
 		add(error);
 

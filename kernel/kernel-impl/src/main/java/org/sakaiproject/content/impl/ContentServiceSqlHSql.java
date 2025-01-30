@@ -26,46 +26,6 @@ package org.sakaiproject.content.impl;
  */
 public class ContentServiceSqlHSql extends ContentServiceSqlDefault
 {
-	/**
-	 * returns the sql statement to add the FILE_SIZE column to the CONTENT_RESOURCE table.
-	 */
-	public String getAddFilesizeColumnSql(String table)
-	{
-		return "alter table " + table + " add FILE_SIZE BIGINT default null";
-	}
-
-	/**
-	 * returns the sql statement to add the CONTEXT column to the CONTENT_RESOURCE table.
-	 */
-	public String getAddContextColumnSql(String table)
-	{
-		return "alter table " + table + " add CONTEXT VARCHAR(99) default null";
-	}
-
-	/**
-	 * returns the sql statement to add the RESOURCE_TYPE_ID column to the specified table.
-	 */
-	public String getAddResourceTypeColumnSql(String table)
-	{
-		return "alter table " + table + " add RESOURCE_TYPE_ID VARCHAR(255) default null"; 
-	}
-	
-	/**
-	 * returns the sql statement to add an index of the CONTENT column to the CONTENT_RESOURCE table.
-	 */
-	public String getAddContextIndexSql(String table)
-	{
-		return "create index " + table.trim() + "_CONTEXT_INDEX on " + table + " (CONTEXT)";
-	}
-	
-	/**
-	 * The default sql uses "show columns" to determine whetherthe file_size column exists.  HSQL does not support "show columns".
-	 * This will throw an SQL exception.  The method that uses this SQL should catch the exception and handle it appropriately.
-	 */
-	public String getFilesizeColumnExistsSql() 
-	{
-		return "show columns from CONTENT_RESOURCE like 'FILE_SIZE'";
-	}
 	
 	/**
 	 * returns the sql statement which inserts the individual-dropbox-id, site-level dropbox-id and last-update fields into the content_dropbox_changes table.

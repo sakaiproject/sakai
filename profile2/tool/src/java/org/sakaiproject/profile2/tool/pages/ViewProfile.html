@@ -26,61 +26,26 @@
 <body>
 <wicket:extend>
 	
-	<div id="pageWrapper" class="container-fluid">
+	<div id="pageWrapper" class="container pt-3">
 	<div class="row">
 	
 		<div id="leftPanel" class="col-md-3">
-	    	<div id="myPhoto">
-	    		<img wicket:id="photo" />
-	    	</div>
-	    	
-	    	<ul id="sideLink" wicket:id="sideLinks">
-	    		<li wicket:id="addFriendContainer"><a wicket:id="addFriendLink" class="connection-add"><span wicket:id="addFriendLabel">[addFriendLabel]</span></a></li>
-	    	</ul>
-	    	
-	    	<div wicket:id="addFriendWindow"></div>
-	    	
-	    	<!--  kudos -->
-	    	<div class="side-widget" wicket:id="myKudos" />
-	    	
-	    	<!--  friends feed -->
-	    	<div class="side-widget" wicket:id="friendsFeed" />
-	    	
-	    	<!-- gallery feed -->
-	    	<div class="side-widget" wicket:id="galleryFeed" />
-	    </div>
+			<div id="myPhoto">
+				<sakai-user-photo wicket:id="photo" classes="medium"></sakai-user-photo>
+			</div>
+		</div>
 		
 		<div id="mainPanel" class="col-md-9">
 			
 			<!--  heading/status panel -->
 			<div id="profileHeading">
-		    	<span id="profileHeadingName" wicket:id="profileName">[profileName]</span>
-		    	<span wicket:id="online" class="presence-indicator">[online indicator here]</span>
-		    	<div wicket:id="status" class="view-status-msg">[status here]</div>
-		    	
-		    	
-		    	<!-- tabs -->
-				<div class="main-profile-tabpanel" wicket:id="viewProfileTabs">[view profile tabs]</div>
+		    	<h2 id="profileHeadingName" wicket:id="profileName">[profileName]</h2>
+				<div wicket:id="viewProfilePanel">[view profile panel]</div>
 		    </div>
 		</div>
 	</div>
 	</div>
 	
-	<!--  general ViewProfile scripting  -->
-	<script type="text/javascript">
-
-		//init
-		$(document).ready(function(){ 
-			//resize iframe
-			setMainFrameHeight(window.name);
-
-			//online presence tooltip
-			$('.sakai-wicket-onlinepresence').qtip();	
-			
-			
-		});
-
-	</script>
 	
 </wicket:extend>
 </body>

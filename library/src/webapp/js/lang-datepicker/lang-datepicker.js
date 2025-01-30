@@ -19,6 +19,8 @@
 */
 (function($) {
 $.datepicker.regional['af'] = {
+openDatepicker: '',
+datepickerOpened: '',
 closeText: 'Selekteer',
 prevText: 'Vorige',
 nextText: 'Volgende',
@@ -37,6 +39,8 @@ isRTL: false,
 showMonthAfterYear: false,
 yearSuffix: ''};
 $.datepicker.regional['ar-DZ'] = {
+openDatepicker: 'Open Datepicker',
+datepickerOpened: 'Datepicker opened',
 closeText: 'إغلاق',
 prevText: '&#x3C;السابق',
 nextText: 'التالي&#x3E;',
@@ -54,6 +58,8 @@ isRTL: true,
 showMonthAfterYear: false,
 yearSuffix: ''};
 $.datepicker.regional['ar'] = {
+openDatepicker: 'Open Datepicker',
+datepickerOpened: 'Datepicker opened',
 closeText: 'إغلاق',
 prevText: '&#x3C;السابق',
 nextText: 'التالي&#x3E;',
@@ -71,6 +77,8 @@ isRTL: true,
 showMonthAfterYear: false,
 yearSuffix: ''};
 $.datepicker.regional['az'] = {
+openDatepicker: 'Open Datepicker',
+datepickerOpened: 'Datepicker opened',
 closeText: 'Bağla',
 prevText: '&#x3C;Geri',
 nextText: 'İrəli&#x3E;',
@@ -216,6 +224,8 @@ isRTL: false,
 showMonthAfterYear: false,
 yearSuffix: ''};
 $.datepicker.regional['de'] = {
+openDatepicker: 'Datepicker öffnen',
+datepickerOpened: 'Datepicker geöffnet',
 closeText: 'Schließen',
 prevText: '&#x3C;Zurück',
 nextText: 'Vor&#x3E;',
@@ -252,6 +262,7 @@ isRTL: false,
 showMonthAfterYear: false,
 yearSuffix: ''};
 $.datepicker.regional['en-AU'] = {
+openDatepicker: 'Open Datepicker',
 closeText: 'Done',
 prevText: 'Prev',
 nextText: 'Next',
@@ -270,6 +281,7 @@ isRTL: false,
 showMonthAfterYear: false,
 yearSuffix: ''};
 $.datepicker.regional['en-GB'] = {
+openDatepicker: 'Open Datepicker',
 closeText: 'Done',
 prevText: 'Prev',
 nextText: 'Next',
@@ -324,6 +336,7 @@ isRTL: false,
 showMonthAfterYear: false,
 yearSuffix: ''};
 $.datepicker.regional['eo'] = {
+openDatepicker: 'Open Datepicker',
 closeText: 'Fermi',
 prevText: '&#x3C;Anta',
 nextText: 'Sekv&#x3E;',
@@ -342,6 +355,8 @@ isRTL: false,
 showMonthAfterYear: false,
 yearSuffix: ''};
 $.datepicker.regional['es'] = {
+openDatepicker: 'Abrir calendario',
+datepickerOpened: 'Calendario abierto',
 closeText: 'Cerrar',
 prevText: '&#x3C;Ant',
 nextText: 'Sig&#x3E;',
@@ -378,6 +393,7 @@ isRTL: false,
 showMonthAfterYear: false,
 yearSuffix: ''};
 $.datepicker.regional['eu'] = {
+openDatepicker: 'Open Datepicker',
 closeText: 'Egina',
 prevText: '&#x3C;Aur',
 nextText: 'Hur&#x3E;',
@@ -522,6 +538,8 @@ isRTL: false,
 showMonthAfterYear: false,
 yearSuffix: ''};
 $.datepicker.regional['fr'] = {
+openDatepicker: 'Ouvrir le calendrier',
+datepickerOpened: 'Calendrier ouvert',
 closeText: 'Fermer',
 prevText: 'Précédent',
 nextText: 'Suivant',
@@ -576,6 +594,8 @@ isRTL: true,
 showMonthAfterYear: false,
 yearSuffix: ''};
 $.datepicker.regional['hi'] = {
+openDatepicker: 'डेट पिकर खोलें',
+datepickerOpened: 'डेट पिकर खोला गया',
 closeText: 'बंद',
 prevText: 'पिछला',
 nextText: 'अगला',
@@ -720,6 +740,8 @@ isRTL: false,
 showMonthAfterYear: false,
 yearSuffix: ''};
 $.datepicker.regional['ja'] = {
+openDatepicker: '日付ピッカーを開く',
+datepickerOpened: '日付ピッカーが開いた',
 closeText: '閉じる',
 prevText: '&#x3C;前',
 nextText: '次&#x3E;',
@@ -1110,6 +1132,8 @@ isRTL: false,
 showMonthAfterYear: false,
 yearSuffix: ''};
 $.datepicker.regional['ru'] = {
+openDatepicker: 'Открыть календарь',
+datepickerOpened: 'Календарь открыт',
 closeText: 'Закрыть',
 prevText: '&#x3C;Пред',
 nextText: 'След&#x3E;',
@@ -1344,6 +1368,8 @@ isRTL: false,
 showMonthAfterYear: false,
 yearSuffix: ''};
 $.datepicker.regional['zh-CN'] = {
+openDatepicker: '打开日历',
+datepickerOpened: '日历已打开',
 closeText: '关闭',
 prevText: '&#x3C;上月',
 nextText: '下月&#x3E;',
@@ -1435,6 +1461,14 @@ if(c&&c._defaults.timeOnly&&b.input.val()!==b.lastVal)try{$.datepicker._updateDa
  *  jquery.ui.mouse.js
  */
 !function(a){function f(a,b){if(!(a.originalEvent.touches.length>1)){a.preventDefault();var c=a.originalEvent.changedTouches[0],d=document.createEvent("MouseEvents");d.initMouseEvent(b,!0,!0,window,1,c.screenX,c.screenY,c.clientX,c.clientY,!1,!1,!1,!1,0,null),a.target.dispatchEvent(d)}}if(a.support.touch="ontouchend"in document,a.support.touch){var e,b=a.ui.mouse.prototype,c=b._mouseInit,d=b._mouseDestroy;b._touchStart=function(a){var b=this;!e&&b._mouseCapture(a.originalEvent.changedTouches[0])&&(e=!0,b._touchMoved=!1,f(a,"mouseover"),f(a,"mousemove"),f(a,"mousedown"))},b._touchMove=function(a){e&&(this._touchMoved=!0,f(a,"mousemove"))},b._touchEnd=function(a){e&&(f(a,"mouseup"),f(a,"mouseout"),this._touchMoved||f(a,"click"),e=!1)},b._mouseInit=function(){var b=this;b.element.bind({touchstart:a.proxy(b,"_touchStart"),touchmove:a.proxy(b,"_touchMove"),touchend:a.proxy(b,"_touchEnd")}),c.call(b)},b._mouseDestroy=function(){var b=this;b.element.unbind({touchstart:a.proxy(b,"_touchStart"),touchmove:a.proxy(b,"_touchMove"),touchend:a.proxy(b,"_touchEnd")}),d.call(b)}}}(jQuery);
+
+$.datepicker._updateDatepicker_original = $.datepicker._updateDatepicker;
+$.datepicker._updateDatepicker = function(inst) {
+	$.datepicker._updateDatepicker_original(inst);
+	const afterShow = this._get(inst, 'afterShow');
+	if (afterShow) afterShow.apply((inst.input ? inst.input[0] : null));  // trigger custom callback
+};
+
 
 $.datepicker._getPreferredSakaiDatetime = function () {
 
@@ -1549,12 +1583,13 @@ $.datepicker._gotoToday = function (id) {
 		// This is the instance of the dateTimePicker
 		var localDTPicker;
 
-		cfg.showOn = (options.icon === 0) ? "focus" : "both";
+		cfg.showOn = (options.icon === 0) ? "focus" : "button";
+                cfg.constrainInput = true;
 		//Use an image instead of font-awesome
 		//cfg.buttonImage = (options.icon === 0) ? null : "/library/image/silk/calendar.png";
 		//cfg.buttonImageOnly = true;
 		//Use font-awesome instead of an image
-		cfg.buttonText = (options.icon === 0) ? null : "<span class='fa fa-calendar' aria-hidden='true'></span>";
+		cfg.buttonText = (options.icon === 0) ? null : "<span class='bi bi-calendar' aria-hidden='true'></span>";
 
 		cfg.stepMinute = options.stepMinute;
 		cfg.altField = options.altField;
@@ -1570,10 +1605,33 @@ $.datepicker._gotoToday = function (id) {
 		cfg.changeMonth = true;
 		cfg.changeYear = true;
 
-		// add blur event to allow edit input field
-		cfg.beforeShow = function(input, inst) {
-			$(input).unbind('blur');
-			$(input).on('blur', function(){
+		cfg.afterShow = function() {
+                                setTimeout( function() {
+                                        $('.ui-datepicker-month').focus();
+                                        $('#ui-datepicker-div').attr('firstLoad', true);
+                                }, 100);
+                };
+
+
+
+                // on select, runs our custom method for setting dates
+                cfg.onSelect = function(dtObj, dpInst) {
+                        setHiddenFields($(this).datepicker("getDate"), options, dpInst);
+                        if (options.onDateTimeSelected) {
+                                options.onDateTimeSelected(moment($(this).datepicker("getDate")).valueOf());
+                        }
+                };
+
+                // When the picker allows empty dates, it should detect when the date is removed from the input, and update the hidden value.
+                cfg.onClose = function(dtObj, dpInst) {
+                        if (dtObj === '' && options.allowEmptyDate){
+                                setHiddenFields($(this).datepicker("getDate"), options, dpInst);
+                        }
+                };
+                var setBlur = function(input) {
+                        let inp = $(input);
+			inp.unbind('blur');
+			inp.on('blur', function(){
 				var momentDateFormat = $(this).datepicker("option","dateFormat").replace('yy','yyyy').toUpperCase();
 				var momentTimeFormat = $(this).datepicker("option","timeFormat").replace('tt','a');
 				var mc = moment($(input).val(),momentDateFormat+' '+momentTimeFormat);
@@ -1587,27 +1645,22 @@ $.datepicker._gotoToday = function (id) {
 					var stringDay = $.datepicker.formatDate($(this).datepicker("option","dateFormat"),mh.toDate());
 					var stringTime = $.datepicker.formatTime($(this).datepicker("option","timeFormat"),{hour:mh.format("HH"),minute:mh.format("mm")});
 					if(cfg.showTimepicker){
-						$(input).val(stringDay + ' ' + stringTime);
+						inp.val(stringDay + ' ' + stringTime);
 					} else {
-						$(input).val(stringDay);
+						inp.val(stringDay);
 					}
 				}
+				// Set hidden field to null if allowed
+                                if (options.allowEmptyDate && inp.val() == "") {
+                                        setHiddenFields("", options, input);
+                                }
 			});
-		};
-		// on select, runs our custom method for setting dates
-		cfg.onSelect = function(dtObj, dpInst) {
-			setHiddenFields($(this).datepicker("getDate"), options, dpInst);
-      if (options.onDateTimeSelected) {
-        options.onDateTimeSelected(moment($(this).datepicker("getDate")).valueOf());
-      }
-		};
+                }
 
-		// When the picker allows empty dates, it should detect when the date is removed from the input, and update the hidden value.
-		cfg.onClose = function(dtObj, dpInst) {
-			if (dtObj == '' && options.allowEmptyDate){
-				setHiddenFields($(this).datepicker("getDate"), options, dpInst);
-			}
-		};
+                if (options.ashidden) {
+                        setBlur(options.input);
+                }
+
 
 		/**
 		 * takes a date string and parses it using the moment.js library
@@ -1697,7 +1750,7 @@ $.datepicker._gotoToday = function (id) {
 				jQuery.each(o.ashidden, function(i, h) {
 					var oldValue = jQuery('#' + h).val();
 					var newValue = '';
-					if(d != null){
+					if(d){
 						switch(i) {
 							case "month":
 							  newValue = d.getMonth() + 1;
@@ -1721,6 +1774,13 @@ $.datepicker._gotoToday = function (id) {
 							  newValue = moment(d).format();
 							  break;
 						}
+                                        } else if (d === "") {
+                                             newValue = null;
+                                        }
+                                        // If oldvalue is empty, we need to update the hidden field twice, to unlock the submit
+                                        // button in datemanager
+                                        if (oldValue === '' && newValue != '') {
+                                             jQuery('#' + h).change();
 					}
 					jQuery('#' + h).val(newValue);
 					// If new value is different from the previous one, launch change event on hidden input
@@ -1816,8 +1876,34 @@ $.datepicker._gotoToday = function (id) {
 			// set the initial date for the picker
 			initDateTime();
 
-			// instantiate datetimepicker
+			// Instantiate datetimepicker
 			localDTPicker = $(options.input).css('min-width','200px').datetimepicker(cfg);
+
+			const openDatepickerLabel = $.datepicker._defaults['openDatepicker'] || 'Open Datepicker';
+			$(options.input).next('.ui-datepicker-trigger').attr('aria-label', openDatepickerLabel);
+			
+			const ariaLiveDiv = $('<div>', {
+				id: 'datepicker-aria-live',
+				'aria-live': 'polite',
+				'class': 'visually-hidden'
+			}).appendTo('body');
+			
+			$(options.input).next('.ui-datepicker-trigger')
+				.attr('aria-haspopup', 'true')
+				.attr('aria-expanded', 'false');
+			
+			const observer = new MutationObserver(mutations => {
+				mutations.forEach(mutation => {
+					if (mutation.attributeName !== 'style') return;
+			
+					const isDatePickerExpanded = $('#ui-datepicker-div').css('display') !== 'none';
+			
+					$(options.input).next('.ui-datepicker-trigger').attr('aria-expanded', isDatePickerExpanded);
+					ariaLiveDiv.text(isDatePickerExpanded ? ($.datepicker._defaults['datepickerOpened'] || 'Date picker is opened') : "");
+				});
+			});
+			
+			observer.observe(document.getElementById('ui-datepicker-div'), { attributes: true });			
 
 			if ((localDate != "") || (!(options.allowEmptyDate))){
 				// set the datepicker date if we've got a pre-set value
@@ -1916,4 +2002,3 @@ SDP.initSakaiDatePicker = function(inputField, value, useTime, allowEmptyDate)
         ashidden: { iso8601: inputField+'ISO8601' }
     });
 };
-

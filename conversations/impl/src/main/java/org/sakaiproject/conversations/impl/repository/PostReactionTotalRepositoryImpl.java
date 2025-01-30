@@ -42,7 +42,7 @@ public class PostReactionTotalRepositoryImpl extends SpringCrudRepositoryImpl<Po
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaQuery<PostReactionTotal> query = cb.createQuery(PostReactionTotal.class);
         Root<PostReactionTotal> total = query.from(PostReactionTotal.class);
-        query.where(cb.equal(total.get("postId"), postId));
+        query.where(cb.equal(total.get("post").get("id"), postId), cb.greaterThan(total.get("total"), 0L));
 
         return session.createQuery(query).list();
     }
@@ -55,7 +55,7 @@ public class PostReactionTotalRepositoryImpl extends SpringCrudRepositoryImpl<Po
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaQuery<PostReactionTotal> query = cb.createQuery(PostReactionTotal.class);
         Root<PostReactionTotal> total = query.from(PostReactionTotal.class);
-        query.where(cb.and(cb.equal(total.get("reaction"), reaction), cb.equal(total.get("postId"), postId)));
+        query.where(cb.and(cb.equal(total.get("reaction"), reaction), cb.equal(total.get("post").get("id"), postId)));
 
         return session.createQuery(query).uniqueResultOptional();
     }
@@ -68,7 +68,7 @@ public class PostReactionTotalRepositoryImpl extends SpringCrudRepositoryImpl<Po
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaDelete<PostReactionTotal> delete = cb.createCriteriaDelete(PostReactionTotal.class);
         Root<PostReactionTotal> total = delete.from(PostReactionTotal.class);
-        delete.where(cb.equal(total.get("postId"), postId));
+        delete.where(cb.equal(total.get("post").get("id"), postId));
 
         return session.createQuery(delete).executeUpdate();
     }

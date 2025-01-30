@@ -129,15 +129,6 @@ public class ExtractionHelper
   private String unzipLocation;
 
   /**
-   * @deprecated
-   */
-  public ExtractionHelper()
-  {
-    this.setQtiVersion(QTIVersion.VERSION_1_2);
-
-  }
-
-  /**
    * Get ExtractionHelper for QTIVersion.VERSION_1_2
    * or QTIVersion.VERSION_2_0
    * @param qtiVersion
@@ -1160,6 +1151,9 @@ public class ExtractionHelper
    */
   public void makeItemAttachmentSet(ItemFacade item)
   {
+	  Set<ItemAttachmentIfc> set = new HashSet<ItemAttachmentIfc>();
+	  item.setItemAttachmentSet(set);
+	  
 	  // if unzipLocation is null, there is no assessment attachment - no action is needed
 	  if (unzipLocation == null) {
 		  return;
@@ -1173,7 +1167,6 @@ public class ExtractionHelper
 
 	  ItemAttachmentIfc itemAttachment;
 	  String[] attachmentArray = attachment.split("\\n");
-	  Set<ItemAttachmentIfc> set = new HashSet<ItemAttachmentIfc>();
 	  AttachmentHelper attachmentHelper = new AttachmentHelper();
 	  AssessmentService assessmentService = new AssessmentService();
 	  for (int i = 0; i < attachmentArray.length; i++) {
@@ -1181,6 +1174,7 @@ public class ExtractionHelper
 		  String fullFilePath = unzipLocation + "/" + attachmentInfo[0];
 		  String filename = attachmentInfo[1];
 		  ContentResource contentResource = attachmentHelper.createContentResource(fullFilePath, filename, attachmentInfo[2]);
+		  // contentResource could be null but is OK (exception catched)
 		  itemAttachment = assessmentService.createItemAttachment(item, contentResource.getId(), filename, ServerConfigurationService.getServerUrl());
 		  itemAttachment.setItem(item.getData());
 		  set.add(itemAttachment);
@@ -1787,9 +1781,9 @@ public class ExtractionHelper
 
 	  }
 
-	  item.setGeneralItemFeedback(generalItemFeedback);
-	  item.setCorrectItemFeedback(correctItemFeedback);
-	  item.setInCorrectItemFeedback(incorrectItemFeedback);
+	  item.setGeneralItemFeedback(generalItemFeedback, generalItemFeedback);
+	  item.setCorrectItemFeedback(correctItemFeedback, correctItemFeedback);
+	  item.setInCorrectItemFeedback(incorrectItemFeedback, incorrectItemFeedback);
   }
 
   private void addFeedback(ItemFacade item, Map<String, String> map, Long typeId)
@@ -1797,34 +1791,39 @@ public class ExtractionHelper
 	  String correctItemFeedback = (String) map.get("correctItemFeedback");
 	  String incorrectItemFeedback = (String) map.get("incorrectItemFeedback");
 	  String generalItemFeedback = (String) map.get("generalItemFeedback");
+	  String updatedFeedback;
 
 	  if (generalItemFeedback==null) generalItemFeedback = "";
 	  if (TypeIfc.AUDIO_RECORDING.longValue() == typeId.longValue() ||
 			  TypeIfc.FILE_UPLOAD.longValue() == typeId.longValue() ||
 			  TypeIfc.ESSAY_QUESTION.longValue() == typeId.longValue())
 	  {
-		  if (notNullOrEmpty(incorrectItemFeedback))
+		  if (StringUtils.isNotEmpty(incorrectItemFeedback))
 		  {
 			  generalItemFeedback += " " + incorrectItemFeedback;
 		  }
-		  if (notNullOrEmpty(correctItemFeedback))
+		  if (StringUtils.isNotEmpty(correctItemFeedback))
 		  {
 			  generalItemFeedback += " " + correctItemFeedback;
 		  }
 	  }
 
-	  if (notNullOrEmpty(correctItemFeedback))
+	  if (StringUtils.isNotEmpty(correctItemFeedback))
 	  {
-		  item.setCorrectItemFeedback(makeFCKAttachment(correctItemFeedback));
+		  updatedFeedback = makeFCKAttachment(correctItemFeedback);
+		  item.setCorrectItemFeedback(updatedFeedback, updatedFeedback);
 	  }
-	  if (notNullOrEmpty(incorrectItemFeedback))
+	  if (StringUtils.isNotEmpty(incorrectItemFeedback))
 	  {
-		  item.setInCorrectItemFeedback(makeFCKAttachment(incorrectItemFeedback));
+		  updatedFeedback = makeFCKAttachment(incorrectItemFeedback);
+		  item.setInCorrectItemFeedback(updatedFeedback, updatedFeedback);
 	  }
-	  if (notNullOrEmpty(generalItemFeedback))
+	  if (StringUtils.isNotEmpty(generalItemFeedback))
 	  {
-		  item.setGeneralItemFeedback(makeFCKAttachment(generalItemFeedback));
+		  updatedFeedback = makeFCKAttachment(generalItemFeedback);
+		  item.setGeneralItemFeedback(updatedFeedback, updatedFeedback);
 	  }
+	  if (item.getItemFeedbackSet() == null) item.setItemFeedbackSet(new HashSet());
   }
   
   /**
@@ -1926,9 +1925,9 @@ public class ExtractionHelper
 						  {
 							  answerFeedback.setText(makeFCKAttachment(XmlUtil.processFormattedText((String) answerFeedbackList.get(sequence - 1))));
 							  set.add(answerFeedback);
-							  answer.setAnswerFeedbackSet(set);
 						  }
 					  }
+					  answer.setAnswerFeedbackSet(set);
 
 					  boolean MCSC=itemMap.get("itemIntrospect").equals("Multiple Choice");
 					  if(MCSC){
@@ -2814,7 +2813,7 @@ public class ExtractionHelper
    */
   private void addCalculatedQuestionAnswers(ItemFacade item, Map itemMap) {
       // we do not have access to the raw XML data, so this was the easiest way
-      // that I could think of to return the variable and formula information
+      // that I could think of to return the variable, globalvariable and formula information
       // in the itemMap.  The transform could do more, but XmlMapper.map function
       // is limited.  The variable lists should all be the same size, and the 
       // formula lists should all be the same size
@@ -2823,6 +2822,10 @@ public class ExtractionHelper
       List<String> variableMaxs = (List) itemMap.get("variableMaxs");
       List<String> variableDecimalPlaces = (List) itemMap.get("variableDecimalPlaces");
       
+      List<String> globalvariableNames = (itemMap.get("globalvariableNames") == null) ? new ArrayList<>() : (List<String>) itemMap.get("globalvariableNames");
+      List<String> globalvariableTexts = (itemMap.get("globalvariableTexts") == null) ? new ArrayList<>() : (List<String>) itemMap.get("globalvariableTexts");
+      List<String> globalvariableAddedButNotExtracted = (itemMap.get("globalvariableAddedButNotExtracted") == null) ? new ArrayList<>() : (List<String>) itemMap.get("globalvariableAddedButNotExtracted");
+
       List<String> formulaNames = (List) itemMap.get("formulaNames");
       List<String> formulaTexts = (List) itemMap.get("formulaTexts");
       List<String> formulaTolerances = (List) itemMap.get("formulaTolerances");
@@ -2838,20 +2841,21 @@ public class ExtractionHelper
           }
       }
       
-      // loops through variablenames and formulanames creates the entries for sam_itemtext_t
+      // loops through variablenames, glovalvariablenames and formulanames creates the entries for sam_itemtext_t
       // within those loops, create the entries for sam_answer_t
       // setIsCorrect() for variables will only be correct in the inner variable loop
       // setIsCorrect() for formulas will only be correct in the inner formula loop
+      // setIsCorrect() for global variables will only be correct in the inner global variables loop
       // this feels kludgy.  
       Set itemTextSet = new HashSet<ItemText>();
       
       // variable outer loop
       for (int i = 0; i < variableNames.size(); i++) {
-          char answerLabel = 'A';
           ItemText itemText = new ItemText();
           itemText.setText(variableNames.get(i));
           itemText.setItem(item.getData());
           itemText.setSequence(Long.valueOf(i + 1));
+          itemText.setAddedButNotExtracted(Boolean.FALSE);
           
           // associate answers with the text
           Set<AnswerIfc> answerSet = new HashSet<AnswerIfc>();
@@ -2863,7 +2867,7 @@ public class ExtractionHelper
               Answer answer = new Answer();
               answer.setItem(item.getData());
               answer.setItemText(itemText);
-              answer.setLabel("" + answerLabel++);
+              answer.setLabel(variableNames.get(j));
               answer.setText(varMin + "|" + varMax + "," + varDecimalPlaces);
               answer.setSequence(Long.valueOf(j + 1));
               // only a variable can be correct here, since we're comparing variables
@@ -2879,24 +2883,38 @@ public class ExtractionHelper
               Answer answer = new Answer();
               answer.setItem(item.getData());
               answer.setItemText(itemText);
-              answer.setLabel("" + answerLabel++);
+              answer.setLabel(formulaNames.get(j));
               answer.setText(forText + "|" + forTolerance + "," + forDecimalPlaces);
               answer.setSequence(Long.valueOf(variableNames.size() + j + 1));
               // no formulas will ever match here
               answer.setIsCorrect(Boolean.FALSE);
               answerSet.add(answer);              
           }
-          itemText.setAnswerSet(answerSet);          
+
+          for (int j = 0; j < globalvariableNames.size(); j++) {
+              String text = globalvariableTexts.get(j);
+
+              Answer answer = new Answer();
+              answer.setItem(item.getData());
+              answer.setItemText(itemText);
+              answer.setLabel(globalvariableNames.get(j));
+              answer.setText(text);
+              answer.setSequence(Long.valueOf(variableNames.size() + formulaNames.size() + j + 1));
+              // no global variables will ever match here
+              answer.setIsCorrect(Boolean.FALSE);
+              answerSet.add(answer);
+          }
+          itemText.setAnswerSet(answerSet);
           itemTextSet.add(itemText);
       }
       
       // formula outer loop
       for (int i = 0; i < formulaNames.size(); i++) {          
-          char answerLabel = 'A';
           ItemText itemText = new ItemText();
           itemText.setText(formulaNames.get(i));
           itemText.setItem(item.getData());
           itemText.setSequence(Long.valueOf(variableNames.size() + i + 1));
+          itemText.setAddedButNotExtracted(Boolean.FALSE);
           
           // associate answers with the text
           Set<AnswerIfc> answerSet = new HashSet<AnswerIfc>();
@@ -2908,7 +2926,7 @@ public class ExtractionHelper
               Answer answer = new Answer();
               answer.setItem(item.getData());
               answer.setItemText(itemText);
-              answer.setLabel("" + answerLabel++);
+              answer.setLabel(variableNames.get(j));
               answer.setText(varMin + "|" + varMax + "," + varDecimalPlaces);
               answer.setSequence(Long.valueOf(j + 1));
               // no variables will ever match here
@@ -2924,14 +2942,87 @@ public class ExtractionHelper
               Answer answer = new Answer();
               answer.setItem(item.getData());
               answer.setItemText(itemText);
-              answer.setLabel("" + answerLabel++);
+              answer.setLabel(formulaNames.get(j));
               answer.setText(forText + "|" + forTolerance + "," + forDecimalPlaces);
               answer.setSequence(Long.valueOf(variableNames.size() + j + 1));
               // only a formula can be correct here, since we're comparing formulas
               answer.setIsCorrect(i == j);
               answerSet.add(answer);              
           }
+
+          for (int j = 0; j < globalvariableNames.size(); j++) {
+              String text = globalvariableTexts.get(j);
+
+              Answer answer = new Answer();
+              answer.setItem(item.getData());
+              answer.setItemText(itemText);
+              answer.setLabel(globalvariableNames.get(j));
+              answer.setText(text);
+              answer.setSequence(Long.valueOf(variableNames.size() + formulaNames.size() + j + 1));
+              // no global variables will ever match here
+              answer.setIsCorrect(Boolean.FALSE);
+              answerSet.add(answer);
+          }
           itemText.setAnswerSet(answerSet);          
+          itemTextSet.add(itemText);
+      }
+
+      // globalvariables outer loop
+      for (int i = 0; i < globalvariableNames.size(); i++) {
+          ItemText itemText = new ItemText();
+          itemText.setText(globalvariableNames.get(i));
+          itemText.setItem(item.getData());
+          itemText.setSequence(Long.valueOf(variableNames.size() + formulaNames.size() + i + 1));
+          itemText.setAddedButNotExtracted(Boolean.valueOf((globalvariableAddedButNotExtracted.get(i))));
+
+          // associate answers with the text
+          Set<AnswerIfc> answerSet = new HashSet<AnswerIfc>();
+          for (int j = 0; j < variableNames.size(); j++) {
+              String varMin = variableMins.get(j);
+              String varMax = variableMaxs.get(j);
+              String varDecimalPlaces = variableDecimalPlaces.get(j);
+
+              Answer answer = new Answer();
+              answer.setItem(item.getData());
+              answer.setItemText(itemText);
+              answer.setLabel(variableNames.get(j));
+              answer.setText(varMin + "|" + varMax + "," + varDecimalPlaces);
+              answer.setSequence(Long.valueOf(j + 1));
+              // no variables will ever match here
+              answer.setIsCorrect(Boolean.FALSE);
+              answerSet.add(answer);
+          }
+
+          for (int j = 0; j < formulaNames.size(); j++) {
+              String forText = formulaTexts.get(j);
+              String forTolerance = formulaTolerances.get(j);
+              String forDecimalPlaces = formulaDecimalPlaces.get(j);
+
+              Answer answer = new Answer();
+              answer.setItem(item.getData());
+              answer.setItemText(itemText);
+              answer.setLabel(formulaNames.get(j));
+              answer.setText(forText + "|" + forTolerance + "," + forDecimalPlaces);
+              answer.setSequence(Long.valueOf(variableNames.size() + j + 1));
+              // no formulas will ever match here
+              answer.setIsCorrect(Boolean.FALSE);
+              answerSet.add(answer);
+          }
+
+          for (int j = 0; j < globalvariableNames.size(); j++) {
+              String text = globalvariableTexts.get(j);
+
+              Answer answer = new Answer();
+              answer.setItem(item.getData());
+              answer.setItemText(itemText);
+              answer.setLabel(globalvariableNames.get(j));
+              answer.setText(text);
+              answer.setSequence(Long.valueOf(variableNames.size() + formulaNames.size() + j + 1));
+              // only a global variable can be correct here, since we're comparing global variables
+              answer.setIsCorrect(i == j);
+              answerSet.add(answer);
+          }
+          itemText.setAnswerSet(answerSet);
           itemTextSet.add(itemText);
       }
       
@@ -2971,7 +3062,7 @@ public class ExtractionHelper
   {
     this.unzipLocation = unzipLocation;
   }
-  
+
   //------------- EMI -------------------//
 	private String get(Map itemMap, String key) {
 		return ((String) itemMap.get(key)).trim();
@@ -3157,4 +3248,19 @@ public class ExtractionHelper
 		}
 		return attachSet;
 	}
+
+    public boolean updateSectionBasedOnQuestionPool(SectionFacade section, Map sectionMap) {
+
+        section.addSectionMetaData(SectionDataIfc.POOLID_FOR_RANDOM_DRAW, (String)sectionMap.get("pool_id"));
+        section.addSectionMetaData(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW, (String)sectionMap.get("pool_name"));
+        section.addSectionMetaData(SectionDataIfc.NUM_QUESTIONS_DRAWN, (String)sectionMap.get("num_questions"));
+        section.addSectionMetaData(SectionDataIfc.RANDOMIZATION_TYPE, (String)sectionMap.get("randomization_type"));
+        section.addSectionMetaData(SectionDataIfc.POINT_VALUE_FOR_QUESTION, (String)sectionMap.get("point_value"));
+        section.addSectionMetaData(SectionDataIfc.DISCOUNT_VALUE_FOR_QUESTION, (String)sectionMap.get("discount_value"));
+ 
+        String poolid = section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW);
+        return StringUtils.isNotBlank(poolid);
+
+    }
+
 }

@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.TreeSet;
@@ -238,6 +239,12 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		}
 
 		return reference.substring(lastSeparatorIndex + 1);
+	}
+
+	@Override
+	public boolean isRoleViewType(String id) {
+		if (id == null) return false;
+		return getOptionalUser(id).map(u -> ROLEVIEW_USER_TYPE.equals(u.getType())).orElse(false);
 	}
 
 	/**
@@ -871,6 +878,14 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		}
 
 		return user;
+	}
+
+	public Optional<User> getOptionalUser(String userId) {
+		try {
+			return Optional.of(getUser(userId));
+		} catch (UserNotDefinedException e) {
+			return Optional.empty();
+		}
 	}
 
 	/**
@@ -1673,6 +1688,12 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		loginId = cleanEid(loginId);
 		if (loginId == null) return null;
 
+		// never authenticate user type roleview
+		if (isRoleViewType(loginId)) {
+			log.warn("SECURITY: attempted to authenticate a user with type roleview [{}]", loginId);
+			return null;
+		}
+
 		UserEdit user = null;
 		boolean authenticateWithProviderFirst = (m_provider != null) && m_provider.authenticateWithProviderFirst(loginId);
 
@@ -1756,13 +1777,6 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		return null;
 	}
 
-
-	/**
-	 * @inheritDoc
-	 */
-	public void destroyAuthentication()
-	{
-	}
 
 	/**
 	 * Create the live properties for the user.
@@ -1881,22 +1895,6 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	/**
 	 * @inheritDoc
 	 */
-	public boolean willArchiveMerge()
-	{
-		return false;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public HttpAccess getHttpAccess()
-	{
-		return null;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
 	public boolean parseEntityReference(String reference, Reference ref)
 	{
 		// for user access
@@ -1948,22 +1946,6 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	/**
 	 * @inheritDoc
 	 */
-	public ResourceProperties getEntityResourceProperties(Reference ref)
-	{
-		return null;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public Entity getEntity(Reference ref)
-	{
-		return null;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
 	public Collection<String> getEntityAuthzGroups(Reference ref, String userId)
 	{
 		// double check that it's mine
@@ -1984,31 +1966,6 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		}
 
 		return rv;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public String getEntityUrl(Reference ref)
-	{
-		return null;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public String archive(String siteId, Document doc, Stack stack, String archivePath, List attachments)
-	{
-		return "";
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map attachmentNames, Map userIdTrans,
-			Set userListAllowImport)
-	{
-		return "";
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************

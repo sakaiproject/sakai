@@ -29,7 +29,6 @@ import java.util.Enumeration;
 import javax.servlet.http.HttpServletRequest;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdInvalidException;
@@ -83,7 +82,7 @@ public class Validator
 	 */
 	protected static final String ESCAPE_CHARS_IN_RESOURCE_ID = ";'\"";
 
-	protected static final String INVALID_CHARS_IN_ZIP_ENTRY = "/\\%:*?'\"";
+	protected static final String INVALID_CHARS_IN_ZIP_ENTRY = "/\\%:*?'\"[]";
 
 	/** These characters are escaped when making a URL */
 	// protected static final String ESCAPE_URL = "#%?&='\"+ ";
@@ -108,6 +107,7 @@ public class Validator
 	 * @return value fully escaped for HTML.
      * @deprecated this is a passthrough for {@link org.sakaiproject.util.api.FormattedText#escapeHtml(String, boolean)} so use that instead
 	 */
+	@Deprecated
 	public static String escapeHtml(String value)
 	{
 		return FormattedText.escapeHtml(value, true);
@@ -117,6 +117,7 @@ public class Validator
 	 * Escape plaintext for display inside a plain textarea.
      * @deprecated this is a passthrough for {@link org.sakaiproject.util.api.FormattedText#escapeHtml(String, boolean)} so use that instead
 	 */
+	@Deprecated
 	public static String escapeHtmlTextarea(String value)
 	{
 		return FormattedText.escapeHtml(value, false);
@@ -126,6 +127,7 @@ public class Validator
 	 * Escape HTML-formatted text in preparation to include it in an HTML document.
      * @deprecated this is a passthrough for {@link org.sakaiproject.util.api.FormattedText#escapeHtmlFormattedText(String)} so use that instead
 	 */
+	@Deprecated
 	public static String escapeHtmlFormattedText(String value)
 	{
 		return FormattedText.escapeHtmlFormattedText(value);
@@ -139,57 +141,11 @@ public class Validator
 	 * @return The string to use as the value of the formatted textarea widget
      * @deprecated this is a passthrough for {@link org.sakaiproject.util.api.FormattedText#escapeHtmlFormattedTextarea(String)} so use that instead
 	 */
+	@Deprecated
 	public static String escapeHtmlFormattedTextarea(String value)
 	{
 		return FormattedText.escapeHtmlFormattedTextarea(value);
 	}
-
-    /**
-     * Return a string based on value that is safe to place into a javascript / html identifier: anything not alphanumeric change to 'x'. If the first character is not alphabetic, a letter 'i' is prepended.
-     * 
-     * @param value
-     *        The string to escape.
-     * @return value fully escaped using javascript / html identifier rules.
-     * @deprecated use commons-text {@link org.apache.commons.text.StringEscapeUtils}
-     */
-    public static String escapeJavascript(String value)
-    {
-        if (StringUtils.isEmpty(value)) return StringUtils.EMPTY;
-        try
-        {
-            StringBuilder buf = new StringBuilder();
-
-            // prepend 'i' if first character is not a letter
-            if (!java.lang.Character.isLetter(value.charAt(0)))
-            {
-                buf.append("i");
-            }
-
-            // change non-alphanumeric characters to 'x'
-            for (int i = 0; i < value.length(); i++)
-            {
-                char c = value.charAt(i);
-                if (!java.lang.Character.isLetterOrDigit(c))
-                {
-                    buf.append("x");
-                }
-                else
-                {
-                    buf.append(c);
-                }
-            }
-
-            String rv = buf.toString();
-            return rv;
-        }
-        catch (Exception e)
-        {
-            log.warn("Validator.escapeJavascript: ", e);
-            return "";
-        }
-
-    } // escapeJavascript
-
 
 	/**
 	 * Return a string based on id that is fully escaped using URL rules, using a UTF-8 underlying encoding.
@@ -204,55 +160,42 @@ public class Validator
 	 * @return id fully escaped using URL rules.
 	 * @deprecated use {@link java.net.URLEncoder#encode(String, String)}
 	 */
+	@Deprecated
 	public static String escapeUrl(String id)
 	{
 		if (id == null) return "";
 		id = id.trim();
-		try
-		{
-			// convert the string to bytes in UTF-8
-			byte[] bytes = id.getBytes(StandardCharsets.UTF_8.name());
+        // convert the string to bytes in UTF-8
+        byte[] bytes = id.getBytes(StandardCharsets.UTF_8);
 
-			StringBuilder buf = new StringBuilder();
-			for (int i = 0; i < bytes.length; i++)
-			{
-				byte b = bytes[i];
-				// escape ascii control characters, ascii high bits, specials
-				if (ESCAPE_URL_SPECIAL.indexOf((char) b) != -1)
-				{
-					buf.append("^^x"); // special funky way to encode bad URL characters 
-					buf.append(toHex(b));
-					buf.append('^');
-				}
-				// 0x1F is the last control character
-				// 0x7F is DEL chatecter
-				// 0x80 is the start of the top of the 256bit set.
-				else if ((ESCAPE_URL.indexOf((char) b) != -1) || (b <= 0x1F) || (b == 0x7F) || (b >= 0x80))
-				{
-					buf.append("%");
-					buf.append(toHex(b));
-				}
-				else
-				{
-					buf.append((char) b);
-				}
-			}
+        StringBuilder buf = new StringBuilder();
+        for (byte b : bytes) {
+            // escape ascii control characters, ascii high bits, specials
+            if (ESCAPE_URL_SPECIAL.indexOf((char) b) != -1) {
+                buf.append("^^x"); // special funky way to encode bad URL characters
+                buf.append(toHex(b));
+                buf.append('^');
+            }
+            // 0x1F is the last control character
+            // 0x7F is DEL chatecter
+            // 0x80 is the start of the top of the 256bit set.
+            else if ((ESCAPE_URL.indexOf((char) b) != -1) || (b <= 0x1F) || (b == 0x7F) || (b >= 0x80)) {
+                buf.append("%");
+                buf.append(toHex(b));
+            } else {
+                buf.append((char) b);
+            }
+        }
 
-			String rv = buf.toString();
-			return rv;
-		}
-		catch (UnsupportedEncodingException e)
-		{
-			log.warn("Validator.escapeUrl: ", e);
-			return "";
-		}
+        return buf.toString();
 
-	} // escapeUrl
+    } // escapeUrl
     
     /**
      * Is this a valid local part of an email id?
      * @deprecated use commons-validator {@link org.apache.commons.validator.routines.EmailValidator}
      */
+	@Deprecated
     public static boolean checkEmailLocal(String id)
     {
         // rules based on rfc2882, but a bit more conservative
@@ -536,6 +479,7 @@ public class Validator
 	 * @return Just the name (and extension) of the file, without the drive or path.
 	 * @deprecated use commons-io: {@link org.apache.commons.io.FilenameUtils#getName(String)} instead
 	 */
+	@Deprecated
 	public static String getFileName(String fullName)
 	{
 		// examples: windows: c:\this\that\me.doc
@@ -554,28 +498,6 @@ public class Validator
 		return buf.toString();
 
 	} // getFileName
-
-	/**
-	 * Put the dividor (comma) inside the size string, for example, 1,003 for 1003
-	 * 
-	 * @param size
-	 *        The string of size number
-	 * @return The size string with the dividor added
-	 */
-	public static String getFileSizeWithDividor(String size)
-	{
-		StringBuilder newSize = new StringBuilder(size);
-
-		int index = size.length();
-
-		while (index > 3)
-		{
-			index = index - 3;
-			newSize.insert(index, ",");
-		}
-
-		return newSize.toString();
-	}
 
 	/**
 	 * Isolate and return just the file extension part of a full drive and path file name.
@@ -661,10 +583,10 @@ public class Validator
 		String moreInlineTypes[] = ServerConfigurationService.getStrings("content.mime.inline");  
 		
 		if (moreInlineTypes != null) {
-			for (int i = 0; i < moreInlineTypes.length; i++) {
-				if (lType.equals(moreInlineTypes[i]))
-					return true;
-			}
+            for (String moreInlineType : moreInlineTypes) {
+                if (lType.equals(moreInlineType))
+                    return true;
+            }
 		}
 		
 		return false;
@@ -676,7 +598,7 @@ public class Validator
 	 * 
 	 * @param value
 	 *        The string to limit.
-	 * @param the
+	 * @param length the
 	 *        length to limit to (as an Integer).
 	 * @return The limited string.
 	 */
@@ -691,7 +613,7 @@ public class Validator
 	 * 
 	 * @param value
 	 *        The string to limit.
-	 * @param the
+	 * @param length the
 	 *        length to limit to (as an int).
 	 * @return The limited string.
 	 */
@@ -709,111 +631,13 @@ public class Validator
 	} // limit
 
 	/**
-	 * Clean the user input string of strange newlines, etc.
-	 * 
-	 * @param value
-	 *        The user input string.
-	 * @return value cleaned of string newlines, etc.
-	 */
-	public static String cleanInput(String value)
-	{
-		if (value == null) return null;
-		if (value.length() == 0) return value;
-
-		final int len = value.length();
-		StringBuilder buf = new StringBuilder();
-
-		for (int i = 0; i < len; i++)
-		{
-			char c = value.charAt(i);
-			char next = 0;
-			if (i + 1 < len) next = value.charAt(i + 1);
-
-			switch (c)
-			{
-				case '\r':
-				{
-					// detect CR LF, make it a \n
-					if (next == '\n')
-					{
-						buf.append('\n');
-						// eat the next character
-						i++;
-					}
-					else
-					{
-						buf.append(c);
-					}
-
-				}
-					break;
-
-				default:
-				{
-					buf.append(c);
-				}
-			}
-		}
-
-		if (buf.charAt(buf.length() - 1) == '\n')
-		{
-			buf.setLength(buf.length() - 1);
-		}
-
-		return buf.toString();
-
-	} // cleanInput
-
-	/**
-	 * Clean the string parameter of all newlines (replace with space character) and trim leading and trailing spaces
-	 * 
-	 * @param value
-	 *        The user input string.
-	 * @return value cleaned of newlines, etc.
-	 */
-	public static String stripAllNewlines(String value)
-	{
-		if (value == null) return null;
-		value = value.trim();
-		if (value.length() == 0) return value;
-
-		final int len = value.length();
-		StringBuilder buf = new StringBuilder();
-
-		for (int i = 0; i < len; i++)
-		{
-			char c = value.charAt(i);
-			//char next = 0;
-			//if (i + 1 < len) next = value.charAt(i + 1);
-
-			switch (c)
-			{
-				case '\n':
-				case '\r':
-				{
-					buf.append(' ');
-				}
-					break;
-
-				default:
-				{
-					buf.append(c);
-				}
-			}
-		}
-
-		return buf.toString();
-
-	} // stripAllNewlines
-
-	/**
 	 * Returns a hex representation of a byte.
 	 * 
 	 * @param b
 	 *        The byte to convert to hex.
 	 * @return The 2-digit hex value of the supplied byte.
 	 */
-	private static final String toHex(byte b)
+	private static String toHex(byte b)
 	{
 
 		char ret[] = new char[2];
@@ -833,7 +657,7 @@ public class Validator
 	 * @exception java.lang.IllegalArgumentException
 	 *            If supplied digit is not between 0 and 15 inclusive.
 	 */
-	private static final char hexDigit(int i)
+	private static char hexDigit(int i)
 	{
 
 		switch (i)
@@ -873,60 +697,6 @@ public class Validator
 		}
 
 		throw new IllegalArgumentException("Invalid digit:" + i);
-	}
-
-	/**
-	 * Validate whether the date input is valid
-	 * @deprecated {@link org.sakaiproject.util.DateFormatterUtil#checkDate(int, int, int)}
-	 */
-	public static boolean checkDate(int day, int month, int year)
-	{
-		// Is date valid for month?
-		if (month == 2)
-		{
-			// Check for leap year
-			if (((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0))
-			{
-				// leap year
-				if (day > 29)
-				{
-					return false;
-				}
-			}
-			else
-			{
-				// normal year
-				if (day > 28)
-				{
-					return false;
-				}
-			}
-		}
-		else if ((month == 4) || (month == 6) || (month == 9) || (month == 11))
-		{
-			if (day > 30)
-			{
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	public static String generateQueryString(HttpServletRequest req) {
-		StringBuilder sb = new StringBuilder();
-		try {
-		for ( Enumeration<?> e = req.getParameterNames(); e.hasMoreElements(); ) {
-			String name = (String) e.nextElement();
-			for ( String value : req.getParameterValues(name) ) {
-				sb.append(URLEncoder.encode(name,"UTF-8")).append("=").append(URLEncoder.encode(value,"UTF-8")).append("&");
-			}
-		}
-		} catch ( UnsupportedEncodingException ex) {
-			log.error("No UTF-8 Encoding on this JVM, !!!!");
-		}
-		if ( sb.length() < 1 ) return null;
-		return sb.substring(0, sb.length()-1);
 	}
 
 	/**

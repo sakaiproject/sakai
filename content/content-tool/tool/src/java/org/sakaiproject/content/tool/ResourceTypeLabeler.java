@@ -59,8 +59,7 @@ public class ResourceTypeLabeler
 				case CREATE:
 					ResourceTypeRegistry registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
 					ResourceType typedef = registry.getType(action.getTypeId());
-					String[] args = { typedef.getLabel() };
-					label = ResourcesAction.trb.getFormattedMessage("create.unknown", args);
+					label = ResourcesAction.trb.getFormattedMessage("create.unknown", typedef.getLabel());
 					break;
 				case COPY:
 					label = ResourcesAction.trb.getString("action.copy");

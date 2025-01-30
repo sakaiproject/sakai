@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.sakaiproject</groupId>
         <artifactId>master</artifactId>
-        <version>23-SNAPSHOT</version>
+        <version>25-SNAPSHOT</version>
 		<relativePath>../master/pom.xml</relativePath>
     </parent>
 
@@ -18,7 +18,6 @@
         <module>editor-tool/tool</module>
         <module>portal-api/api</module>
         <module>portal-charon/charon</module>
-        <module>portal-chat/tool</module>
         <module>portal-impl/impl</module>
         <module>portal-render-api/api</module>
         <module>portal-render-impl/impl</module>

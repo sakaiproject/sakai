@@ -52,6 +52,10 @@ public interface Group extends Edit, Serializable, AuthzGroup
 	static final String GROUP_PROP_JOINABLE_SHOW_ALL = "group_prop_joinable_show_all";
 	/** The property to indicate by which group it was filtered */
 	static final String GROUP_PROP_FILTERED_BY = "group_prop_filtered_by";
+	/** The property to indicate when the group will be joinable */
+	static final String GROUP_PROP_JOINABLE_OPEN_DATE = "group_prop_joinable_open_date";
+	/** The property to indicate when the group will stop being joinable */
+	static final String GROUP_PROP_JOINABLE_CLOSE_DATE = "group_prop_joinable_close_date";
 
 	/** @return a human readable short title of this group. */
 	String getTitle();

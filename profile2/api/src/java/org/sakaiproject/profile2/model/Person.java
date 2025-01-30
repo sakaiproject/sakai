@@ -40,9 +40,6 @@ public class Person extends BasicPerson implements Serializable {
 	private UserProfile profile;
 	
 	@Getter @Setter
-	private ProfilePrivacy privacy;
-	
-	@Getter @Setter
 	private ProfilePreferences preferences;
 	
 }

@@ -34,6 +34,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
@@ -51,6 +52,7 @@ import org.w3c.dom.NodeList;
 
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
@@ -99,6 +101,10 @@ public abstract class ToolComponent implements ToolManager
 	 */
 	protected abstract SecurityService securityService();
 	
+	/**
+	 * @return the SiteService collaborator.
+	 */
+	protected abstract SiteService siteService();
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Configuration
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -782,5 +788,38 @@ public abstract class ToolComponent implements ToolManager
 		if (requiredPermissionsString == null)
 			return false;
 		return requiredPermissionsString.contains("site.upd");
+	}
+
+	/**
+	 * Check if the FIRST tool configuration for specified siteId and toolId is hidden.
+	 * @param siteId
+	 * @param toolId
+	 * @return <code>true</code> if the current placement is hidden.
+	 * @return <code>false</code> if the specified placement is hidden or not found.
+	 */
+	public boolean isToolHidden(String siteId, String toolId)
+	{
+		Site site = null;
+		try {
+			site = siteService().getSite(siteId);
+		} catch (IdUnusedException e) {
+			log.error("Site for ID {} not found", siteId, e.toString());
+		}
+
+		if (site == null || StringUtils.isEmpty(toolId)) {
+			return true;
+		}
+
+		//Get the first ToolConfiguration on this site with id sakai.samigo
+		Optional<ToolConfiguration> optToolConfig = site.getPages().stream()
+		.map(page -> page.getTools().stream()
+			.filter(tc -> toolId.equals(tc.getToolId()))
+			.findFirst())
+		.filter(Optional::isPresent)
+		.map(Optional::get)
+		.findFirst();
+
+		//If tool is not present or hidden return true
+		return optToolConfig.isEmpty() || isHidden(optToolConfig.get());
 	}
 }

@@ -9,36 +9,22 @@
         <div class="mainSectionHeading"><span wicket:id="heading">[Name Pronunciation and Pronouns]</span></div>
 
         <div class="mainSectionContentForm">
-            <form wicket:id="form" id="namePronunciationForm" class="profileForm">
+            <form wicket:id="form" id="namePronunciationForm" class="profileForm" enctype="multipart/form-data">
                 <div wicket:id="formFeedback">[formFeedback]</div>
                 <div wicket:id="editWarning" class="edit-other-warning">[You are editing {other person}'s profile]</div>
                 <p class="mainSectionContentDescription"><wicket:message key="text.name.pronunciation.description" /></p>
                 <table class="profileContent">
 
-                    <tr wicket:id="pronounsContainer">
-                        <td class="label" wicket:id="pronounsLabel">[pronounsLabel]</td>
-                        <td class="content">
-                            <label for="pronouns-select" class="accessibility-label">
-                                <wicket:message key="accessibility.profile.pronouns.select">Pronouns</wicket:message>
-                            </label>
-                            <select wicket:id="pronounsSelect" id="pronouns-select"></select>
-                            <label for="pronouns-input" class="accessibility-label">
-                                <wicket:message key="accessibility.profile.pronouns.input">Pronouns</wicket:message>
-                            </label>
-                            <input type="text" wicket:id="pronounsInput" id="pronouns-input" class="formInputField hidden"/> 
-                        </td>
-                    </tr>
-
                     <!-- phoneticPronunciation -->
                     <tr wicket:id="phoneticContainer">
-                        <td class="label" wicket:id="phoneticLabel">[phoneticLabel]</td>
+                        <td class="label text-nowrap" wicket:id="phoneticLabel">[phoneticLabel]</td>
                         <td class="content">
                             <label for="phoneticinput" class="accessibility-label"><wicket:message key="accessibility.profile.phonetic.input">Phonetic Pronunciation</wicket:message></label>
                             <input type="text" wicket:id="phoneticPronunciation" id="phoneticinput" class="formInputField" />
                         </td>
                     </tr>
                     <tr>
-                        <td class="label notBold"><wicket:message key="profile.phonetic.examples.label" /></td>
+                        <td class="label notBold align-top ps-3"><wicket:message key="profile.phonetic.examples.label" /></td>
                         <td class="content">
                             <div>
                                 <span><wicket:message key="profile.phonetic.example.1.pronun" /></span>
@@ -55,30 +41,30 @@
                     </tr>
                     <!-- nameRecording -->
                     <tr wicket:id="nameRecordingContainer">
-                        <td class="label" wicket:id="nameRecordingLabel">[nameRecordingLabel]</td>
+                        <td class="label align-top" wicket:id="nameRecordingLabel">[nameRecordingLabel]</td>
                         <td class="content">
                             <button type="button" id="btn-start-recording" class="recordButton">
                                 <span><wicket:message key="button.record" /></span>
                                 <span class="recordIcon"></span>
                             </button>
-                            <button type="button" id="btn-stop-recording" class="recordButton hidden">
+                            <button type="button" id="btn-stop-recording" class="recordButton d-none">
                                 <span><wicket:message key="button.stop" /></span>
                             </button>
-                            <button type="button" id="btn-release-microphone" class="hidden">
+                            <button type="button" id="btn-release-microphone" class="d-none">
                                 <span><wicket:message key="button.release.microphone" /></span>
                             </button>
                             <div id="prev-audio-player"><audio wicket:id="audioPlayer" controls playsinline controlsList='nodownload'></audio></div>
-                            <div id="audio-player" class="audioPlayer hidden"><audio controls autoplay playsinline controlsList='nodownload'></audio></div>
+                            <div id="audio-player" class="audioPlayer d-none"><audio controls autoplay playsinline controlsList='nodownload'></audio></div>
                             <input wicket:id="audioBase64" type="hidden" id="audioBase64" aria-hidden="true" />
                             <a href="#" wicket:id="clearExistingRecordingLink"><wicket:container wicket:id="clearExistingRecordingLabel" /></a>
                         </td>
                     </tr>
                 </table>
-                <span wicket:id="namePronunciationDuration" id="namePronunciationDuration" class="hidden" />
+                <span wicket:id="namePronunciationDuration" id="namePronunciationDuration" class="d-none" />
 
                 <div class="profileFormButtons">
-                    <button type="submit" id="formSubmit" wicket:id="submit"><wicket:message key="button.save.changes" /></button>
-                    <button type="button" wicket:id="cancel"><wicket:message key="button.cancel" /></button>
+                    <button type="submit" class="btn btn-link" id="formSubmit" wicket:id="submit"><wicket:message key="button.save.changes" /></button>
+                    <button type="button" class="btn btn-link" wicket:id="cancel"><wicket:message key="button.cancel" /></button>
                 </div>
             </form>
         </div>
@@ -125,7 +111,7 @@
         function stopRecordingCallback() {
             replaceAudio(URL.createObjectURL(recorder.getBlob()));
             $btnStartRecording.prop('disabled', false);
-            $btnStartRecording.removeClass('hidden');
+            $btnStartRecording.removeClass('d-none');
             setTimeout(function() {
                 if(!audio.paused) return;
                 setTimeout(function() {
@@ -136,7 +122,7 @@
                 audio.play();
             }, 300);
             audio.play();
-            $btnStopRecording.addClass('hidden');
+            $btnStopRecording.addClass('d-none');
             $btnStopRecording.prop('disabled', false);
             if(isSafari) {
                 $btnReleaseMicrophone.click();
@@ -159,7 +145,7 @@
         var timeoutPlayer;
         $btnStartRecording.click(function(e) {
             e.preventDefault();
-            $btnStartRecording.addClass('hidden');
+            $btnStartRecording.addClass('d-none');
             $btnStartRecording.prop('disabled', true);
             this.style.border = '';
             this.style.fontSize = '';
@@ -171,7 +157,7 @@
                         audio.muted = true;
                         audio.srcObject = microphone;
                         $btnStartRecording.prop('disabled', false);
-                        $btnStartRecording.removeClass('hidden');
+                        $btnStartRecording.removeClass('d-none');
                         $btnStartRecording.css('border', '1px solid red');
                         $btnStartRecording.css('fontSize', '150%');
                         alert('Please click startRecording button again. First time we tried to access your microphone. Now we will record it.');
@@ -212,9 +198,9 @@
             recorder = RecordRTC(microphone, options);
             recorder.startRecording();
             $btnStopRecording.prop('disabled', false);
-            $btnStopRecording.removeClass('hidden');
+            $btnStopRecording.removeClass('d-none');
             $prevAudioPlayer.remove();
-            $audioPlayer.removeClass('hidden');
+            $audioPlayer.removeClass('d-none');
             $audioPlayer.css('pointer-events' , 'none');
 
             var namePronunciationDuration = parseInt($('#namePronunciationDuration').text() + "000");
@@ -266,7 +252,6 @@
             });
         }
     </script>
-    <script src="javascript/pronunciation.js"></script>
 </wicket:panel>
 </body>
 </html>

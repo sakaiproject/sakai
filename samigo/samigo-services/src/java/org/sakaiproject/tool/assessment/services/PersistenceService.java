@@ -21,6 +21,8 @@
 
 package org.sakaiproject.tool.assessment.services;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.component.cover.ComponentManager;
@@ -57,6 +59,10 @@ public class PersistenceService{
 	private ExtendedTimeFacade extendedTimeFacade;
 	private EventLogFacadeQueriesAPI eventLogFacadeQueries;  
 	private SecureDeliveryFacadeQueriesAPI secureDeliveryFacadeQueries;  
+	@Getter @Setter
+	private SebValidationFacadeQueriesAPI sebValidationFacadeQueries;
+	@Getter @Setter
+	private StatisticsFacadeQueriesAPI statisticsFacadeQueries;
 
 	public static PersistenceService getInstance(){
 	    return (PersistenceService)ComponentManager.get("PersistenceService");

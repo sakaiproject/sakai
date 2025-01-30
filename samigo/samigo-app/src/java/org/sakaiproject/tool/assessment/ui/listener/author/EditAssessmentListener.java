@@ -29,8 +29,11 @@ import javax.faces.event.ActionListener;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.samigo.api.SamigoAvailableNotificationService;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
@@ -46,6 +49,12 @@ import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.cover.ToolManager;
 
+import static org.sakaiproject.samigo.util.SamigoConstants.EVENT_PUBLISHED_ASSESSMENT_RETRACTED;
+import static org.sakaiproject.samigo.util.SamigoConstants.EVENT_ASSESSMENT_AVAILABLE;
+import org.sakaiproject.event.cover.EventTrackingService;
+
+import java.util.Objects;
+
 /**
  * <p>Title: Samigo</p>2
  * <p>Description: Sakai Assessment Manager</p>
@@ -56,9 +65,11 @@ import org.sakaiproject.tool.cover.ToolManager;
 public class EditAssessmentListener
     implements ActionListener
 {
+  private SamigoAvailableNotificationService samigoAvailableNotificationService;
 
   public EditAssessmentListener()
   {
+	  samigoAvailableNotificationService = ComponentManager.get(SamigoAvailableNotificationService.class);
   }
 
   public void processAction(ActionEvent ae) throws AbortProcessingException
@@ -74,6 +85,28 @@ public class EditAssessmentListener
         author.setIsEditPoolFlow(false);
     }
 
+	  //cancel not fired event and fire event for userNotification alert deletion
+	  AssessmentBean assessmentBean = (AssessmentBean) ContextUtil
+			  .lookupBean("assessmentBean");
+	  String assessmentId = assessmentBean.getAssessmentId();
+
+
+	  //check if draft
+	  if ((assessmentId != null && assessmentBean.getAssessment() == null)
+	      || (assessmentId != null && assessmentBean.getAssessment() != null
+	          && assessmentBean.getAssessment().getAssessmentBaseId() != null
+	          && !Long.toString(assessmentBean.getAssessment().getAssessmentBaseId()).equals(assessmentId))) {
+		  PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+		  try {
+			  PublishedAssessmentFacade assessment = publishedAssessmentService.getPublishedAssessment(assessmentId);
+			  if (!Objects.equals(assessment.getStatus(), AssessmentIfc.RETRACT_FOR_EDIT_STATUS)) {
+				  EventTrackingService.cancelDelays("siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(), EVENT_ASSESSMENT_AVAILABLE);
+				  EventTrackingService.post(EventTrackingService.newEvent(EVENT_PUBLISHED_ASSESSMENT_RETRACTED,"siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId() ,true));
+			  }
+		  } catch (Exception e) {
+			  log.warn("Could not get published Assessment for id {}", assessmentId);
+		  }
+	  }
 
     if (editType != null) {
     	if ("pendingAssessment".equals(editType)) {
@@ -184,7 +217,7 @@ public class EditAssessmentListener
 		// initalize the itemtype
 		itemauthorBean.setItemType("");
 		itemauthorBean.setItemTypeString("");
-		
+	    samigoAvailableNotificationService.removeScheduledAssessmentNotification(publishedAssessmentId);	//remove the existing scheduled notification for this published assessment if it exists
 		showPrintLink(assessmentBean);
   }
   

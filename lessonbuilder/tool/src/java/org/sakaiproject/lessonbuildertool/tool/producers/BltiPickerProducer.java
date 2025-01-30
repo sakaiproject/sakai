@@ -25,6 +25,7 @@ package org.sakaiproject.lessonbuildertool.tool.producers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.net.URLEncoder;
 
 import org.apache.commons.lang3.StringUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -58,6 +59,10 @@ import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.portal.util.ToolUtils;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.ToolConfiguration;
 
 /**
  * Creates a list of LTI Content Items for the user to choose from. Their choice will be added
@@ -93,6 +98,19 @@ public class BltiPickerProducer implements ViewComponentProducer, NavigationCase
 		return VIEW_ID;
 	}
 
+	    // TODO: Could we get simplePageBean populated here and not build out own get
+        private String getCurrentTool(String commonToolId) {
+        try {
+            String currentSiteId = ToolManager.getCurrentPlacement().getContext();
+            Site site = SiteService.getSite(currentSiteId);
+            ToolConfiguration toolConfig = site.getToolForCommonId(commonToolId);
+            if (toolConfig == null) return null;
+            return toolConfig.getId();
+        } catch (Exception e) {
+            return null;
+        }
+        }
+
 	public void fillComponents(UIContainer tofill, ViewParameters viewparams, ComponentChecker checker) {
 
 		if (((GeneralViewParameters) viewparams).getSendingPage() != -1) {
@@ -101,12 +119,10 @@ public class BltiPickerProducer implements ViewComponentProducer, NavigationCase
 		    try {
 			simplePageBean.updatePageObject(((GeneralViewParameters) viewparams).getSendingPage());
 		    } catch (Exception e) {
-			log.info("QuizPicker permission exception " + e);
+			log.warn("BltiPicker permission exception, {}", e.toString());
 			return;
 		    }
 		}
-
-		boolean appStoresOnly = ((GeneralViewParameters) viewparams).bltiAppStores;
 
 	Integer bltiToolId = ((GeneralViewParameters)viewparams).addTool;
 		BltiTool bltiTool = null;
@@ -115,7 +131,7 @@ public class BltiPickerProducer implements ViewComponentProducer, NavigationCase
 		else
 		    bltiTool = simplePageBean.getBltiTool(bltiToolId);
 
-	UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localeGetter.get().getLanguage()))
+		UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localeGetter.get().getLanguage()))
 		    .decorate(new UIFreeAttributeDecorator("xml:lang", localeGetter.get().getLanguage()));
 
 		//errorMessage=&id=&title=&source=&backPath=&sendingPage=92&path=&clearAttr=&recheck=&itemId=-1&returnView=
@@ -132,21 +148,18 @@ public class BltiPickerProducer implements ViewComponentProducer, NavigationCase
 			simplePageBean.setDescription(ltiItemDescription);
 		}
 
-		if (bltiTool != null)
-		    UIOutput.make(tofill, "mainhead", bltiTool.title);
-		else if (appStoresOnly) {
-			UIOutput.make(tofill, "mainhead", messageLocator.getMessage("simplepage.blti.app"));
-		} else {
-			UIOutput.make(tofill, "mainhead", messageLocator.getMessage("simplepage.blti.chooser"));
-		}
-
 		// here is a URL to return to this page
 		String comeBack = ToolUtils.getToolBaseUrl()+ "/" + ToolManager.getCurrentPlacement().getId() + "/BltiPicker?" +
 		    ((GeneralViewParameters) viewparams).getSendingPage() + "&itemId=" + itemId + "&addBefore=" + ((GeneralViewParameters) viewparams).getAddBefore() + (bltiTool == null? "" : "&addTool=" + bltiToolId);
 		if ( bltiEntity instanceof BltiEntity ) ( (BltiEntity) bltiEntity).setReturnUrl(comeBack);
 
-		// here is a URL to return to the main lesson builder page
-		// log.info("/portal/tool/" + ToolManager.getCurrentPlacement().getId() + "/ShowPage?");
+		String toolId = getCurrentTool("sakai.siteinfo");
+
+        String url = ServerConfigurationService.getToolUrl() + "/" + toolId + "/sakai.lti.admin.helper.helper?panel=LessonsMain&flow=lessons"
+            + "&returnUrl=" + URLEncoder.encode(comeBack);
+
+		UILink launchlink = UILink.make(tofill, "blti-launch-link", url);
+		UIOutput.make(tofill, "blti-select-text", messageLocator.getMessage("simplepage.blti.chooser"));
 
 		if (simplePageBean.canEditPage()) {
 
@@ -163,10 +176,6 @@ public class BltiPickerProducer implements ViewComponentProducer, NavigationCase
 			    currentItem = i.getSakaiId();
 			}
 
-			List<UrlItem> createLinks = bltiEntity.createNewUrls(simplePageBean, bltiToolId, appStoresOnly);
-			UrlItem mainLink = null;
-			int toolcount = 0;
-
 			// If this is an autosubmit situation, we do not need to list the links
 			Object sessionToken = SessionManager.getCurrentSession().getAttribute("sakai.csrf.token");
 			if ( ltiItemId != null ) {
@@ -179,66 +188,9 @@ public class BltiPickerProducer implements ViewComponentProducer, NavigationCase
 				UIInput.make(fb, "item-description", "simplePageBean.description", ltiItemDescription);
 				UICommand.make(fb, "submit", messageLocator.getMessage("simplepage.chooser.select"), "#{simplePageBean.addBlti}");
 				UICommand.make(fb, "cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
-
-			} else {
-
-			    UIBranchContainer toolListContainer = null;
-			    if(appStoresOnly) {
-				    // If we have one store, we get two links, the last one is the "Cancel/panel=Main" link
-				    if ( createLinks.size() <= 2 ) {
-					    toolListContainer = UIBranchContainer.make(tofill, "app-store-shortcut:");
-				    } else {
-					    toolListContainer = UIBranchContainer.make(tofill, "app-store-container:");
-				    }
-			    } else {
-				    toolListContainer = UIBranchContainer.make(tofill, "external-tool-container:");
-				    UIOutput.make(toolListContainer, "blti-name-header", messageLocator.getMessage("simplepage.blti.tool.name"));
-				    UIOutput.make(toolListContainer, "blti-description-header", messageLocator.getMessage("simplepage.blti.tool.description"));
-			    }
-
-				for (UrlItem createLink: createLinks) {
-					if (createLink.Url.indexOf("panel=Main") >= 0) {
-						mainLink = createLink;
-						continue;
-					}
-					toolcount = 1;
-					UIBranchContainer linkContainer = UIBranchContainer.make(toolListContainer, "blti-create:");
-
-					UILink link = UILink.make(linkContainer, "blti-create-link", createLink.Url);
-					link.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.blti.config")));
-					UIOutput.make(linkContainer, "blti-create-text", (bltiTool == null ? createLink.label : bltiTool.addText));
-					UIOutput.make(linkContainer, "blti-create-description", (bltiTool == null ? createLink.description : bltiTool.description));
-
-					if ( createLink.fa_icon != null && !createLink.search ) {
-						UIOutput.make(linkContainer, "blti-create-icon", "")
-						.decorate(new UIFreeAttributeDecorator("class", "fa " + createLink.fa_icon));
-					}
-
-					if ( createLink.search ) {
-						UIOutput.make(linkContainer, "blti-search-icon");
-					}
-				}
-
-				if ( toolcount > 0 ) {
-					UIOutput.make(tofill, "blti-tools-text", appStoresOnly ? messageLocator.getMessage("simplepage.blti.app.store.text") : messageLocator.getMessage("simplepage.blti.tools.text"));
-				} else {
-					UIOutput.make(tofill, "no-blti-tools");
-					UIOutput.make(tofill, "no-blti-tools-text", messageLocator.getMessage("simplepage.no_blti_tools"));
-				}
-
-			} // Not autosubmit
-			
+			} 
 
 			UICommand.make(tofill, "cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
-
-			// only show manage link if we aren't simulating a native tool
-			if (bltiTool == null) {
-			    UIOutput.make(tofill, "manageblti");
-			    if (mainLink != null) {
-				UILink.make(tofill, "blti-main-link", mainLink.label, mainLink.Url)
-					.decorate(new UIFreeAttributeDecorator("title", mainLink.label) );
-			    }
-			}
 
 			UIForm cancelform = UIForm.make(tofill, "blti-cancel");
 			if (sessionToken != null)

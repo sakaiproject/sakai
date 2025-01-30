@@ -28,6 +28,7 @@ import org.springframework.web.servlet.DispatcherServlet;
 import org.sakaiproject.util.RequestFilter;
 import org.sakaiproject.util.SakaiContextLoaderListener;
 import org.sakaiproject.util.ToolListener;
+import javax.servlet.FilterRegistration;
 
 public class WebAppConfiguration implements WebApplicationInitializer {
 
@@ -41,14 +42,12 @@ public class WebAppConfiguration implements WebApplicationInitializer {
 		servletContext.addListener(new ToolListener());
 		servletContext.addListener(new SakaiContextLoaderListener(rootContext));
 
-		servletContext.addFilter("sakai.request", RequestFilter.class)
-			.addMappingForUrlPatterns(
-				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD, DispatcherType.INCLUDE),
-				true,
-				"/*");
+		FilterRegistration requestFilterRegistration = servletContext.addFilter("sakai.request", RequestFilter.class);
+		requestFilterRegistration.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD, DispatcherType.INCLUDE), true, new String[]{"/*"});
+		requestFilterRegistration.setInitParameter("upload.enabled", "true");
 
 		Dynamic servlet = servletContext.addServlet("sakai.datemanager", new DispatcherServlet(rootContext));
-		servlet.addMapping("/");
+		servlet.addMapping(new String[]{"/"});
 		servlet.setLoadOnStartup(1);
 	}
 }

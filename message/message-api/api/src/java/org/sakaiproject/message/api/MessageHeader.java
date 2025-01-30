@@ -88,6 +88,7 @@ public interface MessageHeader extends AttachmentContainer
 	 * @return The date/time the message was sent to the channel.
 	 * @deprecated {@link #getInstant()}
 	 */
+	@Deprecated
 	Time getDate();
 	
 	/**

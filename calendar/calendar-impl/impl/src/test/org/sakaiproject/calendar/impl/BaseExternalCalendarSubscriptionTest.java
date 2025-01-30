@@ -176,7 +176,7 @@ public class BaseExternalCalendarSubscriptionTest {
         when(event.getDescription()).thenReturn("Description");
         when(event.getLocation()).thenReturn("Location");
 
-        when(importer.doImport(any(), any(), any(),any(), any())).thenReturn(Collections.singletonList(event));
+        when(importer.doImport(any(), any(), any(),any(), any())).thenAnswer(i -> Collections.singletonList(event));
 
         assertNotNull(service.getCalendarSubscription(referenceString));
         // This should come from the cache

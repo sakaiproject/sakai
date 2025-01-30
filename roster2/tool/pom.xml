@@ -5,7 +5,7 @@
     <parent>
         <artifactId>sakai-roster2-base</artifactId>
         <groupId>org.sakaiproject.roster2</groupId>
-        <version>23-SNAPSHOT</version>
+        <version>25-SNAPSHOT</version>
     </parent>
 
     <name>ROSTER2 TOOL</name>
@@ -14,7 +14,7 @@
     <packaging>war</packaging>
 
     <properties>
-        <yuicompressor.plugin.version>1.2</yuicompressor.plugin.version>
+        <yuicompressor.plugin.version>1.5.1</yuicompressor.plugin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -125,10 +125,13 @@
             <artifactId>jstl</artifactId>
         </dependency>
         <dependency>
+            <groupId>javax.persistence</groupId>
+            <artifactId>javax.persistence-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>taglibs</groupId>
             <artifactId>standard</artifactId>
             <version>1.1.2</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>
@@ -164,31 +167,14 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
-            <!-- compress CSS and JS -->
-            <!--plugin>
-                <groupId>com.samaxes.maven</groupId>
-                <artifactId>minify-maven-plugin</artifactId>
-                <version>1.7.6</version>
-                <executions>
-                    <execution>
-                        <id>default-minify</id>
-                        <configuration>
-                            <charset>UTF-8</charset>
-                            <webappSourceDir>${basedir}/src/webapp</webappSourceDir>
-                            <jsSourceDir>js/</jsSourceDir>
-                            <jsIncludes>*.js</jsIncludes>
-                            <jsTargetDir>js</jsTargetDir>
-                            <jsFinalFile>roster.js</jsFinalFile>
-                            <jsEngine>CLOSURE</jsEngine>
-                        </configuration>
-                        <goals><goal>minify</goal></goals>
-                    </execution>
-                </executions>
-            </plugin-->
             <plugin>
                 <groupId>com.github.jknack</groupId>
                 <artifactId>handlebars-maven-plugin</artifactId>

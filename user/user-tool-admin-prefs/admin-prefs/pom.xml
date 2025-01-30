@@ -4,7 +4,7 @@
   <parent>
     <artifactId>user</artifactId>
     <groupId>org.sakaiproject.user</groupId>
-    <version>23-SNAPSHOT</version>
+    <version>25-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>sakai-user-tool-admin-prefs</name>
@@ -35,20 +35,6 @@
     <dependency>
       <groupId>org.sakaiproject.jsf2</groupId>
       <artifactId>jsf2-app</artifactId>
-    </dependency>
-    <!-- Sun JSF RI jars (jsf-impl, jsf-api) and dependencies
-			(commons-digester, commons-collections, commons-digester, commons-beanutils, taglibs/standard, jstl) -->
-    <dependency>
-      <groupId>commons-digester</groupId>
-      <artifactId>commons-digester</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-collections</groupId>
-      <artifactId>commons-collections</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-beanutils</groupId>
-      <artifactId>commons-beanutils</artifactId>
     </dependency>
     <dependency>
       <groupId>org.jboss.weld.servlet</groupId>

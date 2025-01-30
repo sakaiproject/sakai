@@ -491,9 +491,9 @@ public class MembershipAction extends PagedResourceActionII
 
 				// add to user auditing
 				List<String[]> userAuditList = new ArrayList<>();
-				String currentUserEid = userDirectoryService.getCurrentUser().getEid();
+				String currentUserId = userDirectoryService.getCurrentUser().getId();
 				String roleId = SITE_SERV.getSite(id).getJoinerRole();
-				String[] userAuditString = {id,currentUserEid,roleId,UserAuditService.USER_AUDIT_ACTION_ADD,userAuditRegistration.getDatabaseSourceKey(),currentUserEid};
+				String[] userAuditString = {id,currentUserId,roleId,UserAuditService.USER_AUDIT_ACTION_ADD,userAuditRegistration.getDatabaseSourceKey(),currentUserId};
 				userAuditList.add(userAuditString);
 				if (!userAuditList.isEmpty())
 				{
@@ -534,7 +534,6 @@ public class MembershipAction extends PagedResourceActionII
 			// get the User object since we need a couple of lookups
 			User tempUser = userDirectoryService.getCurrentUser();
 			String currentUserId = tempUser.getId();
-			String currentUserEid = tempUser.getEid();
 
 			for(int i=0; i< id.length; i++){
 
@@ -550,7 +549,7 @@ public class MembershipAction extends PagedResourceActionII
 					}
 					msg = msg+SITE_SERV.getSite(id[i]).getTitle();
 
-					String[] userAuditString = {id[i],currentUserEid,roleId,UserAuditService.USER_AUDIT_ACTION_REMOVE,userAuditRegistration.getDatabaseSourceKey(),currentUserEid};
+					String[] userAuditString = {id[i],currentUserId,roleId,UserAuditService.USER_AUDIT_ACTION_REMOVE,userAuditRegistration.getDatabaseSourceKey(),currentUserId};
 					userAuditList.add(userAuditString);
 				}
 				catch (IdUnusedException ignore)

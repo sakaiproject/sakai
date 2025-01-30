@@ -346,7 +346,7 @@ public class EmailMessage
 	{
 		return headers != null ? headers.keySet().stream().filter(Objects::nonNull)
 			.map(k -> k + ": " + headers.get(k)).collect(Collectors.toList())
-				: Collections.<String>emptyList();
+				: new ArrayList<String>();
 	}
 
 	/**

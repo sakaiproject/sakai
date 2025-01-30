@@ -20,6 +20,7 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
@@ -27,8 +28,6 @@ import javax.persistence.Entity;
 import javax.persistence.Lob;
 import javax.persistence.Transient;
 
-import org.sakaiproject.grading.api.GradeType;
-import org.sakaiproject.grading.api.GradingCategoryType;
 import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.springframework.data.PersistableEntity;
 
@@ -125,6 +124,9 @@ public class GradebookAssignment extends GradableObject implements PersistableEn
 
     @Column(name = "IS_NULL_ZERO")
     private Boolean countNullsAsZeros = Boolean.FALSE;
+
+    @Column(name = "PLUS_LINE_ITEM")
+    private String lineItem;
 
     @Transient
     private String itemType;
@@ -539,12 +541,12 @@ public class GradebookAssignment extends GradableObject implements PersistableEn
                 return this.itemType;
             }
 
-            if (gb.getGradeType() == GradeType.POINTS) {
-                this.itemType = item_type_points;
-            } else if (gb.getGradeType() == GradeType.PERCENTAGE) {
+            if (Objects.equals(gb.getGradeType(), GradingConstants.GRADE_TYPE_PERCENTAGE)) {
                 this.itemType = item_type_percentage;
-            } else if (gb.getGradeType() == GradeType.LETTER) {
+            } else if (Objects.equals(gb.getGradeType(), GradingConstants.GRADE_TYPE_LETTER)) {
                 this.itemType = item_type_letter;
+            } else {
+                this.itemType = item_type_points;
             }
         }
         return this.itemType;
@@ -569,7 +571,7 @@ public class GradebookAssignment extends GradableObject implements PersistableEn
             isIncludedInCalculations = true;
         }
 
-        if (gradebook.getCategoryType() != GradingCategoryType.NO_CATEGORY && this.category == null) {
+        if (!Objects.equals(gradebook.getCategoryType(), GradingConstants.CATEGORY_TYPE_NO_CATEGORY) && this.category == null) {
             isIncludedInCalculations = false;
         }
 

@@ -241,7 +241,7 @@ function mySetMainFrameHeightViewCell(id)
 		  		</div>
 		  	</f:verbatim>
 			
-			<t:div styleClass="table-responsive" rendered="#{(mfSynopticBeanLite.myContentsSize > 0)}" style="margin-top:1em;">
+			<t:div styleClass="table" rendered="#{(mfSynopticBeanLite.myContentsSize > 0)}" style="margin-top:1em;">
 				<t:dataTable id="myWorkspaceTable" value="#{mfSynopticBeanLite.contents}" var="eachSite" 
 						styleClass="table table-striped table-bordered table-hover tablesorter workspaceTable">
 
@@ -365,7 +365,7 @@ function mySetMainFrameHeightViewCell(id)
 
 
 		<!-- Site Home Page -->
-		<t:div styleClass="table-responsive" rendered="#{!mfSynopticBeanLite.myWorkspace && mfSynopticBeanLite.anyMFToolInSite}">
+		<t:div styleClass="table" rendered="#{!mfSynopticBeanLite.myWorkspace && mfSynopticBeanLite.anyMFToolInSite}">
 			<h:panelGrid columns="2" styleClass="table table-bordered table-hover table-striped">
 		
 				<h:panelGroup rendered="#{mfSynopticBeanLite.messageForumsPageInSite || mfSynopticBeanLite.messagesPageInSite}">

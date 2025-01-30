@@ -4,8 +4,8 @@
 <head>
 <title>WYSIWYG Author</title>
 <link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all"/>
-<link href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all"/>
-<script type="text/javascript" language="JavaScript" src="../js/SakaiRSFWidgets.js" rsf:id="scr=contribute-script"></script>
+<link href="/library/skin/default-skin/tool.css" type="text/css" rel="stylesheet" media="all"/>
+<script src="../js/SakaiRSFWidgets.js" rsf:id="scr=contribute-script"></script>
 
 </head>
 <body >
@@ -16,8 +16,10 @@
 <form>
   <div rsf:id="sakai-FCKEditor:">
     <textarea id="textarea_id" class="block" rsf:id="input" cols="60" rows="40" wrap="virtual"></textarea>
-    <script rsf:id="textarea-js">
-      SakaiProject.fckeditor.initializeEditor('textarea_id', '/group/9dd219e5-d840-42c9-803e-2c02b4ce69a4/');
+    <script rsf:id="textarea-js" defer="1">
+      document.addEventListener('DOMContentLoaded', function() {
+           SakaiProject.fckeditor.initializeEditor('textarea_id', '/group/9dd219e5-d840-42c9-803e-2c02b4ce69a4/');
+      });
     </script>
   </div>
   <input type="submit" rsf:id="submitbutton" value="Submit" />

@@ -98,14 +98,14 @@ public class SamigoToolWebService {
     }
   */
 
-    public String download(String[] idStringArray, String qtiVersion)
+    public String download(String[] idStringArray, String qtiVersion, String displayName)
     {
 
       //  move this to TestWSBean.getItembankxml
 
       QTIService qtiservice= new QTIService();
 
-      Document doc= qtiservice.getExportedItemBank(idStringArray,new Integer(qtiVersion).intValue());
+      Document doc= qtiservice.getExportedItemBank(idStringArray,new Integer(qtiVersion).intValue(), displayName);
       String xmlString = XmlUtil.getDOMString(doc);
       return xmlString;
     }

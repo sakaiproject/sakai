@@ -6,10 +6,7 @@
 
 <%
 	response.setContentType("text/html; charset=UTF-8");
-	response.addDateHeader("Expires", System.currentTimeMillis() - (1000L * 60L * 60L * 24L * 365L));
-	response.addDateHeader("Last-Modified", System.currentTimeMillis());
-	response.addHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0");
-	response.addHeader("Pragma", "no-cache");
+	response.addHeader("Cache-Control", "no-store");
 %>
 
 <jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
@@ -43,7 +40,7 @@
 			value="#{SiteListBean.userSitesRows}"
 			var="row1"
 			styleClass="table table-hover table-striped table-bordered"
-			columnClasses="visible,visible,visible,hidden-xs,hidden-xs,hidden-xs,hidden-xs,visible"
+			columnClasses="d-table-cell d-none d-sm-table-cell d-none d-md-table-cell d-none d-lg-table-cell d-table-cell"
 			sortColumn="#{SiteListBean.sitesSortColumn}"
             sortAscending="#{SiteListBean.sitesSortAscending}"
             rendered="#{SiteListBean.renderTable}" >
@@ -69,7 +66,7 @@
 		        </f:facet>
 				<h:outputText value="#{row1.groups}"/>
 			</h:column>
-			<t:column id="siteType" headerstyleClass="hidden-xs">
+			<t:column id="siteType" headerstyleClass="d-none d-sm-table-cell">
 				<f:facet name="header">
 		            <t:commandSortHeader columnName="siteType" immediate="true" arrow="true">
 		                <h:outputText value="#{msgs.site_type}"/>
@@ -77,7 +74,7 @@
 		        </f:facet>
 				<h:outputText value="#{row1.siteType}"/>
 			</t:column>
-			<t:column id="siteTerm" headerstyleClass="hidden-xs">
+			<t:column id="siteTerm" headerstyleClass="d-none d-sm-table-cell">
 				<f:facet name="header">
 		            <t:commandSortHeader columnName="siteTerm" immediate="true" arrow="true">
 		                <h:outputText value="#{msgs.site_term}"/>
@@ -85,7 +82,7 @@
 		        </f:facet>
 				<h:outputText value="#{row1.siteTerm}"/>
 			</t:column>
-			<t:column id="roleID" headerstyleClass="hidden-xs">
+			<t:column id="roleID" headerstyleClass="d-none d-sm-table-cell">
 				<f:facet name="header">
 		            <t:commandSortHeader columnName="roleId" immediate="true" arrow="true">
 		                <h:outputText value="#{msgs.role_name}"/>
@@ -93,7 +90,7 @@
 		        </f:facet>
 				<h:outputText value="#{row1.roleName}"/>
 			</t:column>
-			<t:column id="pubView" headerstyleClass="hidden-xs">
+			<t:column id="pubView" headerstyleClass="d-none d-sm-table-cell">
 				<f:facet name="header">
 		            <t:commandSortHeader columnName="published" immediate="true" arrow="true">
 		                <h:outputText value="#{msgs.status}"/>
@@ -120,7 +117,7 @@
 		<h:form id="buttonholder">
 			<t:div rendered="#{SiteListBean.renderTable && !SiteListBean.emptySiteList}">
 				<t:div styleClass="act">
-					<h:commandButton id="invert-selection" type="button" title="#{msgs.invert_selection}" value="#{msgs.invert_selection}" onclick="sakaiUserMembership.invertSelection(); sakaiUserMembership.checkSiteSelection();" />
+					<h:commandButton id="invert-selection" type="button" title="#{msgs.invert_selection}" value="#{msgs.invert_selection}" onclick="sakaiUserMembership.invertSelection();" />
 					<h:commandButton id="set-to-inactive" actionListener="#{SiteListBean.setToInactive}" value="#{msgs.set_to_inactive_button}"
 									 onclick="SPNR.disableControlsAndSpin( this, null );" />
 					<h:commandButton id="set-to-active" actionListener="#{SiteListBean.setToActive}" value="#{msgs.set_to_active_button}"

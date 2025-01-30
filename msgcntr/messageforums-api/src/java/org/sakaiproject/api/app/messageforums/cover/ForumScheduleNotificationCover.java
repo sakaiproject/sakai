@@ -63,10 +63,10 @@ public class ForumScheduleNotificationCover {
 		}
 	}
 	
-	public static boolean makeAvailableHelper(boolean availabilityRestricted, Date openDate, Date closeDate){
+	public static boolean makeAvailableHelper(boolean availabilityRestricted, Date openDate, Date closeDate, Boolean lockedAfterClosed){
 		ForumScheduleNotification service = getInstance();
 		if(service != null){
-			return service.makeAvailableHelper(availabilityRestricted, openDate, closeDate);
+			return service.makeAvailableHelper(availabilityRestricted, openDate, closeDate, lockedAfterClosed);
 		}
 		//when it doubt return true
 		return true;

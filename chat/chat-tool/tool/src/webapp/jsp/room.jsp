@@ -1,7 +1,7 @@
 <f:view>
     <sakai:view title="#{msgs['custom.chatroom']}">
         <h:outputText value="#{Portal.latestJQuery}" escape="false"/>
-        <script src="/sakai-chat-tool/js/chatscript.js"></script>
+        <script src='/sakai-chat-tool/js/chatscript.js<h:outputText value="#{Portal.CDNQuery}" />'></script>
         <script>
             if ( window.frameElement) window.frameElement.className='wcwmenu';
             $(document).ready( function () {
@@ -15,8 +15,8 @@
         <h:form id="topForm">
             <h:inputHidden id="chatidhidden" value="#{ChatTool.currentChatChannelId}" />
             <%@ include file="chatMenu.jsp" %>
-            <div class="panel panel-chat panel-default">
-                <div class="panel-heading">
+            <div class="card panel-chat panel-default">
+                <div class="mb-4">
                     <sakai:instruction_message value="#{ChatTool.datesMessage}" rendered="#{ChatTool.datesMessage ne null}" />
                     <sakai:view_title value="#{ChatTool.viewingChatRoomText}"/>
                     <h:panelGroup styleClass="chat-block">
@@ -28,7 +28,7 @@
                                 <f:selectItem itemValue="2" itemLabel="#{msgs.dateOnly}" />
                                 <f:selectItem itemValue="0" itemLabel="#{msgs.neitherDateOrTime}" />
                                 <f:selectItem itemValue="4" itemLabel="#{msgs.uniqueid}" />
-                            </h:selectOneMenu> 
+                            </h:selectOneMenu>
                         </h:panelGroup>
                         <h:panelGroup styleClass="msgoptions-grp">
                             <h:outputLabel for="messageOptions" value="#{msgs['combox.viewfrom']}" />
@@ -45,10 +45,10 @@
 
                 <ul class="nav nav-tabs" role="tabpanel">
                     <li class="active">
-                        <a href="#chatListWrapperCont" role="tab" data-toggle="tab"><span><h:outputText value="#{msgs.messages}" /></span></a>
+                        <a href="#chatListWrapperCont" role="tab" data-bs-toggle="tab"><span><h:outputText value="#{msgs.messages}" /></span></a>
                     </li>
                     <li>
-                        <a href="#chatPresenceWrapper" role="tab" data-toggle="tab"><span><h:outputText value="#{msgs.lay_user}" /></span></a>
+                        <a href="#chatPresenceWrapper" role="tab" data-bs-toggle="tab"><span><h:outputText value="#{msgs.lay_user}" /></span></a>
                     </li>
                 </ul>
                 <div class="panel-body panel-body-chat tab-content" id="chatLeft">
@@ -77,7 +77,7 @@
                                 <%@ include file="roomMonitor.jspf" %>
                             </div>
                         </div>
-                        <div class="scrollBottom hide" title="<h:outputText value="#{ChatTool.unreadedMessagesText}" />">
+                        <div class="scrollBottom d-none" title="<h:outputText value="#{ChatTool.unreadedMessagesText}" />">
                             <span class="newMessages" aria-label="<h:outputText value='#{msgs.unreaded}' />"></span>
                             <span class="scrollIcon fa fa-angle-down fa-2x" aria-label="<h:outputText value='#{msgs.unreaded}' />"></span>
                         </div>
@@ -126,8 +126,8 @@
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <span class="close" data-dismiss="modal" aria-label="<h:outputText value="#{msgs['gen.cancel']}" />" aria-hidden="true">&times;</span>
-                        <h4 class="modal-title"><h:outputText value="#{msgs['delete.delete']}" /></h4>
+                        <h1 class="modal-title"><h:outputText value="#{msgs['delete.delete']}" /></h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <p><h:outputText value="#{msgs['delete.sure']}" /></p>
@@ -147,7 +147,7 @@
                         <c:out value="</table>" escapeXml="false" />
                     </div>
                     <div class="modal-footer">
-                        <button type="button" id="cancelButton" class="btn btn-default" data-dismiss="modal"><h:outputText value="#{msgs['gen.cancel']}" /></button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><h:outputText value="#{msgs['gen.cancel']}" /></button>
                         <button type="button" id="deleteButton" class="btn btn-primary"><h:outputText value="#{msgs['gen.delete']}" /></button>
                     </div>
                 </div>

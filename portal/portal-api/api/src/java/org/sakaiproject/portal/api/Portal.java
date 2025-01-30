@@ -50,69 +50,70 @@ public interface Portal
 	/**
 	 * Error response modes.
 	 */
-	public static final int ERROR_SITE = 0;
+    int ERROR_SITE = 0;
 
-	public static final int ERROR_GALLERY = 1;
+	int ERROR_GALLERY = 1;
 
-	public static final int ERROR_WORKSITE = 2;
+	int ERROR_WORKSITE = 2;
 
 	/**
 	 * Parameter value to allow anonymous users of gallery mode to be sent to
 	 * the gateway site as anonymous user (like the /portal URL) instead of
 	 * making them log in (like worksite, site, and tool URLs).
 	 */
-	public static final String PARAM_FORCE_LOGIN = "force.login";
+    String PARAM_FORCE_LOGIN = "force.login";
 
-	public static final String PARAM_FORCE_LOGOUT = "force.logout";
+	String PARAM_FORCE_LOGOUT = "force.logout";
+	String PARAM_SAKAI_SITE = "sakai.site";
 
 	/**
 	 * ThreadLocal attribute set while we are processing an error.
 	 */
-	public static final String ATTR_ERROR = "org.sakaiproject.portal.error";
+    String ATTR_ERROR = "org.sakaiproject.portal.error";
 
 	/**
 	 * Session attribute root for storing a site's last page visited - just
 	 * append the site id.
 	 */
-	public static final String ATTR_SITE_PAGE = "sakai.portal.site.";
+    String ATTR_SITE_PAGE = "sakai.portal.site.";
 
 	/**
 	 * The default portal name is none is specified.
 	 */
-	public static final String DEFAULT_PORTAL_CONTEXT = "charon";
+    String DEFAULT_PORTAL_CONTEXT = "charon";
 
 	/**
 	 * Configuration option to enable/disable state reset on navigation change
 	 */
-	public static final String CONFIG_AUTO_RESET = "portal.experimental.auto.reset";
+    String CONFIG_AUTO_RESET = "portal.experimental.auto.reset";
 
 	/**
 	 * Names of tool config/registration attributes that control the rendering
 	 * of the tool's titlebar
 	 */
-	public static final String TOOLCONFIG_SHOW_RESET_BUTTON = "reset.button";
+    String TOOLCONFIG_SHOW_RESET_BUTTON = "reset.button";
 
-	public static final String TOOLCONFIG_SHOW_HELP_BUTTON = "help.button";
+	String TOOLCONFIG_SHOW_HELP_BUTTON = "help.button";
 
-	public static final String TOOLCONFIG_HELP_DOCUMENT_ID = "help.id";
+	String TOOLCONFIG_HELP_DOCUMENT_ID = "help.id";
 
-	public static final String TOOLCONFIG_HELP_DOCUMENT_URL = "help.url";
+	String TOOLCONFIG_HELP_DOCUMENT_URL = "help.url";
 
 	/*
 	* Configuration option for default number of site tabs to display to users
 	*/
-	public static final String CONFIG_DEFAULT_TABS = "portal.default.tabs";
+    String CONFIG_DEFAULT_TABS = "portal.default.tabs";
 
 	/**
 	 * Tool property used to indicate if JSR_168 tools are to be pre-rendered
 	 * as they are being placed in the context.
 	 */
-	public static final String JSR_168_PRE_RENDER = "sakai:portlet-pre-render";
+    String JSR_168_PRE_RENDER = "sakai:portlet-pre-render";
 
 	/**
 	 * Tool property to allow the enabling/disabling of the direct url linking UI
 	 */
-	public static final String TOOL_DIRECTURL_ENABLED_PROP = "sakai:tool-directurl-enabled";
+    String TOOL_DIRECTURL_ENABLED_PROP = "sakai:tool-directurl-enabled";
         
 	/**
 	 * prepare the response and send it to the render engine
@@ -123,8 +124,8 @@ public interface Portal
 	 * @param contentType
 	 * @throws IOException
 	 */
-	void sendResponse(PortalRenderContext rcontext, HttpServletResponse res,
-			String template, String contentType) throws IOException;
+	void sendResponse(PortalRenderContext rcontext, HttpServletResponse res, String template, String contentType)
+			throws IOException;
 
 	/**
 	 * get the placement for the request
@@ -137,8 +138,8 @@ public interface Portal
 	 * @return
 	 * @throws ToolException
 	 */
-	String getPlacement(HttpServletRequest req, HttpServletResponse res, Session session,
-			String placementId, boolean doPage) throws ToolException;
+	String getPlacement(HttpServletRequest req, HttpServletResponse res, Session session, String placementId, boolean doPage)
+			throws ToolException;
 
 	/**
 	 * perform login
@@ -150,8 +151,8 @@ public interface Portal
 	 * @param skipContainer
 	 * @throws ToolException
 	 */
-	void doLogin(HttpServletRequest req, HttpServletResponse res, Session session,
-			String returnPath, boolean skipContainer) throws ToolException;
+	void doLogin(HttpServletRequest req, HttpServletResponse res, Session session, String returnPath, boolean skipContainer)
+			throws ToolException;
 
 	/**
 	 * Process a logout
@@ -168,8 +169,8 @@ public interface Portal
 	 *        logged out URL.
 	 * @throws ToolException
 	 */
-	void doLogout(HttpServletRequest req, HttpServletResponse res, Session session,
-			String returnPath) throws ToolException;
+	void doLogout(HttpServletRequest req, HttpServletResponse res, Session session, String returnPath)
+			throws ToolException;
 
 	/**
 	 * get a new render context from the render engine
@@ -181,8 +182,7 @@ public interface Portal
 	 * @param site
 	 * @return
 	 */
-	PortalRenderContext startPageContext(String siteType, String title, String skin,
-			HttpServletRequest request, Site site);
+	PortalRenderContext startPageContext(String siteType, String title, String skin, HttpServletRequest request, Site site);
 
 	/**
 	 * perform a redirect if logged out
@@ -211,8 +211,8 @@ public interface Portal
 	 * @throws ToolException
 	 * @throws IOException
 	 */
-	void doError(HttpServletRequest req, HttpServletResponse res, Session session,
-			int mode) throws ToolException, IOException;
+	void doError(HttpServletRequest req, HttpServletResponse res, Session session, int mode)
+			throws ToolException, IOException;
 
 	/**
 	 * forward to a portal url
@@ -227,9 +227,8 @@ public interface Portal
 	 * @throws IOException
 	 * @throws ToolException
 	 */
-	void forwardPortal(ActiveTool tool, HttpServletRequest req, HttpServletResponse res,
-			ToolConfiguration siteTool, String skin, String toolContextPath,
-			String toolPathInfo) throws ToolException, IOException;
+	void forwardPortal(ActiveTool tool, HttpServletRequest req, HttpServletResponse res, ToolConfiguration siteTool, String skin, String toolContextPath, String toolPathInfo)
+			throws IOException;
 
 	/**
 	 * setup in preparation for a forward
@@ -239,8 +238,7 @@ public interface Portal
 	 * @param p
 	 * @param skin
 	 */
-	void setupForward(HttpServletRequest req, HttpServletResponse res, Placement p,
-			String skin) throws ToolException;
+	void setupForward(HttpServletRequest req, HttpServletResponse res, Placement p, String skin);
 
 	/**
 	 * include the model section that relates to the bottom of the page.
@@ -251,10 +249,11 @@ public interface Portal
 	void includeBottom(PortalRenderContext rcontext, Site site);
 
 	/**
-	 * work out the type of the site based on the site id.
-	 * 
-	 * @param siteId
-	 * @return
+	 * Determine the type of site.
+	 * This method is tightly coupled to site skinning.
+	 *
+	 * @param siteId the site id to check
+	 * @return returns the type ("course", "project", "workspace", "mySpecialSiteType", etc)
 	 */
 	String calcSiteType(String siteId);
 
@@ -265,8 +264,7 @@ public interface Portal
 	 * @param req
 	 * @param session
 	 */
-	void includeLogin(PortalRenderContext rcontext, HttpServletRequest req,
-			Session session);
+	void includeLogin(PortalRenderContext rcontext, HttpServletRequest req, Session session);
 
 	/**
 	 * forward the request to a tool
@@ -274,14 +272,13 @@ public interface Portal
 	 * @param tool
 	 * @param req
 	 * @param res
-	 * @param siteTool
+	 * @param placement
 	 * @param skin
 	 * @param toolContextPath
 	 * @param toolPathInfo
 	 * @throws ToolException
 	 */
-	void forwardTool(ActiveTool tool, HttpServletRequest req, HttpServletResponse res,
-			Placement placement, String skin, String toolContextPath, String toolPathInfo)
+	void forwardTool(ActiveTool tool, HttpServletRequest req, HttpServletResponse res, Placement placement, String skin, String toolContextPath, String toolPathInfo)
 			throws ToolException;
 
 	/**
@@ -312,10 +309,18 @@ public interface Portal
 	 * @throws ToolException
 	 * @throws IOException
 	 */
-	PortalRenderContext includePortal(HttpServletRequest req, HttpServletResponse res,
-			Session session, String siteId, String toolId, String toolContextPath,
-			String prefix, boolean doPages, boolean resetTools, boolean includeSummary,
-			boolean expandSite) throws ToolException, IOException;
+	PortalRenderContext includePortal(HttpServletRequest req,
+									  HttpServletResponse res,
+									  Session session,
+									  String siteId,
+									  String toolId,
+									  String toolContextPath,
+									  String prefix,
+									  boolean doPages,
+									  boolean resetTools,
+									  boolean includeSummary,
+									  boolean expandSite)
+			throws IOException;
 
 	/**
 	 * include the tool part of the view tree
@@ -326,8 +331,8 @@ public interface Portal
 	 * @return
 	 * @throws IOException
 	 */
-	Map includeTool(HttpServletResponse res, HttpServletRequest req,
-			ToolConfiguration placement) throws IOException;
+	Map<String, Object> includeTool(HttpServletResponse res, HttpServletRequest req, ToolConfiguration placement)
+			throws IOException;
 
 	/**
 	 * include the tool part of the view tree
@@ -339,8 +344,8 @@ public interface Portal
 	 * @return
 	 * @throws IOException
 	 */
-	Map includeTool(HttpServletResponse res, HttpServletRequest req,
-			ToolConfiguration placement, boolean inlineTool) throws IOException;
+	Map<String, Object> includeTool(HttpServletResponse res, HttpServletRequest req, ToolConfiguration placement, boolean inlineTool)
+			throws IOException;
 
 	/**
 	 * Get the context name of the portal. This is the name used to identify the
@@ -361,56 +366,23 @@ public interface Portal
 	ServletContext getServletContext();
 
 	/**
-	 * Return the sub sites below a particular site
-	 * Map.
-	 * @param rcontext
-	 * @param req
-	 * @param siteId
-	 * @param toolContextPath
-	 * @param prefix
-	 * @param loggedIn
-	 */
- 	void includeSubSites(PortalRenderContext rcontext, HttpServletRequest req,
-			Session session, String siteId, String toolContextPath, 
-			String prefix, boolean resetTools );
-
-	/**
-	 * Get a the page Filter Implementation
-	 * @return
-	 */
-	PageFilter getPageFilter();
-	
-	/**
-	 * Set page Filter
-	 *
-	 */
-	void setPageFilter(PageFilter pageFilter);
-
-	/**
 	 * @return
 	 */
 	PortalSiteHelper getSiteHelper();
 
 	/**
-	 * @return
-	 */
-	SiteNeighbourhoodService getSiteNeighbourhoodService();
-
-	/**
          * Indicate if a placement is a JSR-168 placement
 	 * @return
 	 */
-        public boolean isPortletPlacement(Placement placement);
+    boolean isPortletPlacement(Placement placement);
 
-        /**
-         * Find a cookie by this name from the request
-         * 
-         * @param req
-         *        The servlet request.
-         * @param name
-         *        The cookie name
-         * @return The cookie of this name in the request, or null if not found.
-         */
-        public Cookie findCookie(HttpServletRequest req, String name);
+	/**
+	 * Find a cookie by this name from the request
+	 *
+	 * @param req  The servlet request.
+	 * @param name The cookie name
+	 * @return The cookie of this name in the request, or null if not found.
+	 */
+	Cookie findCookie(HttpServletRequest req, String name);
 
 }

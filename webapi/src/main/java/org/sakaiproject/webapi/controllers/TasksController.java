@@ -16,10 +16,10 @@ package org.sakaiproject.webapi.controllers;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -49,20 +49,16 @@ import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.sakaiproject.authz.api.SecurityService;
 
-/**
- */
 @Slf4j
 @RestController
 public class TasksController extends AbstractSakaiApiController {
@@ -88,38 +84,42 @@ public class TasksController extends AbstractSakaiApiController {
     @Resource
     private SecurityService securityService;
 
-    @GetMapping(value = "/tasks", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<UserTaskAdapterBean> getTasks() throws UserNotDefinedException {
+    @GetMapping(value = "/users/me/tasks", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Map<String, Object> getTasks() throws UserNotDefinedException {
 
         checkSakaiSession();
 
+        Map<String, Object> data = new HashMap<>();
+
         // Flatten the UserTask objects into a more compact form and return.
-        return taskService.getAllTasksForCurrentUser()
+        data.put("tasks", taskService.getCurrentTasksForCurrentUser()
             .stream().map(bean -> {
                 try {
-                    Site site = siteService.getSite(bean.getSiteId());
-                    bean.setSiteTitle(site.getTitle());
-                    if (StringUtils.isNotBlank(bean.getReference()) && !bean.getReference().startsWith("/user/")) {
-                        entityManager.getUrl(bean.getReference(), Entity.UrlType.PORTAL).ifPresent(u -> bean.setUrl(u));	
-                    }
-                    bean.setTaskAssignedTo(getTaskAssignedDescription(bean.getTaskId(), site));
+                    updateUserTaskAdapterBean(bean);
                 } catch (IdUnusedException e) {
                     log.warn("No site for id {}", bean.getSiteId());
                 }
                 return bean;
-            }).collect(Collectors.toList());
+            }).collect(Collectors.toList()));
+
+        data.put("canAddTask", taskService.canCurrentUserAddTask(null));
+
+        return data;
     }
     
-    @GetMapping(value = "/tasks/site/{siteId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<UserTaskAdapterBean> getSiteTasks(@PathVariable String siteId) throws UserNotDefinedException, IdUnusedException {
+    @GetMapping(value = "/sites/{siteId}/tasks", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Map<String, Object> getSiteTasks(@PathVariable String siteId) throws UserNotDefinedException, IdUnusedException {
 
-        checkSakaiSession();
+        Session session = checkSakaiSession();
         
         final Site site = siteService.getSite(siteId);
 
+        Map<String, Object> data = new HashMap<>();
+
         // Flatten the UserTask objects into a more compact form and return.
-        return taskService.getAllTasksForCurrentUserOnSite(siteId)
+        data.put("tasks", taskService.getAllTasksForCurrentUserOnSite(siteId)
             .stream().map(bean -> {
+
                 if (site != null) {
                 	bean.setSiteTitle(site.getTitle());
                 	bean.setTaskAssignedTo(getTaskAssignedDescription(bean.getTaskId(), site));
@@ -128,38 +128,30 @@ public class TasksController extends AbstractSakaiApiController {
                     entityManager.getUrl(bean.getReference(), Entity.UrlType.PORTAL).ifPresent(u -> bean.setUrl(u));
                 }
                 return bean;
-            }).collect(Collectors.toList());
-    }
-    
-    @GetMapping(value = "/sites/{siteId}/users/current/isSiteUpdater", produces = MediaType.APPLICATION_JSON_VALUE)
-    public boolean isInstructorUser(@PathVariable String siteId) {
-        checkSakaiSession();
+            }).collect(Collectors.toList()));
+
+        data.put("canAddTask", taskService.canCurrentUserAddTask(siteId));
 
         try {
-            Site site = siteService.getSite(siteId);
             // Returns a boolean value which depends if an user is an instructor or not
-            return securityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference());
+            if (securityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference())) {
+                data.put("canUpdateSite", true);
+
+                Collection<Group> groups = site.getGroups();
+                if (!groups.isEmpty()) {
+                    Collection<Map<String, String>> groupsAsMaps
+                        = groups.stream().map(g -> Map.of("reference", g.getReference(), "title", g.getTitle()))
+                            .collect(Collectors.toList());
+                    data.put("groups", groupsAsMaps);
+                }
+            }
         } catch (Exception e) {
-            log.warn("Error retrieving role on site {} for user {} : {}", siteId, e.toString());
-        }
-        return false;
-    }
-
-    @GetMapping(value = "/tasks/site/groups/{siteId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Object[] getSiteGroups(@PathVariable String siteId) throws IdUnusedException {
-        checkSakaiSession();
-
-        Site currentSite = siteService.getSite(siteId);
-        Map<String, String> groupsMap = new HashMap<>();
-        
-        Collection groups = currentSite.getGroups();
-        if (!groups.isEmpty()) {
-            groupsMap = (Map<String, String>) groups.stream().collect(Collectors.toMap(Group::getId, Group::getTitle));
+            log.warn("Error retrieving role on site {} for user {} : {}", siteId, session.getUserId(), e.toString());
         }
 
-        return groupsMap.entrySet().toArray(); 
+        return data;
     }
-
+    
     @PostMapping(value = "/tasks", produces = MediaType.APPLICATION_JSON_VALUE)
     public UserTaskAdapterBean createTask(@RequestBody UserTaskAdapterBean taskTransfer) {
 
@@ -231,17 +223,15 @@ public class TasksController extends AbstractSakaiApiController {
 
         checkSakaiSession();
 
-        UserTaskAdapterBean result = UserTaskAdapterBean.from(taskService.saveUserTask(taskTransfer));
-        if (!StringUtils.isEmpty(taskTransfer.getSiteId())) {
+        UserTaskAdapterBean bean = UserTaskAdapterBean.from(taskService.saveUserTask(taskTransfer));
+        if (!StringUtils.isEmpty(bean.getSiteId())) {
             try {
-                Site site = siteService.getSite(taskTransfer.getSiteId());
-                result.setSiteTitle(site.getTitle());
-                result.setTaskAssignedTo(getTaskAssignedDescription(taskTransfer.getTaskId(), site));
+                updateUserTaskAdapterBean(bean);
             } catch (IdUnusedException e) {
                 log.error(e.getMessage(), e);
             }
         }        
-        return result;
+        return bean;
     }
 
     @DeleteMapping("/tasks/{userTaskId}")
@@ -272,4 +262,20 @@ public class TasksController extends AbstractSakaiApiController {
         return result;
     }
 
+    /**
+     * This method updates a UserTaskAdapterBean object.
+     *
+     * @param bean the UserTaskAdapterBean object to update
+     * @throws IdUnusedException if the specified site ID is invalid
+     */
+    private void updateUserTaskAdapterBean(UserTaskAdapterBean bean) throws IdUnusedException {
+
+        Site site = siteService.getSite(bean.getSiteId());
+
+        bean.setSiteTitle(site.getTitle());
+        if (StringUtils.isNotBlank(bean.getReference()) && !bean.getReference().startsWith("/user/")) {
+            entityManager.getUrl(bean.getReference(), Entity.UrlType.PORTAL).ifPresent(u -> bean.setUrl(u));
+        }
+        bean.setTaskAssignedTo(getTaskAssignedDescription(bean.getTaskId(), site));
+    }
 }

@@ -22,9 +22,9 @@ import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.commons.configuration.reloading.InvariantReloadingStrategy;
+import org.apache.commons.configuration2.builder.fluent.Configurations;
+import org.apache.commons.configuration2.ex.ConfigurationException;
+import org.apache.commons.configuration2.PropertiesConfiguration;
 
 import org.sakaiproject.api.app.help.TutorialEntityProvider;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -42,17 +42,17 @@ public class TutorialEntityProviderImpl implements TutorialEntityProvider, AutoR
 	private static PropertiesConfiguration tutorialProps;
 	
 	private void initConfig() {
-		
-		URL url = getClass().getClassLoader().getResource("Tutorial.config"); 
-		
+
+		URL url = getClass().getClassLoader().getResource("Tutorial.config");
+		if (url == null) {
+			log.warn("Configuration file Tutorial.config not found");
+			return;
+		}
+
 		try {
-			tutorialProps = new PropertiesConfiguration(); //must use blank constructor so it doesn't parse just yet (as it will split)
-			tutorialProps.setReloadingStrategy(new InvariantReloadingStrategy());	//don't watch for reloads
-			tutorialProps.setThrowExceptionOnMissing(false);	//throw exception if no prop
-			tutorialProps.setDelimiterParsingDisabled(true); //don't split properties
-			tutorialProps.load(url); //now load our file
+			tutorialProps = new Configurations().properties(url);
 		} catch (ConfigurationException e) {
-			log.error(e.getClass() + ": " + e.getMessage());
+			log.warn("Could not load Tutorials properties, {}", e.toString());
 			return;
 		}
 	}
@@ -91,7 +91,7 @@ public class TutorialEntityProviderImpl implements TutorialEntityProvider, AutoR
 		String sakaiInstanceName = ServerConfigurationService.getString("ui.service", "Sakai");
 		String selection = tutorialProps.getString(ref.getId() + ".selection");
 
-		Map valuesMap = new HashMap<String, String>();
+		Map<String, String> valuesMap = new HashMap<>();
 		valuesMap.put("selection", selection);
 		valuesMap.put("title", msgs.getFormattedMessage(ref.getId() + ".title", sakaiInstanceName));
 		valuesMap.put("dialog", tutorialProps.getString(ref.getId() + ".dialog"));

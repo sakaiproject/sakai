@@ -6,15 +6,15 @@
 <f:view locale="#{UserLocale.locale}">
 	<jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader"
 		scope="session">
-		<jsp:setProperty name="msgs" property="baseName" value="messages" />
+		<jsp:setProperty name="msgs" property="baseName" value="signup" />
 	</jsp:useBean>
 	<sakai:view_container title="#{msgs.attend_view_title} #{AttendanceSignupBean.meetingWrapper.meeting.title}">
 		<style type="text/css">
-			@import url("/sakai-signup-tool/css/signupStyle.css");
+			@import url("/sakai-signup-tool/css/signupStyle.css${Portal.CDNQuery}");
 		</style>
 <h:outputText value="#{Portal.latestJQuery}" escape="false"/>
 		<script TYPE="text/javascript" LANGUAGE="JavaScript"
-			src="/sakai-signup-tool/js/signupScript.js"></script>
+			src="/sakai-signup-tool/js/signupScript.js${Portal.CDNQuery}"></script>
 		<script type="text/javascript">
 			jQuery(document).ready(function(){
 	            sakai.setupSelectListMultiple('availableSpots', 'selectAllThese', 'selectedSelected');

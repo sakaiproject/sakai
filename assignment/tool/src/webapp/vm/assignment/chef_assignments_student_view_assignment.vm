@@ -24,7 +24,7 @@
                     $tlang.getString("external.tool.label")
                 </th>
                 <td>
-                    $assignment.ContentId
+                    $!assignment.ContentId
                 </td>
             </tr>
 			<tr> 
@@ -174,4 +174,4 @@
 			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		</form>
 	</div>
-<!-- end: check_assignments_student_view_assignment.vm -->
+<!-- end: chef_assignments_student_view_assignment.vm -->

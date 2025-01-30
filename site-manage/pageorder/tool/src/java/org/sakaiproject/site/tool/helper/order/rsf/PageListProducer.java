@@ -97,6 +97,7 @@ public class PageListProducer
                 SitePage page = sitePages.get(key);
                 UIBranchContainer pagerow = 
                     UIBranchContainer.make(pageForm, "page-row:", page.getId());
+                pagerow.decorate(new UIFreeAttributeDecorator("data-sortable-id", page.getId()));
     
                 UIOutput.make(pagerow, "page-name", page.getTitle());
                 UIInput.make(pagerow, "page-name-input", "#{SitePageEditHandler.nil}", page.getTitle()).decorate(new UIFreeAttributeDecorator("maxlength", String.valueOf(MAX_TOOL_TITLE_LENGTH)));
@@ -109,7 +110,7 @@ public class PageListProducer
                 if (tools.size() > 0) {
                     toolId = tools.get(0).getToolId().replaceAll("\\.", "-");
                 }
-                UIOutput.make(pagerow, "tool-icon").decorate(new UIFreeAttributeDecorator("class", String.format("tool-icon icon-sakai--%s", toolId)));
+                UIOutput.make(pagerow, "tool-icon").decorate(new UIFreeAttributeDecorator("class", String.format("tool-icon si si-%s", toolId)));
 
                 PageEditViewParameters param = new PageEditViewParameters();
                                 
@@ -153,57 +154,52 @@ public class PageListProducer
                     }
                 }
 
+                // If this page is visible or locked, hide the hidden icon, otherwise, show it.
+                UIOutput hiddenFlag = UIOutput.make(pagerow, "page-hidden-flag");
+                hiddenFlag.decorate(new UIFreeAttributeDecorator("style", handler.isVisible(page) || !handler.isEnabled(page) ? "display: none" : "display: block"));
+                hiddenFlag.decorate(new UITooltipDecorator(UIMessage.make("page_hidden_flag")));
+
+                // If this page is locked show the locked icon
+                UIOutput lockedFlag = UIOutput.make(pagerow, "page-locked-flag");
+                lockedFlag.decorate(new UIFreeAttributeDecorator("style", handler.isEnabled(page) ? "display: none" : "display: block"));
+                lockedFlag.decorate(new UITooltipDecorator(UIMessage.make("page_locked_flag")));
+
                 // No point showing visibility links if the page is locked.
-                if (handler.allowsHide(page) && handler.isEnabled(page)) {
+                if (handler.allowsHide(page)) {
                     param.viewID = PageEditProducer.VIEW_ID;
-                    if (handler.isVisible(page)) {
-                        param.visible = "false";
-                        fullyDecorate(UIInternalLink.make(pagerow, "hide-link", param),
-                            UIMessage.make("page_hide", pageTitle));
-                        
-                        param.visible = "true";
-                        fullyDecorate(UIInternalLink.make(pagerow, "show-link-off", param),
-                            UIMessage.make("page_show", pageTitle));
-                    } else {
-                        param.visible = "true";
-                        fullyDecorate(UIInternalLink.make(pagerow, "show-link", param),
-                            UIMessage.make("page_show", pageTitle));
-                     
-                        param.visible = "false";
-                        fullyDecorate(UIInternalLink.make(pagerow, "hide-link-off", param),
-                            UIMessage.make("page_hide", pageTitle));
-                    }
-                    UIOutput hiddenFlag = UIOutput.make(pagerow, "page-hidden-flag");
-                    hiddenFlag.decorate(new UIFreeAttributeDecorator("style", handler.isVisible(page) ? "display: none" : "display: block"));
-                    hiddenFlag.decorate(new UITooltipDecorator(UIMessage.make("page_hidden_flag")));
+
+                    UIBranchContainer hideLi = UIBranchContainer.make(pagerow, "hide-li:");
+                    hideLi.decorate(new UIFreeAttributeDecorator("style", handler.isVisible(page) && handler.isEnabled(page) ? "display: list-item" : "display: none"));
+                    param.visible = "false";
+                    fullyDecorate(UIInternalLink.make(hideLi, "hide-link", param),
+                        UIMessage.make("page_hide", pageTitle));
+
+                    UIBranchContainer showLi = UIBranchContainer.make(pagerow, "show-li:");
+                    showLi.decorate(new UIFreeAttributeDecorator("style", handler.isVisible(page) || !handler.isEnabled(page) ? "display: none" : "list-item"));
+                    param.visible = "true";
+                    fullyDecorate(UIInternalLink.make(showLi, "show-link", param),
+                        UIMessage.make("page_show", pageTitle));
                 }
-                
-		// NEW
-		// TODO: Force hidden if disabled
+
+                // NEW
+                // TODO: Force hidden if disabled
                 if (handler.allowDisable(page)) {
+
                     param.viewID = PageEditProducer.VIEW_ID;
                     param.visible = null;
-                    if (handler.isEnabled(page)) {
-                        param.enabled = "false";
-                        fullyDecorate(UIInternalLink.make(pagerow, "disable-link", param),
-                            UIMessage.make("page_disable", pageTitle));
-                        
-                        param.enabled = "true";
-                        fullyDecorate(UIInternalLink.make(pagerow, "enable-link-off", param),
-                            UIMessage.make("page_enable", pageTitle));
-                    }
-                    else {
-                        param.enabled = "true";
-                        fullyDecorate(UIInternalLink.make(pagerow, "enable-link", param),
-                            UIMessage.make("page_enable", pageTitle));
-                     
-                        param.enabled = "false";
-                        fullyDecorate(UIInternalLink.make(pagerow, "disable-link-off", param),
-                            UIMessage.make("page_disable", pageTitle));
-                    }
-                    UIOutput lockedFlag = UIOutput.make(pagerow, "page-locked-flag");
-                    lockedFlag.decorate(new UIFreeAttributeDecorator("style", handler.isEnabled(page) ? "display: none" : "display: block"));
-                    lockedFlag.decorate(new UITooltipDecorator(UIMessage.make("page_locked_flag")));
+                    param.enabled = "true";
+
+                    UIBranchContainer lockLi = UIBranchContainer.make(pagerow, "lock-li:");
+                    lockLi.decorate(new UIFreeAttributeDecorator("style", handler.isEnabled(page) ? "display: list-item" : "display: none"));
+                    param.enabled = "false";
+                    fullyDecorate(UIInternalLink.make(lockLi, "disable-link", param),
+                        UIMessage.make("page_disable", pageTitle));
+
+                    UIBranchContainer unlockLi = UIBranchContainer.make(pagerow, "unlock-li:");
+                    unlockLi.decorate(new UIFreeAttributeDecorator("style", handler.isEnabled(page) ? "display: none" : "display: list-item"));
+                    param.enabled = "true";
+                    fullyDecorate(UIInternalLink.make(unlockLi, "enable-link", param),
+                        UIMessage.make("page_enable", pageTitle));
                 }
                 state += page.getId() + " ";
             }
@@ -226,15 +222,6 @@ public class PageListProducer
             if (serverConfigurationService.getBoolean(ALLOW_REORDER, true)) {
                 fullyDecorate(UICommand.make(pageForm, "sort_alpha", UIMessage.make("sort_alpha"), "#{SitePageEditHandler.sort_alpha}"), UIMessage.make("sort_alpha"));
             }
-            else {
-                UIInitBlock.make(tofill, "jsreorder","disableReorder",new Object[] {});
-            }
- 
-        }
-        else {
-            //error messages - apparently nothing in template for these
-            //UIBranchContainer error = UIBranchContainer.make(tofill, "error:");
-            //UIMessage.make(error, "message", "access_error");
         }
     }
 

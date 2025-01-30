@@ -32,7 +32,6 @@ public interface UserFactory
 {
 	/**
 	 * Create a new User (UserEdit) object.
-	 * @deprecated {@link #newUser(String)} should be used instead which presets the user ID.
 	 * @return a new UserEdit object.
 	 */
 	UserEdit newUser();

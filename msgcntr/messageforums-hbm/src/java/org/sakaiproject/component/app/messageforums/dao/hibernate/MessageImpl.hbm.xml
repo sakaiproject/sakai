@@ -101,7 +101,7 @@
 	                    column="userSurrogateKey"/>
   	  </list>         
   	  -->
-  	  <list name="recipients" lazy="true" table="MFR_PVT_MSG_USR_T">
+  	  <list name="recipients" lazy="true" table="MFR_PVT_MSG_USR_T" cascade="delete-orphan">
   	    <key column="messageSurrogateKey"/>
   	    <index column="user_index_col"/>
   	    <composite-element class="org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageRecipientImpl">
@@ -122,6 +122,9 @@
           </property>
 		  <property name="replied">
             <column name="REPLIED" not-null="true"/>
+          </property>
+          <property name="readReceipt" not-null="false" >
+            <column name="READ_RECEIPT"/>
           </property>
   	    </composite-element>  	      	    
   	  </list>
@@ -485,6 +488,42 @@
       join topic.openForum forum
       join forum.area area
     where area.contextId = :contextId and message.draft = false and message.deleted = false and forum.id = :forumId
+    group by message.createdBy
+  ]]></query>
+
+   <query name="findAuthoredNewMessageCountForAllStudentsByTopicId"><![CDATA[
+    select message.createdBy, count(*)
+    from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message
+      join message.topic topic
+      join topic.openForum forum
+    where message.draft = false and message.deleted = false and topic.id = :topicId and message.inReplyTo is null
+    group by message.createdBy
+  ]]></query>
+
+  <query name="findAuthoredNewMessageCountForAllStudentsByForumId"><![CDATA[
+    select message.createdBy, count(*)
+    from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message
+      join message.topic topic
+      join topic.openForum forum
+    where message.draft = false and message.deleted = false and forum.id = :forumId and message.inReplyTo is null
+    group by message.createdBy
+  ]]></query>
+
+   <query name="findAuthoredRepliesMessageCountForAllStudentsByTopicId"><![CDATA[
+    select message.createdBy, count(*)
+    from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message
+      join message.topic topic
+      join topic.openForum forum
+    where message.draft = false and message.deleted = false and topic.id = :topicId and message.inReplyTo is not null
+    group by message.createdBy
+  ]]></query>
+
+   <query name="findAuthoredRepliesMessageCountForAllStudentsByForumId"><![CDATA[
+    select message.createdBy, count(*)
+    from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message
+      join message.topic topic
+      join topic.openForum forum
+    where message.draft = false and message.deleted = false and forum.id = :forumId and message.inReplyTo is not null
     group by message.createdBy
   ]]></query>
 

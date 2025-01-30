@@ -22,6 +22,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import lombok.EqualsAndHashCode;
 import org.sakaiproject.springframework.data.PersistableEntity;
 
 import lombok.Getter;
@@ -31,6 +32,7 @@ import lombok.Setter;
 @Table(name = "CONV_STATUS", uniqueConstraints = { @UniqueConstraint(name = "UniqueConvStatus", columnNames = { "SITE_ID", "USER_ID" }) })
 @Getter
 @Setter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class ConvStatus implements PersistableEntity<Long> {
 
     @Id
@@ -39,9 +41,11 @@ public class ConvStatus implements PersistableEntity<Long> {
     private Long id;
 
     @Column(name = "SITE_ID", length = 99, nullable = false)
+    @EqualsAndHashCode.Include
     private String siteId;
 
     @Column(name = "USER_ID", length = 99, nullable = false)
+    @EqualsAndHashCode.Include
     private String userId;
 
     @Column(name = "GUIDELINES_AGREED")

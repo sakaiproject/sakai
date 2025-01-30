@@ -21,6 +21,7 @@
 
 package org.sakaiproject.entity.api;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -76,9 +77,9 @@ public interface EntityTransferrer {
      * Takes a map of ref's (fromContextRef -> toContextRef) and replaces any reference to them
      *
      * @param toContext The destination context
-     * @param transversalMap All the refs that can be updated.
+     * @param traversalMap All the refs that can be updated.
      */
-    default void updateEntityReferences(String toContext, Map<String, String> transversalMap) {
+    default void updateEntityReferences(String toContext, Map<String, String> traversalMap) {
         return;
     }
 
@@ -87,5 +88,9 @@ public interface EntityTransferrer {
      */
     default Optional<List<String>> getTransferOptions() {
         return Optional.empty();
+    }
+
+    default List<Map<String, String>> getEntityMap(String fromContext) {
+        return Collections.<Map<String, String>>emptyList();
     }
 }

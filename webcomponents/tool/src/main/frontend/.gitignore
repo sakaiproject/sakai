@@ -1,8 +1,13 @@
 **/*.js
-!js/**/*.js
-!src/**/*.js
-!.config/*.js
-!stories/**/*.js
-!.storybook/*.js
-!.eslintrc.js
-!test/**
+!bundle-entry-points/*.js
+!packages/**/*.js
+
+## temp folders
+/.tmp/
+bundles
+/coverage/
+coverage/
+/storybook-static/
+/screenshots/.current/
+/screenshots/.diff/
+meta.json

@@ -20,7 +20,7 @@
 				<form name = "removeSectionForm" id="removeSectionForm" method="post" action="#toolForm($action)">
 					<input type="hidden" name="eventSubmit_doFind_course" value="x" />
 					<input type="hidden" name="option" value="remove" />
-					<div class="table-responsive course-section">
+					<div class="table course-section">
 						<table class="table table-bordered table-hover table-striped" summary="">
 							#foreach($item in $!selectedProviderCourseTitles.keySet())
 								<tr>
@@ -83,7 +83,7 @@
 		#set($maxLevel = $cmLevels.size() - 1)
 		
 		#foreach ($level in $cmLevels)
-			<div class="form-group row ">
+			<div class="row">
 				
 					#set($fieldName="idField_$i")
 					<label for="id-$fieldName" class="col-sm-3 form-control-label">
@@ -169,7 +169,7 @@
 		#if ($requireAuthorizer)
 			<div id="sectionInfo" #if ($selectedCourse && !($!authGroupSet && !$!authGroupSet.isEmpty())) style="display:block;clear:both" #else style="display:none" #end>
 
-					<div class="shorttext required form-group row ">						
+					<div class="shorttext required row">
 						<label for="uniqname" class="col-sm-3 form-control-label">		
 							<span class="reqStar">*</span>						
 						   $tlang.getString("man.authoriz")
@@ -181,7 +181,7 @@
 					<p class="labelindnt">
 					   <span class="textPanelFooter">$tlang.getString("man.email")</span>
 					</p>
-					<div class="shorttext  form-group row">
+					<div class="shorttext row">
 						<label for="additional" class="col-sm-3 form-control-label">
 							$tlang.getString("man.spec")
 						</label>
@@ -214,19 +214,13 @@
 		<input id="index" type="hidden" name="templateIndex" value="$!templateIndex" />
 		<input type="hidden" name="eventSubmit_doFind_course" value="x" />
 		<input type="hidden" name="option" value="find"/>
-		## if site creation is based on template, this could be the final step!
-		#if ($!basedOnTemplate) 
-			<div class="instruction" id ="nextInstructions">
-				<span id="templateNonCourseInstruction" style="display:block">$tlang.getString("sitetype.templatefinalstepinstruction")</span>
-			</div>
-		#end
 		<p class="act">
 			<input id="continueButton" name="continueButton"
 				#if (!$selectedCourse || ($!authGroupSet && !$!authGroupSet.isEmpty()))
   			disabled="true"
 				#end
 			 type="submit" class="active" accesskey="s" name="eventSubmit_doContinue" 
-				#if ($!basedOnTemplate) value="$tlang.getString('sitetype.done')" #else value="$tlang.getString('gen.continue')" #end
+				value="$tlang.getString('gen.continue')"
 				onclick="SPNR.disableControlsAndSpin( this, null ); resetOption('continue', 'findCourseForm');" />
 			<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" 
 				onclick="SPNR.disableControlsAndSpin( this, null ); resetOption('back', 'findCourseForm');" />

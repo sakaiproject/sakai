@@ -1,0 +1,37 @@
+
+<div class="portletBody">
+
+    <h3>$tlang.getString("tool.site.insert")</h3>
+    #if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div>#end
+
+    <form action="#toolForm("")" method="post" name="customizeForm" >
+
+        <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+        <input type="hidden" name="tool_id" value="$toolId" />
+
+        <div id="notes-input-container">
+            <label for="notes-input">Notes (Apply to all sites listed below)</label>
+            <div id="div-notes-input">
+                <input type="text" id="notes-input" class="form-control" name="notes" size="40" value="$!previousPost.get("notes")">
+            </div>
+        </div>
+
+        <div id="tool-site-ids-input-container">
+            <label for="tool-site-ids-input">
+                <span style="color: red;">*</span>
+                Site Ids
+            </label>
+            <div id="tool-site-ids-input-info">$tlang.getString('tool.site.ids.input.info')</div>
+            <div class="div-tool-site-ids-input">
+                <textarea id="tool-site-ids-input" class="form-control" name="tool_site_ids" rows="5" cols="40" required>$!previousPost.get("tool_site_ids")</textarea>
+            </div>
+        </div>
+
+        <p class="act">
+            <input type="submit" accesskey ="s" class="active" name="$doToolAction" value="$tlang.getString('gen.save')" />
+            <input type="submit" accesskey ="x" name="$doCancel" value="$tlang.getString('gen.cancel')"
+                   onclick="location = '$sakai_ActionURL.setPanel("ToolSiteDeploy")&tool_id=$toolId';return false;">
+        </p>
+    </form>
+
+</div>

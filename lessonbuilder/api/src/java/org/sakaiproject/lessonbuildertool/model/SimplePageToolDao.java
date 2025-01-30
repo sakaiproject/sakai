@@ -334,11 +334,17 @@ public interface SimplePageToolDao {
 
     public boolean doesPageFolderExist(final String siteId, final String folder);
 
-    public String getLessonSubPageJSON(String userId, boolean isInstructor, String siteId, List pages);
+    public String getLessonSubPageJSON(String userId, String siteId, Collection<String> pageIds);
 
     public List<SimplePage> getTopLevelPages(String siteId);
 
     public List<ToolConfiguration> getSiteTools(String siteId);
 
     public List<SimplePageItem> getOrderedTopLevelPageItems(String siteId);
+
+    public void deleteLogForLessonsItem(SimplePageItem item);
+
+    public void deleteQuestionResponsesForItem(SimplePageItem item);
+
+    public void deleteCommentsForLessonsItem(SimplePageItem item);
 }

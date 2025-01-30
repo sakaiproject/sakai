@@ -52,7 +52,6 @@ import javax.portlet.RenderResponse;
 import javax.servlet.ServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.validator.routines.UrlValidator;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.context.Context;
@@ -316,6 +315,11 @@ public class PortletIFrame extends GenericPortlet {
 			PrintWriter out = response.getWriter();
 			Context context = new VelocityContext();
 			Placement placement = ToolManager.getCurrentPlacement();
+
+			if (placement == null) {
+				out.println(rb.getString("error.placement.isNull"));
+				return;
+			}
             Properties config = getAllProperties(placement);
 
 			response.setTitle(placement.getTitle());
@@ -343,6 +347,7 @@ public class PortletIFrame extends GenericPortlet {
 						}
 						StringBuilder alertMsg = new StringBuilder();
 						if ( siteInfo != null ) siteInfo = formattedText.processFormattedText(siteInfo, alertMsg);
+						context.put("cdnVersion", PortalUtils.getCDNQuery());
 						context.put("siteInfo", siteInfo);
 						context.put("height",height);
 						vHelper.doTemplate(vengine, "/vm/info.vm", context, out);
@@ -548,6 +553,10 @@ public class PortletIFrame extends GenericPortlet {
 			context.put("doUpdate", "sakai.update");
 
 			Placement placement = ToolManager.getCurrentPlacement();
+			if (placement == null) {
+				out.println(rb.getString("error.placement.isNull"));
+				return;
+			}
             Properties config = getAllProperties(placement);
             String special = getSpecial(config);
 			context.put("title", formattedText.escapeHtml(placement.getTitle(), false));
@@ -761,6 +770,10 @@ public class PortletIFrame extends GenericPortlet {
 
 			// get the site toolConfiguration, if this is part of a site.
 			Placement placement = ToolManager.getCurrentPlacement();
+			if (placement == null) {
+				log.error(rb.getString("error.placement.isNull"));
+				return;
+			}
 			ToolConfiguration toolConfig = SiteService.findTool(placement.getId());
             Properties config = getAllProperties(placement);
             String special = getSpecial(config);
@@ -826,6 +839,24 @@ public class PortletIFrame extends GenericPortlet {
 				placement.getPlacementConfig().setProperty(HEIGHT, height);
 			}
 
+			// This will be null if editing a Web Content tool
+			// An empty string can be valid from the instructor to clear out previous value
+			String description = request.getParameter("description");
+
+			// update the site info
+			if (description != null || infoUrl != null)
+			{
+				try
+				{
+					// Need to save this processed/escaped
+					String processedDescription = formattedText.processFormattedText(description, new StringBuilder());
+					SiteService.saveSiteInfo(placement.getContext(), processedDescription, infoUrl);
+				}
+				catch (Throwable e)
+				{
+					log.warn("doConfigure_update attempting to saveSiteInfo", e);
+				}
+			}
 
 			// title
 			String title = request.getParameter(TITLE);
@@ -912,19 +943,6 @@ public class PortletIFrame extends GenericPortlet {
                         Pattern serverUrlPattern = Pattern.compile(String.format("^(https?:)?//%s:?\\d*/", serverName));
                         infoUrl = serverUrlPattern.matcher(infoUrl).replaceFirst("/");
                     }
-                }
-                String description = StringUtils.trimToNull(request.getParameter("description"));
-                //Need to save this processed
-                description = formattedText.processFormattedText(description,new StringBuilder());
-    
-                // update the site info
-                try
-                {
-                    SiteService.saveSiteInfo(ToolManager.getCurrentPlacement().getContext(), description, infoUrl);
-                }
-                catch (Throwable e)
-                {
-                    log.warn("doConfigure_update: " + e);
                 }
             }
 

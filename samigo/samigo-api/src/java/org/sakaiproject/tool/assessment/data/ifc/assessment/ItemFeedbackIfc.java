@@ -48,4 +48,8 @@ public interface ItemFeedbackIfc
 
   void setText(String text);
 
+  String getTextValue();
+
+  void setTextValue(String textValue);
+
 }

@@ -11,7 +11,7 @@
 	<parent>
 		<groupId>org.sakaiproject.profile2</groupId>
 		<artifactId>profile2</artifactId>
-	    <version>23-SNAPSHOT</version>
+	    <version>25-SNAPSHOT</version>
 	</parent>
 
 	<dependencies>
@@ -40,10 +40,6 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-text</artifactId>
         </dependency>
-   		<dependency>
-			<groupId>org.twitter4j</groupId>
-			<artifactId>twitter4j-core</artifactId>
-		</dependency>
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
@@ -111,7 +107,7 @@
 			<artifactId>json-simple</artifactId>
 			<version>${json.simple.version}</version>
 		</dependency>
-	</dependencies>
+    </dependencies>
 	
 	<build>
 		<resources>
@@ -135,41 +131,6 @@
                 <filtering>false</filtering>
             </resource>
 		</resources>
-		
-		<plugins>
-			
-			<!-- compress CSS and JS -->
-			<plugin>
-				<groupId>net.alchim31.maven</groupId>
-				<artifactId>yuicompressor-maven-plugin</artifactId>
-				<version>1.5.1</version>
-				<executions>
-					<execution>
-						<id>compress</id>
-						<phase>process-resources</phase>
-						<goals>
-							<goal>compress</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<sourceDirectory>${basedir}/src/webapp</sourceDirectory>
-					<outputDirectory>${project.build.directory}/${project.build.finalName}</outputDirectory>
-					<nosuffix>true</nosuffix>
-					<jswarn>false</jswarn>
-					<excludes>
-						<exclude>**/*.java</exclude>
-						<exclude>**/*.html</exclude>
-						<exclude>**/*.xml</exclude>
-						<exclude>**/*.gif</exclude>
-						<exclude>**/*.png</exclude>
-						<exclude>**/*.properties</exclude>
-						<exclude>**/*.min.js</exclude>
-						<exclude>**/*-min.js</exclude>
-					</excludes>
-				</configuration> 
-			</plugin>
-		</plugins>
 		
 	</build>
 

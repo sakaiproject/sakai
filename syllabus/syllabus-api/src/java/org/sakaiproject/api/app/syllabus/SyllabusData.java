@@ -113,6 +113,11 @@ public class SyllabusData implements Comparable<SyllabusData> {
     @JoinColumn(name = "surrogateKey")
     private SyllabusItem syllabusItem;
 
+    public void setAttachments(Set<SyllabusAttachment> syllabusAttachment) {
+        this.attachments.clear();
+        this.attachments.addAll(syllabusAttachment);
+    }
+
     public int compareTo(SyllabusData data) {
         if (this.equals(data)) return 0;
         if (this.position == null) return -1;

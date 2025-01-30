@@ -536,37 +536,6 @@ img.authorImage {
 	font-family: Consolas,monaco,"Lucida Console","Lucida Sans Typewriter","Bitstream Vera Sans Mono","Andale Mono",AndaleMono,monospace;
 	font-size: 1.2em;
 }
-.moreMenuLink span{
-    padding-right:15px;
-    background:transparent url(../images/silk/bullet_arrow_down.png) bottom right no-repeat;
-
-}
-.moreMenu{
-    background:var(--sakai-background-color-1);
-    list-style:none;
-    margin:0;
-    padding:0px;
-    border:1px solid var(--sakai-border-color);
-}
-.moreMenu li a{
-    display:block;
-    padding:5px;
-}
-.moreMenu li a:hover{
-    background: var(--button-hover-background);
-	color: var(--button-hover-text-color);
-    text-decoration:none;
-}
-div.msgcntr-profile-qtip {
-	max-height: 220px;
-    max-width: 640px;
-    background-color: var(--sakai-background-color-1);
-}
-.qtip-content .profile2-profile-content{
-    float: right;
-    overflow: auto;
-    max-height: 200px;
-}
 .createTopicsForGroupsPanel {
     margin-left: 3em;
     margin-top: 0.3em;

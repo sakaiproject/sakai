@@ -206,7 +206,7 @@ public class BaseMemoryService implements MemoryService {
 
     @Override
     public Cache newCache(String cacheName, String pattern) {
-        log.warn("Creating pattern Cache("+cacheName+"), pattern is deprecated and will no longer work in the next release");
+        log.warn("Creating pattern Cache({}), pattern is deprecated and will no longer work in the next release", cacheName);
         //noinspection deprecation
         return memoryService.newCache(cacheName, pattern);
     }

@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.sakaiproject.sitemanage</groupId>
         <artifactId>sitemanage</artifactId>
-        <version>23-SNAPSHOT</version>
+        <version>25-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -63,6 +63,10 @@
             <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
         </dependency>
@@ -81,7 +85,6 @@
         <dependency>
             <groupId>xerces</groupId>
             <artifactId>xercesImpl</artifactId>
-            <version>2.12.2</version>
         </dependency>
         <dependency>
             <artifactId>jdom</artifactId>
@@ -120,11 +123,13 @@
         	<artifactId>entitybroker-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.sakaiproject.basiclti</groupId>
-            <artifactId>basiclti-util</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.sakaiproject.lti</groupId>
+            <artifactId>lti-util</artifactId>
         </dependency>
-        
+        <dependency>
+            <groupId>org.sakaiproject.scheduler</groupId>
+            <artifactId>scheduler-api</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

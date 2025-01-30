@@ -39,7 +39,7 @@ import lombok.NoArgsConstructor;
             query = "from AssignmentAllPurposeItem m where m.assignmentId = :id")
 @Data
 @NoArgsConstructor
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode(callSuper = false)
 public class AssignmentAllPurposeItem extends AssignmentSupplementItemWithAttachment {
 
     @Column(name = "ASSIGNMENT_ID", nullable = false)
@@ -63,6 +63,6 @@ public class AssignmentAllPurposeItem extends AssignmentSupplementItemWithAttach
     @Column(name = "HIDE", nullable = false)
     private Boolean hide;
 
-    @OneToMany(mappedBy = "assignmentAllPurposeItem")
+    @OneToMany(mappedBy = "assignmentAllPurposeItem", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<AssignmentAllPurposeItemAccess> accessSet;
 }

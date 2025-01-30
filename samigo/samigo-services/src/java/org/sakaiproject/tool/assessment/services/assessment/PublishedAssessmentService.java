@@ -17,19 +17,19 @@
 
 package org.sakaiproject.tool.assessment.services.assessment;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-
+import org.sakaiproject.samigo.api.SamigoReferenceReckoner;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAttachmentData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedEvaluationModel;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText;
@@ -40,6 +40,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
@@ -48,11 +49,20 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
+import org.sakaiproject.tool.assessment.facade.GradebookFacade;
+import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.PublishedSectionFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
+import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
+import org.sakaiproject.tool.assessment.services.GradingService;
+import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
+import org.sakaiproject.tool.assessment.util.TextFormat;
+import org.sakaiproject.tool.assessment.util.ItemCancellationUtil;
+import org.sakaiproject.tool.cover.ToolManager;
 
 /**
  * The QuestionPoolService calls the service locator to reach the
@@ -355,8 +365,8 @@ public class PublishedAssessmentService extends AssessmentService{
         saveOrUpdateMetaData(meta);
   }
 
-  public Map<Long, PublishedFeedback> getFeedbackHash(){
-    return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().getFeedbackHash();
+  public Map<Long, PublishedFeedback> getFeedbackHash(String siteId){
+    return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().getFeedbackHash(siteId);
   }
   public Map<Long, PublishedAssessmentFacade> getAllAssessmentsReleasedToAuthenticatedUsers(){
     return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().
@@ -570,7 +580,244 @@ public class PublishedAssessmentService extends AssessmentService{
 	    }
 	    return map;
   }
-  
+
+  public PublishedAssessmentFacade preparePublishedItemCancellation(PublishedAssessmentIfc publishedAssessment) {
+    // Get publishedItemMap and filter out EMI questions
+    Map<Long, ItemDataIfc> publishedItemMap = preparePublishedItemHash(publishedAssessment).entrySet().stream()
+        .filter(publishedItemEntry -> !TypeIfc.EXTENDED_MATCHING_ITEMS.equals(publishedItemEntry.getValue().getTypeId()))
+        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+    // Items to cancel by just setting the score to 0. Other items are unaffected, Total score is reduced.
+    Set<ItemDataIfc> totalScoreItemsToCancel  = publishedItemMap.entrySet().stream()
+        .map(Map.Entry::getValue)
+        .filter(publishedItem -> publishedItem != null)
+        .filter(publishedItem -> publishedItem.getCancellation() == ItemDataIfc.ITEM_TOTAL_SCORE_TO_CANCEL)
+        .filter(publishedItem -> publishedItem.getScore() != null)
+        .filter(publishedItem -> publishedItem.getScore() != 0.0)
+        .collect(Collectors.toSet());
+
+    // Items to cancel by setting the score to 0 and distributing the points to the other items. Total score is unaffected.
+    Set<ItemDataIfc> distributedItemsToCancel = publishedItemMap.entrySet().stream()
+        .map(Map.Entry::getValue)
+        .filter(publishedItem -> publishedItem != null)
+        .filter(publishedItem -> publishedItem.getCancellation() == ItemDataIfc.ITEM_DISTRIBUTED_TO_CANCEL)
+        .filter(publishedItem -> publishedItem.getScore() != null)
+        .filter(publishedItem -> publishedItem.getScore() != 0.0)
+        .collect(Collectors.toSet());
+
+    // Total of distributed items sores
+    Double distributedItemsToCancelTotal = distributedItemsToCancel.stream()
+        .map(publishedItem -> publishedItem.getScore())
+        .reduce(0.0, Double::sum);
+
+    // Number of items that are cancelled already
+    int cancelledItemsCount = publishedItemMap.values().stream()
+        .filter(publishedItem -> ItemCancellationUtil.isCancelled(publishedItem))
+        .collect(Collectors.counting()).intValue();
+
+    // Number of items that are not cancelled or going to be cancelled
+    int distributedItemsNotToCancelCount = publishedItemMap.size() - distributedItemsToCancel.size() - totalScoreItemsToCancel.size() - cancelledItemsCount;
+
+    // Points that should be added to each not cancelled item
+    Double pointsToDistribute = distributedItemsToCancelTotal > 0.0
+        ? distributedItemsToCancelTotal / (double) distributedItemsNotToCancelCount
+        : 0.0;
+
+    for (ItemDataIfc publishedItem : publishedItemMap.values()) {
+      int publishedItemCancellation = publishedItem.getCancellation() != null
+          ? publishedItem.getCancellation()
+          : ItemDataIfc.ITEM_NOT_CANCELED;
+
+      // Define the score the item should receive, based on it's cancellation status and adjust the cancellation
+      Double score;
+      Double discount;
+      switch (publishedItemCancellation) {
+        default:
+        case ItemDataIfc.ITEM_NOT_CANCELED:
+          Double originalScore = publishedItem.getScore() != null ? publishedItem.getScore() : 0.0;
+          score = originalScore + pointsToDistribute;
+          // Adjust discount based on the weight compared to the original score
+          discount = publishedItem.getDiscount() != null ? (publishedItem.getDiscount() / originalScore) * score : null;
+          break;
+        case ItemDataIfc.ITEM_TOTAL_SCORE_TO_CANCEL:
+          publishedItem.setCancellation(ItemDataIfc.ITEM_TOTAL_SCORE_CANCELLED);
+          score = 0.0;
+          discount = 0.0;
+          break;
+        case ItemDataIfc.ITEM_DISTRIBUTED_TO_CANCEL:
+          publishedItem.setCancellation(ItemDataIfc.ITEM_DISTRIBUTED_CANCELLED);
+          score = 0.0;
+          discount = 0.0;
+          break;
+        case ItemDataIfc.ITEM_TOTAL_SCORE_CANCELLED:
+        case ItemDataIfc.ITEM_DISTRIBUTED_CANCELLED:
+          // Item is cancelled already, we can skip it
+          saveItem(publishedItem);
+          continue;
+      }
+
+      // Set score and discount for item in item map
+      publishedItem.setScore(score);
+      publishedItem.setDiscount(discount);;
+
+      Set<ItemTextIfc> publishedItemTextSet = publishedItem.getItemTextSet();
+      publishedItemTextSet.forEach(publishedItemText -> {
+        Set<AnswerIfc> answerSet = publishedItemText.getAnswerSet();
+        // Set score and discount for all the answers
+        answerSet.forEach(answer -> {
+          answer.setScore(score);
+          answer.setDiscount(discount);
+        });
+        publishedItemText.setAnswerSet(answerSet);
+      });
+      publishedItem.setItemTextSet(publishedItemTextSet);
+
+      // Save item
+      log.debug("Saving item [{}] with cancellation [{}]", publishedItem.getItemId(), publishedItem.getCancellation());
+      saveItem(publishedItem);
+    }
+
+    return getPublishedAssessment(publishedAssessment.getPublishedAssessmentId().toString());
+  }
+
+  // Moved here to a separate method to enable unit testing of preparePublishedItemCancellation
+  public void saveItem(ItemDataIfc item) {
+    ItemService itemService = new ItemService();
+    itemService.saveItem(new ItemFacade(item));
+  }
+
+  public void regradePublishedAssessment(PublishedAssessmentIfc publishedAssessment, boolean updateMostCurrentSubmission) {
+    Map<Long, ItemDataIfc> publishedItemHash = preparePublishedItemHash(publishedAssessment);
+    Map<Long, ItemTextIfc> publishedItemTextHash = preparePublishedItemTextHash(publishedAssessment);
+    Map<Long, AnswerIfc> publishedAnswerHash = preparePublishedAnswerHash(publishedAssessment);
+
+    GradingService gradingService = new GradingService();
+    List<AssessmentGradingData> gradingDataList = gradingService.getAllAssessmentGradingData(
+        publishedAssessment.getPublishedAssessmentId());
+
+    if (updateMostCurrentSubmission) {
+      // Allow student to resubmit the last submission
+      publishedAssessment.setLastNeedResubmitDate(new Date());
+
+      String currentAgent = "";
+
+      for (AssessmentGradingData gradingData : gradingDataList) {
+        if (!currentAgent.equals(gradingData.getAgentId())) {
+          if (gradingData.getForGrade().booleanValue()) {
+            gradingData.setForGrade(Boolean.FALSE);
+            gradingData.setStatus(AssessmentGradingData.ASSESSMENT_UPDATED_NEED_RESUBMIT);
+          } else {
+            gradingData.setStatus(AssessmentGradingData.ASSESSMENT_UPDATED);
+          }
+          currentAgent = gradingData.getAgentId();
+        }
+
+        // Grade based on this data
+        gradingService.storeGrades(gradingData, true, publishedAssessment, publishedItemHash,
+            publishedItemTextHash, publishedAnswerHash, true);
+      }
+    } else {
+      for (AssessmentGradingData gradingData : gradingDataList) {
+        // Grade based on this data
+        gradingService.storeGrades(gradingData, true, publishedAssessment, publishedItemHash,
+            publishedItemTextHash, publishedAnswerHash, true);
+      }
+    }
+  }
+
+  public void updateGradebook(PublishedAssessmentData assessment) {
+    // a. if Gradebook does not exists, do nothing
+    // b. if Gradebook exists, just call removeExternal first to clean up all data. And call addExternal to create
+    // a new record. At the end, populate the scores by calling updateExternalAssessmentScores
+    org.sakaiproject.grading.api.GradingService gradingService = null;
+    boolean integrated = IntegrationContextFactory.getInstance().isIntegrated();
+    if (integrated) {
+      gradingService = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().getBean(
+          "org.sakaiproject.grading.api.GradingService");
+    }
+
+    PublishedEvaluationModel evaluation = (PublishedEvaluationModel) assessment.getEvaluationModel();
+    //Integer scoringType = EvaluationModelIfc.HIGHEST_SCORE;
+    if (evaluation == null) {
+      evaluation = new PublishedEvaluationModel();
+      evaluation.setAssessmentBase(assessment);
+    }
+
+    Integer scoringType = evaluation.getScoringType();
+    GradebookServiceHelper gbsHelper = IntegrationContextFactory.getInstance().getGradebookServiceHelper();
+    if (StringUtils.equalsAny(evaluation.getToGradeBook(), EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString(), EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString())) {
+
+      String assessmentName = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(assessment.getTitle().trim());
+      boolean gbItemExists = gbsHelper.isAssignmentDefined(assessmentName, gradingService);
+
+      try {
+        if (StringUtils.equals(evaluation.getToGradeBook(), EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())) {
+            Site site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+            String ref = SamigoReferenceReckoner.reckoner().site(site.getId()).subtype("p").id(assessment.getPublishedAssessmentId().toString()).reckon().getReference();
+            assessment.setReference(ref);
+            if (gbItemExists) {
+                gbsHelper.updateGradebook(assessment, gradingService);
+            } else {
+                log.warn("Gradebook item does not exist for assessment {}, creating a new gradebook item", assessment.getAssessmentId());
+                gbsHelper.addToGradebook(assessment, null, gradingService);
+            }
+        }
+
+        // any score to copy over? get all the assessmentGradingData and copy over
+        GradingService samigoGradingService = new GradingService();
+        // need to decide what to tell gradebook
+        List list = null;
+
+        if ((scoringType).equals(EvaluationModelIfc.HIGHEST_SCORE)) {
+          list = samigoGradingService.getHighestSubmittedOrGradedAssessmentGradingList(assessment.getPublishedAssessmentId());
+        } else {
+          list = samigoGradingService.getLastSubmittedOrGradedAssessmentGradingList(assessment.getPublishedAssessmentId());
+        }
+
+        log.debug("list size = {}", list.size());
+        for (int i = 0; i < list.size(); i++) {
+          try {
+            AssessmentGradingData ag = (AssessmentGradingData) list.get(i);
+            log.debug("ag.scores={}", ag.getTotalAutoScore());
+            // Send the average score if average was selected for multiple submissions
+            if (scoringType.equals(EvaluationModelIfc.AVERAGE_SCORE)) {
+              // status = 5: there is no submission but grader update something in the score page
+              if(ag.getStatus() ==5) {
+                ag.setFinalScore(ag.getFinalScore());
+              } else {
+                Double averageScore = PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
+                getAverageSubmittedAssessmentGrading(Long.valueOf(assessment.getPublishedAssessmentId()), ag.getAgentId());
+                ag.setFinalScore(averageScore);
+              }	
+            }
+
+            if (EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString().equals(evaluation.getToGradeBook())) {
+                gbsHelper.updateExternalAssessmentScore(ag, gradingService);
+            }
+
+            String gradebookItemIdString = assessment.getAssessmentToGradebookNameMetaData();
+            if (EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString().equals(evaluation.getToGradeBook())) {
+                Long gradebookItemId = Long.valueOf(gradebookItemIdString);
+                gbsHelper.updateExternalAssessmentScore(ag, gradingService, gradebookItemId);
+            }
+
+          } catch (Exception e) {
+            log.warn("Exception occues in " + i	+ "th record. Message:" + e.getMessage());
+          }
+        }
+      } catch (Exception e2) {
+        log.warn("Exception thrown in updateGB():" + e2.getMessage());
+      }
+    } else { //remove
+      try {
+        gbsHelper.removeExternalAssessment(GradebookFacade.getGradebookUId(), assessment.getPublishedAssessmentId().toString(), gradingService);
+      } catch(Exception e) {
+        log.warn("Something happened while removing the external assessment {}", e.getMessage());
+      }
+    }
+
+}
+
   public Set<PublishedSectionData> getSectionSetForAssessment(Long publishedAssessmentId){
 	    return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().
 	    getSectionSetForAssessment(publishedAssessmentId);
@@ -584,6 +831,11 @@ public class PublishedAssessmentService extends AssessmentService{
   public boolean isRandomDrawPart(Long publishedAssessmentId, Long publishedSectionId){
 	    return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().
 	    isRandomDrawPart(publishedAssessmentId, publishedSectionId);
+  }
+
+  public boolean isFixedRandomDrawPart(Long publishedAssessmentId, Long publishedSectionId) {
+	    return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().
+	    isFixedRandomDrawPart(publishedAssessmentId, publishedSectionId);
   }
 
    public PublishedAssessmentData getBasicInfoOfPublishedAssessment(String publishedId) {

@@ -22,6 +22,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -33,7 +34,6 @@ import org.apache.wicket.model.StringResourceModel;
 
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.grading.api.GradingCategoryType;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
@@ -44,8 +44,8 @@ import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.grading.api.CourseGradeTransferBean;
 import org.sakaiproject.grading.api.GradebookInformation;
-import org.sakaiproject.grading.api.GradeType;
-import org.sakaiproject.grading.api.model.CourseGrade;
+import org.sakaiproject.grading.api.GradingConstants;
+import org.sakaiproject.util.ResourceLoader;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -63,8 +63,12 @@ public class GbGradebookData {
 	private static final String SAK_PROP_SHOW_COURSE_GRADE_STUDENT = "gradebookng.showDisplayCourseGradeToStudent";
 	private static final Boolean SAK_PROP_SHOW_COURSE_GRADE_STUDENT_DEFAULT = true;
 
+	private static ResourceLoader i18n = new ResourceLoader("gradebookng");
+
 	private final List<StudentDefinition> students;
 	private final List<ColumnDefinition> columns;
+	private final Long courseGradeId;
+	private final Long gradebookId;
 	private final List<GbStudentGradeInfo> studentGradeInfoList;
 	private final List<CategoryDefinition> categories;
 	private final GradebookInformation settings;
@@ -92,7 +96,7 @@ public class GbGradebookData {
 		private String hasConcurrentEdit;
 		private String readonly;
 		private String hasExcuse;
-
+		private String hasCourseGradeComment;
 		private String studentNumber;
 		private String hasDroppedScores;
 		private List<String> sections;
@@ -199,8 +203,10 @@ public class GbGradebookData {
 		private List<ColumnDefinition> columns;
 		private List<String[]> courseGrades;
 		private String serializedGrades;
+		private ResourceLoader i18n;
 		private Map<String, Object> settings;
-
+		private Long courseGradeId;
+		private Long gradebookId;
 		private int rowCount;
 		private int columnCount;
 
@@ -208,13 +214,18 @@ public class GbGradebookData {
 				final List<ColumnDefinition> columns,
 				final List<String[]> courseGrades,
 				final String serializedGrades,
-				final Map<String, Object> settings) {
+				final ResourceLoader i18n,
+				final Map<String, Object> settings,
+				final Long courseGradeId,
+				final Long gradebookId) {
 			this.students = students;
 			this.columns = columns;
 			this.courseGrades = courseGrades;
 			this.serializedGrades = serializedGrades;
+			this.i18n = i18n;
 			this.settings = settings;
-
+			this.courseGradeId = courseGradeId;
+			this.gradebookId = gradebookId;
 			this.rowCount = students.size();
 			this.columnCount = columns.size();
 		}
@@ -231,7 +242,8 @@ public class GbGradebookData {
 		this.isUserAbleToEditAssessments = gbGradeTableData.isUserAbleToEditAssessments();
 
 		this.courseGradeMap = gbGradeTableData.getCourseGradeMap();
-
+		this.courseGradeId = gbGradeTableData.getCourseGradeId();
+		this.gradebookId = gbGradeTableData.getGradebookId();
 		this.isStudentNumberVisible = gbGradeTableData.isStudentNumberVisible();
 		this.isSectionsVisible = gbGradeTableData.isSectionsVisible();
 
@@ -279,7 +291,10 @@ public class GbGradebookData {
 				GbGradebookData.this.columns,
 				courseGrades(),
 				serializeGrades(grades),
-				serializeSettings());
+				GbGradebookData.this.i18n,
+				serializeSettings(),
+				GbGradebookData.this.courseGradeId,
+				GbGradebookData.this.gradebookId);
 
 		try {
             // TODO: Can we serialize Booleans without the get prefix?
@@ -391,10 +406,10 @@ public class GbGradebookData {
 		result.put("isCourseLetterGradeDisplayed", this.settings.getCourseLetterGradeDisplayed());
 		result.put("isCourseAverageDisplayed", this.settings.getCourseAverageDisplayed());
 		result.put("isCoursePointsDisplayed", this.settings.getCoursePointsDisplayed());
-		result.put("isPointsGradeEntry", this.settings.getGradeType() == GradeType.POINTS);
-		result.put("isPercentageGradeEntry", this.settings.getGradeType() == GradeType.PERCENTAGE);
-		result.put("isCategoriesEnabled", this.settings.getCategoryType() != GradingCategoryType.NO_CATEGORY);
-		result.put("isCategoryTypeWeighted", this.settings.getCategoryType() == GradingCategoryType.WEIGHTED_CATEGORY);
+		result.put("isPointsGradeEntry", Objects.equals(GradingConstants.GRADE_TYPE_POINTS, this.settings.getGradeType()));
+		result.put("isPercentageGradeEntry", Objects.equals(GradingConstants.GRADE_TYPE_PERCENTAGE, this.settings.getGradeType()));
+		result.put("isCategoriesEnabled", !Objects.equals(this.settings.getCategoryType(), GradingConstants.CATEGORY_TYPE_NO_CATEGORY));
+		result.put("isCategoryTypeWeighted", Objects.equals(this.settings.getCategoryType(), GradingConstants.CATEGORY_TYPE_WEIGHTED_CATEGORY));
 		result.put("isStudentOrderedByLastName", this.uiSettings.getNameSortOrder() == GbStudentNameSortOrder.LAST_NAME);
 		result.put("isStudentOrderedByFirstName", this.uiSettings.getNameSortOrder() == GbStudentNameSortOrder.FIRST_NAME);
 		result.put("isGroupedByCategory", this.uiSettings.isGroupedByCategory());
@@ -447,17 +462,20 @@ public class GbGradebookData {
 	 */
 	public static String[] getCourseGradeData(CourseGradeTransferBean courseGrade, Map<String, Double> courseGradeMap) {
 		final String[] gradeData = new String[3];
-		gradeData[0] = courseGrade.getDisplayString();
-		gradeData[2] = "0";
 
 		if (courseGrade == null) {
+			gradeData[0] = "";
 			gradeData[1] = "";
+			gradeData[2] = "0";
 		} else if (StringUtils.isNotBlank(courseGrade.getEnteredGrade())) {
 			Double mappedGrade = courseGradeMap.get(courseGrade.getEnteredGrade());
+			gradeData[0] = courseGrade.getDisplayString();
 			gradeData[1] = FormatHelper.formatGradeForDisplay(mappedGrade);
 			gradeData[2] = "1";
 		} else {
+			gradeData[0] = courseGrade.getDisplayString();
 			gradeData[1] = FormatHelper.formatGradeForDisplay(courseGrade.getCalculatedGrade());
+			gradeData[2] = "0";
 		}
 
 		return gradeData;
@@ -493,7 +511,7 @@ public class GbGradebookData {
 			studentDefinition.setHasComments(formatColumnFlags(student, g -> StringUtils.isNotBlank(g.getGradeComment())));
 			studentDefinition.setHasDroppedScores(formatColumnFlags(student, g -> g.isDroppedFromCategoryScore()));
 			studentDefinition.setHasExcuse(formatColumnFlags(student, g -> g.isExcused()));
-
+			studentDefinition.setHasCourseGradeComment(student.isHasCourseGradeComment() ? "1" : "0");
 			if (this.isStudentNumberVisible) {
 				studentDefinition.setStudentNumber(student.getStudentNumber());
 			}
@@ -537,13 +555,12 @@ public class GbGradebookData {
 
 			boolean counted = a1.getCounted();
 			// An assignment is not counted if uncategorised and the categories are enabled
-			if ((this.settings.getCategoryType() != GradingCategoryType.NO_CATEGORY) &&
-					a1.getCategoryId() == null) {
+			if (!Objects.equals(this.settings.getCategoryType(), GradingConstants.CATEGORY_TYPE_NO_CATEGORY) && a1.getCategoryId() == null) {
 				counted = false;
 			}
 			result.add(new AssignmentDefinition(a1.getId(),
 					FormatHelper.stripLineBreaks(a1.getName()),
-					FormatHelper.abbreviateMiddle(a1.getName()),
+					a1.getName(),
 					FormatHelper.formatDoubleToDecimal(a1.getPoints()),
 					FormatHelper.formatDate(a1.getDueDate(), getString("label.studentsummary.noduedate")),
 
@@ -568,12 +585,13 @@ public class GbGradebookData {
 
 			// If we're at the end of the assignment list, or we've just changed
 			// categories, put out a total.
-			if (userSettings.isGroupedByCategory() && this.settings.getCategoryType() != GradingCategoryType.NO_CATEGORY &&
-					a1.getCategoryId() != null &&
-					(a2 == null || !a1.getCategoryId().equals(a2.getCategoryId()))) {
+			if (userSettings.isGroupedByCategory()
+					&& !Objects.equals(this.settings.getCategoryType(),GradingConstants.CATEGORY_TYPE_NO_CATEGORY)
+					&& a1.getCategoryId() != null
+					&& (a2 == null || !a1.getCategoryId().equals(a2.getCategoryId()))) {
 				result.add(new CategoryAverageDefinition(a1.getCategoryId(),
 						a1.getCategoryName(),
-						(new StringResourceModel("label.gradeitem.categoryaverage", null, new Object[] { a1.getCategoryName() }))
+						(new StringResourceModel("label.gradeitem.categoryaverage").setParameters(a1.getCategoryName()))
 								.getString(),
 						nullable(categoryWeight),
 						getCategoryPoints(a1.getCategoryId()),
@@ -599,7 +617,7 @@ public class GbGradebookData {
 					result.add(new CategoryAverageDefinition(
 							category.getId(),
 							category.getName(),
-							(new StringResourceModel("label.gradeitem.categoryaverage", null, new Object[] { category.getName() }))
+							(new StringResourceModel("label.gradeitem.categoryaverage").setParameters(category.getName()))
 									.getString(),
 							nullable(categoryWeight),
 							category.getTotalPoints(),

@@ -27,19 +27,19 @@
 
 <wicket:panel>
 
-<a wicket:id="link" data-toggle="tooltip">
+<a wicket:id="link" data-bs-toggle="tooltip">
 	<span wicket:id="icon" aria-hidden="true"></span>
 </a>
 
 <script type="text/javascript">
     $(document).ready(function(){
         //initialize tooltip
-        $('[data-toggle="tooltip"]').tooltip({
+        $('[data-bs-toggle="tooltip"]').tooltip({
             show: {event: 'click', delay: 0},
             hide: {event: 'click', delay: 0},
             events: {
                 show: function (event, api) {
-                    $('[data-toggle="tooltip"]').val($('[data-toggle="tooltip"]'.htmlText));
+                    $('[data-bs-toggle="tooltip"]').val($('[data-bs-toggle="tooltip"]'.htmlText));
                 }
             }
         });

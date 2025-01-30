@@ -47,7 +47,7 @@
 
     <!-- The single space in this regex is from KNL-1346 -->
     <regexp name="onsiteURL" value="([\p{L}\p{N}\\\.\#@\$% \+&amp;;\-_~,\?=/!]+|\#(\w)+)" />
-    <regexp name="offsiteURL" value="(\s)*((ht|f)tp(s?)://|mailto:)[\p{L}\p{N}]+[\p{L}\p{N}\p{Zs}\.\#@\$% \+&amp;;:\-_~,\?=/!\(\)]*(\s)*" />
+    <regexp name="offsiteURL" value="(\s)*((ht|f)tp(s?)://|mailto:|tel:)[\p{L}\p{N}]+[\p{L}\p{N}\p{Zs}\.\#@\$% \+&amp;;:\-_~,\?=/!\(\)]*(\s)*" />
 
     <regexp name="boolean" value="^$|(true|false)" />
     <regexp name="singlePrintable" value="[a-zA-Z0-9]{1}" /> <!-- \w allows the '_' character -->
@@ -122,7 +122,7 @@
         Add in your site (e.g. "new.site.host.com/path": with escaped ".": "new\.site\.host\.com/path|"
         Like shown here: (new\.site\.host\.com/path|download\.macromedia\.com/pub|
     -->
-    <regexp name="flashSites" value="(((https?:)?//(download\.macromedia\.com/pub|www\.macromedia\.com/(go|shockwave)|c\.brightcove\.com/services|gamevideos\.1up\.com/swf|(www\.)?youtube(\-nocookie)?\.com/(v|embed)|(www\.)?youtu\.be|(www\.|player\.)?vimeo\.com|w\.soundcloud\.com|www\.gametrailers\.com|videomedia\.ign\.com/ev|image\.com\.com/gamespot|www\.hulu\.com/embed|embed\.break\.com|player\.ordienetworks\.com/flash|www\.adultswim\.com/video/vplayer|www\.dailymotion\.com/swf|www\.ustream\.tv/flash/video|cdn-i\.dmdentertainment\.com|media\.mtvnservices\.com|www\.justin\.tv/widgets|www\.viddler\.com/(player|simple_on_site)|static\.twitter\.com/flash|www\.gamepro\.com/bin|cdn\.knightlab\.com|player\.pbs\.org|player\.history\.com|(.*)\.sharestream\.(com|net)|(.*)\.kaltura\.(com|net)|www\.divshare\.com/flash|www\.facebook\.com/v|(.*)\.jove\.com|(.*)\.linkedin\.com|(.*)\.microsoftstream\.com|(.*)\.h5p\.com|h5p\.org)/.*)|(/library/(?!.*\.\.[/|\\]).*)/.+)" />
+    <regexp name="flashSites" value="(((https?:)?//(download\.macromedia\.com/pub|www\.macromedia\.com/(go|shockwave)|c\.brightcove\.com/services|gamevideos\.1up\.com/swf|(www\.)?youtube(\-nocookie)?\.com/(v|embed)|(www\.)?youtu\.be|(www\.|player\.)?vimeo\.com|w\.soundcloud\.com|www\.gametrailers\.com|videomedia\.ign\.com/ev|image\.com\.com/gamespot|www\.hulu\.com/embed|embed\.break\.com|player\.ordienetworks\.com/flash|www\.adultswim\.com/video/vplayer|www\.dailymotion\.com/swf|www\.ustream\.tv/flash/video|cdn-i\.dmdentertainment\.com|media\.mtvnservices\.com|www\.justin\.tv/widgets|www\.viddler\.com/(player|simple_on_site)|static\.twitter\.com/flash|www\.gamepro\.com/bin|cdn\.knightlab\.com|player\.pbs\.org|player\.history\.com|(.*)\.sharestream\.(com|net)|(.*)\.kaltura\.(com|net)|www\.divshare\.com/flash|www\.facebook\.com/v|(.*)\.jove\.com|(.*)\.linkedin\.com|(.*)\.microsoftstream\.com|(.*)\.sharepoint\.com|(.*)\.h5p\.com|h5p\.org)/.*)|(/library/(?!.*\.\.[/|\\]).*)/.+)" />
 
     <!-- This is a basic alphanumeric and punctuation string -->
     <regexp name="basicAlphaNumeric" value="^[a-zA-Z0-9\s\-_.\?!,]*$" />
@@ -1088,6 +1088,13 @@
                  <regexp name="anything"/>
              </regexp-list>
          </attribute>
+
+         <attribute name="sandbox" description="The sandbox attribute enables an extra set of restrictions for the content in the iframe.">
+            <regexp-list>
+                <regexp name="anything" />
+            </regexp-list>
+         </attribute>
+
     </common-attributes>
 
     <!--
@@ -1167,6 +1174,11 @@
             <attribute name="mozallowfullscreen">
                 <regexp-list>
                     <regexp name="boolean"/>
+                </regexp-list>
+            </attribute>
+            <attribute name="sandbox">
+                <regexp-list>
+                    <regexp name="anything"/>
                 </regexp-list>
             </attribute>
         </tag>
@@ -2723,6 +2735,20 @@
                 <literal value="no-repeat"/>
                 <literal value="inherit"/>
             </literal-list>
+        </property>
+
+        <property name="background-size" description="If a background image is specified, this property specifies how the image is sized.">
+            <literal-list>
+                <literal value="auto"/>
+                <literal value="cover"/>
+                <literal value="contain"/>
+                <literal value="initial"/>
+                <literal value="inherit"/>
+            </literal-list>
+            <regexp-list>
+                <regexp name="length"/>
+                <regexp name="percentage"/>
+            </regexp-list>
         </property>
 
         <!-- Begin simple properties -->

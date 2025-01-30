@@ -73,7 +73,7 @@ public class RubricPreviewPanel extends BasePanel {
         add(sakaiRubricPreview);
         final GbAjaxButton done = new GbAjaxButton("done") {
             @Override
-            public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+            public void onSubmit(final AjaxRequestTarget target) {
                 RubricPreviewPanel.this.window.close(target);
             }
         };
@@ -83,13 +83,11 @@ public class RubricPreviewPanel extends BasePanel {
         RubricPreviewPanel.this.window.setTitle(this.getString("label.rubric.preview") + assignmentNow.getName());
     }
 
+    @Override
     public void renderHead(IHeaderResponse response) {
-
         String version = PortalUtils.getCDNQuery();
         response.render(StringHeaderItem.forString(
-                "<script src=\"/webcomponents/rubrics/sakai-rubrics-utils.js" + version + "\"></script>"));
-        response.render(StringHeaderItem.forString(
-                "<script type=\"module\" src=\"/webcomponents/rubrics/rubric-association-requirements.js" + version + "\"></script>"));
+                "<script type=\"module\" src=\"/webcomponents/bundles/rubric-association-requirements.js" + version + "\"></script>"));
     }
 
     private String extractAssignmentId(String externalId) {

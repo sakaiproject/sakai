@@ -12,8 +12,8 @@
 			<h:inputHidden id="currentMessageId" value="#{ForumTool.selectedMessage.message.id}"/>
 			<h:inputHidden id="currentTopicId" value="#{ForumTool.selectedTopic.topic.id}"/>
 			<h:inputHidden id="currentForumId" value="#{ForumTool.selectedForum.forum.id}"/>
+			<h:inputHidden id="deletedMessage" value="#{ForumTool.selectedMessage.message.deleted}"/>
 			<script>includeLatestJQuery("msgcntr");</script>
-			<script>includeWebjarLibrary("qtip2");</script>
 			<script src="/messageforums-tool/js/forum.js"></script>
 			<script src="/messageforums-tool/js/sak-10625.js"></script>
 			<script src="/messageforums-tool/js/messages.js"></script>
@@ -41,9 +41,12 @@
 						event.preventDefault();
 						$('#permalinkHolder').fadeOut('fast');
 					});
-					var msgBody = document.getElementById("messageBody").innerHTML;
-					msgBody = msgBody.replace(/\n/g,',').replace(/\s/g,' ').replace(/  ,/g,',');
-					msgcntr_word_count(msgBody);
+					const delMessage = document.getElementById("deletedMessage");
+					if (delMessage?.value === "false"){
+						var msgBody = document.getElementById("messageBody").innerHTML;
+						msgBody = msgBody.replace(/\n/g,',').replace(/\s/g,' ').replace(/  ,/g,',');
+						msgcntr_word_count(msgBody);
+					}
 
 					var menuLink = $('#forumsMainMenuLink');
 					var menuLinkSpan = menuLink.closest('span');
@@ -213,7 +216,7 @@
 			
 
 			<h:panelGroup layout="block" id="permalinkHolder">
-				<h:outputLink styleClass="closeMe" value="#"><h:panelGroup styleClass="icon-sakai--delete"></h:panelGroup></h:outputLink>
+				<h:outputLink styleClass="closeMe" value="#"><h:panelGroup styleClass="si si-remove"></h:panelGroup></h:outputLink>
 				<h:outputText value="#{msgs.cdfm_button_bar_permalink_message}" style="display:block" styleClass="textPanelFooter"/>
 				<h:inputTextarea value="" />
 			</h:panelGroup>
@@ -250,10 +253,7 @@
 					<h:outputText value="#{msgs.cdfm_postFirst_warning}" rendered="#{ForumTool.needToPostFirst}" styleClass="messageAlert"/>
 					<h:panelGroup rendered="#{!ForumTool.selectedMessage.message.deleted}" style="display:block">
 						<h:panelGroup styleClass="authorImage" rendered="#{ForumTool.showProfileInfo && !ForumTool.selectedMessage.useAnonymousId}">
-							<h:outputLink value="#{ForumTool.serverUrl}/direct/portal/#{ForumTool.selectedMessage.message.authorId}/formatted" styleClass="authorProfile" rendered="#{ForumTool.showProfileLink}">
-								<h:graphicImage value="#{ForumTool.serverUrl}/direct/profile/#{ForumTool.selectedMessage.message.authorId}/image/thumb" alt="#{ForumTool.selectedMessage.message.author}" />
-							</h:outputLink>
-							<h:graphicImage value="#{ForumTool.serverUrl}/direct/profile/#{ForumTool.selectedMessage.message.authorId}/image/thumb" alt="#{ForumTool.selectedMessage.message.author}" rendered="#{!ForumTool.showProfileLink}"/>
+							<sakai-user-photo profile-popup="on" user-id="<h:outputText value="#{ForumTool.selectedMessage.message.authorId}"/>" />
 						</h:panelGroup>
 						<h:outputText rendered="#{ ForumTool.selectedMessage.msgDenied}" value="#{msgs.cdfm_msg_denied_label}" styleClass="messageDenied"/>
 						<h:outputText 	rendered="#{ForumTool.allowedToApproveMsg && ForumTool.allowedToDenyMsg}" value="#{msgs.cdfm_msg_pending_label}" styleClass="messagePending"/>

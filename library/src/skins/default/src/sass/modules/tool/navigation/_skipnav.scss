@@ -1,0 +1,58 @@
+.#{$namespace}skipNav__menu {
+    position: absolute;
+    top: -30em;
+    left: -30em;
+    list-style: none;
+    padding: 0 0 0 0;
+
+    a {
+        &:focus {
+            @media #{$desktop} {
+                background-color: var(--sakai-selected-page-bg-color);
+                border: 1px solid var(--sakai-selected-page-bg-color);
+                color: var(--sakai-selected-page-color);
+                display: block !important;
+                font-size: 0.9em;
+                left: 5px;
+                line-height: 1;
+                padding: 7px 5px;
+                position: fixed;
+                text-decoration: none;
+                text-transform: capitalize;
+                top: 9px;
+                z-index: 100000;
+            }
+        }
+        .accesibility_key {
+            margin: 0 0 0 0.2em;
+        }
+    }
+
+    @media #{$phone} {
+        position: absolute;
+        top: -30em;
+        left: -30em;
+        clip: rect(0, 0, 0, 0);
+        clip-path: inset(50%);
+        list-style: none;
+        padding: 0 0 0 0;
+
+        a:focus {
+            position: fixed;
+            top: 9px;
+            left: 5px;
+            z-index: 100000;
+            clip: auto;
+            clip-path: none;
+            display: block;
+            background-color: var(--sakai-selected-page-bg-color);
+            border: 1px solid var(--sakai-selected-page-bg-color);
+            color: var(--sakai-selected-page-color);
+            font-size: 0.9em;
+            line-height: 1;
+            padding: 7px 5px;
+            text-decoration: none;
+            text-transform: capitalize;
+        }
+    }
+}

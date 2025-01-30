@@ -123,12 +123,6 @@ public class ConfirmRepublishAssessmentListener implements ActionListener {
 		publishedAssessmentSettings.setUpdateMostCurrentSubmission(false);
 		PublishRepublishNotificationBean publishRepublishNotification = (PublishRepublishNotificationBean) ContextUtil.lookupBean("publishRepublishNotification");
 		publishRepublishNotification.setSendNotification(false);
-		if (author.getIsRepublishAndRegrade()) {
-			publishRepublishNotification.setPrePopulateText(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","pre_populate_text_regrade_republish"));
-		}
-		else {
-			publishRepublishNotification.setPrePopulateText(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","pre_populate_text_republish"));
-		}
 		author.setOutcome("saveSettingsAndConfirmPublish");
 	}
 }

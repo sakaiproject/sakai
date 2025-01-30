@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -48,10 +49,6 @@ public class SearchController extends AbstractSakaiApiController {
             @RequestParam(defaultValue = "0") Integer start,
             @RequestParam(defaultValue = "10") Integer limit) {
 
-        System.out.println(terms);
-        System.out.println(site);
-        System.out.println(tool);
-
 		Session session = checkSakaiSession();
 
         try {
@@ -60,9 +57,10 @@ public class SearchController extends AbstractSakaiApiController {
                 limit = 10;
             }
 
-            List<String> sites = site == null ? null : Arrays.asList(new String[] { site });
+            List<String> sites = site == null ? null : Collections.singletonList(site);
+            List<String> tools = tool == null ? null : Collections.singletonList(tool);
 
-            return ResponseEntity.ok(searchService.search(terms, sites, start, limit)
+            return ResponseEntity.ok(searchService.search(terms, sites, tools, start, limit)
                 .stream().map(sr -> SearchRestBean.of(sr, siteService)).collect(Collectors.toList()));
 
         } catch (InvalidSearchQueryException e) {

@@ -1,0 +1,21 @@
+<!-- addditional info modal content -->
+{{#if hasSpecialNeeds}}
+<h5 class="roster-modal-label">{{tr 'facet_specialNeeds'}}</h5>
+<div class="roster-modal-value">
+    <ul class="roster-special-needs">
+        {{#each specialNeeds}}
+        <li>{{this}}</li>
+        {{/each}}
+    </ul>
+</div>
+{{/if}}
+{{#if hasAdditionalNotes}}
+<h5 class="roster-modal-label">{{tr 'facet_additionalNotes'}}</h5>
+<div class="roster-modal-value">
+    <ul class="roster-additional-notes">
+        {{#each additionalNotes}}
+        <li>{{this}}</li>
+        {{/each}}
+    </ul>
+</div>
+{{/if}}

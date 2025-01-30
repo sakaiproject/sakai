@@ -14,7 +14,7 @@
 
 #set($multipleTypes = ($templateSites.size() > 0) || ($canImportArchive))
 
-<script type="text/javascript" language="JavaScript">
+<script>
     $(document).ready(function(){
         sakai.siteTypeSetup()
     });
@@ -56,10 +56,9 @@
         <div id="siteTypeList" class="indnt3">
             #foreach ($type in $siteTypes)
 				#set($courseTypeWithPerm    = (($courseSiteTypeStrings.contains($type) || $type == "course")    && $canAddCourse ))
-				#set($portfolioTypeWithPerm = (($portfolioSiteTypeStrings.contains($type) || $type == "portfolio") && $canAddPortfolio )) 
 				#set($projectTypeWithPerm   = (($projectSiteTypeStrings.contains($type)   || $type == "project")   && $canAddProject )) 
-				#set($otherCustomType = ( (!$courseSiteTypeStrings.contains($type)) && (!$projectSiteTypeStrings.contains($type)) && (!$portfolioSiteTypeStrings.contains($type))))
-				#if (($courseTypeWithPerm) || ($portfolioTypeWithPerm) || ($projectTypeWithPerm) || ($otherCustomType))
+				#set($otherCustomType = ( (!$courseSiteTypeStrings.contains($type)) && (!$projectSiteTypeStrings.contains($type))))
+				#if (($courseTypeWithPerm) || ($projectTypeWithPerm) || ($otherCustomType))
                     <p class="checkbox indnt1">
                         <input type="radio" name="itemType" id="$type" value="$type" #if ($type == $typeSelected) checked="checked" #end/>
                         <label for = "$type">
@@ -98,7 +97,7 @@
                         #end
                         </div>  
                     #end ## end of #if ($courseTypeWithPerm)
-                #end ## end of #if (courseTypeWithPerm || portfolioTypeWithPerm || projectTypeWithPerm))
+                #end ## end of #if (courseTypeWithPerm || projectTypeWithPerm))
             #end  ##end of #foreach ($type in $siteTypes)
         </div>
         #if ($templateSites.size() > 0)
@@ -148,10 +147,6 @@
                             <input type="checkbox" name="lockedContent" id="lockedContent" checked="checked" disabled="disabled" style="display:none" />                            
                             <label for="copyContent">$tlang.getString("sitetype.copycontent")</label>
                         </span>
-                        <span id="publishSiteWrapper">
-                            <input type="checkbox" name="publishSite" id="publishSite" value="true"/>
-                            <label for="publishSite">$tlang.getString("sitetype.publishSite")</label>
-                        </span>
                         <span id="fromTemplateSettingsContainer_instruction">
                             <a href="#" id="fromTemplateSettingsContainer_instruction_control" class="itemAction">$tlang.getString("sitetype.template.get.info")</a>
                             <div id="fromTemplateSettingsContainer_instruction_body" style="display:none;" title="$tlang.getString("sitetype.template.close.info")">
@@ -160,9 +155,6 @@
                                 </p>
                                 <p id="fromTemplateSettingsContainer_instruction_body_copyContent" style="display: none">
                                     $tlang.getString("sitetype.template.copy.content.info")
-                                </p>
-                                <p id="fromTemplateSettingsContainer_instruction_body_publishSite">
-                                    $tlang.getString("sitetype.template.publish.now") 
                                 </p>
                                 </div>
                             </span>
@@ -176,14 +168,13 @@
                         #foreach($templateSite in $templateSites)
                         #set($templateNum = $templateNum + 1)
                             #set($description=false)
-                            #set($description=$templateSite.description)
+                            #set($description=$formattedText.stripHtmlFromText($templateSite.description, true))
                             #set($siteType = false)
                             #set($siteType = $!templateSite.type)
 
                             #if (
                                 ($siteType == $projectSiteType && $canAddProject) || 
-                                ($courseSiteTypeStrings.contains($siteType) && $canAddCourse) ||
-                                ($siteType == $portfolioSiteType && $canAddPortfolio)
+                                ($courseSiteTypeStrings.contains($siteType) && $canAddCourse)
                              )
                             #if($siteTypePrev != $siteType)
 
@@ -212,11 +203,13 @@
                                 </li>
                            #end
                             <li id="rowTemplate$templateNum" class="row$siteType" #if (!$isExpandTemplates) style="display: none"#end>
-                                <div class="templateName" style="white-space: nowrap;">
-                                    <input type="radio" name ="templateSiteId"  class="$templateSite.type" value="$templateSite.id" id="Template$templateNum"/>
-                                    <label for="Template$templateNum" title="$templateSite.title">$templateSite.title</label>
+                                <div class=" d-flex align-items-center">
+                                    <div class="templateName">
+                                        <input type="radio" name ="templateSiteId"  class="$templateSite.type flex-shrink-0" value="$templateSite.id" id="Template$templateNum"/>
+                                        <label for="Template$templateNum" title="$templateSite.title">$templateSite.title</label>
+                                    </div>
+                                    <div class="templateDescription ms-5">#if($description)$description#end</div>
                                 </div>
-                                <div class="templateDescription">#if($description)$description#end</div>
                                 <div class="templateSettingsPlaceholder"></div>
                             </li>
                             #set($siteTypePrev = $!templateSite.type)
@@ -250,8 +243,7 @@
                             #foreach ($type in $siteTypes)
                                 #if (
                                         ($type == $projectSiteType && $canAddProject) || 
-                                        ($courseSiteTypeStrings.contains($type) && $canAddCourse) || 
-                                        ($type == $portfolioSiteType && $canAddPortfolio)
+                                        ($courseSiteTypeStrings.contains($type) && $canAddCourse)
                                     )
                                     <option value="$!type">$tlang.getFormattedMessage("sitetype.websit", $type)</option>
                                 #end
@@ -310,8 +302,8 @@
              it should be set style="display:none" if user is coming back
              ot this template from building own flow
              *#
-            <input type="submit" accesskey="s" id="submitFromTemplate" disabled="disabled" style="display:none" class="active" name="submitFromTemplate" value="$tlang.getString('sitetype.done')" onclick="SPNR.disableControlsAndSpin( this, null ); document.typeform.option.value='createOnTemplate'; document.typeform.submit(); return false;" />
-            <input type="submit" accesskey="s" id="submitFromTemplateCourse" disabled="disabled" style="display:none" class="active" name="submitFromTemplateCourse" value="$tlang.getString('sitetype.donecourse')" onclick="SPNR.disableControlsAndSpin( this, null ); document.typeform.option.value='createCourseOnTemplate'; document.typeform.submit(); return false;"/>
+            <input type="submit" accesskey="s" id="submitFromTemplate" #if(!$templateSiteTitle) disabled="disabled" style="display:none;" #end class="active" name="submitFromTemplate" value="$tlang.getString('gen.continue')" onclick="SPNR.disableControlsAndSpin( this, null ); document.typeform.option.value='createOnTemplate'; document.typeform.submit(); return false;" />
+            <input type="submit" accesskey="s" id="submitFromTemplateCourse" #if(!$templateSiteTitle) disabled="disabled" style="display:none;" #end class="active" name="submitFromTemplateCourse" value="$tlang.getString('sitetype.donecourse')" onclick="SPNR.disableControlsAndSpin( this, null ); document.typeform.option.value='createCourseOnTemplate'; document.typeform.submit(); return false;"/>
             <input type="submit" accesskey="s" id="submitFromArchive" style="display:none" class="active" name="submitFromArchive" value="$tlang.getString('sitetype.con')" onclick="SPNR.disableControlsAndSpin( this, null );  document.typeform.option.value='createFromArchive'; document.typeform.submit(); return false;" />
             ## this submit should be ther normal one
             <input type="submit" accesskey="s" id="submitBuildOwn" disabled="disabled" class="active" name="submitBuildOwn" value="$tlang.getString('sitetype.con')" onclick="SPNR.disableControlsAndSpin( this, null ); document.typeform.option.value='siteType'; document.typeform.submit(); return false;" />

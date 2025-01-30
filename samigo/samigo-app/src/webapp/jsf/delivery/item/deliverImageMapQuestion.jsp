@@ -75,18 +75,18 @@ should be included in file importing DeliveryMessages
 
 <!-- Donï¿½t needed KEY in this question type or key should be the image with some sqares on it -->
 <h:panelGroup rendered="#{delivery.feedback eq 'true'}">
-  <h:panelGrid rendered="#{delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'}" >
+  <h:panelGrid rendered="#{(delivery.feedbackComponent.showCorrectResponse && delivery.feedbackComponent.showCorrection && !delivery.noFeedback=='true') || delivery.actionString=='gradeAssessment'}" >
 	<h:outputLabel styleClass="answerkeyFeedbackCommentLabel" value="#{deliveryMessages.ans_key}: " />
 	
 	<h:dataTable value="#{question.matchingArray}" var="matching">
 		<h:column>
 		  <h:panelGroup id="image"
 			rendered="#{matching.isCorrect}"
-			styleClass="icon-sakai--check feedBackCheck" >
+			styleClass="si si-check-lg" >
 		  </h:panelGroup>
 		  <h:panelGroup id="ximage"
 			rendered="#{!matching.isCorrect}"
-			styleClass="icon-sakai--delete feedBackCross">
+			styleClass="si si-remove feedBackCross">
 		  </h:panelGroup>
 		  <h:graphicImage id="image2"
 			width="16" height="16"
@@ -104,10 +104,11 @@ should be included in file importing DeliveryMessages
 				<h:outputText escape="false" value="<input type='hidden' id='hiddenSerializedCoords_#{part.number}_#{question.sequence}_#{table.rowIndex}' value='#{answer}' />" /> 
 			</h:column>
 		</h:dataTable>
-
+      <h:panelGroup rendered="#{delivery.feedbackComponent.showCorrection}">
         <div id="answerImageMapContainer_<h:outputText value="#{part.number}_#{question.sequence}"/>" class='authorImageContainer'>
             <img id='img' src='<h:outputText value="#{question.imageSrc}" />' alt='<h:outputText value="#{question.imageAltText}" />'/>
-         </div>
+        </div>
+      </h:panelGroup>
     </h:panelGroup>
     <h:outputText value=" "/>
   </h:panelGrid>

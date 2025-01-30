@@ -35,11 +35,11 @@ should be included in file importing DeliveryMessages
        delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'}" styleClass="feedBackMultipleChoice">
       <h:panelGroup id="image"
         rendered="#{selection.answer.isCorrect eq 'true' && selection.response}"
-        styleClass="icon-sakai--check feedBackCheck">
+        styleClass="si si-check-lg">
       </h:panelGroup>
       <h:panelGroup id="image2"
         rendered="#{selection.answer.isCorrect != null && !selection.answer.isCorrect && selection.response}"
-        styleClass="icon-sakai--delete feedBackCross">
+        styleClass="si si-remove feedBackCross">
       </h:panelGroup>
     </t:column>
     <t:column>
@@ -92,7 +92,7 @@ should be included in file importing DeliveryMessages
   </h:panelGroup>
 
 <h:panelGroup rendered="#{delivery.feedback eq 'true'}">
-  <h:panelGrid rendered="#{delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'}" >
+  <h:panelGrid rendered="#{(delivery.feedbackComponent.showCorrectResponse && delivery.feedbackComponent.showCorrection && !delivery.noFeedback=='true') || delivery.actionString=='gradeAssessment'}" >
     <h:panelGroup>
       <h:outputLabel for="answerKeyMC" styleClass="answerkeyFeedbackCommentLabel" value="#{deliveryMessages.ans_key}#{deliveryMessages.column} " />
       <h:outputText id="answerKeyMC" value="#{question.key}" escape="false" />

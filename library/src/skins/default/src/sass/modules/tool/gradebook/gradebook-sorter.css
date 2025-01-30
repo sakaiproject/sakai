@@ -1,0 +1,73 @@
+/* **************************************************************** *
+ *                      Gradebook Sorter styles                     *
+ * **************************************************************** */
+#gradebookSorter {
+  padding-top: 10px;
+}
+
+#gradebookSorter .gb-sorter-sortable {
+  border: 1px solid var(--sakai-border-color);
+  padding: 4px 10px;
+  background-color: var(--sakai-background-color-3);
+  margin-bottom: 4px;
+  cursor: move;
+  position: relative;
+}
+
+
+#gradebookSorter .gb-sorter-sortable .si-grip-horizontal:before {
+  margin-right: 5px;
+}
+
+#gradebookSorter .gb-sorter-placeholder {
+  border: 1px dashed var(--sakai-border-color);
+  padding: 4px 10px;
+  margin-bottom: 4px;
+}
+
+#gradebookSorter .gb-sorter-category {
+  border-left: 3px solid transparent;
+  padding-left: 10px;
+}
+
+#gradebookSorter .gb-sort-up {
+  position: absolute;
+  right: -42px;
+  bottom: 17px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#gradebookSorter .gb-sort-down {
+  position: absolute;
+  right: -42px;
+  bottom: -2px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#gradebookSorter .gb-sort-down i,
+#gradebookSorter .gb-sort-up i {
+  font-size: 10px;
+}
+
+#gradebookSorter .gb-sorter-sortable:first-child .gb-sort-up {
+  display: none;
+}
+
+#gradebookSorter .gb-sorter-sortable:last-child .gb-sort-down {
+  display: none;
+}
+
+#gradebookSorter ul {
+  list-style: none;
+  padding: 0;
+}
+
+.gb-sorter-form .nav-tabs a {
+  color: var(--tool-tab-active-text-color);
+}

@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.sakaiproject.assignment</groupId>
         <artifactId>assignment</artifactId>
-        <version>23-SNAPSHOT</version>
+        <version>25-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -49,16 +49,16 @@
             <artifactId>sakai-calendar-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.sakaiproject.calendar</groupId>
-            <artifactId>sakai-calendar-util</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.sakaiproject.grading</groupId>
             <artifactId>sakai-grading-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.rubrics</groupId>
             <artifactId>rubrics-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.tags</groupId>
+            <artifactId>tags-api</artifactId>
         </dependency>
         <!-- ScoringService integration -->
         <dependency>
@@ -92,28 +92,17 @@
             <artifactId>sakai-velocity-tool</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.sakaiproject.basiclti</groupId>
-            <artifactId>basiclti-api</artifactId>
+            <groupId>org.sakaiproject.lti</groupId>
+            <artifactId>lti-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.lti</groupId>
+            <artifactId>lti-common</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.sakaiproject.basiclti</groupId>
-            <artifactId>basiclti-common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject.basiclti</groupId>
-            <artifactId>basiclti-util</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ant</groupId>
-            <artifactId>ant</artifactId>
-            <version>1.6.5</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
+            <groupId>org.sakaiproject.lti</groupId>
+            <artifactId>lti-util</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -187,15 +176,4 @@
         </dependency>
 
     </dependencies>
-
-    <build>
-        <resources>
-            <resource>
-                <directory>${basedir}/src/bundle</directory>
-                <includes>
-                    <include>**/*.properties</include>
-                </includes>
-            </resource>
-        </resources>
-    </build>
 </project>

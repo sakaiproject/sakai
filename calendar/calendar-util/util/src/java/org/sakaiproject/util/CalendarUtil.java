@@ -45,6 +45,7 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.time.api.UserTimeService;
 
 import com.google.common.annotations.VisibleForTesting;
+import lombok.Setter;
 
 /**
 * <p>CalendarUtil is a bunch of utility methods added to a java Calendar object.</p>
@@ -52,11 +53,11 @@ import com.google.common.annotations.VisibleForTesting;
 public class CalendarUtil
 {
 	private Clock clock = Clock.systemDefaultZone();
-	
+	@Setter private static ResourceLoader rb = new ResourceLoader("calendar");
+
 	/** The calendar object this is based upon. */
 	Calendar m_calendar = null;
 	DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.SHORT);
-	ResourceLoader rb;
 
 	Date dateSunday = null;
 	Date dateMonday = null;
@@ -80,15 +81,11 @@ public class CalendarUtil
 	Date dateDecember = null;
 	private Map<String, String> eventIconMap = new HashMap<String, String>();
 
-			
-	public final static String NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID = "new_assignment_duedate_calendar_assignment_id";
-	public final static String NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED = "new_assignment_open_date_announced";
 	/**
 	* Construct.
 	*/
 	public CalendarUtil()
 	{
-		rb = new ResourceLoader("calendar");
 		Locale locale = rb.getLocale();
 		m_calendar = Calendar.getInstance(locale);
 		initDates();
@@ -100,7 +97,6 @@ public class CalendarUtil
 	*/
 	public CalendarUtil(Calendar calendar) 
 	{
-		rb = new ResourceLoader("calendar");
 		m_calendar = calendar;
 		initDates();
 		
@@ -110,27 +106,10 @@ public class CalendarUtil
 	 * Constructor for testing.
 	 * @param clock the clock to use for the current time.
 	 */
-	public CalendarUtil(Clock clock, ResourceLoader rb)
+	public CalendarUtil(Clock clock)
 	{
 		this.clock = clock;
-		this.rb = rb;
 		m_calendar = getCalendarInstance();
-		initDates();
-	}
-
-	/**
-	 * Constructor for testing.
-	 */
-	public CalendarUtil(Calendar calendar, ResourceLoader rb)
-	{
-		this.rb = rb;
-		m_calendar = calendar;
-		initDates();
-	}
-
-	public CalendarUtil(ResourceLoader rb) {
-		Locale locale = rb.getLocale();
-		m_calendar = Calendar.getInstance(locale);
 		initDates();
 	}
 
@@ -603,7 +582,7 @@ public class CalendarUtil
 	// Used for tests
 	@VisibleForTesting
 	static String getLocalAMString(Instant now, ZoneId zoneId) {
-		Locale locale = new ResourceLoader().getLocale();
+		Locale locale = rb.getLocale();
 		//we need an AM date
 		ZonedDateTime zdt = ZonedDateTime.ofInstant(now, zoneId);
 		zdt = zdt.toLocalDate().atStartOfDay(zoneId);
@@ -622,7 +601,7 @@ public class CalendarUtil
 	// Used for tests
 	@VisibleForTesting
 	static String getLocalPMString(Instant now, ZoneId zoneId) {
-		Locale locale = new ResourceLoader().getLocale();
+		Locale locale = rb.getLocale();
 		//we need an PM date
 		ZonedDateTime zdt = ZonedDateTime.ofInstant(now, zoneId);
 		zdt = zdt.toLocalDate().atStartOfDay(zoneId).plusHours(14);

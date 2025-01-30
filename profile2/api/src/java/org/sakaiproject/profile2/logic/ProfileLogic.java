@@ -19,7 +19,6 @@ import java.util.List;
 
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.profile2.model.BasicPerson;
-import org.sakaiproject.profile2.model.CompanyProfile;
 import org.sakaiproject.profile2.model.MimeTypeByteArray;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.SocialNetworkingInfo;
@@ -76,38 +75,6 @@ public interface ProfileLogic {
 	 * @return	
 	 */
 	public boolean saveUserProfile(SakaiPerson sp);
-	
-	/**
-	 * Adds a new company profile to the database.
-	 * 
-	 * @param companyProfile the company profile to add.
-	 * @return the success of the operation.
-	 */
-	public boolean addNewCompanyProfile(CompanyProfile companyProfile);
-	
-	/**
-	 * Retrieves the company profiles from the database for the specified user.
-	 * 
-	 * @param userId the ID of the user to query by.
-	 */
-	public List<CompanyProfile> getCompanyProfiles(String userId);
-	
-	/**
-	 * Removes the specified company profile for the specified user.
-	 * 
-	 * @param userId the ID of the user to query by.
-	 * @param companyProfile the ID of the company profile to remove.
-	 */
-	public boolean removeCompanyProfile(String userId, long companyProfile);
-	
-	/**
-	 * Saves an existing company profile in the database. New company profiles
-	 * should be added using the <code>addNewCompanyProfile</code> method.
-	 * 
-	 * @param companyProfile the existing company profile to be saved.
-	 * @return the success of the operation.
-	 */
-	public boolean updateCompanyProfile(CompanyProfile companyProfile);
 	
 	/**
 	 * Retrieves the social networking information for the specified user from

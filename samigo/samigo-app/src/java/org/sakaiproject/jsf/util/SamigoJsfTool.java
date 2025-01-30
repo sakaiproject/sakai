@@ -56,9 +56,12 @@ import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettin
 import org.sakaiproject.tool.assessment.ui.bean.author.SectionBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.QuestionScoresBean;
+import org.sakaiproject.tool.assessment.ui.bean.evaluation.StudentScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.bean.util.EmailBean;
+import org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreListener;
+import org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionNavListener;
 
 /**
  * <p>
@@ -277,10 +280,7 @@ import org.sakaiproject.tool.assessment.ui.bean.util.EmailBean;
 
       // TODO: Should setting the HTTP headers be moved up to the portal level as well?
       res.setContentType("text/html; charset=UTF-8");
-      res.addDateHeader("Expires", System.currentTimeMillis() - (1000L * 60L * 60L * 24L * 365L));
-      res.addDateHeader("Last-Modified", System.currentTimeMillis());
-      res.addHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0");
-      res.addHeader("Pragma", "no-cache");
+      res.addHeader("Cache-Control", "no-store");
 
       // dispatch to the target
       log.debug("***5. dispatch, dispatching path: " + req.getPathInfo() + " to: " + target + " context: "
@@ -360,7 +360,16 @@ import org.sakaiproject.tool.assessment.ui.bean.util.EmailBean;
 			bean.setAttachment((Long) toolSession.getAttribute("assessmentGradingId"));
 			toolSession.removeAttribute("SENT_TO_FILEPICKER_HELPER");
 		}
-    
+      else if (target.indexOf("/jsf/evaluation/gradeStudentResult") > -1
+				&& Boolean.TRUE.toString().equals(ContextUtil.lookupParam("resetCache"))) {
+			StudentScoresBean studentScoresBean = (StudentScoresBean) ContextUtil.lookupBean("studentScores");
+			String itemGradingId = studentScoresBean.getAssessmentGradingId();
+			SubmissionNavListener submissionNavListener = new SubmissionNavListener();
+			submissionNavListener.submissionNav(itemGradingId);
+			StudentScoreListener studentScoreListener = new StudentScoreListener();
+			studentScoreListener.studentScores(studentScoresBean.getPublishedId(), itemGradingId, studentScoresBean.getItemId(), false);
+      }
+	
       RequestDispatcher dispatcher = getServletContext().getRequestDispatcher(target);
       dispatcher.forward(req, res);
 

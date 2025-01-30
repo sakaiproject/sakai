@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.sourceforge.net/" xml:lang="en" lang="en">
+<head>
+	<wicket:head>
+		<title>SCORM Console</title>
+	</wicket:head>
+</head>
+<body>
+	<wicket:extend>
+		<ul class="navIntraTool" wicket:id="navBar">
+			<span wicket:id="listLink"></span>
+			<span wicket:id="uploadLink"></span>
+		</ul>
+
+		<wicket:enclosure child="breadcrumbs">
+			<b><div wicket:id="breadcrumbs"></div></b>
+			<p/>
+		</wicket:enclosure>
+
+		<div class="page-header"><h1 wicket:id="page.title">Console</h1></div>
+
+		<wicket:enclosure child="feedback">
+			<div wicket:id="feedback"></div>
+		</wicket:enclosure>
+
+		<wicket:child/>
+	</wicket:extend>
+</body>
+</html>

@@ -16,7 +16,9 @@
 			class="org.sakaiproject.provider.user.SampleCandidateDetailProvider"
 			init-method="init"
 			destroy-method="destroy">
+		<property name="preferencesService"> <ref bean="org.sakaiproject.user.api.PreferencesService"/> </property>
 		<property name="serverConfigurationService"> <ref bean="org.sakaiproject.component.api.ServerConfigurationService"/> </property>
+		<property name="sessionManager"> <ref bean="org.sakaiproject.tool.api.SessionManager"/> </property>
 		<property name="siteService"> <ref bean="org.sakaiproject.site.api.SiteService"/> </property>
 		<property name="toolManager"> <ref bean="org.sakaiproject.tool.api.ToolManager"/> </property>
 		<property name="valueEncryptionUtilities" ref="org.sakaiproject.user.detail.ValueEncryptionUtilities"/>

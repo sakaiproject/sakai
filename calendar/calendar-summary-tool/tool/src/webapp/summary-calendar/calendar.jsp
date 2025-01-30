@@ -4,10 +4,7 @@
 
 <% 
 	response.setContentType("text/html; charset=UTF-8");
-	response.addDateHeader("Expires", System.currentTimeMillis() - (1000L * 60L * 60L * 24L * 365L));
-	response.addDateHeader("Last-Modified", System.currentTimeMillis());
-	response.addHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0");
-	response.addHeader("Pragma", "no-cache");
+	response.addHeader("Cache-Control", "no-store");
 %>
 
 <f:view>
@@ -174,58 +171,60 @@
 		<%/* Selected event */%>
 		<h:panelGroup id="div_selected_event" rendered="#{CalBean.viewingSelectedEvent}">
 			<f:verbatim><h4></f:verbatim><h:outputText value="#{CalBean.selectedEvent.displayName}"/><f:verbatim></h4></f:verbatim>
-			
-			<h:panelGrid id="panel_selected_event_error" styleClass="sectionContainerNav" style="width:100%; padding-top: 5px;" columns="1" columnClasses="calTop" rendered="#{CalBean.selectedEvent.openDateError}">
-				<h:outputText value="#{msgs['java.alert.opendate']} #{CalBean.selectedEvent.openDateErrorDescription}"
-										  styleClass="sak-banner-error"/>
-				<h:panelGroup styleClass="act" style="display: block">
-					<h:commandButton value="#{msgs.back}" actionListener="#{CalBean.backToEventList}" immediate="true"/>
-				</h:panelGroup>
-			</h:panelGrid>
-			<h:panelGrid id="panel_selected_event" styleClass="sectionContainerNav" style="width:100%; padding-top: 5px;" columns="2" columnClasses="calTop,calTop" rendered="#{not CalBean.selectedEvent.openDateError}"> 		
-				<h:outputLabel for="date" value="#{msgs.date}" />
-		        <h:outputText id="date" value="#{CalBean.selectedEvent.date}" />
-				<h:outputLabel for="type" value="#{msgs.type}" />
-				<h:panelGroup>
-					<h:outputText value="#{CalBean.eventIconMap[CalBean.selectedEvent.type]}" escape="false"/>
-		        	<h:outputText id="type" value="#{CalBean.selectedEvent.typeLocalized}" style="padding-left: 3px;"/>
-		        </h:panelGroup>
-				<h:outputLabel for="description" value="#{msgs.description}" rendered="#{CalBean.selectedEvent.description ne ''}"/>
-		        <h:outputText id="description" value="#{CalBean.selectedEvent.description}" escape="false" rendered="#{CalBean.selectedEvent.description ne ''}"/>
-							
-				<f:verbatim><p></f:verbatim><f:verbatim><p></f:verbatim>
-				<h:outputLabel for="location" value="#{msgs.location}" rendered="#{CalBean.selectedEvent.hasLocation}" />
-		        <h:outputText id="location" value="#{CalBean.selectedEvent.location}" rendered="#{CalBean.selectedEvent.hasLocation}" />
-				<h:outputLabel for="groups" value="#{msgs.groups}" rendered="#{CalBean.selectedEvent.showGroups}" />
-		        <h:outputText id="groups" value="#{CalBean.selectedEvent.groups}" rendered="#{CalBean.selectedEvent.showGroups}" />
-				<h:outputLabel for="site" value="#{msgs.site}" />
-		        <h:outputText id="site" value="#{CalBean.selectedEvent.site}" />
-		        <h:outputLabel for="attachments" value="#{msgs.attachments}" rendered="#{CalBean.selectedEvent.hasAttachments}"/>
-		        <h:dataTable
-					id="attachments"
-					value="#{CalBean.selectedEvent.attachmentsWrapper}"
-					var="attach"
-	       		 	style="width:100%"
-	       		 	rendered="#{CalBean.selectedEvent.hasAttachments}"
-					>
-					<h:column id="one_column">
-						<h:outputLink value="#{attach.url}" target="_blank">
-				        	<h:outputText value="#{attach.displayName}"/>
-				        </h:outputLink>
-				        <h:graphicImage value="#{CalBean.imgLocation}/attachments.gif" alt="#{msgs.attachments}"/>
-				        <%--<f:verbatim><br></f:verbatim>--%>
-				    </h:column>
-				</h:dataTable>
-				<f:verbatim><p></f:verbatim><f:verbatim><p></f:verbatim><f:verbatim><p></f:verbatim>
-				<h:outputLink value="#{CalBean.selectedEvent.url}" rendered="#{CalBean.selectedEvent.url != null}" target="_parent">
-			    	<h:outputText value="#{msgs.openInSchedule}"/>
-			    </h:outputLink>
-				
-				<h:panelGroup styleClass="act" style="display: block">
-					<h:commandButton value="#{msgs.back}" actionListener="#{CalBean.backToEventList}" immediate="true"/>
-				</h:panelGroup>
-				<f:verbatim>&nbsp;</f:verbatim>
-			</h:panelGrid>			
+
+			<div class="mx-3">
+				<h:panelGrid id="panel_selected_event_error" styleClass="sectionContainerNav" style="width:100%; padding-top: 5px;" columns="1" columnClasses="calTop" rendered="#{CalBean.selectedEvent.openDateError}">
+					<h:outputText value="#{msgs['java.alert.opendate']} #{CalBean.selectedEvent.openDateErrorDescription}"
+											  styleClass="sak-banner-error"/>
+					<h:panelGroup styleClass="act" style="display: block">
+						<h:commandButton value="#{msgs.back}" actionListener="#{CalBean.backToEventList}" immediate="true"/>
+					</h:panelGroup>
+				</h:panelGrid>
+				<h:panelGrid id="panel_selected_event" styleClass="sectionContainerNav" style="width:100%; padding-top: 5px;" columns="2" columnClasses="calTop,calTop" rendered="#{not CalBean.selectedEvent.openDateError}">
+					<h:outputLabel for="date" value="#{msgs.date}" />
+					<h:outputText id="date" value="#{CalBean.selectedEvent.date}" />
+					<h:outputLabel for="type" value="#{msgs.type}" />
+					<h:panelGroup>
+						<h:outputText value="#{CalBean.eventIconMap[CalBean.selectedEvent.type]}" escape="false"/>
+						<h:outputText id="type" value="#{CalBean.selectedEvent.typeLocalized}" style="padding-left: 3px;"/>
+					</h:panelGroup>
+					<h:outputLabel for="description" value="#{msgs.description}" rendered="#{CalBean.selectedEvent.description ne ''}"/>
+					<h:outputText id="description" value="#{CalBean.selectedEvent.description}" escape="false" rendered="#{CalBean.selectedEvent.description ne ''}"/>
+
+					<f:verbatim><p></f:verbatim><f:verbatim><p></f:verbatim>
+					<h:outputLabel for="location" value="#{msgs.location}" rendered="#{CalBean.selectedEvent.hasLocation}" />
+					<h:outputText id="location" value="#{CalBean.selectedEvent.location}" rendered="#{CalBean.selectedEvent.hasLocation}" />
+					<h:outputLabel for="groups" value="#{msgs.groups}" rendered="#{CalBean.selectedEvent.showGroups}" />
+					<h:outputText id="groups" value="#{CalBean.selectedEvent.groups}" rendered="#{CalBean.selectedEvent.showGroups}" />
+					<h:outputLabel for="site" value="#{msgs.site}" />
+					<h:outputText id="site" value="#{CalBean.selectedEvent.site}" />
+					<h:outputLabel for="attachments" value="#{msgs.attachments}" rendered="#{CalBean.selectedEvent.hasAttachments}"/>
+					<h:dataTable
+						id="attachments"
+						value="#{CalBean.selectedEvent.attachmentsWrapper}"
+						var="attach"
+						style="width:100%"
+						rendered="#{CalBean.selectedEvent.hasAttachments}"
+						>
+						<h:column id="one_column">
+							<h:outputLink value="#{attach.url}" target="_blank">
+								<h:outputText value="#{attach.displayName}"/>
+							</h:outputLink>
+							<h:graphicImage value="#{CalBean.imgLocation}/attachments.gif" alt="#{msgs.attachments}"/>
+							<%--<f:verbatim><br></f:verbatim>--%>
+						</h:column>
+					</h:dataTable>
+					<f:verbatim><p></f:verbatim><f:verbatim><p></f:verbatim><f:verbatim><p></f:verbatim>
+					<h:outputLink value="#{CalBean.selectedEvent.url}" rendered="#{CalBean.selectedEvent.url != null}" target="_parent">
+						<h:outputText value="#{msgs.openInSchedule}"/>
+					</h:outputLink>
+
+					<h:panelGroup styleClass="act" style="display: block">
+						<h:commandButton value="#{msgs.back}" actionListener="#{CalBean.backToEventList}" immediate="true"/>
+					</h:panelGroup>
+					<f:verbatim>&nbsp;</f:verbatim>
+				</h:panelGrid>
+			</div>
 		</h:panelGroup>
 		
 	<%--</h:panelGroup>--%>

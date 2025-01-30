@@ -23,7 +23,6 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.faces.application.FacesMessage;
@@ -31,10 +30,12 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
+import javax.faces.model.SelectItem;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
@@ -42,12 +43,14 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
+import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.tool.assessment.util.TimeLimitValidator;
+import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.api.FormattedText;
 
 /**
@@ -307,6 +310,18 @@ public class SaveAssessmentSettingsListener
     	}			
     }
 
+    List<SelectItem> existingGradebook = assessmentSettings.getExistingGradebook();
+    ToolSession currentToolSession = SessionManager.getCurrentToolSession();
+    for (SelectItem item : existingGradebook) {
+        if (assessmentSettings.getGradebookName().equals(item.getValue()) &&
+            item.getLabel().split("\\(").length > 1 &&
+            currentToolSession.getAttribute("NEW_ASSESSMENT_PREVIOUSLY_ASSOCIATED") == null) {
+                error = true;
+                String err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "addtogradebook.previouslyAssoc");
+                currentToolSession.setAttribute("NEW_ASSESSMENT_PREVIOUSLY_ASSOCIATED", Boolean.TRUE);
+                context.addMessage(null,new FacesMessage(err));
+        }
+    }
 
     if (error){
       String blockDivs = ContextUtil.lookupParam("assessmentSettingsAction:blockDivs");
@@ -314,7 +329,9 @@ public class SaveAssessmentSettingsListener
       assessmentSettings.setOutcomeSave("editAssessmentSettings");
       return;
     }
- 
+
+    currentToolSession.removeAttribute("NEW_ASSESSMENT_PREVIOUSLY_ASSOCIATED");
+
     // Set the outcome once Save button is clicked
     AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
     AuthorizationBean authorization = (AuthorizationBean) ContextUtil.lookupBean("authorization");
@@ -322,14 +339,18 @@ public class SaveAssessmentSettingsListener
 
     s.save(assessmentSettings, false);
 
+    // In case the user returns to EditAssessment, the exam title will be updated
+    AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
+
     // reset the core listing in case assessment title changes
-    List<AssessmentFacade> assessmentList = assessmentService.getBasicInfoOfAllActiveAssessments(
-    		author.getCoreAssessmentOrderBy(),author.isCoreAscending());
-    Iterator iter = assessmentList.iterator();
-	while (iter.hasNext()) {
-		AssessmentFacade assessmentFacade= (AssessmentFacade) iter.next();
-		assessmentFacade.setTitle(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(assessmentFacade.getTitle()));
-	}
+    List<AssessmentFacade> assessmentList = assessmentService.getBasicInfoOfAllActiveAssessments(author.getCoreAssessmentOrderBy(),author.isCoreAscending());
+    for (AssessmentFacade assessmentFacade : assessmentList) {
+        assessmentFacade.setTitle(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(assessmentFacade.getTitle()));
+        if (assessmentFacade.getAssessmentBaseId().toString().equals(assessmentBean.getAssessmentId())) {
+            assessmentBean.setTitle(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(assessmentFacade.getTitle()));
+        }
+    }
+
     // get the managed bean, author and set the list
     List allAssessments = new ArrayList<>();
     if (authorization.getEditAnyAssessment() || authorization.getEditOwnAssessment()) {

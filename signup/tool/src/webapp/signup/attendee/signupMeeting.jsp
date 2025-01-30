@@ -6,17 +6,17 @@
 
 <f:view locale="#{UserLocale.locale}">
 	<jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
-	   <jsp:setProperty name="msgs" property="baseName" value="messages"/>
+	   <jsp:setProperty name="msgs" property="baseName" value="signup"/>
 	</jsp:useBean>
 	<sakai:view_container title="Signup Tool">
 		<style type="text/css">
-			@import url("/sakai-signup-tool/css/signupStyle.css");
+			@import url("/sakai-signup-tool/css/signupStyle.css${Portal.CDNQuery}");
 		</style>
 		<style type="text/css" media="print">
-				@import url("/sakai-signup-tool/css/print.css");
+				@import url("/sakai-signup-tool/css/print.css${Portal.CDNQuery}");
 		</style>
 <h:outputText value="#{Portal.latestJQuery}" escape="false"/>
-		<script src="/sakai-signup-tool/js/signupScript.js"></script>
+		<script src="/sakai-signup-tool/js/signupScript.js${Portal.CDNQuery}"></script>
 		
 		<script>
 			var hiddenInputCollapeMInfo;
@@ -99,7 +99,7 @@
 				</h:panelGrid>
 				
 				<%-- show all meeting details when expanded --%>
-				<h:panelGroup id="meetingInfoDetails" styleClass="table-responsive" layout="block">
+				<h:panelGroup id="meetingInfoDetails" styleClass="table table-responsive" layout="block">
 						<h:panelGrid columns="2" columnClasses="titleColumn,valueColumn">
 							<h:outputText value="#{msgs.event_name}" styleClass="titleText" escape="false"/>
 							<h:panelGroup>
@@ -265,13 +265,13 @@
 				<h:panelGrid rendered="#{AttendeeSignupMBean.meetingWrapper.meeting.meetingType =='announcement'}" columns="1" styleClass="annoncement">
 					<h:outputText value="#{msgs.event_is_open_session}" escape="false" />
 				</h:panelGrid>
-				<div class="table-responsive">
+				<div class="table table-responsive">
 				<h:dataTable id="timeslots" value="#{AttendeeSignupMBean.timeslotWrappers}"
 					binding="#{AttendeeSignupMBean.timeslotWrapperTable}" var="timeSlotWrapper"
 					rendered="#{AttendeeSignupMBean.meetingWrapper.meeting.meetingType !='announcement'}"
 					columnClasses="attendeeSignupTSCol,attendeeSignupAvailCol,attendeeInfoCol,attendeeSignupCol,attendeeSignupCol"
 					rowClasses="oddRow,evenRow"
-					styleClass="signupTable" style="width: 98%">
+					styleClass="signupTable table table-striped" style="width: 98%">
 					<h:column>
 						<f:facet name="header">
 							<h:outputText value="#{msgs.tab_time_slot}" />
@@ -368,7 +368,7 @@
 								<h:commandLink action="#{AttendeeSignupMBean.editAttendeeComment}">
 									<f:param id="timeslotId" name="timeslotId" value="#{timeSlotWrapper.timeSlot.id}"/>				   										   								
 									<h:outputText value="#{attendeeWrapper.displayName}" title="#{attendeeWrapper.commentForTooltips}" style="cursor:pointer;" rendered="#{attendeeWrapper.signupAttendee.attendeeUserId !=null}"/>
-									<h:graphicImage title="Click to view/edit comment" value="/images/comment.gif" width="18" height="18" alt="view or add comment" style="border:none" styleClass="openCloseImageIcon" rendered="#{timeSlotWrapper.currentUserSignedUp && timeSlotWrapper.comment}"/>
+									<h:graphicImage title="#{msgs.label_view_edit_comment}" value="/images/comment.gif" width="18" height="18" alt="#{msgs.label_view_add_comment}" style="border:none" styleClass="openCloseImageIcon" rendered="#{timeSlotWrapper.currentUserSignedUp && timeSlotWrapper.comment}"/>
 								</h:commandLink>
 							</h:panelGroup>
 						</h:panelGroup>

@@ -40,6 +40,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.BaseResourceProperties;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
+import org.sakaiproject.util.Xml;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -238,7 +239,45 @@ public class BaseGroup implements Group, Identifiable
 	 */
 	public Element toXml(Document doc, Stack stack)
 	{
-		return null;
+
+		Element group = doc.createElement("group");
+		if (stack.isEmpty())
+		{
+			doc.appendChild(group);
+		}
+		else
+		{
+			((Element) stack.peek()).appendChild(group);
+		}
+
+		group.setAttribute("id", getId());
+
+		if (m_title != null) group.setAttribute("title", m_title);
+
+		// encode the description
+		if (m_description != null) {
+			Xml.encodeAttribute(group, "description-enc", m_description);
+		}
+
+		if (getCreatedBy() != null) {
+			group.setAttribute("created-id", getCreatedBy().getId());
+		}
+		if (getModifiedBy() != null) {
+			group.setAttribute("modified-id", getModifiedBy().getId());
+		}
+		if (getCreatedDate() != null) {
+			group.setAttribute("created-time", getCreatedDate().toString());
+		}
+		if (getModifiedDate() != null) {
+			group.setAttribute("modified-time", getModifiedDate().toString());
+		}
+
+		// properties
+		stack.push(group);
+		getProperties().toXml(doc, stack);
+		stack.pop();
+
+		return group;
 	}
 
 	/**

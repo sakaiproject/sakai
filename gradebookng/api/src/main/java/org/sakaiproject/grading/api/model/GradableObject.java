@@ -72,6 +72,10 @@ public abstract class GradableObject implements Serializable {
     @ToString.Include
     protected String name;
 
+    @Column(name = "REFERENCE")
+    @ToString.Include(name = "reference")
+    protected String reference;
+
     @Column(name = "SORT_ORDER")
     @ToString.Include(name = "sort")
     protected Integer sortOrder;

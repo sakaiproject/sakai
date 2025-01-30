@@ -36,7 +36,7 @@ public class AcademicSessionAdminApplication extends WebApplication {
 	protected void init() {
 		
 		//Configure for Spring injection
-	    getComponentInstantiationListeners().add(new SpringComponentInjector(this));
+		getComponentInstantiationListeners().add(new SpringComponentInjector(this));
 		
 		
 		//Don't throw an exception if we are missing a property, just fallback
@@ -44,7 +44,10 @@ public class AcademicSessionAdminApplication extends WebApplication {
 		
 		//Remove the wicket specific tags from the generated markup
 		getMarkupSettings().setStripWicketTags(true);
-				
+
+		// We handle CSP centrally
+		getCspSettings().blocking().disabled();
+
 		// On Wicket session timeout, redirect to main page
 		getApplicationSettings().setPageExpiredErrorPage(getHomePage());
 		getApplicationSettings().setAccessDeniedPage(getHomePage());

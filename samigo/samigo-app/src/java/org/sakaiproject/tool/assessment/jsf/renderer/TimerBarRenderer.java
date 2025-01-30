@@ -97,8 +97,8 @@ public class TimerBarRenderer extends Renderer
         }
 
          String contextPath = context.getExternalContext().getRequestContextPath();
-         writer.write("\n<script type=\"text/javascript\" src=\"" +
-           contextPath + SCRIPT_PATH + "timerbar.js\"></script>");
+         writer.write("\n<script>includeWebjarLibrary('momentjs');</script>");
+         writer.write("\n<script type=\"text/javascript\" src=\"" + contextPath + SCRIPT_PATH + "timerbar.js\"></script>");
          writer.write("\n");
 
         if (clientId != null)

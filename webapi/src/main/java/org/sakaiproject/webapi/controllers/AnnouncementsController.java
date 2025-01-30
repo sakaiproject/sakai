@@ -13,105 +13,113 @@
  ******************************************************************************/
 package org.sakaiproject.webapi.controllers;
 
-import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.webapi.beans.AnnouncementRestBean;
-import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.javax.Filter;
+import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
 import org.springframework.http.MediaType;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Resource;
-
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import lombok.extern.slf4j.Slf4j;
 
-/**
- */
 @Slf4j
 @RestController
 public class AnnouncementsController extends AbstractSakaiApiController {
 
-	@Resource
+	@Autowired
 	private AnnouncementService announcementService;
 
-	@Resource
+	@Autowired
 	private EntityManager entityManager;
 
-	@Resource
-	private SecurityService securityService;
+	@Autowired
+	private PortalService portalService;
 
-	@Resource(name = "org.sakaiproject.component.api.ServerConfigurationService")
-	private ServerConfigurationService serverConfigurationService;
-
-	@Resource
+	@Autowired
 	private SiteService siteService;
 
-	@Resource
-	private UserDirectoryService userDirectoryService;
+    @GetMapping(value = "/users/me/announcements", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<AnnouncementRestBean> getUserAnnouncements() throws UserNotDefinedException {
 
-	@GetMapping(value = "/users/{userId}/announcements", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<AnnouncementRestBean> getUserAnnouncements(@PathVariable String userId) throws UserNotDefinedException {
+        checkSakaiSession();
 
-        Session session = checkSakaiSession();
-        return announcementService.getViewableAnnouncementsForCurrentUser(10).entrySet()
-            .stream()
-            .map(e -> {
+        Filter filter = announcementService.getMaxAgeInDaysAndAmountFilter(10, 100);
+
+        try {
+
+            return portalService.getPinnedSites().stream().flatMap(siteId -> {
 
                 try {
-                    Site site = siteService.getSite(e.getKey());
-                    return e.getValue().stream().map(am -> {
-                        Optional<String> optionalUrl = entityManager.getUrl(am.getReference(), Entity.UrlType.PORTAL);
-                        return new AnnouncementRestBean(site, am, optionalUrl.get());
-                    }).collect(Collectors.toList());
-                } catch (Exception ex) {
-                    return null;
+                    Site site = siteService.getSite(siteId);
+
+                    return announcementService.getMessages(announcementService.channelReference(siteId, SiteService.MAIN_CONTAINER), filter, true, false)
+                        .stream()
+                        .map(am -> {
+
+                            Optional<String> optionalUrl = entityManager.getUrl(am.getReference(), Entity.UrlType.PORTAL);
+                            return new AnnouncementRestBean(site, am, optionalUrl.get());
+                        });
+                } catch (IdUnusedException idue) {
+                    log.warn("Failed to get messages for site {}: {}", siteId, idue.toString());
+                    return Stream.<AnnouncementRestBean>empty();
+                } catch (PermissionException pe) {
+                    log.warn("No permission to get messages for site id {}", siteId, pe.toString());
+                    return Stream.<AnnouncementRestBean>empty();
                 }
             })
-            .flatMap(Collection::stream)
-            .sorted(Comparator.comparingLong(AnnouncementRestBean::getDate).reversed())
             .collect(Collectors.toList());
-	}
+        } catch (Exception ex) {
+            log.error("Error getting announcements: {}", ex.toString());
+        }
 
-	@GetMapping(value = "/sites/{siteId}/announcements", produces = MediaType.APPLICATION_JSON_VALUE)
+        return Collections.EMPTY_LIST;
+    }
+
+    @GetMapping(value = "/sites/{siteId}/announcements", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<AnnouncementRestBean> getSiteAnnouncements(@PathVariable String siteId) throws UserNotDefinedException {
 
-		Session session = checkSakaiSession();
+        checkSakaiSession();
 
         try {
             Site site = siteService.getSite(siteId);
             String channelRef = announcementService.channelReference(siteId, "main");
-            return ((List<AnnouncementMessage>) announcementService.getMessages(channelRef, null, false, true))
+
+            ToolConfiguration placement = site.getToolForCommonId(AnnouncementService.SAKAI_ANNOUNCEMENT_TOOL_ID);
+            String mergedChannels = placement.getPlacementConfig().getProperty(AnnouncementService.PORTLET_CONFIG_PARM_MERGED_CHANNELS);
+
+            return announcementService.getChannelMessages(channelRef, null, true, mergedChannels, false, false, siteId, 10)
                 .stream()
+                .filter(announcementService::isMessageViewable)
                 .map(am -> {
                     Optional<String> optionalUrl = entityManager.getUrl(am.getReference(), Entity.UrlType.PORTAL);
                     return new AnnouncementRestBean(site, am, optionalUrl.get());
                 }).collect(Collectors.toList());
         } catch (IdUnusedException idue) {
             log.error("No announcements for id {}", siteId);
-        } catch (PermissionException pe) {
-            log.warn("The current user does not have permission to get announcements for this site {}", siteId);
+        } catch (Exception ex) {
+            log.warn("Error getting announcements for this site {}", siteId, ex);
         }
 
         return Collections.EMPTY_LIST;
-	}
+    }
 }

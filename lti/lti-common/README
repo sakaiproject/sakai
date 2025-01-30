@@ -1,0 +1,14 @@
+            Sakai LTI Utilities
+
+  What is it?
+  -----------
+
+  These Utilities are a set of utility classes to aid  in the development
+  of LTI consumers and providers. They deal with much of the heavy lifting
+  and make the process more opaque to the developer.
+
+  Licensing
+  ---------
+
+  Please see the file called LICENSE source directories.
+

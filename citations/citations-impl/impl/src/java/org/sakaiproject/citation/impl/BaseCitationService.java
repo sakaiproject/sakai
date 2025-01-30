@@ -4309,20 +4309,6 @@ public abstract class BaseCitationService implements CitationService
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see org.sakaiproject.entity.api.EntityProducer#archive(java.lang.String,
-	 *      org.w3c.dom.Document, java.util.Stack, java.lang.String,
-	 *      java.util.List)
-	 */
-	public String archive(String siteId, Document doc, Stack stack, String archivePath,
-	        List attachments)
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
 	 * @see org.sakaiproject.citation.api.CitationService#copyAll(java.lang.String)
 	 */
 	public CitationCollection copyAll(String collectionId)
@@ -4768,7 +4754,7 @@ public abstract class BaseCitationService implements CitationService
 	    createAction.setLocalizer(
 	    		new BaseResourceAction.Localizer()
 	    		{
-	    			public String getLabel()
+	    			public String getI18nString()
 	    			{
 	    				return rb.getString("action.create");
 	    			}
@@ -4783,7 +4769,7 @@ public abstract class BaseCitationService implements CitationService
 	    reviseAction.setLocalizer(
 	    		new BaseResourceAction.Localizer()
 	    		{
-	    			public String getLabel()
+	    			public String getI18nString()
 	    			{
 	    				return rb.getString("action.revise");
 	    			}
@@ -5385,20 +5371,6 @@ public abstract class BaseCitationService implements CitationService
 	{
 		Set names = (Set) m_storage.listSchemas();
 		return new Vector(names);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.sakaiproject.entity.api.EntityProducer#merge(java.lang.String,
-	 *      org.w3c.dom.Element, java.lang.String, java.lang.String,
-	 *      java.util.Map, java.util.Map, java.util.Set)
-	 */
-	public String merge(String siteId, Element root, String archivePath, String fromSiteId,
-	        Map attachmentNames, Map userIdTrans, Set userListAllowImport)
-	{
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	/**

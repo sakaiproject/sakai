@@ -1,0 +1,369 @@
+.#{$namespace}sakai-profile2 {
+
+  #leftPanel{
+    min-width: fit-content;
+    margin-bottom: 20px;
+  }
+
+  #photoContainer {
+    margin-bottom: 12px;
+    img {
+      border-radius: 4px;
+    }
+
+    div:focus, div:hover {
+      button {
+        display: block;
+      }
+    }
+  }
+
+  .profileContent .radio label, .profileContent .checkbox label {
+    font-size: 1.2em;
+  }
+
+  .editable > .edit-button {
+    @include sakai_secondary_button();
+    margin: 3px 0 0 0;
+    float: right;
+    clear: none;
+    display: block;
+    clip: unset;
+  }
+
+  .edit-image-button {
+    @include sakai_secondary_button();
+    margin: 3px 3px 0 0;
+  }
+
+  #profileHeadingName {
+    font-size: 140%;
+    font-weight: bold;
+  }
+
+  /* generic styles */
+
+  h2 {
+    margin-top: 0;
+  }
+
+  /* icons */
+  .locked:before,
+  .unlocked:before,
+  .profile:before,
+  .picture:before,
+  .preferences:before,
+  .email-link:before,
+  .facebook:before,
+  .linkedin:before  {
+    @extend .fa;
+    margin-right: $standard-space-2x;
+  }
+  @mixin mimic_button() {
+    padding: 7px 16px;
+    justify-content: center;
+    font-weight: 600;
+    display: flex;
+    width: auto;
+    font-size: 13px;
+  }
+
+  .locked {
+    @extend .fa-lock;
+  }
+
+  .unlocked {
+    @extend .fa-unlock;
+  }
+
+  .profile {
+    @extend .fa-address-card;
+    @include mimic_button();
+  }
+
+  .picture {
+    @extend .fa-picture-o;
+  }
+
+  .preferences {
+    @extend .fa-cog;
+  }
+
+  .facebook {
+    @extend .fa-facebook;
+  }
+
+  .linkedin {
+    @extend .fa-linkedin;
+  }
+
+  .recordIcon {
+    @extend .fa;
+    @extend .fa-microphone;
+    width: 11px;
+    height: 15px;
+    display: inline-block;
+    background-size: 100%;
+    margin-left: 7px;
+  }
+
+  .infoIcon {
+    @extend .fa, .fa-info-circle;
+  }
+  
+  /* mainSection styles */
+  .mainSection {
+    padding-bottom: 10px;
+    display: block;
+  }
+
+  .mainSectionHeading {
+    display: block;
+    font-weight: bold;
+    border-bottom: 1px solid var(--sakai-primary-color-1);
+    margin-bottom: 0;
+    margin-top: $standard-space-2x;
+    padding-bottom: 0;
+    width: 100%;
+  }
+
+  .mainSectionContentDescription {
+    padding-top: 5px;
+  }
+
+  .mainSectionContent {
+    padding-top: 5px;
+  }
+
+  /* sideLink styles */
+  #sideLink {
+    list-style-type: none;
+    padding: 0;
+    margin: $standard-space-2x 0;
+
+    li {
+      margin-bottom: $standard-space-2x;
+
+      a {
+        @include sakai_secondary_button();
+        display: flex;
+        width: auto;
+        justify-content: center;
+      }
+    }
+  }
+
+  /** workaround for disabled link and extra markup */
+  #sideLink li span>span {
+    margin: 0;
+    padding: 0;
+  }
+
+  /* profile and preferences information sections */
+  .profileContent, .preferencesContent {
+    padding-top: 2px;
+    padding-bottom: 2px;
+    font-size: 90%;
+    border: none;
+  }
+
+  .preferencesContent {
+    margin-top: 6px;
+    margin-bottom: 12px;
+  }
+
+  .profileContent td {
+    padding: 0.5em 1em 0.5em 0em !important;
+  }
+
+  .profileContent td:last-child {
+    padding: 0.5em 0 0.5em 0 !important;
+  }
+
+  .profileContent .label,
+  .preferencesContent .label {
+    color: var(--sakai-text-color-1);
+    vertical-align: middle;
+    font-weight: normal;
+    padding-top: 4px;
+    padding-bottom: 4px;
+  }
+
+  .preferencesContent .label {
+    width: 170px;
+  }
+
+  .label a {
+    padding-top: 2px;
+    padding-bottom: 2px;
+  }
+
+  .profileContent .content,
+  .preferencesContent .content {
+    padding-left: 2px;
+    /*padding-right: 40px;*/
+    vertical-align: middle;
+    word-wrap: break-word;
+    /* WebKit rule. See http://blog.kenneth.io/blog/2012/03/04/word-wrapping-hypernation-using-css/ */
+    word-break: break-word;
+    /* Split long words with hyphens */
+    hyphens: auto;
+    -moz-hyphens: auto;
+    -webkit-hyphens: auto;
+    /* Only split after 8 characters. Webkit only. */
+    -webkit-hyphenate-limit-before: 8;
+  }
+
+  .contentExample {
+    color: var(--sakai-text-color-2);
+  }
+
+  .preferencesContent .item {
+    padding-left: 4px;
+    padding-right: 4px;
+    text-align: center;
+    font-size: 80%;
+  }
+
+  .profileContent .toolTip,
+  .preferencesContent .toolTip {
+    padding-left: 8px;
+    vertical-align: top;
+    
+  }
+
+  .formInputField {
+    width: 210px;
+  }
+
+  .formInputArea {
+    width: 300px;
+  }
+
+  .formInputField.invalid,
+  .formInputArea.invalid {
+    border: 2px solid var(--sakai-color-red);
+    color: var(--sakai-color-red);
+  }
+
+  .feedbackLabel {
+    display: block;
+    font-weight: bold;
+  }
+
+  /* wicket FeedbackPanel but remove the list styles and just make it bold */
+
+  .formSectionHeading {
+    color: var(--sakai-text-color-1);
+    padding-left: 0;
+  }
+
+  .formSectionText {
+    font-weight: normal;
+    font-size: 0.9em;
+    padding-left: 2px;
+    margin-top: 4px;
+    font-style: italic;
+  }
+
+  /* Style for wicket's feedback message panel */
+  .alertMessage ul {
+    list-style-type: none !important;
+    margin-left: -40px;
+    margin-bottom: 0px;
+    margin-top: 0px;
+  }
+
+  /* heading for pages and items */
+  .header {
+    border-bottom: 1px solid var(--sakai-border-color);
+    line-height: 1.55;
+  }
+
+  /* style the indicator for form submits that use an IndicatingAjaxButton as the button */
+  span.wicket-ajax-indicator img { 
+    padding-left: 2px; 
+    display: inline; 
+    white-space: nowrap; 
+    vertical-align: middle;
+  }
+
+  /* warning message style for when editing another person's profile */
+  .edit-other-warning {
+    @extend .sak-banner-warn-inline;
+    margin: $standard-space-2x 0;
+  }
+
+  /* warning message style for when editing another person's profile */
+  .save-failed-error {
+    @extend .sak-banner-error-inline;
+    margin: $standard-space-2x 0;
+  }
+
+  /* accessibility */
+  .accessibility-label {
+    position: absolute;
+    left: -999em;
+    width: 1em;
+    overflow: hidden;
+  }
+
+  .label{
+    font-size: 110%;
+    padding: 0 0 0 0;
+    line-height: 2.3em;
+    &:not(.notBold) {
+      font-weight: 700;
+    }
+  }
+
+  .recordButton {
+    border-radius: 17px;
+    padding: 7px 30px;
+    @extend .sakai-colorize--sakai-color-red;
+    border-color: var(--sakai-color-red);
+    box-shadow: var(--elevation-2dp);
+    margin-bottom: 10px;
+    @include display-flex;
+    @include flex-direction(row);
+    @include align-items(center);
+    &:hover {
+      @extend .sakai-colorize--sakai-color-red--darker-1;
+      border-color: var(--sakai-color-red--darker-1);
+      box-shadow: var(--elevation-4dp);
+    }
+    &:active, &:focus {
+      @extend .sakai-colorize--sakai-color-red--darker-2;
+      border-color: var(--sakai-color-red--darker-2);
+      box-shadow: var(--elevation-0dp);
+    }
+  }
+
+  #prev-audio-player audio, .audioPlayer audio {
+    max-width: 100%;
+  }
+
+  .content {
+    font-size: 14px;
+  }
+
+  .navIntraTool {
+    margin: -2px -14px 0 0;
+    @media #{$phone}{
+      margin-top: 10px;
+    }
+  }
+
+  .Mrphs-pageColumns--single {
+    margin: 1em 0 1em 0;
+    clear: both;
+  }
+
+  .portletBody {
+    padding: 2.5em 0 40px 0;
+  }
+
+  .profileContent {
+    max-width: 65em;
+  }
+}

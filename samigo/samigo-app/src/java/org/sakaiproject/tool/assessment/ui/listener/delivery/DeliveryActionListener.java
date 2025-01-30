@@ -30,15 +30,16 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
-import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
@@ -59,9 +60,12 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemFeedback;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
+import org.sakaiproject.tool.assessment.data.dao.grading.SectionGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
@@ -77,7 +81,9 @@ import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.EventLogFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
+import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.services.assessment.SecureDeliverySeb;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI.Phase;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI.PhaseStatus;
@@ -94,6 +100,7 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.MatrixSurveyBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SelectionBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.StudentScoresBean;
+import org.sakaiproject.tool.assessment.ui.bean.evaluation.SubmissionNavBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.model.delivery.TimedAssessmentGradingModel;
@@ -102,6 +109,7 @@ import org.sakaiproject.tool.assessment.ui.web.session.SessionUtil;
 import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
 import org.sakaiproject.tool.assessment.util.FormatException;
 import org.sakaiproject.tool.assessment.util.SamigoLRSStatements;
+import org.sakaiproject.tool.assessment.util.SamigoExpressionError;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.api.EncryptionUtilityService;
@@ -121,13 +129,13 @@ public class DeliveryActionListener
   private static final String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   private boolean resetPageContents = true;
   private long previewGradingId = (long)(Math.random() * 1000);
-  private static final ResourceBundle eventLogMessages = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.EventLogMessages");
   private static final ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.DeliveryMessages");
   private static final ResourceLoader ra = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
 
   private EventTrackingService eventTrackingService = ComponentManager.get(EventTrackingService.class);
   private EncryptionUtilityService encryptionUtilityService = ComponentManager.get(EncryptionUtilityService.class);
   private SessionManager sessionManager = ComponentManager.get(SessionManager.class);
+  private PersistenceService persistenceService = PersistenceService.getInstance();
 
   private GradingService service = new GradingService();
 
@@ -150,6 +158,7 @@ public class DeliveryActionListener
       // set publishedId, note that id can be changed by isPreviewingMode()
       String id = getPublishedAssessmentId(delivery);
       String agent = getAgentString();
+      String actionString = Optional.ofNullable(ae).map(ActionEvent::getComponent).map(UIComponent::getId).orElse(null);
 
       // 2. get assessment from deliveryBean if id matches. otherwise, this is the 1st time
       // that DeliveryActionListener is called, so pull it from DB
@@ -246,77 +255,86 @@ public class DeliveryActionListener
               break;
 
       case 3: // Review assessment
-          setFeedbackMode(delivery); //this determine if we should gather the itemGrading
-          Integer scoringoption = publishedAssessment.getEvaluationModel().getScoringType();
-          String assessmentGradingId = ContextUtil.lookupParam("assessmentGradingId");
+              setFeedbackMode(delivery); //this determine if we should gather the itemGrading
+              Integer scoringoption = publishedAssessment.getEvaluationModel().getScoringType();
+              String assessmentGradingId = ContextUtil.lookupParam("assessmentGradingId");
               
-          if (("true").equals(delivery.getFeedback())) {
+              if (("true").equals(delivery.getFeedback())){
                 itemGradingHash = new HashMap();
-                if (delivery.getFeedbackComponent().getShowResponse()
-                    || delivery.getFeedbackComponent().getShowStudentQuestionScore()
-                    ||delivery.getFeedbackComponent().getShowItemLevel()) {
-
+                if (delivery.getFeedbackComponent().getShowResponse() || delivery.getFeedbackComponent().getShowStudentQuestionScore() ||
+                        delivery.getFeedbackComponent().getShowItemLevel())
                 	itemGradingHash = service.getSubmitData(id, agent, scoringoption, assessmentGradingId);
-                }
                 ag = setAssessmentGradingFromItemData(delivery, itemGradingHash, false);
                 delivery.setAssessmentGrading(ag);
 	      }
-          setDisplayByAssessment(delivery);
-          FeedbackComponent component = new FeedbackComponent();
-          AssessmentFeedbackIfc info =  (AssessmentFeedbackIfc) publishedAssessment.getAssessmentFeedback();
-          if ( info != null) {
-                component.setAssessmentFeedback(info);
-          }
-          delivery.setFeedbackComponent(component);
-          AssessmentGradingData agData = null;
-          if (EvaluationModelIfc.LAST_SCORE.equals(scoringoption)){
-              agData = (AssessmentGradingData) service.getLastSubmittedAssessmentGradingByAgentId(id, agent, assessmentGradingId);
-          } else {
-              agData = (AssessmentGradingData) service.getHighestSubmittedAssessmentGrading(id, agent, assessmentGradingId);
-          }
-          if (agData == null) {
-              delivery.setOutcome("reviewAssessmentError");
-              return;
-          }
-
-          //agData.setItemGradingSet(agData.getItemGradingSet().stream().filter(gd -> !gd.getIsCorrect()).collect(Collectors.toSet()));
-          log.debug("GraderComments: getComments()" + agData.getComments());
-          delivery.setGraderComment(agData.getComments());
-          delivery.setAssessmentGradingAttachmentList(agData.getAssessmentGradingAttachmentList());
-          delivery.setHasAssessmentGradingAttachment(
-                  agData.getAssessmentGradingAttachmentList() != null && agData.getAssessmentGradingAttachmentList().size() > 0);
-          delivery.setAssessmentGradingId(agData.getAssessmentGradingId());
-          delivery.setOutcome("takeAssessment");
-          delivery.setSecureDeliveryHTMLFragment( "" );
-          delivery.setBlockDelivery( false );
-
-          if ( secureDelivery.isSecureDeliveryAvaliable() ) {
-              String moduleId = publishedAssessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY );
-              if ( moduleId != null && ! SecureDeliveryServiceAPI.NONE_ID.equals( moduleId ) ) {
-                  HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
-                  PhaseStatus status = secureDelivery.validatePhase(moduleId, Phase.ASSESSMENT_REVIEW, publishedAssessment, request );
-                  delivery.setSecureDeliveryHTMLFragment(
-                          secureDelivery.getHTMLFragment(moduleId, publishedAssessment, request, Phase.ASSESSMENT_REVIEW, status, new ResourceLoader().getLocale() ) );
-                  if ( PhaseStatus.FAILURE == status )  {
-                      delivery.setOutcome( "secureDeliveryError" );
-                      delivery.setBlockDelivery( true );
-                  }
+              setDisplayByAssessment(delivery);
+              //setDeliveryFeedbackOnforEvaluation(delivery);
+              //setGraderComment(delivery);
+              FeedbackComponent component = new FeedbackComponent();
+              AssessmentFeedbackIfc info =  (AssessmentFeedbackIfc) publishedAssessment.getAssessmentFeedback();
+              if ( info != null) {
+            	  	component.setAssessmentFeedback(info);
               }
-          }
+              delivery.setFeedbackComponent(component);
+              AssessmentGradingData agData = null;
+              if (EvaluationModelIfc.LAST_SCORE.equals(scoringoption)){
+            	  agData = (AssessmentGradingData) service.getLastSubmittedAssessmentGradingByAgentId(id, agent, assessmentGradingId);
+              } else {
+            	  agData = (AssessmentGradingData) service.getHighestSubmittedAssessmentGrading(id, agent, assessmentGradingId);
+              }
+              if (agData == null) {
+            	  delivery.setOutcome("reviewAssessmentError");
+            	  return;
+              }
+              log.debug("GraderComments: getComments()" + agData.getComments());
+              delivery.setGraderComment(agData.getComments());
+              delivery.setAssessmentGradingAttachmentList(agData.getAssessmentGradingAttachmentList());
+              delivery.setHasAssessmentGradingAttachment(
+            		  agData.getAssessmentGradingAttachmentList() != null && agData.getAssessmentGradingAttachmentList().size() > 0);
+              delivery.setAssessmentGradingId(agData.getAssessmentGradingId());
+              delivery.setOutcome("takeAssessment");
+              delivery.setSecureDeliveryHTMLFragment( "" );
+              delivery.setBlockDelivery( false );
+              if (secureDelivery.isSecureDeliveryAvaliable(Long.valueOf(id))) {
 
-          generateSecureTokenForAssessment(delivery);
+            	  String moduleId = publishedAssessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY );
+            	  if ( moduleId != null && ! SecureDeliveryServiceAPI.NONE_ID.equals( moduleId ) ) {
 
-          // post event
-          eventRef = new StringBuffer("publishedAssessmentId=");
-          eventRef.append(delivery.getAssessmentId());
-          eventRef.append(", submissionId=");
-          eventRef.append(agData.getAssessmentGradingId());
-          event = eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_REVIEW, eventRef.toString(), true);
-          eventTrackingService.post(event);
-          break;
+            		  HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+            		  PhaseStatus status = secureDelivery.validatePhase(moduleId, Phase.ASSESSMENT_REVIEW, publishedAssessment, request );
+            		  delivery.setSecureDeliveryHTMLFragment( 
+            				  secureDelivery.getHTMLFragment(moduleId, publishedAssessment, request, Phase.ASSESSMENT_REVIEW, status, new ResourceLoader().getLocale() ) );             		 
+            		  if ( PhaseStatus.FAILURE == status )  {           			 
+                    delivery.setBlockDelivery( true );
+                    if (!StringUtils.equals(moduleId, SecureDeliverySeb.MODULE_NAME)) {
+                      delivery.setOutcome("secureDeliveryError");
+                    } else {
+                      delivery.setSebSetup(true);
+                    }
+                  }
+                } else {
+                  delivery.setSebSetup(false);
+                }
+              }
+
+              generateSecureTokenForAssessment(delivery);
+
+              // post event
+              eventRef = new StringBuffer("publishedAssessmentId=");
+              eventRef.append(delivery.getAssessmentId());
+              eventRef.append(", submissionId=");
+              eventRef.append(agData.getAssessmentGradingId());
+              event = eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_REVIEW, eventRef.toString(), true);
+              eventTrackingService.post(event);
+              break;
  
       case 4: // Grade assessment
-    	  	  String gradingData = ContextUtil.lookupParam("gradingData");
+              // If we are navigating to another students submission,
+              // we need to get the according gradingId from the bean
+              String gradingData = delivery.getNextAssessmentGradingId() != null
+                  ? delivery.getNextAssessmentGradingId().toString()
+                  : ContextUtil.lookupParam("gradingData");
+              delivery.setNextAssessmentGradingId(null);
               itemGradingHash = service.getStudentGradingData(gradingData);
               delivery.setAssessmentGradingId(Long.valueOf(gradingData));
               ag = setAssessmentGradingFromItemData(delivery, itemGradingHash, false);
@@ -331,7 +349,7 @@ public class DeliveryActionListener
       case 5: // Take assessment via url
               log.debug("**** DeliveryActionListener #0");
 
-              if (ae != null && ae.getComponent().getId().startsWith("beginAssessment")) {
+              if (StringUtils.startsWithAny(actionString, "beginAssessment", "continueAssessment")) {
             	  // #1. check password
             	  if (!delivery.getSettings().getPassword().equals("") && "passwordAccessError".equals(delivery.validatePassword())) {
             		return;
@@ -341,19 +359,23 @@ public class DeliveryActionListener
             	  if (delivery.getSettings().getIpAddresses() != null && !delivery.getSettings().getIpAddresses().isEmpty() && "ipAccessError".equals(delivery.validateIP())) {
             		return;
             	  }
-                  
+
                   // #3. secure delivery START phase
-                  if ( secureDelivery.isSecureDeliveryAvaliable() ) {
+                  if (secureDelivery.isSecureDeliveryAvaliable(Long.valueOf(id))) {
                       String moduleId = publishedAssessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY );
                       if ( moduleId != null && ! SecureDeliveryServiceAPI.NONE_ID.equals( moduleId ) ) {
                           HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
                           PhaseStatus status = secureDelivery.validatePhase(moduleId, Phase.ASSESSMENT_START, publishedAssessment, request );
-                          if ( PhaseStatus.FAILURE == status ) {
+                          delivery.setSecureDeliveryStatus(status);
+                          if ( PhaseStatus.FAILURE == status && !StringUtils.equals(moduleId, SecureDeliverySeb.MODULE_NAME) ) {
                               return;
                           }
-                      }    	  
+                      }
                   }
               }
+
+              // (Re)set sebSetup
+              delivery.setSebSetup(false);
 
               populateSubmissionsRemaining(pubService, publishedAssessment, delivery);
               
@@ -448,7 +470,7 @@ public class DeliveryActionListener
                       site_id = publishedAssessmentService.getPublishedAssessmentOwner(Long.valueOf(delivery.getAssessmentId()));
                   }
                   eventLogData.setSiteId(site_id);
-                  eventLogData.setErrorMsg(eventLogMessages.getString("no_submission"));
+                  eventLogData.setErrorMsg("no_submission_user_no_submit");
                   eventLogData.setEndDate(null);
                   eventLogData.setEclipseTime(null);
                   				  
@@ -569,10 +591,10 @@ public class DeliveryActionListener
     	List eventLogDataList = eventService.getEventLogData(delivery.getAssessmentGradingId());
     	if(eventLogDataList != null && eventLogDataList.size() > 0) {
     		eventLogData= (EventLogData) eventLogDataList.get(0);
-    		eventLogData.setErrorMsg(eventLogMessages.getString("error_begin"));
+    		eventLogData.setErrorMsg("error_begin");
     	} else {
     		eventLogData = new EventLogData();
-    		eventLogData.setErrorMsg(eventLogMessages.getString("error_begin"));
+    		eventLogData.setErrorMsg("error_begin");
     		eventLogData.setAssessmentId(Long.valueOf(id));
     		eventLogData.setProcessId(delivery.getAssessmentGradingId());
     		eventLogData.setStartDate(new Date());
@@ -840,20 +862,14 @@ public class DeliveryActionListener
       SectionContentsBean partBean = getPartBean( (SectionDataIfc) iter.next(),
                                                  itemGradingHash, delivery,
                                                  publishedAnswerHash);
-
-      // If we are in review mode and only show incorrect responses is checked in the
-      // assignment settings, there may well be no parts added. If so, we want to skip
-      // the empty section but still do the max score calculations.
-      if (partBean.getItemContents().size() > 0) {
-        partBean.setNumParts(Integer.toString(partSet.size()));
-        if (partBean.getItemContentsSize().equals("0")) {
-          log.debug("getPageContentsByAssessment(): no question");
-          partBean.setNoQuestions(true);
-        }
-        partsContents.add(partBean);
+      partBean.setNumParts(Integer.toString(partSet.size()));
+      if (partBean.getItemContentsSize().equals("0")) {
+    	  log.debug("getPageContentsByAssessment(): no question");
+    	  partBean.setNoQuestions(true);
       }
       currentScore += partBean.getPoints();
       maxScore += partBean.getMaxPoints();
+      partsContents.add(partBean);
     }
 
     delivery.setPrevious(false);
@@ -914,6 +930,7 @@ public class DeliveryActionListener
       }
     }
 
+    delivery.setNextEnabled(true);
     contents.setCurrentScore(currentScore);
     contents.setMaxScore(maxScore);
     contents.setPartsContents(partsContents);
@@ -963,7 +980,27 @@ public class DeliveryActionListener
       List<ItemDataIfc> itemlist = secFacade.getItemArray();
       long seed = getSeed(secFacade, delivery, (long) AgentFacade.getAgentString().hashCode());
 
-      List<ItemDataIfc> sortedlist = getItemArraySortedWithRandom(secFacade, itemlist, seed); 
+      // adding fixed questions
+      List<ItemDataIfc> sortedlist = itemlist.stream()
+          .filter(item -> ((PublishedItemData) item).getIsFixed())
+          .collect(Collectors.toList());
+
+       // removing isFixed questions from itemlist
+      itemlist.removeIf(item -> ((PublishedItemData) item).getIsFixed());
+
+      // getting all hashes from the sortedlist
+      List<String> distinctHashValues = sortedlist.stream()
+          .filter(item -> item instanceof PublishedItemData)
+          .map(item -> ((PublishedItemData) item).getHash())
+          .distinct()
+          .collect(Collectors.toList());
+
+      // removing from itemlist if there are hashes repeated -> avoid fixed questions on the random draw
+      itemlist.removeIf(item -> item instanceof PublishedItemData &&
+                                distinctHashValues.stream().anyMatch(hash -> hash.equals(item.getHash())));
+
+      // adding randow draw
+      sortedlist.addAll(getItemArraySortedWithRandom(secFacade, itemlist, seed));
       questionCount = sortedlist.size();
 
       if ((delivery.isNoQuestions() || questionCount != 0) && itemIndex > (questionCount - 1) && sectionCount == sectionIndex) {
@@ -1003,6 +1040,12 @@ public class DeliveryActionListener
         } else {
           delivery.setPrevious(false);
         }
+        //linear access
+        if (DeliveryBean.LINEAR_ACCESS.equals(delivery.getNavigation())) {
+          delivery.setNextEnabled(partBeanWithQuestion.getEnabled() >= 0);
+        } else { //non-linear access
+          delivery.setNextEnabled(true);
+        }
       }
     }
 
@@ -1030,8 +1073,27 @@ public class DeliveryActionListener
     // daisy change to use this existing constructor instead 11/09/05
     SectionContentsBean sec = new SectionContentsBean(part);
 
-    List<ItemDataIfc> itemSet = null;
     List<ItemDataIfc> itemlist = part.getItemArray();
+
+    // adding fixed questions
+    List<ItemDataIfc> itemSet = itemlist.stream()
+        .filter(item -> ((PublishedItemData) item).getIsFixed())
+        .collect(Collectors.toList());
+
+    // removing isFixed questions from itemlist
+    itemlist.removeIf(item -> ((PublishedItemData) item).getIsFixed());
+
+    // getting all hashes from the sortedlist
+    List<String> distinctHashValues = itemSet.stream()
+        .filter(item -> item instanceof PublishedItemData)
+        .map(item -> ((PublishedItemData) item).getHash())
+        .distinct()
+        .collect(Collectors.toList());
+
+    // removing from itemlist if there are hashes repeated -> avoid fixed questions on the random draw
+    itemlist.removeIf(item -> item instanceof PublishedItemData &&
+                              distinctHashValues.stream().anyMatch(hash -> hash.equals(item.getHash())));
+
     long seed = 0;
     if (delivery.getActionMode()==DeliveryBean.GRADE_ASSESSMENT) {
       StudentScoresBean studentscorebean = (StudentScoresBean) ContextUtil.lookupBean("studentScores");
@@ -1039,7 +1101,9 @@ public class DeliveryActionListener
     } else {
       seed = getSeed(part, delivery, (long) AgentFacade.getAgentString().hashCode());
     }
-    itemSet= getItemArraySortedWithRandom(part, itemlist, seed);
+
+    // adding randow draw
+    itemSet.addAll(getItemArraySortedWithRandom(part, itemlist, seed));
 
     // i think this is already set by new SectionContentsBean(part) - daisyf
     sec.setQuestions(itemSet.size()); 
@@ -1083,14 +1147,7 @@ public class DeliveryActionListener
       {
         unansweredQuestions++;
       }
-
-      Integer correctAnswerOption = delivery.getFeedbackComponent().getCorrectAnswerOption();
-      delivery.setOnlyShowingIncorrect(correctAnswerOption == AssessmentFeedbackIfc.INCORRECT_QUESTIONS);
-      if (delivery.getActionMode() != DeliveryBean.REVIEW_ASSESSMENT) {
-        itemContents.add(itemBean);
-      } else if (correctAnswerOption == AssessmentFeedbackIfc.ALL_QUESTIONS || itemBean.getItemGradingDataArray().stream().anyMatch(gd -> gd.getIsCorrect() == null || !gd.getIsCorrect())) {
-        itemContents.add(itemBean);
-      }
+      itemContents.add(itemBean);
     }
 
     // scoring information
@@ -1100,6 +1157,10 @@ public class DeliveryActionListener
     sec.setUnansweredQuestions(unansweredQuestions);
     sec.setItemContents(itemContents);
     sec.setAttachmentList(part.getSectionAttachmentList());
+
+    GradingService gs = new GradingService();
+    sec.setSectionGradingData(gs.getSectionGradingData(delivery.getAssessmentGradingId(), Long.parseLong(sec.getSectionId()), AgentFacade.getAgentString()));
+
     return sec;
   }
 
@@ -1121,7 +1182,28 @@ public class DeliveryActionListener
     SectionContentsBean sec = new SectionContentsBean(part);
     List<ItemDataIfc> itemlist = part.getItemArray();
     long seed = getSeed(part, delivery, (long) AgentFacade.getAgentString().hashCode());
-    List<ItemDataIfc> itemSet= getItemArraySortedWithRandom(part, itemlist, seed);
+
+    // adding fixed questions
+    List<ItemDataIfc> itemSet = itemlist.stream()
+        .filter(item -> ((PublishedItemData) item).getIsFixed())
+        .collect(Collectors.toList());
+
+    // removing isFixed questions from itemlist
+    itemlist.removeIf(item -> ((PublishedItemData) item).getIsFixed());
+
+    // getting all hashes from the sortedlist
+    List<String> distinctHashValues = itemSet.stream()
+        .filter(item -> item instanceof PublishedItemData)
+        .map(item -> ((PublishedItemData) item).getHash())
+        .distinct()
+        .collect(Collectors.toList());
+
+    // removing from itemlist if there are hashes repeated -> avoid fixed questions on the random draw
+    itemlist.removeIf(item -> item instanceof PublishedItemData &&
+                              distinctHashValues.stream().anyMatch(hash -> hash.equals(item.getHash())));
+
+    // adding randow draw
+    itemSet.addAll(getItemArraySortedWithRandom(part, itemlist, seed));
 
     sec.setQuestions(itemSet.size());
 
@@ -1184,6 +1266,9 @@ public class DeliveryActionListener
     sec.setShowStudentQuestionScore(delivery.isShowStudentQuestionScore());
     sec.setUnansweredQuestions(unansweredQuestions);
     sec.setItemContents(itemContents);
+
+    GradingService gs = new GradingService();
+    sec.setSectionGradingData(gs.getSectionGradingData(delivery.getAssessmentGradingId(), Long.parseLong(sec.getSectionId()), AgentFacade.getAgentString()));
 
     return sec;
   }
@@ -1275,12 +1360,17 @@ public class DeliveryActionListener
    	
     	if (itemBean.getExactPoints() >= itemBean.getMaxPoints())
     	{
-    		
     		itemBean.setFeedback(item.getCorrectItemFeedback());
+    		if (TypeIfc.CALCULATED_QUESTION.equals(item.getTypeId())) {
+    			itemBean.setFeedbackValue(item.getCorrectItemFeedbackValue());
+    		}
     	}
     	else
     	{
     		itemBean.setFeedback(item.getInCorrectItemFeedback());
+    		if (TypeIfc.CALCULATED_QUESTION.equals(item.getTypeId())) {
+    			itemBean.setFeedbackValue(item.getInCorrectItemFeedbackValue());
+    		}
     	}
     }
     else {
@@ -1990,7 +2080,7 @@ public class DeliveryActionListener
           if ((data.getPublishedAnswerId()!=null) && data.getPublishedAnswerId().equals(answer.getId()))
           {
             fbean.setItemGradingData(data);
-            fbean.setResponse(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(data.getAnswerText()));
+            fbean.setResponse(data.getAnswerText());
             if (answer.getText() == null)
             {
               answer.setText("");
@@ -2358,13 +2448,21 @@ public class DeliveryActionListener
       String agentId = determineCalcQAgentId(delivery, bean);
 
       service.getAnswersMap().clear();
-      List<String> texts = service.extractCalcQAnswersArray(service.getAnswersMap(), item, gradingId, agentId);
-      if (texts.isEmpty())
+      service.getAnswersMapValues().clear();
+      service.getGlobalanswersMapValues().clear();
+      service.getMainvariablesWithValues().clear();
+
+      List<List<String>> texts = service.extractCalcQAnswersArray(service.getAnswersMap(), service.getAnswersMapValues(), service.getGlobalanswersMapValues(), service.getMainvariablesWithValues(), item, gradingId, agentId);
+      if (texts.get(0).isEmpty())
       {
           log.error("Unable to extract any question text from calculated question with item id {}. The formula for this question may be invalid.", item.getItemId());
-          texts = Collections.singletonList(rb.get("calc.extract_text_error").toString());
+          texts.set(0, Collections.singletonList(rb.get("calc.extract_text_error").toString()));
       }
-      service.setTexts(texts);
+      service.setTexts(texts.get(0));
+
+      //changing solutions ex: {{w}} with numbers
+      service.replaceSolutionOnFeedbackWithNumbers(service.getAnswersMapValues(), item, texts);
+
       String questionText = service.getTexts().get(0);
 
       ItemTextIfc text = (ItemTextIfc) item.getItemTextArraySorted().toArray()[0];
@@ -2391,8 +2489,8 @@ public class DeliveryActionListener
       {
           AnswerIfc answer = iter.next();
           
-          // Checks if the 'answer' object is a variable or a real answer
-          if(service.extractVariables(answer.getText()).isEmpty()){
+          // Checks if the 'answer' object is a variable, a global variable or a real answer
+          if (StringUtils.isEmpty(service.getAnswersMapValues().get(answer.getLabel()))) {
               continue;
           }
 
@@ -2654,7 +2752,28 @@ public class DeliveryActionListener
     		else {
     			seed = getSeed(section, delivery, (long) AgentFacade.getAgentString().hashCode());
     		}
-    		List<ItemDataIfc> sortedlist = getItemArraySortedWithRandom(section, itemlist, seed);
+
+    		// adding fixed questions
+    		List<ItemDataIfc> sortedlist = itemlist.stream()
+    			.filter(item -> ((PublishedItemData) item).getIsFixed())
+    			.collect(Collectors.toList());
+
+    		// removing isFixed questions from itemlist
+    		itemlist.removeIf(item -> ((PublishedItemData) item).getIsFixed());
+
+    		// getting all hashes from the sortedlist
+    		List<String> distinctHashValues = sortedlist.stream()
+    			.filter(item -> item instanceof PublishedItemData)
+    			.map(item -> ((PublishedItemData) item).getHash())
+    			.distinct()
+    		 	.collect(Collectors.toList());
+
+    		// removing from itemlist if there are hashes repeated -> avoid fixed questions on the random draw
+    		itemlist.removeIf(item -> item instanceof PublishedItemData &&
+    								  distinctHashValues.stream().anyMatch(hash -> hash.equals(item.getHash())));
+
+    		// adding randow draw
+    		sortedlist.addAll(getItemArraySortedWithRandom(section, itemlist, seed));
     		i2 = sortedlist.iterator();
 
     		while (i2.hasNext()) {
@@ -2836,7 +2955,9 @@ public class DeliveryActionListener
 
     Integer numberToBeDrawn= null;
 
-    if ((part.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)!=null) && (part.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()))) {
+    if (part.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE) != null && (part.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()) ||
+         part.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString()) ||
+         part.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString()))) {
 
       // same ordering for each student
       List randomsample = new ArrayList();
@@ -2911,36 +3032,53 @@ public class DeliveryActionListener
   
   /**
    * CALCULATED_QUESTION
-   * This returns the comma and space delimted answer key for display such as "42.1, 23.19"
+   * This returns the comma and space delimited answer key for display such as "42.1, 23.19"
    */
   private String commaDelimitedCalcQuestionAnswers(ItemDataIfc item, DeliveryBean delivery, ItemContentsBean itemBean) {
 	  long gradingId = determineCalcQGradingId(delivery);
 	  String agentId = determineCalcQAgentId(delivery, itemBean);
 	  
 	  String keysString = "";
+	  String answer = "";
 
 	service.getAnswersMap().clear();
-	service.setTexts(service.extractCalcQAnswersArray(service.getAnswersMap(), item, gradingId, agentId));
+	service.getAnswersMapValues().clear();
+	service.getGlobalanswersMapValues().clear();
+	service.getMainvariablesWithValues().clear();
+
+	List<List<String>> texts = service.extractCalcQAnswersArray(service.getAnswersMap(), service.getAnswersMapValues(), service.getGlobalanswersMapValues(), service.getMainvariablesWithValues(), item, gradingId, agentId);
+	service.setTexts(texts.get(0));
 
 	int answerSequence = 1; // this corresponds to the sequence value assigned in extractCalcQAnswersArray()
 	int decimalPlaces = 3;
 	while(answerSequence <= service.getAnswersMap().size()) {
-		  String answer = (String)service.getAnswersMap().get(answerSequence);
-		  decimalPlaces = Integer.valueOf(answer.substring(answer.indexOf(',')+1, answer.length()));
-		  answer = answer.substring(0, answer.indexOf("|")); // cut off extra data e.g. "|2,3"
+		  answer = (String)service.getAnswersMap().get(answerSequence);
+		  decimalPlaces = Integer.valueOf(answer.substring(answer.lastIndexOf(',')+1, answer.length()));
+		  answer = answer.substring(0, answer.lastIndexOf("|")); // cut off extra data e.g. "|2,3"
+		  // searching and replacing recursively global variables on the answer
+		  answer = service.checkingEmptyGlobalVariables(answer, service.getMainvariablesWithValues(), service.getGlobalanswersMapValues());
+		  try {
+		      answer = service.processFormulaIntoValue(answer, decimalPlaces);
+		  } catch (SamigoExpressionError e1) {
+		      log.warn("Samigo calculated item ({}) calculation invalid: {}", item.getItemId(), e1.get());
+		  }
 		  
 		  // We need the key formatted in scientificNotation
 		  answer = service.toScientificNotation(answer, decimalPlaces);
 		  
 		  keysString = keysString.concat(answer + ", ");
 		  answerSequence++;
-	  }
+	}
 	  if (keysString.length() > 2) {
 		  keysString = keysString.substring(0, keysString.length()-2); // truncating the comma and blank on the end
 	  }
+
+	  //changing solutions ex: {{w}} with numbers
+	  service.replaceSolutionOnFeedbackWithNumbers(service.getAnswersMapValues(), item, texts);
+
 	  return keysString;
   }
-  
+
   /**
    * CALCULATED_QUESTION
    * We need the agentIds in order to properly set the pseudorandom seed

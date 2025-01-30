@@ -1,5 +1,5 @@
-<div th:fragment="tool_fragment" th:id="${collapseId}" class="panel-collapse collapse">
-	<div class="panel-body">
+<div th:fragment="tool_fragment" th:id="${collapseId}" class="collapse">
+	<div class="card-body">
 		<p th:if="${items == null or items.isEmpty()}" th:text="#{items.empty}">There are no items to modify in this tool.</p>
 		<table th:unless="${items == null or items.isEmpty()}" class="table table-condensed table-striped table-bordered table-datemanager">
 			<thead>
@@ -7,39 +7,39 @@
 					<th th:text="#{column.title}">Title</th>
 					<th:block th:switch="${toolId}">
 						<th:block th:case="'gradebookItems'"></th:block>
-						<th th:case="'assignments'" th:text="#{column.open.date}">Open Date</th>
-						<th th:case="'assessments'" th:text="#{column.available.date}">Available Date</th>
-						<th th:case="'signupMeetings'" th:text="#{column.start.date}">Start Date</th>
+						<th th:case="'assignments'" th:text="#{column.open.date}" class="field-required" title="Required">Open Date</th>
+						<th th:case="'assessments'" th:text="#{column.available.date}" class="field-required" title="Required">Available Date</th>
+						<th th:case="'signupMeetings'" th:text="#{column.start.date}" class="field-required" title="Required">Start Date</th>
 						<th th:case="'resources'" th:text="#{column.show.from.date}">Show From Date</th>
-						<th th:case="'calendarEvents'" th:text="#{column.start.date}">Start Date</th>
+						<th th:case="'calendarEvents'" th:text="#{column.start.date}" class="field-required" title="Required">Start Date</th>
 						<th th:case="'forums'" th:text="#{column.open.date}">Open Date</th>
 						<th th:case="'announcements'" th:text="#{column.start.date}">Start Date</th>
 						<th th:case="'lessons'" th:text="#{column.hide.until}">Hide Until Date</th>
 					</th:block>
 					<th:block th:switch="${toolId}">
 						<th:block th:case="'lessons'"></th:block>
-						<th th:case="'assignments'" th:text="#{column.due.date}">Due Date</th>
+						<th th:case="'assignments'" th:text="#{column.due.date}" class="field-required" title="Required">Due Date</th>
 						<th th:case="'assessments'" th:text="#{column.due.date}">Due Date</th>
-						<th th:case="'signupMeetings'" th:text="#{column.end.date}">End Date</th>
+						<th th:case="'signupMeetings'" th:text="#{column.end.date}" class="field-required" title="Required">End Date</th>
 						<th th:case="'gradebookItems'" th:text="#{column.due.date}">Due Date</th>
 						<th th:case="'resources'" th:text="#{column.show.until}">Show Until Date</th>
-						<th th:case="'calendarEvents'" th:text="#{column.end.date}">End Date</th>
+						<th th:case="'calendarEvents'" th:text="#{column.end.date}" class="field-required" title="Required">End Date</th>
 						<th th:case="'forums'" th:text="#{column.close.date}">Close Date</th>
 						<th th:case="'announcements'" th:text="#{column.end.date}">End Date</th>
 					</th:block>
 					<th:block th:switch="${toolId}">
-						<th th:case="'assignments'" th:text="#{column.accept.until}">Accept Until Date</th>
-						<th th:case="'assessments'" th:text="#{column.accept.until}">Accept Until Date</th>
+						<th th:case="'assignments'" th:text="#{column.accept.until}" class="field-required" title="Required">Accept Until Date</th>
+						<th th:case="'assessments'" th:text="#{column.assessments.accept.until}">Late Submission Deadline</th>
 						<th:block th:case="*"></th:block>
 					</th:block>
 					<th:block th:switch="${toolId}">
 						<th th:case="'assessments'" th:text="#{column.feedback.start.date}">Show Feedback On</th>
-						<th th:case="'signupMeetings'" th:text="#{column.signup.begins.date}">Sign-up Begins Date</th>
+						<th th:case="'signupMeetings'" th:text="#{column.signup.begins.date}" class="field-required" title="Required">Sign-up Begins Date</th>
 						<th:block th:case="*"></th:block>
 					</th:block>
 					<th:block th:switch="${toolId}">
 						<th th:case="'assessments'" th:text="#{column.feedback.end.date}">Show Feedback Until</th>
-						<th th:case="'signupMeetings'" th:text="#{column.signup.deadline.date}">Sign-up Ends Date</th>
+						<th th:case="'signupMeetings'" th:text="#{column.signup.deadline.date}" class="field-required" title="Required">Sign-up Ends Date</th>
 						<th:block th:case="*"></th:block>
 					</th:block>
 				</tr>
@@ -58,7 +58,11 @@
 							<td th:case="*">
 								<div>
 									<input type="text" class="form-control datepicker" />
-									<input type="hidden" th:value="${item.open_date}" th:attr="data-idx=${iter.index},data-tool=${toolId}" data-field="open_date" />
+									<a tabindex="0" href="javascript:void(0)" title="Clear Date">
+										<i class="fa fa-times-circle ui-datapicker-clear-date-icon" aria-hidden="true"></i>
+									</a>
+									<input type="hidden" th:value="${item.open_date}" th:data-null-date="(${item.open_date} == null OR ${item.open_date} == '')? true : false"
+									th:attr="data-idx=${iter.index},data-tool=${toolId}" data-field="open_date" />
 									<div><small class="text-muted day-of-week"></small></div>
 									<div><small class="errors"></small></div>
 								</div>
@@ -69,7 +73,11 @@
 							<td th:case="*">
 								<div>
 									<input type="text" class="form-control datepicker" />
-									<input type="hidden" th:value="${item.due_date}" th:attr="data-idx=${iter.index},data-tool=${toolId}" data-field="due_date" />
+									<a tabindex="0" href="javascript:void(0)" title="Clear Date">
+										<i class="fa fa-times-circle ui-datapicker-clear-date-icon" aria-hidden="true"></i>
+									</a>
+									<input type="hidden" th:value="${item.due_date}" th:data-null-date="(${item.due_date} == null OR ${item.due_date} == '')? true : false"
+									th:attr="data-idx=${iter.index},data-tool=${toolId}" data-field="due_date" />
 									<div><small class="text-muted day-of-week"></small></div>
 									<div><small class="errors"></small></div>
 								</div>
@@ -86,7 +94,11 @@
 							<td th:case="*">
 								<div>
 									<input type="text" class="form-control datepicker" />
-									<input type="hidden" th:value="${item.accept_until}" th:attr="data-idx=${iter.index},data-tool=${toolId}" data-field="accept_until" />
+									<a tabindex="0" href="javascript:void(0)" title="Clear Date">
+										<i class="fa fa-times-circle ui-datapicker-clear-date-icon" aria-hidden="true"></i>
+									</a>
+									<input type="hidden" th:value="${item.accept_until}" th:data-null-date="(${item.accept_until} == null OR ${item.accept_until} == '')? true : false"
+									th:attr="data-idx=${iter.index},data-tool=${toolId}" data-field="accept_until" />
 									<div><small class="text-muted day-of-week"></small></div>
 									<div><small class="errors"></small></div>
 								</div>
@@ -96,7 +108,11 @@
 							<td th:case="'assessments'">
 								<div>
 									<input type="text" class="form-control datepicker" />
-									<input type="hidden" th:value="${item.feedback_start}" th:attr="data-idx=${iter.index},data-tool=${toolId}" data-field="feedback_start" />
+									<a tabindex="0" href="javascript:void(0)" title="Clear Date">
+										<i class="fa fa-times-circle ui-datapicker-clear-date-icon" aria-hidden="true"></i>
+									</a>
+									<input type="hidden" th:value="${item.feedback_start}" th:data-null-date="(${item.feedback_start} == null OR ${item.feedback_start} == '')? true : false"
+									th:attr="data-idx=${iter.index},data-tool=${toolId}" data-field="feedback_start" />
 									<div><small class="text-muted day-of-week"></small></div>
 									<div><small class="errors"></small></div>
 								</div>
@@ -104,7 +120,11 @@
 							<td th:case="'signupMeetings'">
 								<div>
 									<input type="text" class="form-control datepicker" />
-									<input type="hidden" th:value="${item.signup_begins}" th:attr="data-idx=${iter.index},data-tool=${toolId}" data-field="signup_begins" />
+									<a tabindex="0" href="javascript:void(0)" title="Clear Date">
+										<i class="fa fa-times-circle ui-datapicker-clear-date-icon" aria-hidden="true"></i>
+									</a>
+									<input type="hidden" th:value="${item.signup_begins}" th:data-null-date="${item.signup_begins} ? false : true"
+									th:attr="data-idx=${iter.index},data-tool=${toolId}" data-field="signup_begins" />
 									<div><small class="text-muted day-of-week"></small></div>
 									<div><small class="errors"></small></div>
 								</div>
@@ -116,7 +136,11 @@
 							<td th:case="'assessments'">
 								<div>
 									<input type="text" class="form-control datepicker" />
-									<input type="hidden" th:value="${item.feedback_end}" th:attr="data-idx=${iter.index},data-tool=${toolId}" data-field="feedback_end" />
+									<a tabindex="0" href="javascript:void(0)" title="Clear Date">
+										<i class="fa fa-times-circle ui-datapicker-clear-date-icon" aria-hidden="true"></i>
+									</a>
+									<input type="hidden" th:value="${item.feedback_end}" th:data-null-date="(${item.feedback_end} == null OR ${item.feedback_end} == '')? true : false"
+									th:attr="data-idx=${iter.index},data-tool=${toolId}" data-field="feedback_end" />
 									<div><small class="text-muted day-of-week"></small></div>
 									<div><small class="errors"></small></div>
 								</div>
@@ -124,7 +148,11 @@
 							<td th:case="'signupMeetings'">
 								<div>
 									<input type="text" class="form-control datepicker" />
-									<input type="hidden" th:value="${item.signup_deadline}" th:attr="data-idx=${iter.index},data-tool=${toolId}" data-field="signup_deadline" />
+									<a tabindex="0" href="javascript:void(0)" title="Clear Date">
+										<i class="fa fa-times-circle ui-datapicker-clear-date-icon" aria-hidden="true"></i>
+									</a>
+									<input type="hidden" th:value="${item.signup_deadline}" th:data-null-date="${item.signup_deadline} ? false : true" 
+									th:attr="data-idx=${iter.index},data-tool=${toolId}" data-field="signup_deadline" />
 									<div><small class="text-muted day-of-week"></small></div>
 									<div><small class="errors"></small></div>
 								</div>

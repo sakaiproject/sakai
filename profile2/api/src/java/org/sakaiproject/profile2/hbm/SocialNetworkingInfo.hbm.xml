@@ -11,13 +11,7 @@
 		
 		<property name="facebookUrl" column="FACEBOOK_URL" not-null="false" />
 		<property name="linkedinUrl" column="LINKEDIN_URL" not-null="false" />
-		<property name="myspaceUrl" column="MYSPACE_URL" not-null="false" />
-		<property name="skypeUsername" column="SKYPE_USERNAME" not-null="false" />
-		<property name="twitterUrl" column="TWITTER_URL" not-null="false" />
 		<property name="instagramUrl" column="INSTAGRAM_URL" not-null="false"/>
 	</class>
 	
-	<query name="getSocialNetworkingInfo">
-    	<![CDATA[from SocialNetworkingInfo socialNetworkingInfo WHERE socialNetworkingInfo.userUuid = :userUuid]]>
-	</query>
 </hibernate-mapping>

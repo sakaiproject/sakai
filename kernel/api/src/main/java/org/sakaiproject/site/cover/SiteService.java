@@ -34,6 +34,7 @@ import org.sakaiproject.site.api.SiteService.SiteTitleValidationStatus;
  * @deprecated Static covers should not be used in favour of injection or lookup
  * via the component manager. This cover will be removed in a later version of the Kernel
  */
+@Deprecated
 public class SiteService
 {
 	/**
@@ -73,6 +74,8 @@ public class SiteService
 	public static java.lang.String SECURE_ADD_USER_SITE = org.sakaiproject.site.api.SiteService.SECURE_ADD_USER_SITE;
 
 	public static java.lang.String SECURE_REMOVE_SITE = org.sakaiproject.site.api.SiteService.SECURE_REMOVE_SITE;
+
+	public static java.lang.String SOFT_DELETE_SITE = org.sakaiproject.site.api.SiteService.SOFT_DELETE_SITE;
 	
 	public static java.lang.String SECURE_REMOVE_SOFTLY_DELETED_SITE = org.sakaiproject.site.api.SiteService.SECURE_REMOVE_SOFTLY_DELETED_SITE;
 	
@@ -233,13 +236,6 @@ public class SiteService
 		return service.allowAddCourseSite();		
 	}
 	
-	public static boolean allowAddPortfolioSite() {
-		org.sakaiproject.site.api.SiteService service = getInstance();
-		if (service == null) return false;
-
-		return service.allowAddPortfolioSite();		
-	}
-
 	public static boolean allowImportArchiveSite() {
 		org.sakaiproject.site.api.SiteService service = getInstance();
 		if (service == null) return false;
@@ -272,6 +268,16 @@ public class SiteService
 		if (service == null) return null;
 
 		return service.addSite(param0, param1);
+	}
+
+	public static org.sakaiproject.site.api.Site addSite(java.lang.String param0, org.sakaiproject.site.api.Site param1, java.lang.String param2)
+			throws org.sakaiproject.exception.IdInvalidException, org.sakaiproject.exception.IdUsedException,
+			org.sakaiproject.exception.PermissionException
+	{
+		org.sakaiproject.site.api.SiteService service = getInstance();
+		if (service == null) return null;
+
+		return service.addSite(param0, param1, param2);
 	}
 
 	public static boolean allowRemoveSite(java.lang.String param0)

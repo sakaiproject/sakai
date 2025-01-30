@@ -1,0 +1,12 @@
+{
+	"accept_types": ["link", "file", "html", "ltiResourceLink", "image"],
+	"accept_media_types": "image/*,text/html",
+	"accept_presentation_document_targets": ["iframe", "window", "embed"],
+	"accept_multiple": true,
+	"accept_lineitem": false,
+	"auto_create": true,
+	"title": "This is the default title",
+	"text": "This is the default text",
+	"data": "Some random opaque data that MUST be sent back",
+	"deep_link_return_url": "https://platform.example/deep_links"
+}

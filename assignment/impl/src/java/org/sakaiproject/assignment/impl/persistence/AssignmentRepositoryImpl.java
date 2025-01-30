@@ -32,6 +32,7 @@ import javax.persistence.criteria.Root;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
+import org.hibernate.HibernateException;
 import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
 import org.hibernate.Session;
@@ -39,9 +40,7 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.persister.collection.CollectionPropertyNames;
 import org.sakaiproject.assignment.api.AssignmentConstants;
-import org.sakaiproject.assignment.api.model.Assignment;
-import org.sakaiproject.assignment.api.model.AssignmentSubmission;
-import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
+import org.sakaiproject.assignment.api.model.*;
 import org.sakaiproject.assignment.api.persistence.AssignmentRepository;
 import org.sakaiproject.hibernate.HibernateCriterionUtils;
 import org.sakaiproject.serialization.BasicSerializableRepository;
@@ -114,6 +113,7 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
         Assignment assignment = findOne(assignmentId);
         if (assignment != null) {
             delete(assignment);
+            hardDeleteHelper(assignmentId);
         }
     }
 
@@ -134,6 +134,7 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     public void softDeleteAssignment(String assignmentId) {
         Assignment assignment = findOne(assignmentId);
         assignment.setDeleted(Boolean.TRUE);
+        assignment.setSoftRemovedDate(Instant.now());
         update(assignment);
     }
 
@@ -261,6 +262,15 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     }
 
     @Override
+    public long countAssignmentsBySite(String siteId) {
+        Criteria criteria = geCurrentSession().createCriteria(Assignment.class)
+                .setProjection(Projections.countDistinct("id"))
+                .add(Restrictions.eq("context", siteId));
+
+        return ((Number) criteria.uniqueResult()).longValue();
+    }
+
+    @Override
     public long countAssignmentSubmissions(String assignmentId, Boolean graded, Boolean hasSubmissionDate, Boolean userSubmission, List<String> userIds) {
         Criteria criteria = geCurrentSession().createCriteria(AssignmentSubmission.class)
                 .setProjection(Projections.countDistinct("id"))
@@ -319,5 +329,54 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
                 .setParameter(paramAssignmentId, assignmentId)
                 .getResultList();
         return result.stream().map(tuple -> (String) tuple.get(0)).collect(Collectors.toList());
+    }
+
+    private void hardDeleteHelper(String assignmentId){
+
+
+        try{
+            // only one per assignment
+            AssignmentAllPurposeItem apItem = (AssignmentAllPurposeItem) sessionFactory.getCurrentSession().createCriteria(AssignmentAllPurposeItem.class).add(Restrictions.eq("assignmentId", assignmentId)).uniqueResult();
+            if (apItem != null){
+                log.info("delete AssignmentAllPurposeItem for assignment: {}", assignmentId);
+                sessionFactory.getCurrentSession().delete(apItem);
+            }
+
+
+            // only one per assignment
+            AssignmentModelAnswerItem maItem = (AssignmentModelAnswerItem) sessionFactory.getCurrentSession().createCriteria(AssignmentModelAnswerItem.class).add(Restrictions.eq("assignmentId", assignmentId)).uniqueResult();
+            if(maItem != null){
+                log.info("delete AssignmentModelAnswerItem for assignment: {}", assignmentId);
+                sessionFactory.getCurrentSession().delete(maItem);
+            }
+
+
+            // only one per assignment
+            AssignmentNoteItem noteItem = (AssignmentNoteItem) sessionFactory.getCurrentSession().createCriteria(AssignmentNoteItem.class).add(Restrictions.eq("assignmentId", assignmentId)).uniqueResult();
+            if (noteItem != null) {
+                log.info("delete AssignmentNoteItem for assignment: {}", assignmentId);
+                sessionFactory.getCurrentSession().delete(noteItem);
+            }
+
+            // multiple possible per assignment
+            List<PeerAssessmentItem> peerAssessmentItems = (List<PeerAssessmentItem>) sessionFactory.getCurrentSession().createCriteria(PeerAssessmentItem.class).add(Restrictions.eq("assignmentId", assignmentId)).list();
+            if (!peerAssessmentItems.isEmpty()){
+                for(PeerAssessmentItem item : peerAssessmentItems){
+                    //get submissionId and assessor_user_id for deletion of PeerAssessmentAttachment
+                    String submissionId = item.getId().getSubmissionId();
+                    String assessorUserId = item.getId().getAssessorUserId();
+                    sessionFactory.getCurrentSession().delete(item);
+                    List<PeerAssessmentAttachment> peerAssessmentItemAttach = (List) sessionFactory.getCurrentSession().createCriteria(PeerAssessmentAttachment.class).add(Restrictions.eq("submissionId", submissionId)).add(Restrictions.eq("assessorUserId", assessorUserId)).list();
+                    if(peerAssessmentItemAttach.size() !=  0){
+                        for(PeerAssessmentAttachment attach: peerAssessmentItemAttach)
+                            sessionFactory.getCurrentSession().delete(attach);
+                    }
+                }
+            }
+
+        }catch (HibernateException e){
+            log.error("error hardDelete of assignment: {}", assignmentId, e);
+        }
+
     }
 }

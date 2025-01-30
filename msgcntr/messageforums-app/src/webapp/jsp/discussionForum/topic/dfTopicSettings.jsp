@@ -87,7 +87,7 @@
 			<h:panelGroup layout="block" id="fullTopicDescription" styleClass="textPanel fullTopicDescription">
 				<h:outputText escape="false" value="#{ForumTool.selectedTopic.topic.extendedDescription}" />
 
-				<div class="table-responsive">
+				<div class="table">
 					<h:dataTable value="#{ForumTool.selectedTopic.attachList}" var="eachAttach" rendered="#{!empty ForumTool.selectedTopic.attachList}" styleClass="table table-hover table-striped table-bordered" columnClasses="attach,bogus">
 						<h:column>
 							<sakai:contentTypeMap fileType="#{eachAttach.attachment.attachmentType}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>

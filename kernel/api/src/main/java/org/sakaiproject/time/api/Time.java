@@ -29,6 +29,7 @@ import java.io.Serializable;
  * </p>
  * @deprecated the use of time is discouraged in favour of {@link java.time.Instant}. This interface will be removed in 2.0
  */
+@Deprecated
 public interface Time extends Cloneable, Comparable, Serializable
 {
 	/**

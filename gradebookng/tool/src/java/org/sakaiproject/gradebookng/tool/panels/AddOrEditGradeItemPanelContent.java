@@ -23,9 +23,11 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -43,13 +45,11 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.validation.IValidationError;
-import org.sakaiproject.grading.api.GradingCategoryType;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.model.UiMode;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.CategoryDefinition;
-import org.sakaiproject.grading.api.GradingService;
-import org.sakaiproject.grading.api.GradeType;
+import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.rubrics.api.RubricsConstants;
@@ -82,14 +82,10 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 		super(id, assignmentModel);
 
 		final Gradebook gradebook = this.businessService.getGradebook();
-		final GradeType gradingType = gradebook.getGradeType();
+		final Integer gradingType = gradebook.getGradeType();
 
 		final Assignment assignment = assignmentModel.getObject();
-
-		this.categoriesEnabled = true;
-		if (gradebook.getCategoryType() == GradingCategoryType.NO_CATEGORY) {
-			this.categoriesEnabled = false;
-		}
+        this.categoriesEnabled = !Objects.equals(GradingConstants.CATEGORY_TYPE_NO_CATEGORY, gradebook.getCategoryType());
 
 		// get existing points. Will be null for a new assignment
 		this.existingPoints = assignmentModel.getObject().getPoints();
@@ -119,7 +115,7 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 
 		// points
 		final Label pointsLabel = new Label("pointsLabel");
-		if (gradingType == GradeType.PERCENTAGE) {
+		if (Objects.equals(GradingConstants.GRADE_TYPE_PERCENTAGE, gradingType)) {
 			pointsLabel.setDefaultModel(new ResourceModel("label.addgradeitem.percentage"));
 		} else {
 			pointsLabel.setDefaultModel(new ResourceModel("label.addgradeitem.points"));
@@ -154,20 +150,16 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 			protected void onUpdate(final AjaxRequestTarget target) {
 
 				// conditional option to scale
-				if (gradingType == GradeType.POINTS) {
+				if (Objects.equals(GradingConstants.GRADE_TYPE_POINTS, gradingType)) {
 
 					final Double existing = AddOrEditGradeItemPanelContent.this.existingPoints;
 					final Double current = points.getModelObject();
 
-					log.debug("existingPoints: " + existing);
-					log.debug("currentPoints: " + current);
+                    log.debug("existingPoints: {}", existing);
+                    log.debug("currentPoints: {}", current);
+                    AddOrEditGradeItemPanelContent.this.scaleGradesTriggered = existing != null && !existing.equals(current);
 
-					AddOrEditGradeItemPanelContent.this.scaleGradesTriggered = false;
-					if (existing != null && existing != current) {
-						AddOrEditGradeItemPanelContent.this.scaleGradesTriggered = true;
-					}
-
-					log.debug("scaleGradesTriggered: " + AddOrEditGradeItemPanelContent.this.scaleGradesTriggered);
+                    log.debug("scaleGradesTriggered: {}", AddOrEditGradeItemPanelContent.this.scaleGradesTriggered);
 
 					target.add(AddOrEditGradeItemPanelContent.this.scaleGradesContainer);
 				}
@@ -222,7 +214,7 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 					@Override
 					public Object getDisplayValue(final Long value) {
 						final CategoryDefinition category = categoryMap.get(value);
-						if (GradingCategoryType.WEIGHTED_CATEGORY == gradebook.getCategoryType()) {
+						if (Objects.equals(GradingConstants.CATEGORY_TYPE_WEIGHTED_CATEGORY, gradebook.getCategoryType())) {
 							final String weight = FormatHelper.formatDoubleAsPercentage(category.getWeight() * 100);
 							return MessageFormat.format(getString("label.addgradeitem.categorywithweight"),
 									category.getName(), weight);
@@ -279,12 +271,14 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 		final WebMarkupContainer sakaiRubricAssociation = new WebMarkupContainer("sakai-rubric-association");
 		sakaiRubricAssociation.add(AttributeModifier.append("dont-associate-label", new ResourceModel("rubrics.dont_associate_label")));
 		sakaiRubricAssociation.add(AttributeModifier.append("site-id", getCurrentSiteId()));
-		sakaiRubricAssociation.add(AttributeModifier.append("dont-associate-value", "0"));
 		sakaiRubricAssociation.add(AttributeModifier.append("associate-label", new ResourceModel("rubrics.associate_label")));
-		sakaiRubricAssociation.add(AttributeModifier.append("associate-value", "1"));
 		sakaiRubricAssociation.add(AttributeModifier.append("fine-tune-points", new ResourceModel("rubrics.option_pointsoverride")));
 		sakaiRubricAssociation.add(AttributeModifier.append("hide-student-preview", new ResourceModel("rubrics.option_studentpreview")));
 		sakaiRubricAssociation.add(AttributeModifier.append("tool-id", RubricsConstants.RBCS_TOOL_GRADEBOOKNG));
+
+		if (StringUtils.equals(assignment.getExternalAppName(), RubricsConstants.RBCS_TOOL_LESSONBUILDERTOOL)) {
+			sakaiRubricAssociation.setVisible(false);
+		}
 
 		if (assignment.getId() != null) {
 			sakaiRubricAssociation.add(AttributeModifier.append("entity-id", assignment.getId()));
@@ -319,7 +313,7 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 
 		// behaviour for when a category is chosen. If the category is extra
 		// credit, deselect and disable extra credit checkbox
-		categoryDropDown.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+		categoryDropDown.add(new AjaxFormComponentUpdatingBehavior("change") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -370,12 +364,10 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 		asn.setDueDate(zoned == null ? null : Date.from(zoned.toInstant()));
 	}
 
+	@Override
 	public void renderHead(final IHeaderResponse response) {
-
 		final String version = PortalUtils.getCDNQuery();
 		response.render(StringHeaderItem.forString(
-			"<script src=\"/webcomponents/rubrics/sakai-rubrics-utils.js" + version + "\"></script>"));
-		response.render(StringHeaderItem.forString(
-			"<script type=\"module\" src=\"/webcomponents/rubrics/rubric-association-requirements.js" + version + "\"></script>"));
+			"<script type=\"module\" src=\"/webcomponents/bundles/rubric-association-requirements.js" + version + "\"></script>"));
 	}
 }

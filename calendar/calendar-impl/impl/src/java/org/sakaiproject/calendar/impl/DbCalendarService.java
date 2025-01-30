@@ -33,6 +33,8 @@ import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.javax.PagingPosition;
+import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.util.BaseDbDoubleStorage;
 import org.sakaiproject.util.DoubleStorageUser;
 
@@ -131,9 +133,6 @@ public class DbCalendarService
 
 			super.init();
 			
-			SAK11204Fix sf =  new SAK11204Fix(this);
-			sf.apply(m_autoDdl);
-
 			log.info("init(): tables: " + m_cTableName + " " + m_rTableName + " locks-in-db: " + m_locksInDb);
 		}
 		catch (Throwable t)
@@ -211,11 +210,29 @@ public class DbCalendarService
 		public CalendarEvent getEvent(Calendar calendar, String id)
 			{ return (CalendarEvent) super.getResource(calendar, id); }
 
-		public List getEvents(Calendar calendar)
-			{ return super.getAllResources(calendar); }
+		public List getEvents(Calendar calendar, TimeRange range, Integer limit) {
 
-		public List getEvents(Calendar calendar, long startDate, long endDate)
-         { 
+			PagingPosition page = limit == null ? null : new PagingPosition(1, limit);
+			String rangeFilter = range == null ? null : getRangeFilter();
+			List<Object> rangeValues = getRangeValues(range);
+
+			return super.getAllResources(calendar, null, rangeFilter, true, page, rangeValues);
+		}
+
+		private String getRangeFilter() {
+
+			return "((RANGE_START > ? and RANGE_START < ? ) " +
+					"or (  RANGE_END > ? and RANGE_END < ? ) " +
+					"or ( RANGE_START < ? and RANGE_END > ? ))";
+		}
+
+		private List<Object> getRangeValues(TimeRange range) {
+
+			if (range == null) return null;
+
+			long startDate = range.firstTime().getTime();
+			long endDate = range.lastTime().getTime();
+
 			// we dont have acurate timezone information at this point, so we will make certain that we are at the start of the GMT day
 			long oneHour = 60L*60L*1000L;
 			long oneDay = 24L*oneHour;
@@ -227,24 +244,17 @@ public class DbCalendarService
 			Integer startDateHours = (int)(startDate/oneHour);
 			Integer endDateHours = (int)(endDate/oneHour);
 			
-			if ( log.isDebugEnabled() ) {
-				log.debug("Selecting Range from "+(new Date(startDate)).toGMTString()+" to "+(new Date(endDate)).toGMTString());
-			}
-			
-            String filter = "((RANGE_START > ? and RANGE_START < ? ) " +
-            		"or (  RANGE_END > ? and RANGE_END < ? ) " +
-            		"or ( RANGE_START < ? and RANGE_END > ? ))";
+			log.debug("Selecting Range from {} to {}", (new Date(startDate)).toGMTString(), (new Date(endDate)).toGMTString());
             
-			List<Object> rangeValues = new ArrayList<Object>();
+			List<Object> rangeValues = new ArrayList<>();
 			rangeValues.add(startDateHours);
 			rangeValues.add(endDateHours);
 			rangeValues.add(startDateHours);
 			rangeValues.add(endDateHours);
 			rangeValues.add(startDateHours);
 			rangeValues.add(endDateHours);
-			
-            return super.getAllResources(calendar, null, filter, true, null, rangeValues);
-         }
+			return rangeValues;
+		}
 
 		public CalendarEventEdit putEvent(Calendar calendar,String id)
 			{ return (CalendarEventEdit) super.putResource(calendar, id, null); }

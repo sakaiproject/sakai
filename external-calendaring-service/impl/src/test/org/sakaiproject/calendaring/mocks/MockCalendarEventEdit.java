@@ -56,6 +56,7 @@ import org.w3c.dom.Element;
 public class MockCalendarEventEdit implements CalendarEventEdit {
 
 	private String location;
+	private String siteId;
 	private String description;
 	private TimeRange range;
 	private RecurrenceRule exclusionRule;

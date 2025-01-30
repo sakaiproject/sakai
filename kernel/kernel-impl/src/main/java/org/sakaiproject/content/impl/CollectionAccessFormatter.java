@@ -127,7 +127,7 @@ public class CollectionAccessFormatter
 			out.println("<title>" + rb.getFormattedMessage("colformat.pagetitle", 
 					new Object[]{ formattedText.escapeHtml(pl.getProperty(ResourceProperties.PROP_DISPLAY_NAME))}) + "</title>");
 			out.println("<link href=\"" + webappRoot + skinRepo+ "/" + skinName + 
-			"/access.css\" type=\"text/css\" rel=\"stylesheet\" media=\"screen\">");
+			"/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"screen\">");
 			out.println("<script type=\"text/javascript\" language=\"JavaScript\" src=\"/library/js/headscripts.js\"></script>");
 			out.println("<script type=\"text/javascript\">includeLatestJQuery(\"access\");</script>");
 			out.println("</head><body class=\"specialLink\">");

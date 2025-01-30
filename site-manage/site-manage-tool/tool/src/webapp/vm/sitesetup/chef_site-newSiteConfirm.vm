@@ -61,7 +61,7 @@
 	<form name="addSiteForm" action="#toolForm("$action")" method="post">
 		<input type="hidden" name="eventSubmit_doAdd_site_option" value="x" />
 		<input type="hidden" name="option" value="cancel" />
-		<div class="table-responsive">
+		<div class="table">
 		<table class ="itemSummary" cellspacing="0" summary="$tlang.getString("newsc.list.summary")" border="0">
 			<tr>
 				<th>

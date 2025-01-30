@@ -126,7 +126,7 @@ public class InfinitePagingDataTableHeadersToolbar<S> extends InfinitePagingData
 
 	protected WebMarkupContainer newSortableHeader(final String borderId, final S property, final ISortStateLocator<S> locator)
 	{
-		return new AjaxFallbackOrderByBorder<S>(borderId, property, locator, getAjaxCallListener())
+		return new AjaxFallbackOrderByBorder<S>(borderId, property, locator)
 		{
 			private static final long serialVersionUID = 1L;
 

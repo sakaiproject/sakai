@@ -66,7 +66,7 @@
 
 <div id="toolHolderWW" class="container-fluid">
   <div class="row">
-    <div id="toolHolderW" class="col-md-8">
+    <div id="toolHolderW d-flex" class="col-md-8">
         <div id="collExpContainer">
             <a id="expandAll" href="#">$tlang.getString("feat.expand.all")</a>
             <a id="contractAll" style="display:none" href="#">$tlang.getString("feat.collapse.all")</a>
@@ -100,7 +100,7 @@
                             #foreach($tool in $mapEntry.value)
                                 #set($toolId = $tool.id)
                                 #if (!$toolId.equals("sakai.web.168"))
-                                    ## exclude the Basic LTI tools, since they would be listed separately down the list
+                                    ## exclude the LTI tools, since they would be listed separately down the list
                                     #set ($rowCount = $rowCount + 1)
                                     #if ($tool.required)
                                         <li style="display:none">
@@ -191,61 +191,14 @@
           <input type="checkbox" name="isMathJaxEnabledForSite" class="onoffswitch-checkbox" id="isMathJaxEnabledForSite" #if($isMathJaxEnabledForSite)checked="checked"#end>
       </div>
     </div>
-    <div class="lessonsSubNavToggleArea" style='display: none'>
-      <label class="onoffswitch-label" for="isLessonsSubNavEnabledForSite">
-          $tlang.getString("sinfo.lessonbuildersubnav.allowForSite")
+    <div class="subPageNavToggleArea">
+      <label class="onoffswitch-label" for="isSubPageNavEnabled">
+          $tlang.getString("sinfo.subnav.allowForSite")
       </label>
       <div class="onoffswitch">
-          <input type="checkbox" name="isLessonsSubNavEnabledForSite" class="onoffswitch-checkbox" id="isLessonsSubNavEnabledForSite" #if($isLessonsSubNavEnabledForSite)checked="checked"#end>
+          <input type="checkbox" name="isSubPageNavEnabled" class="onoffswitch-checkbox" id="isSubPageNavEnabled" #if($isSubPageNavEnabled)checked="checked"#end>
       </div>
     </div>
-    #if ($neoChat == 'true' || $neoChat == 'false')
-    <div class="portalNeochatToggleArea">
-      <label class="onoffswitch-label" for="isPortalNeochatEnabledForSite">
-          $tlang.getString("sinfo.portalneochat.allowForSite")
-      </label>
-      <div class="onoffswitch">
-          #if ($isPortalNeochatEnabledForSite == 'true')
-              <input type="checkbox" name="isPortalNeochatEnabledForSite" class="onoffswitch-checkbox" id="isPortalNeochatEnabledForSite" checked="checked">
-          #else
-              <input type="checkbox" name="isPortalNeochatEnabledForSite" class="onoffswitch-checkbox" id="isPortalNeochatEnabledForSite" #if(!$existSite && $neoChat == 'true')checked="checked"#end>
-          #end
-      </div>
-    </div>
-    #end
-    <script>
-        $(function() {
-            var lessonsSubNavToggleArea = $('.lessonsSubNavToggleArea');
-            var toolSelectionList = $('#toolSelectionList');
-            var toolList = $('#toolHolderW');
-            var isLessonsSubNavEnabledForSiteCheckbox = $('#isLessonsSubNavEnabledForSite');
-
-            function checkForSelectedLessonsTools() {
-              if (toolSelectionList.find('li[id*=sakai_lessonbuildertool]:visible').length > 0) {
-                  lessonsSubNavToggleArea.show();
-              } else {
-                  lessonsSubNavToggleArea.hide();
-              }
-            };
-
-            toolList.find('input[type=checkbox]').on('click', function() {
-                setTimeout(checkForSelectedLessonsTools, 200); // fade out on selected item takes ~100ms
-                return true;
-            });
-
-            toolSelectionList.on('click', '.removeTool', function() {
-                setTimeout(checkForSelectedLessonsTools, 200); // fade out on selected item takes ~100ms
-                return true;
-            });
-
-            toolSelectionList.on('click mouseup keyup', '#alertBoxYes', function() {
-                setTimeout(checkForSelectedLessonsTools, 0);
-                return true;
-            });
-
-            checkForSelectedLessonsTools();
-        });
-    </script>
     </div>
   </div> <!-- row -->
 </div> <!-- toolHolderWW -->

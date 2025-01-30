@@ -17,10 +17,9 @@ package org.sakaiproject.gradebookng.tool.panels;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
@@ -31,10 +30,10 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
-import org.sakaiproject.grading.api.GradingCategoryType;
 import org.sakaiproject.gradebookng.tool.model.GbSettings;
 import org.sakaiproject.gradebookng.tool.pages.SettingsPage;
 import org.sakaiproject.grading.api.GradebookInformation;
+import org.sakaiproject.grading.api.GradingConstants;
 
 public class SettingsGradeReleasePanel extends BasePanel {
 
@@ -69,24 +68,6 @@ public class SettingsGradeReleasePanel extends BasePanel {
 		final SettingsPage settingsPage = (SettingsPage) getPage();
 
 		final WebMarkupContainer settingsGradeReleasePanel = new WebMarkupContainer("settingsGradeReleasePanel");
-		// Preserve the expand/collapse state of the panel
-		settingsGradeReleasePanel.add(new AjaxEventBehavior("shown.bs.collapse") {
-			@Override
-			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
-				settingsGradeReleasePanel.add(new AttributeModifier("class", "panel-collapse collapse in"));
-				SettingsGradeReleasePanel.this.expanded = true;
-			}
-		});
-		settingsGradeReleasePanel.add(new AjaxEventBehavior("hidden.bs.collapse") {
-			@Override
-			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
-				settingsGradeReleasePanel.add(new AttributeModifier("class", "panel-collapse collapse"));
-				SettingsGradeReleasePanel.this.expanded = false;
-			}
-		});
-		if (this.expanded) {
-			settingsGradeReleasePanel.add(new AttributeModifier("class", "panel-collapse collapse in"));
-		}
 		add(settingsGradeReleasePanel);
 
 		// display released items to students
@@ -132,7 +113,7 @@ public class SettingsGradeReleasePanel extends BasePanel {
 
 				// if we have disabled this, enable categories and weighting
 				// if its enabled then catgories and weighting may or may not be enabled depending on other rules
-				final Radio<GradingCategoryType> categoriesAndWeightingRadio = settingsPage.getSettingsCategoryPanel().getCategoriesAndWeightingRadio();
+				final Radio<Integer> categoriesAndWeightingRadio = settingsPage.getSettingsCategoryPanel().getCategoriesAndWeightingRadio();
 				settingsPage.getSettingsCategoryPanel().updateCategoriesAndWeightingRadioState();
 				target.add(categoriesAndWeightingRadio);
 
@@ -310,7 +291,7 @@ public class SettingsGradeReleasePanel extends BasePanel {
 				target.add(SettingsGradeReleasePanel.this.minimumOptions);
 
 				// if points selected, disable categories and weighting
-				final Radio<GradingCategoryType> categoriesAndWeightingRadio = settingsPage.getSettingsCategoryPanel().getCategoriesAndWeightingRadio();
+				final Radio<Integer> categoriesAndWeightingRadio = settingsPage.getSettingsCategoryPanel().getCategoriesAndWeightingRadio();
 				settingsPage.getSettingsCategoryPanel().updateCategoriesAndWeightingRadioState();
 				target.add(categoriesAndWeightingRadio);
 			}
@@ -400,7 +381,7 @@ public class SettingsGradeReleasePanel extends BasePanel {
 		courseGradePreview.add(this.preview);
 
 		// behaviour for when the 'display course grade' checkbox is changed
-		displayCourseGrade.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+		displayCourseGrade.add(new AjaxFormComponentUpdatingBehavior("change") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -433,15 +414,11 @@ public class SettingsGradeReleasePanel extends BasePanel {
 	void updatePointsCheckboxState() {
 
 		final GradebookInformation settings = this.model.getObject().getGradebookInformation();
-		final GradingCategoryType type = settings.getCategoryType();
+		final Integer type = settings.getCategoryType();
 
 		// if categories and weighting, disable course grade points
 		if (settings.getCourseGradeDisplayed()) {
-			if (type == GradingCategoryType.WEIGHTED_CATEGORY) {
-				this.points.setEnabled(false);
-			} else {
-				this.points.setEnabled(true);
-			}
+            this.points.setEnabled(!Objects.equals(type, GradingConstants.CATEGORY_TYPE_WEIGHTED_CATEGORY));
 		}
 
 		// if course grade disabled, clear this field

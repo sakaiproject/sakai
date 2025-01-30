@@ -1,92 +1,104 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html rsf:id="html" xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE"/>
-<script rsf:id="scr=portal-matter" type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script> 
-<link rsf:id="scr=portal-matter" href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
-<link rsf:id="scr=portal-matter" href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
-<link rel="stylesheet" rsf:id="scr=rewrite-url" href="../css/Simplepagetool.css" type="text/css"/>
-<link type="text/css" href="/library/webjars/jquery-ui-themes/1.12.1/smoothness/jquery-ui.min.css" rel="stylesheet" />
-<link type="text/css" href="$context/css/peer-eval.css" rel="stylesheet" />	
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE"/>
+    <script rsf:id="scr=portal-matter" src="/library/js/headscripts.js"></script>
+    <link rsf:id="scr=portal-matter" href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+    <link rsf:id="scr=portal-matter" href="/library/skin/default-skin/tool.css" type="text/css" rel="stylesheet" media="all" />
+    <link type="text/css" href="/library/webjars/jquery-ui-themes/1.12.1/smoothness/jquery-ui.min.css" rel="stylesheet" />
+    <title rsf:id="msg=simplepage.peer-eval-stats"></title>
+  </head>
+  <body rsf:id="scr=sakai-body" class="peer-eval-statistics-page">
+    <script>includeLatestJQuery('PeerEvalStats.html');</script>
+    <script src="$context/js/jqBarGraph.1.1.customized.js"></script>
+    <script src="$context/js/peer-eval.js"></script>
+    <script src="../js/simple-page.js" rsf:id="scr=rewrite-url"></script>
 
-<title rsf:id="msg=simplepage.peer-eval-stats"></title>
-</head>
-<body rsf:id="scr=sakai-body" class="peer-eval-statistics-page">
-<script>includeLatestJQuery('PeerEvalStats.html');</script>
-<script type="text/javascript" src="$context/js/jqBarGraph.1.1.customized.js"></script>
-<script type="text/javascript" src="$context/js/peer-eval.js"></script>
-<script type="text/javascript" src="../js/simple-page.js" rsf:id="scr=rewrite-url"></script>
+    <div style="display:none;" class="messages">
+      <div id="simplepage.user.activity" rsf:id="msg=simplepage.user.activity"></div>
+      <div id="simplepage.peer-cell-tooltip" rsf:id="msg=simplepage.peer-cell-tooltip"></div>
+    </div>
 
-<div style="display:none;" class="messages">
-	<div id="simplepage.user.activity" rsf:id="msg=simplepage.user.activity"></div>
-	<div id="simplepage.peer-cell-tooltip" rsf:id="msg=simplepage.peer-cell-tooltip"></div>
-</div>
+    <div class="container">
 
-<div class="container">
+      <a href="#" rsf:id="back" class="peer-eval-btn usebutton ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">next</a>
+      <a href="#" style="float:right;" rsf:id="expand-collapse" class="peer-eval-btn usebutton expand-collapse-btn collaping ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+        <span class="expand-txt" style="display:none;" rsf:id="expand-all">Expand All!</span>
+        <span class="collapse-txt" rsf:id="collapse-all">Collapse All!</span>
+      </a>
 
-<a href="#" rsf:id="back" class="peer-eval-btn usebutton ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">next</a>
-<a href="#" style="float:right;" rsf:id="expand-collapse" class="peer-eval-btn usebutton expand-collapse-btn collaping ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
-	<span class="expand-txt" style="display:none;" rsf:id="expand-all">Expand All!</span>
-	<span class="collapse-txt" rsf:id="collapse-all">Collapse All!</span>
-</a>
+      <h1 rsf:id="msg=simplepage.peer-eval-stats"></h1>
+      <p rsf:id="msg=simplepage.peer-eval-stats.directions"></p>
 
-<h1 rsf:id="msg=simplepage.peer-eval-stats"></h1>
-<p rsf:id="msg=simplepage.peer-eval-stats.directions"></p>
+      <div rsf:id="peer-eval-rubric" class="peer-eval-rubric">
+        <table class="peer-eval-rubric-table" style="width: 100%; height: 100%; border: 1px solid black;">
+          <thead><tr><th></th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr></thead>
+          <tbody>
+            <tr rsf:id="peer-eval-row:" class="peer-eval-row">
+              <td aria-live="polite">
+                <span class="peer-eval-person lb-offscreen"></span>
+                <span rsf:id="peer-eval-text" class="peer-eval-text"></span>
+                <span class="peer-eval-chosen lb-offscreen"></span>
+              </td>
+              <td class="4"></td><td class="3"></td><td class="2"></td><td class="1"></td><td class="0"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-<div rsf:id="peer-eval-rubric" class="peer-eval-rubric">
-	<table class="peer-eval-rubric-table" style="width: 100%; height: 100%; border: 1px solid black;">
-		<thead><tr><th></th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr></thead>
-		<tbody>
-			<tr rsf:id="peer-eval-row:" class="peer-eval-row">
-				<td aria-live="polite">
-					<span class="peer-eval-person offscreen"></span>
-					<span rsf:id="peer-eval-text" class="peer-eval-text"></span>
-					<span class="peer-eval-chosen offscreen"></span>
-				</td>
-				<td class="4"></td><td class="3"></td><td class="2"></td><td class="1"></td><td class="0"></td>
-			</tr>
-		</tbody>
-	</table>
-</div>
+      <div rsf:id="peer-eval-gradee-branch:" class="peer-eval-gradee-branch" style="display:none;">
+        <span class="user-name" rsf:id="user-name"></span>
+        <span class="user-id" rsf:id="user-id"></span>
+        <span class="user-pageid" rsf:id="user-pageid"></span>
 
-<div rsf:id="peer-eval-gradee-branch:" class="peer-eval-gradee-branch" style="display:none;">
-	<span class="user-name" rsf:id="user-name"></span>
-	<span class="user-id" rsf:id="user-id"></span>
-	<span class="user-pageid" rsf:id="user-pageid"></span>
-	
-	<div rsf:id="peer-eval-gradee-members" class="peer-eval-gradee-members">
-	  <li class="inactive-member" rsf:id="gradee-member:">
-	    <span class="inactive-member-id" rsf:id="gradee-member-id"></span>
-	    <span role="link"  class="inactive-member-name" rsf:id="gradee-member-name"></span>
-	  </li>
-	</div>
+        <div rsf:id="peer-eval-gradee-members" class="peer-eval-gradee-members">
+          <li class="inactive-member" rsf:id="gradee-member:">
+            <span class="inactive-member-id" rsf:id="gradee-member-id"></span>
+            <span role="link"  class="inactive-member-name" rsf:id="gradee-member-name"></span>
+          </li>
+        </div>
 
-	<div rsf:id="peer-eval-data-grade:" class="peer-eval-data-grade">
-		<div rsf:id="peer-eval-row-text" class="peer-eval-row-text" ></div>
-		<div rsf:id="peer-eval-grade" class="peer-eval-grade" ></div>
-		<div rsf:id="peer-eval-grader-branch:" class="peer-eval-grader-branch" >
-			<div rsf:id="peer-eval-grader-name" class="peer-eval-grader-name" ></div>
-			<div rsf:id="peer-eval-grader-id" class="peer-eval-grader-id" ></div>
-		</div>
-		<div rsf:id="peer-eval-count" class="peer-eval-count" ></div>
-	</div>
-</div>
+        <div rsf:id="peer-eval-data-grade:" class="peer-eval-data-grade">
+          <div rsf:id="peer-eval-row-text" class="peer-eval-row-text" ></div>
+          <div rsf:id="peer-eval-grade" class="peer-eval-grade" ></div>
+          <div rsf:id="peer-eval-grader-branch:" class="peer-eval-grader-branch" >
+            <div rsf:id="peer-eval-grader-name" class="peer-eval-grader-name" ></div>
+            <div rsf:id="peer-eval-grader-id" class="peer-eval-grader-id" ></div>
+          </div>
+          <div rsf:id="peer-eval-count" class="peer-eval-count" ></div>
+        </div>
+      </div>
 
-<div class="rubrics"></div>
+      <div class="modal fade" id="graders-modal" tabindex="-1" aria-labelledby="gradersModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="gradersModalLabel" rsf:id="msg=simplepage.peer-eval.graders">msg=simplepage.peer-eval.graders</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <div class="rubric-graders-cell">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-<div class="inactive-member-collection" rsf:id="inactive-member-collection">
-	<h2 rsf:id="msg=simplepage.peer-eval.inactive-members">Site members who have not created a student page.</h2>
-	<ul>
-		<li class="inactive-member" rsf:id="inactive-member:">
-			<span class="inactive-member-id" rsf:id="inactive-member-id"></span>
-			<span role="link" class="inactive-member-name" rsf:id="inactive-member-name"></span>
-		</li>
-	</ul>
-</div>
+      <div class="rubrics"></div>
 
-</div> <!-- container -->
-</body>
+      <div class="inactive-member-collection" rsf:id="inactive-member-collection">
+        <h2 rsf:id="msg=simplepage.peer-eval.inactive-members">Site members who have not created a student page.</h2>
+        <ul>
+          <li class="inactive-member" rsf:id="inactive-member:">
+            <span class="inactive-member-id" rsf:id="inactive-member-id"></span>
+            <span role="link" class="inactive-member-name" rsf:id="inactive-member-name"></span>
+          </li>
+        </ul>
+      </div>
+
+    </div> <!-- container -->
+  </body>
 </html>
 

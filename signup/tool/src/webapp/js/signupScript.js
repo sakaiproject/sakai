@@ -473,7 +473,7 @@
 				if(mutiplBoxTag)
 					mutiplBoxTag.className="mi";
 				if(singleBoxTag)
-					singleBoxTag.className="si";
+					singleBoxTag.className="single-box";
 					
 				showDTimeInputFields('enabled');
 				createEditTSBttn.style.display="none";
@@ -484,11 +484,11 @@
 	function isShowEmailChoice(){
 		var emailChoiceTag = document.getElementById('meeting:emailChoice');
 		var emailAttendeeOnlyTag = document.getElementById('meeting:emailAttendeeOnly');
-		var emailAttendeeInputs = emailAttendeeOnlyTag.getElementsByTagName('input');
 
 		if(!emailChoiceTag || !emailAttendeeOnlyTag)
 			return;
 
+		var emailAttendeeInputs = emailAttendeeOnlyTag.getElementsByTagName('input');
 		var i = 0, input;
 		while (input = emailAttendeeInputs[i++]) {
 			input.disabled = !emailChoiceTag.checked;
@@ -759,11 +759,25 @@ function displayDateTime(d){
 			"October", "November", "December");
 
 	var curr_day = d.getDay();
-	var curr_date = d.getDate();	
+	var curr_date = d.getDate();
 	var curr_month = d.getMonth();
-	var curr_year = d.getFullYear();	
-	return (curr_hour + ":" + curr_min + " " + a_p + ", " + d_names[curr_day] + ", "
+	var curr_year = d.getFullYear();
+
+	if (portal.locale){
+		var options = {
+				hour12: false,
+				weekday: 'long',
+				year: 'numeric',
+				month: 'long',
+				day: 'numeric',
+				hour: 'numeric',
+				minute: 'numeric'
+			};
+		 return d.toLocaleDateString(portal.locale, options);
+	}else{
+		return (curr_hour + ":" + curr_min + " " + a_p + ", " + d_names[curr_day] + ", "
 		   + m_names[curr_month] + " " +  curr_date + ", " + curr_year);
+	}
 
 }
 // Display processing message to user for operations that may take some time to process

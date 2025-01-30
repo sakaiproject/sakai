@@ -1,5 +1,4 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitebrowser/chef_sitebrowser_list.vm,v 1.2 2005/06/06 16:26:15 suiyy.umich.edu Exp $ -->
-<div id="dialog"></div>
 <script type="text/javascript" language="JavaScript">
 	$(document).ready(function () {
 		sakai.getSiteInfo('getSiteDesc','dialog','$tlang.getString("sitegen.siteinfolist.nosd")','$tlang.getString("sitegen.siteinfolist.nold")');
@@ -65,8 +64,8 @@
 		</div>
 
 		#set ($siteCount = 0)
-		<div class="table-responsive">
-			<table id="siteList" summary="$tlang.getString("list.summary")" class="table table-responsive table-bordered table-striped table-hover">
+		<div class="table">
+			<table id="siteList" summary="$tlang.getString("list.summary")" class="table table table-bordered table-striped table-hover">
 				<thead>
 					<tr>
 						#if ($helperMode)
@@ -95,6 +94,7 @@
 								<a href="$site.Url" target="_top">
 									$formattedText.escapeHtml($site.getTitle())
 								</a>
+								<div id="dialog_$site.Id"></div>
 								<a href="#" id="$site.Id" class="getSiteDesc" title="$tlang.getString('list.moreinfotooltip')">
 									<img src="#imageLink("sakai/information_gray.png")" border="0" title ="$tlang.getString('list.moreinfotooltip')" alt ="$tlang.getString('list.moreinfotooltip')" />
 								</a>

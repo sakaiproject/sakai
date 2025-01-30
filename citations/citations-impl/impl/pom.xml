@@ -4,7 +4,7 @@
   <parent>
     <artifactId>citations-base</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>23-SNAPSHOT</version>
+    <version>25-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>sakai-citations-impl</name>
@@ -38,14 +38,6 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-citations-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-citations-web2bridge</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-citations-xserver</artifactId>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
@@ -116,7 +108,7 @@
     <dependency>
       <groupId>com.thoughtworks.xstream</groupId>
       <artifactId>xstream</artifactId>
-      <version>1.4.18</version>
+      <version>1.4.21</version>
     </dependency>
     <dependency>
       <groupId>backport-util-concurrent</groupId>

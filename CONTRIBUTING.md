@@ -27,7 +27,7 @@ Generally when you make a change you will create a pull request that allows othe
  * Code style - Does it match the existing code in the file?
  * Indentation - Are you keeping to the same indentation format (tabs/spaces) and aligning it?
  * Internationalisation - Does your code support running in a different language?
- * Accessibility - Are you supporting accessability best practices?
+ * Accessibility - Are you supporting accessibility best practices?
  * Technical Approach - Is this a sensible technical approach? are there any obvious performance implications?
  * Minimal Changes - Are you changing only the lines needed to fix this bug add this feature (no bulk reformatting)?
  * Single Issue - Are you fixing one issue?
@@ -74,26 +74,75 @@ This branch should always be the same as what is in Sakai's ***upstream*** `mast
 
 To fix a bug or add a feature, the general Git workflow is:
 
-* Create a ***local*** branch using JIRA reference for the branch name:
+### Single issue per pull request
+Generally issues and pull requests will have a one-to-one relationship, see following example:
 
-  `git checkout -b SAK-29469`
+1. Create a ***local*** branch using JIRA reference for the branch name:
 
+  `git checkout -b SAK-12345`
 
-* Do work
+2. Do some work
 
-* Add changed or new files:
+3. Add changed or new files:
 
-  `git add -u`
+   `git add -u`
 
-* Make your ***local*** commit:
+4. Make your ***local*** commit:
 
-  `git commit -m "SAK-29469 Add some documentation about contributing"`
+    `git commit -m "SAK-12345 Assignments add option x when creating an assignment"`
 
-* Share branch back to ***origin***:
+5. Commit messages should follow the following format
 
-  `git push origin SAK-29469`
+    `<issue key> <component> <brief description>`
 
-* [Create a pull request (PR)](https://help.github.com/articles/creating-a-pull-request/) using GitHub from the branch against the ***upstream*** `master` for review by others
+    If more commits are added then the subsequent commit message are not important as they will be squashed
+
+6. Share branch back to ***origin***:
+
+    `git push origin SAK-29469`
+
+7. [Create a pull request (PR)](https://help.github.com/articles/creating-a-pull-request/) using GitHub from the branch against the ***upstream*** `master` for review by others
+
+8. When this PR is merged the option to ***Squash and Merge*** should be used
+
+### Multiple issues per pull request
+Sometimes it is helpful to fix several issues with a single pull request this might be because the changes are related in some way
+
+1. Create a ***local*** branch using JIRA reference for the branch name:
+
+   `git checkout -b SAK-12345`
+
+2. Do some work
+
+3. Add changed or new files:
+
+   `git add -u`
+
+4. Make your ***local*** commit:
+
+   `git commit -m "SAK-12345 Assignments add option x when creating an assignment"`
+
+5. Commit messages should follow the following format
+
+   `<issue key> <component> <brief description>`
+
+6. Repeat steps 2 and 3
+
+7. Make your ***local*** commit:
+
+   `git commit -m "SAK-23456 Assignments add option y when creating an assignment"`
+
+8. Repeat steps 6 and 7 adding more commits
+
+    What is paramount in this workflow is that the commits must be managed by the author and there should be exactly one commit per issue
+
+9. Share branch back to ***origin***:
+
+   `git push origin SAK-12345`
+
+10. When creating the PR be sure each <issue-key> is mentioned, as this will like the pull request to each issue in the issue tracking system
+
+11. When this PR is merged the option ***Rebase and Merge*** should be used
 
 ### Respond to a pull request (PR) by updating proposed changes
 
@@ -109,9 +158,17 @@ You will often receive friendly advice to improve or fix the changes you propose
 
   `git add -u`
 
-* Update existing commit (this updates the previous commit rather than making a new one):
+* Make a new commit (normal workflow in a ***Single issue per pull request***):
+
+  `git commit -m "updated x per requested changes`
+
+* Or update an existing commit (normal workflow in ***Multiple issues per pull request***):
 
   `git commit --amend -C HEAD`
+  or
+  `git rebase -i HEAD~<# of commits to go back and edit>`
+
+  rebasing commits is a way to rewrite history and git documentation should be consulted
 
 * Share your new ***local*** changes back to the ***origin*** branch and the original PR (by force is required for amending commits. You should only ever push by force into your own repo):
 

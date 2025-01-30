@@ -4,10 +4,10 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE"/>
-<script rsf:id="scr=portal-matter" type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+<script rsf:id="scr=portal-matter" src="/library/js/headscripts.js"></script>
+<script src="/library/js/spinner.js" type="text/javascript"></script>
 <link rsf:id="scr=portal-matter" href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
-<link rsf:id="scr=portal-matter" href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
-<link rel="stylesheet" rsf:id="scr=rewrite-url" href="../css/Simplepagetool.css" type="text/css"/>
+<link rsf:id="scr=portal-matter" href="/library/skin/default-skin/tool.css" type="text/css" rel="stylesheet" media="all" />
 <title rsf:id="msg=simplepage.assignment.chooser"></title>
 </head>
 <body rsf:id="scr=sakai-body">
@@ -23,7 +23,7 @@
 
 		<div rsf:id="description"></div>
 		
-		<h3 rsf:id="msg=simplepage.create_assignment" class="offscreen"></h3>
+		<h3 rsf:id="msg=simplepage.create_assignment" class="lb-offscreen"></h3>
 
 		<div rsf:id="assignment-create:">
 		  <a href="#" rsf:id="assignment-create-link"></a>
@@ -48,7 +48,7 @@
 		<input type="hidden" rsf:id="item-id" id="item-id" />
 		<input type="hidden" rsf:id="add-before" id="add-before" />
         <p class="act">
-    		<input type="submit" class="bold" rsf:id="submit" />
+    		<input type="submit" class="bold" rsf:id="submit" onclick="SPNR.disableControlsAndSpin( this, null );" />
     		<input type="submit" rsf:id="cancel" />
         </p>
 		</form>

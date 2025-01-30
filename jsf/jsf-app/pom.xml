@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.sakaiproject.jsf</groupId>
         <artifactId>jsf</artifactId>
-        <version>23-SNAPSHOT</version>
+        <version>25-SNAPSHOT</version>
     </parent>
 
     <name>Sakai JSF Extensions (jsf-app)</name>
@@ -107,7 +107,6 @@
 	      <plugin>
 	        <groupId>org.apache.maven.plugins</groupId>
 	        <artifactId>maven-jar-plugin</artifactId>
-	        <version>2.4</version>
 	        <executions>
 	          <execution>
 	          	<id>jsf</id>

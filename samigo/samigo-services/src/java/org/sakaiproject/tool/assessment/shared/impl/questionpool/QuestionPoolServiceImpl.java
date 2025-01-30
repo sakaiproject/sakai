@@ -80,7 +80,7 @@ public class QuestionPoolServiceImpl
     try
     {
       QuestionPoolService service = new QuestionPoolService();
-      QuestionPoolIteratorFacade iter = service.getAllPools(agentId);
+      QuestionPoolIteratorFacade iter = service.getOwnPools(agentId);
       while (iter.hasNext())
       {
         QuestionPoolDataIfc pool = (QuestionPoolDataIfc) iter.next();

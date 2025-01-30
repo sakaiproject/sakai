@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.sakaiproject.mailarchive</groupId>
         <artifactId>mailarchive</artifactId>
-        <version>23-SNAPSHOT</version>
+        <version>25-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -42,7 +42,7 @@
         <dependency>
             <groupId>com.github.davidmoten</groupId>
             <artifactId>subethasmtp</artifactId>
-            <version>5.2.8</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.sun.mail</groupId>

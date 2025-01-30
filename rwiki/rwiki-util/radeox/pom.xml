@@ -5,7 +5,7 @@
   <parent>
     <artifactId>rwiki-base</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>23-SNAPSHOT</version>
+    <version>25-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>sakai-radeox</name>
@@ -55,10 +55,13 @@
       <artifactId>sakai-rwiki-api</artifactId>
       <type>jar</type>
     </dependency>
-<!--org.sakaiprojectsakai-util${sakai.version}jar-->
     <dependency>
-      <groupId>xerces</groupId>
-      <artifactId>xmlParserAPIs</artifactId>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>xml-apis</groupId>
+      <artifactId>xml-apis</artifactId>
     </dependency>
     <dependency>
       <groupId>xerces</groupId>
@@ -67,6 +70,10 @@
     <dependency>
       <groupId>xalan</groupId>
       <artifactId>xalan</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>xalan</groupId>
+      <artifactId>serializer</artifactId>
     </dependency>
   </dependencies>
 </project>

@@ -26,6 +26,8 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
+import java.util.Optional;
+
 public class CloseButton extends Panel{
 	
 	
@@ -40,16 +42,17 @@ public class CloseButton extends Panel{
 		ContextImage image = new ContextImage("img",new Model(ProfileConstants.CLOSE_IMAGE));
 		image.add(new AttributeModifier("alt",""));
 		
-		AjaxFallbackLink link = new AjaxFallbackLink("link") {
-			public void onClick(AjaxRequestTarget target) {
-				if(target != null) {
+		AjaxFallbackLink<Void> link = new AjaxFallbackLink<Void>("link") {
+			@Override
+			public void onClick(Optional<AjaxRequestTarget> targetOptional) {
+				targetOptional.ifPresent(target -> {
 					
 					target.appendJavaScript("$('#" + parent.getMarkupId() + "').slideUp();");
 					target.appendJavaScript("setMainFrameHeight(window.name);");
 
 					//do we also need to remove the component as well?
 					
-				}
+				});
 			}
 						
 		};

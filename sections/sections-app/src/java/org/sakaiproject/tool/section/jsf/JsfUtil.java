@@ -161,7 +161,7 @@ public class JsfUtil {
      * @return
      */
     public static String getLocalizedMessage(String key, String[] params) {
-		return rl.getFormattedMessage(key, params);
+		return rl.getFormattedMessage(key, (Object[]) params);
     }
 
 

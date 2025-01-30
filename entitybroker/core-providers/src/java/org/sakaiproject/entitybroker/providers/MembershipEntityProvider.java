@@ -35,6 +35,8 @@ import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.StringUtils;
+
 import org.sakaiproject.api.privacy.PrivacyManager;
 import org.sakaiproject.authz.api.AuthzRealmLockException;
 import org.sakaiproject.authz.api.SecurityService;
@@ -193,9 +195,9 @@ RESTful, ActionsExecutable {
         try {
             siteService.unjoin(siteId);
             //String user = sessionManager().getCurrentSessionUserId();
-            String currentUserEid = userEntityProvider.getCurrentUser(view).getEid(); //userDirectoryService.getCurrentUser().getEid();
+            String currentUserId = userEntityProvider.getCurrentUser(view).getId(); //userDirectoryService.getCurrentUser().getEid();
             String roleId = siteService.getSite(siteId).getJoinerRole();
-            List<String[]> userAuditList = Collections.singletonList(new String[]{siteId,currentUserEid,roleId, UserAuditService.USER_AUDIT_ACTION_REMOVE,userAuditRegistration.getDatabaseSourceKey(),currentUserEid});
+            List<String[]> userAuditList = Collections.singletonList(new String[]{siteId,currentUserId,roleId, UserAuditService.USER_AUDIT_ACTION_REMOVE,userAuditRegistration.getDatabaseSourceKey(),currentUserId});
             userAuditRegistration.addToUserAuditing(userAuditList);
         } catch (IdUnusedException e) {
             throw new IllegalArgumentException("The siteId provided (" + siteId
@@ -257,10 +259,7 @@ RESTful, ActionsExecutable {
 
         SiteGroup sg = findLocationByReference(locationReference);
         String roleId = (String) params.get("memberRole");
-        String notificationMessage = (String) params.get("notificationMessage");
-        if ((notificationMessage != null) && (notificationMessage.trim().length() == 0)) {
-            notificationMessage = null;
-        }
+        String notificationMessage = StringUtils.trimToNull((String) params.get("notificationMessage"));
         boolean active = true;
 
         Map<String, String> responseHeaders = new HashMap<String, String>();
@@ -285,19 +284,27 @@ RESTful, ActionsExecutable {
             String currentUserEmail = userEntityProvider.getCurrentUser(null).getEmail();
             for (EntityUser user : users) {
                 sg.site.addMember(user.getId(), roleId, active, false);
-                if (notificationMessage != null) {
-                    /**
-                     * TODO Should the From address be the site contact or the "setup.request" Sakai
-                     * property? TODO We need to retrieve a localized message title and additional
-                     * body (if any) instead of hard-coding it. See the new Email Template Service
-                     * for a likely approach.
-                     */
-                    emailService.send(currentUserEmail, user.getEmail(),
-                            "New Site Membership Notification", notificationMessage, null, null,
-                            null);
-                }
             }
             saveSiteMembership(sg.site);
+
+            // Only send the emails if the site membership was saved successfully (no exceptions thrown), and there is a notificationMessage provided
+            if (notificationMessage != null) {
+                /**
+                 * TODO Should the From address be the site contact or the institution
+                 * property? TODO We need to retrieve a localized message title and additional
+                 * body (if any) instead of hard-coding it. See the new Email Template Service
+                 * for a likely approach.
+                 *
+                 * It's also a little risky to allow the user to define the body of the email. This entire thing should just be replaced with a template.
+                 * For now we just ignore the user-supplied message (if not admin) and use a simple static message. This makes the notificationMessage param
+                 * purely a true/false flag to send the notification email or not (unless you are admin)
+                 */
+                boolean isAdmin = developerHelperService.isUserAdmin(developerHelperService.getCurrentUserReference());
+                String name = developerHelperService.getConfigurationSetting("version.service", "Sakai");
+                String body = isAdmin ? notificationMessage : "You have just been added to the " + name + " site " + sg.site.getTitle();
+                users.forEach(user -> emailService.send(currentUserEmail, user.getEmail(), "New Site Membership Notification", body, null, null, null));
+            }
+
             responseHeaders.put("x-success-count", String.valueOf(users.size()));
         }
         if (!valuesNotFound.isEmpty()) {
@@ -886,8 +893,8 @@ RESTful, ActionsExecutable {
                 catch (UserNotDefinedException e) {
                     log.error(".createEntity: User with id {} doesn't exist", userIds[i]);
                 }
-                userAuditString = new String[]{sg.site.getId(),user.getEid(), roleId, UserAuditService.USER_AUDIT_ACTION_ADD,
-                                               userAuditRegistration.getDatabaseSourceKey(), userDirectoryService.getCurrentUser().getEid()};
+                userAuditString = new String[]{sg.site.getId(),user.getId(), roleId, UserAuditService.USER_AUDIT_ACTION_ADD,
+                                               userAuditRegistration.getDatabaseSourceKey(), userDirectoryService.getCurrentUser().getId()};
                 userAuditList.add(userAuditString);
             } else {
                 // group and site
@@ -953,15 +960,8 @@ RESTful, ActionsExecutable {
 
                 // Add change to user_audits_log table.
                 String role = site.getUserRole(userIds[i]).getId();
-                String userEid = null;
-                try {
-                    userEid = userDirectoryService.getUser(userIds[i]).getEid();
-                } catch (UserNotDefinedException e) {
-                    log.error(".deleteEntity: User with id {} not defined", userIds[i]);
-                }
-
-                userAuditString = new String[]{site.getId(), userEid, role, UserAuditService.USER_AUDIT_ACTION_REMOVE,
-                                               userAuditRegistration.getDatabaseSourceKey(), userDirectoryService.getCurrentUser().getEid()};
+                userAuditString = new String[]{site.getId(), userId, role, UserAuditService.USER_AUDIT_ACTION_REMOVE,
+                                               userAuditRegistration.getDatabaseSourceKey(), userDirectoryService.getCurrentUser().getId()};
                 userAuditList.add(userAuditString);
 
                 site.removeMember(userIds[i]);
@@ -1003,8 +1003,10 @@ RESTful, ActionsExecutable {
         Member member = null;
         SiteGroup sg = findLocationByReference(locationReference);
         String currentUserId = developerHelperService.getCurrentUserId();
-        if (!userId.equals(currentUserId)) {
-            isAllowedAccessMembers(sg.site, sg.group);
+        boolean isSelf = userId.equals(currentUserId);
+        AccessLevel memberAccessLevel = AccessLevel.SELF;
+        if (!isSelf) {
+            memberAccessLevel = isAllowedAccessMembers(sg.site, sg.group);
         }
         boolean viewHidden = securityService.unlock("roster.viewHidden", sg.site.getReference());
         if (sg.group == null) {
@@ -1018,7 +1020,7 @@ RESTful, ActionsExecutable {
         }
         if (member != null && !privacyManager.findHidden(sg.site.getReference(), new HashSet<String>(Arrays.asList(userId))).contains(userId)) {
             EntityUser eu = userEntityProvider.getUserById(userId);
-            em = new EntityMember(member, sg.locationReference, eu);
+            em = new EntityMember(member, sg.locationReference, eu, memberAccessLevel == AccessLevel.GROUP_MEMBERS);
         }
         return em;
     }
@@ -1038,7 +1040,7 @@ RESTful, ActionsExecutable {
         } catch (IllegalArgumentException e) {
             throw new EntityNotFoundException("Could not find the location based on the ref ("+locationReference+"): " + e, locationReference);
         }
-       	isAllowedAccessMembers(sg.site, sg.group);
+       	AccessLevel memberAccessLevel = isAllowedAccessMembers(sg.site, sg.group);
         boolean viewHidden = viewHidden = securityService.unlock("roster.viewHidden", sg.site.getReference());
         Set<String> hiddenUsers = new HashSet<String>();
         if (sg.group == null) {
@@ -1062,8 +1064,8 @@ RESTful, ActionsExecutable {
         for (Member member : members) {
             EntityUser eu = userEntityProvider.getUserById(member.getUserId());
             if (eu != null && !hiddenUsers.contains(member.getUserId())) {
-                EntityMember em = new EntityMember(member, sg.locationReference, eu);
-                l.add(em);
+                boolean sanitize = memberAccessLevel == AccessLevel.GROUP_MEMBERS && !developerHelperService.getCurrentUserId().equals(member.getUserId());
+                l.add(new EntityMember(member, sg.locationReference, eu, sanitize));
             }
         }
         return l;
@@ -1091,7 +1093,7 @@ RESTful, ActionsExecutable {
             Group group = siteService.findGroup(groupId);
             // an invalid group ID might be passed which results in a null here
             if (group == null) {
-                throw new IllegalArgumentException("No group found for id: "+groupId);
+                throw new SecurityException("User does not have permission to view the group: " + groupId);
             }
             Site site = group.getContainingSite();
             holder.locationReference = locationReference;
@@ -1204,10 +1206,12 @@ RESTful, ActionsExecutable {
         try {
             site = siteService.getSite(siteId);
         } catch (IdUnusedException e) {
-            throw new IllegalArgumentException("Cannot find site by siteId: " + siteId, e);
+            throw new SecurityException("User does not have permission for siteId: " + siteId, e);
         }
         return site;
     }
+
+    protected enum AccessLevel { SITE_MEMBERS, GROUP_MEMBERS, SELF };
 
     /**
      * @param site
@@ -1216,7 +1220,7 @@ RESTful, ActionsExecutable {
      * @throws SecurityException
      *             if not allowed
      */
-    protected boolean isAllowedAccessMembers(Site site, Group g) {
+    protected AccessLevel isAllowedAccessMembers(Site site, Group g) {
         // check if the current user can access this
         String userReference = developerHelperService.getCurrentUserReference();
         if (userReference == null) {
@@ -1225,14 +1229,26 @@ RESTful, ActionsExecutable {
         } else {
             String siteId = site.getId();
             if (siteService.allowViewRoster(siteId)) {
-                return true;
-            } else if(g != null && Boolean.TRUE.toString().equals(g.getProperties().getProperty(Group.GROUP_PROP_VIEW_MEMBERS))){
-            	return true;
+                return AccessLevel.SITE_MEMBERS;
+            } else if(userHasGroupAccess(g, userReference)){
+                return AccessLevel.GROUP_MEMBERS;
             }else{
-            	throw new SecurityException("Memberships in this site (" + site.getReference()
+                throw new SecurityException("Memberships in this site (" + site.getReference()
                         + ") are not accessible for the current user: " + userReference);
             }
         }
+    }
+
+    /**
+     * Check if the given user has access to the given group. Group must exist, must have the property group_prop_view_members=true,
+     * and user must be a member of the group.
+     * @param group Group object
+     * @param userRef user ref string
+     * @return true if the user can access group member list for the provided group, false otherwise.
+     */
+    private boolean userHasGroupAccess(Group group, String userRef) {
+        return group != null && Boolean.TRUE.toString().equals(group.getProperties().getProperty(Group.GROUP_PROP_VIEW_MEMBERS))
+                && group.getMember(developerHelperService.getUserIdFromRef(userRef)) != null;
     }
 
     /**

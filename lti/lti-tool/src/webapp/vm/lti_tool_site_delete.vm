@@ -1,0 +1,22 @@
+<div class="portletBody">
+
+    <h3>$tlang.getString("tool.site.delete")</h3>
+
+    #if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div>#end
+
+    <form action="#toolForm("")" method="post" name="customizeForm" >
+
+        $formOutput
+
+        <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+        <input type="hidden" name="id" value="$toolSite.get("id")" />
+
+        <p class="act">
+            <input type="submit" accesskey ="d" class="active" name="$doToolAction"
+                   value="$tlang.getString('gen.delete')" />
+            <input type="submit" accesskey ="x" name="$doCancel" value="$tlang.getString('gen.cancel')"
+                   onclick="location = '$sakai_ActionURL.setPanel("ToolSiteDeploy")&tool_id=$toolSite.get("tool_id")';return false;">
+        </p>
+    </form>
+
+</div>

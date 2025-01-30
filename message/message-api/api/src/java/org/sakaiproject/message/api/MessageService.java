@@ -76,22 +76,29 @@ public interface MessageService extends EntityProducer, EntitySummary
 	/** The Reference type for a messgae. */
 	public static final String REF_TYPE_MESSAGE = "msg";
 
-	/**
-	 * Return a list of all the defined channels.
-	 * 
-	 * @return a list of MessageChannel (or extension) objects (may be empty).
-	 * @deprecated since 8 April 2014 (Sakai 10), this is not useful (why would you want all channels in the system) and would perform very badly, use getChannelIds(String context) OR getChannel(String ref) instead
-	 */
-	public List<MessageChannel> getChannels();
+	public static final String EVENT_MOTD_NEW = "motd.new";
+
+	public static final String RELEASE_DATE = "releaseDate";
+
+	public static final String RETRACT_DATE = "retractDate";
 
 	/**
 	 * check permissions for getChannel().
-	 * 
+	 *
 	 * @param ref
 	 *        The channel reference.
 	 * @return true if the user is allowed to getChannel(channelId), false if not.
 	 */
 	public boolean allowGetChannel(String ref);
+
+    /**
+     *
+     * Is this message viewable by the current user?
+     *
+     * @param message The message to check
+     * @return True if the current user can view the message, false otherwise.
+     */
+    public boolean isMessageViewable(Message message);
 
 	/**
 	 * Return a specific channel.

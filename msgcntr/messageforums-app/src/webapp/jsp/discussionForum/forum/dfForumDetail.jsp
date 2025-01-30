@@ -11,17 +11,13 @@
 		<script>includeLatestJQuery("msgcntr");</script>
 		<script src="/messageforums-tool/js/sak-10625.js"></script>
 		<script src="/messageforums-tool/js/forum.js"></script>
-		<script src="/webcomponents/rubrics/sakai-rubrics-utils.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
-		<script type="module" src="/webcomponents/rubrics/rubric-association-requirements.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
+		<script type="module" src="/webcomponents/bundles/rubric-association-requirements.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
 		<script>
 			$(document).ready(function() {
 				var menuLink = $('#forumsMainMenuLink');
 				var menuLinkSpan = menuLink.closest('span');
 				menuLinkSpan.addClass('current');
 				menuLinkSpan.html(menuLink.text());
-
-				setupLongDesc();
-
 			});
 		</script>
 <!--jsp/discussionForum/forum/dfForumDetail.jsp-->
@@ -221,7 +217,7 @@
 					<h:panelGroup layout="block" id="fullTopicDescription" styleClass="textPanel fullTopicDescription display-none">
 						<h:outputText escape="false" value="#{topic.topic.extendedDescription}" />
 
-						<div class="table-responsive">
+						<div class="table">
 							<h:panelGroup rendered="#{!empty topic.attachList}">
 								<h:dataTable styleClass="table table-hover table-striped table-bordered attachListTable" value="#{topic.attachList}" var="eachAttach" border="0" cellpadding="3" cellspacing="0" columnClasses="attach,bogus">
 									<h:column>

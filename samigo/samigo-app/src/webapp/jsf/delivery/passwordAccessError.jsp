@@ -56,8 +56,9 @@
             type="org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryActionListener" />
        </h:commandButton>
    <f:verbatim></p></f:verbatim>
-   <h:outputLink rendered="#{delivery.actionString == 'takeAssessmentViaUrl'}" value="#{delivery.getPublishedURL()}">
-       <h:outputText value="#{deliveryMessages.button_return}" />
+   <h:outputLink styleClass="button" value="#{delivery.publishedURL}"
+       rendered="#{delivery.actionString == 'takeAssessmentViaUrl'}">
+     <h:outputText value="#{deliveryMessages.button_return}" />
    </h:outputLink>
 
  </h:form>

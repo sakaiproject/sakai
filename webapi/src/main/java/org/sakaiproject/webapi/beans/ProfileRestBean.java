@@ -16,6 +16,7 @@ package org.sakaiproject.webapi.beans;
 public class ProfileRestBean {
 
     public String name;
+    public String nickname;
     public String pronouns;
     public String email;
     public String pronunciation;

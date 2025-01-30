@@ -55,6 +55,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.AgentDataIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedItemFacade;
+import org.sakaiproject.tool.assessment.facade.QuestionPoolAccessFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.ItemService;
@@ -66,6 +67,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AnswerBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionFormulaBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionGlobalVariableBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionVariableBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ImageMapItemBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
@@ -187,9 +189,9 @@ public class ItemModifyListener implements ActionListener
               boolean authorized = false;
               poolloop:
               for (Long poolId : poolIds) {
-                  List agents = qpdelegate.getAgentsWithAccess(poolId);
-                  for (Object agent : agents) {
-                      if (currentUserId.equals(((AgentDataIfc) agent).getIdString())) {
+                  List<QuestionPoolAccessFacade> agents = qpdelegate.getAgentsWithAccess(poolId);
+                  for (QuestionPoolAccessFacade agent: agents) {
+                      if (currentUserId.equals(agent.getAgentId())) {
                           authorized = true;
                           break poolloop;
                       }
@@ -743,8 +745,17 @@ public class ItemModifyListener implements ActionListener
 
     CalculatedQuestionBean calcQuestionBean = new CalculatedQuestionBean();
     String instructions = itemfacade.getInstruction();
+    String corrFeedback = itemfacade.getCorrectItemFeedback();
+    if (corrFeedback == null ) {
+        corrFeedback = "";
+    }
+    String incorrFeedback = itemfacade.getInCorrectItemFeedback();
+    if (incorrFeedback == null ) {
+        incorrFeedback = "";
+    }
     GradingService gs = new GradingService();
     List<String> variables = gs.extractVariables(instructions);
+    List<String> globalvariables = gs.extractGlobalVariables(instructions);
     List<ItemTextIfc> list = itemfacade.getItemTextArray();
     for (ItemTextIfc itemBean : list) {
       if (variables.contains(itemBean.getText())) {
@@ -775,38 +786,69 @@ public class ItemModifyListener implements ActionListener
             break;
           }
         }
+      } else if (globalvariables.contains(itemBean.getText())) {
+        CalculatedQuestionGlobalVariableBean globalvariableformula = new CalculatedQuestionGlobalVariableBean();
+        List<AnswerIfc> answers = itemBean.getAnswerArray();
+        for (AnswerIfc answer : answers) {
+          if (answer.getIsCorrect()) {
+            globalvariableformula.setName(itemBean.getText());
+            globalvariableformula.setSequence(itemBean.getSequence());
+            globalvariableformula.setText(answer.getText());
+            calcQuestionBean.addGlobalVariable(globalvariableformula);
+            break;
+          }
+        }
       } else {
         CalculatedQuestionFormulaBean formula = new CalculatedQuestionFormulaBean();
         List<AnswerIfc> answers = itemBean.getAnswerArray();
         for (AnswerIfc answer : answers) {
           if (answer.getIsCorrect()) {
             String text = answer.getText();
-            formula.setName(itemBean.getText());
-            formula.setSequence(itemBean.getSequence());
-            String[] partsText = text.split("\\|");
-            if (partsText != null && partsText.length == 2) {
-              String formulaStr = partsText[0];
-              formula.setText(formulaStr);
-              String[] partsTolDp = partsText[1].split(",");
-              if (partsTolDp != null && partsTolDp.length == 2) {
-                String tolerance = partsTolDp[0];
-                formula.setTolerance(tolerance);
-                String decimalPlaces = partsTolDp[1];
-                formula.setDecimalPlaces(decimalPlaces);
-              } else {
-                log.error("Calculated question answer text {} is not formatted correctly.", text);
-              }
-            } else {
-              log.error("Calculated question answer text {} is not formatted correctly.", text);
+            if (text.endsWith("|0,0") || !text.contains("|")) {
+                // could be a global variable which not appear on the instructions
+                // a formula would have the format |0.0,0
+                // !text.contains("|") because there are previous global variables without |0,0
+                CalculatedQuestionGlobalVariableBean globalvariableformula = new CalculatedQuestionGlobalVariableBean();
+                globalvariableformula.setName(itemBean.getText());
+                globalvariableformula.setSequence(itemBean.getSequence());
+                globalvariableformula.setAddedButNotExtracted(itemBean.isAddedButNotExtracted());
+                globalvariableformula.setText(answer.getText());
+                calcQuestionBean.addGlobalVariable(globalvariableformula);
+                break;
             }
-            calcQuestionBean.addFormula(formula);
-            break;
+            else {
+                // is a formula
+                formula.setName(itemBean.getText());
+                formula.setSequence(itemBean.getSequence());
+                String[] partsText = text.split("\\|");
+                if (partsText != null && partsText.length >= 2) {
+                  String lastpart = partsText[partsText.length-1];
+                  int index = StringUtils.indexOf(text, lastpart);
+                  String formulaStr = text.substring(0, index-1);
+                  formula.setText(formulaStr);
+                  String[] partsTolDp = lastpart.split(",");
+                  if (partsTolDp != null && partsTolDp.length == 2) {
+                    String tolerance = partsTolDp[0];
+                    formula.setTolerance(tolerance);
+                    String decimalPlaces = partsTolDp[1];
+                    formula.setDecimalPlaces(decimalPlaces);
+                  } else {
+                    log.error("Calculated question answer text {} is not formatted correctly.", text);
+                  }
+                } else {
+                  log.error("Calculated question answer text {} is not formatted correctly.", text);
+                }
+                calcQuestionBean.addFormula(formula);
+                break;
+            }
           }
         }
       }
     }
     // extract the calculation formulas and populate the calcQuestionBean (we are ignoring the error returns for now)
-    CalculatedQuestionExtractListener.createCalculationsFromInstructions(calcQuestionBean, instructions, gs);
+    CalculatedQuestionExtractListener.createCalculationsFromInstructionsOrFeedback(calcQuestionBean, instructions, gs);
+    CalculatedQuestionExtractListener.createCalculationsFromInstructionsOrFeedback(calcQuestionBean, corrFeedback, gs);
+    CalculatedQuestionExtractListener.createCalculationsFromInstructionsOrFeedback(calcQuestionBean, incorrFeedback, gs);
     CalculatedQuestionExtractListener.validateCalculations(calcQuestionBean, gs);
     bean.setCalculatedQuestion(calcQuestionBean);
   }
@@ -1067,6 +1109,18 @@ public class ItemModifyListener implements ActionListener
        }
 
 
+       if (meta.getLabel().equals(ItemMetaDataIfc.TIMED)){
+           if(StringUtils.isNotBlank(meta.getEntry()) && !meta.getEntry().equalsIgnoreCase("false")){
+               bean.setTimedQuestion(true);
+               try {
+                   bean.setTimeLimit(Integer.valueOf(meta.getEntry()));
+               }catch(NumberFormatException ex) {
+                   bean.setTimeLimit(0); 
+               }
+           } else {
+               bean.setTimedQuestion(false);
+           }
+        }
      }
     
     if (!hasSetPartId && itemfacade != null && itemfacade instanceof PublishedItemFacade &&  

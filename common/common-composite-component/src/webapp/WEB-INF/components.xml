@@ -35,6 +35,9 @@
           <ref
             bean="org.sakaiproject.component.common.manager.PersistableHelper" />
         </property>
+        <property name="idManager">
+          <ref bean="org.sakaiproject.id.api.IdManager" />
+        </property>
       </bean>
     </property>
     <property name="transactionAttributes">
@@ -73,6 +76,9 @@
       <property name="photoService">
         <ref bean="org.sakaiproject.api.common.edu.person.PhotoService"/>
       </property>
+         <property name="idManager">
+          <ref bean="org.sakaiproject.id.api.IdManager" />
+        </property>
       </bean>
     </property>
 

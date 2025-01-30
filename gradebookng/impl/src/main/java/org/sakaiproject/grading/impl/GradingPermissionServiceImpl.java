@@ -29,10 +29,10 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.grading.api.GraderPermission;
+import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.grading.api.GradingPermissionService;
 import org.sakaiproject.grading.api.GradingPersistenceManager;
 import org.sakaiproject.grading.api.GradingService;
-import org.sakaiproject.grading.api.GradingCategoryType;
 import org.sakaiproject.grading.api.PermissionDefinition;
 import org.sakaiproject.grading.api.model.Category;
 import org.sakaiproject.grading.api.model.Gradebook;
@@ -153,47 +153,49 @@ public class GradingPermissionServiceImpl implements GradingPermissionService {
 
         for (Entry<String, String> entry : studentMapForGroups.entrySet()) {
             String key = entry.getKey();
-            if ((studentMap.containsKey(key) && studentMap.get(key).equalsIgnoreCase(GradingService.viewPermission))
+            if ((studentMap.containsKey(key) && studentMap.get(key).equalsIgnoreCase(GradingConstants.viewPermission))
                     || !studentMap.containsKey(key)) {
                 studentMap.put(key, entry.getValue());
             }
         }
     }
 
-    public Map<String, String> getStudentsForItem(Long gradebookId, String userId, List<String> studentIds, GradingCategoryType cateType, Long categoryId, List<CourseSection> courseSections)
+    public Map<String, String> getStudentsForItem(Long gradebookId, String userId, List<String> studentIds, Integer cateType, Long categoryId, List<CourseSection> courseSections)
         throws IllegalArgumentException {
 
         if (gradebookId == null || userId == null) {
             throw new IllegalArgumentException("Null parameter(s) in GradebookPermissionServiceImpl.getStudentsForItem");
         }
 
-        if (cateType != GradingCategoryType.ONLY_CATEGORY && cateType != GradingCategoryType.WEIGHTED_CATEGORY && cateType != GradingCategoryType.NO_CATEGORY) {
+        if (!Objects.equals(cateType, GradingConstants.CATEGORY_TYPE_ONLY_CATEGORY)
+                && !Objects.equals(cateType, GradingConstants.CATEGORY_TYPE_WEIGHTED_CATEGORY)
+                && !Objects.equals(cateType, GradingConstants.CATEGORY_TYPE_NO_CATEGORY)) {
             throw new IllegalArgumentException("Invalid category type in GradebookPermissionServiceImpl.getStudentsForItem");
         }
 
         if (studentIds != null) {
             Map<String, List<String>> sectionIdStudentIdsMap = getSectionIdStudentIdsMap(courseSections, studentIds);
-            if (cateType == GradingCategoryType.NO_CATEGORY) {
+            if (Objects.equals(cateType, GradingConstants.CATEGORY_TYPE_NO_CATEGORY)) {
                 List<Permission> perms = getPermissionsForUserAnyGroup(gradebookId, userId);
 
                 Map<String, String> studentMap = new HashMap<>();
-                if (perms.size() > 0) {
+                if (!perms.isEmpty()) {
                     boolean view = false;
                     boolean grade = false;
                     for (Permission perm : perms) {
-                        if (perm != null && perm.getFunctionName().equalsIgnoreCase(GradingService.gradePermission)) {
+                        if (perm != null && perm.getFunctionName().equalsIgnoreCase(GradingConstants.gradePermission)) {
                             grade = true;
                             break;
                         }
-                        if (perm != null && perm.getFunctionName().equalsIgnoreCase(GradingService.viewPermission)) {
+                        if (perm != null && perm.getFunctionName().equalsIgnoreCase(GradingConstants.viewPermission)) {
                             view = true;
                         }
                     }
                     for (String studentId : studentIds) {
-                        if (grade == true) {
-                            studentMap.put(studentId, GradingService.gradePermission);
-                        } else if (view == true) {
-                            studentMap.put(studentId, GradingService.viewPermission);
+                        if (grade) {
+                            studentMap.put(studentId, GradingConstants.gradePermission);
+                        } else if (view) {
+                            studentMap.put(studentId, GradingConstants.viewPermission);
                         }
                     }
                 }
@@ -209,23 +211,23 @@ public class GradingPermissionServiceImpl implements GradingPermissionService {
                 List<Permission> perms = getPermissionsForUserAnyGroupForCategory(gradebookId, userId, cateList);
 
                 Map<String, String> studentMap = new HashMap<>();
-                if (perms.size() > 0) {
+                if (!perms.isEmpty()) {
                     boolean view = false;
                     boolean grade = false;
                     for (Permission perm : perms) {
-                        if (perm != null && perm.getFunctionName().equalsIgnoreCase(GradingService.gradePermission)) {
+                        if (perm != null && perm.getFunctionName().equalsIgnoreCase(GradingConstants.gradePermission)) {
                             grade = true;
                             break;
                         }
-                        if (perm != null && perm.getFunctionName().equalsIgnoreCase(GradingService.viewPermission)) {
+                        if (perm != null && perm.getFunctionName().equalsIgnoreCase(GradingConstants.viewPermission)) {
                             view = true;
                         }
                     }
                     for (String studentId : studentIds) {
-                        if (grade == true) {
-                            studentMap.put(studentId, GradingService.gradePermission);
-                        } else if (view == true) {
-                            studentMap.put(studentId, GradingService.viewPermission);
+                        if (grade) {
+                            studentMap.put(studentId, GradingConstants.gradePermission);
+                        } else if (view) {
+                            studentMap.put(studentId, GradingConstants.viewPermission);
                         }
                     }
                 }
@@ -252,7 +254,7 @@ public class GradingPermissionServiceImpl implements GradingPermissionService {
         return null;
     }
 
-    public Map<String, String> getStudentsForItem(String gradebookUid, String userId, List<String> studentIds, GradingCategoryType cateType, Long categoryId, List<CourseSection> courseSections)
+    public Map<String, String> getStudentsForItem(String gradebookUid, String userId, List<String> studentIds, Integer cateType, Long categoryId, List<CourseSection> courseSections)
         throws IllegalArgumentException {
 
         if (gradebookUid == null || userId == null) {
@@ -351,9 +353,9 @@ public class GradingPermissionServiceImpl implements GradingPermissionService {
         Map<String, String> permMap = new HashMap<>();
         for (Permission perm : perms) {
             if (perm != null) {
-                if (permMap.containsKey(perm.getGroupId()) && permMap.get(perm.getGroupId()).equalsIgnoreCase(GradingService.viewPermission)) {
-                    if (perm.getFunctionName().equalsIgnoreCase(GradingService.gradePermission)) {
-                        permMap.put(perm.getGroupId(), GradingService.gradePermission);
+                if (permMap.containsKey(perm.getGroupId()) && permMap.get(perm.getGroupId()).equalsIgnoreCase(GradingConstants.viewPermission)) {
+                    if (perm.getFunctionName().equalsIgnoreCase(GradingConstants.gradePermission)) {
+                        permMap.put(perm.getGroupId(), GradingConstants.gradePermission);
                     }
                 } else if (!permMap.containsKey(perm.getGroupId())) {
                     permMap.put(perm.getGroupId(), perm.getFunctionName());
@@ -369,9 +371,9 @@ public class GradingPermissionServiceImpl implements GradingPermissionService {
                     List<String> sectionMembers = entry.getValue();
 
                     if (sectionMembers != null && sectionMembers.contains(studentId) && permMap.containsKey(grpId)) {
-                        if (studentMap.containsKey(studentId) && studentMap.get(studentId).equalsIgnoreCase(GradingService.viewPermission)) {
-                            if (permMap.get(grpId).equalsIgnoreCase(GradingService.gradePermission)) {
-                                studentMap.put(studentId, GradingService.gradePermission);
+                        if (studentMap.containsKey(studentId) && studentMap.get(studentId).equalsIgnoreCase(GradingConstants.viewPermission)) {
+                            if (permMap.get(grpId).equalsIgnoreCase(GradingConstants.gradePermission)) {
+                                studentMap.put(studentId, GradingConstants.gradePermission);
                             }
                         } else if (!studentMap.containsKey(studentId)) {
                             studentMap.put(studentId, permMap.get(grpId));
@@ -388,10 +390,10 @@ public class GradingPermissionServiceImpl implements GradingPermissionService {
         Boolean grade = false;
         Boolean view = false;
         for (Permission perm : perms) {
-            if (perm.getFunctionName().equalsIgnoreCase(GradingService.gradePermission)) {
+            if (perm.getFunctionName().equalsIgnoreCase(GradingConstants.gradePermission)) {
                 grade = true;
                 break;
-            } else if (perm.getFunctionName().equalsIgnoreCase(GradingService.viewPermission)) {
+            } else if (perm.getFunctionName().equalsIgnoreCase(GradingConstants.viewPermission)) {
                 view = true;
             }
         }
@@ -401,9 +403,9 @@ public class GradingPermissionServiceImpl implements GradingPermissionService {
         if (grade || view) {
             for (String studentId : studentIds) {
                 if (grade) {
-                    studentMap.put(studentId, GradingService.gradePermission);
+                    studentMap.put(studentId, GradingConstants.gradePermission);
                 } else if (view) {
-                    studentMap.put(studentId, GradingService.viewPermission);
+                    studentMap.put(studentId, GradingConstants.viewPermission);
                 }
             }
         }
@@ -415,10 +417,10 @@ public class GradingPermissionServiceImpl implements GradingPermissionService {
         Boolean grade = false;
         Boolean view = false;
         for (Permission perm : perms) {
-            if (perm.getFunctionName().equalsIgnoreCase(GradingService.gradePermission)) {
+            if (perm.getFunctionName().equalsIgnoreCase(GradingConstants.gradePermission)) {
                 grade = true;
                 break;
-            } else if (perm.getFunctionName().equalsIgnoreCase(GradingService.viewPermission)) {
+            } else if (perm.getFunctionName().equalsIgnoreCase(GradingConstants.viewPermission)) {
                 view = true;
             }
         }
@@ -428,9 +430,9 @@ public class GradingPermissionServiceImpl implements GradingPermissionService {
         if (grade || view) {
             for (GradebookAssignment assign : assignmentList) {
                 if (grade && assign != null) {
-                    assignMap.put(assign.getId(), GradingService.gradePermission);
+                    assignMap.put(assign.getId(), GradingConstants.gradePermission);
                 } else if (view && assign != null) {
-                    assignMap.put(assign.getId(), GradingService.viewPermission);
+                    assignMap.put(assign.getId(), GradingConstants.viewPermission);
                 }
             }
         }
@@ -445,26 +447,26 @@ public class GradingPermissionServiceImpl implements GradingPermissionService {
 
         List<Category> cateList = new ArrayList<>(catIdCategoryMap.values());
 
-        if (gradebook.getCategoryType() == GradingCategoryType.NO_CATEGORY) {
+        if (Objects.equals(gradebook.getCategoryType(), GradingConstants.CATEGORY_TYPE_NO_CATEGORY)) {
 
             Map<Long, String> assignMap = new HashMap<>();
             if (permsForUserAnyGroup != null && permsForUserAnyGroup.size() > 0) {
                 boolean view = false;
                 boolean grade = false;
                 for (Permission perm : permsForUserAnyGroup) {
-                    if (perm != null && perm.getFunctionName().equalsIgnoreCase(GradingService.gradePermission)) {
+                    if (perm != null && perm.getFunctionName().equalsIgnoreCase(GradingConstants.gradePermission)) {
                         grade = true;
                         break;
                     }
-                    if (perm != null && perm.getFunctionName().equalsIgnoreCase(GradingService.viewPermission)) {
+                    if (perm != null && perm.getFunctionName().equalsIgnoreCase(GradingConstants.viewPermission)) {
                         view = true;
                     }
                 }
                 for (GradebookAssignment as : assignments) {
-                    if (grade == true && as != null) {
-                        assignMap.put(as.getId(), GradingService.gradePermission);
-                    } else if (view == true && as != null) {
-                        assignMap.put(as.getId(), GradingService.viewPermission);
+                    if (grade && as != null) {
+                        assignMap.put(as.getId(), GradingConstants.gradePermission);
+                    } else if (view && as != null) {
+                        assignMap.put(as.getId(), GradingConstants.viewPermission);
                     }
                 }
             }
@@ -473,8 +475,7 @@ public class GradingPermissionServiceImpl implements GradingPermissionService {
                 Map<Long, String> assignsMapForGroups = filterPermissionForGrader(allPermsForUser, studentId, assignments, sectionIdStudentIdsMap);
                 for (Map.Entry<Long, String> entry : assignsMapForGroups.entrySet()) {
                     Long key = entry.getKey();
-                    if ((assignMap.containsKey(key) && assignMap.get(key).equalsIgnoreCase(GradingService.viewPermission))
-                            || !assignMap.containsKey(key)) {
+                    if (!assignMap.containsKey(key) || assignMap.get(key).equalsIgnoreCase(GradingConstants.viewPermission)) {
                         assignMap.put(key, entry.getValue());
                     }
                 }
@@ -492,9 +493,9 @@ public class GradingPermissionServiceImpl implements GradingPermissionService {
                                         if (as != null) {
                                             Long assignId = as.getId();
                                             if (as.getCategory() != null) {
-                                                if (assignMap.containsKey(assignId) && assignMap.get(assignId).equalsIgnoreCase(GradingService.viewPermission)) {
-                                                    if (perm.getFunctionName().equalsIgnoreCase(GradingService.gradePermission)) {
-                                                        assignMap.put(assignId, GradingService.gradePermission);
+                                                if (assignMap.containsKey(assignId) && assignMap.get(assignId).equalsIgnoreCase(GradingConstants.viewPermission)) {
+                                                    if (perm.getFunctionName().equalsIgnoreCase(GradingConstants.gradePermission)) {
+                                                        assignMap.put(assignId, GradingConstants.gradePermission);
                                                     }
                                                 } else if (!assignMap.containsKey(assignId)) {
                                                     assignMap.put(assignId, perm.getFunctionName());
@@ -514,7 +515,7 @@ public class GradingPermissionServiceImpl implements GradingPermissionService {
                 Map<Long, String> assignMapForGroups = filterPermissionForGraderForAllAssignments(permsForUserAnyGroupAnyCategory, assignments);
                 for (Entry<Long, String> entry : assignMapForGroups.entrySet()) {
                     Long key = entry.getKey();
-                    if ((assignMap.containsKey(key) && assignMap.get(key).equalsIgnoreCase(GradingService.viewPermission))
+                    if ((assignMap.containsKey(key) && assignMap.get(key).equalsIgnoreCase(GradingConstants.viewPermission))
                             || !assignMap.containsKey(key)) {
                         assignMap.put(key, entry.getValue());
                     }
@@ -525,7 +526,7 @@ public class GradingPermissionServiceImpl implements GradingPermissionService {
                 Map<Long, String> assignMapForGroups = filterPermissionForGrader(permsForGroupsAnyCategory, studentId, assignments, sectionIdStudentIdsMap);
                 for (Entry<Long, String> entry : assignMapForGroups.entrySet()) {
                     Long key = entry.getKey();
-                    if ((assignMap.containsKey(key) && assignMap.get(key).equalsIgnoreCase(GradingService.viewPermission))
+                    if ((assignMap.containsKey(key) && assignMap.get(key).equalsIgnoreCase(GradingConstants.viewPermission))
                             || !assignMap.containsKey(key)) {
                         assignMap.put(key, entry.getValue());
                     }
@@ -537,7 +538,7 @@ public class GradingPermissionServiceImpl implements GradingPermissionService {
                 if (assignMapForGroups != null) {
                     for (Entry<Long, String> entry : assignMapForGroups.entrySet()) {
                         Long key = entry.getKey();
-                        if ((assignMap.containsKey(key) && assignMap.get(key).equalsIgnoreCase(GradingService.viewPermission))
+                        if ((assignMap.containsKey(key) && assignMap.get(key).equalsIgnoreCase(GradingConstants.viewPermission))
                                 || !assignMap.containsKey(key)) {
                             assignMap.put(key, entry.getValue());
                         }
@@ -580,10 +581,14 @@ public class GradingPermissionServiceImpl implements GradingPermissionService {
         // Retrieve all the different permission info needed here so not called repeatedly for each student
         List<Permission> permsForUserAnyGroup = getPermissionsForUserAnyGroup(gradebookId, userId);
         List<Permission> allPermsForUser = getPermissionsForUser(gradebookId, userId);
-        List<Permission> permsForAnyGroupForCategories = getPermissionsForUserAnyGroupForCategory(gradebookId, userId, categoryIds);
+        List<Permission> permsForAnyGroupForCategories
+            = categoryIds.isEmpty() ? Collections.<Permission>emptyList()
+                    : getPermissionsForUserAnyGroupForCategory(gradebookId, userId, categoryIds);
         List<Permission> permsForUserAnyGroupAnyCategory = getPermissionsForUserAnyGroupAnyCategory(gradebookId, userId);
         List<Permission> permsForGroupsAnyCategory = getPermissionsForUserForGoupsAnyCategory(gradebookId, userId, groupIds);
-        List<Permission> permsForUserForCategories = getPermissionsForUserForCategory(gradebookId, userId, categoryIds);
+        List<Permission> permsForUserForCategories
+            = categoryIds.isEmpty() ? Collections.<Permission>emptyList()
+                    : getPermissionsForUserForCategory(gradebookId, userId, categoryIds);
 
         return getAvailableItemsForStudent(optGradebook.get(), userId, studentId, sectionIdCourseSectionMap, catIdCategoryMap, assignments, permsForUserAnyGroup, allPermsForUser, permsForAnyGroupForCategories, permsForUserAnyGroupAnyCategory, permsForGroupsAnyCategory, permsForUserForCategories, sectionIdStudentIdsMap);
     }
@@ -605,9 +610,9 @@ public class GradingPermissionServiceImpl implements GradingPermissionService {
         Map<String, String> permMap = new HashMap<>();
         for (Permission perm : perms) {
             if (perm != null) {
-                if (permMap.containsKey(perm.getGroupId()) && permMap.get(perm.getGroupId()).equalsIgnoreCase(GradingService.viewPermission)) {
-                    if (perm.getFunctionName().equalsIgnoreCase(GradingService.gradePermission)) {
-                        permMap.put(perm.getGroupId(), GradingService.gradePermission);
+                if (permMap.containsKey(perm.getGroupId()) && permMap.get(perm.getGroupId()).equalsIgnoreCase(GradingConstants.viewPermission)) {
+                    if (perm.getFunctionName().equalsIgnoreCase(GradingConstants.gradePermission)) {
+                        permMap.put(perm.getGroupId(), GradingConstants.gradePermission);
                     }
                 } else if (!permMap.containsKey(perm.getGroupId())) {
                     permMap.put(perm.getGroupId(), perm.getFunctionName());
@@ -624,9 +629,9 @@ public class GradingPermissionServiceImpl implements GradingPermissionService {
                     List<String> sectionMembers = sectionIdStudentIdsMap.get(grpId);
 
                     if (sectionMembers != null && sectionMembers.contains(studentId) && permMap.containsKey(grpId)) {
-                        if (assignmentMap.containsKey(assignId) && assignmentMap.get(assignId).equalsIgnoreCase(GradingService.viewPermission)) {
-                            if (permMap.get(grpId).equalsIgnoreCase(GradingService.gradePermission)) {
-                                assignmentMap.put(assignId, GradingService.gradePermission);
+                        if (assignmentMap.containsKey(assignId) && assignmentMap.get(assignId).equalsIgnoreCase(GradingConstants.viewPermission)) {
+                            if (permMap.get(grpId).equalsIgnoreCase(GradingConstants.gradePermission)) {
+                                assignmentMap.put(assignId, GradingConstants.gradePermission);
                             }
                         } else if (!assignmentMap.containsKey(assignId)) {
                             assignmentMap.put(assignId, permMap.get(grpId));
@@ -654,9 +659,9 @@ public class GradingPermissionServiceImpl implements GradingPermissionService {
                                     List<String> sectionMembers = sectionIdStudentIdsMap.get(grpId);
 
                                     if (sectionMembers != null && sectionMembers.contains(studentId) && as.getCategory() != null) {
-                                        if (assignmentMap.containsKey(assignId) && grpId.equals(perm.getGroupId()) && assignmentMap.get(assignId).equalsIgnoreCase(GradingService.viewPermission)) {
-                                            if (perm.getFunctionName().equalsIgnoreCase(GradingService.gradePermission)) {
-                                                assignmentMap.put(assignId, GradingService.gradePermission);
+                                        if (assignmentMap.containsKey(assignId) && grpId.equals(perm.getGroupId()) && assignmentMap.get(assignId).equalsIgnoreCase(GradingConstants.viewPermission)) {
+                                            if (perm.getFunctionName().equalsIgnoreCase(GradingConstants.gradePermission)) {
+                                                assignmentMap.put(assignId, GradingConstants.gradePermission);
                                             }
                                         } else if (!assignmentMap.containsKey(assignId) && grpId.equals(perm.getGroupId())) {
                                             assignmentMap.put(assignId, perm.getFunctionName());
@@ -767,8 +772,8 @@ public class GradingPermissionServiceImpl implements GradingPermissionService {
 
             Gradebook gradebook = optGradebook.get();
 
-            if (gradebook != null && (gradebook.getCategoryType() == GradingCategoryType.ONLY_CATEGORY ||
-                    gradebook.getCategoryType() == GradingCategoryType.WEIGHTED_CATEGORY)) {
+            if (gradebook != null && (Objects.equals(gradebook.getCategoryType(), GradingConstants.CATEGORY_TYPE_ONLY_CATEGORY)
+                    || Objects.equals(gradebook.getCategoryType(), GradingConstants.CATEGORY_TYPE_WEIGHTED_CATEGORY))) {
                 List<Category> cateList = gradingPersistenceManager.getCategoriesForGradebook(gradebookId);
 
                 perms = getPermissionsForUserForGroup(gradebookId, userId, groupIds);
@@ -821,7 +826,7 @@ public class GradingPermissionServiceImpl implements GradingPermissionService {
                             for (Permission perm : perms) {
                                 if (perm != null && perm.getGroupId().equals(grpId) && perm.getCategoryId() != null && cateIdList.contains(perm.getCategoryId())) {
                                     Map<Long, String> cateMap = studentCateMap.get(studentId);
-                                    if (cateMap.get(perm.getCategoryId()) == null || cateMap.get(perm.getCategoryId()).equals(GradingService.viewPermission)) {
+                                    if (cateMap.get(perm.getCategoryId()) == null || cateMap.get(perm.getCategoryId()).equals(GradingConstants.viewPermission)) {
                                         cateMap.put(perm.getCategoryId(), perm.getFunctionName());
                                     }
                                     studentCateMap.put(studentId, cateMap);
@@ -851,7 +856,7 @@ public class GradingPermissionServiceImpl implements GradingPermissionService {
                             }
                         }
                         if (hasPermissionForCate && permission != null) {
-                            if (studentPermissionMap.get(studentId) == null || studentPermissionMap.get(studentId).equals(GradingService.gradePermission)) {
+                            if (studentPermissionMap.get(studentId) == null || studentPermissionMap.get(studentId).equals(GradingConstants.gradePermission)) {
                                 studentPermissionMap.put(studentId, permission);
                             }
                         } else if (!hasPermissionForCate) {
@@ -878,7 +883,7 @@ public class GradingPermissionServiceImpl implements GradingPermissionService {
                 boolean permissionExistForCate = false;
                 for (Permission perm : perms) {
                     if (perm != null && perm.getCategoryId().equals(cate.getId())) {
-                        if ((cateMap.get(cate.getId()) == null || cateMap.get(cate.getId()).equals(GradingService.viewPermission))) {
+                        if ((cateMap.get(cate.getId()) == null || cateMap.get(cate.getId()).equals(GradingConstants.viewPermission))) {
                             cateMap.put(cate.getId(), perm.getFunctionName());
                         }
                         permissionExistForCate = true;
@@ -893,16 +898,16 @@ public class GradingPermissionServiceImpl implements GradingPermissionService {
         boolean view = false;
         for (Long catId : cateMap.keySet()) {
             String permission = cateMap.get(catId);
-            if (permission != null && permission.equals(GradingService.viewPermission)) {
+            if (permission != null && permission.equals(GradingConstants.viewPermission)) {
                 view = true;
             }
         }
         Map<String, String> studentMap = new HashMap<>();
         for (String studentId : studentIds) {
             if (view) {
-                studentMap.put(studentId, GradingService.viewPermission);
+                studentMap.put(studentId, GradingConstants.viewPermission);
             } else {
-                studentMap.put(studentId, GradingService.gradePermission);
+                studentMap.put(studentId, GradingConstants.gradePermission);
             }
         }
 
@@ -1193,7 +1198,7 @@ public class GradingPermissionServiceImpl implements GradingPermissionService {
 
     private List<Permission> getPermissionsForUserForGoupsAnyCategory(Long gradebookId, String userId, List<String> groupIds) throws IllegalArgumentException {
 
-        if (gradebookId == null || userId == null || groupIds == null || groupIds.isEmpty()) {
+        if (gradebookId == null || userId == null || groupIds == null) {
             throw new IllegalArgumentException("Null parameter(s) in BaseHibernateManager.getPermissionsForUserForGoupsAnyCategory");
         }
 

@@ -22,6 +22,8 @@ package org.sakaiproject.entitybroker.rest;
 
 import junit.framework.TestCase;
 
+import java.util.Locale;
+
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
 import org.sakaiproject.entitybroker.rest.EntityDescriptionManager;
@@ -42,6 +44,7 @@ public class EntityDescriptionManagerTest extends TestCase {
       // setup things
       td = new TestData();
       entityDescriptionManager = new ServiceTestManager(td).entityDescriptionManager;
+      Locale.setDefault(Locale.ENGLISH);
    }
 
    public void testReplacePrefix() {

@@ -21,9 +21,12 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
@@ -31,13 +34,16 @@ import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 import javax.faces.model.SelectItem;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionMetaDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
+import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
@@ -71,7 +77,7 @@ public class EditPartListener
     AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
     isEditPendingAssessmentFlow = author.getIsEditPendingAssessmentFlow();
     String sectionId = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("sectionId");
-
+    
     if (sectionId != null){
 	  sectionBean.setSectionId(sectionId);
     }
@@ -126,8 +132,10 @@ public class EditPartListener
   }
 
   private void populateMetaData(SectionFacade section, SectionBean bean)  {
-    Set metaDataSet= section.getSectionMetaDataSet();
-    Iterator iter = metaDataSet.iterator();
+    Set<SectionMetaDataIfc> metaDataSet= section.getSectionMetaDataSet();
+    // we need to order the labels to pick the n first random selected
+    List<SectionMetaDataIfc> orderedMetadata = metaDataSet.stream().sorted(Comparator.comparing(SectionMetaDataIfc::getLabel)).collect(Collectors.toList());
+
     // reset to null
     bean.setKeyword(null);
     bean.setObjective(null);
@@ -136,8 +144,10 @@ public class EditPartListener
     boolean isPointValueHasOverrided = false;
     boolean isDiscountValueHasOverrided = false;
     FormattedText formattedText = ComponentManager.get(FormattedText.class);
-    while (iter.hasNext()){
-    SectionMetaDataIfc meta= (SectionMetaDataIfc) iter.next();
+    List<String> selectedQuestionsFixed = new ArrayList<>();
+    List<String> selectedPools = new ArrayList<>();
+    int selectedCount = 0;
+    for (SectionMetaDataIfc meta : orderedMetadata) {
        if (meta.getLabel().equals(SectionMetaDataIfc.OBJECTIVES)){
          bean.setObjective(formattedText.convertFormattedTextToPlaintext(meta.getEntry()));
        }
@@ -158,6 +168,31 @@ public class EditPartListener
 
        if (meta.getLabel().equals(SectionDataIfc.POOLID_FOR_RANDOM_DRAW)){
          bean.setSelectedPool(meta.getEntry());
+       }
+
+       if (meta.getLabel().equals(SectionDataIfc.POOLID_FOR_FIXED_AND_RANDOM_DRAW)){
+           bean.setSelectedPoolFixed(meta.getEntry());
+           Long selectedPoolId = Long.parseLong(meta.getEntry());
+           QuestionPoolService qpservice = new QuestionPoolService();
+           String agentId = AgentFacade.getAgentString();
+           QuestionPoolFacade qp = qpservice.getPool(selectedPoolId, agentId);
+           bean.setAllItems(new ArrayList(qp.getQuestions()));
+       }
+
+       if (meta.getLabel().startsWith(SectionDataIfc.FIXED_QUESTION_IDS)){
+           selectedQuestionsFixed.add(meta.getEntry());
+       }
+
+       if (meta.getLabel().equals(SectionDataIfc.NUM_QUESTIONS_FIXED)){
+           bean.setNumberSelectedFixed(meta.getEntry());
+       }
+
+       if (meta.getLabel().startsWith(SectionDataIfc.POOLID_FOR_RANDOM_DRAW)){
+         selectedPools.add(meta.getEntry());
+       }
+
+       if (meta.getLabel().startsWith(SectionDataIfc.RANDOM_POOL_COUNT)){
+         selectedCount = Integer.valueOf(meta.getEntry());
        }
 
        if (meta.getLabel().equals(SectionDataIfc.NUM_QUESTIONS_DRAWN)){
@@ -183,7 +218,30 @@ public class EditPartListener
     	   }
     	   bean.setRandomPartDiscount(meta.getEntry());
        }
+       if (meta.getLabel().equals(SectionMetaDataIfc.TIMED)){
+           if(StringUtils.isNotBlank(meta.getEntry()) && !meta.getEntry().equalsIgnoreCase("false")){
+               bean.setTimedSection(true);
+               try {
+                   bean.setTimeLimit(Integer.valueOf(meta.getEntry()));
+               }catch(NumberFormatException ex) {
+                   bean.setTimeLimit(0); 
+               }
+           } else {
+               bean.setTimedSection(false);
+           }
+       }
     }
+    
+    if (!selectedQuestionsFixed.isEmpty()) {
+       bean.setFixedQuestionIds(selectedQuestionsFixed.toArray(String[]::new));
+    }
+    
+    if (selectedPools.size() > 1) {
+        bean.setSelectedPoolsMultiple(selectedPools.subList(0, selectedCount).toArray(String[]::new));// metadata are ordered
+    } else {
+        bean.setSelectedPoolsMultiple(null);
+    }
+
     if (!isRandomizationTypeSet) {
  	   bean.setRandomizationType(SectionDataIfc.PER_SUBMISSION);
     }

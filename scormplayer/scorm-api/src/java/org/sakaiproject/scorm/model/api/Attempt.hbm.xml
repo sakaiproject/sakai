@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping default-cascade="all" package="org.sakaiproject.scorm.model.api" default-lazy="false">
+
+	<class name="org.sakaiproject.scorm.model.api.Attempt" table="SCORM_ATTEMPT_T">
+		<id name="id" column="ATTEMPT_ID" type="long">
+			<generator class="native">
+				<param name="sequence">SCORM_UID_S</param>
+			</generator>
+		</id>
+
+		<property name="contentPackageId" column="CONTENT_PACKAGE_ID" />
+		<property name="courseId" column="COURSE_ID" />
+		<property name="learnerId" column="LEARNER_ID" />
+		<property name="learnerName" column="LEARNER_NAME" />
+		<property name="attemptNumber" column="ATTEMPT_NUMBER" />
+		<property name="beginDate" column="CREATED_ON" />
+		<property name="lastModifiedDate" column="MODIFIED_ON" />
+		<property name="suspended" column="IS_SUSPENDED" />
+		<property name="notExited" column="IS_NOT_EXITED" />
+
+		<map name="scoDataManagerMap" table="SCORM_MAP_SCO_DATAMANAGER_T">
+			<key column="ATTEMPT_ID"/>
+			<map-key column="SCO_ID" type="string" />
+			<element column="DATAMANAGER_ID" type="long" />
+		</map>
+	</class>
+
+</hibernate-mapping>

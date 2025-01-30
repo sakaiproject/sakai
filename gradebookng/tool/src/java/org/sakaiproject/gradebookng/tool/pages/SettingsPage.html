@@ -8,15 +8,15 @@
 	<div class="row">
 		<div class="col-sm-12">
 			<h2><wicket:message key="settingspage.main.heading">Gradebook Setup</wicket:message></h2>
-			<div class="pull-right">
-				<a wicket:id="expandAll"><wicket:message key="button.settingsexpandall">Expand All</wicket:message></a>
-				<a wicket:id="collapseAll"><wicket:message key="button.settingscollapseall">Collapse All</wicket:message></a>
+			<div class="pull-right mb-2">
+				<button class="btn-link" id="gb-settings-expand-all"><wicket:message key="button.settingsexpandall">Expand All</wicket:message></button>
+				<button class="btn-link" id="gb-settings-collapse-all"><wicket:message key="button.settingscollapseall">Collapse All</wicket:message></button>
 			</div>
 		</div>
 	</div>
 
 	<form wicket:id="form" id="gradebookSettings">
-		<div class="panel-group sakai-accordion" id="settingsAccordion" role="tablist" aria-multiselectable="true">
+		<div class="accordion" id="settingsAccordion" aria-multiselectable="true">
 			<wicket:container wicket:id="gradeEntryPanel" />
 			<wicket:container wicket:id="gradeReleasePanel" />
 			<wicket:container wicket:id="statisticsPanel" />

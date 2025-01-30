@@ -43,7 +43,7 @@ This section contains the options for grading this assignment, including rubrics
 		</select>
 	</div>
 
-	<div id="assignmentGradingPointsPanel" class="well" #if($value_GradeType != 3 && $value_GradeType != 1)style="display:none;"#end >
+	<div id="assignmentGradingPointsPanel" class="card mb-3 p-3" #if($value_GradeType != 3 && $value_GradeType != 1)style="display:none;"#end >
 		## enable the maxfield when it is points grade type
 		<div class="form-group form-required">
 			<label for="$name_GradePoints" class="control-label">$tlang.getString("gen.forpoi")</label>
@@ -55,20 +55,20 @@ This section contains the options for grading this assignment, including rubrics
             <sakai-rubric-association
                 site-id="$siteId"
                 dont-associate-label="$tlang.getString("dont.associate.label")"
-                dont-associate-value="0"
                 associate-label="$tlang.getString("associate.label")"
-                associate-value="1"
+                tool-id="sakai.assignment.grades"
                 #if("$!rubric_association" != "")
                     association='$rubric_association'
-                #else
-                    #if("$!assignment.Id" != "")
-                        entity-id="$assignment.Id"
-                    #end
-                    tool-id="sakai.assignment.grades"
+                #elseif("$!assignment.Id" != "")
+                    entity-id="$assignment.Id"
                 #end
                 fine-tune-points="$tlang.getString("option.pointsoverride")"
                 hide-student-preview="$tlang.getString("option.studentpreview")"
-            >
+                student-self-report="$tlang.getString("option.selfreport")"
+                student-self-report-mode-0="$tlang.getString("option.selfreport.must")"
+                student-self-report-mode-1="$tlang.getString("option.selfreport.partialmust")"
+                student-self-report-mode-2="$tlang.getString("option.selfreport.notamust")"
+                show-self-report-check="true">
             </sakai-rubric-association>
         </div>
 
@@ -130,22 +130,14 @@ This section contains the options for grading this assignment, including rubrics
 		</div>
 
 		#if ($allowPeerAssessment)
-			#set($groupAssignment = false)
-			#if ($value_AssignTo == $value_AssignTo_Groups && $!groupsList && !$selectedGroupsNotFound)
-				#set($groupAssignment = true)
-			#end
 			<div class="peerAssessmentContainer form-group" id="peerAssessmentContainer" #if ($value_SubmissionType == 6) style = "display:none"#end>
 				<div class="checkbox">
 					<label id="peerAssessmentCheckboxLabel" for="usePeerAssessment">
 						<input id="usePeerAssessment" name="$name_UsePeerAssessment" type="checkbox" value="true"
 							#if ($!value_UsePeerAssessment.equals("true")) checked="checked" #end
-							#if ($groupAssignment) disabled="disabled" #end
 							onclick="ASN_INE.togglePeerAssessment(this)"
 						/>
 						$tlang.getString("peerAssessmentUse")
-						<span id="peerGroupAsnWarn" style="display:#if($groupAssignment)block#else none#end;">
-							$tlang.getString("peerassessment.warn.nogroup")
-						</span>
 					</label>
 				</div>
 				#set($displayPeerOptions = "none")
@@ -156,24 +148,14 @@ This section contains the options for grading this assignment, including rubrics
 
 					<div id="peerperiod-finish">
 						<label for="new_assignment_peerperiod">$tlang.getString("peerassessment.periodfinishes")</label>
-						<input type="text" id="new_assignment_peerperiod" name="new_assignment_peerperiod" class="datepicker" value="">
+						<sakai-date-picker
+							id="new_assignment_peerperiod"
+							label="$tlang.getString("peerassessment.periodfinishes")"
+							hidden-prefix="new_assignment_peerperiod_"
+							iso-date="$value_PeerPeriodYear$H$value_PeerPeriodMonth$H$value_PeerPeriodDay$T$value_PeerPeriodHour:$value_PeerPeriodMin"
+							add-hidden-fields>
+						</sakai-date-picker>
 					</div>
-
-					<script type="text/javascript">
-						localDatePicker({
-							input:'#new_assignment_peerperiod',
-							useTime:1,
-							val:"$value_PeerPeriodYear$H$value_PeerPeriodMonth$H$value_PeerPeriodDay $value_PeerPeriodHour:$value_PeerPeriodMin",
-							parseFormat: 'YYYY-MM-DD HH:mm',
-							ashidden:{
-								month:"$name_PeerPeriodMonth",
-								day:"$name_PeerPeriodDay",
-								year:"$name_PeerPeriodYear",
-								hour:"$name_PeerPeriodHour",
-								minute:"$name_PeerPeriodMin"
-							}
-						});
-					</script>
 					##Anonymous Eval
 					#if ($!value_PeerAssessmentAnonEval)
 						<input id="$name_PeerAssessmentAnonEval" name="$name_PeerAssessmentAnonEval" type="checkbox" value="true" checked="checked"/>

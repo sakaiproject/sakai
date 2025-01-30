@@ -17,12 +17,16 @@ package org.sakaiproject.conversations.api.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Index;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import lombok.EqualsAndHashCode;
 import org.sakaiproject.springframework.data.PersistableEntity;
 
 import lombok.Getter;
@@ -34,6 +38,7 @@ import lombok.Setter;
     indexes = { @Index(name = "conv_topic_status_topic_user_idx", columnList = "TOPIC_ID, USER_ID") })
 @Getter
 @Setter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class TopicStatus implements PersistableEntity<Long> {
 
     @Id
@@ -41,12 +46,12 @@ public class TopicStatus implements PersistableEntity<Long> {
     @Column(name = "ID")
     private Long id;
 
-    @Column(name = "SITE_ID", nullable = false)
-    private String siteId;
+    @EqualsAndHashCode.Include
+    @JoinColumn(name = "TOPIC_ID")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private ConversationsTopic topic;
 
-    @Column(name = "TOPIC_ID", length = 36, nullable = false)
-    private String topicId;
-
+    @EqualsAndHashCode.Include
     @Column(name = "USER_ID", length = 99, nullable = false)
     private String userId;
 
@@ -62,13 +67,15 @@ public class TopicStatus implements PersistableEntity<Long> {
     @Column(name = "VIEWED")
     private Boolean viewed = Boolean.FALSE;
 
+    @Column(name = "UPVOTED")
+    private Boolean upvoted = Boolean.FALSE;
+
     public TopicStatus() {
     }
 
-    public TopicStatus(String siteId, String topicId, String userId) {
+    public TopicStatus(ConversationsTopic topic, String userId) {
 
-        this.siteId = siteId;
-        this.topicId = topicId;
+        this.topic = topic;
         this.userId = userId;
     }
 }

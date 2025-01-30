@@ -1,7 +1,0 @@
-# Ruby Stuff #
-.sass-cache/
-*.css
-*.css.map
-
-# Maven Stuff
-sass/_customization.scss

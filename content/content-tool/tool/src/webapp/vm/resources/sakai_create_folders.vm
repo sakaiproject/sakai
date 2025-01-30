@@ -7,17 +7,19 @@
 	#if ($itemAlertMessage)
 		<div id="resourceAlert" class="sak-banner-error">$tlang.getString("label.alert") $formattedText.escapeHtml($itemAlertMessage)</div>
 	#else
-		<div id="resourceAlert" class="sak-banner-error hide"></div>
+		<div id="resourceAlert" class="sak-banner-error d-none"></div>
 	#end
+	<nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
 	<ol class="breadcrumb">
-		<li><span>
+		<li class="breadcrumb-item"><span>
 		$tlang.getString("gen.location")
 		</span></li>
 		##<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0"  alt="$tlang.getString("gen.folder")" />
 		#foreach ($item in $model.collectionPath)
-			<li><span>$formattedText.escapeHtml($item.name)</span></li>
+			<li class="breadcrumb-item active"><span>$formattedText.escapeHtml($item.name)</span></li>
 		#end
 	</ol>
+	</nav>
 		<p class="instruction">
 			$tlang.getString("instr.folders")
 		</p>
@@ -28,7 +30,7 @@
 		<input type="hidden" name="requestStateId" id="requestStateId" value="$!{requestStateId}" />
 		#set($lastIndex = $pipes.size() - 1)
 		<input type="hidden" name="lastIndex" id="lastIndex" value="$lastIndex" />
-		<div id="fileInputDiv" class="well">
+		<div id="fileInputDiv" class="card mb-3 p-3">
 			#set($i = -1)
 			#foreach($pipe in $pipes)
 				#set($prev = $i)
@@ -37,7 +39,7 @@
 				<div id="contentDiv${DOT}$i" class="container-fluid">
 					<input type="hidden" name="exists${DOT}$i" id="exists${DOT}$i" value="true" />
 					<div class="row">
-						<div class="col-sm-2 col-xs-12">
+						<div class="col-sm-2 col-xs-12 form-control-label">
 							<label for="content${DOT}$i">$tlang.getString("label.folder")</label>
 						</div>
 						<div class="col-md-6 col-sm-4 col-xs-12">

@@ -21,6 +21,7 @@ import java.util.SortedSet;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.RegisteredSecureDeliveryModuleIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SecureDeliveryModuleIfc;
@@ -40,6 +41,7 @@ public interface SecureDeliveryServiceAPI {
 	
 	public enum PhaseStatus { SUCCESS, FAILURE };	
 	public enum Phase { ASSESSMENT_START, ASSESSMENT_FINISH, ASSESSMENT_REVIEW }; 
+	public enum PreDeliveryPhase { ASSESSMENT_PUBLISH }; 
 	 
 	
 	/**
@@ -155,10 +157,20 @@ public interface SecureDeliveryServiceAPI {
 	public Optional<String> getInstructorReviewUrl( String moduleId, Long assessmentId, String studentId );
 
 	public boolean isSecureDeliveryAvaliable( Long publishedAssessmentId );
-
 	/**
 	 * Gets the name of the secure delivery service associated with the specified module
 	 */
 	public Optional<String> getSecureDeliveryServiceNameForModule(String moduleId, Locale locale);
 
+	/**
+	 * Provides the module name for given moduleId and locale
+	 * @return Module name or null for invalid moduleId or module error
+	 */
+	public String getModuleName(String moduleId, Locale locale);
+
+	/**
+	 * Handles module related phases that occur before the delivery
+	 */
+	public PhaseStatus executePreDeliveryPhase(String moduleId, PreDeliveryPhase phase, AssessmentIfc assessment,
+			PublishedAssessmentIfc publishedAssessment, HttpServletRequest request);
 }

@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.Map;
@@ -43,11 +44,13 @@ import org.apache.commons.math3.util.Precision;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTagIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
@@ -60,7 +63,9 @@ import org.sakaiproject.tool.assessment.services.PublishedItemService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
 import org.sakaiproject.tool.assessment.util.AttachmentUtil;
+import org.sakaiproject.tool.assessment.util.ItemCancellationUtil;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 
@@ -85,6 +90,10 @@ public class ItemContentsBean implements Serializable {
 	private String gradingComment;
 
 	private String feedback;
+
+	private String feedbackValue;
+
+	private String incorrectFeedbackValue;
 
 	private String responseId = "2";
 
@@ -183,6 +192,9 @@ public class ItemContentsBean implements Serializable {
 	// Rubrics
 	private String rubricStateDetails;
 	private boolean hasAssociatedRubric;
+	private String associatedRubricType;
+	
+	private Date attemptDate;
 
 	public ItemContentsBean() {
 	}
@@ -647,6 +659,44 @@ public class ItemContentsBean implements Serializable {
 	 */
 	public void setFeedback(String feedback) {
 		this.feedback = feedback;
+	}
+
+	/**
+	 * item level feedback value
+	 *
+	 * @return the item level feedback value
+	 */
+	public String getFeedbackValue() {
+		return feedbackValue;
+	}
+
+	/**
+	 * item level feedback value
+	 *
+	 * @param feedbackValue
+	 *            the item level feedback value
+	 */
+	public void setFeedbackValue(String feedbackValue) {
+		this.feedbackValue = feedbackValue;
+	}
+
+	/**
+	 * item level incorrect feedback value
+	 *
+	 * @return the item level incorrect feedback value
+	 */
+	public String getIncorrectFeedbackValue() {
+		return incorrectFeedbackValue;
+	}
+
+	/**
+	 * item level incorrect feedback value
+	 *
+	 * @param incorrectFeedbackValue
+	 *            the item level incorrect feedback value
+	 */
+	public void setIncorrectFeedbackValue(String incorrectFeedbackValue) {
+		this.incorrectFeedbackValue = incorrectFeedbackValue;
 	}
 
 	/**
@@ -1512,7 +1562,7 @@ public class ItemContentsBean implements Serializable {
 		if(answerKeyToSplit==null){
 			return answerKey;
 		}
-		String keys[] = answerKeyToSplit.split(",");
+		String keys[] = answerKeyToSplit.split(":split:");
 		GradingService gradingService = new GradingService();
 		for(String key: keys){
 			if(!gradingService.extractVariables(key).isEmpty()){
@@ -1682,6 +1732,14 @@ public class ItemContentsBean implements Serializable {
 	public void setHasAssociatedRubric(boolean hasAssociatedRubric) {
 		this.hasAssociatedRubric = hasAssociatedRubric;
 	}
+
+	public String getAssociatedRubricType() {
+		return associatedRubricType;
+	}
+
+	public void setAssociatedRubricType(String associatedRubricType) {
+		this.associatedRubricType = associatedRubricType;
+	}
 	
 	public Long getEffectiveItemId() {
 		AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
@@ -1690,6 +1748,156 @@ public class ItemContentsBean implements Serializable {
 		} else {
 			return itemData.getItemId();
 		}
+	}
+
+	public boolean isCancelled() {
+		return ItemCancellationUtil.isCancelledOrCancellationPending(this.itemData);
+	}
+
+	public boolean isCancellable() {
+		return ItemCancellationUtil.isCancellable(this.itemData);
+	}
+	
+	public boolean isTimedQuestion() {
+		String value = itemData.getItemMetaDataByLabel(ItemMetaDataIfc.TIMED);
+		return (StringUtils.isNotBlank(value) && !StringUtils.equalsIgnoreCase(Boolean.FALSE.toString(), value));
+	}
+	
+	public boolean isTrackingQuestion() {
+		DeliveryBean dbean = (DeliveryBean) ContextUtil.lookupBean("delivery");
+		return dbean.isTrackingQuestions();
+	}
+	
+	public String getTimeLimit() {
+		return itemData.getItemMetaDataByLabel(ItemMetaDataIfc.TIMED);
+	}
+	
+	public String getTimeLimitString() {
+		int seconds = Integer.parseInt(getTimeLimit());
+		int hour = 0;
+		int minute = 0;
+		if (seconds >= 3600) {
+			hour = Math.abs(seconds/3600);
+			minute = Math.abs((seconds-hour*3600)/60);
+		} else {
+			minute = Math.abs(seconds/60);
+		}
+		StringBuilder sb = new StringBuilder();
+		if (hour > 1) {
+			sb.append(hour).append(" ").append(rb.getString("time_limit_hours"));
+		} else if (hour == 1) {
+			sb.append(hour).append(" ").append(rb.getString("time_limit_hour"));
+		}
+		if(sb.length() > 0) {
+			sb.append(" ");
+		}
+		if (minute > 1) {
+			sb.append(minute).append(" ").append(rb.getString("time_limit_minutes"));
+		} else if (minute == 1) {
+			sb.append(minute).append(" ").append(rb.getString("time_limit_minute"));
+		}
+		return sb.toString();
+	}
+	
+	public String getRealTimeLimit() {
+		DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
+		return delivery.getTimeBeforeDueRetract(getTimeLimit(), getAttemptDate());
+	}
+	
+	public Date getAttemptDate() {
+		//if null get from first itemgrading
+		if(attemptDate == null) {
+			attemptDate = getItemGradingDataArray().stream().findFirst().orElse(new ItemGradingData()).getAttemptDate();
+		}
+		return attemptDate;
+	}
+	
+	public void setAttemptDate(Date attemptDate) {
+		this.attemptDate = attemptDate;
+	}
+	
+	/**
+	 * Check if current item is Enabled
+	 * -1: TimedQuestion or TrackingQuestion, NOT started
+	 * 0: TimedQuestion, Time expired
+	 * 1: OK -> TimedQuestion started and NOT expired, or TrackingQuestion started, or NOT (TimedQuestion or TrackingQuestion)
+	 * @return 
+	 */
+	public int getEnabled() {
+		if(!isTimedQuestion() && !isTrackingQuestion()) {
+			return 1;
+		}
+		
+		Date attemptDate = getAttemptDate();
+		if(attemptDate == null) {
+			return -1;
+		}
+		
+		if(isTimedQuestion()) {
+			String timeBeforeDueRetract = getRealTimeLimit();
+			long adjustedTimedAssesmentDueDateLong  = attemptDate.getTime() + (Long.parseLong(timeBeforeDueRetract) * 1000);
+			Date endDate = new Date(adjustedTimedAssesmentDueDateLong);
+			
+			Date now = new Date();
+			return now.before(endDate) ? 1 : 0;
+		}
+		return 1;
+	}
+	
+	
+	public String getTimeElapsed() {
+		try {
+			Date start = getAttemptDate();
+			Date now = new Date();
+			long ret = now.getTime() - start.getTime();
+			return String.valueOf(ret/1000);
+		}catch(Exception e) {
+			return "0";
+		}
+	}
+
+	public String getFormattedTimeElapsed() {
+	    String timeElapsedInString = "";
+		int timeElapsedInSeconds;
+		try {
+			ItemGradingData itemGrading = this.getItemGradingDataArray().get(0);
+			timeElapsedInSeconds = ((int) itemGrading.getSubmittedDate().getTime()) / 1000 - ((int)itemGrading.getAttemptDate().getTime()) / 1000;
+		} catch (Exception ex) {
+			log.error("Question no answered, setting time as 0");
+			timeElapsedInSeconds = 0;
+		}
+		if (timeElapsedInSeconds > 0) {
+			timeElapsedInString = TimeUtil.getFormattedTime(timeElapsedInSeconds);
+		}
+		return timeElapsedInString;	
+	}
+	
+	public String startTimedQuestion() {
+		DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
+		
+		Iterator<ItemGradingData> iter = getItemGradingDataArray().iterator();
+		ItemGradingData itemGradingData = null;
+		if (iter.hasNext()) {
+			itemGradingData = iter.next();
+		} else {
+			itemGradingData = new ItemGradingData();
+			itemGradingData.setAssessmentGradingId(delivery.getAssessmentGradingId());
+			itemGradingData.setPublishedItemId(itemData.getItemId());
+			itemGradingData.setAgentId(AgentFacade.getAgentString());
+			ItemTextIfc itemText = (ItemTextIfc) itemData.getItemTextSet().toArray()[0];
+			itemGradingData.setPublishedItemTextId(itemText.getId());
+			List<ItemGradingData> items = getItemGradingDataArray();
+			items.add(itemGradingData);
+			setItemGradingDataArray(items);
+		}
+		
+		attemptDate = itemGradingData.getAttemptDate();
+		if(attemptDate == null) {
+			attemptDate = new Date();
+			itemGradingData.setAttemptDate(attemptDate);
+		}
+		
+		return delivery.samePage();
 	}
 }
 

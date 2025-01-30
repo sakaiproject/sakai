@@ -116,19 +116,32 @@ commons.switchState = function (state, arg) {
                 editorImageButton.hide();
             }
 
-            editor.click(function (e) {
-                if (this.innerHTML == commons.i18n['post_editor_initial_text']) {
-                    this.innerHTML = '';
-                    $('#commons-editor-post-button').prop('disabled', false);
+
+            // Clear out HTML and enable buttons
+            var enablePostEditor = function (element) {
+                if (element.innerHTML == commons.i18n['post_editor_initial_text']) {
+                    element.innerHTML = '';
                     editorPostButton.prop('disabled', false);
                     editorCancelButton.prop('disabled', false);
                 }
-                editor.focus();
+                element.focus();
+            };
+
+            editor.click(function (e) {
+                enablePostEditor(this);
+            }).focus(function (e) {
+                enablePostEditor(this);
+            }).on('drop', function (e) {
+                enablePostEditor(this);
+                // get data
+                const dt = e.originalEvent.dataTransfer || window.dataTransfer;
+                const dropped = dt.getData('text');
+                wrapAndInsert(dropped, true);
+                e.preventDefault();
             }).on('paste', function (e) {
 
-                var cd = e.originalEvent.clipboardData;
-                if (!cd) cd = window.clipboardData;
-                var pasted = cd.getData('text');
+                const cd = e.originalEvent.clipboardData || window.clipboardData;
+                const pasted = cd.getData('text');
                 wrapAndInsert(pasted, true);
                 e.preventDefault();
             }).blur(function (e) {
@@ -139,7 +152,7 @@ commons.switchState = function (state, arg) {
             });
             if(commons.currentUserPermissions.postDeleteAny){   //if the user can delete any post, we will give them access to Hi-Priority posting too.
                 document.getElementById('commons-editor-priority-container').removeAttribute('style');
-                $('[data-toggle="popover"]').popover(); //we need the popover to work only when Hi-Priority is exposed.
+                bootstrap.Popover.getOrCreateInstance(document.body); // Initializes all popovers
             }
             editorPostButton.click(function (e) {
 
@@ -360,14 +373,11 @@ commons.switchState = function (state, arg) {
 
     $(document).ready(function () {
 
-      import("/webcomponents/sakai-i18n.js").then(m => {
+      loadProperties({bundle: 'commons'}).then(i18n => {
 
-        m.loadProperties({bundle: 'commons'}).then(i18n => {
-
-          commons.i18n = i18n;
-          commonsHelpers["tr"] =  (key, options) => new Handlebars.SafeString(m.tr("commons", key, options.hash));
-          languagesLoaded();
-        });
+        commons.i18n = i18n;
+        commonsHelpers["tr"] =  (key, options) => new Handlebars.SafeString(tr("commons", key, options.hash));
+        languagesLoaded();
       });
     });
 

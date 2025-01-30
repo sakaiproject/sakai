@@ -4,6 +4,10 @@ var ASN_TS_API = ASN_TS_API || {};
 
 window.i18nWlogTab = [];
 
+if (window.location !== window.parent.location) {
+  includeWebjarLibrary('bootstrap');
+}
+
 /* For the cancel button - if the user made progress, we need them to confirm that they want to discard their progress */
 ASN_SVS.confirmDiscardOrSubmit = function(editorInstanceName, attachmentsModified)
 {
@@ -141,7 +145,7 @@ ASN.tsAddHandleAjaxError = function (xhr, messagesParam) {
     button.disabled = false;
 
     const alertTsheetAddRecord = document.getElementById("alertTsheetAddRecord");
-    alertTsheetAddRecord.classList.remove("hidden");
+    alertTsheetAddRecord.classList.remove("d-none");
     // Object.keys(window.i18nWlogTab).find((key) => key.includes('ts.add.err.permission'))
     let messageArray = [];
     for (const [index, key] of Object.entries(messages)) {
@@ -167,7 +171,7 @@ ASN.tsRemoveHandleAjaxError = function (xhr, messagesParam) {
     button.disabled = false;
 
     const alertTsheetDelRecord = document.getElementById("alertTsheetDelRecord");
-    alertTsheetDelRecord.classList.remove("hidden");
+    alertTsheetDelRecord.classList.remove("d-none");
     // Object.keys(window.i18nWlogTab).find((key) => key.includes('ts.add.err.permission'))
     let messageArray = [];
     for (const [index, key] of Object.entries(messages)) {

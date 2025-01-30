@@ -54,7 +54,7 @@
 		    <p/>
 		    <div class="instructions"><h:outputText value="#{samLiteMessages.samlite_validation_instructions}"/></div>
   		 	<p/>
-			<div class="table-responsive">
+			<div class="table">
 				<h:dataTable id="questions"
 					styleClass="table table-hover table-striped table-bordered"
 					columnClasses="list-column,list-column,list-column,list-column,list-column,list-column,list-column"
@@ -109,7 +109,7 @@
 							<h:column>
 								<h:outputText id="image1" rendered="#{answer.correct}" styleClass="fa fa-fw fa-check-square" title="#{answer.correct}" />
 								<h:outputText id="image2" rendered="#{!answer.correct}" styleClass="fa fa-fw fa-square-o" title="#{samLiteMessages.not_correct}" />
-								<h:outputText value="#{answer.id}. #{answer.text}" />
+								<h:outputText value="#{answer.id}. #{answer.text}" escape="false"/>
 							</h:column>
 						</h:dataTable>
 						<h:outputText value="#{question.correctAnswer}"
@@ -147,7 +147,7 @@
 								</b>
 								<br />
 							</f:verbatim>
-							<h:outputText value="#{question.feedbackOK}" />
+							<h:outputText value="#{question.feedbackOK}" escape="false"/>
 							<f:verbatim>
 								<br />
 							</f:verbatim>
@@ -161,7 +161,7 @@
 								</b>
 								<br />
 							</f:verbatim>
-							<h:outputText value="#{question.feedbackNOK}" />
+							<h:outputText value="#{question.feedbackNOK}" escape="false"/>
 						</h:panelGroup>
 					</h:column>
 				</h:dataTable>

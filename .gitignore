@@ -2,7 +2,9 @@
 .project
 .classpath
 .settings
+*.ipr
 *.iml
+*.iws
 *.swp
 *.orig
 *.rej
@@ -25,3 +27,11 @@ rsf/sakai-rsf-web/test/overlays
 .mvn/wrapper/maven-wrapper.jar
 .checkstyle
 assets
+library/src/morpheus-master/
+library/src/webapp/skin/morpheus-default/
+*.key
+*.key.pub
+**/src/main/frontend/node/
+scormplayer/scorm-tool/contentPackages
+.vscode/
+.java-version

@@ -80,7 +80,7 @@ public class EntityTaggingServiceTest extends AbstractTransactionalJUnit4SpringC
    }
 
    /**
-    * Test method for {@link org.sakaiproject.entitybroker.impl.EntityBrokerImpl#getTags(java.lang.String)}.
+    * Test method for {@link org.sakaiproject.entitybroker.impl.EntityBrokerImpl#getTagsForEntity(java.lang.String)}.
     */
    @Test
    public void testGetTags() {
@@ -106,7 +106,7 @@ public class EntityTaggingServiceTest extends AbstractTransactionalJUnit4SpringC
    }
 
    /**
-    * Test method for {@link org.sakaiproject.entitybroker.impl.EntityBrokerImpl#setTags(java.lang.String, java.util.Set)}.
+    * Test method for {@link org.sakaiproject.entitybroker.impl.EntityBrokerImpl#setTagsForEntity(java.lang.String, java.util.Set)}.
     */
    @Test
    public void testSetTags() {

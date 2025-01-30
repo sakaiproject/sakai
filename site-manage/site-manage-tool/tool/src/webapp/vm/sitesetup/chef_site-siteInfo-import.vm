@@ -2,44 +2,83 @@
 <div class="portletBody">
 	#if($menu)#toolbar($menu)#end
 	<h3>
-		$tlang.getString("sitinfimp.reuse")
+		$tlang.getString("sitinfimp.merge.heading")
 	</h3>
+	<h4>$tlang.getString("sitinfimp.merge.subheading")</h4>
 	#if ($alertMessage)
 		<div class="sak-banner-error">$tlang.getString("sitinfimp.alert") $alertMessage</div>
 	#end
 	<form name="featuresForm" action="#toolForm("$action")" method="post">
-		## import is possible when use has maintain rights on at least one site other than the current one
-		#if ($!sites && $sites.size()>1)
-			<p class="step">
-				$tlang.getString("sitinfimp.reuse")
-			</p>
-			<p class="instruction">
-				$tlang.getString("sitinfimp.youcan")
-			</p>
-			#set ($siteIDCounter =0)
-			#foreach($site in $sites)
-			#set ($siteIDCounter = $siteIDCounter + 1)
-				#if ($!currentSite && ($site.Id != $!currentSite.Id))
-					<div class="checkbox">		
-						<label for="site_$siteIDCounter">
-							<input type="checkbox" name="importSites" id="site_$siteIDCounter" value="$site.getId()" 
-								#if ($!importSiteList.containsKey($!site))
-									checked="checked"
-								#end
-							 />
-							$formattedText.escapeHtml($site.getTitle())
-						</label>
-					</div>	
-				#end
-			#end
-			<input type="hidden" name="back" value="$!backIndex" />
-			<input type="hidden" name="templateIndex" value="$!templateIndex" />
-			<input type="hidden" name="templateIndex" value="28" />
-			<input type="hidden" name="continue" value="27" />
-			<p class="act">
-				<input type="submit" accesskey="s" class="active" name="eventSubmit_doContinue" value="$tlang.getString("sitinfimp.con")" onclick="SPNR.disableControlsAndSpin( this, null );" />
-				<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString("sitinfimp.can")" onclick="SPNR.disableControlsAndSpin( this, null );" />
-			</p>
+
+        #if (($!sites && $sites.size() > 1) || ($!templateSites && $templateSites.size() > 0) || ($!hiddenSites && $hiddenSites.size() > 0))
+
+            <div class="sak-banner-info">$tlang.getString("sitinfimp.youcan")</div>
+
+            #if ($!templateSites && $templateSites.size() > 0)
+                <div class="mb-4">
+                    <div class="fw-bold mb-2">$tlang.getString("sitinfimp.templatesites")</div>
+                    #foreach($templateSite in $templateSites)
+                        #if ($!currentSite && ($templateSite.Id != $!currentSite.Id))
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" name="importSites" value="$templateSite.getId()"
+                                    #if ($!importSiteList.containsKey($!templateSite))
+                                        checked="checked"
+                                    #end
+                                 />
+                                $formattedText.escapeHtml($templateSite.getTitle())
+                            </label>
+                        </div>
+                        #end
+                    #end
+                </div>
+            #end
+
+            ## import is possible when use has maintain rights on at least one site other than the current one
+            #if ($!sites && $sites.size()>1)
+                <div class="mb-4">
+                    <div class="fw-bold mb-2">$tlang.getString("sitinfimp.mysites")</div>
+                    #foreach($site in $sites)
+                        #if ($!currentSite && ($site.Id != $!currentSite.Id))
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" name="importSites" value="$site.getId()"
+                                        #if ($!importSiteList.containsKey($!site))
+                                            checked="checked"
+                                        #end
+                                     />
+                                    $formattedText.escapeHtml($site.getTitle())
+                                </label>
+                            </div>
+                        #end
+                    #end
+                </div>
+            #end
+
+            #if ($!hiddenSites && $hiddenSites.size() > 0)
+                <div class="mb-4">
+                    <div class="fw-bold mb-2">$tlang.getString("sitinfimp.hiddensites")</div>
+                    #foreach($hiddenSite in $hiddenSites)
+                        #if ($!currentSite && ($hiddenSite.Id != $!currentSite.Id))
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" name="importSites" #if ($!importSiteList.containsKey($!hiddenSite)) checked="checked" #end value="$hiddenSite.getId()"/>
+                                    $formattedText.escapeHtml($hiddenSite.getTitle())
+                                </label>
+                            </div>
+                        #end
+                    #end
+                </div>
+            #end
+
+            <input type="hidden" name="back" value="58" />
+            <input type="hidden" name="templateIndex" value="28" />
+            <input type="hidden" name="continue" value="27" />
+            <p class="act">
+                <input type="submit" accesskey="s" class="active" name="eventSubmit_doContinue" value="$tlang.getString("sitinfimp.con")" onclick="SPNR.disableControlsAndSpin( this, null );" />
+                <input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" onclick="SPNR.disableControlsAndSpin( this, null );" />
+                <input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString("sitinfimp.can")" onclick="SPNR.disableControlsAndSpin( this, null );" />
+            </p>
 		#else
 			## show "no site available warning"
 			<p class="instruction">
@@ -49,6 +88,6 @@
 				<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString("sitinfimp.can")" onclick="SPNR.disableControlsAndSpin( this, null );" />
 			</p>
 		#end
-		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+        <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 </div>

@@ -28,6 +28,7 @@ import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.sitemanage.api.UserNotificationProvider;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
@@ -276,7 +277,7 @@ public class UserNotificationProviderImpl implements UserNotificationProvider {
 			from = requestEmail;
 			to = currentUserEmail;
 			headerTo = currentUserEmail;
-			replyTo = serverConfigurationService.getString("setup.request","no-reply@" + serverConfigurationService.getServerName());
+			replyTo = getSetupRequestEmailAddress();
 			String content = rb.getFormattedMessage("java.siteCreation.confirmation", new Object[]{title, serverConfigurationService.getServerName()});
 			content += "\n\n" + buf.toString();
 			emailService.send(from, to, message_subject, content, headerTo, replyTo, null);
@@ -476,18 +477,11 @@ public class UserNotificationProviderImpl implements UserNotificationProvider {
 		}
 		return email;
 	}
-	
-	
+
 	private String getSetupRequestEmailAddress() {
-		String from = serverConfigurationService.getString("setup.request",
-				null);
-		if (from == null) {
-			from = "postmaster@".concat(serverConfigurationService
-					.getServerName());
-			log.warn(this + " - no 'setup.request' in configuration, using: "+ from);
-		}
-		return from;
+		return serverConfigurationService.getSmtpFrom();
 	}
+
 	@Override
 	public void notifySiteImportCompleted(String toEmail, Locale locale, String siteId, String siteTitle){
 		if(toEmail != null && !"".equals(toEmail)){
@@ -498,5 +492,19 @@ public class UserNotificationProviderImpl implements UserNotificationProvider {
 			String message_body = rb.getFormattedMessage("java.siteImport.confirmation", new Object[]{siteTitle, link});
 			emailService.send(getSetupRequestEmailAddress(), toEmail, message_subject, message_body, headerTo, replyTo, null);
 		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void notifyAboutJoinableSet(String siteName, String userId, Group joinableGroup, boolean isNew) {
+		log.warn("Method implemented on ETSUserNotificationProviderImpl");
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void notifyJSetDayLeft(String siteName, User user, String jSetName) {
+		log.warn("Method implemented on ETSUserNotificationProviderImpl");
 	}
 }

@@ -4,7 +4,7 @@
     <parent>
       <groupId>org.sakaiproject</groupId>
       <artifactId>master</artifactId>
-      <version>23-SNAPSHOT</version>
+      <version>25-SNAPSHOT</version>
       <relativePath>../master/pom.xml</relativePath>
     </parent>
 
@@ -21,28 +21,4 @@
     <module>help-tool</module>
   </modules>
 
-  <dependencyManagement>
-      <dependencies>
-          <dependency>
-              <groupId>org.apache.lucene</groupId>
-              <artifactId>lucene-core</artifactId>
-              <version>${sakai.lucene.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>org.apache.lucene</groupId>
-              <artifactId>lucene-queries</artifactId>
-              <version>${sakai.lucene.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>org.apache.lucene</groupId>
-              <artifactId>lucene-queryparser</artifactId>
-              <version>${sakai.lucene.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>org.apache.lucene</groupId>
-              <artifactId>lucene-analyzers-common</artifactId>
-              <version>${sakai.lucene.version}</version>
-          </dependency>
-      </dependencies>
-  </dependencyManagement>
 </project>

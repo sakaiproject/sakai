@@ -14,7 +14,6 @@
 package org.sakaiproject.webapi.beans;
 
 import java.util.List;
-import java.util.Map;
 
 import lombok.Data;
 
@@ -31,6 +30,8 @@ public class DashboardRestBean {
     private String overview;
     private String programme;
     private Integer template;
-    private Map<String, List<String>> defaultWidgetLayouts;
     private String image;
+    private String layout1ThumbnailUrl;
+    private String layout2ThumbnailUrl;
+    private String layout3ThumbnailUrl;
 }

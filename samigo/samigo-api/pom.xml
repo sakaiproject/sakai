@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.sakaiproject.samigo</groupId>
 		<artifactId>samigo</artifactId>
-		<version>23-SNAPSHOT</version>
+		<version>25-SNAPSHOT</version>
 	</parent>
     
 	<name>Sakai Samigo API (samigo-api)</name>
@@ -37,6 +37,10 @@
       <dependency>
         <groupId>org.sakaiproject.edu-services.sections</groupId>
         <artifactId>sections-api</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.scheduler</groupId>
+        <artifactId>scheduler-api</artifactId>
       </dependency>
     </dependencies>
     

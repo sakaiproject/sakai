@@ -123,8 +123,8 @@
 		#if ($event.RecurrenceRule)
 		<p class="shorttext">
 			<select name="intention" id="intention">
-				<option value="a" selected="selected">$tlang.getString("del.deleteall")</option>
-				<option value="t">$tlang.getString("del.deleteonly")</option>
+				<option value="a">$tlang.getString("del.deleteall")</option>
+				<option value="t" selected="selected">$tlang.getString("del.deleteonly")</option>
 			</select>
 		#end
 

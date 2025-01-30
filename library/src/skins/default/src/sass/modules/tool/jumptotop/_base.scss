@@ -1,0 +1,16 @@
+.jump-to-top {
+    position: fixed;
+    bottom: 50px;
+    right: 50px;
+    z-index: 100;
+    display: none;
+    font-size: 40px;
+    border: transparent;
+    background: transparent;
+    color: var(--button-text-color)
+  }
+  
+  .jump-to-top.show {
+    display: block;
+  }
+  

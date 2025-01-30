@@ -51,6 +51,7 @@ public class EvaluationRepositoryImpl extends SpringCrudRepositoryImpl<Evaluatio
 
         return session.createQuery(query).list();
     }
+
     public Optional<Evaluation> findByAssociationIdAndEvaluatedItemId(Long associationId, String evaluatedItemId) {
 
         Session session = sessionFactory.getCurrentSession();
@@ -64,6 +65,20 @@ public class EvaluationRepositoryImpl extends SpringCrudRepositoryImpl<Evaluatio
         return session.createQuery(query).uniqueResultOptional();
     }
 
+    public Optional<Evaluation> findByAssociationIdAndEvaluatedItemIdAndOwner(Long associationId, String evaluatedItemId, String evaluatedItemOwnerId) {
+
+        Session session = sessionFactory.getCurrentSession();
+
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Evaluation> query = cb.createQuery(Evaluation.class);
+        Root<Evaluation> eval = query.from(Evaluation.class);
+        query.where(cb.and(cb.equal(eval.get("associationId"), associationId),
+                            cb.equal(eval.get("evaluatedItemId"), evaluatedItemId),
+                            cb.equal(eval.get("evaluatedItemOwnerId"), evaluatedItemOwnerId)));
+
+        return session.createQuery(query).uniqueResultOptional();
+    }
+
     public Optional<Evaluation> findByAssociationIdAndUserId(Long associationId, String userId) {
 
         Session session = sessionFactory.getCurrentSession();
@@ -71,25 +86,23 @@ public class EvaluationRepositoryImpl extends SpringCrudRepositoryImpl<Evaluatio
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaQuery<Evaluation> query = cb.createQuery(Evaluation.class);
         Root<Evaluation> eval = query.from(Evaluation.class);
-        //Join<Evaluation, ToolItemRubricAssociation> ass = eval.join("association");
         query.where(cb.and(cb.equal(eval.get("associationId"), associationId),
                             cb.equal(eval.get("evaluatedItemOwnerId"), userId)));
 
         return session.createQuery(query).uniqueResultOptional();
     }
 
-    public Optional<Evaluation> findByAssociation_ItemIdAndUserId(String itemId, String userId) {
+    public int deleteByAssociationIdAndEvaluatedItemId(Long associationId, String evaluatedItemId) {
 
         Session session = sessionFactory.getCurrentSession();
 
         CriteriaBuilder cb = session.getCriteriaBuilder();
-        CriteriaQuery<Evaluation> query = cb.createQuery(Evaluation.class);
-        Root<Evaluation> eval = query.from(Evaluation.class);
-        Join<Evaluation, ToolItemRubricAssociation> ass = eval.join("association");
-        query.where(cb.and(cb.equal(ass.get("itemId"), itemId),
-                            cb.equal(eval.get("evaluatedItemOwnerId"), userId)));
+        CriteriaDelete<Evaluation> delete = cb.createCriteriaDelete(Evaluation.class);
+        Root<Evaluation> eval = delete.from(Evaluation.class);
+        delete.where(cb.and(cb.equal(eval.get("associationId"), associationId),
+                            cb.equal(eval.get("evaluatedItemId"), evaluatedItemId)));
 
-        return session.createQuery(query).uniqueResultOptional();
+        return session.createQuery(delete).executeUpdate();
     }
 
     public int deleteByToolItemRubricAssociation_Id(Long associationId) {
@@ -102,5 +115,20 @@ public class EvaluationRepositoryImpl extends SpringCrudRepositoryImpl<Evaluatio
         delete.where(cb.equal(eval.get("associationId"), associationId));
         
         return session.createQuery(delete).executeUpdate();
+    }
+
+    @Override
+    public int deleteByOwnerId(String ownerId) {
+
+        Session session = sessionFactory.getCurrentSession();
+
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Evaluation> query = cb.createQuery(Evaluation.class);
+        Root<Evaluation> root = query.from(Evaluation.class);
+        query.where(cb.equal(root.get("ownerId"), ownerId));
+
+        List<Evaluation> evaluations = session.createQuery(query).list();
+        evaluations.forEach(session::delete);
+        return evaluations.size();
     }
 }

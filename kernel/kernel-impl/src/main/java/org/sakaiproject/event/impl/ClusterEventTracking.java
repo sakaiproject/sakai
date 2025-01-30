@@ -600,7 +600,7 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 					public Object readSqlResultRecord(ResultSet result) {
 						try {
 							Long id = result.getLong(1);
-							Date date = new Date(result.getTimestamp(2, sqlService().getCal()).getTime());
+							Date date = new Date(result.getTimestamp(2).getTime());
 							String function = result.getString(3);
 							String ref = result.getString(4);
 							String session = result.getString(5);

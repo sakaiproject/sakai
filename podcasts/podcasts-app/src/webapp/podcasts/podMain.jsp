@@ -69,7 +69,8 @@
 	</h:panelGroup>
  	 
 	<!-- if there are podcasts, display their information here -->
-	<h:dataTable value="#{podHomeBean.contents}" var="eachPodcast" rendered="#{podHomeBean.actPodcastsExist}" styleClass="table table-hover table-striped table-bordered" headerClass="hidden-xs" columnClasses="hidden-xs,,hidden-xs,,,,">
+	<h:dataTable value="#{podHomeBean.contents}" var="eachPodcast" rendered="#{podHomeBean.actPodcastsExist}" styleClass="table table-hover table-striped table-bordered" headerClass="d-none d-sm-table-cell" columnClasses="d-none d-sm-table-cell,,d-none d-sm-table-cell,,,,">
+
 		<h:column>
 			<f:facet name="header"><h:outputText value="#{msgs.date_prompt}"/></f:facet>
 			<h:outputText value="#{eachPodcast.displayDate}" />

@@ -28,16 +28,20 @@ import java.util.List;
  */
 public interface ExtendedTimeQueriesAPI {
     // Hibernate Named Queries
+    String QUERY_GET_ENTRY                  = "getEntry";
     String QUERY_GET_ENTRIES_FOR_ASSESSMENT = "getEntriesForAss";
     String QUERY_GET_ENTRIES_FOR_PUBLISHED  = "getEntriesForPub";
     String QUERY_GET_ENTRY_FOR_PUB_N_USER   = "getEntriesForPubNUser";
     String QUERY_GET_ENTRY_FOR_PUB_N_GROUP  = "getEntriesForPubNGroup";
 
     // Hibernate Object Fields
+    String ENTRY_ID                         = "entryId";
     String ASSESSMENT_ID                    = "assessmentId";
     String PUBLISHED_ID                     = "publishedId";
     String USER_ID                          = "userId";
     String GROUP                            = "groupId";
+
+    ExtendedTime getEntry(String id);
 
     /**
      *

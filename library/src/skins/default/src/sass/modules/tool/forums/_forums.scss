@@ -1,0 +1,311 @@
+.selected-threads-to-move{
+	.sourcetitle{
+		font-weight: bolder;
+	}
+	.threads-to-move{
+		font-weight: bolder;
+	}
+}
+
+.topic-filter{
+	background: var(--tool-menu-background-color);
+	border: 1px solid var(--sakai-border-color);
+	margin: 1em 0;
+	padding: 1em;
+	.topic-header-h3{
+		@extend .h4;
+	}
+}
+
+.#{$namespace}sakai-forums{
+	.topicBlocLone{
+		@extend .bs-callout-info;
+	}
+
+	.permissionRow{
+		span.ui-accordion-header {
+			@media #{$phone}{
+			    margin-left: 0;
+			    display: block;
+			}
+		}
+		.checkbox_group{
+			display: inline-block;
+			margin: 0 0.25% 0 0;
+			width: 28%;
+			vertical-align: top;
+			@media #{$phone}{
+				display: block;
+				margin: 0 0 1em 0;
+				width: 100%;
+			}
+		}
+		
+		.radio_group{
+			@extend .checkbox_group;
+			width: 20%;
+			@media #{$phone}{
+				width: 100%;
+			}
+		}
+	}
+	
+	.permissionPanel{
+		input[type="checkbox"]{
+			@media #{$nonPhone}{
+				float:left;
+				& + label {
+					overflow:auto;
+					display:block;
+					padding-top: 2px;
+				}
+			}
+		}
+	}
+
+	#msgForum{
+		.itemNav{
+			position: absolute;
+			right: 0;				// right-aligned
+			
+			@media #{$phone}{
+				position: inherit;
+				&:after{
+					content: " ";
+					clear: both;
+				}
+			}
+			
+			> .button:first-child {
+				margin-right: $standard-space;	// space the buttons out
+			}
+		}
+		.specialLink{
+			h1{
+				font-size: 18px;
+				margin: 1.4em 0 0.3em 0;
+				@media #{$phone}{
+					margin: 0.5em 0 0.3em 0;
+				}
+			}
+		}
+
+		.view-message-nav{
+			text-align: right;
+		}
+	}
+
+	table.specialLink{
+		.show{
+			img{
+				margin: 0 0.2em 0 0;
+				@include transform( rotate(0deg) );
+				@include transition( all 0.15s linear );
+				filter: var(--sakai-image-invert);
+			}
+			&.opened{
+				img{
+					@include transform( rotate(90deg) );
+				}
+			}
+		}
+	}
+
+	div.specialLink{
+		max-width: calc(100% - 260px);
+		@media #{$phone} {
+			max-width: unset;
+		}
+	}
+
+	.allMessages{
+		border: 1px solid var(--sakai-border-color);
+		border-collapse: collapse;
+		width: 100%;
+		margin: 1em 0 0 0;
+		thead{
+			th{
+				vertical-align: text-bottom;
+				padding: 0.8em 0em;
+				background: var(--sakai-background-color-2);
+				border: 1px solid var(--sakai-border-color);
+				text-align: center;
+				&.header{
+					padding: 0.8em 0.4em;
+					text-align: left;
+				}
+			}
+		}
+		tbody{
+			td{
+				padding: 0.8em 0.4em;
+				&.attach{
+					padding: 0.8em 0;
+					text-align: center;
+				}
+				&.messageTitle{
+					a{
+						margin-left: 0.2em;
+					}
+				}
+			}
+		}
+	}
+
+	.labeled{
+		display: inline-block;
+		font-weight: 700;
+		margin: 1em 0 0.25em 0;
+	}
+
+	#revise{
+		label{
+			font-weight: 400;
+			margin: 1em 0 0.25em 0;
+			input[type="radio"]{
+				margin: 0 0.5em 0 -2em;
+			}
+			
+			&[for*=forum_assignments]{
+				margin-top: 0;
+			}
+			&.strong {
+				font-weight: 700;
+			}
+		}
+		input[type="text"], textarea{
+			width: 100%;
+			@extend .form-control;
+			&.hasDatepicker{
+				display: inline-block;
+				margin: 0 4px 0 0;
+				width: calc(100% - 62px);
+			}
+		}
+		.jsfFormTable, .shorttext, .longtext{
+			width: 100%;
+		}
+		table{
+			width: 100%;
+		}
+		.checkbox{
+			display: block;
+			margin: 0 0 0 0;
+			input[type="radio"]{
+				margin-left: -10px;
+				margin-right: 11px;
+				position: relative;
+			}
+			input[type="checkbox"]{
+				margin: 0 10px;
+				position: inherit;
+				+ label{
+					padding-left: 10px;
+					padding-right: 40px;
+					@media #{$phone}{
+						max-width: calc(100% - 50px);
+						vertical-align: middle;
+					}
+				}
+				&#revise\:topic_postAnonymous{
+					margin-top: 13px;
+				}
+			}
+			&.openDateSpan{
+				label{
+					font-weight: 700;
+					padding-left: 0;
+				}
+			}
+		}
+		.permissionRow{
+			label{
+				margin: 0 0 0 0;
+				cursor: pointer;
+			}
+		}
+		.messageInstruction{
+			@extend .bs-callout-danger;
+			display: inline-block;
+			margin: 0 $standard-spacing;
+			padding: 5px $standard-spacing;
+			@media #{$phone}{
+				display: inline-block;
+			    margin: 0 0 0 0;
+			    padding: 3px 0 3px 6px;
+			}
+		}
+		
+		&\:alert-delete{
+			margin: 2em 0 0 0;
+		}
+	}
+
+	.messagesThreaded{
+		.md{
+			display: inline-block;
+			font-size: 1em;
+			padding: 0.3em 0.2em 0.1em 0;
+			a{
+				color: var(--sakai-text-color-1);
+				text-decoration: none;
+				border-bottom: 1px solid var(--sakai-border-color);
+				&:hover, &:focus{
+					color: var(--link-hover-color);
+				}
+			}
+		}
+	}
+
+	.openLinkBlock, .hideLinkBlock {
+		padding: 0;
+		margin: 0.5em 0;
+		&.display-none {
+			display: none;
+		}
+	}
+
+	.fullTopicDescription {
+		display: none;
+		&.display-block {
+			display: block;
+		}
+	}
+
+	.attachListTable {
+		font-size: 0.9em;
+		width: auto;
+		margin-left: 1em;
+	}
+
+	#revise p.anonTopic.checkbox {
+		@include display-flex;
+
+		input[type=checkbox] {
+			min-width: 16px;
+			align-self: center;
+		}
+	}
+	
+	.otherActions{
+		margin-left: $standard-space;	// space between previous group of buttons
+		white-space: nowrap;
+		
+		@media #{$phone} {
+			white-space: normal;
+		}
+		
+		& > a.button {
+			margin: 0 $standard-space $standard-space 0;
+		}
+	}
+
+	.statsTally {
+		color: var(--sakai-text-color-dimmed);
+		font-weight: bold;
+	}
+
+	.navPanel {
+	    height: auto;
+	}
+}

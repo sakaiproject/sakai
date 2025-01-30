@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.sakaiproject</groupId>
     <artifactId>master</artifactId>
-    <version>23-SNAPSHOT</version>
+    <version>25-SNAPSHOT</version>
     <relativePath>../master/pom.xml</relativePath>
   </parent>
 
@@ -20,7 +20,7 @@
     <commons-betwixt.version>0.8</commons-betwixt.version>
     <fop.version>1.0</fop.version>
     <jfreechart.version>1.5.3</jfreechart.version>
-    <sst.wicket.version>6.30.0</sst.wicket.version>
+    <sst.wicket.version>9.19.0</sst.wicket.version>
   </properties>
 
   <!-- Project modules -->
@@ -67,12 +67,24 @@
         <groupId>commons-betwixt</groupId>
         <artifactId>commons-betwixt</artifactId>
         <version>${commons-betwixt.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <!-- Apache others -->
       <dependency>
         <groupId>org.apache.xmlgraphics</groupId>
         <artifactId>fop</artifactId>
         <version>${fop.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.apache.poi</groupId>
@@ -109,11 +121,6 @@
       <dependency>
         <groupId>org.apache.wicket</groupId>
         <artifactId>wicket-datetime</artifactId>
-        <version>${sst.wicket.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.wicket</groupId>
-        <artifactId>wicket-devutils</artifactId>
         <version>${sst.wicket.version}</version>
       </dependency>
       <!-- JFreeChart -->

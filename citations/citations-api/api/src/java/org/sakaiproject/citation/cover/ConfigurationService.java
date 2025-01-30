@@ -29,6 +29,7 @@ import org.sakaiproject.component.cover.ComponentManager;
  * the ConfigurationService API interface definition
  * @deprecated
  */
+@Deprecated
 public class ConfigurationService
 {
 	private static org.sakaiproject.citation.api.ConfigurationService m_instance;
@@ -123,19 +124,6 @@ public class ConfigurationService
 			return null;
 		}
 		return instance.getGroupIds();
-	}
-
-  /**
-   * Fetch the site specific Repository OSID package name
-   */
-	public static String getSiteConfigOsidPackageName()
-	{
-		org.sakaiproject.citation.api.ConfigurationService instance = getInstance();
-		if (instance == null)
-		{
-			return null;
-		}
-		return instance.getSiteConfigOsidPackageName();
 	}
 
   /**

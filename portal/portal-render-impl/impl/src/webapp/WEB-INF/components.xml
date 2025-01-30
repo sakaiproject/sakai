@@ -4,6 +4,7 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="org.sakaiproject.portal.render.api.ToolRenderService"
+          name="toolRenderService"
           class="org.sakaiproject.portal.render.compat.CompatibilityToolRenderService">
         <property name="renderServices">
             <list>
@@ -13,30 +14,26 @@
             </list>
         </property>
     </bean>
-    <bean id="fragmentRenderService" name="fragmentRenderService"
-                class="org.sakaiproject.portal.render.fragment.FragmentToolRenderService" >
-        <property name="portalService" ><ref bean="org.sakaiproject.portal.api.PortalService" /></property>
+    <bean id="fragmentRenderService"
+          class="org.sakaiproject.portal.render.fragment.FragmentToolRenderService">
+        <property name="portalService" ref="org.sakaiproject.portal.api.PortalService"/>
     </bean>
-    <bean id="iframeRenderService" name="iframeRenderService"
+    <bean id="iframeRenderService"
           class="org.sakaiproject.portal.render.iframe.IFrameToolRenderService" >
         <property name="portalService" ref="org.sakaiproject.portal.api.PortalService"/>
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
     </bean>
 
 
-    <bean id="portletRenderService" name="portletRenderService"
+    <bean id="portletRenderService"
           class="org.sakaiproject.portal.render.portlet.PortletToolRenderService">
-        <property name="portletStateEncoder">
-            <ref bean="portletStateEncoder"/>
-        </property>
-        <property name="portalService" ><ref bean="org.sakaiproject.portal.api.PortalService" /></property>
+        <property name="portletStateEncoder" ref="portletStateEncoder"/>
+        <property name="portalService" ref="org.sakaiproject.portal.api.PortalService"/>
     </bean>
 
     <bean id="portletStateEncoder"
           class="org.sakaiproject.portal.render.portlet.services.state.EnhancedPortletStateEncoder">
-        <property name="urlSafeEncoder">
-            <ref bean="urlSafeEncoder"/>
-        </property>
+        <property name="urlSafeEncoder" ref="urlSafeEncoder"/>
     </bean>
 
     <bean id="urlSafeEncoder"

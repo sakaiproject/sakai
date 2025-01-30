@@ -43,7 +43,9 @@ public class SakaiStringResourceChoiceRenderer implements IChoiceRenderer<String
 	@Override
 	public Object getDisplayValue(String object)
 	{
-		return new StringResourceModel(msgKey, component, null, new Object[] { object }).getString();
+		return new StringResourceModel(msgKey, component)
+				.setParameters(object)
+				.getString();
 	}
 
 	@Override

@@ -33,13 +33,17 @@ import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.StringUtils;
 import org.osid.assessment.AssessmentException;
 
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SectionData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionMetaDataIfc;
 
 /**
  * <p>Title: </p>
@@ -68,6 +72,7 @@ public class AssessmentFacade extends AssessmentBaseFacade
   private Map releaseToGroups;
   private int groupCount;
   private boolean selected;
+  private Integer multipleTimers;
 
   public AssessmentFacade() {
     //super();
@@ -364,5 +369,43 @@ public class AssessmentFacade extends AssessmentBaseFacade
 
   public void setSelected(boolean selected) {
     this.selected = selected;
+  }
+
+  public int hasMultipleTimers() {
+    if(multipleTimers != null) {
+      return multipleTimers;
+    }
+    int retA = 0;
+    int retP = 0;
+    int retQ = 0;
+    if(data != null) {
+      retA = Boolean.TRUE.toString().equalsIgnoreCase(data.getAssessmentMetaDataByLabel("hasTimeAssessment")) ? 1 : 0;
+    }
+    if(sectionSet != null) {
+      for(Object s_o : sectionSet) {
+        SectionDataIfc s = (SectionDataIfc)s_o;
+        
+        String value = s.getSectionMetaDataByLabel(SectionMetaDataIfc.TIMED);
+        if(StringUtils.isNotBlank(value) && !StringUtils.equalsIgnoreCase(Boolean.FALSE.toString(), value)) {
+          retP = 1;
+        }
+        if(s.getItemSet() != null && retQ == 0) {
+          for(Object i_o : s.getItemSet()) {
+            ItemDataIfc i = (ItemDataIfc)i_o;
+            
+            value = i.getItemMetaDataByLabel(ItemMetaDataIfc.TIMED);
+            if(StringUtils.isNotBlank(value) && !StringUtils.equalsIgnoreCase(Boolean.FALSE.toString(), value)) {
+              retQ = 1;
+              break;
+            }
+          }
+        }
+        if(retP > 0 && retQ > 0) {
+          break;
+        }
+      }
+    }
+    multipleTimers = retA + retP + retQ;
+    return multipleTimers;
   }
 }

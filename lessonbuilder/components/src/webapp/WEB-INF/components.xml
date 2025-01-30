@@ -26,30 +26,27 @@
   </bean>
 
   <bean id="org.sakaiproject.lessonbuildertool.model.SimplePageToolDaoTarget"
-        class="org.sakaiproject.lessonbuildertool.model.SimplePageToolDaoImpl">
-    <property name="sessionFactory">
-      <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
-    </property>
-    <property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
+        class="org.sakaiproject.lessonbuildertool.model.SimplePageToolDaoImpl"
+        init-method="init">
+    <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
+    <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+    <property name="portalService" ref="org.sakaiproject.portal.api.PortalService"/>
     <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
     <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
     <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
     <property name="sqlService" ref="org.sakaiproject.db.api.SqlService" />
-    <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
+    <property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
     <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
-    <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+    <property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
   </bean>
 
 <!-- here's the version our code will access -->
 
   <bean id="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao"
         class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-    <property name="transactionManager">
-      <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
-    </property>
-    <property name="target">
-      <ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDaoTarget" />
-    </property>
+    <property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+    <property name="target" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDaoTarget" />
     <property name="proxyInterfaces">
       <list>
         <value>org.sakaiproject.lessonbuildertool.model.SimplePageToolDao</value>
@@ -60,15 +57,27 @@
         <prop key="*">PROPAGATION_REQUIRED</prop>
       </props>
     </property>
- </bean>
-
-  <bean id="org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI"
-        class="org.sakaiproject.lessonbuildertool.service.SimplePageToolService" init-method="init" lazy-init="false">
-        <property name="sqlService" ref="org.sakaiproject.db.api.SqlService"/>
-        <property name="autoDdl" value="${auto.ddl}"/>
-        <property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager"/>
   </bean>
 
+  <bean id="org.sakaiproject.util.ResourceLoader.lessons"
+        class="org.sakaiproject.util.ResourceLoader">
+    <constructor-arg value="lessons" />
+  </bean>
 
+  <bean id="addLessonsCommentUserNotificationHandler"
+      class="org.sakaiproject.lessonbuildertool.impl.AddLessonsCommentUserNotificationHandlerImpl">
+    <property name="resourceLoader" ref="org.sakaiproject.util.ResourceLoader.lessons"/>
+    <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+    <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDaoTarget"/>
+  </bean>
+
+  <bean id="org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI"
+      class="org.sakaiproject.lessonbuildertool.service.SimplePageToolService" init-method="init" lazy-init="false">
+    <property name="sqlService" ref="org.sakaiproject.db.api.SqlService" />
+    <property name="autoDdl" value="${auto.ddl}" />
+    <property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager" />
+    <property name="userMessagingService" ref="org.sakaiproject.messaging.api.UserMessagingService" />
+    <property name="userNotificationHandler" ref="addLessonsCommentUserNotificationHandler" />
+  </bean>
 
 </beans>

@@ -34,6 +34,7 @@ import java.util.function.Predicate;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.Hibernate;
 import org.sakaiproject.api.app.messageforums.ActorPermissions;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaControlPermission;
@@ -765,7 +766,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       for (Iterator iter = forum.getTopics().iterator(); iter.hasNext();)
       {
         try{
-          DiscussionTopic t = (DiscussionTopic) iter.next();
+          DiscussionTopic t = (DiscussionTopic) Hibernate.unproxy(iter.next());
           if (next && getTopicAccess(t))
           {
             return true;
@@ -807,7 +808,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     {
       for (Iterator iter = forum.getTopics().iterator(); iter.hasNext();)
       {
-        DiscussionTopic t = (DiscussionTopic) iter.next();
+        DiscussionTopic t = (DiscussionTopic) Hibernate.unproxy(iter.next());
         if (t != null && getTopicAccess(t))
         {
           if (t.getId().equals(topic.getId()))
@@ -855,7 +856,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     {
       for (Iterator iter = forum.getTopics().iterator(); iter.hasNext();)
       {
-        DiscussionTopic t = (DiscussionTopic) iter.next();
+        DiscussionTopic t = (DiscussionTopic) Hibernate.unproxy(iter.next());
         if (next && getTopicAccess(t))
         {
           if (t == null)
@@ -910,7 +911,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     {
       for (Iterator iter = forum.getTopics().iterator(); iter.hasNext();)
       {
-        DiscussionTopic t = (DiscussionTopic) iter.next();
+        DiscussionTopic t = (DiscussionTopic) Hibernate.unproxy(iter.next());
         if (t != null && getTopicAccess(t))
         {
           if (t.getId().equals(topic.getId()))
@@ -1162,7 +1163,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       forumReturn.setArea(area);
       forumReturn.setSortIndex(0);
       area.addDiscussionForum(forumReturn);
-      areaManager.saveArea(area, currentUser);
+      area = areaManager.saveArea(area, currentUser);
       flagAreaCacheForClearing(area);
     }
     return forumReturn;
@@ -2184,7 +2185,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 		return msgIdStatusMap;
 	}
 
-	public List getDiscussionForumsWithTopicsMembershipNoAttachments(String contextId)
+	public List<DiscussionForum> getDiscussionForumsWithTopicsMembershipNoAttachments(String contextId)
 	{
         log.debug("getDiscussionForumsWithTopicsMembershipNoAttachments()");
         return forumManager.getForumByTypeAndContextWithTopicsMembership(typeManager.getDiscussionForumType(), contextId);

@@ -49,10 +49,7 @@ public class ReportsPage extends BasePage {
 	private String					realSiteId;
 	private String					siteId;
 
-	
-	public ReportsPage() {		
-	}
-	
+
 	public ReportsPage(PageParameters pageParameters) {
 		realSiteId = Locator.getFacade().getToolManager().getCurrentPlacement().getContext();
 		if(pageParameters != null) {
@@ -300,8 +297,8 @@ public class ReportsPage extends BasePage {
 				}					
 				@Override
 				protected CharSequence getOnClickScript(CharSequence url) {
-					String msg = new StringResourceModel("report_confirm_delete", getPage(), model,
-						new String[] {(String) new ResourceModel(reportDef.getTitleBundleKey()).getObject()}).getString();
+					String msg = new StringResourceModel("report_confirm_delete")
+							.setParameters(reportDef.getTitleBundleKey()).getString();
 					return "return confirm('"+msg+"');";
 				}
 			};

@@ -24,8 +24,6 @@
 package org.sakaiproject.tool.assessment.ui.bean.delivery;
 import java.io.Serializable;
 
-import lombok.Getter;
-
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 
 /**
@@ -45,13 +43,13 @@ public class FeedbackComponent implements Serializable
   private boolean showResponse;
   private boolean showSelectionLevel;
   private boolean showStats;
+  private boolean showCorrection;
   private boolean showImmediate;
   private boolean showOnSubmission;
   private boolean showStudentScore;
   private boolean showStudentQuestionScore;
   private boolean showDateFeedback;
   private boolean showNoFeedback;
-  @Getter private Integer correctAnswerOption;
 
   /**
    *
@@ -108,6 +106,14 @@ public class FeedbackComponent implements Serializable
    */
   public boolean getShowStats(){
     return this.showStats;
+  }
+
+  /**
+   * If statistics are shown to student.
+   * @return
+   */
+  public boolean getShowCorrection(){
+    return this.showCorrection;
   }
 
   /**
@@ -251,6 +257,15 @@ public class FeedbackComponent implements Serializable
   }
 
   /**
+   * Show Correction?
+   * @param showCorrection
+   */
+  public void setShowCorrection(boolean showCorrection)
+  {
+    this.showCorrection = showCorrection;
+  }
+
+  /**
    * Show score?
    * @param showStudentScore
    */
@@ -286,8 +301,7 @@ public class FeedbackComponent implements Serializable
     setShowImmediate(AssessmentFeedbackIfc.IMMEDIATE_FEEDBACK.equals(feedbackDelivery));
     setShowOnSubmission(AssessmentFeedbackIfc.FEEDBACK_ON_SUBMISSION.equals(feedbackDelivery));
     setShowNoFeedback(AssessmentFeedbackIfc.NO_FEEDBACK.equals(feedbackDelivery));
-
-    this.correctAnswerOption = feedback.getCorrectAnswerOption();
+    setShowCorrection(feedback.getShowCorrectResponse().booleanValue() ? feedback.getShowCorrection().booleanValue() : false);
   }
 
 }

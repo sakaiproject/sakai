@@ -1,0 +1,19 @@
+<div class="portletBody">
+<script type="module" src="/webcomponents/bundles/lti.js"></script>
+#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $alertMessage</div>#end
+## See also assignment/tool/src/webapp/vm/assignment/chef_assignments_view_launch.vm
+#if ($!newpage)
+<p>
+<sakai-lti-popup auto-launch="true" launch-url="$!source"></sakai-lti-popup>
+</p>
+#else
+<p>
+<sakai-lti-iframe
+  allow-resize="yes"
+  launch-url="$!source"
+  height="$!height"
+  allow="$!browser-feature-allow">
+</sakai-lti-iframe>
+</p>
+#end
+</div>

@@ -34,6 +34,7 @@ import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.util.TextFormat;
+import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 import org.w3c.dom.Document;
@@ -63,6 +64,12 @@ public class SamLiteBean implements Serializable {
 	@Setter @ManagedProperty(value="#{Components[\"org.sakaiproject.util.api.FormattedText\"]}")
 	private FormattedText formattedText;
 
+	@Setter
+	private boolean richTextarea = false;
+
+	@Setter
+	private String samigoFrameId = this.generateSamigoFrameId();
+
 	private static final ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.SamLite");
 	
 	public void setAuthorBean(AuthorBean authorBean) {
@@ -90,7 +97,9 @@ public class SamLiteBean implements Serializable {
 	public void parse() {
 		questionGroup = samLiteService.parse(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(name), 
 				TextFormat.convertPlaintextToFormattedTextNoHighUnicode(description), 
-				TextFormat.convertPlaintextToFormattedTextNoHighUnicode(data));
+				formattedText.convertOldFormattedText(data));
+		
+		this.isRichTextarea();
 	}
 	
 	public Document createDocument() {
@@ -205,4 +214,29 @@ public class SamLiteBean implements Serializable {
 	public String getOutcome() {
 		return outcome;
 	}
+
+	public String generateSamigoFrameId() {
+		String newSamigoFrameId = "Main";
+		if (ToolManager.getCurrentPlacement() != null) {
+			newSamigoFrameId = "Main" + ToolManager.getCurrentPlacement().getId().replace("-","x");
+		}
+		return newSamigoFrameId;
+	}
+
+	public String getSamigoFrameId() {
+		return samigoFrameId;
+	}
+
+	public boolean isRichTextarea() {
+		richTextarea = false;
+		if (data != null) {
+			int indexTagStart = data.indexOf("<");
+			if (indexTagStart != -1) {
+				richTextarea = true;
+			}
+		}
+		
+		return richTextarea;
+	}
+
 }

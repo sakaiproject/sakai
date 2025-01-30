@@ -32,7 +32,7 @@
     
     <many-to-one name="permissionLevel" column="PERMISSION_LEVEL"
         class="org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl"
-        not-null="false" cascade="persist,merge,save-update" unique="true"
+        not-null="false" cascade="persist,merge,save-update,all-delete-orphan" unique="true"
         lazy="false"/>
      
       <many-to-one name="topic" column="t_surrogateKey"

@@ -55,6 +55,7 @@ import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.calendar.api.Calendar;
+import org.sakaiproject.calendar.api.CalendarConstants;
 import org.sakaiproject.calendar.api.CalendarEdit;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
@@ -218,6 +219,9 @@ extends VelocityPortletStateAction
 	private final static String ASSN_ENTITY_ID     = "assignment";
 	private final static String ASSN_ENTITY_ACTION = "deepLink";
 	private final static String ASSN_ENTITY_PREFIX = EntityReference.SEPARATOR+ASSN_ENTITY_ID+EntityReference.SEPARATOR+ASSN_ENTITY_ACTION+EntityReference.SEPARATOR;
+	
+	private final static String FULLCALENDAR_ASPECTRATIO = ServerConfigurationService.getString("calendar.fullCalendar.aspectRatio", "1.35");
+	private final static String FULLCALENDAR_SCROLLTIME = ServerConfigurationService.getString("calendar.fullCalendar.scrollTime", "06:00:00"); 
    
 	private NumberFormat monthFormat = null;
 
@@ -2849,7 +2853,7 @@ extends VelocityPortletStateAction
 				context.put("tlang",rb);
 				
 				// Get the attachments from assignment tool for viewing
-				String assignmentId = calEvent.getField(CalendarUtil.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID);
+				String assignmentId = calEvent.getField(CalendarConstants.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID);
 				
 				if (assignmentId != null && assignmentId.length() > 0)
 				{
@@ -2869,7 +2873,7 @@ extends VelocityPortletStateAction
 						context.put("assignmentTitle", (String) assignData.get("assignmentTitle"));
 					}catch(SecurityException e){
 						final String openDateErrorDescription = rb.getFormattedMessage("java.alert.opendatedescription",
-								calEvent.getField(CalendarUtil.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED));
+								calEvent.getField(CalendarConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED));
 						context.put(ALERT_MSG_KEY, rb.getString("java.alert.opendate") + " " + openDateErrorDescription);
 						context.put(NOT_OPEN_EVENT_FLAG_CONTEXT_VAR, Boolean.TRUE.toString());
 						return;
@@ -3224,7 +3228,7 @@ extends VelocityPortletStateAction
 
 		String icalInfoArr[] = {String.valueOf(ServerConfigurationService.getInt("calendar.export.next.months",12)),
 			String.valueOf(ServerConfigurationService.getInt("calendar.export.previous.months",6))};
-		String icalInfoStr = rb.getFormattedMessage("ical.info",icalInfoArr);
+		String icalInfoStr = rb.getFormattedMessage("ical.info", icalInfoArr);
 		context.put("icalInfoStr",icalInfoStr);
 			
 		// Add iCal Export URL
@@ -3257,7 +3261,7 @@ extends VelocityPortletStateAction
 		context.put("form-cancel", BUTTON + "doCancel");
 		String icalInfoArr[] = {String.valueOf(ServerConfigurationService.getInt("calendar.export.next.months",12)),
 			String.valueOf(ServerConfigurationService.getInt("calendar.export.previous.months",6))};
-		String icalInfoStr = rb.getFormattedMessage("ical.info",icalInfoArr);
+		String icalInfoStr = rb.getFormattedMessage("ical.info", icalInfoArr);
 		context.put("icalInfoStr",icalInfoStr);
 		buildMenu(portlet, context, runData, state);
 	}
@@ -3274,7 +3278,7 @@ extends VelocityPortletStateAction
 
 		String icalInfoArr[] = {String.valueOf(ServerConfigurationService.getInt("calendar.export.next.months",12)),
 			String.valueOf(ServerConfigurationService.getInt("calendar.export.previous.months",6))};
-		String icalInfoStr = rb.getFormattedMessage("ical.info",icalInfoArr);
+		String icalInfoStr = rb.getFormattedMessage("ical.info", icalInfoArr);
 		context.put("icalInfoStr",icalInfoStr);
 
 		context.put("opaqueUrl", opaqueUrl);
@@ -3597,13 +3601,16 @@ extends VelocityPortletStateAction
 		// "crack" the reference (a.k.a dereference, i.e. make a Reference)
 		// and get the event id and calendar reference
 		Reference ref = EntityManager.newReference(data.getParameters().getString(EVENT_REFERENCE_PARAMETER));
-		String eventId = ref.getId();
-		String calId = null;
-		if(CalendarService.REF_TYPE_EVENT_SUBSCRIPTION.equals(ref.getSubType())) 
+		String eventId;
+		String calId;
+		if (CalendarService.REF_TYPE_EVENT_SUBSCRIPTION.equals(ref.getSubType())) {
 			calId = CalendarService.calendarSubscriptionReference(ref.getContext(), ref.getContainer());
-		else
+			eventId = ExternalCalendarSubscriptionService.decodeIdFromRecurrence(ref.getId());
+		} else {
 			calId = CalendarService.calendarReference(ref.getContext(), ref.getContainer());
-		
+			eventId = ref.getId();
+		}
+
 		// %%% get the event object from the reference new Reference(data.getParameters().getString(EVENT_REFERENCE_PARAMETER)).getResource() -ggolden
 		try
 		{
@@ -4733,6 +4740,8 @@ extends VelocityPortletStateAction
 		type = runData.getParameters().getString("eventType");
 		String location = "";
 		location = runData.getParameters().getString("location");
+
+        String siteId = ToolManager.getCurrentPlacement().getContext();
 		
 		String calId = state.getPrimaryCalendarReference();
 		try {
@@ -4901,9 +4910,8 @@ extends VelocityPortletStateAction
 				sstate.setAttribute(CalendarAction.SSTATE__RECURRING_RULE, null);
 				sstate.setAttribute(FREQUENCY_SELECT, null);
 
-				// set the return state to be the state before new/revise
-				String returnState = state.getReturnState();
-				state.setState(returnState != null ? returnState : CALENDAR_INIT_PARAMETER);
+				// return to the calendar view after saving the event
+				state.setState(CALENDAR_INIT_PARAMETER);
 
 				// clean state
 				sstate.removeAttribute(STATE_SCHEDULE_TO);
@@ -4923,13 +4931,11 @@ extends VelocityPortletStateAction
 					Site site = SiteService.getSite(calendarObj.getContext());
 					users = site.getUsersIsAllowed("section.role.student");
 				} else if (CalendarEvent.EventAccess.GROUPED.equals(access)){
-					Set<String> groupRefs = new HashSet<>();
 					for (Group group : groups) {
-						groupRefs.add(group.getReference());
+						task.getGroups().add(group.getReference());
 						users.addAll(group.getMembers().stream()
 							.map(m -> m.getUserId()).collect(Collectors.toSet()));
 					}
-					task.setGroups(groupRefs);
 				}
 				if (users.size() == 0) {
 					users.add(UserDirectoryService.getCurrentUser().getId());
@@ -6848,6 +6854,9 @@ extends VelocityPortletStateAction
 		context.put("isDefaultView", isDefaultView(state, ToolManager.getCurrentPlacement()));
 		context.put("defaultSubview", ToolManager.getCurrentPlacement().getPlacementConfig().getProperty(PORTLET_CONFIG_DEFAULT_SUBVIEW));
 		context.put("isUpdater", SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()));
+		context.put("aspectRatio", FULLCALENDAR_ASPECTRATIO);
+		context.put("scrollTime", FULLCALENDAR_SCROLLTIME);
+		
 	} // buildCalendarContext
 
 }	 // CalendarAction

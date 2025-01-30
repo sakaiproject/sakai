@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.ServerSocket;
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.util.ArrayList;
@@ -26,14 +27,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -41,33 +40,33 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.text.StringEscapeUtils;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.lucene.search.TotalHits;
-import org.elasticsearch.action.admin.cluster.node.info.NodeInfo;
-import org.elasticsearch.action.admin.cluster.node.info.NodesInfoRequest;
-import org.elasticsearch.action.admin.cluster.node.info.NodesInfoResponse;
-import org.elasticsearch.action.admin.cluster.node.stats.NodeStats;
-import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsRequest;
-import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.ShardSearchFailure;
-import org.elasticsearch.analysis.common.CommonAnalysisPlugin;
-import org.elasticsearch.client.RestClient;
-import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.cluster.node.DiscoveryNodeRole;
-import org.elasticsearch.common.network.InetAddresses;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.util.set.Sets;
-import org.elasticsearch.node.InternalSettingsPreparer;
-import org.elasticsearch.node.Node;
-import org.elasticsearch.node.NodeValidationException;
-import org.elasticsearch.plugins.Plugin;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.search.aggregations.InternalAggregations;
-import org.elasticsearch.search.internal.InternalSearchResponse;
-import org.elasticsearch.search.suggest.Suggest;
-import org.elasticsearch.transport.Netty4Plugin;
+import org.opensearch.action.admin.cluster.node.stats.NodeStats;
+import org.opensearch.action.admin.cluster.node.stats.NodesStatsRequest;
+import org.opensearch.action.admin.cluster.node.stats.NodesStatsResponse;
+import org.opensearch.action.search.SearchResponse;
+import org.opensearch.action.search.ShardSearchFailure;
+import org.opensearch.analysis.common.CommonAnalysisPlugin;
+import org.opensearch.client.Request;
+import org.opensearch.client.Response;
+import org.opensearch.client.RestClient;
+import org.opensearch.client.RestHighLevelClient;
+import org.opensearch.cluster.node.DiscoveryNodeRole;
+import org.opensearch.common.network.InetAddresses;
+import org.opensearch.common.settings.Settings;
+import org.opensearch.common.util.set.Sets;
+import org.opensearch.node.InternalSettingsPreparer;
+import org.opensearch.node.Node;
+import org.opensearch.node.NodeValidationException;
+import org.opensearch.plugins.Plugin;
+import org.opensearch.search.SearchHit;
+import org.opensearch.search.SearchHits;
+import org.opensearch.search.aggregations.InternalAggregations;
+import org.opensearch.search.internal.InternalSearchResponse;
+import org.opensearch.search.suggest.Suggest;
+import org.opensearch.transport.Netty4Plugin;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.Notification;
@@ -75,13 +74,14 @@ import org.sakaiproject.event.api.NotificationEdit;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.InvalidSearchQueryException;
+import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchList;
-import org.sakaiproject.search.api.SearchResult;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.SearchStatus;
 import org.sakaiproject.search.api.SiteSearchIndexBuilder;
 import org.sakaiproject.search.api.TermFrequency;
 import org.sakaiproject.search.elasticsearch.filter.SearchItemFilter;
+import org.sakaiproject.search.elasticsearch.serialization.NodeStatsResponseFactory;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
@@ -90,7 +90,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.BasicConfigItem;
 import org.springframework.util.SocketUtils;
 
-import com.google.common.collect.Lists;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -122,20 +122,28 @@ import lombok.extern.slf4j.Slf4j;
     private Node node;
     private RestHighLevelClient client;
 
+    @Setter
     private boolean localNode = false;
 
     /**
      * set this to true if you intend to run an ElasticSearch cluster that is external to Sakai
      * this instructs ES to not store any data on the local node but only act as a client
      */
+    @Setter
     private boolean clientNode = false;
 
     /* injected dependencies */
-    private List<String> triggerFunctions = Lists.newArrayListWithCapacity(0);
+    private List<String> triggerFunctions = new ArrayList<>();
+    private NodeStatsResponseFactory nodeStatsResponseFactory;
+    @Setter
     private NotificationService notificationService;
+    @Setter
     private ServerConfigurationService serverConfigurationService;
+    @Setter
     private ThreadLocalManager threadLocalManager;
+    @Setter
     private UserDirectoryService userDirectoryService;
+    @Setter
     private SessionManager sessionManager;
 
     /* internal caches and configs */
@@ -145,6 +153,7 @@ import lombok.extern.slf4j.Slf4j;
     /**
      * used in searchXML() to maintain backwards compatibility
      */
+    @Setter
     private String sharedKey = null;
 
     private static class EmbeddedElasticSearchNode extends Node {
@@ -155,19 +164,20 @@ import lombok.extern.slf4j.Slf4j;
 
     public void init() {
         if (!isEnabled()) {
-            log.info("ElasticSearch is not enabled. Set search.enable=true to change that.");
+            log.info("Search is not enabled. Set search.enable=true to change that.");
             return;
         }
-        initializeElasticSearch();
+        initializeSearch();
+        nodeStatsResponseFactory = new NodeStatsResponseFactory();
     }
 
-    protected void initializeElasticSearch() {
-        final Settings settings = initializeElasticSearchSettings();
-        if (node == null) node = initializeElasticSearchNode(settings);
-        if (client == null) client = initializeElasticSearchClient(settings);
+    protected void initializeSearch() {
+        final Settings settings = initializeSearchSettings();
+        if (node == null && !clientNode) node = initializeSearchNode(settings);
+        if (client == null) client = initializeSearchClient(settings);
     }
 
-    protected Settings initializeElasticSearchSettings() {
+    protected Settings initializeSearchSettings() {
         Settings.Builder settingsBuilder = Settings.builder();
 
         // load anything set into the ServerConfigurationService that starts with "elasticsearch."
@@ -196,8 +206,6 @@ import lombok.extern.slf4j.Slf4j;
             settingsBuilder.put("path.data", serverConfigurationService.getSakaiHomePath() + "/elasticsearch/" + settingsBuilder.get("node.name"));
         }
 
-        log.info("Setting ElasticSearch storage area to [" + settingsBuilder.get("path.data") + "]");
-
         String host = settingsBuilder.get("http.host");
         String port = settingsBuilder.get("http.port");
         String transportPort = settingsBuilder.get("transport.port");
@@ -225,12 +233,7 @@ import lombok.extern.slf4j.Slf4j;
 
         settingsBuilder.put("transport.type", "netty4");
 
-        log.info("Elasticsearch configured with home=[{}], node=[{}], cluster name=[{}], http port=[{}], discovery port=[{}]",
-                settingsBuilder.get("path.home"),
-                settingsBuilder.get("node.name"),
-                settingsBuilder.get("cluster.name"),
-                settingsBuilder.get("http.port"),
-                settingsBuilder.get("transport.port"));
+        clientNode = serverConfigurationService.getBoolean("search.clientNode", false);
 
         return settingsBuilder.build();
     }
@@ -239,10 +242,10 @@ import lombok.extern.slf4j.Slf4j;
         if (node != null) {
             return node.settings().get("node.name");
         }
-        return null;
+        return "";
     }
 
-    protected Node initializeElasticSearchNode(Settings settings) {
+    protected Node initializeSearchNode(Settings settings) {
         Collection<Class<? extends Plugin>> plugins = Arrays.asList(
                 Netty4Plugin.class,
                 CommonAnalysisPlugin.class);
@@ -253,29 +256,36 @@ import lombok.extern.slf4j.Slf4j;
         Supplier<String> nodeName = () -> settings.get("node.name");
         Node node = new EmbeddedElasticSearchNode(settings, systemProperties, nodeName, plugins);
 
+        log.info("Search node configured with node=[{}], cluster name=[{}], http port=[{}], discovery port=[{}], home=[{}], data=[{}]",
+                settings.get("node.name"),
+                settings.get("cluster.name"),
+                settings.get("http.port"),
+                settings.get("transport.port"),
+                settings.get("path.home"),
+                settings.get("path.data"));
+
         try {
-            log.info("elasticsearch starting embedded node, {}", node.settings().toString());
             node.start();
         } catch (NodeValidationException nve) {
-            log.error("Could not start embedded elasticsearch node, {}", nve.toString());
+            log.error("Could not start embedded Search node, {}", nve.toString());
             return null;
         }
 
         return node;
     }
 
-    protected RestHighLevelClient initializeElasticSearchClient(Settings settings) {
+    protected RestHighLevelClient initializeSearchClient(Settings settings) {
         String host = settings.get("http.host", "localhost");
         int port = settings.getAsInt("http.port", 9200);
         HttpHost httpHost = new HttpHost(host, port);
-        log.info("elasticsearch rest high level client configured with: {}", httpHost.toHostString());
+        log.info("Search rest high level client configured with: {}", httpHost.toHostString());
         return new RestHighLevelClient(RestClient.builder(httpHost));
     }
 
     private int findAvailableTcpPort(String host, int port) {
         try (ServerSocket serverSocket = new ServerSocket(port, 0, InetAddresses.forString(host))) {
             if (serverSocket.getLocalPort() != port) {
-                throw new IOException("Port " + port + " is in use and can't be used by elasticsearch");
+                throw new IOException("Port " + port + " is in use and can't be used by search");
             }
             return port;
         } catch (IOException ioe) {
@@ -286,8 +296,7 @@ import lombok.extern.slf4j.Slf4j;
 
     public void registerIndexBuilder(ElasticSearchIndexBuilder indexBuilder) {
         if (!isEnabled()) {
-            log.info("ElasticSearch is not enabled. Skipping registration request from index builder ["
-                    + indexBuilder.getName() + "]. Set search.enable=true to change that.");
+            log.info("Search is not enabled. Skipping registration request from index builder [{}]. Set search.enable=true to change that.", indexBuilder.getName());
             return;
         }
 
@@ -297,9 +306,7 @@ import lombok.extern.slf4j.Slf4j;
             try {
                 indexBuilderName = indexBuilder.getName();
                 if (indexBuilders.containsKey(indexBuilderName)) {
-                    log.error("Skipping duplicate registration request from index builder ["
-                            + indexBuilder.getName() + "]. Including stack trace for diagnostic purposes",
-                            new RuntimeException("Diagnostic"));
+                    log.error("Skipping duplicate registration request from index builder [{}]. Including stack trace for diagnostic purposes", indexBuilder.getName(), new RuntimeException("Diagnostic"));
                     return;
                 } else {
                     registration = new ElasticSearchIndexBuilderRegistration(indexBuilder);
@@ -357,8 +364,7 @@ import lombok.extern.slf4j.Slf4j;
                 }
                 final ElasticSearchIndexBuilderRegistration registration = registrationHolder.get();
                 if ( registration.notification == null ) {
-                    log.debug("Register a notification to trigger indexation on new elements by index builder ["
-                            + indexBuilder.getName() + "]");
+                    log.debug("Register a notification to trigger indexation on new elements by index builder [{}]", indexBuilder.getName());
                     // register a transient notification for resources
                     final NotificationEdit notification = notificationService.addTransientNotification();
                     registration.notification = notification;
@@ -381,16 +387,16 @@ import lombok.extern.slf4j.Slf4j;
                     notification.setAction(new SearchNotificationAction(indexBuilder));
                 }
 
-                indexBuilder.getTriggerFunctions().forEach(s -> registerNoDuplicates((String) s, registration.notification));
-                indexBuilder.getContentFunctions().forEach(s -> registerNoDuplicates((String) s, registration.notification));
+                indexBuilder.getTriggerFunctions().forEach(s -> registerNoDuplicates(s, registration.notification));
+                indexBuilder.getContentFunctions().forEach(s -> registerNoDuplicates(s, registration.notification));
             }
         }
 
         private void handleNewGlobalContentFunction(String function) {
-            log.info("Register " + function + " as a trigger for the search service");
+            log.info("Register {} as a trigger for the search service", function);
 
             if (!isEnabled()) {
-                log.debug("ElasticSearch is not enabled. Set search.enable=true to change that.");
+                log.debug("Search is not enabled. Set search.enable=true to change that.");
                 return;
             }
 
@@ -408,68 +414,68 @@ import lombok.extern.slf4j.Slf4j;
     }
 
     @Override
-    public SearchList search(String searchTerms, List<String> siteIds, int start, int end, String filterName, String sorterName) throws InvalidSearchQueryException {
-        return search(searchTerms, siteIds, start, end);
+    public SearchList search(String searchTerms, List<String> siteIds, List<String> toolIds, int start, int end, String filterName, String sorterName) throws InvalidSearchQueryException {
+        return search(searchTerms, siteIds, toolIds, start, end);
     }
 
     @Override
-    public SearchList search(String searchTerms, List<String> siteIds, int searchStart, int searchEnd) throws InvalidSearchQueryException {
+    public SearchList search(String searchTerms, List<String> siteIds, List<String> toolIds, int searchStart, int searchEnd) throws InvalidSearchQueryException {
         Pair<SearchResponse, ElasticSearchIndexBuilder> result =
-                search(searchTerms, null, siteIds, searchStart, searchEnd, null, null, new ArrayList<>());
+                search(searchTerms, null, siteIds, toolIds, searchStart, searchEnd, null, null, new ArrayList<>());
         return new ElasticSearchList(searchTerms.toLowerCase(), result.getLeft(), this, result.getRight(),
                 result.getRight().getFacetName(), result.getRight().getFilter());
     }
 
     @Override
-    public SearchList search(String searchTerms, List<String> siteIds, int searchStart, int searchEnd, String indexBuilderName) throws InvalidSearchQueryException {
+    public SearchList search(String searchTerms, List<String> siteIds, List<String> toolIds, int searchStart, int searchEnd, String indexBuilderName) throws InvalidSearchQueryException {
         Pair<SearchResponse, ElasticSearchIndexBuilder> result =
-                search(searchTerms, indexBuilderName, siteIds, searchStart, searchEnd, null, null, new ArrayList<>());
+                search(searchTerms, indexBuilderName, siteIds, toolIds, searchStart, searchEnd, null, null, new ArrayList<>());
         return new ElasticSearchList(searchTerms.toLowerCase(), result.getLeft(), this, result.getRight(),
                 result.getRight().getFacetName(), result.getRight().getFilter());
     }
 
     @Override
-    public SearchList search(String searchTerms, List<String> siteIds, int searchStart, int searchEnd, String indexBuilderName, Map<String,String> additionalSearchInformation) throws InvalidSearchQueryException {
+    public SearchList search(String searchTerms, List<String> siteIds, List<String> toolIds, int searchStart, int searchEnd, String indexBuilderName, Map<String,String> additionalSearchInformation) throws InvalidSearchQueryException {
         Pair<SearchResponse, ElasticSearchIndexBuilder> result =
-                search(searchTerms, indexBuilderName, siteIds, searchStart, searchEnd, null, null, new ArrayList<>(),additionalSearchInformation);
+                search(searchTerms, indexBuilderName, siteIds, toolIds, searchStart, searchEnd, null, null, new ArrayList<>(),additionalSearchInformation);
         return new ElasticSearchList(searchTerms.toLowerCase(), result.getLeft(), this, result.getRight(),
                 result.getRight().getFacetName(), result.getRight().getFilter());
     }
 
     @Override
-    public SearchResponse searchResponse(String searchTerms, List<String> siteIds, int searchStart, int searchEnd, String indexBuilderName, Map<String,String> additionalSearchInformation) throws InvalidSearchQueryException {
+    public SearchResponse searchResponse(String searchTerms, List<String> siteIds, List<String> toolIds, int searchStart, int searchEnd, String indexBuilderName, Map<String,String> additionalSearchInformation) throws InvalidSearchQueryException {
         Pair<SearchResponse, ElasticSearchIndexBuilder> result =
-                search(searchTerms, indexBuilderName, siteIds, searchStart, searchEnd, null, null, new ArrayList<>(),additionalSearchInformation);
+                search(searchTerms, indexBuilderName, siteIds, toolIds, searchStart, searchEnd, null, null, new ArrayList<>(),additionalSearchInformation);
         return result.getLeft();
     }
 
-    SearchResponse search(String searchTerms, List<String> siteIds, int start, int end, List<String> references,String indexBuilderName) throws InvalidSearchQueryException {
-        return search(searchTerms, indexBuilderName, siteIds, start, end, null, null, references).getLeft();
+    SearchResponse search(String searchTerms, List<String> siteIds, List<String> toolIds, int start, int end, List<String> references,String indexBuilderName) throws InvalidSearchQueryException {
+        return search(searchTerms, indexBuilderName, siteIds, toolIds, start, end, null, null, references).getLeft();
     }
 
-    Pair<SearchResponse, ElasticSearchIndexBuilder> search(String searchTerms, String indexBuilderName, List<String> siteIds, int start, int end, String filterName, String sorterName, List<String> references) throws InvalidSearchQueryException {
+    Pair<SearchResponse, ElasticSearchIndexBuilder> search(String searchTerms, String indexBuilderName, List<String> siteIds, List<String> toolIds, int start, int end, String filterName, String sorterName, List<String> references) throws InvalidSearchQueryException {
         if (references == null) {
-            references = new ArrayList();
+            references = new ArrayList<>();
         }
         if (siteIds == null) {
-            siteIds = new ArrayList();
+            siteIds = new ArrayList<>();
         }
 
         ElasticSearchIndexBuilder indexBuilder = indexBuilderByNameOrDefault(indexBuilderName);
-        SearchResponse response = indexBuilder.search(searchTerms, references, siteIds, start, end);
+        SearchResponse response = indexBuilder.search(searchTerms, references, siteIds, toolIds, start, end);
         return new ImmutablePair<>(response, indexBuilder);
     }
 
-    Pair<SearchResponse, ElasticSearchIndexBuilder> search(String searchTerms, String indexBuilderName, List<String> siteIds, int start, int end, String filterName, String sorterName, List<String> references, Map<String,String> additionalSearchInformation) throws InvalidSearchQueryException {
+    Pair<SearchResponse, ElasticSearchIndexBuilder> search(String searchTerms, String indexBuilderName, List<String> siteIds, List<String> toolIds, int start, int end, String filterName, String sorterName, List<String> references, Map<String,String> additionalSearchInformation) throws InvalidSearchQueryException {
         if (references == null) {
-            references = new ArrayList();
+            references = new ArrayList<>();
         }
         if (siteIds == null) {
-            siteIds = new ArrayList();
+            siteIds = new ArrayList<>();
         }
 
         ElasticSearchIndexBuilder indexBuilder = indexBuilderByNameOrDefault(indexBuilderName);
-        SearchResponse response = indexBuilder.search(searchTerms, references, siteIds, start, end, additionalSearchInformation);
+        SearchResponse response = indexBuilder.search(searchTerms, references, siteIds, toolIds, start, end, additionalSearchInformation);
         return new ImmutablePair<>(response, indexBuilder);
     }
 
@@ -482,7 +488,7 @@ import lombok.extern.slf4j.Slf4j;
         return indexBuilders.get(indexBuilderName).indexBuilder;
     }
 
-    public String searchXML(Map parameterMap) {
+    public String searchXML(Map<String, String[]> parameterMap) {
         String userid = null;
         String searchTerms = null;
         String checksum = null;
@@ -490,15 +496,15 @@ import lombok.extern.slf4j.Slf4j;
         String ss = null;
         String se = null;
         try {
-            String[] useridA = (String[]) parameterMap.get(REST_USERID);
-            String[] searchTermsA = (String[]) parameterMap.get(REST_TERMS);
-            String[] checksumA = (String[]) parameterMap.get(REST_CHECKSUM);
-            String[] contextsA = (String[]) parameterMap.get(REST_CONTEXTS);
-            String[] ssA = (String[]) parameterMap.get(REST_START);
-            String[] seA = (String[]) parameterMap.get(REST_END);
+            String[] useridA = parameterMap.get(REST_USERID);
+            String[] searchTermsA = parameterMap.get(REST_TERMS);
+            String[] checksumA = parameterMap.get(REST_CHECKSUM);
+            String[] contextsA = parameterMap.get(REST_CONTEXTS);
+            String[] ssA = parameterMap.get(REST_START);
+            String[] seA = parameterMap.get(REST_END);
 
             StringBuilder sb = new StringBuilder();
-            sb.append("<?xml version=\"1.0\"?>"); //$NON-NLS-1$
+            sb.append("<?xml version=\"1.0\"?>");
 
             boolean requestError = false;
             if (useridA == null || useridA.length != 1) {
@@ -533,43 +539,38 @@ import lombok.extern.slf4j.Slf4j;
             }
 
             if (requestError) {
-                throw new Exception("Invalid Request"); //$NON-NLS-1$
+                throw new Exception("Invalid Request");
 
             }
 
             int searchStart = Integer.parseInt(ss);
             int searchEnd = Integer.parseInt(se);
-            String[] ctxa = contexts.split(";"); //$NON-NLS-1$
-            List<String> ctx = new ArrayList<String>(ctxa.length);
-            for (int i = 0; i < ctxa.length; i++) {
-                ctx.add(ctxa[i]);
-            }
+            String[] ctxa = contexts.split(";");
+            List<String> ctx = new ArrayList<>(ctxa.length);
+            ctx.addAll(Arrays.asList(ctxa));
 
-            if (sharedKey != null && sharedKey.length() > 0) {
+            if (sharedKey != null && !sharedKey.isEmpty()) {
                 String check = digestCheck(userid, searchTerms);
                 if (!check.equals(checksum)) {
-                    throw new Exception("Security Checksum is not valid"); //$NON-NLS-1$
+                    throw new Exception("Security Checksum is not valid");
                 }
             }
 
             org.sakaiproject.tool.api.Session s = sessionManager.startSession();
-            User u = userDirectoryService.getUser("admin"); //$NON-NLS-1$
+            User u = userDirectoryService.getUser("admin");
             s.setUserId(u.getId());
             sessionManager.setCurrentSession(s);
             try {
 
-                SearchList sl = search(searchTerms, ctx, searchStart, searchEnd);
-                sb.append("<results "); //$NON-NLS-1$
-                sb.append(" fullsize=\"").append(sl.getFullSize()) //$NON-NLS-1$
-                        .append("\" "); //$NON-NLS-1$
-                sb.append(" start=\"").append(sl.getStart()).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
-                sb.append(" size=\"").append(sl.size()).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
-                sb.append(" >"); //$NON-NLS-1$
-                for (Iterator<SearchResult> si = sl.iterator(); si.hasNext(); ) {
-                    SearchResult sr = (SearchResult) si.next();
-                    sr.toXMLString(sb);
-                }
-                sb.append("</results>"); //$NON-NLS-1$
+                SearchList sl = search(searchTerms, ctx, null, searchStart, searchEnd);
+                sb.append("<results ");
+                sb.append(" fullsize=\"").append(sl.getFullSize())
+                        .append("\" ");
+                sb.append(" start=\"").append(sl.getStart()).append("\" "); //$NON-NLS-2$
+                sb.append(" size=\"").append(sl.size()).append("\" "); //$NON-NLS-2$
+                sb.append(" >");
+                sl.forEach(sr -> sr.toXMLString(sb));
+                sb.append("</results>");
                 return sb.toString();
             } finally {
                 sessionManager.setCurrentSession(null);
@@ -577,49 +578,48 @@ import lombok.extern.slf4j.Slf4j;
         } catch (Exception ex) {
             log.error("Search Service XML response failed ", ex);
             StringBuilder sb = new StringBuilder();
-            sb.append("<?xml version=\"1.0\"?>"); //$NON-NLS-1$
-            sb.append("<fault>"); //$NON-NLS-1$
-            sb.append("<request>"); //$NON-NLS-1$
-            sb.append("<![CDATA["); //$NON-NLS-1$
-            sb.append(" userid = ").append(StringEscapeUtils.escapeXml11(userid)).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
-            sb
-                    .append(" searchTerms = ").append(StringEscapeUtils.escapeXml11(searchTerms)).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
-            sb
-                    .append(" checksum = ").append(StringEscapeUtils.escapeXml11(checksum)).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
-            sb
-                    .append(" contexts = ").append(StringEscapeUtils.escapeXml11(contexts)).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
-            sb.append(" ss = ").append(StringEscapeUtils.escapeXml11(ss)).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
-            sb.append(" se = ").append(StringEscapeUtils.escapeXml11(se)).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
-            sb.append("]]>"); //$NON-NLS-1$
-            sb.append("</request>"); //$NON-NLS-1$
-            sb.append("<error>"); //$NON-NLS-1$
-            sb.append("<![CDATA["); //$NON-NLS-1$
+            sb.append("<?xml version=\"1.0\"?>");
+            sb.append("<fault>");
+            sb.append("<request>");
+            sb.append("<![CDATA[");
+            sb.append(" userid = ").append(StringEscapeUtils.escapeXml11(userid)).append("\n"); //$NON-NLS-2$
+            sb.append(" searchTerms = ").append(StringEscapeUtils.escapeXml11(searchTerms)).append("\n"); //$NON-NLS-2$
+            sb.append(" checksum = ").append(StringEscapeUtils.escapeXml11(checksum)).append("\n"); //$NON-NLS-2$
+            sb.append(" contexts = ").append(StringEscapeUtils.escapeXml11(contexts)).append("\n"); //$NON-NLS-2$
+            sb.append(" ss = ").append(StringEscapeUtils.escapeXml11(ss)).append("\n"); //$NON-NLS-2$
+            sb.append(" se = ").append(StringEscapeUtils.escapeXml11(se)).append("\n"); //$NON-NLS-2$
+            sb.append("]]>");
+            sb.append("</request>");
+            sb.append("<error>");
+            sb.append("<![CDATA[");
             try {
                 StringWriter sw = new StringWriter();
                 PrintWriter pw = new PrintWriter(sw);
-                log.error("Search Service XML response failed ", pw);
+                log.error("Search Service XML response failed {}", pw);
                 pw.flush();
-                sb.append(sw.toString());
+                sb.append(sw);
                 pw.close();
                 sw.close();
             } catch (Exception ex2) {
-                sb.append("Failed to serialize exception " + ex.getMessage()) //$NON-NLS-1$
-                        .append("\n"); //$NON-NLS-1$
-                sb.append("Case:  " + ex2.getMessage()); //$NON-NLS-1$
+                sb.append("Failed to serialize exception ")
+                        .append(ex.getMessage())
+                        .append("\n");
+                sb.append("Case:  ")
+                        .append(ex2.getMessage());
 
             }
-            sb.append("]]>"); //$NON-NLS-1$
-            sb.append("</error>"); //$NON-NLS-1$
-            sb.append("</fault>"); //$NON-NLS-1$
+            sb.append("]]>");
+            sb.append("</error>");
+            sb.append("</fault>");
             return sb.toString();
         }
     }
 
     private String digestCheck(String userid, String searchTerms)
             throws GeneralSecurityException, IOException {
-        MessageDigest sha1 = MessageDigest.getInstance("SHA1"); //$NON-NLS-1$
+        MessageDigest sha1 = MessageDigest.getInstance("SHA1");
         String chstring = sharedKey + userid + searchTerms;
-        return byteArrayToHexStr(sha1.digest(chstring.getBytes("UTF-8"))); //$NON-NLS-1$
+        return byteArrayToHexStr(sha1.digest(chstring.getBytes(StandardCharsets.UTF_8)));
     }
 
     private static String byteArrayToHexStr(byte[] data) {
@@ -642,12 +642,12 @@ import lombok.extern.slf4j.Slf4j;
 
     @Override
     public void refreshInstance() {
-        forEachRegisteredIndexBuilder(i -> i.refreshIndex());
+        forEachRegisteredIndexBuilder(SearchIndexBuilder::refreshIndex);
     }
 
     @Override
     public void refreshIndex(String indexBuilderName) {
-        log.info("Refresh Index for Index Builder Name="+indexBuilderName);
+        log.info("Refresh Index for Index Builder Name={}", indexBuilderName);
         ElasticSearchIndexBuilderRegistration builder =
             indexBuilders.get(indexBuilderName);
         if (builder != null) {
@@ -657,12 +657,12 @@ import lombok.extern.slf4j.Slf4j;
 
     @Override
     public void rebuildInstance() {
-        forEachRegisteredIndexBuilder(i -> i.rebuildIndex());
+        forEachRegisteredIndexBuilder(SearchIndexBuilder::rebuildIndex);
     }
 
     @Override
     public void rebuildIndex(String indexBuilderName) {
-        log.info("Rebuild Index Builder Name="+indexBuilderName);
+        log.info("Rebuild Index Builder Name={}", indexBuilderName);
         ElasticSearchIndexBuilderRegistration builder =
             indexBuilders.get(indexBuilderName);
         if (builder != null) {
@@ -725,15 +725,18 @@ import lombok.extern.slf4j.Slf4j;
 
     @Override
     public List<SearchStatus> getSearchStatus() {
-        final List<SearchStatus> indexBuilderStatuses = Lists.newArrayList();
+        final List<SearchStatus> indexBuilderStatuses = new ArrayList<>();
         forEachRegisteredIndexBuilder(i -> indexBuilderStatuses.add(i.getSearchStatus()));
 
         final NodesStatsResponse nodesStatsResponse = getNodesStats();
 
-        return indexBuilderStatuses
-                .stream()
-                .map(s -> newSearchStatusWrapper(s, nodesStatsResponse))
-                .collect(Collectors.toList());
+        if (nodesStatsResponse != null) {
+            return indexBuilderStatuses
+                    .stream()
+                    .map(s -> newSearchStatusWrapper(s, nodesStatsResponse))
+                    .collect(Collectors.toList());
+        }
+        return Collections.emptyList();
     }
 
 
@@ -761,12 +764,12 @@ import lombok.extern.slf4j.Slf4j;
             }
 
             @Override
-            public List getWorkerNodes() {
-                List<Object[]> workers = new ArrayList();
+            public List<String[]> getWorkerNodes() {
+                List<String[]> workers = new ArrayList<>();
 
                 for (NodeStats nodeStat : nodesStatsResponse.getNodes()) {
                     if (nodeStat.getNode().getRoles().contains(DiscoveryNodeRole.DATA_ROLE)) {
-                        workers.add(new Object[]{nodeStat.getNode().getName() + "(" + nodeStat.getHostname() + ")",
+                        workers.add(new String[]{nodeStat.getNode().getName() + "(" + nodeStat.getHostname() + ")",
                             null, // No way to get a meaningful "start" time per node, so now just set a null Date.
                             // Historically used an index builder starttime, which was always meaningless in this
                             // context since it's always going to refer to the local node. And we now have
@@ -792,16 +795,31 @@ import lombok.extern.slf4j.Slf4j;
     }
 
     protected NodesStatsResponse getNodesStats() {
-        final NodesInfoResponse nodesInfoResponse = node.client().admin().cluster().nodesInfo(new NodesInfoRequest()).actionGet();
-        final String[] nodes = new String[nodesInfoResponse.getNodes().size()];
 
-        int i = 0;
-
-        for (NodeInfo nodeInfo : nodesInfoResponse.getNodes()) {
-            nodes[i++] = nodeInfo.getNode().getName();
+        if (node != null) {
+            return node.client().admin().cluster().nodesStats(new NodesStatsRequest()).actionGet();
+        } else {
+            Request request = new Request("GET", NodeStatsResponseFactory.NODE_STATS_INDICES_API);
+            try {
+                Response response = client.getLowLevelClient().performRequest(request);
+                int statusCode = response.getStatusLine().getStatusCode();
+                if (statusCode == 200) {
+                    HttpEntity httpEntity = response.getEntity();
+                    if (httpEntity != null) {
+                        NodesStatsResponse nodesStatsResponse = nodeStatsResponseFactory.createNodeStatsIndicesFromJSON(httpEntity.getContent());
+                        log.debug("Response for request [{}], status [{}], result:\n{}", response.getRequestLine(), statusCode, nodesStatsResponse);
+                        return nodesStatsResponse;
+                    } else {
+                        log.warn("Response for request [{}], status [{}], warnings [{}], contained no data", response.getRequestLine(), statusCode, response.getWarnings());
+                    }
+                } else {
+                    log.warn("Response for request [{}], status [{}], warnings [{}]", response.getRequestLine(), statusCode, response.getWarnings());
+                }
+            } catch (Exception e) {
+                log.warn("Failed retrieving node stats from cluster, {}", e.toString());
+            }
         }
-
-        return node.client().admin().cluster().nodesStats(new NodesStatsRequest(nodes)).actionGet();
+        return null;
     }
 
     protected void forEachRegisteredIndexBuilder(Consumer<ElasticSearchIndexBuilder> consumer) {
@@ -824,7 +842,7 @@ import lombok.extern.slf4j.Slf4j;
 
     @Override
     public TermFrequency getTerms(int documentId) throws IOException {
-        throw new UnsupportedOperationException("ElasticSearch can't does not support this operation at this time.");
+        throw new UnsupportedOperationException("Search can't does not support this operation at this time.");
     }
 
     @Override
@@ -840,7 +858,7 @@ import lombok.extern.slf4j.Slf4j;
     @Override
     public String getSearchSuggestion(String searchString) {
         String[] suggestions = getSearchSuggestions(searchString, null, true);
-        if (suggestions != null && suggestions.length > 0) {
+        if (suggestions != null) {
             for (String suggestion : suggestions) {
                 if (searchString.equalsIgnoreCase(suggestion)) {
                     continue;
@@ -884,7 +902,7 @@ import lombok.extern.slf4j.Slf4j;
             try {
                 node.close();
             } catch (IOException ioe) {
-                log.error("Error shutting down elasticsearch");
+                log.error("Error shutting down search");
             }
             node = null;
         }
@@ -914,38 +932,6 @@ import lombok.extern.slf4j.Slf4j;
         } else {
             this.triggerFunctions = triggerFunctions;
         }
-    }
-
-    public void setNotificationService(NotificationService notificationService) {
-        this.notificationService = notificationService;
-    }
-
-    public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
-        this.serverConfigurationService = serverConfigurationService;
-    }
-
-    public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
-        this.userDirectoryService = userDirectoryService;
-    }
-
-    public void setSessionManager(SessionManager sessionManager) {
-        this.sessionManager = sessionManager;
-    }
-
-    public void setSharedKey(String sharedKey) {
-        this.sharedKey = sharedKey;
-    }
-
-    public void setLocalNode(boolean localNode) {
-        this.localNode = localNode;
-    }
-
-    public void setClientNode(boolean clientNode) {
-        this.clientNode = clientNode;
-    }
-
-    public void setThreadLocalManager(ThreadLocalManager threadLocalManager) {
-        this.threadLocalManager = threadLocalManager;
     }
 
     private static class ElasticSearchIndexBuilderRegistration {
@@ -987,12 +973,12 @@ import lombok.extern.slf4j.Slf4j;
         }
 
         @Override
-        public SearchResponse search(String searchTerms, List<String> references, List<String> siteIds, int start, int end) {
-            return search(searchTerms,references,siteIds,start,end, new HashMap<String,String>());
+        public SearchResponse search(String searchTerms, List<String> references, List<String> siteIds, List<String> toolIds, int start, int end) {
+            return search(searchTerms,references,siteIds,toolIds,start,end, new HashMap<>());
         }
 
         @Override
-        public SearchResponse search(String searchTerms, List<String> references, List<String> siteIds, int start, int end, Map<String,String> additionalSearchInfromation) {
+        public SearchResponse search(String searchTerms, List<String> references, List<String> siteIds, List<String> toolIds, int start, int end, Map<String,String> additionalSearchInfromation) {
             return new SearchResponse(
                     new InternalSearchResponse(new SearchHits(new SearchHit[0], new TotalHits(0, TotalHits.Relation.EQUAL_TO), 0.0f), InternalAggregations.EMPTY, new Suggest(Collections.emptyList()), null, false, false, 1),
                     "no-op",
@@ -1063,7 +1049,7 @@ import lombok.extern.slf4j.Slf4j;
                 }
 
                 @Override
-                public List getWorkerNodes() {
+                public List<String[]> getWorkerNodes() {
                     return Collections.emptyList();
                 }
 
@@ -1110,7 +1096,7 @@ import lombok.extern.slf4j.Slf4j;
         }
 
         @Override
-        public List<EntityContentProducer> getContentProducers() {
+        public Collection<EntityContentProducer> getContentProducers() {
             return Collections.emptyList();
         }
 

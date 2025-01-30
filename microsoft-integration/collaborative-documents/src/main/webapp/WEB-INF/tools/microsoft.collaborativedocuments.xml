@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<registration>
+    <tool id="microsoft.collaborativedocuments" title="Collaborative Documents" description="A Microsoft tool to browse Colaborative Documents">
+        <category name="sakai.admin" />
+        <category name="course" />
+        <category name="project" />
+    </tool>
+</registration>

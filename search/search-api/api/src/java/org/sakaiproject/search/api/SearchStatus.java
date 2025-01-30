@@ -64,7 +64,7 @@ public interface SearchStatus
 	 * 
 	 * @return
 	 */
-	List getWorkerNodes();
+	List<String[]> getWorkerNodes();
 
 	/**
 	 * the number of documents in the index, including those marked as deleted

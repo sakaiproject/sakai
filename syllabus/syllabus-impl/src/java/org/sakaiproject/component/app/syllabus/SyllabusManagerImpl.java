@@ -31,17 +31,9 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
-import org.hibernate.query.Query;
 import org.hibernate.criterion.Expression;
-import org.hibernate.type.LongType;
-import org.hibernate.type.StringType;
-import org.springframework.orm.hibernate5.HibernateCallback;
-import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
-
 import org.sakaiproject.api.app.syllabus.SyllabusAttachment;
 import org.sakaiproject.api.app.syllabus.SyllabusData;
 import org.sakaiproject.api.app.syllabus.SyllabusItem;
@@ -66,6 +58,11 @@ import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.springframework.orm.hibernate5.HibernateCallback;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 
 /**
@@ -120,7 +117,7 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
    * getSyllabiForSyllabusItem returns the collection of syllabi
    * @param syllabusItem
    */
-  public Set getSyllabiForSyllabusItem(final SyllabusItem syllabusItem)
+  public Set<SyllabusData> getSyllabiForSyllabusItem(final SyllabusItem syllabusItem)
   {
     if (syllabusItem == null)
     {
@@ -140,7 +137,7 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
         if (syllabusItem1 != null){
           return syllabusItem1.getSyllabi();
         }
-        return new TreeSet();
+        return new TreeSet<>();
       };
       return getHibernateTemplate().execute(hcb);
     }
@@ -182,7 +179,8 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
   public void removeSyllabusDataObject(SyllabusData o)
   {
     getHibernateTemplate().execute(session -> {
-      session.delete(session.merge(o));
+      SyllabusData syllabusData = session.get(SyllabusData.class, o.getSyllabusId());
+      session.delete(syllabusData);
       return null;
     });
   }
@@ -557,12 +555,9 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
   }  
 
 
-  public void removeSyllabusAttachmentObject(SyllabusAttachment o)
+  public void removeSyllabusAttachmentObject(SyllabusAttachment syllabusAttachment)
   {
-    getHibernateTemplate().execute(session -> {
-      session.delete(session.merge(o));
-      return null;
-    });
+    removeSyllabusAttachSyllabusData(syllabusAttachment.getSyllabusData(), syllabusAttachment);
   }
   
   public void removeSyllabusAttachSyllabusData(final SyllabusData syllabusData, final SyllabusAttachment syllabusAttach)

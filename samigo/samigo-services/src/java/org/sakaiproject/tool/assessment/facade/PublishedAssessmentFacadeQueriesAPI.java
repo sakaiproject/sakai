@@ -234,7 +234,7 @@ public interface PublishedAssessmentFacadeQueriesAPI
 
   public void saveOrUpdateMetaData(PublishedMetaData meta);
 
-  public Map<Long, PublishedFeedback> getFeedbackHash();
+  public Map<Long, PublishedFeedback> getFeedbackHash(String siteId);
 
   /** this return a HashMap containing
    *  (Long publishedAssessmentId, PublishedAssessmentFacade publishedAssessment)
@@ -267,6 +267,8 @@ public interface PublishedAssessmentFacadeQueriesAPI
   public Set<PublishedSectionData> getSectionSetForAssessment(Long publishedAssessmentId);
 
   public boolean isRandomDrawPart(Long publishedAssessmentId, Long sectionId);
+
+  public boolean isFixedRandomDrawPart(Long publishedAssessmentId, Long sectionId);
  
   public PublishedAssessmentData getBasicInfoOfPublishedAssessment(Long publishedId);
   

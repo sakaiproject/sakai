@@ -120,7 +120,7 @@ public class DropboxAuthzHandler
 
 		if (canMaintainEntity(id))
 		{
-			if (parts.length == 4 && userExists(getDropboxOwner(id)))
+			if (parts.length == 4 && isSiteMember(siteId, getDropboxOwner(id)))
 			{
 				// It's a user's dropbox, don't allow destructive permissions
 				return isAuthorizedOnEntity(dropboxLock, id, false);
@@ -313,5 +313,18 @@ public class DropboxAuthzHandler
 		// /group-user/siteId/userId/...
 		// parts: "", "group-user", "siteId", "userId", ...
 		return parts[3];
+	}
+	
+	private static boolean isSiteMember(String siteId, String userId)
+	{
+		try
+		{
+			return siteService.getSite(siteId).getMember(userId) != null;
+		}
+		catch (IdUnusedException e)
+		{
+			log.warn("User [{}] is not a member of site [{}], {}", userId, siteId, e.toString());
+			return false;
+		}
 	}
 }

@@ -26,9 +26,9 @@ import java.io.Reader;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.net.URL;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -109,9 +109,7 @@ public class PDFAssessmentBean implements Serializable {
 	
 
 	public PDFAssessmentBean() {
-		if (log.isInfoEnabled())
-			log.info("Starting PDFAssessementBean with session scope");
-
+		log.debug("Starting PDFAssessementBean with session scope");
 	}
 
 
@@ -215,36 +213,19 @@ public class PDFAssessmentBean implements Serializable {
 	 * @return pdf file name
 	 */
 	public String genName() {
-		//There has got to be a cleaner way to get a good time stamp in java?
-		Calendar cal = new GregorianCalendar();
+		LocalDateTime now = LocalDateTime.now();
+		String timestamp = now.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
 
-		int year = cal.get(Calendar.YEAR);
-		int month = cal.get(Calendar.MONTH);
-		int day = cal.get(Calendar.DAY_OF_MONTH);
-		int hour = cal.get(Calendar.HOUR_OF_DAY);
-		int min = cal.get(Calendar.MINUTE);
-		int sec = cal.get(Calendar.SECOND);
+		String plainTitle = formattedText.convertFormattedTextToPlaintext(title)
+				.substring(0, Math.min(title.length(), 9));
 
-		String fTitle = formattedText.convertFormattedTextToPlaintext(title);
-		int end = Math.min(fTitle.length(), 9);
-
-		StringBuffer name = new StringBuffer(fTitle.substring(0, end));
-		name.append(year);
-		name.append(month);
-		name.append(day);
-		name.append(hour);
-		name.append(min);
-		name.append(sec);
-		name.append(".pdf");
-		
-		if (log.isWarnEnabled())
-			log.warn(name.toString());
-
-		return formattedText.escapeUrl(name.toString().replace(" ", "_"));
+		return formattedText.escapeUrl(
+				String.format("%s%s.pdf", plainTitle, timestamp)
+						.replace(" ", "_")
+		);
 	}
 
-	public String prepPDF() {
-
+	public void prepPDF() {
 		DeliveryBean deliveryBean = (DeliveryBean) ContextUtil.lookupBean("delivery");
 		deliveryBean.setActionString("previewAssessment");
 
@@ -260,12 +241,9 @@ public class PDFAssessmentBean implements Serializable {
 		setDeliveryParts(deliveryBean.getTableOfContents().getPartsContents());
 
 		prepDocumentPDF();
-
-		return "print";
 	}
 
-	public String prepDocumentPDF() {
-
+	public void prepDocumentPDF() {
 		DeliveryBean deliveryBean = (DeliveryBean) ContextUtil.lookupBean("delivery");
 
 		PrintSettingsBean printSetting = (PrintSettingsBean) ContextUtil.lookupBean("printSettings");
@@ -354,9 +332,9 @@ public class PDFAssessmentBean implements Serializable {
 					while (partAttachmentIter.hasNext()) {
 						partIntros.append("<br />");
 						PublishedSectionAttachment partAttachment = (PublishedSectionAttachment) partAttachmentIter.next();
-						if (partAttachment.getMimeType().equalsIgnoreCase("image/jpeg") || 
-								partAttachment.getMimeType().equalsIgnoreCase("image/pjpeg") || 
-								partAttachment.getMimeType().equalsIgnoreCase("image/gif") || 
+						if (partAttachment.getMimeType().equalsIgnoreCase("image/jpeg") ||
+								partAttachment.getMimeType().equalsIgnoreCase("image/pjpeg") ||
+								partAttachment.getMimeType().equalsIgnoreCase("image/gif") ||
 								partAttachment.getMimeType().equalsIgnoreCase("image/png")) {
 							partIntros.append("  <img src=\"/samigo");
 							partIntros.append(partAttachment.getResourceId());
@@ -588,7 +566,6 @@ public class PDFAssessmentBean implements Serializable {
 
 		setTitle(deliveryBean.getAssessmentTitle());
 
-		return "print";
 	}
 
 	private String getContentAnswer(ItemContentsBean item, PublishedAnswer answer, PrintSettingsBean printSetting) {
@@ -705,7 +682,7 @@ public class PDFAssessmentBean implements Serializable {
 				contentBuffer.append(getContentQuestionImageMap(item, printSetting, true));
 			}
 			else if(TypeIfc.CALCULATED_QUESTION.equals( item.getItemData().getTypeId() )){
-				contentBuffer.append(item.getAnswerKeyCalcQuestion());
+				contentBuffer.append(item.getAnswerKeyCalcQuestion().replace("<", "&lt;").replace(">", "&gt;"));
 			}
 			else
 				contentBuffer.append(item.getItemData().getAnswerKey());
@@ -848,35 +825,21 @@ public class PDFAssessmentBean implements Serializable {
 	
 	public void getPDFAttachment() {
 		prepDocumentPDF();
-		ByteArrayOutputStream pdf = getStream();
+		byte[] pdf = getPDFBytes();
 
 		FacesContext faces = FacesContext.getCurrentInstance();
 		HttpServletResponse response = (HttpServletResponse)faces.getExternalContext().getResponse();
 
 		response.reset();
-		response.setHeader("Pragma", "public"); 
-		response.setHeader("Cache-Control", "public, must-revalidate, post-check=0, pre-check=0, max-age=0"); 
-
+		response.setHeader("Cache-Control", "no-cache");
 		response.setContentType("application/pdf");
 		response.setHeader("Content-disposition", "attachment; filename=" + genName());   
-		response.setContentLength(pdf.toByteArray().length);
-		OutputStream out = null;
-		try {
-			out = response.getOutputStream();
-			out.write(pdf.toByteArray());
+		response.setContentLength(pdf.length);
+		try (OutputStream out = response.getOutputStream()) {
+			out.write(pdf);
 			out.flush();
-		} 
-		catch (IOException e) {
-			log.error(e.getMessage(), e);
-		}
-		finally {
-			try {
-				if (out != null) 
-					out.close();
-			} 
-			catch (IOException e) {
-				log.error(e.getMessage(), e);
-			}
+		} catch (IOException e) {
+			log.warn("Error writing PDF bytes to response", e);
 		}
 		faces.responseComplete();
 	}
@@ -889,41 +852,28 @@ public class PDFAssessmentBean implements Serializable {
 	 * @param input
 	 */
 	private String oldschoolIfy(String input) {
+		log.debug("starting oldschoolify with: {}", input);
 
-		if (log.isDebugEnabled())
-			log.debug("starting oldschoolify with: " + input);
-		
-		
-		StringBuffer text1 = new StringBuffer("<div><font color='#01a5cb' size='");
 		int size1 = (int)(baseFontSize * 1.1);
-		text1.append(size1);
-		text1.append("'");
-		input = input.replaceAll("<h1", text1.toString());
-		input = input.replaceAll("<h2", text1.toString());
-		
-		StringBuffer text2 = new StringBuffer("<div><font color='#CCCCCC' size='");
-		int size2 = (int)(baseFontSize * 1);
-		text2.append(size2);
-		text2.append("'");	
-		input = input.replaceAll("<h3", text2.toString());
+		String text1 = "<div><font size=" + size1;
+		input = input.replaceAll("<h1", text1);
+		input = input.replaceAll("<h2", text1);
 
-		StringBuffer text3 = new StringBuffer("<div><font size='");
+		int size2 = baseFontSize;
+		String text2 = "<div><font color='#A9A9A9' size=" + size2;
+		input = input.replaceAll("<h3", text2);
+
 		int size3 = (int)(baseFontSize * .85);
-		text3.append(size3);
-		text3.append("'");
-		input = input.replaceAll("<h4", text3.toString());
-		
-		StringBuffer text4 = new StringBuffer("<div><font size='");
+		String text3 = "<div><font size=" + size3;
+		input = input.replaceAll("<h4", text3);
+
 		int size4 = (int)(baseFontSize * .8);
-		text4.append(size4);
-		text4.append("'");
-		input = input.replaceAll("<h5", text4.toString());
-		
-		StringBuffer text5 = new StringBuffer("<div><font color='#333333' size='");
+		String text4 = "<div><font size=" + size4;
+		input = input.replaceAll("<h5", text4);
+
 		int size5 = (int)(baseFontSize * .6);
-		text5.append(size5);
-		text5.append("'");
-		input = input.replaceAll("<h6", text5.toString());
+		String text5 = "<div><font color='#808080' size=" + size5;
+		input = input.replaceAll("<h6", text5);
 
 		input = input.replaceAll("</h.>", "</font></div>");
 		if(!input.startsWith("<div><font")){
@@ -952,22 +902,20 @@ public class PDFAssessmentBean implements Serializable {
 			output = new StringReader(input + "<br/>");
 		}
 		catch(Exception e) {
-			log.error("could not get StringReader for String " + input + " due to : " + e);
+            log.warn("could not get StringReader for String {} due to : {}", input, e);
 		}
 		return output;
 	}
 
-	public ByteArrayOutputStream getStream() {
+	public byte[] getPDFBytes() {
 
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 
+		Document document = new Document(PageSize.A4, 20, 20, 20, 20);
+
 		try {
-
-			if (log.isInfoEnabled())
-				log.info("starting PDF generation" );
-
-			Document document = new Document(PageSize.A4, 20, 20, 20, 20);
 			PdfWriter docWriter = PdfWriter.getInstance(document, output);
+			PrintSettingsBean printSetting = (PrintSettingsBean) ContextUtil.lookupBean("printSettings");
 
 			document.open();
 			document.resetPageCount();
@@ -976,7 +924,7 @@ public class PDFAssessmentBean implements Serializable {
 
 			Map<String, Object> props = worker.getInterfaceProps();
 			if (props == null) {
-				props = new HashMap();
+				props = new HashMap<>();
 			}
 
 			float prevs = 0;
@@ -993,8 +941,10 @@ public class PDFAssessmentBean implements Serializable {
 			head.append("<br /><br /><h1>");
 			head.append(title);
 			head.append("</h1><br />");
-			head.append(intro);
-			head.append("<br />");
+			if (StringUtils.isNotBlank(intro)) {
+				head.append(intro);
+				head.append("<br />");
+			}
 
 			//head = head.replaceAll("[ \t\n\f\r]+", " ");
 
@@ -1005,8 +955,8 @@ public class PDFAssessmentBean implements Serializable {
 			single.setWidthPercentage(100f);
 			PdfPCell cell = new PdfPCell();
 			cell.setBorderWidth(0);
-			for (int k = 0; k < elementBuffer.size(); k++) {    
-				cell.addElement((Element)elementBuffer.get(k));          
+			for (int k = 0; k < elementBuffer.size(); k++) {
+				cell.addElement((Element)elementBuffer.get(k));
 			}
 			single.addCell(cell);
 
@@ -1019,8 +969,8 @@ public class PDFAssessmentBean implements Serializable {
 			//extract the html and parse it into pdf
 			List parts = getHtmlChunks();
 			for (int i = 0; i < parts.size(); i++) {
-				//add new page to start each new part
-				if (i > 0) {
+				//add new page to start each new part except if the user requested to show everything on the same page.
+				if (i > 0 && !printSetting.getShowSamePage()) {
 					document.newPage();
 				}
 
@@ -1031,14 +981,14 @@ public class PDFAssessmentBean implements Serializable {
 					single.setWidthPercentage(100f);
 					cell = new PdfPCell();
 					cell.setBorderWidth(0);
-					for (int k = 0; k < elementBuffer.size(); k++) {    
-						cell.addElement((Element)elementBuffer.get(k));          
+					for (int k = 0; k < elementBuffer.size(); k++) {
+						cell.addElement((Element)elementBuffer.get(k));
 					}
 					single.addCell(cell);
 
 					prevs += single.getTotalHeight() % document.getPageSize().getHeight();
 					document.add(single);
-				}  
+				}
 
 				List items = pBean.getQuestions();
 
@@ -1092,15 +1042,16 @@ public class PDFAssessmentBean implements Serializable {
 				}
 			}
 
-			document.close();
-			docWriter.close();
-
+		} catch(Exception e) {
+			log.warn("Error generating Samigo PDF", e);
+		} finally {
+			// The original iText usage pattern was to not close the writer oneself but instead let it be closed via closing the document.
+			if (document.isOpen()) {
+				document.close();
+			}
 		}
-		catch(Exception e) {
-			log.error(e.getMessage(), e);
-		}
 
-		return output;
+		return output.toByteArray();
 	}
 
 	public String getBaseFontSize() {

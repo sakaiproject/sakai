@@ -52,8 +52,17 @@ should be included in file importing DeliveryMessages
 <%-- this invisible text is a trick to get the value set in the component tree
      without displaying it; audioMediaUploadPath will get this to the back end
 --%>
+
+<%-- delivery action triggered by sakai-recorder js --%>
+<h:commandButton id="audioButton" styleClass="audioUploadListenerBtn d-none" value="Upload" type="submit"
+rendered="#{delivery.actionString=='takeAssessment'
+         || delivery.actionString=='takeAssessmentViaUrl'}">
+  <f:actionListener
+   type="org.sakaiproject.tool.assessment.ui.listener.delivery.AudioUploadActionListener" />
+</h:commandButton>
+
 <h:outputText escape="false" value="
-<input type=\"hidden\" name=\"mediaLocation_#{question.itemData.itemId}\" value=\"jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{person.eid}/audio_#{delivery.assessmentGrading.assessmentGradingId}.au\"/>" />
+<input type=\"hidden\" name=\"mediaLocation_#{question.itemData.itemId}\"  value=\"jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{person.eid}/audio_#{delivery.assessmentGrading.assessmentGradingId}.au\"/>" />
 
 <h:outputText value="#{question.text} "  escape="false">
   <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.SecureContentWrapper" />

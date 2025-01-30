@@ -18,6 +18,7 @@ package org.sakaiproject.tool.assessment.util;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -79,26 +80,39 @@ public class SamigoExpressionParser
       expr = expr.replaceAll(OLD_FACTORIAL_PATTERN, NEW_FACTORIAL_PATTERN);
 
       ans = BigDecimal.valueOf(0.0);
+      String stringCalculate = "";
 
       Expression e = null;
       try {
           e = new Expression(expr);
           if (expr.contains("E")) {
+              mXparser.disableCanonicalRounding();
               mXparser.disableUlpRounding();
+              mXparser.disableAlmostIntRounding();
           }
           double d = e.calculate();
           ans = new BigDecimal(d, MathContext.DECIMAL64);
+
+          String s = Double.toString(d);
+          if (s.contains("E")) {
+              stringCalculate = doubleToBigDecimal(d);
+          } else {
+              stringCalculate = ans.toPlainString();
+          }
       }
       catch (NumberFormatException nfe) {
           String errorMessage = e != null ? e.getErrorMessage() : expr;
           throw new SamigoExpressionError(401, errorMessage);
       }
       finally {
+          mXparser.enableCanonicalRounding();
           mXparser.enableUlpRounding();
+          mXparser.enableAlmostIntRounding();
       }
 
       GradingService service = new GradingService();
-      ans_str = service.toScientificNotation(ans.toPlainString(), decimals);
+      // Increase the value of decimals by 1 to avoid rounding errors
+      ans_str = service.toScientificNotation(ans.toPlainString(), stringCalculate, decimals + 1);
 
       // add the answer to memory as variable "Ans"
       user_var.put("ANS", new BigDecimal(ans_str));
@@ -110,6 +124,11 @@ public class SamigoExpressionParser
     }
 
     return ans_str;
+  }
+
+  private String doubleToBigDecimal(double num) {
+    BigDecimal bd = new BigDecimal(num, MathContext.DECIMAL64).setScale(0, RoundingMode.HALF_UP);
+    return bd.toPlainString();
   }
 
 /// private data

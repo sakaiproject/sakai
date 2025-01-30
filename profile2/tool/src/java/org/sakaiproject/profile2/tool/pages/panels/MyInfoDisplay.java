@@ -15,9 +15,7 @@
  */
 package org.sakaiproject.profile2.tool.pages.panels;
 
-
-
-import java.util.Date;
+import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.Component;
@@ -29,10 +27,10 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.sakaiproject.profile2.logic.ProfilePrivacyLogic;
+
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.UserProfile;
-import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -48,8 +46,8 @@ public class MyInfoDisplay extends Panel {
 	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
 	private SakaiProxy sakaiProxy;
 
-	@SpringBean(name="org.sakaiproject.profile2.logic.ProfilePrivacyLogic")
-	private ProfilePrivacyLogic privacyLogic;
+    @SpringBean(name="org.sakaiproject.component.api.ServerConfigurationService")
+    private ServerConfigurationService serverConfigurationService;
 
 	public MyInfoDisplay(final String id, final UserProfile userProfile) {
 		super(id);
@@ -64,75 +62,11 @@ public class MyInfoDisplay extends Panel {
 		
 		//get info from userProfile since we need to validate it and turn things off if not set.
 		//otherwise we could just use a propertymodel
-		/*
-		String firstName = userProfile.getFirstName();
-		String middleName = userProfile.getMiddleName();
-		String lastName = userProfile.getLastName();
-		*/
 		String nickname = userProfile.getNickname();
 		String personalSummary = userProfile.getPersonalSummary();
 
-		Date dateOfBirth = userProfile.getDateOfBirth();
-		if(dateOfBirth != null) {
-
-			//full value contains year regardless of privacy settings
-			// Passing null as the format parameter forces a user locale based format
-			birthday = ProfileUtils.convertDateToString(dateOfBirth, null);
-
-			//get privacy on display of birthday year and format accordingly
-			//note that this particular method doesn't need the second userId param but we send for completeness
-			if(privacyLogic.isBirthYearVisible(userId)) {
-				birthdayDisplay = birthday;
-			} else {
-				birthdayDisplay = ProfileUtils.convertDateToString(dateOfBirth, ProfileConstants.DEFAULT_DATE_FORMAT_HIDE_YEAR);
-			}
-
-			//set both values as they are used differently
-			userProfile.setBirthdayDisplay(birthdayDisplay);
-			userProfile.setBirthday(birthday);
-		}
-
 		//heading
 		add(new Label("heading", new ResourceModel("heading.basic")));
-
-		//firstName
-		/*
-		WebMarkupContainer firstNameContainer = new WebMarkupContainer("firstNameContainer");
-		firstNameContainer.add(new Label("firstNameLabel", new ResourceModel("profile.name.first")));
-		firstNameContainer.add(new Label("firstName", firstName));
-		add(firstNameContainer);
-		if(StringUtils.isBlank(firstName)) {
-			firstNameContainer.setVisible(false);
-		} else {
-			visibleFieldCount++;
-		}
-		*/
-
-		//middleName
-		/*
-		WebMarkupContainer middleNameContainer = new WebMarkupContainer("middleNameContainer");
-		middleNameContainer.add(new Label("middleNameLabel", new ResourceModel("profile.name.middle")));
-		middleNameContainer.add(new Label("middleName", middleName));
-		add(middleNameContainer);
-		if(StringUtils.isBlank(middleName)) {
-			middleNameContainer.setVisible(false);
-		} else {
-			visibleFieldCount++;
-		}
-		*/
-
-		//lastName
-		/*
-		WebMarkupContainer lastNameContainer = new WebMarkupContainer("lastNameContainer");
-		lastNameContainer.add(new Label("lastNameLabel", new ResourceModel("profile.name.last")));
-		lastNameContainer.add(new Label("lastName", lastName));
-		add(lastNameContainer);
-		if(StringUtils.isBlank(lastName)) {
-			lastNameContainer.setVisible(false);
-		} else {
-			visibleFieldCount++;
-		}
-		*/
 
 		//nickname
 		WebMarkupContainer nicknameContainer = new WebMarkupContainer("nicknameContainer");
@@ -145,13 +79,13 @@ public class MyInfoDisplay extends Panel {
 			visibleFieldCount++;
 		}
 
-		//birthday
-		WebMarkupContainer birthdayContainer = new WebMarkupContainer("birthdayContainer");
-		birthdayContainer.add(new Label("birthdayLabel", new ResourceModel("profile.birthday")));
-		birthdayContainer.add(new Label("birthday", birthdayDisplay));
-		add(birthdayContainer);
-		if(StringUtils.isBlank(birthdayDisplay)) {
-			birthdayContainer.setVisible(false);
+		WebMarkupContainer pronounsContainer = new WebMarkupContainer("pronounsContainer");
+		pronounsContainer.add(new Label("pronounsLabel", new ResourceModel("profile.pronouns")));
+		pronounsContainer.add(new Label("pronouns", ProfileUtils.processHtml(userProfile.getPronouns())).setEscapeModelStrings(false));
+		pronounsContainer.setVisible(serverConfigurationService.getBoolean("profile2.profile.pronouns.enabled", true));
+		add(pronounsContainer);
+		if (StringUtils.isBlank(userProfile.getPronouns())) {
+			pronounsContainer.setVisible(false);
 		} else {
 			visibleFieldCount++;
 		}
@@ -168,19 +102,20 @@ public class MyInfoDisplay extends Panel {
 		}
 
 		//edit button
-		AjaxFallbackLink editButton = new AjaxFallbackLink("editButton", new ResourceModel("button.edit")) {
+		AjaxFallbackLink<Void> editButton = new AjaxFallbackLink<Void>("editButton") {
 
 			private static final long serialVersionUID = 1L;
 
-			public void onClick(AjaxRequestTarget target) {
+			@Override
+			public void onClick(Optional<AjaxRequestTarget> targetOptional) {
 				Component newPanel = new MyInfoEdit(id, userProfile);
 				newPanel.setOutputMarkupId(true);
 				thisPanel.replaceWith(newPanel);
-				if(target != null) {
+				targetOptional.ifPresent(target -> {
 					target.add(newPanel);
 					//resize iframe
 					target.appendJavaScript("setMainFrameHeight(window.name);");
-				}
+				});
 			}
 
 		};

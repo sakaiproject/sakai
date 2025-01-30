@@ -1,0 +1,96 @@
+.#{$namespace}sakai-users, .#{$namespace}sakai-singleuser {
+
+  #user-create_edit label, #useredit label{
+    text-align: left;
+  }
+
+  #user-create_edit .act input[type="submit"], #useredit .act input[type="submit"],
+  #userViewForm .act input[type="submit"] {
+    display: inline-block;
+    margin: 0 1em;
+  }
+
+  #userViewForm td label {
+    font-weight: bold;
+    display: inline-block;
+    float: none;
+    text-align: left;
+    margin-right: 1em;
+    min-width: 9em;
+  }
+
+  @media only screen and (max-width : 800px) {
+    #userViewForm label, #useredit .shorttext label{
+      display: block;
+    }
+  }
+
+  #userViewForm .act, #user-create_edit .act, #useredit .act {
+    text-align: left; /* SAK-31159 - Consistency with the rest of the tools */
+  }
+
+  #user-create_edit fieldset, #useredit fieldset, #userViewForm fieldset {
+    border: 2px solid var(--sakai-text-color-1);
+    padding: 1em;
+    position: relative;
+  }
+
+  form .shorttext {
+    margin: 0 0 0.5em 0;
+  }
+
+  #user-create_edit fieldset {
+    display:inline-block;
+    width: 100%;
+  }
+
+  .createBlurb {
+    display:table;
+    width:33em;
+  }
+
+  .createBlurb p {
+    margin: 10px 0;
+  }
+
+  #userViewForm fieldset legend, #user-create_edit fieldset legend, #useredit fieldset legend {
+    padding: 0 0.5em;
+    color: rgb(85, 85, 85);
+    color: var(--sakai-text-color-1);
+  }
+
+  .spinner {
+    display: inline;
+    vertical-align: middle;
+    visibility: hidden;
+  }
+
+  .sakai-glow:focus {
+    border-color: #15597e;
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(21, 89, 126, 0.6);
+  }
+
+  .red {
+    color: red;
+  }
+  .form-group {
+    font-size:12pt;
+  }
+
+  .validationAlert {
+    width: 390.25px;
+  }
+
+  #status-display {
+    height: 5rem;
+  }
+
+  .status-row {
+    margin-left: 0px;
+    margin-right: 0px;
+  }
+
+  .progress {
+    border-radius: 0px;
+  }
+}

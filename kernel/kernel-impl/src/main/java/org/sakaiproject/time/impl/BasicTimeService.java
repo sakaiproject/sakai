@@ -26,6 +26,7 @@ import java.text.SimpleDateFormat;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.FormatStyle;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -290,33 +291,29 @@ public class BasicTimeService implements TimeService
 		return new MyTimeRange(value);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public TimeRange newTimeRange(Time startAndEnd)
 	{
 		return new MyTimeRange(startAndEnd);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public TimeRange newTimeRange(long start, long duration)
 	{
 		return new MyTimeRange(start, duration);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public TimeRange newTimeRange(Time start, Time end)
 	{
 		return new MyTimeRange(start, end);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	public TimeRange newTimeRange(Instant start, Instant end)
+	{
+		return new MyTimeRange(newTime(start.toEpochMilli()), newTime(end.toEpochMilli()));
+	}
+
 	@Override
 	public TimeZone getLocalTimeZone()
 	{
@@ -328,9 +325,6 @@ public class BasicTimeService implements TimeService
 		return userTimeService.getLocalTimeZone(userId);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean clearLocalTimeZone(String userId)
 	{
@@ -338,9 +332,7 @@ public class BasicTimeService implements TimeService
 		return userTimeService.clearLocalTimeZone(userId) & userLocaleService.clearLocalLocale(userId);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public GregorianCalendar getCalendar(TimeZone zone, int year, int month, int day, int hour, int min, int sec, int ms)
 	{
 	    return newCalendar(zone, year, month, day, hour, min, sec, ms);
@@ -1074,4 +1066,13 @@ public class BasicTimeService implements TimeService
 		return userTimeService.parseISODateInUserTimezone(dateString);
 	}
 
+	@Override
+	public String dateFromUtcToUserTimeZone(String utcDate, boolean formatted) {
+		return userTimeService.dateFromUtcToUserTimeZone(utcDate, formatted);
+	}
+
+	@Override
+	public LocalDateTime dateFromUserTimeZoneToUtc(String zonedDate) {
+		return userTimeService.dateFromUserTimeZoneToUtc(zonedDate);
+	}
 }

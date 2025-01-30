@@ -13,17 +13,17 @@
  ******************************************************************************/
 package org.sakaiproject.webapi.controllers;
 
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.profile2.logic.ProfileLinkLogic;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.model.UserProfile;
-import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.user.api.CandidateDetailProvider;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.webapi.beans.ProfileRestBean;
 
-import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -47,11 +47,16 @@ public class ProfileController extends AbstractSakaiApiController {
     @Autowired private ProfileLinkLogic profileLinkLogic;
     @Autowired private ProfileLogic profileLogic;
     @Autowired private UserDirectoryService userDirectoryService;
+    @Autowired private ServerConfigurationService serverConfigurationService;
 
     @GetMapping(value = "/users/{userId}/profile", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ProfileRestBean> getUserProfile(@PathVariable String userId) throws UserNotDefinedException {
 
-        checkSakaiSession();
+        String currentUserId = checkSakaiSession().getUserId();
+
+        if (StringUtils.equals(userId, "blank")) {
+            return ResponseEntity.noContent().build();
+        }
 
         UserProfile userProfile = (UserProfile) profileLogic.getUserProfile(userId);
 
@@ -61,6 +66,7 @@ public class ProfileController extends AbstractSakaiApiController {
 
         ProfileRestBean bean = new ProfileRestBean();
         bean.name = userProfile.getDisplayName();
+        bean.nickname = userProfile.getNickname();
         bean.email = userProfile.getEmail();
         bean.pronouns = userProfile.getPronouns();
         bean.pronunciation = userProfile.getPhoneticPronunciation();

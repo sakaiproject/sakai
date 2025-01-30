@@ -42,6 +42,7 @@ import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
 import org.sakaiproject.tool.assessment.util.AttachmentUtil;
 import org.sakaiproject.tool.cover.SessionManager;
 
@@ -520,18 +521,12 @@ public class AgentResults
 		this.timeElapsed = timeElapsed;
 	}
 	
-	public String getFormatedTimeElapsed() {
+	public String getFormattedTimeElapsed() {
 	    String timeElapsedInString = "n/a";
 	    if (this.timeElapsed!=null && this.timeElapsed >0)
 	    {
 	      int totalSec = this.timeElapsed;
-	      int hr = totalSec / 3600;
-	      int min = (totalSec % 3600)/60;
-	      int sec = (totalSec % 3600)%60;
-	      timeElapsedInString = "";
-	      if (hr > 0) timeElapsedInString = hr + " hr ";
-	      if (min > 0) timeElapsedInString = timeElapsedInString + min + " min ";
-	      if (sec > 0) timeElapsedInString = timeElapsedInString + sec + " sec ";
+	      timeElapsedInString = TimeUtil.getFormattedTime(totalSec);
 	    }
 	    return timeElapsedInString;	
 	}

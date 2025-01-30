@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html>
 <html xmlns:wicket="http://wicket.apache.org">
 
@@ -5,8 +6,8 @@
 
 <wicket:panel>
 	<wicket:enclosure child="categoriesList">
-		<div wicket:id="toggleActions" class="pull-right">
-			<a href="javascript:void(0);" class="button" id="toggleCategories" wicket:id="toggleCategoriesLink" aria-controls="gradeSummaryTable"><wicket:message key="label.toolbar.togglecategories"></wicket:message></a>
+		<div wicket:id="toggleActions" class="float-end">
+			<a href="javascript:void(0);" class="btn-link si" id="toggleCategories" wicket:id="toggleCategoriesLink" aria-controls="gradeSummaryTable"><wicket:message key="label.toolbar.togglecategories"></wicket:message></a>
 			<a href="javascript:void(0);" class="gb-summary-expand-all" wicket:id="expandCategoriesLink" aria-controls="gradeSummaryTable"><wicket:message key="label.studentsummary.expandall"></wicket:message></a>
 			<a href="javascript:void(0);" class="gb-summary-collapse-all" wicket:id="collapseCategoriesLink" aria-controls="gradeSummaryTable"><wicket:message key="label.studentsummary.collapseall"></wicket:message></a>
 		</div>
@@ -36,7 +37,7 @@
 									</span>
 								</div>
 								<p wicket:id="categoryDropInfo" class="gb-summary-grade-category-dropInfo">
-									<span wicket:id="categoryDropInfo1">Drop Highest: 1 & </span><wbr><span wicket:id="categoryDropInfo2">Drop Lowest: 1</span>
+									<span wicket:id="categoryDropInfo1">Drop Highest: 1</span><wbr/><span wicket:id="categoryDropInfo2">Drop Lowest: 1</span>
 								</p>
 							</th>
 							<td class="gb-summary-category-grade" wicket:id="categoryGrade" wicket:message="aria-label:studentsummary.categoryaverage"></td>
@@ -50,7 +51,7 @@
 					<tr wicket:id="assignmentsForCategory" class="gb-summary-grade-row">
 						<th scope="row">
 							<span class="gb-summary-grade-title" wicket:id="title"></span>
-							<span><a href="javascript:void(0);" class="gb-summary-grade-stats pull-right" wicket:message="title:studentsummary.gradebookitem.assignmentstats" wicket:id="assignmentStatsLink"></a></span>
+							<span><a href="javascript:void(0);" class="gb-summary-grade-stats float-end" wicket:message="title:studentsummary.gradebookitem.assignmentstats" wicket:id="assignmentStatsLink"></a></span>
 							<span class="gb-summary-grade-flags" wicket:id="flags">
 								<span wicket:id="isExtraCredit" class="gb-flag-extra-credit"></span>
 								<span wicket:id="isNotCounted" class="gb-flag-not-counted"></span>

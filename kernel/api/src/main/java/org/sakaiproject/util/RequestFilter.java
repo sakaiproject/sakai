@@ -177,7 +177,7 @@ public class RequestFilter implements Filter
 	/** The name of the Sakai property to disable setting the HttpOnly attribute on the cookie (if false). */
 	protected static final String SAKAI_COOKIE_HTTP_ONLY = "sakai.cookieHttpOnly";
 
-	/** The name of the Sakai property to set the SameSite attribute on the cookie. "lax" is the default. */
+	/** The name of the Sakai property to set the SameSite attribute on the cookie. "none" is the default. */
 	protected static final String SAKAI_COOKIE_SAME_SITE = "sakai.cookieSameSite";
 
 	/** The name of the Sakai property to set the X-UA Compatible header
@@ -195,7 +195,11 @@ public class RequestFilter implements Filter
 	/** The tools allowed as lti provider **/
 	protected static final String SAKAI_BLTI_PROVIDER_TOOLS = "basiclti.provider.allowedtools";
 
-	/** The name of the Skaia property to say we should redirect to another node when in shutdown */
+	/** Is the SakaiPlus provider enabled **/
+    public static final String SAKAI_PLUS_PROVIDER_ENABLED = "plus.provider.enabled";
+    public static final boolean SAKAI_PLUS_PROVIDER_ENABLED_DEFAULT = false;
+
+	/** The name of the Sakai property to say we should redirect to another node when in shutdown */
 	protected static final String SAKAI_CLUSTER_REDIRECT_RANDOM = "cluster.redirect.random.node";
 
 	/** If true, we deliver the Sakai end user enterprise id as the remote user in each request. */
@@ -263,7 +267,7 @@ public class RequestFilter implements Filter
 	/** Set the HttpOnly attribute on the cookie */
 	protected boolean m_cookieHttpOnly = true;
 	/** Set the SameSite attribute on the cookie */
-	protected String m_cookieSameSite = "lax";
+	protected String m_cookieSameSite = "none";
 
 	protected String m_UACompatible = null;
             
@@ -493,10 +497,14 @@ public class RequestFilter implements Filter
 						}
 					} else {
 						// Pass control on to the next filter or the servlet
-						chain.doFilter(req, resp);
+						try {
+							chain.doFilter(req, resp);
 
-						// post-process response
-						postProcessResponse(s, req, resp);
+							// post-process response
+							postProcessResponse(s, req, resp);
+						} catch (Exception e) {
+							if (log.isDebugEnabled()) throw e;
+						}
 					}
 
 					// Output client cookie if requested to do so
@@ -860,11 +868,13 @@ public class RequestFilter implements Filter
 		// retrieve option to enable or disable cookie HttpOnly
 		m_cookieHttpOnly = serverConfigurationService.getBoolean(SAKAI_COOKIE_HTTP_ONLY, true);
 		// retrieve option to enable or disable cookie SameSite
-		m_cookieSameSite = serverConfigurationService.getString(SAKAI_COOKIE_SAME_SITE, "lax");
+		m_cookieSameSite = serverConfigurationService.getString(SAKAI_COOKIE_SAME_SITE, "none");
 
 		m_UACompatible = serverConfigurationService.getString(SAKAI_UA_COMPATIBLE, null);
 
-		isLTIProviderAllowed = (serverConfigurationService.getString(SAKAI_BLTI_PROVIDER_TOOLS,null)!=null);
+		isLTIProviderAllowed =
+			(serverConfigurationService.getString(SAKAI_BLTI_PROVIDER_TOOLS,null)!=null) ||
+			(serverConfigurationService.getBoolean(SAKAI_PLUS_PROVIDER_ENABLED,SAKAI_PLUS_PROVIDER_ENABLED_DEFAULT));
 
 		m_redirectRandomNode = serverConfigurationService.getBoolean(SAKAI_CLUSTER_REDIRECT_RANDOM, true);
 

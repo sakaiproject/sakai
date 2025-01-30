@@ -89,8 +89,8 @@
     <div>
     
     <!-- 1 POINTS --> 
-    <div class="form-group row"> 
-        <h:outputLabel for="answerptr" value="#{authorMessages.answer_point_value}" styleClass="col-md-4 col-lg-2 form-control-label"/>
+    <div class="mb-3 row"> 
+        <h:outputLabel for="answerptr" value="#{authorMessages.answer_point_value}" styleClass="col-md-4 col-lg-2 form-label"/>
         <div class="col-md-2">
             <h:inputText id="answerptr" label="#{authorMessages.pt}" value="#{itemauthor.currentItem.itemScore}" 
                         required="true" disabled="#{author.isEditPoolFlow}" size="6" styleClass="form-control ConvertPoint">
@@ -100,8 +100,8 @@
         </div>
    </div>
    
-    <div class="form-group row">
-        <h:outputLabel for="itemScore" value="#{authorMessages.answer_point_value_display}" styleClass="col-md-4 col-lg-2 form-control-label"/>
+    <div class="mb-3 row">
+        <h:outputLabel for="itemScore" value="#{authorMessages.answer_point_value_display}" styleClass="col-md-4 col-lg-2 form-label"/>
         <div class="col-md-2 samigo-inline-radio">
             <h:selectOneRadio value="#{itemauthor.currentItem.itemScoreDisplayFlag}" id="itemScore">
                 <f:selectItem itemValue="true" itemLabel="#{authorMessages.yes}" />
@@ -114,8 +114,8 @@
         <%@ include file="/jsf/author/inc/extraCreditSetting.jspf" %>
 
     <!-- 2 TEXT -->
-    <div class="form-group row">
-        <h:outputLabel for="questionItemText_textinput" value="#{authorMessages.q_text}" styleClass="col-md-4 col-lg-2 form-control-label"/>
+    <h:outputLabel for="questionItemText_textinput" value="#{authorMessages.q_text}" styleClass="form-label"/>
+    <div class="mb-3 row">
         <!-- WYSIWYG -->
         <div class="col-md-8">
             <h:panelGrid>
@@ -131,20 +131,20 @@
 
     <!-- 3 ANSWER -->
     <div class="tier2">
-        <div class="form-group row">
-            <h:outputLabel value="#{authorMessages.answer} " styleClass="col-md-4 col-lg-2 form-control-label"/>
+        <div class="mb-3 row">
+            <h:outputLabel value="#{authorMessages.answer} " styleClass="col-md-4 col-lg-2 form-label"/>
             <div class="col-md-6">
                 <h:graphicImage alt="#{evaluationMessages.alt_matrixChoicesSurvey}" url="/images/matrixChoicesSurvey.gif" />
             </div>
         </div>
-        <div class="form-group row">
-            <h:outputLabel for="rowData" value="#{authorMessages.rowchoices}" styleClass="col-md-4 col-lg-2 form-control-label"/>
+        <div class="mb-3 row">
+            <h:outputLabel for="rowData" value="#{authorMessages.rowchoices}" styleClass="col-md-4 col-lg-2 form-label"/>
             <div class="col-md-8">
                 <h:inputTextarea id="rowData" value="#{itemauthor.currentItem.rowChoices}" rows="6" cols="54" />
             </div>
         </div>
-        <div class="form-group row">
-            <h:outputLabel for="columnData" value="#{authorMessages.columnchoices}" styleClass="col-md-4 col-lg-2 form-control-label"/>
+        <div class="mb-3 row">
+            <h:outputLabel for="columnData" value="#{authorMessages.columnchoices}" styleClass="col-md-4 col-lg-2 form-label"/>
             <div class="col-md-8">
                 <h:inputTextarea id="columnData" value="#{itemauthor.currentItem.columnChoices}" rows="6" 
                                 cols="54"  immediate="true"/>
@@ -161,8 +161,8 @@
             <h:outputLabel for="addCommentCheckbox" value="#{authorMessages.addComment}" />
         </div>
         
-        <h:panelGroup styleClass="form-group row" layout="block" rendered="#{itemauthor.currentItem.addComment}" >
-            <h:outputLabel for="commentField" value="#{authorMessages.commentField}" styleClass="col-md-4 col-lg-2 form-control-label"/>
+        <h:panelGroup styleClass="mb-3 row" layout="block" rendered="#{itemauthor.currentItem.addComment}" >
+            <h:outputLabel for="commentField" value="#{authorMessages.commentField}" styleClass="col-md-4 col-lg-2 form-label"/>
             <div class="col-md-8">
                 <h:panelGrid columns="1" >
                     <h:inputTextarea id="commentField" 
@@ -180,8 +180,8 @@
                 </h:panelGrid>
            </div>
         </h:panelGroup><br/>
-        <div class="form-group row">
-            <h:outputLabel for="relativeWidth" value="#{authorMessages.relativeWidthOfColumns}" styleClass="col-md-4 col-lg-2 form-control-label"/>
+        <div class="mb-3 row">
+            <h:outputLabel for="relativeWidth" value="#{authorMessages.relativeWidthOfColumns}" styleClass="col-md-4 col-lg-2 form-label"/>
             <div class="col-md-8">
                 <h:selectOneMenu id="relativeWidth" value="#{itemauthor.currentItem.selectedRelativeWidth}">
                     <f:selectItems  value="#{itemauthor.selectRelativeWidthList}" />
@@ -190,10 +190,12 @@
         </div>
     </div>
 
+    <!-- 3a TIMED -->
+    <%@ include file="/jsf/author/item/timed.jsp" %>
 
-    <%-- 3 PART --%>
-    <h:panelGroup styleClass="form-group row" layout="block" rendered="#{itemauthor.target == 'assessment' && !author.isEditPoolFlow}">
-        <h:outputLabel for="assignToPart" value="#{authorMessages.assign_to_p}" styleClass="col-md-4 col-lg-2 form-control-label"/>
+    <%-- 4 PART --%>
+    <h:panelGroup styleClass="mb-3 row" layout="block" rendered="#{itemauthor.target == 'assessment' && !author.isEditPoolFlow}">
+        <h:outputLabel for="assignToPart" value="#{authorMessages.assign_to_p}" styleClass="col-md-4 col-lg-2 form-label"/>
         <div class="col-md-8">
             <h:selectOneMenu id="assignToPart" value="#{itemauthor.currentItem.selectedSection}">
                 <f:selectItems  value="#{itemauthor.sectionSelectList}" />
@@ -203,8 +205,8 @@
     </h:panelGroup>
     
     <%-- 5 POOL --%>
-    <h:panelGroup styleClass="form-group row" layout="block" rendered="#{itemauthor.target == 'assessment' && author.isEditPendingAssessmentFlow}">
-        <h:outputLabel for="assignToPool" value="#{authorMessages.assign_to_question_p}" styleClass="col-md-4 col-lg-2 form-control-label"/>
+    <h:panelGroup styleClass="mb-3 row" layout="block" rendered="#{itemauthor.target == 'assessment' && author.isEditPendingAssessmentFlow}">
+        <h:outputLabel for="assignToPool" value="#{authorMessages.assign_to_question_p}" styleClass="col-md-4 col-lg-2 form-label"/>
         <div class="col-md-8">
             <h:selectOneMenu id="assignToPool" value="#{itemauthor.currentItem.selectedPool}">
                 <f:selectItem itemValue="" itemLabel="#{authorMessages.select_a_pool_name}" />
@@ -215,8 +217,8 @@
 
     <%-- FEEDBACK --%>
     <h:panelGroup rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'))}">
-        <div class="form-group row">
-            <h:outputLabel for="questionFeedbackGeneral_textinput" value="#{commonMessages.feedback_optional}" styleClass="col-md-4 col-lg-2 form-control-label"/>
+        <div class="mb-3 row">
+            <h:outputLabel for="questionFeedbackGeneral_textinput" value="#{commonMessages.feedback_optional}" styleClass="form-label"/>
             <div class="col-md-8">
                 <!-- WYSIWYG -->
                 <h:panelGrid>
@@ -231,20 +233,20 @@
     <%-- METADATA --%>
     <h:panelGroup rendered="#{itemauthor.showMetadata == 'true'}" styleClass="longtext">
         <h:outputLabel value="Metadata"/><br/>
-        <div class="form-group row">
-            <h:outputLabel for="obj" value="#{authorMessages.objective}" styleClass="col-md-4 col-lg-2 form-control-label"/>
+        <div class="mb-3 row">
+            <h:outputLabel for="obj" value="#{authorMessages.objective}" styleClass="col-md-4 col-lg-2 form-label"/>
             <div class="col-md-5 col-lg-3 ">
                 <h:inputText size="30" id="obj" value="#{itemauthor.currentItem.objective}" styleClass="form-control"/>
             </div>
         </div>
-        <div class="form-group row">
-            <h:outputLabel for="keyword" value="#{authorMessages.keyword}" styleClass="col-md-4 col-lg-2 form-control-label"/>
+        <div class="mb-3 row">
+            <h:outputLabel for="keyword" value="#{authorMessages.keyword}" styleClass="col-md-4 col-lg-2 form-label"/>
             <div class="col-md-5 col-lg-3">
                 <h:inputText size="30" id="keyword" value="#{itemauthor.currentItem.keyword}" styleClass="form-control"/>
             </div>
         </div>
-        <div class="form-group row">
-            <h:outputLabel for="rubric" value="#{authorMessages.rubric_colon}" styleClass="col-md-4 col-lg-2 form-control-label"/>
+        <div class="mb-3 row">
+            <h:outputLabel for="rubric" value="#{authorMessages.rubric_colon}" styleClass="col-md-4 col-lg-2 form-label"/>
             <div class="col-md-5 col-lg-3">
                 <h:inputText size="30" id="rubric" value="#{itemauthor.currentItem.rubric}" styleClass="form-control"/>
             </div>

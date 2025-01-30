@@ -90,7 +90,7 @@ public interface GradingAuthz {
      * @return a map of EnrollmentRecords to grade/view permission that the given user is authorized to
      *          view or grade for the given gradebook item
      */
-    public Map<EnrollmentRecord, String> findMatchingEnrollmentsForItemForUser(String userUid, String gradebookUid, Long categoryId, GradingCategoryType gbCategoryType, String optionalSearchString, String optionalSectionUid);
+    public Map<EnrollmentRecord, String> findMatchingEnrollmentsForItemForUser(String userUid, String gradebookUid, Long categoryId, Integer gbCategoryType, String optionalSearchString, String optionalSectionUid);
 
     /**
      *
@@ -107,7 +107,7 @@ public interface GradingAuthz {
      * @return a map of EnrollmentRecords to grade/view permission that the current user is authorized to
      *          view or grade for the given gradebook item
      */
-    public Map<EnrollmentRecord, String> findMatchingEnrollmentsForItem(String gradebookUid, Long categoryId, GradingCategoryType gbCategoryType, String optionalSearchString, String optionalSectionUid);
+    public Map<EnrollmentRecord, String> findMatchingEnrollmentsForItem(String gradebookUid, Long categoryId, Integer gbCategoryType, String optionalSearchString, String optionalSectionUid);
 
     /**
      *
@@ -122,7 +122,7 @@ public interface GradingAuthz {
      *          everything in the gradebook for that student. If he/she can grade only a subset of the items, the
      *          student is not returned.
      */
-    public Map<EnrollmentRecord, String> findMatchingEnrollmentsForViewableCourseGrade(String gradebookUid, GradingCategoryType gbCategoryType, String optionalSearchString, String optionalSectionUid);
+    public Map<EnrollmentRecord, String> findMatchingEnrollmentsForViewableCourseGrade(String gradebookUid, Integer gbCategoryType, String optionalSearchString, String optionalSectionUid);
     /**
      *
      * @param gradebookUid

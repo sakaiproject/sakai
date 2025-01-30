@@ -21,16 +21,17 @@
 
 package org.sakaiproject.entity.impl;
 
-import java.util.ArrayList;
+import java.text.MessageFormat;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Set;
 
-import lombok.extern.slf4j.Slf4j;
-
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
@@ -38,460 +39,331 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.Validator;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * <p>
  * EntityManagerComponent is an implementation of the EntityManager.
  * </p>
  */
 @Slf4j
-public class EntityManagerComponent implements EntityManager
-{
-	/**
-	 * @author ieb
-	 */
-	public class Calls
-	{
+public class EntityManagerComponent implements EntityManager {
 
-		private long lastStart = System.currentTimeMillis();
+    private Set<String> unresolvableRoots; // immutable, holds roots that are not claimed by any producers
+    private Map<String, EntityProducer> producers; // immutable, map of roots -> producers
+    private Map<String, Call> producerStatistics; // immutable, map of roots -> producers with statistics
+    private int count = 0;
+    private long timeSpent = 0;
 
-		private long lookups;
 
-		private long lookupMatch;
+    @Getter @Setter private UserDirectoryService userDirectoryService;
 
-		private long iterate;
+    public EntityManagerComponent() {
+        unresolvableRoots = Collections.emptySet();
+        producers = Collections.emptyMap();
+        producerStatistics = Collections.emptyMap();
+    }
 
-		private long iterateMatch;
+    public void init() {
+        addUnresolvableRoot("library");
+    }
 
-		private long tlookup;
+    @Override
+    public Collection<EntityProducer> getEntityProducers() {
+        return Collections.unmodifiableCollection(producers.values());
+    }
 
-		private long titerate;
+    @Override
+    public void registerEntityProducer(EntityProducer manager, String referenceRoot) {
+        // some services don't provide a reference root,
+        // in that case they get something that will never match.
+        if (StringUtils.isBlank(referenceRoot)) {
+            referenceRoot = "EMPTY_ROOT_" + System.currentTimeMillis();
+            log.warn("Entity Producer does not provide a root reference : {}", manager);
+        }
+        if (referenceRoot.startsWith("/")) {
+            referenceRoot = referenceRoot.substring(1);
+        }
 
-		private EntityProducer manager;
+        // this is a thread safe way of updating map
+        Map<String, EntityProducer> mutableProducers = new HashMap<>(producers);
+        mutableProducers.put(referenceRoot, manager);
+        Map<String, Call> mutablePerformance = new HashMap<>(producerStatistics);
+        mutablePerformance.put(referenceRoot, new Call(manager));
 
-		/**
-		 * @param manager
-		 */
-		public Calls(EntityProducer manager)
-		{
-			this.manager = manager;
-		}
+        producers = Collections.unmodifiableMap(mutableProducers);
+        producerStatistics = Collections.unmodifiableMap(mutablePerformance);
+    }
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see java.lang.Object#toString()
-		 */
-		@Override
-		public String toString()
-		{
-			double rate = (1.0 * (tlookup + titerate)) / (1.0 * (lookups + iterate));
-			StringBuilder sb = new StringBuilder();
-			sb.append("EP Performance ").append("directCalls [").append(lookupMatch)
-					.append(" of ").append(lookups).append("] iterate [").append(
-							iterateMatch).append(" of ").append(iterate).append(
-							"] per parse [").append(rate).append("] ").append(manager);
-			return sb.toString();
-		}
+    private void addUnresolvableRoot(String referenceRoot) {
+        // some services don't provide a reference root,
+        // in that case they get something that will never match.
+        if (StringUtils.isBlank(referenceRoot)) return;
 
-		/**
-		 * 
-		 */
-		public void lookupStart()
-		{
-			lastStart = System.currentTimeMillis();
-			lookups++;
-		}
+        log.debug("Adding root [{}] to unresolvable roots", referenceRoot);
 
-		/**
-		 * 
-		 */
-		public void lookupMatch()
-		{
-			lookupMatch++;
-		}
+        // thread safe way of updating set
+        Set<String> mutableSet = new HashSet<>(unresolvableRoots);
+        mutableSet.add(referenceRoot);
+        unresolvableRoots = Collections.unmodifiableSet(mutableSet);
+    }
 
-		/**
-		 * 
-		 */
-		public void iterateStart()
-		{
-			lastStart = System.currentTimeMillis();
-			iterate++;
-		}
+    @Override
+    public Optional<Entity> getEntity(String ref) {
 
-		/**
-		 * 
-		 */
-		public void iterateMatch()
-		{
-			iterateMatch++;
-		}
+        Reference r = newReference(ref);
+        EntityProducer ep = r.getEntityProducer();
 
-		/**
-		 * 
-		 */
-		public void lookupEnd()
-		{
-			tlookup += (System.currentTimeMillis() - lastStart);
-		}
+        if (ep != null) {
+            return Optional.ofNullable(ep.getEntity(r));
+        } else {
+            log.debug("No entity producer for reference {}", ref);
+            return Optional.empty();
+        }
+    }
 
-		/**
-		 * 
-		 */
-		public void iterateEnd()
-		{
-			titerate += (System.currentTimeMillis() - lastStart);
-		}
+    @Override
+    public Reference newReference(String refString) {
+        return new ReferenceComponent(this, refString);
+    }
 
-	}
+    @Override
+    public Reference newReference(Reference copyMe) {
+        return new ReferenceComponent(copyMe);
+    }
 
-	/** Set of EntityProducer services. */
-	protected ConcurrentHashMap<String, EntityProducer> m_producersIn = new ConcurrentHashMap<>();
+    @Override
+    public List<Reference> newReferenceList() {
+        return new ReferenceVectorComponent();
+    }
 
-	protected ConcurrentHashMap<EntityProducer, Calls> m_performanceIn = new ConcurrentHashMap<>();
+    @Override
+    public List<Reference> newReferenceList(List<Reference> list) {
+        return new ReferenceVectorComponent(list);
+    }
 
-	protected ConcurrentHashMap<String, String> m_rejectRefIn = new ConcurrentHashMap<>();
+    @Override
+    public boolean checkReference(String reference) {
+        // the rules:
+        // Null is rejected
+        // all blank is rejected
+        // INVALID_CHARS_IN_RESOURCE_ID characters are rejected
 
-	protected Map<String, EntityProducer> m_producers = new HashMap<>();
+        Reference ref = newReference(reference);
 
-	protected Map<EntityProducer, Calls> m_performance = new HashMap<>();
+        String id = ref.getId();
+        if (StringUtils.isBlank(id)) return false;
 
-	private Map<String, String> m_rejectRef = new HashMap<>();
+        // we must reject certain characters that we cannot even escape and get
+        // into Tomcat via a URL
+        return StringUtils.containsNone(id, Validator.INVALID_CHARS_IN_RESOURCE_ID);
+    }
 
-	private int nparse = 0;
+    @Override
+    public Optional<String> getUrl(String ref, Entity.UrlType urlType) {
 
-	private long total;
+        Reference r = newReference(ref);
+        EntityProducer ep = r.getEntityProducer();
 
-	private UserDirectoryService userDirectoryService;
+        if (ep != null) {
+            return ep.getEntityUrl(r, urlType);
+        } else {
+            log.debug("No entity producer for reference {}", ref);
+            return Optional.empty();
+        }
+    }
 
-	/***************************************************************************
-	 * Constructors, Dependencies and their setter methods
-	 **************************************************************************/
+    @Override
+    public EntityProducer getEntityProducer(String reference, Reference target) {
+        if (reference.isEmpty()) return null;
 
-	/***************************************************************************
-	 * Init and Destroy
-	 **************************************************************************/
+        String root = parseReferenceRoot(reference);
 
-	/**
-	 * Final initialization, once all dependencies are set.
-	 */
-	public void init()
-	{
-		try
-		{
-			// library references appear to come through all the time with no
-			// resolution
-			m_rejectRefIn.put("library", "library");
+        if (unresolvableRoots.contains(root)) return null;
 
-			m_rejectRef = new HashMap<>(m_rejectRefIn);
-			log.info("init()");
-		}
-		catch (Exception t)
-		{
-		}
-	}
+        EntityProducer producer;
 
-	/**
-	 * Returns to uninitialized state.
-	 */
-	public void destroy()
-	{
-		log.info("destroy()");
-	}
+        if (log.isDebugEnabled()) {
+            producer = getEntityProducerWithStats(reference, root, target);
+        } else {
+            producer = getEntityProducerNoStats(reference, root, target);
+        }
 
-	/***************************************************************************
-	 * EntityManager implementation
-	 **************************************************************************/
+        return producer;
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	public List getEntityProducers()
-	{
-		List rv = new ArrayList<EntityProducer>();
-		rv.addAll(m_producers.values());
+    private EntityProducer getEntityProducerWithStats(String reference, String referenceRoot, Reference target) {
+        count++;
 
-		return rv;
-	}
+        if (count == 1000) {
+            count = 0;
+            StringBuilder sb = new StringBuilder();
+            sb.append("\n     ")
+                    .append("Unresolvable roots [")
+                    .append(unresolvableRoots.size())
+                    .append("] = ")
+                    .append(unresolvableRoots);
+            sb.append("\n     ")
+                    .append("Total time [")
+                    .append(timeSpent)
+                    .append("ms] parsing references");
+            for (Map.Entry<String, Call> entry : producerStatistics.entrySet()) {
+                sb.append("\n     ")
+                        .append(entry.getValue())
+                        .append("\t\t\troot [")
+                        .append(entry.getKey())
+                        .append("]");
+            }
+            log.debug("EntityManager Monitor {}", sb);
+        }
 
-	/**
-	 * @inheritDoc
-	 */
-	public void registerEntityProducer(EntityProducer manager, String referenceRoot)
-	{
-		// some services dont provide a reference root, in that case they
-		// get something that will neve match.
-		if (referenceRoot == null || referenceRoot.trim().length() == 0)
-		{
-			referenceRoot = String.valueOf(System.currentTimeMillis());
-			log.warn("Entity Producer does not provide a root reference :" + manager);
-		}
-		if (referenceRoot.startsWith("/"))
-		{
-			referenceRoot = referenceRoot.substring(1);
-		}
-		m_producersIn.put(referenceRoot, manager);
-		m_performanceIn.put(manager, new Calls(manager));
+        long start = System.currentTimeMillis();
+        try {
+            // direct lookup
+            Call directCall = producerStatistics.get(referenceRoot);
+            EntityProducer directCallProducer = null;
+            if (directCall != null) {
+                directCallProducer = directCall.producer;
+                try {
+                    directCall.lookupStart();
+                    if (directCallProducer.parseEntityReference(reference, target)) {
+                        directCall.lookupMatch();
+                        return directCallProducer;
+                    }
+                } finally {
+                    directCall.lookupEnd();
+                }
+            }
 
-		m_producers = new HashMap<>(m_producersIn);
-		m_performance = new HashMap<>(m_performanceIn);
-	}
+            // search producers
+            for (Call call : producerStatistics.values()) {
+                EntityProducer producer = call.producer;
+                if (directCallProducer != producer) {
+                    // don't search the same producer as the direct call
+                    try {
+                        call.searchStart();
+                        if (producer.parseEntityReference(reference, target)) {
+                            call.searchMatch();
+                            return producer;
+                        }
+                    } finally {
+                        call.searchEnd();
+                    }
+                }
+            }
+            if (directCallProducer == null) addUnresolvableRoot(referenceRoot);
+        } finally {
+            timeSpent += (System.currentTimeMillis() - start);
+        }
 
-	/**
-	 * @param re
-	 */
-	private void addRejectRef(String shortReference)
-	{
-		// some services dont provide a reference root, in that case they
-		// get something that will neve match.
-		if (shortReference == null || shortReference.trim().length() == 0)
-		{
-			return;
-		}
-		m_rejectRefIn.put(shortReference, shortReference);
-		m_rejectRef = new HashMap<String, String>(m_rejectRefIn);
+        log.debug("Search yielded no producer for reference {} with root {}", reference, referenceRoot, new Throwable("Stacktrace"));
+        return null;
+    }
 
-	}
+    private String parseReferenceRoot(String reference) {
+        int n = reference.indexOf('/', 1);
+        if (n > 0) {
+            if (reference.charAt(0) == '/') {
+                return reference.substring(1, n);
+            } else {
+                return reference.substring(0, n);
+            }
+        } else {
+            if (reference.charAt(0) == '/') {
+                return reference.substring(1);
+            }
+        }
+        return null;
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	public Reference newReference(String refString)
-	{
-		return new ReferenceComponent(this,refString);
-	}
+    private EntityProducer getEntityProducerNoStats(String reference, String referenceRoot, Reference target) {
 
-	/**
-	 * @inheritDoc
-	 */
-	public Reference newReference(Reference copyMe)
-	{
-		return new ReferenceComponent(copyMe);
-	}
+        // direct lookup
+        EntityProducer producer = producers.get(referenceRoot);
+        if (producer != null) {
+            if (producer.parseEntityReference(reference, target)) {
+                return producer;
+            }
+        }
 
-	/**
-	 * @inheritDoc
-	 */
-	public List newReferenceList()
-	{
-		return new ReferenceVectorComponent();
-	}
+        // search all producers for a match
+        for (EntityProducer ep : producers.values()) {
+            // don't search the same producer as the direct call
+            if (producer != ep && ep.parseEntityReference(reference, target)) {
+                return ep;
+            }
+        }
 
-	/**
-	 * @inheritDoc
-	 */
-	public List newReferenceList(List copyMe)
-	{
-		return new ReferenceVectorComponent(copyMe);
-	}
+        // it is possible that a root was found but the entity doesn't exist
+        // so only add to unresolvable roots when a producer was not found
+        if (producer == null) addUnresolvableRoot(referenceRoot);
+        return null;
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	public boolean checkReference(String ref)
-	{
-		// the rules:
-		// Null is rejected
-		// all blank is rejected
-		// INVALID_CHARS_IN_RESOURCE_ID characters are rejected
 
-		Reference r = newReference(ref);
+    public static class Call {
+        private final EntityProducer producer;
+        private long lastStart = System.currentTimeMillis();
+        private long lookups = 0;
+        private long lookupMatch = 0;
+        private long searches = 0;
+        private long searchMatch = 0;
+        private long lookupTime;
+        private long searchTime;
 
-		// just check the id... %%% need more? -ggolden
-		String id = r.getId();
 
-		if (id == null) return false;
-		if (id.trim().length() == 0) return false;
+        public Call(EntityProducer producer) {
+            this.producer = producer;
+        }
 
-		// we must reject certain characters that we cannot even escape and get
-		// into Tomcat via a URL
-		for (int i = 0; i < id.length(); i++)
-		{
-			if (Validator.INVALID_CHARS_IN_RESOURCE_ID.indexOf(id.charAt(i)) != -1)
-				return false;
-		}
+        @Override
+        public String toString() {
+            double rate;
+            if ((lookups + searches) > 999) {
+                rate = (1.0 * (lookupTime + searchTime)) / ((1.0 * (lookups + searches)) / 1000);
+            } else {
+                rate = (1.0 * (lookupTime + searchTime)) / (1.0 * (lookups + searches));
+            }
+            return MessageFormat.format("lookups [{0} matches out of {1}]" +
+                            "\tsearches [{2} matches out of {3}]" +
+                            "\t\taverage parse time [{4}ms per 1k]" +
+                            "\t\ttotal parse time [{5}ms]" +
+                            "\t\tproducer [{6}]",
+                    lookupMatch,
+                    lookups,
+                    searchMatch,
+                    searches,
+                    rate,
+                    (lookupTime + searchTime),
+                    producer.getClass().getSimpleName());
+        }
 
-		return true;
-	}
+        public void lookupStart() {
+            lastStart = System.currentTimeMillis();
+            lookups++;
+        }
 
-	public Optional<String> getUrl(String ref, Entity.UrlType urlType) {
+        public void lookupMatch() {
+            lookupMatch++;
+        }
 
-		Reference r = newReference(ref);
-		EntityProducer ep = r.getEntityProducer();
-		return ep.getEntityUrl(r, urlType);
-	}
+        public void searchStart() {
+            lastStart = System.currentTimeMillis();
+            searches++;
+        }
 
-	public EntityProducer getEntityProducer(String reference, Reference target)
-	{
-		if ( log.isDebugEnabled() ) {
-			return getEntityProducerWithDebug(reference, target);
-		} else {
-			return getEntityProducerNoDebug(reference, target);		
-		}
-	}
+        public void searchMatch() {
+            searchMatch++;
+        }
 
-	private final EntityProducer getEntityProducerWithDebug(String reference,
-			Reference target)
-	{
-		nparse++;
-		long start = System.currentTimeMillis();
-		try
-		{
-			if (reference.trim().length() == 0)
-			{
-				return null;
-			}
-			if (nparse == 1000)
-			{
-				long t = total;
-				double rate = (1.0 * t) / (1.0 * nparse);
-				nparse = 0;
-				StringBuilder sb = new StringBuilder();
-				for (Calls c : m_performance.values())
-				{
-					sb.append("\n     ").append(c);
-				}
-				for (String c : m_producers.keySet())
-				{
-					sb.append("\n     [").append(c).append("]")
-							.append(m_producers.get(c));
-				}
-				log.debug("EntityManager Monitor " + sb.toString());
-				log.info("EntityManager Monitor Average " + rate + " ms per parse");
-			}
+        public void lookupEnd() {
+            lookupTime += (System.currentTimeMillis() - lastStart);
+        }
 
-			String ref = reference;
-			int n = ref.indexOf('/', 1);
-			if (n > 0)
-			{
-				if (ref.charAt(0) == '/')
-				{
-					ref = ref.substring(1, n);
-				}
-				else
-				{
-					ref = ref.substring(0, n);
-				}
-			}
-			if (m_rejectRef.get(ref) != null)
-			{
-				return null;
-			}
-			EntityProducer ep = m_producers.get(ref);
-			if (ep != null)
-			{
-				Calls c = m_performance.get(ep);
-				c.lookupStart();
-				try
-				{
-					if (ep.parseEntityReference(reference, target))
-					{
-						c.lookupMatch();
-						return ep;
-					}
-				}
-				finally
-				{
-					c.lookupEnd();
-				}
-			}
-			log.info("Entity Scan for " + ref + " for " + reference);
-			for (Iterator<EntityProducer> iServices = m_producers.values().iterator(); iServices
-					.hasNext();)
-			{
-				EntityProducer service = iServices.next();
-				Calls c = m_performance.get(service);
-				c.iterateStart();
-				try
-				{
-					if (service.parseEntityReference(reference, target))
-					{
-						c.iterateMatch();
-						return service;
-					}
-				}
-				finally
-				{
-					c.iterateEnd();
-				}
-			}
-			log.info("Nothing Found for  " + ref + " for " + reference + " adding "
-					+ ref + " to the reject list");
-			Exception e = new Exception("Traceback");
-			log.info("Traceback ", e);
-			addRejectRef(ref);
-			return null;
-		}
-		finally
-		{
-			total += (System.currentTimeMillis() - start);
-		}
-
-	}
-
-	private final EntityProducer getEntityProducerNoDebug(String reference,
-			Reference target)
-	{
-		if (reference.trim().length() == 0)
-		{
-			return null;
-		}
-		String ref = reference;
-		int n = ref.indexOf('/', 1);
-		if (n > 0)
-		{
-			if (ref.charAt(0) == '/')
-			{
-				ref = ref.substring(1, n);
-			}
-			else
-			{
-				ref = ref.substring(0, n);
-			}
-		} else {
-			if (ref.charAt(0) == '/') {
-				ref = ref.substring(1);
-			}
-		}
-		if (m_rejectRef.get(ref) != null)
-		{
-			return null;
-		}
-		EntityProducer ep = m_producers.get(ref);
-		if (ep != null)
-		{
-			if (ep.parseEntityReference(reference, target))
-			{
-				return ep;
-			}
-		}
-		for (Iterator<EntityProducer> iServices = m_producers.values().iterator(); iServices
-				.hasNext();)
-		{
-			EntityProducer service = iServices.next();
-			Calls c = m_performance.get(service);
-			c.iterateStart();
-			try
-			{
-				if (service.parseEntityReference(reference, target))
-				{
-					c.iterateMatch();
-					return service;
-				}
-			}
-			finally
-			{
-				c.iterateEnd();
-			}
-		}
-		return null;
-	}
-
-	public UserDirectoryService getUserDirectoryService() {
-		return userDirectoryService;
-	}
-
-	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
-		this.userDirectoryService = userDirectoryService;
-	}
+        public void searchEnd() {
+            searchTime += (System.currentTimeMillis() - lastStart);
+        }
+    }
 }

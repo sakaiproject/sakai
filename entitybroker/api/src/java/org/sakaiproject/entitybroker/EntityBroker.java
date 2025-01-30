@@ -318,15 +318,6 @@ public interface EntityBroker extends PropertiesProvider, TagProvider, SearchPro
      */
     ActionReturn executeCustomAction(String reference, String action, Map<String, Object> params, OutputStream outputStream);
 
-    /** 
-     * @deprecated use {@link TagProvider#getTagsForEntity(String)}
-     */
-    public Set<String> getTags(String reference);
-
-    /**
-     * @deprecated use {@link TagProvider#setTagsForEntity(String, String[])}
-     */
-    public void setTags(String reference, String[] tags);
 
     /**
      * Search for all entities which have the given tags,

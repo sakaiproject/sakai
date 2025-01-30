@@ -21,15 +21,16 @@
 
 package org.sakaiproject.search.elasticsearch;
 
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
+import static org.opensearch.index.query.QueryBuilders.boolQuery;
+import static org.opensearch.index.query.QueryBuilders.termQuery;
+import static org.opensearch.index.query.QueryBuilders.termsQuery;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -38,19 +39,19 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.elasticsearch.action.bulk.BulkRequest;
-import org.elasticsearch.action.delete.DeleteRequest;
-import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.elasticsearch.xcontent.XContentBuilder;
+import org.opensearch.action.bulk.BulkRequest;
+import org.opensearch.action.delete.DeleteRequest;
+import org.opensearch.action.index.IndexRequest;
+import org.opensearch.action.search.SearchRequest;
+import org.opensearch.action.search.SearchResponse;
+import org.opensearch.action.search.SearchType;
+import org.opensearch.client.RequestOptions;
+import org.opensearch.index.query.BoolQueryBuilder;
+import org.opensearch.index.query.QueryBuilder;
+import org.opensearch.search.SearchHit;
+import org.opensearch.search.SearchHits;
+import org.opensearch.search.builder.SearchSourceBuilder;
+import org.opensearch.core.xcontent.XContentBuilder;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.exception.IdUnusedException;
@@ -63,16 +64,13 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.slf4j.Logger;
 
-import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder implements SiteSearchIndexBuilder {
 
     protected static final String SEARCH_TOOL_ID = "sakai.search";
-    protected static final String SAKAI_DOC_TYPE = "_doc";
 
     protected static final String ADD_RESOURCE_VALIDATION_KEY_SITE_ID = "SITE_ID";
     protected static final String DELETE_RESOURCE_KEY_SITE_ID = "SITE_ID";
@@ -93,7 +91,7 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
     private boolean excludeUserSites = true;
 
     /**
-     * comma separated list of sites to always ignore when indexing.  Defaults to ~admin, !admin, PortfolioAdmin
+     * comma separated list of sites to always ignore when indexing.  Defaults to ~admin, !admin
      * use injection to set this value.
      */
     private String ignoredSites = null;
@@ -110,9 +108,6 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
 
     @Override
     protected void beforeElasticSearchConfigInitialization() {
-        if (StringUtils.isEmpty(this.indexedDocumentType)) {
-            this.indexedDocumentType = SAKAI_DOC_TYPE;
-        }
         if (ArrayUtils.isEmpty(this.suggestionResultFieldNames)) {
             this.suggestionResultFieldNames = new String[] {
                     SearchService.FIELD_TYPE,
@@ -146,7 +141,6 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
         } else {
             ignoredSitesList.add("~admin");
             ignoredSitesList.add("!admin");
-            ignoredSitesList.add("PortfolioAdmin");
         }
     }
 
@@ -202,7 +196,7 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
     }
 
     protected void deleteDocument(String id, String siteId) {
-        final Map<String, Object> params = Maps.newHashMap();
+        final Map<String, Object> params = new HashMap<>();
         params.put(DELETE_RESOURCE_KEY_DOCUMENT_ID, id);
         params.put(DELETE_RESOURCE_KEY_SITE_ID, siteId);
         deleteDocumentWithParams(params);
@@ -244,7 +238,7 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
     }
 
     protected void rebuildSiteIndex(String siteId)  {
-        getLog().info("Rebuilding the index for '{}'", siteId);
+        log.info("Rebuilding the index for '{}'", siteId);
 
         try {
             enableAzgSecurityAdvisor();
@@ -270,7 +264,7 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
                                 bulkRequest.add(prepareIndex(reference, ecp, true));
                                 numberOfDocs++;
                             } catch (Exception e) {
-                                getLog().error(e.getMessage(), e);
+                                log.error(e.getMessage(), e);
                             }
                         }
 
@@ -287,10 +281,10 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
 
             }
 
-            getLog().info("Queued " + numberOfDocs + " docs for indexing from site: " + siteId + " in " + (System.currentTimeMillis() - start) + " ms");
+            log.info("Queued " + numberOfDocs + " docs for indexing from site: " + siteId + " in " + (System.currentTimeMillis() - start) + " ms");
 
         } catch (Exception e) {
-            getLog().error("An exception occurred while rebuilding the index of '" + siteId + "'", e);
+            log.error("An exception occurred while rebuilding the index of '" + siteId + "'", e);
         } finally {
             disableAzgSecurityAdvisor();
         }
@@ -323,7 +317,7 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
                 Thread.currentThread().setPriority(Thread.NORM_PRIORITY - 1);
                 rebuildSiteIndex(siteId);
             } catch (Exception e) {
-                getLog().error("problem queuing content indexing for site: " + siteId + " error: " + e.getMessage());
+                log.error("problem queuing content indexing for site: " + siteId + " error: " + e.getMessage());
             }
         }
 
@@ -345,7 +339,7 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
      * @return true if the site can be index, false otherwise
      */
     protected boolean isSiteIndexable(Site site) {
-        getLog().debug("Check if '" + site + "' is indexable.");
+        log.debug("Check if '" + site + "' is indexable.");
         return !(siteService.isSpecialSite(site.getId()) ||
                 (isOnlyIndexSearchToolSites() && site.getToolForCommonId(SEARCH_TOOL_ID) == null) ||
                 (isExcludeUserSites() && siteService.isUserSite(site.getId())) ||
@@ -371,27 +365,16 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
     }
 
     protected void deleteAllDocumentForSite(String siteId) {
-        getLog().debug("removing all documents from search index for siteId: {}", siteId);
-
-        // TODO get DeleteByQuery working in embedded ES
-        // DeleteByQueryRequest request = new DeleteByQueryRequest(indexName);
-        // request.setQuery(termQuery(SearchService.FIELD_SITEID, siteId));
-        // request.setDocTypes(indexedDocumentType);
-        // request.setRefresh(true);
-        // try {
-        //     client.deleteByQuery(request, RequestOptions.DEFAULT);
-        // } catch (IOException ioe) {
-        //     getLog().warn("Could not delete all documents in index {} for site {}, {}", indexName, siteId, ioe.toString());
-        // }
+        log.debug("removing all documents from search index for siteId: {}", siteId);
 
         int maxHits = 999;
         long hitCount = maxHits + 1;
 
         while (hitCount >= maxHits) {
-            SearchResponse response = search(null, null, Collections.singletonList(siteId), 0, maxHits);
+            SearchResponse response = search(null, null, Collections.singletonList(siteId), null, 0, maxHits);
             SearchHits hits = response.getHits();
             hitCount = hits.getTotalHits().value;
-            getLog().info("Deleting {} docs from site {}", hitCount, siteId);
+            log.info("Deleting {} docs from site {}", hitCount, siteId);
             for (SearchHit hit : hits) {
                 deleteDocument(hit);
             }
@@ -406,7 +389,7 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
      */
     @Override
     public void refreshIndex(String siteId) {
-        getLog().info("Refreshing the index for '{}'", siteId);
+        log.info("Refreshing the index for '{}'", siteId);
         //Get the currently indexed resources for this site
 
         Site site = null;
@@ -414,24 +397,24 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
         try {
             site = siteService.getSite(siteId);
         } catch (IdUnusedException e) {
-            getLog().error("site with siteId=" + siteId + " does not exist can't refresh its index");
+            log.error("site with siteId=" + siteId + " does not exist can't refresh its index");
            return;
         }
 
         if (!isSiteIndexable(site)) {
-            getLog().debug("ignoring request to refreshIndex for site:" + siteId + " as its not indexable");
+            log.debug("ignoring request to refreshIndex for site:" + siteId + " as its not indexable");
             return;
         }
 
         Collection<String> resourceNames = getResourceNames(siteId);
-        getLog().debug(resourceNames.size() + " elements will be refreshed");
+        log.debug(resourceNames.size() + " elements will be refreshed");
         for (String resourceName : resourceNames) {
             EntityContentProducer entityContentProducer = newEntityContentProducer(resourceName);
 
             //If there is no matching entity content producer or no associated site, skip the resource
             //it is either not available anymore, or the corresponding entityContentProducer doesn't exist anymore
             if (entityContentProducer == null || entityContentProducer.getSiteId(resourceName) == null) {
-                getLog().warn("Couldn't either find an entityContentProducer or the resource itself for '" + resourceName + "'");
+                log.warn("Couldn't either find an entityContentProducer or the resource itself for '" + resourceName + "'");
                 continue;
             }
 
@@ -450,7 +433,7 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
      * @return a collection of resource references or an empty collection if no resource was found
      */
     protected Collection<String> getResourceNames(String siteId) {
-        getLog().debug("Obtaining indexed elements for site: '" + siteId + "'");
+        log.debug("Obtaining indexed elements for site: '" + siteId + "'");
 
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder()
                 .query(termQuery(SearchService.FIELD_SITEID, siteId))
@@ -458,14 +441,13 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
                 .storedField(SearchService.FIELD_REFERENCE);
 
         SearchRequest searchRequest = new SearchRequest(indexName)
-                .searchType(SearchType.QUERY_THEN_FETCH)
-                .types(indexedDocumentType);
+                .searchType(SearchType.QUERY_THEN_FETCH);
 
         SearchResponse response;
         try {
             response = client.search(searchRequest, RequestOptions.DEFAULT);
         } catch (IOException ioe) {
-            getLog().warn("Search for resources in site [" + siteId + "] encountered an error, " + ioe);
+            log.warn("Search for resources in site [" + siteId + "] encountered an error, " + ioe);
             return Collections.emptyList();
         }
 
@@ -479,13 +461,12 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
         return indexRequest.routing(ecp.getSiteId(resourceName));
     }
 
-
     @Override
     protected void addSearchSiteIds(SearchRequest searchRequest, List<String> siteIds) {
 
-        BoolQueryBuilder queryBuilder = (BoolQueryBuilder) searchRequest.source().query();
         // if we have sites filter results to include only the sites included
         if (siteIds != null && !siteIds.isEmpty()) {
+            BoolQueryBuilder queryBuilder = (BoolQueryBuilder) searchRequest.source().query();
             // searchRequest.routing(siteIds.toArray(new String[]{}));
 
             // creating config whether or not to use filter, there are performance and caching differences that
@@ -592,11 +573,6 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
     @Override
     public String getEventResourceFilter() {
         return "/";
-    }
-
-    @Override
-    protected Logger getLog() {
-        return log;
     }
 
 }

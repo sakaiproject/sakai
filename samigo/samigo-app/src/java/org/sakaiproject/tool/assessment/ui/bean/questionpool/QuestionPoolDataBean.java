@@ -32,6 +32,8 @@ import java.util.Map;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.component.cover.ComponentManager;
@@ -56,6 +58,8 @@ public class QuestionPoolDataBean implements Serializable {
 
   private String displayName;
   private String owner;
+  @Getter @Setter
+  private String ownerId;
   private String organizationName;
   private String description;
   private String objectives;
@@ -65,6 +69,9 @@ public class QuestionPoolDataBean implements Serializable {
 
   private Map parentPools = new HashMap();
   private List parentPoolsArray = new ArrayList();
+
+  @Getter
+  private QuestionPoolTagsBean tags = new QuestionPoolTagsBean();
 
   public Date getLastModified() {
 	return lastModified;

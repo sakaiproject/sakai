@@ -38,14 +38,6 @@ import org.sakaiproject.user.api.User;
 public class MockSecurityService implements SecurityService
 {
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.authz.api.SecurityService#clearAdvisors()
-	 */
-	public void clearAdvisors()
-	{
-		// TODO Auto-generated method stub
-
-	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.authz.api.SecurityService#hasAdvisors()
@@ -148,7 +140,7 @@ public class MockSecurityService implements SecurityService
 	}
 
 	@Override
-	public boolean isUserRoleSwapped() throws IdUnusedException {
+	public boolean isUserRoleSwapped() {
 		// TODO Auto-generated method stub
 		return false;
 	}
@@ -158,11 +150,4 @@ public class MockSecurityService implements SecurityService
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-	@Override
-	public void changeToRoleViewOnSite(Site site, String role) throws SakaiException {
-		// TODO Auto-generated method stub
-		
-	}
-
 }

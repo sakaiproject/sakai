@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.sakaiproject.jsf2</groupId>
         <artifactId>jsf2</artifactId>
-        <version>23-SNAPSHOT</version>
+        <version>25-SNAPSHOT</version>
     </parent>
 
     <name>Sakai JSF 2 Widgets (jsf2-widgets)</name>
@@ -62,6 +62,12 @@
             <groupId>org.apache.myfaces.tomahawk</groupId>
             <artifactId>tomahawk21</artifactId>
             <version>1.1.14</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!--
             Apache Commons file upload used by inputFileUpload tag and
@@ -74,10 +80,6 @@
         <dependency>
             <groupId>javax.servlet.jsp</groupId>
             <artifactId>javax.servlet.jsp-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>

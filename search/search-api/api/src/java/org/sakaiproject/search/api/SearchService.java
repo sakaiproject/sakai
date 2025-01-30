@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.elasticsearch.action.search.SearchResponse;
+import org.opensearch.action.search.SearchResponse;
 import org.sakaiproject.search.model.SearchBuilderItem;
 
 
@@ -153,7 +153,7 @@ public interface SearchService extends Diagnosable
 	 * @return
 	 * @throws InvalidSearchQueryException if unable to parse the query
 	 */
-	SearchList search(String searchTerms, List<String> contexts, int searchStart,
+	SearchList search(String searchTerms, List<String> contexts, List<String> toolIds, int searchStart,
 			int searchEnd) throws InvalidSearchQueryException;
 
 	/**
@@ -171,7 +171,7 @@ public interface SearchService extends Diagnosable
 	 * @return
 	 * @throws InvalidSearchQueryException if unable to parse the query
 	 */
-	public SearchList search(String searchTerms, List<String> contexts, int start,
+	public SearchList search(String searchTerms, List<String> contexts, List<String> toolIds, int start,
 			int end, String filterName, String sorterName) throws InvalidSearchQueryException;
 
 	/**
@@ -187,7 +187,7 @@ public interface SearchService extends Diagnosable
 	 * @return
 	 * @throws InvalidSearchQueryException if unable to parse the query
      */
-	SearchList search(String searchTerms, List<String> contexts, int start,
+	SearchList search(String searchTerms, List<String> contexts, List<String> toolIds, int start,
 			int end, String indexBuilderName) throws InvalidSearchQueryException;
 
 	/**
@@ -204,7 +204,7 @@ public interface SearchService extends Diagnosable
 	 * @return
 	 * @throws InvalidSearchQueryException if unable to parse the query
 	 */
-	SearchList search(String searchTerms, List<String> contexts, int start,
+	SearchList search(String searchTerms, List<String> contexts, List<String> toolIds, int start,
 					  int end, String indexBuilderName, Map<String,String> additionalSearchInformation) throws InvalidSearchQueryException;
 
 
@@ -223,7 +223,7 @@ public interface SearchService extends Diagnosable
 	 * @return
 	 * @throws InvalidSearchQueryException if unable to parse the query
 	 */
-	SearchResponse searchResponse(String searchTerms, List<String> contexts, int start,
+	SearchResponse searchResponse(String searchTerms, List<String> contexts, List<String> toolIds, int start,
 					  int end, String indexBuilderName, Map<String,String> additionalSearchInformation) throws InvalidSearchQueryException;
 
 
@@ -357,7 +357,7 @@ public interface SearchService extends Diagnosable
 	 * @param parameterMap
 	 * @return
 	 */
-	String searchXML(Map parameterMap);
+	String searchXML(Map<String, String[]> parameterMap);
 
 	/**
 	 * @return

@@ -32,6 +32,7 @@
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{assessmentSettingsMessages.check_settings_and_add_notification}" /></title>
+      <script src="/library/js/spinner.js"></script>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 
@@ -51,7 +52,7 @@
   
   <!-- NOTIFICATION -->
   <h:panelGroup>
-    <div class="row" style="margin-top:15px; margin-bottom:15px;">
+    <div class="row">
       <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.notification}" for="number" />
       <div class="col-md-10">
         <h:panelGrid>
@@ -97,21 +98,14 @@
     <h:outputText value="#{assessmentSettingsMessages.score_discrepancies_note}" rendered="#{publishedSettings.itemNavigation ne '2' || !assessmentBean.hasSubmission}"/> 
     <h:outputText value="#{assessmentSettingsMessages.score_discrepancies_note_non_linear}" rendered="#{publishedSettings.itemNavigation eq '2' && assessmentBean.hasSubmission}"/> 
   <h:panelGroup rendered="#{publishedSettings.itemNavigation eq '2' && assessmentBean.hasSubmission}">
-        <h:selectBooleanCheckbox id="updateMostCurrentSubmissionCheckbox" value="#{publishedSettings.updateMostCurrentSubmission}"  onclick="javascript:showRepublishWarning(this);" />
+        <h:selectBooleanCheckbox id="updateMostCurrentSubmissionCheckbox" value="#{publishedSettings.updateMostCurrentSubmission}" onclick="javascript:showRepublishWarning(this);" />
         <h:outputText value="#{assessmentSettingsMessages.update_most_current_submission_checkbox}" />		
   </h:panelGroup>
   <h:outputText id="updateMostCurrentSubmissionCheckboxWarning" rendered="#{publishedSettings.itemNavigation eq '2' && assessmentBean.hasSubmission}" value="#{assessmentSettingsMessages.update_most_current_submission_checkbox_warn}" styleClass="notification" style="visibility:hidden"/>    
 </h:panelGrid>
 </h:panelGrid>
 
-<f:verbatim>
-<style type="text/css">
-.topAlign{
-	vertical-align: TOP
-}
-</style>
-</f:verbatim>
-<h:panelGrid columns="5" styleClass="act" rowClasses="topAlign">
+<h:panelGrid columns="5" styleClass="act">
   <!-- Cancel button -->
    <h:commandButton value="#{commonMessages.cancel_action}" type="submit" action="#{author.getFirstFromPage}" rendered="#{author.isEditPendingAssessmentFlow}"/>
    <h:commandButton value="#{commonMessages.cancel_action}" type="submit" action="editAssessment" rendered="#{!author.isEditPendingAssessmentFlow}">
@@ -124,19 +118,17 @@
    <h:commandButton value="#{assessmentSettingsMessages.button_edit_settings}" type="submit" action="editPublishedAssessmentSettings" rendered="#{!author.isEditPendingAssessmentFlow}">
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SetFromPageAsPublishAssessmentListener" />
    </h:commandButton>
-	
+
    <!-- Publish, Republishe and Regrade, or Republish button -->
-   <h:commandButton id="publish" value="#{commonMessages.publish_action}" type="submit"
-	 styleClass="active" action="publishAssessment" onclick="toggle()" onkeypress="toggle()" rendered="#{author.isEditPendingAssessmentFlow}">
-	  <f:actionListener
-		type="org.sakaiproject.tool.assessment.ui.listener.author.PublishAssessmentListener" />
+   <h:commandButton id="publish" value="#{commonMessages.publish_action}" type="submit" styleClass="active" action="publishAssessment" rendered="#{author.isEditPendingAssessmentFlow}" onclick="SPNR.disableControlsAndSpin(this, null);">
+     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.PublishAssessmentListener" />
    </h:commandButton>
 
-	<h:commandButton  value="#{authorMessages.button_republish_and_regrade}" type="submit" styleClass="active" rendered="#{!author.isEditPendingAssessmentFlow && author.isRepublishAndRegrade}" action="publishAssessment">
+	<h:commandButton  value="#{authorMessages.button_republish_and_regrade}" type="submit" styleClass="active" rendered="#{!author.isEditPendingAssessmentFlow && author.isRepublishAndRegrade}" action="publishAssessment" onclick="SPNR.disableControlsAndSpin(this, null);">
 		<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.RepublishAssessmentListener" />
 	</h:commandButton>
 
-	<h:commandButton  value="#{authorMessages.button_republish}" type="submit" styleClass="active" rendered="#{!author.isEditPendingAssessmentFlow && !author.isRepublishAndRegrade}" action="publishAssessment">
+	<h:commandButton  value="#{authorMessages.button_republish}" type="submit" styleClass="active" rendered="#{!author.isEditPendingAssessmentFlow && !author.isRepublishAndRegrade}" action="publishAssessment" onclick="SPNR.disableControlsAndSpin(this, null);">
 		<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.RepublishAssessmentListener" />
 	</h:commandButton>	
 
@@ -147,11 +139,8 @@
 <h:panelGrid columns="1" border="0" width="78%" styleClass="settings">
 <h:panelGrid columns="1" border="0">
 <h:panelGrid columns="1" border="0">
-<h:outputText value="#{assessmentSettingsMessages.notification}" styleClass="notification" rendered="#{publishRepublishNotification.sendNotification}" escape="false"/>
-<h:outputText value="#{assessmentSettingsMessages.subject} #{publishRepublishNotification.notificationSubject}" rendered="#{publishRepublishNotification.sendNotification}"/>
-
-  <h:inputTextarea id="message1" value="#{publishRepublishNotification.prePopulateText}" styleClass='prePopulateText' onmousedown="clearText1()" rows="2" cols="70" rendered="#{publishRepublishNotification.sendNotification && author.isEditPendingAssessmentFlow}"/>
-  <h:inputTextarea id="message2" value="#{publishRepublishNotification.prePopulateText}" styleClass='prePopulateText' onmousedown="clearText2()" rows="2" cols="70" rendered="#{publishRepublishNotification.sendNotification && !author.isEditPendingAssessmentFlow}"/>
+  <h:outputText value="#{assessmentSettingsMessages.notification}" styleClass="notification" rendered="#{publishRepublishNotification.sendNotification}" escape="false"/>
+  <h:outputText value="#{assessmentSettingsMessages.subject} #{publishRepublishNotification.notificationSubject}" rendered="#{publishRepublishNotification.sendNotification}"/>
 </h:panelGrid>
 
 <h:panelGrid columns="1" rowClasses="shorttextPadding" rendered="#{author.isEditPendingAssessmentFlow}" border="0">
@@ -370,47 +359,23 @@
 <h:panelGrid />
 </h:panelGrid>
 
+<h:panelGroup rendered="#{assessmentSettings != null && assessmentSettings.assessment != null && assessmentSettings.assessment.hasMultipleTimers() > 1}" layout="block" styleClass="sak-banner-warn">
+	<h:outputText value="#{assessmentSettingsMessages.multiple_timers_detected}" />
+</h:panelGroup>
+<h:panelGroup rendered="#{publishedSettings != null && publishedSettings.assessment != null && publishedSettings.assessment.hasMultipleTimers() > 1}" layout="block" styleClass="sak-banner-warn">
+	<h:outputText value="#{assessmentSettingsMessages.multiple_timers_detected}" />
+</h:panelGroup>
+
 <f:verbatim><p></p></f:verbatim>
 
 <script>
-var clicked = 'false';
-function toggle(){
-  if (clicked == 'false'){
-    clicked = 'true'
-  }
-  else{ // any subsequent click disable button & action
-    document.forms[0].elements['publishAssessmentForm:publish'].disabled=true;
-  }
-}
-
 function showRepublishWarning (obj) {
-	var objwarn = document.getElementById('publishAssessmentForm:updateMostCurrentSubmissionCheckboxWarning');
-	if (obj.checked==true) objwarn.style.visibility = 'visible';
-	else objwarn.style.visibility = 'hidden';
+	const objwarn = document.getElementById('publishAssessmentForm:updateMostCurrentSubmissionCheckboxWarning');
+	objwarn.style.visibility = obj.checked ? 'visible' : 'hidden';
 }  
-
-var entered = 'false';
-function clearText1(){
-  if (entered == 'false'){
-    document.forms[0].elements['publishAssessmentForm:message1'].value='';
-	document.forms[0].elements['publishAssessmentForm:message1'].className='simple_text_area';
-	document.forms[0].elements['publishAssessmentForm:message1'].focus();
-    entered = 'true'
-  }
-}
-
-function clearText2(){
-  if (entered == 'false'){
-    document.forms[0].elements['publishAssessmentForm:message2'].value='';
-	document.forms[0].elements['publishAssessmentForm:message2'].className='simple_text_area';
-	document.forms[0].elements['publishAssessmentForm:message2'].focus();
-    entered = 'true'
-  }
-}
 </script>
 
-
-<f:verbatim><p></p></f:verbatim>
+<p>&nbsp;</p>
 
  </h:form>
  <!-- end content -->

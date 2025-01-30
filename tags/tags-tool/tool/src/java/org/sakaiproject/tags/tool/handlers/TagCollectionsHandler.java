@@ -127,7 +127,7 @@ public class TagCollectionsHandler extends CrudHandler {
             String futureExternalSourceName = tagCollectionForm.toTagCollection().getExternalSourceName();
             String actualName = tagService.getTagCollections().getForId(uuid).get().getName();
             String futureName = tagCollectionForm.toTagCollection().getName();
-            if (!(actualExternalSourceName.equals(futureExternalSourceName))) {
+            if (actualExternalSourceName != null && !(actualExternalSourceName.equals(futureExternalSourceName))) {
                 if (tagService.getTagCollections().getForExternalSourceName(futureExternalSourceName).isPresent()) {
                     this.addError("externalsourcename", "error_unique_externalsource");
                 }

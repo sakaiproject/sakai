@@ -1,0 +1,411 @@
+#select-site-sidebar {
+
+  .si-pin {
+    color: transparent;
+  }
+
+  width: 750px;
+
+  a[href]:focus {
+    outline: 3px solid var(--focus-outline-color);
+    outline-offset: -3px;
+    border-radius: 2px;
+  }
+
+  button.icon-button {
+    border: none;
+    padding: 5px 0 5px 0;
+  }
+
+  .fav-sites-entry {
+    padding: 5px;
+  }
+
+  .card-title {
+    .si-pin-fill, &:hover .si-pin, &:focus .si-pin, button:focus .si-pin {
+      color: var(--sakai-text-color-1);
+    }
+  }
+
+  .fav-sites-entry,  .favorites-term-header {
+    .si-pin-fill, &:hover .si-pin, &:focus .si-pin, button:focus .si-pin {
+      color: var(--sakai-text-color-1);
+    }
+
+    &:hover, &:focus, button:focus {
+      background-color: var(--site-nav-btn-hover-bg);
+    }
+}
+
+  @media #{$phone} {
+    width: auto;
+  }
+}
+
+#selectSite {
+
+  .favorites-term-header {
+    color: var(--all-sites-title-text-color);
+    font-size: $all-sites-title-text-size;
+    font-weight: $all-sites-title-text-weight;
+    margin: 1.5em 0 0.6em 0;
+  }
+}
+
+ul#otherSitesMenu {
+  margin: 0.5em 0 0 0;
+  padding: 0 0 0 0;
+  list-style: none;
+  display: inline-block;
+  @media #{$desktop} {
+    width: 100%;
+    text-align: right;
+  }
+  @media #{$phone} {
+    margin-bottom: 5px;
+  }
+
+  li:not(.otherSitesMenuClose) {
+    display: inline-block;
+    a {
+      @extend .button;
+      @media #{$phone} {
+        padding: 0.3em;
+      }
+    }
+  }
+}
+
+#other-sites-category-wrap {
+
+  .moresites-left-col {
+    display: inline-block;
+    width: 49%;
+    float: left;
+    margin-right: 1%;
+    @media #{$more-sites-single-column} {
+      width: 100%;
+      float: none;
+    }
+    .fav-sites-term:first-child .favorites-term-header {
+      margin-top: 0;
+    }
+  }
+  .moresites-right-col {
+    display: inline-block;
+    width: 49%;
+    float: left;
+    @media #{$more-sites-single-column} {
+      width: 100%;
+      float: none;
+    }
+    .fav-sites-term:first-child .favorites-term-header {
+      margin-top: 0;
+    }
+  }
+
+  .favorites-select-container {
+    padding-left: 11px;
+    padding-right: 5px;
+    margin: 0;
+    height: 28px;
+    float: left;
+  }
+
+  .favorites-select-all-none {
+    cursor: pointer;
+    padding: 0 4px;
+    margin: 0;
+  }
+}
+
+ul.other-sites-category-list,
+ul.favorite-site-list {
+  clear: both;
+  list-style: none;
+  padding: 0;
+  li {
+    display: block;
+    font-size: $all-sites-button-text-size;
+    background: var(--all-sites-button-background-color);
+    border: 1px solid var(--all-sites-button-border-color);
+    @include border-radius($all-sites-button-border-radius);
+    margin: 0.3em;
+    position: relative;
+    width: 305px;
+    white-space: nowrap;
+    padding: 0;
+
+    a {
+      color: var(--all-sites-button-text-color);
+      font-weight: $all-sites-button-text-weight;
+
+      &:hover {
+        color: var(--all-sites-button-hover-text-color);
+      }
+    }
+
+    .site-favorite-btn {
+
+      .site-nonfavorite {
+        color: var(--all-sites-button-star-empty-color);
+      }
+      .site-favorite {
+        color: var(--all-sites-button-star-full-color);
+      }
+    }
+
+    &.is-selected {
+      color: var(--all-sites-button-selected-text-color);
+      font-size: $all-sites-button-selected-text-size;
+      font-weight: $all-sites-button-selected-text-weight;
+      background: var(--all-sites-button-selected-background-color);
+      border-color: var(--all-sites-button-selected-border-color);
+      border-radius: $all-sites-button-selected-border-radius;
+
+      .site-favorite-btn {
+        .site-nonfavorite {
+          color: var(--all-sites-button-selected-star-empty-color);
+        }
+        .site-favorite {
+          color: var(--all-sites-button-selected-star-full-color);
+        }
+      }
+    }
+
+    &:hover {
+      color: var(--all-sites-button-hover-text-color);
+      font-size: $all-sites-button-hover-text-size;
+      font-weight: $all-sites-button-hover-text-weight;
+      background: var(--all-sites-button-hover-background-color);
+      border: 1px solid var(--all-sites-button-hover-border-color);
+
+      .toolMenus {
+        color: var(--all-sites-button-hover-dropdown-color);
+      }
+
+      .site-favorite-btn {
+        .site-nonfavorite {
+          color: var(--all-sites-button-hover-star-empty-color);
+        }
+        .site-favorite {
+          color: var(--all-sites-button-hover-star-full-color);
+        }
+      }
+    }
+  }
+}
+
+#otherSiteSearch {
+  display: block;
+  margin: 1em 1em 1em 0;
+
+  @media #{$more-sites-single-column} {
+    text-align: left;
+    margin-bottom: 1em;
+  }
+
+  label {
+    color: var(--sakai-text-color-1);
+    margin-right: 5px;
+  }
+
+  #search-all-sites {
+    width: 18em;
+    min-height: 2em;
+    padding: 0 5px 0 5px;
+    border-radius: 50px !important;
+    border: 1px solid var(--sakai-border-color);
+
+    &:focus {
+      outline: 3px solid;
+      outline-color: var(--focus-outline-color);
+    }
+  }
+
+  .other-site-search-clear {
+    position: relative;
+    text-decoration: none;
+    font-family: "FontAwesome";
+  }
+
+  .other-site-search-clear:before {
+    position: absolute;
+    top: -5px;
+    right: 14px;
+    content: "\f057";
+    font-family: "FontAwesome";
+    color: var(--sakai-text-color-2);
+    font-size: 1.2em;
+    line-height: 1.5em;
+    text-align: right;
+  }
+}
+
+div.fav-title-myworkspace {
+  width: 273px;
+
+  a {
+    width: 100%;
+
+    .bi-house-fill {
+      font-size: 1.15em;
+      padding: 0 6px 0 10px;
+    }
+
+    &:hover {
+      text-decoration: none;
+    }
+    .bi-house-fill,
+    .fullTitle {
+      height: $all-sites-button-height;
+      line-height: $all-sites-button-height;
+    }
+  }
+}
+
+.fav-title {
+  width: 240px;
+  overflow: hidden;
+  display: inline-block;
+  vertical-align: middle;
+  a {
+    width: 100%;
+    display: inline-block;
+    height: $all-sites-button-height;
+    line-height: 29px;
+    text-decoration: none !important;
+    vertical-align: middle;
+
+    .fullTitle {
+      padding-left: 2px;
+    }
+  }
+}
+
+#organize-favorites {
+  padding-left: 1em;
+  @media #{$phone} {
+    .heading {
+      display: none;
+    }
+  }
+}
+
+#allsites-organize-favourites-tab {
+  .favorites-desktop {
+    display: inline;
+  }
+  .favorites-mobile {
+    display: none;
+  }
+
+  @media #{$phone} {
+    .favorites-desktop {
+      display: none;
+    }
+    .favorites-mobile {
+      display: inline;
+    }
+  }
+}
+
+#organize-favorites-list {
+  list-style: none;
+  padding: 0 0 0 0;
+  .pinned-drag-handle {
+    font-size: 1.5em;
+    color: var(--all-sites-button-drag-icon-color);
+    cursor: move; /* fallback if grab cursor is unsupported */
+    cursor: grab;
+    cursor: -moz-grab;
+    cursor: -webkit-grab;
+  }
+  > li {
+    padding: 5px;
+    &:hover {
+      background-color: var(--site-nav-btn-hover-bg);
+      .fav-drag-handle {
+        color: var(--all-sites-button-drag-icon-hover-color);
+      }
+    }
+  }
+  .pinned-drag-handle:active {
+    cursor: grabbing;
+    cursor: -moz-grabbing;
+    cursor: -webkit-grabbing;
+  }
+  .site-favorite-btn {
+    padding-right: 0.5em;
+  }
+
+  div {
+    display: flex;
+    align-items: center;
+  }
+}
+
+.favorites-help-text {
+  margin-top: 1em;
+}
+
+.moresites-refresh-notification {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 13px;
+  border: 1px solid var(--warnBanner-bordercolor);
+  z-index: 1000;
+  display: inline-block;
+  box-shadow: var(--elevation-4dp);
+
+  -webkit-transition: background-color 0.2s, color 0.2s;
+  -moz-transition: background-color 0.2s, color 0.2s;
+  -ms-transition: background-color 0.2s, color 0.2s;
+  -o-transition: background-color 0.2s, color 0.2s;
+  transition: background-color 0.2s, color 0.2s;
+
+  background-color: var(--warnBanner-bgcolor);
+  color: var(--warnBanner-color) !important;
+  text-align: center;
+  padding: 0 8px;
+  text-decoration: none;
+
+  a {
+    display: inline-block; // to override flex on login links
+    color: var(--sakai-text-color-2);
+    text-decoration: underline !important;
+  }
+
+  @media #{$phone} {
+    display: none;
+  }
+}
+
+#organize-favorites-pane {
+
+  #pinned-to-show {
+    margin-top: 1em;
+
+    .bi-grip-horizontal {
+      margin: 0 4px;
+      color: var(--all-sites-button-drag-icon-color);
+    }
+  }
+}
+
+@media #{$phone} {
+  #organize-favorites {
+    #organize-favorites-pane {
+      float: none;
+      width: 100%;
+      border-right: none;
+      border-bottom: 1px solid var(--all-sites-tab-border-color);
+    }
+    #favorite-settings-pane {
+      float: none;
+      width: 100%;
+      padding: 1em 0 0 0;
+    }
+  }
+}

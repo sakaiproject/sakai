@@ -65,7 +65,11 @@ $(document).ready(function() {
             });
 
             this.on("error", function(file, message, xhr) {
-                errorMessage = xhr.response;
+                if (xhr) {
+                  errorMessage = xhr.response;
+                } else {
+                  errorMessage = message;
+                }
                 status = file.status;
             });
 

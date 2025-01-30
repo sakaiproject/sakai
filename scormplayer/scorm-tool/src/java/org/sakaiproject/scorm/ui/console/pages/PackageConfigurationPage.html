@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.sourceforge.net/" xml:lang="en" lang="en">
+	<head>
+		<wicket:head>
+			<title>SCORM Console</title>
+		</wicket:head>
+	</head>
+	<body>
+		<wicket:extend>
+			<form wicket:id="configurationForm">
+				<div class="form form-required">
+					<label for="packageName" class="form-control-label">
+						<wicket:message key="form.label.package.name"></wicket:message>
+					</label>
+				</div>
+				<input type="text" wicket:id="packageName" id="packageName" size="50" maxlength="200" />
+
+				<h2 class="formSectionHeading"><wicket:message key="form.heading.availability"></wicket:message></h2>
+				<div class="form form-group row form-required">
+					<label for="releaseOnDTF" class="col-sm-2 form-control-label">
+						<wicket:message key="form.label.open.date"></wicket:message>
+					</label>
+					<div class="col-sm-6 form-inline">
+						<input type="text" wicket:id="releaseOnDTF" id="releaseOnDTF" />
+						<p class="text-muted small">
+							<wicket:message key="form.instructions.open.date"></wicket:message>
+						</p>
+					</div>
+				</div>
+				<div class="form form-group row">
+					<label for="dueOnDTF" class="col-sm-2 form-control-label">
+						<wicket:message key="form.label.due.date"></wicket:message>
+					</label>
+					<div class="col-sm-6 form-inline">
+						<input type="text" wicket:id="dueOnDTF" id="dueOnDTF" />
+					</div>
+				</div>
+				<div class="form form-group row">
+					<label for="acceptUntilDTF" class="col-sm-2 form-control-label">
+						<wicket:message key="form.label.accept.until"></wicket:message>
+					</label>
+					<div class="col-sm-6 form-inline">
+						<input type="text" wicket:id="acceptUntilDTF" id="acceptUntilDTF" />
+						<p class="text-muted small">
+							<wicket:message key="form.instructions.accept.until"></wicket:message>
+						</p>
+					</div>
+				</div>
+				<div>
+					<label for="numberOfTries" class="form-control-label">
+						<wicket:message key="form.label.number.of.tries"></wicket:message>
+					</label>
+					<select wicket:id="numberOfTries" id="numberOfTries" />
+				</div>
+
+				<h2 class="formSectionHeading"><wicket:message key="form.heading.displayOptions"></wicket:message></h2>
+				<div class="form">
+					<label for="showTOC" class="form-control-label">
+						<input type="checkbox" wicket:id="showTOC" id="showTOC" />
+						<wicket:message key="form.label.show.toc"></wicket:message>
+					</label>
+				</div>
+				<div class="form">
+					<label for="showNavBar" class="form-control-label">
+						<input type="checkbox" wicket:id="showNavBar" id="showNavBar" />
+						<wicket:message key="form.label.show.navBar"></wicket:message>
+					</label>
+				</div>
+
+				<h2 class="formSectionHeading"><wicket:message key="form.heading.grading"></wicket:message></h2>
+				<table id="gradeSyncTable" class="table table-hover table-striped" cellspacing="0">
+					<thead>
+						<tr>
+							<th><wicket:message key="form.gradingTable.itemTitle"></wicket:message></th>
+							<th class="checkboxColumn"><wicket:message key="form.gradingTable.enableGradebook"></wicket:message></th>
+						</tr>
+					</thead>
+					<tr wicket:id="scos">
+						<td>
+							<label wicket:for="synchronizeSCOWithGradebook">
+								<span wicket:id="itemTitle"></span>
+							</label>
+							<div wicket:id="verifySyncWithGradebook" class="sak-banner-warn">
+								<wicket:message key="verify.synchronizeWithGradebook"></wicket:message>
+							</div>
+						</td>
+						<td class="checkboxColumn">
+							<input type="checkbox" wicket:id="synchronizeSCOWithGradebook"></input>
+						</td>
+					</tr>
+				</table>
+
+				<div class="act">
+					<button wicket:id="btnUpdate" id="btnUpdate" type="submit" class="active"><wicket:message key="page.update">Submit</wicket:message></button>
+					<button wicket:id="btnCancel" id="btnCancel" type="submit"><wicket:message key="page.cancel">Cancel</wicket:message></button>
+				</div>
+			</form>
+		</wicket:extend>
+	</body>
+</html>

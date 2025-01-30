@@ -15,12 +15,13 @@
  */
 package org.sakaiproject.messaging.api;
 
-import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.messaging.api.model.UserNotification;
 
 /**
  * The user messaging service is intendened to the the single interface via which tools
@@ -30,6 +31,9 @@ import org.sakaiproject.user.api.User;
  * rather than having that logic scattered through tool code.
  */
 public interface UserMessagingService {
+
+    public static final String PUSH_PUBKEY_PROPERTY = "portal.notifications.push.publickey";
+    public static final String PUSH_PRIVKEY_PROPERTY = "portal.notifications.push.privatekey";
 
     /**
      * Send a message to a set of users, via 1 to many message media. If a template is involved
@@ -54,4 +58,55 @@ public interface UserMessagingService {
      *          sending messages.
      */
     boolean importTemplateFromResourceXmlFile(String templateResource, String templateRegistrationKey);
+
+    /**
+     * @return the list of notifications for the current user
+     */
+    public List<UserNotification> getNotifications();
+
+    /**
+     * Register a handler for broadcast messages. The most recently registered handler that
+     * handles a given event will receive it exclusively.
+     *
+     * @param handler a broadcast message handler; may handle multiple events
+     */
+    void registerHandler(UserNotificationHandler handler);
+
+    /**
+     * Unregister a handler for broadcast messages from all of the events it handles. If a given event is
+     * handled by a different handler, it will not be unregistered.
+     *
+     * @param handler the broadcast message handler to unregister from events
+     */
+    void unregisterHandler(UserNotificationHandler handler);
+
+    /**
+     * @param id The id of the notification to clear
+     * @return boolean to indicate success
+     */
+    public boolean clearNotification(long id);
+
+    /**
+     * @param userId The user to clear the notifications for
+     * @return boolean to indicate success
+     */
+    public boolean clearAllNotifications();
+
+    /**
+     * @param userId The user whose notifications to mark as viewed
+     * @return boolean to indicate success
+     */
+    public boolean markAllNotificationsViewed(String siteId, String toolId);
+
+    /**
+     * Subscribe the current user to the push service. This is related to browser push and the
+     * parameters come from the browser vendor's push service via the Sakai client js.
+     *
+     * @param endpoint The browser push service supplied endpoint
+     * @param auth The browser push service supplied auth
+     * @param auth The browser push service supplied userKey
+     */
+    public void subscribeToPush(String endpoint, String auth, String userKey, String browserFingerprint);
+
+    public void sendTestNotification();
 }

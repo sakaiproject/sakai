@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.sakaiproject</groupId>
 		<artifactId>master</artifactId>
-		<version>23-SNAPSHOT</version>
+		<version>25-SNAPSHOT</version>
 		<relativePath>../master/pom.xml</relativePath>
 	</parent>
 
@@ -95,21 +95,10 @@
 
 			<!-- third party dependencies -->
 			<dependency>
-				<groupId>org.azeckoski</groupId>
-				<artifactId>reflectutils</artifactId>
-				<version>${reflectutils.version}</version>
-			</dependency>
-			<dependency>
 				<groupId>org.easymock</groupId>
 				<artifactId>easymock</artifactId>
 				<version>3.4</version>
 				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.myfaces.tomahawk</groupId>
-				<artifactId>tomahawk</artifactId>
-				<version>1.1.14</version>
-				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.poi</groupId>
@@ -131,7 +120,6 @@
 				<groupId>taglibs</groupId>
 				<artifactId>standard</artifactId>
 				<version>1.1.2</version>
-				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>javax.servlet.jsp</groupId>

@@ -28,17 +28,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.CandidateDetailProvider;
+import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.detail.ValueEncryptionUtilities;
 
 /**
@@ -51,29 +53,53 @@ public class SampleCandidateDetailProvider implements CandidateDetailProvider
 {
 	private static final String USER_PROP_CANDIDATE_ID = "candidateID";
 	private static final String USER_PROP_ADDITIONAL_INFO = "additionalInfo";
+	private static final String USER_PROP_SPECIAL_NEEDS = "specialNeeds";
 	private static final String USER_PROP_STUDENT_NUMBER = "studentNumber";
-	
+
 	private final static String SITE_PROP_USE_INSTITUTIONAL_ANONYMOUS_ID = "useInstitutionalAnonymousID";
 	private final static String SITE_PROP_DISPLAY_ADDITIONAL_INFORMATION = "displayAdditionalInformation";
+	private final static String SITE_PROP_DISPLAY_SPECIAL_NEEDS = "displaySpecialNeeds";
+	private final static String SYSTEM_PROP_ENCRYPT_NUMERIC_ID = "encryptInstitutionalNumericID";
 	private final static String SITE_PROP_USE_INSTITUTIONAL_NUMERIC_ID = "useInstitutionalNumericID";
 	
 	private final static String SYSTEM_PROP_USE_INSTITUTIONAL_ANONYMOUS_ID = "useInstitutionalAnonymousID";
 	private final static String SYSTEM_PROP_DISPLAY_ADDITIONAL_INFORMATION = "displayAdditionalInformation";
+	private final static String SYSTEM_PROP_DISPLAY_SPECIAL_NEEDS = "displaySpecialNeeds";
 	private final static String SYSTEM_PROP_USE_INSTITUTIONAL_NUMERIC_ID = "useInstitutionalNumericID";
-	private final static String SYSTEM_PROP_ENCRYPT_NUMERIC_ID = "encryptInstitutionalNumericID";
-
+	private final static String SYSTEM_PROP_ENCRYPT_CANDIDATE_DETAILS = "encryptCandidateDetails";
+	
+	private static final String[] SAMPLE_SPECIAL_NEEDS = {
+		"Anticipate the material to work on, for example upload the teaching material ahead of time.",
+		"Don't overload information pages.",
+		"At the beginning of the class, the teacher should indicate how he will organize the session and summarize the most important ideas at the end of the session.	",
+		"Respect if student does not want to read out loud in front of classmates.",
+		"Less demanding spelling.",
+		"More time to take the exams.",
+		"Brief problem statements divided into parts."
+	};
+	
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Dependencies and their setter methods
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	private SecureRandom random = new SecureRandom();
+	private PreferencesService preferencesService;
 	private ServerConfigurationService serverConfigurationService;
+	private SessionManager sessionManager;
 	private SiteService siteService;
 	private ToolManager toolManager;
 	private ValueEncryptionUtilities encryptionUtilities;
-	 
+
+	public void setPreferencesService(PreferencesService preferencesService) {
+		this.preferencesService = preferencesService;
+	}
+	
 	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
 		this.serverConfigurationService = serverConfigurationService;
+	}
+
+	public void setSessionManager(SessionManager sessionManager) {
+		this.sessionManager = sessionManager;
 	}
 	
 	public void setSiteService(SiteService siteService) {
@@ -97,9 +123,11 @@ public class SampleCandidateDetailProvider implements CandidateDetailProvider
 	 */
 	public void init()
 	{
+		Objects.requireNonNull(preferencesService, "ServerConfigurationService must be set");
+		Objects.requireNonNull(serverConfigurationService, "ServerConfigurationService must be set");
+		Objects.requireNonNull(sessionManager, "SessionManager must be set");
 		Objects.requireNonNull(siteService, "SiteService must be set");
 		Objects.requireNonNull(toolManager, "ToolManager must be set");
-		Objects.requireNonNull(serverConfigurationService, "ServerConfigurationService must be set");
 
 		log.info("init()");
 	}
@@ -155,27 +183,30 @@ public class SampleCandidateDetailProvider implements CandidateDetailProvider
 		}
 		return Optional.empty();
 	}
-	
+
 	public Optional<List<String>> getAdditionalNotes(User user, Site site){
 		if(site == null) {
 			log.error("getAdditionalNotes: Null site.");
 			return Optional.empty();
 		}
-		
 		try {
 			if(user != null) {
 				//check if additional notes is enabled (system-wide or site-based)
-				if(isAdditionalNotesEnabled(site)) {
-					if(user.getProperties() != null && user.getProperties().getPropertyList(USER_PROP_ADDITIONAL_INFO) != null) {
+				if (isAdditionalNotesEnabled(site) && user.getProperties() != null) {
+					List<String> additionalNotesList = getI18nPropertyList(USER_PROP_ADDITIONAL_INFO, user, site);
+					if (additionalNotesList != null) {
 						log.debug("Showing additional notes for user {}", user.getId());
-						List<String> ret = new ArrayList<String>();
-						for(String s : user.getProperties().getPropertyList(USER_PROP_ADDITIONAL_INFO)) {
-							//this property is encrypted, so we need to decrypt it
-							if(StringUtils.isNotBlank(s) && StringUtils.isNotBlank(encryptionUtilities.decrypt(s))){
-								ret.add(encryptionUtilities.decrypt(s));
-							}
+						if (serverConfigurationService.getBoolean(SYSTEM_PROP_ENCRYPT_CANDIDATE_DETAILS, true)) {
+							 return Optional.of(additionalNotesList.stream()
+									.filter(StringUtils::isNotBlank)
+									.map(encryptionUtilities::decrypt)
+									.filter(StringUtils::isNotBlank)
+								.collect(Collectors.toList()));
+						} else {
+							 return Optional.of(additionalNotesList.stream()
+									.filter(StringUtils::isNotBlank)
+								.collect(Collectors.toList()));
 						}
-						return Optional.ofNullable(ret);
 					} else {
 						List<String> ret = new ArrayList<String>();
 						int hashInt = user.getId().hashCode();
@@ -201,7 +232,97 @@ public class SampleCandidateDetailProvider implements CandidateDetailProvider
 		}
 		return Optional.empty();
 	}
-	
+
+	public boolean isAdditionalNotesEnabled(Site site) {
+		try {
+			return (serverConfigurationService.getBoolean(SYSTEM_PROP_DISPLAY_ADDITIONAL_INFORMATION, false) || (site != null && Boolean.parseBoolean(site.getProperties().getProperty(SITE_PROP_DISPLAY_ADDITIONAL_INFORMATION))));
+		} catch(Exception e) {
+			log.warn("Could not determine if Additional Notes is enabled: {} ", e.toString());
+		}
+		return false;
+	}
+
+	public Optional<List<String>> getSpecialNeeds(User user, Site site){
+		if(site == null) {
+			log.error("A null site was detected, returning empty");
+			return Optional.empty();
+		}
+
+		try {
+			//check if special needs info is enabled (system-wide or site-based)
+			if (user != null && isSpecialNeedsEnabled(site) && user.getProperties() != null ) {
+				List<String> specialNeedsList = getI18nPropertyList(USER_PROP_SPECIAL_NEEDS, user, site);
+				if (specialNeedsList != null) {
+					log.debug("Showing special needs info for user {}", user.getId());
+					if (serverConfigurationService.getBoolean(SYSTEM_PROP_ENCRYPT_CANDIDATE_DETAILS, true)) {
+						 return Optional.of(specialNeedsList.stream()
+								.filter(StringUtils::isNotBlank)
+								.map(encryptionUtilities::decrypt)
+								.filter(StringUtils::isNotBlank)
+							.collect(Collectors.toList()));
+					} else {
+						 return Optional.of(specialNeedsList.stream()
+								.filter(StringUtils::isNotBlank)
+							.collect(Collectors.toList()));
+					}
+				} else {
+					List<String> sampleSpecialNeeds = new ArrayList<String>();
+					int hashInt = user.getId().hashCode();
+					if (hashInt % 10 == 2) {
+						log.debug("Not generating random special needs infos for user {}", user.getId());
+						return Optional.empty();
+					} else {
+						log.debug("Generating random special needs infos for user {}", user.getId());
+						sampleSpecialNeeds.add(SAMPLE_SPECIAL_NEEDS[random.nextInt(SAMPLE_SPECIAL_NEEDS.length)]);
+						sampleSpecialNeeds.add(SAMPLE_SPECIAL_NEEDS[random.nextInt(SAMPLE_SPECIAL_NEEDS.length)]);
+						if (hashInt % 10 == 7) {
+							log.debug("Generating more random special needs infos for user {}", user.getId());
+							sampleSpecialNeeds.add(SAMPLE_SPECIAL_NEEDS[random.nextInt(SAMPLE_SPECIAL_NEEDS.length)]);
+						}
+						return Optional.ofNullable(sampleSpecialNeeds);
+					}
+				}
+			}
+		} catch (Exception e) {
+			log.error("Could not determine if special needs is enabled: {} ", e.toString());
+		}
+		return Optional.empty();
+	}
+
+	private List<String> getI18nPropertyList(String propName, User user, Site site) {
+
+		String siteLanguage = site.getProperties().getProperty(Site.PROP_SITE_LANGUAGE);
+
+		if (StringUtils.isNotEmpty(siteLanguage)) {
+			siteLanguage = "_" + StringUtils.substring(siteLanguage, 0, 2);
+			List<String> propList = user.getProperties().getPropertyList(propName + siteLanguage);
+			if (propList != null) {
+				return propList; 
+			}
+		}
+
+		String userLanguage = preferencesService.getLocale(sessionManager.getCurrentSession().getUserId()).getLanguage();
+
+		if (StringUtils.isNotEmpty(userLanguage)) {
+			userLanguage = "_" + userLanguage;
+			List<String> propList = user.getProperties().getPropertyList(propName + userLanguage);
+			if (propList != null) {
+				return propList; 
+			}
+		}
+
+		return user.getProperties().getPropertyList(propName);
+	}
+
+	public boolean isSpecialNeedsEnabled(Site site) {
+		try {
+			return (serverConfigurationService.getBoolean(SYSTEM_PROP_DISPLAY_SPECIAL_NEEDS, true) || (site != null && Boolean.parseBoolean(site.getProperties().getProperty(SITE_PROP_DISPLAY_SPECIAL_NEEDS))));
+		} catch(Exception e) {
+			log.warn("Could not determine if special needs is enabled: {} ", e.toString());
+		}
+		return false;
+	}
+
 	@Override
 	public Optional<String> getInstitutionalNumericId(User user, Site site){
 
@@ -212,7 +333,8 @@ public class SampleCandidateDetailProvider implements CandidateDetailProvider
 					if(user.getProperties() != null && StringUtils.isNotBlank(user.getProperties().getProperty(USER_PROP_STUDENT_NUMBER))) {
 						log.debug("Using user candidateID property for user {}", user.getId());
 						String studentNumber = user.getProperties().getProperty(USER_PROP_STUDENT_NUMBER);
-						if (serverConfigurationService.getBoolean(SYSTEM_PROP_ENCRYPT_NUMERIC_ID, true))
+						if (serverConfigurationService.getBoolean(SYSTEM_PROP_ENCRYPT_NUMERIC_ID,
+							serverConfigurationService.getBoolean(SYSTEM_PROP_ENCRYPT_CANDIDATE_DETAILS, true)))
 						{
 							studentNumber = encryptionUtilities.decrypt(studentNumber);
 						}
@@ -241,16 +363,7 @@ public class SampleCandidateDetailProvider implements CandidateDetailProvider
 	{
 		return getInstitutionalNumericId(candidate, site);
 	}
-	
-	public boolean isAdditionalNotesEnabled(Site site) {
-		try {
-			return (serverConfigurationService.getBoolean(SYSTEM_PROP_DISPLAY_ADDITIONAL_INFORMATION, false) || (site != null && Boolean.parseBoolean(site.getProperties().getProperty(SITE_PROP_DISPLAY_ADDITIONAL_INFORMATION))));
-		} catch(Exception e) {
-			log.warn("Error on isAdditionalNotesEnabled (sample) ", e);
-		}
-		return false;
-	}
-	
+
 	public boolean useInstitutionalAnonymousId(Site site) {
 		try {
 			return (serverConfigurationService.getBoolean(SYSTEM_PROP_USE_INSTITUTIONAL_ANONYMOUS_ID, false) || (site != null && Boolean.parseBoolean(site.getProperties().getProperty(SITE_PROP_USE_INSTITUTIONAL_ANONYMOUS_ID))));
@@ -263,7 +376,7 @@ public class SampleCandidateDetailProvider implements CandidateDetailProvider
 	@Override
 	public boolean isInstitutionalNumericIdEnabled(Site site) {
 		try {
-			return (serverConfigurationService.getBoolean(SYSTEM_PROP_USE_INSTITUTIONAL_NUMERIC_ID, false)
+			return (serverConfigurationService.getBoolean(SYSTEM_PROP_USE_INSTITUTIONAL_NUMERIC_ID, true)
 					|| (site != null && Boolean.parseBoolean(site.getProperties().getProperty(SITE_PROP_USE_INSTITUTIONAL_NUMERIC_ID))));
 		} catch(Exception e) {
 			log.warn("Error on isInstitutionalNumericIdEnabled (sample) ", e);

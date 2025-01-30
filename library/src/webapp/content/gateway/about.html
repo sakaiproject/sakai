@@ -1,57 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>About</title>
+    <title>About</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="/library/js/headscripts.js"></script>
-    <link href="/library/webjars/fontawesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/library/content/gateway/gateway.scss">
 </head>
 <script>
-    includeLatestJQuery('about.html');
-    includeWebjarLibrary('bootstrap');
+	includeWebjarLibrary("bootstrap", {includeCss: true});
 </script>
-
-<style type="text/css">
-.symbol {
-    text-align: center;
-    color: #000036;
-
-}
-
-.text{
-    font-size: 14pt;
-    text-align: center;
-    margin: 2rem 0 3rem
-}
-
-.panel { 
-    padding = 1.5rem;
-    border-color: #000036;;
-    border-radius: 1rem;
-
-}
-
-.jtop{
-    padding: 1rem 3rem;
-    margin-bottom: 2rem;
-    background-color: #e9ecef;
-    border-radius: 0.3rem;
-}
-
-.jtop > h1 {
-    font-size:36px;
-}
-
-.jtop > p {
-    font-size:18px;
-}
-
-</style>
-
 <body>
-<div class="jumbotron jtop">
-    <h1>About Sakai</h1>
+<div class="p-3 p-2 bg-opacity-10 border-bottom">
+    <h1 class="display-6">About Sakai</h1>
     <p>
         Sakai is a set of software tools designed to help instructors,
         researchers, and students create websites for collaboration.
@@ -59,32 +20,45 @@
     </p>
 </div>
 
-<div class="container">
-    <div class="row">
-        <div class="col-md-4">
-            <p class="symbol"><i class="fa fa-flask" aria-hidden="true" style="font-size:25rem;"></i></p>
-            <p class="text">A researcher can create a website for collaboration on a project with colleagues.</p>
+<div class="container-fluid">
+    <div class="row mt-5">
+        <div class="col-md-4 d-flex flex-column align-items-center">
+            <div class="icon-container rounded-circle border d-flex align-items-center justify-content-center p-3 m-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="currentColor" class="bi bi-binoculars-fill m-2" viewBox="0 0 16 16">
+                    <path d="M4.5 1A1.5 1.5 0 0 0 3 2.5V3h4v-.5A1.5 1.5 0 0 0 5.5 1h-1zM7 4v1h2V4h4v.882a.5.5 0 0 0 .276.447l.895.447A1.5 1.5 0 0 1 15 7.118V13H9v-1.5a.5.5 0 0 1 .146-.354l.854-.853V9.5a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v.793l.854.853A.5.5 0 0 1 7 11.5V13H1V7.118a1.5 1.5 0 0 1 .83-1.342l.894-.447A.5.5 0 0 0 3 4.882V4h4zM1 14v.5A1.5 1.5 0 0 0 2.5 16h3A1.5 1.5 0 0 0 7 14.5V14H1zm8 0v.5a1.5 1.5 0 0 0 1.5 1.5h3a1.5 1.5 0 0 0 1.5-1.5V14H9zm4-11H9v-.5A1.5 1.5 0 0 1 10.5 1h1A1.5 1.5 0 0 1 13 2.5V3z"/>
+                </svg>
+            </div>
+            <p class="fs-5 fw-medium">A researcher can create a website for collaboration on a project with colleagues.</p>
         </div>
         
-        <div class="col-md-4">
-            <p class="symbol"><i class="fa fa-university" aria-hidden="true" style="font-size:25rem;"></i></p>
-            <p class="text">An instructor can create a website that serves as an online discussion board for students to collaborate on an assignment.</p>
+        <div class="col-md-4 d-flex flex-column align-items-center">
+            <div class="icon-container rounded-circle border d-flex align-items-center justify-content-center p-3 m-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="currentColor" class="bi bi-person-workspace m-2" viewBox="0 0 16 16">
+                    <path d="M4 16s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H4Zm4-5.95a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/>
+                    <path d="M2 1a2 2 0 0 0-2 2v9.5A1.5 1.5 0 0 0 1.5 14h.653a5.373 5.373 0 0 1 1.066-2H1V3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v9h-2.219c.554.654.89 1.373 1.066 2h.653a1.5 1.5 0 0 0 1.5-1.5V3a2 2 0 0 0-2-2H2Z"/>
+                </svg>
+            </div>
+            <p class="fs-5 fw-medium">An instructor can create a website that serves as an online discussion board for students to collaborate on an assignment.</p>
         </div>
         
-        <div class="col-md-4">
-            <p class="symbol"><i class="fa fa-graduation-cap" aria-hidden="true" style="font-size:25rem;"></i></p>
-            <p class="text">A student can create a site for a study group or for extra curricular activities (depending on institutional policy).</p>
+        <div class="col-md-4 d-flex flex-column align-items-center">
+            <div class="icon-container rounded-circle border d-flex align-items-center justify-content-center p-3 m-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="currentColor" class="bi bi-person-fill m-2" viewBox="0 0 16 16">
+                    <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3Zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>
+                </svg>
+            </div>    
+            <p class="fs-5 fw-medium">A student can create a site for a study group or for extra curricular activities (depending on institutional policy).</p>
         </div>
     </div>
-    <div class="panel panel-primary">
-            <div class ="panel-body">
-                <p style="font-size: 14pt;">
+    <div class="card mt-5">
+            <div class ="card-body">
+                <p class="font-monospace text-break">
                     Sakai is a part of the <a href="https://www.apereo.org" target="_blank">Apereo Foundation (https://www.apereo.org)</a>.
                     An overview of Sakai can be found at <a href="https://www.sakailms.org/" target="_blank">https://www.sakailms.org/</a>.<br> 
                     For more information, contact <a href="mailto:sakaicoordinator@apereo.org">the Sakai Community Coordinator</a>.
                 </p>
             </div>
-        </div>
+    </div>
 </div>
 </body>
 </html>

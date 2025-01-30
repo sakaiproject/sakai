@@ -27,6 +27,7 @@
         <value>org/sakaiproject/tool/assessment/data/dao/authz/AuthorizationData.hbm.xml</value>
         <value>org/sakaiproject/tool/assessment/data/dao/assessment/FavoriteColChoices.hbm.xml</value>
         <value>org/sakaiproject/tool/assessment/data/dao/assessment/ExtendedTime.hbm.xml</value>
+        <value>org/sakaiproject/tool/assessment/data/dao/assessment/SebValidation.hbm.xml</value>
       </list>
     </property>
   </bean>
@@ -58,6 +59,8 @@
      <property name="eventLogFacadeQueries" ><ref bean="EventLogFacadeQueries"/></property>
      <property name="extendedTimeFacade" ref="org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade" />
      <property name="secureDeliveryFacadeQueries" ><ref bean="SecureDeliveryFacadeQueries"/></property>
+     <property name="sebValidationFacadeQueries" ><ref bean="SebValidationFacadeQueries"/></property>
+     <property name="statisticsFacadeQueries"><ref bean="StatisticsFacadeQueries" /></property>
    </bean>
     
    <bean id="TypeFacadeQueries"
@@ -161,6 +164,38 @@
         <bean class="org.sakaiproject.tool.assessment.facade.SecureDeliveryFacadeQueries">
           <property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
         </bean> 
+        </property>
+        <property name="transactionAttributes">
+          <props>
+            <prop key="*">PROPAGATION_REQUIRED</prop>
+          </props>
+        </property>
+      </bean>
+
+      <bean id="StatisticsFacadeQueries" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager">
+          <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+        </property>
+        <property name="target">
+          <bean class="org.sakaiproject.tool.assessment.facade.StatisticsFacadeQueries">
+            <property name="sessionFactory">
+              <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+            </property>
+          </bean>
+        </property>
+        <property name="transactionAttributes">
+          <props>
+            <prop key="*">PROPAGATION_REQUIRED</prop>
+          </props>
+        </property>
+      </bean>
+
+      <bean id="SebValidationFacadeQueries" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/></property>
+        <property name="target">
+          <bean class="org.sakaiproject.tool.assessment.facade.SebValidationFacadeQueries">
+          <property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
+        </bean>
         </property>
         <property name="transactionAttributes">
           <props>
@@ -348,8 +383,13 @@
       init-method="init" destroy-method="destroy">
     <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
     <property name="serverConfigService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+    <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+    <property name="questionPoolService" ref="org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI"/>
+    <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+    <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
     <property name="publishedAssessmentFacadeQueries" ref="PublishedAssessmentFacadeQueries" />
     <property name="qtiService" ref="QTIService"/>
+    <property name="linkMigrationHelper" ref="org.sakaiproject.util.api.LinkMigrationHelper"/>
   </bean>
 
 
@@ -490,6 +530,20 @@
         <property name="samigoETSProvider" ref="org.sakaiproject.samigo.api.SamigoETSProvider" />
     </bean>
 
+    <bean id="org.sakaiproject.samigo.api.SamigoAvailableNotificationService"
+          class="org.sakaiproject.samigo.impl.SamigoAvailableNotificationServiceImpl"
+          init-method="init">
+        <property name="emailService" ref="org.sakaiproject.email.api.EmailService" />
+        <property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.api.EmailTemplateService"/>
+        <property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService" />
+        <property name="scheduledInvocationManager" ref="org.sakaiproject.api.app.scheduler.ScheduledInvocationManager"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+        <property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
+    </bean>
+
     <!-- Adds User Preference for Notifications -->
     <bean id="org.sakaiproject.user.api.UserNotificationPreferencesRegistration.samigo"
           parent="org.sakaiproject.user.api.UserNotificationPreferencesRegistration"
@@ -508,6 +562,28 @@
                 <entry key="1"><value>prefs_opt1</value></entry>
                 <entry key="2"><value>prefs_opt2</value></entry>
                 <entry key="3"><value>prefs_opt3</value></entry>
+            </map>
+        </property>
+        <property name="overrideBySite"><value>false</value></property>
+        <property name="expandByDefault"><value>true</value></property>
+    </bean>
+
+    <bean id="org.sakaiproject.user.api.UserNotificationPreferencesRegistration.samigoOpen"
+          parent="org.sakaiproject.user.api.UserNotificationPreferencesRegistration"
+          class="org.sakaiproject.samigo.user.prefs.SamigoOpenNotificationPreferencesRegistrationImpl"
+          init-method="init">
+        <property name="bundleLocation"><value>samigo-noti-prefs</value></property>
+        <property name="sectionTitleBundleKey"><value>prefs_title</value></property>
+        <property name="sectionDescriptionBundleKey"><value>prefs_description_open</value></property>
+        <property name="overrideSectionTitleBundleKey"><value>prefs_title_override</value></property>
+        <property name="defaultValue"><value>2</value></property>
+        <property name="type"><value>sakai:samigoOpen</value></property>
+        <property name="prefix"><value>samigo</value></property>
+        <property name="toolId"><value>sakai.samigo</value></property>
+        <property name="rawOptions">
+            <map>
+                <entry key="1"><value>prefs_opt5</value></entry>
+                <entry key="2"><value>prefs_opt4</value></entry>
             </map>
         </property>
         <property name="overrideBySite"><value>false</value></property>

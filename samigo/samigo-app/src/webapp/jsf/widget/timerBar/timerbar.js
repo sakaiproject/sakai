@@ -3,7 +3,10 @@
           cache: false,
       });
 
+      var titleMessage;
       var hideMessage;
+      var timeWarning;
+      var timeWarningClose;
       var minReqScale;
       var pleaseWait;
       var savedMessage;
@@ -20,6 +23,8 @@
       var headerHeight;
       var routePrefix = "../delivery/";
       var routeSuffix = "";
+      var showWarning = false;
+      var disableWarning;
       var ajaxQuery = {
           "ajax": true
       };
@@ -37,6 +42,8 @@
           async: false,
           success(data) {
               hideMessage = data.hideMessage;
+              timeWarning = data.timeWarning;
+              timeWarningClose = data.timeWarningClose;
               minReqScale = data.minReqScale;
               pleaseWait = data.pleaseWait;
               savedMessage = data.savedMessage;
@@ -44,6 +51,7 @@
               srRemaining = data.srRemaining;
               srTimerInfo = data.srTimerInfo;
               subMessage = data.subMessage;
+              titleMessage = data.titleMessage;
           }
       });
 
@@ -52,14 +60,23 @@
           <link href='/samigo-app/css/timerbar.css' type='text/css' rel='stylesheet' media='all' />
           <div id='timerBlock' aria-hidden='true'>
               <div class="progress-wrapper">
-                  <div class="progress">
-                      <div class="progress-bar progress-label-wrapper">
-                          <span class='progress-label'></span>
+                  <div class="timer-title">${ titleMessage }</div>
+                  <div class="progress-wrapper-container">
+                      <div class="progress">
+                          <div class="progress-bar progress-label-wrapper">
+                              <span class='progress-label'></span>
+                          </div>
+                      </div>
+                      <div class="progress">
+                          <div id='progressbar' class="progress-bar"></div>
                       </div>
                   </div>
-                  <div class="progress">
-                      <div id='progressbar' class="progress-bar"></div>
-                  </div>
+              </div>
+              <div class="warn-banner">
+                <div class="sak-banner-warn">
+                    ${ timeWarning }
+                    <a href="#" class="warn-banner-dismiss">${ timeWarningClose }</a>
+                </div>
               </div>
               <button id='showHide'>
                   <span class='showHideSym'>▲</span>
@@ -76,6 +93,8 @@
       `);
       var timeoutDialog = $("#dialog-timeout");
       var timerBlock = $("#timerBlock");
+      var warnBanner = $(".warn-banner").hide();
+      var warnBannerDismiss = $(".warn-banner-dismiss");
 
       function setScrolling() {
           headerHeight = $("header").height();
@@ -161,15 +180,26 @@
           e.preventDefault();
           if (progressbar.is(":visible")) {
               progressWrapper.slideUp();
+              if (showWarning) {
+                warnBanner.slideDown();
+              }
               showHide.find("#showHideText").text(showMessage);
               showHide.find(".showHideSym").text("▼");
               showTimer.val(false);
           } else {
               progressWrapper.slideDown();
+              warnBanner.slideUp();
               showHide.find("#showHideText").text(hideMessage);
               showHide.find(".showHideSym").text("▲");
               showTimer.val(true);
           }
+      });
+
+      warnBannerDismiss.click(function(e) {
+          e.preventDefault();
+          warnBanner.slideUp();
+          showWarning = false;
+          disableWarning = true;
       });
 
       function startTimeFinish() {
@@ -213,7 +243,12 @@
       var readerAnnounce = true;
 
       function readTime() {
-          document.getElementById("timerReader").innerText = getRemainingTimeString(remain).concat(" ", srRemaining);
+          const alertEl = document.getElementById("timerReader");
+          //Clear alert, so it's read later
+          alertEl.innerText = "";
+          setTimeout(() => {
+              alertEl.innerText = getRemainingTimeString(remain).concat(" ", srRemaining);
+          }, 250);
       }
 
       function getColorString(progValue) {
@@ -291,6 +326,14 @@
           progressLabel.text(("00" + hours.toString()).substr(-2) + ":" + ("00" + minutes.toString()).substr(-2) + ":" + ("00" + seconds.toString()).substr(-2));
 
           progressbar.width(progValue + "%");
+
+          if (!disableWarning && !showWarning && progValue < 10) {
+            //Only show banner if the progressbar is hidden
+            if(progressbar.is(":hidden")) {
+                warnBanner.slideDown();
+            }
+            showWarning = true;
+          }
       }
 
       function leaveAssessment() {
@@ -309,8 +352,14 @@
       });
 
       $.getJSON(routePrefix + "getTimerProgress" + routeSuffix, ajaxQuery, function(data) {
-          totalTime = data[0];
-          elapsedTime = data[1];
+          if (data[0] === 0) {
+            totalTime = data[3];
+            elapsedTime = data[4];
+          }
+          else {
+            totalTime = data[0];
+            elapsedTime = data[1];
+          }
           lastAid = data[2];
 
           if (totalTime === elapsedTime) {
@@ -323,16 +372,25 @@
           if (currentAid && lastAid && currentAid > 0 && lastAid > 0 && currentAid !== lastAid) {
               $("#multiple-tabs-warning").show();
           }
-          remain = data[0] - data[1];
+
+          disableWarning = (100 - Math.floor(((totalTime - remain) / totalTime) * 100)) < 10; 
+          remain = totalTime - elapsedTime;
           setProgressBar();
-          var requestScale = (data[0] / 100) * 1000;
+          var requestScale = (totalTime / 100) * 1000;
           if (requestScale < minReqScale) {
               requestScale = minReqScale;
           }
 
           ajaxCount = setInterval(function() {
               $.getJSON(routePrefix + "getTimerProgress" + routeSuffix, ajaxQuery, function(data) {
-                  elapsedTime = data[1];
+                  if (data[0] === 0) {
+                    totalTime = data[3];
+                    elapsedTime = data[4];
+                  }
+                  else {
+                    totalTime = data[0];
+                    elapsedTime = data[1];
+                  }
                   lastAid = data[2];
                   if (totalTime === elapsedTime) {
                       clearInterval(localCount);
@@ -343,7 +401,7 @@
                   if (currentAid && lastAid && currentAid > 0 && lastAid > 0 && currentAid !== lastAid) {
                       $("#multiple-tabs-warning").show();
                   }
-                  remain = data[0] - data[1];
+                  remain = totalTime - elapsedTime;
                   setProgressBar();
               });
           }, requestScale);

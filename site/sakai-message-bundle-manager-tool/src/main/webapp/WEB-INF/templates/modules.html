@@ -17,7 +17,7 @@
         <select id="localeSelect" th:field="*{locale}">
           <option th:each="locale : ${listMessagePropertyLocales}" th:value="${locale}" th:text="${locale}">locale</option>
         </select>
-        <button type="submit" name="filter" th:text="#{modules.filter}">Filter</button>
+        <button class="btn-link" type="submit" name="filter" th:text="#{modules.filter}">Filter</button>
       </form>
       <div th:switch="${ #lists.isEmpty(properties) }">
         <div th:case="true">

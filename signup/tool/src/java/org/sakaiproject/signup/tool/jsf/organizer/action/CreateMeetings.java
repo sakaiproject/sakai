@@ -440,12 +440,7 @@ public class CreateMeetings extends SignupAction implements MeetingTypes, Signup
 					+ sakaiFacade.getTimeService().newTime(signupMeetings.get(i).getStartTime().getTime())
 							.toStringLocalFull());
 			Utilities.postEventTracking(SignupEventTypes.EVENT_SIGNUP_MTNG_ADD, ToolManager.getCurrentPlacement()
-					.getContext()
-					+ " meetingId|title:"
-					+ signupMeetings.get(i).getId()
-					+ "|"
-					+ signupMeetings.get(i).getTitle()
-					+ " at startTime:"
+					.getContext(),signupMeetings.get(i).getId(), signupMeetings.get(i).getTitle(), "at startTime:"
 					+ sakaiFacade.getTimeService().newTime(signupMeetings.get(i).getStartTime().getTime()).toStringLocalFull() 
 					+ recurringInfo);
 		}

@@ -4,14 +4,14 @@
 <%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <f:view locale="#{UserLocale.locale}">
 	<jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
-	   <jsp:setProperty name="msgs" property="baseName" value="messages"/>
+	   <jsp:setProperty name="msgs" property="baseName" value="signup"/>
 	</jsp:useBean>
 	<sakai:view_container title="Signup Tool">
 		<style type="text/css">
-				@import url("/sakai-signup-tool/css/signupStyle.css");
+				@import url("/sakai-signup-tool/css/signupStyle.css${Portal.CDNQuery}");
 		</style>
 <h:outputText value="#{Portal.latestJQuery}" escape="false"/>
-		<script src="/sakai-signup-tool/js/signupScript.js"></script>
+		<script src="/sakai-signup-tool/js/signupScript.js${Portal.CDNQuery}"></script>
 		
 		<script>
 	         //initialization of the page
@@ -209,7 +209,7 @@
 					<h:outputText value=" #{msgs.you_need_to_login}" rendered="#{!SignupMeetingsBean.userLoggedInStatus}" escape="false"/>
 				</h:panelGroup>
 				<h:panelGroup rendered="#{SignupMeetingsBean.meetingsAvailable}">
-					<div class="table-responsive">
+					<div class="table table-responsive">
 				 	<t:dataTable 
 				 		id="meetinglist"
 				 		value="#{SignupMeetingsBean.signupMeetings}"

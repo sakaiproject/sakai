@@ -121,7 +121,6 @@ public class PortalUtils
                  getWebjarsPath() + "jquery-migrate/1.4.1/jquery-migrate.min.js" + getCDNQuery() + 
                  "\">'+'\\x3C/script>')\n" +
              "   document.write('\\x3Cscript type=\"text/javascript\" src=\"" +
-                 getWebjarsPath() + "bootstrap/3.3.7/js/bootstrap.min.js" + getCDNQuery() +
                  "\">'+'\\x3C/script>')\n" +
              "   document.write('\\x3Cscript type=\"text/javascript\" src=\"" +
                  getWebjarsPath() + "jquery-ui/1.12.1/jquery-ui.min.js" + getCDNQuery() + 
@@ -136,7 +135,6 @@ public class PortalUtils
              "           window.console && console.log('Adding jQuery migrate');\n" +
              "   }\n" +
              "   if ( typeof jQuery.fn.popover == 'undefined') {\n" +
-             "           document.write('\\x3Cscript type=\"text/javascript\" src=\"" + getWebjarsPath() + "bootstrap/3.3.7/js/bootstrap.min.js" + getCDNQuery() + "\">'+'\\x3C/script>')\n" +
              "           window.console && console.log('Adding Bootstrap');\n" +
              "   }\n" +
              "   if (typeof jQuery.ui == 'undefined') {\n" +

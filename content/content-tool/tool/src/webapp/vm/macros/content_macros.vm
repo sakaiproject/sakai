@@ -15,7 +15,7 @@
         </span>
       </li>
     #if($showWebdavLink)
-      <li class="hidden-xs">
+      <li class="d-none d-sm-inline-block">
         <span #if("webdav" == $current) class="current" #end>
           #if("webdav" == $current)
             $tlang.getString("dav.webdav")
@@ -37,7 +37,7 @@
       </li>
     #end
     #if($showDropboxOptions)
-      <li class="hidden-xs">
+      <li class="d-none d-sm-inline-block">
         <span #if("dropboxUploadMultiple" == $current) class="current" #end>
           #if("dropboxUploadMultiple" == $current)
             $tlang.getString("multiple.file.upload")
@@ -80,13 +80,21 @@
       </li>
     #end
     #if($showPermissions)
-      <li><span><a href="#toolLinkParam("ResourcesAction" "doPermissions" "collectionId=$siteId")" title="$clang.getString('list.sPerm')">$clang.getString("list.sPerm")</a></span></li>
+      <li>
+        <span #if("permissions" == $current) class="current" #end>
+          #if("permissions" == $current)
+            $clang.getString('list.sPerm')
+          #else
+            <a href="#toolLinkParam("ResourcesAction" "doPermissions" "collectionId=$siteId")" title="$clang.getString('list.sPerm')">$clang.getString("list.sPerm")</a>
+          #end
+        </span>
+      </li>
     #end
     ##SAK-30085
     #if($showJumpToResourceForm)
       <li class="inputItem">
         <span class="formItem form-inline">
-          <form id="jumpToResourceForm" class="inlineForm form-group" action="#toolForm("ResourcesAction")" method="post">
+          <form id="jumpToResourceForm" class="form-group d-flex align-items-center justify-content-evenly" action="#toolForm("ResourcesAction")" method="post">
             <input type="hidden" name="source" value="0" />  
             <input type="hidden" name="navRoot" value="" />
             <input type="hidden" name="criteria" value="title" />
@@ -95,7 +103,7 @@
             <input type="hidden" name="selectedItemId" value="" />
             <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
             <input type="text" class="form-control" name="collectionId" value="" required />
-            <input type="submit" value="$clang.getString('list.jumptoresource')"/>
+            <input type="submit" class="mx-2" value="$clang.getString('list.jumptoresource')"/>
           </form>
         </span>
     </li>

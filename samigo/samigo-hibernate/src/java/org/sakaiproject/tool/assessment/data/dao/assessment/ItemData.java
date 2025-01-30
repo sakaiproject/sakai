@@ -44,6 +44,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemFeedbackIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemHistoricalIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTagIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
@@ -83,17 +84,21 @@ public class ItemData
   private Set<ItemMetaDataIfc> itemMetaDataSet;
   private Set<ItemFeedbackIfc> itemFeedbackSet;
   @Getter @Setter private Set<ItemAttachmentIfc> itemAttachmentSet;
+  @Getter @Setter private Set<ItemHistoricalIfc> itemHistoricalSet;
   private Set<ItemTagIfc> itemTagSet;
   private Double minScore;
   private String hash;
   private Long originalItemId;
   @Getter private Boolean isExtraCredit = Boolean.FALSE;
+  @Getter @Setter private Boolean isFixed = Boolean.FALSE;
 
   // for EMI question
   private String themeText;
   private String leadInText;
   private Integer answerOptionsRichCount;
   private Integer answerOptionsSimpleOrRich = ItemDataIfc.ANSWER_OPTIONS_SIMPLE;
+
+  @Getter @Setter private Integer cancellation = ItemDataIfc.ITEM_NOT_CANCELED;
 
   private String tagListToJsonString;
   
@@ -140,6 +145,7 @@ public ItemData() {}
                   Date createdDate, String lastModifiedBy,
                   Date lastModifiedDate,
                   Set<ItemTextIfc> itemTextSet, Set<ItemMetaDataIfc> itemMetaDataSet, Set<ItemFeedbackIfc> itemFeedbackSet,
+                  Set<ItemHistoricalIfc> itemHistoricalSet,
                   Integer triesAllowed, Boolean partialCreditFlag, String hash) {
     this.section = section;
     this.sequence = sequence;
@@ -161,6 +167,7 @@ public ItemData() {}
     this.itemTextSet = itemTextSet;
     this.itemMetaDataSet = itemMetaDataSet;
     this.itemFeedbackSet = itemFeedbackSet;
+    this.itemHistoricalSet = itemHistoricalSet;
     this.triesAllowed = triesAllowed;
     this.partialCreditFlag=partialCreditFlag;
     this.minScore = minScore;
@@ -174,6 +181,7 @@ public ItemData() {}
                   Date createdDate, String lastModifiedBy,
                   Date lastModifiedDate,
                   Set<ItemTextIfc> itemTextSet, Set<ItemMetaDataIfc> itemMetaDataSet, Set<ItemFeedbackIfc> itemFeedbackSet,
+                  Set<ItemHistoricalIfc> itemHistoricalSet,
                   Integer triesAllowed, Boolean partialCreditFlag, String hash, Long originalItemId) {
     this.section = section;
     this.sequence = sequence;
@@ -195,6 +203,7 @@ public ItemData() {}
     this.itemTextSet = itemTextSet;
     this.itemMetaDataSet = itemMetaDataSet;
     this.itemFeedbackSet = itemFeedbackSet;
+    this.itemHistoricalSet = itemHistoricalSet;
     this.triesAllowed = triesAllowed;
     this.partialCreditFlag=partialCreditFlag;
     this.minScore = minScore;
@@ -448,22 +457,37 @@ public ItemData() {}
     this.itemMetaDataSet.add(new ItemMetaData(this, label, entry));
   }
 
+  public void addItemHistorical(String modifiedBy, Date modifiedDate) {
+    if (this.itemHistoricalSet == null) {
+      setItemHistoricalSet(new HashSet());
+    }
+    this.itemHistoricalSet.add(new ItemHistorical(this, modifiedBy, modifiedDate));
+  }
+
   public String getCorrectItemFeedback() {
     return getItemFeedback(ItemFeedback.CORRECT_FEEDBACK);
   }
 
-  public void setCorrectItemFeedback(String text) {
+  public String getCorrectItemFeedbackValue() {
+    return getItemFeedbackValue(ItemFeedback.CORRECT_FEEDBACK);
+  }
+
+  public void setCorrectItemFeedback(String text, String value) {
     removeFeedbackByType(ItemFeedback.CORRECT_FEEDBACK);
-    addItemFeedback(ItemFeedback.CORRECT_FEEDBACK, text);
+    addItemFeedback(ItemFeedback.CORRECT_FEEDBACK, text, value);
   }
 
   public String getInCorrectItemFeedback() {
     return getItemFeedback(ItemFeedback.INCORRECT_FEEDBACK);
   }
 
-  public void setInCorrectItemFeedback(String text) {
+  public String getInCorrectItemFeedbackValue() {
+    return getItemFeedbackValue(ItemFeedback.INCORRECT_FEEDBACK);
+  }
+
+  public void setInCorrectItemFeedback(String text, String value) {
     removeFeedbackByType(ItemFeedback.INCORRECT_FEEDBACK);
-    addItemFeedback(ItemFeedback.INCORRECT_FEEDBACK, text);
+    addItemFeedback(ItemFeedback.INCORRECT_FEEDBACK, text, value);
   }
 
  /**
@@ -478,9 +502,9 @@ public ItemData() {}
    * Set General Feedback
    * @param text
    */
-  public void setGeneralItemFeedback(String text) {
+  public void setGeneralItemFeedback(String text, String value) {
     removeFeedbackByType(ItemFeedback.GENERAL_FEEDBACK);
-    addItemFeedback(ItemFeedback.GENERAL_FEEDBACK, text);
+    addItemFeedback(ItemFeedback.GENERAL_FEEDBACK, text, value);
   }
 
   public String getItemFeedback(String typeId) {
@@ -496,11 +520,24 @@ public ItemData() {}
 	  return null;
   }
 
-  public void addItemFeedback(String typeId, String text) {
+  public String getItemFeedbackValue(String typeId) {
+	  if ( this.itemFeedbackSet == null || this.itemFeedbackSet.isEmpty() ) {
+		  return null;
+	  }
+	  for (Iterator<ItemFeedbackIfc> i = this.itemFeedbackSet.iterator(); i.hasNext(); ) {
+		  ItemFeedback itemFeedback = (ItemFeedback) i.next();
+		  if (itemFeedback.getTypeId().equals(typeId)) {
+			  return (String) itemFeedback.getTextValue();
+		  }
+	  }
+	  return null;
+  }
+
+  public void addItemFeedback(String typeId, String text, String value) {
     if (this.itemFeedbackSet == null) {
       setItemFeedbackSet(new HashSet<ItemFeedbackIfc>());
     }
-    this.itemFeedbackSet.add(new ItemFeedback(this, typeId, text));
+    this.itemFeedbackSet.add(new ItemFeedback(this, typeId, text, value));
   }
 
   public void removeFeedbackByType(String typeId) {
@@ -515,6 +552,17 @@ public ItemData() {}
     }
   }
 
+  public void updateFeedbackByType(String typeId, String text, String value) {
+    if (itemFeedbackSet != null) {
+      for (Iterator i = this.itemFeedbackSet.iterator(); i.hasNext(); ) {
+        ItemFeedback itemFeedback = (ItemFeedback) i.next();
+        if (itemFeedback.getTypeId().equals(typeId)) {
+            itemFeedback.setText(text);
+            itemFeedback.setTextValue(value);
+        }
+      }
+    }
+  }
 
   public void removeMetaDataByType(String label) {
    try {
@@ -1131,4 +1179,18 @@ public ItemData() {}
   public String getTagListToJsonString() {
     return convertTagListToJsonString(itemTagSet);
   }
+
+  public List<ItemHistoricalIfc> getItemHistorical() {
+
+    List<ItemHistoricalIfc> historicalList = new ArrayList<>();
+    Set<ItemHistoricalIfc> historicalSet = this.getItemHistoricalSet();
+    if (historicalSet != null) {
+      historicalList = new ArrayList<>(historicalSet);
+    }
+    ItemHistorical ih = new ItemHistorical(this, this.lastModifiedBy, this.lastModifiedDate);
+    historicalList.add(ih);
+    Collections.sort(historicalList);
+    return historicalList;
+  }
+
 }

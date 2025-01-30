@@ -2,71 +2,65 @@
 <div class="portletBody">
 	#if($menu)#toolbar($menu)#end
 	<h3>
-		$tlang.getString("sitinfimp.reuse")
+		$tlang.getString("sitinfimp.replace.heading")
 	</h3>
+	<h4>$tlang.getString("sitinfimp.replace.subheading")</h4>
 	#if ($alertMessage)
 		<div class="sak-banner-error">$tlang.getString("sitinfimp.alert") $alertMessage</div>
 	#end
 	<form name="featuresForm" action="#toolForm("$action")" method="post">
 		## import is possible when use has maintain rights on at least one site other than the current one
-		#if ($!sites && $sites.size()>1)
-			<p class="instruction">
-				$tlang.getString("sitinfimp.replace")
-			</p>
-			<div class="panel-group" id="sitesAccordion">
-				<div class="panel panel-default">
-					<div class="panel-heading">
-						<h4 class="panel-title">
-							#set ($sitesSize = $sites.size() - 1)
-							<a data-toggle="collapse" data-parent="#sitesAccordion" href="#mysites">$tlang.getString("sitinfimp.mysites") ($sitesSize)</a>
-						</h4>
-					</div>
-					<div id="mysites" class="panel-collapse collapse in">
-						<div class="panel-body">
-							#set ($siteIDCounter =0)
-							#foreach($site in $sites)
-								#set ($siteIDCounter = $siteIDCounter + 1)
-								#if ($!currentSite && ($site.Id != $!currentSite.Id))
-									<div class="radio">	
-										<label for="site_$siteIDCounter">
-											<input type="radio" name="importSites" id="site_$siteIDCounter" #if ($!importSiteList.containsKey($!site)) checked="checked"#end value="$site.getId()"/>
-											$formattedText.escapeHtml($site.getTitle())
-										</label>
-									</div>
-								#end
-							#end
-						</div>
-					</div>
+		#if (($!sites && $sites.size() > 1) || ($!templateSites && $templateSites.size() > 0) || ($!hiddenSites && $hiddenSites.size() > 0))
+			<div class="sak-banner-info">
+				$tlang.getFormattedMessage("sitinfimp.replace", $formattedText.escapeHtml($currentSite.getTitle()))
+			</div>
+
+			#if ($!templateSites && $templateSites.size() > 0)
+				<div class="mb-4">
+					<div class="fw-bold mb-2">$tlang.getString("sitinfimp.templatesites")</div>
+					#foreach($templateSite in $templateSites)
+						#if ($!currentSite && ($templateSite.Id != $!currentSite.Id))
+							<div class="radio">
+								<label>
+									<input type="radio" name="importSites" #if ($!importSiteList.containsKey($!templateSite)) checked="checked" #end value="$templateSite.getId()"/>
+									$formattedText.escapeHtml($templateSite.getTitle())
+								</label>
+							</div>
+						#end
+					#end
+				</div>
+			#end
+
+				<div class="mb-4">
+					<div class="fw-bold mb-2">$tlang.getString("sitinfimp.mysites")</div>
+
+					#foreach($site in $sites)
+						#if ($!currentSite && ($site.Id != $!currentSite.Id))
+							<div class="radio">
+								<label>
+									<input type="radio" name="importSites" #if ($!importSiteList.containsKey($!site)) checked="checked"#end value="$site.getId()"/>
+									$formattedText.escapeHtml($site.getTitle())
+								</label>
+							</div>
+						#end
+					#end
 				</div>
 
 			#if ($!hiddenSites && $hiddenSites.size() > 0)
-				<div class="panel panel-default">
-					<div class="panel-heading">
-						<h4 class="panel-title">
-							<a data-toggle="collapse" data-parent="#sitesAccordion" href="#hiddenSites">$tlang.getString("sitinfimp.hiddensites") ($hiddenSites.size())</a>
-						</h4>
-					</div>
-					<div id="hiddenSites" class="panel-collapse collapse">
-						<div class="panel-body">
-							<p class="instruction">
-								$tlang.getString("sitinfimp.hiddensites.info")
-							</p>
-							#foreach($hiddenSite in $hiddenSites)
-								#set ($siteIDCounter = $siteIDCounter + 1)
-								#if ($!currentSite && ($hiddenSite.Id != $!currentSite.Id))
-									<div class="radio">	
-										<label for="site_$siteIDCounter">
-											<input type="radio" name="importSites" id="site_$siteIDCounter" #if ($!importSiteList.containsKey($!hiddenSite)) checked="checked" #end value="$hiddenSite.getId()"/>
-											$formattedText.escapeHtml($hiddenSite.getTitle())
-										</label>
-									</div>
-								#end
-							#end
-						</div>
-					</div>
+				<div class="mb-4">
+					<div class="fw-bold mb-2">$tlang.getString("sitinfimp.hiddensites")</div>
+					#foreach($hiddenSite in $hiddenSites)
+						#if ($!currentSite && ($hiddenSite.Id != $!currentSite.Id))
+							<div class="radio">
+								<label>
+									<input type="radio" name="importSites" #if ($!importSiteList.containsKey($!hiddenSite)) checked="checked" #end value="$hiddenSite.getId()"/>
+									$formattedText.escapeHtml($hiddenSite.getTitle())
+								</label>
+							</div>
+						#end
+					#end
 				</div>
 			#end
-			</div>
 
 			<input type="hidden" name="back" value="58" />
 			<input type="hidden" name="templateIndex" value="59" />

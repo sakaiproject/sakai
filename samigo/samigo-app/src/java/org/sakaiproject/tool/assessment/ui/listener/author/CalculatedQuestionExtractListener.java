@@ -24,10 +24,15 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -35,11 +40,16 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
+import org.jgrapht.alg.cycle.CycleDetector;
+import org.jgrapht.graph.DefaultDirectedGraph;
+import org.jgrapht.graph.DefaultEdge;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionCalculationBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionFormulaBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionGlobalVariableBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionVariableBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemBean;
@@ -49,6 +59,11 @@ import org.sakaiproject.tool.assessment.util.SamigoExpressionError;
 public class CalculatedQuestionExtractListener implements ActionListener{
     private static final String ERROR_MESSAGE_BUNDLE = "org.sakaiproject.tool.assessment.bundle.AuthorMessages";
     private static final int MAX_ATTEMPT_CNT = 100;
+    private static final Pattern CALCQ_ALLOWING_VARIABLES_FORMULAS_NAMES = Pattern.compile("[a-zA-ZÀ-ÿ\\u00f1\\u00d1]\\w*", Pattern.UNICODE_CHARACTER_CLASS);
+    private static final String VARIABLE_ON_CORRECT_FEEDBACK_NOT_IN_INSTRUCTIONS = "10";
+    private static final String VARIABLE_ON_INCORRECT_FEEDBACK_NOT_IN_INSTRUCTIONS = "11";
+    private static final String GLOBAL_VARIABLE_ON_CORRECT_FEEDBACK_NOT_IN_GLOBAL_VARIABLES_LIST = "12";
+    private static final String GLOBAL_VARIABLE_ON_INCORRECT_FEEDBACK_NOT_IN_GLOBAL_VARIABLES_LIST = "13";
 
     /**
      * This listener will read in the instructions, parse any variables and 
@@ -83,7 +98,7 @@ public class CalculatedQuestionExtractListener implements ActionListener{
     /**
      * validate() returns a list of error strings to display to the context.
      * <p>Errors include <ul><li>no variables or formulas named in the instructions</li>
-     * <li>variables and formulas sharing a name</li>
+     * <li>variables, global variables and formulas sharing a name</li>
      * <li>variables with invalid ranges of values</li>
      * <li>formulas that are syntactically wrong</li>
      * <li>formulas with no variables inside (only when saving a question)</li></ul>
@@ -102,20 +117,51 @@ public class CalculatedQuestionExtractListener implements ActionListener{
         // prepare any already existing variables and formula for new extracts
         this.initializeVariables(item);
         this.initializeFormulas(item);
+        this.initializeGlobalVariables(item);
 
         GradingService service = new GradingService();
         String instructions = item.getInstruction();
+        String corrFeedback = item.getCorrFeedback();
+        String incorrFeedback = item.getIncorrFeedback();
         List<String> formulaNames = service.extractFormulas(instructions);
         List<String> variableNames = service.extractVariables(instructions);
+        List<String> globalVariableNames = service.extractGlobalVariables(instructions);
+        List<String> corrformulaNames = service.extractFormulas(corrFeedback);
+        List<String> corrvariableNames = service.extractVariables(corrFeedback);
+        List<String> corrGlobalVariableNames = service.extractGlobalVariables(corrFeedback);
+        List<String> incorrformulaNames = service.extractFormulas(incorrFeedback);
+        List<String> incorrvariableNames = service.extractVariables(incorrFeedback);
+        List<String> incorrGlobalVariableNames = service.extractGlobalVariables(incorrFeedback);
 
-        errors.addAll(validateExtractedNames(variableNames, formulaNames));
+        errors.addAll(validateExtractedNames(variableNames, formulaNames, globalVariableNames));
+        errors.addAll(validateExtractedNames(corrvariableNames, corrformulaNames, globalVariableNames));
+        errors.addAll(validateExtractedNames(incorrvariableNames, incorrformulaNames, globalVariableNames));
+
+        //checking if there are duplicated formula names on instructions.
+        errors.addAll(checkDuplicatesFormulaNamesOnInstructions(formulaNames));
+
+        // checking if there are variable names on feedback which are not in instructions.
+        errors.addAll(checkVariableNamesOnFeedback(variableNames, corrvariableNames, VARIABLE_ON_CORRECT_FEEDBACK_NOT_IN_INSTRUCTIONS));
+        errors.addAll(checkVariableNamesOnFeedback(variableNames, incorrvariableNames, VARIABLE_ON_INCORRECT_FEEDBACK_NOT_IN_INSTRUCTIONS));
+
+        // checking if there are global variable names on feedback which are not defined on global variables map
+        Map<String, CalculatedQuestionGlobalVariableBean> globalVariables = item.getCalculatedQuestion().getGlobalvariables();
+        errors.addAll(checkGlobalVariableNamesFeedabackOnGlobalVariables(globalVariables, corrGlobalVariableNames, GLOBAL_VARIABLE_ON_CORRECT_FEEDBACK_NOT_IN_GLOBAL_VARIABLES_LIST));
+        errors.addAll(checkGlobalVariableNamesFeedabackOnGlobalVariables(globalVariables, incorrGlobalVariableNames, GLOBAL_VARIABLE_ON_INCORRECT_FEEDBACK_NOT_IN_GLOBAL_VARIABLES_LIST));
 
         // add new variables and formulas
         // verify that at least one variable and formula are defined
         if (errors.size() == 0) {
             errors.addAll(createFormulasFromInstructions(item, formulaNames));
             errors.addAll(createVariablesFromInstructions(item, variableNames));
-            errors.addAll(createCalculationsFromInstructions(item.getCalculatedQuestion(), instructions, service));
+            // global variables are optional. Maybe there isn't any on instructions so only check errors if key appears on the formula
+            errors.addAll(createGlobalVariablesFromInstructions(item, globalVariableNames));
+            // check formulas on global variables contain defined global variables
+            errors.addAll(checkFormulasOnGlobalVariables(item, service));
+            item.getCalculatedQuestion().clearCalculations(); // reset the current set and extract a new one
+            errors.addAll(createCalculationsFromInstructionsOrFeedback(item.getCalculatedQuestion(), instructions, service));
+            errors.addAll(createCalculationsFromInstructionsOrFeedback(item.getCalculatedQuestion(), corrFeedback, service));
+            errors.addAll(createCalculationsFromInstructionsOrFeedback(item.getCalculatedQuestion(), incorrFeedback, service));
         }
 
         // validate variable min and max and formula tolerance
@@ -161,17 +207,38 @@ public class CalculatedQuestionExtractListener implements ActionListener{
         }
     }
 
-    private Long getMaxSequenceValue(Map<String, CalculatedQuestionVariableBean> variables, Map<String, CalculatedQuestionFormulaBean> formulas){
+    /**
+     * initializeGlobalVariables() prepares any previously defined globalVariables for updates
+     * that occur when extracting new g from instructions
+     * @param item
+     */
+    private void initializeGlobalVariables(ItemBean item) {
+        Map<String, CalculatedQuestionGlobalVariableBean> formulas = item.getCalculatedQuestion().getGlobalvariables();
+        for (CalculatedQuestionGlobalVariableBean bean : formulas.values()) {
+            bean.setActive(false);
+            bean.setValidFormula(true);
+        }
+    }
+
+    private Long getMaxSequenceValue(Map<String, CalculatedQuestionVariableBean> variables, 
+    	Map<String, CalculatedQuestionFormulaBean> formulas, 
+    	Map<String, CalculatedQuestionGlobalVariableBean> globalVariables) {
+
     	Long maxValue = 0L;
 
-    	for(CalculatedQuestionVariableBean variable:variables.values()){
+    	for (CalculatedQuestionVariableBean variable:variables.values()) {
     		Long currentSequence = variable.getSequence(); 
-    		if(currentSequence != null && currentSequence.compareTo(maxValue)>0)
+    		if (currentSequence != null && currentSequence.compareTo(maxValue)>0)
     			maxValue = currentSequence;
     	}
-    	for(CalculatedQuestionFormulaBean formula:formulas.values()){
+    	for (CalculatedQuestionFormulaBean formula:formulas.values()) {
     		Long currentSequence = formula.getSequence(); 
-    		if(currentSequence != null && currentSequence.compareTo(maxValue)>0)
+    		if (currentSequence != null && currentSequence.compareTo(maxValue)>0)
+    			maxValue = currentSequence;
+    	}
+    	for (CalculatedQuestionGlobalVariableBean globalVariable:globalVariables.values()) {
+    		Long currentSequence = globalVariable.getSequence();
+    		if (currentSequence != null && currentSequence.compareTo(maxValue)>0)
     			maxValue = currentSequence;
     	}
     	return maxValue;
@@ -187,7 +254,8 @@ public class CalculatedQuestionExtractListener implements ActionListener{
         List<String> errors = new ArrayList<String>();
         Map<String, CalculatedQuestionFormulaBean> formulas = item.getCalculatedQuestion().getFormulas();
         Map<String, CalculatedQuestionVariableBean> variables = item.getCalculatedQuestion().getVariables();
-        Long maxSequenceValue = getMaxSequenceValue(variables, formulas);
+        Map<String, CalculatedQuestionGlobalVariableBean> globalVariables = item.getCalculatedQuestion().getGlobalvariables();
+        Long maxSequenceValue = getMaxSequenceValue(variables, formulas, globalVariables);
         
         // add any missing formulas
         for (String formulaName : formulaNames) {
@@ -217,7 +285,8 @@ public class CalculatedQuestionExtractListener implements ActionListener{
         List<String> errors = new ArrayList<String>();
         Map<String, CalculatedQuestionFormulaBean> formulas = item.getCalculatedQuestion().getFormulas();
         Map<String, CalculatedQuestionVariableBean> variables = item.getCalculatedQuestion().getVariables();
-        Long maxSequenceValue = getMaxSequenceValue(variables, formulas);
+        Map<String, CalculatedQuestionGlobalVariableBean> globalVariables = item.getCalculatedQuestion().getGlobalvariables();
+        Long maxSequenceValue = getMaxSequenceValue(variables, formulas, globalVariables);
         
         // add any missing variables
         for (String variableName : variableNames) {
@@ -238,21 +307,117 @@ public class CalculatedQuestionExtractListener implements ActionListener{
     }
 
     /**
-     * Finds the calculations in the instructions and places them in the CalculatedQuestionBean
-     * (destroys anything that was already there)
-     * 
-     * @param calculatedQuestionBean
-     * @param instructions
+     * createGlobalVariablesFromInstructions adds any global variables that exist in the list
+     * of globalVariableNames but do not already exist in the question
+     * @param item
+     * @param globalVariableNames - global variables from instructions
+     * @return list of error messages (empty if there are none)
+     */
+    private List<String> createGlobalVariablesFromInstructions(ItemBean item, List<String> globalVariableNames) {
+        List<String> errors = new ArrayList<String>();
+        Map<String, CalculatedQuestionFormulaBean> formulas = item.getCalculatedQuestion().getFormulas();
+        Map<String, CalculatedQuestionVariableBean> variables = item.getCalculatedQuestion().getVariables();
+        Map<String, CalculatedQuestionGlobalVariableBean> globalVariables = item.getCalculatedQuestion().getGlobalvariables();
+        Map<String, CalculatedQuestionGlobalVariableBean> globalVariablescopy = new HashMap<String, CalculatedQuestionGlobalVariableBean>();
+
+        globalVariablescopy.putAll(globalVariables);
+        Long maxSequenceValue = getMaxSequenceValue(variables, formulas, globalVariables);
+
+        // add any missing global variables
+        for (String globalVariableName : globalVariableNames) {
+            if (!globalVariables.containsKey(globalVariableName)) {
+                CalculatedQuestionGlobalVariableBean bean = new CalculatedQuestionGlobalVariableBean();
+                bean.setName(globalVariableName);
+                bean.setSequence(++maxSequenceValue);
+                item.getCalculatedQuestion().addGlobalVariable(bean);
+            } else {
+                CalculatedQuestionGlobalVariableBean bean = globalVariables.get(globalVariableName);
+                // avoid formulas which contains the same key. Ex: x1 = @x1@ + 3
+                if (!bean.getFormula().contains(GradingService.AT + bean.getName() + GradingService.AT)) {
+                    bean.setActive(true);
+                    bean.setAddedButNotExtracted(false);
+                } else {
+                    errors.add(getErrorMessage("global_variable_formula_contains_key"));
+                }
+            }
+            globalVariablescopy.remove(globalVariableName);
+        }
+
+        //On the globalVariablescopy there are only addedButNotExtracted because before we removed the others from the map
+        for (Entry<String, CalculatedQuestionGlobalVariableBean> entry : globalVariablescopy.entrySet()) {
+             String key = entry.getKey();
+             String formula = entry.getValue().getFormula();
+             // avoid formulas which contains the same key. Ex: x1 = @x1@ + 3
+             if (!formula.contains(GradingService.AT + key + GradingService.AT)) {
+                 CalculatedQuestionGlobalVariableBean bean = new CalculatedQuestionGlobalVariableBean();
+                 bean.setName(entry.getKey());
+                 bean.setSequence(entry.getValue().getSequence());
+                 bean.setFormula(entry.getValue().getFormula());
+                 bean.setActive(true);
+                 bean.setAddedButNotExtracted(true);
+                 item.getCalculatedQuestion().addGlobalVariable(bean);
+             } else {
+                 errors.add(getErrorMessage("global_variable_formula_contains_key"));
+             }
+        }
+        return errors;
+    }
+
+    /**
+     * checkFormulasOnGlobalVariables check that formulas are composed by defined global variables
+     * @param item
      * @param service
      * @return list of error messages (empty if there are none)
      */
-    static List<String> createCalculationsFromInstructions(CalculatedQuestionBean calculatedQuestionBean, String instructions, GradingService service) {
+    private List<String> checkFormulasOnGlobalVariables (ItemBean item, GradingService service) {
         List<String> errors = new ArrayList<String>();
-        calculatedQuestionBean.clearCalculations(); // reset the current set and extract a new one
-        if (instructions.indexOf(GradingService.CALCULATION_AUX_OPEN) != -1 || instructions.indexOf(GradingService.CALCULATION_AUX_CLOSE) != -1) {
+        Map<String, CalculatedQuestionGlobalVariableBean> globalVariables = item.getCalculatedQuestion().getGlobalvariables();
+        DefaultDirectedGraph <String, DefaultEdge> g  = new DefaultDirectedGraph <>(DefaultEdge.class);
+
+        for (Entry<String, CalculatedQuestionGlobalVariableBean> entry : globalVariables.entrySet()) {
+            String formula = entry.getValue().getFormula();
+            List<String> listglobalVariableNamesOnFormula = service.extractGlobalVariables(formula);
+            //check if the variable global is on globalVariables map
+            for (String globalVariableName : listglobalVariableNamesOnFormula) {
+                if (globalVariables.get(globalVariableName) == null) {
+                    errors.add(getErrorMessage("global_variable_on_formula_not_defined") + " : " + globalVariableName);
+                }
+            }
+
+            // adding vertex and edges
+            g.addVertex(entry.getKey());
+            for (String value : listglobalVariableNamesOnFormula) {
+                g.addVertex(value);
+                g.addEdge(entry.getKey(), value);
+            }
+        }
+
+        // creating cycledetector
+        CycleDetector<String, DefaultEdge> cycleDetector = new CycleDetector<String, DefaultEdge>(g);
+        Set<String> cycleVertices = cycleDetector.findCycles();
+
+        if (cycleVertices.size() > 0) {
+           errors.add(getErrorMessage("global_variable_cycles") + " : " + cycleVertices);
+        }
+
+        return errors;
+    }
+
+    /**
+     * Finds the calculations in the instructions or feedback and places them in the CalculatedQuestionBean
+     * 
+     * @param calculatedQuestionBean
+     * @param instructionsorfeedback
+     * @param service
+     * @return list of error messages (empty if there are none)
+     */
+    static List<String> createCalculationsFromInstructionsOrFeedback(CalculatedQuestionBean calculatedQuestionBean, String instructionsorfeedback, GradingService service) {
+        List<String> errors = new ArrayList<String>();
+
+        if (instructionsorfeedback.indexOf(GradingService.CALCULATION_AUX_OPEN) != -1 || instructionsorfeedback.indexOf(GradingService.CALCULATION_AUX_CLOSE) != -1) {
             errors.add(getErrorMessage("calc_question_simple_instructions_step_4"));
         }
-        List<String> calculations = service.extractCalculations(instructions);
+        List<String> calculations = service.extractCalculations(instructionsorfeedback);
         if (!calculations.isEmpty()) {
             for (String calculation : calculations) {
                 CalculatedQuestionCalculationBean calc = new CalculatedQuestionCalculationBean(calculation);
@@ -269,7 +434,7 @@ public class CalculatedQuestionExtractListener implements ActionListener{
      * @param item
      * @return a list of validation errors to display
      */
-    private List<String> validateExtractedNames(List<String> variableNames, List<String> formulaNames) {
+    private List<String> validateExtractedNames(List<String> variableNames, List<String> formulaNames,  List<String> globalVariableNames) {
         List<String> errors = new ArrayList<String>();
 
         // formula validations
@@ -277,7 +442,7 @@ public class CalculatedQuestionExtractListener implements ActionListener{
             if (formula == null || formula.length() == 0) {
                 errors.add(getErrorMessage("formula_name_empty"));
             } else {
-                if (!formula.matches("[a-zA-Z]\\w*")) {
+                if (!CALCQ_ALLOWING_VARIABLES_FORMULAS_NAMES.matcher(formula).matches()) {
                     errors.add(getErrorMessage("formula_name_invalid"));
                 }
             }
@@ -288,15 +453,25 @@ public class CalculatedQuestionExtractListener implements ActionListener{
             if (variable == null || variable.length() == 0) {
                 errors.add(getErrorMessage("variable_name_empty"));
             } else {
-                if (!variable.matches("[a-zA-Z]\\w*")) {
+                if (!CALCQ_ALLOWING_VARIABLES_FORMULAS_NAMES.matcher(variable).matches()) {
                     errors.add(getErrorMessage("variable_name_invalid"));
                 }
             }
         }
 
-        // throw an error if variables and formulas share any names
+        // global variable validations
+        for (String globalVariable : globalVariableNames) {
+            if (StringUtils.isBlank(globalVariable)) {
+                errors.add(getErrorMessage("global_variable_name_empty"));
+            } else if (!CALCQ_ALLOWING_VARIABLES_FORMULAS_NAMES.matcher(globalVariable).matches()) {
+                errors.add(getErrorMessage("global_variable_name_invalid"));
+            }
+        }
+
+        // throw an error if variables, global variables and formulas share any names
         // don't continue processing if there are problems with the extract
-        if (!Collections.disjoint(formulaNames, variableNames)) {
+        if ((!Collections.disjoint(formulaNames, variableNames)) || (!Collections.disjoint(formulaNames, globalVariableNames)) || 
+                (!Collections.disjoint(variableNames, globalVariableNames))) {
             errors.add(getErrorMessage("unique_names"));
         }
         return errors;
@@ -458,13 +633,19 @@ public class CalculatedQuestionExtractListener implements ActionListener{
             variableRangeMap.put(variable.getName(), match);
         }
 
+        //mapping global variables with the formula
+        Map<String, String> globalAnswersMap = new HashMap<String, String>();
+        for (CalculatedQuestionGlobalVariableBean globalVariable : calculatedQuestionBean.getGlobalActiveVariables().values()) {
+            globalAnswersMap.put(globalVariable.getName(), globalVariable.getText());
+        }
+
         int attemptCnt = 0;
         while (attemptCnt < MAX_ATTEMPT_CNT && errors.size() == 0) {
             // create random values for the variables to substitute into the formulas (using dummy values)
             Map<String, String> answersMap = service.determineRandomValuesForRanges(variableRangeMap, 1, 1, "dummy", attemptCnt);
 
             // evaluate each calculation
-            evaluateCalculations(calculatedQuestionBean, service, answersMap, errors);
+            evaluateCalculations(calculatedQuestionBean, service, answersMap, globalAnswersMap, errors);
 
             attemptCnt++;
         }
@@ -501,6 +682,12 @@ public class CalculatedQuestionExtractListener implements ActionListener{
             variableRangeMap.put(variable.getName(), match);
         }
 
+        //mapping global variables with the formula
+        Map<String, String> globalAnswersMap = new HashMap<String, String>();
+        for (CalculatedQuestionGlobalVariableBean globalVariable : item.getCalculatedQuestion().getGlobalActiveVariables().values()) {
+            globalAnswersMap.put(globalVariable.getName(), globalVariable.getText());
+        }
+
         // dummy variables needed to generate random values within ranges for the variables
         long dummyItemId = 1;
         long dummyGradingId = 1;
@@ -520,12 +707,23 @@ public class CalculatedQuestionExtractListener implements ActionListener{
                 if (formulaStr == null || formulaStr.length() == 0) {
                     formulaBean.setValidFormula(false);
                     errors.add(getErrorMessage("empty_field"));
-                }else if ( !extracting && !formulaStr.contains("{")){
+                } else if ( !extracting && (!formulaStr.contains("{") && (!formulaStr.contains("@"))) ){
                     formulaBean.setValidFormula(false);
-                    errors.add(getErrorMessage("no_variables_formula") + " : " + formulaBean.getName() + " = "+ formulaStr);                    
+                    errors.add(getErrorMessage("no_variables_formula") + " : " + formulaBean.getName() + " = "+ formulaStr);
                 } else {
-                    String substitutedFormulaStr = service.replaceMappedVariablesWithNumbers(formulaStr, answersMap);
+                    // checking global variables on Formulas (solution) exist
+                    List<String> globalVariablesOnSolutions = service.extractGlobalVariables(formulaStr);
+                    for (String key : globalVariablesOnSolutions) {
+                        if (!globalAnswersMap.containsKey(key)) {
+                            errors.add(getErrorMessage("no_global_variables_on_formula") + " : " + key + ". " +  formulaBean.getName() + " = "+ formulaStr);
+                        }
+                    }
+                    if (errors.size() > 0) {
+                        break;
+                    }
 
+                    String substitutedFormulaStr = service.replaceMappedVariablesWithNumbers(formulaStr, answersMap);
+                    substitutedFormulaStr = service.checkingEmptyGlobalVariables(substitutedFormulaStr, answersMap, globalAnswersMap);
                     // look for wrapped variables that haven't been replaced (undefined variable)
                     List<String> unwrappedVariables = service.extractVariables(substitutedFormulaStr);
                     if (unwrappedVariables.size() > 0) {
@@ -546,7 +744,7 @@ public class CalculatedQuestionExtractListener implements ActionListener{
                 }
             }
 
-            evaluateCalculations(cqb, service, answersMap, errors);
+            evaluateCalculations(cqb, service, answersMap, globalAnswersMap, errors);
 
             attemptCnt++;
         }
@@ -562,7 +760,7 @@ public class CalculatedQuestionExtractListener implements ActionListener{
      * @param answersMap
      * @param errors
      */
-    private static void evaluateCalculations(CalculatedQuestionBean calculatedQuestionBean, GradingService service, Map<String, String> answersMap, List<String> errors ) {
+    private static void evaluateCalculations(CalculatedQuestionBean calculatedQuestionBean, GradingService service, Map<String, String> answersMap, Map<String, String> globalAnswersMap, List<String> errors ) {
 
         // evaluate each calculation
         for (CalculatedQuestionCalculationBean cqcb : calculatedQuestionBean.getCalculationsList()) {
@@ -573,6 +771,7 @@ public class CalculatedQuestionExtractListener implements ActionListener{
                 errors.add(msg);
             } else {
                 String substitutedFormulaStr = service.replaceMappedVariablesWithNumbers(formulaStr, answersMap);
+                substitutedFormulaStr = service.checkingEmptyGlobalVariables(substitutedFormulaStr, answersMap, globalAnswersMap);
                 cqcb.setFormula(substitutedFormulaStr);
                 // look for wrapped variables that haven't been replaced (undefined variable)
                 List<String> unwrappedVariables = service.extractVariables(substitutedFormulaStr);
@@ -609,6 +808,69 @@ public class CalculatedQuestionExtractListener implements ActionListener{
         String err = ContextUtil.getLocalizedString(ERROR_MESSAGE_BUNDLE, 
                 errorCode);
         return err;
+    }
+
+    /**
+     * checkVariableNamesOnFeedback() retrieves the variables or global variables which are on feedback and are missing on instructions
+     * the errorCode
+     * @param variableNames
+     * @param feedback
+     * @param nerror
+     * @return
+     */
+    private static List<String> checkVariableNamesOnFeedback(List<String> variableNames, List<String> feedback, String nerror) {
+        List<String> errors = new ArrayList<String>();
+
+        List<String> result = new ArrayList<>(variableNames);
+        result.addAll(feedback);
+        result.removeAll(variableNames);
+
+        if (!result.isEmpty()){
+            String msg = getErrorMessage("samigo_formula_error_" + nerror);
+            errors.add(msg + " :" + result.toString());
+        }
+        return errors;
+    }
+
+    /**
+     * checkGlobalVariableNamesFeedabackOnGlobalVariables() retrieves global variables which are on feedback and are missing on global variables map
+     * the errorCode
+     * @param globalVariables
+     * @param feedback
+     * @param nerror
+     * @return
+     */
+    private static List<String> checkGlobalVariableNamesFeedabackOnGlobalVariables(Map<String, CalculatedQuestionGlobalVariableBean> globalVariables, List<String> feedback, String nerror) {
+        List<String> errors = new ArrayList<String>();
+
+        List<String> undefinedGlobalVariables = new ArrayList<>();
+        for (String value : feedback) {
+            if (!globalVariables.containsKey(value)) {
+                undefinedGlobalVariables.add(value);
+            }
+        }
+
+        if (!undefinedGlobalVariables.isEmpty()){
+            String msg = getErrorMessage("samigo_formula_error_" + nerror);
+            errors.add(msg + " :" + undefinedGlobalVariables.toString());
+        }
+        return errors;
+    }
+
+    /**
+     * checkDuplicatesFormulaNamesOnInstructions() check if there are duplicated formula names
+     * @param formulasNames
+     * @return
+     */
+    private static List<String> checkDuplicatesFormulaNamesOnInstructions(List<String> formulasNames) {
+        List<String> errors = new ArrayList<String>();
+
+        HashSet<String> set = new HashSet<>(formulasNames);
+        if (set.size() < formulasNames.size()) {
+            errors.add(getErrorMessage("repeated_formula_names_instructions"));
+        }
+
+        return errors;
     }
 
 }

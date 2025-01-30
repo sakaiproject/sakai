@@ -102,7 +102,8 @@ public class BackfillItemHashesJob extends AbstractConfigurableJob {
         if ( to == null ) {
             return;
         }
-        final String from = "<"+ serverConfigurationService.getString("setup.request","no-reply@" + serverConfigurationService.getServerName()) + ">";
+
+        final String from = "<"+ serverConfigurationService.getSmtpFrom() + ">";
         final StringBuilder body = new StringBuilder();
         if ( error != null ) {
             body.append("Job failed with following error message. See logs for full details.").append("\n\n")

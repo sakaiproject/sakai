@@ -1,13 +1,19 @@
 {{#each members}}
-    <tr class="roster-member">
-    {{#if ../viewPicture}}
+    <tr class="roster-member roster-entry">
         <td class="roster-picture-cell">
             <sakai-user-photo user-id="{{userId}}"
                 label="{{tr 'profile_picture_alt'}} {{displayName}}"
                 site-id="{{siteId}}"
                 classes="roster-photo"
+                {{#if ../viewPicture}}
+                profile-popup="on"
+                {{/if}}
                 {{#if official}}
                 official
+                {{else}}
+                    {{#unless canViewProfilePicture}}
+                    blank
+                    {{/unless}}
                 {{/if}}
                 {{#if ../printMode}}
                 print
@@ -15,7 +21,6 @@
             >
             </sakai-user-photo>
         </td> <!-- /roster-table-cell -->
-    {{/if}}
 
     {{#unless ../hideNames}}
         <td class="roster-name-cell">
@@ -23,6 +28,9 @@
             <a href="javascript:;" class="profile" data-user-id="{{userId}}">
         {{/if}}
             <span title="{{getName firstNameLastName}}">{{getName firstNameLastName}}</span>
+            {{#if nickname}}
+            <span title="{{nickname}}"> "{{nickname}}"</span>
+            {{/if}}
         {{#if ../../viewProfile}}
             </a>
         {{/if}}
@@ -86,13 +94,13 @@
     {{/if}}
 
     {{#if ../showVisits}}
-        {{#if ../../viewSiteVisits}}
+        {{#if ../viewSiteVisits}}
         <td class="roster-total-visits-cell">
             <span class="roster-total-visits">{{totalSiteVisits}}</span>
         </td>
-            {{#if formattedLastVisitTime}}
+            {{#if lastVisitTime}}
         <td class="roster-last-visit-cell">
-            <span class="roster-last-visit">{{formattedLastVisitTime}}</span>
+            <span class="roster-last-visit">{{lastVisitTime}}</span>
         </td>
             {{/if}}
         {{/if}}
@@ -136,5 +144,32 @@
         </td>
     {{/if}}
 
+    {{#if ../viewCandidateDetails}}
+        {{#if ../anyStudentNumberPresent}}
+        <td class="roster-student-number-cell">
+            <span>{{studentNumber}}</span>
+        </td>
+        {{/if}}
+        {{#if ../anyAdditionalInfoPresent}}
+        <td class="roster-additional-info-cell">
+            {{#if hasSpecialNeeds}}
+                <div>{{tr 'facet_specialNeeds'}}</div>
+                <ul class="roster-special-needs">
+                {{#each specialNeeds}}
+                    <li>{{this}}</li>
+                {{/each}}
+                </ul>
+            {{/if}}
+            {{#if hasAdditionalNotes}}
+                <div>{{tr 'facet_additionalNotes'}}</div>
+                <ul class="roster-special-needs">
+                {{#each additionalNotes}}
+                    <li>{{this}}</li>
+                {{/each}}
+                </ul>
+            {{/if}}
+        </td>
+        {{/if}}
+    {{/if}}
     </tr> <!-- /roster-table-row -->
 {{/each}}

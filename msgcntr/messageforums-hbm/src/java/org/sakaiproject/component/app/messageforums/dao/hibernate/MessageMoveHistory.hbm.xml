@@ -42,6 +42,10 @@
     
   </class>
 
+  <query name="findHistoryForMessage">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageMoveHistoryImpl as us where us.messageId = :messageId ]]>
+  </query>
+
 	<database-object>
 		<create>create index MFR_MOVE_HISTORY_MSG_ID on MFR_MOVE_HISTORY_T (MESSAGE)</create>
 		<drop></drop>

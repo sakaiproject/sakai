@@ -31,14 +31,17 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -75,14 +78,18 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.Notification;
 import org.sakaiproject.event.api.NotificationAction;
 import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.SakaiException;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.messaging.api.MicrosoftMessage;
+import org.sakaiproject.messaging.api.MicrosoftMessagingService;
 import org.sakaiproject.site.api.AllowedJoinableAccount;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
@@ -105,8 +112,11 @@ import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.Xml;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -406,76 +416,22 @@ public abstract class BaseSiteService implements SiteService, Observer
 	 * Dependencies
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	/**
-	 * @return the ServerConfigurationService collaborator.
-	 */
-	protected abstract ServerConfigurationService serverConfigurationService();
-
-	/**
-	 * @return the EntityManager collaborator.
-	 */
-	protected abstract EntityManager entityManager();
-
-	/**
-	 * @return the EventTrackingService collaborator.
-	 */
-	protected abstract EventTrackingService eventTrackingService();
-
-	/**
-	 * @return the ThreadLocalManager collaborator.
-	 */
-	protected abstract ThreadLocalManager threadLocalManager();
-
-	/**
-	 * @return the SecurityService collaborator.
-	 */
-	protected abstract SecurityService securityService();
-
-	/**
-	 * @return the SessionManager collaborator.
-	 */
-	protected abstract SessionManager sessionManager();
-
-	/**
-	 * @return the TimeService collaborator.
-	 */
-	protected abstract TimeService timeService();
-
-	/**
-	 * @return the FunctionManager collaborator.
-	 */
-	protected abstract FunctionManager functionManager();
-
-	/**
-	 * @return the MemoryService collaborator.
-	 */
-	protected abstract MemoryService memoryService();
-
-	/**
-	 * @return the UserDirectoryService collaborator.
-	 */
-	protected abstract UserDirectoryService userDirectoryService();
-
-	/**
-	 * @return the AuthzGroupService collaborator.
-	 */
-	protected abstract AuthzGroupService authzGroupService();
-	
-	/**
-	 * @return the ActiveToolManager collaborator.
-	 */
 	protected abstract ActiveToolManager activeToolManager();
-	
-	/**
-	 * @return the IdManager collaborator.
-	 */
+	protected abstract AuthzGroupService authzGroupService();
+	protected abstract EntityManager entityManager();
+	protected abstract EventTrackingService eventTrackingService();
+	protected abstract FunctionManager functionManager();
 	protected abstract IdManager idManager();
-	
-	/**
-	 * 
-	 * @return the NotificationService collaborator
-	 */
+	protected abstract MemoryService memoryService();
+	protected abstract MicrosoftMessagingService microsoftMessagingService();
 	protected abstract NotificationService notificationService();
+	protected abstract SecurityService securityService();
+	protected abstract ServerConfigurationService serverConfigurationService();
+	protected abstract SessionManager sessionManager();
+	protected abstract ThreadLocalManager threadLocalManager();
+	protected abstract TimeService timeService();
+	protected abstract UsageSessionService usageSessionService();
+	protected abstract UserDirectoryService userDirectoryService();
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
@@ -535,7 +491,6 @@ public abstract class BaseSiteService implements SiteService, Observer
 			functionManager().registerFunction(SITE_VISIT_UNPUBLISHED);
 			functionManager().registerFunction(SECURE_ADD_SITE);
 			functionManager().registerFunction(SECURE_ADD_USER_SITE);
-			functionManager().registerFunction(SECURE_ADD_PORTFOLIO_SITE);
 			functionManager().registerFunction(SECURE_REMOVE_SITE);
 			functionManager().registerFunction(SECURE_UPDATE_SITE);
 			functionManager().registerFunction(SECURE_VIEW_ROSTER);
@@ -782,14 +737,28 @@ public abstract class BaseSiteService implements SiteService, Observer
 		return false;
 	}
 
+	@Override
+	public Optional<Site> getOptionalSite(String id) {
+		try {
+			return Optional.ofNullable(getSite(id));
+		} catch (Exception e) {
+			log.debug("Site [{}] not found, {}", id, e.toString());
+		}
+		return Optional.empty();
+	}
+
 	/**
 	 * @inheritDoc
 	 */
 	public Site getSite(String id) throws IdUnusedException
 	{
-		if (id == null)
+		if (StringUtils.isBlank(id))
 		{
 			throw new IdUnusedException("null");
+		}
+
+		if (StringUtils.startsWith(id, REFERENCE_ROOT)) {
+			id = entityManager().newReference(id).getId();
 		}
 
 		try
@@ -902,6 +871,14 @@ public abstract class BaseSiteService implements SiteService, Observer
 	public boolean allowUpdateGroupMembership(String id)
 	{
 		return unlockCheck(SECURE_UPDATE_GROUP_MEMBERSHIP, siteReference(id));
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public boolean allowUpdateGroupMembership(String siteId, String groupId)
+	{
+		return unlockCheck(SECURE_UPDATE_GROUP_MEMBERSHIP, siteGroupReference(siteId, groupId));
 	}
 
 	/**
@@ -1178,9 +1155,6 @@ public abstract class BaseSiteService implements SiteService, Observer
 		else if (id != null && isCourseSite(id)) {
 			return unlockCheck(SECURE_ADD_COURSE_SITE, siteReference(id));
 		}
-		else if (id != null && isPortfolioSite(id)) {
-			return unlockCheck(SECURE_ADD_PORTFOLIO_SITE, siteReference(id));
-		}
 		else if (id != null && isProjectSite(id)) {
 			return unlockCheck(SECURE_ADD_PROJECT_SITE, siteReference(id));
 		}
@@ -1255,21 +1229,6 @@ public abstract class BaseSiteService implements SiteService, Observer
 		return rv;
 	}
 
-	private boolean isPortfolioSite(String siteId) {
-		boolean rv = false;
-		try {
-			Site s = getSite(siteId);
-			List<String> portfolioSiteTypes = getSiteTypeStrings("portfolio");
-			if (portfolioSiteTypes.contains(s.getType())) 
-				return true;
-				
-		} catch (IdUnusedException e) {
-			log.warn("isPortfolioSite(): no site with id: " + siteId);
-		}
-		
-		return rv;
-	}
-	
 	private boolean isProjectSite(String siteId) {
 		boolean rv = false;
 		try {
@@ -1289,10 +1248,6 @@ public abstract class BaseSiteService implements SiteService, Observer
 		return unlockCheck(SECURE_ADD_COURSE_SITE, siteReference(null));
 	}
 
-	public boolean allowAddPortfolioSite() {
-		return unlockCheck(SECURE_ADD_PORTFOLIO_SITE, siteReference(null));
-	}
-	
 	public boolean allowAddProjectSite() {
 		return unlockCheck(SECURE_ADD_PROJECT_SITE, siteReference(null));
 	}
@@ -1335,11 +1290,6 @@ public abstract class BaseSiteService implements SiteService, Observer
 			unlock(SECURE_ADD_COURSE_SITE, siteReference(id));
 		}
 
-		// KNL-703
-		if (getSiteTypeStrings("portfolio").contains(type)) {
-			unlock(SECURE_ADD_PORTFOLIO_SITE, siteReference(id));
-		}
-		
 		// KNL-952
 		if (getSiteTypeStrings("project").contains(type)) {
 			unlock(SECURE_ADD_PROJECT_SITE, siteReference(id));
@@ -1361,14 +1311,24 @@ public abstract class BaseSiteService implements SiteService, Observer
 		((BaseSite) site).setEvent(SECURE_ADD_SITE);
 
 		doSave((BaseSite) site, true);
+		
+		//send message to (ignite) MicrosoftMessagingService
+		microsoftMessagingService().send(MicrosoftMessage.Topic.CREATE_ELEMENT, MicrosoftMessage.builder()
+				.action(MicrosoftMessage.Action.CREATE)
+				.type(MicrosoftMessage.Type.SITE)
+				.siteId(id)
+				.build()
+		);
 
 		return site;
 	}
 
-	/**
-	 * @inheritDoc
-	 */
 	public Site addSite(String id, Site other) throws IdInvalidException, IdUsedException, PermissionException
+	{
+		return addSite(id, other, null);
+	}
+
+	public Site addSite(String id, Site other, String realmTemplate) throws IdInvalidException, IdUsedException, PermissionException
 	{
 		// check for a valid site id
 		if (!Validator.checkResourceId(id)) {
@@ -1392,11 +1352,6 @@ public abstract class BaseSiteService implements SiteService, Observer
 			unlock(SECURE_ADD_COURSE_SITE, siteReference(id));			
 		}
 
-		// KNL-703
-		if ( isPortfolioSite(other.getId()) ) {
-			unlock(SECURE_ADD_PORTFOLIO_SITE, siteReference(id));			
-		}
-		
 		// KNL-952
 		if ( isProjectSite(other.getId()) ) {
 			unlock(SECURE_ADD_PROJECT_SITE, siteReference(id));			
@@ -1412,10 +1367,22 @@ public abstract class BaseSiteService implements SiteService, Observer
 		// make this site a copy of other, but with new ids (not an exact copy)
 		((BaseSite) site).set((BaseSite) other, false);
 
-		// copy the realm (to get permissions settings)
+		// copy the realm from the other site (to get permissions settings)
+		// however, some sites are created without a realm assiciated with it, so we can take
+		// the realm configuration from one of the template realms like !site.template
+		AuthzGroup realm = null;
 		try
 		{
-			AuthzGroup realm = authzGroupService().getAuthzGroup(other.getReference());
+			try {
+				realm = authzGroupService().getAuthzGroup(other.getReference());
+			} catch (GroupNotDefinedException e) {
+				if ( realmTemplate != null ) {
+					realm = authzGroupService().getAuthzGroup(realmTemplate);
+				} else {
+					throw e;
+				}
+			}
+
 			AuthzGroup re = authzGroupService().addAuthzGroup(site.getReference(), realm,
 					userDirectoryService().getCurrentUser().getId());
 
@@ -1439,6 +1406,14 @@ public abstract class BaseSiteService implements SiteService, Observer
 		((BaseSite) site).setEvent(SECURE_ADD_SITE);
 
 		doSave((BaseSite) site, true);
+		
+		//send message to (ignite) MicrosoftMessagingService
+		microsoftMessagingService().send(MicrosoftMessage.Topic.CREATE_ELEMENT, MicrosoftMessage.builder()
+				.action(MicrosoftMessage.Action.CREATE)
+				.type(MicrosoftMessage.Type.SITE)
+				.siteId(id)
+				.build()
+		);
 
 		return site;
 	}
@@ -1502,6 +1477,8 @@ public abstract class BaseSiteService implements SiteService, Observer
 				if(!site.isSoftlyDeleted()) {
 					site.setSoftlyDeleted(true);
 					save(site);
+					
+					eventTrackingService().post(eventTrackingService().newEvent(SOFT_DELETE_SITE, site.getReference(), site.getId(), true, NotificationService.NOTI_OPTIONAL));
 					return;
 				} else {
 					unlock(SECURE_REMOVE_SOFTLY_DELETED_SITE, site.getReference());
@@ -1532,6 +1509,14 @@ public abstract class BaseSiteService implements SiteService, Observer
 		// Use the HardDelete interface to purge content from database
 		if (isHardDelete) {
 			hardDelete(site);
+			
+			//send message to (ignite) MicrosoftMessagingService
+			microsoftMessagingService().send(MicrosoftMessage.Topic.DELETE_ELEMENT, MicrosoftMessage.builder()
+					.action(MicrosoftMessage.Action.DELETE)
+					.type(MicrosoftMessage.Type.SITE)
+					.siteId(site.getId())
+					.build()
+			);
 		}
 	}
 
@@ -1541,6 +1526,11 @@ public abstract class BaseSiteService implements SiteService, Observer
 	public String siteReference(String id)
 	{
 		return getAccessPoint(true) + Entity.SEPARATOR + id;
+	}
+
+	@Override
+	public String idFromSiteReference(String ref) {
+		return entityManager().newReference(ref).getId();
 	}
 
 	/**
@@ -2353,7 +2343,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 		// the site's azg may have just been updated, so enforce site group subset membership
 		enforceGroupSubMembership(siteId);
 
-		Event invalidate = eventTrackingService().newEvent(EVENT_SITE_USER_INVALIDATE, siteId, true);
+		Event invalidate = eventTrackingService().newEvent(EVENT_SITE_USER_INVALIDATE, siteReference(siteId), true);
 		eventTrackingService().post(invalidate);
 	}
 
@@ -2567,38 +2557,17 @@ public abstract class BaseSiteService implements SiteService, Observer
 		return rv;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public ResourceProperties getEntityResourceProperties(Reference ref)
-	{
-		return null;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public Entity getEntity(Reference ref)
-	{
-		// double check that it's mine
-		if (!APPLICATION_ID.equals(ref.getType())) return null;
-		
-		Entity rv = null;
-
-		try
-		{
-			rv = getSite(ref.getId());
+	@Override
+	public Entity getEntity(Reference reference) {
+		Entity entity = null;
+		if (reference != null && APPLICATION_ID.equals(reference.getType())) {
+			try {
+				entity = getSite(reference.getId());
+			} catch (Exception e) {
+				log.warn("Could not retrieve a site with id [{}], {}", reference.getId(), e.toString());
+			}
 		}
-		catch (IdUnusedException e)
-		{
-			log.warn("getEntity(): " + e);
-		}
-		catch (NullPointerException e)
-		{
-			log.warn("getEntity(): " + e);
-		}
-
-		return rv;
+		return entity;
 	}
 
 	/**
@@ -2655,23 +2624,6 @@ public abstract class BaseSiteService implements SiteService, Observer
 		    }
 		}
 		return url;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public String archive(String siteId, Document doc, Stack stack, String archivePath, List attachments)
-	{
-		return "";
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map attachmentNames, Map userIdTrans,
-			Set userListAllowImport)
-	{
-		return "";
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -3006,6 +2958,70 @@ public abstract class BaseSiteService implements SiteService, Observer
 			log.warn(".removeSite: AuthzGroup exception: " + e);
 		}
 	}
+
+	public void activateRoleViewOnSite(String siteReference, String role) throws SakaiException {
+		if (!unlockCheck(SiteService.SITE_ROLE_SWAP, siteReference)) {
+			//throw new SakaiException("Can't activate roleview mode on site [{}] and role [{}]", siteReference, role);
+			throw new SakaiException("Can't activate roleview mode on site [" + siteReference + "] and role [" + role + "]");
+		}
+		User newUser = getMockUserInSite(siteReference, role);
+		usageSessionService().impersonateUser(newUser.getId());
+		securityService().setUserEffectiveRole(siteReference, role);
+	}
+
+	public User getMockUserInSite(String siteReference, String role) throws SakaiException {
+		String eid = siteId(siteReference) + "+" + role;
+		User mockUser;
+		try {
+			mockUser = userDirectoryService().getUserByEid(eid);
+			if (authzGroupService().getUserRole(mockUser.getId(), siteReference) == null) {
+				mockUser = addMockUserInSite(mockUser, siteReference, eid, role);
+			}
+		} catch (UserNotDefinedException e) {
+			mockUser = addMockUserInSite(null, siteReference, eid, role);
+		}
+		return mockUser;
+	}
+
+    private User addMockUserInSite(User user, String siteReference, String eid, String role) throws SakaiException {
+
+        User newUser = null;
+        if (StringUtils.isNoneBlank(siteReference, eid, role)) {
+            try {
+                AuthzGroup realm = authzGroupService().getAuthzGroup(siteReference);
+                if (realm != null) {
+                    SecurityAdvisor sa = (userId, function, reference) -> {
+                        if (reference.endsWith(siteReference)
+                                && (AuthzGroupService.SECURE_UPDATE_AUTHZ_GROUP.equals(function) || UserDirectoryService.SECURE_ADD_USER.equals(function))) {
+                            return SecurityAdvisor.SecurityAdvice.ALLOWED;
+                        }
+                        return SecurityAdvisor.SecurityAdvice.PASS;
+                    };
+                    try {
+                        securityService().pushAdvisor(sa);
+                        if (user == null) {
+                            String mockUserEmail = eid + "@" + serverConfigurationService().getServerName();
+                            newUser = userDirectoryService().addUser(null, eid, role, role, mockUserEmail, null, UserDirectoryService.ROLEVIEW_USER_TYPE, null);
+                        } else {
+                            newUser = user;
+                        }
+                        realm.addMember(newUser.getId(), role, true, false);
+                        authzGroupService().save(realm);
+                    } catch (Exception e) {
+                        log.warn("Can't activate roleview user [{}] in site [{}], {}", eid, siteReference, e);
+                    } finally {
+                        securityService().popAdvisor(sa);
+                    }
+                } else {
+                    throw new SakaiException("Can't activate roleview mode on site [" + siteReference + "] and role [" + role + "]");
+                }
+            } catch (Exception e) {
+                log.warn("Could not add a mock user [{}] with role [{}] in site [{}], {}", eid, role, siteReference, e.toString());
+                throw new SakaiException(e);
+            }
+        }
+        return newUser;
+    }
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Storage
@@ -3587,6 +3603,47 @@ public abstract class BaseSiteService implements SiteService, Observer
 			}
 		}
 
+		// Add any pages not already in the site - this is needed
+		// when we are importing into an existing site.  When
+		// we are creating a new site (above) all the pages and tools
+		// are added by the "new BaseSite()" with the el parameter.
+		// For sites that were created and then the import happened
+		// the code below makes sure the pages exist and do not get
+		// added twice.
+		try
+		{
+			Site site = getSite(siteId);
+			boolean changed = false;
+			List<SitePage> pages = site.getOrderedPages();
+			Set<String> pageNames = pages.stream().map(SitePage::getTitle).collect(Collectors.toCollection(LinkedHashSet::new));
+
+			NodeList pageNodes = el.getElementsByTagName("page");
+			for (int i = 0; i < pageNodes.getLength(); ++i) {
+				Element pageEl = (Element) pageNodes.item(i);
+				String pageTitle = pageEl.getAttribute("title");
+				if ( pageTitle == null ) continue;
+				if ( pageNames.contains(pageTitle) ) continue;
+
+				// addPage
+				BaseSitePage page = new BaseSitePage(this, pageEl, site);
+				site.getPages().add(page);
+				changed = true;
+			}
+
+			if ( changed ) {
+				site.regenerateIds();
+				save(site);
+			}
+		}
+		catch (IdUnusedException e)
+		{
+			msg.append(this + "cannot find site to add pages: " + siteId);
+		}
+		catch (PermissionException e)
+		{
+			msg.append(this + "permission exception while adding pages to: " + siteId);
+		}
+
 		return msg.toString();
 	}
 
@@ -3815,11 +3872,17 @@ public abstract class BaseSiteService implements SiteService, Observer
                     // always clear the cache for the user as the Site below may have been deleted
                     clearUserCacheForUser(event.getUserId());
                     break;
-                default:
+				case UsageSessionService.EVENT_ROLEVIEW_EXIT:
+					try {
+						usageSessionService().restoreUser();
+					} catch (SakaiException e) {
+						log.error("Could not restore session while handling event [{}], for user [{}}, {}", event.getEvent(), event.getResource(), e.toString());
+					}
+				default:
                     // do nothing for all other events
             }
         }
-    }
+	}
 
 	protected Storage storage() {
 		return m_storage;
@@ -3936,5 +3999,30 @@ public abstract class BaseSiteService implements SiteService, Observer
 		}
 
 		return false;
+	}
+
+	public Optional<Locale> getSiteLocale(String siteId) {
+		try {
+			return getSiteLocale(getSite(siteId));
+		} catch (IdUnusedException e) {
+			log.error("Could not find site with id [{}], returning empty optional: {}",
+					siteId, e.toString());
+			return Optional.empty();
+		}
+	}
+
+	public Optional<Locale> getSiteLocale(Site site) {
+		if (site != null) {
+			String localeString = site.getProperties().getProperty(Site.PROP_SITE_LOCALE);
+			if (localeString != null) {
+				Locale locale = serverConfigurationService().getLocaleFromString(localeString);
+				return Optional.of(locale);
+			}
+			// No locale specified in site properties, that's okay
+		} else {
+			log.error("Site is null, returning empty optional: {}");
+		}
+
+		return Optional.empty();
 	}
 }

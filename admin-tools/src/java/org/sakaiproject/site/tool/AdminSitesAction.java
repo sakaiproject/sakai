@@ -2624,39 +2624,45 @@ public class AdminSitesAction extends PagedResourceActionII
 	
 	private void setSiteAlias(String alias, String siteReference, SessionState state)
 	{
-		
 		/*
-		 * The point of these site aliases is to have easy-to-recall,
-		 * easy-to-guess URLs. So we take a very conservative approach
-		 * here and disallow any aliases which would require special 
-		 * encoding or would simply be ignored when building a valid 
-		 * resource reference or outputting that reference as a URL.
-		 */
+		* The point of these site aliases is to have easy-to-recall,
+		* easy-to-guess URLs. So we take a very conservative approach
+		* here and disallow any aliases which would require special 
+		* encoding or would simply be ignored when building a valid 
+		* resource reference or outputting that reference as a URL.
+		*/
 		boolean isSimpleResourceName = alias.equals(Validator.escapeResourceName(alias));
 		boolean isSimpleUrl = alias.equals(formattedText.escapeUrl(alias));
-		if ( !(isSimpleResourceName) || !(isSimpleUrl) ) {
+
+		if (!isSimpleResourceName || !isSimpleUrl) {
 			addAlert(state, rb.getFormattedMessage("sitedipag.alias.isinval", new Object[]{alias}));
 			log.warn("{}.updateSiteInfo: {}", this, rb.getFormattedMessage("sitedipag.alias.isinval", new Object[]{alias}));
-		} 
-		else if (StringUtils.trimToNull(alias) != null && StringUtils.trimToNull(siteReference) != null) 
-		{
-			String currentAlias = StringUtils.trimToNull(getSiteAlias(siteReference));
+			return;
+		}
 
-			if (currentAlias == null || !currentAlias.equals(alias))
-			{
-				try {
-					aliasService.setAlias(alias, siteReference);
-				} catch (IdUsedException ee) {
-					addAlert(state, rb.getFormattedMessage("sitedipag.alias.exists", new Object[]{alias}));
-					log.warn("{}.setSiteAlias: {}", this, rb.getFormattedMessage("sitedipag.alias.exists", new Object[]{alias}));
-				} catch (IdInvalidException ee) {
-					addAlert(state, rb.getFormattedMessage("sitedipag.alias.isinval", new Object[]{alias}));
-					log.warn("{}.setSiteAlias: {}", this, rb.getFormattedMessage("sitedipag.alias.isinval", new Object[]{alias}));
-				} catch (PermissionException ee) {
-					addAlert(state, rb.getFormattedMessage("sitedipag.alias.nopermission", new Object[]{sessionManager.getCurrentSessionUserId()}));
-					log.warn("{}.setSiteAlias: {}", this, rb.getFormattedMessage("sitedipag.alias.nopermission", new Object[]{sessionManager.getCurrentSessionUserId()}));
-				}
+		String currentAlias = StringUtils.trimToNull(getSiteAlias(siteReference));
+
+		if (currentAlias != null && currentAlias.equals(alias)) {
+			return;
+		}
+
+		try {
+			if (currentAlias != null) {
+				aliasService.removeAlias(currentAlias);
 			}
+			aliasService.setAlias(alias, siteReference);
+		} catch (IdUsedException ee) {
+			addAlert(state, rb.getFormattedMessage("sitedipag.alias.exists", new Object[]{alias}));
+			log.warn("{}.setSiteAlias: {}", this, rb.getFormattedMessage("sitedipag.alias.exists", new Object[]{alias}));
+		} catch (IdInvalidException ee) {
+			addAlert(state, rb.getFormattedMessage("sitedipag.alias.isinval", new Object[]{alias}));
+			log.warn("{}.setSiteAlias: {}", this, rb.getFormattedMessage("sitedipag.alias.isinval", new Object[]{alias}));
+		} catch (PermissionException ee) {
+			addAlert(state, rb.getFormattedMessage("sitedipag.alias.nopermission", new Object[]{sessionManager.getCurrentSessionUserId()}));
+			log.warn("{}.setSiteAlias: {}", this, rb.getFormattedMessage("sitedipag.alias.nopermission", new Object[]{sessionManager.getCurrentSessionUserId()}));
+		} catch (Exception ex) {
+			log.warn("Exception while setting site alias: {}", ex.toString());
 		}
 	}
+
 }

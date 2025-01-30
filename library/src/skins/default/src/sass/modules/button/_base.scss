@@ -1,0 +1,16 @@
+html {
+    --sui-btn-color: var(--button-text-color);
+    --sui-btn-bg-color: var(--button-background);
+    --sui-btn-hover-bg-color: var(--button-hover-background);
+    --sui-btn-border-width: #{$btn-border-width};
+    --sui-btn-border-radius: #{$btn-border-radius};
+    --sui-btn-border-color: var(--button-border-color);
+    --sui-btn-hover-border-color: var(--button-hover-border-color);
+    --sui-btn-padding: #{$btn-padding-y} #{$btn-padding-x};
+    --sui-btn-box-shadow: var(--button-shadow);
+    --sui-btn-hover-box-shadow: var(--button-hover-shadow);
+    --sui-btn-font-family: #{$btn-font-family};
+    --sui-btn-font-size: #{$btn-font-size};
+    --sui-btn-line-height: #{$btn-line-height};
+    --sui-btn-font-weight: #{$btn-font-weight};
+}

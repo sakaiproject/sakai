@@ -58,7 +58,7 @@ public interface CalendarImporterService
 	 * must be copied into CalendarEvents created by the Calendar service.
 	 * @throws ImportException
 	 */
-	public List<CalendarEvent> doImport(String importType, InputStream importStream, Map<String, String> columnMapping, String[] customFieldPropertyNames)
+	public List<? extends CalendarEvent> doImport(String importType, InputStream importStream, Map<String, String> columnMapping, String[] customFieldPropertyNames)
 		throws ImportException;
 
 	/**
@@ -72,7 +72,7 @@ public interface CalendarImporterService
 	 * must be copied into CalendarEvents created by the Calendar service.
 	 * @throws ImportException
 	 */
-	public List<CalendarEvent> doImport(String importType, InputStream importStream, Map<String, String> columnMapping,
+	public List<? extends CalendarEvent> doImport(String importType, InputStream importStream, Map<String, String> columnMapping,
 			String[] customFieldPropertyNames, String userTzid)
 			throws ImportException;
 

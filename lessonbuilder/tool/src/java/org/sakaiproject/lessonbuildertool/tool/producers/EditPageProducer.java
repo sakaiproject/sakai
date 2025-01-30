@@ -63,6 +63,7 @@ import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
+import org.sakaiproject.lessonbuildertool.util.LessonConditionUtil;
 import org.sakaiproject.tool.cover.SessionManager;
 
 /**
@@ -152,6 +153,8 @@ public class EditPageProducer implements ViewComponentProducer, NavigationCaseRe
 			    showPageProducer.createGroupList(form, groups, "", "#{simplePageBean.selectedGroups}");
 			    UIOutput.make(form, "prerequisite-block");
 			    UIBoundBoolean.make(form, "question-prerequisite", "#{simplePageBean.prerequisite}",isPrerequisite);
+
+				LessonConditionUtil.makeConditionPicker(simplePageBean, form, "edit-condition-picker");
 			}
 
 			UIInput.make(form, "addBefore", "#{simplePageBean.addBefore}", gparams.getAddBefore());

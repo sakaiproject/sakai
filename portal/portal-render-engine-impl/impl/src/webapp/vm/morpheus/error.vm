@@ -12,8 +12,6 @@
         <script src="${pageScriptPath}jquery.js"></script>
         <script src="/portal/scripts/portalscripts.js"></script>
         <script src="${pageScriptPath}headscripts.js"></script>
-            
-        #parse("/vm/morpheus/snippets/styleable-snippet.vm")
 
     </head>
     <body class="portalBody Mrphs-portalBody">

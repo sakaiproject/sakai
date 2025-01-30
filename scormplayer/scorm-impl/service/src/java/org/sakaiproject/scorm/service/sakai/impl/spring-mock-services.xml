@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- Grab the learner information from Sakai -->
+	<bean id="org.sakaiproject.scorm.service.api.LearningManagementSystem"
+		class="org.sakaiproject.scorm.service.sakai.impl.mocks.MockLearningManagementSystem">
+	</bean>
+
+	<!-- Mock entity provider to enable tests to run -->
+	<bean id="org.sakaiproject.scorm.entity.ScormEntityProvider" 
+		class="org.sakaiproject.scorm.service.sakai.impl.mocks.MockScormEntityProviderImpl">
+	</bean>
+
+	<!-- Mock SCS to enable tests to run -->
+	<bean id="org.sakaiproject.component.api.ServerConfigurationService"
+		class="org.sakaiproject.scorm.service.sakai.impl.mocks.MockServerConfigurationService">
+	</bean>
+
+	<!-- Mock ContentHostingService to enable tests to run -->
+	<bean id="org.sakaiproject.content.api.ContentHostingService"
+		class="org.sakaiproject.scorm.service.sakai.impl.mocks.MockContentHostingService">
+	</bean>
+
+	<!-- Mock SecurityService to enable tests to run -->
+	<bean id="org.sakaiproject.authz.api.SecurityService"
+		class="org.sakaiproject.scorm.service.sakai.impl.mocks.MockSecurityService">
+	</bean>
+
+	<!-- Mock SakaiFsService to enable tests to run -->
+	<bean id="org.sakaiproject.elfinder.SakaiFsService"
+		class="org.sakaiproject.scorm.service.sakai.impl.mocks.MockSakaiFsService">
+	</bean>
+
+	<!-- Mock SiteService to enable tests to run -->
+	<bean id="org.sakaiproject.site.api.SiteService"
+		class="org.sakaiproject.scorm.service.sakai.impl.mocks.MockSiteService">
+	</bean>
+</beans>

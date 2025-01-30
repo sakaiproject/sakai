@@ -25,7 +25,7 @@ import org.mockito.Mockito;
 import org.sakaiproject.antivirus.api.VirusFoundException;
 import org.sakaiproject.antivirus.api.VirusScanner;
 
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;

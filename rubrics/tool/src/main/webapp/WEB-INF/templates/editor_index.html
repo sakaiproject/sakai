@@ -4,7 +4,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <script th:src="@{~/library/js/headscripts.js} + ${cdnQuery}"></script>
-    <script type="module" th:src="@{~/webcomponents/rubrics/sakai-rubrics-manager.js} + ${cdnQuery}"></script>
+    <script type="module" th:src="@{~/webcomponents/bundles/rubrics-manager.js} + ${cdnQuery}"></script>
     <script>includeWebjarLibrary('ckeditor4');</script>
     <script>
       var sakai = sakai || {};
@@ -25,7 +25,7 @@
       <script th:inline="javascript">
           var sakaiSessionId = /*[[${sakaiSessionId}]]*/ null;
       </script>
-      <sakai-rubrics-manager th:attr="site-id=${siteId}, enable-pdf-export=${enablePdfExport}"></sakai-rubrics-manager>
+      <sakai-rubrics-manager th:attr="site-id=${siteId}, enable-pdf-export=${enablePdfExport} ? 'true' : null, is-super-user=${isSuperUser} ? 'true' : null"></sakai-rubrics-manager>
     </div>
   </body>
 </html>

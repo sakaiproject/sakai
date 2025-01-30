@@ -24,6 +24,7 @@ package org.sakaiproject.announcement.entityprovider;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -47,6 +48,7 @@ import org.sakaiproject.announcement.api.ViewableFilter;
 import org.sakaiproject.announcement.tool.AnnouncementAction;
 import org.sakaiproject.announcement.tool.AnnouncementWrapper;
 import org.sakaiproject.announcement.tool.AnnouncementWrapperComparator;
+import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -257,8 +259,7 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 				List<AnnouncementWrapper> messageList = new ArrayList<>();
 				final AnnouncementChannel defaultChannel = (AnnouncementChannel) announcementService.getChannel("/announcement/channel/" + siteId + "/main");
 				for (Message msg : announcements) {
-					AnnouncementChannel curChannel = (AnnouncementChannel) announcementService.getChannel(msg.getReference().replace("msg", "channel").replaceAll("main/(.*)", "main"));
-					messageList.add(new AnnouncementWrapper((AnnouncementMessage) msg, curChannel, defaultChannel, null, null));
+					messageList.add(new AnnouncementWrapper((AnnouncementMessage) msg, defaultChannel, null, null));
 				}
 				Comparator<AnnouncementWrapper> sortedAnnouncements = new AnnouncementWrapperComparator(sortCurrentOrder, announcementSortAsc);
 				messageList.sort(sortedAnnouncements);
@@ -277,9 +278,28 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 	
 		for (Message m : announcements) {
 			AnnouncementMessage a = (AnnouncementMessage)m;
+			boolean showAnnouncement = false;
+			List selectedRolesList = a.getProperties().getPropertyList("selectedRoles");
+			String ownerId = a.getAnnouncementHeader().getFrom().getId();
+			boolean isOwner = ownerId.equals(currentUserId);
+			if (isOwner || securityService.isSuperUser() || selectedRolesList == null) {
+				showAnnouncement = true;
+			} else {
+				Member currentMember = site.getMember(currentUserId);
+				String memberRole = currentMember.getRole().getId();
+				ArrayList<String> selectedRolesArray = new ArrayList<String>(selectedRolesList);
+				String[] selectedRoles = selectedRolesArray.toArray(new String[selectedRolesArray.size()]);
+				for (String selectedRole : selectedRoles) {
+					if (memberRole.equals(selectedRole)) {
+						showAnnouncement = true;
+					}
+				}
+			}
 			try {
-				DecoratedAnnouncement da = createDecoratedAnnouncement(a, siteTitle);
-				decoratedAnnouncements.add(da);
+				if (showAnnouncement) {
+					DecoratedAnnouncement da = createDecoratedAnnouncement(a, siteTitle);
+					decoratedAnnouncements.add(da);
+				}
 			} catch (Exception e) {
 				//this can throw an exception if we are not logged in, ie public, this is fine so just deal with it and continue
 				log.info("Exception caught processing announcement: {} for user: {}. Skipping...", m.getId(), currentUserId);
@@ -334,6 +354,14 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 		da.setCreatedOn(new Date(a.getHeader().getDate().getTime()));
 		da.setSiteId(siteId);
 		da.setSiteTitle(siteTitle);
+		da.setHighlight(a.getProperties().getProperty("highlight"));
+		List selectedRolesList = a.getProperties().getPropertyList("selectedRoles");
+		ArrayList<String> selectedRolesArray = null;
+		if (selectedRolesList != null) {
+			selectedRolesArray = new ArrayList<String>(selectedRolesList);
+			String[] selectedRoles = selectedRolesArray.toArray(new String[selectedRolesArray.size()]);
+			da.setSelectedRoles(selectedRoles);
+		}
 		
 		//get attachments
 		List<DecoratedAttachment> attachments = new ArrayList<DecoratedAttachment>();
@@ -736,6 +764,8 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 		@Getter @Setter private List<DecoratedAttachment> attachments;
 		@Getter @Setter private String siteId;
 		@Getter @Setter private String announcementId;
+		@Getter @Setter private String highlight;
+		@Getter @Setter private String[] selectedRoles;
 		@Getter @Setter private String siteTitle;
 		@Getter @Setter private String channel;
 

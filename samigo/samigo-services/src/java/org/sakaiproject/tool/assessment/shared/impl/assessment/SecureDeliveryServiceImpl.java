@@ -36,11 +36,14 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.io.Resource;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.RegisteredSecureDeliveryModuleIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SecureDeliveryModuleIfc;
 import org.sakaiproject.tool.assessment.services.assessment.SecureDeliveryProctorio;
+import org.sakaiproject.tool.assessment.services.assessment.SecureDeliverySeb;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
 
 /**
@@ -50,6 +53,9 @@ import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServ
  */
 @Slf4j
 public class SecureDeliveryServiceImpl implements SecureDeliveryServiceAPI {
+
+	private String SECURE_DELIVERY_PLUGINS_PROPERTY = "samigo.secureDeliveryPlugins";
+	private String SECURE_DELIVERY_DEFAULT_PLUGINS = "SafeExamBrowser";
 
 	/*
 	 * Implementation of the SecureDeliveryModuleIfc interface with name,id ordering, except for id=NONE_ID
@@ -94,7 +100,7 @@ public class SecureDeliveryServiceImpl implements SecureDeliveryServiceAPI {
 	 */
 	public void init() {
 
-		String secureDeliveryPluginSetting = ServerConfigurationService.getString( "samigo.secureDeliveryPlugins", null );
+		String secureDeliveryPluginSetting = ServerConfigurationService.getString(SECURE_DELIVERY_PLUGINS_PROPERTY, SECURE_DELIVERY_DEFAULT_PLUGINS);
 		log.info( "Secure delivery plugins are: " + secureDeliveryPluginSetting );
 		if ( secureDeliveryPluginSetting != null ) {
 		
@@ -142,6 +148,32 @@ public class SecureDeliveryServiceImpl implements SecureDeliveryServiceAPI {
 		if ( NONE_ID.equals( moduleId ) )
 			return true;
 		return secureDeliveryModules.get( moduleId ) != null;
+	}
+
+	/**
+	 * Handles module related phases that occur before the delivery
+	 * @param moduleId
+	 * @param phase PRE-delivery phase
+	 * @param assessment
+	 * @param publishedAssessment
+	 * @param request
+	 */
+	public PhaseStatus executePreDeliveryPhase(String moduleId, PreDeliveryPhase phase, AssessmentIfc assessment,
+			PublishedAssessmentIfc publishedAssessment, HttpServletRequest request) {
+		SecureDeliveryModuleIfc module = secureDeliveryModules.get(moduleId);
+
+		// If we are not using a module, we can't get it, we can SUCCESS
+		if (moduleId == null || NONE_ID.equals(moduleId) || module == null
+				|| !module.isEnabled(publishedAssessment.getPublishedAssessmentId())){
+			return PhaseStatus.SUCCESS;
+		}
+
+		try {
+			return module.executePreDeliveryPhase(assessment, publishedAssessment, request, phase);
+		} catch (Exception e) {
+			log.error("Could not execute pre-delivery phase for module {}:", module.getModuleName(null), e);
+			return PhaseStatus.FAILURE;
+		}
 	}
 
 	/**
@@ -275,6 +307,21 @@ public class SecureDeliveryServiceImpl implements SecureDeliveryServiceAPI {
 		}
 	}
 
+	public String getModuleName(String moduleId, Locale locale) {
+		if (moduleId == null || NONE_ID.equals(moduleId)) {
+			return null;
+		}
+
+		SecureDeliveryModuleIfc module = secureDeliveryModules.get(moduleId);
+
+		try {
+			return module.getModuleName(locale);
+		} catch (Exception e) {
+			log.error( "Could not get module name for module [{}] and locale [{]}: ", moduleId, locale);
+			return null;
+		}
+	}
+
 	/**
 	 * Helper method to obtain a reference to the runtime instance of the module specified. The context object 
 	 * provided is passed to the module itself for validation and the reference is only returned if the module
@@ -401,15 +448,16 @@ public class SecureDeliveryServiceImpl implements SecureDeliveryServiceAPI {
 	
 		try
 		{
-			// This is a built-in integration with no additional JAR file
-			if (secureDeliveryPlugin.equalsIgnoreCase("proctorio")) {
-				ApplicationContext appCtx = new AnnotationConfigApplicationContext(SecureDeliveryProctorio.class);
-				SecureDeliveryModuleIfc secureDeliveryModuleBean = (SecureDeliveryModuleIfc) appCtx.getBean("secureDeliveryProctorio");
-				log.info("handlePlugin Proctorio: {}", secureDeliveryModuleBean.toString());
-				if ( secureDeliveryModuleBean.initialize() ) {
-					secureDeliveryModules.put( "Proctorio", secureDeliveryModuleBean );
-				}
-				return;
+			// Built-in plugins, that do not require an additional JAR file
+			switch (StringUtils.lowerCase(secureDeliveryPlugin)) {
+				case "proctorio":
+					handleBuiltInPlugin(SecureDeliveryProctorio.class, "secureDeliveryProctorio");
+					return;
+				case "safeexambrowser":
+					handleBuiltInPlugin(SecureDeliverySeb.class, "secureDeliverySeb");
+					return;
+				default:
+					break;
 			}
 
 			// This is the JAR method where the vendor sends a custom file
@@ -447,20 +495,40 @@ public class SecureDeliveryServiceImpl implements SecureDeliveryServiceAPI {
 		}
 	}
 
+	private void handleBuiltInPlugin (Class<?> pluginClass, String beanName) {
+		ApplicationContext applicationContext = new AnnotationConfigApplicationContext(pluginClass);
+		SecureDeliveryModuleIfc secureDeliveryModuleBean = (SecureDeliveryModuleIfc) applicationContext.getBean(beanName);
+
+		if (secureDeliveryModuleBean.initialize()) {
+			secureDeliveryModules.put(secureDeliveryModuleBean.getModuleName(null), secureDeliveryModuleBean );
+		}
+	}
+
 	@Override
 	public Optional<String> getSecureDeliveryServiceNameForModule(String moduleId, final Locale locale)
 	{
-		Optional<SecureDeliveryModuleIfc> module = getModuleIfEnabled(moduleId);
+		Optional<SecureDeliveryModuleIfc> module = getModule(moduleId);
 		return module.map(m -> m.getModuleName(locale));
 	}
 
 	private Optional<SecureDeliveryModuleIfc> getModuleIfEnabled(String moduleId)
 	{
+		Optional<SecureDeliveryModuleIfc> optModule = getModule(moduleId);
+
+		if (optModule.map(SecureDeliveryModuleIfc::isEnabled).orElse(false)) {
+			return optModule;
+		}
+
+		return Optional.empty();
+	}
+
+	private Optional<SecureDeliveryModuleIfc> getModule(String moduleId) {
 		SecureDeliveryModuleIfc module = secureDeliveryModules.get(moduleId);
-		if (moduleId == null || NONE_ID.equals( moduleId ) || module == null || !module.isEnabled())
-		{
+
+		if (moduleId == null || NONE_ID.equals(moduleId) || module == null) {
 			return Optional.empty();
 		}
+
 		return Optional.of(module);
 	}
 

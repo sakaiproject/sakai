@@ -65,6 +65,9 @@ public class MenuBuilder
 
     private static final String     SAK_PROP_SITE_SETUP_ALLOW_EDIT_ROSTER           = "site.setup.allow.editRoster";
     private static final boolean    SAK_PROP_SITE_SETUP_ALLOW_EDIT_ROSTER_DEFAULT   = true;
+    
+    private static final String     SAK_PROP_CM_IMPLEMENTED                         = "site-manage.courseManagementSystemImplemented";
+    private static final boolean    SAK_PROP_CM_IMPLEMENTED_DEFAULT                 = true;
 
     /**
      * Enumerate the possible choices in the Site Info menu bar.
@@ -117,7 +120,11 @@ public class MenuBuilder
         menu.add( buildMenuEntry( rl.getString( "mb.cursit" ), "doGoto_unjoinable", activeTab.equals( MembershipActiveTab.CURRENT_SITES ) ) );
 
         // Official course enrolments
-        menu.add( buildMenuEntry( rl.getString( "mb.enrolments"), "doGoto_enrolments", activeTab.equals( MembershipActiveTab.OFFICIAL_ENROLMENTS ) ) );
+        boolean courseManagementEnabled = ServerConfigurationService.getBoolean( SAK_PROP_CM_IMPLEMENTED, SAK_PROP_CM_IMPLEMENTED_DEFAULT );
+        if (courseManagementEnabled)
+        {
+            menu.add( buildMenuEntry( rl.getString( "mb.enrolments"), "doGoto_enrolments", activeTab.equals( MembershipActiveTab.OFFICIAL_ENROLMENTS ) ) );
+        }
 
         // Joinable sites
         menu.add( buildMenuEntry( rl.getString( "mb.joisit" ), "doGoto_joinable", activeTab.equals( MembershipActiveTab.JOINABLE_SITES ) ) );
@@ -166,7 +173,7 @@ public class MenuBuilder
         menu.add( buildMenuEntry( rl.getString( "java.siteList" ), "", true ) );
 
         // SAK-22438 if user can add one of these site types then they can see the link to add a new site
-        if( SS.allowAddCourseSite() || SS.allowAddPortfolioSite() || SS.allowAddProjectSite() )
+        if( SS.allowAddCourseSite() || SS.allowAddProjectSite() )
         {
             menu.add( buildMenuEntry( rl.getString( "java.new" ), "doNew_site", false ) );
         }
@@ -277,7 +284,7 @@ public class MenuBuilder
                 menu.add( buildMenuEntry( rl.getString( "java.link" ), "doLinkHelper", activeTab.equals( SiteInfoActiveTab.LINK_TO_PARENT_SITE ) ) );
             }
 
-            if( !TM.isStealthed( "sakai.basiclti.admin.helper" ) )
+            if( !TM.isStealthed( "sakai.lti.admin.helper" ) )
             {
                 // 'External Tools'
                 menu.add( buildMenuEntry( rl.getString( "java.external" ), "doExternalHelper", activeTab.equals( SiteInfoActiveTab.EXTERNAL_TOOLS ) ) );
@@ -327,16 +334,16 @@ public class MenuBuilder
                 // 'User Audit Log'
                 menu.add( buildMenuEntry( rl.getString( "java.userAuditEventLog" ), "doUserAuditEventLog", activeTab.equals( SiteInfoActiveTab.USER_AUDIT_LOG ) ) );
             }
-
-            if(allowUpdateSite){
-                List<SitePage> pages = site.getPages();
-                for(SitePage page : pages){
-                    if (page.isHomePage()) {
-                        //now we know this site has a home page.
-                        menu.add(new MenuEntry(rl.getString("manage.overview"),
-                                "doManageOverview"));
-                        break;
-                    }
+        }
+        //Add manage overview in workspace
+        if(allowUpdateSite){
+            List<SitePage> pages = site.getPages();
+            for(SitePage page : pages){
+                if (page.isHomePage()) {
+                    //now we know this site has a home page.
+                    menu.add(new MenuEntry(rl.getString("manage.overview"),
+                            "doManageOverview"));
+                    break;
                 }
             }
         }

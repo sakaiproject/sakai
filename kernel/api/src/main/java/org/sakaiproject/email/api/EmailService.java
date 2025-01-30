@@ -157,6 +157,7 @@ public interface EmailService
 	 *         {@link javax.mail.internet.InternetAddress}.
 	 * @deprecated use {@link #send(EmailMessage, true)}
 	 */
+	@Deprecated
 	List<EmailAddress> send(EmailMessage message) throws AddressValidationException,
 			NoRecipientsException;
 

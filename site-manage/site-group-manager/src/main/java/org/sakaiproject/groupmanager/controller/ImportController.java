@@ -111,8 +111,8 @@ public class ImportController {
 
             //Each line must contain a groupTitle and a userEid
             if (lineContentArray.length == 2) {
-                String groupTitle = StringUtils.trimToNull(lineContentArray[0]);
-                String userEid = StringUtils.trimToNull(lineContentArray[1]);
+                String groupTitle = removeNonPrintableCharacters(StringUtils.trimToNull(lineContentArray[0]));
+                String userEid = removeNonPrintableCharacters(StringUtils.trimToNull(lineContentArray[1]));
 
                 if (StringUtils.isAnyBlank(groupTitle, userEid)) {
                     // One of the items of the line is blank, redirect to the import form again displaying an error. 
@@ -309,6 +309,13 @@ public class ImportController {
     private String returnImportError(Model model, String message, Locale userLocale) {
         model.addAttribute("errorMessage", messageSource.getMessage(message, null, userLocale));
         return showImport(model);
+    }
+
+    private String removeNonPrintableCharacters(String input) {
+        if (input == null) {
+            return null;
+        }
+        return input.replaceAll("\\p{C}", "");
     }
 
 }

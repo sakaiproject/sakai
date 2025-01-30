@@ -32,10 +32,6 @@
 	  <param-value>
 	  	classpath:/org/sakaiproject/spring/integrationContext.xml,
 	    classpath:/org/sakaiproject/spring/samigoApi.xml,
-	    classpath:conf/rsf-config.xml,
-	    classpath:conf/blank-applicationContext.xml,
-	    classpath:conf/sakai-applicationContext.xml,
-	    classpath:conf/sakai-entitybroker-applicationContext.xml,
 	    /WEB-INF/applicationContext.xml
     </param-value>
 	</context-param>
@@ -43,11 +39,9 @@
 	<context-param>
 	  <param-name>requestContextConfigLocation</param-name>
 	  <param-value>
-	    classpath:conf/rsf-requestscope-config.xml,
 	    classpath:conf/blank-requestContext.xml,
 	    classpath:conf/sakai-requestContext.xml,
-	    classpath:conf/sakai-entitybroker-requestContext.xml,
-	    /WEB-INF/requestContext.xml
+	    classpath:conf/sakai-entitybroker-requestContext.xml
 	  </param-value>
 	</context-param>
     
@@ -172,6 +166,24 @@
     <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.export.ExportMarkupTextServlet</servlet-class>
   </servlet>
   
+  <servlet>
+    <description>Export Event Log</description>
+    <servlet-name>ExportEventLogServlet</servlet-name>
+    <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.event.ExportEventLogServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <description>Export Report</description>
+    <servlet-name>ExportReportServlet</servlet-name>
+    <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.evaluation.ExportReportServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <description>Questionpool Statistics</description>
+    <servlet-name>QuestionPoolStatistics</servlet-name>
+    <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.cp.QuestionPoolStatisticsServlet</servlet-class>
+  </servlet>
+
   <servlet-mapping>
     <servlet-name>ShowMediaServlet</servlet-name>
     <url-pattern>/servlet/ShowMedia</url-pattern>
@@ -192,15 +204,20 @@
     <url-pattern>/servlet/ExportMarkupText</url-pattern>
   </servlet-mapping>
 
-  <!-- RSF direct access servlet -->
-  <servlet>
-    <!-- servlet name must match tool.id in tools xml file -->
-    <servlet-name>sakai.samhelper</servlet-name>
-    <servlet-class>org.sakaiproject.rsf.servlet.ReasonableSakaiServlet</servlet-class>
-  </servlet>
   <servlet-mapping>
-    <servlet-name>sakai.samhelper</servlet-name>
-    <url-pattern>/rsfaces/*</url-pattern>
+    <servlet-name>ExportEventLogServlet</servlet-name>
+    <url-pattern>/servlet/ExportEventLog</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>QuestionPoolStatistics</servlet-name>
+    <url-pattern>/servlet/QuestionPoolStatistics</url-pattern>
+  </servlet-mapping>
+
+
+  <servlet-mapping>
+    <servlet-name>ExportReportServlet</servlet-name>
+    <url-pattern>/servlet/ExportReport</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>

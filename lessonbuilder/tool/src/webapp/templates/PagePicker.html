@@ -4,11 +4,10 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE"/>
-<script rsf:id="scr=portal-matter" type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+<script rsf:id="scr=portal-matter" src="/library/js/headscripts.js"></script>
 <script>includeLatestJQuery('PagePicker.html');</script>
 <link rsf:id="scr=portal-matter" href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
-<link rsf:id="scr=portal-matter" href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
-<link rel="stylesheet" rsf:id="scr=rewrite-url" href="../css/Simplepagetool.css" type="text/css"/>
+<link rsf:id="scr=portal-matter" href="/library/skin/default-skin/tool.css" type="text/css" rel="stylesheet" media="all" />
 <link type="text/css" href="/library/webjars/jquery-ui-themes/1.12.1/smoothness/jquery-ui.min.css" rel="stylesheet" />	
 <title rsf:id="msg=simplepage.page.chooser"></title>
 </head>
@@ -27,7 +26,16 @@
 				<p><span rsf:id="msg=simplepage.delete-message"></span></p>
 			</div>
 		</div>
-
+		<h2 rsf:id="site-dropdown-title"></h2>
+		<div id="sitePicker">
+			<form action="#" rsf:id="site-picker" >
+				<input type="hidden" rsf:id="csrf2"/>
+				<select rsf:id="pick-site">
+					<option rsf:id="pick-site-option:" />
+				</select>
+				<input type="submit" rsf:id="submitSite" />
+			</form>
+		</div>
         <h2 rsf:id="title"></h2>
 
 		<div rsf:id="hide-show-container">
@@ -46,7 +54,7 @@
                 <input type="radio" rsf:id="select" />
                 <input type="checkbox" rsf:id="select-for-deletion" class="deletebox"/>
                 <img class="status-image" alt="" rsf:id="status-image" height="18" width="18" style="" />
-                <a href="#" rsf:id="link"><span rsf:id="link-note" class="offscreen"></span><span rsf:id="link-text"></span></a><span rsf:id="shared" class="page-picker-note"></span><span rsf:id="page1">page1</span><span rsf:id="page2">page2</span><span rsf:id="item1">item1</span><span rsf:id="item2">item2</span>
+                <a href="#" rsf:id="link"><span rsf:id="link-note" class="lb-offscreen"></span><span rsf:id="link-text"></span></a><span rsf:id="shared" class="page-picker-note"></span><span rsf:id="page1">page1</span><span rsf:id="page2">page2</span><span rsf:id="item1">item1</span><span rsf:id="item2">item2</span>
                 <span rsf:id="item-list-toggle"><a href="#" class="itemListToggle"><img src="/library/image/sakai/icon-dropdn.gif" height="15"/></a></span>
                 <div rsf:id="itemListContainer" class="itemListContainer">
                     <ul rsf:id="itemList" class="itemList" role="menu">
@@ -85,6 +93,6 @@
 		</p>
 		</form>
 	</div>
-    <script type="text/javascript" src="/lessonbuilder-tool/js/page-picker.js"></script>
+    <script src="/lessonbuilder-tool/js/page-picker.js"></script>
 </body>
 </html>

@@ -9,7 +9,7 @@
     <parent>
         <groupId>org.sakaiproject.sitestats</groupId>
         <artifactId>sitestats</artifactId>
-        <version>23-SNAPSHOT</version><!-- sitestats.version -->
+        <version>25-SNAPSHOT</version><!-- sitestats.version -->
     </parent>
 
     <profiles>
@@ -159,13 +159,11 @@
             <artifactId>HikariCP</artifactId>
         </dependency>
 
-        <!-- needed by hibernate unit tests -->
-        <dependency>
-            <groupId>org.javassist</groupId>
-            <artifactId>javassist</artifactId>
-        </dependency>
-
         <!-- Apache Commons -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
@@ -226,23 +224,13 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.dom4j</groupId>
-            <artifactId>dom4j</artifactId>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>commons-collections</groupId>
-            <artifactId>commons-collections</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

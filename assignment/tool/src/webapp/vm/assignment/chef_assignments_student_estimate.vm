@@ -14,12 +14,12 @@
     window.i18nWlogTab['ts.add.err.submitter']=" $tlang.getString('ts.add.err.submitter')";
 </script>
 
-<div id="StudentTimesheetCurrent" class="hidden">
+<div id="StudentTimesheetCurrent" class="d-none">
     <h4>$!tlang.getString("ts.title.timesheet")</h4>
     <hr>
     ##Checks for Timesheet records
     ##BOOTSTRAP (red)
-    <div id="alertTsheetDelRecord" class="sak-banner-error hidden" role="alert"></div>
+    <div id="alertTsheetDelRecord" class="sak-banner-error d-none" role="alert"></div>
     
     #if ($!isAnyRegTimeSheet)
         <div>
@@ -77,7 +77,7 @@
     ##Delete records
     #if ($!allowSubmit && $!timeSheetSource == "submission")
         <div class="act">
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target=".bd-example-modal-sm">$!tlang.getString("ts.btn.add.record")</button>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-target=".bd-example-modal-sm">$!tlang.getString("ts.btn.add.record")</button>
             #if ($!isAnyRegTimeSheet)
                 <input type="button" name="btnTimesheetDelete" id="btnTimesheetDelete" onclick="ASN.removeTimeSheet(this);" disabled="disabled" value=$!tlang.getString("ts.btn.del.record")>
             #end
@@ -99,28 +99,18 @@
                             <div class="form-group">
                                 <div class="form-group form-required">
                                     <div class="col-4">
-                                        <label for="timesheet_record_date" class="form-control-label">$tlang.getString("ts.modal.field.date")</label>
+                                        <label for="start-time" class="form-control-label">$tlang.getString("ts.modal.field.date")</label>
                                     </div>
                                 </div>
                                 <div class="col-4">
-                                    <input type="text" id="startTime" name="startTime" class="form-control datepicker" value="">
+                                    <sakai-date-picker
+                                        id="start-time"
+                                        label="$tlang.getString("ts.modal.field.date")"
+                                        iso-date="$value_TsYear$H$value_TsMonth$H$value_TsDay$T$value_TsHour:$value_TsMin"
+                                        hidden-prefix="new_ts_record_"
+                                        add-hidden-fields>
+                                    </sakai-date-picker>
                                 </div>
-
-                                <script type="text/javascript">
-                                    localDatePicker({
-                                        input:'#startTime',
-                                        useTime:1,
-                                        val:"$value_TsDay$H$value_TsMonth$H$value_TsYear $value_TsHour:$value_TsMin",
-                                        parseFormat: 'DD-MM-YYYY HH:mm',
-                                        ashidden:{
-                                            day:"new_ts_record_day",
-                                            month:"new_ts_record_month",
-                                            year:"new_ts_record_year",
-                                            hour:"new_ts_record_hour",
-                                            minute:"new_ts_record_minute"
-                                        }
-                                    });
-                                </script>
                             </div>
                             <div class="form-group form-required">
                                 <div class="col-4">

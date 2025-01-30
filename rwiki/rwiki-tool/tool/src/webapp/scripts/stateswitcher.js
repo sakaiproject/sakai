@@ -530,10 +530,6 @@ function hideSidebar(id) {
   document.getElementById('sidebar_switch_on').style.display='block';
   document.getElementById('sidebar_switch_off').style.display='none';
   $('#content').css('width','99%');
-	if ($('#ie8').length) {
-		utils.fixIE8TextArea();
-	}
-  sizeFrameAfterAjax();
 }
 function showSidebar(id) {
   document.getElementById('rwiki_sidebar').style.display='block';
@@ -541,7 +537,6 @@ function showSidebar(id) {
   document.getElementById('sidebar_switch_on').style.display='none';
   document.getElementById('sidebar_switch_off').style.display='block';
   $('#content').css('width','100%');
-  sizeFrameAfterAjax();
 }
 var previewDiv;
 function previewContent(contentId,previewId,pageVersionId,realmId,pageNameId,url) {
@@ -586,81 +581,8 @@ function divReplaceCallback(responsestring) {
             // restrict jsMath to process new content for efficiency
             jsMath.ProcessBeforeShowing(previewDiv);
         }
-	
-	sizeFrameAfterAjax(previewDiv);
 }
 
-function sizeFrameAfterAjax(el) {
-		    var frame = getFrame(placementid);
-		    
-		    if ( frame != null ) {
-		    
-                var height;
-                var objToResize = (frame.style) ? frame.style : frame;
-
-                var scrollH = document.body.scrollHeight;
-                var offsetH = document.body.offsetHeight;
-                var clientH = document.body.clientHeight;
-                var innerDocScrollH = null;
-
-                if (typeof(frame.contentDocument) != 'undefined' || typeof(frame.contentWindow) != 'undefined')
-                {
-                        // very special way to get the height from IE on Windows!
-                        // note that the above special way of testing for undefined variables is necessary for older browsers
-                        // (IE 5.5 Mac) to not choke on the undefined variables.
-                        var innerDoc = (frame.contentDocument) ? frame.contentDocument : frame.contentWindow.document;
-                        innerDocScrollH = (innerDoc != null) ? innerDoc.body.scrollHeight : null;
-                }
-
-//              alert("After innerDocScrollH");
-
-                if (document.all && innerDocScrollH != null)
-                {
-                        // IE on Windows only
-                        height = innerDocScrollH;
-                }
-                else
-                {
-                        // every other browser!
-                        height = offsetH;
-                }
-                
-                
-                // loop round all elements in this dom and find the max y extent
-                var tl = 0;
-                var sh = 0;
-                if ( el != null ) {
-                  tl = getAbsolutePos(el);
-                
-                  sh = el.scrollHeight;
-                  var oh = el.offsetHeight;
-                  var ch = el.clientHeight;
-                } else {
-                  tl = findMaxExtent(document,0);
-                  tl = tl+50;
-                  sh = 0;
-                }
-                var bottom = tl.y + sh;
- 
-                // here we fudge to get a little bigger
-                var newHeight = mmax(mmax(mmax(mmax(height,scrollH),clientH),innerDocScrollH),bottom) + 50;
-
-                // no need to be smaller than...
-                //if (height < 200) height = 200;
-                objToResize.height=newHeight + "px";
-		    
-                var s = " scrollH: " + scrollH + " offsetH: " + offsetH + " clientH: " + 
-                clientH + " innerDocScrollH: " + innerDocScrollH + " Read height: " + height + " bottom "+ bottom+
-                " sh "+ sh +
-                " oh "+oh+
-                " ch "+ch+
-                " Set height to: " + newHeight;
-//              window.status = s;
-//              alert(s);
-//		     } else {
-//		      alert(" No placement Fame for "+placementid);
-		     }
-}
 function findMaxExtent(el,y) {
     var ab = getAbsolutePos(el);
     if ( ab.y > y ) y = ab.y;

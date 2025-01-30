@@ -4,7 +4,7 @@
     <parent>
       <groupId>org.sakaiproject</groupId>
       <artifactId>master</artifactId>
-      <version>23-SNAPSHOT</version>
+      <version>25-SNAPSHOT</version>
       <relativePath>../master/pom.xml</relativePath>
     </parent>
 
@@ -18,23 +18,11 @@
     <module>citations-api/api</module>
     <module>citations-tool/tool</module>
     <module>citations-util/util</module>
-    <module>citations-osid/web2bridge</module>
-    <module>citations-osid/xserver</module>
     <module>citations-impl/impl</module>
   </modules>
 
   <dependencyManagement>
     <dependencies>
-      <dependency>
-        <groupId>org.sakaiproject</groupId>
-        <artifactId>sakai-citations-web2bridge</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject</groupId>
-        <artifactId>sakai-citations-xserver</artifactId>
-        <version>${project.version}</version>
-      </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-citations-util</artifactId>

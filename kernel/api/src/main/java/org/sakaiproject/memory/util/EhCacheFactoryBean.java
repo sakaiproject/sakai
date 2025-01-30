@@ -106,6 +106,7 @@ import org.sakaiproject.component.cover.ComponentManager;
  *
  * @deprecated since Sakai 2.9, do not use this anymore (use the sakai config settings instead), this will be removed in 11
  */
+@Deprecated
 @Slf4j
 public class EhCacheFactoryBean implements FactoryBean, BeanNameAware, InitializingBean {
 	private ServerConfigurationService serverConfigurationService =

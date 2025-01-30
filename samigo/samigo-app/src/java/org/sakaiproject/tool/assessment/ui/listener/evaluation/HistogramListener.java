@@ -30,10 +30,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import javax.faces.component.html.HtmlSelectOneMenu;
 import javax.faces.context.FacesContext;
@@ -47,7 +49,9 @@ import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingComparatorByScoreAndUniqueIdentifier;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
@@ -62,6 +66,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentI
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.PublishedItemService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
@@ -124,6 +129,13 @@ public class HistogramListener
     HistogramScoresBean bean = (HistogramScoresBean) ContextUtil.lookupBean(
                                "histogramScores");
     
+    // Set published assessmentId fot histogramScores
+    bean.setAssessmentId(totalBean.getPublishedId());
+    if (bean.getAssessmentId().equals("0"))
+    {
+        bean.setAssessmentId((String) ContextUtil.lookupParam("publishedAssessmentId"));
+    }
+
     if (!histogramScores(bean, totalBean))
     {
 	String publishedId = totalBean.getPublishedId();
@@ -206,6 +218,12 @@ public class HistogramListener
         {
         	publishedId = (String) ContextUtil.lookupParam("publishedAssessmentId");
         }
+
+        PublishedAssessmentService pubService = new PublishedAssessmentService();
+        PublishedAssessmentFacade pub = pubService.getPublishedAssessment(publishedId, false);
+        // Get the siteId from the assessment, as it also works in an no-site context
+        String siteId = pub.getOwnerSiteId();
+
         String actionString = ContextUtil.lookupParam("actionString");
         // See if this can fix SAK-16437
         if (actionString != null && !actionString.equals("reviewAssessment")){
@@ -230,7 +248,6 @@ public class HistogramListener
 		  histogramScores.setHasNav(ContextUtil.lookupParam("hasNav"));
 
 		  delegate = new GradingService();
-		  PublishedAssessmentService pubService = new PublishedAssessmentService();
 		  List<AssessmentGradingData> allscores = delegate.getTotalScores(publishedId, which);
           //set the ItemGradingData manually here. or we cannot
           //retrieve it later.
@@ -247,34 +264,30 @@ public class HistogramListener
 		  
 		  histogramScores.setPublishedId(publishedId);
 		  int callerName = TotalScoresBean.CALLED_FROM_HISTOGRAM_LISTENER;
-		  String isFromStudent = (String) ContextUtil.lookupParam("isFromStudent");
-		  if (isFromStudent != null && "true".equals(isFromStudent)) {
+		  String isFromStudent = ContextUtil.lookupParam("isFromStudent");
+		  if ("true".equals(isFromStudent)) {
 			  callerName = TotalScoresBean.CALLED_FROM_HISTOGRAM_LISTENER_STUDENT;
 		  }
 		  
  		  // get the Map of all users(keyed on userid) belong to the selected sections 
 		  // now we only include scores of users belong to the selected sections
-		  Map useridMap = null;
-		  List scores = new ArrayList();
+		  Map<String, EnrollmentRecord> useridMap = null;
+		  List<AssessmentGradingData> scores = new ArrayList<>();
 		  // only do section filter if it's published to authenticated users
 		  if (totalScores.getReleaseToAnonymous()) {
 			  scores.addAll(allscores);
 		  }
 		  else {
-			  useridMap = totalScores.getUserIdMap(callerName);
-			  Iterator allscores_iter = allscores.iterator();
-			  while (allscores_iter.hasNext())
-			  {
-				  AssessmentGradingData data = (AssessmentGradingData) allscores_iter.next();
-				  String agentid =  data.getAgentId();
-				  if (useridMap.containsKey(agentid)) {
-					  scores.add(data);
-				  }
-			  }
+			  useridMap = totalScores.getUserIdMap(callerName, siteId);
+              for (AssessmentGradingData data : allscores) {
+                  String agentid = data.getAgentId();
+                  if (useridMap.containsKey(agentid)) {
+                      scores.add(data);
+                  }
+              }
 		  }
-		  Iterator iter = scores.iterator();
-		  
-		  if (!iter.hasNext()){
+
+		  if (scores.isEmpty()) {
 			  log.info("Students who have submitted may have been removed from this site");
 			  return false;
 		  }
@@ -286,9 +299,9 @@ public class HistogramListener
 		   * find students in upper and lower quartiles 
 		   * of assessment scores
 		   */ 
-		  List submissionsSortedForDiscrim = new ArrayList(scores);
-		  boolean anonymous = Boolean.valueOf(totalScores.getAnonymous()).booleanValue();
-		  Collections.sort(submissionsSortedForDiscrim, new AssessmentGradingComparatorByScoreAndUniqueIdentifier(anonymous));
+		  List<AssessmentGradingData> submissionsSortedForDiscrim = new ArrayList<>(scores);
+		  boolean anonymous = Boolean.parseBoolean(totalScores.getAnonymous());
+		  submissionsSortedForDiscrim.sort(new AssessmentGradingComparatorByScoreAndUniqueIdentifier(anonymous));
 		  int numSubmissions = scores.size();
 		  //int percent27 = ((numSubmissions*10*27/100)+5)/10; // rounded
 		  int percent27 = numSubmissions*27/100; // rounded down
@@ -300,9 +313,6 @@ public class HistogramListener
 					  submissionsSortedForDiscrim.get(numSubmissions-1-i)).getAgentId());
 		  }
 		  
-		  PublishedAssessmentIfc pub = (PublishedAssessmentIfc) pubService.getPublishedAssessment(publishedId, false);
-		  
-		  if (pub != null) {
 			if (actionString != null && actionString.equals("reviewAssessment")){
 				   if (AssessmentIfc.RETRACT_FOR_EDIT_STATUS.equals(pub.getStatus())) {
 				   // Bug 1547: If this is during review and the assessment is retracted for edit now, 
@@ -352,7 +362,8 @@ public class HistogramListener
 			  double totalpossible = 0;
 			  boolean hasRandompart = false;
 			  boolean isRandompart = false;
-                          String poolName = null;
+			  String poolName = null;
+			  String poolNameFixed = null;
 			  
 			  Map itemScoresMap = delegate.getItemScores(Long.valueOf(publishedId), Long.valueOf(0), which);
 			  Map itemScores = new HashMap();
@@ -363,7 +374,7 @@ public class HistogramListener
 			  }
 			  else {
 				  if (useridMap == null) {
-					  useridMap = totalScores.getUserIdMap(callerName);
+					  useridMap = totalScores.getUserIdMap(callerName, siteId);
 				  }
 
 				  for (Iterator it = itemScoresMap.entrySet().iterator(); it.hasNext();) {
@@ -375,7 +386,7 @@ public class HistogramListener
 					  Iterator itemScoresIter = itemScoresList.iterator();
 					  // get the Map of all users(keyed on userid) belong to the
 					  // selected sections
-					  
+
 					  while (itemScoresIter.hasNext()) {
 						  ItemGradingData idata = (ItemGradingData) itemScoresIter.next();
 						  String agentid = idata.getAgentId();
@@ -394,11 +405,24 @@ public class HistogramListener
 				  .getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE);
 				  try{
 					  if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL
+							  .equals(Integer.valueOf(authortype)) || SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.equals(Integer.valueOf(authortype))) {
+						  hasRandompart = true;
+						  isRandompart = true;
+						  poolName = section.getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW);
+						  if (section.getSectionMetaDataByLabel(SectionDataIfc.RANDOM_POOL_COUNT) != null) {
+						    Integer count = Integer.valueOf(section.getSectionMetaDataByLabel(SectionDataIfc.RANDOM_POOL_COUNT));
+						    for (int i = 1; i < count; i++) {
+						      poolName += SectionDataIfc.SEPARATOR_COMMA + section.getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW + SectionDataIfc.SEPARATOR_MULTI + i);
+						    }
+						  }
+					  } else if (SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL
 							  .equals(Integer.valueOf(authortype))) {
 						  hasRandompart = true;
 						  isRandompart = true;
 						  poolName = section
 						  .getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW);
+						  poolNameFixed = section
+						  .getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_FIXED_AND_RANDOM_DRAW);
 					  } else {
 						  isRandompart = false;
 						  poolName = null;
@@ -412,9 +436,31 @@ public class HistogramListener
 				  String title = rb.getString("part") + " "
 				  + section.getSequence().toString();
 				  title += ", " + rb.getString("question") + " ";
-				  List<ItemDataIfc> itemset = section.getItemArraySortedForGrading();
+
+				  List<ItemDataIfc> itemlist = section.getItemArraySortedForGrading();
+
+				  Set<ItemDataIfc> sortedSet = itemlist.stream()
+						  .filter(item -> ((PublishedItemData) item).getIsFixed())
+						  .collect(Collectors.toSet());
+
+				  if (!sortedSet.isEmpty()) {
+					// getting all hashes from the sortedSet
+					List<String> distinctHashValues = sortedSet.stream()
+						.filter(item -> item instanceof PublishedItemData)
+						.map(item -> ((PublishedItemData) item).getHash())
+						.distinct()
+						.collect(Collectors.toList());
+
+					// removing from itemSet if there are hashes repeated and getFixed false -> itemSet with only fixed and not repeated fixed on the randow draw
+					itemlist.removeIf(item -> item instanceof PublishedItemData &&
+											!item.getIsFixed() &&
+											distinctHashValues.stream().anyMatch(hash -> hash.equals(item.getHash())));
+
+					section.setItemSet(new HashSet<>(itemlist));
+				  }
+
 				  int seq = 1;
-				  Iterator<ItemDataIfc> itemsIter = itemset.iterator();
+				  Iterator<ItemDataIfc> itemsIter = itemlist.iterator();
 
 				  // Iterate through the assessment questions (items)
 				  while (itemsIter.hasNext()) {
@@ -422,8 +468,14 @@ public class HistogramListener
 					  questionScores.setNumberOfParts(parts.size());
 					  //if this part is a randompart , then set randompart = true
 					  questionScores.setRandomType(isRandompart);
-                      questionScores.setPoolName(poolName);
 					  ItemDataIfc item = itemsIter.next();
+					  questionScores.setPoolName(item.getIsFixed() ? poolNameFixed : poolName);
+
+					  TotalScoresBean totalBean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
+					  HistogramScoresBean histogramBean = (HistogramScoresBean) ContextUtil.lookupBean("histogramScores");
+					  questionScores.setPublishedId(histogramBean.getPublishedId());
+					  questionScores.setItemDataId(item.getItemId());
+					  questionScores.setAgents(totalBean.getAgents());
 					  
 					  if (showObjectivesColumn) {
 						  String obj = item.getItemMetaDataByLabel(ItemMetaDataIfc.OBJECTIVE);
@@ -468,11 +520,13 @@ public class HistogramListener
 					  //totalpossible = totalpossible + item.getScore().doubleValue();
 					  //ArrayList responses = null;
 
+					  // Should be set before determineResults
+					  questionScores.setN(String.valueOf(numSubmissions));
+
 					  //for each question (item) in the published assessment's current part/section
 					  determineResults(pub, questionScores, (List) itemScores.get(item.getItemId()));
 					  questionScores.setTotalScore(item.getScore().toString());
 
-					  questionScores.setN(""+numSubmissions);
 					  questionScores.setItemId(item.getItemId());
 					  Set studentsWithAllCorrect = questionScores.getStudentsWithAllCorrect();
 					  Set studentsResponded = questionScores.getStudentsResponded();
@@ -586,7 +640,7 @@ public class HistogramListener
 					  questionScores.setShowIndividualAnswersInDetailedStatistics(true);
 					  detailedStatistics.add(questionScores);
 					  if (questionScores.getHistogramBars() != null) {
-						  maxNumOfAnswers = questionScores.getHistogramBars().length >maxNumOfAnswers ? questionScores.getHistogramBars().length : maxNumOfAnswers;
+						maxNumOfAnswers = questionScores.getHistogramBars().length >maxNumOfAnswers ? questionScores.getHistogramBars().length : maxNumOfAnswers;
 					  }
 				  }
 				  
@@ -743,10 +797,6 @@ public class HistogramListener
 			  }
 
 			  histogramScores.setAssessmentName(assessmentName);
-		  } else {
-	        log.error("pub is null. publishedId = " + publishedId);
-			return false;
-		  }
 	  return true;
   }
 
@@ -905,6 +955,24 @@ public class HistogramListener
     } else if (qbean.getQuestionType().equals(TypeIfc.IMAGEMAP_QUESTION.toString())) {
       getImageMapQuestionScores(publishedItemTextHash, publishedAnswerHash, (List) scores, qbean, (List) text);
     }
+
+    long attemptCount = Optional.ofNullable(qbean.getN()).map(Long::valueOf).orElse(0L);
+    long correctCount = Optional.ofNullable(qbean.getStudentsWithAllCorrect()).map(Set::size).orElse(0);
+    long blankCount = Optional.ofNullable(qbean.getNumberOfStudentsWithZeroAnswers()).orElse(0);
+    long totalCount = attemptCount + blankCount;
+    long incorrectCount = attemptCount - correctCount;
+
+    // Ideally totalCount should not be 0, if it happens we should handle it to avoid division by 0
+    if (totalCount > 0) {
+        int difficulty = calcDifficulty(totalCount, incorrectCount, blankCount);
+        qbean.setDifficulty(difficulty);
+    } else {
+        log.warn("attemptCount is 0 for item with id=[{}], title=[{}], type=[{}]",
+                qbean.getItemId(), qbean.getTitle(), qbean.getQuestionType());
+    }
+
+    qbean.setNumberOfStudentsWithCorrectAnswers(correctCount);
+    qbean.setNumberOfStudentsWithIncorrectAnswers(incorrectCount);
   }
 
   /**
@@ -1704,22 +1772,27 @@ public class HistogramListener
 		results.put(INCORRECT, Integer.valueOf(0));
 
 		Map<Integer, String> answersMap = new HashMap<>();
+		LinkedHashMap<String, String> answersMapValues = new LinkedHashMap<>();
+		LinkedHashMap<String, String> globalanswersMapValues = new LinkedHashMap<>();
+		LinkedHashMap<String, String> mainvariablesWithValues = new LinkedHashMap<>();
 		int total = 0;
-		int i = 1;
-		Long publishAnswerIdAnt = scores.get(0).getPublishedAnswerId();
-		for (ItemGradingData score : scores) {
-			Long publishAnswerIdAct = score.getPublishedAnswerId();
-			if (!Objects.equals(publishAnswerIdAnt, publishAnswerIdAct)) {
-				i++;
-				publishAnswerIdAnt = publishAnswerIdAct;
-			}
-			delegate.extractCalcQAnswersArray(answersMap, item, score.getAssessmentGradingId(), score.getAgentId());
-			if (score.getAutoScore() != null) {
-				total++;
-				if (delegate.getCalcQResult(score, item, answersMap, i)) {
-					results.merge(CORRECT, 1, Integer::sum);
-				} else {
-					results.merge(INCORRECT, 1, Integer::sum);
+		if (!scores.isEmpty()) { // not every question may have an answer i.e. randomly drawn questions
+			int i = 1;
+			Long publishAnswerIdAnt = scores.get(0).getPublishedAnswerId();
+			for (ItemGradingData score : scores) {
+				Long publishAnswerIdAct = score.getPublishedAnswerId();
+				if (!Objects.equals(publishAnswerIdAnt, publishAnswerIdAct)) {
+					i++;
+					publishAnswerIdAnt = publishAnswerIdAct;
+				}
+				delegate.extractCalcQAnswersArray(answersMap, answersMapValues, globalanswersMapValues, mainvariablesWithValues, item, score.getAssessmentGradingId(), score.getAgentId());
+				if (score.getAutoScore() != null) {
+					total++;
+					if (delegate.getCalcQResult(score, item, answersMap, i)) {
+						results.merge(CORRECT, 1, Integer::sum);
+					} else {
+						results.merge(INCORRECT, 1, Integer::sum);
+					}
 				}
 			}
 		}
@@ -2278,13 +2351,16 @@ public class HistogramListener
 
     statMap.put("totalScore",castingNum(total,2));
     statMap.put("mean", castingNum(mean,2));
-    statMap.put("median", castingNum(calMedian(scores),2));
+    double median = calMedian(scores);
+    statMap.put("median", castingNum(median, 2));
     statMap.put("mode", castingNumForMode(calMode(scores)));
 
     statMap.put("numStudentCollection", numStudents);
     statMap.put(
       "rangeCollection", calRange(numStudents, min, max, interval));
-    statMap.put("standDev", castingNum(calStandDev(scores, mean),2));
+    double standardDeviation = calStandDev(scores, mean);
+    statMap.put("standDev", castingNum(standardDeviation, 2));
+    statMap.put("skewnessCoefficient", castingNum(calcSkewnessCoefficient(mean, median, standardDeviation), 2));
     //NEW
     //statMap.put("columnHeight", calColumnHeight(numStudents));
     statMap.put("columnHeight", calColumnHeight(numStudents,scoreList.size()));
@@ -2414,6 +2490,25 @@ public class HistogramListener
 
     return Math.sqrt(total / (scores.length - 1));
 
+  }
+
+  private static double calcSkewnessCoefficient(double mean, double median, double standardDeviation) {
+    return (3 * (mean - median)) / standardDeviation;
+  }
+
+  //               incorrect + blank
+  // difficulty = ------------------- * 100
+  //                       total
+  private int calcDifficulty(long totalCount, long incorrectCount, long blankCount) {
+    // Can not calculate difficulty with totalCount smaller than 1
+    if (totalCount <= 0) {
+        return -1;
+    }
+
+    return BigDecimal.valueOf(incorrectCount + blankCount)
+      .multiply(BigDecimal.valueOf(100L))
+      .divide(BigDecimal.valueOf(totalCount), 0, RoundingMode.HALF_UP)
+      .intValue();
   }
 
   /**
@@ -2795,7 +2890,7 @@ public class HistogramListener
   
   /**
    * Standard process action method.
-   * @param ae ActionEvent
+   * @param publishedId published assessment id
    * @throws AbortProcessingException
    */
   public List getDetailedStatisticsSpreadsheetData(String publishedId) throws
@@ -2820,29 +2915,23 @@ public class HistogramListener
     List<HistogramQuestionScoresBean> detailedStatistics = bean.getDetailedStatistics();
     
     spreadsheetRows.add(bean.getShowPartAndTotalScoreSpreadsheetColumns());
-    //spreadsheetRows.add(bean.getShowDiscriminationColumn());
-    
-	boolean showDetailedStatisticsSheet;
-    if (totalBean.getFirstItem().equals("")) {
-    	showDetailedStatisticsSheet = false;
-        spreadsheetRows.add(showDetailedStatisticsSheet);
+
+      if (totalBean.getFirstItem().isEmpty()) {
+        spreadsheetRows.add(false);
     	return spreadsheetRows;
     }
     else {
-    	showDetailedStatisticsSheet = true;
-        spreadsheetRows.add(showDetailedStatisticsSheet);
+        spreadsheetRows.add(true);
     }
     
-    if (detailedStatistics==null || detailedStatistics.size()==0) {
+    if (detailedStatistics ==null || detailedStatistics.isEmpty()) {
     	return spreadsheetRows;
     }
     
-    List<Object> headerList = new ArrayList<Object>();
-    
-    headerList = new ArrayList<Object>();
+    List<Object> headerList = new ArrayList<>();
     headerList.add(ExportResponsesBean.HEADER_MARKER);
     headerList.add(rb.getString("question"));
-    if(bean.getRandomType()){
+    if(bean.isRandomType()){
         headerList.add("N(" + bean.getNumResponses() + ")");
     }else{
         headerList.add("N");
@@ -2871,20 +2960,17 @@ public class HistogramListener
     headerList.add(rb.getString("no_answer"));
     
     // Label the response options A, B, C, ...
-    int aChar = 65;
-    for (char colHeader=65; colHeader < 65+bean.getMaxNumberOfAnswers(); colHeader++) {
+      for (char colHeader=65; colHeader < 65+bean.getMaxNumberOfAnswers(); colHeader++) {
         headerList.add(String.valueOf(colHeader));
     }
     spreadsheetRows.add(headerList);
 	//VULA-1948: sort the detailedStatistics list by Question Label
     sortQuestionScoresByLabel(detailedStatistics);
-    Iterator detailedStatsIter = detailedStatistics.iterator();
-    List statsLine = null;
-    while (detailedStatsIter.hasNext()) {
-    	HistogramQuestionScoresBean questionBean = (HistogramQuestionScoresBean)detailedStatsIter.next();
+    List statsLine;
+    for (HistogramQuestionScoresBean questionBean : detailedStatistics) {
     	statsLine = new ArrayList();
     	statsLine.add(questionBean.getQuestionLabel());
-    	Double dVal;
+    	double dVal;
     	
     	statsLine.add(questionBean.getNumResponses());
     	
@@ -2985,11 +3071,11 @@ public class HistogramListener
 			@Override
 			public int compare(HistogramQuestionScoresBean arg0, HistogramQuestionScoresBean arg1) {
 
-				HistogramQuestionScoresBean bean1 = (HistogramQuestionScoresBean) arg0;
-				HistogramQuestionScoresBean bean2 = (HistogramQuestionScoresBean) arg1;
+				HistogramQuestionScoresBean bean1 = arg0;
+				HistogramQuestionScoresBean bean2 = arg1;
 
                 //first check the part number
-				int compare = Integer.valueOf(bean1.getPartNumber()) - Integer.valueOf(bean2.getPartNumber());
+				int compare = Integer.parseInt(bean1.getPartNumber()) - Integer.parseInt(bean2.getPartNumber());
 				if (compare != 0) {
                     return compare;
 				}
@@ -2998,23 +3084,23 @@ public class HistogramListener
                 int number1 = 0;
                 int number2 = 0;
                 //check if the question has a sub-question number, only test the question number now
-                if(bean1.getQuestionNumber().indexOf("-") == -1){
-                    number1 = Integer.valueOf(bean1.getQuestionNumber());
+                if(!bean1.getQuestionNumber().contains("-")){
+                    number1 = Integer.parseInt(bean1.getQuestionNumber());
                 }else{
-                    number1 = Integer.valueOf(bean1.getQuestionNumber().substring(0, bean1.getQuestionNumber().indexOf("-")));
+                    number1 = Integer.parseInt(bean1.getQuestionNumber().substring(0, bean1.getQuestionNumber().indexOf("-")));
                 }
-                if(bean2.getQuestionNumber().indexOf("-") == -1){
-                    number2 = Integer.valueOf(bean2.getQuestionNumber());
+                if(!bean2.getQuestionNumber().contains("-")){
+                    number2 = Integer.parseInt(bean2.getQuestionNumber());
                 }else{
-                    number2 = Integer.valueOf(bean2.getQuestionNumber().substring(0, bean2.getQuestionNumber().indexOf("-")));
+                    number2 = Integer.parseInt(bean2.getQuestionNumber().substring(0, bean2.getQuestionNumber().indexOf("-")));
                 }
                 compare = number1 - number2;
                 if(compare != 0){
                     return compare;
                 }
                 //Now check the sub-question number. At this stage it will be from the same question
-                number1 = Integer.valueOf(bean1.getQuestionNumber().substring(bean1.getQuestionNumber().indexOf("-")+1));
-                number2 = Integer.valueOf(bean2.getQuestionNumber().substring(bean2.getQuestionNumber().indexOf("-")+1));
+                number1 = Integer.parseInt(bean1.getQuestionNumber().substring(bean1.getQuestionNumber().indexOf("-")+1));
+                number2 = Integer.parseInt(bean2.getQuestionNumber().substring(bean2.getQuestionNumber().indexOf("-")+1));
                 return number1 - number2;
 			}
 		});

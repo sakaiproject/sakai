@@ -13,44 +13,32 @@
  ******************************************************************************/
 package org.sakaiproject.rubrics.api.beans;
 
+import java.util.Map;
+import java.util.Objects;
+
 import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
 
-import java.util.Map;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import lombok.Getter;
-import lombok.Setter;
-
-@Getter
-@Setter
+@Data
+@NoArgsConstructor
 public class AssociationTransferBean {
 
-    public Long id;
-    public String toolId;
-    public String itemId;
-    public Long rubricId;
-    public String siteId;
-    private Map<String, Boolean> parameters;
+    private Long id;
+    private String itemId;
+    private Map<String, Integer> parameters;
+    private Long rubricId;
+    private String siteId;
+    private String toolId;
 
-    public static AssociationTransferBean of(ToolItemRubricAssociation assoc) {
-
-        AssociationTransferBean bean = new AssociationTransferBean();
-        bean.id = assoc.getId();
-        bean.toolId = assoc.getToolId();
-        bean.itemId = assoc.getItemId();
-        bean.siteId = assoc.getRubric().getOwnerId();
-        bean.rubricId = assoc.getRubricId();
-        bean.parameters = assoc.getParameters();
-        return bean;
-    }
-
-    public ToolItemRubricAssociation toAssociation() {
-
-        ToolItemRubricAssociation assoc = new ToolItemRubricAssociation();
-        assoc.setId(id);
-        assoc.setToolId(toolId);
-        assoc.setItemId(itemId);
-        assoc.setRubricId(rubricId);
-        assoc.setParameters(parameters);
-        return assoc;
+    public AssociationTransferBean(ToolItemRubricAssociation association) {
+        Objects.requireNonNull(association, "association must not be null in constructor");
+        id = association.getId();
+        itemId = association.getItemId();
+        toolId = association.getToolId();
+        rubricId = association.getRubric().getId();
+        siteId = association.getRubric().getOwnerId();
+        parameters = Map.copyOf(association.getParameters());
     }
 }

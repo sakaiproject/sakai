@@ -1,17 +1,14 @@
 ## Adds $viewAsStudentLink options
-
-<div id="roleSwitch" class="Mrphs-roleSwitch Mrphs-toolsNav__menuitem">
+## Only display this if we're in view as student mode and it's not the home page
+#if ($viewAsStudentLink)
+<div id="roleSwitch" class="role-switcher me-1">
     #if ($roleSwitchState)
-    	<span style="padding-right: 10px">$rloader.getFormattedMessage("rs_roleSwapAdvice", $roleUrlValue)</span>
+    	<span>$rloader.getFormattedMessage("rs_roleSwapAdvice", $roleUrlValue)</span>
     	<a href="$switchRoleUrl" id="roleSwitchAnchor" class="Mrphs-roleSwitch__anchor Mrphs-roleSwitch__exit">
             <input type="submit" value="$rloader.getFormattedMessage("rs_exitRoleSwapWithRole", $roleUrlValue)"/>
         </a>
     #else
-        <a id="roleSwitchDropDownToggle" href="javascript:void('0')" aria-hidden="true" aria-haspopup="false" title="${rloader.rs_menuTooltip}" aria-label="${rloader.rs_menuTooltip}">
-            <i class="fa fa-user-secret" aria-hidden="true"></i>
-        </a>
         <div id="roleSwitchDropDown">
-            <i class="fa fa-user-secret" aria-hidden="true"></i>
             #if ($roleswapdropdown)
             <div class="Mrphs-roleSwitch__anchor">
                 <select id="roleSwitchSelect" class="Mrphs-roleSwitch__dropdown" aria-label="${rloader.rs_menuExplanation}">
@@ -29,4 +26,4 @@
         </div>
     #end ## END of IF ($roleSwitchState)
 </div>
-
+#end ## END of if ($viewAsStudentLink)

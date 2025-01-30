@@ -1,0 +1,107 @@
+## TODO: This file contains some placeholder text and content that needs to be revisited later
+## to populate the contents and to internationalize. Work-in-progress.
+<ul id="sakai-system-indicators" class="nav flex-nowrap align-items-center">
+#*
+For opening help sidebar
+  <li class="d-none d-md-inline">
+    <a class="sak-sysInd-help nav-link text-white" data-bs-toggle="offcanvas" href="#sakai-contextualHelpPanel" role="button" aria-controls="sakai-contextualHelpPanel">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-question-circle" viewBox="0 0 16 16" role="img" aria-label="View contextual help for this page" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Help">
+        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+        <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/>
+      </svg>
+    </a>
+  </li>
+*#
+  #if (${currentRole} && $roleSwitchState == false)
+    <li class="d-none d-md-inline">
+      <div class="current-role">
+        <i class="fa fa-user" aria-hidden="true"></i>
+        <span class="portal-user-role">${rloader.sit_role} ${currentRole}</span>
+      </div>
+    </li>
+  #end
+
+  #if ($pageColumn0Tools && !$pageColumn0Tools.isEmpty())
+      #set ($helpLink = $pageColumn0Tools.get(0).toolHelpActionUrl)
+  #elseif ($pageColumn1Tools && !$pageColumn1Tools.isEmpty())
+      #set ($helpLink = $pageColumn1Tools.get(0).toolHelpActionUrl)
+  #end
+  #if ($helpLink)
+    <li class="d-none d-md-inline">
+      <a class="sak-sysInd-help desktop-help-icon"
+          title="${rloader.mainnav_help_tooltip}"
+          href="${helpLink}"
+          target="_blank">
+        <button class="btn icon-button" type="button"
+	    aria-label="${rloader.mainnav_help_tooltip}">
+          <i class="bi bi-question-circle"></i>
+        </button>
+      </a>
+    </li>
+  #end
+  <li class="d-none d-md-inline">
+    <button class="btn icon-button"
+        data-bs-toggle="offcanvas"
+        data-bs-target="#select-site-sidebar"
+        aria-label="$rloader.sit_allsites"
+        aria-controls="select-site-sidebar"
+        title="$rloader.sit_allsites">
+      <i class="si si-all-sites"></i>
+    </button>
+  </li>
+
+  #if (${usePortalSearch})
+    <li class="d-none d-md-inline">
+      <button class="btn icon-button portal-search-button"
+          data-bs-toggle="offcanvas"
+          data-bs-target="#sakai-search-panel"
+          aria-controls="sakai-search-panel"
+          aria-label="$rloader.sit_search_for_content"
+          title="$rloader.sit_search_for_content">
+        <i class="bi-search"></i>
+      </button>
+    </li>
+  #end
+
+  #if ($quickLinks)
+    <li class="d-none d-md-inline">
+      <button class="btn icon-button"
+          data-bs-toggle="offcanvas"
+          data-bs-target="#sakai-quickLinksPanel"
+          aria-controls="sakai-quickLinksPanel"
+          aria-label="$rloader.sit_quick_links"
+          aria-expanded="false"
+          title="$rloader.sit_quick_links">
+        <i class="si si-link"></i>
+      </button>
+    </li>
+  #end
+
+  #if (${useBullhornAlerts})
+    <li class="d-none d-md-inline">
+      <button class="portal-notifications-button btn icon-button"
+          data-bs-toggle="offcanvas"
+          data-bs-target="#sakai-notifications-panel"
+          aria-controls="sakai-notifications-panel"
+          aria-label="$rloader.sit_notifications"
+          title="$rloader.sit_notifications">
+        <i class="portal-notifications-icon bi-bell"></i>
+        <span class="portal-notifications-indicator p-1 rounded-circle d-none">
+          <span class="visually-hidden">$rloader.sit_new_notifications_label</span>
+        </span>
+      </button>
+    </li>
+  #end
+    <li>
+      <button class="btn icon-button sak-sysInd-account"
+          type="button"
+          data-bs-toggle="offcanvas"
+          data-bs-target="#sakai-account-panel"
+          aria-controls="sakai-account-panel"
+          title="${rloader.mainnav_btn_account}">
+        <img class="sakai-accountProfileImage rounded-circle"
+            src="${profileImageUrl}"
+            alt="${rloader.sit_profile_image_alt}">
+      </button>
+    </li>
+</ul>

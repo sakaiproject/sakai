@@ -23,7 +23,6 @@ package org.sakaiproject.tool.messageforums.ui;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.StringTokenizer;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -621,7 +620,7 @@ log.debug("... before return getAuthorEmail(): userEmail = " + userEmail);
 		return ComponentManager.get(UIPermissionsManager.class);
 	}
 
-	public int getWordCount() {
-		return new StringTokenizer(message.getBody()).countTokens();
+	public void setMessage(Message message) {
+		this.message = message;
 	}
 }

@@ -82,8 +82,24 @@
     </property>
     <property name="draft">
       <column name="DRAFT" not-null="false" />
-    </property>    
+    </property>
+
+    <property name="sendOpenCloseToCalendar">
+      <column name="SEND_TO_CALENDAR" />
+    </property>
+
+    <property name="calendarBeginId">
+      <column name="CALENDAR_BEGIN_ID" />
+    </property>
+
+    <property name="calendarEndId">
+      <column name="CALENDAR_END_ID" />
+    </property>
     
+    <property name="lockedAfterClosed" type="boolean">
+      <column name="LOCKED_AFTER_CLOSED" not-null="true" default="0" />
+    </property>
+
     <property name="availabilityRestricted">
       <column name="AVAILABILITY_RESTRICTED" not-null="true" default="0" />
     </property>
@@ -129,6 +145,9 @@
       </property>
       <property name="restrictPermissionsForGroups">
         <column name="RESTRICT_PERMS_FOR_GROUPS" not-null="true" default="0" />
+      </property>
+      <property name="faqForum">
+        <column name="IS_FAQ_FORUM" not-null="true" default="0" />
       </property>
     </subclass>
 
@@ -193,6 +212,15 @@
       left outer join fetch topic.attachmentsSet
       left outer join fetch forum.attachmentsSet
     where forum.typeUuid = :typeUuid and forum.area.contextId = :contextId             
+  ]]></query>
+
+  <query name="findFaqForums"><![CDATA[
+  	select forum
+    from org.sakaiproject.component.app.messageforums.dao.hibernate.OpenForumImpl forum
+      left outer join fetch forum.topicsSet topic
+      left outer join fetch topic.attachmentsSet
+      left outer join fetch forum.attachmentsSet
+    where forum.typeUuid = :typeUuid and forum.area.contextId = :contextId and forum.faqForum = true
   ]]></query>
 
   <query name="findForumByTypeAndContextWithAllInfo">

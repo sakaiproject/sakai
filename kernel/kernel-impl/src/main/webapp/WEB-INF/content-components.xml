@@ -42,33 +42,8 @@
 			class="org.sakaiproject.content.impl.DbContentService"
             init-method="init" destroy-method="destroy">
 
-        <property name="fileSystemHandler">          <ref bean="org.sakaiproject.content.api.FileSystemHandler"/>            </property>
-        <property name="memoryService">              <ref bean="org.sakaiproject.memory.api.MemoryService"/>                 </property>
-        <property name="functionManager">			<ref bean="org.sakaiproject.authz.api.FunctionManager"/>				</property>
-        <property name="aliasService">               <ref bean="org.sakaiproject.alias.api.AliasService"/>                   </property>
-        <property name="siteService">                <ref bean="org.sakaiproject.site.api.SiteService"/>                     </property>
-        <property name="notificationService">        <ref bean="org.sakaiproject.event.api.NotificationService"/>            </property>
-        <property name="serverConfigurationService"> <ref bean="org.sakaiproject.component.api.ServerConfigurationService"/> </property>
-        <property name="entityManager">              <ref bean="org.sakaiproject.entity.api.EntityManager"/>                 </property>
-        <property name="securityService">			 <ref bean="org.sakaiproject.authz.api.SecurityService"/>				</property>
-        <property name="sqlService">                 <ref bean="org.sakaiproject.db.api.SqlService"/>                        </property>
-        <property name="lockManager">                <ref bean="org.sakaiproject.content.api.LockManager"/>                  </property>
-        <property name="authzGroupService">          <ref bean="org.sakaiproject.authz.api.AuthzGroupService"/>              </property>
-        <property name="resourceTypeRegistry">       <ref bean="org.sakaiproject.content.api.ResourceTypeRegistry"/>         </property>
-        <property name="virusScanner">				<ref bean="org.sakaiproject.antivirus.api.VirusScanner"/>				</property>
-        <property name="contentTypeImageService">	<ref bean="org.sakaiproject.content.api.ContentTypeImageService"/>		</property>
-        <property name="eventTrackingService">		<ref bean="org.sakaiproject.event.api.EventTrackingService"/>			</property>
-        <property name="idManager">					<ref bean="org.sakaiproject.id.api.IdManager"/>							</property>
-        <property name="threadLocalManager">		<ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/>		</property>
-        <property name="timeService">				<ref bean="org.sakaiproject.time.api.TimeService"/>						</property>
-        <property name="sessionManager">			<ref bean="org.sakaiproject.tool.api.SessionManager"/>					</property>
-        <property name="toolManager">				<ref bean="org.sakaiproject.tool.api.ToolManager"/>						</property>
-        <property name="userDirectoryService"> 		<ref bean="org.sakaiproject.user.api.UserDirectoryService"/>			</property>
-        <property name="collectionAccessFormatter">	<ref bean="org.sakaiproject.content.impl.CollectionAccessFormatter"/>	</property>
-        <property name="contentHostingHandlerResolver"><ref bean="org.sakaiproject.content.api.ContentHostingHandlerResolver"/></property>
 		<property name="collectionSerializer"><ref bean="org.sakaiproject.content.api.ContentHostingService.collectionSerializer"/></property>
         <property name="resourceSerializer"><ref bean="org.sakaiproject.content.api.ContentHostingService.resourceSerializer"/></property>
-        <property name="linkMigrationHelper">      <ref bean="org.sakaiproject.util.api.LinkMigrationHelper"/>              </property>
         <!--
         If you want to use the new serializers you have to let them migrate the data, set to true
         so that they can write the new format when they update an item.
@@ -87,9 +62,8 @@
         <!-- This is set via code BaseContentService
         <property name="siteQuota">                 <value>0</value>                            </property>
         -->
-        <property name="availabilityChecksEnabled"> <value>true</value>                         </property>
-        <property name="prioritySortEnabled">       <value>true</value>                         </property>
-        <property name="useResourceTypeRegistry">   <value>true</value>                         </property>
+        <property name="availabilityEnabled"> <value>true</value>                         </property>
+        <property name="sortByPriorityEnabled">       <value>true</value>                         </property>
         <property name="databaseBeans">
            <map>
               <entry key="default"><ref bean="org.sakaiproject.content.impl.ContentServiceSqlDefault"/></entry>
@@ -98,7 +72,6 @@
               <entry key="oracle" ><ref bean="org.sakaiproject.content.impl.ContentServiceSqlOracle" /></entry>
            </map>
         </property>
-        <property name="contentFilterService" ref="org.sakaiproject.content.api.ContentFilterService"/>
     </bean>
 
     <bean id="org.sakaiproject.content.api.FileSystemHandler.file" class="org.sakaiproject.content.impl.DefaultFileSystemHandler">
@@ -251,7 +224,9 @@
             <bean id="org.sakaiproject.content.impl.HtmlPageFilter"
                   class="org.sakaiproject.content.impl.HtmlPageFilter">
               <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
+              <property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService" />
               <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+              <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
               <property name="formattedText" ref="org.sakaiproject.util.api.FormattedText" />
             </bean>
 
@@ -269,6 +244,7 @@
         <property name="sakaiFsService" ref="org.sakaiproject.elfinder.SakaiFsService"/>
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
         <property name="threadLocalManager" ref="org.sakaiproject.thread_local.api.ThreadLocalManager"/>
     </bean>
@@ -280,6 +256,7 @@
         <property name="sakaiFsService" ref="org.sakaiproject.elfinder.SakaiFsService"/>
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
         <property name="threadLocalManager" ref="org.sakaiproject.thread_local.api.ThreadLocalManager"/>
     </bean>

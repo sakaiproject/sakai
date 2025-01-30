@@ -112,6 +112,10 @@ public interface LessonEntity {
     public String getTitle();
     public String getDescription();
     public String getUrl();
+    // Returns a note to display near the link for editors (i.e. like Deleted)
+    default public String getEditNote() {
+        return null;
+    }
     public Date getDueDate();
     // for forums, where we have a hiearchy of topics
     public int getLevel();
@@ -119,6 +123,10 @@ public interface LessonEntity {
     public boolean isUsable();
     // only assignments
     public int getTypeOfGrade();
+    default public int getSubmissionType() {
+        return 0;
+    }
+    public boolean showAdditionalLink();
 
     // submission
     public LessonSubmission getSubmission(String user);

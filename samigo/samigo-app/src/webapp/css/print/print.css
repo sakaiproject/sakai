@@ -1,26 +1,3 @@
-/* Reseteamos casi todos los css */
-
-
-/*
-html, body, div, span, applet, object, iframe,
-h1, h2, h3, h4, h5, h6, p,
-blockquote, pre, a, abbr, acronym, address, big,
-cite, code, del, dfn, em, font, img,
-ins, kbd, q, s, samp, small, strike,
-strong, sub, sup, tt, var, dl, dt, dd, ol, ul, li,
-fieldset, form, label, legend,
-table, caption, tbody, tfoot, thead, tr, th, td,
-center, u, b, i {
-     margin: 0;
-     padding: 0;
-     border: 0;
-     outline: 0;
-     font-weight: normal;
-     font-style: normal;
-     font-size: 100%;
-     font-family: inherit;
-     vertical-align: baseline
-}*/
 
 body {
   line-height: 1;
@@ -59,16 +36,6 @@ textarea {
   padding: 0;
 }
 
-hr {
-  margin: 0;
-  padding: 0;
-  border: 0;
-  color: #000;
-  background-color: #000;
-  height: 1px;
-}
-
-
 /* ESTILOS */
 
 strong {
@@ -85,10 +52,6 @@ blockquote {
 
 .hidden {
   display: none;
-}
-
-{
-  background-color: #eeeeee;
 }
 
 #header {
@@ -118,11 +81,10 @@ t .navModeAction {
 }
 
 .assessment_title {
-  font-size: 1.2em;
+  font-size: 1.3em;
   padding: 1em 3em 1em 1em;
   margin-bottom: 0em;
-  color: #01a5cb;
-  font-weight: normal;
+  font-weight: bold;
   background-color: transparent !important;
 }
 
@@ -138,14 +100,12 @@ t .navModeAction {
 
 .part_title_text {
   font-size: 1.2em;
-  color: #01a5cb;
   padding: 3em 0em 1em 1em;
   font-weight: normal;
 }
 
 .part_title {
   font-size: 1.2em;
-  color: #01a5cb;
   font-weight: normal;
 }
 
@@ -249,7 +209,7 @@ ul.navIntraTool.actionToolbar {
     box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.15);
     transition: width 0.6s ease;
   }
-  .progress-bar-success {
+  .bg-success {
     font-size: 12px;
     line-height: 10px;
     color: #337ab7;

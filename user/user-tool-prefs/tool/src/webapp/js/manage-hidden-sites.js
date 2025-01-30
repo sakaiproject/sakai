@@ -36,7 +36,7 @@ $(function () {
 
         $.each(sites, function (i, site) {
             var item = $('<div class="manage-hidden-entry site-entry" />');
-            item.append($('<i class="fa site-entry-star" />'));
+            item.append($('<i class="si site-entry-pin" />'));
 
             if ($('#selectedTabLabelValue').text().trim() === '2' && site.description) {
                 item.append($('<span class="title" title="' + site.tooltip + '" />').text(site.description));

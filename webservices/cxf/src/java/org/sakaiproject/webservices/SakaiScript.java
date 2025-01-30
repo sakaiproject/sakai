@@ -75,6 +75,7 @@ import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.userauditservice.api.UserAuditService;
 import org.sakaiproject.util.ArrayUtil;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Web;
@@ -474,30 +475,52 @@ public class SakaiScript extends AbstractWebService {
             Locale localeParam = LocaleUtils.toLocale(locale);
             if(!LocaleUtils.isAvailableLocale(localeParam)){
                 log.warn("WS changeUserLocale(): Locale not available");
-                return "";
+                return "error : Locale not available";
             }
         } catch(Exception e){
-            log.error("WS changeUserLocale(): " + e.getClass().getName() + " : " + e.getMessage());
-            return e.getClass().getName() + " : " + e.getMessage();
+            log.warn("WS changeUserLocale(): {}", e.toString());
+            return "error : " + e.getMessage();
         }
 
-        UserEdit userEdit = null;
-        PreferencesEdit prefs = null;
+        String userId = null;
         try {
             User user = userDirectoryService.getUserByEid(eid);
-            
-            try {
-                prefs = (PreferencesEdit) preferencesService.edit(user.getId());
-            } catch (IdUnusedException e1) {
-                prefs = (PreferencesEdit) preferencesService.add(user.getId());
-            }
-            ResourcePropertiesEdit props = prefs.getPropertiesEdit(ResourceLoader.APPLICATION_ID);
-            props.addProperty(ResourceLoader.LOCALE_KEY, locale);
-            preferencesService.commit(prefs);
+            userId = user.getId();
         } catch (Exception e) {
-            preferencesService.cancel(prefs);
-            log.error("WS changeUserLocale(): " + e.getClass().getName() + " : " + e.getMessage());
-            return e.getClass().getName() + " : " + e.getMessage();
+            log.warn("WS changeUserLocale(): {}", e.toString());
+            return "error : " + e.getMessage();
+        }
+
+        PreferencesEdit preference = null;
+        if (userId != null) {
+            try {
+                try {
+                    preference = preferencesService.edit(userId);
+                } catch (IdUnusedException iue) {
+                    preference = preferencesService.add(userId);
+                }
+            } catch (Exception e) {
+                log.warn("Could not get the preferences for user [{}], {}", userId, e.toString());
+                return "error : " + e.getMessage();
+            }
+        } else {
+            return "error : User not found with eid [" + eid + "]";
+        }
+
+        if (preference != null) {
+            try {
+                ResourcePropertiesEdit props = preference.getPropertiesEdit(ResourceLoader.APPLICATION_ID);
+                props.addProperty(ResourceLoader.LOCALE_KEY, locale);
+            } catch (Exception e) {
+                log.warn("WS changeUserLocale(): {}", e.toString());
+                preferencesService.cancel(preference);
+                preference = null;
+                return "error : " + e.getMessage();
+            } finally {
+                if (preference != null) preferencesService.commit(preference);
+            }
+        } else {
+            return "error : could not set locale for user [" + eid + "]";
         }
         return "success";
     }
@@ -1241,6 +1264,9 @@ public class SakaiScript extends AbstractWebService {
             String userid = userDirectoryService.getUserByEid(eid).getId();
             site.addMember(userid, roleid, true, false);
             siteService.saveSiteMembership(site);
+
+            List<String[]> userAuditList = Collections.singletonList(new String[]{siteid,userid,roleid,UserAuditService.USER_AUDIT_ACTION_ADD,userAuditRegistration.getDatabaseSourceKey(),userDirectoryService.getCurrentUser().getId()});
+            userAuditRegistration.addToUserAuditing(userAuditList);
         } catch (Exception e) {
             log.error("WS addMemberToSiteWithRole(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
@@ -1279,11 +1305,18 @@ public class SakaiScript extends AbstractWebService {
         try {
             Site site = siteService.getSite(siteid);
             List<String> eidsList = Arrays.asList(eids.split(","));
+            List<String[]> userAuditList = new ArrayList<String[]>();
             for (String eid : eidsList) {
                 String userid = userDirectoryService.getUserByEid(eid).getId();
                 site.addMember(userid,roleid,true,false);
+                String[] userAuditString = {siteid,userid,roleid,UserAuditService.USER_AUDIT_ACTION_ADD,userAuditRegistration.getDatabaseSourceKey(),userDirectoryService.getCurrentUser().getId()};
+                userAuditList.add(userAuditString);
             }
             siteService.save(site);
+            if (!userAuditList.isEmpty())
+            {
+                userAuditRegistration.addToUserAuditing(userAuditList);
+            }
         }
         catch (Exception e) {
             log.error("WS addMemberToSiteWithRoleBatch(): " + e.getClass().getName() + " : " + e.getMessage());
@@ -2660,8 +2693,10 @@ public class SakaiScript extends AbstractWebService {
         try {
             Site site = siteService.getSite(siteid);
             String userid = userDirectoryService.getUserByEid(eid).getId();
+            List<String[]> userAuditList = Collections.singletonList(new String[]{siteid,userid,site.getUserRole(userid).getId(),UserAuditService.USER_AUDIT_ACTION_REMOVE,userAuditRegistration.getDatabaseSourceKey(),userDirectoryService.getCurrentUser().getId()});
             site.removeMember(userid);
             siteService.saveSiteMembership(site);
+            userAuditRegistration.addToUserAuditing(userAuditList);
         } catch (Exception e) {
             log.error("WS removeMemberFromSite(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
@@ -2698,11 +2733,15 @@ public class SakaiScript extends AbstractWebService {
         try {
             Site site = siteService.getSite(siteid);
             List<String> eidsList = Arrays.asList(eids.split(","));
+            List<String[]> userAuditList = new ArrayList<String[]>();
             for (String eid : eidsList) {
                 String userid = userDirectoryService.getUserByEid(eid).getId();
+                String[] userAuditString = {siteid,userid,site.getUserRole(userid).getId(),UserAuditService.USER_AUDIT_ACTION_REMOVE,userAuditRegistration.getDatabaseSourceKey(),userDirectoryService.getCurrentUser().getId()};
                 site.removeMember(userid);
+                userAuditList.add(userAuditString);
             }
             siteService.save(site);
+            userAuditRegistration.addToUserAuditing(userAuditList);
         } catch (Exception e) {
             log.error("WS removeMemberFromSiteBatch(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
@@ -3835,11 +3874,9 @@ public class SakaiScript extends AbstractWebService {
                 throw new RuntimeException("WS copyResources(): Permission denied. Must be super user to copy a site in which you are not a maintainer.");
             }
 
-            //transfer content
-            transferCopyEntities(
-                    "sakai.resources",
-                    contentHostingService.getSiteCollection(sourcesiteid),
-                    contentHostingService.getSiteCollection(destinationsiteid));
+            Map<String, List<String>> toolsToImport = new HashMap<>();
+            toolsToImport.put("sakai.resources", Arrays.asList(new String[]{sourcesiteid}));
+            siteManageService.importToolsIntoSiteThread(site, Collections.EMPTY_LIST, toolsToImport, Collections.EMPTY_MAP, Collections.EMPTY_MAP, false);
 
         } catch (Exception e) {
             log.error("WS copyResources(): " + e.getClass().getName() + " : " + e.getMessage());
@@ -4255,8 +4292,8 @@ public class SakaiScript extends AbstractWebService {
         try {
 
             //check if both sites exist
-            Site site = siteService.getSite(sourcesiteid);
-            site = siteService.getSite(destinationsiteid);
+            Site sourceSite = siteService.getSite(sourcesiteid);
+            Site site = siteService.getSite(destinationsiteid);
 
             //check if super user
             boolean isSuperUser = false;
@@ -4270,8 +4307,8 @@ public class SakaiScript extends AbstractWebService {
                 throw new RuntimeException("WS copySiteContent(): Permission denied. Must be super user to copy a site in which you are not a maintainer.");
             }
 
-            List<SitePage> pages = site.getPages();
-            Set<String> toolIds = new HashSet();
+            List<SitePage> pages = sourceSite.getPages();
+            Map<String, List<String>> toolsToImport = new HashMap<>();
             for (SitePage page : pages) {
 
                 //get tools in page
@@ -4291,36 +4328,17 @@ public class SakaiScript extends AbstractWebService {
                         }
 
                         //skip this tool if not visible, ultimately hiding the whole page
-                        if (!toolManager.isVisible(site, toolConfig)) {
+                        if (!toolManager.isVisible(sourceSite, toolConfig)) {
                             includePage = false;
                             break;
                         }
                     }
-                    toolIds.add(toolConfig.getToolId());
+                    toolsToImport.put(toolConfig.getToolId(), Arrays.asList(new String[]{sourcesiteid}));
                 }
             }
 
-            for (String toolId : toolIds)
-            {
-                Map<String,String> entityMap;
-                Map transversalMap = new HashMap();
-                
-        		if (!toolId.equalsIgnoreCase("sakai.resources"))
-        		{
-        			entityMap = transferCopyEntities(toolId, sourcesiteid, destinationsiteid);
-        		}
-        		else
-        		{
-        			entityMap = transferCopyEntities(toolId, contentHostingService.getSiteCollection(sourcesiteid), contentHostingService.getSiteCollection(destinationsiteid));
-        		}
-        		
-        		if(entityMap != null)
-        		{
-        			transversalMap.putAll(entityMap);
-        		}
+            siteManageService.importToolsIntoSiteThread(site, Collections.EMPTY_LIST, toolsToImport, Collections.EMPTY_MAP, Collections.EMPTY_MAP, true);
 
-                updateEntityReferences(toolId, destinationsiteid, transversalMap, site);
-            }
         } catch (Exception e) {
             log.error("WS copySiteContent(): " + e.getClass().getName() + " : " + e.getMessage(), e);
             return e.getClass().getName() + " : " + e.getMessage();
@@ -4348,8 +4366,6 @@ public class SakaiScript extends AbstractWebService {
     		@WebParam(name = "toolid", partName = "toolid") @QueryParam("toolid") String toolid)
     {
     	Session session = establishSession(sessionid);
-    	Set<String> toolsCopied = new HashSet<String>();
-    	Map transversalMap = new HashMap();
 
     	try
     	{
@@ -4364,22 +4380,9 @@ public class SakaiScript extends AbstractWebService {
     			throw new RuntimeException("WS copySiteContentForTool(): Permission denied. Must be super user to copy a site in which you are not a maintainer.");
     		}
 
-    		Map<String,String> entityMap;
-    		if (!toolid.equalsIgnoreCase("sakai.resources"))
-    		{
-    			entityMap = transferCopyEntities(toolid, sourcesiteid, destinationsiteid);
-    		}
-    		else
-    		{
-    			entityMap = transferCopyEntities(toolid, contentHostingService.getSiteCollection(sourcesiteid), contentHostingService.getSiteCollection(destinationsiteid));
-    		}
-    		
-    		if(entityMap != null)
-    		{
-    			transversalMap.putAll(entityMap);
-    		}
-
-    		updateEntityReferences(toolid, destinationsiteid, transversalMap, site);
+    		Map<String, List<String>> toolsToImport = new HashMap<>();
+    		toolsToImport.put(toolid, Arrays.asList(new String[]{sourcesiteid}));
+			siteManageService.importToolsIntoSiteThread(site, Collections.EMPTY_LIST, toolsToImport, Collections.EMPTY_MAP, Collections.EMPTY_MAP, true);
     	}
     	catch (Exception e)
     	{
@@ -4389,170 +4392,6 @@ public class SakaiScript extends AbstractWebService {
     	return "success";
     }
 
-    /**
-     * Transfer a copy of all entites from another context for any entity
-     * producer that claims this tool id.
-     *
-     * @param toolId      The tool id.
-     * @param fromContext The context to import from.
-     * @param toContext   The context to import into.
-     */
-	protected Map transferCopyEntities(String toolId, String fromContext, String toContext) {
-
-		Map transversalMap = new HashMap();
-
-		// offer to all EntityProducers
-		for (EntityProducer ep : entityManager.getEntityProducers()) {
-			if (ep instanceof EntityTransferrer) {
-				try {
-					EntityTransferrer et = (EntityTransferrer) ep;
-
-					// if this producer claims this tool id
-					if (ArrayUtil.contains(et.myToolIds(), toolId)) {
-						Map<String,String> entityMap = et.transferCopyEntities(fromContext, toContext, new ArrayList<String>(), null, true);
-						if (entityMap != null) {
-							transversalMap.putAll(entityMap);
-						}
-					}
-				} catch (Throwable t) {
-					log.warn("Error encountered while asking EntityTransfer to transferCopyEntities from: " + fromContext + " to: " + toContext, t);
-				}
-			}
-		}
-
-		// record direct URL for this tool in old and new sites, so anyone using the URL in HTML text will
-		// get a proper update for the HTML in the new site
-		// Some tools can have more than one instance. Because getTools should always return tools
-		// in order, we can assume that if there's more than one instance of a tool, the instances
-		// correspond
-
-		Site fromSite = null;
-		Site toSite = null;
-		Collection<ToolConfiguration> fromTools = null;
-		Collection<ToolConfiguration> toTools = null;
-		try
-		{
-			fromSite = siteService.getSite(fromContext);
-			toSite = siteService.getSite(toContext);
-			fromTools = fromSite.getTools(toolId);
-			toTools = toSite.getTools(toolId);
-		}
-		catch (Exception e)
-		{
-			log.warn("transferCopyEntities: can't get site:" + e.getMessage());
-		}
-
-		// getTools appears to return tools in order. So we should be able to match them
-		if (fromTools != null && toTools != null)
-		{
-			Iterator<ToolConfiguration> toToolIt = toTools.iterator();
-			for (ToolConfiguration fromTool: fromTools)
-			{
-				if (toToolIt.hasNext())
-				{
-					ToolConfiguration toTool = toToolIt.next();
-					String fromUrl = serverConfigurationService.getPortalUrl() + "/directtool/" + Web.escapeUrl(fromTool.getId()) + "/";
-					String toUrl = serverConfigurationService.getPortalUrl() + "/directtool/" + Web.escapeUrl(toTool.getId()) + "/";
-					if (transversalMap.get(fromUrl) == null)
-					{
-						transversalMap.put(fromUrl, toUrl);
-					}
-					if (shortenedUrlService.shouldCopy(fromUrl))
-					{
-						fromUrl = shortenedUrlService.shorten(fromUrl, false);
-						toUrl = shortenedUrlService.shorten(toUrl, false);
-						if (fromUrl != null && toUrl != null)
-						{
-							transversalMap.put(fromUrl, toUrl);
-						}
-					}
-				}
-				else
-				{
-					break;
-				}
-			}
-		}
-
-		return transversalMap;
-	}
-    
-    
-    protected void updateEntityReferences(String toolId, String toContext, Map transversalMap, Site newSite)
-    {
-		if (toolId.equalsIgnoreCase("sakai.iframe.site"))
-		{
-			updateSiteInfoToolEntityReferences(transversalMap, newSite);
-		}
-		else
-		{		
-			for (Iterator i = entityManager.getEntityProducers().iterator(); i.hasNext();)
-			{
-				EntityProducer ep = (EntityProducer) i.next();
-				if (ep instanceof EntityTransferrer)
-				{
-					try
-					{
-						EntityTransferrer et = (EntityTransferrer) ep;
-
-						// if this producer claims this tool id
-						if (ArrayUtil.contains(et.myToolIds(), toolId))
-						{
-							et.updateEntityReferences(toContext, transversalMap);
-						}
-					}
-					catch (Throwable t)
-					{
-						log.error("Error encountered while asking EntityTransfer to updateEntityReferences at site: " + toContext, t);
-					}
-				}
-			}
-		}
-	}
-    
-	private void updateSiteInfoToolEntityReferences(Map transversalMap, Site newSite)
-	{
-		if(transversalMap != null && transversalMap.size() > 0 && newSite != null)
-		{
-			Set<Entry<String, String>> entrySet = (Set<Entry<String, String>>) transversalMap.entrySet();
-			
-			String msgBody = newSite.getDescription();
-			if(msgBody != null && !"".equals(msgBody))
-			{
-				boolean updated = false;
-				Iterator<Entry<String, String>> entryItr = entrySet.iterator();
-				while(entryItr.hasNext())
-				{
-					Entry<String, String> entry = (Entry<String, String>) entryItr.next();
-					String fromContextRef = entry.getKey();
-					if(msgBody.contains(fromContextRef))
-					{
-						msgBody = msgBody.replace(fromContextRef, entry.getValue());
-						updated = true;
-					}
-				}	
-				if(updated)
-				{
-					//update the site b/c some tools (Lessonbuilder) updates the site structure (add/remove pages) and we don't want to
-					//over write this
-					try
-					{
-						newSite = siteService.getSite(newSite.getId());
-						newSite.setDescription(msgBody);
-						siteService.save(newSite);
-					}
-					catch (IdUnusedException e) {
-						// TODO:
-					}
-					catch (PermissionException p)
-					{
-						// TODO:
-					}
-				}
-			}
-		}
-	}
-    
     /**
      * Get any subsites for a given site
      *
@@ -5139,22 +4978,46 @@ public class SakaiScript extends AbstractWebService {
             throw new RuntimeException("WS setUserTimeZone(): Permission denied. Restricted to super users.");
         }
 
+        String userId = null;
         try {
             User user = userDirectoryService.getUserByEid(eid);
-            PreferencesEdit prefs = null;
-            try {
-                prefs = preferencesService.edit(user.getId());
-            } catch (Exception e1) {
-                prefs = preferencesService.add(user.getId());
-            }
-
-            ResourcePropertiesEdit props = prefs.getPropertiesEdit(timeService.APPLICATION_ID);
-            props.addProperty(timeService.TIMEZONE_KEY, timeZoneId);
-            preferencesService.commit(prefs);
-
+            userId = user.getId();
         } catch (Exception e) {
-            log.error("WS setUserTimeZone(): " + e.getClass().getName() + " : " + e.getMessage(), e);
-            return e.getClass().getName() + " : " + e.getMessage();
+            log.warn("WS setUserTimeZone() could not fetch user with eid [{}]: {}", eid, e.toString());
+            return "error : " + e.getMessage();
+        }
+
+        PreferencesEdit preference = null;
+        if (userId != null) {
+            try {
+                try {
+                    preference = preferencesService.edit(userId);
+                } catch (IdUnusedException iue) {
+                    preference = preferencesService.add(userId);
+                }
+            } catch (Exception e) {
+                log.warn("Could not get the preferences for user [{}], {}", userId, e.toString());
+                return "error : " + e.getMessage();
+            }
+        } else {
+            return "error : User not found with eid [" + eid + "]";
+        }
+
+        if (preference != null) {
+            try {
+                ResourcePropertiesEdit props = preference.getPropertiesEdit(timeService.APPLICATION_ID);
+                props.addProperty(timeService.TIMEZONE_KEY, timeZoneId);
+            } catch (Exception e) {
+                log.warn("WS setUserTimeZone(): could not set timezone for user [{}], {}", eid, e.toString());
+                preferencesService.cancel(preference);
+                preference = null;
+                return "error : " + e.getMessage();
+            } finally {
+                if (preference != null) preferencesService.commit(preference);
+            }
+        } else {
+            log.warn("WS setUserTimeZone() could not fetch preferences for user [{}]", eid);
+            return "error : could not set timezone for user [" + eid + "]";
         }
         return "success";
     }
@@ -5199,6 +5062,9 @@ public class SakaiScript extends AbstractWebService {
             }
             userMember.setActive(active);
             authzGroupService.save(realmEdit);
+
+            List<String[]> userAuditList = Collections.singletonList(new String[]{siteid,user.getId(),"s",UserAuditService.USER_AUDIT_ACTION_UPDATE,userAuditRegistration.getDatabaseSourceKey(),userDirectoryService.getCurrentUser().getId()});
+            userAuditRegistration.addToUserAuditing(userAuditList);
         } catch (Exception e) {
             log.error("WS changeSiteMemberStatus(): " + e.getClass().getName() + " : " + e.getMessage(), e);
             return e.getClass().getName() + " : " + e.getMessage();

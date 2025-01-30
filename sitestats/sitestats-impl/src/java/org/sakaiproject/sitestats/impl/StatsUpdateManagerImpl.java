@@ -15,10 +15,13 @@
  */
 package org.sakaiproject.sitestats.impl;
 
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -26,9 +29,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Optional;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -65,6 +77,7 @@ import org.sakaiproject.sitestats.api.event.EventRegistryService;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
 import org.sakaiproject.sitestats.api.event.detailed.DetailedEvent;
 import org.sakaiproject.sitestats.api.parser.EventParserTip;
+import org.sakaiproject.sitestats.api.presence.Presence;
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
@@ -109,7 +122,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	private Map<String, LessonBuilderStat>			lessonBuilderStatMap	= Collections.synchronizedMap(new HashMap<>());
 	private Map<String, SiteActivity>				activityMap				= Collections.synchronizedMap(new HashMap<>());
 	private Map<String, SiteVisits>					visitsMap				= Collections.synchronizedMap(new HashMap<>());
-	private Map<String, SitePresenceConsolidation>	presencesMap			= Collections.synchronizedMap(new HashMap<>());
+	private Map<SitePresenceKey, SitePresenceRecord>presencesMap			= Collections.synchronizedMap(new HashMap<>());
 	private Map<UniqueVisitsKey, Integer>			uniqueVisitsMap			= Collections.synchronizedMap(new HashMap<>());
 	private Map<String, ServerStat>					serverStatMap			= Collections.synchronizedMap(new HashMap<>());
 	private Map<String, UserStat>					userStatMap				= Collections.synchronizedMap(new HashMap<>());
@@ -511,10 +524,11 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			}
 			String eventId = e.getEvent();
 			String resourceRef = e.getResource();
-			if(userId == null || eventId == null || resourceRef == null) {
+			String sessionId = e.getSessionId();
+			if(userId == null || eventId == null || resourceRef == null || sessionId == null) {
 				return;
 			}
-			consolidateEvent(date, eventId, resourceRef, userId, siteId);
+			consolidateEvent(date, eventId, resourceRef, userId, siteId, sessionId);
 		} else if(getServerEvents().contains(e.getEvent()) && !isMyWorkspaceEvent(e)){
 			
 			//it's a server event
@@ -567,7 +581,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	 *
 	 * @param dateTime Can this be <code>null</code>?
 	 */
-	private void consolidateEvent(Date dateTime, String eventId, String resourceRef, String userId, String siteId) {
+	private void consolidateEvent(Date dateTime, String eventId, String resourceRef, String userId, String siteId, String sessionId) {
 		if(eventId == null)
 			return;
 
@@ -704,11 +718,12 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				}
 			}
 		} else if(StatsManager.SITEVISIT_EVENTID.equals(eventId)){
-			// add to visitsMap
-			String key = siteId+date;
+			String visitsKey = siteId + date;
+			SitePresenceKey sitePresenceKey = SitePresenceKey.builder().siteId(siteId).userId(userId).sessionId(sessionId).build();
 			lock.lock();
 			try{
-				SiteVisits e1 = visitsMap.get(key);
+				// Populate visits map
+				SiteVisits e1 = visitsMap.get(visitsKey);
 				if(e1 == null){
 					e1 = new SiteVisitsImpl();
 					e1.setSiteId(siteId);
@@ -717,63 +732,40 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				e1.setTotalVisits(e1.getTotalVisits() + 1);
 				// unique visits are determined when updating to db:
 				//	 --> e1.setTotalUnique(totalUnique);
-				visitsMap.put(key, e1);
+				visitsMap.put(visitsKey, e1);
 				// place entry on map so we can update unique visits later
 				UniqueVisitsKey keyUniqueVisits = new UniqueVisitsKey(siteId, date);
 				uniqueVisitsMap.put(keyUniqueVisits, Integer.valueOf(1));
-				
-				// site presence started
+
+				// Populate presence map with begin events
 				if(statsManager.getEnableSitePresences()) {
-					String pKey = siteId+userId+date;
-					SitePresenceConsolidation spc = presencesMap.get(pKey);
-					if(spc == null) {
-						SitePresence sp = new SitePresenceImpl();
-						sp.setSiteId(siteId);
-						sp.setUserId(userId);
-						sp.setDate(date);
-						spc = new SitePresenceConsolidation(sp);
-					}
-					spc.sitePresence.setLastVisitStartTime(dateTime);
-					presencesMap.put(pKey, spc);					
+					SitePresenceRecord beginningPresence = SitePresenceRecord.builder()
+							.siteId(siteId)
+							.userId(userId)
+							.begin(dateTime.toInstant())
+							.build();
+					presencesMap.put(sitePresenceKey, beginningPresence);
 				}
 			}finally{
 				lock.unlock();
 			}
-			
 		}else if(StatsManager.SITEVISITEND_EVENTID.equals(eventId) && statsManager.getEnableSitePresences()){
 			// site presence ended
-			String pKey = siteId+userId+date;
+			SitePresenceKey sitePresenceKey = SitePresenceKey.builder().siteId(siteId).userId(userId).sessionId(sessionId).build();
 			lock.lock();
 			try{
-				SitePresenceConsolidation spc = presencesMap.get(pKey);
-				if(spc == null) {
-					Calendar c = Calendar.getInstance();
-					c.setTime(date);
-					c.add(Calendar.DATE, -1);
-					Date dateOneDayBefore = c.getTime();
-					pKey = siteId+userId+dateOneDayBefore;
-					spc = presencesMap.get(pKey);
+				// Populate presence map with end events
+				SitePresenceRecord existingPresence = presencesMap.get(sitePresenceKey);
+				if(existingPresence != null) {
+					existingPresence.setEnd(dateTime.toInstant());
+				} else {
+					SitePresenceRecord endingPresence = SitePresenceRecord.builder()
+							.siteId(siteId)
+							.userId(userId)
+							.end(dateTime.toInstant())
+							.build();
+					presencesMap.put(sitePresenceKey, endingPresence);
 				}
-				if(spc == null) {
-					SitePresence sp = new SitePresenceImpl();
-					sp.setSiteId(siteId);
-					sp.setUserId(userId);
-					sp.setDate(date);
-					sp.setLastVisitStartTime(null);
-					spc = new SitePresenceConsolidation(sp, dateTime);
-				}
-				if(spc.sitePresence.getLastVisitStartTime() != null) {
-					long existingDuration = spc.sitePresence.getDuration();
-					long start = spc.sitePresence.getLastVisitStartTime().getTime();
-					long thisEventTime = dateTime.getTime();
-					long additionalDuration = thisEventTime - start;
-					if(additionalDuration > 4*60*60*1000) {
-						log.warn("A site presence is longer than 4h!: duration="+(additionalDuration/1000/60)+" min (SITE:"+siteId+", USER:"+userId+", DATE:"+date+")");
-					}
-					spc.sitePresence.setDuration(existingDuration + additionalDuration);
-					spc.sitePresence.setLastVisitStartTime(null);
-				}
-				presencesMap.put(pKey, spc);
 			}finally{
 				lock.unlock();
 			}
@@ -930,10 +922,10 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 
                     // do: SitePresences
                     if(presencesMap.size() > 0) {
-                        Collection<SitePresenceConsolidation> tmp6 = null;
+                        Collection<SitePresenceRecord> tmp6 = null;
                         synchronized(presencesMap){
                             tmp6 = presencesMap.values();
-                            presencesMap = Collections.synchronizedMap(new HashMap<String, SitePresenceConsolidation>());
+                            presencesMap = Collections.synchronizedMap(new HashMap<SitePresenceKey, SitePresenceRecord>());
                         }
                         doUpdateSitePresencesObjects(session, tmp6);
                     }
@@ -1350,64 +1342,171 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		return map;
 	}
 	
-	private void doUpdateSitePresencesObjects(Session session, Collection<SitePresenceConsolidation> o) {
+	private void doUpdateSitePresencesObjects(Session session, Collection<SitePresenceRecord> o) {
 		if(o == null) return;
-		List<SitePresenceConsolidation> objects = new ArrayList<>(o);
-		Collections.sort(objects);
-		Iterator<SitePresenceConsolidation> i = objects.iterator();
-		while(i.hasNext()){
-			try{
-				SitePresenceConsolidation spc = i.next();
-				SitePresence sp = spc.sitePresence;
-				SitePresence spExisting = doGetSitePresence(session, sp.getSiteId(), sp.getUserId(), sp.getDate());
-				if(spExisting == null) {
-					// Should we be doing this save if this is an end event?
-					session.save(sp);
-					if (!spc.firstEventIsPresEnd) {
-						doUpdateSitePresenceTotal(session, sp);
+		List<SitePresenceRecord> objects = new ArrayList<>(o);
+
+		Map<SitePresenceKey, List<SitePresenceRecord>> presencesByUserAndSite = objects.stream()
+				.collect(Collectors.groupingBy(SitePresenceRecord::getKey));
+
+		for (Map.Entry<SitePresenceKey, List<SitePresenceRecord>> userSitePresencesEntry : presencesByUserAndSite.entrySet()) {
+			String siteId = userSitePresencesEntry.getKey().getSiteId();
+			String userId = userSitePresencesEntry.getKey().getUserId();
+			int key = userSitePresencesEntry.getKey().hashCode();
+			List<SitePresenceRecord> allUserSitePresences = userSitePresencesEntry.getValue();
+
+			for (int i = 0; i < allUserSitePresences.size(); i++) {
+				log.debug("k{} p{}: {}", key, i, allUserSitePresences.get(i));
+			}
+
+			Collections.sort(allUserSitePresences);
+
+			Optional<Instant> savedBegin = doGetSavedBegin(session, siteId, userId);
+
+			List<SitePresenceRecord> validUserSitePresences = new ArrayList<>();
+
+			boolean hasEndingPresence = false;
+
+			// For ending events presences fill in the saved being time
+			for (SitePresenceRecord presenceConsolidation : allUserSitePresences) {
+				if (presenceConsolidation.isEnding()) {
+					if (savedBegin.isPresent()) {
+						presenceConsolidation.setBegin(savedBegin.get());
 					} else {
-						// TODO Should deal with midnight crossing.
-						// Should we at least warn that we've just got a end event without a start.
-						log.warn("Found an end event without a corresponding start event");
+						// Ending presence but no saved begin date; Log and skip it
+						log.warn("Presence end at {} without saved begin time for siteId [{}]and userId [{}]",
+								presenceConsolidation.getEnd().atZone(ZoneId.systemDefault()).toLocalDateTime().toString(), siteId, userId);
+						continue;
 					}
-				}else{
-					long previousTotalPresence = spExisting.getDuration();
-					long previousPresence = 0;
-					long newTotalPresence;
-					if(spc.firstEventIsPresEnd) {
-						if (spExisting.getLastVisitStartTime() != null) {
-							previousPresence = spc.firstPresEndDate.getTime() - spExisting.getLastVisitStartTime().getTime();
-						} else {
-							log.info("No initial visit start time found for {} in {}, skipping", sp.getSiteId(), sp.getUserId());
-							continue;
-						}
-					} 
-					newTotalPresence = previousTotalPresence + previousPresence + sp.getDuration();
-					spExisting.setDuration(newTotalPresence);				
-					spExisting.setLastVisitStartTime(sp.getLastVisitStartTime());
-					session.update(spExisting);
-					if (!spc.firstEventIsPresEnd) {
-						doUpdateSitePresenceTotal(session, spExisting);
+
+					hasEndingPresence = true;
+				} else if (presenceConsolidation.isComplete()) {
+					hasEndingPresence = true;
+				}
+
+				// Add the valid beginning and complete presences
+				validUserSitePresences.add(presenceConsolidation);
+			}
+
+			// Valid presences should have ony complete and beginning events
+			// Get fist begin time of open unclosed session
+			Optional<Instant> firstBeginningPresenceBegin = validUserSitePresences.stream()
+					.filter(SitePresenceRecord::isBeginning)
+					.sorted(SitePresenceRecord.BY_BEGIN_ASC)
+					.findFirst()
+					.map(SitePresenceRecord::getBegin);
+
+			Optional<Instant> lastStart;
+			log.debug("k{} hasEndingPresence: {}", key, hasEndingPresence);
+			if (hasEndingPresence) {
+				Optional<Instant> lastEndingOrCompletePresenceEnd = validUserSitePresences.stream()
+						.filter(Predicate.not(SitePresenceRecord::isBeginning))
+						.sorted(SitePresenceRecord.BY_END_ASC.reversed())
+						.findFirst()
+						.map(SitePresenceRecord::getEnd);
+
+				// Get either fitst begin or last end, depending on what is later and what is present, else null
+				lastStart = Stream.of(firstBeginningPresenceBegin, lastEndingOrCompletePresenceEnd)
+						.flatMap(Optional::stream)
+						.sorted(Comparator.<Instant>naturalOrder().reversed())
+						.findFirst();
+
+				// The beginning presences will end at some point and will use this last start
+				// For now we need to consider the beginning presence as complete until that point
+				// This means we fill in lastStart for the end of beginning presences
+				for (SitePresenceRecord presenceConsolidation : validUserSitePresences) {
+					if (presenceConsolidation.isBeginning()) {
+						presenceConsolidation.setEnd(lastStart.get());								
 					}
 				}
-			}catch(HibernateException e){
-				log.warn("Probably db error when loading data at java object", e);
-			}catch(Exception e){
-				log.warn("Exception while consolidating presence events", e);
+			} else {
+				lastStart = savedBegin.or(() -> firstBeginningPresenceBegin);
+			}
+
+			log.debug("k{} lastStart: {}", key, lastStart);
+
+			// To process the complete events we need to filter and sort them
+			List<Presence> completeUserSitePresences = validUserSitePresences.stream()
+					.filter(SitePresenceRecord::isComplete)
+					.sorted(SitePresenceRecord.BY_BEGIN_ASC)
+					.collect(Collectors.toList());
+
+			PresenceConsolidation presenceConsolidation = new PresenceConsolidation();
+			presenceConsolidation.addAll(completeUserSitePresences);
+
+			Map<Instant, PresenceConsolidation> consolidationByDay = presenceConsolidation.mapByDay();
+			consolidationByDay.forEach((day, consodation) -> {
+				Long durationMillis = consodation.getDuration().toMillis();
+				// TODO: log the duration we are saving here
+				log.debug("k{} saving duration: {}", key, durationMillis);
+
+				SitePresence sitePresence = SitePresenceImpl.builder()
+						.siteId(siteId)
+						.userId(userId)
+						.duration(durationMillis)
+						.date(Date.from(day))
+						.lastVisitStartTime(lastStart.map(Date::from).orElse(null))
+						.build();
+
+				doUpdateSitePresence(session, sitePresence);
+				doUpdateSitePresenceTotal(session, sitePresence);
+			});
+
+			// There might be beginning presences on a date that was not saved above, so save them separately
+			List<SitePresenceRecord> unsavedBeginningPresences = validUserSitePresences.stream()
+					.filter(Presence::isBeginning)
+					.filter(presence -> !consolidationByDay.containsKey(presence.getDay()))
+					.collect(Collectors.toList());
+
+			for (SitePresenceRecord unsavedBeginningPresence : unsavedBeginningPresences) {
+				log.debug("k{} saving beginning presence with laststart {}", key, lastStart);
+				SitePresence sitePresence = SitePresenceImpl.builder()
+						.siteId(siteId)
+						.userId(userId)
+						.duration(0)
+						.date(Date.from(unsavedBeginningPresence.getDay()))
+						.lastVisitStartTime(lastStart.map(Date::from).orElse(null))
+						.build();
+
+				doUpdateSitePresence(session, sitePresence);
+				doUpdateSitePresenceTotal(session, sitePresence);
 			}
 		}
 	}
 
-	private void doUpdateSitePresenceTotal(Session session, SitePresence sp) throws Exception {
+	private void doUpdateSitePresence(Session session, SitePresence sitePresence) {
+		SitePresence existingPresence = doGetSitePresence(session, sitePresence.getSiteId(), sitePresence.getUserId(), sitePresence.getDate());
+		try {
+			if (existingPresence == null) {
+				// Save new presence
+				session.save(sitePresence);
+			} else {
+				// Update existing presence
+				long totalDuration = existingPresence.getDuration() + sitePresence.getDuration();
+				existingPresence.setDuration(totalDuration);
+				existingPresence.setLastVisitStartTime(sitePresence.getLastVisitStartTime());
+				session.update(existingPresence);
+			}
+		} catch (HibernateException e) {
+			log.error("Could not persist site presence for siteId [{}], userId [{}] and date [{}] due to: {}",
+					sitePresence.getSiteId(), sitePresence.getUserId(), sitePresence.getDate(), ExceptionUtils.getStackTrace(e));
+		}
+	}
+
+	private void doUpdateSitePresenceTotal(Session session, SitePresence sp) {
 		SitePresenceTotal sptExisting = doGetSitePresenceTotal(session, sp.getSiteId(), sp.getUserId());
-		if (sptExisting == null) {
-			SitePresenceTotal spt = new SitePresenceTotalImpl(sp);
-			session.save(spt);
-		} else {
-			sptExisting.incrementTotalVisits();
-			Date lastVisit = sp.getLastVisitStartTime() != null ? sp.getLastVisitStartTime() : sp.getDate();
-			sptExisting.setLastVisitTime(lastVisit);
-			session.update(sptExisting);
+		try {
+			if (sptExisting == null) {
+				SitePresenceTotal spt = new SitePresenceTotalImpl(sp);
+				session.save(spt);
+			} else {
+				sptExisting.incrementTotalVisits();
+				sptExisting.setLastVisitTime(sp.getLastVisitStartTime());
+				session.update(sptExisting);
+			}
+		} catch (HibernateException e) {
+			log.error("Could not persist site presence total for siteId [{}], userId [{}] and date [{}] due to: {}",
+					sp.getSiteId(), sp.getUserId(), sp.getDate(), ExceptionUtils.getStackTrace(e));
 		}
 	}
 
@@ -1442,6 +1541,30 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			log.debug("Probably db error when loading data at java object", ex2);
 		}
 		return eDb;
+	}
+
+	private Optional<Instant> doGetSavedBegin(Session session, String siteId, String userId) {
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<SitePresenceImpl> cq = cb.createQuery(SitePresenceImpl.class);
+		Root<SitePresenceImpl> root = cq.from(SitePresenceImpl.class);
+		cq.select(root);
+			cq.where(cb.and(
+			cb.equal(root.get("siteId"), siteId),
+			cb.equal(root.get("userId"), userId)
+		));
+
+		// Order by date in descending order to get the latest date
+		cq.orderBy(cb.desc(root.get("date")));
+
+		try {
+			return session.createQuery(cq).setMaxResults(1).uniqueResultOptional()
+					.map(SitePresence::getLastVisitStartTime)
+					.map(Date::toInstant);
+		} catch (HibernateException e) {
+			log.error("Could not get last start date for siteId [{}] and userId [{}] due to: {}",
+					siteId, userId, ExceptionUtils.getStackTrace(e));
+			return Optional.empty();
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -1540,7 +1663,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		if(statsManager.isEventContextSupported()) {
 			String contextId = null;
 			try{
-				contextId = (String) e.getClass().getMethod("getContext", null).invoke(e, null);
+				contextId = (String) e.getClass().getMethod("getContext", (Class<?>[]) null).invoke(e, (Object[]) null);
 				// STAT-150 fix:
 				String sitePrefix = "/site/";
 				if(contextId != null && contextId.startsWith(sitePrefix)) {
@@ -1676,7 +1799,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		public int hashCode() {
 			return siteId.hashCode() + date.hashCode();
 		}
-		
+
 		private Date resetToDay(Date date){
 			Calendar c = Calendar.getInstance();
 			c.setTime(date);
@@ -1692,65 +1815,4 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	 * This is used to hold the summary of a set of SitePresence objects in memory before
 	 * they get written out to the DB later.
 	 */
-	private static class SitePresenceConsolidation implements Comparable<SitePresenceConsolidation>{
-	    // Used to track if we never saw the presence start.
-		public boolean firstEventIsPresEnd;
-		public Date firstPresEndDate;
-		public SitePresence sitePresence;
-		
-		public SitePresenceConsolidation(SitePresence sitePresence) {
-			this(sitePresence, null);
-		}
-
-		/**
-		 * @param firstPresEndDate The date of the end of the first site presence and we never saw start. This may happen
-		 *                         when we process the start in one batch and end in another batch.
-		 */
-		public SitePresenceConsolidation(SitePresence sitePresence, Date firstPresEndDate) {
-			this.sitePresence = sitePresence;
-			if(firstPresEndDate == null) {
-				this.firstEventIsPresEnd = false;
-				this.firstPresEndDate = null;
-			}else{
-				this.firstEventIsPresEnd = true;
-				this.firstPresEndDate = firstPresEndDate;
-			}
-		}
-
-		@Override
-		public int compareTo(SitePresenceConsolidation other) {
-			int val = sitePresence.compareTo(other.sitePresence);
-			if (val != 0) return val;
-			val = NullSafeComparator.NULLS_HIGH.compare(firstPresEndDate, other.firstPresEndDate);
-			if (val != 0) return val;
-			return (firstEventIsPresEnd?1:0) - (other.firstEventIsPresEnd?1:0);
-		}
-
-		@Override
-		public boolean equals(Object o) {
-			if(o instanceof SitePresenceConsolidation) {
-				SitePresenceConsolidation u = (SitePresenceConsolidation) o;
-				return firstEventIsPresEnd == u.firstEventIsPresEnd
-					&& ( (firstPresEndDate == null && u.firstPresEndDate == null) || (firstPresEndDate != null && firstPresEndDate.equals(u.firstPresEndDate)) )
-					&& ( (sitePresence == null && u.sitePresence == null) || (sitePresence != null && sitePresence.equals(u.sitePresence)) );
-			}
-			return false;
-		}
-
-		@Override
-		public int hashCode() {
-			return Boolean.valueOf(firstEventIsPresEnd).hashCode() + firstPresEndDate.hashCode() + sitePresence.hashCode();
-		}
-		
-		@Override
-		public String toString() {
-			StringBuilder buff = new StringBuilder();
-			buff.append("firstPresEndDate: ");
-			buff.append(firstPresEndDate);
-			buff.append(" | sitePresence => ");
-			if(sitePresence != null) buff.append(sitePresence.toString());
-			else buff.append("null");
-			return buff.toString();
-		}
-	}
 }

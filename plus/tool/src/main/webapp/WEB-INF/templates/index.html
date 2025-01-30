@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    [(${sakaiHtmlHead})]
+  </head>
+  <body onload="setMainFrameHeight('Mainmercuryx710');setFocus(focus_path);"   class="Mrphs-container Mrphs-sakai-plus">
+    <div class="portletBody">
+        <h1 th:text="#{plus.tool.title.tenants}">About SakaiPlus</h1>
+        <p th:unless="${enabled}" th:text="#{plus.tool.not.enabled}" class="sak-banner-error">Not Enabled</p>
+        <p th:text="#{plus.tool.tenants.detail}">Tenants</p>
+        <p>
+        (<a href="https://github.com/sakaiproject/sakai/blob/master/plus/README.md" target="_blank" th:text="#{plus.tool.documentation.url}">SakaiPlus Documentation</a>)
+        </p>
+        <p><a class="btn btn-primary" th:href="@{/create}" th:text="#{plus.tool.addtenant}">Add Tenant</a></p>
+        <div th:if="${flashError}" class="sak-banner-error">
+            <p th:text="${flashError}" >Placeholder</p>
+        </div>
+        <div th:if="${flashSuccess}" class="sak-banner-success">
+            <p th:text="${flashSuccess}">Placeholder</p>
+        </div>
+        <ul>
+        <li th:each="tenant: ${tenants}">
+            <a th:href="@{/tenant/{id}(id=${tenant.id})}">
+            <span th:text="${tenant.title}">Sakai</span></a>
+            <span th:text="${tenant.issuer}">Issuer</span>
+            <span th:if="${tenant.isDraft}" th:text="#{plus.tool.tenant.draft}">(draft)</span>
+            <a th:href="@{/edit/{id}(id=${tenant.id})}" th:text="#{plus.tool.edit}">Edit</a>
+            |
+            <a th:href="@{/delete/{id}(id=${tenant.id})}" th:text="#{plus.tool.delete}">Delete</a>
+        </li>
+        </ul>
+    </div>
+  </body>
+</html>

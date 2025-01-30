@@ -26,6 +26,7 @@ import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -46,6 +47,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Observable;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
@@ -85,11 +87,16 @@ import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tasks.api.Priorities;
+import org.sakaiproject.tasks.api.Task;
+import org.sakaiproject.tasks.api.TaskService;
+import org.sakaiproject.tasks.api.UserTaskAdapterBean;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.BaseResourceProperties;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Xml;
 import org.sakaiproject.util.api.FormattedText;
@@ -125,6 +132,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     @Autowired private SessionManager sessionManager;
     @Autowired private ServerConfigurationService serverConfigurationService;
     @Autowired private SiteService siteService;
+    @Autowired private TaskService taskService;
     @Resource(name = "org.sakaiproject.time.api.UserTimeService")
     private UserTimeService userTimeService;
     @Autowired private UserDirectoryService userDirectoryService;
@@ -217,6 +225,61 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         }
         Assert.assertNotNull(assignment);
         Assert.assertEquals(assignmentId, assignment.getId());
+    }
+
+    @Test
+    public void getAssignmentsForContextStudentsCantViewFutureAssignments() {
+    	String context = UUID.randomUUID().toString();
+    	
+    	Site site = mock(Site.class);
+    	Collection<Group> siteGroups = new HashSet<>();
+    	Set<String> groupARef = new HashSet<>();
+    	Group groupA = mock(Group.class);
+    	String groupAId = UUID.randomUUID().toString();
+    	when(groupA.getId()).thenReturn(groupAId);
+    	when(groupA.getReference()).thenReturn("/site/" + context + "/group/" + groupAId);
+    	siteGroups.add(groupA);
+    	groupARef.add(groupA.getReference());
+    	when(site.getGroups()).thenReturn(siteGroups);
+    	try {
+    		when(siteService.getSite(context)).thenReturn(site);
+    	} catch (IdUnusedException e) {
+    		Assert.fail("missing mock site\n" + e.toString());
+    	}
+    	
+    	createNewFutureAssignment(context);
+        
+		when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference())).thenReturn(false);
+        Collection assignments = assignmentService.getAssignmentsForContext(context);
+        Assert.assertNotNull(assignments);
+        Assert.assertEquals(0, assignments.size());
+    }
+
+    @Test
+    public void getAssignmentsForContextInstructorsCanViewFutureAssignments() {
+    	String context = UUID.randomUUID().toString();
+    	
+    	Site site = mock(Site.class);
+    	Collection<Group> siteGroups = new HashSet<>();
+    	Set<String> groupARef = new HashSet<>();
+    	Group groupA = mock(Group.class);
+    	String groupAId = UUID.randomUUID().toString();
+    	when(groupA.getId()).thenReturn(groupAId);
+    	when(groupA.getReference()).thenReturn("/site/" + context + "/group/" + groupAId);
+    	siteGroups.add(groupA);
+    	groupARef.add(groupA.getReference());
+    	when(site.getGroups()).thenReturn(siteGroups);
+    	try {
+    		when(siteService.getSite(context)).thenReturn(site);
+    	} catch (IdUnusedException e) {
+    		Assert.fail("missing mock site\n" + e.toString());
+    	}
+    	
+    	createNewFutureAssignment(context);
+
+        Collection assignments = assignmentService.getAssignmentsForContext(context);
+        Assert.assertNotNull(assignments);
+        Assert.assertEquals(1, assignments.size());
     }
 
     @Test
@@ -694,7 +757,6 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
         Map<String, String> submissionProperties = submission.getProperties();
 
-        String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
         String submissionReference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
         when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION, submissionReference)).thenReturn(true);
         when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT_SUBMISSION, submissionReference)).thenReturn(true);
@@ -747,26 +809,6 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         assignment.setDueDate(null);
         Assert.assertEquals(AssignmentConstants.SubmissionStatus.RETURNED, assignmentService.getSubmissionCanonicalStatus(submission, false));
 
-        // submission is Submitted | DateSubmitted exists | submission is Returned | DateReturned after DateSubmitted | resubmission is allowed = RESUBMISSION PENDING
-        submission.setSubmitted(true);
-        submission.setDateSubmitted(now);
-        submission.setReturned(true);
-        submission.setDateReturned(submission.getDateSubmitted().plus(1, ChronoUnit.DAYS));
-        submission.setGraded(false);
-        submissionProperties.put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, "1");
-        assignment.setDueDate(null);
-        Assert.assertEquals(AssignmentConstants.SubmissionStatus.RETURNED_PENDING_RESUBMIT, assignmentService.getSubmissionCanonicalStatus(submission, false));
-
-        // submission is Submitted | DateSubmitted exists | submission is Returned | DateReturned exists | DateReturned before DateSubmitted | submission is Graded | resubmission is allowed = RESUBMISSION PENDING
-        submission.setSubmitted(true);
-        submission.setDateSubmitted(now);
-        submission.setReturned(true);
-        submission.setDateReturned(submission.getDateSubmitted().minus(1, ChronoUnit.DAYS));
-        submission.setGraded(true);
-        submissionProperties.put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, "1");
-        assignment.setDueDate(null);
-        Assert.assertEquals(AssignmentConstants.SubmissionStatus.RETURNED_PENDING_RESUBMIT, assignmentService.getSubmissionCanonicalStatus(submission, false));
-
         // submission is Submitted | DateSubmitted exists | submission not Returned | submission is Graded | User can Grade | Grade exists = GRADED
         submission.setSubmitted(true);
         submission.setDateSubmitted(now);
@@ -777,15 +819,17 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         assignment.setDueDate(null);
         Assert.assertEquals(AssignmentConstants.SubmissionStatus.GRADED, assignmentService.getSubmissionCanonicalStatus(submission, true));
 
-        // submission is Submitted | DateSubmitted exists | submission not Returned | submission is Graded | User can Grade | Grade not exists = COMMENTED
+        // submission is Submitted | DateSubmitted exists | submission not Returned | submission is Graded | User can Grade | Comment exists | Grade not exists = COMMENTED
         submission.setSubmitted(true);
         submission.setDateSubmitted(now);
         submission.setReturned(false);
         submission.setDateReturned(null);
         submission.setGraded(true);
         submission.setGrade(null);
+        submission.setFeedbackComment("Graders comment");
         assignment.setDueDate(null);
         Assert.assertEquals(AssignmentConstants.SubmissionStatus.COMMENTED, assignmentService.getSubmissionCanonicalStatus(submission, true));
+        submission.setFeedbackComment(null);
 
         // submission is Submitted | DateSubmitted exists | submission not Returned | User can't Grade = SUBMITTED
         submission.setSubmitted(true);
@@ -828,15 +872,17 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         assignment.setDueDate(null);
         Assert.assertEquals(AssignmentConstants.SubmissionStatus.GRADED, assignmentService.getSubmissionCanonicalStatus(submission, true));
 
-        // submission is Submitted | DateSubmitted not exists | submission not Returned | submission is Graded | User can Grade | Grade not exists = COMMENTED
+        // submission is Submitted | DateSubmitted not exists | submission not Returned | submission is Graded | User can Grade | Comment exists | Grade not exists = COMMENTED
         submission.setSubmitted(true);
         submission.setDateSubmitted(null);
         submission.setReturned(false);
         submission.setDateReturned(null);
         submission.setGraded(true);
         submission.setGrade(null);
+        submission.setFeedbackComment("Graders comment");
         assignment.setDueDate(null);
         Assert.assertEquals(AssignmentConstants.SubmissionStatus.COMMENTED, assignmentService.getSubmissionCanonicalStatus(submission, true));
+        submission.setFeedbackComment(null);
 
         // submission is Submitted | DateSubmitted not exists | submission not Returned | submission not Graded | User can't Grade | Assignment is HonorPledge | Submission is HonorPledge = HONOR_ACCEPTED
         submission.setSubmitted(true);
@@ -935,12 +981,14 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         submission.setGrade("1000");
         Assert.assertEquals(AssignmentConstants.SubmissionStatus.GRADED, assignmentService.getSubmissionCanonicalStatus(submission, true));
 
-        // submission not Submitted | submission Graded | submission not Returned | User can Grade | Grade not exists = COMMENTED
+        // submission not Submitted | submission Graded | submission not Returned | User can Grade | Comment exists | Grade not exists = COMMENTED
         submission.setSubmitted(false);
         submission.setReturned(false);
         submission.setGraded(true);
+        submission.setFeedbackComment("Graders comment");
         submission.setGrade(null);
         Assert.assertEquals(AssignmentConstants.SubmissionStatus.COMMENTED, assignmentService.getSubmissionCanonicalStatus(submission, true));
+        submission.setFeedbackComment(null);
 
         // submission not Submitted | submission Graded | submission not Returned | User can't Grade = IN_PROGRESS
         submission.setSubmitted(false);
@@ -983,6 +1031,51 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         submission.setGraded(false);
         submission.setHonorPledge(false);
         Assert.assertEquals(AssignmentConstants.SubmissionStatus.IN_PROGRESS, assignmentService.getSubmissionCanonicalStatus(submission, false));
+
+        // submission is Submitted | DateSubmitted exists | submission is Returned | DateReturned after DateSubmitted | resubmission is allowed | NO resubmission close time = RESUBMIT_ALLOWED
+        submission.setSubmitted(true);
+        submission.setDateSubmitted(now);
+        submission.setReturned(true);
+        submission.setDateReturned(submission.getDateSubmitted().plus(1, ChronoUnit.DAYS));
+        submission.setGraded(false);
+        submissionProperties.put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, "1");
+        assignment.setDueDate(null);
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.RESUBMIT_ALLOWED, assignmentService.getSubmissionCanonicalStatus(submission, false));
+
+        // submission is Submitted | DateSubmitted exists | submission is Returned | DateReturned exists | DateReturned before DateSubmitted | submission is Graded | resubmission is allowed | NO resubmission close time = RESUBMIT_ALLOWED
+        submission.setSubmitted(true);
+        submission.setDateSubmitted(now);
+        submission.setReturned(true);
+        submission.setDateReturned(submission.getDateSubmitted().minus(1, ChronoUnit.DAYS));
+        submission.setGraded(true);
+        submissionProperties.put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, "1");
+        assignment.setDueDate(null);
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.RESUBMIT_ALLOWED, assignmentService.getSubmissionCanonicalStatus(submission, false));
+
+        // submission is Submitted | DateSubmitted exists | submission is Returned | DateReturned after DateSubmitted | resubmission are allowed | resubmission close time has past = RETURNED
+        submission.setSubmitted(true);
+        submission.setDateSubmitted(now.minus(2, ChronoUnit.DAYS));
+        submission.setReturned(true);
+        submission.setDateReturned(submission.getDateSubmitted().plus(1, ChronoUnit.DAYS));
+        submission.setGraded(false);
+        assignment.setDueDate(now.minus(1, ChronoUnit.DAYS));
+        assignment.setCloseDate(now.minus(12, ChronoUnit.HOURS));
+        submissionProperties.put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, "1");
+        submissionProperties.put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME, String.valueOf(now.minus(1, ChronoUnit.HOURS).toEpochMilli()));
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.RETURNED, assignmentService.getSubmissionCanonicalStatus(submission, false));
+
+        // submission is Submitted | DateSubmitted exists | submission is Returned | DateReturned after DateSubmitted | resubmission are allowed | resubmission close time has past | assignment close date is after resubmission accept until date = RETURNED
+        submission.setSubmitted(true);
+        submission.setDateSubmitted(now.minus(2, ChronoUnit.DAYS));
+        submission.setReturned(true);
+        submission.setDateReturned(submission.getDateSubmitted().plus(1, ChronoUnit.DAYS));
+        submission.setGraded(false);
+        assignment.setDueDate(now.minus(1, ChronoUnit.DAYS));
+        assignment.setCloseDate(now.plus(12, ChronoUnit.HOURS));
+        submissionProperties.put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, "1");
+        submissionProperties.put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME, String.valueOf(now.minus(1, ChronoUnit.HOURS).toEpochMilli()));
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.RESUBMIT_ALLOWED, assignmentService.getSubmissionCanonicalStatus(submission, false));
+
     }
 
     @Test
@@ -1038,12 +1131,6 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             subStatus = assignmentService.getSubmissionCanonicalStatus(submission, false);
             Assert.assertEquals(AssignmentConstants.SubmissionStatus.SUBMITTED, subStatus);
 
-            Map<String,Boolean> statuses = assignmentService.getProgressBarStatus(submission);
-            Map<String,Boolean> statusesAux = new LinkedHashMap<>();
-            statusesAux.put("In progress", true);
-            statusesAux.put("Submitted ", true);
-            statusesAux.put("Returned", false);
-            Assert.assertEquals(statuses, statusesAux);
         } catch (Exception e) {
             Assert.fail("Could not create/update submission\n" + e.toString());
         }
@@ -1344,64 +1431,108 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
     @Test
     public void canSubmit() {
-
         String context = UUID.randomUUID().toString();
+        Instant now = Instant.now();
+        String siteRef = "/site/" + context;
+        String user1 = "user1";
+
         Assignment assignment = createNewAssignment(context);
 
-        String userId = "user1";
-        when(sessionManager.getCurrentSessionUserId()).thenReturn(userId);
-
-        Assert.assertFalse(assignmentService.canSubmit(assignment));
-
-        String siteRef = "/site/" + context;
-
-        when(securityService.unlock(userId, AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, siteRef)).thenReturn(true);
-
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(user1);
         when(siteService.siteReference(context)).thenReturn(siteRef);
 
-        assignment.setOpenDate(Instant.now().plus(Period.ofDays(1)));
-        assignment.setCloseDate(Instant.now().plus(Duration.ofDays(3)));
-
+        // test if user has permission to submit to assignment
         Assert.assertFalse(assignmentService.canSubmit(assignment));
 
-        assignment.setOpenDate(Instant.now().minus(Period.ofDays(1)));
+        when(securityService.unlock(user1, AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, siteRef)).thenReturn(true);
+
+        // test future assignment no submission
+        assignment.setOpenDate(now.plus(Period.ofDays(1)));
+        assignment.setCloseDate(now.plus(Period.ofDays(3)));
+        Assert.assertFalse(assignmentService.canSubmit(assignment));
+
+        // test assignment is open no submission
+        assignment.setOpenDate(now.minus(Period.ofDays(1)));
         Assert.assertTrue(assignmentService.canSubmit(assignment));
 
-        assignment.setOpenDate(Instant.now().minus(Period.ofDays(2)));
-        assignment.setCloseDate(Instant.now().minus(Duration.ofDays(1)));
+        // test assignment is closed no submission
+        assignment.setOpenDate(now.minus(Period.ofDays(2)));
+        assignment.setCloseDate(now.minus(Period.ofDays(1)));
         Assert.assertFalse(assignmentService.canSubmit(assignment));
 
-        assignment.setOpenDate(Instant.now().minus(Period.ofDays(1)));
-        assignment.setCloseDate(Instant.now().plus(Duration.ofDays(3)));
 
         try {
-            AssignmentSubmission submission = createNewSubmission(context, userId, assignment);
+            // test open assignment with submission with no submission security
+            assignment.setOpenDate(now.minus(Period.ofDays(1)));
+            assignment.setCloseDate(now.plus(Period.ofDays(3)));
+            AssignmentSubmission submission = createNewSubmission(context, user1, assignment);
             Assert.assertFalse(assignmentService.canSubmit(assignment));
+
+            // test open assignment with submission with allowed submission security
             String reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
-            when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION, reference)).thenReturn(true);
+            when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, reference)).thenReturn(true);
             Assert.assertTrue(assignmentService.canSubmit(assignment));
 
-            String user2 = "user2";
-            when(sessionManager.getCurrentSessionUserId()).thenReturn(user2);
-            String addSubmissionRef = AssignmentReferenceReckoner.reckoner().context(context).subtype("s").reckon().getReference();
-            when(securityService.unlock(user2, AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, null)).thenReturn(true);
-
-            assignment.setOpenDate(Instant.now().minus(Period.ofDays(3)));
-            assignment.setCloseDate(Instant.now().minus(Duration.ofDays(1)));
+            // test assignment is closed with submission
+            assignment.setOpenDate(now.minus(Period.ofDays(3)));
+            assignment.setCloseDate(now.minus(Period.ofDays(1)));
             Assert.assertFalse(assignmentService.canSubmit(assignment));
 
-            submission = createNewSubmission(context, user2, assignment);
+            // test assignment closed, submission is never submitted and extension of 5 days in the future
+            submission.setDateSubmitted(null);
             submission.setSubmitted(false);
-            submission.setUserSubmission(false);
-            Map<String, String> props = submission.getProperties();
-            props.put(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME, Long.toString(Instant.now().plus(Duration.ofDays(5)).toEpochMilli()));
-
-            reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
-            when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, reference)).thenReturn(true);
+            submission.getProperties().put(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME, Long.toString(now.plus(Period.ofDays(5)).toEpochMilli()));
             assignmentService.updateSubmission(submission);
+            Assert.assertTrue(assignmentService.canSubmit(assignment));
+
+            // test assignment closed, submission is already submitted and extension of 5 days in the future
+            submission.setDateSubmitted(now.minus(6, ChronoUnit.HOURS));
+            submission.setSubmitted(true);
+            submission.getProperties().put(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME, Long.toString(now.plus(Period.ofDays(5)).toEpochMilli()));
+            assignmentService.updateSubmission(submission);
+            Assert.assertFalse(assignmentService.canSubmit(assignment));
         } catch (Exception e) {
-            Assert.fail("Could not create submission\n" + e.toString());
+            Assert.fail("Could not create submission\n" + e);
         }
+    }
+
+    @Test
+    public void createsTasksForNewlyAddedUser() {
+
+        String siteId = "xyz";
+
+        Assignment assignment = createNewAssignment(siteId);
+
+        String assignmentRef = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+
+        String studentId = "student1";
+        String userReference = "/user/" + studentId;
+        when(userDirectoryService.idFromReference(userReference)).thenReturn(studentId);
+
+        // Mock up an existing Task
+        Long taskId = 232L;
+        Task task = mock(Task.class);
+        when(task.getId()).thenReturn(taskId);;
+        when(taskService.getTask(assignmentRef)).thenReturn(Optional.of(task));
+
+        // Mock up an event, and then "fire" it
+        Event event = mock(Event.class);
+        when(event.getEvent()).thenReturn(SiteService.EVENT_USER_SITE_MEMBERSHIP_ADD);
+        when(event.getContext()).thenReturn(siteId);
+        when(event.getResource()).thenReturn(userReference);
+        when(event.getModify()).thenReturn(true);
+        assignmentEventObserver.update(null, event);
+
+        // Verify that getTask is called on our taskService mock
+        verify(taskService).getTask(assignmentRef);
+
+        UserTaskAdapterBean userTaskBean = new UserTaskAdapterBean();
+        userTaskBean.setTaskId(task.getId());
+        userTaskBean.setUserId(studentId);
+        userTaskBean.setPriority(Priorities.HIGH);
+
+        // Verify that createUserTask is called on our taskService mock, with the correct arguments
+        verify(taskService).createUserTask(task, userTaskBean);
     }
 
     private AssignmentSubmission createNewSubmission(String context, String submitterId, Assignment assignment) throws UserNotDefinedException, IdUnusedException {
@@ -1443,9 +1574,11 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         Site site = mock(Site.class);
         Group group = mock(Group.class);
         when(group.getReference()).thenReturn(groupRef);
+        when(group.getProperties()).thenReturn(new BaseResourceProperties());
         Collection<Group> groups = new HashSet<>();
         groups.add(group);
         when(site.getGroups()).thenReturn(groups);
+        when(site.getGroup(groupRef)).thenReturn(group);
         when(site.getGroup(groupSubmitter)).thenReturn(group);
         Set<Member> members = new HashSet<>();
         submitters.forEach(s -> {
@@ -1481,6 +1614,22 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             Assert.fail(e.toString());
         }
         return null;
+    }
+
+    private Assignment createNewFutureAssignment(String context) {
+        String contextReference = AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT, contextReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, contextReference)).thenReturn(true);
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(UUID.randomUUID().toString());
+        Assignment assignment = null;
+        try {
+            assignment = assignmentService.addAssignment(context);
+            assignment.setOpenDate(Instant.now().plusSeconds(300));
+            assignment.setVisibleDate(Instant.now().plusSeconds(300));
+        } catch (PermissionException e) {
+            Assert.fail(e.toString());
+        }
+        return assignment;
     }
 
     private Assignment createNewAssignment(String context) {

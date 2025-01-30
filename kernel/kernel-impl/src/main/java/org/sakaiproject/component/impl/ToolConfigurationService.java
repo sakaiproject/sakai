@@ -51,7 +51,7 @@ public class ToolConfigurationService {
     private Map<String, List<String>> m_toolOrders = new HashMap<>();
     private Map<String, List<String>> m_toolGroups = new HashMap<>(); // Map = [group1,{tool1,tool2,tool3}],[group2,{tool2,tool4}],[group3,{tool1,tool5}]
 
-    private Map<String, List<String>> m_toolGroupCategories = new HashMap<>(); // Map = [course,{group1, group2,group3}],[project,{group1, group3, group4}],[portfolio,{group4}]
+    private Map<String, List<String>> m_toolGroupCategories = new HashMap<>(); // Map = [course,{group1, group2,group3}],[project,{group1, group3, group4}]
 
     private Map<String, List<String>> m_toolGroupRequired = new HashMap<>();
 

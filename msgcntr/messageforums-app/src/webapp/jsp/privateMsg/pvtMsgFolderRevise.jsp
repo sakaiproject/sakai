@@ -2,7 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
-   <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.api.app.messageforums.bundle.Messages"/>
+   <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.api.app.messagecenter.bundle.Messages"/>
 </jsp:useBean>
 
 
@@ -30,7 +30,7 @@
 	</div>
 	
 		  <h:panelGrid styleClass="jsfFormTable" columns="2">
-			  <h:panelGroup styleClass="shorttext required">
+			  <h:panelGroup styleClass="shorttext required form-control-label">
 				  <h:outputLabel for="revised_title">
 				  <h:outputText value="#{msgs.pvt_star}" styleClass="reqStar"/>
 				  <h:outputText value="#{msgs.pvt_folder_title} #{msgs.pvt_colon}"/>

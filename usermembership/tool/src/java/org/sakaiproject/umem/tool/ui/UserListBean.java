@@ -252,13 +252,13 @@ public class UserListBean {
 						}else if(fieldName.equals(SORT_USER_CREATED_ON)){
 							Date s1 = r1.getCreatedOn();
 							Date s2 = r2.getCreatedOn();
-							int res = collator.compare(s1!=null? s1.toString():"", s2!=null? s2.toString():"");
+							int res = Long.compare(s1!=null? s1.getTime():0L, s2!=null? s2.getTime():0L);
 							if(sortAscending) return res;
 							else return -res;
 						}else if(fieldName.equals(SORT_USER_MODIFIED_ON)){
 							Date s1 = r1.getModifiedOn();
 							Date s2 = r2.getModifiedOn();
-							int res = collator.compare(s1!=null? s1.toString():"", s2!=null? s2.toString():"");
+							int res = Long.compare(s1!=null? s1.getTime():0L, s2!=null? s2.getTime():0L);
 							if(sortAscending) return res;
 							else return -res;
 						}else if(fieldName.equals(SORT_INTERNAL_USER_ID)){

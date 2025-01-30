@@ -21,6 +21,7 @@
 
 package org.sakaiproject.tool.assessment.facade;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
@@ -224,7 +225,7 @@ public interface AssessmentFacadeQueriesAPI {
   
     public String getAssessmentCreatedBy(String assessmentId);
 
-    public void copyAllAssessments(String fromContext, String toContext, Map<String,String> transversalMap);
+    public void copyAllAssessments(String fromContext, String toContext, List<String> ids, Map<String,String> transversalMap);
 	
 	public void copyAssessment(String assessmentId, String appendCopyTitle);
 	
@@ -248,4 +249,6 @@ public interface AssessmentFacadeQueriesAPI {
     public List<AssessmentData> getDeletedAssessments(String siteId);
 
     public void restoreAssessment(Long assessmentId);
+
+    public Set<String> getDuplicateItemHashesForAssessmentIds(Collection<Long> assessmentIds);
 }

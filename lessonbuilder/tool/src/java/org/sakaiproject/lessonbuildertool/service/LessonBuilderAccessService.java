@@ -52,6 +52,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -697,7 +698,17 @@ public class LessonBuilderAccessService {
 							rfc1123Date.setTimeZone(TimeZone.getTimeZone("GMT"));
 							res.addHeader("Last-Modified", rfc1123Date.format(lastModTime));
 						}
-						
+
+						// There is a problem embedding wav files and using the "audio/vnd.wave" mime type
+						// as the audio is rendered twice, on an <audio> tag and on an <object> tag for preventing
+						// the audio player tag could not work for that type of file, "audio/vnd.wave" mime type
+						// is being embedding before checking if it is a playable file for the audio player.
+						// changing the mime type to "audio/x-wav" will prevent the download of the file.
+						// "audio/vnd.wave", "audio/wav" and "audio/x-wav" should aslo get included into "content.mime.inline" property
+						if (StringUtils.equalsIgnoreCase(contentType, "audio/vnd.wave")) {
+							contentType = "audio/x-wav";
+						}
+
 						// 	for url resource type, encode a redirect to the body URL
 						// in 2.10 have to check resourcetype, but in previous releasese
 						// it doesn't get copied in site copy, so check content type. 10 doesn't set the contenttype to url
@@ -853,6 +864,7 @@ public class LessonBuilderAccessService {
 							return;
 						}
 						else if (ServerConfigurationService.getBoolean("cloud.content.directurl", true)) {
+							res.addHeader("Content-Length", "0");
 							res.sendRedirect(directLinkUri.toString());
 							return;
 						}

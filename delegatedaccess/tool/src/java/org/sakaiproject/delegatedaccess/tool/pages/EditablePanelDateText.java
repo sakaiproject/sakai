@@ -23,7 +23,6 @@ import javax.swing.tree.TreeNode;
 
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
 
@@ -32,7 +31,7 @@ public class EditablePanelDateText extends Panel{
 	public EditablePanelDateText(String id, IModel inputModel, final NodeModel nodeModel, final TreeNode node, final boolean startDate) {
 		super(id);
 
-		IModel<String> labelModel = new AbstractReadOnlyModel<String>() {
+		IModel<String> labelModel = new IModel<String>() {
 			@Override
 			public String getObject() {
 				Date date = null;

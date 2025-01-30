@@ -15,12 +15,10 @@
  */
 package org.sakaiproject.grading.api;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 import org.sakaiproject.section.api.facade.Role;
-import org.sakaiproject.grading.api.GradingCategoryType;
 import org.sakaiproject.grading.api.model.Permission;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 
@@ -92,7 +90,7 @@ public interface GradingPermissionService {
    * @throws IllegalArgumentException
    * @return Map of student IDs with grade/view as function value
    */
-    public Map<String, String> getStudentsForItem(Long gradebookId, String userId, List<String> studentIds, GradingCategoryType cateType, Long categoryId, List<CourseSection> courseSections) throws IllegalArgumentException;
+    public Map<String, String> getStudentsForItem(Long gradebookId, String userId, List<String> studentIds, Integer cateType, Long categoryId, List<CourseSection> courseSections) throws IllegalArgumentException;
 
 /**
    * Get students IDs that the current grader can either view or grade.
@@ -110,7 +108,7 @@ public interface GradingPermissionService {
    * @throws IllegalArgumentException
    * @return Map of student IDs with grade/view as function value
    */
-    public Map<String, String> getStudentsForItem(String gradebookUid, String userId, List<String> studentIds, GradingCategoryType cateType, Long categoryId, List<CourseSection> courseSections) throws IllegalArgumentException;
+    public Map<String, String> getStudentsForItem(String gradebookUid, String userId, List<String> studentIds, Integer cateType, Long categoryId, List<CourseSection> courseSections) throws IllegalArgumentException;
 
 
   /**

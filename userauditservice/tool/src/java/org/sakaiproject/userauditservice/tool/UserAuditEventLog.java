@@ -46,6 +46,8 @@ import org.sakaiproject.jsf2.util.LocaleUtil;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.userauditservice.api.UserAuditRegistration;
 import org.sakaiproject.userauditservice.api.UserAuditService;
 import org.sakaiproject.util.ResourceLoader;
@@ -68,6 +70,7 @@ public class UserAuditEventLog {
 	private transient SqlService sqlService = (SqlService) ComponentManager.get(SqlService.class.getName());
 	private transient UserAuditRegistration userAuditRegistration = (UserAuditRegistration) ComponentManager.get(UserAuditRegistration.class.getName());
 	private transient UserAuditService userAuditService = (UserAuditService) ComponentManager.get(UserAuditService.class.getName());
+	private transient UserDirectoryService userDirectoryService = (UserDirectoryService) ComponentManager.get(UserDirectoryService.class.getName());
 	private transient SiteService siteService = (SiteService) ComponentManager.get(SiteService.class.getName());
 	private transient ToolManager toolManager = (ToolManager) ComponentManager.get(ToolManager.class.getName());
 	private transient SessionManager sessionManager = (SessionManager) ComponentManager.get(SessionManager.class.getName());
@@ -205,8 +208,7 @@ public class UserAuditEventLog {
 			{
 				if (uar.getDatabaseSourceKey().equals(source))
 				{
-					String[] params = new String[] {actionUserEid};
-					sourceText = uar.getSourceText(params);
+					sourceText = uar.getSourceText(actionUserEid);
 					break;
 				}
 				else
@@ -247,11 +249,17 @@ public class UserAuditEventLog {
 				while (result.next())
 				{
 					String userId = result.getString("user_id");
+					String actionUserId = result.getString("action_user_id");
+					try {
+						userId = userDirectoryService.getUserEid(result.getString("user_id"));
+						actionUserId = userDirectoryService.getUserEid(result.getString("action_user_id"));
+					} catch (UserNotDefinedException ex) {
+
+					}
 					String roleName = result.getString("role_name");
 					String actionTaken = result.getString("action_taken");
 					Timestamp auditStamp = result.getTimestamp("audit_stamp");
 					String source = result.getString("source");
-					String actionUserId = result.getString("action_user_id");
 
 					eventLog.add(new EventLog(userId,roleName,actionTaken,auditStamp,source,actionUserId));
 				}

@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.sakaiproject.sitemanage</groupId>
         <artifactId>sitemanage</artifactId>
-        <version>23-SNAPSHOT</version>
+        <version>25-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -15,9 +15,13 @@
     <packaging>war</packaging>
     <dependencies>
         <dependency>
-            <groupId>org.sakaiproject.basiclti</groupId>
-            <artifactId>basiclti-api</artifactId>
-            </dependency>
+            <groupId>org.sakaiproject.lti</groupId>
+            <artifactId>lti-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.lti</groupId>
+            <artifactId>lti-common</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-api</artifactId>
@@ -87,6 +91,12 @@
             <groupId>org.apache.xmlgraphics</groupId>
             <artifactId>fop</artifactId>
             <version>1.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- This old version of xmlgraphics-commons is needed to support Manage Participants > Printable View.
@@ -96,6 +106,12 @@
             <groupId>org.apache.xmlgraphics</groupId>
             <artifactId>xmlgraphics-commons</artifactId>
             <version>1.5</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -170,6 +186,10 @@
         <dependency>
             <groupId>org.sakaiproject.rubrics</groupId>
             <artifactId>rubrics-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.scheduler</groupId>
+            <artifactId>scheduler-api</artifactId>
         </dependency>
     </dependencies>
     

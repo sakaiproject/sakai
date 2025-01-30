@@ -29,6 +29,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.sakaiproject.exception.ImportException;
 import org.sakaiproject.time.api.TimeService;
@@ -186,7 +188,7 @@ public abstract class Reader
 		 * This is the callback that is called for each row.
 		 * @param columnIterator Iterator for a collection of CSVReaderImportCell for this row.
 		 */
-		void handleRow(Iterator columnIterator) throws ImportException;
+		void handleRow(Iterator<ReaderImportCell> columnIterator) throws ImportException;
 	}
 	
 	/**
@@ -234,40 +236,29 @@ public abstract class Reader
 	{
 		this.columnHeaderMap = columnHeaderMap;
 	}
-	
-	/**
-	 * Split a line into a list of CSVReaderImportCell objects.
-	 * @param columnDescriptionArray
-	 * @param lineNumber
-	 * @param columns
-	 */
-	protected Iterator processLine(
-		ColumnHeader[] columnDescriptionArray,
-		int lineNumber,
-		String[] columns)
-	{
-		List list = new ArrayList();
 
-		for (int i = 0; i < columns.length; i++)
-		{
-			if ( i >= columnDescriptionArray.length )
-			{
-				continue;
-			}
-			else
-			{
-				list.add(
-					new ReaderImportCell(
+	/**
+	 * Split a line into a list of cells.
+	 * @param columnDescriptionArray the column names
+	 * @param lineNumber the line number of this line
+	 * @param columns event data
+	 * @return an iterator for the line's cells
+	 */
+	protected Iterator<ReaderImportCell> processLine(ColumnHeader[] columnDescriptionArray, int lineNumber, String[] columns)
+	{
+		List<ReaderImportCell> list = IntStream.range(0, columns.length)
+				.filter(i -> i < columnDescriptionArray.length)
+				.mapToObj(i -> new ReaderImportCell(
 						lineNumber,
 						i,
 						columns[i],
 						columnDescriptionArray[i].getColumnProperty(),
-						columnDescriptionArray[i].getColumnHeader()));
-			}
-		}
+						columnDescriptionArray[i].getColumnHeader()))
+				.collect(Collectors.toList());
 
-		return list.iterator();
+        return list.iterator();
 	}
+
 	/**
 	 * Utility routine to get a BufferedReader
 	 * @param stream
@@ -310,7 +301,7 @@ public abstract class Reader
 	 * @param tzid
 	 * @throws ImportException
 	 */
-	abstract public List filterEvents(List events, String[] customFieldNames, ZoneId tzid) throws ImportException;
+	abstract public List<Map<String, Object>> filterEvents(List<Map<String, Object>> events, String[] customFieldNames, ZoneId tzid) throws ImportException;
 
 	/**
 	 * Derived classes must provide a default mapping of text column header labels in the import file to

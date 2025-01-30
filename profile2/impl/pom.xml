@@ -10,7 +10,7 @@
 	<parent>
 		<groupId>org.sakaiproject.profile2</groupId>
 		<artifactId>profile2</artifactId>
-	    <version>23-SNAPSHOT</version>
+	    <version>25-SNAPSHOT</version>
 	</parent>
 	<properties>
 		<deploy.target>components</deploy.target>
@@ -44,10 +44,6 @@
         <dependency>
 			<groupId>org.quartz-scheduler</groupId>
 			<artifactId>quartz</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.twitter4j</groupId>
-			<artifactId>twitter4j-core</artifactId>
 		</dependency>
 		<dependency>
       		<groupId>org.apache.commons</groupId>

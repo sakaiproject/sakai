@@ -34,6 +34,7 @@ import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
@@ -42,6 +43,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.cover.SessionManager;
 
 /**
  * <p>Title: Samigo</p>
@@ -70,6 +72,10 @@ public class ResetAssessmentAttachmentListener
 	  else{
 		  resetAssessmentAttachment(new ArrayList(), assessmentService);
 	  }
+
+	  ToolSession currentToolSession = SessionManager.getCurrentToolSession();
+	  currentToolSession.removeAttribute("NEW_ASSESSMENT_PREVIOUSLY_ASSOCIATED");
+
   }
 
   public void resetAssessmentAttachment(List attachmentList, AssessmentService assessmentService){

@@ -17,12 +17,16 @@ package org.sakaiproject.conversations.api.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Index;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import lombok.EqualsAndHashCode;
 import org.sakaiproject.conversations.api.Reaction;
 import org.sakaiproject.springframework.data.PersistableEntity;
 
@@ -35,6 +39,7 @@ import lombok.Setter;
     uniqueConstraints = { @UniqueConstraint(name = "UniqueTopicReactionTotals", columnNames = { "TOPIC_ID", "REACTION" }) })
 @Getter
 @Setter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class TopicReactionTotal implements PersistableEntity<Long> {
 
     @Id
@@ -42,9 +47,12 @@ public class TopicReactionTotal implements PersistableEntity<Long> {
     @Column(name = "ID")
     private Long id;
 
-    @Column(name = "TOPIC_ID", length = 36, nullable = false)
-    private String topicId;
+    @EqualsAndHashCode.Include
+    @JoinColumn(name = "TOPIC_ID")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private ConversationsTopic topic;
 
+    @EqualsAndHashCode.Include
     @Column(name = "REACTION", nullable = false)
     private Reaction reaction;
 

@@ -101,7 +101,7 @@ public class SakaiProxy {
         try {
             return userDirectoryService.getUser(userId);
         } catch (UserNotDefinedException unde) {
-            log.error("No user with id: " + userId + ". Returning null ...");
+            log.debug("No user with id: {}. Returning null ...", userId);
             return null;
         }
     }
@@ -120,7 +120,7 @@ public class SakaiProxy {
         try {
             return siteService.getSite(siteId);
         } catch (Exception e) {
-            log.error("Failed to get site for id : " + siteId + ". Returning null ...");
+            log.error("Failed to get site for id : {}. Returning null ...", siteId);
         }
 
         return null;
@@ -132,7 +132,7 @@ public class SakaiProxy {
             Site site = siteService.getSite(siteId);
             return site.getProperties().getProperty(name);
         } catch (Exception e) {
-            log.error("Failed to get property '" + name + "' for site : " + siteId + ". Returning null ...");
+            log.error("Failed to get property '{}' for site : {}. Returning null ...", name, siteId);
         }
 
         return null;
@@ -157,7 +157,7 @@ public class SakaiProxy {
             List<User> users = userDirectoryService.getUsers(userIds);
             for (User user : users) {
                 String email = user.getEmail();
-                if (email != null && email.length() > 0) {
+                if (email != null && !email.isEmpty()) {
                     map.put(user.getId(), user.getDisplayName());
                 }
             }
@@ -176,7 +176,7 @@ public class SakaiProxy {
 
 		final List<Attachment> attachments = new ArrayList<Attachment>();
 
-		if (fileItems.size() > 0) {
+		if (!fileItems.isEmpty()) {
 			for (FileItem fileItem : fileItems) {
 				attachments.add(new Attachment(new FileItemDataSource(fileItem)));
 			}
@@ -235,8 +235,7 @@ public class SakaiProxy {
             subjectTemplate = rb.getString("technical_email_subject_template");
         }
 
-        final String formattedSubject
-            = MessageFormat.format(subjectTemplate, new String[] {fromName});
+        final String formattedSubject = MessageFormat.format(subjectTemplate, fromName);
 
         final Site site = getSite(siteId);
 
@@ -250,8 +249,8 @@ public class SakaiProxy {
         final String instance = serverConfigurationService.getServerIdInstance();
 
         final String bodyTemplate = rb.getString("email_body_template");
-        String formattedBody
-            = MessageFormat.format(bodyTemplate, new String[]{noContactEmailMessage,
+        String formattedBody = MessageFormat.format(bodyTemplate,
+                noContactEmailMessage,
 		        userId,
 		        userEid,
 		        fromName,
@@ -270,7 +269,7 @@ public class SakaiProxy {
 		        plugins,
 		        ip,
 		        workerNode,
-		        currentTime});
+		        currentTime);
 
 
         if (feedbackType.equals(Constants.CONTENT)) {
@@ -322,7 +321,7 @@ public class SakaiProxy {
         // set the limit to whichever is the lowest.
         int contentUploadMax = getConfigInt("content.upload.max", ATTACH_MAX_DEFAULT);
         int feedbackAttachMax= getConfigInt("feedback.attach.max", ATTACH_MAX_DEFAULT);
-        int mb = (contentUploadMax < feedbackAttachMax) ? contentUploadMax : feedbackAttachMax;
+        int mb = Math.min(contentUploadMax, feedbackAttachMax);
 
         return mb;
     }

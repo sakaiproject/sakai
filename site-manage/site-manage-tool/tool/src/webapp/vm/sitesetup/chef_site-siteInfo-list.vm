@@ -24,12 +24,15 @@
 			e.preventDefault();
 			copyToClipboardNoScroll(this, $(this).attr('href'));
 		});
-		$('#publicInfoPopover').popover();
+
+		document.querySelector('#publicInfoPopover') && new bootstrap.Popover(document.querySelector('#publicInfoPopover'));
+
+		$('#publicInfoTooltip').tooltip();
+		$('#unjoinInfoTooltip').tooltip();
 	});
 </script>
 
 <div class ="portletBody specialLink container-fluid">
-	<div id="desc-modal"></div>
 	<div id="group-modal"></div>
 	#if($menu)#toolbar($menu)#end
 	## header for site info page
@@ -228,8 +231,8 @@
 					#else
 						$tlang.getString("sitegen.siteinfolist.no")
 					#end
-					<button id="publicInfoPopover" class="info-icon" data-trigger="hover focus" data-content='$tlang.getString("ediacc.dismysit.h")' aria-label='$tlang.getString("feat.more.info")'>
-						<span class="fa fa-info-circle"></span>
+					<button id="publicInfoPopover" class="info-icon" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content='$tlang.getString("ediacc.dismysit.h")' aria-label='$tlang.getString("feat.more.info")'>
+						<i class="si si-info-circle"></i>
 					</button>
 				</td>
 			</tr>
@@ -271,16 +274,16 @@
             </tr>
             #end			
 
-		#if ($isLessonsSubNavEnabledForSite)
-			<tr class="summary-lessons-subnav-enabled">
-				<th>
-					$tlang.getString("sinfo.lessonbuildersubnav.name")
-				</th>
-				<td>
-					$tlang.getString("sinfo.lessonbuildersubnav.enabled")
-				</td>
-			</tr>
-		#end
+            #if ($isSubPageNavEnabled)
+            <tr class="summary-subnav-enabled">
+                <th>
+                $tlang.getString("sinfo.subnav.name")
+                </th>
+                <td>
+                $tlang.getString("sinfo.subnav.enabled")
+                </td>
+            </tr>
+            #end
 
 		#if ($siteJoinable && $allowUnjoin)
 			<tr>
@@ -293,17 +296,6 @@
 						<input type="hidden" name="itemReference" value="$siteId"/>
 						<input type="submit" class="active" name="eventSubmit_doUnjoin" value="$tlang.getString("sitegen.siteinfolist.siteunjoin")" onclick="SPNR.disableControlsAndSpin( this, null );" />
 					</form>
-				</td>
-			</tr>
-		#end
-
-		#if (!$isPortalNeochatEnabledForSite)
-			<tr class="summary-portal-neochat-disabled">
-				<th>
-					$tlang.getString("sinfo.portalneochat.name")
-				</th>
-				<td>
-					$tlang.getString("sinfo.portalneochat.disabled")
 				</td>
 			</tr>
 		#end
@@ -321,6 +313,7 @@
 			## strip the HTML, trim by x chars, add an ellipsis and add a link to the full description
 			$siteTextEdit.doPlainTextAndLimit($desc,100,"$ell")
 			<a class="getSiteDesc" href="#" id="$!siteId">$tlang.getString("sinfo.list.desc.more")</a>
+			<div id="desc-modal_$!siteId"></div>
 		</div>
 		#end
 		#if ($!sections.size() > 0)
@@ -335,7 +328,9 @@
 							<th>$tlang.getString("sinfo.list.sections.title")</th>
 							<th>$tlang.getString("sinfo.list.groups.memb")</th>
 							<th>$tlang.getString("group.description")</th>
-							<th>$tlang.getString("sinfo.list.joinable.unjoin")</th>
+							#if ($!joinedJoinableGroups.size() > 0)
+								<th>$tlang.getString("sinfo.list.joinable.unjoin")</th>
+							#end
 						</tr>
 					</thead>
 					<tbody>
@@ -348,7 +343,7 @@
 							#if ($!viewRoster || $!viewMembershipGroups.contains($g.Id)) 
 
 							<td>
-								<span class="itemAction"><a href="#" class="moreInfoGroups" id ="$g.Id">$tlang.getString("sinfo.list.groups.memb.view")</a></span>
+								<span class="itemAction"><a href="#" class="moreInfoGroups btn-link" id ="$g.Id" role="button">$tlang.getString("sinfo.list.groups.memb.view")</a></span>
 							</td>
 
 							#end
@@ -358,31 +353,34 @@
 							</td>
 							#end
 
-							<td>
-
-							#set($ujgMember = false)
-							#set($ujgLocked = false)
-							#foreach($ujg in $!unjoinableGroups)
-								#if($ujg.Id == $g.Id)
-									#set($ujgMember = true)
-									#if ($ujg.Locked)
-										#set($ujgLocked = true)
+							#if ($!joinedJoinableGroups.size() > 0)
+								<td>
+								#set($jgUnjoinable = false)
+								#set($jgLocked = false)
+								#foreach($jg in $!joinedJoinableGroups)
+									#if($jg.Id == $g.Id)
+										#if ($jg.unjoinable)
+											#set($jgUnjoinable = true)
+										#end
+										#if ($jg.Locked)
+											#set($jgLocked = true)
+										#end
 									#end
 								#end
-							#end
-							#if ($ujgMember)
-								#if ($ujgLocked)
-									<span class="fa fa-fw fa-lock" aria-hidden="true"></span>
-									<span class="sr-only">$tlang.getString("sinfo.list.joinable.locked")</span>
-								#else
-									<form name="unjoinableSectionForm" class="inlineForm" method="post" action="#toolForm("unjoinable-set")">
-										<input type="hidden" name="group-ref" value="$g.reference" />
-										<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-										<input type="submit" name="eventSubmit_doUnjoinableSet" value="$tlang.getString("sinfo.list.joinable.unjoin")" title="$tlang.getString("sinfo.list.joinable.unjoin") $formattedText.escapeHtml($g.Title)" onclick="SPNR.disableControlsAndSpin( this, null );" />
-									</form>
+								#if ($jgUnjoinable)
+									#if ($jgLocked)
+										<span class="si si-locked" aria-hidden="true"></span>
+										<span class="sr-only">$tlang.getString("sinfo.list.joinable.locked")</span>
+									#else
+										<form name="unjoinableSectionForm" class="inlineForm" method="post" action="#toolForm("unjoinable-set")">
+											<input type="hidden" name="group-ref" value="$g.reference" />
+											<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+											<input type="submit" name="eventSubmit_doUnjoinableSet" value="$tlang.getString("sinfo.list.joinable.unjoin")" title="$tlang.getString("sinfo.list.joinable.unjoin") $formattedText.escapeHtml($g.Title)" onclick="SPNR.disableControlsAndSpin( this, null );" />
+										</form>
+									#end
 								#end
+								</td>
 							#end
-							</td>
 						</tr>
 					#end
 					</tbody>
@@ -404,7 +402,16 @@
 							<th>$tlang.getString("sinfo.list.groups.memb")</th>
 							#end
 							<th>$tlang.getString("group.description")</th>
-							<th>$tlang.getString("sinfo.list.joinable.unjoin")</th>
+							#if ($!joinedJoinableGroups.size() > 0)
+								<th>$tlang.getString("sinfo.list.joinable.joinable-set")</th>
+								<th>$tlang.getString("sinfo.list.joinable.opendate")</th>
+								<th>$tlang.getString("sinfo.list.joinable.closedate")</th>
+								<th>
+									$tlang.getString("sinfo.list.joinable.unjoin")
+									<span id="unjoinInfoTooltip" class="fa fa-info-circle" title="$tlang.getString("sinfo.list.joinable.unjoin.info")"
+											aria-label="$tlang.getString("sinfo.list.joinable.unjoin.info")"></span>
+								</th>
+							#end
 						</tr>
 					</thead>
 					<tbody>
@@ -431,30 +438,70 @@
 							#end
 							</td>
 
-							<td>
-								#set($ujgMember = false)
-								#set($ujgLocked = false)
-								#foreach($ujg in $!unjoinableGroups)
-									#if($ujg.Id == $g.Id)
-										#set($ujgMember = true)
-										#if ($ujg.Locked)
-											#set($ujgLocked = true)
+							#if ($!joinedJoinableGroups.size() > 0)
+
+								#set($jgName = "")
+								#set($jgOpenDate = "")
+								#set($jgCloseDate = "")
+								#set($jgInteractableByDate = false)
+								#set($jgEnrolled = false)
+								#set($jgUnjoinable = false)
+								#set($jgLocked = false)
+
+								#foreach($jg in $!joinedJoinableGroups)
+									#if($jg.Id == $g.Id)
+
+										#set($jgName = $jg.joinableSet)
+										#set($jgOpenDate = $jg.joinableOpenDate)
+										#set($jgCloseDate = $jg.joinableCloseDate)
+										#if ($jg.interactableByDate)
+											#set($jgInteractableByDate = true)
+										#end
+										#if ($jg.enrolled)
+											#set($jgEnrolled = true)
+										#end
+										#if ($jg.unjoinable)
+											#set($jgUnjoinable = true)
+										#end
+										#if ($jg.Locked)
+											#set($jgLocked = true)
 										#end
 									#end
 								#end
-								#if($ujgMember)
-									#if ($ujgLocked)
-										<span class="fa fa-fw fa-lock" aria-hidden="true"></span>
-										<span class="sr-only">$tlang.getString("sinfo.list.joinable.locked")</span>
-									#else
-										<form name="unjoinableGroupForm" class="inlineForm" method="post" action="#toolForm("unjoinable-set")">
-											<input type="hidden" name="group-ref" value="$g.reference" />
-											<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-											<input type="submit" name="eventSubmit_doUnjoinableSet" value="$tlang.getString("sinfo.list.joinable.unjoin")" title="$tlang.getString("sinfo.list.joinable.unjoin") $formattedText.escapeHtml($g.Title)" onclick="SPNR.disableControlsAndSpin( this, null );" />
-										</form>
+
+								<td>
+									<span>$formattedText.escapeHtml($jgName)</span>
+								</td>
+								<td>
+									<span>$formattedText.escapeHtml($jgOpenDate)</span>
+								</td>
+								<td>
+									<span>$formattedText.escapeHtml($jgCloseDate)</span>
+								</td>
+
+								<td>
+									#if ($jgEnrolled)
+										#if ($jgUnjoinable)
+											#if ($jgLocked)
+												<span class="si si-locked" aria-hidden="true"></span>
+												<span class="sr-only">$tlang.getString("sinfo.list.joinable.locked")</span>
+											#elseif ($jgInteractableByDate)
+												<form name="unjoinableGroupForm" class="inlineForm" method="post" action="#toolForm("unjoinable-set")">
+													<input type="hidden" name="group-ref" value="$g.reference" />
+													<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+													<input type="submit" name="eventSubmit_doUnjoinableSet" value="$tlang.getString("sinfo.list.joinable.unjoin")" title="$tlang.getString("sinfo.list.joinable.unjoin") $formattedText.escapeHtml($g.Title)" onclick="SPNR.disableControlsAndSpin( this, null );" />
+												</form>
+											#else
+												<span>$tlang.getString("sinfo.list.joinable.unjoin.notavailable")</span>
+											#end
+										#else
+											<span>$tlang.getString("sinfo.list.joinable.unjoin.notenabled")</span>
+										#end
+									#elseif ($jgName != "")
+										<span>$tlang.getString("sinfo.list.joinable.unjoin.notenrolled")</span>
 									#end
-								#end
-							</td>
+								</td>
+							#end
 						</tr>
 					#end
 					</tbody>
@@ -468,6 +515,9 @@
 				<span>#if ($!allowUpdate) $tlang.getString("sinfo.list.joinable.joinable-sets") #else $tlang.getString("sinfo.list.joinable.groups") #end</span>
 			</h4>
 			<div class="toggledContent">
+				<div class="sak-banner-info no-margin-top">
+					<span>$tlang.getString("sinfo.list.joinable.info")</span>
+				</div>
 				<table class="table table-striped table-bordered table-hover">
 					<thead>
 						<tr>
@@ -482,6 +532,12 @@
 							</th>
 							<th>
 								$tlang.getString("sinfo.list.joinable.members")
+							</th>
+							<th>
+								$tlang.getString("sinfo.list.joinable.opendate")
+							</th>
+							<th>
+								$tlang.getString("sinfo.list.joinable.closedate")
 							</th>
 							<th>
 								$tlang.getString("sinfo.list.joinable.join")
@@ -509,17 +565,28 @@
 							</td>
 
 							<td>
+								<span>$formattedText.escapeHtml($g.joinableOpenDate)</span>
+							</td>
+
+							<td>
+								<span>$formattedText.escapeHtml($g.joinableCloseDate)</span>
+							</td>
+
+							<td>
 								#if ($g.locked)
-								<span class="fa fa-fw fa-lock" aria-hidden="true"></span>
+								<span class="si si-locked" aria-hidden="true"></span>
 								<span class="sr-only">$tlang.getString("sinfo.list.joinable.locked")</span>
 								#elseif ($g.full)
-								<span>$tlang.getString("sinfo.list.joinable.full")</span>
+									<span>$tlang.getString("sinfo.list.joinable.full")</span>
+								#elseif ($g.interactableByDate)
+									<form name="joinableForm" class="inlineForm" method="post" action="#toolForm("joinable-set")">
+										<input type="hidden" name="joinable-group-ref" value="$g.reference" />
+										<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+										<input type="submit" name="eventSubmit_doJoinableSet" value="$tlang.getString("sinfo.list.joinable.join")"
+												title="$tlang.getString("sinfo.list.joinable.join")" onclick="SPNR.disableControlsAndSpin( this, null );" />
+									</form>
 								#else
-								<form name="joinableForm" class="inlineForm" method="post" action="#toolForm("joinable-set")">
-									<input type="hidden" name="joinable-group-ref" value="$g.reference" />
-									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-									<input type="submit" name="eventSubmit_doJoinableSet" value="$tlang.getString("sinfo.list.joinable.join")" title="$tlang.getString("sinfo.list.joinable.join")" onclick="SPNR.disableControlsAndSpin( this, null );" />
-								</form>
+									<span>$tlang.getString("sinfo.list.joinable.unjoin.notavailable")</span>
 								#end
 							</td>
 						</tr>

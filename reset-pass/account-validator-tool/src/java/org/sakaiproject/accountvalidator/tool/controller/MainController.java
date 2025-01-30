@@ -900,7 +900,7 @@ public class MainController {
             String supportEmail = serverConfigurationService.getString("mail.support");
             Map<String, Object> replacementValues = new HashMap<>();
             replacementValues.put("emailSupport", supportEmail);
-            emailTemplateService.sendRenderedMessages(AccountValidatorConstants.TEMPLATE_KEY_ACKNOWLEDGE_PASSWORD_RESET, userReferences, replacementValues, supportEmail, supportEmail);
+            emailTemplateService.sendRenderedMessages(AccountValidatorConstants.TEMPLATE_KEY_ACKNOWLEDGE_PASSWORD_RESET, userReferences, replacementValues, serverConfigurationService.getSmtpFrom(), supportEmail);
         }
 
         return jsonResponse;

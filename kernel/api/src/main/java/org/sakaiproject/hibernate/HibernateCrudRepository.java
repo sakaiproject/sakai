@@ -152,8 +152,8 @@ public abstract class HibernateCrudRepository<T, ID extends Serializable> implem
 
     @Override
     @Transactional
-    public void merge(T entity) {
-        sessionFactory.getCurrentSession().merge(entity);
+    public T merge(T entity) {
+        return (T) sessionFactory.getCurrentSession().merge(entity);
     }
 
     @Override

@@ -37,6 +37,7 @@ import lombok.Setter;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
@@ -80,7 +81,6 @@ public class PublishedAssessmentData
   private Integer submissionsAllowed;
   private Integer feedbackDelivery;
   private Integer feedbackComponentOption;
-  @Setter @Getter private Integer correctAnswerOption;
   private Integer feedbackAuthoring;
   private Date feedbackDate;
   @Setter @Getter private Date feedbackEndDate;
@@ -91,6 +91,7 @@ public class PublishedAssessmentData
   private Date lastNeedResubmitDate;
   private Integer timeLimit;
   private Long categoryId;
+  @Setter @Getter private String reference;
 
   
   public PublishedAssessmentData() {}
@@ -223,46 +224,46 @@ public class PublishedAssessmentData
   
   public PublishedAssessmentData(Long id, String title, String releaseTo,
           Date startDate, Date dueDate, Date retractDate,
-          Date feedbackDate, Integer feedbackDelivery, Integer feedbackComponentOption,  Integer correctAnswerOption, Integer feedbackAuthoring,
+          Date feedbackDate, Integer feedbackDelivery, Integer feedbackComponentOption,  Integer feedbackAuthoring,
           Integer lateHandling,
           Boolean unlimitedSubmissions,
           Integer submissionsAllowed, Date feedbackEndDate, Double feedbackScoreThreshold) {
 	  this(id, title, releaseTo, startDate, dueDate, retractDate, feedbackDate,
-			  feedbackDelivery,feedbackComponentOption,  correctAnswerOption, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, null, null, null, feedbackEndDate, feedbackScoreThreshold);
+			  feedbackDelivery,feedbackComponentOption,  feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, null, null, null, feedbackEndDate, feedbackScoreThreshold);
   }
   
   public PublishedAssessmentData(Long id, String title, String releaseTo,
           Date startDate, Date dueDate, Date retractDate,
-          Date feedbackDate, Integer feedbackDelivery, Integer feedbackComponentOption, Integer correctAnswerOption, Integer feedbackAuthoring,
+          Date feedbackDate, Integer feedbackDelivery, Integer feedbackComponentOption, Integer feedbackAuthoring,
           Integer lateHandling,
           Boolean unlimitedSubmissions,
           Integer submissionsAllowed, Integer scoringType, Date feedbackEndDate, Double feedbackScoreThreshold) {
 	  this(id, title, releaseTo, startDate, dueDate, retractDate, feedbackDate,
-			  feedbackDelivery, feedbackComponentOption, correctAnswerOption, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, scoringType, null, null, feedbackEndDate, feedbackScoreThreshold);
+			  feedbackDelivery, feedbackComponentOption, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, scoringType, null, null, feedbackEndDate, feedbackScoreThreshold);
   }
 
   public PublishedAssessmentData(Long id, String title, String releaseTo,
           Date startDate, Date dueDate, Date retractDate,
-          Date feedbackDate, Integer feedbackDelivery, Integer feedbackComponentOption, Integer correctAnswerOption, Integer feedbackAuthoring,
+          Date feedbackDate, Integer feedbackDelivery, Integer feedbackComponentOption, Integer feedbackAuthoring,
           Integer lateHandling,
           Boolean unlimitedSubmissions,
           Integer submissionsAllowed, Integer scoringType, Integer status, Date feedbackEndDate, Double feedbackScoreThreshold) {
 	  this(id, title, releaseTo, startDate, dueDate, retractDate, feedbackDate,
-			  feedbackDelivery,feedbackComponentOption, correctAnswerOption, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, scoringType, status, null, feedbackEndDate, feedbackScoreThreshold);
+			  feedbackDelivery,feedbackComponentOption, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, scoringType, status, null, feedbackEndDate, feedbackScoreThreshold);
   }
   
   public PublishedAssessmentData(Long id, String title, String releaseTo,
           Date startDate, Date dueDate, Date retractDate,
-          Date feedbackDate, Integer feedbackDelivery,  Integer feedbackComponentOption, Integer correctAnswerOption, Integer feedbackAuthoring,
+          Date feedbackDate, Integer feedbackDelivery,  Integer feedbackComponentOption,Integer feedbackAuthoring,
           Integer lateHandling,
           Boolean unlimitedSubmissions,
           Integer submissionsAllowed, Integer scoringType, Integer status, Date lastModifiedDate, Date feedbackEndDate, Double feedbackScoreThreshold) {
 	  this(id, title, releaseTo, startDate, dueDate, retractDate, feedbackDate,
-			  feedbackDelivery,feedbackComponentOption, correctAnswerOption, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, scoringType, status, lastModifiedDate, null, feedbackEndDate, feedbackScoreThreshold);
+			  feedbackDelivery,feedbackComponentOption, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, scoringType, status, lastModifiedDate, null, feedbackEndDate, feedbackScoreThreshold);
   }
   public PublishedAssessmentData(Long id, String title, String releaseTo,
                                  Date startDate, Date dueDate, Date retractDate,
-                                 Date feedbackDate, Integer feedbackDelivery,  Integer feedbackComponentOption,Integer correctAnswerOption, Integer feedbackAuthoring,
+                                 Date feedbackDate, Integer feedbackDelivery,  Integer feedbackComponentOption,Integer feedbackAuthoring,
                                  Integer lateHandling,
                                  Boolean unlimitedSubmissions,
                                  Integer submissionsAllowed, Integer scoringType, Integer status, Date lastModifiedDate, Integer timeLimit, Date feedbackEndDate, Double feedbackScoreThreshold) {
@@ -274,7 +275,6 @@ public class PublishedAssessmentData
     this.retractDate = retractDate;
     this.feedbackDelivery = feedbackDelivery; //=publishedFeedback.feedbackDelivery
     this.feedbackComponentOption = feedbackComponentOption;
-    this.correctAnswerOption = correctAnswerOption;
     this.feedbackAuthoring = feedbackAuthoring; //=publishedFeedback.feedbackAuthoring
     this.feedbackDate = feedbackDate;
     this.lateHandling = lateHandling;
@@ -511,7 +511,7 @@ public class PublishedAssessmentData
   }
 
   public void addAssessmentMetaData(String label, String entry) {
-    if (this.assessmentMetaDataMap.get(label) != null) {
+      if (this.assessmentMetaDataMap.containsKey(label)) {
       // just update
       Iterator iter = this.assessmentMetaDataSet.iterator();
       while (iter.hasNext()) {
@@ -693,15 +693,25 @@ public class PublishedAssessmentData
       PublishedSectionData s = (PublishedSectionData) iter.next();
       ArrayList list = s.getItemArray();
       Iterator iter2 = null;
-      if ((s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)!=null) && (s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString())))
+      if ((s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)!=null) && ((s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()))
+            || (s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString()))
+            || (s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString()))))
 {
         ArrayList randomsample = new ArrayList();
         Integer numberToBeDrawn= Integer.valueOf(0);
+        Integer numberToBeFixed= Integer.valueOf(0);
+
+        // adding a second condition because metadata are not removed from DB
+        if (s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_FIXED) !=null && s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString())) {
+            numberToBeFixed= new Integer(s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_FIXED));
+        }
+
         if (s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN) !=null ) {
           numberToBeDrawn= new Integer(s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
         }
 
         int samplesize = numberToBeDrawn.intValue();
+        samplesize += numberToBeFixed;
         for (int i=0; i<samplesize; i++){
           randomsample.add(list.get(i));
         }
@@ -770,4 +780,9 @@ public class PublishedAssessmentData
   public void setCategoryId(Long categoryId) {
     this.categoryId = categoryId;
   }
+
+  public String getAssessmentToGradebookNameMetaData() {
+    return (String) this.assessmentMetaDataMap.get(AssessmentMetaDataIfc.TO_GRADEBOOK_ID);
+  }
+
 }

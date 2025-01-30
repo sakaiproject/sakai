@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html>
 <html xmlns:wicket="http://wicket.apache.org">
 
@@ -44,7 +45,7 @@
             </div>
         </div>
 
-        <div id="grades-toolbar-1" class="gradesToolbar1">
+        <div id="grades-toolbar-1" class="gradesToolbar1 mb-2">
             <div>
                 <button wicket:id="addGradeItem" class="button_color gb-add-gradebook-item-button">
                     <wicket:message key="button.addgradeitem" />
@@ -68,12 +69,12 @@
         </div>
 
         <div wicket:id="toolbar" id="gradebookGradesToolbar" class="btn-toolbar gradesToolbar2">
-            <ul class="gb-toolbar-left">
+            <ul class="gb-toolbar-left my-2 pe-2">
                 <wicket:enclosure>
                 <li>
                     <div class="gb-student-filter">
                         <label for="studentFilterInput" class="sr-only"><wicket:message key="filter.students"/></label>
-                        <input type="text" id="studentFilterInput" class="form-control" aria-controls="gradeTable" wicket:id="studentFilter" wicket:message="placeholder:filter.students" accesskey="f">
+                        <input type="text" id="studentFilterInput" class="form-control" aria-controls="gradeTable" wicket:id="studentFilter" wicket:message="placeholder:filter.students" accesskey="f" />
                         <a class="gb-student-filter-clear-button" wicket:message="title:filter.studentsclear" href="javascript:void(0)">
                             <i class="fa fa-times-circle" aria-hidden="true"></i>
                         </a>
@@ -85,7 +86,7 @@
                 </wicket:enclosure>
                 <li class="gb-student-summary"><!-- Populated by JavaScript --></li>
             </ul>
-            <ul wicket:id="gbToolbarColumnTools" class="gb-toolbar-right">
+            <ul wicket:id="gbToolbarColumnTools" class="gb-toolbar-right my-2 end-0 position-absolute">
                 <li class="gb-grade-item-summary"><!-- Populated by JavaScript --></li>
                 <li>
                     <button wicket:id="toggleGradeItemsToolbarItem" id="toggleGradeItemsToolbarItem" class="button" aria-popup="true" aria-controls="gradeItemsTogglePanel"><wicket:message key="label.toolbar.toggleitems"/></button>
@@ -95,7 +96,7 @@
                 </li>
                 <wicket:enclosure>
                 <li>
-                    <button wicket:id="toggleCategoriesToolbarItem" id="toggleCategoriesToolbarItem" class="button" aria-controls="gradeTable"><wicket:message key="label.toolbar.togglecategories"/></button>
+                    <button wicket:id="toggleCategoriesToolbarItem" id="toggleCategoriesToolbarItem" class="btn-link si" aria-controls="gradeTable"><wicket:message key="label.toolbar.togglecategories"/></button>
                 </li>
                 </wicket:enclosure>
                 <li>
@@ -106,7 +107,9 @@
 
         <div class="gradeTableOuterWrapper">
             <div wicket:id="gradeTable" />
-            <div wicket:id="noStudents" class="gb-noStudents"><wicket:message key="no-students.label" /></div>
+            <div wicket:id="noStudents" class="gb-noStudents">
+                <wicket:message key="no-students.label" />
+            </div>
         </div>
     </div>
 

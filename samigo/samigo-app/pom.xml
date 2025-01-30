@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.sakaiproject.samigo</groupId>
 		<artifactId>samigo</artifactId>
-		<version>23-SNAPSHOT</version>
+		<version>25-SNAPSHOT</version>
 	</parent>
     
 	<name>Sakai Samigo Tool (samigo-app)</name>
@@ -82,14 +82,18 @@
             <artifactId>sakai-portal-util</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.scheduler</groupId>
+            <artifactId>scheduler-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.sakaiproject.search</groupId>
             <artifactId>search-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch</groupId>
-            <artifactId>elasticsearch</artifactId>
+            <groupId>org.opensearch</groupId>
+            <artifactId>opensearch</artifactId>
             <scope>provided</scope>
-            <version>${sakai.elasticsearch.version}</version>
+            <version>${sakai.opensearch.version}</version>
         </dependency>
         <dependency>
             <groupId>net.htmlparser.jericho</groupId>
@@ -99,6 +103,10 @@
         <dependency>
             <groupId>com.github.librepdf</groupId>
             <artifactId>openpdf</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-beanutils</groupId>
@@ -119,10 +127,6 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-text</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.dom4j</groupId>
-            <artifactId>dom4j</artifactId>
         </dependency>
 		<dependency>
             <groupId>jakarta.activation</groupId>
@@ -152,6 +156,12 @@
             <version>1.1.01</version>
         </dependency>-->
         <dependency>
+            <groupId>org.scilab.forge</groupId>
+            <artifactId>jlatexmath</artifactId>
+            <version>1.0.7</version>
+        </dependency>
+
+        <dependency>
 			<groupId>OKI</groupId>
 			<artifactId>OkiOSID</artifactId>
 		</dependency>
@@ -164,6 +174,12 @@
             <groupId>org.apache.myfaces.tomahawk</groupId>
             <artifactId>tomahawk21</artifactId>
             <version>1.1.14</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>
@@ -183,28 +199,6 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
 	    <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject.rsf</groupId>
-            <artifactId>sakai-rsf-web-templates</artifactId>
-            <version>${project.version}</version>
-            <type>war</type>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject.rsf</groupId>
-            <artifactId>sakai-rsf-web-evolvers</artifactId>
-            <version>${project.version}</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject.rsf</groupId>
-            <artifactId>sakai-rsf-core</artifactId>
-            <version>${project.version}</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>xml-apis</groupId>
-            <artifactId>xml-apis</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -235,6 +229,11 @@
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.jgrapht</groupId>
+            <artifactId>jgrapht-core</artifactId>
+            <version>1.5.1</version>
+        </dependency>
         <!--JSF 2.3 dependencies-->
         <dependency>
             <groupId>org.jboss.weld.servlet</groupId>
@@ -245,6 +244,11 @@
             <groupId>jakarta.servlet.jsp.jstl</groupId>
             <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
             <version>${sakai.jakarta.jstl-api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>${sakai.org.json.version}</version>
         </dependency>
     </dependencies>
     

@@ -183,12 +183,33 @@ public class AssignmentContentProducer implements EntityContentProducer {
     }
 
     public boolean isForIndex(String ref) {
-        return ref.startsWith("/assignment");
+
+        return ref.startsWith(AssignmentServiceConstants.REFERENCE_ROOT);
     }
 
     public boolean canRead(String ref) {
-        return assignmentService.permissionCheck(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, ref, null);
-        //return getAssignment(AssignmentReferenceReckoner.reckoner().reference(ref).reckon()).isPresent();
+
+        if (!isForIndex(ref)) {
+            return false;
+        }
+
+        if (assignmentService.permissionCheck(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT, ref, null)) {
+            return true;
+        }
+
+        if (assignmentService.permissionCheck(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, ref, null)) {
+            String assignmentId = AssignmentReferenceReckoner.reckoner().reference(ref).reckon().getId();
+            try {
+                // TODO: PERFORMANCE If search returns a ton of hits on assignments, this could
+                // potentially incur some DB penalty.
+                return !assignmentService.getAssignment(assignmentId).getDraft();
+            } catch (Exception e) {
+                log.warn("Exception thrown while getting assignment: {}", e.toString());
+                return false;
+            }
+        }
+
+        return false;
     }
 
     public Map<String, ?> getCustomProperties(String ref) {

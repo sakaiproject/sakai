@@ -24,7 +24,6 @@ package org.sakaiproject.tasks.impl;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 
 import java.util.Arrays;
 import java.util.List;
@@ -36,7 +35,9 @@ import java.util.stream.Collectors;
 
 import org.sakaiproject.authz.api.AuthzGroupReferenceBuilder;
 import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -45,6 +46,7 @@ import org.sakaiproject.tasks.api.AssignationType;
 import org.sakaiproject.tasks.api.Task;
 import org.sakaiproject.tasks.api.TaskAssigned;
 import org.sakaiproject.tasks.api.UserTask;
+import org.sakaiproject.tasks.api.TaskPermissions;
 import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.tasks.api.UserTaskAdapterBean;
 import org.sakaiproject.tasks.api.repository.TaskAssignedRepository;
@@ -69,15 +71,19 @@ public class TaskServiceImpl implements TaskService, Observer {
     @Autowired private AuthzGroupService authzGroupService;
     @Autowired private EntityManager entityManager;
     @Autowired private EventTrackingService eventTrackingService;
+    @Autowired private FunctionManager functionManager;
+    @Autowired private SecurityService securityService;
     @Autowired private SessionManager sessionManager;
     @Autowired private SiteService siteService;
+    @Autowired private TaskAssignedRepository taskAssignedRepository;
     @Autowired private TaskRepository taskRepository;
     @Autowired private UserTaskRepository userTaskRepository;
-    @Autowired private TaskAssignedRepository taskAssignedRepository;
 
     @Setter private TransactionTemplate transactionTemplate;
 
     public void init() {
+
+        functionManager.registerFunction(TaskPermissions.CREATE_TASK, true);
 
         eventTrackingService.addObserver(this);
     }
@@ -141,6 +147,7 @@ public class TaskServiceImpl implements TaskService, Observer {
         BeanUtils.copyProperties(transfer, task);
         task.setReference("/user/" + userId);
         task.setSystem(false);
+        task.setStarts(Instant.now());
         task = taskRepository.save(task);
 
         UserTask userTask = new UserTask();
@@ -230,11 +237,11 @@ public class TaskServiceImpl implements TaskService, Observer {
         });
     }
 
-    public List<UserTaskAdapterBean> getAllTasksForCurrentUser() {
+    public List<UserTaskAdapterBean> getCurrentTasksForCurrentUser() {
 
         String userId = sessionManager.getCurrentSessionUserId();
 
-        return userTaskRepository.findByUserId(userId)
+        return userTaskRepository.findByUserIdAndStartsAfter(userId, Instant.now())
                 .stream()
                 .map(ut -> {
                     UserTaskAdapterBean bean = new UserTaskAdapterBean();
@@ -311,5 +318,15 @@ public class TaskServiceImpl implements TaskService, Observer {
     @Transactional
     public List<TaskAssigned> getTaskAssignments(Long taskId) {
         return taskAssignedRepository.findByTaskId(taskId);
+    }
+
+    public boolean canCurrentUserAddTask(String siteId) {
+
+        if (siteId == null) {
+            // This is a request for the user's home tasks
+            siteId = siteService.getUserSiteId(sessionManager.getCurrentSessionUserId());
+        }
+
+        return securityService.unlock(TaskPermissions.CREATE_TASK, siteService.siteReference(siteId));
     }
 }

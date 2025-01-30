@@ -23,6 +23,7 @@ package uk.ac.cam.caret.sakai.rwiki.tool.bean;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
@@ -44,7 +45,7 @@ public class FullSearchBean
 {
 
 	/** Tool restriction: see RWikiEntityContentProducer.getTool() **/
-	private static final String SEARCH_SUFFIX = " +tool:wiki";
+	private static final String SEARCH_TOOL = "wiki";
 		
 	/**
 	 * The search criteria
@@ -197,7 +198,7 @@ public class FullSearchBean
 			int searchStart = requestPage * pagesize;
 			int searchEnd = searchStart + pagesize;
 			try {
-				searchResults = searchService.search(search.concat(SEARCH_SUFFIX), l, searchStart,
+				searchResults = searchService.search(search, l, Collections.singletonList(SEARCH_TOOL), searchStart,
 						searchEnd);
 				long end = System.currentTimeMillis();
 				timeTaken = end - start;

@@ -17,12 +17,16 @@ package org.sakaiproject.conversations.api.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Index;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import lombok.EqualsAndHashCode;
 import org.sakaiproject.conversations.api.Reaction;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
@@ -37,6 +41,7 @@ import lombok.Setter;
                 @Index(name = "conv_post_reactions_post_user_idx", columnList = "POST_ID, USER_ID") })
 @Getter
 @Setter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class PostReaction implements PersistableEntity<Long> {
 
     @Id
@@ -44,12 +49,16 @@ public class PostReaction implements PersistableEntity<Long> {
     @Column(name = "ID")
     private Long id;
 
-    @Column(name = "POST_ID", length = 36, nullable = false)
-    private String postId;
+    @EqualsAndHashCode.Include
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "POST_ID")
+    private ConversationsPost post;
 
+    @EqualsAndHashCode.Include
     @Column(name = "USER_ID", length = 99, nullable = false)
     private String userId;
 
+    @EqualsAndHashCode.Include
     @Column(name = "REACTION", nullable = false)
     private Reaction reaction;
 

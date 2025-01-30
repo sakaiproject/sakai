@@ -21,6 +21,8 @@
 
 package org.sakaiproject.portal.charon.handlers;
 
+import static org.sakaiproject.portal.api.PortalConstants.*;
+
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -33,6 +35,10 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
+
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -60,15 +66,12 @@ public class PageHandler extends BasePortalHandler
 	private static final String INCLUDE_PAGE = "include-page";
 
 	private static final String URL_FRAGMENT = "page";
-        
-	/**
-	 * Keyword to look for in sakai.properties copyright message to replace
-	 * for the server's time's year for auto-update of Copyright end date
-	 */
-	private static final String SERVER_COPYRIGHT_CURRENT_YEAR_KEYWORD = "currentYearFromServer";
+
+	private SecurityService securityService = null;
 
 	public PageHandler()
 	{
+		securityService = (SecurityService) ComponentManager.get("org.sakaiproject.authz.api.SecurityService");
 		setUrlFragment(PageHandler.URL_FRAGMENT);
 	}
 
@@ -174,7 +177,6 @@ public class PageHandler extends BasePortalHandler
 			// This request is the destination of the request
 			portalService.setStoredState(null);
 		}
-
 	}
 
 	/**
@@ -204,6 +206,7 @@ public class PageHandler extends BasePortalHandler
 					.put("pageColumnLayout",
 							(page.getLayout() == SitePage.LAYOUT_DOUBLE_COL) ? "col1of2"
 									: "col1");
+			rcontext.put("isHomePage", page.isHomePage());
 			Site site = null;
 			try
 			{
@@ -239,6 +242,20 @@ public class PageHandler extends BasePortalHandler
 				rcontext.put("pageColumn0Tools", toolList);
 			}
 
+			boolean displayRole = ServerConfigurationService.getBoolean(PROP_PORTAL_DISPLAY_CURRENT_ROLE, false);
+			rcontext.put("currentRole", null);
+
+			if (!StringUtils.startsWith(page.getSiteId(), "~") && displayRole && site != null) {
+				String roleId = null;
+				if (site.getMember(session.getUserId()) != null) {
+					roleId = site.getMember(session.getUserId()).getRole().getId();
+				}
+				if (securityService.isSuperUser()) {
+					roleId = "admin";
+				}
+				rcontext.put("currentRole", roleId);				
+			}
+			
 			rcontext.put("pageTwoColumn", Boolean
 					.valueOf(page.getLayout() == SitePage.LAYOUT_DOUBLE_COL));
 
@@ -281,35 +298,13 @@ public class PageHandler extends BasePortalHandler
 				String currentServerYear = simpleDateFormat.format(new Date());
 				copyright = copyright.replaceAll(SERVER_COPYRIGHT_CURRENT_YEAR_KEYWORD, currentServerYear);
 
-				String service = ServerConfigurationService.getString("ui.service",
-						"Sakai");
-				String serviceVersion = ServerConfigurationService.getString(
-						"version.service", "?");
-				String sakaiVersion = ServerConfigurationService.getString(
-						"version.sakai", "?");
+				String service = ServerConfigurationService.getString("ui.service","Sakai");
+				String serviceVersion = ServerConfigurationService.getString("version.service", "?");
+				String sakaiVersion = ServerConfigurationService.getString("version.sakai", "?");
 				String server = ServerConfigurationService.getServerId();
-				String[] bottomNav = ServerConfigurationService.getStrings("bottomnav");
-				String[] poweredByUrl = ServerConfigurationService
-						.getStrings("powered.url");
-				String[] poweredByImage = ServerConfigurationService
-						.getStrings("powered.img");
-				String[] poweredByAltText = ServerConfigurationService
-						.getStrings("powered.alt");
-
-				{
-					List<Object> l = new ArrayList<Object>();
-					if ((bottomNav != null) && (bottomNav.length > 0))
-					{
-						for (int i = 0; i < bottomNav.length; i++)
-						{
-							l.add(bottomNav[i]);
-						}
-					}
-					rcontext.put("bottomNav", l);
-				}
-
-				// rcontext.put("bottomNavSitNewWindow",
-				// Web.escapeHtml(rb.getString("site_newwindow")));
+				String[] poweredByUrl = ServerConfigurationService.getStrings("powered.url");
+				String[] poweredByImage = ServerConfigurationService.getStrings("powered.img");
+				String[] poweredByAltText = ServerConfigurationService.getStrings("powered.alt");
 
 				if ((poweredByUrl != null) && (poweredByImage != null)
 						&& (poweredByAltText != null)

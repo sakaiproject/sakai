@@ -579,5 +579,10 @@
             <renderer-type>org.apache.myfaces.SortHeader</renderer-type>
             <renderer-class>org.sakaiproject.signup.tool.jsf.HtmlSortHeaderRenderer</renderer-class>
         </renderer>
+		<renderer>
+			<component-family>javax.faces.Data</component-family>
+			<renderer-type>org.apache.myfaces.Table</renderer-type>
+			<renderer-class>org.sakaiproject.signup.tool.jsf.HtmlTableRenderer</renderer-class>
+		</renderer>
     </render-kit>
 </faces-config>

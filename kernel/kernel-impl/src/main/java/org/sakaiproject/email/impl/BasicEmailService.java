@@ -231,10 +231,9 @@ public class BasicEmailService implements EmailService
 			protocol = PROTOCOL_SMTP;
 		}
 
-		// if no m_mailfrom set, set to the postmaster
-		if (smtpFrom == null)
-		{
-			smtpFrom = POSTMASTER + "@" + serverConfigurationService.getServerName();
+		// if no m_mailfrom set, try to use other values, it will fallback to no-reply@serverName if no from address has been configured
+		if (smtpFrom == null) {
+			smtpFrom = serverConfigurationService.getSmtpFrom();
 		}
 		// initialize timeout values
 		smtpConnectionTimeout = serverConfigurationService.getString(propName(MAIL_CONNECTIONTIMEOUT_T), null);
@@ -1344,7 +1343,9 @@ public class BasicEmailService implements EmailService
 					buf.append(" with ").append(parts.getCount() - 1).append(" attachments");
 				}
 			}
-			catch (IOException ioe) {}
+			catch (IOException ioe) {
+			    log.debug("could not read message contents, {}", ioe);
+			}
 
 			if (log.isDebugEnabled())
 			{
@@ -1609,8 +1610,8 @@ public class BasicEmailService implements EmailService
 		/**
 		 * Override MimeMessage Message-ID to use Sakai serverId instead of hostname
 		 * https://javaee.github.io/javamail/FAQ#msgid
-		 * @throws MessagingException
 		 */
+		@Override
 		protected void updateMessageID() throws MessagingException
 		{
 			StringBuilder s = new StringBuilder();
@@ -1622,9 +1623,10 @@ public class BasicEmailService implements EmailService
 					append(System.currentTimeMillis()).
 					append('@').
 					append(serverConfigurationService.getServerName());
-			setHeader("Message-ID", s.toString());
+			setHeader("Message-ID", "<" + s + ">");
 		}
 
+		@Override
 		protected void updateHeaders() throws MessagingException
 		{
 			super.updateHeaders();
@@ -1673,17 +1675,12 @@ public class BasicEmailService implements EmailService
 						}
 				  }
 			 } 
-			 catch (MessagingException e) 
+			 catch (MessagingException | UnsupportedEncodingException e)
 			 {
-				  log.error("Email.MyMessage: exception: " + e, e);
-				  addHeaderLine(header);
-			 } 
-			 catch (UnsupportedEncodingException e)
-			 {
-				  log.error("Email.MyMessage: exception: " + e, e);
+				  log.error("Email.MyMessage: exception: {}", e, e);
 				  addHeaderLine(header);
 			 }
-		} 
+        }
 	}
 
 	public String propName(String propNameTemplate)
@@ -1693,7 +1690,6 @@ public class BasicEmailService implements EmailService
 
 	public String propName(String propNameTemplate, String protocol)
 	{
-		String formattedName = String.format(propNameTemplate, protocol);
-		return formattedName;
+		return String.format(propNameTemplate, protocol);
 	}
 }

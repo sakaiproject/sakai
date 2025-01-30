@@ -1,0 +1,4 @@
+#if ($loggedIn)
+  <sakai-picture-changer dialog-title="$rloader.sit_edit_profile_image"></sakai-picture-changer>
+#end
+

@@ -145,7 +145,7 @@ public class ImportQuestionsToAuthoringFromSearch implements ActionListener
 
 
           //And now we need to update the poolList page with the new questions
-          qpoolbean.buildTree();
+          qpoolbean.buildReadOnlyPoolTree();
 
           qpoolbean.startEditPoolAgain(searchQuestionBean.getSelectedQuestionPool());
           QuestionPoolDataBean currentPool = qpoolbean.getCurrentPool();

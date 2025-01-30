@@ -236,9 +236,12 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 			//also, remove the &nbsp; from the beginning of the label, POLL-139
 			//we use the same number formatter which adds a % to the end of the data, remove that as well.
 			chartTextData.put(cv.getoptionId(), StringUtils.removeStart(optionText, "&nbsp;"));
-			chartValueData.put(cv.getoptionId(), StringUtils.removeEnd(nf.format(percent), "%"));
+			String valueData = StringUtils.removeEnd(nf.format(percent), "%");
+			// NumberFormat adds an extra space between the number and the percentage symbol. Example: es_ES: '100 %' ca_ES: '100%'
+			valueData = StringUtils.normalizeSpace(valueData);
+			chartValueData.put(cv.getoptionId(), valueData);
 
-			log.debug("result is "+ percent);
+			log.debug("value is {}", percent);
 			UIOutput.make(resultRow,"answer-percVotes", nf.format(percent));
 
 		}

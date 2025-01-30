@@ -5,12 +5,12 @@
 
 <f:view locale="#{UserLocale.locale}">
 	<jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
-	   <jsp:setProperty name="msgs" property="baseName" value="messages"/>
+	   <jsp:setProperty name="msgs" property="baseName" value="signup"/>
 	</jsp:useBean>
 	<sakai:view_container title="Signup Tool">
 		<style type="text/css">
-			@import url("/sakai-signup-tool/css/signupStyle.css");
-		</style>	
+			@import url("/sakai-signup-tool/css/signupStyle.css${Portal.CDNQuery}");
+		</style>
 		
 		<sakai:view_content>
 			<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/>      			

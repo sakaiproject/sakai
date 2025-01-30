@@ -63,6 +63,7 @@ public interface FormattedText {
      * @see #processFormattedText(String, StringBuilder)
      * @deprecated since Nov 2007, use {@link #processFormattedText(String, StringBuilder)} instead
      */
+    @Deprecated
     public String processFormattedText(final String strFromBrowser, StringBuffer errorMessages);
 
     /**

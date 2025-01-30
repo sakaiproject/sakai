@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+  <body>
+  <div class="row">
+    <div class="col-sm-6" th:fragment="box (title, subtitle, name, disabled, value)">
+      <h4 class="title" th:text="${title}">Some title</h4>
+      <label class="subtitle" th:for="${name}" th:text="${subtitle}">Subtitle</label>
+      <textarea th:if="${disabled}" class="box" disabled th:name="${name}" th:id="${name}" rows="6" cols="50" th:text="${value}" required></textarea>
+      <textarea th:if="${!disabled}" th:name="${name}" th:id="${name}" rows="6" cols="50" th:text="${value}" required></textarea>
+    </div>
+  </div>
+</body>
+</html>

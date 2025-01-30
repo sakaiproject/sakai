@@ -1,8 +1,9 @@
 <!-- start: chef_assignments_instructor_grading_submission.vm  -->
 #rubricsRequirements
 #set( $H = '-' )
+#set( $T = 'T' )
 #javascript("/library/js/lang-datepicker/lang-datepicker.js")
-
+<script type="module" src="/webcomponents/bundles/lti.js"></script>
 <script>
     focus_path = ['$fField'];
     $(document).ready(function () {
@@ -29,7 +30,7 @@
 <div class="portletBody">
 
     #set($gradeType = $assignment.TypeOfGrade.ordinal())
-    #navBarOnClick( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "gradeForm" "")
+    #navBarOnClick( $allowAddAssignment $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "gradeForm" "")
     ## confirmation
     #if ($!gradingDone)
         <div class="sak-banner-success">
@@ -53,14 +54,10 @@
                     $formattedText.escapeHtml($!assignment.Title)
                     #assignmentIcons($!assignment)
                     <span class="highlight"> -
-                        #if ($withGrade)
-                            #if (!$!submission.Graded)
-                                $tlang.getString("gen.grading")
-                            #else
-                                $tlang.getString("gen.regrading")
-                            #end
+                        #if (!$!submission.Graded)
+                            $tlang.getString("gen.grading")
                         #else
-                            $tlang.getString("gen.reviewing")
+                            $tlang.getString("gen.regrading")
                         #end
 					</span>
                 </h3>
@@ -178,16 +175,14 @@
                     </td>
                 </tr>
             #end
-            #if ($withGrade)
-                <tr>
-                    <th>
-                        $tlang.getString("gen.status")
-                    </th>
-                    <td>
-                        $!submissionStatus
-                    </td>
-                </tr>
-            #end
+            <tr>
+                <th>
+                    $tlang.getString("gen.status")
+                </th>
+                <td>
+                    $!submissionStatus
+                </td>
+            </tr>
 
             ## Content Review
             #if($allowReviewService && $assignment.ContentReview)
@@ -239,12 +234,32 @@
         #supplementItems($!allowViewModelAnswer $!allowReadAssignmentNoteItem $!allowViewAllPurposeItem $!assignmentModelAnswerItem $!assignmentNoteItem $!assignmentAllPurposeItem)
 
         #if ($!hasAssociatedRubric)
-        <ul id="rubricTabs" class="nav nav-tabs">
-            <li class="active"><a href="#submition">$tlang.getString("gen.subm")</a></li>
-            <li><a href="#rubric">$tlang.getString("grading_rubric")</a></li>
+        <ul id="rubricTabs" class="nav nav-tabs mt-2">
+            <li class="nav-item">
+                <button type="button"
+                        role="tab"
+                        class="nav-link active"
+                        data-bs-target="#submission"
+                        data-bs-toggle="tab"
+                        aria-controls="submission"
+                        aria-selected="true">
+                    $tlang.getString("gen.subm")
+                </button>
+            </li>
+            <li class="nav-item">
+                <button type="button"
+                        role="tab"
+                        class="nav-link"
+                        data-bs-target="#submission-rubric"
+                        data-bs-toggle="tab"
+                        aria-controls="submission-rubric"
+                        aria-selected="true">
+                    $tlang.getString("grading_rubric")
+                </button>
+            </li>
         </ul>
         <div class="tab-content">
-        <div role="tabpanel" class="tab-pane active" id="submition">
+            <div role="tabpanel" class="tab-pane active mt-2" id="submission">
         #else
             <h3>$tlang.getString("gen.subm")</h3>
         #end
@@ -305,7 +320,7 @@
                 </p>
             #end
             ## Submitted Attachment
-            #set ($attachAllowed = $submissionType != 1 && $submissionType != 4)
+            #set ($attachAllowed = $submissionType != 1 && $submissionType != 4 && $submissionType != 6)
             #if ($attachAllowed || $size != 0) ##do not show attach messages if no attach are allowed unless an attach is present anyway.
                 <h3>
                     #if ($submissionType == 5)
@@ -348,18 +363,80 @@
 
         #if ($!hasAssociatedRubric)
         </div>
-        <div role="tabpanel" class="tab-pane" id="rubric">
+        <div role="tabpanel" class="tab-pane mt-2" id="submission-rubric">
+            ## Show reviewer feedback from peer review (if exist and the peer review is closed)
+            #if ($peerReviews)
+            <h3>$tlang.getString("gen.peerReviews")</h3>
+            <div id="peer-accordion">
+                #foreach($review in $peerReviews)
+                    <h5>$review.assessorDisplayName</h5>
+                    <div>
+                        $tlang.getFormattedMessage("gen.score.display", $review.getScoreDisplay())
+                        <br/>
+                        #if($!review.getComment() && $review.getComment().length()>0)
+                            <b>$tlang.getString("gen.comments")</b>
+                            <div class="textPanel borderPanel">$formattedText.escapeHtmlFormattedText($review.getComment())</div>
+                        #end
+                        <sakai-rubric-student
+                            tool-id="sakai.assignment.grades"
+                            entity-id="$assignment.Id"
+                            evaluated-item-id="$review.id.assessorUserId"
+                            instructor="true"
+                            is-peer-or-self="true"
+                            #if ($!assignment.isGroup)
+                                evaluated-item-owner-id="$ownerGroupId"
+                            #else
+                                evaluated-item-owner-id="$submitterId"
+                            #end
+                        ></sakai-rubric-student>
+                    </div>
+                #end
+            </div>
+            #end
+
+            #if($!rubricSelfReport)
+            <h1>$tlang.getString("autoevaluation")</h1>
+            <p class="help-block">
+                $tlang.getString("studentrubric")
+            </p>
+            <sakai-rubric-student
+                site-id="$!assignment.Context"
+                entity-id="$assignment.Id"
+                tool-id="sakai.assignment.grades"
+                instructor="true"
+                is-peer-or-self="true"
+                #if ($!assignment.isGroup)
+                    evaluated-item-id="$ownerGroupId"
+                    evaluated-item-owner-id="$ownerGroupId"
+                #else
+                    evaluated-item-id="$submitterId"
+                    evaluated-item-owner-id="$submitterId"
+                #end
+            ></sakai-rubric-student>
+            <hr class="itemSeparator" />
+            #end
+
+            <h1>$tlang.getString("instructor_grading")</h1>
             <sakai-rubric-grading
                 site-id="$!assignment.Context"
-                tool-id="sakai.assignment.grades"
-                entity-id="$assignment.Id"
-                evaluated-item-id="$submission.Id"
-                enable-pdf-export="$enablePdfExport"
-                #if ($groupRef)
-                evaluated-item-owner-id="$groupRef"
-                group
+                #if ($associatedToGbItem)
+                    tool-id="sakai.gradebookng"
+                    entity-id="$associatedToGbEntityId"
+                    evaluated-item-id="$associatedToGbEntityId.$submitterId"
                 #else
-                evaluated-item-owner-id="$submitterId"
+                    tool-id="sakai.assignment.grades"
+                    entity-id="$assignment.Id"
+                    evaluated-item-id="$submission.Id"
+                #end
+                #if ($assignment.IsGroup && $assignment.getAllowPeerAssessment())
+                    is-peer-group-graded="true"
+                #end
+                enable-pdf-export="$enablePdfExport"
+                #if ($!assignment.isGroup)
+                    evaluated-item-owner-id="$ownerGroupId"
+                    group
+                #else
+                    evaluated-item-owner-id="$submitterId"
                 #end
             ></sakai-rubric-grading>
         </div>
@@ -372,190 +449,194 @@
         </script>
         #end
 
-        #if ($withGrade)
-            <div class="highlightPanel" style="width:80%">
-                #if ($allowToGrade)
-                    #if ($gradeType == 1)
-                        <p class="shorttext">
-                            <label for="grade">$tlang.getString("gen.gra2")</label>
-                            <input type="hidden" name="$name_grade" value="gen.nograd"/>
-                            <span class="highlight"> $tlang.getString("gen.nograd")</span>
-                        </p>
-                    #elseif ($gradeType == 2)
-                        <p class="shorttext">
-                            <label for="grade">$tlang.getString("gen.gra2")</label>
-                            <select name="$name_grade" id="grade">
-                                <option value="" #if($!grade_submission_grade.equals(""))selected="selected"#end>
-                                    $tlang.getString("non.submission.grade.select")
-                                </option>
-                                #foreach ($i in $letterGradeOptions)
-                                    <option value="$i" #if ($!grade_submission_grade.equals($i))selected="selected"#end>$i</option>
-                                #end
-                            </select>
-                        </p>
-                    #elseif ($gradeType == 3)
-                        <p class="shorttext">
-                            <label for="grade">$tlang.getString("gen.gra2")</label>
-                            #if($assignment.getAllowPeerAssessment())
-                                <a id="infoImg" href="javascript:;"  class="fa fa-info-circle" data-toggle="popover" data-placement="auto" data-content="$tlang.getString('peerassessment.peerGradeInfo')"></a>
-                            #end
-                            <input type="text" name="$name_grade" size="5" maxlength="11" value="$!value_grade" id="grade" onkeypress="return ASN.handleEnterKeyPress(event);"/>
-                            <span class="text-info">($tlang.getString("grade.max") $!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint))</span>
+        #if($submissionType == 6 && $value_ContentId && $value_ContentLaunchURL)
+            <p>
+                <sakai-lti-popup launch-url="$value_ContentLaunchURL"></sakai-lti-popup>
+            </p>
+        #end
 
-                            <!--for grading via an external scoring service, if enabled for the associated gradebook item -->
-                            #if($scoringComponentEnabled)
-                                #parse ("/vm/assignment/chef_assignments_scoring_agent.vm")
+        <div class="highlightPanel" style="width:80%">
+            #if ($allowToGrade)
+                #if ($gradeType == 1)
+                    <p class="shorttext">
+                        <label for="grade">$tlang.getString("gen.gra2")</label>
+                        <input type="hidden" name="$name_grade" value="gen.nograd"/>
+                        <span class="highlight"> $tlang.getString("gen.nograd")</span>
+                    </p>
+                #elseif ($gradeType == 2)
+                    <p class="shorttext">
+                        <label for="grade">$tlang.getString("gen.gra2")</label>
+                        <select name="$name_grade" id="grade">
+                            <option value="" #if($!grade_submission_grade.equals(""))selected="selected"#end>
+                                $tlang.getString("non.submission.grade.select")
+                            </option>
+                            #foreach ($i in $letterGradeOptions)
+                                <option value="$i" #if ($!grade_submission_grade.equals($i))selected="selected"#end>$i</option>
                             #end
-                        </p>
-                        <div id="peerReviewInfo" class="popupMessage" style="display:none">$tlang.getString("peerassessment.peerGradeInfo")</div>
-                    #elseif ($gradeType == 4)
-                        <p class="shorttext">
-                            <label for="grade">$tlang.getString("gen.gra2")</label>
-                            <select name="$name_grade" id="grade">
-                                <option value="" #if($!grade_submission_grade.equals(""))selected="selected"#end>$tlang.getString("non.submission.grade.select")</option>
-                                #foreach ($i in ["pass", "fail"])
-                                    <option value="$i"
-                                        #if ($!grade_submission_grade.equalsIgnoreCase($tlang.getString($i)))
-                                            selected="selected"
-                                        #end
-                                        >
-                                        $tlang.getString($i)
-                                    </option>
-                                #end
-                            </select>
-                        </p>
-                    #elseif ($gradeType == 5)
-                        <p class="form-group">
-                            <label for="gradeChecked">
-                                <input name="$name_grade" type="checkbox" value="Checked"
-                                    #if ($!grade_submission_grade.equals($tlang.getString("gen.checked")))
-                                       checked="checked"
+                        </select>
+                    </p>
+                #elseif ($gradeType == 3)
+                    <p class="shorttext">
+                        <label for="grade">$tlang.getString("gen.gra2")</label>
+                        #if($assignment.getAllowPeerAssessment())
+                            <a id="infoImg" href="javascript:;"  class="fa fa-info-circle" data-bs-toggle="popover" data-placement="auto" data-content="$tlang.getString('peerassessment.peerGradeInfo')"></a>
+                        #end
+                        <input type="text" name="$name_grade" size="5" maxlength="11" value="$!value_grade" id="grade" onkeypress="return ASN.handleEnterKeyPress(event);"/>
+                        <span class="text-info">($tlang.getString("grade.max") $!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint))</span>
+
+                        <!--for grading via an external scoring service, if enabled for the associated gradebook item -->
+                        #if($scoringComponentEnabled)
+                            #parse ("/vm/assignment/chef_assignments_scoring_agent.vm")
+                        #end
+                    </p>
+                    <div id="peerReviewInfo" class="popupMessage" style="display:none">$tlang.getString("peerassessment.peerGradeInfo")</div>
+                #elseif ($gradeType == 4)
+                    <p class="shorttext">
+                        <label for="grade">$tlang.getString("gen.gra2")</label>
+                        <select name="$name_grade" id="grade">
+                            <option value="" #if($!grade_submission_grade.equals(""))selected="selected"#end>$tlang.getString("non.submission.grade.select")</option>
+                            #foreach ($i in ["pass", "fail"])
+                                <option value="$i"
+                                    #if ($!grade_submission_grade.equalsIgnoreCase($tlang.getString($i)))
+                                        selected="selected"
                                     #end
-                                    id="gradeChecked"/>
-                                $tlang.getString("gen.gra2") $tlang.getString("gen.checked")
-                            </label>
-                        </p>
-                    #end
-
-                    #if ($assignment.IsGroup)
-                        <div class="form-group" id="tempGradeOverride">
-                            <input type="checkbox" id="allowGradeOverrideToggle"
-                                   #if ($value_grades && $value_grades.size() > 0) checked="checked"#end
-                                   name="allowGradeOverrideToggle"
-                                   onclick="if(checked){document.getElementById('gradeOverridePanel').style.display='block';ASN.resizeFrame();}else{document.getElementById('gradeOverridePanel').style.display = 'none';}"/>
-                            <label for="allowGradeOverrideToggle">$tlang.getString("allowGradeOverride")</label>
-                        </div>
-                        <div id="gradeOverridePanel" style="#if(!$value_grades || $value_grades.size()<1)display:none;#end">
-                            ## replace it with submitter sort names
-                            #foreach ($submitter in $submission.submitters)
-                                #set($submitterName = $users.get($submitter.getSubmitter()).getDisplayName())
-                                #set($submitterId = $users.get($submitter.getSubmitter()).getDisplayId())
-                                #if ($!submitterId)
-                                ##attach the displayId
-                                    #set($submitterName=$submitterName.concat(" (").concat($submitterId).concat(")"))
+                                    >
+                                    $tlang.getString($i)
+                                </option>
+                            #end
+                        </select>
+                    </p>
+                #elseif ($gradeType == 5)
+                    <p class="form-group">
+                        <label for="gradeChecked">
+                            <input name="$name_grade" type="checkbox" value="Checked"
+                                #if ($!grade_submission_grade.equals($tlang.getString("gen.checked")))
+                                   checked="checked"
                                 #end
-                                #set ($group_name_grade = $name_grade.concat("_").concat($submitter.getSubmitter()))
-                                #set ($group_value_grade = "")
-                                #set ($group_value_grade = $value_grades.get($submitter.getSubmitter()))
-                                #if ($gradeType == 2)
-                                    <div class="row-override">
-                                        <label>$formattedText.escapeHtml($!submitterName)</label>
-                                        <div class="shorttext">
-                                            <span$tlang.getString("gen.grade.override")</span>
-                                            <select name="$group_name_grade" id="grade">
-                                                <option value=""#if($!group_value_grade.equals(
-                                                    ""))selected="selected"#end>$tlang.getString(
-                                                    "non.submission.grade.select")</option>
-                                                #foreach ($i in $letterGradeOptions)
-                                                    <option value="$i"
-                                                        #if ($!group_value_grade.equals($i))
-                                                            selected="selected"
-                                                        #end>
-                                                        $i
-                                                    </option>
-                                                #end
-                                            </select>
-                                        </div>
-                                    </div>
-                                #elseif ($gradeType == 3)
-                                    <div class="row-override">
-                                        <label>$formattedText.escapeHtml($!submitterName)</label>
-                                        <div class="shorttext">
-                                            <span>$tlang.getString("gen.grade.override")</span>
-                                            <input type="text"
-                                                name="$group_name_grade"
-                                                size="5"
-                                                maxlength="11"
-                                                value="$!group_value_grade"
-                                                id="grade"
-                                                onkeypress="return ASN.handleEnterKeyPress(event);" />
-                                            <span>($tlang.getString("grade.max") $!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint))</span>
-                                        </div>
-                                    </div>
-                                #elseif ($gradeType == 4)
-                                    <div class="row-override">
-                                        <label>$formattedText.escapeHtml($!submitterName)</label>
-                                        <div class="shorttext">
-                                            <span>$tlang.getString("gen.grade.override")</span>
-                                            <select name="$group_name_grade" id="grade">
-                                                <option value=""
-                                                    #if($!group_value_grade.equals(""))
+                                id="gradeChecked"/>
+                            $tlang.getString("gen.gra2") $tlang.getString("gen.checked")
+                        </label>
+                    </p>
+                #end
+
+                #if ($assignment.IsGroup)
+                    <div class="form-group" id="tempGradeOverride">
+                        <input type="checkbox" id="allowGradeOverrideToggle"
+                               #if ($value_grades && $value_grades.size() > 0) checked="checked"#end
+                               name="allowGradeOverrideToggle"
+                               onclick="if(checked){document.getElementById('gradeOverridePanel').style.display='block';ASN.resizeFrame();}else{document.getElementById('gradeOverridePanel').style.display = 'none';}"/>
+                        <label for="allowGradeOverrideToggle">$tlang.getString("allowGradeOverride")</label>
+                    </div>
+                    <div id="gradeOverridePanel" style="#if(!$value_grades || $value_grades.size()<1)display:none;#end">
+                        ## replace it with submitter sort names
+                        #foreach ($submitter in $submission.submitters)
+                            #set($submitterName = $users.get($submitter.getSubmitter()).getDisplayName())
+                            #set($submitterId = $users.get($submitter.getSubmitter()).getDisplayId())
+                            #if ($!submitterId)
+                            ##attach the displayId
+                                #set($submitterName=$submitterName.concat(" (").concat($submitterId).concat(")"))
+                            #end
+                            #set ($group_name_grade = $name_grade.concat("_").concat($submitter.getSubmitter()))
+                            #set ($group_value_grade = "")
+                            #set ($group_value_grade = $value_grades.get($submitter.getSubmitter()))
+                            #if ($gradeType == 2)
+                                <div class="row-override">
+                                    <label>$formattedText.escapeHtml($!submitterName)</label>
+                                    <div class="shorttext">
+                                        <span$tlang.getString("gen.grade.override")</span>
+                                        <select name="$group_name_grade" id="grade">
+                                            <option value=""#if($!group_value_grade.equals(
+                                                ""))selected="selected"#end>$tlang.getString(
+                                                "non.submission.grade.select")</option>
+                                            #foreach ($i in $letterGradeOptions)
+                                                <option value="$i"
+                                                    #if ($!group_value_grade.equals($i))
                                                         selected="selected"
                                                     #end>
-                                                    $tlang.getString("ungra")
+                                                    $i
                                                 </option>
-                                                #foreach ($i in ["Pass", "Fail"])
-                                                    <option value="$i"
-                                                        #if ($!group_value_grade.equalsIgnoreCase($tlang.getString($i.toLowerCase())))
-                                                            selected="selected"
-                                                        #end>
-                                                        #if ($i=="Pass")
-                                                            $tlang.getString("pass")
-                                                        #elseif ($i=="Fail")
-                                                            $tlang.getString("fail")
-                                                        #end
-                                                    </option>
-                                                #end
-                                            </select>
-                                        </div>
+                                            #end
+                                        </select>
                                     </div>
-                                #elseif ($gradeType == 5)
-                                    <div class="row-override">
-                                        <label>$formattedText.escapeHtml($!submitterName)</label>
-                                        <div class="assignment-checkbox-inline">
-                                            <span>$tlang.getString("gen.grade.override")</span>
-                                            <label for="$group_name_grade">
-                                                <input name="$group_name_grade" type="checkbox" value="Checked"
-                                                   #if ($!group_value_grade.equals($tlang.getString("gen.checked")))checked="checked"#end
-                                                   id="$group_name_grade"/>
-                                                $tlang.getString("gen.gra2") $tlang.getString("gen.checked")
-                                            </label>
-                                        </div>
+                                </div>
+                            #elseif ($gradeType == 3)
+                                <div class="row-override">
+                                    <label>$formattedText.escapeHtml($!submitterName)</label>
+                                    <div class="shorttext">
+                                        <span>$tlang.getString("gen.grade.override")</span>
+                                        <input type="text"
+                                            name="$group_name_grade"
+                                            size="5"
+                                            maxlength="11"
+                                            value="$!group_value_grade"
+                                            id="grade"
+                                            onkeypress="return ASN.handleEnterKeyPress(event);" />
+                                        <span>($tlang.getString("grade.max") $!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint))</span>
                                     </div>
-                                #end
+                                </div>
+                            #elseif ($gradeType == 4)
+                                <div class="row-override">
+                                    <label>$formattedText.escapeHtml($!submitterName)</label>
+                                    <div class="shorttext">
+                                        <span>$tlang.getString("gen.grade.override")</span>
+                                        <select name="$group_name_grade" id="grade">
+                                            <option value=""
+                                                #if($!group_value_grade.equals(""))
+                                                    selected="selected"
+                                                #end>
+                                                $tlang.getString("ungra")
+                                            </option>
+                                            #foreach ($i in ["Pass", "Fail"])
+                                                <option value="$i"
+                                                    #if ($!group_value_grade.equalsIgnoreCase($tlang.getString($i.toLowerCase())))
+                                                        selected="selected"
+                                                    #end>
+                                                    #if ($i=="Pass")
+                                                        $tlang.getString("pass")
+                                                    #elseif ($i=="Fail")
+                                                        $tlang.getString("fail")
+                                                    #end
+                                                </option>
+                                            #end
+                                        </select>
+                                    </div>
+                                </div>
+                            #elseif ($gradeType == 5)
+                                <div class="row-override">
+                                    <label>$formattedText.escapeHtml($!submitterName)</label>
+                                    <div class="assignment-checkbox-inline">
+                                        <span>$tlang.getString("gen.grade.override")</span>
+                                        <label for="$group_name_grade">
+                                            <input name="$group_name_grade" type="checkbox" value="Checked"
+                                               #if ($!group_value_grade.equals($tlang.getString("gen.checked")))checked="checked"#end
+                                               id="$group_name_grade"/>
+                                            $tlang.getString("gen.gra2") $tlang.getString("gen.checked")
+                                        </label>
+                                    </div>
+                                </div>
                             #end
-                        </div>
-                    #end
-                #else
-                ## if not allowed to grade, show the current grade instead
-                    <input name="$name_grade" type="hidden" value="$!value_grade"/>
-                    <div class="sak-banner-error">$!notAllowedToGradeWarning</div>
-                    <label for="grade">$tlang.getString("gen.gra2")</label>
-                    $!value_grade
+                        #end
+                    </div>
                 #end
-            </div>
-            ## the previous grades
-            #set ($previousGrades = $submission.Properties.get($NamePropSubmissionScaledPreviousGrades))
-            #if ($previousGrades && $previousGrades.length() > 0 )
-                <h4 id="toggleGrade" class="toggleAnchor">
-                    <img alt="expand" class="expand" src="/library/image/sakai/expand.gif"/>
-                    <img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif"/>
-                    $tlang.getString("gradingsub.pregra")
-                </h4>
-                <div class="gradecoms  toggledContent">
-                    $previousGrades
-                </div>
+            #else
+            ## if not allowed to grade, show the current grade instead
+                <input name="$name_grade" type="hidden" value="$!value_grade"/>
+                <div class="sak-banner-error">$!notAllowedToGradeWarning</div>
+                <label for="grade">$tlang.getString("gen.gra2")</label>
+                $!value_grade
             #end
+        </div>
+        ## the previous grades
+        #set ($previousGrades = $submission.Properties.get($NamePropSubmissionScaledPreviousGrades))
+        #if ($previousGrades && $previousGrades.length() > 0 )
+            <h4 id="toggleGrade" class="toggleAnchor">
+                <img alt="expand" class="expand" src="/library/image/sakai/expand.gif"/>
+                <img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif"/>
+                $tlang.getString("gradingsub.pregra")
+            </h4>
+            <div class="gradecoms  toggledContent">
+                $previousGrades
+            </div>
         #end
         <h4>
             $tlang.getString("gen.instrcomment")
@@ -587,11 +668,7 @@
             </div>
         #end
         <h4>
-            #if ($withGrade)
-                $tlang.getString("gen.atttoret")
-            #else
-                $tlang.getString("gen.atttoret2")
-            #end
+            $tlang.getString("gen.atttoret")
         </h4>
         #set ($size = 0)
         #set ($props = false)
@@ -729,23 +806,14 @@
                         style="display: none"
                     #end
                 >
-                    <label for="allowExtensionDate">$tlang.getString("gen.acesubunt")</label>
-                    <input type="text" id="allowExtensionDate" name="allowExtensionDate" class="datepicker" value=""/>
-                    <script type="text/javascript">
-                        localDatePicker({
-                            input: '#allowExtensionDate',
-                            useTime: 1,
-                            val: "$value_ExtensionYear$H$value_ExtensionMonth$H$value_ExtensionDay $value_ExtensionHour:$value_ExtensionMin",
-                            parseFormat: 'YYYY-MM-DD HH:mm',
-                            ashidden: {
-                                month: "allow_extension_closeMonth",
-                                day: "allow_extension_closeDay",
-                                year: "allow_extension_closeYear",
-                                hour: "allow_extension_closeHour",
-                                minute: "allow_extension_closeMin"
-                            }
-                        });
-                    </script>
+                    <label for="allow-extension-date">$tlang.getString("gen.acesubunt")</label>
+                    <sakai-date-picker
+                        id="allow-extension-date"
+                        label="$tlang.getString("gen.acesubunt")"
+                        iso-date="$value_ExtensionYear$H$value_ExtensionMonth$H$value_ExtensionDay$T$value_ExtensionHour:$value_ExtensionMin"
+                        hidden-prefix="allow_extension_close_"
+                        add-hidden-fields>
+                    </sakai-date-picker>
                 </div>
             </div>
             <div class="form-group" id="tempAllowRes" style="$resubmitVisibility">
@@ -772,23 +840,14 @@
                 </span>
                 <span>&nbsp;</span>
                 <span id="allowResubmitTime">
-                    <label for="allowResubmitDate">$tlang.getString("gen.acesubunt")</label>
-                    <input type="text" id="allowResubmitDate" name="allowResubmitDate" class="datepicker" value=""/>
-                    <script>
-                        localDatePicker({
-                            input: '#allowResubmitDate',
-                            useTime: 1,
-                            val: "$value_ResubmitYear$H$value_ResubmitMonth$H$value_ResubmitDay $value_ResubmitHour:$value_ResubmitMin",
-                            parseFormat: 'YYYY-MM-DD HH:mm',
-                            ashidden: {
-                                month: "allow_resubmit_closeMonth",
-                                day: "allow_resubmit_closeDay",
-                                year: "allow_resubmit_closeYear",
-                                hour: "allow_resubmit_closeHour",
-                                minute: "allow_resubmit_closeMin"
-                            }
-                        });
-                    </script>
+                    <label for="allow-resubmit-date">$tlang.getString("gen.acesubunt")</label>
+                    <sakai-date-picker
+                        id="allow-resubmit-date"
+                        label="$tlang.getString("gen.acesubunt")"
+                        iso-date="$value_ResubmitYear$H$value_ResubmitMonth$H$value_ResubmitDay$T$value_ResubmitHour:$value_ResubmitMin"
+                        hidden-prefix="allow_resubmit_close_"
+                        add-hidden-fields>
+                    </sakai-date-picker>
                 </span>
             </div> <!-- End of the allowResubmitContainer -->
         #end
@@ -871,4 +930,4 @@
         <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token"/>
     </form>
 </div>
-<!-- end: check_assignments_instructor_grading_submission.vm  -->
+<!-- end: chef_assignments_instructor_grading_submission.vm  -->

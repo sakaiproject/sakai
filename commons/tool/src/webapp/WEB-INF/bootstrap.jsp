@@ -22,7 +22,6 @@
 
         </script>
         ${sakaiHtmlHead}
-        <link href="/profile2-tool/css/profile2-profile-entity.css${portalCDNQuery}" type="text/css" rel="stylesheet" media="all" />
     </head>
     <body>
 
@@ -34,7 +33,6 @@
         <script src="/commons-tool/js/commons_utils.js${portalCDNQuery}"></script>
         <script src="/commons-tool/js/commons_permissions.js${portalCDNQuery}"></script>
         <script src="/profile2-tool/javascript/profile2-eb.js${portalCDNQuery}"></script>
-        <script type="module" src="/webcomponents/sakai-user-photo.js${portalCDNQuery}"></script>
 
         <div id="Mrphs-sakai-commons" class="portletBody commons-portletBody">
 

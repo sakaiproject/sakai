@@ -48,6 +48,8 @@ public class GradingServiceTest {
     String sampleItemText3 = "{var0} Sample (1) {var1} + {var2} + {var3} = {{formula1}}, calc=[[{var0}+{var1}+{var2}+{var3}+{var4}]] more [random] text, dblvar1=[[{var1}*2]] f2={{{formula2}}} and c3=[[{var2}]] and not calc=[[plain text]] and {var4}";
     String sampleFormula3 = "{var1}+{var2}+{var3}";
 
+    String sampleItemTextWithGlobalVars = "Global variable @global1@ and @global2@ are used in this text. Variable {var1} and {var2} are used in this text. Calculation: [[@global1@ + @global2@]] = {{SOLUTION}}. Another calculation: [[@global3@]]. Final calculation: [[@global4@]].";
+
     @Before
     public void onSetUp() throws Exception {
         gradingService = new GradingService();
@@ -220,6 +222,148 @@ public class GradingServiceTest {
         Assert.assertEquals("D", results.get(0));
     }
 
+    @Test
+    public void testExtractGlobalVariables() {
+        List<String> results = null;
+
+        results = gradingService.extractGlobalVariables(sampleItemTextWithGlobalVars);
+        Assert.assertNotNull(results);
+        Assert.assertEquals(6, results.size());
+        Assert.assertEquals("global1", results.get(0));
+        Assert.assertEquals("global2", results.get(1));
+        Assert.assertEquals("global1", results.get(2));
+        Assert.assertEquals("global2", results.get(3));
+        Assert.assertEquals("global3", results.get(4));
+        Assert.assertEquals("global4", results.get(5));
+    }
+
+    @Test
+    public void testGlobalVariablesInCalculations() throws SamigoExpressionError {
+        String result = null;
+        Map<String, String> globalVariables = new HashMap<>();
+        globalVariables.put("global1", "5");
+        globalVariables.put("global2", "10");
+        globalVariables.put("global3", "{var1} + {var2}");
+        globalVariables.put("global4", "@global3@ * 2");
+
+        Map<String, String> variables = new HashMap<>();
+        variables.put("var1", "3");
+        variables.put("var2", "7");
+
+        String input = "Calculation: [[@global1@ + @global2@]]";
+        String expected = "Calculation: [[(5) + (10)]]";
+        result = gradingService.replaceGlobalVariablesWithFormulas(input, globalVariables);
+        Assert.assertNotNull(result);
+        Assert.assertEquals(expected, result);
+
+        result = gradingService.replaceCalculationsWithValues(expected, 0);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("Calculation: 15", result);
+
+        input = "Calculation: [[@global3@]]";
+        expected = "Calculation: [[({var1} + {var2})]]";
+        result = gradingService.replaceGlobalVariablesWithFormulas(input, globalVariables);
+        Assert.assertNotNull(result);
+        Assert.assertEquals(expected, result);
+
+        result = gradingService.replaceMappedVariablesWithNumbers(expected, variables);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("Calculation: [[(3 + 7)]]", result);
+
+        result = gradingService.replaceCalculationsWithValues(result, 0);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("Calculation: 10", result);
+
+        input = "Calculation: [[@global4@]]";
+        expected = "Calculation: [[(({var1} + {var2}) * 2)]]";
+        result = gradingService.replaceGlobalVariablesWithFormulas(input, globalVariables);
+        Assert.assertNotNull(result);
+        Assert.assertEquals(expected, result);
+
+        result = gradingService.replaceMappedVariablesWithNumbers(expected, variables);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("Calculation: [[((3 + 7) * 2)]]", result);
+
+        result = gradingService.replaceCalculationsWithValues(result, 0);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("Calculation: 20", result);
+    }
+
+    @Test
+    public void testNonGlobalVariableAtSymbol() throws SamigoExpressionError {
+        String result = null;
+        Map<String, String> globalVariables = new HashMap<>();
+        globalVariables.put("global1", "5");
+        globalVariables.put("global2", "10");
+
+        String input = "This is a test with an email address: test@example.com and global variables @global1@ @global2@.";
+        String expected = "This is a test with an email address: test@example.com and global variables (5) (10).";
+        result = gradingService.checkingEmptyGlobalVariables(input, new HashMap<>(), globalVariables);
+        Assert.assertNotNull(result);
+        Assert.assertEquals(expected, result);
+
+        input = "This is a test with an email address: test@example.com.";
+        expected = "This is a test with an email address: test@example.com.";
+        result = gradingService.checkingEmptyGlobalVariables(input, new HashMap<>(), globalVariables);
+        Assert.assertNotNull(result);
+        Assert.assertEquals(expected, result);
+    }
+
+    @Test
+    public void testGlobalVariablesWithCommaAndPipe() throws SamigoExpressionError {
+        String result = null;
+        Map<String, String> globalVariables = new HashMap<>();
+        globalVariables.put("global1", "iff({var1}<2, {var1}|{var2}, {var1}=2, {var2}*3, {var1}>2, {var2}*6)");
+
+        Map<String, String> variables = new HashMap<>();
+        variables.put("var1", "0");
+        variables.put("var2", "1");
+
+        String input = "Calculation: [[@global1@]]";
+        String expected = "Calculation: [[(iff({var1}<2, {var1}|{var2}, {var1}=2, {var2}*3, {var1}>2, {var2}*6))]]";
+        result = gradingService.replaceGlobalVariablesWithFormulas(input, globalVariables);
+        Assert.assertNotNull(result);
+        Assert.assertEquals(expected, result);
+
+        result = gradingService.replaceMappedVariablesWithNumbers(expected, variables);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("Calculation: [[(iff(0<2, 0|1, 0=2, 1*3, 0>2, 1*6))]]", result);
+
+        result = gradingService.replaceCalculationsWithValues(result, 0);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("Calculation: 1", result);
+
+        variables.put("var1", "2");
+        input = "Calculation: [[@global1@]]";
+        expected = "Calculation: [[(iff({var1}<2, {var1}|{var2}, {var1}=2, {var2}*3, {var1}>2, {var2}*6))]]";
+        result = gradingService.replaceGlobalVariablesWithFormulas(input, globalVariables);
+        Assert.assertNotNull(result);
+        Assert.assertEquals(expected, result);
+
+        result = gradingService.replaceMappedVariablesWithNumbers(expected, variables);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("Calculation: [[(iff(2<2, 2|1, 2=2, 1*3, 2>2, 1*6))]]", result);
+
+        result = gradingService.replaceCalculationsWithValues(result, 0);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("Calculation: 3", result);
+
+        variables.put("var1", "3");
+        input = "Calculation: [[@global1@]]";
+        expected = "Calculation: [[(iff({var1}<2, {var1}|{var2}, {var1}=2, {var2}*3, {var1}>2, {var2}*6))]]";
+        result = gradingService.replaceGlobalVariablesWithFormulas(input, globalVariables);
+        Assert.assertNotNull(result);
+        Assert.assertEquals(expected, result);
+
+        result = gradingService.replaceMappedVariablesWithNumbers(expected, variables);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("Calculation: [[(iff(3<2, 3|1, 3=2, 1*3, 3>2, 1*6))]]", result);
+
+        result = gradingService.replaceCalculationsWithValues(result, 0);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("Calculation: 6", result);
+    }
+
     @Test(timeout = 5000)
     public void testRegexBacktracking() {
         List<String> results;
@@ -296,6 +440,17 @@ public class GradingServiceTest {
         result = gradingService.processFormulaIntoValue("\n  5 \n +  2.0\n +  3  ", 0);
         Assert.assertNotNull(result);
         Assert.assertEquals("10", result);
+
+        // Comma and Pipe
+        result = gradingService.processFormulaIntoValue("iff(0<2, 0|1, 0=2, 1*3, 0>2, 1*6)", 0);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("1", result);
+        result = gradingService.processFormulaIntoValue("iff(2<2, 2|1, 2=2, 1*3, 2>2, 1*6)", 0);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("3", result);
+        result = gradingService.processFormulaIntoValue("iff(3<2, 3|1, 3=2, 1*3, 3>2, 1*6)", 0);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("6", result);
 
         // https://jira.sakaiproject.org/browse/SAM-2157
         // 500 formula processor error occurs when either ^ or / is entered in a Formula (at any time) 
@@ -520,6 +675,18 @@ public class GradingServiceTest {
         result = gradingService.processFormulaIntoValue("(5e-49) * (6E28)", 2);
         Assert.assertNotNull(result);
         Assert.assertEquals("3E-20", result);
+
+        // E-4
+        result = gradingService.processFormulaIntoValue("1.8E-4", 2);
+        Assert.assertEquals("1.8E-4", result);
+        result = gradingService.processFormulaIntoValue("1e-12*10^(65/10)*4*pi*2.1^2", 1);
+        Assert.assertEquals("1.8E-4", result);
+        result = gradingService.processFormulaIntoValue("1e-12*10^(65/10)*4*pi*2.1^2", 2);
+        Assert.assertEquals("1.75E-4", result);
+
+        // Validate proper rounding for edge cases
+        result = gradingService.processFormulaIntoValue("-0.5854126774*(-4.519)", 3);
+        Assert.assertEquals("2.645", result);
     }
 
     @Test(expected = SamigoExpressionError.class)

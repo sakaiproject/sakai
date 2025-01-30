@@ -23,6 +23,12 @@
 // Spinner namespace
 var SPNR = SPNR || {};
 
+// Get the main content div, return an empty div if it can't be found
+const mainContent = () => {
+  const contentElement = document.getElementById("content");
+  return contentElement !== null ? contentElement : document.createElement("div");
+};
+
 /********** MAIN FUNCTIONS TO BE CALLED FROM OUTSIDE LIBRARY ******************/
 
 /**
@@ -142,7 +148,7 @@ SPNR.disableControlsAndSpin = function( clickedElement, escapeList )
 SPNR.disableLinkPointers = function( escapeList )
 {
     // Remove cursor pointers for all links (rendering them unclickable)
-    const links = document.getElementsByTagName( "a" );
+    const links = mainContent().querySelectorAll( "a" );
     for( i = 0; i < links.length; i++ )
     {
         // Remove the pointer if it's not in the escape list
@@ -168,7 +174,7 @@ SPNR.disableLinkPointers = function( escapeList )
 SPNR.disableInputs = function( clickedElement, escapeList )
 {
     // Get all the input elements, separate into lists by type
-    const allInputs = SPNR.nodeListToArray( document.getElementsByTagName( "input" ) );
+    const allInputs = mainContent().querySelectorAll( "input" );
     for( i = 0; i < allInputs.length; i++ )
     {
         if( (allInputs[i].type === "submit" || allInputs[i].type === "button" || allInputs[i].type === "checkbox" || allInputs[i].type === "radio") 
@@ -203,7 +209,7 @@ SPNR.disableInputs = function( clickedElement, escapeList )
 SPNR.disableButtons = function( clickedElement, escapeList )
 {
     // Get all the button elements
-    const buttons = SPNR.nodeListToArray( document.getElementsByTagName( "button" ) );
+    const buttons = mainContent().querySelectorAll( "button" );
     for( i = 0; i < buttons.length; i++ )
     {
         // Only disable if the button is not in the escape list
@@ -225,7 +231,7 @@ SPNR.disableButtons = function( clickedElement, escapeList )
 SPNR.disableSelects = function( clickedElement, escapeList )
 {
     // Clone and disable all drop downs (disable the clone, hide the original)
-    const dropDowns = SPNR.nodeListToArray( document.getElementsByTagName( "select" ) );
+    const dropDowns = mainContent().querySelectorAll( "select" );
     for( i = 0; i < dropDowns.length; i++ )
     {
         // Only clone/disable if it's not in the escape list
@@ -277,7 +283,7 @@ SPNR.disableSelects = function( clickedElement, escapeList )
  */
 SPNR.disableTextAreas = function( escapeList )
 {
-    const allAreas = SPNR.nodeListToArray( document.getElementsByTagName( "textarea" ) );
+    const allAreas = mainContent().querySelectorAll( "textarea" );
     for( i = 0; i < allAreas.length; ++i )
     {
         if( escapeList.indexOf( allAreas[i].id ) === -1 )
@@ -285,26 +291,6 @@ SPNR.disableTextAreas = function( escapeList )
             allAreas[i].readonly = true;
         }
     }
-};
-
-/**
- * Transform a dynamic nodeList to a static array. This function is necessary because
- * the 'document.getElementsByTagName()' function returns a dynamic list of elements.
- * As you add elements the the page, this array will grow dynamically, which can
- * cause endless loops.
- * 
- * @param {Array[DOM Element]} nodeList
- * @returns {Array[DOM Element]}
- */
-SPNR.nodeListToArray = function( nodeList )
-{
-    let array = [];
-    for( var i = nodeList.length >>> 0; i--; )
-    {
-        array[i] = nodeList[i];
-    }
-
-    return array;
 };
 
 /**
@@ -353,7 +339,7 @@ SPNR.disableElementAndSpin = function( divID, element, activateSpinner )
         // <button>               --> localName = "button", nodeName="button", tagName="BUTTON", type="submit"
         // <button type="button"> --> localName = "button", nodeName="button", tagName="BUTTON", type="button"
         element.tagName === "BUTTON" ? newElement.innerHTML = element.innerHTML : newElement.textContent = element.getAttribute( "value" );
-        newElement.className = activateSpinner ? "spinButton formButtonDisabled" : "formButtonDisabled";
+        newElement.className = element.className + " " + (activateSpinner ? "btn spinButton formButtonDisabled" : "btn formButtonDisabled");
     }
 
     if( "" !== divID )

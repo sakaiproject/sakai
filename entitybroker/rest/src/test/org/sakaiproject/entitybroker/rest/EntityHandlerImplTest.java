@@ -21,6 +21,7 @@
 package org.sakaiproject.entitybroker.rest;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Locale;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -56,6 +57,7 @@ public class EntityHandlerImplTest extends TestCase {
         td = new TestData();
 
         entityHandler = new ServiceTestManager(td).entityRequestHandler;
+        Locale.setDefault(Locale.ENGLISH);
     }
 
     /**

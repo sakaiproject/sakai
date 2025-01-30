@@ -76,6 +76,44 @@ public interface MessageForumsForumManager {
     public BaseForum getForumByUuid(String forumId);
 
     /**
+     * Retrieve FAQ Forum from a given area
+     * @return existing faq forum or null
+     */
+    public DiscussionForum getFaqForumForArea(Area area);
+
+    /**
+     * Retrieve FAQ Topic from a given forum
+     * @return existing faq forum or null
+     */
+    public DiscussionTopic getFaqTopicForForum(DiscussionForum discussionForum);
+
+    /**
+     * Create and save FAQ Forum for a given area
+     * @return newly created faq forum
+     */
+    public DiscussionForum createFaqForum(Area discussionArea);
+
+    /**
+     * Create and save FAQ Topic for a given forum
+     * @return newly created faq topic
+     */
+    public DiscussionTopic createFaqTopic(DiscussionForum discussionForum);
+
+    /**
+     * Retrieve or create and save FAQ Forum from a given area
+     * Create and save FAQ Forum for a given area
+     * @return existing or newly created faq forum
+     */
+    public DiscussionForum getOrCreateFaqForumForArea(Area area);
+
+    /**
+     * Retrieve or create and save FAQ Topic from a given forum
+     * Create and save FAQ Forum for a given area
+     * @return existing or newly created faq topic
+     */
+    public DiscussionTopic getOrCreateFaqTopicForForum(DiscussionForum discussionForum);
+
+    /**
      * Create and save an empty discussion forum
      * @return discussion forum
      */
@@ -93,8 +131,8 @@ public interface MessageForumsForumManager {
      * save private forum
      * @param forum to save
      */
-    public void savePrivateForum(PrivateForum forum);
-    public void savePrivateForum(PrivateForum forum, String userId);
+    public PrivateForum savePrivateForum(PrivateForum forum);
+    public PrivateForum savePrivateForum(PrivateForum forum, String userId);
 
     /**
      * Save a discussion forum
@@ -124,9 +162,9 @@ public interface MessageForumsForumManager {
     /**
      * Save a discussion forum topic
      */
-    public void savePrivateForumTopic(PrivateTopic topic);
-    public void savePrivateForumTopic(PrivateTopic topic, String userId);
-    public void savePrivateForumTopic(PrivateTopic topic, String userId, String siteId);
+    public PrivateTopic savePrivateForumTopic(PrivateTopic topic);
+    public PrivateTopic savePrivateForumTopic(PrivateTopic topic, String userId);
+    public PrivateTopic savePrivateForumTopic(PrivateTopic topic, String userId, String siteId);
     
     /**
      * Delete a private forum topic

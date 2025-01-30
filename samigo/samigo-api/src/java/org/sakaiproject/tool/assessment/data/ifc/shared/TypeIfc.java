@@ -58,14 +58,51 @@ public interface TypeIfc extends java.io.Serializable {
   public static final String DOMAIN_ASSESSMENT_ITEM = "assessment.item";
   
   enum TypeId{
-	  MULTIPLE_CHOICE_ID(MULTIPLE_CHOICE);
-	  int id;
-	  TypeId(Long l){
-		  id = l.intValue();
-	  }
-	  public int id(){
-		  return id;
-	  }
+    MULTIPLE_CHOICE_ID(MULTIPLE_CHOICE),
+    MULTIPLE_CORRECT_ID(MULTIPLE_CORRECT),
+    MULTIPLE_CHOICE_SURVEY_ID(MULTIPLE_CHOICE_SURVEY),
+    TRUE_FALSE_ID(TRUE_FALSE),
+    ESSAY_QUESTION_ID(ESSAY_QUESTION),
+    FILE_UPLOAD_ID(FILE_UPLOAD),
+    AUDIO_RECORDING_ID(AUDIO_RECORDING),
+    FILL_IN_BLANK_ID(FILL_IN_BLANK),
+    MATCHING_ID(MATCHING),
+    FILL_IN_NUMERIC_ID(FILL_IN_NUMERIC),
+    MULTIPLE_CORRECT_SINGLE_SELECTION_ID(MULTIPLE_CORRECT_SINGLE_SELECTION),
+    MATRIX_CHOICES_SURVEY_ID(MATRIX_CHOICES_SURVEY),
+    EXTENDED_MATCHING_ITEMS_ID(EXTENDED_MATCHING_ITEMS),
+    CALCULATED_QUESTION_ID(CALCULATED_QUESTION),
+    IMAGEMAP_QUESTION_ID(IMAGEMAP_QUESTION);
+
+    private int id;
+
+    TypeId(Long l) {
+      id = l.intValue();
+    }
+
+    public int id() {
+      return id;
+    }
+
+    public static TypeId getInstance(long id) {
+      for (TypeId typeId : TypeId.values()) {
+          if (typeId.id() == id) {
+              return typeId;
+          }
+      }
+
+      throw new IllegalArgumentException("Invalid type id: " + id);
+    }
+
+    public static boolean isValidId(long value) {
+      for (TypeId typeId : TypeId.values()) {
+          if (typeId.id() == value) {
+              return true;
+          }
+      }
+
+      return false;
+    }
   }
 
   Long getTypeId();

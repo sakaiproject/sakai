@@ -54,14 +54,16 @@ table.presentation p {
 .progress-bar {
   background-color: var(--sakai-active-color-1);
 }
-.progress-bar-success {
-  background-color: var(--successBanner-bgcolor);
+.samigo-subheading, .samigo-sub-subheading {
+  font-weight: 400;
+  margin: 8px 0;
 }
 .samigo-subheading {
-  font-weight: 400;
+  font-size: 1.2em;
   border-bottom: 1px solid var(--sakai-border-color);
+}
+.samigo-sub-subheading {
   font-size: 1.1em;
-  margin: 8px 0;
 }
 h4.samigo-category-subhead {
   font-weight: bold;
@@ -77,7 +79,10 @@ h4.samigo-category-subhead-2 {
 
 .treefolder, .treefolder-open, .treedoc {
  position: relative;
- margin-right: 15px;
+ margin-right: 2px;
+ padding: 1px 8px;
+ border-radius: 4px;
+ --link-hover-background-color: var(--sakai-background-color-3);
 }
 
 .treefolder:before {
@@ -167,6 +172,11 @@ h4.samigo-category-subhead-2 {
 .toggle_link_container{
 	text-align:right;
 }
+
+.toggle_link_container_for_richtextarea {
+	text-align:left;
+}
+
 .toggle_link{
 	font-size:85%;
 	border-right:1px solid var(--sakai-border-color);
@@ -208,13 +218,8 @@ h4.samigo-category-subhead-2 {
 	font-weight: bold;
 }
 
-.detailedStatsCorrectAnswerText {
+.boldText {
     font-weight: bold;
-}
-
-.prePopulateText
-{
-	color:var(--sakai-text-color-dimmed);
 }
 
 .textBelowHeader {
@@ -530,18 +535,6 @@ a.hideDivision {
 }
 .samigo-question-answer:hover {
 	margin-bottom: 12px;
-}
-.mcAnswerText {
-	display:inline;
-	float:unset;
-}
-.mcAnswerText label {
-	font-weight: normal;
-}
-/* Someone put a paragraph in a multiple choice answer */
-.mcAnswerText p:first-child {
-    display: inline;
-    margin: 0 0 1em 0;
 }
 
 span.author_mcLabelText {
@@ -955,12 +948,12 @@ label.inactive
     margin-right: 5px;
 }
 
-#modifyPartForm\:pointsOption, #modifyPartForm\:drawOption
+#modifyPartForm\:pointsOption, #modifyPartForm\:drawOption, #modifyPartForm\:fixedOption
 {
     margin-bottom: 0.5em;
 }
 
-#modifyPartForm select
+#modifyPartForm select, #modifyPartForm\:drawOption span.multiselect-native-select
 {
     margin-left: 5px;
 }
@@ -1245,12 +1238,11 @@ p.progressItem img {
 
 }
 
-button.partLink {
+.partLink {
 	margin: 0;
 	border: none;
-	padding: 0;
-	cursor: pointer;
-	display: inline;
+	padding: 1px;
+	display: inline-block;
 	outline: none;
 	outline-offset: 0;
 
@@ -1259,9 +1251,8 @@ button.partLink {
 	overflow: hidden;
 	text-align: left;
 	width: 160px;
+	text-overflow: ellipsis;
 }
-
-
 
 button.partLink::-moz-focus-inner {
 	border: none;
@@ -1438,15 +1429,11 @@ div#eventSearchContainer {
   width: 40% !important;
 }
 
-table.stats-bar {
+table.stats-bar, table.stats-tracking {
   margin-bottom: 0px;
 }
 
-table.stats-bar td {
-  width: 50%;
-}
-
-table.stats-bar th {
+table.stats-bar th, table.stats-tracking th {
   border: 0px;
   background-color: var(--sakai-background-color-2);
 }
@@ -1484,7 +1471,7 @@ td.stats-info-column td {
   color: var(--sakai-text-color-1);
 }
 
-td.stats-answers {
+td.stats-answers, td.stats-track-answers {
   width: 43%;
   padding-left: 10px;
 }
@@ -1508,4 +1495,29 @@ td.stats-correctness {
 
 #autosave-lasttime-msg {
 	display: none;
+}
+ul.feedback-delivery label {
+  display: inline-block;
+  max-width: 600px;
+}
+ul.feedback-delivery input {
+  vertical-align: top;
+  margin-top: 2px;
+}
+
+label:has(pre) {
+  display: inline;
+}
+
+fieldset.short-summary-box > legend.summary-title {
+	font-size: 18px;
+}
+
+fieldset.short-summary-box {
+	padding: 2px;
+	border: 1px #d9d7d7 solid;
+}
+
+input[type="submit"].print_button {
+	font-size: 14px;
 }

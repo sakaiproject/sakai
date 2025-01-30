@@ -21,6 +21,7 @@
  */
 package org.sakaiproject.sitestats.tool.wicket.models;
 
+import org.apache.wicket.injection.Injector;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.util.api.FormattedText;
@@ -36,14 +37,15 @@ public class CHResourceModel implements IModel<Object> {
 	boolean isCollection = false;
 	
 	public CHResourceModel(String resourceId, String resourceName) {
-		this.resourceId = resourceId;
-		this.resourceName = resourceName;
+		this(resourceId, resourceName, false);
 	}
 	
 	public CHResourceModel(String resourceId, String resourceName, boolean isCollection) {
 		this.resourceId = resourceId;
 		this.resourceName = resourceName;
 		this.isCollection = isCollection;
+
+		Injector.get().inject(this);
 	}
 
 	public Object getObject() {

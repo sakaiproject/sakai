@@ -1,8 +1,66 @@
 ## Header that shows institution and/or banner logos
 
-<header role="banner" class="Mrphs-headerLogo">
-    <span class="Mrphs-headerLogo--institution"></span>
-    <span class="Mrphs-headerLogo--banner"></span>
+<header class="portal-header d-flex align-items-center justify-content-between" role="banner">
 
-    #parse("/vm/morpheus/includeLoginNav.vm")
+  <button class="btn icon-button m-1 d-md-none btn-sidebar-collapse responsive-sidebar-button"
+      data-bs-toggle="offcanvas"
+      data-bs-target="#portal-nav-sidebar"
+      aria-controls="portal-nav-sidebar"
+      aria-label="$rloader.sit_navigation"
+      aria-expanded="false"
+      title="$rloader.sit_navigation">
+    <span class="bi bi-list"></span>
+  </button>
+
+  <div class="d-flex align-items-center">
+    <div id="logoWrapper" class="portal-header-logo d-flex align-items-center justify-content-between bg-primary">
+      <a class="px-3 btn" href="/portal" title="$rloader.portal_home">
+        <button class="btn icon-button btn-logo-button" type="button">
+          <img src="/library/skin/$!{pageSkin}/images/sakaiLogo.png" alt="Sakai Logo">
+        </button>
+      </a>
+      <button id="sidebar-collapse-button" class="btn icon-button btn-sidebar-collapse me-1 d-none d-md-block"
+          type="button"
+          data-portal-sidebar-collapsed="$!{sidebarCollapsed}"
+          data-bs-toggle="tooltip"
+          data-bs-placement="bottom"
+          title="${sidebarCollapseBtnTitle}"
+          aria-controls="portal-nav-sidebar">
+        <span class="bi bi-list"></span>
+      </button>
+    </div>
+    #if (${userIsLoggedIn})
+    <div class="align-items-center portal-header-breadcrumb d-none d-md-flex">
+      <div id="header-site-title" class="ms-3 portal-header-breadcrumb-item">
+        <a href="$!{siteUrl}">$!{siteTitle}</a>
+      </div>
+      #foreach( $page in $sitePages.pageNavTools )
+        #if ($page.current)
+          <div class="mx-2 bi bi-chevron-right portal-header-breadcrumb-separator d-none d-md-block"></div>
+          <div class="portal-header-breadcrumb-item header-tool-title">
+            <a href="${page.pageResetUrl}" title="$rloader.sit_reset">${page.pageTitle}</a>
+          </div>
+        #end
+      #end
+    </div>
+    #end
+  </div>
+
+  <a href="#" class="sak-sysInd-systemAlerts nav-link d-none align-items-center text-white me-auto" onclick="alert('Somehow we will get the dismissed PA System alert to re-appear');">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-diamond me-1 text-warning" viewBox="0 0 16 16">
+      <path d="M6.95.435c.58-.58 1.52-.58 2.1 0l6.515 6.516c.58.58.58 1.519 0 2.098L9.05 15.565c-.58.58-1.519.58-2.098 0L.435 9.05a1.482 1.482 0 0 1 0-2.098L6.95.435zm1.4.7a.495.495 0 0 0-.7 0L1.134 7.65a.495.495 0 0 0 0 .7l6.516 6.516a.495.495 0 0 0 .7 0l6.516-6.516a.495.495 0 0 0 0-.7L8.35 1.134z"/>
+      <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/>
+    </svg>
+    <span class="d-none d-md-inline">View System Alert</span>
+  </a>
+
+  #if (!${userIsLoggedIn})
+    #if (${loginTopLogin})
+      #parse("/vm/morpheus/includeLoginNav.vm")
+    #else
+      #parse("/vm/morpheus/snippets/loginImage-snippet.vm")
+    #end
+  #else
+    #parse("/vm/morpheus/includeAccountNav.vm")
+  #end
 </header>

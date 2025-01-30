@@ -5,7 +5,7 @@
     <parent>
         <artifactId>portal</artifactId>
         <groupId>org.sakaiproject.portal</groupId>
-        <version>23-SNAPSHOT</version>
+        <version>25-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -48,42 +48,48 @@
             <artifactId>sakai-presence-api</artifactId>
         </dependency>
         <dependency>
-                <groupId>org.sakaiproject.entitybroker</groupId>
-                <artifactId>entitybroker-api</artifactId>
-                <scope>provided</scope>
+            <groupId>org.sakaiproject.entitybroker</groupId>
+            <artifactId>entitybroker-api</artifactId>
         </dependency>
         <dependency>
-                <groupId>org.sakaiproject.entitybroker</groupId>
-                <artifactId>entitybroker-utils</artifactId>
+            <groupId>org.sakaiproject.entitybroker</groupId>
+            <artifactId>entitybroker-utils</artifactId>
         </dependency>
         <dependency>
-                <groupId>org.sakaiproject.profile2</groupId>
-                <artifactId>profile2-api</artifactId>
+            <groupId>org.sakaiproject.profile2</groupId>
+            <artifactId>profile2-api</artifactId>
         </dependency>
         <dependency>
-                <groupId>org.sakaiproject.search</groupId>
-                <artifactId>search-api</artifactId>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
         </dependency>
         <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-core</artifactId>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
         </dependency>
         <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-beans</artifactId>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.pasystem</groupId>
             <artifactId>pasystem-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.sakaiproject.basiclti</groupId>
-            <artifactId>basiclti-api</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.sakaiproject.lti</groupId>
+            <artifactId>lti-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
         </dependency>
         <!-- required for unit tests -->
         <dependency>
@@ -101,7 +107,6 @@
         <dependency>
             <groupId>jtidy</groupId>
             <artifactId>jtidy</artifactId>
-            <!-- <version>4aug2000r7-dev</version> -->
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -113,34 +118,15 @@
             <artifactId>sakai-velocity-util</artifactId>
         </dependency>
         <dependency>
-            <groupId>xom</groupId>
-            <artifactId>xom</artifactId>
-            <version>1.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.googlecode.json-simple</groupId>
-            <artifactId>json-simple</artifactId>
-            <version>${json.simple.version}</version>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
+            <artifactId>mockito-inline</artifactId>
+            <version>4.11.0</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-api-mockito2</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-module-junit4</artifactId>
-            <scope>test</scope>
-        </dependency>
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-lang3</artifactId>
-		</dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-text</artifactId>
@@ -175,9 +161,10 @@
                 </includes>
             </resource>
         </resources>
+        <testSourceDirectory>src/test/java</testSourceDirectory>
         <testResources>
             <testResource>
-                <directory>${basedir}/src/testBundle</directory>
+                <directory>${basedir}/src/test/resources</directory>
                 <includes>
                     <include>**/*.*</include>
                 </includes>

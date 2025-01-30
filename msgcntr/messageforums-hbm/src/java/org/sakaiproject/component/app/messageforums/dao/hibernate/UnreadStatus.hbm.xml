@@ -46,6 +46,10 @@
     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl as us where us.messageId = :messageId and us.topicId = :topicId and us.userId = :userId]]>
   </query>
 
+    <query name="findUnreadStatusesForTopic">
+        <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl as us where us.topicId = :topicId]]>
+    </query>
+
 	<database-object>
 		<create>create index MFR_UNREAD_MESSAGE_C_ID on MFR_UNREAD_STATUS_T (MESSAGE_C)</create>
 		<drop></drop>
@@ -63,11 +67,6 @@
 
 	<database-object>
 		<create>create index MFR_UNREAD_READ_C_ID on MFR_UNREAD_STATUS_T (READ_C)</create>
-		<drop></drop>
-	</database-object>
-
-	<database-object>
-		<create>create index MFR_UNREAD_STATUS_I2 on MFR_UNREAD_STATUS_T (MESSAGE_C, USER_C, READ_C)</create>
 		<drop></drop>
 	</database-object>
 </hibernate-mapping>

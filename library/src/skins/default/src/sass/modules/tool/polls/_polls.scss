@@ -1,0 +1,145 @@
+.#{$namespace}sakai-poll{
+	.pollEditorSmall{
+		max-width: 60em;;
+	    padding-bottom: 1em;
+	}
+
+	/*skinned sortable header - sort icons*/
+	thead{
+		tr{
+			th{
+				font-weight: bold;
+				text-decoration: none;
+			}
+			.header{
+				a{
+					padding-right: 25px;
+				}
+			}
+			div{
+				.reset-order{
+					a{
+						&:after {
+							font-family: FontAwesome;
+							content: "\f0dc"; // fa-sort
+							margin-left: 0.5em;
+						}
+					}
+				}
+			}
+			.headerSortUp{
+				a {
+					padding-right: 25px;
+					&:after {
+						font-family: FontAwesome;
+						content: "\f0dd"; // fa-sort-desc
+						margin-left: 0.5em;
+					}
+				}
+			}
+			.headerSortDown{
+				a {
+					padding-right: 25px;
+					&:after {
+						font-family: FontAwesome; 
+						content: "\f0de"; // fa-sort-asc
+						margin-left: 0.5em;
+					}
+				}
+			}
+		}
+	}
+
+	#sortableTable {
+		display: table;
+		tr{
+			display: table-row;
+			td{
+				display: table-cell;
+				padding: 8px;
+			}
+		}
+		.reset-order {
+			cursor: pointer;
+			&:after {
+				font-family: FontAwesome;
+				content: "\f0dc"; // fa-sort
+				margin-left: 0.5em;
+			}
+			#reset-order-link span {
+				display: none;
+			}
+		}
+	}
+	#poll_list_remove_confirm, #poll_list_reset_confirm  {
+		display: none;
+	}
+	.addItem {
+		&:before {
+			font-family: FontAwesome;
+			content: "\f067"; // fa-plus
+			margin-right: 0.5em;
+		}
+	}
+
+	.actionItem, .itemAction{
+		float: none;
+	}
+
+	/* chart styles */
+	#chart-selector {
+		margin-top: 20px;
+		margin-bottom: 10px;
+		display:block;
+	}
+
+	.icon {
+		background-position: center left;
+	    background-repeat: no-repeat;
+	    padding-left: 18px;
+	}
+
+	.refresh {
+		&:before {
+			font-family: FontAwesome;
+			content: "\f021"; // fa-refresh
+			margin-right: 0.5em;
+		}
+	}
+
+	 form{
+	 	> table{
+	 		@media #{$phone}{
+	 			display: block;		
+	 			max-width: 100%;
+	 			tr{
+	 				display: inline;
+	 			}
+	 			td{
+	 				display: block;
+	 				max-width: 100%;
+	 			}
+	 		}
+	 	}
+		.listHier{ 
+			tr {
+				td {
+	 				@media #{$phone}{
+						font-size: 12px;
+					}
+		 		}
+		 	}
+		 }
+	 	input{
+	 		@media #{$phone}{
+	 			max-width: 92%;
+	 		}
+	 	}
+	 	label{
+	 		font-weight: 400;
+	 		&[for^="option"]{
+	 			margin: 0 0 5px 0.6em;
+	 		}
+	 	}
+	 }
+}

@@ -47,10 +47,10 @@
 ## Macro for the paginator
 #macro( paginator $topMsgPos $btmMsgPos $allMsgNumber $pagesize $goFPButton $goPPButton $goNPButton $goLPButton $sakai_csrf_token $pagesizes )
     <nav class="assignment-pager panel panel-default">
-        <div class="panel-heading" id="pagingHeader">
+        <div class="card text-center" id="pagingHeader">
             $tlang.getString( "gen.viewing" ) $topMsgPos - $btmMsgPos $tlang.getString( "gen.of" ) $allMsgNumber $tlang.getString( "gen.items" )
         </div>
-        <div class="panel-body">
+        <div class="card-body">
         #if( $pagesize != 0 )
             <form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
                     <span class="skip">$tlang.getString( "gen.first" )</span>
@@ -92,7 +92,7 @@
 #end
 
 ## Macro for the top nav bar HREF and #toolLink/#toolLinkParam
-#macro( navBarHREF $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view $current )
+#macro( navBarHREF $allowAddAssignment $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view $current )
     <ul class="navIntraTool actionToolBar">
         #set( $prevAction = false )
         <li #if( $prevAction == false ) class="firstToolBarItem" #set( $prevAction = true ) #end>
@@ -122,7 +122,7 @@
             #end
         </li>
 
-        #if( $withGrade && $!allowGradeSubmission )
+        #if($!allowGradeSubmission )
             <li #if( $prevAction == false ) class="firstToolBarItem" #set( $prevAction = true ) #end>
                 #if( !$!view.equals( "grarep" ) )
                     <span>
@@ -194,12 +194,12 @@
         <li class="firstToolBarItem">
         #if( $current == "Assignment" )
             <span id="tabAssignmentCurrent" class="current">$!tlang.getString( "ts.tab.assignment" )</span>
-            <span id="tabAssignmentRef" class="hidden">
+            <span id="tabAssignmentRef" class="d-none">
                 <a href="javascript:void(0)" title="$!tlang.getString( "ts.tab.assignment" )" onclick="ASN.switchTimesheetTab( 'tabAssignment' ); return false;">
                 $!tlang.getString( "ts.tab.assignment" ) </a>
             </span>
         #else
-            <span id="tabAssignmentCurrent" class="current hidden">$!tlang.getString( "ts.tab.assignment" )</span>
+            <span id="tabAssignmentCurrent" class="current d-none">$!tlang.getString( "ts.tab.assignment" )</span>
             <span id="tabAssignmentRef" class="">
                 <a href="javascript:void(0)" title="$!tlang.getString( "ts.tab.assignment" )" onclick="ASN.switchTimesheetTab( 'tabAssignment' ); return false;">
                 $!tlang.getString( "ts.tab.assignment" )</a>
@@ -209,12 +209,12 @@
         <li class="firstToolBarItem">
         #if( $current == "timeSheet" )
             <span id="tabTimeSheetCurrent" class="current">$!tlang.getString( "ts.tab.timesheet" )</span>
-            <span id="tabTimeSheetRef" class="hidden">
+            <span id="tabTimeSheetRef" class="d-none">
                 <a href="javascript:void(0)" title="$!tlang.getString( "ts.tab.timesheet" )" onclick="ASN.switchTimesheetTab( 'tabTimeSheet' ); return false;">
                 $!tlang.getString( "ts.tab.timesheet" )</a>
             </span>
         #else
-            <span id="tabTimeSheetCurrent" class="current hidden">$!tlang.getString( "ts.tab.timesheet" )</span>
+            <span id="tabTimeSheetCurrent" class="current d-none">$!tlang.getString( "ts.tab.timesheet" )</span>
             <span id="tabTimeSheetRef" class="">
                 <a href="javascript:void(0)""$!tlang.getString( "ts.tab.timesheet" )" onclick="ASN.switchTimesheetTab( 'tabTimeSheet' ); return false;">
                 $!tlang.getString( "ts.tab.timesheet" )</a>
@@ -225,7 +225,7 @@
 #end
 
 ## Macro for the top nav bar using onclick JavaScript
-#macro( navBarOnClick $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view $formID $current )
+#macro( navBarOnClick $allowAddAssignment $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view $formID $current )
     <ul class="navIntraTool actionToolBar">
         #set( $prevAction = false )
         #if( !$!view.equals( "lisofass1" ) )
@@ -277,7 +277,7 @@
                 <span class="disabled">$!tlang.getString( "lisofass2" )</span>
             </li>
         #end
-        #if( $withGrade && $!allowGradeSubmission )
+        #if( $!allowGradeSubmission )
             <li #if( $prevAction == false ) class="firstToolBarItem" #set( $prevAction = true ) #end>
                 #if( $current == "gradeReport" )
                     <span class="current">$!tlang.getString( "gen.grarep" )</span>
@@ -403,37 +403,6 @@
                 #end
             </ul>
         #end
-    #end
-#end
-
-## macro for rendering student's progress bar
-#macro( progressBar $progressStatus)
-    #if (!$!progressStatus.isEmpty())
-        #set($dynWidth = 100.0 / $!progressStatus.size())
-        #set($totalWidthBg = 0)
-        #set($statusSet = $!progressStatus.keySet())
-        #set($currentStatus = $tlang.getString("gen.notsta"))
-        <div tabindex="0" class="progress-container" role="status" aria-labelledby="status">
-            <div class="progress progress-cols">
-                #foreach ($status in $!statusSet.iterator())
-                    <div class="progress-bar progress-bar-empty" style="width: $dynWidth%">$status</div>
-                    #if($!progressStatus.get($status))
-                        #set($totalWidthBg = $totalWidthBg + $dynWidth)
-                        #set($currentStatus = $status) ## Saves the last status of the hashmap that equals true, used for screen reader
-                    #end
-                #end
-            </div>
-            <div id="status" hidden>$currentStatus</div>
-            <div class="progress">
-                #set($minWidth = $totalWidthBg - $dynWidth)
-                <div class="progress-bar active" style="width: $minWidth%"></div>
-            </div>
-            <script>
-                $(document).ready(function() {
-                    $('.progress-bar.active').css('width', $totalWidthBg + '%');
-                });
-            </script>
-        </div>
     #end
 #end
 
@@ -600,7 +569,6 @@
 	#end
 #end
 #macro( rubricsRequirements )
-    #javascript("/webcomponents/rubrics/sakai-rubrics-utils.js")
-    #module("/webcomponents/rubrics/rubric-association-requirements.js")
+    #module("/webcomponents/bundles/rubric-association-requirements.js")
 #end
 <!-- end: assignment_macros.vm -->

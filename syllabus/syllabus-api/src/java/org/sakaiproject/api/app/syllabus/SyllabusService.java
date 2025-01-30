@@ -75,8 +75,6 @@ public interface SyllabusService extends EntityProducer
 	
 	public List getMessages(String id);
 	
-	public void importEntities(String fromSiteId, String toSiteId, List resourceIds);
-	
 	//permission convert
 	public String getEntityReference(SyllabusData sd, String thisSiteId);
 	

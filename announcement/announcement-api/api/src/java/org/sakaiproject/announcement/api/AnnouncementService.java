@@ -22,7 +22,6 @@
 package org.sakaiproject.announcement.api;
 
 import java.util.List;
-import java.util.Map;
 
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
@@ -101,12 +100,6 @@ public interface AnnouncementService extends MessageService
 	/** Security function giving the user permission to all groups, if granted to at the channel or site level. */
 	public static final String SECURE_ANNC_ALL_GROUPS = SECURE_ANNC_ROOT + SECURE_ALL_GROUPS;
 
-	/** release date property names for announcements	 */
-	public static final String RELEASE_DATE = "releaseDate";
-	
-	/** retract date property names for announcements	 */
-	public static final String RETRACT_DATE = "retractDate";
-	
 	/** modified date property names for announcements	 */
 	public static final String MOD_DATE = "modDate";
 	
@@ -126,6 +119,12 @@ public interface AnnouncementService extends MessageService
 
 	/** Event for delayed announcement **/
 	public static final String EVENT_AVAILABLE_ANNC = SECURE_ANNC_ROOT + "available.announcement";
+
+	public final static String SAKAI_ANNOUNCEMENT_TOOL_ID = "sakai.announcements";
+
+	public final static String PORTLET_CONFIG_PARM_MERGED_CHANNELS = "mergedAnnouncementChannels";
+
+	public static final String SYNOPTIC_ANNOUNCEMENT_TOOL = "sakai.synoptic.announcement";
 
 	/**
 	 * A (AnnouncementChannel) cover for getChannel() to return a specific announcement channel.
@@ -171,13 +170,6 @@ public interface AnnouncementService extends MessageService
 	public String getRssUrl(Reference ref);
 	
 	/**
-	 * Determine if message viewable based on release/retract dates (if set)
-	 * @param AnnouncementMessage
-	 * @return boolean
-	 */
-	public boolean isMessageViewable(AnnouncementMessage message);
-	
-	/**
 	 * clears the message cache for this channel
 	 * @param channelRef
 	 */
@@ -200,7 +192,34 @@ public interface AnnouncementService extends MessageService
 	 *            if the user does not have read permission to the channel.
 	 * @exception NullPointerException
 	 */
-	public List getMessages(String channelReference, Filter filter, boolean ascending, boolean merged) throws IdUnusedException, PermissionException, NullPointerException;
+	public List<AnnouncementMessage> getMessages(String channelReference, Filter filter, boolean ascending, boolean merged) throws IdUnusedException, PermissionException, NullPointerException;
 
-	public Map<String, List<AnnouncementMessage>> getViewableAnnouncementsForCurrentUser(Integer maxAgeInDays);
+	public Filter getMaxAgeInDaysAndAmountFilter(Integer maxAgeInDays, Integer ammount);
+
+	/**
+	 * Return a list of messages based on the supplied arguments. If you want all of a user's
+	 * announcement, set channelId to null, allUserSites to true, isSynopticTool to true and siteId
+	 * to null. If you want the announcements for a site including "merged", supply a channelId, a
+	 * mergedChannelDelimitedList and siteId, while setting allUserSites and isSynoptic tool to
+	 * false.
+	 *
+	 * @param channelReference
+	 *        The hosting channel. This is used in the merged channel retrieval
+	 * @param filter
+	 *        A filtering object to accept messages, or null if no filtering is desired.
+	 * @param ascending
+	 *        Order of messages, ascending if true, descending if false
+	 * @param mergedChannelDelimitedList
+	 *        A delimited list of channel references. These are the channels that have been "merged" into the hosting channel
+	 * @param allUserSites
+	 *        Set to true to retrieve the messages from all of the user's sites
+	 * @param isSynopticTool
+	 * @param siteId
+	 * 		  The site we want messages for
+	 * @param maxAgeInDays
+	 *        If filter is null, this will be used to filter the returned messages
+	 */
+	public List<AnnouncementMessage> getChannelMessages(String channelReference, Filter filter, boolean ascending,
+												String mergedChannelDelimitedList, boolean allUserSites,
+												boolean isSynopticTool, String siteId, Integer maxAgeInDays) throws PermissionException;
 }

@@ -45,36 +45,27 @@ import org.apache.wicket.markup.html.link.ExternalLink;
 public abstract class AjaxExternalLink<T> extends ExternalLink implements IAjaxLink {
 
 	private static final long serialVersionUID = 1L;
-	
-	public AjaxExternalLink(String id) {
-		this(id,null);
-	}
-	
+
 	public AjaxExternalLink(String id, String url) {
 		super(id, url);
-		
-		add(new AjaxEventBehavior("onclick")
-		{
+
+		add(new AjaxEventBehavior("click") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void onEvent(AjaxRequestTarget target)
-			{
+			protected void onEvent(AjaxRequestTarget target) {
 				onClick(target);
 			}
 
 			@Override
-			protected void onComponentTag(ComponentTag tag)
-			{
+			protected void onComponentTag(ComponentTag tag) {
 				// add the onclick handler only if link is enabled
-				if (isLinkEnabled())
-				{
+				if (isEnabledInHierarchy()) {
 					super.onComponentTag(tag);
 				}
 			}
 		});
 	}
-	
 	
 	/**
 	 * Returns ajax call decorator that will be used to decorate the ajax call.

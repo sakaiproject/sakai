@@ -63,7 +63,7 @@ To only exclude user sites from indexing (this is the default)
 
 To configure an excluded site list which never get indexed (the default follows).  
 
-`ignoredSites@org.sakaiproject.search.elasticsearch.ElasticSearchIndexBuilder=~admin,!admin,PortfolioAdmin`
+`ignoredSites@org.sakaiproject.search.elasticsearch.ElasticSearchIndexBuilder=~admin,!admin
 
 To control the size of the batch index thread (default 500).  The larger this is the most likely it is that nodes will end up indexing the same thing wasting cycles.  If it set to low indexing will be slow.  In practice you want your bulk size to not take longer than how often you are running the bulk thread.  
 
@@ -109,10 +109,9 @@ Property | Short Bean Name | Type | Default |
  excludeUserSites | ElasticSearchIndexBuilder | boolean | `true` (code)
  facetName | ElasticSearchIndexBuilder | String | 'tag' (code)
  facetTermSize | ElasticSearchIndexBuilder | int | 10 (code)
- ignoredSites | ElasticSearchIndexBuilder | String | '~admin,!admin,PortfolioAdmin' (code)
+ ignoredSites | ElasticSearchIndexBuilder | String | '~admin,!admin' (code)
  indexName | ElasticSearchIndexBuilder | String | 'sakai_index' (bean config)
  indexSettings | ElasticSearchIndexBuilder | String (JSON) | `null` (code)
- indexedDocumentType | ElasticSearchIndexBuilder | String | 'sakai_doc' (code)
  localNode | ElasticSearchService | boolean | `false` (code)
  mapping | ElasticSearchIndexBuilder | String (JSON) | `null` (code)
  maxNumberOfSuggestions | ElasticSearchIndexBuilder | int | 10 (code)
@@ -211,80 +210,78 @@ If your application servers have more than one IP address, you may need to speci
 The default mapping, which is relevant to the document type historically stored in the primary Sakai index, can be found in elasticsearch/impl/src/resources/org/sakaiproject/search/elastic/bundle/mapping.json.  If you wish to change it, you can set in in sakai.properties like this:
 ```
 mapping@org.sakaiproject.search.elasticsearch.ElasticSearchIndexBuilder=                \
- {                                                                     \
-    "sakai_doc": {                                                     \
-        "_source": {                                                   \
-            "enabled": false                                           \
-        },                                                             \
-        "properties": {                                                \
-            "siteid": {                                                \
-                "type": "string",                                      \
-                "index": "not_analyzed",                               \
-                "store": "yes"                                         \
-            },                                                         \
-            "creatordisplayname": {                                    \
-                "type": "text",                                        \
-                "store": "true",                                       \
-                "term_vector" : "with_positions_offsets",              \
-                "search_analyzer": "str_search_analyzer",              \
-                "analyzer": "str_index_analyzer"                       \
-            },                                                         \
-            "title": {                                                 \
-                "type": "string",                                      \
-                "store": "yes",                                        \
-                "term_vector" : "with_positions_offsets",              \
-                "search_analyzer": "str_search_analyzer",              \
-                "index_analyzer": "str_index_analyzer"                 \
-            },                                                         \
-            "url": {                                                   \
-                "type": "string",                                      \
-                "index": "not_analyzed",                               \
-                "store": "yes"                                         \
-            },                                                         \
-            "reference": {                                             \
-                "type": "string",                                      \
-                "index": "not_analyzed",                               \
-                "store": "yes"                                         \
-            },                                                         \
-            "id": {                                                    \
-                "type": "string",                                      \
-                "index": "not_analyzed",                               \
-                "store": "yes"                                         \
-            },                                                         \
-            "tool": {                                                  \
-                "type": "string",                                      \
-                "index": "not_analyzed",                               \
-                "store": "yes"                                         \
-            },                                                         \
-            "container": {                                             \
-                "type": "string",                                      \
-                "index": "not_analyzed",                               \
-                "store": "yes"                                         \
-            },                                                         \
-            "type": {                                                  \
-                "type": "string",                                      \
-                "index": "not_analyzed",                               \
-                "store": "yes"                                         \
-            },                                                         \
-            "subtype": {                                               \
-                "type": "string",                                      \
-                "index": "not_analyzed",                               \
-                "store": "yes"                                         \
-            },                                                         \
-            "indexed": {                                               \
-                "type": "boolean",                                     \
-                "index": "not_analyzed",                               \
-                "null_value": "false",                                 \
-                "store": "no"                                          \
-            },                                                         \
-            "contents": {                                              \
-                "type": "string",                                      \
-                "analyzer": "snowball",                                \
-                "index": "analyzed",                                   \
-                "store": "no"                                          \
-            }                                                          \
-        }                                                              \
-    }                                                                  \
+ {                                                                 \
+    "_source": {                                                   \
+        "enabled": false                                           \
+    },                                                             \
+    "properties": {                                                \
+        "siteid": {                                                \
+            "type": "string",                                      \
+            "index": "not_analyzed",                               \
+            "store": "yes"                                         \
+        },                                                         \
+        "creatordisplayname": {                                    \
+            "type": "text",                                        \
+            "store": "true",                                       \
+            "term_vector" : "with_positions_offsets",              \
+            "search_analyzer": "str_search_analyzer",              \
+            "analyzer": "str_index_analyzer"                       \
+        },                                                         \
+        "title": {                                                 \
+            "type": "string",                                      \
+            "store": "yes",                                        \
+            "term_vector" : "with_positions_offsets",              \
+            "search_analyzer": "str_search_analyzer",              \
+            "index_analyzer": "str_index_analyzer"                 \
+        },                                                         \
+        "url": {                                                   \
+            "type": "string",                                      \
+            "index": "not_analyzed",                               \
+            "store": "yes"                                         \
+        },                                                         \
+        "reference": {                                             \
+            "type": "string",                                      \
+            "index": "not_analyzed",                               \
+            "store": "yes"                                         \
+        },                                                         \
+        "id": {                                                    \
+            "type": "string",                                      \
+            "index": "not_analyzed",                               \
+            "store": "yes"                                         \
+        },                                                         \
+        "tool": {                                                  \
+            "type": "string",                                      \
+            "index": "not_analyzed",                               \
+            "store": "yes"                                         \
+        },                                                         \
+        "container": {                                             \
+            "type": "string",                                      \
+            "index": "not_analyzed",                               \
+            "store": "yes"                                         \
+        },                                                         \
+        "type": {                                                  \
+            "type": "string",                                      \
+            "index": "not_analyzed",                               \
+            "store": "yes"                                         \
+        },                                                         \
+        "subtype": {                                               \
+            "type": "string",                                      \
+            "index": "not_analyzed",                               \
+            "store": "yes"                                         \
+        },                                                         \
+        "indexed": {                                               \
+            "type": "boolean",                                     \
+            "index": "not_analyzed",                               \
+            "null_value": "false",                                 \
+            "store": "no"                                          \
+        },                                                         \
+        "contents": {                                              \
+            "type": "string",                                      \
+            "analyzer": "snowball",                                \
+            "index": "analyzed",                                   \
+            "store": "no"                                          \
+        }                                                          \
+    }                                                              \
 }
 ```
 

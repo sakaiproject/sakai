@@ -26,50 +26,37 @@
 <body>
 <wicket:extend>
 
-	<div id="pageWrapper" class="container-fluid">
+	<div id="pageWrapper" class="container pt-2">
 		<div class="row">
 
 			<div id="leftPanel" class="col-md-3">
-				<div id="photoContainer">
-					<div class="btn-holder">
-						<img id="myPhoto" wicket:id="photo" />
-						<button wicket:id="changePicButton" class="edit-image-button call-pic-editor">
-							<span wicket:id="changePictureLabel">Change picture</span>
-						</button>
+				<div id="photoContainer" class="d-flex flex-column align-items-center">
+					<div>
+						<sakai-user-photo wicket:id="photo" classes="medium"></sakai-user-photo>
 					</div>
+					<button wicket:id="changePicButton"
+							class="btn btn-link ms-auto me-auto mb-1 b edit-image-button"
+							data-bs-toggle="modal"
+							data-bs-target="#profile-image-upload"
+							aria-controls="profile-image-upload">
+						<i class="si si-edit"></i>
+						<span wicket:id="changePictureLabel">Change picture</span>
+					</button>
 				</div>
 
 				<ul id="sideLink" wicket:id="sideLinks">
-					<li wicket:id="addFriendContainer">
-						<a wicket:id="addFriendLink" class="connection-add">
-							<span wicket:id="addFriendLabel">[addFriendLabel]</span>
-						</a>
-					</li>
 					<li wicket:id="lockProfileContainer">
 						<a wicket:id="lockProfileLink" class="locked">
 							<span wicket:id="lockProfileLabel">[lockProfileLabel]</span>
 						</a>
 					</li>
 				</ul>
-
-				<div wicket:id="addFriendWindow" />
-				<!--  kudos -->
-				<div class="side-widget" wicket:id="myKudos" />
-				<!--  friends feed -->
-				<div class="side-widget" wicket:id="friendsFeed" />
-				<!--  gallery feed -->
-				<div class="side-widget" wicket:id="galleryFeed" />
 			</div>
 
 			<div id="mainPanel" class="col-md-6">
-				<!--  heading/status panel -->
-				<div wicket:id="myStatusPanel">[my status panel]</div>
-
 				<!-- messages -->
-				<span class="alertMessage" wicket:id="feedbackPanel" style="clear:none;">[feedback panel]</span>
-
-				<!-- tabs -->
-				<div class="main-profile-tabpanel" wicket:id="myProfileTabs">[my profile tabs]</div>
+				<span class="alert alertMessage" wicket:id="feedbackPanel" style="clear:none;">[feedback panel]</span>
+				<div wicket:id="myProfilePanel">[my profile panel profile tabs]</div>
 			</div>
 		</div>
 	</div>

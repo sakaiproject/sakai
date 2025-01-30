@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.sakaiproject.jsf2</groupId>
         <artifactId>jsf2</artifactId>
-        <version>23-SNAPSHOT</version>
+        <version>25-SNAPSHOT</version>
     </parent>
 
     <name>Sakai JSF 2 Tool using Sun's RI (jsf2-sun-ri-tool)</name>
@@ -65,16 +65,12 @@
             <artifactId>commons-digester</artifactId>
         </dependency>
         <dependency>
-            <groupId>commons-collections</groupId>
-            <artifactId>commons-collections</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>xml-apis</groupId>
-            <artifactId>xml-apis</artifactId>
         </dependency>
     </dependencies>
 </project>

@@ -33,6 +33,7 @@ import org.sakaiproject.user.api.User;
  * @deprecated Static covers should not be used in favour of injection or lookup
  * via the component manager. This cover will be removed in a later version of the Kernel
  */
+@Deprecated
 public class SecurityService
 {
 	/**
@@ -139,15 +140,6 @@ public class SecurityService
 
 		return service.hasAdvisors();
 	}
-
-	public static void clearAdvisors()
-	{
-		org.sakaiproject.authz.api.SecurityService service = getInstance();
-		if (service == null) return;
-
-		service.clearAdvisors();
-	}
-	
 	
 	public static boolean setUserEffectiveRole(java.lang.String param0, java.lang.String param1)
 	{
@@ -168,11 +160,7 @@ public class SecurityService
 		org.sakaiproject.authz.api.SecurityService service = getInstance();
 		if (service == null) return false;
 
-		try {
-			return service.isUserRoleSwapped();
-		} catch (IdUnusedException e) {
-			return false;
-		}
+		return service.isUserRoleSwapped();
 	}
 	
 }

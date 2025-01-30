@@ -20,7 +20,9 @@ import java.util.stream.Stream;
 public enum Permissions {
     ROLETYPE_INSTRUCTOR("conversations.roletype.instructor"),
     MODERATE("conversations.moderate"),
-    TOPIC_CREATE("conversations.topic.create"),
+    GRADE("conversations.grade"),
+    QUESTION_CREATE("conversations.question.create"),
+    DISCUSSION_CREATE("conversations.discussion.create"),
     TOPIC_UPDATE_OWN("conversations.topic.update.own"),
     TOPIC_UPDATE_ANY("conversations.topic.update.any"),
     TOPIC_DELETE_OWN("conversations.topic.delete.own"),

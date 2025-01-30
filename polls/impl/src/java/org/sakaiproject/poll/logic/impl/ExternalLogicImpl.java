@@ -111,7 +111,6 @@ public class ExternalLogicImpl implements ExternalLogic {
 	private SessionManager sessionManager;
 	private UserDirectoryService userDirectoryService;
 	private UserTimeService userTimeService;
-	private String fromEmailAddress;
 	private String replyToEmailAddress;
 	@Setter private FormattedText formattedText;
 	
@@ -387,9 +386,8 @@ public class ExternalLogicImpl implements ExternalLogic {
 		
 		Map<String, Object> replacementValues = new HashMap<>();
 
-		String from = (fromEmailAddress == null || fromEmailAddress.equals("")) ?
-					serverConfigurationService.getString("setup.request", "no-reply@" + serverConfigurationService.getServerName()) : fromEmailAddress;
-					
+		String from = serverConfigurationService.getSmtpFrom();
+
 		for (String userEid : userEids) {
 			User user = null;
 			try {
@@ -407,7 +405,7 @@ public class ExternalLogicImpl implements ExternalLogic {
 				replacementValues.put("message2", RB.getString("message2"));
 				replacementValues.put("message3", RB.getString("message3"));
 				replacementValues.put("message4", RB.getString("message4"));
-				replacementValues.put("message5", RB.getString("message5"));				
+				replacementValues.put("message5", RB.getString("message5"));
 
 				RenderedTemplate template = emailTemplateService.getRenderedTemplateForUser(EMAIL_TEMPLATE_NOTIFY_DELETED_OPTION,
 						user.getReference(), replacementValues);

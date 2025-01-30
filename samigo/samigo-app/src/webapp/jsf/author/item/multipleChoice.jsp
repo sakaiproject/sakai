@@ -111,7 +111,6 @@
                 id="answerminptr"
                 value="#{itemauthor.currentItem.itemMinScore}"
                 size="6"
-                onchange="toggleNegativePointVal(this.value);"
                 styleClass=" form-control ConvertPoint"
                 disabled="#{itemauthor.currentItem.renderMinPointsWarning}">
               <f:validateDoubleRange />
@@ -240,25 +239,24 @@
 
 
   <!-- 2 TEXT -->
-  
-   <div class="form-group row ">
-       <h:outputLabel for="questionItemText_textinput" value="#{authorMessages.q_text}" styleClass="col-md-2 form-control-label"/>
-       <div class="col-md-8 row">
-       <div class="col-md-12">
-            <a id="multiple_show_editor" onclick="javascript:show_multiple_text(this);" href="#">
-                 <h:outputText id="text" value="#{authorMessages.show_editors}"/> 
-            </a>
-       </div>
-       <div class="col-md-12">
-          <!-- WYSIWYG -->
-          <h:panelGrid>
-              <samigo:wysiwyg identity="questionItemText" rows="140" value="#{itemauthor.currentItem.itemText}" hasToggle="plain" mode="author">
-                  <f:validateLength maximum="60000"/>
-              </samigo:wysiwyg>
-          </h:panelGrid>
-       </div>
-       </div>
-   </div>
+  <h:outputLabel for="questionItemText_textinput" value="#{authorMessages.q_text}" styleClass="form-label"/>
+  <div class="form-group d-flex">
+        <div>
+            <div class="d-flex justify-content-end mb-1">
+              <a id="multiple_show_editor" class="toggle_link" onclick="javascript:show_multiple_text(this);" href="#">
+                <h:outputText id="text" value="#{authorMessages.show_editor}"/> 
+              </a>
+            </div>
+            <!-- WYSIWYG -->
+            <div>
+                <h:panelGroup layout="block" styleClass="w-100 d-flex justify-content-end">
+                    <samigo:wysiwyg identity="questionItemText" rows="140" value="#{itemauthor.currentItem.itemText}" hasToggle="plain" mode="author">
+                        <f:validateLength maximum="60000"/>
+                    </samigo:wysiwyg>
+                </h:panelGroup>
+            </div>
+        </div>
+  </div>
 
   <!-- 2a ATTACHMENTS -->
   <%@ include file="/jsf/author/item/attachment.jsp" %>
@@ -267,7 +265,7 @@
   <h:dataTable id="mcchoices" styleClass="table" value="#{itemauthor.currentItem.multipleChoiceAnswers}" var="answer" headerClass="navView longtext">
     <h:column>
       <h:panelGrid columns="2" border="0">
-        <h:panelGroup styleClass="answer-group">
+        <h:panelGroup styleClass="answer-group d-table-cell pe-4">
           <div class="correct-answer">
             <h:outputText value="#{authorMessages.correct_answer}"  />
           </div>
@@ -301,7 +299,7 @@
 
         <!-- WYSIWYG -->
   <h:panelGrid rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '1') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '1'))}">
-         <samigo:wysiwyg identity="questionAnswerFeedback" rows="140" value="#{answer.feedback}" hasToggle="plain" mode="author">
+         <samigo:wysiwyg rows="140" value="#{answer.feedback}" hasToggle="plain" mode="author">
            <f:validateLength maximum="60000"/>
          </samigo:wysiwyg>
   </h:panelGrid>
@@ -385,6 +383,9 @@
     </div>
   </div>
 
+  <!-- 5a TIMED -->
+  <%@ include file="/jsf/author/item/timed.jsp" %>
+
   <!-- 6 PART -->
   <h:panelGroup styleClass="form-group row" layout="block" rendered="#{itemauthor.target == 'assessment' && !author.isEditPoolFlow}">
     <h:outputLabel for="assignToPart" styleClass="col-md-2" value="#{authorMessages.assign_to_p} " />
@@ -410,7 +411,7 @@
   <h:panelGroup rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'))}">
 
     <div class="form-group row">
-      <h:outputLabel for="questionFeedbackCorrect_textinput" styleClass="col-md-2" value="#{authorMessages.correct_answer_opti}" />
+      <h:outputLabel for="questionFeedbackCorrect_textinput" value="#{authorMessages.correct_answer_opti}" />
       <div class="col-md-8">
         <samigo:wysiwyg identity="questionFeedbackCorrect" rows="140" value="#{itemauthor.currentItem.corrFeedback}" hasToggle="plain" mode="author">
           <f:validateLength maximum="60000"/>
@@ -418,7 +419,7 @@
       </div>
     </div>
     <div class="form-group row">
-      <h:outputLabel for="questionFeedbackIncorrect_textinput" styleClass="col-md-2" value="#{authorMessages.incorrect_answer_op}" />
+      <h:outputLabel for="questionFeedbackIncorrect_textinput" value="#{authorMessages.incorrect_answer_op}" />
       <div class="col-md-8">
      <samigo:wysiwyg identity="questionFeedbackIncorrect" rows="140" value="#{itemauthor.currentItem.incorrFeedback}"  hasToggle="plain" mode="author">
        <f:validateLength maximum="60000"/>

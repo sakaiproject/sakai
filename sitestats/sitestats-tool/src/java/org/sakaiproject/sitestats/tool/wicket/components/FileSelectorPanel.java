@@ -22,9 +22,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.request.Request;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
@@ -133,9 +135,7 @@ public class FileSelectorPanel extends Panel {
 		List<String> files = new ArrayList<String>();
 		if(filesEncoded != null) {
 			String[] t = filesEncoded.split("\\|\\|\\|");
-			for(int i=0; i<t.length; i++) {
-				files.add(t[i]);
-			}
+            Collections.addAll(files, t);
 		}
 		setDefaultModelObject(files);
 	}
@@ -154,21 +154,16 @@ public class FileSelectorPanel extends Panel {
 	}
 
 	@Override
-	public void renderHead(HtmlHeaderContainer container) {
-		container.getHeaderResponse().render(JavaScriptHeaderItem.forUrl(BasePage.JQUERYSCRIPT));
-		super.renderHead(container); // needs to be rendered after jQuery but before the page specifc scripts
-		container.getHeaderResponse().render(JavaScriptHeaderItem.forUrl(StatsManager.SITESTATS_WEBAPP+"/html/components/jqueryFileTree/jqueryFileTree.js"));
-		container.getHeaderResponse().render(CssHeaderItem.forUrl(StatsManager.SITESTATS_WEBAPP+"/html/components/jqueryFileTree/jqueryFileTree.css"));
-		StringBuilder onDomReady = new StringBuilder();
-		onDomReady.append("jQuery('#sitestats-containerInner').fileTree(");
-		onDomReady.append("  {root: '");
-		onDomReady.append(BASE_DIR);
-		onDomReady.append("', script: '");
-		onDomReady.append(ajaxResourcesLoader.getCallbackUrl());
-		onDomReady.append("', duration: 100},");
-		onDomReady.append("  function(file) {return false;}");
-		onDomReady.append(");");
-		container.getHeaderResponse().render(OnDomReadyHeaderItem.forScript(onDomReady.toString()));
+	public void renderHead(IHeaderResponse response) {
+		response.render(JavaScriptHeaderItem.forUrl(BasePage.JQUERYSCRIPT));
+		super.renderHead(response); // needs to be rendered after jQuery but before the page specifc scripts
+		response.render(JavaScriptHeaderItem.forUrl(StatsManager.SITESTATS_WEBAPP+"/html/components/jqueryFileTree/jqueryFileTree.js"));
+		response.render(CssHeaderItem.forUrl(StatsManager.SITESTATS_WEBAPP+"/html/components/jqueryFileTree/jqueryFileTree.css"));
+		String onDomReady = "jQuery('#sitestats-containerInner').fileTree(" +
+			"  {root: '" + BASE_DIR + "', script: '" + ajaxResourcesLoader.getCallbackUrl() + "', duration: 100}," +
+			"  function(file) {return false;}" +
+			");";
+		response.render(OnDomReadyHeaderItem.forScript(onDomReady));
 	}
 	
 	private List<CHResourceModel> getResources(String dir) throws IdUnusedException, TypeException, PermissionException {
@@ -195,6 +190,9 @@ public class FileSelectorPanel extends Panel {
 				List<ContentEntity> members = collection.getMemberResources();
 				for(ContentEntity ce : members) {
 					String dispName = Locator.getFacade().getStatsManager().getResourceName("/content"+ce.getId(), false);
+					if ("null".equals(dispName)) {
+						dispName = (String) new ResourceModel("overview_folder_unavailable").getObject();
+					}
 					resourcesList.add(new CHResourceModel(ce.getId(), dispName, ce.isCollection()));
 				}
 			}
@@ -219,18 +217,13 @@ public class FileSelectorPanel extends Panel {
 				RequestCycle.get().scheduleRequestHandlerAfterCurrent(new EmptyRequestHandler());
 				WebResponse response = (WebResponse) getResponse();
 				response.setContentType("text/html;charset="+enc);
-				OutputStream out = getResponse().getOutputStream();
-				try{
+				try (OutputStream out = getResponse().getOutputStream()) {
 					out.write("<ul class=\"jqueryFileTree\" style=\"display: none;\">".getBytes(enc));
-					boolean expandToSelection = currentDir.equals(BASE_DIR) && getSelectedFilesId() != null && getSelectedFilesId().size() > 0;
-					getResourcesMarkup(currentDir, out, expandToSelection, enc);					
+					boolean expandToSelection = currentDir.equals(BASE_DIR) && getSelectedFilesId() != null && !getSelectedFilesId().isEmpty();
+					getResourcesMarkup(currentDir, out, expandToSelection, enc);
 					out.write("</ul>".getBytes(enc));
-				}finally{
-					out.close();
 				}
-			}catch(RuntimeException e){
-				// ignore - do nothing
-			}catch(Exception e){
+			} catch(Exception e){
 				// ignore - do nothing
 			}
 		}

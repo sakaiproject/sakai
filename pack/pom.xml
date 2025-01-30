@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.sakaiproject</groupId>
         <artifactId>master</artifactId>
-        <version>23-SNAPSHOT</version>
+        <version>25-SNAPSHOT</version>
         <relativePath>../master/pom.xml</relativePath>
     </parent>
 
@@ -40,6 +40,7 @@
             </activation>
             <properties>
                 <sakai.skip.tests>false</sakai.skip.tests>
+                <sakai.skip.phase>test</sakai.skip.phase>
             </properties>
         </profile>
         <profile>
@@ -51,6 +52,7 @@
             <id>skip-tests</id>
             <properties>
                 <sakai.skip.tests>true</sakai.skip.tests>
+                <sakai.skip.phase>none</sakai.skip.phase>
             </properties>
         </profile>
     </profiles>
@@ -125,7 +127,6 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-antrun-plugin</artifactId>
-                    <version>1.6</version>
                 </plugin>
                 <plugin>
                     <inherited>true</inherited>

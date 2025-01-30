@@ -340,13 +340,6 @@ public interface SqlService
 	void dbCancel(Connection conn);
 
 	/**
-	 * Access the calendar used in processing Time objects for Sql.
-	 * 
-	 * @return The calendar used in processing Time objects for Sql.
-	 */
-	GregorianCalendar getCal();
-
-	/**
 	 * @return a string indicating the database vendor - "oracle" or "mysql" or "hsqldb".
 	 */
 	String getVendor();

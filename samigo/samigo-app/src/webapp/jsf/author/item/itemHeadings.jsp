@@ -1,5 +1,13 @@
 <%-- Headings for item edit pages, needs to have msg=AuthorMessages.properties.  --%>
 <!-- Core files -->
+<%
+String thisId = request.getParameter("panel");
+if (thisId == null) {
+  thisId = "Main"	+ org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
+}
+String selectId = "itemForm:assignToPool";
+String selectIdFixed = "itemForm:assignToPoolFixed";
+%>
 <script>
 function changeTypeLink(field){
 
@@ -30,6 +38,12 @@ function displayEMIHelp(){
     window.open('../../../../../../samigo-app/emi/help.txt', '_blank', 'location=no,menubar=no,status=no,toolbar=no');
 }
 </script>
+<script>includeWebjarLibrary('select2');</script>
+<script src="/samigo-app/js/select2.js"></script>
+<input id="toolId" type="hidden" value="<%= thisId %>">
+<input id="selectorId" type="hidden" value="<%= selectId %>">
+<input id="selectorIdFixed" type="hidden" value="<%= selectIdFixed %>">
+
 <h:form id="itemFormHeading">
 <%-- The following hidden fields echo some of the data in the item form
      when this form posts a change in item type, the data is persisted.
@@ -106,44 +120,48 @@ function displayEMIHelp(){
 <br/>
 
 <!-- breadcrumb-->
-<ol class="breadcrumb">
-  <h:panelGroup rendered="#{itemauthor.target == 'assessment'}" >
-    <li>
-      <h:commandLink title="#{authorMessages.t_assessment}" action="author" immediate="true">
-        <h:outputText value="#{authorMessages.global_nav_assessmt}" />
-      </h:commandLink>
-    </li>
-    <li>
-      <h:commandLink title="#{authorMessages.t_question}" action="editAssessment" immediate="true" >
-        <h:outputText value="#{authorMessages.qs}#{authorMessages.column} #{assessmentBean.title}" escape="false"/>
-      </h:commandLink>
-    </li>
-    <li>
-      <h:outputText value="#{authorMessages.q} #{itemauthor.itemNo}" />
-    </li>
-  </h:panelGroup>
-  <h:panelGroup rendered="#{itemauthor.target == 'questionpool'}">
-    <li>
-      <h:outputText value="#{authorMessages.global_nav_pools}" />
-    </li>
-    <samigo:dataLine value="#{questionpool.currentPool.parentPoolsArray}" var="parent" separator="" first="0" rows="100" >
-      <h:column>
-        <li>
-          <h:commandLink action="#{questionpool.editPool}" immediate="true">
-            <h:outputText value="#{parent.displayName}" escape="false"/>
-            <f:param name="qpid" value="#{parent.questionPoolId}"/>
-          </h:commandLink>
-        </li>
-      </h:column>
-    </samigo:dataLine>
-    <li>
-      <h:commandLink action="#{questionpool.editPool}" immediate="true">
-        <h:outputText value="#{questionpool.currentPool.displayName}"/>
-        <f:param name="qpid" value="#{questionpool.currentPool.id}"/>
-      </h:commandLink>
-    </li>
-  </h:panelGroup>
-</ol>
+<!-- breadcrumb -->
+<nav class="samigo-breadcrumb" aria-label="breadcrumb">
+  <ol class="breadcrumb m-0">
+    <h:panelGroup rendered="#{itemauthor.target == 'assessment'}">
+      <li class="breadcrumb-item">
+        <h:commandLink title="#{authorMessages.t_assessment}" action="author" immediate="true">
+          <h:outputText value="#{authorMessages.global_nav_assessmt}" />
+        </h:commandLink>
+      </li>
+      <li class="breadcrumb-item">
+        <h:commandLink title="#{authorMessages.t_question}" action="editAssessment" immediate="true">
+          <h:outputText value="#{authorMessages.qs}#{authorMessages.column} #{assessmentBean.title}" escape="false"/>
+        </h:commandLink>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">
+        <h:outputText value="#{authorMessages.q} #{itemauthor.itemNo}" />
+      </li>
+    </h:panelGroup>
+    <h:panelGroup rendered="#{itemauthor.target == 'questionpool'}">
+      <li class="breadcrumb-item">
+        <h:outputText value="#{authorMessages.global_nav_pools}" />
+      </li>
+      <samigo:dataLine value="#{questionpool.currentPool.parentPoolsArray}" var="parent" separator="" first="0" rows="100">
+        <h:column>
+          <li class="breadcrumb-item">
+            <h:commandLink action="#{questionpool.editPool}" immediate="true">
+              <h:outputText value="#{parent.displayName}" escape="false"/>
+              <f:param name="qpid" value="#{parent.questionPoolId}"/>
+            </h:commandLink>
+          </li>
+        </h:column>
+      </samigo:dataLine>
+      <li class="breadcrumb-item active" aria-current="page">
+        <h:commandLink action="#{questionpool.editPool}" immediate="true">
+          <h:outputText value="#{questionpool.currentPool.displayName}"/>
+          <f:param name="qpid" value="#{questionpool.currentPool.id}"/>
+        </h:commandLink>
+      </li>
+    </h:panelGroup>
+  </ol>
+</nav>
+
 
 <div class="page-header">
   <h1>
@@ -190,12 +208,12 @@ function displayEMIHelp(){
     <h:outputLabel for="changeQType2" styleClass="col-md-2" value="#{authorMessages.change_q_type} &#160;" escape="false" rendered="#{itemauthor.target == 'assessment' && author.isEditPendingAssessmentFlow || (itemauthor.target == 'questionpool' && itemauthor.itemType == '')}"/>
   <div class="col-md-10">
 
-<h:selectOneMenu onchange="changeTypeLink(this);" value="#{itemauthor.currentItem.itemType}" required="true" id="changeQType2">
+<h:selectOneMenu onchange="changeTypeLink(this);" value="#{itemauthor.currentItem.itemType}" required="true" id="changeQType2"  rendered="#{itemauthor.target == 'assessment' && author.isEditPendingAssessmentFlow || (itemauthor.target == 'questionpool' && itemauthor.itemType == '')}">
   <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.StartCreateItemListener" />
   <f:selectItems value="#{itemConfig.itemTypeSelectList}" />
 </h:selectOneMenu>
 
-<h:commandLink id="hiddenlink" action="#{itemauthor.doit}" value="" styleClass="hidden">
+<h:commandLink id="hiddenlink" action="#{itemauthor.doit}" value="" styleClass="d-none">
 </h:commandLink>
 
 &nbsp;

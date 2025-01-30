@@ -129,7 +129,7 @@ public class DefaultHandler implements AssessmentHandler, DiscussionHandler, Aut
 
   public void endResource() {}
 
-  public void setCCItemXml(Element the_xml, Element resource, AbstractParser parser, CartridgeLoader loader, boolean nopage) {}
+  public void setCCItemXml(Element theXml, Element resource, AbstractParser parser, CartridgeLoader loader, boolean noPage) {}
 
   public void setManifestXml(Element the_xml) {}
 
@@ -176,7 +176,7 @@ public class DefaultHandler implements AssessmentHandler, DiscussionHandler, Aut
 
   public void startManifestMetadata(String schema, String schema_version) {}
 
-  public void addFile(Element elem) {}
+  public void addFile(String resourceId, Element element) {}
 
   public void preProcessFile(String the_file_id) {}
 

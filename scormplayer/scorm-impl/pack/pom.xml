@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.sakaiproject.scorm</groupId>
+        <artifactId>scorm-base</artifactId>
+        <version>25-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+
+    <name>SCORM Pack</name>
+    <groupId>org.sakaiproject.scorm</groupId>
+    <artifactId>scorm-pack</artifactId>
+    <packaging>sakai-component</packaging>
+    <description>This project packs the components used by the Sakai Scorm Tool</description>
+
+    <properties>
+        <deploy.target>components</deploy.target>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.sakaiproject.scorm</groupId>
+            <artifactId>scorm-adl-impl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.scorm</groupId>
+            <artifactId>scorm-content-impl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.scorm</groupId>
+            <artifactId>scorm-client-impl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.scorm</groupId>
+            <artifactId>scorm-model-impl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.scorm</groupId>
+            <artifactId>scorm-service-impl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xml-apis</groupId>
+            <artifactId>xml-apis</artifactId>
+        </dependency>
+    </dependencies>
+
+</project>

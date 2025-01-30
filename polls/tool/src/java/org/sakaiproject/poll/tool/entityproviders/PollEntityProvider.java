@@ -107,7 +107,7 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
         try {
             pollId = Long.valueOf(id);
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Invalid poll id ("+id+"), the id must be a number");
+            throw new EntityException("Invalid identifier provided for poll id", "", HttpServletResponse.SC_NOT_ACCEPTABLE);
         }
         Poll poll = pollListManager.getPollById(pollId, false);
         return poll;

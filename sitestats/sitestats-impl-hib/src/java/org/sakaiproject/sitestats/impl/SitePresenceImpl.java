@@ -24,6 +24,13 @@ import java.util.Date;
 import org.sakaiproject.sitestats.api.SitePresence;
 import org.springframework.util.comparator.NullSafeComparator;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class SitePresenceImpl implements SitePresence, Serializable {
 	private static final long	serialVersionUID	= 1L;
 	private long id;

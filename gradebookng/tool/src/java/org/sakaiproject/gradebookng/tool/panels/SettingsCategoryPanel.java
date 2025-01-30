@@ -26,12 +26,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
+import lombok.Getter;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
-import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -56,7 +57,6 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.util.convert.ConversionException;
 import org.apache.wicket.util.convert.IConverter;
-import org.sakaiproject.grading.api.GradingCategoryType;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.gradebookng.tool.model.GbSettings;
@@ -64,6 +64,7 @@ import org.sakaiproject.gradebookng.tool.pages.SettingsPage;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.grading.api.GradebookInformation;
+import org.sakaiproject.grading.api.GradingConstants;
 
 public class SettingsCategoryPanel extends BasePanel {
 
@@ -77,7 +78,7 @@ public class SettingsCategoryPanel extends BasePanel {
 	boolean isEqualWeight = false;
 	boolean expanded = false;
 
-	Radio<GradingCategoryType> categoriesAndWeighting;
+	Radio<Integer> categoriesAndWeighting;
 
 	Map<Long, Boolean> categoryDropKeepAvailability = new HashMap<>();
 
@@ -87,7 +88,8 @@ public class SettingsCategoryPanel extends BasePanel {
 		this.expanded = expanded;
 	}
 
-	private enum DropKeepUsage {
+	@Getter
+    private enum DropKeepUsage {
 		CATEGORY("settingspage.categories.instructions.applydropkeep"),
 		EXCLUSIVE("settingspage.categories.hover.dropkeepusage");
 
@@ -97,10 +99,7 @@ public class SettingsCategoryPanel extends BasePanel {
 			this.message = message;
 		}
 
-		public String getMessage() {
-			return this.message;
-		}
-	}
+    }
 
 	@Override
 	public void onInitialize() {
@@ -147,43 +146,20 @@ public class SettingsCategoryPanel extends BasePanel {
 		}
 
 		// if categories enabled but we don't have any yet, add a default one
-		if (this.model.getObject().getGradebookInformation().getCategoryType() != GradingCategoryType.NO_CATEGORY
+		if (!Objects.equals(this.model.getObject().getGradebookInformation().getCategoryType(), GradingConstants.CATEGORY_TYPE_NO_CATEGORY)
 				&& categories.isEmpty()) {
 			this.model.getObject().getGradebookInformation().getCategories().add(stubCategoryDefinition());
 		}
 
 		final WebMarkupContainer settingsCategoriesPanel = new WebMarkupContainer("settingsCategoriesPanel");
-		// Preserve the expand/collapse state of the panel
-		settingsCategoriesPanel.add(new AjaxEventBehavior("shown.bs.collapse") {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
-				settingsCategoriesPanel.add(new AttributeModifier("class", "panel-collapse collapse in"));
-				SettingsCategoryPanel.this.expanded = true;
-			}
-		});
-		settingsCategoriesPanel.add(new AjaxEventBehavior("hidden.bs.collapse") {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
-				settingsCategoriesPanel.add(new AttributeModifier("class", "panel-collapse collapse"));
-				SettingsCategoryPanel.this.expanded = false;
-			}
-		});
-		if (this.expanded) {
-			settingsCategoriesPanel.add(new AttributeModifier("class", "panel-collapse collapse in"));
-		}
 		add(settingsCategoriesPanel);
 
 		// category types (note categoriesAndWeighting treated differently due to inter panel updates)
-		final RadioGroup<GradingCategoryType> categoryType = new RadioGroup<>("categoryType",
-				new PropertyModel<GradingCategoryType>(this.model, "gradebookInformation.categoryType"));
-		final Radio<GradingCategoryType> none = new Radio<>("none", new Model<>(GradingCategoryType.NO_CATEGORY));
-		final Radio<GradingCategoryType> categoriesOnly = new Radio<>("categoriesOnly", new Model<>(GradingCategoryType.ONLY_CATEGORY));
-		this.categoriesAndWeighting = new Radio<>("categoriesAndWeighting",
-				new Model<>(GradingCategoryType.WEIGHTED_CATEGORY));
+		final RadioGroup<Integer> categoryType = new RadioGroup<>("categoryType",
+                new PropertyModel<>(this.model, "gradebookInformation.categoryType"));
+		final Radio<Integer> none = new Radio<>("none", new Model<>(GradingConstants.CATEGORY_TYPE_NO_CATEGORY));
+		final Radio<Integer> categoriesOnly = new Radio<>("categoriesOnly", new Model<>(GradingConstants.CATEGORY_TYPE_ONLY_CATEGORY));
+		this.categoriesAndWeighting = new Radio<>("categoriesAndWeighting", new Model<>(GradingConstants.CATEGORY_TYPE_WEIGHTED_CATEGORY));
 
 		// on load, if course grade displayed and points selected, disable categories and weighting
 		updateCategoriesAndWeightingRadioState();
@@ -203,7 +179,7 @@ public class SettingsCategoryPanel extends BasePanel {
 			public boolean isVisible() {
 				// don't show if 'no categories'
 				final GradebookInformation settings = SettingsCategoryPanel.this.model.getObject().getGradebookInformation();
-				return settings.getCategoryType() != GradingCategoryType.NO_CATEGORY;
+				return !Objects.equals(settings.getCategoryType(), GradingConstants.CATEGORY_TYPE_NO_CATEGORY);
 			}
 
 		};
@@ -317,14 +293,14 @@ public class SettingsCategoryPanel extends BasePanel {
 			protected void onUpdate(final AjaxRequestTarget target) {
 
 				// adjust visibility of items depending on category type
-				final GradingCategoryType type = SettingsCategoryPanel.this.model.getObject().getGradebookInformation().getCategoryType();
+				final Integer type = SettingsCategoryPanel.this.model.getObject().getGradebookInformation().getCategoryType();
 
-				categoriesWrap.setVisible(type != GradingCategoryType.NO_CATEGORY);
-				categoriesOptionsWrap.setVisible(type != GradingCategoryType.NO_CATEGORY);
-				equalWeight.setEnabled(type != GradingCategoryType.ONLY_CATEGORY);
+				categoriesWrap.setVisible(!Objects.equals(type, GradingConstants.CATEGORY_TYPE_NO_CATEGORY));
+				categoriesOptionsWrap.setVisible(!Objects.equals(type, GradingConstants.CATEGORY_TYPE_NO_CATEGORY));
+				equalWeight.setEnabled(!Objects.equals(type, GradingConstants.CATEGORY_TYPE_ONLY_CATEGORY));
 
 				// if categories only (2), the categories table will be visible but the weighting column and tally will not
-				if (type == GradingCategoryType.ONLY_CATEGORY) {
+				if (Objects.equals(type, GradingConstants.CATEGORY_TYPE_ONLY_CATEGORY)) {
 					target.appendJavaScript("$('.gb-category-weight').hide();");
 					target.appendJavaScript("$('.gb-category-runningtotal').hide();");
 
@@ -337,7 +313,7 @@ public class SettingsCategoryPanel extends BasePanel {
 				}
 
 				// switching to categories but we don't have any, add a default one
-				if (type != GradingCategoryType.NO_CATEGORY && categories.isEmpty()) {
+				if (!Objects.equals(type, GradingConstants.CATEGORY_TYPE_NO_CATEGORY) && categories.isEmpty()) {
 					SettingsCategoryPanel.this.model.getObject().getGradebookInformation().getCategories().add(stubCategoryDefinition());
 				}
 
@@ -395,6 +371,10 @@ public class SettingsCategoryPanel extends BasePanel {
 
 				// name
 				final TextField<String> name = new TextField<String>("name", new PropertyModel<String>(category, "name"));
+
+				// Set the maximum length of the input to 99 characters
+				name.add(AttributeModifier.replace("maxlength", "99"));
+
 				name.add(new AjaxFormComponentUpdatingBehavior("blur") {
 					private static final long serialVersionUID = 1L;
 
@@ -428,8 +408,8 @@ public class SettingsCategoryPanel extends BasePanel {
 				item.add(weight);
 
 				// num assignments
-				final Label numItems = new Label("numItems", new StringResourceModel("settingspage.categories.items", null,
-						new Object[] { category.getAssignmentList().size() }));
+				final Label numItems = new Label("numItems", new StringResourceModel("settingspage.categories.items")
+						.setParameters(category.getAssignmentList().size()));
 				item.add(numItems);
 
 				// extra credit
@@ -604,7 +584,7 @@ public class SettingsCategoryPanel extends BasePanel {
 				equalWeight.setOutputMarkupId(true);
 
 				// onchange: remove ability to set drop/keep lowest/highest if different points
-				equalWeight.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+				equalWeight.add(new AjaxFormComponentUpdatingBehavior("change") {
 					private static final long serialVersionUID = 1L;
 
 					@Override
@@ -650,7 +630,7 @@ public class SettingsCategoryPanel extends BasePanel {
 					private static final long serialVersionUID = 1L;
 
 					@Override
-					public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+					public void onSubmit(final AjaxRequestTarget target) {
 
 						// remove this category from the model
 						final CategoryDefinition current = item.getModelObject();
@@ -698,8 +678,8 @@ public class SettingsCategoryPanel extends BasePanel {
 			public void renderHead(final IHeaderResponse response) {
 				super.renderHead(response);
 
-				final GradingCategoryType type = SettingsCategoryPanel.this.model.getObject().getGradebookInformation().getCategoryType();
-				if (type == GradingCategoryType.ONLY_CATEGORY) {
+				final Integer type = SettingsCategoryPanel.this.model.getObject().getGradebookInformation().getCategoryType();
+				if (Objects.equals(type, GradingConstants.CATEGORY_TYPE_ONLY_CATEGORY)) {
 					response.render(OnDomReadyHeaderItem.forScript("$('.gb-category-weight').hide();"));
 					response.render(OnDomReadyHeaderItem.forScript("$('.gb-category-runningtotal').hide();"));
 				}
@@ -728,7 +708,7 @@ public class SettingsCategoryPanel extends BasePanel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void onSubmit(final AjaxRequestTarget target, final Form<?> f) {
+			protected void onSubmit(final AjaxRequestTarget target) {
 
 				// add a new empty category to the model
 				SettingsCategoryPanel.this.model.getObject().getGradebookInformation().getCategories().add(stubCategoryDefinition());
@@ -886,7 +866,7 @@ public class SettingsCategoryPanel extends BasePanel {
 	}
 
 	// to enable inter panel comms
-	Radio<GradingCategoryType> getCategoriesAndWeightingRadio() {
+	Radio<Integer> getCategoriesAndWeightingRadio() {
 		return this.categoriesAndWeighting;
 	}
 

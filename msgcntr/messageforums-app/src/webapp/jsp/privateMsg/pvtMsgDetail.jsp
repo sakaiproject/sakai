@@ -8,7 +8,7 @@
 </jsp:useBean>
 
 <f:view>
-  <sakai:view toolCssHref="/messageforums-tool/css/msgcntr-qtip.css" title="#{msgs.pvt_detmsgreply}">
+  <sakai:view title="#{msgs.pvt_detmsgreply}">
     <h:form id="pvtMsgDetail">
     		<script>
        			// Define i18n for js text
@@ -18,7 +18,6 @@
        			};
        		</script>
            	<script>includeLatestJQuery("msgcntr");</script>
-           	<script>includeWebjarLibrary("qtip2");</script>
        		<script src="/messageforums-tool/js/sak-10625.js"></script>
        		<script src="/messageforums-tool/js/messages.js"></script>
 			<script>
@@ -28,27 +27,16 @@
 					menuLinkSpan.addClass('current');
 					menuLinkSpan.html(menuLink.text());
 					
-					$('#pvtMsgDetail .authorProfile').each(function() {
-						$(this).qtip({ 
-							content: {
-								ajax: {
-									url: $(this).prop('href'),
-									type: 'GET'
-								}
-							},
-							position: {	my: 'left center', at: 'top center'},
-							show: { event: 'click', solo: true, effect: {length:0} },
-							hide: { when:'unfocus', fixed:true, delay: 300,  effect: {length:0} },
-							style: { classes: 'msgcntr-profile-qtip' }
-						});
-						$(this).prop('href', 'javascript:;');
-					});
+					<f:verbatim rendered="#{PrivateMessagesTool.canUseTags}">
+						initTagSelector("pvtMsgDetail");
+					</f:verbatim>
 				});
 			</script>
 			<%@ include file="/jsp/privateMsg/pvtMenu.jsp" %>
 <!--jsp/privateMsg/pvtMsgDetail.jsp-->
 <%--			<sakai:tool_bar_message value="#{msgs.pvt_detmsgreply}" /> --%> 
 			<h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}"/> 
+            <h:outputText value="#{PrivateMessagesTool.multiDeleteSuccessMsg}" styleClass="sak-banner-success" rendered="#{PrivateMessagesTool.multiDeleteSuccess}" />
 
 <h:panelGrid columns="2" width="100%" styleClass="navPanel specialLink">
 	<h:panelGroup>
@@ -100,6 +88,8 @@
             <%--SAK-10505 add forward --%>
             <h:commandButton action="#{PrivateMessagesTool.processPvtMsgReplyAll}" value="#{msgs.pvt_repmsg_ALL}" accesskey="r" /><h:commandButton action="#{PrivateMessagesTool.processPvtMsgForward}" value="#{msgs.pvt_forwardmsg}" accesskey="r"/>
             <h:commandButton action="#{PrivateMessagesTool.processPvtMsgMove}" value="#{msgs.pvt_move}" accesskey="m" />
+            <h:commandButton action="#{PrivateMessagesTool.processPvtMsgPublishToFaqEdit}" value="#{msgs.pvt_publish_to_faq}"
+                    rendered="#{PrivateMessagesTool.detailMessagePublishableToFaq && mfPublishToFaqBean.canPost}" accesskey="m" />
             <h:commandButton action="#{PrivateMessagesTool.processPvtMsgDeleteConfirm}" value="#{msgs.pvt_delete}"  />
         </sakai:button_bar>
 
@@ -132,10 +122,7 @@
                     <%-- author image --%>
                     <f:subview id="authorImage" rendered="#{PrivateMessagesTool.showProfileInfoMsg}">
                         <h:panelGroup styleClass="authorImage">
-                            <h:outputLink value="#{PrivateMessagesTool.serverUrl}/direct/portal/#{PrivateMessagesTool.detailMsg.msg.authorId}/formatted" styleClass="authorProfile" rendered="#{PrivateMessagesTool.showProfileLink}">
-                                <h:graphicImage value="#{PrivateMessagesTool.serverUrl}/direct/profile/#{PrivateMessagesTool.detailMsg.msg.authorId}/image/thumb" alt="#{message.message.author}" />
-                            </h:outputLink>
-                            <h:graphicImage value="#{PrivateMessagesTool.serverUrl}/direct/profile/#{PrivateMessagesTool.detailMsg.msg.authorId}/image/thumb" alt="#{message.message.author}" rendered="#{!PrivateMessagesTool.showProfileLink}"/>
+                            <sakai-user-photo profile-popup="on" user-id="<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.authorId}"/>" />
                         </h:panelGroup>
                     </f:subview>
                 </div>
@@ -148,10 +135,10 @@
                         <td>
                             <h:outputText value="#{PrivateMessagesTool.detailMsg.msg.author}" />
                             <h:outputText value=" #{msgs.pvt_openb}" />
-                            <h:outputText value="#{PrivateMessagesTool.detailMsg.msg.created}" >
+                            <h:outputText value="#{((PrivateMessagesTool.userId ne PrivateMessagesTool.detailMsg.msg.createdBy) and (! empty PrivateMessagesTool.detailMsg.msg.scheduledDate)) ? PrivateMessagesTool.detailMsg.msg.scheduledDate: PrivateMessagesTool.detailMsg.msg.created}" >
                                 <f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{PrivateMessagesTool.userTimeZone}" locale="#{PrivateMessagesTool.userLocale}"/>
                             </h:outputText>
-                            <h:outputText value=" #{msgs.pvt_closeb}" />
+                            <h:outputText value="#{msgs.pvt_closeb}" />
                         </td>
                     </tr>
                     <tr>
@@ -231,6 +218,28 @@
             </div>
         </div>
 
+        <h:panelGroup rendered="#{PrivateMessagesTool.canUseTags}">
+          <h4><h:outputText value="#{msgs.pvt_tags_header}" /></h4>
+          <h:inputHidden value="#{PrivateMessagesTool.selectedTags}" id="tag_selector"></h:inputHidden>
+          <h:panelGroup styleClass="#{PrivateMessagesTool.detailMsg.isPreview || PrivateMessagesTool.detailMsg.isPreviewReply || PrivateMessagesTool.detailMsg.isPreviewReplyAll || PrivateMessagesTool.detailMsg.isPreviewForward ? 'DisableTags' : ''}">
+            <sakai-tag-selector
+              id="tag-selector"
+              <h:panelGroup rendered="#{PrivateMessagesTool.detailMsg.isPreview || PrivateMessagesTool.detailMsg.isPreviewReply || PrivateMessagesTool.detailMsg.isPreviewReplyAll || PrivateMessagesTool.detailMsg.isPreviewForward}">
+                tabindex="-1" 
+              </h:panelGroup>
+              selected-temp='<h:outputText value="#{PrivateMessagesTool.selectedTags}"/>'
+              collection-id='<h:outputText value="#{PrivateMessagesTool.getUserId()}"/>'
+              item-id='<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.id}"/>'
+              site-id='<h:outputText value="#{PrivateMessagesTool.getSiteId()}"/>'
+              tool='<h:outputText value="#{PrivateMessagesTool.getTagTool()}"/>'
+              add-new="true"
+            ></sakai-tag-selector>
+          </h:panelGroup>
+          <h:panelGroup rendered="#{!PrivateMessagesTool.detailMsg.isPreview && !PrivateMessagesTool.detailMsg.isPreviewReply && !PrivateMessagesTool.detailMsg.isPreviewReplyAll && !PrivateMessagesTool.detailMsg.isPreviewForward}">
+            <h:commandButton action="#{PrivateMessagesTool.processPvtMsgSaveTags}" value="#{msgs.pvt_tags_save}"  />
+          </h:panelGroup>
+        </h:panelGroup>
+
 		<hr class="itemSeparator" />
 		
         	  <mf:htmlShowArea value="#{PrivateMessagesTool.detailMsg.msg.body}" id="htmlMsgText" hideBorder="true" />
@@ -240,6 +249,8 @@
             <%--SAKAI-10505 add forward--%>
             <h:commandButton action="#{PrivateMessagesTool.processPvtMsgReplyAll}" value="#{msgs.pvt_repmsg_ALL}" accesskey="r" /><h:commandButton action="#{PrivateMessagesTool.processPvtMsgForward}" value="#{msgs.pvt_forwardmsg}" accesskey="r"/>
             <h:commandButton action="#{PrivateMessagesTool.processPvtMsgMove}" value="#{msgs.pvt_move}" accesskey="m" />
+            <h:commandButton action="#{PrivateMessagesTool.processPvtMsgPublishToFaqEdit}" value="#{msgs.pvt_publish_to_faq}"
+                    rendered="#{PrivateMessagesTool.detailMessagePublishableToFaq && mfPublishToFaqBean.canPost}" accesskey="m" />
             <h:commandButton action="#{PrivateMessagesTool.processPvtMsgDeleteConfirm}" value="#{msgs.pvt_delete}"  />
         </sakai:button_bar>
         <sakai:button_bar rendered="#{PrivateMessagesTool.deleteConfirm}" >

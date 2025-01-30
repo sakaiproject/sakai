@@ -18,9 +18,8 @@ package org.sakaiproject.profile2.model;
 import java.io.Serializable;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * Model for storing a user's external integration details
@@ -29,22 +28,13 @@ import org.apache.commons.lang3.StringUtils;
  *
  */
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 public class ExternalIntegrationInfo implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
+	@EqualsAndHashCode.Include
 	private String userUuid;
-	private String twitterToken;
-	private String twitterSecret;
-	
-	/**
-	 * Check if the user has already configured their Twitter info.
-	 * @param info	ExternalIntegrationInfo record to check
-	 * @return
-	 */
-	public boolean isTwitterAlreadyConfigured() {
-		return (StringUtils.isNotBlank(getTwitterToken()) && (StringUtils.isNotBlank(getTwitterSecret())));
-	}
 	
 }

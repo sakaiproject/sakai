@@ -515,7 +515,7 @@ public interface DiscussionForumManager
    */
   public Map<Long, Boolean> getReadStatusForMessagesWithId(List<Long> msgIds, String userId);
   
-  public List getDiscussionForumsWithTopicsMembershipNoAttachments(String contextId);
+  public List<DiscussionForum> getDiscussionForumsWithTopicsMembershipNoAttachments(String contextId);
   
   /**
    * Returns all pending msgs in the given topic

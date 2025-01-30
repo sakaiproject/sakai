@@ -34,8 +34,8 @@ $Id$
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{evaluationMessages.title_question}" /></title>
-      <script src="/webcomponents/rubrics/sakai-rubrics-utils.js<h:outputText value="#{questionScores.CDNQuery}" />"></script>
-      <script type="module" src="/webcomponents/rubrics/rubric-association-requirements.js<h:outputText value="#{questionScores.CDNQuery}" />"></script>
+      <script src="/samigo-app/js/authoringQuestionCancellation.js"></script>
+      <script type="module" src="/webcomponents/bundles/rubric-association-requirements.js<h:outputText value="#{questionScores.CDNQuery}" />"></script>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 
@@ -66,7 +66,8 @@ $Id$
     initRubricDialog(gradingId
       , <h:outputText value="'#{evaluationMessages.done}'"/>
       , <h:outputText value="'#{evaluationMessages.cancel}'"/>
-      , <h:outputText value="'#{evaluationMessages.saverubricgrading}'"/>);
+      , <h:outputText value="'#{evaluationMessages.saverubricgrading}'"/>
+      , <h:outputText value="'#{evaluationMessages.unsavedchangesrubric}'"/>);
   }
 </script>
 <!-- content... -->
@@ -96,9 +97,9 @@ $Id$
       <h:outputText value="#{evaluationMessages.part} #{partinit.partNumber}#{evaluationMessages.column}" />
     </h:column>
     <h:column>
-      <samigo:dataLine value="#{partinit.questionNumberList}" var="iteminit" separator=" | " first="0" rows="#{partinit.numberQuestionsTotal}" rendered="#{!partinit.isRandomDrawPart}" >
+      <samigo:dataLine value="#{partinit.questionNumberList}" var="iteminit" separator=" | " first="0" rows="#{partinit.questionNumberListSize}" rendered="#{!partinit.isRandomDrawPart && !partinit.isFixedRandomDrawPart}" >
         <h:column>
-          <h:commandLink title="#{evaluationMessages.t_questionScores}" action="questionScores" immediate="true" >
+          <h:commandLink title="#{evaluationMessages.t_questionScores}" action="questionScores" immediate="true" styleClass="#{iteminit.itemCancelled ? 'cancelled-question-link' : ''}">
             <h:outputText value="#{evaluationMessages.q}#{iteminit.partNumber} " escape="false"/>
 			<f:actionListener
               type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScorePagerListener" />
@@ -114,10 +115,16 @@ $Id$
 		<f:param value="#{partinit.numberQuestionsTotal}" />
 	  </h:outputFormat>
 
-	  <samigo:dataLine value="#{partinit.questionNumberList}" var="iteminit" separator=" | " first="0" rows="#{partinit.numberQuestionsTotal}" rendered="#{partinit.isRandomDrawPart}" >
+	  <h:outputFormat value="#{evaluationMessages.fixed_random_draw_info}" rendered="#{partinit.isFixedRandomDrawPart}">
+	  	<f:param value="#{partinit.numberQuestionsFixed}" />
+	  	<f:param value="#{partinit.numberQuestionsDraw}" />
+		<f:param value="#{partinit.numberQuestionsTotal}" />
+	  </h:outputFormat>
+
+	  <samigo:dataLine value="#{partinit.questionNumberList}" var="iteminit" separator=" | " first="0" rows="#{partinit.questionNumberListSize}" rendered="#{partinit.isRandomDrawPart || partinit.isFixedRandomDrawPart}" >
         <h:column>
-          <h:commandLink title="#{evaluationMessages.t_questionScores}" action="questionScores" immediate="true" >
-            <h:outputText value="#{evaluationMessages.q} #{iteminit.partNumber} "/>
+          <h:commandLink title="#{evaluationMessages.t_questionScores}" action="questionScores" immediate="true" styleClass="#{iteminit.itemCancelled ? 'cancelled-question-link' : ''}">
+            <h:outputText value="#{evaluationMessages.q}#{iteminit.partNumber} "/>
 			<f:actionListener
               type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScorePagerListener" />
             <f:actionListener
@@ -228,12 +235,11 @@ $Id$
     </div>
   </t:dataList>
 
-  <div class="samigo-question-callout">
   <t:dataList value="#{questionScores.deliveryItem}" var="question">
+  <h:panelGroup styleClass="samigo-question-callout#{question.cancellation != 0 ? ' samigo-question-cancelled' : ''}" layout="block">
   <div id="questionScoreItemAttachments">
       <%@ include file="/jsf/evaluation/questionScoreItemAttachment.jsp" %>
   </div>
-
   <h:panelGroup rendered="#{questionScores.typeId == '7'}">
     <f:subview id="displayAudioRecording">
       <%@ include file="/jsf/evaluation/item/displayAudioRecordingQuestion.jsp" %>
@@ -301,8 +307,19 @@ $Id$
     <%@ include file="/jsf/evaluation/item/displayImageMapQuestion.jsp" %>
     </f:subview>
   </h:panelGroup>
+  <h:panelGroup styleClass="sak-banner-info" rendered="#{question.cancellation != 0}" layout="block">
+    <h:outputText value="#{commonMessages.cancel_question_info_cancelled_question}" />
+  </h:panelGroup>
+  </h:panelGroup>
+  <h:panelGroup rendered="#{question.cancellation == 0 && questionScores.cancellationAllowed}">
+    <button class="button" data-item-cancellable="true" data-itemId='<h:outputText value="#{question.itemIdString}" />'>
+      <h:outputText value="#{commonMessages.cancel_question}" />
+    </button>
+  </h:panelGroup>
+  <h:panelGroup styleClass="sak-banner-info" rendered="#{questionScores.randomItemPresent}" layout="block">
+    <h:outputText value="#{commonMessages.cancel_question_info_random} " />
+  </h:panelGroup>
   </t:dataList>
-  </div>
 
   <h2>
     <p class="navView navModeAction">
@@ -312,9 +329,11 @@ $Id$
 
   <sakai:flowState bean="#{questionScores}" />
 
-  <h:panelGroup styleClass="form-inline" layout="block" rendered="#{totalScores.anonymous eq 'false'}">
-    <div class="form-group">
-        <h:outputLabel value="#{evaluationMessages.view}" />
+  <h:panelGroup styleClass="row score-box" layout="block" rendered="#{totalScores.anonymous eq 'false'}">
+
+  <h:panelGroup styleClass="col-md-6" layout="block">
+    <h:panelGroup styleClass="form-group" layout="block">
+        <h:outputLabel styleClass="col-md-2" value="#{evaluationMessages.view}" />
         <h:outputText value="&#160;" escape="false" />
         <h:selectOneMenu value="#{questionScores.allSubmissions}" id="allSubmissionsL1"
          required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '2'  && totalScores.multipleSubmissionsAllowed eq 'true'  }">
@@ -330,9 +349,8 @@ $Id$
           <f:valueChangeListener
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
         </h:selectOneMenu>
-    </div>
     
-    <h:panelGroup styleClass="form-group" layout="block" 
+    <h:panelGroup layout="block" 
                   rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || 
                                  questionScores.typeId == '12' || questionScores.typeId == '4'  || questionScores.typeId == '5')}">
         <h:outputLabel value="&nbsp;#{evaluationMessages.with}&nbsp;" escape="false" />
@@ -345,7 +363,6 @@ $Id$
     </h:panelGroup>
     
     <!-- SECTION AWARE -->
-    <div class="form-group">
         <h:outputLabel value="&nbsp;#{evaluationMessages.forAllSectionsGroups}&nbsp;" escape="false" 
                         rendered="#{totalScores.availableSectionSize < 1}"/>
         <h:outputLabel value="&nbsp;#{evaluationMessages.for_s}&nbsp;" rendered="#{totalScores.availableSectionSize >= 1}" 
@@ -359,20 +376,17 @@ $Id$
             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener"/>
             </h:selectOneMenu>
         </h:panelGroup>
-    </div>
-  </h:panelGroup>
-  <br/>
-  <h:panelGroup styleClass="form-inline" layout="block" rendered="#{totalScores.anonymous eq 'false'}">
 
       <h:panelGroup styleClass="form-group" rendered="#{questionScores.typeId == '6'}" layout="block">
         <h:outputLink styleClass="btn btn-default" title="#{evaluationMessages.download_responses}"  value="/samigo-app/servlet/DownloadAllMedia?publishedId=#{questionScores.publishedId}&publishedItemId=#{questionScores.itemId}&createdBy=#{question.itemData.createdBy}&partNumber=#{part.partNumber}&anonymous=#{totalScores.anonymous}&scoringType=#{questionScores.allSubmissions}">
           <h:outputText value="#{evaluationMessages.download_responses}"/>
         </h:outputLink>
       </h:panelGroup>
-      
-      <div class="form-group">
-        <h:panelGroup styleClass="samigo-search-student" layout="block">
-            <h:outputLabel value="#{evaluationMessages.search}"/>
+
+    </h:panelGroup>
+
+        <h:panelGroup styleClass="samigo-search-student form-group" layout="block">
+            <h:outputLabel styleClass="col-md-2" value="#{evaluationMessages.search}"/>
             <h:outputText value="&#160;" escape="false" />
             <h:inputText
                     id="searchString"
@@ -384,14 +398,14 @@ $Id$
             <h:outputText value="&nbsp;" escape="false" />
             <h:commandButton actionListener="#{questionScores.clear}" value="#{evaluationMessages.search_clear}"/>
          </h:panelGroup>
-	  </div>
+    </h:panelGroup>
+
+    <h:panelGroup layout="block" styleClass="samigo-pager col-md-6" style="text-align: right">
+        <sakai:pager id="pager1" totalItems="#{questionScores.dataRows}" firstItem="#{questionScores.firstRow}" pageSize="#{questionScores.maxDisplayedRows}" textStatus="#{evaluationMessages.paging_status}" >
+            <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScorePagerListener" />
+        </sakai:pager>
+    </h:panelGroup>
   </h:panelGroup>
-   
-   <h:panelGroup>
-	<sakai:pager id="pager1" totalItems="#{questionScores.dataRows}" firstItem="#{questionScores.firstRow}" pageSize="#{questionScores.maxDisplayedRows}" textStatus="#{evaluationMessages.paging_status}" >
-		  <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScorePagerListener" />
-	</sakai:pager>
-  </h:panelGroup>  
 
 <h:panelGrid columns="3" columnClasses="samLeftNav,samRightNav" width="100%" rendered="#{totalScores.anonymous eq 'true'}">
   <h:panelGroup>
@@ -449,7 +463,7 @@ $Id$
 
   <!-- STUDENT RESPONSES AND GRADING -->
   <!-- note that we will have to hook up with the back end to get N at a time -->
-<div class="table-responsive">
+<div class="table">
   <h:dataTable id="questionScoreTable" value="#{questionScores.agents}" var="description" styleClass="table table-bordered table-striped" columnClasses="textTable">
 
     <!-- NAME/SUBMISSION ID -->
@@ -465,6 +479,7 @@ $Id$
         <f:param name="sortAscending" value="true" />
         </h:commandLink>
      </f:facet>
+      <sakai-user-photo user-id='<h:outputText value="#{description.idString}"/>' profile-popup="on"></sakai-user-photo>
      <h:panelGroup>
        <h:outputText value="<a name=\"" escape="false" />
        <h:outputText value="#{description.lastInitial}" />
@@ -504,6 +519,7 @@ $Id$
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
           </h:commandLink>    
       </f:facet>
+      <sakai-user-photo user-id='<h:outputText value="#{description.idString}"/>' profile-popup="on"></sakai-user-photo>
      <h:panelGroup>
        <h:outputText value="<a name=\"" escape="false" />
        <h:outputText value="#{description.lastInitial}" />
@@ -545,6 +561,7 @@ $Id$
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
           </h:commandLink>    
       </f:facet>
+      <sakai-user-photo user-id='<h:outputText value="#{description.idString}"/>' profile-popup="on"></sakai-user-photo>
      <h:panelGroup>
        <h:outputText value="<a name=\"" escape="false" />
        <h:outputText value="#{description.lastInitial}" />
@@ -804,6 +821,51 @@ $Id$
         </h:outputText>
     </h:column>    
 
+    <!-- TIME ELAPSED -->
+    <h:column rendered="#{questionScores.trackingQuestions && questionScores.sortType!='timeElapsed'}">
+     <f:facet name="header">
+        <h:commandLink title="#{evaluationMessages.t_sortTimeElapsed}" id="timeElapsed" action="questionScores">
+          <h:outputText value="#{evaluationMessages.time_elapsed}" />
+      <f:actionListener
+         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />
+        <f:actionListener
+          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
+        <f:param name="sortBy" value="timeElapsed" />
+        <f:param name="sortAscending" value="true"/>
+        </h:commandLink>
+     </f:facet>
+        <h:outputText value="#{description.formattedTimeElapsed}" />
+    </h:column>
+
+    <h:column rendered="#{questionScores.trackingQuestions && questionScores.sortType eq 'timeElapsed' && questionScores.sortAscending}">
+      <f:facet name="header">
+        <h:commandLink title="#{evaluationMessages.t_sortTimeElapsed}" action="questionScores">
+          <h:outputText value="#{evaluationMessages.time_elapsed}" />
+          <f:param name="sortAscending" value="false" />
+          <h:graphicImage alt="#{evaluationMessages.alt_sortTimeElapsedDescending}" rendered="#{questionScores.sortAscending}" url="/images/sortascending.gif"/>
+          <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />
+          <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
+          </h:commandLink>
+      </f:facet>
+        <h:outputText value="#{description.formattedTimeElapsed}" />
+    </h:column>
+    
+    <h:column rendered="#{questionScores.trackingQuestions && questionScores.sortType eq 'timeElapsed' && !questionScores.sortAscending}">
+      <f:facet name="header">
+        <h:commandLink title="#{evaluationMessages.t_sortTimeElapsed}" action="questionScores">
+          <h:outputText value="#{evaluationMessages.time_elapsed}" />
+          <f:param name="sortAscending" value="true" />
+          <h:graphicImage alt="#{evaluationMessages.alt_sortTimeElapsedAscending}" rendered="#{!questionScores.sortAscending}" url="/images/sortdescending.gif"/>
+          <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />
+          <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
+          </h:commandLink>
+      </f:facet>
+        <h:outputText value="#{description.formattedTimeElapsed}" />
+    </h:column>
 
     <!-- SCORE -->
     <h:column rendered="#{questionScores.sortType!='totalAutoScore'}">
@@ -823,15 +885,16 @@ $Id$
                     id="qscore"
                     styleClass="adjustedScore#{description.assessmentGradingId}.#{questionScores.itemId}"
                     required="false"
+                    disabled="#{questionScores.deliveryItemCancelled}"
                     onchange="toPoint(this.id);">
       </h:inputText>
       <h:message for="qscore" style="color:red"/>
        <h:outputLink title="#{evaluationMessages.saverubricgrading}"
                         rendered="#{questionScores.hasAssociatedRubric}"
                         value="#"
-                        onclick="initRubricDialogWrapper(#{description.assessmentGradingId}.#{questionScores.itemId}); return false;"
-                        onkeypress="initRubricDialogWrapper(#{description.assessmentGradingId}.#{questionScores.itemId}); return false;" >
-        <h:outputText styleClass="fa icon-sakai--sakai-rubrics" id="rubrics-question-icon1" title="#{authorMessages.question_use_rubric}" style="margin-left:0.5em"/>
+                        onclick="initRubricDialogWrapper(#{description.assessmentGradingId}+'.'+#{questionScores.itemId}); return false;"
+                        onkeypress="initRubricDialogWrapper(#{description.assessmentGradingId}+'.'+#{questionScores.itemId}); return false;" >
+        <h:outputText styleClass="si si-sakai-rubrics" id="rubrics-question-icon1" title="#{authorMessages.question_use_rubric}" style="margin-left:0.5em"/>
       </h:outputLink>
       <%@ include file="/jsf/evaluation/rubricModal.jsp" %> 
  </h:column>
@@ -860,8 +923,8 @@ $Id$
 	  <h:outputLink title="#{evaluationMessages.saverubricgrading}"
                     rendered="#{questionScores.hasAssociatedRubric}"
                     value="#"
-                    onclick="initRubricDialogWrapper(#{description.assessmentGradingId}.#{questionScores.itemId}); return false;"
-                    onkeypress="initRubricDialogWrapper(#{description.assessmentGradingId}.#{questionScores.itemId}); return false;" >
+                    onclick="initRubricDialogWrapper(#{description.assessmentGradingId}+'.'+#{questionScores.itemId}); return false;"
+                    onkeypress="initRubricDialogWrapper(#{description.assessmentGradingId}+'.'+#{questionScores.itemId}); return false;" >
 	  	<h:outputText styleClass="fa icon-sakai--sakai-rubrics" id="rubrics-question-icon2" title="#{authorMessages.question_use_rubric}" style="margin-left:0.5em"/>
 	  </h:outputLink>
 	  <%@ include file="/jsf/evaluation/rubricModal.jsp" %>
@@ -890,8 +953,8 @@ $Id$
 	  <h:outputLink title="#{evaluationMessages.saverubricgrading}"
                     rendered="#{questionScores.hasAssociatedRubric}"
                     value="#"
-                    onclick="initRubricDialogWrapper(#{description.assessmentGradingId}.#{questionScores.itemId}); return false;"
-                    onkeypress="initRubricDialogWrapper(#{description.assessmentGradingId}.#{questionScores.itemId}); return false;" >
+                    onclick="initRubricDialogWrapper(#{description.assessmentGradingId}+'.'+#{questionScores.itemId}); return false;"
+                    onkeypress="initRubricDialogWrapper(#{description.assessmentGradingId}+'.'+#{questionScores.itemId}); return false;" >
 	  	<h:outputText styleClass="fa icon-sakai--sakai-rubrics" id="rubrics-question-icon3" title="#{authorMessages.question_use_rubric}" style="margin-left:0.5em"/>
 	  </h:outputLink>
        <%@ include file="/jsf/evaluation/rubricModal.jsp" %>
@@ -1253,6 +1316,66 @@ $Id$
    </h:commandButton>
    <h:commandButton id="cancel" value="#{commonMessages.cancel_action}" action="totalScores" immediate="true"/>
 </p>
+
+<%--Question Cancellation Modal--%>
+<div id="cancelQuestionModal" class="modal modal-lg fade question-cancel-modal" tabindex="-1">
+  <h:panelGroup styleClass="modal-dialog" layout="block">
+    <h:panelGroup styleClass="modal-content" layout="block">
+      <h:panelGroup styleClass="modal-header" layout="block">
+        <h2 class="modal-title">
+          <h:outputText value="#{commonMessages.cancel_question}" />
+        </h2>
+        <button type="button" class="btn btn-close me-1" data-bs-dismiss="modal"
+            aria-label='<h:outputText value="#{authorMessages.button_close}" />'>
+        </button>
+      </h:panelGroup>
+      <h:panelGroup styleClass="modal-body" layout="block">
+        <h:panelGroup styleClass="sak-banner-info" layout="block">
+          <h:outputText value="#{commonMessages.cancel_question_info_cancellation}" />
+          <br /><br />
+          <strong>
+            <h:outputText value="#{commonMessages.cancel_question_reduce_total}:" />
+          </strong>
+          <h:outputText value="#{commonMessages.cancel_question_info_reduce_total}" />
+          <br /><br />
+          <strong>
+            <h:outputText value="#{commonMessages.cancel_question_distribute_points}:" />
+          </strong>
+          <h:outputText value="#{commonMessages.cancel_question_info_distribute_points}" />
+        </h:panelGroup>
+        <h:panelGroup styleClass="sak-banner-warn" layout="block">
+          <h:panelGroup rendered="#{questionScores.emiItemPresent}">
+            <h:outputText value="#{commonMessages.cancel_question_info_emi} " />
+            <br /><br />
+          </h:panelGroup>
+          <h:outputText value="#{commonMessages.cancel_question_info_regrade} #{commonMessages.cancel_question_info_no_undo}" />
+        </h:panelGroup>
+      </h:panelGroup>
+      <h:panelGroup styleClass="modal-footer act" layout="block">
+        <h:commandButton styleClass="active" type="submit" id="cancelItemTotal" action="questionScores"
+            value="#{commonMessages.cancel_question_reduce_total}">
+          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ItemCancellationListener" />
+          <f:param name="outcome" value="questionScores"/>
+          <f:param name="itemId" value="ITEM_ID"/>
+          <f:param name="cancellation" value="10"/>
+          <f:param name="regrade" value="true"/>
+        </h:commandButton>
+        <h:commandButton styleClass="button me-0 me-lg-1" type="submit" id="cancelItemDistribute" action="questionScores"
+            value="#{commonMessages.cancel_question_distribute_points}">
+          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ItemCancellationListener" />
+          <f:param name="outcome" value="questionScores"/>
+          <f:param name="itemId" value="ITEM_ID"/>
+          <f:param name="cancellation" value="20"/>
+          <f:param name="regrade" value="true"/>
+        </h:commandButton>
+        <button type="button" class="button mt-1 mt-lg-0" data-bs-dismiss="modal">
+          <h:outputText value="#{commonMessages.cancel_question_cancel}" />
+        </button>
+      </h:panelGroup>
+    </h:panelGroup>
+  </h:panelGroup>
+</div>
+
 </h:form>
 </div>
   <!-- end content -->

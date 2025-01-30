@@ -4,7 +4,7 @@
   <parent>
     <artifactId>elasticsearch-base</artifactId>
     <groupId>org.sakaiproject.search.elasticsearch</groupId>
-    <version>23-SNAPSHOT</version><!-- ProjectVersion -->
+    <version>25-SNAPSHOT</version><!-- ProjectVersion -->
     <relativePath>../pom.xml</relativePath>
   </parent>
   <groupId>org.sakaiproject.search.elasticsearch</groupId>
@@ -16,12 +16,12 @@
   </properties>
   <dependencies>
     <dependency>
-      <groupId>org.elasticsearch</groupId>
-      <artifactId>elasticsearch</artifactId>
+      <groupId>org.opensearch</groupId>
+      <artifactId>opensearch</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.elasticsearch.client</groupId>
-      <artifactId>elasticsearch-rest-high-level-client</artifactId>
+      <groupId>org.opensearch.client</groupId>
+      <artifactId>opensearch-rest-high-level-client</artifactId>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>

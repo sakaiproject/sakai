@@ -146,7 +146,7 @@ public class PASystemEntityProvider implements EntityProvider, AutoRegisterEntit
             return result.toJSONString();
         }
 
-        paSystem.getBanners().clearTemporaryDismissedForUser(userId);
+        paSystem.getBanners().clearAcknowledgementForUser(userId);
         result.put("status", "SUCCESS");
 
         return result.toJSONString();

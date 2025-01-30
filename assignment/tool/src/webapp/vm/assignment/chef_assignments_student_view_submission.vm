@@ -20,7 +20,52 @@ $(document).ready(function(){
         $('.cloned a').show();
         ASN.resizeFrame('grow');
     });
-    
+    $('body').on('rubrics-grading-loaded', e => {
+        const studentSelfReportMode = $studentSelfReportMode;
+        switch (studentSelfReportMode) {
+            // The student has to select a criteria on every criterion
+            case 0:
+            default:
+                if($('sakai-rubric-grading').length) {
+                    $('body').on('rubric-ratings-changed', e => {
+                        const criterionRatingsLength = $('sakai-rubric-grading').find('.criterion-ratings').length;
+                        const ratingsSelected = $('sakai-rubric-grading').find('.rating-item.selected').length;
+                        if (ratingsSelected === criterionRatingsLength) {
+                            disableSubmitButtons(false);
+                        } else {
+                            disableSubmitButtons(true);
+                        }
+                    });
+                }
+                break;
+
+            // The student has to select at least one criteria in one criterion
+            case 1:
+                if($('sakai-rubric-grading').length) {
+                    $('body').on('rubric-ratings-changed', e => {
+                        const ratingsSelected = $('sakai-rubric-grading').find('.rating-item.selected').length;
+                        if (ratingsSelected > 0) {
+                            disableSubmitButtons(false);
+                        } else {
+                            disableSubmitButtons(true);
+                        }
+                    });
+                }
+                break;
+
+            // The student is not required to select any criteria
+            case 2:
+                disableSubmitButtons(false);
+                break;
+        }
+    });
+
+    function disableSubmitButtons(disabled) {
+        document.getElementById('confirm').disabled = disabled;
+        document.getElementById('preview').disabled = disabled;
+        document.getElementById('save').disabled = disabled;
+    }
+
 });
 </script>
 ## Include other javascript specific to this page
@@ -113,6 +158,7 @@ $(document).ready(function(){
 			## TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION = 3;
 			## NON_ELECTRONIC_ASSIGNMENT_SUBMISSION = 4;
 			## SINGLE_ATTACHMENT_SUBMISSION = 5
+			## EXTERNAL_TOOL_SUBMISSION = 6
 			## VIDEO_SUBMISSION = 7
 			<p class="instruction">
 				#if (($submissionType==1) || ($submissionType==3))
@@ -135,9 +181,6 @@ $(document).ready(function(){
 				#end
 			</p>	
 		#end
-	#end
-	#if (!$!allowAddAssignment && !$!nonElectronicType)
-		#progressBar($!service.getProgressBarStatus($!submission))
 	#end
 ##		<h4>$tlang.getString("gen.assdet")</h4>
 	#if ($isTimesheet && $assignment.Estimate && !$assignment.Estimate.equals(""))
@@ -243,59 +286,57 @@ $(document).ready(function(){
 					</div>
 				</div>
 			#end
-			#if ($withGrade)
-				#set ($gradeScale = $assignment.TypeOfGrade.ordinal())
-				#if ($submission.Graded && $submission.GradeReleased)
-					<div class="row">
-						<div class="col-lg-4 col-sm-6 col-xs-12">
-							<div class="itemSummaryHeader">$tlang.getString("gen.gra")</div>
-						</div>
-						<div class="col-lg-4 col-sm-6 col-xs-12">
-							<div class="itemSummaryValue highlight">
-								<strong>
-									#if ($gradeScale != 1)
-										#if ($!grade == $tlang.getString("pass") || $!grade == $tlang.getString("gen.checked"))
-											<span class="text-success">$!grade</span>
-										#elseif ($!grade == $tlang.getString("fail"))
-											<span class="text-danger">$!grade</span>
-										#else
-											$!grade
-										#end
+			#set ($gradeScale = $assignment.TypeOfGrade.ordinal())
+			#if ($submission.Graded && $submission.GradeReleased)
+				<div class="row">
+					<div class="col-lg-4 col-sm-6 col-xs-12">
+						<div class="itemSummaryHeader">$tlang.getString("gen.gra")</div>
+					</div>
+					<div class="col-lg-4 col-sm-6 col-xs-12">
+						<div class="itemSummaryValue highlight">
+							<strong>
+								#if ($gradeScale != 1)
+									#if ($!grade == $tlang.getString("pass") || $!grade == $tlang.getString("gen.checked"))
+										<span class="text-success">$!grade</span>
+									#elseif ($!grade == $tlang.getString("fail"))
+										<span class="text-danger">$!grade</span>
 									#else
-										$tlang.getString("gen.nograd")
+										$!grade
 									#end
-									#if ($gradeTypeTable.get($gradeScale) == $!tlang.getString("points"))
-                                        ($tlang.getString("grade.max") $!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint))
-									#end
-								</strong>
-									
-								<!--for grading via an external scoring service, if enabled for an associated gradebook item -->
-								#if($scoringComponentEnabled)
-									#parse ("/vm/assignment/chef_assignments_scoring_agent.vm")
+								#else
+									$tlang.getString("gen.nograd")
 								#end
-							</div>
-						</div>
-					</div>
-				#else
-					<div class="row">
-						<div class="col-lg-4 col-sm-6 col-xs-12">
-							<div class="itemSummaryHeader">$tlang.getString("gen.grasca")</div>
-						</div>
-						<div class="col-lg-4 col-sm-6 col-xs-12">
-							<div class="itemSummaryValue">
-								$gradeTypeTable.get($gradeScale)
 								#if ($gradeTypeTable.get($gradeScale) == $!tlang.getString("points"))
-                                    ($tlang.getString("grade.max") $!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint))
+									($tlang.getString("grade.max") $!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint))
 								#end
-								
-								<!--for grading via an external scoring service, if enabled for an associated gradebook item -->
-								#if($scoringComponentEnabled)
-									#parse ("/vm/assignment/chef_assignments_scoring_agent.vm")	
-								#end
-							</div>
+							</strong>
+
+							<!--for grading via an external scoring service, if enabled for an associated gradebook item -->
+							#if($scoringComponentEnabled)
+								#parse ("/vm/assignment/chef_assignments_scoring_agent.vm")
+							#end
 						</div>
 					</div>
-				#end
+				</div>
+			#else
+				<div class="row">
+					<div class="col-lg-4 col-sm-6 col-xs-12">
+						<div class="itemSummaryHeader">$tlang.getString("gen.grasca")</div>
+					</div>
+					<div class="col-lg-4 col-sm-6 col-xs-12">
+						<div class="itemSummaryValue">
+							$gradeTypeTable.get($gradeScale)
+							#if ($gradeTypeTable.get($gradeScale) == $!tlang.getString("points"))
+								($tlang.getString("grade.max") $!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint))
+							#end
+
+							<!--for grading via an external scoring service, if enabled for an associated gradebook item -->
+							#if($scoringComponentEnabled)
+								#parse ("/vm/assignment/chef_assignments_scoring_agent.vm")
+							#end
+						</div>
+					</div>
+				</div>
 			#end
 			#if ($isTimesheet && $assignment.Estimate && !$assignment.Estimate.equals(""))
 			<div class="row">
@@ -368,10 +409,13 @@ $(document).ready(function(){
 
 		#supplementItems($!allowViewModelAnswer $!allowReadAssignmentNoteItem $!allowViewAllPurposeItem $!assignmentModelAnswerItem $!assignmentNoteItem $!assignmentAllPurposeItem)
 
+		#if (!$!rubricSelfReport)
 		<sakai-rubric-student-preview-button
 			site-id="$context"
 			tool-id="sakai.assignment.grades"
-			entity-id="$assignment.Id"></sakai-rubric-student-preview-button>
+			entity-id="$assignment.Id">
+		</sakai-rubric-student-preview-button>
+		#end
 
 		#if ($submission.Graded && ($submission.GradeReleased || $returned))
 		<sakai-rubric-student
@@ -380,6 +424,7 @@ $(document).ready(function(){
 			entity-id="$assignment.Id"
 			evaluated-item-id="$submission.Id"
 			enable-pdf-export="$enablePdfExport"
+			evaluated-item-owner-id="$submitter.id"
 		></sakai-rubric-student>
 		#end
 
@@ -411,15 +456,7 @@ $(document).ready(function(){
 		#end
 
 		## show special instruction if this is for an non-electronic submission type of assignment
-        #if ($submissionType==6)
-			<form name="dummyForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;">
-                #if ( $!value_ContentId > 0 && $!value_ContentLaunchURL)
-		        <a class="btn btn-primary" href="#toolLinkParam("$action" "doView_external_tool_launch" "assignmentId=$formattedText.escapeUrl($assignmentReference)")">$tlang.getString("external.tool.goto")</a>
-                #end
-				<input type="submit" accesskey="x" name="eventSubmit_doCancel_show_submission" value="$tlang.getString('gen.can')" onclick="SPNR.disableControlsAndSpin( this, null );" />
-				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-			</form>
-		#elseif ($!nonElectronicType)
+		#if ($!nonElectronicType)
 			<p class="instruction">
 				$tlang.getString("nonelec_instruction")
 			</p>
@@ -454,6 +491,32 @@ $(document).ready(function(){
 		<input type="hidden" name="option" id="option" value="cancel" />
 		<input type="hidden" name="currentAttachment" value="" />
 		<input type="hidden" name="assignmentId" value="$assignmentReference" />
+		
+		#if ($!rubricSelfReport)
+		<p class="instruction">
+			#if ($studentSelfReportMode == 0)
+				$tlang.getString("youhavetorubric")
+			#elseif ($studentSelfReportMode == 1)
+				$tlang.getString("youhavetorubricone")
+			#elseif ($studentSelfReportMode == 2)
+				$tlang.getString("youmustrubric")
+			#end
+		</p>
+		<sakai-rubric-grading
+			site-id="$context"
+			tool-id="sakai.assignment.grades"
+			entity-id="$assignment.Id"
+			#if ($!assignment.isGroup)
+				evaluated-item-id="$selectedGroup"
+				evaluated-item-owner-id="$selectedGroup"
+				group
+			#else
+				evaluated-item-id="$submitter.id"
+				evaluated-item-owner-id="$submitter.id"
+			#end
+			is-peer-or-self="true" 
+		></sakai-rubric-grading>
+		#end
 
 		#if ($!canSubmit)
 			## if a draft submission or the submission has been returned and has not yet submitted
@@ -477,11 +540,11 @@ $(document).ready(function(){
 								#if ($!group_size.equals("1"))
 									#set($selected=true)
 								#else
-                                                                	#set($selected=false)
-								        #set($aGroup = $!site.getGroup($!selectedGroup))
-                                                                	#if ($!group.Id == $!aGroup.Id)
-                                                                    		#set($selected = true)
-                                                                	#end
+									#set($selected=false)
+									#set($aGroup = $!site.getGroup($!selectedGroup))
+									#if ($!group.Id == $!aGroup.Id)
+										#set($selected = true)
+									#end
 								#end
 								
 								<input type="radio" name="selectedGroups" id="id-$group.Id" title="$group.Id" value="$group.Id" #if($selected) checked="checked"#end />
@@ -495,7 +558,7 @@ $(document).ready(function(){
 							<span style="font-size: smaller; color: blue;">	
 								#set($gusers = $!service.getSortedGroupUsers($group))
 								#foreach ($user in $gusers)
-									$formattedText.escapeHtml($user.getDisplayName()) ($formattedText.escapeHtml($user.getDisplayId()))
+									$formattedText.escapeHtml($user.getDisplayName())#if ($showUserId) ($formattedText.escapeHtml($user.getDisplayId())) #end
 									#if ($velocityCount < $gusers.size()),#end
 								#end
 							</span>	
@@ -512,6 +575,7 @@ $(document).ready(function(){
                 #else
                     <span class="highlight">$tlang.getString("group.must.member")</span>
 		#end
+## End if ($!assignment.IsGroup)
 #end
 
 			## We are allowing the instructor to submit as long as assignment is not non-electronic and not deleted
@@ -698,7 +762,7 @@ $(document).ready(function(){
 				<div class="row">
 					#if(!$formattedText.escapeHtml($!value_ASSIGNMENT_INPUT_ADD_TIME_SPENT).equals(""))
 						<div class="col-sm-5">
-							<label for="timeTimesheet" class="itemSummaryHeader itemSummaryWrap">$!tlang.getString( "gen.useimputedtime" )<a href="javascript:void(0)" title="$!tlang.getString( "ts.tab.timesheet" )" onclick="ASN.switchTimesheetTab( 'tabTimeSheet' ); return false;">$!tlang.getString( "ts.tab.timesheet" )</a> ( $formattedText.escapeHtml($!value_ASSIGNMENT_INPUT_ADD_TIME_SPENT))</label>
+							<label for="timeTimesheet" class="itemSummaryHeader itemSummaryWrap">$!tlang.getString( "gen.useimputedtime" )<a href="javascript:void(0)" title="$!tlang.getString( "ts.tab.timesheet" )" onclick="ASN.switchTimesheetTab( 'tabTimeSheet' ); return false;">$!tlang.getString( "ts.tab.timesheet" )</a> ($formattedText.escapeHtml($!value_ASSIGNMENT_INPUT_ADD_TIME_SPENT))</label>
 						</div>
 						<div class="col-sm-2">
 							<div class="itemSummaryValue">
@@ -980,17 +1044,31 @@ $(document).ready(function(){
 						</div>
 					#end
 				#end
-				#if ($withGrade)
-					#set ($previousGrades = $!submission.Properties.get($NamePropSubmissionScaledPreviousGrades))
-					#if ($previousGrades && $previousGrades.length() > 0 )
-						<h4 id="toggleGrade" class="toggleAnchor"><img alt="expand" class="expand" src="/library/image/sakai/expand.gif" /><img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" />
-							$tlang.getString("gradingsub.pregra")
-						</h4>
-						<div class="gradecoms toggledContent">
-							$!previousGrades
-						</div>
-					#end
+				#set ($previousGrades = $!submission.Properties.get($NamePropSubmissionScaledPreviousGrades))
+				#if ($previousGrades && $previousGrades.length() > 0 )
+					<h4 id="toggleGrade" class="toggleAnchor"><img alt="expand" class="expand" src="/library/image/sakai/expand.gif" /><img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" />
+						$tlang.getString("gradingsub.pregra")
+					</h4>
+					<div class="gradecoms toggledContent">
+						$!previousGrades
+					</div>
 				#end
+				#if ($submissionType == 6)
+					<form name="dummyForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;">
+						#if ( $!value_ContentId > 0 && $!value_ContentLaunchURL)
+							#if ($!deleted.equalsIgnoreCase("true") || !$!canSubmit)
+								## Can't submit
+							#else
+								<a class="btn btn-primary" href="#toolLinkParam("$action" "doView_external_tool_launch" "assignmentId=$formattedText.escapeUrl($assignmentReference)")">$tlang.getString("external.tool.goto")</a>
+								#if ($externalToolDeleted)
+									<span>$tlang.getString("external.tool.deleted")</span>
+								#end
+							#end
+						#end
+						<input type="submit" accesskey="x" name="eventSubmit_doCancel_show_submission" value="$tlang.getString('gen.can')" onclick="SPNR.disableControlsAndSpin( this, null );" />
+						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+					</form>
+				#else
 				<div id="submitPanel"
 					#if ($!deleted.equalsIgnoreCase("true") || !$!canSubmit)
 					 class="act">
@@ -1026,6 +1104,7 @@ $(document).ready(function(){
                             #end
 					#end
 			</div>
+			#end
 			<div id="confirmationDialogue" class="act sak-banner-warn" style="display:none;">
 				$tlang.getString("gen.can.discard")
 				<input class="disableme" type="button" name="yes" accesskey="y" id="yes" value="$tlang.getString("gen.yes")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'cancel', null, null );" />
@@ -1095,7 +1174,7 @@ $(document).ready(function(){
 						#end
 					</ul>
 				#end	
-				#if ($withGrade && $submission.getGraded() && $submission.getGradeReleased())
+				#if ($submission.getGraded() && $submission.getGradeReleased())
 					#if ($submission.getGradeReleased() &&($!submission.FeedbackComment) && ($submission.FeedbackComment.trim().length()>0))
 						<h5>$tlang.getString("gen.addinst")</h5>
 						<div>$formattedText.escapeHtmlFormattedText($submission.FeedbackComment)</div>
@@ -1107,20 +1186,18 @@ $(document).ready(function(){
 					#end
 					#parse ("/vm/assignment/chef_assignments_student_view_feedback_attachments.vm")
 				#end
-					#if ($withGrade)
-						#set ($previousGrades =  $!submission.Properties.get($NamePropSubmissionScaledPreviousGrades))
-						#if ($!previousGrades.length() == 0 )
-							#set ($previousGrades =  $!submission.Properties.get($NamePropSubmissionScaledPreviousGrades))
-						#end
-						#if ($!previousGrades && $!previousGrades.length() > 0 )
-							<h4 id="toggleGrade" class="toggleAnchor"><img alt="expand" class="expand" src="/library/image/sakai/expand.gif" /><img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" />
-								$tlang.getString("gradingsub.pregra")
-							</h4>
-							<div class="gradecoms  toggledContent">		
-								$!previousGrades.length()$!previousGrades
-							</div>
-						#end
-					#end
+				#set ($previousGrades =  $!submission.Properties.get($NamePropSubmissionScaledPreviousGrades))
+				#if ($!previousGrades.length() == 0 )
+					#set ($previousGrades =  $!submission.Properties.get($NamePropSubmissionScaledPreviousGrades))
+				#end
+				#if ($!previousGrades && $!previousGrades.length() > 0 )
+					<h4 id="toggleGrade" class="toggleAnchor"><img alt="expand" class="expand" src="/library/image/sakai/expand.gif" /><img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" />
+						$tlang.getString("gradingsub.pregra")
+					</h4>
+					<div class="gradecoms  toggledContent">
+						$!previousGrades.length()$!previousGrades
+					</div>
+				#end
 		#if (!$!linkInvoked)
 			<p class="act">
 				<input type="button" name="cancel" accesskey="x" id="cancel" value="$tlang.getString("gen.don")" onclick="ASN_SVS.confirmDiscardOrSubmit( '$name_submission_text', $!new_attachments ); return false;" />

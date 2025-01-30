@@ -73,37 +73,6 @@ public class EntityProviderManagerImplTest {
 
    /**
     * Test method for
-    * {@link org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderManagerImpl#getProviderByReference(java.lang.String)}.
-    */
-   @SuppressWarnings("deprecation")
-   @Test
-   public void testGetProviderByReference() {
-      EntityProvider ep = null;
-
-      // get valid providers
-      ep = entityProviderManager.getProviderByReference(TestData.REF1);
-      Assert.assertNotNull(ep);
-      Assert.assertEquals(td.entityProvider1, ep);
-
-      ep = entityProviderManager.getProviderByReference(TestData.REF3A);
-      Assert.assertNotNull(ep);
-      Assert.assertEquals(td.entityProvider3, ep);
-
-      // test unregistered provider returns null
-      ep = entityProviderManager.getProviderByReference(TestData.REF9);
-      Assert.assertNull(ep);
-
-      // ensure invalid prefix dies
-      try {
-         ep = entityProviderManager.getProviderByReference(TestData.INVALID_REF);
-         Assert.fail("Should have thrown exception");
-      } catch (IllegalArgumentException e) {
-         Assert.assertNotNull(e.getMessage());
-      }
-   }
-
-   /**
-    * Test method for
     * {@link org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderManagerImpl#getProviderByPrefix(java.lang.String)}.
     */
    @Test

@@ -4,7 +4,7 @@
   <parent>
     <artifactId>content</artifactId>
     <groupId>org.sakaiproject.content</groupId>
-    <version>23-SNAPSHOT</version>
+    <version>25-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>content-tool</name>
@@ -12,10 +12,6 @@
   <artifactId>sakai-content-tool</artifactId>
   <packaging>war</packaging>
   <dependencies>
-  <dependency>
-  	<groupId>org.sakaiproject.content</groupId>
-  	<artifactId>content-bundles</artifactId>
-  </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-kernel-util</artifactId>
@@ -87,16 +83,14 @@
       <artifactId>quartz</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject.onedrive</groupId>
-      <artifactId>sakai-onedrive-api</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
       <groupId>org.sakaiproject.googledrive</groupId>
       <artifactId>sakai-googledrive-api</artifactId>
       <version>${project.version}</version>
       <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.microsoft</groupId>
+      <artifactId>microsoft-api</artifactId>
     </dependency>
     <dependency>
       <groupId>com.googlecode.json-simple</groupId>

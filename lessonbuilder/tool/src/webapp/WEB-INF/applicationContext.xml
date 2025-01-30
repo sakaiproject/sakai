@@ -23,7 +23,7 @@
   <bean id="messageSource" 
       class="org.sakaiproject.lessonbuildertool.util.ResourceLoaderMessageSource"
       depends-on="TLABPostProcessorLoader">
-    <property name="basename" value="classpath:messages"/> 
+    <property name="basename" value="classpath:lessons"/>
     <property name="cacheSeconds" value="10" /> 
   </bean> 
 
@@ -174,6 +174,8 @@ simplePageBean.selectedGroups,
 simplePageBean.selectedQuiz,
 simplePageBean.studentSelectedGroups,
 simplePageBean.submit,
+simplePageBean.subpageBulkEditJson,
+simplePageBean.subpageBulkEditSubmit,
 simplePageBean.subpageButton,
 simplePageBean.subpageNext,
 simplePageBean.subpageTitle,
@@ -190,6 +192,7 @@ simplePageBean.width,
 simplePageBean.youtubeId,
 simplePageBean.youtubeURL,
 simplePageBean.selectPage,
+simplePageBean.selectSite,
 simplePageBean.announcementsHeight,
 simplePageBean.announcementsDropdown,
 simplePageBean.addAnnouncements,
@@ -200,6 +203,7 @@ simplePageBean.twitterDropDown,
 simplePageBean.twitterUsername,
 simplePageBean.twitterWidgetHeight,
 simplePageBean.addTwitterTimeline,
+simplePageBean.selectedSite,
 simplePageBean.peerEvalAllowSelfGrade,
 simplePageBean.folderPickerSubmit,
 simplePageBean.folderPath,
@@ -347,35 +351,36 @@ simplePageBean.addForumSummary,
 	<bean id="org.sakaiproject.lessonbuildertool.util.ImageToMimeMap" class="java.util.HashMap">       
 		<constructor-arg>
 			<map>
-				<entry key="application/msword" value="fa-file-word-o"/>
-				<entry key="application/vnd.ms-word" value="fa-file-word-o"/>
-				<entry key="application/vnd.openxmlformats-officedocument.wordprocessingml.document" value="fa-file-word-o"/>
-				<entry key="application/ms-powerpoint" value="fa-file-powerpoint-o"/>
-				<entry key="application/mspowerpoint" value="fa-file-powerpoint-o"/>
-				<entry key="application/x-mspowerpoint" value="fa-file-powerpoint-o"/>
-				<entry key="application/msppt" value="fa-file-powerpoint-o"/>
-				<entry key="application/vnd.ms-powerpoint" value="fa-file-powerpoint-o"/>
-				<entry key="application/x-powerpoint" value="fa-file-powerpoint-o"/>
-				<entry key="application/powerpoint" value="fa-file-powerpoint-o"/>
-				<entry key="application/vnd.openxmlformats-officedocument.presentationml.presentation" value="fa-file-powerpoint-o"/>
-				<entry key="application/application/vnd.openxmlformats-officedocument.presentationml.slideshow" value="fa-file-powerpoint-o"/>
-				<entry key="application/ms-excel" value="fa-file-excel-o"/>
-				<entry key="application/excel" value="fa-file-excel-o"/>
-				<entry key="application/vnd.ms-excel" value="fa-file-excel-o"/>
-				<entry key="application/x-msexcel" value="fa-file-excel-o"/>
-				<entry key="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" value="fa-file-excel-o"/>
-				<entry key="application/pdf" value="fa-file-pdf-o"/>
-				<entry key="application/x-pdf" value="fa-file-pdf-o"/>
-				<entry key="application/x-shockwave-flash" value="fa-video-camera"/>
-				<entry key="video/x-flv" value="fa-video-camera"/>
-				<entry key="video/mp4" value="fa-video-camera"/>
-				<entry key="video/x-mp4" value="fa-video-camera"/>
-				<entry key="video/x-m4v" value="fa-video-camera"/>
-				<entry key="text/plain" value="fa-file-text-o"/>
-				<entry key="text/rtf" value="fa-file-text-o"/>
-				<entry key="LBWEBSITE" value="fa-external-link"/>
-				<entry key="text/html" value="fa-external-link"/>
-				<entry key="application/xhtml+xml" value="fa-external-link"/>
+				<entry key="application/msword" value="si si-file-earmark-word"/>
+				<entry key="application/vnd.ms-word" value="si si-file-earmark-word"/>
+				<entry key="application/vnd.openxmlformats-officedocument.wordprocessingml.document" value="si si-file-earmark-word"/>
+				<entry key="application/ms-powerpoint" value="si si-file-earmark-ppt"/>
+				<entry key="application/mspowerpoint" value="si si-file-earmark-ppt"/>
+				<entry key="application/x-mspowerpoint" value="si si-file-earmark-ppt"/>
+				<entry key="application/msppt" value="si si-file-earmark-ppt"/>
+				<entry key="application/vnd.ms-powerpoint" value="si si-file-earmark-ppt"/>
+				<entry key="application/x-powerpoint" value="si si-file-earmark-ppt"/>
+				<entry key="application/powerpoint" value="si si-file-earmark-ppt"/>
+				<entry key="application/vnd.openxmlformats-officedocument.presentationml.presentation" value="si si-file-earmark-ppt"/>
+				<entry key="application/application/vnd.openxmlformats-officedocument.presentationml.slideshow" value="si si-file-earmark-ppt"/>
+				<entry key="application/ms-excel" value="si si-file-earmark-excel"/>
+				<entry key="application/excel" value="si si-file-earmark-excel"/>
+				<entry key="application/vnd.ms-excel" value="si si-file-earmark-excel"/>
+				<entry key="application/x-msexcel" value="si si-file-earmark-excel"/>
+				<entry key="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" value="si si-file-earmark-excel"/>
+				<entry key="application/pdf" value="si si-file-earmark-pdf"/>
+				<entry key="application/x-pdf" value="si si-file-earmark-pdf"/>
+				<entry key="application/x-shockwave-flash" value="si si-sakai-meetings"/>
+				<entry key="video/x-flv" value="si si-sakai-meetings"/>
+				<entry key="video/mp4" value="si si-sakai-meetings"/>
+				<entry key="video/quicktime" value="si si-file-quicktime"/>
+				<entry key="video/x-mp4" value="si si-sakai-meetings"/>
+				<entry key="video/x-m4v" value="si si-sakai-meetings"/>
+				<entry key="text/plain" value="si si-file-earmark-text"/>
+				<entry key="text/rtf" value="si si-file-earmark-text"/>
+				<entry key="LBWEBSITE" value="si si-external"/>
+				<entry key="text/html" value="si si-external"/>
+				<entry key="application/xhtml+xml" value="si-external"/>
     	</map>
     	</constructor-arg>
     	</bean>
@@ -394,6 +399,7 @@ simplePageBean.addForumSummary,
 		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
 		<property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao"/>
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+		<property name="archiveService" ref="org.sakaiproject.archive.api.ArchiveService"/>
 	</bean>
 
 	<bean id="org.sakaiproject.lessonbuildertool.ccexport.CCUtils"
@@ -488,6 +494,7 @@ simplePageBean.addForumSummary,
 	  <property name="bltiEntity" ref="org.sakaiproject.lessonbuildertool.service.BltiEntity"/>
 	  <property name="gradebookIfc" ref="org.sakaiproject.lessonbuildertool.service.GradebookIfc"/>
 	  <property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
+	  <property name="conditionService" ref="org.sakaiproject.condition.api.ConditionService" />
 
 	</bean>
 
@@ -503,4 +510,11 @@ simplePageBean.addForumSummary,
       <property name="lessonBuilderAccessService" ref="org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService" />
     </bean>
 
+  <bean id="org.sakaiproject.lessonbuildertool.integration.LessonsGradeInfoProvider"
+      class="org.sakaiproject.lessonbuildertool.integration.LessonsGradeInfoProvider"
+      lazy-init="false" init-method="init" destroy-method="destroy">
+    <property name="gradingService" ref="org.sakaiproject.grading.api.GradingService"/>
+    <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao"/>
+    <property name="lessonsAccess" ref="org.sakaiproject.lessonbuildertool.service.LessonsAccess" />
+  </bean>
  </beans>

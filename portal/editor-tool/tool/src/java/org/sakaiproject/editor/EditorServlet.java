@@ -131,7 +131,6 @@ public class EditorServlet extends HttpServlet
 				res.sendRedirect(editor.getLaunchUrl());
 			}
 			else if (EDITOR_BOOTSTRAP_JS.equals(name)) {
-				res.addHeader("Pragma", "no-cache");
 				res.addHeader("Cache-Control", "no-cache");
 				res.addHeader("Content-Type", "text/javascript");
 				

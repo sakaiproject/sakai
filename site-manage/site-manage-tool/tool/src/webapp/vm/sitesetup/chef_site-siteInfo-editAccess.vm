@@ -1,12 +1,13 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-siteInfo-editAccess.vm,v 1.3 2005/05/15 17:05:00 gsilver.umich.edu Exp $ -->
 ## Site list Sites list on worksite setup home page
+#javascript("/library/js/lang-datepicker/lang-datepicker.js")
 #if ($shoppingPeriodInstructorEditable || $viewDelegatedAccessUsers)
 	#javascript("/sakai-site-manage-tool/js/site-manage-delegatedaccess.js")
 	<script type="text/javascript">includeLatestJQuery('site-manage');</script>
 	#javascript("/sakai-site-manage-tool/js/jquery.asmselect.js")
 	#css("/sakai-site-manage-tool/css/jquery.asmselect.css" 'media="screen"')
 #end
-<script type="text/javascript">
+<script>
 <!-- hide from non-JS browsers
 	function checkPublish(checked)
 	{
@@ -61,6 +62,84 @@
 		## limitByAccountTypesValidation can cause an info message to display. Avoid double scroll bars:
 		utils.resizeFrame();
 	}
+
+	function addDatepickers() {
+		localDatePicker({
+			input: '#startdate',
+			useTime: 1,
+			icon: 1,
+			allowEmptyDate: true,
+			parseFormat: 'YYYY-MM-DD',
+			ashidden: { iso8601: 'startdate_iso8601' }
+		});
+		localDatePicker({
+			input: '#enddate',
+			useTime: 1,
+			icon: 1,
+			allowEmptyDate: true,
+			parseFormat: 'YYYY-MM-DD',
+			ashidden: { iso8601: 'enddate_iso8601' }
+		});
+	}
+
+	function autoOrManual(clicked){
+		if (clicked === "scheduled"){	// scheduled
+			document.getElementById("datesection-pickers").style.display = "block";
+			document.getElementById("datesection-pickers").style.display = "block";
+			document.getElementById("manualsection-options").style.display = "none";
+			document.getElementById("autosection-dates").style.display = "none";
+		} else if (clicked === "manual") {	// manual
+			document.getElementById("datesection-pickers").style.display = "none";
+			document.getElementById("manualsection-options").style.display = "block";
+			document.getElementById("autosection-dates").style.display = "none";
+		} else {	// auto
+			document.getElementById("datesection-pickers").style.display = "none";
+			document.getElementById("manualsection-options").style.display = "none";
+			document.getElementById("autosection-dates").style.display = "block";
+		}
+	}
+
+	function clearUnpublish(){
+		document.getElementById('enddate').value = "";
+		document.getElementById('enddate_iso8601').value = "";
+	}
+
+	function defaultDates(which){
+		if (which === 'unpublish') {
+			document.getElementById('enddate').value = document.getElementById('defaultUnpublishDate').innerText;
+			document.getElementById('enddate_iso8601').value = document.getElementById('defaultUnpublishDateIso').innerText;
+		} else if (which === 'publish') {
+			document.getElementById('startdate').value = document.getElementById('defaultPublishDate').innerText;
+			document.getElementById('startdate_iso8601').value = document.getElementById('defaultPublishDateIso').innerText;
+		}
+	}
+
+	function useExistingScheduleDates() {
+		document.getElementById('enddate_iso8601').value = document.getElementById('unpublishDateIso').innerText;
+		document.getElementById('startdate_iso8601').value = document.getElementById('publishDateIso').innerText;
+	}
+
+	function useExistingStatus(status){
+		if(status === 'Published'){
+			document.getElementById('publishStatusLabel').classList.add('alert-success');
+			document.getElementById('statusicon').className = 'si si-check';
+		} else if(status === 'Scheduled'){
+			document.getElementById('publishStatusLabel').classList.add('alert-info');
+			document.getElementById('statusicon').className ='si si-sakai-signup';
+		} else {
+			document.getElementById('publishStatusLabel').classList.add('alert-warning');
+			document.getElementById('statusicon').className = 'si si-hidden';
+		}
+	}
+
+	document.addEventListener("DOMContentLoaded", function() {
+		addDatepickers();
+		autoOrManual('$publishType');
+		useExistingScheduleDates();
+		#if($!site)
+			useExistingStatus("$existingStatus");
+		#end
+	});
 // -->	
 </script>
 <div class ="portletBody">
@@ -83,25 +162,119 @@
 		<input name="publishedOption" id="publishedOption" type="hidden" #if($published) value="true" #else value="false" #end />
 		## site status ##
 		<fieldset>
-		<legend>
-		<h4>
-			$tlang.getString("ediacc.sitsta")
-		</h4>
-		</legend>
+		#if($!site)
+			<h4>$tlang.getString("ediacc.sitsta")</h4>
+				<div class="publishStatusLabel alert" id="publishStatusLabel">
+					<span class="si si-sakai-signup" id="statusicon" aria-hidden="true"></span>
+					$tlang.getString("ediacc.currently")
+					$statusLabel
+				</div>
+		#end
+		<h4>$tlang.getString("ediacc.availability")</h4>
 		<p id="site_status_inst">
 			$tlang.getString("ediacc.pubyousit")
 		</p>
-		<div class="radio">			
-			<label for="publish">
-				<input type="radio" name="publishunpublish" id="publish" value="true" #if($published) checked="checked"#end onclick="checkPublish(this.checked); validatePage();" aria-describedby="site_status_inst" />
-				$tlang.getString("ediacc.pubsit")
-			</label>
+		#if ($sitetype == "course")
+			<div id="autosection" >
+				<input type="radio" id="autoPublishing" name="publishType" value="auto" onclick="autoOrManual('auto')" #if($publishType == "auto") checked="checked"#end />
+				<div class="publish-type-label">
+					<label for="autoPublishing">
+						$tlang.getString("ediacc.autotype")
+					</label>
+					<p>
+						<em>
+						#if($daysbefore)
+							$tlang.getFormattedMessage("ediacc.automaticbefore", $daysbefore)
+						#else
+							$tlang.getString("ediacc.automaticstart")
+						#end
+						#if($daysafter)
+							$tlang.getFormattedMessage("ediacc.automaticafter", $daysafter)
+						#else
+							$tlang.getString("ediacc.automaticend")
+						#end
+						</em>
+					</p>
+					<div id="autosection-dates">
+						<div>
+							<span class="autoSubsection" ><strong>$tlang.getString("ediacc.termstart")</strong> $readableTermStartDate</span>
+							<span class="autoSubsection"><strong>$tlang.getString("ediacc.termend")</strong> <span >$readableTermUnpublishDate</span></span>
+						</div>
+						<div style="display:none">
+							<span id="defaultPublishDateIso">$termStartDate</span>
+							<span id="defaultUnpublishDateIso">$termUnpublishDate</span>
+							<span id="defaultPublishDate" >$readableTermStartDateTime</span>
+							<span id="defaultUnpublishDate" >$readableTermUnpublishDateTime</span>
+						</div>
+					</div>
+				</div>
+			</div>
+		#end
+		<div id="datesection" >
+			<input type="radio" id="datePublishing" name="publishType" value="scheduled" onclick="autoOrManual('scheduled')" #if($publishType == "scheduled") checked="checked"#end />
+			<div class="publish-type-label">
+				<label for="datePublishing">
+					$tlang.getString("ediacc.scheduledtype")
+				</label>
+				<p>
+					<em>
+						$tlang.getString("ediacc.scheduled")
+					</em>
+				</p>
+				<div id="datesection-pickers">
+					<div class="accessDatepickers scheduleSubsection">
+						<label for="startdate">$tlang.getString("ediacc.startdate")</label>
+						<div>
+							<input id="startdate" name="startdateAuto" class="form-control custom-datepicker" #if($publishDate) value="$readablePublishDate" #end />
+							#if($sitetype == "course")
+								<a href="javascript:void(0);" id="publishScheduleDefault" onclick="defaultDates('publish')" >$tlang.getString("ediacc.defaultdate")</a>
+							#end
+						</div>
+					</div>
+					<div class="accessDatepickers scheduleSubsection">
+						<label for="enddate">$tlang.getString("ediacc.enddate")</label>
+						<div>
+							<input id="enddate" name="enddateAuto" class="form-control custom-datepicker" #if($unpublishDate) value="$readableUnpublishDate" #end />
+							#if($sitetype == "course")
+								<a href="javascript:void(0);" id="unpublishScheduleDefault" onclick="defaultDates('unpublish')" >$tlang.getString("ediacc.defaultdate")</a>
+							#end
+							| <a href="javascript:void(0);" id="clearUnpublishing" onclick="clearUnpublish()">$tlang.getString("ediacc.cleardate")</a>
+						</div>
+						<p class="small"><em>$tlang.getString("ediacc.leaveblank")</em></p>
+					</div>
+					<div style="display:none">
+						<span id="publishDateIso">$publishDate</span>
+						<span id="unpublishDateIso">$unpublishDate</span>
+					</div>
+				</div>
+			</div>
 		</div>
-		<div class="radio">			
-			<label for="unpublish">
-				<input type="radio" name="publishunpublish" id="unpublish" value="false" #if(!$published) checked="checked"#end onclick="checkUnpublish(this.checked); validatePage();" aria-describedby="site_status_inst" />
-				$tlang.getString("ediacc.unpubsit")
-			</label>
+		<div id="manualsection" >
+			<input id="manualPublishing" type="radio" name="publishType" value="manual" onclick="autoOrManual('manual')" #if($publishType == "manual") checked="checked"#end />
+			<div class="publish-type-label">
+				<label for="manualPublishing">
+					$tlang.getString("ediacc.manualtype")
+				</label>
+				<p>
+					<em>
+						$tlang.getString("ediacc.manually")
+					</em>
+				</p>
+				<div id="manualsection-options">
+					<div>
+						<input type="radio" name="publishunpublish" id="publish" value="true" #if($published) checked="checked"#end onclick="checkPublish(this.checked);" aria-describedby="site_status_inst" />
+						<label class="publishOptionLabel" for="publish">
+							$tlang.getString("ediacc.pubsit")
+						</label>
+					</div>
+					<div>
+						<input type="radio" name="publishunpublish" id="unpublish" value="false" #if(!$published) checked="checked"#end onclick="checkUnpublish(this.checked);" aria-describedby="site_status_inst" />
+						<label class="publishOptionLabel" for="unpublish">
+							$tlang.getString("ediacc.unpubsit")
+						</label>
+					</div>
+				</div>
+			</div>
 		</div>
 		</fieldset>
 		## END site status ##
@@ -491,7 +664,7 @@
 					class="active" name="eventSubmit_doUpdate_site_access" value="$tlang.getString("ediacc.upd")" />
 				<input type="submit" accesskey="x"  name="eventSubmit_doCancel" value="$tlang.getString("ediacc.can")" onclick="SPNR.disableControlsAndSpin( this, null );" />
 			#else
-				<input type="submit" accesskey="s" id="continueButton" class="active" name="eventSubmit_doUpdate_site_access" value="$tlang.getString("ediacc.con")" onclick="SPNR.disableControlsAndSpin( this, null );" />
+				<input type="submit" accesskey="s" id="continueButton" class="active" name="eventSubmit_doUpdate_site_access" #if ($!basedOnTemplate) value="$tlang.getString('sitetype.done')" #else value="$tlang.getString('ediacc.con')" #end onclick="SPNR.disableControlsAndSpin( this, null );" />
 				<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString("ediacc.bac")" /onclick="SPNR.disableControlsAndSpin( this, null );" >
 				<input type="submit" accesskey="x" name="eventSubmit_doCancel_create" value="$tlang.getString("ediacc.can")" onclick="SPNR.disableControlsAndSpin( this, null );" />
 			#end

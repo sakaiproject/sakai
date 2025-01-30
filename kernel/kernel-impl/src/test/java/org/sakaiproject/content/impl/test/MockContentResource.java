@@ -46,6 +46,7 @@ public class MockContentResource extends MockContentEntity implements ContentRes
 
 	protected long contentLength;
 	protected String contentType;
+	protected String contentSha256;
 	protected String resourceId;
 
 	/**
@@ -89,6 +90,14 @@ public class MockContentResource extends MockContentEntity implements ContentRes
 	public String getContentType()
 	{
 		return this.contentType;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.content.api.ContentResource#getContentSha256()
+	 */
+	public String getContentSha256()
+	{
+		return this.contentSha256;
 	}
 
 	/* (non-Javadoc)
@@ -165,6 +174,14 @@ public class MockContentResource extends MockContentEntity implements ContentRes
 	public void setContentType(String type)
 	{
 		this.contentType = type;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.content.api.ContentResourceEdit#setContentSha256(java.lang.String)
+	 */
+	public void setContentSha256(String sha256)
+	{
+		this.contentSha256 = sha256;
 	}
 
 	/* (non-Javadoc)

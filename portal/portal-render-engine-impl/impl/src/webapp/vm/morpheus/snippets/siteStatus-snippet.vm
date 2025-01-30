@@ -4,11 +4,22 @@
     <div id="siteStatusSoftlyDeleted" class="Mrphs-siteStatus Mrphs-messagePanel__error--warning is-softly-deleted">
         <h4>${rloader.site_softly_deleted}</h4>
     </div>
-#elseif (${sitePages} && !${sitePages.pageNavPublished})
+#elseif (${sitePages} && !${sitePages.pageNavPublished} && !${sitePages.roleViewMode})
 
-    <div id="siteStatus" class="Mrphs-siteStatus sak-banner-warn">
-        <strong id="unpublished-label">${rloader.sit_unpublished}</strong>
-        <button class="Mrphs-button--active" aria-describedby="unpublished-label" #if($publishSiteDialogEnabled) data-toggle="modal" data-target="#publishSiteConfirmModal" #else onclick="publishSite('${sitePages.siteId}');" #end>${rloader.sit_publish_now}</button>
+    <div id="siteStatus" class="Mrphs-siteStatus sak-banner-warn mb-2">
+        #if($scheduledate)
+            <h4 class="unpublishedScheduledCaption">
+                <span class="fa fa-calendar-check-o" aria-hidden="true"></span>
+                ${rloader.sit_schedule}
+                $scheduledate
+            </h4>
+        #else
+            <strong id="unpublished-label">${rloader.sit_unpublished}</strong>
+        #end
+            <button class="btn btn-link Mrphs-button--active" aria-describedby="unpublished-label" #if($publishSiteDialogEnabled) data-bs-toggle="modal" data-target="#publishSiteConfirmModal" #else onclick="publishSite('${sitePages.siteId}');" #end>${rloader.sit_publish_now}</button>
+        ##if($manageurl)
+        ##    <a class="managePublishingLink" href="$manageurl" >${rloader.sit_managepublish}</a>
+        ##end
     </div>
 
     <div id="publishSiteConfirmModal" class="modal" role="dialog" tabindex="-1" aria-hidden="true">

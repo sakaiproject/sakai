@@ -8,27 +8,28 @@
 	<div class="page-header">
 		<h1>$tlang.getString("archive.vm.archive.single")</h1>
 	</div>
-	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("archive.vm.alert") $formattedText.escapeHtml($alertMessage)</div>#end
+	#if ($alertMessage)<div class="sak-banner-error">$formattedText.escapeHtml($alertMessage)</div>#end
+	#if ($successMessage)<div class="sak-banner-success">$formattedText.escapeHtml($successMessage)</div>#end
 	<form action="#toolForm("$action")" method="post">
 		<div class="row">
 			<div class="col-sm-6">
 				<h4>$tlang.getString("archive.vm.export")</h4>
 				<div class="form-group">
-					<label for="archive-id">$tlang.getString("archive.vm.from")</label>
+					<label class="form-control-label" for="archive-id">$tlang.getString("archive.vm.from")</label>
 					<input type="text" size="80" name="archive-id" id="archive-id" class="form-control"/>
 				</div>
 				<div class="form-group">
-					<label for="zip-id">$tlang.getString("archive.vm.zip")</label>
-					<input type="checkbox" name="zip-id" value="true" id="zip-id" class="form-control"/>
+					<label class="form-control-label" for="zip-id">$tlang.getString("archive.vm.zip")</label>
+					<input type="checkbox" name="zip-id" value="true" id="zip-id" class="form-check-input"/>
 				</div>
 				<p class="act"><input type="submit" name="eventSubmit_doArchive" value="$tlang.getString("archive.vm.archive1")" class="indnt1 active" /></p>
 				<h4>$tlang.getString("archive.vm.import")</h4>
 				<div class="form-group">
-					<label for="import-file">$tlang.getString("archive.vm.file")</label>
+					<label class="form-control-label" for="import-file">$tlang.getString("archive.vm.file")</label>
 					<input type="text" size="80" name="import-file" id="import-file" class="form-control"/>
 				</div>
 				<div class="form-group">
-					<label for="import-id">$tlang.getString("archive.vm.site")</label>
+					<label class="form-control-label" for="import-id">$tlang.getString("archive.vm.site")</label>
 					<input type="text" size="80" name="import-id" id="import-id" class="form-control"/>
 				</div>
 				<p class="act"><input type="submit" name="eventSubmit_doImport" value="$tlang.getString("archive.vm.import")" class="indnt1 active" /></p>

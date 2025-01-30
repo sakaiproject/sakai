@@ -16,79 +16,70 @@
 
 package org.sakaiproject.calendar.impl.readers;
 
-import java.io.InputStream;
-import java.text.DateFormat;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
-
+import lombok.extern.slf4j.Slf4j;
+import net.fortuna.ical4j.data.CalendarBuilder;
+import net.fortuna.ical4j.model.Calendar;
+import net.fortuna.ical4j.model.Component;
+import net.fortuna.ical4j.model.DateTime;
+import net.fortuna.ical4j.model.Period;
+import net.fortuna.ical4j.model.PeriodList;
+import net.fortuna.ical4j.model.Property;
+import net.fortuna.ical4j.model.parameter.Value;
+import net.fortuna.ical4j.util.CompatibilityHints;
+import org.sakaiproject.calendar.impl.DailyRecurrenceRule;
 import org.sakaiproject.calendar.impl.GenericCalendarImporter;
 import org.sakaiproject.exception.ImportException;
 import org.sakaiproject.util.ResourceLoader;
 
-import lombok.extern.slf4j.Slf4j;
-import net.fortuna.ical4j.data.CalendarBuilder;
-import net.fortuna.ical4j.model.Component;
-import net.fortuna.ical4j.model.DateTime;
-import net.fortuna.ical4j.model.Dur;
-import net.fortuna.ical4j.model.Period;
-import net.fortuna.ical4j.model.PeriodList;
-import net.fortuna.ical4j.model.Property;
-import net.fortuna.ical4j.util.CompatibilityHints;
+import java.io.InputStream;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAmount;
+import java.time.temporal.TemporalUnit;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This class parses an import file from iCalendar.
  */
 @Slf4j
-public class IcalendarReader extends Reader
-{
-	private static final ResourceLoader rb = new ResourceLoader("calendar");
-	private Map<String, String> defaultHeaderMap = getDefaultColumnMap();
-	
-	private static final String TITLE_PROPERTY_NAME = "Summary";
-	private static final String CONTACT_SECTION_HEADER = "Contacts";
-	private static final String TODO_SECTION_HEADER = "Todos";
-	private static final String EVENT_SECTION_HEADER = "Events";
+public class IcalendarReader extends Reader {
+	public static final long MINUTES_IN_DAY = TimeUnit.DAYS.toMinutes(1) - 5;
+	private static final ResourceLoader resourceLoader = new ResourceLoader("calendar");
 
-	/**
-	 * Default constructor 
-	 */
-	public IcalendarReader()
-	{
+	private final Map<String, String> defaultHeaderMap = getDefaultColumnMap();
+
+	public IcalendarReader() {
 		super();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.tool.calendar.ImportReader#importStreamFromDelimitedFile(java.io.InputStream, org.sakaiproject.tool.calendar.ImportReader.ReaderImportRowHandler)
-	 */
-	public String importStreamFromDelimitedFile(
-		InputStream stream,
-		ReaderImportRowHandler handler)
-		throws ImportException//, IOException, ParserException
-	{
-		
+	public String importStreamFromDelimitedFile(InputStream stream, ReaderImportRowHandler handler) {
 		String calendarTzid = null;
-	
+		String[] descriptionColumns = {
+				"Summary",
+				"Description",
+				"Start Date",
+				"Start Time",
+				"Duration",
+				"Location",
+				"Frequency",
+				"Interval",
+				"Ends"
+		};
+
+		trimLeadingTrailingQuotes(descriptionColumns);
+		ColumnHeader[] columnDescriptionArray = buildColumnDescriptionArray(descriptionColumns);
+
 		try {
-
-			ColumnHeader columnDescriptionArray[] = null;
-			String descriptionColumns[] = {"Summary","Description","Start Date","Start Time","Duration","Location"};
-
-			int lineNumber = 1;
-			String durationformat ="";
-			String requireValues = "";
-			
-			// column map stuff
-			trimLeadingTrailingQuotes(descriptionColumns);
-			columnDescriptionArray = buildColumnDescriptionArray(descriptionColumns);
-
 			// enable "relaxed parsing"; read file using LF instead of CRLF
 			CompatibilityHints.setHintEnabled(CompatibilityHints.KEY_RELAXED_UNFOLDING, true); 
 			CompatibilityHints.setHintEnabled(CompatibilityHints.KEY_RELAXED_PARSING, true); 
@@ -96,171 +87,195 @@ public class IcalendarReader extends Reader
 			CompatibilityHints.setHintEnabled(CompatibilityHints.KEY_RELAXED_VALIDATION, true); 
 
 			CalendarBuilder builder = new CalendarBuilder();
-			net.fortuna.ical4j.model.Calendar calendar = builder.build(stream);
-		
-			// SAK-33451: READ TIME ZONE OF ICALENDAR
+			Calendar calendar = builder.build(stream);
+
+			ZoneId calendarZone = null;
 			try {
-				Component vTimeZone = calendar.getComponent("VTIMEZONE");
-				if (vTimeZone!=null) {
-					Property tzProperty = vTimeZone.getProperty("TZID");
-					if (tzProperty!=null) {
+				Component vTimeZone = calendar.getComponent(Component.VTIMEZONE);
+				if (vTimeZone != null) {
+					Property tzProperty = vTimeZone.getProperty(Property.TZID);
+					if (tzProperty != null) {
 						calendarTzid = tzProperty.getValue();
-						ZoneId.of(calendarTzid);//check zone is valid or throw exception
+						calendarZone = ZoneId.of(calendarTzid);
+						log.debug("Calendar time zone is valid [{}]", calendarZone);
 					}
-				} else {
-					log.debug("Calendar time zone not found");
 				}
+				log.debug("Calendar time zone not found");
 			} catch (Exception e) {
-				log.warn("Error reading VTIMEZONE component/TZID property: "+e);
+				log.warn("Error reading VTIMEZONE component/TZID property: [{}]", e.toString());
 				calendarTzid = null;
 			}
-			
-			for (Iterator i = calendar.getComponents("VEVENT").iterator(); i.hasNext();)
-			{
-				Component component = (Component) i.next();
 
-	
-				if ( component.getProperty("SUMMARY") == null )
-				{
-					log.warn("IcalendarReader: SUMMARY is required; event not imported");
+			if (calendarZone == null) {
+				calendarZone = timeService.getLocalTimeZone().toZoneId();
+			}
+
+			int lineNumber = 1;
+			for (Component event : calendar.getComponents(Component.VEVENT)) {
+				Property summary = event.getProperty(Property.SUMMARY);
+				Property start = event.getProperty(Property.DTSTART);
+				Property end = event.getProperty(Property.DTEND);
+				Property location = event.getProperty(Property.LOCATION);
+				Property description = event.getProperty(Property.DESCRIPTION);
+
+				if (summary == null) {
+					log.warn("Defer importing this calendar event as it has no SUMMARY, [{}]", event);
 					continue;
 				}
-				DateTime from = new DateTime(Date.from(ZonedDateTime.now().minusMonths(6).toInstant()));
-				DateTime to = new DateTime(Date.from(ZonedDateTime.now().plusMonths(12).toInstant()));
-				Period range = new Period(from, to);
 
-				PeriodList list = component.calculateRecurrenceSet(range);
-				for (Iterator j = list.iterator(); j.hasNext();) 
-				{
-					Period period = (Period) j.next();
-					Duration duration = Duration.from(period.getDuration());
-					long durationminutes = duration.toMinutes();
-
-					if (durationminutes < 10L)
-					{
-					durationformat = "0"+durationminutes;
-					}
-					else
-					{
-					durationformat = ""+durationminutes;
-					}
-
-					String description = "";
-					if ( component.getProperty("DESCRIPTION") != null) {
-						description = component.getProperty("DESCRIPTION").getValue();
-					}
-					String location = "";
-					if (component.getProperty("LOCATION") != null) {
-						location = component.getProperty("LOCATION").getValue();
-					}
-					String columns[]	= 
-							{component.getProperty("SUMMARY").getValue(),
-							 description,
-							 DateFormat.getDateInstance(DateFormat.SHORT, rb.getLocale()).format(period.getStart()),
-							 DateFormat.getTimeInstance(DateFormat.SHORT, rb.getLocale()).format(period.getStart()),
-							 durationformat,
-							 location};
-
-					// Remove trailing/leading quotes from all columns.
-					//trimLeadingTrailingQuotes(columns);
-
-					handler.handleRow(
-						processLine(
-							columnDescriptionArray,
-							lineNumber,
-							columns));
-
-					lineNumber++;
+				if ( start == null || end == null) {
+					log.warn("Defer importing this calendar event as it has no START or END, [{}]", event);
+					continue;
 				}
-			} // end for
-		
+
+				if (start.getParameters().contains(Value.DATE)) {
+					// all day event
+					Date startDate = Date.from(LocalDate
+							.parse(start.getValue(), DateTimeFormatter.BASIC_ISO_DATE)
+							.atStartOfDay(calendarZone)
+							.toInstant());
+					Date endDate = Date.from(LocalDate
+							.parse(end.getValue(), DateTimeFormatter.BASIC_ISO_DATE)
+							.atTime(LocalTime.MAX)
+							.atZone(calendarZone)
+							.minusDays(1)
+							.toInstant());
+					Period period = new Period(new DateTime(startDate), new DateTime(endDate));
+
+					processRow(handler,
+							summary.getValue(),
+							description != null ? description.getValue() : "",
+							columnDescriptionArray,
+							location != null ? location.getValue() : "",
+							lineNumber,
+							period);
+					lineNumber++;
+				} else {
+					DateTime from = new DateTime(Date.from(ZonedDateTime.now().minusMonths(6).toInstant()));
+					DateTime to = new DateTime(Date.from(ZonedDateTime.now().plusMonths(12).toInstant()));
+					Period range = new Period(from, to);
+
+					PeriodList periods = event.calculateRecurrenceSet(range);
+					for (Period period : periods) {
+						processRow(handler,
+								summary.getValue(),
+								description != null ? description.getValue() : "",
+								columnDescriptionArray,
+								location != null ? location.getValue() : "",
+								lineNumber,
+								period);
+						lineNumber++;
+					}
+				}
+			}
+		} catch (Exception e) {
+			log.warn("The calendaring stream finished abnormally, {}", e.toString());
 		}
-		catch (Exception e)
-		{
-			log.warn(".importSteamFromDelimitedFile(): ", e);
-		}
-		
+
 		// tzid of calendar (returns null if it does not exist)
 		return calendarTzid;
-		
-	} // end importStreamFromDelimitedFile
+	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.tool.calendar.schedimportreaders.Reader#filterEvents(java.util.List, java.lang.String[], String)
-	 */
-	public List filterEvents(List events, String[] customFieldNames, ZoneId srcZoneId) throws ImportException
-	{
-		Iterator it = events.iterator();
-		int lineNumber = 1;
-		
+	private void processRow(ReaderImportRowHandler handler, String summary, String description,
+							ColumnHeader[] columnDescriptionArray, String location, int lineNumber, Period period) {
+
+		TemporalAmount amount = period.getDuration();
+		if (amount.getUnits().stream().anyMatch(TemporalUnit::isDurationEstimated)) {
+			log.warn("Estimated duration for event [{}] detected, skipping", summary);
+			return;
+		}
+
+		String[] columns;
+		long durationMinutes = Duration.from(amount).toMinutes();
+
+		// for any event spanning more than a single day we setup a daily frequency using until
+		if (durationMinutes > MINUTES_IN_DAY) {
+			columns = new String[] {
+					summary,
+					description,
+					GenericCalendarImporter.dateISOFormatter().format(period.getStart().toInstant().atZone(ZoneId.systemDefault())),
+					GenericCalendarImporter.timeFormatter().format(period.getStart().toInstant().atZone(ZoneId.systemDefault())),
+					Long.toString(MINUTES_IN_DAY),
+					location,
+					DailyRecurrenceRule.FREQ,
+					"1",
+					GenericCalendarImporter.dateISOFormatter().format(period.getEnd().toInstant().atZone(ZoneId.systemDefault()))
+			};
+		} else {
+			columns = new String[] {
+					summary,
+					description,
+					GenericCalendarImporter.dateISOFormatter().format(period.getStart().toInstant().atZone(ZoneId.systemDefault())),
+					GenericCalendarImporter.timeFormatter().format(period.getStart().toInstant().atZone(ZoneId.systemDefault())),
+					durationMinutes < 10 ? "0" + durationMinutes : "" + durationMinutes,
+					location,
+					"",
+					"",
+					""
+			};
+		}
+
+        try {
+            handler.handleRow(processLine(columnDescriptionArray, lineNumber, columns));
+        } catch (ImportException e) {
+            log.warn("Could not import period [{}] for event [{}/{}], {}", period, lineNumber, summary, e.toString());
+        }
+    }
+
+	public List<Map<String, Object>> filterEvents(List<Map<String, Object>> events, String[] customFieldNames, ZoneId srcZoneId) throws ImportException {
 		//
 		// Convert the date/time fields as they appear in the Outlook import to
 		// be a synthesized start/end timerange.
 		//
-		while ( it.hasNext() )
-		{
-			Map eventProperties = (Map)it.next();
-					
-			Date startTime = (Date) eventProperties.get(defaultHeaderMap.get(GenericCalendarImporter.START_TIME_DEFAULT_COLUMN_HEADER));
-			Date startDate = (Date) eventProperties.get(defaultHeaderMap.get(GenericCalendarImporter.DATE_DEFAULT_COLUMN_HEADER));
-			Integer durationInMinutes = (Integer)eventProperties.get(defaultHeaderMap.get(GenericCalendarImporter.DURATION_DEFAULT_COLUMN_HEADER));			
+		int lineNumber = 1;
+		for (Map<String, Object> event : events) {
+
+			LocalTime startTime = (LocalTime) event.get(defaultHeaderMap.get(GenericCalendarImporter.START_TIME_DEFAULT_COLUMN_HEADER));
+			LocalDate startDate = (LocalDate) event.get(defaultHeaderMap.get(GenericCalendarImporter.DATE_DEFAULT_COLUMN_HEADER));
+			Integer durationInMinutes = (Integer) event.get(defaultHeaderMap.get(GenericCalendarImporter.DURATION_DEFAULT_COLUMN_HEADER));
 			
 			if (startTime == null ) {
-				Integer line = Integer.valueOf(lineNumber);
-				String msg = (String)rb.getFormattedMessage("err_no_stime_on", new Object[]{line});
+				String msg = resourceLoader.getFormattedMessage("err_no_stime_on", lineNumber);
 				throw new ImportException( msg );
 			}
 			if (startDate == null) {
-	            Integer line = Integer.valueOf(lineNumber);
-				String msg = (String)rb.getFormattedMessage("err_no_start", new Object[]{line});
+				String msg = resourceLoader.getFormattedMessage("err_no_start", lineNumber);
 				throw new ImportException( msg );
 			}
 			if (durationInMinutes == null) {
-				Integer line = Integer.valueOf(lineNumber);
-				String msg = (String)rb.getFormattedMessage("err_no_dur", new Object[]{line});
+				String msg = resourceLoader.getFormattedMessage("err_no_dur", lineNumber);
 				throw new ImportException( msg );
 			}
 			
 			// Raw date + raw time
-			Instant startInstant = startDate.toInstant().plusMillis(startTime.getTime());
+			LocalDateTime startDateTime = LocalDateTime.of(startDate, startTime);
+			Instant startInstant = startDateTime.atZone(srcZoneId).toInstant();
 
-			// Raw + calendar/owner TZ's offset
-			ZonedDateTime srcZonedDateTime = startInstant.atZone(srcZoneId);
-			long millis = startInstant.plusMillis(srcZonedDateTime.getOffset().getTotalSeconds() * 1000).toEpochMilli();
-			TimeZone tz = TimeZone.getTimeZone(srcZoneId);
-			if( tz.inDaylightTime(startDate) ) {
-				millis = millis - tz.getDSTSavings();
-			}
-			
 			// Duration of event
 			Duration gapMinutes = Duration.ofMinutes(durationInMinutes);
 			
 			// Time Service will ajust to current user's TZ
-			eventProperties.put(GenericCalendarImporter.ACTUAL_TIMERANGE,
-				getTimeService().newTimeRange(millis, gapMinutes.toMillis()));
-					
+			event.put(GenericCalendarImporter.ACTUAL_TIMERANGE, getTimeService().newTimeRange(startInstant.toEpochMilli(), gapMinutes.toMillis()));
+
 			lineNumber++;
 		}
 		
 		return events;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.tool.calendar.schedimportreaders.Reader#getDefaultColumnMap()
-	 */
-	public Map<String, String> getDefaultColumnMap()
-	{
-		Map<String, String> columnHeaderMap = new HashMap<String, String>();
+	public Map<String, String> getDefaultColumnMap() {
+		Map<String, String> columnHeaderMap = new HashMap<>();
 
-		columnHeaderMap.put(GenericCalendarImporter.TITLE_DEFAULT_COLUMN_HEADER, TITLE_PROPERTY_NAME);
+		columnHeaderMap.put(GenericCalendarImporter.TITLE_DEFAULT_COLUMN_HEADER, "Summary");
 		columnHeaderMap.put(GenericCalendarImporter.DESCRIPTION_DEFAULT_COLUMN_HEADER, GenericCalendarImporter.DESCRIPTION_PROPERTY_NAME);
 		columnHeaderMap.put(GenericCalendarImporter.DATE_DEFAULT_COLUMN_HEADER, GenericCalendarImporter.DATE_PROPERTY_NAME);
 		columnHeaderMap.put(GenericCalendarImporter.START_TIME_DEFAULT_COLUMN_HEADER, GenericCalendarImporter.START_TIME_PROPERTY_NAME);
 		columnHeaderMap.put(GenericCalendarImporter.DURATION_DEFAULT_COLUMN_HEADER, GenericCalendarImporter.DURATION_PROPERTY_NAME);
-		//columnHeaderMap.put(ITEM_HEADER, GenericCalendarImporter.ITEM_TYPE_PROPERTY_NAME);
 		columnHeaderMap.put(GenericCalendarImporter.LOCATION_DEFAULT_COLUMN_HEADER, GenericCalendarImporter.LOCATION_PROPERTY_NAME);
-		
-				
+		columnHeaderMap.put(GenericCalendarImporter.FREQUENCY_DEFAULT_COLUMN_HEADER, GenericCalendarImporter.FREQUENCY_PROPERTY_NAME);
+		columnHeaderMap.put(GenericCalendarImporter.INTERVAL_DEFAULT_COLUMN_HEADER, GenericCalendarImporter.INTERVAL_PROPERTY_NAME);
+		columnHeaderMap.put(GenericCalendarImporter.ENDS_DEFAULT_COLUMN_HEADER, GenericCalendarImporter.ENDS_PROPERTY_NAME);
+
 		return columnHeaderMap;
 	}
 }

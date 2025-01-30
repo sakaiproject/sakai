@@ -41,9 +41,9 @@ public class SamigoToolServiceSoapBindingImpl implements org.sakaiproject.tool.a
         return samigows.getItemObjArrayByKeyword(in0);
     }
 
-    public java.lang.String download(java.lang.String[] in0, java.lang.String qtiVersion) throws java.rmi.RemoteException {
+    public java.lang.String download(java.lang.String[] in0, java.lang.String qtiVersion, String displayName) throws java.rmi.RemoteException {
         SamigoToolWebService samigows= new SamigoToolWebService();
-        return samigows.download(in0, qtiVersion);
+        return samigows.download(in0, qtiVersion, displayName);
     }
 
 }

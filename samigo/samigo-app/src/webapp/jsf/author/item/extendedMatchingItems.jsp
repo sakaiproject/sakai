@@ -531,6 +531,9 @@
 			</div>
 			<br />
 
+			<!-- 5a TIMED -->
+			<%@ include file="/jsf/author/item/timed.jsp" %>
+
 			<!-- 6 PART -->
 			<h:panelGrid columns="3" columnClasses="shorttext"
 				rendered="#{itemauthor.target == 'assessment' && !author.isEditPoolFlow}">

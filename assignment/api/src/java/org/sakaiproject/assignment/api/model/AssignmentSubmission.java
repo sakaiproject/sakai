@@ -66,7 +66,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
  */
 
 @Entity
-@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @Table(name = "ASN_SUBMISSION", indexes = @Index(name = "FK_ASN_ASSIGMENTS_SUB_I", columnList = "ASSIGNMENT_ID") )
 @Data
 @NoArgsConstructor
@@ -86,7 +86,7 @@ public class AssignmentSubmission {
     @JsonBackReference
     private Assignment assignment;
 
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @OneToMany(mappedBy = "submission", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     @BatchSize(size = 100)
     @JsonManagedReference
@@ -174,11 +174,10 @@ public class AssignmentSubmission {
     private String privateNotes;
 
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.LAZY)
     @MapKeyColumn(name = "NAME")
     @Lob
     @Column(name = "VALUE", length = 65535)
     @CollectionTable(name = "ASN_SUBMISSION_PROPERTIES", joinColumns = @JoinColumn(name = "SUBMISSION_ID"), indexes = @Index(name = "FK_ASN_SUBMISSION_PROP", columnList = "SUBMISSION_ID"))
-    @Fetch(FetchMode.SUBSELECT)
     private Map<String, String> properties = new HashMap<>();
 }

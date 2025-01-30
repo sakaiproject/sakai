@@ -47,11 +47,11 @@ should be included in file importing DeliveryMessages
   <%-- Show feedback answer --%>
   <h:panelGroup styleClass="answerBlock" rendered="#{printSettings.showKeysFeedback}">
   	<h:outputLabel value="#{printMessages.correct_feedback}: "/>
-	<h:outputText escape="false" value="#{question.itemData.correctItemFeedback}" rendered="#{question.itemData.correctItemFeedback != null && question.itemData.correctItemFeedback != ''}"/>
+	<h:outputText escape="false" value="#{question.itemData.correctItemFeedbackValue}" rendered="#{question.itemData.correctItemFeedback != null && question.itemData.correctItemFeedback != ''}"/>
 	<h:outputText escape="false" value="--------" rendered="#{question.itemData.correctItemFeedback == null || question.itemData.correctItemFeedback == ''}"/>
   	<h:outputText value="<br />" escape="false" />
   	<h:outputLabel value="#{printMessages.incorrect_feedback}: "/>
-    <h:outputText escape="false" value="#{question.itemData.inCorrectItemFeedback}" rendered="#{question.itemData.inCorrectItemFeedback != null && question.itemData.inCorrectItemFeedback != ''}"/>
+    <h:outputText escape="false" value="#{question.itemData.inCorrectItemFeedbackValue}" rendered="#{question.itemData.inCorrectItemFeedback != null && question.itemData.inCorrectItemFeedback != ''}"/>
     <h:outputText escape="false" value="--------" rendered="#{question.itemData.inCorrectItemFeedback == null || question.itemData.inCorrectItemFeedback == ''}"/>
     <h:outputText value="<br />" escape="false" />
   </h:panelGroup>

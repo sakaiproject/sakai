@@ -85,6 +85,10 @@ public class ExtendedTimeFacade {
         saveEntriesPub(pub, publishedTimes);
     }
 
+    public ExtendedTime getEntry(String entryId){
+        return extendedTimeQueries.getEntry(entryId);
+    }
+
     private List<ExtendedTime> getEntriesForX(AssessmentBaseIfc ass, PublishedAssessmentIfc pub) {
         List<ExtendedTime> results;
         if(ass == null) {

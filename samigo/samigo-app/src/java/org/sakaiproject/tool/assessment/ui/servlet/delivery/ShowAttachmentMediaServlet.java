@@ -129,6 +129,7 @@ public class ShowAttachmentMediaServlet extends HttpServlet
 				  res.addHeader("X-Sendfile", linkPath);
 				  return;
 			  } else if (serverConfigurationService.getBoolean("cloud.content.directurl", true)) {
+				  res.setContentLength(0);
 				  res.sendRedirect(directLink.toString());
 				  return;
 			  }
@@ -139,7 +140,7 @@ public class ShowAttachmentMediaServlet extends HttpServlet
 
 	  // This will fetch the byte array
 	  try {
-		  media = cr.getContent();
+		  media = cr!=null?cr.getContent():null;
 	  } catch (ServerOverloadException e) {
 		  log.warn("ServerOverload trying to fetch getContent", e);
 	  }

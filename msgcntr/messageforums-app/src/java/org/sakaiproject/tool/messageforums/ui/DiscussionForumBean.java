@@ -150,6 +150,9 @@ public class DiscussionForumBean
 	    	locked = Boolean.TRUE.toString();
 	    }
     }
+
+    handleLockedAfterClosedCondition();
+
     return locked;
   }
 
@@ -187,6 +190,9 @@ public class DiscussionForumBean
 	    	locked = Boolean.TRUE.toString();
 	    }
     }
+
+    handleLockedAfterClosedCondition();
+
     return Boolean.parseBoolean(locked);
   }
 
@@ -198,6 +204,21 @@ public class DiscussionForumBean
   {
     log.debug("setForumLocked(String"+ locked+")");
     forum.setLocked(locked);
+  }
+
+  private void handleLockedAfterClosedCondition() {
+    Boolean availabilityRestricted = getForum().getAvailabilityRestricted();
+
+    if(availabilityRestricted && locked.equals(Boolean.FALSE.toString())) {
+      Date closeDate = getForum().getCloseDate();
+      if(closeDate != null) {
+        // this seems so dirty.
+        if (getForum().getLockedAfterClosed() && closeDate.before(new Date())) {
+          setForumLocked(true);
+          locked = Boolean.TRUE.toString();
+        }
+      }
+    }
   }
   
   private String moderated = null;

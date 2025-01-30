@@ -132,6 +132,7 @@
 		<property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
 		<property name="localeGetter" ref="requestLocaleProxy" />
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
 		<property name="lessonsAccess" ref="org.sakaiproject.lessonbuildertool.service.LessonsAccess" />
 		<property name="imageToMimeMap" ref="org.sakaiproject.lessonbuildertool.util.ImageToMimeMap"/>
 	</bean>
@@ -279,6 +280,13 @@
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
 	</bean>
 
+	<bean class="org.sakaiproject.lessonbuildertool.tool.producers.SubpageBulkEditProducer">
+		<property name="simplePageBean" ref="simplePageBean" />
+		<property name="messageLocator" ref="messageLocator"/>
+		<property name="localeGetter" ref="requestLocaleProxy" />
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+	</bean>
+
 	<!-- backing beans -->
 	<bean name="simplePageBean" class="org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean" init-method="init">
 		<property name="messageLocator" ref="messageLocator"/>
@@ -309,7 +317,9 @@
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
 		<property name="formattedText" ref="org.sakaiproject.util.api.FormattedText" />
 		<property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
+		<property name="conditionService" ref="org.sakaiproject.condition.api.ConditionService" />
 		<property name="taskService" ref="org.sakaiproject.tasks.api.TaskService"/>
+		<property name="archiveService" ref="org.sakaiproject.archive.api.ArchiveService"/>
 	</bean>
 	
 	<!-- Over-riding the CommonsMultipartResolver to have multiple files incoming under the same form input name  -->

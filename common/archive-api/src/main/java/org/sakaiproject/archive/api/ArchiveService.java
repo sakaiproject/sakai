@@ -40,7 +40,9 @@ public interface ArchiveService
 
 	static final String FROM_SAKAI = "Sakai 1.0";
 
-    static final String FROM_SAKAI_2_8 = "Sakai 2.8";
+	static final String FROM_SAKAI_2_8 = "Sakai 2.8";
+
+	static final String SAKAI_ARCHIVE_NS = "https://www.sakailms.org/xmlns/archive/";
 
 	// the list of boolean tells if the imported item needs to be set as draft
 	static final boolean SAKAI_msg_draft_import = true;
@@ -94,4 +96,10 @@ public interface ArchiveService
 	 * @throws IOException 
 	 */
 	public String archiveAndZip(String siteId) throws IOException;
+
+	/**
+	 * get the current storage path for a particular site
+	 * @return Current storage path for a particular site
+	 */
+	public String getStoragePathForSiteArchive(String siteId);
 }

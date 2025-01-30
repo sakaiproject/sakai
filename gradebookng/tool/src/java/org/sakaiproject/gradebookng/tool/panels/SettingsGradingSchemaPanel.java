@@ -23,10 +23,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -65,7 +64,8 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	CourseGradeStatistics stats;
 	ListView<GbGradingSchemaEntry> schemaView;
 	private List<GradeMappingDefinition> gradeMappings;
-	boolean expanded;
+	@Getter
+    boolean expanded;
 	String gradingSchemaName;
 	DescriptiveStatistics statistics;
 	Label modifiedSchema;
@@ -142,28 +142,6 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 		}
 
 		final WebMarkupContainer settingsGradingSchemaPanel = new WebMarkupContainer("settingsGradingSchemaPanel");
-		// Preserve the expand/collapse state of the panel
-		settingsGradingSchemaPanel.add(new AjaxEventBehavior("shown.bs.collapse") {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
-				settingsGradingSchemaPanel.add(new AttributeModifier("class", "panel-collapse collapse in"));
-				SettingsGradingSchemaPanel.this.expanded = true;
-			}
-		});
-		settingsGradingSchemaPanel.add(new AjaxEventBehavior("hidden.bs.collapse") {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
-				settingsGradingSchemaPanel.add(new AttributeModifier("class", "panel-collapse collapse"));
-				SettingsGradingSchemaPanel.this.expanded = false;
-			}
-		});
-		if (this.expanded) {
-			settingsGradingSchemaPanel.add(new AttributeModifier("class", "panel-collapse collapse in"));
-		}
 		add(settingsGradingSchemaPanel);
 
 		// grading scale type chooser
@@ -234,7 +212,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 					private static final long serialVersionUID = 1L;
 
 					@Override
-					public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+					public void onSubmit(final AjaxRequestTarget target) {
 
 						// remove this entry from the model data
 						final GbGradingSchemaEntry current = item.getModelObject();
@@ -258,7 +236,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 		settingsGradingSchemaPanel.add(this.schemaWrap);
 
 		// handle updates on the schema type chooser
-		typeChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+		typeChooser.add(new AjaxFormComponentUpdatingBehavior("change") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -291,7 +269,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void onSubmit(final AjaxRequestTarget target, final Form<?> f) {
+			protected void onSubmit(final AjaxRequestTarget target) {
 
 				// add a new empty mapping to the model data
 				final List<GbGradingSchemaEntry> entries = getGradingSchemaList();
@@ -401,11 +379,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 		return bottomPercents;
 	}
 
-	public boolean isExpanded() {
-		return this.expanded;
-	}
-
-	/**
+    /**
 	 * Get a List of {@link GbUser}'s with course grade overrides.
 	 *
 	 * @return
@@ -442,8 +416,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	 * @return
 	 */
 	private int getTotalCourseGrades(final Map<String, CourseGradeTransferBean> map) {
-		return map.values().stream().filter(c -> StringUtils.isNotBlank(c.getMappedGrade()))
-				.collect(Collectors.toList()).size();
+		return (int) map.values().stream().filter(c -> StringUtils.isNotBlank(c.getMappedGrade())).count();
 	}
 
 	/**
@@ -479,7 +452,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 
 		private transient AjaxRequestTarget target;
 
-		public static final String ONCHANGE = "onchange";
+		public static final String ONCHANGE = "change";
 
 		public GradingSchemaChangeBehaviour(final String event) {
 			super(event);

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- The webapp (standalone) version -->
+	<bean id="org.sakaiproject.scorm.service.api.ScormResourceService"
+		class="org.sakaiproject.scorm.service.standalone.impl.StandaloneResourceService">
+	</bean>
+	
+	<bean id="org.sakaiproject.scorm.dao.api.SeqActivityTreeDao"
+		class="org.sakaiproject.scorm.dao.standalone.StandaloneActivityTreeDaoImpl">
+	</bean>
+</beans>

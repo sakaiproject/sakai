@@ -13,6 +13,7 @@
       document.querySelector(".autogroups-wizard-form").submit();
     }
   };
+
   /*]]>*/
 </script>
 <script th:fragment="importJs" th:inline="javascript">
@@ -62,6 +63,12 @@
     submitButton && (submitButton.disabled = !anyCheckboxEnabled);
   };
 
+  groupManager.showOrHideConfirmationDialog = action => {
+
+    const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById("confirmation-modal"));
+    action === "show" ? modal.show() : modal.hide();
+  };
+
   const gmCancelButton = document.getElementById("delete-groups-cancel-button");
   gmCancelButton && gmCancelButton.addEventListener("click", e => {
 
@@ -87,10 +94,10 @@
   });
 
   const gmForm = document.getElementById("group-manager-form");
-  gmForm && gmForm.addEventListener("submit", e => {
+  gmForm?.addEventListener("submit", e => {
 
     e.preventDefault();
-    $('#confirmation-modal').modal('show');
+    groupManager.showOrHideConfirmationDialog("show");
     const deletedGroupsList = document.getElementById("deleted-groups-list");
     deletedGroupsList.innerHTML = "";
     document.querySelectorAll(".group-manager-delete-checkbox:checked")
@@ -101,12 +108,12 @@
   gmConfirm && gmConfirm.addEventListener("click", () => {
 
     gmForm && gmForm.submit();
-    $('#confirmation-modal').modal('hide');
+    groupManager.showOrHideConfirmationDialog("hide");
   });
 
   const cancel = document.getElementById("modal-btn-cancel");
   cancel && cancel.addEventListener("click", () => {
-    $('#confirmation-modal').modal('hide');
+    groupManager.showOrHideConfirmationDialog("hide");
   });
 
   /*]]>*/
@@ -122,15 +129,36 @@
 
     const groupTitle = document.getElementById("groupTitle");
     const groupNumber = document.getElementById("groupNumber");
+    const isGroupMemberRequired = groupNumber.dataset.required === 'true';
     const groupMaxMembers = document.getElementById("groupMaxMembers");
+    const joinableOpenDate = document.getElementById("joinableOpenDate");
+    const joinableCloseDate = document.getElementById("joinableCloseDate");
+    const setReminder = document.getElementById("setReminder");
+    const setReminderLbl = document.getElementById("setReminderLbl");
+
+    // Immediately invoked function
+    (function() {
+      setReminder.disabled = !joinableCloseDate.value;
+    })();
+
+    joinableCloseDate.addEventListener("blur", e => {
+      if (joinableCloseDate.validity.badInput) {
+        setReminder.disabled = true;
+        setReminderLbl.classList.add("disabled");
+      } else {
+        setReminder.disabled = false;
+        setReminderLbl.classList.remove("disabled");
+      }
+    });
 
     //Enable or disable the submit button depending on the required fields
-    [groupTitle, groupNumber, groupMaxMembers].forEach(field => {
+    [groupTitle, groupNumber, groupMaxMembers, joinableOpenDate, joinableCloseDate].forEach(field => {
 
       field.addEventListener("keyup", () => {
 
         document.querySelectorAll('#createnewjoinableset-form input[type="submit"]').forEach(submit => {
-            submit.disabled = !groupTitle.value || groupNumber.value <= 0 || groupMaxMembers.value <= 0;
+            submit.disabled = !groupTitle.value || (isGroupMemberRequired && groupNumber.value <= 0) ||
+              groupMaxMembers.value <= 0 || joinableOpenDate.validity.badInput || joinableCloseDate.validity.badInput;
         });
       });
     });
@@ -154,13 +182,13 @@
     deleteButton && deleteButton.addEventListener("click", e => {
 
       e.preventDefault();
-      $('#confirmation-modal').modal('show');
+      groupManager.showOrHideConfirmationDialog("show");
     });
 
     const confirmButton = document.getElementById("modal-btn-confirm");
     confirmButton && confirmButton.addEventListener("click", () => {
 
-      $('#confirmation-modal').modal('hide');
+      groupManager.showOrHideConfirmationDialog("hide");
       window.location.replace(deleteButton.getAttribute("href"));
     });
 
@@ -168,7 +196,7 @@
     cancelButton && cancelButton.addEventListener("click", () => {
 
       callback(false);
-      $('#confirmation-modal').modal('hide');
+      groupManager.showOrHideConfirmationDialog("hide");
    });
   };
 
@@ -186,8 +214,6 @@
   includeWebjarLibrary('select2');
 
   $(document).ready(function() {
-    // Initialize popovers
-    $('[data-toggle="popover"]').popover();
 
     const groupTitle = document.getElementById("groupTitle");
 
@@ -196,12 +222,7 @@
     submitButton && (submitButton.disabled = !groupTitle?.value);
 
     //Enable or disable the submit button depending on the required fields
-    groupTitle && groupTitle.addEventListener("keyup", e => {
-
-      document.querySelectorAll('#creategroup-form input[type="submit"]').forEach(submit => {
-        submit.disabled = !e.target.value;
-      });
-    });
+    groupTitle?.addEventListener("keyup", e => submitButton.disabled = !e.target.value);
 
     document.querySelectorAll("#groupMembershipFilter, #groupJoinableShowAllUsers")
       .forEach(el => {
@@ -237,7 +258,8 @@
     $('#groupMembers').select2({
       placeholder: searchPlaceHolderText,
       allowClear: true,
-      closeOnSelect: false
+      closeOnSelect: false,
+      width: '100%'
     });
 
     // Button spinners
@@ -320,13 +342,11 @@
 <script th:fragment="autoGroupsStep3Js" th:inline="javascript">
   /*<![CDATA[*/
   const options = document.getElementById("mixtureStructureOptions");
-  const mixtureConfiguration = document.getElementById("mixtureConfiguration");
-  mixtureConfiguration && mixtureConfiguration.addEventListener("change", () => {
+  document.getElementById("mixtureConfiguration")?.addEventListener("change", () => {
     options && (options.style.display = "block");
   });
-  const pureConfiguration = document.getElementById("pureConfiguration");
-  pureConfiguration && pureConfiguration.addEventListener("change", () => {
-    options && (options.style.display = "none");
+  document.getElementById("pureConfiguration")?.addEventListener("click", e => {
+    options && (options.style.display = e.target.checked ? "none" : "block");
   });
 
   const splitByGroups = document.getElementById("splitByGroups");

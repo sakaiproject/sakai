@@ -1,6 +1,5 @@
 {{#each members}}
-    <div class="roster-member-card photogrid">
-        {{#if ../viewPicture}}
+    <div class="roster-member-card photogrid roster-entry">
         <div class="roster-picture-card">
             <sakai-user-photo user-id="{{userId}}"
                 label="{{tr 'profile_picture_alt'}} {{displayName}}"
@@ -8,17 +7,18 @@
                 classes="roster-photo"
                 {{#if official}}
                 official
+                {{else}}
+                    {{#unless canViewProfilePicture}}
+                    blank
+                    {{/unless}}
                 {{/if}}
                 {{#if ../printMode}}
                 print
                 {{/if}}
-                {{#if ../viewPicture}}
-                popup="on"
-                {{/if}}
+                profile-popup="on"
             >
             </sakai-user-photo>
         </div> <!-- /roster-picture-card -->
-        {{/if}}
 
         <div class="roster-info-card">
             {{#unless ../hideNames}}
@@ -26,7 +26,10 @@
                 {{#if ../../viewProfile}}
                 <a href="javascript:;" class="profile" data-user-id="{{userId}}">
                 {{/if}}
-                {{getName firstNameLastName}}
+                <span>{{getName firstNameLastName}}</span>
+                {{#if nickname}}
+                <span title="{{nickname}}"> "{{nickname}}"</span>
+                {{/if}}
                 {{#if ../../viewProfile}}
                 </a>
                 {{/if}}

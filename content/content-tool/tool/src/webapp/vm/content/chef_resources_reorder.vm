@@ -59,10 +59,10 @@
 							#end
 							<span>$formattedText.escapeHtml($member.name)</span>
 						</div>
-						<div class="col-lg-4 col-md-4 hidden-xs hidden-sm">
+						<div class="col-lg-4 col-md-4 d-none d-sm-block">
 							$formattedText.escapeHtml($member.createdBy)
 						</div>
-						<div class="col-lg-2 col-md-2 hidden-xs hidden-sm">
+						<div class="col-lg-2 col-md-2 d-none d-sm-block">
 							$member.ModifiedTime
 						</span>
 						<span headers="position" style="display:none">

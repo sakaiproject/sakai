@@ -42,6 +42,8 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
+import org.sakaiproject.tool.assessment.business.entity.SebConfig;
+import org.sakaiproject.tool.assessment.business.entity.SebConfig.ConfigMode;
 import org.sakaiproject.tool.assessment.data.dao.assessment.*;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
@@ -55,6 +57,7 @@ import org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.services.assessment.SecureDeliverySeb;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
@@ -231,11 +234,6 @@ public class SaveAssessmentSettings
      feedback.setFeedbackDelivery(new Integer(assessmentSettings.getFeedbackDelivery()));
     if (StringUtils.isNotBlank(assessmentSettings.getFeedbackComponentOption()))
         feedback.setFeedbackComponentOption(new Integer(assessmentSettings.getFeedbackComponentOption()));
-
-    if (StringUtils.isNotBlank(assessmentSettings.getCorrectAnswerOption())) {
-        feedback.setCorrectAnswerOption(new Integer(assessmentSettings.getCorrectAnswerOption()));
-    }
-
     if (assessmentSettings.getFeedbackAuthoring()!=null)
      feedback.setFeedbackAuthoring(new Integer(assessmentSettings.getFeedbackAuthoring()));
     // if 'No feedback' (it corresponds to value 3) is selected, 
@@ -251,6 +249,7 @@ public class SaveAssessmentSettings
 		feedback.setShowSelectionLevelFeedback(false);
 		feedback.setShowGraderComments(false);
 		feedback.setShowStatistics(false);
+		feedback.setShowCorrection(false);
     }
     else {
     		feedback.setShowQuestionText(assessmentSettings.getShowQuestionText());
@@ -262,6 +261,7 @@ public class SaveAssessmentSettings
     		feedback.setShowSelectionLevelFeedback(assessmentSettings.getShowSelectionLevelFeedback());
     		feedback.setShowGraderComments(assessmentSettings.getShowGraderComments());
     		feedback.setShowStatistics(assessmentSettings.getShowStatistics());
+    		feedback.setShowCorrection(assessmentSettings.getShowCorrectResponse() ? assessmentSettings.getShowCorrection() : false);
     }
     assessment.setAssessmentFeedback(feedback);
 
@@ -285,10 +285,12 @@ public class SaveAssessmentSettings
 		else {
 			evaluation.setAnonymousGrading(EvaluationModelIfc.NON_ANONYMOUS_GRADING);
 		}
-		if (assessmentSettings.getToDefaultGradebook()) {
-			evaluation.setToGradeBook(Integer.toString(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK));
-		}
-		else {
+		if (EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString().equals(assessmentSettings.getToDefaultGradebook())) {
+			evaluation.setToGradeBook(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString());
+		} else if (EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString().equals(assessmentSettings.getToDefaultGradebook())) {
+			evaluation.setToGradeBook(EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString());
+			assessment.updateAssessmentToGradebookNameMetaData(assessmentSettings.getGradebookName());
+		} else {
 			evaluation.setToGradeBook(Integer.toString(EvaluationModelIfc.NOT_TO_GRADEBOOK));
 		}
 	}
@@ -311,6 +313,12 @@ public class SaveAssessmentSettings
     Map <String, String> h = assessmentSettings.getValueMap();
     updateMetaWithValueMap(assessment, h);
 
+    if (EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString().equals(evaluation.getToGradeBook())) {
+        assessment.updateAssessmentToGradebookNameMetaData(assessmentSettings.getGradebookName());
+    } else {
+        assessment.updateAssessmentToGradebookNameMetaData("");
+    }
+
     ExtendedTimeFacade extendedTimeFacade = PersistenceService.getInstance().getExtendedTimeFacade();
     extendedTimeFacade.saveEntries(assessment, assessmentSettings.getExtendedTimes());
 
@@ -318,10 +326,11 @@ public class SaveAssessmentSettings
     assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.BGCOLOR, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(assessmentSettings.getBgColor()));
     assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.BGIMAGE, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(assessmentSettings.getBgImage()));
 
-    // j. set objectives,rubrics,keywords
+    // j. set objectives,rubrics,keywords,tracking
     assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.KEYWORDS, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(assessmentSettings.getKeywords()));
     assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.OBJECTIVES, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(assessmentSettings.getObjectives()));
     assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.RUBRICS, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(assessmentSettings.getRubrics()));
+    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.TRACK_QUESTIONS, Boolean.toString(assessmentSettings.getTrackQuestions()));
 
     // jj. save assessment first, then deal with ip
     assessmentService.saveAssessment(assessment);
@@ -349,16 +358,37 @@ public class SaveAssessmentSettings
     assessment.updateAssessmentMetaData(SecureDeliveryServiceAPI.MODULE_KEY, assessmentSettings.getSecureDeliveryModule() );
     String encryptedPassword = secureDeliveryService.encryptPassword( assessmentSettings.getSecureDeliveryModule(), assessmentSettings.getSecureDeliveryModuleExitPassword() );
     assessment.updateAssessmentMetaData(SecureDeliveryServiceAPI.EXITPWD_KEY, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(encryptedPassword ));
+    if (SecureDeliverySeb.MODULE_NAME.equals(assessmentSettings.getSecureDeliveryModule())) {
+      assessment.updateAssessmentMetaData(SebConfig.CONFIG_MODE, assessmentSettings.getSebConfigMode().toString());
+
+      ConfigMode sebConfigMode = ConfigMode.valueOf(assessmentSettings.getSebConfigMode());
+      switch (sebConfigMode) {
+        case MANUAL:
+          assessment.updateAssessmentMetaData(SebConfig.ALLOW_USER_QUIT_SEB, assessmentSettings.getSebAllowUserQuitSeb().toString());
+          assessment.updateAssessmentMetaData(SebConfig.SHOW_TASKBAR, assessmentSettings.getSebShowTaskbar().toString());
+          assessment.updateAssessmentMetaData(SebConfig.SHOW_TIME, assessmentSettings.getSebShowTime().toString());
+          assessment.updateAssessmentMetaData(SebConfig.SHOW_KEYBOARD_LAYOUT, assessmentSettings.getSebShowKeyboardLayout().toString());
+          assessment.updateAssessmentMetaData(SebConfig.SHOW_WIFI_CONTROL, assessmentSettings.getSebShowWifiControl().toString());
+          assessment.updateAssessmentMetaData(SebConfig.ALLOW_AUDIO_CONTROL, assessmentSettings.getSebAllowAudioControl().toString());
+          assessment.updateAssessmentMetaData(SebConfig.ALLOW_SPELL_CHECKING, assessmentSettings.getSebAllowSpellChecking().toString());
+          break;
+        case UPLOAD:
+          assessment.updateAssessmentMetaData(SebConfig.CONFIG_UPLOAD_ID, assessmentSettings.getSebConfigUploadId());
+          break;
+        case CLIENT:
+          assessment.updateAssessmentMetaData(SebConfig.EXAM_KEYS, assessmentSettings.getSebExamKeys());
+          break;
+        default:
+          log.error("Unhandled value of seb config mode [{}]", sebConfigMode);
+          break;
+      }
+    }
     
     // kkk. remove the existing title decoration (if any) and then add the new one (if any)    
     String titleDecoration = assessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.TITLE_DECORATION );
-    String newTitle;
-    if ( titleDecoration != null )
-    	newTitle = assessment.getTitle().replace( titleDecoration, "");
-    else
-    	newTitle = assessment.getTitle();
-    
-    // getTitleDecoration() returns "" if null or NONE module is passed
+    String newTitle = StringUtils.isNotEmpty(titleDecoration) && !"NONE".equals(titleDecoration)
+            ? StringUtils.replace(assessment.getTitle(), " " + titleDecoration, "")
+            : assessment.getTitle();
     titleDecoration = secureDeliveryService.getTitleDecoration( assessmentSettings.getSecureDeliveryModule(), new ResourceLoader().getLocale() );
     if (titleDecoration != null && !titleDecoration.trim().equals("")) {
     	newTitle = newTitle + " " + titleDecoration;

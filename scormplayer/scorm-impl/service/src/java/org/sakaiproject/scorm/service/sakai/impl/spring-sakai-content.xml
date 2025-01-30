@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- The version that makes use of the Sakai repository to store content, but serves it through the tool -->
+	<bean id="org.sakaiproject.scorm.service.api.ScormResourceService"
+		class="org.sakaiproject.scorm.service.sakai.impl.SakaiResourceService"
+		init-method="init">
+		
+		<lookup-method name="configurationService" bean="org.sakaiproject.component.api.ServerConfigurationService" />
+		<lookup-method name="contentService" bean="org.sakaiproject.content.api.ContentHostingService" /> 
+		<lookup-method name="toolManager" bean="org.sakaiproject.tool.api.ToolManager" />
+		<lookup-method name="siteService" bean="org.sakaiproject.site.api.SiteService" />
+		<lookup-method name="securityService" bean="org.sakaiproject.authz.api.SecurityService" />
+	</bean>
+
+	<bean id="org.sakaiproject.scorm.dao.api.SeqActivityTreeDao"
+		class="org.sakaiproject.scorm.dao.standalone.StandaloneActivityTreeDaoImpl">
+	</bean>
+</beans>

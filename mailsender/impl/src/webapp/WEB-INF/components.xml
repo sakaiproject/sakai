@@ -36,6 +36,7 @@
 		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+		<property name="configLogic" ref="org.sakaiproject.mailsender.logic.ConfigLogic" />
 	</bean>
 
 	<!--

@@ -18,6 +18,7 @@ package org.sakaiproject.gradebookng.tool.panels;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -58,7 +59,7 @@ public class StudentGradeSummaryPanel extends BasePanel {
 		super.onInitialize();
 
 		// done button
-		add(new GbAjaxLink("done") {
+		add(new GbAjaxLink<>("done") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -95,26 +96,24 @@ public class StudentGradeSummaryPanel extends BasePanel {
 			});
 		}
 
-		add(new AjaxBootstrapTabbedPanel("tabs", tabs) {
-			@Override
-			protected String getTabContainerCssClass() {
-				return "nav nav-tabs";
-			}
+		add(new AjaxBootstrapTabbedPanel<>("tabs", tabs) {
 
-			@Override
-			protected void onAjaxUpdate(final AjaxRequestTarget target) {
-				super.onAjaxUpdate(target);
+            @Override
+			protected void onAjaxUpdate(Optional<AjaxRequestTarget> targetOptional) {
+				super.onAjaxUpdate(targetOptional);
 
-				final boolean showingInstructorView = (getSelectedTab() == 0);
-				final boolean showingStudentView = (getSelectedTab() == 1);
+				targetOptional.ifPresent(target -> {
+					final boolean showingInstructorView = (getSelectedTab() == 0);
+					final boolean showingStudentView = (getSelectedTab() == 1);
 
-				studentNavigation.setVisible(showingInstructorView);
-				target.add(studentNavigation);
+					studentNavigation.setVisible(showingInstructorView);
+					target.add(studentNavigation);
 
-				target.appendJavaScript(
-						String.format("new GradebookGradeSummary($(\"#%s\"), %s);",
-								getParent().getMarkupId(),
-								showingStudentView));
+					target.appendJavaScript(
+							String.format("new GradebookGradeSummary($(\"#%s\"), %s);",
+									getParent().getMarkupId(),
+									showingStudentView));
+				});
 			}
 		});
 	}

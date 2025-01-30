@@ -37,8 +37,6 @@ public interface AssessmentFeedbackIfc
   public static final Integer BOTH_FEEDBACK = 3;
   public static final Integer SELECT_COMPONENTS = 2;  // select feedback components
   public static final Integer SHOW_TOTALSCORE_ONLY = 1;  // select feedback components
-  public static final Integer ALL_QUESTIONS = 1;  // select all question
-  public static final Integer INCORRECT_QUESTIONS = 2;  // select only incorrect questions
 
   Long getId();
 
@@ -100,8 +98,8 @@ public interface AssessmentFeedbackIfc
 
   void setFeedbackComponentOption(Integer feedbackComponentOption);
 
-  Integer getCorrectAnswerOption();
+  Boolean getShowCorrection();
 
-  void setCorrectAnswerOption(Integer correctAnswerOption);
+  void setShowCorrection(Boolean showCorrection);
 
 }

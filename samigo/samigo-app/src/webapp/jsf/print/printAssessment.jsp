@@ -22,11 +22,11 @@
   <%@ include file="/jsf/delivery/deliveryjQuery.jsp" %>
   
 	<script src="/samigo-app/js/selection.author.preview.js"></script>
+
+  <link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.author.css">
 		
-	<link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.author.css">
-		
-	<script>		
-		jQuery(window).load(function(){
+  <script>		
+    document.addEventListener('DOMContentLoaded', function() {
 			
 			$('input:hidden[id^=hiddenSerializedCoords_]').each(function(){
 				var myregexp = /hiddenSerializedCoords_(\d+_\d+)_(\d+)/
@@ -41,20 +41,16 @@
 				}catch(err){}
 				
 			});	
-		});
-	</script>
-	    
-  
-  <script>
-function resetSelectMenus(){
-  var selectlist = document.getElementsByTagName("SELECT");
 
-  for (var i = 0; i < selectlist.length; i++) {
-        if ( selectlist[i].id.indexOf("changeQType") >=0){
-          selectlist[i].value = "";
-        }
-  }
-}
+      // If instructor clicks a checkbox, make it apply immediately as clicking the button to Apply Settings seems odd 
+      const checkboxes = document.querySelectorAll('.form-check-input, .form-select');
+      checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+          document.querySelector('.auto-apply-settings').click();
+        });
+      });
+
+    });
 
 function clickInsertLink(field){
 var insertlinkid= field.id.replace("changeQType", "hiddenlink");
@@ -70,18 +66,20 @@ for (i=0; i<document.links.length; i++) {
  
 document.links[newindex].onclick(); 
 }
- 
+
+function printQuiz() {
+  const originalContents = document.body.innerHTML;
+  document.body.innerHTML = document.getElementById("quizWrapper").innerHTML;
+  window.print();
+  document.body.innerHTML = originalContents;
+  return false;
+}
+
 </script>
 </head>
 
-<body 
-  onload="document.forms[0].reset(); resetSelectMenus(); ;<%= request.getAttribute("html.body.onload") %>; qb_init('print');"
-  id="qb_print"
-  class="view_student">
+<body id="qb_print" class="view_student">
     
-  <!-- content... -->
-  <!-- some back end stuff stubbed -->
-  
   <h:form id="assessmentForm">
   
   <!-- HEADINGS (NOT PRINTED) -->
@@ -92,55 +90,68 @@ document.links[newindex].onclick();
 
     <h:messages/>
     
-    <div id="header">
-      <div class="navModeAction"> 
-        
-        <label>
-          <h:selectBooleanCheckbox id="showKeys" value="#{printSettings.showKeys}" />
+<div class="container mt-3">
+  <div class="navModeAction">
+    <div class="vstack gap-2">
+      <!-- Checkboxes -->
+      <div class="form-check">
+        <h:selectBooleanCheckbox id="showKeys" value="#{printSettings.showKeys}" styleClass="form-check-input" />
+        <h:outputLabel for="showKeys" styleClass="form-check-label">
           <h:outputText value="#{printMessages.show_answer_key}" />
-        </label>
-        
-        &nbsp;&nbsp;&nbsp;
-        
-        <label>
-		  <h:selectBooleanCheckbox id="showFeedback" value="#{printSettings.showKeysFeedback}" />
-		  <h:outputText value="#{printMessages.show_answer_feedback}" />
-		</label>
-        
-        &nbsp;&nbsp;&nbsp;
-        
-		<label>
-          <h:selectBooleanCheckbox id="showPartIntros" value="#{printSettings.showPartIntros}" />
+        </h:outputLabel>
+      </div>
+
+      <div class="form-check">
+        <h:selectBooleanCheckbox id="showFeedback" value="#{printSettings.showKeysFeedback}" styleClass="form-check-input" />
+        <h:outputLabel for="showFeedback" styleClass="form-check-label">
+          <h:outputText value="#{printMessages.show_answer_feedback}" />
+        </h:outputLabel>
+      </div>
+
+      <div class="form-check">
+        <h:selectBooleanCheckbox id="showPartIntros" value="#{printSettings.showPartIntros}" styleClass="form-check-input" />
+        <h:outputLabel for="showPartIntros" styleClass="form-check-label">
           <h:outputText value="#{printMessages.show_intros_titles}" />
-        </label>
-        
-        &nbsp;&nbsp;&nbsp;
-        
-        <label>
-		  <h:selectBooleanCheckbox id="showSequence" value="#{printSettings.showSequence}" />
-		  <h:outputText value="#{printMessages.show_answer_sequence}" />
-		</label>
-		      
-		&nbsp;&nbsp;&nbsp;
-        
-        <div>
-            <h:outputLabel for="fontSize" value="#{printMessages.font_size}:" />
-            <h:selectOneMenu id="fontSize" value="#{printSettings.fontSize}">
-                <f:selectItem itemLabel="#{printMessages.size_xsmall}" itemValue="1" />
-                <f:selectItem itemLabel="#{printMessages.size_small}" itemValue="2" />
-                <f:selectItem itemLabel="#{printMessages.size_medium}" itemValue="3" />
-                <f:selectItem itemLabel="#{printMessages.size_large}" itemValue="4" />
-                <f:selectItem itemLabel="#{printMessages.size_xlarge}" itemValue="5" />
-            </h:selectOneMenu>
-        </div>
-        
-        <br />
-        
-        <h:commandButton action="#{pdfAssessment.prepDocumentPDF}" value="#{printMessages.apply_settings}" styleClass="noActionButton" />
-        <h:outputText value="<input type='button' onclick='print(); return false;' value='#{printMessages.print_html}' class='noActionButton' />" escape="false" />
-        <h:commandButton action="#{pdfAssessment.getPDFAttachment}" value="#{printMessages.print_pdf}" styleClass="noActionButton" />
+        </h:outputLabel>
+      </div>
+
+      <div class="form-check">
+        <h:selectBooleanCheckbox id="showSamePage" value="#{printSettings.showSamePage}" styleClass="form-check-input" />
+        <h:outputLabel for="showSamePage" styleClass="form-check-label">
+          <h:outputText value="#{printMessages.show_same_page}" />
+        </h:outputLabel>
+      </div>
+
+      <div class="form-check">
+        <h:selectBooleanCheckbox id="showSequence" value="#{printSettings.showSequence}" styleClass="form-check-input" />
+        <h:outputLabel for="showSequence" styleClass="form-check-label">
+          <h:outputText value="#{printMessages.show_answer_sequence}" />
+        </h:outputLabel>
+      </div>
+
+      <!-- Font Size Dropdown -->
+      <div class="mb-3 col-md-3">
+        <h:outputLabel for="fontSize" styleClass="form-label">
+          <h:outputText value="#{printMessages.font_size}:" />
+        </h:outputLabel>
+        <h:selectOneMenu id="fontSize" value="#{printSettings.fontSize}" styleClass="form-select">
+          <f:selectItem itemLabel="#{printMessages.size_xsmall}" itemValue="1" />
+          <f:selectItem itemLabel="#{printMessages.size_small}" itemValue="2" />
+          <f:selectItem itemLabel="#{printMessages.size_medium}" itemValue="3" />
+          <f:selectItem itemLabel="#{printMessages.size_large}" itemValue="4" />
+          <f:selectItem itemLabel="#{printMessages.size_xlarge}" itemValue="5" />
+        </h:selectOneMenu>
+      </div>
+
+      <!-- Buttons -->
+      <div class="d-flex gap-2">
+        <h:commandButton action="#{pdfAssessment.prepDocumentPDF}" value="#{printMessages.apply_settings}" styleClass="btn btn-primary d-none auto-apply-settings" />
+        <h:commandButton onclick="printQuiz();" value="#{printMessages.print_html}" type="button" styleClass="btn btn-secondary" />
+        <h:commandButton action="#{pdfAssessment.getPDFAttachment}" value="#{printMessages.print_pdf}" styleClass="btn btn-secondary" />
       </div>
     </div>
+  </div>
+</div>
     <!-- END HEADINGS -->
     
     <h:outputText escape="false" value="<div id='quizWrapper' style='font-size: 10px;'>" rendered="#{printSettings.fontSize == '1'}" />
@@ -162,7 +173,7 @@ document.links[newindex].onclick();
 	  <h:outputText value="#{pdfAssessment.title}" escape="false"/>
 	</div>
 	    
-	<div class="assessment_intro, quiz">
+	<div class="assessment_intro quiz">
 	  <h:outputText id="assessmentIntro" value="#{delivery.instructorMessage}" 
 	          escape="false" rendered="#{printSettings.showPartIntros && delivery.instructorMessage != null && delivery.instructorMessage != ''}" />
 	</div>

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/common :: head" />
+<body>
+	<div th:replace="fragments/common :: bootstrap" />
+	<div th:include="fragments/common :: admin (${isAdmin})" />
+
+	<div th:if="${isAdmin}">
+		<div class="portletBody">
+			<div id="menu" th:include="fragments/menus :: main (editGroup)" />
+			<div class="page-header" style="display: flex;gap: 77px;align-content: center;align-items: center;">
+				<div>
+				<h1 class="header-title" th:text="#{group_synch.new_title}"></h1>
+				<div th:utext="#{site_synch.selected_site(${siteTitle})}"></div>
+				<div th:utext="#{site_synch.selected_team(${teamTitle})}"></div>
+				</div>
+				<div style="display: flex; width: fit-content; height: fit-content; gap: 10px; align-items: end;">
+					<form id="channelForm" th:action="@{/channel}" method="post">
+						<label>
+							<span th:text="#{new_channel}">New Channel</span>
+							<input id="channelName" name="name" />
+						</label>
+						<input type="hidden" name="siteId" th:value="${siteSynchronizationId}" />
+						<button id="createChannelButton" type="submit" class="active">Create Channel</button>
+					</form>
+				</div>
+			</div>
+
+			<div th:include="fragments/common :: error" />
+			<div class="sak-banner-error hidden" id="delete_error" th:text="#{error.delete_group_synchronization}"></div>
+			<div id="error-banner"></div>
+
+			<div:block id="table-block" th:if="${groupSynchronizations != null}" class="container-fluid">
+				<div class="container-fluid">
+					<div class="row table-space table-row index-background">
+						<div class="col-md-5">
+							<span class="text-bold" th:text="#{group}"></span>
+						</div>
+						<div class="col-md-5">
+							<span class="text-bold" th:text="#{channel}"></span>
+						</div>
+						<div class="col-sm-2 text-center">
+							<span th:text="#{index.actions}" class="text-bold"></span>
+						</div>
+					</div>
+					<div id="row-container" class="row-list">
+						<div class="row table-space table-row">
+							<div class="col-sm-5">
+									<select name="new_group" id="selectedGroupId" th:aria-label="#{new_group}">
+										<option value="none" disabled selected th:text="#{none}"/>
+										<option th:each="group : ${groupsMap}"
+												th:value="${group.key}"
+												name="selectedGroupId"
+												th:text="${group.value.title}">
+									</select>
+								</div>
+
+								<div class="col-sm-5">
+									<select name="new_channel" id="selectedChannelId" th:aria-label="#{new_channel}">
+										<option value="none" disabled selected th:text="#{none}"/>
+										<option th:each="channel : ${channelsMap.values()}"
+												th:value="${channel.id}"
+												name="selectedChannelId"
+												th:text="${channel.name}">
+										</option>
+									</select>
+								</div>
+
+								<div class="col-sm-2 text-center">
+									<i role="button"
+									   th:id="|btn_add_new-sync|"
+									   class="fa fa-solid fa-plus"
+									   tabindex="0"
+									   th:aria-label="#{group_synch.new_title}"
+									   th:data-url="@{/add-groupSynchronization/{id}(id=${siteSynchronizationId})}"
+									   th:onclick="validateForm() && createGroupSynchronization(this, this.getAttribute('data-url'))"
+									></i>
+								</div>
+							</div>
+						<div th:each="entry, stat: ${groupSynchronizations}" th:id="|groupSynchronization[${stat.index}]|">
+							<div class="row table-space table-row" th:id="|row_${entry.id}|"
+								th:classappend="${stat.even} ? 'table-header' : ''">
+								<div class="col-sm-5" th:text="${groupsMap[entry.groupId]?.title} ?: '???'"></div>
+								<div class="col-sm-5" th:text="${channelsMap[entry.channelId]?.name ?: '???'}"></div>
+								<div th:if="${entry.channelId != ''}" class="col-sm-2 text-center" >
+									<i role="button"
+									   th:id="|btn_${entry.id}|"
+									   class="fa fa-solid fa-minus"
+									   tabindex="0"
+									   th:data-url="@{/delete-groupSynchronization/{id}(id=${entry.id})}"
+									   th:aria-label="#{group_synch.remove_title}"
+									   onclick="deleteGroupSynchronization(this, this.getAttribute('data-url'))">
+									</i>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div:block>
+			<div id='empty_table' th:class="${groupSynchronizations != null} ? 'hidden' : ''" th:text="#{empty_table}">Empty Table</div>
+		</div>
+
+		<div class="act">
+			<input type='button' th:value="#{back}" th:onclick="'window.location.href = \'' +@{/index}+ '\''" />
+		</div>
+
+		<script th:inline="javascript">
+			        async function createGroupSynchronization(btn, url) {
+
+			        	let groupId = document.getElementById('selectedGroupId').value
+			        	let channelId = document.getElementById('selectedChannelId').value
+
+			        	let update = {
+			        		selectedGroupId: groupId,
+			        		selectedChannelId: channelId
+			        	}
+
+			        	const classes = btn.classList;
+			        	classes.remove('fa-minus');
+			        	classes.add('fa-spinner', 'fa-spin');
+
+			        	var formBody = [];
+			        	for (var property in update) {
+			        	  var encodedKey = encodeURIComponent(property);
+			        	  var encodedValue = encodeURIComponent(update[property]);
+			        	  formBody.push(encodedKey + "=" + encodedValue);
+			        	}
+			        	formBody = formBody.join("&");
+
+			        	let response = await fetch(url, {
+			        		method: 'POST',
+			        		headers: {
+			        		'Content-Type': 'application/x-www-form-urlencoded',
+			        		},
+			        		body: formBody
+			        	});
+
+			        	if (response.status < 300)
+			        		location = response.url
+
+			        	classes.add('fa-minus');
+			        	classes.remove('fa-spinner', 'fa-spin');
+			        }
+
+                   async function deleteGroupSynchronization(btn, url) {
+                       const row_id = btn.id.replace('btn_', 'row_');
+
+                       const classes = btn.classList;
+                       classes.remove('fa-minus');
+                       classes.add('fa-spinner', 'fa-spin');
+
+                       let response = await fetch(url);
+                       let data = await response.json();
+
+                       let uniqueRelation = true;
+
+                       if(data == true){
+                           const rows = document.querySelectorAll('div[id^="row_"]');
+                           const row = document.getElementById(row_id);
+
+                           uniqueRelation = [...rows].filter(r => r.children[0].innerHTML == (row.children[0].innerHTML)).length == 1
+
+                           const grouprow = uniqueRelation ? row.children[1].innerHTML = '???' : row.parentElement.remove();
+
+                           if(rows.length == 0){
+                               document.getElementById('empty_table').classList.remove('hidden');
+                               document.getElementById('table-block').classList.add('hidden');
+                           }
+                       } else {
+                           showError();
+                       }
+
+                       classes.remove('fa-spinner', 'fa-spin');
+                       !uniqueRelation && classes.add('fa-minus');
+                   }
+
+                   function checkNewChannel(id) {
+                       const newTeamRadio = document.getElementById(id);
+                       const newTeamText = document.getElementsByName('newChannelName')[0];
+
+                       if (id == 'new-checkbox') {
+                           if (newTeamRadio.checked) {
+                               newTeamText.disabled = false;
+                               newTeamText.required = true;
+                               newTeamText.style.borderColor = 'black';
+                           }
+                       } else {
+                           newTeamText.disabled = true;
+                           newTeamText.required = false;
+                           newTeamText.style.borderColor = '#E3E4E5';
+                       }
+                   }
+
+                   function showError() {
+                       document.getElementById('delete_error').classList.remove('hidden');
+                       setTimeout(() => { document.getElementById('delete_error').classList.add('hidden') }, 10000);
+                   }
+
+                   var groupTimeoutId = null;
+                   var channelTimeoutId = null;
+                   function validateForm() {
+                       var errorContainer = document.querySelector('#error-banner');
+
+					   const groupSelected = document.getElementById('selectedGroupId').value;
+					   const channelSelected = document.getElementById('selectedChannelId').value;
+
+                       if (groupSelected == 'none') {
+                           if(groupTimeoutId != null){
+                               clearTimeout(groupTimeoutId);
+                           }
+                           var errorGroup = createError(errorContainer);
+                           errorGroup.innerHTML = '[(#{error.groups})]';
+                           groupTimeoutId = setTimeout(() => {console.log('Removing...'); errorGroup.remove() }, 5000);
+                           return false;
+                       }
+
+                       if (channelSelected  == 'none') {
+                           if(channelTimeoutId != null){
+                               clearTimeout(channelTimeoutId);
+                           }
+                           var errorChannel = createError(errorContainer);
+                           errorChannel.innerHTML = '[(#{error.channel})]';
+                           channelTimeoutId = setTimeout(() => {console.log('Removing...'); errorChannel.remove() }, 10000);
+                           return false;
+                       }
+
+                       return true;
+                   }
+
+                   const parentDiv = document.querySelector('#row-container');
+
+                   parentDiv.addEventListener('click', handleButtonClick);
+                   parentDiv.addEventListener('keypress', handleButtonClick);
+		</script>
+	</div>
+</body>
+</html>

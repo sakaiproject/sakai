@@ -32,6 +32,7 @@ import java.util.Set;
 import javax.xml.parsers.ParserConfigurationException;
 
 import lombok.extern.slf4j.Slf4j;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.xml.sax.SAXException;
 
 import org.sakaiproject.tool.assessment.data.dao.assessment.AttachmentData;
@@ -46,6 +47,8 @@ import org.sakaiproject.tool.assessment.qti.helper.AuthoringHelper;
 import org.sakaiproject.tool.assessment.qti.util.Iso8601DateFormat;
 import org.sakaiproject.tool.assessment.qti.util.Iso8601TimeInterval;
 import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
+
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAttachmentData;
 
 /**
  * <p>Copyright: Copyright (c) 2005/p>
@@ -456,17 +459,30 @@ import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
   public void updateAttachmentSet(Assessment assessmentXml, Set attachmentSet)
   {
     Iterator iter = attachmentSet.iterator();
-    AttachmentData attachmentData = null;
     StringBuffer attachment = new StringBuffer();
     while (iter.hasNext())
     {
-    	attachmentData = (AttachmentData) iter.next();
-    	attachment.append(attachmentData.getResourceId().replaceAll(" ", ""));
-    	attachment.append("|");
-    	attachment.append(attachmentData.getFilename());
-    	attachment.append("|");
-    	attachment.append(attachmentData.getMimeType());
-    	attachment.append("\n");
+        Object elt = iter.next();
+
+        if (elt instanceof AttachmentData) {
+            AttachmentData attachmentData = (AttachmentData) elt;
+            attachment.append(attachmentData.getResourceId().replaceAll(" ", ""));
+            attachment.append("|");
+            attachment.append(attachmentData.getFilename());
+            attachment.append("|");
+            attachment.append(attachmentData.getMimeType());
+            attachment.append("\n");
+        } else if (elt instanceof PublishedAttachmentData) {
+            PublishedAttachmentData attachmentData = (PublishedAttachmentData) elt;
+            attachment.append(attachmentData.getResourceId().replaceAll(" ", ""));
+            attachment.append("|");
+            attachment.append(attachmentData.getFilename());
+            attachment.append("|");
+            attachment.append(attachmentData.getMimeType());
+            attachment.append("\n");
+        } else {
+            log.warn("Unexpected element type: {}", elt);
+        }
     }
     assessmentXml.setFieldentry("ATTACHMENT", attachment.toString());
   }
@@ -532,6 +548,63 @@ import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
              "COLLECT_ITEM_METADATA");
   }
 
+
+  public void updateMetaData(Assessment assessmentXml,
+                             PublishedAssessmentFacade assessment)
+  {
+    String[] editKeys =
+            {
+                    "templateInfo_isInstructorEditable",
+                    "assessmentAuthor_isInstructorEditable",
+                    "assessmentCreator_isInstructorEditable",
+                    "description_isInstructorEditable",
+                    "dueDate_isInstructorEditable",
+                    "retractDate_isInstructorEditable",
+                    "anonymousRelease_isInstructorEditable",
+                    "authenticatedRelease_isInstructorEditable",
+                    "ipAccessType_isInstructorEditable",
+                    "passwordRequired_isInstructorEditable",
+                    "lockedBrowser_isInstructorEditable",
+                    "timedAssessment_isInstructorEditable",
+                    "timedAssessmentAutoSubmit_isInstructorEditable",
+                    "itemAccessType_isInstructorEditable",
+                    "displayChunking_isInstructorEditable",
+                    "displayNumbering_isInstructorEditable",
+                    "displayScores_isInstructorEditable",
+                    "submissionModel_isInstructorEditable",
+                    "lateHandling_isInstructorEditable",
+                    "markForReview_isInstructorEditable",
+                    "automaticSubmission_isInstructorEditable",
+                    "autoSave_isInstructorEditable",
+                    "submissionMessage_isInstructorEditable",
+                    "finalPageURL_isInstructorEditable",
+                    "feedbackType_isInstructorEditable",
+                    "feedbackAuthoring_isInstructorEditable",
+                    "feedbackComponents_isInstructorEditable",
+                    "testeeIdentity_isInstructorEditable",
+                    "toGradebook_isInstructorEditable",
+                    "recordedScore_isInstructorEditable",
+                    "bgColor_isInstructorEditable",
+                    "bgImage_isInstructorEditable",
+                    "metadataAssess_isInstructorEditable",
+                    "metadataParts_isInstructorEditable",
+                    "metadataQuestions_isInstructorEditable",
+                    "honorpledge_isInstructorEditable"
+            };
+
+    String key;
+    String value;
+
+    for (int i = 0; i < editKeys.length; i++)
+    {
+      setField(assessmentXml, assessment, editKeys[i]);
+    }
+    //  item metadata
+    setField(assessmentXml, assessment, "hasMetaDataForQuestions",
+            "COLLECT_ITEM_METADATA");
+  }
+
+
   /**
    *
    * @param assessmentXml
@@ -557,6 +630,17 @@ import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
     assessmentXml.setFieldentry(translationKey, value);
   }
 
+  private void setField(Assessment assessmentXml, PublishedAssessmentFacade assessment,
+                        String key, String translationKey)
+  {
+
+    String value = assessment.getAssessmentMetaDataByLabel(key);
+    log.debug("setField(Assessment assessmentXml, AssessmentFacade assessment, String key, String translationKey)");
+    log.debug("key: {} value: {}", key, value);
+
+    assessmentXml.setFieldentry(translationKey, value != null ? value : "false");
+  }
+
   /**
    *
    * @param assessmentXml
@@ -564,6 +648,12 @@ import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
    * @param key
    */
   private void setField(Assessment assessmentXml, AssessmentFacade assessment,
+                        String key)
+  {
+    setField(assessmentXml, assessment, key, key);
+  }
+
+  private void setField(Assessment assessmentXml, PublishedAssessmentFacade assessment,
                         String key)
   {
     setField(assessmentXml, assessment, key, key);

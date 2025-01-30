@@ -29,8 +29,11 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.List;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -46,6 +49,8 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import com.vdurmont.emoji.EmojiManager;
+import com.vdurmont.emoji.EmojiParser;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.validator.routines.UrlValidator;
@@ -55,6 +60,7 @@ import org.owasp.validator.html.Policy;
 import org.owasp.validator.html.PolicyException;
 import org.owasp.validator.html.ScanException;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.util.Resource;
@@ -79,6 +85,7 @@ public class FormattedTextImpl implements FormattedText
 {
     @Setter private ServerConfigurationService serverConfigurationService;
     @Setter private SessionManager sessionManager;
+    @Setter private SqlService sqlService;
 
     /**
      * This is the high level html cleaner object
@@ -101,7 +108,7 @@ public class FormattedTextImpl implements FormattedText
     private boolean showDetailedErrorToUser = false;
     private boolean returnErrorToTool = false;
     private boolean logErrors = false;
-    private boolean cleanUTF8 = true;
+    @Setter boolean cleanUTF8 = false;
     private String restrictReplacement = null;
 
     private String referrerPolicy = null;
@@ -114,12 +121,12 @@ public class FormattedTextImpl implements FormattedText
     protected final String RESOURCEBUNDLE = "resource.bundle.content";
 
     public void init() {
-        boolean useLegacy = false;
         if (serverConfigurationService != null) { // this keeps the tests from dying
-            useLegacy = serverConfigurationService.getBoolean("content.cleaner.use.legacy.html", useLegacy);
+
+            // Determine if the MySQL DB is utf8mb3 or utf8mb4
+            validateUTF8Db();
 
             //Filter content output to limited unicode characters KNL-1431
-            cleanUTF8 = serverConfigurationService.getBoolean("content.cleaner.filter.utf8",cleanUTF8);
             restrictReplacement = serverConfigurationService.getString("content.cleaner.filter.utf8.replacement",restrictReplacement);
 
             /* KNL-1075 - content.cleaner.errors.handling = none|logged|return|notify|display
@@ -154,17 +161,6 @@ public class FormattedTextImpl implements FormattedText
                     "; details to user=" + showDetailedErrorToUser);
 
             referrerPolicy = serverConfigurationService.getString(SAK_PROP_REFERRER_POLICY, SAKAI_REFERRER_POLICY_DEFAULT);
-        }
-        if (useLegacy) {
-            log.error(
-                     "**************************************************\n"
-                    +"* -----------<<<   WARNING   >>>---------------- *\n"
-                    +"* The LEGACY Sakai content scanner is no longer  *\n"
-                    +"* available. It has been deprecated and removed. *\n"
-                    +"* Content scanning uses AntiSamy scanner now.    *\n"
-                    +"* https://jira.sakaiproject.org/browse/KNL-1127  *\n"
-                    +"**************************************************\n"
-            );
         }
 
         /* INIT Antisamy
@@ -204,6 +200,36 @@ public class FormattedTextImpl implements FormattedText
             throw new IllegalStateException("Unable to startup the antisamy html code cleanup handler (cannot complete startup): " + e, e);
         }
 
+    }
+
+    private void validateUTF8Db() {
+        // Only MySQL has this issue with 3-byte and 4-byte utf8 flavors
+        if (!"mysql".equalsIgnoreCase(sqlService.getVendor())) {
+            return;
+        }
+
+        Connection connection = null;
+        try {
+            connection = sqlService.borrowConnection();
+            String sql = "SELECT @@character_set_database";
+            List list = sqlService.dbRead(connection, sql, null, null);
+            if (list != null && !list.isEmpty()) {
+                String result = (String) list.get(0);
+
+                if (StringUtils.contains(result, "utf8mb4")) {
+                    log.info("Database character set is configured correctly as utf8mb4");
+                } else if (StringUtils.contains(result, "utf8")) {
+                    log.warn("Database character set appears to be utf8mb3. Enabling the cleanUTF8 property.");
+                    setCleanUTF8(true);
+                } else {
+                    log.error("Database character set is not configured for UTF-8: {}", result);
+                }
+            }
+        } catch (SQLException e) {
+            log.error("Unable to determine database character set", e);
+        } finally {
+            if (connection != null) sqlService.returnConnection(connection);
+        }
     }
 
     private Policy readPolicyFile(URL url) throws PolicyException {
@@ -262,6 +288,11 @@ public class FormattedTextImpl implements FormattedText
     */
     public String removeSurrogates(String str) {
         StringBuilder sb = new StringBuilder();
+
+        if (restrictReplacement == null && EmojiManager.containsEmoji(str)) {
+            str = EmojiParser.parseToHtmlDecimal(str);
+        }
+
         for (int i = 0; i < str.length(); i++) {
             char c = str.charAt(i);
             if (!Character.isSurrogate(c)) {
@@ -439,9 +470,6 @@ public class FormattedTextImpl implements FormattedText
         }
 
         try {
-            if (cleanUTF8) {
-                val = removeSurrogates(val);
-            }
             if (replaceWhitespaceTags) {
                 // normalize all variants of the "<br>" HTML tag to be "<br />\n"
                 val = M_patternTagBr.matcher(val).replaceAll("<br />");
@@ -502,6 +530,11 @@ public class FormattedTextImpl implements FormattedText
             // deal with hardcoded empty space character from Firefox 1.5
             if (val.equalsIgnoreCase("&nbsp;")) {
                 val = "";
+            }
+
+            // Replace 4-byte emojis to deal with legacy MySQL databases using utf8mb3
+            if (cleanUTF8) {
+                val = removeSurrogates(val);
             }
 
         } catch (Exception e) {
@@ -628,6 +661,7 @@ public class FormattedTextImpl implements FormattedText
     /* (non-Javadoc)
      * @see org.sakaiproject.utils.impl.FormattedText#escapeHtmlFormattedTextarea(java.lang.String)
      */
+    @Override
     public String escapeHtmlFormattedTextarea(String value)
     {
         return escapeHtml(value, false);
@@ -636,6 +670,7 @@ public class FormattedTextImpl implements FormattedText
     /* (non-Javadoc)
      * @see org.sakaiproject.utils.impl.FormattedText#convertPlaintextToFormattedText(java.lang.String)
      */
+    @Override
     public String convertPlaintextToFormattedText(String value)
     {
         return escapeHtml(value, true);
@@ -646,6 +681,7 @@ public class FormattedTextImpl implements FormattedText
     /* (non-Javadoc)
      * @see org.sakaiproject.util.api.FormattedText#escapeHtml(java.lang.String)
      */
+    @Override
     public String escapeHtml(String value) {
         return escapeHtml(value, true);
     }
@@ -653,6 +689,7 @@ public class FormattedTextImpl implements FormattedText
     /* (non-Javadoc)
      * @see org.sakaiproject.utils.impl.FormattedText#escapeHtml(java.lang.String, boolean)
      */
+    @Override
     public String escapeHtml(String value, boolean escapeNewlines) {
         /*
          * Velocity tools depend on this returning empty string (and never null),
@@ -671,6 +708,7 @@ public class FormattedTextImpl implements FormattedText
     /* (non-Javadoc)
      * @see org.sakaiproject.utils.impl.FormattedText#encodeFormattedTextAttribute(org.w3c.dom.Element, java.lang.String, java.lang.String)
      */
+    @Override
     public void encodeFormattedTextAttribute(Element element, String baseAttributeName, String value)
     {
         // store the formatted text in an attribute called baseAttributeName-html
@@ -683,6 +721,7 @@ public class FormattedTextImpl implements FormattedText
     /* (non-Javadoc)
      * @see org.sakaiproject.utils.impl.FormattedText#encodeUnicode(java.lang.String)
      */
+    @Override
     public String encodeUnicode(String value)
     {
         // TODO call method in each process routine
@@ -725,6 +764,7 @@ public class FormattedTextImpl implements FormattedText
     /* (non-Javadoc)
      * @see org.sakaiproject.utils.impl.FormattedText#unEscapeHtml(java.lang.String)
      */
+    @Override
     public String unEscapeHtml(String value)
     {
         if (StringUtils.isEmpty(value)) return StringUtils.EMPTY;
@@ -734,6 +774,7 @@ public class FormattedTextImpl implements FormattedText
     /* (non-Javadoc)
      * @see org.sakaiproject.utils.impl.FormattedText#processAnchor(java.lang.String)
      */
+    @Override
     public String processAnchor(String anchor) {
         String newAnchor = "";
         String href = null;
@@ -827,6 +868,7 @@ public class FormattedTextImpl implements FormattedText
     /* (non-Javadoc)
      * @see org.sakaiproject.util.api.FormattedText#processEscapedHtml(java.lang.String)
      */
+    @Override
     public String processEscapedHtml(final String source) {
         if (StringUtils.isEmpty(source))
             return StringUtils.EMPTY;
@@ -851,6 +893,7 @@ public class FormattedTextImpl implements FormattedText
     /* (non-Javadoc)
      * @see org.sakaiproject.utils.impl.FormattedText#decodeFormattedTextAttribute(org.w3c.dom.Element, java.lang.String)
      */
+    @Override
     public String decodeFormattedTextAttribute(Element element, String baseAttributeName)
     {
         String ret;
@@ -874,6 +917,7 @@ public class FormattedTextImpl implements FormattedText
     /* (non-Javadoc)
      * @see org.sakaiproject.utils.impl.FormattedText#convertFormattedTextToPlaintext(java.lang.String)
      */
+    @Override
     public String convertFormattedTextToPlaintext(String value)
     {
         if (value == null) return null;
@@ -915,6 +959,7 @@ public class FormattedTextImpl implements FormattedText
     /* (non-Javadoc)
      * @see org.sakaiproject.utils.impl.FormattedText#convertOldFormattedText(java.lang.String)
      */
+    @Override
     public String convertOldFormattedText(String value)
     {
         // previously, formatted text used "\n" to indicate a line break.
@@ -930,6 +975,7 @@ public class FormattedTextImpl implements FormattedText
     /* (non-Javadoc)
      * @see org.sakaiproject.utils.impl.FormattedText#trimFormattedText(java.lang.String, int, java.lang.StringBuilder)
      */
+    @Override
     public boolean trimFormattedText(String formattedText, final int maxNumOfChars, StringBuilder strTrimmed)
     {
         // This should return a formatted text substring which contains formatting, but which
@@ -1040,6 +1086,7 @@ public class FormattedTextImpl implements FormattedText
     /* (non-Javadoc)
      * @see org.sakaiproject.utils.impl.FormattedText#decodeNumericCharacterReferences(java.lang.String)
      */
+    @Override
     public String decodeNumericCharacterReferences(String value)
     {
         // lazily allocate StringBuilder only if needed
@@ -1104,6 +1151,7 @@ public class FormattedTextImpl implements FormattedText
     /* (non-Javadoc)
      * @see org.sakaiproject.util.api.FormattedText#encodeUrlsAsHtml(java.lang.String)
      */
+    @Override
     public String encodeUrlsAsHtml(String text) {
         // MOVED FROM Web
         Pattern p = Pattern.compile("(?<!href=['\"]{1})(((https?|s?ftp|ftps|file|smb|afp|nfs|(x-)?man|gopher|txmt)://|mailto:)[-:;@a-zA-Z0-9_.,~%+/?=&#]+(?<![.,?:]))");
@@ -1117,6 +1165,7 @@ public class FormattedTextImpl implements FormattedText
         return buf.toString();
     }
 
+    @Override
     public String escapeJavascript(String value) {
         if (StringUtils.isEmpty(value)) return StringUtils.EMPTY;
         try
@@ -1143,8 +1192,7 @@ public class FormattedTextImpl implements FormattedText
                 }
             }
 
-            String rv = buf.toString();
-            return rv;
+            return buf.toString();
         }
         catch (Exception e)
         {
@@ -1156,6 +1204,7 @@ public class FormattedTextImpl implements FormattedText
     /* (non-Javadoc)
      * @see org.sakaiproject.util.api.FormattedText#escapeJsQuoted(java.lang.String)
      */
+    @Override
     public String escapeJsQuoted(String value) {
         return StringEscapeUtils.escapeEcmaScript(value);
     }
@@ -1170,47 +1219,33 @@ public class FormattedTextImpl implements FormattedText
      */
     protected static final String ESCAPE_URL_SPECIAL = "^?;";
 
+    @Override
     public String escapeUrl(String id) {
         if (id == null) return "";
         id = id.trim();
-        try
-        {
-            // convert the string to bytes in UTF-8
-            byte[] bytes = id.getBytes(StandardCharsets.UTF_8.name());
+        // convert the string to bytes in UTF-8
+        byte[] bytes = id.getBytes(StandardCharsets.UTF_8);
 
-            StringBuilder buf = new StringBuilder();
-            for (int i = 0; i < bytes.length; i++)
-            {
-                byte b = bytes[i];
-                // escape ascii control characters, ascii high bits, specials
-                if (ESCAPE_URL_SPECIAL.indexOf((char) b) != -1)
-                {
-                    buf.append("^^x"); // special funky way to encode bad URL characters 
-                    buf.append(toHex(b));
-                    buf.append('^');
-                }
-                // 0x1F is the last control character
-                // 0x7F is DEL chatecter
-                // 0x80 is the start of the top of the 256bit set.
-                else if ((ESCAPE_URL.indexOf((char) b) != -1) || (b <= 0x1F) || (b == 0x7F) || (b >= 0x80))
-                {
-                    buf.append("%");
-                    buf.append(toHex(b));
-                }
-                else
-                {
-                    buf.append((char) b);
-                }
+        StringBuilder buf = new StringBuilder();
+        for (byte b : bytes) {
+            // escape ascii control characters, ascii high bits, specials
+            if (ESCAPE_URL_SPECIAL.indexOf((char) b) != -1) {
+                buf.append("^^x"); // special funky way to encode bad URL characters
+                buf.append(toHex(b));
+                buf.append('^');
             }
+            // 0x1F is the last control character
+            // 0x7F is DEL chatecter
+            // 0x80 is the start of the top of the 256bit set.
+            else if ((ESCAPE_URL.indexOf((char) b) != -1) || (b <= 0x1F) || (b == 0x7F) || (b >= 0x80)) {
+                buf.append("%");
+                buf.append(toHex(b));
+            } else {
+                buf.append((char) b);
+            }
+        }
 
-            String rv = buf.toString();
-            return rv;
-        }
-        catch (UnsupportedEncodingException e)
-        {
-            log.error("Validator.escapeUrl: ", e);
-            return "";
-        }
+        return buf.toString();
     }
 
     /* (non-Javadoc)
@@ -1221,6 +1256,7 @@ public class FormattedTextImpl implements FormattedText
     private static final String HOST_PREFIX = "http://127.0.0.1";
     private static final String ABOUT_BLANK = "about:blank";
 
+    @Override
     public boolean validateURL(String urlToValidate) {
         if (StringUtils.isBlank(urlToValidate)) return false;
 
@@ -1252,6 +1288,7 @@ public class FormattedTextImpl implements FormattedText
     /* (non-Javadoc)
      * @see org.sakaiproject.util.api.FormattedText#sanitizeHrefURL(java.lang.String)
      */
+    @Override
     public String sanitizeHrefURL(String urlToSanitize) {
         if ( urlToSanitize == null ) return null;
         if (StringUtils.isBlank(urlToSanitize)) return null;
@@ -1335,7 +1372,7 @@ public class FormattedTextImpl implements FormattedText
             //&nbsp; are converted to char code 160, java doesn't treat it like whitespace, so replace it with ' '
             text = text.replace((char)160, ' ');
         } else {
-            text = org.jsoup.Jsoup.clean(text, "", org.jsoup.safety.Whitelist.none(), new org.jsoup.nodes.Document.OutputSettings().prettyPrint(false).outline(false));
+            text = org.jsoup.Jsoup.clean(text, "", org.jsoup.safety.Safelist.none(), new org.jsoup.nodes.Document.OutputSettings().prettyPrint(false).outline(false));
         }
 
         if (smartSpacing || stripEscapeSequences) {
@@ -1345,6 +1382,7 @@ public class FormattedTextImpl implements FormattedText
         return text.trim();
     }
 
+    @Override
     public NumberFormat getNumberFormat(Integer maxFractionDigits, Integer minFractionDigits, Boolean groupingUsed) {
 		NumberFormat nbFormat = NumberFormat.getInstance();				
 		try {
@@ -1358,6 +1396,7 @@ public class FormattedTextImpl implements FormattedText
 		return nbFormat;
     }
 
+    @Override
     public NumberFormat getNumberFormat() {
     	return getNumberFormat(null,null,null);
     }
@@ -1365,6 +1404,7 @@ public class FormattedTextImpl implements FormattedText
     /* (non-Javadoc)
      * @see org.sakaiproject.util.api.FormattedText#getHTMLBody(java.lang.String)
      */
+    @Override
     public String getHtmlBody(String text) {
         if (StringUtils.isBlank(text)) return text;
         org.jsoup.nodes.Document document = org.jsoup.Jsoup.parse(text);
@@ -1372,6 +1412,7 @@ public class FormattedTextImpl implements FormattedText
         return document.body().html();
     }
     
+    @Override
     public String getDecimalSeparator() {
 		return ((DecimalFormat)getNumberFormat()).getDecimalFormatSymbols().getDecimalSeparator()+"";
     }
@@ -1387,6 +1428,7 @@ public class FormattedTextImpl implements FormattedText
      * @param cutMethod the string key method for cutting (null defaults to '100:0')
      * @return the shortened string
      */
+    @Override
     public String makeShortenedText(String text, Integer maxLength, String separator, String cutMethod) {
         // this method defines the defaults for the 3 configuration options
         if (maxLength == null || maxLength < 1) {

@@ -87,7 +87,7 @@
 		
 #if ($sites.size() > 0)
 	#set ($siteCount = 0)
-	<div class="table-responsive">
+	<div class="table">
 		<table class="table table-striped table-bordered" summary="$tlang.getString("sitlis.list.summary")">
 			<tr>
 				<th scope="col" id="Id">$tlang.getString("sitlis.sitid")</th>
@@ -101,7 +101,7 @@
 ##		#set ($realm = $realms.getAuthzGroup($site.Reference))
 			<tr>
 				<th scope="row" headers="Id">
-				<a href="#siteLink($site.Id)" id="external-link" class="external-link"><span class="fa fa-external-link" title="$tlang.getString("sitlis.link")"></span></a> | 
+				<a href="#siteLink($site.Id)" class="external-link"><span class="fa fa-external-link" title="$tlang.getString("sitlis.link")"></span></a> | 
 					#if ($service.allowUpdateSite($site.Id))
 						<a href="#toolLinkParam("$action" "doEdit" "id=$formattedText.escapeUrl($site.Id)")" title="$tlang.getString("sitlis.edit")">
 							$formattedText.escapeHtml($site.Id) <span class="fa fa-pencil-square-o"></span>

@@ -44,7 +44,7 @@ import org.w3c.dom.Element;
 public class MWRecurrenceRule extends RecurrenceRuleBase
 {
 	
-	protected final static String FREQ = "MW";
+	public final static String FREQ = "MW";
 	private CalendarUtil calUtil = null;
 	
 	public MWRecurrenceRule() {

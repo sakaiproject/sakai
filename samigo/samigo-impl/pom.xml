@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.sakaiproject.samigo</groupId>
         <artifactId>samigo</artifactId>
-        <version>23-SNAPSHOT</version>
+        <version>25-SNAPSHOT</version>
     </parent>
 
     <name>Samigo Impl</name>
@@ -55,12 +55,12 @@
             <artifactId>elasticsearch-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch.client</groupId>
-            <artifactId>elasticsearch-rest-high-level-client</artifactId>
+            <groupId>org.opensearch.client</groupId>
+            <artifactId>opensearch-rest-high-level-client</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch</groupId>
-            <artifactId>elasticsearch-x-content</artifactId>
+            <groupId>org.opensearch</groupId>
+            <artifactId>opensearch-x-content</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -116,6 +116,10 @@
         <dependency>
             <groupId>OKI</groupId>
             <artifactId>OkiOSID</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.edu-services.sections</groupId>
+            <artifactId>sections-api</artifactId>
         </dependency>
     </dependencies>
 

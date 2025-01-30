@@ -10,7 +10,7 @@
 	<parent>
 		<artifactId>content-review-impl</artifactId>
 		<groupId>org.sakaiproject.contentreview</groupId>
-		<version>23-SNAPSHOT</version>
+		<version>25-SNAPSHOT</version>
 	</parent>
 
 	<dependencies>
@@ -141,11 +141,6 @@
 			<version>2.0.8</version>
 		</dependency>
 
-		<!-- needed by hibernate unit tests -->
-		<dependency>
-			<groupId>org.javassist</groupId>
-			<artifactId>javassist</artifactId>
-		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-orm</artifactId>

@@ -36,10 +36,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Colin Hebert
  */
+@Slf4j
 public class AuthorisationServlet extends HttpServlet {
     /**
      * Name of the "authorise" button in the authorisation page.
@@ -171,6 +173,7 @@ public class AuthorisationServlet extends HttpServlet {
 
             request.getRequestDispatcher(authorisePath).forward(request, response);
         } catch (OAuthException e) {
+            log.warn("Problem with oauth request_token: {}", e.toString());
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         }
     }

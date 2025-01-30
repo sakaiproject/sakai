@@ -65,4 +65,12 @@ public class SingleStorageSqlOracle extends SingleStorageSqlDefault
 
 		return fields;
 	}
+
+	/**
+	 * returns the sql statement which retrieves the xml field from the specified table.
+	 */
+	public String getXmlLikeSql(String field, String table)
+	{
+		return String.format("select XML from %s where %s like ? ESCAPE '\\'", table, field);
+	}
 }

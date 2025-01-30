@@ -39,13 +39,8 @@
       <script src="/samigo-app/js/selection.author.js"></script>
       <link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.author.css">
 
-<%--
-<script>
-<!--
-<%@ include file="/js/authoring.js" %>
-//-->
-</script>
---%>
+      <!-- AUTHORING -->
+      <script src="/samigo-app/js/authoring.js"></script>
 
 <script>
 
@@ -155,7 +150,7 @@
 
     <!-- 1 POINTS -->
     <div class="form-group row">
-        <h:outputLabel for="answerptr" value="#{authorMessages.answer_point_value}" styleClass="col-md-2 form-control-label"/>
+        <h:outputLabel for="answerptr" value="#{authorMessages.answer_point_value}" styleClass="col-md-2 form-label"/>
         <div class="col-md-2">
             <h:inputText id="answerptr" label="#{authorMessages.pt}" value="#{itemauthor.currentItem.itemScore}" 
                 required="true" disabled="#{author.isEditPoolFlow}" styleClass="ConvertPoint form-control">
@@ -166,7 +161,7 @@
     </div>
     
     <div class="form-group row">
-        <h:outputLabel for="itemScore" value="#{authorMessages.answer_point_value_display}" styleClass="col-md-2 form-control-label"/>
+        <h:outputLabel for="itemScore" value="#{authorMessages.answer_point_value_display}" styleClass="col-md-2 form-label"/>
         <div class="col-md-5 samigo-inline-radio">
             <h:selectOneRadio value="#{itemauthor.currentItem.itemScoreDisplayFlag}" id="itemScore">
                 <f:selectItem itemValue="true" itemLabel="#{authorMessages.yes}" />
@@ -180,7 +175,7 @@
 
     <!-- 2 TEXT -->
     <div class="form-group row">
-        <h:outputLabel for="questionItemText_textinput" value="#{authorMessages.q_text_image_map}" styleClass="col-md-12 form-control-label"/> 
+        <h:outputLabel for="questionItemText_textinput" value="#{authorMessages.q_text_image_map}" styleClass="form-label"/> 
         <!-- WYSIWYG -->
         <div class="col-md-12">
             <h:panelGrid>
@@ -199,14 +194,14 @@
   
     <!-- IMAGE SRC -->
     <div class="form-group row"> 
-        <h:outputLabel for="upl" value="#{authorMessages.image_map_src}" styleClass="col-md-2 form-control-label"/>
+        <h:outputLabel for="upl" value="#{authorMessages.image_map_src}" styleClass="col-md-2 form-label"/>
         <div class="col-md-10">
             <corejsf:upload
                 target="jsf/upload_tmp/assessment#{assessmentBean.assessmentId}/question#{itemauthor.currentItem.itemId}/#{person.eid}"
                 valueChangeListener="#{itemauthor.addImageToQuestion}" />
             <h:commandButton id="upl" action="imageMapItem" value="#{deliveryMessages.upload}" onclick='resetList()'/>
         </div>
-        <h:outputLabel value="#{authorMessages.image_map_alt}" styleClass="col-md-2 form-control-label"/>
+        <h:outputLabel value="#{authorMessages.image_map_alt}" styleClass="col-md-2 form-label"/>
          <div class="col-md-10">
              <h:inputText id="imageMapAltText" value="#{itemauthor.currentItem.imageMapAltText}" styleClass="form-control" maxlength="254"/>
          </div>
@@ -244,7 +239,7 @@
     <br/>
     <!-- REQUIRE ALL OK -->
     <div class="form-group row">   
-        <h:outputLabel for="questionRequireAllOk" value="#{authorMessages.require_all_ok}" styleClass="col-md-2 form-control-label"/>
+        <h:outputLabel for="questionRequireAllOk" value="#{authorMessages.require_all_ok}" styleClass="col-md-2 form-label"/>
         <div class="col-md-10 samigo-inline-radio">
             <h:selectOneRadio value="#{itemauthor.currentItem.requireAllOk}" id="questionRequireAllOk">
                 <f:selectItem itemValue="false" itemLabel="#{authorMessages.yes}" />
@@ -255,9 +250,12 @@
 
     <hr class="itemSeparator" />
 
+    <!-- 5a TIMED -->
+    <%@ include file="/jsf/author/item/timed.jsp" %>
+
     <!-- 6 PART -->
     <h:panelGroup rendered="#{itemauthor.target == 'assessment' && !author.isEditPoolFlow}" layout="block" styleClass="form-group row">
-        <h:outputLabel for="assignToPart" value="#{authorMessages.assign_to_p}" styleClass="col-md-2 form-control-label"/>
+        <h:outputLabel for="assignToPart" value="#{authorMessages.assign_to_p}" styleClass="col-md-2 form-label"/>
         <div class="col-md-10">
             <h:selectOneMenu id="assignToPart" value="#{itemauthor.currentItem.selectedSection}">
                 <f:selectItems  value="#{itemauthor.sectionSelectList}" />
@@ -267,7 +265,7 @@
 
     <!-- 7 POOL -->
     <h:panelGroup rendered="#{itemauthor.target == 'assessment' && author.isEditPendingAssessmentFlow}" layout="block" styleClass="form-group row">
-        <h:outputLabel for="assignToPool" value="#{authorMessages.assign_to_question_p}" styleClass="col-md-2 form-control-label"/>
+        <h:outputLabel for="assignToPool" value="#{authorMessages.assign_to_question_p}" styleClass="col-md-2 form-label"/>
         <%-- stub debug --%>
         <div class="col-md-10">
             <h:selectOneMenu id="assignToPool" value="#{itemauthor.currentItem.selectedPool}">
@@ -279,9 +277,11 @@
 
     <!-- 8 FEEDBACK -->
     <h:panelGroup  layout="block" rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'))}">
-        <h:outputLabel value="#{authorMessages.correct_incorrect_an}" />
+        <h2>
+            <h:outputText value="#{authorMessages.correct_incorrect_an}" />
+        </h2>
         <div class="form-group row">
-            <h:outputLabel for="questionFeedbackCorrect_textinput" value="#{authorMessages.correct_answer_opti}" styleClass="col-md-2 form-control-label"/>
+            <h:outputLabel for="questionFeedbackCorrect_textinput" value="#{authorMessages.correct_answer_opti}" styleClass="form-label"/>
             <div class="col-md-10">
                 <h:panelGrid>
                     <samigo:wysiwyg identity="questionFeedbackCorrect" rows="140" value="#{itemauthor.currentItem.corrFeedback}" hasToggle="yes" >
@@ -291,7 +291,7 @@
             </div>
         </div>
         <div class="form-group row">
-            <h:outputLabel for="questionFeedbackIncorrect_textinput" value="#{authorMessages.incorrect_answer_op}" styleClass="col-md-2 form-control-label"/>
+            <h:outputLabel for="questionFeedbackIncorrect_textinput" value="#{authorMessages.incorrect_answer_op}" styleClass="form-label"/>
             <div class="col-md-10">
                 <h:panelGrid>
                     <samigo:wysiwyg identity="questionFeedbackIncorrect" rows="140" value="#{itemauthor.currentItem.incorrFeedback}" hasToggle="yes" >
@@ -307,19 +307,19 @@
     <h:panelGroup rendered="#{itemauthor.showMetadata == 'true'}" styleClass="longtext" layout="block">
         <h:outputLabel value="Metadata"/>
         <div class="form-group row">
-            <h:outputLabel for="obj" value="#{authorMessages.objective}" styleClass="col-md-2 form-control-label"/>
+            <h:outputLabel for="obj" value="#{authorMessages.objective}" styleClass="col-md-2 form-label"/>
             <div class="col-md-6">
                 <h:inputText size="30" id="obj" value="#{itemauthor.currentItem.objective}"  styleClass="form-control"/>
             </div>
         </div>
         <div class="form-group row">
-            <h:outputLabel for="keyword" value="#{authorMessages.keyword}" styleClass="col-md-2 form-control-label"/>
+            <h:outputLabel for="keyword" value="#{authorMessages.keyword}" styleClass="col-md-2 form-label"/>
             <div class="col-md-6">
                 <h:inputText size="30" id="keyword" value="#{itemauthor.currentItem.keyword}"  styleClass="form-control"/>
             </div>
         </div>
         <div class="form-group row">
-            <h:outputLabel for="rubric" value="#{authorMessages.rubric_colon}" styleClass="col-md-2 form-control-label"/>
+            <h:outputLabel for="rubric" value="#{authorMessages.rubric_colon}" styleClass="col-md-2 form-label"/>
             <div class="col-md-6">
                 <h:inputText size="30" id="rubric" value="#{itemauthor.currentItem.rubric}" styleClass="form-control"/>
             </div>

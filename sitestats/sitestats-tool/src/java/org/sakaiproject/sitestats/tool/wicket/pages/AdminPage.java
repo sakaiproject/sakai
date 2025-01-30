@@ -21,6 +21,7 @@ package org.sakaiproject.sitestats.tool.wicket.pages;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.wicket.markup.html.form.FormComponentUpdatingBehavior;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
@@ -81,10 +82,9 @@ public class AdminPage extends BasePage {
 		List<String> choices = new ArrayList<String>();
 		choices.add(StatisticableSitesDataProvider.SITE_TYPE_ALL);
 		List<String> types = Locator.getFacade().getSiteService().getSiteTypes();
-		for(String t : types) {
-			choices.add(t);	
-		}
+		choices.addAll(types);
 		DropDownChoice siteTypes = new DropDownChoice("siteTypes", choices, new IChoiceRenderer() {
+			@Override
 			public Object getDisplayValue(Object object) {
 				String value = (String) object;
 				if(value != null && value.equals(StatisticableSitesDataProvider.SITE_TYPE_ALL)) {
@@ -93,23 +93,22 @@ public class AdminPage extends BasePage {
 					return object;
 				}
 			}
+
+			@Override
 			public String getIdValue(Object object, int index) {
 				return (String) object;
 			}
-		}) {
-			@Override
-			protected boolean wantOnSelectionChangedNotifications() {
-				return true;
-			}
+		});
+		siteTypes.add(new FormComponentUpdatingBehavior() {
 
 			@Override
-			protected void onSelectionChanged(Object newSelection) {
+			protected void onUpdate() {
 				
 				setResponsePage(getPage());
-				super.onSelectionChanged(newSelection);
+				super.onUpdate();
 			}
 			
-		};
+		});
 		siteTypes.setModel(new PropertyModel(dataProvider, "siteType"));
 		add(siteTypes);
 		

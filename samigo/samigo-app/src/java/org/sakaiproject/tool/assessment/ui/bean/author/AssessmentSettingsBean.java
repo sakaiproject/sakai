@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
@@ -27,9 +28,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.Collections;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -48,9 +51,10 @@ import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.grading.api.GradebookInformation;
-import org.sakaiproject.grading.api.GradingCategoryType;
+import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
@@ -63,9 +67,12 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
+import org.sakaiproject.tool.assessment.business.entity.SebConfig;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentMetaData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
@@ -76,6 +83,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.RegisteredSecureDeli
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SecuredIPAddressIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
 import org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
@@ -83,7 +91,10 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceH
 import org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetHelper;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
+import org.sakaiproject.tool.assessment.shared.api.grading.GradingSectionAwareServiceAPI;
+import org.sakaiproject.tool.assessment.shared.impl.grading.GradingSectionAwareServiceImpl;
 import org.sakaiproject.tool.assessment.ui.listener.author.SaveAssessmentAttachmentListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
@@ -94,6 +105,7 @@ import org.sakaiproject.util.comparator.AlphaNumericComparator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
+import org.sakaiproject.component.api.ServerConfigurationService;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -114,12 +126,13 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
       integrationContextFactory.getPublishingTargetHelper();
     private static final boolean integrated =
       integrationContextFactory.isIntegrated();
+    private static final ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
 
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = -630950053380808339L;
   private String outcomeSave;
   private String outcomePublish;
-  private AssessmentFacade assessment;
+  @Getter private AssessmentFacade assessment;
   private Long assessmentId;
   private String title;
   private String creator;
@@ -133,6 +146,7 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
   private String keywords;
   private String rubrics;
   private String authors;
+  @Getter @Setter private Boolean trackQuestions;
   
   // these are properties in AssessmentAccessControl
   private Date startDate;
@@ -158,10 +172,10 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
   private String lateHandling;
   private String instructorNotification = Integer.toString( SamigoConstants.NOTI_PREF_INSTRUCTOR_EMAIL_DEFAULT ); // Default is 'No - I do not want to receive any emails';
   private String submissionMessage;
-  private String releaseTo;
+  @Setter private String releaseTo;
   private SelectItem[] publishingTargets;
-  private String[] targetSelected;
-  private String firstTargetSelected;
+  @Getter @Setter private String[] targetSelected;
+  @Getter private String firstTargetSelected;
   private String password;
   private String finalPageUrl;
   private String ipAddresses;
@@ -169,11 +183,23 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
   private SelectItem[] secureDeliveryModuleSelections;
   private String secureDeliveryModule;
   private String secureDeliveryModuleExitPassword;
+  @Setter private SelectItem[] sebConfigModeSelections;
+  @Setter private SelectItem[] booleanSelections;
+  @Getter @Setter private String sebConfigMode;
+  @Getter @Setter private String sebConfigUploadId;
+          @Setter private String sebConfigFileName;
+  @Getter @Setter private String sebExamKeys;
+  @Getter @Setter private Boolean sebAllowUserQuitSeb;
+  @Getter @Setter private Boolean sebShowTaskbar;
+  @Getter @Setter private Boolean sebShowTime;
+  @Getter @Setter private Boolean sebShowKeyboardLayout;
+  @Getter @Setter private Boolean sebShowWifiControl;
+  @Getter @Setter private Boolean sebAllowAudioControl;
+  @Getter @Setter private Boolean sebAllowSpellChecking;
 
   // properties of AssesmentFeedback
   private String feedbackDelivery; // immediate, on specific date , no feedback
   private String feedbackComponentOption; // 2 = select options, 1 = total scores only 
-  private String correctAnswerOption;
 
 //private String editComponents; // 0 = cannot
   private boolean showQuestionText = true;
@@ -185,10 +211,13 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
   private boolean showSelectionLevelFeedback = false; // must be MC
   private boolean showGraderComments = false;
   private boolean showStatistics = false;
+  private boolean showCorrection = true;
 
   // properties of EvaluationModel
   private boolean anonymousGrading;
-  private boolean toDefaultGradebook;
+  @Setter @Getter private String toDefaultGradebook;
+  @Setter @Getter private String gradebookName;
+  @Setter private List<SelectItem> existingGradebook = new ArrayList<>();
   private String scoringType;
   private String bgColor;
   private String bgImage;
@@ -238,7 +267,11 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
   private final String HIDDEN_RETRACT_DATE_FIELD = "retractDateISO8601";
   private final String HIDDEN_FEEDBACK_DATE_FIELD = "feedbackDateISO8601";
   private final String HIDDEN_FEEDBACK_END_DATE_FIELD = "feedbackEndDateISO8601";
-  
+
+  private final String SEB_CONFIG_MODE_BUNDLE_PREFIX = "seb_config_mode_";
+  private final String YES_BUNDLE_STRING = "assessment_is_timed";
+  private final String NO_BUNDLE_STRING = "assessment_not_timed";
+
   private SimpleDateFormat displayFormat;
 
   private static final ResourceLoader assessmentSettingMessages = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
@@ -263,6 +296,23 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
   @Autowired
   @Qualifier("org.sakaiproject.time.api.UserTimeService")
   private UserTimeService userTimeService;
+  
+  private static final String SAMIGO_SETTINGS_BACKGROUNDCOLOR_ENABLED = "samigo.settings.backgroundcolor.enabled";
+  @Autowired
+  @Qualifier("org.sakaiproject.component.api.ServerConfigurationService")
+  private ServerConfigurationService serverConfigurationService;
+  private boolean backgroundColorEnabled = serverConfigurationService.getBoolean(SAMIGO_SETTINGS_BACKGROUNDCOLOR_ENABLED, false);
+  
+  public boolean isBackgroundColorEnabled() {
+	return backgroundColorEnabled;
+  }
+
+  public void setBackgroundColorEnabled(boolean backgroundColorEnabled) {
+	this.backgroundColorEnabled = backgroundColorEnabled;
+  }
+
+
+  public static final String FILE_PICKER_IS_SEB_CONFIG_ATTACHMENT = "sakai.samigo.seb.config.attachment";
 
   /*
    * Creates a new AssessmentBean object.
@@ -270,11 +320,7 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
   public AssessmentSettingsBean() {
   }
 
-  public AssessmentFacade getAssessment() {
-    return assessment;
-  }
-
-  public void setAssessment(AssessmentFacade assessment) {
+    public void setAssessment(AssessmentFacade assessment) {
     try {
       //1.  set the template info
       AssessmentService service = new AssessmentService();
@@ -312,6 +358,7 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
           BGCOLOR);
       this.bgImage = assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.
           BGIMAGE);
+      this.trackQuestions = Boolean.valueOf(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.TRACK_QUESTIONS));
       if((assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.
 						    BGIMAGE)!=null )&&(!assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.
 																										BGIMAGE).equals(""))){
@@ -408,10 +455,6 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
         if (feedback.getFeedbackComponentOption()!=null)
             this.feedbackComponentOption = feedback.getFeedbackComponentOption().toString();
 
-        if (feedback.getCorrectAnswerOption() != null) {
-            this.correctAnswerOption = feedback.getCorrectAnswerOption().toString();
-        }
-
         if (feedback.getFeedbackAuthoring()!=null)
           this.feedbackAuthoring = feedback.getFeedbackAuthoring().toString();
 
@@ -424,6 +467,7 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
         this.showSelectionLevelFeedback = (Boolean.TRUE).equals(feedback.getShowSelectionLevelFeedback()); // must be MC
         this.showGraderComments = (Boolean.TRUE).equals(feedback.getShowGraderComments());
         this.showStatistics = (Boolean.TRUE).equals(feedback.getShowStatistics());
+        this.showCorrection = (Boolean.TRUE).equals(feedback.getShowCorrection());
       }
 
       // properties of EvaluationModel
@@ -431,8 +475,14 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
       if (evaluation != null) {
         if (evaluation.getAnonymousGrading()!=null)
           this.anonymousGrading = evaluation.getAnonymousGrading().toString().equals("1");
-        if (evaluation.getToGradeBook()!=null )
-          this.toDefaultGradebook = evaluation.getToGradeBook().equals("1");
+
+        if (evaluation.getToGradeBook() != null) {
+            this.setToDefaultGradebook(evaluation.getToGradeBook());
+            if (EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString().equals(evaluation.getToGradeBook())) {
+                this.setGradebookName(assessment.getAssessmentToGradebookNameMetaData());
+            }
+        }
+
         if (evaluation.getScoringType()!=null)
           this.scoringType = evaluation.getScoringType().toString();
 
@@ -447,11 +497,16 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
       this.ipAddresses = "";
       Set ipAddressSet = assessment.getSecuredIPAddressSet();
       if (ipAddressSet != null){
+        List<String> ipList = new ArrayList<>();
         Iterator iter = ipAddressSet.iterator();
         while (iter.hasNext()) {
           SecuredIPAddressIfc ip = (SecuredIPAddressIfc) iter.next();
           if (ip.getIpAddress()!=null)
-            this.ipAddresses = ip.getIpAddress()+"\n"+this.ipAddresses;
+            ipList.add(ip.getIpAddress());
+        }
+        Collections.sort(ipList);
+        for (String ip : ipList) {
+    	    this.ipAddresses += ip + "\n";
         }
       }
       // attachment
@@ -691,11 +746,7 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
     return this.releaseTo;
   }
 
-  public void setReleaseTo(String releaseTo) {
-    this.releaseTo = releaseTo;
-  }
-
-  public Integer getTimeLimit() {
+    public Integer getTimeLimit() {
     return  timedHours*3600
             + timedMinutes*60
             + timedSeconds;
@@ -880,14 +931,6 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
   public void setFeedbackComponentOption(String feedbackComponentOption) {
 		this.feedbackComponentOption = feedbackComponentOption;
   }
-
-  public String getCorrectAnswerOption() {
-		return this.correctAnswerOption;
-  }
-
-  public void setCorrectAnswerOption(String correctAnswerOption) {
-		this.correctAnswerOption = correctAnswerOption;
-  }
 	
   public boolean getShowQuestionText() {
     return showQuestionText;
@@ -961,20 +1004,20 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
     this.showStatistics = showStatistics;
   }
 
+  public boolean getShowCorrection() {
+    return showCorrection;
+  }
+
+  public void setShowCorrection(boolean showCorrection) {
+    this.showCorrection = showCorrection;
+  }
+
   public boolean getAnonymousGrading() {
     return this.anonymousGrading;
   }
 
   public void setAnonymousGrading(boolean anonymousGrading) {
     this.anonymousGrading = anonymousGrading;
-  }
-
-  public boolean getToDefaultGradebook() {
-    return this.toDefaultGradebook;
-  }
-
-  public void setToDefaultGradebook(boolean toDefaultGradebook) {
-    this.toDefaultGradebook = toDefaultGradebook;
   }
 
   public String getScoringType() {
@@ -1040,26 +1083,27 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
   // "can edit" element. However, we only want to have "can edit" elements inside
   // our valueMap, so we need to weed out the metadata
   public void setValueMap(HashMap newMap){
-	  HashMap h = new HashMap();
+    HashMap h = new HashMap();
 
-	  for (Iterator it = newMap.entrySet().iterator(); it.hasNext();) {
-		  Map.Entry entry = (Map.Entry) it.next();
-		  String key = (String) entry.getKey();
-		  Object o = entry.getValue();
-
-		  if (("ASSESSMENT_AUTHORS".equals(key)) ||
-				  ("ASSESSMENT_KEYWORDS".equals(key)) ||
-				  ("ASSESSMENT_OBJECTIVES".equals(key)) ||
-				  ("ASSESSMENT_RUBRICS".equals(key)) ||
-				  ("ASSESSMENT_BGCOLOR".equals(key)) ||
-				  ("ASSESSMENT_BGIMAGE".equals(key)) || 
-				  (SecureDeliveryServiceAPI.MODULE_KEY.equals(key)) ||
-				  (SecureDeliveryServiceAPI.EXITPWD_KEY.equals(key)));
-		  else{
-			  h.put(key, o);
-		  }
-	  }
-	  this.values = h ;
+    for (Iterator it = newMap.entrySet().iterator(); it.hasNext();) {
+      Map.Entry entry = (Map.Entry) it.next();
+      String key = (String) entry.getKey();
+      Object o = entry.getValue();
+      if (!StringUtils.equalsAny(key,
+          AssessmentMetaData.AUTHORS,
+          AssessmentMetaData.BGCOLOR,
+          AssessmentMetaData.BGIMAGE,
+          AssessmentMetaData.KEYWORDS,
+          AssessmentMetaData.OBJECTIVES,
+          AssessmentMetaData.RUBRICS,
+          AssessmentMetaData.TRACK_QUESTIONS,
+          SecureDeliveryServiceAPI.EXITPWD_KEY,
+          SecureDeliveryServiceAPI.MODULE_KEY
+      )) {
+        h.put(key, o);
+      }
+    }
+    this.values = h ;
   }
 
   public HashMap getValueMap(){
@@ -1399,66 +1443,67 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
   }
 
   public boolean validateTarget(String firstTarget){
-    HashMap targets = ptHelper.getTargets();
+    HashMap<String, String> targets = ptHelper.getTargets();
     return targets.get(firstTarget) != null;
   }
 
   public SelectItem[] getPublishingTargets(){
-    HashMap targets = ptHelper.getTargets();
-    Set e = targets.keySet();
-    Iterator iter = e.iterator();
+    HashMap<String, String> targets = ptHelper.getTargets();
+    Set<String> e = targets.keySet();
+    Iterator<String> iter = e.iterator();
     int numSelections = getNumberOfGroupsForSite() > 0 ? 3 : 2;
    	SelectItem[] target = new SelectItem[numSelections];
 
     while (iter.hasNext()){
-	    String t = (String)iter.next();
+	    String t = iter.next();
 	    if ("Anonymous Users".equals(t)) {
 	    	target[0] = new SelectItem(t, assessmentSettingMessages.getString("anonymous_users"));
 	    }
 	    else if (numSelections == 3 && t.equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
 	      target[2] = new SelectItem(t, assessmentSettingMessages.getString("selected_groups"));
 	    }
-	    else if (t.equals(AgentFacade.getCurrentSiteName())) {
+	    else {
 	      target[1] = new SelectItem(t, assessmentSettingMessages.getString("entire_site"));
 	    }
     }
     return target;
   }
 
-
-  public void setTargetSelected(String[] targetSelected){
-    this.targetSelected = targetSelected;
-  }
-
-  public String[] getTargetSelected(){
-    return targetSelected;
-  }
-
-  public String[] getTargetSelected(String releaseTo){
-	if (releaseTo != null){
-	  String [] releaseToArray = new String[1];
-	  releaseToArray[0] = releaseTo;
-	  this.targetSelected = releaseToArray;
+  public String[] getTargetSelected(String releaseTo) {
+    if (releaseTo != null) {
+      this.targetSelected = new String[]{releaseTo};
     }
     return this.targetSelected;
   }
 
-
-  public void setFirstTargetSelected(String firstTargetSelected){
+  public void setFirstTargetSelected(String firstTargetSelected) {
     this.firstTargetSelected = firstTargetSelected.trim();
-    this.targetSelected[0] = firstTargetSelected.trim();
+    if (this.targetSelected == null || this.targetSelected.length == 0) {
+      this.targetSelected = new String[]{this.firstTargetSelected};
+    } else {
+      this.targetSelected[0] = this.firstTargetSelected;
+    }
   }
 
-  public String getFirstTargetSelected(){
-    return firstTargetSelected;
-  }
+  public String getFirstTargetSelected(String releaseTo) {
+    if (releaseTo != null) {
+      // Get the available targets
+      SelectItem[] publishingTargets = getPublishingTargets();
+      boolean isValid = false;
 
-  public String getFirstTargetSelected(String releaseTo){
-	if (releaseTo != null){
-      String [] releaseToArray = new String[1];
-      releaseToArray[0] = releaseTo;
-      this.targetSelected = releaseToArray;
-      this.firstTargetSelected = targetSelected[0].trim();
+      // Check if the provided value matches any of the publishing targets
+      for (SelectItem target : publishingTargets) {
+        if (target != null && releaseTo.equals(target.getValue())) {
+          isValid = true;
+          break;
+        }
+      }
+
+      // If valid, set it; otherwise, default to the current site name as maybe the site name changed
+      this.firstTargetSelected = isValid ? releaseTo.trim() : AgentFacade.getCurrentSiteName();
+
+      // Update the targetSelected array
+      this.targetSelected = new String[]{this.firstTargetSelected};
     }
     return this.firstTargetSelected;
   }
@@ -1479,22 +1524,6 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
     this.alias = alias;
   }
 
-    public String checkDate(){
-  FacesContext context=FacesContext.getCurrentInstance();
-        String err;
-  if(error)
-      {
-	err=authorMessages.getString("deliveryDate_error");
-    context.addMessage(null,new FacesMessage(err));
-    log.error("START DATE ADD MESSAGE");
-    return "deliveryDate_error";
-      }
-  else
-      {
-    return "saveSettings";
-      }
-
-    }
   public String getFeedbackAuthoring()
   {
     return feedbackAuthoring;
@@ -1658,6 +1687,37 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
       return groupSelectItems;
   }
 
+  /**
+   * Returns the groups to which it belongs
+   * @return
+   */
+  public SelectItem[] getGroupsForUserInSite(){
+      SelectItem[] groupSelectItems = new SelectItem[0];
+      // This TreeMap will sort the group names nicely in AlphaNumeric order
+      SortedMap<String, SelectItem> sortedSelectItems = new TreeMap<>(new AlphaNumericComparator());
+      String userId = AgentFacade.getAnonymousId();
+      try {
+          Site site = SiteService.getSite(toolManager.getCurrentPlacement().getContext());
+          GradingSectionAwareServiceAPI service = new GradingSectionAwareServiceImpl();
+          Collection<Group> groups = site.getGroups();
+          if (groups != null && !groups.isEmpty()) {
+              for (Group group : groups) {
+                  if(group.getMember(userId)!=null) {
+                      sortedSelectItems.put(group.getTitle(), new SelectItem(group.getId(), group.getTitle()));
+                  }
+              }
+              groupSelectItems = sortedSelectItems.values().toArray(new SelectItem[0]);
+          }
+
+          if (sortedSelectItems.isEmpty() && service.isUserAbleToGradeAll(site.getId(), userId)) {
+              return getGroupsForSite();
+          }
+      } catch (IdUnusedException ex) {
+          log.warn("No site found while attempting to get groups for this user, {}", ex.toString());
+      }
+      return groupSelectItems;
+  }
+
   public SelectItem[] getGroupsForSiteWithNoGroup() {
       SelectItem[] items = getGroupsForSite();
       SelectItem[] itemsWithNoGroup = new SelectItem[items.length + 1];
@@ -1785,7 +1845,15 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
   public String getBlockDivs() {
 	  return blockDivs;
   }
-  
+
+  public String getSebConfigFileName() {
+    if (this.sebConfigUploadId != null && StringUtils.startsWith(this.sebConfigUploadId, "/")) {
+      return StringUtils.substring(this.sebConfigUploadId, StringUtils.lastIndexOf(this.sebConfigUploadId, "/") + 1);
+    } else {
+      return null;
+    }
+  }
+
   public SelectItem[] getSecureDeliverModuleSelections() {
 	  
 	  SecureDeliveryServiceAPI secureDeliveryService = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI(); 
@@ -1800,6 +1868,26 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
 	  
 	  return selections.toArray(new SelectItem[selections.size()]);
   }
+
+    // Create SelectItem array by mapping ConfigMode enum to bundle strings and in values
+    public SelectItem[] getSebConfigModeSelections() {
+        SebConfig.ConfigMode[] configModes = SebConfig.ConfigMode.values();
+
+        return Arrays.stream(configModes).map(configMode -> {
+            String configModeString = assessmentSettingMessages.getString(SEB_CONFIG_MODE_BUNDLE_PREFIX + StringUtils.lowerCase(configMode.toString()));
+
+            return new SelectItem(configMode.toString(), configModeString);
+        }).collect(Collectors.toList()).toArray(new SelectItem[configModes.length]);
+    }
+
+    public SelectItem[] getBooleanSelections() {
+      SelectItem[] selectItemArray = {
+        new SelectItem(true, assessmentSettingMessages.getString(YES_BUNDLE_STRING)),
+        new SelectItem(false, assessmentSettingMessages.getString(NO_BUNDLE_STRING))
+      };
+
+      return selectItemArray;
+    }
 
     public void setCategoriesEnabled(boolean categoriesEnabled) {
         this.categoriesEnabled = categoriesEnabled;
@@ -1827,7 +1915,7 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
         // Also set if categories are enabled based on category type
         GradebookInformation gbInfo = gradingService.getGradebookInformation(gradebookUid);
         if (gbInfo != null) {
-            this.categoriesEnabled = gbInfo.getCategoryType() != GradingCategoryType.NO_CATEGORY;
+            this.categoriesEnabled = !Objects.equals(gbInfo.getCategoryType(), GradingConstants.CATEGORY_TYPE_NO_CATEGORY);
         } else {
             this.categoriesEnabled = false;
         }
@@ -1898,7 +1986,7 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
     }
 
     public Date getExtendedTimeStart() {
-        return this.extendedTime.getStartDate();
+        return this.extendedTime != null ? this.extendedTime.getStartDate() : null;
     }
 
     public void setExtendedTimeStartString(String exTimeStartString) {
@@ -1913,7 +2001,7 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
     }
 
     public Date getExtendedTimeDue() {
-        return this.extendedTime.getDueDate();
+        return this.extendedTime != null ? this.extendedTime.getDueDate() : null;
     }
 
     public void setExtendedTimeDueString(String exTimeDueString) {
@@ -1946,7 +2034,10 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
     public void addExtendedTime() {
         ExtendedTime entry = this.extendedTime;
         FacesContext context = FacesContext.getCurrentInstance();
-        if (new ExtendedTimeValidator().validateEntry(entry, context, this)) {
+        //check for duplicate users/groups
+        List<ExtendedTime> extendedTimesTempList = new ArrayList<ExtendedTime>(extendedTimes);
+        extendedTimesTempList.add(entry);
+        if (new ExtendedTimeValidator().validateEntries(extendedTimesTempList, context, this)) {
             AssessmentAccessControlIfc accessControl = new AssessmentAccessControl();
             accessControl.setStartDate(this.startDate);
             accessControl.setDueDate(this.dueDate);
@@ -2012,4 +2103,92 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
     public boolean isRenderInfoMessage() {
         return !getInfoMessages().isEmpty();
     }
+
+    // This method builds the gradebook assignment selector in the assessment settings.
+    private List<SelectItem> populateExistingGradebookItems() {
+        PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+        List<SelectItem> target = new ArrayList<>();
+
+        try {
+
+            HashMap<String, String> gAssignmentIdTitles = new HashMap<>();
+            HashMap<String, String> gradebookAssignmentsLabel = new HashMap<>();
+            AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
+
+            for (Object assessment : author.getAllAssessments()) {
+
+                if (assessment instanceof AssessmentFacade) {
+                    AssessmentFacade assessmentFacade = (AssessmentFacade) assessment;
+                    String gradebookItemId = assessmentFacade.getAssessmentToGradebookNameMetaData();
+                    if (StringUtils.isNotBlank(gradebookItemId)) {
+                        String associatedAssignmentTitles = "";
+                        if (gAssignmentIdTitles.containsKey(gradebookItemId)) {
+                            // get the current associated assignment titles first
+                            associatedAssignmentTitles = gAssignmentIdTitles.get(gradebookItemId) + ", ";
+                        }
+
+                        // append the current assignment title
+                        associatedAssignmentTitles += assessmentFacade.getTitle();
+
+                        // put the current associated assignment titles back
+                        gAssignmentIdTitles.put(gradebookItemId, associatedAssignmentTitles);
+                    }
+                }
+
+                if (assessment instanceof PublishedAssessmentFacade) {
+                    PublishedAssessmentFacade pubAssessmentFacade = (PublishedAssessmentFacade) assessment;
+                    AssessmentIfc publishedAssessment = publishedAssessmentService.getAssessment(pubAssessmentFacade.getPublishedAssessmentId());
+                    String gradebookItemId = publishedAssessment.getAssessmentToGradebookNameMetaData();
+                    if (StringUtils.isNotBlank(gradebookItemId)) {
+                        String associatedAssignmentTitles = "";
+                        if (gAssignmentIdTitles.containsKey(gradebookItemId)) {
+                            // get the current associated assignment titles first
+                            associatedAssignmentTitles = gAssignmentIdTitles.get(gradebookItemId) + ", ";
+                        }
+
+                        // append the current assignment title
+                        associatedAssignmentTitles += pubAssessmentFacade.getTitle();
+
+                        // put the current associated assignment titles back
+                        gAssignmentIdTitles.put(gradebookItemId, associatedAssignmentTitles);
+                    }
+                }
+            }
+
+            List<Assignment> gradebookAssignmentList = gradingService.getAssignments(AgentFacade.getCurrentSiteId());
+            for (Assignment gradebookAssignment : gradebookAssignmentList) {
+                boolean isExternallyMaintained = gradebookAssignment.getExternallyMaintained();
+                boolean isDefaultSamigoGradebookAssociation = isExternallyMaintained && StringUtils.equals("sakai.samigo", gradebookAssignment.getExternalAppName());
+                if (!isExternallyMaintained || isDefaultSamigoGradebookAssociation) {
+                    // If the gradebook item is external use the externalId, otherwise use the gradebook item id.
+                    String gradebookItemId = isExternallyMaintained ? gradebookAssignment.getExternalId() : String.valueOf(gradebookAssignment.getId());
+                    // The label is just the gradebook assignment name.
+                    String label = gradebookAssignment.getName();
+                    // If the assignment is associated with a gradebook item id add a label to reflect it's already associated.
+                    if (gAssignmentIdTitles.get(gradebookItemId) != null) {
+                        label += " ( " + rb.getFormattedMessage("usedGradebookAssessment", new Object[]{gAssignmentIdTitles.get(gradebookItemId)}) + " )";
+                    }
+                    gradebookAssignmentsLabel.put(gradebookItemId, label);
+                }
+            }
+
+            for (String labelKey : gradebookAssignmentsLabel.keySet()) {
+                target.add(new SelectItem(labelKey, gradebookAssignmentsLabel.get(labelKey)));
+            }
+
+        } catch (Exception gnfe1) {
+            log.error("Severe error getting gradebook items {}.", gnfe1.getMessage());
+            return Arrays.asList(new SelectItem());
+        }
+
+        return target;
+    }
+
+    public List<SelectItem> getExistingGradebook() {
+        if (this.existingGradebook == null || this.existingGradebook.isEmpty()) {
+            this.setExistingGradebook(this.populateExistingGradebookItems());
+        }
+        return this.existingGradebook;
+    }
+
 }

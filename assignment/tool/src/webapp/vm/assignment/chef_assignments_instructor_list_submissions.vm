@@ -1,9 +1,9 @@
 <!-- start: chef_assignments_instructor_list_submissions.vm  -->
 #rubricsRequirements
 #set( $H = '-' )
+#set( $T = 'T' )
 <script>includeLatestJQuery('assignments');</script>
-#javascript("/library/js/lang-datepicker/lang-datepicker.js")
-<script type="module" src="/webcomponents/grader/grader-toggle.js" />
+#module("/webcomponents/bundles/assignments.js")
 
 <script>
 function printView(url) {
@@ -18,9 +18,11 @@ function printView(url) {
 </script>
 
 #set ($submissionType = $assignment.TypeOfSubmission.ordinal())
+## prohibit instructor from grading during student peer assessment
+#set ($disableGrading = $!typeOfGrade > 1 && $assignment.AllowPeerAssessment && !$!isPeerAssessmentClosed)
 
 <div class="portletBody container-fluid">
-    #navBarHREF( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "" )
+    #navBarHREF( $allowAddAssignment $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "" )
 	<div id="assignment-header">
 		<div class="page-header">
 			<h1>
@@ -34,7 +36,7 @@ function printView(url) {
 			</h1>
 		</div>
 		<div>
-			<grader-toggle #if(!$useGraderByDefault)unchecked-by-default#end tool="assignments"></grader-toggle>
+			<sakai-grader-toggle #if(!$useGraderByDefault)unchecked-by-default#end tool="assignments"></sakai-grader-toggle>
 		</div>
 	</div>
 
@@ -53,61 +55,63 @@ function printView(url) {
 		#set ($showMsg = false)
 		#set ($showMsg = $!allMsgNumber)
 		#if ($!showMsg || $showMsg != 0)
-		<div class="navPanel">
-			<div class="viewNav">
-			#set ($gradeType = $typeOfGrade)
-			#if(!$disableGrade)
-				<form id="defaultGradeForm" name="defaultGradeForm" class="inlineForm" method="post" action="#toolForm($action)">
-					<input type="hidden" name="$!form_action" value="setScore" />
-					<fieldset>
-						<legend class="textPanelFooter">$!form_label</legend>
-							##for non-point-based grading, choose the default grade from drop-down
-						<div class="form-group">
-							<label class="textPanelFooter">
-								<input type="checkbox" checked="checked" name="notGrade" value="true"/> $tlang.getString("defaultGrade.notGrade")&nbsp;
-							</label>
-							<label class="textPanelFooter">
-								<input type="checkbox" checked="checked" name="notSubmit" value="true"/> $tlang.getString("defaultGrade.notSubmit")<br/>
-							</label>
-						</div>
-						<div class="flex-wrap">
-							#if ($!gradeType != 3)
-								<select id="defaultGrade_1" name="defaultGrade" size="1" >
-									<option value="">$tlang.getString("non.submission.grade.select")</option>
-									#if ($!gradeType == 1)
-										<option value="gen.nograd" #if($!defaultGrade && $!defaultGrade.equals("gen.nograd"))selected="selected"#end>$tlang.getString("gen.nograd")</option>
-									#elseif ($!gradeType == 2)
-										#foreach ($i in $letterGradeOptions)
-											<option value="$i" #if($!defaultGrade && $!defaultGrade.equals($i))selected="selected"#end>$i</option>
-										#end
-									#elseif ($!gradeType == 4)
-										#foreach ($i in ["Pass", "Fail"])
-											<option value="$i" #if($!defaultGrade && $!defaultGrade.equals($i))selected="selected"#end>#if ($i=="Pass") $tlang.getString("pass") #elseif ($i=="Fail") $tlang.getString("fail") #end</option>
-										#end
-									#elseif ($!gradeType == 5)
-										<option value="Checked" #if($!defaultGrade && $!defaultGrade.equals("Checked"))selected="selected"#end>$tlang.getString("gen.checked")</option>
+		#if ($!typeOfGrade != 1)
+			<div class="navPanel">
+				<div class="viewNav">
+					#if(!$disableGrading)
+						<form id="defaultGradeForm" name="defaultGradeForm" class="inlineForm" method="post" action="#toolForm($action)">
+							<input type="hidden" name="$!form_action" value="setScore" />
+							<fieldset>
+								<legend class="textPanelFooter">$!form_label</legend>
+								##for non-point-based grading, choose the default grade from drop-down
+								<div class="form-group">
+									<label class="textPanelFooter">
+										<input type="checkbox" name="notGrade" value="true" /> $tlang.getString("defaultGrade.notGrade")&nbsp;
+									</label>
+									<label class="textPanelFooter">
+										<input type="checkbox" name="notSubmit" value="true" /> $tlang.getString("defaultGrade.notSubmit")<br />
+									</label>
+								</div>
+								<div class="flex-wrap">
+									#if ($!typeOfGrade != 3)
+										<select id="defaultGrade_1" name="defaultGrade" size="1">
+											<option value="">$tlang.getString("non.submission.grade.select")</option>
+											#if ($!typeOfGrade == 1)
+												<option value="gen.nograd" #if($!defaultGrade && $!defaultGrade.equals("gen.nograd"))selected="selected"#end>$tlang.getString(
+													"gen.nograd")</option>
+											#elseif ($!typeOfGrade == 2)
+												#foreach ($i in $letterGradeOptions)
+													<option value="$i" #if($!defaultGrade && $!defaultGrade.equals($i))selected="selected"#end>$i</option>
+												#end
+											#elseif ($!typeOfGrade == 4)
+												#foreach ($i in ["Pass", "Fail"])
+													<option value="$i" #if($!defaultGrade && $!defaultGrade.equals($i))selected="selected"#end>#if ($i=="Pass") $tlang.getString(
+														"pass") #elseif ($i=="Fail") $tlang.getString("fail") #end</option>
+												#end
+											#elseif ($!typeOfGrade == 5)
+												<option value="Checked" #if($!defaultGrade && $!defaultGrade.equals("Checked"))selected="selected"#end>$tlang.getString(
+													"gen.checked")</option>
+											#end
+										</select>
+									#else
+										## instructor needs to type in default points in point-based-grading
+										<input type="text" id="defaultGrade_2" name="defaultGrade" value="$!defaultGrade" placeholder="$tlang.getString('gen.gra')" size="6" />
 									#end
-								</select>
-							#else
-							## instructor needs to type in default points in point-based-grading
-							<input type="text" id="defaultGrade_2" name="defaultGrade" value="$!defaultGrade" placeholder="$tlang.getString('gen.gra')" size="6" />
-							#end
-							<input type="button" accesskey="a" class="active" name="apply" value="$tlang.getString('gen.applygrade')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'defaultGradeForm', null, null, null );" title="$tlang.getString("gen.applygrade")" />
-							<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-						</div>
-					</fieldset>
-				</form>
-			#end
+									<input type="button" accesskey="a" class="active" name="apply" value="$tlang.getString(
+										'gen.applygrade')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'defaultGradeForm', null, null, null );" title="$tlang.getString(
+										"gen.applygrade")" />
+									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+								</div>
+							</fieldset>
+						</form>
+					#end
+				</div>
 			</div>
-		</div>
+		#end
 		<form name="viewForm" id="viewForm" class="inlineForm" method="post" action="#toolForm("AssignmentAction")">
 			<input type="hidden" name="assignmentId" id = "assignmentId" value=$formattedText.escapeUrl($!assignmentReference) />
 			<input type="hidden" name="option" id="option" value="x" />
 			<input type="hidden" name="eventSubmit_doView_submission_list_option" value="x" />
-			#set($disableGrade=false)
-			#if($assignment.AllowPeerAssessment && !$isPeerAssessmentClosed)
-				#set($disableGrade=true)
-			#end
 			#set ($showMsg = false)
 			#set ($showMsg = $!allMsgNumber)
 			#if (!$!showMsg || $showMsg == 0)
@@ -117,17 +121,16 @@ function printView(url) {
 			#else
 				<div class="listNav">
 						## download all
-							<a href="#toolLinkParam("$action" "doPrep_download_all" "view=$!view")" class="assignment-item" id="downloadAll" title="$!tlang.getString('downall')">$!tlang.getString('downall')</a>
-						#if(!$disableGrade)
+						<a href="#toolLinkParam("$action" "doPrep_download_all" "view=$!view")" class="assignment-item" id="downloadAll" title="$!tlang.getString('downall')">$!tlang.getString('downall')</a>
+						#if (!$disableGrading)
 							## upload all
 							<a href="#toolLinkParam("$action" "doPrep_upload_all" "view=$view")" class="assignment-item" id="uploadAll" title="$!tlang.getString('uploadall.title')">$!tlang.getString('uploadall.title')</a>
-							<a href="#"
-								class="assignment-item" 
- 								id="releaseGrades"
-							#if ($withGrade)
-								title="$!tlang.getString('relgrad')">$!tlang.getString('relgrad')</a>
+							#if ($!typeOfGrade == 1)
+								## release commented
+								<a href="#" class="assignment-item" id="releaseCommented" title="$!tlang.getString('relcommented')">$!tlang.getString('relcommented')</a>
 							#else
-								title="$!tlang.getString('relcommented')">$!tlang.getString('relcommented')</a>
+								## release grades
+								<a href="#" class="assignment-item" id="releaseGrades" title="$!tlang.getString('relgrad')">$!tlang.getString('relgrad')</a>
 							#end
 						#end
 						#if ($taggable)
@@ -140,12 +143,11 @@ function printView(url) {
 							#end
 						#end
 				</div>
-				#set ($gradeType = $typeOfGrade)
 			#end
 			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		</form>
 	</div>
-		<form id="listSubmissionForm" name= "listSubmissionsForm" action="#toolForm("AssignmentAction")" method="post">
+		<form id="listSubmissionForm" name= "listSubmissionsForm" action="#toolForm("AssignmentAction")" method="post" class="d-grid">
 			<input type="hidden" name="assignmentId" value="$assignmentReference" />
 
 			#supplementItems($!allowViewModelAnswer $!allowReadAssignmentNoteItem $!allowViewAllPurposeItem $!assignmentModelAnswerItem $!assignmentNoteItem $!assignmentAllPurposeItem)
@@ -182,7 +184,6 @@ function printView(url) {
 						<label>$tlang.getString("sendFeedback.options"):</label>
 						<div>
 							<input type="checkbox" name="overWrite"/> $tlang.getFormattedMessage("sendFeedback.overwrite",$tlang.getString("gen.instrcomment") )<br/>
-							<input type="checkbox" name="returnToStudents"/> $tlang.getString("sendFeedback.returnToStudents")<br/>
 						</div>
 					</div>
 					<div class="act">
@@ -213,10 +214,10 @@ function printView(url) {
 				#end
 				</p>
 							<p id="allowResubmitNumber">
-								<label for="allowResubmitNumber">
+								<label for="allowResubmitNumberSelect">
 									$tlang.getString("allow.resubmit.number")
 								</label>
-								<select name="$name_allowResubmitNumber" id="allowResubmitNumber" onchange="ASN.toggleResubmitTimePanel();">
+								<select name="$name_allowResubmitNumber" id="allowResubmitNumberSelect" onchange="ASN.toggleResubmitTimePanel();">
 									#foreach ($i in [1..10])
 										<option value="$i" #if($i==$!value_allowResubmitNumber)selected="selected"#end>
 											$i
@@ -230,25 +231,12 @@ function printView(url) {
 								<label>
 									$tlang.getString("gen.acesubunt")
 								</label>
-
-  <input type="text" id="allowResubmitDate" name="allowResubmitDate" class="datepicker" value="">
- 
-                            <script type="text/javascript">
-                                localDatePicker({
-                                    input:'#allowResubmitDate', 
-                                    useTime:1, 
-                                    val:"$value_ResubmitYear$H$value_ResubmitMonth$H$value_ResubmitDay $value_ResubmitHour:$value_ResubmitMin",
-                                    parseFormat: 'YYYY-MM-DD HH:mm',
-                                    ashidden:{
-                                        month:"allow_resubmit_closeMonth",
-                                        day:"allow_resubmit_closeDay",
-                                        year:"allow_resubmit_closeYear",
-                                        hour:"allow_resubmit_closeHour",
-                                        minute:"allow_resubmit_closeMin"
-                                    }
-                                });
-                            </script>
-
+								<sakai-date-picker
+									label="$tlang.getString("gen.acesubunt")"
+									iso-date="$value_ResubmitYear$H$value_ResubmitMonth$H$value_ResubmitDay$T$value_ResubmitHour:$value_ResubmitMin"
+									hidden-prefix="allow_resubmit_close_"
+									add-hidden-fields>
+								</sakai-date-picker>
 								## for save the resubmission choice
 								<div class="act">
 									<input type="submit" class="active" onclick="SPNR.disableControlsAndSpin( this, escapeList );" name="eventSubmit_doSave_resubmission_option" value="$tlang.getString("update")" accesskey="s" />
@@ -262,7 +250,7 @@ function printView(url) {
 				<a href="#" onclick="window.open(printView('#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$formattedText.escapeUrl($assignmentReference)&grade_showStudentDetails=true")'));return false"><span alt="$tlang.getString("assignment.print")" class="fa fa-print"></span><span> $tlang.getString("assignment.print") $tlang.getString("assignment.additional.notes.export.title")</span></a>
 			#end
 
-			#if($disableGrade)
+			#if($disableGrading)
 				<div class="highlight">$tlang.getFormattedMessage("peerassessment.cantgradewithdate", $!service.getUsersLocalDateTimeString($assignment.PeerAssessmentPeriodDate))</div>
 			#end
 			</div>
@@ -300,7 +288,7 @@ function printView(url) {
 						<label for="toggleAllSelectAllowResubmit" class="skip">$tlang.getString("allowResubmission.toggleall")</label>
 					</th> 
 					<th id="attachment" class="attach">
-						<img src="#imageLink("sakai/attachments.gif")" border="0" alt="$tlang.getString("gen.att")" width="15" height="15" class="attachmentsIcon" />
+						<span class="si si-attachment" aria-label="$tlang.getString("gen.att")" />
 					</th>
 					<th id="studentname">
 						<a href="javascript:void(0)" onclick="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_lastName")'; return false;"   title="$tlang.getString("gen.sorbylas")">
@@ -355,17 +343,17 @@ function printView(url) {
 							$tlang.getString("peerassessment.reviewergrade")
 						</th>
 					#end
-					#if ($withGrade)
+					#if ($gradeTypeTable.get($!typeOfGrade) != $!tlang.getString("gen.nograd"))
 						<th id="grade">
 							<a href="javascript:void(0)" onclick="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_submitGrade")'; return false;"  title="$tlang.getString("gen.sorbygra")">
 								$tlang.getString("gen.gra")
-								#if ($sortedBy.equals($!sort_submitGrade)) 
-									#if ($sortedAsc.equals("true")) 
+								#if ($sortedBy.equals($!sort_submitGrade))
+									#if ($sortedAsc.equals("true"))
 										<i id="sort_ascending_grade" class="fa fa-sort-asc" aria-hidden="true" tittle="$tlang.getString("gen.sorasc")"></i>
-									#else 
+									#else
 										<i id="sort_descending_grade" class="fa fa-sort-desc" aria-hidden="true" tittle="$tlang.getString("gen.sordes")"></i>
-									#end 
-								#end 
+									#end
+								#end
 							</a>
 						</th>
 					#end
@@ -395,18 +383,18 @@ function printView(url) {
 									#end 
 								#end 
 							</a>
-						</td>
+						</th>
 					#end
 					<th id="gradereleased">
 						<a href="javascript:void(0)" onclick="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_submitReleased")'; return false;"  title="$tlang.getString("listsub.sorbyrel")">
 							$tlang.getString("gen.relea")
-							#if ($sortedBy.equals($!sort_submitReleased)) 
-								#if ($sortedAsc.equals("true")) 
+							#if ($sortedBy.equals($!sort_submitReleased))
+								#if ($sortedAsc.equals("true"))
 									<i id="sort_ascending_released" class="fa fa-sort-asc" aria-hidden="true" tittle="$tlang.getString("gen.sorasc")"></i>
-								#else 
+								#else
 									<i id="sort_descending_released" class="fa fa-sort-desc" aria-hidden="true" tittle="$tlang.getString("gen.sordes")"></i>
-								#end 
-							#end 
+								#end
+							#end
 						</a>
 					</th>
 				</tr>
@@ -445,68 +433,83 @@ function printView(url) {
 								<label for="check_$submitterDisplayId" class="skip">$tlang.getString("allowResubmission.select.student") #if($value_CheckAnonymousGrading)$anonymousSubmissionId#else$formattedText.escapeHtml($submitterName)#end</label>
 							</td>
 							<td headers="attachment" class="attach">
-								#if ($!userSubmission.hasVisibleAttachments && $submission.submitted)
-									<img src="#imageLink("sakai/attachments.gif")" border="0" alt="$tlang.getString("gen.att")" width="15" height="15" class="attachmentsIcon" />
+								#if ($!userSubmission.hasVisibleAttachments)
+									<span class="si si-attachment" aria-label="$tlang.getString("gen.att")" />
 								#end
 							</td>
 							<td headers="studentname">
-								#if ($taggable)
-									#if ($value_CheckAnonymousGrading)
-										$anonymousSubmissionId
-									#else
-										$formattedText.escapeHtml($submitterName)
-									#end
-
-									#if ($gusers)
-										<div style="font-size: smaller; color: blue;">
-										#foreach ($user in $gusers)
-											#if($velocityCount > 1), #end
-											#set($is_user_duplicate=false)
-											#if($usersinmultiplegroups)
-												#foreach ($userin in $usersinmultiplegroups)
-													#if ($userin.indexOf($user.getDisplayName()) > -1)#set($is_user_duplicate=true)#end
-												#end
-											#end
-											#if($is_user_duplicate)<em class="error alertMessage"><abbr title="$tlang.getString("group.user.duplicate.error")">#end$user.getDisplayName()#if($is_user_duplicate)</abbr></em>#end
-												#set ($group_value_grade = "")
-												#set ($group_value_grade = $value_grades.get($user.getId()))
-												#if ($!group_value_grade.length() > 0)
-													<abbr title="$tlang.getFormattedMessage("group.user.grade.override", $user.getDisplayName())">($!group_value_grade)</abbr>
-												#end
+								<div class="student-name">
+									<div>
+										#if ($value_CheckAnonymousGrading || $assignment.IsGroup)
+										<sakai-user-photo user-id="blank"></sakai-user-photo>
+										#else
+										<sakai-user-photo
+											user-id="$userSubmission.User.Id"
+											label="$tlang.getFormattedMessage("grading.userphoto", $userSubmission.User.DisplayName)"
+											profile-popup="on">
+										</sakai-user-photo>
 										#end
-										</div>
-									#end
-									#if(!$disableGrade)
-										<div class="itemAction">
-											<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$formattedText.escapeUrl($assignmentReference)&submissionId=$formattedText.escapeUrl($userSubmission.Reference)")" title="$tlang.getString("listsub.grasub")">$!tlang.getString("gen.assign.gra")<span class="skip">:#if($value_CheckAnonymousGrading)$anonymousSubmissionId#else$formattedText.escapeHtml($submitterName)#end</span></a>
-											#foreach ($provider in $providers)
-												#set ($item = $producer.getItem($submission, $siteUser.getId()))
-												#set ($helperInfo = false)
-												#set ($helperInfo = $provider.provider.getItemHelperInfo($item.reference))
-												#if ($helperInfo)
-													| <a href="#toolLinkParam("$action" "doHelp_item" "itemRef=$formattedText.escapeUrl($item.reference)&providerId=$formattedText.escapeUrl($provider.provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a>
+									</div>
+									<div>
+									#if ($taggable)
+										#if ($value_CheckAnonymousGrading)
+											$anonymousSubmissionId
+										#else
+											$formattedText.escapeHtml($submitterName)
+										#end
+
+										#if ($gusers)
+											<div style="font-size: smaller; color: blue;">
+											#foreach ($user in $gusers)
+												#if($velocityCount > 1), #end
+												#set($is_user_duplicate=false)
+												#if($usersinmultiplegroups)
+													#foreach ($userin in $usersinmultiplegroups)
+														#if ($userin.indexOf($user.getDisplayName()) > -1)#set($is_user_duplicate=true)#end
+													#end
 												#end
+												#if($is_user_duplicate)<em class="error alertMessage"><abbr title="$tlang.getString("group.user.duplicate.error")">#end$user.getDisplayName()#if($is_user_duplicate)</abbr></em>#end
+													#set ($group_value_grade = "")
+													#set ($group_value_grade = $value_grades.get($user.getId()))
+													#if ($!group_value_grade.length() > 0)
+														<abbr title="$tlang.getFormattedMessage("group.user.grade.override", $user.getDisplayName())">($!group_value_grade)</abbr>
+													#end
 											#end
-										</div>
-									#end
-								#else
-									#if(!$disableGrade)
-										<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$formattedText.escapeUrl($assignmentReference)&submissionId=$formattedText.escapeUrl($userSubmission.Reference)")" title="$tlang.getString("listsub.grasub")">
+											</div>
+										#end
+										#if(!$disableGrading)
+											<div class="itemAction">
+												<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$formattedText.escapeUrl($assignmentReference)&submissionId=$formattedText.escapeUrl($userSubmission.Reference)")" title="$tlang.getString("listsub.grasub")">$!tlang.getString("gen.assign.gra")<span class="skip">:#if($value_CheckAnonymousGrading)$anonymousSubmissionId#else$formattedText.escapeHtml($submitterName)#end</span></a>
+												#foreach ($provider in $providers)
+													#set ($item = $producer.getItem($submission, $siteUser.getId()))
+													#set ($helperInfo = false)
+													#set ($helperInfo = $provider.provider.getItemHelperInfo($item.reference))
+													#if ($helperInfo)
+														| <a href="#toolLinkParam("$action" "doHelp_item" "itemRef=$formattedText.escapeUrl($item.reference)&providerId=$formattedText.escapeUrl($provider.provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a>
+													#end
+												#end
+											</div>
+										#end
+									#else
+										#if(!$disableGrading)
+											<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$formattedText.escapeUrl($assignmentReference)&submissionId=$formattedText.escapeUrl($userSubmission.Reference)")" title="$tlang.getString("listsub.grasub")">
+												#if ($value_CheckAnonymousGrading)
+													$anonymousSubmissionId
+												#else
+													$formattedText.escapeHtml($submitterName)
+												#end
+
+											</a>
+										#else
 											#if ($value_CheckAnonymousGrading)
 												$anonymousSubmissionId
 											#else
 												$formattedText.escapeHtml($submitterName)
 											#end
-
-										</a>
-									#else
-										#if ($value_CheckAnonymousGrading)
-											$anonymousSubmissionId
-										#else
-											$formattedText.escapeHtml($submitterName)
+										#end
 									#end
-								#end
-								#end
+									</div>
+								</div>
 							</td>
 							#if($!isAdditionalNotesEnabled && !$assignment.IsGroup)
 							<td headers="notes">
@@ -544,13 +547,30 @@ function printView(url) {
 											#else
 												<span>
 											#end
-											#if($reviewersMap.containsKey($item.getId().getAssessorUserId()))
-												$formattedText.escapeHtml($!reviewersMap.get($item.getId().getAssessorUserId()).sortName)
+											#if($assignment.isGroup)
+												#if($groupsReviewersMap.containsKey($item.getId().getAssessorUserId()))
+													$formattedText.escapeHtml($!groupsReviewersMap.get($item.getId().getAssessorUserId()).title)
+												#else
+													$formattedText.escapeHtml($!item.getId().getAssessorUserId())
+												#end
 											#else
-												$formattedText.escapeHtml($!item.getId().getAssessorUserId())
+												#if($reviewersMap.containsKey($item.getId().getAssessorUserId()))
+													$formattedText.escapeHtml($!reviewersMap.get($item.getId().getAssessorUserId()).sortName)
+												#else
+													$formattedText.escapeHtml($!item.getId().getAssessorUserId())
+												#end
 											#end
 											</span>
 											</a>
+											#if ($rubricId)
+											<sakai-rubric-student-button
+												tool-id="sakai.assignment.grades"
+												evaluated-item-id="$!item.getId().getAssessorUserId()"
+												entity-id="$assignment.Id"
+												evaluated-item-owner-id="$!submitterId"
+												instructor="true">
+											</sakai-rubric-student-button>
+											#end
 											#if($!item.getScoreDisplay().length() > 0 || ($!item.getComment() && $!item.getComment().trim().length() > 0))
 												<span class="highlight" #if($item.Removed) style="text-decoration: line-through" #end>
 													#if($item.isDraft())
@@ -578,7 +598,7 @@ function printView(url) {
 									#end
 								</td>
 							#end
-							#if ($withGrade)
+						    #if ($gradeTypeTable.get($!typeOfGrade) != $!tlang.getString("gen.nograd"))
 								<td headers="grade">
 									#if ($assignment.IsGroup)
 										$!service.getGradeDisplay($submission.Grade, $assignment.TypeOfGrade, $assignment.ScaleFactor)
@@ -592,12 +612,13 @@ function printView(url) {
 										dont-check-association
 										tool-id="sakai.assignment.grades"
 										evaluated-item-id="$submission.Id"
+										evaluated-item-owner-id="$!submitterId"
 										entity-id="$assignment.Id"
 										instructor="true">
 									</sakai-rubric-student-button>
 									#end
 								</td>
-							#end	
+							#end
 							#if ($isTimesheet && $assignment.Estimate && !$assignment.Estimate.equals(""))
 								<td headers="estimate">
 									$!userSubmission.getTimeSpent()
@@ -612,9 +633,7 @@ function printView(url) {
 							#end
 							<td headers="gradereleased">
 								#if ($submission.getGradeReleased())
-									<img src="#imageLink("sakai/checkon.gif")" alt="$tlang.getString("gen.open")" border="0" width="17" height="13" align="top" />
-								#else
-									<img src="#imageLink("sakai/checkoff.gif")" alt="$tlang.getString("gen.open")" border="0" width="15" height="15" align="top" />
+									<span class="si si-check fs-3" aria-label="$tlang.getString("gen.open")" />
 								#end
 							</td>
 						</tr>
@@ -633,19 +652,17 @@ function printView(url) {
 							<td headers="status">
 								$tlang.getString("listsub.nosub")
 							</td>
-							#if ($withGrade)
-								<td headers="grade">
-									&nbsp;
-								</td>
+						    #if ($gradeTypeTable.get($!typeOfGrade) != $!tlang.getString("gen.nograd"))
+								<td headers="grade"></td>
 							#end
 							#if ($isTimesheet && $assignment.Estimate && !$assignment.Estimate.equals(""))
 								<td headers="estimate">
 									&nbsp;
 								</td>
 							#end
-							<td headers="gradereleased">
-								&nbsp;
-							</td>
+							#if ($gradeTypeTable.get($!typeOfGrade) != $!tlang.getString("gen.nograd"))
+								<td headers="gradereleased">&nbsp;</td>
+							#end
 						</tr>
 					#end
 				#end
@@ -726,7 +743,7 @@ function printView(url) {
 				## get gradeScale
 				#set ($gradeScale = $typeOfGradeString)
 				$gradeScale
-				#if ($gradeTypeTable.get($assignment.TypeOfGrade.ordinal()) == $!tlang.getString("points"))
+				#if ($gradeTypeTable.get($!typeOfGrade) == $!tlang.getString("points"))
 					($tlang.getString("grade.max") $maxGradePointString)
 				#end
 			</td>

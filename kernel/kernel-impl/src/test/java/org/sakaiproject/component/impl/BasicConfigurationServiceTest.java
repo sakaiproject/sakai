@@ -64,6 +64,8 @@ public class BasicConfigurationServiceTest {
         basicConfigurationService.addConfigItem( new ConfigItemImpl("intVal", 11), SOURCE);
         basicConfigurationService.addConfigItem( new ConfigItemImpl("longVal", 15L), SOURCE);
         basicConfigurationService.addConfigItem( new ConfigItemImpl("booleanVal", true), SOURCE);
+        basicConfigurationService.addConfigItem( new ConfigItemImpl("lti.key", "12345"), SOURCE);
+        basicConfigurationService.addConfigItem( new ConfigItemImpl("basiclti.secret", "secret"), SOURCE);
         log.info(basicConfigurationService.getConfigData().toString());
     }
 
@@ -105,13 +107,30 @@ public class BasicConfigurationServiceTest {
         // https://jira.sakaiproject.org/browse/SAK-22148
         int changed = basicConfigurationService.dereferenceConfig();
         ConfigData cd = basicConfigurationService.getConfigData();
-        Assert.assertEquals(17, cd.getTotalConfigItems());
+        Assert.assertEquals(19, cd.getTotalConfigItems());
         Assert.assertEquals(3, changed); // 4 of them have keys but 1 key is invalid so it will not be replaced
         Assert.assertEquals("Aaron", basicConfigurationService.getConfig("name", "default") );
         Assert.assertEquals("testing name=Aaron testing", basicConfigurationService.getConfig("testKeyNested", "default") );
         Assert.assertEquals("testing az=Aaron Zeckoski nested=testing name=Aaron testing invalid=${invalid}", basicConfigurationService.getConfig("testKeyNestedMulti", "default") );
         Assert.assertEquals("Aaron Zeckoski", basicConfigurationService.getConfig("test7", "default") );
     }
+
+    @Test
+    public void testDereferenceAlias() throws Exception {
+        Assert.assertEquals("lti.key", basicConfigurationService.getAlternateName("basiclti.key") );
+        Assert.assertEquals("basiclti.key", basicConfigurationService.getAlternateName("lti.key") );
+        Assert.assertNull(basicConfigurationService.getAlternateName("yada.key") );
+        Assert.assertNull(basicConfigurationService.getAlternateName("") );
+        Assert.assertNull(basicConfigurationService.getAlternateName(" ") );
+        Assert.assertNull(basicConfigurationService.getAlternateName(null) );
+
+        ConfigData cd = basicConfigurationService.getConfigData();
+        Assert.assertEquals("12345", basicConfigurationService.getConfig("lti.key", "default") );
+        Assert.assertEquals("12345", basicConfigurationService.getConfig("basiclti.key", "default") );
+        Assert.assertEquals("secret", basicConfigurationService.getConfig("lti.secret", "default") );
+        Assert.assertEquals("secret", basicConfigurationService.getConfig("basiclti.secret", "default") );
+    }
+
 
     @Test
     public void testKNL1038() throws Exception {

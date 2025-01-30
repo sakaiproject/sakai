@@ -156,12 +156,14 @@ var chatscript = {
 	deleteMessage : function(messageId) {
 		var me = this;
 		var removeModal = $("#removemodal");
-		removeModal.modal("hide");
+		var modal = bootstrap.Modal.getInstance(removeModal);
+		modal.hide();
+
 		$.ajax({
 			url: me.url_submit + messageId,
 			type: "DELETE",
 			success: function(data) {
-				removeModal.modal("hide");
+				modal.hide();
 				me.updateChatData();
 			}
 		});
@@ -215,7 +217,7 @@ var chatscript = {
 			if ($(".divisorNewMessages").length < 2) {
 				var divisorNewMessages = $("#divisorNewMessages").clone();
 				divisorNewMessages.removeAttr("id");
-				divisorNewMessages.removeClass("hide");
+				divisorNewMessages.removeClass("d-none");
 				$("#topForm\\:chatList").append(divisorNewMessages);
 			}
 		}
@@ -239,7 +241,7 @@ var chatscript = {
 			var exists = $("#topForm\\:chatList li[data-message-id=" + messageId + "]").length;
 			if (!exists) {
 				var messageItem = $("#chatListItem").clone();
-				messageItem.removeClass("hide");
+				messageItem.removeClass("d-none");
 				messageItem.removeAttr("id");
 				messageItem.attr("data-message-id", messageId);
 				messageItem.attr("data-owner-id", ownerId);
@@ -251,7 +253,7 @@ var chatscript = {
 				messageItem.find(".chatDate").text(dateStr);
 				messageItem.find(".chatText").html(messageBody);
 				if (removeable) {
-					messageItem.find(".chatRemove").removeClass("hide");
+					messageItem.find(".chatRemove").removeClass("d-none");
 				}
 				if (lastMessageOwnerId == ownerId && messageMillisDiff < (5*60*1000)) {
 					messageItem.addClass("nestedMessage");
@@ -277,7 +279,7 @@ var chatscript = {
 					unreadedMessages++;
 					me.updateUnreadedMessages();
 					$(".divisorNewMessages[id!=divisorNewMessages]").find(".newMessages").text(unreadedMessages);
-					$(".scrollBottom").fadeIn(300).removeClass("hide");
+					$(".scrollBottom").fadeIn(300).removeClass("d-none");
 				}
 			}
 		}
@@ -306,20 +308,35 @@ var chatscript = {
 		}
 	},
 	updatePresentUsers : function (users) {
-		$("#presence").empty();
-		$("#topForm\\:chatList li .chatUserOnline").removeClass("is-online");
-		for (var i=0; i<users.length; i++) {
-			var ownerId = users[i].id;
-			var userId = ownerId;
+
+		const presence = document.getElementById("presence");
+		presence && (presence.textContent = "");
+
+		document.querySelectorAll("sakai-user-photo").forEach(el => el.online = false);
+
+		users.forEach(user => {
+
+			const ownerId = user.id;
+			let userId = ownerId;
 			if(ownerId.indexOf(':') > -1) {
 				userId = ownerId.substring(ownerId.indexOf(":") + 1)
 			}
-			var userElement = document.createElement("li");
+			const userElement = document.createElement("li");
+
 			userElement.setAttribute("data-user-id", ownerId);
-			userElement.innerHTML = users[i].name;
-			$("#presence").append(userElement);
-			$("#topForm\\:chatList li[data-owner-id=" + userId + "] .chatUserOnline").addClass("is-online");
-		}
+
+			const userHtml = `
+				<div class="chat-presence-row">
+					<div>
+						<sakai-user-photo user-id="${ownerId}" profile-popup="on"></sakai-user-photo>
+					</div>
+					<div>${user.name}</div>
+				</div>`;
+
+			userElement.innerHTML = userHtml;
+			presence && presence.appendChild(userElement);
+			document.querySelectorAll(`.chatList sakai-user-photo[user-id='${userId}']`).forEach(el => el.online = true);
+		});
 	},
 	showRemoveModal : function(messageId, ownerDisplayName, date, messageBody) {
 		var removeModal = $("#removemodal");
@@ -327,7 +344,7 @@ var chatscript = {
 		removeModal.find("#date").text(date);
 		removeModal.find("#message").html(messageBody);
 		removeModal.find("#deleteButton").attr("data-message-id", messageId);
-		removeModal.modal("show");
+		const modal = new bootstrap.Modal(removeModal).toggle();
 	},
 	scrollChat : function () {
 		var scrollableChat = $("#chatListWrapper");

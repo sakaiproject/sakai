@@ -24,14 +24,20 @@ package org.sakaiproject.tool.assessment.facade;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.osid.shared.Id;
 import org.osid.shared.SharedException;
 
 import org.sakaiproject.tool.assessment.business.questionpool.QuestionPool;
 import org.sakaiproject.tool.assessment.business.questionpool.QuestionPoolException;
+import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolAccessData;
+import org.sakaiproject.tool.assessment.business.questionpool.QuestionPoolTag;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolData;
 import org.sakaiproject.tool.assessment.data.ifc.questionpool.QuestionPoolDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.questionpool.QuestionPoolItemIfc;
@@ -49,11 +55,6 @@ public class QuestionPoolFacade
 {
   private static final long serialVersionUID = 7526471155622776147L;
 
-  public static final Long ACCESS_DENIED =  Long.valueOf(30);
-  public static final Long READ_ONLY = Long.valueOf(31);
-  public static final Long READ_COPY = Long.valueOf(32);
-  public static final Long READ_WRITE = Long.valueOf(33);
-  public static final Long ADMIN = Long.valueOf(34);
   public static final Long DEFAULT_TYPEID = Long.valueOf(0);
   public static final Long DEFAULT_INTELLECTUAL_PROPERTYID = Long.valueOf(0);
   public static final Long ROOT_POOL = Long.valueOf(0);
@@ -92,8 +93,11 @@ public class QuestionPoolFacade
   private Long intellectualPropertyId;
   private String organizationName;
   private Set questionPoolItems;
+  private Set questionPoolAccess;
   private Collection items = new ArrayList();
   private Long subPoolSize;
+  @Getter @Setter
+  private Set<QuestionPoolTag> tags;
 
   /**
    * Creates a new QuestionPoolFacade object.
@@ -200,6 +204,7 @@ public class QuestionPoolFacade
     this.intellectualPropertyId = getIntellectualPropertyId();
     this.organizationName = getOrganizationName();
     this.questionPoolItems = getQuestionPoolItems();
+    this.questionPoolAccess = getQuestionPoolAccess();
     this.items = getQuestions();
     try {
     	// parentPool isn't actually need
@@ -819,6 +824,58 @@ public class QuestionPoolFacade
     String ownerIdString = this.getOwnerId();
     String ownerDisplayName= AgentFacade.getDisplayName(ownerIdString);
     return ownerDisplayName;
+  }
+
+  public Set getQuestionPoolAccess() {
+    try {
+      this.data = (QuestionPoolDataIfc) questionPool.getData();
+    } catch (QuestionPoolException ex) {
+      throw new DataFacadeException(ex.getMessage());
+    }
+    return this.data.getQuestionPoolAccess();
+  }
+
+  public void setQuestionPoolAccess(Set questionPoolAccess) {
+    this.questionPoolAccess = questionPoolAccess;
+    this.data.setQuestionPoolAccess(questionPoolAccess);
+  }
+
+  public boolean isCanAddPools() {
+
+    Set<QuestionPoolAccessData> access = this.getQuestionPoolAccess();
+    return access.stream().anyMatch(qpad ->
+      StringUtils.equals(AgentFacade.getAgentString(), qpad.getAgentId()) && 
+      ( QuestionPoolAccessFacade.READ_WRITE.equals(qpad.getAccessTypeId()) || QuestionPoolAccessFacade.ADMIN.equals(qpad.getAccessTypeId()) )
+    );
+
+  }
+
+  public boolean isCanCopyPools() {
+
+    Set<QuestionPoolAccessData> access = this.getQuestionPoolAccess();
+    return access.stream().anyMatch(qpad ->
+      StringUtils.equals(AgentFacade.getAgentString(), qpad.getAgentId()) && 
+      ( QuestionPoolAccessFacade.READ_WRITE.equals(qpad.getAccessTypeId()) || QuestionPoolAccessFacade.ADMIN.equals(qpad.getAccessTypeId()) ||
+      QuestionPoolAccessFacade.MODIFY.equals(qpad.getAccessTypeId()) || QuestionPoolAccessFacade.READ_ONLY.equals(qpad.getAccessTypeId()) )
+    );
+
+  }
+
+  public boolean isCanMovePools() {
+
+    Set<QuestionPoolAccessData> access = this.getQuestionPoolAccess();
+    return access.stream().anyMatch(qpad ->
+      StringUtils.equals(AgentFacade.getAgentString(), qpad.getAgentId()) && QuestionPoolAccessFacade.ADMIN.equals(qpad.getAccessTypeId())
+    );
+
+  }
+
+  public boolean isCanDeletePools() {
+    return this.isCanMovePools();
+  }
+
+  public boolean isCanPreviewQuestions() {
+    return this.isCanCopyPools();
   }
 
 }

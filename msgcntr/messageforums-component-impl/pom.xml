@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.sakaiproject.msgcntr</groupId>
     <artifactId>msgcntr</artifactId>
-    <version>23-SNAPSHOT</version>
+    <version>25-SNAPSHOT</version>
   </parent>
   <name>Sakai Message Forums Component Implementation</name>
   <groupId>org.sakaiproject.msgcntr</groupId>
@@ -140,8 +140,8 @@
       <artifactId>elasticsearch-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.elasticsearch</groupId>
-      <artifactId>elasticsearch</artifactId>
+      <groupId>org.opensearch</groupId>
+      <artifactId>opensearch</artifactId>
     </dependency>
   </dependencies>
   <build>

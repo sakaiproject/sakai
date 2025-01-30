@@ -1,4 +1,4 @@
-<form id="loginForm" method="post" action="${loginPortalPath}/xlogin" enctype="application/x-www-form-urlencoded" class="Mrphs-loginForm">
+<form id="loginForm" method="post" action="${loginPortalPath}/xlogin" enctype="application/x-www-form-urlencoded" class="Mrphs-loginForm text-light me-3">
 	<label for="eid" class="Mrphs-loginForm__label">${loginEidWording}</label>
 	<input name="eid" id="eid" type="text" class="Mrphs-loginForm__input" placeholder="${eidPlaceholder}" autocomplete="username">
 	<label for="pw" class="Mrphs-loginForm__label">${loginPwWording}</label>

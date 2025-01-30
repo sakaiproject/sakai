@@ -50,7 +50,6 @@ import org.apache.wicket.markup.repeater.DefaultItemReuseStrategy;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
-import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
@@ -94,7 +93,7 @@ public class SearchAccessPage extends BasePage implements Serializable {
 	private void main(){
 		disableLink(searchAccessLink);
 
-		final AbstractReadOnlyModel resultModel = new AbstractReadOnlyModel<String>(){
+		final IModel resultModel = new IModel<String>(){
 
 			@Override
 			public String getObject() {
@@ -104,17 +103,17 @@ public class SearchAccessPage extends BasePage implements Serializable {
 					if(provider.getData().size() == 0){
 						if(searchTypeEid.equals(selectedSearchType)){
 							if(eid == null || "".equals(eid.trim())){
-								return new StringResourceModel("noEidEntered", null).getObject();
+								return new StringResourceModel("noEidEntered").getObject();
 							}else{
 								User u = getUser();
 								if(u == null){
-									return new StringResourceModel("eidDoesNotExist", null).getObject();
+									return new StringResourceModel("eidDoesNotExist").getObject();
 								}else{
-									return new StringResourceModel("noResultsUser", null).getObject();
+									return new StringResourceModel("noResultsUser").getObject();
 								}
 							}
 						}else{
-							return new StringResourceModel("noResultsHierarchy", null).getObject();
+							return new StringResourceModel("noResultsHierarchy").getObject();
 						}
 					}else{
 						return "";
@@ -144,17 +143,17 @@ public class SearchAccessPage extends BasePage implements Serializable {
 		form.setOutputMarkupId(true);
 		
 		//search by label:
-		form.add(new Label("searchByLabel", new StringResourceModel("searchByLabel", null)));
+		form.add(new Label("searchByLabel", new StringResourceModel("searchByLabel")));
 		
 		//setup radio buttons for search type:
 		final RadioGroup group = new RadioGroup("searchGroup", new PropertyModel<String>(this, "selectedSearchType"));
 		
 		final Radio hierarchyRadio = new Radio("searchByHierarchy",  new Model<String>(searchTypeHierarchy));
 		FormComponentLabel hierarchyLabel = new FormComponentLabel("searchByHierarchyLabel", hierarchyRadio);
-		hierarchyLabel.add(new Label("searchByHierarchyLabelText", new StringResourceModel("searchByHierarchyLabel", null)));
+		hierarchyLabel.add(new Label("searchByHierarchyLabelText", new StringResourceModel("searchByHierarchyLabel")));
 		group.add(hierarchyRadio);
 		group.add(hierarchyLabel);
-		group.add(hierarchyRadio.add(new AjaxEventBehavior("onchange") {
+		group.add(hierarchyRadio.add(new AjaxEventBehavior("change") {
 			@Override
 			protected void onEvent(AjaxRequestTarget arg0) {
 				selectedSearchType = searchTypeHierarchy;
@@ -163,10 +162,10 @@ public class SearchAccessPage extends BasePage implements Serializable {
 		
 		Radio eidRadio = new Radio("searchByEid",  new Model<String>(searchTypeEid));
 		FormComponentLabel eidRadioLabel = new FormComponentLabel("searchByEidLabel", eidRadio);
-		eidRadioLabel.add(new Label("searchByEidLabelText", new StringResourceModel("searchByEidLabel", null)));
+		eidRadioLabel.add(new Label("searchByEidLabelText", new StringResourceModel("searchByEidLabel")));
 		group.add(eidRadio);
 		group.add(eidRadioLabel);
-		group.add(eidRadio.add(new AjaxEventBehavior("onchange") {
+		group.add(eidRadio.add(new AjaxEventBehavior("change") {
 			@Override
 			protected void onEvent(AjaxRequestTarget arg0) {
 				selectedSearchType = searchTypeEid;
@@ -227,7 +226,7 @@ public class SearchAccessPage extends BasePage implements Serializable {
 
 			@Override
 			public IModel<String> model(final String arg0) {
-				return new AbstractReadOnlyModel<String>() {
+				return new IModel<String>() {
 					private static final long serialVersionUID = 1L;
 
 					@Override
@@ -250,7 +249,7 @@ public class SearchAccessPage extends BasePage implements Serializable {
 				final DropDownChoice choice = new DropDownChoice("hierarchyLevel", new NodeSelectModel(itemNodeId), hierarchySelectOptions.get(itemNodeId), choiceRenderer);
 				//keeps the null option (choose one) after a user selects an option
 				choice.setNullValid(true);
-				choice.add(new AjaxFormComponentUpdatingBehavior("onchange"){
+				choice.add(new AjaxFormComponentUpdatingBehavior("change"){
 					protected void onUpdate(AjaxRequestTarget target) {
 						List<String> newOrder = new ArrayList<String>();
 						for(String nodeId : nodeSelectOrder){
@@ -296,7 +295,7 @@ public class SearchAccessPage extends BasePage implements Serializable {
 		//include lower perms checkbox:
 		CheckBox checkbox = new CheckBox("includeLowerPerms", new PropertyModel(this, "includeLowerPerms"));
 		FormComponentLabel checkboxLabel = new FormComponentLabel("includeLowerPermsLabel", checkbox);
-		checkboxLabel.add(new Label("includeLowerPermsLabelText", new StringResourceModel("includeLowerPermsLabel", null)));
+		checkboxLabel.add(new Label("includeLowerPermsLabelText", new StringResourceModel("includeLowerPermsLabel")));
 		hierarchyDiv.add(checkboxLabel);
 		hierarchyDiv.add(checkbox);
 		
@@ -387,14 +386,14 @@ public class SearchAccessPage extends BasePage implements Serializable {
 			}
 		};
 		add(accessSort);
-		Label restrictedToolsHeader = new Label("restrictedToolsHeader", new StringResourceModel("restrictedToolsHeader", null)){
+		Label restrictedToolsHeader = new Label("restrictedToolsHeader", new StringResourceModel("restrictedToolsHeader")){
 			@Override
 			public boolean isVisible() {
 				return provider.size() > 0 && (sakaiProxy.isSuperUser() || sakaiProxy.getToolsListUIEnabled());
 			}
 		};
 		add(restrictedToolsHeader);
-		Label hierarchyHeader = new Label("hierarchyHeader", new StringResourceModel("hierarchyHeader", null)){
+		Label hierarchyHeader = new Label("hierarchyHeader", new StringResourceModel("hierarchyHeader")){
 			@Override
 			public boolean isVisible() {
 				return provider.size() > 0;
@@ -403,7 +402,7 @@ public class SearchAccessPage extends BasePage implements Serializable {
 		add(hierarchyHeader);
 	
 		//Display user (if available)
-		final AbstractReadOnlyModel userModel = new AbstractReadOnlyModel(){
+		final IModel userModel = new IModel(){
 			@Override
 			public Object getObject() {
 				if(searchTypeEid.equals(selectedSearchType) && eid != null && !"".equals(eid.trim())){
@@ -447,7 +446,7 @@ public class SearchAccessPage extends BasePage implements Serializable {
 				return sakaiProxy.isSuperUser();
 			}
 		};
-		String confirm = new StringResourceModel("confirmRemoveAll", null).getObject();
+		String confirm = new StringResourceModel("confirmRemoveAll").getObject();
 		removeAllPermsLink.add( new AttributeModifier("onclick", "return confirm('" + confirm + "');"));
 		add(removeAllPermsLink);
 		
@@ -481,15 +480,15 @@ public class SearchAccessPage extends BasePage implements Serializable {
 					}
 				});
 				item.add(new Label("name", searchResult.getSortName()));
-				item.add(new Label("type", new StringResourceModel("accessType" + searchResult.getType(), null)));
+				item.add(new Label("type", new StringResourceModel("accessType" + searchResult.getType())));
 				String level = "";
 				if(hierarchy != null && searchResult.getLevel() < hierarchy.length){
 					level = sakaiProxy.getHierarchySearchLabel(hierarchy[searchResult.getLevel()]);
 				}else{
-					level = new StringResourceModel("site", null).getObject();
+					level = new StringResourceModel("site").getObject();
 				}
 				item.add(new Label("level", level));
-				AbstractReadOnlyModel<String> accessModel = new AbstractReadOnlyModel<String>(){
+				IModel<String> accessModel = new IModel<String>(){
 					@Override
 					public String getObject() {
 						String returnVal = "";
@@ -541,7 +540,7 @@ public class SearchAccessPage extends BasePage implements Serializable {
 					}
 					
 				});
-				Link<Void> viewLink = new Link("view"){
+				Link<Void> viewLink = new Link<>("view"){
 					private static final long serialVersionUID = 1L;
 					public void onClick() {
 						setResponsePage(new SearchAccessPage(false, searchResult.getEid()));
@@ -553,7 +552,7 @@ public class SearchAccessPage extends BasePage implements Serializable {
 					}
 				};
 				item.add(viewLink);
-				Link<Void> userIdLink = new Link("edit"){
+				Link<Void> userIdLink = new Link<>("edit"){
 					private static final long serialVersionUID = 1L;
 					public void onClick() {
 						setResponsePage(new UserEditPage(searchResult.getId(), searchResult.getDisplayName()));
@@ -565,7 +564,7 @@ public class SearchAccessPage extends BasePage implements Serializable {
 					}
 				};
 				item.add(userIdLink);
-				Link<Void> removeLink = new Link("remove"){
+				Link<Void> removeLink = new Link<>("remove"){
 					@Override
 					public void onClick() {
 						projectLogic.removeAccess(searchResult.getNodeId(), searchResult.getId(), searchResult.getType());
@@ -577,17 +576,9 @@ public class SearchAccessPage extends BasePage implements Serializable {
 						return searchResult.isCanEdit();
 					}
 				};
-				String confirm = new StringResourceModel("confirmRemove", null).getObject();
+				String confirm = new StringResourceModel("confirmRemove").getObject();
 				removeLink.add( new AttributeModifier("onclick", "return confirm('" + confirm + "');"));
 				item.add(removeLink);
-				
-				
-				//add css class
-				if(rowIndex == 100){
-					rowIndex = 0;
-				}
-				item.add(new AttributeAppender("class", true, new Model<String>(rowIndex % 2 == 0 ? "even" : "odd"), ";"));
-				rowIndex++;
 			}
 			@Override
 			public boolean isVisible() {
@@ -610,11 +601,8 @@ public class SearchAccessPage extends BasePage implements Serializable {
 
 			@Override
 			public boolean isVisible() {
-				if(provider.size() > DelegatedAccessConstants.SEARCH_RESULTS_PAGE_SIZE) {
-					return true;
-				}
-				return false;
-			}
+                return provider.size() > DelegatedAccessConstants.SEARCH_RESULTS_PAGE_SIZE;
+            }
 
 			@Override
 			public void onBeforeRender() {
@@ -628,11 +616,8 @@ public class SearchAccessPage extends BasePage implements Serializable {
 
 			@Override
 			public boolean isVisible() {
-				if(provider.size() > DelegatedAccessConstants.SEARCH_RESULTS_PAGE_SIZE) {
-					return true;
-				}
-				return false;
-			}
+                return provider.size() > DelegatedAccessConstants.SEARCH_RESULTS_PAGE_SIZE;
+            }
 
 			@Override
 			public void onBeforeRender() {
@@ -712,7 +697,7 @@ public class SearchAccessPage extends BasePage implements Serializable {
 		}
 
 		public IModel<AccessSearchResult> model(final AccessSearchResult object) {
-			return new AbstractReadOnlyModel<AccessSearchResult>() {
+			return new IModel<AccessSearchResult>() {
 				private static final long serialVersionUID = 1L;
 
 				@Override

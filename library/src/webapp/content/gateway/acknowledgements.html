@@ -1,162 +1,258 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <title>Acknowledgements</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script src="/library/js/headscripts.js"></script>
+	<title>Acknowledgements</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<script src="/library/js/headscripts.js"></script>
+	<link rel="stylesheet" href="/library/content/gateway/gateway.scss">
 </head>
 
 <script>
-    includeLatestJQuery('acknowledgements.html');
-    includeWebjarLibrary('bootstrap');
+	includeWebjarLibrary("bootstrap", {includeCss: true});
 </script>
-
-<style type="text/css">
-
-.card {
-    position: relative;
-    display: -ms-flexbox;
-    display: flex;
-    -ms-flex-direction: column;
-    flex-direction: column;
-    min-width: 0;
-    word-wrap: break-word;
-    background-color: #fff;
-    background-clip: border-box;
-    border: 1px solid rgba(0, 0, 0, 0.125);
-    border-radius: 0.25rem;
-    margin-top: 2rem;
-    border-color: #000036;
-    border-radius: 1rem;
-    padding: 0.5rem;
-}
-
-.card-img-top {
-    width: 100%;
-    border-top-left-radius: calc(1rem - 1px);
-    border-top-right-radius: calc(1rem - 1px);
-}
-
-.card-body {
-    -ms-flex: 1 1 auto;
-    flex: 1 1 auto;
-    padding: 1.25rem;
-    text-align: center;
-}
-
-.card-body > h4 {
-    font-size:22px;
-    color: #000036;
-    }
-
-.card-body > p {
-    font-size:14px;
-}
-.btn-primary{
-    background-color: #000036;
-    bottom: 2rem;
-}
-
-.jtop{
-    padding: 1rem 3rem;
-    margin-bottom: 2rem;
-    background-color: #e9ecef;
-    border-radius: 0.3rem;
-}
-
-.jtop > h1 {
-    font-size:36px;
-}
-
-.jtop > p {
-    font-size:18px;
-}
-
-</style>
 
 <body>
-<div class="jumbotron jtop">
-    <h1>Acknowledgements</h1>&nbsp;
-    <p>Copyright 2003-<span id="year">current Year</span> The Apereo Foundation.  All rights reserved.</p>
-    <p>Sakai is licensed for use pursuant to the <a href="http://opensource.org/licenses/ecl2.php">
-    Educational Community License v. 2.0</a>. Portions of Sakai are copyrighted by other parties,
-    including the parties listed below.
-    Please refer to the licenses directory for complete copyright and licensing information.</p>
-</div>
+	<div class="p-3 p-2 bg-opacity-10 border-bottom">
+		<h3 class="display-6">Acknowledgements</h3>
+		<p class="text-muted">
+			Copyright 2003-<span id="year">current Year</span> The Apereo Foundation. All rights reserved.
+		</p>
+		<p>
+			Sakai is licensed for use pursuant to the
+			<a href="http://opensource.org/licenses/ecl2.php">
+				Educational Community License v. 2.0
+			</a>. Portions of Sakai are copyrighted by other parties, including the
+			parties listed below. Please refer to the licenses directory for
+			complete copyright and licensing information.
+		</p>
+	</div>
+	<div id="ackList" class="row m-4"></div>
 
-<div class="container">
-    <div id="ackList" class="row">
-    </div>
-</div>
+	<script>
+		const currentYear = new Date().getFullYear();
+		document.getElementById("year").innerHTML = currentYear;
+		
+		// Add more acknowledgements as needed
+		const acknowledgements = [
+			{
+				name: "Sakai Community",
+				url: "https://www.sakailms.org/sakai-lms-community",
+				image: "sakaic.jpg",
+			},
+			{
+				name: "Apache Foundation",
+				url: "https://www.apache.org/",
+				image: "apache.png",
+			},
+			{
+				name: "WebJars",
+				url: "https://www.webjars.org/",
+				image: "webjars.png",
+			},
+			{
+				name: "jsoup",
+				url: "https://jsoup.org/",
+				image: "jsoup.png",
+			},
+			{
+				name: "Bootstrap",
+				url: "https://getbootstrap.com/",
+				image: "bootstrap.png",
+			},
+			{
+				name: "Lombok Project",
+				url: "https://projectlombok.org/",
+				image: "lombok.png",
+			},
+			{
+				name: "Quartz",
+				url: "https://www.quartz-scheduler.org/",
+				image: "quartz.png",
+			},
+			{
+				name: "opencsv",
+				url: "http://opencsv.sourceforge.net/",
+				image: "openscv.png",
+			},
+			{
+				name: "Simple",
+				url: "http://simple.sourceforge.net",
+				image: "simple-xml.png",
+			},
+			{
+				name: "Spring",
+				url: "https://spring.io",
+				image: "spring.png",
+			},
+			{
+				name: "SLF4J",
+				url: "https://www.slf4j.org/",
+				image: "slf4j.png",
+			},
+			{
+				name: "mockito",
+				url: "https://site.mockito.org/",
+				image: "mockito.png",
+			},
+			{
+				name: "PowerMock",
+				url: "https://github.com/powermock/powermock",
+				image: "powermock.png",
+			},
+			{
+				name: "Joda-Time",
+				url: "https://www.joda.org/joda-time/",
+				image: "jodatime.png",
+			},
+			{
+				name: "Weld",
+				url: "https://weld.cdi-spec.org/",
+				image: "weld.png",
+			},
+			{
+				name: "Jayway JsonPath",
+				url: "https://github.com/json-path/JsonPath",
+				image: "jsonpath.png",
+			},
+			{
+				name: "dropzone",
+				url: "https://www.dropzonejs.com/",
+				image: "dropzone.png",
+			},
+			{
+				name: "qTip2",
+				url: "https://github.com/qTip2/qTip2/",
+				image: "qtip2.png",
+			},
+			{
+				name: "handlebars",
+				url: "https://handlebarsjs.com/",
+				image: "handlebars.png",
+			},
+			{
+				name: "Moment.js",
+				url: "https://momentjs.com/",
+				image: "momentjs.png",
+			},
+			{
+				name: "jQuery",
+				url: "https://jquery.com/",
+				image: "jquery.jpg",
+			},
+			{
+				name: "PNotify",
+				url: "https://sciactive.com/pnotify/",
+				image: "pnotify.png",
+			},
+			{
+				name: "elFinder",
+				url: "https://github.com/Studio-42/elFinder",
+				image: "elfinder.png",
+			},
+			{
+				name: "Font Awesome",
+				url: "https://fontawesome.com ",
+				image: "fontawesome.png",
+			},
+			{
+				name: "Cropper",
+				url: "https://fengyuanchen.github.io/cropper/",
+				image: "cropper.png",
+			},
+			{
+				name: "Select2",
+				url: "https://select2.org/",
+				image: "select2.png",
+			},
+			{
+				name: "FullCalendar",
+				url: "https://fullcalendar.io/",
+				image: "fullcalendar.png",
+			},
+			{
+				name: "DataTables",
+				url: "https://datatables.net/",
+				image: "datatables.png",
+			},
+			{
+				name: "Featherlight",
+				url: "https://noelboss.github.io/featherlight/",
+				image: "featherlight.png",
+			},
+			{
+				name: "Awesomplete",
+				url: "https://leaverou.github.io/awesomplete/",
+				image: "awesomplete.png",
+			},
+			{
+				name: "WebRtc",
+				url: "https://webrtc.org/",
+				image: "webrtc.png",
+			},
+			{
+				name: "RecordRtc",
+				url: "https://github.com/muaz-khan/RecordRTC",
+				image: "recordrtc.png",
+			},
+			{
+				name: "mathjs",
+				url: "https://mathjs.org/",
+				image: "mathjs.png",
+			},
+			{
+				name: "jsMath",
+				url: "http://www.math.union.edu/~dpvc/jsMath/welcome.html",
+				image: "jsmath.png",
+			},
+			{
+				name: "UrlRewriteFilter",
+				url: "https://tuckey.org/urlrewrite/",
+				image: "urlrewritefilter.png",
+			},
+			{
+				name: "CodeMirror",
+				url: "https://codemirror.net/",
+				image: "codemirror.png",
+			},
+			{
+				name: "CKEditor",
+				url: "https://ckeditor.com/",
+				image: "ckeditor.png",
+			},
 
-<script>
-    /*set current year*/
-    document.getElementById("year").innerHTML = new Date().getFullYear();
+		];
+		const acknowledgementsList = document.getElementById("ackList");
 
-    /*create cards*/
-    //images should be 600x200px
-    var inpt 
-        ="Sakai Community;https://www.sakailms.org/sakai-lms-community;sakaic.jpg!"
-        +"Apache Foundation;https://www.apache.org/;apache.png!"
-        +"WebJars;https://www.webjars.org/;webjars.png!"
-        +"jsoup;https://jsoup.org/;jsoup.png!"
-        +"Lombok Project;https://projectlombok.org/;lombok.png!"
-        +"Quartz;https://www.quartz-scheduler.org/;quartz.png!"
-        +"opencsv;http://opencsv.sourceforge.net/;openscv.png!"
-        +"Simple;http://simple.sourceforge.net;simple-xml.png!"
-        +"Spring;https://spring.io;spring.png!"
-        +"SLF4J;https://www.slf4j.org/;slf4j.png!"
-        +"mockito;https://site.mockito.org/;mockito.png!"
-        +"PowerMock;https://github.com/powermock/powermock;powermock.png!"
-        +"Joda-Time;https://www.joda.org/joda-time/;jodatime.png!"
-        +"Weld;https://weld.cdi-spec.org/;weld.png!"
-        +"Jayway JsonPath;https://github.com/json-path/JsonPath;jsonpath.png!"
-        +"dropzone;https://www.dropzonejs.com/;dropzone.png!"
-        +"qTip2;https://github.com/qTip2/qTip2/;qtip2.png!"
-        +"handlebars;https://handlebarsjs.com/;handlebars.png!"
-        +"Moment.js;https://momentjs.com/;momentjs.png!"
-        +"jQuery;https://jquery.com/;jquery.jpg!"
-        +"Bootstrap;https://getbootstrap.com/;bootstrap.png!"
-        +"PNotify;https://sciactive.com/pnotify/;pnotify.png!"
-        +"elFinder;https://github.com/Studio-42/elFinder;elfinder.png!"
-        +"Font Awesome;https://fontawesome.com/;fontawesome.png!"
-        +"Cropper;https://fengyuanchen.github.io/cropper/;cropper.png!"
-        +"Select2;https://select2.org/;select2.png!"
-        +"FullCalendar;https://fullcalendar.io/;fullcalendar.png!"
-        +"DataTables;https://datatables.net/;datatables.png!"
-        +"Featherlight;https://noelboss.github.io/featherlight/;featherlight.png!"
-        +"Awesomplete;https://leaverou.github.io/awesomplete/;awesomplete.png!"
-        +"WebRtc;https://webrtc.org/;webrtc.png!"
-        +"RecordRtc;https://github.com/muaz-khan/RecordRTC;recordrtc.png!"
-        +"mathjs;https://mathjs.org/;mathjs.png!"
-        +"jsMath;http://www.math.union.edu/~dpvc/jsMath/welcome.html;jsmath.png!"
-        +"UrlRewriteFilter;https://tuckey.org/urlrewrite/;urlrewritefilter.png!"
-        +"CodeMirror;https://codemirror.net/;codemirror.png!"    
-        +"CKEditor;https://ckeditor.com/;ckeditor.png!"
-        +"Silk Icons;http://www.famfamfam.com/lab/icons/silk/;famfamfam.png";
-    var content = inpt.split("!");
-    var place = document.getElementById("ackList");
-    for(i = 0; i < content.length; i++) {
-        content[i] = content[i].split(";");
+		acknowledgements.forEach((ack) => {
+			const {name, url, image} = ack;
+			const imageSrc = `acknowledgements_images/${image}`;
 
-        if(content[i][2] == "") {
-            content[i][2] = "placeholder.png";
-        }
+			const card = document.createElement("div");
+			card.classList.add(
+				"col-lg-3",
+				"col-md-4",
+				"col-sm-6",
+				"col-12",
+				"mb-3"
+			);
 
-        place.innerHTML +=
-         '<div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">'
-        +    '<div class="card">'
-        +        '<img class="card-img-top" src="acknowledgements_images/' + content[i][2] +'">'
-        +        '<div class="card-body">'
-        +            '<h4>' + content[i][0] + '</h4>'
-        +            '<a target="_blank" href="' + content[i][1] +'" class="btn btn-primary stretched-link btn-block">Explore</a>'
-        +        '</div>'
-        +    '</div>'
-        +'</div>';
-    }
+			const cardInnerHtml = `
+				<div class="card text-center">
+					<img class="card-img-top" src="${imageSrc}" alt=${name}>
+					<div class="card-body">
+						<h5 class="card-title fw-normal">${name}</h5>
+						<a href="${url}" class="btn btn-outline-secondary w-100" target="_blank" aria-label="Explore ${name}">Explore</a>
+					</div>
+				</div>
+			`;
 
-</script>
+			card.innerHTML = cardInnerHtml;
+			acknowledgementsList.appendChild(card);
+		});
 
+	</script>
 </body>
+
 </html>

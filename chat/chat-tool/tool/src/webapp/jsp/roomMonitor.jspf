@@ -4,7 +4,7 @@
 <c:set var="lastMessageOwnerId" value="0" />
 <c:set var="lastMessageMillis" value="0" />
 <ul id="topForm:chatList" class="chatList">
-    <li id="chatListItem" class="hide">
+    <li id="chatListItem" class="d-none">
         <c:out value="
             <span class=\"chatUserAvatar\">
                 <span class=\"chatUserOnline\"></span>
@@ -16,14 +16,14 @@
             <span class=\"chatMessage\">
                 <span class=\"chatMessageDate\"></span>
                 <span class=\"chatText\"></span>
-                <a href=\"#\" class=\"chatRemove hide\" id=\"topForm:chatList:${serial}:deleteMessage\" title=\"${msgs['list.del']}\">
+                <a href=\"#\" class=\"chatRemove d-none\" id=\"topForm:chatList:${serial}:deleteMessage\" title=\"${msgs['list.del']}\">
                     <span class=\"sr-only\">${msgs['list.del']}</span>
                     <span class=\"fa fa-trash\" aria-hidden=\"true\"></span>
                 </a>
             </span>
         " escapeXml="false" />
     </li>
-    <li id="divisorNewMessages" class="hide divisorNewMessages">
+    <li id="divisorNewMessages" class="d-none divisorNewMessages">
         <c:out value="
             <span class=\"newMessages\">
             </span>${msgs['new_messages']}" escapeXml="false" />
@@ -38,8 +38,7 @@
                 <c:out value="<li data-message-id='${message.chatMessage.id}' data-owner-id='${message.chatMessage.owner}' data-millis='${message.timeInMillis}'>" escapeXml="false" />
             </c:otherwise>
         </c:choose>        
-            <c:out value="<span class='chatUserAvatar' style=\"background-image: url(/direct/profile/${message.chatMessage.owner}/image)\">" escapeXml="false"/>
-            <c:out value="<span class='chatUserOnline'></span>" escapeXml="false" />
+            <c:out value="<sakai-user-photo user-id='${message.chatMessage.owner}' profile-popup='on'></sakai-user-photo>" escapeXml="false" />
             <c:out value="</span>" escapeXml="false" />
 
             <c:out value="<span class='chatNameDate'><span class='chatName'>${fn:escapeXml(message.owner)}</span>" escapeXml="false" />

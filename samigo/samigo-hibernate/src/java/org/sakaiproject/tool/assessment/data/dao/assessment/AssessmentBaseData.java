@@ -32,6 +32,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 
@@ -356,7 +357,7 @@ public class AssessmentBaseData
   }
 
   public void addAssessmentMetaData(String label, String entry) {
-    if (this.assessmentMetaDataMap.get(label)!=null){
+    if (this.assessmentMetaDataMap.containsKey(label)) {
       // just update
       Iterator iter = this.assessmentMetaDataSet.iterator();
       while (iter.hasNext()){
@@ -415,4 +416,9 @@ public class AssessmentBaseData
   public void setCategoryId(Long categoryId) {
     this.categoryId = categoryId;
   }
+
+  public String getAssessmentToGradebookNameMetaData() {
+    return (String) this.assessmentMetaDataMap.get(AssessmentMetaDataIfc.TO_GRADEBOOK_ID);
+  }
+
 }

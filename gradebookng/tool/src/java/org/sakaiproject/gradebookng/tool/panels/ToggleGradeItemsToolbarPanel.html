@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html>
 <html xmlns:wicket="http://wicket.apache.org">
 
@@ -16,26 +17,26 @@
       <label tabindex="0" role="menuitem">
         <span wicket:id="category"></span>
         <span class="gb-item-category-filter-signal"></span>
-        <span wicket:id="categorySignal"class="gb-item-filter-signal"></span>
-        <input wicket:id="categoryCheckbox" type="checkbox">
+        <span wicket:id="categorySignal" class="gb-item-filter-signal"></span>
+        <input wicket:id="categoryCheckbox" type="checkbox" />
       </label>
-      <div class="btn-group">
-        <a class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" wicket:message="title:label.toolbar.categorygroup.menulabel">
+      <div class="btn-group dropend">
+        <a class="btn btn-sm btn-default dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" wicket:message="title:label.toolbar.categorygroup.menulabel">
           <span class="caret"></span>
         </a>
-        <ul class="dropdown-menu dropdown-menu-right" role="menu">
+        <ul class="dropdown-menu">
           <li>
-              <a class="gb-show-only-this-category" href="#" role="menuitem">
+              <a class="gb-show-only-this-category dropdown-item" href="#">
                     <wicket:message key="label.toolbar.gradeitemshowonlythiscategory" />
               </a>
           </li>
           <li>
-              <a class="gb-toggle-this-category gb-show-this-category" href="#" role="menuitem">
+              <a class="gb-toggle-this-category gb-show-this-category dropdown-item" href="#">
                     <wicket:message key="label.toolbar.gradeitemshowthiscategory" />
               </a>
           </li>
           <li>
-              <a class="gb-toggle-this-category gb-hide-this-category" href="#" role="menuitem">
+              <a class="gb-toggle-this-category gb-hide-this-category dropdown-item" href="#">
                     <wicket:message key="label.toolbar.gradeitemhidethiscategory" />
               </a>
           </li>
@@ -46,25 +47,25 @@
       <label tabindex="0" role="menuitem">
         <span wicket:id="assignmentTitle"></span>
         <span wicket:id="assignmentSignal" class="gb-item-filter-signal"></span>
-        <input wicket:id="assignmentCheckbox" type="checkbox">
+        <input wicket:id="assignmentCheckbox" type="checkbox" />
       </label>
-      <div class="btn-group">
-        <a class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" wicket:message="title:label.toolbar.gradeitem.menulabel">
+      <div class="btn-group dropend">
+        <a class="btn btn-sm btn-default dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" wicket:message="title:label.toolbar.gradeitem.menulabel">
           <span class="caret"></span>
         </a>
-        <ul class="dropdown-menu dropdown-menu-right" role="menu">
+        <ul class="dropdown-menu">
           <li>
-              <a class="gb-show-only-this-item" href="#" role="menuitem">
+              <a class="gb-show-only-this-item dropdown-item" href="#">
                     <wicket:message key="label.toolbar.gradeitemshowonlythisitem" />
               </a>
           </li>
           <li>
-              <a class="gb-toggle-this-item gb-show-this-item" href="#" role="menuitem">
+              <a class="gb-toggle-this-item gb-show-this-item dropdown-item" href="#">
                     <wicket:message key="label.toolbar.gradeitemshowthisitem" />
               </a>
           </li>
           <li>
-              <a class="gb-toggle-this-item gb-hide-this-item" href="#" role="menuitem">
+              <a class="gb-toggle-this-item gb-hide-this-item dropdown-item" href="#">
                     <wicket:message key="label.toolbar.gradeitemhidethisitem" />
               </a>
           </li>
@@ -75,25 +76,25 @@
       <label tabindex="0" role="menuitem">
           <span wicket:id="categoryScoreLabel"></span>
           <span  wicket:id="categoryScoreSignal" class="gb-item-filter-signal"></span>
-          <input wicket:id="categoryScoreCheckbox" type="checkbox">
+          <input wicket:id="categoryScoreCheckbox" type="checkbox" />
       </label>
-      <div class="btn-group">
-          <a class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" wicket:message="title:label.toolbar.categoryaverage.menulabel">
+      <div class="btn-group dropend">
+          <a class="btn btn-sm btn-default dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" wicket:message="title:label.toolbar.categoryaverage.menulabel">
               <span class="caret"></span>
           </a>
-          <ul class="dropdown-menu dropdown-menu-right" role="menu">
+          <ul class="dropdown-menu">
               <li>
-                  <a class="gb-show-only-this-category-score" href="#" role="menuitem">
+                  <a class="gb-show-only-this-category-score dropdown-item" href="#">
                         <wicket:message key="label.toolbar.gradeitemshowonlythiscategoryscore" />
                   </a>
               </li>
               <li>
-                  <a class="gb-toggle-this-category-score gb-show-this-category-score" href="#" role="menuitem">
+                  <a class="gb-toggle-this-category-score gb-show-this-category-score dropdown-item" href="#">
                         <wicket:message key="label.toolbar.gradeitemshowthiscategoryscore" />
                   </a>
               </li>
               <li>
-                  <a class="gb-toggle-this-category-score gb-hide-this-category-score" href="#" role="menuitem">
+                  <a class="gb-toggle-this-category-score gb-hide-this-category-score dropdown-item" href="#">
                         <wicket:message key="label.toolbar.gradeitemhidethiscategoryscore" />
                   </a>
               </li>

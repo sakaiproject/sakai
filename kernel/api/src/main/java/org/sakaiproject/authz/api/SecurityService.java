@@ -132,6 +132,7 @@ public interface SecurityService
 	 * @return advisor The advisor popped of, or null if the stack is empty.
 	 * @deprecated for safety use {@link #popAdvisor(SecurityAdvisor)} to ensure you remove the correct advisor
 	 */
+	@Deprecated
 	SecurityAdvisor popAdvisor();
 	
 	/**
@@ -147,15 +148,6 @@ public interface SecurityService
 	 * @return true if some advisors are defined, false if not.
 	 */
 	boolean hasAdvisors();
-
-	/**
-	 * Remove any SecurityAdvisors from this thread.
-	 * WARNING:This method should not be used as it removes all security advisors, not only the one from the calling method
-	 * rather use {@link #popAdvisor()} 
-	 * @deprecated
-	*/
-	
-	void clearAdvisors();
 
 	/**
 	 * Set the current user's effective role in this authz group for security lookups in this session.
@@ -181,15 +173,6 @@ public interface SecurityService
 	 *
 	 * @return true if roleswapped, false if not.
 	 */
-	public boolean isUserRoleSwapped() throws IdUnusedException;
+	public boolean isUserRoleSwapped();
 	
-	/**
-	 * Change to a new role view with a mockup student logged in
-	 * 
-	 * @param site
-	 * @param role
-	 * @throws SakaiException
-	 */
-	public void changeToRoleViewOnSite(Site site, String role) throws SakaiException;
-
 }

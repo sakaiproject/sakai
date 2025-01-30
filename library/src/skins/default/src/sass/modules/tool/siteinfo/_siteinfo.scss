@@ -1,0 +1,265 @@
+.#{$namespace}sakai-siteinfo
+{
+	.groups-site{
+		list-style: none;
+
+		li {
+			min-height: 4em;
+			&:nth-child(odd){
+				background: var(--sakai-color-gray--lighter-7);
+			}
+		}
+	}
+
+	#example {
+		width: 340px;
+	}
+
+	#groupfile, #groupuploadtextarea {
+		display: inline-block;
+	}
+	#groupuploadtextarea {
+		padding-right: 30px;
+	}
+	#groupfile {
+		vertical-align: top;
+	}
+
+	#siteMembers-selection, #groupMembers-selection
+	{
+		min-width: 100%;
+		padding-right: 0.5em;
+	}
+	#date-manager-form {
+		.card-header {
+			padding: 0;
+
+			.card-title {
+				padding: 0;
+
+				a {
+					padding: 13.2px 15px;
+					display: block;
+					text-decoration: none;
+
+					&::before {
+						font-family: FontAwesome;
+						margin-right: 5px;
+						width: 15px;
+						display: inline-block;
+					}
+					&[aria-expanded=true] {
+						&::before {
+							content: "\f063";
+						}
+					}
+					&:not([aria-expanded=true]) {
+						&::before {
+							content: "\f061";
+						}	
+					}
+
+					span {
+						text-decoration: underline;
+					}
+				}
+			}
+		}
+
+		.panel-body {
+			> p:last-of-type {
+				margin-bottom: 0;
+			}
+		}
+
+		.table-datemanager {
+			margin-bottom: 0;
+			table-layout: fixed;
+
+			.field-required {
+				&:after {
+					content: "*";
+					color: var(--errorBanner-color);
+					position: relative;
+					top: 3px;
+					left: 3px;
+				}
+			}
+
+			td {
+				&.ajax-error {
+					background-color: var(--errorBanner-bgcolor);
+				}
+
+				> div {
+					position: relative;
+				}
+
+				.datepicker {
+					width: calc(100% - 35px);
+					display: inline-block;
+					min-width: initial !important;
+					padding: 0;
+					border-top-right-radius: 0;
+					border-bottom-right-radius: 0;
+				}
+
+				.hasDatepicker {
+					padding-right: 22%;
+					overflow: hidden;
+					text-overflow: ellipsis;
+				}
+
+				.ui-datepicker-trigger {
+					position: absolute;
+					top: 0;
+					right: 8px;
+				}
+
+				.ui-datepicker-clear-date {
+					position: relative;
+					top: 16%;
+					right: 22px;
+					cursor: text;
+					text-decoration: none;
+				}
+
+				.ui-datapicker-clear-date-icon {
+					cursor: pointer;
+				}
+
+				.ui-datepicker-clear-date > i[disabled] {
+					cursor: not-allowed;
+					color:#757575;
+				}
+				
+				.day-of-week {
+					text-transform: capitalize;
+				}
+
+			}
+
+		}
+
+		@media #{$phone} {
+			.table-datemanager {
+				min-width: 1000px;
+			}
+			.collapse > .card-body {
+				overflow-x: auto;
+			}
+		}
+
+		.modal {
+			.modal-header {
+				.close {
+					opacity: 1;
+				}
+			}
+			.modal-body {
+				#modified-dates {
+					margin-bottom: 0;
+				}
+			}
+			.modal-footer {
+				&.act {
+					margin-top: 0;
+					margin-bottom: 0;
+				}
+			}
+		}
+	}
+
+	#dateShifterDays {
+		box-sizing: content-box;
+		width: 5ch;
+	}
+
+  /*Start of Site Group Manager*/
+  .wizard-step-active {
+    background-color: var(--sakai-primary-color-1);
+    color: var(--button-primary-text-color);
+  }
+
+  .optGroupSelect {
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    background: none repeat scroll 0 0 var(--sakai-background-color-2);
+    padding: 0.5em;
+  }
+
+  .optGroupSelectSelected {
+    background: none repeat scroll 0 0 var(--sakai-active-color-1);
+  }
+
+  .group-locked-info.collapsed::before {
+    content: '\f0da';
+    font-family: 'FontAwesome';
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  .group-locked-info::before {
+    content: '\f0d7';
+    font-family: 'FontAwesome';
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  .group-locked-info + .collapsing {
+    transition: none !important;
+  }
+
+  .selectSectionDiv {
+     padding-left: 21px;
+   }
+  /*End of Site Group Manager*/
+
+}
+
+#toolSelectionList{
+	ul{
+		padding: 0 0 0 0;
+	}
+}
+.publish-type-label {
+	display: inline-block;
+	padding-top: 2px;
+	padding-left: 1rem;
+}
+#autoPublishing, #datePublishing, #manualPublishing {
+	display: inline-block;
+	vertical-align: top;
+}
+#autosection, #datesection, #manualsection {
+	margin-left: 4rem;
+}
+.autoSubsection {
+	margin: 0 1em 1em 2em;
+	display: inline-block;
+}
+.scheduleSubsection, .manualsection-options {
+	margin: 1em 1em 1em 2em;
+}
+label.publishOptionLabel {
+	font-weight: normal;
+	padding-left: 1rem;
+}
+#site_status_inst {
+	max-width: 65em;
+}
+#manualsection-options {
+	padding-left: 2em;
+}
+.publishStatusLabel {
+	font-weight: bold;
+	display: inline-block;
+}
+.form-control.custom-datepicker {
+	width: calc(100% - 200px);
+	display: inline-block;
+	min-width: initial !important;
+}

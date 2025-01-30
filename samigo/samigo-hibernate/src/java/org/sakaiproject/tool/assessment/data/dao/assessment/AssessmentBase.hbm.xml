@@ -168,7 +168,6 @@
       constrained="true" cascade="all" />
     <property name="feedbackDelivery" type="integer" column="FEEDBACKDELIVERY" not-null="false" />
     <property name="feedbackComponentOption" type="integer" column="FEEDBACKCOMPONENTOPTION" not-null="false" />
-    <property name="correctAnswerOption" type="integer" column="CORRECT_ANSWER_OPTION" not-null="false" />
     <property name="feedbackAuthoring" type="integer" column="FEEDBACKAUTHORING" not-null="false" />
     <property name="editComponents" type="integer" column="EDITCOMPONENTS" not-null="false" />
     <property name="showQuestionText" type="boolean" column="SHOWQUESTIONTEXT" not-null="false" />
@@ -180,6 +179,9 @@
     <property name="showSelectionLevelFeedback" type="boolean" column="SHOWSELECTIONLEVELFEEDBACK" not-null="false" />
     <property name="showGraderComments" type="boolean" column="SHOWGRADERCOMMENTS" not-null="false" />
     <property name="showStatistics" type="boolean" column="SHOWSTATISTICS" not-null="false" />
+    <property name="showCorrection" type="boolean">
+      <column name="SHOWCORRECTION" not-null="true" default="0" />
+    </property>
 
 
 <!--

@@ -35,6 +35,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.assessment.data.dao.grading.SecureDeliveryData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SecureDeliveryModuleIfc;
@@ -43,6 +44,7 @@ import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI.Phase;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI.PhaseStatus;
+import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI.PreDeliveryPhase;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -199,6 +201,12 @@ public class SecureDeliveryProctorio implements SecureDeliveryModuleIfc {
 		}
 
 		return "<strong>Proctorio HTML</strong>";
+	}
+
+	@Override
+	public PhaseStatus executePreDeliveryPhase(AssessmentIfc assessment, PublishedAssessmentIfc publishedAssessment,
+			HttpServletRequest request, PreDeliveryPhase phase) {
+		return PhaseStatus.SUCCESS;
 	}
 
 	@Override

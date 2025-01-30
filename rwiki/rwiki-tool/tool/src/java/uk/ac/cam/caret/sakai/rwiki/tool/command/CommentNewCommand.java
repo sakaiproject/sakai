@@ -22,6 +22,7 @@
 package uk.ac.cam.caret.sakai.rwiki.tool.command;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author ieb
@@ -29,7 +30,7 @@ import java.util.Date;
 public class CommentNewCommand extends CommentSaveCommand
 {
 	protected void doUpdate(String name, String realm, Date versionDate,
-			String content)
+			String content, List<String> pageGroups, String displayTo)
 	{
 		objectService.updateNewComment(name, realm, new Date(), content);
 	}

@@ -39,9 +39,12 @@ import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.comparators.NullComparator;
+import org.apache.commons.lang3.StringUtils;
+
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
@@ -83,6 +86,7 @@ import org.sakaiproject.tool.assessment.data.dao.grading.GradingAttachmentData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
+import org.sakaiproject.tool.assessment.data.dao.grading.SectionGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.StudentGradingSummaryData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
@@ -1870,7 +1874,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         };
         List<StudentGradingSummaryData> numberRetakeList = getHibernateTemplate().execute(hcb);
         return numberRetakeList.stream()
-                .collect(Collectors.toMap(StudentGradingSummaryData::getPublishedAssessmentId, s -> s));
+                .collect(Collectors.toMap(StudentGradingSummaryData::getPublishedAssessmentId, Function.identity(), (oldValue, newValue) -> newValue));
     }
 
     public Map<Long, Map<String, Integer>> getSiteNumberRetakeHash(final String siteId) {
@@ -1950,8 +1954,17 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         return getHibernateTemplate().execute(hcb);
     }
 
+    public List getExportResponsesData(String publishedAssessmentId, boolean anonymous, String audioMessage, String fileUploadMessage, String noSubmissionMessage, 
+                                       boolean showPartAndTotalScoreSpreadsheetColumns, String poolString, String partString, String questionString, String textString, 
+                                       String responseString, String pointsString, String rationaleString, String itemGradingCommentsString, Map useridMap, 
+                                       String responseCommentString) {
+        return this.getExportResponsesData(publishedAssessmentId, anonymous, audioMessage, fileUploadMessage, noSubmissionMessage, showPartAndTotalScoreSpreadsheetColumns, 
+                                    poolString, partString, questionString, textString, responseString, pointsString, rationaleString, itemGradingCommentsString, useridMap, 
+                                    responseCommentString, false);
+    }
 
-    public List getExportResponsesData(String publishedAssessmentId, boolean anonymous, String audioMessage, String fileUploadMessage, String noSubmissionMessage, boolean showPartAndTotalScoreSpreadsheetColumns, String poolString, String partString, String questionString, String textString, String rationaleString, String itemGradingCommentsString, Map useridMap, String responseCommentString) {
+    public List getExportResponsesData(String publishedAssessmentId, boolean anonymous, String audioMessage, String fileUploadMessage, String noSubmissionMessage, boolean showPartAndTotalScoreSpreadsheetColumns, String poolString, String partString, String questionString, String textString, String responseString, String pointsString, String rationaleString, String itemGradingCommentsString, Map useridMap, String responseCommentString, boolean isOneSelectionType) 
+    {
         List dataList = new ArrayList();
         List headerList = new ArrayList();
         List finalList = new ArrayList(2);
@@ -1990,7 +2003,25 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
             Map sectionScores = new TreeMap();
             while (sectionsIter.hasNext()) {
                 PublishedSectionData publishedSection = (PublishedSectionData) sectionsIter.next();
-                List itemsArray = publishedSection.getItemArraySortedForGrading();
+                List<ItemDataIfc> itemsArray = publishedSection.getItemArraySortedForGrading();
+
+                // adding fixed questions (could be empty if not fixed and draw part)
+                List<ItemDataIfc> sortedList = itemsArray.stream()
+                    .filter(item -> ((PublishedItemData) item).getIsFixed())
+                    .collect(Collectors.toList());
+
+                // getting all hashes from the sortedListt
+                List<String> distinctHashValues = sortedList.stream()
+                    .filter(item -> item instanceof PublishedItemData)
+                    .map(item -> ((PublishedItemData) item).getHash())
+                    .distinct()
+                    .collect(Collectors.toList());
+
+                // removing from itemSet if there are hashes repeated and getFixed false -> itemArray with only fixed and not repeated fixed on the randow draw
+                itemsArray.removeIf(item -> item instanceof PublishedItemData &&
+                                            !item.getIsFixed() &&
+                                            distinctHashValues.stream().anyMatch(hash -> hash.equals(item.getHash())));
+
                 Iterator itemsIter = itemsArray.iterator();
                 // Iterate through the assessment questions (items)
                 Map itemsForSection = new HashMap();
@@ -2060,6 +2091,13 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                         responseList.add(0d);
                     }
                 }
+                int emptyIndex = 0;
+                if (isOneSelectionType) {
+                    responseList.add(0);
+                    responseList.add(0);
+                    responseList.add(0);
+                    emptyIndex = responseList.size() - 1;
+                }
 
                 String assessmentGradingComments = "";
                 if (assessmentGradingData.getComments() != null) {
@@ -2125,10 +2163,17 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                     //Add the missing sequences!
                     //To manage emi answers, could help with others too
                     Map<Long, String> emiAnswerText = new TreeMap<>();
+
+                    boolean textOfQuestionIncluded = false;
+
                     for (Object ooo : l) {
                         grade = (ItemGradingData) ooo;
-                        if (grade == null || EmptyItemGrading.class.isInstance(grade)) {
+                        if (grade == null) {
                             continue;
+                        }
+                        if (grade instanceof EmptyItemGrading) {
+                        	responseList.add("-");
+                        	continue;
                         }
                         if (grade.getAutoScore() != null) {
                             itemScore += grade.getAutoScore();
@@ -2140,6 +2185,15 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                         Long publishedItemId = grade.getPublishedItemId();
                         ItemDataIfc publishedItemData = (ItemDataIfc) publishedItemHash.get(publishedItemId);
                         Long typeId = publishedItemData.getTypeId();
+                        if (count == 0) {
+                            if (!TypeIfc.MATRIX_CHOICES_SURVEY.equals(typeId)) {
+                                responseList.add(publishedItemData.getText()); // The Text of the question
+                            } else if(!textOfQuestionIncluded) {
+                                // type MATRIX_CHOICES_SURVEY
+                                responseList.add(publishedItemData.getText()); // The Text of the question
+                                textOfQuestionIncluded = true;
+                            }
+                        }
                         questionNumber = publishedItemData.getSequence();
                         if (typeId.equals(TypeIfc.FILL_IN_BLANK) || typeId.equals(TypeIfc.FILL_IN_NUMERIC) || typeId.equals(
                                 TypeIfc.CALCULATED_QUESTION)) {
@@ -2304,12 +2358,24 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                             if (answerid != null) {
                                 AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(answerid);
                                 if (answer != null) {
+                                    if (isOneSelectionType) {
+                                        if (!answer.getIsCorrect()) {
+                                            // For incorrect answers cases
+                                            responseList.set(emptyIndex-1, ((int) responseList.get(emptyIndex-1)) + 1);
+                                        } else {
+                                            // For correct answers cases
+                                            responseList.set(emptyIndex-2, ((int) responseList.get(emptyIndex-2)) + 1);
+                                        }
+                                    }
                                     String temptext = answer.getText();
                                     if (temptext != null)
                                         thistext = temptext;
                                 } else {
                                     log.warn("Published answer for " + answerid + " is null");
                                 }
+                            } else if (isOneSelectionType) {
+                                // For empty answers cases
+                                responseList.set(emptyIndex, ((int) responseList.get(emptyIndex)) + 1);
                             }
 
                             if (count == 0)
@@ -2379,6 +2445,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                     // if question type is not matrix choices apply the original code
                     if (!matrixChoices) {
                         responseList.add(maintext);
+                        responseList.add(itemScore);
                     } else {
                         // if there are questions not answered, a no answer response is added to the map
                         ItemDataIfc correspondingPublishedItemData = (ItemDataIfc) publishedItemHash.get(grade.getPublishedItemId());
@@ -2407,15 +2474,15 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                         responseList.add(responseComment);
                     }
 
+                    if (addRationale) {
+                        responseList.add(rationale);
+                    }
+
                     String itemGradingComments = "";
                     if (grade.getComments() != null) {
                         itemGradingComments = grade.getComments().replaceAll("<br\\s*/>", "");
                     }
                     responseList.add(itemGradingComments);
-
-                    if (addRationale) {
-                        responseList.add(rationale);
-                    }
 
                     // Only set header based on the first item grading data
                     if (fistItemGradingData) {
@@ -2425,6 +2492,12 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                             PublishedSectionData psd = (PublishedSectionData) i.next();
                             if (psd.getSequence().intValue() == sectionSequenceNumber) {
                                 poolName = psd.getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW);
+                                if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.equals(Integer.valueOf(psd.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE))) 
+                                        && psd.getSectionMetaDataByLabel(SectionDataIfc.RANDOM_POOL_COUNT) != null) {
+                                    for (int j = 1; j < Integer.valueOf(psd.getSectionMetaDataByLabel(SectionDataIfc.RANDOM_POOL_COUNT)); j++) {
+                                        poolName += SectionDataIfc.SEPARATOR_COMMA + psd.getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW + SectionDataIfc.SEPARATOR_MULTI + j);
+                                    }
+                                }
                             }
                         }
                         if (!matrixChoices) {
@@ -2435,12 +2508,19 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                                     questionNumber,
                                     poolString,
                                     poolName));
-                            headerList.add(makeHeader(partString,
-                                    sectionSequenceNumber,
-                                    questionString,
-                                    itemGradingCommentsString,
-                                    questionNumber,
-                                    poolString,
+                            headerList.add(makeHeader(partString, 
+                                    sectionSequenceNumber, 
+                                    questionString, 
+                                    responseString, 
+                                    questionNumber, 
+                                    poolString, 
+                                    poolName));
+                            headerList.add(makeHeader(partString, 
+                                    sectionSequenceNumber, 
+                                    questionString, 
+                                    pointsString, 
+                                    questionNumber, 
+                                    poolString, 
                                     poolName));
                             if (addRationale) {
                                 headerList.add(makeHeader(partString,
@@ -2451,16 +2531,33 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                                         poolString,
                                         poolName));
                             }
+                            headerList.add(makeHeader(partString,
+                                    sectionSequenceNumber,
+                                    questionString,
+                                    itemGradingCommentsString,
+                                    questionNumber,
+                                    poolString,
+                                    poolName));
                         } else {
                             int numberRows = responsesMap.size();
+                            headerList.add(makeHeader(partString, sectionSequenceNumber, questionString, textString, questionNumber, poolString, poolName));
                             for (int i = 0; i < numberRows; i = i + 1) {
                                 headerList.add(makeHeaderMatrix(partString,
                                         sectionSequenceNumber,
                                         questionString,
-                                        textString,
+                                        responseString,
                                         questionNumber,
                                         i + 1,
                                         poolString,
+                                        poolName));
+                            }
+                            if (addRationale) {
+                                headerList.add(makeHeader(partString, 
+                                        sectionSequenceNumber, 
+                                        questionString, 
+                                        rationaleString, 
+                                        questionNumber, 
+                                        poolString, 
                                         poolName));
                             }
                             if (addResponseComment) {
@@ -2472,13 +2569,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                                         poolString,
                                         poolName));
                             }
-                            headerList.add(makeHeader(partString,
-                                    sectionSequenceNumber,
-                                    questionString,
-                                    itemGradingCommentsString,
-                                    questionNumber,
-                                    poolString,
-                                    poolName));
+                            headerList.add(makeHeader(partString, sectionSequenceNumber, questionString, itemGradingCommentsString, questionNumber, poolString, poolName));
                         }
                     }
                 } // outer for - questions
@@ -3244,17 +3335,45 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         PublishedItemData publishedItemData;
         for (PublishedSectionData publishedSectionData : sectionSet) {
             log.debug("sectionId = " + publishedSectionData.getSectionId());
-
+            itemArrayList = publishedSectionData.getItemArray();
             String authorType = publishedSectionData.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE);
-            if (authorType != null && authorType.equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString())) {
-                log.debug("Random draw from questonpool");
-                itemArrayList = publishedSectionData.getItemArray();
+            if (authorType != null && (authorType.equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()) ||
+                    authorType.equals(SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString()) || authorType.equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString()))) {
+                log.debug("Fixed or Random draw from questionpool");
                 long seed = (long) AgentFacade.getAgentString().hashCode();
+
+                // If the section has a previous seed we must use it to use the same order.
+                String sectionRandomizationSeed = publishedSectionData.getSectionMetaDataByLabel(SectionDataIfc.RANDOMIZATION_SEED);
+                if (StringUtils.isNotBlank(sectionRandomizationSeed)) {
+                    seed += Long.parseLong(sectionRandomizationSeed);
+                }
+
                 if (publishedSectionData.getSectionMetaDataByLabel(SectionDataIfc.RANDOMIZATION_TYPE) != null && publishedSectionData
                         .getSectionMetaDataByLabel(SectionDataIfc.RANDOMIZATION_TYPE)
                         .equals(SectionDataIfc.PER_SUBMISSION)) {
                     seed = (long) (assessmentGradingData.getAssessmentGradingId()
                             .toString() + "_" + publishedSectionData.getSectionId().toString()).hashCode();
+                }
+
+                if (authorType.equals(SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString())) {
+                    // adding fixed questions
+                    List<ItemDataIfc> sortedlist = itemArrayList.stream()
+                        .filter(item -> ((PublishedItemData) item).getIsFixed())
+                        .collect(Collectors.toList());
+
+                    // removing isFixed questions from itemlist
+                    itemArrayList.removeIf(item -> ((PublishedItemData) item).getIsFixed());
+
+                    // getting all hashes from the sortedlist
+                    List<String> distinctHashValues = sortedlist.stream()
+                        .filter(item -> item instanceof PublishedItemData)
+                        .map(item -> ((PublishedItemData) item).getHash())
+                        .distinct()
+                        .collect(Collectors.toList());
+
+                    // removing from itemlist if there are hashes repeated -> avoid fixed questions on the random draw
+                    itemArrayList.removeIf(item -> item instanceof PublishedItemData &&
+                                                   distinctHashValues.stream().anyMatch(hash -> hash.equals(item.getHash())));
                 }
 
                 Collections.shuffle(itemArrayList, new Random(seed));
@@ -3274,8 +3393,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                     }
                 }
             } else {
-                log.debug("Not random draw from questonpool");
-                itemArrayList = publishedSectionData.getItemArray();
+                log.debug("Not random draw from questionpool");
                 for (PublishedItemData pid : itemArrayList) {
                     publishedItemId = pid.getItemId();
                     log.debug("publishedItemId = " + publishedItemId);
@@ -3539,5 +3657,37 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
             return q.list();
         };
         return getHibernateTemplate().execute(hcb);
+    }
+    
+    public SectionGradingData getSectionGradingData(Long assessmentGradingId, Long sectionId, String agentId) {
+        final HibernateCallback<List<SectionGradingData>> hcb = session -> {
+            Query q = session.createQuery(
+                    "from SectionGradingData s where " +
+                        "s.assessmentGradingId = :assessmentGradingId " +
+                        "and s.publishedSectionId = :sectionId " +
+                        "and s.agentId = :agent");
+            q.setParameter("assessmentGradingId", assessmentGradingId);
+            q.setParameter("sectionId", sectionId);
+            q.setParameter("agent", agentId);
+            return q.list();
+        };
+        List<SectionGradingData> sectionGradings = getHibernateTemplate().execute(hcb);
+        if (sectionGradings.isEmpty()) {
+            return null;
+        }
+        return sectionGradings.get(0);
+    }
+
+    public void saveSectionGrading(SectionGradingData item) {
+        int retryCount = persistenceHelper.getRetryCount();
+        while (retryCount > 0) {
+            try {
+                getHibernateTemplate().saveOrUpdate(item);
+                retryCount = 0;
+            } catch (Exception e) {
+                log.warn("problem saving sectionGrading: " + e.getMessage());
+                retryCount = persistenceHelper.retryDeadlock(e, retryCount);
+            }
+        }
     }
 }

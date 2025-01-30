@@ -27,8 +27,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.Collections;
-import java.util.List;
 
 import javax.imageio.ImageIO;
 
@@ -42,13 +40,10 @@ import org.sakaiproject.profile2.dao.ProfileDao;
 import org.sakaiproject.profile2.hbm.model.ProfileImageExternal;
 import org.sakaiproject.profile2.hbm.model.ProfileImageOfficial;
 import org.sakaiproject.profile2.hbm.model.ProfileImageUploaded;
-import org.sakaiproject.profile2.model.GalleryImage;
 import org.sakaiproject.profile2.model.MimeTypeByteArray;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfileImage;
 import org.sakaiproject.profile2.model.ProfilePreferences;
-import org.sakaiproject.profile2.model.ProfilePrivacy;
-import org.sakaiproject.profile2.types.PrivacyType;
 import org.sakaiproject.profile2.util.Messages;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
@@ -71,12 +66,6 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 	private SakaiProxy sakaiProxy;
 
 	@Setter
-	private ProfilePrivacyLogic privacyLogic;
-
-	@Setter
-	private ProfileConnectionsLogic connectionsLogic;
-
-	@Setter
 	private ProfilePreferencesLogic preferencesLogic;
 
 	@Setter
@@ -91,9 +80,6 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 	private Cache cache;
 	private final String CACHE_NAME = "org.sakaiproject.profile2.cache.images";
 
-	/**
- 	 * {@inheritDoc}
- 	 */
 	@Override
 	public ProfileImage getBlankProfileImage() {
 
@@ -103,17 +89,11 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
         return profileImage;
     }
 	
-	/**
- 	 * {@inheritDoc}
- 	 */
 	@Override
-	public ProfileImage getProfileImage(String userUuid, ProfilePreferences prefs, ProfilePrivacy privacy, int size) {
-		return getProfileImage(userUuid, prefs, privacy, size, null);
+	public ProfileImage getProfileImage(String userUuid, ProfilePreferences prefs, int size) {
+		return getProfileImage(userUuid, prefs, size, null);
 	}
 	
-	/**
- 	 * {@inheritDoc}
- 	 */
 	@Override
 	public ProfileImage getOfficialProfileImage(String userUuid, String siteId) {
 		
@@ -143,11 +123,8 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		return getOfficialImage(userUuid, profileImage, defaultImageUrl, StringUtils.equals(userUuid,currentUserId));
 	}
 	
-	/**
- 	 * {@inheritDoc}
- 	 */
 	@Override
-	public ProfileImage getProfileImage(String userUuid, ProfilePreferences prefs, ProfilePrivacy privacy, int size, String siteId) {
+	public ProfileImage getProfileImage(String userUuid, ProfilePreferences prefs, int size, String siteId) {
 		
 		ProfileImage image = new ProfileImage();
 		boolean allowed = false;
@@ -184,15 +161,6 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 			return image;
 		}
 		
-		//check privacy supplied was valid, if given
-		if(privacy != null && !StringUtils.equals(userUuid, privacy.getUserUuid())) {
-			log.error("ProfilePrivacy data supplied was not for user: " + userUuid);
-			image.setExternalImageUrl(defaultImageUrl);
-			image.setAltText(getAltText(userUuid, isSameUser, false));
-			image.setDefault(true);
-			return image;
-		}
-		
 		//check if same user
 		if(isSameUser){
 			allowed = true;
@@ -204,24 +172,6 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 				log.debug("checking if user: " + currentUserUuid + " has permissions in site: " + siteId);
 				allowed = sakaiProxy.isUserAllowedInSite(currentUserUuid, ProfileConstants.ROSTER_VIEW_PHOTO, siteId);
 			}
-		}
-		
-		//if not allowed yet, check we have a privacy record, if not, get one
-		if(!allowed && privacy == null) {
-			privacy = privacyLogic.getPrivacyRecordForUser(userUuid);
-			//if still null, default image
-			if(privacy == null) {
-				log.error("Couldn't retrieve ProfilePrivacy data for user: " + userUuid + ". Using default image.");
-				image.setExternalImageUrl(defaultImageUrl);
-				image.setAltText(getAltText(userUuid, isSameUser, false));
-				image.setDefault(true);
-				return image;
-			} 
-		}
-		
-		//if not allowed, check privacy record
-		if(!allowed) {
-			allowed = privacyLogic.isActionAllowed(userUuid, currentUserUuid, PrivacyType.PRIVACY_OPTION_PROFILEIMAGE);
 		}
 		
 		//default if still not allowed
@@ -419,7 +369,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
  	 */
 	@Override
 	public ProfileImage getProfileImage(Person person, int size) {
-		return getProfileImage(person.getUuid(), person.getPreferences(), person.getPrivacy(), size, null);
+		return getProfileImage(person.getUuid(), person.getPreferences(), size, null);
 	}
 	
 	/**
@@ -427,7 +377,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
  	 */
 	@Override
 	public ProfileImage getProfileImage(Person person, int size, String siteId) {
-		return getProfileImage(person.getUuid(), person.getPreferences(), person.getPrivacy(), size, siteId);
+		return getProfileImage(person.getUuid(), person.getPreferences(), size, siteId);
 	}
 	
 	
@@ -565,123 +515,6 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 	}
 	
 	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean addGalleryImage(String userUuid, byte[] imageBytes, String mimeType, String fileName) {
-
-		// check auth and get currentUserUuid
-		String currentUserUuid = sakaiProxy.getCurrentUserId();
-		if (currentUserUuid == null) {
-			throw new SecurityException("You must be logged in to add a gallery image.");
-		}
-
-		// check admin, or the currentUser and given uuid match
-		if (!sakaiProxy.isSuperUser() && !StringUtils.equals(currentUserUuid, userUuid)) {
-			throw new SecurityException("You are not allowed to add a gallery image.");
-		}
-
-		String imageId = sakaiProxy.createUuid();
-
-		// create resource ID
-		String mainResourcePath = sakaiProxy.getProfileGalleryImagePath(userUuid, imageId);
-
-		byte[] scaledImageBytes = ProfileUtils.scaleImage(imageBytes, ProfileConstants.MAX_GALLERY_IMAGE_XY, mimeType);
-		
-		// save image
-		if (!sakaiProxy.saveFile(mainResourcePath, userUuid, fileName, mimeType,scaledImageBytes)) {
-			log.error("Couldn't add gallery image to CHS. Aborting.");
-			return false;
-		}
-
-		// create thumbnail
-		byte[] thumbnailBytes = ProfileUtils.scaleImage(imageBytes, ProfileConstants.MAX_GALLERY_THUMBNAIL_IMAGE_XY, mimeType);
-		String thumbnailResourcePath = sakaiProxy.getProfileGalleryThumbnailPath(userUuid, imageId);
-		sakaiProxy.saveFile(thumbnailResourcePath, userUuid, fileName, mimeType,thumbnailBytes);
-		
-		//save
-		GalleryImage galleryImage = new GalleryImage(userUuid,mainResourcePath, thumbnailResourcePath, fileName);
-		if(dao.addNewGalleryImage(galleryImage)){
-			log.info("Added new gallery image for user: " + galleryImage.getUserUuid()); 
-			return true;
-		} 
-			
-		return false;
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public List<GalleryImage> getGalleryImages(String userUuid) {
-
-		// check auth and get currentUserUuid
-		String currentUserUuid = sakaiProxy.getCurrentUserId();
-		if (currentUserUuid == null) {
-			throw new SecurityException("You must be logged in to make a request for a user's gallery images.");
-		}
-
-		return dao.getGalleryImages(userUuid);
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public List<GalleryImage> getGalleryImagesRandomized(String userUuid) {
-		
-		List<GalleryImage> images = getGalleryImages(userUuid);
-		Collections.shuffle(images);
-		return images;
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean removeGalleryImage(String userId, long imageId) {
-		if(userId == null || Long.valueOf(imageId) == null){
-	  		throw new IllegalArgumentException("Null argument in ProfileLogicImpl.removeGalleryImage()"); 
-	  	}
-		
-		// check auth and get currentUserUuid
-		String currentUserUuid = sakaiProxy.getCurrentUserId();
-		if (currentUserUuid == null) {
-			throw new SecurityException("You must be logged in to remove a gallery image.");
-		}
-		
-		// check admin, or the currentUser and given uuid match
-		if (!sakaiProxy.isSuperUser() && !StringUtils.equals(currentUserUuid, userId)) {
-			throw new SecurityException("You are not allowed to remove this gallery image.");
-		}
-		
-		GalleryImage galleryImage = dao.getGalleryImageRecord(userId, imageId);
-		
-		if(galleryImage == null){
-			log.error("GalleryImage record does not exist for userId: " + userId + ", imageId: " + imageId);
-			return false;
-		}
-		
-		//delete main image
-		if (!sakaiProxy.removeResource(galleryImage.getMainResource())) {
-			log.error("Gallery image not removed: " + galleryImage.getMainResource());
-		}
-		
-		//delete thumbnail
-		if (!sakaiProxy.removeResource(galleryImage.getThumbnailResource())) {
-			log.error("Gallery thumbnail not removed: " + galleryImage.getThumbnailResource());
-		}
-		
-		if(dao.removeGalleryImage(galleryImage)){
-			log.info("User: " + userId + " removed gallery image: " + imageId);
-			return true;
-		} 
-		
-		return false;
-	}
-	
-	
-	/**
  	 * {@inheritDoc}
  	 */
 	@Override
@@ -712,7 +545,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
  	 */
 	@Override
 	public boolean profileImageIsDefault(final String userUuid) {
-		ProfileImage image = getProfileImage(userUuid, null, null, ProfileConstants.PROFILE_IMAGE_MAIN);
+		ProfileImage image = getProfileImage(userUuid, null, ProfileConstants.PROFILE_IMAGE_MAIN);
 		return image.isDefault();
 	}
 
@@ -761,15 +594,6 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		}
 		return sb.toString();
 	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public int getGalleryImagesCount(final String userUuid) {
-		return dao.getGalleryImagesCount(userUuid);
-	}
-	
 	
 	/**
 	 * Get the profile image for the given user, allowing fallback if no thumbnail exists.
@@ -1118,6 +942,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 				image.setExternalImageUrl(getUnavailableImageURL());
 				image.setDefault(true);
 			}
+			image.setInitials(true);
 			cache.put(userUuid, image);
 		}
 		return image;

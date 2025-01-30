@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.sakaiproject.sitemanage</groupId>
 		<artifactId>sakai-site-datemanager-base</artifactId>
-		<version>23-SNAPSHOT</version>
+		<version>25-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -59,6 +59,10 @@
 			<groupId>org.sakaiproject.samigo</groupId>
 			<artifactId>samigo-hibernate</artifactId>
 			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.scheduler</groupId>
+			<artifactId>scheduler-api</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject.signup</groupId>

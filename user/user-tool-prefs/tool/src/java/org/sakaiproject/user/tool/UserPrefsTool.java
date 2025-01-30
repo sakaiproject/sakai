@@ -88,54 +88,6 @@ public class UserPrefsTool
 	private static final String PREFS_EXPAND_TRUE = "1";
 	private static final String PREFS_EXPAND_FALSE = "0";
 
-	/**
-	 * Represents a name value pair in a keyed preferences set.
-	 */
-    @Getter @Setter
-	public class KeyNameValue
-	{
-		/** Is this value a list?. */
-		protected boolean isList = false;
-
-		/** The key. */
-		protected String key = null;
-
-		/** The name. */
-		protected String name = null;
-
-		/** The original is this value a list?. */
-		protected boolean origIsList = false;
-
-		/** The original key. */
-		protected String origKey = null;
-
-		/** The original name. */
-		protected String origName = null;
-
-		/** The original value. */
-		protected String origValue = null;
-
-		/** The value. */
-		protected String value = null;
-
-		public KeyNameValue(String key, String name, String value, boolean isList)
-		{
-			this.key = key;
-			this.origKey = key;
-			this.name = name;
-			this.origName = name;
-			this.value = value;
-			this.origValue = value;
-			this.isList = isList;
-			this.origIsList = isList;
-		}
-
-		public boolean isChanged()
-		{
-			return ((!name.equals(origName)) || (!value.equals(origValue)) || (!key.equals(origKey)) || (isList != origIsList));
-		}
-	}
-
 	/** The PreferencesEdit being worked on. */
 	protected PreferencesEdit m_edit = null;
 
@@ -150,8 +102,6 @@ public class UserPrefsTool
 	/** The PreferencesEdit in KeyNameValue collection form. */
 	protected Collection m_stuff = null;
 
-	// /** The user id (from the end user) to edit. */
-	// protected String m_userId = null;
 	/** For display and selection of Items in JSF-- edit.jsp */
 	private List prefExcludeItems = new ArrayList();
 
@@ -174,7 +124,15 @@ public class UserPrefsTool
 
 	private String[] tablist;
 
-	private int noti_selection, tab_selection, timezone_selection, language_selection, privacy_selection, hidden_selection, editor_selection, theme_selection, j;
+	private int noti_selection,
+		tab_selection,
+		timezone_selection,
+		language_selection,
+		privacy_selection,
+		hidden_selection,
+		editor_selection,
+		theme_selection,
+		j;
 
 	private String hiddenSitesInput = null;
 
@@ -228,6 +186,80 @@ public class UserPrefsTool
 	// SAK-45006: only show Themes preference page if themes are enabled
 	private boolean prefShowThemePreferences = false;
 	
+	// SAK-23895
+	private String selectedTabLabel = "";
+
+	// ////////////////////////////////// NOTIFICATION ACTIONS ////////////////////////////////
+	
+	private DecoratedNotificationPreference currentDecoratedNotificationPreference = null;
+	
+	@Getter @Setter
+	protected boolean notiUpdated = false;
+
+	@Getter @Setter
+	protected boolean tzUpdated = false;
+
+	@Getter @Setter
+	protected boolean locUpdated = false;
+
+	@Getter @Setter
+	protected boolean hiddenUpdated = false;
+	
+	@Getter @Setter
+	protected boolean editorUpdated = false;
+
+	@Getter @Setter
+	protected boolean themeUpdated = false;
+
+
+	/**
+	 * Represents a name value pair in a keyed preferences set.
+	 */
+    @Getter @Setter
+	public class KeyNameValue
+	{
+		/** Is this value a list?. */
+		protected boolean isList = false;
+
+		/** The key. */
+		protected String key = null;
+
+		/** The name. */
+		protected String name = null;
+
+		/** The original is this value a list?. */
+		protected boolean origIsList = false;
+
+		/** The original key. */
+		protected String origKey = null;
+
+		/** The original name. */
+		protected String origName = null;
+
+		/** The original value. */
+		protected String origValue = null;
+
+		/** The value. */
+		protected String value = null;
+
+		public KeyNameValue(String key, String name, String value, boolean isList)
+		{
+			this.key = key;
+			this.origKey = key;
+			this.name = name;
+			this.origName = name;
+			this.value = value;
+			this.origValue = value;
+			this.isList = isList;
+			this.origIsList = isList;
+		}
+
+		public boolean isChanged()
+		{
+			return ((!name.equals(origName)) || (!value.equals(origValue)) || (!key.equals(origKey)) || (isList != origIsList));
+		}
+	}
+
 	// //////////////////////////////// PROPERTY GETTER AND SETTER ////////////////////////////////////////////
 
 	public boolean isPrefShowTabLabelOption() {
@@ -253,10 +285,8 @@ public class UserPrefsTool
 
 	public void setPrefTabString(String inp)
 	{
-		inp = inp.trim();
-		prefTabString = inp;
+		prefTabString = inp.trim();
 		if ( inp.length() < 1 ) prefTabString = null;
-		return;
 	}
 
 	public String getPrefHiddenString()
@@ -266,10 +296,8 @@ public class UserPrefsTool
 
 	public void setPrefHiddenString(String inp)
 	{
-		inp = inp.trim();
-		prefHiddenString = inp;
+		prefHiddenString = inp.trim();
 		if ( inp.length() < 1 ) prefHiddenString = null;
-		return;
 	}
 
 	/**
@@ -510,7 +538,7 @@ public class UserPrefsTool
 
 		//To indicate that it is in the refresh mode
 		refreshMode=true;
-		String tabOrder = ServerConfigurationService.getString("preference.pages", "prefs_noti_title, prefs_timezone_title, prefs_lang_title, prefs_hidden_title, prefs_hidden_title, prefs_editor_title,prefs_theme_title");
+		String tabOrder = ServerConfigurationService.getString("preference.pages", "prefs_noti_title, prefs_timezone_title, prefs_lang_title, prefs_hidden_title, prefs_editor_title,prefs_theme_title");
 		log.debug("Setting preference.pages as " + tabOrder);
 
 		tablist=tabOrder.split(",");
@@ -589,10 +617,10 @@ public class UserPrefsTool
 		return privacy_selection;
 	}
 
-	public int getHidden_selection()
+	public int getHiddenSelection()
 	{
 		//Loading the data for notification in the refresh mode
-		if (hidden_selection==1 && refreshMode==true)
+		if (hidden_selection==1 && refreshMode)
 		{
 			processActionHiddenFrmEdit();
 		}
@@ -952,28 +980,6 @@ public class UserPrefsTool
 		}
 		return -1;
 	}
-
-	// ////////////////////////////////// NOTIFICATION ACTIONS ////////////////////////////////
-	
-	private DecoratedNotificationPreference currentDecoratedNotificationPreference = null;
-	
-	@Getter @Setter
-	protected boolean notiUpdated = false;
-
-	@Getter @Setter
-	protected boolean tzUpdated = false;
-
-	@Getter @Setter
-	protected boolean locUpdated = false;
-
-	@Getter @Setter
-	protected boolean hiddenUpdated = false;
-	
-	@Getter @Setter
-	protected boolean editorUpdated = false;
-
-	@Getter @Setter
-	protected boolean themeUpdated = false;
 
 	// ///////////////////////////////////////NOTIFICATION ACTION - copied from NotificationprefsAction.java////////
 	// TODO - clean up method call. These are basically copied from legacy legacy implementations.
@@ -1364,9 +1370,6 @@ public class UserPrefsTool
 	}
 
 	// SAK-23895
-	private String selectedTabLabel = "";
-
-
 	private String getPrefTabLabel(){
 	    if ( prefTabLabel != null )
 	        return prefTabLabel;
@@ -1779,14 +1782,6 @@ public class UserPrefsTool
 		{
 			term = msgs.getString("moresite_projects");
 		}
-		else if ("portfolio".equals(type))
-		{
-			term = msgs.getString("moresite_portfolios");
-		}
-		else if ("scs".equals(type))
-		{
-			term = msgs.getString("moresite_scs");
-		}
 		else if ("admin".equals(type))
 		{
 			term = msgs.getString("moresite_administration");
@@ -1798,6 +1793,7 @@ public class UserPrefsTool
 		return term;
 	}
 	
+	@Getter @Setter
 	public class DecoratedNotificationPreference {
 		
 		private String key = "";
@@ -1826,78 +1822,6 @@ public class UserPrefsTool
 			}
 		}
 
-		public void setKey(String key) {
-			this.key = key;
-		}
-
-		public String getKey() {
-			return key;
-		}
-
-		public void setUserNotificationPreferencesRegistration(UserNotificationPreferencesRegistration userNotificationPreferencesRegistration) {
-			this.userNotificationPreferencesRegistration = userNotificationPreferencesRegistration;
-		}
-
-		public UserNotificationPreferencesRegistration getUserNotificationPreferencesRegistration() {
-			return userNotificationPreferencesRegistration;
-		}
-
-		public void setSelectedOption(String selectedOption) {
-			this.selectedOption = selectedOption;
-		}
-
-		public String getSelectedOption() {
-			return selectedOption;
-		}
-
-		public void setOptionSelectItems(List<SelectItem> optionSelectItems) {
-			this.optionSelectItems = optionSelectItems;
-		}
-
-		public List<SelectItem> getOptionSelectItems() {
-			return optionSelectItems;
-		}
-
-		public void setSiteOverrides(List<SiteOverrideBean> siteOverrides) {
-			this.siteOverrides = siteOverrides;
-		}
-
-		public List<SiteOverrideBean> getSiteOverrides() {
-			return siteOverrides;
-		}
-		
-		public List<DecoratedSiteTypeBean> getSiteList() {
-			return siteList;
-		}
-
-		public void setSiteList(List<DecoratedSiteTypeBean> siteList) {
-			this.siteList = siteList;
-		}
-
-		public Integer getSortOrder() {
-			return sortOrder;
-		}
-
-		public void setSortOrder(Integer sortOrder) {
-			this.sortOrder = sortOrder;
-		}
-
-		public boolean isHidden() {
-			return hidden;
-		}
-
-		public void setHidden(boolean hidden) {
-			this.hidden = hidden;
-		}
-		
-		public Boolean getExpandOverride() {
-			return expandOverride;
-		}
-
-		public void setExpandOverride(Boolean expandOverride) {
-			this.expandOverride = expandOverride;
-		}
-		
 		public boolean getExpand() {
 			Boolean override = getExpandOverride();
 			if (override != null)
@@ -1934,11 +1858,11 @@ public class UserPrefsTool
 				}
 			}
 			
-			String expandTypeString = ServerConfigurationService.getString("prefs.type.autoExpanded", "portfolio");
+			String expandTypeString = ServerConfigurationService.getString("prefs.type.autoExpanded");
 			
 			String[] sortedTypeList = ServerConfigurationService.getStrings("prefs.type.order");
             if(sortedTypeList == null) {
-                sortedTypeList = new String[] {"portfolio","course","project"};
+                sortedTypeList = new String[] {"course","project"};
             }
 			String[] termOrder = ServerConfigurationService.getStrings("portal.term.order");
 			List<String> myTermOrder = new ArrayList<>();
@@ -2544,8 +2468,6 @@ public class UserPrefsTool
 				return term;
 			} else if (isProjectType(type)) {
 				return msgs.getString("moresite_projects");
-			} else if ("portfolio".equals(type)) {
-				return msgs.getString("moresite_portfolios");
 			} else if ("admin".equals(type)) {
 				return msgs.getString("moresite_administration");
 			} else {

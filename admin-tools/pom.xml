@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.sakaiproject</groupId>
         <artifactId>master</artifactId>
-        <version>23-SNAPSHOT</version>
+        <version>25-SNAPSHOT</version>
         <relativePath>../master/pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -63,6 +63,12 @@
             <groupId>org.apache.any23</groupId>
             <artifactId>apache-any23-encoding</artifactId>
             <version>2.7</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.opencsv</groupId>

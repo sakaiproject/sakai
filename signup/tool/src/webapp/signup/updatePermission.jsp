@@ -5,19 +5,19 @@
 
 <f:view locale="#{UserLocale.locale}">
 	<jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
-	   <jsp:setProperty name="msgs" property="baseName" value="messages"/>
+	   <jsp:setProperty name="msgs" property="baseName" value="signup"/>
 	</jsp:useBean>
 	
 	<sakai:view_container title="Signup Tool">
 		<style type="text/css">
-			@import url("/sakai-signup-tool/css/signupStyle.css");
+			@import url("/sakai-signup-tool/css/signupStyle.css${Portal.CDNQuery}");
 		</style>
 
 		<h:outputText value="#{Portal.latestJQuery}" escape="false"/>
 		<script>
 			//initialization of the page
 			jQuery(document).ready(function() {
-				var menuLink = $('#signupPermissionMenuLink');
+				const menuLink = $('#signupPermissionMenuLink');
 				menuLink.addClass('current');
 				menuLink.html(menuLink.find('a').text());
 			});
@@ -31,12 +31,12 @@
 					<sakai:view_title value="#{msgs.permission_page_title}"/>
 				</div>
 				<sakai:doc_section>
-				 <h:panelGrid columns="1" styleClass="instruction" style="background:#fff;">
+				 <h:panelGrid columns="1" styleClass="instruction">
                         <h:outputText value="#{msgs.permission_note_for_view_attend_group}" escape="false" />                                             
                         <h:outputText value="&nbsp;" escape="false" />
                     </h:panelGrid>					
 				</sakai:doc_section>
-				<div class="table-responsive">
+				<div class="table">
 				<h:panelGrid columns="1">
 					
 					<h:dataTable 
@@ -45,7 +45,7 @@
 				 		binding="#{SignupPermissionsUpdateBean.permissionTable}"				 						 		
 				 		var="permission" style="width:80%;" 				 		
 				 		rowClasses="oddRow,evenRow"
-				 		styleClass="signupTable">
+				 		styleClass="signupTable table table-striped">
 						<h:column>
 							<f:facet name="header" >
 								<h:outputText value="#{msgs.permission_tab_name}" escape="false"/>
@@ -87,12 +87,12 @@
 					<sakai:button_bar>					
 							<h:commandButton id="goback" action="listMeetings" value="#{msgs.goback_button}"/>					
 		            </sakai:button_bar>
-		            
+            
 	            	<h:outputText value="&nbsp;" escape="false"/>
 	            </h:panelGrid>
-				
+
 			</h:form>
 		</sakai:view_content>
 	</sakai:view_container>
-	
+
 </f:view>		

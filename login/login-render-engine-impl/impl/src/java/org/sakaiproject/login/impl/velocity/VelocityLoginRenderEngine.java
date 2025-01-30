@@ -59,25 +59,11 @@ public class VelocityLoginRenderEngine implements LoginRenderEngine {
 	
 	private SessionManager sessionManager;
 	
-	private boolean styleAble = false;
-	
-	private boolean styleAbleContentSummary = false;
-	
 	private VelocityEngine vengine;
 	
 	// LoginRenderEngine Implementation
 	
 	public void init() throws Exception {
-		/*try
-		{
-			styleAble = serverConfigurationService.getBoolean("portal.styleable", false);
-			styleAbleContentSummary = serverConfigurationService.getBoolean("portal.styleable.contentSummary", false);
-		}
-		catch (Exception ex)
-		{
-			log
-					.warn("No Server configuration service available, assuming default settings ");
-		}*/
 		
 		if ( sessionManager == null ) {
 			log.warn("No session Manager, assuming test mode ");

@@ -47,6 +47,8 @@ import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.messaging.api.MicrosoftMessage;
+import org.sakaiproject.messaging.api.MicrosoftMessagingService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
@@ -169,6 +171,7 @@ public class BaseSite implements Site
 	protected AuthzGroup m_azg = null;
 
 	private AuthzGroupService authzGroupService;
+	private MicrosoftMessagingService microsoftMessagingService;
 	private FormattedText formattedText;
 	/**
 	 * Set to true if we have changed our azg, so it need to be written back on
@@ -577,6 +580,7 @@ public class BaseSite implements Site
 			}
 		}
 		this.authzGroupService = this.siteService.authzGroupService();
+		this.microsoftMessagingService = this.siteService.microsoftMessagingService();
 		this.sessionManager = sessionManager;
 		if (this.sessionManager == null) {
 			this.sessionManager = (SessionManager) ComponentManager.get(SessionManager.class);
@@ -1003,7 +1007,7 @@ public class BaseSite implements Site
 	/**
 	 * {@inheritDoc}
 	 */
-	public Collection getGroups()
+	public Collection<Group> getGroups()
 	{
 		// Default to loading the groups if lazy
 		return getGroups(true);
@@ -1022,7 +1026,7 @@ public class BaseSite implements Site
 	 * @return The Site's list of Groups.
 	 *
 	 */
-	public Collection getGroups(boolean allowFetch)
+	public Collection<Group> getGroups(boolean allowFetch)
 	{
 		// Avoid fetching if requested (as for copy constructor)
 		if (allowFetch && m_groupsLazy)
@@ -1490,7 +1494,14 @@ public class BaseSite implements Site
 		}
 		stack.pop();
 
-		// TODO: site groups
+		// site groups
+		Element groupNode = doc.createElement("groups");
+		site.appendChild(groupNode);
+		stack.push(groupNode);
+		for (Group group : getGroups()) {
+			group.toXml(doc, stack);
+		}
+		stack.pop();
 
 		return site;
 	}
@@ -1543,7 +1554,16 @@ public class BaseSite implements Site
 	public void setPublished(boolean published)
 	{
 		m_published = published;
-
+		
+		//send message to (ignite) MicrosoftMessagingService
+		if(!published) {
+			microsoftMessagingService.send(MicrosoftMessage.Topic.MODIFY_ELEMENT, MicrosoftMessage.builder()
+					.action(MicrosoftMessage.Action.UNPUBLISH)
+					.type(MicrosoftMessage.Type.SITE)
+					.siteId(this.getId())
+					.build()
+			);
+		}
 	}
 
 	/**
@@ -1710,6 +1730,15 @@ public class BaseSite implements Site
 	{
 		Group rv = new BaseGroup(siteService, this);
 		m_groups.add(rv);
+		
+		//send message to (ignite) MicrosoftMessagingService
+		microsoftMessagingService.send(MicrosoftMessage.Topic.CREATE_ELEMENT, MicrosoftMessage.builder()
+				.action(MicrosoftMessage.Action.CREATE)
+				.type(MicrosoftMessage.Type.GROUP)
+				.siteId(this.getId())
+				.groupId(rv.getId())
+				.build()
+		);
 
 		return rv;
 	}
@@ -1740,6 +1769,15 @@ public class BaseSite implements Site
 
 		// track so we can clean up related on commit
 		m_deletedGroups.add(group);
+		
+		//send message to (ignite) MicrosoftMessagingService
+		microsoftMessagingService.send(MicrosoftMessage.Topic.DELETE_ELEMENT, MicrosoftMessage.builder()
+				.action(MicrosoftMessage.Action.DELETE)
+				.type(MicrosoftMessage.Type.GROUP)
+				.siteId(this.getId())
+				.groupId(group.getId())
+				.build()
+		);
 	}
 
 	/**

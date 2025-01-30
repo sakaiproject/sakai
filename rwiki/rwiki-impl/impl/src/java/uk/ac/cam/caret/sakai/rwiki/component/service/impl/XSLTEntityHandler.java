@@ -43,13 +43,13 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.sax.TransformerHandler;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.text.StringEscapeUtils;
 import org.apache.xml.serializer.OutputPropertiesFactory;
 import org.apache.xml.serializer.Serializer;
-import org.apache.xml.serializer.SerializerFactory;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.text.StringEscapeUtils;
 
-import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
@@ -106,11 +106,7 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 	/**
 	 * dependency
 	 */
-	private String xalan270ContentHandler = null;
-
-	/**
-	 * dependency
-	 */
+	@Getter @Setter
 	private RenderService renderService = null;
 
 	/**
@@ -143,11 +139,6 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 	private String errorFormat;
 
 	/**
-	 * Thread holder for the transformer
-	 */
-	private ThreadLocal transformerHolder = new ThreadLocal();
-
-	/**
 	 * A map containing headers to inject into the response
 	 */
 	private Map responseHeaders;
@@ -162,11 +153,10 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 	 */
 	private Map<String, String> transformParameters;
 
+	@Getter @Setter
 	private EntityManager entityManager;
 
 	private SAXParserFactory saxParserFactory;
-
-	private SerializerFactory serializerFactory;
 
 	private String breadCrumbParameter = "breadcrumb";
 
@@ -175,16 +165,6 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 	/** Configuration: allow use of alias for site id in references. */
 	protected boolean m_siteAlias = true;
 	
-	private Object load(ComponentManager cm, String name)
-	{
-		Object o = cm.get(name);
-		if (o == null)
-		{
-			log.error("Cant find Spring component named " + name); //$NON-NLS-1$
-		}
-		return o;
-	}
-
 	/**
 	 * {@inheritDoc}
 	 */
@@ -832,10 +812,6 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 	public void init()
 	{
 		if (!isAvailable()) return;
-		ComponentManager cm = org.sakaiproject.component.cover.ComponentManager.getInstance();
-		entityManager = (EntityManager) load(cm, EntityManager.class.getName());
-		renderService = (RenderService) load(cm, RenderService.class.getName());
-
 		saxParserFactory = SAXParserFactory.newInstance();
 		saxParserFactory.setNamespaceAware(true);
 		try
@@ -913,14 +889,8 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 
 		try
 		{
-			XSLTTransform xsltTransform = (XSLTTransform) transformerHolder.get();
-			if (xsltTransform == null)
-			{
-				xsltTransform = new XSLTTransform();
-				xsltTransform.setXslt(new InputSource(this.getClass()
-						.getResourceAsStream(xslt)));
-				transformerHolder.set(xsltTransform);
-			}
+			XSLTTransform xsltTransform = new XSLTTransform();
+			xsltTransform.setXslt(new InputSource(this.getClass().getResourceAsStream(xslt)));
 			SAXResult sr = new SAXResult();
 			
 			TransformerHandler th = xsltTransform.getContentHandler();
@@ -942,8 +912,8 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 				S_OMIT_META_TAG:{http://xml.apache.org/xalan}omit-meta-tag
 				S_USE_URL_ESCAPING:{http://xml.apache.org/xalan}use-url-escaping
 			*/
-			
-			Serializer s = SerializerFactory.getSerializer(p);
+			Serializer s = xsltTransform.getSerializer(p);
+
 			s.setOutputStream(out);
 			sr.setHandler(s.asContentHandler());
 			th.setResult(sr);
@@ -1207,23 +1177,6 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 	}
 
 	/**
-	 * @return Returns the entityManager.
-	 */
-	public EntityManager getEntityManager()
-	{
-		return entityManager;
-	}
-
-	/**
-	 * @param entityManager
-	 *        The entityManager to set.
-	 */
-	public void setEntityManager(EntityManager entityManager)
-	{
-		this.entityManager = entityManager;
-	}
-
-	/**
 	 * @return the breadCrumbParameterFormat
 	 */
 	public String getBreadCrumbParameterFormat()
@@ -1254,25 +1207,8 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 	{
 		this.breadCrumbParameter = breadCrumbParameter;
 	}
-	
-	/**
-	 * @return the xalan270ContentHandler
-	 */
-	public String getXalan270ContentHandler()
-	{
-		return xalan270ContentHandler;
-	}
 
-	/**
-	 * @param xalan270ContentHandler
-	 *        the xalan270ContentHandler to set
-	 */
-	public void setXalan270ContentHandler(String xalan270ContentHandler)
-	{
-		this.xalan270ContentHandler = xalan270ContentHandler;
-	}
-    
-    public boolean isEscaped() {
+	public boolean isEscaped() {
         return escaped;
     }
     

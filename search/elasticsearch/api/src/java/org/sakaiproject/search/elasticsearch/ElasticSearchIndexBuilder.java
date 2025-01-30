@@ -19,9 +19,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.search.SearchHit;
+import org.opensearch.action.search.SearchResponse;
+import org.opensearch.client.RestHighLevelClient;
+import org.opensearch.search.SearchHit;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchStatus;
 import org.sakaiproject.search.elasticsearch.filter.SearchItemFilter;
@@ -39,13 +39,13 @@ public interface ElasticSearchIndexBuilder extends SearchIndexBuilder {
 
     String getEventResourceFilter();
 
-    SearchResponse search(String searchTerms, List<String> references, List<String> siteIds, int start, int end);
+    SearchResponse search(String searchTerms, List<String> references, List<String> siteIds, List<String> toolIds, int start, int end);
 
     // response type is different from search to match historical behavior (and is actually easier to
     // keep the SearchResponse processing inside the index builder b/c it means we don't have to
     // expose any impl details like the searched on field name
 
-    SearchResponse search(String searchTerms, List<String> references, List<String> siteIds, int start, int end, Map<String,String> additionalSearchInformation);
+    SearchResponse search(String searchTerms, List<String> references, List<String> siteIds, List<String> toolIds, int start, int end, Map<String,String> additionalSearchInformation);
 
     String[] searchSuggestions(String searchString, String currentSite, boolean allMySites);
 

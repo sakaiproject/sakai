@@ -74,4 +74,12 @@ public class MultiSingleStorageSqlOracle extends MultiSingleStorageSqlDefault
 
 		return fields;
 	}
+
+	/**
+	 * returns the sql statement which retrieves the xml field from the specified table.
+	 */
+	public String getXmlLikeSql(String field, String table)
+	{
+		return String.format("select %s from %s where %s like ? ESCAPE '\\'", storageFields, table, field);
+	}
 }

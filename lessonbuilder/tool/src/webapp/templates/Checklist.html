@@ -6,14 +6,13 @@
     <META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE"/>
     <style rsf:id="iconstyle" type="text/css">
     </style>
-    <script rsf:id="scr=portal-matter" type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
-    <script language="JavaScript" src="/lessonbuilder-tool/js/SakaiRSFWidgets.js" type="text/javascript" rsf:id="fckScript"></script>
-    <script type="text/javascript" language="JavaScript" src="../js/rsf.js"></script>
+    <script rsf:id="scr=portal-matter" src="/library/js/headscripts.js"></script>
+    <script src="/lessonbuilder-tool/js/SakaiRSFWidgets.js" rsf:id="fckScript"></script>
+    <script src="../js/rsf.js"></script>
+    <script src="/library/js/spinner.js" type="text/javascript"></script>
     <link type="text/css" href="/library/webjars/jquery-ui-themes/1.12.1/smoothness/jquery-ui.min.css" rel="stylesheet" />
     <link rsf:id="scr=portal-matter" href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
-    <link rsf:id="scr=portal-matter" href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
-    <link rel="stylesheet" rsf:id="scr=rewrite-url" href="../css/Simplepagetool.css" type="text/css"/>
-    <link rel="stylesheet" rsf:id="scr=rewrite-url" href="../css/checklist.css" type="text/css"/>
+    <link rsf:id="scr=portal-matter" href="/library/skin/default-skin/tool.css" type="text/css" rel="stylesheet" media="all" />
     <link rel="stylesheet" rsf:id="customCSS" type="text/css" />
 
     <title rsf:id="msg=simplepage.checklist"></title>
@@ -36,7 +35,7 @@
         </div>
 
         <div class="page-header">
-            <span rsf:id="title-label"></span><span rsf:id="page-title"></span>
+            <strong><span class="me-2" rsf:id="title-label"></span></strong><span rsf:id="page-title"></span>
         </div>
 
         <div>
@@ -46,7 +45,7 @@
                 <input class="form-control" required="true" rsf:id="name" id="name"/>
             </div>
             <div class="form-group">
-                <input class="form-control" type="checkbox" rsf:id="isNameHidden" id="isNameHidden"/><label rsf:id="nameHidden-label" for="isNameHidden"></label>
+                <input class="form-check-input" type="checkbox" rsf:id="isNameHidden" id="isNameHidden"/><label rsf:id="nameHidden-label" for="isNameHidden"></label>
             </div>
             <div class="form-group">
                 <label rsf:id="msg=simplepage.new-checklist-description" for="description"></label>
@@ -64,7 +63,7 @@
                         <input type="hidden" rsf:id="checklist-item-complete" />
                         <input type="hidden" rsf:id="checklist-item-id" class="checklist-item-id" />
                         <input type="hidden" rsf:id="checklist-item-link" class="checklist-item-link" id="checklist-item-link-" />
-                        <label for="checklist-item-name" ></label><span rsf:id="msg=simplepage.checklist-item-name" id="checklist-item-name" class="offscreen"></span>
+                        <label for="checklist-item-name" ></label><span rsf:id="msg=simplepage.checklist-item-name" id="checklist-item-name" class="lb-offscreen"></span>
                         <input type="text" rsf:id="checklist-item-name" name="checklist-item-name" class="checklist-item-name" />
                         <div class="actionContainer">
                             <a href="#" id="external-link-" class="external-link"><span class="fa fa-link"><span class="sr-only" rsf:id="msg=simplepage.checklist.external.link" /></span></a>
@@ -100,8 +99,8 @@
                 <span rsf:id="group-list-span"/>
                 <p rsf:id="msg=simplepage.select-group"></p>
                 <div rsf:id="select-group-list:">
-                    <input class="form-control" type="checkbox" rsf:id="select-group" />
-                    <input class="form-control" type="checkbox" rsf:id="select-group-checked" checked="checked" />
+                    <input class="form-check-input" type="checkbox" rsf:id="select-group" />
+                    <input class="form-check-input" type="checkbox" rsf:id="select-group-checked" checked="checked" />
                     <span rsf:id="select-group-text"></span>
                 </div>
             </div>
@@ -109,36 +108,47 @@
 
         <span style="display:none;" id="deleteButtonLangSupp" rsf:id="msg=simplepage.delete_page_confirm"></span>
         <p class="act">
-            <input id="submitButton" accesskey ="s" rsf:id="save" value="Save" type="submit" class="active" />
+            <input id="submitButton" accesskey ="s" rsf:id="save" value="Save" type="submit" class="active" onclick="var title = document.getElementById('name'); if (title) { if (title.value) { SPNR.disableControlsAndSpin( this, null ); }}" />
             <input accesskey ="x" rsf:id="cancel" value="Cancel" type="submit" formnovalidate="formnovalidate" />
             <input type="submit" rsf:id="delete" class="deleteButton" formnovalidate="formnovalidate" />
         </p>
     </form>
 </div>
 <div rsf:id="dialogDiv" class="dialogs">
-    <div id="externalLink-dialog" rsf:id="externalLink-dialog" class="lessonsDialog">
-        <div class="sak-banner-info" rsf:id="msg=simplepage.checklist.external.link.info"></div>
-        <form action="#" rsf:id="item-picker">
-            <div id="list" border="0" role="list" class="checklistList" >
-                <h6 rsf:id="msg=simplepage.checklist.external.heading"></h6>
-                <div class="hierFlexList checklistList-item" rsf:id="item:" role="listitem" >
-                    <div class="hierFlex1" ><input class="checklistList-radio" name="external-link-radios" type="radio" rsf:id="select" id="select"/> <span rsf:id="name"/></div>
-                </div>
-            </div>
 
+  <div id="externalLink-dialog" rsf:id="externalLink-dialog" class="modal fade" tabindex="-1" aria-labelledby="externalLinkModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="externalLinkModalLabel"><span rsf:id="msg=simpleapge.checklist.edit_externalLink"></span></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="sak-banner-info" rsf:id="msg=simplepage.checklist.external.link.info"></div>
+          <form action="#" rsf:id="item-picker">
+            <div id="list" border="0" role="list" class="checklistList" >
+              <h6 rsf:id="msg=simplepage.checklist.external.heading"></h6>
+              <div class="hierFlexList checklistList-item" rsf:id="item:" role="listitem">
+                <div class="hierFlex1" ><input class="checklistList-radio" name="external-link-radios" type="radio" rsf:id="select" id="select"/> <span rsf:id="name"/></div>
+              </div>
+            </div>
             <input type="hidden" id="item-id" />
-            <p class="act">
-                <input type="button" id="externalLink-dialog-submit" class="bold" rsf:id="msg=simplepage.submit" />
-                <input type="button" id="externalLink-dialog-close" rsf:id="msg=simplepage.cancel" />
-            </p>
-        </form>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="externalLink-dialog-submit" class="btn btn-link" rsf:id="msg=simplepage.submit">simplepage.submit</button>
+          <button type="button" id="externalLink-dialog-close" class="btn btn-link" data-bs-dismiss="modal" rsf:id="msg=simplepage.cancel">simplepage.cancel</button>
+        </div>
+      </div>
     </div>
+  </div>
+
 </div>
 <div id="messages" style="display:none;">
     <p rsf:id="msg=simplepage.checklist-name-required" id="simplepage.checklist-name-required"></p>
 </div>
-<script type="text/javascript" language="JavaScript" src="$context/js/checklist.js"></script>
-<script type="text/javascript">
+<script src="$context/js/checklist.js"></script>
+<script>
     checklist.init();
 </script>
 

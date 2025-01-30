@@ -58,13 +58,13 @@
 	padding: 0 0.5em 0 0;
 	overflow: hidden;
 	height: 100%;
-	float: right;
+	float: left;
 	font-weight: bold;
 	vertical-align: center;
 }
 
 .headervalue, .optionsheadervalue {
-	width: 90%;
+	width: 80%;
 	float: right;
 }
 
@@ -167,4 +167,17 @@ h3.insBorder {
 
 .user-label {
 	font-weight: normal;
+}
+.disable-attach-more-icon {
+	opacity: 0.5;
+}
+
+.disable-attach-more-link {
+	opacity: 0.5;
+	cursor: default;
+	pointer-events: none;
+}
+
+span.emailattachment-size {
+    margin-left: 14px;
 }

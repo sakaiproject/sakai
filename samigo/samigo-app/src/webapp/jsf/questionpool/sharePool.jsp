@@ -91,7 +91,7 @@ function checkUpdate()
 <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
  
 <div class="tier1">
-<h4><h:outputText value="#{questionPoolMessages.members_with_access} #{questionpoolshare.questionPoolName}"/></h4>
+<h4><h:outputText value="#{questionPoolMessages.members_with_access} \"#{questionpoolshare.questionPoolName}\" "/></h4>
 </div>
 
 <div class="tier2">
@@ -128,7 +128,7 @@ function checkUpdate()
      	</f:facet>
 
 		<h:panelGroup id="firstcolumn">
-  			<h:outputText value="#{agent.displayName}"/>
+  			<h:outputText value="#{agent.agentDisplayName}"/>
 		</h:panelGroup>
 	</h:column>
 
@@ -164,12 +164,28 @@ function checkUpdate()
      	</h:panelGroup>
     </h:column>
 
-    <h:column id="col3" >
+    <h:column id="col3">
+     	<f:facet name="header">
+     		<h:panelGroup>
+		      	<h:outputText value="#{questionPoolMessages.access} " />
+		      	<h:outputLink title="#{assessmentSettingsMessages.whats_this_link}" value="#" onclick="javascript:window.open('/samigo-app/jsf/questionpool/accesstype_whatsThis.faces','AccessType_WhatsThis','width=800,height=660,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('/samigo-app/jsf/questionpool/accesstype_whatsThis.faces','AccessType_WhatsThis','width=800,height=660,scrollbars=yes, resizable=yes');" >
+    				<h:outputText  value=" (#{assessmentSettingsMessages.whats_this_link})"/>
+  				</h:outputLink>
+     		</h:panelGroup>
+     	</f:facet>
+     	<h:panelGroup id="thirdcolumn">
+        	<h:outputText value="#{agent.accessTypeId}" >
+        		<f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.AccessTypeConverter" />
+        	</h:outputText>
+     	</h:panelGroup>
+    </h:column>
+
+    <h:column id="col4" >
      	<f:facet name="header">
        		<h:outputText value="#{questionPoolMessages.revoke_access}"/>
      	</f:facet>
 		<h:selectManyCheckbox id="revokeCheckbox" value ="#{questionpoolshare.destPools}" onclick="checkUpdate();" onkeypress="checkUpdate();">
-			<f:selectItem itemValue="#{agent.agentInstanceString}" itemDisabled="#{agent.agentInstanceString == questionpoolshare.questionPoolOwnerId}" itemLabel=""/>
+			<f:selectItem itemValue="#{agent.agentId}" itemDisabled="#{agent.agentId == questionpoolshare.questionPoolOwnerId}" itemLabel=""/>
 		</h:selectManyCheckbox>
 	</h:column>
 
@@ -179,12 +195,12 @@ function checkUpdate()
 <br/>
 
 <div class="tier1">
-<h4><h:outputText value="#{questionPoolMessages.members_without_access} #{questionpoolshare.questionPoolName}"/></h4>
+<h4><h:outputText value="#{questionPoolMessages.members_without_access} \"#{questionpoolshare.questionPoolName}\" "/></h4>
 </div>
 
 <div class="tier2">
 <h:dataTable cellpadding="0" cellspacing="0" id="withoutAccessTable" value="#{questionpoolshare.agentsWithoutAccess}"
-    var="agent" styleClass="listHier" >
+    binding="#{questionpoolshare.dataTable}" var="agent" styleClass="listHier" >
 
     <h:column id="col1" >
 
@@ -216,7 +232,7 @@ function checkUpdate()
      	</f:facet>
 
 		<h:panelGroup id="firstcolumn">
-  			<h:outputText value="#{agent.displayName}"/>
+  			<h:outputText value="#{agent.agentDisplayName}"/>
 		</h:panelGroup>
 	</h:column>
 
@@ -252,12 +268,29 @@ function checkUpdate()
      	</h:panelGroup>
     </h:column>
 
-    <h:column id="col3" >
+    <h:column id="col3">
+     	<f:facet name="header">
+     		<h:panelGroup>
+		      	<h:outputText value="#{questionPoolMessages.access} " />
+		      	<h:outputLink title="#{assessmentSettingsMessages.whats_this_link}" value="#" onclick="javascript:window.open('/samigo-app/jsf/questionpool/accesstype_whatsThis.faces','AccessType_WhatsThis','width=800,height=660,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('/samigo-app/jsf/questionpool/accesstype_whatsThis.faces','AccessType_WhatsThis','width=800,height=660,scrollbars=yes, resizable=yes');" >
+    				<h:outputText  value=" (#{assessmentSettingsMessages.whats_this_link})"/>
+  				</h:outputLink>
+     		</h:panelGroup>
+     	</f:facet>
+     	<h:panelGroup id="thirdcolumn">
+        	<h:selectOneMenu value="#{agent.accessTypeId}" 
+        		immediate="true" onchange="form.submit();" valueChangeListener="#{questionpoolshare.changeAccessTypeSelect}">
+        		<f:selectItems value="#{questionpoolshare.accessTypes}" />
+        	</h:selectOneMenu>
+     	</h:panelGroup>
+    </h:column>
+
+    <h:column id="col4" >
      	<f:facet name="header">
        		<h:outputText value="#{questionPoolMessages.grant_access}"/>
      	</f:facet>
 		<h:selectManyCheckbox id="grantCheckbox" value ="#{questionpoolshare.destPools}" onclick="checkUpdate();" onkeypress="checkUpdate();">
-			<f:selectItem itemValue="#{agent.agentInstanceString}" itemDisabled="#{agent.agentInstanceString == questionpoolshare.questionPoolOwnerId}" itemLabel=""/>
+			<f:selectItem itemValue="#{agent.agentId}" itemLabel=""/>
 		</h:selectManyCheckbox>
 	</h:column>
 
@@ -267,7 +300,7 @@ function checkUpdate()
 <p class="act">
  
   <h:commandButton type="submit" immediate="true" id="Submit" value="#{questionPoolMessages.t_updateSharedPoolAccess}"
-                   action="#{questionpoolshare.sharePool}" onclick="SPNR.disableControlsAndSpin(this, null);">
+                   action="#{questionpoolshare.sharePool}" onclick="SPNR.disableControlsAndSpin(this, null);" styleClass="active" >
   </h:commandButton>
 
   <h:commandButton type="submit" immediate="true" id="cancel" value="#{commonMessages.cancel_action}"

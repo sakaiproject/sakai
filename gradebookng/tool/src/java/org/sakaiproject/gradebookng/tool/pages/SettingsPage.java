@@ -18,25 +18,24 @@ package org.sakaiproject.gradebookng.tool.pages;
 import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
-import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
-import org.sakaiproject.grading.api.GradingCategoryType;
 import org.sakaiproject.gradebookng.business.util.SettingsHelper;
-import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.model.GbSettings;
 import org.sakaiproject.gradebookng.tool.panels.SettingsCategoryPanel;
 import org.sakaiproject.gradebookng.tool.panels.SettingsGradeEntryPanel;
 import org.sakaiproject.gradebookng.tool.panels.SettingsGradeReleasePanel;
 import org.sakaiproject.gradebookng.tool.panels.SettingsGradingSchemaPanel;
 import org.sakaiproject.gradebookng.tool.panels.SettingsStatisticsPanel;
+import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.grading.api.ConflictingCategoryNameException;
@@ -128,7 +127,7 @@ public class SettingsPage extends BasePage {
 				final List<CategoryDefinition> categories = model.getGradebookInformation().getCategories();
 
 				// validate the categories
-				if (model.getGradebookInformation().getCategoryType() == GradingCategoryType.WEIGHTED_CATEGORY) {
+				if (Objects.equals(model.getGradebookInformation().getCategoryType(), GradingConstants.CATEGORY_TYPE_WEIGHTED_CATEGORY)) {
 
 					BigDecimal totalWeight = BigDecimal.ZERO;
 					HashSet<String> catNames = new HashSet<>();
@@ -173,7 +172,7 @@ public class SettingsPage extends BasePage {
 
 				// if categories and weighting selected AND if course grade display points was selected,
 				// give error message
-				if (model.getGradebookInformation().getCategoryType() == GradingCategoryType.WEIGHTED_CATEGORY
+				if (Objects.equals(model.getGradebookInformation().getCategoryType(), GradingConstants.CATEGORY_TYPE_WEIGHTED_CATEGORY)
 						&& model.getGradebookInformation().getCourseGradeDisplayed()
 						&& model.getGradebookInformation().getCoursePointsDisplayed()) {
 					error(getString("settingspage.displaycoursegrade.incompatible"));
@@ -216,9 +215,9 @@ public class SettingsPage extends BasePage {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void onSubmit(final AjaxRequestTarget target, final Form f) {
+			public void onSubmit(final AjaxRequestTarget target) {
 				super.onSubmit();
-				final GbSettings model = (GbSettings) f.getModelObject();
+				final GbSettings model = form.getModelObject();
 
 				Page responsePage = new SettingsPage(SettingsPage.this.gradeEntryPanel.isExpanded(),
 						SettingsPage.this.gradeReleasePanel.isExpanded(), SettingsPage.this.statisticsPanel.isExpanded(),
@@ -245,7 +244,7 @@ public class SettingsPage extends BasePage {
 			}
 
 			@Override
-			public void onError(final AjaxRequestTarget target, final Form<?> form) {
+			public void onError(final AjaxRequestTarget target) {
 				target.add(SettingsPage.this.feedbackPanel);
 				target.appendJavaScript("scroll(0,0);");// Scroll to the top to see the message error
 			}
@@ -273,24 +272,6 @@ public class SettingsPage extends BasePage {
 		form.add(this.gradingSchemaPanel);
 
 		add(form);
-
-		// expand/collapse panel actions
-		add(new GbAjaxLink<Void>("expandAll") {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void onClick(final AjaxRequestTarget target) {
-				target.appendJavaScript("$('#settingsAccordion .panel-collapse').collapse('show');");
-			}
-		});
-		add(new GbAjaxLink<Void>("collapseAll") {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void onClick(final AjaxRequestTarget target) {
-				target.appendJavaScript("$('#settingsAccordion .panel-collapse').collapse('hide');");
-			}
-		});
 	}
 
 	@Override
@@ -303,8 +284,6 @@ public class SettingsPage extends BasePage {
 		response.render(
 				JavaScriptHeaderItem.forUrl(String.format("/library/webjars/jquery-ui/1.12.1/jquery-ui.min.js%s", version)));
 
-		response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/styles/gradebook-settings.css%s", version)));
-		response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/styles/gradebook-grades-comparison.css%s", version)));
 		response.render(JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/scripts/gradebook-settings.js%s", version)));
 
 	}

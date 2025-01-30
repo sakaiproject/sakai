@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:wicket="http://wicket.apache.org">
+<body>
+<wicket:extend>
+    <h2>
+        <wicket:message key="quickentry.title" />
+    </h2>
+    <wicket:message key="quickentry.caption" />
+    <form wicket:id="form" id="gbQuickEntryForm" class="quickEntryForm">
+        <h3><wicket:message key="quickentry.itemlabel" /></h3>
+        <select wicket:id="itempicker" />
+        <hr />
+        <h3 wicket:id="itemtitle" />
+        <span class="detailsFont" wicket:id="itemdetails" />
+        <div class="quickentrySpacing">
+            <span>
+                <strong><span wicket:id="summarycount" id="summarycount" /></strong>
+                <select wicket:id="groupicker" />
+            </span>
+            <span class="buttons">
+                <button class="btn-link endButton" wicket:id="showBulkGrade" >
+                    <wicket:message key="quickentry.replacegradelabel" />
+                </button>
+                <button class="btn-link endButton" wicket:id="showBulkComment" >
+                    <wicket:message key="quickentry.comment.caption" />
+                </button>
+            </span>
+        </div>
+        <table wicket:id="tableVisibility" class="table table-striped table-bordered" >
+            <thead>
+            <tr>
+                <th class="col-sm-3"><wicket:message key="quickentry.student" /></th>
+                <th><wicket:message key="quickentry.grade" /></th>
+                <th><wicket:message key="quickentry.comment" /></th>
+                <th><wicket:message key="quickentry.excuse" /></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr wicket:id="studentRow">
+                <td>
+                    <span wicket:id="studentName"></span>
+                </td>
+                <td>
+                    <input wicket:id="studentGrade" type="text" />
+                    <i wicket:id="lockicon" />
+                </td>
+                <td>
+                    <textarea wicket:id="studentComment" class="quickEntryComment" />
+                </td>
+                <td>
+                    <input type="checkbox" wicket:id="studentExcuse" />
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <div class="act" >
+            <button wicket:id="submit" class="btn btn-primary active" id="quickentrySubmit" disabled="disabled"><wicket:message key="button.update" /></button>
+            <button wicket:id="reset" class="btn-link" id="quickentryReset"><wicket:message key="quickentry.reset" /></button>
+            <button wicket:id="cancel" class="btn-link" ><wicket:message key="button.cancel" /></button>
+        </div>
+        <div wicket:id="bulkGradeModal" />
+        <div wicket:id="bulkCommentModal" />
+    </form>
+</wicket:extend>
+</body>
+</html>

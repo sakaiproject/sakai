@@ -31,6 +31,9 @@ import java.util.Enumeration;
  */
 public interface Session
 {
+        /** A session attribute that is set when just logged in, and thenceforth removed by the portal. */
+        final static String JUST_LOGGED_IN = "justLoggedIn";
+
 	/**
 	 * Returns the object bound with the specified name in this session, or <code>null</code> if no object is bound under the name.
 	 * 

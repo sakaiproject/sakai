@@ -58,11 +58,11 @@ should be included in file importing DeliveryMessages
     <h:panelGroup rendered="#{delivery.feedback eq 'true' && delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true' && question.itemData.typeId != 3}">
       <h:panelGroup id="image"
         rendered="#{(selection.answer.isCorrect eq 'true' || (question.itemData.partialCreditFlag && selection.answer.partialCredit gt 0)) && selection.response}"
-        styleClass="icon-sakai--check feedBackCheck imageClassForSelector">
+        styleClass="si si-check-lg imageClassForSelector">
       </h:panelGroup>
       <h:panelGroup id="image2"
         rendered="#{((question.itemData.partialCreditFlag && (selection.answer.partialCredit le 0 || selection.answer.partialCredit == null)) || (selection.answer.isCorrect != null && !selection.answer.isCorrect)) && selection.response}"
-        styleClass="icon-sakai--delete feedBackCross imageClassForSelector">
+        styleClass="si si-remove feedBackCross imageClassForSelector">
       </h:panelGroup>
       <h:panelGroup id="noimage"
         rendered="#{!selection.response}"
@@ -154,7 +154,7 @@ should be included in file importing DeliveryMessages
 </h:panelGroup>
 
 <h:panelGroup rendered="#{delivery.feedback eq 'true'}">
-  <h:panelGrid rendered="#{delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true' && question.itemData.typeId != 3}" >
+  <h:panelGrid rendered="#{(delivery.feedbackComponent.showCorrectResponse && delivery.feedbackComponent.showCorrection && !delivery.noFeedback=='true' && question.itemData.typeId != 3) || delivery.actionString=='gradeAssessment'}" >
     <h:panelGroup>
       <h:outputLabel for="answerKeyMC" styleClass="answerkeyFeedbackCommentLabel" value="#{deliveryMessages.ans_key}#{deliveryMessages.column} " />
       <h:outputText id="answerKeyMC" value="#{question.key}" escape="false" />

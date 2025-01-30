@@ -178,7 +178,7 @@ public class SubmissionStatusListener
       //Date dueDate = null;
 
       // Collect a list of all the users in the scores list
-      Map useridMap= totalScoresBean.getUserIdMap(TotalScoresBean.CALLED_FROM_SUBMISSION_STATUS_LISTENER);
+      Map useridMap= totalScoresBean.getUserIdMap(TotalScoresBean.CALLED_FROM_SUBMISSION_STATUS_LISTENER, AgentFacade.getCurrentSiteId());
 
 
       List agentUserIds = totalScorelistener.getAgentIds(useridMap);
@@ -256,11 +256,13 @@ public class SubmissionStatusListener
       }
       prepareNotSubmittedAgentResult(students_not_submitted.iterator(), agents, userRoles, retakeAssessment, studentGradingSummaryDataMap);
       bs = new BeanSort(agents, bean.getSortType());
-      if (
-        (bean.getSortType()).equals("assessmentGradingId") )
-      {
+      if ("assessmentGradingId".equalsIgnoreCase(bean.getSortType())) {
         bs.toNumericSort();
-      } else {
+      }
+      else if ("submittedDate".equalsIgnoreCase(bean.getSortType())) {
+        bs.toDateSort();
+      }
+      else {
         bs.toStringSort();
       }
 

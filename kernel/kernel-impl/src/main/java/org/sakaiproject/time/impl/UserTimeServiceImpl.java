@@ -21,6 +21,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
@@ -57,25 +58,12 @@ public class UserTimeServiceImpl implements UserTimeService {
     private ConcurrentHashMap<String, TimeZone> tzCache = new ConcurrentHashMap<>();
 
     // Default Timezone/Locale
-    private String defaultTimezone = TimeZone.getDefault().getID();
+    private final String defaultTimezone = TimeZone.getDefault().getID();
 
-    private MemoryService memoryService;
-    private SessionManager sessionManager;
-    private PreferencesService preferencesService;
-
+    @Setter private MemoryService memoryService;
+    @Setter private SessionManager sessionManager;
+    @Setter private PreferencesService preferencesService;
     @Setter private ResourceLoader resourceLoader;
-
-    public void setMemoryService(MemoryService memoryService) {
-        this.memoryService = memoryService;
-    }
-
-    public void setSessionManager(SessionManager sessionManager) {
-        this.sessionManager = sessionManager;
-    }
-
-    public void setPreferencesService(PreferencesService preferencesService) {
-        this.preferencesService = preferencesService;
-    }
 
     public void init() {
         //register the Cache
@@ -140,7 +128,7 @@ public class UserTimeServiceImpl implements UserTimeService {
     @Override
     public String timeFormat(Date time, Locale locale, int df) {
         if (time == null || locale == null) return "";
-        log.debug("timeFormat: {}, {}, {}", time.toString(), locale.toString(), df);
+        log.debug("timeFormat: {}, {}, {}", time, locale, df);
 
         DateFormat dsf = DateFormat.getTimeInstance(df, locale);
         dsf.setTimeZone(getLocalTimeZone());
@@ -150,7 +138,7 @@ public class UserTimeServiceImpl implements UserTimeService {
     @Override
     public String dateFormat(Date date, Locale locale, int df) {
         if (date == null || locale == null) return "";
-        log.debug("dateFormat: {}, {}, {}", date.toString(), locale.toString(), df);
+        log.debug("dateFormat: {}, {}, {}", date, locale, df);
 
         DateFormat dsf = DateFormat.getDateInstance(df, locale);
         dsf.setTimeZone(getLocalTimeZone());
@@ -160,7 +148,7 @@ public class UserTimeServiceImpl implements UserTimeService {
     @Override
     public String dateTimeFormat(Date date, Locale locale, int df) {
         if (date == null || locale == null) return "";
-        log.debug("dateTimeFormat: {}, {}, {}", date.toString(), locale.toString(), df);
+        log.debug("dateTimeFormat: {}, {}, {}", date, locale, df);
 
         DateFormat dsf = DateFormat.getDateTimeInstance(df, df, locale);
         dsf.setTimeZone(getLocalTimeZone());
@@ -249,6 +237,33 @@ public class UserTimeServiceImpl implements UserTimeService {
         }
 
         return null;
+    }
+
+    @Override
+    public String dateFromUtcToUserTimeZone(String utcDate, boolean formatted) {
+        if (utcDate == null) {
+            return null;
+        }
+        ZoneId userTimeZone = getLocalTimeZone().toZoneId();
+        LocalDateTime openDate = LocalDateTime.parse(utcDate);
+        ZonedDateTime utcOpenDate = ZonedDateTime.of(openDate, ZoneOffset.UTC);
+        LocalDateTime zonedOpenDate = LocalDateTime.ofInstant(utcOpenDate.toInstant(), userTimeZone);
+
+        if (formatted) {
+            DateTimeFormatter pattern = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT)
+                    .withLocale(resourceLoader.getLocale());
+            return pattern.format(zonedOpenDate);
+        }
+        return zonedOpenDate.toString();
+    }
+
+    @Override
+    public LocalDateTime dateFromUserTimeZoneToUtc(String zonedDate) {
+        ZoneId userTimeZone = getLocalTimeZone().toZoneId();
+        LocalDateTime closeDate = LocalDateTime.parse(zonedDate);
+        ZonedDateTime zonedCloseDate = ZonedDateTime.of(closeDate, userTimeZone);
+
+        return LocalDateTime.ofInstant(zonedCloseDate.toInstant(), ZoneOffset.UTC);
     }
 
 }

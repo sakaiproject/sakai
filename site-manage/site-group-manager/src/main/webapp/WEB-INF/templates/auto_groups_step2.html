@@ -5,7 +5,7 @@
   <div th:replace="fragments/common :: jQuery" />
   <div class="portletBody">
     <div id="menu" th:include="fragments/menus :: main (autogroups)" />
-    <div class="page-header"><h1 th:text="#{autogroups.header.wizard}"></h1></div>
+    <div><h1 th:text="#{autogroups.header.wizard}"></h1></div>
     <div th:replace="fragments/wizard :: step (step2)"></div><br/>
     <div class="row" th:if="${step2ErrorMessage != null}">
       <div class="col-sm-8">
@@ -14,7 +14,7 @@
     </div>
     <div class="row">
       <div class="col-sm-8">
-        <div class="well">
+        <div class="card mb-3 p-3">
           <div th:text="#{autogroups.step2.role.info}">We see that you have selected to make groups of participants in the following role(s):</div>
             <ul>
               <li th:each="role : ${autoGroupsForm.selectedRoleList}"><span th:text="${role}"></span></li>
@@ -61,8 +61,8 @@
           </div>
           <div class="act">
             <input accesskey="c" type="submit" class="active" id="autogroups-continue-button" th:value="#{autogroups.button.continue}" />
-            <button type="button" accesskey="b" id="autogroups-back-button" th:text="#{autogroups.button.back}">Back</button>
-            <button type="button" th:data-url="@{/}" accesskey="x" id="autogroups-cancel-button" cth:text="#{autogroups.button.cancel}">Cancel</button>
+            <button type="button" class="btn btn-link" accesskey="b" id="autogroups-back-button" th:text="#{autogroups.button.back}">Back</button>
+            <button type="button" class="btn btn-link" th:data-url="@{/}" accesskey="x" id="autogroups-cancel-button" cth:text="#{autogroups.button.cancel}">Cancel</button>
           </div>
         </form>
       </div>

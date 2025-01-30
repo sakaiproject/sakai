@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+
+    <context:component-scan base-package="org.sakaiproject.plus"/>
+    <tx:annotation-driven transaction-manager="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+
+    <bean id="plusHibernateMappings"
+          class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+        <property name="annotatedClasses">
+            <list>
+                <value>org.sakaiproject.plus.api.model.Tenant</value>
+                <value>org.sakaiproject.plus.api.model.Subject</value>
+                <value>org.sakaiproject.plus.api.model.Context</value>
+                <value>org.sakaiproject.plus.api.model.ContextLog</value>
+                <value>org.sakaiproject.plus.api.model.Link</value>
+                <value>org.sakaiproject.plus.api.model.LineItem</value>
+                <value>org.sakaiproject.plus.api.model.Score</value>
+                <value>org.sakaiproject.plus.api.model.Membership</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="org.sakaiproject.plus.api.repository.TenantRepository"
+        class="org.sakaiproject.plus.impl.repository.TenantRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
+    <bean id="org.sakaiproject.plus.api.repository.SubjectRepository"
+        class="org.sakaiproject.plus.impl.repository.SubjectRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
+    <bean id="org.sakaiproject.plus.api.repository.ContextRepository"
+        class="org.sakaiproject.plus.impl.repository.ContextRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
+    <bean id="org.sakaiproject.plus.api.repository.ContextLogRepository"
+        class="org.sakaiproject.plus.impl.repository.ContextLogRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
+    <bean id="org.sakaiproject.plus.api.repository.LinkRepository"
+        class="org.sakaiproject.plus.impl.repository.LinkRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
+    <bean id="org.sakaiproject.plus.api.repository.LineItemRepository"
+        class="org.sakaiproject.plus.impl.repository.LineItemRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
+    <bean id="org.sakaiproject.plus.api.repository.ScoreRepository"
+        class="org.sakaiproject.plus.impl.repository.ScoreRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
+    <bean id="org.sakaiproject.plus.api.repository.MembershipRepository"
+        class="org.sakaiproject.plus.impl.repository.MembershipRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
+    <bean id="org.sakaiproject.plus.api.PlusService"
+          class="org.sakaiproject.plus.impl.PlusServiceImpl"
+	  init-method="init"
+	  destroy-method="destroy">
+        <!-- all the properties are autowired - Yay -->
+    </bean>
+
+    <bean id="org.sakaiproject.plus.impl.PlusEventObserver"
+          class="org.sakaiproject.plus.impl.PlusEventObserver"
+          init-method="init"
+          destroy-method="destroy">
+    </bean>
+
+    <bean id="org.sakaiproject.plus.impl.jobs.SiteMembershipsSyncJob"
+                class="org.sakaiproject.plus.impl.jobs.SiteMembershipsSyncJob">
+          <property name="plusService"><ref bean="org.sakaiproject.plus.api.PlusService"/></property>
+    </bean>
+
+</beans>

@@ -66,10 +66,9 @@ $Id: histogramScores.jsp 38982 2007-12-06 13:05:38Z gopal.ramasammycook@gmail.co
  
 <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
 
-<div class="table-responsive">
-
-
   <!-- LAST/ALL SUBMISSIONS; PAGER; ALPHA INDEX  -->
+  <div class="b5 d-flex justify-content-between my-2">
+    <div>
     <h:panelGroup rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
      <h:outputText value="#{evaluationMessages.view} " />
     
@@ -95,11 +94,30 @@ $Id: histogramScores.jsp 38982 2007-12-06 13:05:38Z gopal.ramasammycook@gmail.co
 	   <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener" />
      </h:selectOneMenu>
     </h:panelGroup>
+    </div>
+    <div class="dropdown">
+        <button class="btn btn-link dropdown-toggle" name="Export Button" type="button" data-bs-toggle="dropdown">
+              <h:outputText value="#{evaluationMessages.export}" />
+              <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu row">
+            <li>
+                <h:outputLink value="#{histogramScores.exportItemAnalysisPdf}" styleClass="d-block" title="#{evaluationMessages.export_as_pdf}" target="_blank">
+                    <h:outputText value="#{evaluationMessages.export_pdf}" />
+                </h:outputLink>
+            </li>
+            <li>
+                <h:outputLink value="#{histogramScores.exportItemAnalysisXlsx}" styleClass="d-block" title="#{evaluationMessages.export_as_xlsx}" target="_blank">
+                    <h:outputText value="#{evaluationMessages.export_xlsx}" />
+                </h:outputLink>
+            </li>
+        </ul>
+      </div>
+  </div>
 
-<br/>
-<br/>
 
-  <h:dataTable value="#{histogramScores.detailedStatistics}" var="item" styleClass="table table-striped">
+<div class="table-responsive">
+  <h:dataTable value="#{histogramScores.detailedStatistics}" var="item" styleClass="table table-bordered table-striped">
 
     <h:column>
         <f:facet name="header">
@@ -148,6 +166,27 @@ $Id: histogramScores.jsp 38982 2007-12-06 13:05:38Z gopal.ramasammycook@gmail.co
             <h:outputText escape="false" value="#{evaluationMessages.discrim_abbrev}" /> 
         </f:facet>
         <h:outputText value="#{item.discrimination}" escape="false"  rendered="#{item.showPercentageCorrectAndDiscriminationFigures}"/>
+    </h:column>
+
+    <h:column rendered="#{histogramScores.maxNumberOfAnswers > 0}">
+        <f:facet name="header">
+            <h:outputText escape="false" value="#{evaluationMessages.difficulty}" />
+        </f:facet>
+        <h:outputText value="#{item.difficulty}" escape="false" />
+    </h:column>
+
+    <h:column rendered="#{histogramScores.maxNumberOfAnswers > 0}">
+        <f:facet name="header">
+            <h:outputText escape="false" value="#{evaluationMessages.total_correct}" />
+        </f:facet>
+        <h:outputText value="#{item.numberOfStudentsWithCorrectAnswers}" escape="false" />
+    </h:column>
+
+    <h:column rendered="#{histogramScores.maxNumberOfAnswers > 0}">
+        <f:facet name="header">
+            <h:outputText escape="false" value="#{evaluationMessages.total_incorrect}" />
+        </f:facet>
+        <h:outputText value="#{item.numberOfStudentsWithIncorrectAnswers}" escape="false" />
     </h:column>
 
     <h:column rendered="#{histogramScores.maxNumberOfAnswers>0}">

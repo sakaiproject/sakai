@@ -1,7 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<web-app id="WebApp_9" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee" 
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+<?xml version="1.0"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://java.sun.com/xml/ns/javaee"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+         version="2.5">
     <display-name>sakai-library</display-name>
     <description>Sakai 2 Library</description>
 
@@ -85,5 +86,11 @@
 		     when an upgrade is done. Once we're off ckeditor 4.5.7 we can re-enable this. -->
 		<!-- <dispatcher>FORWARD</dispatcher> -->
 	</filter-mapping>
+
+	<!-- Webjars may contain MJS files that must be mapped as Javascript to avoid errors in the browser -->
+	<mime-mapping> 
+		<extension>mjs</extension>
+		<mime-type>text/javascript</mime-type>
+	</mime-mapping>
 
 </web-app>

@@ -20,10 +20,10 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.opensearch.action.search.SearchResponse;
+import org.opensearch.search.SearchHit;
+import org.opensearch.search.SearchHits;
+import org.opensearch.search.aggregations.bucket.terms.Terms;
 import org.sakaiproject.search.api.SearchList;
 import org.sakaiproject.search.api.SearchResult;
 import org.sakaiproject.search.api.SearchService;
@@ -59,7 +59,7 @@ public class ElasticSearchList extends ForwardingList<SearchResult> implements S
 
             SearchResponse highlightedResponse;
             try {
-                highlightedResponse = elasticSearchService.search(searchTerms, new ArrayList<>(), 0, references.size(), references, searchIndexBuilder.getName());
+                highlightedResponse = elasticSearchService.search(searchTerms, new ArrayList<>(), new ArrayList(), 0, references.size(), references, searchIndexBuilder.getName());
             } catch (Exception e) {
                 log.error("problem running hightlighted and facetted search: {}", e);
                 return;

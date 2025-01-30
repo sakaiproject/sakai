@@ -11,20 +11,10 @@
         <body onload="<%= request.getAttribute("html.body.onload") %>">
           <div class="portletBody container-fluid">
             <script>includeWebjarLibrary('datatables');</script>
+            <script type="text/javascript" src="/samigo-app/js/naturalSort.js"></script>
+            <script type="text/javascript" src="/samigo-app/js/sortHelper.js"></script>
             <script>
                 $(document).ready(function() {
-                    jQuery.extend(jQuery.fn.dataTableExt.oSort, {
-                        "numeric-asc": function (a, b) {
-                            var numA = parseInt($(a).text()) || 0;
-                            var numB = parseInt($(b).text()) || 0;
-                            return ((numB < numA) ? 1 : ((numB > numA) ? -1 : 0));
-                        },
-                        "numeric-desc": function (a, b) {
-                            var numA = parseInt($(a).text()) || 0;
-                            var numB = parseInt($(b).text()) || 0;
-                            return ((numA < numB) ? 1 : ((numA > numB) ? -1 : 0));
-                        }
-                    });
                     var notEmptyTableTd = $("#restoreAssessmentsForm\\:deletedAssessmentsTable td:not(:empty)").length;
                     if (notEmptyTableTd > 0) {
                         $("#restoreAssessmentsForm\\:deletedAssessmentsTable").DataTable({
@@ -39,20 +29,20 @@
                                 {"bSortable": false, "bSearchable": false}
                             ],
                             "language": {
-                                "search": <h:outputText value="'#{authorFrontDoorMessages.datatables_sSearch}'" />,
+                                "search": <h:outputText value="'#{dataTablesMessages.search}'" />,
                                 "lengthMenu": <h:outputText value="'#{authorFrontDoorMessages.datatables_lengthMenu}'" />,
                                 "zeroRecords": <h:outputText value="'#{authorFrontDoorMessages.datatables_zeroRecords}'" />,
-                                "info": <h:outputText value="'#{authorFrontDoorMessages.datatables_info}'" />,
+                                "info": <h:outputText value="'#{dataTablesMessages.info}'" />,
                                 "infoEmpty": <h:outputText value="'#{authorFrontDoorMessages.datatables_infoEmpty}'" />,
                                 "infoFiltered": <h:outputText value="'#{authorFrontDoorMessages.datatables_infoFiltered}'" />,
-                                "emptyTable": <h:outputText value="'#{authorFrontDoorMessages.datatables_infoEmpty}'" />,
+                                "emptyTable": <h:outputText value="'#{dataTablesMessages.infoEmpty}'" />,
                                 "paginate": {
-                                    "next": <h:outputText value="'#{authorFrontDoorMessages.datatables_paginate_next}'" />,
-                                    "previous": <h:outputText value="'#{authorFrontDoorMessages.datatables_paginate_previous}'" />
+                                    "next": <h:outputText value="'#{dataTablesMessages.paginate_next}'" />,
+                                    "previous": <h:outputText value="'#{dataTablesMessages.paginate_previous}'" />
                                 },
                                 "aria": {
-                                    "sortAscending": <h:outputText value="'#{authorFrontDoorMessages.datatables_aria_sortAscending}'" />,
-                                    "sortDescending": <h:outputText value="'#{authorFrontDoorMessages.datatables_aria_sortDescending}'" />
+                                    "sortAscending": <h:outputText value="'#{dataTablesMessages.aria_sortAscending}'" />,
+                                    "sortDescending": <h:outputText value="'#{dataTablesMessages.aria_sortDescending}'" />
                                 }
                             },
                             "fnDrawCallback": function(oSettings) {
@@ -98,8 +88,10 @@
                             <f:facet name="header">
                                 <h:outputText value="#{authorFrontDoorMessages.assessment_title}" />
                             </f:facet>
-                            <h:outputText value="#{authorFrontDoorMessages.assessment_draft} - " styleClass="highlight" rendered="#{deletedAssessment.draft}" />
-                            <h:outputText value="#{deletedAssessment.title}" />
+                            <f:verbatim><div></f:verbatim>
+                                <h:outputText value="#{authorFrontDoorMessages.assessment_draft} - " styleClass="highlight" rendered="#{deletedAssessment.draft}" />
+                                <h:outputText styleClass="spanValue" value="#{deletedAssessment.title}" />
+                            <f:verbatim></div></f:verbatim>
                         </h:column>
                         <h:column>
                             <f:facet name="header">
@@ -112,12 +104,14 @@
                             <f:facet name="header">
                                 <h:outputText value="#{authorMessages.restore_assessments_deleted_on}" />
                             </f:facet>
-                            <h:outputText value="#{deletedAssessment.lastModifiedDate}">
-                                <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
-                            </h:outputText>
-                            <h:outputText value="#{deletedAssessment.lastModifiedDate}" styleClass="hidden spanValue">
-                                <f:convertDateTime pattern="yyyyMMddHHmmss" />
-                            </h:outputText>
+                            <f:verbatim><div></f:verbatim>
+                                <h:outputText value="#{deletedAssessment.lastModifiedDate}">
+                                    <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
+                                </h:outputText>
+                                <h:outputText value="#{deletedAssessment.lastModifiedDate}" styleClass="d-none spanValue">
+                                    <f:convertDateTime pattern="yyyyMMddHHmmss" />
+                                </h:outputText>
+                            <f:verbatim></div></f:verbatim>
                         </h:column>
 
                         <h:column>

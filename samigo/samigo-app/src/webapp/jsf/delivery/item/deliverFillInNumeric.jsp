@@ -25,7 +25,6 @@ should be included in file importing DeliveryMessages
 --%>
 -->
 <script>includeWebjarLibrary("qtip2");</script>
-<script>includeWebjarLibrary("bootstrap");</script>
 
 <!-- ATTACHMENTS -->
 <%@ include file="/jsf/delivery/item/attachment.jsp" %>
@@ -57,13 +56,13 @@ should be included in file importing DeliveryMessages
         <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.SecureContentWrapper" />
       </h:outputText>
       <f:verbatim>&nbsp;</f:verbatim>
-      <h:panelGroup styleClass="icon-sakai--check feedBackCheck" id="image"
+      <h:panelGroup styleClass="si si-check-lg" id="image"
         rendered="#{delivery.feedback eq 'true' &&
                     delivery.feedbackComponent.showCorrectResponse &&
                     answer.isCorrect && answer.hasInput && !delivery.noFeedback=='true' && 
                     !delivery.anyInvalidFinInput}" >
       </h:panelGroup>
-      <h:panelGroup styleClass="icon-sakai--delete feedBackCross" id="ximage"
+      <h:panelGroup styleClass="si si-remove feedBackCross" id="ximage"
         rendered="#{delivery.feedback eq 'true' &&
                     delivery.feedbackComponent.showCorrectResponse &&
                     answer.isCorrect != null && !answer.isCorrect && answer.hasInput && !delivery.noFeedback=='true'}">
@@ -93,7 +92,7 @@ should be included in file importing DeliveryMessages
 <f:verbatim><br /></f:verbatim>
 
 <h:panelGroup rendered="#{delivery.feedback eq 'true'}">
-  <h:panelGrid rendered="#{delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'}" >
+  <h:panelGrid rendered="#{(delivery.feedbackComponent.showCorrectResponse && delivery.feedbackComponent.showCorrection && !delivery.noFeedback=='true') || delivery.actionString=='gradeAssessment'}" >
     <h:panelGroup>
       <h:outputLabel for="answerKeyMC" styleClass="answerkeyFeedbackCommentLabel" value="#{deliveryMessages.ans_key}: " />
       <h:outputText id="answerKeyMC" value="#{question.key}" escape="false"/>

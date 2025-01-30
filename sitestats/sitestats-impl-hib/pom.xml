@@ -9,7 +9,7 @@
   <parent>
     <groupId>org.sakaiproject.sitestats</groupId>
     <artifactId>sitestats</artifactId>
-    <version>23-SNAPSHOT</version><!-- sitestats.version --> 
+    <version>25-SNAPSHOT</version><!-- sitestats.version --> 
   </parent>
   
   <!-- Packaging -->
@@ -28,6 +28,10 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
     </dependency>
     <dependency>
       <groupId>org.hamcrest</groupId>

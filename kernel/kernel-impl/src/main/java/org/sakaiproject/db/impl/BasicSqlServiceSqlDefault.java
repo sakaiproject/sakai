@@ -27,7 +27,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.GregorianCalendar;
 
 /**
  * methods for accessing sql service methods in a database.
@@ -98,9 +97,9 @@ public class BasicSqlServiceSqlDefault implements SqlServiceSql
 	 * @param pos
 	 *        number of column of bytes field.
 	 */
-	public PreparedStatement setTimestamp(PreparedStatement pstmt, Timestamp timestamp, GregorianCalendar calendar, int pos) throws SQLException
+	public PreparedStatement setTimestamp(PreparedStatement pstmt, Timestamp timestamp, int pos) throws SQLException
 	{
-		pstmt.setTimestamp(pos, timestamp, calendar);
+		pstmt.setTimestamp(pos, timestamp);
 		return pstmt;
 	}
 

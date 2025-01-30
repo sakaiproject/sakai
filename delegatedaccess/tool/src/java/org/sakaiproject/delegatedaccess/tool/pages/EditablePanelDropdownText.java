@@ -23,7 +23,6 @@ import javax.swing.tree.TreeNode;
 
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
 import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
@@ -35,7 +34,7 @@ public class EditablePanelDropdownText extends Panel{
 		super(id);
 		
 		//show the inherited role if the user hasn't selected this node
-		IModel<String> labelModel = new AbstractReadOnlyModel<String>() {
+		IModel<String> labelModel = new IModel<String>() {
 			@Override
 			public String getObject() {
 				String[] inheritedAccess = nodeModel.getNodeAccessRealmRole();

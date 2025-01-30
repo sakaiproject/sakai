@@ -20,7 +20,7 @@
 --%>
 -->
 <!-- ASSESSMENT ATTACHMENTS -->
-<h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.attachments}" />
+<h:outputLabel styleClass="col-md-10 form-label" value="#{assessmentSettingsMessages.attachments}" />
   <div class="col-md-10">
 
   <h:panelGroup rendered="#{assessmentSettings.hasAttachment}">

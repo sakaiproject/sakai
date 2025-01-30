@@ -83,18 +83,10 @@ public class EditorConfiguration
 				try
 				{
 					Method method = component.getClass().getMethod("librarySearchEnabled", new Class[]{});
-					
-					if(method == null)
-					{
-						// if the method can't be invoked, return FALSE
-						showCitationsButton = Boolean.FALSE;
-					}
-					else
-					{
-						showCitationsButton = (Boolean) method.invoke(component, null);
-						session.setAttribute(ATTR_ENABLE_RESOURCE_SEARCH, showCitationsButton);
-					}
-				}
+
+                    showCitationsButton = (Boolean) method.invoke(component, new Object[]{});
+                    session.setAttribute(ATTR_ENABLE_RESOURCE_SEARCH, showCitationsButton);
+                }
 				catch(Exception e)
 				{
 					// if the method can't be invoked, return FALSE
@@ -103,7 +95,7 @@ public class EditorConfiguration
 			}
 		}
 		
-		return showCitationsButton.booleanValue();
+		return showCitationsButton;
 	}
 
 }

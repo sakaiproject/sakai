@@ -30,6 +30,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.entity.api.EntityManager;
@@ -584,7 +585,7 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 			this.priority = priority;
 
 			// Find the context using the reference (let the service that it belongs to parse it)
-			if (resource != null && !"".equals(resource)) {
+			if (StringUtils.isNotBlank(resource)) {
 				Reference ref = entityManager().newReference(resource);
 				if (ref != null) {
 					this.context = ref.getContext();

@@ -170,19 +170,19 @@
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="org.sakaiproject.lessonbuildertool.SimpleStudentPageImpl"/>
                 </bean>
-                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="org.sakaiproject.component.common.edu.person.PersonImpl"/>
                 </bean>
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="org.sakaiproject.api.common.type.Type"/>
                 </bean>
-                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="org.sakaiproject.component.common.type.TypeImpl"/>
                 </bean>
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="org.sakaiproject.taggable.impl.LinkImpl"/>
                 </bean>
-                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="org.sakaiproject.assignment.api.model.Assignment"/>
                 </bean>
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
@@ -194,10 +194,10 @@
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="org.sakaiproject.assignment.api.model.Assignment.groups"/>
                 </bean>
-                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="org.sakaiproject.assignment.api.model.AssignmentSubmission"/>
                 </bean>
-                <bean parent="org.sakaiproject.ignite.cache.transactional">
+                <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="org.sakaiproject.assignment.api.model.AssignmentSubmission.submitters"/>
                 </bean>
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
@@ -225,6 +225,15 @@
                     <property name="name" value="org.sakaiproject.content.api.persistence.FileConversionQueueItem"/>
                 </bean>
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
+                    <property name="name" value="org.sakaiproject.profile2.model.ProfilePrivacy"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.atomic">
+                    <property name="name" value="org.sakaiproject.profile2.hbm.model.ProfileKudos"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.atomic">
+                    <property name="name" value="org.sakaiproject.profile2.model.ProfilePreferences"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="org.sakaiproject.rubrics.api.model.Rubric"/>
                 </bean>
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
@@ -248,6 +257,46 @@
                 <bean parent="org.sakaiproject.ignite.cache.eternal">
                     <property name="name" value="org.sakaiproject.lti13.LTI13Servlet_cache"/>
                 </bean>
+                <!-- SCORM Caches -->
+                <bean parent="org.sakaiproject.ignite.cache.atomic">
+                    <property name="name" value="org.adl.datamodels.DataModel"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.atomic">
+                    <property name="name" value="org.adl.datamodels.ieee.SCORM_2004_DM.mElements"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.atomic">
+                    <property name="name" value="org.adl.datamodels.nav.SCORM_2004_NAV_DM.mElements"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.atomic">
+                    <property name="name" value="java.net.URL"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.atomic">
+                    <property name="name" value="org.adl.datamodels.DMDelimiter"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.atomic">
+                    <property name="name" value="org.adl.datamodels.DMDelimiterDescriptor"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.atomic">
+                    <property name="name" value="org.adl.datamodels.DMElement"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.atomic">
+                    <property name="name" value="org.adl.datamodels.DMElement.mChildren"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.atomic">
+                    <property name="name" value="org.adl.datamodels.DMElementDescriptor"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.atomic">
+                    <property name="name" value="org.adl.datamodels.DMProcessingInfo"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.atomic">
+                    <property name="name" value="org.adl.datamodels.DMTypeValidator"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.atomic">
+                    <property name="name" value="org.adl.datamodels.SCODataManager"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.atomic">
+                    <property name="name" value="org.adl.datamodels.SCODataManager.dataModels"/>
+                </bean>
             </list>
         </constructor-arg>
     </bean>
@@ -256,108 +305,52 @@
           class="java.util.ArrayList">
         <constructor-arg>
             <list>
-                <!-- SCORM Caches -->
+                <!-- Attendance Caches -->
                 <bean class="org.sakaiproject.ignite.IgniteConditionalCache">
-                    <property name="className" value="org.adl.datamodels.DataModel" />
+                    <property name="className" value="org.sakaiproject.attendance.api.model.AttendanceEvent" />
                     <property name="cacheConfiguration">
                         <bean parent="org.sakaiproject.ignite.cache.atomic">
-                            <property name="name" value="org.adl.datamodels.DataModel" />
+                            <property name="name" value="org.sakaiproject.attendance.api.model.AttendanceEvent" />
                         </bean>
                     </property>
                 </bean>
                 <bean class="org.sakaiproject.ignite.IgniteConditionalCache">
-                    <property name="className" value="org.adl.datamodels.DataModel" />
+                    <property name="className" value="org.sakaiproject.attendance.api.model.AttendanceGrade" />
                     <property name="cacheConfiguration">
                         <bean parent="org.sakaiproject.ignite.cache.atomic">
-                            <property name="name" value="org.adl.datamodels.ieee.SCORM_2004_DM.mElements" />
+                            <property name="name" value="org.sakaiproject.attendance.api.model.AttendanceGrade" />
                         </bean>
                     </property>
                 </bean>
                 <bean class="org.sakaiproject.ignite.IgniteConditionalCache">
-                    <property name="className" value="org.adl.datamodels.DataModel" />
+                    <property name="className" value="org.sakaiproject.attendance.api.model.AttendanceRecord" />
                     <property name="cacheConfiguration">
                         <bean parent="org.sakaiproject.ignite.cache.atomic">
-                            <property name="name" value="org.adl.datamodels.nav.SCORM_2004_NAV_DM.mElements" />
+                            <property name="name" value="org.sakaiproject.attendance.api.model.AttendanceRecord" />
                         </bean>
                     </property>
                 </bean>
                 <bean class="org.sakaiproject.ignite.IgniteConditionalCache">
-                    <property name="className" value="org.adl.datamodels.DataModel" />
+                    <property name="className" value="org.sakaiproject.attendance.api.model.AttendanceSite" />
                     <property name="cacheConfiguration">
                         <bean parent="org.sakaiproject.ignite.cache.atomic">
-                            <property name="name" value="java.net.URL" />
+                            <property name="name" value="org.sakaiproject.attendance.api.model.AttendanceSite" />
                         </bean>
                     </property>
                 </bean>
                 <bean class="org.sakaiproject.ignite.IgniteConditionalCache">
-                    <property name="className" value="org.adl.datamodels.DMDelimiter" />
+                    <property name="className" value="org.sakaiproject.attendance.api.model.AttendanceStatus" />
                     <property name="cacheConfiguration">
                         <bean parent="org.sakaiproject.ignite.cache.atomic">
-                            <property name="name" value="org.adl.datamodels.DMDelimiter" />
+                            <property name="name" value="org.sakaiproject.attendance.api.model.AttendanceStatus" />
                         </bean>
                     </property>
                 </bean>
                 <bean class="org.sakaiproject.ignite.IgniteConditionalCache">
-                    <property name="className" value="org.adl.datamodels.DMDelimiterDescriptor" />
+                    <property name="className" value="org.sakaiproject.attendance.api.model.GradingRule" />
                     <property name="cacheConfiguration">
                         <bean parent="org.sakaiproject.ignite.cache.atomic">
-                            <property name="name" value="org.adl.datamodels.DMDelimiterDescriptor" />
-                        </bean>
-                    </property>
-                </bean>
-                <bean class="org.sakaiproject.ignite.IgniteConditionalCache">
-                    <property name="className" value="org.adl.datamodels.DMElement" />
-                    <property name="cacheConfiguration">
-                        <bean parent="org.sakaiproject.ignite.cache.atomic">
-                            <property name="name" value="org.adl.datamodels.DMElement" />
-                        </bean>
-                    </property>
-                </bean>
-                <bean class="org.sakaiproject.ignite.IgniteConditionalCache">
-                    <property name="className" value="org.adl.datamodels.DMElement" />
-                    <property name="cacheConfiguration">
-                        <bean parent="org.sakaiproject.ignite.cache.atomic">
-                            <property name="name" value="org.adl.datamodels.DMElement.mChildren" />
-                        </bean>
-                    </property>
-                </bean>
-                <bean class="org.sakaiproject.ignite.IgniteConditionalCache">
-                    <property name="className" value="org.adl.datamodels.DMElementDescriptor" />
-                    <property name="cacheConfiguration">
-                        <bean parent="org.sakaiproject.ignite.cache.atomic">
-                            <property name="name" value="org.adl.datamodels.DMElementDescriptor" />
-                        </bean>
-                    </property>
-                </bean>
-                <bean class="org.sakaiproject.ignite.IgniteConditionalCache">
-                    <property name="className" value="org.adl.datamodels.DMProcessingInfo" />
-                    <property name="cacheConfiguration">
-                        <bean parent="org.sakaiproject.ignite.cache.atomic">
-                            <property name="name" value="org.adl.datamodels.DMProcessingInfo" />
-                        </bean>
-                    </property>
-                </bean>
-                <bean class="org.sakaiproject.ignite.IgniteConditionalCache">
-                    <property name="className" value="org.adl.datamodels.DMTypeValidator" />
-                    <property name="cacheConfiguration">
-                        <bean parent="org.sakaiproject.ignite.cache.atomic">
-                            <property name="name" value="org.adl.datamodels.DMTypeValidator" />
-                        </bean>
-                    </property>
-                </bean>
-                <bean class="org.sakaiproject.ignite.IgniteConditionalCache">
-                    <property name="className" value="org.adl.datamodels.SCODataManager" />
-                    <property name="cacheConfiguration">
-                        <bean parent="org.sakaiproject.ignite.cache.atomic">
-                            <property name="name" value="org.adl.datamodels.SCODataManager" />
-                        </bean>
-                    </property>
-                </bean>
-                <bean class="org.sakaiproject.ignite.IgniteConditionalCache">
-                    <property name="className" value="org.adl.datamodels.SCODataManager" />
-                    <property name="cacheConfiguration">
-                        <bean parent="org.sakaiproject.ignite.cache.atomic">
-                            <property name="name" value="org.adl.datamodels.SCODataManager.dataModels" />
+                            <property name="name" value="org.sakaiproject.attendance.api.model.GradingRule" />
                         </bean>
                     </property>
                 </bean>

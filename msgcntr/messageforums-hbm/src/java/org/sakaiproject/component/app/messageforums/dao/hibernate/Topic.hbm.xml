@@ -47,12 +47,12 @@
         <key column="t_surrogateKey"/>                        
         <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl"/>            
     </set>
-    <set name="messagesSet" lazy="true" cascade="persist,merge,save-update"
+    <set name="messagesSet" lazy="true" cascade="persist,merge,save-update,delete-orphan"
       sort="org.sakaiproject.component.app.messageforums.dao.hibernate.util.comparator.MessageByCreatedDateDesc" batch-size="100">
         <key column="surrogateKey"/>                        
         <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl"/>            
-    </set>    
-     <set name="membershipItemSet" lazy="true" cascade="merge,save-update" batch-size="50">
+    </set>
+     <set name="membershipItemSet" lazy="true" cascade="merge,save-update,delete-orphan" batch-size="50">
         <key column="t_surrogateKey"/>
         <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl"/>
     </set>
@@ -63,6 +63,18 @@
 	
 	<property name="postFirst">
       	<column name="POST_FIRST" not-null="true" />
+    </property>
+
+    <property name="sendOpenCloseToCalendar">
+        <column name="SEND_TO_CALENDAR" />
+    </property>
+
+    <property name="calendarBeginId">
+        <column name="CALENDAR_BEGIN_ID" />
+    </property>
+
+    <property name="calendarEndId">
+        <column name="CALENDAR_END_ID" />
     </property>
 
     <property name="postAnonymous">
@@ -158,10 +170,13 @@
         discriminator-value="OT">
       <property name="locked">
         <column name="LOCKED" not-null="false" />
-      </property>      
+      </property>
       <property name="draft">
         <column name="DRAFT" not-null="false" />
-      </property>      
+      </property>
+      <property name="lockedAfterClosed" type="boolean">
+        <column name="LOCKED_AFTER_CLOSED" not-null="true" default="0" />
+      </property>
 
 	  <!-- DiscussionTopic fields -->
 	  <subclass
@@ -178,6 +193,9 @@
 	    </property>
 	    <property name="restrictPermissionsForGroups">
 	      <column name="RESTRICT_PERMS_FOR_GROUPS" not-null="true" default="0" />
+	    </property>
+	    <property name="faqTopic">
+	      <column name="IS_FAQ_TOPIC" not-null="true" default="0" />
 	    </property>
 	    <!-- 
 	    <many-to-one name="dateRestrictions" column="DATE_RESTRICTIONS"

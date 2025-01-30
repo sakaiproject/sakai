@@ -5,10 +5,7 @@
 
 <% 
 	response.setContentType("text/html; charset=UTF-8");
-	response.addDateHeader("Expires", System.currentTimeMillis() - (1000L * 60L * 60L * 24L * 365L));
-	response.addDateHeader("Last-Modified", System.currentTimeMillis());
-	response.addHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0");
-	response.addHeader("Pragma", "no-cache");
+	response.addHeader("Cache-Control", "no-store");
 %>
 
 <jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
@@ -78,12 +75,12 @@
 			value="#{UserListBean.userRows}"
 			var="row"
 			styleClass="table table-hover table-striped table-bordered"
-			columnClasses="visible,hidden-xs,visible,visible,visible,hidden-xs,hidden-xs,hidden-xs"
+			columnClasses="d-table-cell, d-none d-sm-table-cell, d-table-cell, d-table-cell, d-table-cell, d-none d-sm-table-cell, d-none d-sm-table-cell, d-none d-sm-table-cell"
 			sortColumn="#{UserListBean.userSortColumn}" 
-            sortAscending="#{UserListBean.userSortAscending}"
-            first="#{UserListBean.firstItem}"
-            rows="#{UserListBean.rowsNumber}"
-            rendered="#{UserListBean.renderTable}">
+			sortAscending="#{UserListBean.userSortAscending}"
+			first="#{UserListBean.firstItem}"
+			rows="#{UserListBean.rowsNumber}"
+			rendered="#{UserListBean.renderTable}">
 			<t:column id="userID">
 				<f:facet name="header">
 		            <t:commandSortHeader columnName="id" immediate="true" arrow="true">
@@ -94,7 +91,7 @@
 					<f:param name="userId" value="#{row.userID}"/>
 				</h:commandLink>
 			</t:column>
-			<t:column id="internalUserId" headerstyleClass="hidden-xs">
+			<t:column id="internalUserId" headerstyleClass="d-none d-sm-table-cell">
 				<f:facet name="header">
 		            <t:commandSortHeader columnName="internalUserId" immediate="true" arrow="true">
 		                <h:outputText value="#{msgs.internal_user_id}"/>
@@ -126,7 +123,7 @@
 		        </f:facet>
 				<h:outputText value="#{row.userType}"/>
 			</h:column>
-			<t:column id="authority" headerstyleClass="hidden-xs">
+			<t:column id="authority" headerstyleClass="d-none d-sm-table-cell">
 				<f:facet name="header">
 		            <t:commandSortHeader columnName="authority" immediate="true" arrow="true">
 		                <h:outputText value="#{msgs.user_authority}"/>
@@ -134,7 +131,7 @@
 		        </f:facet>
 				<h:outputText value="#{row.authority}"/>
 			</t:column>
-			<t:column id="createdOn" headerstyleClass="hidden-xs">
+			<t:column id="createdOn" headerstyleClass="d-none d-sm-table-cell">
 				<f:facet name="header">
 		            <t:commandSortHeader columnName="createdOn" immediate="true" arrow="true">
 		                <h:outputText value="#{msgs.user_created_on}"/>
@@ -144,7 +141,7 @@
 					<f:convertDateTime dateStyle="medium" timeZone="#{UserListBean.userTimeZone}"/>
 				</h:outputText>
 			</t:column>
-			<t:column id="modifiedOn" headerstyleClass="hidden-xs">
+			<t:column id="modifiedOn" headerstyleClass="d-none d-sm-table-cell">
 				<f:facet name="header">
 		            <t:commandSortHeader columnName="modifiedOn" immediate="true" arrow="true">
 		                <h:outputText value="#{msgs.user_modified_on}"/>

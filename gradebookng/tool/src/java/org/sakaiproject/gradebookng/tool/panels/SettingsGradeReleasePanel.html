@@ -1,19 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html>
 <html xmlns:wicket="http://wicket.apache.org">
 
 <body>
 <wicket:panel>
 
-	<div class="panel panel-default">
-		<div class="panel-heading" role="tab" id="settingsGradeReleaseHeader">
-			<h3 class="panel-title">
-				<a role="button" data-toggle="collapse" href="#settingsGradeRelease" aria-expanded="false" aria-controls="settingsGradeRelease">
-					<wicket:message key="settingspage.graderelease.heading">Grade Release Rules</wicket:message>
-				</a>
-			</h3>
-		</div>
-		<div wicket:id="settingsGradeReleasePanel" id="settingsGradeRelease" class="panel-collapse collapse" role="tabpanel" aria-labelledby="settingsGradeReleaseHeader">
-			<div class="panel-body">
+	<div class="accordion-item" id="settingsGradeReleaseHeader">
+		<h2 class="accordion-header">
+			<button class="accordion-button collapsed fw-bold"
+				type="button"
+				data-bs-toggle="collapse"
+				data-bs-target="#settingsGradeRelease"
+				aria-expanded="false"
+				aria-controls="settingsGradeRelease">
+				<wicket:message key="settingspage.graderelease.heading">Grade Release Rules</wicket:message>
+			</button>
+		</h2>
+		<div wicket:id="settingsGradeReleasePanel" id="settingsGradeRelease" class="accordion-collapse collapse" aria-labelledby="settingsGradeReleaseHeader">
+			<div class="accordion-body">
 				<div class="checkbox">
 					<label>
 						<input wicket:id="displayReleased" type="checkbox" />
@@ -65,7 +69,7 @@
 				
 				<div class="form-group" wicket:id="courseGradePreview">
 					<span><wicket:message key="settingspage.displaycoursegrade.preview" /></span>
-					<span class="bg-info" wicket:id="preview">X+ 99%</span>
+					<span class="bg-info text-dark" wicket:id="preview">X+ 99%</span>
 				</div>
 				
 				<div class="checkbox" wicket:id="allowStudentsToCompareGradesContainer">
@@ -81,7 +85,7 @@
 								<wicket:message key="settingspage.allowcomparegrades.display.label" />
 							</span>
 							<label>
-								<input disabled checked="checked" type="checkbox" />
+								<input disabled="disabled" checked="checked" type="checkbox" />
 								<span><wicket:message key="settingspage.allowcomparegrades.display.grades.label" /></span>
 							</label>
 							<label>

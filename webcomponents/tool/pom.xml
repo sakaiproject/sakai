@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.sakaiproject</groupId>
         <artifactId>webcomponents-parent</artifactId>
-        <version>23-SNAPSHOT</version>
+        <version>25-SNAPSHOT</version>
     </parent>
 
     <name>Sakai Web Components Tool</name>
@@ -50,7 +50,6 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>buildnumber-maven-plugin</artifactId>
-                <version>1.4</version>
                 <executions>
                     <execution>
                         <phase>validate</phase>
@@ -71,27 +70,13 @@
                     <filesets>
                         <fileset>
                             <directory>src/main/frontend</directory>
+                            <followSymlinks>false</followSymlinks>
                             <includes>
-                                <include>**</include>
+                                <include>bundles/**</include>
+                                <include>node_modules/**</include>
+                                <include>js/assets/**</include>
+                                <include>packages/*/node_modules/**</include>
                             </includes>
-                            <excludes>
-                                <exclude>js/**</exclude>
-                                <exclude>stories/**</exclude>
-                                <exclude>storybook-resources/**</exclude>
-                                <exclude>test/**</exclude>
-                                <exclude>.storybook/**</exclude>
-                                <exclude>package.json</exclude>
-                                <exclude>package-lock.json</exclude>
-                                <exclude>.gitignore</exclude>
-                                <exclude>.jshintrc</exclude>
-                                <exclude>.eslintrc.js</exclude>
-                            </excludes>
-                        </fileset>
-                        <fileset>
-                            <directory>src/main/frontend/js/assets</directory>
-                        </fileset>
-                        <fileset>
-                            <directory>src/main/frontend/node_modules</directory>
                         </fileset>
                     </filesets>
                 </configuration>
@@ -102,21 +87,26 @@
                 <configuration>
                     <warSourceDirectory>src/main/webapp</warSourceDirectory>
                     <packagingExcludes>
-                        js/**,
                         node_modules/**,
                         package.json,
                         package-lock.json,
-                        .jshintrc
+                        eslint.config.mjs,
+                        lint-staged.config.mjs,
+                        packages/**
                     </packagingExcludes>
                     <webResources>
                         <resource>
                             <directory>src/main/frontend</directory>
                             <excludes>
-                                <exclude>js/**</exclude>
+                                <exclude>bundle-entry-points/**</exclude>
+                                <exclude>packages/**</exclude>
                                 <exclude>node_modules/**</exclude>
-                                <exclude>stories/**</exclude>
-                                <exclude>.storybook/**</exclude>
                                 <exclude>package*.json</exclude>
+                                <exclude>lint-staged.config.mjs</exclude>
+                                <exclude>.gitignore</exclude>
+                                <exclude>.eslintrc.js</exclude>
+                                <exclude>.husky/**</exclude>
+                                <exclude>lerna.json</exclude>
                             </excludes>
                         </resource>
                     </webResources>
@@ -125,7 +115,6 @@
             <plugin>
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
-                <version>1.12.0</version>
                 <configuration>
                     <installDirectory>target</installDirectory>
                     <workingDirectory>src/main/frontend</workingDirectory>
@@ -137,8 +126,7 @@
                             <goal>install-node-and-npm</goal>
                         </goals>
                         <configuration>
-                            <nodeVersion>v16.15.0</nodeVersion>
-                            <npmVersion>8.5.5</npmVersion>
+                            <nodeVersion>${sakai.node.version}</nodeVersion>
                         </configuration>
                     </execution>
                     <execution>
@@ -147,27 +135,34 @@
                             <goal>npm</goal>
                         </goals>
                         <configuration>
-                            <arguments>install</arguments>
+                            <arguments>ci --no-fund</arguments>
                         </configuration>
                     </execution>
                     <execution>
-                        <id>eslint</id>
+                        <id>lint</id>
                         <goals>
                             <goal>npm</goal>
                         </goals>
                         <configuration>
-                            <arguments>run eslint</arguments>
+                            <arguments>run lint</arguments>
                         </configuration>
                     </execution>
                     <execution>
-                        <id>npm empathise</id>
+                        <id>analyze</id>
                         <goals>
                             <goal>npm</goal>
                         </goals>
                         <configuration>
-                            <arguments>
-                                run empathise -- --query=version=${buildNumber}
-                            </arguments>
+                            <arguments>run analyze</arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>bundle</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>run bundle</arguments>
                         </configuration>
                     </execution>
                 </executions>

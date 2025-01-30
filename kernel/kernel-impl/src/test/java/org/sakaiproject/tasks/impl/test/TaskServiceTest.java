@@ -25,28 +25,41 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static org.junit.Assert.*;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import static org.mockito.Mockito.*;
+
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tasks.api.Priorities;
 import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.tasks.api.Task;
+import org.sakaiproject.tasks.api.TaskPermissions;
 import org.sakaiproject.tasks.api.UserTaskAdapterBean;
+import org.sakaiproject.tool.api.SessionManager;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.Assert;
 
-import static org.junit.Assert.assertEquals;
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {TaskServiceTestConfiguration.class})
 @FixMethodOrder(NAME_ASCENDING)
 public class TaskServiceTest extends AbstractTransactionalJUnit4SpringContextTests {
 
-    @Autowired
-    private TaskService taskService;
+    @Autowired private SecurityService securityService;
+    @Autowired private SessionManager sessionManager;
+    @Autowired private SiteService siteService;
+    @Autowired private TaskService taskService;
+
+    private String siteId = "playpen";
+    private String student = "student";
+    private String instructor = "instructor";
 
     private Task createTask(String reference) {
 
@@ -54,7 +67,7 @@ public class TaskServiceTest extends AbstractTransactionalJUnit4SpringContextTes
         String description = "This is my task";
         Set<String> userIds = new HashSet<>();
         userIds.add("abcde");
-        userIds.add("earle");
+        userIds.add(student);
 
         Task task = new Task();
         task.setSiteId(siteId);
@@ -78,9 +91,9 @@ public class TaskServiceTest extends AbstractTransactionalJUnit4SpringContextTes
         taskService.createSingleUserTask(bean);
 
         Optional<UserTaskAdapterBean> optionalUserTask
-            = taskService.getAllTasksForCurrentUser().stream().findFirst();
+            = taskService.getCurrentTasksForCurrentUser().stream().findFirst();
 
-        Assert.isTrue(optionalUserTask.isPresent(), "getAllTasksForCurrentUser did not return our new task");
+        Assert.isTrue(optionalUserTask.isPresent(), "getCurrentTasksForCurrentUser did not return our new task");
 
         UserTaskAdapterBean userTask = optionalUserTask.get();
 
@@ -94,9 +107,10 @@ public class TaskServiceTest extends AbstractTransactionalJUnit4SpringContextTes
 
         String reference = "/a/xyz";
         Task task = createTask(reference);
-        Assert.isTrue(task.getId() != null, "The saved task should now have an id");
+        assertTrue("The saved task should now have an id", task.getId() != null);
 
-        Assert.isTrue(taskService.getAllTasksForCurrentUser().stream().findFirst().isPresent(), "getAllTasksForCurrentUser did not return our new task");
+        switchToStudent();
+        assertTrue("getCurrentTasksForCurrentUser did not return our new task", taskService.getCurrentTasksForCurrentUser().stream().findFirst().isPresent());
     }
 
     @Test
@@ -106,8 +120,8 @@ public class TaskServiceTest extends AbstractTransactionalJUnit4SpringContextTes
 
         createTask(reference);
 
-        List<UserTaskAdapterBean> userTasks = taskService.getAllTasksForCurrentUser();
-        Assert.isTrue(userTasks.size() == 1, "There should be one user task after creating");
+        List<UserTaskAdapterBean> userTasks = taskService.getCurrentTasksForCurrentUser();
+        assertTrue("There should be one user task after creating", userTasks.size() == 1);
         UserTaskAdapterBean userTask = userTasks.get(0);
 
         String newNotes = "New notes";
@@ -119,15 +133,15 @@ public class TaskServiceTest extends AbstractTransactionalJUnit4SpringContextTes
 
         taskService.saveUserTask(userTask);
 
-        userTasks = taskService.getAllTasksForCurrentUser();
-        Assert.isTrue(userTasks.size() == 1, "There should be one user task after updating");
+        userTasks = taskService.getCurrentTasksForCurrentUser();
+        assertTrue("There should be one user task after updating", userTasks.size() == 1);
 
         userTask = userTasks.get(0);
 
         assertEquals("Newly saved notes doesn't match", newNotes, userTask.getNotes());
         assertEquals("Newly saved description doesn't match", newDescription, userTask.getDescription());
-        Assert.isTrue(userTask.getPriority() == 3, "Newly saved priority doesn't match");
-        Assert.isTrue(userTask.getComplete(), "Newly saved task should be complete");
+        assertTrue("Newly saved priority doesn't match", userTask.getPriority() == 3);
+        assertTrue("Newly saved task should be complete", userTask.getComplete());
     }
 
     @Test
@@ -137,13 +151,13 @@ public class TaskServiceTest extends AbstractTransactionalJUnit4SpringContextTes
 
         createTask(reference);
 
-        List<UserTaskAdapterBean> userTasks = taskService.getAllTasksForCurrentUser();
-        Assert.isTrue(userTasks.size() == 1, "There should be one user task after creating");
+        List<UserTaskAdapterBean> userTasks = taskService.getCurrentTasksForCurrentUser();
+        assertTrue("There should be one user task after creating", userTasks.size() == 1);
         UserTaskAdapterBean userTask = userTasks.get(0);
         taskService.removeUserTask(userTask.getUserTaskId());
 
-        userTasks = taskService.getAllTasksForCurrentUser();
-        Assert.isTrue(userTasks.size() == 0, "There should be zero user task after removing");
+        userTasks = taskService.getCurrentTasksForCurrentUser();
+        assertTrue("There should be zero user task after removing", userTasks.size() == 0);
     }
 
     @Test
@@ -154,7 +168,7 @@ public class TaskServiceTest extends AbstractTransactionalJUnit4SpringContextTes
         Assert.isTrue(task.getId() != null, "The saved task should now have an id");
         taskService.removeTask(task);
 
-        List<UserTaskAdapterBean> userTasks = taskService.getAllTasksForCurrentUser();
+        List<UserTaskAdapterBean> userTasks = taskService.getCurrentTasksForCurrentUser();
         Assert.isTrue(userTasks.size() == 0, "Deleting a Task should delete the user tasks");
     }
  
@@ -164,15 +178,15 @@ public class TaskServiceTest extends AbstractTransactionalJUnit4SpringContextTes
         String reference = "/a/xyz";
         Task task = createTask(reference);
 
-        List<UserTaskAdapterBean> userTasks = taskService.getAllTasksForCurrentUser();
-        Assert.isTrue(userTasks.size() == 1, "There should only be one task");
+        List<UserTaskAdapterBean> userTasks = taskService.getCurrentTasksForCurrentUser();
+        assertTrue("There should only be one task", userTasks.size() == 1);
 
         UserTaskAdapterBean userTask = userTasks.get(0);
 
         userTask.setSoftDeleted(true);
         taskService.saveUserTask(userTask);
 
-        userTasks = taskService.getAllTasksForCurrentUser();
+        userTasks = taskService.getCurrentTasksForCurrentUser();
         Assert.isTrue(userTasks.size() == 1, "There should only be one task");
 
         userTask = userTasks.get(0);
@@ -188,8 +202,39 @@ public class TaskServiceTest extends AbstractTransactionalJUnit4SpringContextTes
         Assert.isTrue(task.getId() != null, "The saved task should now have an id");
         taskService.removeTaskByReference(reference);
 
-        List<UserTaskAdapterBean> userTasks = taskService.getAllTasksForCurrentUser();
+        List<UserTaskAdapterBean> userTasks = taskService.getCurrentTasksForCurrentUser();
         Assert.isTrue(userTasks.size() == 0, "Deleting a Task by reference should delete the user tasks");
     }
 
+    @Test
+    public void canCurrentUserAddTask() {
+
+        when(siteService.siteReference(siteId)).thenReturn("/site/" + siteId);
+
+        switchToStudent();
+        assertFalse(taskService.canCurrentUserAddTask(siteId));
+
+        switchToInstructor();
+        assertTrue(taskService.canCurrentUserAddTask(siteId));
+
+        switchToStudent();
+        String studentSiteId = "~" + student;
+        when(siteService.getUserSiteId(student)).thenReturn(studentSiteId);
+        when(siteService.siteReference(studentSiteId)).thenReturn("/site/" + studentSiteId);
+        assertTrue(taskService.canCurrentUserAddTask(null));
+    }
+
+    private void switchToStudent() {
+
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(student);
+        when(securityService.unlock(TaskPermissions.CREATE_TASK, "/site/" + siteId)).thenReturn(false);
+        when(securityService.unlock(TaskPermissions.CREATE_TASK, "/site/~" + student)).thenReturn(true);
+    }
+
+    private void switchToInstructor() {
+
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(instructor);
+        when(securityService.unlock(TaskPermissions.CREATE_TASK, "/site/" + siteId)).thenReturn(true);
+        when(securityService.unlock(TaskPermissions.CREATE_TASK, "/site/~" + instructor)).thenReturn(true);
+    }
 }

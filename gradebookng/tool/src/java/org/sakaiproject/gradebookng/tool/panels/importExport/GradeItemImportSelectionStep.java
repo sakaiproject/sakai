@@ -179,7 +179,7 @@ public class GradeItemImportSelectionStep extends BasePanel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void onSubmit(AjaxRequestTarget target, Form<?> form) {
+			public void onSubmit(AjaxRequestTarget target) {
 
 				// clear any previous errors
 				final ImportExportPage page = (ImportExportPage) getPage();
@@ -203,7 +203,7 @@ public class GradeItemImportSelectionStep extends BasePanel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+			protected void onSubmit(AjaxRequestTarget target) {
 
 				// get the items that were selected
 				final List<ProcessedGradeItem> selectedGradeItems = filterListByType(
@@ -275,7 +275,7 @@ public class GradeItemImportSelectionStep extends BasePanel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void onSubmit(AjaxRequestTarget target, Form<?> form) {
+			public void onSubmit(AjaxRequestTarget target) {
 				// clear any previous errors
 				final ImportExportPage page = (ImportExportPage) getPage();
 				page.clearFeedback();

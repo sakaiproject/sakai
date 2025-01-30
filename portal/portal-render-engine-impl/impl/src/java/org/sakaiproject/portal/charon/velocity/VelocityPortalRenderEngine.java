@@ -43,9 +43,11 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.portal.api.PortalRenderEngine;
 import org.sakaiproject.portal.api.PortalService;
-import org.sakaiproject.portal.api.StyleAbleProvider;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
+
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -59,27 +61,15 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class VelocityPortalRenderEngine implements PortalRenderEngine
 {
-	private VelocityEngine vengine;
-
-	private boolean debug = false;
-
 	private List<Map<String, String>> availablePortalSkins;
-
-	private ServletContext context;
-
+	@Setter private ServletContext context;
+	@Setter @Getter private boolean debug = false;
 	private String defaultSkin = "morpheus";
-
-	private boolean styleAble = false;
-
-	private boolean styleAbleContentSummary = false;
-
-	private PortalService portalService;
-
-	private ServerConfigurationService serverConfigurationService;
-
-	private SessionManager sessionManager;
-
-	private String portalConfig = "portalvelocity.config";
+	@Setter private String portalConfig = "portalvelocity.config";
+	@Setter PortalService portalService;
+	@Setter ServerConfigurationService serverConfigurationService;
+	@Setter SessionManager sessionManager;
+	private VelocityEngine vengine;
 
 	public void init() throws Exception
 	{
@@ -89,15 +79,12 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 		
 		try
 		{
-			styleAble = serverConfigurationService.getBoolean("portal.styleable", false);
-			styleAbleContentSummary = serverConfigurationService.getBoolean(
-					"portal.styleable.contentSummary", false);
+			//this variable will decide which templates and configs (bundle) are picked
 			defaultSkin = serverConfigurationService.getString("portal.templates", "morpheus");
 		}
 		catch (Exception ex)
 		{
-			log
-					.warn("No Server configuration service available, assuming default settings ");
+			log.warn("No Server configuration service available, assuming default settings ");
 		}
 		if ( sessionManager == null ) {
 			log.warn("No session Manager, assuming test mode ");
@@ -128,7 +115,6 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 		 * m = new HashMap(); m.put("name", "skintwo"); m.put("display", "Skin
 		 * Two"); availablePortalSkins.add(m);
 		 */
-		vengine.getTemplate("/vm/"+defaultSkin+"/macros.vm");
 		}
 		catch (IOException e) {
 			throw new RuntimeException("Exception encounterd:  " + e, e);
@@ -154,9 +140,6 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 		// ensure that the skin remains.
 
 		rc.put("pageSkins", availablePortalSkins);
-		rc.put("styleableStyleSheet", generateStyleAbleStyleSheet());
-		rc.put("styleableJS", generateStyleAbleJavaScript());
-		rc.put("styleable", styleAble);
 		String portalSkin = defaultSkin;
 
 		if (request != null)
@@ -200,7 +183,7 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 		}
 		catch (Exception ex)
 		{
-			log.info("No options loaded ", ex);
+			log.info("No options loaded. Check options.config for " + defaultSkin, ex);
 
 		} 
 		finally {
@@ -229,104 +212,9 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 		{
 			skin = defaultSkin;
 		}
-		if (!defaultSkin.equals(skin))
-		{
-			vengine.getTemplate("/vm/" + skin + "/macros.vm");
-		}
 		vengine.mergeTemplate("/vm/" + skin + "/" + template + ".vm",
 				((VelocityPortalRenderContext) rcontext).getVelocityContext(), out);
 
-	}
-
-	private String generateStyleAbleStyleSheet()
-	{
-		if (styleAble)
-		{
-			StyleAbleProvider sp = portalService.getStylableService();
-			if (sp != null)
-			{
-				String userId = getCurrentUserId();
-				try
-				{
-
-					return sp.generateStyleSheet(userId);
-					// ca.utoronto.atrc.transformable.common.prefs.Preferences
-					// prefsForUser = TransformAblePrefsService
-					// .getTransformAblePreferences(userId);
-					// return StyleAbleService.generateStyleSheet(prefsForUser);
-				}
-				catch (Exception e)
-				{
-					return null;
-				}
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * @return null if no JavaScript is needed
-	 */
-	private String generateStyleAbleJavaScript()
-	{
-		// Enable / disable StyleAble javascript based on property flag.
-		if (styleAble && styleAbleContentSummary)
-		{
-			StyleAbleProvider sp = portalService.getStylableService();
-			if (sp != null)
-			{
-				String userId = getCurrentUserId();
-				try
-				{
-					return sp.generateJavaScript(userId);
-					// ca.utoronto.atrc.transformable.common.prefs.Preferences
-					// prefsForUser = TransformAblePrefsService
-					// .getTransformAblePreferences(userId);
-					// return StyleAbleService.generateJavaScript(prefsForUser);
-				}
-				catch (Exception e)
-				{
-					return null;
-				}
-			}
-		}
-		return null;
-	}
-
-	private String getCurrentUserId()
-	{
-		if ( sessionManager == null ) {
-			return "test-mode-user";
-		} else {
-			return sessionManager.getCurrentSession().getUserId();
-		}
-	}
-
-	public boolean isDebug()
-	{
-		return debug;
-	}
-
-	public void setDebug(boolean debug)
-	{
-		this.debug = debug;
-	}
-
-	/**
-	 * @return the context
-	 */
-	public ServletContext getContext()
-	{
-		return context;
-	}
-
-	/**
-	 * @param context
-	 *        the context to set
-	 */
-	public void setContext(ServletContext context)
-	{
-		this.context = context;
 	}
 
 	/*
@@ -344,27 +232,7 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 		String headCssToolBase = (String) req.getAttribute("sakai.html.head.css.base");
 		String headCssToolSkin = (String) req.getAttribute("sakai.html.head.css.skin");
 		String bodyonload = (String) req.getAttribute("sakai.html.body.onload");
-		String customUserCss = generateStyleAbleStyleSheet();
-		if (customUserCss != null)
-		{
-			customUserCss = "<style type=\"text/css\" title=\"StyleAble\">\n"
-					+ customUserCss + "</style>\n";
-		}
-		else
-		{
-			customUserCss = "";
-		}
-		String styleAbleJs = generateStyleAbleJavaScript();
-		if (styleAbleJs != null)
-		{
-			styleAbleJs = "<script "
-					+ "type=\"text/javascript\" language=\"JavaScript\">\n" + styleAbleJs
-					+ "\n</script>\n";
-			headJs = headJs + styleAbleJs;
-			bodyonload = bodyonload + "styleableonload();";
-		}
-		headCssToolSkin = headCssToolSkin + customUserCss;
-		String headCss = headCssToolBase + headCssToolSkin + customUserCss;
+		String headCss = headCssToolBase + headCssToolSkin;
 		String head = headCss + headJs;
 
 		req.setAttribute("sakai.html.head", head);
@@ -374,82 +242,6 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 		req.setAttribute("sakai.html.head.css.skin", headCssToolSkin);
 		req.setAttribute("sakai.html.body.onload", bodyonload);
 
-	}
-
-	/**
-	 * @return the stylable
-	 */
-	public boolean isStyleAble()
-	{
-		return styleAble;
-	}
-
-	/**
-	 * @param stylable
-	 *        the stylable to set
-	 */
-	public void setStyleAble(boolean styleAble)
-	{
-		this.styleAble = styleAble;
-	}
-
-	/**
-	 * @param instance
-	 */
-	public void setPortalService(PortalService instance)
-	{
-		this.portalService = instance;
-
-	}
-
-	/**
-	 * @return the serverConfigurationService
-	 */
-	public ServerConfigurationService getServerConfigurationService()
-	{
-		return serverConfigurationService;
-	}
-
-	/**
-	 * @param serverConfigurationService
-	 *        the serverConfigurationService to set
-	 */
-	public void setServerConfigurationService(
-			ServerConfigurationService serverConfigurationService)
-	{
-		this.serverConfigurationService = serverConfigurationService;
-	}
-
-	/**
-	 * @return the sessionManager
-	 */
-	public SessionManager getSessionManager()
-	{
-		return sessionManager;
-	}
-
-	/**
-	 * @param sessionManager the sessionManager to set
-	 */
-	public void setSessionManager(SessionManager sessionManager)
-	{
-		this.sessionManager = sessionManager;
-	}
-
-	/**
-	 * @return the portalConfig
-	 */
-	public String getPortalConfig()
-	{
-		return portalConfig;
-	}
-
-	/**
-	 * @param portalConfig the portalConfig to set
-	 */
-	public void setPortalConfig(String portalConfig)
-	{
-		this.portalConfig = portalConfig;
 	}
 
 }

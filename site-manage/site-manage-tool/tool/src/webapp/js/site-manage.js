@@ -2,97 +2,104 @@ var sakai = sakai || {};
 var utils = utils || {};
 var selTools = new Array();
 var ltiPrefix = "lti_";
+var siteManage = siteManage || { toolsLoaded: [], toolsCollapsed: new Map() };
 
 $.ajaxSetup({
   cache: false
 });
 
 /*
- calling template has dom placeholder for dialog,
- args:class of trigger, id of dialog, message strings
+ calling template has dom placeholder for one or more dialogs,
+ args:class of trigger(s), id of dialog (will get a site id suffix), message strings
  */
-sakai.getSiteInfo = function(trigger, dialogTarget, nosd, nold){
-	$("." + trigger).click(function(e){
-		e.preventDefault();
-		$("#" + dialogTarget).modal('show');
-	});
-	const siteId = $("." + trigger).attr('id');
-	if (!siteId) {
-		return;
-	}
-	const siteURL = `/direct/site/${siteId}/info.json`;
-	jQuery.getJSON(siteURL, function(data){
-		var desc = '', shortdesc = '', title = '', owner = '', email = '';
-		if (data.description) {
-			desc = unescape(data.description);
-		}
-		else {
-			desc = nold;
-		}
-		if (data.shortDescription) {
-			shortdesc = data.shortDescription;
-		}
-		else {
-			shortdesc = nosd;
-		}
+sakai.getSiteInfo = function(trigger, dialogTarget, nosd, nold) {
+  $("." + trigger).each(function(){
+    const siteId = $(this).attr('id');
+    if (!siteId) {
+      return;
+    }
 
-		if (data.contactName) {
-			owner = data.contactName;
-		}
+    const dialogTargetSite = dialogTarget + "_" + siteId;
 
-		if (data.contactEmail) {
-			email = " (<a href=\"mailto:" + data.contactEmail.escapeHTML() + "\" id=\"email\">" + data.contactEmail.escapeHTML() + "</a>)";
-		}
+    $(this).click(function(e){
+       e.preventDefault();
+       bootstrap.Modal.getOrCreateInstance(document.getElementById(dialogTargetSite)).show();
+     });
 
-		if (data.props) {
-			if (data.props['contact-name']) {
-				owner = data.props['contact-name'];
-			}
+    const siteURL = `/direct/site/${siteId}/info.json`;
+    jQuery.getJSON(siteURL, function (data) {
+      var desc = '', shortdesc = '', title = '', owner = '', email = '';
+      if (data.description) {
+        desc = unescape(data.description);
+      }
+      else {
+        desc = nold;
+      }
+      if (data.shortDescription) {
+        shortdesc = data.shortDescription;
+      }
+      else {
+        shortdesc = nosd;
+      }
 
-			if (data.props['contact-email']) {
-				email = "(<a href=\"mailto:" + data.props['contact-email'].escapeHTML() + "\" id=\"email\">" + data.props['contact-email'].escapeHTML() + "</a>)";
-			}
-		}
+      if (data.contactName) {
+        owner = data.contactName;
+      }
 
-		sitetitle = data.title.escapeHTML();
-		content = (
-			'<div class="modal-dialog modal-md">' +
-				'<div class="modal-content">' +
-					'<div class="modal-header">' +
-						'<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span class="fa fa-times" aria-hidden="true"></span></button>' +
-						'<h4 class="modal-title">' + sitetitle + '</h4>' +
-					'</div>' +
-					'<div class="modal-body">' +
-						'<p>' + shortdesc + '</p>' +
-						'<div>' + desc + '</div>' +
-					'</div>' +
-				'</div>' +
-			'</div>'
-		);
-		$("#" + dialogTarget).html(content).attr('aria-hidden','true').attr('tabindex', '-1').attr('role', 'dialog').addClass('modal fade');
-		return false;
-	});
+      if (data.contactEmail) {
+        email = " (<a href=\"mailto:" + data.contactEmail.escapeHTML() + "\" id=\"email\">" + data.contactEmail.escapeHTML() + "</a>)";
+      }
+
+      if (data.props) {
+        if (data.props['contact-name']) {
+          owner = data.props['contact-name'];
+        }
+
+        if (data.props['contact-email']) {
+          email = "(<a href=\"mailto:" + data.props['contact-email'].escapeHTML() + "\" id=\"email\">" + data.props['contact-email'].escapeHTML() + "</a>)";
+        }
+      }
+
+      sitetitle = data.title.escapeHTML();
+      content = (
+        '<div class="modal-dialog modal-md">' +
+          '<div class="modal-content">' +
+            '<div class="modal-header">' +
+              '<h5 class="modal-title">' + sitetitle + '</h5>' +
+              '<button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>' +
+            '</div>' +
+            '<div class="modal-body">' +
+              '<p>' + shortdesc + '</p>' +
+              '<div>' + desc + '</div>' +
+            '</div>' +
+          '</div>' +
+        '</div>'
+      );
+      $("#" + CSS.escape(dialogTargetSite)).html(content).attr('aria-hidden','true').attr('tabindex', '-1').attr('role', 'dialog').addClass('modal fade');
+      return false;
+    });
+  });
 };
 
 sakai.setupGroupModalLinks = function (dialogTarget, memberstr, printstr, tablestr1,tablestr2,tablestr3){
 
-	[...document.querySelectorAll(".group-membership-button")].forEach(el => {
+  [...document.querySelectorAll(".group-membership-button")].forEach(el => {
 
-		el.addEventListener("click", e => {
+    el.addEventListener("click", e => {
 
-			e.preventDefault();
-			sakai.getGroupInfo(e.target.dataset.groupId, dialogTarget, memberstr, printstr, tablestr1, tablestr2, tablestr3);
-		});
-	});
+      e.preventDefault();
+      sakai.getGroupInfo(e.target.dataset.groupId, dialogTarget, memberstr, printstr, tablestr1, tablestr2, tablestr3);
+    });
+  });
 
-	[...document.querySelectorAll(".moreInfoGroups")].forEach(el => {
+  [...document.querySelectorAll(".moreInfoGroups")].forEach(el => {
 
-		el.addEventListener("click", e => {
+    el.addEventListener("click", e => {
 
-			e.preventDefault();
-			sakai.getGroupInfo(e.target.id, dialogTarget, memberstr, printstr, tablestr1, tablestr2, tablestr3);
-		});
-	});
+      e.preventDefault();
+      sakai.getGroupInfo(e.target.id, dialogTarget, memberstr, printstr, tablestr1, tablestr2, tablestr3);
+    });
+  });
 };
 
 /*
@@ -101,49 +108,55 @@ sakai.setupGroupModalLinks = function (dialogTarget, memberstr, printstr, tables
  */
 sakai.getGroupInfo = function (id, dialogTarget, memberstr, printstr, tablestr1, tablestr2, tablestr3) {
 
-	if (!id) return;
+  if (!id) return;
 
-	const title = document.getElementById(`group${id}`).innerHTML;
-	const groupURL = `/direct/membership/group/${id}.json`;
-	let list = "";
+  const title = document.getElementById(`group${id}`).innerHTML;
+  const groupURL = `/direct/membership/group/${id}.json`;
+  let list = "";
 
-	jQuery.getJSON(groupURL, function (data) {
+  jQuery.getJSON(groupURL, function (data) {
 
-		$.each(data.membership_collection, function (i, item) {
+    $.each(data.membership_collection, function (i, item) {
 
-			const sortName = $('<div>').text(item.userSortName).html();
-			const role = $('<div>').text(item.memberRole).html();
-			const email = $('<div>').text(item.userEmail).html();
-			list = `${list}<tr><td>${sortName}</td><td>${role}</td><td><a href='mailto:${email}'>${email}</a></td></tr>`;
-		});
+      const sortName = $('<div>').text(item.userSortName).html();
+      const role = $('<div>').text(item.memberRole).html();
+      const email = $('<div>').text(item.userEmail).html();
+      list = `${list}<tr><td>${sortName}</td><td>${role}</td><td><a href='mailto:${email}'>${email}</a></td></tr>`;
+    });
 
-		const content = `
-			<div class="modal-dialog modal-md">
-				<div class="modal-content">
-					<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span class="fa fa-times" aria-hidden="true"></span></button>
-						<button type="button" id="printme" class="print-window close" onclick="printPreview('/direct/membership/group/'${id}.json')" aria-label="${printstr}"><span class="fa fa-print" aria-hidden="true"></span></button>
-						<h4 class="modal-title">${title}</h4>
-					</div>
-					<div class="modal-body" id="groupListContent">
-						<table class="table table-striped table-bordered table-hover">
-							<tr>
-								<th>${tablestr1}</th>
-								<th>${tablestr2}</th>
-								<th>${tablestr3}</th>
-							</tr>
-							${list}
-						</table>
-					</div>
-				</div>
-			</div>`;
+    const content = `
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">${title}</h5>
+            <button type="button" id="printme" class="btn print-window close" onclick="printPreview()" aria-label="${printstr}">
+              <i class="si si-print" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body" id="groupListContent">
+            <div class="table-responsive">
+              <table class="table table-striped table-bordered table-hover">
+                <tr>
+                  <th>${tablestr1}</th>
+                  <th>${tablestr2}</th>
+                  <th>${tablestr3}</th>
+                </tr>
+                ${list}
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>`;
 
-		$(`#${dialogTarget}`).html(content).attr('aria-hidden','true')
-			.attr('tabindex', '-1').attr('role', 'dialog')
-			.addClass('modal fade').modal('show');
+    $(`#${dialogTarget}`).html(content).attr('aria-hidden','true')
+      .attr('tabindex', '-1').attr('role', 'dialog')
+      .addClass('modal fade');
 
-		return false;
-	});
+    bootstrap.Modal.getOrCreateInstance(document.getElementById(`${dialogTarget}`)).show();
+
+    return false;
+  });
 };
 
 /*
@@ -151,20 +164,21 @@ sakai.getGroupInfo = function (id, dialogTarget, memberstr, printstr, tablestr1,
  args: message box id, class to apply
  */
 sakai.setupMessageListener = function(messageHolder, messageMode){
-    //test to see if there is an actual message (trim whitespace first)
-    var str = $("#" + messageHolder).text();
-    str = jQuery.trim(str);
-    // show if message is there, then hide it
-    if (str !== '') {
-        $("#" + messageHolder).fadeIn('fast');
-        $("#" + messageHolder).addClass(messageMode);
-        $("#" + messageHolder).animate({
-            opacity: 1.0
-        }, 5000);
-        $("#" + messageHolder).fadeOut('fast', function(){
-            $("#" + messageHolder).remove();
-        });
-    }
+
+  //test to see if there is an actual message (trim whitespace first)
+  var str = $("#" + messageHolder).text();
+  str = jQuery.trim(str);
+  // show if message is there, then hide it
+  if (str !== '') {
+    $("#" + messageHolder).fadeIn('fast');
+    $("#" + messageHolder).addClass(messageMode);
+    $("#" + messageHolder).animate({
+      opacity: 1.0
+    }, 5000);
+    $("#" + messageHolder).fadeOut('fast', function(){
+      $("#" + messageHolder).remove();
+    });
+  }
 };
 
 /*
@@ -174,380 +188,373 @@ sakai.setupMessageListener = function(messageHolder, messageMode){
  args: id of table, id of select all checkbox, highlight row class
  */
 sakai.setupSelectList = function(list, allcontrol, highlightClass){
-    $('#' + list + ' :checked').parent("td").parent("tr").addClass(highlightClass);
-    
-    if ($('#' + list + ' td input:checkbox').length === 0) {
-        $('#' + allcontrol).hide();
+  $('#' + list + ' :checked').parent("td").parent("tr").addClass(highlightClass);
+
+  if ($('#' + list + ' td input:checkbox').length === 0) {
+    $('#' + allcontrol).hide();
+  }
+  $('#' + allcontrol).click(function(){
+    if (this.checked) {
+      $('#' + list + ' input:checkbox').prop('checked', true);
+      $('#' + list + ' input:checkbox').parent('td').parent('tr').addClass(highlightClass);
     }
-    $('#' + allcontrol).click(function(){
-        if (this.checked) {
-            $('#' + list + ' input:checkbox').prop('checked', true);
-            $('#' + list + ' input:checkbox').parent('td').parent('tr').addClass(highlightClass);
-        }
-        else {
-            $('#' + list + ' input:checkbox').prop('checked', false);
-            $('#' + list + ' tbody tr').removeClass(highlightClass);
-        }
-        utils.checkEnableUnjoin();
+    else {
+      $('#' + list + ' input:checkbox').prop('checked', false);
+      $('#' + list + ' tbody tr').removeClass(highlightClass);
+    }
+    utils.checkEnableUnjoin();
+  });
+
+  $('#' + list + ' input:checkbox').click(function(){
+    var someChecked = false;
+    if (this.checked) {
+      $(this).parents('tr').addClass(highlightClass);
+    }
+    else {
+      $(this).parents('tr').removeClass(highlightClass);
+    }
+    $('#' + list + ' input:checkbox').each(function(){
+      if (this.checked) {
+        someChecked = true;
+      }
     });
-    
-    $('#' + list + ' input:checkbox').click(function(){
-        var someChecked = false;
-        if (this.checked) {
-            $(this).parents('tr').addClass(highlightClass);
-        }
-        else {
-            $(this).parents('tr').removeClass(highlightClass);
-        }
-        $('#' + list + ' input:checkbox').each(function(){
-            if (this.checked) {
-                someChecked = true;
-            }
-        });
-        if (!someChecked) {
-            $('#' + allcontrol).prop('checked', false);
-        }
-        if ($('#' + list + ' :checked').length !== $('#' + list + ' input:checkbox').length) {
-            $('#' + allcontrol).prop('checked', false);
-        }
-        
-        if ($('#' + list + '  :checked').length === $('#' + list + '  input:checkbox').length) {
-            $('#' + allcontrol).prop('checked', true);
-        }
-    });
+    if (!someChecked) {
+      $('#' + allcontrol).prop('checked', false);
+    }
+    if ($('#' + list + ' :checked').length !== $('#' + list + ' input:checkbox').length) {
+      $('#' + allcontrol).prop('checked', false);
+    }
+
+    if ($('#' + list + '  :checked').length === $('#' + list + '  input:checkbox').length) {
+      $('#' + allcontrol).prop('checked', true);
+    }
+  });
 };
 
 sakai.siteTypeSetup = function(){
-    var templateControls='';
-    //from sakai.properties - json with what controls to display (and in what state) for each site type    
-    if ($('#templateControls').val() !== '') {
-        templateControls = eval('(' + $('#templateControls').val() + ')');
+  var templateControls='';
+  //from sakai.properties - json with what controls to display (and in what state) for each site type
+  if ($('#templateControls').val() !== '') {
+    templateControls = eval('(' + $('#templateControls').val() + ')');
+  }
+  else {
+    templateControls ='';
+  }
+  //the #courseSiteTypes input[type=text] contains what site types are associated with the course category
+  // if there are none associated in sakai.properties, the value will be just one ('course')
+  var courseSiteTypes = $('#courseSiteTypes').val().replace('[','').replace(']','').replace(/ /gi, '').split(',');
+
+  // handles clicking in "Build site from template"
+  $('#copy').click(function(e){
+    //open template picker
+    $('#templateSettings').show();
+    //uncheck build own option
+    $('#buildOwn').prop('checked', false);
+    //hide the list of sites availabel when building own
+    $('#siteTypeList').hide();
+    //hide the term select used when selecting a course when building own
+    $('#termList').hide();
+    //show submit button used when using templates
+    $('#submitFromTemplate').show();
+    //show submit button used when building own, disable it
+    $('#submitBuildOwn').hide();
+    $('#submitBuildOwn').prop('disabled', true);
+    //TODO: why? commenting out for now
+    //$('#copyContent').prop('checked', true);
+
+    //hide/reset archive parts
+    $('#archiveSettings').hide();
+    $('#archive').prop('checked', false);
+    $('#submitBuildOwn').prop('disabled', true);
+    $('#submitFromArchive').hide();
+
+    utils.resizeFrame('grow');
+
+  });
+
+  $('#buildOwn').click(function(e){
+    //hide template picker
+    $('#templateSettings').hide();
+    //uncheck any checked inputs in the template picker
+    $('#templateSettings input:checked').prop('checked', false);
+    //hide template inner container for title/term selection, "copy users" etc.
+    $('#allTemplateSettings').hide();
+    //void the template title and reset the term selection
+    $('#siteTitleField').attr('value', '');
+    $('#templateSettings select').prop('selectedIndex', 0);
+    //hide the template containers for both title and term selection
+    $('#templateSettingsTitleTerm span.templateTitleTerm').hide();
+    //uncheck the "Create site from template" radio
+    $('input[id="copy"]').prop('checked', false);
+    // show the build own choices
+    $('#siteTypeList').show();
+    //hide the submit for creating from template and disable it
+    $('#submitFromTemplate').hide().prop('disabled', true);
+    // hide the submit for creating a course from template, in case it was showing
+    $('#submitFromTemplateCourse').hide();
+    //show the submit for build own
+    $('#submitBuildOwn').show();
+
+    //hide/reset archive parts
+    $('#archiveSettings').hide();
+    $('#archive').prop('checked', false);
+    $('#submitBuildOwn').prop('disabled', true);
+    $('#submitFromArchive').hide();
+
+
+    utils.resizeFrame('grow');
+  });
+
+  // handles display of "create site from archive"
+  $('#archive').click(function(e){
+
+    //show archive settings
+    $('#archiveSettings').show();
+    $('#submitFromArchive').show();
+    $('#submitBuildOwn').prop('disabled', false);
+    toggleArchiveTermList();
+
+    //hide and disable buildOwn section
+    $('#buildOwn').prop('checked', false);
+    $('#siteTypeList').hide();
+    $('#termList').hide();
+    $('#siteTypeList .checkbox input').prop('checked',false);
+    $('#submitBuildOwn').hide();
+    $('#submitBuildOwn').prop('disabled', true);
+
+    //hide create from template section
+    $('#copy').prop('checked', false);
+    $('#templateSettings').hide();
+    $('#templateSettings input:checked').prop('checked', false);
+    $('#allTemplateSettings').hide();
+    $('#siteTitleField').prop('value', '');
+    $('#templateSettings select').prop('selectedIndex', 0);
+    $('#templateSettingsTitleTerm span.templateTitleTerm').hide();
+    $('#submitFromTemplate').hide().prop('disabled', true);
+    $('#submitFromTemplateCourse').hide();
+
+    utils.resizeFrame('grow');
+
+  });
+
+
+  // check for a value in the create from template non-course title
+  // field and either enable or disable the submit, also check onblur below
+  $('#siteTitleField').keyup(function(e){
+    if ($(this).val().length >= 1) {
+      $('#submitFromTemplate').attr('disabled', false);
     }
     else {
-        templateControls ='';
+      $('#submitFromTemplate').attr('disabled', true);
     }
-     //the #courseSiteTypes input[type=text] contains what site types are associated with the course category
-     // if there are none associated in sakai.properties, the value will be just one ('course')
-     var courseSiteTypes = $('#courseSiteTypes').val().replace('[','').replace(']','').replace(/ /gi, '').split(',');
-    
-    // handles clicking in "Build site from template"
-    $('#copy').click(function(e){
-        //open template picker
-        $('#templateSettings').show();
-        //uncheck build own option
-        $('#buildOwn').prop('checked', false);
-        //hide the list of sites availabel when building own
-        $('#siteTypeList').hide();
-        //hide the term select used when selecting a course when building own
-        $('#termList').hide();
-        //show submit button used when using templates 
-        $('#submitFromTemplate').show();
-        //show submit button used when building own, disable it
-        $('#submitBuildOwn').hide();
-        $('#submitBuildOwn').prop('disabled', true);
-        //TODO: why? commenting out for now
-        //$('#copyContent').prop('checked', true);
+  });
+  $('#siteTitleField').blur(function(){
+    if ($(this).val().length >= 1) {
+      $('#submitFromTemplate').prop('disabled', false);
+    }
+    else {
+      $('#submitFromTemplate').prop('disabled', true);
+    }
+  });
 
-        //hide/reset archive parts
-        $('#archiveSettings').hide();
-        $('#archive').prop('checked', false);
-        $('#submitBuildOwn').prop('disabled', true);
-        $('#submitFromArchive').hide();
+  // check that user has picked a term in the term selection field
+  //to enable or disable submits for create course from template
+  $('#selectTermTemplate').change(function(){
+    if (this.selectedIndex === 0) {
+      $('#submitFromTemplateCourse').prop('disabled', true);
+    }
+    else {
+      $('#submitFromTemplateCourse').prop('disabled', false);
+    }
+  });
 
-        utils.resizeFrame('grow');
+  // handler that opens a block explaining what all the options are
+  // in the template selection (copy users, content, publish now)
+  $('#fromTemplateSettingsContainer_instruction_control').click(function(){
+    var pos = $(this).position();
+    varContainerHeight = $('#fromTemplateSettingsContainer_instruction_body').height();
+    $('#fromTemplateSettingsContainer_instruction_body').css({'top': pos.top - varContainerHeight - 20,'left': pos.left - 290}).toggle();
+  });
+  // handler to
+  $('#fromTemplateSettingsContainer_instruction_body').click(function(){
+    $(this).fadeOut('fast');
+  });
 
-    });
-    
-    $('#buildOwn').click(function(e){
-        //hide template picker
-        $('#templateSettings').hide();
-        //uncheck any checked inputs in the template picker
-        $('#templateSettings input:checked').prop('checked', false);
-        //hide template inner container for title/term selection, "copy users" etc.
-        $('#allTemplateSettings').hide();
-        //void the template title and reset the term selection
-        $('#siteTitleField').attr('value', '');
-        $('#templateSettings select').prop('selectedIndex', 0);
-        //hide the template containers for both title and term selection
-        $('#templateSettingsTitleTerm span.templateTitleTerm').hide();
-        //uncheck the "Create site from template" radio
-        $('input[id="copy"]').prop('checked', false);
-        // show the build own choices
-        $('#siteTypeList').show();
-        //hide the submit for creating from template and disable it
-        $('#submitFromTemplate').hide().prop('disabled', true);
-        // hide the submit for creating a course from template, in case it was showing
-        $('#submitFromTemplateCourse').hide();
-        //show the submit for build own
-        $('#submitBuildOwn').show();
-        
-        //hide/reset archive parts
-        $('#archiveSettings').hide();
-        $('#archive').prop('checked', false);
-        $('#submitBuildOwn').prop('disabled', true);
-        $('#submitFromArchive').hide();
+  // handler for the template picker radio
+  $('#templateList input').click(function(e){
+    //what is the ID of the template site
+    var selectedTemplateId = $('#templateList input[type="radio"]:checked').attr('id');
 
-        
-        utils.resizeFrame('grow');
-    });
-    
-    // handles display of "create site from archive"
-    $('#archive').click(function(e){
+    if (!selectedTemplateId){  // how likely is this?
+      $('#templateSettingsTitleTerm span').hide(); // hide title for non-course sites
+      $('#submitFromTemplateCourse, #submitFromTemplateCourse ').prop('disabled', true); //disable submit to create from templates
+      $('#siteTitleField').attr('value', ''); // empty title input
+      $('#siteTerms select').prop('selectedIndex', 0); // zero out the term select
+    }
+    else {
+      // what is the site type of the template site
+      var type = $('#templateList input[type="radio"]:checked').attr('class');
+      $('#templateSettingsTitleTerm span.templateTitleTerm').hide(); // hide template term selection and title input controls
+      $('#templateList li').removeClass('selectedTemplate'); // remove hightlights from all template rows
+      $('#templateList #row' + selectedTemplateId).addClass('selectedTemplate'); // add highlight to selected row
+      $('#allTemplateSettings').addClass('allTemplateSettingsHighlight');
+       // move in the DOM the template settings to this row
+      $('#templateList #row' + selectedTemplateId  + ' .templateSettingsPlaceholder').append($('#allTemplateSettings'));
+      // hide instructions for settings
+      $('#fromTemplateSettingsContainer_instruction_body').hide();
+      $('#publishSiteWrapper input').prop('checked', false);
 
-        //show archive settings
-        $('#archiveSettings').show();
-        $('#submitFromArchive').show();
-        $('#submitBuildOwn').prop('disabled', false);
-        toggleArchiveTermList();
-
-        //hide and disable buildOwn section
-        $('#buildOwn').prop('checked', false);
-        $('#siteTypeList').hide();
-        $('#termList').hide();
-	$('#siteTypeList .checkbox input').prop('checked',false);
-        $('#submitBuildOwn').hide();
-        $('#submitBuildOwn').prop('disabled', true);
-
-        //hide create from template section
-        $('#copy').prop('checked', false);
-        $('#templateSettings').hide();
-        $('#templateSettings input:checked').prop('checked', false);
-        $('#allTemplateSettings').hide();
-        $('#siteTitleField').prop('value', '');
-        $('#templateSettings select').prop('selectedIndex', 0);
-        $('#templateSettingsTitleTerm span.templateTitleTerm').hide();
-        $('#submitFromTemplate').hide().prop('disabled', true);
-        $('#submitFromTemplateCourse').hide();
-        
-        utils.resizeFrame('grow');
-        
-    });
-    
-   
-    // check for a value in the create from template non-course title 
-    // field and either enable or disable the submit, also check onblur below
-    $('#siteTitleField').keyup(function(e){
-        if ($(this).val().length >= 1) {
-            $('#submitFromTemplate').attr('disabled', false);
-        }
-        else {
-            $('#submitFromTemplate').attr('disabled', true);
-        }
-    });
-    $('#siteTitleField').blur(function(){
-        if ($(this).val().length >= 1) {
-            $('#submitFromTemplate').prop('disabled', false);
-        }
-        else {
-            $('#submitFromTemplate').prop('disabled', true);
-        }
-    });
-    
-    // check that user has picked a term in the term selection field
-    //to enable or disable submits for create course from template
-    $('#selectTermTemplate').change(function(){
-        if (this.selectedIndex === 0) {
-            $('#submitFromTemplateCourse').prop('disabled', true);
-        }
-        else {
-            $('#submitFromTemplateCourse').prop('disabled', false);
-            
-        }
-    });
-    
-    // handler that opens a block explaining what all the options are 
-    // in the template selection (copy users, content, publish now)
-    $('#fromTemplateSettingsContainer_instruction_control').click(function(){
-        var pos = $(this).position();
-        varContainerHeight = $('#fromTemplateSettingsContainer_instruction_body').height();
-        $('#fromTemplateSettingsContainer_instruction_body').css({'top': pos.top - varContainerHeight - 20,'left': pos.left - 290}).toggle();
-    });
-    // handler to 
-    $('#fromTemplateSettingsContainer_instruction_body').click(function(){
-        $(this).fadeOut('fast');
-    });
-    
-    // handler for the template picker radio
-    $('#templateList input').click(function(e){
-        //what is the ID of the template site
-        var selectedTemplateId = $('#templateList input[type="radio"]:checked').attr('id');
-
-        if (!selectedTemplateId){  // how likely is this? 
-            $('#templateSettingsTitleTerm span').hide(); // hide title for non-course sites
-            $('#submitFromTemplateCourse, #submitFromTemplateCourse ').prop('disabled', true); //disable submit to create from templates
-            $('#siteTitleField').attr('value', ''); // empty title input
-            $('#siteTerms select').prop('selectedIndex', 0); // zero out the term select
-        }
-        else {
-            // what is the site type of the template site
-            var type = $('#templateList input[type="radio"]:checked').attr('class');
-            $('#templateSettingsTitleTerm span.templateTitleTerm').hide(); // hide template term selection and title input controls
-            $('#templateList li').removeClass('selectedTemplate'); // remove hightlights from all template rows
-             $('#templateList #row' + selectedTemplateId).addClass('selectedTemplate'); // add highlight to selected row
-             $('#allTemplateSettings').addClass('allTemplateSettingsHighlight');
-             // move in the DOM the template settings to this row
-            $('#templateList #row' + selectedTemplateId  + ' .templateSettingsPlaceholder').append($('#allTemplateSettings'));
-            // hide instructions for settings
-            $('#fromTemplateSettingsContainer_instruction_body').hide();
-            $('#publishSiteWrapper input').prop('checked', false);
-
-            //templateControls is a json that comes from a sakai.property
-            //it identifies for each site type, whether to show a control, and what attrs it has. 
-            if (templateControls !== '') {
-                $.each(templateControls.templateControls, function(key, value){
-                    if (key === type) {
-                        if (this.copyContentVis === true) {
-                            $('#copyContentWrapper').show();
-                            $('#fromTemplateSettingsContainer_instruction_body_copyUsers').show();
-                        }
-                        else {
-                            $('#copyContentWrapper').hide();
-                            $('#fromTemplateSettingsContainer_instruction_body_copyUsers').hide();
-                        }
-                        if (this.copyContentChecked === true) {
-                            $('#copyContentWrapper input').prop('checked', true);
-                        }
-                        else {
-                            $('#copyContentWrapper input').prop('checked', false);
-                        }
-                        //SAK25401
-                        if (this.copyContentLocked === true) {
-                           if (this.copyContentLocked === true) {
-                            // SAK-25401 hide the actual control, display locked 'stand-in'
-                            $( "#copyContent" ).hide();
-                            $( "#lockedContent").show();
-                           }
-                        }
-
-                        else {
-                            $('#copyContentWrapper input').prop('disabled', false);
-                        }
-                        if (this.copyUsersVis === true) {
-                            $('#copyUsersWrapper').show();
-                            $('#fromTemplateSettingsContainer_instruction_body_copyContent').show();
-                        }
-                        else {
-                            $('#copyUsersWrapper').hide();
-                            $('#fromTemplateSettingsContainer_instruction_body_copyContent').hide();
-                        }
-                        if (this.copyUsersChecked === true) {
-                            $('#copyUsersWrapper input').prop('checked', true);
-                        }
-                        else {
-                            $('#copyUsersWrapper input').prop('checked', false);
-                        }
-                        if (this.copyUsersLocked === true) {
-                            $('#copyUsersWrapper input').prop('disabled', true);
-                        }
-                        else {
-                            $('#copyUsersWrapper input').prop('disabled', false);
-                        }
-                        if (this.publishSiteVis === true) {
-                            $('#publishSiteWrapper').show();
-                        }
-                        else {
-                            $('#publishSiteWrapper').hide();
-                        }
-                        if (this.publishSiteChecked === true) {
-                            $('#publishSiteWrapper input').prop('checked', true);
-                        }
-                        else {
-                            $('#publishSiteWrapper input').prop('checked', false);
-                        }
-                        if (this.publishSiteLocked === true) {
-                            $('#publishSiteWrapper input').prop('disabled', true);
-                        }
-                        else {
-                            $('#publishSiteWrapper input').prop('disabled', false);
-                        }
-                    }
-                });
+      //templateControls is a json that comes from a sakai.property
+      //it identifies for each site type, whether to show a control, and what attrs it has.
+      if (templateControls !== '') {
+        $.each(templateControls.templateControls, function(key, value){
+          if (key === type) {
+            if (this.copyContentVis === true) {
+              $('#copyContentWrapper').show();
+              $('#fromTemplateSettingsContainer_instruction_body_copyUsers').show();
             }
             else {
-                //show all the controls, unchecked, unlocked, since there are no settings
-                $('#copyContentWrapper').show().find('input').prop('disabled', false).prop('checked',true);
-                $('#copyUsersWrapper').show().find('input').prop('disabled', false).prop('checked',false);
-                $('#fromTemplateSettingsContainer_instruction_body_copyUsers').show();
-                $('#fromTemplateSettingsContainer_instruction_body_copyContent').show();
+              $('#copyContentWrapper').hide();
+              $('#fromTemplateSettingsContainer_instruction_body_copyUsers').hide();
             }
-            
-            // show settings
-            $('#allTemplateSettings').fadeIn('fast');
-            //check to see if this template is of a type that maps to a course
-            if ($.inArray(type, courseSiteTypes) !==-1) { //either there is a mapping to what types of sites resolve to courses or a fallback to 'course'  
-                $('#submitFromTemplate').hide(); // hide the non-course submit button 
-                $('#submitFromTemplateCourse').show(); // show the submit button for course
-                $('#siteTerms').show(); // show the term selector
-                $('#siteTitle').hide(); // hide the title input (Note: can an installation specify that a course can have a user generated title)?
-                $('#siteTerms select').focus(); // focus the term select control
-                $('#siteTitleField').attr('value', ''); // void the value of the title input
+            if (this.copyContentChecked === true) {
+              $('#copyContentWrapper input').prop('checked', true);
             }
-            // the picked template has a type that does not resolve to a course
-            else { 
-                $('#submitFromTemplate').show(); // show non-course submit button
-                $('#submitFromTemplateCourse').hide(); // hide the course submit button
-                $('#siteTitle').show(); //show title input
-                $('#siteTerms').hide();//hide the container that holds the site terms
-                $('#siteTerms select').prop('selectedIndex', 0); // zero out the term select
-                $('#siteTitle input[type="text"]').focus(); // focus the title input
+            else {
+              $('#copyContentWrapper input').prop('checked', false);
             }
-      }
-    });
-    
-    // populate the blurbs about each type from the json
-    if (templateControls !== '') { 
-        $.each(templateControls.templateControls, function(key, value){
-          $('.' + key).find('.siteTypeRowBlurb').html(this.blurb);
+            //SAK25401
+            if (this.copyContentLocked === true) {
+              if (this.copyContentLocked === true) {
+                // SAK-25401 hide the actual control, display locked 'stand-in'
+                $( "#copyContent" ).hide();
+                $( "#lockedContent").show();
+              }
+            }
+
+            else {
+              $('#copyContentWrapper input').prop('disabled', false);
+            }
+            if (this.copyUsersVis === true) {
+              $('#copyUsersWrapper').show();
+              $('#fromTemplateSettingsContainer_instruction_body_copyContent').show();
+            }
+            else {
+              $('#copyUsersWrapper').hide();
+              $('#fromTemplateSettingsContainer_instruction_body_copyContent').hide();
+            }
+            if (this.copyUsersChecked === true) {
+              $('#copyUsersWrapper input').prop('checked', true);
+            }
+            else {
+              $('#copyUsersWrapper input').prop('checked', false);
+            }
+            if (this.copyUsersLocked === true) {
+              $('#copyUsersWrapper input').prop('disabled', true);
+            }
+            else {
+              $('#copyUsersWrapper input').prop('disabled', false);
+            }
+            if (this.publishSiteChecked === true) {
+              $('#publishSiteWrapper input').prop('checked', true);
+            }
+            else {
+              $('#publishSiteWrapper input').prop('checked', false);
+            }
+            if (this.publishSiteLocked === true) {
+              $('#publishSiteWrapper input').prop('disabled', true);
+            }
+            else {
+              $('#publishSiteWrapper input').prop('disabled', false);
+            }
+          }
         });
+      }
+      else {
+        //show all the controls, unchecked, unlocked, since there are no settings
+        $('#copyContentWrapper').show().find('input').prop('disabled', false).prop('checked',true);
+        $('#copyUsersWrapper').show().find('input').prop('disabled', false).prop('checked',false);
+        $('#fromTemplateSettingsContainer_instruction_body_copyUsers').show();
+        $('#fromTemplateSettingsContainer_instruction_body_copyContent').show();
+      }
+
+      // show settings
+      $('#allTemplateSettings').fadeIn('fast');
+      //check to see if this template is of a type that maps to a course
+      if ($.inArray(type, courseSiteTypes) !==-1) { //either there is a mapping to what types of sites resolve to courses or a fallback to 'course'
+        $('#submitFromTemplate').hide(); // hide the non-course submit button
+        $('#submitFromTemplateCourse').show(); // show the submit button for course
+        $('#siteTerms').show(); // show the term selector
+        $('#siteTitle').hide(); // hide the title input (Note: can an installation specify that a course can have a user generated title)?
+        $('#siteTerms select').focus(); // focus the term select control
+        $('#siteTitleField').attr('value', ''); // void the value of the title input
+      }
+      // the picked template has a type that does not resolve to a course
+      else {
+        $('#submitFromTemplate').show(); // show non-course submit button
+        $('#submitFromTemplateCourse').hide(); // hide the course submit button
+        $('#siteTitle').show(); //show title input
+        $('#siteTerms').hide();//hide the container that holds the site terms
+        $('#siteTerms select').prop('selectedIndex', 0); // zero out the term select
+        $('#siteTitle input[type="text"]').focus(); // focus the title input
+      }
     }
+  });
 
-    // handles clicking on a category (course, project, whatever)
-    // opens the list in the category, does clean up (closes other categories, resets control UI)
-    $('.siteTypeRow a').click(function(e) {
-        e.preventDefault();
-        // hide the submit for a course creation via template
-       $('#submitFromTemplateCourse').hide();
-       //disable and show the generic submit for creating from template
-       $('#submitFromTemplate').prop('disabled', true).show();
-       // clean up - hide all rows
-       $('li[class^=row]').hide();
-       // toggle the UI of all the category links
-       $('.siteTypeRow a .open').hide();
-       $('.siteTypeRow a .closed').show();
-       // reset all categories control UI to "closed" 
-        $('.siteTypeRow a').removeClass('openDisc');
-        $(this).toggleClass('openDisc');
-       // display all rows belonging to this category
-       $('.row' + $(this).attr('href')).fadeToggle();
-       // set new category control UI some more
-       $(this).find('.closed').hide();
-       $(this).find('.open').show(); 
-       utils.resizeFrame('grow');
+  // populate the blurbs about each type from the json
+  if (templateControls !== '') {
+    $.each(templateControls.templateControls, function(key, value){
+      $('.' + key).find('.siteTypeRowBlurb').html(this.blurb);
     });
-    
-    // this handles selections on the site type list (trad course, project, portfolio, etc.)
-    $('#siteTypeList input').click(function(e){
-        if ($(this).attr('id') === 'course') {
+  }
 
-        	if( $( '#selectTerm option' ).length === 0)
-        	{
-        		$( '#submitBuildOwn' ).attr( 'disabled', true );
-        	}
-            else
-            {
-            	$( '#submitBuildOwn' ).attr( 'disabled', false );
-            }
-        	
-            $('#termList').show();
-        }
-        else {
-            $('#termList').hide();
-        	$('#submitBuildOwn').prop('disabled', false);
-        }
-    });
-    
-    // Click the first item in the create site screen
-    $('input[name="itemType"]').first().click();
+  // handles clicking on a category (course, project, whatever)
+  // opens the list in the category, does clean up (closes other categories, resets control UI)
+  $('.siteTypeRow a').click(function(e) {
+    e.preventDefault();
+      // hide the submit for a course creation via template
+    $('#submitFromTemplateCourse').hide();
+    //disable and show the generic submit for creating from template
+    $('#submitFromTemplate').prop('disabled', true).show();
+    // clean up - hide all rows
+    $('li[class^=row]').hide();
+    // toggle the UI of all the category links
+    $('.siteTypeRow a .open').hide();
+    $('.siteTypeRow a .closed').show();
+    // reset all categories control UI to "closed"
+    $('.siteTypeRow a').removeClass('openDisc');
+    $(this).toggleClass('openDisc');
+    // display all rows belonging to this category
+    $('.row' + $(this).attr('href')).fadeToggle();
+    // set new category control UI some more
+    $(this).find('.closed').hide();
+    $(this).find('.open').show();
+    utils.resizeFrame('grow');
+  });
+
+  // this handles selections on the site type list (trad course, project, etc.)
+  $('#siteTypeList input').click(function(e){
+    if ($(this).attr('id') === 'course') {
+
+      if( $( '#selectTerm option' ).length === 0)
+      {
+        $( '#submitBuildOwn' ).attr( 'disabled', true );
+      }
+      else
+      {
+        $( '#submitBuildOwn' ).attr( 'disabled', false );
+      }
+
+      $('#termList').show();
+    }
+    else {
+      $('#termList').hide();
+      $('#submitBuildOwn').prop('disabled', false);
+    }
+  });
+
+  // Click the first item in the create site screen
+  $('input[name="itemType"]').first().click();
 };
 
 /*
@@ -558,85 +565,84 @@ sakai.siteTypeSetup = function(){
  */
 
 utils.setupUtils= function(){
-    $('.revealInstructions').click(function(e){
-		e.preventDefault();
-        $(this).hide().next().fadeIn('fast');
-    });
-}; 
+  $('.revealInstructions').click(function(e){
+  e.preventDefault();
+      $(this).hide().next().fadeIn('fast');
+  });
+};
 utils.startDialog = function(dialogTarget){
-    $("#" + dialogTarget).dialog({
-        close: function(event, ui){
-            utils.resizeFrame('shrink');
-        },
-        autoOpen: false,
-        modal: true,
-        height: 330,
-		maxHeight:350,
-        width: 500,
-        draggable: true,
-        closeOnEscape: true
-    });
-    
+  $("#" + dialogTarget).dialog({
+      close: function(event, ui){
+        utils.resizeFrame('shrink');
+      },
+      autoOpen: false,
+      modal: true,
+      height: 330,
+      maxHeight:350,
+      width: 500,
+      draggable: true,
+      closeOnEscape: true
+  });
 };
 /*
  position, open a jQuery-UI dialog, adjust the parent iframe size if any
  */
 utils.endDialog = function(ev, dialogTarget){
-    var frame;
-    if (top.location !== self.location) {
-        frame = parent.document.getElementById(window.name);
-    }
-    if (frame) {
-        var clientH = document.body.clientHeight + 360;
-        $(frame).height(clientH);
-    }
+  var frame;
+  if (top.location !== self.location) {
+    frame = parent.document.getElementById(window.name);
+  }
+  if (frame) {
+    var clientH = document.body.clientHeight + 360;
+    $(frame).height(clientH);
+  }
 
-    $("#" + dialogTarget).dialog('option', 'position', {my: "center", at: "center", of: window });
-    $("#" + dialogTarget).dialog("open");
+  $("#" + dialogTarget).dialog('option', 'position', {my: "center", at: "center", of: window });
+  $("#" + dialogTarget).dialog("open");
 
 };
 
-utils.checkEnableUnjoin = function()
-{
-    var disabled = $( ".joinable:checked" ).length > 0 ? false : true;
-    $( ".reset" ).prop( "disabled", disabled );
-    $( ".unjoin" ).prop( "disabled", disabled );
-    if( disabled )
-    {
-        $( ".unjoin" ).removeClass( "active" );
-    }
-    else
-    {
-        $( ".unjoin" ).addClass( "active" );
-    }
+utils.checkEnableUnjoin = function() {
+
+  var disabled = $( ".joinable:checked" ).length > 0 ? false : true;
+  $( ".reset" ).prop( "disabled", disabled );
+  $( ".unjoin" ).prop( "disabled", disabled );
+  if( disabled )
+  {
+    $( ".unjoin" ).removeClass( "active" );
+  }
+  else
+  {
+    $( ".unjoin" ).addClass( "active" );
+  }
 };
 
 utils.clearSelections = function()
 {
-    $( "#currentSites input:checkbox" ).prop( "checked", false);
-    $( "#currentSites tbody tr").removeClass( "selectedSelected" );
-    utils.checkEnableUnjoin();
+  $( "#currentSites input:checkbox" ).prop( "checked", false);
+  $( "#currentSites tbody tr").removeClass( "selectedSelected" );
+  utils.checkEnableUnjoin();
 };
 
 utils.labelFor = function(elementId)
 {
-    var labels = document.getElementsByTagName("label");
-    for (var i = 0; i < labels.length; i++)
+  var labels = document.getElementsByTagName("label");
+  for (var i = 0; i < labels.length; i++)
+  {
+    if (labels[i].htmlFor === elementId)
     {
-	    if (labels[i].htmlFor === elementId)
-	    {
-		    return labels[i];
-	    }
+      return labels[i];
     }
-	
-	return null;
+  }
+
+  return null;
 };
 
 // toggle a fade
 jQuery.fn.fadeToggle = function(speed, easing, callback){
-    return this.animate({
-        opacity: 'toggle'
-    }, speed, easing, callback);
+  return this.animate({
+    opacity: 'toggle'
+  }, speed, easing, callback);
 };
 //escape markup
 String.prototype.escapeHTML = function(){
@@ -648,30 +654,28 @@ String.prototype.escapeHTML = function(){
  used after DOM operations that add or substract to the doc height
  */
 utils.resizeFrame = function(updown){
-    var clientH;
-    if (top.location !== self.location) {
-        var frame = parent.document.getElementById(window.name);
-    }
-    if (frame) {
-        if (updown === 'shrink') {
-            clientH = document.body.clientHeight;
-        }
-        else {
-            clientH = document.body.clientHeight + 50;
-        }
-        $(frame).height(clientH);
+  var clientH;
+  if (top.location !== self.location) {
+    var frame = parent.document.getElementById(window.name);
+  }
+  if (frame) {
+    if (updown === 'shrink') {
+      clientH = document.body.clientHeight;
     }
     else {
-        // throw( "resizeFrame did not get the frame (using name=" + window.name + ")" );
+      clientH = document.body.clientHeight + 50;
     }
+    $(frame).height(clientH);
+  }
+  else {
+      // throw( "resizeFrame did not get the frame (using name=" + window.name + ")" );
+  }
 };
 
 // SAK-23905
 var setLTIPrefix = function(ltipref) {
-        ltiPrefix = ltipref;
+  ltiPrefix = ltipref;
 };
-
-
 
 var setupCategTools = function () {
 
@@ -728,8 +732,8 @@ var setupCategTools = function () {
     });
 
     $("#alertBox a#alertBoxNo").on("click", function () {
-        $(this).closest("li").prev("li").removeClass("highlightTool");
-        $("#alertBox").remove();
+      $(this).closest("li").prev("li").removeClass("highlightTool");
+      $("#alertBox").remove();
     });
   };
 
@@ -744,10 +748,10 @@ var setupCategTools = function () {
   // SAK23905 adjust for different id's between toolHolder and toolSelection (except for LTI tools)
   function denormalizeId(myId) {
 
-	  if (myId.lastIndexOf(ltiPrefix, 0) < 0) {
-		  myId = myId.replace(/\_/g, '.');
-	  }
-	  return myId;
+    if (myId.lastIndexOf(ltiPrefix, 0) < 0) {
+      myId = myId.replace(/\_/g, '.');
+    }
+    return myId;
   }
 
   // Additional tool multiple identification characters (i.e. those beyond the base tool's name) with
@@ -815,7 +819,7 @@ var setupCategTools = function () {
     var toolInstance = "";
     var thisToolCatEsc = "";
     var thisToolId = normalizedId($(this).attr("id"));
-    
+
     if (thisToolId.length > 37) {
       thisToolCat = thisToolId.substring(36) + "";
       toolInstance = " toolInstance";
@@ -831,7 +835,7 @@ var setupCategTools = function () {
 
       // selectedTools with disable checkboxes don't have the red [X] remove link
       if ($(this).prop("disabled") !== true) {
-        removeLink = '<a href="#" class=\"removeTool icon-sakai--delete' + toolInstance + '\"></a>';
+        removeLink = '<a href="#" class=\"removeTool si si-remove' + toolInstance + '\"></a>';
       }
 
       var selId = normalizedId($(this).attr("id"));
@@ -857,7 +861,7 @@ var setupCategTools = function () {
       $("#toolHolder").find("#" + thisToolCatEsc).find("ul").append(parentRow);
     }
   });
-    
+
   // set checked/unchecked for each in list
   $(".toolGroup").each(function () {
 
@@ -877,7 +881,7 @@ var setupCategTools = function () {
     }
     $(this).parent('li').find('span.checkedCount').text(countChecked).show(); //$(this).parent('li').find('span.checkedCount').hide();
   });
-    
+
   $('#toolHolder a').click(function (e) {
 
     e.preventDefault();
@@ -889,7 +893,7 @@ var setupCategTools = function () {
       return false;
     }
   });
-    
+
   $('input[name="selectedTools"][type="checkbox"]').click(function () {
 
     if (($(this).closest("ul").find(":checked").length === $(this).closest("ul").find('input[type="checkbox"]').length) && $(this).closest("ul").find(":checked").length > 0) {
@@ -977,7 +981,7 @@ var setupCategTools = function () {
 
     noTools();
   });
- 
+
   $(".moreInfoTool").click(function (e) {
 
     e.preventDefault();
@@ -1221,10 +1225,9 @@ function toggleSelectAll(caller, elementName) {
   }
 }
 
-function printPreview(target) {
+function printPreview() {
 
   var w = window.open('', 'printwindow', 'scrollbars=yes,toolbar=yes,resizable=yes');
-  var content=  "";
   var content=  document.getElementById('groupListContent').innerHTML;
   w.document.writeln(
     '<html><head>'
@@ -1347,39 +1350,82 @@ function changeLevel(level) {
 /*
   Setup the Import from Site form
 */
-function setupImportSitesForm($form) {
+function setupImportSitesForm(form) {
 
-  // Allow toggle of tools for an entire site/column
-  $form.on("click", ".import-sites-tool-toggle", function (event) {
+  // Handle tool toggle for entire site/column
+  form.addEventListener("click", e => {
+    if (!e.target.matches(".import-sites-tool-toggle")) return;
 
-    var $checkbox = $(this);
-    var $th = $checkbox.closest("th");
-    var $tr = $checkbox.closest("tr");
+    const checkbox = e.target;
+    const th = checkbox.closest("th");
+    const tr = checkbox.closest("tr");
+    const columnIndex = Array.from(tr.children).indexOf(th);
+    const isChecked = checkbox.checked;
 
-    $tr.siblings().each(function () {
-
-      var $td = $($(this).children().get($th.index()));
-      $td.find(":checkbox:not(:disabled)").not(".siteimport-option").prop("checked", $checkbox.is(":checked")).change();
+    tr.parentElement.querySelectorAll("tr").forEach(row => {
+      if (row === tr) return; // Skip header row
+      const td = row.children[columnIndex];
+      td.querySelectorAll('input[type="checkbox"]:not(:disabled):not(.siteimport-option)')
+        .forEach(cb => {
+          cb.checked = isChecked;
+          cb.dispatchEvent(new Event('click'));
+        });
     });
   });
 
-  $(".import-option-help").popover();
+  // Initialize popovers for help icons
+  document.querySelectorAll(".import-option-help")
+    .forEach(element => new bootstrap.Popover(element));
 
-  $(".siteimport-tool-checkbox").change(function (e) {
+  // Handle tool checkbox clicks
+  document.querySelectorAll(".siteimport-tool-checkbox").forEach(checkbox => {
+    checkbox.addEventListener("click", e => {
+      const { toolId, siteId, optionsId } = e.target.dataset;
+      const optionsLink = document.getElementById(`${toolId}-${siteId}-options-link`);
+      
+      if (optionsLink) {
+        const hasCheckedItems = !!document.querySelectorAll(
+          `.tool-item-checkbox[data-tool-id="${toolId}"][data-site-id="${siteId}"]:checked`
+        ).length;
+        
+        optionsLink.classList.toggle("d-none", !(e.target.checked || hasCheckedItems));
+      }
 
-    if (e.target.checked) {
-      $("#" + e.target.id + "-options-link").show();
+      if (!e.target.checked) {
+        const optionsEl = document.getElementById(optionsId);
+        if (optionsEl) {
+          optionsEl.querySelector("input[type='checkbox']").checked = false;
+          optionsEl.classList.add("d-none");
+        }
+      } else {
+        document.querySelectorAll(
+          `.tool-item-checkbox[data-tool-id="${toolId}"][data-site-id="${siteId}"]`
+        ).forEach(el => el.checked = true);
+      }
+    });
+  });
+
+  // Handle options link clicks 
+  document.querySelectorAll(".siteimport-options-link").forEach(link => {
+    link.addEventListener("click", e => {
+      const optionsEl = document.getElementById(e.currentTarget.dataset.optionsId);
+      optionsEl?.classList.toggle("d-none");
+    });
+  });
+
+  // Handle finish button click
+  const finishButton = document.getElementById("siteimport-finish-button");
+  finishButton?.addEventListener("click", e => {
+    const confirmMessage = document.getElementById("import-confirm-message").value;
+    
+    if (confirm(confirmMessage)) {
+      SPNR.disableControlsAndSpin(finishButton, null);
     } else {
-      $("#" + e.target.dataset.optionsId).find("input[type='checkbox']").prop("checked", false);
-      $("#" + e.target.dataset.optionsId).hide();
-      $("#" + e.target.id + "-options-link").hide();
+      e.preventDefault();
+      e.stopPropagation();
     }
   });
-
-  $(".siteimport-options-link").click(function (e) {
-    $("#" + this.dataset.optionsId).toggle();
-  });
-};
+}
 
 function updateParticipants(buttonElement) {
 
@@ -1395,10 +1441,128 @@ function cancel(url, buttonElement) {
   return false;
 }
 
-$(function () {
-
-  var $form = $("form[name='importSitesForm']");
-  if ($form.length > 0) {
-    setupImportSitesForm($form);
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.querySelector("form[name='importSitesForm']");
+  if (form) {
+    setupImportSitesForm(form);
   }
+
+  document.querySelectorAll("button.tool-items-button").forEach(btn => {
+
+    const iconEl = btn.querySelector("i");
+
+    btn.addEventListener("click", e => {
+
+      const toolId = e.currentTarget.dataset.toolId;
+
+      if (siteManage.toolsLoaded.includes(toolId) && !siteManage.toolsCollapsed.get(toolId)) {
+        document.querySelectorAll(`.tool-item-row[data-tool-id="${toolId}"]`).forEach(row => row.classList.add("d-none"));
+        siteManage.toolsCollapsed.set(toolId, true);
+        iconEl.classList.remove("bi-caret-down-fill");
+        iconEl.classList.add("bi-caret-right-fill");
+      } else {
+        document.querySelectorAll(`.tool-item-row[data-tool-id="${toolId}"]`).forEach(row => row.classList.remove("d-none"));
+        siteManage.toolsCollapsed.set(toolId, false);
+        iconEl.classList.remove("bi-caret-right-fill");
+        iconEl.classList.add("bi-caret-down-fill");
+      }
+
+      // If we've loaded the item data for this tool already, just return.
+      if (siteManage.toolsLoaded.includes(toolId)) return true;
+
+      // Gather the site ids from the site cells
+      const siteIds = [];
+      let sibling = e.currentTarget.parentElement.nextElementSibling;
+      while (sibling) {
+        if (sibling.classList.contains("site-cell")) siteIds.push(sibling.dataset.siteId);
+        sibling = sibling.nextElementSibling;
+      }
+
+      // This is the current tr that we will be inserting our new rows after
+      let currentInsertionRow = e.currentTarget.closest("tr");
+
+      const url = `/api/tool-entities/tools/${toolId}?sites=${siteIds.join(",")}`;
+      fetch(url, { credentials: "include" })
+        .then(r => {
+
+          if (r.ok) return r.json();
+
+          throw new Error(`Network error while retrieving the entity map from ${url}`);
+        })
+        .then(sites => {
+
+          iconEl.classList.remove("bi-caret-right-fill");
+          iconEl.classList.add("bi-caret-down-fill");
+
+          siteManage.toolsLoaded.push(toolId);
+
+          const numberRows = Object.values(sites).reduce((a, v) => v.length > a ? v.length : a, 0);
+
+          for (let i = 0; i < numberRows; i++) {
+
+            let tr = `
+              <tr class="tool-item-row" data-tool-id="${toolId}">
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+            `;
+
+            siteIds.forEach(siteId => {
+
+              const items = sites[siteId];
+
+              const toolCheckbox = document.getElementById(`toolSite-${toolId}-${siteId}`);
+
+              if (items[i]) {
+                const itemId = items[i].id;
+                tr += `
+                  <td>
+                    <input type="checkbox"
+                        id="item-${itemId}"
+                        name="${toolId}$${siteId}-item-${itemId}"
+                        data-tool-id="${toolId}"
+                        data-site-id="${siteId}"
+                        class="ms-3 tool-item-checkbox"
+                        value="${itemId}" ${toolCheckbox.checked ? "checked" : "" } />
+                    <label class="ms-2" for="item-${itemId}">${items[i].title}</label>
+                  </td>`;
+              } else {
+                tr += `<td>&nbsp;</td>`;
+              }
+            });
+
+            tr += "</tr>";
+
+            currentInsertionRow.insertAdjacentHTML("afterend", tr);
+
+            // Set to the newly inserted tr
+            currentInsertionRow = document.querySelector(`tr[data-tool-id="${toolId}"]`);
+          }
+
+          document.querySelectorAll(".tool-item-checkbox").forEach(cb => {
+
+            const toolId = cb.dataset.toolId;
+            const siteId = cb.dataset.siteId;
+
+            const toolCheckbox = document.getElementById(`toolSite-${toolId}-${siteId}`);
+
+            cb.addEventListener("click", e => {
+
+              const itemCheckboxes = Array.from(document.querySelectorAll(`.tool-item-checkbox[data-tool-id="${toolId}"][data-site-id="${siteId}"]`));
+
+              if (!e.target.checked) toolCheckbox.checked = false;
+
+              if (e.target.checked && !itemCheckboxes.some(cb => !cb.checked)) toolCheckbox.checked = true;
+
+              const link = document.getElementById(`${toolId}-${siteId}-options-link`);
+              if (link) {
+                const otherChecked = document.querySelectorAll(`.tool-item-checkbox[data-tool-id="${toolId}"][data-site-id="${siteId}"]:checked`)?.length;
+                const toolChecked = toolCheckbox.checked;
+                e.target.checked || otherChecked || toolChecked ? link.classList.remove("d-none") : link.classList.add("d-none");
+              }
+            });
+          });
+        })
+        .catch(error => console.error(error));
+    });
+  });
 });

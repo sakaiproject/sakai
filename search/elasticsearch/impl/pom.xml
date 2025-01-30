@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.sakaiproject.search.elasticsearch</groupId>
         <artifactId>elasticsearch-base</artifactId>
-        <version>23-SNAPSHOT</version><!-- ProjectVersion -->
+        <version>25-SNAPSHOT</version><!-- ProjectVersion -->
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>elasticsearch-impl</artifactId>
@@ -19,69 +19,82 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.elasticsearch</groupId>
-            <artifactId>elasticsearch</artifactId>
+            <groupId>org.opensearch</groupId>
+            <artifactId>opensearch</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch</groupId>
-            <artifactId>elasticsearch-core</artifactId>
+            <groupId>org.opensearch</groupId>
+            <artifactId>opensearch-common</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch</groupId>
-            <artifactId>elasticsearch-cli</artifactId>
+            <groupId>org.opensearch</groupId>
+            <artifactId>opensearch-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch</groupId>
-            <artifactId>elasticsearch-secure-sm</artifactId>
+            <groupId>org.opensearch</groupId>
+            <artifactId>opensearch-compress</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch</groupId>
-            <artifactId>elasticsearch-x-content</artifactId>
+            <groupId>org.opensearch</groupId>
+            <artifactId>opensearch-cli</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch</groupId>
-            <artifactId>elasticsearch-geo</artifactId>
+            <groupId>org.opensearch</groupId>
+            <artifactId>opensearch-secure-sm</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch</groupId>
-            <artifactId>elasticsearch-lz4</artifactId>
+            <groupId>org.opensearch</groupId>
+            <artifactId>opensearch-x-content</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.lz4</groupId>
-            <artifactId>lz4-java</artifactId>
+            <groupId>org.opensearch</groupId>
+            <artifactId>opensearch-geo</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch.client</groupId>
-            <artifactId>elasticsearch-rest-high-level-client</artifactId>
+            <groupId>org.opensearch</groupId>
+            <artifactId>opensearch-telemetry</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch.client</groupId>
-            <artifactId>elasticsearch-rest-client</artifactId>
+            <groupId>org.opensearch.client</groupId>
+            <artifactId>opensearch-rest-high-level-client</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch.plugin</groupId>
+            <groupId>org.opensearch.client</groupId>
+            <artifactId>opensearch-rest-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opensearch.plugin</groupId>
             <artifactId>transport-netty4-client</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.codelibs.elasticsearch.module</groupId>
+            <groupId>org.opensearch.plugin</groupId>
             <artifactId>analysis-common</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch.plugin</groupId>
+            <groupId>org.opensearch.plugin</groupId>
             <artifactId>parent-join-client</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch.plugin</groupId>
+            <groupId>org.opensearch.plugin</groupId>
             <artifactId>aggs-matrix-stats-client</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch.plugin</groupId>
+            <groupId>org.opensearch.plugin</groupId>
             <artifactId>rank-eval-client</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch.plugin</groupId>
+            <groupId>org.opensearch.plugin</groupId>
             <artifactId>lang-mustache-client</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.opensearch.plugin</groupId>
+            <artifactId>mapper-extras-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.luben</groupId>
+            <artifactId>zstd-jni</artifactId>
+        </dependency>
+
         <!-- Lucene -->
         <dependency>
             <groupId>org.apache.lucene</groupId>
@@ -89,7 +102,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-analyzers-common</artifactId>
+            <artifactId>lucene-analysis-common</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.lucene</groupId>
@@ -126,6 +139,10 @@
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-sandbox</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-spatial-extras</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.lucene</groupId>
@@ -193,6 +210,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
+            <version>33.3.1-jre</version>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
@@ -201,6 +219,14 @@
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
         </dependency>
         <dependency>
             <groupId>com.github.javafaker</groupId>

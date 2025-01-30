@@ -54,6 +54,8 @@
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
         <property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
         <property name="timeSheetService" ref="org.sakaiproject.timesheet.api.TimeSheetService"/>
+        <property name="tagService" ref="org.sakaiproject.tags.api.TagService"/>
+        <property name="ltiService" ref="org.sakaiproject.lti.api.LTIService"/>
     </bean>
 
     <bean id="org.sakaiproject.assignment.impl.AssignmentContentProducer"
@@ -195,6 +197,8 @@
         <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+        <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
     </bean>
 
     <bean id="org.sakaiproject.assignment.api.conversion.AssignmentConversionService"
@@ -293,6 +297,7 @@
         <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
         <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
         <property name="gradingService" ref="org.sakaiproject.grading.api.GradingService"/>
+        <property name="taskService" ref="org.sakaiproject.tasks.api.TaskService"/>
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
     </bean>
 

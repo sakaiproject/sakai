@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping default-access="field" package="org.adl.datamodels">
+	
+	<class name="org.adl.datamodels.DMProcessingInfo" table="SCORM_PROCESSING_INFO_T">
+		<cache usage="nonstrict-read-write"/>
+		<id name="id" column="PROCESSING_ID" type="long">
+            <generator class="native">
+                <param name="sequence">SCORM_UID_S</param>
+            </generator>
+        </id>
+	
+		<property name="mValue" column="VALUE" />
+	
+		<many-to-one name="mElement" column="ELEMENT" index="SCORM_ELEMENT_PS_IDX" class="org.adl.datamodels.DMElement" cascade="all" lazy="false"/>
+		
+		<list name="mRecords" table="SCORM_LIST_RECORDS_T" cascade="all">
+			<key column="PROCESSING_ID" />
+			<list-index column="SORT_ORDER"/>
+			<many-to-many column="ELEMENT_ID" class="org.adl.datamodels.DMElement"/>
+		</list>
+	
+	</class>
+	
+</hibernate-mapping>

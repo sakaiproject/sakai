@@ -18,6 +18,8 @@ package org.sakaiproject.tool.app.scheduler;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.quartz.InterruptableJob;
@@ -27,8 +29,20 @@ import org.quartz.UnableToInterruptJobException;
 @Slf4j
 public class JobExecutionContextWrapperBean {
 
-	private JobExecutionContext jec;
-	private boolean isKillable = false;
+    /* (non-Javadoc)
+     * @see org.sakaiproject.component.app.scheduler.JobExecutionContextWrapper#setJec(org.quartz.JobExecutionContext)
+     */
+    /* (non-Javadoc)
+     * @see org.sakaiproject.component.app.scheduler.JobExecutionContextWrapper#getJec()
+     */
+    @Setter
+    @Getter
+    private JobExecutionContext jec;
+    /* (non-Javadoc)
+     * @see org.sakaiproject.component.app.scheduler.JobExecutionContextWrapper#setKillable(boolean)
+     */
+    @Setter
+    private boolean isKillable = false;
 	private SchedulerTool parentTool;
 	
 	public JobExecutionContextWrapperBean () {
@@ -39,35 +53,14 @@ public class JobExecutionContextWrapperBean {
 		this.parentTool = parentTool;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.component.app.scheduler.JobExecutionContextWrapper#getJec()
-	 */
-	public JobExecutionContext getJec() {
-		return jec;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.component.app.scheduler.JobExecutionContextWrapper#setJec(org.quartz.JobExecutionContext)
-	 */
-	public void setJec(JobExecutionContext jec) {
-		this.jec = jec;
-	}
-
-	/* (non-Javadoc)
+    /* (non-Javadoc)
 	 * @see org.sakaiproject.component.app.scheduler.JobExecutionContextWrapper#isKillable()
 	 */
 	public boolean getIsKillable() {
 		return isKillable;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.component.app.scheduler.JobExecutionContextWrapper#setKillable(boolean)
-	 */
-	public void setIsKillable(boolean isKillable) {
-		this.isKillable = isKillable;
-	}
-
-	public String processActionKill() {
+    public String processActionKill() {
 		if (getIsKillable()) {
 			InterruptableJob job = (InterruptableJob)jec.getJobInstance();
 			try {
@@ -77,8 +70,8 @@ public class JobExecutionContextWrapperBean {
 			}
 			FacesContext.getCurrentInstance().addMessage(null, 
 					new FacesMessage(FacesMessage.SEVERITY_INFO, 
-							parentTool.rb.getFormattedMessage("kill_message", 
-									new String[] {jec.getJobDetail().getKey().getName()}), null));
+							parentTool.rb.getFormattedMessage("kill_message",
+                                    (Object[]) new String[] {jec.getJobDetail().getKey().getName()}), null));
 		}
 		
 		return "runningJobs";

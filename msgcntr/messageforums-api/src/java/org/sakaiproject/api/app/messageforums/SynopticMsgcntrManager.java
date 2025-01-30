@@ -44,7 +44,7 @@ public interface SynopticMsgcntrManager {
 	
 	public SynopticMsgcntrItem createSynopticMsgcntrItem(String userId, String siteId, String siteTitle);
 	
-	public void saveSynopticMsgcntrItems(List<SynopticMsgcntrItem> items);
+	public List<SynopticMsgcntrItem> saveSynopticMsgcntrItems(List<SynopticMsgcntrItem> items);
 	
 	public void incrementMessagesSynopticToolInfo(List<String> userIds, String siteId);
 	
@@ -58,7 +58,7 @@ public interface SynopticMsgcntrManager {
 	
 	public void setForumSynopticInfoHelper(String userId, String siteId, int newMessageCount);
 		
-	public void resetMessagesAndForumSynopticInfo(List<String> userIds, String siteId, List<SynopticMsgcntrItem> items);
+	public List<SynopticMsgcntrItem> resetMessagesAndForumSynopticInfo(List<String> userIds, String siteId, List<SynopticMsgcntrItem> items);
 	
 	public void resetAllUsersSynopticInfoInSite(String siteId);
 	

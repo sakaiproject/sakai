@@ -53,7 +53,7 @@ public class PostStatusRepositoryImpl extends SpringCrudRepositoryImpl<PostStatu
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaQuery<PostStatus> query = cb.createQuery(PostStatus.class);
         Root<PostStatus> postStatus = query.from(PostStatus.class);
-        query.where(cb.and(cb.equal(postStatus.get("postId"), postId), cb.equal(postStatus.get("userId"), userId)));
+        query.where(cb.and(cb.equal(postStatus.get("post").get("id"), postId), cb.equal(postStatus.get("userId"), userId)));
 
         return session.createQuery(query).uniqueResultOptional();
     }
@@ -66,7 +66,7 @@ public class PostStatusRepositoryImpl extends SpringCrudRepositoryImpl<PostStatu
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaQuery<PostStatus> query = cb.createQuery(PostStatus.class);
         Root<PostStatus> postStatus = query.from(PostStatus.class);
-        query.where(cb.and(cb.equal(postStatus.get("postId"), postId), cb.notEqual(postStatus.get("userId"), userId)));
+        query.where(cb.and(cb.equal(postStatus.get("post").get("id"), postId), cb.notEqual(postStatus.get("userId"), userId)));
 
         return session.createQuery(query).list();
     }
@@ -79,7 +79,7 @@ public class PostStatusRepositoryImpl extends SpringCrudRepositoryImpl<PostStatu
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaQuery<PostStatus> query = cb.createQuery(PostStatus.class);
         Root<PostStatus> postStatus = query.from(PostStatus.class);
-        query.where(cb.and(cb.equal(postStatus.get("topicId"), topicId), cb.equal(postStatus.get("userId"), userId)));
+        query.where(cb.and(cb.equal(postStatus.get("topic").get("id"), topicId), cb.equal(postStatus.get("userId"), userId)));
 
         return session.createQuery(query).list();
     }
@@ -92,7 +92,7 @@ public class PostStatusRepositoryImpl extends SpringCrudRepositoryImpl<PostStatu
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaQuery<PostStatus> query = cb.createQuery(PostStatus.class);
         Root<PostStatus> postStatus = query.from(PostStatus.class);
-        query.where(cb.and(cb.equal(postStatus.get("topicId"), topicId),
+        query.where(cb.and(cb.equal(postStatus.get("topic").get("id"), topicId),
                             cb.equal(postStatus.get("userId"), userId),
                             cb.equal(postStatus.get("viewed"), viewed)));
 
@@ -107,7 +107,7 @@ public class PostStatusRepositoryImpl extends SpringCrudRepositoryImpl<PostStatu
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaDelete<PostStatus> delete = cb.createCriteriaDelete(PostStatus.class);
         Root<PostStatus> postStatus = delete.from(PostStatus.class);
-        delete.where(cb.equal(postStatus.get("postId"), postId));
+        delete.where(cb.equal(postStatus.get("post").get("id"), postId));
 
         return session.createQuery(delete).executeUpdate();
     }

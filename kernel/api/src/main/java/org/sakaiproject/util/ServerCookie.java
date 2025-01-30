@@ -244,7 +244,7 @@ public class ServerCookie {
         // SameSite
         if (StringUtils.equalsIgnoreCase("none", sameSite)) {
             // SameSite=None signals that the cookie data can be shared with third parties/external sites
-            if (shouldSendSameSiteNone(userAgent)) {
+            if (isSecure && shouldSendSameSiteNone(userAgent)) {
                 buf.append("; SameSite=None");
             }
             // some browsers are not compatible with this option as it was not among the original options
@@ -253,7 +253,7 @@ public class ServerCookie {
             // SameSite=Lax enables only first-party cookies to be sent/accessed
             if (shouldNotSendSameSiteLaxOrStrict(userAgent)) {
                 // some browsers just don't play nice
-                if (shouldSendSameSiteNone(userAgent)) {
+                if (isSecure && shouldSendSameSiteNone(userAgent)) {
                     buf.append("; SameSite=None");
                 }
             } else {
@@ -263,7 +263,7 @@ public class ServerCookie {
             // SameSite=Strict is a subset of 'lax' and won’t fire if the incoming link is from an external site
             // this is the default for most browsers nowadays
             if (shouldNotSendSameSiteLaxOrStrict(userAgent)) {
-                if (shouldSendSameSiteNone(userAgent)) {
+                if (isSecure && shouldSendSameSiteNone(userAgent)) {
                     buf.append("; SameSite=None");
                 }
             } else {

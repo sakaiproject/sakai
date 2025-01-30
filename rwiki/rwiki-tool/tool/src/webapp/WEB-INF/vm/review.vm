@@ -38,7 +38,7 @@
 			</div>
 		</div>
 	 <div class="lastmodified" >
-	 	<span style="font-weight:bold;color:#000">
+	 	<span class="fw-bold">
 		 	${util.escapeHtml($renderBean.localisedPageName)}
 		</span>	
 	 	#set( $value= ["#formatDisplayName(${currentRWikiObject.user})","#formatDateTime($currentRWikiObject.version)"])

@@ -17,28 +17,39 @@
 
 package org.sakaiproject.tool.assessment.integration.helper.integrated;
 
+import java.text.NumberFormat;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Locale;
+
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.math3.util.Precision;
+
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.grading.api.AssessmentNotFoundException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.GradebookFacade;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
-import org.sakaiproject.tool.cover.ToolManager;
-
+import org.sakaiproject.user.api.PreferencesService;
 /**
  *
  * <p>Description:
@@ -59,10 +70,16 @@ import org.sakaiproject.tool.cover.ToolManager;
 @Slf4j
 public class GradebookServiceHelperImpl implements GradebookServiceHelper
 {
+
+	private SecurityService securityService = (SecurityService) ComponentManager.get(SecurityService.class);
+	private SessionManager sessionManager = (SessionManager) ComponentManager.get(SessionManager.class);
+	private SiteService siteService = (SiteService) ComponentManager.get(SiteService.class);
+	private PreferencesService preferencesService = (PreferencesService) ComponentManager.get(PreferencesService.class);
+
 	private Site getCurrentSite(String id) {
 		Site site = null;
 		try {
-			site = SiteService.getSite(id);
+			site = siteService.getSite(id);
 		} catch (IdUnusedException e) {
 			log.error(e.getMessage());
 		}
@@ -83,7 +100,7 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
     }
 
   public boolean isAssignmentDefined(String assessmentTitle,
-		  org.sakaiproject.grading.api.GradingService g) throws Exception
+		  org.sakaiproject.grading.api.GradingService g)
   {
     String gradebookUId = GradebookFacade.getGradebookUId();
     return g.isAssignmentDefined(gradebookUId, assessmentTitle);
@@ -101,7 +118,7 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
    * @return false: cannot add to gradebook
    * @throws java.lang.Exception
    */
-  public boolean addToGradebook(PublishedAssessmentData publishedAssessment, Long categoryId, 
+  public boolean addToGradebook(PublishedAssessmentData publishedAssessment, Long categoryId,
 		  org.sakaiproject.grading.api.GradingService g) throws
     Exception
   {
@@ -124,7 +141,8 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
               getAppName(), // Use the app name from sakai
               null,
               false,
-              categoryId);
+              categoryId,
+              publishedAssessment.getReference());
       added = true;
     }
     return added;
@@ -164,24 +182,22 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
    * @param g  the Gradebook Service
    * @throws java.lang.Exception
    */
-  public void updateExternalAssessmentScore(AssessmentGradingData ag,
-		  org.sakaiproject.grading.api.GradingService g) throws
-    Exception
-  {
+  public void updateExternalAssessmentScore(AssessmentGradingData ag, org.sakaiproject.grading.api.GradingService g) throws Exception {
+    updateExternalAssessmentScore(ag, g, null);
+  }
+
+  /**
+   * Update the grading of the assessment.
+   * @param ag the assessment grading.
+   * @param g  the Gradebook Service
+   * @param assignmentId the Id of the gradebook assignment.
+   * @throws java.lang.Exception
+   */
+  public void updateExternalAssessmentScore(AssessmentGradingData ag, org.sakaiproject.grading.api.GradingService g, Long assignmentId) throws Exception {
     boolean testErrorHandling=false;
     PublishedAssessmentService pubService = new PublishedAssessmentService();
     GradingService gradingService = new GradingService();
 
-    //Following line seems just for the need of getting publishedAssessmentId
-    //use ag.getPublishedAssessmentId() instead of pub.getPublishedAssessmentId() to
-    //get publishedAssessmentId 
-    //comment out following 3 lines since it returns null for not submitted students which we 
-    //need not save to assessmentgrading table but will need to notify gradebook only  
-    
-   /* PublishedAssessmentIfc pub = (PublishedAssessmentIfc) gradingService.getPublishedAssessmentByAssessmentGradingId(ag.getAssessmentGradingId().toString());
-
-    String gradebookUId = pubService.getPublishedAssessmentOwner(
-           pub.getPublishedAssessmentId());*/
     String gradebookUId = pubService.getPublishedAssessmentOwner(
             ag.getPublishedAssessmentId());
     if (gradebookUId == null)
@@ -195,28 +211,59 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
         //SAM-1562 We need to round the double score and covert to a double -DH
         double fScore = Precision.round(ag.getFinalScore(), 2);
         Double score = Double.valueOf(fScore).doubleValue();
-        points = score.toString();
-        log.info("rounded:  " + ag.getFinalScore() + " to: " + score.toString() );
+        points = getFormattedScore(score, gradebookUId);
+        log.debug("rounded:  " + ag.getFinalScore() + " to: " + score.toString() );
     }
-    g.updateExternalAssessmentScore(gradebookUId,
-      ag.getPublishedAssessmentId().toString(),
-      ag.getAgentId(),  points);
+
+    if (assignmentId == null) {
+      g.updateExternalAssessmentScore(gradebookUId, ag.getPublishedAssessmentId().toString(), ag.getAgentId(), points);
+    } else {
+
+        // This is the student grading it's own submission, we need to grant permissions to the student temporarily.
+        SecurityAdvisor securityAdvisor = new SecurityAdvisor() {
+            public SecurityAdvice isAllowed(String userId, String function, String reference) {
+                return "gradebook.gradeAll".equals(function) ? SecurityAdvice.ALLOWED : SecurityAdvice.PASS;
+            }
+        };
+
+        try {
+            securityService.pushAdvisor(securityAdvisor);
+            g.setAssignmentScoreString(gradebookUId, assignmentId, ag.getAgentId(), points, null);
+        } catch (Exception e) {
+            log.error("Error while grading submission {} for agent {}", assignmentId, ag.getAgentId());
+        } finally {
+            securityService.popAdvisor(securityAdvisor);
+        }
+
+    }
     if (testErrorHandling){
       throw new Exception("Encountered an error in update ExternalAssessmentScore.");
     }
   }
-  
+
   public void updateExternalAssessmentScores(Long publishedAssessmentId, final Map<String, Double> studentUidsToScores,
-		  org.sakaiproject.grading.api.GradingService g) throws Exception {
+      org.sakaiproject.grading.api.GradingService g) throws Exception {
+    updateExternalAssessmentScores(publishedAssessmentId, studentUidsToScores, g, null);
+  }
+
+  public void updateExternalAssessmentScores(Long publishedAssessmentId, final Map<String, Double> studentUidsToScores,
+		  org.sakaiproject.grading.api.GradingService g, Long assignmentId) throws Exception {
 	  boolean testErrorHandling=false;
 	  PublishedAssessmentService pubService = new PublishedAssessmentService();
 	  String gradebookUId = pubService.getPublishedAssessmentOwner(publishedAssessmentId);
 	  if (gradebookUId == null) {
 		  return;
 	  }
-	  g.updateExternalAssessmentScores(gradebookUId,
-			  publishedAssessmentId.toString(),
-			  studentUidsToScores);
+	  if (assignmentId == null) {
+		  g.updateExternalAssessmentScores(gradebookUId, publishedAssessmentId.toString(), studentUidsToScores);
+	  } else {
+		  Iterator it = studentUidsToScores.keySet().iterator();
+		  while (it.hasNext()) {
+			  String agentId = (String)it.next();
+			  Double score = (Double) studentUidsToScores.get(agentId);
+			  g.setAssignmentScoreString(gradebookUId, assignmentId, agentId, score.toString(), null);
+		  }
+	  }
 
 	  if (testErrorHandling){
 		  throw new Exception("Encountered an error in update ExternalAssessmentScore.");
@@ -249,5 +296,36 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
         }
 		return null;
 	}
+
+  private String getFormattedScore(Double score, String gradebookUId) {
+    String currentLocaleStr = null;
+    String userId = AgentFacade.getEid();
+
+    try {
+      Site site = siteService.getSite(gradebookUId);
+      ResourceProperties siteProperties = site.getProperties();
+      currentLocaleStr = (String) siteProperties.get("locale_string");
+
+    } catch (IdUnusedException ex) {
+      log.error("Not posible to get siteProperties");
+    }
+
+    if (currentLocaleStr == null && userId != null) {
+      currentLocaleStr = preferencesService.getLocale(userId).toString();
+    }
+
+    if (currentLocaleStr == null) {
+      currentLocaleStr = Locale.ENGLISH.toString();
+    }
+
+    String[] localeParts = new String[]{"", ""};
+    List localePartsList = Arrays.asList(currentLocaleStr.split("_"));
+    for (int i = 0; i < localePartsList.size(); i++) {
+      localeParts[i] = localePartsList.get(i).toString();
+    }
+
+    NumberFormat nf = NumberFormat.getInstance(new Locale(localeParts[0], localeParts[1]));
+    return nf.format(score);
+  }
 
 }

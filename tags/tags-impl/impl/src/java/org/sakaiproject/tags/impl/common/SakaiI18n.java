@@ -48,4 +48,15 @@ public class SakaiI18n implements I18n {
 
         return result;
     }
+
+    @Override
+    public String tFormatted(String key, String param) {
+        String result = resourceLoader.getFormattedMessage(key, param);
+
+        if (result == null) {
+            throw new RuntimeException("Missing translation for key: " + key);
+        }
+
+        return result;
+    }
 }

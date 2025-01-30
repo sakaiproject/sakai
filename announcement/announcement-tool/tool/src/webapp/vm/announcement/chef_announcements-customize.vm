@@ -201,7 +201,7 @@
 	<!-- end of synoptic announcement options -->
 	#end
         
-        <fielset>
+        <fieldset class="border p-2">
             <legend>
                 <h4>
                     $tlang.getString("custom.dplimits")
@@ -244,7 +244,7 @@
 				</div>
 			</div>
 
-        </fielset>
+        </fieldset>
 
 		<p class="act">
 			<input type="submit" class="active" name="eventSubmit_doUpdate" value="$tlang.getString("gen.update")"  accesskey="s" />

@@ -10,7 +10,7 @@
     <parent>
         <groupId>org.sakaiproject</groupId>
         <artifactId>master</artifactId>
-        <version>23-SNAPSHOT</version>
+        <version>25-SNAPSHOT</version>
         <relativePath>../master/pom.xml</relativePath>
     </parent>
 
@@ -50,7 +50,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- dependencies versions -->
         <oauth.version>20100527</oauth.version>
-        <wicket.version>9.11.0</wicket.version>
+        <wicket.version>9.19.0</wicket.version>
     </properties>
 
     <dependencyManagement>

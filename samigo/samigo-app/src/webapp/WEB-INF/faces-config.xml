@@ -226,6 +226,19 @@
 		<value>org.sakaiproject.tool.assessment.bundle.SectionActivityMessages</value>
 	</managed-property>
 	</managed-bean>
+	<managed-bean>
+		<description>
+			Dynamic Resource Bundle Loader
+		</description>
+		<managed-bean-name>dataTablesMessages</managed-bean-name>
+		<managed-bean-class>org.sakaiproject.util.ResourceLoader</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+		<managed-property>
+			<description>Bundle baseName</description>
+			<property-name>baseName</property-name>
+			<value>org.sakaiproject.tool.assessment.bundle.DataTablesMessages</value>
+		</managed-property>
+	</managed-bean>
 
   <!-- XML -->
     <managed-bean>
@@ -428,6 +441,10 @@
     <navigation-case>
       <from-outcome>chooseExportType</from-outcome>
       <to-view-id>/jsf/qti/chooseExportType.jsp</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>choosePoolExportType</from-outcome>
+      <to-view-id>/jsf/qti/choosePoolExportType.jsp</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>exportDenied</from-outcome>
@@ -688,6 +705,10 @@
       <to-view-id>/jsf/questionpool/previewPool.jsp</to-view-id>
     </navigation-case>
     <navigation-case>
+      <from-outcome>previewQuestion</from-outcome>
+      <to-view-id>/jsf/questionpool/previewQuestion.jsp</to-view-id>
+    </navigation-case>
+    <navigation-case>
       <from-outcome>importPool</from-outcome>
       <to-view-id>/jsf/qti/importPool.jsp</to-view-id>
     </navigation-case>
@@ -710,6 +731,10 @@
     <navigation-case>
       <from-outcome>removeQuestionFromPool</from-outcome>
       <to-view-id>/jsf/questionpool/removeQuestion.jsp</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>solution</from-outcome>
+      <to-view-id>/jsf/questionpool/solution.jsp</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>debug</from-outcome>
@@ -975,5 +1000,16 @@
  		<validator-id>finQuestionValidator</validator-id>
  		<validator-class>org.sakaiproject.tool.assessment.jsf.validator.FinQuestionValidator</validator-class>
 	</validator>
+
+  <!-- Add these navigation rules -->
+  <navigation-rule>
+    <from-view-id>/delivery/beginAssessment.jsp</from-view-id>
+    <navigation-case>
+        <from-outcome>takeAssessment</from-outcome>
+        <to-view-id>/delivery/takeAssessment.jsp</to-view-id>
+        <redirect/>
+    </navigation-case>
+    <!-- Add other navigation cases based on possible return values from validate() -->
+  </navigation-rule>
 
 </faces-config>

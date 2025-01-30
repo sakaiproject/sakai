@@ -20,7 +20,7 @@
 	#if ($itemAlertMessage)
 		<div id="resourceAlert" class="sak-banner-success">$itemAlertMessage</div>
 	#else
-		<div id="resourceAlert" class="sak-banner-error hide"></div>
+		<div id="resourceAlert" class="sak-banner-error d-none"></div>
 	#end
 
 	<p class="instruction">
@@ -31,6 +31,7 @@
 	    $tlang.getString("instr.ezproxy")
 	  </p>
 	#end
+	<p class="instruction"> ${requiredItemsInfo} </p>
 
 	<form name="addContentForm" id="addContentForm" method="post" action="#toolForm("ResourcesHelperAction")"  enctype="multipart/form-data">
 		<input type="hidden" name="pipe-init-id" id="pipe-init-id" value="$!{pipe-init-id}" />
@@ -46,7 +47,7 @@
 				#set($i = $i + 1)
 				#set($next = $i + 1)
 				
-				<div id="contentDiv${DOT}$i" class="well">
+				<div id="contentDiv${DOT}$i" class="card mb-3 p-3">
 					<input type="hidden" name="exists${DOT}$i" id="exists${DOT}$i" value="true" />
 					<input type="hidden" name="extension${DOT}$i" id="extension${DOT}$i" value=".URL" />
 					<div class="form-group">
@@ -64,6 +65,9 @@
 						<input type="url" id="content${DOT}$i" name="content${DOT}$i" class="form-control" maxlength="512" 
 							pattern="[Hh][Tt][Tt][Pp][Ss]?:\/\/(?:(?:[a-zA-Z\u00a1-\uffff0-9]+-?)*[a-zA-Z\u00a1-\uffff0-9]+)(?:\.(?:[a-zA-Z\u00a1-\uffff0-9]+-?)*[a-zA-Z\u00a1-\uffff0-9]+)*(?:\.(?:[a-zA-Z\u00a1-\uffff]{2,}))(?::\d{2,5})?(?:\/[^\s]*)?"
 						/>
+						<p class="instruction"> $tlang.getString("instr.url.input") </p>
+					</div>
+					<div class="form-group">
 						<a href="#" id="propsTrigger${DOT}$i">$tlang.getString("edit.show")</a>
 						<a class="remove" style="display: none" href="#" id="removeTrigger${DOT}$i" title="$tlang.getString("edit.remove")" >
 							<span class="fa fa-times" aria-hidden="true"></span>
@@ -74,7 +78,6 @@
 					</div>
 					<div id="propertiesDiv${DOT}$i" style="display:none;">
 						#parse("/vm/resources/sakai_properties.vm")
-						<hr class="itemSeparator" />
 					</div>
 
 				</div>
@@ -83,7 +86,7 @@
 		<p><a href="#" onclick="addFileInput();return false">$tlang.getString("label.addurl")</a><br></p>
 
 		<p class="act">
-			<input type="button" class="active" name="savechanges" id="saveChanges" onclick="showNotif('submitnotifxxx','saveChanges','addContentForm');document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doAddUrls")&flow=save';submitform('addContentForm');" value="$tlang.getString("label.urlnow")" accesskey="s" />
+			<input type="button" class="active" name="savechanges" id="saveChanges" onclick="showNotif('submitnotifxxx','saveChanges','addContentForm');document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doAddUrls")&flow=save';submitform('addContentForm');" value="$tlang.getString("label.urlnow")" accesskey="s" disabled />
 			<input type="button" name="cancel" onclick="document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doCancel")';submitform('addContentForm');" value="$tlang.getString("label.cancel")" accesskey="x" />
 
 			#if ($model.resourceTypeDef.hasNotificationDialog())
@@ -136,7 +139,7 @@
 		var alertDiv = document.getElementById("resourceAlert");
 		if (alertDiv)
 		{
-			alertDiv.classList.add("hide");
+			alertDiv.classList.add("d-none");
 			alertDiv.innerHTML = "";
 		}
 

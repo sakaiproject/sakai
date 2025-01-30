@@ -5,7 +5,7 @@
     <parent>
         <artifactId>search</artifactId>
         <groupId>org.sakaiproject.search</groupId>
-        <version>23-SNAPSHOT</version><!-- ProjectVersion -->
+        <version>25-SNAPSHOT</version><!-- ProjectVersion -->
         <relativePath>../pom.xml</relativePath>
     </parent>
     <groupId>org.sakaiproject.search.elasticsearch</groupId>
@@ -22,15 +22,5 @@
         <module>util</module>
         <module>impl</module>
     </modules>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <version>30.1.1-jre</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
 </project>

@@ -25,6 +25,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
 
+import lombok.NonNull;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.tool.api.SessionBindingEvent;
@@ -94,16 +95,13 @@ public class BaseUsageSession implements UsageSession, SessionBindingListener
 		m_ip = result.getString(4);
 		m_hostname = result.getString(5);
 		m_userAgent = result.getString(6);
-		if(result.getString(7) != null && this.usageSessionServiceAdaptor != null && this.usageSessionServiceAdaptor.timeService() != null && this.usageSessionServiceAdaptor.sqlService() != null){
-			//m_start = this.usageSessionServiceAdaptor.timeService().newTime(result.getTimestamp(7, this.usageSessionServiceAdaptor.sqlService().getCal()).getTime());
-			m_start = Instant.ofEpochMilli(result.getTimestamp(7, this.usageSessionServiceAdaptor.sqlService().getCal()).getTime()); 
+		if (result.getString(7) != null) {
+			m_start = Instant.ofEpochMilli(result.getTimestamp(7).getTime());
 		}
-		if(result.getString(8) != null && this.usageSessionServiceAdaptor != null && this.usageSessionServiceAdaptor.timeService() != null && this.usageSessionServiceAdaptor.sqlService() != null){
-			//m_end = this.usageSessionServiceAdaptor.timeService().newTime(result.getTimestamp(8, this.usageSessionServiceAdaptor.sqlService().getCal()).getTime());
-			m_end = Instant.ofEpochMilli(result.getTimestamp(8, this.usageSessionServiceAdaptor.sqlService().getCal()).getTime());
+		if(result.getString(8) != null){
+			m_end = Instant.ofEpochMilli(result.getTimestamp(8).getTime());
 		}
-		Boolean isActive = result.getBoolean(9);
-		m_active = ((isActive != null) && isActive.booleanValue());
+		m_active = result.getBoolean(9);
 		setBrowserId(m_userAgent);
 	}
 
@@ -155,62 +153,7 @@ public class BaseUsageSession implements UsageSession, SessionBindingListener
 	 */
 	protected void setBrowserId(String agent)
 	{
-		if (agent == null)
-		{
-			m_browserId = UNKNOWN;
-		}
-
-		// test whether agent is UserAgent value for a known browser.
-		// should we also check version number?
-		else if (agent.indexOf("Netscape") >= 0 && agent.indexOf("Mac") >= 0)
-		{
-			m_browserId = MAC_NN;
-		}
-		else if (agent.indexOf("Netscape") >= 0 && agent.indexOf("Windows") >= 0)
-		{
-			m_browserId = WIN_NN;
-		}
-		else if (agent.indexOf("MSIE") >= 0 && agent.indexOf("Mac") >= 0)
-		{
-			m_browserId = MAC_IE;
-		}
-		else if (agent.indexOf("MSIE") >= 0 && agent.indexOf("Windows") >= 0)
-		{
-			m_browserId = WIN_IE;
-		}
-		else if (agent.indexOf("Camino") >= 0 && agent.indexOf("Macintosh") >= 0)
-		{
-			m_browserId = MAC_CM;
-		}
-		else if (agent.startsWith("Mozilla") && agent.indexOf("Windows") >= 0)
-		{
-			m_browserId = WIN_MZ;
-		}
-		else if (agent.startsWith("Mozilla") && agent.indexOf("Macintosh") >= 0)
-		{
-			m_browserId = MAC_MZ;
-		}
-		else if (agent.startsWith("Mozilla") && agent.indexOf("Linux") >= 0)
-		{
-			m_browserId = LIN_MZ;
-		}
-		//KNL-1490 Android => Linux
-		else if (agent.startsWith("Mozilla") && agent.indexOf("Android") >= 0)
-		{
-			m_browserId = LIN_MZ;
-		}
-		else if (agent.startsWith("Mozilla") && agent.indexOf("iPad") >= 0)
-		{
-			m_browserId = IOS_MZ;
-		}
-		else if (agent.startsWith("Mozilla") && agent.indexOf("iPhone") >= 0)
-		{
-			m_browserId = IOS_MZ;
-		}
-		else
-		{
-			m_browserId = UNKNOWN;
-		}
+		m_browserId = UNKNOWN;
 	}
 
 	/**
@@ -407,7 +350,7 @@ public class BaseUsageSession implements UsageSession, SessionBindingListener
 	/**
 	 * @inheritDoc
 	 */
-	public int compareTo(Object obj)
+	public int compareTo(@NonNull Object obj)
 	{
 		if (!(obj instanceof UsageSession)) throw new ClassCastException();
 

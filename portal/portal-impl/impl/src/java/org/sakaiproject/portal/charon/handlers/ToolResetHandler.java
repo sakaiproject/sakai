@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.portal.api.PortalHandlerException;
+import org.sakaiproject.portal.util.URLUtils;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.util.Web;
 
@@ -54,14 +55,9 @@ public class ToolResetHandler extends BasePortalHandler
 			{
 				String toolUrl = req.getContextPath() + "/tool"
 						+ Web.makePath(parts, 2, parts.length);
-				// Make sure to add the parameters such as panel=Main
-				String queryString = req.getQueryString();
-				if (queryString != null)
-				{
-					toolUrl = toolUrl + "?" + queryString;
-				}
 				portalService.setResetState("true");
-				res.sendRedirect(toolUrl);
+				res.addHeader("Cache-Control", "no-cache");
+				res.sendRedirect(URLUtils.sanitisePath(toolUrl));
 				return RESET_DONE;
 			}
 			catch (Exception ex)

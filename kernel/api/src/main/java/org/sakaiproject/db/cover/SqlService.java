@@ -30,6 +30,7 @@ import org.sakaiproject.component.cover.ComponentManager;
  * @deprecated Static covers should not be used in favour of injection or lookup
  * via the component manager. This cover will be removed in a later version of the Kernel
  */
+@Deprecated
 public class SqlService
 {
 	/**
@@ -214,14 +215,6 @@ public class SqlService
 		if (service == null) return;
 
 		service.dbCancel(param0);
-	}
-
-	public static java.util.GregorianCalendar getCal()
-	{
-		org.sakaiproject.db.api.SqlService service = getInstance();
-		if (service == null) return null;
-
-		return service.getCal();
 	}
 
 	public static java.lang.String getVendor()

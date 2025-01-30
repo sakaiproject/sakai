@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
@@ -34,6 +35,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
@@ -96,16 +98,19 @@ public class SelectActionListener implements ActionListener {
     // if it is anonymos login, let it pass 'cos there is no site and authz is 
     // about permission in a site
     AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
-    PersonBean personBean = (PersonBean) ContextUtil.lookupBean("person");
     DeliveryBean deliveryBean = (DeliveryBean) ContextUtil.lookupBean("delivery");
-    if (!deliveryBean.isAnonymousLogin() && !authzBean.getTakeAssessment())
+    PersonBean personBean = (PersonBean) ContextUtil.lookupBean("person");
+    SelectAssessmentBean select = (SelectAssessmentBean) ContextUtil.lookupBean("select");
+    if (!deliveryBean.isAnonymousLogin() && !authzBean.getTakeAssessment() && StringUtils.isEmpty(select.getReviewAssessmentId())) {
+      log.debug("Early return - deliveryBean.isAnonymousLogin() {}; authzBean.getTakeAssessment() {};", deliveryBean.isAnonymousLogin(), authzBean.getTakeAssessment());
       return;
+    }
 
-    // get service and managed bean
+    String siteId = AgentFacade.getCurrentSiteId() != null ? AgentFacade.getCurrentSiteId() : deliveryBean.getSiteId();
+
+    // Get service
     PublishedAssessmentService publishedAssessmentService = new
         PublishedAssessmentService();
-    SelectAssessmentBean select = (SelectAssessmentBean) ContextUtil.lookupBean(
-        "select");
 
     select.setHasHighestMultipleSubmission(false);  // reset property
     select.setHasAnyAssessmentBeenModified(false);
@@ -116,7 +121,7 @@ public class SelectActionListener implements ActionListener {
     // ----------------- prepare Takeable assessment list -------------
     // 1a. get total no. of submission (for grade) per assessment by the given agent in current site
     Map h = publishedAssessmentService.getTotalSubmissionPerAssessment(
-                AgentFacade.getAgentString(), AgentFacade.getCurrentSiteId());
+                AgentFacade.getAgentString(), siteId);
     // store it in personBean 'cos we would be using it to check if the total submisison
     // allowed is met later - extra protection to avoid students being too enterprising
     // e.g. open multiple windows so they can ride on the last attempt multiple times.
@@ -127,10 +132,10 @@ public class SelectActionListener implements ActionListener {
     List publishedAssessmentList =
         publishedAssessmentService.getBasicInfoOfAllPublishedAssessments(
         AgentFacade.getAgentString(), this.getTakeableOrderBy(select),
-        select.isTakeableAscending(), AgentFacade.getCurrentSiteId());
+        select.isTakeableAscending(), siteId);
     
     GradingService gradingService = new GradingService();
-    List list = gradingService.getUpdatedAssessmentList(AgentFacade.getAgentString(), AgentFacade.getCurrentSiteId());
+    List list = gradingService.getUpdatedAssessmentList(AgentFacade.getAgentString(), siteId);
     List updatedAssessmentNeedResubmitList = new ArrayList();
     List updatedAssessmentList = new ArrayList();
     if (list != null && list.size() == 2) {
@@ -191,14 +196,14 @@ public class SelectActionListener implements ActionListener {
     
     // 1. get the most recent submission, or the highest submissions of each assessment for a user, depending on grading option
     List recentSubmittedList =
-    	publishedAssessmentService.getBasicInfoOfLastOrHighestOrAverageSubmittedAssessmentsByScoringOption( AgentFacade.getAgentString(), AgentFacade.getCurrentSiteId(),"2".equals(select.getDisplayAllAssessments()));
+    	publishedAssessmentService.getBasicInfoOfLastOrHighestOrAverageSubmittedAssessmentsByScoringOption( AgentFacade.getAgentString(), siteId, !"1".equals(select.getDisplayAllAssessments()));
    
     Map<Long, PublishedAssessmentFacade> publishedAssessmentHash = getPublishedAssessmentHash(publishedAssessmentList);
-    List submittedAssessmentGradingList = new ArrayList();
+    List<DeliveryBeanie> submittedAssessmentGradingList = new ArrayList();
 
     boolean hasHighest;
     boolean hasMultipleSubmission;
-    Map feedbackHash = publishedAssessmentService.getFeedbackHash();
+    Map feedbackHash = publishedAssessmentService.getFeedbackHash(siteId);
     Set<Long> recentSubmittedIds = new HashSet<>();
     select.setHasAnyAssessmentRetractForEdit(false);
     for (int k = 0; k < recentSubmittedList.size(); k++) {
@@ -254,8 +259,6 @@ public class SelectActionListener implements ActionListener {
         delivery.setFeedbackDelivery(getFeedbackDelivery(g.getPublishedAssessmentId(),
                                                  publishedAssessmentHash));
         delivery.setFeedbackComponentOption(getFeedbackComponentOption(g.getPublishedAssessmentId(),
-                                                 publishedAssessmentHash));
-        delivery.setCorrectAnswerOption(getCorrectAnswerOption(g.getPublishedAssessmentId(),
                                                  publishedAssessmentHash));
         delivery.setFeedbackDate(getFeedbackDate(g.getPublishedAssessmentId(),
                                                  publishedAssessmentHash));
@@ -351,7 +354,7 @@ public class SelectActionListener implements ActionListener {
 	}
     
     /// --mustansar
-    List reviewableList=new ArrayList();
+    List<DeliveryBeanie> reviewableList = new ArrayList();
     List<DeliveryBeanie> recordedList=new ArrayList<>();
     Iterator it=submittedAssessmentGradingList.iterator();
     String assessmentIdNew="";
@@ -411,19 +414,32 @@ public class SelectActionListener implements ActionListener {
     		reviewableList.add(recorded);
     		reviewableList.add(beanie);  
     	}
-    	else if ("2".equals(select.getDisplayAllAssessments())) { 
+    	else if (StringUtils.equalsAny(select.getDisplayAllAssessments(), "2", "3")) { 
     		reviewableList.add(beanie);
     	}  
     }
 
     // display warning legend if any quizzes have been marked as modified in the review section
     select.setHasAnyAssessmentBeenModified(recordedList.stream().anyMatch(db -> db.getHasAssessmentBeenModified()));
-    
-    if ("2".equals(select.getDisplayAllAssessments())){
-    	submittedAssessmentGradingList=reviewableList;    
-    }
-    else {
-    	submittedAssessmentGradingList = recordedList;
+
+    switch (select.getDisplayAllAssessments()) {
+      case "1":
+        submittedAssessmentGradingList = recordedList;
+        break;
+      case "2":
+        submittedAssessmentGradingList = reviewableList;
+        break;
+      case "3":
+        String reviewAssessmentId = select.getReviewAssessmentId();
+
+        if (reviewAssessmentId != null) {
+          submittedAssessmentGradingList = reviewableList.stream()
+            .filter(reviewable -> reviewable.getAssessmentId().equals(reviewAssessmentId))
+          .collect(Collectors.toList());
+        } else {
+          submittedAssessmentGradingList = new ArrayList();
+        }
+        break;
     }
 
     if (!select.isReviewableAscending())
@@ -450,6 +466,10 @@ public class SelectActionListener implements ActionListener {
     // set the managed beanlist properties that we need
     select.setTakeableAssessments(takeablePublishedList);
     select.setReviewableAssessments(submittedAssessmentGradingList);
+
+    if ("3".equals(select.getDisplayAllAssessments()) && !submittedAssessmentGradingList.isEmpty()) {
+      select.setReviewAssessmentTitle(submittedAssessmentGradingList.get(0).getAssessmentTitle());
+    }
 
   }
 
@@ -511,16 +531,19 @@ public class SelectActionListener implements ActionListener {
    */
   private void processDisplayInfo(SelectAssessmentBean bean) {
 
-	  String displaySubmissions=ContextUtil.lookupParam("selectSubmissions");
-	  //String displayRecorded=ContextUtil.lookupParam("recordedSubmissions");
-	  if(displaySubmissions!=null && displaySubmissions.equalsIgnoreCase("1")){
-		  bean.setDisplayAllAssessments("1");
-	  }
-	  else{
-		  bean.setDisplayAllAssessments("2");
-	  }
+    String displaySubmissions = ContextUtil.lookupParam("selectSubmissions");
 
+    // Set "2" as default in case null value
+    displaySubmissions = displaySubmissions == null ? "2" : displaySubmissions;
+
+    // Set "3" if an assessment is reviewed
+    displaySubmissions = StringUtils.isEmpty(bean.getReviewAssessmentId()) ? displaySubmissions : "3";
+
+    bean.setDisplayAllAssessments(displaySubmissions);
+
+    log.debug("displaySubmissions: {}", displaySubmissions);
   }
+
   
   /**
    * look at sort info from post and set bean accordingly
@@ -837,20 +860,6 @@ public class SelectActionListener implements ActionListener {
 	    } else
 	      return null;
 	  }
-
-  private String getCorrectAnswerOption(Long publishedAssessmentId, Map publishedAssessmentHash){
-    PublishedAssessmentFacade p = (PublishedAssessmentFacade)publishedAssessmentHash.get(publishedAssessmentId);
-      if (p!=null) {
-        Integer option = p.getCorrectAnswerOption();
-        if (option == null) {
-          return null;
-        } else {
-          return option.toString();
-        }
-      } else {
-        return null;
-      }
-    }
   
   private boolean getHasAssessmentBeenModified(SelectAssessmentBean select, AssessmentGradingData g, Map publishedAssessmentHash){
 	    PublishedAssessmentFacade p = (PublishedAssessmentFacade)publishedAssessmentHash.

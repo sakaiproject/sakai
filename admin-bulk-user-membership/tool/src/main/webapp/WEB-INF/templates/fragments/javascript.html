@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<body>
+<script th:fragment="wizardJs" th:inline="javascript">
+  /*<![CDATA[*/
+  var bulkManager = bulkManager || {};
+
+  bulkManager.previousWizardStep = async function() {
+    const backButton = document.getElementById("automembership-back-button");
+    await fetch(backButton.getAttribute('data-url'), {
+      method: 'POST'
+    }).then(e => {
+      console.debug(e);
+      console.debug(backButton);
+    });
+    await location.reload();
+    
+  };
+  /*]]>*/
+</script>
+<script th:fragment="autoMembershipStep1Js" th:inline="javascript">
+  /*<![CDATA[*/
+
+  async function cancel(event) {
+    await fetch(event.target.getAttribute('data-url'), {method: 'POST'});
+    await location.reload();
+  }
+
+  const autoMembershipCancelButton = document.getElementById("automembership-cancel-button");
+  autoMembershipCancelButton && autoMembershipCancelButton.addEventListener("click", cancel);
+  Array.from(document.getElementsByClassName("option")).forEach((el) => {
+    el.children[1].onclick = function (event) {
+      event.target.previousElementSibling.checked = true;
+    }
+  });
+  /*]]>*/
+</script>
+
+<script th:fragment="autoMembershipStep1_5Js" th:inline="javascript">
+  /*<![CDATA[*/
+  async function cancel(event) {
+    await fetch(event.target.getAttribute('data-url'), {method: 'POST'});
+    await location.reload();
+  }
+  async function back(event) {
+    await fetch(event.target.getAttribute('data-url'), {method: 'POST'});
+    await location.reload();
+  }
+
+  const autoMembershipCancelButton = document.getElementById("automembership-cancel-button");
+  autoMembershipCancelButton && autoMembershipCancelButton.addEventListener("click", cancel);
+
+  const backButton = document.getElementById("automembership-back-button");
+  backButton && backButton.addEventListener("click", back);
+  Array.from(document.getElementsByClassName("option")).forEach((el) => {
+    el.children[1].onclick = function (event) {
+      event.target.previousElementSibling.checked = true;
+    }
+  });
+  /*]]>*/
+</script>
+
+<script th:fragment="autoMembershipStep2Js" th:inline="javascript">
+  /*<![CDATA[*/
+  async function cancel(event) {
+    await fetch(event.target.getAttribute('data-url'), {method: 'POST'});
+    await location.reload();
+  }
+  async function back(event) {
+    await fetch(event.target.getAttribute('data-url'), {
+      method: 'POST'
+    }).then(e => {
+      console.debug(e);
+      console.debug(event.target);
+    });
+    await location.reload();
+  }
+
+  const autoMembershipCancelButton = document.getElementById("automembership-cancel-button");
+  autoMembershipCancelButton && autoMembershipCancelButton.addEventListener("click", cancel);
+
+  const backButton = document.getElementById("automembership-back-button");
+  backButton && backButton.addEventListener("click", back);
+  /*]]>*/
+</script>
+
+</body>
+</html>

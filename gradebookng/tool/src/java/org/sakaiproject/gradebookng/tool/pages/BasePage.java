@@ -22,7 +22,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.behavior.AttributeAppender;
-import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.head.OnLoadHeaderItem;
@@ -70,6 +69,7 @@ public class BasePage extends WebPage {
 	Link<Void> settingsPageLink;
 	Link<Void> importExportPageLink;
 	Link<Void> permissionsPageLink;
+	Link<Void> quickEntryPageLink;
 
 	public final GbFeedbackPanel feedbackPanel;
 
@@ -163,6 +163,18 @@ public class BasePage extends WebPage {
 		this.settingsPageLink.add(new Label("screenreaderlabel", getString("link.screenreader.tabnotselected")));
 		nav.add(this.settingsPageLink);
 
+		// quick entry page
+		this.quickEntryPageLink = new BookmarkablePageLink<Void>("quickEntryPageLink", QuickEntryPage.class) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean isVisible() {
+				return (businessService.isUserAbleToEditAssessments());
+			}
+		};
+		this.quickEntryPageLink.add(new Label("screenreaderlabel", getString("link.screenreader.tabnotselected")));
+		nav.add(this.quickEntryPageLink);
+
 		add(nav);
 
 		// Add a FeedbackPanel for displaying our messages
@@ -208,15 +220,10 @@ public class BasePage extends WebPage {
 				new PriorityHeaderItem(
 						JavaScriptHeaderItem
 								.forUrl(String.format("/library/webjars/jquery/1.12.4/jquery.min.js%s", version))));
-		// And pair this instance of jQuery with a Bootstrap version we've tested with
 		response.render(
 				new PriorityHeaderItem(
 						JavaScriptHeaderItem
-								.forUrl(String.format("/library/webjars/bootstrap/3.3.7/js/bootstrap.min.js%s", version))));
-		// Some global gradebookng styles
-		response.render(CssHeaderItem
-				.forUrl(String.format("/gradebookng-tool/styles/gradebook-shared.css%s", version)));
-
+								.forUrl(String.format("/library/webjars/jquery-ui/1.12.1/jquery-ui.min.js%s", version))));											
 	}
 
 	/**
@@ -241,7 +248,7 @@ public class BasePage extends WebPage {
 
 		flagWithPopover.add(new AttributeModifier("title", message));
 		flagWithPopover.add(new AttributeModifier("aria-label", message));
-		flagWithPopover.add(new AttributeModifier("data-toggle", "popover"));
+		flagWithPopover.add(new AttributeModifier("data-bs-toggle", "popover"));
 		flagWithPopover.add(new AttributeModifier("data-trigger", trigger));
 		flagWithPopover.add(new AttributeModifier("data-placement", "bottom"));
 		flagWithPopover.add(new AttributeModifier("data-html", "true"));
@@ -302,13 +309,11 @@ public class BasePage extends WebPage {
 				break;
 			case STUDENT:
 				throw new RestartResponseException(StudentPage.class);
-			case TA:
+			default:
 				if(businessService.isUserAbleToEditAssessments()) {
 					break;
 				}
 				throw new RestartResponseException(GradebookPage.class);
-			default:
-				break;
 		}
 	}
 }

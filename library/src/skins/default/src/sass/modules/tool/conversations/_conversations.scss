@@ -1,0 +1,296 @@
+.#{$namespace}sakai-conversations {
+
+  #conv-no-topics-message {
+    font-weight: bold;
+    font-size: 20px;
+    margin-bottom: 40px;
+
+    span:nth-child(2) {
+        margin-left: 5px;
+    }
+  }
+
+  #conv-nothing-selected {
+    display: flex;
+    margin-top: 60px;
+    justify-content: center;
+    font-weight: 300;
+    font-size: 24px;
+  }
+
+  #conv-desktop {
+    display: flex;
+  }
+
+  #conv-settings {
+    font-weight: bold;
+    font-size: 12px;
+    white-space: nowrap;
+    width: 254px;
+    background: var(--sakai-background-color);
+    padding: 20px;
+    border-right: 1px solid var(--sakai-border-color);
+    border-top: 1px solid var(--sakai-border-color);
+  }
+
+  #conv-settings > li {
+    list-style: none;
+    margin-bottom: 20px;
+    button {
+      font-weight: normal;
+      font-size: 15px;
+      color: var(--link-color);
+    }
+
+    &.setting-active > button {
+      font-weight: 550;
+    }
+  }
+
+  #conv-back-button-block {
+    display: flex;
+    align-items: center;
+    height: 64px;
+  }
+
+  #conv-back-button-block > a {
+    display: flex;
+    align-items: center;
+
+    &.left-aligned {
+      margin-left: 0;
+    }
+
+    div:nth-child(2) {
+      margin-left: 10px;
+    }
+  }
+
+  #conv-back-button-block a {
+    text-decoration: none;
+  }
+
+  #conv-topbar-and-content {
+    flex: 1;
+  }
+
+  .conv-topbar {
+    height: 65px;
+    display: grid;
+    grid-template-columns: 1fr min-content;
+    grid-gap: 20px;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--sakai-border-color);
+  }
+
+  .conv-settings-and-create {
+    display: flex;
+    margin-left: auto;
+    align-items: center;
+
+    a {
+      text-decoration: none;
+    }
+
+    .conv-settings-link {
+      white-space: nowrap;
+      margin-left: 4px;
+
+      a {
+        font-weight: bold;
+        font-size: 12px;
+        text-align: center;
+        color: var(--link-color);
+        text-decoration: none;
+
+        #conv-settings-label-wrapper {
+          display: flex;
+          align-items: center;
+          div:first-child {
+            margin-top: 4px;
+            margin-right: 5px;
+          }
+        }
+      }
+    }
+  }
+
+  .conv-add-topic {
+    white-space: nowrap;
+    border-radius: 100px;
+    padding: 6px 12px;
+    background: #0F4B6F;
+    color: white;
+    margin-left: 14px;
+
+    a {
+      font-size: 14px;
+      text-decoration: none;
+      color: white;
+    }
+  }
+
+  #conv-topic-list-wrapper {
+    width: 432px;
+  }
+
+  #conv-content {
+    padding: 20px;
+    flex: 1;
+    color: var(--sakai-text-color);
+  }
+
+  .topic-tags > .tag:nth-child(1) {
+    margin-left: 0;
+  }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--sakai-background-color-4);
+    border-radius: 100px;
+    font-size: 12px;
+    text-align: center;
+    color: var(--sakai-text-color);
+    padding: 2px 6px;
+  }
+
+  #permissions-title {
+    margin-bottom: 40px;
+  }
+
+  .tag sakai-icon {
+    pointer-events: none;
+  }
+
+  @media (max-width: 1200px) {
+    #conv-settings-label {
+      display: none;
+    }
+    #conv-topic-list-wrapper {
+      width: 350px;
+    }
+  }
+
+  @media (min-width: 801px) {
+    #conv-mobile {
+      display: none;
+    }
+    .add-topic-text {
+      display: inline;
+    }
+    .add-topic-icon {
+      display: none;
+    }
+  }
+
+  @media (max-width: 800px) {
+
+    #conv-desktop {
+      display: none;
+    }
+    #conv-mobile {
+      display: block;
+    }
+    .add-topic-text {
+      display: none;
+    }
+    .add-topic-icon {
+      display: inline;
+      color: green;
+    }
+
+    #conv-topic-list-wrapper {
+      width: 100%;
+    }
+
+    .topic-list {
+      width: 100%;
+    }
+
+    #topic-list-topics {
+      border: inherit;
+    }
+
+    .conv-add-topic {
+      border-radius: inherit;
+      padding: inherit;
+      background: inherit;
+      margin-left: 14px;
+    }
+
+    .topic-status-text {
+      display: none;
+    }
+
+    .topic-message-bottom-bar {
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    .conv-instructors-answer {
+      display: none;
+    }
+
+    #settings-grid {
+      grid-template-columns: 1fr min-content;
+    }
+
+    #settings-grid > div {
+      white-space: inherit;
+    }
+
+    #tag-creation-field {
+      width: 200px;
+    }
+
+    .tag-editor input[type=text] {
+      width: 100px;
+    }
+  } // END @media (max-width: 800px)
+
+  .draft {
+    font-style: italic;
+    color: var(--errorBanner-color);
+    font-size: 15px;
+  }
+  .conversations-action {
+    font-size: 11px;
+  }
+
+  .conversations-reaction {
+    font-size: 10px;
+  }
+
+  .reaction-on > div {
+    background: var(--sakai-background-color-4);
+  }
+
+  .heart {
+    color: blue;
+  }
+
+  .lightbulb {
+    color: orange;
+  }
+
+  .key {
+    color: #ff3300;
+  }
+
+  .hand-thumbs-up {
+    color: #009933;
+  }
+
+}
+
+@import "_sakai-topic-list.scss";
+@import "_sakai-topic-summary.scss";
+@import "_sakai-add-topic.scss";
+@import "_sakai-topic.scss";
+@import "_sakai-post.scss";
+@import "_sakai-conversations-tag-manager.scss";
+@import "_sakai-conversations-settings.scss";
+@import "_statistics.scss";

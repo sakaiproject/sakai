@@ -35,6 +35,7 @@ import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -83,6 +84,11 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
     private static final String SAKAI_LOCALES_MORE = "locales.more"; // default is blank/null
     private static final String SAKAI_SYSTEM_PROPERTY_SUFFIX = "@SystemProperty";
 
+    private final String SMTP_SERVER_PROPERTY = "smtp@org.sakaiproject.email.api.EmailService";
+    private final String SMTP_FROM_PROPERTY = "smtpFrom@org.sakaiproject.email.api.EmailService";
+    private final String SETUP_REQUEST_PROPERTY = "setup.request";
+    private final String SMTP_FROM_DEFAULT_VALUE = "no-reply@";
+    private final String SMTP_PORT_PROPERTY = "smtpPort@org.sakaiproject.email.api.EmailService";
 
     /**********************************************************************************************************************************************************************************************************************************************************
      * Dependencies
@@ -91,13 +97,16 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
     /**
      * the ThreadLocalManager collaborator.
      */
+    @Setter
     private ThreadLocalManager threadLocalManager;
 
     /**
      * the SessionManager collaborator.
      */
+    @Setter
     private SessionManager sessionManager;
 
+    @Setter
     private SakaiProperties sakaiProperties;
 
     /**********************************************************************************************************************************************************************************************************************************************************
@@ -505,7 +514,7 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
      * @return the value with all matched ${vars} replaced (unmatched ones are left as is), only returns null if the input is null
      */
     protected String dereferenceValue(String value) {
-        if (log.isDebugEnabled()) log.debug("dereferenceValue("+value+")");
+        log.debug("dereferenceValue({})", value);
         /*
          * NOTE: if the performance of this becomes an issue then the right way to handle it is
          * to place a flag on the ConfigItem to indicate if there is replaceable refs in it
@@ -641,6 +650,14 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
     public int getInt(String name, int dflt)
     {
         return NumberUtils.toInt(getString(name), dflt);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public double getDouble(String name, double defaultValue)
+    {
+        return NumberUtils.toDouble(getString(name), defaultValue);
     }
 
     /**
@@ -883,21 +900,10 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
         return Stream.of(getString(key, "").split(",")).map(t -> t.trim()).collect(Collectors.toSet());
     }
 
-    public void setSakaiProperties(SakaiProperties sakaiProperties) {
-        this.sakaiProperties = sakaiProperties;
-    }
-
-    public void setThreadLocalManager(ThreadLocalManager threadLocalManager) {
-        this.threadLocalManager = threadLocalManager;
-    }
-
-    public void setSessionManager(SessionManager sessionManager) {
-        this.sessionManager = sessionManager;
-    }
-
     /**
      * @deprecated do not use this anymore, use {@link #getConfigData()} to get all properties
      */
+    @Deprecated
     public Properties getProperties() {
         return sakaiProperties.getProperties();
     }
@@ -920,7 +926,7 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
             if (source == null || "".equals(source)) {
                 source = UNKNOWN;
             }
-            log.info("Adding "+p.size()+" properties from "+source);
+            log.info("Adding {} properties from {}", p.size(), source);
             for (Enumeration<Object> e = p.keys(); e.hasMoreElements(); /**/) {
                 String name = (String) e.nextElement();
                 String value = p.getProperty(name);
@@ -1052,6 +1058,21 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
 
     /**
      * INTERNAL
+     * Processes two-way mapping from legacy property prefixes / names to modern prefixes / names
+     *
+     * @param name the key name for the config value
+     * @return the alternate property name for this name.
+     */
+    protected String getAlternateName(String name)
+    {
+        if ( StringUtils.isBlank(name) ) return null;
+        if ( name.startsWith("lti.") ) return name.replaceFirst("^lti.", "basiclti.");
+        if ( name.startsWith("basiclti.") ) return name.replaceFirst("^basiclti.", "lti.");
+        return null;
+    }
+
+    /**
+     * INTERNAL
      * Finds a config item by name, use this whenever retrieving the item for lookup
      * 
      * @param name the key name for the config value
@@ -1061,6 +1082,10 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
         ConfigItemImpl ci = null;
         if (name != null && !"".equals(name)) {
             ci = configurationItems.get(name);
+            if ( ci == null ) {
+                String alternateName = getAlternateName(name);
+                if ( alternateName != null ) ci = configurationItems.get(alternateName);
+            }
             if (ci == null) {
                 // add unregistered when not found for tracking later
                 ConfigItemImpl configItemImpl = new ConfigItemImpl(name);
@@ -1177,6 +1202,29 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
             WeakReference<ConfigurationListener> ref = new WeakReference<ConfigurationListener>(configurationListener);
             this.listeners.put(name, ref);
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public String getSmtpFrom() {
+        String defaultSmtpFrom = this.SMTP_FROM_DEFAULT_VALUE + this.getServerName();
+        String smtpFrom = getConfig(this.SMTP_FROM_PROPERTY, defaultSmtpFrom);
+        return getConfig(this.SETUP_REQUEST_PROPERTY, smtpFrom);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public String getSmtpPort() {
+        return getConfig(this.SMTP_PORT_PROPERTY, "25");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public String getSmtpServer() {
+        return getConfig(this.SMTP_SERVER_PROPERTY, "localhost");
     }
 
 }

@@ -5,7 +5,7 @@
         <title th:text="#{validate.title}">Account Validation</title>
         <link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
         <link href="/library/skin/morpheus-default/portal.css" type="text/css" rel="stylesheet" media="all"/>
-        <link href="/library/skin/morpheus-default/tool.css" type="text/css" rel="stylesheet" media="all"/>
+        <link href="/library/skin/default-skin/tool.css" type="text/css" rel="stylesheet" media="all"/>
         <link href="/library/skin/morpheus-default/print.css" type="text/css" rel="stylesheet" media="print"/>
         <link href="/library/skin/morpheus-default/properties.css" type="text/css" rel="stylesheet" media="all"/>
         <link href="content/css/accountvalidator.css" type="text/css" rel="stylesheet" media="all" />
@@ -86,7 +86,7 @@
                     </ul>
                 </div>
             </div>
-            <div id="banner" class="hidden">
+            <div id="banner" class="d-none">
                 <p class="fit" th:text="#{username.new}">errors</p>
             </div>
             <table>
@@ -246,7 +246,7 @@
                     return response.json().then(function (response) {
 
                         if (response.error !== undefined) {
-                            banner.classList.remove("hidden");
+                            banner.classList.remove("d-none");
                             banner.classList.add("sak-banner-error");
                             var message = response.error;
                             banner.textContent = message;
@@ -278,7 +278,7 @@
                     return response.json().then(function (response) {
 
                         if (response.error !== undefined) {
-                            banner.classList.remove("hidden");
+                            banner.classList.remove("d-none");
                             banner.classList.add("sak-banner-error");
                             const message = response.error;
                             banner.textContent = message;

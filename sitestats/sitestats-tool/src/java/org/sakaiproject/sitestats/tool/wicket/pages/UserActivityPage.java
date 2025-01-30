@@ -126,7 +126,7 @@ public class UserActivityPage extends BasePage
 
 		DropDownChoice<DisplayUser> userFilter = new DropDownChoice<>("userFilter", new PropertyModel<>(this, "displayUser"),
 				new LoadableDisplayUserListModel(siteId), userChoiceRenderer);
-		userFilter.add(new AjaxFormComponentUpdatingBehavior("onchange")
+		userFilter.add(new AjaxFormComponentUpdatingBehavior("change")
 		{
 			@Override
 			protected void onUpdate(AjaxRequestTarget target)
@@ -147,7 +147,7 @@ public class UserActivityPage extends BasePage
 		form.add(new SimpleFormComponentLabel("userFilterLabel", userFilter));
 		form.add(userFilter);
 
-		IChoiceRenderer<String> toolChoiceRenderer = new ChoiceRenderer<String>()
+		IChoiceRenderer<String> toolChoiceRenderer = new ChoiceRenderer<>()
 		{
 			@Override
 			public Object getDisplayValue(String toolId)
@@ -181,7 +181,7 @@ public class UserActivityPage extends BasePage
 		form.add(endDateField);
 
 		String zoneName = startDate.getZone().getDisplayName(TextStyle.FULL, getSession().getLocale());
-		StringResourceModel legendModel = new StringResourceModel("de_dateRange", getPage(), null, new Object[] { zoneName });
+		StringResourceModel legendModel = new StringResourceModel("de_dateRange").setParameters(zoneName);
 		form.add(new Label("dateRangeLegend", legendModel));
 
 		final UserTrackingResultsPanel resultsPanel = new UserTrackingResultsPanel("results", TrackingParams.EMPTY_PARAMS);
@@ -192,7 +192,7 @@ public class UserActivityPage extends BasePage
 		searchButton = new SakaiAjaxButton("search", form)
 		{
 			@Override
-			public void onSubmit(AjaxRequestTarget target, Form form)
+			public void onSubmit(AjaxRequestTarget target)
 			{
 				// run search
 				PrefsData pd = Locator.getFacade().getStatsManager().getPreferences(siteId, false);
@@ -206,7 +206,7 @@ public class UserActivityPage extends BasePage
 				Locator.getFacade().getStatsManager().logEvent(new UserId(user), StatsManager.LOG_ACTION_TRACK, siteId, false);
 			}
 		};
-		searchButton.setEnabled(false);
+		//searchButton.setEnabled(false);
 		form.add(searchButton);
 	}	// onInitialize()
 }

@@ -33,6 +33,10 @@ package org.sakaiproject.authz.api;
  */
 public interface SecurityAdvisor
 {
+
+	public static final SecurityAdvisor ADVISOR_ALLOW_ALL_FUNCTIONS =
+			(String userId, String function, String reference) -> SecurityAdvice.ALLOWED;
+
 	/**
 	 * <p>
 	 * SecurityAdvice enumerates different SecurityAdvisor results.

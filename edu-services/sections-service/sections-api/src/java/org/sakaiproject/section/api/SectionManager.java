@@ -250,7 +250,7 @@ public interface SectionManager {
      * @throws RoleConfigurationException If there is no properly configured role
      * in the site matching the role specified.
      */
-    public void setSectionMemberships(Set userUids, Role role, String sectionId)
+    public void setSectionMemberships(Set<String> userUids, Role role, String sectionId)
     	throws RoleConfigurationException;
 
     /**
@@ -281,9 +281,7 @@ public interface SectionManager {
      * @param maxEnrollments
      * @param location
      * @param startTime
-     * @param startTimeAm
      * @param endTime
-     * @param endTimeAm
      * @param monday
      * @param tuesday
      * @param wednesday
@@ -296,7 +294,8 @@ public interface SectionManager {
      *
      * @return
      */
-    public CourseSection addSection(String courseUuid, String title,
+    @Deprecated
+	public CourseSection addSection(String courseUuid, String title,
     		String category, Integer maxEnrollments, String location,
     		Time startTime, Time endTime,
     		boolean monday, boolean tuesday, boolean wednesday, boolean thursday,
@@ -330,9 +329,7 @@ public interface SectionManager {
      * @param maxEnrollments
      * @param location
      * @param startTime
-     * @param startTimeAm
      * @param endTime
-     * @param endTimeAm
      * @param monday
      * @param tuesday
      * @param wednesday
@@ -343,6 +340,7 @@ public interface SectionManager {
      *
      * @deprecated
      */
+	@Deprecated
     public void updateSection(String sectionUuid, String title, Integer maxEnrollments,
     		String location, Time startTime, Time endTime,
     		boolean monday, boolean tuesday, boolean wednesday,

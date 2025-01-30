@@ -234,9 +234,9 @@
         else
           table.removeClass('table-condensed');
 
-        if (!table.getParent().hasClass('table-responsive')) {
+        if (!table.getParent().hasClass('table')) {
           var tablewrapper = makeElement('div');
-          tablewrapper.addClass('table-responsive');
+          tablewrapper.addClass('table');
           tablewrapper.append(table);
           editor.insertElement(tablewrapper);
         }

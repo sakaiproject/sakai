@@ -1,6 +1,5 @@
 <!--jsp/discussionForum/area/dfAreaInclude.jsp-->
-<script src="/webcomponents/rubrics/sakai-rubrics-utils.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
-<script type="module" src="/webcomponents/rubrics/rubric-association-requirements.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
+<script type="module" src="/webcomponents/bundles/rubric-association-requirements.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
 <h:panelGrid columns="1" cellpadding="3" rendered="#{empty ForumTool.forums}">
     <h:panelGroup>
         <h:outputText styleClass="instruction noForumsMessage"  value="#{msgs.cdfm_forum_noforums} "  />
@@ -41,10 +40,8 @@ $(document).ready(function() {
     if (forumLen ===0 && accessCheck === 0 && noForums ===0){
         $('.noForumsAccess').show();
     }
-    setupdfAIncMenus();
 });
 </script>
-<h:outputText escape="false" value="<script>$(document).ready(function() {setupLongDesc()});</script>"  rendered="#{!ForumTool.showShortDescription}"/>
 
             <h:outputText styleClass="showMoreText"  style="display:none" value="#{msgs.cdfm_show_more_full_description}"  />
 
@@ -119,34 +116,35 @@ $(document).ready(function() {
           </h:commandLink>
                 <h:outputText  value=" | " rendered="#{ForumTool.newForum || ForumTool.instructor || forum.changeSettings}" />
 
-                    <%-- link to display other options on this forum --%>
-                    <f:verbatim><a href="#" class="moreMenuLink"></f:verbatim>
-                        <h:outputText  styleClass="moreMenuLinkSpan" value="#{msgs.cdfm__moremenulink}" rendered="#{ForumTool.newForum || ForumTool.instructor || forum.changeSettings}" /> 
-                    <f:verbatim></a></f:verbatim>   
+                <%-- link to display other options on this forum --%>
+                <h:panelGroup rendered="#{ForumTool.newForum || ForumTool.instructor || forum.changeSettings}">
+                    <a href="#" class="btn btn-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <h:outputText value="#{msgs.cdfm__moremenulink}" />
+                    </a>
+                </h:panelGroup>
 
                 <%-- list of options, revealed when link above is used, model new added options on existing ones--%>    
-                <f:verbatim><ul style="display:none" class="moreMenu"></f:verbatim>
-                    
-                    <f:verbatim><li></f:verbatim>
-                        <h:commandLink id="duplicate" action="#{ForumTool.processActionDuplicateForumMainConfirm}" value="#{msgs.cdfm_duplicate_forum}" rendered="#{ForumTool.newForum}" >
+                <ul class="dropdown-menu">
+                    <li>
+                        <h:commandLink id="duplicate" action="#{ForumTool.processActionDuplicateForumMainConfirm}" value="#{msgs.cdfm_duplicate_forum}" rendered="#{ForumTool.newForum}" styleClass="dropdown-item">
                             <f:param value="#{forum.forum.id}" name="forumId"/>
                         </h:commandLink>
-                    <f:verbatim></li></f:verbatim>
+                    </li>
 
-                <f:verbatim><li></f:verbatim>
-                    <h:commandLink action="#{mfStatisticsBean.processActionStatisticsByTopic}" immediate="true" rendered="#{ForumTool.instructor}">
-                    <f:param value="" name="topicId"/>
-                    <f:param value="#{forum.forum.id}" name="forumId"/>
-                    <h:outputText value="#{msgs.cdfm_button_bar_grade}" />
-                    </h:commandLink>    
-                <f:verbatim></li></f:verbatim>  
+                    <li>
+                        <h:commandLink action="#{mfStatisticsBean.processActionStatisticsByTopic}" immediate="true" rendered="#{ForumTool.instructor}" styleClass="dropdown-item">
+                            <f:param value="" name="topicId"/>
+                            <f:param value="#{forum.forum.id}" name="forumId"/>
+                            <h:outputText value="#{msgs.cdfm_button_bar_grade}" />
+                        </h:commandLink>    
+                    </li>
 
-                <f:verbatim><li></f:verbatim>                
-                    <h:commandLink id="delete" action="#{ForumTool.processActionDeleteForumMainConfirm}" value="#{msgs.cdfm_button_bar_delete_forum}" rendered="#{forum.changeSettings}">
-                        <f:param value="#{forum.forum.id}" name="forumId"/>
-                    </h:commandLink>
-                <f:verbatim></li></f:verbatim>  
-            <f:verbatim></ul></f:verbatim>
+                    <li>
+                        <h:commandLink id="delete" action="#{ForumTool.processActionDeleteForumMainConfirm}" value="#{msgs.cdfm_button_bar_delete_forum}" rendered="#{forum.changeSettings}" styleClass="dropdown-item">
+                            <f:param value="#{forum.forum.id}" name="forumId"/>
+                        </h:commandLink>
+                    </li>
+                </ul>
 
 <%-- the forum details --%>
                 <h:outputText value="#{forum.forum.shortDescription}" styleClass="shortDescription"/>
@@ -276,35 +274,37 @@ $(document).ready(function() {
                             <h:outputText  value=" | " rendered="#{forum.newTopic || ForumTool.instructor || topic.changeSettings}"/>
 
                             <%-- link to display other options on this topic --%>
-                            <f:verbatim><a href="#" class="moreMenuLink"></f:verbatim>
-                                <h:outputText  styleClass="moreMenuLinkSpan" value="#{msgs.cdfm__moremenulink}" rendered="#{forum.newTopic || ForumTool.instructor || topic.changeSettings}" /> 
-                            <f:verbatim></a></f:verbatim>   
+                            <h:panelGroup rendered="#{forum.newTopic || ForumTool.instructor || topic.changeSettings}">
+                                <a href="#" class="btn btn-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <h:outputText value="#{msgs.cdfm__moremenulink}" />
+                                </a>
+                            </h:panelGroup>   
 
                             <%-- list of options, revealed when link above is used, model new added options on existing ones--%>
-                            <f:verbatim><ul style="display:none" class="moreMenu"></f:verbatim>
-                                <f:verbatim><li></f:verbatim>
-
+                            <ul class="dropdown-menu">
+                                <li>
                                     <h:commandLink action="#{ForumTool.processActionDuplicateTopicMainConfirm}" id="duplicate_confirm" value="#{msgs.cdfm_duplicate_topic}" rendered="#{forum.newTopic}"
-                                    title=" #{msgs.cdfm_duplicate_topic}">
+                                        title=" #{msgs.cdfm_duplicate_topic}" styleClass="dropdown-item">
                                             <f:param value="#{topic.topic.id}" name="topicId"/>
                                             <f:param value="#{forum.forum.id}" name="forumId"/>
                                     </h:commandLink>
-                                <f:verbatim></li></f:verbatim>
-                                <f:verbatim><li></f:verbatim>                           
-                            <h:commandLink action="#{mfStatisticsBean.processActionStatisticsByTopic}" immediate="true" rendered="#{ForumTool.instructor}">
-                                <f:param value="#{topic.topic.id}" name="topicId"/>
-                                <f:param value="#{forum.forum.id}" name="forumId"/>
-                                <h:outputText value="#{msgs.cdfm_button_bar_grade}" />
-                            </h:commandLink>
-                                <f:verbatim></li></f:verbatim>
-                                <f:verbatim><li></f:verbatim>
-                            <h:commandLink action="#{ForumTool.processActionDeleteTopicMainConfirm}" id="delete_confirm" value="#{msgs.cdfm_button_bar_delete_topic}" accesskey="d" rendered="#{topic.changeSettings}"
-                            title="#{msgs.cdfm_button_bar_delete_topic}">
-                                    <f:param value="#{topic.topic.id}" name="topicId"/>
-                                    <f:param value="#{forum.forum.id}" name="forumId"/>
-                            </h:commandLink>
-                                <f:verbatim></li></f:verbatim>
-                        <f:verbatim></ul></f:verbatim>
+                                </li>
+                                <li>                           
+                                    <h:commandLink action="#{mfStatisticsBean.processActionStatisticsByTopic}" immediate="true" rendered="#{ForumTool.instructor}" styleClass="dropdown-item">
+                                        <f:param value="#{topic.topic.id}" name="topicId"/>
+                                        <f:param value="#{forum.forum.id}" name="forumId"/>
+                                        <h:outputText value="#{msgs.cdfm_button_bar_grade}" />
+                                    </h:commandLink>
+                                </li>
+                                <li>
+                                    <h:commandLink action="#{ForumTool.processActionDeleteTopicMainConfirm}" id="delete_confirm" value="#{msgs.cdfm_button_bar_delete_topic}" accesskey="d" rendered="#{topic.changeSettings}"
+                                        title="#{msgs.cdfm_button_bar_delete_topic}" styleClass="dropdown-item">
+                                        <f:param value="#{topic.topic.id}" name="topicId"/>
+                                        <f:param value="#{forum.forum.id}" name="forumId"/>
+                                    </h:commandLink>
+                                </li>
+                            </ul>
+
                             <%--the topic details --%>
                             <h:outputText id="topic_desc" value="#{topic.topic.shortDescription}" styleClass="shortDescription" />
                             <f:subview id="longDescTopic" rendered="#{!empty topic.attachList || (topic.topic.extendedDescription != '' &&  topic.topic.extendedDescription != null && topic.topic.extendedDescription != '<br/>')}">

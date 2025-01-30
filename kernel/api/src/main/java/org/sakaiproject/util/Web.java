@@ -25,6 +25,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -59,6 +60,7 @@ public class Web
 	 * @return value fully escaped for HTML.
      * @deprecated this is a passthrough for {@link org.sakaiproject.util.api.FormattedText#escapeHtml(String, boolean)} so use that instead
 	 */
+	@Deprecated
 	public static String escapeHtml(String value)
 	{
 		return FormattedText.escapeHtml(value, true);
@@ -72,6 +74,7 @@ public class Web
 	 * @return value escaped for HTML.
 	 * @deprecated this is a passthrough for {@link org.sakaiproject.util.api.FormattedText#escapeHtmlFormattedText(String)} so use that instead
 	 */
+	@Deprecated
 	public static String escapeHtmlFormattedText(String value)
 	{
 		return FormattedText.escapeHtmlFormattedText(value);
@@ -87,6 +90,7 @@ public class Web
      * @return value fully escaped for HTML.
      * @deprecated this is a passthrough for {@link org.sakaiproject.util.api.FormattedText#escapeHtml(String, boolean)} so use that instead
      */
+	@Deprecated
     public static String escapeHtml(String value, boolean escapeNewlines) {
         return FormattedText.escapeHtml(value, escapeNewlines);
     }
@@ -99,6 +103,7 @@ public class Web
      * @return value escaped.
      * @deprecated just a passthrough for {@link org.sakaiproject.util.api.FormattedText#escapeJsQuoted(String)} so use that instead
      */
+	@Deprecated
     public static String escapeJsQuoted(String value)
     {
         return FormattedText.escapeJsQuoted(value);
@@ -115,6 +120,7 @@ public class Web
      * @return id fully escaped using URL rules.
      * @deprecated just a passthrough for {@link java.net.URLEncode#encode(String, String)} so use that instead
      */
+	@Deprecated
     public static String escapeUrl(String id)
     {
         return Validator.escapeUrl( id );
@@ -129,6 +135,7 @@ public class Web
      * @return The HTML, ready for processing.
      * @deprecated just a copy of {@link org.sakaiproject.util.api.FormattedText#unEscapeHtml(String)} so use that instead
      */
+	@Deprecated
     public static String unEscapeHtml(String value)
     {
         // FIXME delete this method
@@ -148,6 +155,7 @@ public class Web
      * @return the full source text with URLs converted to HTML.
      * @deprecated just a copy of {@link org.sakaiproject.util.api.FormattedText#encodeUrlsAsHtml(String)} so use that instead
      */
+	@Deprecated
     public static String encodeUrlsAsHtml(String text)
     {
         Pattern p = Pattern.compile("(?<!href=['\"]{1})(((https?|s?ftp|ftps|file|smb|afp|nfs|(x-)?man|gopher|txmt)://|mailto:)[-:;@a-zA-Z0-9_.,~%+/?=&#]+(?<![.,?:]))");
@@ -171,6 +179,7 @@ public class Web
 	 * 
 	 * @deprecated use commons-text {@link org.apache.commons.text.StringEscapeUtils}
 	 */
+	@Deprecated
 	public static String escapeJavascript(String value)
 	{
 		if (value == null || "".equals(value)) return "";
@@ -198,8 +207,7 @@ public class Web
 				}
 			}
 
-			String rv = buf.toString();
-			return rv;
+            return buf.toString();
 		}
 		catch (Exception e)
 		{
@@ -217,7 +225,7 @@ public class Web
 	 * @exception java.lang.IllegalArgumentException
 	 *            If supplied digit is not between 0 and 15 inclusive.
 	 */
-	protected static final char hexDigit(int i)
+	protected static char hexDigit(int i)
 	{
 		switch (i)
 		{
@@ -333,6 +341,7 @@ public class Web
 	 * @return The URL back to this server based on the current request.
 	 * @deprecated use {@link RequestFilter#serverUrl(HttpServletRequest)}
 	 */
+	@Deprecated
 	public static String serverUrl(HttpServletRequest req)
 	{
 	    return RequestFilter.serverUrl(req);
@@ -415,9 +424,9 @@ public class Web
 		print(out, "Context path", contextPath);
 		displayStringChars(out, contextPath);
 		String pathInfo = req.getPathInfo();
-		print(out, "Path info", pathInfo);
+		print(out, "Path info", FormattedText.escapeHtml(pathInfo, true));
 		displayStringChars(out, pathInfo);
-		print(out, "Path translated", req.getPathTranslated());
+		print(out, "Path translated", FormattedText.escapeHtml(req.getPathTranslated(), true));
 		print(out, "Query string", req.getQueryString());
 		print(out, "Content length", req.getContentLength());
 		print(out, "Content type", req.getContentType());
@@ -451,7 +460,7 @@ public class Web
 			while (e.hasMoreElements())
 			{
 				String name = (String) e.nextElement();
-				out.println(" " + name + " = " + req.getParameter(name));
+				out.println(" " + name + " = " + FormattedText.escapeHtml(req.getParameter(name), true));
 			}
 			out.println(prex);
 		}
@@ -468,9 +477,9 @@ public class Web
 				if (vals != null)
 				{
 					out.print(b + " " + name + " = " + bx);
-					out.println(vals[0]);
+					out.println(FormattedText.escapeHtml(vals[0], true));
 					for (int i = 1; i < vals.length; i++)
-						out.println("           " + vals[i]);
+						out.println("           " + FormattedText.escapeHtml(vals[i], true));
 				}
 				out.println(p);
 			}
@@ -526,17 +535,18 @@ public class Web
 	 ** @deprecated  It is now possible to specify encoded filenames for the browser
 	 **              see {@link Web#buildContentDisposition}
 	 **/
+	@Deprecated
 	public static String encodeFileName(HttpServletRequest req, String fileName )
 	{
 		String agent = req.getHeader("USER-AGENT");
 		try
 		{
-			if ( agent != null && agent.indexOf("MSIE")>=0 )
-				fileName = java.net.URLEncoder.encode(fileName, "UTF8");
-			else if ( agent != null && agent.indexOf("Mozilla")>=0 && agent.indexOf("Safari") == -1 )
+			if ( agent != null && agent.contains("MSIE"))
+				fileName = java.net.URLEncoder.encode(fileName, StandardCharsets.UTF_8);
+			else if ( agent != null && agent.contains("Mozilla") && !agent.contains("Safari"))
 				fileName = javax.mail.internet.MimeUtility.encodeText(fileName, "UTF8", "B");
 			else
-				fileName = java.net.URLEncoder.encode(fileName, "UTF8");
+				fileName = java.net.URLEncoder.encode(fileName, StandardCharsets.UTF_8);
 		}
 		catch (java.io.UnsupportedEncodingException e)
 		{
@@ -555,106 +565,17 @@ public class Web
 	 * @return The value of the content disposition header specifying it's inline content.
 	 */
 	public static String buildContentDisposition(String filename, boolean isDownload) {
-		try {
-			// This will replace all non US-ASCII characters with '?'
-			// Although this behaviour is unspecified doing it manually is overkill (too much work).
-			// Make sure we escape double quotes.
-			String iso8859Filename = new String(filename.getBytes("ISO-8859-1"), "ISO-8859-1")
-					.replace("\\", "\\\\")
-					.replace("\"", "\\\"");
-			String utf8Filename = URLEncoder.encode(filename, "UTF-8").replace("+", "%20");
-			return new StringBuilder()
-					.append(isDownload ? "attachment; " : "inline; ")
-					.append("filename=\"").append(iso8859Filename).append("\"; ")
-							// For sensible browser give them a full UTF-8 encoded string.
-					.append("filename*=UTF-8''").append(utf8Filename)
-					.toString();
-		} catch (UnsupportedEncodingException shouldNeverHappen) {
-			throw new RuntimeException(shouldNeverHappen);
-		}
-	}
-
-	private static String internalEscapeHtml(String value, boolean escapeNewlines) {
-	    // FIXME this method needs to be removed entirely and is only here as a reference of how this used to work
-
-
-	    if (value == null) return "";
-
-		try {
-			StringBuilder buf = new StringBuilder();
-			final int len = value.length();
-			for (int i = 0; i < len; i++)
-			{
-				char c = value.charAt(i);
-				switch (c)
-				{
-					case '<':
-					{
-						if (buf == null) buf = new StringBuilder(value.substring(0, i));
-						buf.append("&lt;");
-					}
-						break;
-
-					case '>':
-					{
-						if (buf == null) buf = new StringBuilder(value.substring(0, i));
-						buf.append("&gt;");
-					}
-						break;
-
-					case '&':
-					{
-						if (buf == null) buf = new StringBuilder(value.substring(0, i));
-						buf.append("&amp;");
-					}
-						break;
-
-					case '"':
-					{
-						if (buf == null) buf = new StringBuilder(value.substring(0, i));
-						buf.append("&quot;");
-					}
-						break;
-					case '\n':
-					{
-						if (escapeNewlines)
-						{
-							if (buf == null) buf = new StringBuilder(value.substring(0, i));
-							buf.append("<br />\n");
-						}
-						else
-						{
-							if (buf != null) buf.append(c);
-						}
-					}
-						break;
-					default:
-					{
-						if (c < 128)
-						{
-							if (buf != null) buf.append(c);
-						}
-						else
-						{
-							// escape higher Unicode characters using an
-							// HTML numeric character entity reference like "&#15672;"
-							if (buf == null) buf = new StringBuilder(value.substring(0, i));
-							buf.append("&#");
-							buf.append(Integer.toString((int) c));
-							buf.append(";");
-						}
-					}
-						break;
-				}
-			} // for
-
-			return (buf == null) ? value : buf.toString();
-		}
-		catch (Exception e)
-		{
-			return value;
-		}
-	}
+        // This will replace all non US-ASCII characters with '?'
+        // Although this behaviour is unspecified doing it manually is overkill (too much work).
+        // Make sure we escape double quotes.
+        String iso8859Filename = new String(filename.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.ISO_8859_1)
+                .replace("\\", "\\\\")
+                .replace("\"", "\\\"");
+        String utf8Filename = URLEncoder.encode(filename, StandardCharsets.UTF_8).replace("+", "%20");
+        return (isDownload ? "attachment; " : "inline; ") + "filename=\"" + iso8859Filename + "\"; " +
+			// For sensible browser give them a full UTF-8 encoded string.
+			"filename*=UTF-8''" + utf8Filename;
+    }
 
 	/**
 	 ** Make sure any HTML is 'clean' (no javascript, invalid image tags)
@@ -673,7 +594,7 @@ public class Web
 		// remove all javascript (risk of exploit)
 		// note that String.replaceAll() does not reliably handle line terminators, 
 		// so javascript is removed string by string
-		while ( htmlStr.indexOf(START_JAVASCRIPT) != -1 )
+		while (htmlStr.contains(START_JAVASCRIPT))
 		{
 			int badStart = htmlStr.indexOf(START_JAVASCRIPT);
 			int badEnd = htmlStr.indexOf(END_JAVASCRIPT);

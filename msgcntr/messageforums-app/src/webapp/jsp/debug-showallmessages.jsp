@@ -29,7 +29,7 @@
               <f:facet name="header">
                 <h:outputText value="Size" />
               </f:facet>
-              <h:outputText value="#{attachment.attachmentSize}"/>
+              <h:outputText value="#{MessageForumsTool.getAttachmentReadableSize(attachment.attachmentSize)}"/>
             </h:column>
             <h:column rendered="#{!empty MessageForumsTool.debugMessages}">
               <f:facet name="header">

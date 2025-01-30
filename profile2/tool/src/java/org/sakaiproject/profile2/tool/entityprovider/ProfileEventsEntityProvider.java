@@ -37,16 +37,7 @@ public class ProfileEventsEntityProvider extends AbstractEntityProvider implemen
     
     private final static String[] EVENT_KEYS = new String[] {
     	ProfileConstants.EVENT_PROFILE_VIEW_OWN,
-		ProfileConstants.EVENT_PROFILE_VIEW_OTHER,
-		ProfileConstants.EVENT_FRIEND_REQUEST,
-		ProfileConstants.EVENT_FRIEND_CONFIRM,
-		ProfileConstants.EVENT_FRIENDS_VIEW_OWN,
-		ProfileConstants.EVENT_FRIENDS_VIEW_OTHER,
-		ProfileConstants.EVENT_SEARCH_BY_NAME,
-		ProfileConstants.EVENT_SEARCH_BY_INTEREST,
-		ProfileConstants.EVENT_STATUS_UPDATE,
-		ProfileConstants.EVENT_TWITTER_UPDATE,
-		ProfileConstants.EVENT_MESSAGE_SENT,
+		ProfileConstants.EVENT_PROFILE_VIEW_OTHER
 	};
 
    

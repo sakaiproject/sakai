@@ -133,34 +133,20 @@ public interface ContentServiceSql
 	String getInsertIndividualDropboxChangeSql();
 
 	/**
-	 * returns the sql statement to add the FILE_SIZE column to the specified table.
-	 */
-	String getAddFilesizeColumnSql(String table);
-
-	/**
-	 * returns the sql statement to add the CONTEXT column to the specified table.
-	 */
-	String getAddContextColumnSql(String table);
-
-	/**
-	 * returns the sql statement to add an index of the CONTEXT column to the specified table.
-	 */
-	String getAddContextIndexSql(String table);
-	
-	/**
-	 * returns the sql statement to add the RESOURCE_TYPE_ID column to the specified table.
-	 */
-	String getAddResourceTypeColumnSql(String table);
-
-	/**
-	 * returns the sql statement to add an index of the RESOURCE_TYPE_ID column to the specified table.
-	 */
-	String getAddResourceTypeIndexSql(String table);
-
-	/**
 	 * returns the sql statement which retrieves the total number of bytes within a site-level collection (context) in the CONTENT_RESOURCE table.
 	 */
 	String getQuotaQuerySql();
+
+	/**
+	 * returns the sql statement which retrieves the total number of bytes for each collection within a site.
+	 */
+	String getContextSizesSql();
+
+	/**
+	 * returns the sql statement which retrieves the total number of bytes for this collection
+	 */
+	String getCollectionSizeSql();
+
 	String getDropBoxQuotaQuerySql();
 	/**
 	 * returns the sql statement which retrieves the total number of bytes within a site-level collection skiping user folders.
@@ -171,18 +157,6 @@ public interface ContentServiceSql
 	 * returns the sql statement which retrieves the RESOURCE_ID and XML values for all entries in the specified table where file-size is null.
 	 */
 	String getAccessResourceIdAndXmlSql(String table);
-
-	/**
-	 * returns the sql statement which updates a row in the specified table with values for CONTEXT, FILE_SIZE and (possibly) RESOURCE_UUID.
-	 */
-	String getContextFilesizeValuesSql(String table, boolean addingUuid);
-
-	String getFilesizeColumnExistsSql();
-
-	/**
-	 * returns the sql statement to check if any rows exist with NULL FILE_SIZE values
-	 */
-	String getFilesizeExistsSql();
 
 	/**
 	 * A statement to create a UTF test table based on the name

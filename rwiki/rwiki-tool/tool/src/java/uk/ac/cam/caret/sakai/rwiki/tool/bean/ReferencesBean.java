@@ -33,6 +33,7 @@ import org.sakaiproject.entity.api.Entity;
 import uk.ac.cam.caret.sakai.rwiki.service.api.EntityHandler;
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObject;
+import uk.ac.cam.caret.sakai.rwiki.service.exception.ReadPermissionException;
 import uk.ac.cam.caret.sakai.rwiki.utils.XmlEscaper;
 
 /**
@@ -98,7 +99,16 @@ public class ReferencesBean
 			String link = "<a href=\""
 				+ XmlEscaper.xmlEscape(objViewUrl) + "\">"
 				+ XmlEscaper.xmlEscape(objLocalName) + "</a>";
-			referenceLinks.add(link);
+
+			boolean showPage;
+			try {
+				showPage = objectService.checkRead(objectService.getRWikiObject(objLocalName, vb.getLocalSpace()));
+			} catch (ReadPermissionException ex) {
+				showPage = false;
+			}
+			if (showPage) {
+				referenceLinks.add(link);
+			}
 		}
 
 		return referenceLinks;

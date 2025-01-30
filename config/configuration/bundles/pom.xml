@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>config</artifactId>
 		<groupId>org.sakaiproject</groupId>
-		<version>23-SNAPSHOT</version>
+		<version>25-SNAPSHOT</version>
 		<relativePath>../../pom.xml</relativePath>
 	</parent>
 	<name>configuration-bundles</name>
@@ -58,7 +58,6 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>buildnumber-maven-plugin</artifactId>
-				<version>1.4</version>
 				<executions>
 					<execution>
 						<phase>validate</phase>
@@ -74,7 +73,6 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-antrun-plugin</artifactId>
-				<version>1.6</version>
 				<executions>
 					<execution>
 						<phase>process-resources</phase>

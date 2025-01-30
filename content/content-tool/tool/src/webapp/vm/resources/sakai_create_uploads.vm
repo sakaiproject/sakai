@@ -16,12 +16,12 @@
     #if ($itemAlertMessage)
         <div  id="resourceAlert" class="sak-banner-success">$itemAlertMessage</div>
     #else
-        <div  id="resourceAlert" class="sak-banner-error hide"></div>
+        <div  id="resourceAlert" class="sak-banner-error d-none"></div>
     #end
     <div id="dragDropWrapper">
     <form name="dropzone-form" action="#toolLink("ResourcesHelperAction" "doPost")&flow=save" class="dropzone" id="file-uploader">
         <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-        <div class="dz-default dz-message"><button type="button">$tlang.getString("label.dragZoneMessage")</button></div>
+        <div class="dz-default dz-message"><button class="btn btn-outline-secondary" type="button">$tlang.getString("label.dragZoneMessage")</button></div>
     </form>
     <br />
     <div id="fileUploaderDesc" class="instruction">
@@ -50,7 +50,7 @@
                     (<a href="#" onclick="openMoreInfoCopyrightWindow('copyright');" title="[$tlang.getString('cright.newwin')]"><span class="skip"> [$tlang.getString('cright.newwin')]</span>$tlang.getString('cright.fairuse')</a>)
                 </small>
             </div>
-            <div id="copyright_status"#if($model.copyrightStatus == $USE_THIS_COPYRIGHT) class="show"#else class="hide"#end>
+            <div id="copyright_status"#if($model.copyrightStatus == $USE_THIS_COPYRIGHT) class="d-block"#else class="d-none"#end>
                 <h4>$tlang.getString("cright.info")</h4>
                 <div class="form-group">
                     <textarea name="newcopyright" id="newcopyright" rows="2" cols="40" wrap="virtual">

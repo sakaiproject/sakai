@@ -48,6 +48,7 @@ import org.sakaiproject.tool.assessment.samlite.api.SamLiteService;
 import org.sakaiproject.user.api.AuthenticationManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.PreferencesService;
+import org.sakaiproject.userauditservice.api.UserAuditRegistration;
 import org.sakaiproject.tool.assessment.shared.impl.questionpool.QuestionPoolServiceImpl;
 
 @Slf4j
@@ -72,6 +73,7 @@ public class MockingAbstractWebService {
 			instance.setToolManager(mock(ToolManager.class));
 			instance.setUsageSessionService(mock(UsageSessionService.class));
 			instance.setUserDirectoryService(mock(UserDirectoryService.class));
+			instance.setUserAuditRegistration(mock(UserAuditRegistration.class));
 			instance.setContentHostingService(mock(ContentHostingService.class));
 			instance.setEntityManager(mock(EntityManager.class));
 			instance.setDiscussionForumManager(mock(DiscussionForumManager.class));

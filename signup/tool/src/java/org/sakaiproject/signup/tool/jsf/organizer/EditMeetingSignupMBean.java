@@ -40,6 +40,7 @@ import org.sakaiproject.signup.model.SignupMeeting;
 import org.sakaiproject.signup.model.SignupSite;
 import org.sakaiproject.signup.model.SignupTimeslot;
 import org.sakaiproject.signup.tool.jsf.SignupMeetingWrapper;
+import org.sakaiproject.signup.tool.jsf.SignupSiteWrapper;
 import org.sakaiproject.signup.tool.jsf.SignupUIBaseBean;
 import org.sakaiproject.signup.tool.jsf.TimeslotWrapper;
 import org.sakaiproject.signup.tool.jsf.organizer.action.EditMeeting;
@@ -141,6 +142,9 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 	private String endTimeString;
 	private static String HIDDEN_ISO_STARTTIME = "startTimeISO8601";
 	private static String HIDDEN_ISO_ENDTIME = "endTimeISO8601";
+
+	private SignupSiteWrapper currentSite;
+	private List<SignupSiteWrapper> otherSites;
 
 	/**
 	 * This method will reset everything to orignal value and also initialize
@@ -455,8 +459,8 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 			/* For case: a set of recurring meetings are updated */
 			List<SignupMeeting> successUpdatedMeetings = editMeeting.getSavedMeetings();
 			/* only tracked the first one if it's a series of recurrences. may consider them later?*/
-			Utilities.postEventTracking(SignupEventTypes.EVENT_SIGNUP_MTNG_MODIFY, ToolManager.getCurrentPlacement().getContext() + " title: "
-					+ meeting.getTitle());
+			Utilities.postEventTracking(SignupEventTypes.EVENT_SIGNUP_MTNG_MODIFY, ToolManager.getCurrentPlacement().getContext(),
+					meeting.getId(), meeting.getTitle(), "");
 
 			if (meeting.getRecurrenceId() != null) {
 				Utilities.resetMeetingList();// refresh main-page to catch
@@ -1194,5 +1198,19 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 
 	public void setTitle(String title) {
 		this.title = title;
+	}
+
+	public List<SignupSiteWrapper> getOtherSites() {
+		if (otherSites == null) {
+			otherSites = Utilities.getSignupMeetingsBean().getCreateSitesGroups().getOtherSites();
+		}
+		return otherSites;
+	}
+
+	public SignupSiteWrapper getCurrentSite() {
+		if (currentSite == null) {
+			currentSite = Utilities.getSignupMeetingsBean().getCreateSitesGroups().getCurrentSite();
+		}
+		return currentSite;
 	}
 }

@@ -5,14 +5,14 @@
 
 <f:view locale="#{UserLocale.locale}">
 	<jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
-	   <jsp:setProperty name="msgs" property="baseName" value="messages"/>
+	   <jsp:setProperty name="msgs" property="baseName" value="signup"/>
 	</jsp:useBean>
 	<sakai:view_container title="Signup Tool">
 		<style type="text/css">
-			@import url("/sakai-signup-tool/css/signupStyle.css");
+			@import url("/sakai-signup-tool/css/signupStyle.css${Portal.CDNQuery}");
 		</style>
 		<h:outputText value="#{Portal.latestJQuery}" escape="false"/>
-		<script src="/sakai-signup-tool/js/signupScript.js"></script>
+		<script src="/sakai-signup-tool/js/signupScript.js${Portal.CDNQuery}"></script>
 		<script>
 			var lastActivePanel;
 			var lastClickedAddImage;
@@ -94,9 +94,9 @@
 		         		</h:selectOneRadio> 
 					</h:panelGroup>
 				</h:panelGrid>
-			   <h:panelGroup layout="block" styleClass="table-responsive">
+			   <h:panelGroup layout="block" styleClass="table">
 			   <h:dataTable id="preSignup" value="#{NewSignupMeetingBean.timeSlotWrappers}" var="timeSlot"
-			   		rowClasses="oddTimeSlotRow,evenTimeSlotRow"	columnClasses="timeslotCol,orgMaxAttsCol,assignStudentsCol" styleClass="signupTable"  style="width: 55%"
+			   		rowClasses="oddTimeSlotRow,evenTimeSlotRow"	columnClasses="timeslotCol,orgMaxAttsCol,assignStudentsCol" styleClass="signupTable table table-striped" style="width: 55%"
 			   		binding="#{NewSignupMeetingBean.timeslotWrapperTable}">
 					<h:column>		   
 						<f:facet name="header">

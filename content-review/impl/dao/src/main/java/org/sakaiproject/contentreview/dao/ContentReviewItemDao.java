@@ -83,7 +83,7 @@ public class ContentReviewItemDao extends HibernateCommonDao<ContentReviewItem> 
 		Criteria c = sessionFactory.getCurrentSession()
 				.createCriteria(ContentReviewItem.class)
 				.add(Restrictions.eq("providerId", providerId))
-				.add(Restrictions.in("status", new Long[]{ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_AWAITING_REPORT_CODE, ContentReviewConstants.CONTENT_REVIEW_REPORT_ERROR_RETRY_CODE}));
+				.add(Restrictions.in("status", ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_AWAITING_REPORT_CODE, ContentReviewConstants.CONTENT_REVIEW_REPORT_ERROR_RETRY_CODE));
 		
 		return c.list();
 	}
@@ -115,7 +115,7 @@ public class ContentReviewItemDao extends HibernateCommonDao<ContentReviewItem> 
 		Criteria c = sessionFactory.getCurrentSession()
 				.createCriteria(ContentReviewItem.class)
 				.add(Restrictions.eq("providerId", providerId))
-				.add(Restrictions.in("status", new Long[]{ContentReviewConstants.CONTENT_REVIEW_NOT_SUBMITTED_CODE, ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_CODE}))
+				.add(Restrictions.in("status", ContentReviewConstants.CONTENT_REVIEW_NOT_SUBMITTED_CODE, ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_CODE))
 				.add(Restrictions.lt("nextRetryTime", calendar.getTime()))
 				.setMaxResults(1);
 		

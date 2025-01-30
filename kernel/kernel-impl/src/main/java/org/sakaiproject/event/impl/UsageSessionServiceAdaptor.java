@@ -16,35 +16,38 @@
 
 package org.sakaiproject.event.impl;
 
-import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Formatter;
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
-import java.util.Vector;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.event.api.SessionStateBindingListener;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.api.UsageSessionService;
+import org.sakaiproject.exception.SakaiException;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
@@ -54,7 +57,9 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.user.api.Authentication;
+import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 
 /**
  * <p>
@@ -66,20 +71,16 @@ import org.sakaiproject.user.api.UserDirectoryService;
 public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 {
 	// see http://jira.sakaiproject.org/browse/SAK-3793 for more info about these numbers
-	private static final long WARNING_SAFE_SESSIONS_TABLE_SIZE = 1750000l;
-	private static final long MAX_SAFE_SESSIONS_TABLE_SIZE = 2000000l;
+	private static final long WARNING_SAFE_SESSIONS_TABLE_SIZE = 1750000L;
+	private static final long MAX_SAFE_SESSIONS_TABLE_SIZE = 2000000L;
 
 	/** Storage manager for this service. */
 	protected Storage m_storage = null;
 
 	/** A Cache of recently refreshed users. This is to prevent frequent authentications refreshing user data */
-	protected Cache m_recentUserRefresh = null;
-	
-	/*************************************************************************************************************************************************
-	 * Abstractions, etc.
-	 ************************************************************************************************************************************************/
+	protected Cache<String, Boolean> m_recentUserRefresh = null;
 
-	/**
+    /**
 	 * Construct storage for this service.
 	 */
 	protected Storage newStorage()
@@ -87,16 +88,11 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 		return new ClusterStorage();
 	}
 
-	/*************************************************************************************************************************************************
-	 * Dependencies
-	 ************************************************************************************************************************************************/
-
-	/**
+    /**
 	 * @return the TimeService collaborator.
 	 */
 	protected abstract TimeService timeService();
 
-	/** Dependency: SqlService. */
 	/**
 	 * @return the SqlService collaborator.
 	 */
@@ -167,7 +163,7 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 	 */
 	public void setAutoDdl(String value)
 	{
-		m_autoDdl = Boolean.valueOf(value).booleanValue();
+		m_autoDdl = BooleanUtils.toBoolean(value);
 	}
 
 	/** contains a map of the database dependent handlers. */
@@ -176,7 +172,7 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 	/** The db handler we are using. */
 	protected UsageSessionServiceSql usageSessionServiceSql;
 
-	public void setDatabaseBeans(Map databaseBeans)
+	public void setDatabaseBeans(Map<String, UsageSessionServiceSql> databaseBeans)
 	{
 		this.databaseBeans = databaseBeans;
 	}
@@ -213,7 +209,7 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 			// open storage
 			m_storage.open();
 
-			m_recentUserRefresh = memoryService().newCache("org.sakaiproject.event.api.UsageSessionService.recentUserRefresh");
+			m_recentUserRefresh = memoryService().getCache("org.sakaiproject.event.api.UsageSessionService.recentUserRefresh");
 			
 			log.info("init()");
 		}
@@ -226,16 +222,16 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 		boolean sessionsSizeCheck = serverConfigurationService().getBoolean("sessions.size.check", true);
 		if (sessionsSizeCheck) {
 			long totalSessionsCount = getSessionsCount();
-			if (totalSessionsCount > WARNING_SAFE_SESSIONS_TABLE_SIZE) {
+			if (totalSessionsCount > MAX_SAFE_SESSIONS_TABLE_SIZE) {
+				log.warn("The SAKAI_SESSIONS table size (" + totalSessionsCount + ") has passed the point at which " +
+						"performance will begin to degrade (" + MAX_SAFE_SESSIONS_TABLE_SIZE +
+						"), we recommend you archive older events over to another table, " +
+						"remove older rows, or truncate this table to ensure that performance is not affected negatively");
+			} else if (totalSessionsCount > WARNING_SAFE_SESSIONS_TABLE_SIZE) {
 				log.info("The SAKAI_SESSIONS table size ("+totalSessionsCount+") is approaching the point at which " +
 						"performance will begin to degrade ("+MAX_SAFE_SESSIONS_TABLE_SIZE+
 						"), we recommend you archive older sessions over to another table, " +
 						"remove older rows, or truncate this table before it reaches a size of "+MAX_SAFE_SESSIONS_TABLE_SIZE);
-			} else if (totalSessionsCount > MAX_SAFE_SESSIONS_TABLE_SIZE) {
-				log.warn("The SAKAI_SESSIONS table size ("+totalSessionsCount+") has passed the point at which " +
-						"performance will begin to degrade ("+MAX_SAFE_SESSIONS_TABLE_SIZE+
-						"), we recommend you archive older events over to another table, " +
-						"remove older rows, or truncate this table to ensure that performance is not affected negatively");
 			}
 		}
 	}
@@ -254,9 +250,7 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 	 * UsageSessionService implementation
 	 ************************************************************************************************************************************************/
 
-	/**
-	 * @inheritDoc
-	 */
+	@Override
 	public UsageSession startSession(String userId, String remoteAddress, String userAgent)
 	{
 		// do we have a current session?
@@ -302,23 +296,21 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 			if (m_storage.addSession(session))
 			{
 				// set a CSRF token
-				StringBuffer sb = new StringBuffer();
+				StringBuilder sb = new StringBuilder();
 				sb.append(System.currentTimeMillis());
 				sb.append(session.getId());
 				
 				MessageDigest md;
 				try {
 					md = MessageDigest.getInstance("SHA-256");
-					byte[] digest = md.digest(sb.toString().getBytes("UTF-8"));
+					byte[] digest = md.digest(sb.toString().getBytes(StandardCharsets.UTF_8));
 					String hashedSessionId = byteArray2Hex(digest);					
 					s.setAttribute(SAKAI_CSRF_SESSION_ATTRIBUTE, hashedSessionId);
 				} catch (NoSuchAlgorithmException e) {
 					log.error("Failed to create a hashed session id for use as CSRF token because no SHA-256 support", e);
-				} catch (UnsupportedEncodingException e) {
-					log.error("Failed to create a hashed session id for use as CSRF token because could not get UTF-8 bytes of session id", e);
 				}
-				
-				// set as the current session
+
+                // set as the current session
 				s.setAttribute(USAGE_SESSION_KEY, session);
 
 				return session;
@@ -328,9 +320,7 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 		return null;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public UsageSession getSession()
 	{
 		UsageSession rv = null;
@@ -351,9 +341,7 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 		return rv;
 	}
 
-	/**
-	 * @inheritDoc
-	 */
+	@Override
 	public String getSessionId()
 	{
 		String rv = null;
@@ -382,9 +370,7 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 		return rv;
 	}
 
-	/**
-	 * @inheritDoc
-	 */
+	@Override
 	public SessionState getSessionState(String key)
 	{
 		// map this to the sakai session's tool session concept, using key as the placement id
@@ -398,109 +384,48 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 		return null;
 	}
 
-	/**
-	 * @inheritDoc
-	 */
+	@Override
 	public UsageSession getSession(String id)
 	{
-		UsageSession rv = m_storage.getSession(id);
 
-		return rv;
+        return m_storage.getSession(id);
 	}
 
-	/**
-	 * @inheritDoc
-	 */
-	public List getSessions(List ids)
+	@Override
+	public List<UsageSession> getSessions(String joinTable, String joinAlias, String joinColumn, String joinCriteria, Object[] values)
 	{
-		List rv = m_storage.getSessions(ids);
-
-		return rv;
+        return m_storage.getSessions(joinTable, joinAlias, joinColumn, joinCriteria, values);
 	}
 
-	/**
-	 * @inheritDoc
-	 */
-	public List getSessions(String joinTable, String joinAlias, String joinColumn, String joinCriteria, Object[] values)
+	@Override
+	public Map<String, List<UsageSession>> getOpenSessionsByServer()
 	{
-		List rv = m_storage.getSessions(joinTable, joinAlias, joinColumn, joinCriteria, values);
+		List<UsageSession> openSessions = m_storage.getOpenSessions();
 
-		return rv;
-	}
+		Map<String, List<UsageSession>> byServer = new HashMap<>();
 
-	/**
-	 * @inheritDoc
-	 */
-	public int getSessionInactiveTimeout()
-	{
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public int getSessionLostTimeout()
-	{
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public List getOpenSessions()
-	{
-		return m_storage.getOpenSessions();
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public Map getOpenSessionsByServer()
-	{
-		List all = m_storage.getOpenSessions();
-
-		Map byServer = new TreeMap();
-
-		List current = null;
-		String key = null;
-
-		for (Iterator i = all.iterator(); i.hasNext();)
-		{
-			UsageSession s = (UsageSession) i.next();
-
-			// to start, or when the server changes, create a new inner list and add to the map
-			if ((key == null) || (!key.equals(s.getServer())))
-			{
-				key = s.getServer();
-				current = new Vector();
-				byServer.put(key, current);
-			}
-
-			current.add(s);
-		}
+        for (UsageSession session : openSessions) {
+            String key = session.getServer();
+            List<UsageSession> list = byServer.computeIfAbsent(key, k -> new ArrayList<>());
+            list.add(session);
+        }
 
 		return byServer;
 	}
 
-	/**
-	 * @inheritDoc
-	 */
+	@Override
 	public boolean login(Authentication authn, HttpServletRequest req)
 	{
 		return login(authn.getUid(), authn.getEid(), req.getRemoteAddr(), req.getHeader("user-agent"), null);
 	}
 
-	/**
-	 * @inheritDoc
-	 */
+	@Override
 	public boolean login(Authentication authn, HttpServletRequest req, String event)
 	{
 		return login(authn.getUid(), authn.getEid(), req.getRemoteAddr(), req.getHeader("user-agent"), event);
 	}
 	
-	/**
-	 * @inheritDoc
-	 */
+	@Override
 	public boolean login(String uid, String eid, String remoteaddr, String ua, String event)
 	{
 		// establish the user's session - this has been known to fail
@@ -538,19 +463,15 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 		}
 
 		// post the login event
+		sakaiSession.setAttribute(Session.JUST_LOGGED_IN, Boolean.TRUE);
 		eventTrackingService().post(eventTrackingService().newEvent(event != null ? event : EVENT_LOGIN, null, true));
-
 		return true;
 	}
 
 	
-	/**
-	 * @inheritDoc
-	 */
+	@Override
 	public void logout()
 	{
-		userDirectoryService().destroyAuthentication();
-
 		// invalidate the sakai session, which makes it unavailable, unbinds all the bound objects,
 		// including the session, which will close and generate the logout event
 		Session sakaiSession = sessionManager().getCurrentSession();
@@ -573,6 +494,83 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 			eventTrackingService().post(eventTrackingService().newEvent(EVENT_LOGOUT, null, true), session);
 		}
 		
+	}
+
+	public void impersonateUser(String userId) throws SakaiException {
+
+		Session currentSession = sessionManager().getCurrentSession();
+		if (currentSession != null) {
+			try {
+				User mockUser = userDirectoryService().getUser(userId);
+				String mockUserId = mockUser.getId();
+				String mockUserEid = mockUser.getEid();
+
+				eventTrackingService().post(eventTrackingService().newEvent(UsageSessionService.EVENT_ROLEVIEW_BECOME, userDirectoryService().userReference(mockUserId), false));
+				log.info("Entering into RoleView mode, real user [{}] is impersonating mock user [{}]", currentSession.getUserEid(), mockUserEid);
+
+				// while keeping the official usage session under the real user id,
+				// switch over everything else to be the mock user
+				List<String> saveAttributes = List.of(
+						UsageSessionService.USAGE_SESSION_KEY,
+						UsageSessionService.SAKAI_CSRF_SESSION_ATTRIBUTE);
+				// logout - clear, but do not invalidate, preserving the current session
+				currentSession.clearExcept(saveAttributes);
+				// login - set the user id and eid into session, and refresh this user's authz information
+				currentSession.setUserId(mockUserId);
+				currentSession.setUserEid(mockUserEid);
+				authzGroupService().refreshUser(mockUserId);
+			} catch (UserNotDefinedException undfe) {
+				log.warn("The mock user [{}] could not be found, {}", userId, undfe.toString());
+			} catch (Exception e) {
+				log.error("Could not perform RoleView for user [{}], session [{}] maybe contaminated, {}", userId, currentSession.getId(), e.toString());
+				currentSession.invalidate();
+				throw new SakaiException(e);
+			}
+		} else {
+			log.warn("Switch to roleview was requested for user [{}], but a session does not exist for this request, skipping", userId);
+		}
+	}
+
+	public void restoreUser() throws SakaiException {
+		Session currentSession = sessionManager().getCurrentSession();
+		if (currentSession != null) {
+			UsageSession usageSession = (UsageSession) currentSession.getAttribute(USAGE_SESSION_KEY);
+			if (usageSession != null) {
+				String realUserId = usageSession.getUserId();
+				String realUserEid = usageSession.getUserEid();
+
+				if (StringUtils.isAnyBlank(realUserId, realUserEid)) {
+					log.error("Can not restore session from roleview mode, missing the real user information, session is likely corrupt");
+					currentSession.invalidate();
+					throw new SakaiException("Can not restore session from roleview mode, missing the real user information");
+				}
+
+				// Restore the original user session
+				List<String> saveAttributes = List.of(
+						UsageSessionService.USAGE_SESSION_KEY,
+						UsageSessionService.SAKAI_CSRF_SESSION_ATTRIBUTE);
+				currentSession.clearExcept(saveAttributes);
+
+				currentSession.setUserId(realUserId);
+				currentSession.setUserEid(realUserEid);
+				authzGroupService().refreshUser(realUserId);
+				log.info("Exiting from roleview mode, restored real user [{}] for session [{}]", realUserEid, currentSession.getId());
+			} else {
+				log.error("Can not restore session from roleview mode, missing the original session, session is likely corrupt");
+				currentSession.invalidate();
+				throw new SakaiException("Can not restore session from roleview mode, missing the original session");
+			}
+		} else {
+			log.warn("Restore from roleview for user, but a session does not exist for this request, skipping");
+		}
+	}
+
+	private UsageSession readSqlResultRecord(ResultSet result) {
+		try {
+			return new BaseUsageSession(UsageSessionServiceAdaptor.this, result);
+		} catch (SQLException ignore) {
+			return null;
+		}
 	}
 
 	/*************************************************************************************************************************************************
@@ -616,7 +614,7 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 		 *        The session id List.
 		 * @return The List (UsageSession) of session objects for these ids.
 		 */
-		List getSessions(List ids);
+		List<UsageSession> getSessions(List<String> ids);
 
 		/**
 		 * Access a List of active usage sessions by *arbitrary criteria* for the session ids.
@@ -629,11 +627,11 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 		 *        the column name of the joinTable that is to match the session id in the join ON clause
 		 * @param joinCriteria
 		 *        the criteria of the select (after the where)
-		 * @param fields
+		 * @param values
 		 *        Optional values to go with the criteria in an implementation specific way.
 		 * @return The List (UsageSession) of UsageSession object for these ids.
 		 */
-		List getSessions(String joinTable, String joinAlias, String joinColumn, String joinCriteria, Object[] values);
+		List<UsageSession> getSessions(String joinTable, String joinAlias, String joinColumn, String joinCriteria, Object[] values);
 
 		/**
 		 * This session is now closed.
@@ -656,14 +654,14 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 		 *
 		 * @return a List (UsageSession) of all open sessions, ordered by server, then by start (asc)
 		 */
-		List getOpenSessions();
+		List<UsageSession> getOpenSessions();
 	}
 
 	/*************************************************************************************************************************************************
 	 * SessionState
 	 ************************************************************************************************************************************************/
 
-	public class SessionStateWrapper implements SessionState
+	public static class SessionStateWrapper implements SessionState
 	{
 		/** The ToolSession object wrapped. */
 		protected ToolSession m_session = null;
@@ -673,17 +671,23 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 			m_session = session;
 		}
 
-		/**
-		 * @inheritDoc
-		 */
+		@Override
 		public Object getAttribute(String name)
 		{
 			return m_session.getAttribute(name);
 		}
 
-		/**
-		 * @inheritDoc
-		 */
+		@Override
+		public Object getAttribute(String name, Object def)
+		{
+			Object ret = m_session.getAttribute(name);
+			if (ret == null) {
+				return def;
+			}
+			return ret;
+		}
+
+		@Override
 		public Object setAttribute(String name, Object value)
 		{
 			Object old = m_session.getAttribute(name);
@@ -695,9 +699,7 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 			return old;
 		}
 
-		/**
-		 * @inheritDoc
-		 */
+		@Override
 		public Object removeAttribute(String name)
 		{
 			Object old = m_session.getAttribute(name);
@@ -708,15 +710,13 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 			return old;
 		}
 
-		/**
-		 * @inheritDoc
-		 */
+		@Override
 		public void clear()
 		{
 			// unbind
-			for (Enumeration e = m_session.getAttributeNames(); e.hasMoreElements();)
+			for (Enumeration<String> e = m_session.getAttributeNames(); e.hasMoreElements();)
 			{
-				String name = (String) e.nextElement();
+				String name = e.nextElement();
 				Object value = m_session.getAttribute(name);
 				unBindAttributeValue(name, value);
 			}
@@ -724,20 +724,14 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 			m_session.clearAttributes();
 		}
 
-		/**
-		 * @inheritDoc
-		 */
-		@SuppressWarnings("unchecked")
+		@Override
 		public List<String> getAttributeNames()
 		{
-			List<String> rv = new Vector<String>();
-			for (Enumeration<String> e = m_session.getAttributeNames(); e.hasMoreElements();)
-			{
-				String name = (String) e.nextElement();
-				rv.add(name);
+			List<String> list = new ArrayList<>();
+			for (Enumeration<String> e = m_session.getAttributeNames(); e.hasMoreElements();) {
+				list.add(e.nextElement());
 			}
-
-			return rv;
+			return list;
 		}
 
 		/**
@@ -751,7 +745,7 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 		protected void unBindAttributeValue(String attributeName, Object attribute)
 		{
 			// if this object wants session binding notification
-			if ((attribute != null) && (attribute instanceof SessionStateBindingListener))
+			if (attribute instanceof SessionStateBindingListener)
 			{
 				try
 				{
@@ -775,7 +769,7 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 		protected void bindAttributeValue(String attributeName, Object attribute)
 		{
 			// if this object wants session binding notification
-			if ((attribute != null) && (attribute instanceof SessionStateBindingListener))
+			if (attribute instanceof SessionStateBindingListener)
 			{
 				try
 				{
@@ -795,9 +789,7 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 
 	protected class ClusterStorage implements Storage
 	{
-		/**
-		 * Open and be ready to read / write.
-		 */
+		@Override
 		public void open()
 		{
 			// if we are auto-creating our schema, check and create
@@ -807,20 +799,12 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 			}
 		}
 
-		/**
-		 * Close.
-		 */
+		@Override
 		public void close()
 		{
 		}
 
-		/**
-		 * Take this session into storage.
-		 *
-		 * @param session
-		 *        The usage session.
-		 * @return true if added successfully, false if not.
-		 */
+		@Override
 		public boolean addSession(UsageSession session)
 		{
 			// and store it in the db
@@ -845,7 +829,7 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 				userAgent,
 				session.getStartInstant(),
 				session.getEndInstant(),
-				session.isClosed() ? null : Boolean.valueOf(true)
+				Boolean.valueOf(!session.isClosed())
 			});
 			if (!ok)
 			{
@@ -855,19 +839,11 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 
 			return true;
 
-		} // addSession
+		}
 
-		/**
-		 * Access a session by id
-		 *
-		 * @param id
-		 *        The session id.
-		 * @return The session object.
-		 */
+		@Override
 		public UsageSession getSession(String id)
 		{
-			UsageSession rv = null;
-
 			// check the db
 			String statement = usageSessionServiceSql.getSakaiSessionSql1();
 
@@ -875,102 +851,40 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 			Object[] fields = new Object[1];
 			fields[0] = id;
 
-			List sessions = sqlService().dbRead(statement, fields, new SqlReader()
-			{
-				public Object readSqlResultRecord(ResultSet result)
-				{
-					try
-					{
-						return new BaseUsageSession(UsageSessionServiceAdaptor.this,result);
-					}
-					catch (SQLException ignore)
-					{
-						return null;
-					}
-				}
-			});
+			List<UsageSession> sessions = sqlService().dbRead(statement, fields, UsageSessionServiceAdaptor.this::readSqlResultRecord);
 
-			if (!sessions.isEmpty()) rv = (UsageSession) sessions.get(0);
-
-			return rv;
-
-		} // getSession
-
-		/**
-		 * @inheritDoc
-		 */
-		public List getSessions(List ids)
-		{
-			// TODO: do this in a single SQL call! -ggolden
-			List rv = new Vector();
-			for (Iterator i = ids.iterator(); i.hasNext();)
-			{
-				String id = (String) i.next();
-				UsageSession s = getSession(id);
-				if (s != null)
-				{
-					rv.add(s);
-				}
-			}
-
-			return rv;
+			return sessions.isEmpty() ? null : sessions.get(0);
 		}
 
-		/**
-		 * Access a List of active usage sessions by *arbitrary criteria* for the session ids.
-		 *
-		 * @param joinTable
-		 *        the table name to (inner) join to
-		 * @param joinAlias
-		 *        the alias used in the criteria string for the joinTable
-		 * @param joinColumn
-		 *        the column name of the joinTable that is to match the session id in the join ON clause
-		 * @param joinCriteria
-		 *        the criteria of the select (after the where)
-		 * @param fields
-		 *        Optional values to go with the criteria in an implementation specific way.
-		 * @return The List (UsageSession) of UsageSession object for these ids.
-		 */
-		public List getSessions(String joinTable, String joinAlias, String joinColumn, String joinCriteria, Object[] values)
+		@Override
+		public List<UsageSession> getSessions(List<String> ids)
+		{
+			// TODO: do this in a single SQL call! -ggolden
+			return ids.stream().map(this::getSession).filter(Objects::nonNull).collect(Collectors.toUnmodifiableList());
+		}
+
+		@Override
+		public List<UsageSession> getSessions(String joinTable, String joinAlias, String joinColumn, String joinCriteria, Object[] values)
 		{
 			// use an alias different from the alias given
 			String alias = joinAlias + "X";
 
 			// use criteria as the where clause
 			String statement = usageSessionServiceSql.getSakaiSessionSql3(alias, joinAlias, joinTable, joinColumn, joinCriteria);
-			List sessions = sqlService().dbRead(statement, values, new SqlReader()
-			{
-				public Object readSqlResultRecord(ResultSet result)
-				{
-					try
-					{
-						return new BaseUsageSession(UsageSessionServiceAdaptor.this,result);
-					}
-					catch (SQLException ignore)
-					{
-						return null;
-					}
-				}
-			});
 
-			return sessions;
+            return sqlService().dbRead(statement, values, UsageSessionServiceAdaptor.this::readSqlResultRecord);
 		}
 
-		/**
-		 * This session is now closed.
-		 *
-		 * @param session
-		 *        The session which is closed.
-		 */
+		@Override
 		public void closeSession(UsageSession session)
 		{
 			// close the session on the db
 			String statement = usageSessionServiceSql.getUpdateSakaiSessionSql();
 
 			// process the statement
-			boolean ok = sqlService().dbWrite(statement, new Object[]{
-				session.getEnd(),
-				session.isClosed() ? null : Boolean.valueOf(true),
+			boolean ok = sqlService().dbWrite(statement, new Object[] {
+				session.getEndInstant(),
+                Boolean.valueOf(!session.isClosed()),
 				session.getId()
 			});
 			if (!ok)
@@ -978,8 +892,9 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 				log.warn(".closeSession(): dbWrite failed");
 			}
 
-		} // closeSession
+		}
 
+		@Override
 		public void updateSessionServer(UsageSession session)
 		{
 			// get the update sql statement
@@ -996,31 +911,13 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 			}
 		}
 
-		/**
-		 * Access a list of all open sessions.
-		 *
-		 * @return a List (UsageSession) of all open sessions, ordered by server, then by start (asc)
-		 */
-		public List getOpenSessions()
+		@Override
+		public List<UsageSession> getOpenSessions()
 		{
 			// check the db
 			String statement = usageSessionServiceSql.getSakaiSessionSql2();
-			List sessions = sqlService().dbRead(statement, null, new SqlReader()
-			{
-				public Object readSqlResultRecord(ResultSet result)
-				{
-					try
-					{
-						return new BaseUsageSession(UsageSessionServiceAdaptor.this,result);
-					}
-					catch (SQLException ignore)
-					{
-						return null;
-					}
-				}
-			});
 
-			return sessions;
+            return sqlService().dbRead(statement, null, UsageSessionServiceAdaptor.this::readSqlResultRecord);
 		}
 	}
 
@@ -1028,25 +925,20 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 	 * @return the current total number of sessions in the sessions table (data storage)
 	 */
 	protected long getSessionsCount() {
-		/*
-		 * NOTE: this is a weird way to get the value out but it matches the existing code
-		 * Added for SAK-3793
-		 */
+		// NOTE: this is a weird way to get the value, but it matches the existing code
 		long totalSessionsCount = 0;
 		final String sessionCountStmt = usageSessionServiceSql.getSessionsCountSql();
 		try {
-			List<Long> counts = sqlService().dbRead(sessionCountStmt, null, new SqlReader() {
-				public Object readSqlResultRecord(ResultSet result) {
-					long value = 0;
-					try {
-						value = result.getLong(1);
-					} catch (SQLException ignore) {
-						log.info("Could not get count of sessions table using SQL (" + sessionCountStmt + ")");
-					}
-					return new Long(value);
-				}
-			});
-			if (counts.size() > 0) {
+			List<Long> counts = sqlService().dbRead(sessionCountStmt, null, result -> {
+                long value = 0;
+                try {
+                    value = result.getLong(1);
+                } catch (SQLException ignore) {
+                    log.warn("Could not get count of sessions table using SQL [{}]", sessionCountStmt);
+                }
+                return value;
+            });
+			if (!counts.isEmpty()) {
 				totalSessionsCount = counts.get(0);
 			}
 		} catch (Exception e) {
@@ -1055,29 +947,14 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 		return totalSessionsCount;
 	}
 
-	@SuppressWarnings("unchecked")
+	@Override
 	public int closeSessionsOnInvalidServers(List<String> validServerIds) {
 		String statement = usageSessionServiceSql.getOpenSessionsOnInvalidServersSql(validServerIds);
-		if (log.isDebugEnabled()) log.debug("will get sessions with SQL=" + statement);
-		List<BaseUsageSession> sessions = sqlService().dbRead(statement, null, new SqlReader()
-		{
-			public Object readSqlResultRecord(ResultSet result)
-			{
-				try
-				{
-					return new BaseUsageSession(UsageSessionServiceAdaptor.this,result);
-				}
-				catch (SQLException ignore)
-				{
-					return null;
-				}
-			}
-		});
+		List<UsageSession> sessions = sqlService().dbRead(statement, null, this::readSqlResultRecord);
 		
-		for (BaseUsageSession session : sessions)
-		{
-			if (log.isDebugEnabled()) log.debug("invalidating session " + session.getId());
-			session.invalidate();
+		for (UsageSession session : sessions) {
+			log.debug("invalidating session {}", session.getId());
+			((BaseUsageSession) session).invalidate();
 		}
 		
 		return sessions.size();

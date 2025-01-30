@@ -12,12 +12,11 @@
 
 <f:view>
 	<sakai:view_container title="#{msgs.prefs_title}">
-    <link rel="stylesheet" href="/sakai-user-tool-prefs/css/prefs.css" type="text/css" />
 	<sakai:view_content>
 
 <h:outputText value="#{Portal.latestJQuery}" escape="false"/>
 <f:verbatim>
-	<script type="text/javascript">
+	<script>
 		function removeOverride(cur) {
 			//set to true
 			cur.nextSibling.value=true;
@@ -31,9 +30,9 @@
 	
 		<h:form id="options_form">
 
-		<script type="text/javascript" src="/sakai-user-tool-prefs/js/prefs.js">// </script>
-		<script type="text/javascript" src="/library/js/spinner.js"></script>
-		<script type="text/javascript">
+		<script src="/sakai-user-tool-prefs/js/prefs.js">// </script>
+		<script src="/library/js/spinner.js"></script>
+		<script>
 			$PBJQ(document).ready(function(){
 				fixImplicitLabeling();
 			})
@@ -55,7 +54,7 @@
 <%--(gsilver) selectOneRadio renders a table but will not accept a summary attribute. Need mechanism to tell screen readers that the table is a layour table.	 --%>
 				<p class="instruction"><h:outputText value="#{msgs.noti_inst_second}"/></p>
 
-  			<h:dataTable id="typeOverride" value="#{UserPrefsTool.registeredNotificationItems}" var="decoItem" border="0">
+  			<h:dataTable id="typeOverride" value="#{UserPrefsTool.registeredNotificationItems}" var="decoItem" border="0" styleClass="w-100">
       			<h:column rendered="#{!decoItem.hidden}">
       			   <prefs:prefsHideDivision id="decoItemDiv" title="#{decoItem.userNotificationPreferencesRegistration.sectionTitle}" 
       			      hideByDefault="#{!decoItem.expand}" key="#{decoItem.key}">

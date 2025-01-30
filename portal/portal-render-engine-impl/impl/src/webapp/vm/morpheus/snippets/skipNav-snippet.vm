@@ -15,15 +15,22 @@
                 <span class="accesibility_key">[c]</span>
             </a>
         </li>
+        #if (${userIsLoggedIn})
         <li class="Mrphs-skipNav__menuitem Mrphs-skipNav__menuitem--worksite">
-            <a href="#" id="more-sites-menu" class="Mrphs-skipNav__link js-toggle-sites-nav" title="${rloader.sit_jumpworksite}" accesskey="w">
-                <i class="fa fa-th all-sites-icon" aria-hidden="true"></i> ${rloader.sit_worksites}
+            <a href="#"
+                    data-bs-toggle="offcanvas"
+                    data-bs-target="#select-site-sidebar"
+                    aria-controls="select-site-sidebar"
+                    class="Mrphs-skipNav__link js-toggle-sites-nav"
+                    title="${rloader.sit_jumpworksite}" accesskey="w">
+                <i class="si si-grid-3x3-fill all-sites-icon" aria-hidden="true"></i> ${rloader.sit_worksites}
                 <span class="accesibility_key">[w]</span>
             </a>
         </li>
+        #end ## END of IF ($userIsLoggedIn)
         <li class="Mrphs-skipNav__menuitem Mrphs-skipNav__menuitem--tools">
-            <a href="#totoolmenu" class="Mrphs-skipNav__link js-toggle-tools-nav" title="${rloader.sit_jumptools}" accesskey="l">
-                <i class="fa fa-bars tools-icon" aria-hidden="true"></i>
+            <a id="totool" href="#totoolmenu" class="Mrphs-skipNav__link js-toggle-sites-nav" title="${rloader.sit_jumptools}" accesskey="l">
+                <i class="si si-sakai-sites" aria-hidden="true"></i>
                 ${rloader.sit_menutools}
                 <span class="accesibility_key">[l]</span>
             </a>
@@ -36,6 +43,11 @@
 
                     #if(${sitePages.canManageOverview} && ${page.pageProps.is_home_page})
                         <a href="${sitePages.manageOverviewUrl}" title="$rloader.sit_manover" class="manage-overview-link-mobile">
+                            <span class="si si-edit"></span>$rloader.sit_manover
+                        </a>
+                    #end
+                    #if(${sitePages.canManageOverviewHome} && ${page.pageProps.is_home_page})
+                        <a href="${sitePages.manageOverviewUrlInHome}" title="$rloader.sit_manover" class="manage-overview-link-mobile">
                             <span class="fa fa-pencil"></span>$rloader.sit_manover
                         </a>
                     #end
@@ -44,3 +56,12 @@
         </li>
     </ul>
 </nav>
+<script>
+    window.addEventListener("load", function() {
+
+        document.getElementById("totool").addEventListener("click", function() {
+
+            document.querySelector(".nav-item").focus();
+        });
+    });
+</script>

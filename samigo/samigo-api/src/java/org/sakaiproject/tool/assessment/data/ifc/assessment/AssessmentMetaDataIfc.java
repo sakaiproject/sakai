@@ -32,10 +32,13 @@ public interface AssessmentMetaDataIfc
   public static final String RUBRICS = "ASSESSMENT_RUBRICS";
   public static final String BGCOLOR = "ASSESSMENT_BGCOLOR";
   public static final String BGIMAGE = "ASSESSMENT_BGIMAGE";
+  public static final String TRACK_QUESTIONS = "ASSESSMENT_TRACK_QUESTIONS";
   public static final String ALIAS = "ALIAS";
 
   public static final String CALENDAR_DUE_DATE_EVENT_ID = "CALENDAR_DUE_DATE_EVENT_ID";
-  
+
+  public static final String TO_GRADEBOOK_ID = "TO_GRADEBOOK_ID";
+
   Long getId();
 
   void setId(Long id);

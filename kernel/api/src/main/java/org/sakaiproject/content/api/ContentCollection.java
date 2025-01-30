@@ -68,6 +68,7 @@ public interface ContentCollection
 	 * @return The date/time at which the entity may be accessed by all users.
 	 * @deprecated use {{@link #getReleaseTime()}
 	 */
+	@Deprecated
 	public Time getReleaseDate();
 	
 	/**
@@ -76,6 +77,7 @@ public interface ContentCollection
 	 * @return The date/time at which access to the entity should be restricted.
 	 * @deprecated use {{@link #getRetractTime()}
 	 */
+	@Deprecated
 	public Time getRetractDate();
 	
 	/**

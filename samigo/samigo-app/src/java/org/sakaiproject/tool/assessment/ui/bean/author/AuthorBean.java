@@ -46,6 +46,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.time.api.UserTimeService;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
@@ -128,6 +129,7 @@ public class AuthorBean implements Serializable {
   /* properties used for editing published random pool items */
   private boolean isEditPoolFlow = false;  
   private String editPoolName;
+  private String editPoolNameFixed;
   private String editPoolSectionName;
   private String editPoolSectionId;
 
@@ -894,6 +896,16 @@ public class AuthorBean implements Serializable {
       this.editPoolName = editPoolName;
   }
 
+  public String getEditPoolNameFixed()
+  {
+      return editPoolNameFixed;
+  }
+
+  public void setEditPoolNameFixed(String editPoolNameFixed)
+  {
+      this.editPoolNameFixed = editPoolNameFixed;
+  }
+
   public String getEditPoolSectionName()
   {
       return editPoolSectionName;
@@ -977,5 +989,9 @@ public class AuthorBean implements Serializable {
 
 	public int getAssessmentSortingColumn() {
 		return ServerConfigurationService.getInt("samigo.assessmentSortingColumn", 2);
+	}
+
+	public String getCurrentSiteId() {
+		return AgentFacade.getCurrentSiteId();
 	}
 }

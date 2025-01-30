@@ -37,6 +37,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentMetaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.osid.assessment.impl.AssessmentImpl;
@@ -763,7 +764,7 @@ public class AssessmentBaseFacade
    */
   public void addAssessmentMetaData(String label, String entry) {
     this.assessmentMetaDataMap = getAssessmentMetaDataMap();
-    if (this.assessmentMetaDataMap.get(label)!=null){
+    if (this.assessmentMetaDataMap.containsKey(label)) {
       // just update
       Iterator iter = this.assessmentMetaDataSet.iterator();
       while (iter.hasNext()){
@@ -810,4 +811,15 @@ public class AssessmentBaseFacade
   public void setCategoryId(Long categoryId) {
     this.categoryId = categoryId;
   }
+
+  // Refactor these methods and separate them from getAssessmentMetaDataByLabel and updateAssessmentMetaData to improve migration processes.
+  public String getAssessmentToGradebookNameMetaData() {
+    String label = AssessmentMetaDataIfc.TO_GRADEBOOK_ID;
+    return this.assessmentMetaDataMap.get(label) != null ? (String) this.assessmentMetaDataMap.get(label) : "";
+  }
+
+  public void updateAssessmentToGradebookNameMetaData(String entry) {
+    addAssessmentMetaData(AssessmentMetaDataIfc.TO_GRADEBOOK_ID, entry);
+  }
+
 }

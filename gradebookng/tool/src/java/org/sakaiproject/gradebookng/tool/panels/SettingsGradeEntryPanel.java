@@ -15,9 +15,7 @@
  */
 package org.sakaiproject.gradebookng.tool.panels;
 
-import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.ajax.AjaxEventBehavior;
-import org.apache.wicket.ajax.AjaxRequestTarget;
+import lombok.Getter;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Radio;
 import org.apache.wicket.markup.html.form.RadioGroup;
@@ -25,14 +23,15 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.sakaiproject.gradebookng.tool.model.GbSettings;
-import org.sakaiproject.grading.api.GradeType;
+import org.sakaiproject.grading.api.GradingConstants;
 
 public class SettingsGradeEntryPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
 	IModel<GbSettings> model;
-	private boolean expanded;
+	@Getter
+    private boolean expanded;
 
 	public SettingsGradeEntryPanel(final String id, final IModel<GbSettings> model, final boolean expanded) {
 		super(id, model);
@@ -45,37 +44,15 @@ public class SettingsGradeEntryPanel extends BasePanel {
 		super.onInitialize();
 
 		final WebMarkupContainer settingsGradeEntryPanel = new WebMarkupContainer("settingsGradeEntryPanel");
-		// Preserve the expand/collapse state of the panel
-		settingsGradeEntryPanel.add(new AjaxEventBehavior("shown.bs.collapse") {
-			@Override
-			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
-				settingsGradeEntryPanel.add(new AttributeModifier("class", "panel-collapse collapse in"));
-				SettingsGradeEntryPanel.this.expanded = true;
-			}
-		});
-		settingsGradeEntryPanel.add(new AjaxEventBehavior("hidden.bs.collapse") {
-			@Override
-			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
-				settingsGradeEntryPanel.add(new AttributeModifier("class", "panel-collapse collapse"));
-				SettingsGradeEntryPanel.this.expanded = false;
-			}
-		});
-		if (this.expanded) {
-			settingsGradeEntryPanel.add(new AttributeModifier("class", "panel-collapse collapse in"));
-		}
 		add(settingsGradeEntryPanel);
 
 		// grade entry type
-		final RadioGroup<GradeType> gradeEntry = new RadioGroup<>("gradeEntry",
-				new PropertyModel<GradeType>(this.model, "gradebookInformation.gradeType"));
+		final RadioGroup<Integer> gradeEntry = new RadioGroup<>("gradeEntry",
+                new PropertyModel<>(this.model, "gradebookInformation.gradeType"));
 
-		gradeEntry.add(new Radio<>("points", Model.of(GradeType.POINTS)));
-		gradeEntry.add(new Radio<>("percentages", Model.of(GradeType.PERCENTAGE)));
+		gradeEntry.add(new Radio<>("points", Model.of(GradingConstants.GRADE_TYPE_POINTS)));
+		gradeEntry.add(new Radio<>("percentages", Model.of(GradingConstants.GRADE_TYPE_PERCENTAGE)));
 		settingsGradeEntryPanel.add(gradeEntry);
-
 	}
 
-	public boolean isExpanded() {
-		return this.expanded;
-	}
 }

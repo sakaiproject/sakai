@@ -65,16 +65,6 @@
 			</td>
 		</tr>
 
-		<!-- myspace -->
-		<tr wicket:id="myspaceContainer">
-			<td class="label" wicket:id="myspaceLabel">[myspaceLabel]</td>
-			<td class="content">
-				<label for="myspaceurlinput" class="accessibility-label"><wicket:message key="accessibility.profile.myspaceurl.input"></wicket:message></label>
-				<input type="text" wicket:id="myspaceUrl" class="formInputField" aria-describedby="myspaceUrlFeedback"/>
-				<span wicket:id="myspaceToolTip">[myspaceToolTip]</span>
-				<span class="feedbackLabel" wicket:id="myspaceUrlFeedback">[myspaceUrlFeedback]</span>
-			</td>
-		</tr>
 		<!-- instagram -->
 		<tr wicket:id="instagramContainer">
 			<td class="label" wicket:id="instagramLabel">[instagramLabel]</td>
@@ -83,25 +73,6 @@
 				<input type="text" wicket:id="instagramUrl" class="formInputField" aria-describedby="instagramUrlFeedback"/>
 				<span wicket:id="instagramToolTip">[instagramToolTip]</span>
 				<span class="feedbackLabel" wicket:id="instagramUrlFeedback">[instagramUrlFeedback]</span>
-			</td>
-		</tr>
-		<!-- skype -->
-		<tr wicket:id="skypeContainer">
-			<td class="label" wicket:id="skypeLabel">[facebookLabel]</td>
-			<td class="content">
-				<label for="skypeusernameinput" class="accessibility-label"><wicket:message key="accessibility.profile.skypeusername.input"></wicket:message></label>
-				<input type="text" wicket:id="skypeUsername" class="formInputField" />
-			</td>
-		</tr>
-
-		<!-- twitter -->
-		<tr wicket:id="twitterContainer">
-			<td class="label" wicket:id="twitterLabel">[twitterLabel]</td>
-			<td class="content">
-				<label for="twitterurlinput" class="accessibility-label"><wicket:message key="accessibility.profile.twitterurl.input"></wicket:message></label>
-				<input type="text" wicket:id="twitterUrl" class="formInputField" aria-describedby="twitterUrlFeedback"  />
-				<span wicket:id="twitterToolTip">[twitterToolTip]</span>
-				<span class="feedbackLabel" wicket:id="twitterUrlFeedback">[twitterUrlFeedback]</span>
 			</td>
 		</tr>
 	</table>
@@ -116,7 +87,7 @@
 	<script type="text/javascript">
 		$(document).ready(function(){
 			//initialize tooltip
-			$('[data-toggle="tooltip"]').tooltip();
+			$('[data-bs-toggle="tooltip"]').tooltip();
 		});
 	</script> 
 </wicket:panel>

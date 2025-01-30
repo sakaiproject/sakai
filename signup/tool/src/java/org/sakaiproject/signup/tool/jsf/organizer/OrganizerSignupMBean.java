@@ -1484,4 +1484,17 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 		
 		return MessageFormat.format(proterty, num);
 	}
+	
+	public boolean isShortList(int position, int partOrWait) {
+		int num = 0;
+		if(partOrWait == 1) {
+			num = timeslotWrappers.get(position).getParticipants();
+		}else {
+			num = timeslotWrappers.get(position).getWaitingListSize();
+		}
+		if (num <= Integer.parseInt(getSakaiFacade().getServerConfigurationService().getString("signup.deployList","0"))) {
+			 return true;
+		}
+		return false;
+	}
 }

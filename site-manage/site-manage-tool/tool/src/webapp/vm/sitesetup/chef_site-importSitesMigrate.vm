@@ -15,9 +15,12 @@
 	$tlang.getString("sitinfimp.choose")
 	</p>
 	<form name="importSitesForm" action="#toolForm("$action")" method="post">
-		<div class="table-responsive">
-			<table class ="table table-bordered table-hover table-striped" summary="$tlang.getString("import.choose.list.summary")">
+		<div class="table">
+			<table class ="table table-bordered table-hover table-striped align-middle" summary="$tlang.getString("import.choose.list.summary")">
 				<tr>
+					<th>
+						&nbsp;
+					</th>
 					<th>
 						&nbsp;
 					</th>
@@ -30,12 +33,16 @@
 						</th>
 					#end
 				</tr>
-				#set ($toolCount=0)
 				#foreach($toolId in $selectedTools)
-				#set($selectedSites = $!importSitesTools.get($toolId))
-				#set ($toolCount=$toolCount + 1)
 					#if ($importSupportedTools.contains($toolId))
 						<tr>
+							<td>
+								<button type="button"
+										class="btn btn-icon tool-items-button"
+										data-tool-id="$toolId">
+									<i class="bi bi-caret-right-fill"></i>
+								</button>
+							</td>
 							<td>
 								#set($toolTitle = "")
 
@@ -61,13 +68,10 @@
 									#end
 								</h5>
 							</td>
-							#set ($siteCount=0)
 							#foreach($site in $importSites.keys())
-							#set ($siteCount=$siteCount + 1)
-								<td>
+								<td class="site-cell" data-site-id="$site.Id">
 									#set($toolFound = false)
-									#set($allPages = $site.getPages())
-									#foreach ($page in $allPages)
+									#foreach ($page in $site.getPages())
 										#set($pageTools = $page.getTools())
 										#foreach ($pageTool in $pageTools)
 											#if ($pageTool.getTool().getId() == $toolId)
@@ -82,38 +86,47 @@
 									#end
 								
 									#if ($toolFound)
-										<input type="checkbox" id="toolSite$toolCount$siteCount"
+									<input type="checkbox" id="toolSite-${toolId}-${site.Id}"
 											class="siteimport-tool-checkbox" name="$toolId" value="$site.Id"
+											aria-label="$tlang.getFormattedMessage('import.all', $toolTitle, $formattedText.escapeHtml($site.getTitle()))"
+											data-site-id="$site.Id"
+											data-tool-id="$toolId"
+											title="$tlang.getFormattedMessage('import.all', $toolTitle, $formattedText.escapeHtml($site.getTitle()))"
 											#if ($importOptions.get(${toolId}).isPresent())
-											data-options-id="${toolCount}-${siteCount}-options"
+											data-options-id="${toolId}-${site.Id}-options"
 											#end
 											#if ($!selectedSites.contains($site.Id))
 											checked="checked"
 											#end />
-										<label	class="skip" for="toolSite$toolCount$siteCount">
-											$tlang.getString('import.choose.label1') $toolTitle $tlang.getString('import.choose.label2') $formattedText.escapeHtml($site.getTitle())
-										</label>
 										#if ($importOptions.get(${toolId}).isPresent())
-										<a id="toolSite${toolCount}${siteCount}-options-link" style="display: none;" href="javascript:;" class="siteimport-options-link" data-options-id="${toolCount}-${siteCount}-options" title="$tlang.getString('import.options.title')">
+										<a id="${toolId}-${site.Id}-options-link"
+												href="javascript:;"
+												class="siteimport-options-link fw-bold ms-1 d-none"
+												data-options-id="${toolId}-${site.Id}-options"
+												title="$tlang.getString('import.options.title')">
 											<span title="$tlang.getString('import.options.help')">$tlang.getString('import.options.title').toLowerCase()</span>
 										</a>
-										<div id="${toolCount}-${siteCount}-options" class="siteimport-options">
+										<div id="${toolId}-${site.Id}-options" class="siteimport-options mt-3 ps-4 d-none">
 											#foreach ($option in $importOptions.get(${toolId}).get())
 											#set ($optionPropKey = "import.options." + ${option})
 											#set ($optionPropHelpKey = $optionPropKey + ".help")
 											<div>
 												<label>
-													<input type="checkbox" class="siteimport-option" name="import-option-${option}-tool-${toolId}" title="$tlang.getString(${optionPropHelpKey})" value="true"/>
+													<input type="checkbox"
+														class="siteimport-option"
+														name="${toolId}$${site.id}-import-option-${option}"
+														title="$tlang.getString(${optionPropHelpKey})"
+														value="true"/>
 													$tlang.getString(${optionPropKey})
 												</label>
-												<span class="import-option-help fa fa-question-circle" data-toggle="popover" data-content="$tlang.getString(${optionPropHelpKey})"/>
+												<span class="import-option-help si si-question-circle" data-bs-toggle="popover" data-bs-content="$tlang.getString(${optionPropHelpKey})"/>
 											</div>
 											#end
 										</div>
 										#end
 										#if ($toolId.indexOf("sakai.rwiki") != -1) $tlang.getString("sitinfimp.wikinote") #end
 									#else
-										<input type="checkbox" id="toolSite$toolCount$siteCount"  name="$toolId" value="$site.Id" disabled="disabled" />
+									<input type="checkbox" id="toolSite-${toolId}-${site.Id}"  name="$toolId" value="$site.Id" disabled="disabled" />
 									#end
 								</td>
 							#end
@@ -126,8 +139,9 @@
 		<input type="hidden" name="back" value="59" />
 		<input type="hidden" name="templateIndex" value="60" />
 		<input type="hidden" name="continue" value="$continue" />
+		<input type="hidden" id="import-confirm-message" value="$tlang.getFormattedMessage('sitinfimp.replace.confirm', $formattedText.escapeHtml($currentSite.getTitle()))" />
 		<p class="act">
-			<input type="submit" accesskey="s" class="active" name="eventSubmit_doContinue" value="$tlang.getString('gen.finish')" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			<input type="submit" id="siteimport-finish-button" accesskey="s" class="active" name="eventSubmit_doContinue" value="$tlang.getString('gen.finish')" />
 			<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" onclick="SPNR.disableControlsAndSpin( this, null );" />
 			<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')" onclick="SPNR.disableControlsAndSpin( this, null );" />
 		</p>

@@ -1136,12 +1136,12 @@
 			{
 				if(selectionValue == "${USE_THIS_COPYRIGHT}")
 				{
-					copyrightDiv.className = "show";
+					copyrightDiv.className = "d-block";
 					resizeFrame('grow');
 				}
 				else
 				{
-					copyrightDiv.className = "hide";
+					copyrightDiv.className = "d-none";
 				}
 			}
 		}
@@ -1155,7 +1155,7 @@
 		if (requireChoice && copyrightSelect !== null && copyrightSelect.selectedIndex < 1)
 		{
 			$('#resourceAlert').html('$tlang.getString("label.alert") $copyrightError');
-			$('#resourceAlert').removeClass('hide');
+			$('#resourceAlert').removeClass('d-none');
 			window.scrollTo(0, 0);
 			copyrightSelect.focus();
 
@@ -1270,7 +1270,7 @@
 		// If errors were detected, display error messages
 		if (!noErrors)
 		{
-			$('#resourceAlert').removeClass('hide');
+			$('#resourceAlert').removeClass('d-none');
 			$('#resourceAlert').show();
 			window.scrollTo(0, 0);
 		}

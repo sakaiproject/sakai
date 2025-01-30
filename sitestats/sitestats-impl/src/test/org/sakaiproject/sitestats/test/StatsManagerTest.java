@@ -166,7 +166,8 @@ public class StatsManagerTest extends AbstractTransactionalJUnit4SpringContextTe
 		smi.checkAndSetDefaultPropertiesIfNotSet();
 		assertEquals(true, statsManager.getEnableSiteVisits());
 		assertEquals(true, statsManager.getVisitsInfoAvailable());
-		assertEquals(false, statsManager.getEnableSitePresences()); // off, by default
+		// This will be true if presence.events.log is true
+		assertEquals(true, statsManager.getEnableSitePresences());
 
 		when(serverConfigurationService.getBoolean(eq("display.users.present"), anyBoolean())).thenReturn(false);
 		when(serverConfigurationService.getBoolean(eq("presence.events.log"), anyBoolean())).thenReturn(true);
@@ -176,7 +177,8 @@ public class StatsManagerTest extends AbstractTransactionalJUnit4SpringContextTe
 		smi.checkAndSetDefaultPropertiesIfNotSet();
 		assertEquals(true, statsManager.getEnableSiteVisits());
 		assertEquals(true, statsManager.getVisitsInfoAvailable());
-		assertEquals(false, statsManager.getEnableSitePresences()); // off, by default
+		// This will be true if presence.events.log is true
+		assertEquals(true, statsManager.getEnableSitePresences());
 
 		when(serverConfigurationService.getBoolean(eq("display.users.present"), anyBoolean())).thenReturn(true);
 		when(serverConfigurationService.getBoolean(eq("presence.events.log"), anyBoolean())).thenReturn(false);
@@ -186,7 +188,8 @@ public class StatsManagerTest extends AbstractTransactionalJUnit4SpringContextTe
 		smi.checkAndSetDefaultPropertiesIfNotSet();
 		assertEquals(true, statsManager.getEnableSiteVisits());
 		assertEquals(true, statsManager.getVisitsInfoAvailable());
-		assertEquals(false, statsManager.getEnableSitePresences()); // off, by default
+		// This will be false if presence.events.log is false
+		assertEquals(false, statsManager.getEnableSitePresences());
 
 		when(serverConfigurationService.getBoolean(eq("display.users.present"), anyBoolean())).thenReturn(false);
 		when(serverConfigurationService.getBoolean(eq("presence.events.log"), anyBoolean())).thenReturn(false);
@@ -196,7 +199,8 @@ public class StatsManagerTest extends AbstractTransactionalJUnit4SpringContextTe
 		smi.checkAndSetDefaultPropertiesIfNotSet();
 		assertEquals(false, statsManager.getEnableSiteVisits());
 		assertEquals(false, statsManager.getVisitsInfoAvailable());
-		assertEquals(false, statsManager.getEnableSitePresences()); // off, by default
+		// This will be false if presence.events.log is false
+		assertEquals(false, statsManager.getEnableSitePresences());
 
 		when(serverConfigurationService.getBoolean(eq("display.users.present"), anyBoolean())).thenReturn(true);
 		when(serverConfigurationService.getBoolean(eq("presence.events.log"), anyBoolean())).thenReturn(true);
@@ -206,7 +210,8 @@ public class StatsManagerTest extends AbstractTransactionalJUnit4SpringContextTe
 		smi.checkAndSetDefaultPropertiesIfNotSet();
 		assertEquals(true, statsManager.getEnableSiteVisits());
 		assertEquals(true, statsManager.getVisitsInfoAvailable());
-		assertEquals(false, statsManager.getEnableSitePresences()); // off, by default
+		// This will be true if presence.events.log is true
+		assertEquals(true, statsManager.getEnableSitePresences());
 		
 		// revert
 		when(serverConfigurationService.getBoolean(eq("display.users.present"), anyBoolean())).thenReturn(false);
@@ -217,7 +222,8 @@ public class StatsManagerTest extends AbstractTransactionalJUnit4SpringContextTe
 		smi.checkAndSetDefaultPropertiesIfNotSet();
 		assertEquals(true, statsManager.getEnableSiteVisits());
 		assertEquals(true, statsManager.getVisitsInfoAvailable());
-		assertEquals(false, statsManager.getEnableSitePresences()); // off, by default
+		// This will bw true if presence.events.log is true
+		assertEquals(true, statsManager.getEnableSitePresences());
 	}
 	
 	@Test

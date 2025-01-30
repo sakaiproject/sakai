@@ -46,7 +46,6 @@ import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -97,6 +96,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionAnswerIfc;
 import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionFormulaBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionGlobalVariableBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionVariableBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ImageMapItemBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
@@ -121,7 +121,6 @@ import org.sakaiproject.util.api.FormattedText;
 public class ItemAddListener implements ActionListener {
 
   private static final TagService tagService= (TagService) ComponentManager.get( TagService.class );
-  public static final int MAX_FEEDBACK_CHARS = 4000;
     //private static ContextUtil cu;
   //private String scalename; // used for multiple choice Survey
   private boolean error = false;
@@ -199,15 +198,6 @@ public class ItemAddListener implements ActionListener {
 		context.addMessage(null,new FacesMessage(noPairMatching_err));
 		error=true;
 	    }
-	}
-
-	if(StringUtils.length(item.getCorrFeedback()) > MAX_FEEDBACK_CHARS || StringUtils.length(item.getIncorrFeedback()) > MAX_FEEDBACK_CHARS
-			|| StringUtils.length(item.getGeneralFeedback()) > MAX_FEEDBACK_CHARS
-			|| (CollectionUtils.isNotEmpty(item.getMultipleChoiceAnswers()) && item.getMultipleChoiceAnswers().stream().anyMatch(mc -> StringUtils.length(mc.getFeedback()) > MAX_FEEDBACK_CHARS))
-			|| (CollectionUtils.isNotEmpty(item.getMatchItemBeanList()) && item.getMatchItemBeanList().stream().anyMatch(mi -> StringUtils.length(mi.getCorrMatchFeedback()) > MAX_FEEDBACK_CHARS || StringUtils.length(mi.getIncorrMatchFeedback()) > MAX_FEEDBACK_CHARS))) {
-		String feedbackTooLong = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "feedbackTooLong");
-		context.addMessage(null, new FacesMessage(MessageFormat.format(feedbackTooLong, new Object[]{MAX_FEEDBACK_CHARS})));
-		error = true;
 	}
 
     if(error) { 
@@ -325,7 +315,7 @@ public class ItemAddListener implements ActionListener {
             return;
         }
         
-        // if no errors remove disabled variables and formulas before saving
+        // if no errors remove disabled variables, global variables and formulas before saving
         CalculatedQuestionBean question = item.getCalculatedQuestion();
         Iterator<CalculatedQuestionVariableBean> variableIter = question.getVariables().values().iterator();        
         while (variableIter.hasNext()) {
@@ -339,6 +329,13 @@ public class ItemAddListener implements ActionListener {
             CalculatedQuestionFormulaBean formula = formulaIter.next();
             if (!formula.getActive()) {
                 formulaIter.remove();
+            }
+        }
+        Iterator<CalculatedQuestionGlobalVariableBean> formulaGlobalVarIter = question.getGlobalvariables().values().iterator();
+        while (formulaGlobalVarIter.hasNext()) {
+            CalculatedQuestionGlobalVariableBean globalvariable = formulaGlobalVarIter.next();
+            if (!globalvariable.isActive()) {
+                formulaGlobalVarIter.remove();
             }
         }
     }
@@ -355,6 +352,13 @@ public class ItemAddListener implements ActionListener {
    		return;
    	 }
     }
+    
+    if(item.isTimedQuestion() && ((item.getTimeLimit().intValue()) == 0)){
+        err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "question_timeSelect_error");
+        context.addMessage(null, new FacesMessage(err));
+        return;
+    }
+    
 	try {
 		saveItem(itemauthorbean, assessmentBean);
 
@@ -363,10 +367,10 @@ public class ItemAddListener implements ActionListener {
 		if (!associationParams.isEmpty()) {
 			if (assessmentBean.getAssessment() instanceof AssessmentFacade) {
 				String associationId = assessmentBean.getAssessmentId().toString() + "." + itemauthorbean.getItemId();
-				rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, associationId, associationParams);
+				rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, associationId, associationParams, AgentFacade.getCurrentSiteId());
 			} else if (assessmentBean.getAssessment() instanceof PublishedAssessmentFacade) {
 				String pubAssociationId = RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + assessmentBean.getAssessmentId().toString() + "." + itemauthorbean.getItemId();
-				rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, pubAssociationId, associationParams);
+				rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, pubAssociationId, associationParams, AgentFacade.getCurrentSiteId());
 			}
 		}
 	}
@@ -740,6 +744,7 @@ public class ItemAddListener implements ActionListener {
       log.debug("**** isEditPendingAssessmentFlow : " + isEditPendingAssessmentFlow);
       String target = itemauthor.getTarget();
       boolean isFromQuestionPool = false;
+      String newFeedback;
       if (target != null && (target.equals(ItemAuthorBean.FROM_QUESTIONPOOL) && ! author.getIsEditPoolFlow())) {
     	  isFromQuestionPool = true;
       }
@@ -763,6 +768,12 @@ public class ItemAddListener implements ActionListener {
         	delegate.deleteItemContent(oldId, AgentFacade.getAgentString());
         }
     	item = delegate.getItem(oldId,AgentFacade.getAgentString());
+
+        if (isPendingOrPool) {
+            item.addItemHistorical(item.getLastModifiedBy(), item.getLastModifiedDate());
+        }
+        item.setLastModifiedBy(AgentFacade.getAgentString());
+        item.setLastModifiedDate(new Date());
       }
       else{
      	if (isPendingOrPool) {
@@ -771,6 +782,11 @@ public class ItemAddListener implements ActionListener {
      	else {
      		item = new PublishedItemFacade();
      	}
+
+    	item.setCreatedBy(AgentFacade.getAgentString());
+    	item.setCreatedDate(new Date());
+    	item.setLastModifiedBy(AgentFacade.getAgentString());
+    	item.setLastModifiedDate(new Date());
       }
 
       item.setIsExtraCredit(bean.isExtraCredit());
@@ -790,11 +806,6 @@ public class ItemAddListener implements ActionListener {
 	    item.setAnswerOptionsSimpleOrRich(Integer.valueOf(bean.getAnswerOptionsSimpleOrRich()));
 	    item.setAnswerOptionsRichCount(Integer.valueOf(bean.getAnswerOptionsRichCount()));
   	  }
-      
-      item.setCreatedBy(AgentFacade.getAgentString());
-      item.setCreatedDate(new Date());
-      item.setLastModifiedBy(AgentFacade.getAgentString());
-      item.setLastModifiedDate(new Date());
 
       if (bean.getInstruction() != null) {
         // for matching and matrix Survey
@@ -830,15 +841,18 @@ public class ItemAddListener implements ActionListener {
           // prepare feedback, because this is UPDATE
           // if it's an empty string, we need to update feedback to an empty string
           // not like below (below we don't ADD if the feedback is null or empty string)
-          if ((bean.getCorrFeedback() != null)) {
-            		updateItemFeedback(item, ItemFeedbackIfc.CORRECT_FEEDBACK, stripPtags(bean.getCorrFeedback()));
-              }
-              if ((bean.getIncorrFeedback() != null)) {
-                	updateItemFeedback(item, ItemFeedbackIfc.INCORRECT_FEEDBACK, stripPtags(bean.getIncorrFeedback()));
-              }
-              if ((bean.getGeneralFeedback() != null)) {
-                	updateItemFeedback(item, ItemFeedbackIfc.GENERAL_FEEDBACK, stripPtags(bean.getGeneralFeedback()));
-           }
+          if (StringUtils.isNotEmpty(bean.getCorrFeedback())) {
+                newFeedback = stripPtags(bean.getCorrFeedback());
+                updateItemFeedback(item, ItemFeedbackIfc.CORRECT_FEEDBACK, newFeedback, newFeedback);
+          }
+          if (StringUtils.isNotEmpty(bean.getIncorrFeedback())) {
+                newFeedback = stripPtags(bean.getIncorrFeedback());
+                updateItemFeedback(item, ItemFeedbackIfc.INCORRECT_FEEDBACK, newFeedback, newFeedback);
+          }
+          if (StringUtils.isNotEmpty(bean.getGeneralFeedback())) {
+                newFeedback = stripPtags(bean.getGeneralFeedback());
+                updateItemFeedback(item, ItemFeedbackIfc.GENERAL_FEEDBACK, newFeedback, newFeedback);
+          }
       }
       else {
         	//prepare itemText, including answers
@@ -865,17 +879,17 @@ public class ItemAddListener implements ActionListener {
             item.setItemMetaDataSet(prepareMetaData(item, bean));
 
             // prepare feedback, only store if feedbacks are not empty
-            if ( (bean.getCorrFeedback() != null) &&
-      			  (!bean.getCorrFeedback().equals(""))) {
-            	item.setCorrectItemFeedback(stripPtags(bean.getCorrFeedback()));
+      	  	if (StringUtils.isNotEmpty(bean.getCorrFeedback())) {
+      	  		newFeedback = stripPtags(bean.getCorrFeedback());
+      	  		item.setCorrectItemFeedback(newFeedback, newFeedback);
       	  	}
-      	  	if ( (bean.getIncorrFeedback() != null) &&
-      			  (!bean.getIncorrFeedback().equals(""))) {
-      	  		item.setInCorrectItemFeedback(stripPtags(bean.getIncorrFeedback()));
+      	  	if (StringUtils.isNotEmpty(bean.getIncorrFeedback())) {
+      	  		newFeedback = stripPtags(bean.getIncorrFeedback());
+      	  		item.setInCorrectItemFeedback(newFeedback, newFeedback);
       	  	}
-      	  	if ( (bean.getGeneralFeedback() != null) &&
-      			  (!bean.getGeneralFeedback().equals(""))) {
-      	  		item.setGeneralItemFeedback(stripPtags(bean.getGeneralFeedback()));
+      	  	if (StringUtils.isNotEmpty(bean.getGeneralFeedback())) {
+      	  		newFeedback = stripPtags(bean.getGeneralFeedback());
+      	  		item.setGeneralItemFeedback(newFeedback, newFeedback);
       	  	}
       }
 
@@ -948,7 +962,7 @@ public class ItemAddListener implements ActionListener {
         QuestionPoolBean qpoolbean = (QuestionPoolBean) ContextUtil.lookupBean("questionpool");
         QuestionPoolDataBean contextCurrentPool = qpoolbean.getCurrentPool();
        
-        qpoolbean.buildTree();
+        qpoolbean.buildReadOnlyPoolTree();
 
         /*
             // Reset question pool bean
@@ -1047,6 +1061,7 @@ public class ItemAddListener implements ActionListener {
               section.getData().setLastModifiedDate(item.getLastModifiedDate());
               DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZ");
               section.addSectionMetaData(SectionDataIfc.QUESTIONS_RANDOM_DRAW_DATE, df.format(item.getLastModifiedDate()));
+              section.addSectionMetaData(SectionDataIfc.QUESTIONS_FIXED_DRAW_DATE, df.format(item.getLastModifiedDate()));
               assessdelegate.saveOrUpdateSection(section);
           }
 
@@ -1636,18 +1651,28 @@ public class ItemAddListener implements ActionListener {
 	      List<CalculatedQuestionAnswerIfc> list = new ArrayList<CalculatedQuestionAnswerIfc>();
 	      list.addAll(calcBean.getFormulas().values());
 	      list.addAll(calcBean.getVariables().values());
+	      list.addAll(calcBean.getGlobalvariables().values());
+
+	      // add "|0,0" to global variables
+	      for (CalculatedQuestionAnswerIfc varFormula : list) {
+	          if (varFormula instanceof CalculatedQuestionGlobalVariableBean) {
+	              CalculatedQuestionGlobalVariableBean globalVariable = (CalculatedQuestionGlobalVariableBean) varFormula;
+	              globalVariable.setText(globalVariable.getText() + "|0,0");
+	          }
+	      }
 	      
-	      // loop through all variables and formulas to create ItemText objects
+	      // loop through all variables, global variables and formulas to create ItemText objects
 	      for (CalculatedQuestionAnswerIfc varFormula : list) {
 	          ItemText choiceText = new ItemText();
 	          choiceText.setItem(item.getData());
 	          choiceText.setText(varFormula.getName());
 	          Long sequence = varFormula.getSequence();
 	          choiceText.setSequence(sequence);
+	          choiceText.setAddedButNotExtracted(varFormula.isAddedButNotExtracted());
 	          
 	          Set<AnswerIfc> answerSet = new HashSet<AnswerIfc>();
 	          
-	          // loop through all variables and formulas to create all answers for the ItemText object
+	          // loop through all variables, global variables and formulas to create all answers for the ItemText object
 	          for (CalculatedQuestionAnswerIfc curVarFormula : list) {
 	              String match = curVarFormula.getMatch();
 	              Long curSequence = curVarFormula.getSequence();
@@ -2556,6 +2581,8 @@ public class ItemAddListener implements ActionListener {
 		 * set.add(new ItemMetaData(item.getData(),
 		 * ItemMetaDataIfc.NUMATTEMPTS, bean.getNumAttempts())); }
 		 */
+		
+		set.add(new ItemMetaData(item.getData(), ItemMetaDataIfc.TIMED, bean.isTimedQuestion() ? Integer.toString(bean.getTimeLimit()) : "false"));
 		return set;
   }
 
@@ -2630,6 +2657,9 @@ public class ItemAddListener implements ActionListener {
 		  }
 		  else if (itemMetaData.getLabel().equals(ItemMetaDataIfc.MX_SURVEY_QUESTION_COMMENTFIELD)){
 			  itemMetaData.setEntry(bean.getCommentField());
+		  }
+		  else if (itemMetaData.getLabel().equals(ItemMetaDataIfc.TIMED)){
+			  itemMetaData.setEntry(bean.isTimedQuestion() ? Integer.toString(bean.getTimeLimit()) : "false");
 		  }
 	  }
 	  return itemMetaDataSet;
@@ -2952,29 +2982,30 @@ public class ItemAddListener implements ActionListener {
 		}
 	}
 
-  private void updateItemFeedback(ItemFacade item, String feedbackTypeId, String feedbackText) {
+  private void updateItemFeedback(ItemFacade item, String feedbackTypeId, String feedbackText, String feedbackTextValue) {
 	  Set itemFeedbackSet = item.getItemFeedbackSet();
 	  if ((itemFeedbackSet == null || itemFeedbackSet.size() == 0)) {
-		  item.addItemFeedback(feedbackTypeId, feedbackText);
+		  item.addItemFeedback(feedbackTypeId, feedbackText, feedbackTextValue);
 	  }
 	  else {
-          boolean feedbackTypeExists = false;
+		  boolean feedbackTypeExists = false;
 		  Iterator iter = itemFeedbackSet.iterator();
 		  while (iter.hasNext()) {
 			  ItemFeedbackIfc itemFeedback = (ItemFeedbackIfc) iter.next();
 			  if (itemFeedback.getTypeId().equals(feedbackTypeId)) {
-                  feedbackTypeExists = true;
+				  feedbackTypeExists = true;
 				  itemFeedback.setText(feedbackText);
+				  itemFeedback.setTextValue(feedbackTextValue);
 				  break;
 			  }
 		  }
-          //If the feedback type was not found in the set, add it so changes are not lost.
-          if (!feedbackTypeExists) {
-        	  item.addItemFeedback(feedbackTypeId, feedbackText);
-          }
+		  //If the feedback type was not found in the set, add it so changes are not lost.
+		  if (!feedbackTypeExists) {
+			  item.addItemFeedback(feedbackTypeId, feedbackText, feedbackTextValue);
+		  }
 	  }
   }
-  
+
   private String [] getSurveyChoices(String scalename) {
 	  String[] choices = new String[2];
 	  // label is null because we don't use labels in survey

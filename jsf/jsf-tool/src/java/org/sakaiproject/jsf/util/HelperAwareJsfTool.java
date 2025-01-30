@@ -1,5 +1,5 @@
 /**********************************************************************************
-* $URL:https://source.sakaiproject.org/svn/osp/trunk/common/tool-lib/src/java/org/theospi/portfolio/shared/control/servlet/HelperAwareJsfTool.java $
+* $URL: $
 * $Id:HelperAwareJsfTool.java 9134 2006-05-08 20:28:42Z chmaurer@iupui.edu $
 ***********************************************************************************
 *
@@ -49,6 +49,7 @@ import org.sakaiproject.util.Web;
  * 
  */
 @Slf4j
+@Deprecated
 public class HelperAwareJsfTool extends JsfTool {
 
   private static final String HELPER_EXT = ".helper";
@@ -160,10 +161,7 @@ public class HelperAwareJsfTool extends JsfTool {
 
       // TODO: Should setting the HTTP headers be moved up to the portal level as well?
       res.setContentType("text/html; charset=UTF-8");
-      res.addDateHeader("Expires", System.currentTimeMillis() - (1000L * 60L * 60L * 24L * 365L));
-      res.addDateHeader("Last-Modified", System.currentTimeMillis());
-      res.addHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0");
-      res.addHeader("Pragma", "no-cache");
+      res.addHeader("Cache-Control", "no-store");
 
       // dispatch to the target
       log.debug("dispatching path: " + req.getPathInfo() + " to: " + target + " context: "

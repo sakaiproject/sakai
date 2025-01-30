@@ -71,8 +71,8 @@ public class ViewGradeSummaryAction extends InjectableAction implements Serializ
 		window.setStudentToReturnFocusTo(studentUuid);
 		content.setOutputMarkupId(true);
 
-		final String modalTitle = (new StringResourceModel("heading.studentsummary",
-				null, new Object[] { student.getDisplayName(), student.getDisplayId() })).getString();
+		final String modalTitle = (new StringResourceModel("heading.studentsummary")
+				.setParameters(student.getDisplayName(), student.getDisplayId())).getString();
 
 		window.setTitle(modalTitle);
 		window.show(target);

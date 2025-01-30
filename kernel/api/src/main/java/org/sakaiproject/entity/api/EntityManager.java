@@ -9,7 +9,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.opensource.org/licenses/ECL-2.0
+ * 		http://www.opensource.org/licenses/ECL-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,6 +21,7 @@
 
 package org.sakaiproject.entity.api;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,35 +37,43 @@ public interface EntityManager
 	 * 
 	 * @return List (EntityProducer) of managers that are registered EntityProducer.
 	 */
-	List<EntityProducer> getEntityProducers();
+	Collection<EntityProducer> getEntityProducers();
+
+	default Optional<Entity> getEntity(String reference) {
+		return Optional.empty();
+	}
+
+	default Optional<String> getTool(String reference) {
+		return Optional.empty();
+	}
 
 	/**
 	 * Register this as an EntityProducer.
 	 * 
 	 * @param manager
-	 *        The EntityProducer manager to register.
+	 * 		The EntityProducer manager to register.
 	 * @param referenceRoot
-	 *        The prefix of all entity references handeled by this producer (i.e. "content" if you handle "/content/..." references)
+	 * 		The prefix of all entity references handeled by this producer (i.e. "content" if you handle "/content/..." references)
 	 */
-	void registerEntityProducer(EntityProducer manager, String referenceRoot);
+	void registerEntityProducer(EntityProducer producer, String referenceRoot);
 
 	/**
 	 * Create a new Reference object, from the given reference string.
 	 * 
 	 * @param refString
-	 *        The reference string.
+	 * 		The reference string.
 	 * @return a new reference object made from the given reference string.
 	 */
-	Reference newReference(String refString);
+	Reference newReference(String reference);
 
 	/**
 	 * Create a new Reference object, as a copy of the given Reference object.
 	 * 
 	 * @param copyMe
-	 *        The Reference object to copy
+	 * 		The Reference object to copy
 	 * @return a new Reference object, as a copy of the given Reference object.
 	 */
-	Reference newReference(Reference copyMe);
+	Reference newReference(Reference reference);
 
 	/**
 	 * Create a new List specially designed to hold References.
@@ -77,21 +86,23 @@ public interface EntityManager
 	 * Create a new List specially designed to hold References, as a copy of another.
 	 * 
 	 * @param copyMe
-	 *        Make the new list contain a copy of this list.
+	 * 		Make the new list contain a copy of this list.
 	 * @return a new List specially designed to hold References, as a copy of another.
 	 */
-	List<Reference> newReferenceList(List<Reference> copyMe);
+	List<Reference> newReferenceList(List<Reference> references);
 
 	/**
 	 * Check for a valid reference.
 	 * 
 	 * @param ref
-	 *        a reference string.
+	 * 		a reference string.
 	 * @return true if the reference is valid, false if not.
 	 */
-	boolean checkReference(String ref);
+	boolean checkReference(String reference);
 
-	default Optional<String> getUrl(String ref, Entity.UrlType urlType) {
+	default Optional<String> getUrl(String reference, Entity.UrlType urlType) {
 		return Optional.empty();
 	}
+
+	EntityProducer getEntityProducer(String reference, Reference target);
 }

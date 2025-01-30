@@ -386,7 +386,7 @@ public class ElasticSearchTest {
         elasticSearchIndexBuilder.refreshIndex();
         assertTrue(elasticSearchService.getNDocs() == 0);
         try {
-            SearchList list = elasticSearchService.search("asdf", siteIds, 0, 10);
+            SearchList list = elasticSearchService.search("asdf", siteIds, null, 0, 10);
             assertFalse(list.size() > 0 );
         } catch (InvalidSearchQueryException e) {
             log.error(e.getMessage(), e);
@@ -403,7 +403,7 @@ public class ElasticSearchTest {
         elasticSearchIndexBuilder.deleteAllDocumentForSite(siteId);
 
         try {
-            SearchList list = elasticSearchService.search("asdf", siteIds, 0, 10);
+            SearchList list = elasticSearchService.search("asdf", siteIds, null, 0, 10);
             assertFalse(list.size() > 0);
         } catch (InvalidSearchQueryException e) {
             log.error(e.getMessage(), e);
@@ -427,7 +427,7 @@ public class ElasticSearchTest {
         elasticSearchIndexBuilder.refreshIndex();
 
         try {
-            SearchList list = elasticSearchService.search("asdf", siteIds, 0, 10);
+            SearchList list = elasticSearchService.search("asdf", siteIds, null, 0, 10);
             assertNotEquals(0, list.size());
             SearchResult result = list.get(0);
             assertNotNull(result);
@@ -435,7 +435,7 @@ public class ElasticSearchTest {
             assertTrue(result.getSearchResult().toLowerCase().contains("<b>"));
 
             // Searching the title of the file should also return results
-            list = elasticSearchService.search("keyboard", siteIds, 0, 10);
+            list = elasticSearchService.search("keyboard", siteIds, null, 0, 10);
             assertNotEquals(0, list.size());
             assertNotNull(list.get(0));
             assertEquals(list.get(0).getReference(), resourceName);

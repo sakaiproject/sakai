@@ -33,7 +33,7 @@ public class EditorRegistryImpl implements EditorRegistry {
 	private HashMap<String, Editor> editors = new HashMap<String, Editor>();
 	
 	public void init() {
-		String ckEditorVersion = "4.16.1";
+		String ckEditorVersion = "4.22.1";
 		//TODO: pull this out to somewhere appropriate
 		register("ckeditor", "CKEditor", String.format("/library/webjars/ckeditor4/%s/ckeditor.js", ckEditorVersion) , "/library/editor/ckeditor.launch.js",
 				String.format("var CKEDITOR_BASEPATH='/library/webjars/ckeditor4/%s/';\n", ckEditorVersion));

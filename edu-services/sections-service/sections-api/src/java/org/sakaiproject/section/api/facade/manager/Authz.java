@@ -108,4 +108,11 @@ public interface Authz {
 	 * @return
 	 */
 	public String getRoleDescription(String userUid, String siteContext);
+
+	/**
+	 * Returns true if current user is SuperUser
+	 *
+	 * @return
+	 */
+	public boolean isSuperUser();
 }

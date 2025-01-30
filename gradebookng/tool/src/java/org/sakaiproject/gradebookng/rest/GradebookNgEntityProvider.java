@@ -18,6 +18,7 @@ package org.sakaiproject.gradebookng.rest;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -27,9 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.email.api.EmailService;
@@ -50,14 +49,13 @@ import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.exception.GbAccessDeniedException;
 import org.sakaiproject.gradebookng.business.model.GbGradeCell;
-import org.sakaiproject.grading.api.GradingAuthz;
+import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.grading.api.GradeDefinition;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
-import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 
@@ -225,6 +223,7 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 	@SuppressWarnings("unused")
 	@EntityCustomAction(action = "comments", viewKey = EntityView.VIEW_LIST)
 	public String getComments(final EntityView view, final Map<String, Object> params) {
+
 		// get params
 		final String siteId = (String) params.get("siteId");
 		final long assignmentId = NumberUtils.toLong((String) params.get("assignmentId"));
@@ -240,6 +239,23 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		checkInstructorOrTA(siteId);
 
 		return formattedText.escapeHtml(businessService.getAssignmentGradeComment(siteId, assignmentId, studentUuid));
+	}
+
+	@SuppressWarnings("unused")
+	@EntityCustomAction(action = "courseGradeComment", viewKey = EntityView.VIEW_LIST)
+	public String getCourseGradeComment(final EntityView view, final Map<String, Object> params) {
+		// get params
+		final String siteId = (String) params.get("siteId");
+		final long courseGradeId = NumberUtils.toLong((String) params.get("courseGradeId"));
+		final String studentUuid = (String) params.get("studentUuid");
+		final long gradebookId = NumberUtils.toLong((String) params.get("gradebookId"));
+		// check params supplied are valid
+		if (StringUtils.isBlank(siteId) || gradebookId==0 || courseGradeId == 0 || StringUtils.isBlank(studentUuid)) {
+			throw new IllegalArgumentException("Request data was missing / invalid");
+		}
+		checkValidSite(siteId);
+		checkInstructorOrTA(siteId);
+		return this.businessService.getAssignmentGradeComment(siteId, courseGradeId, studentUuid);
 	}
 
 	private Set<String> getRecipients(Map<String, Object> params) {
@@ -261,21 +277,25 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		final Double minScore = (!StringUtils.isEmpty(minScoreString)) ? Double.valueOf(minScoreString) : null;
 		final Double maxScore = (!StringUtils.isEmpty(maxScoreString)) ? Double.valueOf(maxScoreString) : null;
 
-		Set<String> recipients = null;
-		try {
-			AuthzGroup authzGroup = authzGroupService.getAuthzGroup(groupRef);
-			Set<String> totalRecipients = authzGroup.getUsers();
-			Site site = siteService.getSite(siteId);
-			recipients = site.getUsersIsAllowed(GbRole.STUDENT.getValue());
-			recipients.retainAll(totalRecipients);
-		} catch (GroupNotDefinedException gnde) {
-			throw new IllegalArgumentException("No group defined for " + groupRef);
-		} catch (IdUnusedException idune) {
-			log.warn("IdUnusedException trying to getRecipients", idune);
-		}
+		Set<String> recipients = Set.of();
 
-		List<GradeDefinition> grades
-			= gradingService.getGradesForStudentsForItem(siteId, assignmentId, new ArrayList<String>(recipients));
+		// Get the gradeable users for this one group
+        if (StringUtils.contains(groupRef, "/group/")) {
+            String groupId = groupRef.substring(groupRef.lastIndexOf("/") + 1);
+            List<GbGroup> groups = this.businessService.getSiteSectionsAndGroups(siteId);
+            for (GbGroup group : groups) {
+                if (group.getId().equals(groupId)) {
+                    recipients = new HashSet<>(this.businessService.getGradeableUsers(siteId, group));
+                    break;
+                }
+            }
+        }
+        else {
+            recipients = new HashSet<>(this.businessService.getGradeableUsers(siteId));
+        }
+
+        List<GradeDefinition> grades
+			= gradingService.getGradesForStudentsForItem(siteId, assignmentId, new ArrayList<>(recipients));
 
 		if (MESSAGE_GRADED.equals(action)) {
 			// We want to message graded students. Filter by min and max score, if needed.
@@ -300,9 +320,13 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 			}
 
 			recipients = grades.stream().filter(g -> g.getDateRecorded() != null)
-				.map(g -> g.getStudentUid()).collect(Collectors.toSet());
+				.map(GradeDefinition::getStudentUid).collect(Collectors.toSet());
 		} else if (MESSAGE_UNGRADED.equals(action)) {
-			recipients.removeAll(grades.stream().filter(g -> g.getDateRecorded() != null).map(g -> g.getStudentUid()).collect(Collectors.toSet()));
+			List<GradeDefinition> finalGrades = grades;
+			recipients = recipients.stream()
+				.filter(r -> finalGrades.stream()
+				.noneMatch(g -> g.getDateRecorded() != null && g.getStudentUid().equals(r)))
+				.collect(Collectors.toSet());
 		}
 
 		return recipients;
@@ -314,13 +338,7 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		Set<String> recipients = getRecipients(params);
 
 		if (!recipients.isEmpty()) {
-			List<User> users = recipients.stream().map(s -> {
-				try {
-					return userDirectoryService.getUser(s);
-				} catch (UserNotDefinedException unde) {
-					return null;
-				}
-			}).collect(Collectors.toList());
+			List<User> users = userDirectoryService.getUsers(recipients);
 
 			if (users.contains(null)) {
 				String errorMsg = "At least one of the students to message is null. No messsages sent.";
@@ -360,7 +378,7 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 				log.warn(errorMsg);
 				throw new EntityException(errorMsg, "", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			} else {
-				String from = serverConfigurationService.getString("setup.request", "no-reply@" + serverConfigurationService.getServerName());
+				String from = serverConfigurationService.getSmtpFrom();
 				List<String> headers = new ArrayList<>();
 				String subject = (String) params.get("subject");
 				headers.add("Subject: " + subject);

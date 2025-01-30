@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/common :: head" />
+<body>
+	<div th:replace="fragments/common :: bootstrap" />
+	<div th:include="fragments/common :: admin (${isAdmin})" />
+
+	<div th:if="${isAdmin}">
+		<div class="portletBody">
+			<div id="menu" th:include="fragments/menus :: main (config)" />
+			<div class="page-header">
+			  <h1 th:text="#{config_title}"></h1>
+			</div>
+
+			<div th:include="fragments/common :: error" />
+
+			<form id="userform" th:action="@{/save-config}" method="post">
+				<fieldset class="config-fieldset">
+					<legend th:text="#{config.synchronization_config}"></legend>
+					<div class="form-group" th:classappend="${item.key == 'SYNCH:DELETE_TEAM'}? 'form-child'" th:each="item : ${synch_config_items}">
+						<input type='checkbox' th:id="|cb_${item.key}|" name="synch_config_items" th:checked="${item.value}" th:value="${item.key}" />
+						<label th:for="|cb_${item.key}|" th:text="#{|config.${item.key}|}"></label>
+						
+						<div id="newsite-container" th:if="${item.key} == 'SYNCH:CREATE_TEAM'" th:classappend="${item.value} ? '' : 'hidden'">
+							<th:block th:replace="fragments/siteFilter :: siteFilter (prefix='siteFilter',columnClassName='col-sm-2')">
+							</th:block>
+							<div class="row form-group">
+								<div class="col-sm-2 text-end text-bold property-filter">
+									<label th:text="#{config.sync_duration}" for="syncDuration"></label>
+								</div>
+								<div class="col-sm-4">
+									<input name="syncDuration" id="syncDuration" type="number" min="1" th:value="${syncDuration}" />
+								</div>
+							</div>
+						</div>
+					</div>
+				</fieldset>
+
+				<fieldset class="config-fieldset">
+					<legend th:text="#{config.job_config}"></legend>
+					<div class="form-group">
+						<div th:insert="fragments/siteFilter :: siteFilter (prefix='jobSiteFilter',columnClassName='col-lg-2')">
+						</div>
+					</div>
+				</fieldset>
+				
+				<fieldset class="config-fieldset">
+					<legend th:text="#{config.onedrive_config}"></legend>
+					<div class="form-group">
+						<label>
+							<input type='checkbox' name="onedriveEnabled" th:checked="${onedriveEnabled}" />
+							<span class="title-row" th:text="#{config.onedrive_enabled}">OneDrive enabled</span>
+						</label>
+					</div>
+				</fieldset>
+
+				<fieldset class="config-fieldset">
+					<legend th:text="#{config.collaborative_documents_config}"></legend>
+					<div class="form-group">
+						<label>
+							<span class="title-row" th:text="#{config.max_upload_size}">Max Upload Size</span>
+							<input class="form-control" type='number' min="0" name="maxUploadSize" th:value="${maxUploadSize}" />
+						</label>
+					</div>
+				</fieldset>
+				
+				<fieldset class="config-fieldset">
+					<legend th:text="#{config.id_mapping}"></legend>
+					<div>
+						<label th:text="#{config.sakai_user_id}"></label>
+						<div>
+							<select name="mapped_sakai_user_id">
+								<option th:value=${T(org.sakaiproject.microsoft.api.data.SakaiUserIdentifier).USER_PROPERTY} th:selected="${mapped_sakai_user_id?.name() == 'USER_PROPERTY'}" th:text="#{config.map_user_property}" />
+								<option th:value=${T(org.sakaiproject.microsoft.api.data.SakaiUserIdentifier).USER_EID} th:selected="${mapped_sakai_user_id?.name() == 'USER_EID'}" th:text="#{config.map_user_eid}" />
+								<option th:value=${T(org.sakaiproject.microsoft.api.data.SakaiUserIdentifier).EMAIL} th:selected="${mapped_sakai_user_id?.name() == 'EMAIL'}" th:text="#{config.map_user_email}" />
+							</select>
+						</div>
+					</div>
+					
+					<div>
+						<label th:text="#{config.microsoft_user_id}"></label>
+						<div>
+							<select name="mapped_microsoft_user_id">
+								<option th:value=${T(org.sakaiproject.microsoft.api.data.MicrosoftUserIdentifier).USER_ID} th:selected="${mapped_microsoft_user_id?.name() == 'USER_ID'}" th:text="#{config.map_user_id}" />
+								<option th:value=${T(org.sakaiproject.microsoft.api.data.MicrosoftUserIdentifier).EMAIL} th:selected="${mapped_microsoft_user_id?.name() == 'EMAIL'}" th:text="#{config.map_user_email}" />
+							</select>
+						</div>
+					</div>
+				</fieldset>
+				<div class="act">
+					<input class="active" type='submit' th:value="#{save}" />
+					<input type='button' th:value="#{cancel}" th:onclick="'window.location.href = \'' +@{/index}+ '\''" />
+				</div>
+			</form>
+		</div>
+		
+		<script th:inline="javascript">
+			(function () {
+				document.getElementById('cb_SYNCH:CREATE_TEAM').addEventListener('change', function(e){
+					if(this.checked){
+						//show
+						document.getElementById('newsite-container').classList.remove('hidden');
+					} else {
+						//hide
+						document.getElementById('newsite-container').classList.add('hidden');
+					}
+				});
+
+				document.getElementById('cb_SYNCH:DELETE_TEAM').disabled = !document.getElementById('cb_SYNCH:DELETE_SYNCH').checked;
+				document.getElementById('cb_SYNCH:DELETE_SYNCH').addEventListener('change', function(e){
+					document.getElementById('cb_SYNCH:DELETE_TEAM').disabled = !this.checked;
+				});
+				
+				document.querySelectorAll('.my-info-class').forEach((item) => {
+					new bootstrap.Popover(item);
+				});
+			})();
+		</script>
+	</div>
+</body>
+</html>

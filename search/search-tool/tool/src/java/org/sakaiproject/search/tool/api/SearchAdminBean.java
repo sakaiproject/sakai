@@ -57,7 +57,6 @@ public interface SearchAdminBean
 	 * @return
 	 * @throws PermissionException
 	 *         if the user does not have permissions to perform the action
-	 * @deprecated
 	 */
 	String getIndexStatus(String statusFormatString) throws PermissionException;
 
@@ -67,7 +66,6 @@ public interface SearchAdminBean
 	 *        reaapear, after which time the node will be considered overdue and
 	 *        removed from the list of worker nodes.
 	 * @return
-	 * @deprecated
 	 */
 	String getWorkers(String rowFormat);
 
@@ -77,7 +75,6 @@ public interface SearchAdminBean
 	 * @param adminOptionsFormat
 	 *        format pattern {0} is the URL, {1} is the text
 	 * @return
-	 * @deprecated
 	 */
 	String getAdminOptions(String adminOptionsFormat);
 
@@ -86,7 +83,6 @@ public interface SearchAdminBean
 	 * 
 	 * @param rowFormat
 	 * @return
-	 * @deprecated
 	 */
 	String getIndexDocuments(String rowFormat);
 
@@ -95,7 +91,6 @@ public interface SearchAdminBean
 	 * 
 	 * @param rowFormat
 	 * @return
-	 * @deprecated
 	 */
 	String getGlobalMasterDocuments(String rowFormat);
 
@@ -104,7 +99,6 @@ public interface SearchAdminBean
 	 * 
 	 * @param rowFormat
 	 * @return
-	 * @deprecated
 	 */
 	String getSiteMasterDocuments(String rowFormat);
 
@@ -118,7 +112,6 @@ public interface SearchAdminBean
 	 * 
 	 * @param rowFormat
 	 * @return
-	 * @deprecated
 	 */
 	String getSegmentInfo(String rowFormat);
 

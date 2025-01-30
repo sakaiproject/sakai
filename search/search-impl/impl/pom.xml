@@ -4,7 +4,7 @@
   <parent>
     <artifactId>search</artifactId>
     <groupId>org.sakaiproject.search</groupId>
-    <version>23-SNAPSHOT</version><!-- ProjectVersion -->
+    <version>25-SNAPSHOT</version><!-- ProjectVersion -->
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>search-impl</name>
@@ -89,7 +89,7 @@
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-imaging</artifactId>
-      <version>1.0-alpha3</version>
+      <version>1.0.0-alpha4</version>
     </dependency>
     <dependency>
       <groupId>net.sf.jtidy</groupId>
@@ -120,7 +120,13 @@
     <dependency>
       <groupId>org.apache.pdfbox</groupId>
       <artifactId>pdfbox</artifactId>
-      <version>2.0.26</version>
+      <version>3.0.1</version>
+      <exclusions>
+        <exclusion>
+          <groupId>commons-logging</groupId>
+          <artifactId>commons-logging</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <!-- PDF box uses BouncyCastle for crypotgraphic functions at runtime -->
     <dependency>
@@ -139,15 +145,15 @@
     </dependency>
     <dependency>
       <groupId>org.apache.tika</groupId>
-      <artifactId>tika-parsers</artifactId>
+      <artifactId>tika-parsers-standard-package</artifactId>
     </dependency>
     <dependency>
       <groupId>commons-codec</groupId>
       <artifactId>commons-codec</artifactId>
     </dependency>
     <dependency>
-      <groupId>commons-httpclient</groupId>
-      <artifactId>commons-httpclient</artifactId>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
     </dependency>
 <!--
     HSQL DB does not have clean transaction isolation 
@@ -173,8 +179,8 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-    	<groupId>commons-lang</groupId>
-    	<artifactId>commons-lang</artifactId>
+    	<groupId>org.apache.commons</groupId>
+    	<artifactId>commons-lang3</artifactId>
     </dependency>
     <!--  added for search/entitybroker integration -->
     <dependency>

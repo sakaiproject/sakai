@@ -46,7 +46,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import com.opencsv.CSVWriter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.xml.serializer.utils.XMLChar;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -165,12 +165,12 @@ public class SakaiReport extends AbstractWebService {
             throw new RuntimeException("Report service not enabled.");
         }
         if (session == null) {
-            log.warn("No session for: " + sessionid);
+            log.warn("No session for: {}", sessionid);
             throw new RuntimeException("No session for " + sessionid);
         }
         
         if (!securityService.isSuperUser()) {
-            log.warn("Non super user attempted access to report service: " + session.getUserId());
+            log.warn("Non super user attempted access to report service: {}", session.getUserId());
             throw new RuntimeException("Non super user attempted to access report service: " + session.getUserId());
         }
 
@@ -201,7 +201,7 @@ public class SakaiReport extends AbstractWebService {
 
         // TODO add in shared secret to make this safer
         String calculatedHash = DigestUtils.sha256Hex(sessionid + query);
-        log.info("received hash of: " + hash + " calculated hash value as: " + calculatedHash);
+        log.info("received hash of: {} calculated hash value as: {}", hash, calculatedHash);
         return hash.equals(calculatedHash);
 
     }
@@ -277,7 +277,7 @@ public class SakaiReport extends AbstractWebService {
                         break;
 
                 }
-                log.debug("value: " + row[i - 1]);
+                log.debug("value: {}", row[i - 1]);
             }
             writer.writeNext(row);
 
@@ -292,10 +292,10 @@ public class SakaiReport extends AbstractWebService {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < input.length(); i++) {
             char c = input.charAt(i);
-            if (XMLChar.isValid(c)) {
+            if (StringUtils.isAsciiPrintable(String.valueOf(c))) {
                 sb.append(c);
             } else {
-                log.debug(c + " is not a valid XML char, stripping it: ");
+                log.debug("{} is not a valid XML char, stripping it: ", c);
             }
         }
 

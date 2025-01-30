@@ -27,6 +27,8 @@ public class ConversationsRestBean {
     public String siteId;
     public List<SimpleGroup> groups;
     public List<EntityModel> topics;
+    public boolean canCreateQuestion;
+    public boolean canCreateDiscussion;
     public boolean canCreateTopic;
     public boolean canUpdatePermissions;
     public boolean canEditTags;
@@ -39,5 +41,6 @@ public class ConversationsRestBean {
     public List<Tag> tags;
     public int maxThreadDepth;
     public boolean disableDiscussions;
+    public boolean searchEnabled;
     public TopicTransferBean blankTopic;
 }

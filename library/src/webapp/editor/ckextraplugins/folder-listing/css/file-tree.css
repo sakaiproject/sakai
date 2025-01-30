@@ -102,7 +102,7 @@ ul.jqueryFileTree a:hover {
   font-weight: bold !important;
 }
 .jqueryFileTree li.active  {
-  background-color: #ffeca3;
+  background-color: var(--sakai-background-color-3);
 }
 .jqueryFileTree li.inactive, .jqueryFileTree li.inactive > span  {
   opacity: 0.5 !important;

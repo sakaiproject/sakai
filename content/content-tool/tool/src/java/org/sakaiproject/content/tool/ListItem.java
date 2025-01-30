@@ -572,7 +572,7 @@ public class ListItem
 	                {
 	                	siteTitle = site.getId();
 	                }
-					name = trb.getFormattedMessage("title.resources", new String[]{siteTitle});
+					name = trb.getFormattedMessage("title.resources", siteTitle);
 				}
 			}
 		}
@@ -605,7 +605,7 @@ public class ListItem
 			{
 				String siteType = site.getType();
 				String courseSiteType = ServerConfigurationService.getString("courseSiteType");
-				if(siteType != null && courseSiteType!= null && courseSiteType.equals(siteType))
+				if(courseSiteType != null && courseSiteType.equals(siteType))
 				{
 					this.isCourseSite = true;
 				}
@@ -639,8 +639,7 @@ public class ListItem
 				this.iconClass = ((ExpandableResourceType) typeDef).getIconClass(this.entity, this.isExpanded);
 				this.expandLabel = ((ExpandableResourceType) typeDef).getLocalizedHoverText(this.entity, this.isExpanded);
 			}
-			String[] args = { typeDef.getLabel() };
-			this.otherActionsLabel = trb.getFormattedMessage("action.other", args);
+			this.otherActionsLabel = trb.getFormattedMessage("action.other", typeDef.getLabel());
 		}
 
 		if(this.collection)
@@ -660,8 +659,7 @@ public class ListItem
 	        	}
 	        	else
 	        	{
-		        	String[] args = { Integer.toString(collection_size) };
-		        	shortSizeStr = rb.getFormattedMessage("size.items", args);
+		        	shortSizeStr = rb.getFormattedMessage("size.items", Integer.toString(collection_size));
 	        	}
 			}
 			else if(shortSizeStr.length() > ResourceType.MAX_LENGTH_SHORT_SIZE_LABEL)
@@ -724,7 +722,7 @@ public class ListItem
 						setHasQuota(true);
 						setQuota(Long.toString(quota));
 					}
-					catch (Exception any)
+					catch (Exception ignored)
 					{
 					}
 				}
@@ -792,15 +790,11 @@ public class ListItem
 			{
 				this.copyrightAlert = props.getBooleanProperty(ResourceProperties.PROP_COPYRIGHT_ALERT);
 			} 
-			catch (EntityPropertyNotDefinedException e) 
-			{
-				this.copyrightAlert = false;
-			} 
-			catch (EntityPropertyTypeException e) 
+			catch (EntityPropertyNotDefinedException | EntityPropertyTypeException e)
 			{
 				this.copyrightAlert = false;
 			}
-		}
+        }
 		
 		User creator = ResourcesAction.getUserProperty(props, ResourceProperties.PROP_CREATOR);
 		if(creator != null)
@@ -916,12 +910,10 @@ public class ListItem
 			
 		try {
 			return entity.getProperties().getBooleanProperty(ResourceProperties.PROP_ALLOW_INLINE);
-		} catch (EntityPropertyNotDefinedException e) {
-			return false;
-		} catch (EntityPropertyTypeException e) {
+		} catch (EntityPropertyNotDefinedException | EntityPropertyTypeException e) {
 			return false;
 		}
-	}
+    }
 
 	private void initAllowedAddGroups() 
 	{
@@ -1040,8 +1032,7 @@ public class ListItem
 			this.hoverText = resourceTypeDef.getLocalizedHoverText(null);
 			this.iconLocation = resourceTypeDef.getIconLocation(this.entity);
 			this.iconClass = resourceTypeDef.getIconClass(this.entity);
-			String[] args = { resourceTypeDef.getLabel() };
-			this.otherActionsLabel = trb.getFormattedMessage("action.other", args);
+			this.otherActionsLabel = trb.getFormattedMessage("action.other", resourceTypeDef.getLabel());
 			// NOTE: Don't do this at home kids, this is hackery of the worst order!
 			// Resources of type HTML & Text take on default file names:
 			String nameValue = null;
@@ -1050,7 +1041,7 @@ public class ListItem
 			} else if (getResourceType().endsWith("TextDocumentType")) {
 			    nameValue = trb.getString("new.type.text");
 			} else {
-			    nameValue = trb.getFormattedMessage("create.unknown", args); 
+			    nameValue = trb.getFormattedMessage("create.unknown", resourceTypeDef.getLabel());
 			}
 			this.name = nameValue;
 		}
@@ -1065,8 +1056,7 @@ public class ListItem
 		if(this.collection)
 		{
         	int collection_size = 0;
-        	String[] args = { Integer.toString(0) };
-	        setSize(rb.getFormattedMessage("size.items", args));
+	        setSize(rb.getFormattedMessage("size.items", Integer.toString(0)));
  			setIsEmpty(true);
 			setSortable(false);
 			setIsTooBig(false);
@@ -1095,22 +1085,22 @@ public class ListItem
 				formatter.setMaximumFractionDigits(1);
 				if(size_long > 700000000L)
 				{
-					String[] args = { formatter.format(1.0 * size_long / (1024L * 1024L * 1024L)) };
+					String args = formatter.format(1.0 * size_long / (1024L * 1024L * 1024L));
 					size = rb.getFormattedMessage("size.gb", args);
 				}
 				else if(size_long > 700000L)
 				{
-					String[] args = { formatter.format(1.0 * size_long / (1024L * 1024L)) };
+					String args = formatter.format(1.0 * size_long / (1024L * 1024L));
 					size = rb.getFormattedMessage("size.mb", args);
 				}
 				else if(size_long > 700L)
 				{
-					String[] args = { formatter.format(1.0 * size_long / 1024L) };
+					String args = formatter.format(1.0 * size_long / 1024L);
 					size = rb.getFormattedMessage("size.kb", args);
 				}
 				else 
 				{
-					String[] args = { formatter.format(size_long) };
+					String args = formatter.format(size_long);
 					size = rb.getFormattedMessage("size.bytes", args);
 				}
 			}
@@ -1118,7 +1108,7 @@ public class ListItem
 
 		}
 		
-		if(this.id != null && ! this.id.trim().equals(""))
+		if(this.id != null && !this.id.trim().isEmpty())
 		{
 			this.isDropbox = contentService.isInDropbox(id);
 		}
@@ -1847,7 +1837,7 @@ public class ListItem
 			}
 			else
 			{
-				label = trb.getFormattedMessage("access.site.nochoice", new String[]{parent.getName()});
+				label = trb.getFormattedMessage("access.site.nochoice", parent.getName());
 			}
 		}
 		else if(isGroupInherited())
@@ -2091,6 +2081,7 @@ public class ListItem
     /**
      * @deprecated Use #getShortAccessLabel instead
      */
+	@Deprecated
     public String getEffectiveAccessLabel()
     {
         return getShortAccessLabel();
@@ -2188,12 +2179,10 @@ public class ListItem
                     break;
                 case 2:
                     String secondLabel = getLabelForRole(roleIds.get(1));
-                    String[] twoLabelParams = {firstLabel, secondLabel};
-                    label = rb.getFormattedMessage("access.roleLabel.two", twoLabelParams);
+                    label = rb.getFormattedMessage("access.roleLabel.two", firstLabel, secondLabel);
                     break;
                 default:
-                    String[] multiLabelParams = {firstLabel, Integer.toString(roleIds.size())};
-                    label = rb.getFormattedMessage("access.roleLabel.moreThanTwo", multiLabelParams);
+                    label = rb.getFormattedMessage("access.roleLabel.moreThanTwo", firstLabel, Integer.toString(roleIds.size()));
                     break;
             }
         }
@@ -2265,9 +2254,7 @@ public class ListItem
     	return names.toString();
     }
 
-    /**
-     * @deprecated
-     */
+	@Deprecated
     public String getEffectiveGroupsLabel()
     {
         return getShortAccessLabel();
@@ -2295,11 +2282,11 @@ public class ListItem
 		String label = "";
 		if(size > 9)
 		{
-			label = trb.getFormattedMessage("access.groupsX",  getGroupNameArray(true));
+			label = trb.getFormattedMessage("access.groupsX", (Object[]) getGroupNameArray(true));
 		}
 		else
 		{
-			label = trb.getFormattedMessage("access.groups" + size,  getGroupNameArray(true));
+			label = trb.getFormattedMessage("access.groups" + size, (Object[]) getGroupNameArray(true));
 		}
 		return label;
 	}
@@ -4373,23 +4360,25 @@ public class ListItem
 		formatter.setMaximumFractionDigits(1);
 		if(size_long > 700000000L)
 		{
-			String[] argyles = { formatter.format(1.0 * size_long / (1024L * 1024L * 1024L)), formatter.format(size_long) };
-			sizzle = rb.getFormattedMessage("size.gbytes", argyles);
+			sizzle = rb.getFormattedMessage("size.gbytes",
+					formatter.format(1.0 * size_long / (1024L * 1024L * 1024L)),
+					formatter.format(size_long));
 		}
 		else if(size_long > 700000L)
 		{
-			String[] argyles = { formatter.format(1.0 * size_long / (1024L * 1024L)), formatter.format(size_long) };
-			sizzle = rb.getFormattedMessage("size.mbytes", argyles);
+			sizzle = rb.getFormattedMessage("size.mbytes",
+					formatter.format(1.0 * size_long / (1024L * 1024L)),
+					formatter.format(size_long));
 		}
 		else if(size_long > 700L)
 		{
-			String[] argyles = { formatter.format(1.0 * size_long / 1024L), formatter.format(size_long) };
-			sizzle = rb.getFormattedMessage("size.kbytes", argyles);
+			sizzle = rb.getFormattedMessage("size.kbytes",
+					formatter.format(1.0 * size_long / 1024L),
+					formatter.format(size_long));
 		}
 		else 
 		{
-			String[] args = { formatter.format(size_long) };
-			sizzle = rb.getFormattedMessage("size.bytes", args);
+			sizzle = rb.getFormattedMessage("size.bytes", formatter.format(size_long));
 		}
 		return sizzle;
 	}
@@ -4430,23 +4419,20 @@ public class ListItem
 		formatter.setMaximumFractionDigits(1);
 		if(size_long > 700000000L)
 		{
-			String[] args = { formatter.format(1.0 * size_long / (1024L * 1024L * 1024L)) };
-			size = rb.getFormattedMessage("size.gb", args);
+			size = rb.getFormattedMessage("size.gb", formatter.format(1.0 * size_long / (1024L * 1024L * 1024L)));
 		}
 		else if(size_long > 700000L)
 		{
-			String[] args = { formatter.format(1.0 * size_long / (1024L * 1024L)) };
-			size = rb.getFormattedMessage("size.mb", args);
+			size = rb.getFormattedMessage("size.mb", formatter.format(1.0 * size_long / (1024L * 1024L)));
 
 		}
 		else if(size_long > 700L)
-		{		String[] args = { formatter.format(1.0 * size_long / 1024L) };
-		size = rb.getFormattedMessage("size.kb", args);
+		{
+			size = rb.getFormattedMessage("size.kb", formatter.format(1.0 * size_long / 1024L));
 		}
 		else 
 		{
-			String[] args = { formatter.format(size_long) };
-			size = rb.getFormattedMessage("size.bytes", args);
+			size = rb.getFormattedMessage("size.bytes", formatter.format(size_long));
 		}
 		return size;
 	}

@@ -23,17 +23,7 @@
 
 package org.radeox.filter;
 
-import java.io.ByteArrayOutputStream;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
-
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.xml.serializer.ToXMLStream;
 import org.radeox.api.engine.context.InitialRenderContext;
@@ -46,477 +36,330 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.AttributesImpl;
 
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import java.io.ByteArrayOutputStream;
+import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Stack;
 
 
 /*
  * The paragraph filter finds any text between two empty lines and inserts a
  * <p/> @author stephan @team sonicteam
- * 
+ *
  * @version $Id: ParagraphFilter.java 4158 2005-11-25 23:25:19Z
  *          ian@caret.cam.ac.uk $
  */
 @Slf4j
-public class XHTMLFilter implements Filter, CacheFilter
-{
-
-	private static SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
-	private static final Map blockElements = new HashMap();
-	static
-	{
-		saxParserFactory.setNamespaceAware(true);
-		List l = new ArrayList();
-		l.add("p");
-		blockElements.put("hr", l); // hr cant be nested inside p
-		blockElements.put("h1", l);
-		blockElements.put("h2", l);
-		blockElements.put("h3", l);
-		blockElements.put("h4", l);
-		blockElements.put("h5", l);
-		blockElements.put("h6", l);
-		blockElements.put("h7", l);
-		blockElements.put("ul", l);
-		blockElements.put("ol", l);
-		blockElements.put("div", l);
-		blockElements.put("blockquote", l);
-	}
-
-	private static HashMap emptyTag = new HashMap();
-
-	static
-	{
-		// inclusion els
-		emptyTag.put("img", "img");
-		emptyTag.put("area", "area");
-		emptyTag.put("frame", "frame");
-		// non-standard inclusion els
-		emptyTag.put("layer", "layer");
-		emptyTag.put("embed", "embed");
-		// form el
-		emptyTag.put("input", "input");
-		// default els
-		emptyTag.put("base", "base");
-		// styling els
-		emptyTag.put("col", "col");
-		emptyTag.put("basefont", "basefont");
-		// hidden els
-		emptyTag.put("link", "link");
-		emptyTag.put("meta", "meta");
-		// separator els
-		emptyTag.put("br", "br");
-		emptyTag.put("hr", "hr");
-		// here because our current p implementation is broken
-		// emptyTag.put("p", "p");
-	}
-
-	private static HashMap ignoreEmpty = new HashMap();
-
-	static
-	{
-		ignoreEmpty.put("p", "p");
-	}
-
-	private InitialRenderContext initialContext;
-
-	public String filter(String input, FilterContext context)
-	{
-		String finalOutput = input;
-		try
-		{
-			DeblockFilter dbf = new DeblockFilter();
-			EmptyFilter epf = new EmptyFilter();
-			
-			dbf.setBlockElements(blockElements);
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			SpecialXHTMLSerializer xser = new SpecialXHTMLSerializer();
-			xser.setOutputStream(baos);
-			xser.setIndent(false);
-			xser.setEncoding("UTF-8");
-			xser.setIndentAmount(4);
-			dbf.setContentHandler(epf);
-			epf.setContentHander(xser.asContentHandler());
-			
-			SAXParser parser = saxParserFactory.newSAXParser();
-		
-			XMLReader xmlr = parser.getXMLReader();
-			
-			xmlr.setContentHandler(dbf);
-			// log.warn("Input is "+input);
-			xmlr.parse(new InputSource(new StringReader("<sr>" + input
-					+ "</sr>")));
-
-			String output = new String(baos.toByteArray(), "UTF-8");
-			int startBlock = output.indexOf("<sr>");
-			int endBlock = output.indexOf("</sr>");
-			if(startBlock >= 0 && endBlock >= 0)
-			{
-				finalOutput = output.substring(startBlock + 4, endBlock);
-			}
-			log.debug("Output is "+finalOutput);
-		}
-		catch (Throwable t)
-		{
-			log.error("Failed to XHTML check " + t.getMessage()
-					+ "\n Input======\n" + input + "\n=======");
-			return input;
-		}
-
-		return finalOutput;
-	}
-
-	public String[] replaces()
-	{
-		return FilterPipe.NO_REPLACES;
-	}
-
-	public String[] before()
-	{
-		return FilterPipe.EMPTY_BEFORE;
-	}
-
-	public void setInitialContext(InitialRenderContext context)
-	{
-		initialContext = context;
-
-	}
-
-	public String getDescription()
-	{
-		return "Hand Coded XHTML filter";
-	}
-
-	public class DeblockFilter implements ContentHandler
-	{
-
-		private Stack s = new Stack();
-
-		private ContentHandler ch;
-
-		private Map blockElements = new HashMap();
-
-		public void setContentHandler(ContentHandler ch)
-		{
-			this.ch = ch;
-		}
-
-		public void setBlockElements(Map blockElements)
-		{
-			this.blockElements = blockElements;
-
-		}
-
-		public void addElement(String blockElement, String unnested)
-		{
-			List l = (List) blockElements.get(blockElement);
-			if (l == null)
-			{
-				l = new ArrayList();
-				blockElements.put(blockElement, l);
-			}
-			l.add(unnested);
-		}
-
-		/**
-		 * Unwind the xpath stack back to the first instance of the requested
-		 * emement
-		 * 
-		 * @param deblockElement
-		 */
-		private Stack closeTo(List deblockElements) throws SAXException
-		{
-			int firstIndex = s.size();
-			for (int i = 0; i < s.size(); i++)
-			{
-				EStack es = (EStack) s.get(i);
-				if (deblockElements.contains(es.lname))
-				{
-					firstIndex = i;
-				}
-			}
-			EStack es = null;
-			Stack sb = new Stack();
-			while (s.size() > firstIndex)
-			{
-				es = (EStack) s.pop();
-				// log.warn("Closing "+es.qname);
-				ch.endElement(es.ns, es.qname, es.lname);
-				sb.push(es);
-			}
-			// log.warn("End Close");
-			return sb;
-		}
-
-		/**
-		 * Check each element to see if its in a list of elements which is
-		 * should not be inside If it is one of these elements, get a list of
-		 * elements, and unwind to that it is not inside the stack
-		 * 
-		 * @{inheritDoc}
-		 */
-		public void startElement(String ns, String qname, String lname,
-				Attributes atts) throws SAXException
-		{
-			if (blockElements.get(lname) != null)
-			{
-				s.push(new EStack(ns, qname, lname, atts,
-						closeTo((List) blockElements.get(lname))));
-			}
-			else
-			{
-				s.push(new EStack(ns, qname, lname, atts, null));
-			}
-			ch.startElement(ns, qname, lname, atts);
-		}
-
-		/**
-		 * When we get to the end element, pop the Stack element off the stack.
-		 * If there is arestore path, restore the path back in place by emitting
-		 * start elements
-		 * 
-		 * @{inheritDoc}
-		 */
-		public void endElement(String arg0, String arg1, String arg2)
-				throws SAXException
-		{
-			ch.endElement(arg0, arg1, arg2);
-			EStack es = (EStack) s.pop();
-			if (es.restore != null)
-			{
-				while (es.restore.size() > 0)
-				{
-					EStack esr = (EStack) es.restore.pop();
-					// log.warn("Restore "+esr.lname);
-					ch.startElement(esr.ns, esr.qname, esr.lname, esr.atts);
-					s.push(esr);
-				}
-			}
-		}
-
-		public void characters(char[] arg0, int arg1, int arg2)
-				throws SAXException
-		{
-			ch.characters(arg0, arg1, arg2);
-		}
-
-		public void ignorableWhitespace(char[] arg0, int arg1, int arg2)
-				throws SAXException
-		{
-			ch.ignorableWhitespace(arg0, arg1, arg2);
-		}
-
-		public void processingInstruction(String arg0, String arg1)
-				throws SAXException
-		{
-			ch.processingInstruction(arg0, arg1);
-		}
-
-		public void skippedEntity(String arg0) throws SAXException
-		{
-			ch.skippedEntity(arg0);
-		}
-
-		public void setDocumentLocator(Locator arg0)
-		{
-			ch.setDocumentLocator(arg0);
-		}
-
-		public void startDocument() throws SAXException
-		{
-			ch.startDocument();
-		}
-
-		public void endDocument() throws SAXException
-		{
-			ch.endDocument();
-		}
-
-		public void startPrefixMapping(String arg0, String arg1)
-				throws SAXException
-		{
-			ch.startPrefixMapping(arg0, arg1);
-		}
-
-		public void endPrefixMapping(String arg0) throws SAXException
-		{
-			ch.endPrefixMapping(arg0);
-		}
-
-	}
-
-	public class EmptyFilter implements ContentHandler
-	{
-
-		
-		private ContentHandler next = null;
-
-		private EStack lastElement = null;
-
-		public EmptyFilter()
-		{
-		}
-
-		public void setContentHander(ContentHandler handler)
-		{
-			next = handler;
-		}
-
-		public void setDocumentLocator(Locator arg0)
-		{
-			next.setDocumentLocator(arg0);
-		}
-
-		public void startDocument() throws SAXException
-		{
-			emitLast();
-			next.startDocument();
-		}
-
-		public void endDocument() throws SAXException
-		{
-			emitLast();
-			next.endDocument();
-		}
-
-		public void startPrefixMapping(String arg0, String arg1)
-				throws SAXException
-		{
-			emitLast();
-			next.startPrefixMapping(arg0, arg1);
-		}
-
-		public void endPrefixMapping(String arg0) throws SAXException
-		{
-			emitLast();
-			next.endPrefixMapping(arg0);
-		}
-
-		public void emitLast() throws SAXException
-		{
-			if (lastElement != null)
-			{
-				// this means that there was a startElement, startElement,
-				// so the lastElement MUST be emited
-				next.startElement(lastElement.ns, lastElement.qname,
-						lastElement.lname, lastElement.atts);
-				lastElement = null;
-			}
-		}
-
-		public void startElement(String ns, String qname, String lname,
-				Attributes atts) throws SAXException
-		{
-			emitLast();
-			if (ignoreEmpty.get(lname.toLowerCase()) != null)
-			{
-				lastElement = new EStack(ns, qname, lname, atts, null);
-			}
-			else
-			{
-				next.startElement(ns, qname, lname, atts);
-			}
-		}
-
-		public void endElement(String arg0, String arg1, String arg2)
-				throws SAXException
-		{
-			if (lastElement != null)
-			{
-				// there was a start, then an end with nothing in between
-				// so ignore alltogether
-				lastElement = null;
-			}
-			else
-			{
-				next.endElement(arg0, arg1, arg2);
-			}
-		}
-
-		public void characters(char[] arg0, int arg1, int arg2)
-				throws SAXException
-		{
-			emitLast();
-			next.characters(arg0, arg1, arg2);
-		}
-
-		public void ignorableWhitespace(char[] arg0, int arg1, int arg2)
-				throws SAXException
-		{
-			emitLast();
-			next.ignorableWhitespace(arg0, arg1, arg2);
-		}
-
-		public void processingInstruction(String arg0, String arg1)
-				throws SAXException
-		{
-			emitLast();
-			next.processingInstruction(arg0, arg1);
-		}
-
-		public void skippedEntity(String arg0) throws SAXException
-		{
-			emitLast();
-			next.skippedEntity(arg0);
-		}
-
-
-	}
-
-	public class EStack
-	{
-		public EStack(String ns, String qname, String lname, Attributes atts,
-				Stack restore)
-		{
-			this.ns = ns;
-			this.qname = qname;
-			this.lname = lname;
-			this.atts = new AttributesImpl(atts);
-			this.restore = restore;
-		}
-
-		public EStack(EStack es)
-		{
-			this.ns = es.ns;
-			this.qname = es.qname;
-			this.lname = es.lname;
-			this.atts = new AttributesImpl(es.atts);
-			this.restore = es.restore;
-		}
-
-		Stack restore = null;
-
-		String ns;
-
-		String qname;
-
-		String lname;
-
-		Attributes atts;
-	}
-
-	/**
-	 * @author andrew
-	 */
-	public class SpecialXHTMLSerializer extends ToXMLStream
-	{
-
-		private static final String XHTML_NAMESPACE = "http://www.w3.org/1999/xhtml";
-
-		public void endElement(String namespaceURI, String localName,
-				String name) throws SAXException
-		{
-			if ((namespaceURI != null && !"".equals(namespaceURI) && !namespaceURI
-					.equals(XHTML_NAMESPACE))
-					|| emptyTag.containsKey(localName.toLowerCase()))
-			{
-				super.endElement(namespaceURI, localName, name);
-				return;
-			}
-
-			this.characters("");
-
-			super.endElement(namespaceURI, localName, name);
-
-		}
-
-	}
-
+public class XHTMLFilter implements Filter, CacheFilter {
+
+    @Setter private InitialRenderContext initialContext;
+
+    private final Map<String, List<String>> blockElements = new HashMap<>();
+    private final Map<String, String> emptyTag = new HashMap<>();
+    private final Map<String, String> ignoreEmpty = new HashMap<>();
+    private final SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
+
+    public XHTMLFilter() {
+        saxParserFactory.setNamespaceAware(true);
+        List<String> p = List.of("p");
+        blockElements.put("hr", p); // hr cant be nested inside p
+        blockElements.put("h1", p);
+        blockElements.put("h2", p);
+        blockElements.put("h3", p);
+        blockElements.put("h4", p);
+        blockElements.put("h5", p);
+        blockElements.put("h6", p);
+        blockElements.put("h7", p);
+        blockElements.put("ul", p);
+        blockElements.put("ol", p);
+        blockElements.put("div", p);
+        blockElements.put("blockquote", p);
+
+        // inclusion els
+        emptyTag.put("img", "img");
+        emptyTag.put("area", "area");
+        emptyTag.put("frame", "frame");
+        // non-standard inclusion els
+        emptyTag.put("layer", "layer");
+        emptyTag.put("embed", "embed");
+        // form el
+        emptyTag.put("input", "input");
+        // default els
+        emptyTag.put("base", "base");
+        // styling els
+        emptyTag.put("col", "col");
+        emptyTag.put("basefont", "basefont");
+        // hidden els
+        emptyTag.put("link", "link");
+        emptyTag.put("meta", "meta");
+        // separator els
+        emptyTag.put("br", "br");
+        emptyTag.put("hr", "hr");
+        // here because our current p implementation is broken
+        // emptyTag.put("p", "p");
+        ignoreEmpty.put("p", "p");
+    }
+
+    public String filter(String input, FilterContext context) {
+        String finalOutput = input;
+        try {
+            DeBlockFilter deblockFilter = new DeBlockFilter();
+            EmptyFilter emptyFilter = new EmptyFilter();
+
+            deblockFilter.setBlockElements(blockElements);
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            ToXMLStream xmlStream = new ToXMLStream();
+            xmlStream.setOutputStream(outputStream);
+            xmlStream.setIndent(false);
+            xmlStream.setEncoding("UTF-8");
+            xmlStream.setIndentAmount(4);
+            deblockFilter.setContentHandler(emptyFilter);
+            emptyFilter.setContentHandler(xmlStream.asContentHandler());
+
+            SAXParser parser = saxParserFactory.newSAXParser();
+
+            XMLReader xmlReader = parser.getXMLReader();
+
+            xmlReader.setContentHandler(deblockFilter);
+            xmlReader.parse(new InputSource(new StringReader("<sr>" + input + "</sr>")));
+
+            String output = outputStream.toString(StandardCharsets.UTF_8);
+            int startBlock = output.indexOf("<sr>");
+            int endBlock = output.indexOf("</sr>");
+            if (startBlock >= 0 && endBlock >= 0) {
+                finalOutput = output.substring(startBlock + 4, endBlock);
+            }
+            log.debug("Output is {}", finalOutput);
+        } catch (Exception e) {
+            log.error("Failed to XHTML check {}\n Input======\n{}\n=======", e, input);
+            return input;
+        }
+
+        return finalOutput;
+    }
+
+    public String[] replaces() {
+        return FilterPipe.NO_REPLACES;
+    }
+
+    public String[] before() {
+        return FilterPipe.EMPTY_BEFORE;
+    }
+
+    public String getDescription() {
+        return "Hand Coded XHTML filter";
+    }
+
+    public static class DeBlockFilter implements ContentHandler {
+
+        @Setter private Map<String, List<String>> blockElements = new HashMap<>();
+        @Setter private ContentHandler contentHandler;
+        private final Stack<EStack> stack = new Stack<>();
+
+        public void addElement(String blockElement, String unnested) {
+            List<String> element = blockElements.computeIfAbsent(blockElement, k -> new ArrayList<>());
+            element.add(unnested);
+        }
+
+        /**
+         * Unwind the xpath stack back to the first instance of the requested element
+         */
+        private Stack<EStack> closeTo(List<String> deBlockElements) throws SAXException {
+            int firstIndex = stack.size();
+            for (int i = 0; i < stack.size(); i++) {
+                EStack es = stack.get(i);
+                if (deBlockElements.contains(es.lname)) {
+                    firstIndex = i;
+                }
+            }
+            EStack es;
+            Stack<EStack> sb = new Stack<>();
+            while (stack.size() > firstIndex) {
+                es = stack.pop();
+                contentHandler.endElement(es.ns, es.qname, es.lname);
+                sb.push(es);
+            }
+            return sb;
+        }
+
+        /**
+         * Check each element to see if it's in a list of elements which is
+         * should not be inside If it is one of these elements, get a list of
+         * elements, and unwind to that it is not inside the stack
+         */
+        public void startElement(String ns, String qname, String lname, Attributes atts) throws SAXException {
+            if (blockElements.get(lname) != null) {
+                stack.push(new EStack(ns, qname, lname, atts, closeTo(blockElements.get(lname))));
+            } else {
+                stack.push(new EStack(ns, qname, lname, atts, null));
+            }
+            contentHandler.startElement(ns, qname, lname, atts);
+        }
+
+        /**
+         * When we get to the end element, pop the Stack element off the stack.
+         * If there is a restore path, restore the path back in place by emitting
+         * start elements
+         */
+        public void endElement(String uri, String localName, String qName) throws SAXException {
+            contentHandler.endElement(uri, localName, qName);
+            EStack es = stack.pop();
+            if (es.restore != null) {
+                while (!es.restore.isEmpty()) {
+                    EStack esr = es.restore.pop();
+                    contentHandler.startElement(esr.ns, esr.qname, esr.lname, esr.atts);
+                    stack.push(esr);
+                }
+            }
+        }
+
+        public void characters(char[] ch, int start, int length) throws SAXException {
+            contentHandler.characters(ch, start, length);
+        }
+
+        public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException {
+            contentHandler.ignorableWhitespace(ch, start, length);
+        }
+
+        public void processingInstruction(String target, String data) throws SAXException {
+            contentHandler.processingInstruction(target, data);
+        }
+
+        public void skippedEntity(String name) throws SAXException {
+            contentHandler.skippedEntity(name);
+        }
+
+        public void setDocumentLocator(Locator locator) {
+            contentHandler.setDocumentLocator(locator);
+        }
+
+        public void startDocument() throws SAXException {
+            contentHandler.startDocument();
+        }
+
+        public void endDocument() throws SAXException {
+            contentHandler.endDocument();
+        }
+
+        public void startPrefixMapping(String prefix, String uri) throws SAXException {
+            contentHandler.startPrefixMapping(prefix, uri);
+        }
+
+        public void endPrefixMapping(String prefix) throws SAXException {
+            contentHandler.endPrefixMapping(prefix);
+        }
+
+    }
+
+    public class EmptyFilter implements ContentHandler {
+        @Setter private ContentHandler contentHandler = null;
+        private EStack lastElement = null;
+
+        public EmptyFilter() {
+        }
+
+        public void setDocumentLocator(Locator locator) {
+            contentHandler.setDocumentLocator(locator);
+        }
+
+        public void startDocument() throws SAXException {
+            emitLast();
+            contentHandler.startDocument();
+        }
+
+        public void endDocument() throws SAXException {
+            emitLast();
+            contentHandler.endDocument();
+        }
+
+        public void startPrefixMapping(String prefix, String uri) throws SAXException {
+            emitLast();
+            contentHandler.startPrefixMapping(prefix, uri);
+        }
+
+        public void endPrefixMapping(String prefix) throws SAXException {
+            emitLast();
+            contentHandler.endPrefixMapping(prefix);
+        }
+
+        public void emitLast() throws SAXException {
+            if (lastElement != null) {
+                // this means that there was a startElement, startElement,
+                // so the lastElement MUST be emitted
+                contentHandler.startElement(lastElement.ns, lastElement.qname, lastElement.lname, lastElement.atts);
+                lastElement = null;
+            }
+        }
+
+        public void startElement(String ns, String qname, String lname, Attributes atts) throws SAXException {
+            emitLast();
+            if (ignoreEmpty.get(lname.toLowerCase()) != null) {
+                lastElement = new EStack(ns, qname, lname, atts, null);
+            } else {
+                contentHandler.startElement(ns, qname, lname, atts);
+            }
+        }
+
+        public void endElement(String uri, String localName, String qName) throws SAXException {
+            if (lastElement != null) {
+                // there was a start, then an end with nothing in between
+                // so ignore all together
+                lastElement = null;
+            } else {
+                contentHandler.endElement(uri, localName, qName);
+            }
+        }
+
+        public void characters(char[] ch, int start, int length) throws SAXException {
+            emitLast();
+            contentHandler.characters(ch, start, length);
+        }
+
+        public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException {
+            emitLast();
+            contentHandler.ignorableWhitespace(ch, start, length);
+        }
+
+        public void processingInstruction(String target, String data) throws SAXException {
+            emitLast();
+            contentHandler.processingInstruction(target, data);
+        }
+
+        public void skippedEntity(String name) throws SAXException {
+            emitLast();
+            contentHandler.skippedEntity(name);
+        }
+
+
+    }
+
+    public static class EStack {
+        Attributes atts;
+        String lname;
+        String ns;
+        String qname;
+        Stack<EStack> restore;
+
+        public EStack(String ns, String qname, String lname, Attributes atts, Stack<EStack> restore) {
+            this.ns = ns;
+            this.qname = qname;
+            this.lname = lname;
+            this.atts = new AttributesImpl(atts);
+            this.restore = restore;
+        }
+
+        public EStack(EStack es) {
+            this.ns = es.ns;
+            this.qname = es.qname;
+            this.lname = es.lname;
+            this.atts = new AttributesImpl(es.atts);
+            this.restore = es.restore;
+        }
+    }
 }

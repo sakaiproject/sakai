@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>How do I install Sakai Plus in my enterprise LMS?</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta content="" name="description">
+<link href="../css/help.css" media="all" rel="stylesheet" type="text/css" charset="utf-8">
+<link href="/library/webjars/fontawesome/4.7.0/css/font-awesome.min.css" media="screen" rel="stylesheet">
+<link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
+<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="/library/js/headscripts.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" charset="utf-8">
+    includeWebjarLibrary('featherlight');
+    $(document).ready(function(){
+      $("a.screensteps-image-zoom").featherlight({
+        type: { image:true },
+        closeOnClick: 'anywhere'
+      }); 
+    });   
+</script>
+</head>
+<body>
+  <div><div>
+<div><h1 class="article-title">How do I install Sakai Plus in my enterprise LMS?</h1></div>
+<div>
+
+
+
+    <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
+  <div id="text-content_23b202d1-58f7-4c61-bdd5-019d44236e1a" class="text-block-content">
+    <p>This page contains documentation on how to install Sakai Plus into a number of LMS systems. The exact steps may vary depending on the system and version you are using. Please consult your enterprise LMS documentation for more information on setting up and configuring LTI tools. </p>
+  </div>
+</div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="to-access-this-tool-select-plus-admin-from-the-left-menu-in-the-administration-workspace">
+    <h2 class="step-title screensteps-heading">To access this tool, select Plus Admin from the left menu in the Administration Workspace.</h2>
+        <div class="image screensteps-image">
+      <img src="https://media.screensteps.com/image_assets/assets/008/297/348/original/efe2a508-b9b2-44a8-9483-f2225a8c4ae1.png" alt="" height="198" width="261">
+  </div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="select-the-add-tenant-button-to-create-a-new-tenant">
+    <h2 class="step-title screensteps-heading">Select the Add Tenant button to create a new tenant.</h2>
+        <div class="image screensteps-image">
+      <a href="https://media.screensteps.com/image_assets/assets/008/297/350/original/fe4c3eb5-17a3-4fb7-b5e0-477f8f80a164.png" class="screensteps-image-zoom">
+        <img src="https://media.screensteps.com/image_assets/assets/008/297/350/medium/fe4c3eb5-17a3-4fb7-b5e0-477f8f80a164.png" alt="" height="256" width="855">
+      </a>
+  </div>
+ 
+      <div class="step-instructions screensteps-textblock">
+  <div id="text-content_9086d015-480d-4db6-8f68-35b5fbeea51b" class="text-block-content">
+    <p>A Sakai Plus server can support many "tenants." Each Learning System that you are plugging Sakai Plus into should have its own tenant. In Sakai Plus, all data within a tenant is isolated (each tenant is a "silo"). This way you can have a multi-tenant Sakai Plus server to serve many different learning systems. However it is also a quite typical use case to have one Enterprise LMS - say Canvas and one Sakai Plus server for the same school and to have a single Tenant entry in Sakai Plus for the Canvas system.</p>
+  </div>
+</div>
+ 
+      <div class="step-instructions screensteps-textblock screensteps-wrapper--info screensteps-wrapper">
+  <div id="text-content_9ae2f32d-31a4-4bfb-a184-d35af0f1f44e" class="text-block-content">
+    <p>You can create a "draft" tenant with a Title and Issuer and optionally a Registration Lock. Once you have created a draft tenant, you can view the tenant to either start the LTI Dynamic Registration process or provide tool configuration to your calling learning system.</p>
+<p>You can view the documentation for LTI Dynamic Registration at:</p>
+<ul>
+<li><a href="https://www.imsglobal.org/spec/lti-dr/v1p0">Dynamic Registration</a></li>
+</ul>
+  </div>
+</div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="enter-the-information-for-your-new-tenant-into-the-fields-provided">
+    <h2 class="step-title screensteps-heading">Enter the information for your new tenant into the fields provided.</h2>
+        <div class="image screensteps-image">
+      <a href="https://media.screensteps.com/image_assets/assets/008/297/864/original/692f535b-3151-4c3e-8302-5e21898e84db.png" class="screensteps-image-zoom">
+        <img src="https://media.screensteps.com/image_assets/assets/008/297/864/medium/692f535b-3151-4c3e-8302-5e21898e84db.png" alt="" height="1132" width="855">
+      </a>
+  </div>
+ 
+      <div class="step-instructions screensteps-textblock">
+  <div id="text-content_cb5c46df-6fe2-4e9a-864b-256905dde19b" class="text-block-content">
+    <ol>
+<li>
+<strong>Title: </strong>Give your tenant an easily recognizable title, such as the name of your enterprise LMS. If you have more than one tenant in your system, you may also want to specify the version or group associated with a given tenant.<em> </em>This field is required.</li>
+<li>
+<strong>Issuer:</strong><em> </em>Issuer is different for each LMS, but it is usually a URL like "<a href="https://plus.sakailms.org/">https://plus.sakailms.org</a>" - with no trailing slash. Sometimes this will be the domain where the LMS is hosted. For some cloud-hosted providers, they use one issuer across all customers. This field is required.</li>
+<li>
+<strong>Allowed Tools:</strong><em> </em>This field is a colon-separated list of Sakai tool IDs, such as "sakai.resources:sakai.conversations" etc. There is a special "sakai.site" tool id which controls the availability of the "entire site" launch. A simple default for this is "sakai.site" or "sakai.site:sakai.resources: ...". This field is required.</li>
+<li>
+<strong>Trust Email:</strong><em> </em>If the LMS that is calling Sakai Plus for this tenant sends email, you <em>should</em> trust the email address to avoid creating multiple user records for each user in each site. If you mark this tenant as "trust email," and the calling system provides the email address of the user, multiple launches from multiple contexts will all be linked to the same user within this Tenant in Sakai Plus.</li>
+<li>
+<strong>Time Zone: </strong>This is the timezone (for example, US/Eastern) for the controlling LMS. Sakai Plus will shift due dates into this timezone before creating or updating line items.</li>
+<li>
+<strong>Registration Lock: </strong>You set this field to "unlock" LTI Dynamic Registration for this tenant. It should only be set while performing dynamic registration and should be cleared after dynamic registration is complete. If the launching system does not support dynamic registration you will set these manually.</li>
+<li>
+<strong>Client ID:</strong><em> </em>The client ID is provided by the launching LMS as part of tool registration. If the LMS supports LTI Dynamic Registration it will automatically populate this field.</li>
+<li>
+<strong>Deployment ID:</strong><em> </em>The Deployment ID may vary depending upon your enterprise LMS. For some systems, the deployment ID is the same for an entire system and is provided as part of Dynamic Registration. For other systems, a new Deployment ID is generated by each course. You can set the Deployment ID to * if you can accept any Deployment ID for a particular Client ID.</li>
+<li>
+<strong>New Window Tools:</strong><em> </em>This field is a colon-separated list of Sakai tool IDs which will be forced to always open in a new window. The "sakai.site" is always launched in a new window. This is typically left blank unless it is known that a particular tool just does not work well in an iframe. Or perhaps you are setting up a single tool server and want it to always be in a new window.</li>
+<li>
+<strong>Site Template:</strong><em> </em>This specifies an existing site in your Sakai system (for example, !plussite) which will be copied to make a new site when Sakai Plus receives an incoming site. This template site determines the default tools that are added to the new Sakai Plus site. The default is !plussite unless it is changed using the plus.new.site.template Sakai property.<ol style="list-style-type:lower-alpha;">
+<li>You may go to the !plussite and add or remove tools in that site if you wish to make a custom set of tools available. </li>
+</ol>
+</li>
+<li>
+<strong>Realm Template: </strong>This specifies an existing Sakai realm (for example, !site.template.lti) which will be copied to set the roles and permissions used when creating a new site when Sakai Plus receives an incoming site. The default is !site.template.lti unless it is changed using the plus.new.site.realm Sakai property.</li>
+<li>
+<strong>Inbound Role Map:</strong><em> </em>This field allows for overriding the default mapping from incoming LTI roles to Sakai roles. See this documentation for detail on how role mapping works and the format for role mapping entries.<ol style="list-style-type:lower-alpha;">
+<li><a href="https://github.com/sakaiproject/sakai/blob/master/lti/docs/LTIROLES.md">Sakai to LTI Role Mapping</a></li>
+</ol>
+</li>
+<li>
+<strong>Verbose Debugging: </strong>Turning verbose debugging on upgrades many of the debugging errors in the SakaiPlus code from debug.log to debug.info so they are placed in the normal Sakai log. In general this is useful for developers or during testing but will fill the log up if left on in production.</li>
+<li>The <strong>LMS Keyset URL</strong>, <strong>LMS Authorization URL</strong>, <strong>LMS Token URL</strong>, and <strong>LMS Token Audience</strong> fields are set up as part of tool registration with the calling learning system. If the system supports LTI Dynamic Registration these values should be set automatically. <ol style="list-style-type:lower-alpha;">
+<li>Note: The LMS Token Audience is left blank for most systems except for Desire2Learn.</li>
+</ol>
+</li>
+</ol>
+  </div>
+</div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="select-add-tenant">
+    <h2 class="step-title screensteps-heading">Select Add Tenant.</h2>
+        <div class="image screensteps-image">
+      <img src="https://media.screensteps.com/image_assets/assets/008/297/866/original/2892a0cc-8fbc-463e-bcaa-21c227ba75db.png" alt="" height="76" width="248">
+  </div>
+ 
+      <div class="step-instructions screensteps-textblock">
+  <div id="text-content_a596dded-c3fe-4296-8d1e-c2291f149e33" class="text-block-content">
+    <p>Once you have finished entering the tenant information, select the<strong> Add Tenant </strong>button at the bottom of the screen to save the new draft tenant in the system. (Remember that many of the fields may be left empty if you are using dynamic registration to auto-fill the information when you register Sakai Plus with your enterprise LMS.)</p>
+  </div>
+</div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="click-on-the-title-of-your-new-draft-tenant-to-view-the-configuration-information">
+    <h2 class="step-title screensteps-heading">Click on the title of your new draft tenant to view the configuration information.</h2>
+        <div class="image screensteps-image">
+      <a href="https://media.screensteps.com/image_assets/assets/008/297/868/original/ced0333a-d039-4cb7-a18a-0dd07a27da76.png" class="screensteps-image-zoom">
+        <img src="https://media.screensteps.com/image_assets/assets/008/297/868/medium/ced0333a-d039-4cb7-a18a-0dd07a27da76.png" alt="" height="286" width="855">
+      </a>
+  </div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="the-draft-tenant-information-will-display">
+    <h2 class="step-title screensteps-heading">The draft tenant information will display.</h2>
+        <div class="image screensteps-image">
+      <img src="https://media.screensteps.com/image_assets/assets/008/297/870/original/ed240d1b-d124-45d2-9e2d-5b84fa553728.png" alt="" height="733" width="426">
+  </div>
+ 
+      <div class="step-instructions screensteps-textblock">
+  <div id="text-content_3c2a2671-f7f1-4afd-93e2-5ad612edeab8" class="text-block-content">
+    <p>You will use the draft tenant information displayed on this screen to register Sakai Plus in your enterprise LMS. </p>
+  </div>
+</div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="go-to-your-enterprise-lms-to-complete-the-installation">
+    <h2 class="step-title screensteps-heading">Go to your enterprise LMS to complete the installation.</h2>
+      <div class="step-instructions screensteps-textblock">
+  <div id="text-content_af0289a5-2843-4377-aa2e-6c194adb60f5" class="text-block-content">
+    <p>We have documentation below on how to install Sakai Plus into a number of LMS systems. If you have additional questions or need more detail on configuring Sakai Plus as an LTI tool, please see your enterprise LMS documentation for more information.</p>
+  </div>
+</div>
+ 
+        <div class="screensteps-child-wrapper">
+    <div class="step screensteps-section screensteps-depth-2 screensteps-foldable-step" id="canvas">
+      <span class="step-title screensteps-heading screensteps-foldable-title screensteps-foldable-title-depth-2">
+        <a href="#canvas" class="screensteps-foldable-content-parent screensteps-foldable-trigger" id="screensteps-step-21c1836f-4f7a-4012-bc77-da7b4975e403">
+          Canvas
+        </a>
+      </span>
+      <div class="screensteps-nested-content" id="nested-step-21c1836f-4f7a-4012-bc77-da7b4975e403">
+          <div class="step-instructions screensteps-textblock">
+  <div id="text-content_9daae710-00c2-473d-a2ce-2583210f9569" class="text-block-content">
+    <p>Canvas does not support LTI Dynamic Registration but has their own JSON-based automatic Registration process that is supported by Sakai Plus.</p>
+<p><code>https://canvas.instructure.com/doc/api/file.lti_dev_key_config.html</code></p>
+<p>To use this process, create a Tenant in Sakai Plus with a title and the following information:</p>
+<p><code>Issuer: https://canvas.instructure.com</code></p>
+<p><code>OIDC Auth: https://canvas.instructure.com/api/lti/authorize_redirect</code></p>
+<p><code>OIDC KeySet: https://canvas.instructure.com/api/lti/security/jwks</code></p>
+<p><code>OIDC Token: https://canvas.instructure.com/login/oauth2/token</code></p>
+<p>Make sure to check "Trust Email" - this needs to be set in the SakaiPlus Tenant from the beginning.</p>
+<p>This is a partially complete tenant, to get the remaining data, go into the Tenant detail page and find the Canvas URL that looks like:</p>
+<p><code> https://dev1.sakaicloud.com/plus/sakai/canvas-config.json?guid=1234567</code></p>
+<p>Use this URL in the Canvas Admin -&gt; Developer Keys -&gt; + Developer Key -&gt; + LTI Key. Set Key Name, Title, and your email address. Then Choose "Enter URL" from the drop-down and paste the URL for your Tenant in Sakai. Make sure not to have any spaces in the URL. Then press "Save". The go back in to edit the key and make sure the key is marked as "Public" in "Additional Settings", changing and saving if necessary.</p>
+<p>to create an integration. This integration creates a Client Id similar to the following:</p>
+<p><code>Client Id: 85730000000000147</code></p>
+<p>Then to install Sakai Plus into a course or set of courses, you must use the Client Id to add the tool and it then gives you a Deployment ID. For a single course, go to Settings -&gt; View App Configurations -&gt; + App. Then choose "By Client ID" from the drop down and enter the ClientID from the previous step and press "Submit".</p>
+<p><code>Deployment Id: 327:a17deed8f179b120bdd14743e67ca7916eaea622</code></p>
+<p>Come back to Sakai Plus and update the Tenant to include both values and your integration should start working.</p>
+<p>For Canvas, sometimes it generates <em>lots</em> of Deployment Id values, so you can make authorization of SakaiPlus based only on Client Id by leaving the Deployment Id blank/empty in the Tenant. SakaiPlus will track Deployment Id on a per-context basis for AccessToken calls to the the LMSs.</p>
+  </div>
+</div>
+ 
+      </div>
+    </div>
+  </div>
+ 
+        <div class="screensteps-child-wrapper">
+    <div class="step screensteps-section screensteps-depth-2 screensteps-foldable-step" id="d2l-brightspace">
+      <span class="step-title screensteps-heading screensteps-foldable-title screensteps-foldable-title-depth-2">
+        <a href="#d2l-brightspace" class="screensteps-foldable-content-parent screensteps-foldable-trigger" id="screensteps-step-eed7470f-7e7a-45cf-935b-8874d4031eb1">
+          D2L Brightspace
+        </a>
+      </span>
+      <div class="screensteps-nested-content" id="nested-step-eed7470f-7e7a-45cf-935b-8874d4031eb1">
+          <div class="step-instructions screensteps-textblock">
+  <div id="text-content_195472bd-eaf9-41ce-a981-139656a2c061" class="text-block-content">
+    <p>BrightSpace supports LTI Dynamic Registration. Create a Tenant with a title, issuer, and registration unlock code. Then go to the SakaiPlus Tenant detail page and find the LTI Dynamic Registration URL and use that in the auto-provisioning screen of BrightSpace.</p>
+<p>The issuer for a D2L system is the base URL of the system without a trailing slash:</p>
+<p><code>https://school.brightspacedemo.com</code></p>
+<p>While Dynamic Registration is the easiest approach, you can create a draft Tenant in Sakai Plus, then paste all the Sakai Plus URLs into Brightspace manually, save the tool in Brightspace, then get copy the Brightspace URLs and edit your Sakai Plus Tenant. Here are what typical values look like for Brightspace:</p>
+<p><code>Client ID:           04a7d304-477d-401a-b701-5a58f54772d6</code></p>
+<p><code>Deployment ID:       7862b2ce-79a0-77da-b2dd-7c77c4bb6e39</code></p>
+<p><code>LMS Authorization:   https://school.brightspacedemo.com/d2l/lti/authenticate</code></p>
+<p><code>LMS KeySet:          https://school.brightspacedemo.com/d2l/.well-known/jwks</code></p>
+<p><code>LMS Token:           https://auth.brightspace.com/core/connect/token</code></p>
+<p><code>LMS Token Audience:  https://api.brightspace.com/auth/token</code></p>
+<p>Some of the values are local to the Brightspace school's URL and others are global for all schools.</p>
+<p>The basic outline in Brightspace is to</p>
+<ul>
+<li>Install an LTI Advantage Tool</li>
+<li>Create a Deployment for the tool</li>
+<li>Create a Link for the tool (this is what most LMS's call "Placement")</li>
+</ul>
+<p>Make sure to enable the security settings for <code>Org Unit Information</code>, <code>User Information</code>, <code>Link Information</code>. If you do not send <code>Org Unit Information</code> Sakai Pus will not know anything about the course it is being launched from. And sending email is important because otherwise all the SakaiPlus accounts will use the "subject" as the logical key for user accounts. SakaiPlus can function without email - but it makes it a lot harder to re-connect user accounts later.</p>
+<p>For Dynamic Registration to work, Sakai Plus demands that the issuer in Sakai Plus match the issuer provided by the LMS during the LTI Dynamic Registration process. The registration lock is single use and must be reset in Sakai Plus to re-run the Dynamic Registration process.</p>
+<p>Here are some helpful URLs:</p>
+<p><a href="https://documentation.brightspace.com/EN/integrations/ipsis/LTI%20Advantage/intro_to_LTI.htm">https://documentation.brightspace.com/EN/integrations/ipsis/LTI%20Advantage/intro_to_LTI.htm</a> </p>
+<p><a href="https://documentation.brightspace.com/EN/integrations/ipsis/LTI%20Advantage/LTI_register_external_learning_tool.htm">https://documentation.brightspace.com/EN/integrations/ipsis/LTI%20Advantage/LTI_register_external_learning_tool.htm</a> </p>
+<p><a href="https://success.vitalsource.com/hc/en-gb/articles/360052454313-Brightspace-D2L-LTI-1-3-Tool-Setup">https://success.vitalsource.com/hc/en-gb/articles/360052454313-Brightspace-D2L-LTI-1-3-Tool-Setup</a> </p>
+<p><a href="https://documentation.brightspace.com/EN/integrations/ipsis/LTI%20Advantage/deploy_external_learning_tool_for_LTI_A.htm">https://documentation.brightspace.com/EN/integrations/ipsis/LTI%20Advantage/deploy_external_learning_tool_for_LTI_A.htm</a> </p>
+  </div>
+</div>
+ 
+      </div>
+    </div>
+  </div>
+ 
+        <div class="screensteps-child-wrapper">
+    <div class="step screensteps-section screensteps-depth-2 screensteps-foldable-step" id="blackboard">
+      <span class="step-title screensteps-heading screensteps-foldable-title screensteps-foldable-title-depth-2">
+        <a href="#blackboard" class="screensteps-foldable-content-parent screensteps-foldable-trigger" id="screensteps-step-8bce9ff4-759c-43ef-b04a-c930c3b5ca53">
+          Blackboard
+        </a>
+      </span>
+      <div class="screensteps-nested-content" id="nested-step-8bce9ff4-759c-43ef-b04a-c930c3b5ca53">
+          <div class="step-instructions screensteps-textblock">
+  <div id="text-content_d4bc1910-77e2-451c-8739-5fc7384ed54b" class="text-block-content">
+    <p>Blackboard is planning on supporting LTI Dynamic Registration, but until they do, you need to do a bit of cutting and pasting of URLs between the systems.</p>
+<p>To use this process, create a Tenant in Administration Workspace -&gt; Plus Admin, with a title and the following information:</p>
+<p><code>Issuer: https://blackboard.com</code></p>
+<p><code>OIDC Auth: https://developer.blackboard.com/api/v1/gateway/oidcauth</code></p>
+<p><code>OIDC Token: https://developer.blackboard.com/api/v1/gateway/oauth2/jwttoken</code></p>
+<p>Then go into the Sakai Plus Registration for the tenant and grab the "Manual Configuration" URLs so you can create an LTI 1.3 clientID in the Blackboard Developer Portal. Here are some sample Sakai Plus URLs you will need for the Blackboard Developer portal:</p>
+<p><code>OIDC Login: https://dev1.sakaicloud.com/plus/sakai/oidc_login/654321</code></p>
+<p><code>OIDC Redirect: https://dev1.sakaicloud.com/plus/sakai/oidc_launch</code></p>
+<p><code>OIDC KeySet: https://dev1.sakaicloud.com/imsblis/lti13/keyset</code></p>
+<p>Note that the <code>OIDC Login</code> value for Sakai Plus includes the Tenant ID for your newly created Sakai Plus Tenant so it is unique for each Sakai Plus Tenant. The Redirect and Keyset values are the same for all tenants.</p>
+<p>Use these Sakai Plus values in the Blackboard Developer portal to create an LTI 1.3 integration. The developer portal will give you a Client Id and per-client KeySet URL similar to the following:</p>
+<p><code>OIDC KeySet: https://developer.blackboard.com/api/vl/management/applications/fe3ebd13-39a4-42c4-8b83-194f08e77f8a/jwks.json</code></p>
+<p><code>Client Id: fe3ebd13-39a4-42c4-8b83-194f08e77f8a</code></p>
+<p>The value in the KeySet is the same as the Client Id. You will need to update these values in your Sakai Plus Tenant.</p>
+<p>Once you place Sakai Plus into a Blackboard instance you will be given a Deployment Id for that integration.</p>
+<p><code>Deployment Id: ea4e4459-2363-348e-bd38-048993689aa0</code></p>
+<p>Once you have updated your Sakai Plus tenant with the <code>Client ID</code>, <code>Keyset URL</code>, and <code>Deployment ID</code> your security arrangement should be set up.</p>
+<p>Once the Tenant has all the necessary security set up, there a number of <code>target_link_uri</code> values that you can use. You can send a Deep Link.</p>
+  </div>
+</div>
+ 
+      </div>
+    </div>
+  </div>
+ 
+        <div class="screensteps-child-wrapper">
+    <div class="step screensteps-section screensteps-depth-2 screensteps-foldable-step" id="moodle">
+      <span class="step-title screensteps-heading screensteps-foldable-title screensteps-foldable-title-depth-2">
+        <a href="#moodle" class="screensteps-foldable-content-parent screensteps-foldable-trigger" id="screensteps-step-7dad362c-5ae2-46b4-a5fa-ee3d1a25e073">
+          Moodle
+        </a>
+      </span>
+      <div class="screensteps-nested-content" id="nested-step-7dad362c-5ae2-46b4-a5fa-ee3d1a25e073">
+          <div class="step-instructions screensteps-textblock">
+  <div id="text-content_0a7ec061-34e4-40b9-ac7c-c91d7502be0c" class="text-block-content">
+    <p>For recent versions of Moodle you can use LTI Dynamic Registration.</p>
+<p>In Administration Workspace -&gt; Plus Admin, create a Tenant with a title, issuer, and registration unlock code. Then go to the Tenant detail page and find the LTI Dynamic Registration URL and use that in the auto-provisioning screen of Moodle.</p>
+<p>The issuer for a Moodle system is the base URL of the system without a trailing slash:</p>
+<p><code>https://moodle.school.edu</code></p>
+<p>For testing you might use and issuer like:</p>
+<p><code>http://localhost:8888/moodle</code></p>
+<p>In both cases do not include a trailing slash.</p>
+<p>For Dynamic Registration to work, Sakai Plus demands that the issuer in Sakai Plus match the issuer provided by the LMS during the LTI Dynamic Registration process. The registration lock is single use and must be reset in Sakai Plus to re-run the Dynamic Registration process.</p>
+  </div>
+</div>
+ 
+      </div>
+    </div>
+  </div>
+ 
+        <div class="screensteps-child-wrapper">
+    <div class="step screensteps-section screensteps-depth-2 screensteps-foldable-step" id="sakai">
+      <span class="step-title screensteps-heading screensteps-foldable-title screensteps-foldable-title-depth-2">
+        <a href="#sakai" class="screensteps-foldable-content-parent screensteps-foldable-trigger" id="screensteps-step-604f486a-a5e3-42f3-8993-4f272bf23958">
+          Sakai
+        </a>
+      </span>
+      <div class="screensteps-nested-content" id="nested-step-604f486a-a5e3-42f3-8993-4f272bf23958">
+          <div class="step-instructions screensteps-textblock screensteps-wrapper--tip screensteps-wrapper">
+  <div id="text-content_e73cd582-9cf5-4058-875f-888e16250de7" class="text-block-content">
+    <p>Installing Sakai Plus into a Sakai installation is most often used for "loop back" QA testing. It may also be used to allow access to a more recent release (for example, Sakai 23.x) with new and enhanced features within a Sakai instance that is running a prior version (for example, Sakai 22.x).</p>
+  </div>
+</div>
+ 
+          <div class="step-instructions screensteps-textblock">
+  <div id="text-content_c6d952fb-125f-41c8-b570-8bf5ed00680a" class="text-block-content">
+    <p>The issuer for a Sakai system is the base URL of the system without a trailing slash:</p>
+<p>For loop-back testing you might use an issuer like:</p>
+<p><code>https://trunk-mysql.nightly.sakaiproject.org</code></p>
+<p><code>http://localhost:8080 </code>   (for a local instance of Sakai)</p>
+<p>In both cases do not include a trailing slash.</p>
+<p><strong>Adding A Tenant to Sakai</strong></p>
+<p>Log in under a Sakai admin account, and then go to Administration Workspace &gt; Plus Admin.</p>
+<p>For fresh installs, Plus Admin is automatically added to Administration Workspace. If this is an upgraded server, you may need to add the Plus Admin (sakai.plus) tool to the Administration Workspace using the Sites tool.</p>
+<p>Add a tenant, give it a title and set the issuer, set "Trust Email," set "Verbose Debugging," set Allowed Tools to "<code>sakai.resources:sakai.site</code>," and Registration Lock to "42."</p>
+<p>Save the Tenant - it is "draft" because it is missing a lot of fields that will be set when LTI Dynamic Provisioning runs.</p>
+<p>If you don't set "trust email," each plus launch will log you out of the window you launched from. However, this is only a problem when running both the main site and the plus site on the same server (i.e. loop back testing). If these are different Sakai servers and URLs, the logout at launch will not be a problem.</p>
+<p>Once the draft tenant is saved, view the tenant and grab the Dynamic Registration URL, for example:</p>
+<p><code>http://localhost:8080/plus/sakai/dynamic/8efcdee4-96c3-44bf-92fd-1d901ad593a3?unlock_token=42</code></p>
+<p><strong>Adding A Sakai Plus Placement to Sakai</strong></p>
+<p>Go into Administration Workspace &gt; External Tools &gt; LTI Advantage Auto Provision.</p>
+<p>Give the new tool a title like "LMS End of Sakai Plus" and press "Auto-Provision." </p>
+<p>Then press "Use LTI Advantage Auto Configuration" and paste in the Dynamic Registration URL from the Tenant, and run the process. Make sure to enable the following before saving the external tool:</p>
+<ul>
+<li>Send email</li>
+<li>Send name</li>
+<li>Give access to services</li>
+<li>Choose the various placements (Lessons, etc.)</li>
+<li>Tool Supports LTI 1.3</li>
+<li>Allow popup to be changed</li>
+</ul>
+<p>You can select both of the types of launches (and even the privacy placement) as long as the tool url is something like "http../plus/sakai/" with no suffix like sakai.site or sakai.resources.</p>
+<ul>
+<li>The tool URL can receive an LTI launch</li>
+<li>The tool can receive a Content-Item or Deep-Link launch</li>
+</ul>
+<p>Once the tool (or tools) are configured, save the tool.</p>
+<p><strong>Testing SakaiPlus</strong></p>
+<p>We have a simple outline of how to <a href="https://github.com/sakaiproject/sakai/blob/master/plus/docs/TESTING.md">testing Sakai Plus from Sakai</a>. Please keep in mind that you end up with two tabs - one tab from the "main site" and another tab for the "plus site". The easiest way to keep them separate is to have different tools in the sites or edit the Overview message in each site so that you can easily tell which is which.</p>
+  </div>
+</div>
+ 
+      </div>
+    </div>
+  </div>
+ 
+  </div>
+
+
+</div>
+</div></div>
+</body>
+</html>

@@ -3,7 +3,7 @@
  * $Id:  $
  * **********************************************************************************
  *
- * Copyright (c) 2010 The Sakai Foundation
+ * Copyright (c) 2023 The Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,17 +33,24 @@ sakai.editor.editors.ckeditor = sakai.editor.editors.ckeditor || {} ;
 //get path of directory ckeditor
 var basePath = "/library/editor/ckextraplugins/";
 var webJars = "/library/webjars/"
+var fmathPath = webJars + 'ckeditor4-fmath-editor/${ckeditor4.fmath.editor.version}/'
 
 // Update properties in one object from another: https://stackoverflow.com/a/12534361/3708872
 // I believe this is available as lodash.merge but don't see that available here yet and this looked like the simplest version of that
 function objectMerge(obj/*, ...*/) {
-    for (var i=1; i<arguments.length; i++) {
+    for (let i = 1; i < arguments.length; i++) {
         for (var prop in arguments[i]) {
             var val = arguments[i][prop];
-            if (typeof val == "object") // this also applies to arrays or null!
+            if (prop === "removePlugins") {
+                const source = obj[prop].split(",");
+                source.push(...val.split(","));
+                obj[prop] = source.join(",");
+            } else if (typeof val === "object") {
+                // this also applies to arrays or null!
                 objectMerge(obj[prop], val);
-            else
+            } else {
                 obj[prop] = val;
+            }
         }
     }
     return obj;
@@ -194,7 +201,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
 
     let siteId = "";
     if (collectionId) {
-        if (collectionId.startsWith('/user/') && portal && portal.siteId) {
+        if (collectionId.startsWith('/user/') && window?.portal?.siteId) {
             siteId = portal.siteId;
         } else {
             siteId = collectionId.split('/')[2];
@@ -203,6 +210,10 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
 
     const directUploadUrl = `/direct/content/direct-upload.json?context=${siteId}`;
 
+    let cdnVersion = "";
+    if ( typeof portal !== 'undefined' ) {
+        if (portal.portalCDNQuery) cdnVersion = portal.portalCDNQuery;
+    }
     var ckconfig = {
     //Some defaults for audio recorder
         audiorecorder : {
@@ -226,7 +237,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         },
         disallowedContent: 'table[cellspacing,cellpadding,border,summary]',
 
-        contentsCss: [(webJars+'bootstrap/3.3.7/css/bootstrap.min.css')],
+        contentsCss: [(webJars+'bootstrap/5.2.0/css/bootstrap.min.css'), ('/library/skin/tool_base.css'+cdnVersion)],
 
         language: language + (country ? '-' + country.toLowerCase() : ''),
         // This is used for uploading by the autorecorder plugin.
@@ -260,7 +271,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             'bidi',
             'clipboard',
             // 'cloudservices',
-            // 'codesnippet',
+            'codesnippet',
             // 'codesnippetgeshi',
             'colorbutton',
             'colordialog',
@@ -341,7 +352,8 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             (sakai.editor.enableResourceSearch ? 'resourcesearch' : ''),
             (sakai.editor.enableSakaiOpenLink ? 'sakaiopenlink' : ''),
             `${ckeditor-extra-plugins}`,
-            `${ckeditor-a11y-extra-plugins}`
+            `${ckeditor-a11y-extra-plugins}`,
+            `${ckeditor-math-extra-plugins}`,
         ].join(','),
         // These two settings enable the browser's native spell checking and context menus.
         // Control-Right-Click (Windows/Linux) or Command-Right-Click (Mac) on highlighted words
@@ -359,28 +371,25 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         ],
         toolbar_Full:
         [
-            ['About'],
-            ['Source','-','Templates'],
+            ['A11ychecker', 'Format', 'Bold', 'Italic', 'TextColor', 'BGColor'],
+            ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'],
+            ['NumberedList', 'BulletedList', 'Outdent', 'Indent', 'Link', 'Unlink', 'Image', 'Table', 'Templates', 'Source'],
+            //if sakaiDropdownToolbar is true, everything defined after the / will be displayed only after toggle
+            '/',
             // Uncomment the next line and comment the following to enable the default spell checker.
             // Note that it uses spellchecker.net, displays ads and sends content to remote servers without additional setup.
             //['Cut','Copy','Paste','PasteText','-','Print', 'SpellChecker', 'Scayt'],
-            ['Cut','Copy','Paste','PasteText','-','Print', 'SakaiPreview'],
-            ['Undo','Redo','-','Find','Replace','-','SelectAll','RemoveFormat'],
-            ['NumberedList','BulletedList','-','Outdent','Indent','Blockquote','CreateDiv'],
-            // //if sakaiDropdownToolbar is true, everything defined after the / will be displayed only after toggle
-            '/',
-            ['Bold','Italic','Underline','Strike','-','Subscript','Superscript'],
-            ['atd-ckeditor'],
-            ['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
+            ['Cut', 'Copy', 'Paste', 'PasteText', 'Undo', 'Redo', 'Find', 'Replace', 'SelectAll', 'RemoveFormat'],
+            ['Underline', 'Strike', 'Subscript', 'Superscript'],
             ['BidiLtr', 'BidiRtl' ],
-            ['Link','Unlink','Anchor'],
-            [ 'AudioRecorder', 'Image', 'Html5video','Table','HorizontalRule','Smiley','SpecialChar'],
+            ['Blockquote', 'HorizontalRule', 'Anchor', 'Html5video', 'AudioRecorder', 'Smiley', 'SpecialChar', 'CreateDiv', 'CodeSnippet'],
             [(sakai.editor.contentItemUrl ? 'ContentItem' : undefined),(sakai.editor.enableResourceSearch ? 'ResourceSearch' : undefined)],
+            ['atd-ckeditor'],
             '/',
-            ['Styles','Format','Font','FontSize'],
-            ['TextColor','BGColor'],
-            ['Maximize', 'ShowBlocks']
-            ,['A11ychecker']
+            ['Styles', 'Font', 'FontSize', 'Print', 'SakaiPreview'],
+            ['Maximize', 'ShowBlocks'],
+            ['FMathEditor'],
+            ['About']
         ].filter(el => el !== undefined),
         toolbar_BasicText:
         [
@@ -416,10 +425,18 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             "showCharCount" : true,
         },
 
+        // SAK-49264 - The sandbox attribute is added by default in 4.21.0
+        // https://ckeditor.com/cke4/release/CKEditor-4.21.0
+        // https://ckeditor.com/docs/ckeditor4/latest/api/CKEDITOR_config.html#cfg-iframe_attributes
+        iframe_attributes: function() { return { } },
+
         //SAK-29598 - Add more templates to CK Editor
         templates_files: [basePath+"templates/default.js"],
         templates: 'customtemplates',
         templates_replaceContent: false,
+        clipboard_handleImages: false,
+        // https://ckeditor.com/docs/ckeditor4/latest/api/CKEDITOR_config.html#cfg-versionCheck
+        versionCheck: false,
     };
 
     // Merge config values into ckconfig
@@ -461,7 +478,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
 
         //These could be applicable to the basic toolbar
         CKEDITOR.plugins.addExternal('lineutils',basePath+'lineutils/', 'plugin.js');
-        CKEDITOR.plugins.addExternal('html5video',webJars+'github-com-bahriddin-ckeditor-html5-video/${ckeditor.html5video.version}/html5video/', 'plugin.js');
+        CKEDITOR.plugins.addExternal('html5video',webJars+'ckeditor-html5-video/${ckeditor.html5video.version}/', 'plugin.js');
         CKEDITOR.plugins.addExternal('audiorecorder',basePath+'audiorecorder/', 'plugin.js');
         CKEDITOR.plugins.addExternal('contentitem',basePath+'contentitem/', 'plugin.js');
         CKEDITOR.plugins.addExternal('sakaipreview',basePath+'sakaipreview/', 'plugin.js');
@@ -474,6 +491,9 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         CKEDITOR.plugins.addExternal('notification',basePath+'notification/', 'plugin.js');
         // Accessibility checker has a dependency on balloonpanel
         CKEDITOR.plugins.addExternal('a11ychecker',webJars+'a11ychecker/${ckeditor.a11ychecker.version}/', 'plugin.js');
+        // FMathEditor plugin
+        CKEDITOR.plugins.addExternal('FMathEditor', fmathPath, 'plugin.js');
+
         /*
            To enable after the deadline uncomment these two lines and add atd-ckeditor to toolbar
            and to extraPlugins. This also needs extra stylesheets.
@@ -490,8 +510,6 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         //ckconfig.extraPlugins+="atd-ckeditor,";
         //ckconfig.contentsCss = [basePath+'atd-ckeditor/atd.css'];
 
-        // Load FontAwesome CSS in case a user wants to manually add FA markup
-        ckconfig.contentsCss.push(webJars+'fontawesome/4.7.0/css/font-awesome.min.css');
         //If the siteskin is defined, add the print.css
         if (sakai.editor.sitePrintSkin) {
             ckconfig.contentsCss.push(sakai.editor.sitePrintSkin);
@@ -543,10 +561,6 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
                 ] 
                 {id} .cke_resizer [
                     border-right-color:{ckeResizer}
-                ] 
-                {id} .cke_wysiwyg_frame,
-                {id} .cke_wysiwyg_div [
-                    background:{defaultBackground}
                 ] 
                 {id} textarea.cke_source [
                     background-color: {lightBackground};

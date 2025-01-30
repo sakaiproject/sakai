@@ -95,13 +95,13 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
  */
 
 @Entity
-@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @Table(name = "ASN_ASSIGNMENT", indexes = {
         @Index(name = "IDX_ASN_ASSIGNMENT_CONTEXT", columnList = "CONTEXT")
 })
 @Data
 @NoArgsConstructor
-@ToString(exclude = {"authors", "submissions", "groups", "properties", "attachments"})
+@ToString(exclude = {"submissions", "groups", "properties", "attachments"})
 @EqualsAndHashCode(of = "id")
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -153,6 +153,10 @@ public class Assignment {
     @Type(type = "org.hibernate.type.InstantType")
     @Column(name = "DROP_DEAD_DATE")
     private Instant dropDeadDate;
+
+    @Type(type = "org.hibernate.type.InstantType")
+    @Column(name = "SOFT_REMOVED_DATE")
+    private Instant softRemovedDate;
 
     @Column(name = "MODIFIER", length = 99)
     private String modifier;

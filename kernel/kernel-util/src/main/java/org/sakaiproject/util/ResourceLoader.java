@@ -32,6 +32,7 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
@@ -165,6 +166,7 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 	 *
 	 * @deprecated
 	 */
+	@Deprecated
 	public ResourceLoader(String userId, String name)
 	{
 		this.userId = userId; 
@@ -175,7 +177,7 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 	 ** Return ResourceBundle properties as if Map.entrySet() 
 	 **/
 	@Override
-	public Set entrySet()
+	public @NonNull Set entrySet()
 	{
 		return getBundleAsMap().entrySet();
 	}
@@ -214,7 +216,7 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 			this.baseName + ", locale=" + getLocale().toString() +
 			", key=" + key + ", pattern=" + pattern);
 		}
-			
+		pattern = pattern.replaceAll("'", "''");
 		return (new MessageFormat(pattern, getLocale())).format(args, new StringBuffer(), null).toString();
 	}
 

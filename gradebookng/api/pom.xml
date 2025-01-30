@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.sakaiproject.gradebookng</groupId>
         <artifactId>gradebookng</artifactId>
-        <version>23-SNAPSHOT</version>
+        <version>25-SNAPSHOT</version>
     </parent>
 
     <packaging>jar</packaging>

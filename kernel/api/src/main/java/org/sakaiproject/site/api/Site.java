@@ -60,9 +60,9 @@ public interface Site extends Edit, Comparable, Serializable, AuthzGroup
 	public final static String PROP_SITE_TERM_EID = "term_eid";
 
 	/**
-	 * property name for portal-neochat
+	 * property name for locale_string
 	 */
-	public final static String PROP_SITE_PORTAL_NEOCHAT = "portal.neochat";
+	public final static String PROP_SITE_LANGUAGE = "locale_string";
 
 	/**
 	 * property name for mathjax
@@ -70,9 +70,21 @@ public interface Site extends Edit, Comparable, Serializable, AuthzGroup
 	public final static String PROP_SITE_MATHJAX_ALLOWED = "mathJaxAllowed";
 
 	/**
+	 * property name for site locale
+	 */
+	public final static String PROP_SITE_LOCALE = "locale_string";
+
+	/**
 	 * property name for custom overview
 	 */
 	public final static String PROP_CUSTOM_OVERVIEW = "custom_overview";
+
+	/**
+	 * property name for custom lti inbound role mapping
+	 */
+	public final static String PROP_LTI_INBOUND_ROLE_MAP = "lti_inbound_role_map";
+
+	public final static String PROP_COURSE_IMAGE_URL = "course_image_url";
 
 	/**
 	 * @return the user who created this.
@@ -387,6 +399,7 @@ public interface Site extends Edit, Comparable, Serializable, AuthzGroup
 	 * @param group
 	 *        The group to remove.
 	 */
+	@Deprecated
 	void removeGroup(Group group);
 
 	/**

@@ -1,0 +1,42 @@
+<div class="portletBody">
+
+    <h3>$tlang.getString("tool.new.insert.start.header")</h3>
+    #if ($isAdmin)
+        <p>$tlang.getString("tool.new.insert.start.text.admin")</p>
+    #else
+        <p>$tlang.getString("tool.new.insert.start.text.instructor")</p>
+    #end
+
+    #if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div>#end
+
+    <form action="#toolForm("")" method="post" name="customizeForm" >
+        <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+
+        <div id="title-input" class="foorm-text" style="clear:both;">
+            <label for="title" style="display:block;float:none;font-weight:bold"><span class="foorm-required" style="color:#903;font-weight:bold;" title="$tlang.getString('tool.new.insert.start.title')">*</span>$tlang.getString('tool.new.insert.start.title')</label>
+            <div id="div_title">
+                <input type="text" id="title" name="title" size="40" style="border:1px solid #555;padding:5px;font-size:1em;width:300px" value="$!previousPost.get("title")"/>
+            </div>
+        </div>
+
+        #if ($isAdmin)
+            <div id="siteId-input" class="foorm-text" style="clear:both;">
+                <label for="siteId" style="display:block;float:none;font-weight:bold">$tlang.getString('tool.new.insert.start.siteId')</label>
+                <div id="div_siteId"><input type="text" id="siteId" name="siteId" size="40" style="border:1px solid #555;padding:5px;font-size:1em;width:300px" value="$!previousPost.get("siteId")"/></div>
+                <div>$tlang.getString('tool.new.insert.start.siteId.description')</div>
+            </div>
+        #else
+            ## Note: The siteId field will be hidden if this is not an admin site.
+            <input type="hidden" name="siteId" value="$siteId" />
+        #end
+
+        <p class="act">
+            <input type="submit" accesskey ="s" class="active" name="$doToolAction"
+                value="$tlang.getString('gen.continue')" />
+            <input type="submit" accesskey ="x" name="$doCancel" value="$tlang.getString('gen.cancel')"
+                 onclick="location = '$sakai_ActionURL.setPanel("ToolSystem")';return false;">
+        </p>
+
+    </form>
+
+</div>

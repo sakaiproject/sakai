@@ -160,11 +160,14 @@ public interface EmailTemplateService {
     public String exportTemplateAsXml(String key, Locale locale);
    
     /**
-     * Does a template for the key exist in this locale?
-     * @param key
-     * @return
+     * Does a template for the key exist in this locale, but with a different (wrong) ID?
+     * Mainly used when editing a template to ensure that the proper one is being edited.
+     * @param key Key of the template to lookup
+     * @param locale Locale of the template to lookup
+     * @param templateId ID of the template to ignore
+     * @return True if a template is found with key/locale, but with a different ID, false otherwise
      */
-    public boolean templateExists(String key, Locale locale);
+    public boolean templateExistsWithDifferentId(String key, Locale locale, Long templateId);
 
     /**
      * Utility to send message to user, also when user has changed the email address.

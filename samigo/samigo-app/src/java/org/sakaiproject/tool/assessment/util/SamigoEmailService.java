@@ -47,6 +47,7 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.exception.IdUnusedException;
@@ -76,7 +77,7 @@ public class SamigoEmailService {
 	private String smtpServer;
 	private String smtpPort;
 	private String prefixedPath;
-	
+
 	/**
 	 * Creates a new SamigoEmailService object.
 	 */
@@ -90,42 +91,37 @@ public class SamigoEmailService {
 		this.ccMe = ccMe;
 		this.subject = subject;
 		this.message = message;
-		this.smtpServer = ServerConfigurationService.getString("samigo.smtp.server");
-		this.smtpPort = ServerConfigurationService.getString("samigo.smtp.port");
+		this.smtpServer = ServerConfigurationService.getSmtpServer();
+		this.smtpPort = ServerConfigurationService.getSmtpPort();
 		this.prefixedPath = ServerConfigurationService.getString("samigo.email.prefixedPath");
 	}
-	
+
 	public SamigoEmailService(String fromName, String fromEmailAddress, 
 			String toName, String toEmailAddress, String ccMe, String subject, String message) {
 		this(fromName, fromEmailAddress, toName, toEmailAddress, null, ccMe, subject, message);
 	}
-	
+
 	public SamigoEmailService(String fromEmailAddress, ArrayList toEmailAddressList, String ccMe, String subject, String message) {
 		this(null, fromEmailAddress, null, null, toEmailAddressList, ccMe, subject, message);
 	}
-	
+
 	// Not sure if we are going to obsolete/change this email flow. I keep this here and make a new one sendMail()
 	public String send() {
 		List attachmentList = null;
 		AttachmentData a = null;
 		try {
 			Properties props = new Properties();
-			
+
 			// Server
-			if (smtpServer == null || smtpServer.equals("")) {
-				log.info("samigo.email.smtpServer is not set");
-				smtpServer = ServerConfigurationService.getString("smtp@org.sakaiproject.email.api.EmailService");
-				if (smtpServer == null || smtpServer.equals("")) {
-					log.info("smtp@org.sakaiproject.email.api.EmailService is not set");
-					log.error("Please set the value of samigo.email.smtpServer or smtp@org.sakaiproject.email.api.EmailService");
-					return "error";
-				}
+			if (StringUtils.isBlank(this.smtpServer)) {
+				log.error("Please configure the SMTP email server in your instance properties");
+				return "error";
 			}
-			props.setProperty("mail.smtp.host", smtpServer);
+			props.setProperty("mail.smtp.host", this.smtpServer);
 
 			// Port
-			if (smtpPort == null || smtpPort.equals("")) {
-				log.warn("samigo.email.smtpPort is not set. The default port 25 will be used.");
+			if (StringUtils.isBlank(smtpPort)) {
+				log.warn("The SMTP port is not set. The default port 25 will be used.");
 			} else {
 				props.setProperty("mail.smtp.port", smtpPort);
 			}
@@ -235,20 +231,15 @@ public class SamigoEmailService {
 			Properties props = new Properties();
 
 			// Server
-			if (smtpServer == null || smtpServer.equals("")) {
-				log.info("samigo.email.smtpServer is not set");
-				smtpServer = ServerConfigurationService.getString("smtp@org.sakaiproject.email.api.EmailService");
-				if (smtpServer == null || smtpServer.equals("")) {
-					log.info("smtp@org.sakaiproject.email.api.EmailService is not set");
-					log.error("Please set the value of samigo.email.smtpServer or smtp@org.sakaiproject.email.api.EmailService");
-					return "error";
-				}
+			if (StringUtils.isBlank(this.smtpServer)) {
+				log.error("Please configure the SMTP email server in your instance properties");
+				return "error";
 			}
-			props.setProperty("mail.smtp.host", smtpServer);
+			props.setProperty("mail.smtp.host", this.smtpServer);
 
 			// Port
-			if (smtpPort == null || smtpPort.equals("")) {
-				log.warn("samigo.email.smtpPort is not set. The default port 25 will be used.");
+			if (StringUtils.isBlank(this.smtpPort)) {
+				log.warn("The SMTP port is not set. The default port 25 will be used.");
 			} else {
 				props.setProperty("mail.smtp.port", smtpPort);
 			}
@@ -264,8 +255,8 @@ public class SamigoEmailService {
 
 			//msg.addHeaderLine("Subject: " + subject);
 			msg.setSubject(subject, "UTF-8");
-			String noReplyEmaillAddress =  ServerConfigurationService.getString("setup.request","no-reply@" + ServerConfigurationService.getServerName());
-			msg.addHeaderLine("To: " + noReplyEmaillAddress);
+			String noReplyEmailAddress = ServerConfigurationService.getSmtpFrom();
+			msg.addHeaderLine("To: " + noReplyEmailAddress);
 			msg.setText(message, "UTF-8");
 			msg.addHeaderLine("Content-Type: text/html");
 
@@ -324,7 +315,7 @@ public class SamigoEmailService {
 		}
 		return "send";
 	}
-	
+
 	private File getAttachedFile(String resourceId) throws PermissionException, IdUnusedException, TypeException, ServerOverloadException, IOException {
 		ContentResource cr = AssessmentService.getContentHostingService().getResource(resourceId);
 		log.debug("getAttachedFile(): resourceId = " + resourceId);
@@ -364,9 +355,7 @@ public class SamigoEmailService {
 		}
 		return file;
 	}
-	
-	
-	
+
 	private void deleteAttachedFile(String filename) {
 		log.debug("deleteAttachedFile(): filename = " + filename);
 		// delete the file
@@ -386,4 +375,5 @@ public class SamigoEmailService {
 			log.error("Fail to delete directory: " + directoryName);
 		}
 	}
+
 }

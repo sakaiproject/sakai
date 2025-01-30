@@ -82,7 +82,7 @@ public class CancelMeetingEmail extends AllUsersEmailBase {
 		rv.add("Content-Type: text/html; charset=UTF-8");
 		rv.add("Subject: " + getSubject());
 		rv.add("From: " + getFromAddress());
-		rv.add("To: " + getSakaiFacade().getServerConfigurationService().getString("setup.request","no-reply@" + getSakaiFacade().getServerConfigurationService().getServerName()));
+		rv.add("To: " + getSakaiFacade().getServerConfigurationService().getSmtpFrom());
 
 		return rv;
 	}

@@ -1,0 +1,137 @@
+/* *************************************************************** *
+ *                      Gradebook Tool styles                      *
+ * *************************************************************** */
+ 
+ /* style applied to the UL rendered for a feedback panel */
+ul.feedbackPanel {
+ 	list-style-type: none;
+ 	margin: 0;
+}
+ul.feedbackPanel li span {
+   display: block;
+}
+ 
+ /* Bootstrap > Morpheus overrides */
+.dropdown-menu>li>a,
+.nav>li>a {
+  text-decoration: none;
+}
+.checkbox input[type="checkbox"][disabled],
+.radio input[type="radio"][disabled]{
+  background-color: var(--sakai-background-color-3);
+}
+.checkbox input[type="checkbox"][disabled]+span,
+.radio input[type="radio"][disabled]+span,
+.checkbox input[type="checkbox"][disabled]+label,
+.radio input[type="radio"][disabled]+label{
+  color: var(--sakai-text-color-dimmed);
+}
+
+.modal-add-or-edit-gbitem input[type="text"] {
+  min-width: 70px;
+}
+
+/* required labels should have a prefix asterisk */
+.control-label.required:before {
+  content: '*';
+}
+
+/* align the input boxes with the remove button in the grading schema table */
+.table>tbody>tr>td {
+  vertical-align: middle !important;
+}
+.btn-table {
+  height: 34px;
+}
+
+tr.categoryRow {
+    font-weight: bold;
+}
+div.gb-title {
+    word-wrap: break-word;
+    width: 350px;
+}
+span.itemTitle {
+    word-wrap: break-word;
+    display: block;
+    width: 280px;
+}
+
+div.gb-summary-legend, div.gb-table-legend {
+    display: table;
+}
+div.gb-table-legend {
+    margin: 1em 0;
+}
+div.gb-summary-legend-row, div.gb-table-legend-row {
+    display: table-row;
+}
+div.gb-summary-legend-col, div.gb-summary-legend-col-first, div.gb-table-legend-col, div.gb-table-legend-col-first {
+    display: table-cell;
+    padding-right: 4px;
+}
+div.gb-summary-legend-col-first, div.gb-table-legend-col-first {
+    text-align: right;
+}
+tr.categoryRow{
+    color: var(--sakai-primary-color-1);
+}
+form.quickEntryForm {
+    margin-top: 1em;
+    margin-bottom: 1em;
+    width: 100%;
+}
+form.quickEntryForm th{
+    background-color: var(--sakai-background-color-3);
+}
+form.quickEntryForm table.table-striped tbody tr td{
+    vertical-align: top !important;
+}
+form.quickEntryForm h3{
+    display: inline-block;
+}
+form.quickEntryForm input.quickEntryComment, form.quickEntryForm textarea {
+    width: 100%;
+}
+form.quickEntryForm input.disabledGrade {
+    cursor: not-allowed;
+    background-color: var(--sakai-background-color-3);
+}
+form.quickEntryForm input.disabledGrade, form.quickEntryForm input.enabledGrade {
+    width: 7ch;
+}
+form.quickEntryForm input.errorCell {
+    border: 3px solid red;
+}
+form.quickEntryForm span.summarycount {
+    margin-right: 3em;
+}
+form.quickEntryForm div.quickentrySpacing {
+    display: flex;
+    align-items: end;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+form.quickEntryForm div.quickentrySpacing span.buttons {
+    align-self: end;
+}
+form.quickEntryForm div.quickentrySpacing>* {
+    margin-bottom: 1rem;
+}
+form.quickEntryForm span.detailsFont {
+    font-size: 16px;
+}
+div.quickEntryBulk div#buttonDiv {
+    margin-top: 1em;
+}
+div.quickEntryBulk div.bulkInputArea {
+    padding: 2em;
+    margin-top: 1em;
+    background-color: var(--sakai-background-color-2);
+    border: 1px solid var(--sakai-border-color-1);
+}
+div.quickEntryBulk textarea {
+    display: block;
+    width: 485px;
+    height: 100px;
+}

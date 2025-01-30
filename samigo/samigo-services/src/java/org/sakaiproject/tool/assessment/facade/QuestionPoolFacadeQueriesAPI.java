@@ -25,6 +25,7 @@ package org.sakaiproject.tool.assessment.facade;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.model.Tree;
@@ -49,20 +50,18 @@ public interface QuestionPoolFacadeQueriesAPI
   public List getAllPools();
 
   /**
-   * Get all the pools that the agent has access to. The easiest way seems to be
-   * #1. get all the existing pool
-   * #2. get all the QuestionPoolAccessData record of the agent
-   * #3. go through the existing pools and check it against the QuestionPoolAccessData (qpa) record to see if
-   * the agent is granted access to it. qpa record (if exists) always trumps the default access right set
-   * up for a pool
-   * e.g. if the defaultAccessType for a pool is ACCESS_DENIED but the qpa record say ADMIN, then access=ADMIN
-   * e.g. if the defaultAccessType for a pool is ADMIN but the qpa record say ACCESS_DENIED, then access=ACCESS_DENIED
-   * e.g. if no qpa record exists, then access rule will follow the defaultAccessType set by the pool
+   * Get all the pools that the agent has access to. The easiest way seems to be:
+   * #1. Get all the QuestionPoolAccessData record of the agent
+   * #2a. When access is ADMIN we look at the pool's owner 
+   * #2b. When access in not ADMIN We go through the existing pools and check it against the QuestionPoolAccessData (qpa) record to see if
+   * the agent is granted access to it.
+   * 
+   * e.g. if level access is READ_ONLY user will have access to all qpa with READ_ONLY, MODIFY, READ_WRITE AND ADMIN 
+   * e.g. if level access is MODIFY user will have access to all qpa with MODIFY, READ_WRITE AND ADMIN
+   * e.g. if level access is READ_WRITE user will have access to all qpa with READ_WRITE AND ADMIN
    */
-  public QuestionPoolIteratorFacade getAllPools(String agentId);
+  public QuestionPoolIteratorFacade getAllPoolsWithAccess(String agentId, Long access);
 
-  public QuestionPoolIteratorFacade getAllPoolsWithAccess(String agentId);
-  
   public List<QuestionPoolFacade> getBasicInfoOfAllPools(String agentId);
  
   public boolean poolIsUnique(Long questionPoolId, String title, Long parentPoolId, String agentId);
@@ -171,15 +170,6 @@ public interface QuestionPoolFacadeQueriesAPI
   public long getSubPoolSize(Long poolId);
 
   /**
-   * get number of subpools for each pool in a single query.
-   * returns a List of Long arrays. Each array is 0: poolid, 1: count of subpools
-   *
-   * @param agent
-   * @return List<Long[]>
-   */
-  public List<Long[]> getSubPoolSizes(String agent);
-
-  /**
    * DOCUMENTATION PENDING
    *
    * @param itemId DOCUMENTATION PENDING
@@ -230,11 +220,17 @@ public interface QuestionPoolFacadeQueriesAPI
    */
   public void addQuestionPoolAccess(Tree tree, String user, Long questionPoolId, Long accessTypeId);
      
-  public void removeQuestionPoolAccess(Tree tree, String user, Long questionPoolId, Long accessTypeId);   
+  public void removeQuestionPoolAccess(Tree tree, String user, Long questionPoolId);   
 
-  public List<AgentFacade> getAgentsWithAccess(final Long questionPoolId);
+  public List<QuestionPoolAccessFacade> getAgentsWithAccess(final Long questionPoolId);
   
   //SAM-2049
   public void transferPoolsOwnership(String ownerId, List<Long> poolIds);
+
+  public Set<String> getAllItemHashes(Long poolId);
+
+  public Long getItemCount(Long poolId);
+
+  public Long getSubPoolCount(Long poolId);
 
 }

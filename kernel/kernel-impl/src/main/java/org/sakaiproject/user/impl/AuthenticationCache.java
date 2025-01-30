@@ -20,13 +20,14 @@
 package org.sakaiproject.user.impl;
 
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.memory.api.Cache;
@@ -51,18 +52,15 @@ import org.sakaiproject.user.api.AuthenticationException;
  */
 @Slf4j
 public class AuthenticationCache {
+    @Setter
     private MemoryService memoryService;
     private Cache<String, AuthenticationRecord> authCache = null;
     /**
      * List of algorithms to attempt to use, best ones should come first.
      */
-    private List<String> algorithms = Arrays.asList(new String[]{"SHA2","SHA1"});
-    private Random saltGenerator = new Random();
-    private int saltLength = 8;
-	
-    public void setMemoryService(MemoryService memoryService) {
-        this.memoryService = memoryService;
-    }
+    private final List<String> algorithms = Arrays.asList("SHA2","SHA1");
+    private final Random saltGenerator = new Random();
+    private final int saltLength = 8;
 
     public void init() {
         log.info("INIT");
@@ -91,16 +89,16 @@ public class AuthenticationCache {
 			byte[] encodedPassword = getEncrypted(password, salt);
 			if (MessageDigest.isEqual(record.encodedPassword, encodedPassword)) {
 				if (record.authentication == null) {
-					if (log.isDebugEnabled()) log.debug("getAuthentication: replaying authentication failure for authenticationId=" + authenticationId);
+                    log.debug("getAuthentication: replaying authentication failure for authenticationId={}", authenticationId);
 					throw new AuthenticationException("repeated invalid login");
 				} else {
-					if (log.isDebugEnabled()) log.debug("getAuthentication: returning record for authenticationId=" + authenticationId);
+                    log.debug("getAuthentication: returning record for authenticationId={}", authenticationId);
 					auth = record.authentication;
 				}
 			} else {
 				// Since the passwords didn't match, we're no longer getting repeats,
 				// and so the record should be removed.
-				if (log.isDebugEnabled()) log.debug("getAuthentication: record for authenticationId=" + authenticationId + " failed password check");
+                log.debug("getAuthentication: record for authenticationId={} failed password check", authenticationId);
 				authCache.remove(authenticationId);
 			}
 		}
@@ -140,7 +138,7 @@ public class AuthenticationCache {
 			try {
 				MessageDigest messageDigest = MessageDigest.getInstance(algorithm);
 				messageDigest.update(salt);
-				messageDigest.update(plaintext.getBytes("UTF-8"));
+				messageDigest.update(plaintext.getBytes(StandardCharsets.UTF_8));
 				byte[] encrypted = messageDigest.digest();
 				byte[] saltEncrypted = new byte[salt.length+ encrypted.length];
 				System.arraycopy(salt, 0, saltEncrypted, 0, salt.length);
@@ -148,37 +146,9 @@ public class AuthenticationCache {
 				return saltEncrypted;
 			} catch (NoSuchAlgorithmException e) {
 				lastException = e;
-			} catch (UnsupportedEncodingException e) {
-				lastException = e;
 			}
-		}
+        }
 		throw new RuntimeException(lastException);
-	}
-
-	/**
-	 * @deprecated No longer used. Use standard cache settings instead.
-	 * @param maximumSize maximum capacity of the cache before replacing older records
-	 */
-	public void setMaximumSize(int maximumSize) {
-		if (log.isWarnEnabled()) log.warn("maximumSize property set but no longer used; should switch to maxElementsInMemory property instead");
-	}
-
-	/**
-	 * @deprecated No longer used. Use standard cache settings instead.
-	 * @param timeoutMs timeout of a cached authentication in milliseconds
-	 */
-	public void setTimeoutMs(int timeoutMs) {
-		if (log.isWarnEnabled()) log.warn("timeoutMs property set but no longer used; should switch to timeToLive seconds property instead");
-	}
-
-	/**
-	 * @deprecated No longer used. Use standard cache settings instead.
-	 * @param failureThrottleTimeoutMs timeout of a cached failed ID and
-	 * password combination in milliseconds; used to prevent DAV clients
-	 * with out-of-date passwords from swamping authentication services.
-	 */
-	public void setFailureThrottleTimeoutMs(int failureThrottleTimeoutMs) {
-		if (log.isWarnEnabled()) log.warn("failureThrottleTimeoutMs property set but no longer used; should switch to timeToLive seconds property instead");
 	}
 
 	static class AuthenticationRecord implements Serializable {

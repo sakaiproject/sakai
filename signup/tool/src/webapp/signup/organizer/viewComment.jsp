@@ -5,14 +5,14 @@
 
 <f:view locale="#{UserLocale.locale}">
 	<jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
-	   <jsp:setProperty name="msgs" property="baseName" value="messages"/>
+	   <jsp:setProperty name="msgs" property="baseName" value="signup"/>
 	</jsp:useBean>
 	<sakai:view_container title="Signup Tool">
 			<style type="text/css">
-				@import url("/sakai-signup-tool/css/signupStyle.css");
+				@import url("/sakai-signup-tool/css/signupStyle.css${Portal.CDNQuery}");
 			</style>
 			<style type="text/css" media="print">
-				@import url("/sakai-signup-tool/css/print.css");
+				@import url("/sakai-signup-tool/css/print.css${Portal.CDNQuery}");
 			</style>
 		
 			<h:form id="viewComment">
@@ -29,7 +29,7 @@
 				<div class="page-header">
 			 		<sakai:view_title value="#{msgs.event_view_comment_page_title}"/>
 				</div>
-				<div class="table-responsive">
+				<div class="table">
 				<h:panelGrid columns="2" columnClasses="titleColumn,valueColumn">
 				
 					<h:outputText value="#{msgs.event_name}" styleClass="titleText" escape="false"/>

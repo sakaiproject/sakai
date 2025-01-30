@@ -102,12 +102,6 @@
   	
   		<script>
   			$(document).ready(function() {
-				$(".messageBody").each(function(index){
-					var msgBody = $(this).html();
-					msgBody = msgBody.replace(/\n/g,',').replace(/\s/g,' ').replace(/  ,/g,',');
-					var wordCountId = $(this).attr('id').substring(11, $(this).attr('id').length);
-					$("#wordCountSpan" + wordCountId).html(getWordCount(msgBody));
-				});
 				var menuLink = $('#forumsStatisticsMenuLink');
 				var menuLinkSpan = menuLink.closest('span');
 				menuLinkSpan.addClass('current');
@@ -211,7 +205,7 @@
 		</h:panelGrid>
 		<h:outputText rendered="#{empty mfStatisticsBean.userAuthoredStatistics}" value="#{msgs.stat_no_authored_message}" styleClass="instruction" style="display:block"/>
 
-		<div class="table-responsive">
+		<div class="table">
   		<h:dataTable styleClass="table table-hover table-striped table-bordered lines nolines" id="members" value="#{mfStatisticsBean.userAuthoredStatistics}" var="stat" rendered="#{!empty mfStatisticsBean.userAuthoredStatistics}"
    	 		columnClasses="bogus,bogus,bogus,bogus,bogus" cellpadding="0" cellspacing="0">
   			<h:column>
@@ -289,7 +283,7 @@
 		   <h:outputText value="#{msgs.stat_forum_read}" />
   			<f:verbatim></h4></f:verbatim>
 		<h:outputText rendered="#{empty mfStatisticsBean.userReadStatistics}" value="#{msgs.stat_no_read_message}" styleClass="instruction" style="display:block"/>
-  		<div class="table-responsive">
+  		<div class="table">
   		<h:dataTable styleClass="table table-hover table-striped table-bordered lines nolines" id="members2" value="#{mfStatisticsBean.userReadStatistics}" var="stat2" rendered="#{!empty mfStatisticsBean.userReadStatistics}"
    	 	 columnClasses="bogus,bogus,bogus,bogus,bogus,bogus" cellpadding="0" cellspacing="0">
   			<h:column>

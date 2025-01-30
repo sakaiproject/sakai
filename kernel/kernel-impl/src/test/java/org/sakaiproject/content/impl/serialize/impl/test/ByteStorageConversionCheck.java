@@ -58,7 +58,7 @@ public class ByteStorageConversionCheck
 		sb.append("\n");
 		for (int i = 0; i < bin.length; i++)
 		{
-			sb.append("   Byte "+bin[i]+": Stored as int["+(int)cin[i]+"]  char["+cin[i]+"]\n");
+			sb.append("   Byte "+bin[i]+": Stored as int["+(int)cin[i]+"]\n");
 		}
 		log.info(sb.toString());
 		
@@ -80,8 +80,8 @@ public class ByteStorageConversionCheck
 		
 		ByteStorageConversion.toChar(bin, 0, cin, 0, bin.length);
 		ByteStorageConversion.toByte(cin, 0, bout, 0, cin.length);
-		log.info("   Min Byte "+bin[0]+": Stored as int["+(int)cin[0]+"]  char["+cin[0]+"]\n");
-		log.info("   Max Byte "+bin[1]+": Stored as int["+(int)cin[1]+"]  char["+cin[1]+"]\n");
+		log.info("   Min Byte "+bin[0]+": Stored as int["+(int)cin[0]+"]\n");
+		log.info("   Max Byte "+bin[1]+": Stored as int["+(int)cin[1]+"]\n");
 		
 		for ( int i = 0; i < bin.length; i++ ) {
 			if ( bin[i] !=  bout[i] ) {

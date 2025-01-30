@@ -81,12 +81,12 @@ public class FacadeUtils {
     /**
      * A convenience method for UID-based filtering.
      */
-    public static Set getStudentUids(Collection enrollments) {
-		Set studentUids = new HashSet();
-		for(Iterator iter = enrollments.iterator(); iter.hasNext();) {
-			EnrollmentRecord enr = (EnrollmentRecord)iter.next();
-			studentUids.add(enr.getUser().getUserUid());
-		}
+    public static Set<String> getStudentUids(Collection enrollments) {
+		Set<String> studentUids = new HashSet<>();
+        for (Object enrollment : enrollments) {
+            EnrollmentRecord enr = (EnrollmentRecord) enrollment;
+            studentUids.add(enr.getUser().getUserUid());
+        }
 		return studentUids;
 	}
 }

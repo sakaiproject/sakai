@@ -40,7 +40,17 @@ function showAnnouncements(url, tool_href, number, announcementsDiv){
 						var href = tool_href + this["announcementId"]+"&sakai_action=doShowmetadata&persist_to_iframe=itemReference";
 						var entityTitle = this["entityTitle"].replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
 						var createdByDisplayName = this["createdByDisplayName"].replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
-						text_for_announcements += '<div><a href="'+href+'" target="_top">'+ entityTitle +'</a> by '+ createdByDisplayName +'</div>';
+
+						// Highlighted announcements.
+						const isHighlighted = "true" === this["highlight"];
+						let highlightClass = '';
+						text_for_announcements += '<div>';
+						if (isHighlighted) {
+  						    text_for_announcements += '<i aria-hidden="true" class="fa fa-star"></i>';
+  						    highlightClass = 'font-bold-highlighted';
+  						}
+						const byString = msg("simplepage.created-by");
+  						text_for_announcements += `<a href="${href}" class="${highlightClass}" target="_top">${entityTitle}</a> ${byString} ${createdByDisplayName}</div>`;
 						text_for_announcements += '<div class="itemDate">'+date_time+'</div>';
 						text_for_announcements += '</li>';
 					});

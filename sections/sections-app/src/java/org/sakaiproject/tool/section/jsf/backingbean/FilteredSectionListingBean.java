@@ -74,10 +74,6 @@ public abstract class FilteredSectionListingBean extends CourseDependentBean imp
 		// Get the TAs for all groups
 		Map<String,List<ParticipationRecord>> sectionTAs = getSectionManager().getSectionTeachingAssistantsMap(sectionSet);
 		
-		// Get the Instructors for the site
-		List<String> intructorUids = getSiteInstructors().stream().map(s -> s.getUser().getUserUid())
-				.collect(Collectors.toList());
-
 		for(Iterator sectionIter = sectionSet.iterator(); sectionIter.hasNext();) {
 			CourseSection section = (CourseSection)sectionIter.next();
 			String catName = getCategoryName(section.getCategory());
@@ -106,7 +102,7 @@ public abstract class FilteredSectionListingBean extends CourseDependentBean imp
 					(Integer) sectionSize.get(section.getUuid()) : 0;
 
 			SectionDecorator decoratedSection = new SectionDecorator(section, catName, taNames, totalEnrollments, true,
-					(taUids.contains(getUserUid()) || (intructorUids.contains(getUserUid()))));
+					(taUids.contains(getUserUid()) || (canManageAnySection())));
 			sections.add(decoratedSection);
 		}
 

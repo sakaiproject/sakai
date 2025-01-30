@@ -1,0 +1,35 @@
+#permissions-container {
+
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+
+  border: 1px solid var(--sakai-border-color);
+
+  .row-hover {
+    background-color: var(--sakai-active-color-2);
+  }
+
+  .permission-row {
+
+    &:hover {
+      background-color: var(--sakai-active-color-2);
+    }
+
+    &:nth-child(odd) {
+      background-color: var(--sakai-table-even-color);
+    }
+
+    .permission-cell {
+      border-left: 1px solid var(--sakai-border-color);
+    }
+  }
+
+  #permission-header {
+    background-color: var(--sakai-background-color-2);
+
+    button {
+      color: var(--sakai-text-color-1);
+    }
+  }
+}
+

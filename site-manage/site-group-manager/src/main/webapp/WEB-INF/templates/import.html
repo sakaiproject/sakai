@@ -5,7 +5,7 @@
   <div th:replace="fragments/common :: jQuery" />
   <div class="portletBody">
     <div id="menu" th:include="fragments/menus :: main (import)" />
-    <div class="page-header"><h1 th:text="#{import.header}"></h1></div>
+    <div><h1 th:text="#{import.header}"></h1></div>
     <div class="row">
       <div class="col-sm-6">
         <div class="sak-banner-error" th:text="${errorMessage}" th:if="${errorMessage != null}"></div>
@@ -27,7 +27,7 @@
       </div>
     </div>
     <form id="bulkcreation-form" th:action="@{/importGroups}" method="post" enctype="multipart/form-data">
-      <div class="form-group row">
+      <div class="row">
         <div class="col-sm-6">
           <label for="groupUploadText" th:text="#{import.typetext}">Type or paste in the text box</label>
           <textarea class="form-control" id="groupUploadedText" name="groupUploadedText" rows="10" cols="45"></textarea>
@@ -39,7 +39,7 @@
       </div>
       <div class="act">
         <input accesskey="s" id="bulk-creation-submit-button" type="submit" class="active" th:value="#{import.button.submit}"/>
-        <button type="button" th:data-url="@{/}" accesskey="x" id="bulk-creation-cancel-button" th:text="#{import.button.cancel}">Cancel</button>
+        <button class="btn-link" type="button" th:data-url="@{/}" accesskey="x" id="bulk-creation-cancel-button" th:text="#{import.button.cancel}">Cancel</button>
       </div>
     </form>
   </div>

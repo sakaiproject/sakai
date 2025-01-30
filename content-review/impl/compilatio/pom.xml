@@ -9,7 +9,7 @@
 	<parent>
 		<artifactId>content-review-impl</artifactId>
 		<groupId>org.sakaiproject.contentreview</groupId>
-		<version>23-SNAPSHOT</version>
+		<version>25-SNAPSHOT</version>
 	</parent>
 
 	<dependencies>
@@ -123,11 +123,6 @@
         <dependency>
             <groupId>javax.transaction</groupId>
             <artifactId>jta</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.javassist</groupId>
-            <artifactId>javassist</artifactId>
             <scope>test</scope>
         </dependency>
 		<dependency>

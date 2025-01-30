@@ -3,7 +3,6 @@
     var checklistItemName = "checklist-item-name";
     var checklistItemLink = "checklist-item-link";
     var dialogRadios = $("input[name=external-link-radios]");
-    var externalLinkDialog = $('#externalLink-dialog');
     var externalLinkItemsAvailable = [];
 
 
@@ -34,30 +33,26 @@
             $("#groupHeader").hide();
         }
 
-        externalLinkDialog.dialog({
-            autoOpen: false,
-            width: modalDialogWidth(),
-            modal: true,
-            resizable: false,
-            draggable: false
-        }).parent('.ui-dialog').css('zIndex', 900);
+        //$("#externalLink-dialog-close").click(function(e){
+        document.getElementById("externalLink-dialog")?.addEventListener("hide.bs.modal", e => {
 
-        $("#externalLink-dialog-close").click(function(e){
-            e.preventDefault();
-            externalLinkDialog.dialog('close');
             oldloc.focus();
             clearDialogRadios();
         });
 
         // "submit" the external link dialog
-        $("#externalLink-dialog-submit").click(function (e) {
+        document.getElementById("externalLink-dialog-submit")?.addEventListener("click", function (e) {
+
             e.preventDefault();
             var selected = $("input[name=external-link-radios]:checked").val();
             var target = $("#item-id").val();
             $("input[name=checklist-item-link" + target + "]").val(selected);
             $("#external-link-unlink-" + target).show();
 
-            externalLinkDialog.dialog('close');
+            const el = document.getElementById("externalLink-dialog");
+            const modal = bootstrap.Modal.getOrCreateInstance(el);
+            modal.hide();
+
             updateUsedExternalLinks(selected);
             clearDialogRadios();
         });
@@ -138,7 +133,9 @@
                })
             });
 
-            externalLinkDialog.dialog('open');
+            const el = document.getElementById("externalLink-dialog");
+            const modal = bootstrap.Modal.getOrCreateInstance(el);
+            modal.show();
         });
 
         // external link unlinking (hide button and set up click event)
@@ -233,30 +230,24 @@
     }
 
     function getUsedExternalLinks() {
-        var data = externalLinkDialog.data("externalLinkItemsUsed");
-        if(data === undefined) {
-           return [];
-        } else {
-            return data;
-        }
+
+        const json = sessionStorage.getItem("externalLinkItemsUsed");
+        return json ? JSON.parse(json) : [];
     }
 
     function updateUsedExternalLinks(val) {
-        var array = getUsedExternalLinks();
-        if(val !== undefined) {
-            array.push(val);
-            externalLinkDialog.data("externalLinkItemsUsed", array);
-        }
+
+      if (val) {
+        const array = getUsedExternalLinks();
+        array.push(val);
+        sessionStorage.setItem("externalLinkItemsUsed", JSON.stringify(array))
+      }
     }
 
     function removeUsedExternalLinks(removeItem) {
-        var array = getUsedExternalLinks();
 
-        array = $.grep(array, function(value) {
-            return value.toString() !== removeItem;
-        });
-
-        externalLinkDialog.data("externalLinkItemsUsed", array);
+        const array = getUsedExternalLinks().filter(v => v != removeItem);
+        sessionStorage.setItem("externalLinkItemsUsed", JSON.stringify(array))
     }
 
     function clearDialogRadios() {

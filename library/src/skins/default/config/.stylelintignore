@@ -1,0 +1,4 @@
+**/*.min.css
+**/dist/
+**/target/
+node_modules

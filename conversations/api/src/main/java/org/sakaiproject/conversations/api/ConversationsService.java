@@ -46,10 +46,18 @@ public interface ConversationsService {
     public static final String SORT_TOPICS_CREATED_DESCENDING = "topicsCreatedDescending";
     public static final String SORT_TOPICS_VIEWED_ASCENDING = "topicsViewedAscending";
     public static final String SORT_TOPICS_VIEWED_DESCENDING = "topicsViewedDescending";
+    public static final String SORT_TOPIC_REACTIONS_ASCENDING = "topicReactionsAscending";
+    public static final String SORT_TOPIC_REACTIONS_DESCENDING = "topicReactionsDescending";
+    public static final String SORT_TOPIC_UPVOTES_ASCENDING = "topicUpvotesAscending";
+    public static final String SORT_TOPIC_UPVOTES_DESCENDING = "topicUpvotesDescending";
     public static final String SORT_POSTS_CREATED_ASCENDING = "postsCreatedAscending";
     public static final String SORT_POSTS_CREATED_DESCENDING = "postsCreatedDescending";
-    public static final String SORT_REACTIONS_MADE_ASCENDING = "reactionsMadeAscending";
-    public static final String SORT_REACTIONS_MADE_DESCENDING = "reactionsMadeDescending";
+    public static final String SORT_POSTS_READ_ASCENDING = "postsReadAscending";
+    public static final String SORT_POSTS_READ_DESCENDING = "postsReadDescending";
+    public static final String SORT_POST_REACTIONS_ASCENDING = "postReactionsAscending";
+    public static final String SORT_POST_REACTIONS_DESCENDING = "postReactionsDescending";
+    public static final String SORT_POST_UPVOTES_ASCENDING = "postUpvotesAscending";
+    public static final String SORT_POST_UPVOTES_DESCENDING = "postUpvotesDescending";
 
     public static final String PROP_THREADS_PAGE_SIZE = "conversations.threads.page.size";
     public static final String PROP_MAX_THREAD_DEPTH = "conversations.max.thread.depth";
@@ -70,6 +78,17 @@ public interface ConversationsService {
     ConversationsTopic hideTopic(String topicId, boolean hidden, boolean needsModerator) throws ConversationsPermissionsException;
     void bookmarkTopic(String topicId, boolean bookmarked) throws ConversationsPermissionsException;
     Map<Reaction, Integer> saveTopicReactions(String topicId, Map<Reaction, Boolean> reactions) throws ConversationsPermissionsException;
+
+    /**
+     * Upvote  the specified topic for the current user.
+     */
+    TopicTransferBean upvoteTopic(String siteId, String topicId) throws ConversationsPermissionsException;
+
+    /**
+     * Unupvote the specified topic for the current user. This is not a downvote, it is simply an
+     * undoing of a previous upvote.
+     */
+    TopicTransferBean unUpvoteTopic(String siteId, String topicId) throws ConversationsPermissionsException;
 
     Optional<PostTransferBean> getPost(String postId) throws ConversationsPermissionsException;
     PostTransferBean savePost(PostTransferBean postBean, boolean sendMessage) throws ConversationsPermissionsException;
@@ -103,4 +122,11 @@ public interface ConversationsService {
     ConvStatus getConvStatusForSiteAndUser(String siteId, String userId) throws ConversationsPermissionsException;
     void saveConvStatus(ConvStatus convStatus) throws ConversationsPermissionsException;
     Map<String, Object> getSiteStats(String siteId, Instant from, Instant to, int page, String sort) throws ConversationsPermissionsException; 
+
+    /**
+     * Clear the posts cache for any topics graded by the supplied gradingItemId
+     *
+     * @param gradingItemId The grading item id to lookup topics against.
+     */
+    void clearCacheForGradedTopic(Long gradingItemId);
 }

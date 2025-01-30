@@ -29,6 +29,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Date;
@@ -82,44 +83,42 @@ public class DbCalendarServiceSerializationTest extends TestCase
 
 			public boolean checkReference(String ref)
 			{
-				// TODO Auto-generated method stub
 				return false;
+			}
+
+			@Override
+			public EntityProducer getEntityProducer(String reference, Reference target)
+			{
+				return null;
 			}
 
 			public List getEntityProducers()
 			{
-				// TODO Auto-generated method stub
 				return new ArrayList();
 			}
 
 			public Reference newReference(String refString)
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 
 			public Reference newReference(Reference copyMe)
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 
 			public List newReferenceList()
 			{
-				// TODO Auto-generated method stub
 				return new ArrayList();
 			}
 
 			public List newReferenceList(List copyMe)
 			{
-				// TODO Auto-generated method stub
 				return new ArrayList(copyMe);
 			}
 
 			public void registerEntityProducer(EntityProducer manager, String referenceRoot)
 			{
-				// TODO Auto-generated method stub
-				
 			}
 			
 		};
@@ -127,151 +126,120 @@ public class DbCalendarServiceSerializationTest extends TestCase
 
 			public Connection borrowConnection() throws SQLException
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 
 			public void dbCancel(Connection conn)
 			{
-				// TODO Auto-generated method stub
-				
 			}
 
 			public Long dbInsert(Connection callerConnection, String sql, Object[] fields, String autoColumn)
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 
 			public Long dbInsert(Connection callerConnection, String sql, Object[] fields, String autoColumn, InputStream last, int lastLength)
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 
 			public List dbRead(String sql)
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 
 			public List dbRead(String sql, Object[] fields, SqlReader reader)
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 
 			public List dbRead(Connection conn, String sql, Object[] fields, SqlReader reader)
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 
 			public void dbReadBinary(String sql, Object[] fields, byte[] value)
 			{
-				// TODO Auto-generated method stub
-				
 			}
 
 			public void dbReadBinary(Connection conn, String sql, Object[] fields, byte[] value)
 			{
-				// TODO Auto-generated method stub
-				
 			}
 
 			public InputStream dbReadBinary(String sql, Object[] fields, boolean big) throws ServerOverloadException
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 
 			public void dbReadBlobAndUpdate(String sql, byte[] content)
 			{
-				// TODO Auto-generated method stub
-				
 			}
 
 			public Connection dbReadLock(String sql, StringBuilder field)
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 
 			public void dbUpdateCommit(String sql, Object[] fields, String var, Connection conn)
 			{
-				// TODO Auto-generated method stub
-				
 			}
 
 			public boolean dbWrite(String sql)
 			{
-				// TODO Auto-generated method stub
 				return false;
 			}
 
 			public boolean dbWrite(String sql, String var)
 			{
-				// TODO Auto-generated method stub
 				return false;
 			}
 
 			public boolean dbWrite(String sql, Object[] fields)
 			{
-				// TODO Auto-generated method stub
 				return false;
 			}
 
 			public boolean dbWrite(Connection connection, String sql, Object[] fields)
 			{
-				// TODO Auto-generated method stub
 				return false;
 			}
 
 			public boolean dbWrite(String sql, Object[] fields, String lastField)
 			{
-				// TODO Auto-generated method stub
 				return false;
 			}
 
 			public boolean dbWriteBatch(Connection connection, String sql, List<Object[]> fieldsList)
 			{
-				// TODO Auto-generated method stub
 				return false;
 			}
 
 			public boolean dbWriteBinary(String sql, Object[] fields, byte[] var, int offset, int len)
 			{
-				// TODO Auto-generated method stub
 				return false;
 			}
 
 			public boolean dbWriteFailQuiet(Connection connection, String sql, Object[] fields)
 			{
-				// TODO Auto-generated method stub
 				return false;
 			}
 
 			public void ddl(ClassLoader loader, String resource)
 			{
-				// TODO Auto-generated method stub
-				
 			}
 
 			public String getBooleanConstant(boolean value)
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 
 			public GregorianCalendar getCal()
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 
 			public Long getNextSequence(String tableName, Connection conn)
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 
@@ -282,32 +250,26 @@ public class DbCalendarServiceSerializationTest extends TestCase
 
 			public void returnConnection(Connection conn)
 			{
-				// TODO Auto-generated method stub
-				
 			}
 
 			public boolean transact(Runnable callback, String tag)
 			{
-				// TODO Auto-generated method stub
 				return false;
 			}
 
 			public Connection dbReadLock(String sql, SqlReader reader)
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 
 			public int dbWriteCount(String sql, Object[] fields, String lastField, Connection callerConnection, boolean failQuiet) 
 
 			{
-				// TODO Auto-generated method stub
 				return -1;
 			}
 			public int dbWriteCount(String sql, Object[] fields, String lastField, Connection callerConnection, int failQuiet) 
 
 			{
-				// TODO Auto-generated method stub
 				return -1;
 			}
 
@@ -317,25 +279,21 @@ public class DbCalendarServiceSerializationTest extends TestCase
 
 			public boolean clearLocalTimeZone(String userId)
 			{
-				// TODO Auto-generated method stub
 				return false;
 			}
 
 			public boolean different(Time a, Time b)
 			{
-				// TODO Auto-generated method stub
 				return false;
 			}
 
 			public GregorianCalendar getCalendar(TimeZone zone, int year, int month, int day, int hour, int min, int sec, int ms)
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 
 			public TimeZone getLocalTimeZone()
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 
@@ -346,96 +304,85 @@ public class DbCalendarServiceSerializationTest extends TestCase
 
 			public Time newTime()
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 
 			public Time newTime(long value)
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 
 			public Time newTime(GregorianCalendar cal)
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 
 			public TimeBreakdown newTimeBreakdown(int year, int month, int day, int hour, int minute, int second, int millisecond)
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 
 			public Time newTimeGmt(String value)
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 
 			public Time newTimeGmt(int year, int month, int day, int hour, int minute, int second, int millisecond)
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 
 			public Time newTimeGmt(TimeBreakdown breakdown)
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 
 			public Time newTimeLocal(int year, int month, int day, int hour, int minute, int second, int millisecond)
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 
 			public Time newTimeLocal(TimeBreakdown breakdown)
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 
 			public TimeRange newTimeRange(Time start, Time end, boolean startIncluded, boolean endIncluded)
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 
 			public TimeRange newTimeRange(String value)
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 
 			public TimeRange newTimeRange(Time startAndEnd)
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 
 			public TimeRange newTimeRange(long start, long duration)
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 
 			public TimeRange newTimeRange(Time start, Time end)
 			{
-				// TODO Auto-generated method stub
+				return null;
+			}
+
+			public TimeRange newTimeRange(Instant start, Instant end)
+			{
 				return null;
 			}
 
 			public int dbWriteCount(String sql, Object[] fields, String lastField, Connection callerConnection, boolean failQuiet)
 			{
-				// TODO Auto-generated method stub
 				return -1;
 			}
 			public int dbWriteCount(String sql, Object[] fields, String lastField, Connection callerConnection, int failQuiet)
 			{
-				// TODO Auto-generated method stub
 				return -1;
 			}
 
@@ -481,19 +428,26 @@ public class DbCalendarServiceSerializationTest extends TestCase
 
 			@Override
 			public String timeFormat(Date date, Locale locale, int format) {
-				// TODO Auto-generated method stub
 				return null;
 			}
 
 			@Override
 			public String dayOfWeekFormat(Date date, Locale locale, int format) {
-				// TODO Auto-generated method stub
 				return null;
 			}
 
 			@Override
 			public Date parseISODateInUserTimezone(String dateString) {
-				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public String dateFromUtcToUserTimeZone(String utcDate, boolean formatted) {
+				return null;
+			}
+
+			@Override
+			public LocalDateTime dateFromUserTimeZoneToUtc(String zonedDate) {
 				return null;
 			}
 		};

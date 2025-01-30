@@ -29,10 +29,12 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
@@ -45,6 +47,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.spring.SpringBeanLocator;
@@ -74,6 +77,7 @@ import org.sakaiproject.tool.assessment.ui.bean.evaluation.SubmissionStatusBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
+import org.sakaiproject.tool.assessment.util.ItemCancellationUtil;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
@@ -223,8 +227,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 				questionBean.setPublishedAssessment(publishedAssessment);
 			}
 			// build a hashMap (publishedItemId, publishedItem)
-			Map publishedItemHash = pubService
-					.preparePublishedItemHash(publishedAssessment);
+			Map<Long, ItemDataIfc> publishedItemHash = pubService.preparePublishedItemHash(publishedAssessment);
 			log.debug("questionScores(): publishedItemHash.size = "
 					+ publishedItemHash.size());
 			// build a hashMap (publishedItemTextId, publishedItemText)
@@ -254,8 +257,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 				log.debug("item = {}:{}-{}", thisItemTextIfc.getSequence(), thisItemTextIfc.getText(), thisItemTextIfc.getItem().getItemId());
 
 			}
-			Map publishedAnswerHash = pubService
-					.preparePublishedAnswerHash(publishedAssessment);
+			Map<Long, AnswerIfc> publishedAnswerHash = pubService.preparePublishedAnswerHash(publishedAssessment);
 			// re-attach session and load all lazy loaded parent/child stuff
 
 //			Set<Long> publishedAnswerHashKeySet = publishedAnswerHash.keySet();
@@ -267,8 +269,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 //					pubItemService.eagerFetchAnswer(answer);
 //				}
 //			}
-			log.debug("questionScores(): publishedAnswerHash.size = "
-					+ publishedAnswerHash.size());
+			log.debug("questionScores(): publishedAnswerHash.size = {}", publishedAnswerHash.size());
 			Map<Long, AgentResults> agentResultsByItemGradingIdMap = new HashMap<>();
 
 			TotalScoresBean totalBean = (TotalScoresBean) ContextUtil
@@ -323,18 +324,18 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 
 			Map map = getItemScores(Long.valueOf(publishedId), Long
 					.valueOf(itemId), which, isValueChange);
-			log.debug("questionScores(): map .size = " + map.size());
+			log.debug("questionScores(): map .size = {}", map.size());
 			List allscores = new ArrayList();
 			Iterator keyiter = map.keySet().iterator();
 			while (keyiter.hasNext()) {
 				allscores.addAll((List) map.get(keyiter.next()));
 			}
 
-			log.debug("questionScores(): allscores.size = " + allscores.size());
+			log.debug("questionScores(): allscores.size = {}", allscores.size());
 
 			// now we need filter by sections selected
 			List scores = new ArrayList(); // filtered list
-			Map useridMap = totalBean.getUserIdMap(TotalScoresBean.CALLED_FROM_QUESTION_SCORE_LISTENER);
+			Map useridMap = totalBean.getUserIdMap(TotalScoresBean.CALLED_FROM_QUESTION_SCORE_LISTENER, AgentFacade.getCurrentSiteId());
 			bean.setUserIdMap(useridMap);
 			log.debug("questionScores(): useridMap.size = " + useridMap.size());
 
@@ -366,7 +367,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 				}
 			}
 
-			log.debug("questionScores(): scores.size = " + scores.size());
+			log.debug("questionScores(): scores.size = {}", scores.size());
 
 			Iterator iter = scores.iterator();
 			List agents = new ArrayList();
@@ -432,8 +433,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 				scoresByItem.put(idata.getAssessmentGradingId() + ":"
 						+ idata.getPublishedItemId(), newList);
 			}
-			log.debug("questionScores(): scoresByItem.size = "
-					+ scoresByItem.size());
+			log.debug("questionScores(): scoresByItem.size = {}", scoresByItem.size());
 			bean.setScoresByItem(scoresByItem);
 
 			try {
@@ -525,6 +525,28 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 				deliveryItems.add(item);
 			bean.setDeliveryItem(deliveryItems);
 
+			boolean randomItemPresent = publishedItemHash.values().stream()
+					.filter(publishedItem -> ItemCancellationUtil.isRandomItem(publishedItem))
+					.findAny()
+					.isPresent();
+
+			// At least one other question, that is not cancelled should exist and the item can't be random
+			bean.setCancellationAllowed(!randomItemPresent && publishedItemHash.values().stream()
+					.filter(publishedItem -> !TypeIfc.EXTENDED_MATCHING_ITEMS.equals(publishedItem.getTypeId()))
+					.filter(publishedItem -> !ItemCancellationUtil.isCancelled(publishedItem))
+					.collect(Collectors.counting()) > 1);
+			log.debug("setCancellationAllowed({})", bean.isCancellationAllowed());
+
+			bean.setEmiItemPresent(publishedItemHash.values().stream()
+					.filter(publishedItem -> TypeIfc.EXTENDED_MATCHING_ITEMS.equals(publishedItem.getTypeId()))
+					.filter(publishedItem -> !ItemCancellationUtil.isCancelled(publishedItem))
+					.collect(Collectors.counting())
+					.intValue() > 0);
+			log.debug("setEmiItemPresent({})", bean.isEmiItemPresent());
+
+			bean.setRandomItemPresent(randomItemPresent);
+			log.debug("setRandomItemPresent({})", randomItemPresent);
+
 			if (ContextUtil.lookupParam("roleSelection") != null) {
 				bean.setRoleSelection(ContextUtil.lookupParam("roleSelection"));
 			}
@@ -596,10 +618,13 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 				List<ItemGradingAttachment> itemGradingAttachmentList = new ArrayList<>();
 				int i = 1;
 				Map<Integer, String> answersMap = new HashMap<Integer, String>();
+				LinkedHashMap<String, String> answersMapValues = new LinkedHashMap<String, String>();
+				LinkedHashMap<String, String> globalanswersMapValues = new LinkedHashMap<String, String>();
+				LinkedHashMap<String, String> mainvariablesWithValues = new LinkedHashMap<String, String>();
 				while (iter2.hasNext()) {
 					ItemGradingData gdata = (ItemGradingData) iter2.next();
 					results.setItemGrading(gdata);
-					delegate.extractCalcQAnswersArray(answersMap, item, 
+					delegate.extractCalcQAnswersArray(answersMap, answersMapValues, globalanswersMapValues, mainvariablesWithValues, item,
 								gdata.getAssessmentGradingId(), gdata.getAgentId());
 					itemGradingAttachmentList.addAll(gdata.getItemGradingAttachmentSet());
 					agentResultsByItemGradingIdMap.put(gdata.getItemGradingId(), results);
@@ -762,8 +787,8 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 					//SAM-755-"checkmark" indicates right, add "X" to indicate wrong
 					String correct = evaluationMessages.getString("alt_correct");
 					String incorrect = evaluationMessages.getString("alt_incorrect");
-					String checkmarkGif = String.format("<span title=\"%s\" class=\"icon-sakai--check feedBackCheck\"></span>", correct);
-					String crossmarkGif = String.format("<span title=\"%s\" class=\"icon-sakai--delete feedBackCross\"></span>", incorrect);
+					String checkmarkGif = String.format("<span title=\"%s\" class=\"si si-check-lg\"></span>", correct);
+					String crossmarkGif = String.format("<span title=\"%s\" class=\"si si-remove feedBackCross\"></span>", incorrect);
 					if (gdataAnswer != null) {
 						answerText = ComponentManager.get(FormattedText.class).escapeHtml(answerText, true);
 						if (bean.getTypeId().equals("8") || bean.getTypeId().equals("11")) {
@@ -794,11 +819,11 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 						else if (bean.getTypeId().equals("15")) {  // CALCULATED_QUESTION
 							// Answers Keys
 							answerKey = (String)answersMap.get(i);
-							decimalPlaces = Integer.valueOf(answerKey.substring(answerKey.indexOf(',')+1, answerKey.length()));
-							answerKey = answerKey.substring(0, answerKey.indexOf("|")); // cut off extra data e.g. "|2,3"
+							decimalPlaces = Integer.valueOf(answerKey.substring(answerKey.lastIndexOf(',')+1, answerKey.length()));
+							answerKey = answerKey.substring(0, answerKey.lastIndexOf("|")); // cut off extra data e.g. "|2,3"
 							// We need the key formatted in scientificNotation
-							answerKey = delegate.toScientificNotation(answerKey, decimalPlaces);							
-							
+							answerKey = delegate.toScientificNotation(answerKey, decimalPlaces);
+
 							// Answers
 							if (delegate.getCalcQResult(gdata, item, answersMap, i++)) {
 								answerText = checkmarkGif + answerText;
@@ -906,6 +931,11 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 						results.setFullAnswer(fullAnswerText);
 						results.setRationale(rationale);
 						results.setSubmittedDate(gdata.getSubmittedDate());
+						if(gdata.getSubmittedDate() != null && gdata.getAttemptDate() != null) {
+							results.setTimeElapsed((int)((gdata.getSubmittedDate().getTime() - gdata.getAttemptDate().getTime())/1000));
+						} else {
+							results.setTimeElapsed(0);
+						}
 
 						AgentFacade agent = new AgentFacade(gdata.getAgentId());
 						results.setLastName(agent.getLastName());
@@ -945,7 +975,8 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 			if ((bean.getSortType()).equals("assessmentGradingId")
 					|| (bean.getSortType()).equals("totalAutoScore")
 					|| (bean.getSortType()).equals("totalOverrideScore")
-					|| (bean.getSortType()).equals("finalScore")) {
+					|| (bean.getSortType()).equals("finalScore")
+					|| (bean.getSortType()).equals("timeElapsed")) {
 				bs.toNumericSort();
 			} else {
 				bs.toStringSort();
@@ -969,7 +1000,13 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 			bean.setAgentResultsByItemGradingId(agentResultsByItemGradingIdMap);
 
 			bean.setRubricStateDetails("");
-			bean.setHasAssociatedRubric(rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_SAMIGO, RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + bean.getPublishedId() + "." + bean.getItemId()));
+			ToolItemRubricAssociation tira = rubricsService.getRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + bean.getPublishedId() + "." + bean.getItemId()).orElse(null);
+			boolean associated = tira != null ? true : false;
+			bean.setHasAssociatedRubric(associated);
+			if (associated) {
+				String associationType = tira.getFormattedAssociation().get(RubricsConstants.RBCS_ASSOCIATE) != null ? tira.getFormattedAssociation().get(RubricsConstants.RBCS_ASSOCIATE) : "1";
+				bean.setAssociatedRubricType(associationType);
+			}
 		}
 
 		catch (RuntimeException e) {
@@ -1083,9 +1120,8 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 			QuestionScoresBean bean, TotalScoresBean totalBean,
 			List scores, PublishedAssessmentService pubService) {
 		List sections = new ArrayList();
-		log
-				.debug("questionScores(): populate sctions publishedAssessment.getSectionArraySorted size = "
-						+ publishedAssessment.getSectionArraySorted().size());
+		log.debug("questionScores(): populate sctions publishedAssessment.getSectionArraySorted size = {}",
+				publishedAssessment.getSectionArraySorted().size());
 		Iterator iter = publishedAssessment.getSectionArraySorted().iterator();
 		int i = 1;
 		while (iter.hasNext()) {
@@ -1096,20 +1132,39 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 					publishedAssessment.getPublishedAssessmentId(), section
 							.getSectionId());
 			part.setIsRandomDrawPart(isRandomDrawPart);
+			boolean isFixedRandomDrawPart = pubService.isFixedRandomDrawPart(
+					publishedAssessment.getPublishedAssessmentId(), section
+							.getSectionId());
+			part.setIsFixedRandomDrawPart(isFixedRandomDrawPart);
 			part.setPartNumber("" + i);
 			part.setId(section.getSectionId().toString());
-			
+
 			if (isRandomDrawPart) {
 				if (section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN) !=null ) {
-			        int numberToBeDrawn = Integer.parseInt(section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
-			        part.setNumberQuestionsDraw(numberToBeDrawn);
+					int numberToBeDrawn = Integer.parseInt(section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
+					part.setNumberQuestionsDraw(numberToBeDrawn);
 				}
 				PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
 				Set itemSet = publishedAssessmentService.getPublishedItemSet(publishedAssessment
 					.getPublishedAssessmentId(), section.getSectionId());
 				section.setItemSet(itemSet);
-			}
-			else {
+				part.setNumberQuestionsTotal(itemSet.size());
+			} else if (isFixedRandomDrawPart) {
+				int numberToBeFixed = 0;
+				if (section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN) !=null ) {
+					int numberToBeDrawn = Integer.parseInt(section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
+					part.setNumberQuestionsDraw(numberToBeDrawn);
+				}
+				if (section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_FIXED) !=null ) {
+					numberToBeFixed = Integer.parseInt(section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_FIXED));
+					part.setNumberQuestionsFixed(numberToBeFixed);
+				}
+				PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+				Set itemSet = publishedAssessmentService.getPublishedItemSet(publishedAssessment
+					.getPublishedAssessmentId(), section.getSectionId());
+				section.setItemSet(itemSet);
+				part.setNumberQuestionsTotal(itemSet.size() - numberToBeFixed);
+			} else {
 				GradingService gradingService = new GradingService();
 				Set<PublishedItemData> itemSet = gradingService.getItemSet(publishedAssessment
 					.getPublishedAssessmentId(), section.getSectionId());
@@ -1125,6 +1180,8 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 				partitem.setId(item.getItemId().toString());
 				log.debug("*   item.getId = " + item.getItemId());
 				partitem.setLinked(true);
+				partitem.setItemCancelled(ItemDataIfc.ITEM_DISTRIBUTED_CANCELLED == item.getCancellation()
+						|| ItemDataIfc.ITEM_TOTAL_SCORE_CANCELLED == item.getCancellation());
 
 				// Iterator iter3 = scores.iterator();
 				items.add(partitem);

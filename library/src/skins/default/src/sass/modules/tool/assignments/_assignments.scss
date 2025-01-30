@@ -1,0 +1,697 @@
+@import "_assignments_variables.scss";
+
+.#{$namespace}sakai-assignment-grades {
+
+  .checkbox-label {
+    margin-left: 20px;
+  }
+
+  #assignment-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    div:nth-child(2) {
+      margin-left: auto;
+    }
+  }
+
+	#req-new_assignment_grade_points{
+		color: var(--errorBanner-color);
+	    margin: 9px 0 0 -13px;
+		position: absolute;
+	}
+	.assignment-pager {
+		text-align: center;
+		.panel-heading {
+			padding: 5px 10px;
+		}
+		input {
+			margin: 0;
+		}
+
+		button{
+			margin: 0;
+		}
+	}
+
+	.form-required{
+		label{
+			&:after{
+				content: "*";
+				color: var(--errorBanner-color);
+				position: relative;
+				top: 3px;
+			}
+		}
+	}
+
+	#gradeOverridePanel{
+		margin-left: 50px;
+		width:100%;
+		background-color: var(--tool-background-color);
+		.row-override:nth-child(odd){
+			background: var(--sakai-color-gray--lighter-7);
+		}
+		.row-override{
+			padding: 0.5em 0 0.5em;
+		}
+		.shorttext{
+			display: block;
+		}
+		.assignment-checkbox-inline{
+			display: inline-block;
+		}
+	}
+
+	#reorder-list-sortingToolBar, #reorder-list{
+		max-width: 1200px;
+	}
+
+	label.innerRadio{
+		margin-left: 20px;
+	}
+
+	a#infoImg{
+		color: var(--infoBanner-color);
+		font-size: 1.2em;
+		margin-right: 5px;
+		vertical-align: middle;
+		text-decoration: none;
+		cursor: pointer;
+	}
+
+	#sendFeedbackPanel, #allowResubmissionPanel{
+		.discTria{
+			font-weight: bold;
+			background-color: $assignments-disclosure-bg;
+
+			a {
+				color: var(--infoBanner-color);
+			}
+		}
+	}
+
+	// Styles for navigators in Grading Student Screen
+	.leftColumn{
+		float: left;
+		display: table-cell;
+		width: 40%;
+
+		.instruction.textPanelFooter{
+			margin-top: 0.5em;
+		}
+	}
+
+	.centreColumn {
+		display: table-cell;
+		width: 20%;
+		text-align: center;
+
+		#subsOnlyContainer{
+			display: block;
+			text-align: center;
+			margin-top: 0.5em;
+		}
+	}
+
+	.rightColumn {
+		display: table-cell;
+		width: 40%;
+		text-align: right;
+
+		.instruction.textPanelFooter{
+			margin-top: 0.5em;
+		}
+	}
+
+	.leftColumn, .rightColumn, .centreColumn{
+		@media #{$phone}{
+			display:block;
+			width: 100%;
+			text-align:center;
+		}
+	}
+
+	.flex-wrap {
+		display: flex;
+		padding-bottom: 3px;
+	}
+
+	.textPanelFooter {
+		font-size: 90%;
+		margin-right: 4px;
+	}
+
+	legend.textPanelFooter {
+		padding-left: 0;
+		font-weight: bold;
+	}
+
+	input[type=text] {
+		margin-right: 4px;
+	}
+
+	::placeholder {
+		font-size: 90%;
+		color: var(--sakai-text-color-disabled);
+	}
+
+	select#defaultGrade_1 {
+		margin-right: 4px;
+	}
+
+	.table{
+		h5{
+			margin: 0 0 0.5em 0;
+		}
+		.peer-header{
+			font-size: 0.9em;
+			line-height: 1;
+			padding: 0.5em 0 0.5em 2.5em;
+		}
+		.tag-header{
+			max-width:250px
+		}
+	}
+
+	.toggleAnchor {
+	  border: 1px solid $assignments-disclosure-bg;
+	  background: $assignments-disclosure-bg  !important;
+	  color: var(--infoBanner-color); 
+	  padding: 5px !important;
+	  cursor: pointer;
+	  margin-bottom: 0;
+	  &:hover {
+	    border: 1px solid var(--infoBanner-bordercolor);
+	  }
+	}
+
+	.toggleAnchorOpen {
+	  &:hover {
+	    border: 1px solid var(--infoBanner-bordercolor);
+	  }
+	  border: 1px solid $assignments-disclosure-bg;
+	  background: $assignments-disclosure-bg !important;
+	  padding: 5px !important;
+	  cursor: pointer;
+	}
+
+	a.toggleAnchor {
+	  display: block;
+	  text-decoration: none !important;
+	  > {
+	    h3, h4 {
+	      display: inline;
+	    }
+	  }
+	}
+
+	.discTria > a {
+	  text-decoration: none !important;
+	}
+
+	.toggledContent {
+	  margin: 0;
+	  border: 2px solid $assignments-disclosure-bg;
+	  border-top: none;
+	  padding: 1em;
+	  h4 {
+	    color: var(--sakai-text-color-1) !important;
+	    width: 40em;
+	    margin: .5em 0 !important;
+	    padding: .3em 0;
+	    border-bottom: 2px solid var(--sakai-border-color);
+	  }
+	}
+
+	.smallCol {
+	  width: 25px;
+	}
+
+	#allowResubmission_shownInner, #sendFeedback_shownInner {
+	  padding: 1em;
+	}
+
+	#allowResubmission_shownInner, #sendFeedback_shownInner p {
+	  border: none;
+	}
+
+	.highLightBlock {
+	  background: var(--sakai-background-color-3);
+	}
+
+	.popupMessage {
+	  background-color: var(--warnBanner-bgcolor) !important;
+	  border: 1px solid var(--warnBanner-bordercolor);
+	  padding: 0.4em;
+	  width: 475px;
+	  position: absolute;
+	  z-index: 1000;
+	}
+
+	.reportIcon {
+	  display: inline-block;
+	  width: 20px;
+	  text-align: center;
+	}
+
+	.disclosureTriangle {
+	  vertical-align: top;
+	}
+
+	.attachmentsIcon {
+	  max-width: none;
+	}
+
+	.assignmentUnsubmittable {
+	  background-color: var(--errorBanner-bgcolor);
+	  color: var(--errorBanner-color);
+	}
+
+	.assignmentUnsubmittableAttachments {
+	  background-color: var(--errorBanner-bgcolor);
+	}
+
+	.assignmentUnsubmittable, .assignmentUnsubmittableAttachments {
+	  border: 1px solid var(--errorBanner-bordercolor);
+	  padding: 0 10px 10px;
+	  margin: 1em 0;
+	}
+
+	.assignmentUnsubmittable {
+	  h3 {
+	    color: var(--errorBanner-color);
+	  }
+	  .assignmentInline {
+	    background-color: var(--sakai-background-color-1);
+	    border: 1px solid var(--sakai-border-color);
+	    color: var(--sakai-text-color-1);
+	    margin-top: 10px;
+	    max-height: 300px;
+	    overflow-y: auto;
+	    padding: 0 10px;
+	  }
+	}
+
+	.assignmentWarning {
+	  background: url('/library/skin/images/error.png') no-repeat left;
+	  padding-left: 2em;
+	}
+
+	.assignmentAttachRadio {
+	  margin: 2px;
+	  padding: 0 1em;
+	  input, img, span, input[type=file] {
+	    line-height: 2.5em;
+	    vertical-align: middle;
+	  }
+	}
+
+	.assignmentAttachmentHighlight {
+	  background-color: var(--warnBanner-bgcolor);
+	}
+
+	.assignmentAttachBox {
+	  background-color: var(--sakai-background-color-2);
+	  padding: 10px;
+	  h3 {
+	    margin: 0;
+	  }
+	}
+
+	.assignmentRosette {
+	  vertical-align: middle;
+	}
+
+	/* SAK-26349 */
+
+	.groupsContainer {
+	  strong {
+	    font-weight: normal;
+	    cursor: pointer;
+	  }
+	  .expand {
+		&:before {
+			@extend .fa;
+			@extend .fa-chevron-down;
+		}
+	  }
+	  .collapse {
+		&:before {
+			@extend .fa;
+			@extend .fa-chevron-right;
+		}
+	    display: inline-block;
+	  }
+	}
+
+	label.disabled {
+	  color: var(--sakai-text-color-disabled);
+	}
+
+	/* start SAK-29314 */
+
+	.navigator {
+	  width: 100%;
+	  display: table;
+	  fieldset.roundedBorder {
+	    border: 2px solid var(--sakai-border-color);
+	    border-radius: 5px;
+	    padding: 1em;
+	    margin-bottom: 1em;
+	    legend {
+	      padding-left: 6px;
+	      padding-right: 6px;
+	      background: var(--sakai-background-color-1);
+	      color: var(--sakai-text-color-2);
+	    }
+	  }
+	}
+
+	td.specialLink a {
+	  &:link, &:visited {
+	    color: var(--link-color);
+	  }
+	}
+
+	.gradingHeader {
+	  width: 100%;
+	  line-height: 1.4em;
+	  padding: 3px;
+	}
+
+	/* end SAK-29314 */
+
+	select.selectSet {
+	  display: none;
+	}
+
+	#extraNodeLinkList {
+	  max-width: 1200px;
+	}
+
+	.extraNode {
+	  border: 1px solid var(--sakai-border-color);
+	  padding: 0  1.5em 1em 1.5em;
+	  width: 100%;
+	  max-width: 1200px;
+	  legend {
+	    margin-bottom: 1em;
+	  }
+	}
+
+	.extraNodeLink {
+	  cursor: pointer;
+	}
+
+	.extraNode legend {
+	  padding: 0 .5em;
+	  color: var(--sakai-text-color-2);
+	}
+
+	.members {
+	  font-size: 0.9em;
+	}
+
+	.userList {
+	  margin-left: 36px !important;
+	  .selectedItem {
+	    background-color: var(--sakai-active-color-3);
+	    color: var(--sakai-text-color-3);
+	    font-weight: bold;
+	  }
+	  li label:hover {
+	    cursor: pointer;
+	    background: var(--sakai-active-color-1);
+	  }
+	}
+
+	fieldset {
+	  .alertMessageInline, .alertMessage {
+	    border: none;
+	  }
+	}
+
+	.smallMatches {
+	  background-color: var(--warnBanner-bgcolor);
+	  border-style: solid;
+	  border-width: 1px;
+	  border-color: var(--warnBanner-bordercolor);
+	  padding: 1em 1em 1em 2em;
+	}
+
+	.itemAction {
+	  &.spinnerBesideContainer a {
+	    margin: 0 4px;
+	  }
+	  a:link {
+	    border: 1px solid transparent;
+	  }
+	}
+
+	.contentReviewColumn {
+		width: 320px;
+	}
+
+	.contentReviewIcon {
+		@extend .fa, .fa-flag;
+	}
+
+	.contentReviewIconDraft {
+		@extend .fa, .fa-pencil-square;
+	}
+
+	.contentReviewIconWarn {
+		@extend .fa, .fa-exclamation-triangle;
+		color: var(--warnBanner-color);
+	}
+
+	.contentReviewIconPending {
+		@extend .fa, .fa-hourglass-half;
+		color: var(--infoBanner-color);
+	}
+
+	.contentReviewIconNoService {
+		@extend .fa, .fa-cog;
+		color: var(--sakai-text-color-1);
+	}
+
+	.contentReviewIconThreshold-1 {
+		@extend .contentReviewIcon;
+		color: var(--errorBanner-color);
+	}
+
+	.contentReviewIconThreshold-1-draft {
+		@extend .contentReviewIconDraft;
+		color: var(--errorBanner-color);
+	}
+
+	.contentReviewIconThreshold-2 {
+		@extend .contentReviewIcon;
+		color: var(--sakai-color-orange--darker-4);
+	}
+
+	.contentReviewIconThreshold-2-draft {
+		@extend .contentReviewIconDraft;
+		color: var(--sakai-color-orange--darker-4);
+	}
+
+	.contentReviewIconThreshold-3 {
+		@extend .contentReviewIcon;
+		color: var(--warnBanner-color);
+	}
+
+	.contentReviewIconThreshold-3-draft {
+		@extend .contentReviewIconDraft;
+		color: var(--warnBanner-color);
+	}
+
+	.contentReviewIconThreshold-4 {
+		@extend .contentReviewIcon;
+		color: var(--successBanner-color);
+	}
+
+	.contentReviewIconThreshold-4-draft {
+		@extend .contentReviewIconDraft;
+		color: var(--successBanner-color);
+	}
+
+	.contentReviewIconThreshold-5 {
+		@extend .contentReviewIcon;
+		color: var(--infoBanner-color);
+	}
+
+	.contentReviewIconThreshold-5-draft {
+		@extend .contentReviewIconDraft;
+		color: var(--infoBanner-color);
+	}
+
+	.contentReviewIconThreshold-6 {
+		@extend .contentReviewIcon;
+		color: var(--sakai-text-color-2);
+	}
+
+	.contentReviewIconThreshold-6-draft {
+		@extend .contentReviewIconDraft;
+		color: var(--sakai-text-color-2);
+	}
+
+	.contentReviewDisclosure {
+		position: relative;
+		display: flex;
+		margin-right: $standard-space;
+		align-items: baseline;
+	}
+
+	.contentReviewDisclosure:focus {
+		outline-offset: -1px;
+	}
+
+	.contentReviewMessage {
+		position: relative;
+		border: 1px solid;
+		border-radius: 5px;
+		margin: 7px 24px 4px 24px;
+		padding: 4px 8px;
+		background-color: $assignments-disclosure-bg;
+		border-color: $assignments-disclosure-bg;
+		color: var(--sakai-primary-color-1);
+
+		&::before {
+			content: "";
+			position: absolute;
+			top: -#{$standard-space-4x}; // -2 x the border
+			left: 5px;
+			width: $standard-spacing;
+			height: $standard-spacing;
+			border: 7px solid transparent;
+			border-bottom-color: $assignments-disclosure-bg;
+		}
+	}
+
+	div#pagingHeader {
+		height: 20px;
+		padding: 15px;
+		@include display-flex;
+		@include align-items(center);
+		@include justify-content(center);
+	}
+
+	#groupTable, #filterByGroupDiv{
+		button.multiselect-clear-filter{
+			padding: 6px 12px;
+			font-size: 14px;
+			line-height: 1.42857143;
+			background-color: var(--sakai-background-color-2);
+		}
+	}
+
+	.borderPanel {
+		border: 1px solid var(--sakai-border-color);
+		padding: 0.6em;
+	}
+
+	.sakai-asn-controlRow {
+		@include justify-content(space-between);
+		@include align-items(flex-end);
+		-webkit-flex-wrap: wrap;
+		flex-wrap: wrap;
+		grader-toggle { margin-left: 20px; }
+	}
+
+	#honor-pledge-agreement {
+		h4 {
+			font-size: $jumbotron-heading-font-size;
+			margin: 0 0 0.5em 0;
+		}
+		margin-bottom: 0;
+	}
+
+	.student-picture {
+		background-position: center center;
+		background-size: cover;
+		border-radius: 80px;
+		border: 1px solid var(--sakai-border-color);
+		float: left;
+		height: 80px;
+		padding: 5px 0px;
+		margin: 0.8em $standard-spacing 0 0;
+		width: 80px;
+	}
+
+  #submissionList sakai-rubric-student-button {
+    float: right;
+  }
+
+  #msgNoMembersInCommonError {
+	  max-height: 300px;
+	  overflow-y: auto;
+  }
+
+  #checkNowButton {
+	  margin-top: $standard-spacing;
+  }
+
+  #groupTableContainer .multiselect-native-select::after
+  {
+	  content: "*";
+	  color: var(--errorBanner-color);
+	  position: relative;
+	  top: 3px;
+	  margin-left: 4px;
+  }
+
+  #categoryList label {
+	  margin-bottom: 0; /* kill off bootstrap margin to reduce jitter during animation transitions */
+  }
+
+  #assignmentGradingPointsPanel label {
+	  font-weight: normal;
+  }
+
+  #assignmentGradingPointsPanel .radio, #assignmentGradingPointsPanel .checkbox {
+	  margin-top: 0;
+	  margin-bottom: 0;
+  }
+
+  #assignmentGradingPointsPanel sakai-rubric-association {
+	  display: block;
+  }
+
+  #assignmentGradingPointsPanel sakai-rubric-association h4 {
+	  display: none;
+  }
+
+  #assignmentGradingPointsPanel sakai-rubric-association .rubrics-list {
+	  margin-left: 3em; /* match indnt3 */
+	  padding-left: 0;
+  }
+
+  #msgNoMembersInCommon.is-hidden,
+  #msgNoMembersInCommonSuccess.is-hidden,
+  #msgNoMembersInCommonError.is-hidden,
+  #checkGroupsError.is-hidden,
+  #checkGroupFailed.is-hidden,
+  #checkGroupsErrorReport.is-hidden {
+	  display: none;
+  }
+
+  .private-notes-textarea {
+	  margin-bottom: 15px;
+  }
+
+  .student-name {
+      display: flex;
+      align-items: center;
+
+      div:first-child {
+          margin-right: 7px;
+      }
+  }
+
+  .expand-icon {
+    width: 1em;
+    text-align: center;
+  }
+}

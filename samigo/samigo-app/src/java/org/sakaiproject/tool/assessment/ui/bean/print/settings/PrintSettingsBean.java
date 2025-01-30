@@ -32,6 +32,7 @@ public class PrintSettingsBean implements Serializable {
 	private Boolean showPartIntros = Boolean.TRUE;
 	private Boolean showKeysFeedback = Boolean.FALSE;
 	private Boolean showSequence = Boolean.FALSE;
+	private Boolean showSamePage = Boolean.FALSE;
 
 	public PrintSettingsBean() {
 		//nothing
@@ -87,6 +88,14 @@ public class PrintSettingsBean implements Serializable {
 	 */
 	public Boolean getShowKeysFeedback() {
 		return showKeysFeedback;
+	}
+
+	public Boolean getShowSamePage() {
+		return showSamePage;
+	}
+
+	public void setShowSamePage(Boolean showSamePage) {
+		this.showSamePage = showSamePage;
 	}
 
 	/**

@@ -75,7 +75,7 @@ public class EditPublishedSettingsListener
         assessmentId = (String) context.getExternalContext().getRequestParameterMap().get("publishedId");
     }
     PublishedAssessmentService assessmentService = new PublishedAssessmentService();
-    PublishedAssessmentFacade assessment = assessmentService.getSettingsOfPublishedAssessment(assessmentId);
+    PublishedAssessmentFacade assessment = assessmentService.getPublishedAssessment(assessmentId);
 
     //## - permission checking before proceeding - daisyf
     AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");

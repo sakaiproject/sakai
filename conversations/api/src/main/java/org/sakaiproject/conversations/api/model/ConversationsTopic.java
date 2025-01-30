@@ -34,6 +34,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.Table;
 
+import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.GenericGenerator;
 
 import org.sakaiproject.conversations.api.TopicType;
@@ -51,12 +52,14 @@ import lombok.Setter;
 )
 @Getter
 @Setter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class ConversationsTopic implements PersistableEntity<String> {
 
     @Id
     @Column(name = "TOPIC_ID", length = 36, nullable = false)
     @GeneratedValue(generator = "uuid")
     @GenericGenerator(name = "uuid", strategy = "uuid2")
+    @EqualsAndHashCode.Include
     private String id;
 
     @Column(name = "SITE_ID", length = 99, nullable = false)
@@ -138,6 +141,12 @@ public class ConversationsTopic implements PersistableEntity<String> {
 
     @Column(name = "SHOW_MESSAGE_SCHEDULE_ID", length = 36)
     private String showMessageScheduleId;
+
+    @Column(name = "UPVOTES")
+    private Integer upvotes = 0;
+
+    @Column(name = "GRADING_ITEM_ID")
+    private Long gradingItemId;
 
     @Embedded
     private Metadata metadata;

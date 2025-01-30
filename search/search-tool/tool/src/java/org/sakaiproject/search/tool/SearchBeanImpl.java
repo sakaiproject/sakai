@@ -320,19 +320,14 @@ import org.sakaiproject.util.api.FormattedText;
 		}
 	}
 
-	/**
-	 * @deprecated
-	 */
 	public String getTerms(String format)
 	{
 		List<SearchTerm> l = getTerms();
 		StringBuilder sb = new StringBuilder();
-		for (Iterator li = l.iterator(); li.hasNext();)
-		{
-			SearchTerm t = (SearchTerm) li.next();
-			sb.append(MessageFormat.format(format, new Object[] { t.getName(),
-					t.getWeight() }));
-		}
+        for (SearchTerm t : l) {
+            sb.append(MessageFormat.format(format, new Object[]{t.getName(),
+                    t.getWeight()}));
+        }
 		return sb.toString();
 	}
 
@@ -357,27 +352,21 @@ import org.sakaiproject.util.api.FormattedText;
 			return;
 		}
 		HashMap<String, TermHolder> hm = new HashMap<String, TermHolder>();
-		for (Iterator i = termsVectors.iterator(); i.hasNext();)
-		{
-			TermFrequency tf = (TermFrequency) i.next();
-			String[] terms = tf.getTerms();
-			int[] freq = tf.getFrequencies();
-			for (int ti = 0; ti < terms.length; ti++)
-			{
-				TermHolder h = (TermHolder) hm.get(terms[ti]);
-				if (h == null)
-				{
-					h = new TermHolder();
-					h.term = terms[ti];
-					h.frequency = freq[ti];
-					hm.put(terms[ti], h);
-				}
-				else
-				{
-					h.frequency += freq[ti];
-				}
-			}
-		}
+        for (TermFrequency tf : termsVectors) {
+            String[] terms = tf.getTerms();
+            int[] freq = tf.getFrequencies();
+            for (int ti = 0; ti < terms.length; ti++) {
+                TermHolder h = (TermHolder) hm.get(terms[ti]);
+                if (h == null) {
+                    h = new TermHolder();
+                    h.term = terms[ti];
+                    h.frequency = freq[ti];
+                    hm.put(terms[ti], h);
+                } else {
+                    h.frequency += freq[ti];
+                }
+            }
+        }
 		termList = new ArrayList<TermHolder>();
 		termList.addAll(hm.values());
 		Collections.sort(termList, new Comparator<TermHolder>()
@@ -524,7 +513,7 @@ import org.sakaiproject.util.api.FormattedText;
 				int searchEnd = searchStart + pagesize;
 				try
 				{
-					searchResults = searchService.search(search, l, searchStart,
+					searchResults = searchService.search(search, l, null, searchStart,
 							searchEnd, filterName, sortName);
 					if (searchResults != null && searchResults.size() < 3) {
 						if ((searchResults.size() > 0 && searchResults.get(0).getScore() < 1)) {

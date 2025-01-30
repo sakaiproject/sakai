@@ -30,6 +30,8 @@ import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -41,6 +43,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import org.hibernate.annotations.Cache;
@@ -51,8 +54,6 @@ import org.hibernate.annotations.FetchMode;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.springframework.data.PersistableEntity;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 
@@ -81,19 +82,13 @@ public class ToolItemRubricAssociation implements PersistableEntity<Long>, Seria
     private String toolId;
     private String itemId;
 
-    @Column(name = "rubric_id")
-    private Long rubricId;
-
-    @ManyToOne
-    @JoinColumn(name = "rubric_id", referencedColumnName = "id", insertable = false, updatable = false)
+    @EqualsAndHashCode.Exclude
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "rubric_id", foreignKey = @ForeignKey(name="FK_RUBRIC_ASSOC"), nullable = false)
     private Rubric rubric;
 
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime created;
 
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime modified;
 
     @Column(length = 99)
@@ -102,20 +97,20 @@ public class ToolItemRubricAssociation implements PersistableEntity<Long>, Seria
     @Column(name = "active", nullable = false)
     private Boolean active = Boolean.TRUE;
 
+    @EqualsAndHashCode.Exclude
     @ElementCollection
     @CollectionTable(name = "rbc_tool_item_rbc_assoc_conf",
                         joinColumns = @JoinColumn(name = "association_id", referencedColumnName = "id"),
                         indexes = @Index(name = "rbc_param_association_idx", columnList = "association_id"))
     @MapKeyColumn(name = "parameter_label")
     @Fetch(FetchMode.SUBSELECT)
-    private Map<String, Boolean> parameters;
+    private Map<String, Integer> parameters;
 
     public Map<String, String> getFormattedAssociation() {
 
         Map<String, String> formattedParams = new HashMap<>();
-        formattedParams.put(RubricsConstants.RBCS_ASSOCIATE,"1");
-        formattedParams.put(RubricsConstants.RBCS_LIST, String.valueOf(rubricId));
-        parameters.forEach((k, v) -> formattedParams.put(RubricsConstants.RBCS_CONFIG + k, String.valueOf(v ? 1 : 0)));
+        formattedParams.put(RubricsConstants.RBCS_LIST, String.valueOf(rubric.getId()));
+        parameters.forEach((k, v) -> formattedParams.put(k, String.valueOf(v)));
         return formattedParams;
     }
 }

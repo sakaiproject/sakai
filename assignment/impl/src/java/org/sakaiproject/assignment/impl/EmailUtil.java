@@ -65,8 +65,8 @@ public class EmailUtil {
             Site site = siteService.getSite(siteId);
             map.put("siteTitle", site.getTitle());
             map.put("siteUrl", site.getUrl());
-            map.put("assignmentTitle", a.getTitle());
-            map.put("assignmentUrl", getAssignmentUrl(a));
+            map.put("title", a.getTitle());
+            map.put("url", getAssignmentUrl(a));
             map.put("bundle", resourceLoader);
         } catch (Exception e) {
             log.warn("Failed to get email replacements", e);
@@ -92,8 +92,8 @@ public class EmailUtil {
             replacements.put("siteUrl", "");
         }
 
-        replacements.put("assignmentTitle", assignment.getTitle());
-        replacements.put("assignmentUrl", getAssignmentUrl(assignment));
+        replacements.put("title", assignment.getTitle());
+        replacements.put("url", getAssignmentUrl(assignment));
         replacements.put("hideDueDate", assignment.getHideDueDate());
         if(!assignment.getHideDueDate()) {
             replacements.put("dueDate", assignmentService.getUsersLocalDateTimeString(assignment.getDueDate()));
@@ -190,8 +190,8 @@ public class EmailUtil {
         }
 
         String linkToToolInSite = "<a href=\"" + getAssignmentUrl(assignment) + "\">" + replacements.get("siteTitle") + "</a>";
-        replacements.put("assignmentUrl", linkToToolInSite);
-        replacements.put("assignmentTitle", assignment.getTitle());
+        replacements.put("url", linkToToolInSite);
+        replacements.put("title", assignment.getTitle());
         replacements.put("canSubmit", assignmentService.canSubmit(assignment, userId));
         replacements.put("bundle", resourceLoader);
 

@@ -79,15 +79,15 @@ public class GradeLogPanel extends BasePanel {
 				// add the entry
 				if(gradeLog.getStatus() == GradingEventStatus.GRADE_NONE) {
 					item.add(new Label("entry",
-							new StringResourceModel("grade.log.entry", null, new Object[] { logDate, grade, graderDisplayId }))
+							new StringResourceModel("grade.log.entry").setParameters(logDate, grade, graderDisplayId))
 							.setEscapeModelStrings(false));
 				}else if(gradeLog.getStatus() == GradingEventStatus.GRADE_EXCLUDED) {
 					item.add(new Label("entry",
-							new StringResourceModel("grade.log.excluded", null, new Object[] { logDate, grade, graderDisplayId }))
+							new StringResourceModel("grade.log.excluded").setParameters(logDate, grade, graderDisplayId))
 							.setEscapeModelStrings(false));					
 				}else {
 					item.add(new Label("entry",
-							new StringResourceModel("grade.log.included", null, new Object[] { logDate, grade, graderDisplayId }))
+							new StringResourceModel("grade.log.included").setParameters(logDate, grade, graderDisplayId))
 							.setEscapeModelStrings(false));
 				}
 			}
@@ -100,7 +100,7 @@ public class GradeLogPanel extends BasePanel {
 		add(emptyLabel);
 
 		// done button
-		add(new GbAjaxLink("done") {
+		add(new GbAjaxLink<>("done") {
 
 			private static final long serialVersionUID = 1L;
 
@@ -114,8 +114,8 @@ public class GradeLogPanel extends BasePanel {
 		// TODO if user has been deleted since rendering the GradebookPage, handle a null here gracefully
 		final GbUser user = this.businessService.getUser(studentUuid);
 		GradeLogPanel.this.window.setTitle(
-				(new StringResourceModel("heading.gradelog", null,
-						new Object[] { user.getDisplayName(), user.getDisplayId() })).getString());
+				(new StringResourceModel("heading.gradelog").setParameters(user.getDisplayName(), user.getDisplayId())).getString())
+				.setEscapeModelStrings(false);
 
 	}
 

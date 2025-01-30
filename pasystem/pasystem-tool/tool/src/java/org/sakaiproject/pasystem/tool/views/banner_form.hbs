@@ -1,13 +1,14 @@
-<div class="container-fluid">
 <form class="form-horizontal" method="POST" action="{{{actionURL this 'banners' banner.uuid mode}}}">
-  <div class="form-group">
-    <label  class="col-sm-2 control-label" for="message">{{{t this "Message"}}}</label>
+  <fieldset class="border p-2">
+  <legend class="w-auto">{{{t this "Create Banner"}}}</legend>
+  <div class="d-flex align-items-start justify-content-end m-3">
+    <label  class="form-control-label mx-4" for="message">{{{t this "Message"}}}</label>
     <div class="col-sm-10">
       <input class="form-control" type="text" name="message" id="message" required value="{{banner.message}}"/>
     </div>
   </div>
-  <div class="form-group">
-    <label  class="col-sm-2 control-label" for="message">{{{t this "Type"}}}</label>
+  <div class="d-flex align-items-start justify-content-end m-3">
+    <label  class="form-control-label mx-4" for="message">{{{t this "Type"}}}</label>
     <div class="col-sm-10">
       <select class="form-control" type="text" name="type" id="type" required>
         <option value="high" {{selected this 'high' banner.type}}>{{{t this "banner_type_high_option"}}}</option>
@@ -17,40 +18,40 @@
       <p class="help-block">{{{t this "banner_type_help"}}}</p>
     </div>
   </div>
-  <div class="form-group">
-    <label class="col-sm-2 control-label" for="active">{{{t this "Active"}}}</label>
+  <div class="d-flex align-items-start justify-content-end m-3">
+    <label class="form-control-label mx-4" for="active">{{{t this "Active"}}}</label>
     <div class="col-sm-10">
       <div class="checkbox">
         <input type="checkbox" name="active" id="active" {{#if banner.active}}checked="checked"{{/if}}/>
       </div>
     </div>
   </div>
-  <div class="form-group">
-    <label  class="col-sm-2 control-label" for="start_time">{{{t this "Start Time"}}}</label>
+  <div class="d-flex align-items-start justify-content-end m-3">
+    <label  class="form-control-label mx-4" for="start_time">{{{t this "Start Time"}}}</label>
     <div class="col-sm-10">
       <div class="input-group">
         <input class="form-control datepicker" type="text" name="start_time" id="start_time" data-init-date="{{banner.startTime}}"/>
         <span class="input-group-btn">
-          <button class="btn btn-primary invoke-datepicker-btn" type="button"><span class="glyphicon glyphicon-calendar"></span></button>
-          <button class="btn btn-primary clear-datepicker-btn" type="button"><span class="glyphicon glyphicon-remove"></span></button>
+          <button class="btn btn-primary invoke-datepicker-btn" type="button"><i class="si si-sakai-schedule"></i></button>
+          <button class="btn btn-primary clear-datepicker-btn" type="button"><i class="si si-square-x"></i></button>
         </span>
       </div>
     </div>
   </div>
-  <div class="form-group">
-    <label  class="col-sm-2 control-label" for="end_time">{{{t this "End Time"}}}</label>
+  <div class="d-flex align-items-start justify-content-end m-3">
+    <label  class="form-control-label mx-4" for="end_time">{{{t this "End Time"}}}</label>
     <div class="col-sm-10">
       <div class="input-group">
         <input class="form-control datepicker" type="text" name="end_time" id="end_time" data-init-date="{{banner.endTime}}"/>
         <span class="input-group-btn">
-          <button class="btn btn-primary invoke-datepicker-btn" type="button"><span class="glyphicon glyphicon-calendar"></span></button>
-          <button class="btn btn-primary clear-datepicker-btn" type="button"><span class="glyphicon glyphicon-remove"></span></button>
+          <button class="btn btn-primary invoke-datepicker-btn" type="button"><i class="si si-sakai-schedule"></i></button>
+          <button class="btn btn-primary clear-datepicker-btn" type="button"><i class="si si-square-x"></i></button>
         </span>
       </div>
     </div>
   </div>
-  <div class="form-group">
-    <label  class="col-sm-2 control-label" for="message">{{{t this "Hosts"}}}</label>
+  <div class="d-flex align-items-start justify-content-end m-3">
+    <label  class="form-control-label mx-4" for="message">{{{t this "Hosts"}}}</label>
     <div class="col-sm-10">
       <input class="form-control" type="text" name="hosts" id="hosts" list="hosts-list" multiple="true" value="{{banner.hosts}}" />
       <datalist id="hosts-list">
@@ -61,9 +62,9 @@
     </div>
   </div>
 
-  <div class="col-sm-offset-2 col-sm-10">
+  <div class="d-flex align-items-start justify-content-end m-3">
     <input class="btn btn-primary" type="submit" name="save" value="{{{t this "Save Banner"}}}">
     <input class="btn btn-primary pasystem-cancel-btn" data-target="{{baseURL}}" type="button" name="cancel" value="{{{t this "Cancel"}}}">
   </div>
+  </fieldset>
 </form>
-</div>

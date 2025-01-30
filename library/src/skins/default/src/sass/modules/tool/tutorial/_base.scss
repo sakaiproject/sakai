@@ -1,0 +1,85 @@
+.sakai-tutorial.qtip
+{
+	border: 0 none;
+	background-color: var(--sakai-color-blue--darker-4);
+	font-family: $font-family;
+	font-size: $default-font-size + 2px;
+	line-height: 1.4;
+	color: var(--sakai-selected-page-color); /* determines the color of the tip */
+
+	.qtip-titlebar
+	{
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 4px 8px;
+		background: var(--sakai-color-blue--darker-4);
+		color: var(--sakai-text-color-inverted);
+	}
+	
+	.qtip-content
+	{
+		padding: 1em;
+		border: 4px solid var(--sakai-color-blue--darker-4);
+		border-top:0 none;
+		color: var(--sakai-text-color-1);
+		background: var(--sakai-background-color-1);
+		
+		.no-wrap
+		{
+			white-space:nowrap;
+		}
+	}
+
+	.tut-icon-home, .tut-icon-sites, .tut-icon-toggle, .tut-icon-help, .tut-icon-star
+	{
+		font-size: $default-font-size + 2px;
+	}
+
+	.qtip-title:focus
+	{
+		outline: none;
+	}
+	
+	.qtipClose
+	{
+		border: 0 none;
+		background:none;
+		color: var(--sakai-selected-page-color);
+	}
+	
+	.tut-footer
+	{
+		display: flex;
+		justify-content: space-between;
+		margin-top:1em;
+		padding-top:1em;
+		border-top:1px solid var(--sakai-border-color);
+		
+		.qtipLinkButton
+		{
+			display:flex;
+			align-items:center;
+			font-size: inherit;
+			text-decoration:none;
+		}
+		
+		.tut-next
+		{
+			margin-left:auto;
+			
+		}
+		
+		.tut-close
+		{
+			margin: -5px 0 0 0;
+		}
+	}
+
+	.qtip-tip {
+	  background-color: var(--tool-background-color);
+	  border: 4px solid var(--sakai-primary-color-1);
+	}
+
+
+}

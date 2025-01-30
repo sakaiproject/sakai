@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    [(${sakaiHtmlHead})]
+  </head>
+  <body onload="setMainFrameHeight('Mainmercuryx710');setFocus(focus_path);"   class="Mrphs-container Mrphs-sakai-plus">
+    <div class="portletBody">
+        <h1><span th:text="#{plus.tool.context.title}">Context:</span> <span th:text="${context.title}">Sakai</span></h1>
+        <div th:if="${admin}">
+        <p><a th:href="@{/contexts/{id}(id=${tenantId})}" th:text="#{plus.tool.all.contexts}" class="btn btn-secondary">All Contexts</a>
+        <a th:href="@{/}" th:text="#{plus.tool.all.tenants}" class="btn btn-secondary">All Tenants</a></p>
+        </div>
+        <a th:href="@{/membership/{id}(id=${context.id})}" class="btn btn-secondary">
+            <span th:text="#{plus.tool.memberships}">Memberships</span></a>
+        <p><b th:text="#{plus.tool.job.start}">Start:</b> <span th:text="${context.nrpsStart}">Start</span></p>
+        <p><b th:text="#{plus.tool.job.finish}">Finish:</b> <span th:text="${context.nrpsFinish}">Finish</span></p>
+        <p><b th:text="#{plus.tool.job.status}">Last operation status:</b><span th:text="${context.status}">status</span></p>
+        <div th:if="*{context.debugLog!=null and #strings.length(context.debugLog)>0}">
+        <p><b th:text="#{plus.tool.job.finish}">Most Recent Debug Log</b>
+        <a href="#" onclick="$('#debuglog').toggle();return false;" th:text="#{plus.tool.hide.show}">Hide/Show</a></p>
+        <span id="debuglog" style="display: none; white-space: pre-line; font-family: monospace;" th:text="${context.debugLog}"></span>
+        </div>
+        <hr/>
+        <div th:unless="${failures.empty}">
+        <h1><span th:text="#{plus.tool.contextlog.errors}">Recent Log Errors:</span></h1>
+        <ul>
+            <li th:each="entry : ${failures}">
+                <p th:text="${entry.createdAt}">Date</p>
+<p th:if="*{entry.action!=null and #strings.length(entry.action)>0}" th:text="${entry.action}">entry.action</p>
+<p th:if="*{entry.status!=null and #strings.length(entry.status)>0}" th:text="${entry.status}">entry.status</p>
+<pre th:if="*{entry.debugLog!=null and #strings.length(entry.debugLog)>0}" th:attr="id=${entry.positiveHashCode} + '_error'" style="display: none;">
+<span th:text="${entry.debugLog}">entry.debugLog</span>
+</pre>
+<button th:attr="id=${entry.positiveHashCode} + '_button'" th:text="#{plus.tool.toggle.detail}"
+    onclick="$(this).prev().toggle();return false;"
+>Toggle Detail</button>
+            </li>
+        <ul>
+        </div>
+        <div th:if="${failures.empty}">
+        <h1><span th:text="#{plus.tool.contextlog.errors.none}">No Recent Log Errors</span></h1>
+        </div>
+        <div th:unless="${successes.empty}">
+        <h1><span th:text="#{plus.tool.contextlog.successes}">Recent Log Entries:</span></h1>
+        <ul>
+            <li th:each="entry : ${successes}">
+                <p th:text="${entry.createdAt}">Date</p>
+<p th:if="*{entry.action!=null and #strings.length(entry.action)>0}" th:text="${entry.action}">entry.action</p>
+<p th:if="*{entry.status!=null and #strings.length(entry.status)>0}" th:text="${entry.status}">entry.status</p>
+<pre th:if="*{entry.debugLog!=null and #strings.length(entry.debugLog)>0}" th:attr="id=${entry.positiveHashCode} + '_debug'" style="display: none;">
+<span th:text="${entry.debugLog}">entry.debugLog</span>
+</pre>
+<button th:attr="id=${entry.positiveHashCode} + '_button'" th:text="#{plus.tool.toggle.detail}"
+    onclick="$(this).prev().toggle();return false;"
+>Toggle Detail</button>
+            </li>
+        <ul>
+        </div>
+    </div>
+  </body>
+</html>

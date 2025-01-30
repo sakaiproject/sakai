@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.sakaiproject.mailsender</groupId>
         <artifactId>mailsender</artifactId>
-        <version>23-SNAPSHOT</version><!-- ProjectVersion -->
+        <version>25-SNAPSHOT</version><!-- ProjectVersion -->
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -83,10 +83,15 @@
 
         <!-- testing -->
         <dependency>
-            <groupId>org.subethamail</groupId>
-            <artifactId>subethasmtp-wiser</artifactId>
-            <version>1.2</version>
+            <groupId>com.github.davidmoten</groupId>
+            <artifactId>subethasmtp</artifactId>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>

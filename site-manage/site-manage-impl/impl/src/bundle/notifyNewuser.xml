@@ -1,24 +1,6 @@
 <?xml version="1.0"?>
 <emailTemplates>
 <emailTemplate>
- <subject>${localSakaiName} New User Notification </subject>
- <message>Dear ${userName},
-
- An account on ${localSakaiName} (${localSakaiURL}) has been created for you by ${currentUserDisplayName}. To access your account:
-
-	1) Go to:
-		${localSakaiURL}
-	
-	2) Login using:
-		User Id: 	${userEid}
-		password: 	${newPassword} 
- You can change your password after you have logged in, using the Account tool in your Home.
- 
- (This is an automated message from ${localSakaiName}.)
-</message>
- <locale></locale>
-</emailTemplate>
-<emailTemplate>
  <subject>${localSakaiName} Notificaci al nou usuari</subject>
  <message>${userName}:
 
@@ -107,6 +89,25 @@ Puede ir a la herramienta de Cuentas en 'Mi Sito de Trabajo' para inicializarlo.
 </message>
  <locale>es</locale>
 </emailTemplate>
+<emailTemplate>
+ <subject>${localSakaiName} New User Notification </subject>
+ <message>Dear ${userName},
+
+ An account on ${localSakaiName} (${localSakaiURL}) has been created for you by ${currentUserDisplayName}. To access your account:
+
+	1) Go to:
+		${localSakaiURL}
+	
+	2) Login using:
+		User Id: 	${userEid}
+		password: 	${newPassword} 
+ You can change your password after you have logged in, using the Account tool in your Home.
+ 
+ (This is an automated message from ${localSakaiName}.)
+</message>
+ <locale></locale>
+</emailTemplate>
+<!-- Keep default template (english) the last one, to make sure the rest are stored on database -->
 <!--  
 <emailTemplate>
  <subject>${localSakaiName} </subject>

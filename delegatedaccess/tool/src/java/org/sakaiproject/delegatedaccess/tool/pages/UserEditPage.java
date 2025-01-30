@@ -66,15 +66,16 @@ import lombok.extern.slf4j.Slf4j;
  * @author Bryan Holladay (holladay@longsight.com)
  *
  */
+@SuppressWarnings({ "deprecation" })
 @Slf4j
 public class UserEditPage  extends BaseTreePage{
 
-	private TreeTable tree;
+	private final TreeTable tree;
 	private String[] defaultRole = null;
 	List<String> accessAdminNodeIds = null;
 	private SelectOption filterHierarchy;
 	private String filterSearch = "";
-	private List<ListOptionSerialized> blankRestrictedTools;
+	private final List<ListOptionSerialized> blankRestrictedTools;
 	private boolean modifiedAlert = false;
 	
 	@Override
@@ -150,18 +151,18 @@ public class UserEditPage  extends BaseTreePage{
 		filterSearchTextField.setOutputMarkupPlaceholderTag(true);
 		filterForm.add(filterSearchTextField);
 		//submit button:
-		filterForm.add(new AjaxButton("filterButton", new StringResourceModel("filter", null)){
+		filterForm.add(new AjaxButton("filterButton", new StringResourceModel("filter")){
 
 			@Override
-			protected void onSubmit(AjaxRequestTarget target, Form<?> arg1) {
+			protected void onSubmit(AjaxRequestTarget target) {
 				DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) getTree().getModelObject().getRoot();
 				//check that no nodes have been modified
 				if(!modifiedAlert && anyNodesModified(rootNode)){
 					formFeedback.setDefaultModel(new ResourceModel("modificationsPending"));
-					formFeedback.add(new AttributeModifier("class", new Model("alertMessage")));
+					formFeedback.add(new AttributeModifier("class", new Model<>("alertMessage")));
 					target.add(formFeedback);
 					formFeedback2.setDefaultModel(new ResourceModel("modificationsPending"));
-					formFeedback2.add(new AttributeModifier("class", new Model("alertMessage")));
+					formFeedback2.add(new AttributeModifier("class", new Model<>("alertMessage")));
 					target.add(formFeedback2);
 					modifiedAlert = true;
 					//call a js function to hide the message in 5 seconds
@@ -170,14 +171,14 @@ public class UserEditPage  extends BaseTreePage{
 				}else{
 					//now go through the tree and make sure its been loaded at every level:
 					Integer depth = null;
-					if(filterHierarchy != null && filterHierarchy.getValue() != null && !"".equals(filterHierarchy.getValue().trim())){
+					if(filterHierarchy != null && filterHierarchy.getValue() != null && !filterHierarchy.getValue().trim().isEmpty()){
 						try{
 							depth = Integer.parseInt(filterHierarchy.getValue());
 						}catch(Exception e){
 							//number format exception, ignore
 						}
 					}
-					if(depth != null && filterSearch != null && !"".equals(filterSearch.trim())){
+					if(depth != null && filterSearch != null && !filterSearch.trim().isEmpty()){
 						expandTreeToDepth(rootNode, depth, userId, blankRestrictedTools, accessAdminNodeIds, false, false, false, filterSearch);
 						getTree().updateTree(target);
 					}
@@ -185,10 +186,10 @@ public class UserEditPage  extends BaseTreePage{
 				}
 			}			
 		});
-		filterForm.add(new AjaxButton("filterClearButton", new StringResourceModel("clear", null)){
+		filterForm.add(new AjaxButton("filterClearButton", new StringResourceModel("clear")){
 
 			@Override
-			protected void onSubmit(AjaxRequestTarget target, Form<?> arg1) {
+			protected void onSubmit(AjaxRequestTarget target) {
 				DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) getTree().getModelObject().getRoot();
 				//check that no nodes have been modified
 				if(!modifiedAlert && anyNodesModified(rootNode)){
@@ -216,8 +217,6 @@ public class UserEditPage  extends BaseTreePage{
 				}
 			}
 		});
-		
-		//tree:
 
 		//create a map of the realms and their roles for the Role column
 		final Map<String, String> roleMap = projectLogic.getRealmRoleDisplay(false);
@@ -239,27 +238,27 @@ public class UserEditPage  extends BaseTreePage{
 			for(String key : roleMap.keySet()){
 				split = key.split(":");
 			}
-			if(split != null && split.length == 2){
+			if(split.length == 2){
 				//only one option for role, so don't bother showing it in the table
 				singleRoleOptions = true;
 				defaultRole = split;
 			}
 		}
-		List<IColumn> columnsList = new ArrayList<IColumn>();
-		columnsList.add(new PropertyTreeColumn(new ColumnLocation(Alignment.MIDDLE, 100, Unit.PROPORTIONAL),	"", "userObject.node.description"));
+		List<IColumn> columnsList = new ArrayList<>();
+		columnsList.add(new PropertyTreeColumn<>(new ColumnLocation(Alignment.MIDDLE, 100, Unit.PROPORTIONAL),	"", "userObject.node.description"));
 		if(sakaiProxy.isSuperUser()){
-			columnsList.add(new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.RIGHT, 70, Unit.PX), new StringResourceModel("accessAdmin", null).getString(), "userObject.accessAdmin", DelegatedAccessConstants.TYPE_ACCESS_ADMIN));
+			columnsList.add(new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.LEFT, 70, Unit.PX), new StringResourceModel("accessAdmin").getString(), "userObject.accessAdmin", DelegatedAccessConstants.TYPE_ACCESS_ADMIN));
 			if(sakaiProxy.getShoppingUIEnabled()) {
-				columnsList.add(new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.RIGHT, 90, Unit.PX), new StringResourceModel("shoppingPeriodAdmin", null).getString(), "userObject.shoppingPeriodAdmin", DelegatedAccessConstants.TYPE_SHOPPING_PERIOD_ADMIN));
+				columnsList.add(new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.LEFT, 90, Unit.PX), new StringResourceModel("shoppingPeriodAdmin").getString(), "userObject.shoppingPeriodAdmin", DelegatedAccessConstants.TYPE_SHOPPING_PERIOD_ADMIN));
 			}
 		}
-		columnsList.add(new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.RIGHT, 68, Unit.PX), new StringResourceModel("siteAccess", null).getString(), "userObject.directAccess", DelegatedAccessConstants.TYPE_ACCESS));
+		columnsList.add(new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.LEFT, 68, Unit.PX), new StringResourceModel("siteAccess").getString(), "userObject.directAccess", DelegatedAccessConstants.TYPE_ACCESS));
 		if(!singleRoleOptions){
-			columnsList.add(new PropertyEditableColumnDropdown(new ColumnLocation(Alignment.RIGHT, roleColumnSize, Unit.PX), new StringResourceModel("userBecomes", null).getString(),
+			columnsList.add(new PropertyEditableColumnDropdown(new ColumnLocation(Alignment.LEFT, roleColumnSize, Unit.PX), new StringResourceModel("userBecomes").getString(),
 					"userObject.roleOption", roleMap, DelegatedAccessConstants.TYPE_ACCESS, sakaiProxy.isSuperUser() ? null : sakaiProxy.getSubAdminOrderedRealmRoles()));
 		}
 		if(sakaiProxy.isSuperUser() || sakaiProxy.getToolsListUIEnabled()) {
-			columnsList.add(new PropertyEditableColumnList(new ColumnLocation(Alignment.RIGHT, 134, Unit.PX), new StringResourceModel("restrictedToolsHeader", null).getString(),
+			columnsList.add(new PropertyEditableColumnList(new ColumnLocation(Alignment.LEFT, 134, Unit.PX), new StringResourceModel("restrictedToolsHeader").getString(),
 				"userObject.restrictedAuthTools", DelegatedAccessConstants.TYPE_ACCESS, DelegatedAccessConstants.TYPE_LISTFIELD_TOOLS));
 		}
 		//setup advanced options settings:
@@ -267,7 +266,7 @@ public class UserEditPage  extends BaseTreePage{
 		boolean permitBecomeUser = sakaiProxy.isSuperUser() || sakaiProxy.allowAccessAdminsSetBecomeUserPerm();
 		if(permitBecomeUser) {
 			advSettings.put(PropertyEditableColumnAdvancedUserOptions.SETTINGS_ALLOW_SET_BECOME_USER, permitBecomeUser);
-			columnsList.add(new PropertyEditableColumnAdvancedUserOptions(new ColumnLocation(Alignment.RIGHT, 92, Unit.PX), new StringResourceModel("advanced", null).getString(), "", advSettings));
+			columnsList.add(new PropertyEditableColumnAdvancedUserOptions(new ColumnLocation(Alignment.LEFT, 92, Unit.PX), new StringResourceModel("advanced").getString(), "", advSettings));
 		}
 		IColumn columns[] = columnsList.toArray(new IColumn[columnsList.size()]);
 
@@ -290,6 +289,7 @@ public class UserEditPage  extends BaseTreePage{
 			public boolean isVisible() {
 				return treeModel != null;
 			}
+			@Override
 			protected void onNodeLinkClicked(AjaxRequestTarget target, TreeNode node) {
 				//the nodes are generated on the fly with ajax.  This will add any child nodes that 
 				//are missing in the tree.  Expanding and collapsing will refresh the tree node
@@ -310,6 +310,7 @@ public class UserEditPage  extends BaseTreePage{
 					tree.getTreeState().collapseNode(node);
 				}
 			}
+			@Override
 			protected void onJunctionLinkClicked(AjaxRequestTarget target, TreeNode node) {
 				//the nodes are generated on the fly with ajax.  This will add any child nodes that 
 				//are missing in the tree.  Expanding and collapsing will refresh the tree node
@@ -321,15 +322,11 @@ public class UserEditPage  extends BaseTreePage{
 					}
 				}
 			}
-			@Override
-			protected boolean isForceRebuildOnSelectionChange() {
-				return true;
-			};		
 			
 			@Override
 			protected MarkupContainer newNodeLink(MarkupContainer parent, String id, TreeNode node) {
 				try{
-					parent.add(new AttributeAppender("title", new Model(((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).getNode().description), " "));
+					parent.add(new AttributeAppender("title", new Model<>(((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).getNode().description), " "));
 				}catch(Exception e){
 					log.error(e.getMessage(), e);
 				}
@@ -337,32 +334,32 @@ public class UserEditPage  extends BaseTreePage{
 			}
 		};
 		if(singleRoleOptions){
-			tree.add(new AttributeAppender("class", new Model("noRoles"), " "));
+			tree.add(new AttributeAppender("class", new Model<>("noRoles"), " "));
 		}
 		form.add(tree);
 
 		//updateButton button:
 		AjaxButton updateButton = new AjaxButton("update", form) {
 			@Override
-			protected void onSubmit(AjaxRequestTarget target, Form arg1) {
+			protected void onSubmit(AjaxRequestTarget target) {
 				try{
 					//save node access and roll information:
 					updateNodeAccess(userId, defaultRole);
 
 					//display a "saved" message
 					formFeedback.setDefaultModel(new ResourceModel("success.save"));
-					formFeedback.add(new AttributeModifier("class", new Model("success")));
+					formFeedback.add(new AttributeModifier("class", new Model<>("success")));
 					target.add(formFeedback);
 					formFeedback2.setDefaultModel(new ResourceModel("success.save"));
-					formFeedback2.add(new AttributeModifier("class", new Model("success")));
+					formFeedback2.add(new AttributeModifier("class", new Model<>("success")));
 					target.add(formFeedback2);
 				}catch (Exception e) {
 					log.error(e.getMessage(), e);
 					formFeedback.setDefaultModel(new ResourceModel("failed.save"));
-					formFeedback.add(new AttributeModifier("class", new Model("alertMessage")));
+					formFeedback.add(new AttributeModifier("class", new Model<>("alertMessage")));
 					target.add(formFeedback);
 					formFeedback2.setDefaultModel(new ResourceModel("failed.save"));
-					formFeedback2.add(new AttributeModifier("class", new Model("alertMessage")));
+					formFeedback2.add(new AttributeModifier("class", new Model<>("alertMessage")));
 					target.add(formFeedback2);
 				}
 				//call a js function to hide the message in 5 seconds

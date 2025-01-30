@@ -5,7 +5,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta content="" name="description">
 <link href="../css/help.css" media="all" rel="stylesheet" type="text/css" charset="utf-8">
-<link href="/library/webjars/fontawesome/4.7.0/css/font-awesome.min.css" media="screen" rel="stylesheet">
+<link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
 <script src="/library/js/headscripts.js" type="text/javascript" charset="utf-8"></script>
 <script type="text/javascript" charset="utf-8">
@@ -19,14 +19,15 @@
 </script>
 </head>
 <body>
-  <div class="screensteps-main-content" role="main">
-    <div class="screensteps-article">
-      <div class="screensteps-article-content">
-
-        <div><div>
+  <div><div>
 <div><h1 class="article-title">How do I define the default set of tools added to site on site creation?</h1></div>
-<div><div class="screensteps-steps">    <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
-  <p>The default tool suite (i.e. the tools added to a site on creation) is specified in the file toolOrder.xml file (located in the .../apache-tomcatxxx/sakai folder).</p>
+<div>
+
+
+
+    <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
+  <div id="text-content_E1A7B9CE-56F3-424C-9617-B7BA18CFD1C2" class="text-block-content">
+    <p>The default tool suite (i.e. the tools added to a site on creation) is specified in the file toolOrder.xml file (located in the .../apache-tomcatxxx/sakai folder).</p>
 <p>See the sample extract from the toolOrder.xml file for course sites below:</p>
 <p class="indent1">	&lt;toolOrder&gt;&lt;category name="course"&gt;</p>
 <p class="indent1">	&lt;tool id="sakai.iframe.site"/&gt;</p>
@@ -62,15 +63,12 @@
 <p> </p>
 <p>The tools which include <strong>selected="true"</strong> will be selected by default when the person creating the site is on the <strong>Site Info &gt; Edit Tools &gt; Course Site Tools</strong> screen. </p>
 <p>The tools which include <strong>required="true"</strong>, such as Site Info, are mandatory tools. The user will not be able to de-select them on the <strong>Site Info &gt; Edit Tools &gt; Course Site Tools</strong> screen.</p>
-<p> If your instance of Sakai uses different site types (project, collaboration etc.), each site type can its own section in the toolOrder file.</p>
+<p> If your instance of Sakai uses different site types (project, collaboration etc.), each site type can its own section in the toolOrder file. </p>
+  </div>
 </div>
 
 
+</div>
 </div></div>
-</div></div>
-
-      </div>
-    </div>
-  </div>
 </body>
 </html>

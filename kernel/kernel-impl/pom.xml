@@ -6,7 +6,7 @@
     <parent>
         <artifactId>kernel</artifactId>
         <groupId>org.sakaiproject</groupId>
-        <version>23-SNAPSHOT</version>
+        <version>25-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -31,7 +31,6 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
-                <version>3.0.0</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -50,6 +49,40 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>src/test/resources</directory>
+                            <followSymlinks>false</followSymlinks>
+                            <includes>
+                                <include>AuthenticationCacheTest/**</include>
+                                <include>antivirus/ignite/**</include>
+                                <include>antivirus/sakai_push.key</include>
+                                <include>antivirus/sakai_push.key.pub</include>
+                                <include>content/ignite/**</include>
+                                <include>content/sakai_push.key</include>
+                                <include>content/sakai_push.key.pub</include>
+                                <include>disable_user_cache/ignite/**</include>
+                                <include>disable_user_cache/sakai_push.key</include>
+                                <include>disable_user_cache/sakai_push.key.pub</include>
+                                <include>dynamic/ignite/**</include>
+                                <include>dynamic/sakai_push.key</include>
+                                <include>dynamic/sakai_push.key.pub</include>
+                                <include>filesystem/ignite/**</include>
+                                <include>filesystem/sakai_push.key</include>
+                                <include>filesystem/sakai_push.key.pub</include>
+                                <include>sitesearch/**</include>
+                                <include>storedconfigservice/ignite/**</include>
+                                <include>storedconfigservice/sakai_push.key</include>
+                                <include>storedconfigservice/sakai_push.key.pub</include>
+                            </includes>
+                        </fileset>
+                    </filesets>
+                </configuration>
             </plugin>
         </plugins>
         <testResources>
@@ -79,33 +112,22 @@
             <artifactId>sakai-kernel-storage-util</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.apache.tika</groupId>
             <artifactId>tika-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.tika</groupId>
-            <artifactId>tika-parsers</artifactId>
+            <artifactId>tika-parsers-standard-package</artifactId>
         </dependency>
         <dependency>
-            <groupId>fr.opensagres.xdocreport</groupId>
-            <artifactId>fr.opensagres.xdocreport.document</artifactId>
-            <version>2.0.2</version>
-        </dependency>
-        <dependency>
-            <groupId>fr.opensagres.xdocreport</groupId>
-            <artifactId>org.apache.poi.xwpf.converter.xhtml</artifactId>
-            <version>1.0.6</version>
-        </dependency>
-        <dependency>
-            <groupId>org.odftoolkit</groupId>
-            <artifactId>odftoolkit</artifactId>
-            <version>1.0.0-BETA1</version>
-            <type>pom</type>
-        </dependency>
-        <dependency>
-            <groupId>fr.opensagres.xdocreport</groupId>
-            <artifactId>fr.opensagres.xdocreport.converter.odt.odfdom</artifactId>
-            <version>2.0.2</version>
+            <groupId>com.vdurmont</groupId>
+            <artifactId>emoji-java</artifactId>
+            <version>5.1.1</version>
         </dependency>
         <dependency>
             <groupId>org.zwobble.mammoth</groupId>
@@ -119,14 +141,6 @@
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-dbcp</groupId>
-            <artifactId>commons-dbcp</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -147,6 +161,10 @@
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpmime</artifactId>
         </dependency>
         <dependency>
             <groupId>com.opencsv</groupId>
@@ -190,7 +208,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>31.0.1-jre</version>
+            <version>33.3.1-jre</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
@@ -198,9 +216,9 @@
             <version>3.0.2</version>
         </dependency>
         <dependency>
-            <groupId>org.azeckoski</groupId>
+            <groupId>org.sakaiproject</groupId>
             <artifactId>reflectutils</artifactId>
-            <version>0.9.19</version>
+            <version>${reflectutils.version}</version>
         </dependency>
         <dependency>
             <groupId>com.sun.mail</groupId>
@@ -266,11 +284,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.ignite</groupId>
-            <artifactId>ignite-hibernate-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.gridgain</groupId>
-            <artifactId>ignite-hibernate_5.3</artifactId>
+            <artifactId>ignite-hibernate-ext</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ignite</groupId>
@@ -283,10 +297,6 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.javassist</groupId>
-            <artifactId>javassist</artifactId>
         </dependency>
         <dependency>
             <groupId>cglib</groupId>
@@ -304,21 +314,6 @@
             <version>1.7.0</version>
         </dependency>
         <dependency>
-            <groupId>xml-apis</groupId>
-            <artifactId>xml-apis</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>xerces</groupId>
-            <artifactId>xmlParserAPIs</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>xerces</groupId>
-            <artifactId>xercesImpl</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
             <type>jar</type>
@@ -327,13 +322,26 @@
         <dependency>
             <groupId>com.github.davidmoten</groupId>
             <artifactId>subethasmtp</artifactId>
-            <version>5.2.8</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.carrotsearch</groupId>
             <artifactId>java-sizeof</artifactId>
             <version>0.0.5</version>
+        </dependency>
+        <dependency>
+            <groupId>nl.martijndwars</groupId>
+            <artifactId>web-push</artifactId>
+            <version>5.1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk18on</artifactId>
+            <version>1.72</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jmock</groupId>
@@ -372,6 +380,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>3.23.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-core</artifactId>
             <version>2.2</version>
@@ -384,11 +398,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.tomcat</groupId>
-            <artifactId>tomcat-jdbc</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
             <scope>test</scope>
@@ -396,12 +405,12 @@
         <dependency>
             <groupId>org.passay</groupId>
             <artifactId>passay</artifactId>
-            <version>1.6.2</version>
+            <version>1.6.6</version>
         </dependency>
         <dependency>
             <groupId>org.freemarker</groupId>
             <artifactId>freemarker</artifactId>
-            <version>2.3.31</version>
+            <version>2.3.34</version>
         </dependency>
         <dependency>
             <groupId>org.simpleframework</groupId>

@@ -1,6 +1,6 @@
 <!-- start: chef_assignments_instructor_list_deleted_assignments.vm  -->
 <div class="portletBody container-fluid">
-	#navBarHREF( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "Assignment.mode_list_removed_assignments" )
+	#navBarHREF( $allowAddAssignment $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "Assignment.mode_list_removed_assignments" )
 	#if ($alertMessage)<div class="sak-banner-error"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div>#end
 
 	<div class="page-header">
@@ -21,7 +21,7 @@
 			</div>
 		</div>
 		<form name="listDeletedAssignmentsForm" action="#toolForm("$action")" method="post">
-			<div class="table-responsive">
+			<div class="table">
 				<input type="hidden" name="source" value="0" />
 				<table class="table table-hover table-striped table-bordered" summary="$tlang.getString("gen.ass.lis.sum")">
 					<tr>
@@ -37,24 +37,69 @@
 								#end
 							</a>
 						</th>
+						<th id="softremoveddate">
+							<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=softremoveddate")'; return false;"  title="$tlang.getString("gen.sorbyremoveddate")" class="d-none d-sm-table-cell">
+								$tlang.getString("gen.removeddate")
+								#if ($sortedBy.equals("softremoveddate"))
+									#if ($sortedAsc.equals("true"))
+										<img id="sortascendingmodifieddate" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" />
+									#else
+										<img id="sortdescendingmodifieddate" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" />
+									#end
+								#end
+							</a>
+						</th>
+						<th id="num_submissions" scope="col">
+							<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=num_submissions")'; return false;"  title="$tlang.getString("gen.sorbynumsub")" class="d-none d-sm-table-cell">
+								$tlang.getString("gen.subm2")
+								#if ($sortedBy.equals("num_submissions"))
+									#if ($sortedAsc.equals("true"))
+										<img id="sortascendingmodifieddate" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" />
+									#else
+										<img id="sortdescendingmodifieddate" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" />
+									#end
+								#end
+							</a>
+						</th>
 						#if ($!allowRecoverAssignment)
 							<th id="selectAssignments" scope="col">
-								<span class="hidden-xs">$tlang.getString("selectAssignments")</span>
+								<span class="d-none d-sm-table-cell">$tlang.getString("selectAssignments")</span>
 							</th>
 						#end
 					</tr>
 					#set ($assignmentCount = 0)
 					#foreach ($assignment in $assignments)
+						#set ($assignmentReference = $!service.assignmentReference($assignment.Id))
 						#set ($assignmentCount = $assignmentCount + 1)
 							<tr>
 								<td headers="title" scope="row">
 											<strong>
-												#if ($assignment.draft)
-													<span class="highlight">$tlang.getString("gen.dra2") </span>
+												#if ($!assignment.draft)
+													<span class="highlight">$tlang.getString("gen.dra2")</span>
 												#end
 												$formattedText.escapeHtml($!assignment.title)
+												#if ($assignment.getContentReview())
+													<img alt="$reviewIndicator" title="$reviewIndicator" src="/library/image/silk/rosette.png" />
+												#end
 												#assignmentIcons($assignment)
 											</strong>
+								</td>
+								<td headers="softremoveddate" scope="row">
+									#if ($!assignment.softRemovedDate)
+										$!service.getUsersLocalDateTimeString($!assignment.softRemovedDate)
+									#else
+										$tlang.getString("gen.na")
+									#end
+								</td>
+								<td headers="num_submissions" scope="row">
+									<strong>
+										#if ($!assignment.draft)
+											$tlang.getString("gen.na")
+										#else
+											#set($totalNumber = $!service.countSubmissions($assignmentReference, null))
+											$totalNumber
+										#end
+									</strong>
 								</td>
 								#if ($!allowRecoverAssignment)
 									<td headers="selectAssignments" class="screenOnly">

@@ -115,7 +115,7 @@ $Id$
 
   <!-- STUDENT RESPONSES AND GRADING -->
   <!-- note that we will have to hook up with the back end to get N at a time -->
-<div class="table-responsive">
+<div class="table">
   <h:dataTable styleClass="table table-striped table-bordered" id="totalScoreTable" value="#{submissionStatus.agents}"
     var="description">
     <!-- NAME/SUBMISSION ID -->
@@ -130,6 +130,7 @@ $Id$
         <f:param name="sortAscending" value="true"/>
         </h:commandLink>
      </f:facet>
+      <sakai-user-photo user-id='<h:outputText value="#{description.idString}"/>' profile-popup="on"></sakai-user-photo>
      <h:panelGroup>
        <h:outputText value="<a name=\"" escape="false" />
        <h:outputText value="#{description.lastInitial}" />
@@ -174,6 +175,7 @@ $Id$
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
           </h:commandLink>    
       </f:facet>
+      <sakai-user-photo user-id='<h:outputText value="#{description.idString}"/>' profile-popup="on"></sakai-user-photo>
      <h:panelGroup>
        <h:outputText value="<a name=\"" escape="false" />
        <h:outputText value="#{description.lastInitial}" />
@@ -221,6 +223,7 @@ $Id$
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
           </h:commandLink>    
       </f:facet>
+      <sakai-user-photo user-id='<h:outputText value="#{description.idString}"/>' profile-popup="on"></sakai-user-photo>
      <h:panelGroup>
        <h:outputText value="<a name=\"" escape="false" />
        <h:outputText value="#{description.lastInitial}" />

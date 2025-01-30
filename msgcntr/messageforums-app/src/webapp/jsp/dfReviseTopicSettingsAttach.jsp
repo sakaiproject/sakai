@@ -19,8 +19,7 @@
 	<script src="/messageforums-tool/js/messages.js"></script>
 	<script src="/messageforums-tool/js/datetimepicker.js"></script>
 	<script src="/library/js/lang-datepicker/lang-datepicker.js"></script>
-	<script src="/webcomponents/rubrics/sakai-rubrics-utils.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
-	<script type="module" src="/webcomponents/rubrics/rubric-association-requirements.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
+	<script type="module" src="/webcomponents/bundles/rubric-association-requirements.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
 	
 	<%
 	  	String thisId = request.getParameter("panel");
@@ -32,11 +31,16 @@
 		function resize() {
   			mySetMainFrameHeight('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
   		}
-	</script> 
-	<script>
-		function setDatesEnabled(radioButton) {
-			$(".calWidget").fadeToggle('slow');
+	</script>
+	<script type="text/javascript">
+		function setDatesEnabled(radioButton){
+			$(".calWidget, .lockForumAfterCloseDateSpan").fadeToggle('slow');
 		}
+
+		window.onload = function(){
+			const sendCheckbox = document.getElementById("revise:sendOpenCloseDateToCalendar");
+			sendCheckbox?.disabled && (sendCheckbox.checked = false);	//make sure that Calendar sending is not checked when it's disabled/when the site has no calendar
+		};
 
 		function openDateCal() {
 			NewCal('revise:openDate','MMDDYYYY',true,12, '<h:outputText value="#{ForumTool.defaultAvailabilityTime}"/>');
@@ -192,7 +196,7 @@
 				</h:column>
 				<h:column rendered="#{!empty ForumTool.attachments}">
 					<f:facet name="header"><h:outputText value="#{msgs.cdfm_attsize}" /></f:facet>
-					<h:outputText value="#{eachAttach.attachment.attachmentSize}"/>
+					<h:outputText value="#{ForumTool.getAttachmentReadableSize(eachAttach.attachment.attachmentSize)}"/>
 				</h:column>
 				<h:column rendered="#{!empty ForumTool.attachments}">
 					<f:facet name="header"><h:outputText value="#{msgs.cdfm_atttype}" /></f:facet>
@@ -246,7 +250,6 @@
 				disabled="#{!ForumTool.newTopicOrPostAnonymousRevisable}">
 			</h:selectBooleanCheckbox>
 			<h:outputLabel escape="false" for="topic_postAnonymous" value="#{msgs.cdfm_postAnonymous} &nbsp;" id="topic_postAnonymous_label">
-			    <h:outputText value="#{msgs.cdfm_postAnonymous}"/>
 				<h:outputText value="#{msgs.cdfm_noReviseAfter}" styleClass="sak-banner-warn-inline" rendered="#{!ForumTool.postAnonymousRevisable && !ForumTool.existingTopic}"/>
 				<h:outputText value="#{msgs.cdfm_noRevise}" styleClass="sak-banner-warn-inline" rendered="#{!ForumTool.postAnonymousRevisable && ForumTool.existingTopic}"/>
 			</h:outputLabel>
@@ -280,6 +283,20 @@
 			<h:panelGroup id="closeDateSpan" styleClass="indnt2 openDateSpan calWidget" style="display: #{ForumTool.selectedTopic.availabilityRestricted ? '' : 'none'}">
 				<h:outputLabel value="#{msgs.closeDate}: " for="closeDate"/>
 				<h:inputText id="closeDate" styleClass="closeDate" value="#{ForumTool.selectedTopic.closeDate}"/>
+			</h:panelGroup>
+			<h:panelGroup styleClass="checkbox" style="display: #{ForumTool.doesSiteHaveCalendar ? '' : 'none'}">
+				<h:panelGroup id="sendOpenCloseDateToCalendarSpan"
+							  styleClass="indnt2 lockForumAfterCloseDateSpan calWidget"
+							  style="display: #{ForumTool.selectedTopic.availabilityRestricted ? '' : 'none'}">
+					<h:selectBooleanCheckbox id="sendOpenCloseDateToCalendar" styleClass="ms-0 me-3"
+											 disabled="#{not ForumTool.doesSiteHaveCalendar}"
+											 value="#{ForumTool.selectedTopic.topic.sendOpenCloseToCalendar}"/>
+					<h:outputLabel for="sendOpenCloseDateToCalendar" styleClass="p-0" value="#{msgs.sendOpenCloseToCalendar}" />
+				</h:panelGroup>
+			</h:panelGroup>
+			<h:panelGroup id="lockForumAfterCloseDateSpan" styleClass="indnt2 lockForumAfterCloseDateSpan" style="display: #{ForumTool.selectedTopic.availabilityRestricted ? '' : 'none'}">
+				<h:selectBooleanCheckbox id="lockForumAfterCloseDate" styleClass="ms-0 me-3" value="#{ForumTool.selectedTopic.topic.lockedAfterClosed}"/>
+				<h:outputLabel for="lockForumAfterCloseDate" styleClass="p-0" value="#{msgs.lockForumAfterCloseDate}" />
 			</h:panelGroup>
 		</div>
 
@@ -358,9 +375,7 @@
 		<sakai-rubric-association style="margin-left:20px;display:none"
             site-id='<h:outputText value="#{ForumTool.siteId}" />'
 			dont-associate-label='<h:outputText value="#{msgs.topic_dont_associate_label}" />'
-			dont-associate-value="0"
 			associate-label='<h:outputText value="#{msgs.topic_associate_label}" />'
-			associate-value="1"
 			read-only="true"
 			tool-id="sakai.gradebookng"
 			fine-tune-points='<h:outputText value="#{msgs.option_pointsoverride}" />'

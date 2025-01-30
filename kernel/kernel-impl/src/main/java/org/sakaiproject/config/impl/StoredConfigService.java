@@ -21,6 +21,7 @@
 
 package org.sakaiproject.config.impl;
 
+import java.lang.IllegalArgumentException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -37,7 +38,6 @@ import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang.IllegalClassException;
 import org.apache.commons.lang3.StringUtils;
 
 import org.jasypt.encryption.pbe.PBEStringEncryptor;
@@ -286,9 +286,9 @@ public class StoredConfigService implements ConfigurationListener, Configuration
      *
      * @param hItem a HibernateConfigItem
      * @return a ConfigItem
-     * @throws IllegalClassException this can occur during deserialization when creating a ConfigItem
+     * @throws IllegalArgumentException this can occur during deserialization when creating a ConfigItem
      */
-    public ConfigItem createConfigItem(HibernateConfigItem hItem) throws IllegalClassException {
+    public ConfigItem createConfigItem(HibernateConfigItem hItem) throws IllegalArgumentException {
         if (hItem == null) {
             return null;
         }
@@ -330,9 +330,9 @@ public class StoredConfigService implements ConfigurationListener, Configuration
      *
      * @param item a ConfigItem
      * @return a HibernateConfigItem
-     * @throws IllegalClassException thrown when the item.getValue doesn't return the right type
+     * @throws IllegalArgumentException thrown when the item.getValue doesn't return the right type
      */
-    public HibernateConfigItem createHibernateConfigItem(ConfigItem item) throws IllegalClassException {
+    public HibernateConfigItem createHibernateConfigItem(ConfigItem item) throws IllegalArgumentException {
         if (item == null || neverPersistItems.contains(item.getName())) {
             return null;
         }
@@ -347,7 +347,7 @@ public class StoredConfigService implements ConfigurationListener, Configuration
             serialValue = serializeValue(item.getValue(), item.getType(), item.isSecured());
             serialDefaultValue = serializeValue(item.getDefaultValue(), item.getType(), item.isSecured());
             serialRawValue = serializeValue(getRawProperty(item.getName()), ServerConfigurationService.TYPE_STRING, item.isSecured());
-        } catch (IllegalClassException ice) {
+        } catch (IllegalArgumentException ice) {
             log.error("Skip ConfigItem {}, {}", item, ice.getMessage());
             return null;
         }
@@ -376,9 +376,9 @@ public class StoredConfigService implements ConfigurationListener, Configuration
      * @param hItem    a HibernateConfigItem
      * @param item     a ConfigItem
      * @return a HibernateConfigItem if it was updated or null if it was not updated
-     * @throws IllegalClassException thrown when the item.getValue doesn't return the right type
+     * @throws IllegalArgumentException thrown when the item.getValue doesn't return the right type
      */
-    public HibernateConfigItem updateHibernateConfigItem(HibernateConfigItem hItem, ConfigItem item) throws IllegalClassException {
+    public HibernateConfigItem updateHibernateConfigItem(HibernateConfigItem hItem, ConfigItem item) throws IllegalArgumentException {
         if (hItem == null || item == null) {
             return null;
         }
@@ -413,7 +413,7 @@ public class StoredConfigService implements ConfigurationListener, Configuration
                     // different update
                     hItem.setDefaultValue(serializeValue(item.getDefaultValue(), item.getType(), item.isSecured()));
                 }
-            } catch (IllegalClassException ice) {
+            } catch (IllegalArgumentException ice) {
                 log.error("Skip ConfigItem = {}, {}", item, ice.getMessage());
                 return null;
             }
@@ -608,7 +608,7 @@ public class StoredConfigService implements ConfigurationListener, Configuration
         return value;
     }
 
-    private Object deSerializeValue(String value, String type, boolean secured) throws IllegalClassException {
+    private Object deSerializeValue(String value, String type, boolean secured) throws IllegalArgumentException {
         if (value == null || type == null) {
             return null;
         }
@@ -638,12 +638,12 @@ public class StoredConfigService implements ConfigurationListener, Configuration
         } else if (ServerConfigurationService.TYPE_ARRAY.equals(type)) {
             obj = string.split(HibernateConfigItem.ARRAY_SEPARATOR);
         } else {
-            throw new IllegalClassException("deSerializeValue() invalid TYPE, while deserializing");
+            throw new IllegalArgumentException("deSerializeValue() invalid TYPE, while deserializing");
         }
         return obj;
     }
 
-    private String serializeValue(Object obj, String type, boolean secured) throws IllegalClassException {
+    private String serializeValue(Object obj, String type, boolean secured) throws IllegalArgumentException {
         if (obj == null || type == null) {
             return null;
         }
@@ -654,28 +654,28 @@ public class StoredConfigService implements ConfigurationListener, Configuration
             if (obj instanceof String) {
                 string = String.valueOf(obj);
             } else {
-                throw new IllegalClassException(String.class, obj);
+                throw new IllegalArgumentException("Expected String, but got " + obj.getClass().getSimpleName());
             }
         } else if (ServerConfigurationService.TYPE_INT.equals(type)) {
             if (obj instanceof Integer) {
                 string = Integer.toString((Integer) obj);
             } else {
-                throw new IllegalClassException(Integer.class, obj);
+                throw new IllegalArgumentException("Expected Integer, but got " + obj.getClass().getSimpleName());
             }
         } else if (ServerConfigurationService.TYPE_BOOLEAN.equals(type)) {
             if (obj instanceof Boolean) {
                 string = Boolean.toString((Boolean) obj);
             } else {
-                throw new IllegalClassException(Boolean.class, obj);
+                throw new IllegalArgumentException("Expected Boolean, but got " + obj.getClass().getSimpleName());
             }
         } else if (ServerConfigurationService.TYPE_ARRAY.equals(type)) {
             if (obj instanceof String[]) {
                 string = StringUtils.join((String[]) obj, HibernateConfigItem.ARRAY_SEPARATOR);
             } else {
-                throw new IllegalClassException("serializeValue() expected an array of type String[]");
+                throw new IllegalArgumentException("serializeValue() expected an array of type String[]");
             }
         } else {
-            throw new IllegalClassException("serializeValue() invalid TYPE, while serializing");
+            throw new IllegalArgumentException("serializeValue() invalid TYPE, while serializing");
         }
 
         if (secured) {

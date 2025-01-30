@@ -110,7 +110,7 @@ public class GradeImportConfirmationStep extends BasePanel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void onSubmit(AjaxRequestTarget target, Form<?> form) {
+			public void onSubmit(AjaxRequestTarget target) {
 
 				// clear any previous errors
 				final ImportExportPage page = (ImportExportPage) getPage();
@@ -140,7 +140,7 @@ public class GradeImportConfirmationStep extends BasePanel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void onSubmit(AjaxRequestTarget target, Form<?> form) {
+			public void onSubmit(AjaxRequestTarget target) {
 
 				EventHelper.postImportBeginEvent(getGradebook());
 
@@ -291,7 +291,7 @@ public class GradeImportConfirmationStep extends BasePanel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void onSubmit(AjaxRequestTarget target, Form<?> form) {
+			public void onSubmit(AjaxRequestTarget target) {
 				// clear any previous errors
 				final ImportExportPage page = (ImportExportPage) getPage();
 				page.clearFeedback();
@@ -425,7 +425,7 @@ public class GradeImportConfirmationStep extends BasePanel {
 						try {
 							Optional<RubricTransferBean> optRubric = rubricsService.getRubric(Long.parseLong(rubricId));
 							if (optRubric.isPresent()) {
-								rubricTitle = optRubric.get().title;
+								rubricTitle = optRubric.get().getTitle();
 							}
 						} catch (Exception e) {
 							log.error("Failed to get rubric for id {}", rubricId, e);

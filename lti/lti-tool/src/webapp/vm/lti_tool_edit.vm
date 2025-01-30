@@ -1,0 +1,439 @@
+<div class="portletBody">
+<script type="text/javascript" src="/library/js/headscripts.js"></script>
+<script>
+	includeLatestJQuery('lti_tool_insert.vm');
+	includeWebjarLibrary('fontawesome-iconpicker');
+</script>
+    <h3>
+        $tlang.getString("tool.put")
+    </h3>
+    #if ($messageSuccess)<div class="sak-banner-success">$tlang.getString("gen.success") $formattedText.escapeHtml($messageSuccess)</div>#end
+    #if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div>#end
+    <form action="#toolForm("")" method="post" name="customizeForm" >
+#if ($isEdit && $isAdmin && $autoStartUrl )
+        <div style="float:right" id="lti-advantage-div"><a href="$autoStartUrl" class="btn btn-primary" target="sakai-lti-admin-iframe"
+        title="$tlang.getString("tool.lti13.auto.title")" role="button"
+        onclick="showIframe(this.title, false);">$tlang.getString("tool.lti13.auto.button")</a></div>
+#end
+
+        #if ($canDeploy)
+            <div style="float:right; display: none;" id="lti-deployment-div">
+                <a href="$deployUrl" class="btn btn-primary" target="sakai-lti-admin-iframe" title="$tlang.getString("deploy.tool.site.title")"
+                   role="button" onclick="showIframe(this.title, false);">$tlang.getString("deploy.tool.site.button")
+                </a>
+            </div>
+        #end
+
+        $formInput
+                <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+        <p class="act">
+            <input type="submit" accesskey ="s" class="active" name="$doToolAction"
+                value="$tlang.getString('gen.save')" />
+            <input type="submit" accesskey ="x" name="$doCancel" value="$tlang.getString('gen.cancel')"
+                 onclick="location = '$sakai_ActionURL.setPanel("ToolSystem")';return false;">
+        </p>
+    </form>
+
+#if ($isEdit && $isAdmin && $autoStartUrl )
+    <div id="modal-iframe-div" style="display:none" tabindex="-1" role="dialog">
+        <iframe name="sakai-lti-admin-iframe" id="sakai-lti-admin-iframe" src="/library/image/sakai/spinner.gif" style="min-height: 80vh;" tabindex="0"></iframe>
+    </div>
+<script>
+function showIframe(title, doreload) {
+    $("#modal-iframe-div").dialog({
+        title: title,
+        width: modalDialogWidth(),
+        height: modalDialogHeight(),
+        modal: true,
+        draggable: false,
+        open: function() {
+            $("#modal-iframe-div").dialog("option", "width", modalDialogWidth());
+            $("#modal-iframe-div").dialog("option", "height", modalDialogHeight());
+            $('#sakai-lti-admin-iframe').attr('width', '100%');
+            $('#sakai-lti-admin-iframe').attr('height', '100%');
+            // https://stackoverflow.com/questions/1202079/prevent-jquery-ui-dialog-from-setting-focus-to-first-textbox
+            $(this).parent().focus();
+        },
+        close: function() {
+            if ( doreload ) {
+                location.reload();
+            } else {
+                $('#sakai-lti-admin-iframe').attr('src','/library/image/sakai/spinner.gif');
+            }
+        }
+    });
+
+    $(window).resize(function() {
+        $("#modal-iframe-div").dialog("option", "width", modalDialogWidth());
+        $("#modal-iframe-div").dialog("option", "height", modalDialogHeight());
+        $('#sakai-lti-admin-iframe').attr('width', '100%');
+        $('#sakai-lti-admin-iframe').attr('height', '100%');
+    });
+}
+//]]>
+</script>
+#end
+
+<script type="text/javascript">
+$(document).ready(function () {
+	fontawesome_icon_picker('#fa_icon');
+});
+</script>
+
+#if ( ! $isAdmin )
+<script>
+$(document).ready( function() {
+        ## Does nothing if we are not in a frame of the right name
+        setMainFrameHeight('sakai-lti-admin-iframe');
+        $(window).resize( function() {
+                setMainFrameHeight('sakai-lti-admin-iframe');
+        });
+});
+</script>
+#end
+<div id="radioDialog" title="$tlang.getString("tool.patch.title")" style="display:none">
+<p>
+$tlang.getString("tool.patch.body")
+</p>
+</div>
+<div id="messageTypeRequired" title="$tlang.getString("tool.messagetype.title")" style="display:none">
+<p>
+$tlang.getString("tool.messagetype.body")
+</p>
+</div>
+<div id="coursenavResourceLaunch" title="$tlang.getString("tool.coursenav.title")" style="display:none">
+<p>
+$tlang.getString("tool.coursenav.body")
+</p>
+</div>
+<div id="contentItemDialog" title="$tlang.getString("tool.content.title")" style="display:none">
+<p>
+$tlang.getString("tool.content.body")
+</p>
+</div>
+<script>
+## Create a variable that is a dollar sign for later
+
+function checkCombos() {
+
+   var shown = false;
+
+   if (jQuery('#pl_linkselection').is(":checked") ) {
+     if ( jQuery("input[name='allowtitle']:checked").val() == 0 ||
+        jQuery("input[name='allowlaunch']:checked").val() == 0 ) {
+        jQuery("#allowtitle_allow-input").click();
+        jQuery("#allowlaunch_allow-input").click();
+        jQuery( "#radioDialog" ).dialog();
+        shown = true;
+     }
+   }
+
+   var mt_deeplink = jQuery("#pl_linkselection").is(":checked");
+   var mt_resource = jQuery("#pl_launch").is(":checked");
+
+   var pl_lessons = jQuery("#pl_lessonsselection").is(":checked");
+   var pl_editor = jQuery("#pl_contenteditor").is(":checked");
+   var pl_assignments = jQuery("#pl_assessmentselection").is(":checked");
+   var pl_coursenav = jQuery("#pl_coursenav").is(":checked");
+   var pl_importitem = jQuery("#pl_importitem").is(":checked");
+   var pl_file = jQuery("#pl_fileitem").is(":checked");
+
+   // If pl_coursenav is selected, we demand resource link support
+   if ( pl_coursenav && !mt_resource ) {
+      if ( !shown ) $( "#coursenavResourceLaunch" ).dialog({ width: modalDialogWidth() });
+      shown = true;
+      jQuery("#pl_launch").prop("checked", true);
+      mt_resource = jQuery("#pl_launch").is(":checked");
+   }
+
+   // Don't allow file or import unless deep link is selected
+   if ( (!mt_deeplink) && (pl_file || pl_importitem ) ) {
+      if ( !shown ) jQuery( "#contentItemDialog" ).dialog({ width: modalDialogWidth() });
+      shown = true;
+      jQuery("#pl_file").prop("checked", false);
+      jQuery("#pl_importitem").prop("checked", false);
+      jQuery("#allowtitle_allow-input").click();
+      jQuery("#allowlaunch_allow-input").click();
+   }
+
+   if ( !mt_deeplink && !mt_resource ) {
+      if ( !shown ) jQuery( "#messageTypeRequired" ).dialog({ width: modalDialogWidth() });
+      shown = true;
+      jQuery("#pl_launch").prop("checked", true);
+   }
+
+}
+
+function showHideVersionStuff() {
+   if (jQuery('#lti13_off-input').is(":checked")) {
+        jQuery('#lti13_lms_security').hide();
+        jQuery('#lti13_lms_issuer-input').hide();
+        jQuery('#lti13_client_id-input').hide();
+        jQuery('#lti13_lms_deployment_id-input').hide();
+        jQuery('#lti13_lms_keyset-input').hide();
+        jQuery('#lti13_lms_endpoint-input').hide();
+        jQuery('#lti13_lms_token-input').hide();
+
+        jQuery('#lti13_tool_security').hide();
+        jQuery('#lti13_tool_keyset-input').hide();
+        jQuery('#lti13_oidc_endpoint-input').hide();
+        jQuery('#lti13_oidc_redirect-input').hide();
+   }
+
+   if (jQuery('#lti13_on-input').is(":checked")) {
+        jQuery('#lti11_security').hide();
+        jQuery('#consumerkey-input').hide();
+        jQuery('#secret-input').hide();
+  }
+
+   if (jQuery('#lti13_off-input').is(":checked") || jQuery('#lti13_both-input').is(":checked") ) {
+        jQuery('#lti11_security').show();
+        jQuery('#consumerkey-input').show();
+        jQuery('#secret-input').show();
+   }
+
+   if (jQuery('#lti13_on-input').is(":checked") || jQuery('#lti13_both-input').is(":checked") ) {
+        jQuery('#lti13_lms_security').show();
+        jQuery('#lti13_lms_issuer-input').show();
+        jQuery('#lti13_client_id-input').show();
+        jQuery('#lti13_lms_deployment_id-input').show();
+        jQuery('#lti13_lms_keyset-input').show();
+        jQuery('#lti13_lms_endpoint-input').show();
+        jQuery('#lti13_lms_token-input').show();
+
+        jQuery('#lti13_tool_security').show();
+        jQuery('#lti13_tool_keyset-input').show();
+        jQuery('#lti13_oidc_endpoint-input').show();
+        jQuery('#lti13_oidc_redirect-input').show();
+    }
+
+}
+
+$(document).ready( function() {
+
+    // Placement checkboxes
+    $("#pl_coursenav").change(function(){
+        checkCombos();
+    });
+    $("#pl_lessonsselection").change(function(){
+        checkCombos();
+    });
+    $("#pl_assessmentselection").change(function(){
+        checkCombos();
+    });
+    $("#pl_importitem").change(function(){
+        checkCombos();
+    });
+    $("#pl_fileitem").change(function(){
+        checkCombos();
+    });
+    $("#pl_contenteditor").change(function(){
+        checkCombos();
+    });
+
+    // Message types
+    $("#pl_launch").change(function(){
+        checkCombos();
+    });
+    $("#pl_linkselection").change(function(){
+        checkCombos();
+    });
+
+    // LTI Version radios
+    $("#lti13_off-input").change(function(){
+        showHideVersionStuff();
+    });
+    $("#lti13_on-input").change(function(){
+        showHideVersionStuff();
+    });
+    $("#lti13_both-input").change(function(){
+        showHideVersionStuff();
+    });
+
+    showHideVersionStuff();
+});
+
+#if ($isEdit && $isAdmin && $autoStartUrl )
+function importLTI13Config() {
+
+    var importUrl = '$autoRegistrationUrl';
+    console.log(importUrl);
+
+    jQuery.getJSON( importUrl, function(data) {
+        console.log(data);
+        jQuery("#lti13_on-input").prop('checked', true);
+        showHideVersionStuff();
+        if ( data.initiate_login_uri ) jQuery("#lti13_oidc_endpoint").val(data.initiate_login_uri);
+        if ( data.jwks_uri ) jQuery("#lti13_tool_keyset").val(data.jwks_uri);
+        if ( data.client_id ) jQuery("#lti13_client_id").val(data.client_id);
+        if ( data.oidcRedirect ) jQuery("#lti13_oidc_redirect").val(data.oidcRedirect);
+        if ( data.redirect_uris && Array.isArray(data.redirect_uris) ) {
+            var uris = '';
+            for(i=0; i<data.redirect_uris.length; i++) {
+                if ( uris.length > 0 ) uris = uris + ',';
+                uris = uris + data.redirect_uris[i];
+            }
+            if ( uris.length > 0 ) jQuery("#lti13_oidc_redirect").val(uris);
+        }
+        if ( data.client_name ) {
+            let doTitle = confirm("$tlang.getString("tool.import.title") "+data.client_name);
+            if ( doTitle ) {
+                jQuery("#title").val(data.client_name);
+            }
+        }
+        if ( data.description ) {
+            let doDescription = confirm("$tlang.getString("tool.import.description") "+data.description);
+            if ( doDescription ) {
+                jQuery("#description").val(data.description);
+            }
+        }
+
+        if ( data.scope && typeof data.scope == "string" ) {
+            var scope = data.scope;
+            if ( scope.includes("https://purl.imsglobal.org/spec/lti-ags/scope/score") ) {
+                jQuery("#allowoutcomes").prop("checked", true);
+            }
+
+            if ( scope.includes("https://purl.imsglobal.org/spec/lti-ags/scope/lineitem") ) {
+                jQuery("#allowlineitems").prop("checked", true);
+            }
+            if ( scope.includes("https://purl.imsglobal.org/spec/lti-nrps/scope/contextmembership.readonly") ) {
+                jQuery("#allowroster").prop("checked", true);
+            }
+        }
+
+        if ( data['https://purl.imsglobal.org/spec/lti-tool-configuration'] ) {
+            var tool = data['https://purl.imsglobal.org/spec/lti-tool-configuration'];
+            console.log('tool', tool);
+            console.log('tool.claims', tool.claims);
+            if ( tool.claims && Array.isArray(tool.claims) ) {
+                if ( tool.claims.includes('name') || tool.claims.includes('given_name') ||
+                    tool.claims.includes('given_name') ) {
+                    jQuery("#sendname").prop("checked", true);
+                }
+                if ( tool.claims.includes('email') ) {
+                    jQuery("#sendemailaddr").prop("checked", true);
+                }
+            }
+
+            // TODO: Issue #59 in 1EdTech - top level target_link_uri should be removed
+            // Grab top level target_link_uri if it exists for legacy
+            // The first per message uri will replace this
+            if ( tool.target_link_uri ) {
+                var default_target_link_uri = tool.target_link_uri;
+                jQuery("#launch").val(tool.target_link_uri);
+            }
+
+            var uri_found = false;
+            if ( tool.messages && Array.isArray(tool.messages) ) {
+                for(i=0; i<tool.messages.length; i++) {
+                    var message = tool.messages[i];
+                    console.log('message', message);
+                    if ( message.target_link_uri && ! uri_found ) {
+                        jQuery("#launch").val(message.target_link_uri);
+                        uri_found = true;
+                    }
+
+                    if ( message.type == 'LtiResourceLinkRequest' ) {
+                        jQuery("#lti13_on-input").prop("checked", true);
+
+                        // Message type in Sakai
+                        jQuery("#pl_launch").prop("checked", true);
+
+                        // Message placements in Sakai
+                        jQuery("#pl_coursenav").prop("checked", true);
+                        jQuery("#pl_lessonsselection").prop("checked", true);
+                        jQuery("#pl_contenteditor").prop("checked", true);
+                    }
+                    if ( message.type == 'LtiDeepLinkingRequest' ) {
+                        jQuery("#lti13_on-input").prop("checked", true);
+
+                        // Message type in Sakai
+                        jQuery("#pl_linkselection").prop("checked", true);
+
+                        // Message Placements in Sakai
+                        jQuery("#allowtitle_allow-input").prop("checked", true);
+                        jQuery("#allowlaunch_allow-input").prop("checked", true);
+                        jQuery("#pl_lessonsselection").prop("checked", true);
+                        jQuery("#pl_contenteditor").prop("checked", true);
+                        jQuery("#pl_assessmentselection").prop("checked", true);
+                    }
+                    if ( message.type == 'LtiDataPrivacyLaunchRequest' ) {
+                        jQuery("#pl_privacy").prop("checked", true);
+                    }
+
+                    // Look for Canvas and Sakai extensions in placement list
+                    if ( message.placements && Array.isArray(message.placements) ) {
+                        // Canvas Extensions in case we see them
+                        if ( message.placements.includes("link_selection") ) jQuery("#pl_lessonsselection").prop("checked", true);
+                        if ( message.placements.includes("assignment_selection") ) jQuery("#pl_assessmentselection").prop("checked", true);
+                        if ( message.placements.includes("editor_button") ) jQuery("#pl_contenteditor").prop("checked", true);
+                        if ( message.placements.includes("migration_selection") ) jQuery("#pl_importitem").prop("checked", true);
+
+                        // Sakai Message Extensions - Set things directly by name
+                        if ( message.placements.includes("coursenav") ) jQuery("#pl_coursenav").prop("checked", true);
+                        if ( message.placements.includes("launch") ) jQuery("#pl_launch").prop("checked", true);
+                        if ( message.placements.includes("privacy") ) jQuery("#pl_privacy").prop("checked", true);
+
+                        // Sakai Placement Extensions
+                        if ( message.placements.includes("contenteditor") ) jQuery("#pl_contenteditor").prop("checked", true);
+                        if ( message.placements.includes("lessonsselection") ) jQuery("#pl_lessonsselection").prop("checked", true);
+                        if ( message.placements.includes("assessmentselection") ) jQuery("#pl_assessmentselection").prop("checked", true);
+                    }
+                }
+
+            }
+        }
+        console.log("closing the modal");
+        $("#modal-iframe-div").hide();
+        $("#modal-iframe-div").dialog('close');
+        $("#lti-advantage-div").hide();
+        alert("$tlang.getString("tool.import.success")");
+    })
+    .fail(function() {
+        alert("$tlang.getString("tool.import.error")" );
+    });
+
+}
+
+window.addEventListener('message', function (e) {
+    console.log(window.location.href + " got message");
+    var message = e.data;
+    if ( typeof message == 'string' ) message = JSON.parse(message)
+    console.log(message);
+
+    switch (message.subject) {
+        case 'org.imsglobal.lti.close':
+            importLTI13Config();
+            break;
+    }
+});
+#end
+
+    <!-- JavaScript to control visibility of tool deployment  -->
+    #if ($canDeploy)
+        document.addEventListener('DOMContentLoaded', function () {
+            const deploymentDiv = document.getElementById('lti-deployment-div');
+            const visibleInput = document.getElementById('visible_visible-input');
+            const stealthInput = document.getElementById('visible_stealth-input');
+
+            // Function to update visibility based on radio button selection
+            function updateVisibility() {
+                if (visibleInput.checked) {
+                    deploymentDiv.style.display = 'none'; // Hide the div
+                } else {
+                    deploymentDiv.style.display = 'block'; // Show the div
+                }
+            }
+
+            // Initial check 
+            updateVisibility();
+        
+            // Add event listeners to radio buttons
+            visibleInput.addEventListener('change', updateVisibility);
+            stealthInput.addEventListener('change', updateVisibility);
+        });      
+    #end
+
+</script>
+</div>

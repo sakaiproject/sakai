@@ -45,6 +45,7 @@ import org.sakaiproject.exception.TypeException;
  * </p>
  * @deprecated Use Spring injection or ComponentManager instead of referencing this static cover.
  */
+@Deprecated
 public class ContentHostingService
 {
 	/**
@@ -173,6 +174,7 @@ public class ContentHostingService
 	 * @deprecated Suggest use of {@link #addCollection(String)} followed by {@link #getProperties(String)},
 	 * 		and {@link #commitCollection(ContentCollectionEdit)}
 	 */
+	@Deprecated
 	public static org.sakaiproject.content.api.ContentCollection addCollection(java.lang.String param0,
 			org.sakaiproject.entity.api.ResourceProperties param1) throws org.sakaiproject.exception.IdUsedException,
 			org.sakaiproject.exception.IdInvalidException, org.sakaiproject.exception.PermissionException,
@@ -201,6 +203,7 @@ public class ContentHostingService
 	 * 		{@link GroupAwareEdit#setGroupAccess(Collection)}, {@link GroupAwareEdit#setAvailability(boolean, org.sakaiproject.time.api.Time, org.sakaiproject.time.api.Time)} 
 	 * 		and {@link #commitCollection(ContentCollectionEdit)}
 	 */
+	@Deprecated
 	public static org.sakaiproject.content.api.ContentCollection addCollection(java.lang.String param0,
 			org.sakaiproject.entity.api.ResourceProperties param1, java.util.Collection param2, boolean param3, org.sakaiproject.time.api.Time param4, org.sakaiproject.time.api.Time param5) throws org.sakaiproject.exception.IdUsedException,
 			org.sakaiproject.exception.IdInvalidException, org.sakaiproject.exception.PermissionException,
@@ -688,21 +691,6 @@ public class ContentHostingService
 		service.moveIntoFolder(param0, param1);
 	}
 
-	/**
-	 * @deprecated DO NOT USE THIS, it does not work and will ALWAYS throw an UnsupportedOperationException - https://jira.sakaiproject.org/browse/KNL-1078
-	 */
-	public static void rename(java.lang.String param0, java.lang.String param1)
-			throws org.sakaiproject.exception.PermissionException, org.sakaiproject.exception.IdUnusedException,
-			org.sakaiproject.exception.TypeException, org.sakaiproject.exception.InUseException,
-			org.sakaiproject.exception.OverQuotaException, org.sakaiproject.exception.InconsistentException,
-			org.sakaiproject.exception.IdUsedException, org.sakaiproject.exception.ServerOverloadException
-	{
-		org.sakaiproject.content.api.ContentHostingService service = getInstance();
-		if (service == null) return;
-
-		service.rename(param0, param1);
-	}
-
 	public static void checkResource(java.lang.String param0) throws org.sakaiproject.exception.PermissionException,
 			org.sakaiproject.exception.IdUnusedException, org.sakaiproject.exception.TypeException
 	{
@@ -1011,14 +999,6 @@ public class ContentHostingService
 		return service.isSortByPriorityEnabled();
 	}
 	
-	public static boolean usingResourceTypeRegistry() 
-	{
-		org.sakaiproject.content.api.ContentHostingService service = getInstance();
-		if (service == null) return false;
-
-		return service.usingResourceTypeRegistry();
-	}
-
 	/**
 	 * @param entityId
 	 * @return

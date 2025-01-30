@@ -17,7 +17,6 @@ package org.sakaiproject.gradebookng.tool.pages;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -28,8 +27,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.markup.head.CssHeaderItem;
-import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
@@ -47,7 +44,6 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
-import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.grading.api.GraderPermission;
 import org.sakaiproject.grading.api.PermissionDefinition;
@@ -71,7 +67,7 @@ public class PermissionsPage extends BasePage {
 	// they should not conflict with any real values that might be passed in
 	// and they are parsed out on save
 	private final String ALL_GROUPS = "-1";
-	private final Long ALL_CATEGORIES = new Long(-1);
+	private final Long ALL_CATEGORIES = (long) -1;
 
 	public PermissionsPage() {
 
@@ -151,8 +147,8 @@ public class PermissionsPage extends BasePage {
 
 					@Override
 					public Object getDisplayValue(final GbUser u) {
-						return new StringResourceModel("permissionspage.label.tausername", null,
-								new Object[] { u.getSortName(), u.getDisplayId() }).getString();
+						return new StringResourceModel("permissionspage.label.tausername")
+								.setParameters(u.getSortName(), u.getDisplayId()).getString();
 					}
 
 					@Override
@@ -168,7 +164,7 @@ public class PermissionsPage extends BasePage {
 		}
 
 		// add the onchange to the chooser
-		taChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+		taChooser.add(new AjaxFormComponentUpdatingBehavior("change") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -230,8 +226,7 @@ public class PermissionsPage extends BasePage {
 		add(noPermissions);
 
 		// FORM
-		@SuppressWarnings({ "rawtypes", "unchecked" })
-		final Form form = new Form("form", Model.of(pageModel)) {
+		final Form form = new Form<>("form", Model.of(pageModel)) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -433,7 +428,7 @@ public class PermissionsPage extends BasePage {
 					private static final long serialVersionUID = 1L;
 
 					@Override
-					public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+					public void onSubmit(final AjaxRequestTarget target) {
 
 						// remove current item
 						final PermissionDefinition current = item.getModelObject();
@@ -460,7 +455,7 @@ public class PermissionsPage extends BasePage {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+			public void onSubmit(final AjaxRequestTarget target) {
 
 				// add a new entry with default values so the dropdowns are sane
 				final PermissionDefinition newDef = new PermissionDefinition();
@@ -498,16 +493,14 @@ public class PermissionsPage extends BasePage {
 	/**
 	 * Class for wrapping up the data used by this page
 	 */
-	private class PermissionsPageModel implements Serializable {
+	@Setter
+    @Getter
+    private class PermissionsPageModel implements Serializable {
 
 		private static final long serialVersionUID = 1L;
 
-		@Getter
-		@Setter
 		private List<PermissionDefinition> permissions;
 
-		@Getter
-		@Setter
 		private Boolean viewCourseGrade;
 
 		public PermissionsPageModel() {
@@ -515,12 +508,4 @@ public class PermissionsPage extends BasePage {
 		}
 
 	}
-
-	@Override
-	public void renderHead(final IHeaderResponse response) {
-		super.renderHead(response);
-
-		response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/styles/gradebook-permissions.css%s", PortalUtils.getCDNQuery())));
-	}
-
 }

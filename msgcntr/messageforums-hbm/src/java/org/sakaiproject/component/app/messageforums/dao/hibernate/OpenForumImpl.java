@@ -31,6 +31,7 @@ public class OpenForumImpl extends BaseForumImpl implements OpenForum {
 
     private Boolean draft;
     private Boolean locked;
+    private Boolean lockedAfterClosed = false;
     private String defaultAssignName;
     private DBMembershipItem membershipItem;
     private Date openDate;
@@ -43,6 +44,33 @@ public class OpenForumImpl extends BaseForumImpl implements OpenForum {
      * if availabilityRestricted, then this determines whether the forum is disabled or not
      */
     private Boolean availability = true;
+    private Boolean sendOpenCloseToCalendar;
+    private String calendarBeginId;
+    private String calendarEndId;
+
+    public String getCalendarEndId() {
+        return calendarEndId;
+    }
+
+    public void setCalendarEndId(String calendarEndId) {
+        this.calendarEndId = calendarEndId;
+    }
+
+    public String getCalendarBeginId() {
+        return calendarBeginId;
+    }
+
+    public void setCalendarBeginId(String calendarBeginId) {
+        this.calendarBeginId = calendarBeginId;
+    }
+
+    public Boolean getSendOpenCloseToCalendar() {
+        return sendOpenCloseToCalendar == null ? true : sendOpenCloseToCalendar;
+    }
+
+    public void setSendOpenCloseToCalendar(Boolean sendOpenCloseToCalendar) {
+        this.sendOpenCloseToCalendar = sendOpenCloseToCalendar;
+    }
     // indecies for hibernate
     //protected int areaindex;
 
@@ -52,6 +80,14 @@ public class OpenForumImpl extends BaseForumImpl implements OpenForum {
 
     public void setLocked(Boolean locked) {
         this.locked = locked;
+    }
+
+    public Boolean getLockedAfterClosed() {
+        return this.lockedAfterClosed;
+    }
+
+    public void setLockedAfterClosed(Boolean lockedAfterClosed) {
+        this.lockedAfterClosed = lockedAfterClosed;
     }
 
 //    public int getAreaindex() {

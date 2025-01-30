@@ -41,7 +41,7 @@ import org.w3c.dom.Element;
 public class STTRecurrenceRule extends RecurrenceRuleBase
 {
 	
-	protected final static String FREQ = "STT";
+	public final static String FREQ = "STT";
 	private CalendarUtil calUtil = null;
 	
 	public STTRecurrenceRule() {

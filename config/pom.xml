@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.sakaiproject</groupId>
         <artifactId>master</artifactId>
-        <version>23-SNAPSHOT</version>
+        <version>25-SNAPSHOT</version>
         <relativePath>../master/pom.xml</relativePath>
     </parent>
 	<name>Sakai Config Project</name>
@@ -52,7 +52,6 @@
 	                                <pluginExecutionFilter>
 	                                    <groupId>org.apache.maven.plugins</groupId>
 	                                    <artifactId>maven-antrun-plugin</artifactId>
-	                                    <versionRange>[1.6,)</versionRange>
 	                                    <goals>
 	                                        <goal>run</goal>
 	                                    </goals>

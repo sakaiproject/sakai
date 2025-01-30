@@ -39,14 +39,16 @@ li.sortable_item:hover
 {
 	background-color: var(--sakai-background-color-3);
 }
+/*
 li.sortable_item:before
 {
-	font-family: 'Glyphicons Halflings';
-	content: "\e236";
+	font-family: 'bootstrap-icons';
+	content: "\F3F5";
 	color: var(--sakai-text-color-2);
 	margin: 0 6px 0 2px;
 	font-size: 0.8em;
 }
+*/
 li.editable_item
 {
 	width: 100%;
@@ -74,19 +76,6 @@ li.sortable_hover
 	list-style: none;
 	border: 1px dotted var(--sakai-border-color);
 }
-.item_control_box.dropdown
-{	
-	position: absolute;
-	right: 0;
-	top: 0;
-}
-.item_control_box.dropdown > a
-{
-	display: block;
-	padding: 5px 10px;
-	border: 1px solid transparent;
-	color: var(--sakai-text-color-1);
-}
 .item_control_box.dropdown.open > a,
 .item_control_box.dropdown > a:hover
 {
@@ -95,32 +84,20 @@ li.sortable_hover
 }
 .item_control.del-link
 {
-	color: var(--errorBanner-color);
-	background: var(--errorBanner-bgcolor);
-}
-.item_flags_box
-{
-	float: right;
-	margin-right: 35px;
-	margin-top: 2px;
-	color: var(--sakai-text-color-1);
-}
-.item_flags_box .glyphicon
-{
-	float: left;
-	margin-right: 10px;
+	color: var(--errorBanner-color) !important;
 }
 .item_control_box .dropdown-menu>li>a
 {
 	padding-left: 10px;
 }
-.item_control_box .dropdown-menu>li>a .glyphicon
+.item_control_box .dropdown-menu>li>a .si
 {
 	padding-right: 5px;
 }
 .item_label_box
 {
 	display: inline;
+	user-select: none;
 }
 .hidden
 {

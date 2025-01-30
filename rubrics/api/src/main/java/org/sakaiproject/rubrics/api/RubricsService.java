@@ -34,6 +34,7 @@ import org.sakaiproject.rubrics.api.beans.CriterionTransferBean;
 import org.sakaiproject.rubrics.api.beans.EvaluationTransferBean;
 import org.sakaiproject.rubrics.api.beans.RatingTransferBean;
 import org.sakaiproject.rubrics.api.beans.RubricTransferBean;
+import org.sakaiproject.rubrics.api.model.Rubric;
 import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
 
 public interface RubricsService {
@@ -57,7 +58,7 @@ public interface RubricsService {
 
     RubricTransferBean saveRubric(RubricTransferBean rubricBean);
 
-    void deleteRubric(Long rubricId);
+    boolean deleteRubric(Long rubricId);
 
     Optional<CriterionTransferBean> createDefaultCriterion(String siteId, Long rubricId);
 
@@ -65,11 +66,17 @@ public interface RubricsService {
 
     CriterionTransferBean copyCriterion(Long rubricId, Long sourceId);
 
-    Optional<RatingTransferBean> createDefaultRating(String siteId, Long criterionId, int position);
+    Optional<RatingTransferBean> createDefaultRating(String siteId, Long rubricId, Long criterionId, int position);
 
-    RatingTransferBean copyRating(Long sourceId);
-
-    CriterionTransferBean saveCriterion(CriterionTransferBean bean, String siteId);
+    /**
+     * This method is used for updating a Criterion's values it should not be used to create a new Criterion
+     * as it will not correctly update it's mapped entities
+     *
+     * @param bean who's values are used to update the referenced Criterion
+     * @param siteId
+     * @return a CriterionTransferBean that reflects the changes made to the Criterion, or the same bean if the criterion could not be fetched from persistence
+     */
+    CriterionTransferBean updateCriterion(CriterionTransferBean bean, String siteId);
 
     void deleteCriterion(Long rubricId, Long criterionId, String siteId);
 
@@ -77,9 +84,17 @@ public interface RubricsService {
 
     void sortCriterionRatings(Long criteriaId, List<Long> sortedRatingIds);
 
-    RatingTransferBean saveRating(RatingTransferBean bean, String siteId);
+    /**
+     * This method is used for updating a Criterion's values it should not be used to create a new Criterion
+     * as it will not correctly update it's mapped entities
+     *
+     * @param bean   who's values are used to update the referenced Rating
+     * @param siteId
+     * @return a RatingTransferBean that reflects the changes made to the Rating, or the same bean if the Rating could not be fetched from persistence
+     */
+    RatingTransferBean updateRating(RatingTransferBean bean, String siteId);
 
-    CriterionTransferBean deleteRating(Long ratingId, Long criterionId, String siteId);
+    CriterionTransferBean deleteRating(Long ratingId, Long criterionId, String siteId, Long rubricId);
 
     Optional<RubricTransferBean> getRubric(Long rubricId);
 
@@ -89,7 +104,9 @@ public interface RubricsService {
 
     Optional<EvaluationTransferBean> getEvaluation(Long evaluationId, String siteId);
 
-    Optional<EvaluationTransferBean> getEvaluationForToolAndItemAndEvaluatedItemId(String toolId, String itemId, String evaluatedItemId, String siteId);
+    Optional<EvaluationTransferBean> getEvaluationForToolAndItemAndEvaluatedItemAndOwnerId(String toolId, String itemId, String evaluatedItemId, String evaluatedItemOwnerId, String siteId, boolean isPeer);
+
+    boolean deleteEvaluationForToolAndItemAndEvaluatedItemId(String toolId, String itemId, String evaluatedItemId, String siteId);
 
     List<EvaluationTransferBean> getEvaluationsForToolAndItem(String toolId, String itemId, String siteId);
 
@@ -99,18 +116,21 @@ public interface RubricsService {
 
     boolean hasAssociatedRubric(String toolId, String associatedToolItemId);
 
-    boolean hasAssociatedRubric(String toolId, String associatedToolItemId, String siteId);
-
     Optional<ToolItemRubricAssociation> getRubricAssociation(String toolId, String associatedToolItemId);
 
     /**
      * Save the association between a tool item (an assignment, for example), and a rubric
+     * If you are deactivating/removing an existing association, it will soft-delete its data by doing setActive(false) on it.
+     * If you are reactivating an association that has already existed, it will take the old data for it and simply do setActive(true) on it.
      *
      * @param toolId the tool id, something like "sakai.assignment"
      * @param toolItemId the id of the tool's item that is being associated with the rubric
      * @param params A hashmap with all the rbcs params comming from the component. The tool should generate it.
      */
     Optional<ToolItemRubricAssociation> saveRubricAssociation(String toolId, String toolItemId, Map<String, String> params);
+    Optional<ToolItemRubricAssociation> saveRubricAssociation(String toolId, String toolItemId, Map<String, String> params, String siteId);
+
+    String createContextualFilename(RubricTransferBean rubric, String toolId, String itemId, String evaluatedItemId, String siteId);
 
     byte[] createPdf(String siteId, Long rubricId, String toolId, String itemId, String evaluatedItemId)
             throws IOException;
@@ -126,5 +146,14 @@ public interface RubricsService {
     void restoreRubricAssociationsByItemIdPrefix(String itemId, String toolId);
 
     void deleteSiteRubrics(String siteId);
+
+    /**
+     * Find the associations of a rubric to a tool
+     *
+     * @param rubricId the rubric id
+     * @param toolId the tool id, something like "sakai.assignment"
+     * @return a List of ToolItemRubricAssociation containing the associations of a Rubric to a tool. Example: All the rubric associations to assessments.
+     */
+    List<ToolItemRubricAssociation> getRubricAssociationsByRubricAndTool(Long rubricId, String toolId);
 
 }

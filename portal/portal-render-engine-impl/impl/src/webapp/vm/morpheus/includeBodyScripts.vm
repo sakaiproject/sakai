@@ -1,0 +1,288 @@
+<script>
+  //Set portal dom references
+  portal.container = document.querySelector("div.portal-container");
+  portal.head = portal.container.querySelector("header.portal-header");
+  portal.footer = portal.container.querySelector("footer.portal-footer");
+  portal.sidebars = {
+    sites: portal.container.querySelector("#portal-nav-sidebar")
+  };
+
+  //Setup sidebar collapse buttons
+  new SidebarCollapseButton(document.getElementById("sidebar-collapse-button"), {
+    i18n: {
+      titleExpanded: "${rloader.mainnav_btn_sidebar_collapse}",
+      titleCollapsed: "${rloader.mainnav_btn_sidebar_expand}"
+    },
+    toggleClass: "sidebar-collapsed",
+    portalContainer: portal.container,
+    sitesSidebar: portal.sidebars.sites,
+  });
+
+  //Setup sidebar
+  const siteSidebar = new SitesSidebar(portal.sidebars.sites, {
+    i18n: {
+      expandTools: "${rloader.sitenav_expand_tools}",
+      collapseTools: "${rloader.sitenav_collapse_tools}",
+      pinButtons: {
+        titlePin: "${rloader.sitenav_btn_pin}",
+        titleUnpin: "${rloader.sitenav_btn_unpin}",
+      },
+    },
+    currentSite: "${currentSiteId}",
+  });
+  const setSidebarView = (currentBP, previousBP) => {
+    let currentMobile = BreakpointManager.compare(currentBP, "sm") <= 0;
+    let previousMobile = previousBP ? BreakpointManager.compare(previousBP, "sm") <= 0 : null;
+    //Only set View if we are crossing the sm breakpoint
+    if (previousMobile === null || currentMobile != previousMobile) {
+      siteSidebar.setView(currentMobile);
+    }
+  };
+  portal.breakpointManager.registerCallback(setSidebarView);
+  setSidebarView(portal.breakpointManager.currentBreakpoint);
+
+  //Setup server info popover
+  new ServerInfoPopover(document.querySelector("#server-info"), {
+    #if ($showServerTime)
+    serverTime: {
+      selector: "#serverTime",
+      initialTime: ${serverTzGMTOffset},
+      timeZone: "${serverTzDisplay}",
+    },
+    #end
+    #if ($showServerTime && $showPreferredTzTime)
+    preferredTime: {
+      selector: "#preferredTime",
+      initialTime: ${preferredTzGMTOffset},
+      timeZone: "${preferredTzDisplay}",
+    },
+    #end
+    popoverContainer: portal.footer,
+    iconClasses: ["bi-info-circle", "bi-info-circle-fill"],
+  });
+
+  // Setup lessons subpage navigaion
+
+  let subPages = []; // exclude the current site
+  let currentSubPage = null;
+
+  #macro (addSubPageDataList $siteList)
+    #if ($siteList)
+      #foreach ($site in $siteList)
+        #if ($site && $site.subPages)
+          #if ($site.isCurrent)
+          currentSubPage = new SubPageNavigation(${site.subPages});
+          #else
+          subPages.push(${site.subPages});
+          #end
+        #end
+      #end
+    #end
+  #end
+
+  #addSubPageDataList($sidebarSites.pinnedSites);
+  #addSubPageDataList($sidebarSites.recentSites);
+
+  // Remove duplicate pages e.g. page in pinned and recent, then create
+  // a SubPageNavigation instance for each site
+
+  subPages.filter((v, i) => subPages.findIndex(val => val.siteId === v.siteId) === i)
+    .forEach(data => new SubPageNavigation(data));
+
+  if (currentSubPage !== null && sakai && sakai.subnav) {
+    currentSubPage.setCurrentPage();
+  }
+
+  #if (!$loggedIn && $topLogin)
+    //--start-logged-out-scripts
+    // Setup header login password field
+    new PasswordField(portal.head.querySelector(".password-field"), {
+      icons: {
+        hidden: "bi-eye-slash-fill",
+        shown:"bi-eye-fill",
+        capsLock: "bi-capslock-fill"
+      }
+    });
+
+    // Setup mobile login
+    new MobileLogin(portal.head.querySelector("#mobileLoginBtn"), {
+      passwordField: {
+        icons: {
+          hidden: "bi-eye-slash-fill",
+          shown:"bi-eye-fill",
+          capsLock: "bi-capslock-fill",
+        }
+      }
+    });
+  //--end-logged-out-scripts
+  #end
+</script>
+<script>
+  var needJQuery = true;
+  var secondJQuery = false;
+  var notJQuery = false;
+  var dollarEmpty = false;
+  var dollarVersion = false;
+  if (window.$) {
+    if (window.${d}.fn && window.${d}.fn) {
+      dollarVersion = window.${d}.fn.jquery;
+    } else {
+      dollarVersion = 'not jQuery';
+      console.debug('Dollar is defined but is not jQuery');
+      console.debug($d);
+      //Just have it reload this other $ afterward
+      notJQuery = true;
+    }
+  } else {
+    dollarEmpty = true;
+    dollarVersion = 'not present';
+    if (window.jQuery) {
+      console.debug('tool called jQuery.noConflict()');
+    }
+  }
+  if (window.jQuery) {
+    tver = jQuery.fn.jquery;
+    if (tver.indexOf('1.12.') == 0) {
+      console.debug('Using tool jQuery '+tver);
+      needJQuery = false;
+    } else {
+      secondJQuery = true;
+    }
+  }
+  if (needJQuery) {
+    document.write('\x3Cscript src="${pageWebjarsPath}jquery/1.12.4/jquery.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+    document.write('\x3Cscript src="${pageWebjarsPath}jquery-migrate/1.4.1/jquery-migrate.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+    document.write('\x3Cscript src="${pageWebjarsPath}jquery-ui/1.12.1/jquery-ui.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+    document.write('\x3Clink rel="stylesheet" href="${pageWebjarsPath}jquery-ui/1.12.1/jquery-ui.min.css$!{portalCDNQuery}"/>')
+    if (Modernizr.touch) {
+      document.write('\x3Cscript src="${pageWebjarsPath}jquery-ui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+    }
+    console.debug('Portal scripts loaded JQ+MI+UI');
+  } else {
+    if (typeof jQuery.migrateWarnings == 'undefined') {
+      document.write('\x3Cscript src="${pageWebjarsPath}jquery-migrate/1.4.1/jquery-migrate.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+      console.debug('Portal adding jQuery migrate');
+    }
+    if (typeof jQuery.ui == 'undefined') {
+      document.write('\x3Clink rel="stylesheet" href="${pageWebjarsPath}jquery-ui/1.12.1/jquery-ui.min.css$!{portalCDNQuery}"/>')
+      console.debug('Portal adding jQuery UI');
+    }
+    if (typeof jQuery.ui == 'undefined' || (typeof jQuery.ui.mouse != 'undefined' && typeof jQuery.ui.mouse.prototype._touchStart == 'undefined')) {
+      document.write('\x3Cscript src="${pageWebjarsPath}jquery-ui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+      console.debug('Portal adding jQuery UI Touch Punch for touch device support');
+    }
+  }
+</script>
+
+<script src="${pageScriptPath}ksortable-plugin.js$!{portalCDNQuery}"></script>
+
+<script>
+  ${d}PBJQ = jQuery; // The Portal's jQuery (also in $ for now)
+</script>
+
+#if ($loggedIn)
+<script src="$!{portalCDNPath}/portal/scripts/sessionstoragemanager.js$!{portalCDNQuery}"></script>
+#end
+
+<script>
+  if (typeof Handlebars == 'undefined') {
+    document.write('\x3Cscript src="${pageWebjarsPath}handlebars/4.4.0/handlebars.runtime.min.js$!{portalCDNQuery}">\x3C/script>');
+  }
+</script>
+
+<script>includeWebjarLibrary("qtip2");</script>
+<script src="${pageScriptPath}jquery/qtip/tutorial.js$!{portalCDNQuery}"></script>
+#if ( $tutorial && $loggedIn )
+    <script>$(document).ready(function(){startTutorial({'showTutorialLocationOnHide': 'true'});});</script>
+#end
+<script src="${pageScriptPath}jquery/bgiframe/jquery.bgiframe.min.js$!{portalCDNQuery}"></script>
+<script src="${pageScriptPath}jquery/cluetip/1.2.10/jquery.cluetip.min.js$!{portalCDNQuery}"></script>
+<script>
+  if (typeof jQuery.i18n == 'undefined') {
+    document.write('\x3Cscript src="/library/webjars/jquery-i18n-properties/1.2.2/jquery.i18n.properties.min.js$!{portalCDNQuery}">\x3C/script>');
+  }
+</script>
+<script src="/library/js/jquery/jquery.clearsearch.js$!{portalCDNQuery}"></script>
+
+##This block should be removed
+<script src="${pageWebjarsPath}/pnotify/4.0.0/dist/iife/PNotify.js$!{portalCDNQuery}"></script>
+<script src="${pageWebjarsPath}/pnotify/4.0.0/dist/iife/PNotifyButtons.js$!{portalCDNQuery}"></script>
+<script src="${pageWebjarsPath}/cropper/4.1.0/dist/cropper.min.js$!{portalCDNQuery}"></script>
+
+
+#if (${sakaiThemesEnabled})
+<script src="${pageScriptPath}portal/portal.theme.switcher.js$!{portalCDNQuery}"></script>
+#end
+
+<script>
+  function portal_check_pnotify() {
+
+    ${d}PBJQ.getJSON( "/direct/portal/notify.json", function(data) {
+
+      data.error.forEach(error => {
+
+        ${d}PBJQ(function () {
+
+          PNotify.defaults.styling = 'bootstrap3';
+          PNotify.defaults.icons = 'fontawesome4';
+          PNotify.alert({
+            title: '${rloader.getString("pnotify_notice")}',
+            text: error,
+            type: 'notice',
+          });
+        });
+      });
+    });
+  }
+  #if ($userWarning)
+    ${d}PBJQ(document).ready(portal_check_pnotify);
+  #end
+</script>
+
+#* TODO: These should maybe be  bundled somehow *#
+<script type="module" src="/webcomponents/bundles/body-scripts.js$!{portalCDNQuery}"></script>
+<script src="/library/js/sakai.scripts.min.js$!{portalCDNQuery}"></script>
+
+#if ($pageTop)
+<script>
+  var sakaiPortalWindow = "";
+</script>
+#end
+
+<script>
+// LTI frame management code shared with tsugi-static/js/tsugiscripts.js
+// If we are not the top frame - immediately communicate our size and jack into the JQuery resize
+// Debounce happens in lti_frameResize()
+if ( ! (self == top) ) {
+    if ( typeof LTI_PARENT_IFRAME_ID === 'undefined' ) {
+        lti_frameResize();
+        $(window).on('resize', function() { lti_frameResize(); });
+    } else {
+        lti_frameResize(false, LTI_PARENT_IFRAME_ID);
+        $(window).on('resize', function() { lti_frameResize(false, LTI_PARENT_IFRAME_ID); });
+    }
+}
+</script>
+
+<script>
+  // If we loaded a second jQuery, revert $ and jQuery to the first jQuery
+  if (secondJQuery) {
+    ${d}PBJQ = jQuery.noConflict(true); // Safely return $ to the tool jQuery
+    if (!dollarEmpty && !notJQuery ) jQuery = ${d};  // Return jQuery to point at the tool jQuery
+  }
+  if (notJQuery && !secondJQuery) {
+    ${d}PBJQ = jQuery.noConflict(true); // Safely return $ to the tool jQuery
+    //Just set jQuery to be the same thing since it didn't exist before
+    jQuery = ${d}PBJQ;
+  }
+  console.debug(`Portal script load complete PBJQ=${d}PBJQ.fn.jquery jQuery=${jQuery.fn.jquery} ${d}=${dollarVersion}`);
+
+  // Listen for notifications-loaded on the body element. This is fired by the sui-notifications
+  // component when it has an update to its list of notifications
+  document.body.addEventListener("notifications-loaded", e => {
+
+    document.body.querySelectorAll(".portal-notifications-indicator").forEach(span => {
+      span.classList.toggle("d-none", !e.detail.count);
+    });
+  });
+</script>

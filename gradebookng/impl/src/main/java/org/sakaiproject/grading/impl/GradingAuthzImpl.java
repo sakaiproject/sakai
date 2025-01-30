@@ -28,18 +28,15 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.GradingAuthz;
-import org.sakaiproject.grading.api.GradingCategoryType;
+import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.grading.api.GradingPermissionService;
-import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.grading.api.model.GradebookAssignment;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.facade.Role;
-import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
@@ -185,7 +182,7 @@ public class GradingAuthzImpl implements GradingAuthz {
         }
 
         if (isUserAbleToGradeAll(gradebookUid)) {
-            return GradingService.gradePermission;
+            return GradingConstants.gradePermission;
         }
 
         String userUid = sessionManager.getCurrentSessionUserId();
@@ -204,16 +201,16 @@ public class GradingAuthzImpl implements GradingAuthz {
             }
 
             String functionValueForItem = (String)itemIdFunctionMap.get(itemId);
-            String view = GradingService.viewPermission;
-            String grade = GradingService.gradePermission;
+            String view = GradingConstants.viewPermission;
+            String grade = GradingConstants.gradePermission;
 
             if (functionValueForItem != null) {
                 if (functionValueForItem.equalsIgnoreCase(grade)) {
-                    return GradingService.gradePermission;
+                    return GradingConstants.gradePermission;
                 }
 
                 if (functionValueForItem.equalsIgnoreCase(view)) {
-                    return GradingService.viewPermission;
+                    return GradingConstants.viewPermission;
                 }
             }
 
@@ -224,7 +221,7 @@ public class GradingAuthzImpl implements GradingAuthz {
             List<String> sectionIds = viewableSections.stream().map(CourseSection::getUuid).collect(Collectors.toList());
             for (String sectionUuid : sectionIds) {
                 if (isUserTAinSection(sectionUuid) && sectionAwareness.isSectionMemberInRole(sectionUuid, studentUid, Role.STUDENT)) {
-                    return GradingService.gradePermission;
+                    return GradingConstants.gradePermission;
                 }
             }
 
@@ -260,8 +257,8 @@ public class GradingAuthzImpl implements GradingAuthz {
             }
 
             String functionValueForItem = (String)itemIdFunctionMap.get(itemId);
-            String view = GradingService.viewPermission;
-            String grade = GradingService.gradePermission;
+            String view = GradingConstants.viewPermission;
+            String grade = GradingConstants.gradePermission;
 
             if (functionValueForItem != null) {
                 if (function.equalsIgnoreCase(grade) && functionValueForItem.equalsIgnoreCase(grade))
@@ -287,12 +284,12 @@ public class GradingAuthzImpl implements GradingAuthz {
 
     public boolean isUserAbleToGradeItemForStudent(String gradebookUid, Long itemId, String studentUid) throws IllegalArgumentException {
 
-        return isUserAbleToGradeOrViewItemForStudent(gradebookUid, itemId, studentUid, GradingService.gradePermission);
+        return isUserAbleToGradeOrViewItemForStudent(gradebookUid, itemId, studentUid, GradingConstants.gradePermission);
     }
 
     public boolean isUserAbleToViewItemForStudent(String gradebookUid, Long itemId, String studentUid) throws IllegalArgumentException {
 
-        return isUserAbleToGradeOrViewItemForStudent(gradebookUid, itemId, studentUid, GradingService.viewPermission);
+        return isUserAbleToGradeOrViewItemForStudent(gradebookUid, itemId, studentUid, GradingConstants.viewPermission);
     }
 
     public List<CourseSection> getViewableSections(String gradebookUid) {
@@ -352,18 +349,18 @@ public class GradingAuthzImpl implements GradingAuthz {
         return sectionAwareness.getSectionMembersInRole(sectionUid, Role.STUDENT);
     }
 
-    public Map<EnrollmentRecord, String> findMatchingEnrollmentsForItem(String gradebookUid, Long categoryId, GradingCategoryType gbCategoryType, String optionalSearchString, String optionalSectionUid) {
+    public Map<EnrollmentRecord, String> findMatchingEnrollmentsForItem(String gradebookUid, Long categoryId, Integer gbCategoryType, String optionalSearchString, String optionalSectionUid) {
 
         String userUid = sessionManager.getCurrentSessionUserId();
         return findMatchingEnrollmentsForItemOrCourseGrade(userUid, gradebookUid, categoryId, gbCategoryType, optionalSearchString, optionalSectionUid, false);
     }
 
-    public Map<EnrollmentRecord, String> findMatchingEnrollmentsForItemForUser(String userUid, String gradebookUid, Long categoryId, GradingCategoryType gbCategoryType, String optionalSearchString, String optionalSectionUid) {
+    public Map<EnrollmentRecord, String> findMatchingEnrollmentsForItemForUser(String userUid, String gradebookUid, Long categoryId, Integer gbCategoryType, String optionalSearchString, String optionalSectionUid) {
 
         return findMatchingEnrollmentsForItemOrCourseGrade(userUid, gradebookUid, categoryId, gbCategoryType, optionalSearchString, optionalSectionUid, false);
     }
 
-    public Map<EnrollmentRecord, String> findMatchingEnrollmentsForViewableCourseGrade(String gradebookUid, GradingCategoryType gbCategoryType, String optionalSearchString, String optionalSectionUid) {
+    public Map<EnrollmentRecord, String> findMatchingEnrollmentsForViewableCourseGrade(String gradebookUid, Integer gbCategoryType, String optionalSearchString, String optionalSectionUid) {
 
         String userUid = sessionManager.getCurrentSessionUserId();
         return findMatchingEnrollmentsForItemOrCourseGrade(userUid, gradebookUid, null, gbCategoryType, optionalSearchString, optionalSectionUid, true);
@@ -418,7 +415,7 @@ public class GradingAuthzImpl implements GradingAuthz {
                     }
 
                     if (assignId != null) {
-                        assignFunctionMap.put(assignId, GradingService.gradePermission);
+                        assignFunctionMap.put(assignId, GradingConstants.gradePermission);
                     }
                 }
             }
@@ -509,7 +506,7 @@ public class GradingAuthzImpl implements GradingAuthz {
                                 }
 
                                 if (assignId != null) {
-                                    itemFunctionMap.put(assignId, GradingService.gradePermission);
+                                    itemFunctionMap.put(assignId, GradingConstants.gradePermission);
                                 }
                             }
                         }
@@ -531,7 +528,7 @@ public class GradingAuthzImpl implements GradingAuthz {
      * @param itemIsCourseGrade
      * @return Map of EnrollmentRecord --> View or Grade
      */
-    private Map<EnrollmentRecord, String> findMatchingEnrollmentsForItemOrCourseGrade(String userUid, String gradebookUid, Long categoryId, GradingCategoryType gbCategoryType, String optionalSearchString, String optionalSectionUid, boolean itemIsCourseGrade) {
+    private Map<EnrollmentRecord, String> findMatchingEnrollmentsForItemOrCourseGrade(String userUid, String gradebookUid, Long categoryId, Integer gbCategoryType, String optionalSearchString, String optionalSectionUid, boolean itemIsCourseGrade) {
 
         Map<EnrollmentRecord, String> enrollmentMap = new HashMap<>();
         List<EnrollmentRecord> filteredEnrollments = new ArrayList<>();
@@ -568,7 +565,7 @@ public class GradingAuthzImpl implements GradingAuthz {
         }
 
         if (isUserAbleToGradeAll(gradebookUid, userUid)) {
-            studentIdEnrRecMap.values().forEach(e -> enrollmentMap.put(e, GradingService.gradePermission));
+            studentIdEnrRecMap.values().forEach(e -> enrollmentMap.put(e, GradingConstants.gradePermission));
         } else {
             Map<String, CourseSection> sectionIdCourseSectionMap = new HashMap<>();
             getAllSections(gradebookUid).forEach(cs -> sectionIdCourseSectionMap.put(cs.getUuid(), cs));
@@ -651,7 +648,7 @@ public class GradingAuthzImpl implements GradingAuthz {
         // Filter out based upon the original filtered students
         for (String enrId : studentIdEnrRecMap.keySet()) {
             if (uniqueEnrollees.containsKey(enrId)) {
-                enrollmentMap.put(studentIdEnrRecMap.get(enrId), GradingService.gradePermission);
+                enrollmentMap.put(studentIdEnrRecMap.get(enrId), GradingConstants.gradePermission);
             }
         }
 

@@ -49,7 +49,7 @@ public class AssignmentStatisticsPanel extends BasePanel {
 		final Assignment assignment = this.businessService.getAssignment(assignmentId.longValue());
 
 		AssignmentStatisticsPanel.this.window.setTitle(
-				new StringResourceModel("label.statistics.title.assignment", getDefaultModel(), null, assignment.getName()).getString());
+				new StringResourceModel("label.statistics.title.assignment").setParameters(assignment.getName()).getString());
 
 		final AssignmentGradeChart chart = new AssignmentGradeChart("gradingSchemaChart", assignmentId, null);
 		add(chart);

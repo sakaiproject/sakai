@@ -44,7 +44,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -73,6 +72,7 @@ import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
@@ -82,6 +82,8 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.comparator.UserSortNameComparator;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -95,157 +97,25 @@ import lombok.extern.slf4j.Slf4j;
  * 
  */
 @Slf4j
+@Getter
+@Setter
 public class SakaiFacadeImpl implements SakaiFacade {
 
-	private FunctionManager functionManager;
-	
 	private static ResourceLoader rb=  new ResourceLoader();
 
-	/**
-	 * set a Sakai FunctionManager object
-	 * 
-	 * @param functionManager
-	 *            a Sakai FunctionManager object
-	 */
-	public void setFunctionManager(FunctionManager functionManager) {
-		this.functionManager = functionManager;
-	}
-
+	private FunctionManager functionManager;
 	private ToolManager toolManager;
-
-	/**
-	 * set a Sakai ToolManager object
-	 * 
-	 * @param toolManager
-	 *            a Sakai ToolManager object
-	 */
-	public void setToolManager(ToolManager toolManager) {
-		this.toolManager = toolManager;
-	}
-
-	/**
-	 * get the ToolManager object.
-	 * 
-	 * @return a ToolManager object.
-	 */
-	public ToolManager getToolManager() {
-		return this.toolManager;
-	}
-
 	private SecurityService securityService;
-
-	/**
-	 * set a Sakai SecurityService object
-	 * 
-	 * @param securityService
-	 *            a Sakai SecurityService object
-	 */
-	public void setSecurityService(SecurityService securityService) {
-		this.securityService = securityService;
-	}
-
 	private SessionManager sessionManager;
-
-	/**
-	 * set a Sakai SessionManager object
-	 * 
-	 * @param sessionManager
-	 *            a Sakai SessionManager object
-	 */
-	public void setSessionManager(SessionManager sessionManager) {
-		this.sessionManager = sessionManager;
-	}
-
 	private SiteService siteService;
-
-	/**
-	 * set a Sakai SiteService object
-	 * 
-	 * @param siteService
-	 *            a Sakai SiteService object
-	 */
-	public void setSiteService(SiteService siteService) {
-		this.siteService = siteService;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public SiteService getSiteService() {
-		return siteService;
-	}
-
 	private UserDirectoryService userDirectoryService;
-
-	/**
-	 * set a Sakai UserDirectoryService object
-	 * 
-	 * @param userDirectoryService
-	 *            a Sakai UserDirectoryService object
-	 */
-	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
-		this.userDirectoryService = userDirectoryService;
-	}
-
 	private CalendarService calendarService;
-
-	/**
-	 * set a Sakai CalendarService object
-	 * 
-	 * @param calendarService
-	 *            a Sakai CalendarService object
-	 */
-	public void setCalendarService(CalendarService calendarService) {
-		this.calendarService = calendarService;
-	}
-
 	private ServerConfigurationService serverConfigurationService;
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public ServerConfigurationService getServerConfigurationService() {
-		return serverConfigurationService;
-	}
-
-	/**
-	 * set a Sakai ServerConfigurationService object
-	 * 
-	 * @param serverConfigurationService
-	 *            a Sakai ServerConfigurationService object
-	 */
-	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
-		this.serverConfigurationService = serverConfigurationService;
-	}
-	
 	private AuthzGroupService authzGroupService;
-
 	private FormattedText formattedText;
+	private TimeService timeService;
+	private ContentHostingService contentHostingService;
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public FormattedText getFormattedText() {
-		return formattedText;
-	}
-
-	/**
-	 * Sets the FormattedText Service.
-	 *
-	 * @param formattedText
-	 *            a FormattedText object
-	 */
-	public void setFormattedText(FormattedText formattedText) {
-		this.formattedText = formattedText;
-	}
-
-	public AuthzGroupService getAuthzGroupService() {
-		return authzGroupService;
-	}
-	public void setAuthzGroupService(AuthzGroupService authzGroupService) {
-		this.authzGroupService=authzGroupService;
-	}
 	// Returns Google calendar if the calendar has been created in Google
 	public Calendar getAdditionalCalendar(String siteId) throws PermissionException {
 		CalendarService additionalCalendarService = null;
@@ -284,23 +154,17 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		functionManager.registerFunction(SIGNUP_UPDATE_GROUP_ALL);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public boolean isUserAdmin(String userId) {
 		return securityService.isSuperUser(userId);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public String getCurrentUserId() {
 		return sessionManager.getCurrentSessionUserId();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public User getUser(String userId) {
 		try {
 			return userDirectoryService.getUser(userId);
@@ -310,9 +174,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		}
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public User getUserQuietly(String userId) {
 		try {
 			return userDirectoryService.getUser(userId);
@@ -322,9 +184,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		}
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public boolean checkForUser(String userId) {
 		try {
 			User u = userDirectoryService.getUser(userId);
@@ -337,9 +197,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		return false;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public String getUserDisplayName(String userId) {
 		try {
 			return userDirectoryService.getUser(userId).getDisplayName();
@@ -349,9 +207,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		}
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public String getUserDisplayLastFirstName(String userId) {
 		try {
 			final String dispLastName = userDirectoryService.getUser(userId).getLastName();
@@ -370,9 +226,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public String getCurrentLocationId() {
 		try {
 			return toolManager.getCurrentPlacement().getContext();
@@ -382,16 +236,12 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public String getCurrentPageId() {
 		return getSiteSignupPageId(getCurrentLocationId());
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public String getSiteSignupPageId(String siteId) {
 		try {
 			Site appliedSite = siteService.getSite(siteId);
@@ -427,9 +277,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		return "";
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public String getLocationTitle(String locationId) {
 		try {
 			Site site = siteService.getSite(locationId);
@@ -440,9 +288,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		}
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public List<String> getUserPublishedSiteIds(String userId){
 		List<String> siteIds = new ArrayList<String>();
 		/*all sites for current user*/
@@ -468,9 +314,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		return siteIds;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public List<SignupSite> getUserSites(String userId) {
 		List<SignupSite> signupSites = new ArrayList<SignupSite>();
 		List<Site> tempL = siteService.getSites(SiteService.SelectionType.ACCESS, null, null, null,
@@ -536,16 +380,12 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		return signupSites;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public boolean isAllowedGroup(String userId, String permission, String siteId, String groupId) {
 		return isAllowed(userId, permission, siteService.siteGroupReference(siteId, groupId));
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public boolean isAllowedSite(String userId, String permission, String siteId) {
 		return isAllowed(userId, permission, siteService.siteReference(siteId));
 	}
@@ -558,16 +398,12 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		return false;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public String getUserId(String eid) throws UserNotDefinedException {
 		return userDirectoryService.getUserId(eid);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	public List<SignupUser> getAllUsers(SignupMeeting meeting) {
 		List<SignupSite> signupSites = meeting.getSignupSites();
@@ -586,9 +422,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		return new ArrayList<SignupUser>(signupUsers);
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	public List<SignupUser> getAllPossibleAttendees(SignupMeeting meeting){
 		List<SignupSite> signupSites = meeting.getSignupSites();
@@ -607,9 +441,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		return new ArrayList<SignupUser>(signupUsers);
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	public List<SignupUser> getAllPossibleCoordinators(SignupMeeting meeting) {
 		List<SignupUser> coordinators = new ArrayList<>();
@@ -629,9 +461,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		return coordinators;
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	public List<SignupUser> getAllPossbileCoordinatorsOnFastTrack(SignupMeeting meeting) {
 		List<SignupUser> coordinators = new ArrayList<>();
@@ -685,9 +515,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 	}
 	
 	
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public SignupUser getSignupUser(SignupMeeting meeting, String userId){
 		SignupUser signupUser=null;
 		List<SignupSite> signupSites = meeting.getSignupSites();
@@ -740,9 +568,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		return signupUser;
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public List<User> getUsersWithPermission(String permission) {
 		
 		try {
@@ -1017,17 +843,13 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public Calendar getCalendar(String siteId) throws PermissionException {
 		String calendarId = calendarService.calendarReference(siteId, SiteService.MAIN_CONTAINER);
 		return getCalendarById(calendarId);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public Calendar getCalendarById(String calendarId) throws PermissionException {
 		Calendar calendar = null;
 		try {
@@ -1046,61 +868,19 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		return calendar;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public Group getGroup(String siteId, String groupId) throws IdUnusedException {
 		Site site = siteService.getSite(siteId);
 		return site.getGroup(groupId);
 	}
 
-	private TimeService timeService;
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public TimeService getTimeService() {
-		return timeService;
-	}
-
-	/**
-	 * This is a setter.
-	 * 
-	 * @param timeService
-	 *            a TimeService object.
-	 */
-	public void setTimeService(TimeService timeService) {
-		this.timeService = timeService;
-	}
-	
-	private ContentHostingService contentHostingService;
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public ContentHostingService getContentHostingService() {
-		return contentHostingService;
-	}
-
-	/**
-	 * This is a setter.
-	 * @param contentHostingService
-	 * 			a ContentHostingService object
-	 */
-	public void setContentHostingService(ContentHostingService contentHostingService) {
-		this.contentHostingService = contentHostingService;
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public Collection<User> getUsersByEmail(String email) {
 		return (Collection<User>)userDirectoryService.findUsersByEmail(email);
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public User getUserByEmail(String email) {
 		
 		Collection<User> users =  (Collection<User>)userDirectoryService.findUsersByEmail(email);
@@ -1112,9 +892,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		return users.iterator().next();
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public User getUserByEid(String eid) {
 		try {
 			return userDirectoryService.getUserByEid(eid);
@@ -1124,16 +902,12 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		return null;
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public boolean isCsvExportEnabled() {
 		return serverConfigurationService.getBoolean("signup.csv.export.enabled", false);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
     public SecurityAdvisor pushAllowCalendarEdit(final Calendar calendar) {
         SecurityAdvisor advisor = new SecurityAdvisor() {
             public SecurityAdvice isAllowed(String userId, String function, String reference) {
@@ -1150,9 +924,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
         return advisor;
     }
     
-    /**
-	 * {@inheritDoc}
-	 */
+    @Override
     public SecurityAdvisor pushSecurityAdvisor() {
         SecurityAdvisor advisor = new SecurityAdvisor() {
             public SecurityAdvice isAllowed(String userId, String function, String reference) {
@@ -1165,16 +937,12 @@ public class SakaiFacadeImpl implements SakaiFacade {
         return advisor;
     }
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
     public void popSecurityAdvisor(SecurityAdvisor advisor) {
         disableSecurityAdvisor(advisor);
     }
 	
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public String createGroup(String siteId, String title, String description, List<String> userUuids) {
 				
 		Site site = null;
@@ -1234,9 +1002,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		return null;
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public boolean addUsersToGroup(Collection<String> userIds, String siteId, String groupId, String timeslottoGroup) {
 		
 		log.debug("addUsersToGroup(userIds=" + Arrays.asList(userIds).toString() + ", siteId=" + siteId + ", groupId=" + groupId);
@@ -1304,9 +1070,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		return false;
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public boolean synchonizeGroupTitle(String siteId, String groupId, String newTitle){
 		Site site = null;
 		boolean changed = false;
@@ -1354,9 +1118,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 	}
 	
 	
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public boolean removeUserFromGroup(String userId, String siteId, String groupId) {
 		
 		log.debug("removeUserFromGroup(userId=" + userId + ", siteId=" + siteId + ", groupId=" + groupId);
@@ -1395,9 +1157,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		return false;
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public List<String> getGroupMembers(String siteId, String groupId) {
 		
 		List<String> users = new ArrayList<String>();
@@ -1435,9 +1195,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		return users;
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public boolean checkForGroup(String siteId, String groupId) {
 		
 		log.debug("checkForGroup: siteId=" + siteId + ", groupId=" + groupId);
@@ -1450,15 +1208,6 @@ public class SakaiFacadeImpl implements SakaiFacade {
             return false;
 		}
 		
-		/*
-		SecurityAdvisor securityAdvisor = new SecurityAdvisor(){
-			public SecurityAdvice isAllowed(String userId, String function, String reference){
-				return SecurityAdvice.ALLOWED;
-			}
-		};
-		enableSecurityAdvisor(securityAdvisor);
-		*/
-		
 		Group group = site.getGroup(groupId);
 		
 		if(group != null) {
@@ -1466,7 +1215,13 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		}
 		return false;
 	}
-	
+
+	@Override
+	public String getToolResetUrl() {
+
+		Placement placement = toolManager.getCurrentPlacement();
+		return serverConfigurationService.getPortalUrl() + "/site/" + placement.getContext() + "/tool-reset/" + placement.getId();
+	}
 	
 	/**
 	 * Helper to add a user to a group. THIS DOES NOT SAVE ANYTHING. It is merely a helper to add the user to the group object and return it.

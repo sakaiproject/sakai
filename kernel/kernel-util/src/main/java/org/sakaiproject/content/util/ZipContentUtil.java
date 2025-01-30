@@ -17,7 +17,6 @@ package org.sakaiproject.content.util;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,6 +39,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -51,6 +51,7 @@ import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -79,6 +80,7 @@ public class ZipContentUtil {
 	 */
     public static final int MAX_ZIP_EXTRACT_FILES_DEFAULT = 1000;
 	private static Integer MAX_ZIP_EXTRACT_FILES;
+	private static final int MAXIMUM_ATTEMPTS_FOR_UNIQUENESS = 100;
     
     private static final String DEFAULT_RESOURCECLASS = "org.sakaiproject.localization.util.ContentProperties";
     private static final String DEFAULT_RESOURCEBUNDLE = "org.sakaiproject.localization.bundle.content.content";
@@ -126,13 +128,13 @@ public class ZipContentUtil {
 			if (!resourcesToZip.isEmpty()) {
 				String firstContentResourceId = resourcesToZip.entrySet().iterator().next().getKey();
 				if (ContentHostingService.isInDropbox(firstContentResourceId) && ServerConfigurationService.getBoolean("dropbox.zip.haveDisplayname", true)) {
-					response.setHeader("Content-disposition", "inline; filename=" + siteId + "DropBox.zip");
+					response.setHeader("Content-disposition", "inline; filename=\"" + siteId + "DropBox.zip\"");
 				} else {
-					response.setHeader("Content-disposition", "inline; filename=" + siteTitle + ".zip");
+					response.setHeader("Content-disposition", "inline; filename=\"" + siteTitle + ".zip\"");
 				}
 			} else {
 				// Return an empty zip.
-				response.setHeader("Content-disposition", "inline; filename=" + siteTitle + ".zip");
+				response.setHeader("Content-disposition", "inline; filename=\"" + siteTitle + ".zip\"");
 			}
 			response.setContentType("application/zip");
 
@@ -158,7 +160,6 @@ public class ZipContentUtil {
 	 */
     public void compressFolder(Reference reference) { 
 		File temp = null;
-		FileInputStream fis = null;
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		try {
 			// Create the compressed archive in the filesystem
@@ -177,64 +178,20 @@ public class ZipContentUtil {
 					}
 				}
 			}
-			
-			
+
+			// Get the name of the parent collection
+			ContentCollection collection = ContentHostingService.getCollection(reference.getId());
+			ResourceProperties collectionProps = collection.getProperties();
+			String displayName = collectionProps.getProperty(ResourcePropertiesEdit.PROP_DISPLAY_NAME);
+			String resourceName = displayName + ZIP_EXTENSION;
+
+			// Set the display name prop
+			ResourcePropertiesEdit props = ContentHostingService.newResourceProperties();
+			props.addProperty(ResourcePropertiesEdit.PROP_DISPLAY_NAME, resourceName);
+
 			// Store the compressed archive in the repository
-			String resourceId = reference.getId().substring(0,reference.getId().lastIndexOf(Entity.SEPARATOR));
-			String resourceName = extractName(resourceId);			
-			String homeCollectionId = (String) toolSession.getAttribute(STATE_HOME_COLLECTION_ID);
-			if(homeCollectionId != null && homeCollectionId.equals(reference.getId())){
-				String homeName = (String) toolSession.getAttribute(STATE_HOME_COLLECTION_DISPLAY_NAME);
-				if(homeName != null){
-					resourceName = homeName + ZIP_EXTENSION;
-				}
-				//place the zip file into the home folder of the resource tool
-				resourceId = reference.getId() + homeName;
-			}
-			int count = 0;
-			ContentResourceEdit resourceEdit = null;
-			String displayName="";
-			while(true){
-				try{
-					String newResourceId = resourceId;
-					String newResourceName = resourceName;
-					displayName=newResourceName;
-					count++;
-					if(count > 1){
-						//previous naming convention failed, try another one
-						newResourceId += "_" + count;
-						newResourceName += "_" + count;
-					}
-					newResourceId += ZIP_EXTENSION;
-					newResourceName += ZIP_EXTENSION;
-					ContentCollectionEdit currentEdit;
-					if(reference.getId().split(Entity.SEPARATOR).length>3) {
-						currentEdit = (ContentCollectionEdit) ContentHostingService.getCollection(resourceId + Entity.SEPARATOR);
-						displayName = currentEdit.getProperties().getProperty(ResourcePropertiesEdit.PROP_DISPLAY_NAME);
-						if (displayName != null && displayName.length() > 0) {
-							displayName += ZIP_EXTENSION;
-						}
-						else {
-							displayName = newResourceName;
-						}
-					}
-					resourceEdit = ContentHostingService.addResource(newResourceId);
-					//success, so keep track of name/id
-					resourceId = newResourceId;
-					resourceName = newResourceName;
-					break;
-				}catch(IdUsedException e){
-					//do nothing, just let it loop again
-				}catch(Exception e){
-					throw new Exception(e);
-				}
-			}
-			fis = new FileInputStream(temp);
-			resourceEdit.setContent(fis);
-			resourceEdit.setContentType(mime.getContentType(resourceId));
-			ResourcePropertiesEdit props = resourceEdit.getPropertiesEdit();
-			props.addProperty(ResourcePropertiesEdit.PROP_DISPLAY_NAME, displayName);
-			ContentHostingService.commitResource(resourceEdit, NotificationService.NOTI_NONE);								
+			ContentResource resource = ContentHostingService.addResource(resourceName, reference.getId(), MAXIMUM_ATTEMPTS_FOR_UNIQUENESS,
+					"application/zip", FileUtils.readFileToByteArray(temp), props, null, false, null, null, NotificationService.NOTI_NONE);
 		}
 		catch (PermissionException pE){
 			addAlert(toolSession, rb.getString("permission_error_zip"));
@@ -245,12 +202,6 @@ public class ZipContentUtil {
 			log.error(e.getMessage(), e);
 		} 
 		finally {
-			if (fis != null) {
-				try {
-					fis.close();
-				} catch (IOException e) {
-				}
-			}
 			if (temp != null && temp.exists()) { 
 				if (!temp.delete()) {
 					log.warn("failed to remove temp file");
@@ -268,20 +219,6 @@ public class ZipContentUtil {
 		}
 		toolSession.setAttribute(STATE_MESSAGE, errorMessage);
 	}
-
-	/**
-     * Extracts a compressed (zip) ContentResource to a new folder with the same name.
-     * 
-     * @param reference the sakai entity reference
-     * @throws Exception on failure
-     * @deprecated 11 Oct 2011 -AZ, use {@link #extractArchive(String)} instead
-     */
-    public void extractArchive(Reference reference) throws Exception {
-        if (reference == null) {
-            throw new IllegalArgumentException("reference cannot be null");
-        }
-        extractArchive(reference.getId());
-    }
 
 	/**
 	 * Extracts a compressed (zip) ContentResource to a new folder with the same name.
@@ -357,6 +294,7 @@ public class ZipContentUtil {
      * @return a map of file names to file sizes in the zip archive
      * @deprecated 11 Oct 2011 -AZ, use {@link #getZipManifest(String)}
      */
+   @Deprecated
     public Map<String, Long> getZipManifest(Reference reference) {
         if (reference == null) {
             throw new IllegalArgumentException("reference cannot be null");
@@ -374,15 +312,11 @@ public class ZipContentUtil {
 		ContentResource resource;
 		try {
 			resource = ContentHostingService.getResource(referenceId);
-		} catch (PermissionException e1) {
-			return null;
-		} catch (IdUnusedException e1) {
-			return null;
-		} catch (TypeException e1) {
+		} catch (PermissionException | IdUnusedException | TypeException e1) {
 			return null;
 		}
-		
-		// Extract Zip File	
+
+        // Extract Zip File
 		File temp = null;
 		try {
 			temp = exportResourceToFile(resource);
@@ -566,6 +500,7 @@ public class ZipContentUtil {
 				return;
 			}
 		}
+		folderName = this.replaceIllegalFilenameCharacters(folderName);
 		ZipEntry zipEntry = new ZipEntry(folderName);
 		out.putNextEntry(zipEntry);
 		out.closeEntry();
@@ -599,6 +534,7 @@ public class ZipContentUtil {
 				return;
 			}
 		}
+		filename = this.replaceIllegalFilenameCharacters(filename);
 		ZipEntry zipEntry = new ZipEntry(filename);
 		zipEntry.setSize(resource.getContentLength());
 		out.putNextEntry(zipEntry);
@@ -663,6 +599,11 @@ public class ZipContentUtil {
 			return filename.replaceFirst(filenameArr[0],displayName);
 		}
 
+	}
+
+	private String replaceIllegalFilenameCharacters(String fileName) {
+		// Replace any illegal character in the filename
+		return fileName.replaceAll("[^a-zA-Z0-9\\.\\-\\\\/]", "_");
 	}
 
 }

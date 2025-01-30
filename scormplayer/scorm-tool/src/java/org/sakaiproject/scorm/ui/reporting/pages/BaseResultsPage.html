@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.sourceforge.net/" xml:lang="en" lang="en">
+<head>
+	<wicket:head>
+		<title><wicket:message key="page.title"/></title>
+	</wicket:head>
+</head>
+<body>
+	<wicket:extend>
+	
+		<div wicket:id="learnerDetails"/>
+	
+		<div class="navPanel" style="height: auto;">
+			<div class="viewNav">
+				<wicket:enclosure child="previousLink">
+					<img wicket:id="previousIcon"/> <a wicket:id="previousLink"></a>	
+				</wicket:enclosure>
+			</div>
+			<div class="listNav">
+				<wicket:enclosure child="nextLink">
+					<a wicket:id="nextLink"></a> <img wicket:id="nextIcon"/> 
+				</wicket:enclosure>
+			</div>
+		</div>
+
+		<div class="navIntraTool">
+			<wicket:message key="attempt.title.label"/> &nbsp;&nbsp;&nbsp;
+			<b>
+				<div wicket:id="attemptNumberLinks">
+					<a wicket:id="attemptNumberLink" style="margin-right: 1em;"></a>
+				</div>
+			</b>
+		</div>
+
+		<wicket:child/>
+		
+	</wicket:extend>
+</body>
+</html>

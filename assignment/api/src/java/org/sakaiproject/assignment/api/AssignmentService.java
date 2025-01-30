@@ -44,6 +44,7 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.timesheet.api.TimeSheetEntry;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.util.api.FormattedText;
 
 /**
  * <p>
@@ -384,16 +385,6 @@ public interface AssignmentService extends EntityProducer {
     public Assignment getAssignment(String assignmentId) throws IdUnusedException, PermissionException;
 
     /**
-     * Access the Assignment with the specified id, returning just the submissions that the user
-     * is able to see.
-     * @param assignmentId - The id of the Assignment.
-     * @return The assignment corresponding to the id and the filtered submissions, null if it does not exists.
-     * @throws IdUnusedException if the is no assignment with the passed id.
-     * @throws PermissionException if the current user is not allowed to read the assignment.
-     */
-    public Collection<AssignmentSubmission> getGradeableSubmissions(Assignment assignment);
-
-    /**
      * Retrieves the current status of the specified assignment.
      *
      * @return
@@ -503,12 +494,6 @@ public interface AssignmentService extends EntityProducer {
     AssignmentConstants.SubmissionStatus getSubmissionCanonicalStatus(AssignmentSubmission submission, boolean canGrade);
 
     /**
-     * @param submissionId
-     * @return
-     */
-    public Map<String,Boolean> getProgressBarStatus(AssignmentSubmission submission);
-
-    /**
      * Return a sorted list of users representing a group.
      */
     public List<User> getSortedGroupUsers(Group g);
@@ -546,6 +531,7 @@ public interface AssignmentService extends EntityProducer {
 
     public boolean permissionCheck(String permission, String resource, String user);
 
+    public boolean permissionCheckInGroups(String permission, Assignment assignment, String user);
     /**
      * Access the internal reference which can be used to assess security clearance.
      *
@@ -637,11 +623,22 @@ public interface AssignmentService extends EntityProducer {
      * Given an Assignment and a User, rationalize who the submitter should be taking into account the assignment configuration
      * Will check the assignments access and group configuration to determine the submitter id
      * @param assignment The assignment
-     * @param user The user
+     * @param userId The user id
      * @return the correct submitter id to use for creating a submission or null if one can't be determined
      */
-    String getSubmitterIdForAssignment(Assignment assignment, User user);
+    String getSubmitterIdForAssignment(Assignment assignment, String userId);
 
+    /**
+     * Retrieves the selected group users based on the given parameters.
+     *
+     * @param allOrOneGroup           Determines if all groups or a specific group should be considered.
+     * @param contextString           The context string indicating the site title.
+     * @param assignment              The assignment object for which the users are selected.
+     * @param allowAddSubmissionUsers The list of users allowed to submit the assignment.
+     * @return The list of selected group users based on the specified criteria.
+     */
+    List<User> getSelectedGroupUsers(String allOrOneGroup, String contextString, Assignment assignment, List<User> allowAddSubmissionUsers);
+    
     /**
      * @param accentedString
      * @return
@@ -884,8 +881,19 @@ public interface AssignmentService extends EntityProducer {
     public boolean isTimeSheetEnabled(String siteId);
 
     /**
-     * The the name of the content review service being used e.g. Turnitin
+     * The name of the content review service being used e.g. Turnitin
      * @return A String containing the name of the content review service
      */
     public String getContentReviewServiceName();
+    
+    public String getAssignmentModifier(String modifier);
+
+    public boolean allowAddTags(String context);
+
+    public FormattedText getFormattedText();
+
+    /**
+     * Returns true if the submission contains instructor feedback, whether as comment text (inline) or attachments.
+     */
+    public boolean doesSubmissionHaveInstructorFeedback(AssignmentSubmission submission);
 }

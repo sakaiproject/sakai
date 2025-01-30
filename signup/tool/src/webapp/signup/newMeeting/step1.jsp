@@ -6,17 +6,17 @@
 
 <f:view>
 	<jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
-	   <jsp:setProperty name="msgs" property="baseName" value="messages"/>
+	   <jsp:setProperty name="msgs" property="baseName" value="signup"/>
 	</jsp:useBean>
     <sakai:view_container title="Signup Tool">
         <style type="text/css">
-            @import url("/sakai-signup-tool/css/signupStyle.css");
+            @import url("/sakai-signup-tool/css/signupStyle.css${Portal.CDNQuery}");
         </style>
 
 <h:outputText value="#{Portal.latestJQuery}" escape="false"/>
-        <script src="/library/js/lang-datepicker/lang-datepicker.js"></script>
-        <script src="/sakai-signup-tool/js/signupScript.js"></script>
-        <script src="/sakai-signup-tool/js/newMeetingStep1.js"></script>
+        <script src="/library/js/lang-datepicker/lang-datepicker.js${Portal.CDNQuery}"></script>
+        <script src="/sakai-signup-tool/js/signupScript.js${Portal.CDNQuery}"></script>
+        <script src="/sakai-signup-tool/js/newMeetingStep1.js${Portal.CDNQuery}"></script>
 
 		<script>
 	         //initialization of the page
@@ -95,7 +95,7 @@
                     <sakai:view_title value="#{msgs.create_new_event} #{msgs.basic}"/>
                 </div>
                 <sakai:doc_section>
-                    <h:panelGrid columns="1" styleClass="instruction" style="background:#fff;">
+                    <h:panelGrid columns="1" styleClass="instruction">
                         <h:outputText value="#{msgs.create_instruction} " escape="false" />                      
                         <h:panelGroup>
                             <h:outputText value="#{msgs.star_character}" style="color:#B11;" />
@@ -352,13 +352,15 @@
                         </h:dataTable>
 
                         <h:panelGroup rendered="#{NewSignupMeetingBean.otherSitesAvailability}">
-                            <h:outputText value="<span id='imageOpen_otherSites' style='display:none'>"  escape="false"/>
-                            <h:graphicImage value="/images/minus.gif"  alt="open" style="border:none;cursor:pointer;" styleClass="openCloseImageIcon" onclick="showDetails('imageOpen_otherSites','imageClose_otherSites','otherSites');" />
-                            <h:outputText value="</span>" escape="false" />
-                            <h:outputText value="<span id='imageClose_otherSites'>"  escape="false"/>
-                            <h:graphicImage value="/images/plus.gif" alt="close" style="border:none;cursor:pointer;" styleClass="openCloseImageIcon" onclick="showDetails('imageOpen_otherSites','imageClose_otherSites','otherSites');"/>
-                            <h:outputText value="</span>" escape="false" />
-                            <h:outputLabel value="#{msgs.event_other_sites}" style='font-weight:bold;cursor:pointer;' onmouseover='style.color=\"blue\"' onmouseout='style.color=\"black\"' onclick="showDetails('imageOpen_otherSites','imageClose_otherSites','otherSites');"/>
+                            <span id="imageOpen_otherSites" style="display:none">
+                                <span class="fa fa-minus" aria-hidden="true" style="cursor:pointer" onclick="showDetails('imageOpen_otherSites','imageClose_otherSites','otherSites');"></span>
+                            </span>
+                            <span id="imageClose_otherSites">
+                                <span class="fa fa-plus" aria-hidden="true" style="cursor:pointer" onclick="showDetails('imageOpen_otherSites','imageClose_otherSites','otherSites');"></span>
+                            </span>
+                            <span style="font-weight:bold;cursor:pointer;" onclick="showDetails('imageOpen_otherSites','imageClose_otherSites','otherSites');">
+                                <h:outputText value="#{msgs.event_other_sites}" escape="false"/>
+                            </span>
                         </h:panelGroup>   
                         <h:panelGroup>
                             <h:outputText value="<div id='otherSites' style='display:none'>" escape="false"/>
@@ -427,7 +429,7 @@
                                 </div>
                             </div>
 
-                            <div id="single" class="si" style="display:none;">
+                            <div id="single" class="single-box" style="display:none;">
                                 <h:panelGrid columns="2" rendered="true" columnClasses="miCol1,miCol2">
                                     <h:selectOneRadio id="groupSubradio" value="#{NewSignupMeetingBean.unlimited}" valueChangeListener="#{NewSignupMeetingBean.processGroup}" onclick="switchSingle(value)" styleClass="meetingRadioBtn" layout="pageDirection">
                                         <f:selectItem itemValue="#{false}" itemLabel="#{msgs.tab_max_attendee}"/>
@@ -465,7 +467,7 @@
                                 </h:commandLink>
                                 <h:panelGroup rendered="#{NewSignupMeetingBean.userDefineTimeslotBean.userEverCreateCTS}">
                                     <h:commandLink action="#{NewSignupMeetingBean.editUserDefTimeSlots}" >
-                                        <h:graphicImage value="/images/cal.gif" alt="" style="border:none;cursor:pointer; padding-right:5px;" styleClass="openCloseImageIcon" />
+                                        <span class="fa fa-plus" aria-hidden="true" style="padding-right:5px;"></span>
                                         <h:outputText value="#{msgs.label_edit_timeslots}" escape="false" styleClass="activeTag"/>
                                     </h:commandLink>
                                 </h:panelGroup>

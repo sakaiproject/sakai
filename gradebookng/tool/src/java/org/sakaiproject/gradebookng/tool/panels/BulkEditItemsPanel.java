@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
@@ -52,13 +53,10 @@ public class BulkEditItemsPanel extends BasePanel {
 
 	private final ModalWindow window;
 
-	private List<Long> deletableItemsList = new ArrayList<Long>();
+	@Getter
+    private List<Long> deletableItemsList = new ArrayList<Long>();
 
-	public List<Long> getDeletableItemsList () {
-		return this.deletableItemsList;
-	}
-
-	public void clearDeletableItemsList () {
+    public void clearDeletableItemsList () {
 		this.deletableItemsList.clear();
 	}
 
@@ -120,7 +118,7 @@ public class BulkEditItemsPanel extends BasePanel {
 			// Are there categories in this Gradebook? If so, and this item is not in a category, disabled grade
 			// calculation inclusion.
 			List<CategoryDefinition> categories = businessService.getGradebookCategories();
-			if (categories != null && categories.size() > 0 && StringUtils.isBlank(assignment.getCategoryName())) {
+			if (categories != null && !categories.isEmpty() && StringUtils.isBlank(assignment.getCategoryName())) {
 				include.setEnabled(false);
 			}
 			if (assignment.getExternallyMaintained()){	//don't allow External items to be deleted.
@@ -143,7 +141,7 @@ public class BulkEditItemsPanel extends BasePanel {
 		}
 
 		@Override
-		public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+		public void onSubmit(final AjaxRequestTarget target) {
 			BulkEditItemsPanel.this.clearDeletableItemsList();
 			BulkEditItemsPanel.this.window.close(target);
 		}
@@ -160,9 +158,9 @@ public class BulkEditItemsPanel extends BasePanel {
 		}
 
 		@Override
-		public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+		public void onSubmit(final AjaxRequestTarget target) {
 
-			final List<Assignment> assignments = (List<Assignment>) form.getModelObject();
+			final List<Assignment> assignments = (List<Assignment>) getForm().getModelObject();
 
 			try {
 				for (final Assignment a : assignments) {
@@ -179,7 +177,7 @@ public class BulkEditItemsPanel extends BasePanel {
 				if (deleteCount > 0) {
 					String deletedList = assignments.stream().filter(a -> deletableItems.contains(a.getId())).map(Assignment::getName)
 						.collect(Collectors.joining(", "));
-					getSession().success(new StringResourceModel("bulkedit.delete.success", null, new Object[] { deletedList }).getString());
+					getSession().success(new StringResourceModel("bulkedit.delete.success").setParameters(deletedList).getString());
 				}
 				BulkEditItemsPanel.this.clearDeletableItemsList();
 			}

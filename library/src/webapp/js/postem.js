@@ -23,6 +23,10 @@ function cancelVerify () {
     window.location.assign("add");
 }
 
+function cancelAdd () {
+    window.location.assign("./");
+}
+
 function cancelAction () {
     window.location.assign("../");
 }

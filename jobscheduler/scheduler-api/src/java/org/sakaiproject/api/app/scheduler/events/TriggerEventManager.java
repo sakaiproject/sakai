@@ -33,19 +33,20 @@ public interface TriggerEventManager
 
     /**
      * @param type
-     * @param jobName
-     * @param triggerName
+     * @param jobKey
+     * @param triggerKey
      * @param time
      * @param message
      * @return a TriggerEvent object
      * @deprecated use {@link #createTriggerEvent(org.sakaiproject.api.app.scheduler.events.TriggerEvent.TRIGGER_EVENT_TYPE, String, String, Date, String, String)} instead
      */
+    @Deprecated
     public TriggerEvent createTriggerEvent(TriggerEvent.TRIGGER_EVENT_TYPE type, JobKey jobKey, TriggerKey triggerKey, Date time, String message);
 
     /**
      * @param type
-     * @param jobName
-     * @param triggerName
+     * @param jobKey
+     * @param triggerKey
      * @param time
      * @param message
      * @param serverId the id of the server the job runs on

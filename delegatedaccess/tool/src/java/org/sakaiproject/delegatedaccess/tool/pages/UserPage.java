@@ -34,29 +34,23 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.Radio;
 import org.apache.wicket.markup.html.form.RadioGroup;
 import org.apache.wicket.markup.html.form.TextField;
-import org.apache.wicket.markup.html.link.ExternalLink;
-import org.apache.wicket.markup.html.link.PopupSettings;
 import org.apache.wicket.extensions.markup.html.tree.AbstractTree;
 import org.apache.wicket.extensions.markup.html.tree.BaseTree;
-import org.apache.wicket.extensions.markup.html.tree.DefaultAbstractTree;
 import org.apache.wicket.extensions.markup.html.tree.LinkTree;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
-import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.request.http.handler.RedirectRequestHandler;
-import org.sakaiproject.delegatedaccess.model.HierarchyNodeSerialized;
 import org.sakaiproject.delegatedaccess.model.ListOptionSerialized;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
 import org.sakaiproject.delegatedaccess.model.SelectOption;
@@ -72,7 +66,6 @@ import org.sakaiproject.site.api.Site;
 public class UserPage  extends BaseTreePage{
 
 	private BaseTree tree;
-	boolean expand = true;
 	private String search = "";
 	private String instructorField = "";
 	private SelectOption termField;
@@ -84,7 +77,8 @@ public class UserPage  extends BaseTreePage{
 	public List<String> nodeSelectOrder;
 	public Map<String, String> hierarchyLabels = new HashMap<String, String>();
 	
-	protected AbstractTree getTree()
+	@Override
+    protected AbstractTree getTree()
 	{
 		return tree;
 	}
@@ -111,18 +105,18 @@ public class UserPage  extends BaseTreePage{
 		//Title
 		Label title = new Label("title");
 		if(isShoppingPeriodTool()){
-			title.setDefaultModel(new StringResourceModel("shoppingTitle", null));
+			title.setDefaultModel(new StringResourceModel("shoppingTitle"));
 		}else{
-			title.setDefaultModel(new StringResourceModel("delegatedAccessTitle", null));
+			title.setDefaultModel(new StringResourceModel("delegatedAccessTitle"));
 		}
 		add(title);
 		
 		//Description
 		Label description = new Label("description");
 		if(isShoppingPeriodTool()){
-			description.setDefaultModel(new StringResourceModel("shoppingInstruction", null));
+			description.setDefaultModel(new StringResourceModel("shoppingInstruction"));
 		}else{
-			description.setDefaultModel(new StringResourceModel("delegatedAccessInstructions", null));
+			description.setDefaultModel(new StringResourceModel("delegatedAccessInstructions"));
 		}
 		add(description);
 		
@@ -143,6 +137,7 @@ public class UserPage  extends BaseTreePage{
 						&& ((!sakaiProxy.getDisableUserTreeView() && !isShoppingPeriodTool()) || 
 								(!sakaiProxy.getDisableShoppingTreeView() && isShoppingPeriodTool()));
 			}
+			@Override
 			protected void onNodeLinkClicked(Object node, BaseTree tree, AjaxRequestTarget target) {
 				if(tree.isLeaf(node)){
 					//The user has clicked a leaf and chances are its a site.
@@ -171,7 +166,7 @@ public class UserPage  extends BaseTreePage{
 					}
 				}
 			};
-			
+			@Override
 			protected void onJunctionLinkClicked(AjaxRequestTarget target, Object node) {
 				//the nodes are generated on the fly with ajax.  This will add any child nodes that 
 				//are missing in the tree.  Expanding and collapsing will refresh the tree node
@@ -183,11 +178,6 @@ public class UserPage  extends BaseTreePage{
 					}
 				}
 			}
-			
-			@Override
-			protected boolean isForceRebuildOnSelectionChange() {
-				return false;
-			};
 		};
 		tree.setRootLess(true);
 		add(tree);
@@ -201,15 +191,16 @@ public class UserPage  extends BaseTreePage{
 			}
 		};
 		if(isShoppingPeriodTool()){
-			noAccessLabel.setDefaultModel(new StringResourceModel("noShoppingSites", null));
+			noAccessLabel.setDefaultModel(new StringResourceModel("noShoppingSites"));
 			
 		}else{
-			noAccessLabel.setDefaultModel(new StringResourceModel("noDelegatedAccess", null));
+			noAccessLabel.setDefaultModel(new StringResourceModel("noDelegatedAccess"));
 		}
 		add(noAccessLabel);
 		
 		//no hierarchy setup:
-		add(new Label("noHierarchy", new StringResourceModel("noHierarchy", null)){
+		add(new Label("noHierarchy", new StringResourceModel("noHierarchy")){
+			@Override
 			public boolean isVisible() {
 				return treeModel == null && sakaiProxy.isSuperUser() && "".equals(projectLogic.getRootNodeId().id);
 			}
@@ -238,7 +229,7 @@ public class UserPage  extends BaseTreePage{
 						hierarchySearchFields.put(entry.getKey(), entry.getValue().getValue().trim());
 					}
 				}
-				if(hierarchySearchFields.size() > 0){
+				if(!hierarchySearchFields.isEmpty()){
 					advancedOptions.put(DelegatedAccessConstants.ADVANCED_SEARCH_HIERARCHY_FIELDS, hierarchySearchFields);
 				}
 				//need to set the tree model so that is is the full model
@@ -249,14 +240,14 @@ public class UserPage  extends BaseTreePage{
 				return treeModel != null || isShoppingPeriodTool() || (!isShoppingPeriodTool() && sakaiProxy.getDisableUserTreeView());
 			}
 		};
-		AbstractReadOnlyModel<String> instructorFieldLabelModel = new AbstractReadOnlyModel<String>() {
+		IModel<String> instructorFieldLabelModel = new IModel<String>() {
 
 			@Override
 			public String getObject() {
 				if(isShoppingPeriodTool()){
-					return new StringResourceModel("instructor", null).getObject() + ":";
+					return new StringResourceModel("instructor").getObject() + ":";
 				}else{
-					return new StringResourceModel("user", null).getObject() + ":";
+					return new StringResourceModel("user").getObject() + ":";
 				}
 			}
 		};
@@ -267,7 +258,7 @@ public class UserPage  extends BaseTreePage{
 		RadioGroup group = new RadioGroup("instructorOptionsGroup", new PropertyModel<String>(this, "selectedInstructorOption")){
 			@Override
 			public boolean isVisible() {
-				//only show if its not shopping period
+				//only show if it's not shopping period
 				return !isShoppingPeriodTool();
 			}
 		};
@@ -297,7 +288,7 @@ public class UserPage  extends BaseTreePage{
 		final String[] hierarchy = hierarchyTmp;
 		WebMarkupContainer hierarchyDiv = new WebMarkupContainer("hierarchyFields");
 		final Comparator<SelectOption> optionComparator = new SelectOptionComparator();
-		if(hierarchySelectOptions == null || hierarchySelectOptions.size() == 0){
+		if(hierarchySelectOptions == null || hierarchySelectOptions.isEmpty()){
 			nodeSelectOrder = new ArrayList<String>();
 			hierarchySearchMap = new HashMap<String, SelectOption>();
 			for(String s : hierarchy){
@@ -316,16 +307,11 @@ public class UserPage  extends BaseTreePage{
 				for(String s : entry.getValue()){
 					options.add(new SelectOption(s, s));
 				}
-				Collections.sort(options, optionComparator);
+				options.sort(optionComparator);
 				hierarchySelectOptions.put(entry.getKey(), options);
 			}
 		}
 		DataView dropdowns = new DataView("hierarchyDropdowns", new IDataProvider<String>(){
-
-			@Override
-			public void detach() {
-				
-			}
 
 			@Override
 			public Iterator<? extends String> iterator(long first, long count) {
@@ -337,7 +323,7 @@ public class UserPage  extends BaseTreePage{
 
 			@Override
 			public IModel<String> model(final String arg0) {
-				return new AbstractReadOnlyModel<String>() {
+				return new IModel<String>() {
 					private static final long serialVersionUID = 1L;
 
 					@Override
@@ -361,7 +347,8 @@ public class UserPage  extends BaseTreePage{
 				final DropDownChoice choice = new DropDownChoice("hierarchyLevel", new NodeSelectModel(hierarchyLevel), hierarchySelectOptions.get(hierarchyLevel), choiceRenderer);
 				//keeps the null option (choose one) after a user selects an option
 				choice.setNullValid(true);
-				choice.add(new AjaxFormComponentUpdatingBehavior("onchange"){
+				choice.add(new AjaxFormComponentUpdatingBehavior("change"){
+					@Override
 					protected void onUpdate(AjaxRequestTarget target) {
 						Map<String, String> searchParams = new HashMap<String, String>();
 						for(Entry<String, SelectOption> entry : hierarchySearchMap.entrySet()){
@@ -374,7 +361,7 @@ public class UserPage  extends BaseTreePage{
 							for(String s : entry.getValue()){
 								options.add(new SelectOption(s, s));
 							}
-							Collections.sort(options, optionComparator);
+							options.sort(optionComparator);
 							hierarchySelectOptions.put(entry.getKey(), options);
 						}
 						
@@ -384,19 +371,14 @@ public class UserPage  extends BaseTreePage{
 				});
 				item.add(choice);
 			}
-
 			
 		};
 		hierarchyDiv.add(dropdowns);
 		form.add(hierarchyDiv);
 		
-		
 //		form.add(new WebMarkupContainer("searchHeader"));
 //		form.add(new Button("submitButton"));
-
 		add(form);
-
-
 	}
 	
 	private void setTreeModel(String userId, boolean cascade){
@@ -432,11 +414,6 @@ public class UserPage  extends BaseTreePage{
 		
 		public NodeSelectModel(String nodeId){
 			this.nodeId = nodeId;
-		}
-
-		@Override
-		public void detach() {
-		
 		}
 
 		@Override

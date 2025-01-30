@@ -54,6 +54,7 @@ public interface MailArchiveMessageHeader extends MessageHeader
 	 * @return The date: sent of the message.
 	 * @deprecated {@link getInstantSent}
 	 */
+	@Deprecated
 	public Time getDateSent();
 	
 	/**

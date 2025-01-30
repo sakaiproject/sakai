@@ -15,31 +15,34 @@
  */
 package org.sakaiproject.gradebookng.business;
 
+import static org.mockito.Mockito.when;
+
+import java.lang.reflect.Field;
 import java.text.NumberFormat;
 import java.util.Locale;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
+import org.sakaiproject.util.ResourceLoader;
 
 public class TestGradebookNgBusinessService {
 
-	@InjectMocks
-	GradebookNgBusinessService service;
-	
+	@Mock private ResourceLoader resourceLoader;
+
 	@Before
-	public void initMocks() {
-		MockitoAnnotations.initMocks(this);
+	public void openMocks() throws NoSuchFieldException, IllegalAccessException {
+		MockitoAnnotations.openMocks(this);
+		Field field = FormatHelper.class.getDeclaredField("RL");
+		field.setAccessible(true);
+		field.set(null, resourceLoader);
+
+		when(resourceLoader.getLocale()).thenReturn(Locale.getDefault());
 	}
-	
-	@Test
-	public void injectionOk() {
-		Assert.assertNotNull(service);
-	}
-	
+
 	@Test
 	public void testCourseGradeRoundingUp() {
 		double d = 89.4455D;

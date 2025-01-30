@@ -5,16 +5,15 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 		<META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE"/>
-		<script rsf:id="scr=portal-matter" type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+		<script rsf:id="scr=portal-matter" src="/library/js/headscripts.js"></script>
 		<script>includeLatestJQuery('FolderPicker.html');</script>
-		<script type="text/javascript" src="/library/editor/ckextraplugins/folder-listing/js/file-tree.js"></script>
-		<script type="text/javascript" src="/library/editor/ckextraplugins/folder-listing/js/folder-listing.js"></script>
-		<script type="text/javascript" src="/library/editor/ckextraplugins/folder-listing/js/get-available-sites.js"></script>
+		<script src="/library/editor/ckextraplugins/folder-listing/js/file-tree.js"></script>
+		<script src="/library/editor/ckextraplugins/folder-listing/js/folder-listing.js"></script>
+		<script src="/library/editor/ckextraplugins/folder-listing/js/get-available-sites.js"></script>
 		<link rsf:id="scr=portal-matter" href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
-		<link rsf:id="scr=portal-matter" href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
-		<link rel="stylesheet" rsf:id="scr=rewrite-url" href="../css/Simplepagetool.css" type="text/css"/>
+		<link rsf:id="scr=portal-matter" href="/library/skin/default-skin/tool.css" type="text/css" rel="stylesheet" media="all" />
 		<link rel="stylesheet" href="/library/editor/ckextraplugins/folder-listing/css/file-tree.css" type="text/css"/>
-		<script type="text/javascript" src="$context/js/folder-picker.js"></script>
+		<script src="$context/js/folder-picker.js"></script>
 	</head>
 	<body rsf:id="scr=sakai-body">
 		<div class="portletBody">
@@ -39,9 +38,10 @@
 					<label for="active-folder"><span rsf:id="msg=simplepage.active-folder"></span></label><br />
 					<input type="text" name="active-folder" id="active-folder" readonly="true"/>
 				</div>
-				<div rsf:id="prerequisite-block">
+				<div rsf:id="prerequisite-block" class="b5 my-2">
 					<input type="checkbox" id="question-prerequisite" rsf:id="question-prerequisite"/><label rsf:id="msg=simplepage.prerequisites_label" for="question-prerequisite"></label>
 				</div>
+				<sakai-condition-picker rsf:id="folder-condition-picker" id="folder-condition-picker" class="hidden"></sakai-condition-picker>
 				<p class="act">
 					<input type="submit" class="bold" rsf:id="submit" />
 					<input type="submit" rsf:id="cancel" />

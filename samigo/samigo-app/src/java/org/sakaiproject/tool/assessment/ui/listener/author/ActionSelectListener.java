@@ -21,6 +21,7 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
+import javax.faces.component.UICommand;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
@@ -61,7 +62,7 @@ public class ActionSelectListener implements ActionListener {
 		PersonBean person = (PersonBean) ContextUtil.lookupBean("person");
 		String publishedID = ContextUtil.lookupParam( "publishedId" );
 		String action = ContextUtil.lookupParam( "action" );
-		log.debug("**** action : " + action);
+        log.debug("**** action : {}", action);
 
 		if ("edit_pending".equals(action)) {
 			author.setIsEditPendingAssessmentFlow(true);
@@ -115,7 +116,7 @@ public class ActionSelectListener implements ActionListener {
 			}
 			else {
 				PublishAssessmentListener publishAssessmentListener = new PublishAssessmentListener();
-				publishAssessmentListener.processAction(null);
+				publishAssessmentListener.processAction(null); // Null here means code will not immediately publish
 				author.setOutcome("saveSettingsAndConfirmPublish");		
 			}
 			author.setFromPage("author");
@@ -137,6 +138,16 @@ public class ActionSelectListener implements ActionListener {
 			RemoveAssessmentListener removeAssessmentListener = new RemoveAssessmentListener();
 			removeAssessmentListener.processAction(null);
 			author.setJustPublishedAnAssessment(false);
+			author.setOutcome("author");
+		}
+		else if ("publish_selected".equals(action)) {
+			PublishAssessmentListener publishAssessmentListener = new PublishAssessmentListener();
+			UICommand component = new UICommand();
+			component.getAttributes().put("origin", "publish_selected");
+			ActionEvent newActionEvent = new ActionEvent(component);
+			publishAssessmentListener.processAction(newActionEvent);
+			author.setJustPublishedAnAssessment(false);
+			author.setOutcome("author");
 		}
 		else if ("scores".equals(action)) {
 			delivery.setActionString("gradeAssessment");

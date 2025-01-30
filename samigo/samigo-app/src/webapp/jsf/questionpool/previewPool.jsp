@@ -44,19 +44,26 @@
 <h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
 
 <h3 class="insColor insBak insBor">
-<h:outputText value="#{questionPoolMessages.qp}#{questionPoolMessages.column} #{questionpool.displayNameNotCPool}" rendered="#{questionpool.notCurrentPool}"/>
-<h:outputText value="#{questionPoolMessages.qp}#{questionPoolMessages.column} #{questionpool.currentPool.displayName}" rendered="#{!questionpool.notCurrentPool}"/>
+<h:outputText value="#{questionPoolMessages.qp}#{questionPoolMessages.column} #{questionpool.displayNameNotCPool}" rendered="#{questionpool.notCurrentPool eq true}"/>
+<h:outputText value="#{questionPoolMessages.qp}#{questionPoolMessages.column} #{questionpool.currentPool.displayName}" rendered="#{questionpool.notCurrentPool eq false}"/>
 </h3>
 
 <div class="tier1">
 <h:form id="previewPool">
 <p class="navViewAction">
-<h:commandLink title="#{questionPoolMessages.t_export}" rendered="#{questionpool.importToAuthoring != 'true'}" id="exportlink" immediate="true" action="#{questionpool.exportPool}">
+<h:commandLink title="#{questionPoolMessages.t_exportPool}" rendered="#{questionpool.importToAuthoring eq false}" id="exportPool" immediate="true" action="#{questionpool.startExportPool}">
+	<h:outputText id="exportp" value="#{questionPoolMessages.t_exportPool}"/>
+	<f:param name="action" value="exportPool" />
+	<f:param name="qpid" value="#{questionpool.currentPool.id}"/>
+	<f:param name="outCome" value="previewPool"/>
+</h:commandLink>
+<h:outputText rendered="#{questionpool.importToAuthoring eq false}" value=" #{questionPoolMessages.separator} " />
+<h:commandLink title="#{questionPoolMessages.t_export}" rendered="#{questionpool.importToAuthoring eq false}" id="exportlink" immediate="true" action="#{questionpool.exportPool}">
 	<h:outputText id="exportq" value="#{questionPoolMessages.export}"/>
 	<f:param name="poolId" value="#{questionpool.currentPool.id}"/>
 </h:commandLink>
-<h:outputText  rendered="#{questionpool.importToAuthoring != 'true'}" value=" #{questionPoolMessages.separator} " />
-<h:outputLink id="printlink" rendered="#{questionpool.importToAuthoring != 'true'}" onclick="print(); return false;" title="#{questionPoolMessages.t_print}" >
+<h:outputText rendered="#{questionpool.importToAuthoring eq false}" value=" #{questionPoolMessages.separator} " />
+<h:outputLink id="printlink" rendered="#{questionpool.importToAuthoring eq false}" onclick="print(); return false;" title="#{questionPoolMessages.t_print}" >
 	<h:outputText id="printq" value="#{questionPoolMessages.print}"/>
 </h:outputLink>
 </p>
@@ -74,21 +81,21 @@
 				<h:outputText value="#{question.number}: " />
 
 				<h:panelGroup >
-					<h:outputText rendered="#{question.itemData.typeId== 1}" value=" #{commonMessages.multiple_choice_sin}"/>
-					<h:outputText rendered="#{question.itemData.typeId== 2}" value=" #{commonMessages.multipl_mc_ms}"/>
-					<h:outputText rendered="#{question.itemData.typeId== 12}" value=" #{commonMessages.multipl_mc_ss}"/>
-					<h:outputText rendered="#{question.itemData.typeId== 13}" value=" #{authorMessages.matrix_choice_surv}"/>
-					<h:outputText rendered="#{question.itemData.typeId== 3}" value=" #{authorMessages.multiple_choice_surv}"/>
-					<h:outputText rendered="#{question.itemData.typeId== 4}" value=" #{authorMessages.true_false}"/>
-					<h:outputText rendered="#{question.itemData.typeId== 5}" value=" #{authorMessages.short_answer_essay}"/>
-					<h:outputText rendered="#{question.itemData.typeId== 8}" value=" #{authorMessages.fill_in_the_blank}"/>
-					<h:outputText rendered="#{question.itemData.typeId== 11}" value=" #{authorMessages.fill_in_numeric}"/>
-					<h:outputText rendered="#{question.itemData.typeId== 9}" value=" #{authorMessages.matching}"/>
-					<h:outputText rendered="#{question.itemData.typeId== 7}" value=" #{authorMessages.audio_recording}"/>
-					<h:outputText rendered="#{question.itemData.typeId== 6}" value=" #{authorMessages.file_upload}"/>
-					<h:outputText rendered="#{question.itemData.typeId== 14}" value=" #{authorMessages.extended_matching_items}"/>
-					<h:outputText rendered="#{question.itemData.typeId== 15}" value=" #{authorMessages.calculated_question}"/><!-- CALCULATED_QUESTION -->
-					<h:outputText rendered="#{question.itemData.typeId== 16}" value=" #{authorMessages.image_map_question}"/><!-- IMAGEMAP_QUESTION -->
+					<h:outputText rendered="#{question.itemData.typeId eq 1}" value=" #{commonMessages.multiple_choice_sin}"/>
+					<h:outputText rendered="#{question.itemData.typeId eq 2}" value=" #{commonMessages.multipl_mc_ms}"/>
+					<h:outputText rendered="#{question.itemData.typeId eq 12}" value=" #{commonMessages.multipl_mc_ss}"/>
+					<h:outputText rendered="#{question.itemData.typeId eq 13}" value=" #{authorMessages.matrix_choice_surv}"/>
+					<h:outputText rendered="#{question.itemData.typeId eq 3}" value=" #{authorMessages.multiple_choice_surv}"/>
+					<h:outputText rendered="#{question.itemData.typeId eq 4}" value=" #{authorMessages.true_false}"/>
+					<h:outputText rendered="#{question.itemData.typeId eq 5}" value=" #{authorMessages.short_answer_essay}"/>
+					<h:outputText rendered="#{question.itemData.typeId eq 8}" value=" #{authorMessages.fill_in_the_blank}"/>
+					<h:outputText rendered="#{question.itemData.typeId eq 11}" value=" #{authorMessages.fill_in_numeric}"/>
+					<h:outputText rendered="#{question.itemData.typeId eq 9}" value=" #{authorMessages.matching}"/>
+					<h:outputText rendered="#{question.itemData.typeId eq 7}" value=" #{authorMessages.audio_recording}"/>
+					<h:outputText rendered="#{question.itemData.typeId eq 6}" value=" #{authorMessages.file_upload}"/>
+					<h:outputText rendered="#{question.itemData.typeId eq 14}" value=" #{authorMessages.extended_matching_items}"/>
+					<h:outputText rendered="#{question.itemData.typeId eq 15}" value=" #{authorMessages.calculated_question}"/><!-- CALCULATED_QUESTION -->
+					<h:outputText rendered="#{question.itemData.typeId eq 16}" value=" #{authorMessages.image_map_question}"/><!-- IMAGEMAP_QUESTION -->
 
 					<h:outputText value=" #{authorMessages.dash} " />
 					
@@ -96,71 +103,71 @@
 						<f:validateDoubleRange minimum="0.00"/>
 					</h:inputText>
 		
-					<h:outputText rendered="#{question.itemData.typeId== 3}" value="#{question.updatedScore}"/>
-						<h:outputText rendered="#{question.itemData.score > 1}" value=" #{authorMessages.points_lower_case}"/>
-						<h:outputText rendered="#{question.itemData.score == 1}" value=" #{authorMessages.point_lower_case}"/>
-						<h:outputText rendered="#{question.itemData.score == 0}" value=" #{authorMessages.points_lower_case}"/>
+					<h:outputText rendered="#{question.itemData.typeId eq 3}" value="#{question.updatedScore}"/>
+						<h:outputText rendered="#{question.itemData.score gt 1}" value=" #{authorMessages.points_lower_case}"/>
+						<h:outputText rendered="#{question.itemData.score eq 1}" value=" #{authorMessages.point_lower_case}"/>
+						<h:outputText rendered="#{question.itemData.score eq 0}" value=" #{authorMessages.points_lower_case}"/>
 					</h:panelGroup>
 				</h:panelGroup>
 		</h:panelGrid>
 
 		<f:verbatim><div class="samigo-question-callout"></f:verbatim>
-			<h:panelGroup rendered="#{question.itemData.typeId == 11}">
+			<h:panelGroup rendered="#{question.itemData.typeId eq 11}">
 				<%@ include file="/jsf/author/preview_item/FillInNumeric.jsp" %>
 			</h:panelGroup>
-			<h:panelGroup rendered="#{question.itemData.typeId == 9}">
+			<h:panelGroup rendered="#{question.itemData.typeId eq 9}">
 				<%@ include file="/jsf/author/preview_item/Matching.jsp" %>
 			</h:panelGroup>
 
-			<h:panelGroup rendered="#{question.itemData.typeId == 8}">
+			<h:panelGroup rendered="#{question.itemData.typeId eq 8}">
 				<%@ include file="/jsf/author/preview_item/FillInTheBlank.jsp" %>
 			</h:panelGroup>
 
-			<h:panelGroup rendered="#{question.itemData.typeId == 7}">
+			<h:panelGroup rendered="#{question.itemData.typeId eq 7}">
 				<%@ include file="/jsf/author/preview_item/AudioRecording.jsp" %>
 			</h:panelGroup>
 
-			<h:panelGroup rendered="#{question.itemData.typeId == 6}">
+			<h:panelGroup rendered="#{question.itemData.typeId eq 6}">
 				<%@ include file="/jsf/author/preview_item/FileUpload.jsp" %>
 			</h:panelGroup>
 
-			<h:panelGroup rendered="#{question.itemData.typeId == 5}">
+			<h:panelGroup rendered="#{question.itemData.typeId eq 5}">
 				<%@ include file="/jsf/author/preview_item/ShortAnswer.jsp" %>
 			</h:panelGroup>
 
-			<h:panelGroup rendered="#{question.itemData.typeId == 4}">
+			<h:panelGroup rendered="#{question.itemData.typeId eq 4}">
 				<%@ include file="/jsf/author/preview_item/TrueFalse.jsp" %>
 			</h:panelGroup>
 
 			<!-- same as multiple choice single -->
-			<h:panelGroup rendered="#{question.itemData.typeId == 3}">
+			<h:panelGroup rendered="#{question.itemData.typeId eq 3}">
 				<%@ include file="/jsf/author/preview_item/MultipleChoiceSurvey.jsp" %>
 			</h:panelGroup>
 
-			<h:panelGroup rendered="#{question.itemData.typeId == 2}">
+			<h:panelGroup rendered="#{question.itemData.typeId eq 2}">
 				<%@ include file="/jsf/author/preview_item/MultipleChoiceMultipleCorrect.jsp" %>
 			</h:panelGroup>
 
-			<h:panelGroup rendered="#{question.itemData.typeId == 1}">
+			<h:panelGroup rendered="#{question.itemData.typeId eq 1}">
 				<%@ include file="/jsf/author/preview_item/MultipleChoiceSingleCorrect.jsp" %>
 			</h:panelGroup>
 
-			<h:panelGroup rendered="#{question.itemData.typeId == 12}">
+			<h:panelGroup rendered="#{question.itemData.typeId eq 12}">
 				<%@ include file="/jsf/author/preview_item/MultipleChoiceMultipleCorrect.jsp" %>
 			</h:panelGroup>
-			<h:panelGroup rendered="#{question.itemData.typeId == 13}">
+			<h:panelGroup rendered="#{question.itemData.typeId eq 13}">
 				<%@ include file="/jsf/author/preview_item/MatrixChoicesSurvey.jsp" %>
 			</h:panelGroup>
 
-			<h:panelGroup rendered="#{question.itemData.typeId == 14}">
+			<h:panelGroup rendered="#{question.itemData.typeId eq 14}">
 				<%@ include file="/jsf/author/preview_item/ExtendedMatchingItems.jsp" %>
 			</h:panelGroup>
 			
-			<h:panelGroup rendered="#{question.itemData.typeId == 15}">
+			<h:panelGroup rendered="#{question.itemData.typeId eq 15}">
 				<%@ include file="/jsf/author/preview_item/CalculatedQuestion.jsp" %>
 			</h:panelGroup>
 			
-			<h:panelGroup rendered="#{question.itemData.typeId == 16}">
+			<h:panelGroup rendered="#{question.itemData.typeId eq 16}">
 				<%@ include file="/jsf/author/preview_item/ImageMapQuestion.jsp" %>
 			</h:panelGroup>
 		<f:verbatim></div></f:verbatim>

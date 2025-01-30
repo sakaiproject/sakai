@@ -199,7 +199,7 @@ public class SiteEmailNotificationDragAndDrop extends SiteEmailNotification
 	}
 
 	protected String getFromAddress(Event event) {
-		String userEmail = serverConfigurationService.getString("setup.request","no-reply@" + serverConfigurationService.getServerName());
+		String userEmail = serverConfigurationService.getSmtpFrom();
 		String userDisplay = serverConfigurationService.getString("ui.service", "Sakai");
 		String no_reply = "From: \"" + userDisplay + "\" <" + userEmail + ">";
 		String from = getFrom(event);
@@ -733,7 +733,7 @@ public class SiteEmailNotificationDragAndDrop extends SiteEmailNotification
 				{
 					item = "<a href=\"" + url + "\">" + item + "</a>";
 				}
-				buf.append(rb.getFormattedMessage("db.text.location", new String[]{siteTitle, path, item}));
+				buf.append(rb.getFormattedMessage("db.text.location", siteTitle, path, item));
 
 				buf.append(blankLine);
 
@@ -758,7 +758,7 @@ public class SiteEmailNotificationDragAndDrop extends SiteEmailNotification
 		}
 		buf.append(newLine);
 
-		buf.append(rb.getFormattedMessage("db.text.prefs", new String[]{portalName, portalUrl, siteTitle}));
+		buf.append(rb.getFormattedMessage("db.text.prefs", portalName, portalUrl, siteTitle));
 
 		if (doHtml) {
 			buf.append("</p>");

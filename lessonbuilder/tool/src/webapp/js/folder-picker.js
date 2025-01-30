@@ -23,6 +23,16 @@ $(function() {
 		updatePathInput('/' + encodeURIComponent($('#top-folder').text()) + '/');
 
 	}
+
+	const itemId = document.querySelector("input[name='itemId']")?.value;
+
+	if (itemId && itemId != -1) {
+		const folderConditionPicker = document.getElementById("folder-condition-picker");
+		folderConditionPicker.setAttribute("item-id", itemId);
+		folderConditionPicker.classList.remove("hidden");
+	} else {
+		console.error("Could not get itemId for folder-condition-picker");
+	}
 });
 function updatePathInput(data){
 	$('#active-folder').val(unescape(data));

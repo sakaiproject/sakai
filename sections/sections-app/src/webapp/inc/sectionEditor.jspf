@@ -17,7 +17,7 @@
 
 					<h:outputLabel for="titleInput" value="#{msgs.section_title} *" styleClass="formLabel"/>
 					<h:panelGroup>
-						<h:message for="titleInput" styleClass="validationEmbedded"/>
+						<h:message for="titleInput" styleClass="alertMessageInline"/>
 						<h:inputText
 							id="titleInput"
 							required="true"
@@ -40,7 +40,7 @@
 							<t:radio for="limit" index="0" />
 						</t:div>
 						<t:div>
-							<h:message for="maxEnrollmentInput" styleClass="validationEmbedded"/>
+							<h:message for="maxEnrollmentInput" styleClass="alertMessageInline"/>
 							<t:radio for="limit" index="1" />
 							<h:outputText value=" &nbsp; " escape="false"/>
 							<h:inputText id="maxEnrollmentInput" value="#{section.maxEnrollments}"
@@ -116,8 +116,8 @@
 			
 									<t:div styleClass="indent meetingSecondCol">
 										<h:inputText id="location" value="#{meeting.location}" maxlength="80" size="40" />
-                                        <h:message for="startTime" styleClass="validationEmbedded"/>
-                                        <h:message for="endTime" styleClass="validationEmbedded"/>
+                                        <h:message for="startTime" styleClass="alertMessageInline"/>
+                                        <h:message for="endTime" styleClass="alertMessageInline"/>
 									</t:div>
 								</h:panelGroup>
 							</h:column>

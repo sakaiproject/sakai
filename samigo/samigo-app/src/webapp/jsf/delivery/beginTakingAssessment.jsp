@@ -56,12 +56,17 @@
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
   <div class="sak-banner-info">
      <h:outputText value="#{deliveryMessages.ass_preview}" escape="false" />
+     <br>
+      <h:panelGroup rendered="#{delivery.sebSetup}" layout="block">
+        <h:outputText value="#{deliveryMessages.seb_preview_info}" escape="false" />
+      </h:panelGroup>
+     <br>
+     <br>
      <h:commandButton value="#{deliveryMessages.exit_preview}"
-        styleClass="exitPreviewButton"
-        action="#{person.cleanResourceIdListInPreview}"
-        type="submit"
-        onclick="return returnToHostUrl(\"#{delivery.selectURL}\");" />
-  </div>
+     action="#{person.cleanResourceIdListInPreview}"
+     type="submit"
+     onclick="return returnToHostUrl(\'#{delivery.selectURL}\'');" />
+    </div>
 </h:panelGroup>
 
   <h1>
@@ -77,7 +82,7 @@
   
   <div class="sak-banner-info">
     <!-- ASSESSMENT INTRODUCTION -->
-    <h:outputText value="<br/>#{delivery.instructorMessage}<br/>" escape="false" rendered="#{delivery.instructorMessage != null && delivery.instructorMessage != ''}"/>
+    <h:outputText value="#{delivery.instructorMessage}" escape="false" rendered="#{delivery.instructorMessage != null && delivery.instructorMessage != ''}"/>
 
   <!-- ASSESSMENT ATTACHMENTS -->
   <%@ include file="/jsf/delivery/assessment_attachment.jsp" %>
@@ -85,6 +90,9 @@
 
 <div>
 <h:panelGrid columns="1" border="0">
+    <h:panelGroup rendered="#{delivery.sebSetup}">
+      <h:outputText value="#{deliveryMessages.begin_assessment_msg_seb_required}" escape="false"/>
+    </h:panelGroup>
     <!--  Due Message -->
     <h:panelGroup rendered="#{delivery.firstTimeTaking}">
         <h:panelGroup rendered="#{(delivery.dueDate != null && delivery.dueDate ne '')}">
@@ -115,6 +123,14 @@
         </h:outputFormat>
     </h:panelGroup>
     
+    <h:panelGroup rendered="#{delivery.trackingQuestions}">
+      <h:outputText value="#{deliveryMessages.begin_assessment_msg_tracking_questions}"/>
+    </h:panelGroup>
+
+    <h:panelGroup rendered="#{delivery.trackingQuestions}">
+      <h:outputText value="#{deliveryMessages.begin_assessment_msg_tracking_questions_2}"/>
+    </h:panelGroup>
+
     <h:outputFormat value="#{deliveryMessages.begin_assessment_msg_timed_continue}" escape="false" rendered="#{delivery.hasTimeLimit && !delivery.firstTimeTaking}">
                 <f:param value="#{delivery.beginTimeString}"/>
                 <f:param value="#{delivery.adjustedTimedAssesmentDueDateString}"/>
@@ -202,7 +218,7 @@
 	
 </h:panelGrid>
 	
-<h:panelGrid columns="2" border="0">
+<h:panelGrid rendered="#{!delivery.sebSetup}" columns="2" border="0">
     <h:outputText value=" "/>
     <h:outputText value=" "/>
 
@@ -212,11 +228,11 @@
 
  </div></div>
 
- <h:panelGroup layout="block" styleClass="sak-banner-warn">
+ <h:panelGroup layout="block" styleClass="sak-banner-warn" rendered="#{!delivery.sebSetup}">
 	<h:outputText value="#{deliveryMessages.begin_assessment_msg_warn_tabs}" />
  </h:panelGroup>
  
- <h:panelGroup layout="block" styleClass="honor-container" rendered="#{delivery.honorPledge && delivery.firstTimeTaking}">
+ <h:panelGroup layout="block" styleClass="honor-container" rendered="#{delivery.honorPledge && delivery.firstTimeTaking && !delivery.sebSetup}">
 	<h:selectBooleanCheckbox id="honor_pledge" />
 	<h:outputLabel for="honor_pledge" value="#{deliveryMessages.honor_pledge_detail}"/>
 </h:panelGroup>
@@ -237,52 +253,79 @@
 
 <!-- BEGIN ASSESSMENT BUTTON -->
 <!-- When previewing, we don't need to check security. When take the assessment for real, we do -->
- <h:commandButton id="beginAssessment1" value="#{deliveryMessages.begin_assessment_}" 
-    action="#{delivery.validate}" type="submit" styleClass="active" 
+ <h:commandButton id="beginAssessment1" value="#{deliveryMessages.begin_assessment_}"
+    action="#{delivery.validate}" type="submit" styleClass="active"
     rendered="#{(delivery.actionString=='takeAssessment'
-             || delivery.actionString=='takeAssessmentViaUrl')
-	     && delivery.navigation != 1 && delivery.firstTimeTaking}">
-	<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
-  </h:commandButton>
-  
- <h:commandButton id="beginAssessment2" value="#{deliveryMessages.begin_assessment_}" 
-    action="#{delivery.validate}" type="submit" styleClass="active" 
-    rendered="#{(delivery.actionString=='takeAssessment'
-             || delivery.actionString=='takeAssessmentViaUrl')
-	     && delivery.navigation == 1 && delivery.firstTimeTaking}">
-	<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.LinearAccessDeliveryActionListener" />
-  </h:commandButton>
-  
-  
-   <h:commandButton id="continueAssessment1" value="#{deliveryMessages.continue_assessment_}" 
-    action="#{delivery.validate}" type="submit" styleClass="active" 
-    rendered="#{(delivery.actionString=='takeAssessment'
-             || delivery.actionString=='takeAssessmentViaUrl')
-			 && delivery.navigation != 1 && !delivery.firstTimeTaking && !delivery.timeExpired}"
-	>
-	<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
-  </h:commandButton>
-  
-  <h:commandButton id="continueAssessment2" value="#{deliveryMessages.continue_assessment_}" 
-    action="#{delivery.validate}" type="submit" styleClass="active" 
-    rendered="#{(delivery.actionString=='takeAssessment'
-             || delivery.actionString=='takeAssessmentViaUrl')
-			 && delivery.navigation == 1 && !delivery.firstTimeTaking && !delivery.timeExpired}"
-	>
-	<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.LinearAccessDeliveryActionListener" />
-  </h:commandButton>
-  
-
- <h:commandButton id="beginAssessment3" value="#{deliveryMessages.begin_assessment_}" action="#{delivery.pvalidate}" type="submit" styleClass="active" rendered="#{delivery.actionString=='previewAssessment'}" >
+        || delivery.actionString=='takeAssessmentViaUrl')
+        && delivery.navigation != 1 && delivery.firstTimeTaking
+        && !delivery.sebSetup}">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
   </h:commandButton>
 
+ <h:commandButton id="beginAssessment2" value="#{deliveryMessages.begin_assessment_}"
+    action="#{delivery.validate}" type="submit" styleClass="active"
+    rendered="#{(delivery.actionString=='takeAssessment'
+        || delivery.actionString=='takeAssessmentViaUrl')
+        && delivery.navigation == 1 && delivery.firstTimeTaking
+        && !delivery.sebSetup}">
+    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.LinearAccessDeliveryActionListener" />
+  </h:commandButton>
+
+  <h:commandButton id="continueAssessment1" value="#{deliveryMessages.continue_assessment_}"
+    action="#{delivery.validate}" type="submit" styleClass="active"
+    rendered="#{(delivery.actionString=='takeAssessment'
+             || delivery.actionString=='takeAssessmentViaUrl')
+        && delivery.navigation != 1 && !delivery.firstTimeTaking && !delivery.timeExpired
+        && !delivery.sebSetup}">
+
+    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
+  </h:commandButton>
+
+  <h:commandButton id="continueAssessment2" value="#{deliveryMessages.continue_assessment_}"
+    action="#{delivery.validate}" type="submit" styleClass="active"
+    rendered="#{(delivery.actionString=='takeAssessment'
+        || delivery.actionString=='takeAssessmentViaUrl')
+        && delivery.navigation == 1 && !delivery.firstTimeTaking && !delivery.timeExpired
+        && !delivery.sebSetup}">
+    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.LinearAccessDeliveryActionListener" />
+  </h:commandButton>
+
+  <h:commandButton id="beginAssessment3" value="#{deliveryMessages.begin_assessment_}" action="#{delivery.pvalidate}"
+      type="submit" styleClass="active" rendered="#{delivery.actionString=='previewAssessment' && !delivery.sebSetup}">
+    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
+  </h:commandButton>
+
+  <h:panelGroup rendered="#{delivery.sebSetup}">
+    <h:panelGroup rendered="#{delivery.actionString != 'previewAssessment'}">
+      <a id="sebLaunchSeb" class="active">
+        <h:outputText value="#{deliveryMessages.seb_launch_seb}"/>
+      </a>
+      <a id="sebDownloadConfiguration" class="button">
+        <h:outputText value="#{deliveryMessages.seb_download_configuration}"/>
+      </a>
+    </h:panelGroup>
+    <h:panelGroup rendered="#{delivery.actionString == 'previewAssessment'}">
+      <a id="sebLaunchSeb" class="button disabled">
+        <h:outputText value="#{deliveryMessages.seb_launch_seb}"/>
+      </a>
+      <a id="sebDownloadConfiguration" class="button disabled">
+        <h:outputText value="#{deliveryMessages.seb_download_configuration}"/>
+      </a>
+    </h:panelGroup>
+
+  </h:panelGroup>
+
+  <h:commandButton id="resetViewHidden" styleClass="hidden" value="begin" action="takeAssessmentViaUrl" type="submit"
+      rendered="#{delivery.sebSetup && delivery.actionString == 'takeAssessmentViaUrl'}" immediate="true">
+    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.SebSetupActionListener" />
+    <f:param name="sebSetup" value="false" />
+  </h:commandButton>
 
 <!-- CANCEL BUTTON -->
-  <h:commandButton id="cancel1" value="#{commonMessages.cancel_action}"  action="select" type="submit"
-     rendered="#{delivery.actionString=='previewAssessment'
-             || delivery.actionString=='takeAssessment'}"
-     disabled="#{delivery.actionString=='previewAssessment'}">
+  <h:commandButton id="cancel1" value="#{commonMessages.cancel_action}" action="select" type="submit"
+      rendered="#{delivery.actionString=='previewAssessment'
+      || delivery.actionString=='takeAssessment'}"
+      disabled="#{delivery.actionString=='previewAssessment'}">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
   </h:commandButton>
 
@@ -297,6 +340,14 @@
 </h:panelGroup>
 
 </h:form>
+
+  <h:panelGroup rendered="#{delivery.sebSetup}">
+    <h:panelGroup rendered="#{delivery.actionString != 'previewAssessment'}">
+      <h:outputLink id="sebDownloadSeb" value="#{delivery.sebDownloadLink}" target="_blank">
+        <h:outputText value="#{deliveryMessages.seb_download_seb}"/>
+      </h:outputLink >
+    </h:panelGroup>
+  </h:panelGroup>
   <!-- end content -->
   </div>
 </div>

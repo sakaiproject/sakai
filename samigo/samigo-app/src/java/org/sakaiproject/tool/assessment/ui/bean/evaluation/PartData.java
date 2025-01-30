@@ -29,6 +29,9 @@ import java.util.List;
 
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  *
  * <p>Description: Helper bean for QuestionScoresBean getPartList.</p><p>
@@ -48,9 +51,13 @@ public class PartData
   private String id;
   private boolean linked;
   private boolean isRandomDrawPart;
+  private boolean isFixedRandomDrawPart;
   private int numberQuestionsDraw;
+  private int numberQuestionsFixed;
   private int numberQuestionsTotal;
   private boolean noQuestions;
+  @Getter @Setter
+  private boolean itemCancelled;
 
   /**
    * Returns a list of the question numbers as Strings.
@@ -113,8 +120,15 @@ public class PartData
   public void setIsRandomDrawPart(boolean isRandomDrawPart) {
 	  this.isRandomDrawPart = isRandomDrawPart;
   }
-  
-  
+
+  public boolean getIsFixedRandomDrawPart() {
+	  return isFixedRandomDrawPart;
+  }
+
+  public void setIsFixedRandomDrawPart(boolean isFixedRandomDrawPart) {
+	  this.isFixedRandomDrawPart = isFixedRandomDrawPart;
+  }
+
   public boolean getNoQuestions() {
 	  noQuestions = false;
 	  if (questionNumberList.size() == 0) {
@@ -130,9 +144,25 @@ public class PartData
   public void setNumberQuestionsDraw(int numberQuestionsDraw) {
 	  this.numberQuestionsDraw = numberQuestionsDraw;
   }
-  
+
+  public int getNumberQuestionsFixed() {
+	  return numberQuestionsFixed;
+  }
+
+  public void setNumberQuestionsFixed(int numberQuestionsFixed) {
+	  this.numberQuestionsFixed = numberQuestionsFixed;
+  }
+
   public int getNumberQuestionsTotal() {
+	  return this.numberQuestionsTotal;
+  }
+
+  public void setNumberQuestionsTotal(int numberQuestionsTotal) {
+	  this.numberQuestionsTotal = numberQuestionsTotal;
+  }
+
+  public int getQuestionNumberListSize() {
 	  return this.questionNumberList.size();
   }
-  
+
 }

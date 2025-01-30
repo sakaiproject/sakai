@@ -321,34 +321,33 @@ function setupMessageNav(messageType){
                 });
                 $(this).prop("title", tonext);
                 $(this).click(function(){
-					//in message type is "New" find next new by crawling the DOM
-					// (real next one may have been marked as read, so no longer news)
-					if (messageType === 'messageNew') {
-						//var thisIndex = $('tr').index(parentRow);
-						var thisIndex = parseInt($(parentRow).prop('rowCount')) + 1;
-						// jq1.2 version 
-						//document.location = "#" + $(parentRow).nextAll('.' + messageType + 'Next').eq(0).find('a.messageNewAnchor').attr('name');
-						//jq1.1 version
-						//document.location = "#" + $(parentTable).find('tr').slice(thisIndex, totalTableRows).filter('.messageNewNext').eq(0).find('a.messageNewAnchor').attr('name');
-                        //new method to avoid FF4 internal linking behaviours MSGCNTR-544
-                        var targetPos = $(parentTable).find('tr').slice(thisIndex, totalTableRows).filter('.messageNewNext').eq(0).position();
-                        window.parent.scrollTo(0, targetPos.top);
-                        
-					}
-					// if "Pending" just link directly to next one
-					else{
-                        //new method to avoid FF4 internal linking behaviours MSGCNTR-544
-                        var targetPos = $("a[name='" +  messageType + "newMess" + (intIndex + 1) + "']").position();
-						window.parent.scrollTo(0, targetPos.top);
-					}
+                    //in message type is "New" find next new by crawling the DOM
+                    // (real next one may have been marked as read, so no longer news)
+                    if (messageType === 'messageNew') {
+                        const thisIndex = parseInt($(parentRow).prop('rowCount')) + 1;
+                        const targetElement = $(parentTable).find('tr').slice(thisIndex, totalTableRows).filter('.messageNewNext').eq(0);
+                        if (targetElement.length) {
+                            targetElement[0].scrollIntoView({ behavior: 'smooth' });$
+                        }
+                    }
+                    // if "Pending" just link directly to next one
+                    else {
+                        // Scroll the target into view using jquery
+                        const targetElement = $("a[name='" +  messageType + "newMess" + (intIndex + 1) + "']");
+                        if (targetElement.length) {
+                            targetElement[0].scrollIntoView({ behavior: 'smooth' });$
+                        }
+                    }
                 });
-                $('#messNavHolder a').click(function(e){
-                    //new method to avoid FF4 internal linking behaviours MSGCNTR-544
-                    e.preventDefault();
-                    var targetPosPrep=$(this).attr('href').replace('#','');
-                    var targetPos = $("a[name='" + targetPosPrep + "']").position();
-                    window.parent.scrollTo(0, targetPos.top);        
-                })
+                // Scroll the new message into view
+                $('#messNavHolder a').click(function(e) {$
+                    e.preventDefault();$
+                    const targetPosPrep = $(this).attr('href').replace('#','');$
+                    const targetElement = $("a[name='" + targetPosPrep + "']");$
+                    if (targetElement.length) {$
+                        targetElement[0].scrollIntoView({ behavior: 'smooth' });$
+                    }$
+                });$
             }
             else {
                 $(this).prop("title", last);
@@ -432,6 +431,12 @@ $(document).ready(function() {
         e.preventDefault();
         return false;
     });
+
+    // Account for the styling of Discussions displayed in the Lessons ShowItem iframe.
+    let body = document.querySelector('body');
+    if (! body.classList.contains('Mrphs-portalBody')) {
+        body.classList.add('Mrphs-sakai-forums');
+    }
 });
 
 function toggleDates(hideShowEl, parent, element) {
@@ -504,62 +509,6 @@ function InsertHTML(header) {
   return false;
 }
 
-var setupLongDesc = function(){
-    var showMoreText = $('.showMoreText').text();
-    $('.show').hide();
-    $('.textPanel').each(function(i){
-        if ($(this).text().length > 200) {
-            var trimmed = $(this).text().substring(0, 200) + '... <a class=\"moreDescription\")" href=\"#\">' + showMoreText + '</a>';
-        }
-        else{
-            var trimmed = $(this).html();
-        }
-        var insertPoint = $(this).parent('.toggle');
-        $('<p class=\"trimmedPanelTop\">' + trimmed + '</p>').insertBefore(insertPoint);
-    });
-    
-    $('.forumHeader, .topicBloc').each(function(i){
-        var attachList = $(this).find('.attachListTable');
-        var insertPoint='';
-        if ($(this).find('.toggle').length){
-            var insertPoint = $(this).find('.toggle');
-        }
-        else{
-            var insertPoint = $(this).find('.hide');            
-        }
-        $(attachList).insertAfter(insertPoint);
-    });
-     
-    $('.moreDescription').live('click', function(e){
-        e.preventDefault();
-        var trimmedText = $(this).parent();
-        var textPanel = $(this).parent('p').next('div.toggle');
-        $(trimmedText).fadeOut('slow', function(){
-            $(textPanel).fadeIn('slow');
-        });
-        resizeFrame('grow')
-        
-    });
-    
-}
-var setupdfAIncMenus = function(){
-    
-    $('body').click(function(e){
-        if (e.target.className != 'moreMenuLink' && e.target.className != 'moreMenuLinkSpan'){
-            $('.moreMenu').hide();
-        }
-        });
-    $('.moreMenuLink').click(function(e){
-        e.preventDefault();
-        $('.moreMenu').hide();
-        pos =$(this).position()
-        $(this).next('ul').css({
-            'position':'absolute',
-            'top':pos.top + 20,
-            'left':pos.left + 20
-        }).toggle();
-    })
-}
 var clicked = 'false';
 function disable() {
     if (clicked == 'false') {
@@ -760,25 +709,6 @@ function resizeFrameForDialog()
         $( frame ).height( clientH );
     }
 }
-
-// This is the profile display on user's names.
-$(document).ready(function() {
-	$('.authorProfile').each(function() {
-		$(this).qtip({ 
-			content: {
-				ajax: {
-					url: $(this).prop('href'),
-					type: 'GET'
-				}
-			},
-			position: {	my: 'left center', at: 'top center'},
-			show: { event: 'click', solo: true, effect: {length:0} },
-			hide: { when:'unfocus', fixed:true, delay: 300,  effect: {length:0} },
-			style: { classes: 'msgcntr-profile-qtip' }
-		});
-		$(this).prop('href', 'javascript:;');
-	});
-});
 
 $(document).ready(function(){
     $('.blockMeOnClick').click(function(e){

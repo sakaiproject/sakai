@@ -21,6 +21,8 @@
 
 package org.sakaiproject.assignment.api;
 
+import java.util.List;
+
 /**
  * Store the constants used by Assignment tool and service
  *
@@ -54,16 +56,6 @@ public final class AssignmentConstants {
     /**********************************************************************************************************************************************************************************************************************************************************
      * EVENT STRINGS
      *********************************************************************************************************************************************************************************************************************************************************/
-    /**
-     * Event for allow resubmitting an assignment.
-     */
-    public static final String EVENT_RESUBMIT_ASSIGNMENT = "asn.resubmit.assignment";
-
-    /**
-     * Event for allow resubmitting an assignment submission.
-     */
-    public static final String EVENT_RESUBMIT_ASSIGNMENT_SUBMISSION = "asn.resubmit.submission";
-
     /**
      * Event for adding an assignment.
      */
@@ -140,6 +132,15 @@ public final class AssignmentConstants {
      * Event for grading an assignment submission.
      */
     public static final String EVENT_GRADE_ASSIGNMENT_SUBMISSION = "asn.grade.submission";
+    /**
+     * Event for saving an assignment peer review
+     */
+    public static final String EVENT_SAVE_PEER_REVIEW = "asn.save.peer";
+    /**
+     * Event for submitting an assignment peer review
+     */
+    public static final String EVENT_SUBMIT_PEER_REVIEW = "asn.submit.peer";
+
     /**
      * Calendar event field for assignment due dates
      */
@@ -238,14 +239,7 @@ public final class AssignmentConstants {
     public static final String PROP_INLINE_SUBMISSION = "assignment_submission_attachment_is_inline";
     public static final String ZIP_COMMENT_FILE_TYPE = ".txt";
     public static final String ZIP_SUBMITTED_TEXT_FILE_TYPE = ".html";
-    public static final String REVIEW_SCORE = "review_score";
-    public static final String REVIEW_REPORT = "review_report";
-    public static final String REVIEW_STATUS = "review_status";
-    public static final String REVIEW_ICON = "review_icon";
-    public static final String REVIEW_ERROR = "review_error";
-    /**
-     * Is the review service available?
-     */
+
     public static final String NEW_ASSIGNMENT_USE_REVIEW_SERVICE = "new_assignment_use_review_service";
     public static final String NEW_ASSIGNMENT_ALLOW_STUDENT_VIEW = "new_assignment_allow_student_view";
     public static final String NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_RADIO = "submit_papers_to";
@@ -274,7 +268,9 @@ public final class AssignmentConstants {
     public static final String NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_VALUE = "exclude_value";
     public static final String SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT = "review_service_eula_agreement";
     public static final String SUBMISSION_REVIEW_CHECK_SERVICE_EULA_AGREEMENT = "review_check_service_eula_agreement";
-    private static final String SUBMISSION_REVIEW_EULA_AGREEMENT_LINK = "review_service_eula_agreement_link";
+    public static final String NEW_ASSIGNMENT_TAG_CREATOR = "tag_creator";
+    public static final String NEW_ASSIGNMENT_TAG_GROUPS = "tag_groups";
+    public static final String SHOW_TAGS_STUDENT = "show_tags_student";
 
     private AssignmentConstants() {
         throw new RuntimeException(this.getClass().getCanonicalName() + " is not to be instantiated");
@@ -300,7 +296,7 @@ public final class AssignmentConstants {
         RETURNED,
         COMMENTED,
         GRADED,
-        RETURNED_PENDING_RESUBMIT
+        RESUBMIT_ALLOWED
     }
 
 	// IMS Score Publishing Service - states
@@ -339,8 +335,6 @@ public final class AssignmentConstants {
 
     public static final String STATE_CONTEXT_STRING = "Assignment.context_string";
 
-    public static final String WITH_GRADES = "with_grades";
-
     public static final String GRADE_SUBMISSION_SUBMISSION_ID = "grade_submission_submission_id";
     public static final String GRADE_SUBMISSION_ASSIGNMENT_ID = "grade_submission_assignment_id";
     public static final String GRADE_SUBMISSION_GRADE = "grade_submission_grade";
@@ -351,17 +345,17 @@ public final class AssignmentConstants {
     public static final String GRADE_SUBMISSION_FEEDBACK_ATTACHMENT = "grade_submission_feedback_attachment";
 
     // submission level of resubmit due time
-    public static final String ALLOW_RESUBMIT_CLOSEYEAR = "allow_resubmit_closeYear";
-    public static final String ALLOW_RESUBMIT_CLOSEMONTH = "allow_resubmit_closeMonth";
-    public static final String ALLOW_RESUBMIT_CLOSEDAY = "allow_resubmit_closeDay";
-    public static final String ALLOW_RESUBMIT_CLOSEHOUR = "allow_resubmit_closeHour";
-    public static final String ALLOW_RESUBMIT_CLOSEMIN = "allow_resubmit_closeMin";
+    public static final String ALLOW_RESUBMIT_CLOSE_YEAR = "allow_resubmit_close_year";
+    public static final String ALLOW_RESUBMIT_CLOSE_MONTH = "allow_resubmit_close_month";
+    public static final String ALLOW_RESUBMIT_CLOSE_DAY = "allow_resubmit_close_day";
+    public static final String ALLOW_RESUBMIT_CLOSE_HOUR = "allow_resubmit_close_hour";
+    public static final String ALLOW_RESUBMIT_CLOSE_MIN = "allow_resubmit_close_min";
     public static final String ALLOW_RESUBMIT_CLOSE_EPOCH_MILLIS = "allow_resubmit_close_epoch_millis";
-    public static final String ALLOW_EXTENSION_CLOSEMONTH = "allow_extension_closeMonth";
-    public static final String ALLOW_EXTENSION_CLOSEDAY = "allow_extension_closeDay";
-    public static final String ALLOW_EXTENSION_CLOSEYEAR = "allow_extension_closeYear";
-    public static final String ALLOW_EXTENSION_CLOSEHOUR = "allow_extension_closeHour";
-    public static final String ALLOW_EXTENSION_CLOSEMIN = "allow_extension_closeMin";
+    public static final String ALLOW_EXTENSION_CLOSE_MONTH = "allow_extension_close_month";
+    public static final String ALLOW_EXTENSION_CLOSE_DAY = "allow_extension_close_day";
+    public static final String ALLOW_EXTENSION_CLOSE_YEAR = "allow_extension_close_year";
+    public static final String ALLOW_EXTENSION_CLOSE_HOUR = "allow_extension_close_hour";
+    public static final String ALLOW_EXTENSION_CLOSE_MIN = "allow_extension_close_min";
     public static final String ALLOW_EXTENSION_CLOSE_EPOCH_MILLIS = "allow_extension_close_epoch_millis";
     public static final String GRADE_SUBMISSION_DONT_CLEAR_CURRENT_ATTACHMENTS = "grade_submission_dont_clear_current_attachments";
 
@@ -392,6 +386,9 @@ public final class AssignmentConstants {
 	 */
 	public static final String SAK_PROP_ALLOW_LINK_TO_EXISTING_GB_ITEM = "assignment.allowLinkToExistingGBItem";
 	public static final boolean SAK_PROP_ALLOW_LINK_TO_EXISTING_GB_ITEM_DFLT = true;
+
+    public static final String SAK_PROP_NON_SUBMITTER_PERMISSIONS = "assignment.submitter.remove.permission";
+    public static final List<String> SAK_PROP_NON_SUBMITTER_PERMISSIONS_DEFAULT = List.of(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT);
 
     public static final String ASSIGNMENT_INPUT_ADD_SUBMISSION_TIME_SPENT = "value_ASSIGNMENT_INPUT_ADD_SUBMISSION_TIME_SPENT";
 }

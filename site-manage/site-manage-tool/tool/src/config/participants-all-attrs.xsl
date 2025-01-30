@@ -1,13 +1,5 @@
 <?xml version="1.0"?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:java="http://xml.apache.org/xalan/java" exclude-result-prefixes="java">
-  
-  <!-- Isolate locale-specific content -->
-  <xsl:variable name="lang.name" select="'NAME'"/>
-  <xsl:variable name="lang.id" select="'ID'"/>
-  <xsl:variable name="lang.section" select="'SECTION'"/>
-  <xsl:variable name="lang.cr" select="'CR'"/>
-  <xsl:variable name="lang.role" select="'ROLE'"/>
-  <xsl:variable name="lang.status" select="'STATUS'"/>
 
 	<xsl:param name="titleName"/>
 	<xsl:param name="titleId"/>

@@ -15,41 +15,52 @@
  */
 package org.sakaiproject.portal.charon.handlers;
 
+import java.util.Collection;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.PortalHandlerException;
+import org.sakaiproject.portal.util.URLUtils;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class RoleSwitchHandler extends BasePortalHandler
 {
 	private static final String URL_FRAGMENT = "role-switch";
-	public static final String EVENT_ROLESWAP_START = "roleswap.start";
 
-	final EventTrackingService eventTrackingService;
-	final SecurityService securityService;
-	final SiteService siteService;
+	@Autowired @Qualifier("org.sakaiproject.event.api.EventTrackingService")
+	private EventTrackingService eventTrackingService;
+	@Autowired @Qualifier("org.sakaiproject.component.api.ServerConfigurationService")
+	private ServerConfigurationService serverConfigurationService;
+	@Autowired @Qualifier("org.sakaiproject.site.api.SiteService")
+	private SiteService siteService;
+
+	private String portalUrl;
+	private String externalRoles;
 
 	public RoleSwitchHandler() {
-		eventTrackingService = ComponentManager.get(EventTrackingService.class);
-		securityService = ComponentManager.get(SecurityService.class);
-		siteService = ComponentManager.get(SiteService.class);
+		SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
 		setUrlFragment(RoleSwitchHandler.URL_FRAGMENT);
+		portalUrl = serverConfigurationService.getPortalUrl();
+		// get the roles that can be swapped to from sakai.properties
+		externalRoles = serverConfigurationService.getString("studentview.roles");
 	}
 
 	@Override
@@ -83,8 +94,6 @@ public class RoleSwitchHandler extends BasePortalHandler
             }
 
             Set<Role> roles = activeSite.getRoles(); // all the roles in our site
-
-        	String externalRoles = ServerConfigurationService.getString("studentview.roles"); // get the roles that can be swapped to from sakai.properties
         	String[] svRoles = externalRoles.split(",");
         	boolean isRoleLegit = false;
 
@@ -92,7 +101,7 @@ public class RoleSwitchHandler extends BasePortalHandler
 			{
 				for (int i = 0; i < svRoles.length; i++)
 				{
-					if (svRoles[i].trim().equals(role.getId()) && svRoles[i].trim().equals(parts[3]))
+					if (svRoles[i].trim().equals(role.getId()) && svRoles[i].trim().equals(parts[5]))
 					{
         				isRoleLegit = true; // set this to true because we verified the role passed in is in the site and is allowed to be switched from sakai.properties configuration
         				break;
@@ -111,28 +120,24 @@ public class RoleSwitchHandler extends BasePortalHandler
 
 			try
 			{
-				String siteUrl = req.getContextPath() + "/site/" + parts[2] + "/";
-				String queryString = req.getQueryString();
-				if (StringUtils.isNotBlank(queryString))
-				{
-					siteUrl = siteUrl + "?" + queryString;
-				}
+				String url = portalUrl + "/site/" + parts[2] + "/tool/" + parts[4] + "/";
 
 				activeSite.getPages().stream() // get all pages in site
-					.map(page -> page.getTools()) // tools for each page
-					.flatMap(tools -> tools.stream()) // combine all tool lists
+					.map(SitePage::getTools) // tools for each page
+					.flatMap(Collection::stream) // combine all tool lists
 					.peek(tool -> log.debug("Resetting state for site: " + activeSite.getId() + " tool: " + tool.getId()))
 					.forEach(tool -> session.getToolSession(tool.getId()).clearAttributes()); // reset each tool
 
 				portalService.setResetState("true"); // flag the portal to reset
 				
 				// Change to role view
-				securityService.changeToRoleViewOnSite(activeSite, parts[3]);
+				siteService.activateRoleViewOnSite(activeSite.getReference(), parts[5]);
 				
 				// Post an event
-				eventTrackingService.post(eventTrackingService.newEvent(EVENT_ROLESWAP_START, parts[3], parts[2], false, NotificationService.NOTI_NONE));
+				eventTrackingService.post(eventTrackingService
+						.newEvent(UsageSessionService.EVENT_ROLEVIEW_START, parts[5], parts[2], false, NotificationService.NOTI_NONE));
 
-				res.sendRedirect(siteUrl);
+				res.sendRedirect(URLUtils.sanitisePath(url));
 				return RESET_DONE;
 			}
 			catch(Exception ex)

@@ -70,7 +70,7 @@ public class EditablePanelAdvancedOptionsText extends Panel{
 		}
 		final boolean showInstructorGroupTitle = showInstructorGroupTitleTmp;
 		
-		Label instructorGroupTitleLabel = new Label("instructorGroupTitle", new StringResourceModel("advOptInstructorGroupTitle", null)){
+		Label instructorGroupTitleLabel = new Label("instructorGroupTitle", new StringResourceModel("advOptInstructorGroupTitle")){
 			@Override
 			public boolean isVisible() {
 				return showInstructorGroupTitle;
@@ -78,14 +78,14 @@ public class EditablePanelAdvancedOptionsText extends Panel{
 		};
 		inheritedSpan.add(instructorGroupTitleLabel);
 		
-		Label revokeInstructorEditableLabel = new Label("revokeInstructorEditable", new StringResourceModel("shoppingPeriodRevokeInstructorEditable", null)){
+		Label revokeInstructorEditableLabel = new Label("revokeInstructorEditable", new StringResourceModel("shoppingPeriodRevokeInstructorEditable")){
 			public boolean isVisible() {
 				return nodeModel.getNodeShoppingPeriodRevokeInstructorEditable();
 			}
 		};
 		inheritedSpan.add(revokeInstructorEditableLabel);
 		
-		Label revokeInstructorPublicOptLabel = new Label("revokeInstructorPublicOpt", new StringResourceModel("shoppingPeriodRevokePublicOptCheckbox", null)){
+		Label revokeInstructorPublicOptLabel = new Label("revokeInstructorPublicOpt", new StringResourceModel("shoppingPeriodRevokePublicOptCheckbox")){
 			public boolean isVisible() {
 				return nodeModel.getNodeShoppingPeriodRevokeInstructorPublicOpt();
 			}

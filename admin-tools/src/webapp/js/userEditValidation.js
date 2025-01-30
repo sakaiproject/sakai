@@ -22,147 +22,131 @@
 
 // Validate the user ID from the form
 USER.validateUserId = function () {
-    var eid = USER.get("user_eid");
-    var userIdReq = USER.get("userIdRequired");
-    USER.userValid = false;
-    if (eid === null || userIdReq === null || USER.trim(eid.value).length > 0) {
-        USER.userValid = true;
-    }
 
-    USER.validatePassword();
+  const userIdReqField = USER.get("userIdRequired");
+  USER.userValid = false;
+  const eid = USER.get("user_eid")?.value;
+  if (!eid || !userIdReqField || USER.trim(eid).length > 0) {
+    USER.userValid = true;
+  }
+
+  USER.validatePassword();
 };
 
 // Validate the password from the form
 USER.validatePassword = function () {
-    var strongMsg = USER.get("strongMsg");
-    var moderateMsg = USER.get("moderateMsg");
-    var weakMsg = USER.get("weakMsg");
-    var failMsg = USER.get("failMsg");
-    var strengthInfo = USER.get("strengthInfo");
-    var strengthBar = USER.get("strengthBar");
-    var strengthBarMeter = USER.get("strengthBarMeter");
-    var pw = USER.get("user_pw");
 
-    // If there's a password field and the password policy is enabled, get the password valud and the user ID
-    if (pw !== null && USER.isPasswordPolicyEnabled) {
-        var pass = pw.value;
-        var eid = USER.get("user_eid");
-        var eidValue = USER.get("eidValue");
-        var username = "";
-        if (eid !== null) {
-            username = USER.trim(eid.value);
-        }
-        else if (eidValue !== null) {
-            username = eidValue.innerHTML;
-        }
+  const strongMsg = USER.get("strongMsg");
+  const moderateMsg = USER.get("moderateMsg");
+  const weakMsg = USER.get("weakMsg");
+  const failMsg = USER.get("failMsg");
+  const strengthInfo = USER.get("strengthInfo");
+  const strengthBar = USER.get("strengthBar");
+  const strengthBarMeter = USER.get("strengthBarMeter");
+  const pass = USER.get("user_pw")?.value;
 
-        // If the password field has a value:
-        // 1) make the AJAX call to the validate password REST endpoint
-        // 2) conditionally display the appropriate messages
-        // 3) conditionally hide/show the strength info message
-        if (pass.length > 0) {
-            USER.validatePasswordREST(pass, username);
-            USER.displayMessages(strongMsg, moderateMsg, weakMsg, failMsg, strengthBar, strengthBarMeter);
-            USER.displayStrengthInfo();
-        }
-
-        // Password field has no value, hide all messages
-        else {
-            USER.hideAllElements(strongMsg, moderateMsg, weakMsg, failMsg, strengthInfo, strengthBar, strengthBarMeter);
-        }
+  // If there's a password field and the password policy is enabled, get the password valud and the user ID
+  if (pass && USER.isPasswordPolicyEnabled) {
+    const eid = USER.get("user_eid")?.value;
+    const eidValue = USER.get("eidValue")?.innerHTML;
+    let username = "";
+    if (eid) {
+      username = USER.trim(eid);
+    } else if (eidValue) {
+      username = eidValue;
     }
 
+    // If the password field has a value:
+    // 1) make the AJAX call to the validate password REST endpoint
+    // 2) conditionally display the appropriate messages
+    // 3) conditionally hide/show the strength info message
+    if (pass.length > 0) {
+      USER.validatePasswordREST(pass, username);
+    } else {
+      // Password field has no value, hide all messages
+      USER.hideAllElements(strongMsg, moderateMsg, weakMsg, failMsg, strengthInfo, strengthBar, strengthBarMeter);
+    }
+  } else {
     // There is no password field or the password policy is disabled, mark the password as valid and hide all messages
-    else {
-        USER.hideAllElements(strongMsg, moderateMsg, weakMsg, failMsg, strengthInfo, strengthBar, strengthBarMeter);
-        USER.passwordValid = true;
-    }
+    USER.hideAllElements(strongMsg, moderateMsg, weakMsg, failMsg, strengthInfo, strengthBar, strengthBarMeter);
+    USER.passwordValid = true;
+  }
 
-    // Verify the passwords match (which in turn validates the form)
-    USER.verifyPasswordsMatch();
+  // Verify the passwords match (which in turn validates the form)
+  USER.verifyPasswordsMatch();
 };
 
 // Verify the passwords match
 USER.verifyPasswordsMatch = function () {
-    var pw = USER.get("user_pw");
-    var pw0 = USER.get("user_pw0");
-    var matchMsg = USER.get("matchMsg");
-    var noMatchMsg = USER.get("noMatchMsg");
-    USER.passwordsMatch = false;
 
-    if (pw !== null) {
-        var pass = pw.value;
-        var verPass = pw0.value;
-        USER.passwordsMatch = pass === verPass;
+  const pass = USER.get("user_pw")?.value;
+  USER.passwordsMatch = false;
 
-        if (pass.length > 0 && verPass.length > 0) {
-            USER.display(matchMsg, USER.passwordsMatch);
-            USER.display(noMatchMsg, !USER.passwordsMatch);
-        }
-        else {
-            USER.display(matchMsg, false);
-            USER.display(noMatchMsg, false);
-        }
-    }
-    else {
-        return;
+  if (pass !== null) {
+    const verPass = USER.get("user_pw0")?.value;
+    USER.passwordsMatch = pass === verPass;
+
+    const matchMsg = USER.get("matchMsg");
+    const noMatchMsg = USER.get("noMatchMsg");
+
+    if (pass.length > 0 && verPass.length > 0) {
+      USER.display(matchMsg, USER.passwordsMatch);
+      USER.display(noMatchMsg, !USER.passwordsMatch);
+    } else {
+      USER.display(matchMsg, false);
+      USER.display(noMatchMsg, false);
     }
 
     USER.validateForm();
+  }
 };
 
 // Validate the email address from the form
 USER.validateEmail = function () {
-    USER.emailValid = false;
-    var email = USER.get("email");
-    var emailWarningMsg = USER.get("emailWarningMsg");
 
-    if (email === null) {
-        USER.emailValid = true;
+  USER.emailValid = false;
+  const email = USER.get("email")?.value;
+
+  if (!email) {
+    USER.emailValid = true;
+  } else {
+    const address = USER.trim(email);
+
+    if (address.length < 1) {
+      USER.emailValid = true;
+    } else {
+      USER.emailValid = USER.checkEmail(address);
     }
-    else {
-        var address = USER.trim(email.value);
+  }
 
-        if (address.length < 1) {
-            USER.emailValid = true;
-        }
-        else {
-            USER.emailValid = USER.checkEmail(address);
-        }
-    }
-
-    USER.display(emailWarningMsg, !USER.emailValid);
-    USER.validateForm();
+  USER.display(USER.get("emailWarningMsg"), !USER.emailValid);
+  USER.validateForm();
 };
 
 // Validate the current password from the form
 USER.validateCurrentPassword = function () {
-    var pwcur = USER.get("user_pwcur");
-    USER.currentPassValid = true;
-    if (pwcur !== null) {
-        USER.currentPassValid = pwcur.value.length > 0;
-    }
 
-    USER.validateForm();
+  const pwcur = USER.get("user_pwcur")?.value;
+  USER.currentPassValid = true;
+  if (pwcur != null) {
+    USER.currentPassValid = pwcur.length > 0;
+  }
+
+  USER.validateForm();
 };
 
 // Validate the form (enabled/disable the submit button)
 USER.validateForm = function () {
-    var submitButton = USER.get("eventSubmit_doSave");
 
-    if (USER.userValid && USER.passwordsMatch && USER.emailValid && (USER.isSuperUser || (USER.passwordValid && USER.currentPassValid))) {
-        submitButton.disabled = false;
-    }
-    else {
-        submitButton.disabled = true;
-    }
-
-    setMainFrameHeightNow(window.name);
+  const submitButton = USER.get("eventSubmit_doSave");
+  submitButton && (submitButton.disabled = !(USER.userValid && USER.passwordsMatch && USER.emailValid && (USER.isSuperUser || (USER.passwordValid && USER.currentPassValid))));
+  setMainFrameHeightNow(window.name);
 };
 
 // Initialization function
-jQuery(document).ready(function () {
-    USER.validateEmail();
-    USER.validateCurrentPassword();
-    USER.validateUserId();
+window.addEventListener("DOMContentLoaded", () => {
+
+  USER.validateEmail();
+  USER.validateCurrentPassword();
+  USER.validateUserId();
 });

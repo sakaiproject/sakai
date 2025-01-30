@@ -205,7 +205,7 @@ function editorCheck(){
 }
 
 //display a prompt if the user tries to save the question but has not edited 
-//any formulas or variables.  Called on document.ready() for Calculated questions
+//any formulas, variables or global variables.  Called on document.ready() for Calculated questions
 function initCalcQuestion() {
  var dirty = false;
  $(".changeWatch").change(function() {
@@ -213,7 +213,7 @@ function initCalcQuestion() {
  });
  $(".saveButton").click(function() {
      if (!dirty) {
-         if (!confirm("You have not changed variables or formulas.  Are you sure that you want to Save?")) {
+         if (!confirm("You have not changed variables, global variables or formulas.  Are you sure that you want to Save?")) {
              return false;
          }
      }           
@@ -510,15 +510,15 @@ function uncheckOther(field){
  }
 }
 
-function showHideReleaseGroups(){
-  var showGroups;
-  var el = document.getElementById("assessmentSettingsAction:releaseTo");
-  if (el != null && el.selectedIndex == 2) {
-	document.getElementById("groupDiv").style.display = "block";
-	document.getElementById("groupDiv").style.width = "80%";
-  }
-  else {
-	document.getElementById("groupDiv").style.display = "none";
+function showHideReleaseGroups() {
+  const groupDiv = document.getElementById("groupDiv");
+  const releaseTo = document.getElementById("assessmentSettingsAction:releaseTo");
+  
+  if (releaseTo?.selectedIndex === 2) {
+    groupDiv.style.display = "block";
+    groupDiv.style.width = "80%";
+  } else {
+    groupDiv.style.display = "none";
   }
 }
 
@@ -602,7 +602,7 @@ function initTimedRadio(){
 }
 
 function initAnononymousUsers(){
-	var releaseTo = document.getElementById('assessmentSettingsAction:releaseTo');
+	let releaseTo = document.getElementById('assessmentSettingsAction:releaseTo');
 	releaseTo.prevValue = releaseTo.value;
 	if (releaseTo.value === 'Anonymous Users') {
 		handleAnonymousUsers(releaseTo.value, releaseTo.value);
@@ -640,12 +640,13 @@ function lockdownAnonyGrading(value, prevValue) {
 }
 
 function lockdownGradebook(value) {
-	const gb = document.getElementById("assessmentSettingsAction:toDefaultGradebook");
-	if (gb !== null) {
-		if (value === ANON_USERS && gb.checked) {
-			gb.click();  // there is an event handler on the checkbox so we need to click it
-		}
-		gb.disabled = value === ANON_USERS;
+	if (value == 'Anonymous Users') {
+		$('#assessmentSettingsAction\\:toDefaultGradebook').prop('checked', '');
+		$('#assessmentSettingsAction\\:toDefaultGradebook').prop('disabled', 'disabled');
+		$('#assessmentSettingsAction\\:toGradebookName input').prop('disabled', 'disabled');
+	} 
+	else {
+		$('#assessmentSettingsAction\\:toDefaultGradebook').prop('disabled', '');
 	}
 }
 
@@ -717,6 +718,16 @@ function checkUserOrGroupRadio() {
 		//Group is selected -> disable user selection
 		$('select[name*="newEntry-user"]').prop('disabled', 'disabled');
 		$('select[name*="newEntry-group"]').prop('disabled', '');
+	}
+}
+
+function enableDisableToGradebook() {
+	var toDefaultGradebookVal = $('#assessmentSettingsAction\\:toDefaultGradebook input:checked').val();
+	if (toDefaultGradebookVal == 3) {
+		$('#assessmentSettingsAction\\:toGradebookName').prop('disabled', '');
+	}
+	else {
+		$('#assessmentSettingsAction\\:toGradebookName').prop('disabled', 'disabled');
 	}
 }
 
@@ -815,7 +826,7 @@ function toggleCategories(checkbox) {
     // so check first.
     var categoryDiv = $('#assessmentSettingsAction\\:toGradebookCategory');
     if (categoryDiv.length) {
-        if ($(checkbox).prop("checked")) {
+        if ($(checkbox).val() === '1') {
             categoryDiv.fadeIn();
         } else {
             categoryDiv.fadeOut();
@@ -859,4 +870,17 @@ function setAccessibilityAttributes() {
 		//sets aria-describredby attribute
 		$(settingQuerryIdent + ", " + settingQuerryOption).first().attr("aria-describredby", helpBlockId);
 	}
+}
+
+function toggleSection(sectionId, visible){
+	if(visible === "true"){
+		document.getElementById(sectionId).classList.remove('hidden');
+	} else {
+		document.getElementById(sectionId).classList.add('hidden');
+	}
+}
+function changeStatusCorrectResponseCheckbox() {
+  const hideCorrectResponse = document.getElementById('assessmentSettingsAction:hideCorrectResponse');
+
+  hideCorrectResponse.style.display = (hideCorrectResponse.style.display == "none") ? "block" : "none";
 }

@@ -35,7 +35,7 @@
 package org.sakaiproject.roster.api;
 
 import lombok.extern.slf4j.Slf4j;
-import org.sakaiproject.util.comparator.UserSortNameComparator;
+import org.sakaiproject.util.comparator.UserNameComparator;
 
 import java.util.Comparator;
 
@@ -48,8 +48,7 @@ import java.util.Comparator;
 public class RosterMemberComparator implements Comparator<RosterMember> {
 
     private final boolean firstNameLastName;
-    private UserSortNameComparator sortNameComparator = new UserSortNameComparator();
-    private UserSortNameComparator displayNameComparator = new UserSortNameComparator(true, true);
+    private UserNameComparator userNameComparator = new UserNameComparator();
 
     public RosterMemberComparator(boolean firstNameLastName) {
         this.firstNameLastName = firstNameLastName;
@@ -64,9 +63,9 @@ public class RosterMemberComparator implements Comparator<RosterMember> {
     public int compare(RosterMember member1, RosterMember member2) {
 
         if (firstNameLastName) {
-            return displayNameComparator.compare(member1.getUser(), member2.getUser());
+            return userNameComparator.compare(member1.getDisplayName(), member2.getDisplayName());
         } else {
-            return sortNameComparator.compare(member1.getUser(), member2.getUser());
+            return userNameComparator.compare(member1.getSortName(), member2.getSortName());
         }
     }
 }

@@ -20,7 +20,7 @@
 --%>
 -->
 
-<div class="table-responsive">
+<div class="table">
 
     <h:panelGroup id="text_searched_results" rendered="#{not empty searchQuestionBean.textToSearch}">
         <h3><h:outputLabel value="#{authorMessages.results_text}" /></h3>

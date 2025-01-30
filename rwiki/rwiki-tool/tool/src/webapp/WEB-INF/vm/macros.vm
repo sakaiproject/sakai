@@ -39,12 +39,6 @@ LOG-LOG-LOG-LOG-LOG
     #if ( $request.getAttribute("footerScript") ) 
     <script type="text/javascript" >${request.getAttribute("footerScript")}</script>
     #end
-    #if ( ${requestScope.removeAutoSave} )
-        #set ($curPageName = ${util.escapeHtml($requestScope.currentPageName)})
-			<script type="text/javascript" >
-				WikiAutoSave_autoSaveClear('${requestScope.currentDefaultRealm}','$curPageName');
-			</script>
-	  #end
     </body>
 </html>
 #end
@@ -219,7 +213,7 @@ ${util.formatDateTime($date,$request)}
 					<span id="totalComments" class="textPanelFooter"></span>
 					#if (${renderBean.canEdit} || ${renderBean.canCreate})
 						<span class="commentsToolBar">
-							<a href="#" id="createCommentLink" onclick="ajaxRefPopup(this,'${util.escapeHtml(${renderBean.newCommentURL})}',0); return false;" >${rlb.jsp_addcomment}</a>
+							<a href="#" id="createCommentLink" onclick="newEditComment(this, '${util.escapeHtml(${renderBean.newCommentURL})}', false); return false;" >${rlb.jsp_addcomment}</a>
 						</span>
 					#end
 				</h5>
@@ -235,12 +229,12 @@ ${util.formatDateTime($date,$request)}
 							<ul class="actionItem itemAction">
 								#if (${renderBean.canEdit} || ${renderBean.canCreate})
 									<li><span>
-										<a href="#" onclick="ajaxRefPopup(this,'${util.escapeHtml(${comment.newCommentURL})}',0); return false;" >${rlb.jsp_comment}</a>
+										<a href="#" onclick="newEditComment(this,'${util.escapeHtml(${comment.newCommentURL})}', false); return false;" >${rlb.jsp_comment}</a>
 									</span></li>
 								#end
 								#if (${comment.canEdit} && (${renderBean.canEdit} || ${renderBean.canCreate}) )
 									<li><span>
-										<a href="#" onclick="ajaxRefPopup(this,'${util.escapeHtml(${comment.editCommentURL})}',0); return false;" >${rlb.jsp_edit}</a>
+										<a href="#" onclick="newEditComment(this,'${util.escapeHtml(${comment.editCommentURL})}', true); return false;" >${rlb.jsp_edit}</a>
 									</span></li>
 								#end
 							</ul>
@@ -305,52 +299,6 @@ ${util.formatDateTime($date,$request)}
 
 		
 #end
-#*
-<!-- To Turn AJAX Comments on, uncomment this and change the commandComponents.xml to use EditSaveAction 
-	    <script type="text/javascript" >
-var commentsShowing = false;
-var lastCommentControl = null;
-function toggleComments(target) {
-	if ( target == null ) 
-		target = lastCommentControl;
-	lastCommentControl = target;
-	if ( commentsShowing ) {
-		target.innerHTML = "<c:out value="${rlb.jsp_show_comments}" />";
-	    popupClose(0);
-	    commentsShowing = false;
-	} else {
-		popupClose(0);
-		ajaxRefPopup(target,'<c:out value="${renderBean.listCommentsURL}" escapeXml="false" />',0);
-		target.innerHTML = "<c:out value="${rlb.jsp_hide_comments}" />";
-		commentsShowing = true;
-	}
-}
-var presenceShowing = false;
-var lastPresenceControl = null;
-function togglePresence(target) {
-	if ( target == null ) 
-		target = lastPresenceControl;
-	lastPresenceControl = target;
-	if ( presenceShowing ) {
-		target.innerHTML = "<c:out value="${rlb.jsp_show_who}" />";
-	    popupClose(0);
-	    presenceShowing = false;
-	} else {
-		popupClose(0);
-		ajaxRefPopup(target,'<c:out value="${renderBean.listPresenceURL}" escapeXml="false" />',0);
-		target.innerHTML = "<c:out value="${rlb.jsp_hide_who}" />";
-		presenceShowing = true;
-	}
-}
-</script>
-<div id="rwiki_comments_sidebar" >
-<a href="#" onclick="toggleComments(this); return false;" ><c:out value="${rlb.jsp_show_comments}" /></a>
-<a href="#" onclick="togglePresence(this); return false;" ><c:out value="${rlb.jsp_show_who}" /></a>
-</div>
--->
-*#
-
-
 
 #macro( helppopup $id $pop_head $pop_body )   		
     	<div id="${id}" style=" position: absolute; top: -1000px; left: -1000px; visibility: hidden; " 
@@ -476,30 +424,6 @@ function togglePresence(target) {
 								alt="${rlb.jsp_toolb_save}" /></a>
 	</div>
 #end
-
-#macro( autosavetoolbar ) 
-<div class="autosaveToolBarContainer" >
-<nobr>
-<a class="autosaveToolBar" 
-			href="#" 
-			id="toolbarButtonRecover" 
-		    			    onClick="WikiAutoSave_restoreSavedContent('pageVersion', 'wiki-textarea-content', 'restoreContent','restoreVersion','restoreDate','autosave','autoSaveOffClass' ); selectTabs('autosaveTab','tabOn','tabOff','previewTab','tabOn','tabOff','editTab','tabOff','tabOn','autosave','tabHeadOn','tabHeadOff','preview','tabHeadOn','tabHeadOff','edit','tabHeadOff','tabHeadOn'); return false;"
-		    			    >
-			<img src="/library/image/transparent.gif" 
-								border="0"   
-				    title="${rlb.jsp_button_restore_saved_edit}"
-			     alt="${rlb.jsp_button_restore_saved_edit}"
-								/></a>
-		 <label for="restoreVersion" >${rlb.jsp_auto_save_version}</label>
-		 <input type="text" id="restoreVersion" name="restoreVersion" value="${rlb.jsp_none}" readonly="readonly" />
-		 <label for="restoreDate" >${rlb.jsp_auto_save_date}</label>
-		 <input type="text" id="restoreDate" name="restoreDate" value="${rlb.jsp_none}"  readonly="readonly" />
-		 <input type="hidden" id="restoreTimestamp" name="restoreTimestamp" value="${rlb.jsp_none}" readonly="readonly"  />
-</nobr>
-</div>
-
-#end
-
 
 #* ------------------------------------------------------------------
 # The standard way to instantiate a WYSIWYG formatted text editing widget

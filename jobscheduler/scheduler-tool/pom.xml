@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.sakaiproject.scheduler</groupId>
         <artifactId>scheduler</artifactId>
-        <version>23-SNAPSHOT</version>
+        <version>25-SNAPSHOT</version>
     </parent>
 
     <name>Sakai Job Scheduler Tool (scheduler-tool)</name>
@@ -69,12 +69,8 @@
             <version>1.0.4</version>
         </dependency>
         <dependency>
-            <groupId>commons-collections</groupId>
-            <artifactId>commons-collections</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>xml-apis</groupId>
-            <artifactId>xml-apis</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>

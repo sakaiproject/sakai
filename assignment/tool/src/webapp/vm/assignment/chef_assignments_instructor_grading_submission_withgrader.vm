@@ -1,7 +1,7 @@
 <!-- start: chef_assignments_instructor_grading_submission_withgrader.vm  -->
 
 <!-- GRADER JAVASCRIPT -->
-#module("/webcomponents/grader/sakai-grader.js")
+#module("/webcomponents/bundles/grader.js")
 <script>
   ASN.currentGradingSubmission = "$formattedText.escapeUrl( $!submissionReference )";
 </script>
@@ -14,13 +14,17 @@
         tool="assignments"
         gradable-id="$assignment.Id"
         submission-id="$submission.Id"
-        user-list-url="#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$formattedText.escapeUrl($assignmentReference)")"
+        user-list-url="#toolLinkParam("$action" "$method" "$urlParams")"
         current-student-id="$!submitterId"
         has-associated-rubric="$!hasAssociatedRubric"
+        selected-group="$selectedGroup"
         #if ($!hasAssociatedRubric)
         tool-id="sakai.assignment.grades"
         entity-id="$assignment.Id"
         evaluated-item-id="$submission.Id"
+        #end
+        #if ($!rubricSelfReport)
+        rubric-self-report="$!rubricSelfReport"
         #end
         #if ($enablePdfExport)
         enable-pdf-export
@@ -28,4 +32,4 @@
     >
     </sakai-grader>
 </div>
-<!-- end: check_assignments_instructor_grading_submission.vm  -->
+<!-- end: chef_assignments_instructor_grading_submission_withgrader.vm  -->

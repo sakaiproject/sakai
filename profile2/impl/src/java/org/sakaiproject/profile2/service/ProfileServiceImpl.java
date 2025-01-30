@@ -15,25 +15,24 @@
  */
 package org.sakaiproject.profile2.service;
 
-import java.util.List;
+import java.util.Optional;
 
-import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
-import org.sakaiproject.profile2.model.Person;
+import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.EntityProducer;
+import org.sakaiproject.profile2.util.ProfileConstants;
 
-/**
- * A facade on the various logic component methods to improve backwards compatibility with
- * clients of the older Profile2 apis. See PRFL-551.
- * 
- * @author Adrian Fish <a.fish@lancaster.ac.uk>
- */
-public class ProfileServiceImpl implements ProfileService {
+import lombok.Data;
+
+@Data
+public class ProfileServiceImpl implements ProfileService, EntityProducer {
 	
-	private ProfileConnectionsLogic connectionsLogic = null;
-	public void setConnectionsLogic(ProfileConnectionsLogic connectionsLogic) {
-		this.connectionsLogic = connectionsLogic;
-	}
+	private EntityManager entityManager;
 
-	public List<Person> getConnectionsForUser(String userUuid) {
-		return connectionsLogic.getConnectionsForUser(userUuid);
-	}
+    public void init() {
+        entityManager.registerEntityProducer(this, "/profile/");
+    }
+
+    public Optional<String> getTool() {
+        return Optional.of(ProfileConstants.TOOL_ID);
+    }
 }

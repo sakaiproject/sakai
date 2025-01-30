@@ -38,11 +38,11 @@ $Id$
 
     <script src="/samigo-app/jsf/widget/hideDivision/hideDivision.js"></script>
     <script src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
+    <script src="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
     <script src="/samigo-app/js/jquery.dynamiclist.student.preview.js"></script>
     <script src="/samigo-app/js/selection.student.preview.js"></script>
     <script src="/samigo-app/js/selection.author.preview.js"></script>
-    <script src="/webcomponents/rubrics/sakai-rubrics-utils.js<h:outputText value="#{studentScores.CDNQuery}" />"></script>
-    <script type="module" src="/webcomponents/rubrics/rubric-association-requirements.js<h:outputText value="#{studentScores.CDNQuery}" />"></script>
+    <script type="module" src="/webcomponents/bundles/rubric-association-requirements.js<h:outputText value="#{studentScores.CDNQuery}" />"></script>
 
     <link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.student.css">
     <link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.author.css">
@@ -104,6 +104,15 @@ function toPoint(id)
   document.getElementById(id).value=x.replace(',','.')
 }
 
+  function initRubricDialogWrapper(gradingId) {
+
+    initRubricDialog(gradingId
+      , <h:outputText value="'#{evaluationMessages.done}'"/>
+      , <h:outputText value="'#{evaluationMessages.cancel}'"/>
+      , <h:outputText value="'#{evaluationMessages.saverubricgrading}'"/>
+      , <h:outputText value="'#{evaluationMessages.unsavedchangesrubric}'"/>);
+  }
+
   $(document).ready(function(){
     // The current class is assigned using Javascript because we don't use facelets and the include directive does not support parameters.
     var currentLink = $('#editStudentResults\\:totalScoresMenuLink');
@@ -126,10 +135,13 @@ function toPoint(id)
   <%@ include file="/jsf/evaluation/evaluationHeadings.jsp" %>
 
   <h:panelGroup layout="block" styleClass="page-header">
-    <h1>
-      <h:outputText value="#{studentScores.studentName} (#{studentScores.displayId})" rendered="#{totalScores.anonymous eq 'false'}"/>
-      <small><h:outputText value="#{evaluationMessages.submission_id}#{deliveryMessages.column} #{studentScores.assessmentGradingId}" rendered="#{totalScores.anonymous eq 'true'}"/></small>
-    </h1>
+    <div class="b5 d-flex flex-wrap justify-content-between">
+      <h1>
+        <h:outputText value="#{studentScores.studentName} (#{studentScores.displayId})" rendered="#{totalScores.anonymous eq 'false'}"/>
+        <small><h:outputText value="#{evaluationMessages.submission_id}#{deliveryMessages.column} #{studentScores.assessmentGradingId}" rendered="#{totalScores.anonymous eq 'true'}"/></small>
+      </h1>
+      <%@ include file="/jsf/evaluation/submissionNav.jsp" %>
+    </div>
   </h:panelGroup>
 
   <!-- EVALUATION SUBMENU -->
@@ -138,7 +150,12 @@ function toPoint(id)
   <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
 
 <h2>
-  <h:outputText value="#{totalScores.assessmentName}" escape="false"/>
+  <div styleClass="container">
+    <h:outputText value="#{totalScores.assessmentName}" escape="false"/>
+    <h:commandButton styleClass="pull-right print_button" id="print" value="#{evaluationMessages.print_report}" immediate="true">
+      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ExportAction" />
+    </h:commandButton>
+  </div>
 </h2>
 
 <div class="form-group row">
@@ -153,19 +170,31 @@ function toPoint(id)
   <h:outputText value="#{deliveryMessages.table_of_contents}" />
 </h2>
 
+<h:panelGroup rendered="#{totalScores.isOneSelectionType}">
+  <fieldset class="short-summary-box">
+    <legend class="summary-title"><h:outputText value="#{evaluationMessages.summary_title}" rendered="true" /></legend>
+    <ul>
+      <li><h5 style="display: inline;"><h:outputText value="#{evaluationMessages.correct_title}" />: <h:outputText value="#{totalScores.results[studentScores.longAssessmentGradingId][0]}" /></h5></li>
+      <li><h5 style="display: inline;"><h:outputText value="#{evaluationMessages.incorrect_title}" />: <h:outputText value="#{totalScores.results[studentScores.longAssessmentGradingId][1]}" /></h5></li>
+      <li><h5 style="display: inline;"><h:outputText value="#{evaluationMessages.empty_title}" />: <h:outputText value="#{totalScores.results[studentScores.longAssessmentGradingId][2]}" /></h5></li>
+    <ul>
+  </fieldset>
+</h:panelGroup>
+
 <div class="toc-holder">
   <t:dataList styleClass="part-wrapper" value="#{delivery.tableOfContents.partsContents}" var="part">
     <h:panelGroup styleClass="toc-part">
       <samigo:hideDivision id="part" title=" #{deliveryMessages.p} #{part.number} #{evaluationMessages.dash} #{part.text} #{evaluationMessages.dash}
        #{part.questions-part.unansweredQuestions}#{evaluationMessages.splash}#{part.questions} #{deliveryMessages.ans_q}, #{part.pointsDisplayString} #{evaluationMessages.splash} #{part.roundedMaxPoints} #{deliveryMessages.pt}" > 
         <t:dataList layout="unorderedList" itemStyleClass="list-group-item" styleClass="list-group question-wrapper" value="#{part.itemContents}" var="question">
-                <span class="badge">
+                <span class="badge rounded-pill text-bg-secondary">
+                  <h:outputText escape="false" value="#{commonMessages.cancel_question_cancelled} " rendered="#{question.cancelled}" />
                   <h:outputText escape="false" value="#{question.roundedMaxPoints}">
                     <f:convertNumber maxFractionDigits="2" groupingUsed="false"/>
                   </h:outputText>
                   <h:outputText escape="false" value=" #{deliveryMessages.pt} "/>
                 </span>
-                <h:outputLink value="##{part.number}#{deliveryMessages.underscore}#{question.number}"> 
+                <h:outputLink value="##{part.number}#{deliveryMessages.underscore}#{question.number}" styleClass="#{question.cancelled ? 'cancelled-question-link' : ''}">
                   <h:outputText escape="false" value="#{question.sequence}#{deliveryMessages.dot} #{question.strippedText}"/>
                 </h:outputLink>
                 <h:outputText styleClass="extraCreditLabel" rendered="#{question.itemData.isExtraCredit==true}" value=" #{deliveryMessages.extra_credit_preview}" />
@@ -194,19 +223,24 @@ function toPoint(id)
       <t:dataList value="#{part.itemContents}" var="question" itemStyleClass="page-header question-box" styleClass="question-wrapper" layout="unorderedList">
         <h:outputText value="<a name=\"#{part.number}_#{question.number}\"></a>" escape="false" />
           <h:panelGroup layout="block" styleClass="row #{delivery.actionString}">
-            <h:panelGroup layout="block" styleClass="col-sm-6">
+            <h:panelGroup layout="block" styleClass="col-sm-7">
               <h:panelGroup layout="block" styleClass="row">
                 <h:panelGroup layout="block" styleClass="col-sm-12 input-group">
-                  <p class="input-group-addon">
+                  <p class="input-group-addon m-0">
                     <h:outputText value="#{deliveryMessages.q} #{question.sequence} #{deliveryMessages.of} " />
                     <h:outputText value="#{part.numbering}#{deliveryMessages.column}  " />
                   </p>
-                  <h:inputText styleClass="form-control adjustedScore#{studentScores.assessmentGradingId}.#{question.itemData.itemId}" id="adjustedScore" value="#{question.pointsForEdit}" onchange="toPoint(this.id);" validatorMessage="#{evaluationMessages.number_format_error_adjusted_score}">
+                  <h:inputText styleClass="form-control #{delivery.trackingQuestions && question.formattedTimeElapsed ? '' : 'form-control-center'} adjustedScore#{studentScores.assessmentGradingId}.#{question.itemData.itemId}" id="adjustedScore" value="#{question.pointsForEdit}" onchange="toPoint(this.id);" validatorMessage="#{evaluationMessages.number_format_error_adjusted_score}" disabled="#{question.cancelled}">
                     <f:validateDoubleRange/>
                   </h:inputText>
+                  <h:panelGroup rendered="#{delivery.trackingQuestions && question.formattedTimeElapsed != ''}">
+                    <p class="input-group-addon input-group-addon-right">
+                      <h:outputText value="#{evaluationMessages.time_elapsed}: #{question.formattedTimeElapsed}" />
+                    </p>
+                  </h:panelGroup>
                 </h:panelGroup>
                 <h:panelGroup layout="block" styleClass="col-sm-12 input-group">
-                  <p class="input-group-addon">
+                  <p class="samigo-input-group-addon">
                     <h:outputText value=" #{deliveryMessages.splash} #{question.roundedMaxPointsToDisplay} " />
                     <h:outputText value="#{deliveryMessages.pt}" />
                     <h:message for="adjustedScore" styleClass="sak-banner-error" />
@@ -219,22 +253,33 @@ function toPoint(id)
 
       <h:panelGroup rendered="#{question.hasAssociatedRubric}">
         <ul class="nav nav-tabs">
-          <li class="active">
-            <a data-toggle="tab" href="<h:outputText value="#submition#{question.itemData.itemId}" />">
+          <li class="nav-item active">
+            <a class="nav-link" data-bs-toggle="tab" href="<h:outputText value="#submition#{question.itemData.itemId}" />">
               <h:outputText value="#{commonMessages.student_response}" />
             </a>
           </li>
-          <li>
-            <a data-toggle="tab" href="<h:outputText value="#rubric#{question.itemData.itemId}" />">
-              <h:outputText value="#{assessmentSettingsMessages.grading_rubric}" />
-            </a>
+          <li class="nav-item">
+            <h:panelGroup rendered="#{question.associatedRubricType == '1'}" >
+              <a class="nav-link" data-bs-toggle="tab" href="<h:outputText value="#rubric#{question.itemData.itemId}" />">
+                <h:outputText value="#{assessmentSettingsMessages.grading_rubric}" />
+              </a>
+            </h:panelGroup>
+            <h:panelGroup rendered="#{question.associatedRubricType == '2'}" >
+              <h:outputLink title="#{evaluationMessages.saverubricgrading}"
+                    styleClass="nav-link"
+                    value="#"
+                    onclick="initRubricDialogWrapper(#{studentScores.assessmentGradingId}+'.'+#{question.itemData.itemId}); return false;"
+                    onkeypress="initRubricDialogWrapper(#{studentScores.assessmentGradingId}+'.'+#{question.itemData.itemId}); return false;" >
+                <h:outputText value="#{assessmentSettingsMessages.grading_rubric}" />
+              </h:outputLink>
+            </h:panelGroup>
           </li>
         </ul>
 
         <div class="tab-content">
-          <div id="<h:outputText value="submition#{question.itemData.itemId}" />" class="tab-pane active">
+          <div id="<h:outputText value="submition#{question.itemData.itemId}" />" class="tab-pane active" role="tabpanel">
       </h:panelGroup>
-          <div class="samigo-question-callout">
+          <h:panelGroup styleClass="samigo-question-callout#{question.cancelled ? ' samigo-question-cancelled' : ''}" layout="block">
             <h:panelGroup rendered="#{question.itemData.typeId == 7}">
               <f:subview id="deliverAudioRecording">
                <%@ include file="/jsf/evaluation/item/displayAudioRecording.jsp" %>
@@ -314,18 +359,40 @@ function toPoint(id)
                 <%@ include file="/jsf/delivery/item/deliverMatrixChoicesSurvey.jsp" %>
               </f:subview>
             </h:panelGroup>
-          </div>
+            <h:panelGroup styleClass="sak-banner-info" rendered="#{question.cancelled}" layout="block">
+              <h:outputText value="#{commonMessages.cancel_question_info_cancelled_question}"/>
+            </h:panelGroup>
+          </h:panelGroup>
 
         <h:panelGroup rendered="#{question.hasAssociatedRubric}">
           </div>
-          <div class="tab-pane" id="<h:outputText value="rubric#{question.itemData.itemId}" />">
-            <sakai-rubric-grading
-              id='<h:outputText value="pub.#{totalScores.publishedId}.#{question.itemData.itemId}"/>'
-              tool-id="sakai.samigo"
-              entity-id='<h:outputText value="pub.#{totalScores.publishedId}.#{question.itemData.itemId}"/>'
-              evaluated-item-id='<h:outputText value="#{studentScores.assessmentGradingId}.#{question.itemData.itemId}" />'
-              evaluated-item-owner-id='<h:outputText value="#{studentScores.studentId}"/>'
-            </sakai-rubric-grading>
+          <div id="<h:outputText value="rubric#{question.itemData.itemId}" />" class="tab-pane" role="tabpanel">
+            <h:panelGroup rendered="#{question.associatedRubricType == '1'}" >
+              <sakai-rubric-grading
+                id='<h:outputText value="pub.#{totalScores.publishedId}.#{question.itemData.itemId}"/>'
+                tool-id="sakai.samigo"
+                enable-pdf-export="true"
+                site-id='<h:outputText value="#{totalScores.siteId}"/>'
+                entity-id='<h:outputText value="pub.#{totalScores.publishedId}.#{question.itemData.itemId}"/>'
+                evaluated-item-id='<h:outputText value="#{studentScores.assessmentGradingId}.#{question.itemData.itemId}" />'
+                evaluated-item-owner-id='<h:outputText value="#{studentScores.studentId}"/>'
+              >
+              </sakai-rubric-grading>
+            </h:panelGroup>
+            <h:panelGroup rendered="#{question.associatedRubricType == '2'}" >
+              <div id='<h:outputText value="#{studentScores.assessmentGradingId}"/>-inputs'></div>
+              <div id='<h:outputText value="modal#{studentScores.assessmentGradingId}.#{question.itemData.itemId}" />' style="display:none;overflow:initial">
+                <sakai-dynamic-rubric
+                  id='<h:outputText value="#{studentScores.assessmentGradingId}.#{question.itemData.itemId}-pub.#{totalScores.publishedId}.#{question.itemData.itemId}.#{studentScores.assessmentGradingId}"/>'
+                  grading-id='<h:outputText value="#{studentScores.assessmentGradingId}.#{question.itemData.itemId}"/>'
+                  entity-id='<h:outputText value="pub.#{totalScores.publishedId}.#{question.itemData.itemId}"/>'
+                  site-id='<h:outputText value="#{totalScores.siteId}"/>'
+                  evaluated-item-owner-id='<h:outputText value="#{studentScores.studentId}" />'
+                  previous-grade='<h:outputText value="#{question.pointsForEdit}"/>'
+                  origin='gradeStudentResult'>
+                </sakai-dynamic-rubric>
+              </div>
+            </h:panelGroup>
           </div>
           </div>
         </h:panelGroup>
@@ -353,15 +420,11 @@ function toPoint(id)
 </h:panelGroup>
 
 <p class="act">
-   <h:commandButton id="save" styleClass="active" value="#{evaluationMessages.save_cont}" action="totalScores" type="submit">
+   <h:commandButton id="save" styleClass="active" value="#{evaluationMessages.save_cont}" action="gradeStudentResult" type="submit">
       <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreUpdateListener" />
       <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreListener" />
-      <f:actionListener
-         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
-      <f:actionListener
-         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
    </h:commandButton>
    <h:commandButton id="cancel" value="#{commonMessages.cancel_action}" action="totalScores" immediate="true">
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />

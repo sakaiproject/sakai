@@ -29,7 +29,7 @@ public class GradeDefinition {
     private Date dateRecorded;
     private String grade;
     private String gradeComment;
-    private GradeType gradeEntryType;
+    private Integer gradeEntryType;
     private boolean gradeReleased;
     private boolean excused;
 }

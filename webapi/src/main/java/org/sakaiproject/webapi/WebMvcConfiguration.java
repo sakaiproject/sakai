@@ -16,9 +16,7 @@ package org.sakaiproject.webapi;
 import org.sakaiproject.webapi.formatter.EpochMillisFormatter;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.AsyncSupportConfigurer;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -29,19 +27,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebMvcConfiguration implements WebMvcConfigurer {
 
     @Override
-    public void configureAsyncSupport (AsyncSupportConfigurer configurer) {
-
-        ThreadPoolTaskExecutor t = new ThreadPoolTaskExecutor();
-        t.setCorePoolSize(10);
-        t.setMaxPoolSize(100);
-        t.setQueueCapacity(50);
-        t.setAllowCoreThreadTimeOut(true);
-        t.setKeepAliveSeconds(120);
-        t.initialize();
-        configurer.setTaskExecutor(t);
-    }
-
-    @Override
     public void addFormatters(FormatterRegistry registry) {
         EpochMillisFormatter formatter = new EpochMillisFormatter();
         registry.addFormatter(formatter);
@@ -50,6 +35,7 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/*.json").addResourceLocations("classpath:/static/");
+        registry.addResourceHandler("/*.js").addResourceLocations("classpath:/static/");
         registry.addResourceHandler("swagger-ui.html").addResourceLocations("classpath:/META-INF/resources/");
         registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
     }

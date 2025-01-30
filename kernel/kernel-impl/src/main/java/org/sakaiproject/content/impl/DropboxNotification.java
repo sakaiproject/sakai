@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.Collection;
 import java.util.HashSet;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.authz.api.SecurityService;
@@ -91,27 +92,13 @@ public class DropboxNotification extends EmailNotification
 	private final String TERMINATION_LINE = "\n\n--"+MULTIPART_BOUNDARY+"--\n\n";
 
 	private final String MIME_ADVISORY = "This message is for MIME-compliant mail readers.";
-	private SecurityService securityService;
+	@Setter
+    private SecurityService securityService;
 	private ContentHostingService contentHostingService;
 	private EntityManager entityManager;
 	private SiteService siteService;
 	private UserDirectoryService userDirectoryService;
 	private ServerConfigurationService serverConfigurationService;
-	/**
-	 * The preferred form for construction is to supply the needed items rather than having to do a lookup. This constructor was
-	 * left in place for compatibility with any custom tool that might currently be using it, but should be considered deprecated.
-	 * 
-	 * @deprecated
-	 */
-	public DropboxNotification() {
-		this.securityService = (SecurityService) ComponentManager.get("org.sakaiproject.authz.api.SecurityService");
-		this.contentHostingService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
-		this.entityManager = (EntityManager) ComponentManager.get("org.sakaiproject.entity.api.EntityManager");
-		this.siteService = (SiteService) ComponentManager.get("org.sakaiproject.site.api.SiteService");
-		this.userDirectoryService = (UserDirectoryService) ComponentManager.get("org.sakaiproject.user.api.UserDirectoryService");
-		this.serverConfigurationService = (ServerConfigurationService) ComponentManager
-				.get("org.sakaiproject.component.api.ServerConfigurationService");
-	}
 
 	private void loadResources() {
 		resourceClass = serverConfigurationService.getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
@@ -361,11 +348,11 @@ public class DropboxNotification extends EmailNotification
 		} 
 		catch (PermissionException e) 
 		{
-			log.warn("PermissionException trying to get title for individual dropbox: " + dropboxId);
+			log.warn("PermissionException trying to get title for individual dropbox: {}", dropboxId);
 		} 
 		catch (IdUnusedException e) 
 		{
-			log.warn("IdUnusedException trying to get title for individual dropbox: " + dropboxId);
+			log.warn("IdUnusedException trying to get title for individual dropbox: {}", dropboxId);
 		}
 
 		if ( doHtml ) 
@@ -381,7 +368,7 @@ public class DropboxNotification extends EmailNotification
 		}
 
 		// get the resource copyright alert property
-		boolean copyrightAlert = props.getProperty(ResourceProperties.PROP_COPYRIGHT_ALERT) != null ? true : false;
+		boolean copyrightAlert = props.getProperty(ResourceProperties.PROP_COPYRIGHT_ALERT) != null;
 
 		// Now build up the message text.
 		if (doHtml) 
@@ -396,11 +383,11 @@ public class DropboxNotification extends EmailNotification
 		}
 		if (contentHostingService.EVENT_RESOURCE_AVAILABLE.equals(function))
 		{
-			buf.append(rb.getFormattedMessage("db.text.new", new String[]{dropboxTitle, siteTitle, portalName, portalUrl}));
+			buf.append(rb.getFormattedMessage("db.text.new", dropboxTitle, siteTitle, portalName, portalUrl));
 		}
 		else
 		{
-			buf.append(rb.getFormattedMessage("db.text.upd", new String[]{dropboxTitle, siteTitle, portalName, portalUrl}));
+			buf.append(rb.getFormattedMessage("db.text.upd", dropboxTitle, siteTitle, portalName, portalUrl));
 		}
 		buf.append(blankLine);
 
@@ -415,14 +402,14 @@ public class DropboxNotification extends EmailNotification
 		{
 			item = "<a href=\"" + url + "\">" + item + "</a>";
 		}
-		buf.append(rb.getFormattedMessage("db.text.location", new String[]{siteTitle, path, item}));
+		buf.append(rb.getFormattedMessage("db.text.location", siteTitle, path, item));
 
 		buf.append(blankLine);
 
 		// resource description
-		if ((description != null) && (description.length() > 0))
+		if ((description != null) && (!description.isEmpty()))
 		{
-			buf.append(rb.getString("descrip") + " " + description);
+			buf.append(rb.getString("descrip")).append(" ").append(description);
 			buf.append(blankLine);
 		}
 
@@ -449,7 +436,7 @@ public class DropboxNotification extends EmailNotification
 		}
 		buf.append(newLine);
 		
-		buf.append(rb.getFormattedMessage("db.text.prefs", new String[]{portalName, portalUrl, siteTitle}));
+		buf.append(rb.getFormattedMessage("db.text.prefs", portalName, portalUrl, siteTitle));
 		
 		if (doHtml) {
 			buf.append("</p>");
@@ -505,12 +492,8 @@ public class DropboxNotification extends EmailNotification
 		{
 			log.warn("IdUnusedException trying to get title for individual dropbox: " + dropboxId);
 		}
-		
-		String[] args = {siteTitle, dropboxTitle, resourceName};
-		
-		return rb.getFormattedMessage((contentHostingService.EVENT_RESOURCE_AVAILABLE.equals(function) ? "db.subj.new" : "db.subj.upd"),
-				args);
-		
+
+	 	return rb.getFormattedMessage((contentHostingService.EVENT_RESOURCE_AVAILABLE.equals(function) ? "db.subj.new" : "db.subj.upd"), siteTitle, dropboxTitle, resourceName);
 	}
 	
 	/**
@@ -539,7 +522,7 @@ public class DropboxNotification extends EmailNotification
 			{
 				buf.append(" > ");
 				String collectionId = parts[i];
-				rootBuilder.append(collectionId + Entity.SEPARATOR);
+				rootBuilder.append(collectionId).append(Entity.SEPARATOR);
 				try
 				{
 					// get the display name
@@ -556,8 +539,5 @@ public class DropboxNotification extends EmailNotification
 
 		return buf.toString();
 	}
-	
-	public void setSecurityService(SecurityService securityService) {
-		this.securityService = securityService;
-	}
+
 }

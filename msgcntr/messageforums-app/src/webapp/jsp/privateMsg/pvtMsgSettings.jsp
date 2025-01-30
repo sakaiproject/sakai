@@ -28,7 +28,7 @@
 				});
 			</script>
 			<%@ include file="/jsp/privateMsg/pvtMenu.jsp" %>
-			<h1><h:outputText value="#{msgs.pvt_msgs_label} #{msgs.pvt_settings}" /></h1>
+			<h1><h:outputText value="#{msgs.pvt_settings}" /></h1>
 			<h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}"/>
 			
 			    <h:panelGroup styleClass="shorttext" rendered="#{PrivateMessagesTool.instructor && PrivateMessagesTool.messagesandForums}">
@@ -53,7 +53,7 @@
 				onchange="this.form.submit();"
 				valueChangeListener="#{PrivateMessagesTool.processPvtMsgSettingsRevise}"
 				layout="pageDirection"
-				styleClass="checkbox inlineForm">
+				styleClass="checkbox">
 			          <f:selectItem itemValue="yes" itemLabel="#{msgs.pvt_yes}" />
 				  <f:selectItem itemValue="no" itemLabel="#{msgs.pvt_no}" />
 				  <f:selectItem itemValue="default" itemLabel="#{msgs.pvt_default}" />
@@ -72,7 +72,7 @@
                          </h:panelGroup>
                          <h:panelGroup rendered="#{!PrivateMessagesTool.emailCopyDisabled}">
                            <h:selectOneRadio id="email_sendout" value="#{PrivateMessagesTool.sendToEmail}"
-                               layout="pageDirection"  styleClass="checkbox inlineForm">
+                               layout="pageDirection"  styleClass="checkbox">
                              <f:selectItem itemValue="0" itemLabel="#{msgs.pvt_sendemail_0}" />
                              <f:selectItem itemValue="1" itemLabel="#{msgs.pvt_sendemail_1}" />
                              <f:selectItem itemValue="2" itemLabel="#{msgs.pvt_sendemail_2}" />

@@ -6,6 +6,8 @@
 
         <!--  This tool will be made available to the following site types via Site Info > Edit Tools -->
         <category name="sakai.admin"/>
+        <category name="course" />
+        <category name="project" />
 
         <configuration name="functions.require" value="tagservice.manage"/>
     </tool>

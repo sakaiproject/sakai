@@ -1,5 +1,5 @@
-<nav class="Mrphs-siteHierarchy" aria-label="${rloader.sit_toolsubnavigation}">
-    <div class="Mrphs-hierarchy--sites">
+<nav class="sakai-pageNav" aria-label="${rloader.sit_toolsubnavigation}">
+    <ol class="breadcrumb mb-2">
 
     #set ($tabCountBread = 0)
     #if ( $portalBreadCrumbs or $portalPwd ) 
@@ -50,17 +50,11 @@
     #set($index = 0)
     #foreach( $page in $sitePages.pageNavTools )
         #if ( $index == 0 )
-            <span class="Mrphs-hierarchy--siteName $hasSubsitesClass" title="${siteTitle}">
-                <a href="${page.pageResetUrl}">
-                    #if (${isUserSite})
-                        <i class='fa fa-home' aria-hidden="true"></i>
-                    #end
-                    <span class="Mrphs-hierarchy--siteName-label">
-                        ${siteTitleTruncated}
-                    </span>
+            <li class="Mrphs-hierarchy--siteName breadcrumb-item d-md-none" title="${siteTitle}">
+                <a class="text-decoration-none" href="${page.pageResetUrl}">
+                    <small>${siteTitleTruncated}</small>
                 </a>
-            </span>
-            <span class="Mrphs-hierarchy--siteNameSeparator Mrphs-hierarchy--separator"><i class="fa fa-lg fa-angle-right" aria-hidden="true"></i></span>
+            </li>
         #end
         #set($index = $index + 1 )
     #end
@@ -73,7 +67,7 @@
                 <li role="presentation" class="dropdown">
                     #foreach( $page in $sitePages.pageNavTools )
                         #if ( $index == 0 )
-                            <a href="#" class="dropdown-toggle" id="current-site-tab" data-toggle="dropdown" aria-controls="subsites-breadcrumb" aria-expanded="false" title="${siteTitle}">
+                            <a href="#" class="dropdown-toggle" id="current-site-tab" data-bs-toggle="dropdown" aria-controls="subsites-breadcrumb" aria-expanded="false" title="${siteTitle}">
                                 #if (${isUserSite})
                                     <i class='fa fa-home' aria-hidden="true"></i>
                                 #end
@@ -89,7 +83,7 @@
                         #foreach ( $pwd in $portalPwd )
                             #set ($tabCountBread = $tabCountBread + 1)
                             <li>
-                                <a href="${pwd.siteUrl}" title="${pwd.siteTitle}" role="tab" id="breadbrumb-dropdown-item-${$tabCountBread}" data-toggle="tab">
+                                <a href="${pwd.siteUrl}" title="${pwd.siteTitle}" role="tab" id="breadbrumb-dropdown-item-${$tabCountBread}" data-bs-toggle="tab">
                                     <span>#if ( ( ${tabDisplayLabel} == 2 ) && ( ${pwd.shortDescription} ) )${pwd.shortDescription}#else${pwd.siteTitleTrunc}#end</span>
                                     <i class="fa fa-level-up" aria-hidden="true"></i>
                                 </a>
@@ -101,22 +95,28 @@
         </div>
     #end
 
-    </div>
-
-    
     #foreach( $page in $sitePages.pageNavTools )
         #if (${page.current})
-            <a href="${page.pageResetUrl}" title="$rloader.sit_reset" class="Mrphs-hierarchy-item Mrphs-hierarchy--toolName">
-                <span class="Mrphs-breadcrumb--reset-icon fa fa-share" aria-hidden="true"></span>
-                <span class="Mrphs-breadcrumb--icon ${page.menuClass} $!{page.menuClassOverride}"></span>
-                <span class="Mrphs-breadcrumb--toolNameText">${page.pageTitle}</span>
-            </a>
-
-            #if(${sitePages.canManageOverview} && ${page.pageProps.is_home_page})
-                <a href="${sitePages.manageOverviewUrl}" title="$rloader.sit_manover" class="Mrphs-hierarchy-item manage-overview-link d-none d-lg-block">
-                    <span class="fa fa-pencil"></span>$rloader.sit_manover
+            <li class="breadcrumb-item d-md-none">
+                <a href="${page.pageResetUrl}" title="$rloader.sit_reset" class="Mrphs-hierarchy-item Mrphs-hierarchy--toolName text-decoration-none">
+                    <small class="Mrphs-breadcrumb--toolNameText">${page.pageTitle}</small>
                 </a>
-            #end
+            </li>
+                #if(${sitePages.canManageOverview} && ${page.pageProps.is_home_page})
+                    <a href="${sitePages.manageOverviewUrl}" title="$rloader.sit_manover" class="Mrphs-hierarchy-item manage-overview-link d-none d-lg-block">
+                        <span class="fa fa-pencil"></span>$rloader.sit_manover
+                    </a>
+                #end
+                #if(${sitePages.canManageOverviewHome} && ${page.pageProps.is_home_page})
+                    <a href="${sitePages.manageOverviewUrlInHome}" title="$rloader.sit_manover" class="Mrphs-hierarchy-item manage-overview-link d-none d-lg-block ui-priority-secondary">
+                        <span class="fa fa-pencil"></span>$rloader.sit_manover
+                    </a>
+                #end
         #end
     #end
+
+    #*  Role Switcher  *#
+    #parse("/vm/morpheus/snippets/roleSwitch-snippet.vm")
+
+    </ol>
 </nav>

@@ -20,6 +20,7 @@
  **********************************************************************************/
 package uk.ac.cam.caret.sakai.rwiki.tool;
 
+import java.util.Collection;
 import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
@@ -32,6 +33,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.search.api.SearchService;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
@@ -769,6 +771,19 @@ public class RequestScopeSuperBean
 		return (AuthZGroupBean) map.get(key);
 	}
 
+	public Collection<Group> getGroups() {
+		String siteId = toolManager.getCurrentPlacement().getContext();
+		Site site = null;
+		try {
+			site = siteService.getSite(siteId);
+		}catch (IdUnusedException ex) {
+			log.warn(ex.getMessage());
+		}
+		/*Only the groups for the current user*/
+		String user = sessionManager.getCurrentSessionUserId();
+		return site.getGroupsWithMember(user);
+	}
+
 	public AuthZGroupEditBean getRealmEditBean()
 	{
 		String key = "realmEditBean";
@@ -919,15 +934,6 @@ public class RequestScopeSuperBean
 		return configBean;
 	}
 
-	public boolean getLoadAutoSave() {
-		boolean b =  getNameHelperBean().isLoadAutoSave();
-		return b;
-	}
-	public boolean getRemoveAutoSave() {
-		boolean b =  getNameHelperBean().isRemoveAutoSave();
-		return b;
-	}
-	
 	public String getPageRevisionContent(RWikiObject currentRWikiObject,int previousRevision) {
 		RWikiObject  rwo = objectService.getRWikiHistoryObject(currentRWikiObject, previousRevision);
 		if ( rwo == null ) {
@@ -953,4 +959,7 @@ public class RequestScopeSuperBean
 		return (RenderBean) map.get(key);
 	}
 
+	public boolean hasAdminPermission(){
+		return objectService.checkAdminPermission(getCurrentRWikiObject());
+	}
 }

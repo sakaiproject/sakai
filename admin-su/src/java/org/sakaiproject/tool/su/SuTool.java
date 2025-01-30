@@ -171,7 +171,7 @@ public class SuTool
 		// don't try to become yourself
 		if (sakaiSession.getUserEid().equals(validatedUserEid)) {
 			confirm = false;
-			message = msgs.getFormattedMessage("already_that_user", new Object[] {username});
+			message = msgs.getFormattedMessage("already_that_user", username);
 			fc.addMessage("su", new FacesMessage(FacesMessage.SEVERITY_ERROR, message, message));
 			log.warn("[SuTool] Exception: " + message);
 			confirm = false;

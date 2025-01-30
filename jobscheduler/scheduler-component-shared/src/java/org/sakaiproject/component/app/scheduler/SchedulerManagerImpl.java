@@ -92,7 +92,13 @@ public class SchedulerManagerImpl implements ApplicationContextAware, Lifecycle,
   @Setter         private int startSchedulerDelayMinutes = 5;
   @Setter         private SqlService sqlService;
 
-  private TriggerListener globalTriggerListener;
+    /**
+     * -- GETTER --
+     *
+     * @return Returns the globalTriggerListener.
+     */
+    @Getter
+    private TriggerListener globalTriggerListener;
   private LinkedList<TriggerListener> globalTriggerListeners = new LinkedList<>();
   private LinkedList<JobListener> globalJobListeners = new LinkedList<>();
   private Boolean isInitialStartup;
@@ -122,7 +128,7 @@ public class SchedulerManagerImpl implements ApplicationContextAware, Lifecycle,
         }
         catch (ClassNotFoundException e)
         {
-          log.warn("Could not locate class: " + className + " on classpath");
+            log.warn("Could not locate class: {} on classpath", className);
         }
         if (cl != null)
         {
@@ -133,8 +139,7 @@ public class SchedulerManagerImpl implements ApplicationContextAware, Lifecycle,
           }
           else
           {
-            log.warn("Class: " + className
-                + " does not implement quartz Job interface");
+              log.warn("Class: {} does not implement quartz Job interface", className);
           }
         }
       }
@@ -161,7 +166,7 @@ public class SchedulerManagerImpl implements ApplicationContextAware, Lifecycle,
       scheduler = schedFactory.getScheduler();
       scheduler.setJobFactory(jobFactory);
       // skip the rest of the job load if startScheduler is false
-      if (startScheduler == false) {
+      if (!startScheduler) {
     	  log.info("Scheduler is disabled, skipping job load in init()");
     	  return;
       }
@@ -287,7 +292,7 @@ public class SchedulerManagerImpl implements ApplicationContextAware, Lifecycle,
       {
         propertiesInputStream = new FileInputStream(file);
         properties.load(propertiesInputStream);
-        log.info("Loaded extra configuration from: "+ file.getAbsolutePath());
+          log.info("Loaded extra configuration from: {}", file.getAbsolutePath());
       }
       catch (IOException e)
       {
@@ -360,7 +365,7 @@ public class SchedulerManagerImpl implements ApplicationContextAware, Lifecycle,
       }
       catch (Exception e)
       {
-          log.error("Could not read the file " + checkTablesScript + " to determine if this is a new installation. Preconfigured jobs will only be loaded if the server property scheduler.loadjobs is \"true\"", e);
+          log.error("Could not read the file {} to determine if this is a new installation. Preconfigured jobs will only be loaded if the server property scheduler.loadjobs is \"true\"", checkTablesScript, e);
           return false;
       }
       finally
@@ -435,7 +440,7 @@ public class SchedulerManagerImpl implements ApplicationContextAware, Lifecycle,
                       key = cProp.getLabelResourceKey(),
                       val = conf.get(key);
 
-                  log.debug ("job property '" + key + "' is set to '" + val + "'");
+                  log.debug("job property '{}' is set to '{}'", key, val);
 
                   if (val == null && cProp.isRequired())
                   {
@@ -516,7 +521,7 @@ public class SchedulerManagerImpl implements ApplicationContextAware, Lifecycle,
 
   public void setInitialJobSchedules(List<SpringInitialJobSchedule> jobSchedule)
   {
-      if(jobSchedule == null || jobSchedule.size() < 1)
+      if(jobSchedule == null || jobSchedule.isEmpty())
         return;
       
       this.initialJobSchedules = new LinkedList<SpringInitialJobSchedule> ();
@@ -524,17 +529,7 @@ public class SchedulerManagerImpl implements ApplicationContextAware, Lifecycle,
       initialJobSchedules.addAll(jobSchedule);
   }
 
-  /**
-   * @deprecated use {@link #setGlobalTriggerListeners(Set<TriggerListener>)}
-   * @return Returns the globalTriggerListener.
-   */
-  public TriggerListener getGlobalTriggerListener()
-  {
-    return globalTriggerListener;
-  }
-
-  /**
-   * @deprecated use {@link #getGlobalTriggerListeners()}
+    /**
    * @param globalTriggerListener The globalTriggerListener to set.
    */
   public void setGlobalTriggerListener(TriggerListener globalTriggerListener)

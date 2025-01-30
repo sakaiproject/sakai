@@ -718,7 +718,7 @@ public class UsersAction extends PagedResourceActionII
 			{
 				// there are sites to unenroll from, present this to the user
 				int siteLen = sites.size();
-				String siteMsg = siteLen == 1 ? rb.getString("useconrem.site") : rb.getFormattedMessage("useconrem.sites", Integer.valueOf(siteLen));
+				String siteMsg = siteLen == 1 ? rb.getString("useconrem.site") : rb.getFormattedMessage("useconrem.sites", Integer.toString(siteLen));
 				permDelWarning = rb.getFormattedMessage("useconrem.unenrol", user.getEid(), siteMsg);
 			}
 			else
@@ -811,10 +811,12 @@ public class UsersAction extends PagedResourceActionII
 						//Try to import the rest
 						continue;
 					}
-					
-					User newUser = userDirectoryService.addUser(null, user.getEid(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getPassword(), user.getType(), user.getProperties());
-			
-					
+					String userPass = user.getPassword();
+					// If the password form the CSV is null, set an empty string.
+					// Else, trim possible spaces surrounding the password, to avoid login problems.
+					userPass = userPass == null ? "" : userPass.trim();
+
+					userDirectoryService.addUser(null, user.getEid(), user.getFirstName(), user.getLastName(), user.getEmail(), userPass, user.getType(), user.getProperties());
 				}
 				catch (UserAlreadyDefinedException e){
 					//ok, just skip

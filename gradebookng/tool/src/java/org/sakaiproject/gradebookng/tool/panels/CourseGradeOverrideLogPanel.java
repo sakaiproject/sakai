@@ -60,8 +60,9 @@ public class CourseGradeOverrideLogPanel extends BasePanel {
 		// TODO if user has been deleted since rendering the GradebookPage, handle a null here gracefully
 		final GbUser user = this.businessService.getUser(studentUuid);
 		CourseGradeOverrideLogPanel.this.window.setTitle(
-				(new StringResourceModel("heading.coursegradelog", null,
-						new Object[] { user.getDisplayName(), user.getDisplayId() })).getString());
+				(new StringResourceModel("heading.coursegradelog")
+						.setParameters(user.getDisplayName(), user.getDisplayId())).getString())
+				.setEscapeModelStrings(false);
 
 		// get the course grade
 		final CourseGradeTransferBean courseGrade = this.businessService.getCourseGrade(studentUuid);
@@ -98,7 +99,7 @@ public class CourseGradeOverrideLogPanel extends BasePanel {
 		add(emptyLabel);
 
 		// done button
-		add(new GbAjaxLink("done") {
+		add(new GbAjaxLink<>("done") {
 
 			private static final long serialVersionUID = 1L;
 
@@ -113,7 +114,7 @@ public class CourseGradeOverrideLogPanel extends BasePanel {
 	 * Helper to format a grade log entry
 	 *
 	 * @param gradeLog
-	 * @return
+	 * @return formatted string
 	 */
 	private String formatLogEntry(final GbGradeLog gradeLog) {
 
@@ -127,9 +128,9 @@ public class CourseGradeOverrideLogPanel extends BasePanel {
 
 		// if no grade, it is a reset
 		if (StringUtils.isNotBlank(grade)) {
-			rval = new StringResourceModel("coursegrade.log.entry.set", null, new Object[] { logDate, grade, graderDisplayId }).getString();
+			rval = new StringResourceModel("coursegrade.log.entry.set").setParameters(logDate, grade, graderDisplayId).getString();
 		} else {
-			rval = new StringResourceModel("coursegrade.log.entry.unset", null, new Object[] { logDate, graderDisplayId }).getString();
+			rval = new StringResourceModel("coursegrade.log.entry.unset").setParameters(logDate, graderDisplayId).getString();
 		}
 
 		return rval;

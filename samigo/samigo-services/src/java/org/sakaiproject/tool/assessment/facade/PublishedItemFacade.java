@@ -196,11 +196,11 @@ public class PublishedItemFacade extends ItemFacade implements Serializable, Ite
 	   * @param feedbackTypeId
 	   * @param text
 	   */
-	  public void addItemFeedback(String feedbackTypeId, String text) {
+	  public void addItemFeedback(String feedbackTypeId, String text, String value) {
 	    if (this.itemFeedbackSet == null) {
 	      setItemFeedbackSet(new HashSet());
 	    }
-	    this.data.getItemFeedbackSet().add(new PublishedItemFeedback((PublishedItemData)this.data, feedbackTypeId, text));
+	    this.data.getItemFeedbackSet().add(new PublishedItemFeedback((PublishedItemData)this.data, feedbackTypeId, text, value));
 	    this.itemFeedbackSet = this.data.getItemFeedbackSet();
 	  }
 

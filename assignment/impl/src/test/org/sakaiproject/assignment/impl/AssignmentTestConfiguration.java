@@ -51,13 +51,14 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.LearningResourceStoreService;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.hibernate.AssignableUUIDGenerator;
-import org.sakaiproject.messaging.api.MessagingService;
+import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.messaging.api.UserMessagingService;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
+import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.taggable.api.TaggingManager;
 import org.sakaiproject.time.api.TimeService;
@@ -321,11 +322,6 @@ public class AssignmentTestConfiguration {
         return mock(TaskService.class);
     }
 
-    @Bean(name = "org.sakaiproject.messaging.api.MessagingService")
-    public MessagingService messagingService() {
-        return mock(MessagingService.class);
-    }
-
     @Bean(name = "org.sakaiproject.messaging.api.UserMessagingService")
     public UserMessagingService userMessagingService() {
         return mock(UserMessagingService.class);
@@ -334,5 +330,15 @@ public class AssignmentTestConfiguration {
     @Bean(name = "org.sakaiproject.timesheet.api.TimeSheetService")
     public TimeSheetService timeSheetService() {
         return mock(TimeSheetService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.tags.api.TagService")
+    public TagService tagService() {
+        return mock(TagService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.lti.api.LTIService")
+    public LTIService ltiService() {
+        return mock(LTIService.class);
     }
 }

@@ -111,7 +111,7 @@ public class QuestionScorePagerListener
 				  bean.setMaxDisplayedRows(bean.getAudioMaxDisplayedScoreRows());
 			  }
 			  else {
-				  bean.setMaxDisplayedRows(5);
+				  bean.setMaxDisplayedRows(0);
 				  bean.setAudioMaxDisplayedScoreRows(5);
 			  }
 		  }

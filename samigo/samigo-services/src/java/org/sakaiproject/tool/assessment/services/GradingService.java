@@ -35,6 +35,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -63,11 +64,13 @@ import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemFeedback;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
+import org.sakaiproject.tool.assessment.data.dao.grading.SectionGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.StudentGradingSummaryData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
@@ -118,6 +121,9 @@ public class GradingService
   // CALCULATED_QUESTION
   public static final String OPEN_BRACKET = "\\{";
   public static final String CLOSE_BRACKET = "\\}";
+  public static final String AT = "@";
+  public static final String OPEN_PARENTHESIS = "(";
+  public static final String CLOSE_PARENTHESIS = ")";
   public static final String CALCULATION_OPEN = "[["; // not regex safe
   public static final String CALCULATION_CLOSE = "]]"; // not regex safe
   public static final char CALCULATION_AUX_OPEN = '└';
@@ -131,13 +137,15 @@ public class GradingService
    * NOTE: Old regex: ([\\w\\s\\.\\-\\^\\$\\!\\&\\@\\?\\*\\%\\(\\)\\+=#`~&:;|,/<>\\[\\]\\\\\\'\"]+?)
    * was way too complicated.
    */
-  public static final String CALCQ_VAR_FORM_NAME = "[a-zA-Z][^\\{\\}]*?"; // non-greedy (must start wtih alpha)
+  public static final String CALCQ_VAR_FORM_NAME = "[a-zA-ZÀ-ÿ\\u00f1\\u00d1][^\\{\\}]*?"; // non-greedy (must start wtih alpha)
   public static final String CALCQ_VAR_FORM_NAME_EXPRESSION = "("+CALCQ_VAR_FORM_NAME+")";
   public static final String CALCQ_VAR_FORM_NAME_EXPRESSION_FORMATTED = OPEN_BRACKET + CALCQ_VAR_FORM_NAME_EXPRESSION + CLOSE_BRACKET;
+  public static final String CALCQ_SOLUTION_EXPRESSION = OPEN_BRACKET + OPEN_BRACKET + "|" + CLOSE_BRACKET + CLOSE_BRACKET;
 
   // variable match - (?<!\{)\{([^\{\}]+?)\}(?!\}) - means any sequence inside braces without a braces before or after
-  public static final Pattern CALCQ_ANSWER_PATTERN = Pattern.compile("(?<!\\{)" + CALCQ_VAR_FORM_NAME_EXPRESSION_FORMATTED + "(?!\\})");
-  public static final Pattern CALCQ_FORMULA_PATTERN = Pattern.compile(OPEN_BRACKET + CALCQ_VAR_FORM_NAME_EXPRESSION_FORMATTED + CLOSE_BRACKET);
+  public static final Pattern CALCQ_ANSWER_PATTERN = Pattern.compile("(?<!\\{)" + CALCQ_VAR_FORM_NAME_EXPRESSION_FORMATTED + "(?!\\})", Pattern.UNICODE_CHARACTER_CLASS);
+  public static final Pattern CALCQ_FORMULA_PATTERN = Pattern.compile(OPEN_BRACKET + CALCQ_VAR_FORM_NAME_EXPRESSION_FORMATTED + CLOSE_BRACKET, Pattern.UNICODE_CHARACTER_CLASS);
+  public static final Pattern CALCQ_GLOBAL_VARIABLE_PATTERN = Pattern.compile(AT + CALCQ_VAR_FORM_NAME_EXPRESSION + AT, Pattern.UNICODE_CHARACTER_CLASS);
   public static final Pattern CALCQ_FORMULA_SPLIT_PATTERN = Pattern.compile("(" + OPEN_BRACKET + OPEN_BRACKET + CALCQ_VAR_FORM_NAME + CLOSE_BRACKET + CLOSE_BRACKET + ")");
   public static final Pattern CALCQ_CALCULATION_PATTERN = Pattern.compile("\\" + CALCULATION_AUX_OPEN + "([^\\" + CALCULATION_AUX_OPEN + "\\" + CALCULATION_AUX_CLOSE + "]+)\\" + CALCULATION_AUX_CLOSE);
   // SAK-39922 - Support (or at least watch for support) for binary/unary calculated question (-1--1)
@@ -146,6 +154,8 @@ public class GradingService
   // SAK-40942 - Error in calculated questions: the decimal representation .n or n. (where n is a number) does not work
   public static final Pattern CALCQ_FORMULA_ALLOW_POINT_NUMBER = Pattern.compile("([^\\d]|^)([\\.])([\\d])");
   public static final Pattern CALCQ_FORMULA_ALLOW_NUMBER_POINT = Pattern.compile("([\\d])([\\.])([^\\d]|$)");
+  public static final Pattern CALCQ_DOUBLE_OPEN_BRACKET = Pattern.compile(OPEN_BRACKET + OPEN_BRACKET);
+  public static final Pattern CALCQ_DOUBLE_CLOSE_BRACKET = Pattern.compile(CLOSE_BRACKET + CLOSE_BRACKET);
   
   private static final int WRONG_IMAGE_MAP_ANSWER_NON_PARCIAL = -123456789;
   
@@ -155,6 +165,12 @@ public class GradingService
   private List<String> texts;
   @Getter @Setter
   private HashMap<Integer, String> answersMap = new HashMap<Integer, String>();
+  @Getter @Setter
+  private LinkedHashMap<String, String> answersMapValues = new LinkedHashMap<String, String>();
+  @Getter @Setter
+  private LinkedHashMap<String, String> globalanswersMapValues = new LinkedHashMap<String, String>();
+  @Getter @Setter
+  private LinkedHashMap<String, String> mainvariablesWithValues = new LinkedHashMap<String, String>();
   private static final int MAX_ERROR_TRIES = 100;
 	  
   /**
@@ -172,7 +188,7 @@ public class GradingService
     } catch (Exception e) {
       log.warn("Could not retrieve total scores for published assessment {}", publishedId, e);
     }
-    return Collections.<AssessmentGradingData>emptyList();
+    return Collections.emptyList();
   }
   
  /**
@@ -412,9 +428,8 @@ public class GradingService
 
     boolean toGradebook = false;
     EvaluationModelIfc e = pub.getEvaluationModel();
-    if ( e!=null ){
-      String toGradebookString = e.getToGradeBook();
-      toGradebook = toGradebookString.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString());
+    if (e != null) {
+      toGradebook = StringUtils.equalsAny(e.getToGradeBook(), EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString(), EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString());
     }
     return (forGrade && toGradebook);
   }
@@ -498,19 +513,15 @@ public class GradingService
   /**
    * Get the last submission for a student per assessment
    */
-  public Map getSubmitData(String publishedId, String agentId, Integer scoringoption, String assessmentGradingId) {
-
-    boolean onlyIncorrect = true;
+  public Map getSubmitData(String publishedId, String agentId, Integer scoringoption, String assessmentGradingId)
+  {
     try {
       Long gradingId = null;
-      if (assessmentGradingId != null) {
-        gradingId = Long.valueOf(assessmentGradingId);
-      }
-      //return (Map) PersistenceService.getInstance().
+      if (assessmentGradingId != null) gradingId = Long.valueOf(assessmentGradingId);
       return PersistenceService.getInstance().
         getAssessmentGradingFacadeQueries().getSubmitData(Long.valueOf(publishedId), agentId, scoringoption, gradingId);
     } catch (Exception e) {
-      log.error("Exception whilst getting submit data: {}", e.toString());
+      log.error(e.getMessage(), e);
       return new HashMap();
     }
   }
@@ -785,7 +796,7 @@ public class GradingService
 	  return getHighestSubmittedAssessmentGrading(publishedAssessmentId, agentId, null);
   }
   
-  public Set<ItemGradingData> getItemGradingSet(String assessmentGradingId){
+  public Set getItemGradingSet(String assessmentGradingId){
     try{
       return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
                getItemGradingSet(Long.valueOf(assessmentGradingId));
@@ -1339,29 +1350,32 @@ public class GradingService
       log.warn("publishedAssessment is null or publishedAssessment.getEvaluationModel() is null");
       return;
     }
-    Integer scoringType = pub.getEvaluationModel().getScoringType();
-    if (updateGradebook(data, pub)){
-      AssessmentGradingData d = data; // data is the last submission
-      // need to decide what to tell gradebook
-      if ((scoringType).equals(EvaluationModelIfc.HIGHEST_SCORE)) {
-        // If this next call comes back null, don't overwrite our real AG with a null one
-        final AssessmentGradingData highestAG = getHighestSubmittedAssessmentGrading(pub.getPublishedAssessmentId().toString(), data.getAgentId());
-        if (highestAG != null) {
-          d = highestAG;
+
+    if (StringUtils.equalsAny(pub.getEvaluationModel().getToGradeBook(), EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString(), EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString())) {
+      Integer scoringType = pub.getEvaluationModel().getScoringType();
+      if (updateGradebook(data, pub)) {
+        AssessmentGradingData d = data; // data is the last submission
+        // need to decide what to tell gradebook
+        if ((scoringType).equals(EvaluationModelIfc.HIGHEST_SCORE)) {
+          // If this next call comes back null, don't overwrite our real AG with a null one
+          final AssessmentGradingData highestAG = getHighestSubmittedAssessmentGrading(pub.getPublishedAssessmentId().toString(), data.getAgentId());
+          if (highestAG != null) {
+            d = highestAG;
+          }
         }
-      }
-      // Send the average score if average was selected for multiple submissions
-      else if (scoringType.equals(EvaluationModelIfc.AVERAGE_SCORE)) {
-        // status = 5: there is no submission but grader update something in the score page
-        if(data.getStatus() == AssessmentGradingData.NO_SUBMISSION) {
-          d.setFinalScore(data.getFinalScore());
-        } else {
-          Double averageScore = PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
-            getAverageSubmittedAssessmentGrading(pub.getPublishedAssessmentId(), data.getAgentId());
-          d.setFinalScore(averageScore);
+        // Send the average score if average was selected for multiple submissions
+        else if (scoringType.equals(EvaluationModelIfc.AVERAGE_SCORE)) {
+          // status = 5: there is no submission but grader update something in the score page
+          if(data.getStatus() == AssessmentGradingData.NO_SUBMISSION) {
+            d.setFinalScore(data.getFinalScore());
+          } else {
+            Double averageScore = PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
+              getAverageSubmittedAssessmentGrading(pub.getPublishedAssessmentId(), data.getAgentId());
+            d.setFinalScore(averageScore);
+          }
         }
+        notifyGradebook(d, pub);
       }
-      notifyGradebook(d, pub);
     }
   }
 
@@ -1607,8 +1621,6 @@ public class GradingService
 
     	answer.setPartialCredit(score);
     	return score;
-    } else {
-      data.setIsCorrect(Boolean.TRUE);
     }
     return answer.getScore();
   }
@@ -1622,7 +1634,7 @@ public class GradingService
 	  if (!eventLogDataList.isEmpty()) {
 		  EventLogData eventLogData= (EventLogData) eventLogDataList.get(0);
 		  //will do the i18n issue later.
-		  eventLogData.setErrorMsg("No Errors (Auto submit)");
+		  eventLogData.setErrorMsg("no_error_auto_submit");
 		  final Date endDate = adata.getSubmittedDate() != null ? adata.getSubmittedDate() : new Date();
 		  eventLogData.setEndDate(endDate);
 		  if(eventLogData.getStartDate() != null) {
@@ -1631,7 +1643,7 @@ public class GradingService
 			  eventLogData.setEclipseTime(eclipseTime); 
 		  } else {
 			  eventLogData.setEclipseTime(null); 
-			  eventLogData.setErrorMsg("Error during auto submit");
+			  eventLogData.setErrorMsg("error_auto_submit");
 		  }
 		  eventLogFacade.setData(eventLogData);
 		  eventService.saveOrUpdateEventLog(eventLogFacade);
@@ -1658,11 +1670,11 @@ public class GradingService
     // If the assessment is published to the gradebook, make sure to update the scores in the gradebook
     String toGradebook = pub.getEvaluationModel().getToGradeBook();
 
-    org.sakaiproject.grading.api.GradingService g = null;
+    org.sakaiproject.grading.api.GradingService gradingService = null;
     boolean integrated = IntegrationContextFactory.getInstance().isIntegrated();
     if (integrated)
     {
-      g = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().
+      gradingService = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().
         getBean("org.sakaiproject.grading.api.GradingService");
     }
 
@@ -1670,8 +1682,9 @@ public class GradingService
       IntegrationContextFactory.getInstance().getGradebookServiceHelper();
 
     PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
-	String currentSiteId = publishedAssessmentService.getPublishedAssessmentSiteId(pub.getPublishedAssessmentId().toString());
-    if (toGradebook.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())){
+    String currentSiteId = publishedAssessmentService.getPublishedAssessmentSiteId(pub.getPublishedAssessmentId().toString());
+
+    if (StringUtils.equalsAny(toGradebook, EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString(), EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString())) {
         if(log.isDebugEnabled()) log.debug("Attempting to update a score in the gradebook");
 
     // add retry logic to resolve deadlock problem while sending grades to gradebook
@@ -1680,7 +1693,12 @@ public class GradingService
     int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
     while (retryCount > 0){
     	try {
-    		gbsHelper.updateExternalAssessmentScore(data, g);
+    		if (EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString().equals(toGradebook))
+    			gbsHelper.updateExternalAssessmentScore(data, gradingService);
+    		else if (EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString().equals(toGradebook)) {
+    			Long gradebookItemId = Long.valueOf(pub.getAssessmentToGradebookNameMetaData());
+    			gbsHelper.updateExternalAssessmentScore(data, gradingService, gradebookItemId);
+    		}
     		retryCount = 0;
     	}
       catch (org.sakaiproject.grading.api.AssessmentNotFoundException ante) {
@@ -1708,7 +1726,7 @@ public class GradingService
         	Long publishedAssessmentId = data.getPublishedAssessmentId();
         	String agent = data.getAgentId();
         	String comment = data.getComments();
-        	gbsHelper.updateExternalAssessmentComment(publishedAssessmentId, agent, comment, g);
+        	gbsHelper.updateExternalAssessmentComment(publishedAssessmentId, agent, comment, gradingService);
     }
     catch (Exception ex) {
           log.warn("Error sending comments to gradebook: {}", ex.getMessage());
@@ -2294,7 +2312,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  BigDecimal correctAnswer = new BigDecimal(getAnswerExpression(allAnswerText));
 	  
 	  // Determine if the acceptable variance is a constant or a % of the answer
-	  String varianceString = allAnswerText.substring(allAnswerText.indexOf("|")+1, allAnswerText.indexOf(","));
+	  String varianceString = allAnswerText.substring(allAnswerText.lastIndexOf("|")+1, allAnswerText.lastIndexOf(","));
 	  BigDecimal acceptableVariance;
 	  if (varianceString.contains("%")){
 		  double percentage = Double.valueOf(varianceString.substring(0, varianceString.indexOf("%")));
@@ -2316,8 +2334,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  BigDecimal answerDiff = (correctAnswer.subtract(userAnswer));
 	  boolean closeEnough = (answerDiff.abs().compareTo(acceptableVariance.abs()) <= 0);
 	  if (closeEnough){
-		  totalScore += itemdata.getScore();
-		  data.setIsCorrect(Boolean.TRUE);
+		  totalScore += itemdata.getScore(); 
 	  }	
 	  return totalScore;
 	  
@@ -2339,7 +2356,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  BigDecimal correctAnswer = new BigDecimal(getAnswerExpression(allAnswerText));
 
 	  // Determine if the acceptable variance is a constant or a % of the answer
-	  String varianceString = allAnswerText.substring(allAnswerText.indexOf("|")+1, allAnswerText.indexOf(","));
+	  String varianceString = allAnswerText.substring(allAnswerText.lastIndexOf("|")+1, allAnswerText.lastIndexOf(","));
 	  BigDecimal acceptableVariance;
 	  if (varianceString.contains("%")){
 		  double percentage = Double.valueOf(varianceString.substring(0, varianceString.indexOf("%")));
@@ -2732,21 +2749,28 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    * @param partString
    * @param questionString
    * @param textString
+   * @param responseString
+   * @param pointsString
    * @param rationaleString
    * @param itemGradingCommentsString
    * @param useridMap
    * @param responseCommentString
+   * @param isOneSelectionType
    * @return a list of responses or null if there are none
    */
-  public List getExportResponsesData(String publishedAssessmentId, boolean anonymous, String audioMessage, String fileUploadMessage, String noSubmissionMessage, boolean showPartAndTotalScoreSpreadsheetColumns, String poolString, String partString, String questionString, String textString, String rationaleString, String itemGradingCommentsString, Map useridMap, String responseCommentString) {
+  public List getExportResponsesData(String publishedAssessmentId, boolean anonymous, String audioMessage, String fileUploadMessage, String noSubmissionMessage, boolean showPartAndTotalScoreSpreadsheetColumns, String poolString, String partString, String questionString, String textString, String responseString, String pointsString, String rationaleString, String itemGradingCommentsString, Map useridMap, String responseCommentString, boolean isOneSelectionType) {
 	  List list = null;
 	    try {
 	    	list = PersistenceService.getInstance().
-	        getAssessmentGradingFacadeQueries().getExportResponsesData(publishedAssessmentId, anonymous,audioMessage, fileUploadMessage, noSubmissionMessage, showPartAndTotalScoreSpreadsheetColumns, poolString, partString, questionString, textString, rationaleString, itemGradingCommentsString, useridMap, responseCommentString);
+	        getAssessmentGradingFacadeQueries().getExportResponsesData(publishedAssessmentId, anonymous,audioMessage, fileUploadMessage, noSubmissionMessage, showPartAndTotalScoreSpreadsheetColumns, poolString, partString, questionString, textString, responseString, pointsString, rationaleString, itemGradingCommentsString, useridMap, responseCommentString, isOneSelectionType);
 	    } catch (Exception e) {
 	      log.error(e.getMessage(), e);
 	    }
 	    return list;
+  }
+
+  public List getExportResponsesData(String publishedAssessmentId, boolean anonymous, String audioMessage, String fileUploadMessage, String noSubmissionMessage, boolean showPartAndTotalScoreSpreadsheetColumns, String poolString, String partString, String questionString, String textString, String responseString, String pointsString, String rationaleString, String itemGradingCommentsString, Map useridMap, String responseCommentString) {
+    return this.getExportResponsesData(publishedAssessmentId, anonymous, audioMessage, fileUploadMessage, noSubmissionMessage, showPartAndTotalScoreSpreadsheetColumns, poolString, partString, questionString, textString, responseString, pointsString, rationaleString, itemGradingCommentsString, useridMap, responseCommentString, false);
   }
   
   private void removeUnsubmittedAssessmentGradingData(AssessmentGradingData data){
@@ -2787,7 +2811,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
   private Map<Integer, String> getCalculatedAnswersMap(ItemGradingData itemGrading, ItemDataIfc item, int calcQuestionAnswerSequence ) {
       // return value from extractCalcQAnswersArray is not used, calculatedAnswersMap is populated by this call
       if (calcQuestionAnswerSequence == 1) {
-          extractCalcQAnswersArray(answersMap, item, itemGrading.getAssessmentGradingId(), itemGrading.getAgentId());
+          extractCalcQAnswersArray(answersMap, answersMapValues, globalanswersMapValues, mainvariablesWithValues, item, itemGrading.getAssessmentGradingId(), itemGrading.getAgentId());
       }
       return answersMap;
   }
@@ -2809,7 +2833,10 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
       for (Iterator<String> iterator = calculations.iterator(); iterator.hasNext();) {
         String calc = iterator.next();
         if (!StringUtils.containsAny(calc, "{}()+-*/")) {
-            iterator.remove();
+            //checking global variable pattern
+            if (!CALCQ_GLOBAL_VARIABLE_PATTERN.matcher(calc).find()) {
+                iterator.remove();
+            }
         }
       }
       return calculations;
@@ -2848,6 +2875,24 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    */
   public List<String> extractVariables(String text) {
     return extractCalculatedQuestionKeyFromItemText(text, CALCQ_ANSWER_PATTERN);
+  }
+
+  /**
+   * extractGlobalVariables() is a utility function for Calculated Questions.  It 
+   * takes one parameter, which is a block of text, and looks for any variable 
+   * names that are encoded in the text.  A global variable name is enclosed in @ @.  
+   * The values of the variable are encoded elsewhere.
+   * <p>For example, if the passed parameter is <code>[[@a@ + @b@]] = {{c}}</code>, 
+   * the resulting list would contain two entries: strings of "a" and "b"
+   * <p>Global Variables must begin with an alpha, but subsequent character can be 
+   * alpha-numeric.
+   * <p>Note - a formula, encoded as {{ }}, will not be mistaken for a variable.
+   * @param text content to be searched
+   * @return a list of matching variable names. If no global variables are found, the 
+   * list will be empty
+   */
+  public List<String> extractGlobalVariables(String text) {
+    return extractCalculatedQuestionKeyFromItemText(text, CALCQ_GLOBAL_VARIABLE_PATTERN);
   }
 
   /**
@@ -2938,6 +2983,32 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
       return segments;
   }
 
+  /**
+   * CALCULATED_QUESTION
+   * Takes the feedback and breaks it into segments, based on the location
+   * of formula names. One formula would give two segments, two formulas gives
+   * three segments, etc.
+   * <p>Note - in this context, it would probably be easier if any variable value
+   * substitutions have occurred before the breakup is done; otherwise,
+   * each segment will need to have substitutions done.
+   * @param feedback string to be broken up
+   * @return the original string, broken up based on the formula name delimiters
+   */
+  protected List<String> extractFeedbackSegments(String feedback) {
+      List<String> segments = new ArrayList<>();
+      Matcher matcher = CALCQ_FORMULA_SPLIT_PATTERN.matcher(feedback);
+      int lastIndex = 0;
+      while (matcher.find()) {
+          String segment = feedback.substring(lastIndex, matcher.start());
+          segments.add(segment);
+          segments.add(matcher.group().replaceAll(CALCQ_SOLUTION_EXPRESSION, ""));
+          lastIndex = matcher.end();
+      }
+      segments.add(feedback.substring(lastIndex));
+
+      return segments;
+  }
+
   
   /**
    * CALCULATED_QUESTION
@@ -2969,6 +3040,43 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  String formattedNumber = formatter.format(bdx);
 
 	  return formattedNumber.replace(",",".");
+  }
+
+  /**
+   * CALCULATED_QUESTION
+   * toScientificNotation() Takes a string representation of a number and returns
+   * a string representation of that number, in scientific notation.
+   * Numbers like 100, 0.01 will not be formatted (see values of MAX_THRESHOLD and MIN_THRESHOLD)
+   * @param numberStr
+   * @param decimalPlaces
+   * @param stringCalculate
+   * @return processed number string
+   */
+  public String toScientificNotation(String numberStr, String stringCalculate, int decimalPlaces){
+
+         BigDecimal bdx = new BigDecimal(numberStr);
+         bdx.setScale(decimalPlaces,RoundingMode.HALF_UP);
+
+         NumberFormat formatter;
+
+         if ((bdx.abs().compareTo(DEFAULT_MAX_THRESHOLD) >= 0 || bdx.abs().compareTo(DEFAULT_MIN_THRESHOLD) <= 0
+        || numberStr.contains("e") || numberStr.contains("E") )
+           && bdx.doubleValue() != 0) {
+                 formatter = new DecimalFormat(FORMAT_MASK);
+         } else {
+             if (!numberStr.equals(stringCalculate) && ("0".equals(stringCalculate))) {
+                 formatter = new DecimalFormat(FORMAT_MASK);
+             } else {
+                 formatter = new DecimalFormat("0");
+             }
+         }
+
+         formatter.setRoundingMode(RoundingMode.HALF_UP);
+         formatter.setMaximumFractionDigits(decimalPlaces);
+
+         String formattedNumber = formatter.format(bdx);
+
+         return formattedNumber.replace(",",".");
   }
   
   /**
@@ -3027,10 +3135,33 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    * Samigo expression parser, which should never happen as this is validated
    * when the question is saved, or if a divide by zero error occurs.
    */
-  private Map<Integer, String> calculateFormulaValues(Map<String, String> variables, ItemDataIfc item) throws Exception {
-      Map<Integer, String> values = new HashMap<>();
+  private ArrayList<Map> calculateFormulaValues(Map<String, String> variables, ItemDataIfc item) throws Exception {
+      Map<Integer, String> values = new LinkedHashMap<>();
+      LinkedHashMap<String, String> solutionVariables = new LinkedHashMap<>();
+      LinkedHashMap<String, String> globalVariables = new LinkedHashMap<>();
+      ArrayList<Map> maps = new ArrayList<Map>();
       String instructions = item.getInstruction();
       List<String> formulaNames = this.extractFormulas(instructions);
+      // first adding from instructions
+      List<String> globalVariableNames = this.extractGlobalVariables(instructions);
+      // second adding from global variables addeButNotExtracted
+      List<ItemTextIfc> items = item.getItemTextArray();
+      for (ItemTextIfc itemText : items) {
+          if(itemText.isAddedButNotExtracted()) {
+              globalVariableNames.add(itemText.getText());
+          }
+      }
+
+      for (int i = 0; i < globalVariableNames.size(); i++) {
+          String globalVariableName = globalVariableNames.get(i);
+          String longFormula = replaceFormulaNameWithFormula(item, globalVariableName);
+          // remove "|0,0" from longFormula if present
+          if (longFormula.endsWith("|0,0")) {
+            longFormula = longFormula.substring(0, longFormula.length() - 4);
+          }
+          globalVariables.put(globalVariableName, longFormula);
+      }
+
       for (int i = 0; i < formulaNames.size(); i++) {
           String formulaName = formulaNames.get(i);
           String longFormula = replaceFormulaNameWithFormula(item, formulaName); // {a}+{b}|0.1,1
@@ -3041,49 +3172,83 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
           int decimalPlaces = getAnswerDecimalPlaces(answerData);
           
           String substitutedFormula = replaceMappedVariablesWithNumbers(formula,variables);
+          substitutedFormula = checkingEmptyGlobalVariables(substitutedFormula, variables, globalVariables);
+
           String formulaValue = processFormulaIntoValue(substitutedFormula, decimalPlaces);
           values.put(i + 1, formulaValue + answerData); // later answerData will be used for scoring
+          solutionVariables.put(formulaName, formulaValue + answerData); // later answerData will be used for scoring
       }
-      return values;
+      maps.add(values);
+      maps.add(solutionVariables);
+      maps.add(globalVariables);
+      return maps;
   }
 
   /**
    * CALCULATED_QUESTION
    * This is a busy method. It does three things:
    * <br>1. It removes the answer expressions ie. {{x+y}} from the question text. This value is
+   * <br>1. It removes the answer expressions ie. {{x+y}} from the question text and correct/incorrect feedback. These values are
    *    returned in the ArrayList texts. This format is necessary so that input boxes can be
    *    placed in the text where the {{..}}'s appear.
    * <br>2. It will call methods to swap out the defined variables with randomly generated values
    *    within the ranges defined by the user.
+   *    within the ranges defined by the user, but before we check recursively if there are any global variable to change with its formula.
    * <br>3. It populates the HashMap answerList with the calculated answers in sequence. It will
    *    parse and calculate what each answer needs to be.
    * <p>Note: If a divide by zero occurs, we change the random values and try again. It gets limited chances to
    *    get valid values and then will return "infinity" as the answer.
    * @param answerList is cleared and filled with sequential answers to the question
+   * @param answerListValues is cleared and filled with key answers to the question
+   * @param globalanswersMapValues is cleared and filled with global variables to the question
+   * @param mainvariablesWithValues is cleared and filled with the variables to the question
    * @return ArrayList of the pieces of text to display surrounding input boxes
    */
-  public List<String> extractCalcQAnswersArray(Map<Integer, String> answerList, ItemDataIfc item, Long gradingId, String agentId) {
+  public List<List<String>> extractCalcQAnswersArray(Map<Integer, String> answerList, Map<String, String> answerListValues, Map<String, String> globalanswersMapValues, Map<String, String> mainvariablesWithValues, ItemDataIfc item, Long gradingId, String agentId) {
       boolean hasErrors = true;
       Map<String, String> variableRangeMap = buildVariableRangeMap(item);
       List<String> instructionSegments = new ArrayList<>(0);
+      List<String> correctFeedbackSegments = new ArrayList<>(0);
+      List<String> incorrectFeedbackSegments = new ArrayList<>(0);
+
       answerList.clear();
+      answerListValues.clear();
+      globalanswersMapValues.clear();
+      mainvariablesWithValues.clear();
 
       int attemptCount = 1;
       while (hasErrors && attemptCount <= MAX_ERROR_TRIES) {
           instructionSegments.clear();
           Map<String, String> variablesWithValues = determineRandomValuesForRanges(variableRangeMap,item.getItemId(), gradingId, agentId, attemptCount);
+          mainvariablesWithValues.putAll(variablesWithValues);
           try {
-              Map<Integer, String> evaluatedFormulas = calculateFormulaValues(variablesWithValues, item);
-              answerList.putAll(evaluatedFormulas);
+              ArrayList<Map> evaluatedFormulas = calculateFormulaValues(variablesWithValues, item);
+              answerList.putAll(evaluatedFormulas.get(0));
+              answerListValues.putAll(evaluatedFormulas.get(1));
+              globalanswersMapValues.putAll(evaluatedFormulas.get(2));
               // replace the variables in the text with values
               String instructions = item.getInstruction();
+              String correctFeedback = item.getCorrectItemFeedback();
+              String incorrectFeedback = item.getInCorrectItemFeedback();
               instructions = replaceMappedVariablesWithNumbers(instructions, variablesWithValues);
+              // return instructions without any variable
+              instructions = checkingEmptyGlobalVariables(instructions, variablesWithValues, globalanswersMapValues);
+              String correctFeedbackNumbers = replaceMappedVariablesWithNumbers(correctFeedback, variablesWithValues);
+              correctFeedbackNumbers = checkingEmptyGlobalVariables(correctFeedbackNumbers, variablesWithValues, globalanswersMapValues);
+              String incorrectFeedbackNumbers = replaceMappedVariablesWithNumbers(incorrectFeedback, variablesWithValues);
+              incorrectFeedbackNumbers = checkingEmptyGlobalVariables(incorrectFeedbackNumbers, variablesWithValues, globalanswersMapValues);
               // then replace the calculations with values (must happen AFTER the variable replacement)
               try {
                   instructions = replaceCalculationsWithValues(instructions, 5); // what decimal precision should we use here?
+                  String correctFeedbackValue = replaceCalculationsWithValues(correctFeedbackNumbers, 5);
+                  String incorrectFeedbackValue = replaceCalculationsWithValues(incorrectFeedbackNumbers, 5);
                   // if could not process the calculation into a result then throws IllegalStateException which will be caught below and cause the numbers to regenerate
                   // only pull out the segments if the formulas worked
                   instructionSegments = extractInstructionSegments(instructions);
+                  correctFeedbackSegments = extractFeedbackSegments(correctFeedbackValue);
+                  incorrectFeedbackSegments = extractFeedbackSegments(incorrectFeedbackValue);
+                  item.updateFeedbackByType(PublishedItemFeedback.CORRECT_FEEDBACK, correctFeedback, correctFeedbackValue);
+                  item.updateFeedbackByType(PublishedItemFeedback.INCORRECT_FEEDBACK, incorrectFeedback, incorrectFeedbackValue);
                   hasErrors = false;
               } catch (SamigoExpressionError e1) {
                   log.warn("Samigo calculated item ({}) calculation invalid: {}", item.getItemId(), e1.get());
@@ -3094,9 +3259,62 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
               attemptCount++;
           }
       }
-      return instructionSegments;
+      return List.of(instructionSegments, correctFeedbackSegments, incorrectFeedbackSegments);
   }
-  
+
+  /**
+   * CALCULATED_QUESTION
+   * Check if the solution is being used on the feedback. Replacing the solution {{w}} on feedback with numbers
+   * @param answerListValues the key answers
+   * @param item
+   * @param texts ArrayList of the pieces of text
+   */
+  public void replaceSolutionOnFeedbackWithNumbers(LinkedHashMap<String, String> answerListValues, ItemDataIfc item, List<List<String>> texts) {
+	  String correctFeedback = item.getCorrectItemFeedback();
+	  String incorrectFeedback = item.getInCorrectItemFeedback();
+
+	  for (int i=1; i<texts.size(); i++) {
+		  List<String> parts = texts.get(i);
+		  for (int j=0; j<parts.size(); j++) {
+			  String map = answerListValues.get(parts.get(j));
+			  if (map != null) {
+				  String num = map.substring(0, map.lastIndexOf("|"));
+				  parts.set(j, num);
+			  }
+		  }
+		  if (i == 1) {
+			  item.updateFeedbackByType(PublishedItemFeedback.CORRECT_FEEDBACK, correctFeedback, parts.stream().collect(Collectors.joining("")));
+		  } else if (i == 2) {
+			  item.updateFeedbackByType(PublishedItemFeedback.INCORRECT_FEEDBACK, incorrectFeedback, parts.stream().collect(Collectors.joining("")));
+		  }
+	  }
+  }
+
+  /**
+   * CALCULATED_QUESTION
+   * Recursive method for cleaning global variables and replace with numbers.
+   * @param substitutedFormulaStr
+   * @param variablesWithValues
+   * @param globalAnswersMap
+   * @return
+   */
+  public String checkingEmptyGlobalVariables (String substitutedFormulaStr, Map<String, String> variablesWithValues, Map<String, String> globalAnswersMap) {
+      if (StringUtils.isEmpty(substitutedFormulaStr)) {
+          return substitutedFormulaStr;
+      }
+
+      if (!globalAnswersMap.isEmpty()) {
+          Matcher matcher = CALCQ_GLOBAL_VARIABLE_PATTERN.matcher(substitutedFormulaStr);
+          while (matcher.find()) {
+              substitutedFormulaStr = this.replaceGlobalVariablesWithFormulas(substitutedFormulaStr, globalAnswersMap);
+              substitutedFormulaStr = checkingEmptyGlobalVariables(substitutedFormulaStr, variablesWithValues, globalAnswersMap);
+              matcher = CALCQ_GLOBAL_VARIABLE_PATTERN.matcher(substitutedFormulaStr);
+          }
+      }
+      substitutedFormulaStr = this.replaceMappedVariablesWithNumbers(substitutedFormulaStr, variablesWithValues);
+      return substitutedFormulaStr;
+  }
+
   /**
    * CALCULATED_QUESTION
    * This returns the decimal places value in the stored answer data.
@@ -3116,7 +3334,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    * @return
    */
   private String getAnswerData(String allAnswerText) {
-      String answerData = allAnswerText.substring(allAnswerText.indexOf("|"), allAnswerText.length());
+      String answerData = allAnswerText.substring(allAnswerText.lastIndexOf("|"), allAnswerText.length());
       return answerData;
   }
 
@@ -3128,7 +3346,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    * @return
    */
   private String getAnswerExpression(String allAnswerText) {
-	  String answerExpression = allAnswerText.substring(0, allAnswerText.indexOf("|"));
+	  String answerExpression = allAnswerText.substring(0, allAnswerText.lastIndexOf("|"));
 	  return answerExpression;
   }
 
@@ -3142,14 +3360,19 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  String defaultVariance = "0.001";
 	  String defaultDecimal = "3";
 	  
-	  if (!allAnswerText.contains("|")) {
-		  if (!allAnswerText.contains(","))
-			  allAnswerText = allAnswerText.concat("|"+defaultVariance+","+defaultDecimal);
-		  else
-			  allAnswerText = allAnswerText.replace(",","|"+defaultVariance+",");
-      }
-	  if (!allAnswerText.contains(","))
-		  allAnswerText = allAnswerText.concat(","+defaultDecimal);
+	  int lastIndex = allAnswerText.lastIndexOf("|");
+	  if (lastIndex == -1) {
+	      // No '|' found, check for ',' and add default values accordingly
+	      if (!allAnswerText.contains(","))
+	          allAnswerText = allAnswerText.concat("|"+defaultVariance+","+defaultDecimal);
+	      else
+	          allAnswerText = allAnswerText.replace(",","|"+defaultVariance+",");
+	  } else {
+	      // '|' found, check for ',' after the last '|'
+	      String afterLastPipe = allAnswerText.substring(lastIndex + 1);
+	      if (!afterLastPipe.contains(","))
+	          allAnswerText = allAnswerText.concat(","+defaultDecimal);
+	  }
 	  
 	  return allAnswerText;
   }
@@ -3197,8 +3420,8 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    * the original answerExpression 
    */
   public String replaceMappedVariablesWithNumbers(String expression, Map<String, String> variables) {
-      if (expression == null) {
-          expression = "";
+      if (StringUtils.isEmpty(expression)) {
+          return expression;
       }
       
       if (variables == null) {
@@ -3239,6 +3462,43 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
               }
 
               // perform substitution, then look for the next instance of current variable
+              expression = prefix + replacementValue + suffix;
+              index = expression.indexOf(name);
+          }
+      }
+      return expression;
+  }
+
+  /**
+   * CALCULATED_QUESTION
+   * replaceGlobalVariablesWithFormulas() takes a string and substitutes any global variable
+   * names found with the value of the variable. Global variables look like @a@, the name of
+   * that global variable is "a", and the value of that variable is in globalVariables
+   * @param expression - the string being substituted into
+   * @param globalVariables - Map key is the global variable name, value is what will be
+   * substituted into the expression.
+   * @return a string with values substituted. If expression is null,
+   * returns a blank string (i.e ""). If globalVariables is null, returns
+   * the original expression 
+   */
+  public String replaceGlobalVariablesWithFormulas(String expression, Map<String, String> globalVariables) {
+      if (StringUtils.isEmpty(expression)) {
+          return expression;
+      }
+      if (globalVariables == null) {
+          globalVariables = new HashMap<>();
+      }
+      for (Map.Entry<String, String> entry : globalVariables.entrySet()) {
+          String name = AT + entry.getKey() + AT;
+          String value = entry.getValue();
+
+          int index = expression.indexOf(name);
+          while (index > -1) {
+              String prefix = expression.substring(0, index);
+              String suffix = expression.substring(index + name.length());
+              // We should respect all global variable value as a compact unit
+              // Ex: sumaX2= {x1}^2+{x2}^2+{x3}^2+{x4}^2+{x5}^2 then @sumaX2@/5 should be (@sumaX2@)/5
+              String replacementValue = OPEN_PARENTHESIS + value + CLOSE_PARENTHESIS;
               expression = prefix + replacementValue + suffix;
               index = expression.indexOf(name);
           }
@@ -3737,16 +3997,16 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    * Choices should be given negative score values if one wants them
    * to lose points for the wrong choice.
    */
-  public double getAnswerScoreMCQ(ItemGradingData data, Map publishedAnswerHash) {
-
-    AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(data.getPublishedAnswerId());
-    if (answer == null || answer.getScore() == null) {
-      return 0d;
-    } else if (answer.getIsCorrect()) { // instead of using answer score Item score needs to be used here
-      data.setIsCorrect(Boolean.TRUE);
-      return (answer.getItem().getScore()); //--mustansar
-    }
-    return (answer.getItem().getScore() * answer.getPartialCredit()) / 100d;
+  public double getAnswerScoreMCQ(ItemGradingData data, Map publishedAnswerHash)
+  {
+	  AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(data.getPublishedAnswerId());
+	  if (answer == null || answer.getScore() == null) {
+		  return 0d;
+	  }
+	  else if (answer.getIsCorrect()){ // instead of using answer score Item score needs to be used here 
+		  return (answer.getItem().getScore()); //--mustansar 
+	  }
+	  return (answer.getItem().getScore()*answer.getPartialCredit())/100d;
   }
   
   /**
@@ -3824,6 +4084,27 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
 			  getUnSubmittedAssessmentGradingDataList(publishedAssessmentId, agentIdString);
   }
+
+	public SectionGradingData getSectionGradingData(Long assessmentGradingId, Long sectionId, String agentId)
+	{
+		try {
+			return PersistenceService.getInstance()
+				.getAssessmentGradingFacadeQueries()
+				.getSectionGradingData(assessmentGradingId, sectionId, agentId);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new Error(e);
+		}
+	}
+
+	public void saveSectionGrading(SectionGradingData sgd)
+	{
+		try {
+			PersistenceService.getInstance().getAssessmentGradingFacadeQueries().saveSectionGrading(sgd);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
+	}
 }
 
 /**

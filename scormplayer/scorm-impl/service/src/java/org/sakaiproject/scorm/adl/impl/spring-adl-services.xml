@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="org.sakaiproject.scorm.adl.ADLConsultant" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		<property name="target">
+			<bean class="org.sakaiproject.scorm.adl.impl.ADLConsultantImpl">
+				<lookup-method name="contentPackageManifestDao" bean="org.sakaiproject.scorm.dao.api.ContentPackageManifestDao" />
+				<lookup-method name="dataManagerDao" bean="org.sakaiproject.scorm.dao.api.DataManagerDao" />
+				<lookup-method name="activityTreeHolderDao" bean="org.sakaiproject.scorm.dao.api.ActivityTreeHolderDao" />
+			</bean>
+		</property>
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="org.sakaiproject.scorm.entity.ScormEntityProvider" class="org.sakaiproject.scorm.entity.ScormEntityProviderImpl">
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+		<property name="contentService" ref="org.sakaiproject.scorm.service.api.ScormContentService" />
+	</bean>
+
+	<bean id="org.sakaiproject.scorm.entity.ScormToolFsVolumeFactory" class="org.sakaiproject.scorm.entity.ScormToolFsVolumeFactory"
+			init-method="init">
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+		<property name="sakaiFsService" ref="org.sakaiproject.elfinder.SakaiFsService"/>
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+		<property name="scormContentService" ref="org.sakaiproject.scorm.service.api.ScormContentService" />
+	</bean>
+</beans>

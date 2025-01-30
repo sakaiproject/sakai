@@ -4,7 +4,7 @@
   <parent>
     <artifactId>common</artifactId>
     <groupId>org.sakaiproject.common</groupId>
-    <version>23-SNAPSHOT</version>
+    <version>25-SNAPSHOT</version>
     <relativePath>../../../pom.xml</relativePath>
   </parent>
   <name>Sakai Import Blackboard 6.x</name>
@@ -36,8 +36,8 @@
 		  <artifactId>jsoup</artifactId>
 		</dependency>
 		<dependency>
-		  <groupId>commons-lang</groupId>
-		  <artifactId>commons-lang</artifactId>
+		  <groupId>org.apache.commons</groupId>
+		  <artifactId>commons-lang3</artifactId>
 		</dependency>
 		<dependency>
                         <groupId>org.springframework</groupId>
@@ -46,7 +46,6 @@
 		<dependency>
                         <groupId>jaxen</groupId>
                         <artifactId>jaxen</artifactId>
-                        <version>1.0-FCS-full</version>
                 </dependency>
                 <dependency>
                         <groupId>saxpath</groupId>

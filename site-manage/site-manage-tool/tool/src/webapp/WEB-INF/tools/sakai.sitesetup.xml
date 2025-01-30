@@ -14,7 +14,6 @@
 		<!-- 3. if the site title is editable, add the site type into titleEditableSiteType in sakai.properties file -->
 		<!-- 4. if specific tool order for the site type is needed, specify it inside toolOrder.xml file -->
 		<configuration name="siteTypes" value="course,project" />
-<!--		<configuration name="siteTypes" value="course,project,portfolio" /> -->
 		
 		<!-- default site type -->
 		<configuration name="defaultSiteType" value="project" />

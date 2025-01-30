@@ -100,7 +100,7 @@
 		</p>
 	#end
 		## Title ##
-		<div class="form-group row">
+		<div class="row">
 			<label for="title" class="col-sm-2 form-control-label">
 				#if ($siteTitleEditable || (!$!existingSite && !$hasRosterAttached))
 					<span class="reqStar">*</span>
@@ -133,7 +133,7 @@
 			## editing exist site
 			#set ( $aliasIdx = 0 )
 			#foreach ($siteAlias in $site_aliases)
-				<div class="form-group row">
+				<div class="row">
 		 			#if ( $!site_aliases_editable )
 		 				<label for="alias_$aliasIdx" class="col-sm-2 form-control-label">
 		 					$tlang.getString("sitediinf.editurl")
@@ -166,7 +166,7 @@
 		#end
 		## Term ##
 		#if ($!isCourseSite)
-			<div class="form-group row">
+			<div class="row">
 				<label for="term" class="col-sm-2 form-control-label">
 					$tlang.getString("sitediinf.term")
 				</label>
@@ -176,7 +176,7 @@
 			</div>	
 		#end
 		## Language ##
-		<div class="form-group row">
+		<div class="row">
 			<label for="language"  class="col-sm-2 form-control-label">
  				$tlang.getString("sinfo.language")
  			</label> 
@@ -208,7 +208,7 @@
 		</div>
 		<br/>
 		## Short Description ##
-		<div class="form-group row ">			
+		<div class="row ">
 			<label for="short_description" class="block col-sm-2 form-control-label">
 				$tlang.getString("sitediinf.shodes") 
 				<span class="textPanelFooter">
@@ -221,7 +221,7 @@
 		</div>	
 		## Skin & Site Icon ##
 		#if($allowSkinChoice && !$!skins.isEmpty())
-			<div class ="form-group row ">
+			<div class ="row ">
 				<label for="skin" class="col-sm-2 form-control-label">
 					$tlang.getString("sitediinf.app")
 					<span class="textPanelFooter">
@@ -240,7 +240,7 @@
 			</div>
 		#else
 			#if($allowSiteIcon)
-				<div class="form-group row">
+				<div class="row">
 					<label for="iconUrl" class="col-sm-2 form-control-label">
 						$tlang.getString("sitediinf.ico")
 					</label>
@@ -251,7 +251,7 @@
 			#end
 		#end
 		## Contact Name ##
-		<div class="form-group row ">
+		<div class="row ">
 			<label for="siteContactName" class="col-sm-2 form-control-label">
                 <span class="reqStar">*</span>
 				$tlang.getString("sitediinf.sitconnam")
@@ -261,7 +261,7 @@
 			</div>
 		</div>		
 		## Contact Email ##		
-		<div class="form-group row">
+		<div class="row">
 			<label for="siteContactEmail" class="col-sm-2 form-control-label">
 				$tlang.getString("sitediinf.sitconema")
 			</label>	

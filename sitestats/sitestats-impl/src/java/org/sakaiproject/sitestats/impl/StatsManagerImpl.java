@@ -179,19 +179,8 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		if(visitsInfoAvailable == null) {
 			visitsInfoAvailable	= enableSiteVisits;
 		}
-		if(enableSitePresences == null) {
-			// turn off, by default
-			enableSitePresences = false;// serverConfigurationService.getBoolean("display.users.present", true) || serverConfigurationService.getBoolean("presence.events.log", true);
-		}else if(enableSitePresences.booleanValue()){
-			// if turned on, make sure "display.users.present" is true
-			// this feature doesn't work properly with "presence.events.log"
-			if(serverConfigurationService.getBoolean("display.users.present", true)) {
-				enableSitePresences = serverConfigurationService.getBoolean("display.users.present", true);
-			}else if(serverConfigurationService.getBoolean("presence.events.log", true)) {
-				enableSitePresences = false;
-				log.warn("Disabled SiteStats presence tracking: doesn't work properly with 'presence.events.log' => only plays nicely with 'display.users.present'");
-			}
-		}
+
+		enableSitePresences = serverConfigurationService.getBoolean("presence.events.log", true);
 	}
 
 	public void destroy(){
@@ -3739,7 +3728,7 @@ if (log.isDebugEnabled()) {
 
 	private void checkForEventContextSupport() {
 		try{
-			Event.class.getMethod("getContext", null);
+			Event.class.getMethod("getContext", (Class<?>[]) null);
 			eventContextSupported = true;
 			logger.info("init(): - Event.getContext() method IS supported.");
 		}catch(SecurityException e){
@@ -3755,30 +3744,28 @@ if (log.isDebugEnabled()) {
 	}
 	
 	private List<String> searchUsers(String searchKey, String siteId){
-		if(searchKey == null || searchKey.trim().equals(""))
+		if(searchKey == null || searchKey.trim().isEmpty())
 			return null;
 		List<String> usersWithStats = getUsersWithStats(siteId);
 		List<String> userIdList = new ArrayList<String>();
-		Iterator<String> i = usersWithStats.iterator();
-		while(i.hasNext()){
-			String userId = i.next();
-			boolean match = false;
-			if(userId.toLowerCase().matches("(.*)"+searchKey.toLowerCase()+"(.*)"))
-				match = true;
-			else
-				try{
-					User u = userService.getUser(userId);
-					if(u.getEid().toLowerCase().matches("(.*)"+searchKey.toLowerCase()+"(.*)")
-							|| u.getFirstName().toLowerCase().matches("(.*)"+searchKey.toLowerCase()+"(.*)")
-							|| u.getLastName().toLowerCase().matches("(.*)"+searchKey.toLowerCase()+"(.*)"))
-						match = true;
-				}catch(Exception e) {
-					match = false;
-				}
-			
-			if(match)
-				userIdList.add(userId);
-		}
+        for (String userId : usersWithStats) {
+            boolean match = false;
+            if (userId.toLowerCase().matches("(.*)" + searchKey.toLowerCase() + "(.*)"))
+                match = true;
+            else
+                try {
+                    User u = userService.getUser(userId);
+                    if (u.getEid().toLowerCase().matches("(.*)" + searchKey.toLowerCase() + "(.*)")
+                            || u.getFirstName().toLowerCase().matches("(.*)" + searchKey.toLowerCase() + "(.*)")
+                            || u.getLastName().toLowerCase().matches("(.*)" + searchKey.toLowerCase() + "(.*)"))
+                        match = true;
+                } catch (Exception e) {
+                    match = false;
+                }
+
+            if (match)
+                userIdList.add(userId);
+        }
 		return userIdList;
 	}
 	

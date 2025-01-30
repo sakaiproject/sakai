@@ -30,8 +30,8 @@ public class EventLogService{
 		return PersistenceService.getInstance().getEventLogFacadeQueries().getDataBySiteId(siteId);
 	}
 
-	public List<EventLogData> getEventLogData(String siteId, Long assessmentId, String userFilter) {
-      return PersistenceService.getInstance().getEventLogFacadeQueries().getEventLogData(siteId, assessmentId, userFilter);
+	public List<EventLogData> getEventLogData(String siteId, Long assessmentId) {
+      return PersistenceService.getInstance().getEventLogFacadeQueries().getEventLogData(siteId, assessmentId);
    }
 
 	public void saveOrUpdateEventLog(EventLogFacade eventLog) {

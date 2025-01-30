@@ -1,0 +1,12 @@
+.#{$namespace}toolBody--sakai-iframe-site, .#{$namespace}toolBody--sakai-iframe-service {
+	padding: $standard-spacing;
+	
+	img{
+		max-width: 100%;
+		height: auto;
+	}
+}
+
+.#{$namespace}toolBody--sakai-iframe-myworkspace iframe {
+	padding: $standard-spacing;
+}

@@ -45,6 +45,7 @@ import javax.servlet.http.*;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -87,6 +88,17 @@ public class ContextUtil
 
     return null;
   }
+
+  public static Boolean lookupBooleanParam(String lookup) {
+    String stringPramValue = ContextUtil.lookupParam(lookup);
+
+    return StringUtils.equalsIgnoreCase(Boolean.TRUE.toString(), stringPramValue)
+        ? true
+        : StringUtils.equalsIgnoreCase(Boolean.FALSE.toString(), stringPramValue)
+            ? false
+            : null;
+  }
+
   /**
    * Determine if we have been passed a parameter that contains a given string,
    * else null. Typically this would be where you want to check for one of a set
@@ -333,16 +345,16 @@ public static ArrayList paramArrayValueLike(String paramPart)
   }
 
   public static String getRoundedValue(String orig, int maxdigit) {
-    Double origdouble = new Double(orig);
+    Double origdouble = Double.valueOf(orig);
     return getRoundedValue(origdouble, maxdigit);
   }
+
   public static String getRoundedValue(Double orig, int maxdigit) {
       Locale loc = new ResourceLoader().getLocale();
       NumberFormat nf = NumberFormat.getInstance(loc);
       nf.setGroupingUsed(false);
       nf.setMaximumFractionDigits(maxdigit);
-      String newscore = nf.format(orig);
-      return newscore;
+      return nf.format(orig);
   }
 
   public static String escapeApostrophe(String input) {
@@ -350,8 +362,7 @@ public static ArrayList paramArrayValueLike(String paramPart)
    // no longer needed because we don't pass firstname and lastname in f:param.  but we'll keep this method here
         String regex = "'";
         String replacement = "\\\\'";
-	String output = input.replaceAll(regex, replacement);
-   	return output;
+      return input.replaceAll(regex, replacement);
   }
 
   public static String getProtocol(){
@@ -399,5 +410,9 @@ public static ArrayList paramArrayValueLike(String paramPart)
       result.put(entry.getKey(), entry.getValue());
     }
     return result;
+  }
+
+  public static Locale getLocale() {
+    return new ResourceLoader().getLocale();
   }
 }

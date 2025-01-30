@@ -48,13 +48,10 @@ import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
-import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
 import org.sakaiproject.profile2.logic.ProfileImageLogic;
 import org.sakaiproject.profile2.logic.ProfileLinkLogic;
 import org.sakaiproject.profile2.logic.ProfileLogic;
-import org.sakaiproject.profile2.logic.ProfileMessagingLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
-import org.sakaiproject.profile2.model.BasicConnection;
 import org.sakaiproject.profile2.model.MimeTypeByteArray;
 import org.sakaiproject.profile2.model.ProfileImage;
 import org.sakaiproject.profile2.model.UserProfile;
@@ -115,18 +112,17 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 		}
 		return userProfile;
 	}
-	
-	
-	
-	
+
 	@EntityCustomAction(action="image",viewKey=EntityView.VIEW_SHOW)
 	public Object getProfileImage(OutputStream out, EntityView view, Map<String,Object> params, EntityReference ref) {
 		
 		final String id = ref.getId();
 
-        final boolean wantsBlank = id.equals(ProfileConstants.BLANK);
+        // A role swapped user is not "real" so just use the blank image
+        boolean wantsBlank = id.equals(ProfileConstants.BLANK) || sakaiProxy.isUserRoleSwapped();
 
         String uuid = "";
+        String currentUserId = sakaiProxy.getCurrentUserId();
 
         if(!wantsBlank) {
 		    //convert input to uuid
@@ -158,19 +154,40 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 		if(StringUtils.isNotBlank(siteId) && !sakaiProxy.checkForSite(siteId)){
 			throw new EntityNotFoundException("Invalid siteId: " + siteId, ref.getReference());
 		}
-		
+
+		// First of all, check if the current user is admin. If current user is admin, show all the pictures always
+		if (sakaiProxy.isSuperUser()) {
+			wantsBlank = false;
+		} else if (StringUtils.isBlank(siteId)) {
+			// No site id is specified, checking if both users have any site in common
+			if (!sakaiProxy.areUsersMembersOfSameSite(currentUserId, uuid)) {
+				// No sites in common, so serving a blank image
+				wantsBlank = true;
+			}
+		} else {
+			// Site id is specified, checking if both users are members of that site
+			if (!sakaiProxy.isUserMemberOfSite(currentUserId, siteId)) {
+				// Current user is not a member of the specified site, so serving a blank image
+				wantsBlank = true;
+			}
+			if (!sakaiProxy.isUserMemberOfSite(uuid, siteId)) {
+				// Requested user is not a member of the specified site, so serving a blank image
+				wantsBlank = true;
+			}
+		}
+
         if(wantsBlank) {
             image = imageLogic.getBlankProfileImage();
         } else {
 		    //get thumb or avatar if requested - or fallback
             if(wantsThumbnail) {
-                image = imageLogic.getProfileImage(uuid, null, null, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, siteId);
+                image = imageLogic.getProfileImage(uuid, null, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, siteId);
             } 
             if(!wantsThumbnail && wantsAvatar) {
-                image = imageLogic.getProfileImage(uuid, null, null, ProfileConstants.PROFILE_IMAGE_AVATAR, siteId);
+                image = imageLogic.getProfileImage(uuid, null, ProfileConstants.PROFILE_IMAGE_AVATAR, siteId);
             }
             if(!wantsThumbnail && !wantsAvatar) {
-                image = imageLogic.getProfileImage(uuid, null, null, ProfileConstants.PROFILE_IMAGE_MAIN, siteId);
+                image = imageLogic.getProfileImage(uuid, null, ProfileConstants.PROFILE_IMAGE_MAIN, siteId);
             }
             if(wantsOfficial) {
 			    image = imageLogic.getOfficialProfileImage(uuid, siteId);
@@ -180,7 +197,11 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 		if(image == null) {
 			throw new EntityNotFoundException("No profile image for " + id, ref.getReference());
 		}
-		
+
+		if (!StringUtils.equals(currentUserId, uuid)) {
+			sakaiProxy.postEvent(ProfileConstants.EVENT_IMAGE_REQUEST, "/profile/" + currentUserId + "/imagerequest/" + uuid, false);
+		}
+
 		//check for binary
 		final byte[] bytes = image.getBinary();
 		if(bytes != null && bytes.length > 0) {
@@ -189,9 +210,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 				ActionReturn actionReturn = new ActionReturn("UTF-8", image.getMimeType(), out);
 				
 				Map<String,String> headers = new HashMap<>();
-				headers.put("Expires", "Mon, 01 Jan 2001 00:00:00 GMT");
-				headers.put("Cache-Control","no-cache, must-revalidate, max-age=0");
-				headers.put("Pragma", "no-cache");
+				headers.put("Cache-Control","no-store");
 				
 				actionReturn.setHeaders(headers);
 				
@@ -205,9 +224,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 		if(StringUtils.isNotBlank(url)) {
 			try {
 				HttpServletResponse res = requestGetter.getResponse();
-				res.addHeader("Expires", "Mon, 01 Jan 2001 00:00:00 GMT");
-				res.addHeader("Cache-Control","no-cache, must-revalidate, max-age=0");
-				res.addHeader("Pragma", "no-cache");
+				res.addHeader("Cache-Control","no-store");
 				res.sendRedirect(url);
 			} catch (IOException e) {
 				throw new EntityException("Error redirecting to external image for " + id + " : " + e.getMessage(), ref.getReference());
@@ -217,226 +234,6 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 		return null;
 	}
 	
-	
-			
-	
-	@EntityCustomAction(action="connections",viewKey=EntityView.VIEW_SHOW)
-	public Object getConnections(EntityView view, EntityReference ref) {
-		
-		if(!sakaiProxy.isLoggedIn()) {
-			throw new SecurityException("You must be logged in to get a connection list.");
-		}
-		
-		//convert input to uuid
-		String uuid = sakaiProxy.ensureUuid(ref.getId());
-		if(StringUtils.isBlank(uuid)) {
-			throw new EntityNotFoundException("Invalid user.", ref.getId());
-		}
-		
-		//get list of connections
-		List<BasicConnection> connections = connectionsLogic.getBasicConnectionsForUser(uuid);
-		if(connections == null) {
-			throw new EntityException("Error retrieving connections for " + ref.getId(), ref.getReference());
-		}
-		return new ActionReturn(connections);
-	}
-		
-	@EntityCustomAction(action="friendStatus",viewKey=EntityView.VIEW_SHOW)
-	public Object getConnectionStatus(EntityReference ref, Map<String, Object> parameters) {
-		
-		if(!sakaiProxy.isLoggedIn()) {
-			throw new SecurityException("You must be logged in to get a friend status record.");
-		}
-		
-		//convert input to uuid (user making query)
-		String uuid = sakaiProxy.ensureUuid(ref.getId());
-		if(StringUtils.isBlank(uuid)) {
-			throw new EntityNotFoundException("Invalid user.", ref.getId());
-		}
-		
-		if (false == parameters.containsKey("friendId")) {
-			throw new EntityNotFoundException("Parameter must be specified: friendId", ref.getId());
-		}
-		
-		return connectionsLogic.getConnectionStatus(uuid, parameters.get("friendId").toString());
-	}
-
-	@EntityCustomAction(action="unreadMessagesCount",viewKey=EntityView.VIEW_SHOW)
-	public Object getUnreadMessagesCount(EntityReference ref) {
-
-		if (!sakaiProxy.isLoggedIn()) {
-			throw new SecurityException("You must be logged in to get the unread messages count.");
-		}
-
-		//convert input to uuid
-		String uuid = sakaiProxy.ensureUuid(ref.getId());
-		if (StringUtils.isBlank(uuid)) {
-			throw new EntityNotFoundException("Invalid user.", ref.getId());
-		}
-        
-		if (sakaiProxy.isAdminUser() || sakaiProxy.getCurrentUserId().equals(uuid)) {
-			return new ActionReturn(messagingLogic.getAllUnreadMessagesCount(uuid));
-		} else {
-			throw new SecurityException("You can only view your own message count.");
-		}
-	}
-	
-	@EntityCustomAction(action="requestFriend",viewKey=EntityView.VIEW_SHOW)
-	public Object requestFriend(EntityReference ref,Map<String,Object> params) {
-		
-		if(!sakaiProxy.isLoggedIn()) {
-			throw new SecurityException("You must be logged in to make a connection request.");
-		}
-		
-		//convert input to uuid
-		String uuid = sakaiProxy.ensureUuid(ref.getId());
-		if(StringUtils.isBlank(uuid)) {
-			throw new EntityNotFoundException("Invalid user.", ref.getId());
-		}
-		
-		String friendId = (String) params.get("friendId");
-		
-		//get list of connections
-		if(!connectionsLogic.requestFriend(uuid, friendId)) {
-			throw new EntityException("Error requesting friend connection for " + ref.getId(), ref.getReference());
-		}
-		else
-			return Messages.getString("Label.friend.requested");
-	}
-	
-	@EntityCustomAction(action="removeFriend",viewKey=EntityView.VIEW_SHOW)
-	public Object removeFriend(EntityReference ref,Map<String,Object> params) {
-		
-		if(!sakaiProxy.isLoggedIn()) {
-			throw new SecurityException("You must be logged in to remove a connection.");
-		}
-		
-		//convert input to uuid
-		String uuid = sakaiProxy.ensureUuid(ref.getId());
-		if(StringUtils.isBlank(uuid)) {
-			throw new EntityNotFoundException("Invalid user.", ref.getId());
-		}
-		
-		String friendId = (String) params.get("friendId");
-		
-		//get list of connections
-		if(!connectionsLogic.removeFriend(uuid, friendId)) {
-			throw new EntityException("Error removing friend connection for " + ref.getId(), ref.getReference());
-		}
-		else
-			return Messages.getString("Label.friend.add");
-	}
-	
-	@EntityCustomAction(action="confirmFriendRequest",viewKey=EntityView.VIEW_SHOW)
-	public Object confirmFriendRequest(EntityReference ref,Map<String,Object> params) {
-		
-		if(!sakaiProxy.isLoggedIn()) {
-			throw new SecurityException("You must be logged in to confirm a connection request.");
-		}
-		
-		//convert input to uuid
-		String uuid = sakaiProxy.ensureUuid(ref.getId());
-		if(StringUtils.isBlank(uuid)) {
-			throw new EntityNotFoundException("Invalid user.", ref.getId());
-		}
-		
-		String friendId = (String) params.get("friendId");
-		
-		//get list of connections
-		if(!connectionsLogic.confirmFriendRequest(friendId, uuid)) {
-		//if(!connectionsLogic.confirmFriendRequest(uuid, friendId)) {
-			throw new EntityException("Error confirming friend connection for " + ref.getId(), ref.getReference());
-		}
-		else
-			return Messages.getString("Label.friend.remove");
-	}
-	
-	@EntityCustomAction(action="ignoreFriendRequest",viewKey=EntityView.VIEW_SHOW)
-	public Object ignoreFriendRequest(EntityReference ref,Map<String,Object> params) {
-		
-		if(!sakaiProxy.isLoggedIn()) {
-			throw new SecurityException("You must be logged in to ignore a connection request.");
-		}
-		
-		//convert input to uuid
-		String uuid = sakaiProxy.ensureUuid(ref.getId());
-		if(StringUtils.isBlank(uuid)) {
-			throw new EntityNotFoundException("Invalid user.", ref.getId());
-		}
-		
-		String friendId = (String) params.get("friendId");
-		
-		//we're ignoring a request FROM the friendId TO the uuid
-		if(!connectionsLogic.ignoreFriendRequest(friendId, uuid)) {
-			throw new EntityException("Error ignoring friend connection for " + ref.getId(), ref.getReference());
-		}
-		else
-			return Messages.getString("Label.friend.add");
-	}
-
-    @EntityCustomAction(action="incomingConnectionRequests", viewKey=EntityView.VIEW_SHOW)
-	public Object getIncomingConnectionRequests(EntityView view, EntityReference ref) {
-
-		if(!sakaiProxy.isLoggedIn()) {
-			throw new SecurityException("You must be logged in to get the incoming connection list.");
-		}
-
-		//convert input to uuid
-		String uuid = sakaiProxy.ensureUuid(ref.getId());
-		if (StringUtils.isBlank(uuid)) {
-			throw new EntityNotFoundException("Invalid user.", ref.getId());
-		}
-		
-		final List<BasicConnection> requests
-			= connectionsLogic.getConnectionRequestsForUser(uuid).stream().map(p -> {
-							BasicConnection bc = new BasicConnection();
-							bc.setUuid(p.getUuid());
-							bc.setDisplayName(p.getDisplayName());
-							bc.setEmail(p.getProfile().getEmail());
-                            bc.setProfileUrl(linkLogic.getInternalDirectUrlToUserProfile(p.getUuid()));
-							bc.setType(p.getType());
-							bc.setSocialNetworkingInfo(p.getProfile().getSocialInfo());
-							return bc;
-				}).collect(Collectors.toList());
-
-		if (requests == null) {
-			throw new EntityException("Error retrieving connection requests for " + ref.getId(), ref.getReference());
-		}
-		return new ActionReturn(requests);
-	}
-
-	@EntityCustomAction(action="outgoingConnectionRequests", viewKey=EntityView.VIEW_SHOW)
-	public Object getOutgoingConnectionRequests(EntityView view, EntityReference ref) {
-
-		if (!sakaiProxy.isLoggedIn()) {
-			throw new SecurityException("You must be logged in to get the outgoing connection list.");
-		}
-
-		//convert input to uuid
-		String uuid = sakaiProxy.ensureUuid(ref.getId());
-		if (StringUtils.isBlank(uuid)) {
-			throw new EntityNotFoundException("Invalid user.", ref.getId());
-		}
-
-		final List<BasicConnection> requests
-			= connectionsLogic.getOutgoingConnectionRequestsForUser(uuid).stream().map(p -> {
-							BasicConnection bc = new BasicConnection();
-							bc.setUuid(p.getUuid());
-							bc.setDisplayName(p.getDisplayName());
-							bc.setEmail(p.getProfile().getEmail());
-                            bc.setProfileUrl(linkLogic.getInternalDirectUrlToUserProfile(p.getUuid()));
-							bc.setType(p.getType());
-							bc.setSocialNetworkingInfo(p.getProfile().getSocialInfo());
-							return bc;
-				}).collect(Collectors.toList());
-
-		if (requests == null) {
-			throw new EntityException("Error retrieving outgoing connection requests for " + uuid, ref.getReference());
-		}
-
-		return new ActionReturn(requests);
-	}
-
 	@EntityURLRedirect("/{prefix}/{id}/account")
 	public String redirectUserAccount(Map<String,String> vars) {
 		return "user/" + vars.get("id") + vars.get(TemplateParseUtil.DOT_EXTENSION);
@@ -457,9 +254,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 			try {
 				HttpServletResponse response = requestGetter.getResponse();
 				HttpServletRequest request = requestGetter.getRequest();
-				response.setHeader("Expires", "0");
-				response.setHeader("Pragma", "no-cache");
-				response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+				response.setHeader("Cache-Control", "no-store");
 				response.setContentType(mtba.getMimeType());
 
 				// Are we processing a Range request
@@ -505,11 +300,9 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 	public String[] getHandledOutputFormats() {
 		return new String[] {Formats.HTML, Formats.XML, Formats.JSON};
 	}
-
 	
 	@Setter
 	private RequestGetter requestGetter;
-	
 	
 	@Setter
 	private SakaiProxy sakaiProxy;
@@ -518,15 +311,8 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 	private ProfileLogic profileLogic;
 	
 	@Setter	
-	private ProfileConnectionsLogic connectionsLogic;
-	
-	@Setter	
 	private ProfileImageLogic imageLogic;
 	
 	@Setter	
 	private ProfileLinkLogic linkLogic;
-
-	@Setter	
-	private ProfileMessagingLogic messagingLogic;
-	
 }

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    [(${sakaiHtmlHead})]
+  </head>
+  <body onload="setMainFrameHeight('Mainmercuryx710');setFocus(focus_path);"   class="Mrphs-container Mrphs-sakai-plus">
+    <div class="portletBody">
+        <h1><span th="#{plus.tool.deletetenant}"> Delete: </span>
+            <span th:text="${tenant.title}">Sakai</span> /
+            <span th:text="${tenant.issuer}">Issuer</span>
+            <span th:if="${tenant.isDraft}" th:text="#{plus.tool.tenant.draft}">(draft)</span>
+        </h1>
+        <p th:text="#{plus.tenant.sure}">Are you sure?</p>
+        <form class="form-horizontal" action="#" th:action="@{/delete/{id}(id=${tenant.id})}" method="post">
+        <input type="hidden" th:field="*{tenant.id}" />
+        <div id="edit-group" class="form-group">
+            <button type="submit" th:text="#{plus.tool.delete}" class="btn btn-warning">Delete Tenant</button>
+            <a th:href="@{/}" th:text="#{plus.tool.cancel}" class="btn btn-default">Cancel</a>
+        </div>
+        </form>
+    </div>
+  </body>
+</html>

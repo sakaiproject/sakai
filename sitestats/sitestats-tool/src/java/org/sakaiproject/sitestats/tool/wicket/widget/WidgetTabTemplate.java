@@ -122,8 +122,7 @@ public abstract class WidgetTabTemplate extends Panel {
 	protected Optional<IModel<String>> getFooterMsg()
 	{
 		String localSakaiName = Locator.getFacade().getStatsManager().getLocalSakaiName();
-		StringResourceModel model = new StringResourceModel("widget_server_time_msg", getPage(), null, 
-				new Object[] {localSakaiName});
+		StringResourceModel model = new StringResourceModel("widget_server_time_msg").setParameters(localSakaiName);
 		return Optional.of(model);
 	}
 
@@ -192,7 +191,7 @@ public abstract class WidgetTabTemplate extends Panel {
 		chartTd.add(chart);
 		if(!renderChart) {
 			chartTd.setVisible(false);
-		}else if(renderChart && !renderTable) {
+		}else if(!renderTable) {
 			chartTd.add(AttributeModifier.replace("colspan", "2"));
 		}
 		add(chartTd);
@@ -203,7 +202,7 @@ public abstract class WidgetTabTemplate extends Panel {
 		createTable();
 		if(!renderTable) {
 			tableTd.setVisible(false);
-		}else if(renderTable && !renderChart) {
+		}else if(!renderChart) {
 			tableTd.add(AttributeModifier.replace("colspan", "2"));
 		}
 		tableLink = new StatelessLink("link") {
@@ -275,6 +274,8 @@ public abstract class WidgetTabTemplate extends Panel {
 				);
 		IChoiceRenderer dateFilterRenderer = new IChoiceRenderer() {
 			private static final long	serialVersionUID	= 1L;
+
+			@Override
 			public Object getDisplayValue(Object object) {
 				if(ReportManager.WHEN_ALL.equals(object)) {
 					return new ResourceModel("overview_filter_date_all").getObject();
@@ -290,12 +291,14 @@ public abstract class WidgetTabTemplate extends Panel {
 				}
 				return object;
 			}
+
+			@Override
 			public String getIdValue(Object object, int index) {
 				return (String) object;
 			}		
 		};
 		IndicatingAjaxDropDownChoice dateFilter = new IndicatingAjaxDropDownChoice("dateFilter", dateFilterOptions, dateFilterRenderer);
-		dateFilter.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+		dateFilter.add(new AjaxFormComponentUpdatingBehavior("change") {
 			private static final long	serialVersionUID	= 1L;
 			@Override
 			protected void onUpdate(AjaxRequestTarget target) {
@@ -313,9 +316,7 @@ public abstract class WidgetTabTemplate extends Panel {
 		try{
 			Site site = Locator.getFacade().getSiteService().getSite(siteId);
 			roles = site.getRoles();
-			Iterator<Role> i = roles.iterator();
-			while(i.hasNext()){
-				Role r = i.next();
+			for (Role r : roles) {
 				roleFilterOptions.add(r.getId());
 			}
 		}catch(IdUnusedException e){
@@ -323,6 +324,8 @@ public abstract class WidgetTabTemplate extends Panel {
 		}
 		IChoiceRenderer roleFilterRenderer = new IChoiceRenderer() {
 			private static final long	serialVersionUID	= 1L;
+
+			@Override
 			public Object getDisplayValue(Object object) {
 				if(ReportManager.WHO_ALL.equals(object)) {
 					return new ResourceModel("overview_filter_role_all").getObject();
@@ -330,12 +333,14 @@ public abstract class WidgetTabTemplate extends Panel {
 					return (String) object;
 				}
 			}
+
+			@Override
 			public String getIdValue(Object object, int index) {
 				return (String) object;
 			}		
 		};
 		IndicatingAjaxDropDownChoice roleFilter = new IndicatingAjaxDropDownChoice("roleFilter", roleFilterOptions, roleFilterRenderer);
-		roleFilter.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+		roleFilter.add(new AjaxFormComponentUpdatingBehavior("change") {
 			private static final long	serialVersionUID	= 1L;
 			@Override
 			protected void onUpdate(AjaxRequestTarget target) {
@@ -353,6 +358,8 @@ public abstract class WidgetTabTemplate extends Panel {
 		toolFilterOptions.addAll(Tools.getToolIds(siteId, getPrefsdata()));
 		IChoiceRenderer toolFilterRenderer = new IChoiceRenderer() {
 			private static final long	serialVersionUID	= 1L;
+
+			@Override
 			public Object getDisplayValue(Object object) {
 				if(ReportManager.WHAT_EVENTS_ALLTOOLS.equals(object)) {
 					return new ResourceModel("overview_filter_tool_all").getObject();
@@ -360,12 +367,14 @@ public abstract class WidgetTabTemplate extends Panel {
 					return Locator.getFacade().getEventRegistryService().getToolName((String) object);
 				}
 			}
+
+			@Override
 			public String getIdValue(Object object, int index) {
 				return (String) object;
 			}		
 		};
 		IndicatingAjaxDropDownChoice toolFilter = new IndicatingAjaxDropDownChoice("toolFilter", toolFilterOptions, toolFilterRenderer);
-		toolFilter.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+		toolFilter.add(new AjaxFormComponentUpdatingBehavior("change") {
 			private static final long	serialVersionUID	= 1L;
 			@Override
 			protected void onUpdate(AjaxRequestTarget target) {
@@ -375,16 +384,17 @@ public abstract class WidgetTabTemplate extends Panel {
 		toolFilter.setOutputMarkupId(true);
 		add(toolFilter);
 		toolFilter.setVisible(filters.contains(FILTER_TOOL));
-		
-		
 		// RESOURCE_ACTION Filter
 		List<String> resactionFilterOptions = Arrays.asList(
 				null,
 				ReportManager.WHAT_RESOURCES_ACTION_NEW, ReportManager.WHAT_RESOURCES_ACTION_READ,
-				ReportManager.WHAT_RESOURCES_ACTION_REVS, ReportManager.WHAT_RESOURCES_ACTION_DEL
+				ReportManager.WHAT_RESOURCES_ACTION_REVS, ReportManager.WHAT_RESOURCES_ACTION_DEL,
+				ReportManager.WHAT_RESOURCES_ACTION_DOW
 		);
 		IChoiceRenderer resactionFilterRenderer = new IChoiceRenderer() {
 			private static final long	serialVersionUID	= 1L;
+
+			@Override
 			public Object getDisplayValue(Object object) {
 				if(object == null || "".equals(object)) {
 					return new ResourceModel("overview_filter_resaction_all").getObject();
@@ -392,6 +402,8 @@ public abstract class WidgetTabTemplate extends Panel {
 					return (String) new ResourceModel("action_" + ((String) object)).getObject();
 				}
 			}
+
+			@Override
 			public String getIdValue(Object object, int index) {
 				if(object == null || "".equals(object)) {
 					return "";
@@ -407,7 +419,7 @@ public abstract class WidgetTabTemplate extends Panel {
 				return "";
 			}
 		};
-		resactionFilter.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+		resactionFilter.add(new AjaxFormComponentUpdatingBehavior("change") {
 			private static final long	serialVersionUID	= 1L;
 			@Override
 			protected void onUpdate(AjaxRequestTarget target) {
@@ -427,17 +439,21 @@ public abstract class WidgetTabTemplate extends Panel {
 
 		IChoiceRenderer<String> lessonActionFilterRenderer = new IChoiceRenderer<String>() {
 			private static final long	serialVersionUID	= 1L;
+
+			@Override
 			public Object getDisplayValue(String object) {
 
-				if (object == null || "".equals(object)) {
+				if (object == null || object.isEmpty()) {
 					return new ResourceModel("overview_filter_resaction_all").getObject();
 				} else {
 					return new ResourceModel("action_" + object).getObject();
 				}
 			}
+
+			@Override
 			public String getIdValue(String object, int index) {
 
-				if (object == null || "".equals(object)) {
+				if (object == null || object.isEmpty()) {
 					return "";
 				}else {
 					return object;
@@ -452,7 +468,7 @@ public abstract class WidgetTabTemplate extends Panel {
 				return "";
 			}
 		};
-		lessonActionFilter.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+		lessonActionFilter.add(new AjaxFormComponentUpdatingBehavior("change") {
 			private static final long	serialVersionUID	= 1L;
 			@Override
 			protected void onUpdate(AjaxRequestTarget target) {
@@ -485,15 +501,13 @@ public abstract class WidgetTabTemplate extends Panel {
 	private boolean isToolSuported(final ToolInfo toolInfo) {
 		if(Locator.getFacade().getStatsManager().isEventContextSupported()){
 			return true;
-		}else{
+		} else {
 			List<ToolInfo> siteTools = Locator.getFacade().getEventRegistryService().getEventRegistry(siteId, getPrefsdata().isListToolEventsOnlyAvailableInSite());
-			Iterator<ToolInfo> i = siteTools.iterator();
-			while (i.hasNext()){
-				ToolInfo t = i.next();
-				if(t.getToolId().equals(toolInfo.getToolId())){
+			for (ToolInfo t : siteTools) {
+				if (t.getToolId().equals(toolInfo.getToolId())) {
 					boolean match = t.getEventParserTips().stream()
 							.anyMatch(tip -> StatsManager.PARSERTIP_FOR_CONTEXTID.equals(tip.getFor()));
-					if(match){
+					if (match) {
 						return true;
 					}
 

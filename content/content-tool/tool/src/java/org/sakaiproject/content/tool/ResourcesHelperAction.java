@@ -30,6 +30,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -283,6 +284,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		context.put("showOptions", statusMap != null && !statusMap.isEmpty() && !isSpecialSite && allowUpdateSite && !dropboxMode);
 		context.put("showJumpToResourceForm", isSpecialSite);
 		context.put("showWebdavLink", ServerConfigurationService.getBoolean("resources.show_webdav.link", Boolean.TRUE));
+		context.put("requiredItemsInfo", rb.getFormattedMessage("instr.require", new Object[]{"<span class=\"reqStarInline\">*</span>"}));
 		/********** End of top menu attributes ********************************/
 		context.put("metaLang", metaLang);
 
@@ -708,12 +710,12 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		context.put("uploadMaxSize", max_file_size_mb);
 		
 		String uploadMax = ServerConfigurationService.getString(ResourcesConstants.SAK_PROP_MAX_UPLOAD_FILE_SIZE);
-		String instr_uploads = rb.getFormattedMessage("instr.uploads", new String[]{ uploadMax });
+		String instr_uploads = rb.getFormattedMessage("instr.uploads", uploadMax);
 		context.put("instr_uploads", instr_uploads);
 
 		String uploadWarning = rb.getFormattedMessage("label.overwrite.warning");
 		context.put("label_overwrite_warning",uploadWarning);
-		String instr_dnd_uploads = rb.getFormattedMessage("instr.dnd.uploads", new String[]{ uploadMax });
+		String instr_dnd_uploads = rb.getFormattedMessage("instr.dnd.uploads", uploadMax);
 		context.put("instr_dnd_uploads", instr_dnd_uploads);
 
 //		int max_bytes = 1024 * 1024;
@@ -1076,7 +1078,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 				return;
 			}
 			if (newFolder.numberFieldIsOutOfRange) {
-				addAlert(state, rb.getFormattedMessage("conditions.condition.argument.outofrange", new String[] { newFolder.getConditionAssignmentPoints() }));
+				addAlert(state, rb.getFormattedMessage("conditions.condition.argument.outofrange", newFolder.getConditionAssignmentPoints()));
 				return;
 			}
 			if(!"".equals(newFolder.metadataValidationFails)) {
@@ -1269,7 +1271,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		for(int i = 0; i <= lastIndex && actualCount < count; i++)
 		{
 			String exists = params.getString("exists" + ListItem.DOT + i);
-			if(exists == null || "".equals(exists))
+			if(exists == null || exists.isEmpty())
 			{
 				continue;
 			}
@@ -1289,16 +1291,12 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 				 }
 				 catch (MalformedURLException e)
 				 {
-					 addAlert(state, rb.getFormattedMessage("url.invalid", new String[]{url}));
+					 addAlert(state, rb.getFormattedMessage("url.invalid", url));
 					 continue;
 				 }
-				
-				 try {
-					 pipe.setRevisedContent(url.getBytes(ResourcesAction.UTF_8_ENCODING));
-				 } catch (UnsupportedEncodingException e) {
-					 pipe.setRevisedContent(url.getBytes());
-				 }
-			}
+
+                pipe.setRevisedContent(url.getBytes(StandardCharsets.UTF_8));
+            }
 			// SAK-11816 - allow much longer URLs by correcting a long basename, make sure no URL resource id exceeds 36 chars
 			// Make the URL a length of 32 chars. This is because the basename registered in CR has to be the same than the basename in resources 
 			if (url != null) {
@@ -1354,7 +1352,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 				return;
 			}
 			if (newFile.numberFieldIsOutOfRange) {
-				addAlert(state, rb.getFormattedMessage("conditions.condition.argument.outofrange", new String[] { newFile.getConditionAssignmentPoints() }));
+				addAlert(state, rb.getFormattedMessage("conditions.condition.argument.outofrange", newFile.getConditionAssignmentPoints()));
 				return;
 			}
 			if(!"".equals(newFile.metadataValidationFails)) {
@@ -1382,7 +1380,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 				return;
 			}
 			if (newFile.numberFieldIsOutOfRange) {
-			    addAlert(state, contentResourceBundle.getFormattedMessage("conditions.condition.argument.outofrange", new String[] { newFile.getConditionAssignmentPoints() }));
+			    addAlert(state, contentResourceBundle.getFormattedMessage("conditions.condition.argument.outofrange", newFile.getConditionAssignmentPoints()));
 				return;
 			}
 			if(!"".equals(newFile.metadataValidationFails)) {
@@ -1394,15 +1392,8 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			actualCount++;
 			
 		}
-		if(! alerts.isEmpty())
-		{
-			for(String alert: alerts)
-			{
-				addAlert(state, alert);
-			}
-		}
 
-		if(actualCount < 1)
+        if(actualCount < 1)
 		{
 			addAlert(state, rb.getString("url.noinput"));
 			return;
@@ -1650,7 +1641,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 					return;
 				}
 				if (newFile.numberFieldIsOutOfRange) {
-				    addAlert(state, contentResourceBundle.getFormattedMessage("conditions.condition.argument.outofrange", new String[] { newFile.getConditionAssignmentPoints() }));
+				    addAlert(state, contentResourceBundle.getFormattedMessage("conditions.condition.argument.outofrange", newFile.getConditionAssignmentPoints()));
 					return;
 				}
 				if(!"".equals(newFile.metadataValidationFails)) {

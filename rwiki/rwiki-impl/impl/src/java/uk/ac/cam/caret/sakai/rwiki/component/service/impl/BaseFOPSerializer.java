@@ -34,6 +34,8 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
 import javax.xml.transform.stream.StreamSource;
 
+import org.apache.xml.serializer.DOMSerializer;
+import org.apache.xml.serializer.ToXMLSAXHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
@@ -45,8 +47,6 @@ import org.apache.fop.apps.MimeConstants;
 import org.apache.fop.fonts.substitute.FontQualifier;
 import org.apache.fop.fonts.substitute.FontSubstitution;
 import org.apache.fop.fonts.substitute.FontSubstitutions;
-import org.apache.xml.serializer.DOMSerializer;
-import org.apache.xml.serializer.ToXMLSAXHandler;
 import org.apache.xml.serializer.ToSAXHandler;
 import org.w3c.dom.Node;
 import org.xml.sax.Attributes;

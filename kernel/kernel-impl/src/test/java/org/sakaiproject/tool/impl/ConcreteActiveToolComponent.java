@@ -24,6 +24,7 @@ package org.sakaiproject.tool.impl;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
 
@@ -65,7 +66,14 @@ public class ConcreteActiveToolComponent extends ActiveToolComponent
 	{
 		return null;
 	}
-	
+
+	/**
+	 * @return the SiteService collaborator.
+	 */
+	protected SiteService siteService()
+	{
+		return null;
+	}
 	protected ServerConfigurationService serverConfigurationService()
 	{
 		return null;

@@ -80,8 +80,7 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 	private List<EnrollmentRecord> siteStudents;
 	private List<EnrollmentDecorator> unpagedEnrollments;
 	@Getter private List<SelectItem> sectionFilterSelectItems;
-	private boolean currentUserisTA;
-	private boolean currentUserisInstructor;
+	private boolean canManageSection;
 
     public void init() {
 		// Determine whether this course is externally managed
@@ -151,18 +150,12 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 	private void decorateEnrollments(List<EnrollmentRecord> siteStudents, SectionEnrollments sectionEnrollments, List<CourseSection> assignedSections) {
 		unpagedEnrollments = new ArrayList<>();
 
-		// Check if current user is Instructor in site
-		currentUserisInstructor = getSiteInstructors().stream().map(s -> s.getUser().getUserUid())
-				.collect(Collectors.toList()).contains(getUserUid());
-
 		// Check if current user is TA in site
 		List<CourseSection> all= getAllSiteSections();
 		Map<String, List<ParticipationRecord>> sectionTAMap = getSectionTeachingAssistantsMap();
 		for (CourseSection section : all) {
-			String sectionUid = section.getUuid();
-			if (sectionTAMap.get(sectionUid).stream()
-					.anyMatch(s -> s.getUser().getUserUid().equals(getUserUid()))) {
-				currentUserisTA = true;
+			if (canManageSection(section.getUuid())) {
+				canManageSection = true;
 			}
 		}
 
@@ -174,16 +167,9 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 			boolean includeStudent = categories.stream().filter(category -> {
 				CourseSection section = sectionEnrollments.getSection(enrollment.getUser().getUserUid(), category);
 				boolean isValidSection = false;
-				boolean currentUserisTAinSection = false;
 
 				if (section != null) {
-					List<ParticipationRecord> tas = getSectionManager().getSectionTeachingAssistants(section.getUuid());
-					List<String> taUids = generateTaUids(tas);
-					if (taUids.contains(getUserUid())) {
-						currentUserisTAinSection = true;
-					}
-
-					if (currentUserisTAinSection || currentUserisInstructor) {
+					if (canManageSection(section.getUuid())) {
 						if (("MY".equals(getFilter()) || section.getCategory().equals(getFilter()))
 								&& assignedSections.contains(section)) {
 							isValidSection = true;
@@ -205,14 +191,14 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 			}).count() > 0; // If there are valid sections for the current filter, include the student in the view
 
 			// If there is no filter, the section is valid and the student shouldn't be excluded
-			if (StringUtils.isBlank(getFilter()) && currentUserisInstructor) {
+			if (StringUtils.isBlank(getFilter()) && canManageAnySection()) {
 				includeStudent = true;
 			}
 
 			// If the filter is set to "no sections" filter and the student sections map is
 			// empty, student should be included
 			if ((NO_SECTIONS_FILTER_KEY.equals(getFilter()) || (StringUtils.isBlank(getFilter())))
-					&& studentSectionsMap.isEmpty() && (currentUserisInstructor || currentUserisTA)) {
+					&& studentSectionsMap.isEmpty() && (canManageSection)) {
 				includeStudent = true;
 			}
 

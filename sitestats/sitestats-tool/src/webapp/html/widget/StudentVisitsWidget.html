@@ -23,13 +23,14 @@
     <div class="widgets-row">
         <div wicket:id="ministatContainer" class="ministatContainer"></div>
         <wicket:fragment wicket:id="ministatFragment">
-            <div class="panel panel-default panel-sitestats-widget" wicket:id="widgetRow">
-                <div class="panel-body">
-                    <div class="panel-body-left-col">
-                        <span class="panel-widget-value" wicket:id="widgetValue">0 hrs. 0 min. 0 sec.</span>
-                        <span class="panel-widget-title" wicket:id="widgetLabel">Total presence time</span>
+            <span wicket:id="AlertLabel"></span>
+            <div class="panel panel-default panel-sitestats-widget border m-1" wicket:id="widgetRow">
+                <div class="card-body text-center">
+                    <div class="d-flex align-items-center justify-content-center m-2">
+                        <i class="fa me-1 mt-3" wicket:id="widgetIcon"></i>
+                        <h6 class="card-title mb-0" wicket:id="widgetLabel">Total presence time</h6>
                     </div>
-                    <span class="panel-icon fa" wicket:id="widgetIcon"></span>
+                    <p class="card-text display-6 my-2" wicket:id="widgetValue">0 hrs. 0 min. 0 sec.</p>
                 </div>
             </div>
         </wicket:fragment>

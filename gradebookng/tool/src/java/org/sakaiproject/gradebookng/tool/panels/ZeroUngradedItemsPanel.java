@@ -51,7 +51,7 @@ public class ZeroUngradedItemsPanel extends BasePanel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+			public void onSubmit(final AjaxRequestTarget target) {
 
 				// fetch all assignments
 				final List<Assignment> assignments = ZeroUngradedItemsPanel.this.businessService.getGradebookAssignments();
@@ -71,7 +71,7 @@ public class ZeroUngradedItemsPanel extends BasePanel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+			public void onSubmit(final AjaxRequestTarget target) {
 				ZeroUngradedItemsPanel.this.window.close(target);
 			}
 		};

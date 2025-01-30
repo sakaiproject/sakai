@@ -88,7 +88,7 @@ public class UserTrackingResultsPanel extends Panel
 		cols.add(new SakaiResponsivePropertyColumn<DetailedEvent, String>(new ResourceModel("de_resultsTable_timestamp"), "eventDate", "eventDate")
 		{
 			@Override
-			protected IModel createLabelModel(IModel rowModel)
+			public IModel getDataModel(IModel rowModel)
 			{
 				// Get the event date
 				DetailedEvent event = (DetailedEvent) rowModel.getObject();
@@ -106,7 +106,7 @@ public class UserTrackingResultsPanel extends Panel
 			}
 
 			@Override
-			protected IModel createLabelModel(IModel rowModel)
+			public IModel getDataModel(IModel rowModel)
 			{
 				// Get the event ID
 				DetailedEvent event = (DetailedEvent) rowModel.getObject();

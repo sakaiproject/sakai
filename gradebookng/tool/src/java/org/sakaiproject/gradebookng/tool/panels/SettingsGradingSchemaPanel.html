@@ -4,16 +4,19 @@
 <body>
 <wicket:panel>
 
-	<div class="panel panel-default">
-		<div class="panel-heading" role="tab" id="settingsGradingSchemaHeader">
-			<h3 class="panel-title">
-				<a role="button" data-toggle="collapse" href="#settingsGradingSchema" aria-expanded="false" aria-controls="settingsGradingSchema">
-					<wicket:message key="settingspage.gradingschema.heading">Grading Schema</wicket:message>
-				</a>
-			</h3>
-		</div>
-		<div wicket:id="settingsGradingSchemaPanel" id="settingsGradingSchema" class="panel-collapse collapse" role="tabpanel" aria-labelledby="settingsGradingSchemaHeader">
-			<div class="panel-body">
+	<div class="accordion-item" id="settingsGradingSchemaHeader">
+		<h2 class="accordion-header">
+			<button class="accordion-button collapsed fw-bold"
+				type="button"
+				data-bs-toggle="collapse"
+				data-bs-target="#settingsGradingSchema"
+				aria-expanded="false"
+				aria-controls="settingsGradingSchema">
+				<wicket:message key="settingspage.gradingschema.heading">Grading Schema</wicket:message>
+			</button>
+		</h2>
+		<div wicket:id="settingsGradingSchemaPanel" id="settingsGradingSchema" class="accordion-collapse collapse" aria-labelledby="settingsGradingSchemaHeader">
+			<div class="accordion-body">
 
 				<div class="container-fluid">
 					<div class="row">
@@ -50,7 +53,7 @@
 								</table>
 								
 								<div>
-									<button wicket:id="addMapping" type="button" class="btn-add-mapping btn btn-default btn-sm"><wicket:message key="settingspage.gradingschema.add" /></button>
+									<button wicket:id="addMapping" type="button" class="btn-link btn-add-mapping btn btn-default btn-sm"><wicket:message key="settingspage.gradingschema.add" /></button>
 								</div>
 							</div>
 														

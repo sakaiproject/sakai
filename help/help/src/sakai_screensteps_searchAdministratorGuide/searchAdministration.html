@@ -5,7 +5,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta content="" name="description">
 <link href="../css/help.css" media="all" rel="stylesheet" type="text/css" charset="utf-8">
-<link href="/library/webjars/fontawesome/4.7.0/css/font-awesome.min.css" media="screen" rel="stylesheet">
+<link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
 <script src="/library/js/headscripts.js" type="text/javascript" charset="utf-8"></script>
 <script type="text/javascript" charset="utf-8">
@@ -19,86 +19,96 @@
 </script>
 </head>
 <body>
-  <div class="screensteps-main-content" role="main">
-    <div class="screensteps-article">
-      <div class="screensteps-article-content">
-
-        <div><div>
+  <div><div>
 <div><h1 class="article-title">Search Administration</h1></div>
-<div><div class="screensteps-steps">    <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
-  <p><em>Note: To complete the procedures in this document, you need to be assigned a role that has the necessary permissions.</em></p>
+<div>
+
+
+
+    <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
+  <div id="text-content_853EFB68-379D-4866-B943-D606C6662FE2" class="text-block-content">
+    <p><em>Note: To complete the procedures in this document, you need to be assigned a role that has the necessary permissions.</em></p>
 <p>Admin users are allowed to administer all aspects of the search engine. These users are allowed access to the administration page of the Search Tool. This page gives these users access to parts of the Search Engine which is used by the Search Tool.</p>
 <p>The Administration page shows information about the indexing worker threads in the server cluster, and their state. It also shows information concerning the current index queue.</p>
+  </div>
 </div>
 
       <div class="step screensteps-section screensteps-depth-1" id="go-to-search">
     <h2 class="step-title screensteps-heading">Go to Search.</h2>
-      <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/003/335/602/original/24a84ebc-c642-440a-b294-df5c71646760.png" alt="" height="112" width="195">
-</div>
+        <div class="image screensteps-image">
+      <img src="https://media.screensteps.com/image_assets/assets/003/335/602/original/24a84ebc-c642-440a-b294-df5c71646760.png" alt="Image of the search button" height="112" width="195">
+  </div>
  
       <div class="step-instructions screensteps-textblock">
-  <p>Select the <strong>Search</strong> tool from the Tool Menu of your site. </p>
+  <div id="text-content_98D60E80-4FE5-404B-AD0D-760AA9045B5C" class="text-block-content">
+    <p>Select the <strong>Search</strong> tool from the Tool Menu of your site. </p>
 <p><em>Note: You must be logged in as an admin user to access the admin Search options.</em></p>
+  </div>
 </div>
  
   </div>
 
       <div class="step screensteps-section screensteps-depth-1" id="click-admin">
     <h2 class="step-title screensteps-heading">Click Admin.</h2>
-      <div class="image screensteps-image">
-    <a href="https://media.screensteps.com/image_assets/assets/003/335/608/original/00116d56-8e7c-4fad-aaf8-e8bc8fbcc0d0.png" class="screensteps-image-zoom">
-      <img src="https://media.screensteps.com/image_assets/assets/003/335/608/medium/00116d56-8e7c-4fad-aaf8-e8bc8fbcc0d0.png" alt="" height="131" width="855">
-    </a>
-</div>
+        <div class="image screensteps-image">
+      <a href="https://media.screensteps.com/image_assets/assets/003/335/608/original/00116d56-8e7c-4fad-aaf8-e8bc8fbcc0d0.png" class="screensteps-image-zoom">
+        <img src="https://media.screensteps.com/image_assets/assets/003/335/608/medium/00116d56-8e7c-4fad-aaf8-e8bc8fbcc0d0.png" alt="Image of admin search button" height="131" width="855">
+      </a>
+  </div>
  
   </div>
 
       <div class="step screensteps-section screensteps-depth-1" id="site-commands-rebuild-site-index-refresh-site-index">
     <h2 class="step-title screensteps-heading">Site Functions (Rebuild Site Index, Refresh Site Index)</h2>
-      <div class="image screensteps-image">
-    <a href="https://media.screensteps.com/image_assets/assets/003/335/604/original/c03ea6ed-562c-4ef8-8094-995873073ed0.png" class="screensteps-image-zoom">
-      <img src="https://media.screensteps.com/image_assets/assets/003/335/604/medium/c03ea6ed-562c-4ef8-8094-995873073ed0.png" alt="" height="126" width="855">
-    </a>
-</div>
+        <div class="image screensteps-image">
+      <a href="https://media.screensteps.com/image_assets/assets/003/335/604/original/c03ea6ed-562c-4ef8-8094-995873073ed0.png" class="screensteps-image-zoom">
+        <img src="https://media.screensteps.com/image_assets/assets/003/335/604/medium/c03ea6ed-562c-4ef8-8094-995873073ed0.png" alt="Image of search options" height="126" width="855">
+      </a>
+  </div>
  
       <div class="step-instructions screensteps-textblock">
-  <p>Site administrators or maintainers are allowed to issues refresh and rebuild commands against the site which they maintain.</p>
+  <div id="text-content_899C681E-8459-49B1-AC7E-3A196D2B25FF" class="text-block-content">
+    <p>Site administrators or maintainers are allowed to issue refresh and rebuild commands against the site which they maintain.</p>
 <ul>
 <li>
 <strong>Rebuild</strong> <strong>Site Index</strong> deletes the index for the current site only, and requests that all tools in the site resubmit all content to the search engine for re-indexing. If you have a large site, this operation may take some time. </li>
 <li>
 <strong>Refresh Site Index</strong> takes all the content in the current site only and refreshes the index for that site. While this command is being enacted upon by the indexer threads, the search index will still contain all of the site content. </li>
 </ul>
+  </div>
 </div>
  
   </div>
 
       <div class="step screensteps-section screensteps-depth-1" id="index-functions">
     <h2 class="step-title screensteps-heading">Index Functions</h2>
-      <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/003/335/605/original/c699e346-8d09-47cb-8762-eb80cdaf61d8.png" alt="" height="77" width="492">
-</div>
+        <div class="image screensteps-image">
+      <img src="https://media.screensteps.com/image_assets/assets/003/335/605/original/c699e346-8d09-47cb-8762-eb80cdaf61d8.png" alt="Image of index functions" height="77" width="492">
+  </div>
  
       <div class="step-instructions screensteps-textblock">
-  <p>The index queue is a queue of indexing commands that are enacted upon by search indexer threads. These commands take 3 forms.</p>
+  <div id="text-content_0B37E443-D166-488A-B247-E42F3B15CBC9" class="text-block-content">
+    <p>The index queue is a queue of indexing commands that are enacted upon by search indexer threads. These commands take 3 forms.</p>
 <ol>
 <li>Global commands that control the whole search engine.</li>
 <li>Site wide commands that control the search engine in the context of the current site.</li>
 <li>Document commands that inform the search engine of items to be added or removed from the index.</li>
 </ol>
+  </div>
 </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="global-commands-rebuild-whole-index-refresh-whole-index-remove-lock">
     <h3 class="step-title screensteps-heading">Global Commands (Rebuild Whole Index, Refresh Whole Index)</h3>
       <div class="step-instructions screensteps-textblock">
-  <p>Only instance administrators are allowed to perform Global operations. </p>
+  <div id="text-content_CA913A40-2C77-4A22-98AB-A1DF40BA9E85" class="text-block-content">
+    <p>Only instance administrators are allowed to perform Global operations. </p>
 <ul>
 <li>
 <strong>Rebuild</strong> <strong>Whole Index</strong> deletes the entire index, and requests that all tools in the system resubmit all content to the search engine for re-indexing. This operation should only be performed with caution, since a large site may take several hours to complete this operation. </li>
 <li>
 <strong>Refresh Whole Index</strong> is only sightly more drastic as it takes all the content known to the search engine, and refreshed the index. While this command is being enacted upon by the indexer threads, the search index will still contain all of the content. </li>
 </ul>
+  </div>
 </div>
  
   </div>
@@ -107,33 +117,31 @@
 
       <div class="step screensteps-section screensteps-depth-1" id="view-search-administration-information">
     <h2 class="step-title screensteps-heading">View Search administration information.</h2>
-      <div class="image screensteps-image">
-    <a href="https://media.screensteps.com/image_assets/assets/003/335/606/original/815045ee-8c84-495b-b09f-e6ba4c28ebb3.png" class="screensteps-image-zoom">
-      <img src="https://media.screensteps.com/image_assets/assets/003/335/606/medium/815045ee-8c84-495b-b09f-e6ba4c28ebb3.png" alt="" height="588" width="855">
-    </a>
-</div>
+        <div class="image screensteps-image">
+      <a href="https://media.screensteps.com/image_assets/assets/005/469/899/original/815045ee-8c84-495b-b09f-e6ba4c28ebb3.png" class="screensteps-image-zoom">
+        <img src="https://media.screensteps.com/image_assets/assets/005/469/899/medium/815045ee-8c84-495b-b09f-e6ba4c28ebb3.png" alt="Image of index results" height="588" width="855">
+      </a>
+  </div>
  
       <div class="step-instructions screensteps-textblock">
-  <ol>
+  <div id="text-content_C081D34D-A255-46DA-ABC9-13746E52D57D" class="text-block-content">
+    <ol>
 <li>The first block of information informs you when the index was last loaded by the Index Searcher on the cluster node you are connected to. It also informs you of current index activity, which may be none if no indexing is being performed, or a indexer thread id and an expected time of completion if there is an index operation in progress. The final information item in this block is the state of the index and the index queue.</li>
 <li>
 <strong>Master Control Records</strong> informs you of the state of any global commands in the index queue. </li>
 <li>
 <strong>Site Control Records</strong> informs you of the state of any work site control records in the index queue. This will include commands from sites other than the ones that you maintain.</li>
 <li>
-<strong>Index Workers</strong> provides a list of all indexer threads in the Sakai cluster. In this list is the ID of the thread, the last time a heartbeat was received, and the current state of the thread, either idle or running. If the thread its ID will be present in the first information block with an estimated time of completion.</li>
+<strong>Index Workers</strong> provides a list of all indexer threads in the Sakai cluster. In this list is the ID of the thread, the last time a heartbeat was received, and the current state of the thread, either idle or running. In the thread its ID will be present in the first information block with an estimated time of completion.</li>
 <li>Finally there is a block of information about the search index segments that are used by the search engine to store its state.</li>
 </ol>
+  </div>
 </div>
  
   </div>
 
 
+</div>
 </div></div>
-</div></div>
-
-      </div>
-    </div>
-  </div>
 </body>
 </html>

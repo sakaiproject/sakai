@@ -27,6 +27,7 @@ import org.w3c.dom.Element;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * <p>
@@ -77,6 +78,9 @@ public interface UserDirectoryService extends EntityProducer
 	/** Cache keys for the id/eid mapping **/
 	static final String EIDCACHE = "eid:";
 	static final String IDCACHE = "id:";
+
+	// A user type used for simulating other user types
+	String ROLEVIEW_USER_TYPE = "roleview";
 
 	/**
 	 * This function returns a boolean value of true/false,
@@ -279,13 +283,6 @@ public interface UserDirectoryService extends EntityProducer
 	int countUsers();
 
 	/**
-	 * Remove authentication for the current user.
-	 *
-	 * @deprecated Unused; will likely be removed from the interface in 2.0
-	 */
-	void destroyAuthentication();
-
-	/**
 	 * Get a locked user object for editing. Must commitEdit() to make official, or cancelEdit() when done!
 	 *
 	 * @param id
@@ -347,6 +344,14 @@ public interface UserDirectoryService extends EntityProducer
 	 *            if not found
 	 */
 	User getUser(String id) throws UserNotDefinedException;
+
+	/**
+	 * Access a user object as an Optional.
+	 *
+	 * @param userId The user id string.
+	 * @return A user object containing the user information wrapped in an Optional
+	 */
+	Optional<User> getOptionalUser(String userId);
 
 	/**
 	 * Access a user object, given an enterprise id.
@@ -500,6 +505,16 @@ public interface UserDirectoryService extends EntityProducer
 	 * @return The user id portion, the bit after the last slash
 	 */
 	String idFromReference(String reference);
+
+	/**
+	 * Check if the id or eid is a user type roleview.
+	 * This check only looks in local storage (non-provided) which is the only place
+	 * these types of user should exist.
+	 *
+	 * @param id the user id to check
+	 * @return true if the user is only for role view purposes
+	 */
+	boolean isRoleViewType(String id);
 
 	/**
 	 * Indicates if a password is valid and if it has passed the validation check

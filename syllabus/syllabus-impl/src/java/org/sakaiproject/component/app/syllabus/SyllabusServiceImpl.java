@@ -23,6 +23,7 @@ package org.sakaiproject.component.app.syllabus;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -31,8 +32,10 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.TreeSet;
 import java.util.Vector;
+import java.util.stream.Collectors;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.api.app.syllabus.GatewaySyllabus;
 import org.sakaiproject.api.app.syllabus.SyllabusAttachment;
@@ -208,14 +211,6 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 	}
 
 	/**
-	 * {@inheritDoc}
-	 */
-	public HttpAccess getHttpAccess()
-	{
-		return null;
-	}
-
-	/**
 	 * from StringUtil.java
 	 */
 	protected String[] split(String source, String splitter)
@@ -285,30 +280,6 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 	/**
 	 * {@inheritDoc}
 	 */
-	public String getEntityDescription(Reference ref)
-	{
-		return null;
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public ResourceProperties getEntityResourceProperties(Reference ref)
-	{
-		return null;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public Entity getEntity(Reference ref)
-	{
-		return null;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	public Collection getEntityAuthzGroups(Reference ref, String userId)
 	{
 	//permission convert
@@ -330,14 +301,6 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 
 		return rv;
 
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public String getEntityUrl(Reference ref)
-	{
-		return null;
 	}
 
   /*
@@ -685,84 +648,6 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
     return siteId;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.sakaiproject.service.legacy.entity.ResourceService#importResources(java.lang.String,
-   *      java.lang.String, java.util.List)
-   */
-  public void importEntities(String fromSiteId, String toSiteId, List resourceIds)
-  {
-	  try {
-          log.debug("importResources: Begin importing syllabus data");
-
-          String fromPage = fromSiteId;
-          SyllabusItem fromSyllabusItem = syllabusManager.getSyllabusItemByContextId(fromPage);
-          
-          if (fromSyllabusItem != null)
-          {
-            Set fromSyDataSet = syllabusManager.getSyllabiForSyllabusItem(fromSyllabusItem);
-            
-            if (fromSyDataSet != null && fromSyDataSet.size() > 0)
-            {
-                fromSyDataSet = syllabusManager.getSyllabiForSyllabusItem(fromSyllabusItem);
-
-                String toPage=addSyllabusToolToPage(toSiteId, siteService.getSite(toSiteId).getTitle());
-                SyllabusItem toSyItem = syllabusManager.getSyllabusItemByContextId(toPage);
-                
-                if (toSyItem == null)
-                {
-                  toSyItem = syllabusManager.createSyllabusItem(
-                      userDirectoryService.getCurrentUser().getId(), toPage,
-                      fromSyllabusItem.getRedirectURL());
-                }
-                else if (fromSyllabusItem.getRedirectURL() != null) {
-                	toSyItem.setRedirectURL(fromSyllabusItem.getRedirectURL());
-               		syllabusManager.saveSyllabusItem(toSyItem);
-                }                
-
-                Iterator fromSetIter = fromSyDataSet.iterator();
-                while (fromSetIter.hasNext())
-                {
-                  SyllabusData toSyData = (SyllabusData) fromSetIter.next();
-                  Integer positionNo = new Integer(syllabusManager
-                		  .findLargestSyllabusPosition(toSyItem).intValue() + 1);
-                  
-                  SyllabusData newToSyData = syllabusManager
-                  		  .createSyllabusDataObject(toSyData.getTitle(),
-                          positionNo, toSyData.getAsset(), toSyData.getView(),
-                          toSyData.getStatus(), toSyData.getEmailNotification(), toSyData.getStartDate(), toSyData.getEndDate(), toSyData.getLinkCalendar(),
-                          toSyData.getCalendarEventIdStartDate(), toSyData.getCalendarEventIdEndDate(), toSyItem);
-                  
-                  syllabusManager.addSyllabusToSyllabusItem(toSyItem, newToSyData, false);
-                }
-            }
-            else
-            {
-              log.debug("importResources: no data found for syllabusItem id"
-                  + fromSyllabusItem.getSurrogateKey().toString());
-            }
-        }
-        log.debug("importResources: End importing syllabus data");
-   }
-   catch(Exception e)
-   {
-     log.error(e.getMessage(),e);
-   }
-
-  }
-
-  /**
-   * @param siteId
-   * @return iterator of pageids containing syllabus tool for given site
-   */
-  private Iterator getSyllabusPages(String siteId)
-  {
-    List syPages = null;
-    syPages = new ArrayList();
-    syPages.add(siteId);
-    return syPages.iterator();
-  }
 
   public void setNotificationService(NotificationService notificationService)
 	{
@@ -1110,6 +995,15 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 		return toolIds;
 	}
 
+	@Override
+	public List<Map<String, String>> getEntityMap(String fromContext) {
+
+		SyllabusItem item = syllabusManager.getSyllabusItemByContextId(fromContext);
+
+		return syllabusManager.getSyllabiForSyllabusItem(item).stream()
+			.map(d -> Map.of("id", d.getSyllabusId().toString(), "title", d.getTitle())).collect(Collectors.toList());
+	}
+
 	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> options)
 	{
 		Map<String, String> transversalMap = new HashMap<String, String>();
@@ -1122,14 +1016,15 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 					.getSyllabusItemByContextId(fromPage);
 			if (fromSyllabusItem != null) 
 			{
-				Set fromSyDataSet = syllabusManager
-						.getSyllabiForSyllabusItem(fromSyllabusItem);
-				if ((fromSyDataSet != null && fromSyDataSet.size() > 0) || fromSyllabusItem.getRedirectURL() != null) 
+				Set<SyllabusData> fromSyDataSet = syllabusManager.getSyllabiForSyllabusItem(fromSyllabusItem);
+				if (CollectionUtils.isNotEmpty(fromSyDataSet) || fromSyllabusItem.getRedirectURL() != null) 
 				{
-					String toPage = addSyllabusToolToPage(toContext, siteService
-							.getSite(toContext).getTitle());
-					SyllabusItem toSyItem = syllabusManager
-							.getSyllabusItemByContextId(toPage);
+					if (CollectionUtils.isNotEmpty(ids)) {
+						fromSyDataSet = fromSyDataSet.stream().filter(d -> ids.contains(d.getSyllabusId().toString())).collect(Collectors.toSet());
+					}
+
+					String toPage = addSyllabusToolToPage(toContext, siteService.getSite(toContext).getTitle());
+					SyllabusItem toSyItem = syllabusManager.getSyllabusItemByContextId(toPage);
 					String redirectUrl = fromSyllabusItem.getRedirectURL();
 					if (StringUtils.contains(redirectUrl, fromContext))
 					{
@@ -1146,26 +1041,22 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 	                    syllabusManager.saveSyllabusItem(toSyItem);
 	                }
 
-					Iterator fromSetIter = fromSyDataSet.iterator();
-					while (fromSetIter.hasNext()) 
+					for (SyllabusData sd : fromSyDataSet)
 					{
-						SyllabusData toSyData = (SyllabusData) fromSetIter.next();
 						Integer positionNo = new Integer(syllabusManager
 								.findLargestSyllabusPosition(toSyItem)
 								.intValue() + 1);
 						SyllabusData newToSyData = syllabusManager
-								.createSyllabusDataObject(toSyData.getTitle(),
-										positionNo, toSyData.getAsset(),
-										toSyData.getView(), toSyData
-												.getStatus(), toSyData
-												.getEmailNotification(), toSyData.getStartDate(), toSyData.getEndDate(), toSyData.getLinkCalendar(),
-												toSyData.getCalendarEventIdStartDate(), toSyData.getCalendarEventIdEndDate(), toSyItem);
-						Set attachSet = syllabusManager.getSyllabusAttachmentsForSyllabusData(toSyData);
-						Iterator attachIter = attachSet.iterator();
+								.createSyllabusDataObject(sd.getTitle(),
+										positionNo, sd.getAsset(),
+										sd.getView(), sd
+												.getStatus(), sd
+												.getEmailNotification(), sd.getStartDate(), sd.getEndDate(), sd.getLinkCalendar(),
+												sd.getCalendarEventIdStartDate(), sd.getCalendarEventIdEndDate(), toSyItem);
+						Set<SyllabusAttachment> attachSet = syllabusManager.getSyllabusAttachmentsForSyllabusData(sd);
 						Set<SyllabusAttachment> newAttachSet = new TreeSet<SyllabusAttachment>();
-						while(attachIter.hasNext())
+						for (SyllabusAttachment thisAttach : attachSet)
 						{
-							SyllabusAttachment thisAttach = (SyllabusAttachment)attachIter.next();
 							ContentResource oldAttachment = contentHostingService.getResource(thisAttach.getAttachmentId());
 							ContentResource attachment = contentHostingService.addAttachmentResource(
 								oldAttachment.getProperties().getProperty(
@@ -1186,9 +1077,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 				} 
 				else 
 				{
-					log.debug("importResources: no data found for syllabusItem id"
-									+ fromSyllabusItem.getSurrogateKey()
-											.toString());
+					log.debug("no data found for syllabusItem: {}", fromSyllabusItem.getSurrogateKey());
 				}
 			
 			log.debug("importResources: End importing syllabus data");
@@ -1310,32 +1199,28 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 		Map<String, String> transversalMap = new HashMap<String, String>();
 		try
 		{
-			if(cleanup == true)
+			if (cleanup)
 			{
-				String toSiteId = toContext;
-			
-				SyllabusItem fromSyllabusItem = syllabusManager.getSyllabusItemByContextId(toSiteId);
+				SyllabusItem targetSyllabusItem = syllabusManager.getSyllabusItemByContextId(toContext);
 			    
-				if (fromSyllabusItem != null) 
+				if (targetSyllabusItem != null)
 				{
-					Set fromSyDataSet = syllabusManager.getSyllabiForSyllabusItem(fromSyllabusItem);
-					
-					Iterator fromSetIter = fromSyDataSet.iterator();
-					
-					while (fromSetIter.hasNext()) 
+					// Create a copy of the targetSyllabusData set
+					Set<SyllabusData> targetSyllabusDataCopy = new HashSet<>(syllabusManager.getSyllabiForSyllabusItem(targetSyllabusItem));
+
+					for (SyllabusData sd : targetSyllabusDataCopy)
 					{
-						SyllabusData fromSyllabusData = (SyllabusData) fromSetIter.next();
-						
-						syllabusManager.removeSyllabusFromSyllabusItem(fromSyllabusItem, fromSyllabusData);
+						log.info("Removed SyllabusData during cleanup in transferCopyEntities: {}", sd.getSyllabusId());
+						syllabusManager.removeSyllabusFromSyllabusItem(targetSyllabusItem, sd);
 					}
 				}
 			}
 		}
 		catch (Exception e)
 		{
-			log.debug("Syllabus transferCopyEntities failed" + e);
+			log.error("syllabus import from site [{}] to site [{}] failed, {}", fromContext, toContext, e.toString());
 		}
-		transversalMap.putAll(transferCopyEntities(fromContext, toContext, ids, null));
+		transversalMap.putAll(transferCopyEntities(fromContext, toContext, ids, options));
 		
 		return transversalMap;
 	}

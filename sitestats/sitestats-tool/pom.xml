@@ -9,7 +9,7 @@
   <parent>
     <groupId>org.sakaiproject.sitestats</groupId>
     <artifactId>sitestats</artifactId>
-    <version>23-SNAPSHOT</version><!-- sitestats.version --> 
+    <version>25-SNAPSHOT</version><!-- sitestats.version --> 
   </parent>
   
   <!-- Packaging -->
@@ -62,7 +62,7 @@
     <!-- Sakai Wicket library -->
     <dependency>
         <groupId>org.sakaiproject.wicket</groupId>
-        <artifactId>wicket-tool-6</artifactId>
+        <artifactId>wicket-tool-9</artifactId>
     </dependency>
 
     <!-- Apache Wicket -->
@@ -88,10 +88,6 @@
     <dependency>
       <groupId>org.apache.wicket</groupId>
       <artifactId>wicket-spring</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.wicket</groupId>
-      <artifactId>wicket-devutils</artifactId>
     </dependency>
 
     <!-- Apache Commons -->
@@ -148,7 +144,7 @@
       <plugin>
         <groupId>net.alchim31.maven</groupId>
         <artifactId>yuicompressor-maven-plugin</artifactId>
-        <version>1.2</version>
+        <version>1.5.1</version>
         <executions>
           <execution>
             <goals>

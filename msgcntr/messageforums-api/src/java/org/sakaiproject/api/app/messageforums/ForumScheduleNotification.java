@@ -27,6 +27,6 @@ public interface ForumScheduleNotification extends ScheduledInvocationCommand{
 	
 	public void scheduleAvailability(DiscussionTopic topic);
 	
-	public boolean makeAvailableHelper(boolean availabilityRestricted, Date openDate, Date closeDate);
+	public boolean makeAvailableHelper(boolean availabilityRestricted, Date openDate, Date closeDate, Boolean lockedAfterClosed);
 	
 }

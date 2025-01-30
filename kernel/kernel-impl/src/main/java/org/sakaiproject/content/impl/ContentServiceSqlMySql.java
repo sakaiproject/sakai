@@ -26,43 +26,5 @@ package org.sakaiproject.content.impl;
  */
 public class ContentServiceSqlMySql extends ContentServiceSqlDefault
 {
-	/**
-	 * returns the sql statement to add the FILE_SIZE column to the CONTENT_RESOURCE table.
-	 */
-	public String getAddFilesizeColumnSql(String table)
-	{
-		return "alter table " + table + " add FILE_SIZE BIGINT;";
-	}
 
-	/**
-	 * returns the sql statement to add the CONTEXT column to the CONTENT_RESOURCE table.
-	 */
-	public String getAddContextColumnSql(String table)
-	{
-		return "alter table " + table + " add CONTEXT VARCHAR(99);";
-	}
-
-	/**
-	 * returns the sql statement to add the RESOURCE_TYPE_ID column to the specified table.
-	 */
-	public String getAddResourceTypeColumnSql(String table)
-	{
-		return "alter table " + table + " add RESOURCE_TYPE_ID VARCHAR(255) default null"; 
-	}
-	
-	/**
-	 * returns the sql statement to add an index of the CONTENT column to the CONTENT_RESOURCE table.
-	 */
-	public String getAddContextIndexSql(String table)
-	{
-		return "create index " + table.trim() + "_CONTEXT_INDEX on " + table + " (CONTEXT);";
-	}
-	
-	/**
-	 * returns the sql statement to check if any FILE_SIZE columns exist with NULL values
-	 */
-	public String getFilesizeExistsSql() 
-	{
-		return "select RESOURCE_ID from CONTENT_RESOURCE where FILE_SIZE is NULL limit 1";
-	}
 }

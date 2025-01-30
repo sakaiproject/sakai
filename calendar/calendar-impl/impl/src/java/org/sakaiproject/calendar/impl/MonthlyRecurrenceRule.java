@@ -34,7 +34,7 @@ import org.w3c.dom.Element;
 public class MonthlyRecurrenceRule extends RecurrenceRuleBase
 {
 	/** The unique type / short frequency description. */
-	protected static final String FREQ = "month";
+	public static final String FREQ = "month";
 
 	/**
 	 * Default constructor

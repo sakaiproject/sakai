@@ -21,8 +21,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Test;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
+import org.sakaiproject.assignment.api.model.AssessorSubmissionId;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
+import org.sakaiproject.assignment.api.model.PeerAssessmentItem;
 
 /**
  * Created by enietzel on 5/11/17.
@@ -101,5 +103,31 @@ public class AssignmentReferenceTest {
         String reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
         Assert.assertNotNull(reference);
         Assert.assertEquals("/assignment/s/" + context + "/" + assignmentId + "/" + submissionId, reference);
+    }
+
+    @Test
+    public void peerAssessmentItemTest() {
+        final String context = UUID.randomUUID().toString();
+        final String assignmentId = UUID.randomUUID().toString();
+        final String submissionId = UUID.randomUUID().toString();
+        final String userId = UUID.randomUUID().toString();
+
+        PeerAssessmentItem pai = new PeerAssessmentItem();
+        pai.setAssignmentId(assignmentId);
+        pai.setId(new AssessorSubmissionId(submissionId, userId));
+        String reference = AssignmentReferenceReckoner.reckoner().peerAssessmentItem(pai).context(context).reckon().getReference();
+        Assert.assertNotNull(reference);
+        Assert.assertEquals("/assignment/peer_review/" + context + "/" + assignmentId + "/" + submissionId + "/" + userId, reference);
+    }
+
+    @Test
+    public void PeerAssessmentItemReferenceTest() {
+        String reference = "/assignment/peer_review/***CONTEXT_ID***/***ASSIGNMENT_ID***/***SUBMISSION_ID***/***USER_ID***";
+        AssignmentReferenceReckoner.AssignmentReference assignmentReference = AssignmentReferenceReckoner.reckoner().reference(reference).reckon();
+        Assert.assertEquals("assignment", assignmentReference.getType());
+        Assert.assertEquals("peer_review", assignmentReference.getSubtype());
+        Assert.assertEquals("***CONTEXT_ID***", assignmentReference.getContext());
+        Assert.assertEquals("***ASSIGNMENT_ID***", assignmentReference.getContainer());
+        Assert.assertEquals("***SUBMISSION_ID***/***USER_ID***", assignmentReference.getId());
     }
 }

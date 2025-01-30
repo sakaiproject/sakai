@@ -51,6 +51,7 @@ import org.sakaiproject.time.api.Time;
  * </p>
  * @deprecated This was used in earlier versions of Sakai and isn't supported any longer.
  */
+@Deprecated
 @Slf4j
 public class BaseXmlFileStorage
 {

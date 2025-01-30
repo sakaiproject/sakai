@@ -40,6 +40,17 @@ public interface SessionState
 	Object getAttribute(String name);
 
 	/**
+	 * Access the named attribute.
+	 *
+	 * @param name
+	 *        The attribute name.
+	 * @param def
+	 *        The Object to return if name is not found in the session
+	 * @return The named attribute value or def if not found
+	 */
+	Object getAttribute(String name, Object def);
+
+	/**
 	 * Set the named attribute value to the provided object.
 	 * 
 	 * @param name

@@ -21,7 +21,7 @@
         });
         </script>
         <%@ include file="/jsp/discussionForum/menu/forumsMenu.jsp" %>
-  		<h:panelGrid columns="2" width="100%" styleClass="navPanel  specialLink">
+  		<h:panelGrid columns="1" width="100%" styleClass="navPanel  specialLink">
           <h:panelGroup>
 			  <div class="page-header">
 			 	<f:verbatim><h1></f:verbatim>
@@ -42,7 +42,7 @@
 		  </h:panelGroup>
         </h:panelGrid>
   	
-      <div class="table-responsive">
+      <div class="table table-responsive">
   		<h:dataTable styleClass="table table-hover table-striped table-bordered lines nolines" id="members" value="#{mfStatisticsBean.allUserStatistics}" var="stat" rendered="true"
    	 		columnClasses="specialLink,bogus,bogus,bogus,bogus" cellpadding="0" cellspacing="0">
   			<h:column>

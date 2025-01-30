@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.sakaiproject</groupId>
 		<artifactId>master</artifactId>
-		<version>23-SNAPSHOT</version>
+		<version>25-SNAPSHOT</version>
 		<relativePath>../master/pom.xml</relativePath>
 	</parent>
 	<name>Profile2</name>
@@ -14,7 +14,7 @@
 	<!-- ProjectVersion -->
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<wicket.version>6.30.0</wicket.version>
+		<wicket.version>9.19.0</wicket.version>
 	</properties>
 	<modules>
 		<module>api</module>
@@ -63,11 +63,6 @@
 				<groupId>org.apache.wicket</groupId>
 				<artifactId>wicket-extensions</artifactId>
 				<version>${wicket.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.twitter4j</groupId>
-				<artifactId>twitter4j-core</artifactId>
-				<version>4.0.7</version>
 			</dependency>
 			<dependency>
 				<groupId>org.wicketstuff</groupId>

@@ -48,6 +48,8 @@ public class GbStudentGradeInfo implements Serializable {
 	private CourseGradeTransferBean courseGrade;
 	private Map<Long, GbGradeInfo> grades;
 	private Map<Long, Double> categoryAverages;
+	@Setter
+	private boolean hasCourseGradeComment;
 	private List<String> sections;
 
 	public GbStudentGradeInfo() {

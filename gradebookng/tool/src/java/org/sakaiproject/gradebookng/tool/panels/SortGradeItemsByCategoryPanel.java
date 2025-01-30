@@ -69,6 +69,16 @@ public class SortGradeItemsByCategoryPanel extends Panel {
 				categoryItem.add(new AttributeModifier("style",
 						String.format("border-left-color: %s", settings.getCategoryColor(category.getName()))));
 				categoryItem.add(new Label("name", category.getName()));
+				categoryItem.add(new HiddenField<>("category_id",
+						Model.of(category.getId())).add(
+								new AttributeModifier("name", String.format("category_id", category.getId()))));
+				categoryItem.add(new HiddenField<>("category_order",
+						Model.of(category.getCategoryOrder())).add(
+								new AttributeModifier("name", String.format("category_%s[order]", category.getId()))));
+				categoryItem.add(new HiddenField<>("category_current_order",
+						Model.of(category.getCategoryOrder())).add(
+								new AttributeModifier("name", String.format("category_%s[current_order]", category.getId()))));
+
 				categoryItem.add(new ListView<Assignment>("gradeItemList", assignments) {
 					@Override
 					protected void populateItem(final ListItem<Assignment> assignmentItem) {

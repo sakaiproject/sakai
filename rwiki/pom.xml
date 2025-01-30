@@ -21,7 +21,7 @@ limitations under the License.
   <parent>
     <groupId>org.sakaiproject</groupId>
     <artifactId>master</artifactId>
-    <version>23-SNAPSHOT</version>
+    <version>25-SNAPSHOT</version>
     <relativePath>../master/pom.xml</relativePath>
   </parent>
   <groupId>org.sakaiproject</groupId>
@@ -38,15 +38,6 @@ limitations under the License.
     <module>rwiki-tool/tool</module>
     <module>rwiki-access-tool</module>
   </modules>
-
-  <profiles>
-    <profile>
-      <id>was</id>
-      <modules>
-        <module>rwiki-impl/rwiki-shared-serializer</module>
-      </modules>
-    </profile>
-  </profiles>
 
   <dependencyManagement>
     <dependencies>
@@ -85,27 +76,6 @@ limitations under the License.
         <artifactId>sakai-rwiki-impl</artifactId>
         <version>${project.version}</version>
         <type>jar</type>
-      </dependency>
-      <dependency>
-          <groupId>xerces</groupId>
-          <artifactId>xmlParserAPIs</artifactId>
-          <version>2.6.2</version>
-          <type>jar</type>
-          <scope>compile</scope>
-      </dependency>
-      <dependency>
-          <groupId>xerces</groupId>
-          <artifactId>xercesImpl</artifactId>
-          <version>2.12.2</version>
-          <type>jar</type>
-          <scope>compile</scope>
-      </dependency>
-      <dependency>
-          <groupId>xalan</groupId>
-          <artifactId>xalan</artifactId>
-          <version>2.7.2</version>
-          <type>jar</type>
-          <scope>compile</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>

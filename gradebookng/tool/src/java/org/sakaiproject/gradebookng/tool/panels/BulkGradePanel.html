@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:wicket="http://wicket.apache.org">
+<body>
+<wicket:panel >
+    <div class="sak-banner-info my-3" wicket:id="bulkcaption" />
+    <div class="bulkInputArea my-3">
+        <strong><span wicket:id="replacelabel" /></strong>
+        <input wicket:id="replacementScore" />
+        <span wicket:id="pointsLabel" />
+        <textarea wicket:id="replacementComment" />
+    </div>
+    <div id="buttonDiv">
+        <button class="btn-link" wicket:id="replace" onclick="" >
+            <wicket:message key="quickentry.comment.link" />
+        </button>
+        <button class="btn-link" wicket:id="cancel" >
+            <wicket:message key="button.cancel" />
+        </button>
+    </div>
+
+</wicket:panel>
+</body>
+</html>

@@ -30,10 +30,16 @@ import javax.faces.event.ActionListener;
 import javax.faces.model.SelectItem;
 
 import lombok.extern.slf4j.Slf4j;
-import org.sakaiproject.samigo.util.SamigoConstants;
 import org.apache.commons.lang3.StringUtils;
+
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.samigo.api.SamigoAvailableNotificationService;
+import org.sakaiproject.samigo.api.SamigoReferenceReckoner;
+import org.sakaiproject.samigo.util.SamigoConstants;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tasks.api.Priorities;
 import org.sakaiproject.tasks.api.Task;
@@ -62,7 +68,14 @@ import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.TextFormat;
+import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
+
+import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
+import org.sakaiproject.time.api.Time;
+import java.util.ListIterator;
+import java.time.Instant;
+import org.sakaiproject.component.cover.ComponentManager;
 
 @Slf4j
 public class RepublishAssessmentListener implements ActionListener {
@@ -75,7 +88,11 @@ public class RepublishAssessmentListener implements ActionListener {
 	private CalendarServiceHelper calendarService = IntegrationContextFactory.getInstance().getCalendarServiceHelper();
 	private TaskService taskService = ComponentManager.get(TaskService.class);;
 	private static final ResourceLoader rl = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
-	  
+	private final SamigoAvailableNotificationService samigoAvailableNotificationService = ComponentManager.get(SamigoAvailableNotificationService.class);
+	private EventTrackingService eventTrackingService;
+	public RepublishAssessmentListener() {
+		eventTrackingService = ComponentManager.get(EventTrackingService.class);
+	}
 	public void processAction(ActionEvent ae) throws AbortProcessingException {
 		AssessmentBean assessmentBean = (AssessmentBean) ContextUtil
 				.lookupBean("assessmentBean");
@@ -87,26 +104,25 @@ public class RepublishAssessmentListener implements ActionListener {
 		
 		// Go to database to get the newly updated data. The data inside beans might not be up to date.
 		PublishedAssessmentFacade assessment = publishedAssessmentService.getPublishedAssessment(publishedAssessmentId);
-		EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_PUBLISHED_ASSESSMENT_REPUBLISH, "siteId=" + AgentFacade.getCurrentSiteId() + ", publishedAssessmentId=" + publishedAssessmentId, true));
+		eventTrackingService.post(eventTrackingService.newEvent(SamigoConstants.EVENT_PUBLISHED_ASSESSMENT_REPUBLISH, "siteId=" + AgentFacade.getCurrentSiteId() + ", publishedAssessmentId=" + publishedAssessmentId, true));
 
 		assessment.setStatus(AssessmentBaseIfc.ACTIVE_STATUS);
 		publishedAssessmentService.saveAssessment(assessment);
 
 		AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
 		AuthorizationBean authorization = (AuthorizationBean) ContextUtil.lookupBean("authorization");
+		PublishedAssessmentSettingsBean publishedAssessmentSettings = (PublishedAssessmentSettingsBean) ContextUtil.lookupBean("publishedSettings");
 		// If there are submissions, need to regrade them
 		if (author.getIsRepublishAndRegrade() && hasGradingData) {
-			regradeRepublishedAssessment(publishedAssessmentService, assessment);
+			publishedAssessmentService.regradePublishedAssessment(assessment, publishedAssessmentSettings.getupdateMostCurrentSubmission());
 		}
-		
-		EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_PUBLISHED_ASSESSMENT_REPUBLISH, "siteId=" + AgentFacade.getCurrentSiteId() + ", publishedAssessmentId=" + publishedAssessmentId, true));
+		postUserNotification(assessment, publishedAssessmentSettings);
+		eventTrackingService.post(eventTrackingService.newEvent(SamigoConstants.EVENT_PUBLISHED_ASSESSMENT_REPUBLISH, "siteId=" + AgentFacade.getCurrentSiteId() + ", publishedAssessmentId=" + publishedAssessmentId, true));
 		assessment.setStatus(AssessmentBaseIfc.ACTIVE_STATUS);
 		publishedAssessmentService.saveAssessment(assessment);
-		updateGB(assessment);
-		
+		publishedAssessmentService.updateGradebook((PublishedAssessmentData) assessment.getData());
 		PublishRepublishNotificationBean publishRepublishNotification = (PublishRepublishNotificationBean) ContextUtil.lookupBean("publishRepublishNotification");
-		
-		PublishedAssessmentSettingsBean publishedAssessmentSettings = (PublishedAssessmentSettingsBean) ContextUtil.lookupBean("publishedSettings");
+
 		PublishAssessmentListener publishAssessmentListener = new PublishAssessmentListener();
 		String subject = publishRepublishNotification.getNotificationSubject();
 		String notificationMessage = publishAssessmentListener.getNotificationMessage(publishRepublishNotification, publishedAssessmentSettings.getTitle(), publishedAssessmentSettings.getReleaseTo(), 
@@ -115,9 +131,6 @@ public class RepublishAssessmentListener implements ActionListener {
 				publishedAssessmentSettings.getSubmissionsAllowed(), publishedAssessmentSettings.getScoringType(), publishedAssessmentSettings.getFeedbackDelivery(),
 				publishedAssessmentSettings.getFeedbackDateInClientTimezoneString(), publishedAssessmentSettings.getFeedbackEndDateString(), publishedAssessmentSettings.getFeedbackScoreThreshold(),
 				publishedAssessmentSettings.getAutoSubmit(), publishedAssessmentSettings.getLateHandling(), publishedAssessmentSettings.getRetractDateString());
-		if (publishRepublishNotification.getSendNotification()) {
-		    publishAssessmentListener.sendNotification(assessment, publishedAssessmentService, subject, notificationMessage, publishedAssessmentSettings.getReleaseTo());
-		}
 		
 		GradingService gradingService = new GradingService();
 		AssessmentService assessmentService = new AssessmentService();
@@ -162,130 +175,42 @@ public class RepublishAssessmentListener implements ActionListener {
 			}
 			taskService.createTask(task, users, Priorities.HIGH);
 		}
-		
+		// Update scheduled assessment available notification
+		samigoAvailableNotificationService.scheduleAssessmentAvailableNotification(publishedAssessmentId);
 		author.setOutcome("author");
 	}
-	
-	private void regradeRepublishedAssessment (PublishedAssessmentService pubService, PublishedAssessmentFacade publishedAssessment) {
-		Map publishedItemHash = pubService.preparePublishedItemHash(publishedAssessment);
-		Map publishedItemTextHash = pubService.preparePublishedItemTextHash(publishedAssessment);
-		Map publishedAnswerHash = pubService.preparePublishedAnswerHash(publishedAssessment);
-		PublishedAssessmentSettingsBean publishedAssessmentSettings = (PublishedAssessmentSettingsBean) ContextUtil
-			.lookupBean("publishedSettings");
-		// Actually we don't really need to consider linear or random here.
-		// boolean randomAccessAssessment = publishedAssessmentSettings.getItemNavigation().equals("2");
-		boolean updateMostCurrentSubmission = publishedAssessmentSettings.getupdateMostCurrentSubmission();
-		GradingService service = new GradingService();
-		List list = service.getAllAssessmentGradingData(publishedAssessment.getPublishedAssessmentId());
-		Iterator iter = list.iterator();
-		if (updateMostCurrentSubmission) {
-			publishedAssessment.setLastNeedResubmitDate(new Date());
-		    String currentAgent = "";
-			while (iter.hasNext()) {
-				AssessmentGradingData adata = (AssessmentGradingData) iter.next();
-				if (!currentAgent.equals(adata.getAgentId())){
-					if (adata.getForGrade().booleanValue()) {
-						adata.setForGrade(Boolean.FALSE);
-						adata.setStatus(AssessmentGradingData.ASSESSMENT_UPDATED_NEED_RESUBMIT);
+
+	private void postUserNotification(PublishedAssessmentFacade assessment, PublishedAssessmentSettingsBean publishedAssessmentSettings) {
+
+		List<ExtendedTime> extendedTimes = publishedAssessmentSettings.getExtendedTimes();
+		Instant instant = assessment.getStartDate().toInstant();
+		if (instant.isBefore(Instant.now())) {
+			eventTrackingService.post(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_UPDATE_AVAILABLE, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(), true));
+			if (publishedAssessmentSettings.getExtendedTimesSize() != 0) {
+				ListIterator<ExtendedTime> it = extendedTimes.listIterator();
+				while (it.hasNext()) {
+					ExtendedTime exTime = (ExtendedTime) it.next();
+					Instant startInstant = exTime.getStartDate().toInstant();
+					if (startInstant.isAfter(Instant.now())) {
+						eventTrackingService.delay(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_AVAILABLE, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(), true), startInstant);
 					}
-					else {
-						adata.setStatus(AssessmentGradingData.ASSESSMENT_UPDATED);
-					}
-					currentAgent = adata.getAgentId();
 				}
-				service.storeGrades(adata, true, publishedAssessment, publishedItemHash, publishedItemTextHash, publishedAnswerHash, true);
 			}
-		}
-		else {
-			while (iter.hasNext()) {
-				AssessmentGradingData adata = (AssessmentGradingData) iter.next();
-				service.storeGrades(adata, true, publishedAssessment, publishedItemHash, publishedItemTextHash, publishedAnswerHash, true);
+		} else {
+			eventTrackingService.delay(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_AVAILABLE, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(), true), instant);
+			if (publishedAssessmentSettings.getExtendedTimesSize() != 0) {
+				ListIterator<ExtendedTime> it = extendedTimes.listIterator();
+				while (it.hasNext()) {
+					ExtendedTime exTime = (ExtendedTime) it.next();
+					Instant startInstant = exTime.getStartDate().toInstant();
+					if (startInstant.isBefore(Instant.now())) {
+						eventTrackingService.post(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_UPDATE_AVAILABLE, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(), true));
+					} else if (startInstant.isAfter(Instant.now()) && !instant.equals(startInstant)) {
+						eventTrackingService.delay(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_AVAILABLE, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(), true), startInstant);
+					}
+				}
 			}
 		}
 	}
 
-	private void updateGB(PublishedAssessmentFacade assessment) {
-		// a. if Gradebook does not exists, do nothing
-		// b. if Gradebook exists, just call removeExternal first to clean up all data. And call addExternal to create
-		// a new record. At the end, populate the scores by calling updateExternalAssessmentScores
-		org.sakaiproject.grading.api.GradingService g = null;
-		if (integrated) {
-			g = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().getBean(
-					"org.sakaiproject.grading.api.GradingService");
-		}
-
-    PublishedEvaluationModel evaluation = (PublishedEvaluationModel) assessment.getEvaluationModel();
-    //Integer scoringType = EvaluationModelIfc.HIGHEST_SCORE;
-    if (evaluation == null) {
-      evaluation = new PublishedEvaluationModel();
-      evaluation.setAssessmentBase(assessment.getData());
-    }
-    
-    Integer scoringType = evaluation.getScoringType();
-    if (evaluation.getToGradeBook() != null	&& evaluation.getToGradeBook().equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())) {
-
-      String assessmentName = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(assessment.getTitle().trim());
-      boolean gbItemExists = false;
-      try {
-        gbItemExists = gbsHelper.isAssignmentDefined(assessmentName, g);
-      } catch (Exception e1) {
-        log.info("assessment does not exist: {}", assessmentName);
-      }
-      
-      try {
-        if (!gbItemExists) {
-          log.debug("before gbsHelper.addToGradebook()");
-          gbsHelper.addToGradebook((PublishedAssessmentData) assessment.getData(), null, g);
-        } else {
-          log.debug("before gbsHelper.updateGradebook()");
-          gbsHelper.updateGradebook((PublishedAssessmentData) assessment.getData(), g);
-        }
-        
-        // any score to copy over? get all the assessmentGradingData and copy over
-        GradingService gradingService = new GradingService();
-        // need to decide what to tell gradebook
-        List list = null;
-
-        if ((scoringType).equals(EvaluationModelIfc.HIGHEST_SCORE)) {
-          list = gradingService.getHighestSubmittedOrGradedAssessmentGradingList(assessment.getPublishedAssessmentId());
-        } else {
-          list = gradingService.getLastSubmittedOrGradedAssessmentGradingList(assessment.getPublishedAssessmentId());
-        }
-        
-        log.debug("list size = {}", list.size());
-        for (int i = 0; i < list.size(); i++) {
-          try {
-            AssessmentGradingData ag = (AssessmentGradingData) list.get(i);
-            log.debug("ag.scores={}", ag.getTotalAutoScore());
-            // Send the average score if average was selected for multiple submissions
-            if (scoringType.equals(EvaluationModelIfc.AVERAGE_SCORE)) {
-              // status = 5: there is no submission but grader update something in the score page
-              if(ag.getStatus() ==5) {
-                ag.setFinalScore(ag.getFinalScore());
-              } else {
-                Double averageScore = PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
-                getAverageSubmittedAssessmentGrading(Long.valueOf(assessment.getPublishedAssessmentId()), ag.getAgentId());
-                ag.setFinalScore(averageScore);
-              }	
-            }
-            gbsHelper.updateExternalAssessmentScore(ag, g);
-          } catch (Exception e) {
-            log.warn("Exception occues in " + i	+ "th record. Message:" + e.getMessage());
-          }
-        }
-      } catch (Exception e2) {
-        log.warn("Exception thrown in updateGB():" + e2.getMessage());
-      }
-    }
-    else{ //remove
-      try{
-        gbsHelper.removeExternalAssessment(
-            GradebookFacade.getGradebookUId(),
-            assessment.getPublishedAssessmentId().toString(), g);
-      }
-      catch(Exception e){
-        log.info("*** oh well, looks like there is nothing to remove:"+e.getMessage());
-      }
-    }
-	}
 }

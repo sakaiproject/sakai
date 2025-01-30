@@ -339,21 +339,6 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
         return (Area) getHibernateTemplate().execute(hcb);
     }
     
-    
-
-    public Area getAreaByType(final String typeId) {
-      final String currentUser = getCurrentUser();
-      log.debug("getAreaByType executing for current user: " + currentUser);
-      HibernateCallback hcb = new HibernateCallback() {
-          public Object doInHibernate(Session session) throws HibernateException {
-              Query q = session.getNamedQuery(QUERY_AREA_BY_TYPE);              
-              q.setParameter("typeId", typeId, StringType.INSTANCE);
-              return q.uniqueResult();
-          }
-      };        
-      return (Area) getHibernateTemplate().execute(hcb);
-    }
-       
     // helpers
 
     private String getNextUuid() {

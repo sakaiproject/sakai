@@ -41,7 +41,7 @@ import org.w3c.dom.Element;
 public class TThRecurrenceRule extends RecurrenceRuleBase
 {
 	/** The unique type / short frequency description. */
-	protected final static String FREQ = "TTh";
+	public final static String FREQ = "TTh";
 	private CalendarUtil calUtil = null;
 	/**
 	* Construct.

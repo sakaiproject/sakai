@@ -542,7 +542,7 @@ ${extra}")
 *# ------------------------------------------------------------------
 #macro (chef_setupformattedtextarea $textarea_id)
 	#if (!$is_wireless_device)
-		<script type="text/javascript" defer="1">sakai.editor.launch('$textarea_id');</script>	
+		<script>sakai.editor.launch('$textarea_id');</script>	
 	#end
 #end
 
@@ -553,7 +553,7 @@ ${extra}")
 
 #macro (chef_setupformattedtextareaparams $textarea_id $height $width $ToolBarSetChoice)
 	#if (!$is_wireless_device)
-		<script type="text/javascript" defer="1">sakai.editor.launch('$textarea_id', { height: '$height', width: '$width', toolbarSet: '$ToolBarSetChoice' } );</script>
+		<script>sakai.editor.launch('$textarea_id', { height: '$height', width: '$width', toolbarSet: '$ToolBarSetChoice' } );</script>
 	#end	
 #end
 
@@ -562,7 +562,7 @@ ${extra}")
 # $textarea_id - The HTML id of the textarea form element already in the HTML document
 *# ------------------------------------------------------------------
 #macro (chef_setuphtmldocumenttextarea $textarea_id)
-	<script defer="1">sakai.editor.launch('$textarea_id');</script>
+	<script>sakai.editor.launch('$textarea_id');</script>
 #end
 
 
@@ -628,7 +628,7 @@ ${extra}")
 *#
 #macro (viewFilterPanel $panelName $selectName $selectOptions $actionKey)
 #set($libLink="#libraryLink('js/sakai-table-toolbar/viewFilterPanelMacro.js')")
-<script type='text/javascript' src='$libLink' defer></script>
+<script src='$libLink' defer></script>
 <div class="sakai-table-viewFilter">
 	<label for="viewFilter_$panelName">$tlang.getString("view.label")</label>
 	<span class="skip">$tlang.getString("gen.listnavselect")</span>
@@ -645,7 +645,7 @@ ${extra}")
 *#
 #macro (pagerPanel $panelName)
 #set($libLink="#libraryLink('js/sakai-table-toolbar/pagerPanelMacro.js')")
-<script type='text/javascript' src='$libLink' defer></script>
+<script src='$libLink' defer></script>
 #if(!$allMsgNumber)#set($allMsgNumber = 0)#end
 #if(!$topMsgPos || $allMsgNumber == 0) #set($topMsgPos = 0) #end
 #if(!$btmMsgPos || $allMsgNumber == 0) #set($btmMsgPos = 0) #end
@@ -705,3 +705,50 @@ ${extra}")
 #set($libLink="#libraryLink('js/sakai-table-toolbar/searchFilterPanelMacro.js')")
 <script type='text/javascript' src='$libLink' defer></script>
 #end ## searchFilterPanel
+
+#* -----------------------------------------------------------------------------------
+#  Adds an object with a common datatables config
+#  -----------------------------------------------------------------------------------
+*#
+#macro (datatablesCommonConfig)
+{
+    pageLength: 20,
+    lengthMenu: [ 5, 10, 20, 50, 100, 200 ],
+}
+#end
+
+#* -----------------------------------------------------------------------------------
+#  Adds an language object for the datatables library
+#  -----------------------------------------------------------------------------------
+*#
+#macro (datatablesBundle $resourceLoader)
+{
+    emptyTable: "$resourceLoader.getString('datatables.emptyTable')",
+    entries: "$resourceLoader.getString('datatables.entries')",
+    info: "$resourceLoader.getString('datatables.info')",
+    infoEmpty: "$resourceLoader.getString('datatables.infoEmpty')",
+    infoFiltered: "$resourceLoader.getString('datatables.infoFiltered')",
+    lengthMenu: "$resourceLoader.getString('datatables.lengthMenu')",
+    search: "$resourceLoader.getString('datatables.search')",
+    zeroRecords: "$resourceLoader.getString('datatables.zeroRecords')",
+    aria: {
+        orderable: "$resourceLoader.getString('datatables.aria.orderable')",
+        orderableRemove: "$resourceLoader.getString('datatables.aria.orderableRemove')",
+        orderableReverse: "$resourceLoader.getString('datatables.aria.orderableReverse')",
+        sortAscending: "$resourceLoader.getString('datatables.aria.sortAscending')",
+        sortDescending: "$resourceLoader.getString('datatables.aria.sortDescending')",
+        placeholder: {
+            first: "$resourceLoader.getString('datatables.custom.first')",
+            last: "$resourceLoader.getString('datatables.custom.last')",
+            next: "$resourceLoader.getString('datatables.custom.next')",
+            previous: "$resourceLoader.getString('datatables.custom.previous')",
+        },
+    },
+    placeholder: {
+        first: "$resourceLoader.getString('datatables.custom.first')",
+        last: "$resourceLoader.getString('datatables.custom.last')",
+        next: "$resourceLoader.getString('datatables.custom.next')",
+        previous: "$resourceLoader.getString('datatables.custom.previous')",
+    },
+}
+#end

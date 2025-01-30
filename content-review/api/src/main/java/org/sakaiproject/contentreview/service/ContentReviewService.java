@@ -294,6 +294,7 @@ public interface ContentReviewService {
 	 * @return
 	 * @deprecated use {@link #getLocalizedStatusMessage(String)}
 	 */
+	@Deprecated
 	public String getReviewError(String contentId);
 	/**
 	 * Get a status message for a submission in the locale specified

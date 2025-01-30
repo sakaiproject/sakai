@@ -70,6 +70,8 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tags.api.Tag;
+import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
@@ -80,6 +82,7 @@ import org.sakaiproject.tool.messageforums.ui.DecoratedAttachment;
 import org.sakaiproject.tool.messageforums.ui.PrivateForumDecoratedBean;
 import org.sakaiproject.tool.messageforums.ui.PrivateMessageDecoratedBean;
 import org.sakaiproject.tool.messageforums.ui.PrivateTopicDecoratedBean;
+import org.sakaiproject.tool.messageforums.util.PrivateMessagesToolHelper;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -89,6 +92,8 @@ import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.comparator.GroupTitleComparator;
 import org.springframework.orm.hibernate5.HibernateOptimisticLockingFailureException;
 
+import javax.faces.FactoryFinder;
+import javax.faces.application.ApplicationFactory;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
@@ -100,10 +105,12 @@ import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletRequest;
 
 import java.text.ParseException;
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -154,17 +161,21 @@ public class PrivateMessagesTool {
   private static final String MISSING_SUBJECT_DRAFT = "pvt_missing_subject_draft";
   private static final String MISSING_BODY = "pvt_missing_body";
   private static final String MISSING_BODY_DRAFT = "pvt_missing_body_draft";
+  private static final String MISSING_TITLE = "pvt_missing_title";
+  private static final String MISSING_QUESTION = "pvt_missing_question";
   private static final String SELECT_MSG_RECIPIENT = "pvt_select_msg_recipient";
   private static final String MULTIPLE_WINDOWS = "pvt_multiple_windows";
   
   private static final String CONFIRM_MSG_DELETE = "pvt_confirm_msg_delete";
   private static final String ENTER_SEARCH_TEXT = "pvt_enter_search_text";
+  private static final String ENTER_SEARCH_TAGS = "pvt_enter_search_tags";
   private static final String MOVE_MSG_ERROR = "pvt_move_msg_error";
   private static final String NO_MARKED_READ_MESSAGE = "pvt_no_message_mark_read";
   private static final String NO_MARKED_DELETE_MESSAGE = "pvt_no_message_mark_delete";
   private static final String NO_MARKED_MOVE_MESSAGE = "pvt_no_message_mark_move";
   private static final String MULTIDELETE_SUCCESS_MSG = "pvt_deleted_success";
   private static final String PERM_DELETE_SUCCESS_MSG = "pvt_perm_deleted_success";
+  private static final String SUCCESS_PUBLISH_TO_FAQ = "pvt_publish_to_faq_success";
   
   public static final String RECIPIENTS_UNDISCLOSED = "pvt_bccUndisclosed";
   
@@ -180,6 +191,7 @@ public class PrivateMessagesTool {
   private static final String HIDDEN_SEARCH_TO_ISO_DATE = "searchToDateISO8601";
   
   private Boolean fromPermissions = false;
+  private Boolean fromPreview = false;
 
   /**
    *Dependency Injected 
@@ -236,7 +248,10 @@ public class PrivateMessagesTool {
   @Setter
   @ManagedProperty(value="#{Components[\"org.sakaiproject.util.api.FormattedText\"]}")
   private FormattedText formattedText;
-
+  @Setter
+  @ManagedProperty(value="#{Components[\"org.sakaiproject.tags.api.TagService\"]}")
+  private TagService tagService;
+  
 /** Navigation for JSP   */
   public static final String MAIN_PG="main";
   public static final String DISPLAY_MESSAGES_PG="pvtMsg";
@@ -261,6 +276,7 @@ public class PrivateMessagesTool {
   public static final String DELETE_MESSAGE_PG="pvtMsgDelete";
   public static final String REVISE_FOLDER_PG="pvtMsgFolderRevise";
   public static final String MOVE_MESSAGE_PG="pvtMsgMove";
+  public static final String PUBLISH_TO_FAQ_EDIT = "pvtMsgPublishToFaqEdit";
   public static final String ADD_FOLDER_IN_FOLDER_PG="pvtMsgFolderInFolderAdd";
   public static final String ADD_MESSAGE_FOLDER_PG="pvtMsgFolderAdd";
   public static final String PVTMSG_COMPOSE = "pvtMsgCompose";
@@ -287,7 +303,9 @@ public class PrivateMessagesTool {
   //huxt
   public static final String EXTERNAL_TOPIC_ID = "pvtMsgTopicId";
   public static final String EXTERNAL_WHICH_TOPIC = "selectedTopic";
-  
+
+  @Getter private final String BREADCRUMB_SEPARATOR = " / ";
+
   PrivateForumDecoratedBean decoratedForum;
   
   private List aggregateList = new ArrayList();
@@ -297,10 +315,19 @@ public class PrivateMessagesTool {
   private List<PrivateTopic> pvtTopics=new ArrayList<>();
   private List decoratedPvtMsgs;
 
-  @Getter @Setter
+  @Getter
   private String msgNavMode="privateMessages" ;
-  @Getter @Setter
-  private PrivateMessageDecoratedBean detailMsg ;
+  @Getter
+  private PrivateMessageDecoratedBean detailMsg;
+  public void setDetailMsg(PrivateMessageDecoratedBean detailMsg) {
+    this.detailMsg = detailMsg;
+    if (detailMsg == null || (!fromPreview && !detailMsg.getIsPreview() && !detailMsg.getIsPreviewReply() && !detailMsg.getIsPreviewReplyAll() && !detailMsg.getIsPreviewForward())) {
+      this.selectedTags = "";
+      fromPreview = false;
+    } else if (detailMsg.getIsPreview() || detailMsg.getIsPreviewReply() || detailMsg.getIsPreviewReplyAll() || detailMsg.getIsPreviewForward()) {
+      fromPreview = true;
+    }
+  }
   private boolean viewChanged = false;
   
   @Getter @Setter
@@ -325,15 +352,17 @@ public class PrivateMessagesTool {
   private String composeSendAsPvtMsg=SET_AS_YES; // currently set as Default as change by user is allowed
   @Setter
   private boolean booleanEmailOut = ServerConfigurationService.getBoolean("mc.messages.ccEmailDefault", false);
+  @Getter @Setter
+  private boolean booleanReadReceipt;
   @Getter
   private String composeSubject;
   @Getter
   private String composeBody;
   @Getter @Setter
   private String selectedLabel="pvt_priority_normal" ;   //defautl set
-  @Getter @Setter
+  @Setter
   private List<MembershipItem> totalComposeToList = null;
-  @Getter @Setter
+  @Setter
   private List<MembershipItem> totalComposeToBccList = null;
   @Getter @Setter
   private List totalComposeToListRecipients;
@@ -391,13 +420,16 @@ public class PrivateMessagesTool {
   private String fromMainOrHp = null;
   
   // for compose, are we coming from main page?
-  @Getter @Setter
+  @Getter
+  @Setter
   private boolean fromMain;
   
   // Message which will be marked as replied
   @Getter @Setter
   private PrivateMessage replyingMessage;
 
+  @Getter @Setter
+  private String selectedTags;
   //=====================need to be modified to support internationalization - by huxt
   /** The configuration mode, received, sent,delete, case etc ... */
   public static final String STATE_PVTMSG_MODE = "pvtmsg.mode";
@@ -575,52 +607,19 @@ public class PrivateMessagesTool {
     	  
       if (getPvtAreaEnabled() && decoratedForum.getForum() != null){  
     	  
-    	int countForFolderNum = 0;// only three folder 
     	Iterator<PrivateTopic> iterator = pvtTopics.iterator(); 
-    	//MSGCNTR-472 we need the first three but need to guard against there being < 3 elements
-        for (int i = 0;i < 3 && iterator.hasNext(); i++)//only three times
-        {
-          PrivateTopic topic = iterator.next();
-          
-          if (topic != null)
-          {
-          	
-          	/** filter topics by context and type*/
-            if (topic.getTypeUuid() != null
-            		&& topic.getTypeUuid().equals(typeManager.getUserDefinedPrivateTopicType())
-            	  && topic.getContextId() != null && !topic.getContextId().equals(prtMsgManager.getContextId())){
-               continue;
-            }       
-          	
-            PrivateTopicDecoratedBean decoTopic= new PrivateTopicDecoratedBean(topic) ;
-           
-            // folder uuid
-            String typeUuid = getPrivateMessageTypeFromContext(topic.getTitle());
-             
-            countForFolderNum++;
-            
-            decoTopic.setTotalNoMessages(prtMsgManager.findMessageCount(typeUuid, aggregateList));
-
-            decoTopic.setUnreadNoMessages(prtMsgManager.findUnreadMessageCount(typeUuid, aggregateList));
-            totalUnreadMessages += decoTopic.getUnreadNoMessages();
-          
-            decoratedForum.addTopic(decoTopic);
-          }       
-        }
         
-        while(iterator.hasNext())//add more folders 
+        while(iterator.hasNext())
         {
                PrivateTopic topic = iterator.next();
                if (topic != null)
                {
-
-               
                /** filter topics by context and type*/                                                    
                  if (topic.getTypeUuid() != null
                  && topic.getTypeUuid().equals(typeManager.getUserDefinedPrivateTopicType())
                    && topic.getContextId() != null && !topic.getContextId().equals(prtMsgManager.getContextId())){
                     continue;
-                 }       
+                 }
                
                  PrivateTopicDecoratedBean decoTopic= new PrivateTopicDecoratedBean(topic) ;
                 
@@ -630,7 +629,7 @@ public class PrivateMessagesTool {
                  decoTopic.setUnreadNoMessages(prtMsgManager.findUnreadMessageCount(typeUuid,aggregateList));
                  totalUnreadMessages += decoTopic.getUnreadNoMessages();
                  decoratedForum.addTopic(decoTopic);
-               }          
+               }
         
         }
 
@@ -766,10 +765,14 @@ public class PrivateMessagesTool {
 	return "";
   }
   
-  private String getSiteId() {
+  public String getSiteId() {
 	  return toolManager.getCurrentPlacement().getContext();
   }
-    
+  
+  public String getTagTool() {
+	return TagService.TOOL_PRIVATE_MESSAGES;
+  }
+
   private String getContextSiteId() 
   {
 	 return "/site/" + toolManager.getCurrentPlacement().getContext();
@@ -883,11 +886,7 @@ public class PrivateMessagesTool {
 	  return userTimeService.getLocalTimeZone();
   }
 
-public boolean isFromMain() {
-	return fromMain;
-}
-
-public String getServerUrl() {
+    public String getServerUrl() {
     return ServerConfigurationService.getServerUrl();
  }
 
@@ -1068,8 +1067,11 @@ public void processChangeSelectView(ValueChangeEvent eve)
   public String processDisplayForum()
   {
     log.debug("processDisplayForum()");
+    multiDeleteSuccess = false;
     if (searchPvtMsgs != null)
     	searchPvtMsgs.clear();
+    this.selectedTags = "";
+    this.fromPreview = false;
     return DISPLAY_MESSAGES_PG;
   }
 
@@ -1158,7 +1160,19 @@ public void processChangeSelectView(ValueChangeEvent eve)
     
     return DISPLAY_MESSAGES_PG;
   }
-    
+
+  public String calculateColumnClass() {
+	String columnClasses = "check,attach,reply,specialLink,date,dateScheduler,created,addressee,priority,taglist hidden-xs";
+	if (selectedTopic.getTopic().getTitle().equals("pvt_received")) {
+		columnClasses = "check,attach,reply,specialLink,date,created,priority,taglist hidden-xs";
+	} else if (selectedTopic.getTopic().getTitle().equals("pvt_sent")) {
+		columnClasses = "check,attach,reply,specialLink,date,dateScheduler,addressee,priority,taglist hidden-xs";
+	} else if (selectedTopic.getTopic().getTitle().equals("pvt_drafts") || selectedTopic.getTopic().getTitle().equals("pvt_deleted") || selectedTopic.getTopic().getTitle().equals("pvt_scheduler")) {
+		columnClasses = "check,attach,reply,specialLink,date,dateScheduler,created,priority,taglist hidden-xs";
+	}
+	return columnClasses;
+  }
+
   /**
    * process Cancel from all JSP's
    * @return - pvtMsg
@@ -1208,7 +1222,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 		  setBooleanEmailOut(draft.getExternalEmail());
 	  }
 
-	  if(draft.getScheduler() != null && draft.getScheduler()) {
+	  if(draft.getScheduler() != null && draft.getScheduler() && draft.getScheduledDate() != null) {
 		  setSchedulerSendDateString(draft.getScheduledDate().toString());
 		  setBooleanSchedulerSend(draft.getScheduler());
 	  }
@@ -1287,7 +1301,11 @@ public void processChangeSelectView(ValueChangeEvent eve)
         	this.getDetailMsg().getMsg().setRecipientsAsTextBcc("");
         }
 
-        this.getDetailMsg().getMsg().setRecipientsAsText(dMsg.getMsg().getRecipientsAsText());
+        this.getDetailMsg().getMsg().setRecipientsAsText(PrivateMessagesToolHelper.removeRecipientUndisclosed(
+                dMsg.getMsg().getRecipientsAsText(),
+                getResourceBundleString(RECIPIENTS_UNDISCLOSED))
+        );
+
       }
     }
     this.deleteConfirm=false; //reset this as used for multiple action in same JSP
@@ -1327,6 +1345,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
   public String processPvtMsgReply() {
     log.debug("processPvtMsgReply()");
     
+    multiDeleteSuccess = false;
     setDetailMsgCount = 0;
 
     if (getDetailMsg() == null)
@@ -1355,20 +1374,21 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	StringBuilder replyText = new StringBuilder();
     
     // populate replyToBody with the reply text
-	replyText.append("<br /><br />");
+	replyText.append("<p></p><p></p>");
 	replyText.append("<span style=\"font-weight:bold;font-style:italic;\">");
 	replyText.append(getResourceBundleString("pvt_msg_on"));
 	replyText.append(" " + formattedCreateDate + " ");
 	replyText.append(getResourceBundleString("pvt_msg_at"));
 	replyText.append(" " +formattedCreateTime);
 	replyText.append(getResourceBundleString("pvt_msg_comma"));
-    replyText.append(" " + formattedText.escapeHtml(pm.getAuthor(), false) + " ");
-    replyText.append(getResourceBundleString("pvt_msg_wrote")); 
+	replyText.append(" " + formattedText.escapeHtml(pm.getAuthor(), false) + " ");
+	replyText.append(getResourceBundleString("pvt_msg_wrote")); 
 	replyText.append("</span>");
     	
     String origBody = pm.getBody();
     if (origBody != null && origBody.trim().length() > 0) {
-    	replyText.append("<br />" + pm.getBody() + "<br />");
+    	replyText.append("<p></p>");
+    	replyText.append(pm.getBody());
     }
     
     List attachList = getDetailMsg().getAttachList();
@@ -1400,8 +1420,9 @@ public void processChangeSelectView(ValueChangeEvent eve)
    */ 
   public String processPvtMsgForward() {
 	    log.debug("processPvtMsgForward()");
-	    
+
 	    setDetailMsgCount = 0;
+	    multiDeleteSuccess = false;
 	    
 	    if (getDetailMsg() == null)
 	    	return null;
@@ -1422,16 +1443,32 @@ public void processChangeSelectView(ValueChangeEvent eve)
 		StringBuilder forwardedText = new StringBuilder();
 	    
 	    // populate replyToBody with the forwarded text
-		forwardedText.append(getResourceBundleString("pvt_msg_fwd_heading") + "<br /><br />" +
-	    	getResourceBundleString("pvt_msg_fwd_authby", new Object[] {formattedText.escapeHtml(pm.getAuthor(), false), formattedCreateDate}) +  "<br />" +
-	    	getResourceBundleString("pvt_msg_fwd_to", new Object[] {pm.getRecipientsAsText()}) + "<br />" +
-	    	getResourceBundleString("pvt_msg_fwd_subject", new Object[] {pm.getTitle()}) + "<br />" +
-	    	getResourceBundleString("pvt_msg_fwd_label", new Object[] {getDetailMsg().getLabel()}) + "<br />");
+		forwardedText.append(getResourceBundleString("pvt_msg_fwd_heading") + "<br /><br />");
+		forwardedText.append("<strong>");
+		forwardedText.append(getResourceBundleString("pvt_msg_fwd_authby"));
+		forwardedText.append("</strong>");
+		forwardedText.append(" " + formattedText.escapeHtml(pm.getAuthor(), false));
+		forwardedText.append(" (" + formattedCreateDate + ")<br />");
+		forwardedText.append("<strong>");
+		forwardedText.append(getResourceBundleString("pvt_msg_fwd_to"));
+		forwardedText.append("</strong>");
+		forwardedText.append(" " + pm.getRecipientsAsText() + "<br />");
+		forwardedText.append("<strong>");
+		forwardedText.append(getResourceBundleString("pvt_msg_fwd_subject"));
+		forwardedText.append("</strong>");
+		forwardedText.append(" " + pm.getTitle() + "<br />");
+		forwardedText.append("<strong>");
+		forwardedText.append(getResourceBundleString("pvt_msg_fwd_label"));
+		forwardedText.append("</strong>");
+		forwardedText.append(" " + getDetailMsg().getLabel());
 	    
 	    List attachList = getDetailMsg().getAttachList();
 	    if (CollectionUtils.isNotEmpty(attachList)) {
-	    	forwardedText.append(getResourceBundleString("pvt_msg_fwd_attachments") + "<br />");
-	    	forwardedText.append("<ul style=\"list-style-type:none;margin:0;padding:0;padding-left:0.5em;\">");
+	    	forwardedText.append("<div>");
+	    	forwardedText.append("<strong>");
+	    	forwardedText.append(getResourceBundleString("pvt_msg_fwd_attachments"));
+	    	forwardedText.append("</strong>");
+	    	forwardedText.append("<ul style=\"list-style-type:none;margin-bottom:1.0em;margin-left:0;margin-right:0;margin-top:0;padding-left:0.5em;padding:0\">");
 	    	for (DecoratedAttachment decoAttach : (List<DecoratedAttachment>) attachList ) {
 	    		if (decoAttach != null) {
 	    			forwardedText.append("<li>");
@@ -1459,9 +1496,11 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	    		}
 	    	}
 	    	forwardedText.append("</ul>");
+	    	forwardedText.append("</div>");
 	    }
 	    String origBody = pm.getBody();
 	    if (origBody != null && origBody.trim().length() > 0) {
+	    	forwardedText.append("<p></p>");
 	    	forwardedText.append(pm.getBody());
 	    }
 	    
@@ -1482,7 +1521,8 @@ public void processChangeSelectView(ValueChangeEvent eve)
    */ 
   public String processPvtMsgReplyAll() {
 	    log.debug("processPvtMsgReplyAll()");
-	    
+
+	    multiDeleteSuccess = false;
 	    setDetailMsgCount = 0;
 	    
 	    if (getDetailMsg() == null)
@@ -1515,7 +1555,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 		
 	    
 	    // populate replyToBody with the reply text
-		replyallText.append("<br /><br />");
+		replyallText.append("<p></p><p></p>");
 		replyallText.append("<span style=\"font-weight:bold;font-style:italic;\">");
 		replyallText.append(getResourceBundleString("pvt_msg_on"));
 		replyallText.append(" " + formattedCreateDate + " ");
@@ -1528,7 +1568,8 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	    	
 	    String origBody = pm.getBody();
 	    if (origBody != null && origBody.trim().length() > 0) {
-	    	replyallText.append("<br />" + pm.getBody() + "<br />");
+	    	replyallText.append("<p></p>");
+	    	replyallText.append(pm.getBody());
 	    }
 	    
 	    List attachList = getDetailMsg().getAttachList();
@@ -1641,6 +1682,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
   public String processPvtMsgDeleteConfirm() {
     log.debug("processPvtMsgDeleteConfirm()");
     
+    this.setMultiDeleteSuccess(false);
     this.setDeleteConfirm(true);
     setErrorMessage(getResourceBundleString(CONFIRM_MSG_DELETE));
     /*
@@ -1649,7 +1691,14 @@ public void processChangeSelectView(ValueChangeEvent eve)
      */
     return SELECTED_MESSAGE_PG ;
   }
-  
+
+  public String processPvtMsgSaveTags() {
+    log.debug("processPvtMsgDeleteConfirm() " + currentMsgUuid);
+    
+    manageTagAssociation(Long.valueOf(currentMsgUuid));
+    return SELECTED_MESSAGE_PG;
+  }
+
   /**
    * called from Single delete Page -
    * called when 'delete' button pressed second time
@@ -1721,6 +1770,9 @@ public void processChangeSelectView(ValueChangeEvent eve)
     this.setBooleanSchedulerSend(false);
     this.setOpenDate("");
     this.setSchedulerSendDateString("");
+    this.setBooleanReadReceipt(false);
+    this.setSelectedTags("");
+    this.fromPreview = false;
   }
   
   public String processPvtMsgPreview(){
@@ -1773,6 +1825,9 @@ public void processChangeSelectView(ValueChangeEvent eve)
           
     log.debug("processPvtMsgSend()");
     storeDateISO();
+
+    boolean isSendEmail = isSendEmail();
+
     if(StringUtils.isEmpty(getComposeSubject()))
     {
       setErrorMessage(getResourceBundleString(MISSING_SUBJECT));
@@ -1809,11 +1864,12 @@ public void processChangeSelectView(ValueChangeEvent eve)
     
     if(booleanSchedulerSend) {
 	    pMsg.setScheduledDate(openDate);
-	    schedulerMessage(pMsg, isSendEmail());
+	    schedulerMessage(pMsg, isSendEmail);
 	    return processPvtMsgComposeCancel();
     } else {
 	    PrivateMessageSchedulerService.removeScheduledReminder(pMsg.getId());
-	    prtMsgManager.sendPrivateMessage(pMsg, recipients, isSendEmail());
+	    Long msgId = prtMsgManager.sendPrivateMessage(pMsg, recipients, isSendEmail, booleanReadReceipt);
+	    manageTagAssociation(msgId);
     }
     // if you are sending a reply 
     Message replying = pMsg.getInReplyTo();
@@ -1839,7 +1895,9 @@ public void processChangeSelectView(ValueChangeEvent eve)
     		log.error(e.getMessage(), e);
     	}
     }
-	Event event = eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_ADD, getEventMessage(pMsg), null, true, NotificationService.NOTI_OPTIONAL, statement);
+
+    String eventMessage = getEventMessage(pMsg) + "/sendEmail=" + String.valueOf(isSendEmail);
+    Event event = eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_ADD, eventMessage, null, true, NotificationService.NOTI_OPTIONAL, statement);
     eventTrackingService.post(event);
     
     if(StringUtils.isNotEmpty(fromMainOrHp)) {
@@ -1914,12 +1972,12 @@ public void processChangeSelectView(ValueChangeEvent eve)
     if(StringUtils.isEmpty(getComposeSubject()))
     {
       setErrorMessage(getResourceBundleString(MISSING_SUBJECT_DRAFT));
-      return null ;
+      return null;
     }
     if(StringUtils.isEmpty(getComposeBody()))
     {
       setErrorMessage(getResourceBundleString(MISSING_BODY_DRAFT));
-      return null ;
+      return null;
     }
     if(booleanSchedulerSend) {
 		setOpenDate(schedulerSendDateString);
@@ -1931,21 +1989,22 @@ public void processChangeSelectView(ValueChangeEvent eve)
 
     PrivateMessage dMsg = null;
     if(getDetailMsg() != null && getDetailMsg().getMsg() != null && getDetailMsg().getMsg().getDraft()){
-    	dMsg =constructMessage(true, getDetailMsg().getMsg()) ;
+	    dMsg = constructMessage(true, getDetailMsg().getMsg());
+	    PrivateMessageSchedulerService.removeScheduledReminder(dMsg.getId());
     }else{
-    	dMsg =constructMessage(true, null) ;
+	    dMsg = constructMessage(true, null);
     }
     dMsg.setDraft(Boolean.TRUE);
     dMsg.setDeleted(Boolean.FALSE);
     dMsg.setExternalEmail(booleanEmailOut);
     dMsg.setScheduler(booleanSchedulerSend);
-    if(booleanSchedulerSend)
-	    dMsg.setScheduledDate(openDate);
+    dMsg.setScheduledDate(booleanSchedulerSend ? openDate : null);
 
     List<MembershipItem> draftRecipients = drDelegate.getDraftRecipients(getSelectedComposeToList(), courseMemberMap);
     List<MembershipItem> draftBccRecipients = drDelegate.getDraftRecipients(getSelectedComposeBccList(), courseMemberMap);
 
-    prtMsgManager.sendPrivateMessage(dMsg, getRecipients(), isSendEmail(), draftRecipients, draftBccRecipients);
+    Long msgId = prtMsgManager.sendPrivateMessage(dMsg, getRecipients(), isSendEmail(), draftRecipients, draftBccRecipients, booleanReadReceipt);
+    manageTagAssociation(msgId);
 
     //reset contents
     resetComposeContents();
@@ -2087,6 +2146,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
    */
   public String processDisplayPreviousMsg()
   {
+  multiDeleteSuccess = false;
 
 	List tempMsgs = getDecoratedPvtMsgs(); // all messages
     int currentMsgPosition = -1;
@@ -2149,9 +2209,9 @@ public void processChangeSelectView(ValueChangeEvent eve)
    * processDisplayNextMsg()
    * Display the Next message from the list of decorated messages
    */    
-  public String processDisplayNextMsg()
+  public String processDisplayNextMsg() 
   {
-
+	multiDeleteSuccess = false;
 	List tempMsgs = getDecoratedPvtMsgs();
     int currentMsgPosition = -1;
     if(tempMsgs != null)
@@ -2279,7 +2339,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
    * processDisplayPreviousFolder()
    */
   public String processDisplayPreviousTopic() {
-	multiDeleteSuccess = false;
+    multiDeleteSuccess = false;
     String prevTopicTitle = getExternalParameterByKey("previousTopicTitle");
     if(StringUtils.isNotEmpty(prevTopicTitle))
     {
@@ -2315,8 +2375,8 @@ public void processChangeSelectView(ValueChangeEvent eve)
    * processDisplayNextFolder()
    */
   public String processDisplayNextTopic()
-  { 
-	multiDeleteSuccess = false;
+  {
+    multiDeleteSuccess = false;
     String nextTitle = getExternalParameterByKey("nextTopicTitle");
     if(StringUtils.isNotEmpty(nextTitle))
     {
@@ -2428,6 +2488,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 
 	    Map<User, Boolean> recipients = getRecipients();
 
+    	Long msgId;
 	    if(booleanSchedulerSend && !rrepMsg.getDraft()) {
 		    rrepMsg.setScheduledDate(openDate);
 		    schedulerMessage(rrepMsg, isSendEmail());
@@ -2437,10 +2498,12 @@ public void processChangeSelectView(ValueChangeEvent eve)
 		    List<MembershipItem> draftRecipients = drDelegate.getDraftRecipients(getSelectedComposeToList(), courseMemberMap);
 		    List<MembershipItem> draftBccRecipients = drDelegate.getDraftRecipients(getSelectedComposeBccList(), courseMemberMap);
 
-		    prtMsgManager.sendPrivateMessage(rrepMsg, getRecipients(), isSendEmail(), draftRecipients, draftBccRecipients);
+		    msgId = prtMsgManager.sendPrivateMessage(rrepMsg, getRecipients(), isSendEmail(), draftRecipients, draftBccRecipients, booleanReadReceipt);
         } else {
-            prtMsgManager.sendPrivateMessage(rrepMsg, recipients, isSendEmail());
+            msgId = prtMsgManager.sendPrivateMessage(rrepMsg, recipients, isSendEmail(), booleanReadReceipt);
         }
+
+    	manageTagAssociation(msgId);
 
     	if(!rrepMsg.getDraft()){
     		prtMsgManager.markMessageAsRepliedForUser(getReplyingMessage());
@@ -2825,9 +2888,11 @@ public void processChangeSelectView(ValueChangeEvent eve)
 		    List<MembershipItem> draftRecipients = drDelegate.getDraftRecipients(getSelectedComposeToList(), courseMemberMap);
 		    List<MembershipItem> draftBccRecipients = drDelegate.getDraftRecipients(getSelectedComposeBccList(), courseMemberMap);
 
-		    prtMsgManager.sendPrivateMessage(rrepMsg, getRecipients(), isSendEmail(), draftRecipients, draftBccRecipients);
+		    Long msgId = prtMsgManager.sendPrivateMessage(rrepMsg, getRecipients(), isSendEmail(), draftRecipients, draftBccRecipients, booleanReadReceipt);
+		    manageTagAssociation(msgId);
 	    } else {
-	        prtMsgManager.sendPrivateMessage(rrepMsg, recipients, isSendEmail());
+	        Long msgId = prtMsgManager.sendPrivateMessage(rrepMsg, recipients, isSendEmail(), booleanReadReceipt);
+	        manageTagAssociation(msgId);
         }
 
     	if(!rrepMsg.getDraft()){
@@ -3091,6 +3156,18 @@ public void processChangeSelectView(ValueChangeEvent eve)
 		  rrepMsg.setRecipientsAsTextBcc(sendToBccString.toString() + " (" + sendToBccHiddenString.toString() + ")");
 	  }
 
+	  //Add users that joined the groups to which the message was sent (after it was sent)
+	  List<User> usersFromGroupsInCC = getUsersFromGroupsInCC();
+	  if (usersFromGroupsInCC != null && !usersFromGroupsInCC.isEmpty()) {
+		  for (User user : usersFromGroupsInCC) {
+			  //only if it wasn't part already
+			  if (!returnSet.containsKey(user)) {
+				  returnSet.put(user, false);
+				  log.debug("User '{}' added to the reply all list", user.getDisplayName());
+			  }
+		  }
+	  }
+
 	  //Add selected users to reply all list
 
 	  Map<User, Boolean> recipients = getRecipients();
@@ -3117,9 +3194,11 @@ public void processChangeSelectView(ValueChangeEvent eve)
                 List<MembershipItem> draftRecipients = drDelegate.getDraftRecipients(getSelectedComposeToList(), courseMemberMap);
                 List<MembershipItem> draftBccRecipients = drDelegate.getDraftRecipients(getSelectedComposeBccList(), courseMemberMap);
 
-                prtMsgManager.sendPrivateMessage(rrepMsg, getRecipients(), isSendEmail(), draftRecipients, draftBccRecipients);
+                Long msgId = prtMsgManager.sendPrivateMessage(rrepMsg, getRecipients(), isSendEmail(), draftRecipients, draftBccRecipients, booleanReadReceipt);
+                manageTagAssociation(msgId);
 	        } else {
-	            prtMsgManager.sendPrivateMessage(rrepMsg, returnSet, isSendEmail());
+	            Long msgId = prtMsgManager.sendPrivateMessage(rrepMsg, returnSet, isSendEmail(), booleanReadReceipt);
+	            manageTagAssociation(msgId);
 	        }
 
 		  if(!rrepMsg.getDraft()){
@@ -3144,8 +3223,64 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	  return rrepMsg;
   }
 
+    private List<User> getUsersFromGroupsInCC() {
+        log.debug("getUsersFromGroupsInCC()");
+        //Try to get members of the groups to which the message was sent
+        List<User> usersFromGroupsInCC = new ArrayList<>();
+        Site currentSite = getCurrentSite();
 
+        if (currentSite != null && currentSite.hasGroups()) {
+            List<Group> siteGroups = new ArrayList<>(currentSite.getGroups());
+            //this string is all we know about previously selected groups..
+            String msgCClistString = getDetailMsg().getRecipientsAsText();
+            String[] ccItems = msgCClistString.split(";");
 
+            for (String ccItem : ccItems) {
+                //group prefix/suffix
+                String groupLabel = rb.getString("participants_group_desc")
+                    .replace("{0}", "").trim();
+                //we know ccItem is a group if it says so..
+                if (ccItem.contains(groupLabel)) {
+
+                    for (Group group : siteGroups) {
+                        //get group title by removing the group label from the CC item
+                        String groupTitle = ccItem.replace(groupLabel, "").trim();
+                        //get group users if title matches
+                        if (group.getTitle().equals(groupTitle)) {
+                            Set<String> userIds = group.getUsers();
+
+                            for (String userId : userIds) {
+                                try {
+                                    User user = userDirectoryService.getUser(userId);
+                                    usersFromGroupsInCC.add(user);
+                                } catch (UserNotDefinedException e) {
+                                    log.error(e.getMessage(), e);
+                                }
+                            }
+                        } else {
+                            //group title modifications will cause mismatches
+                            log.warn("Group title '{}' doesn't match any group in current site", groupTitle);
+                        }
+                    }
+                } else {
+                    //language-sensitive comparison, may lead to mismatches
+                    log.warn("ccItem '{}' doesn't contain group label '{}'", ccItem, groupLabel);
+                }
+            }
+        } else {
+            log.info("No groups found in current site");
+        }
+        return usersFromGroupsInCC;
+    }
+
+  private void manageTagAssociation(Long msgId) {
+    log.debug("msgId " + msgId + " - selectedTags " + selectedTags);
+    if (msgId != null && ServerConfigurationService.getBoolean("tagservice.enable.integrations", true) && isInstructor() && selectedTags != null) {
+      List<String> tagIds = Arrays.asList(selectedTags.split(","));
+      tagService.updateTagAssociations(getUserId(), String.valueOf(msgId), tagIds, false);
+      selectedTags = String.join(",", tagService.getTagAssociationIds(getUserId(), String.valueOf(msgId)));
+    }
+  }
 
  private boolean containedInList(User user,List list){
 
@@ -3495,6 +3630,15 @@ public void processChangeSelectView(ValueChangeEvent eve)
   
   public boolean isEmailPermit() {
 	  return prtMsgManager.isEmailPermit();
+  }
+
+  public boolean isCanUseTags() {
+    boolean tagServiceEnabled = ServerConfigurationService.getBoolean(TagService.TAGSERVICE_ENABLED_INTEGRATION_PROP, TagService.TAGSERVICE_ENABLED_INTEGRATION_DEFAULT);
+    boolean manageTagsAllowed = securityService.unlock(userDirectoryService.getCurrentUser(), TagService.TAGSERVICE_MANAGE_PERMISSION, getContextSiteId());
+
+    log.debug("IsTagServiceEnabled:{}|HasCurrentUserTagPermission:{}", tagServiceEnabled, manageTagsAllowed);
+    
+    return tagServiceEnabled && manageTagsAllowed;
   }
 
   public String processPvtMsgOrganize()
@@ -3850,6 +3994,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
   
   public String getMoveToTopic()
   {
+    multiDeleteSuccess = false;
     if(StringUtils.isNotEmpty(moveToNewTopic))
     {
       moveToTopic=moveToNewTopic;
@@ -3870,6 +4015,45 @@ public void processChangeSelectView(ValueChangeEvent eve)
     return MOVE_MESSAGE_PG;
   }
   
+  public String processPvtMsgPublishToFaq() {
+    log.debug("processPvtMsgPublishToFaq()");
+    MessageForumPublishToFaqBean publishToFaqBean =
+        (MessageForumPublishToFaqBean) lookupBean(MessageForumPublishToFaqBean.NAME);
+
+    if (StringUtils.isBlank(publishToFaqBean.getTitle())) {
+      setErrorMessage(getResourceBundleString(MISSING_TITLE));
+      return null;
+    } else if (StringUtils.isBlank(publishToFaqBean.getQuestion())) {
+      setErrorMessage(getResourceBundleString(MISSING_QUESTION));
+      return null;
+    } else {
+      publishToFaqBean.publishToFaq();
+      multiDeleteSuccessMsg = getResourceBundleString(SUCCESS_PUBLISH_TO_FAQ);
+      multiDeleteSuccess = true;
+      return SELECTED_MESSAGE_PG;
+    }
+    
+  }
+
+  public String processPvtMsgPublishToFaqEdit() {
+    log.debug("processPvtMsgPublishToFaqEdit()");
+    multiDeleteSuccess = false;
+
+    MessageForumPublishToFaqBean publishToFaqBean =
+        (MessageForumPublishToFaqBean) lookupBean(MessageForumPublishToFaqBean.NAME);
+
+    publishToFaqBean.setMessage(detailMsg.getMsg());
+
+    return PUBLISH_TO_FAQ_EDIT;
+  }
+
+  public Object lookupBean(String beanName) {
+    ApplicationFactory applicationFactory = (ApplicationFactory) FactoryFinder.getFactory(FactoryFinder.APPLICATION_FACTORY);
+
+    return (Serializable) applicationFactory.getApplication().getVariableResolver()
+        .resolveVariable(FacesContext.getCurrentInstance(), beanName);
+  }
+
   public void processPvtMsgParentFolderMove(ValueChangeEvent event)
   {
     log.debug("processPvtMsgSettingsRevise()"); 
@@ -3903,10 +4087,18 @@ public void processChangeSelectView(ValueChangeEvent eve)
     	else
     	{
     		for (PrivateMessageDecoratedBean decoMessage : (List<PrivateMessageDecoratedBean>) selectedMoveToFolderItems ) {
-		        final PrivateMessage initPrivateMessage = prtMsgManager.initMessageWithAttachmentsAndRecipients(decoMessage.getMsg());
-    			decoMessage = new PrivateMessageDecoratedBean(initPrivateMessage);
-    			
-    			prtMsgManager.movePvtMsgTopic(decoMessage.getMsg(), oldTopic, newTopic);
+				PrivateMessage message = decoMessage.getMsg();
+				final PrivateMessage initPrivateMessage = prtMsgManager.initMessageWithAttachmentsAndRecipients(message);
+				PrivateMessageDecoratedBean newDecoMessage = new PrivateMessageDecoratedBean(initPrivateMessage);
+
+				prtMsgManager.movePvtMsgTopic(newDecoMessage.getMsg(), oldTopic, newTopic);
+
+				Long msgId = newDecoMessage.getMsg().getId();
+				PrivateMessage pvtMsg= (PrivateMessage) prtMsgManager.getMessageById(msgId);
+
+				if(Boolean.TRUE.equals((pvtMsg.getScheduler())) && (pvtMsg.getScheduledDate()!=null) && (Boolean.TRUE.equals((pvtMsg.getDraft()))) && newTopic.getTitle().equals(PVTMSG_MODE_SCHEDULER)) {
+					PrivateMessageSchedulerService.scheduleDueDateReminder(pvtMsg.getId());
+				}
     		}
     	}
 	    
@@ -3994,6 +4186,10 @@ public void processChangeSelectView(ValueChangeEvent eve)
        setErrorMessage(getResourceBundleString(ENTER_SEARCH_TEXT));
     }
 
+    if(searchOnTags && StringUtils.isEmpty(selectedTags)) {
+       setErrorMessage(getResourceBundleString(ENTER_SEARCH_TAGS));
+    }
+
     if(searchToDate != null){
         searchToDate = Date.from(searchToDate.toInstant().plus(23, ChronoUnit.HOURS).plus(59, ChronoUnit.MINUTES).plusSeconds(59));
     }
@@ -4001,6 +4197,14 @@ public void processChangeSelectView(ValueChangeEvent eve)
     tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), 
           getSearchText(), getSearchFromDate(), getSearchToDate(), getSelectedSearchLabel(),
           searchOnSubject, searchOnAuthor, searchOnBody, searchOnLabel, searchOnDate) ;
+    
+    List<String> selectedTagsList = selectedTags != null ? Arrays.asList(selectedTags.split(",")) : new ArrayList<>();
+    if(searchOnTags && CollectionUtils.isNotEmpty(selectedTagsList)) {
+        tempPvtMsgLs = ((List<PrivateMessage>)tempPvtMsgLs).stream().filter(pm -> {
+                List<String> tagIds = tagService.getTagAssociationIds(getUserId(), String.valueOf(pm.getId()));
+                return (tagIds.containsAll(selectedTagsList));
+        }).collect(Collectors.toList());
+    }
     
     newls= createDecoratedDisplay(tempPvtMsgLs);
 
@@ -4033,10 +4237,12 @@ public void processChangeSelectView(ValueChangeEvent eve)
     searchOnLabel= false ;
     searchOnAuthor=false;
     searchOnDate=false;
+    searchOnTags=false;
     searchFromDate=null;
     searchToDate=null;
     searchFromDateString=null;
     searchToDateString=null;
+    selectedTags = "";
     
     return DISPLAY_MESSAGES_PG;
   }
@@ -4051,6 +4257,8 @@ public void processChangeSelectView(ValueChangeEvent eve)
   public boolean searchOnAuthor=false;
   @Getter @Setter
   public boolean searchOnDate=false;
+  @Getter @Setter
+  public boolean searchOnTags=false;
   @Getter @Setter
   public Date searchFromDate;
   @Getter @Setter
@@ -4103,6 +4311,9 @@ public void processChangeSelectView(ValueChangeEvent eve)
         }
       }
         dbean.setSendToStringDecorated(createDecoratedSentToDisplay(dbean));
+
+      List<String> tagLabels = tagService.getAssociatedTagsForItem(getUserId(), String.valueOf(element.getId())).stream().map(Tag::getTagLabel).collect(Collectors.toList());
+      dbean.setTagList(tagLabels);
 
       decLs.add(dbean) ;
     }
@@ -4306,7 +4517,15 @@ public void processChangeSelectView(ValueChangeEvent eve)
   {
     log.debug("setErrorMessage(String " + errorMsg + ")");
     FacesContext.getCurrentInstance().addMessage(null,
-        new FacesMessage(getResourceBundleString(ALERT) + ' ' + errorMsg));
+        new FacesMessage(FacesMessage.SEVERITY_ERROR,
+            getResourceBundleString(ALERT) + " " + errorMsg, null));
+  }
+
+  private void setSuccessMessage(String successMsg)
+  {
+    log.debug("setSuccessMessage(String " + successMsg + ")");
+    FacesContext.getCurrentInstance().addMessage(null,
+        new FacesMessage(FacesMessage.SEVERITY_INFO, successMsg, null));
   }
 
   private void setInformationMessage(String infoMsg)
@@ -4409,8 +4628,29 @@ public void processChangeSelectView(ValueChangeEvent eve)
     	return searchPvtMsgs == null || searchPvtMsgs.isEmpty();
     }
 
+    public boolean isDetailMessagePublishableToFaq() {
+        String siteId = getSiteId();
+
+        if (!StringUtils.equalsAny(getMsgNavMode(),
+            PrivateMessagesTool.PVTMSG_MODE_SENT, PrivateMessagesTool.PVTMSG_MODE_RECEIVED)) {
+          return false;
+        }
+
+        boolean forumsToolPresent = false;
+        try {
+            forumsToolPresent = siteService.getSite(siteId)
+                    .getToolForCommonId(DiscussionForumService.FORUMS_TOOL_ID) != null;
+        } catch (IdUnusedException e) {
+          log.error("Could not find site with id [{}]: {}", siteId, e.toString());
+        }
+
+        return forumsToolPresent;
+    }
+
     public void setMsgNavMode(String msgNavMode) {
 		this.msgNavMode = msgNavMode;
+		this.selectedTags = "";
+		this.fromPreview = false;
 	}	
 	
 	/**
@@ -4546,6 +4786,8 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	    {
 	    	fromMainOrHp = fromPage;
 	    }
+	    this.selectedTags = "";
+	    this.fromPreview = false;
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -4831,6 +5073,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	    List<MembershipItem> draftBccRecipients = drDelegate.getDraftRecipients(getSelectedComposeBccList(), courseMemberMap);
 		prtMsgManager.sendProgamMessage(pMsg, draftRecipients, draftBccRecipients, asEmail);
 		PrivateMessageSchedulerService.scheduleDueDateReminder(pMsg.getId());
+		manageTagAssociation(pMsg.getId());
 	}
 
 	public void setOpenDate(String openDateStr){

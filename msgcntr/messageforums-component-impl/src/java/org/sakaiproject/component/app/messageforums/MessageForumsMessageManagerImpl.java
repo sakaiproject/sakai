@@ -520,8 +520,8 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     	
         HibernateCallback<List<Object[]>> hcb = session -> {
             Query q = session.getNamedQuery("findAuthoredMessageCountForAllStudentsByTopicId");
-            q.setParameter("contextId", getContextId(), StringType.INSTANCE);
             q.setParameter("topicId", topicId, LongType.INSTANCE);
+            q.setParameter("contextId", getContextId(), StringType.INSTANCE);
             return q.list();
         };
 
@@ -537,6 +537,54 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
             q.setParameter("forumId", forumId, LongType.INSTANCE);
             return q.list();
         };
+
+        return getHibernateTemplate().execute(hcb);
+    }
+
+    public List<Object[]> findAuthoredNewMessageCountForAllStudentsByTopicId(final Long topicId) {
+
+        HibernateCallback<List<Object[]>> hcb =
+                session -> {
+                    Query q = session.getNamedQuery("findAuthoredNewMessageCountForAllStudentsByTopicId");
+                    q.setLong("topicId", topicId);
+                    return q.list();
+                };
+
+        return getHibernateTemplate().execute(hcb);
+    }
+
+    public List<Object[]> findAuthoredNewMessageCountForAllStudentsByForumId(final Long forumId) {
+
+        HibernateCallback<List<Object[]>> hcb =
+                session -> {
+                    Query q = session.getNamedQuery("findAuthoredNewMessageCountForAllStudentsByForumId");
+                    q.setLong("forumId", forumId);
+                    return q.list();
+                };
+
+        return getHibernateTemplate().execute(hcb);
+    }
+
+    public List<Object[]> findAuthoredRepliesMessageCountForAllStudentsByTopicId(final Long topicId) {
+
+        HibernateCallback<List<Object[]>> hcb =
+                session -> {
+                    Query q = session.getNamedQuery("findAuthoredRepliesMessageCountForAllStudentsByTopicId");
+                    q.setLong("topicId", topicId);
+                    return q.list();
+                };
+
+        return getHibernateTemplate().execute(hcb);
+    }
+
+    public List<Object[]> findAuthoredRepliesMessageCountForAllStudentsByForumId(final Long forumId) {
+
+        HibernateCallback<List<Object[]>> hcb =
+                session -> {
+                    Query q = session.getNamedQuery("findAuthoredRepliesMessageCountForAllStudentsByForumId");
+                    q.setLong("forumId", forumId);
+                    return q.list();
+                };
 
         return getHibernateTemplate().execute(hcb);
     }

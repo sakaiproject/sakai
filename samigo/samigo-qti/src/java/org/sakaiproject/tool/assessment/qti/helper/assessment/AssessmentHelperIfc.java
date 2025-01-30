@@ -29,6 +29,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessCont
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.qti.asi.Assessment;
 import java.util.Set;
 
@@ -83,6 +84,9 @@ public interface AssessmentHelperIfc
 
   public void updateMetaData(Assessment assessmentXml,
                              AssessmentFacade assessment);
+
+  public void updateMetaData(Assessment assessmentXml,
+                             PublishedAssessmentFacade assessment);
 
   /**
    * Set the assessment description.

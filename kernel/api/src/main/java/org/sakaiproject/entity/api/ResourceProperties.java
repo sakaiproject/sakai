@@ -71,6 +71,9 @@ public interface ResourceProperties extends Serializable
 	/** Property for the content type (live, from DAV:). [MIME type string] */
 	static final String PROP_CONTENT_TYPE = "DAV:getcontenttype";
 
+	/** Property for the content checksum [ string] */
+	static final String PROP_CONTENT_SHA256 = "CHEF:contentsha256";
+
 	/** Property for the last modified date (live, from DAV:, set when anything changes). [Time] */
 	static final String PROP_MODIFIED_DATE = "DAV:getlastmodified";
 
@@ -94,6 +97,8 @@ public interface ResourceProperties extends Serializable
 
 	/** Property for calendar event location (user settable). [String] */
 	static final String PROP_CALENDAR_LOCATION = "CHEF:calendar-location";
+
+	static final String PROP_CALENDAR_SITE_ID = "calendar-site-id";
 
 	static final String PROP_CALENDAR_URL = "CHEF:calendar-url";
 
@@ -310,6 +315,7 @@ public interface ResourceProperties extends Serializable
 	 *            if the property is found but not a Time.
 	 * @deprecated use {@link #getDateProperty(String)} and {@link  #getInstantProperty(String)}
 	 */
+	@Deprecated
 	Time getTimeProperty(String name) throws EntityPropertyNotDefinedException, EntityPropertyTypeException;
 
 	/**

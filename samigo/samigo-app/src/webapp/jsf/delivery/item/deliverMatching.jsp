@@ -38,25 +38,12 @@ should be included in file importing DeliveryMessages
   </t:dataList>
 
   <h:dataTable value="#{question.matchingArray}" var="matching">
-    <h:column rendered="#{delivery.feedback eq 'true' &&
-       delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'}">
-      <h:panelGroup id="image"
-        rendered="#{matching.isCorrect}"
-        styleClass="icon-sakai--check feedBackCheck" >
-      </h:panelGroup>
-      <h:panelGroup id="ximage"
-        rendered="#{!matching.isCorrect}"
-        styleClass="icon-sakai--delete feedBackCross" >
-      </h:panelGroup>
-      <h:graphicImage id="image2"
-        width="16" height="16"
-        alt="#{deliveryMessages.alt_incorrect}" url="/images/delivery/spacer.gif">
-      </h:graphicImage>
+    <h:column rendered="#{delivery.feedback eq true && delivery.feedbackComponent.showCorrectResponse eq true && delivery.noFeedback ne true}">
+      <h:panelGroup id="image" rendered="#{matching.isCorrect eq true}" styleClass="si si-check-lg" > </h:panelGroup>
+      <h:panelGroup id="ximage" rendered="#{matching.isCorrect eq false}" styleClass="si si-remove feedBackCross"> </h:panelGroup>
    </h:column>
    <h:column>
-     <t:selectOneMenu value="#{matching.response}" escape="false"
-      disabled="#{delivery.actionString=='reviewAssessment'
-               || delivery.actionString=='gradeAssessment'}">
+     <t:selectOneMenu value="#{matching.response}" escape="false" disabled="#{delivery.actionString=='reviewAssessment' || delivery.actionString=='gradeAssessment'}">
        <f:selectItems value="#{matching.choices}" />
      </t:selectOneMenu>
    </h:column>
@@ -88,7 +75,7 @@ should be included in file importing DeliveryMessages
 </h:panelGroup>
 
 <h:panelGroup rendered="#{delivery.feedback eq 'true'}">
-  <h:panelGrid rendered="#{delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'}" >
+  <h:panelGrid rendered="#{(delivery.feedbackComponent.showCorrectResponse && delivery.feedbackComponent.showCorrection && !delivery.noFeedback=='true') || delivery.actionString=='gradeAssessment'}" >
     <h:panelGroup>
       <h:outputLabel for="answerKeyMC" styleClass="answerkeyFeedbackCommentLabel" value="#{deliveryMessages.ans_key}: " />
       <h:outputText id="answerKeyMC" value="#{question.key}" escape="false" />

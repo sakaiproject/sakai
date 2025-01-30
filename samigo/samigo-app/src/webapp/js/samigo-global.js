@@ -103,29 +103,53 @@ function returnToHostUrl(url) {
   }
 }
 
-function initRubricDialog(gradingId, doneText, cancelText, titleText) {
+function findAdhocRubricComponent(itemId) {
+  const vueComps = document.querySelectorAll("sakai-dynamic-rubric");
+  for (let i = 0; i < vueComps.length; i++) {
+    let componentFound = vueComps[i].shadowRoot.querySelector('input[name="newtotal'+itemId+'"]');
+    if (componentFound) { return vueComps[i].shadowRoot; }
+  }
+}
 
+function initRubricDialog(gradingId, doneText, cancelText, titleText, alertText) {
+
+  const gradingIdAux = gradingId;
   gradingId = ("" + gradingId).replace(".", "\\.");
 
   const input = document.querySelector(`.adjustedScore${gradingId}`);
-  const previousScore = input.value;
+  let previousScore = input.value;
+  let componentFound = findAdhocRubricComponent(gradingIdAux);
 
   $(`#modal${gradingId}`).dialog({
     modal: true,
+    closeOnEscape: false,
+    open: function(event, ui) { $(".ui-dialog-titlebar-close").hide(); },
     buttons: [
       {
         text: doneText,
         click: function () { 
+          if (componentFound) {
+            if (componentFound.querySelector('input[name="updated'+gradingIdAux+'"]').value  === 'true') {
+              alert(alertText);
+              return;
+            }
+            input.value = componentFound.querySelector('input[name="newtotal'+gradingIdAux+'"]').value;
+            input.focus();
+          }
           $(this).dialog("close");
         }
       },
       {
         text: cancelText,
         click: function () {
-
-          this.querySelector(`sakai-rubric-grading`).cancel();
+          if (this.querySelector(`sakai-rubric-grading`)) { this.querySelector(`sakai-rubric-grading`).cancel(); }
+          else if (this.querySelector(`sakai-dynamic-rubric`)) {
+            this.querySelector(`sakai-dynamic-rubric`).cancel();
+            previousScore = componentFound.querySelector('input[name="previous'+gradingIdAux+'"]').value;
+          }
           $(this).dialog("close");
           input.value = previousScore;
+          input.focus();
         }
       }
     ],
@@ -163,6 +187,7 @@ $(function () {
 
   const save = e => {
     [...document.getElementsByTagName("sakai-rubric-grading")].forEach(srb => srb.release());
+    [...document.querySelectorAll("sakai-dynamic-rubric")].forEach(sdr => sdr.release());
   };
 
   let saveButton = document.getElementById("editStudentResults:save");
@@ -173,6 +198,7 @@ $(function () {
 
   const cancel = e => {
     [...document.getElementsByTagName("sakai-rubric-grading")].forEach(srb => srb.cancel());
+    [...document.querySelectorAll("sakai-dynamic-rubric")].forEach(sdr => sdr.cancel());
   };
 
   let cancelButton = document.getElementById("editStudentResults:cancel");
@@ -186,15 +212,6 @@ $(function () {
       sortList: [[2,0]],
       textExtraction: {
         0: function(node, table, cellIndex) { return $(node).find("a").text(); }
-      }
-    });
-  }
-  if ( $("#editform\\:questionpool-questions").length ) {
-    $("#editform\\:questionpool-questions").tablesorter({
-      headers: {
-        0: {
-          sorter: false
-        }
       }
     });
   }

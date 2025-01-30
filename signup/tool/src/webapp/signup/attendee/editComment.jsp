@@ -4,14 +4,14 @@
 <%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t" %>
 <f:view locale="#{UserLocale.locale}">
 	<jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
-	   <jsp:setProperty name="msgs" property="baseName" value="messages"/>
+	   <jsp:setProperty name="msgs" property="baseName" value="signup"/>
 	</jsp:useBean>
 	<sakai:view_container title="Signup Tool">
 		<style type="text/css">
-			@import url("/sakai-signup-tool/css/signupStyle.css");
+			@import url("/sakai-signup-tool/css/signupStyle.css${Portal.CDNQuery}");
 		</style>
 		<h:outputText value="#{Portal.latestJQuery}" escape="false"/>
-		<script src="/sakai-signup-tool/js/signupScript.js"></script>
+		<script src="/sakai-signup-tool/js/signupScript.js${Portal.CDNQuery}"></script>
 		
 		<sakai:view_content>
 			<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/> 
@@ -19,7 +19,7 @@
 				<div class="page-header">
 					<sakai:view_title value="#{msgs.event_edit_comment_page_title}"/>
 				</div>
-				<div class="table-responsive">
+				<div class="table">
 				<h:panelGrid columns="2" columnClasses="titleColumn,valueColumn" style="margin-top:20px;">
 					<h:outputText value="#{msgs.event_name}" styleClass="titleText" escape="false"/>
 					<h:outputText value="#{EditCommentSignupMBean.meetingWrapper.meeting.title}" styleClass="longtext"/>

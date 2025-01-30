@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping default-cascade="all" package="org.adl.validator.contentpackage" default-lazy="false">
+	
+		
+	<class name="org.adl.validator.contentpackage.LaunchData" table="SCORM_LAUNCH_DATA_T">
+		<id name="id" column="LAUNCH_DATA_ID" type="long">
+            <generator class="native">
+                <param name="sequence">SCORM_UID_S</param>
+            </generator>
+        </id>
+        
+        <property name="organizationIdentifier" column="ORG_IDENTIFIER"/>
+       	<property name="itemIdentifier" column="ITEM_IDENTIFIER"/>
+        <property name="resourceIdentifier" column="RESOURCE_IDENTIFIER"/>
+        <property name="manifestXMLBase" column="MANIFEST_XML_BASE"/>
+        <property name="resourcesXMLBase" column="RESOURCES_XML_BASE"/>
+        <property name="resourceXMLBase" column="RESOURCE_XML_BASE"/>
+        <property name="parameters" column="PARAMETERS"/>
+        <property name="persistState" column="PERSIST_STATE"/>
+        <property name="location" column="LOCATION"/>
+        <property name="SCORMType" column="SCORM_TYPE"/>
+        <property name="itemTitle" column="ITEM_TITLE"/>
+        <property name="dataFromLMS">
+          <column name="DATA_FROM_LMS" length="4000"/>
+        </property>
+        <!-- ALTER TABLE `scorm_launch_data_t` MODIFY COLUMN `DATA_FROM_LMS` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci; -->
+        <property name="timeLimitAction" column="TIME_LIMIT_ACTION"/>
+        <property name="minNormalizedMeasure" column="MIN_NORMALIZED_MEASURE"/>
+        <property name="attemptAbsoluteDurationLimit" column="ATTEMPT_ABS_DUR_LIMIT"/>
+        <property name="completionThreshold" column="COMPLETION_THRESHOLD"/>
+        <property name="objectivesList" column="OBJECTIVES_LIST"/>
+        <property name="previous" type="boolean" column="IS_PREVIOUS"/>
+        <property name="continue" type="boolean" column="IS_CONTINUE"/>
+        <property name="exit" type="boolean" column="IS_EXIT"/>
+        <property name="exitAll" type="boolean" column="IS_EXIT_ALL"/>
+        <property name="abandon" type="boolean" column="IS_ABANDON"/>
+        <property name="suspendAll" type="boolean" column="IS_SUSPEND_ALL"/>
+        
+    </class>
+    
+</hibernate-mapping>

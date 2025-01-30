@@ -49,7 +49,9 @@ import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
-import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
+import org.apache.commons.lang3.StringUtils;
+
+import org.sakaiproject.lti.util.SakaiLTIUtil;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
@@ -60,7 +62,7 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 
-import org.tsugi.basiclti.ContentItem;
+import org.tsugi.lti.ContentItem;
 
 /**
  * Creates a list of LTI Content Items for the user to choose from. Their choice will be added
@@ -159,7 +161,7 @@ public class LtiImportItemProducer implements ViewComponentProducer, NavigationC
 
 		// Can set ContentItemSelection launch values or put in our own data items
 		// which will come back later.  Be mindful of GET length limitations enroute
-		// to the /access/basiclti servlet.
+		// to the /access/lti servlet.
 		Properties contentData = new Properties();
 		contentData.setProperty(ContentItem.ACCEPT_MEDIA_TYPES, ContentItem.MEDIA_CC);
 		contentData.setProperty("answer", "42");  // An example
@@ -173,7 +175,7 @@ public class LtiImportItemProducer implements ViewComponentProducer, NavigationC
 			for ( int i = 0 ; i < toolsImportItem.size(); i++ ) {
 				Map<String, Object> tool = toolsImportItem.get(i);
 				if ( tool == null ) continue;
-				Long toolId = SakaiBLTIUtil.getLongNull(tool.get(LTIService.LTI_ID));
+				Long toolId = SakaiLTIUtil.getLongNull(tool.get(LTIService.LTI_ID));
 
 				// Create a POSTable URL back to this application with the right parameters
 				// Since the external tool will be setting all the POST data per Content Item spec, we need to 
@@ -186,12 +188,11 @@ public class LtiImportItemProducer implements ViewComponentProducer, NavigationC
 				String siteInfoToolId = simplePageBean.getCurrentTool("sakai.siteinfo");
 
 				String helperUrl = ServerConfigurationService.getToolUrl() + "/" + siteInfoToolId +
-					"/sakai.basiclti.admin.helper.helper?panel=ContentConfig&flow=import&tool_id=" +
+					"/sakai.lti.admin.helper.helper?panel=ContentConfig&flow=import&tool_id=" +
 					tool.get(LTIService.LTI_ID) + "&returnUrl=" + URLEncoder.encode(contentReturn);
 
-				String title = (String) tool.get(LTIService.LTI_TITLE);
-				if ( title == null ) title = (String) tool.get(LTIService.LTI_PAGETITLE);
-				if ( title == null ) title = messageLocator.getMessage("simplepage.blti.config");
+				String title = SakaiLTIUtil.getToolTitle(tool, null, null);
+				if ( StringUtils.isEmpty(title) ) title = messageLocator.getMessage("simplepage.blti.config");
 				UIBranchContainer link = UIBranchContainer.make(tofill, "blti-launch:");
 				UILink.make(link, "blti-launch-link", title, helperUrl)
 					.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.blti.config")));

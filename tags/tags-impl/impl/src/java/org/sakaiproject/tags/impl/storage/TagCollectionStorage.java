@@ -292,7 +292,7 @@ public class TagCollectionStorage implements TagCollections {
     public String createTagCollection(TagCollection tagCollection) {
         final String currentUserId = sessionManager.getCurrentSessionUserId();
         final Long currentTime = timestampProvider.get();
-        final String proposedTagCollectionId = idProvider.get();
+        final String proposedTagCollectionId = tagCollection.getTagCollectionId() != null ? tagCollection.getTagCollectionId() : idProvider.get();
         final String createdId =  db.transaction("Create a tag Collection",
                 new DBAction<String>() {
                     @Override

@@ -16,25 +16,36 @@ package org.sakaiproject.webapi.controllers;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.webapi.exception.MissingSessionException;
+import org.sakaiproject.webapi.exception.UnknownSiteException;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.annotation.Resource;
 
 @Slf4j
 abstract class AbstractSakaiApiController {
 
-	@Resource(name = "org.sakaiproject.tool.api.SessionManager")
-	private SessionManager sessionManager;
+    @Autowired
+    @Qualifier("org.sakaiproject.tool.api.SessionManager")
+    private SessionManager sessionManager;
+
+    @Autowired
+    private SiteService siteService;
 
     /**
-     * Check for a valid session
-     * if not valid a 403 Forbidden will be returned
+     * Check for a valid session.
+     * If not valid a 403 Forbidden will be returned.
      */
-	Session checkSakaiSession() {
+    Session checkSakaiSession() {
 
-	    try {
+        try {
             Session session = sessionManager.getCurrentSession();
             if (StringUtils.isBlank(session.getUserId())) {
                 log.error("Sakai user session is invalid");
@@ -42,8 +53,21 @@ abstract class AbstractSakaiApiController {
             }
             return session;
         } catch (IllegalStateException e) {
-	        log.error("Could not retrieve the sakai session");
+            log.error("Could not retrieve the sakai session");
             throw new MissingSessionException(e.getCause());
+        }
+    }
+
+    /**
+     * Check for a valid site Id and returns site.
+     * If not valid a 400 Bad Request will be returned.
+     */
+    Site checkSite(String siteId) {
+        try {
+            return siteService.getSite(siteId);
+        } catch (IdUnusedException e) {
+            log.error("Could not retrieve site with id {}", siteId);
+            throw new UnknownSiteException(e.getCause());
         }
     }
 }

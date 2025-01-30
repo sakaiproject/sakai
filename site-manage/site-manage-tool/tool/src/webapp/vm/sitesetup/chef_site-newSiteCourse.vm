@@ -22,7 +22,7 @@
 	</p>
 	<form name = "addCourseForm" method="post" action="#toolForm($action)">
 		#if ($site)
-			<div class="form-group row ">				
+			<div class="row ">
 				<label for="selectTerm" class="col-sm-3 form-control-label">
 					<span class ="reqStar">*</span>
 					$tlang.getString("nscourse.acad2")
@@ -182,7 +182,7 @@
 
 		#if ($authorizationRequired)
 			#if ($termCourseList && $currentUserId != $userId)
-					<div class="shorttext required form-group row ">											
+					<div class="shorttext required row ">
 						<label for="uniqname" class="col-sm-3 form-control-label">		
 						   <span class="reqStar">*</span>	
 						   $tlang.getString("man.authoriz")
@@ -194,7 +194,7 @@
 					<p class="labelindnt">
 					   <span class="textPanelFooter">$tlang.getString("man.email")</span>
 					</p>
-					<div class="shorttext form-group row">
+					<div class="shorttext row">
 						<label for="additional" class="col-sm-3 form-control-label">
 							$tlang.getString("man.spec")
 						</label>
@@ -218,21 +218,15 @@
 					<!-- Add Not Listed Courses -->
 					<a href="#" onclick="javascript:submitFindCourse();">$tlang.getString('nscourse.add_course_not_listed')</a>
 				#end
-				## if site creation is based on template, this could be the final step!
-				#if ($!basedOnTemplate && !$publishTemplate) 
-					<div class="instruction" id ="nextInstructions">
-						<span id="templateNonCourseInstruction" style="display:block">$tlang.getString("sitetype.templatefinalstepinstruction")</span>
-					</div>
-				#end
 				<p class="act">
 				<input
 					class="active"
 					disabled="true"
 					type="submit" 
 					accesskey="s"
-					name="Continue" 
-					id="continueButton" 
-					#if ($!basedOnTemplate) value="$tlang.getString('sitetype.done')" #else value="$tlang.getString('gen.continue')" #end
+					name="addClassButton"
+					value="$tlang.getString('gen.continue')"
+					id="continueButton"
 					onclick="SPNR.disableControlsAndSpin( this, null );document.addCourseForm.option.value='continue'; document.addCourseForm.submit(); return false;"
 					/>
 				## SAK-28990 controlled via sakai.property sitemanage.continueWithNoRoster.enabled

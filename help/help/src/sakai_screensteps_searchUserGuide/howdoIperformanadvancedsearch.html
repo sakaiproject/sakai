@@ -5,7 +5,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta content="" name="description">
 <link href="../css/help.css" media="all" rel="stylesheet" type="text/css" charset="utf-8">
-<link href="/library/webjars/fontawesome/4.7.0/css/font-awesome.min.css" media="screen" rel="stylesheet">
+<link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
 <script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
 <script src="/library/js/headscripts.js" type="text/javascript" charset="utf-8"></script>
 <script type="text/javascript" charset="utf-8">
@@ -19,14 +19,15 @@
 </script>
 </head>
 <body>
-  <div class="screensteps-main-content" role="main">
-    <div class="screensteps-article">
-      <div class="screensteps-article-content">
-
-        <div><div>
+  <div><div>
 <div><h1 class="article-title">How do I perform an advanced search?</h1></div>
-<div><div class="screensteps-steps">    <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
-  <p>The Search Tool is driven by an index that contains multiple sub indexes. When using the tool for basic search, only two of these indexes are used: the context index, and the content index. The content index contains a stored and tokenized full text index of a digested form of the content. This means that a Word document uploaded to Resources will have had all its text extracted and indexed, whereas a video package may have had only the metadata indexed. When the search results are returned, it is this content that is shown with the matching terms highlighted.</p>
+<div>
+
+
+
+    <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
+  <div id="text-content_5CFAADAA-85CA-4735-AE54-37950C8E61F4" class="text-block-content">
+    <p>The Search Tool is driven by an index that contains multiple sub indexes. When using the tool for basic search, only two of these indexes are used: the context index, and the content index. The content index contains a stored and tokenized full text index of a digested form of the content. This means that a Word document uploaded to Resources will have had all its text extracted and indexed, whereas a video package may have had only the metadata indexed. When the search results are returned, it is this content that is shown with the matching terms highlighted.</p>
 <p>The context index provides a keyword index of the source of the content. This is the worksite or course that contains the content. When the search tool performs a basic search, it adds a search term of +content:&lt;currentsiteid&gt; where &lt;currentsiteid&gt; is the context or site ID where the search is being performed. This can be translated as "results must come from the current site."</p>
 <p>You can search for terms within any of the indexes. For example to search only in announcements, you can use the search terms +tool:announcement +content:cowslip, which will only return announcements containing the word cowslip.</p>
 <p>The index currently contains the following named indexes.</p>
@@ -42,16 +43,19 @@
 <li>
 <strong>reference</strong>: A keyword stored index of the Sakai Entity reference</li>
 </ul>
+  </div>
 </div>
 
       <div class="step screensteps-section screensteps-depth-1">
     <h2 class="step-title screensteps-heading">Go to Search.</h2>
-      <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/003/332/683/original/1de86053-a54a-4cce-9b08-7317864d52ce.png" alt="" height="120" width="213">
-</div>
+        <div class="image screensteps-image">
+      <img src="https://media.screensteps.com/image_assets/assets/003/332/683/original/1de86053-a54a-4cce-9b08-7317864d52ce.png" alt="" height="120" width="213">
+  </div>
  
       <div class="step-instructions screensteps-textblock">
-  <p>Select the <strong>Search</strong> tool from the Tool Menu in your site.</p>
+  <div id="text-content_7E0AF724-658A-4D57-816E-1B899556167D" class="text-block-content">
+    <p>Select the <strong>Search</strong> tool from the Tool Menu in your site.</p>
+  </div>
 </div>
  
   </div>
@@ -59,7 +63,9 @@
       <div class="step screensteps-section screensteps-depth-1" id="advanced-search-options">
     <h2 class="step-title screensteps-heading">Advanced Search Options</h2>
       <div class="step-instructions screensteps-textblock">
-  <p>Use the search information below to enter advanced search strings into the search box.</p>
+  <div id="text-content_728FD69D-011B-4A85-8C36-252436DB3ED9" class="text-block-content">
+    <p>Use the search information below to enter advanced search strings into the search box.</p>
+  </div>
 </div>
  
   </div>
@@ -67,17 +73,21 @@
       <div class="step screensteps-section screensteps-depth-1" id="lucene-search-information">
     <h2 class="step-title screensteps-heading">Lucene Search Information</h2>
       <div class="step-instructions screensteps-textblock">
-  <p>The Query Engine is based on Apache Lucene. For completeness, the Apache Query documentation is included below. More information can be found at <a href="https://lucene.apache.org/core/2_9_4/queryparsersyntax.html">https://lucene.apache.org/core/2_9_4/queryparsersyntax.html</a></p>
+  <div id="text-content_EF60F300-A7DD-4E23-A5DA-18F53B548DD5" class="text-block-content">
+    <p>The Query Engine is based on Apache Lucene. For completeness, the Apache Query documentation is included below. More information can be found at <a href="https://lucene.apache.org/core/2_9_4/queryparsersyntax.html">https://lucene.apache.org/core/2_9_4/queryparsersyntax.html</a></p>
+  </div>
 </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="terms">
     <h3 class="step-title screensteps-heading">Terms</h3>
       <div class="step-instructions screensteps-textblock">
-  <p>A query is broken up into terms and operators. There are two types of terms: Single Terms and Phrases.</p>
+  <div id="text-content_D9F8BE01-67F9-4A3A-A43B-4043D24595E6" class="text-block-content">
+    <p>A query is broken up into terms and operators. There are two types of terms: Single Terms and Phrases.</p>
 <p>A Single Term is a single word such as "test" or "hello."</p>
 <p>A Phrase is a group of words surrounded by double quotes such as "hello dolly."</p>
 <p>Multiple terms can be combined together with Boolean operators to form a more complex query (see below).</p>
 <p>Note: The analyzer used to create the index will be used on the terms and phrases in the query string. So it is important to choose an analyzer that will not interfere with the terms used in the query string.</p>
+  </div>
 </div>
  
   </div>
@@ -85,7 +95,8 @@
         <div class="step screensteps-section screensteps-depth-2" id="fields">
     <h3 class="step-title screensteps-heading">Fields</h3>
       <div class="step-instructions screensteps-textblock">
-  <p>Lucene supports fielded data. When performing a search, you can either specify a field or use the default field. The field names and default field is implementation specific.</p>
+  <div id="text-content_E79A31B3-EAF8-4F14-AE19-81FA65C55A5C" class="text-block-content">
+    <p>Lucene supports fielded data. When performing a search, you can either specify a field or use the default field. The field names and default field is implementation specific.</p>
 <p>You can search any field by typing the field name followed by a colon ":" and then the term you are looking for.</p>
 <p>As an example, let's assume a Lucene index contains two fields, title and text and that text is the default field. If you want to find the document entitled "The Right Way," which contains the text "don't go this way," you can enter the following:</p>
 <p>title:"The Right Way" AND text:go</p>
@@ -95,6 +106,7 @@
 <p>Note: The field is only valid for the term that it directly precedes, so the query</p>
 <p>title:Do it right</p>
 <p>will only find "Do" in the title field. It will find "it" and "right" in the default field (in this case the text field).</p>
+  </div>
 </div>
  
   </div>
@@ -102,7 +114,9 @@
         <div class="step screensteps-section screensteps-depth-2" id="term-modifiers">
     <h3 class="step-title screensteps-heading">Term Modifiers</h3>
       <div class="step-instructions screensteps-textblock">
-  <p>Lucene supports modifying query terms to provide a wide range of search options.</p>
+  <div id="text-content_A4DCFCE8-B29B-4BF8-BA6A-B8C18D04C505" class="text-block-content">
+    <p>Lucene supports modifying query terms to provide a wide range of search options.</p>
+  </div>
 </div>
  
   </div>
@@ -110,7 +124,8 @@
         <div class="step screensteps-section screensteps-depth-2" id="wildcard-searches">
     <h3 class="step-title screensteps-heading">Wildcard Searches</h3>
       <div class="step-instructions screensteps-textblock">
-  <p>Lucene supports single and multiple character wildcard searches.</p>
+  <div id="text-content_2D7993B9-014C-42EB-AE9B-6659E3CD7CC3" class="text-block-content">
+    <p>Lucene supports single and multiple character wildcard searches.</p>
 <p>To perform a single character wildcard search, use the "?" symbol.</p>
 <p>To perform a multiple character wildcard search, use the "*" symbol.</p>
 <p>The single character wildcard search looks for terms that match that with the single character replaced. For example, to search for "text" or "test" you can use the search</p>
@@ -120,6 +135,7 @@
 <p>You can also use the wildcard searches in the middle of a term.</p>
 <p>te*t</p>
 <p>Note: You cannot use a * or ? symbol as the first character of a search.</p>
+  </div>
 </div>
  
   </div>
@@ -127,12 +143,14 @@
         <div class="step screensteps-section screensteps-depth-2" id="fuzzy-searches">
     <h3 class="step-title screensteps-heading">Fuzzy Searches</h3>
       <div class="step-instructions screensteps-textblock">
-  <p>Lucene supports fuzzy searches based on the Levenshtein Distance, or Edit Distance algorithm. To do a fuzzy search use the tilde, "~", symbol at the end of a Single word Term. For example, to search for a term similar in spelling to "roam," use the fuzzy search</p>
+  <div id="text-content_8E8E256F-41C0-4823-9199-8EA8CFBB97F9" class="text-block-content">
+    <p>Lucene supports fuzzy searches based on the Levenshtein Distance, or Edit Distance algorithm. To do a fuzzy search use the tilde, "~", symbol at the end of a Single word Term. For example, to search for a term similar in spelling to "roam," use the fuzzy search</p>
 <p>roam~</p>
 <p>This search will find terms like foam and roams.</p>
 <p>Starting with Lucene 1.9, an additional (optional) parameter can specify the required similarity. The value is between 0 and 1, with a value closer to 1 only terms with a higher similarity will be matched. For example,</p>
 <p>roam~0.8</p>
 <p>The default that is used if the parameter is not given is 0.5.</p>
+  </div>
 </div>
  
   </div>
@@ -140,8 +158,10 @@
         <div class="step screensteps-section screensteps-depth-2" id="proximity-searches">
     <h3 class="step-title screensteps-heading">Proximity Searches</h3>
       <div class="step-instructions screensteps-textblock">
-  <p>Lucene supports finding words that are within a specific distance away. To do a proximity search use the tilde, "~", symbol at the end of a Phrase. For example to search for a "apache" and "jakarta" within 10 words of each other in a document, use the search</p>
+  <div id="text-content_BA881E59-C04F-4F84-8F66-3A3058BC55A3" class="text-block-content">
+    <p>Lucene supports finding words that are within a specific distance away. To do a proximity search use the tilde, "~", symbol at the end of a Phrase. For example to search for a "apache" and "jakarta" within 10 words of each other in a document, use the search</p>
 <p>"jakarta apache"~10 </p>
+  </div>
 </div>
  
   </div>
@@ -149,12 +169,14 @@
         <div class="step screensteps-section screensteps-depth-2" id="range-searches">
     <h3 class="step-title screensteps-heading">Range Searches</h3>
       <div class="step-instructions screensteps-textblock">
-  <p>Range Queries allow one to match documents whose field(s) values are between the lower and upper bound specified by the Range Query. Range Queries can be inclusive or exclusive of the upper and lower bounds. Sorting is done lexicographically.</p>
+  <div id="text-content_84582B73-BBFB-4487-95E8-4B5E732333B9" class="text-block-content">
+    <p>Range Queries allow one to match documents whose field(s) values are between the lower and upper bound specified by the Range Query. Range Queries can be inclusive or exclusive of the upper and lower bounds. Sorting is done lexicographically.</p>
 <p>mod_date:[20020101 TO 20030101]</p>
 <p>This will find documents whose mod_date fields have values between 20020101 and 20030101, inclusive. Note that Range Queries are not reserved for date fields. You could also use range queries with non-date fields:</p>
 <p>title:{Aida TO Carmen}</p>
 <p>This will find all documents whose titles are between Aida and Carmen, but not including Aida and Carmen.</p>
 <p>Inclusive range queries are denoted by square brackets. Exclusive range queries are denoted by curly brackets.</p>
+  </div>
 </div>
  
   </div>
@@ -162,7 +184,8 @@
         <div class="step screensteps-section screensteps-depth-2" id="boosting-a-term">
     <h3 class="step-title screensteps-heading">Boosting a Term</h3>
       <div class="step-instructions screensteps-textblock">
-  <p>Lucene provides the relevance level of matching documents based on the terms found. To boost a term use the caret, "^", symbol with a boost factor (a number) at the end of the term you are searching. The higher the boost factor, the more relevant the term will be.</p>
+  <div id="text-content_2D8B7FFD-9E00-4894-B9F5-7802E1D2B450" class="text-block-content">
+    <p>Lucene provides the relevance level of matching documents based on the terms found. To boost a term use the caret, "^", symbol with a boost factor (a number) at the end of the term you are searching. The higher the boost factor, the more relevant the term will be.</p>
 <p>Boosting allows you to control the relevance of a document by boosting its term. For example, if you are searching for</p>
 <p>jakarta apache</p>
 <p>and you want the term "jakarta" to be more relevant, boost it using the ^ symbol along with the boost factor next to the term. You would type</p>
@@ -170,6 +193,7 @@
 <p>This will make documents with the term jakarta appear more relevant. You can also boost Phrase Terms as in the example</p>
 <p>"jakarta apache"^4 "Apache Lucene"</p>
 <p>By default, the boost factor is 1. Although the boost factor must be positive, it can be less than 1 (e.g., 0.2).</p>
+  </div>
 </div>
  
   </div>
@@ -177,7 +201,8 @@
         <div class="step screensteps-section screensteps-depth-2" id="boolean-operators">
     <h3 class="step-title screensteps-heading">Boolean Operators</h3>
       <div class="step-instructions screensteps-textblock">
-  <p>Boolean operators allow terms to be combined through logic operators. Lucene supports AND, "+," OR, NOT, and "-" as Boolean operators (Note: Boolean operators must be ALL CAPS). </p>
+  <div id="text-content_13969319-BBC4-42D2-9C67-898656556FE0" class="text-block-content">
+    <p>Boolean operators allow terms to be combined through logic operators. Lucene supports AND, "+," OR, NOT, and "-" as Boolean operators (Note: Boolean operators must be ALL CAPS). </p>
 <p>OR</p>
 <p>The OR operator is the default conjunction operator. This means that if there is no Boolean operator between two terms, the OR operator is used. The OR operator links two terms and finds a matching document if either of the terms exist in a document. This is equivalent to a union using sets. The symbol || can be used in place of the word OR.</p>
 <p>To search for documents that contain either "jakarta apache" or just "jakarta" use the query</p>
@@ -202,6 +227,7 @@
 <p>The "-" or prohibit operator excludes documents that contain the term after the "-" symbol.</p>
 <p>To search for documents that contain "jakarta apache" but not "Apache Lucene," use the query</p>
 <p>"jakarta apache" -"Apache Lucene"</p>
+  </div>
 </div>
  
   </div>
@@ -209,10 +235,12 @@
         <div class="step screensteps-section screensteps-depth-2" id="grouping">
     <h3 class="step-title screensteps-heading">Grouping</h3>
       <div class="step-instructions screensteps-textblock">
-  <p>Lucene supports using parentheses to group clauses to form sub queries. This can be very useful if you want to control the boolean logic for a query.</p>
+  <div id="text-content_52FD796A-84EB-4B90-B7C2-15F3AD79F18D" class="text-block-content">
+    <p>Lucene supports using parentheses to group clauses to form sub queries. This can be very useful if you want to control the boolean logic for a query.</p>
 <p>To search for either "jakarta" or "apache" and "website," use the query</p>
 <p>(jakarta OR apache) AND website</p>
 <p>This eliminates any confusion and makes sure that website exists and either the term jakarta or apache may exist.</p>
+  </div>
 </div>
  
   </div>
@@ -220,9 +248,11 @@
         <div class="step screensteps-section screensteps-depth-2" id="field-grouping">
     <h3 class="step-title screensteps-heading">Field Grouping</h3>
       <div class="step-instructions screensteps-textblock">
-  <p>Lucene supports using parentheses to group multiple clauses to a single field.</p>
+  <div id="text-content_ECD9A45E-EA1E-49E4-810E-0CED7F40494C" class="text-block-content">
+    <p>Lucene supports using parentheses to group multiple clauses to a single field.</p>
 <p>To search for a title that contains both the word "return" and the phrase "pink panther," use the query</p>
 <p>title:(+return +"pink panther")</p>
+  </div>
 </div>
  
   </div>
@@ -230,10 +260,12 @@
         <div class="step screensteps-section screensteps-depth-2" id="escaping-special-characters">
     <h3 class="step-title screensteps-heading">Escaping Special Characters</h3>
       <div class="step-instructions screensteps-textblock">
-  <p>Lucene supports escaping special characters that are part of the query syntax. The current list of special characters are as follows:</p>
+  <div id="text-content_96EE3688-C9F5-40BA-BD7F-152B4B408AFC" class="text-block-content">
+    <p>Lucene supports escaping special characters that are part of the query syntax. The current list of special characters are as follows:</p>
 <p>+ - &amp;&amp; || ! ( ) { } [ ] ^ " ~ * ? : \</p>
 <p>To escape these character, use the \ before the character. For example to search for (1+1):2, use the query</p>
 <p>\(1\+1\)\:2</p>
+  </div>
 </div>
  
   </div>
@@ -241,11 +273,7 @@
   </div>
 
 
+</div>
 </div></div>
-</div></div>
-
-      </div>
-    </div>
-  </div>
 </body>
 </html>

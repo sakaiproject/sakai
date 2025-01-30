@@ -49,8 +49,8 @@
         </div>
 
         <div id="buttonContainer">
-            <button class="roster-print-button" title="{{tr 'print_roster_tooltip'}}">{{tr 'print_roster'}}</button>
-            <button id="roster-export-button" title="{{tr 'export_roster_tooltip'}}">{{tr 'export_roster'}}</button>
+            <button class="roster-print-button btn btn-secondary" title="{{tr 'print_roster_tooltip'}}">{{tr 'print_roster'}}</button>
+            <button id="roster-export-button" class="btn btn-secondary" title="{{tr 'export_roster_tooltip'}}">{{tr 'export_roster'}}</button>
         </div>
     </div>
 
@@ -100,6 +100,8 @@
 <!-- end top toolbar -->
 
 <!-- content -->
-<div id="roster-members-content" class="table-responsive"></div>
+<div id="roster-members-content" class="table"></div>
 <div id="roster-loading-image"><img src="/sakai-roster2-tool/images/ajax-loader.gif" /></div>
+<div id="roster-modal-wrapper"></div>
+
 <!-- end content -->

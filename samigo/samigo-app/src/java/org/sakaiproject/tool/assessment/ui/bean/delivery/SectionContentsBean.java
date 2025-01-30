@@ -23,12 +23,14 @@ package org.sakaiproject.tool.assessment.ui.bean.delivery;
 
 import java.io.Serializable;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,6 +39,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import javax.faces.model.SelectItem;
@@ -44,16 +47,24 @@ import javax.faces.model.SelectItem;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Precision;
 import org.sakaiproject.time.api.UserTimeService;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
+import org.sakaiproject.tool.assessment.data.dao.grading.SectionGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionMetaDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
+import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
+import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.util.ResourceLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -63,6 +74,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SectionContentsBean extends SpringBeanAutowiringSupport implements Serializable {
   private static final long serialVersionUID = 5959692528847396966L;
+  
+  private static final ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.DeliveryMessages");
 
   @Autowired
   @Qualifier("org.sakaiproject.time.api.UserTimeService")
@@ -90,6 +103,17 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
   private String randomQuestionsDrawTime = "";
   private List attachmentList;
   private boolean noQuestions;
+  
+  @Getter @Setter private SectionGradingData sectionGradingData;
+  @Getter private String timeLimit;
+  @Getter private boolean timedSection;
+
+  @Setter private Integer numberToBeFixed;
+  @Setter private Long poolIdToBeFixed;
+  @Getter @Setter private String poolNameToBeFixed;
+  @Getter @Setter private String fixedQuestionsDrawDate = "";
+  @Getter @Setter private String fixedQuestionsDrawTime = "";
+  @Setter private List<Long> poolIdsToBeDrawn;
 
   public SectionContentsBean()
   {
@@ -353,8 +377,27 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
       setNumber(section.getSequence().toString());
       // do teh rest later
       Set<ItemDataIfc> itemSet = section.getItemSet();
-      if (itemSet != null)
-      {
+
+      if (itemSet != null) {
+        // adding fixed questions (could be empty if not fixed and draw part)
+        Set<ItemDataIfc> sortedSet = itemSet.stream()
+            .filter(item -> ((ItemDataIfc) item).getIsFixed())
+            .collect(Collectors.toSet());
+
+        if (!sortedSet.isEmpty()) {
+             // getting all hashes from the sortedSet
+             List<String> distinctHashValues = sortedSet.stream()
+                 .map(item -> ((ItemDataIfc) item).getHash())
+                 .distinct()
+                 .collect(Collectors.toList());
+
+              // removing from itemSet if there are hashes repeated and getFixed false -> itemSet with only fixed and not repeated fixed on the randow draw
+              itemSet.removeIf(item -> !item.getIsFixed() &&
+                                       distinctHashValues.stream().anyMatch(hash -> hash.equals(item.getHash())));
+
+              section.setItemSet(itemSet);
+        }
+
         setQuestions(itemSet.size());
         for (ItemDataIfc item : itemSet) {
           ItemContentsBean itemBean = new ItemContentsBean(item);
@@ -377,102 +420,19 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
 
   public void setMetaData(SectionDataIfc section)
   {
-
     if (section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE) != null)
     {
       Integer authortype = new Integer(section.getSectionMetaDataByLabel(
         SectionDataIfc.AUTHOR_TYPE));
       setSectionAuthorType(authortype);
 
-      if (section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(
-        SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()))
-      {
-        if (section.getSectionMetaDataByLabel(SectionDataIfc.
-                                              NUM_QUESTIONS_DRAWN) != null)
-        {
-          Integer numberdrawn = new Integer(section.getSectionMetaDataByLabel(
-            SectionDataIfc.NUM_QUESTIONS_DRAWN));
-          setNumberToBeDrawn(numberdrawn);
+      if (section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()) || 
+            section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString())) {
+          setMetadataRandowDraw(section);
+      } else if (section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.FIXED_AND_RANDOM_DRAW_FROM_QUESTIONPOOL.toString())) {
+          setMetadataFixed(section);
+          setMetadataRandowDraw(section);
         }
-
-        if (section.getSectionMetaDataByLabel(SectionDataIfc.
-                                              POOLID_FOR_RANDOM_DRAW) != null)
-        {
-          Long poolid = new Long(section.getSectionMetaDataByLabel(
-            SectionDataIfc.POOLID_FOR_RANDOM_DRAW));
-          setPoolIdToBeDrawn(poolid);
-        }
-        if (section.getSectionMetaDataByLabel(SectionDataIfc.
-                                              POOLNAME_FOR_RANDOM_DRAW) != null)
-        {
-          String poolname = section.getSectionMetaDataByLabel(
-            SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW);
-          setPoolNameToBeDrawn(poolname);
-          
-          String randomDrawDate = section.getSectionMetaDataByLabel(SectionDataIfc.QUESTIONS_RANDOM_DRAW_DATE);
-          if(randomDrawDate != null && !"".equals(randomDrawDate)){
-
-              try{
-
-                // bjones86 - SAM-1604
-                Instant drawDate;
-                DateTimeFormatter fmt = DateTimeFormatter.ISO_OFFSET_DATE_TIME; //The Date Time is in ISO format
-                try {
-                    drawDate = LocalDateTime.parse(randomDrawDate, fmt).toInstant(ZoneOffset.UTC);
-                    log.debug("OK: ISO_OFFSET_DATE_TIME");
-                } catch(Exception ex) {
-                    Date date = null;
-                    try
-                    {
-                        // Old code produced dates that appeard like java.util.Date.toString() in the database
-                        // This means it's possible that the database contains dates in multiple formats
-                        // We'll try parsing Date.toString()'s format first.
-                        // Date.toString is locale independent. So this SimpleDateFormat using Locale.US should guarantee that this works on all machines:
-                        DateFormat df = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.US);
-                        // parse can either throw an exception or return null
-                        date = df.parse(randomDrawDate);
-                    }
-                    catch (Exception e)
-                    {
-                        // failed to parse. Not worth logging yet because we will try again with another format
-                    }
-
-                    if (date == null)
-                    {
-                        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZ");
-                        // If this throws an exception, it's caught below. This is appropriate.
-                        date = df.parse(randomDrawDate);
-                    }
-
-                    if(date == null) 
-                    {
-                        // Nothing has worked
-                        throw new IllegalArgumentException("Unable to parse date " + randomDrawDate);
-                    }
-                    else
-                    {
-                        drawDate = date.toInstant();
-                    }
-                }
-
-                    //We need the locale to localize the output string
-                    Locale loc = new ResourceLoader().getLocale();
-                    ZoneId zone = userTimeService.getLocalTimeZone().toZoneId();
-                    DateTimeFormatter dateF = DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL).withLocale(loc);
-                    DateTimeFormatter timeF = DateTimeFormatter.ofLocalizedTime(FormatStyle.FULL).withLocale(loc)
-                                           .withZone(zone);
-                    String drawDateString = LocalDateTime.ofInstant(drawDate, zone).format(dateF);
-                    String drawTimeString = LocalDateTime.ofInstant(drawDate, zone).format(timeF);
-                    setRandomQuestionsDrawDate(drawDateString);
-                    setRandomQuestionsDrawTime(drawTimeString);
-
-                }catch(Exception e){
-                    log.error("Unable to parse date text: " + randomDrawDate, e);
-                }
-          }
-        }
-      }
-
     }
     else
     {
@@ -491,7 +451,132 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
     {
       setQuestionOrdering(SectionDataIfc.AS_LISTED_ON_ASSESSMENT_PAGE);
     }
+    
+    String value = section.getSectionMetaDataByLabel(SectionMetaDataIfc.TIMED);
+    this.timedSection = (StringUtils.isNotBlank(value) && !StringUtils.equalsIgnoreCase(Boolean.FALSE.toString(), value));
+    this.timeLimit = value;
+  }
 
+  public void setMetadataFixed(SectionDataIfc section) {
+
+	if (section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_FIXED) != null){
+		Integer numberfixed = new Integer(section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_FIXED));
+		setNumberToBeFixed(numberfixed);
+	}
+
+	if (section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_FIXED_AND_RANDOM_DRAW) != null) {
+		Long poolid = new Long(section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_FIXED_AND_RANDOM_DRAW));
+		setPoolIdToBeFixed(poolid);
+	}
+
+	if (section.getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_FIXED_AND_RANDOM_DRAW) != null) {
+		String poolname = section.getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_FIXED_AND_RANDOM_DRAW);
+		setPoolNameToBeFixed(poolname);
+
+		String randomFixedDate = section.getSectionMetaDataByLabel(SectionDataIfc.QUESTIONS_FIXED_DRAW_DATE);
+		if (StringUtils.isNotEmpty(randomFixedDate)) {
+			try {
+				Instant fixedDate = parseInstant(randomFixedDate);
+
+				//We need the locale to localize the output string
+				Locale loc = new ResourceLoader().getLocale();
+				ZoneId zone = userTimeService.getLocalTimeZone().toZoneId();
+				DateTimeFormatter dateF = DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL).withLocale(loc);
+				DateTimeFormatter timeF = DateTimeFormatter.ofLocalizedTime(FormatStyle.FULL).withLocale(loc).withZone(zone);
+				String fixedDateString = LocalDateTime.ofInstant(fixedDate, zone).format(dateF);
+				String fixedTimeString = LocalDateTime.ofInstant(fixedDate, zone).format(timeF);
+				setFixedQuestionsDrawDate(fixedDateString);
+				setFixedQuestionsDrawTime(fixedTimeString);
+
+			} catch(Exception e){
+				log.error("Unable to parse date text: " + randomFixedDate, e);
+			}
+		}
+	}
+  }
+
+  public void setMetadataRandowDraw(SectionDataIfc section) {
+
+	if (section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN) != null){
+		Integer numberdrawn = new Integer(section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
+		setNumberToBeDrawn(numberdrawn);
+	}
+
+	if (section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW) != null) {
+		Long poolid = new Long(section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW));
+		setPoolIdToBeDrawn(poolid);
+		if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString().equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE))) {
+			Integer randomPools = Integer.valueOf(section.getSectionMetaDataByLabel(SectionDataIfc.RANDOM_POOL_COUNT));
+			List<Long> poolIds = new ArrayList<>();
+			poolIds.add(poolid);
+			for (int i = 1; i < randomPools; i++) {
+				poolIds.add(Long.valueOf(section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW + "_" + i)));
+			}
+			setPoolIdsToBeDrawn(poolIds);
+		}
+	}
+
+	if (section.getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW) != null) {
+		String poolname = section.getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW);
+		if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.equals(Integer.valueOf(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE))) && 
+				section.getSectionMetaDataByLabel(SectionDataIfc.RANDOM_POOL_COUNT) != null) {
+			Integer count = Integer.valueOf(section.getSectionMetaDataByLabel(SectionDataIfc.RANDOM_POOL_COUNT));
+			for (int i = 1; i < count; i++) {
+				poolname += SectionDataIfc.SEPARATOR_COMMA + section.getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW + SectionDataIfc.SEPARATOR_MULTI + i);
+			}
+		}
+		setPoolNameToBeDrawn(poolname);
+
+		String randomDrawDate = section.getSectionMetaDataByLabel(SectionDataIfc.QUESTIONS_RANDOM_DRAW_DATE);
+		if (StringUtils.isNotEmpty(randomDrawDate)) {
+			try {
+				Instant drawDate = parseInstant(randomDrawDate);
+
+				//We need the locale to localize the output string
+				Locale loc = new ResourceLoader().getLocale();
+				ZoneId zone = userTimeService.getLocalTimeZone().toZoneId();
+				DateTimeFormatter dateF = DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL).withLocale(loc);
+				DateTimeFormatter timeF = DateTimeFormatter.ofLocalizedTime(FormatStyle.FULL).withLocale(loc).withZone(zone);
+				String drawDateString = LocalDateTime.ofInstant(drawDate, zone).format(dateF);
+				String drawTimeString = LocalDateTime.ofInstant(drawDate, zone).format(timeF);
+				setRandomQuestionsDrawDate(drawDateString);
+				setRandomQuestionsDrawTime(drawTimeString);
+
+			} catch(Exception e){
+				log.error("Unable to parse date text: " + randomDrawDate, e);
+			}
+		}
+	}
+  }
+
+  private Instant parseInstant(String dateText) throws ParseException {
+	try {
+		return LocalDateTime.parse(dateText, DateTimeFormatter.ISO_OFFSET_DATE_TIME).toInstant(ZoneOffset.UTC);
+	} catch (DateTimeParseException ex) {
+		Date date = null;
+		// Old code produced dates that appeard like java.util.Date.toString() in the database
+		// This means it's possible that the database contains dates in multiple formats
+		// We'll try parsing Date.toString()'s format first.
+		// Date.toString is locale independent. So this SimpleDateFormat using Locale.US should guarantee that this works on all machines:
+		try {
+			DateFormat df = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.US);
+			// parse can either throw an exception or return null
+			date = df.parse(dateText);
+		} catch (Exception e) {
+			// failed to parse. Not worth logging yet because we will try again with another format
+		}
+		if (date == null) {
+			DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZ");
+			// If this throws an exception, it's caught. This is appropriate.
+			date = df.parse(dateText);
+
+			if (date == null) {
+				// Nothing has worked
+				throw new IllegalArgumentException("Unable to parse date " + dateText);
+			}
+		}
+		return date.toInstant();
+	}
   }
 
   public String getSectionId()
@@ -563,6 +648,11 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
     return numberToBeDrawn;
   }
 
+  public Integer getNumberToBeFixed()
+  {
+    return numberToBeFixed;
+  }
+
   public String getNumberToBeDrawnString()
   {
     return numberToBeDrawn.toString();
@@ -573,19 +663,39 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
     numberToBeDrawn = param;
   }
 
+  public String getNumberToBeFixedString()
+  {
+    return numberToBeFixed.toString();
+  }
+
+  public void setNumberToBeFixed(Integer param)
+  {
+    numberToBeFixed = param;
+  }
+
   public Long getPoolIdToBeDrawn()
   {
     return poolIdToBeDrawn;
   }
 
-  public String getPoolIdToBeDrawnString()
+  public Long getPoolIdToBeFixed()
   {
-    return poolIdToBeDrawn.toString();
+    return poolIdToBeFixed;
   }
 
   public void setPoolIdToBeDrawn(Long param)
   {
     poolIdToBeDrawn = param;
+  }
+
+  public List<Long> getPoolIdsToBeDrawn()
+  {
+    return poolIdsToBeDrawn;
+  }
+
+  public void setPoolIdsToBeDrawn(List<Long> param)
+  {
+    poolIdsToBeDrawn = param;
   }
 
   public void setPoolNameToBeDrawn(String param)
@@ -595,35 +705,7 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
 
   public String getPoolNameToBeDrawn()
   {
-    if ( (sectionAuthorType != null) &&
-        (sectionAuthorType.equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL)))
-    {
-
-
-      if ("".equals(poolNameToBeDrawn)) {
-
-// after 2.2. poolNameToBeDrawn should not be an empty string
-// This is for backward compatibility, for versions prior 2.2,  
-// we didn't store poolname in metadata so when a user deletes a pool used for random draw assessment, exception occurs when viewing the assessment. The items are still there, but it still needs to the original pool object to get the poolname for JSF display.  
-// After 2.2 we save this information in section metadata.  If users delete the pools we can now still retrive the random draw pool names used in an assessment.             
-
-        QuestionPoolService qpservice = new QuestionPoolService();
-        QuestionPoolFacade poolfacade = qpservice.getPool(poolIdToBeDrawn,
-          AgentFacade.getAgentString());
-        if (poolfacade!=null) {
-          return poolfacade.getTitle();
-        }
-      // else the pool is no longer there
-        return "";
-      }
-      else {
-// get poolname from section metadata
-        return poolNameToBeDrawn;
-      }
-      
-    }
-    return "";
-
+    return poolNameToBeDrawn;
   }
 
   /**
@@ -698,6 +780,118 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
 
   public void setRandomQuestionsDrawTime(String randomQuestionsDrawTime) {
 	  this.randomQuestionsDrawTime = randomQuestionsDrawTime;
+  }
+
+  public boolean isEmiItemPresent() {
+    return this.itemContents != null
+        ? this.itemContents.stream()
+            .filter(item -> TypeIfc.EXTENDED_MATCHING_ITEMS.equals(item.getItemData().getTypeId()))
+            .collect(Collectors.counting())
+            .intValue() > 0
+        : false;
+  }
+
+  public int getCancelledItemsCount() {
+    return this.itemContents != null
+        ? this.itemContents.stream()
+            .filter(item -> !TypeIfc.EXTENDED_MATCHING_ITEMS.equals(item.getItemData().getTypeId()))
+            .filter(item -> !item.isCancelled())
+            .collect(Collectors.counting())
+            .intValue()
+        : 0;
+  }
+
+  public boolean isCancellationAllowed() {
+    return getCancelledItemsCount() > 1;
+  }
+
+  public String getTimeLimitString() {
+    int seconds = Integer.parseInt(getTimeLimit());
+    int hour = 0;
+    int minute = 0;
+    if (seconds >= 3600) {
+        hour = Math.abs(seconds/3600);
+        minute = Math.abs((seconds-hour*3600)/60);
+    }
+    else {
+        minute = Math.abs(seconds/60);
+    }
+    StringBuilder sb = new StringBuilder();
+    if (hour > 1) {
+        sb.append(hour).append(" ").append(rb.getString("time_limit_hours"));
+    } else if (hour == 1) {
+        sb.append(hour).append(" ").append(rb.getString("time_limit_hour"));
+    }
+    if(sb.length() > 0) {
+        sb.append(" ");
+    }
+    if (minute > 1) {
+        sb.append(minute).append(" ").append(rb.getString("time_limit_minutes"));
+    } else if (minute == 1) {
+        sb.append(minute).append(" ").append(rb.getString("time_limit_minute"));
+    }
+    return sb.toString();
+  }
+
+  public String getRealTimeLimit() {
+    DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
+    return delivery.getTimeBeforeDueRetract(this.timeLimit, getAttemptDate());
+  }
+
+  public Date getAttemptDate() {
+    return (this.sectionGradingData != null) ? this.sectionGradingData.getAttemptDate() : null;
+  }
+
+  /**
+   * Check if current item is Enabled
+   * -1: TimedSection, NOT started
+   * 0: TimedSection, Time expired
+   * 1: OK -> TimedSection, started and NOT expired, or NOT TimedQuestion
+   * @return 
+   */
+  public int getEnabled() {
+    if(!isTimedSection()) {
+        return 1;
+    }
+    
+    if(getAttemptDate() == null) {
+        return -1;
+    }
+    
+    String timeBeforeDueRetract = getRealTimeLimit();
+    long adjustedTimedAssesmentDueDateLong  = getAttemptDate().getTime() + (Long.parseLong(timeBeforeDueRetract) * 1000);
+    Date endDate = new Date(adjustedTimedAssesmentDueDateLong);
+    
+    Date now = new Date();
+    return now.before(endDate) ? 1 : 0;
+  }
+
+  public String getTimeElapsed() {
+    try {
+        Date start = getAttemptDate();
+        Date now = new Date();
+        long ret = now.getTime() - start.getTime();
+        return String.valueOf(ret/1000);
+    }catch(Exception e) {
+        return "0";
+    }
+  }
+
+  public String startTimedSection() {
+    DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
+    //we can start only if no attempt date is set yet
+    if(getAttemptDate() == null) {
+        SectionGradingData sectionGradingData = new SectionGradingData();
+        sectionGradingData.setAssessmentGradingId(delivery.getAssessmentGradingId());
+        sectionGradingData.setPublishedSectionId(Long.parseLong(sectionId));
+        sectionGradingData.setAgentId(AgentFacade.getAgentString());
+        sectionGradingData.setAttemptDate(new Date());
+    
+        GradingService gs = new GradingService();
+        gs.saveSectionGrading(sectionGradingData);
+    }
+    
+    return delivery.samePage();
   }
 }
 

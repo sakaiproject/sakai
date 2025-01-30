@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
@@ -50,7 +51,7 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.common.manager.PersistableHelper;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.id.cover.IdManager;
+import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -90,9 +91,9 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
 
 	private static final int MAX_QUERY_COLLECTION_SIZE = 1000;
 	
-	private TypeManager typeManager; // dep inj
+	@Setter private TypeManager typeManager; // dep inj
 
-	private PersistableHelper persistableHelper; // dep inj
+	@Setter private PersistableHelper persistableHelper; // dep inj
 
 	// SakaiPerson record types
 	private Type systemMutableType; // oba constant
@@ -113,37 +114,15 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
 
 	
 	
-	private ServerConfigurationService serverConfigurationService;
-	public void setServerConfigurationService(ServerConfigurationService scs) {
-		serverConfigurationService = scs;
-	}
+	@Setter private ServerConfigurationService serverConfigurationService;
 	
-	private UserDirectoryService userDirectoryService;
-	/**
-	 * @param userDirectoryService
-	 *        The userDirectoryService to set.
-	 */
-	public void setUserDirectoryService(UserDirectoryService userDirectoryService)
-	{
-		if (log.isDebugEnabled())
-		{
-			log.debug("setUserDirectoryService(userDirectoryService {})", userDirectoryService);
-		}
-
-		this.userDirectoryService = userDirectoryService;
-	}
-
+	@Setter private UserDirectoryService userDirectoryService;
 	
-	private EventTrackingService eventTrackingService;
+	@Setter private EventTrackingService eventTrackingService;
 	
-	public void setEventTrackingService(EventTrackingService eventTrackingService) {
-		this.eventTrackingService = eventTrackingService;
-	}
+	@Setter private PhotoService photoService;
 
-	private PhotoService photoService;
-	public void setPhotoService(PhotoService ps) {
-		this.photoService = ps;
-	}
+	@Setter private IdManager idManager;
 	
 	public void init()
 	{
@@ -187,12 +166,12 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
 
 		SakaiPersonImpl spi = new SakaiPersonImpl();
 		persistableHelper.createPersistableFields(spi);
-		spi.setUuid(IdManager.createUuid());
+		spi.setUuid(idManager.createUuid());
 		spi.setAgentUuid(userId);
 		spi.setUid(userId);
 		spi.setTypeUuid(recordType.getUuid());
 		spi.setLocked(Boolean.valueOf(false));
-		this.getHibernateTemplate().save(spi);
+		spi = getHibernateTemplate().merge(spi);
 		
 		//log the event
 		String ref = getReference(spi);
@@ -515,20 +494,6 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
 	}
 
 	/**
-	 * @param typeManager
-	 *        The typeManager to set.
-	 */
-	public void setTypeManager(TypeManager typeManager)
-	{
-		if (log.isDebugEnabled())
-		{
-			log.debug("setTypeManager(TypeManager {})", typeManager);
-		}
-
-		this.typeManager = typeManager;
-	}
-
-	/**
 	 * @see org.sakaiproject.api.common.edu.person.SakaiPersonManager#getUserMutableType()
 	 */
 	public Type getUserMutableType()
@@ -666,14 +631,6 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
 	// {
 	// this.cacheFindSakaiPersonByUid = cacheFindSakaiPersonByUid;
 	// }
-	/**
-	 * @param persistableHelper
-	 *        The persistableHelper to set.
-	 */
-	public void setPersistableHelper(PersistableHelper persistableHelper)
-	{
-		this.persistableHelper = persistableHelper;
-	}
 
 	public List isFerpaEnabled(final Collection agentUuids)
 	{

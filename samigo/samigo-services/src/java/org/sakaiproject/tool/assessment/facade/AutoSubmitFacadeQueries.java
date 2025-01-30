@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2003-2022 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.tool.assessment.facade;
 
 import java.util.Date;
@@ -57,12 +72,12 @@ public class AutoSubmitFacadeQueries extends HibernateDaoSupport implements Auto
 				return true;
 			}
 
-			// If it's an "empty" submission don't autosubmit; change status and save (status = 5, hasAutoSubmitRun = true)
+			// If it's an "empty" submission don't autosubmit; change status and save (status = -1, hasAutoSubmitRun = true)
 			// We determine "empty" if it has an attempt date but submitted date is null
 			// Attempt date is populated as soon as student clicks "Begin"; submit date is populated as soon as student makes any progress (next, save, submit)
 			// So if there is an attempt date but no submit date, we can safely assume this is a student who began a quiz and did nothing (either walked away, or logged out immediately)
 			if (adata.getAttemptDate() != null && adata.getSubmittedDate() == null) {
-				adata.setStatus(AssessmentGradingData.NO_SUBMISSION);
+				adata.setStatus(AssessmentGradingData.REMOVED);
 			}
 			else {
 				adata.setForGrade(Boolean.TRUE);

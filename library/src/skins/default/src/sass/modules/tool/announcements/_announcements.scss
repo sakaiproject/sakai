@@ -1,0 +1,47 @@
+.#{$namespace}sakai-announcements{
+	table{
+		h4 + div.itemAction {
+			margin: 0.1em 0 0 0em;
+		}
+		.lightHighLightRow{
+			border-top: 3px solid var(--sakai-border-color);
+		}
+	}
+	.showHideDates{
+		margin: 0 0 1em 3em;
+		.form-group{
+			margin: 6px 0 0px 0;
+		}
+		.checkbox{
+			width: 95px;
+		}
+	}
+	.merge-list{
+		max-width: 1000px;
+	}
+	#reorder-list-sortingToolBar, #reorder-list{
+		max-width: 1200px;
+	}
+	.message-body{
+		background-color: var(--sakai-background-color-2);
+		padding: 15px;
+		margin-bottom: 20px;
+		border: 1px solid var(--sakai-border-color);
+		border-radius: 4px;
+	}
+	#groupTable{
+		button.multiselect-clear-filter{
+			padding: 6px 12px;
+			font-size: 14px;
+			line-height: 1.42857143;
+			background-color: var(--button-background);
+		}
+		.open .btn-default.dropdown-toggle {
+			@include sakai_secondary_button();
+		}
+	}
+	.font-bold-highlighted{
+		font-weight: bold;
+		font-size: 1.15em;
+	}
+}

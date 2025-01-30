@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.stream.Collectors;
+
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -497,31 +499,51 @@ public class ItemHelper12Impl extends ItemHelperBase
   }
   
   /**
-   * setItemTextCalculatedQuestion() adds the variables and formulas associated with 
-   * the Calculated Question.  Variables and Formulas are both stored in sam_itemtext_t and
-   * sam_answer_t table.  This function adds those variable and formula definitions to
+   * setItemTextCalculatedQuestion() adds the variables, global variables and formulas associated with 
+   * the Calculated Question.  Variables, GlobalVariables and Formulas are both stored in sam_itemtext_t and
+   * sam_answer_t table.  This function adds those variable, global variable and formula definitions to
    * the item/presentation/flow path
-   * @param itemTextList list of all variables and formulas (stored as ItemTextIfc and AnswerIfc
+   * @param itemTextList list of all variables, global variables and formulas (stored as ItemTextIfc and AnswerIfc
    * objects)
    * @param itemXml XML document to be updated.  New data will be appended under "item/presentation/flow"
    */
   private void setItemTextCalculatedQuestion(List<ItemTextIfc> itemTextList, Item itemXml) {
       String xpath = "item/presentation/flow";
       itemXml.add(xpath, "variables");
+      itemXml.add(xpath, "globalvariables");
       itemXml.add(xpath, "formulas");
       GradingService gs = new GradingService();
       String instructions = itemXml.getItemText();
+      // get correct/incorrect feedback from one item
+      String correctFeedback = itemTextList.get(0).getItem().getCorrectItemFeedback();
+      String incorrectFeedback = itemTextList.get(0).getItem().getInCorrectItemFeedback();
       List<String> formulaNames = gs.extractFormulas(instructions);
       List<String> variableNames = gs.extractVariables(instructions);
+
+      Set<String> formulaNamesSet = new HashSet<>(formulaNames);
+      Set<String> variableNamesSet = new HashSet<>(variableNames);
+      Set<String> calcQuestionEntitiesSet = itemTextList.stream().map(ItemTextIfc::getText).collect(Collectors.toSet());
+
+      // removing formulas and variables. We only need global variables
+      calcQuestionEntitiesSet.removeAll(formulaNamesSet);
+      calcQuestionEntitiesSet.removeAll(variableNamesSet);
+
+      Set<String> globalVariableNamesSet = calcQuestionEntitiesSet;
+
+      List<String> globalVariableNames = new ArrayList<>(globalVariableNamesSet);
+
       for (ItemTextIfc itemText : itemTextList) {
           if (variableNames.contains(itemText.getText())) {              
               this.addCalculatedQuestionVariable(itemText, itemXml, xpath + "/variables");
+          }
+          else if (globalVariableNames.contains(itemText.getText())){
+              this.addCalculatedQuestionGlobalVariable(itemText, itemXml, xpath + "/globalvariables");
           }
           else if (formulaNames.contains(itemText.getText())){
               this.addCalculatedQuestionFormula(itemText, itemXml, xpath + "/formulas");
           } else {
               log.error("Calculated Question export failed, '" + itemText.getText() + "'" +
-                      "was not identified as either a variable or formula, so there must be " +
+                      "was not identified as either a variable, global variable or formula, so there must be " +
                       "an error with the Calculated Question definition, " + 
                       "question id: " + itemText.getItem().getItemIdString());
           }
@@ -548,9 +570,9 @@ public class ItemHelper12Impl extends ItemHelperBase
           for (AnswerIfc answer : answers) {
               if (answer.getIsCorrect()) {
                   String text = answer.getText();
-                  String min = text.substring(0, text.indexOf("|"));
-                  String max = text.substring(text.indexOf("|") + 1, text.indexOf(","));
-                  String decimalPlaces = text.substring(text.indexOf(",") + 1);
+                  String min = text.substring(0, text.lastIndexOf("|"));
+                  String max = text.substring(text.lastIndexOf("|") + 1, text.lastIndexOf(","));
+                  String decimalPlaces = text.substring(text.lastIndexOf(",") + 1);
                   
                   // add nodes
                   itemXml.add(updatedXpath, "name");
@@ -569,6 +591,46 @@ public class ItemHelper12Impl extends ItemHelperBase
       }
   }
   
+  /**
+   * addCalculatedQuestionGlobalVariable() adds a new global variable node with required subnodes
+   * into xpath location defined by the calling function
+   * @param itemText - ItemText object, persisted in sam_itemtext_t, which contains
+   * the data needed for the node
+   * @param itemXml - XML object being created, with will be the result of the export
+   * @param xpath - where in the XML object the global variable should be added
+   * always edit the last node in the array.
+   */
+  private void addCalculatedQuestionGlobalVariable(ItemTextIfc itemText, Item itemXml, String xpath) {
+      itemXml.add(xpath, "globalvariable");
+      String updatedXpath = xpath + "/globalvariable[last()]";
+      try {
+          List<AnswerIfc> answers = itemText.getAnswerArray();
+
+          // find the matching answer, since the answer list will have multiple answer objects
+          // for each ItemTextIfc object
+          for (AnswerIfc answer : answers) {
+              if (answer.getIsCorrect()) {
+                  String text = answer.getText();
+                  // remove "|0,0" from the global variables
+                  if (text.endsWith("|0,0")) {
+                    text = text.substring(0, text.length() - 4);
+                  }
+
+                  // add nodes
+                  itemXml.add(updatedXpath, "name");
+                  itemXml.update(updatedXpath + "/name", itemText.getText());
+                  itemXml.add(updatedXpath, "formula");
+                  itemXml.update(updatedXpath + "/formula", StringEscapeUtils.escapeHtml4(text));
+                  itemXml.add(updatedXpath, "addedButNotExtracted");
+                  itemXml.update(updatedXpath + "/addedButNotExtracted", String.valueOf(itemText.isAddedButNotExtracted()));
+                  break;
+              }
+          }
+      } catch (Exception e) {
+          log.error(e.getMessage(), e);
+      }
+  }
+
   /**
    * addCalculatedQuestionFormula() adds a new formula node with required subnodes 
    * into xpath location defined by the calling function
@@ -589,10 +651,10 @@ public class ItemHelper12Impl extends ItemHelperBase
           for (AnswerIfc answer : answers) {
               if (answer.getIsCorrect()) {
                   String text = answer.getText();
-                  String[] partsText = text.split("\\|");
-                  if (partsText != null && partsText.length == 2) {
-                      String formula = partsText[0];
-                      String[] partsTolDp = partsText[1].split(",");
+                  int lastIndex = text.lastIndexOf("|");
+                  if (lastIndex != -1) {
+                      String formula = text.substring(0, lastIndex);
+                      String[] partsTolDp = text.substring(lastIndex + 1).split(",");
                       if (partsTolDp != null && partsTolDp.length == 2) {
                           String tolerance = partsTolDp[0];
                           String decimalPlaces = partsTolDp[1];
@@ -601,7 +663,7 @@ public class ItemHelper12Impl extends ItemHelperBase
                           itemXml.add(updatedXpath, "name");
                           itemXml.update(updatedXpath + "/name", itemText.getText());
                           itemXml.add(updatedXpath, "formula");
-                          itemXml.update(updatedXpath + "/formula", formula);
+                          itemXml.update(updatedXpath + "/formula", StringEscapeUtils.escapeHtml4(formula));
                           itemXml.add(updatedXpath, "tolerance");
                           itemXml.update(updatedXpath + "/tolerance", tolerance);
                           itemXml.add(updatedXpath, "decimalPlaces");
@@ -2252,7 +2314,7 @@ public class ItemHelper12Impl extends ItemHelperBase
 			}else{
 				throw new IllegalArgumentException("Don't know this Mime-type: " + attach.getMimeType());
 			}
-			mat.setAttribute("label", attach.getFilename());
+			mat.setAttribute("label", StringEscapeUtils.escapeXml10(attach.getFilename()));
 			mat.setAttribute("size", String.valueOf(attach.getFileSize()));
 			mat.setAttribute("uri", attach.getLocation());
 			material.appendChild(mat);

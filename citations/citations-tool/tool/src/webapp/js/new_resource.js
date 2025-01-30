@@ -538,27 +538,29 @@ citations_new_resource.init = function() {
 		citations_new_resource.processClick(successObj);
 		return false;
 	});
+	$('.submit').on('click', function(eventObject) {
+
+		SPNR.disableControlsAndSpin( this, null );
+
+		var successObj = {
+			invoke				: function(jsObj) {
+				$('#sakai_action').val('doCancel');
+				$('#ajaxRequest').val('false');
+				$('#newCitationListForm').attr('method', 'GET');
+				$('#newCitationListForm').submit();
+			}
+		};
+		citations_new_resource.processClick(successObj);
+		return false;
+	});
 	$('.Cancel').on('click', function(eventObject) {
 
 		SPNR.disableControlsAndSpin( this, null );
 
-		if(needToSaveAnyChanges()) {
-			var successObj = {
-					invoke				: function(jsObj) {
-						$('#sakai_action').val('doCancel');
-						$('#ajaxRequest').val('false');
-						$('#newCitationListForm').attr('method', 'GET');
-						$('#newCitationListForm').submit();
-					}
-				};
-				citations_new_resource.processClick(successObj);
-				return false;
-		} else {
-			$('#sakai_action').val('doCancel');
-			$('#ajaxRequest').val('false');
-			$('#newCitationListForm').attr('method', 'GET');
-			$('#newCitationListForm').submit();
-		}
+		$('#sakai_action').val('doCancel');
+		$('#ajaxRequest').val('false');
+		$('#newCitationListForm').attr('method', 'GET');
+		$('#newCitationListForm').submit();
 	});
 	$('#access_mode_groups').on('change', function(eventObject) {
 		$('#groupTable').toggle();

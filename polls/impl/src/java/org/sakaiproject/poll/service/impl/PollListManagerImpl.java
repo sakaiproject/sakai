@@ -24,8 +24,10 @@ package org.sakaiproject.poll.service.impl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +35,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.UUID;
 import java.util.Vector;
+import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.Data;
@@ -73,9 +76,9 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
     private IdManager idManager;
     private PollDao dao;
     private PollVoteManager pollVoteManager;    
-	private ExternalLogic externalLogic;    
+    private ExternalLogic externalLogic;
 
-	public void init() {
+    public void init() {
         try {
             entityManager.registerEntityProducer(this, REFERENCE_ROOT);
         } catch (Exception t) {
@@ -134,12 +137,12 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         boolean newPoll = false;
         
         if (t == null || t.getText() == null || t.getSiteId() == null || t.getVoteOpen() == null|| t.getVoteClose() == null) {
-        	throw new IllegalArgumentException("you must supply a question, siteId & open and close dates");
+            throw new IllegalArgumentException("you must supply a question, siteId & open and close dates");
         }
         
         if (!externalLogic.isUserAdmin() && !externalLogic.isAllowedInLocation(PollListManager.PERMISSION_ADD, externalLogic.getSiteRefFromId(t.getSiteId()),
-        			externalLogic.getCurrentuserReference())) {
-        	throw new SecurityException();
+                    externalLogic.getCurrentuserReference())) {
+            throw new SecurityException();
         }
         
         if (t.getPollId() == null) {
@@ -155,7 +158,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
                 Poll poll = getPollById(t.getPollId());
                 if(poll != null && !t.getOwner().equals(poll.getOwner())) {
                    t.setOwner(poll.getOwner());
-				}
+                }
             }
             dao.save(t);
 
@@ -170,48 +173,48 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
     }
 
     public boolean deletePoll(Poll t) throws SecurityException, IllegalArgumentException {
-    	if (t == null) {
-    		throw new IllegalArgumentException("Poll can't be null");
-    	}
+        if (t == null) {
+            throw new IllegalArgumentException("Poll can't be null");
+        }
 
-    	if (t.getPollId() == null) {
-    		throw new IllegalArgumentException("Poll id can't be null");
-    	}
+        if (t.getPollId() == null) {
+            throw new IllegalArgumentException("Poll id can't be null");
+        }
 
-    	if (!pollCanDelete(t)) {
-    		throw new SecurityException("user:" + externalLogic.getCurrentuserReference() + " can't delete poll: " + t.getId());
-    	}
+        if (!pollCanDelete(t)) {
+            throw new SecurityException("user:" + externalLogic.getCurrentuserReference() + " can't delete poll: " + t.getId());
+        }
 
-    	//Delete the Votes
-    	List<Vote> vote = t.getVotes();
+        //Delete the Votes
+        List<Vote> vote = t.getVotes();
 
-    	//We could have a partially populate item
-    	if (vote == null || vote.isEmpty()) {
-    		log.debug("getting votes as they where null");
-    		vote = pollVoteManager.getAllVotesForPoll(t);
-    		log.debug("got " + vote.size() + " vote");
-    	}
+        //We could have a partially populate item
+        if (vote == null || vote.isEmpty()) {
+            log.debug("getting votes as they where null");
+            vote = pollVoteManager.getAllVotesForPoll(t);
+            log.debug("got " + vote.size() + " vote");
+        }
 
-    	Set<Vote> voteSet = new HashSet<Vote>(vote);
-    	dao.deleteSet(voteSet);
+        Set<Vote> voteSet = new HashSet<Vote>(vote);
+        dao.deleteSet(voteSet);
 
-    	//Delete the Options
-    	List<Option> options = t.getOptions();
-    	//as above we could have a partialy populate item
-    	if (options ==  null || options.isEmpty()) {
-    		options = getOptionsForPoll(t);
-    	}
-    	
-    	Set<Option> optionSet = new HashSet<Option>(options);
-    	dao.deleteSet(optionSet);
+        //Delete the Options
+        List<Option> options = t.getOptions();
+        //as above we could have a partialy populate item
+        if (options ==  null || options.isEmpty()) {
+            options = getOptionsForPoll(t);
+        }
+ 
+        Set<Option> optionSet = new HashSet<Option>(options);
+        dao.deleteSet(optionSet);
 
 
-    	dao.delete(t);
+        dao.delete(t);
 
-    	log.info("Poll id " + t.getId() + " deleted");
-    	externalLogic.postEvent("poll.delete", "poll/site/"
-    			+ t.getSiteId() + "/poll/" + t.getId(), true);
-    	return true;
+        log.info("Poll id " + t.getId() + " deleted");
+        externalLogic.postEvent("poll.delete", "poll/site/"
+                + t.getSiteId() + "/poll/" + t.getId(), true);
+        return true;
     }
 
     public boolean userCanDeletePoll(Poll poll) {
@@ -244,14 +247,13 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
     }
 
     public Poll getPollById(Long pollId) throws SecurityException {
-        
+ 
        return getPollById(pollId, true);
     }
 
     public Poll getPollById(Long pollId, boolean includeOptions) throws SecurityException {
-    	
-    	
-    	Search search = new Search();
+ 
+        Search search = new Search();
         search.addRestriction(new Restriction("pollId", pollId));
         Poll poll = dao.findOneBySearch(Poll.class, search);
         if (poll != null) {
@@ -262,11 +264,11 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         }
         
          if (poll == null)
-        	 return null;
+             return null;
       //user needs at least site visit to read a poll
-    	if (!externalLogic.isAllowedInLocation("site.visit", externalLogic.getSiteRefFromId(poll.getSiteId()), externalLogic.getCurrentuserReference()) && !externalLogic.isUserAdmin()) {
-    		throw new SecurityException("user:" + externalLogic.getCurrentuserReference() + " can't read poll " + pollId);
-    	}
+        if (!externalLogic.isAllowedInLocation("site.visit", externalLogic.getSiteRefFromId(poll.getSiteId()), externalLogic.getCurrentuserReference()) && !externalLogic.isUserAdmin()) {
+            throw new SecurityException("user:" + externalLogic.getCurrentuserReference() + " can't read poll " + pollId);
+        }
         
         return poll;
     }
@@ -280,11 +282,11 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
 
     public List<Option> getOptionsForPoll(Long pollId) {
         Poll poll;
-		try {
-			poll = getPollById(pollId, false);
-		} catch (SecurityException e) {
-			throw new SecurityException(e);
-		}
+        try {
+            poll = getPollById(pollId, false);
+        } catch (SecurityException e) {
+            throw new SecurityException(e);
+        }
         if (poll == null) {
             throw new IllegalArgumentException("Cannot get options for a poll ("+pollId+") that does not exist");
         }
@@ -295,29 +297,29 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         return optionList;
     }
 
-	public List<Option> getVisibleOptionsForPoll(Long pollId) {
-		List<Option> options = getOptionsForPoll(pollId);
-		
-		//iterate and remove deleted options
-		for (Iterator<Option> i = options.listIterator(); i.hasNext();) {
-			Option o = i.next();
-			if (o == null || o.getDeleted()) {
-				i.remove();
-			}
-		}
-		
-		return options;
-	}
+    public List<Option> getVisibleOptionsForPoll(Long pollId) {
+        List<Option> options = getOptionsForPoll(pollId);
+ 
+        //iterate and remove deleted options
+        for (Iterator<Option> i = options.listIterator(); i.hasNext();) {
+            Option o = i.next();
+            if (o == null || o.getDeleted()) {
+                i.remove();
+            }
+        }
+ 
+        return options;
+    }
 
     public Poll getPollWithVotes(Long pollId) {
-    	Search search = new Search();
+        Search search = new Search();
         search.addRestriction(new Restriction("pollId", pollId));
         return dao.findOneBySearch(Poll.class, search);
 
     }
 
     public Option getOptionById(Long optionId) {
-    	Search search = new Search();
+        Search search = new Search();
         search.addRestriction(new Restriction("optionId", optionId));
         Option option = dao.findOneBySearch(Option.class, search);
         // if the id is null set it
@@ -338,21 +340,21 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         log.info("Option id " + option.getId() + " deleted");
     }
 
-	public void deleteOption(Option option, boolean soft) {
-		if (!soft) {
-			deleteOption(option);
-			return;
-		} else {
-			try {
-				option.setDeleted(Boolean.TRUE);
-				dao.save(option);
-				log.info("Option id " + option.getId() + " soft deleted.");
-			} catch (DataAccessException e) {
-				log.error("Hibernate could not soft delete delete!", e);
-	            return;
-			}
-		}
-	}
+    public void deleteOption(Option option, boolean soft) {
+        if (!soft) {
+            deleteOption(option);
+            return;
+        } else {
+            try {
+                option.setDeleted(Boolean.TRUE);
+                dao.save(option);
+                log.info("Option id " + option.getId() + " soft deleted.");
+            } catch (DataAccessException e) {
+                log.error("Hibernate could not soft delete delete!", e);
+                return;
+            }
+        }
+    }
 
     public boolean saveOption(Option t) {
         if (t.getUuid() == null 
@@ -380,7 +382,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
             return true;
 
         if (externalLogic.isAllowedInLocation(PERMISSION_DELETE_OWN, externalLogic.getSiteRefFromId(poll.getSiteId()))
-        		&& poll.getOwner().equals(externalLogic.getCurrentUserId()))
+                && poll.getOwner().equals(externalLogic.getCurrentUserId()))
             return true;
 
         return false;
@@ -390,9 +392,9 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         if (externalLogic.isUserAdmin())
             return true;
         else if (externalLogic.isAllowedInLocation("site.upd", externalLogic.getSiteRefFromId(siteId)))
-        	return true;
+            return true;
         else
-        	return false;
+            return false;
     }
 
     /*
@@ -453,20 +455,34 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         return results.toString();
     }
 
-	public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map<String, String> attachmentNames, Map<String, String> userIdTrans, Set<String> userListAllowImport) {
-        /* USERS ARE NOT MERGED */
+    public String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId, Map<String, String> attachmentNames,
+			Map<Long, Map<String, Object>> ltiContentItems, Map<String, String> userIdTrans, Set<String> userListAllowImport) {
+
+        List<Poll> pollsList = findAllPolls(siteId);
+        Set<String> pollTexts = pollsList.stream().map(Poll::getText).collect(Collectors.toCollection(LinkedHashSet::new));
+
+        // Add polls not already in the site
         NodeList polls = root.getElementsByTagName("poll");
         for (int i=0; i<polls.getLength(); ++i) {
             Element pollElement = (Element) polls.item(i);
             Poll poll = Poll.fromXML(pollElement);
+
+            String pollText = poll.getText();
+            if ( pollText == null ) continue;
+            if ( pollTexts.contains(pollText) ) continue;
+
             poll.setSiteId(siteId);
+            poll.setOwner(creatorId);
             savePoll(poll);
             NodeList options = pollElement.getElementsByTagName("option");
             for (int j=0; j<options.getLength(); ++j) {
                 Element optionElement = (Element) options.item(j);
                 Option option = PollUtil.xmlToOption(optionElement);
+                option.setOptionId(null);  // To force insert
+                option.setUuid(UUID.randomUUID().toString());
                 option.setPollId(poll.getPollId());
                 saveOption(option);
+                poll.addOption(option);
             }
         }
         return null;
@@ -500,18 +516,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         return false;
     }
 
-    public String getEntityDescription(Reference arg0) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public ResourceProperties getEntityResourceProperties(Reference arg0) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
     public Entity getEntity(Reference ref) {
-        // TODO Auto-generated method stub
         Entity rv = null;
 
         if (REF_POLL_TYPE.equals(ref.getSubType())) {
@@ -521,94 +526,94 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         return rv;
     }
 
-    public String getEntityUrl(Reference arg0) {
-        // TODO Auto-generated method stub
-        return null;
+    public String[] myToolIds()
+    {
+        String[] toolIds = { "sakai.poll"};
+        return toolIds;
     }
 
-    public Collection getEntityAuthzGroups(Reference arg0, String arg1) {
-        // TODO Auto-generated method stub
-        return null;
+    @Override
+    public List<Map<String, String>> getEntityMap(String fromContext) {
+
+        try {
+            return findAllPolls(fromContext).stream()
+                .map(p -> Map.of("id", p.getId(), "title", p.getText())).collect(Collectors.toList());
+        } catch (Exception e) {
+            log.warn("Failed to get the polls for site {}: {}", fromContext, e.toString());
+        }
+
+        return Collections.EMPTY_LIST;
     }
 
-    public HttpAccess getHttpAccess() {
-        // TODO Auto-generated method stub
-        return null;
+    @Override
+    public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> resourceIds, List<String> transferOptions, boolean cleanup) {
+
+        if (cleanup) {
+            try {
+                for (Poll poll : findAllPolls(toContext)) {
+                    deletePoll(poll);
+                }
+            } catch(Exception e) {
+                log.warn("Could not remove existing polls in site [{}], {}", toContext, e.toString());
+            }
+        }
+
+        return transferCopyEntities(fromContext, toContext, resourceIds, transferOptions);
     }
 
-		/**
-		 * {@inheritDoc}
-		 */
-		public String[] myToolIds()
-		{
-			String[] toolIds = { "sakai.poll"};
-			return toolIds;
-		}
+    @Override
+    public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> resourceIds, List<String> transferOptions) {
 
+        try {
+            for (Poll fromPoll : findAllPolls(fromContext)) {
+                Poll fromPollV = getPollWithVotes(fromPoll.getPollId());
+                Poll toPoll = new Poll();
+                toPoll.setOwner(fromPollV.getOwner());
+                toPoll.setSiteId(toContext);
+                toPoll.setCreationDate(fromPollV.getCreationDate());
+                toPoll.setText(fromPollV.getText());
+                toPoll.setMinOptions(fromPollV.getMinOptions());
+                toPoll.setMaxOptions(fromPollV.getMaxOptions());
+                toPoll.setVoteOpen(fromPollV.getVoteOpen());
+                toPoll.setVoteClose(fromPollV.getVoteClose());
+                toPoll.setDisplayResult(fromPollV.getDisplayResult());
+                toPoll.setLimitVoting(fromPollV.getLimitVoting());
+                toPoll.setDetails(fromPollV.getDetails());
+ 
+                //Guardamos toPoll para que se puedan ir añandiéndole las opciones y los votos
+                savePoll(toPoll);
+ 
+                //Añadimos las opciones
+                List<Option> options = getOptionsForPoll(fromPoll);
+                if (options != null) {
+                    for (Option fromOption : options) {
+                        Option toOption = new Option();
+                        toOption.setText(fromOption.getText());
+                        toOption.setStatus(fromOption.getStatus());
+                        toOption.setPollId(toPoll.getPollId());
+                        toOption.setDeleted(fromOption.getDeleted());
+                        toOption.setOptionOrder(fromOption.getOptionOrder());
+                        saveOption(toOption);
+ 
+                        toPoll.addOption(toOption);
+                    }
+                }
 
-		public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> resourceIds, List<String> transferOptions, boolean condition) {
-			return transferCopyEntities(fromContext, toContext, resourceIds, transferOptions);
-		}
+                //Añadimos los votos
+                List<Vote> votes = fromPollV.getVotes();
+                if (votes != null) {
+                    votes.forEach(toPoll::addVote);
+                }
 
-		public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> resourceIds, List<String> transferOptions) {
+                //Actualizamos toPoll
+                savePoll(toPoll);
+            }
+        } catch (Exception e) {
+            log.error("Failed to save transfer polls: {}", e.toString());
+        }
 
-			try{
-				Iterator<Poll> fromPolls = findAllPolls(fromContext).iterator();
-				while (fromPolls.hasNext()){
-					Poll fromPoll = fromPolls.next();
-					Poll fromPollV = getPollWithVotes(fromPoll.getPollId());
-					Poll toPoll = (Poll) new Poll();
-					toPoll.setOwner(fromPollV.getOwner());
-					toPoll.setSiteId(toContext);
-			        toPoll.setCreationDate(fromPollV.getCreationDate());
-			        toPoll.setText(fromPollV.getText());
-			        toPoll.setMinOptions(fromPollV.getMinOptions());
-			        toPoll.setMaxOptions(fromPollV.getMaxOptions());
-			        toPoll.setVoteOpen(fromPollV.getVoteOpen());		       
-			        toPoll.setVoteClose(fromPollV.getVoteClose());		       
-			        toPoll.setDisplayResult(fromPollV.getDisplayResult());
-			        toPoll.setLimitVoting(fromPollV.getLimitVoting());
-			        toPoll.setDetails(fromPollV.getDetails());
-			        
-			        //Guardamos toPoll para que se puedan ir añandiéndole las opciones y los votos
-			        savePoll(toPoll);
-			        
-			        //Añadimos las opciones
-			        List<Option> options = getOptionsForPoll(fromPoll);
-			        if (options!=null){
-				        Iterator<Option> fromOptions = options.iterator();
-				        while (fromOptions.hasNext()){
-				        	Option fromOption = (Option) fromOptions.next();
-				        	Option toOption = (Option) new Option();
-				        	toOption.setText(fromOption.getText());
-				        	toOption.setStatus(fromOption.getStatus());
-				        	toOption.setPollId(toPoll.getPollId());
-				        	toOption.setDeleted(fromOption.getDeleted());
-				        	toOption.setOptionOrder(fromOption.getOptionOrder());
-				        	saveOption(toOption);
-				        	
-				        	toPoll.addOption(toOption);
-				        }
-			        }
-
-			        //Añadimos los votos
-			        List<Vote> votes = fromPollV.getVotes();
-			        if (votes!=null){
-			        	Iterator<Vote> fromVotes = votes.iterator();
-			        	while (fromVotes.hasNext()){
-			        		toPoll.addVote((Vote)fromVotes.next());
-			        	}
-			        }
-	
-			        //Actualizamos toPoll
-			        savePoll(toPoll);
-				}
-			}catch(Exception e){
-				log.error(e.getMessage(), e);
-			}
-
-            return null;
-		}
+        return null;
+    }
 
 
     protected String[] split(String source, String splitter) {
@@ -647,49 +652,52 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         }
         return poll;
     }
-    
-    
-    
-	public boolean isAllowedViewResults(Poll poll, String userId) {
-		if (externalLogic.isUserAdmin() || externalLogic.isAllowedInLocation("site.upd", externalLogic.getCurrentLocationReference()))
-			return true;
 
-		if (poll.getDisplayResult().equals("open"))
-			return true;
+    public boolean isAllowedViewResults(Poll poll, String userId) {
+        if (externalLogic.isUserAdmin() || externalLogic.isAllowedInLocation("site.upd", externalLogic.getCurrentLocationReference())) {
+            return true;
+        }
 
-		if (poll.getDisplayResult().equals("afterVoting")) {
-			
-			Search search = new Search();
-	        search.addRestriction(new Restriction("pollId", poll.getPollId()));
-	        search.addRestriction(new Restriction("userId", userId));
-	        
-	        List<Vote> votes = dao.findBySearch(Vote.class, search);		
-	        //log.info("got " + pollCollection.size() + "votes for this poll");
-	        if (votes.size() > 0)
-	        	return true;
-		}
+        if (poll.getDisplayResult().equals("open")) {
+            return true;
+        }
 
-		if ((poll.getDisplayResult().equals("afterClosing") || poll.getDisplayResult().equals("afterVoting") )&& poll.getVoteClose().before(new Date()))
-			return true;
+        if (poll.getDisplayResult().equals("afterVoting")) {
 
-		//the owner can view the results
-		if(poll.getOwner().equals(userId) && !externalLogic.userIsViewingAsRole())
-			return true;
+            Search search = new Search();
+            search.addRestriction(new Restriction("pollId", poll.getPollId()));
+            search.addRestriction(new Restriction("userId", userId));
 
-		return false;
-	}
-	
-	public boolean isPollPublic(Poll poll) {
-		
-		//is this poll public?
-		if(poll.getIsPublic()){
-			return true;
-		}
-		
-		//can the anonymous user vote?
-		if(externalLogic.isAllowedInLocation(PollListManager.PERMISSION_VOTE, externalLogic.getSiteRefFromId(poll.getSiteId()))){
-			return true;
-		}
-		return false;
-	}
+            List<Vote> votes = dao.findBySearch(Vote.class, search);
+            //log.info("got " + pollCollection.size() + "votes for this poll");
+            if (votes.size() > 0) {
+                return true;
+            }
+        }
+
+        if ((poll.getDisplayResult().equals("afterClosing") || poll.getDisplayResult().equals("afterVoting") )&& poll.getVoteClose().before(new Date())) {
+            return true;
+        }
+
+        //the owner can view the results
+        if (poll.getOwner().equals(userId) && !externalLogic.userIsViewingAsRole()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public boolean isPollPublic(Poll poll) {
+ 
+        //is this poll public?
+        if(poll.getIsPublic()){
+            return true;
+        }
+ 
+        //can the anonymous user vote?
+        if(externalLogic.isAllowedInLocation(PollListManager.PERMISSION_VOTE, externalLogic.getSiteRefFromId(poll.getSiteId()))){
+            return true;
+        }
+        return false;
+    }
 }

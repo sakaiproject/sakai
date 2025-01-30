@@ -33,7 +33,6 @@ import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.validation.validator.UrlValidator;
 import org.sakaiproject.profile2.logic.ProfileLogic;
-import org.sakaiproject.profile2.logic.ProfileWallLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.SocialNetworkingInfo;
 import org.sakaiproject.profile2.model.UserProfile;
@@ -44,6 +43,8 @@ import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.Optional;
 
 /**
  * Panel for editing social networking profile data.
@@ -58,9 +59,6 @@ public class MySocialNetworkingEdit extends Panel {
 	
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
 	private ProfileLogic profileLogic;
-	
-	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileWallLogic")
-	private ProfileWallLogic wallLogic;
 	
 	public MySocialNetworkingEdit(final String id, final UserProfile userProfile) {
 		super(id);
@@ -85,8 +83,7 @@ public class MySocialNetworkingEdit extends Panel {
 		if (sakaiProxy.isSuperUserAndProxiedToUser(
 				userProfile.getUserUuid())) {
 			editWarning.setDefaultModel(new StringResourceModel(
-					"text.edit.other.warning", null, new Object[] { userProfile
-							.getDisplayName() }));
+					"text.edit.other.warning").setParameters(userProfile.getDisplayName()));
 			editWarning.setEscapeModelStrings(false);
 			editWarning.setVisible(true);
 		}
@@ -99,7 +96,7 @@ public class MySocialNetworkingEdit extends Panel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void convertInput() {
+			public void convertInput() {
 				validateUrl(this);
 			}
 		};
@@ -114,7 +111,7 @@ public class MySocialNetworkingEdit extends Panel {
         facebookUrlFeedback.setOutputMarkupId(true);
         facebookUrlFeedback.setMarkupId("facebookUrlFeedback");
         facebookContainer.add(facebookUrlFeedback);
-        facebookUrl.add(new ComponentVisualErrorBehaviour("onblur", facebookUrlFeedback));
+        facebookUrl.add(new ComponentVisualErrorBehaviour("blur", facebookUrlFeedback));
 		
 		form.add(facebookContainer);
 		
@@ -125,7 +122,7 @@ public class MySocialNetworkingEdit extends Panel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void convertInput() {
+			public void convertInput() {
 				validateUrl(this);
 			}
 		};
@@ -140,35 +137,9 @@ public class MySocialNetworkingEdit extends Panel {
         linkedinUrlFeedback.setMarkupId("linkedinUrlFeedback");
 		linkedinUrlFeedback.setOutputMarkupId(true);
 		linkedinContainer.add(linkedinUrlFeedback);
-		linkedinUrl.add(new ComponentVisualErrorBehaviour("onblur", linkedinUrlFeedback));
+		linkedinUrl.add(new ComponentVisualErrorBehaviour("blur", linkedinUrlFeedback));
 		
 		form.add(linkedinContainer);
-		
-		//myspace
-		WebMarkupContainer myspaceContainer = new WebMarkupContainer("myspaceContainer");
-		myspaceContainer.add(new Label("myspaceLabel", new ResourceModel("profile.socialnetworking.myspace.edit")));
-		final TextField<String> myspaceUrl = new TextField<String>("myspaceUrl", new PropertyModel<String>(userProfile, "socialInfo.myspaceUrl")) {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void convertInput() {
-				validateUrl(this);
-			}
-		};
-		myspaceUrl.setMarkupId("myspaceurlinput");
-		myspaceUrl.setOutputMarkupId(true);
-		myspaceUrl.add(new UrlValidator());
-		myspaceContainer.add(myspaceUrl);
-		myspaceContainer.add(new IconWithToolTip("myspaceToolTip", ProfileConstants.INFO_ICON, new ResourceModel("text.profile.myspace.tooltip")));
-		
-		//feedback
-		final FeedbackLabel myspaceUrlFeedback = new FeedbackLabel("myspaceUrlFeedback", myspaceUrl);
-        myspaceUrlFeedback.setMarkupId("myspaceUrlFeedback");
-		myspaceUrlFeedback.setOutputMarkupId(true);
-		myspaceContainer.add(myspaceUrlFeedback);
-		myspaceUrl.add(new ComponentVisualErrorBehaviour("onblur", myspaceUrlFeedback));
-		
-		form.add(myspaceContainer);
 		
 		//instagram
 		WebMarkupContainer instagramContainer = new WebMarkupContainer("instagramContainer");
@@ -177,7 +148,7 @@ public class MySocialNetworkingEdit extends Panel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void convertInput() {
+			public void convertInput() {
 				validateUrl(this);
 			}
 		};
@@ -192,108 +163,63 @@ public class MySocialNetworkingEdit extends Panel {
         instagramUrlFeedback.setMarkupId("instagramUrlFeedback");
 		instagramUrlFeedback.setOutputMarkupId(true);
 		instagramContainer.add(instagramUrlFeedback);
-		instagramUrl.add(new ComponentVisualErrorBehaviour("onblur", instagramUrlFeedback));
+		instagramUrl.add(new ComponentVisualErrorBehaviour("blur", instagramUrlFeedback));
 		
 		form.add(instagramContainer);
 		
-		//twitter
-		WebMarkupContainer twitterContainer = new WebMarkupContainer("twitterContainer");
-		twitterContainer.add(new Label("twitterLabel", new ResourceModel("profile.socialnetworking.twitter.edit")));
-		final TextField<String> twitterUrl = new TextField<String>("twitterUrl", new PropertyModel<String>(userProfile, "socialInfo.twitterUrl")) {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void convertInput() {
-				validateUrl(this);
-			}
-		};
-		twitterUrl.setMarkupId("twitterurlinput");
-		twitterUrl.setOutputMarkupId(true);
-		twitterUrl.add(new UrlValidator());
-		twitterContainer.add(twitterUrl);
-		twitterContainer.add(new IconWithToolTip("twitterToolTip", ProfileConstants.INFO_ICON, new ResourceModel("text.profile.twitter.tooltip")));
-		
-		//feedback
-		final FeedbackLabel twitterUrlFeedback = new FeedbackLabel("twitterUrlFeedback", twitterUrl);
-		twitterUrlFeedback.setMarkupId("twitterUrlFeedback");
-		twitterUrlFeedback.setOutputMarkupId(true);
-		twitterContainer.add(twitterUrlFeedback);
-		twitterUrl.add(new ComponentVisualErrorBehaviour("onblur", twitterUrlFeedback));
-		
-		form.add(twitterContainer);
-		
-		//skype
-		WebMarkupContainer skypeContainer = new WebMarkupContainer("skypeContainer");
-		skypeContainer.add(new Label("skypeLabel", new ResourceModel("profile.socialnetworking.skype.edit")));
-		TextField skypeUsername = new TextField("skypeUsername", new PropertyModel(userProfile, "socialInfo.skypeUsername"));
-		skypeUsername.setMarkupId("skypeusernameinput");
-		skypeUsername.setOutputMarkupId(true);
-		skypeContainer.add(skypeUsername);
-		form.add(skypeContainer);
-			
 		//submit button
 		AjaxFallbackButton submitButton = new AjaxFallbackButton("submit", new ResourceModel("button.save.changes"), form) {
 			private static final long serialVersionUID = 1L;
 
-			protected void onSubmit(AjaxRequestTarget target, Form form) {
+			@Override
+			protected void onSubmit(Optional<AjaxRequestTarget> targetOptional) {
 
 				if (save(form)) {
 
 					// post update event
 					sakaiProxy.postEvent(ProfileConstants.EVENT_PROFILE_SOCIAL_NETWORKING_UPDATE,"/profile/" + userProfile.getUserUuid(), true);
 
-					//post to wall if enabled
-					if (true == sakaiProxy.isWallEnabledGlobally() && false == sakaiProxy.isSuperUserAndProxiedToUser(userProfile.getUserUuid())) {
-						wallLogic.addNewEventToWall(ProfileConstants.EVENT_PROFILE_SOCIAL_NETWORKING_UPDATE, sakaiProxy.getCurrentUserId());
-					}
-					
 					// repaint panel
 					Component newPanel = new MySocialNetworkingDisplay(id, userProfile);
 					newPanel.setOutputMarkupId(true);
 					MySocialNetworkingEdit.this.replaceWith(newPanel);
-					if (target != null) {
+					targetOptional.ifPresent(target -> {
 						target.add(newPanel);
 						// resize iframe
 						target.appendJavaScript("setMainFrameHeight(window.name);");
-					}
+					});
 
 				} else {
-					formFeedback.setDefaultModel(new ResourceModel("error.profile.save.business.failed"));
-					formFeedback.add(new AttributeModifier("class", new Model<String>("save-failed-error")));
-					target.add(formFeedback);
+					targetOptional.ifPresent(target -> {
+						formFeedback.setDefaultModel(new ResourceModel("error.profile.save.business.failed"));
+						formFeedback.add(new AttributeModifier("class", new Model<String>("save-failed-error")));
+						target.add(formFeedback);
+					});
 				}
 			}
 			
 			// This is called if the form validation fails, ie Javascript turned off, 
 			//or we had preexisting invalid data before this fix was introduced
-			protected void onError(AjaxRequestTarget target, Form form) {
-				
-				//check which item didn't validate and update the class and feedback model for that component
-				if(!facebookUrl.isValid()) {
-					facebookUrl.add(new AttributeAppender("class", new Model<String>("invalid"), " "));
-					target.add(facebookUrl);
-					target.add(facebookUrlFeedback);
-				}
-				if(!linkedinUrl.isValid()) {
-					linkedinUrl.add(new AttributeAppender("class", new Model<String>("invalid"), " "));
-					target.add(linkedinUrl);
-					target.add(linkedinUrlFeedback);
-				}
-				if(!myspaceUrl.isValid()) {
-					myspaceUrl.add(new AttributeAppender("class", new Model<String>("invalid"), " "));
-					target.add(myspaceUrl);
-					target.add(myspaceUrlFeedback);
-				}
-				if(!instagramUrl.isValid()) {
-					instagramUrl.add(new AttributeAppender("class", new Model<String>("invalid"), " "));
-					target.add(instagramUrl);
-					target.add(instagramUrlFeedback);
-				}
-				if(!twitterUrl.isValid()) {
-					twitterUrl.add(new AttributeAppender("class", new Model<String>("invalid"), " "));
-					target.add(twitterUrl);
-					target.add(twitterUrlFeedback);
-				}
+			@Override
+			protected void onError(Optional<AjaxRequestTarget> targetOptional) {
+				targetOptional.ifPresent(target -> {
+					//check which item didn't validate and update the class and feedback model for that component
+					if (!facebookUrl.isValid()) {
+						facebookUrl.add(new AttributeAppender("class", new Model<String>("invalid"), " "));
+						target.add(facebookUrl);
+						target.add(facebookUrlFeedback);
+					}
+					if (!linkedinUrl.isValid()) {
+						linkedinUrl.add(new AttributeAppender("class", new Model<String>("invalid"), " "));
+						target.add(linkedinUrl);
+						target.add(linkedinUrlFeedback);
+					}
+					if (!instagramUrl.isValid()) {
+						instagramUrl.add(new AttributeAppender("class", new Model<String>("invalid"), " "));
+						target.add(instagramUrl);
+						target.add(instagramUrlFeedback);
+					}
+				});
 			}
 			
 			
@@ -305,15 +231,16 @@ public class MySocialNetworkingEdit extends Panel {
 			
 			private static final long serialVersionUID = 1L;
 
-			protected void onSubmit(AjaxRequestTarget target, Form form) {
+			@Override
+			protected void onSubmit(Optional<AjaxRequestTarget> targetOptional) {
 
 				Component newPanel = new MySocialNetworkingDisplay(id, userProfile);
 				newPanel.setOutputMarkupId(true);
 				MySocialNetworkingEdit.this.replaceWith(newPanel);
-				if (target != null) {
+				targetOptional.ifPresent(target -> {
 					target.add(newPanel);
 					target.appendJavaScript("setMainFrameHeight(window.name);");
-				}
+				});
 
 			}
 			
@@ -348,19 +275,12 @@ public class MySocialNetworkingEdit extends Panel {
 		
 		String tFacebook = ProfileUtils.truncate(userProfile.getSocialInfo().getFacebookUrl(), 255, false);
 		String tLinkedin = ProfileUtils.truncate(userProfile.getSocialInfo().getLinkedinUrl(), 255, false);
-		String tMyspace = ProfileUtils.truncate(userProfile.getSocialInfo().getMyspaceUrl(), 255, false);
 		String tInstagram = ProfileUtils.truncate(userProfile.getSocialInfo().getInstagramUrl(), 255, false);
-		String tSkype = ProfileUtils.truncate(userProfile.getSocialInfo().getSkypeUsername(), 255, false);
-		String tTwitter = ProfileUtils.truncate(userProfile.getSocialInfo().getTwitterUrl(), 255, false);
 
 		socialNetworkingInfo.setFacebookUrl(tFacebook);
 		socialNetworkingInfo.setLinkedinUrl(tLinkedin);
 		socialNetworkingInfo.setInstagramUrl(tInstagram);
-		socialNetworkingInfo.setMyspaceUrl(tMyspace);
-		socialNetworkingInfo.setSkypeUsername(tSkype);
-		socialNetworkingInfo.setTwitterUrl(tTwitter);
 
 		return profileLogic.saveSocialNetworkingInfo(socialNetworkingInfo);
-		
 	}
 }

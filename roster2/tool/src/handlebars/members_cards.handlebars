@@ -1,13 +1,20 @@
 {{#each members}}
-    <div class="roster-member-card">
-        {{#if ../viewPicture}}
+    <div class="roster-member-card roster-entry">
         <div class="roster-picture-card">
-            <sakai-user-photo user-id="{{userId}}"
+            <sakai-user-photo
+                user-id="{{userId}}"
                 label="{{tr 'profile_picture_alt'}} {{displayName}}"
                 site-id="{{siteId}}"
                 classes="roster-photo"
+                {{#if ../viewPicture}}
+                profile-popup="on"
+                {{/if}}
                 {{#if official}}
                 official
+                {{else}}
+                    {{#unless canViewProfilePicture}}
+                    blank
+                    {{/unless}}
                 {{/if}}
                 {{#if ../printMode}}
                 print
@@ -15,7 +22,6 @@
             >
             </sakai-user-photo>
         </div> <!-- /roster-picture-card -->
-        {{/if}}
 
         <div class="roster-info-card">
             {{#unless ../hideNames}}
@@ -29,6 +35,25 @@
                 </a>
                 {{/if}}
             </div>
+
+            <div class="roster-card-label">{{tr 'facet_nickname'}}</div>
+            {{#if nickname}}
+                <div class="roster-card-value nickname">"{{{nickname}}}"</div>
+            {{else}}
+                <div class="roster-card-value nickname">{{{tr 'name_pronunciation_not_provided'}}}</div>
+            {{/if}}
+
+            {{#if ../viewProfile}}
+                <div class="roster-card-label">{{tr 'facet_profile_link'}}</div>
+                <div class="roster-card-value">
+                    <a href="{{{profileLink}}}"
+                            title="{{tr 'profile_link_text'}} : {{tr 'profile_link_tooltip'}} {{displayName}}"
+                            aria-label="{{tr 'profile_link_tooltip'}} {{displayName}}">
+                        {{tr 'profile_link_text'}}
+                    </a>
+                </div>
+            {{/if}}
+
             {{/unless}}
 
             {{#if ../viewPronouns}}
@@ -86,9 +111,9 @@
                 {{#if ../viewSiteVisits}}
                 <div class="roster-card-label">{{tr 'total_visits'}}</div>
                 <div class="roster-card-value roster-total-visits">{{totalSiteVisits}}</div>
-                    {{#if formattedLastVisitTime}}
+                    {{#if lastVisitTime}}
                     <div class="roster-card-label">{{tr 'last_visit'}}</div>
-                    <div class="roster-card-value roster-last-visit">{{formattedLastVisitTime}}</div>
+                    <div class="roster-card-value roster-last-visit">{{lastVisitTime}}</div>
                     {{/if}}
                 {{/if}}
             {{/if}}
@@ -96,23 +121,22 @@
             {{#if ../viewGroup}}
             <div class="roster-card-label">{{tr 'facet_groups'}}</div>
             {{#if hasGroups}}
-            <div class="roster-card-value roster-group-cell">
-                {{#if singleGroup}}
-                <a href="javascript:;" class="roster-group-link" data-groupid="{{singleGroup.id}}">{{singleGroup.title}}</a>
-                {{else}}
-                <span class="skip">{{tr 'screenreader_comboBox'}}</span>
-                <label for="roster-groups-{{userId}}">{{tr 'roster_user_groups_label'}}</label>
-                <select class="roster-groups-selector" id="roster-groups-{{userId}}">
-                    <option value="all">{{tr 'member_group_all_option'}}</option>
-                    {{#each groups}}
-                    <option value="{{id}}">{{title}}</option>
-                    {{/each}}
-                </select>
-                {{/if}}
-            </div>
-            {{else}}
-            <div class="roster-card-value roster-no-groups-label">{{tr 'roster_group_ungrouped'}}</div>
-            {{/if}}
+               <div class="roster-card-value roster-group-cell">
+                       {{#if groups.[1]}}
+                               <span class="skip">{{tr 'screenreader_comboBox'}}</span>
+                               <select class="roster-groups-selector" id="roster-groups-{{userId}}" title="{{tr 'roster_user_groups_label'}}">
+                                   <option value="all">{{tr 'member_group_all_option'}}</option>
+                               {{#each groups}}
+                               <option value="{{id}}">{{title}}</option>
+                               {{/each}}
+                               </select>
+                       {{else}}
+                               <a href="javascript:;" class="roster-group-link" data-groupid="{{groups.[0].id}}">{{groups.[0].title}}</a>
+                       {{/if}}
+              </div>
+             {{else}}
+                <div class="roster-card-value roster-no-groups-label">{{tr 'roster_group_ungrouped'}}</div>
+             {{/if}}
             {{/if}}
 
             {{#if ../viewEmail}}
@@ -134,6 +158,44 @@
                         {{/each}}
                     </ul>
                 </div>
+                {{/if}}
+            {{/if}}
+
+            {{#if ../viewCandidateDetails}}
+                {{#if studentNumber}}
+                <div class="roster-card-label">{{tr 'facet_studentNumber'}}</div>
+                <div class="roster-card-value">{{studentNumber}}</div>
+                {{/if}}
+                {{#if hasAdditionalInfo}}
+                    {{#if ../printMode}}
+                        {{#if hasSpecialNeeds}}
+                        <div class="roster-card-label-row">{{tr 'facet_specialNeeds'}}</div>
+                        <div class="roster-card-value-row">
+                            <ul class="roster-special-needs">
+                                {{#each specialNeeds}}
+                                <li>{{this}}</li>
+                                {{/each}}
+                            </ul>
+                        </div>
+                        {{/if}}
+                        {{#if hasAdditionalNotes}}
+                        <div class="roster-card-label-row">{{tr 'facet_additionalNotes'}}</div>
+                        <div class="roster-card-value-row">
+                            <ul class="roster-additional-notes">
+                                {{#each additionalNotes}}
+                                <li>{{this}}</li>
+                                {{/each}}
+                            </ul>
+                        </div>
+                        {{/if}}
+                    {{else}}
+                    <div class="roster-card-label-row">
+                        <button class="btn-link roster-card-button additional-info" data-user-id="{{userId}}">
+                            <span class="roster-card-button-icon si si-info-circle"></span>
+                            <span>{{tr 'additionalInfo_button_text'}}</span>
+                        </button>
+                    </div>
+                    {{/if}}
                 {{/if}}
             {{/if}}
         </div> <!-- /roster-info-card -->

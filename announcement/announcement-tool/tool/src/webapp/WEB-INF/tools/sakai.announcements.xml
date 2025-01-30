@@ -14,11 +14,7 @@
 
 		<category name="course" />
 		<category name="project" />
-		<category name="portfolio" />
 		<category name="myworkspace" />
-		<category name="GradToolsStudent" />
-		<category name="GradToolsDepartment" />
-		<category name="GradToolsRackham" />
 
 		<configuration name="functions.require" value="annc.read" /> 
 

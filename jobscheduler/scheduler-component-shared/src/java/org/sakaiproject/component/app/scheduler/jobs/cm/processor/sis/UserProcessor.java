@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis;
 
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -96,14 +97,14 @@ public class UserProcessor extends AbstractUserProcessor {
             try {
                 u = userDirectoryService.getUser(user.getUserId());
             } catch (UserNotDefinedException ex) {
-                log.debug("User not found with id: ", user.getUserId());
+                log.debug("User not found with id: {}", user.getUserId());
             }
         } else {
             // Lookup by EID
             try {
                 u = userDirectoryService.getUserByEid(user.getUserName());
             } catch (UserNotDefinedException ex) {
-                log.debug("User not found with eid: ", user.getUserName());
+                log.debug("User not found with eid: {}", user.getUserName());
             }
         }
 
@@ -146,7 +147,8 @@ public class UserProcessor extends AbstractUserProcessor {
     }
 
     protected String generatePassword() {
-        return RandomStringUtils.randomAlphanumeric(9);
+        final SecureRandom random = new SecureRandom();
+        return RandomStringUtils.random(12, 0, 0, true, true, null, random);
     }
 
     protected void updateExtraPropertiesWithEdit(SisUser sisUser, UserEdit ue) throws UserNotDefinedException, UserPermissionException, UserLockedException, UserAlreadyDefinedException {
@@ -194,9 +196,7 @@ public class UserProcessor extends AbstractUserProcessor {
 
         String from = "\"" +
                 serverConfigurationService.getString("ui.institution", "Sakai") +
-                " <no-reply@" +
-                serverConfigurationService.getServerName() +
-                ">\"";
+                " <" + serverConfigurationService.getSmtpFrom() + ">\"";
 
         String productionSiteName = serverConfigurationService.getString("ui.service", "Sakai");
 

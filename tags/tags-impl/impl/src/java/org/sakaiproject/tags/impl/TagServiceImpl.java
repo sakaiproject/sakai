@@ -28,13 +28,24 @@ import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
+import lombok.Getter;
+import lombok.Setter;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.tags.api.I18n;
+import org.sakaiproject.tags.api.Tag;
+import org.sakaiproject.tags.api.TagAssociation;
+import org.sakaiproject.tags.api.TagAssociationRepository;
+import org.sakaiproject.tags.api.TagCollection;
 import org.sakaiproject.tags.api.TagCollections;
 import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.tags.api.TagServiceException;
@@ -48,7 +59,6 @@ import org.sakaiproject.tags.impl.common.SakaiI18n;
 @Slf4j
 public class TagServiceImpl implements TagService {
 
-    private static final String TAGSERVICE_MANAGE_PERMISSION =  "tagservice.manage";
     private static final String TAGSERVICE_AUTODDL_PROPERTY =  "tagservice.auto.ddl";
     private static final String SAKAI_AUTODDL_PROPERTY =  "auto.ddl";
     private static final String SAKAI_DB_VENDOR_PROPERTY =  "vendor@org.sakaiproject.db.api.SqlService";
@@ -56,14 +66,16 @@ public class TagServiceImpl implements TagService {
     private static final String TAGSERVICE_ENABLED =  "tagservice.enabled";
     private static final Boolean TAGSERVICE_ENABLED_DEFAULT_VALUE =  true;
     private static final int TAGSERVICE_MAXPAGESIZE_DEFAULT_VALUE = 200;
+    private static final int TAG_MAX_LABEL = 255;
 
-    private SqlService	sqlService	= null;
-    private FunctionManager	functionManager	= null;
-    private ServerConfigurationService	serverConfigurationService = null;
+    @Getter @Setter private SqlService sqlService;
+    @Getter @Setter private FunctionManager functionManager;
+    @Getter @Setter private ServerConfigurationService serverConfigurationService;
+    @Getter @Setter private TagAssociationRepository tagAssociationRepository;
 
     //At this moment we will leave the template cache, but I feel the service doesn't need it.
-    private TagCollections tagCollections;
-    private Tags tags;
+    @Getter @Setter private TagCollections tagCollections;
+    @Getter @Setter private Tags tags;
 
     @Override
     public void init() {
@@ -78,15 +90,81 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public TagCollections getTagCollections() {
-        return tagCollections;
+    public void saveTagAssociation(String itemId, String tagId) {
+        TagAssociation tagAssociation = new TagAssociation();
+        tagAssociation.setItemId(itemId);
+        tagAssociation.setTagId(tagId);
+        tagAssociationRepository.newTagAssociation(tagAssociation);
     }
 
     @Override
-    public Tags getTags() {
-        return tags;
+    public List<String> getTagAssociationIds(String collectionId, String itemId) {
+        return tagAssociationRepository.findTagAssociationByCollectionAndItem(collectionId, itemId).stream().map(TagAssociation::getTagId).collect(Collectors.toList());
     }
 
+    @Override
+    public List<Tag> getAssociatedTagsForItem(String collectionId, String itemId) {//if we turn Tag object to jpa we could add a foreign key to the association and retrieve them directly
+        List<String> tagIds = getTagAssociationIds(collectionId, itemId);
+        List<Tag> associatedTags = new ArrayList<>();
+        for (String tagId : tagIds) {
+            Tag t = tags.getForId(tagId).orElse(null);
+            if (t != null) {
+                associatedTags.add(t);
+            } else {
+                log.warn("Associated tag with id {} does not exist anymore" + tagId);
+            }
+        }
+        return associatedTags;
+    }
+
+    @Override
+    public void updateTagAssociations(String collectionId, String itemId, Collection<String> tagIds, boolean isSite) {
+        // create collection if it doesn't exist
+        TagCollection col = tagCollections.getForId(collectionId).orElse(null);
+        if (col == null) {
+            I18n i18n = getI18n(this.getClass().getClassLoader(), "org.sakaiproject.tags.api.i18n.tagservice");
+            String description = i18n.t("user_collection");
+            if (isSite) {
+                description = i18n.tFormatted("site_collection", collectionId);
+            }
+            col = new TagCollection(collectionId, collectionId, description, null, 0L, null, null, null, 0L, Boolean.FALSE, Boolean.FALSE, 0L, 0L);
+            tagCollections.createTagCollection(col);
+        }
+
+        // obtain previous asociations
+        List<String> oldAssociationIds = getTagAssociationIds(collectionId, itemId);
+        for (String tagId : tagIds) {
+            // skip if already associated or empty
+            if (StringUtils.isEmpty(tagId) || oldAssociationIds.contains(tagId)) {
+                continue;
+            }
+            // we cut the tag
+            if (tagId.length() > TAG_MAX_LABEL) {
+                tagId = tagId.substring(0, TAG_MAX_LABEL);
+            }
+            // new association, check tag exists
+            Tag t = tags.getForId(tagId).orElse(null);
+            if (t == null) {
+                
+                t = new Tag(null, collectionId, tagId, null, null,
+                        0L, null, 0L, null, null, Boolean.FALSE, 0L,
+                        Boolean.FALSE, 0L, null, null, null, null, null);
+                String id = tags.createTag(t);
+                t.setTagId(id);
+            }
+
+            // save tag association
+            saveTagAssociation(itemId, t.getTagId());
+        }
+
+        // remove deselected
+        oldAssociationIds.removeAll(tagIds);
+        for (String oldId : oldAssociationIds) {
+            TagAssociation ta = tagAssociationRepository.findTagAssociationByItemIdAndTagId(itemId, oldId);
+            tagAssociationRepository.deleteTagAssociation(ta.getId());
+        }
+    
+    }
 
     @Override
     public I18n getI18n(ClassLoader loader, String resourceBase) {
@@ -151,37 +229,4 @@ public class TagServiceImpl implements TagService {
         return sb.toString().replace("\n", " ").split(";\\s*");
     }
 
-
-
-    public SqlService getSqlService() {
-        return sqlService;
-    }
-
-    public void setSqlService(SqlService sqlService) {
-        this.sqlService = sqlService;
-    }
-
-    public FunctionManager getFunctionManager() {
-        return functionManager;
-    }
-
-    public void setFunctionManager(FunctionManager functionManager) {
-        this.functionManager = functionManager;
-    }
-
-    public ServerConfigurationService getServerConfigurationService() {
-        return serverConfigurationService;
-    }
-
-    public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
-        this.serverConfigurationService = serverConfigurationService;
-    }
-
-    public void setTagCollections(TagCollections tagCollections) {
-        this.tagCollections = tagCollections;
-    }
-
-    public void setTags(Tags tags) {
-        this.tags = tags;
-    }
 }

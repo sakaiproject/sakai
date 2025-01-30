@@ -18,12 +18,9 @@ package org.sakaiproject.profile2.logic;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -47,9 +44,6 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.id.api.IdManager;
-import org.sakaiproject.messaging.api.Message;
-import org.sakaiproject.messaging.api.MessageMedium;
-import org.sakaiproject.messaging.api.UserMessagingService;
 import org.sakaiproject.profile2.model.MimeTypeByteArray;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
@@ -78,33 +72,21 @@ public class SakaiProxyImpl implements SakaiProxy {
 
 	private static ResourceLoader rb = new ResourceLoader("ProfileApplication");
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getCurrentSiteId() {
 		return this.toolManager.getCurrentPlacement().getContext();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getCurrentUserId() {
 		return this.sessionManager.getCurrentSessionUserId();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public User getCurrentUser() {
 		return this.userDirectoryService.getCurrentUser();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getUserEid(final String userId) {
 		String eid = null;
@@ -116,9 +98,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return eid;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getUserIdForEid(final String eid) {
 		String userUuid = null;
@@ -130,9 +109,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return userUuid;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getUserDisplayName(final String userId) {
 		String name = null;
@@ -144,9 +120,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return name;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getUserFirstName(final String userId) {
 		String email = null;
@@ -158,9 +131,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return email;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getUserLastName(final String userId) {
 		String email = null;
@@ -172,9 +142,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return email;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getUserEmail(final String userId) {
 		String email = null;
@@ -186,9 +153,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return email;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean checkForUser(final String userId) {
 		User u = null;
@@ -203,9 +167,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return false;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean checkForUserByEid(final String eid) {
 		User u = null;
@@ -220,33 +181,21 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return false;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean isSuperUser() {
 		return this.securityService.isSuperUser();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean isAdminUser() {
-		return StringUtils.equals(this.sessionManager.getCurrentSessionUserId(), UserDirectoryService.ADMIN_ID);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean isSuperUserAndProxiedToUser(final String userId) {
 		return (isSuperUser() && !StringUtils.equals(userId, getCurrentUserId()));
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
+	public boolean isUserRoleSwapped() {
+		return this.securityService.isUserRoleSwapped();
+	}
+
 	@Override
 	public String getUserType(final String userId) {
 		String type = null;
@@ -258,9 +207,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return type;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public User getUserById(final String userId) {
 		User u = null;
@@ -273,9 +219,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return u;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public User getUserQuietly(final String userId) {
 		User u = null;
@@ -287,9 +230,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return u;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getCurrentToolTitle() {
 		final Tool tool = this.toolManager.getCurrentTool();
@@ -300,9 +240,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public List<User> getUsers(final List<String> userIds) {
 		List<User> rval = new ArrayList<>();
@@ -314,9 +251,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return rval;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public List<String> getUuids(final List<User> users) {
 		final List<String> uuids = new ArrayList<String>();
@@ -326,9 +260,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return uuids;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public SakaiPerson getSakaiPerson(final String userId) {
 
@@ -336,16 +267,12 @@ public class SakaiProxyImpl implements SakaiProxy {
 
 		try {
 			sakaiPerson = this.sakaiPersonManager.getSakaiPerson(userId, this.sakaiPersonManager.getUserMutableType());
-		} catch (final Exception e) {
-			log.error(
-					"SakaiProxy.getSakaiPerson(): Couldn't get SakaiPerson for: " + userId + " : " + e.getClass() + " : " + e.getMessage());
+		} catch (Exception e) {
+			log.error("Couldn't get SakaiPerson for userId {}: ", userId, e.toString());
 		}
 		return sakaiPerson;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public byte[] getSakaiPersonJpegPhoto(final String userId) {
 
@@ -373,9 +300,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return image;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getSakaiPersonImageUrl(final String userId) {
 
@@ -403,9 +327,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return url;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public SakaiPerson getSakaiPersonPrototype() {
 
@@ -419,9 +340,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return sakaiPerson;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public SakaiPerson createSakaiPerson(final String userId) {
 
@@ -435,9 +353,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return sakaiPerson;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean updateSakaiPerson(final SakaiPerson sakaiPerson) {
 		// the save is void, so unless it throws an exception, its ok (?)
@@ -452,60 +367,11 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return false;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public int getMaxProfilePictureSize() {
 		return this.serverConfigurationService.getInt("profile2.picture.max", ProfileConstants.MAX_IMAGE_UPLOAD_SIZE);
 	}
 
-	private String getProfileGalleryPath(final String userId) {
-		final String slash = Entity.SEPARATOR;
-
-		final StringBuilder path = new StringBuilder();
-		path.append(slash);
-		path.append("private");
-		path.append(slash);
-		path.append("profileGallery");
-		path.append(slash);
-		path.append(userId);
-		path.append(slash);
-
-		return path.toString();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getProfileGalleryImagePath(final String userId, final String imageId) {
-
-		final StringBuilder path = new StringBuilder(getProfileGalleryPath(userId));
-
-		path.append(ProfileConstants.GALLERY_IMAGE_MAIN);
-		path.append(Entity.SEPARATOR);
-		path.append(imageId);
-
-		return path.toString();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getProfileGalleryThumbnailPath(final String userId, final String imageId) {
-		final StringBuilder path = new StringBuilder(getProfileGalleryPath(userId));
-		path.append(ProfileConstants.GALLERY_IMAGE_THUMBNAILS);
-		path.append(Entity.SEPARATOR);
-		path.append(imageId);
-
-		return path.toString();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getProfileImageResourcePath(final String userId, final int type) {
 
@@ -527,9 +393,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean saveFile(final String fullResourceId, final String userId, final String fileName, final String mimeType,
 			final byte[] fileData) {
@@ -573,9 +436,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public MimeTypeByteArray getResource(final String resourceId) {
 
@@ -607,9 +467,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return null;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean removeResource(final String resourceId) {
 		try {
@@ -624,119 +481,51 @@ public class SakaiProxyImpl implements SakaiProxy {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public List<User> searchUsers(final String search) {
-		return this.userDirectoryService.searchUsers(search, ProfileConstants.FIRST_RECORD, ProfileConstants.MAX_RECORDS);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public List<User> searchExternalUsers(final String search) {
-		return this.userDirectoryService.searchExternalUsers(search, ProfileConstants.FIRST_RECORD, ProfileConstants.MAX_RECORDS);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void postEvent(final String event, final String reference, final boolean modify) {
 		this.eventTrackingService.post(this.eventTrackingService.newEvent(event, reference, modify));
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void sendEmail(final List<String> userIds, final String emailTemplateKey, final Map<String, Object> replacementValues) {
-
-		final Set<User> users = new HashSet<>(getUsers(userIds));
-
-		replacementValues.put("bundle", rb);
-		userMessagingService.message(users,
-				Message.builder().tool(ProfileConstants.TOOL_ID).type(emailTemplateKey).build(),
-				Arrays.asList(new MessageMedium[] {MessageMedium.EMAIL}), replacementValues, NotificationService.NOTI_REQUIRED);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void sendEmail(final String userId, final String emailTemplateKey, final Map<String, Object> replacementValues) {
-		sendEmail(Collections.singletonList(userId), emailTemplateKey, replacementValues);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getServerName() {
 		return this.serverConfigurationService.getServerName();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getPortalUrl() {
 		return this.serverConfigurationService.getPortalUrl();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getServerUrl() {
 		return this.serverConfigurationService.getServerUrl();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getFullPortalUrl() {
 		return getServerUrl() + getPortalPath();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getPortalPath() {
 		return this.serverConfigurationService.getString("portalPath", "/portal");
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean isUsingNormalPortal() {
 		return StringUtils.equals(getPortalPath(), "/portal");
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getUserHomeUrl() {
 		return this.serverConfigurationService.getUserHomeUrl();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getServiceName() {
 		return this.serverConfigurationService.getString("ui.service", ProfileConstants.SAKAI_PROP_SERVICE_NAME);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void updateEmailForUser(final String userId, final String email) {
 		try {
@@ -751,9 +540,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void updateNameForUser(final String userId, final String firstName, final String lastName) {
 		try {
@@ -769,9 +555,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@Deprecated
 	public String getDirectUrlToUserProfile(final String userId, final String extraParams) {
@@ -819,17 +602,11 @@ public class SakaiProxyImpl implements SakaiProxy {
 
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getDirectUrlToProfileComponent(final String userId, final String component, final Map<String, String> extraParams) {
 	    return getDirectUrlToProfileComponent(getCurrentUserId(), userId, component, extraParams);
 	}
 
-    /**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getDirectUrlToProfileComponent(final String viewerUuid, final String viewedUuid, final String component, final Map<String, String> extraParams) {
 
@@ -880,9 +657,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean isAccountUpdateAllowed(final String userId) {
 		try {
@@ -895,19 +669,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean isBusinessProfileEnabled() {
-		return this.serverConfigurationService.getBoolean(
-				"profile2.profile.business.enabled",
-				ProfileConstants.SAKAI_PROP_PROFILE2_PROFILE_BUSINESS_ENABLED);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean isSocialProfileEnabled() {
 		return this.serverConfigurationService.getBoolean(
@@ -915,39 +676,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 				ProfileConstants.SAKAI_PROP_PROFILE2_PROFILE_SOCIAL_ENABLED);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean isInterestsProfileEnabled() {
-		return this.serverConfigurationService.getBoolean(
-				"profile2.profile.interests.enabled",
-				ProfileConstants.SAKAI_PROP_PROFILE2_PROFILE_INTERESTS_ENABLED);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean isStaffProfileEnabled() {
-		return this.serverConfigurationService.getBoolean(
-				"profile2.profile.staff.enabled",
-				ProfileConstants.SAKAI_PROP_PROFILE2_PROFILE_STAFF_ENABLED);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean isStudentProfileEnabled() {
-		return this.serverConfigurationService.getBoolean(
-				"profile2.profile.student.enabled",
-				ProfileConstants.SAKAI_PROP_PROFILE2_PROFILE_STUDENT_ENABLED);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean isNamePronunciationProfileEnabled() {
 		return this.serverConfigurationService.getBoolean(
@@ -955,94 +683,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 				ProfileConstants.SAKAI_PROP_PROFILE2_PROFILE_PRONUNCIATION_ENABLED);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean isWallEnabledGlobally() {
-		return this.serverConfigurationService.getBoolean(
-				"profile2.wall.enabled",
-				ProfileConstants.SAKAI_PROP_PROFILE2_WALL_ENABLED);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean isWallDefaultProfilePage() {
-		return this.serverConfigurationService.getBoolean(
-				"profile2.wall.default",
-				ProfileConstants.SAKAI_PROP_PROFILE2_WALL_DEFAULT);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean isProfileConversionEnabled() {
-		return this.serverConfigurationService.getBoolean("profile2.convert", ProfileConstants.SAKAI_PROP_PROFILE2_CONVERSION_ENABLED);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean isProfileImageImportEnabled() {
-		return this.serverConfigurationService.getBoolean("profile2.import.images",
-				ProfileConstants.SAKAI_PROP_PROFILE2_IMPORT_IMAGES_ENABLED);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean isProfileImportEnabled() {
-		return this.serverConfigurationService.getBoolean("profile2.import", ProfileConstants.SAKAI_PROP_PROFILE2_IMPORT_ENABLED);
-
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getProfileImportCsvPath() {
-		return this.serverConfigurationService.getString("profile2.import.csv", null);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean isTwitterIntegrationEnabledGlobally() {
-		return this.serverConfigurationService.getBoolean("profile2.integration.twitter.enabled",
-				ProfileConstants.SAKAI_PROP_PROFILE2_TWITTER_INTEGRATION_ENABLED);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getTwitterSource() {
-		return this.serverConfigurationService.getString("profile2.integration.twitter.source",
-				ProfileConstants.SAKAI_PROP_PROFILE2_TWITTER_INTEGRATION_SOURCE);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean isProfileGalleryEnabledGlobally() {
-		if (!isMenuEnabledGlobally()) {
-			return false;
-		} else {
-			return this.serverConfigurationService.getBoolean("profile2.gallery.enabled",
-					ProfileConstants.SAKAI_PROP_PROFILE2_GALLERY_ENABLED);
-		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean isProfilePictureChangeEnabled() {
 		// PRFL-395: Ability to enable/disable profile picture change per user type
@@ -1053,9 +693,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return this.serverConfigurationService.getBoolean("profile2.picture.change." + userType + ".enabled", globallyEnabled);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public int getProfilePictureType() {
 		final String pictureType = this.serverConfigurationService.getString("profile2.picture.type",
@@ -1082,9 +719,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public List<String> getAcademicEntityConfigurationSet() {
 
@@ -1098,9 +732,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return list;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public List<String> getMinimalEntityConfigurationSet() {
 		final String configuration = this.serverConfigurationService.getString("profile2.profile.entity.set.minimal",
@@ -1113,9 +744,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return list;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String ensureUuid(final String userId) {
 
@@ -1143,9 +771,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return null;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean currentUserMatchesRequest(final String userUuid) {
 
@@ -1160,61 +785,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return false;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean isPrivacyChangeAllowedGlobally() {
-		return this.serverConfigurationService.getBoolean("profile2.privacy.change.enabled",
-				ProfileConstants.SAKAI_PROP_PROFILE2_PRIVACY_CHANGE_ENABLED);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public HashMap<String, Object> getOverriddenPrivacySettings() {
-
-		final HashMap<String, Object> props = new HashMap<String, Object>();
-		props.put("profileImage", this.serverConfigurationService.getInt("profile2.privacy.default.profileImage",
-				ProfileConstants.DEFAULT_PRIVACY_OPTION_PROFILEIMAGE));
-		props.put("basicInfo", this.serverConfigurationService.getInt("profile2.privacy.default.basicInfo",
-				ProfileConstants.DEFAULT_PRIVACY_OPTION_BASICINFO));
-		props.put("contactInfo", this.serverConfigurationService.getInt("profile2.privacy.default.contactInfo",
-				ProfileConstants.DEFAULT_PRIVACY_OPTION_CONTACTINFO));
-		props.put("staffInfo", this.serverConfigurationService.getInt("profile2.privacy.default.staffInfo",
-				ProfileConstants.DEFAULT_PRIVACY_OPTION_STAFFINFO));
-		props.put("studentInfo", this.serverConfigurationService.getInt("profile2.privacy.default.studentInfo",
-				ProfileConstants.DEFAULT_PRIVACY_OPTION_STUDENTINFO));
-		props.put("personalInfo", this.serverConfigurationService.getInt("profile2.privacy.default.personalInfo",
-				ProfileConstants.DEFAULT_PRIVACY_OPTION_PERSONALINFO));
-		props.put("birthYear", this.serverConfigurationService.getBoolean("profile2.privacy.default.birthYear",
-				ProfileConstants.DEFAULT_BIRTHYEAR_VISIBILITY));
-		props.put("myFriends", this.serverConfigurationService.getInt("profile2.privacy.default.myFriends",
-				ProfileConstants.DEFAULT_PRIVACY_OPTION_MYFRIENDS));
-		props.put("myStatus", this.serverConfigurationService.getInt("profile2.privacy.default.myStatus",
-				ProfileConstants.DEFAULT_PRIVACY_OPTION_MYSTATUS));
-		props.put("myPictures", this.serverConfigurationService.getInt("profile2.privacy.default.myPictures",
-				ProfileConstants.DEFAULT_PRIVACY_OPTION_MYPICTURES));
-		props.put("messages", this.serverConfigurationService.getInt("profile2.privacy.default.messages",
-				ProfileConstants.DEFAULT_PRIVACY_OPTION_MESSAGES));
-		props.put("businessInfo", this.serverConfigurationService.getInt("profile2.privacy.default.businessInfo",
-				ProfileConstants.DEFAULT_PRIVACY_OPTION_BUSINESSINFO));
-		props.put("myKudos", this.serverConfigurationService.getInt("profile2.privacy.default.myKudos",
-				ProfileConstants.DEFAULT_PRIVACY_OPTION_MYKUDOS));
-		props.put("myWall",
-				this.serverConfigurationService.getInt("profile2.privacy.default.myWall", ProfileConstants.DEFAULT_PRIVACY_OPTION_MYWALL));
-		props.put("socialInfo", this.serverConfigurationService.getInt("profile2.privacy.default.socialInfo",
-				ProfileConstants.DEFAULT_PRIVACY_OPTION_SOCIALINFO));
-		props.put("onlineStatus", this.serverConfigurationService.getInt("profile2.privacy.default.onlineStatus",
-				ProfileConstants.DEFAULT_PRIVACY_OPTION_ONLINESTATUS));
-
-		return props;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public List<String> getInvisibleUsers() {
 		final String config = this.serverConfigurationService.getString("profile2.invisible.users",
@@ -1222,35 +792,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return ProfileUtils.getListFromString(config, ProfileConstants.SAKAI_PROP_LIST_SEPARATOR);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean isConnectionAllowedBetweenUserTypes(final String requestingUserType, final String targetUserType) {
-
-		if (isSuperUser()) {
-			return true;
-		}
-
-		final String configuration = this.serverConfigurationService
-				.getString("profile2.allowed.connection.usertypes." + requestingUserType);
-		if (StringUtils.isBlank(configuration)) {
-			return true;
-		}
-
-		final String[] values = StringUtils.split(configuration, ',');
-		final List<String> valueList = Arrays.asList(values);
-
-		if (valueList.contains(targetUserType)) {
-			return true;
-		}
-
-		return false;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean toggleProfileLocked(final String userId, final boolean locked) {
 		final SakaiPerson sp = getSakaiPerson(userId);
@@ -1264,27 +805,18 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return false;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean isOfficialImageEnabledGlobally() {
 		return this.serverConfigurationService.getBoolean("profile2.official.image.enabled",
 				ProfileConstants.SAKAI_PROP_PROFILE2_OFFICIAL_IMAGE_ENABLED);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean isUsingOfficialImage() {
 
 		return getProfilePictureType() == ProfileConstants.PICTURE_SETTING_OFFICIAL;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean isUsingOfficialImageButAlternateSelectionEnabled() {
 
@@ -1296,97 +828,61 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return false;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getOfficialImageSource() {
 		return this.serverConfigurationService.getString("profile2.official.image.source", ProfileConstants.OFFICIAL_IMAGE_SETTING_DEFAULT);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getOfficialImagesDirectory() {
 		return this.serverConfigurationService.getString("profile2.official.image.directory", "/official-photos");
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getOfficialImagesFileSystemPattern() {
 		return this.serverConfigurationService.getString("profile2.official.image.directory.pattern", "TWO_DEEP");
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getOfficialImageAttribute() {
 		return this.serverConfigurationService.getString("profile2.official.image.attribute", ProfileConstants.USER_PROPERTY_JPEG_PHOTO);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String createUuid() {
 		return this.idManager.createUuid();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean isUserActive(final String userUuid) {
 		return this.activityService.isUserActive(userUuid);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public List<String> getActiveUsers(final List<String> userUuids) {
 		return this.activityService.getActiveUsers(userUuids);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Long getLastEventTimeForUser(final String userUuid) {
 		return this.activityService.getLastEventTimeForUser(userUuid);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Map<String, Long> getLastEventTimeForUsers(final List<String> userUuids) {
 		return this.activityService.getLastEventTimeForUsers(userUuids);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getServerConfigurationParameter(final String key, final String def) {
 		return this.serverConfigurationService.getString(key, def);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean isUserMyWorkspace(final String siteId) {
 		return this.siteService.isUserSite(siteId);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean isUserAllowedInSite(final String userId, final String permission, final String siteId) {
 		if (this.securityService.isSuperUser()) {
@@ -1402,54 +898,22 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return false;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean checkForSite(final String siteId) {
 		return this.siteService.siteExists(siteId);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public int getMaxSearchResults() {
-		return this.serverConfigurationService.getInt(
-				"profile2.search.maxSearchResults",
-				ProfileConstants.DEFAULT_MAX_SEARCH_RESULTS);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public int getMaxSearchResultsPerPage() {
-		return this.serverConfigurationService.getInt(
-				"profile2.search.maxSearchResultsPerPage",
-				ProfileConstants.DEFAULT_MAX_SEARCH_RESULTS_PER_PAGE);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean isGravatarImageEnabledGlobally() {
 		return this.serverConfigurationService.getBoolean("profile2.gravatar.image.enabled",
 				ProfileConstants.SAKAI_PROP_PROFILE2_GRAVATAR_IMAGE_ENABLED);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean isUserAllowedAddSite(final String userUuid) {
 		return this.siteService.allowAddSite(userUuid);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Site addSite(final String id, final String type) {
 		Site site = null;
@@ -1466,9 +930,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return site;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean saveSite(final Site site) {
 		try {
@@ -1483,9 +944,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return true;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Site getSite(final String siteId) {
 		try {
@@ -1496,129 +954,43 @@ public class SakaiProxyImpl implements SakaiProxy {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public List<Site> getUserSites() {
 		return this.siteService.getSites(SelectionType.ACCESS, null, null, null, SortType.TITLE_ASC, null);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Tool getTool(final String id) {
 		return this.toolManager.getTool(id);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public List<String> getToolsRequired(final String category) {
 		return this.serverConfigurationService.getToolsRequired(category);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean isGoogleIntegrationEnabledGlobally() {
 		return this.serverConfigurationService.getBoolean("profile2.integration.google.enabled",
 				ProfileConstants.SAKAI_PROP_PROFILE2_GOOGLE_INTEGRATION_ENABLED);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean isLoggedIn() {
 		return StringUtils.isNotBlank(getCurrentUserId());
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean isProfileFieldsEnabled() {
 		return this.serverConfigurationService.getBoolean("profile2.profile.fields.enabled",
 				ProfileConstants.SAKAI_PROP_PROFILE2_PROFILE_FIELDS_ENABLED);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean isProfileStatusEnabled() {
-		return this.serverConfigurationService.getBoolean("profile2.profile.status.enabled",
-				ProfileConstants.SAKAI_PROP_PROFILE2_PROFILE_STATUS_ENABLED);
-
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean isMenuEnabledGlobally() {
 		return this.serverConfigurationService.getBoolean("profile2.menu.enabled", ProfileConstants.SAKAI_PROP_PROFILE2_MENU_ENABLED);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean isConnectionsEnabledGlobally() {
-		if (!isMenuEnabledGlobally()) {
-			return false;
-		} else {
-			return this.serverConfigurationService.getBoolean("profile2.connections.enabled",
-					ProfileConstants.SAKAI_PROP_PROFILE2_CONNECTIONS_ENABLED);
-		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean isMessagingEnabledGlobally() {
-		if (isConnectionsEnabledGlobally()) {
-			return this.serverConfigurationService.getBoolean("profile2.messaging.enabled",
-					ProfileConstants.SAKAI_PROP_PROFILE2_MESSAGING_ENABLED);
-		} else {
-			return false;
-		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean isSearchEnabledGlobally() {
-		if (!isMenuEnabledGlobally()) {
-			return false;
-		} else {
-			return this.serverConfigurationService.getBoolean("profile2.search.enabled",
-					ProfileConstants.SAKAI_PROP_PROFILE2_SEARCH_ENABLED);
-		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean isPrivacyEnabledGlobally() {
-		if (!isMenuEnabledGlobally()) {
-			return false;
-		} else {
-			return this.serverConfigurationService.getBoolean("profile2.privacy.enabled",
-					ProfileConstants.SAKAI_PROP_PROFILE2_PRIVACY_ENABLED);
-		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean isPreferenceEnabledGlobally() {
 		if (!isMenuEnabledGlobally()) {
@@ -1629,27 +1001,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean isMyKudosEnabledGlobally() {
-		return this.serverConfigurationService.getBoolean("profile2.myKudos.enabled",
-				ProfileConstants.SAKAI_PROP_PROFILE2_MY_KUDOS_ENABLED);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean isOnlineStatusEnabledGlobally() {
-		return this.serverConfigurationService.getBoolean("profile2.onlineStatus.enabled",
-				ProfileConstants.SAKAI_PROP_PROFILE2_ONLINE_STATUS_ENABLED);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public SiteService.SiteTitleValidationStatus validateSiteTitle(String orig, String stripped) {
 		return this.siteService.validateSiteTitle(orig, stripped);
@@ -1702,39 +1053,40 @@ public class SakaiProxyImpl implements SakaiProxy {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getNamePronunciationExamplesLink() {
 		return this.serverConfigurationService.getString("profile2.profile.name.pronunciation.examples.link", "");
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public int getNamePronunciationDuration() {
 		return this.serverConfigurationService.getInt("profile2.profile.name.pronunciation.duration", 10);
 	}
 
-	/**
-	 * init
-	 */
-	public void init() {
-		log.info("Profile2 SakaiProxy init()");
+	@Override
+	public boolean isUserMemberOfSite(final String userId, final String siteId){
+		try {
+			return this.siteService.getSite(siteId).getUserRole(userId) != null;
+		} catch (IdUnusedException e) {
+			return false;
+		}
+	}
 
-		// process the email templates
-		userMessagingService.importTemplateFromResourceXmlFile("templates/connectionConfirm.xml", ProfileConstants.TOOL_ID + "." + ProfileConstants.EMAIL_TEMPLATE_KEY_CONNECTION_CONFIRM);
-		userMessagingService.importTemplateFromResourceXmlFile("templates/connectionRequest.xml", ProfileConstants.TOOL_ID + "." + ProfileConstants.EMAIL_TEMPLATE_KEY_CONNECTION_REQUEST);
-		userMessagingService.importTemplateFromResourceXmlFile("templates/messageNew.xml", ProfileConstants.TOOL_ID + "." + ProfileConstants.EMAIL_TEMPLATE_KEY_MESSAGE_NEW);
-		userMessagingService.importTemplateFromResourceXmlFile("templates/messageReply.xml", ProfileConstants.TOOL_ID + "." + ProfileConstants.EMAIL_TEMPLATE_KEY_MESSAGE_REPLY);
-		userMessagingService.importTemplateFromResourceXmlFile("templates/profileChangeNotification.xml", ProfileConstants.TOOL_ID + "." + ProfileConstants.EMAIL_TEMPLATE_KEY_PROFILE_CHANGE_NOTIFICATION);
-		userMessagingService.importTemplateFromResourceXmlFile("templates/wallEventNew.xml", ProfileConstants.TOOL_ID + "." + ProfileConstants.EMAIL_TEMPLATE_KEY_WALL_EVENT_NEW);
-		userMessagingService.importTemplateFromResourceXmlFile("templates/wallPostConnectionWallNew.xml", ProfileConstants.TOOL_ID + "." + ProfileConstants.EMAIL_TEMPLATE_KEY_WALL_POST_CONNECTION_NEW);
-		userMessagingService.importTemplateFromResourceXmlFile("templates/wallPostMyWallNew.xml", ProfileConstants.TOOL_ID + "." + ProfileConstants.EMAIL_TEMPLATE_KEY_WALL_POST_MY_NEW);
-		userMessagingService.importTemplateFromResourceXmlFile("templates/wallStatusNew.xml", ProfileConstants.TOOL_ID + "." + ProfileConstants.EMAIL_TEMPLATE_KEY_WALL_STATUS_NEW);
-
+	@Override
+	public boolean areUsersMembersOfSameSite(final String userId1, final String userId2){
+		if (StringUtils.equals(userId1, userId2)) {
+			return true;
+		}
+		
+		try {
+			List<Site> sitesUser1 = siteService.getUserSites(false, userId1);
+			List<Site> sitesUser2 = siteService.getUserSites(false, userId2);
+			List<Site> coincidences = new ArrayList<>(sitesUser1);
+			coincidences.retainAll(sitesUser2);
+			return coincidences.size() > 0;
+		} catch (Exception ex) {
+			return false;
+		}
 	}
 
 	@Setter
@@ -1769,7 +1121,4 @@ public class SakaiProxyImpl implements SakaiProxy {
 
 	@Setter
 	private ActivityService activityService;
-
-	@Setter
-	private UserMessagingService userMessagingService;
 }

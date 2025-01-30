@@ -56,7 +56,7 @@
       <jsp:expression>request.getAttribute("sakai.html.head")</jsp:expression>
     </head>
     <jsp:element name="body">
-      <jsp:attribute name="onload">setMainFrameHeightNoScroll('<jsp:expression>request.getAttribute("sakai.tool.placement.id")</jsp:expression>');autoSaveOn('pageName','pageVersion','wiki-textarea-content','restoreContent','restoreVersion','restoreDate','autosave','tabHeadOff','<c:out value="${requestScope.rsacMap.loadAutoSave}" />');setFocus(focus_path); callAllLoaders(); </jsp:attribute>
+      <jsp:attribute name="onload">setFocus(focus_path); callAllLoaders(); </jsp:attribute>
       <jsp:directive.include file="header.jsp"/>
       <div id="rwiki_container">
       	<div class="portletBody">
@@ -102,35 +102,26 @@
 		    
 	<div id="rwiki_head" >
 		<div id="rwiki_tabholder">
-	        <ul class="tabs" >
+			<ul class="tabs" >
 			<li id="edit" class="tabHeadOn" >
-			   <jsp:element name="p" >
-			   	<jsp:attribute name="class" >tabhead</jsp:attribute>
-			   	<jsp:attribute name="title" ><c:out value="${rlb.jsp_edit}"/></jsp:attribute>
-		        <jsp:body>
-		       		<a href="#" onClick="selectTabs('autosaveTab','tabOn','tabOff','previewTab','tabOn','tabOff','editTab','tabOff','tabOn','autosave','tabHeadOn','tabHeadOff','preview','tabHeadOn','tabHeadOff','edit','tabHeadOff','tabHeadOn'); return false;" ><c:out value="${rlb.jsp_edit}"/></a>
-		       	</jsp:body>
-		       </jsp:element>
-		    </li>
-		    <li id="preview" class="tabHeadOff"  >
-		    	<jsp:element name="p" >
-			   		<jsp:attribute name="class" >tabhead</jsp:attribute>
-			   		<jsp:attribute name="title" ><c:out value="${rlb.jsp_preview}"/></jsp:attribute>
-		        	<jsp:body>
-				   		<a href="#" onClick="selectTabs('autosaveTab','tabOn','tabOff','previewTab','tabOff','tabOn','editTab','tabOn','tabOff','autosave','tabHeadOn','tabHeadOff','preview','tabHeadOff','tabHeadOn','edit','tabHeadOn','tabHeadOff'); previewContent('wiki-textarea-content','previewContent', 'pageVersion', 'realm','pageName','?' ); return false;" ><c:out value="${rlb.jsp_preview}"/></a>
-				    </jsp:body>
+				<jsp:element name="p" >
+				<jsp:attribute name="class" >tabhead</jsp:attribute>
+				<jsp:attribute name="title" ><c:out value="${rlb.jsp_edit}"/></jsp:attribute>
+				<jsp:body>
+					<a href="#" onClick="selectTabs('previewTab','tabOn','tabOff','editTab','tabOff','tabOn','preview','tabHeadOn','tabHeadOff','edit','tabHeadOff','tabHeadOn'); return false;"><c:out value="${rlb.jsp_edit}"/></a>
+				</jsp:body>
 				</jsp:element>
-		    </li>
-		    <li id="autosave" class="autoSaveOffClass" >
-		    	<jsp:element name="p" >
-			   		<jsp:attribute name="class" >tabhead</jsp:attribute>
-			   		<jsp:attribute name="title" ><c:out value="${rlb.jsp_recovered_content}"/></jsp:attribute>
-		        	<jsp:body>
-						<a href="#" onClick="selectTabs('autosaveTab','tabOff','tabOn','previewTab','tabOn','tabOff','editTab','tabOn','tabOff','autosave','tabHeadOff','tabHeadOn','preview','tabHeadOn','tabHeadOff','edit','tabHeadOn','tabHeadOff'); return false;" ><c:out value="${rlb.jsp_recovered_content}"/></a>
-				   </jsp:body>
+			</li>
+			<li id="preview" class="tabHeadOff"  >
+				<jsp:element name="p" >
+					<jsp:attribute name="class" >tabhead</jsp:attribute>
+					<jsp:attribute name="title" ><c:out value="${rlb.jsp_preview}"/></jsp:attribute>
+					<jsp:body>
+						<a href="#" onClick="selectTabs('previewTab','tabOff','tabOn','editTab','tabOn','tabOff','preview','tabHeadOff','tabHeadOn','edit','tabHeadOn','tabHeadOff'); previewContent('wiki-textarea-content','previewContent', 'pageVersion', 'realm','pageName','?' ); return false;">
+					</jsp:body>
 				</jsp:element>
-		    </li>
-		    </ul>
+			</li>
+			</ul>
 		</div>
 				    
 		<jsp:directive.include file="sidebar-switcher.jsp"/>		     
@@ -270,40 +261,6 @@
 			        	</c:if>
 					</div>
 		        </div> <!-- end of previewTab -->
-		        
-		              
-				<div id="autosaveTab" class="tabOff" >
-		    	   	<p class="shorttext">
-		    			<jsp:element name="input" >
-			   				<jsp:attribute name="type" >button</jsp:attribute>
-			   				<jsp:attribute name="id" >restoreButton</jsp:attribute>
-			   				<jsp:attribute name="name" >restoreButton</jsp:attribute>
-			   				<jsp:attribute name="title" ><c:out value="${rlb.jsp_button_restore_saved_edit}"/></jsp:attribute>
-			   				<jsp:attribute name="onClick" >restoreSavedContent('pageVersion', 'wiki-textarea-content', 'restoreContent','restoreVersion','restoreDate','autosave','autoSaveOffClass' ); selectTabs('autosaveTab','tabOn','tabOff','previewTab','tabOn','tabOff','editTab','tabOff','tabOn','autosave','tabHeadOn','tabHeadOff','preview','tabHeadOn','tabHeadOff','edit','tabHeadOff','tabHeadOn'); return false;</jsp:attribute>
-						</jsp:element>	
-		   			</p>
-		    	   	<p class="shorttext">
-		   				<label for="restoreVersion" ><c:out value="${rlb.jsp_auto_save_version}"/></label>
-		   				<jsp:element name="input" >
-			   				<jsp:attribute name="id" >restoreVersion</jsp:attribute>
-			   				<jsp:attribute name="name" >restoreVersion</jsp:attribute>
-			   				<jsp:attribute name="value" ><c:out value="${rlb.jsp_none}"/></jsp:attribute>
-						</jsp:element>	
-		   			</p>
-		   			<p class="shorttext">
-		   				<label for="restoreDate" ><c:out value="${rlb.jsp_auto_save_date}"/></label>
-		   				<jsp:element name="input" >
-			   				<jsp:attribute name="id" >restoreDate</jsp:attribute>
-			   				<jsp:attribute name="name" >restoreDate</jsp:attribute>
-			   				<jsp:attribute name="value" ><c:out value="${rlb.jsp_none}"/></jsp:attribute>
-						</jsp:element>	
-		   			</p>
-		   			<div>
-			    		<textarea cols="60" rows="25" name="restoreContent" id="restoreContent"  readonly="readonly" ><c:out value="${rlb.jsp_no_restored_content}"/>
-			    		</textarea>
-					</div>
-				</div> <!-- endof autosave tab -->
-				
 				
 	  </div> <!-- end of content div -->
   		

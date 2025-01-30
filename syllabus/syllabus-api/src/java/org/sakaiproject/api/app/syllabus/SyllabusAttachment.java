@@ -84,7 +84,8 @@ public class SyllabusAttachment implements Comparable<SyllabusAttachment> {
     private SyllabusData syllabusData;
 
     public int compareTo(SyllabusAttachment other) {
-        int result = NullSafeComparator.NULLS_LOW.compare(this.syllabusAttachId, other.getSyllabusAttachId());
+        int result = NullSafeComparator.NULLS_LOW.compare(this.name, other.getName());
+        if (result == 0) NullSafeComparator.NULLS_LOW.compare(this.syllabusAttachId, other.getSyllabusAttachId());
         if (result == 0) result = NullSafeComparator.NULLS_LOW.compare(this.attachmentId, other.getAttachmentId());
         return result;
     }

@@ -1,0 +1,208 @@
+.#{$namespace}sakai-conversations {
+
+  .topic {
+    margin: 8px;
+
+    hr {
+      border-top: 1px solid var(--sakai-border-color);
+    }
+  }
+
+  .topic-tag {
+    display: inline-block;
+    line-height: 16px;
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--sakai-text-color);
+    text-transform: uppercase;
+  }
+
+  .author-and-tools {
+    display: grid;
+    grid-template-columns: 1fr min-content;
+    align-items: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+
+  .topic-question-asked {
+    margin: 0 5px 0 5px;
+  }
+
+  .topic-title-and-status {
+    display: grid;
+    grid-template-columns: 1fr min-content;
+    align-items: center;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+  }
+
+  .topic-status-icon-and-text {
+    display: grid;
+    grid-template-columns: min-content min-content;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .topic-status-text {
+    font-size: 14px;
+    color: var(--sakai-text-color);
+  }
+
+  #topic-duedate-block {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--sakai-text-color);
+  }
+
+  #topic-duedate-block > span:first-child {
+    margin-right: 5px;
+  }
+
+  .topic-message {
+    font-size: 14px;
+    line-height: 24px;
+    color: var(--sakai-text-color);
+    margin-bottom: 20px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--sakai-border-color);
+  }
+
+  .topic-message-bottom-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    font-weight: 500;
+    font-size: 10px;
+    line-height: 16px;
+    text-transform: uppercase;
+  }
+  .topic-message-bottom-bar .topic-option {
+    display: grid;
+    grid-template-columns: min-content min-content;
+    gap: 8px;
+    align-items: center;
+    white-space: nowrap;
+    padding: 4px;
+  }
+
+  .topic-message-bottom-bar a {
+    text-decoration: none;
+    display: block;
+  }
+
+  button.dropdown-item > div {
+    display: inline-block;
+    pointer-events: none;
+    padding: 4px;
+  }
+
+  .topic-status {
+      margin-left: 10px;
+  }
+
+  .topic-status sakai-icon {
+      color: red;
+  }
+
+  .conv-post-editor-header {
+    margin-bottom: 6px;
+
+    span:nth-child(2) {
+      font-weight: bold;
+    }
+  }
+
+  .editor-placeholder {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0;
+    padding: 20px;
+
+    div:nth-child(2) {
+      margin-left: 10px;
+      margin-right: 5px;
+    }
+
+    div:nth-child(3) {
+      font-weight: bold;
+    }
+  }
+
+  .topic-reply-block {
+    background: var(--tool-menu-background-color);
+    position: sticky;
+    top: $banner-height;
+    padding: 10px;
+    box-shadow: var(--elevation-8dp);
+    z-index: 1;
+
+    a {
+      text-decoration: none;
+      color: var(--link-color);
+    }
+  }
+
+  .topic-reply-button-block {
+    background: #0F4B6F;
+    border-radius: 100px;
+    padding: 10px;
+    color: var(--sakai-text-color);
+  }
+
+  .answered-icon {
+    color: green;
+  }
+
+  .unanswered-icon {
+    color: red;
+  }
+
+  .author-block {
+    display: grid;
+    grid-template-columns: min-content 1fr;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .conv-private-checkbox-block {
+    margin-top: 20px;
+  }
+
+  .conv-private-checkbox-block input[type='checkbox'] {
+    margin-right: 10px;
+  }
+  .topic-posts-block {
+
+    margin-top: 10px;
+
+    .topic-posts-header {
+      font-weight: 300;
+      font-size: 24px;
+      line-height: 32px;
+      color: var(--sakai-link-color);
+      margin-bottom: 20px;
+      padding-top: 20px;
+    }
+  }
+
+  .author-block sakai-user-photo {
+    flex: 1;
+  }
+
+  .topic-wrapper {
+    width: 100%;
+    border: 1px solid var(--sakai-border-color);
+    border-radius: 8px;
+    margin-top: 10px;
+  }
+
+  .topic-more-replies-block {
+
+    font-weight: 500;
+    font-size: 15px;
+    color: #176EA3;
+    margin-top: 20px;
+  }
+}

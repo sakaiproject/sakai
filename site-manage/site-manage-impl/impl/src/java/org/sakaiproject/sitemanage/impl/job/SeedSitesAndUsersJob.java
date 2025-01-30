@@ -111,27 +111,20 @@ public class SeedSitesAndUsersJob implements Job {
 	@Setter
 	private ConversationsService conversationsService;
 
-	private int numberOfSites = 5;
-	private int numberOfStudents = 100;
-	private int numberOfEnnrollmentsPerSite = 50;
-	private int numberOfInstructorsPerSite = 1;
-	private int numberOfGradebookItems = 20;
-	private int numberOfConversationsQuestions = 100;
-	private int numberOfConversationsPosts = 100;
-	private String emailDomain = "mailinator.com";
+	private int numberOfSites;
+	private int numberOfStudents;
+	private int numberOfEnnrollmentsPerSite;
+	private int numberOfInstructorsPerSite;
+	private int numberOfGradebookItems;
+	private int numberOfConversationsQuestions;
+	private int numberOfConversationsPosts;
+	private String emailDomain;
 	private boolean useEidAsPassword;
-
-	private long repositorySize = 10485760;        //  10 MB
-	//private long repositorySize = 1073741824L;   //   1 GB
-	//private long repositorySize = 10737418240L;  //  10 GB
-	//private long repositorySize = 21474836480L;  //  20 GB
-	//private long repositorySize = 42949672960L;  //  40 GB
-	//private long repositorySize = 64424509440L;  //  60 GB
-	//private long repositorySize = 107374182400L; // 100 GB
+	private long repositorySize;
 
 
-	private Faker faker = new Faker();
-	private Random randomGenerator = new Random();
+	private final Faker faker = new Faker();
+	private final Random randomGenerator = new Random();
 
 	private Map<String, User> students;
 	private Map<String, User> instructors;
@@ -142,24 +135,20 @@ public class SeedSitesAndUsersJob implements Job {
 		numberOfStudents = serverConfigurationService.getInt("site.seed.create.students", 100);
 		numberOfEnnrollmentsPerSite = serverConfigurationService.getInt("site.seed.enrollments.per.site", 50);
 		numberOfInstructorsPerSite = serverConfigurationService.getInt("site.seed.instructors.per.site", 1);
-		numberOfGradebookItems = serverConfigurationService.getInt("site.seed.create.gradebookitems", 20);
-		numberOfConversationsQuestions = serverConfigurationService.getInt("site.seed.create.conversations.questions", numberOfConversationsQuestions);
-		numberOfConversationsPosts = serverConfigurationService.getInt("site.seed.create.conversations.posts", numberOfConversationsPosts);
+		numberOfGradebookItems = serverConfigurationService.getInt("site.seed.create.gradebookitems", 10);
+		numberOfConversationsQuestions = serverConfigurationService.getInt("site.seed.create.conversations.questions", 10);
+		numberOfConversationsPosts = serverConfigurationService.getInt("site.seed.create.conversations.posts", 5);
 		emailDomain = serverConfigurationService.getString("site.seed.email.domain", "mailinator.com");
 		useEidAsPassword = serverConfigurationService.getBoolean("site.seed.eid.password", false);
 
 		try {
 	        repositorySize = Long.parseLong(serverConfigurationService.getString("site.seed.repository.size", "10485760"));
         } catch (NumberFormatException nfe) {
-        	repositorySize = 1073741824L;
+        	repositorySize = 10485760L;
         }
 			
 		// Create our security advisor.
-		securityAdvisor = new SecurityAdvisor() {
-			public SecurityAdvice isAllowed(String userId, String function, String reference) {
-				return SecurityAdvice.ALLOWED;
-			}
-		};
+		securityAdvisor = (userId, function, reference) -> SecurityAdvisor.SecurityAdvice.ALLOWED;
 	}
 
 	private void seedData() {		
@@ -187,7 +176,7 @@ public class SeedSitesAndUsersJob implements Job {
 				// 5k paragraphs works out to on average docs around 1/2 MB in size byte[] rawFile =
 				// StringUtils.join(faker.paragraphs(randomGenerator.nextInt(5000)), "\n\n").getBytes();
 				byte[] rawFile = StringUtils.join(faker.lorem().paragraphs(randomGenerator.nextInt(500)), "\n\n").getBytes();
-				String fileName = StringUtils.join(faker.lorem().words(4), "-") + "_" + String.valueOf(randomGenerator.nextInt(5000));
+				String fileName = StringUtils.join(faker.lorem().words(4), "-") + "_" + randomGenerator.nextInt(5000);
 				
 				try {
 					ContentResourceEdit resourceEdit = contentHostingService.addResource(collectionName + fileName + ".txt");
@@ -216,13 +205,13 @@ public class SeedSitesAndUsersJob implements Job {
 			String siteId = site.getId();
 			for (int i = 0;i < numberOfGradebookItems;i++) {
 				Assignment ass = new Assignment();
-				String name = "Item " + Integer.toString(i);
+				String name = "Item " + i;
 				try {
 					ass.setName(name);
-					ass.setPoints(20D);
+					ass.setPoints(100D);
 					Long aid = gradingService.addAssignment(siteId, ass);
 					for (Member m : site.getMembers()) {
-						gradingService.saveGradeAndCommentForStudent(siteId, aid, m.getUserId(), "10", "");
+						gradingService.saveGradeAndCommentForStudent(siteId, aid, m.getUserId(), Integer.toString(randomGenerator.nextInt(101)), faker.lorem().sentence(10));
 					}
 					if (i % 10 == 0) {
 						log.info("Created {} gradebook items", i);
@@ -256,15 +245,14 @@ public class SeedSitesAndUsersJob implements Job {
                         conversationsService.savePost(postBean, false);
                     }
                 } catch (Exception e) {
-                    log.error("Failed to create topics and posts in conversations: {}", e.toString());
-                    e.printStackTrace();
+                    log.error("Failed to create topics and posts in conversations: {}", e, e);
                 }
             }
 		}
 	}
 	
 	private long getSizeOfResources() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		for (Site site : sites.values()) {
 			if (sb.length() > 0) {
 				sb.append(",");

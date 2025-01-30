@@ -1,0 +1,4 @@
+export const NOTIFICATIONS = "NOTIFICATIONS";
+export const PUSH_DENIED_INFO = "PUSH_DENIED_INFO";
+export const PUSH_INTRO = "PUSH_INTO";
+export const PUSH_SETUP_INFO = "PUSH_SETUP_INFO";

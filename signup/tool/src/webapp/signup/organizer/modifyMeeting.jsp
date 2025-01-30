@@ -5,16 +5,16 @@
 
 <f:view>
 	<jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
-	   <jsp:setProperty name="msgs" property="baseName" value="messages"/>
+	   <jsp:setProperty name="msgs" property="baseName" value="signup"/>
 	</jsp:useBean>
 	<sakai:view_container title="Signup Tool">
 		<style type="text/css">
-			@import url("/sakai-signup-tool/css/signupStyle.css");
+			@import url("/sakai-signup-tool/css/signupStyle.css${Portal.CDNQuery}");
 		</style>	
 
 		<h:outputText value="#{Portal.latestJQuery}" escape="false"/>
-        <script src="/library/js/lang-datepicker/lang-datepicker.js"></script>
-        <script src="/sakai-signup-tool/js/signupScript.js"></script>
+        <script src="/library/js/lang-datepicker/lang-datepicker.js${Portal.CDNQuery}"></script>
+        <script src="/sakai-signup-tool/js/signupScript.js${Portal.CDNQuery}"></script>
 
 		<script>
 			jQuery(document).ready(function(){
@@ -338,6 +338,48 @@
 						</div>
 					</h:panelGroup>
 
+					<%-- Display site/groups --%>
+					<div class="form-group row ">
+						<h:outputLabel value ="#{msgs.event_publish_to}" styleClass="col-md-2"/>
+
+						<div class="col-md-10" >
+							<h:panelGroup>
+								<h:selectBooleanCheckbox id="siteSelection" value="#{EditMeetingSignupMBean.currentSite.selected}" disabled="true"/>
+								<h:outputLabel for="siteSelection" value="#{EditMeetingSignupMBean.currentSite.signupSite.title} #{msgs.event_current_site}"/>
+							</h:panelGroup>
+							<h:dataTable id="currentSiteGroups" value="#{EditMeetingSignupMBean.currentSite.signupGroupWrappers}" var="currentGroup" styleClass="meetingTypeTable">
+								<h:column>
+									<h:panelGroup>
+										<h:selectBooleanCheckbox id="groupSelection" value="#{currentGroup.selected}" disabled="true"/>
+										<h:outputLabel for="groupSelection" value="#{currentGroup.signupGroup.title}" styleClass="longtext"/>
+									</h:panelGroup>
+								</h:column>
+							</h:dataTable>
+
+							<h:panelGroup rendered="#{not empty EditMeetingSignupMBean.otherSites}">
+								<h:outputLabel value="#{msgs.event_other_sites}"/>
+								<h:outputText value="<div id='otherSites'>" escape="false"/>
+								<h:dataTable id="userSites" value="#{EditMeetingSignupMBean.otherSites}" var="site" styleClass="meetingTypeTable" style="left:1px;">
+									<h:column>
+										<h:panelGroup>
+											<h:selectBooleanCheckbox id="otherSitesSelection" value="#{site.selected}" disabled="true"/>
+											<h:outputLabel for="otherSitesSelection" value="#{site.signupSite.title}" styleClass="editText" escape="false"/>
+										</h:panelGroup>
+										<h:dataTable id="userGroups" value="#{site.signupGroupWrappers}" var="group" styleClass="meetingTypeTable">
+											<h:column>
+												<h:panelGroup>
+													<h:selectBooleanCheckbox id="otherGroupsSelection" value="#{group.selected}" disabled="true"/>
+													<h:outputLabel for="otherGroupsSelection" value="#{group.signupGroup.title}" styleClass="longtext"/>
+												</h:panelGroup>
+											</h:column>
+										</h:dataTable>
+									</h:column>
+								</h:dataTable>
+								<h:outputText value="</div>" escape="false" />
+							</h:panelGroup>
+						</div>
+					</div>
+
 					<%-- Handle meeting types --%>
 					<h:panelGroup styleClass="form-group row "  layout="block">
 						<h:outputLabel value ="#{msgs.event_type_title}"  styleClass="col-lg-2 form-required"/>
@@ -381,7 +423,7 @@
 							</h:panelGroup>
 
 							<%-- single: --%>
-							<h:panelGroup rendered="#{EditMeetingSignupMBean.groupType}" styleClass="si" layout="block">
+							<h:panelGroup rendered="#{EditMeetingSignupMBean.groupType}" styleClass="single-box" layout="block">
 								<div class="form-group row">
 									<t:selectOneRadio id="groupSubradio" value="#{EditMeetingSignupMBean.unlimited}" onclick="switchSingle(value)" styleClass="meetingRadioBtn" layout="spread">
 										<f:selectItem itemValue="#{false}" itemLabel="#{msgs.tab_max_attendee}"/>

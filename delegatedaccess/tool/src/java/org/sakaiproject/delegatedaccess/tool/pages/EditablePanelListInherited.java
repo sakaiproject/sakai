@@ -28,7 +28,6 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
@@ -45,70 +44,71 @@ public class EditablePanelListInherited extends Panel{
 		inheritedSpan.setOutputMarkupId(true);
 		final String inheritedSpanId = inheritedSpan.getMarkupId();
 		add(inheritedSpan);
-		
+
 		//Auth
-		final IModel<List<? extends ListOptionSerialized>> inheritedRestrictedAuthToolsModel = new AbstractReadOnlyModel<List<? extends ListOptionSerialized>>(){
-			private static final long serialVersionUID = 1L;
+		final IModel<List<? extends ListOptionSerialized>> inheritedRestrictedAuthToolsModel = new IModel<>() {
+            private static final long serialVersionUID = 1L;
 
-			@Override
-			public List<? extends ListOptionSerialized> getObject() {
-				if(loadedFlag){
-					List<ListOptionSerialized> selectedOptions = null;
-					List<ListOptionSerialized> inheritedOptions = null;
-					if(DelegatedAccessConstants.TYPE_LISTFIELD_TOOLS == fieldType){
-						selectedOptions = nodeModel.getSelectedRestrictedAuthTools();
-						inheritedOptions = nodeModel.getInheritedRestrictedAuthTools();
-					}
+            @Override
+            public List<? extends ListOptionSerialized> getObject() {
+                if (loadedFlag) {
+                    List<ListOptionSerialized> selectedOptions = null;
+                    List<ListOptionSerialized> inheritedOptions = null;
+                    if (DelegatedAccessConstants.TYPE_LISTFIELD_TOOLS == fieldType) {
+                        selectedOptions = nodeModel.getSelectedRestrictedAuthTools();
+                        inheritedOptions = nodeModel.getInheritedRestrictedAuthTools();
+                    }
 
-					if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == userType && !nodeModel.getNodeShoppingPeriodAdmin()){
-						List<ListOptionSerialized> returnList =selectedOptions;
-						if(returnList.isEmpty()){
-							returnList = inheritedOptions;
-						}
-						return returnList;
-					}else{
-						return inheritedOptions;
-					}
-				}else{
-					return new ArrayList<ListOptionSerialized>();
-				}
-			}
+                    if (DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == userType && !nodeModel.getNodeShoppingPeriodAdmin()) {
+                        List<ListOptionSerialized> returnList = selectedOptions;
+                        if (returnList.isEmpty()) {
+                            returnList = inheritedOptions;
+                        }
+                        return returnList;
+                    } else {
+                        return inheritedOptions;
+                    }
+                } else {
+                    return new ArrayList<ListOptionSerialized>();
+                }
+            }
 
-		};
+        };
+
 		//Public
-		final IModel<List<? extends ListOptionSerialized>> inheritedRestrictedPublicToolsModel = new AbstractReadOnlyModel<List<? extends ListOptionSerialized>>(){
-			private static final long serialVersionUID = 1L;
+		final IModel<List<? extends ListOptionSerialized>> inheritedRestrictedPublicToolsModel = new IModel<>() {
+            private static final long serialVersionUID = 1L;
 
-			@Override
-			public List<? extends ListOptionSerialized> getObject() {
-				if(loadedFlag){
-					List<ListOptionSerialized> selectedOptions = null;
-					List<ListOptionSerialized> inheritedOptions = null;
-					if(DelegatedAccessConstants.TYPE_LISTFIELD_TOOLS == fieldType){
-						selectedOptions = nodeModel.getSelectedRestrictedPublicTools();
-						inheritedOptions = nodeModel.getInheritedRestrictedPublicTools();
-					}
+            @Override
+            public List<? extends ListOptionSerialized> getObject() {
+                if (loadedFlag) {
+                    List<ListOptionSerialized> selectedOptions = null;
+                    List<ListOptionSerialized> inheritedOptions = null;
+                    if (DelegatedAccessConstants.TYPE_LISTFIELD_TOOLS == fieldType) {
+                        selectedOptions = nodeModel.getSelectedRestrictedPublicTools();
+                        inheritedOptions = nodeModel.getInheritedRestrictedPublicTools();
+                    }
 
-					if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == userType && !nodeModel.getNodeShoppingPeriodAdmin()){
-						List<ListOptionSerialized> returnList =selectedOptions;
-						if(returnList.isEmpty()){
-							returnList = inheritedOptions;
-						}
-						return returnList;
-					}else{
-						return inheritedOptions;
-					}
-				}else{
-					return new ArrayList<ListOptionSerialized>();
-				}
-			}
+                    if (DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == userType && !nodeModel.getNodeShoppingPeriodAdmin()) {
+                        List<ListOptionSerialized> returnList = selectedOptions;
+                        if (returnList.isEmpty()) {
+                            returnList = inheritedOptions;
+                        }
+                        return returnList;
+                    } else {
+                        return inheritedOptions;
+                    }
+                } else {
+                    return new ArrayList<ListOptionSerialized>();
+                }
+            }
+        };
 
-		};
 		//Auth
-		final ListView<ListOptionSerialized> inheritedAuthListView = new ListView<ListOptionSerialized>("inheritedRestrictedAuthTools",inheritedRestrictedAuthToolsModel){
+		final ListView inheritedAuthListView = new ListView("inheritedRestrictedAuthTools",inheritedRestrictedAuthToolsModel){
 			private static final long serialVersionUID = 1L;
 			@Override
-			protected void populateItem(ListItem<ListOptionSerialized> item) {
+			protected void populateItem(final ListItem item) {
 				ListOptionSerialized tool = (ListOptionSerialized) item.getModelObject();
 				Label name = new Label("name", tool.getName());
 				item.add(name);
@@ -136,13 +136,13 @@ public class EditablePanelListInherited extends Panel{
 		};
 		inheritedAuthListView.setOutputMarkupId(true);
 		inheritedSpan.add(inheritedAuthListView);
-		
+
 		//public:
-		
-		final ListView<ListOptionSerialized> inheritedPublicListView = new ListView<ListOptionSerialized>("inheritedRestrictedPublicTools",inheritedRestrictedPublicToolsModel){
+
+		final ListView inheritedPublicListView = new ListView("inheritedRestrictedPublicTools",inheritedRestrictedPublicToolsModel){
 			private static final long serialVersionUID = 1L;
 			@Override
-			protected void populateItem(ListItem<ListOptionSerialized> item) {
+			protected void populateItem(ListItem item) {
 				ListOptionSerialized tool = (ListOptionSerialized) item.getModelObject();
 				Label name = new Label("name", tool.getName());
 				item.add(name);
@@ -170,25 +170,26 @@ public class EditablePanelListInherited extends Panel{
 		};
 		inheritedPublicListView.setOutputMarkupId(true);
 		inheritedSpan.add(inheritedPublicListView);
-		
-		
-		AjaxLink<Void> inheritedToolsLink = new AjaxLink<Void>("inheritedToolsLink"){
-			private static final long serialVersionUID = 1L;
-			@Override
-			public void onClick(AjaxRequestTarget target) {
-				if(!loadedFlag){
-					loadedFlag = true;
-					inheritedAuthListView.setDefaultModel(inheritedRestrictedAuthToolsModel);
-					inheritedPublicListView.setDefaultModel(inheritedRestrictedPublicToolsModel);
-					target.add(inheritedSpan);
-				}
-				target.appendJavaScript("document.getElementById('" + inheritedSpanId + "').style.display='';");
-			}
-		};
-		
+
+
+		AjaxLink<Void> inheritedToolsLink = new AjaxLink<>("inheritedToolsLink") {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public void onClick(AjaxRequestTarget target) {
+                if (!loadedFlag) {
+                    loadedFlag = true;
+                    inheritedAuthListView.setDefaultModel(inheritedRestrictedAuthToolsModel);
+                    inheritedPublicListView.setDefaultModel(inheritedRestrictedPublicToolsModel);
+                    target.add(inheritedSpan);
+                }
+                target.appendJavaScript("document.getElementById('" + inheritedSpanId + "').style.display='';");
+            }
+        };
+
 		add(inheritedToolsLink);
-		
-		AjaxLink<Void> closeInheritedSpanLink = new AjaxLink<Void>("closeInheritedSpanLink") {
+
+		AjaxLink<Void> closeInheritedSpanLink = new AjaxLink<>("closeInheritedSpanLink") {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void onClick(AjaxRequestTarget target) {
@@ -199,10 +200,11 @@ public class EditablePanelListInherited extends Panel{
 
 		Label inheritedNodeTitle = new Label("inheritedNodeTitle", nodeModel.getNode().title);
 		inheritedSpan.add(inheritedNodeTitle);
-		
-		
-		
-		Label noInheritedToolsLabel = new Label("noToolsInherited", new StringResourceModel("inheritedNothing", null)){
+
+
+
+		Label noInheritedToolsLabel = new Label("noToolsInherited", new StringResourceModel("inheritedNothing")){
+			@Override
 			public boolean isVisible() {
 				if(loadedFlag){
 					List<ListOptionSerialized> inheritedOptions = null;
@@ -229,7 +231,7 @@ public class EditablePanelListInherited extends Panel{
 			};
 		};
 		inheritedSpan.add(noInheritedToolsLabel);
-		
+
 		Label authHeader = new Label("authHeader", new ResourceModel(".auth")){
 			@Override
 			public boolean isVisible() {
@@ -244,9 +246,5 @@ public class EditablePanelListInherited extends Panel{
 			}
 		};
 		inheritedSpan.add(publicHeader);
-	}
-	
-	public boolean isLoadedFlag() {
-		return loadedFlag;
 	}
 }

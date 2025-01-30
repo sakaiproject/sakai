@@ -103,8 +103,8 @@ public class RubricGradePanel extends BasePanel {
 
         final GbAjaxButton submit = new GbAjaxButton("submit") {
             @Override
-            public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                target.appendJavaScript(String.format("GbGradeTable.instance.setDataAtCell(rubricGradingRow, rubricGradingCol, rubricGradingPoints.toString());", studentUuid, assignmentId));
+            public void onSubmit(final AjaxRequestTarget target) {
+                target.appendJavaScript(String.format("GbGradeTable.instance.getRows()[rubricGradingRow].getCells()[rubricGradingCol].setValue(rubricGradingPoints.toString());", studentUuid, assignmentId));
                 RubricGradePanel.this.window.close(target);
             }
         };
@@ -114,14 +114,14 @@ public class RubricGradePanel extends BasePanel {
 
         final GbAjaxButton cancel = new GbAjaxButton("cancel") {
             @Override
-            public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+            public void onSubmit(final AjaxRequestTarget target) {
                 RubricGradePanel.this.window.close(target);
             }
         };
         cancel.setVisible(!assignment.getExternallyMaintained());
         final GbAjaxButton closeViewer = new GbAjaxButton("closeViewer") {
             @Override
-            public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+            public void onSubmit(final AjaxRequestTarget target) {
                 RubricGradePanel.this.window.close(target);
             }
         };
@@ -136,15 +136,13 @@ public class RubricGradePanel extends BasePanel {
         add(form);
 
         this.window.setInitialWidth(1100);
-        RubricGradePanel.this.window.setTitle(new StringResourceModel("rubrics.option.graderubric.for", null, new Object[] { student.getDisplayName(), student.getDisplayId() }));
+        RubricGradePanel.this.window.setTitle(new StringResourceModel("rubrics.option.graderubric.for").setParameters(student.getDisplayName(), student.getDisplayId()));
     }
 
+    @Override
 	public void renderHead(final IHeaderResponse response) {
-
 		final String version = PortalUtils.getCDNQuery();
 		response.render(StringHeaderItem.forString(
-			"<script src=\"/webcomponents/rubrics/sakai-rubrics-utils.js" + version + "\"></script>"));
-		response.render(StringHeaderItem.forString(
-			"<script type=\"module\" src=\"/webcomponents/rubrics/rubric-association-requirements.js" + version + "\"></script>"));
+			"<script type=\"module\" src=\"/webcomponents/bundles/rubric-association-requirements.js" + version + "\"></script>"));
     }
 }

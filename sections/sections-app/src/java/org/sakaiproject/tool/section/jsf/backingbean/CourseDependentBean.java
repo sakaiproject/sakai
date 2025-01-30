@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.faces.context.FacesContext;
 
@@ -155,6 +156,19 @@ public class CourseDependentBean extends InitializableBean implements Serializab
 	}
 	public String getSiteRole() {
 		return getCourseBean().authz.getRoleDescription(getUserUid(), getSiteContext());
+	}
+
+	protected boolean canManageAnySection() {
+		return (isSuperUser() || (getSiteInstructors().stream()
+				.map(s -> s.getUser().getUserUid()).collect(Collectors.toList()).contains(getUserUid())));
+	}
+	protected boolean canManageSection(String sectionUid) {
+		return ((canManageAnySection()) || (getSectionTeachingAssistantsMap().get(sectionUid).stream()
+				.anyMatch(s -> s.getUser().getUserUid().equals(getUserUid()))));
+	}
+
+	public boolean isSuperUser() {
+		return getCourseBean().authz.isSuperUser();
 	}
 
 }

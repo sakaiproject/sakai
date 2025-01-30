@@ -1,7 +1,6 @@
 /**************************************************************************************
  *                    Gradebook Settings Javascript
  *************************************************************************************/
-
 /**************************************************************************************
  * A GradebookCategorySettings to encapsulate all the category settings features
  */
@@ -16,26 +15,28 @@ function GradebookCategorySettings($container) {
   }
 }
 
-
 GradebookCategorySettings.prototype.setupSortableCategories = function() {
-  var self = this;
+
+  const self = this;
 
   // setup jQuery sortable on rows
-  self.$table.find("tbody").sortable({
-      handle: ".gb-category-sort-handle",
-      helper: function(e, ui) {
-                ui.children().each(function() {
-                  $(this).width($(this).width());
-                });
-                return ui;
-              },
-      placeholder: "gb-category-sort-placeholder",
-      update: $.proxy(self.updateCategoryOrders, self)
-    });
+  self.$table.find("tbody").ksortable({
+    handle: ".gb-category-sort-handle",
+    itemClass: ".gb-category-row",
+    helper: function(e, ui) {
+              ui.children().each(function() {
+                $(this).width($(this).width());
+              });
+              return ui;
+            },
+    placeholder: "gb-category-sort-placeholder",
+    stop: $.proxy(self.updateCategoryOrders, self)
+  });
 };
 
 GradebookCategorySettings.prototype.setupKeyboardSupport = function() {
-  var self = this;
+
+  const self = this;
 
   self.$table.on("keydown", ":text", function(event) {
     // add new row upon return
@@ -51,7 +52,7 @@ GradebookCategorySettings.prototype.setupKeyboardSupport = function() {
 
 GradebookCategorySettings.prototype.focusLastRow = function() {
   // get the first input#text in the last row of the table
-  var $input = this.$table.find(".gb-category-row:last :text:first");
+  const $input = this.$table.find(".gb-category-row:last :text:first");
   // attempt to set focus
   $input.focus();
   // Wicket may try to set focus on the input last focused before form submission
@@ -78,7 +79,8 @@ function GradebookGradingSchemaSettings($container) {
 }
 
 GradebookGradingSchemaSettings.prototype.setupKeyboardSupport = function() {
-  var self = this;
+
+  const self = this;
 
   $('body').on("keydown", self.tableId, function(event) {
     // add new row upon return
@@ -100,7 +102,7 @@ GradebookGradingSchemaSettings.prototype.addCategoryFunction = function() {
 
 GradebookGradingSchemaSettings.prototype.focusLastRow = function() {
   // get the first input#text in the last row of the table
-  var $input = $('body').find(this.tableId + " .gb-schema-row:last :text:first");
+  const $input = $('body').find(this.tableId + " .gb-schema-row:last :text:first");
   // attempt to set focus
   $input.focus();
   // Wicket may try to set focus on the input last focused before form submission
@@ -118,11 +120,9 @@ GradebookGradingSchemaSettings.prototype.getFocusedCell = function() {
 GradebookGradingSchemaSettings.prototype.focusPreviousCell = function() {
 
   // This is a trick to focus the previous focused cell after table re-render
-  var cellName = sakai.gradebookng.settings.gradingschemas.cellName;
-  var inputSameName = document.querySelector(`#table-grading-schema input[name="${cellName}"]`);
-  if (inputSameName) {
-    inputSameName.focus();
-  }
+  const cellName = sakai.gradebookng.settings.gradingschemas.cellName;
+  const inputSameName = document.querySelector(`#table-grading-schema input[name="${cellName}"]`);
+  inputSameName?.focus();
   sakai.gradebookng.settings.gradingschemas.cellName = '';
 }
 
@@ -142,4 +142,17 @@ $(function() {
   sakai.gradebookng = {
     settings: new GradebookSettings($("#gradebookSettings"))
   };
+});
+
+window.addEventListener("DOMContentLoaded", e => {
+
+	const triggers = document.querySelectorAll("#gradebookSettings .accordion-collapse");
+
+  document.getElementById("gb-settings-expand-all")?.addEventListener("click", e => {
+		triggers.forEach(el => bootstrap.Collapse.getOrCreateInstance(el)?.toggle());
+  });
+
+  document.getElementById("gb-settings-collapse-all")?.addEventListener("click", e => {
+		triggers.forEach(el => bootstrap.Collapse.getOrCreateInstance(el)?.toggle());
+  });
 });

@@ -47,7 +47,7 @@ public class IPAddrUtil
 	 */
 	public static boolean matchIPList(String addrlist, String addr)
 	{
-		log.info("Checking login IP '" + addr + "' is contained in whitelist '" + addrlist + "'");
+        log.info("Checking login IP '{}' is contained in whitelist '{}'", addr, addrlist);
 
 		// TODO Support IPv6
 
@@ -56,18 +56,18 @@ public class IPAddrUtil
 
 		boolean match = false;
 
-		for (String netaddr : Arrays.asList(addrlist.split(","))) {
+		for (String netaddr : addrlist.split(",")) {
 			if (netaddr.contains("/")) {
 				// Contained in subnet?
 				try {
 					SubnetUtils.SubnetInfo subnet = new SubnetUtils(netaddr.trim()).getInfo();
 					if (subnet.isInRange(addr)) {
-						log.debug("IP Address " + addr + " is in network range " + subnet.getCidrSignature());
+                        log.debug("IP Address {} is in network range {}", addr, subnet.getCidrSignature());
 						match = true;
 						break;
 					}
 				} catch (IllegalArgumentException e) {
-					log.warn("IP network address '" + netaddr + "' is not a valid CIDR format");
+                    log.warn("IP network address '{}' is not a valid CIDR format", netaddr);
 				}
 			} else {
 				// Exact match?

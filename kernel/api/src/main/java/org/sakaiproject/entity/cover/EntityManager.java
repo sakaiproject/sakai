@@ -23,6 +23,7 @@ package org.sakaiproject.entity.cover;
 
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.EntityProducer;
+import org.sakaiproject.entity.api.Reference;
 
 /**
  * <p>
@@ -31,6 +32,7 @@ import org.sakaiproject.entity.api.EntityProducer;
  * @deprecated Static covers should not be used in favour of injection or lookup
  * via the component manager. This cover will be removed in a later version of the Kernel
  */
+@Deprecated
 public class EntityManager
 {
 	/**
@@ -42,15 +44,12 @@ public class EntityManager
 	{
 		if (ComponentManager.CACHE_COMPONENTS)
 		{
-			if (m_instance == null)
-				m_instance = (org.sakaiproject.entity.api.EntityManager) ComponentManager
-						.get(org.sakaiproject.entity.api.EntityManager.class);
+			if (m_instance == null) m_instance = ComponentManager.get( org.sakaiproject.entity.api.EntityManager.class);
 			return m_instance;
 		}
 		else
 		{
-			return (org.sakaiproject.entity.api.EntityManager) ComponentManager
-					.get(org.sakaiproject.entity.api.EntityManager.class);
+			return ComponentManager.get(org.sakaiproject.entity.api.EntityManager.class);
 		}
 	}
 
@@ -64,7 +63,7 @@ public class EntityManager
 		service.registerEntityProducer(param0, param1);
 	}
 
-	public static java.util.List<EntityProducer> getEntityProducers()
+	public static java.util.Collection<EntityProducer> getEntityProducers()
 	{
 		org.sakaiproject.entity.api.EntityManager service = getInstance();
 		if (service == null) return null;
@@ -88,7 +87,7 @@ public class EntityManager
 		return service.newReference(param0);
 	}
 
-	public static java.util.List newReferenceList()
+	public static java.util.List<Reference> newReferenceList()
 	{
 		org.sakaiproject.entity.api.EntityManager service = getInstance();
 		if (service == null) return null;
@@ -96,7 +95,7 @@ public class EntityManager
 		return service.newReferenceList();
 	}
 
-	public static java.util.List newReferenceList(java.util.List param0)
+	public static java.util.List<Reference> newReferenceList(java.util.List<Reference> param0)
 	{
 		org.sakaiproject.entity.api.EntityManager service = getInstance();
 		if (service == null) return null;

@@ -4,7 +4,7 @@ const sakaiCalendar = {
   userTimeZone: window.top.portal.user.timezone || 'local',
 
   // Initialize the calendar and attach it to the calendar div.
-  initializeSakaiCalendar (calendarDiv) {
+  initializeSakaiCalendar (calendarDiv, initialDate, initialView) {
     // Get the event color from the skin variables.
     const computedStyle = getComputedStyle(document.querySelector(':root'));
     const eventBackgroundColor = computedStyle.getPropertyValue('--infoBanner-bgcolor', '#e9f5fc');
@@ -12,23 +12,32 @@ const sakaiCalendar = {
     const sakaiOrigin = window.location.origin;
     const siteId = window.top.portal.siteId;
     // We need the updated calendar events, do not cache requests.
-    const requestHeaders = new Headers();
-    requestHeaders.append('pragma', 'no-cache');
-    requestHeaders.append('cache-control', 'no-cache');
     const requestInit = {
       method: 'GET',
-      headers: requestHeaders,
+      headers: {
+        'cache-control': 'no-cache'
+      }
     };
     // Initialize fullcalendar and render it in the calendarDiv.
     this.calendar = new FullCalendar.Calendar(calendarDiv, {
-      initialView: 'timeGridWeek',
+      initialView: this.getDefaultSubview(initialView),
+      initialDate: initialDate,
       timeZone: sakaiCalendar.userTimeZone,
+      aspectRatio: 1.35,
+      scrollTime: '06:00',
+      scrollTimeReset: false,
       displayEventTime: false,
       allDaySlot: false,
+      themeSystem: 'bootstrap5',
       headerToolbar: {
         left: 'prev,next today',
         center: 'title',
         right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+      },
+      buttonIcons: {
+        /*Use of bootstrap5 as themeSystem will expect bootstrap icons and prepend bi bi-*/
+        prev: 'caret-left',
+        next: 'caret-right',
       },
       eventSources: [{
         events: function(event, successCallback, failureCallback) {
@@ -52,7 +61,14 @@ const sakaiCalendar = {
               // Every Sakai Calendar event has to be mapped with a full calendar event.
               // .tz() converts the event to the timezone of the user.
               const startDate = moment(new Date(event.firstTime.time)).tz(sakaiCalendar.userTimeZone).format();
-              const endDate = moment(new Date(event.firstTime.time + event.duration)).tz(sakaiCalendar.userTimeZone).format();
+              let endDate;
+              if (event.lastTime) {
+                // use lastTime if it is a detailed event
+                endDate = moment(new Date(event.lastTime.time + 1000)).tz(sakaiCalendar.userTimeZone).format();
+              } else {
+                // otherwise calculate the endDate using the duration
+                endDate = moment(new Date(event.firstTime.time + event.duration + 1000)).tz(sakaiCalendar.userTimeZone).format();
+              }
               // The calendar event url needs to be a link to view or edit the event.
               const eventReference = event.eventReference;
               const eventLink = new URL(window.location);
@@ -63,13 +79,13 @@ const sakaiCalendar = {
                 url: eventLink.href,
                 title: event.title,
                 start: startDate,
+                end: endDate,
                 site_name: event.siteName,
                 type: event.type,
                 icon: event.eventIcon,
-                event_id:  event.eventId,
+                id:  event.eventId,
                 attachments: event.attachments,
-                eventReference: event.eventReference,
-                end: endDate
+                eventReference: event.eventReference
               });
             });
             successCallback(events);
@@ -119,6 +135,14 @@ const sakaiCalendar = {
   gotoDate (currentDate) {
     this.calendar.gotoDate(currentDate);
   },
+  
+  setScrollTime (scrollTimeParam) {
+	this.calendar.scrollToTime(scrollTimeParam);
+  },
+  
+  setAspectRatio (aspectRatio) {
+	this.calendar.setOption('aspectRatio', aspectRatio);
+  },
 
     // When the user changes the view, reflect the change in a param to set the default view.
   onChangeCalendarView () {
@@ -133,26 +157,27 @@ const sakaiCalendar = {
       changeDefaultViewButton[0].removeAttribute('disabled');
     }
   },
-
-  // This logic is associated to set the default subview, by day, month, week or list.
-  setDefaultSubview (defaultSubview) {
+  // This logic is associated to get the default subview value for day, month, week or list.
+  getDefaultSubview (defaultSubview) {
+    let view;
     switch (defaultSubview) {
       case 'day':
-        this.calendar.changeView('timeGridDay');
+        view = 'timeGridDay';
         break;
       case 'month':
-        this.calendar.changeView('dayGridMonth');
+        view = 'dayGridMonth';
         break;
       case 'list':
-        this.calendar.changeView('listWeek');
+        view = 'listWeek';
         break;
       case 'week':
       default:
-        this.calendar.changeView('timeGridWeek');
+        view = 'timeGridWeek';
     }
 
     document.querySelectorAll('.fc-timeGridWeek-button, .fc-dayGridMonth-button, .fc-timeGridDay-button, .fc-listWeek-button').forEach( (viewButton) => viewButton.setAttribute('onclick', 'sakaiCalendar.onChangeCalendarView();'));
 
+    return view;
   },
 
   printCalendar (printableVersionUrl) {

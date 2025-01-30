@@ -27,15 +27,34 @@
         $('#filterByGroup').multiselect({
             enableFiltering: true,
             filterPlaceholder: '$tlang.getString("listassig.searchgroup")',
-            enableCaseInsensitiveFiltering: true
+            enableCaseInsensitiveFiltering: true,
+            templates: {
+                button: `
+                    <button type="button"
+                            class="select multiselect"
+                            data-bs-toggle="dropdown">
+                        <span class="multiselect-selected-text"></span>
+                    </button>
+                `,
+                filter: `
+                    <div class="multiselect-filter d-flex align-items-center"><i class="fa fa-sm fa-search text-muted"></i><input type="search" class="multiselect-search form-control" /></div>
+                `,
+            },
         });
+        ASN.checkIframeTags();
+
+        // Initialize tag selector
+        #if ($!view.equals('lisofass1') && $!tagsEnabled && ($!allowAddTags || $!show_tags_student) && ($!assignments.hasNext() || $!tag_selector))
+            window.syncTagSelectorInput("tag-selector", "tag_selector");
+        #end
     });
 </script>
 
 <div class="portletBody container-fluid">
-	#if ($allowAddAssignment || ($withGrade && $!allowGradeSubmission))
+
+	#if ($allowAddAssignment || $!allowGradeSubmission)
 		## for user who cannot create assignment nor grade submission, no need to show "Assignment List" link at all since there is really no other toolbar choices
-		#navBarHREF( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "" )
+		#navBarHREF( $allowAddAssignment $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "" )
 	#end
 	#if ($alertMessage)<div class="sak-banner-error"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div>#end
 
@@ -43,6 +62,33 @@
 		<h1>
 			$!tlang.getString('lisofass1')
 		</h1>
+	</div>
+
+	<div class="sakai-table-toolBar mb-3">
+		<div id="tagSection" class="pe-lg-3 w-100" >
+		#if ($!view.equals('lisofass1') && $!tagsEnabled && ($!allowAddTags || $!show_tags_student) && ($!assignments.hasNext() || $!tag_selector))
+			<form id="tagFilterForm" name="tagFilterForm" class="d-flex gap-1" method="post" action="#toolForm("AssignmentAction")">
+				<input hidden id="tag_selector" name="tag_selector" />
+				<input type="hidden" name="eventSubmit_doSearchTags" value="tag_selector" />
+				
+				<div class="flex-grow-1">
+					<sakai-tag-selector id="tag-selector" selected-temp="$!tag_selector" collection-id="$siteId" add-new="false" extra-options="$allTaggedGroupsAndInstructors" tag-tool="$!tagTool" site-id="$siteId"></sakai-tag-selector>
+				</div>
+				<div  class="">
+					<input type="submit" id="btnSearchTags1" value="$tlang.getString("tags_search")" accesskey="t"
+							onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'tagFilterForm', null, null, null ); return false;" />
+					#if ($!tag_selector)
+					<input type="submit" id="btnSearchTagsClear" value="$tlang.getString("search_clear")" accesskey="c"
+							onclick="SPNR.disableControlsAndSpin( this, null ); ASN.clearShadowTags(); ASN.submitForm( 'tagFilterForm', null, null, null ); return false;" />
+					#end
+					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+				</div>
+			</form>
+		#end
+		</div>
+		<div class="mb-auto">
+			#searchFilterPanel("$form_search", $searchString, "doView_assignments_list_search", "doView_assignments_list_search_clear")
+		</div>
 	</div>
 
 	#if ($allowAddAssignment)
@@ -55,10 +101,9 @@
 
 	<div class="sakai-table-toolBar">
 		#if($!groupFilterEnabled && $!filterGroupIterator.hasNext())
-		<div class="sakai-table-filterContainer">
+		<div class="sakai-table-filterGroupContainer">
 			<div class="row" id="filterByGroupDiv">
-				<div class="col-md-12">
-				<form id="groupFilterForm" name="groupFilterForm" class="inlineForm" method="post" action="#toolForm("AssignmentAction")">
+				<form id="groupFilterForm" name="groupFilterForm" class="inlineForm col-md-12" method="post" action="#toolForm("AssignmentAction")">
 					<input type="hidden" name="eventSubmit_doFilterByGroup" value="filterByGroup" />
 					<label for="groupFilter">
 						$!tlang.getString("listassig.filterbygroup")
@@ -72,7 +117,6 @@
 					</select>
 					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 				</form>
-				</div>
 			</div>
 		</div>
 		#end
@@ -92,11 +136,9 @@
 				</form>
 			</div>
 		</div>
-		#if ($hasAssignments)
-			<div class="sakai-table-pagerContainer">
-				#pagerPanel("pager1")
-			</div>
-		#end
+		<div class="sakai-table-pagerContainer">
+			#pagerPanel("pager1")
+		</div>
 	</div>
 
 	#if (!$!hasAssignments)
@@ -106,7 +148,7 @@
 	#else
 
 	<form name="listAssignmentsForm" action="#toolForm("$action")" method="post">
-		<div class="table-responsive">
+		<div class="table">
 			<input type="hidden" name="source" value="0" />
 			<table class="table table-hover table-striped table-bordered" summary="$tlang.getString("gen.ass.lis.sum")">
 				<tr>
@@ -123,7 +165,7 @@
 						</a>
 					</th>
 					#if ($!allowGradeSubmission)
-						<th id="$tlang.getString('gen.visible')" scope="col" class="hidden-xs">
+						<th id="$tlang.getString('gen.visible')" scope="col" class="d-none d-sm-table-cell">
 							#if (!$sortedBy.equalsIgnoreCase("$tlang.getString('gen.visible')"))
 								<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=for")'; return false;"   title="$tlang.getString('gen.sortbyfor')">$tlang.getString("gen.visible")</a>
 							#else
@@ -147,7 +189,12 @@
 							#end
 						</a>
 					</th>
-					<th id="openDate" scope="col" class="hidden-xs">
+					#if ($allowAddAssignment == false)
+						<th id="grade" scope="col">
+							$tlang.getString("grade.title")
+						</th>
+					#end
+					<th id="openDate" scope="col" class="d-none d-sm-table-cell">
 						<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=opendate")'; return false;"  title="$tlang.getString("listassig.sorbyope")">
 							$tlang.getString("newassig.opedat")
 							#if ($sortedBy.equals("opendate"))
@@ -171,7 +218,7 @@
 							#end
 						</a>
 					</th>
-					<th id="lastModifiedUser" class="hidden-xs">
+					<th id="lastModifiedUser" class="d-none d-sm-table-cell">
 						<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=modifieduser")'; return false;"  title="$tlang.getString("gen.sorbymodusr")">
 							$tlang.getString("gen.mod.user")
 							#if ($sortedBy.equals("modifieduser"))
@@ -183,7 +230,7 @@
 							#end
 						</a>
 					</th>
-					<th id="lastModifiedDate" class="hidden-xs">
+					<th id="lastModifiedDate" class="d-none d-sm-table-cell">
 						<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=modifieddate")'; return false;"  title="$tlang.getString("gen.sorbymoddat")">
 							$tlang.getString("gen.mod.date")
 							#if ($sortedBy.equals("modifieddate"))
@@ -216,7 +263,7 @@
 					#if ($!allowGradeSubmission)
 						#if ($!view.equals('lisofass1'))
 						#if ($!showNumSubmissionColumn)
-						<th id="num_submissions" scope="col" class="hidden-xs">
+						<th id="num_submissions" scope="col" class="d-none d-sm-table-cell">
 							<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=num_submissions")'; return false;"   title="$tlang.getString("listassig.sorbynum1")">$tlang.getString("gen.in")</a>
 								#if ($sortedBy.equals("num_submissions"))
 									<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=num_submissions")'; return false;"   title="$tlang.getString("listassig.sorbynum1")">
@@ -242,8 +289,8 @@
 						#end
 						#end
 					#end
-					#if ($withGrade && $!allowGradeSubmission)
-						<th id="maxgrade" scope="col" class="hidden-xs">
+					#if ($!allowGradeSubmission)
+						<th id="maxgrade" scope="col" class="d-none d-sm-table-cell">
 							<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=max_grade")'; return false;"   title="$tlang.getString("gen.sorbymax")">
 								$tlang.getString("gen.sca")
 								#if ($sortedBy.equals("max_grade"))
@@ -256,9 +303,14 @@
 							</a>
 						</th>
 					#end
+					#if ($!tagsEnabled && ($!allowAddTags || $!show_tags_student))
+						<th id="tags" scope="col" class="hidden-xs">
+							<span>$tlang.getString('tags_header')</span>
+						</th>
+					#end
 					#if ($!allowRemoveAssignment && $!view.equals('lisofass1'))
 						<th id="remove" scope="col">
-							<span class="hidden-xs">$tlang.getString("gen.remove.q")</span>
+							<span class="d-none d-sm-table-cell">$tlang.getString("select")</span>
 						</th>
 					#end
 				</tr>
@@ -301,8 +353,11 @@
 										#if ($rubricMap.containsKey($assignment.getId()))
 										<sakai-rubric-student-button
 											force-preview
+											dont-check-association
 											rubric-id="$rubricMap.get($assignment.getId())"
 											site-id="$assignment.getContext()"
+											tool-id="sakai.assignment.grades"
+											entity-id="$assignment.Id"
 											instructor="true">
 										</sakai-rubric-student-button>
 										#end
@@ -330,7 +385,7 @@
 										#if (!$assignment.Draft && $!service.allowGradeSubmission($assignmentReference))#if($prevAction) |#end
 										#set ($gradeScale = $assignment.TypeOfGrade.ordinal())
 										## show "view submissions" link for ungraded type of assignment
-											<a name="asnActionLink" href="javascript:void(0)" onclick="if(ASN.allowClick(this)){ SPNR.insertSpinnerInPreallocated( this, null, 'linksSpinnerPlaceholder_$formattedText.escapeUrl($assignmentReference)' ); window.location='#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$formattedText.escapeUrl($assignmentReference)")'; }" >#if ($withGrade && $gradeScale != 1)$!tlang.getString("gen.assign.gra")#else$!tlang.getString("viewsubmissions")#end<span class="skip"> $formattedText.escapeHtml($!assignment.getTitle())</span></a>
+											<a name="asnActionLink" href="javascript:void(0)" onclick="if(ASN.allowClick(this)){ SPNR.insertSpinnerInPreallocated( this, null, 'linksSpinnerPlaceholder_$formattedText.escapeUrl($assignmentReference)' ); window.location='#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$formattedText.escapeUrl($assignmentReference)")'; }" >#if ($gradeScale != 1)$!tlang.getString("gen.assign.gra")#else$!tlang.getString("viewsubmissions")#end<span class="skip"> $formattedText.escapeHtml($!assignment.getTitle())</span></a>
 										#end
 										<div id="linksSpinnerPlaceholder_$formattedText.escapeUrl($assignmentReference)" class="allocatedSpinPlaceholder"></div>
 									</div>
@@ -403,46 +458,12 @@
 
 										## SAK-21525 END
 										#if($allowSubmit)
-											## for those who can submit
-											#if ($submission)
-												## is there a submission already?
-												#set($allowResubmitNumber=$!submissionProperties.getProperty($!allowResubmitNumberProp))
-												#if(!$!allowResubmitNumber.equals("0"))
-													#set($allowResubmitCloseTimeString=$!submissionProperties.getProperty($!allowResubmitCloseTimeProp))
-													#if($!allowResubmitCloseTimeString)
-														#set($allowResubmitCloseTime=$!TimeService.newTime($!LongObject.parseLong($!allowResubmitCloseTimeString)))
-													#end
-												#end
-												## if not submitted or returned and still allowed to submit within the due time
-												#if ($service.canSubmit($assignment))
-													## if assignment honor pledge is enabled and the student hasn't agreed
-													#if ($assignment.HonorPledge && !$submission.HonorPledge)
-                                                        <a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_assignment_honorPledge" "assignmentReference=$formattedText.escapeUrl($assignmentReference)")" title="$formattedText.escapeHtml($!assignment.Title)">$formattedText.escapeHtml($assignment.Title)</a>
-													#else
-														## go to view submission page when (1) submission has been returned and allow for resubmit;(2)submission has not been posted yet.
-														<strong>
-															<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$formattedText.escapeUrl($assignmentReference)")" title="$formattedText.escapeHtml($!assignment.Title)">$formattedText.escapeHtml($assignment.Title)</a>
-															#assignmentIcons($assignment)
-														</strong>
-													#end
-												#else
-													<strong>
-														<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_grade" "submissionId=$formattedText.escapeUrl($submissionReference)")" title="$formattedText.escapeHtml($!assignment.Title)">$formattedText.escapeHtml($assignment.Title)</a>
-														#assignmentIcons($assignment)
-													</strong>
-												#end
-											#else
-												<strong>
-													#if ($assignment.HonorPledge && $service.canSubmit($assignment))
-														<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_assignment_honorPledge" "assignmentReference=$formattedText.escapeUrl($assignmentReference)")" title="$formattedText.escapeHtml($!assignment.Title)">$formattedText.escapeHtml($assignment.Title)</a>
-													#else
-                                                    	<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$formattedText.escapeUrl($assignmentReference)")" title="$formattedText.escapeHtml($!assignment.Title)">$formattedText.escapeHtml($assignment.Title)</a>
-													#end
-													#assignmentIcons($assignment)
-												</strong>
-											#end
+											<strong>
+												<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$formattedText.escapeUrl($assignmentReference)")" title="$formattedText.escapeHtml($!assignment.Title)">$formattedText.escapeHtml($assignment.Title)</a>
+												#assignmentIcons($assignment)
+											</strong>
 											#set($submissionId="undefined")
-											#if ($submission.Graded && ($submission.GradeReleased || $submission.Returned))
+											#if ($submission && $submission.Graded && ($submission.GradeReleased || $submission.Returned))
 												#set($submissionId=$submission.Id)
 											#end
 										    #if ($rubricMap.containsKey($assignment.getId()))
@@ -450,6 +471,11 @@
 												site-id="$assignment.getContext()"
 												tool-id="sakai.assignment.grades"
 												evaluated-item-id="$submissionId"
+												#if($!assignment.IsGroup)
+													evaluated-item-owner-id="$submission.GroupId"
+												#else
+													evaluated-item-owner-id="$user.getId()"
+												#end
 												entity-id="$assignment.Id">
 											</sakai-rubric-student-button>
 											#end
@@ -496,7 +522,7 @@
 								#end
 							</td>
 						#if ($!allowGradeSubmission)
-							<td headers="for" class="hidden-xs">
+							<td headers="for" class="d-none d-sm-table-cell">
 								#if($assignment.TypeOfAccess == "SITE")
 									$tlang.getString("gen.viewallgroupssections")
 								#else
@@ -520,7 +546,7 @@
 									#end
 								#end
 							</td>
-							#end
+						#end
 							<td headers="status">
 								#if ($allowAddAssignment && $!view.equals('lisofass1'))
 								   $!service.getAssignmentStatus($assignment.Id)
@@ -529,12 +555,34 @@
 										#set ($submissionId = $submission.Id)
 									#end
 									$!service.getSubmissionStatus($!submissionId, true)
-									#if ($assignment.DueDate && $submission.DateSubmitted && $submission.DateSubmitted.isAfter($assignment.DueDate))
-										<span class="highlight">$tlang.getString("gen.late2")</span>
-									#end
 								#end
 							</td>
-							<td headers="openDate" class="hidden-xs">
+							#if ($allowAddAssignment == false)
+								<td headers="grade">
+									#if ($submission)
+										#set ($gradeForSubmitter = $service.getGradeForSubmitter($submission, $user.getId()))
+									#else
+										#set ($gradeForSubmitter = "")
+									#end
+									#if ($submission.Graded && ($submission.GradeReleased || $submission.Returned))
+										#if ((($service.getSubmissionStatus($submission.Id, false) == $tlang.getString("gen.returned")) || ($service.getSubmissionStatus($submission.Id, false) == $tlang.getString("gen.pending_resubmit"))) && $submission.grade)
+											#if ($gradeForSubmitter.equals(""))
+												<span>$tlang.getString("unchecked")</span>
+												<span>$gradeForSubmitter</span>
+											#else
+												<span>$gradeForSubmitter#if ($assignment.TypeOfGrade.ordinal() == 3)/$service.getMaxPointGradeDisplay($assignment.ScaleFactor, $assignment.MaxGradePoint)#end</span>
+											#end
+										#else
+											#if ($gradeForSubmitter.equals("") || ($service.getSubmissionStatus($submission.Id) == $tlang.getString("gen.notsta")))
+												<span>-#if ($assignment.TypeOfGrade.ordinal() == 3)/$service.getMaxPointGradeDisplay($assignment.ScaleFactor, $assignment.MaxGradePoint)#end</span>
+											#else
+												<span>$gradeForSubmitter#if ($assignment.TypeOfGrade.ordinal() == 3)/$service.getMaxPointGradeDisplay($assignment.ScaleFactor, $assignment.MaxGradePoint)#end</span>
+											#end
+										#end
+									#end
+								</td>
+							#end
+							<td headers="openDate" class="d-none d-sm-table-cell">
 								$!service.getUsersLocalDateTimeString($!assignment.OpenDate)
 							</td>
 							<td headers="dueDate">
@@ -543,12 +591,12 @@
 								<span class="highlight">$!service.getUsersLocalDateTimeString($!assignment.DueDate)</span>
 							#end
 							</td>
-							<td headers="lastModifiedUser" class="hidden-xs">
+							<td headers="lastModifiedUser" class="d-none d-sm-table-cell">
 							#if ($!assignment.Modifier)
-								<span>$!userDirectoryService.getUser($!assignment.Modifier).getDisplayName()</span>
+								<span>$!service.getAssignmentModifier($!assignment.Modifier)</span>
 							#end
 							</td>
-							<td headers="lastModifiedDate" class="hidden-xs">
+							<td headers="lastModifiedDate" class="d-none d-sm-table-cell">
 								<span>$!service.getUsersLocalDateTimeString($!assignment.DateModified)</span>
 							</td>
 							#if ($!isTimesheet)
@@ -581,14 +629,14 @@
 							#if ($!allowGradeSubmission)
 								#if ($!view.equals('lisofass1'))
 								#if ($!showNumSubmissionColumn)
-								<td headers="num_submissions" class="specialLink hidden-xs">
+								<td headers="num_submissions" class="specialLink d-none d-sm-table-cell">
 								## not show the link for draft assignment
 								#if (!$assignment.Draft && $!service.allowGradeSubmission($assignmentReference))
 									#set($ungradedNumber = $!service.countSubmissions($assignmentReference, false))
 									#set($totalNumber = $!service.countSubmissions($assignmentReference, null))
 									<div class="spinnerBesideContainer">
 										<a name="asnActionLink" href="javascript:void(0)" onclick="if(ASN.allowClick(this)){ SPNR.insertSpinnerAfter( this, null, null ); window.location='#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$formattedText.escapeUrl($assignmentReference)")'; }" >
-											<span class="skip"> #if ($withGrade && $gradeScale != 1)$!tlang.getString("gen.assign.gra")#else$!tlang.getString("viewsubmissions")#end : $formattedText.escapeHtml($!assignment.Title). </span> <span class="skip">$!tlang.getString("gen.subm2"): </span>$!totalNumber/<span class="skip">$!tlang.getString("ungra"): </span>$!ungradedNumber
+											<span class="skip"> #if ($gradeScale != 1)$!tlang.getString("gen.assign.gra")#else$!tlang.getString("viewsubmissions")#end : $formattedText.escapeHtml($!assignment.Title). </span> <span class="skip">$!tlang.getString("gen.subm2"): </span>$!totalNumber/<span class="skip">$!tlang.getString("ungra"): </span>$!ungradedNumber
 										</a>
 									</div>
 								#end
@@ -596,8 +644,8 @@
 								#end
 								#end
 							#end
-							#if ($withGrade && $!allowGradeSubmission)
-							<td headers="maxgrade" class="hidden-xs">
+							#if ($!allowGradeSubmission)
+							<td headers="maxgrade" class="d-none d-sm-table-cell">
 									#set ($gradeScale = $assignment.TypeOfGrade.ordinal())
 									#if ($gradeScale == 0)
 										## Grade type not set
@@ -616,9 +664,18 @@
 										$tlang.getString("gen.pf")
 									#elseif ($gradeScale == 5)
 										## Grade type that only requires a check
-										<img src="#imageLink("sakai/checkon.gif")" border="0" alt="Checkmark" />
+										<span class="si si-check fs-3" aria-label="$tlang.getString("check")" />
 									#end
 							</td>
+							#end
+							#if ($!tagsEnabled && ($!allowAddTags || $!show_tags_student))
+								<td class="tag-header hidden-xs">
+								#if ($tagsMap.containsKey($assignment.getId()))
+									#foreach($tag in $tagsMap.get($assignment.getId()))
+										<span class="badge bg-info">$tag</span>
+									#end
+								#end
+								</td>
 							#end
 							#if ($!allowRemoveAssignment && $!view.equals('lisofass1'))
 								<td headers="remove" class="screenOnly">
@@ -636,7 +693,11 @@
 								<!-- title col -->
 								<td class="peer-header">
 									<strong title="$formattedText.escapeHtml($!assignment.Title)"><span class="fa fa-caret-square-o-right" aria-hidden="true"></span> $formattedText.escapeHtml($assignment.Title)</strong>
-									<em>$tlang.getString("peerAssessmentName")</em>
+									#if ($assignment.IsGroup)
+										$tlang.getFormattedMessage("peerAssessmentName", $tlang.getString("peerAssessmentGroups"))
+									#else
+										$tlang.getFormattedMessage("peerAssessmentName", $tlang.getString("peerAssessmentStudents"))
+									#end
 								</td>
 								#if ($!allowGradeSubmission)
 									<!-- scope col -->
@@ -692,14 +753,17 @@
 										$tlang.getString("peerassessment.submissionReq")
 									#end
 								</td>
+								<td>-</td>
 								<!-- open col -->
-								<td>
+								<td headers="openDate" class="d-none d-sm-table-cell">
 									$!service.getUsersLocalDateTimeString($!assignment.CloseDate)
 								</td>
 								<!-- due col -->
 								<td>
 									<span class="highlight">$!service.getUsersLocalDateTimeString($!assignment.PeerAssessmentPeriodDate)</span>
 								</td>
+								<td headers="lastModifiedUser" class="d-none d-sm-table-cell"></td>
+								<td headers="lastModifiedDate" class="d-none d-sm-table-cell"></td>
 								<!-- the following are empty columns as place holders -->
 								#if ($!allowGradeSubmission)
 									#if ($!view.equals('lisofass1'))
@@ -709,9 +773,12 @@
 									#end
 									#end
 								#end
-								#if ($withGrade && $!allowGradeSubmission)
+								#if ($!allowGradeSubmission)
 									<!-- grade scale col -->
 									<td></td>
+								#end
+								#if ($!tagsEnabled && $!show_tags_student)
+									<td class="hidden-xs"></td>
 								#end
 								#if ($!allowRemoveAssignment && $!view.equals('lisofass1'))
 									<!-- remove col -->
@@ -731,10 +798,18 @@
 										<td>
 											<span class="indnt2">
 												#if($review.getSubmitted())
-													$tlang.getFormattedMessage("peerassessment.student", $reviewCount)&nbsp;<img src="/library/image/silk/accept.png"/>
+													#if ($assignment.IsGroup)
+														$tlang.getFormattedMessage("peerassessment.group", $reviewCount)&nbsp;<img alt="$tlang.getString("gen.subm4")" src="/library/image/silk/accept.png"/>
+													#else
+														$tlang.getFormattedMessage("peerassessment.student", $reviewCount)&nbsp;<img alt="$tlang.getString("gen.subm4")" src="/library/image/silk/accept.png"/>
+													#end
 												#else
 													<a name="asnActionLink" href="#toolLinkParam("$action" "doEdit_review" "assignmentId=$formattedText.escapeUrl($assignmentReference)&submissionId=$formattedText.escapeUrl($review.id.SubmissionId)")">
-														$tlang.getFormattedMessage("peerassessment.student", $reviewCount)
+														#if ($assignment.IsGroup)
+															$tlang.getFormattedMessage("peerassessment.group", $reviewCount)
+														#else
+															$tlang.getFormattedMessage("peerassessment.student", $reviewCount)
+														#end
 													</a>
 												#end
 											</span>
@@ -753,12 +828,15 @@
 												$tlang.getString("peerassessment.notStarted")
 											#end
 										</td>
+										<td>-</td>
 										<!-- open col -->
-										<td>
+										<td headers="openDate" class="d-none d-sm-table-cell">
 										</td>
 										<!-- due col -->
 										<td>
 										</td>
+										<td headers="lastModifiedUser" class="d-none d-sm-table-cell"></td>
+										<td headers="lastModifiedDate" class="d-none d-sm-table-cell"></td>
 										<!-- the following are empty columns as place holders -->
 										#if ($!allowGradeSubmission)
 											#if ($!view.equals('lisofass1'))
@@ -768,9 +846,12 @@
 											#end
 											#end
 										#end
-										#if ($withGrade && $!allowGradeSubmission)
+										#if ($!allowGradeSubmission)
 											<!-- grade scale col -->
 											<td></td>
+										#end
+										#if ($!tagsEnabled && $!show_tags_student)
+											<td class="hidden-xs"></td>
 										#end
 										#if ($!allowRemoveAssignment && $!view.equals('lisofass1'))
 											<!-- remove col -->
@@ -790,6 +871,10 @@
 			#if ($!allowRemoveAssignment && $!view.equals('lisofass1'))
 				<p class="act">
 					<input type="submit" id="btnRemove" name="eventSubmit_doDelete_confirm_assignment" value="$tlang.getString("removeSelected")" accesskey="s" disabled="disabled"
+						onclick="SPNR.disableControlsAndSpin( this, null );" />
+					<input type="submit" id="btnPublish" name="eventSubmit_doPublish_confirm_assignment" value="$tlang.getString("publishSelected")" accesskey="s" disabled="disabled"
+						onclick="SPNR.disableControlsAndSpin( this, null );" />
+					<input type="submit" id="btnUnpublish" name="eventSubmit_doUnpublish_confirm_assignment" value="$tlang.getString("unpublishSelected")" accesskey="s" disabled="disabled"
 						onclick="SPNR.disableControlsAndSpin( this, null );" />
 				</p>
 			#end

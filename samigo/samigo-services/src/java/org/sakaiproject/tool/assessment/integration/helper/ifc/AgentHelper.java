@@ -77,21 +77,11 @@ public interface AgentHelper extends Serializable
 
   public Map getUserRolesFromContextRealm(Collection inUsers);
 
-  //cwen
   public String getRoleForAgentAndSite(String agentString, String siteId);
 
   public String getEid(String agentString);
-  public String getEidById(String agentString);
 
-  /**
-   * This is a kludge to work around a JSF scriptlet dependency introduced by cwen
-   * on org.sakaiproject.service.component.cover.ServerConfigurationService.
-   * @todo for 2.2 remove method when done with refactor.
-   * @deprecated
-   *
-   * @return true unless it is turned off
-   */
-  public boolean isFileUploadAvailable();
+  public String getEidById(String agentString);
 
   public String getDisplayId(String agentId);
 }

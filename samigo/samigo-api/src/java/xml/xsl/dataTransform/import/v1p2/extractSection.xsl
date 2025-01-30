@@ -32,6 +32,24 @@
     <questions-ordering>
     <xsl:value-of select="//section/qtimetadata/qtimetadatafield[6]/fieldentry"/>
     </questions-ordering>
+    <pool_id>
+    <xsl:value-of select="//section/qtimetadata/qtimetadatafield[7]/fieldentry"/>
+    </pool_id>
+    <pool_name>
+    <xsl:value-of select="//section/qtimetadata/qtimetadatafield[8]/fieldentry"/>
+    </pool_name>
+    <num_questions>
+    <xsl:value-of select="//section/qtimetadata/qtimetadatafield[9]/fieldentry"/>
+    </num_questions>
+    <randomization_type>
+    <xsl:value-of select="//section/qtimetadata/qtimetadatafield[10]/fieldentry"/>
+    </randomization_type>
+    <point_value>
+    <xsl:value-of select="//section/qtimetadata/qtimetadatafield[11]/fieldentry"/>
+    </point_value>
+    <discount_value>
+    <xsl:value-of select="//section/qtimetadata/qtimetadatafield[12]/fieldentry"/>
+    </discount_value>
   </sectionData>
 </xsl:template>
 

@@ -113,6 +113,7 @@ import org.sakaiproject.importer.impl.XPathHelper;
    *
    * @deprecated using XmlStringBuffer(org.w3c.dom.Document document) instead.
    */
+  @Deprecated
   public XmlStringBuffer(org.jdom.Document jdomDoc)
   {
     try
@@ -134,18 +135,6 @@ import org.sakaiproject.importer.impl.XPathHelper;
     this.reset();
   }
 
-  /**
-   * replace the current xml with the given string
-   *
-   * @param xml XML replacement string
-   *
-   * @deprecated
-   */
-  public final void replace(String xml)
-  {
-    this.xml = new StringBuffer(xml);
-    this.reset();
-  }
 
   /**
    * Get a document
@@ -197,47 +186,7 @@ import org.sakaiproject.importer.impl.XPathHelper;
     }
   }
 
-  /**
-   * parse content to JDOM
-   *
-   * @return JDOM  document
-   *
-   * @throws JDOMException  =
-   * @throws IOException
-   */
-  
-  /*
-  private final org.jdom.Document parseContentToJDOM()
-    throws JDOMException, IOException
-  {
-    if(log.isDebugEnabled())
-    {
-      log.debug("parseContentToJDOM()");
-    }
-
-    String xmlString = this.stringValue();
-    org.jdom.Document result = null;
-    try
-    {
-      SAXBuilder saxbuilder = new SAXBuilder();
-      result = saxbuilder.build(new StringReader(xmlString));
-    }
-    catch(JDOMException ex)
-    {
-      log.error("Exception thrown while parsing XML:\n" + ex.getMessage(), ex);
-      throw ex;
-    }
-    catch(IOException ie)
-    {
-      log.error("Exception thrown while parsing XML:\n" + ie.getMessage(), ie);
-      throw ie;
-    }
-
-    return result;
-  }
-*/
-  
-  /**
+    /**
    * parse the content
    *
    * @throws ParserConfigurationException
@@ -460,7 +409,7 @@ import org.sakaiproject.importer.impl.XPathHelper;
       int size = newElementList.size();
       if(size > 1)
       {
-        log.info("UPDATING MORE THAN ONE ELEMENT");
+        log.debug("UPDATING MORE THAN ONE ELEMENT");
       }
 
       if((aIndex == -1) && (size != 0))
@@ -546,6 +495,7 @@ import org.sakaiproject.importer.impl.XPathHelper;
    *
    * @deprecated addElement(String, org.w3c.dom.Element)
    */
+  @Deprecated
   public final void addJDOMElement(String xpath, org.jdom.Element element)
   {
     try

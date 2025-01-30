@@ -21,9 +21,7 @@
 
 package org.sakaiproject.tool.assessment.data.ifc.assessment;
 
-import java.io.Serializable;
-
-public interface ItemTagIfc extends Serializable {
+public interface ItemTagIfc extends TagIfc {
 
     Long getId();
 
@@ -32,21 +30,5 @@ public interface ItemTagIfc extends Serializable {
     ItemDataIfc getItem();
 
     void setItem(ItemDataIfc item);
-
-    String getTagId();
-
-    void setTagId(String tagId);
-
-    String getTagLabel();
-
-    void setTagLabel(String tagLabel);
-
-    String getTagCollectionId();
-
-    void setTagCollectionId(String tagCollectionId);
-
-    String getTagCollectionName();
-
-    void setTagCollectionName(String tagCollectionName);
 
 }

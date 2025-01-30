@@ -60,6 +60,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
@@ -119,6 +120,7 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.api.SessionState;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdLengthException;
 import org.sakaiproject.exception.IdUniquenessException;
@@ -195,6 +197,8 @@ public class ResourcesAction
 	private static final ToolManager toolManager = ComponentManager.get(ToolManager.class);
 	private static final UserDirectoryService userDirectoryService = ComponentManager.get(UserDirectoryService.class);
 	private static final TimeService timeService = ComponentManager.get(TimeService.class);
+	private static final EventTrackingService eventTrackingService = ComponentManager.get(EventTrackingService.class);
+
 
 	public static final String MSG_KEY_COPYRIGHT_REQ_CHOICE = "copyright.requireChoice";
 	public static final String MSG_KEY_COPYRIGHT_REQ_CHOICE_ERROR = "copyright.requireChoice.error";
@@ -205,8 +209,6 @@ public class ResourcesAction
 
 	private static final org.sakaiproject.content.copyright.api.CopyrightManager copyrightManager = (org.sakaiproject.content.copyright.api.CopyrightManager)
 			ComponentManager.get("org.sakaiproject.content.copyright.api.CopyrightManager");
-
-	private static final ResourceLoader rl = new ResourceLoader("permissions");
 
 	/**
 	 * Action
@@ -581,7 +583,7 @@ public class ResourcesAction
 	
 	protected static final String MODE_MAKE_SITE_PAGE = "make_site_page";
 
-	
+	protected static final String MODE_PERMISSIONS = "permissions_page";
 
 	/** The null/empty string */
 	private static final String NULL_STRING = "";
@@ -855,6 +857,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	private static final String TEMPLATE_REVISE_METADATA = "content/sakai_resources_properties";
 
 	protected static final String TEMPLATE_MAKE_SITE_PAGE = "content/sakai_make_site_page";
+
+	protected static final String TEMPLATE_PERMISSIONS = "content/permissions";
 
 
 	public static final String TYPE_HTML = MIME_TYPE_DOCUMENT_HTML;
@@ -3147,36 +3151,25 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 */
 	protected static Collection<ContentPermissions> getPermissions(String id, Collection<ContentPermissions> inheritedPermissions)
 	{
-		log.debug("ResourcesAction.getPermissions()");
-		// get the site id
+		// determine the site id
 		String siteId = null;
-		Reference ref = entityManager.newReference(id);
-		if (ref != null)
-		{
-			siteId = ref.getContext();
+		if (StringUtils.startsWith(id, ContentHostingService.COLLECTION_SITE)) {
+			siteId = ArrayUtils.get(StringUtils.split(id, Entity.SEPARATOR), 1);
 		}
-		
-		// id may be in format of /group/<site_id>, which leads to null value for the reference context field
-		if (siteId == null && toolManager.getCurrentPlacement() != null)
-		{
-			siteId = toolManager.getCurrentPlacement().getContext();
-		}
-		
-		if (siteId == null)
-		{
-			if (id.startsWith(ContentHostingService.COLLECTION_SITE))
-			{
-				// id starts with "/group/", indicates this is for site resource collection items
-				// if the siteId is still null
-				// find the site root collection id from String operations:
-				String collectionId = id;
-				// collectionId = "/group/<site_id>/<remaining_collection_path>"
-				collectionId= collectionId.replace(ContentHostingService.COLLECTION_SITE, "");
-				// collectionId = "<site_id>/<remaining_collection_path>"
-				siteId = collectionId.substring(0, collectionId.indexOf(Entity.SEPARATOR));
+
+		if (siteId == null) {
+			Reference ref = entityManager.newReference(id);
+			if (ref != null) {
+				siteId = ref.getContext();
 			}
 		}
-		
+
+		if (siteId == null && toolManager.getCurrentPlacement() != null) {
+			siteId = toolManager.getCurrentPlacement().getContext();
+		}
+
+		log.debug("get permissions for id [{}] in context/site [{}]", id, siteId);
+
 		Collection<ContentPermissions> permissions = new ArrayList<>();
 		if(contentHostingService.isCollection(id))
 		{
@@ -4064,15 +4057,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 										SessionState state)
 	{
 		log.debug("{}.buildListContext()", this);
-		// Issue SAK-19442
-		// ... pass the resource loader object
-		HashMap<String, String> pRbValues = new HashMap<>();
-		for(Iterator<Entry<String, String>> mapIter = rl.entrySet().iterator(); mapIter.hasNext();)
-		{
-			Entry<String, String> entry = mapIter.next();
-			pRbValues.put(entry.getKey(), entry.getValue());
-		}
-		state.setAttribute("permissionDescriptions",  pRbValues);
 		
 		// find the ContentTypeImage service
 		context.put ("contentTypeImageService", state.getAttribute (STATE_CONTENT_TYPE_IMAGE_SERVICE));
@@ -4864,18 +4848,49 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		{
 			template = buildMakeSitePageContext(portlet, context, data, state);
 		}
+		else if (mode.equals (MODE_PERMISSIONS))
+		{
+			template = buildPermissionsPageContext(portlet, context, data, state);
+		}
 
 		return template;
 
 	}	// buildMainPanelContext
 
 	public String buildMakeSitePageContext(VelocityPortlet portlet, Context context,
-			RunData data, SessionState state) {	
+			RunData data, SessionState state) {
 		log.debug("{}.buildMakeSitePage()", this);
 		context.put("page", state.getAttribute(STATE_PAGE_TITLE));
 		return TEMPLATE_MAKE_SITE_PAGE;
 	}
-	
+
+	public String buildPermissionsPageContext(VelocityPortlet portlet, Context context,
+			RunData data, SessionState state) {
+
+		log.debug("{}.buildPermissionsPageContext()", this);
+
+		String reference = (String) state.getAttribute("folder_group_reference");
+		String folderName = (String) state.getAttribute("folder_name");
+		if (StringUtils.isNoneBlank(reference, folderName)) {
+			context.put("reference", reference);
+			context.put("folderName", folderName);
+			context.put("folderLabel", rb.getString("setpermis"));
+			state.removeAttribute("folder_group_reference");
+			state.removeAttribute("folder_name");
+		}
+
+		context.put("warning", rb.getString("permissions.warning"));
+		context.put("permissionsLabel", rb.getString("list.fPerm"));
+
+		String siteId = toolManager.getCurrentPlacement().getContext();
+		String toolId = toolManager.getCurrentPlacement().getId();
+		String startUrl = ServerConfigurationService.getPortalUrl() + "/site/" + siteId + "/tool/" + toolId + "?panel=Main";
+		context.put("startPage", startUrl);
+
+		state.setAttribute (STATE_MODE, MODE_LIST);
+
+		return TEMPLATE_PERMISSIONS;
+	}
 	
 	public void doMakeSitePage(RunData data) {
 
@@ -5917,17 +5932,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		state.setAttribute(STATE_LIST_SELECTIONS, new TreeSet());
 		
 		state.setAttribute(STATE_MODE, MODE_LIST);
-
-//		if(!isStackEmpty(state))
-//		{
-//			Map current_stack_frame = peekAtStack(state);
-//			current_stack_frame.put(STATE_HELPER_CANCELED_BY_USER, Boolean.TRUE.toString());
-//
-//			popFromStack(state);
-//		}
-//
-//		resetCurrentMode(state);
-
 	}	// doCancel
 
 	/**
@@ -6485,16 +6489,22 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
 			state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
 		}
+
 		ResourceType type = registry.getType(typeId); 
 		
 		Reference reference = entityManager.newReference(contentHostingService.getReference(selectedItemId));
-		
+
 		ResourceToolAction action = type.getAction(actionId);
+
 		if(action == null)
 		{
 			
-		}
-		else if(action instanceof InteractionAction)
+		} else if (StringUtils.equals(actionId, "revise_permissions")) {
+			ContentEntity entity = (ContentEntity) reference.getEntity();
+			state.setAttribute("folder_name", entity.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME));
+			state.setAttribute("folder_group_reference", reference.getReference());
+			state.setAttribute(STATE_MODE, MODE_PERMISSIONS);
+		} else if(action instanceof InteractionAction)
 		{
 			ToolSession toolSession = sessionManager.getCurrentToolSession();
 			// toolSession.setAttribute(ResourceToolAction.ACTION_ID, actionId);
@@ -7290,7 +7300,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	public void doPermissions(RunData data, Context context)
 	{
 		log.debug("{}.doPermissions()", this);
-	
+
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState(((JetspeedRunData)data).getJs_peid());
 
 		// cancel copy if there is one in progress
@@ -7308,31 +7318,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		// should we save here?
 		state.setAttribute(STATE_LIST_SELECTIONS, new TreeSet());
 
-		// get the current home collection id and the related site
-		String collectionId = (String) state.getAttribute (STATE_HOME_COLLECTION_ID);
-		Reference ref = entityManager.newReference(contentHostingService.getReference(collectionId));
-		String siteRef = siteService.siteReference(ref.getContext());
-
-		// setup for editing the permissions of the site for this tool, using the roles of this site, too
-		state.setAttribute(PermissionsHelper.TARGET_REF, siteRef);
-
-		// ... with this description
-		state.setAttribute(PermissionsHelper.DESCRIPTION, rb.getString("setpermis1")
-				+ siteService.getSiteDisplay(ref.getContext()));
-
-		// ... with this warning
-		state.setAttribute(PermissionsHelper.WARNING, rb.getString("permissions.warning"));
-
-		// ... showing only locks that are prpefixed with this
-		state.setAttribute(PermissionsHelper.PREFIX, "content.");
-
-		
-		String groupAware = toolManager.getCurrentTool().getRegisteredConfig().getProperty("groupAware");
-		state.setAttribute("groupAware", groupAware != null?Boolean.valueOf(groupAware):Boolean.FALSE);
-
-		// get into helper mode with this helper tool
-		startHelper(data.getRequest(), "sakai.permissions.helper");
-
+		state.setAttribute (STATE_MODE, MODE_PERMISSIONS);
 	}	// doPermissions
 
 	/**
@@ -10260,6 +10246,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		// Set to hold the names of files that exceed that maximum size for zipping. 
 		Set<String> zipSingleFileSizeExceeded = new HashSet<>();
 
+		// Set to hold the names of files that will get included in the zip. 
+		Set<String> zipIncludedFiles = new HashSet<>();
+
 		long zipMaxIndividualFileSize = Long.parseLong(ServerConfigurationService.getString("content.zip.download.maxindividualfilesize","0"));
 		long zipMaxTotalSize = Long.parseLong(ServerConfigurationService.getString("content.zip.download.maxtotalsize","0"));
 		long accumulatedSize=0;
@@ -10273,7 +10262,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				if (contentService.isCollection(showId)) {
 					if (contentService.allowGetCollection(showId)) {
 						entity = contentService.getCollection(showId);
-						currentEntitySize = getCollectionRecursiveSize((ContentCollection) entity, zipMaxIndividualFileSize, zipMaxTotalSize, zipSingleFileSizeExceeded);
+						currentEntitySize = getCollectionRecursiveSize((ContentCollection) entity, zipMaxIndividualFileSize, zipMaxTotalSize, zipSingleFileSizeExceeded, zipIncludedFiles);
 					}
 				} else if (contentService.allowGetResource(showId)) {
 					entity = contentService.getResource(showId);
@@ -10293,7 +10282,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 				ListItem item = new ListItem(entity);
 				if (item.isCollection() && contentService.allowGetCollection(showId)) {
-					item.setSize(ResourcesAction.getFileSizeString(currentEntitySize, rb));
+					item.setSize(ResourcesAction.getFileSizeString(getCollectionRecursiveSize((ContentCollection) entity, zipMaxIndividualFileSize, zipMaxTotalSize, zipSingleFileSizeExceeded, new HashSet<>()), rb));
 					zipDownloadItems.add(item);
 				} else if (!item.isCollection() && contentService.allowGetResource(showId)) {
 					zipDownloadItems.add(item);
@@ -10358,6 +10347,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			} else {
 				selectedFiles.add(listItem.getId());
 			}
+			eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_ZIP_DOWNLOAD, "/content" + listItem.getId() , false));
 		}
 
 		// Use the site title for the zip name, remove spaces though.
@@ -10366,7 +10356,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		new ZipContentUtil().compressSelectedResources((String)state.getAttribute(STATE_SITE_ID), siteTitle, selectedFolderIds, selectedFiles, response);
 	}
 
-	private long getCollectionRecursiveSize(ContentCollection currentCollection, long maxIndividualFileSize, long zipMaxTotalSize, Set<String> zipSingleFileSizeExceeded) throws ZipMaxTotalSizeException
+	private long getCollectionRecursiveSize(ContentCollection currentCollection, long maxIndividualFileSize, long zipMaxTotalSize, Set<String> zipSingleFileSizeExceeded, Set<String> zipIncludedFiles) throws ZipMaxTotalSizeException
 	{
 		long total=0;
 
@@ -10378,17 +10368,22 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			if (myElement.isResource()) 
 			{
 				long tempSize = ((ContentResource)myElement).getContentLength();
+				String filePath = myElement.getId().replace("/group/" + toolManager.getCurrentPlacement().getContext(), "");
 				if (tempSize > maxIndividualFileSize) {
 					// Work out the file path without the site ID.
-					String filePath = myElement.getId().replace("/group/" + toolManager.getCurrentPlacement().getContext(), "");
 
 					zipSingleFileSizeExceeded.add(filePath);
 				}
-				else {total=total+tempSize;}
+				else {
+					if (!zipIncludedFiles.contains(filePath)) {
+						total=total+tempSize;
+						zipIncludedFiles.add(filePath);
+					}
+				}
 			}
 			else if (myElement.isCollection())
 			{
-				long tempSize = getCollectionRecursiveSize((ContentCollection)myElement, maxIndividualFileSize, zipMaxTotalSize, zipSingleFileSizeExceeded);
+				long tempSize = getCollectionRecursiveSize((ContentCollection)myElement, maxIndividualFileSize, zipMaxTotalSize, zipSingleFileSizeExceeded, zipIncludedFiles);
 
 				if (tempSize > zipMaxTotalSize) {
 					throw new ZipMaxTotalSizeException();

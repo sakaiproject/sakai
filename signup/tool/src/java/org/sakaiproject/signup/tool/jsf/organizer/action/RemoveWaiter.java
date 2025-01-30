@@ -100,9 +100,8 @@ public class RemoveWaiter implements SignupBeanConstants {
 			if (ToolManager.getCurrentPlacement() != null) {
 				String signupEventType = isOrganizer ? SignupEventTypes.EVENT_SIGNUP_REMOVE_ATTENDEE_WL_L
 						: SignupEventTypes.EVENT_SIGNUP_REMOVE_ATTENDEE_WL_S;
-				Utilities.postEventTracking(signupEventType, ToolManager.getCurrentPlacement().getContext()
-						+ " meetingId:" + meeting.getId() + " -removed from wlist on TS:"
-						+ SignupDateFormat.format_date_h_mm_a(timeslot.getStartTime()));
+				Utilities.postEventTracking(signupEventType, ToolManager.getCurrentPlacement().getContext(), meeting.getId(),
+						meeting.getTitle(), "-removed from wlist on TS:" + SignupDateFormat.format_date_h_mm_a(timeslot.getStartTime()));
 			}
 			log.debug("Meeting Name:" + meeting.getTitle() + " - UserId:" + currentUserId
 					+ " - has removed attendee(userId):" + waiter.getAttendeeUserId() + " from waiting list"

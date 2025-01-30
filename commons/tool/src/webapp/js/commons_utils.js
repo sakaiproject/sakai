@@ -203,16 +203,16 @@ commons.utils = {
         var likeCountNow = document.getElementById('commons-likes-count-number-' + postId);
         var likeIconNow = document.getElementById('commons-like-icon-' + postId);
         var likeNumber = parseInt(likeCountNow.getAttribute('data-count'));
-        likeIconNow.classList.remove('fa-thumbs-o-up');
-        likeIconNow.classList.remove('fa-thumbs-up');
+        likeIconNow.classList.remove('si-like');
+        likeIconNow.classList.remove('si-liked');
         if(likeButtonNow.getAttribute('class').includes('likedAlready')){
             likeNumber = likeNumber - 1;
             likeButtonNow.classList.remove('likedAlready'); //unliking
-            likeIconNow.classList.add('fa-thumbs-o-up');
+            likeIconNow.classList.add('si-like');
         } else {
             likeNumber = likeNumber + 1;
             likeButtonNow.classList.add('likedAlready');    //liking
-            likeIconNow.classList.add('fa-thumbs-up');
+            likeIconNow.classList.add('si-liked');
         }
         likeCountNow.textContent = likeNumber.toString();
         likeCountNow.setAttribute('data-count', likeNumber.toString());
@@ -429,7 +429,7 @@ commons.utils = {
             var numberOfLikes = $('.commons-likes-count');
             numberOfLikes.each(function(){commons.utils.addLikeCount(this)});
             commons.utils.getUserLikes();
-            $('[data-toggle="popover"]').popover();
+            bootstrap.Popover.getOrCreateInstance(document.body); // Initializes all popovers
             var textarea = $('#commons-comment-textarea-' + post.id);
             textarea.each(function () { autosize(this); });
             var creator = $('#commons-comment-creator-' + post.id);
@@ -633,10 +633,10 @@ commons.utils = {
                     var likeNow = document.getElementById('commons-like-link-' + result.commons_collection[count].postId);
                     var iconNow = document.getElementById('commons-like-icon-' + result.commons_collection[count].postId);
                     if(likeNow !== null){
-                        iconNow.classList.remove('fa-thumbs-o-up');
-                        iconNow.classList.remove('fa-thumbs-up');
+                        iconNow.classList.remove('si-like');
+                        iconNow.classList.remove('si-liked');
                         likeNow.classList.add('likedAlready');
-                        iconNow.classList.add('fa-thumbs-up');
+                        iconNow.classList.add('si-liked');
                     }
                 }
             }
