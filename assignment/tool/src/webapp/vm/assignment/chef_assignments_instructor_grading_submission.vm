@@ -378,11 +378,12 @@
                             <div class="textPanel borderPanel">$formattedText.escapeHtmlFormattedText($review.getComment())</div>
                         #end
                         <sakai-rubric-student
-                            tool-id="sakai.assignment.grades"
+                            site-id="$!assignment.Context"
                             entity-id="$assignment.Id"
-                            evaluated-item-id="$review.id.assessorUserId"
+                            tool-id="sakai.assignment.grades"
                             instructor="true"
                             is-peer-or-self="true"
+                            evaluated-item-id="$review.id.assessorUserId"
                             #if ($!assignment.isGroup)
                                 evaluated-item-owner-id="$ownerGroupId"
                             #else
