@@ -641,6 +641,7 @@ public class SiteHandler extends WorksiteHandler
 		rcontext.put("portalSearchPageSize", serverConfigurationService.getString("portal.search.pageSize", "10"));
 
 		//Show a confirm dialog when publishing an unpublished site.
+		rcontext.put("publishSiteButton", siteService.allowUpdateSite(siteId));
 		rcontext.put("publishSiteDialogEnabled", serverConfigurationService.getBoolean("portal.publish.site.confirm.enabled", false));
 		Map<String, String> toolTitles = new HashMap<>();
 		site.getPages().forEach(pageNow -> {
