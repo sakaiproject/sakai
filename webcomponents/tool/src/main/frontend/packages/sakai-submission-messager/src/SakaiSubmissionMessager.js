@@ -17,7 +17,7 @@ export class SakaiSubmissionMessager extends SakaiElement {
     success: { state: true },
     groupId: { state: true },
     validationError: { state: true },
-    recipientsToCheck: { state: true },
+    recipients: { state: true },
     sending: { state: true },
     recipientsRequested: { state: true },
     numSent: { state: true },
@@ -126,15 +126,15 @@ export class SakaiSubmissionMessager extends SakaiElement {
         </button>
 
         ${this.recipientsRequested ? html`
-          ${this.recipientsToCheck?.length > 0 ? html`
+          ${this.recipients?.length > 0 ? html`
             <div class="card mb-2">
               <div class="card-header py-1 d-flex justify-content-between align-items-center">
                 <span class="small">${this._i18n.recipients}</span>
-                <span class="badge bg-secondary">${this.recipientsToCheck.length}</span>
+                <span class="badge bg-secondary">${this.recipients.length}</span>
               </div>
               <div class="card-body p-0" style="max-height: 100px; overflow-y: auto;">
                 <div class="list-group list-group-flush small">
-                  ${this.recipientsToCheck.map(r => html`
+                  ${this.recipients.map(r => html`
                     <div class="list-group-item py-1">${r.displayName}</div>
                   `)}
                 </div>
@@ -168,25 +168,25 @@ export class SakaiSubmissionMessager extends SakaiElement {
   }
 
   actionChanged(e) {
-    this.recipientsToCheck = [];
+    this.recipients = [];
     this.recipientsRequested = false;
     this.action = e.target.value;
   }
 
   minScoreChanged(e) {
-    this.recipientsToCheck = [];
+    this.recipients = [];
     this.recipientsRequested = false;
     this.minScore = e.target.value;
   }
 
   maxScoreChanged(e) {
-    this.recipientsToCheck = [];
+    this.recipients = [];
     this.recipientsRequested = false;
     this.maxScore = e.target.value;
   }
 
   groupSelected(e) {
-    this.recipientsToCheck = [];
+    this.recipients = [];
     this.recipientsRequested = false;
     this.groupId = e.detail.value[0];
   }
@@ -198,7 +198,7 @@ export class SakaiSubmissionMessager extends SakaiElement {
     this.subject = "";
     this.body = "";
     this.error = false;
-    this.recipientsToCheck = [];
+    this.recipients = [];
     this.minScore = "";
     this.maxScore = "";
     this.validationError = "";
@@ -227,9 +227,7 @@ export class SakaiSubmissionMessager extends SakaiElement {
 
     fetch("/direct/gbng/listMessageRecipients.json", { method: "POST", cache: "no-cache", credentials: "same-origin", body: formData })
       .then(r => r.json())
-      .then(data => {
-        this.recipientsToCheck = data;
-      });
+      .then(data => this.recipients = data);
   }
 
   sendMessage() {
