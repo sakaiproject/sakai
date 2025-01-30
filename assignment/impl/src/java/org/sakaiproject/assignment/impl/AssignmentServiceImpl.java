@@ -1586,7 +1586,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     Priorities.HIGH);
         }
 
-        eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT, reference, true));
     }
 
     @Override
