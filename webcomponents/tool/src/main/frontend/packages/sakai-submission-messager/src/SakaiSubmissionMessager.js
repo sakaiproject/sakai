@@ -1,7 +1,7 @@
 import { SakaiElement } from "@sakai-ui/sakai-element";
 import { html, nothing } from "lit";
 import { ifDefined } from "lit/directives/if-defined.js";
-import "@sakai-ui/sakai-group-picker";
+import "@sakai-ui/sakai-group-picker/sakai-group-picker.js";
 import "@spectrum-web-components/progress-bar/sp-progress-bar.js";
 
 export class SakaiSubmissionMessager extends SakaiElement {
@@ -9,32 +9,26 @@ export class SakaiSubmissionMessager extends SakaiElement {
   static properties = {
 
     assignmentId: { attribute: "assignment-id", type: String },
-    groups: { type: Array },
-    title: String,
-    action: String,
-    subject: String,
-    body: String,
-    error: Boolean,
-    success: Boolean,
-    groupId: String,
-    validationError: String,
-    recipientsToCheck: Array,
-    sending: Boolean,
-    recipientsRequested: { type: Boolean },
-    numSent: { type: Number },
+    title: { type: String },
+    action: { state: true },
+    subject: { state: true },
+    body: { state: true },
+    error: { state: true },
+    success: { state: true },
+    groupId: { state: true },
+    validationError: { state: true },
+    recipientsToCheck: { state: true },
+    sending: { state: true },
+    recipientsRequested: { state: true },
+    numSent: { state: true },
   };
 
   constructor() {
 
     super();
 
-    this.groups = [];
-    this.recipientsToCheck = [];
-    this.recipientsRequested = false;
-    this._i18n = {};
     this.reset();
     this.loadTranslations("submission-messager").then(t => this._i18n = t);
-    this.numSent = 0;
   }
 
   shouldUpdate() {
@@ -47,9 +41,9 @@ export class SakaiSubmissionMessager extends SakaiElement {
         <div class="submission-messager">
           <div class="alert alert-success">
             <div class="fs-5 mb-2">${this._i18n.success}</div>
-            <p>${this.formatMessage(this._i18n.messages_sent_detail || "Successfully sent messages to {numSent} recipients.", { numSent: this.numSent })}</p>
+            <p>${this.tr("messages_sent_detail", { numSent: this.numSent })}</p>
             <button type="button" class="btn btn-primary" @click=${this.reset}>
-              ${this._i18n.send_another || "Send Another Message"}
+              ${this._i18n.send_another}
             </button>
           </div>
         </div>
@@ -57,7 +51,7 @@ export class SakaiSubmissionMessager extends SakaiElement {
     }
 
     return html`
-      <div id="submission-messager-${this.assignmentId}" class="submission-messager">
+      <div class="submission-messager">
         ${this.validationError ? html`
           <div class="alert alert-danger" role="alert">
             ${this.validationError}
@@ -132,7 +126,7 @@ export class SakaiSubmissionMessager extends SakaiElement {
         </button>
 
         ${this.recipientsRequested ? html`
-          ${this.recipientsToCheck.length > 0 ? html`
+          ${this.recipientsToCheck?.length > 0 ? html`
             <div class="card mb-2">
               <div class="card-header py-1 d-flex justify-content-between align-items-center">
                 <span class="small">${this._i18n.recipients}</span>
@@ -148,7 +142,7 @@ export class SakaiSubmissionMessager extends SakaiElement {
             </div>
           ` : html`
             <div class="alert alert-warning py-1 small mb-2">
-              ${this._i18n.no_recipients || "No recipients found"}
+              ${this._i18n.no_recipients}
             </div>
           `}
         ` : nothing}
@@ -241,7 +235,7 @@ export class SakaiSubmissionMessager extends SakaiElement {
   sendMessage() {
 
     if (!this.subject || !this.body) {
-      this.validationError = this._i18n.validation_error || "You need to supply a subject and body!";
+      this.validationError = this._i18n.validation_error;
       return;
     }
 
@@ -251,6 +245,7 @@ export class SakaiSubmissionMessager extends SakaiElement {
 
     fetch("/direct/gbng/messageStudents.json", { method: "POST", cache: "no-cache", credentials: "same-origin", body: formData })
       .then(r => {
+
         if (r.ok) {
           this.error = false;
           return r.json();
@@ -258,15 +253,12 @@ export class SakaiSubmissionMessager extends SakaiElement {
         this.error = true;
       })
       .then(data => {
+
         if (data.result === "SUCCESS") {
           this.numSent = data.num_sent;
           this.sending = false;
           this.success = true;
         }
       });
-  }
-
-  formatMessage(msg, values) {
-    return msg.replace(/\{(\w+)\}/g, (match, key) => values[key] !== undefined ? values[key] : match);
   }
 }
