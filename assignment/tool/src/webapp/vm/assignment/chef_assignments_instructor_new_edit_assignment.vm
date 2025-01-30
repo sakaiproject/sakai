@@ -223,7 +223,7 @@
 			#end
 		#end
 		#if ($size == 0)
-			<p class="text-info">
+			<p class="bg-info">
                             #if ($value_SubmissionType == 5)
                                 $tlang.getString("gen.noatt.single")
                             #else
