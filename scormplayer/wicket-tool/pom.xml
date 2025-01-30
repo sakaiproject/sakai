@@ -18,7 +18,7 @@
     <description>This project creates a jar containing the SCORM Wicket Toolset</description>
 
     <properties>
-        <scorm.wicket.version>9.19.0</scorm.wicket.version>
+        <scorm.wicket.version>9.20.0</scorm.wicket.version>
     </properties>
 
     <dependencies>
