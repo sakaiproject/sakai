@@ -382,7 +382,7 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 								success++;
 							}
 						} catch (Exception e) {
-                            log.error("Error sending email to {}", u.getEmail(), e);
+								log.error("Error sending email to {}", u.getEmail(), e);
 						}
 					}
 				}
