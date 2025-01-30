@@ -145,7 +145,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 		inputDateTimeFormatter = new DateTimeFormatterBuilder()
 				.appendPattern("yyyy-MM-dd'T'HH:mm:ss")
 				.optionalStart()
-				.appendOffset("+HH:MM:ss", "Z")  // Add the zone offset
+				.appendOffset("+HH:MM", "Z")  // Add the zone offset
 				.optionalEnd()
 				.parseDefaulting(ChronoField.OFFSET_SECONDS, 0)
 				.toFormatter();

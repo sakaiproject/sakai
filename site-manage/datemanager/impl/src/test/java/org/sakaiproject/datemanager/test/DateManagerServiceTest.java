@@ -30,8 +30,9 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.UUID;
@@ -118,7 +119,7 @@ public class DateManagerServiceTest {
             Assert.assertEquals(0, validation.getErrors().size());
             Assert.assertEquals(1, validation.getUpdates().size());
             DateManagerUpdate update = validation.getUpdates().get(0);
-            Assert.assertEquals(ZonedDateTime.parse("2025-05-16T00:00:00-04:00").toInstant(), update.getDueDate());
+            Assert.assertEquals(LocalDateTime.parse("2025-05-16T00:00:00").atZone(ZoneId.systemDefault()).toInstant(), update.getDueDate());
         } catch (Exception e) {
             Assert.fail(e.toString());
         }
