@@ -389,7 +389,7 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 			}
 		}
 
-                 return new ActionData(Map.of("result", "SUCCESS", "num_sent", success));
+		return new ActionReturn(Map.of("result", "SUCCESS", "num_sent", success));
 	}
 
 	/**
