@@ -389,10 +389,7 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 			}
 		}
 
-		Map<String, Object> data = new HashMap<>();
-		data.put("result", "SUCCESS");
-		data.put("num_sent", success);
-		return new ActionReturn(data);
+                 return new ActionData(Map.of("result", "SUCCESS", "num_sent", success));
 	}
 
 	/**
