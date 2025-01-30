@@ -39,6 +39,7 @@ public class SitePresenceImpl implements SitePresence, Serializable {
 	private Date date;
 	private long duration;
 	private Date lastVisitStartTime;
+	private int currentOpenSessions;
 
 	@Override
 	public int compareTo(SitePresence other) {
@@ -67,7 +68,8 @@ public class SitePresenceImpl implements SitePresence, Serializable {
 				&& date.equals(other.getDate())
 				&& duration == other.getDuration()
 				&& getCount() == other.getCount()
-				&& lastVisitStartTime == other.getLastVisitStartTime();
+				&& lastVisitStartTime == other.getLastVisitStartTime()
+				&& currentOpenSessions == other.getCurrentOpenSessions();
 	}
 
 	@Override
@@ -79,12 +81,13 @@ public class SitePresenceImpl implements SitePresence, Serializable {
 				+ this.getUserId().hashCode()
 				+ this.getDate().hashCode()
 				+ duration
-				+ this.getLastVisitStartTime();
+				+ this.getLastVisitStartTime()
+				+ currentOpenSessions;
 		return hashStr.hashCode();
 	}
 	
 	public String toString(){
-		return siteId + " : " + userId + " : " + date + " : " + duration + " (" + lastVisitStartTime + ")";
+		return siteId + " : " + userId + " : " + date + " : " + duration + " (" + lastVisitStartTime + ") : " + currentOpenSessions;
 	}
 
 	public long getDuration() {
@@ -143,4 +146,11 @@ public class SitePresenceImpl implements SitePresence, Serializable {
 		return duration;
 	}
 
+	public int getCurrentOpenSessions() {
+		return currentOpenSessions;
+	}
+
+	public void setCurrentOpenSessions(int currentOpenSessions) {
+		this.currentOpenSessions = currentOpenSessions;
+	}
 }
