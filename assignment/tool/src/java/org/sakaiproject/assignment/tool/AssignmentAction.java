@@ -9037,6 +9037,9 @@ public class AssignmentAction extends PagedResourceActionII {
                         // the open date been announced
                         integrateWithAnnouncement(state, aOldTitle, a, title, openTime, checkAutoAnnounce, valueOpenDateNotification, oldOpenTime);
 
+                        // It should only be called once when updateAssignment has already been done
+                        eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT, assignmentReference, true));
+
                         // integrate with Gradebook
                         try {
                             initIntegrateWithGradebook(state, siteId, aOldTitle, oAssociateGradebookAssignment, a, title, dueTime, gradeType, gradePoints, addtoGradebook, associateGradebookAssignment, rangeAndGroupSettings.range, category);
@@ -12621,6 +12624,21 @@ public class AssignmentAction extends PagedResourceActionII {
         int month;
         int day;
         int year;
+
+        // visible date is shifted forward by the offset
+        Instant tVisible = t.plusSeconds(visibleDateOffset);
+        LocalDateTime ldtVisible = LocalDateTime.ofInstant(tVisible, userTimeService.getLocalTimeZone().toZoneId());
+        minute = ldtVisible.getMinute();
+        hour = ldtVisible.getHour();
+        month = ldtVisible.getMonthValue();
+        day = ldtVisible.getDayOfMonth();
+        year = ldtVisible.getYear();
+
+        state.setAttribute(NEW_ASSIGNMENT_VISIBLE_MONTH, month);
+        state.setAttribute(NEW_ASSIGNMENT_VISIBLE_DAY, day);
+        state.setAttribute(NEW_ASSIGNMENT_VISIBLE_YEAR, year);
+        state.setAttribute(NEW_ASSIGNMENT_VISIBLE_HOUR, hour);
+        state.setAttribute(NEW_ASSIGNMENT_VISIBLE_MIN, minute);
 
         // open date is shifted forward by the offset
         Instant tOpen = t.plusSeconds(openDateOffset);
