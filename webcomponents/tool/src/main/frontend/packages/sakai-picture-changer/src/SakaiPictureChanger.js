@@ -228,7 +228,7 @@ export class SakaiPictureChanger extends SakaiElement {
             <div id="image-editor-crop-wrapper">
               <div id="cropme">
                 <input type="file" accept="image/*" value="Choose an image" @change=${this._filePicked} />
-                <img id="image" src="${ifDefined(this._imageUrl)}"/>
+                <img id="image" src="${ifDefined(this._imageUrl)}" alt="${this._i18n.editing_image_alt}" />
 
                 <div id="image-editor-controls-wrapper">
                   <div id="controls">

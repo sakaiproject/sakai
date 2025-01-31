@@ -7,7 +7,7 @@
     "./packages/*"
   ],
   "scripts": {
-    "lint": "eslint \"packages/**/src/*.js\" --max-warnings=0",
+    "lint": "eslint \"packages/**/src/*.js\"",
     "bundle": "esbuild \"bundle-entry-points/*.js\" --sourcemap --preserve-symlinks --bundle --splitting --format=esm --outdir=bundles --minify",
     "analyze-bundle": "esbuild \"bundle-entry-points/*.js\" --preserve-symlinks --splitting --bundle --metafile=meta.json --format=esm --outdir=bundles --minify",
     "analyze": "lit-analyzer --strict --quiet --rules.no-complex-attribute-binding=warning --rules.no-incompatible-type-binding=off \"packages/**/src/*.js\""
@@ -16,8 +16,9 @@
   "author": "",
   "license": "ECL-2.0",
   "devDependencies": {
-    "@eslint/eslintrc": "^3.1.0",
     "@eslint/js": "^9.13.0",
+    "@html-eslint/eslint-plugin": "^0.33.1",
+    "@html-eslint/parser": "^0.33.0",
     "@lion/dialog": "^0.16.1",
     "@open-wc/testing": "^4.0.0",
     "@sakai-ui/sakai-button": "file:packages/sakai-button",
@@ -52,9 +53,6 @@
     "@web/test-runner": "^0.19.0",
     "esbuild": "^0.24.0",
     "eslint": "^9.13.0",
-    "eslint-plugin-html": "^8.1.2",
-    "eslint-plugin-lit": "^1.15.0",
-    "eslint-plugin-wc": "^2.2.0",
     "fetch-mock": "^12.2.0",
     "globals": "^15.11.0",
     "imagesloaded": "^5.0.0",

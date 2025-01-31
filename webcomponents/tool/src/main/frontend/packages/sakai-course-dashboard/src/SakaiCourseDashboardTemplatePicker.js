@@ -45,20 +45,29 @@ export class SakaiCourseDashboardTemplatePicker extends SakaiDialogContent {
 
       <div id="template-block">
         <div id="template1-block" class=${this.template === 1 ? "selected" : ""}>
-          <a href="javascript:;" @click=${this.templateSelected} data-template="1">
-            <img data-template="1" src="${this.data.layout1ThumbnailUrl}" class="thumbnail" />
+          <a href="javascript:;"
+              @click=${this.templateSelected}
+              title="${this._i18n.layout1_tooltip}"
+              data-template="1">
+            <img data-template="1" alt="" src="${this.data.layout1ThumbnailUrl}" class="thumbnail" />
           </a>
           <h2>${this._i18n.option1}</h2>
         </div>
         <div id="template2-block" class=${this.template === 2 ? "selected" : ""}>
-          <a href="javascript:;" @click=${this.templateSelected} data-template="2">
-            <img data-template="2" src="${this.data.layout2ThumbnailUrl}" class="thumbnail" />
+          <a href="javascript:;"
+              @click=${this.templateSelected}
+              title="${this._i18n.layout2_tooltip}"
+              data-template="2">
+            <img data-template="2" alt="" src="${this.data.layout2ThumbnailUrl}" class="thumbnail" />
           </a>
           <h2>${this._i18n.option2}</h2>
         </div>
         <div id="template3-block" class=${this.template === 3 ? "selected" : ""}>
-          <a href="javascript:;" @click=${this.templateSelected} data-template="3">
-            <img data-template="3" src="${this.data.layout3ThumbnailUrl}" class="thumbnail" />
+          <a href="javascript:;"
+              @click=${this.templateSelected}
+              title="${this._i18n.layout3_tooltip}"
+              data-template="3">
+            <img data-template="3" alt="" src="${this.data.layout3ThumbnailUrl}" class="thumbnail" />
           </a>
           <h2>${this._i18n.option3}</h2>
         </div>

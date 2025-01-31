@@ -737,20 +737,18 @@ export const graderRenderingMixin = Base => class extends Base {
             ` : nothing }
             <div id="grader-save-buttons" class="action-button-block act">
               <button id="grader-save-button"
-                  accesskey="s"
                   class="btn btn-primary active"
                   name="save"
                   @click=${this._save}>
                 ${this._i18n["gen.sav"]}
               </button>
-              <button accesskey="d"
-                  class="btn btn-link"
+              <button class="btn btn-link"
                   name="return"
                   data-release="true"
                   @click=${this._save}>
                 ${this._i18n["gen.retustud"]}
               </button>
-              <button class="btn btn-link" accesskey="x" name="cancel" @click=${this._cancel}>${this._i18n["gen.can"]}</button>
+              <button class="btn btn-link" name="cancel" @click=${this._cancel}>${this._i18n["gen.can"]}</button>
             </div>
             ${this._saving ? html`<div class="sak-banner-info">${this._i18n.saving}</div>` : ""}
             ${this._saveSucceeded && this._gradeOrCommentsModified ? html`<div class="sak-banner-success">${this._i18n.successful_save}</div>` : nothing }
