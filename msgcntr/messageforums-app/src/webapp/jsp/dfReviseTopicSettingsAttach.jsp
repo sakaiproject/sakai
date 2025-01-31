@@ -51,12 +51,13 @@
 		}
 
 		function updateGradeAssignment() {
-
 			const associations = document.querySelectorAll('sakai-rubric-association');
 			const topicAssignments = document.getElementById("revise:topic_assignments");
 			const createTaskGroup = document.getElementById("revise:createTaskGroup");
 			const createTaskEmptyPanel = document.getElementById("revise:createTaskEmptyPanel");
-			if (topicAssignments?.value && topicAssignments.value !== "Default_0") {
+			const isTasksWidgetAvailable = !!document.querySelector("sakai-tasks");
+			
+			if (topicAssignments?.value && topicAssignments.value !== "Default_0" && isTasksWidgetAvailable) {
 				associations.forEach(a => {
 					a.setAttribute("entity-id", topicAssignments.value);
 					a.style.display = 'inline';
