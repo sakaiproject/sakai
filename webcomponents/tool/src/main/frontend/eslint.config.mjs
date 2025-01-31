@@ -146,6 +146,8 @@ export default [
       "@html-eslint/no-extra-spacing-attrs": "warn",
       "@html-eslint/require-img-alt": "warn",
       "@html-eslint/require-closing-tags": [ "warn", { selfClosing: "always" }],
+      //"@html-eslint/require-closing-tags": "off",
+      "@html-eslint/require-lang": "off",
     },
   },
 ];
