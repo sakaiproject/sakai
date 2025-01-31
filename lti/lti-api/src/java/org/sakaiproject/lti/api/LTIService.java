@@ -290,8 +290,9 @@ public interface LTIService extends LTISubstitutionsFilter {
 
     // Checksum for import and export
     String SAKAI_TOOL_CHECKSUM = "sakai_tool_checksum";
-	String ARCHIVE_LTI_CONTENT_TAG = "sakai-lti-content";
+    String ARCHIVE_LTI_CONTENT_TAG = "sakai-lti-content";
     String ARCHIVE_LTI_TOOL_TAG = "sakai-lti-tool";
+    String TOOL_IMPORT_MAP = "TOOL_IMPORT";
 
     /**
      * Indicate if the current logged in user has the maintain role in a site
@@ -347,6 +348,13 @@ public interface LTIService extends LTISubstitutionsFilter {
     String validateTool(Properties newProps);
 
     String validateTool(Map<String, Object> newProps);
+
+    // Returns whether or not a tool needs further configuration
+    boolean isDraft(Map<String, Object> tool);
+
+    Map<String, Object> createStubLTI11Tool(String toolBaseUrl, String title);
+
+    Properties convertToProperties(Map<String, Object> map);
 
     Object insertTool(Properties newProps, String siteId);
 
@@ -469,6 +477,8 @@ public interface LTIService extends LTISubstitutionsFilter {
     String validateContent(Map<String, Object> newProps);
 
     Object insertContent(Properties newProps, String siteId);
+
+    Object insertContent(Map<String, Object> newProps, String siteId);
 
     Object insertContentDao(Properties newProps, String siteId);
 

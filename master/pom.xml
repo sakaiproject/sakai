@@ -42,7 +42,7 @@
     <sakai.httpcore.version>4.4.16</sakai.httpcore.version>
     <sakai.httpmime.version>4.5.14</sakai.httpmime.version>
     <sakai.httpclient5.version>5.4.1</sakai.httpclient5.version>
-    <sakai.httpcore5.version>5.3.2</sakai.httpcore5.version>
+    <sakai.httpcore5.version>5.3.3</sakai.httpcore5.version>
     <sakai.ignite.version>2.16.0</sakai.ignite.version>
     <sakai.ignite.spring.ext.version>1.0.0</sakai.ignite.spring.ext.version>
     <sakai.ignite.hibernate.version>5.3.0</sakai.ignite.hibernate.version>
@@ -797,7 +797,7 @@
       <dependency>
         <groupId>commons-codec</groupId>
         <artifactId>commons-codec</artifactId>
-        <version>1.17.2</version>
+        <version>1.18.0</version>
         <scope>provided</scope>
       </dependency>
       <dependency>

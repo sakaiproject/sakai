@@ -28,7 +28,6 @@ import java.util.HashMap;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.stream.Collectors;
 
 import java.lang.StringBuffer;
 
@@ -40,7 +39,6 @@ import org.w3c.dom.Node;
 import org.json.simple.JSONObject;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -64,7 +62,7 @@ import org.sakaiproject.util.foorm.Foorm;
 import org.tsugi.lti.LTIUtil;
 
 import lombok.extern.slf4j.Slf4j;
-
+import lombok.Setter;
 /**
  * <p>
  * Implements the LTIService, all but a Storage model.
@@ -135,34 +133,11 @@ public abstract class BaseLTIService implements LTIService {
 		m_eventTrackingService = service;
 	}
 
-	/**
-	 * 
-	 */
-	protected SecurityService securityService = null;
-	/**
-	 * 
-	 */
-	protected SiteService siteService = null;
-	/**
-	 * 
-	 */
+	@Setter protected SecurityService securityService = null;
 
-	/**
-	 * 
-	 */
-	protected ServerConfigurationService serverConfigurationService;
+	@Setter protected SiteService siteService = null;
 
-	/**
-	 * Pull in any necessary services using factory pattern
-	 */
-	protected void getServices() {
-		if (securityService == null)
-			securityService = ComponentManager.get(SecurityService.class);
-		if (siteService == null)
-			siteService = ComponentManager.get(SiteService.class);
-		if (serverConfigurationService == null)
-			serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
-	}
+	@Setter protected ServerConfigurationService serverConfigurationService;
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
@@ -178,8 +153,6 @@ public abstract class BaseLTIService implements LTIService {
 		} catch (Exception t) {
 			log.warn("init(): ", t);
 		}
-
-		getServices();
 
 		// Check to see if all out properties are defined
 		ArrayList<String> strings = foorm.checkI18NStrings(LTIService.TOOL_MODEL, rb);
@@ -480,6 +453,28 @@ public abstract class BaseLTIService implements LTIService {
 	}
 
 	@Override
+	public boolean isDraft(Map<String, Object> tool) {
+		boolean retval = true;
+		if ( tool == null ) return retval;
+		if ( StringUtils.isEmpty((String) tool.get(LTI_LAUNCH)) ) return true;
+		if ( SakaiLTIUtil.isLTI11(tool) ) {
+			String consumerKey = (String) tool.get(LTI_CONSUMERKEY);
+			String consumerSecret = (String) tool.get(LTI_SECRET);
+			if ( StringUtils.isNotEmpty(consumerSecret) && StringUtils.isNotEmpty(consumerSecret)
+				&& (! LTI_SECRET_INCOMPLETE.equals(consumerSecret))
+				&& (! LTI_SECRET_INCOMPLETE.equals(consumerKey)) ) retval = false;
+		}
+
+		if ( SakaiLTIUtil.isLTI13(tool)
+			&& StringUtils.isNotEmpty((String) tool.get(LTI13_CLIENT_ID))
+			&& StringUtils.isNotEmpty((String) tool.get(LTI13_TOOL_KEYSET))
+			&& StringUtils.isNotEmpty((String) tool.get(LTI13_TOOL_ENDPOINT))
+			&& StringUtils.isNotEmpty((String) tool.get(LTI13_TOOL_REDIRECT))) retval = false;
+
+		return retval;
+	}
+
+	@Override
 	public String validateTool(Map<String, Object> newProps) {
 		StringBuffer sb = new StringBuffer();
 		if ( StringUtils.isEmpty((String) newProps.get(LTIService.LTI_TITLE)) ) {
@@ -683,11 +678,35 @@ public abstract class BaseLTIService implements LTIService {
 	}
 
 	@Override
+	public Map<String,Object> createStubLTI11Tool(String toolBaseUrl, String title) {
+		Map<String, Object> retval = new HashMap ();
+		retval.put(LTIService.LTI_LAUNCH,toolBaseUrl);
+		retval.put(LTIService.LTI_TITLE, title);
+		retval.put(LTIService.LTI_CONSUMERKEY, LTIService.LTI_SECRET_INCOMPLETE);
+		retval.put(LTIService.LTI_SECRET, LTIService.LTI_SECRET_INCOMPLETE);
+		retval.put(LTIService.LTI_ALLOWOUTCOMES, "1");
+		retval.put(LTIService.LTI_SENDNAME, "1");
+		retval.put(LTIService.LTI_SENDEMAILADDR, "1");
+		retval.put(LTIService.LTI_NEWPAGE, "2");
+		return retval;
+	}
+
+	@Override
+	public Properties convertToProperties(Map<String, Object> map) {
+		return Foorm.convertToProperties(map);
+	}
+
+	@Override
 	public Object insertContent(Properties newProps, String siteId) {
 		if ( newProps.getProperty(LTIService.LTI_PLACEMENTSECRET) == null ) {
 			newProps.setProperty(LTIService.LTI_PLACEMENTSECRET, UUID.randomUUID().toString());
 		}
 		return insertContentDao(newProps, siteId, isAdmin(siteId), isMaintain(siteId));
+	}
+
+	@Override
+	public Object insertContent(Map<String, Object> newMap, String siteId) {
+		return insertContent(convertToProperties(newMap), siteId);
 	}
 
 	@Override
@@ -1122,7 +1141,7 @@ public abstract class BaseLTIService implements LTIService {
 			Long toolId = Foorm.getLongNull(theTool.get(LTIService.LTI_ID));
 			log.debug("Matched toolId={} for launchUrl={}", toolId, launchUrl);
 			content.put(LTIService.LTI_TOOL_ID, toolId.intValue());
-			Object result = this.insertContent(Foorm.convertToProperties(content), siteId);
+			Object result = this.insertContent(convertToProperties(content), siteId);
 			if ( ! (result instanceof Long) ) {
 				log.info("Could not insert content {}", result);
 				return null;
@@ -1138,7 +1157,6 @@ public abstract class BaseLTIService implements LTIService {
 				return contentKey;
 			}
 		}
-
 	}
 
 	@Override
