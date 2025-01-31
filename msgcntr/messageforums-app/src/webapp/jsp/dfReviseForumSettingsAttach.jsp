@@ -47,7 +47,8 @@
 		var elems = document.getElementsByTagName('sakai-rubric-association');
 		var forumAssignments = document.getElementById("revise:forum_assignments");
 		const createTaskGroup = document.getElementById("revise:createTaskGroup");
-		if (forumAssignments?.value && forumAssignments.value !== "Default_0") {
+		const isTasksWidgetAvailable = !!document.querySelector("sakai-tasks");
+		if (forumAssignments?.value && forumAssignments.value !== "Default_0" && isTasksWidgetAvailable) {
 			for (var i = 0; i<elems.length; i++) {
                 elems[i].setAttribute("entity-id", forumAssignments.value);
 				elems[i].style.display = 'inline';
