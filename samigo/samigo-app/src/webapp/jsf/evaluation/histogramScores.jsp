@@ -446,7 +446,7 @@ $Id$
                     </span>
                     <div class="progress-stat">
                       <h:outputText value="<div class=\" progress-bar #{ bar.isCorrect ? 'bg-success' : 'bg-danger' }
-                        test\" role=\"progressbar\" aria-valuenow=\"#{bar.columnHeight}\" aria-valuemin=\"0\"
+                        role=\"progressbar\" aria-valuenow=\"#{bar.columnHeight}\" aria-valuemin=\"0\"
                         aria-valuemax=\"100\" style=\"width: #{bar.columnHeight}%;\">"
                         escape="false" />
                         &nbsp;
