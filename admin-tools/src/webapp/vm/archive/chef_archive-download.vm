@@ -6,6 +6,99 @@
 		<h1>$tlang.getString("archive.download.heading")</h1>
 	</div>
 
+	#if($noSearchResults)
+		<div class="sak-banner-info">$noSearchResults</div>
+	#end
+
+	<div class="sakai-table-toolBar d-flex justify-content-between align-items-center">
+		<div class="sakai-table-filterContainer">
+			<form name="searchForm" class="form-inline" action="#toolForm("$action")" method="post" style="display: inline-block; margin-right: 1em;">
+				<div class="form-group" style="display: inline-block;">
+					<label for="search" class="sr-only">$tlang.getString("archive.search")</label>
+					<input type="text" size="20" name="search" id="search" class="form-control" value="$!search" placeholder="$tlang.getString('archive.search.placeholder')" />
+				</div>
+				<div class="act" style="display: inline-block;">
+					<input type="submit" name="eventSubmit_doSearch" value="$tlang.getString('archive.search.button')" class="btn btn-default" />
+					#if ($search)
+						<input type="submit" name="eventSubmit_doSearch_clear" value="$tlang.getString('archive.search.clear')" class="btn btn-default" />
+					#end
+				</div>
+				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+			</form>
+		</div>
+
+		#if($archives.size() > 0)
+		<div class="listNav" style="display: inline-block;">
+			#if($totalNumber>0)
+			<div class="instruction" style="display: inline-block; margin-right: 1em;">
+				$tlang.getFormattedMessage("archive.list.youare", $numbers)
+			</div>
+			#end
+			#if ($pagesize != 0)
+				#if ($goFPButton == "true")
+					<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")" style="display: inline-block;">
+						<input type="submit" name="eventSubmit_doList_first" value="|&lt;" title="$tlang.getString("archive.list.first")" />
+						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+					</form>
+				#else
+					<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")" style="display: inline-block;">
+						<input type="submit" name="eventSubmit_doList_first" value="|&lt;" disabled="disabled" />
+						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+					</form>
+				#end
+				#if ($goPPButton == "true")
+					<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")" style="display: inline-block;">
+						<input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getFormattedMessage('archive.list.previous.withsize', $pagesize)"  accesskey="p" />
+						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+					</form>
+				#else
+					<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")" style="display: inline-block;">
+						<input type="submit" name="eventSubmit_doList_prev" value="&lt;" disabled="disabled" />
+						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+					</form>
+				#end
+			#end
+			<form name="pagesizeForm" class="inlineForm" method="post" action="#toolForm("$action")" style="display: inline-block;">
+				<input type="hidden" name="eventSubmit_doChange_pagesize" value="changepagesize" />
+				<span class="skip">$tlang.getString("archive.list.listnavselect")</span>
+				<select name="selectPageSize" onchange="document.pagesizeForm.submit();">
+					#foreach ($value in $sizeList)
+						#foreach($intValue in $value)
+							#set($ivalue=$intValue.intValue())
+						#end
+						<option value="$ivalue" #if($pagesize == $ivalue) selected="selected" #end>$tlang.getFormattedMessage("archive.list.show", $value)</option>
+					#end
+				</select>
+				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+			</form>
+			#if ($pagesize != 0)
+				#if ($goNPButton == "true")
+					<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")" style="display: inline-block;">
+						<input type="submit" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getFormattedMessage('archive.list.next.withsize', $pagesize)"  accesskey="n" />
+						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+					</form>
+				#else
+					<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")" style="display: inline-block;">
+						<input type="submit" name="eventSubmit_doList_next" value="&gt;" disabled="disabled" />
+						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+					</form>
+				#end
+				#if ($goLPButton == "true")
+					<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")" style="display: inline-block;">
+						<input type="submit" name="eventSubmit_doList_last" value="&gt;|" title="$tlang.getString('archive.list.last')" />
+						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+					</form>
+				#else
+					<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")" style="display: inline-block;">
+						<input type="submit" name="eventSubmit_doList_last" value="&gt;|" disabled="disabled" />
+						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+					</form>
+				#end
+			#end
+		</div>
+		#end
+	</div>
+
 	#if($archives.size() == 0)
 		<p>$tlang.getString("archive.download.none")</p>
 	#else
