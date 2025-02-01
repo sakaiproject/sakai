@@ -261,7 +261,6 @@ function importLTI13Custom(customObject) {
         if ( typeof key != "string" ) continue;
         value = customObject[key];
         if ( typeof value != "string" ) continue;
-        console.log(key + ": " + value);
         if ( customString.length > 0 ) customString += "\n";
         customString += key;
         customString += '=';
@@ -273,7 +272,7 @@ function importLTI13Custom(customObject) {
 function importLTI13Config() {
 
     var importUrl = '$autoRegistrationUrl';
-    console.log(importUrl);
+    console.debug(importUrl);
 
     jQuery.getJSON( importUrl, function(data) {
         console.log(data);
@@ -320,8 +319,8 @@ function importLTI13Config() {
 
         if ( data['https://purl.imsglobal.org/spec/lti-tool-configuration'] ) {
             var tool = data['https://purl.imsglobal.org/spec/lti-tool-configuration'];
-            console.log('tool', tool);
-            console.log('tool.claims', tool.claims);
+            console.debug('tool', tool);
+            console.debug('tool.claims', tool.claims);
             if ( tool.claims && Array.isArray(tool.claims) ) {
                 if ( tool.claims.includes('name') || tool.claims.includes('given_name') ||
                     tool.claims.includes('given_name') ) {
@@ -344,7 +343,7 @@ function importLTI13Config() {
             if ( tool.messages && Array.isArray(tool.messages) ) {
                 for(i=0; i<tool.messages.length; i++) {
                     var message = tool.messages[i];
-                    console.log('message', message);
+                    console.debug('message', message);
                     if ( message.target_link_uri && ! uri_found ) {
                         jQuery("#launch").val(message.target_link_uri);
                         uri_found = true;
@@ -405,7 +404,7 @@ function importLTI13Config() {
 
             }
         }
-        console.log("closing the modal");
+        console.debug("closing the modal");
         $("#modal-iframe-div").hide();
         $("#modal-iframe-div").dialog('close');
         $("#lti-advantage-div").hide();
