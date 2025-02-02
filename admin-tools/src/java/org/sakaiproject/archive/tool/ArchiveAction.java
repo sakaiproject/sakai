@@ -336,9 +336,9 @@ public class ArchiveAction extends VelocityPortletPaneledAction {
 				}
 			}
 			
-			// if (filteredZips.isEmpty()) {
-			// 	context.put("noSearchResults", rb.getString("archive.search.no.results"));
-			// }
+			if (filteredZips.isEmpty()) {
+				context.put("noSearchResults", rb.getString("archive.search.no.results"));
+			}
 		} else {
 			filteredZips = zips;
 		}
