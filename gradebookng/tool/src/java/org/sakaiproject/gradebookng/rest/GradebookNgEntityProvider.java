@@ -358,40 +358,37 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 
 	@EntityCustomAction(action = "messageStudents", viewKey = EntityView.VIEW_NEW)
 	public ActionReturn messageStudents(final EntityView view, final Map<String, Object> params) {
+		int success = 0;
 
 		Set<String> recipients = getRecipients(params);
-
 		if (!recipients.isEmpty()) {
 			recipients.add(getCurrentUserId());
+			List<User> users = userDirectoryService.getUsers(recipients);
 
-			List<User> users = recipients.stream().map(s -> {
-				try {
-					return userDirectoryService.getUser(s);
-				} catch (UserNotDefinedException unde) {
-					return null;
-				}
-			}).collect(Collectors.toList());
-
-			if (users.contains(null)) {
-				String errorMsg = "At least one of the students to message is null. No messsages sent.";
-				log.warn(errorMsg);
-				throw new EntityException(errorMsg, "", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			} else {
+			if (!users.isEmpty()) {
 				String from = serverConfigurationService.getSmtpFrom();
 				List<String> headers = new ArrayList<>();
 				String subject = (String) params.get("subject");
 				headers.add("Subject: " + subject);
 				headers.add("From: " + "\"" + serverConfigurationService.getString("ui.service", "Sakai") + "\" <" + from + ">");
-				users.forEach(u -> emailService.send(from, u.getEmail(), subject, (String) params.get("body"), null, null, headers));
-				Map<String, Object> data = new HashMap<>();
-				data.put("result", "SUCCESS");
-				return new ActionReturn(data);
+
+				for (User u : users) {
+					if (u != null && u.getEmail() != null && !u.getEmail().isEmpty()) {
+						try {
+							emailService.send(from, u.getEmail(), subject, (String) params.get("body"), null, null, headers);
+							// Don't scare the instructor into thinking that the email went to too many people
+							if (!u.getId().equals(getCurrentUserId())) {
+								success++;
+							}
+						} catch (Exception e) {
+								log.error("Error sending email to {}", u.getEmail(), e);
+						}
+					}
+				}
 			}
-		} else {
-			Map<String, Object> data = new HashMap<>();
-			data.put("result", "SUCCESS");
-			return new ActionReturn(data);
 		}
+
+		return new ActionReturn(Map.of("result", "SUCCESS", "num_sent", success));
 	}
 
 	/**
