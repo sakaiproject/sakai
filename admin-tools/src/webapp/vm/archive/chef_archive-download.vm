@@ -102,20 +102,24 @@
 	#if($archives.size() == 0)
 		<p>$tlang.getString("archive.download.none")</p>
 	#else
-		<table class="table table-hover table-striped table-bordered">
+		<table id="archiveTable" 	class="table table-hover table-striped table-bordered">
 		<thead>
 			<tr>
-				<th>
+				<th class="sortable" data-sort="text">
 					$tlang.getString("archive.download.site")
+					<i class="bi bi-arrow-down-up"></i>
 				</th>
-				<th>
+				<th class="sortable" data-sort="date">
 					$tlang.getString("archive.download.date")
+					<i class="bi bi-arrow-down-up"></i>
 				</th>
-				<th>
+				<th class="sortable" data-sort="size">
 					$tlang.getString("archive.download.size")
+					<i class="bi bi-arrow-down-up"></i>
 				</th>
-				<th>
+				<th class="sortable" data-sort="text">
 					$tlang.getString("archive.download.hash")
+					<i class="bi bi-arrow-down-up"></i>
 				</th>
 			</tr>
 		</thead>
@@ -146,3 +150,59 @@
 	</table>
 	#end
 </div>
+
+#literal()
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const table = document.getElementById('archiveTable');
+    if (!table) return;
+
+    const headers = table.querySelectorAll('th.sortable');
+    headers.forEach(th => th.style.cursor = 'pointer');
+
+    let currentSort = { column: null, asc: true };
+
+    headers.forEach((th, colIndex) => {
+      th.addEventListener('click', () => {
+        const type = th.dataset.sort;
+        currentSort = currentSort.column === colIndex
+          ? { column: colIndex, asc: !currentSort.asc }
+          : { column: colIndex, asc: true };
+
+        table.querySelectorAll('th i').forEach(icon =>
+          icon.className = 'bi bi-arrow-down-up'
+        );
+
+        const icon = th.querySelector('i');
+        if (icon) {
+          icon.className = 'bi bi-arrow-' + (currentSort.asc ? 'up' : 'down');
+        }
+
+        const tbody = table.querySelector('tbody');
+        if (!tbody) return;
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+
+        rows.sort((a, b) => {
+          const cellA = (a.cells[colIndex] && a.cells[colIndex].textContent.trim()) || '';
+          const cellB = (b.cells[colIndex] && b.cells[colIndex].textContent.trim()) || '';
+          let cmp = 0;
+
+          if (type === 'date') {
+            cmp = new Date(cellA) - new Date(cellB);
+          } else if (type === 'size') {
+            const sizes = { B: 1, KB: 1024, MB: 1024 * 1024, GB: 1024 * 1024 * 1024 };
+            const [aVal, aUnit = 'B'] = cellA.split(' ');
+            const [bVal, bUnit = 'B'] = cellB.split(' ');
+            cmp = parseFloat(aVal) * (sizes[aUnit] || 0) - parseFloat(bVal) * (sizes[bUnit] || 0);
+          } else {
+            cmp = cellA.localeCompare(cellB, undefined, { numeric: true, sensitivity: 'base' });
+          }
+          return currentSort.asc ? cmp : -cmp;
+        });
+
+        rows.forEach(row => tbody.appendChild(row));
+      });
+    });
+  });
+</script>
+#end
