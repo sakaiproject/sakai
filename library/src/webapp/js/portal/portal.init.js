@@ -31,6 +31,6 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   document.getElementById("sakai-notifications-panel")?.addEventListener("hidden.bs.offcanvas", e => {
-    e.target.querySelector("sakai-notifications").clearTestNotifications();
+    e.target.querySelector("sakai-notifications")?._clearTestNotifications();
   });
 });
