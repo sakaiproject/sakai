@@ -647,8 +647,16 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @param text The text containing LTI launch URLs
      * @param fromContext The source context
      * @param toContext The destination context
+     * @return The text with updated LTI launch URLs
+     */
+    String fixLtiLaunchUrls(String text, String fromContext, String toContext);
+
+    /**
+     * Fix LTI launch URLs when copying content between contexts
+     * @param text The text containing LTI launch URLs
+     * @param toContext The destination context
      * @param ltiContentItems A map of import content items and their tools
      * @return The text with updated LTI launch URLs
      */
-    String fixLtiLaunchUrls(String text, String fromContext, String toContext, Map<Long, Map<String, Object>> ltiContentItems);
+    String fixLtiLaunchUrls(String text, String toContext, Map<Long, Map<String, Object>> ltiContentItems);
 }

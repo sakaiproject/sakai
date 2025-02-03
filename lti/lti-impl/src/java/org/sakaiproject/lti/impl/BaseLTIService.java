@@ -1264,11 +1264,21 @@ public abstract class BaseLTIService implements LTIService {
 		return contentKey;
 	}
 
-	// http://localhost:8080/access/lti/site/7d529bf7-b856-4400-9da1-ba8670ed1489/content:1
-	// http://localhost:8080/access/lti/site/7d529bf7-b856-4400-9da1-ba8670ed1489/content:42
+	@Override
+	public String fixLtiLaunchUrls(String text, String toContext, Map<Long, Map<String, Object>> ltiContentItems) {
+		String fromContext = null;
+		return fixLtiLaunchUrls(text, fromContext, toContext, ltiContentItems);
+	}
 
 	@Override
-	public String fixLtiLaunchUrls(String text, String fromContext, String toContext, Map<Long, Map<String, Object>> ltiContentItems) {
+	public String fixLtiLaunchUrls(String text, String fromContext, String toContext) {
+		Map<Long, Map<String, Object>> ltiContentItems = null;
+		return fixLtiLaunchUrls(text, fromContext, toContext, ltiContentItems);
+	}
+
+	// http://localhost:8080/access/lti/site/7d529bf7-b856-4400-9da1-ba8670ed1489/content:1
+	// http://localhost:8080/access/lti/site/7d529bf7-b856-4400-9da1-ba8670ed1489/content:42
+	protected String fixLtiLaunchUrls(String text, String fromContext, String toContext, Map<Long, Map<String, Object>> ltiContentItems) {
 		if (StringUtils.isBlank(text)) return text;
 		List<String> urls = SakaiLTIUtil.extractLtiLaunchUrls(text);
 		for (String url : urls) {
