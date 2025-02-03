@@ -293,9 +293,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				toolPageMap.putIfAbsent(toolId, pageIds);
             }
         });
-		return toolPageMap.keySet().stream()
-				.map(toolId -> portalService.getSubPageData(toolId, siteId, userId, toolPageMap.get(toolId)))
-				.collect(Collectors.joining());
+		return portalService.getSubPageJson(siteId, userId, toolPageMap);
     }
 
 	private Map<String, Object> getSiteMap(Site site, String currentSiteId, String userId, boolean pinned, boolean hidden, boolean includePages) {

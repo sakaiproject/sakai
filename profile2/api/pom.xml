@@ -29,12 +29,10 @@
 		<dependency>
 			<groupId>org.sakaiproject.common</groupId>
 			<artifactId>sakai-common-api</artifactId>
-			<scope>provided</scope>
     	</dependency>
 	    <dependency>
     		<groupId>org.sakaiproject.entitybroker</groupId>
     		<artifactId>entitybroker-api</artifactId>
-    		<scope>provided</scope>
 		</dependency>
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
@@ -56,7 +54,6 @@
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
         </dependency>
-
 	</dependencies>
 	
 	<build>

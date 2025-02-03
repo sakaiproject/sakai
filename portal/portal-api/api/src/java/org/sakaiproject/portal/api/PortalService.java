@@ -426,5 +426,5 @@ public interface PortalService
 	 *
 	 * @return a JSON string
 	 */
-	String getSubPageData(String name, String siteId, String userId, Collection<String> pageIds);
+	String getSubPageJson(String siteId, String userId, Map<String, Collection<String>> toolPageMap);
 }

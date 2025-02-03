@@ -26,7 +26,6 @@ package org.sakaiproject.lessonbuildertool.model;
 import java.util.List;
 import java.util.Map;
 import java.util.Collection;
-import java.util.Optional;
 
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageComment;
@@ -45,6 +44,7 @@ import org.sakaiproject.lessonbuildertool.SimplePageProperty;
 import org.sakaiproject.lessonbuildertool.SimpleChecklistItem;
 import org.sakaiproject.lessonbuildertool.ChecklistItemStatus;
 
+import org.sakaiproject.portal.api.PortalSubPageData;
 import org.sakaiproject.site.api.ToolConfiguration;
 
 import org.springframework.orm.hibernate5.HibernateTemplate;
@@ -334,7 +334,7 @@ public interface SimplePageToolDao {
 
     public boolean doesPageFolderExist(final String siteId, final String folder);
 
-    public String getLessonSubPageJSON(String userId, String siteId, Collection<String> pageIds);
+    public void getLessonSubPageData(PortalSubPageData data, Collection<String> pageIds);
 
     public List<SimplePage> getTopLevelPages(String siteId);
 

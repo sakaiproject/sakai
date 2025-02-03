@@ -61,7 +61,7 @@
     iconClasses: ["bi-info-circle", "bi-info-circle-fill"],
   });
 
-  // Setup lessons subpage navigaion
+  // Setup subpage navigaion
 
   let subPages = []; // exclude the current site
   let currentSubPage = null;
@@ -71,9 +71,9 @@
       #foreach ($site in $siteList)
         #if ($site && $site.subPages)
           #if ($site.isCurrent)
-          currentSubPage = new SubPageNavigation(${site.subPages});
+            currentSubPage = new SubPageNavigation(${site.subPages});
           #else
-          subPages.push(${site.subPages});
+            subPages.push(${site.subPages});
           #end
         #end
       #end
@@ -87,7 +87,7 @@
   // a SubPageNavigation instance for each site
 
   subPages.filter((v, i) => subPages.findIndex(val => val.siteId === v.siteId) === i)
-    .forEach(data => new SubPageNavigation(data));
+          .forEach(data => new SubPageNavigation(data));
 
   if (currentSubPage !== null && sakai && sakai.subnav) {
     currentSubPage.setCurrentPage();

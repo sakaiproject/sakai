@@ -43,6 +43,8 @@ import java.util.stream.IntStream;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -74,6 +76,7 @@ import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalHandler;
 import org.sakaiproject.portal.api.PortalRenderEngine;
 import org.sakaiproject.portal.api.PortalService;
+import org.sakaiproject.portal.api.PortalSubPageData;
 import org.sakaiproject.portal.api.PortletApplicationDescriptor;
 import org.sakaiproject.portal.api.PortletDescriptor;
 import org.sakaiproject.portal.api.SiteNeighbourhoodService;
@@ -125,6 +128,7 @@ public class PortalServiceImpl implements PortalService, Observer
 	private Map<String, Portal> portals = new ConcurrentHashMap<>();
 	private Map<String, PortalRenderEngine> renderEngines = new ConcurrentHashMap<>();
 	private Collection<PortalSubPageNavProvider> portalSubPageNavProviders;
+	private ObjectMapper objectMapper;
 
 	public void init() {
 		try {
@@ -140,6 +144,7 @@ public class PortalServiceImpl implements PortalService, Observer
 		}
 		eventTrackingService.addLocalObserver(this);
 		portalSubPageNavProviders = new HashSet<>();
+		objectMapper = new ObjectMapper();
 	}
 
 	@Override
@@ -1123,9 +1128,9 @@ public class PortalServiceImpl implements PortalService, Observer
 		if (portalSubPageNavProvider != null) {
 			Collection<PortalSubPageNavProvider> providers = new HashSet<>(portalSubPageNavProviders);
 			if (providers.contains(portalSubPageNavProvider)) {
-				log.debug("Overriding existing SubPageNavProvider [{}]", portalSubPageNavProvider.getName());
+				log.debug("Overriding existing SubPageNavProvider [{}]", portalSubPageNavProvider.getSubPageProviderName());
 			} else {
-				log.debug("Registering new SubPageNavProvider [{}]", portalSubPageNavProvider.getName());
+				log.debug("Registering new SubPageNavProvider [{}]", portalSubPageNavProvider.getSubPageProviderName());
 			}
 			providers.add(portalSubPageNavProvider);
 			portalSubPageNavProviders = providers;
@@ -1133,15 +1138,26 @@ public class PortalServiceImpl implements PortalService, Observer
 	}
 
 	@Override
-	public String getSubPageData(String name, String siteId, String userId, Collection<String> pageIds) {
-		for (PortalSubPageNavProvider portalSubPageNavProvider : portalSubPageNavProviders) {
-			if (portalSubPageNavProvider.getName().equals(name)) {
-				String data = portalSubPageNavProvider.getData(siteId, userId, pageIds);
-				log.debug("Retrieved sub page nav data from provider [{}], data={}", name, data);
-				return data;
+	public String getSubPageJson(String siteId, String userId, Map<String, Collection<String>> toolPageMap) {
+
+		PortalSubPageData subPageData = new PortalSubPageData(siteId, userId);
+		for (Map.Entry<String, Collection<String>> entry : toolPageMap.entrySet()) {
+			String toolId = entry.getKey();
+			for (PortalSubPageNavProvider portalSubPageNavProvider : portalSubPageNavProviders) {
+				if (portalSubPageNavProvider.getSubPageProviderName().equals(toolId)) {
+					portalSubPageNavProvider.getSubPageData(subPageData, entry.getValue());
+					log.debug("Processed sub page nav data for site [{}] and user [{}] from provider [{}]", siteId, userId, toolId);
+                }
 			}
 		}
-		return StringUtils.EMPTY;
+		String json = "";
+		try {
+			json = objectMapper.writeValueAsString(subPageData);
+		} catch (JsonProcessingException jpe) {
+			log.warn("Could not serialize sub page data for site [{}], user[{}], {}", siteId, userId, jpe.toString());
+		}
+		log.debug("Sub page data serialized for site [{}] and user [{}] is {}", siteId, userId, json);
+		return json;
 	}
 
 }

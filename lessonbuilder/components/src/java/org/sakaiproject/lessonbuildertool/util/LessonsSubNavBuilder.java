@@ -27,7 +27,8 @@ package org.sakaiproject.lessonbuildertool.util;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
-import org.json.simple.JSONObject;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.portal.api.PortalSubPageData;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -36,8 +37,8 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Arrays;
@@ -46,6 +47,7 @@ import java.util.stream.Collectors;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.SimplePageLogEntry;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Slf4j
 public class LessonsSubNavBuilder {
@@ -53,66 +55,63 @@ public class LessonsSubNavBuilder {
     private static final ResourceLoader rb = new ResourceLoader("subnav");
 
     private final UserTimeService userTimeService;
+    private final ServerConfigurationService serverConfigurationService;
 
-    private final List<String> groups;
     private final boolean isInstructor;
-    private final String siteId;
-    private final Map<String, List<Map<String, String>>> subnavData;
-    private final List<Map<String, String>> topLevelPageProps;
+    private final List<String> groups;
+    private final PortalSubPageData subPageData;
 
-    public LessonsSubNavBuilder(UserTimeService userTimeService, String siteId, boolean isInstructor, List<String> groups) {
+    public LessonsSubNavBuilder(ServerConfigurationService serverConfigurationService,
+                                UserTimeService userTimeService,
+                                PortalSubPageData data,
+                                boolean isInstructor,
+                                List<String> groups) {
+        this.serverConfigurationService = serverConfigurationService;
         this.userTimeService = userTimeService;
-        this.siteId = siteId;
-        this.isInstructor = isInstructor;
         this.groups = groups;
-        this.subnavData = new HashMap<>();
-        this.topLevelPageProps = new ArrayList<>();
+        this.subPageData = data;
+        this.isInstructor = isInstructor;
     }
 
-    public String toJSON() {
-        applyPrerequisites();
-
-        final Map<String, Object> objectToSerialize = new HashMap<>();
-        objectToSerialize.put("pages", this.subnavData);
-        objectToSerialize.put("topLevelPageProps", this.topLevelPageProps);
-        objectToSerialize.put("i18n", getI18n());
-        objectToSerialize.put("siteId", this.siteId);
-        objectToSerialize.put("isInstructor", this.isInstructor);
-
-        return JSONObject.toJSONString(objectToSerialize);
+    public void toSubPageData(Collection<String> pageIds) {
+        applyPrerequisites(pageIds);
+        setI18n();
     }
 
-
-    public static List<String> collectPageIds(final List<Map<String, Object>> pages) {
-        return pages.stream()
-                .filter(p -> !p.containsKey("wellKnownToolId") || "sakai.lessonbuildertool".equals(p.get("wellKnownToolId")))
-                .map(p -> String.valueOf(p.get("pageId")))
-                .collect(Collectors.toList());
+    private void buildSubpageUrl(PortalSubPageData.PageData subpage) {
+        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(serverConfigurationService.getPortalUrl());
+        uriBuilder.pathSegment("site", subpage.getSiteId(), "tool", subpage.getToolId(), "ShowPage");
+        uriBuilder.queryParam("sendingPage", subpage.getSakaiPageId());
+        uriBuilder.queryParam("itemId", subpage.getItemId());
+        uriBuilder.queryParam("path", "clear_and_push");
+        uriBuilder.queryParam("title", subpage.getName());
+        uriBuilder.queryParam("newTopLevel", "false");
+        subpage.setUrl(uriBuilder.build().toUriString());
     }
 
-
-    public void processResult(final String sakaiToolId, SimplePage parentPage, SimplePageItem spi, SimplePage page, SimplePageLogEntry le) {
+    public void processResult(String toolId, SimplePage parentPage, SimplePageItem spi, SimplePage page, SimplePageLogEntry le) {
         if (isHidden(page)) return;
 
-        if (!this.subnavData.containsKey(sakaiToolId)) {
-            this.subnavData.put(sakaiToolId, new ArrayList<>());
-        }
-        
-        final Map<String, String> subnavItem = new HashMap<>();
+        List<PortalSubPageData.PageData> subPages = subPageData
+                .getPages()
+                .computeIfAbsent(toolId, k -> new ArrayList<>());
 
-        subnavItem.put("toolId", sakaiToolId);
-        subnavItem.put("siteId", page.getSiteId());
-	    subnavItem.put("sakaiPageId", parentPage.getToolId());
-        subnavItem.put("itemId", Long.toString(spi.getId()));
-        subnavItem.put("sendingPage", spi.getSakaiId());
-        subnavItem.put("name", spi.getName());
-        subnavItem.put("description", spi.getDescription());
-        subnavItem.put("hidden", String.valueOf(page.isHidden()));
-        subnavItem.put("required", String.valueOf(spi.isRequired()));
-        subnavItem.put("completed", String.valueOf(le != null && le.isComplete()));
-        subnavItem.put("prerequisite", String.valueOf(spi.isPrerequisite()));
+        PortalSubPageData.PageData subPageItem = new PortalSubPageData.PageData();
 
-        processDateReleased(page, subnavItem);
+        subPageItem.setToolId(toolId);
+        subPageItem.setSiteId(page.getSiteId());
+	    subPageItem.setSakaiPageId(parentPage.getToolId());
+        subPageItem.setItemId(Long.toString(spi.getId()));
+        subPageItem.setSendingPage(spi.getSakaiId());
+        subPageItem.setName(spi.getName());
+        subPageItem.setDescription(spi.getDescription());
+        subPageItem.setHidden(page.isHidden());
+        subPageItem.setRequired(spi.isRequired());
+        subPageItem.setCompleted(le != null && le.isComplete());
+        subPageItem.setPrerequisite(spi.isPrerequisite());
+        buildSubpageUrl(subPageItem);
+
+        processDateReleased(page, subPageItem);
 
         boolean contains = true;
         String group = spi.getGroups();
@@ -120,88 +119,91 @@ public class LessonsSubNavBuilder {
             contains = Arrays.stream(group.split(",")).anyMatch(groups::contains);
             // nothing needed for if the user is in the group it will display as normal
             // if the user is not in the groups, subpage is marked hidden above
-            if (!contains) subnavItem.put("hidden", "true");
+            if (!contains) subPageItem.setHidden(true);
         }
         // only send the subpage if user is in the group
-        if (contains) this.subnavData.get(sakaiToolId).add(subnavItem);
+        if (contains) subPages.add(subPageItem);
     }
 
-    public void processTopLevelPageProperties(final String sakaiToolId, SimplePage page, SimplePageItem spi, SimplePageLogEntry le) {
+    public void processTopLevelPageProperties(final String toolId, SimplePage page, SimplePageItem spi, SimplePageLogEntry le) {
         if (isHidden(page)) return;
 
-        final Map<String, String> pageProps = new HashMap<>();
+        PortalSubPageData.PageProps pageProps = new PortalSubPageData.PageProps();
 
-        pageProps.put("toolId", sakaiToolId);
-        pageProps.put("siteId", page.getSiteId());
-        pageProps.put("name", page.getTitle());
-        pageProps.put("hidden", String.valueOf(page.isHidden()));
-        pageProps.put("required", String.valueOf(spi.isRequired()));
-        pageProps.put("completed", String.valueOf(le != null && le.isComplete()));
-        pageProps.put("prerequisite", String.valueOf(spi.isPrerequisite()));
+        pageProps.setToolId(toolId);
+        pageProps.setSiteId(page.getSiteId());
+        pageProps.setName(page.getTitle());
+        pageProps.setIcon("si-sakai-lessonbuildertool");
+        pageProps.setHidden(page.isHidden());
+        pageProps.setRequired(spi.isRequired());
+        pageProps.setCompleted(le != null && le.isComplete());
+        pageProps.setPrerequisite(spi.isPrerequisite());
 
         processDateReleased(page, pageProps);
-        this.topLevelPageProps.add(pageProps);
-
+        subPageData.getTopLevelPageProps().add(pageProps);
     }
 
-
-    private void processDateReleased(SimplePage page, Map<String, String> pageProps) {
+    private void processDateReleased(SimplePage page, PortalSubPageData.PageProps pageProps) {
         if (page.getReleaseDate() != null) {
             Date releaseDate = page.getReleaseDate();
             if (releaseDate.getTime() > System.currentTimeMillis()) {
-                pageProps.put("disabled", "true");
+                pageProps.setDisabled(true);
                 DateTimeFormatter dtf = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).withLocale(rb.getLocale());
                 ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(releaseDate.toInstant(), userTimeService.getLocalTimeZone().toZoneId());
-                pageProps.put("releaseDate", dtf.format(zonedDateTime));
+                pageProps.setReleaseDate(dtf.format(zonedDateTime));
             }
         }
     }
 
-
     private boolean isHidden(final SimplePage p) {
-        if (this.isInstructor) return false;
+        if (isInstructor) return false;
         return p.isHidden();
     }
 
 
-    private Map<String, String> getI18n() {
-        final Map<String, String> translations = new HashMap<>();
-
-        translations.put("expand", rb.getString("lessons_subnav.expand"));
-        translations.put("collapse", rb.getString("lessons_subnav.collapse"));
-        translations.put("open_top_level_page", rb.getString("lessons_subnav.open_top_level_page"));
-        translations.put("hidden", rb.getString("lessons_subnav.hidden"));
-        translations.put("hidden_with_release_date", rb.getString("lessons_subnav.hidden_with_release_date"));
-        translations.put("main_link_name", rb.getString("lessons_subnav.main_link_name"));
-        translations.put("prerequisite", rb.getString("lessons_subnav.prerequisite"));
-        translations.put("prerequisite_and_disabled", rb.getString("lessons_subnav.prerequisite_and_disabled"));
-
-        return translations;
+    // TODO does this need to be different for every tool?
+    private void setI18n() {
+        PortalSubPageData.I18n i18n = subPageData.getI18n();
+        i18n.setExpand(rb.getString("lessons_subnav.expand"));
+        i18n.setCollapse(rb.getString("lessons_subnav.collapse"));
+        i18n.setOpenTopLevelPage(rb.getString("lessons_subnav.open_top_level_page"));
+        i18n.setHidden(rb.getString("lessons_subnav.hidden"));
+        i18n.setHiddenWithReleaseDate(rb.getString("lessons_subnav.hidden_with_release_date"));
+        i18n.setMainLinkName(rb.getString("lessons_subnav.main_link_name"));
+        i18n.setPrerequisite(rb.getString("lessons_subnav.prerequisite"));
+        i18n.setPrerequisiteAndDisabled(rb.getString("lessons_subnav.prerequisite_and_disabled"));
     }
 
-    private void applyPrerequisites() {
-        for (final String pageId : this.subnavData.keySet()) {
-            applyPrerequisitesToPageList(this.subnavData.get(pageId));
-        }
+    private void applyPrerequisites(Collection<String> pageIds) {
+        List<PortalSubPageData.PageData> pages = subPageData.getPages().entrySet().stream()
+                .filter(e -> pageIds.contains(e.getKey()))
+                .flatMap(e -> e.getValue().stream())
+                .collect(Collectors.toList());
+        applyPrerequisitesToPageList(pages);
 
-        applyPrerequisitesToPageList(this.topLevelPageProps);
+        List<String> toolIds = pages.stream()
+                .map(PortalSubPageData.PageData::getToolId)
+                .collect(Collectors.toList());
+        applyPrerequisitesToPageList(subPageData.getTopLevelPageProps().stream()
+                .filter(p -> toolIds.contains(p.getToolId()))
+                .collect(Collectors.toList()));
     }
 
-    private void applyPrerequisitesToPageList(List<Map<String, String>> pages) {
+    public void applyPrerequisitesToPageList(List<? extends PortalSubPageData.PageProps> pageProps) {
         boolean prerequisiteApplies = false;
-        for (Map<String, String> pageData : pages) {
+        for (PortalSubPageData.PageProps props : pageProps) {
 
             // if a sibling page with a smaller sequence is required
             // then disable the current page for students
-            if (pageData.get("prerequisite").equals("true") && prerequisiteApplies) {
-                pageData.put("disabledDueToPrerequisite", "true");
-                pageData.put("disabled", String.valueOf(!this.isInstructor));
+            if (props.isPrerequisite() && prerequisiteApplies) {
+                props.setDisabledDueToPrerequisite(true);
+                props.setDisabled(!isInstructor);
             }
 
             // only disable pages that have prerequisites below the current page
             // when the current page is required and the user is yet to complete it
-            if (pageData.get("required").equals("true")) {
-                if (pageData.get("completed").equals("false")) {
+            if (props.isRequired()) {
+                if (!props.isCompleted()) {
                     prerequisiteApplies = true;
                 }
             }

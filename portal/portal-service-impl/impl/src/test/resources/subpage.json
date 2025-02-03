@@ -1,0 +1,42 @@
+{
+  "pages": {
+    "783d0765-bd24-4253-8a63-ac8889cb25e0": [
+      {
+        "toolId": "783d0765-bd24-4253-8a63-ac8889cb25e0",
+        "itemId": "11",
+        "hidden": "false",
+        "name": "Chapter One",
+        "prerequisite": "false",
+        "siteId": "ff4fb877-4f84-48d1-b1b1-6f1cda7fcb4e",
+        "description": "",
+        "sakaiPageId": "f6060e88-82e0-412f-ae3b-3a98a45c2619",
+        "completed": "true",
+        "sendingPage": "8",
+        "required": "false"
+      }
+    ]
+  },
+  "userId": "6cf7782d-8eb8-4f37-a4ce-1f1b1374f7d2",
+  "topLevelPageProps": [
+    {
+      "toolId": "783d0765-bd24-4253-8a63-ac8889cb25e0",
+      "hidden": "false",
+      "name": "Lessons",
+      "prerequisite": "false",
+      "siteId": "ff4fb877-4f84-48d1-b1b1-6f1cda7fcb4e",
+      "completed": "true",
+      "required": "false"
+    }
+  ],
+  "siteId": "ff4fb877-4f84-48d1-b1b1-6f1cda7fcb4e",
+  "i18n": {
+    "prerequisite_and_disabled": "[You must complete all prerequisites before viewing this item]",
+    "expand": "Expand to show subpages",
+    "open_top_level_page": "Click to open top-level page",
+    "hidden": "[Hidden]",
+    "hidden_with_release_date": "[Not released until {releaseDate}]",
+    "prerequisite": "[Has prerequisites]",
+    "main_link_name": "Main Page",
+    "collapse": "Collapse to hide subpages"
+  }
+}

@@ -37,6 +37,7 @@
         <property name="gradingService" ref="org.sakaiproject.grading.api.GradingService"/>
         <property name="learningResourceStoreService" ref="org.sakaiproject.event.api.LearningResourceStoreService"/>
         <property name="linkMigrationHelper" ref="org.sakaiproject.util.api.LinkMigrationHelper"/>
+        <property name="portalService" ref="org.sakaiproject.portal.api.PortalService"/>
         <property name="transactionTemplate">
             <bean class="org.springframework.transaction.support.TransactionTemplate">
                 <property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
