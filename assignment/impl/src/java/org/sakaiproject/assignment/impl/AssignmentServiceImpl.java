@@ -4252,7 +4252,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     nAssignment.setTitle(oAssignment.getTitle());
                     // replace all occurrence of old context with new context inside instruction text
                     if(StringUtils.isNotBlank(oAssignment.getInstructions())){
-                    	nAssignment.setInstructions(oAssignment.getInstructions().replaceAll(fromContext, toContext));
+                        String newInstructions = ltiService.fixLtiLaunchUrls(oAssignment.getInstructions(), fromContext, toContext);
+                    	nAssignment.setInstructions(newInstructions.replaceAll(fromContext, toContext));
                     }
                     nAssignment.setTypeOfGrade(oAssignment.getTypeOfGrade());
                     nAssignment.setTypeOfSubmission(oAssignment.getTypeOfSubmission());

@@ -1230,14 +1230,7 @@ public abstract class BaseLTIService implements LTIService {
 		}
 
 		// Finally insert the content item...
-		Properties contentProps = new Properties();
-
-		for (Map.Entry<String, Object> entry : ltiContent.entrySet()) {
-			String key = entry.getKey();
-			Object value = entry.getValue();
-			if ( value == null ) continue;
-			contentProps.put(key, value.toString());
-		}
+		Properties contentProps = convertToProperties(ltiContent);
 
 		// Point at the correct (possibly the same) tool id
 		contentProps.put(LTIService.LTI_TOOL_ID, newToolId.toString());
@@ -1271,5 +1264,110 @@ public abstract class BaseLTIService implements LTIService {
 		return contentKey;
 	}
 
+	// http://localhost:8080/access/lti/site/7d529bf7-b856-4400-9da1-ba8670ed1489/content:1
+	// http://localhost:8080/access/lti/site/7d529bf7-b856-4400-9da1-ba8670ed1489/content:42
+	// TODO: Make sure that across calls we neever create a new content item more than once	for the same old content item - but how often does that happen? given the way Deep Links are used in the RTE
+
+	@Override
+	public String fixLtiLaunchUrls(String text, String fromContext, String toContext) {
+		if (StringUtils.isBlank(text)) return text;
+		System.out.println("text="+text);
+		List<String> urls = SakaiLTIUtil.extractLtiLaunchUrls(text);
+		for (String url : urls) {
+			System.out.println("url="+url);
+			String[] pieces = SakaiLTIUtil.getLtiLaunchUrlAndSiteId(url);
+			if (pieces != null) {
+				String linkSiteId = pieces[0];
+				String linkContextId = pieces[1];
+				System.out.println("linkSiteId="+linkSiteId+" linkContextId="+linkContextId);
+
+				// We need to load up the content item from the old context which should be successful
+				// TODO: What if fromContext and linkSiteId are different?
+				Long contentKey = Long.parseLong(linkContextId);
+				Map<String, Object> content = this.getContent(contentKey, linkSiteId);
+				System.out.println("content="+content);
+				if (content == null) {
+					System.out.println("Could not find content item "+contentKey+" in site "+linkSiteId);
+					log.error("Could not find content item {} in site {}",contentKey,linkSiteId);
+					continue;
+				}
+
+				Long toolId = Foorm.getLongNull(content.get(LTIService.LTI_TOOL_ID));
+				if (toolId == null) {
+					System.out.println("Could not find tool id for content item "+contentKey+" in site "+linkSiteId);
+					log.error("Could not find tool id for content item {} in site {}",contentKey,linkSiteId);
+					continue;
+				}
+
+				// Check if the tool exists and is accessible to the current site
+				Long newToolId = null;
+				Map<String, Object> tool = this.getTool(toolId, toContext);
+				System.out.println("tool="+tool);
+
+				// If we can't load the tool with an explicit key, then we need to find the right tool to assiociate with
+				if (tool != null) {
+					newToolId = toolId;
+				} else {
+					System.out.println("Searching for tool for content item "+contentKey+" in site "+toContext);
+					log.debug("Searching for tool for content item {} in site {}",contentKey,toContext);
+			
+					// Lets find the right tool to assiociate with
+					String launchUrl = (String) content.get(LTIService.LTI_LAUNCH);
+					if (StringUtils.isBlank(launchUrl)) {
+						System.out.println("Could not find launch url for content item "+contentKey+" in site "+linkSiteId);
+						log.error("Could not find launch url for content item {} in site {}",contentKey,linkSiteId);
+						continue;
+					}
+					String toolBaseUrl = SakaiLTIUtil.stripOffQuery(launchUrl);
+					System.out.println("toolBaseUrl="+toolBaseUrl);
+
+					// Get all the tools available to the new context and check if any match the toolBaseUrl
+					List<Map<String,Object>> tools = this.getTools(null,null,0,0, toContext);
+					tool = SakaiLTIUtil.findBestToolMatch(toolBaseUrl, null, tools);
+					if (tool != null) {
+						newToolId = SakaiLTIUtil.getLong(tool.get(LTIService.LTI_ID));
+					} else {
+						System.out.println("Inserting stub tool for content item "+contentKey+" / "+toolBaseUrl+" in site "+toContext);
+						log.debug("Inserting stub tool for content item {} / {} in site {}",contentKey,toolBaseUrl,toContext);
+						String contentTitle = (String) content.get(LTIService.LTI_TITLE);
+						if ( StringUtils.isBlank(contentTitle) ) contentTitle = toolBaseUrl;
+						tool = createStubLTI11Tool(toolBaseUrl, contentTitle);
+						Object toolResult = this.insertTool(tool, toContext);
+						if ( toolResult instanceof Long ) {
+							newToolId = (Long) toolResult;
+						} else {
+							System.out.println("Could not insert stub tool for content item "+contentKey+" in site "+toContext);
+							log.error("Could not insert stub tool for content item {} in site {}",contentKey,toContext);
+							continue;
+						}
+					}
+				}
+
+				if ( newToolId == null ) {
+					System.out.println("Could associate new content content item "+contentKey+" with a tool in site "+toContext);
+					log.error("Could not associate new content content item {} with a tool in site {}",contentKey, toContext);
+					continue;
+				}	
+
+				content.put(LTIService.LTI_SITE_ID, toContext);
+				content.put(LTIService.LTI_TOOL_ID, newToolId.toString());
+				Object result = this.insertContent(content, toContext);
+				if (result instanceof Long) {
+					Long newContentId = (Long) result;
+					System.out.println("Inserted content item "+newContentId+" in site "+toContext);
+					String baseUrl = url.substring(0, url.indexOf("/site/") + 6); // +6 to include "/site/"
+					// Upgrade the access prefix from legacy blti to modern lti
+					String newUrl = baseUrl.replace(LTIService.LAUNCH_PREFIX_LEGACY, LTIService.LAUNCH_PREFIX) + toContext + "/content:" + newContentId;
+					text = text.replace(url, newUrl);
+				} else {
+					System.out.println("Could not insert content item "+contentKey+" in site "+toContext);
+					log.error("Could not insert content item {} in site {}",contentKey,toContext);
+					continue;
+				}
+			}
+		}
+		System.out.println("text="+text);
+		return text;
+	}
 
 }
