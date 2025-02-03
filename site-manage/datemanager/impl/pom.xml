@@ -68,6 +68,10 @@
 			<artifactId>scheduler-api</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.sakaiproject.portal</groupId>
+			<artifactId>sakai-portal-api</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.sakaiproject.signup</groupId>
 			<artifactId>signup-api</artifactId>
 		</dependency>
