@@ -83,6 +83,7 @@ import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.memory.api.SimpleConfiguration;
 import org.sakaiproject.site.api.Group;
+import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -135,6 +136,9 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 	@Setter
    	private ExternalCalendarSubscriptionService externalCalendarSubscriptionService;
+
+	@Setter
+	private LTIService ltiService;
 
    	private PDFExportService pdfExportService;
 
@@ -1688,8 +1692,8 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	}
 
 	@Override
-	public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map attachmentNames, Map userIdTrans,
-			Set userListAllowImport)
+	public String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId, Map<String, String> attachmentNames,
+		Map<Long, Map<String, Object>> ltiContentItems, Map<String, String> userIdTrans, Set<String> userListAllowImport)
 	{
 		// prepare the buffer for the results log
 		StringBuilder results = new StringBuilder();
@@ -1829,6 +1833,10 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 									// create a new message in the calendar
 									CalendarEventEdit edit = calendar.mergeEvent(element3);
+									String description = edit.getDescriptionFormatted();
+									description = ltiService.fixLtiLaunchUrls(description, siteId, ltiContentItems);
+									edit.setDescriptionFormatted(description);
+
 									calendar.commitEvent(edit);
 									count++;
 								}
@@ -1901,7 +1909,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 				for (int i = 0; i < oEvents.size(); i++)
 				{
-					CalendarEvent oEvent = (CalendarEvent) oEvents.get(i);
+					CalendarEventEdit oEvent = (CalendarEventEdit) oEvents.get(i);
 					try
 					{
 						// Skip calendar events based on assignment due dates
@@ -1909,7 +1917,11 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 						if (assignmentId != null && assignmentId.length() > 0)
 							continue;
 
-						CalendarEvent e = nCalendar.addEvent(oEvent.getRange(), oEvent.getDisplayName(), oEvent.getDescription(),
+						String description = oEvent.getDescriptionFormatted();
+						description = ltiService.fixLtiLaunchUrls(description, fromContext, toContext);
+						oEvent.setDescriptionFormatted(description);
+
+						CalendarEvent e = nCalendar.addEvent(oEvent.getRange(), oEvent.getDisplayName(), oEvent.getDescriptionFormatted(),
 								oEvent.getType(), oEvent.getLocation(), oEvent.getAttachments());
 
 						try
@@ -3644,7 +3656,6 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 				if (child.getNodeType() == Node.ELEMENT_NODE)
 				{
 					Element element = (Element) child;
-
 					// look for an attachment
 					if (element.getTagName().equals("attachment"))
 					{

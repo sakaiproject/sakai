@@ -1308,17 +1308,18 @@ public abstract class BaseLTIService implements LTIService {
 				Object result = this.insertContent(content, toContext);
 				if (result instanceof Long) {
 					Long newContentId = (Long) result;
-					log.debug("Inserted content item {} in site {}", newContentId, toContext);
 					String baseUrl = url.substring(0, url.indexOf("/site/") + 6); // +6 to include "/site/"
 					// Upgrade the access prefix from legacy blti to modern lti
 					String newUrl = baseUrl.replace(LTIService.LAUNCH_PREFIX_LEGACY, LTIService.LAUNCH_PREFIX) + toContext + "/content:" + newContentId;
 					text = text.replace(url, newUrl);
+					log.debug("Inserted content item {} in site {} newUrl {}", newContentId, toContext, newUrl);
 				} else {
 					log.error("Could not insert content item {} in site {}",contentKey,toContext);
 					continue;
 				}
 			}
 		}
+		log.debug("text {}", text);
 		return text;
 	}
 
@@ -1399,6 +1400,7 @@ public abstract class BaseLTIService implements LTIService {
 							log.debug("Could not validate imported tool for content item map {} in site {} {}", launchUrl, toSiteId, toolErrors);
 							tool = null;
 						}
+						log.debug("Found tool for content item in item map {} in site {} {}", launchUrl, toSiteId, toolErrors);
 					}
 				} catch (ClassCastException e) {
 					tool = null;	
@@ -1410,7 +1412,7 @@ public abstract class BaseLTIService implements LTIService {
 		if ( tool == null ) {
 			String contentTitle = (String) content.get(LTIService.LTI_TITLE);
 			if (StringUtils.isBlank(contentTitle)) contentTitle = toolBaseUrl;
-			log.debug("creating stub tool for content item {} / {} in site {}", launchUrl, toolBaseUrl, toSiteId);
+			log.debug("Creating stub tool for content item {} / {} in site {}", launchUrl, toolBaseUrl, toSiteId);
 			tool = createStubLTI11Tool(toolBaseUrl, contentTitle);
 		}
 
