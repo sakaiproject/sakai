@@ -458,7 +458,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         for (Element assignmentElement : assignmentElements) {
 
             try {
-                mergeAssignment(siteId, assignmentElement, results, creatorId, assignmentTitles);
+                mergeAssignment(siteId, assignmentElement, results, creatorId, assignmentTitles, ltiContentItems);
                 assignmentsMerged++;
             } catch (Exception e) {
                 final String error = "could not merge assignment with id: " + assignmentElement.getFirstChild().getFirstChild().getNodeValue();
@@ -993,7 +993,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         return submission.getSubmitters().stream().findAny().get().getTimeSpent();
     }
 
-    private Assignment mergeAssignment(final String siteId, final Element element, final StringBuilder results, String creatorId, Set<String> assignmentTitles) throws PermissionException {
+    private Assignment mergeAssignment(final String siteId, final Element element, final StringBuilder results, String creatorId, Set<String> assignmentTitles, Map<Long, Map<String, Object>> ltiContentItems) throws PermissionException {
 
         if (!allowAddAssignment(siteId)) {
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ADD_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().context(siteId).reckon().getReference());
@@ -1017,6 +1017,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             assignmentFromXml.setContext(siteId);
             assignmentFromXml.setContentId(null);
             if ( StringUtils.isNotEmpty(creatorId) ) assignmentFromXml.setAuthor(creatorId);
+
+            String fromContext = null;
+            String newInstructions = ltiService.fixLtiLaunchUrls(assignmentFromXml.getInstructions(), fromContext, siteId, ltiContentItems);
+            assignmentFromXml.setInstructions(newInstructions);
 
             Long contentKey = ltiService.mergeContentFromImport(element, siteId);
             if ( contentKey != null ) assignmentFromXml.setContentId(contentKey.intValue());
@@ -4252,7 +4256,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     nAssignment.setTitle(oAssignment.getTitle());
                     // replace all occurrence of old context with new context inside instruction text
                     if(StringUtils.isNotBlank(oAssignment.getInstructions())){
-                        String newInstructions = ltiService.fixLtiLaunchUrls(oAssignment.getInstructions(), fromContext, toContext);
+                        Map<Long, Map<String, Object>> ltiContentItems = null;
+                        String newInstructions = ltiService.fixLtiLaunchUrls(oAssignment.getInstructions(), fromContext, toContext, ltiContentItems);
                     	nAssignment.setInstructions(newInstructions.replaceAll(fromContext, toContext));
                     }
                     nAssignment.setTypeOfGrade(oAssignment.getTypeOfGrade());
