@@ -616,7 +616,7 @@ public class GradeSheetExporter {
                         sheetRow.createCell(column++).setCellValue(submitter.id);
 
                         for (Object rowValue : rowValues) {
-                            if (rowValue instanceof FloatCell) {
+                            if (rowValue instanceof GradeSheetExporter.FloatCell) {
                                 FloatCell floatValue = (FloatCell) rowValue;
                                 cell = sheetRow.createCell(column++, CellType.NUMERIC);
                                 cell.setCellValue(floatValue.value);

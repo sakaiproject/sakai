@@ -137,6 +137,7 @@ public class MyProfile extends BasePage {
 		userProfile.setUserUuid(userUuid);
 
 		userProfile.setNickname(sakaiPerson.getNickname());
+		userProfile.setPersonalSummary(sakaiPerson.getNotes());
 		userProfile.setDisplayName(userDisplayName);
 
 		userProfile.setEmail(userEmail);

@@ -41,8 +41,8 @@
     <sakai.httpclient.version>4.5.14</sakai.httpclient.version>
     <sakai.httpcore.version>4.4.16</sakai.httpcore.version>
     <sakai.httpmime.version>4.5.14</sakai.httpmime.version>
-    <sakai.httpclient5.version>5.4.1</sakai.httpclient5.version>
-    <sakai.httpcore5.version>5.3.2</sakai.httpcore5.version>
+    <sakai.httpclient5.version>5.4.2</sakai.httpclient5.version>
+    <sakai.httpcore5.version>5.3.3</sakai.httpcore5.version>
     <sakai.ignite.version>2.16.0</sakai.ignite.version>
     <sakai.ignite.spring.ext.version>1.0.0</sakai.ignite.spring.ext.version>
     <sakai.ignite.hibernate.version>5.3.0</sakai.ignite.hibernate.version>

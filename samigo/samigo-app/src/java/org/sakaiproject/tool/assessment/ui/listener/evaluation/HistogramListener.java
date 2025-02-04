@@ -129,7 +129,7 @@ public class HistogramListener
     HistogramScoresBean bean = (HistogramScoresBean) ContextUtil.lookupBean(
                                "histogramScores");
     
-    // Set published assessmentId fot histogramScores
+    // Set published assessmentId for histogramScores
     bean.setAssessmentId(totalBean.getPublishedId());
     if (bean.getAssessmentId().equals("0"))
     {
