@@ -2627,7 +2627,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
 
                     newBean.id = fromBean.id;
                     newBean.title = fromBean.title;
-                    newBean.message = ltiService.fixLtiLaunchUrls(fromBean.message, fromContext, toContext);
+                    newBean.message = ltiService.fixLtiLaunchUrls(fromBean.message, fromContext, toContext, traversalMap);
                     newBean.siteId = toContext;
                     newBean.draft = true;
                     newBean.type = fromBean.type;

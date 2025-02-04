@@ -1267,18 +1267,19 @@ public abstract class BaseLTIService implements LTIService {
 	@Override
 	public String fixLtiLaunchUrls(String text, String toContext, Map<Long, Map<String, Object>> ltiContentItems) {
 		String fromContext = null;
-		return fixLtiLaunchUrls(text, fromContext, toContext, ltiContentItems);
+		Map<String, String> transversalMap = null;
+		return fixLtiLaunchUrls(text, fromContext, toContext, ltiContentItems, transversalMap);
 	}
 
 	@Override
-	public String fixLtiLaunchUrls(String text, String fromContext, String toContext) {
+	public String fixLtiLaunchUrls(String text, String fromContext, String toContext, Map<String, String> transversalMap) {
 		Map<Long, Map<String, Object>> ltiContentItems = null;
-		return fixLtiLaunchUrls(text, fromContext, toContext, ltiContentItems);
+		return fixLtiLaunchUrls(text, fromContext, toContext, ltiContentItems, transversalMap);
 	}
 
 	// http://localhost:8080/access/lti/site/7d529bf7-b856-4400-9da1-ba8670ed1489/content:1
 	// http://localhost:8080/access/lti/site/7d529bf7-b856-4400-9da1-ba8670ed1489/content:42
-	protected String fixLtiLaunchUrls(String text, String fromContext, String toContext, Map<Long, Map<String, Object>> ltiContentItems) {
+	protected String fixLtiLaunchUrls(String text, String fromContext, String toContext, Map<Long, Map<String, Object>> ltiContentItems, Map<String, String> transversalMap) {
 		if (StringUtils.isBlank(text)) return text;
 		List<String> urls = SakaiLTIUtil.extractLtiLaunchUrls(text);
 		for (String url : urls) {
@@ -1286,6 +1287,12 @@ public abstract class BaseLTIService implements LTIService {
 			if (pieces != null) {
 				String linkSiteId = pieces[0];
 				String linkContextId = pieces[1];
+
+				if ( transversalMap != null && transversalMap.containsKey(url) ) {
+					log.debug("Found transversal map entry for {} -> {}", url, transversalMap.get(url));
+					text = text.replace(url, transversalMap.get(url));
+					return text;
+				}
 
 				// We need to load up the content item from the old context which should be successful
 				Long contentKey = Long.parseLong(linkContextId);
@@ -1312,6 +1319,7 @@ public abstract class BaseLTIService implements LTIService {
 					// Upgrade the access prefix from legacy blti to modern lti
 					String newUrl = baseUrl.replace(LTIService.LAUNCH_PREFIX_LEGACY, LTIService.LAUNCH_PREFIX) + toContext + "/content:" + newContentId;
 					text = text.replace(url, newUrl);
+					transversalMap.put(url, newUrl);
 					log.debug("Inserted content item {} in site {} newUrl {}", newContentId, toContext, newUrl);
 				} else {
 					log.error("Could not insert content item {} in site {}",contentKey,toContext);

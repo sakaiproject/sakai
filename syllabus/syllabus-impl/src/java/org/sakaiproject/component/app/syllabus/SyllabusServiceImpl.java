@@ -1059,7 +1059,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 								.intValue() + 1);
 
 						String assetStr = sd.getAsset();
-						assetStr = ltiService.fixLtiLaunchUrls(assetStr, fromContext, toContext);
+						assetStr = ltiService.fixLtiLaunchUrls(assetStr, fromContext, toContext, transversalMap);
 						sd.setAsset(assetStr);
 
 						SyllabusData newToSyData = syllabusManager

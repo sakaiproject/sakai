@@ -653,7 +653,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 								}
 								if (fromTopic.getExtendedDescription() != null && fromTopic.getExtendedDescription().length() > 0) {
 									String extendedDescription = fromTopic.getExtendedDescription();
-									extendedDescription = ltiService.fixLtiLaunchUrls(extendedDescription, fromContext, toContext);
+									extendedDescription = ltiService.fixLtiLaunchUrls(extendedDescription, fromContext, toContext, transversalMap);
 									newTopic.setExtendedDescription(extendedDescription);
 								}
 								newTopic.setLocked(fromTopic.getLocked());

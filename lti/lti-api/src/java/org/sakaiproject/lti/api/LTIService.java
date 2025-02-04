@@ -649,7 +649,7 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @param toContext The destination context
      * @return The text with updated LTI launch URLs
      */
-    String fixLtiLaunchUrls(String text, String fromContext, String toContext);
+    String fixLtiLaunchUrls(String text, String fromContext, String toContext, Map<String, String> transversalMap);
 
     /**
      * Fix LTI launch URLs when copying content between contexts

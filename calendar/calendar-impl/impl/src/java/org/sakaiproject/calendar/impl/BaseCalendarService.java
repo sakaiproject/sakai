@@ -1918,7 +1918,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 							continue;
 
 						String description = oEvent.getDescriptionFormatted();
-						description = ltiService.fixLtiLaunchUrls(description, fromContext, toContext);
+						description = ltiService.fixLtiLaunchUrls(description, fromContext, toContext, transversalMap);
 						oEvent.setDescriptionFormatted(description);
 
 						CalendarEvent e = nCalendar.addEvent(oEvent.getRange(), oEvent.getDisplayName(), oEvent.getDescriptionFormatted(),

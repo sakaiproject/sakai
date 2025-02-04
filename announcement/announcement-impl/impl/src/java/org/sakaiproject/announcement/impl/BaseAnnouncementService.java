@@ -34,6 +34,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Stack;
@@ -1480,6 +1481,8 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 	 */
 	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> resourceIds, List<String> options) {
 
+		Map<String, String> transversalMap = new HashMap<>();
+
 		// get the channel associated with this site
 		String oChannelRef = channelReference(fromContext, SiteService.MAIN_CONTAINER);
 		AnnouncementChannel oChannel = null;
@@ -1555,7 +1558,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 						// the "to" message
 						nMessage = (AnnouncementMessageEdit) nChannel.addMessage();
 						String newBody = oMessage.getBody();
-						newBody = ltiService.fixLtiLaunchUrls(newBody, fromContext, toContext);
+						newBody = ltiService.fixLtiLaunchUrls(newBody, fromContext, toContext, transversalMap);
 						newBody = linkMigrationHelper.migrateOneLink(fromContext, toContext, newBody);
 						nMessage.setBody(newBody);
 						// message header
@@ -1674,8 +1677,8 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 		{
 			log.warn(".importResources(): exception in handling {} : {}", serviceName(), any);
 		}
-		
-		return null;
+
+		return transversalMap;
 	}
 
 	@Override

@@ -31,6 +31,7 @@ import java.util.LinkedHashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.Set;
 import java.util.Stack;
 import java.util.UUID;
@@ -50,9 +51,7 @@ import org.w3c.dom.NodeList;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityTransferrer;
-import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.genericdao.api.search.Order;
 import org.sakaiproject.genericdao.api.search.Restriction;
 import org.sakaiproject.genericdao.api.search.Search;
@@ -573,7 +572,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
 
     @Override
     public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> resourceIds, List<String> transferOptions) {
-
+        Map<String, String> transversalMap = new HashMap<>();
         try {
             for (Poll fromPoll : findAllPolls(fromContext)) {
                 Poll fromPollV = getPollWithVotes(fromPoll.getPollId());
@@ -589,7 +588,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
                 toPoll.setDisplayResult(fromPollV.getDisplayResult());
                 toPoll.setLimitVoting(fromPollV.getLimitVoting());
                 String details = fromPollV.getDetails();
-                details = ltiService.fixLtiLaunchUrls(details, fromContext, toContext);
+                details = ltiService.fixLtiLaunchUrls(details, fromContext, toContext, transversalMap);
                 toPoll.setDetails(details);
  
                 //Guardamos toPoll para que se puedan ir añandiéndole las opciones y los votos
@@ -606,7 +605,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
                         toOption.setOptionOrder(fromOption.getOptionOrder());
 
                         String text = fromOption.getText();
-                        text = ltiService.fixLtiLaunchUrls(text, fromContext, toContext);
+                        text = ltiService.fixLtiLaunchUrls(text, fromContext, toContext, transversalMap);
                         toOption.setText(text);
 
                         saveOption(toOption);
@@ -628,7 +627,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
             log.error("Failed to save transfer polls: {}", e.toString());
         }
 
-        return null;
+        return transversalMap;
     }
 
 

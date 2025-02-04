@@ -4254,7 +4254,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     nAssignment.setTitle(oAssignment.getTitle());
                     // replace all occurrence of old context with new context inside instruction text
                     if(StringUtils.isNotBlank(oAssignment.getInstructions())){
-                        String newInstructions = ltiService.fixLtiLaunchUrls(oAssignment.getInstructions(), fromContext, toContext);
+                        String newInstructions = ltiService.fixLtiLaunchUrls(oAssignment.getInstructions(), fromContext, toContext, transversalMap);
                     	nAssignment.setInstructions(newInstructions.replaceAll(fromContext, toContext));
                     }
                     nAssignment.setTypeOfGrade(oAssignment.getTypeOfGrade());
@@ -4616,7 +4616,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             }
             transversalMap.putAll(transferCopyEntities(fromContext, toContext, ids, transferOptions));
         } catch (Exception e) {
-            log.info("End removing Assignmentt data {}", e.getMessage());
+            log.info("End removing Assignment data {}", e.getMessage());
         }
 
         return transversalMap;

@@ -18,9 +18,10 @@ package org.sakaiproject.conversations.impl;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.anyString;
-
+import static org.mockito.ArgumentMatchers.any;
 import java.io.IOException;
 import java.util.Properties;
+import java.util.Map;
 import javax.annotation.Resource;
 import javax.sql.DataSource;
 
@@ -308,7 +309,7 @@ public class ConversationsTestConfiguration {
     @Bean(name = "org.sakaiproject.lti.api.LTIService")
     public LTIService ltiService() {
         LTIService ltiService = mock(LTIService.class);
-        when(ltiService.fixLtiLaunchUrls(anyString(), anyString(), anyString()))
+        when(ltiService.fixLtiLaunchUrls(anyString(), anyString(), anyString(), any(Map.class)))
             .thenAnswer(invocation -> invocation.getArgument(0));
         return ltiService;
     }
