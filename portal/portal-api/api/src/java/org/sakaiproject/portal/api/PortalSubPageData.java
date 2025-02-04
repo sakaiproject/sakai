@@ -37,6 +37,7 @@ public class PortalSubPageData {
         private String releaseDate;
         private String siteId;
         private String toolId;
+        private String pageId;
         private boolean completed;
         private boolean disabled;
         private boolean disabledDueToPrerequisite;

@@ -1952,6 +1952,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 					m.put(p, toolId);
 					findSubPageItemsByPageId(p.getPageId())
 							.forEach(spi -> lessonsSubNavBuilder.processResult(
+									pageId,
 									toolId,
 									p,
 									spi,

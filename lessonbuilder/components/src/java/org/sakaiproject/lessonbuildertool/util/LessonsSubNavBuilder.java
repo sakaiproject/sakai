@@ -89,7 +89,7 @@ public class LessonsSubNavBuilder {
         subpage.setUrl(uriBuilder.build().toUriString());
     }
 
-    public void processResult(String toolId, SimplePage parentPage, SimplePageItem spi, SimplePage page, SimplePageLogEntry le) {
+    public void processResult(String pageId, String toolId, SimplePage parentPage, SimplePageItem spi, SimplePage page, SimplePageLogEntry le) {
         if (isHidden(page)) return;
 
         List<PortalSubPageData.PageData> subPages = subPageData
@@ -98,6 +98,7 @@ public class LessonsSubNavBuilder {
 
         PortalSubPageData.PageData subPageItem = new PortalSubPageData.PageData();
 
+        subPageItem.setPageId(pageId);
         subPageItem.setToolId(toolId);
         subPageItem.setSiteId(page.getSiteId());
 	    subPageItem.setSakaiPageId(parentPage.getToolId());
@@ -125,7 +126,7 @@ public class LessonsSubNavBuilder {
         if (contains) subPages.add(subPageItem);
     }
 
-    public void processTopLevelPageProperties(final String toolId, SimplePage page, SimplePageItem spi, SimplePageLogEntry le) {
+    public void processTopLevelPageProperties(String toolId, SimplePage page, SimplePageItem spi, SimplePageLogEntry le) {
         if (isHidden(page)) return;
 
         PortalSubPageData.PageProps pageProps = new PortalSubPageData.PageProps();
@@ -175,18 +176,16 @@ public class LessonsSubNavBuilder {
     }
 
     private void applyPrerequisites(Collection<String> pageIds) {
-        List<PortalSubPageData.PageData> pages = subPageData.getPages().entrySet().stream()
-                .filter(e -> pageIds.contains(e.getKey()))
-                .flatMap(e -> e.getValue().stream())
-                .collect(Collectors.toList());
-        applyPrerequisitesToPageList(pages);
-
-        List<String> toolIds = pages.stream()
-                .map(PortalSubPageData.PageData::getToolId)
-                .collect(Collectors.toList());
-        applyPrerequisitesToPageList(subPageData.getTopLevelPageProps().stream()
-                .filter(p -> toolIds.contains(p.getToolId()))
-                .collect(Collectors.toList()));
+        subPageData.getPages().forEach((toolId, dataList) -> {
+            if (dataList.stream().anyMatch(page -> pageIds.contains(page.getPageId()))) {
+                List<PortalSubPageData.PageProps> pageProps = new ArrayList<>();
+                subPageData.getTopLevelPageProps().stream()
+                        .filter(props -> props.getToolId().equals(toolId))
+                        .findAny().ifPresent(pageProps::add);
+                pageProps.addAll(dataList);
+                applyPrerequisitesToPageList(pageProps);
+            }
+        });
     }
 
     public void applyPrerequisitesToPageList(List<? extends PortalSubPageData.PageProps> pageProps) {
