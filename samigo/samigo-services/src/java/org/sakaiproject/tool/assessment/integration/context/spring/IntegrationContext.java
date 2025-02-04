@@ -25,7 +25,6 @@ import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFa
 import org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookHelper;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
-import org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetHelper;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.SectionAwareServiceHelper;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.ServerConfigurationServiceHelper;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHelper;
@@ -43,7 +42,6 @@ public class IntegrationContext extends IntegrationContextFactory
   private AgentHelper agentHelper;
   private GradebookHelper gradebookHelper;
   private GradebookServiceHelper gradebookServiceHelper;
-  private PublishingTargetHelper publishingTargetHelper;
   private SectionAwareServiceHelper sectionAwareServiceHelper;
   private ServerConfigurationServiceHelper serverConfigurationServiceHelper;
   private CalendarServiceHelper calendarServiceHelper;
@@ -84,15 +82,6 @@ public class IntegrationContext extends IntegrationContextFactory
   {
     this.gradebookServiceHelper = gradebookServiceHelper;
   }
-  public PublishingTargetHelper getPublishingTargetHelper()
-  {
-    return publishingTargetHelper;
-  }
-  public void setPublishingTargetHelper(PublishingTargetHelper publishingTargetHelper)
-  {
-    this.publishingTargetHelper = publishingTargetHelper;
-  }
-
   public SectionAwareServiceHelper getSectionAwareServiceHelper()
   {
     return sectionAwareServiceHelper;
