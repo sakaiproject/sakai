@@ -97,6 +97,7 @@ import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.GradeDefinition;
 import org.sakaiproject.grading.api.GradingSecurityException;
 import org.sakaiproject.grading.api.GradingService;
+import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.messaging.api.Message;
@@ -198,6 +199,8 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
     private UserTimeService userTimeService;
 
     private ResourceLoader resourceLoader;
+
+    private LTIService ltiService;
 
     private Cache<String, List<ConversationsStat>> sortedStatsCache;
     private Cache<String, Map<String, Map<String, Object>>> postsCache;
@@ -2624,7 +2627,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
 
                     newBean.id = fromBean.id;
                     newBean.title = fromBean.title;
-                    newBean.message = fromBean.message;
+                    newBean.message = ltiService.fixLtiLaunchUrls(fromBean.message, fromContext, toContext);
                     newBean.siteId = toContext;
                     newBean.draft = true;
                     newBean.type = fromBean.type;
