@@ -413,6 +413,17 @@
                     evaluated-item-owner-id="$submitterId"
                 #end
             ></sakai-rubric-student>
+            <p class="help-block">
+                $tlang.getString("studentrubric")
+            </p>
+            <button id="student-rubric-autocomplete-button"
+                class="mb-2 btn-transparent text-start"
+                onclick="ASN.autocompleteRubricWithSelfReport(event)"
+                aria-haspopup="true"
+                title="$tlang.getString("copyAutoevaluation")">
+                <u>$tlang.getString("copyAutoevaluation")</u>
+                <i id="student-rubric-autocomplete-confirm" class="bi bi-check2 d-none"></i>
+            </button>
             <hr class="itemSeparator" />
             #end
 
