@@ -29,9 +29,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.LinkedHashSet;
 import java.util.Stack;
 import java.util.TreeSet;
 import java.util.Vector;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.apache.commons.codec.binary.Base64;
@@ -63,6 +65,7 @@ import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.Placement;
@@ -119,6 +122,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
   @Setter private ToolManager toolManager;
   @Setter private SessionManager sessionManager;
   @Setter private EventTrackingService eventTrackingService;
+  @Setter private LTIService ltiService;
 
   protected NotificationService notificationService = null;
   protected String m_relativeAccessPoint = null;
@@ -444,10 +448,25 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
    *      org.w3c.dom.Element, java.lang.String, java.lang.String, java.util.Map, java.util.HashMap,
    *      java.util.Set)
    */
-  public String merge(String siteId, Element root, String archivePath,
-      String fromSiteId, Map attachmentNames, Map userIdTrans,
-      Set userListAllowImport)
+  public String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId, Map<String, String> attachmentNames,
+      Map<Long, Map<String, Object>> ltiContentItems, Map<String, String> userIdTrans, Set<String> userListAllowImport) 
   {
+    // Get the existing titles for duplicate removal
+    Set<String> syllabusTitles = new LinkedHashSet<>();
+    SyllabusItem theItem = syllabusManager.getSyllabusItemByContextId(siteId);
+
+    if (theItem != null) {
+      Set<SyllabusData> syllabi = syllabusManager.getSyllabiForSyllabusItem(theItem);
+
+      if (syllabi != null && !syllabi.isEmpty()) {
+        syllabusTitles = syllabi.stream()
+          .filter(Objects::nonNull)
+          .map(SyllabusData::getTitle)
+          .filter(Objects::nonNull)
+          .collect(Collectors.toCollection(LinkedHashSet::new));
+      }
+    }
+
     // buffer for the results log
 	StringBuilder results = new StringBuilder();
     // populate SyllabusItem
@@ -467,18 +486,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
             Element siteElement = (Element) siteNode;
             if (siteElement.getTagName().equals(SITE_ARCHIVE))
             {
-//sakai2              NodeList pageNodes = siteElement.getChildNodes();
-//              int lengthPageNodes = pageNodes.getLength();
-//              for (int p = 0; p < lengthPageNodes; p++)
-//              {
-//                Node pageNode = pageNodes.item(p);
-//                if (pageNode.getNodeType() == Node.ELEMENT_NODE)
-//                {
-//                  Element pageElement = (Element) pageNode;
-//                  if (pageElement.getTagName().equals(PAGE_ARCHIVE))
-//                  {
-//                    NodeList syllabusNodes = pageElement.getChildNodes();
-              			NodeList syllabusNodes = siteElement.getChildNodes();
+                    NodeList syllabusNodes = siteElement.getChildNodes();
                     int lengthSyllabusNodes = syllabusNodes.getLength();
                     for (int sn = 0; sn < lengthSyllabusNodes; sn++)
                     {
@@ -519,6 +527,8 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
                               {
                                 List<String> attachStringList = new ArrayList<String>();
 
+                                String syllabusTitle = syDataElement.getAttribute(SYLLABUS_DATA_TITLE);
+                                if ( syllabusTitles.contains(syllabusTitle) ) continue;
                                 syDataCount = syDataCount + 1;
                                 SyllabusData syData = new SyllabusData();
                                 syData.setView(syDataElement
@@ -551,6 +561,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
                                         {
                                           byte[] decoded = Base64.decodeBase64(body.getBytes("UTF-8"));
                                           body = new String(decoded, charset);
+                                          body = ltiService.fixLtiLaunchUrls(body, siteId, ltiContentItems);
                                         }
                                         catch (Exception e)
                                         {
@@ -1010,7 +1021,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 		
 		try 
 		{
-			log.debug("transfer copy syllbus itmes by transferCopyEntities");
+			log.debug("transfer copy syllabus itmes by transferCopyEntities");
 			String fromPage = fromContext;
 			SyllabusItem fromSyllabusItem = syllabusManager
 					.getSyllabusItemByContextId(fromPage);
@@ -1046,6 +1057,11 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 						Integer positionNo = new Integer(syllabusManager
 								.findLargestSyllabusPosition(toSyItem)
 								.intValue() + 1);
+
+						String assetStr = sd.getAsset();
+						assetStr = ltiService.fixLtiLaunchUrls(assetStr, fromContext, toContext);
+						sd.setAsset(assetStr);
+
 						SyllabusData newToSyData = syllabusManager
 								.createSyllabusDataObject(sd.getTitle(),
 										positionNo, sd.getAsset(),
@@ -1228,7 +1244,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 	/**
 	 * {@inheritDoc}
 	 */
-	public void updateEntityReferences(String toContext, Map<String, String> transversalMap){		  
+	public void updateEntityReferences(String toContext, String fromContext, Map<String, String> transversalMap){
 		if(transversalMap != null){
 			Set<Entry<String, String>> entrySet = (Set<Entry<String, String>>) transversalMap.entrySet();	  	
 
