@@ -14,7 +14,7 @@
             enableFiltering: true,
             enableCaseInsensitiveFiltering: true,
             includeSelectAllOption: true,
-	    buttonText: function(options, select) {return '$tlang.getString("asn.edit.selectone")';},
+            buttonText: function(options, select) {return '$tlang.getString("asn.edit.selectone")';},
             templates: {
                 button: `
                     <button type="button"
