@@ -27,7 +27,6 @@ import org.sakaiproject.tool.assessment.integration.context.spring.FactoryUtil;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookHelper;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
-import org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetHelper;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.SectionAwareServiceHelper;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.ServerConfigurationServiceHelper;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHelper;
@@ -90,7 +89,6 @@ public abstract class IntegrationContextFactory
   public abstract AgentHelper getAgentHelper();
   public abstract GradebookHelper getGradebookHelper();
   public abstract GradebookServiceHelper getGradebookServiceHelper();
-  public abstract PublishingTargetHelper getPublishingTargetHelper();
   public abstract SectionAwareServiceHelper getSectionAwareServiceHelper();
   public abstract ServerConfigurationServiceHelper getServerConfigurationServiceHelper();
   public abstract CalendarServiceHelper getCalendarServiceHelper();

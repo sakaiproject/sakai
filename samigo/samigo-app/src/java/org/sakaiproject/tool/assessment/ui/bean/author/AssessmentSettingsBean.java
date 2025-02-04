@@ -81,7 +81,6 @@ import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
 import org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
-import org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetHelper;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
@@ -112,8 +111,6 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
       IntegrationContextFactory.getInstance();
     private static final GradebookServiceHelper gbsHelper =
       integrationContextFactory.getGradebookServiceHelper();
-    private static final PublishingTargetHelper ptHelper =
-      integrationContextFactory.getPublishingTargetHelper();
     private static final boolean integrated =
       integrationContextFactory.isIntegrated();
 
@@ -1394,31 +1391,33 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
     this.noTemplate = noTemplate;
   }
 
-  public boolean validateTarget(String firstTarget){
-    HashMap<String, String> targets = ptHelper.getTargets();
-    return targets.get(firstTarget) != null;
+  public boolean validateTarget(String targetToValidate) {
+    SelectItem[] validTargets = getPublishingTargets();
+
+    for (SelectItem target : validTargets) {
+      if (target.getValue().equals(targetToValidate)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
-  public SelectItem[] getPublishingTargets(){
-    HashMap<String, String> targets = ptHelper.getTargets();
-    Set<String> e = targets.keySet();
-    Iterator<String> iter = e.iterator();
-    int numSelections = getNumberOfGroupsForSite() > 0 ? 3 : 2;
-   	SelectItem[] target = new SelectItem[numSelections];
+  public SelectItem[] getPublishingTargets() {
+    boolean hasGroups = getNumberOfGroupsForSite() > 0;
 
-    while (iter.hasNext()){
-	    String t = iter.next();
-	    if ("Anonymous Users".equals(t)) {
-	    	target[0] = new SelectItem(t, assessmentSettingMessages.getString("anonymous_users"));
-	    }
-	    else if (numSelections == 3 && t.equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
-	      target[2] = new SelectItem(t, assessmentSettingMessages.getString("selected_groups"));
-	    }
-	    else {
-	      target[1] = new SelectItem(t, assessmentSettingMessages.getString("entire_site"));
-	    }
+    if (hasGroups) {
+      return new SelectItem[] {
+        new SelectItem("Anonymous Users", assessmentSettingMessages.getString("anonymous_users")),
+        new SelectItem(AgentFacade.getCurrentSiteName(), assessmentSettingMessages.getString("entire_site")),
+        new SelectItem(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS, assessmentSettingMessages.getString("selected_groups"))
+      };
+    } else {
+      return new SelectItem[] {
+        new SelectItem("Anonymous Users", assessmentSettingMessages.getString("anonymous_users")),
+        new SelectItem(AgentFacade.getCurrentSiteName(), assessmentSettingMessages.getString("entire_site"))
+      };
     }
-    return target;
   }
 
   public String[] getTargetSelected(String releaseTo) {
