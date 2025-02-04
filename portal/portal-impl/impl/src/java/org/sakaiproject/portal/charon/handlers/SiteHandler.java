@@ -887,15 +887,15 @@ public class SiteHandler extends WorksiteHandler
 				// It will be used to determine if we need to display any student view component
 				boolean roleInSite = false;
 				Set<Role> roles = activeSite.getRoles();
-				Role userRole = activeSite.getUserRole(session.getUserId()); // the user's role in the site
+				Role userRole = activeSite.getUserRole(session.getUserId()); // the user's role in the site; will be null for a DA user
 
 				String externalRoles = serverConfigurationService.getString("studentview.roles"); // get the roles that can be swapped to from sakai.properties
 				String[] svRoles = externalRoles.split(",");
-				List<String> svRolesFinal = new ArrayList<String>();
+				List<String> svRolesFinal = new ArrayList<>();
 
 				for (Role role : roles) {
-					for (int i = 0; i < svRoles.length; i++) {
-						if (svRoles[i].trim().equals(role.getId())) {
+					for (String svRole : svRoles) {
+						if (svRole.trim().equals(role.getId())) {
 							roleInSite = true;
 							svRolesFinal.add(role.getId());
 						}
@@ -910,32 +910,30 @@ public class SiteHandler extends WorksiteHandler
 
 					//if the userRole is null, this means they are more than likely a Delegated Access user.  Since the security check has already allowed
 					//the user to "swaproles" @allowroleswap, we know they have access to this site
-					if (roleswitchvalue == null) {
-						if (svRolesFinal.size() > 1) {
-							rcontext.put("roleswapdropdown", true);
-							switchRoleUrl = serverConfigurationService.getPortalUrl()
-									+ "/role-switch/"
-									+ siteId
-									+ "/tool/"
-									+ toolId
-									+ "/";
+					if (svRolesFinal.size() > 1) {
+						rcontext.put("roleswapdropdown", true);
+						switchRoleUrl = serverConfigurationService.getPortalUrl()
+								+ "/role-switch/"
+								+ siteId
+								+ "/tool/"
+								+ toolId
+								+ "/";
 
-							rcontext.put("panelString", "/?panel=Main");
-						} else {
-							rcontext.put("roleswapdropdown", false);
-							switchRoleUrl = serverConfigurationService.getPortalUrl()
-									+ "/role-switch/"
-									+ siteId
-									+ "/tool/"
-									+ toolId
-									+ "/"
-									+ svRolesFinal.get(0)
-									+ "/?panel=Main";
-							rcontext.put("roleUrlValue", svRolesFinal.get(0));
-						}
+						rcontext.put("panelString", "/?panel=Main");
+					} else {
+						rcontext.put("roleswapdropdown", false);
+						switchRoleUrl = serverConfigurationService.getPortalUrl()
+								+ "/role-switch/"
+								+ siteId
+								+ "/tool/"
+								+ toolId
+								+ "/"
+								+ svRolesFinal.get(0)
+								+ "/?panel=Main";
+						rcontext.put("roleUrlValue", svRolesFinal.get(0));
 					}
 					// We'll show the swap role snippet if the current user role is not in "studentview.roles"
-					roleswapcheck = !svRolesFinal.contains(userRole.getId());
+					roleswapcheck = userRole == null || !svRolesFinal.contains(userRole.getId());
 					rcontext.put("siteRoles", svRolesFinal);
 					rcontext.put("switchRoleUrl", switchRoleUrl);
 				}
