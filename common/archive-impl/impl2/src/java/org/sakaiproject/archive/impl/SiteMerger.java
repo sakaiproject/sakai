@@ -169,11 +169,7 @@ public class SiteMerger {
 		// the web.xml is now merged in the site merger
 		for (int i = 0; i < files.length; i++)
 		{
-			if ((files[i] != null) && (files[i].getPath().indexOf("archive.xml") != -1))
-			{
-				files[i] = null;
-			}
-			if ((files[i] != null) && (files[i].getPath().indexOf("web.xml") != -1))
+			if (files[i] != null && (files[i].getPath().contains("archive.xml") || files[i].getPath().contains("web.xml")))
 			{
 				files[i] = null;
 			}
