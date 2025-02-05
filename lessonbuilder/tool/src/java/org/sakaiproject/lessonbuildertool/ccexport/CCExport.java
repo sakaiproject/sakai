@@ -828,19 +828,14 @@ public class CCExport {
             if ( changed) Xml.writeDocument(doc, contentXml);
         }
 
-        // Remove roles / groups / providers data from site.xml
+        // Remove roles / providers data from site.xml
         String siteXml = path + "site.xml";
         doc = Xml.readDocument(siteXml);
         if ( doc != null ) {
             boolean changed = false;
-            nodeList = doc.getElementsByTagName("roles");
-            while (nodeList.getLength() > 0) {
-                Node node = nodeList.item(0);
-                node.getParentNode().removeChild(node);
-                changed = true;
-            }
 
-            nodeList = doc.getElementsByTagName("groups");
+            // Remove ability tags from roles as they include user ids
+            nodeList = doc.getElementsByTagName("ability");
             while (nodeList.getLength() > 0) {
                 Node node = nodeList.item(0);
                 node.getParentNode().removeChild(node);
@@ -853,17 +848,17 @@ public class CCExport {
                 node.getParentNode().removeChild(node);
                 changed = true;
             }
-            if ( changed) Xml.writeDocument(doc, siteXml);
+            if (changed) Xml.writeDocument(doc, siteXml);
         }
 
-        // Patch assignments.xml
+        // Patch assignments.xml- remove any submissions because it is user data
         String assignmentXml = path + "assignment.xml";
         doc = Xml.readDocument(assignmentXml);
-        if ( doc != null ) {
+        if (doc != null) {
             boolean changed = false;
 
             NodeList subNodes = doc.getElementsByTagName("submissions");
-            for(int i = 0; i < subNodes.getLength(); i++) {
+            for (int i = 0; i < subNodes.getLength(); i++) {
                 Node subNode = subNodes.item(i);
                 NodeList children = subNode.getChildNodes();
                 for (int j = 0; j < children.getLength(); j++) {
@@ -872,31 +867,8 @@ public class CCExport {
                     changed = true;
                 }
             }
-
-            /*  Remove the groups within the groups tag so we have an empty groups tag
-              <Assignment>
-                <groups />
-              </Assignment>
-            */
-            subNodes = doc.getElementsByTagName("groups");
-            for(int i = 0; i < subNodes.getLength(); i++) {
-                Node subNode = subNodes.item(i);
-                while (subNode.hasChildNodes()) {
-                    subNode.removeChild(subNode.getFirstChild());
-                    changed = true;
-                }
-            }
-
-            subNodes = doc.getElementsByTagName("typeOfAccess");
-            for(int i = 0; i < subNodes.getLength(); i++) {
-                Node subNode = subNodes.item(i);
-                subNode.setTextContent("SITE");
-                changed = true;
-            }
-
-            if ( changed) Xml.writeDocument(doc, assignmentXml);
+            if (changed) Xml.writeDocument(doc, assignmentXml);
         }
-
     }
 
     private static void addAllArchive(ZipPrintStream out, CCConfig ccConfig, File dir, String path) throws IOException {
