@@ -166,12 +166,16 @@ public class SiteMerger {
 		Map<Long, Map<String, Object>> ltiContentItems = new HashMap();
 		
 		// The archive.xml is really a debug log, not actual archive data - it does not participate in any merge
+		// the web.xml is now merged in the site merger
 		for (int i = 0; i < files.length; i++)
 		{
 			if ((files[i] != null) && (files[i].getPath().indexOf("archive.xml") != -1))
 			{
 				files[i] = null;
-				break;
+			}
+			if ((files[i] != null) && (files[i].getPath().indexOf("web.xml") != -1))
+			{
+				files[i] = null;
 			}
 		}
 
