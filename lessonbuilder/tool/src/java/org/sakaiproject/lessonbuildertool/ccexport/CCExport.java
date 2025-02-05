@@ -856,6 +856,47 @@ public class CCExport {
             if ( changed) Xml.writeDocument(doc, siteXml);
         }
 
+        // Patch assignments.xml
+        String assignmentXml = path + "assignment.xml";
+        doc = Xml.readDocument(assignmentXml);
+        if ( doc != null ) {
+            boolean changed = false;
+
+            NodeList subNodes = doc.getElementsByTagName("submissions");
+            for(int i = 0; i < subNodes.getLength(); i++) {
+                Node subNode = subNodes.item(i);
+                NodeList children = subNode.getChildNodes();
+                for (int j = 0; j < children.getLength(); j++) {
+                    Node child = children.item(j);
+                    subNode.removeChild(child);
+                    changed = true;
+                }
+            }
+
+            /*  Remove the groups within the groups tag so we have an empty groups tag
+              <Assignment>
+                <groups />
+              </Assignment>
+            */
+            subNodes = doc.getElementsByTagName("groups");
+            for(int i = 0; i < subNodes.getLength(); i++) {
+                Node subNode = subNodes.item(i);
+                while (subNode.hasChildNodes()) {
+                    subNode.removeChild(subNode.getFirstChild());
+                    changed = true;
+                }
+            }
+
+            subNodes = doc.getElementsByTagName("typeOfAccess");
+            for(int i = 0; i < subNodes.getLength(); i++) {
+                Node subNode = subNodes.item(i);
+                subNode.setTextContent("SITE");
+                changed = true;
+            }
+
+            if ( changed) Xml.writeDocument(doc, assignmentXml);
+        }
+
     }
 
     private static void addAllArchive(ZipPrintStream out, CCConfig ccConfig, File dir, String path) throws IOException {
