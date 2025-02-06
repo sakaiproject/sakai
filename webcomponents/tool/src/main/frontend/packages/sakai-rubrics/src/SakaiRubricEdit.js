@@ -34,10 +34,6 @@ export class SakaiRubricEdit extends RubricsElement {
     modal.addEventListener("shown.bs.modal", () => {
       modal.querySelector("input[type='text'").select();
     });
-
-    modal.addEventListener("hidden.bs.modal", () => {
-      this.rubric.new = false;
-    });
   }
 
   render() {
