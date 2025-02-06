@@ -30,21 +30,21 @@
       </button>
     </div>
     #if (${userIsLoggedIn})
-    <div class="align-items-center portal-header-breadcrumb d-none d-md-flex ms-3">
-      ## Define font size class based on number of parents
-      #set($fontSizeClass = "fs-5")
-      #if($!siteParents && $siteParents.size() > 3)
-        #set($fontSizeClass = "small")
-      #elseif($!siteParents && $siteParents.size() > 2)
-        #set($fontSizeClass = "fs-6")
-      #end
+    ## Define font size class based on number of parents
+    #set($fontSizeClass = "fs-4")
+    #if($!siteParents && $siteParents.size() > 2)
+      #set($fontSizeClass = "small")
+    #elseif($!siteParents && $siteParents.size() > 1)
+      #set($fontSizeClass = "fs-6")
+    #end
+    <div class="align-items-center portal-header-breadcrumb d-none d-md-flex ms-3 ${fontSizeClass}">
 
       #if ($!siteParents)
         #foreach ($parent in $siteParents)
-          <div class="portal-header-breadcrumb-item portal-header-site-title ${fontSizeClass}">
+          <div class="portal-header-breadcrumb-item portal-header-site-title">
             <a href="$!{parent.siteUrl}" title="$!{parent.siteTitle}">$!{parent.siteTitle}</a>
           </div>
-          <div class="mx-2 bi bi-chevron-right portal-header-breadcrumb-separator d-none d-md-block"></div>
+          <div class="mx-2 bi bi-chevron-right portal-header-breadcrumb-separator d-none d-md-block fs-6"></div>
         #end
       #end
       <div id="header-site-title" class="portal-header-breadcrumb-item portal-header-site-title ${fontSizeClass}">
@@ -52,7 +52,7 @@
       </div>
       #foreach( $page in $sitePages.pageNavTools )
         #if ($page.current)
-          <div class="mx-2 bi bi-chevron-right portal-header-breadcrumb-separator d-none d-md-block"></div>
+          <div class="mx-2 bi bi-chevron-right portal-header-breadcrumb-separator d-none d-md-block fs-6"></div>
           <div class="portal-header-breadcrumb-item header-tool-title">
             <a href="${page.pageResetUrl}" title="$rloader.sit_reset">${page.pageTitle}</a>
           </div>
