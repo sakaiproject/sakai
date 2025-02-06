@@ -962,13 +962,6 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 		}
 
-		if ( addMoreToolsUrl != null ) {
-			theMap.put("pageNavAddMoreToolsUrl", addMoreToolsUrl);
-			theMap.put("pageNavCanAddMoreTools", true);
-		} else {
-			theMap.put("pageNavCanAddMoreTools", false);
-		}
-
 		if(manageOverviewUrl != null){
 			theMap.put("manageOverviewUrl", manageOverviewUrl);
 			theMap.put("canManageOverview", true);
@@ -987,17 +980,6 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		}
 
 		theMap.put("pageNavTools", l);
-		theMap.put("pageMaxIfSingle", serverConfigurationService.getBoolean("portal.experimental.maximizesinglepage", false));
-		theMap.put("pageNavToolsCount", Integer.valueOf(l.size()));
-
-		String helpUrl = serverConfigurationService.getHelpUrl(null);
-		theMap.put("pageNavShowHelp", Boolean.valueOf(showHelp));
-		theMap.put("pageNavHelpUrl", helpUrl);
-		theMap.put("helpMenuClass", ICON_SAKAI + "help");
-		theMap.put("subsiteClass", ICON_SAKAI + "subsite");
-
-		// theMap.put("pageNavSitContentshead",
-		// Web.escapeHtml(rb.getString("sit_contentshead")));
 
 		// Display presence? Global property display.users.present may be always / never / true / false
 		// If true or false, the value may be overriden by the site property display-users-present
