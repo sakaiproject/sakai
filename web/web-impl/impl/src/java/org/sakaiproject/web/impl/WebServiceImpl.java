@@ -211,7 +211,7 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 	}
 
 	// As of SAK-50943, this is not used as the import from site.xml captures the page, tool, and tool properties
-	// In a sense, looking at the code - this is reading the Site data structures and doig a bad job of it
+	// In a sense, looking at the code - this is reading the Site data structures and doing a bad job of it
 	// We will still put web.xml into exports in case thye are valuable in some use case - but import
 	// will skip web.xml (see org.sakaiproject.archive.impl.SiteMerger.java)
 	@Override
