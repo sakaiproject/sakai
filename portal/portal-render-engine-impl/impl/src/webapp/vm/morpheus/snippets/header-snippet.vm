@@ -30,8 +30,24 @@
       </button>
     </div>
     #if (${userIsLoggedIn})
-    <div class="align-items-center portal-header-breadcrumb d-none d-md-flex">
-      <div id="header-site-title" class="ms-3 portal-header-breadcrumb-item">
+    <div class="align-items-center portal-header-breadcrumb d-none d-md-flex ms-3">
+      ## Define font size class based on number of parents
+      #set($fontSizeClass = "fs-5")
+      #if($!siteParents && $siteParents.size() > 3)
+        #set($fontSizeClass = "small")
+      #elseif($!siteParents && $siteParents.size() > 2)
+        #set($fontSizeClass = "fs-6")
+      #end
+
+      #if ($!siteParents)
+        #foreach ($parent in $siteParents)
+          <div class="portal-header-breadcrumb-item portal-header-site-title ${fontSizeClass}">
+            <a href="$!{parent.siteUrl}" title="$!{parent.siteTitle}">$!{parent.siteTitle}</a>
+          </div>
+          <div class="mx-2 bi bi-chevron-right portal-header-breadcrumb-separator d-none d-md-block"></div>
+        #end
+      #end
+      <div id="header-site-title" class="portal-header-breadcrumb-item portal-header-site-title ${fontSizeClass}">
         <a href="$!{siteUrl}">$!{siteTitle}</a>
       </div>
       #foreach( $page in $sitePages.pageNavTools )
