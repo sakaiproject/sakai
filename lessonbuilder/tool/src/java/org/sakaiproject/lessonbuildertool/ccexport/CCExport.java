@@ -828,19 +828,14 @@ public class CCExport {
             if ( changed) Xml.writeDocument(doc, contentXml);
         }
 
-        // Remove roles / groups / providers data from site.xml
+        // Remove roles / providers data from site.xml
         String siteXml = path + "site.xml";
         doc = Xml.readDocument(siteXml);
         if ( doc != null ) {
             boolean changed = false;
-            nodeList = doc.getElementsByTagName("roles");
-            while (nodeList.getLength() > 0) {
-                Node node = nodeList.item(0);
-                node.getParentNode().removeChild(node);
-                changed = true;
-            }
 
-            nodeList = doc.getElementsByTagName("groups");
+            // Remove ability tags from roles as they include user ids
+            nodeList = doc.getElementsByTagName("ability");
             while (nodeList.getLength() > 0) {
                 Node node = nodeList.item(0);
                 node.getParentNode().removeChild(node);
@@ -853,9 +848,27 @@ public class CCExport {
                 node.getParentNode().removeChild(node);
                 changed = true;
             }
-            if ( changed) Xml.writeDocument(doc, siteXml);
+            if (changed) Xml.writeDocument(doc, siteXml);
         }
 
+        // Patch assignments.xml- remove any submissions because it is user data
+        String assignmentXml = path + "assignment.xml";
+        doc = Xml.readDocument(assignmentXml);
+        if (doc != null) {
+            boolean changed = false;
+
+            NodeList subNodes = doc.getElementsByTagName("submissions");
+            for (int i = 0; i < subNodes.getLength(); i++) {
+                Node subNode = subNodes.item(i);
+                NodeList children = subNode.getChildNodes();
+                for (int j = 0; j < children.getLength(); j++) {
+                    Node child = children.item(j);
+                    subNode.removeChild(child);
+                    changed = true;
+                }
+            }
+            if (changed) Xml.writeDocument(doc, assignmentXml);
+        }
     }
 
     private static void addAllArchive(ZipPrintStream out, CCConfig ccConfig, File dir, String path) throws IOException {
