@@ -43,7 +43,7 @@ export class SakaiCourseHeader extends SakaiShadowElement {
     return html`
       <div id="container">
         <div id="image-block">
-          <img id="course-image" src="${this.site.image}"></img>
+          <img id="course-image" src="${this.site.image}" alt="${this._i18n.site_image_alt}"></img>
           ${this.editing ? html`
             <lion-dialog>
               <sakai-image-editor slot="content" image-url="${this.site.image}" @image-edited=${this.imageEdited}></sakai-image-editor>

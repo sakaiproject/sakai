@@ -73,7 +73,7 @@ export class SakaiImageEditor extends SakaiDialogContent {
 
     return html`
       <input type="file" accept="image/*" aria-label="${this._i18n.image_picker_label}" @change=${this.filePicked} />
-      <img id="image" src="${this.imageUrl}" width="200" />
+      <img id="image" src="${this.imageUrl}" alt="${this._i18n.editing_image_alt}" width="200" />
       <div id="controls">
         <sakai-button @click=${this.zoomIn} type="small" title="${this._i18n.zoom_in}" arial-label="${this._i18n.zoom_in}">
           <sakai-icon type="add"></sakai-icon>

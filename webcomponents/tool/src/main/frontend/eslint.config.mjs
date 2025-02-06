@@ -1,29 +1,9 @@
-import html from "eslint-plugin-html";
-import lit from "eslint-plugin-lit";
-import wc from "eslint-plugin-wc";
+import html from "@html-eslint/eslint-plugin";
 import globals from "globals";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import js from "@eslint/js";
-import { FlatCompat } from "@eslint/eslintrc";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-  recommendedConfig: js.configs.recommended,
-  allConfig: js.configs.all
-});
 
 export default [
-  ...compat.extends("eslint:recommended", "plugin:wc/recommended", "plugin:lit/recommended"),
   {
-    plugins: {
-      html,
-      lit,
-      wc,
-    },
-
     languageOptions: {
       globals: {
         ...globals.browser,
@@ -46,6 +26,7 @@ export default [
       sourceType: "module",
     },
     rules: {
+      ...js.configs.recommended.rules,
       "accessor-pairs": "error",
       "array-bracket-spacing": [ "error", "always" ],
       "array-callback-return": "error",
@@ -147,10 +128,33 @@ export default [
       "space-infix-ops": "error",
       "space-before-blocks": "error",
       strict: "error",
-
-      yoda: [ "error", "never", {
-        onlyEquality: true,
-      } ],
+      yoda: [ "error", "never", { onlyEquality: true } ],
+    },
+  },
+  {
+    plugins: {
+      "@html-eslint": html,
+    },
+    rules: {
+      ...html.configs.recommended.rules,
+      "@html-eslint/require-doctype": "off",
+      "@html-eslint/require-lang": "off",
+      "@html-eslint/require-title": "off",
+      "@html-eslint/indent": "off",
+      "@html-eslint/quotes": "off",
+      "@html-eslint/attrs-newline": "off",
+      "@html-eslint/element-newline": "off",
+      "@html-eslint/id-naming-convention": [ "warn", "regex", { pattern: "^((?:[a-z0-9]+-?)|(?:-?\\$\\{[^\}]+\\}-?))*$", flags: "y" } ],
+      "@html-eslint/no-extra-spacing-attrs": "warn",
+      "@html-eslint/require-img-alt": "error",
+      "@html-eslint/require-closing-tags": [ "warn", { selfClosing: "always" }],
+      //"@html-eslint/require-closing-tags": "off",
+      "@html-eslint/require-input-label": "warn",
+      "@html-eslint/no-abstract-roles": "error",
+      "@html-eslint/no-accesskey-attrs": "error",
+      "@html-eslint/no-heading-inside-button": "error",
+      "@html-eslint/no-invalid-role": "error",
+      "@html-eslint/no-positive-tabindex": "error",
     },
   },
 ];
