@@ -1,0 +1,26 @@
+## 
+## Worksite View.
+## Compared to Site View Worksite has 
+## No Header
+## No Site Tabs
+## Has Page Tabs
+##
+<!-- START VM worksite.vm -->
+#parse("/vm/morpheus/includeStandardHead.vm")
+    <body class="Mrphs-portalBody Mrphs-portalBody--worksite">
+
+        #if ($pageTop)
+            <script>
+                var sakaiPortalWindow = "";
+            </script>
+        #end ## END of IF ($pageTop)
+
+        <div id="portalContainer">
+            #parse("/vm/morpheus/snippets/skipNav-snippet.vm")
+
+            #parse("/vm/morpheus/includePageWithNav.vm")
+        </div>
+
+        <!-- END VM worksite.vm -->
+    </body>
+</html>
