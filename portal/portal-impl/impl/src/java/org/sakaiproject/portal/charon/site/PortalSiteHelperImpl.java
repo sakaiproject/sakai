@@ -649,20 +649,25 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		m.put("siteTitleTrunc", siteTitleTruncated);
 		m.put("fullTitle", siteTitle);
 
-		m.put("siteDescription", s.getHtmlDescription(Map < String, List < Map < String, String >>> parentToChildSites;
-        if (!Arrays.asList("false", "never").contains(serverConfigurationService.getString("portal.includesubsites"))) {
-            parentToChildSites = sites.stream()
-                    .filter(site -> site.getProperties().getProperty(PROP_PARENT_ID) != null)
-                    .collect(Collectors.groupingBy(
-                            site -> site.getProperties().getProperty(PROP_PARENT_ID),
-                            Collectors.mapping(site -> {
-                                Map<String, String> siteInfo = new HashMap<>();
-                                siteInfo.put("id", site.getId());
-                                siteInfo.put("title", site.getTitle());
-                                return siteInfo;
-                            }, Collectors.toList())
-                    ));
-        }urParent != null) {
+		m.put("siteDescription", s.getHtmlDescription());
+
+		if (s.getShortDescription() != null && s.getShortDescription().trim().length() > 0) {
+			// SAK-23895:  Allow display of site description in the tab instead of site title
+			String shortDesc = s.getShortDescription(); 
+			String shortDesc_trimmed = formattedText.makeShortenedText(shortDesc, null, null, null);
+			m.put("shortDescription", formattedText.escapeHtml(shortDesc_trimmed));
+		}
+
+		String siteUrl = RequestFilter.serverUrl(req) + serverConfigurationService.getString("portalPath") + "/";
+		if (prefix != null) siteUrl = siteUrl + prefix + "/";
+		// siteUrl = siteUrl + Web.escapeUrl(siteHelper.getSiteEffectiveId(s));
+		m.put("siteUrl", siteUrl + formattedText.escapeUrl(getSiteEffectiveId(s)));
+		m.put("siteType", s.getType());
+		m.put("siteId", s.getId());
+
+		// Get the current site hierarchy
+		if (ourParent != null && isCurrentSite)
+		{
 			List<Site> pwd = getPwd(s, ourParent);
 			if (pwd != null && pwd.size() > 1) {  // Ensure we have at least 2 sites
 				List<Map<String, String>> siteBreadcrumbs = new ArrayList<>();
