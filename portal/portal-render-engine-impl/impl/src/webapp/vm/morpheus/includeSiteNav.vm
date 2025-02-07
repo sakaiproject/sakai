@@ -72,6 +72,19 @@
                 #end
                 #pageListItem ($page, $pageUrl, "${page.icon}", 4)
             #end
+            #if ($site.childSiteIds)
+                <li class="nav-item">
+                    <div class="ps-4">
+                        <div class="d-flex text-start align-items-center mb-2">
+                            <i class="me-1 bi bi-diagram-2" aria-hidden="true"></i>
+                            <span class="me-2">$rloader.sitenav_sub_sites</span>
+                        </div>
+                        #foreach($childSite in $site.childSites)
+                            <a href="/portal/site/$childSite.id" class="btn btn-nav w-100 ps-2">$childSite.title</a>
+                        #end
+                    </div>
+                </li>
+            #end
             </ul>
         </div>
     </li>

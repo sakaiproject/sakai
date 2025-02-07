@@ -40,6 +40,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -298,7 +299,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				.collect(Collectors.joining());
     }
 
-	private Map<String, Object> getSiteMap(Site site, String currentSiteId, String userId, boolean pinned, boolean hidden, boolean includePages) {
+	private Map<String, Object> getSiteMap(Site site, String currentSiteId, String userId, boolean pinned, boolean hidden, boolean includePages, Map<String, List<Map<String, String>>> parentToChildSites) {
 
 		Map<String, Object> siteMap = new HashMap<>();
 		siteMap.put("id", site.getId());
@@ -319,14 +320,37 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			if (Boolean.parseBoolean(site.getProperties().getProperty("subpagenav")) && !pageList.isEmpty()) {
 				siteMap.put("subPages", getSubPages(userId, site.getId(), pageList));
 			}
+			if (parentToChildSites != null) {
+				// Add the childSiteIds: these are the IDs of sites whose parent is the current site.
+				siteMap.put("childSites", parentToChildSites.get(site.getId()));
+				siteMap.put("parentSiteId", site.getProperties().getProperty(PROP_PARENT_ID));
+			}
 		}
 		return siteMap;
 	}
 
 	private List<Map<String, Object>> getSiteMaps(Collection<Site> sites, String currentSiteId, String userId, boolean pinned, boolean hidden, boolean includePages) {
 
-		return sites.stream()
-				.map(site -> getSiteMap(site, currentSiteId, userId, pinned, hidden, includePages))
+		// Precompute a mapping from parent site IDs to child site IDs.
+		Map<String, List<Map<String, String>>> parentToChildSites;
+		if (!Arrays.asList("false", "never").contains(serverConfigurationService.getString("portal.includesubsites"))) {
+			parentToChildSites = sites.stream()
+					.filter(site -> site.getProperties().getProperty(PROP_PARENT_ID) != null)
+					.collect(Collectors.groupingBy(
+							site -> site.getProperties().getProperty(PROP_PARENT_ID),
+							Collectors.mapping(site -> {
+								Map<String, String> siteInfo = new HashMap<>();
+								siteInfo.put("id", site.getId());
+								siteInfo.put("title", site.getTitle());
+								return siteInfo;
+							}, Collectors.toList())
+					));
+		} else {
+            parentToChildSites = null;
+        }
+
+        return sites.stream()
+				.map(site -> getSiteMap(site, currentSiteId, userId, pinned, hidden, includePages, parentToChildSites))
 				.collect(Collectors.toList());
 	}
 
@@ -409,7 +433,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		if (loggedIn) {
             // Put Home site in context
 			String userId = sessionManager.getCurrentSessionUserId();
-			contextSites.put("homeSite", getSiteMap(getSite(siteService.getUserSiteId(userId)), currentSiteId, userId,false, false, true));
+			contextSites.put("homeSite", getSiteMap(getSite(siteService.getUserSiteId(userId)), currentSiteId, userId,false, false, true, null));
 
 			List<String> excludedSiteIds = getExcludedSiteIds(userId);
 			// Get pinned sites, excluded sites never appear in the pinned list including current site
@@ -447,7 +471,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 			// If the current site is excluded it should appear in recent as hidden
 			if (excludedSiteIds.contains(currentSiteId)) {
-				recentSitesMaps.add(getSiteMap(getSite(currentSiteId), currentSiteId, userId, false, true, true));
+				recentSitesMaps.add(getSiteMap(getSite(currentSiteId), currentSiteId, userId, false, true, true, null));
 			}
             contextSites.put("recentSites", recentSitesMaps);
 
@@ -461,7 +485,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			//Get gateway site
 			Site gatewaySite = getSite(serverConfigurationService.getGatewaySiteId());
 			if (!gatewaySite.isEmpty()) {
-				contextSites.put("gatewaySite", getSiteMap(gatewaySite, currentSiteId, null,false, false, true));
+				contextSites.put("gatewaySite", getSiteMap(gatewaySite, currentSiteId, null,false, false, true, null));
 			}
 		}
 		return contextSites;
@@ -625,42 +649,20 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		m.put("siteTitleTrunc", siteTitleTruncated);
 		m.put("fullTitle", siteTitle);
 
-		m.put("siteDescription", s.getHtmlDescription());
-
-		if (s.getShortDescription() != null && s.getShortDescription().trim().length() > 0) {
-			// SAK-23895:  Allow display of site description in the tab instead of site title
-			String shortDesc = s.getShortDescription(); 
-			String shortDesc_trimmed = formattedText.makeShortenedText(shortDesc, null, null, null);
-			m.put("shortDescription", formattedText.escapeHtml(shortDesc_trimmed));
-		}
-
-		String siteUrl = RequestFilter.serverUrl(req) + serverConfigurationService.getString("portalPath") + "/";
-		if (prefix != null) siteUrl = siteUrl + prefix + "/";
-		// siteUrl = siteUrl + Web.escapeUrl(siteHelper.getSiteEffectiveId(s));
-		m.put("siteUrl", siteUrl + formattedText.escapeUrl(getSiteEffectiveId(s)));
-		m.put("siteType", s.getType());
-		m.put("siteId", s.getId());
-
-		if (includeSummary)
-		{
-			summarizeTool(m, s, "sakai.announce");
-		}
-		if (expandSite)
-		{
-			Map<String, Object> pageMap = pageListToMap(req, loggedIn, s, null, toolContextPath, prefix, doPages, resetTools, includeSummary);
-			m.put("sitePages", pageMap);
-		}
-
-		return m;
-	}
-
-	@Override
-	public List<Map<String, String>> getParentSites(Site s) {
-		ResourceProperties rp = s.getProperties();
-		String ourParent = rp.getProperty(PROP_PARENT_ID);
-
-		// Get the current site hierarchy
-		if (ourParent != null) {
+		m.put("siteDescription", s.getHtmlDescription(Map < String, List < Map < String, String >>> parentToChildSites;
+        if (!Arrays.asList("false", "never").contains(serverConfigurationService.getString("portal.includesubsites"))) {
+            parentToChildSites = sites.stream()
+                    .filter(site -> site.getProperties().getProperty(PROP_PARENT_ID) != null)
+                    .collect(Collectors.groupingBy(
+                            site -> site.getProperties().getProperty(PROP_PARENT_ID),
+                            Collectors.mapping(site -> {
+                                Map<String, String> siteInfo = new HashMap<>();
+                                siteInfo.put("id", site.getId());
+                                siteInfo.put("title", site.getTitle());
+                                return siteInfo;
+                            }, Collectors.toList())
+                    ));
+        }urParent != null) {
 			List<Site> pwd = getPwd(s, ourParent);
 			if (pwd != null && pwd.size() > 1) {  // Ensure we have at least 2 sites
 				List<Map<String, String>> siteBreadcrumbs = new ArrayList<>();
