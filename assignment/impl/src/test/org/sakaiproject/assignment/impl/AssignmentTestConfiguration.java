@@ -53,6 +53,7 @@ import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.hibernate.AssignableUUIDGenerator;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.messaging.api.UserMessagingService;
+import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
@@ -270,6 +271,11 @@ public class AssignmentTestConfiguration {
     @Bean(name = "org.sakaiproject.util.api.LinkMigrationHelper")
     public LinkMigrationHelper linkMigrationHelper() {
         return mock(LinkMigrationHelper.class);
+    }
+
+    @Bean(name = "org.sakaiproject.portal.api.PortalService")
+    public PortalService portalService() {
+        return mock(PortalService.class);
     }
 
     @Bean(name = "org.sakaiproject.time.api.UserTimeService")

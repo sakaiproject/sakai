@@ -2,19 +2,18 @@ class SubPageNavigation {
 
   constructor(data) {
     if (!data.hasOwnProperty('pages')) {
-      console.warn('No page data for SubPageNavigation');
+      window.console.warn('No page data for SubPageNavigation');
       return;
     }
 
     if (!data.hasOwnProperty('i18n')) {
-      console.warn('No i18n data for SubPageNavigation');
+      window.console.warn('No i18n data for SubPageNavigation');
       return;
     }
 
     this.data = data.pages;
     this.i18n = data.i18n;
     this.siteId = data.siteId;
-    this.isInstructor = data.isInstructor;
 
     this.topLevelPageProps = {};
     data.topLevelPageProps.forEach((p) => this.topLevelPageProps[p.toolId] = p);
@@ -36,11 +35,11 @@ class SubPageNavigation {
     const siteListItem = element.parentElement;
     const mainLink = element.href?.replace(/\/tool\//, "/tool-reset/");
 
-    const collapseId = `page-${pageId}-lessons-subpages`;
+    const collapseId = `page-${pageId}-subpages`;
     const isExpanded = subpages[0].toolId === this.getCurrentPlacement();
     const template = `
-            <div class="d-inline-flex align-items-stretch">
-                <button class="btn btn-nav btn-subsite rounded-end text-start ${(isExpanded) ? "" : "collapsed"} border-0 ps-4"
+            <div class="d-flex align-items-center">
+                <button class="btn btn-nav btn-subsite rounded-end text-start border-0 ps-4 w-100 ${(isExpanded) ? "" : "collapsed"}"
                         data-bs-toggle="collapse"
                         data-bs-target="#${collapseId}"
                         aria-expanded="${(isExpanded) ? "true" : "false"}"
@@ -49,11 +48,11 @@ class SubPageNavigation {
                     <span>${pageName}</span>
                 </button>
             </div>
-            <div id="${collapseId}" class="lessons-subpages-collapse ${(isExpanded) ? "show" : "collapse"}">
+            <div id="${collapseId}" class="subpages-collapse ${(isExpanded) ? "show" : "collapse"}">
                 <ul class="nav flex-column pe-2">
                     <li class="nav-item">
-                        <a class="btn btn-nav rounded-end text-start ps-5" href="${mainLink}">
-                            <i class="me-2 si si-sakai-lessonbuildertool" aria-hidden="true"></i>
+                        <a class="btn btn-nav rounded-end text-start ps-5 w-100" data-page-id="${pageId}" href="${mainLink}">
+                            <i class="me-2 si ${props.icon}" aria-hidden="true"></i>
                             <span>${this.i18n.main_link_name}</span>
                             ${(props.disabled === 'true') ? `<i class="bi-slash-circle ms-2"></i>` : ""}
                             ${(props.hidden === 'true' && props.disabled !== 'true') ? `<i class = "si si-hidden ms-2"></i>` : ""}
@@ -61,7 +60,7 @@ class SubPageNavigation {
                     </li>
                     ${subpages.map((subpage) => `
                         <li class="nav-item">
-                            <a class="btn btn-nav rounded-end text-start ps-5 ${((props.disabled === 'true' && props.disabledDueToPrerequisite === 'true') || (subpage.disabled === 'true' && subpage.disabledDueToPrerequisite === 'true')) ? `disabled` : ``}" href="${this.buildSubpageUrlFor(subpage)}">
+                            <a class="btn btn-nav rounded-end text-start ps-5 w-100 data-page-id="${pageId}+${subpage.itemId}" ${((props.disabled === 'true' && props.disabledDueToPrerequisite === 'true') || (subpage.disabled === 'true' && subpage.disabledDueToPrerequisite === 'true')) ? `disabled` : ``}" href="${subpage.url}">
                                 <i class="me-2 bi bi-arrow-return-right" aria-hidden="true"></i>
                                 <span>${subpage.name}</span>
                                 ${(props.disabled === 'true' || subpage.disabled === 'true') ? `<i class="bi-slash-circle ms-2"></i>` : ``}
@@ -91,34 +90,26 @@ class SubPageNavigation {
     });
   }
 
-  buildSubpageUrlFor(subpage) {
-    return `/portal/site/${subpage.siteId}`
-        + `/tool/${subpage.toolId}`
-        + `/ShowPage?sendingPage=${subpage.sendingPage}`
-        + `&itemId=${subpage.itemId}`
-        + "&path=clear_and_push"
-        + `&title=${subpage.name}`
-        + "&newTopLevel=false";
-  }
-
   getCurrentPlacement() {
     const parts = (new URL(window.location.href)).pathname.split('/');
     return parts.length >= 6 ? parts[5] : '';
   }
 
   getSubPageElement() {
-    const subPageNavToolIdInput = document.getElementById('lessonsSubnavToolId');
-    const subPageNavPageIdInput = document.getElementById('lessonsSubnavPageId');
-    const subPageNavItemIdInput = document.getElementById('lessonsSubnavItemId');
-    let subPageElement = null;
+    const selectedPage = document.querySelector('#toolMenu > li.nav-item:has(a.selected-page)');
 
-    if (subPageNavToolIdInput && subPageNavPageIdInput && subPageNavItemIdInput) {
-      subPageElement = document.querySelector(`#toolMenu a[href*="/tool/${subPageNavToolIdInput.value}/ShowPage?sendingPage=${subPageNavPageIdInput.value}&itemId=${subPageNavItemIdInput.value}&"]`);
+    let subPageElement = null;
+    if (selectedPage) {
+      // determine if the selected page is a sub page
+      subPageElement = selectedPage.querySelector('a.data-page-id');
     }
 
-    // If the current page is not a subpage, then highlight the main page.
-    if (subPageElement && subPageNavToolIdInput) {
-      subPageElement = document.querySelector(`#toolMenu a[href$="/tool-reset/${subPageNavToolIdInput.value}"]`);
+    // If the current page is not a subpage, then select the main page.
+    if (subPageElement) {
+      let parts = subPageElement.dataset.pageId.split('+');
+      if (parts.length === 2) {
+        subPageElement = document.querySelector(`#toolMenu a[href$="/tool-reset/${parts[0]}"]`);
+      }
     }
 
     return subPageElement;

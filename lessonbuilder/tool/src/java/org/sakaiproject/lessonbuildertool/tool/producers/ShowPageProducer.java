@@ -1125,21 +1125,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		createDialogs(tofill, currentPage, pageItem, cssLink);
 
-		// Add pageids to the page so the portal lessons subnav menu can update its state
-		List<SimplePageBean.PathEntry> path = simplePageBean.getHierarchy();
-		if (path.size() > 2) {
-			SimplePageBean.PathEntry topLevelSubPage = path.get(1);
-			UIOutput.make(tofill, "lessonsSubnavTopLevelPageId")
-				.decorate(new UIFreeAttributeDecorator("value", String.valueOf(topLevelSubPage.pageId)));
-		} else {
-			UIOutput.make(tofill, "lessonsSubnavPageId")
-				.decorate(new UIFreeAttributeDecorator("value", String.valueOf(simplePageBean.getCurrentPage().getPageId())));
-		}
-		UIOutput.make(tofill, "lessonsSubnavToolId")
-			.decorate(new UIFreeAttributeDecorator("value", String.valueOf(placement.getId())));
-		UIOutput.make(tofill, "lessonsSubnavItemId")
-			.decorate(new UIFreeAttributeDecorator("value", String.valueOf(pageItem.getId())));
-
 		String currentPageId = String.valueOf(simplePageBean.getCurrentPage().getPageId());
 		UIOutput.make(tofill, "lessonsCurrentPageId")
 		    .decorate(new UIFreeAttributeDecorator("value", currentPageId));

@@ -36,6 +36,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -46,7 +47,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -105,7 +105,6 @@ import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.lti.util.SakaiLTIUtil;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarService;
@@ -148,7 +147,9 @@ import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.grading.api.GradebookInformation;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.lti.api.LTIService;
-import org.sakaiproject.util.foorm.Foorm;
+import org.sakaiproject.portal.api.PortalService;
+import org.sakaiproject.portal.api.PortalSubPageData;
+import org.sakaiproject.portal.api.PortalSubPageNavProvider;
 import org.sakaiproject.messaging.api.Message;
 import org.sakaiproject.messaging.api.MessageMedium;
 import org.sakaiproject.messaging.api.UserMessagingService;
@@ -157,6 +158,7 @@ import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.taggable.api.TaggingManager;
@@ -190,6 +192,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.Assert;
+import org.springframework.web.util.UriComponentsBuilder;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -207,7 +210,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Transactional(readOnly = true)
-public class AssignmentServiceImpl implements AssignmentService, EntityTransferrer, ContentExistsAware, ApplicationContextAware {
+public class AssignmentServiceImpl implements ApplicationContextAware, AssignmentService, ContentExistsAware, EntityTransferrer, PortalSubPageNavProvider {
 
 	@Setter private AnnouncementService announcementService;
     @Setter private ApplicationContext applicationContext;
@@ -230,6 +233,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     @Setter private GradingService gradingService;
     @Setter private LearningResourceStoreService learningResourceStoreService;
     @Setter private LinkMigrationHelper linkMigrationHelper;
+    @Setter private PortalService portalService;
     @Setter private TransactionTemplate transactionTemplate;
     @Setter private ResourceLoader resourceLoader;
     @Setter private RubricsService rubricsService;
@@ -266,6 +270,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         exposeContentReviewErrorsToUI = serverConfigurationService.getBoolean("contentreview.expose.errors.to.ui", true);
         createGroupsOnImport = serverConfigurationService.getBoolean("assignment.create.groups.on.import", true);
 
+        portalService.registerSubPageNavProvider(this);
         // register as an entity producer
         entityManager.registerEntityProducer(this, REFERENCE_ROOT);
 
@@ -292,6 +297,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     @Override
     public boolean isTimeSheetEnabled(String siteId) {
        return timeSheetService.isTimeSheetEnabled(siteId);
+    }
+
+    @Override
+    public String getSubPageProviderName() {
+        return getToolId();
     }
 
     @Override
@@ -415,6 +425,80 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
         results.append("completed archiving ").append(getLabel()).append(" context ").append(siteId).append(" count (").append(assignmentsArchived).append(")").append(LINE_SEPARATOR);
         return results.toString();
+    }
+
+    @Override
+    public void getSubPageData(PortalSubPageData data, Collection<String> pageIds) {
+        String siteId = data.getSiteId();
+        for (String pageId : pageIds) {
+            String toolId = siteService.getOptionalSite(siteId)
+                    .map(site -> site.getPage(pageId))
+                    .filter(Objects::nonNull)
+                    .map(SitePage::getTools)
+                    .filter(tools -> !tools.isEmpty())
+                    .map(tools -> tools.get(0).getId())
+                    .orElse("");
+
+            if (toolId.isEmpty()) {
+                log.warn("could not fetch tool id on page [{}], in site [{}]", pageId, siteId);
+                continue;
+            }
+
+            data.getPages().computeIfAbsent(toolId, key -> new ArrayList<>());
+
+            Collection<Assignment> assignments = getAssignmentsForContext(siteId);
+            for (Assignment assignment : assignments) {
+                String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+                PortalSubPageData.PageData pageData = new PortalSubPageData.PageData();
+                pageData.setSiteId(siteId);
+                pageData.setToolId(toolId);
+                pageData.setItemId(assignment.getId());
+                pageData.setName(assignment.getTitle());
+                pageData.setDescription(assignment.getInstructions());
+                pageData.setDisabled(assignment.getDeleted() || assignment.getDraft());
+                pageData.setHidden(assignment.getDeleted() || assignment.getDraft());
+
+                DateTimeFormatter dtf = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).withLocale(rb.getLocale());
+                ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(assignment.getOpenDate(), userTimeService.getLocalTimeZone().toZoneId());
+                pageData.setReleaseDate(dtf.format(zonedDateTime));
+
+                UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(serverConfigurationService.getPortalUrl());
+                uriBuilder.pathSegment("site", pageData.getSiteId(), "tool", toolId);
+                uriBuilder.queryParam("assignmentId", assignmentReference);
+                uriBuilder.queryParam("panel", "Main");
+                uriBuilder.queryParam("sakai_action", "doView_assignment");
+                pageData.setUrl(uriBuilder.build().toUriString());
+
+                data.getPages().get(toolId).add(pageData);
+
+            }
+            PortalSubPageData.PageProps pageProps = new PortalSubPageData.PageProps();
+            pageProps.setToolId(toolId);
+            pageProps.setSiteId(siteId);
+            pageProps.setName("Assignments");
+            pageProps.setIcon("si-sakai-assignment-grades");
+            data.getTopLevelPageProps().add(pageProps);
+        }
+
+        // TODO this needs translating
+        PortalSubPageData.I18n i18n = data.getI18n();
+        i18n.setExpand("Expand to show subpages");
+        i18n.setCollapse("Collapse to hide subpages");
+        i18n.setOpenTopLevelPage("Click to open top-level page");
+        i18n.setHidden("[Hidden]");
+        i18n.setHiddenWithReleaseDate("[Not released until {releaseDate}]");
+        i18n.setMainLinkName("List of Assignments");
+        i18n.setPrerequisite("[Has prerequisites]");
+        i18n.setPrerequisiteAndDisabled("[You must complete all prerequisites before viewing this item]");
+//            i18n.setExpand(rb.getString(""));
+//            i18n.setCollapse(rb.getString(""));
+//            i18n.setOpenTopLevelPage(rb.getString(""));
+//            i18n.setHidden(rb.getString(""));
+//            i18n.setHiddenWithReleaseDate(rb.getString(""));
+//            i18n.setMainLinkName(rb.getString(""));
+//            i18n.setPrerequisite(rb.getString(""));
+//            i18n.setPrerequisiteAndDisabled(rb.getString(""));
+
     }
 
     private void addSupplementaryItemAttachments(Document doc, Element item, List<String> itemAttachments, List archiveAttachments) {
@@ -3043,7 +3127,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         switch (typeOfGrade) {
             case SCORE_GRADE_TYPE:
                 if (!returnGrade.isEmpty() && !"0".equals(returnGrade)) {
-                    int dec = new Double(Math.log10(scaleFactor)).intValue();
+                    int dec = Double.valueOf(Math.log10(scaleFactor)).intValue();
                     String decSeparator = formattedText.getDecimalSeparator();
                     String decimalGradePoint = returnGrade;
                     try {
@@ -4699,7 +4783,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         String gradeDisplay = StringUtils.replace(getGradeDisplay(s.getGrade(), a.getTypeOfGrade(), a.getScaleFactor()), decSeparator, ".");
         if (Assignment.GradeType.SCORE_GRADE_TYPE == a.getTypeOfGrade() && NumberUtils.isCreatable(gradeDisplay)) { // Points
             String maxGradePointDisplay = StringUtils.replace(getMaxPointGradeDisplay(a.getScaleFactor(), a.getMaxGradePoint()), decSeparator, ".");
-            result = new LRS_Result(new Float(gradeDisplay), 0.0f, new Float(maxGradePointDisplay), null);
+            result = new LRS_Result(Float.parseFloat(gradeDisplay), 0.0f, Float.parseFloat(maxGradePointDisplay), null);
             result.setCompletion(completed);
         } else {
             result = new LRS_Result(completed);

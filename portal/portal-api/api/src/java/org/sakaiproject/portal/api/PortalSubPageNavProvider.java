@@ -22,7 +22,7 @@ public interface PortalSubPageNavProvider {
      * Each provider should return a unique name, a good choice is the ENTITY_PREFIX
      * @return a name that uniquely identifies this provider
      */
-    String getName();
+    String getSubPageProviderName();
 
     /**
      * Each provider must provide its sub-page data in the following way
@@ -31,5 +31,5 @@ public interface PortalSubPageNavProvider {
      * @param pageIds the pages
      * @return sub page data for the given site, user, and pages
      */
-    String getData(String siteId, String userId, Collection<String> pageIds);
+    void getSubPageData(PortalSubPageData data, Collection<String> pageIds);
 }
