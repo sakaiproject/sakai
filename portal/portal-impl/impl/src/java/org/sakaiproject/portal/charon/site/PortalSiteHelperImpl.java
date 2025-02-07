@@ -338,12 +338,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 					.filter(site -> site.getProperties().getProperty(PROP_PARENT_ID) != null)
 					.collect(Collectors.groupingBy(
 							site -> site.getProperties().getProperty(PROP_PARENT_ID),
-							Collectors.mapping(site -> {
-								Map<String, String> siteInfo = new HashMap<>();
-								siteInfo.put("id", site.getId());
-								siteInfo.put("title", site.getTitle());
-								return siteInfo;
-							}, Collectors.toList())
+							Collectors.mapping(site -> Map.of("id", site.getId(), "title", site.getTitle()), Collectors.toList())
 					));
 		} else {
 			parentToChildSites = null;
