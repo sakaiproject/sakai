@@ -496,9 +496,17 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 		
 	}
 
+	// Instance variables to store original user's session information
+	private String originalUserId;
+	private String originalUserEid;
+
 	public void impersonateUser(String userId) throws SakaiException {
 
 		Session currentSession = sessionManager().getCurrentSession();
+		// Save the original user's session information
+		originalUserId = currentSession.getUserId();
+		originalUserEid = currentSession.getUserEid();
+
 		if (currentSession != null) {
 			try {
 				User mockUser = userDirectoryService().getUser(userId);
@@ -536,8 +544,8 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 		if (currentSession != null) {
 			UsageSession usageSession = (UsageSession) currentSession.getAttribute(USAGE_SESSION_KEY);
 			if (usageSession != null) {
-				String realUserId = usageSession.getUserId();
-				String realUserEid = usageSession.getUserEid();
+				String realUserId = originalUserId;
+				String realUserEid = originalUserEid;
 
 				if (StringUtils.isAnyBlank(realUserId, realUserEid)) {
 					log.error("Can not restore session from roleview mode, missing the real user information, session is likely corrupt");
