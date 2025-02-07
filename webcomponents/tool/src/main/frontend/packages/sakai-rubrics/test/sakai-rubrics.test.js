@@ -47,8 +47,6 @@ describe("sakai-rubrics tests", () => {
 
   it ("renders a rubric association correctly", async () => {
 
-    console.debug("association test");
-
     let el = await fixture(html`
       <sakai-rubric-association site-id="${data.siteId}"
           tool-id="sakai.assignment.grades"
@@ -271,7 +269,7 @@ describe("sakai-rubrics tests", () => {
     modal = el.querySelector(".modal.show");
     expect(modal).to.exist;
 
-    let titleInput = modal.querySelector(`#rubric-title-edit-${data.rubric1.id}`);
+    let titleInput = modal.querySelector("input[type='text']");
     expect(titleInput.getAttribute("value")).to.equal(data.rubric1.title);
     titleInput.value = 'foobar';
     titleInput.dispatchEvent(new Event("input"));
@@ -289,7 +287,7 @@ describe("sakai-rubrics tests", () => {
     button.click();
     await listener;
 
-    titleInput = modal.querySelector(`#rubric-title-edit-${data.rubric1.id}`);
+    titleInput = modal.querySelector("input[type='text']");
     expect(titleInput.value).to.equal(data.rubric1.title);
   });
 
@@ -423,13 +421,13 @@ describe("sakai-rubrics tests", () => {
    * Look for all places in the dom that should render any sort of rubric title
    **/
   function validateRubricTitle(rubricData, el, titleToCheck) {
-    console.log(`Validating for '${titleToCheck}'`);
+    console.debug(`Validating for '${titleToCheck}'`);
 
     expect(el.querySelector(".rubric-name").textContent).to.equal(titleToCheck);
     expect(el.querySelector(`#rubric-toggle-${rubricData.id}`).title).to.equal(`${el._i18n.toggle_details} ${titleToCheck}`);
 
     if (rubricData.locked) {
-      console.log("Checking locked elements...");
+      console.debug("Checking locked elements...");
       elementChecks(el, "span.locked", titleToCheck);
     }
 
@@ -439,7 +437,7 @@ describe("sakai-rubrics tests", () => {
     elementChecks(el, "a.pdf", titleToCheck);
 
     if (!rubricData.locked) {
-      console.log("Checking delete elements...");
+      console.debug("Checking delete elements...");
       elementChecks(el, `button[aria-controls="delete-rubric-${rubricData.id}"]`, titleToCheck);
     }
   }
