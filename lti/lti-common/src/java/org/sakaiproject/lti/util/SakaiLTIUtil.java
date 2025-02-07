@@ -3704,4 +3704,47 @@ public class SakaiLTIUtil {
 		}
 		return LTIService.LAUNCH_PREFIX + siteId + "/export:" + exportType + ((filterId != null && !"".equals(filterId)) ? (":" + filterId) : "");
 	}
+
+	/*
+	 * Parse a rich edtext editor string of the format
+	 *
+	 * <p>Yada</p>
+	 * <p><a class="lti-launch"
+	 * href="http://localhost:8080/access/lti/site/7d529bf7-b856-4400-9da1-ba8670ed1489/content:1"
+	 * rel="noopener" target="_blank">Breakout</a></p>
+	 *
+	 * Extract the lti-launch urls and return them as a list of strings	
+	 *
+	 */
+	public static List<String> extractLtiLaunchUrls(String html) {
+		List<String> retval = new ArrayList<>();
+		if (html == null) {
+			return retval;
+		}
+		Pattern pattern = Pattern.compile("https?://[^\\s\"']+/access/(b)?lti/site/[^\\s\"']+/content:\\d+");
+		Matcher matcher = pattern.matcher(html);
+		while (matcher.find()) {
+			retval.add(matcher.group());
+		}
+		return retval;
+	}
+
+	/**
+	 * Extract the lti-launch url and site id from a rich edtext editor string
+	 *
+	 * @param html
+	 * @return an array of two strings, the first is the blti or lti, the second is the site id
+	 */
+	public static String[] getLtiLaunchUrlAndSiteId(String html) {
+		if (html == null) {
+			return null;
+		}
+		Pattern pattern = Pattern.compile("https?://[^\\s\"']+/access/(?:b)?lti/site/([^\\s\"'/]+)/content:(\\d+)");
+		Matcher matcher = pattern.matcher(html);
+		if (matcher.find()) {
+			return new String[] { matcher.group(1), matcher.group(2) };
+		}
+		return null;
+	}
+
 }

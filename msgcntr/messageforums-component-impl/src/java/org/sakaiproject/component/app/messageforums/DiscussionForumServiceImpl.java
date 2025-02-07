@@ -37,8 +37,6 @@ import java.util.Stack;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import java.util.TimeZone;
-
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections4.CollectionUtils;
@@ -46,7 +44,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.Attachment;
-import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.DBMembershipItem;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionForumService;
@@ -69,7 +66,7 @@ import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityTransferrer;
-import org.sakaiproject.entity.api.HttpAccess;
+import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
@@ -92,7 +89,6 @@ import org.w3c.dom.NodeList;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-
 
 @Slf4j
 public class DiscussionForumServiceImpl implements DiscussionForumService, EntityTransferrer
@@ -195,6 +191,8 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 	private ToolManager toolManager;
 	@Setter
 	private ServerConfigurationService serverConfigurationService;
+	@Setter
+	private LTIService ltiService;
 
 	private final Base64 base64Encoder = new Base64();
 
@@ -533,6 +531,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 			.map(f -> Map.of("id", f.getId().toString(), "title", f.getTitle())).collect(Collectors.toList());
 	}
 
+	@Override
 	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> options)
 	{
 		Map<String, String> transversalMap = new HashMap<>();
@@ -653,7 +652,9 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 									newTopic.setShortDescription(fromTopic.getShortDescription());
 								}
 								if (fromTopic.getExtendedDescription() != null && fromTopic.getExtendedDescription().length() > 0) {
-									newTopic.setExtendedDescription(fromTopic.getExtendedDescription());
+									String extendedDescription = fromTopic.getExtendedDescription();
+									extendedDescription = ltiService.fixLtiLaunchUrls(extendedDescription, fromContext, toContext, transversalMap);
+									newTopic.setExtendedDescription(extendedDescription);
 								}
 								newTopic.setLocked(fromTopic.getLocked());
 								newTopic.setLockedAfterClosed(fromTopic.getLockedAfterClosed());
@@ -719,8 +720,17 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 		return transversalMap;
 	}
 
-	public String merge(final String siteId, final Element root, final String archivePath, final String fromSiteId,
-						final Map attachmentNames, final Map userIdTrans, final Set userListAllowImport) {
+	public String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId, Map<String, String> attachmentNames,
+		Map<Long, Map<String, Object>> ltiContentItems, Map<String, String> userIdTrans, Set<String> userListAllowImport) {
+
+		Set<String> discussionTitles = new HashSet<>();
+		List<DiscussionForum> discussionForums = dfManager.getDiscussionForumsWithTopicsMembershipNoAttachments(siteId);
+		if (CollectionUtils.isNotEmpty(discussionForums)) {
+			for (DiscussionForum discussionForum : discussionForums) {
+				discussionTitles.add(discussionForum.getTitle());
+			}
+		}
+
 		final StringBuilder results = new StringBuilder();
 		if (StringUtils.isNotBlank(siteId)) {
 			results.append("merging ").append(getLabel()).append(" context " + Entity.SEPARATOR).append(siteId)
@@ -730,7 +740,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 				final List<Element> messageForumElementList = elements.stream()
 						.filter(element -> MESSAGEFORUM.equals(element.getTagName())).collect(Collectors.toList());
 				if (!messageForumElementList.isEmpty()) {
-					mergeMessageForumElements(siteId, fromSiteId, attachmentNames, messageForumElementList.get(0));
+					mergeMessageForumElements(siteId, fromSiteId, attachmentNames, messageForumElementList.get(0), discussionTitles, ltiContentItems);
 				}
 			} catch (Exception e) {
 				results.append("merging ").append(getLabel()).append(" failed.\n");
@@ -741,7 +751,9 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 	}
 
 	private void mergeMessageForumElements(final String siteId, final String fromSiteId,
-										   final Map<String, String> attachmentNames, final Element siteElement) throws Exception {
+		final Map<String, String> attachmentNames, final Element siteElement, Set<String> discussionTitles,
+		Map<Long, Map<String, Object>> ltiContentItems) throws Exception {
+
 		final NodeList messageForumChildNodeList = siteElement.getChildNodes();
 
 		final List<Element> discussionForumElementsList = IntStream.range(0, messageForumChildNodeList.getLength())
@@ -750,12 +762,17 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 				.collect(Collectors.toList());
 
 		for (Element discussionForumElement : discussionForumElementsList) {
-			mergeDiscussionForumElements(siteId, fromSiteId, attachmentNames, discussionForumElement);
+			String title = discussionForumElement.getAttribute(DISCUSSION_FORUM_TITLE);
+			if (discussionTitles.contains(title)) {
+				continue;
+			}
+			mergeDiscussionForumElements(siteId, fromSiteId, attachmentNames, discussionForumElement, ltiContentItems);
 		}
 	}
 
 	private void mergeDiscussionForumElements(final String siteId, final String fromSiteId,
-											  final Map<String, String> attachmentNames, final Element discussionForumElement) throws Exception {
+			final Map<String, String> attachmentNames, final Element discussionForumElement,
+			Map<Long, Map<String, Object>> ltiContentItems) throws Exception {
 
 		final DiscussionForum discussionForum = forumManager.createDiscussionForum();
 
@@ -801,8 +818,10 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 				// do nothing b/c invalid
 			}
 		}
+
 		discussionForum
 				.setExtendedDescription(getDecodedString(discussionForumElement.getAttribute(DISCUSSION_FORUM_DESC)));
+
 		discussionForum.setShortDescription(
 				getDecodedString(discussionForumElement.getAttribute(DISCUSSION_FORUM_SHORT_DESC)));
 
@@ -811,12 +830,12 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 
 		// Discussion Forum is saved inside this method
 		mergeDiscussionForumDetailNodeList(siteId, fromSiteId, attachmentNames, discussionForumElement,
-				discussionForum);
+				discussionForum, ltiContentItems);
 	}
 
 	private void mergeDiscussionForumDetailNodeList(final String siteId, final String fromSiteId,
-													final Map<String, String> attachmentNames, final Element discussionForumElement,
-													DiscussionForum discussionForum) throws Exception {
+		final Map<String, String> attachmentNames, final Element discussionForumElement,
+		DiscussionForum discussionForum, Map<Long, Map<String, Object>> ltiContentItems) throws Exception {
 
 		final NodeList discussionForumDetailNodeList = discussionForumElement.getChildNodes();
 		final List<Element> elements = IntStream.range(0, discussionForumDetailNodeList.getLength())
@@ -848,7 +867,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 
 		final List<Element> discussionTopicElementList = getDiscussionTopicElementList(elements);
 		for (Element discussionTopicElement : discussionTopicElementList) {
-			mergeDiscussionTopicElement(siteId, fromSiteId, attachmentNames, discussionForumReturn, discussionTopicElement);
+			mergeDiscussionTopicElement(siteId, fromSiteId, attachmentNames, discussionForumReturn, discussionTopicElement, ltiContentItems);
 		}
 	}
 
@@ -889,8 +908,8 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 	}
 
 	private void mergeDiscussionTopicElement(final String siteId, final String fromSiteId,
-											 final Map<String, String> attachmentNames, final DiscussionForum discussionForum,
-											 final Element discussionTopicElement) throws Exception {
+		final Map<String, String> attachmentNames, final DiscussionForum discussionForum,
+		final Element discussionTopicElement, Map<Long, Map<String, Object>> ltiContentItems) throws Exception {
 
 		DiscussionTopic discussionTopic = forumManager.createDiscussionForumTopic(discussionForum);
 
@@ -901,7 +920,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 		final List<Element> propertiesElementList = elements.stream().filter(e -> PROPERTIES.equals(e.getTagName()))
 				.collect(Collectors.toList());
 		for (Element propertiesElement : propertiesElementList) {
-			mergeDiscussionTopicPropertiesNodes(discussionTopic, propertiesElement);
+			mergeDiscussionTopicPropertiesNodes(discussionTopic, propertiesElement, siteId, ltiContentItems);
 		}
 
 		final List<Element> attachmentElementList = getAttachmentElementList(elements);
@@ -994,7 +1013,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 				.collect(Collectors.toList());
 	}
 
-	private void mergeDiscussionTopicPropertiesNodes(final DiscussionTopic discussionTopic, final Element propertiesElement) {
+	private void mergeDiscussionTopicPropertiesNodes(final DiscussionTopic discussionTopic, final Element propertiesElement, final String siteId, final Map<Long, Map<String, Object>> ltiContentItems) {
 		final NodeList propertyList = propertiesElement.getChildNodes();
 		for (int n = 0; n < propertyList.getLength(); n++) {
 			final Node propertyNode = propertyList.item(n);
@@ -1005,7 +1024,8 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 						final String shortDescription = getDescriptionFromPropertyElement(propertyElement);
 						discussionTopic.setShortDescription(shortDescription);
 					} else if (TOPIC_LONG_DESC.equals(propertyElement.getAttribute(NAME))) {
-						final String extendedDescription = getDescriptionFromPropertyElement(propertyElement);
+						String extendedDescription = getDescriptionFromPropertyElement(propertyElement);
+						extendedDescription = ltiService.fixLtiLaunchUrls(extendedDescription, siteId, ltiContentItems);
 						discussionTopic.setExtendedDescription(extendedDescription);
 					}
 				}

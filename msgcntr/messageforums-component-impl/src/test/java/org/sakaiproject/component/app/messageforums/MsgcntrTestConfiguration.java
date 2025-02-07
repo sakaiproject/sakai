@@ -48,6 +48,7 @@ import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMapping
 import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.ActiveToolManager;
 import org.sakaiproject.tool.api.SessionManager;
@@ -312,5 +313,10 @@ public class MsgcntrTestConfiguration {
     @Bean(name = "org.sakaiproject.entitybroker.EntityBroker")
     public EntityBroker entityBroker() {
         return mock(EntityBroker.class);
+    }
+
+    @Bean(name = "org.sakaiproject.lti.api.LTIService")
+    public LTIService ltiService() {
+        return mock(LTIService.class);
     }
 }
