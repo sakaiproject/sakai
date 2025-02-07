@@ -346,12 +346,12 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 							}, Collectors.toList())
 					));
 		} else {
-            parentToChildSites = null;
-        }
+			parentToChildSites = null;
+		}
 
-        return sites.stream()
-				.map(site -> getSiteMap(site, currentSiteId, userId, pinned, hidden, includePages, parentToChildSites))
-				.collect(Collectors.toList());
+		return sites.stream()
+			.map(site -> getSiteMap(site, currentSiteId, userId, pinned, hidden, includePages, parentToChildSites))
+			.collect(Collectors.toList());
 	}
 
 	private Map<String, Object> getPageMap(SitePage page, boolean includeSubPage) {
@@ -665,9 +665,26 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		m.put("siteType", s.getType());
 		m.put("siteId", s.getId());
 
-		// Get the current site hierarchy
-		if (ourParent != null && isCurrentSite)
+		if (includeSummary)
 		{
+			summarizeTool(m, s, "sakai.announce");
+		}
+		if (expandSite)
+		{
+			Map<String, Object> pageMap = pageListToMap(req, loggedIn, s, null, toolContextPath, prefix, doPages, resetTools, includeSummary);
+			m.put("sitePages", pageMap);
+		}
+
+		return m;
+	}
+
+	@Override
+	public List<Map<String, String>> getParentSites(Site s) {
+		ResourceProperties rp = s.getProperties();
+		String ourParent = rp.getProperty(PROP_PARENT_ID);
+
+		// Get the current site hierarchy
+		if (ourParent != null) {
 			List<Site> pwd = getPwd(s, ourParent);
 			if (pwd != null && pwd.size() > 1) {  // Ensure we have at least 2 sites
 				List<Map<String, String>> siteBreadcrumbs = new ArrayList<>();
