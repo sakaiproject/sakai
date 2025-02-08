@@ -235,6 +235,8 @@ public class SiteMerger {
 			processMerge(siteFile, siteId, results, attachmentNames, ltiContentItems, creatorId, filterSakaiServices, filteredSakaiServices, filterSakaiRoles, filteredSakaiRoles);
 		}
 
+		// TODO: Should we clean up the attachments stored in attachmentNames now tht we are done?
+
 		return results.toString();
 
 	}	// merge

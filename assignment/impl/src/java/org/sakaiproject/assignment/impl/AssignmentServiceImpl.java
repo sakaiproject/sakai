@@ -54,6 +54,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -105,7 +107,6 @@ import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.lti.util.SakaiLTIUtil;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarService;
@@ -457,7 +458,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         for (Element assignmentElement : assignmentElements) {
 
             try {
-                mergeAssignment(siteId, assignmentElement, results, creatorId, assignmentTitles, ltiContentItems);
+                mergeAssignment(siteId, assignmentElement, results, creatorId, assignmentTitles, attachmentNames, ltiContentItems);
                 assignmentsMerged++;
             } catch (Exception e) {
                 final String error = "could not merge assignment with id: " + assignmentElement.getFirstChild().getFirstChild().getNodeValue();
@@ -992,7 +993,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         return submission.getSubmitters().stream().findAny().get().getTimeSpent();
     }
 
-    private Assignment mergeAssignment(final String siteId, final Element element, final StringBuilder results, String creatorId, Set<String> assignmentTitles, Map<Long, Map<String, Object>> ltiContentItems) throws PermissionException {
+    @Transactional
+    private Assignment mergeAssignment(final String siteId, final Element element, final StringBuilder results, String creatorId, Set<String> assignmentTitles, Map<String, String> attachmentNames, Map<Long, Map<String, Object>> ltiContentItems) throws PermissionException {
 
         if (!allowAddAssignment(siteId)) {
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ADD_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().context(siteId).reckon().getReference());
@@ -1023,6 +1025,17 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             Long contentKey = ltiService.mergeContentFromImport(element, siteId);
             if ( contentKey != null ) assignmentFromXml.setContentId(contentKey.intValue());
 
+            // Import attachments
+            Set<String> oAttachments = assignmentFromXml.getAttachments();
+            assignmentFromXml.setAttachments(new HashSet<>());
+            for (String oAttachment : oAttachments) {
+                String fromResourcePath = attachmentNames.get(oAttachment);
+                fromResourcePath = removeReferencePrefix(fromResourcePath);
+                String fromContext = "there-is-no-from-context";
+                String nAttachId = transferAttachment(fromContext, siteId, fromResourcePath);
+                assignmentFromXml.getAttachments().add(nAttachId);
+            }
+
             if (serverConfigurationService.getBoolean(SAK_PROP_ASSIGNMENT_IMPORT_SUBMISSIONS, false)) {
                 Set<AssignmentSubmission> submissions = assignmentFromXml.getSubmissions();
                 if (submissions != null) {
@@ -1039,7 +1052,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             } else {
                 // here it is importing the assignment only
                 assignmentFromXml.setDraft(true);
-                assignmentFromXml.setAttachments(new HashSet<>());
                 assignmentFromXml.setGroups(new HashSet<>());
                 assignmentFromXml.setTypeOfAccess(SITE);
                 Map<String, String> properties = assignmentFromXml.getProperties().entrySet().stream()
@@ -4563,6 +4575,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         nAllPurposeItem.setHide(oAllPurposeItem.getHide());
                         nAllPurposeItem.setReleaseDate(null);
                         nAllPurposeItem.setRetractDate(null);
+
                         Set<AssignmentSupplementItemAttachment> oAllPurposeItemAttachments = oAllPurposeItem.getAttachmentSet();
                         Set<AssignmentSupplementItemAttachment> nAllPurposeItemAttachments = new HashSet<>();
                         for (AssignmentSupplementItemAttachment oAttachment : oAllPurposeItemAttachments) {
