@@ -1031,7 +1031,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             for (String oAttachment : oAttachments) {
                 String fromResourcePath = attachmentNames.get(oAttachment);
                 fromResourcePath = removeReferencePrefix(fromResourcePath);
-                String fromContext = "there-is-no-from-context";
+                String fromContext = null;  // No-Op, there is no fromContext when importing from a ZIP
                 String nAttachId = transferAttachment(fromContext, siteId, fromResourcePath);
                 assignmentFromXml.getAttachments().add(nAttachId);
             }
@@ -4644,7 +4644,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     private String transferAttachment(String fromContext, String toContext, String oAttachmentId) {
         String reference = "";
-        String nAttachmentId = oAttachmentId.replaceAll(fromContext, toContext);
+        String nAttachmentId = StringUtils.isBlank(fromContext) ? oAttachmentId : oAttachmentId.replaceAll(fromContext, toContext);
         try {
             ContentResource attachment = contentHostingService.getResource(nAttachmentId);
             reference = attachment.getReference();
