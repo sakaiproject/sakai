@@ -3830,15 +3830,14 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 	public ContentResource copyAttachment(String oAttachmentPath, String toContext, String toolTitle, Map<String, String> attachmentImportMap) 
 		throws IdUnusedException, TypeException, PermissionException
 	{
-
 		ContentResource oAttachment = null;
 
 		try {
 			oAttachment = this.getResource(oAttachmentPath);
 			log.debug("Loaded resource from path = {} {}", oAttachmentPath, oAttachment);
 			return oAttachment;
-		} catch (IdUnusedException iue) {
-			log.debug("Cannot find the attachment with path = {}, checking map", oAttachmentPath);
+		} catch (Exception e) {
+			log.debug("Cannot find the attachment with path = {}, checking map {}", oAttachmentPath, e.getMessage());
 		}
 
 		if (oAttachment == null && attachmentImportMap != null) {
@@ -3856,9 +3855,13 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 				}
 			}
 			log.debug("Found the attachment in map = {} -> {}", oAttachmentPath, lookupAttachmentPath);
-			oAttachment = this.getResource(lookupAttachmentPath);
-			log.debug("Loaded resource from map path = {} {}", lookupAttachmentPath, oAttachment);
-			oAttachmentPath = lookupAttachmentPath;
+			try {
+				oAttachment = this.getResource(lookupAttachmentPath);
+				log.debug("Loaded resource from map path = {} {}", lookupAttachmentPath, oAttachment);
+				oAttachmentPath = lookupAttachmentPath;
+			} catch (Exception e) {
+				log.warn("Cannot find the attachment in map path = {}, {}", lookupAttachmentPath, e.getMessage());
+			}
 		}
 
 		if (oAttachment == null) {
