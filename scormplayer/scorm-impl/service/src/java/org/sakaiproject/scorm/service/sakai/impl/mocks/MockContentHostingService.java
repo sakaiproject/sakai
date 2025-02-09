@@ -91,6 +91,11 @@ public class MockContentHostingService implements ContentHostingService
     }
 
     @Override
+	public ContentResource copyAttachment(String oAttachmentId, String toContext, String toolTitle, Map<String, String> attachmentImportMap) throws IdUnusedException, TypeException, PermissionException {
+        throw new UnsupportedOperationException( "Not supported yet." );
+    }
+
+    @Override
     public ContentCollection addCollection( String id, ResourceProperties properties ) throws IdUsedException, IdInvalidException, PermissionException, InconsistentException
     {
         throw new UnsupportedOperationException( "Not supported yet." );
