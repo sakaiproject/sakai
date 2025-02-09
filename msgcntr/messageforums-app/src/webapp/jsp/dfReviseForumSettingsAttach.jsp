@@ -44,22 +44,26 @@
 	}
 
 	function updateGradeAssignment(){
-		var elems = document.getElementsByTagName('sakai-rubric-association');
-		var forumAssignments = document.getElementById("revise:forum_assignments");
-		const createTaskGroup = document.getElementById("revise:createTaskGroup");
-		const isTasksWidgetAvailable = !!document.querySelector("sakai-tasks");
-		if (forumAssignments?.value && forumAssignments.value !== "Default_0" && isTasksWidgetAvailable) {
-			for (var i = 0; i<elems.length; i++) {
-                elems[i].setAttribute("entity-id", forumAssignments.value);
+    const forumAssignments = document.getElementById("revise:forum_assignments");
+
+    if (forumAssignments?.value === undefined || forumAssignments.value === "Default_0") return;
+
+    const elems = document.getElementsByTagName('sakai-rubric-association');
+    const createTaskGroup = document.getElementById("revise:createTaskGroup");
+    const isTasksWidgetAvailable = !!document.querySelector("sakai-tasks");
+
+    if (isTasksWidgetAvailable) {
+			for (var i = 0; i < elems.length; i++) {
+				elems[i].setAttribute("entity-id", forumAssignments.value);
 				elems[i].style.display = 'inline';
 			}
 			createTaskGroup.style.display = 'inline';
-		} else {
-			for (var i = 0; i<elems.length; i++) {
+    } else {
+			for (var i = 0; i < elems.length; i++) {
 				elems[i].style.display = 'none';
 			}
 			createTaskGroup.style.display = 'none';
-		}
+    }
 	}
 
 	window.onload = function(){
