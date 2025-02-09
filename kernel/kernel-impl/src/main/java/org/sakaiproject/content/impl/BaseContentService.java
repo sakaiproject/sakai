@@ -3827,6 +3827,87 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		commitCollection(edit);	
 	}
 
+	public ContentResource copyAttachment(String oAttachmentPath, String toContext, String toolTitle, Map<String, String> attachmentImportMap) 
+		throws IdInvalidException, InconsistentException, IdUsedException, PermissionException, ServerOverloadException, TypeException, IdUnusedException
+	{
+
+		ContentResource oAttachment = null;
+
+		try {
+			oAttachment = this.getResource(oAttachmentPath);
+			log.debug("Loaded resource from path = {} {}", oAttachmentPath, oAttachment);
+			return oAttachment;
+		} catch (IdUnusedException iue) {
+			log.debug("Cannot find the attachment with path = {}, checking map", oAttachmentPath);
+		}
+
+		if (oAttachment == null && attachmentImportMap != null) {
+			String lookupAttachmentPath = attachmentImportMap.get(oAttachmentPath);
+			if (lookupAttachmentPath == null) {
+				if (oAttachmentPath.startsWith(REFERENCE_ROOT)) {
+					oAttachmentPath = oAttachmentPath.replaceFirst(REFERENCE_ROOT, "");
+				} else {
+					oAttachmentPath = REFERENCE_ROOT + oAttachmentPath;
+				}
+				lookupAttachmentPath = attachmentImportMap.get(oAttachmentPath);
+				if (lookupAttachmentPath == null) {
+					log.warn("Cannot find the attachment in map path = {}, map = {}", oAttachmentPath, attachmentImportMap);
+					return null;
+				}
+			}
+			log.debug("Found the attachment in map = {} -> {}", oAttachmentPath, lookupAttachmentPath);
+			oAttachment = this.getResource(lookupAttachmentPath);
+			log.debug("Loaded resource from map path = {} {}", lookupAttachmentPath, oAttachment);
+			oAttachmentPath = lookupAttachmentPath;
+		}
+
+		if (oAttachment == null) {
+			log.warn("Could not find resource associated with attachment {} to copy to site {} toolTitle {}", oAttachmentPath, toContext, toolTitle);
+			return null;
+		}
+
+		ContentResource attachment = null;
+		try {
+			try (InputStream content = new ByteArrayInputStream(oAttachment.getContent())) {
+				if (this.isAttachmentResource(oAttachmentPath)) {
+					// add the new resource into attachment collection area
+					log.debug("Copying attachment {} to site {} attachments toolTitle {}", oAttachmentPath, toContext, toolTitle);
+					attachment = this.addAttachmentResource(
+							Validator.escapeResourceName(oAttachment.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME)),
+							toContext,
+							toolTitle,
+							oAttachment.getContentType(),
+							content,
+							oAttachment.getProperties());
+				} else {
+					// add the new resource into resource area
+					log.debug("Copying attachment {} to site {} content toolTitle {}", oAttachmentPath, toContext, toolTitle);
+					attachment = this.addResource(
+							Validator.escapeResourceName(oAttachment.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME)),
+							toContext,
+							1,
+							oAttachment.getContentType(),
+							content,
+							oAttachment.getProperties(),
+							Collections.emptyList(),
+							false,
+							null,
+							null,
+							NotificationService.NOTI_NONE);
+				}
+				log.debug("Copied attachment {} to site {} {}", oAttachmentPath, toContext, attachment.getReference());
+				return attachment;
+			} catch (Exception e) {
+				log.warn("Cannot add new attachment with id = {}, {}", oAttachmentPath, e.getMessage());
+				return null;
+			}
+		} catch (Exception e) {
+			// if cannot find the original attachment, do nothing.
+			log.warn("Cannot get the original attachment with id = {}, {}", oAttachmentPath, e.getMessage());
+		}
+		return null;
+	}
+
 	/**
 	 * check permissions for updateResource().
 	 * 
