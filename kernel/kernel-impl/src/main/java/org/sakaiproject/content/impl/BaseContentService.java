@@ -3828,7 +3828,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 	}
 
 	public ContentResource copyAttachment(String oAttachmentPath, String toContext, String toolTitle, Map<String, String> attachmentImportMap) 
-		throws IdInvalidException, InconsistentException, IdUsedException, PermissionException, ServerOverloadException, TypeException, IdUnusedException
+		throws IdUnusedException, TypeException, PermissionException
 	{
 
 		ContentResource oAttachment = null;

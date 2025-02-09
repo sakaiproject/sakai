@@ -1146,7 +1146,7 @@ public interface ContentHostingService extends EntityProducer
 	 * @return The id of the new attachment.
 	 */
 	public ContentResource copyAttachment(String oAttachmentId, String toContext, String toolTitle, Map<String, String> attachmentImportMap) 
-		throws IdInvalidException, InconsistentException, IdUsedException, PermissionException, ServerOverloadException, TypeException, IdUnusedException;
+		throws IdUnusedException, TypeException, PermissionException;
 
 	/**
 	 * check permissions for updateResource().
