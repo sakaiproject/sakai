@@ -58,9 +58,7 @@
 			const associations = document.querySelectorAll('sakai-rubric-association');
 			const createTaskGroup = document.getElementById("revise:createTaskGroup");
 			const createTaskEmptyPanel = document.getElementById("revise:createTaskEmptyPanel");
-			const isTasksWidgetAvailable = !!document.querySelector("sakai-tasks");
-
-			if (isTasksWidgetAvailable) {
+			if (!!document.querySelector("sakai-tasks")) {
 				associations.forEach(a => {
 					a.setAttribute("entity-id", topicAssignments.value);
 					a.style.display = 'inline';
