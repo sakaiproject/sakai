@@ -7389,7 +7389,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 							String oldRef = getReference(id);
 
 							// take the name from after /attachment/whatever/
-							id = ATTACHMENTS_COLLECTION + idManager.createUuid()
+							id = ATTACHMENTS_COLLECTION + "TA-" + idManager.createUuid()
 							+ id.substring(id.indexOf('/', ATTACHMENTS_COLLECTION.length()));
 
 							// record the rename
