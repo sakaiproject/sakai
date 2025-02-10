@@ -1230,14 +1230,7 @@ public abstract class BaseLTIService implements LTIService {
 		}
 
 		// Finally insert the content item...
-		Properties contentProps = new Properties();
-
-		for (Map.Entry<String, Object> entry : ltiContent.entrySet()) {
-			String key = entry.getKey();
-			Object value = entry.getValue();
-			if ( value == null ) continue;
-			contentProps.put(key, value.toString());
-		}
+		Properties contentProps = convertToProperties(ltiContent);
 
 		// Point at the correct (possibly the same) tool id
 		contentProps.put(LTIService.LTI_TOOL_ID, newToolId.toString());
@@ -1271,5 +1264,175 @@ public abstract class BaseLTIService implements LTIService {
 		return contentKey;
 	}
 
+	@Override
+	public String fixLtiLaunchUrls(String text, String toContext, Map<Long, Map<String, Object>> ltiContentItems) {
+		String fromContext = null;
+		Map<String, String> transversalMap = null;
+		return fixLtiLaunchUrls(text, fromContext, toContext, ltiContentItems, transversalMap);
+	}
+
+	@Override
+	public String fixLtiLaunchUrls(String text, String fromContext, String toContext, Map<String, String> transversalMap) {
+		Map<Long, Map<String, Object>> ltiContentItems = null;
+		return fixLtiLaunchUrls(text, fromContext, toContext, ltiContentItems, transversalMap);
+	}
+
+	// http://localhost:8080/access/lti/site/7d529bf7-b856-4400-9da1-ba8670ed1489/content:1
+	// http://localhost:8080/access/lti/site/7d529bf7-b856-4400-9da1-ba8670ed1489/content:42
+	protected String fixLtiLaunchUrls(String text, String fromContext, String toContext, Map<Long, Map<String, Object>> ltiContentItems, Map<String, String> transversalMap) {
+		if (StringUtils.isBlank(text)) return text;
+		List<String> urls = SakaiLTIUtil.extractLtiLaunchUrls(text);
+		for (String url : urls) {
+			String[] pieces = SakaiLTIUtil.getLtiLaunchUrlAndSiteId(url);
+			if (pieces != null) {
+				String linkSiteId = pieces[0];
+				String linkContextId = pieces[1];
+
+				if ( transversalMap != null && transversalMap.containsKey(url) ) {
+					log.debug("Found transversal map entry for {} -> {}", url, transversalMap.get(url));
+					text = text.replace(url, transversalMap.get(url));
+					return text;
+				}
+
+				// We need to load up the content item from the old context which should be successful
+				Long contentKey = Long.parseLong(linkContextId);
+				Map<String, Object> content = this.getContent(contentKey, linkSiteId);
+				if (content == null) {
+					log.error("Could not find content item {} in site {}",contentKey,linkSiteId);
+					continue;
+				}
+
+				// Get the tool id from the content item from the old site
+				Map<String, Object> tool = null;
+				Long newToolId = findOrCreateToolForContentItem(content, tool, toContext, fromContext, ltiContentItems);
+				if (newToolId == null) {
+					log.error("Could not associate new content item {} with a tool in site {}", contentKey, toContext);
+					continue;
+				}
+
+				content.put(LTIService.LTI_SITE_ID, toContext);
+				content.put(LTIService.LTI_TOOL_ID, newToolId.toString());
+				Object result = this.insertContent(content, toContext);
+				if (result instanceof Long) {
+					Long newContentId = (Long) result;
+					String baseUrl = url.substring(0, url.indexOf("/site/") + 6); // +6 to include "/site/"
+					// Upgrade the access prefix from legacy blti to modern lti
+					String newUrl = baseUrl.replace(LTIService.LAUNCH_PREFIX_LEGACY, LTIService.LAUNCH_PREFIX) + toContext + "/content:" + newContentId;
+					text = text.replace(url, newUrl);
+					if ( transversalMap != null ) transversalMap.put(url, newUrl);
+					log.debug("Inserted content item {} in site {} newUrl {}", newContentId, toContext, newUrl);
+				} else {
+					log.error("Could not insert content item {} in site {}",contentKey,toContext);
+					continue;
+				}
+			}
+		}
+		log.debug("text {}", text);
+		return text;
+	}
+
+	/**
+	 * Helper method to find or create a tool for a content item
+	 * @param content Content item which we are about to insert, at minimum need LTI_LAUNCH and LTI_TITLE
+	 * @param tool Tool may be null, may or may not be persisted - if this exists, we will reload to verify it is accessible to the user and site
+	 * @param toSiteId Target site ID
+	 * @param fromSiteId Source site ID
+	 * @param ltiContentItems Map of existing content items by content key, imported from basiclti.xml on Archive import can be null
+	 * @return New tool ID or null if tool cannot be found/created
+	 */
+	protected Long findOrCreateToolForContentItem(Map<String, Object> content, Map<String, Object> tool, String toSiteId, String fromSiteId, Map<Long, Map<String, Object>> ltiContentItems) {
+		if ( StringUtils.isBlank(toSiteId) ) return null;
+
+		// Get launch URL from content
+		String launchUrl = (String) content.get(LTIService.LTI_LAUNCH);
+		Long contentKey = this.getId(content);  // May be empty null or not yet persisted or be an id from some other system
+		Long contentToolId = Foorm.getLongNull(content.get(LTIService.LTI_TOOL_ID));
+		Map<String, Object> contentTool = null;
+
+		if (StringUtils.isBlank(launchUrl)) {
+			log.error("Could not find launch url for content item {} in site {}", launchUrl, toSiteId);
+			return null;
+		}
+
+		// Check if this tool has already been created in the target site
+		if (StringUtils.isNotBlank(toSiteId) && contentToolId != null) {
+			contentTool = this.getTool(contentToolId, toSiteId);
+			if (contentTool != null) {
+				log.debug("Found tool {} for content item {} in site {}", contentToolId, launchUrl, toSiteId);
+				return this.getId(contentTool);
+			}
+		}
+
+		// Check if this tool can be retrieved the source site
+		if (StringUtils.isNotBlank(fromSiteId) && contentToolId != null) {
+			contentTool = this.getTool(contentToolId, fromSiteId);
+			if (contentTool != null) {
+				log.debug("Found tool {} for content item {} in site {}", contentToolId, launchUrl, fromSiteId);
+				return this.getId(contentTool);
+			}
+		}
+
+		// Use fuzzy launchUrl Matching to find a tool we can use - less than ideal but better than nothing
+		String toolBaseUrl = SakaiLTIUtil.stripOffQuery(launchUrl);	
+		List<Map<String,Object>> tools = this.getTools(null, null, 0, 0, toSiteId);
+		contentTool = SakaiLTIUtil.findBestToolMatch(toolBaseUrl, null, tools);
+		if (contentTool != null) {
+			log.debug("Found tool {} for content item {} in site {}", this.getId(contentTool), launchUrl, toSiteId);
+			return this.getId(contentTool);
+		}
+
+		// Now we need to create a new tool - first check if the tool data is valid and sufficient
+		log.debug("Inserting new tool for content item {} / {} in site {}", launchUrl, toolBaseUrl, toSiteId);
+		if ( tool != null ) {
+			String toolErrors = this.validateTool(tool);	
+			if ( toolErrors != null ) {
+				log.debug("Could not validate tool template for content item {} in site {} {}", launchUrl, toSiteId, toolErrors);
+				tool = null;
+			}
+		}
+
+		// If the tool is null or invalid, check if the tool data is available in the imported content items
+		if ( tool == null && ltiContentItems != null ) {
+			Map<String, Object> importedContent = ltiContentItems.get(contentKey);
+			if ( importedContent != null ) {
+				try {
+					// In order to pass only one Map through the entirety of the merge() process,
+					// we store the tool in a Map<String, Object> inside of a Map<String, Object>
+					Object toolObj = importedContent.get(LTIService.TOOL_IMPORT_MAP);
+					if (toolObj instanceof Map) {
+						@SuppressWarnings("unchecked")
+						Map<String, Object> toolMap = (Map<String, Object>) toolObj;
+						tool = toolMap;
+						String toolErrors = this.validateTool(tool);
+						if ( toolErrors != null ) {
+							log.debug("Could not validate imported tool for content item map {} in site {} {}", launchUrl, toSiteId, toolErrors);
+							tool = null;
+						}
+						log.debug("Found tool for content item in item map {} in site {} {}", launchUrl, toSiteId, toolErrors);
+					}
+				} catch (ClassCastException e) {
+					tool = null;	
+				}
+			}
+		}
+
+		// Fall through and create a stub tool
+		if ( tool == null ) {
+			String contentTitle = (String) content.get(LTIService.LTI_TITLE);
+			if (StringUtils.isBlank(contentTitle)) contentTitle = toolBaseUrl;
+			log.debug("Creating stub tool for content item {} / {} in site {}", launchUrl, toolBaseUrl, toSiteId);
+			tool = createStubLTI11Tool(toolBaseUrl, contentTitle);
+		}
+
+		// At this point we definately have a tool
+		Object toolResult = this.insertTool(tool, toSiteId);
+		if (toolResult instanceof Long) {
+			log.debug("Inserted stub tool {} for content item {} in site {}", toolResult, launchUrl, toSiteId);
+			return (Long) toolResult;
+		}
+
+		log.warn("Could not insert stub tool for content item {} in site {}", launchUrl, toSiteId);
+		return null;
+	}
 
 }

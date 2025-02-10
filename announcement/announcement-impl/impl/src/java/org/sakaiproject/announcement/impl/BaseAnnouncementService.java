@@ -34,6 +34,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Stack;
@@ -90,6 +91,7 @@ import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.javax.Filter;
+import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.message.api.Message;
 import org.sakaiproject.message.api.MessageChannel;
 import org.sakaiproject.message.api.MessageChannelEdit;
@@ -138,6 +140,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 	@Setter private AliasService aliasService;
 	@Setter private ToolManager toolManager;
 	@Setter private PreferencesService preferencesService;
+	@Setter private LTIService ltiService;
 	@Resource(name="org.sakaiproject.util.api.LinkMigrationHelper")
 	private LinkMigrationHelper linkMigrationHelper;
 
@@ -1478,6 +1481,8 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 	 */
 	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> resourceIds, List<String> options) {
 
+		Map<String, String> transversalMap = new HashMap<>();
+
 		// get the channel associated with this site
 		String oChannelRef = channelReference(fromContext, SiteService.MAIN_CONTAINER);
 		AnnouncementChannel oChannel = null;
@@ -1552,7 +1557,10 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 
 						// the "to" message
 						nMessage = (AnnouncementMessageEdit) nChannel.addMessage();
-						nMessage.setBody(oMessage.getBody());
+						String newBody = oMessage.getBody();
+						newBody = ltiService.fixLtiLaunchUrls(newBody, fromContext, toContext, transversalMap);
+						newBody = linkMigrationHelper.migrateOneLink(fromContext, toContext, newBody);
+						nMessage.setBody(newBody);
 						// message header
 						AnnouncementMessageHeaderEdit nMessageHeader = (AnnouncementMessageHeaderEdit) nMessage.getHeaderEdit();
 						nMessageHeader.setDate(oMessageHeader.getDate());
@@ -1669,8 +1677,8 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 		{
 			log.warn(".importResources(): exception in handling {} : {}", serviceName(), any);
 		}
-		
-		return null;
+
+		return transversalMap;
 	}
 
 	@Override
