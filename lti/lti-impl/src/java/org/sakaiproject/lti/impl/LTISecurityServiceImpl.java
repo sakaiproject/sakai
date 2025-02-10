@@ -345,7 +345,7 @@ public class LTISecurityServiceImpl implements EntityProducer {
 	{
 
 		String oidc_endpoint = (String) tool.get(LTIService.LTI13_TOOL_ENDPOINT);
-		if (SakaiLTIUtil.isLTI13(tool, content) && StringUtils.isBlank(oidc_endpoint) ) {
+		if (SakaiLTIUtil.isLTI13(tool) && StringUtils.isBlank(oidc_endpoint) ) {
 			String errorMessage = "<p>" + SakaiLTIUtil.getRB(rb, "error.no.oidc_endpoint", "Missing oidc_endpoint value for LTI 1.3 launch") + "</p>";
 			org.tsugi.lti.LTIUtil.sendHTMLPage(res, errorMessage);
 			return false;
@@ -414,7 +414,7 @@ public class LTISecurityServiceImpl implements EntityProducer {
 					// Sanity check for missing config data
 					if ( ! sanityCheck(req, res, null, tool, rb) ) return;
 
-					if (SakaiLTIUtil.isLTI13(tool, null) && StringUtils.isNotBlank(oidc_endpoint) &&
+					if (SakaiLTIUtil.isLTI13(tool) && StringUtils.isNotBlank(oidc_endpoint) &&
 							( StringUtils.isEmpty(state) || StringUtils.isEmpty(state) ) ) {
 						redirectOIDC(req, res, null, tool, oidc_endpoint, rb);
 						return;
@@ -494,7 +494,7 @@ public class LTISecurityServiceImpl implements EntityProducer {
 						// Sanity check for missing config data
 						if ( ! sanityCheck(req, res, content, tool, rb) ) return;
 
-						if (SakaiLTIUtil.isLTI13(tool, content) && StringUtils.isNotBlank(oidc_endpoint) &&
+						if (SakaiLTIUtil.isLTI13(tool) && StringUtils.isNotBlank(oidc_endpoint) &&
 								(StringUtils.isEmpty(state) || StringUtils.isEmpty(nonce) ) ) {
 							redirectOIDC(req, res, content, tool, oidc_endpoint, rb);
 							return;

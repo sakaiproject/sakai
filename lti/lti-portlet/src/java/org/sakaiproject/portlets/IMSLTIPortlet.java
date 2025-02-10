@@ -217,7 +217,7 @@ public class IMSLTIPortlet extends GenericPortlet {
 					String newPageLaunchText = rb.getFormattedMessage("new.page.launch", new Object[]{ComponentManager.get(FormattedText.class).escapeHtml(title, false), ComponentManager.get(FormattedText.class).escapeHtml(siteName, false)});
 					text.append(newPageLaunchText);
 					text.append("</p>\n");
-					text.append("<input type=\"submit\" onclick=\""+windowOpen+"\" target=\"LTI\" value=\"Launch " + title + "\"/>");
+					text.append("<input type=\"submit\" onclick=\""+windowOpen+"\" target=\"LTI\" value=\""+rb.getString("launch.go.to")+"\"" + title + "\"/>");
 				} else {
 					if ( LTI_PORTLET_ON.equals(maximize) ) {
 						text.append("<script type=\"text/javascript\" language=\"JavaScript\">\n");

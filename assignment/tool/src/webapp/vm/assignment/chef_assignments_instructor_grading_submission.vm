@@ -275,7 +275,7 @@
         #else
             #if($submissionType == 1 || $submissionType == 3)
                 #if (($submission.Submitted || !$alertGradeDraft) && $!value_feedback_text && !$!value_feedback_text.isEmpty())
-                    <p class="text-info">$tlang.getString("gradingsub.belisthe")</p>
+                    <p class="alert alert-info rounded p-2">$tlang.getString("gradingsub.belisthe")</p>
                     <div class="textarea-holder">
                         #set($contextkey = "ckeditor-autosave-context")
                         #set($entitykey = "ckeditor-autosave-entity-id")
@@ -378,11 +378,12 @@
                             <div class="textPanel borderPanel">$formattedText.escapeHtmlFormattedText($review.getComment())</div>
                         #end
                         <sakai-rubric-student
-                            tool-id="sakai.assignment.grades"
+                            site-id="$!assignment.Context"
                             entity-id="$assignment.Id"
+                            tool-id="sakai.assignment.grades"
+                            instructor
+                            is-peer-or-self
                             evaluated-item-id="$review.id.assessorUserId"
-                            instructor="true"
-                            is-peer-or-self="true"
                             #if ($!assignment.isGroup)
                                 evaluated-item-owner-id="$ownerGroupId"
                             #else
@@ -403,8 +404,8 @@
                 site-id="$!assignment.Context"
                 entity-id="$assignment.Id"
                 tool-id="sakai.assignment.grades"
-                instructor="true"
-                is-peer-or-self="true"
+                instructor
+                is-peer-or-self
                 #if ($!assignment.isGroup)
                     evaluated-item-id="$ownerGroupId"
                     evaluated-item-owner-id="$ownerGroupId"
@@ -482,7 +483,7 @@
                             <a id="infoImg" href="javascript:;"  class="fa fa-info-circle" data-bs-toggle="popover" data-placement="auto" data-content="$tlang.getString('peerassessment.peerGradeInfo')"></a>
                         #end
                         <input type="text" name="$name_grade" size="5" maxlength="11" value="$!value_grade" id="grade" onkeypress="return ASN.handleEnterKeyPress(event);"/>
-                        <span class="text-info">($tlang.getString("grade.max") $!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint))</span>
+                        <span class="alert alert-info rounded p-2">($tlang.getString("grade.max") $!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint))</span>
 
                         <!--for grading via an external scoring service, if enabled for the associated gradebook item -->
                         #if($scoringComponentEnabled)
@@ -798,7 +799,7 @@
                     onclick="if(checked){document.getElementById('allowExtensionTime').style.display = 'block';ASN.resizeFrame();}else{document.getElementById('allowExtensionTime').style.display = 'none';}"
                 />
                 <label for="allowExtensionToggle" >$tlang.getString("allowExtension")</label>
-                <label class="text-warning" >$tlang.getString("allowExtensionCaption")</label>
+                <label class="alert alert-warning rounded p-2">$tlang.getString("allowExtensionCaption")</label>
                 <div id="allowExtensionTime"
                     #if($extensionCloseTime && $submissionType != 4)
                         style="display: block"

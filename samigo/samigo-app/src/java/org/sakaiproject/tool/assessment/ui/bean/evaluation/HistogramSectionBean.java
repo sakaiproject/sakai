@@ -54,7 +54,7 @@ private ArrayList itemBeans; // The items for this section
 
   /**
    * Sets a list of HistogramQuestionScoresBeans
-   * @param pquestionNumberList ArrayList
+   * @param pItemBeans ArrayList
    */
   public void setItemBeans(ArrayList pItemBeans)
   {

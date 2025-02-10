@@ -166,12 +166,12 @@ public class SiteMerger {
 		Map<Long, Map<String, Object>> ltiContentItems = new HashMap();
 		
 		// The archive.xml is really a debug log, not actual archive data - it does not participate in any merge
+		// the web.xml is now merged in the site merger
 		for (int i = 0; i < files.length; i++)
 		{
-			if ((files[i] != null) && (files[i].getPath().indexOf("archive.xml") != -1))
+			if (files[i] != null && (files[i].getPath().contains("archive.xml") || files[i].getPath().contains("web.xml")))
 			{
 				files[i] = null;
-				break;
 			}
 		}
 
@@ -441,7 +441,7 @@ public class SiteMerger {
 			}
 			Long contentId = ltiService.getId(content);
 			if ( contentId > 0 ) {
-				content.put("TOOL_IMPORT", tool);
+				content.put(LTIService.TOOL_IMPORT_MAP, tool);
 				ltiContentItems.put(contentId, content);
 			}
 		}
