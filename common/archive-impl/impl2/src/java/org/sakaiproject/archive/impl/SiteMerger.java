@@ -223,7 +223,7 @@ public class SiteMerger {
 		boolean keepAttachments = serverConfigurationService.getBoolean(DEV_MERGE_KEEP_ATTACHMENTS, DEV_MERGE_KEEP_ATTACHMENTS_DEFAULT);
 		for (String key : attachmentNames.keySet()) {
 			String value = attachmentNames.get(key);
-			if ( StringUtils.isBlank(value) || !value.startsWith("/attachment/TA-")) {
+			if (!StringUtils.startsWith(value, "/attachment/TA-")) {
 				continue;
 			}
 			if ( keepAttachments ) {
