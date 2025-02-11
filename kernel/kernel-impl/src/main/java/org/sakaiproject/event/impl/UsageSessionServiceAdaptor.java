@@ -551,18 +551,18 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 					currentSession.invalidate();
 					throw new SakaiException("Can not restore session from roleview mode, missing the original session");
 				}
-		}
+			}
 
-		// Restore the original user session
-		List<String> saveAttributes = List.of(
-			UsageSessionService.USAGE_SESSION_KEY,
-			UsageSessionService.SAKAI_CSRF_SESSION_ATTRIBUTE);
-		currentSession.clearExcept(saveAttributes);
+			// Restore the original user session
+			List<String> saveAttributes = List.of(
+				UsageSessionService.USAGE_SESSION_KEY,
+				UsageSessionService.SAKAI_CSRF_SESSION_ATTRIBUTE);
+			currentSession.clearExcept(saveAttributes);
 
-		currentSession.setUserId(realUserId);
-		currentSession.setUserEid(realUserEid);
-		authzGroupService().refreshUser(realUserId);
-		log.info("Exiting from roleview mode, restored real user [{}] for session [{}]", realUserEid, currentSession.getId());
+			currentSession.setUserId(realUserId);
+			currentSession.setUserEid(realUserEid);
+			authzGroupService().refreshUser(realUserId);
+			log.info("Exiting from roleview mode, restored real user [{}] for session [{}]", realUserEid, currentSession.getId());
 		} else {
 			log.warn("Restore from roleview for user, but a session does not exist for this request, skipping");
 		}
