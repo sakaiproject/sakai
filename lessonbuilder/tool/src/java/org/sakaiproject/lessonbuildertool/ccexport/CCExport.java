@@ -841,7 +841,6 @@ public class CCExport {
                 String newName = ccConfig.getSha256Map().get(sha256);
                 if ( newName == null ) continue;
 
-				System.out.println("Found one!!!!");
                 log.debug("Detected two blobs with sha256={} keeping {} removing {}", sha256, newName, bodyLocation);
                 changed = true;
                 element.setAttribute("body-location", "../"+newName);
