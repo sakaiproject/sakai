@@ -3836,7 +3836,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		try {
 			oAttachment = this.getResource(oAttachmentPath);
 			log.debug("Loaded resource from path = {} {}", oAttachmentPath, oAttachment);
-			return oAttachment;
 		} catch (Exception e) {
 			log.debug("Cannot find the attachment with path = {}, checking map {}", oAttachmentPath, e.toString());
 		}
