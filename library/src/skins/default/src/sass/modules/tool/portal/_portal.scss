@@ -60,23 +60,15 @@
 }
 
 .portal-header-breadcrumb-separator, .portal-header-breadcrumb-item > a {
-  font-size: 16px;
   color: var(--sakai-text-color-inverted) !important;
   text-decoration: none;
   &:hover {
     text-decoration: underline;
   }
 }
-.portal-header-breadcrumb-separator {
-  font-size: 14px;
-}
 
-#header-site-title {
+.portal-header-site-title {
   padding-bottom: 2px;
-
-  > a {
-    font-size: 20px;
-  }
 }
 
 /* 
