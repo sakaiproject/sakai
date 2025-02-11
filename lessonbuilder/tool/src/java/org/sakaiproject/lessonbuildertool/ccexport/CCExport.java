@@ -828,6 +828,29 @@ public class CCExport {
             if ( changed) Xml.writeDocument(doc, contentXml);
         }
 
+        String attachmentXml = path + "attachment.xml";
+        doc = Xml.readDocument(attachmentXml);
+        if ( doc != null ) {
+            nodeList = doc.getElementsByTagName("resource");
+            boolean changed = false;
+            for (int i = 0; i < nodeList.getLength(); i++) {
+                Element element = (Element) nodeList.item(i);
+                String sha256 = element.getAttribute("sha256");
+                String bodyLocation = element.getAttribute("body-location");
+                if ( sha256 == null || bodyLocation == null ) continue;
+                String newName = ccConfig.getSha256Map().get(sha256);
+                if ( newName == null ) continue;
+
+                log.debug("Detected two blobs with sha256={} keeping {} removing {}", sha256, newName, bodyLocation);
+                changed = true;
+                element.setAttribute("body-location", "../"+newName);
+                String deletePath = path + bodyLocation;
+                file = new File(deletePath);
+                file.delete();
+            }
+            if ( changed) Xml.writeDocument(doc, attachmentXml);
+        }
+
         // Remove roles / providers data from site.xml
         String siteXml = path + "site.xml";
         doc = Xml.readDocument(siteXml);

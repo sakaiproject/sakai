@@ -442,6 +442,15 @@ public class ContentHostingService
 		return service.addAttachmentResource(param0);
 	}
 
+	public static ContentResource copyAttachment(String param0, String param1, String param2, java.util.Map<String, String> param3)
+        throws IdUnusedException, TypeException, PermissionException
+	{
+		org.sakaiproject.content.api.ContentHostingService service = getInstance();
+		if (service == null) return null;
+
+		return service.copyAttachment(param0, param1, param2, param3);
+	}
+
 	public static boolean allowUpdateResource(java.lang.String param0)
 	{
 		org.sakaiproject.content.api.ContentHostingService service = getInstance();

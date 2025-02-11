@@ -54,6 +54,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -105,7 +107,6 @@ import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.lti.util.SakaiLTIUtil;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarService;
@@ -457,7 +458,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         for (Element assignmentElement : assignmentElements) {
 
             try {
-                mergeAssignment(siteId, assignmentElement, results, creatorId, assignmentTitles, ltiContentItems);
+                mergeAssignment(siteId, assignmentElement, results, creatorId, assignmentTitles, attachmentNames, ltiContentItems);
                 assignmentsMerged++;
             } catch (Exception e) {
                 final String error = "could not merge assignment with id: " + assignmentElement.getFirstChild().getFirstChild().getNodeValue();
@@ -992,7 +993,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         return submission.getSubmitters().stream().findAny().get().getTimeSpent();
     }
 
-    private Assignment mergeAssignment(final String siteId, final Element element, final StringBuilder results, String creatorId, Set<String> assignmentTitles, Map<Long, Map<String, Object>> ltiContentItems) throws PermissionException {
+    @Transactional
+    private Assignment mergeAssignment(final String siteId, final Element element, final StringBuilder results, String creatorId, Set<String> assignmentTitles, Map<String, String> attachmentNames, Map<Long, Map<String, Object>> ltiContentItems) throws PermissionException {
 
         if (!allowAddAssignment(siteId)) {
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ADD_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().context(siteId).reckon().getReference());
@@ -1023,6 +1025,16 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             Long contentKey = ltiService.mergeContentFromImport(element, siteId);
             if ( contentKey != null ) assignmentFromXml.setContentId(contentKey.intValue());
 
+            // Import attachments
+            Set<String> oAttachments = assignmentFromXml.getAttachments();
+            assignmentFromXml.setAttachments(new HashSet<>());
+            for (String oAttachment : oAttachments) {
+                String fromResourcePath = attachmentNames.get(oAttachment);
+                String fromContext = null;  // No-Op, there is no fromContext when importing from a ZIP
+                String nAttachId = transferAttachment(fromContext, siteId, fromResourcePath, null);
+                assignmentFromXml.getAttachments().add(nAttachId);
+            }
+
             if (serverConfigurationService.getBoolean(SAK_PROP_ASSIGNMENT_IMPORT_SUBMISSIONS, false)) {
                 Set<AssignmentSubmission> submissions = assignmentFromXml.getSubmissions();
                 if (submissions != null) {
@@ -1039,7 +1051,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             } else {
                 // here it is importing the assignment only
                 assignmentFromXml.setDraft(true);
-                assignmentFromXml.setAttachments(new HashSet<>());
                 assignmentFromXml.setGroups(new HashSet<>());
                 assignmentFromXml.setTypeOfAccess(SITE);
                 Map<String, String> properties = assignmentFromXml.getProperties().entrySet().stream()
@@ -4338,7 +4349,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         Reference oReference = entityManager.newReference(oAttachment);
                         String oAttachmentId = oReference.getId();
                         // transfer attachment, replace the context string if necessary and add new attachment
-                        String nReference = transferAttachment(fromContext, toContext, oAttachmentId);
+                        String nReference = transferAttachment(fromContext, toContext, oAttachmentId, null);
                         nAssignment.getAttachments().add(nReference);
                     }
 
@@ -4529,7 +4540,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         for (AssignmentSupplementItemAttachment oAttachment : oModelAnswerItemAttachments) {
                             AssignmentSupplementItemAttachment nAttachment = assignmentSupplementItemService.newAttachment();
                             // New attachment creation
-                            String nAttachmentId = transferAttachment(fromContext, toContext, removeReferencePrefix(oAttachment.getAttachmentId()));
+                            String nAttachmentId = transferAttachment(fromContext, toContext, oAttachment.getAttachmentId(), null);
                             if (StringUtils.isNotEmpty(nAttachmentId)) {
                                 nAttachment.setAssignmentSupplementItemWithAttachment(nModelAnswerItem);
                                 nAttachment.setAttachmentId(nAttachmentId);
@@ -4563,12 +4574,13 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         nAllPurposeItem.setHide(oAllPurposeItem.getHide());
                         nAllPurposeItem.setReleaseDate(null);
                         nAllPurposeItem.setRetractDate(null);
+
                         Set<AssignmentSupplementItemAttachment> oAllPurposeItemAttachments = oAllPurposeItem.getAttachmentSet();
                         Set<AssignmentSupplementItemAttachment> nAllPurposeItemAttachments = new HashSet<>();
                         for (AssignmentSupplementItemAttachment oAttachment : oAllPurposeItemAttachments) {
                             AssignmentSupplementItemAttachment nAttachment = assignmentSupplementItemService.newAttachment();
                             // New attachment creation
-                            String nAttachId = transferAttachment(fromContext, toContext, removeReferencePrefix(oAttachment.getAttachmentId()));
+                            String nAttachId = transferAttachment(fromContext, toContext, oAttachment.getAttachmentId(), null);
                             if (StringUtils.isNotEmpty(nAttachId)) {
                                 nAttachment.setAssignmentSupplementItemWithAttachment(nAllPurposeItem);
                                 nAttachment.setAttachmentId(nAttachId);
@@ -4629,54 +4641,17 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             .map(ass -> Map.of("id", ass.getId(), "title", ass.getTitle())).collect(Collectors.toList());
     }
 
-    private String transferAttachment(String fromContext, String toContext, String oAttachmentId) {
-        String reference = "";
-        String nAttachmentId = oAttachmentId.replaceAll(fromContext, toContext);
+    private String transferAttachment(String fromContext, String toContext, String oAttachmentId, Map<String, String> attachmentImportMap) {
+        String toolTitle = toolManager.getTool("sakai.assignment.grades").getTitle();
         try {
-            ContentResource attachment = contentHostingService.getResource(nAttachmentId);
-            reference = attachment.getReference();
-        } catch (IdUnusedException iue) {
-            try {
-                ContentResource oAttachment = contentHostingService.getResource(oAttachmentId);
-                try (InputStream content = new ByteArrayInputStream(oAttachment.getContent())) {
-                    if (contentHostingService.isAttachmentResource(nAttachmentId)) {
-                        // add the new resource into attachment collection area
-                        ContentResource attachment = contentHostingService.addAttachmentResource(
-                                Validator.escapeResourceName(oAttachment.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME)),
-                                toContext,
-                                toolManager.getTool("sakai.assignment.grades").getTitle(),
-                                oAttachment.getContentType(),
-                                content,
-                                oAttachment.getProperties());
-                        reference = attachment.getReference();
-                    } else {
-                        // add the new resource into resource area
-                        ContentResource attachment = contentHostingService.addResource(
-                                Validator.escapeResourceName(oAttachment.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME)),
-                                toContext,
-                                1,
-                                oAttachment.getContentType(),
-                                content,
-                                oAttachment.getProperties(),
-                                Collections.emptyList(),
-                                false,
-                                null,
-                                null,
-                                NotificationService.NOTI_NONE);
-                        reference = attachment.getReference();
-                    }
-                } catch (Exception e) {
-                    // if the new resource cannot be added
-                    log.warn("Cannot add new attachment with id = {}, {}", nAttachmentId, e.getMessage());
-                }
-            } catch (Exception e) {
-                // if cannot find the original attachment, do nothing.
-                log.warn("Cannot get the original attachment with id = {}, {}", oAttachmentId, e.getMessage());
+            ContentResource attachment = contentHostingService.copyAttachment(oAttachmentId, toContext, toolTitle, attachmentImportMap);
+            if ( attachment != null ) {
+                return attachment.getReference();
             }
-        } catch (Exception e) {
-            log.warn("Could not get the new attachment with id = {}, {}", nAttachmentId, e.getMessage());
+        } catch (IdUnusedException | TypeException | PermissionException e) {
+            log.error("Error copying attachment: {}", e.getMessage());
         }
-        return reference;
+        return null;
     }
 
     private LRS_Statement getStatementForAssignmentGraded(String reference, Assignment a, AssignmentSubmission s, User studentUser) {

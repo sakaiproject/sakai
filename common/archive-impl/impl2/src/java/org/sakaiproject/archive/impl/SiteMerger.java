@@ -34,6 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.Setter;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang3.StringUtils;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -46,6 +47,8 @@ import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentCollection;
+import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.exception.IdInvalidException;
@@ -69,36 +72,12 @@ public class SiteMerger {
 	/**********************************************/
 
 	@Setter private LTIService ltiService;
-
-	protected AuthzGroupService m_authzGroupService = null;
-	public void setAuthzGroupService(AuthzGroupService service) {
-		m_authzGroupService = service;
-	}
-	
-	protected UserDirectoryService m_userDirectoryService = null;
-	public void setUserDirectoryService(UserDirectoryService service) {
-		m_userDirectoryService = service;
-	}
-	
-	protected SiteService m_siteService = null;
-	public void setSiteService(SiteService service) {
-		m_siteService = service;
-	}
-	
-	protected SecurityService m_securityService = null;
-	public void setSecurityService(SecurityService service) {
-		m_securityService = service;
-	}
-	
-    protected EntityManager m_entityManager = null;
-    public void setEntityManager(EntityManager m_entityManager) {
-        this.m_entityManager = m_entityManager;
-    }
-
-    protected ServerConfigurationService m_serverConfigurationService;
-    public void setServerConfigurationService(ServerConfigurationService m_serverConfigurationService) {
-        this.m_serverConfigurationService = m_serverConfigurationService;
-    }
+	@Setter private ContentHostingService contentHostingService;
+	@Setter protected AuthzGroupService authzGroupService;
+	@Setter protected SiteService siteService;
+	@Setter protected SecurityService securityService;
+	@Setter protected EntityManager entityManager;
+	@Setter protected ServerConfigurationService serverConfigurationService;
 
     //	 only the resources created by the followinng roles will be imported
 	// role sets are different to different system
@@ -109,6 +88,9 @@ public class SiteMerger {
 	private String new_toolId_prefix = "sakai.";
 	private String[] old_toolIds = {"sakai.noti.prefs", "sakai.presence", "sakai.siteinfogeneric", "sakai.sitesetupgeneric", "sakai.threadeddiscussion"};
 	private String[] new_toolIds = {"sakai.preferences", "sakai.online", "sakai.siteinfo", "sakai.sitesetup", "sakai.discussion"};
+
+	private String DEV_MERGE_KEEP_ATTACHMENTS = "dev.merge.keep.attachments";
+	private Boolean DEV_MERGE_KEEP_ATTACHMENTS_DEFAULT = false;
 	
 	//SWG TODO I have a feeling this is a bug
 	protected HashSet<String> usersListAllowImport = new HashSet<String>(); 
@@ -140,7 +122,7 @@ public class SiteMerger {
 		} else {
 			try {
 				// Path must be within tomcat.home (one up from SakaiHome)
-				File baseLocation = new File(m_serverConfigurationService.getSakaiHomePath());
+				File baseLocation = new File(serverConfigurationService.getSakaiHomePath());
 				if (!file.getCanonicalPath().startsWith(baseLocation.getParent())) {
 					throw new Exception();
 				}
@@ -162,7 +144,7 @@ public class SiteMerger {
 		}
 
 		// track old to new attachment names
-		Map attachmentNames = new HashMap();		
+		Map<String, String> attachmentNames = new HashMap();
 		Map<Long, Map<String, Object>> ltiContentItems = new HashMap();
 		
 		// The archive.xml is really a debug log, not actual archive data - it does not participate in any merge
@@ -235,6 +217,33 @@ public class SiteMerger {
 			processMerge(siteFile, siteId, results, attachmentNames, ltiContentItems, creatorId, filterSakaiServices, filteredSakaiServices, filterSakaiRoles, filteredSakaiRoles);
 		}
 
+		// Attachments are of the form
+		// /attachment/TA-8a7a04de-77e1-497c-9ed3-79f4daa0dfd3/Assignments/fbf7609c-e289-459c-951e-187e70b653e4/ietf-jon-postel-07.png
+		// The first two tokens are a folder we need to remove
+		boolean keepAttachments = serverConfigurationService.getBoolean(DEV_MERGE_KEEP_ATTACHMENTS, DEV_MERGE_KEEP_ATTACHMENTS_DEFAULT);
+		for (String key : attachmentNames.keySet()) {
+			String value = attachmentNames.get(key);
+			if (!StringUtils.startsWith(value, "/attachment/TA-")) {
+				continue;
+			}
+			if ( keepAttachments ) {
+				log.warn(DEV_MERGE_KEEP_ATTACHMENTS+" is true, keeping attachment "+value);
+				continue;
+			}
+
+			int secondSlash = value.indexOf('/', 1);
+			if (secondSlash == -1) continue;
+			int thirdSlash = value.indexOf('/', secondSlash + 1);
+			if (thirdSlash == -1) continue;
+			String collectionId = value.substring(0, thirdSlash+1);
+			try {
+				log.debug("Removing attachment collection {}", collectionId);
+				contentHostingService.removeCollection(collectionId);
+			} catch (Exception e) {
+				log.warn("Error removing collection {}: {}", collectionId, e.getMessage());
+			}
+		}
+
 		return results.toString();
 
 	}	// merge
@@ -260,7 +269,7 @@ public class SiteMerger {
 		Site theSite = null;
 		try
 		{
-			theSite = m_siteService.getSite(siteId);
+			theSite = siteService.getSite(siteId);
 		}
 		catch (IdUnusedException ignore) {
 			log.info("Site not found for id:"+siteId+". New site will be created.");
@@ -338,7 +347,7 @@ public class SiteMerger {
 					EntityProducer service = (EntityProducer) ComponentManager.get(serviceName);
                     if (service == null) {
                         // find the service using the EntityManager
-                        Collection<EntityProducer> entityProducers = m_entityManager.getEntityProducers();
+                        Collection<EntityProducer> entityProducers = entityManager.getEntityProducers();
                         for (EntityProducer entityProducer : entityProducers) {
                             if (serviceName.equals(entityProducer.getClass().getName())
                                     || serviceName.equals(entityProducer.getLabel())
@@ -527,7 +536,7 @@ public class SiteMerger {
 			// merge the site info first
 			try
 			{
-				m_siteService.merge(siteId, element2, creatorId);
+				siteService.merge(siteId, element2, creatorId);
 				mergeSiteInfo(element2, siteId);
 			}
 			catch(Exception any)
@@ -538,7 +547,7 @@ public class SiteMerger {
 			Site site = null;
 			try
 			{
-				site = m_siteService.getSite(siteId);
+				site = siteService.getSite(siteId);
 			}
 			catch (IdUnusedException e) 
 			{
@@ -577,9 +586,9 @@ public class SiteMerger {
 		throws IdInvalidException, IdUsedException, PermissionException, IdUnusedException, InUseException 
 	{
 		// heck security (throws if not permitted)
-		unlock(SiteService.SECURE_UPDATE_SITE, m_siteService.siteReference(siteId));
+		unlock(SiteService.SECURE_UPDATE_SITE, siteService.siteReference(siteId));
 	
-		Site edit = m_siteService.getSite(siteId);
+		Site edit = siteService.getSite(siteId);
 		String desc = el.getAttribute("description-enc");
 			
 		try
@@ -614,7 +623,7 @@ public class SiteMerger {
 		//edit.setTitle(title);
 		edit.setDescription(desc);
 		
-		m_siteService.save(edit);
+		siteService.save(edit);
 			 
 		return;
 		
@@ -628,7 +637,7 @@ public class SiteMerger {
 	protected void mergeSiteRoles(Element el, String siteId, HashMap useIdTrans, boolean filterSakaiRoles, String[] filteredSakaiRoles) throws PermissionException
 	{
 		// heck security (throws if not permitted)
-		unlock(SiteService.SECURE_UPDATE_SITE, m_siteService.siteReference(siteId));
+		unlock(SiteService.SECURE_UPDATE_SITE, siteService.siteReference(siteId));
 		
 		String source = "";
 		
@@ -648,10 +657,10 @@ public class SiteMerger {
 		//List accessUsers = new Vector();
 		
 		// to add this user with this role inito this realm
-		String realmId = m_siteService.siteReference(siteId); //SWG "/site/" + siteId;
+		String realmId = siteService.siteReference(siteId); //SWG "/site/" + siteId;
 		try
 		{
-			AuthzGroup realm = m_authzGroupService.getAuthzGroup(realmId);
+			AuthzGroup realm = authzGroupService.getAuthzGroup(realmId);
 			roles.addAll(realm.getRoles());
 
 			NodeList children = el.getChildNodes();
@@ -756,7 +765,7 @@ public class SiteMerger {
 		*/
 		protected void unlock(String lock, String reference) throws PermissionException
 		{
-			if (!m_securityService.unlock(lock, reference))
+			if (!securityService.unlock(lock, reference))
 			{
 				// needs to bring back: where is sessionService
 				// throw new PermissionException(UsageSessionService.getSessionUserId(), lock, reference);

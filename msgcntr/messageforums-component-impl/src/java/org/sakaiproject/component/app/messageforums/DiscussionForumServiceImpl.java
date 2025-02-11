@@ -618,7 +618,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 						if (fromAttach != null && !fromAttach.isEmpty()) {
 							for (int currAttach=0; currAttach < fromAttach.size(); currAttach++) {                   			
 								Attachment thisAttach = (Attachment)fromAttach.get(currAttach);
-								Attachment newAttachment = copyAttachment(thisAttach.getAttachmentId(), toContext);
+								Attachment newAttachment = copyAttachment(thisAttach.getAttachmentId(), toContext, null);
 								if (newAttachment != null) {
 									newForum.addAttachment(newAttachment);
 								}
@@ -704,7 +704,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 								if (fromTopicAttach != null && !fromTopicAttach.isEmpty()) {
 									for (int topicAttach=0; topicAttach < fromTopicAttach.size(); topicAttach++) {                   			
 										Attachment thisAttach = (Attachment)fromTopicAttach.get(topicAttach);
-										Attachment newAttachment = copyAttachment(thisAttach.getAttachmentId(), toContext);
+										Attachment newAttachment = copyAttachment(thisAttach.getAttachmentId(), toContext, null);
 										if (newAttachment != null)
 											newTopic.addAttachment(newAttachment);
 									}			
@@ -905,15 +905,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 											  final Map<String, String> attachmentNames, final Element attachmentElement) {
 		String oldAttachId = attachmentElement.getAttribute(ATTACH_ID);
 		if (StringUtils.isNotBlank(oldAttachId)) {
-			String oldUrl = oldAttachId;
-			if (oldUrl.startsWith("/content/attachment/")) {
-				String newUrl = attachmentNames.get(oldUrl);
-				oldAttachId = StringUtils.replace(newUrl, "?", "_");
-			} else if (oldUrl.startsWith(CONTENT_GROUP + fromSiteId + "/")) {
-				String newUrl = CONTENT_GROUP + siteId + oldUrl.substring(15 + fromSiteId.length());
-				oldAttachId = StringUtils.replace(newUrl, "?", "_");
-			}
-			return copyAttachment(oldAttachId, siteId);
+			return copyAttachment(oldAttachId, siteId, attachmentNames);
 		}
 		return null;
 	}
@@ -1325,14 +1317,10 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 		return value;
 	}
 	
-	private Attachment copyAttachment(String attachmentId, String toContext) {
+	private Attachment copyAttachment(String attachmentId, String toContext, Map<String, String> attachmentNames) {
 		try {			
-			ContentResource oldAttachment = contentHostingService.getResource(attachmentId);
-			ContentResource attachment = contentHostingService.addAttachmentResource(
-				Validator.escapeResourceName(oldAttachment.getProperties().getProperty(
-						ResourceProperties.PROP_DISPLAY_NAME)), toContext, toolManager.getTool(
-						"sakai.forums").getTitle(), oldAttachment.getContentType(),
-						oldAttachment.getContent(), oldAttachment.getProperties());
+			ContentResource attachment = contentHostingService.copyAttachment(attachmentId, toContext, toolManager.getTool("sakai.forums").getTitle(), attachmentNames);
+
 			Attachment thisDFAttach = dfManager.createDFAttachment(
 				attachment.getId(), 
 				attachment.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME));
