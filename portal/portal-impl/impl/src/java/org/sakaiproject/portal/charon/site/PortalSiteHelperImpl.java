@@ -641,49 +641,6 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		m.put("siteType", s.getType());
 		m.put("siteId", s.getId());
 
-		// TODO: This should come from the site neighbourhood.
-		ResourceProperties rp = s.getProperties();
-		String ourParent = rp.getProperty(PROP_PARENT_ID);
-		// We are not really a child unless the parent exists
-		// And we have a valid pwd
-		boolean isChild = false;
-
-		// Get the current site hierarchy
-		if (ourParent != null && isCurrentSite)
-		{
-			List<Site> pwd = getPwd(s, ourParent);
-			if (pwd != null)
-			{
-				List<Map> l = new ArrayList<>();
-				// SAK-30477
-				// Skip current site size - 1
-				for (int i = 0; i < pwd.size() - 1; i++)
-				{
-					Site site = pwd.get(i);
-					log.debug("PWD[{}]={}{}", i, site.getId(), site.getTitle());
-					Map<String, Object> pm = new HashMap<>();
-					List<String> providers = getProviderIDsForSite(site);
-
-					String parentSiteTitle = getUserSpecificSiteTitle(site, false, false, providers);
-					String parentSiteTitleTruncated = formattedText.makeShortenedText(parentSiteTitle, null, null, null);
-					pm.put("siteTitle", parentSiteTitle);
-					pm.put("siteTitleTrunc", parentSiteTitleTruncated);
-					pm.put("siteUrl", siteUrl + formattedText.escapeUrl(getSiteEffectiveId(site)));
-
-					l.add(pm);
-					isChild = true;
-				}
-				if ( l.size() > 0 ) m.put("pwd", l);
-			}
-		}
-
-		// If we are a child and have a non-zero length, pwd
-		// show breadcrumbs
-		if ( isChild ) {
-			m.put("isChild", Boolean.valueOf(isChild));
-			m.put("parentSite", ourParent);
-		}
-
 		if (includeSummary)
 		{
 			summarizeTool(m, s, "sakai.announce");
@@ -697,6 +654,37 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		return m;
 	}
 
+	@Override
+	public List<Map<String, String>> getParentSites(Site s) {
+		ResourceProperties rp = s.getProperties();
+		String ourParent = rp.getProperty(PROP_PARENT_ID);
+
+		// Get the current site hierarchy
+		if (ourParent != null) {
+			List<Site> pwd = getPwd(s, ourParent);
+			if (pwd != null && pwd.size() > 1) {  // Ensure we have at least 2 sites
+				List<Map<String, String>> siteBreadcrumbs = new ArrayList<>();
+				// SAK-30477: Skip current site size - 1
+				for (Site site : pwd.subList(0, pwd.size() - 1)) {
+					log.debug("PWD: {}{}", site.getId(), site.getTitle());
+					Map<String, String> siteData = new HashMap<>();
+					List<String> providers = getProviderIDsForSite(site);
+
+					String parentSiteTitle = getUserSpecificSiteTitle(site, false, false, providers);
+					String parentSiteTitleTruncated = formattedText.makeShortenedText(parentSiteTitle, null, null, null);
+					siteData.put("siteTitle", parentSiteTitle);
+					siteData.put("siteTitleTrunc", parentSiteTitleTruncated);
+					siteData.put("siteUrl", "/portal/site/" + formattedText.escapeUrl(getSiteEffectiveId(site)));
+					siteBreadcrumbs.add(siteData);
+				}
+				if (!siteBreadcrumbs.isEmpty()) {
+					return siteBreadcrumbs;
+				}
+			}
+		}
+
+		return null;
+	}
 	/**
 	* Gets the path of sites back to the root of the tree.
 	* @param s
@@ -974,13 +962,6 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 		}
 
-		if ( addMoreToolsUrl != null ) {
-			theMap.put("pageNavAddMoreToolsUrl", addMoreToolsUrl);
-			theMap.put("pageNavCanAddMoreTools", true);
-		} else {
-			theMap.put("pageNavCanAddMoreTools", false);
-		}
-
 		if(manageOverviewUrl != null){
 			theMap.put("manageOverviewUrl", manageOverviewUrl);
 			theMap.put("canManageOverview", true);
@@ -999,17 +980,6 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		}
 
 		theMap.put("pageNavTools", l);
-		theMap.put("pageMaxIfSingle", serverConfigurationService.getBoolean("portal.experimental.maximizesinglepage", false));
-		theMap.put("pageNavToolsCount", Integer.valueOf(l.size()));
-
-		String helpUrl = serverConfigurationService.getHelpUrl(null);
-		theMap.put("pageNavShowHelp", Boolean.valueOf(showHelp));
-		theMap.put("pageNavHelpUrl", helpUrl);
-		theMap.put("helpMenuClass", ICON_SAKAI + "help");
-		theMap.put("subsiteClass", ICON_SAKAI + "subsite");
-
-		// theMap.put("pageNavSitContentshead",
-		// Web.escapeHtml(rb.getString("sit_contentshead")));
 
 		// Display presence? Global property display.users.present may be always / never / true / false
 		// If true or false, the value may be overriden by the site property display-users-present

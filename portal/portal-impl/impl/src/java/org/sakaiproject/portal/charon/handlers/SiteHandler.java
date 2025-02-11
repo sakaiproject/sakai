@@ -490,7 +490,7 @@ public class SiteHandler extends WorksiteHandler
 
 				// Does the tool allow us to buffer?
 				allowBuffer = allowBufferContent(req, site, siteTool);
-				log.debug("allowBuffer="+allowBuffer+" url="+req.getRequestURL());
+                log.debug("allowBuffer={} url={}", allowBuffer, req.getRequestURL());
 
 				if ( allowBuffer ) {
 					TCP = req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 5);
@@ -590,7 +590,7 @@ public class SiteHandler extends WorksiteHandler
 		}
 
 		rcontext.put("siteId", siteId);
-		boolean showShortDescription = Boolean.valueOf(serverConfigurationService.getBoolean("portal.title.shortdescription.show", false));
+		boolean showShortDescription = serverConfigurationService.getBoolean("portal.title.shortdescription.show", false);
 
 		if (showShortDescription) {
 			rcontext.put("shortDescription", Web.escapeHtml(site.getShortDescription()));
@@ -604,6 +604,7 @@ public class SiteHandler extends WorksiteHandler
 		}else{
 			rcontext.put("siteTitle", portal.getSiteHelper().getUserSpecificSiteTitle(site, false, true, providers));
 			rcontext.put("siteUrl", site.getUrl());
+			rcontext.put("siteParents", portal.getSiteHelper().getParentSites(site));
 			rcontext.put("siteTitleTruncated", Validator.escapeHtml(portal.getSiteHelper().getUserSpecificSiteTitle(site, true, false, providers)));
 			rcontext.put("isUserSite", false);
 		}
