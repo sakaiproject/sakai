@@ -240,7 +240,7 @@ public class SiteMerger {
 				log.debug("Removing attachment collection {}", collectionId);
 				contentHostingService.removeCollection(collectionId);
 			} catch (Exception e) {
-				log.warn("Error removing collection "+collectionId+" "+e.getMessage());
+				log.warn("Error removing collection {}: {}", collectionId, e.getMessage());
 			}
 		}
 
