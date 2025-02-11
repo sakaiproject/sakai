@@ -1,5 +1,5 @@
 <wicket:panel xmlns:wicket="http://wicket.apache.org">
-
+    <script type="text/javascript" src="/library/js/spinner.js"></script>
     <h2><wicket:message key="importExport.confirmation.heading" /></h2>
     <p><wicket:message key="importExport.confirmation.description" /></p>
 
@@ -71,7 +71,7 @@
     <form wicket:id="form">
         <div class="act">
             <input type="submit" wicket:id="backbutton" wicket:message="value:importExport.button.back"/>
-            <input class="active" type="submit" wicket:id="finishbutton" wicket:message="value:importExport.button.finish"/>
+            <input class="active" type="submit" wicket:id="finishbutton" wicket:message="value:importExport.button.finish" onclick="SPNR.disableElementAndSpin('', this, true);"/>
             <input type="submit" wicket:id="cancelbutton" wicket:message="value:importExport.button.cancel"/>
         </div>
     </form>
