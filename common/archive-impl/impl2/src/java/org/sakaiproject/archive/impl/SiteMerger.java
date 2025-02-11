@@ -237,7 +237,7 @@ public class SiteMerger {
 			if (thirdSlash == -1) continue;
 			String collectionId = value.substring(0, thirdSlash+1);
 			try {
-				log.debug("Removing attachment collection "+collectionId);
+				log.debug("Removing attachment collection {}", collectionId);
 				contentHostingService.removeCollection(collectionId);
 			} catch (Exception e) {
 				log.warn("Error removing collection "+collectionId+" "+e.getMessage());
