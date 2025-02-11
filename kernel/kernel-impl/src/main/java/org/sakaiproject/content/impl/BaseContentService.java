@@ -1271,8 +1271,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		// way in UI that we know to do it. However admins can definitely see it from resources
 		// so warn except for admins. This check will return true for site owners even though
 		// the warning is issued.
+		// SAK-50946 - log debug instead of warn so we can delet temporary attachments in SiteMerger
 		if (isAttachmentResource(id) && isCollection(id) && !securityService.isSuperUser())
-		    log.warn("availability check for attachment collection " + id);
+		    log.debug("availability check for attachment collection {} ", id);
 
 		GroupAwareEntity entity = null;
 		//boolean isCollection = id.endsWith(Entity.SEPARATOR);
@@ -3860,7 +3861,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 				log.debug("Loaded resource from map path = {} {}", lookupAttachmentPath, oAttachment);
 				oAttachmentPath = lookupAttachmentPath;
 			} catch (Exception e) {
-				log.warn("Cannot find the attachment in map path = {}, {}", lookupAttachmentPath, e.getMessage());
+				log.warn("Cannot find the attachment in map path = {}, {}", lookupAttachmentPath, e.toString());
 			}
 		}
 
@@ -3871,7 +3872,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 
 		ContentResource attachment = null;
 		try {
-			try (InputStream content = new ByteArrayInputStream(oAttachment.getContent())) {
+			try (InputStream content = oAttachment.streamContent()) {
 				if (this.isAttachmentResource(oAttachmentPath)) {
 					// add the new resource into attachment collection area
 					log.debug("Copying attachment {} to site {} attachments toolTitle {}", oAttachmentPath, toContext, toolTitle);
@@ -3901,12 +3902,12 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 				log.debug("Copied attachment {} to site {} {}", oAttachmentPath, toContext, attachment.getReference());
 				return attachment;
 			} catch (Exception e) {
-				log.warn("Cannot add new attachment with id = {}, {}", oAttachmentPath, e.getMessage());
+				log.warn("Cannot add new attachment with id = {}, {}", oAttachmentPath, e.toString());
 				return null;
 			}
 		} catch (Exception e) {
 			// if cannot find the original attachment, do nothing.
-			log.warn("Cannot get the original attachment with id = {}, {}", oAttachmentPath, e.getMessage());
+			log.warn("Cannot get the original attachment with id = {}, {}", oAttachmentPath, e.toString());
 		}
 		return null;
 	}
