@@ -1140,9 +1140,9 @@ public interface ContentHostingService extends EntityProducer
 	 *      used to generate the new attachment id / path - required
 	 * @param attachmentImportMap
 	 *      A map of the attachment names that are the result of pre-importing attachments at the beginning of the 
-	 * 		SiteMerge process.  It maps from the original attachment path from the import file to the pre-imported path for the 
-	 * 		attachment.  If the oAttachmentId points to a non-existant or inaccessible resource, the attachmentNames map will 
-	 * 		consulted to see id the oAttachmentId has been pre-imported.
+	 *      SiteMerge process.  It maps from the original attachment path from the import file to the pre-imported path for the 
+     *      attachment.  If the oAttachmentId points to a non-existant or inaccessible resource, the attachmentNames map will 
+	 *      consulted to see id the oAttachmentId has been pre-imported.
 	 * @return The id of the new attachment.
 	 */
 	public ContentResource copyAttachment(String oAttachmentId, String toContext, String toolTitle, Map<String, String> attachmentImportMap) 
