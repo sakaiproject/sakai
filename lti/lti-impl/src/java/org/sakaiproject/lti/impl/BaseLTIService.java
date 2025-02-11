@@ -1319,7 +1319,7 @@ public abstract class BaseLTIService implements LTIService {
 					// Upgrade the access prefix from legacy blti to modern lti
 					String newUrl = baseUrl.replace(LTIService.LAUNCH_PREFIX_LEGACY, LTIService.LAUNCH_PREFIX) + toContext + "/content:" + newContentId;
 					text = text.replace(url, newUrl);
-					transversalMap.put(url, newUrl);
+					if ( transversalMap != null ) transversalMap.put(url, newUrl);
 					log.debug("Inserted content item {} in site {} newUrl {}", newContentId, toContext, newUrl);
 				} else {
 					log.error("Could not insert content item {} in site {}",contentKey,toContext);
