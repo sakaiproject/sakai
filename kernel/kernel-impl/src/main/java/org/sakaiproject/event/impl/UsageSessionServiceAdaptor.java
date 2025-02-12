@@ -504,6 +504,8 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 				User mockUser = userDirectoryService().getUser(userId);
 				String mockUserId = mockUser.getId();
 				String mockUserEid = mockUser.getEid();
+				String realUserId = currentSession.getUserId();
+				String realUserEid = currentSession.getUserEid();
 
 				eventTrackingService().post(eventTrackingService().newEvent(UsageSessionService.EVENT_ROLEVIEW_BECOME, userDirectoryService().userReference(mockUserId), false));
 				log.info("Entering into RoleView mode, real user [{}] is impersonating mock user [{}]", currentSession.getUserEid(), mockUserEid);
@@ -516,6 +518,9 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 				// logout - clear, but do not invalidate, preserving the current session
 				currentSession.clearExcept(saveAttributes);
 				// login - set the user id and eid into session, and refresh this user's authz information
+				currentSession.setAttribute(UsageSessionService.SAKAI_SESSION_USER_ID, realUserId);
+				currentSession.setAttribute(UsageSessionService.SAKAI_SESSION_USER_EID, realUserEid);
+
 				currentSession.setUserId(mockUserId);
 				currentSession.setUserEid(mockUserEid);
 				authzGroupService().refreshUser(mockUserId);
@@ -534,32 +539,30 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 	public void restoreUser() throws SakaiException {
 		Session currentSession = sessionManager().getCurrentSession();
 		if (currentSession != null) {
-			UsageSession usageSession = (UsageSession) currentSession.getAttribute(USAGE_SESSION_KEY);
-			if (usageSession != null) {
-				String realUserId = usageSession.getUserId();
-				String realUserEid = usageSession.getUserEid();
-
-				if (StringUtils.isAnyBlank(realUserId, realUserEid)) {
-					log.error("Can not restore session from roleview mode, missing the real user information, session is likely corrupt");
+			String realUserId = (String) currentSession.getAttribute(UsageSessionService.SAKAI_SESSION_USER_ID);
+			String realUserEid = (String) currentSession.getAttribute(UsageSessionService.SAKAI_SESSION_USER_EID);
+			if (StringUtils.isAnyBlank(realUserId, realUserEid)) {
+				UsageSession usageSession = (UsageSession) currentSession.getAttribute(USAGE_SESSION_KEY);
+				if (usageSession != null) {
+					realUserId = usageSession.getUserId();
+					realUserEid = usageSession.getUserEid();
+				} else {
+					log.error("Can not restore session from roleview mode, missing the original session, session is likely corrupt");
 					currentSession.invalidate();
-					throw new SakaiException("Can not restore session from roleview mode, missing the real user information");
+					throw new SakaiException("Can not restore session from roleview mode, missing the original session");
 				}
-
-				// Restore the original user session
-				List<String> saveAttributes = List.of(
-						UsageSessionService.USAGE_SESSION_KEY,
-						UsageSessionService.SAKAI_CSRF_SESSION_ATTRIBUTE);
-				currentSession.clearExcept(saveAttributes);
-
-				currentSession.setUserId(realUserId);
-				currentSession.setUserEid(realUserEid);
-				authzGroupService().refreshUser(realUserId);
-				log.info("Exiting from roleview mode, restored real user [{}] for session [{}]", realUserEid, currentSession.getId());
-			} else {
-				log.error("Can not restore session from roleview mode, missing the original session, session is likely corrupt");
-				currentSession.invalidate();
-				throw new SakaiException("Can not restore session from roleview mode, missing the original session");
 			}
+
+			// Restore the original user session
+			List<String> saveAttributes = List.of(
+				UsageSessionService.USAGE_SESSION_KEY,
+				UsageSessionService.SAKAI_CSRF_SESSION_ATTRIBUTE);
+			currentSession.clearExcept(saveAttributes);
+
+			currentSession.setUserId(realUserId);
+			currentSession.setUserEid(realUserEid);
+			authzGroupService().refreshUser(realUserId);
+			log.info("Exiting from roleview mode, restored real user [{}] for session [{}]", realUserEid, currentSession.getId());
 		} else {
 			log.warn("Restore from roleview for user, but a session does not exist for this request, skipping");
 		}
