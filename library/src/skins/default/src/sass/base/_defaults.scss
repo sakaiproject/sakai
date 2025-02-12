@@ -114,6 +114,14 @@ h4{
   font-size: #{$default-font-size + 2};
 }
 
+h5{
+  font-size: #{$default-font-size};
+}
+
+h6{
+  font-size: #{$default-font-size - 2};
+}
+
 h3.popover-header {
   margin-top: 0;
 }
