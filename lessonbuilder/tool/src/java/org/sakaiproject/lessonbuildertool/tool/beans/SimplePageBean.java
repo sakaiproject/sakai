@@ -5101,22 +5101,26 @@ public class SimplePageBean {
 	}
 
 	// there's one of these in Validator, but it isn't quite right, because it doesn't look at /
-        // return lowercase version, since we want uppercase versiosns to match
+	// return lowercase version, since we want uppercase versiosns to match
 	public static String getExtension(String name) {
+
+		if (name == null) {
+			return "";
+		}
 
 		// starts after last /
 		int i = name.lastIndexOf("/");
 		if (i >= 0)
 			name = name.substring(i+1);
-	    
+
 		String extension = "";
 		i = name.lastIndexOf(".");
 		if (i > 0)
-		    extension = name.substring(i+1);
+			extension = name.substring(i+1);
 
 		extension = extension.trim();
 		extension = extension.toLowerCase();
-	    
+
 		return extension;
 	}
 
