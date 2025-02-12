@@ -81,6 +81,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -448,6 +450,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
    *      org.w3c.dom.Element, java.lang.String, java.lang.String, java.util.Map, java.util.HashMap,
    *      java.util.Set)
    */
+  @Transactional
   public String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId, Map<String, String> attachmentNames,
       Map<Long, Map<String, Object>> ltiContentItems, Map<String, String> userIdTrans, Set<String> userListAllowImport) 
   {
@@ -580,18 +583,9 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
                                     {
                                       Element attachElement = (Element) child3;
                                       String oldUrl = attachElement.getAttribute("relative-url");
-                                      if (oldUrl.startsWith("/content/attachment/"))
+                                      String newUrl = transferAttachment(oldUrl, siteId, attachmentNames);
+                                      if (newUrl != null)
                                       {
-                                        String newUrl = (String) attachmentNames.get(oldUrl);
-                                        if (newUrl != null)
-                                        {
-                                          attachElement.setAttribute("relative-url", Validator.escapeQuestionMark(newUrl));
-                                          attachStringList.add(Validator.escapeQuestionMark(newUrl));
-                                        }
-                                      }
-                                      else if (oldUrl.startsWith("/content/group/" + fromSiteId + "/"))
-                                      {
-                                        String newUrl = "/content/group/" + siteId + oldUrl.substring(15 + fromSiteId.length());
                                         attachElement.setAttribute("relative-url", Validator.escapeQuestionMark(newUrl));
                                         attachStringList.add(Validator.escapeQuestionMark(newUrl));
                                       }
@@ -604,21 +598,22 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
                                         syData.getView(), syData.getStatus(),
                                         syData.getEmailNotification(), syData.getStartDate(), syData.getEndDate(), syData.getLinkCalendar(),
                                         syData.getCalendarEventIdStartDate(), syData.getCalendarEventIdEndDate(), syllabusItem);
+                                syData.setView("yes");  // or attachments don't get saved
 
                                 Set<SyllabusAttachment> attachSet = new TreeSet<SyllabusAttachment>();
                                 for(int m=0; m<attachStringList.size(); m++)
                                 {
-                                  ContentResource cr = contentHostingService.getResource((String)attachStringList.get(m));
-                                  ResourceProperties rp = cr.getProperties();
-                                  SyllabusAttachment tempAttach = syllabusManager.createSyllabusAttachmentObject(cr.getId(), rp.getProperty(ResourceProperties.PROP_DISPLAY_NAME));
-                                  tempAttach.setName(rp.getProperty(ResourceProperties.PROP_DISPLAY_NAME));
-                                  tempAttach.setSize(rp.getProperty(ResourceProperties.PROP_CONTENT_LENGTH));
-                                  tempAttach.setType(rp.getProperty(ResourceProperties.PROP_CONTENT_TYPE));
-                                  tempAttach.setUrl(cr.getUrl());
-                                  tempAttach.setAttachmentId(cr.getId());
-                                  tempAttach.setSyllabusData(syData);
+                                  String attachmentId = attachStringList.get(m);
+                                  if (attachmentId.startsWith("/content")) {
+                                    attachmentId = attachmentId.replaceFirst("/content", "");
+                                  }
+                                  ContentResource cr = contentHostingService.getResource(attachmentId);
+                                  SyllabusAttachment thisSyllabusAttach = syllabusManager.createSyllabusAttachmentObject(
+                                    cr.getId(),
+                                    cr.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME));
+                                  thisSyllabusAttach.setSyllabusData(syData);
+                                  attachSet.add(thisSyllabusAttach);
 
-                                  attachSet.add(tempAttach);
                                 }
                                 syData.setAttachments(attachSet);
 
@@ -652,6 +647,19 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
     }
 
     return results.toString();
+  }
+
+  private String transferAttachment(String oAttachmentId, String toContext, Map<String, String> attachmentImportMap) {
+    String toolTitle = toolManager.getTool("sakai.syllabus").getTitle();
+    try {
+        ContentResource attachment = contentHostingService.copyAttachment(oAttachmentId, toContext, toolTitle, attachmentImportMap);
+        if ( attachment != null ) {
+            return attachment.getReference();
+        }
+    } catch (IdUnusedException | TypeException | PermissionException e) {
+        log.error("Error copying attachment: {}", e.getMessage());
+    }
+    return null;
   }
 
   private String addSyllabusToolToPage(String siteId,String pageName)
@@ -1015,6 +1023,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 			.map(d -> Map.of("id", d.getSyllabusId().toString(), "title", d.getTitle())).collect(Collectors.toList());
 	}
 
+	@Transactional
 	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> options)
 	{
 		Map<String, String> transversalMap = new HashMap<String, String>();

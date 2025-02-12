@@ -141,6 +141,10 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 	private static final String GRADE_ASSIGNMENT = "grade_assignment";
 	private static final String OPEN_DATE = "available_open";
 	private static final String CLOSE_DATE = "available_close";
+	private static final String AUTO_MARK_THREADS_READ = "auto_mark_threads_read";
+	private static final String ALLOW_EMAIL_NOTIFICATIONS = "allow_email_notifications";
+	private static final String INCLUDE_CONTENTS_IN_EMAILS = "include_contents_in_emails";
+	private static final String REVEAL_IDS_TO_ROLES = "reveal_ids_to_roles";
 	private static final String NAME = "name";
 	private static final String ENCODE = "enc";
 	private static final String BASE64 = "BASE64";
@@ -305,6 +309,10 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 				discussionTopicElement.setAttribute(MODERATED, discussionTopic.getModerated().toString());
 				discussionTopicElement.setAttribute(POST_ANONYMOUS, discussionTopic.getPostAnonymous().toString());
 				discussionTopicElement.setAttribute(POST_FIRST, discussionTopic.getPostFirst().toString());
+				discussionTopicElement.setAttribute(ALLOW_EMAIL_NOTIFICATIONS, discussionTopic.getAllowEmailNotifications().toString());
+				discussionTopicElement.setAttribute(INCLUDE_CONTENTS_IN_EMAILS, discussionTopic.getIncludeContentsInEmails().toString());
+				discussionTopicElement.setAttribute(REVEAL_IDS_TO_ROLES, discussionTopic.getRevealIDsToRoles().toString());
+				discussionTopicElement.setAttribute(AUTO_MARK_THREADS_READ, discussionTopic.getAutoMarkThreadsRead().toString());
 				if (discussionTopic.getDefaultAssignName() != null) {
 					discussionTopicElement.setAttribute(GRADE_ASSIGNMENT, discussionTopic.getDefaultAssignName());
 				}
@@ -610,7 +618,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 						if (fromAttach != null && !fromAttach.isEmpty()) {
 							for (int currAttach=0; currAttach < fromAttach.size(); currAttach++) {                   			
 								Attachment thisAttach = (Attachment)fromAttach.get(currAttach);
-								Attachment newAttachment = copyAttachment(thisAttach.getAttachmentId(), toContext);
+								Attachment newAttachment = copyAttachment(thisAttach.getAttachmentId(), toContext, null);
 								if (newAttachment != null) {
 									newForum.addAttachment(newAttachment);
 								}
@@ -664,6 +672,9 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 								newTopic.setSortIndex(fromTopic.getSortIndex());
 								newTopic.setAutoMarkThreadsRead(fromTopic.getAutoMarkThreadsRead());
 								newTopic.setPostAnonymous(fromTopic.getPostAnonymous());
+								newTopic.setAllowEmailNotifications(fromTopic.getAllowEmailNotifications());
+								newTopic.setIncludeContentsInEmails(fromTopic.getIncludeContentsInEmails());
+								newTopic.setAutoMarkThreadsRead(fromTopic.getAutoMarkThreadsRead());
 								newTopic.setRevealIDsToRoles(fromTopic.getRevealIDsToRoles());
 								if(importOpenCloseDates){
 									newTopic.setOpenDate(fromTopic.getOpenDate());
@@ -693,7 +704,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 								if (fromTopicAttach != null && !fromTopicAttach.isEmpty()) {
 									for (int topicAttach=0; topicAttach < fromTopicAttach.size(); topicAttach++) {                   			
 										Attachment thisAttach = (Attachment)fromTopicAttach.get(topicAttach);
-										Attachment newAttachment = copyAttachment(thisAttach.getAttachmentId(), toContext);
+										Attachment newAttachment = copyAttachment(thisAttach.getAttachmentId(), toContext, null);
 										if (newAttachment != null)
 											newTopic.addAttachment(newAttachment);
 									}			
@@ -894,15 +905,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 											  final Map<String, String> attachmentNames, final Element attachmentElement) {
 		String oldAttachId = attachmentElement.getAttribute(ATTACH_ID);
 		if (StringUtils.isNotBlank(oldAttachId)) {
-			String oldUrl = oldAttachId;
-			if (oldUrl.startsWith("/content/attachment/")) {
-				String newUrl = attachmentNames.get(oldUrl);
-				oldAttachId = StringUtils.replace(newUrl, "?", "_");
-			} else if (oldUrl.startsWith(CONTENT_GROUP + fromSiteId + "/")) {
-				String newUrl = CONTENT_GROUP + siteId + oldUrl.substring(15 + fromSiteId.length());
-				oldAttachId = StringUtils.replace(newUrl, "?", "_");
-			}
-			return copyAttachment(oldAttachId, siteId);
+			return copyAttachment(oldAttachId, siteId, attachmentNames);
 		}
 		return null;
 	}
@@ -967,6 +970,53 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 		final String topicLockedAfterClosed = discussionTopicElement.getAttribute(LOCKED_AFTER_CLOSED);
 		if (StringUtils.isNotEmpty(topicLockedAfterClosed)) {
 			discussionTopic.setLockedAfterClosed(Boolean.valueOf(topicLockedAfterClosed));
+		}
+
+		final String topicPostAnonymous = discussionTopicElement.getAttribute(POST_ANONYMOUS);
+		if (StringUtils.isNotEmpty(topicPostAnonymous)) {
+			discussionTopic.setPostAnonymous(Boolean.valueOf(topicPostAnonymous));
+		}
+
+		final String topicAutoMarkThreadsRead = discussionTopicElement.getAttribute(AUTO_MARK_THREADS_READ);
+		if (StringUtils.isNotEmpty(topicAutoMarkThreadsRead)) {
+			discussionTopic.setAutoMarkThreadsRead(Boolean.valueOf(topicAutoMarkThreadsRead));
+		}
+
+		final String topicAllowEmailNotifications = discussionTopicElement.getAttribute(ALLOW_EMAIL_NOTIFICATIONS);
+		if (StringUtils.isNotEmpty(topicAllowEmailNotifications)) {
+			discussionTopic.setAllowEmailNotifications(Boolean.valueOf(topicAllowEmailNotifications));
+		}
+
+		final String topicIncludeContentsInEmails = discussionTopicElement.getAttribute(INCLUDE_CONTENTS_IN_EMAILS);
+		if (StringUtils.isNotEmpty(topicIncludeContentsInEmails)) {
+			discussionTopic.setIncludeContentsInEmails(Boolean.valueOf(topicIncludeContentsInEmails));
+		}
+
+		final String topicRevealIdsToRoles = discussionTopicElement.getAttribute(REVEAL_IDS_TO_ROLES);
+		if (StringUtils.isNotEmpty(topicRevealIdsToRoles)) {
+			discussionTopic.setRevealIDsToRoles(Boolean.valueOf(topicRevealIdsToRoles));
+		}
+
+		final String topicAvailableCloseDate = discussionTopicElement.getAttribute(CLOSE_DATE);
+		if (StringUtils.isNotEmpty(topicAvailableCloseDate)) {
+			try {
+				SimpleDateFormat formatter = new SimpleDateFormat(ARCHIVE_DATE_FORMAT);
+				discussionTopic.setCloseDate(formatter.parse(topicAvailableCloseDate));
+				discussionTopic.setAvailabilityRestricted(Boolean.TRUE);
+			} catch (ParseException e) {
+				log.debug("ERROR merging topic: Wrong date format or null in close date", e);
+			}
+		}
+
+		final String topicAvailableOpenDate = discussionTopicElement.getAttribute(OPEN_DATE);
+		if (StringUtils.isNotEmpty(topicAvailableOpenDate)) {
+			try {
+				SimpleDateFormat formatter = new SimpleDateFormat(ARCHIVE_DATE_FORMAT);
+				discussionTopic.setOpenDate(formatter.parse(topicAvailableOpenDate));
+				discussionTopic.setAvailabilityRestricted(Boolean.TRUE);
+			} catch (ParseException e) {
+				log.debug("ERROR merging topic: Wrong date format or null in open date", e);
+			}
 		}
 
 		final String topicModerated = discussionTopicElement.getAttribute(MODERATED);
@@ -1267,14 +1317,10 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 		return value;
 	}
 	
-	private Attachment copyAttachment(String attachmentId, String toContext) {
+	private Attachment copyAttachment(String attachmentId, String toContext, Map<String, String> attachmentNames) {
 		try {			
-			ContentResource oldAttachment = contentHostingService.getResource(attachmentId);
-			ContentResource attachment = contentHostingService.addAttachmentResource(
-				Validator.escapeResourceName(oldAttachment.getProperties().getProperty(
-						ResourceProperties.PROP_DISPLAY_NAME)), toContext, toolManager.getTool(
-						"sakai.forums").getTitle(), oldAttachment.getContentType(),
-						oldAttachment.getContent(), oldAttachment.getProperties());
+			ContentResource attachment = contentHostingService.copyAttachment(attachmentId, toContext, toolManager.getTool("sakai.forums").getTitle(), attachmentNames);
+
 			Attachment thisDFAttach = dfManager.createDFAttachment(
 				attachment.getId(), 
 				attachment.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME));
