@@ -571,4 +571,42 @@
 #macro( rubricsRequirements )
     #module("/webcomponents/bundles/rubric-association-requirements.js")
 #end
+
+## macro for rendering peer reviewers info in the instructor grading screen
+#macro( reviewersInfo $!peerReviews $!hasAssociatedRubric $!assignment $ownerGroupId $submitterId)
+    ## Show reviewer feedback from peer review (if exist and the peer review is closed)
+    #if ($peerReviews)
+        <h3>$tlang.getString("gen.peerReviews")</h3>
+        <div id="peer-accordion">
+            #foreach($review in $peerReviews)
+                <h5>$review.assessorDisplayName</h5>
+                <div>
+                    #if ($!hasAssociatedRubric)
+                        <sakai-rubric-student
+                            site-id="$!assignment.Context"
+                            tool-id="sakai.assignment.grades"
+                            entity-id="$assignment.Id"
+                            evaluated-item-id="$review.id.assessorUserId"
+                            instructor
+                            is-peer-or-self
+                            #if ($!assignment.isGroup)
+                                evaluated-item-owner-id="$ownerGroupId"
+                            #else
+                                evaluated-item-owner-id="$submitterId"
+                            #end
+                        ></sakai-rubric-student>
+				    <hr class="itemSeparator" />
+                    #end
+
+                    $tlang.getFormattedMessage("gen.score.display", $review.getScoreDisplay())
+                    <br/>
+                    #if($!review.getComment() && $review.getComment().length()>0)
+                        <b>$tlang.getString("gen.comments")</b>
+                        <div class="textPanel borderPanel">$formattedText.escapeHtmlFormattedText($review.getComment())</div>
+                    #end
+                </div>
+            #end
+        </div>
+    #end
+#end
 <!-- end: assignment_macros.vm -->
