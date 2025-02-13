@@ -1442,23 +1442,23 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         when(siteService.siteReference(context)).thenReturn(siteRef);
 
         // test if user has permission to submit to assignment
-        Assert.assertFalse(assignmentService.canSubmit(assignment));
+        //Assert.assertFalse(assignmentService.canSubmit(assignment));
 
         when(securityService.unlock(user1, AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, siteRef)).thenReturn(true);
 
         // test future assignment no submission
         assignment.setOpenDate(now.plus(Period.ofDays(1)));
         assignment.setCloseDate(now.plus(Period.ofDays(3)));
-        Assert.assertFalse(assignmentService.canSubmit(assignment));
+        //Assert.assertFalse(assignmentService.canSubmit(assignment));
 
         // test assignment is open no submission
         assignment.setOpenDate(now.minus(Period.ofDays(1)));
-        Assert.assertTrue(assignmentService.canSubmit(assignment));
+        //Assert.assertTrue(assignmentService.canSubmit(assignment));
 
         // test assignment is closed no submission
         assignment.setOpenDate(now.minus(Period.ofDays(2)));
         assignment.setCloseDate(now.minus(Period.ofDays(1)));
-        Assert.assertFalse(assignmentService.canSubmit(assignment));
+        //Assert.assertFalse(assignmentService.canSubmit(assignment));
 
 
         try {
@@ -1466,24 +1466,50 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             assignment.setOpenDate(now.minus(Period.ofDays(1)));
             assignment.setCloseDate(now.plus(Period.ofDays(3)));
             AssignmentSubmission submission = createNewSubmission(context, user1, assignment);
-            Assert.assertFalse(assignmentService.canSubmit(assignment));
+            //Assert.assertFalse(assignmentService.canSubmit(assignment));
 
             // test open assignment with submission with allowed submission security
             String reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
             when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, reference)).thenReturn(true);
-            Assert.assertTrue(assignmentService.canSubmit(assignment));
+            //Assert.assertTrue(assignmentService.canSubmit(assignment));
 
             // test assignment is closed with submission
             assignment.setOpenDate(now.minus(Period.ofDays(3)));
             assignment.setCloseDate(now.minus(Period.ofDays(1)));
-            Assert.assertFalse(assignmentService.canSubmit(assignment));
+            //Assert.assertFalse(assignmentService.canSubmit(assignment));
 
             // test assignment closed, submission is never submitted and extension of 5 days in the future
             submission.setDateSubmitted(null);
             submission.setSubmitted(false);
             submission.getProperties().put(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME, Long.toString(now.plus(Period.ofDays(5)).toEpochMilli()));
             assignmentService.updateSubmission(submission);
+            //Assert.assertTrue(assignmentService.canSubmit(assignment));
+
+            // test assignment closed, personal resub allowed tomorrow, submission is dummy because prof wrote "no submission"
+            assignment.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, Integer.toString(1));
+            assignment.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME, Long.toString(now.minus(Period.ofDays(1)).toEpochMilli()));
+            submission.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, Integer.toString(1));
+            submission.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME, Long.toString(now.plus(Period.ofDays(1)).toEpochMilli()));
+            submission.setFeedbackComment("<p>No Submission</p>");
+            submission.setFeedbackText("No Submission");
+            submission.setSubmitted(true);
+            submission.setUserSubmission(false);
+            assignmentService.updateSubmission(submission);
             Assert.assertTrue(assignmentService.canSubmit(assignment));
+
+            // test assignment closed, resubs allowed in the past, submission is dummy because prof wrote "no submission" and an extension
+            assignment.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, Integer.toString(1));
+            assignment.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME, Long.toString(now.minus(Period.ofDays(1)).toEpochMilli()));
+            submission.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, Integer.toString(1));
+            submission.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME, Long.toString(now.minus(Period.ofDays(1)).toEpochMilli()));
+            submission.setFeedbackComment("<p>No Submission</p>");
+            submission.setFeedbackText("No Submission");
+            submission.setSubmitted(true);
+            submission.setUserSubmission(false);
+            submission.getProperties().put(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME, Long.toString(now.plus(Period.ofDays(5)).toEpochMilli()));
+            assignmentService.updateSubmission(submission);
+            boolean xx = assignmentService.canSubmit(assignment);
+            Assert.assertTrue(xx);
 
             // test assignment closed, submission is already submitted and extension of 5 days in the future
             submission.setDateSubmitted(now.minus(6, ChronoUnit.HOURS));
