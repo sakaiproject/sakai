@@ -448,7 +448,6 @@ $Id$
                     </span>
                     <div class="progress-stat">
                       <h:outputText value="<div class=\" progress-bar #{ bar.isCorrect ? 'bg-success' : 'bg-danger' } \"
-                        role=\"presentation\"
                         style=\"width: #{bar.columnHeight}%;\">"
                         escape="false" />
                         &nbsp;
@@ -483,7 +482,7 @@ $Id$
                       <h:outputText value="#{bar.numStudentsText}" />
                     </span>
                     <div class="progress-stat">
-                      <h:outputText value="<div class=\" progress-bar #{ bar.isCorrect ? 'bg-success' : 'bg-danger' } \" role=\"presentation\"
+                      <h:outputText value="<div class=\" progress-bar #{ bar.isCorrect ? 'bg-success' : 'bg-danger' } \"
                         style=\"width:#{bar.columnHeight}%;\">"
                         escape="false">
                       </h:outputText>
@@ -522,7 +521,7 @@ $Id$
                       <h:outputText value="#{bar.numStudentsText}" />
                     </span>
                     <div class="progress-stat">
-                      <h:outputText value="<div class=\" progress-bar #{ bar.isCorrect ? 'bg-success' : 'bg-danger' } \" role=\"presentation\"
+                      <h:outputText value="<div class=\" progress-bar #{ bar.isCorrect ? 'bg-success' : 'bg-danger' } \"
                         style=\"width:#{bar.columnHeight}%;\">"
                         escape="false">
                       </h:outputText>
@@ -560,7 +559,7 @@ $Id$
                       <h:outputText value="#{bar.numStudentsText}" />
                     </span>
                     <div class="progress-stat">
-                      <h:outputText value="<div class=\" progress-bar\" role=\"presentation\"
+                      <h:outputText value="<div class=\" progress-bar\"
                         style=\"width:#{bar.columnHeight}%;\">"
                         escape="false">
                       </h:outputText>
@@ -596,7 +595,7 @@ $Id$
                       <h:outputText value="#{bar.numStudentsText}" />
                     </span>
                     <div class="progress-stat">
-                      <h:outputText value="<div class=\" progress-bar\" role=\"presentation\"
+                      <h:outputText value="<div class=\" progress-bar\"
                         style=\"width:#{bar.columnHeight}%;\">"
                         escape="false">
                       </h:outputText>
@@ -644,7 +643,7 @@ $Id$
                         <h:outputText value="#{itemBar.numStudentsText}" />
                       </span>
                       <div class="progress-stat">
-                        <h:outputText value="<div class=\" progress-bar\" role=\"presentation\"
+                        <h:outputText value="<div class=\" progress-bar\"
                           style=\"width: #{itemBar.columnHeight}%;\">" escape="false" />
                           &nbsp;
                       </div>
