@@ -2423,7 +2423,7 @@
       <dependency>
         <groupId>org.mariuszgromada.math</groupId>
         <artifactId>MathParser.org-mXparser</artifactId>
-        <version>4.4.2</version>
+        <version>6.1.0</version>
         <scope>provided</scope>
       </dependency>
     </dependencies>
