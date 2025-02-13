@@ -213,16 +213,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 		if(bytes != null && bytes.length > 0) {
 			try {
 				out.write(bytes);
-				ActionReturn actionReturn = new ActionReturn("UTF-8", image.getMimeType(), out);
-				
-				Map<String,String> headers = new HashMap<>();
-				headers.put("Expires", "Mon, 01 Jan 2001 00:00:00 GMT");
-				headers.put("Cache-Control","no-cache, must-revalidate, max-age=0");
-				headers.put("Pragma", "no-cache");
-				
-				actionReturn.setHeaders(headers);
-				
-				return actionReturn;
+				return new ActionReturn("UTF-8", image.getMimeType(), out);
 			} catch (IOException e) {
 				throw new EntityException("Error retrieving profile image for " + id + " : " + e.getMessage(), ref.getReference());
 			}
