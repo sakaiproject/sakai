@@ -1655,19 +1655,27 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 				value = Xml.decodeAttribute(prop, "value");
 			}
 
-			// Do not import events associated with an assignment
-			if ( name.contains("assignment_id") ) {
+			if ( StringUtils.contains(name, CalendarConstants.TOOL_ID) &&
+				(StringUtils.contains(value, "sakai.assignment.grades") || StringUtils.contains(value, "sakai.forums") ||
+				StringUtils.contains(value, "sakai.samigo") ) ) {
+				log.debug("Not importing assignment event from tool {}", value);
+				return false;
+			}
+
+			// Do not import events associated with an assignment - backwards compatibility
+			if ( StringUtils.contains(name, CalendarConstants.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID) ||
+			     StringUtils.contains(name, CalendarConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED) ) {
 				log.debug("Not importing assignment event {}", value);
 				return false;
 			}
 
-			// Samigo does not mark its events, but the notification message is consitent
+			// Samigo does not mark its events, but the notification message is consitent - backwards compatibility
 			if ( StringUtils.equals(name, "CHEF:description") && StringUtils.contains(value, "samigo-app/servlet/Login")) {
 				log.debug("Not importing samigo event based on description containing Samigo launch URL");
 				return false;
 			}
 
-			// Discussion topic deadlines include calendar-url values inevitably pointing ot the wrong place
+			// Discussion topic deadlines include calendar-url values inevitably pointing to the wrong place - backwards compatibility
 			if ( StringUtils.equals(name, "CHEF:calendar-url") && StringUtils.contains(value, "portal/site")) {
 				log.debug("Not importing discussion topic deadline event based on calendar-url {}", value);
 				return false;

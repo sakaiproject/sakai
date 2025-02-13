@@ -31,6 +31,7 @@ import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
 import org.sakaiproject.calendar.api.CalendarService;
+import org.sakaiproject.calendar.api.CalendarConstants;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
@@ -127,6 +128,7 @@ public class CalendarServiceHelperImpl implements CalendarServiceHelper {
 					CalendarEventEdit edit = calendar.getEditEvent(event.getId(), CalendarService.EVENT_ADD_CALENDAR);
 
 					edit.setDescriptionFormatted(desc);
+					edit.setField(CalendarConstants.TOOL_ID, "sakai.samigo");
 
 					calendar.commitEvent(edit);
 				}
