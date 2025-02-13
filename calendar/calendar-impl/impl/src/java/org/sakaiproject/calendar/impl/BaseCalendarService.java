@@ -1587,6 +1587,9 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 									String newId = getUniqueId();
 									element3.setAttribute("id", newId);
 
+									// Do not import events with hard-coded links that will break
+									if ( ! shouldMergeEvent(element3) ) continue;
+
 									// get the attachment kids
 									NodeList children5 = element3.getChildNodes();
 									final int length5 = children5.getLength();
@@ -1634,6 +1637,43 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 		results.append("merging calendar " + calendarRef + " (" + count + ") messages.\n");
 		return results.toString();
+	}
+
+	/*
+	 * Look at the properties of the event and determine if it should be merged or ignored
+	 */
+	public boolean shouldMergeEvent(Element el)
+	{
+		NodeList nodeList = el.getElementsByTagName("property");
+
+		for (int i = 0; i < nodeList.getLength(); i++) {
+			Element prop = (Element) nodeList.item(i);
+			String name = prop.getAttribute("name");
+			String value = prop.getAttribute("value");
+			if ("BASE64".equalsIgnoreCase(prop.getAttribute("enc")))
+			{
+				value = Xml.decodeAttribute(prop, "value");
+			}
+
+			// Do not import events associated with an assignment
+			if ( name.contains("assignment_id") ) {
+				log.debug("Not importing assignment event {}", value);
+				return false;
+			}
+
+			// Samigo does not mark its events, but the notification message is consitent
+			if ( StringUtils.equals(name, "CHEF:description") && StringUtils.contains(value, "samigo-app/servlet/Login")) {
+				log.debug("Not importing samigo event based on description containing Samigo launch URL");
+				return false;
+			}
+
+			// Discussion topic deadlines include calendar-url values inevitably pointing ot the wrong place
+			if ( StringUtils.equals(name, "CHEF:calendar-url") && StringUtils.contains(value, "portal/site")) {
+				log.debug("Not importing discussion topic deadline event based on calendar-url {}", value);
+				return false;
+			}
+		}
+		return true;
 	}
 
 	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> resourceIds, List<String> options) {
