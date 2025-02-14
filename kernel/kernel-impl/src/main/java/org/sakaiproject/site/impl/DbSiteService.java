@@ -327,7 +327,7 @@ public abstract class DbSiteService extends BaseSiteService
 				fields = new Object[6];
 				fields[0] = page.getId();
 				fields[1] = caseId(edit.getId());
-				fields[2] = page.getTitle();
+				fields[2] = StringUtils.abbreviate(page.getTitle().trim(), SiteServiceSqlDefault.TITLE_MAX_LENGTH);
 				fields[3] = Integer.toString(page.getLayout());
 				fields[4] = ((((BaseSitePage) page).m_popup) ? "1" : "0");
 				fields[5] = Integer.valueOf(pageOrder++);
@@ -352,7 +352,7 @@ public abstract class DbSiteService extends BaseSiteService
 					fields[2] = caseId(edit.getId());
 					fields[3] = tool.getToolId();
 					fields[4] = Integer.valueOf(toolOrder++);
-					fields[5] = tool.getTitle();
+					fields[5] = StringUtils.abbreviate(tool.getTitle().trim(), SiteServiceSqlDefault.TITLE_MAX_LENGTH);
 					fields[6] = tool.getLayoutHints();
 					m_sql.dbWrite(statement, fields);
 
@@ -365,9 +365,9 @@ public abstract class DbSiteService extends BaseSiteService
 			// add each group
 			for (Iterator<Group> iGroups = edit.getGroups().iterator(); iGroups.hasNext();)
 			{
-				Group group = (Group) iGroups.next();
+				Group group = iGroups.next();
 				//does the group have a title?
-				if (group.getTitle() == null || group.getTitle().trim().length() == 0)
+				if (group.getTitle() == null || group.getTitle().trim().isEmpty())
 				{
 					throw new IllegalArgumentException("Group title can't be empty");
 				}
@@ -378,7 +378,7 @@ public abstract class DbSiteService extends BaseSiteService
 				fields = new Object[4];
 				fields[0] = group.getId();
 				fields[1] = caseId(edit.getId());
-				fields[2] = group.getTitle();
+				fields[2] = StringUtils.abbreviate(group.getTitle().trim(), SiteServiceSqlDefault.TITLE_MAX_LENGTH);
 				fields[3] = group.getDescription();
 				m_sql.dbWrite(statement, fields);
 
@@ -506,7 +506,7 @@ public abstract class DbSiteService extends BaseSiteService
 			fields[2] = caseId(tool.getSiteId());
 			fields[3] = tool.getToolId();
 			fields[4] = Integer.valueOf(tool.getPageOrder());
-			fields[5] = tool.getTitle();
+			fields[5] = StringUtils.abbreviate(tool.getTitle().trim(), SiteServiceSqlDefault.TITLE_MAX_LENGTH);
 			fields[6] = tool.getLayoutHints();
 			m_sql.dbWrite(statement, fields);
 
