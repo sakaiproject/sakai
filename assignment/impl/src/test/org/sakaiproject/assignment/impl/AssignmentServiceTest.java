@@ -1484,11 +1484,97 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             assignmentService.updateSubmission(submission);
             Assert.assertTrue(assignmentService.canSubmit(assignment));
 
+            // test assignment closed, personal resub allowed tomorrow, submission is dummy because prof wrote "no submission"
+            assignment.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, Integer.toString(1));
+            assignment.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME, Long.toString(now.minus(Period.ofDays(1)).toEpochMilli()));
+            submission.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, Integer.toString(1));
+            submission.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME, Long.toString(now.plus(Period.ofDays(1)).toEpochMilli()));
+            submission.setFeedbackComment("<p>No Submission</p>");
+            submission.setFeedbackText("No Submission");
+            submission.setSubmitted(true);
+            submission.setDateSubmitted(null);
+            submission.setUserSubmission(false);
+            assignmentService.updateSubmission(submission);
+            Assert.assertTrue(assignmentService.canSubmit(assignment));
+
+            // test assignment closed, resubs allowed in the past, submission is dummy because prof wrote "no submission" and an extension
+            assignment.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, Integer.toString(1));
+            assignment.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME, Long.toString(now.minus(Period.ofDays(1)).toEpochMilli()));
+            submission.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, Integer.toString(1));
+            submission.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME, Long.toString(now.minus(Period.ofDays(1)).toEpochMilli()));
+            submission.setFeedbackComment("<p>No Submission</p>");
+            submission.setFeedbackText("No Submission");
+            submission.setSubmitted(true);
+            submission.setDateSubmitted(null);
+            submission.setUserSubmission(false);
+            submission.getProperties().put(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME, Long.toString(now.plus(Period.ofDays(5)).toEpochMilli()));
+            assignmentService.updateSubmission(submission);
+            Assert.assertTrue(assignmentService.canSubmit(assignment));
+
             // test assignment closed, submission is already submitted and extension of 5 days in the future
             submission.setDateSubmitted(now.minus(6, ChronoUnit.HOURS));
             submission.setSubmitted(true);
+            submission.setUserSubmission(true);
             submission.getProperties().put(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME, Long.toString(now.plus(Period.ofDays(5)).toEpochMilli()));
             assignmentService.updateSubmission(submission);
+            Assert.assertFalse(assignmentService.canSubmit(assignment));
+
+            // test assignment closed, both extension and resubmission in future, but extension is further out
+            assignment.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, Integer.toString(1));
+            assignment.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME, Long.toString(now.plus(Period.ofDays(3)).toEpochMilli()));
+            submission.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, Integer.toString(1));
+            submission.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME, Long.toString(now.plus(Period.ofDays(3)).toEpochMilli()));
+            submission.getProperties().put(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME, Long.toString(now.plus(Period.ofDays(5)).toEpochMilli()));
+            submission.setSubmitted(true);
+            submission.setDateSubmitted(now.minus(1, ChronoUnit.DAYS)); // Has previous submission
+            submission.setUserSubmission(true);
+            assignmentService.updateSubmission(submission);
+            Assert.assertTrue(assignmentService.canSubmit(assignment));
+
+            // test assignment closed, extension in past, resubmission in future, no previous submission
+            assignment.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, Integer.toString(1));
+            assignment.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME, Long.toString(now.plus(Period.ofDays(2)).toEpochMilli()));
+            submission.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, Integer.toString(1));
+            submission.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME, Long.toString(now.plus(Period.ofDays(2)).toEpochMilli()));
+            submission.getProperties().put(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME, Long.toString(now.minus(Period.ofDays(1)).toEpochMilli()));
+            submission.setSubmitted(false);
+            submission.setDateSubmitted(null); // No previous submission
+            submission.setUserSubmission(false);
+            assignmentService.updateSubmission(submission);
+            // No submission so RE-submission is irrelevant
+            Assert.assertFalse(assignmentService.canSubmit(assignment));
+
+            // This student needs an extension to tomorrow to be able to submit
+            submission.getProperties().put(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME, Long.toString(now.plus(Period.ofDays(1)).toEpochMilli()));
+            assignmentService.updateSubmission(submission);
+            Assert.assertTrue(assignmentService.canSubmit(assignment));
+
+            // test assignment closed, competing extension and resubmission both in past
+            assignment.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, Integer.toString(1));
+            assignment.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME, Long.toString(now.minus(Period.ofDays(1)).toEpochMilli()));
+            submission.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, Integer.toString(1));
+            submission.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME, Long.toString(now.minus(Period.ofDays(1)).toEpochMilli()));
+            submission.getProperties().put(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME, Long.toString(now.minus(Period.ofDays(2)).toEpochMilli()));
+            submission.setSubmitted(true);
+            submission.setDateSubmitted(now.minus(3, ChronoUnit.DAYS));
+            submission.setUserSubmission(true);
+            assignmentService.updateSubmission(submission);
+            // Should not allow submission since both deadlines passed
+            Assert.assertFalse(assignmentService.canSubmit(assignment));
+
+            // test assignment closed, empty submission with both extension and resubmission in past
+            assignment.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, Integer.toString(1));
+            assignment.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME, Long.toString(now.minus(Period.ofDays(1)).toEpochMilli()));
+            submission.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, Integer.toString(1));
+            submission.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME, Long.toString(now.minus(Period.ofDays(1)).toEpochMilli()));
+            submission.getProperties().put(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME, Long.toString(now.minus(Period.ofDays(2)).toEpochMilli()));
+            submission.setFeedbackComment("");
+            submission.setFeedbackText("");
+            submission.setSubmitted(false);
+            submission.setDateSubmitted(null);
+            submission.setUserSubmission(false);
+            assignmentService.updateSubmission(submission);
+            // Should not allow submission since both deadlines passed
             Assert.assertFalse(assignmentService.canSubmit(assignment));
         } catch (Exception e) {
             Assert.fail("Could not create submission\n" + e);

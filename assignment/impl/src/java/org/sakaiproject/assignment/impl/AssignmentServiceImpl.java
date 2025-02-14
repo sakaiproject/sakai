@@ -2510,18 +2510,15 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             if (submission != null) {
 
                 // If an Extension exists for the user, we switch out the assignment's overall
-                // close date for the extension deadline but only if the submission object has not been submitted.
-                // Additionally, we make sure that a Resubmission date is not set,
-                // so that this date-switching happens ONLY under Extension-related circumstances.
-                if (StringUtils.isNotBlank(submission.getProperties().get(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME))
-                        && StringUtils.isBlank(submission.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME))) {
+                // close date for the extension deadline
+                if (!isBeforeAssignmentCloseDate && StringUtils.isNotBlank(submission.getProperties().get(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME))) {
                     Instant extensionCloseTime = Instant.ofEpochMilli(Long.parseLong(submission.getProperties().get(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME)));
                     isBeforeAssignmentCloseDate = currentTime.isBefore(extensionCloseTime);
                 }
 
                 // before the assignment close date
-                // and if no date then a submission was never never submitted
-                // or if there is a submitted date and its a not submitted then it is considered a draft
+                // and if no date then a submission was never truly submitted by the student
+                // or if there is a submitted date and it is not submitted, then it is considered a draft
                 if (isBeforeAssignmentCloseDate && (submission.getDateSubmitted() == null || !submission.getSubmitted())) return true;
 
                 // returns true if resubmission is allowed
