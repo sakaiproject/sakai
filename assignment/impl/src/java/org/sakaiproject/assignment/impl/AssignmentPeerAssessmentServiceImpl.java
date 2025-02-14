@@ -28,7 +28,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.criterion.DetachedCriteria;
@@ -58,7 +59,8 @@ import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 import lombok.extern.slf4j.Slf4j;
 
-@Data
+@Getter
+@Setter
 @Slf4j
 public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport implements AssignmentPeerAssessmentService {
 
@@ -78,16 +80,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
         try {
             assignment = assignmentService.getAssignment(assignmentId);
             if (!assignment.getDraft() && assignment.getAllowPeerAssessment()) {
-                Instant assignmentCloseTime = assignment.getCloseDate();
-                Instant openTime = null;
-                if (assignmentCloseTime != null) {
-                    // The close time is in the past, so should run it immediately!
-                    if (assignmentCloseTime.isBefore(Instant.now())) {
-                        openTime = Instant.now();
-                    } else {
-                        openTime = assignmentCloseTime;
-                    }
-                }
+                Instant openTime = assignment.getCloseDate();
                 // Schedule the new notification
                 if (openTime != null) {
                     scheduledInvocationManager.createDelayedInvocation(openTime, "org.sakaiproject.assignment.api.AssignmentPeerAssessmentService", assignmentId);
@@ -107,7 +100,6 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
     /**
      * Method called by the scheduledInvocationManager
      */
-    @Override
     public void execute(String opaqueContext) {
         try {
             //for group assignments, we need to have a user ID, otherwise, an exception is thrown:
@@ -138,8 +130,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
                     String submitterId = ass.isPresent() ? assignmentService.getSubmitterIdForAssignment(assignment, ass.get().getSubmitter()) : "";
                     //check if the submission is submitted, if not, see if there is any submission data to review (i.e. draft was auto submitted)
                     if (s.getDateSubmitted() != null && (s.getSubmitted() || (StringUtils.isNotBlank(s.getSubmittedText() ) || (CollectionUtils.isNotEmpty(s.getAttachments() ))))
-                            && (CollectionUtils.containsAny(submitterIdsList, submitteeIds) || (assignment.getIsGroup() && submitterIdsList.contains(submitterId)))
-                            && !s.getSubmitters().contains("admin")) {
+                            && (CollectionUtils.containsAny(submitterIdsList, submitteeIds) || (assignment.getIsGroup() && submitterIdsList.contains(submitterId)))) {
                         //only deal with users in the submitter's list
                         submissionIdMap.put(s.getId(), s);
                         if (ass.isPresent()) {
@@ -152,14 +143,14 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
                 List<PeerAssessmentItem> existingItems = getPeerAssessmentItems(submissionIdMap.keySet(), assignment.getScaleFactor());
                 List<PeerAssessmentItem> removeItems = new ArrayList<PeerAssessmentItem>();
                 //remove all empty items to start from scratch:
-                for (Iterator iterator = existingItems.iterator(); iterator.hasNext(); ) {
-                    PeerAssessmentItem peerAssessmentItem = (PeerAssessmentItem) iterator.next();
+                for (Iterator<PeerAssessmentItem> iterator = existingItems.iterator(); iterator.hasNext(); ) {
+                    PeerAssessmentItem peerAssessmentItem = iterator.next();
                     if (peerAssessmentItem.getScore() == null && (peerAssessmentItem.getComment() == null || "".equals(peerAssessmentItem.getComment().trim()))) {
                         removeItems.add(peerAssessmentItem);
                         iterator.remove();
                     }
                 }
-                if (removeItems.size() > 0) {
+                if (!removeItems.isEmpty()) {
                     getHibernateTemplate().deleteAll(removeItems);
                     getHibernateTemplate().flush();
                 }
@@ -170,7 +161,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
                         AssignmentSubmission s = submissionIdMap.get(p.getId().getSubmissionId());
                         Optional<AssignmentSubmissionSubmitter> ass = assignmentService.getSubmissionSubmittee(s);//Next, increment the count for studentAssessorsMap
                         String submitterId = assignmentService.getSubmitterIdForAssignment(assignment, ass.get().getSubmitter());
-                        Integer count = ass.isPresent() ? studentAssessorsMap.get(submitterId) : 0;
+                        Integer count = studentAssessorsMap.get(submitterId);
 
                         //check if the count is less than num of reviews before added another one,
                         //otherwise, we need to delete this one (if it's empty)
