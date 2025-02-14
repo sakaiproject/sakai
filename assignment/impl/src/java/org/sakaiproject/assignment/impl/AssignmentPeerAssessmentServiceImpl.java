@@ -28,8 +28,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.criterion.DetachedCriteria;
@@ -46,14 +45,11 @@ import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.assignment.api.model.PeerAssessmentAttachment;
 import org.sakaiproject.assignment.api.model.PeerAssessmentItem;
-import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.site.api.Group;
-import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
@@ -62,16 +58,18 @@ import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 import lombok.extern.slf4j.Slf4j;
 
+@Data
 @Slf4j
 public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport implements AssignmentPeerAssessmentService {
 
-    @Getter @Setter private ScheduledInvocationManager scheduledInvocationManager;
-    @Getter @Setter protected AssignmentService assignmentService;
-    @Getter @Setter private SecurityService securityService = null;
-    @Getter @Setter private SessionManager sessionManager;
-    @Getter @Setter private SiteService siteService;
-    @Setter private EventTrackingService eventTrackingService;
+    private ScheduledInvocationManager scheduledInvocationManager;
+    protected AssignmentService assignmentService;
+    private SecurityService securityService = null;
+    private SessionManager sessionManager;
+    private SiteService siteService;
+    private EventTrackingService eventTrackingService;
 
+    @Override
     public void schedulePeerReview(String assignmentId) {
         //first remove any previously scheduled reviews:
         removeScheduledPeerReview(assignmentId);
@@ -83,7 +81,12 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
                 Instant assignmentCloseTime = assignment.getCloseDate();
                 Instant openTime = null;
                 if (assignmentCloseTime != null) {
-                    openTime = assignmentCloseTime;
+                    // The close time is in the past, so should run it immediately!
+                    if (assignmentCloseTime.isBefore(Instant.now())) {
+                        openTime = Instant.now();
+                    } else {
+                        openTime = assignmentCloseTime;
+                    }
                 }
                 // Schedule the new notification
                 if (openTime != null) {
@@ -95,6 +98,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
         }
     }
 
+    @Override
     public void removeScheduledPeerReview(String assignmentId) {
         // Remove any existing notifications for this area
         scheduledInvocationManager.deleteDelayedInvocation("org.sakaiproject.assignment.api.AssignmentPeerAssessmentService", assignmentId);
@@ -103,6 +107,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
     /**
      * Method called by the scheduledInvocationManager
      */
+    @Override
     public void execute(String opaqueContext) {
         try {
             //for group assignments, we need to have a user ID, otherwise, an exception is thrown:
