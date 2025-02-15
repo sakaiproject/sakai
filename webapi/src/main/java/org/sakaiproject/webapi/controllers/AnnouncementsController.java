@@ -75,7 +75,6 @@ public class AnnouncementsController extends AbstractSakaiApiController {
                     return announcementService.getMessages(announcementService.channelReference(siteId, SiteService.MAIN_CONTAINER), filter, true, false)
                         .stream()
                         .map(am -> {
-
                             Optional<String> optionalUrl = entityManager.getUrl(am.getReference(), Entity.UrlType.PORTAL);
                             return new AnnouncementRestBean(site, am, optionalUrl.get());
                         });
