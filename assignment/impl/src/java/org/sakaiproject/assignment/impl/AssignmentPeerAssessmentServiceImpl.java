@@ -196,7 +196,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
                     AssignmentSubmission s = submissionIdMap.get(submissionId);
                     Optional<AssignmentSubmissionSubmitter> ass = assignmentService.getSubmissionSubmittee(s);//first find out how many existing items exist for this user:
                     String studentId = assignmentService.getSubmitterIdForAssignment(assignment, ass.get().getSubmitter());
-                    Integer assignedCount = ass.isPresent() ? studentAssessorsMap.get(studentId) : 0;
+                    Integer assignedCount = studentAssessorsMap.get(studentId);
                     //by creating a tailing list (snake style), we eliminate the issue where you can be stuck with
                     //a submission and the same submission user left, making for uneven distributions of submission reviews
                     List<String> snakeSubmissionList = new ArrayList<String>(randomSubmissionIds.subList(i, randomSubmissionIds.size()));
@@ -226,7 +226,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
                     }
                     i++;
                 }
-                if (newItems.size() > 0) {
+                if (!newItems.isEmpty()) {
                     for (PeerAssessmentItem item : newItems) {
                         getHibernateTemplate().saveOrUpdate(item);
                     }
