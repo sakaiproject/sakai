@@ -78,7 +78,6 @@ export class SakaiPageableElement extends SakaiShadowElement {
     const filteredData = this.getFilteredDataBeforeRepaging();
     this.dataPage = filteredData.slice(start, end);
     this.count = Math.ceil(filteredData.length / this.pageSize);
-    this.requestUpdate();
   }
 
   content() {}
