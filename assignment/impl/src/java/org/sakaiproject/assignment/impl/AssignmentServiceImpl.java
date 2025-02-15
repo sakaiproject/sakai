@@ -1031,7 +1031,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             for (String oAttachment : oAttachments) {
                 String fromResourcePath = attachmentNames.get(oAttachment);
                 String fromContext = null;  // No-Op, there is no fromContext when importing from a ZIP
-                String nAttachId = transferAttachment(fromContext, siteId, fromResourcePath, null);
+                String nAttachId = transferAttachment(fromContext, siteId, fromResourcePath, attachmentNames);
                 assignmentFromXml.getAttachments().add(nAttachId);
             }
 
@@ -1064,6 +1064,50 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             results.append(result).append(LINE_SEPARATOR);
             log.debug(result);
         }
+
+        // After we save the assignment, we can save the private note, model answer, and attachments
+        NodeList nodes = element.getElementsByTagName("PrivateNote");
+        for (int j=0; j<nodes.getLength(); ++j) {
+            Element nodeElement = (Element) nodes.item(j);
+            String text = nodeElement.getTextContent();
+            String shareWith = nodeElement.getAttribute("shareWith");
+            AssignmentNoteItem copy = assignmentSupplementItemService.newNoteItem();
+            copy.setAssignmentId(assignmentFromXml.getId());
+            copy.setNote(text);
+            copy.setShareWith(Integer.parseInt(shareWith));
+            copy.setCreatorId(creatorId);
+            assignmentSupplementItemService.saveNoteItem(copy);
+        }
+
+        nodes = element.getElementsByTagName("ModelAnswer");
+        for (int j=0; j<nodes.getLength(); ++j) {
+            Element nodeElement = (Element) nodes.item(j);
+            String text = nodeElement.getTextContent();
+            String showTo = nodeElement.getAttribute("showTo");
+            AssignmentModelAnswerItem copy = assignmentSupplementItemService.newModelAnswer();
+            copy.setAssignmentId(assignmentFromXml.getId());
+            copy.setText(text);
+            copy.setShowTo(Integer.parseInt(showTo));
+
+            // We have to save the model answer so it exists before it can have attachments; otherwise we get a Hibernate exception
+            assignmentSupplementItemService.saveModelAnswer(copy);
+
+            NodeList attachments = nodeElement.getElementsByTagName("attachment");
+            for (int k=0; k<attachments.getLength(); ++k) {
+                Element attachmentElement = (Element) attachments.item(k);
+                String attachmentId = attachmentElement.getTextContent();
+                System.out.println("attachmentId="+attachmentId);
+                AssignmentSupplementItemAttachment attachment = assignmentSupplementItemService.newAttachment();
+                System.out.println("attachmentNames="+attachmentNames);
+                String fromContext = null;  // No-Op, there is no fromContext when importing from a ZIP
+                String nAttachId = transferAttachment(fromContext, siteId, attachmentId, attachmentNames);
+                System.out.println("saved attachment="+nAttachId);
+                attachment.setAssignmentSupplementItemWithAttachment(copy);
+                attachment.setAttachmentId(nAttachId);
+                assignmentSupplementItemService.saveAttachment(attachment);
+            }
+        }
+
         return assignmentFromXml;
     }
 
