@@ -50,6 +50,7 @@ import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHelper;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.samigo.util.SamigoConstants;
 
 @Slf4j
 public class CalendarServiceHelperImpl implements CalendarServiceHelper {
@@ -128,7 +129,7 @@ public class CalendarServiceHelperImpl implements CalendarServiceHelper {
 					CalendarEventEdit edit = calendar.getEditEvent(event.getId(), CalendarService.EVENT_ADD_CALENDAR);
 
 					edit.setDescriptionFormatted(desc);
-					edit.setField(CalendarConstants.TOOL_ID, "sakai.samigo");
+					edit.setField(CalendarConstants.EVENT_OWNED_BY_TOOL_ID, SamigoConstants.TOOL_ID);
 
 					calendar.commitEvent(edit);
 				}

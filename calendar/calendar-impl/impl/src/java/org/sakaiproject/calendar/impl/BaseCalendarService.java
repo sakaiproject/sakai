@@ -99,6 +99,10 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.*;
 import org.sakaiproject.util.cover.LinkMigrationHelper;
 
+import org.sakaiproject.assignment.api.AssignmentServiceConstants;
+import org.sakaiproject.api.app.messageforums.DiscussionForumService;
+import org.sakaiproject.samigo.util.SamigoConstants;
+
 /**
  * <p>
  * BaseCalendarService is an base implementation of the CalendarService. Extension classes implement object creation, access and storage.
@@ -1587,7 +1591,6 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 									String newId = getUniqueId();
 									element3.setAttribute("id", newId);
 
-									// Do not import events with hard-coded links that will break
 									if ( ! shouldMergeEvent(element3) ) continue;
 
 									// get the attachment kids
@@ -1642,22 +1645,21 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	/*
 	 * Look at the properties of the event and determine if it should be merged or ignored
 	 */
-	public boolean shouldMergeEvent(Element el)
-	{
+	private boolean shouldMergeEvent(Element el) {
 		NodeList nodeList = el.getElementsByTagName("property");
 
 		for (int i = 0; i < nodeList.getLength(); i++) {
 			Element prop = (Element) nodeList.item(i);
 			String name = prop.getAttribute("name");
 			String value = prop.getAttribute("value");
-			if ("BASE64".equalsIgnoreCase(prop.getAttribute("enc")))
-			{
+			if ("BASE64".equalsIgnoreCase(prop.getAttribute("enc"))) {
 				value = Xml.decodeAttribute(prop, "value");
 			}
 
-			if ( StringUtils.contains(name, CalendarConstants.TOOL_ID) &&
-				(StringUtils.contains(value, "sakai.assignment.grades") || StringUtils.contains(value, "sakai.forums") ||
-				StringUtils.contains(value, "sakai.samigo") ) ) {
+			if ( StringUtils.contains(name, CalendarConstants.EVENT_OWNED_BY_TOOL_ID) &&
+				(StringUtils.contains(value, AssignmentServiceConstants.ASSIGNMENT_TOOL_ID) ||
+				StringUtils.contains(value, DiscussionForumService.FORUMS_TOOL_ID ) ||
+				StringUtils.contains(value, SamigoConstants.TOOL_ID) ) ) {
 				log.debug("Not importing assignment event from tool {}", value);
 				return false;
 			}
