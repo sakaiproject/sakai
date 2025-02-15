@@ -1,0 +1,31 @@
+#if (${userIsLoggedIn})
+<div class="align-items-center portal-header-breadcrumb  portal-header-breadcrumb-mobile w-100">
+    #if ($!siteParents)
+    #foreach ($parent in $siteParents)
+    <div class="portal-header-breadcrumb-item portal-header-site-title">
+        <a href="$!{parent.siteUrl}" title="$!{parent.siteTitle}">
+            $parent.siteTitle
+        </a>
+    </div>
+    <div class="bi bi-chevron-right portal-header-breadcrumb-separator"></div>
+    #end
+    #end
+
+    <div id="header-site-title" class="portal-header-breadcrumb-item portal-header-site-title">
+        <a href="$!{siteUrl}" title="$!{siteTitle}">
+            $siteTitle
+        </a>
+    </div>
+
+    #foreach( $page in $sitePages.pageNavTools )
+    #if ($page.current)
+    <div class="bi bi-chevron-right portal-header-breadcrumb-separator"></div>
+    <div class="portal-header-breadcrumb-item header-tool-title">
+        <a href="${page.pageResetUrl}" title="${page.pageTitle}">
+            ${page.pageTitle}
+        </a>
+    </div>
+    #end
+    #end
+</div>
+#end
