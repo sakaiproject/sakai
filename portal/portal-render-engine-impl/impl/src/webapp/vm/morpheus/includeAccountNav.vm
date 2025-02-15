@@ -1,6 +1,6 @@
 ## TODO: This file contains some placeholder text and content that needs to be revisited later
 ## to populate the contents and to internationalize. Work-in-progress.
-<ul id="sakai-system-indicators" class="nav flex-nowrap align-items-center">
+<ul id="sakai-system-indicators" class="nav flex-nowrap align-items-center me-3">
 #*
 For opening help sidebar
   <li class="d-none d-md-inline">
@@ -12,15 +12,6 @@ For opening help sidebar
     </a>
   </li>
 *#
-  #if (${currentRole} && $roleSwitchState == false)
-    <li class="d-none d-md-inline">
-      <div class="current-role">
-        <i class="fa fa-user" aria-hidden="true"></i>
-        <span class="portal-user-role">${rloader.sit_role} ${currentRole}</span>
-      </div>
-    </li>
-  #end
-
   #if ($pageColumn0Tools && !$pageColumn0Tools.isEmpty())
       #set ($helpLink = $pageColumn0Tools.get(0).toolHelpActionUrl)
   #elseif ($pageColumn1Tools && !$pageColumn1Tools.isEmpty())
@@ -46,7 +37,7 @@ For opening help sidebar
         aria-label="$rloader.sit_allsites"
         aria-controls="select-site-sidebar"
         title="$rloader.sit_allsites">
-      <i class="si si-all-sites"></i>
+      <i class="bi bi-grid-3x3-gap-fill"></i>
     </button>
   </li>
 
@@ -92,14 +83,14 @@ For opening help sidebar
       </button>
     </li>
   #end
-    <li>
-      <button class="btn icon-button sak-sysInd-account"
+    <li">
+      <button class="btn icon-button sak-sysInd-account p-0 me-3 me-md-4 ms-3"
           type="button"
           data-bs-toggle="offcanvas"
           data-bs-target="#sakai-account-panel"
           aria-controls="sakai-account-panel"
           title="${rloader.mainnav_btn_account}">
-        <img class="sakai-accountProfileImage rounded-circle"
+        <img class="sakai-accountProfileImage rounded-circle p-0"
             src="${profileImageUrl}"
             alt="${rloader.sit_profile_image_alt}">
       </button>
