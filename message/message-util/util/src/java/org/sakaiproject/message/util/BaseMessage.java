@@ -49,6 +49,7 @@ import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityNotDefinedException;
@@ -70,6 +71,7 @@ import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.javax.Filter;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.message.api.Message;
 import org.sakaiproject.message.api.MessageChannel;
@@ -172,6 +174,10 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 	@Setter protected EntityManager m_entityManager;
 	
 	@Setter protected FormattedText m_formattedText;
+
+	@Setter protected LTIService ltiService;
+
+	@Setter protected ContentHostingService contentHostingService;
 
 	/**
 	 * Access this service from the inner classes.
@@ -335,6 +341,28 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 				+ channelId + Entity.SEPARATOR + id;
 
 	} // messageReference
+
+	/**
+	 * Allows a service extending BaseMessageService to approve a message sender
+	 *
+	 * @param userId
+	 *        The user id of the message sender
+	 * @return true if the message sender is approved, false otherwise
+	 */
+	public boolean importAsDraft() {
+		return m_serverConfigurationService.getBoolean("import.importAsDraft", true);
+	}
+
+	/**
+	 * Allows a service extendingBase MessageService to approve a message sender
+	 *
+	 * @param userId
+	 *        The user id of the message sender
+	 * @return true if the message sender is approved, false otherwise
+	 */
+	public boolean approveMessageSender(String userId) {
+		return false;
+	}
 
 	/**
 	 * Access the internal reference which can be used to access the message from within the system.
@@ -1644,9 +1672,21 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 	/**
 	 * {@inheritDoc}
 	 */
-	public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map attachmentNames, Map userIdTrans,
-			Set userListAllowImport)
+	@Override
+	public String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId, Map<String, String> attachmentNames,
+        Map<Long, Map<String, Object>> ltiContentItems, Map<String, String> userIdTrans, Set<String> userListAllowImport)
 	{
+		// Because of setters, getters, abstract classes, concrete classes, and dependency injection
+		if ( ltiService == null ) {
+			ltiService = ComponentManager.get(LTIService.class);
+		}
+
+		if ( contentHostingService == null ) {
+			contentHostingService = ComponentManager.get(ContentHostingService.class);
+		}
+
+		System.out.println("BaseMessage merge ltiService="+ltiService+" contentHostingService="+contentHostingService+" class="+this.getClass().getName());
+
 		// get the system name: FROM_WT, FROM_CT, FROM_SAKAI
 		String source = "";
 		// root: <service> node
@@ -1664,9 +1704,8 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		// prepare the buffer for the results log
 		StringBuilder results = new StringBuilder();
 
-		// get the channel associated with this site
+		// get the channel associated with this site (this is overridden in classes that extend BaseMessage)
 		String channelRef = channelReference(siteId, SiteService.MAIN_CONTAINER);
-
 		int count = 0;
 
 		try
@@ -1856,7 +1895,6 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 					}
 				}
 			}
-
 			// one more pass to update reply-to (now we have a complte id mapping),
 			// and we are ready then to create the message
 			children2 = root.getChildNodes();
@@ -1915,11 +1953,13 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 												if (!fUserId.equalsIgnoreCase("postmaster")
 														&& !userSet.contains(element4.getAttribute("from")))
 												{
-													goAhead = false;
+													goAhead = approveMessageSender(fUserId);
 												}
-												// TODO: reall want a draft? -ggolden
-												// set draft status based upon property setting
-												if (!m_serverConfigurationService.getBoolean("import.importAsDraft", true))
+												if (importAsDraft())
+												{
+													element4.setAttribute("draft", "true");
+												}
+												else
 												{
 													String draftAttribute = element4.getAttribute("draft");
 													if (draftAttribute.equalsIgnoreCase("true") || draftAttribute.equalsIgnoreCase("false"))
@@ -1927,14 +1967,9 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 													else
 														element4.setAttribute("draft", "true");
 												}
-												else
-												{
-													element4.setAttribute("draft", "true");
-												}
 											}
 										}
 									}
-
 									// merge if ok
 									if (goAhead)
 									{

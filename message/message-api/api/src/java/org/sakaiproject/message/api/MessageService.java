@@ -312,5 +312,19 @@ public interface MessageService extends EntityProducer, EntitySummary
          */
         public Map getSummary(String ref, int items, int days) throws IdUsedException, IdInvalidException, PermissionException;
 
+	/**
+	 * Allows a service extending MessageService to indicate if it wants things imported as draft
+	 */
+	public boolean importAsDraft();
+
+	/**
+	 * Allows a service extending MessageService to approve a message sender
+	 *
+	 * @param userId
+	 *        The user id of the message sender
+	 * @return true if the message sender is approved, false otherwise
+	 */
+	public boolean approveMessageSender(String userId);
+
 } // MessageService
 

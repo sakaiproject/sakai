@@ -32,6 +32,7 @@ import javax.mail.internet.MimeUtility;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.authz.api.FunctionManager;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.entity.api.ContextObserver;
 import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.entity.api.Entity;
@@ -43,6 +44,7 @@ import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InUseException;
+import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.mailarchive.api.MailArchiveChannel;
 import org.sakaiproject.mailarchive.api.MailArchiveChannelEdit;
@@ -87,7 +89,9 @@ public abstract class BaseMailArchiveService extends BaseMessage implements Mail
 	/** Dependency: AliasService */
 	@Setter protected AliasService aliasService;
 
-	@Setter private FunctionManager functionManager;
+	@Setter protected FunctionManager functionManager;
+	@Setter protected LTIService ltiService;
+	@Setter protected ContentHostingService contentHostingService;
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy

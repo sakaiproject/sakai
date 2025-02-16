@@ -1770,6 +1770,16 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 		}
 	}
 
+	/* We use the archive() and merge() methods from the BaseMessage class and override these methods to achieve the behavior we need. */
+
+	public boolean importAsDraft() {
+		return true; // Always import as a draft
+	}
+
+	public boolean approveMessageSender(String userId) {
+		return true; // Always approve the sender
+	}
+
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * AnnouncementChannel implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
