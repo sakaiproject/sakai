@@ -1607,7 +1607,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 														Validator.escapeResourceName(oAttachment.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME)),
 														//toolManager.getCurrentPlacement().getContext(), 
 														toContext,    //don't use toolManager.getCurrentPlacement()!
-														toolManager.getTool("sakai.announcements").getTitle(),
+														getToolTitle(),
 														oAttachment.getContentType(),
 														oAttachment.getContent(),
 														oAttachment.getProperties());
@@ -1772,12 +1772,23 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 
 	/* We use the archive() and merge() methods from the BaseMessage class and override these methods to achieve the behavior we need. */
 
+	@Override
 	public boolean importAsDraft() {
 		return true; // Always import as a draft
 	}
 
+	@Override
 	public boolean approveMessageSender(String userId) {
 		return true; // Always approve the sender
+	}
+
+	@Override
+	public String getToolTitle(String url) {
+		return getToolTitle();
+	}
+
+	public String getToolTitle() {
+		return toolManager.getTool(AnnouncementService.SAKAI_ANNOUNCEMENT_TOOL_ID).getTitle();
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************

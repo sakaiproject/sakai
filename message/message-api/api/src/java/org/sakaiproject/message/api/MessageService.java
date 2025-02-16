@@ -326,5 +326,14 @@ public interface MessageService extends EntityProducer, EntitySummary
 	 */
 	public boolean approveMessageSender(String userId);
 
+	/**
+	 * Allows a service extending MessageService to return its common tool title
+	 *
+	 * @param url
+	 *        If present, it is the url of the imported attachment (old)
+	 * @return true if the message sender is approved, false otherwise
+	 */
+	public String getToolTitle(String url);
+
 } // MessageService
 

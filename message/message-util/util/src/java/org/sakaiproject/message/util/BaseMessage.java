@@ -1992,11 +1992,11 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 	} // merge
 
 	/**
-	 * Extract the tool name from an attachment URL path
+	 * Extract the tool name from an attachment URL path - Can be overridden in the extending classes
 	 * @param url The attachment URL path
 	 * @return The tool name (e.g. "Announcements")
 	 */
-	private String getToolTitle(String url) {
+	public String getToolTitle(String url) {
 		if (url == null) return "";
 
 		// Split path on "/" and look for tool name after "attachment" segment
