@@ -851,38 +851,9 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		                log.debug("Created new content item: {}", sakaiId);
 		            }
 		        }
-			} else if (type == SimplePageItem.TEXT) {
-			String html = itemElement.getAttribute("html");
-			// TODO: SAK-46983 - Check carefully
-			Pattern idPattern = Pattern.compile("(https?://[^/]+/access/[basic]*lti/site)/" + Pattern.quote(oldSiteId) + "/content:([0-9]+)");
-			Matcher matcher = idPattern.matcher(html);
-			StringBuffer sb = new StringBuffer();
-			boolean foundLtiLink = false;
-			while(matcher.find()) {
-				String urlFirstPart = matcher.group(1);
-				Long ltiContentId = Long.valueOf(matcher.group(2));
-				log.info("Updating reference: {}", matcher.group(0));
-				foundLtiLink = true;
-				try {
-					Map<String, Object> ltiContent = ltiService.getContentDao(ltiContentId, oldSiteId, securityService.isSuperUser());
-					String newSakaiId = copyLTIContent(ltiContent, siteId, oldSiteId);
-					if ( newSakaiId != null ) sakaiId = newSakaiId;
-					String[] bltiId = sakaiId.split("/");
-					ltiContentId = Long.valueOf(bltiId[2]);
-				} catch (Exception e) {
-					log.warn("Unable to import LTI tool to new site: {}", e);
-				} finally {
-					String updatedReference = urlFirstPart + "/" + siteId + "/content:" + ltiContentId;
-					log.info("New reference: {}", updatedReference);
-					matcher.appendReplacement(sb, Matcher.quoteReplacement(updatedReference));
-				}
-			}
-
-			if(foundLtiLink) {
-				matcher.appendTail(sb);
-				explanation = sb.toString();
-				log.info("Updated at least one LTI reference lesson HTML");
-			}
+		   } else if (type == SimplePageItem.TEXT) {
+		        String html = itemElement.getAttribute("html");
+		        explanation = ltiService.fixLtiLaunchUrls(html, siteId, ltiContentItems);
 		   } else if (type == SimplePageItem.PAGE) {
 		       // sakaiId should be the new page ID
 		       Long newPageId = pageMap.get(Long.valueOf(sakaiId));
