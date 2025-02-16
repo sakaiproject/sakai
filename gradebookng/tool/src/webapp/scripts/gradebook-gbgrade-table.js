@@ -906,9 +906,9 @@ GbGradeTable.renderTable = function (elementId, tableData) {
   
     const table = GbGradeTable.instance;
 
-    if (!table.getRows()[rowIndex]?.getCells()[colIndex]) return;
-
-    const cellRect = table.getRows()[rowIndex].getCells()[colIndex].getElement().getBoundingClientRect();
+    const cell = table.getRows()[rowIndex]?.getCells()[colIndex];
+    if (!cell) return;
+    const cellRect = cell.getElement().getBoundingClientRect();
   
     const frozenColumns = table
       .getColumns()
