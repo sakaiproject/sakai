@@ -1022,15 +1022,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 		try
 		{
 			String defaultRealm = siteService.getSite(siteId).getReference();
-
-			// Todo, do we need to check for permissions here?
-			// if (!securityService.unlock("site.upd", defaultRealm)) {
-			// 	log.warn("User {} does not have site.upd permission for site {}", 
-			// 		sessionManager.getCurrentSessionUserId(), siteId);
-			// 	results.append("Permission denied: User does not have site.upd permission for site.\n");
-			// 	return results.toString();
-			// }
-
+			
 			// start with an element with our very own name
 			Element element = doc.createElement(APPLICATION_ID);
 			((Element) stack.peek()).appendChild(element);
@@ -1117,10 +1109,6 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 		try
 		{
 			String defaultRealm = siteService.getSite(siteId).getReference();
-
-			// wikiSecurityService
-			// 		.checkAdminPermission(RWikiObjectService.REFERENCE_ROOT
-			// 				+ defaultRealm);
 
 			NodeList children = root.getChildNodes();
 			final int length = children.getLength();
