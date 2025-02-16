@@ -99,6 +99,10 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.*;
 import org.sakaiproject.util.cover.LinkMigrationHelper;
 
+import org.sakaiproject.assignment.api.AssignmentServiceConstants;
+import org.sakaiproject.api.app.messageforums.DiscussionForumService;
+import org.sakaiproject.samigo.util.SamigoConstants;
+
 /**
  * <p>
  * BaseCalendarService is an base implementation of the CalendarService. Extension classes implement object creation, access and storage.
@@ -1587,6 +1591,8 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 									String newId = getUniqueId();
 									element3.setAttribute("id", newId);
 
+									if ( ! shouldMergeEvent(element3) ) continue;
+
 									// get the attachment kids
 									NodeList children5 = element3.getChildNodes();
 									final int length5 = children5.getLength();
@@ -1634,6 +1640,50 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 		results.append("merging calendar " + calendarRef + " (" + count + ") messages.\n");
 		return results.toString();
+	}
+
+	/*
+	 * Look at the properties of the event and determine if it should be merged or ignored
+	 */
+	private boolean shouldMergeEvent(Element el) {
+		NodeList nodeList = el.getElementsByTagName("property");
+
+		for (int i = 0; i < nodeList.getLength(); i++) {
+			Element prop = (Element) nodeList.item(i);
+			String name = prop.getAttribute("name");
+			String value = prop.getAttribute("value");
+			if ("BASE64".equalsIgnoreCase(prop.getAttribute("enc"))) {
+				value = Xml.decodeAttribute(prop, "value");
+			}
+
+			if ( StringUtils.contains(name, CalendarConstants.EVENT_OWNED_BY_TOOL_ID) &&
+				(StringUtils.contains(value, AssignmentServiceConstants.ASSIGNMENT_TOOL_ID) ||
+				StringUtils.contains(value, DiscussionForumService.FORUMS_TOOL_ID ) ||
+				StringUtils.contains(value, SamigoConstants.TOOL_ID) ) ) {
+				log.debug("Not importing assignment event from tool {}", value);
+				return false;
+			}
+
+			// Do not import events associated with an assignment - backwards compatibility
+			if ( StringUtils.contains(name, CalendarConstants.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID) ||
+			     StringUtils.contains(name, CalendarConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED) ) {
+				log.debug("Not importing assignment event {}", value);
+				return false;
+			}
+
+			// Samigo does not mark its events, but the notification message is consitent - backwards compatibility
+			if ( StringUtils.equals(name, "CHEF:description") && StringUtils.contains(value, "samigo-app/servlet/Login")) {
+				log.debug("Not importing samigo event based on description containing Samigo launch URL");
+				return false;
+			}
+
+			// Discussion topic deadlines include calendar-url values inevitably pointing to the wrong place - backwards compatibility
+			if ( StringUtils.equals(name, "CHEF:calendar-url") && StringUtils.contains(value, "portal/site")) {
+				log.debug("Not importing discussion topic deadline event based on calendar-url {}", value);
+				return false;
+			}
+		}
+		return true;
 	}
 
 	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> resourceIds, List<String> options) {

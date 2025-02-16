@@ -757,23 +757,18 @@
             ## hidden value for non-electronic submission
             <input type="hidden" name="$name_allowResubmitNumber" id="allowResubmitNumber" value="0"/>
         #else
-            ##show it only for those assignments not of type non-electronic submission
-            #if($!value_allowResubmitNumber && $submissionType != 4)
+            #set($resubmitStyle="display:none")
+            #set($extensionStyle="display:none") 
+            #set($resubmitVisibility="display:block")
+
+            #if($!value_allowResubmitNumber)
                 #set($resubmitStyle="display:block")
-            #else
-                #set($resubmitStyle="display:none")
             #end
-  ##decide whether to show the Extension options
-            #if($!displayExtensionOptions && $submissionType != 4)
+
+            #if($!displayExtensionOptions)
                 #set($extensionStyle="display:block")
                 #set($resubmitVisibility="display:none")
-            #else
-                #set($extensionStyle="display:none")
-                #if($submissionType != 4)
-                    #set($resubmitVisibility="display:block")
-                #else
-                    #set($resubmitVisibility="display:none")
-                #end
+                #set($resubmitStyle="display:none")
             #end
 
             <h4>
