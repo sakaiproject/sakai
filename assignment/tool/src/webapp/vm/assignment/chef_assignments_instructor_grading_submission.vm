@@ -361,39 +361,13 @@
             #end
         #end
 
-        #if ($!hasAssociatedRubric)
+        #if (!$!hasAssociatedRubric)
+            #reviewersInfo( $!peerReviews false )
+        #else
         </div>
         <div role="tabpanel" class="tab-pane mt-2" id="submission-rubric">
-            ## Show reviewer feedback from peer review (if exist and the peer review is closed)
-            #if ($peerReviews)
-            <h3>$tlang.getString("gen.peerReviews")</h3>
-            <div id="peer-accordion">
-                #foreach($review in $peerReviews)
-                    <h5>$review.assessorDisplayName</h5>
-                    <div>
-                        $tlang.getFormattedMessage("gen.score.display", $review.getScoreDisplay())
-                        <br/>
-                        #if($!review.getComment() && $review.getComment().length()>0)
-                            <b>$tlang.getString("gen.comments")</b>
-                            <div class="textPanel borderPanel">$formattedText.escapeHtmlFormattedText($review.getComment())</div>
-                        #end
-                        <sakai-rubric-student
-                            site-id="$!assignment.Context"
-                            entity-id="$assignment.Id"
-                            tool-id="sakai.assignment.grades"
-                            instructor
-                            is-peer-or-self
-                            evaluated-item-id="$review.id.assessorUserId"
-                            #if ($!assignment.isGroup)
-                                evaluated-item-owner-id="$ownerGroupId"
-                            #else
-                                evaluated-item-owner-id="$submitterId"
-                            #end
-                        ></sakai-rubric-student>
-                    </div>
-                #end
-            </div>
-            #end
+
+            #reviewersInfo( $!peerReviews $!hasAssociatedRubric $!assignment $ownerGroupId $submitterId )
 
             #if($!rubricSelfReport)
             <h1>$tlang.getString("autoevaluation")</h1>
