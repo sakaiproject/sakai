@@ -573,40 +573,51 @@
 #end
 
 ## macro for rendering peer reviewers info in the instructor grading screen
-#macro( reviewersInfo $!peerReviews $!hasAssociatedRubric $!assignment $ownerGroupId $submitterId)
+#macro( reviewersInfo $!peerReviews $!hasAssociatedRubric $!assignment $ownerGroupId $submitterId )
     ## Show reviewer feedback from peer review (if exist and the peer review is closed)
     #if ($peerReviews)
-        <h3>$tlang.getString("gen.peerReviews")</h3>
-        <div id="peer-accordion">
-            #foreach($review in $peerReviews)
-                <h5>$review.assessorDisplayName</h5>
-                <div>
-                    #if ($!hasAssociatedRubric)
-                        <sakai-rubric-student
-                            site-id="$!assignment.Context"
-                            tool-id="sakai.assignment.grades"
-                            entity-id="$assignment.Id"
-                            evaluated-item-id="$review.id.assessorUserId"
-                            instructor
-                            is-peer-or-self
-                            #if ($!assignment.isGroup)
-                                evaluated-item-owner-id="$ownerGroupId"
-                            #else
-                                evaluated-item-owner-id="$submitterId"
-                            #end
-                        ></sakai-rubric-student>
-				    <hr class="itemSeparator" />
-                    #end
-
-                    $tlang.getFormattedMessage("gen.score.display", $review.getScoreDisplay())
-                    <br/>
-                    #if($!review.getComment() && $review.getComment().length()>0)
-                        <b>$tlang.getString("gen.comments")</b>
-                        <div class="textPanel borderPanel">$formattedText.escapeHtmlFormattedText($review.getComment())</div>
-                    #end
-                </div>
-            #end
+        <div class="mt-4 mb-5">
+            <h3 class="mb-3">$tlang.getString("gen.peerReviews")</h3>
+            <div class="accordion" id="peer-reviews">
+                #foreach($review in $peerReviews)
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="peer-heading-$review.id.assessorUserId">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#peer-collapse-$review.id.assessorUserId" aria-expanded="true" aria-controls="peer-collapse-$review.id.assessorUserId">
+                                $review.assessorDisplayName
+                            </button>
+                        </h2>
+                        <div id="peer-collapse-$review.id.assessorUserId" class="accordion-collapse collapse" aria-labelledby="peer-heading-$review.id.assessorUserId" data-bs-parent="#peer-reviews">
+                            <div class="accordion-body">
+                                #if ($!hasAssociatedRubric)
+                                    <sakai-rubric-student
+                                        site-id="$!assignment.Context"
+                                        tool-id="sakai.assignment.grades"
+                                        entity-id="$assignment.Id"
+                                        evaluated-item-id="$review.id.assessorUserId"
+                                        instructor
+                                        is-peer-or-self
+                                        #if ($!assignment.isGroup)
+                                            evaluated-item-owner-id="$ownerGroupId"
+                                        #else
+                                            evaluated-item-owner-id="$submitterId"
+                                        #end
+                                    ></sakai-rubric-student>
+                                    <hr class="itemSeparator" />
+                                #end
+                                <div class="mt-2 mb-3">
+                                    <span class="me-2">$tlang.getFormattedMessage("gen.score.display", $review.getScoreDisplay())</span>
+                                </div>
+                                #if($!review.getComment() && $review.getComment().length()>0)
+                                    <div class="mt-2 mb-2 fw-bold">$tlang.getString("gen.comments")</div>
+                                    <div class="textPanel borderPanel">$formattedText.escapeHtmlFormattedText($review.getComment())</div>
+                                #end
+                            </div>
+                        </div>
+                    </div>
+                #end
+            </div>
         </div>
     #end
 #end
+
 <!-- end: assignment_macros.vm -->
