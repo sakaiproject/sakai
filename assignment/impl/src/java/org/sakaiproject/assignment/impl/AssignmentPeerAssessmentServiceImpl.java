@@ -46,14 +46,11 @@ import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.assignment.api.model.PeerAssessmentAttachment;
 import org.sakaiproject.assignment.api.model.PeerAssessmentItem;
-import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.site.api.Group;
-import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
@@ -62,16 +59,19 @@ import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 import lombok.extern.slf4j.Slf4j;
 
+@Getter
+@Setter
 @Slf4j
 public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport implements AssignmentPeerAssessmentService {
 
-    @Getter @Setter private ScheduledInvocationManager scheduledInvocationManager;
-    @Getter @Setter protected AssignmentService assignmentService;
-    @Getter @Setter private SecurityService securityService = null;
-    @Getter @Setter private SessionManager sessionManager;
-    @Getter @Setter private SiteService siteService;
-    @Setter private EventTrackingService eventTrackingService;
+    private ScheduledInvocationManager scheduledInvocationManager;
+    protected AssignmentService assignmentService;
+    private SecurityService securityService = null;
+    private SessionManager sessionManager;
+    private SiteService siteService;
+    private EventTrackingService eventTrackingService;
 
+    @Override
     public void schedulePeerReview(String assignmentId) {
         //first remove any previously scheduled reviews:
         removeScheduledPeerReview(assignmentId);
@@ -80,11 +80,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
         try {
             assignment = assignmentService.getAssignment(assignmentId);
             if (!assignment.getDraft() && assignment.getAllowPeerAssessment()) {
-                Instant assignmentCloseTime = assignment.getCloseDate();
-                Instant openTime = null;
-                if (assignmentCloseTime != null) {
-                    openTime = assignmentCloseTime;
-                }
+                Instant openTime = assignment.getCloseDate();
                 // Schedule the new notification
                 if (openTime != null) {
                     scheduledInvocationManager.createDelayedInvocation(openTime, "org.sakaiproject.assignment.api.AssignmentPeerAssessmentService", assignmentId);
@@ -95,6 +91,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
         }
     }
 
+    @Override
     public void removeScheduledPeerReview(String assignmentId) {
         // Remove any existing notifications for this area
         scheduledInvocationManager.deleteDelayedInvocation("org.sakaiproject.assignment.api.AssignmentPeerAssessmentService", assignmentId);
@@ -133,8 +130,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
                     String submitterId = ass.isPresent() ? assignmentService.getSubmitterIdForAssignment(assignment, ass.get().getSubmitter()) : "";
                     //check if the submission is submitted, if not, see if there is any submission data to review (i.e. draft was auto submitted)
                     if (s.getDateSubmitted() != null && (s.getSubmitted() || (StringUtils.isNotBlank(s.getSubmittedText() ) || (CollectionUtils.isNotEmpty(s.getAttachments() ))))
-                            && (CollectionUtils.containsAny(submitterIdsList, submitteeIds) || (assignment.getIsGroup() && submitterIdsList.contains(submitterId)))
-                            && !s.getSubmitters().contains("admin")) {
+                            && (CollectionUtils.containsAny(submitterIdsList, submitteeIds) || (assignment.getIsGroup() && submitterIdsList.contains(submitterId)))) {
                         //only deal with users in the submitter's list
                         submissionIdMap.put(s.getId(), s);
                         if (ass.isPresent()) {
@@ -147,14 +143,14 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
                 List<PeerAssessmentItem> existingItems = getPeerAssessmentItems(submissionIdMap.keySet(), assignment.getScaleFactor());
                 List<PeerAssessmentItem> removeItems = new ArrayList<PeerAssessmentItem>();
                 //remove all empty items to start from scratch:
-                for (Iterator iterator = existingItems.iterator(); iterator.hasNext(); ) {
-                    PeerAssessmentItem peerAssessmentItem = (PeerAssessmentItem) iterator.next();
+                for (Iterator<PeerAssessmentItem> iterator = existingItems.iterator(); iterator.hasNext(); ) {
+                    PeerAssessmentItem peerAssessmentItem = iterator.next();
                     if (peerAssessmentItem.getScore() == null && (peerAssessmentItem.getComment() == null || "".equals(peerAssessmentItem.getComment().trim()))) {
                         removeItems.add(peerAssessmentItem);
                         iterator.remove();
                     }
                 }
-                if (removeItems.size() > 0) {
+                if (!removeItems.isEmpty()) {
                     getHibernateTemplate().deleteAll(removeItems);
                     getHibernateTemplate().flush();
                 }
@@ -165,7 +161,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
                         AssignmentSubmission s = submissionIdMap.get(p.getId().getSubmissionId());
                         Optional<AssignmentSubmissionSubmitter> ass = assignmentService.getSubmissionSubmittee(s);//Next, increment the count for studentAssessorsMap
                         String submitterId = assignmentService.getSubmitterIdForAssignment(assignment, ass.get().getSubmitter());
-                        Integer count = ass.isPresent() ? studentAssessorsMap.get(submitterId) : 0;
+                        Integer count = studentAssessorsMap.get(submitterId);
 
                         //check if the count is less than num of reviews before added another one,
                         //otherwise, we need to delete this one (if it's empty)
@@ -200,7 +196,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
                     AssignmentSubmission s = submissionIdMap.get(submissionId);
                     Optional<AssignmentSubmissionSubmitter> ass = assignmentService.getSubmissionSubmittee(s);//first find out how many existing items exist for this user:
                     String studentId = assignmentService.getSubmitterIdForAssignment(assignment, ass.get().getSubmitter());
-                    Integer assignedCount = ass.isPresent() ? studentAssessorsMap.get(studentId) : 0;
+                    Integer assignedCount = studentAssessorsMap.get(studentId);
                     //by creating a tailing list (snake style), we eliminate the issue where you can be stuck with
                     //a submission and the same submission user left, making for uneven distributions of submission reviews
                     List<String> snakeSubmissionList = new ArrayList<String>(randomSubmissionIds.subList(i, randomSubmissionIds.size()));
@@ -230,7 +226,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
                     }
                     i++;
                 }
-                if (newItems.size() > 0) {
+                if (!newItems.isEmpty()) {
                     for (PeerAssessmentItem item : newItems) {
                         getHibernateTemplate().saveOrUpdate(item);
                     }
