@@ -1967,7 +1967,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 
 										String description = edit.getBody();
 										description = ltiService.fixLtiLaunchUrls(description, siteId, ltiContentItems);
-										log.debug("description {}" + description);
+										log.debug("description {}", description);
 										edit.setBody(description);
 
 										// commit the new message without notification
