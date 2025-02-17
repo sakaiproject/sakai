@@ -24,6 +24,8 @@
 		<property name="aliasService"><ref bean="org.sakaiproject.alias.api.AliasService"/></property>
 		<property name="functionManager"><ref bean="org.sakaiproject.authz.api.FunctionManager"/></property>
 		<property name="formattedText" ref="org.sakaiproject.util.api.FormattedText" />
+		<property name="ltiService"><ref bean="org.sakaiproject.lti.api.LTIService" /></property>
+		<property name="contentHostingService"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>
  		<property name="containerTableName"><value>MAILARCHIVE_CHANNEL</value></property>
  		<property name="resourceTableName"><value>MAILARCHIVE_MESSAGE</value></property>
  		<property name="locksInDb"><value>false</value></property>

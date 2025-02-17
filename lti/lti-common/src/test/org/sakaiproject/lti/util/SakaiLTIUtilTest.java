@@ -1030,39 +1030,39 @@ public class SakaiLTIUtilTest {
 	}
 
 	@Test
-	public void testGetLtiLaunchUrlAndSiteId() {
+	public void testGetContentKeyAndSiteId() {
 		// Test standard LTI URL
 		String html1 = "http://localhost:8080/access/lti/site/7d529bf7/content:1";
-		String[] result1 = SakaiLTIUtil.getLtiLaunchUrlAndSiteId(html1);
+		String[] result1 = SakaiLTIUtil.getContentKeyAndSiteId(html1);
 		assertNotNull(result1);
 		assertEquals("7d529bf7", result1[0]);
 		assertEquals("1", result1[1]);
 
 		// Test BLTI URL
 		String html2 = "https://localhost:8080/access/blti/site/abc123def/content:42";
-		String[] result2 = SakaiLTIUtil.getLtiLaunchUrlAndSiteId(html2);
+		String[] result2 = SakaiLTIUtil.getContentKeyAndSiteId(html2);
 		assertNotNull(result2);
 		assertEquals("abc123def", result2[0]);
 		assertEquals("42", result2[1]);
 
 		// Test URL embedded in HTML
 		String html3 = "<p><a href=\"https://localhost:8080/access/lti/site/xyz789/content:99\">Link</a></p>";
-		String[] result3 = SakaiLTIUtil.getLtiLaunchUrlAndSiteId(html3);
+		String[] result3 = SakaiLTIUtil.getContentKeyAndSiteId(html3);
 		assertNotNull(result3);
 		assertEquals("xyz789", result3[0]);
 		assertEquals("99", result3[1]);
 
 		// Test invalid URL
 		String html4 = "http://localhost:8080/access/other/site/invalid/content:1";
-		String[] result4 = SakaiLTIUtil.getLtiLaunchUrlAndSiteId(html4);
+		String[] result4 = SakaiLTIUtil.getContentKeyAndSiteId(html4);
 		assertNull(result4);
 
 		// Test null input
-		String[] result5 = SakaiLTIUtil.getLtiLaunchUrlAndSiteId(null);
+		String[] result5 = SakaiLTIUtil.getContentKeyAndSiteId(null);
 		assertNull(result5);
 
 		// Test empty string
-		String[] result6 = SakaiLTIUtil.getLtiLaunchUrlAndSiteId("");
+		String[] result6 = SakaiLTIUtil.getContentKeyAndSiteId("");
 		assertNull(result6);
 	}
 }

@@ -41,6 +41,7 @@ import java.util.Vector;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
@@ -49,6 +50,8 @@ import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityNotDefinedException;
@@ -70,6 +73,7 @@ import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.javax.Filter;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.message.api.Message;
 import org.sakaiproject.message.api.MessageChannel;
@@ -172,6 +176,10 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 	@Setter protected EntityManager m_entityManager;
 	
 	@Setter protected FormattedText m_formattedText;
+
+	@Setter protected LTIService ltiService;
+
+	@Setter protected ContentHostingService contentHostingService;
 
 	/**
 	 * Access this service from the inner classes.
@@ -335,6 +343,28 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 				+ channelId + Entity.SEPARATOR + id;
 
 	} // messageReference
+
+	/**
+	 * Allows a service extending BaseMessageService to approve a message sender
+	 *
+	 * @param userId
+	 *        The user id of the message sender
+	 * @return true if the message sender is approved, false otherwise
+	 */
+	public boolean importAsDraft() {
+		return m_serverConfigurationService.getBoolean("import.importAsDraft", true);
+	}
+
+	/**
+	 * Allows a service extendingBase MessageService to approve a message sender
+	 *
+	 * @param userId
+	 *        The user id of the message sender
+	 * @return true if the message sender is approved, false otherwise
+	 */
+	public boolean approveMessageSender(String userId) {
+		return false;
+	}
 
 	/**
 	 * Access the internal reference which can be used to access the message from within the system.
@@ -1644,9 +1674,21 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 	/**
 	 * {@inheritDoc}
 	 */
-	public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map attachmentNames, Map userIdTrans,
-			Set userListAllowImport)
+	@Override
+	public String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId, Map<String, String> attachmentNames,
+        Map<Long, Map<String, Object>> ltiContentItems, Map<String, String> userIdTrans, Set<String> userListAllowImport)
 	{
+		// Because of abstract and concrete classes, setters, getters, and dependency injection we double check the services
+		if ( ltiService == null ) {
+			ltiService = ComponentManager.get(LTIService.class);
+		}
+
+		if ( contentHostingService == null ) {
+			contentHostingService = ComponentManager.get(ContentHostingService.class);
+		}
+
+		log.debug("merge ltiService={} contentHostingService={} class={}", ltiService, contentHostingService, this.getClass().getName());
+
 		// get the system name: FROM_WT, FROM_CT, FROM_SAKAI
 		String source = "";
 		// root: <service> node
@@ -1664,9 +1706,8 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		// prepare the buffer for the results log
 		StringBuilder results = new StringBuilder();
 
-		// get the channel associated with this site
+		// get the channel associated with this site (this is overridden in classes that extend BaseMessage)
 		String channelRef = channelReference(siteId, SiteService.MAIN_CONTAINER);
-
 		int count = 0;
 
 		try
@@ -1755,26 +1796,13 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 														{
 															// map the attachment area folder name
 															String oldUrl = element5.getAttribute("relative-url");
-															if (oldUrl.startsWith("/content/attachment/"))
-															{
-																String newUrl = (String) attachmentNames.get(oldUrl);
-																if (newUrl != null)
-																{
-																	if (newUrl.startsWith("/attachment/"))
-																		newUrl = "/content".concat(newUrl);
-
-																	element5.setAttribute("relative-url", Validator
-																			.escapeQuestionMark(newUrl));
-																}
-															}
-
-															// map any references to this site to the new site id
-															else if (oldUrl.startsWith("/content/group/" + fromSiteId + "/"))
-															{
-																String newUrl = "/content/group/" + siteId
-																		+ oldUrl.substring(15 + fromSiteId.length());
-																element5.setAttribute("relative-url", Validator
-																		.escapeQuestionMark(newUrl));
+															String toolTitle = getToolTitle(oldUrl);
+															if ( StringUtils.isBlank(toolTitle) ) toolTitle = "Messages";
+															log.debug("toolTitle: {} oldUrl {}", toolTitle, oldUrl);
+															ContentResource attachment = contentHostingService.copyAttachment(oldUrl, siteId, toolTitle, attachmentNames);
+															if ( attachment != null ) {
+																String newUrl = attachment.getReference();
+																element5.setAttribute("relative-url", Validator.escapeQuestionMark(newUrl));
 															}
 														}
 													}
@@ -1856,7 +1884,6 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 					}
 				}
 			}
-
 			// one more pass to update reply-to (now we have a complte id mapping),
 			// and we are ready then to create the message
 			children2 = root.getChildNodes();
@@ -1915,11 +1942,13 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 												if (!fUserId.equalsIgnoreCase("postmaster")
 														&& !userSet.contains(element4.getAttribute("from")))
 												{
-													goAhead = false;
+													goAhead = approveMessageSender(fUserId);
 												}
-												// TODO: reall want a draft? -ggolden
-												// set draft status based upon property setting
-												if (!m_serverConfigurationService.getBoolean("import.importAsDraft", true))
+												if (importAsDraft())
+												{
+													element4.setAttribute("draft", "true");
+												}
+												else
 												{
 													String draftAttribute = element4.getAttribute("draft");
 													if (draftAttribute.equalsIgnoreCase("true") || draftAttribute.equalsIgnoreCase("false"))
@@ -1927,19 +1956,20 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 													else
 														element4.setAttribute("draft", "true");
 												}
-												else
-												{
-													element4.setAttribute("draft", "true");
-												}
 											}
 										}
 									}
-
 									// merge if ok
 									if (goAhead)
 									{
 										// create a new message in the channel
 										MessageEdit edit = channel.mergeMessage(element3);
+
+										String description = edit.getBody();
+										description = ltiService.fixLtiLaunchUrls(description, siteId, ltiContentItems);
+										log.debug("description {}", description);
+										edit.setBody(description);
+
 										// commit the new message without notification
 										channel.commitMessage(edit, NotificationService.NOTI_NONE);
 										count++;
@@ -1960,6 +1990,25 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		return results.toString();
 
 	} // merge
+
+	/**
+	 * Extract the tool name from an attachment URL path - Can be overridden in the extending classes
+	 * @param url The attachment URL path
+	 * @return The tool name (e.g. "Announcements")
+	 */
+	public String getToolTitle(String url) {
+		if (url == null) return "";
+
+		// Split path on "/" and look for tool name after "attachment" segment
+		// /content/attachment/a54ab888-26d3-43db-bd7e-ff97b6192a76/Announcements/495639a1-dbaf-4855-af0c-9a51dc6db50a/ietf-jon-postel-02.png
+		String[] parts = url.split("/");
+		for (int i = 0; i < parts.length - 1; i++) {
+			if ("attachment".equals(parts[i]) && i + 2 < parts.length) {
+				return parts[i + 2]; // Return the tool name segment
+			}
+		}
+		return "";
+	}
 
 	/**
 	 * Import the synoptic tool options from another site
