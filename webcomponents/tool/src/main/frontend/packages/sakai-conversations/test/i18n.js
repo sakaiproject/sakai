@@ -1,3 +1,6 @@
+export const i18nUrl = /getI18nProperties.*conversations$/;
+
+export const i18n = `
 GOOD_IDEA=Clicking this indicates that you think this is a good idea
 KEY=Clicking this indicates that you think this idea is key to the topic
 LOVE_IT=Clicking this indicates that you love this post or answer
@@ -285,3 +288,4 @@ perm-conversations.comment.delete.own=Delete own comments
 perm-conversations.comment.delete.any=Delete any comment
 perm-conversations.statistics.view=View Statistics
 perm-conversations.anonymous.view=View anonymous authors
+`;

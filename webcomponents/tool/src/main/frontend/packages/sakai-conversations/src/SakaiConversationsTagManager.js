@@ -66,6 +66,12 @@ export class SakaiConversationsTagManager extends SakaiElement {
     .catch (error => console.error(error));
   }
 
+  _cancelTagsCreation() {
+
+    this.querySelector("#tag-creation-field").value = "";
+    this._saveable = false;
+  }
+
   _editTag(e) {
 
     this._tagsBeingEdited.push(parseInt(e.target.dataset.tagId));
@@ -157,30 +163,30 @@ export class SakaiConversationsTagManager extends SakaiElement {
           </div>
         </div>
         <div class="act">
-          <button type="button" class="btn btn-secondary" @click=${this.cancel} ?disabled=${!this._saveable}>${this._i18n.cancel}</button>
+          <button type="button" class="btn btn-secondary" @click=${this._cancelTagsCreation} ?disabled=${!this._saveable}>${this._i18n.cancel}</button>
           <button type="button" class="btn btn-primary" @click=${this._createTags} ?disabled=${!this._saveable}>${this._i18n.add_new_tags}</button>
         </div>
         <div id="current-tags">
           ${this.tags.map(tag => html`
-          <div class="tag-row">
-            <div class="tag-label">${tag.label}</div>
-            <div>
-              <div class="tag-buttons">
-                <input type="button" data-tag-id="${tag.id}" @click=${this._editTag} value="${this._i18n.edit}">
-                <input type="button" data-tag-id="${tag.id}" @click=${this._deleteTag} value="${this._i18n.delete}">
+            <div class="tag-row">
+              <div class="tag-label">${tag.label}</div>
+              <div>
+                <div class="tag-buttons">
+                  <input type="button" data-tag-id="${tag.id}" @click=${this._editTag} value="${this._i18n.edit}">
+                  <input type="button" data-tag-id="${tag.id}" @click=${this._deleteTag} value="${this._i18n.delete}">
+                </div>
               </div>
             </div>
-          </div>
-          ${this._tagsBeingEdited.includes(tag.id) ? html`
-          <div class="add-topic-label">${this._i18n.tag_name}</div>
-          <div class="tag-editor">
-            <div><input id="tag-${tag.id}-editor" type="text" value="${tag.label}"></div>
-            <div class="act">
-              <input type="button" class="active" data-tag-id="${tag.id}" @click=${this._saveTag} value="${this._i18n.save}">
-              <input type="button" data-tag-id="${tag.id}" @click=${this._cancelTagEditing} value="${this._i18n.cancel}">
+            ${this._tagsBeingEdited.includes(tag.id) ? html`
+            <div class="add-topic-label">${this._i18n.tag_name}</div>
+            <div class="tag-editor">
+              <div><input id="tag-${tag.id}-editor" type="text" value="${tag.label}" aria-label="${this._i18n.tag_input_label}"></div>
+              <div class="act">
+                <input type="button" class="active" data-tag-id="${tag.id}" @click=${this._saveTag} value="${this._i18n.save}">
+                <input type="button" data-tag-id="${tag.id}" @click=${this._cancelTagEditing} value="${this._i18n.cancel}">
+              </div>
             </div>
-          </div>
-          ` : nothing }
+            ` : nothing }
           `)}
         </div>
       </div>

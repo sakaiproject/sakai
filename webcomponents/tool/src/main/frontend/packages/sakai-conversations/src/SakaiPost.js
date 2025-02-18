@@ -7,14 +7,14 @@ import "@sakai-ui/sakai-user-photo";
 import "@sakai-ui/sakai-editor/sakai-editor.js";
 import "../sakai-comment.js";
 import "../sakai-comment-editor.js";
-import "@sakai-ui/sakai-icon";
+import "@sakai-ui/sakai-icon/sakai-icon.js";
 
 export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
 
   static properties = {
 
     post: { type: Object },
-    postType: { type: String },
+    postType: { attribute: "post-type", type: String },
     isInstructor: { attribute: "is-instructor", type: Boolean },
     canViewAnonymous: { attribute: "can-view-anonymous", type: Boolean },
     canViewDeleted: { attribute: "can-view-deleted", type: Boolean },
@@ -23,6 +23,7 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
     topicReference: { attribute: "topic-reference", type: String },
     gradingItemId: { attribute: "grading-item-id", type: String },
     maxGradePoints: { attribute: "max-grade-points", type: Number },
+    skipDeleteConfirm: { attribute: "skip-delete-confirm", type: Boolean },
 
     _showingComments: { state: true },
     _expanded: { state: true },
@@ -76,38 +77,11 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
     this._expanded = flattened.filter(p => !p.viewed).length > 0;
   }
 
-  _postReactions() {
-
-    const url = this.post.links.find(l => l.rel === "react").href;
-    fetch(url, {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(this.myReactions),
-    })
-    .then(r => {
-
-      if (r.ok) {
-        return r.json();
-      }
-      throw new Error("Network error while posting reactions");
-
-    })
-    .then(reactionTotals => {
-
-      this.post.myReactions = this.myReactions;
-      this.post.reactionTotals = reactionTotals;
-      this.dispatchEvent(new CustomEvent("post-updated", { detail: { post: this.post }, bubbles: true }));
-    })
-    .catch(error => console.error(error));
-  }
-
   _toggleLocked() {
 
     const url = this.post.links.find(l => l.rel === "lock").href;
     fetch(url, {
       method: "POST",
-      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(!this.post.locked),
     })
@@ -130,7 +104,6 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
     const url = this.post.links.find(l => l.rel === "hide").href;
     fetch(url, {
       method: "POST",
-      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(!this.post.hidden),
     })
@@ -164,7 +137,6 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
     const url = this.post.links.find(l => l.rel === "reply").href;
     fetch(url, {
       method: "POST",
-      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(reply),
     })
@@ -199,7 +171,6 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
 
     const url = this.post.links.find(l => l.rel === "self").href;
     fetch(url, {
-      credentials: "include",
       method: "PUT",
       body: JSON.stringify(this.post),
       headers: { "Content-Type": "application/json" },
@@ -250,14 +221,13 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
 
     if (!this.post.canDelete) return;
 
-    if (!confirm(this._i18n.confirm_post_delete)) {
+    if (!this.skipDeleteConfirm && !confirm(this._i18n.confirm_post_delete)) {
       return;
     }
 
     const url = this.post.links.find(l => l.rel === "delete").href;
     fetch(url, {
       method: "DELETE",
-      credentials: "include",
     })
     .then(r => {
 
@@ -340,7 +310,7 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
 
     return html`
 
-      <div class="d-flex align-items-center flex-wrap">
+      <div class="conv-author-details d-flex align-items-center flex-wrap">
         <div class="fs-6 fw-bold me-2">${this.post.creatorDisplayName}</div>
         ${this.post.isInstructor ? html`
         <div class="post-creator-instructor fw-bold text-uppercase me-2 p-1">${this._i18n.instructor}</div>
@@ -552,7 +522,7 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
 
     return html`
 
-      <div id="discussion-post-block-${this.post.id}" class="d-flex pt-2">
+      <div id="discussion-post-block-${this.post.id}" class="discussion-post-block d-flex pt-2">
 
         <div class="discussion-post-left-column">
           <div class="photo">
@@ -601,6 +571,7 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
                 ${this.post.canReply ? html`
                 <div>
                   <a href="javascript:;"
+                      class="post-reply-button"
                       @click=${this._toggleReplying}
                       aria-label="${this._i18n.reply_tooltip}"
                       title="${this._i18n.reply_tooltip}">
@@ -612,6 +583,7 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
                 <div class="ms-auto text-nowrap">
                   <a href="javascript:;"
                       @click=${this._toggleExpanded}
+                      class="post-replies-toggle"
                       aria-label="${this._expanded ? this._i18n.hide_replies_tooltip : this._i18n.show_replies_tooltip}"
                       title="${this._expanded ? this._i18n.hide_replies_tooltip : this._i18n.show_replies_tooltip}">
                     <div class="post-replies-toggle-block">
@@ -655,7 +627,7 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
             ${this.post.posts && this._expanded ? html`
               ${this.post.posts.map(p => html`
                 <sakai-post
-                    post="${JSON.stringify(p)}"
+                    .post=${p}
                     postType="${this.postType}"
                     site-id="${this.siteId}"
                     ?is-instructor=${this.isInstructor}
@@ -678,8 +650,8 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
     return html`
       <div id="post-${this.post.id}"
           data-post-id="${this.post.id}"
-          class="post ${this.post.isInstructor ? "instructor" : nothing }
-          ${(!this.post.comments || !this.post.comments.length) && !this.post.canComment ? "post-without-comment-block" : nothing }">
+          class="post ${this.post.isInstructor ? "instructor" : "" }
+          ${(!this.post.comments || !this.post.comments.length) && !this.post.canComment ? "post-without-comment-block" : "" }">
 
         <div class="post-topbar align-items-center">
           <div class="photo">
@@ -691,7 +663,7 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
           </div>
           ${this._renderAuthorDetails()}
           ${this.post.late && (this.isInstructor || this.post.isMine) ? html`
-          <div class="discussion-post-late">late</div>
+          <div class="discussion-post-late">${this._i18n.late}</div>
           ` : nothing }
           ${this.post.isInstructor ? html`
           <div class="fw-bold small text-nowrap">${this._i18n.instructors_answer}</div>
@@ -739,7 +711,7 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
 
       <div class="post-comments-block mt-2">
         ${this._showingComments && this.post.comments && this.post.numberOfComments > 0 ? html`
-        <div class="py-2 m-1 ms-2 mt-0">
+        <div class="post-comments-block-inner py-2 m-1 ms-2 mt-0">
         ${this.post.comments.map(c => html`
           <sakai-comment
               comment="${JSON.stringify(c)}"
