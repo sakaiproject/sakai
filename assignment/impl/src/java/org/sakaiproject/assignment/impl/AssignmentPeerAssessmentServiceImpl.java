@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -40,6 +41,7 @@ import org.sakaiproject.assignment.api.AssignmentPeerAssessmentService;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
+import org.sakaiproject.assignment.api.ReferenceReckoner;
 import org.sakaiproject.assignment.api.model.AssessorSubmissionId;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
@@ -52,6 +54,7 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.springframework.orm.hibernate5.HibernateCallback;
@@ -101,83 +104,93 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
      * Method called by the scheduledInvocationManager
      */
     public void execute(String opaqueContext) {
+        Session session = sessionManager.getCurrentSession();
+        session.setUserEid("admin");
+        session.setUserId("admin");
         try {
             //for group assignments, we need to have a user ID, otherwise, an exception is thrown:
-            sessionManager.getCurrentSession().setUserEid("admin");
-            sessionManager.getCurrentSession().setUserId("admin");
             Assignment assignment = assignmentService.getAssignment(opaqueContext);
             if (assignment.getAllowPeerAssessment() && !assignment.getDraft()) {
                 int numOfReviews = assignment.getPeerAssessmentNumberReviews();
                 Set<AssignmentSubmission> submissions = assignmentService.getSubmissions(assignment);
                 //keep a map of submission ids to look up possible existing peer assessments
-                Map<String, AssignmentSubmission> submissionIdMap = new HashMap<String, AssignmentSubmission>();
+                Map<String, AssignmentSubmission> submissionIdMap = new HashMap<>();
                 //keep track of who has been assigned an assessment
-                Map<String, Map<String, PeerAssessmentItem>> assignedAssessmentsMap = new HashMap<String, Map<String, PeerAssessmentItem>>();
+                Map<String, Map<String, PeerAssessmentItem>> assignedAssessmentsMap = new HashMap<>();
                 //keep track of how many assessor's each student has
-                Map<String, Integer> studentAssessorsMap = new HashMap<String, Integer>();
-                List<User> submitterUsersList = assignmentService.allowAddSubmissionUsers(assignmentService.createAssignmentEntity(assignment.getId()).getReference());
-                Set<String> submitterIdsList = new HashSet<String>();
-                if (submitterUsersList != null) {
-                    for (User u : submitterUsersList) {
-                        String submitterId = assignmentService.getSubmitterIdForAssignment(assignment, u.getId());
-                        submitterIdsList.add(submitterId);
-                    }
-                }
-                //loop through the assignment submissions and setup the maps and lists
+                Map<String, Integer> studentAssessorsMap = new HashMap<>();
+                String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+
+                // this list is either a list of user id's or group id's for an assignment
+                Set<String> submitterIdsList = assignmentService.allowAddSubmissionUsers(assignmentReference).stream()
+                        .map(u -> assignmentService.getSubmitterIdForAssignment(assignment, u.getId()))
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toUnmodifiableSet());
+
+                // loop through the assignment submissions and setup the maps and lists
                 for (AssignmentSubmission s : submissions) {
-                    Optional<AssignmentSubmissionSubmitter> ass = assignmentService.getSubmissionSubmittee(s);
-                    List<String> submitteeIds = s.getSubmitters().stream().map(AssignmentSubmissionSubmitter::getSubmitter).collect(Collectors.toList());
-                    String submitterId = ass.isPresent() ? assignmentService.getSubmitterIdForAssignment(assignment, ass.get().getSubmitter()) : "";
-                    //check if the submission is submitted, if not, see if there is any submission data to review (i.e. draft was auto submitted)
-                    if (s.getDateSubmitted() != null && (s.getSubmitted() || (StringUtils.isNotBlank(s.getSubmittedText() ) || (CollectionUtils.isNotEmpty(s.getAttachments() ))))
-                            && (CollectionUtils.containsAny(submitterIdsList, submitteeIds) || (assignment.getIsGroup() && submitterIdsList.contains(submitterId)))) {
-                        //only deal with users in the submitter's list
+                    List<String> submitterIds = new ArrayList<>();
+                    if (assignment.getIsGroup()) {
+                        submitterIds.add(s.getGroupId());
+                    } else {
+                        submitterIds = s.getSubmitters().stream()
+                                .map(AssignmentSubmissionSubmitter::getSubmitter)
+                                .filter(Objects::nonNull)
+                                .collect(Collectors.toList());
+                    }
+
+                    // check if the submission is submitted, if not, see if there is any submission data to review (i.e. draft was auto submitted)
+                    if (s.getDateSubmitted() != null
+                            && (s.getSubmitted() || (StringUtils.isNotBlank(s.getSubmittedText()) || (CollectionUtils.isNotEmpty(s.getAttachments() ))))
+                            && (CollectionUtils.containsAny(submitterIdsList, submitterIds))) {
                         submissionIdMap.put(s.getId(), s);
-                        if (ass.isPresent()) {
-                            assignedAssessmentsMap.put(submitterId, new HashMap<>());
-                            studentAssessorsMap.put(submitterId, 0);
-                        }
+                        submitterIds.forEach(submitterId -> assignedAssessmentsMap.computeIfAbsent(submitterId, k -> new HashMap<>()));
                     }
                 }
-                //this could be an update to an existing assessment... just make sure to grab any existing review items first
+
+                // this could be an update to an existing assessment... just make sure to grab any existing review items first
                 List<PeerAssessmentItem> existingItems = getPeerAssessmentItems(submissionIdMap.keySet(), assignment.getScaleFactor());
-                List<PeerAssessmentItem> removeItems = new ArrayList<PeerAssessmentItem>();
-                //remove all empty items to start from scratch:
-                for (Iterator<PeerAssessmentItem> iterator = existingItems.iterator(); iterator.hasNext(); ) {
-                    PeerAssessmentItem peerAssessmentItem = iterator.next();
-                    if (peerAssessmentItem.getScore() == null && (peerAssessmentItem.getComment() == null || "".equals(peerAssessmentItem.getComment().trim()))) {
-                        removeItems.add(peerAssessmentItem);
-                        iterator.remove();
-                    }
-                }
-                if (!removeItems.isEmpty()) {
-                    getHibernateTemplate().deleteAll(removeItems);
-                    getHibernateTemplate().flush();
-                }
-                //loop through the items and update the map values:
+                List<PeerAssessmentItem> removeItems = new ArrayList<>();
+                // screen existing items which have no score or comments
+                existingItems.stream()
+                        .filter(item -> item.getScore() == null && (StringUtils.isBlank(item.getComment())))
+                        .forEach(removeItems::add);
+                existingItems.removeAll(removeItems);
+
+                // loop through the items and update the map values
                 for (PeerAssessmentItem p : existingItems) {
-                    if (submissionIdMap.containsKey(p.getId().getSubmissionId())) {
-                        //first, add this assessment to the AssignedAssessmentsMap
-                        AssignmentSubmission s = submissionIdMap.get(p.getId().getSubmissionId());
-                        Optional<AssignmentSubmissionSubmitter> ass = assignmentService.getSubmissionSubmittee(s);//Next, increment the count for studentAssessorsMap
-                        String submitterId = assignmentService.getSubmitterIdForAssignment(assignment, ass.get().getSubmitter());
-                        Integer count = studentAssessorsMap.get(submitterId);
+                    String submissionId = p.getId().getSubmissionId();
+                    if (submissionIdMap.containsKey(submissionId)) {
+                        // first, add this assessment to the AssignedAssessmentsMap
+                        AssignmentSubmission s = submissionIdMap.get(submissionId);
+                        String submitterId;
+                        if (assignment.getIsGroup()) {
+                            submitterId = s.getGroupId();
+                        } else {
+                            Optional<AssignmentSubmissionSubmitter> submittee =  assignmentService.getSubmissionSubmittee(s);
+                            if (submittee.isPresent()) {
+                                submitterId = submittee.get().getSubmitter();
+                            } else {
+                                log.warn("submitter is missing for submission [{}]", s.getId());
+                                removeItems.add(p);
+                                continue;
+                            }
+                        }
+
+                        // next, increment the count for studentAssessorsMap
+                        Integer count = studentAssessorsMap.computeIfAbsent(submitterId, k -> 0);
 
                         //check if the count is less than num of reviews before added another one,
                         //otherwise, we need to delete this one (if it's empty)
-                        if (count < numOfReviews || p.getScore() != null || p.getComment() != null) {
+                        if (count < numOfReviews || p.getScore() != null || StringUtils.isNotBlank(p.getComment())) {
                             count++;
                             studentAssessorsMap.put(submitterId, count);
-                            Map<String, PeerAssessmentItem> peerAssessments = assignedAssessmentsMap.get(p.getId().getAssessorUserId());
-                            if (peerAssessments == null) {
-                                //probably not possible, but just check
-                                peerAssessments = new HashMap<String, PeerAssessmentItem>();
-                            }
+                            Map<String, PeerAssessmentItem> peerAssessments = assignedAssessmentsMap.computeIfAbsent(p.getId().getAssessorUserId(), k -> new HashMap<>());
                             peerAssessments.put(p.getId().getSubmissionId(), p);
                             assignedAssessmentsMap.put(p.getId().getAssessorUserId(), peerAssessments);
                         } else {
-                            //this shoudln't happen since the code above removes all empty assessments, but just in case:
-                            getHibernateTemplate().delete(p);
+                            // this should never arrive here since code above removes all empty assessments, but just in case
+                            removeItems.add(p);
                         }
                     } else {
                         //this isn't realy possible since we looked up the peer assessments by submission id
@@ -185,32 +198,46 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
                     }
                 }
 
-                //ok now that we have any existing assigned reviews accounted for, let's make sure that the number of reviews is setup properly,
-                //if not, add some
-                //let's get a random order of submission IDs so we can have a random assigning algorithm
-                List<String> randomSubmissionIds = new ArrayList<String>(submissionIdMap.keySet());
+                // remove items
+                if (!removeItems.isEmpty()) {
+                    getHibernateTemplate().deleteAll(removeItems);
+                    getHibernateTemplate().flush();
+                    existingItems.removeAll(removeItems);
+                }
+
+                // now that existing assigned reviews are accounted for
+                // ensure that the number of reviews are set up properly, creating any that are needed
+
+                // randomize the submission id's in order to have a random assigning algorithm
+                List<String> randomSubmissionIds = new ArrayList<>(submissionIdMap.keySet());
                 Collections.shuffle(randomSubmissionIds);
-                List<PeerAssessmentItem> newItems = new ArrayList<PeerAssessmentItem>();
+                List<PeerAssessmentItem> newItems = new ArrayList<>();
                 int i = 0;
                 for (String submissionId : randomSubmissionIds) {
                     AssignmentSubmission s = submissionIdMap.get(submissionId);
-                    Optional<AssignmentSubmissionSubmitter> ass = assignmentService.getSubmissionSubmittee(s);//first find out how many existing items exist for this user:
-                    String studentId = assignmentService.getSubmitterIdForAssignment(assignment, ass.get().getSubmitter());
-                    Integer assignedCount = studentAssessorsMap.get(studentId);
-                    //by creating a tailing list (snake style), we eliminate the issue where you can be stuck with
-                    //a submission and the same submission user left, making for uneven distributions of submission reviews
-                    List<String> snakeSubmissionList = new ArrayList<String>(randomSubmissionIds.subList(i, randomSubmissionIds.size()));
+
+                    String submitterId = null;
+                    if (assignment.getIsGroup()) {
+                        submitterId = s.getGroupId();
+                    } else {
+                       Optional<AssignmentSubmissionSubmitter> submittee = assignmentService.getSubmissionSubmittee(s);
+                       if (submittee.isPresent()) {
+                           submitterId = submittee.get().getSubmitter();
+                       }
+                    }
+                    Integer assignedCount = studentAssessorsMap.computeIfAbsent(submitterId, k -> 0);
+
+                    // by creating a tailing list (snake style), we eliminate the issue where you can be stuck with
+                    // a submission and the same submission user left, making for uneven distributions of submission reviews
+                    List<String> snakeSubmissionList = new ArrayList<>(randomSubmissionIds.subList(i, randomSubmissionIds.size()));
                     if (i > 0) {
-                        snakeSubmissionList.addAll(new ArrayList<String>(randomSubmissionIds.subList(0, i)));
+                        snakeSubmissionList.addAll(new ArrayList<>(randomSubmissionIds.subList(0, i)));
                     }
                     while (assignedCount < numOfReviews) {
-                        //we need to add more reviewers for this user's submission
-                        String lowestAssignedAssessor = findLowestAssignedAssessor(assignedAssessmentsMap, studentId, submissionId, snakeSubmissionList, submissionIdMap);
+                        // need to add more reviewers for this user's submission
+                        String lowestAssignedAssessor = findLowestAssignedAssessor(assignedAssessmentsMap, submitterId, submissionId, snakeSubmissionList, submissionIdMap);
                         if (lowestAssignedAssessor != null) {
-                            Map<String, PeerAssessmentItem> assessorsAssessmentMap = assignedAssessmentsMap.get(lowestAssignedAssessor);
-                            if (assessorsAssessmentMap == null) {
-                                assessorsAssessmentMap = new HashMap<String, PeerAssessmentItem>();
-                            }
+                            Map<String, PeerAssessmentItem> assessorsAssessmentMap = assignedAssessmentsMap.computeIfAbsent(lowestAssignedAssessor, k -> new HashMap<>());
                             PeerAssessmentItem newItem = new PeerAssessmentItem();
                             newItem.setId(new AssessorSubmissionId(submissionId, lowestAssignedAssessor));
                             newItem.setAssignmentId(assignment.getId());
@@ -219,7 +246,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
                             assignedAssessmentsMap.put(lowestAssignedAssessor, assessorsAssessmentMap);
                             //update this submission user's count:
                             assignedCount++;
-                            studentAssessorsMap.put(submissionId, assignedCount);
+                            studentAssessorsMap.put(submitterId, assignedCount);
                         } else {
                             break;
                         }
@@ -232,11 +259,12 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
                     }
                 }
             }
-        } catch (IdUnusedException | PermissionException e) {
-            log.error(e.getMessage(), e);
+        } catch (Exception e) {
+            log.error("Assignments peer review submission/assessor config", e);
         } finally {
-            sessionManager.getCurrentSession().setUserEid(null);
-            sessionManager.getCurrentSession().setUserId(null);
+            session.clear();
+            session.setUserEid(null);
+            session.setUserId(null);
         }
     }
 
