@@ -37,6 +37,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -1997,14 +1999,14 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 	public String getToolTitle(String url) {
 		if (url == null) return "";
 
-		// Split path on "/" and look for tool name after "attachment" segment
-		// /content/attachment/a54ab888-26d3-43db-bd7e-ff97b6192a76/Announcements/495639a1-dbaf-4855-af0c-9a51dc6db50a/ietf-jon-postel-02.png
-		String[] parts = url.split("/");
-		for (int i = 0; i < parts.length - 1; i++) {
-			if ("attachment".equals(parts[i]) && i + 2 < parts.length) {
-				return parts[i + 2]; // Return the tool name segment
-			}
+		// Match pattern: /content/attachment/{uuid}/{toolName}/{...}
+		Pattern pattern = Pattern.compile("/content/attachment/[^/]+/([^/]+)/.*");
+		Matcher matcher = pattern.matcher(url);
+
+		if (matcher.matches()) {
+			return matcher.group(1); // Return the captured tool name
 		}
+
 		return "";
 	}
 
