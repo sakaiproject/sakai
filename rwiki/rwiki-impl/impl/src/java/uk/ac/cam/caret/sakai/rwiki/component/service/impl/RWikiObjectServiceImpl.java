@@ -948,9 +948,6 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	public String archive(String siteId, Document doc, Stack stack,
 			String archivePath, List attachments)
 	{
-
-		// TODO Permissions ?
-
 		// prepare the buffer for the results log
 		StringBuffer results = new StringBuffer();
 		results.append(Messages.getString("RWikiObjectServiceImpl.32")).append(siteId).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -961,10 +958,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 		try
 		{
 			String defaultRealm = siteService.getSite(siteId).getReference();
-
-			wikiSecurityService
-					.checkAdminPermission(RWikiObjectService.REFERENCE_ROOT
-							+ defaultRealm);
+			
 			// start with an element with our very own name
 			Element element = doc.createElement(APPLICATION_ID);
 			((Element) stack.peek()).appendChild(element);
@@ -1051,10 +1045,6 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 		try
 		{
 			String defaultRealm = siteService.getSite(siteId).getReference();
-
-			wikiSecurityService
-					.checkAdminPermission(RWikiObjectService.REFERENCE_ROOT
-							+ defaultRealm);
 
 			NodeList children = root.getChildNodes();
 			final int length = children.getLength();
