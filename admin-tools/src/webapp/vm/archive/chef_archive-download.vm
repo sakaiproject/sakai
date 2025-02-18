@@ -153,54 +153,51 @@
 	#end
 </div>
 
-#literal()
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    var table = document.getElementById('archiveTable');
+    const table = document.getElementById('archiveTable');
     if (!table) return;
 
-    var headers = table.querySelectorAll('th.sortable');
-    headers.forEach(function(th) {
-      th.classList.add('cursor-pointer');
-    });
+    const headers = table.querySelectorAll('th.sortable');
+    headers.forEach(th => th.classList.add('cursor-pointer'));
 
-    var currentSort = { column: null, asc: true };
+    let currentSort = { column: null, asc: true };
 
-    headers.forEach(function(th, colIndex) {
-      th.addEventListener('click', function() {
-        var type = th.dataset.sort;
+    headers.forEach((th, colIndex) => {
+      th.addEventListener('click', () => {
+        const type = th.dataset.sort;
         currentSort = currentSort.column === colIndex
           ? { column: colIndex, asc: !currentSort.asc }
           : { column: colIndex, asc: true };
 
-        table.querySelectorAll('th i').forEach(function(icon) {
+        table.querySelectorAll('th i').forEach(icon => {
           icon.className = 'bi bi-arrow-down-up ms-2';
         });
 
-        var icon = th.querySelector('i');
+        const icon = th.querySelector('i');
         if (icon) {
           icon.className = 'bi bi-arrow-' + (currentSort.asc ? 'up' : 'down') + ' ms-2';
         }
 
-        var tbody = table.querySelector('tbody');
+        const tbody = table.querySelector('tbody');
         if (!tbody) return;
-        var rows = Array.from(tbody.querySelectorAll('tr'));
+        const rows = Array.from(tbody.querySelectorAll('tr'));
 
-        rows.sort(function(a, b) {
-          var cellA = (a.cells[colIndex] && a.cells[colIndex].textContent.trim()) || '';
-          var cellB = (b.cells[colIndex] && b.cells[colIndex].textContent.trim()) || '';
-          var cmp = 0;
+        rows.sort((a, b) => {
+          const cellA = (a.cells[colIndex] && a.cells[colIndex].textContent.trim()) || '';
+          const cellB = (b.cells[colIndex] && b.cells[colIndex].textContent.trim()) || '';
+          let cmp = 0;
 
           if (type === 'date') {
             cmp = new Date(cellA) - new Date(cellB);
           } else if (type === 'size') {
-            var sizes = { 'B': 1, 'KB': 1024, 'MB': 1024 * 1024, 'GB': 1024 * 1024 * 1024 };
-            var aValParts = cellA.split(' ');
-            var bValParts = cellB.split(' ');
-            var aVal = aValParts[0];
-            var bVal = bValParts[0];
-            var aUnit = aValParts[1] || 'B';
-            var bUnit = bValParts[1] || 'B';
+            const sizes = { B: 1, KB: 1024, MB: 1024 * 1024, GB: 1024 * 1024 * 1024 };
+            const aValParts = cellA.split(' ');
+            const bValParts = cellB.split(' ');
+            const aVal = aValParts[0];
+            const bVal = bValParts[0];
+            const aUnit = aValParts[1] || 'B';
+            const bUnit = bValParts[1] || 'B';
             cmp = parseFloat(aVal) * (sizes[aUnit] || 0) - parseFloat(bVal) * (sizes[bUnit] || 0);
           } else {
             cmp = cellA.localeCompare(cellB, undefined, { numeric: true, sensitivity: 'base' });
@@ -208,11 +205,8 @@
           return currentSort.asc ? cmp : -cmp;
         });
 
-        rows.forEach(function(row) {
-          tbody.appendChild(row);
-        });
+        rows.forEach(row => tbody.appendChild(row));
       });
     });
   });
 </script>
-#end
