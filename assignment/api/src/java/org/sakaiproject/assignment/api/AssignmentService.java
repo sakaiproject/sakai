@@ -745,8 +745,11 @@ public interface AssignmentService extends EntityProducer {
     public String getMaxPointGradeDisplay(int factor, int maxGradePoint);
 
     /**
-     * @param submission
-     * @return
+     * Finds the submitter for this submission. This will check the submittee field if there are multiple submitters
+     * in the case of groups submissions.
+     *
+     * @param submission to check
+     * @return an Optional that contains the submitter if one exists
      */
     public Optional<AssignmentSubmissionSubmitter> getSubmissionSubmittee(AssignmentSubmission submission);
 
