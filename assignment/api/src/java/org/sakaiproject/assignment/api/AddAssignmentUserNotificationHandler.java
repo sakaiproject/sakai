@@ -18,6 +18,7 @@ package org.sakaiproject.assignment.api;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -42,6 +43,8 @@ import org.sakaiproject.messaging.api.AbstractUserNotificationHandler;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -66,6 +69,9 @@ public class AddAssignmentUserNotificationHandler extends AbstractUserNotificati
 
     @Resource
     private SiteService siteService;
+
+    @Resource
+    private UserDirectoryService userDirectoryService;
 
     @Override
     public List<String> getHandledEvents() {
@@ -113,9 +119,12 @@ public class AddAssignmentUserNotificationHandler extends AbstractUserNotificati
             Set<String> groupIds = assignment.getGroups();
             Collection<String> groupsUsers = authzGroupService.getAuthzUsersInGroups(groupIds);
             // Get all the members of the site with read ability
-            for (String to : site.getUsersIsAllowed(SECURE_ACCESS_ASSIGNMENT)) {
+            Set<String> asnUsers = site.getUsersIsAllowed(SECURE_ACCESS_ASSIGNMENT);
+            List<User> validUsers = userDirectoryService.getUsers(asnUsers);
+            for (User u : validUsers) {
+                String to = u.getId();
                 //  If this is a grouped assignment, is 'to' in one of the groups?
-                if (groupIds.size() == 0 || groupsUsers.contains(to)) {
+                if (groupIds.isEmpty() || groupsUsers.contains(to)) {
                     if (!from.equals(to) && !securityService.isSuperUser(to)) {
                         String url = assignmentService.getDeepLink(siteId, assignmentId, to);
                         bhEvents.add(new UserNotificationData(from, to, siteId, title, url));
@@ -150,7 +159,9 @@ public class AddAssignmentUserNotificationHandler extends AbstractUserNotificati
             // Access has moved from group to site, notify all the site members. This may result in more than one
             // alert for the same assignment, but it keeps the logic and db queries simpler.
             String title = assignment.getTitle();
-            for (String to : users) {
+            List<User> validUsers = userDirectoryService.getUsers(users);
+            for (User u : validUsers) {
+                String to = u.getId();
                 if (!from.equals(to) && !securityService.isSuperUser(to)) {
                     String url = assignmentService.getDeepLink(siteId, assignmentId, to);
                     bhEvents.add(new UserNotificationData(from, to, siteId, title, url));
@@ -162,7 +173,9 @@ public class AddAssignmentUserNotificationHandler extends AbstractUserNotificati
 
             // Now fire the alert for all the groups users, just in case a group has been added, with a new set of users
             String title = assignment.getTitle();
-            for (String to : groupsUsers) {
+            List<User> validUsers = userDirectoryService.getUsers(groupsUsers);
+            for (User u : validUsers) {
+                String to = u.getId();
                 if (!from.equals(to) && !securityService.isSuperUser(to)) {
                     String url = assignmentService.getDeepLink(siteId, assignmentId, to);
                     bhEvents.add(new UserNotificationData(from, to, siteId, title, url));

@@ -11306,11 +11306,6 @@ public class AssignmentAction extends PagedResourceActionII {
      * @return
      */
     public boolean saveReviewGradeForm(RunData data, SessionState state, String gradeOption) {
-        String assessorUserId = userDirectoryService.getCurrentUser().getId();
-        if (state.getAttribute(PEER_ASSESSMENT_ASSESSOR_ID) != null && !assessorUserId.equals(state.getAttribute(PEER_ASSESSMENT_ASSESSOR_ID))) {
-            //this is only set during the read only view, so just return
-            return false;
-        }
 
 	    boolean preExistingAlerts = state.getAttribute(STATE_MESSAGE) != null;
 
@@ -11321,6 +11316,15 @@ public class AssignmentAction extends PagedResourceActionII {
             if (s != null) {
                 submissionId = s.getId();//using the id instead of the reference
             }
+
+            Assignment assignment = s.getAssignment();
+            String assessorUserId = assignmentService.getSubmitterIdForAssignment(assignment, userDirectoryService.getCurrentUser());
+
+            if (state.getAttribute(PEER_ASSESSMENT_ASSESSOR_ID) != null && !state.getAttribute(PEER_ASSESSMENT_ASSESSOR_ID).equals(assessorUserId)) {
+                //this is only set during the read only view, so just return
+                return false;
+            }
+
 
             //call the DB to make sure this user can edit this assessment, otherwise it wouldn't exist
             PeerAssessmentItem item = assignmentPeerAssessmentService.getPeerAssessmentItem(submissionId, assessorUserId);
