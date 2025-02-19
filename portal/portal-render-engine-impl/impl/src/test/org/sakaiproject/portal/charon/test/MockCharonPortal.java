@@ -307,7 +307,6 @@ public class MockCharonPortal extends HttpServlet
 		rcontext.put("pageNavPublished", Boolean.valueOf(true));
 		rcontext.put("pageNavType", "type");
 		rcontext.put("pageNavIconUrl", "iconUrl");
-		rcontext.put("helpMenuClass", "HelpMenuClass");
 		// rcontext.put("pageNavSitToolsHead", "sit_toolshead");
 
 		List l = new ArrayList();
@@ -335,11 +334,6 @@ public class MockCharonPortal extends HttpServlet
 		l.add(m);
 		rcontext.put("pageNavTools", l);
 
-		rcontext.put("pageNavShowHelp", Boolean.valueOf(true));
-		rcontext.put("pageNavHelpUrl", "helpUrl");
-		// rcontext.put("pageNavSitHelp", "sit_help");
-
-		rcontext.put("pageNavToolsCount", l.size());
 		rcontext.put("pageNavShowPresenceLoggedIn", Boolean.valueOf(true));
 		rcontext.put("pageNavPresenceUrl", "presenceUrl");
                 rcontext.put("sakaiPresenceTimeDelay", Integer.valueOf(3000));

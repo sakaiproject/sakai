@@ -83,8 +83,10 @@ import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.memory.api.SimpleConfiguration;
 import org.sakaiproject.site.api.Group;
+import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeRange;
@@ -92,11 +94,14 @@ import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionBindingEvent;
 import org.sakaiproject.tool.api.SessionBindingListener;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.*;
 import org.sakaiproject.util.cover.LinkMigrationHelper;
+
+import org.sakaiproject.assignment.api.AssignmentServiceConstants;
+import org.sakaiproject.api.app.messageforums.DiscussionForumService;
+import org.sakaiproject.samigo.util.SamigoConstants;
 
 /**
  * <p>
@@ -127,14 +132,26 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
    
    	private static final ResourceLoader rb = new ResourceLoader("calendar");
    
-	@Setter
-   	private ContentHostingService contentHostingService;
-
-	@Setter
-	private CourseManagementService courseManagementService;
-
-	@Setter
-   	private ExternalCalendarSubscriptionService externalCalendarSubscriptionService;
+	@Setter private ContentHostingService contentHostingService;
+	@Setter private CourseManagementService courseManagementService;
+	@Setter private ExternalCalendarSubscriptionService externalCalendarSubscriptionService;
+	@Setter private LTIService ltiService;
+	@Setter protected SessionManager sessionManager;
+	@Setter protected TimeService timeService;
+	@Setter protected ToolManager toolManager;
+	@Setter protected UserDirectoryService userDirectoryService;
+	@Setter protected UsageSessionService usageSessionService;
+	@Setter protected EntityManager entityManager;
+	@Setter protected ServerConfigurationService serverConfigurationService;
+	@Setter protected AliasService aliasService;
+	@Setter protected SiteService siteService;
+	@Setter protected MemoryService memoryService;
+	@Setter protected IdManager idManager;
+	@Setter protected SecurityService securityService;
+	@Setter protected AuthzGroupService authzGroupService;
+	@Setter protected FunctionManager functionManager;
+	@Setter protected EventTrackingService eventTrackingService;
+	@Setter protected OpaqueUrlDao opaqueUrlDao;
 
    	private PDFExportService pdfExportService;
 
@@ -170,7 +187,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	 */
 	protected String getAccessPoint(boolean relative)
 	{
-		return (relative ? "" : m_serverConfigurationService.getAccessUrl()) + m_relativeAccessPoint;
+		return (relative ? "" : serverConfigurationService.getAccessUrl()) + m_relativeAccessPoint;
 
 	} // getAccessPoint
 
@@ -188,7 +205,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		if (lock.equals(AUTH_READ_CALENDAR) &&  getExportEnabled(reference))
 			return true;
 
-		return m_securityService.unlock(lock, reference);
+		return securityService.unlock(lock, reference);
 	} // unlockCheck
 
 	/**
@@ -204,7 +221,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	protected void unlock(String lock, String reference) throws PermissionException
 	{
 		if (!unlockCheck(lock, reference))
-			throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), lock, reference);
+			throw new PermissionException(sessionManager.getCurrentSessionUserId(), lock, reference);
 
 	} // unlock
 
@@ -229,7 +246,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
       String context = ref.getContext();
       String id = ref.getId();
       String alias = null;
-      List aliasList =  m_aliasService.getAliases( ref.getReference() );
+      List aliasList =  aliasService.getAliases( ref.getReference() );
       
       if ( ! aliasList.isEmpty() )
          alias = ((Alias)aliasList.get(0)).getId();
@@ -428,7 +445,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			allRefs.add(calendarReference((String) options.get(EventFilterKey.SITE), SiteService.MAIN_CONTAINER));
 		} else {
 			// First, grab calendar references for all the project sites
-			allRefs = m_siteService.getSites(SiteService.SelectionType.ACCESS, "project", null, null, null, null)
+			allRefs = siteService.getSites(SiteService.SelectionType.ACCESS, "project", null, null, null, null)
 				.stream()
 				.map(s -> calendarReference(s.getId(), SiteService.MAIN_CONTAINER))
 				.collect(Collectors.toList());
@@ -439,7 +456,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			allRefs.addAll(courseManagementService.getCurrentAcademicSessions().stream().map(as -> {
 
 					propCrit.put(Site.PROP_SITE_TERM, as.getTitle());
-					return m_siteService.getSiteIds(SiteService.SelectionType.ACCESS, "course", null, propCrit, null, null).stream()
+					return siteService.getSiteIds(SiteService.SelectionType.ACCESS, "course", null, propCrit, null, null).stream()
 						.map(id -> calendarReference(id, SiteService.MAIN_CONTAINER))
 						.collect(Collectors.toList());
 				}).flatMap(Collection::stream).collect(Collectors.toList()));
@@ -448,14 +465,14 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		int daysLimit = getUpcomingDaysLimit();
 		Instant now = Instant.now();
 		Instant end = now.plus(daysLimit, ChronoUnit.DAYS);
-		TimeRange range = m_timeService.newTimeRange(m_timeService.newTime(now.toEpochMilli()), m_timeService.newTime(end.toEpochMilli()), true, true);
+		TimeRange range = timeService.newTimeRange(timeService.newTime(now.toEpochMilli()), timeService.newTime(end.toEpochMilli()), true, true);
 
 		Integer eventsLimitPerCalendar = (Integer) options.get(EventFilterKey.LIMIT);
 		return new ArrayList<>(getEvents(allRefs, range, false, eventsLimitPerCalendar));
 	}
 
 	public int getUpcomingDaysLimit() {
-		return m_serverConfigurationService.getInt("calendar.upcoming_days_limit", 60);
+		return serverConfigurationService.getInt("calendar.upcoming_days_limit", 60);
 	}
 
 	/**
@@ -476,227 +493,11 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	 */
 	protected String getUniqueId()
 	{
-		return m_idManager.createUuid();
+		return idManager.createUuid();
 	}
-
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Constructors, Dependencies and their setter methods
-	 *********************************************************************************************************************************************************************************************************************************************************/
-
-	/** Dependency: MemoryService. */
-	protected MemoryService m_memoryService = null;
-
-	/**
-	 * Dependency: MemoryService.
-	 * 
-	 * @param service
-	 *        The MemoryService.
-	 */
-	public void setMemoryService(MemoryService service)
-	{
-		m_memoryService = service;
-	}
-
-	/** Dependency: IdManager. */
-	protected IdManager m_idManager = null;
-
-	/**
-	 * Dependency: IdManager.
-	 * 
-	 * @param manager
-	 *        The IdManager.
-	 */
-	public void setIdManager(IdManager manager)
-	{
-		m_idManager = manager;
-	}
-
-	/** Dependency: EntityManager. */
-	protected EntityManager m_entityManager = null;
-
-	/**
-	 * Dependency: EntityManager.
-	 * 
-	 * @param service
-	 *        The EntityManager.
-	 */
-	public void setEntityManager(EntityManager service)
-	{
-		m_entityManager = service;
-	}
-
-	/** Dependency: ServerConfigurationService. */
-	protected ServerConfigurationService m_serverConfigurationService = null;
-
-	/**
-	 * Dependency: ServerConfigurationService.
-	 * 
-	 * @param service
-	 *        The ServerConfigurationService.
-	 */
-	public void setServerConfigurationService(ServerConfigurationService service)
-	{
-		m_serverConfigurationService = service;
-	}
-
-	/** Dependency: AliasService. */
-	protected AliasService m_aliasService = null;
-
-	/** Dependency: SiteService. */
-	protected SiteService m_siteService = null;
-
-	/** Dependency: AuthzGroupService */
-	protected AuthzGroupService m_authzGroupService = null;
-
-	/** Dependency: FunctionManager */
-	protected FunctionManager m_functionManager = null;
-
-	/** Dependency: SecurityService */
-	protected SecurityService m_securityService = null;
-	
-	/** Dependency: EventTrackingService */
-	protected EventTrackingService m_eventTrackingService = null;
-
-	/** Depedency: SessionManager */
-	protected SessionManager m_sessionManager = null;
-
-	/** Dependency: TimeService */
-	protected TimeService m_timeService = null;
-
-	/** Dependency: ToolManager */
-	protected ToolManager m_toolManager = null;
-
-	/** Dependency: UserDirectoryService */
-	protected UserDirectoryService m_userDirectoryService = null;
-
-	/** Dependency: UsageSessionService */
-	protected UsageSessionService m_usageSessionService = null;
-
-	/** Dependency: OpaqueUrlDao */
-	protected OpaqueUrlDao m_opaqueUrlDao = null;
 
 	/** A map of services used in SAX serialization */
 	private Map<String, Object> m_services;
-
-	/**
-	 * Dependency: AliasService.
-	 * 
-	 * @param service
-	 *        The AliasService.
-	 */
-	public void setAliasService(AliasService service)
-	{
-		m_aliasService = service;
-	}
-
-	/**
-	 * Dependency: SiteService.
-	 * 
-	 * @param service
-	 *        The SiteService.
-	 */
-	public void setSiteService(SiteService service)
-	{
-		m_siteService = service;
-	}
-
-	/**
-	 * Dependency: AuthzGroupService.
-	 * 
-	 * @param authzGroupService
-	 *        The AuthzGroupService.
-	 */
-	public void setAuthzGroupService(AuthzGroupService authzGroupService)
-	{
-		m_authzGroupService = authzGroupService;
-	}
-
-	/**
-	 * Dependency: FunctionManager.
-	 * 
-	 * @param functionManager
-	 *        The FunctionManager.
-	 */
-	public void setFunctionManager(FunctionManager functionManager)
-	{
-		m_functionManager = functionManager;
-	}
-
-	/**
-	 * Dependency: SecurityService.
-	 * 
-	 * @param securityService
-	 *        The SecurityService.
-	 */
-	public void setSecurityService(SecurityService securityService)
-	{
-		m_securityService = securityService;
-	}
-	
-
-	/**
-	 * Dependency: EventTrackingService.
-	 * @param eventTrackingService
-	 *        The EventTrackingService.
-	 */
-	public void setEventTrackingService(EventTrackingService eventTrackingService)
-	{
-		this.m_eventTrackingService = eventTrackingService;
-	}
-
-	/**
-	 * Dependency: SessionManager.
-	 * @param sessionManager
-	 *        The SessionManager.
-	 */
-	public void setSessionManager(SessionManager sessionManager)
-	{
-		this.m_sessionManager = sessionManager;
-	}
-
-	/**
-	 * Dependency: TimeService.
-	 * @param timeService
-	 *        The TimeService.
-	 */
-	public void setTimeService(TimeService timeService)
-	{
-		this.m_timeService = timeService;
-	}
-
-	/**
-	 * Dependency: ToolManager.
-	 * @param toolManager
-	 *        The ToolManager.
-	 */
-	public void setToolManager(ToolManager toolManager)
-	{
-		this.m_toolManager = toolManager;
-	}
-
-	/**
-	 * Dependency: UserDirectoryService.
-	 * @param userDirectoryService
-	 *        The UserDirectoryService.
-	 */
-	public void setUserDirectoryService(UserDirectoryService userDirectoryService)
-	{
-		this.m_userDirectoryService = userDirectoryService;
-	}
-
-	/**
-	 * Dependency: UsageSessionService
-	 * @param usageSessionService
-	 *        The UsageSessionService.
-	 */
-	public void setUsageSessionService(UsageSessionService usageSessionService) { this.m_usageSessionService = usageSessionService; }
-
-	/**
-	 * Dependency: OpaqueUrlDao
-	 * @param opaqueUrlDao
-	 *        The OpaqueUrlDao.
-	 */
-	public void setOpaqueUrlDao(OpaqueUrlDao opaqueUrlDao) { this.m_opaqueUrlDao = opaqueUrlDao; }
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
@@ -727,29 +528,29 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		}
 
 		// register as an entity producer
-		m_entityManager.registerEntityProducer(this, REFERENCE_ROOT);
+		entityManager.registerEntityProducer(this, REFERENCE_ROOT);
 
 		// register functions
-		m_functionManager.registerFunction(AUTH_ADD_CALENDAR, true);
-		m_functionManager.registerFunction(AUTH_REMOVE_CALENDAR_OWN, true);
-		m_functionManager.registerFunction(AUTH_REMOVE_CALENDAR_ANY, true);
-		m_functionManager.registerFunction(AUTH_MODIFY_CALENDAR_OWN, true);
-		m_functionManager.registerFunction(AUTH_MODIFY_CALENDAR_ANY, true);
-		m_functionManager.registerFunction(AUTH_IMPORT_CALENDAR, true);
-		m_functionManager.registerFunction(AUTH_SUBSCRIBE_CALENDAR, true);
-		m_functionManager.registerFunction(AUTH_READ_CALENDAR, true);
-		m_functionManager.registerFunction(AUTH_ALL_GROUPS_CALENDAR, true);
-		m_functionManager.registerFunction(AUTH_OPTIONS_CALENDAR, true);
-		m_functionManager.registerFunction(AUTH_VIEW_AUDIENCE, true);
+		functionManager.registerFunction(AUTH_ADD_CALENDAR, true);
+		functionManager.registerFunction(AUTH_REMOVE_CALENDAR_OWN, true);
+		functionManager.registerFunction(AUTH_REMOVE_CALENDAR_ANY, true);
+		functionManager.registerFunction(AUTH_MODIFY_CALENDAR_OWN, true);
+		functionManager.registerFunction(AUTH_MODIFY_CALENDAR_ANY, true);
+		functionManager.registerFunction(AUTH_IMPORT_CALENDAR, true);
+		functionManager.registerFunction(AUTH_SUBSCRIBE_CALENDAR, true);
+		functionManager.registerFunction(AUTH_READ_CALENDAR, true);
+		functionManager.registerFunction(AUTH_ALL_GROUPS_CALENDAR, true);
+		functionManager.registerFunction(AUTH_OPTIONS_CALENDAR, true);
+		functionManager.registerFunction(AUTH_VIEW_AUDIENCE, true);
 		
 		// setup cache
 		SimpleConfiguration cacheConfig = new SimpleConfiguration(0);
 		cacheConfig.setStatisticsEnabled(true);
-		cache = this.m_memoryService.createCache("org.sakaiproject.calendar.cache", cacheConfig);
+		cache = this.memoryService.createCache("org.sakaiproject.calendar.cache", cacheConfig);
 		System.setProperty("net.fortuna.ical4j.timezone.cache.impl", MapTimeZoneCache.class.getName());
 
-		m_eventTrackingService.addObserver(this);
-		pdfExportService = new PDFExportService(m_timeService, rb);
+		eventTrackingService.addObserver(this);
+		pdfExportService = new PDFExportService(timeService, rb);
 	}
 
 	/**
@@ -781,7 +582,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	public CalendarEdit addCalendar(String ref) throws IdUsedException, IdInvalidException
 	{
 		// check the name's validity
-		if (!m_entityManager.checkReference(ref)) throw new IdInvalidException(ref);
+		if (!entityManager.checkReference(ref)) throw new IdInvalidException(ref);
 
 		// check for existance
 		if (m_storage.checkCalendar(ref))
@@ -807,7 +608,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	 */
 	public boolean allowGetCalendar(String ref)
 	{
-		if(REF_TYPE_CALENDAR_SUBSCRIPTION.equals(m_entityManager.newReference(ref).getSubType()))
+		if(REF_TYPE_CALENDAR_SUBSCRIPTION.equals(entityManager.newReference(ref).getSubType()))
 			return true;
 		return unlockCheck(AUTH_READ_CALENDAR, ref);
 
@@ -857,7 +658,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	
 	public Calendar getCalendar(String ref, String userId, String tzid) throws IdUnusedException, PermissionException
 	{
-		Reference _ref = m_entityManager.newReference(ref);
+		Reference _ref = entityManager.newReference(ref);
 		if(REF_TYPE_CALENDAR_SUBSCRIPTION.equals(_ref.getSubType())) {
 			Calendar c = externalCalendarSubscriptionService.getCalendarSubscription(ref, userId, tzid);
 			if (c == null) throw new IdUnusedException(ref);
@@ -904,8 +705,8 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		m_storage.removeCalendar(calendar);
 
 		// track event
-		Event event = m_eventTrackingService.newEvent(EVENT_REMOVE_CALENDAR, calendar.getReference(), true);
-		m_eventTrackingService.post(event);
+		Event event = eventTrackingService.newEvent(EVENT_REMOVE_CALENDAR, calendar.getReference(), true);
+		eventTrackingService.post(event);
 
 		// mark the calendar as removed
 		((BaseCalendarEdit) calendar).setRemoved(event);
@@ -916,7 +717,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		// remove any realm defined for this resource
 		try
 		{
-			m_authzGroupService.removeAuthzGroup(m_authzGroupService.getAuthzGroup(calendar.getReference()));
+			authzGroupService.removeAuthzGroup(authzGroupService.getAuthzGroup(calendar.getReference()));
 		}
 		catch (AuthzPermissionException e)
 		{
@@ -1040,8 +841,8 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		m_storage.commitCalendar(edit);
 
 		// track event
-		Event event = m_eventTrackingService.newEvent(((BaseCalendarEdit) edit).getEvent(), edit.getReference(), true);
-		m_eventTrackingService.post(event);
+		Event event = eventTrackingService.newEvent(((BaseCalendarEdit) edit).getEvent(), edit.getReference(), true);
+		eventTrackingService.post(event);
 
 		// close the edit object
 		((BaseCalendarEdit) edit).closeEdit();
@@ -1356,9 +1157,9 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 			// Translate context alias into site id if necessary
 			if ((context != null) && (context.length() > 0)) {
-				if (!m_siteService.siteExists(context)) {
+				if (!siteService.siteExists(context)) {
 					try {
-						Calendar calendarObj = getCalendar(m_aliasService.getTarget(context));
+						Calendar calendarObj = getCalendar(aliasService.getTarget(context));
 						context = calendarObj.getContext();
 					} catch (IdUnusedException ide) {
 						log.info(".parseEntityReference():"+ide.toString()); 
@@ -1374,7 +1175,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			}
 			
 			// if context still isn't valid, then no valid alias or site was specified
-			if (!m_siteService.siteExists(context)) {
+			if (!siteService.siteExists(context)) {
 				log.warn(".parseEntityReference() no valid site or alias: " + context);
 				return false;
 			}
@@ -1545,7 +1346,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 				// check SECURE_ALL_GROUPS - if not, check if the event has groups or not
 				// TODO: the last param needs to be a ContextService.getRef(ref.getContext())... or a ref.getContextAuthzGroup() -ggolden
-				if ((userId == null) || ((!m_securityService.isSuperUser(userId)) && (!m_securityService.unlock(userId, SECURE_ALL_GROUPS, m_siteService.siteReference(ref.getContext())))))
+				if ((userId == null) || ((!securityService.isSuperUser(userId)) && (!securityService.unlock(userId, SECURE_ALL_GROUPS, siteService.siteReference(ref.getContext())))))
 				{
 					// get the calendar to get the message to get group information
 					String calendarRef = calendarReference(ref.getContext(), ref.getContainer());
@@ -1688,8 +1489,8 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	}
 
 	@Override
-	public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map attachmentNames, Map userIdTrans,
-			Set userListAllowImport)
+	public String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId, Map<String, String> attachmentImportMap,
+		Map<Long, Map<String, Object>> ltiContentItems, Map<String, String> userIdTrans, Set<String> userListAllowImport)
 	{
 		// prepare the buffer for the results log
 		StringBuilder results = new StringBuilder();
@@ -1790,6 +1591,8 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 									String newId = getUniqueId();
 									element3.setAttribute("id", newId);
 
+									if ( ! shouldMergeEvent(element3) ) continue;
+
 									// get the attachment kids
 									NodeList children5 = element3.getChildNodes();
 									final int length5 = children5.getLength();
@@ -1805,22 +1608,10 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 											{
 												// map the attachment area folder name
 												String oldUrl = element5.getAttribute("relative-url");
-												if (oldUrl.startsWith("/content/attachment/"))
-												{
-													String newUrl = (String) attachmentNames.get(oldUrl);
-													if (newUrl != null)
-													{
-														if (newUrl.startsWith("/attachment/")) newUrl = "/content".concat(newUrl);
-
-														element5.setAttribute("relative-url", Validator.escapeQuestionMark(newUrl));
-													}
-												}
-
-												// map any references to this site to the new site id
-												else if (oldUrl.startsWith("/content/group/" + fromSiteId + "/"))
-												{
-													String newUrl = "/content/group/" + siteId
-															+ oldUrl.substring(15 + fromSiteId.length());
+												String toolTitle = toolManager.getTool("sakai.schedule").getTitle();
+												ContentResource attachment = contentHostingService.copyAttachment(oldUrl, siteId, toolTitle, attachmentImportMap);
+												if ( attachment != null ) {
+													String newUrl = attachment.getReference();
 													element5.setAttribute("relative-url", Validator.escapeQuestionMark(newUrl));
 												}
 											}
@@ -1829,6 +1620,10 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 									// create a new message in the calendar
 									CalendarEventEdit edit = calendar.mergeEvent(element3);
+									String description = edit.getDescriptionFormatted();
+									description = ltiService.fixLtiLaunchUrls(description, siteId, ltiContentItems);
+									edit.setDescriptionFormatted(description);
+
 									calendar.commitEvent(edit);
 									count++;
 								}
@@ -1845,6 +1640,50 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 		results.append("merging calendar " + calendarRef + " (" + count + ") messages.\n");
 		return results.toString();
+	}
+
+	/*
+	 * Look at the properties of the event and determine if it should be merged or ignored
+	 */
+	private boolean shouldMergeEvent(Element el) {
+		NodeList nodeList = el.getElementsByTagName("property");
+
+		for (int i = 0; i < nodeList.getLength(); i++) {
+			Element prop = (Element) nodeList.item(i);
+			String name = prop.getAttribute("name");
+			String value = prop.getAttribute("value");
+			if ("BASE64".equalsIgnoreCase(prop.getAttribute("enc"))) {
+				value = Xml.decodeAttribute(prop, "value");
+			}
+
+			if ( StringUtils.contains(name, CalendarConstants.EVENT_OWNED_BY_TOOL_ID) &&
+				(StringUtils.contains(value, AssignmentServiceConstants.ASSIGNMENT_TOOL_ID) ||
+				StringUtils.contains(value, DiscussionForumService.FORUMS_TOOL_ID ) ||
+				StringUtils.contains(value, SamigoConstants.TOOL_ID) ) ) {
+				log.debug("Not importing assignment event from tool {}", value);
+				return false;
+			}
+
+			// Do not import events associated with an assignment - backwards compatibility
+			if ( StringUtils.contains(name, CalendarConstants.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID) ||
+			     StringUtils.contains(name, CalendarConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED) ) {
+				log.debug("Not importing assignment event {}", value);
+				return false;
+			}
+
+			// Samigo does not mark its events, but the notification message is consitent - backwards compatibility
+			if ( StringUtils.equals(name, "CHEF:description") && StringUtils.contains(value, "samigo-app/servlet/Login")) {
+				log.debug("Not importing samigo event based on description containing Samigo launch URL");
+				return false;
+			}
+
+			// Discussion topic deadlines include calendar-url values inevitably pointing to the wrong place - backwards compatibility
+			if ( StringUtils.equals(name, "CHEF:calendar-url") && StringUtils.contains(value, "portal/site")) {
+				log.debug("Not importing discussion topic deadline event based on calendar-url {}", value);
+				return false;
+			}
+		}
+		return true;
 	}
 
 	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> resourceIds, List<String> options) {
@@ -1901,7 +1740,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 				for (int i = 0; i < oEvents.size(); i++)
 				{
-					CalendarEvent oEvent = (CalendarEvent) oEvents.get(i);
+					CalendarEventEdit oEvent = (CalendarEventEdit) oEvents.get(i);
 					try
 					{
 						// Skip calendar events based on assignment due dates
@@ -1909,7 +1748,11 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 						if (assignmentId != null && assignmentId.length() > 0)
 							continue;
 
-						CalendarEvent e = nCalendar.addEvent(oEvent.getRange(), oEvent.getDisplayName(), oEvent.getDescription(),
+						String description = oEvent.getDescriptionFormatted();
+						description = ltiService.fixLtiLaunchUrls(description, fromContext, toContext, transversalMap);
+						oEvent.setDescriptionFormatted(description);
+
+						CalendarEvent e = nCalendar.addEvent(oEvent.getRange(), oEvent.getDisplayName(), oEvent.getDescriptionFormatted(),
 								oEvent.getType(), oEvent.getLocation(), oEvent.getAttachments());
 
 						try
@@ -1922,7 +1765,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 							// attachment
 							List oAttachments = eEdit.getAttachments();
-							List nAttachments = m_entityManager.newReferenceList();
+							List nAttachments = entityManager.newReferenceList();
 							for (int n = 0; n < oAttachments.size(); n++)
 							{
 								Reference oAttachmentRef = (Reference) oAttachments.get(n);
@@ -1934,7 +1777,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 									try
 									{
 										ContentResource attachment = contentHostingService.getResource(nAttachmentId);
-										nAttachments.add(m_entityManager.newReference(attachment.getReference()));
+										nAttachments.add(entityManager.newReference(attachment.getReference()));
 									}
 									catch (IdUnusedException ee)
 									{
@@ -1949,12 +1792,12 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 													ContentResource attachment = contentHostingService.addAttachmentResource(
 															Validator.escapeResourceName(oAttachment.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME)), 
 															toContext, 
-															m_toolManager.getTool("sakai.schedule").getTitle(), 
+															toolManager.getTool("sakai.schedule").getTitle(),
 															oAttachment.getContentType(),
 															oAttachment.getContent(), 
 															oAttachment.getProperties());
 													// add to attachment list
-													nAttachments.add(m_entityManager.newReference(attachment.getReference()));
+													nAttachments.add(entityManager.newReference(attachment.getReference()));
 												}
 												else
 												{
@@ -1968,7 +1811,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 															oAttachment.getProperties(), 
 															NotificationService.NOTI_NONE);
 													// add to attachment list
-													nAttachments.add(m_entityManager.newReference(attachment.getReference()));
+													nAttachments.add(entityManager.newReference(attachment.getReference()));
 												}
 											}
 											catch (Exception eeAny)
@@ -2180,7 +2023,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		public BaseCalendarEdit(String ref)
 		{
 			// set the ids
-			Reference r = m_entityManager.newReference(ref);
+			Reference r = entityManager.newReference(ref);
 			m_context = r.getContext();
 			m_id = r.getId();
 
@@ -2358,7 +2201,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			if ( timeStr == null )
 				return null;
 			else
-				return m_timeService.newTimeGmt(timeStr);
+				return timeService.newTimeGmt(timeStr);
 		}
 
 		/**
@@ -2367,8 +2210,8 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		 **/
 		public void setModified()
 		{
- 			String currentUser = m_sessionManager.getCurrentSessionUserId();
-			String now = m_timeService.newTime().toString();
+			String currentUser = sessionManager.getCurrentSessionUserId();
+			String now = timeService.newTime().toString();
 			m_properties.addProperty(ResourceProperties.PROP_MODIFIED_BY, currentUser);
 			m_properties.addProperty(ResourceProperties.PROP_MODIFIED_DATE, now);
 		}
@@ -2561,7 +2404,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			// securtiy check (any sort (group, site) of add)
 			if (!allowAddEvent())
 			{
-				throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), eventId(SECURE_ADD), getReference());
+				throw new PermissionException(sessionManager.getCurrentSessionUserId(), eventId(SECURE_ADD), getReference());
 			}
 
 			// make one
@@ -2579,8 +2422,8 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			edit.setDescription(description);
 			edit.setType(type);
 			edit.setLocation(location);
-			if (m_toolManager.getCurrentPlacement() != null && m_toolManager.getCurrentPlacement().getContext() != null) {
-				edit.setSiteId(m_toolManager.getCurrentPlacement().getContext());
+			if (toolManager.getCurrentPlacement() != null && toolManager.getCurrentPlacement().getContext() != null) {
+				edit.setSiteId(toolManager.getCurrentPlacement().getContext());
 			}
 			edit.setCreator();
 			
@@ -2595,7 +2438,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 				catch (PermissionException e)
 				{
 					cancelEvent(edit);
-					throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), eventId(SECURE_ADD), getReference());
+					throw new PermissionException(sessionManager.getCurrentSessionUserId(), eventId(SECURE_ADD), getReference());
 				}
 			}
 			
@@ -2609,7 +2452,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 				if(!allowedSelected.isEmpty()) {
 					edit.setGroupAccess(allowedSelected, true);
 					if(!notAllowedSelected.isEmpty()) {
-						log.warn("Attempting to post to groups you don't belong to {} user={} lock={} resource={}", notAllowedSelected.toString(), m_sessionManager.getCurrentSessionUserId(), eventId(SECURE_ADD), getReference());
+						log.warn("Attempting to post to groups you don't belong to {} user={} lock={} resource={}", notAllowedSelected.toString(), sessionManager.getCurrentSessionUserId(), eventId(SECURE_ADD), getReference());
 					}
 				} else {
 					try
@@ -2619,7 +2462,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 					catch (PermissionException e)
 					{
 						cancelEvent(edit);
-						throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), eventId(SECURE_ADD), getReference());
+						throw new PermissionException(sessionManager.getCurrentSessionUserId(), eventId(SECURE_ADD), getReference());
 					}
 				}
 			}
@@ -2727,7 +2570,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 			// check security 
          if ( ! allowAddEvent() )
-			   throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), 
+			   throw new PermissionException(sessionManager.getCurrentSessionUserId(),
                                           AUTH_ADD_CALENDAR, getReference());
 			// reserve a calendar event with this id from the info store - if it's in use, this will return null
 			CalendarEventEdit event = m_storage.putEvent(this, eventFromXml.getId());
@@ -2815,7 +2658,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			if (!allowRemoveEvent(edit))
 			{
 				cancelEvent(edit);
-				throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), AUTH_REMOVE_CALENDAR_ANY, edit.getReference());
+				throw new PermissionException(sessionManager.getCurrentSessionUserId(), AUTH_REMOVE_CALENDAR_ANY, edit.getReference());
 			}
 
 			BaseCalendarEventEdit bedit = (BaseCalendarEventEdit) edit;
@@ -2830,7 +2673,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 				String[] parts = bedit.m_id.substring(1).split("!");
 				try
 				{
-					timeRange = m_timeService.newTimeRange(parts[0]);
+					timeRange = timeService.newTimeRange(parts[0]);
 					sequence = Integer.parseInt(parts[1]);
 					bedit.m_id = parts[2];
 				}
@@ -2857,14 +2700,14 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 					// complete the edit
 					m_storage.commitEvent(this, edit);
 					// post event for excluding the instance
-					m_eventTrackingService.post(m_eventTrackingService.newEvent(EVENT_MODIFY_CALENDAR_EVENT_EXCLUSIONS, indivEventEntityRef, true));
+					eventTrackingService.post(eventTrackingService.newEvent(EVENT_MODIFY_CALENDAR_EVENT_EXCLUSIONS, indivEventEntityRef, true));
 				}
 
 				// delete them all, i.e. the one initial event
 				else
 				{
 					m_storage.removeEvent(this, edit);
-					m_eventTrackingService.post(m_eventTrackingService.newEvent(EVENT_REMOVE_CALENDAR_EVENT, edit.getReference(), true));
+					eventTrackingService.post(eventTrackingService.newEvent(EVENT_REMOVE_CALENDAR_EVENT, edit.getReference(), true));
 				}
 			}
 
@@ -2872,12 +2715,12 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			else
 			{
 				m_storage.removeEvent(this, edit);
-				m_eventTrackingService.post(m_eventTrackingService.newEvent(EVENT_REMOVE_CALENDAR_EVENT, edit.getReference(), true));
+				eventTrackingService.post(eventTrackingService.newEvent(EVENT_REMOVE_CALENDAR_EVENT, edit.getReference(), true));
 			}
 
 			// track event
-			Event event = m_eventTrackingService.newEvent(EVENT_MODIFY_CALENDAR, edit.getReference(), true);
-			m_eventTrackingService.post(event);
+			Event event = eventTrackingService.newEvent(EVENT_MODIFY_CALENDAR, edit.getReference(), true);
+			eventTrackingService.post(event);
 			
 			// calendar notification
 			notify(event);
@@ -2888,7 +2731,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			// remove any realm defined for this resource
 			try
 			{
-				m_authzGroupService.removeAuthzGroup(m_authzGroupService.getAuthzGroup(edit.getReference()));
+				authzGroupService.removeAuthzGroup(authzGroupService.getAuthzGroup(edit.getReference()));
 			}
 			catch (AuthzPermissionException e)
 			{
@@ -2958,7 +2801,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 				String[] parts = eventId.substring(1).split("!");
 				try
 				{
-					timeRange = m_timeService.newTimeRange(parts[0]);
+					timeRange = timeService.newTimeRange(parts[0]);
 					sequence = Integer.parseInt(parts[1]);
 					eventId = parts[2];
 				}
@@ -2973,13 +2816,13 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 			// check security 
          if ( editType.equals(EVENT_ADD_CALENDAR) && ! allowAddEvent() )
-			   throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), 
+			   throw new PermissionException(sessionManager.getCurrentSessionUserId(),
                                           AUTH_ADD_CALENDAR, getReference());
          else if ( editType.equals(EVENT_REMOVE_CALENDAR) && ! allowRemoveEvent(e) )
-			   throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), 
+			   throw new PermissionException(sessionManager.getCurrentSessionUserId(),
                                           AUTH_REMOVE_CALENDAR_ANY, getReference());
          else if ( editType.equals(EVENT_MODIFY_CALENDAR) && ! allowEditEvent(eventId) )
-			   throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), 
+			   throw new PermissionException(sessionManager.getCurrentSessionUserId(),
                                           AUTH_MODIFY_CALENDAR_ANY, getReference());
 
 			// ignore the cache - get the CalendarEvent with a lock from the info store
@@ -3052,7 +2895,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 				String[] parts = bedit.m_id.substring(1).split("!");
 				try
 				{
-					timeRange = m_timeService.newTimeRange(parts[0]);
+					timeRange = timeService.newTimeRange(parts[0]);
 					sequence = Integer.parseInt(parts[1]);
 					bedit.m_id = parts[2];
 				}
@@ -3075,9 +2918,9 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 					newEvent = (BaseCalendarEventEdit) m_storage.putEvent(this, id);
 					newEvent.setPartial(edit);
 					m_storage.commitEvent(this, newEvent);
-					m_eventTrackingService.post(m_eventTrackingService.newEvent(EVENT_MODIFY_CALENDAR, newEvent.getReference(), true));
-					m_eventTrackingService.post(m_eventTrackingService.newEvent(EVENT_MODIFY_CALENDAR_EVENT_EXCLUDED, newEvent.getReference(), true));
-					m_eventTrackingService.post(m_eventTrackingService.newEvent(EVENT_MODIFY_CALENDAR_EVENT_EXCLUSIONS, indivEventEntityRef, true));
+					eventTrackingService.post(eventTrackingService.newEvent(EVENT_MODIFY_CALENDAR, newEvent.getReference(), true));
+					eventTrackingService.post(eventTrackingService.newEvent(EVENT_MODIFY_CALENDAR_EVENT_EXCLUDED, newEvent.getReference(), true));
+					eventTrackingService.post(eventTrackingService.newEvent(EVENT_MODIFY_CALENDAR_EVENT_EXCLUSIONS, indivEventEntityRef, true));
 
 					// get the edit back to initial values... so only the exclusion is changed
 					edit = (CalendarEventEdit) m_storage.getEvent(this, bedit.m_id);
@@ -3110,8 +2953,8 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			m_storage.commitEvent(this, edit);
 
 			// track event
-			Event event = m_eventTrackingService.newEvent(bedit.getEvent(), edit.getReference(), true);
-			m_eventTrackingService.post(event);
+			Event event = eventTrackingService.newEvent(bedit.getEvent(), edit.getReference(), true);
+			eventTrackingService.post(event);
 
 			// calendar notification
 			notify(event);
@@ -3171,7 +3014,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 				String[] parts = bedit.m_id.substring(1).split( "!");
 				try
 				{
-					timeRange = m_timeService.newTimeRange(parts[0]);
+					timeRange = timeService.newTimeRange(parts[0]);
 					sequence = Integer.parseInt(parts[1]);
 					bedit.m_id = parts[2];
 				}
@@ -3279,7 +3122,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 				String[] parts = eventId.substring(1).split("!");
 				try
 				{
-					timeRange = m_timeService.newTimeRange(parts[0]);
+					timeRange = timeService.newTimeRange(parts[0]);
 					sequence = Integer.parseInt(parts[1]);
 					eventId = parts[2];
 				}
@@ -3391,11 +3234,11 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			try
 			{
 				// get the channel's site's groups
-				Site site = m_siteService.getSite(m_context);
+				Site site = siteService.getSite(m_context);
 				Collection groups = site.getGroups();
 
 				// if the user has SECURE_ALL_GROUPS in the context (site), and the function for the calendar (calendar,site), select all site groups
-				if ((m_securityService.isSuperUser()) || (m_securityService.unlock(m_sessionManager.getCurrentSessionUserId(), SECURE_ALL_GROUPS, m_siteService.siteReference(m_context))
+				if ((securityService.isSuperUser()) || (securityService.unlock(sessionManager.getCurrentSessionUserId(), SECURE_ALL_GROUPS, siteService.siteReference(m_context))
 						&& unlockCheck(function, getReference())))
 				{
 					rv.addAll( groups );
@@ -3414,7 +3257,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 				}
 			
 				// ask the authzGroup service to filter them down based on function
-				groupRefs = m_authzGroupService.getAuthzGroupsIsAllowed(m_sessionManager.getCurrentSessionUserId(), function, groupRefs);
+				groupRefs = authzGroupService.getAuthzGroupsIsAllowed(sessionManager.getCurrentSessionUserId(), function, groupRefs);
 
 				// pick the Group objects from the site's groups to return, those that are in the groupRefs list
 				for (Iterator i = groups.iterator(); i.hasNext();)
@@ -3556,7 +3399,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			m_properties = new BaseResourcePropertiesEdit();
 
 			// init the AttachmentContainer
-			m_attachments = m_entityManager.newReferenceList();
+			m_attachments = entityManager.newReferenceList();
 
 		} // BaseCalendarEventEdit
 
@@ -3624,10 +3467,10 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		{
 			m_calendar = (BaseCalendarEdit) calendar;
 			m_properties = new BaseResourcePropertiesEdit();
-			m_attachments = m_entityManager.newReferenceList();
+			m_attachments = entityManager.newReferenceList();
 
 			m_id = el.getAttribute("id");
-			m_range = m_timeService.newTimeRange(el.getAttribute("range"));
+			m_range = timeService.newTimeRange(el.getAttribute("range"));
 			
 			m_access = CalendarEvent.EventAccess.SITE;
 			String access_str = el.getAttribute("access").toString();
@@ -3644,11 +3487,10 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 				if (child.getNodeType() == Node.ELEMENT_NODE)
 				{
 					Element element = (Element) child;
-
 					// look for an attachment
 					if (element.getTagName().equals("attachment"))
 					{
-						m_attachments.add(m_entityManager.newReference(element.getAttribute("relative-url")));
+						m_attachments.add(entityManager.newReference(element.getAttribute("relative-url")));
 					}
 
 					// look for properties
@@ -3736,7 +3578,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			m_calendar = (BaseCalendarEdit) container;
 
 			m_properties = new BaseResourcePropertiesEdit();
-			m_attachments = m_entityManager.newReferenceList();
+			m_attachments = entityManager.newReferenceList();
 
 		}
 
@@ -3764,7 +3606,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			m_groups.addAll(other.getGroups());
 
 			// copy the attachments
-			m_attachments = m_entityManager.newReferenceList();
+			m_attachments = entityManager.newReferenceList();
 			replaceAttachments(other.getAttachments());
 
 			// copy the rules
@@ -3794,7 +3636,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			m_groups.addAll(other.getGroups());
 			
 			// copy the attachments
-			m_attachments = m_entityManager.newReferenceList();
+			m_attachments = entityManager.newReferenceList();
 			replaceAttachments(other.getAttachments());
 
 		} // setPartial
@@ -3810,7 +3652,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			// after the storage has registered the event and it's id.
 			if (m_range == null)
 			{
-				return m_timeService.newTimeRange(m_timeService.newTime(0));
+				return timeService.newTimeRange(timeService.newTime(0));
 			}
 
 			// return (TimeRange) m_range.clone();
@@ -4017,7 +3859,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 				TimeZone timezone = null;
 				if (timeZoneID.equals(""))
 				{
-					timezone = m_timeService.getLocalTimeZone();
+					timezone = timeService.getLocalTimeZone();
 				}
 				else
 				{
@@ -4127,21 +3969,21 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		* @return boolean true or false
 		*/
 		public boolean isUserOwner()
-      {
- 			String currentUser = m_sessionManager.getCurrentSessionUserId();
-         String eventOwner = this.getCreator();
+		{
+			String currentUser = sessionManager.getCurrentSessionUserId();
+			String eventOwner = this.getCreator();
                    
-         // for backward compatibility, treat unowned event as if it owned by this user
-         return (eventOwner == null || eventOwner.equals("") || (currentUser != null && currentUser.equals(eventOwner)) );
-      }
+			// for backward compatibility, treat unowned event as if it owned by this user
+			return (eventOwner == null || eventOwner.equals("") || (currentUser != null && currentUser.equals(eventOwner)) );
+		}
 
 		/**
 		* Set the event creator (cover for PROP_CREATOR) to current user
 		*/
 		public void setCreator()
 		{
- 			String currentUser = m_sessionManager.getCurrentSessionUserId();
-			String now = m_timeService.newTime().toString();
+			String currentUser = sessionManager.getCurrentSessionUserId();
+			String now = timeService.newTime().toString();
 			m_properties.addProperty(ResourceProperties.PROP_CREATOR, currentUser);
 			m_properties.addProperty(ResourceProperties.PROP_CREATION_DATE, now);
 
@@ -4162,8 +4004,8 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		*/
 		public void setModifiedBy()
 		{
- 			String currentUser = m_sessionManager.getCurrentSessionUserId();
-			String now = m_timeService.newTime().toString();
+			String currentUser = sessionManager.getCurrentSessionUserId();
+			String now = timeService.newTime().toString();
 			m_properties.addProperty(ResourceProperties.PROP_MODIFIED_BY, currentUser);
 			m_properties.addProperty(ResourceProperties.PROP_MODIFIED_DATE, now);
 
@@ -4260,7 +4102,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			{
 				try
 				{
-					Site site = m_siteService.getSite(m_calendar.getContext());
+					Site site = siteService.getSite(m_calendar.getContext());
 					if (site != null)
 						calendarName = site.getTitle();
 				}
@@ -4455,7 +4297,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		 */
 		public List getAttachments()
 		{
-			return m_entityManager.newReferenceList(m_attachments);
+			return entityManager.newReferenceList(m_attachments);
 
 		} // getAttachments
 
@@ -4534,7 +4376,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 				for (Iterator i = m_groups.iterator(); i.hasNext();)
 				{
 					String groupId = (String) i.next();
-					Group group = m_siteService.findGroup(groupId);
+					Group group = siteService.findGroup(groupId);
 					if (group != null)
 					{
 						rv.add(group);
@@ -4576,7 +4418,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 					// is ref a group the user can remove from?
 					if ( !EntityCollections.entityCollectionContainsRefString(allowedGroups, ref) )
 					{
-						throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), "access:group:remove", ref);
+						throw new PermissionException(sessionManager.getCurrentSessionUserId(), "access:group:remove", ref);
 					}
 				}
 			}
@@ -4594,7 +4436,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 					// is ref a group the user can remove from?
 					if (!EntityCollections.entityCollectionContainsRefString(allowedGroups, ref))
 					{
-						throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), "access:group:add", ref);
+						throw new PermissionException(sessionManager.getCurrentSessionUserId(), "access:group:add", ref);
 					}
 				}
 			}
@@ -4614,7 +4456,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			boolean allowed = m_calendar.allowAddCalendarEvent();
 			if (!allowed)
 			{
-				throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), "access:channel", getReference());				
+				throw new PermissionException(sessionManager.getCurrentSessionUserId(), "access:channel", getReference());
 			}
 
 			// we are clear to perform this
@@ -4666,7 +4508,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 				String allGroupString="";
 				try
 				{
-					Site site = m_siteService.getSite(cal.getContext());
+					Site site = siteService.getSite(cal.getContext());
 					for (Iterator i= m_groups.iterator(); i.hasNext();)
 					{
 						Group aGroup = site.getGroup((String) i.next());
@@ -4709,7 +4551,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 					if ( doStartElement(uri, localName, qName, attributes) ) {
 						if ( "event".equals(qName) && entity == null ) {
 							m_id = attributes.getValue("id");
-							m_range = m_timeService.newTimeRange(attributes
+							m_range = timeService.newTimeRange(attributes
 									.getValue("range"));
 
 							m_access = CalendarEvent.EventAccess.SITE;
@@ -4722,7 +4564,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 						} 
 						else if ("attachment".equals(qName))
 						{
-							m_attachments.add(m_entityManager.newReference(attributes
+							m_attachments.add(entityManager.newReference(attributes
 									.getValue("relative-url")));
 						}
 						else if ("group".equals(qName))
@@ -5204,7 +5046,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			long seconds = event.getRange().duration() / 1000;
 			VEvent icalEvent = new VEvent(icalStartDate, Duration.ofSeconds(seconds), event.getDisplayName() );
 			
-			net.fortuna.ical4j.model.parameter.TzId tzId = new net.fortuna.ical4j.model.parameter.TzId( m_timeService.getLocalTimeZone().getID() );
+			net.fortuna.ical4j.model.parameter.TzId tzId = new net.fortuna.ical4j.model.parameter.TzId( timeService.getLocalTimeZone().getID() );
 			icalEvent.getProperty(Property.DTSTART).getParameters().add(tzId);
 			icalEvent.getProperty(Property.DTSTART).getParameters().add(Value.DATE_TIME);
 			icalEvent.getProperties().add(new Uid(event.getId()));
@@ -5233,7 +5075,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 			try
 			{
-				String organizer = m_userDirectoryService.getUser( event.getCreator() ).getDisplayName();
+				String organizer = userDirectoryService.getUser( event.getCreator() ).getDisplayName();
 				organizer = organizer.replaceAll(" ","%20"); // get rid of illegal URI characters
 				icalEvent.getProperties().add(new Organizer(new URI("CN="+organizer)));
 			}
@@ -5263,8 +5105,8 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	 */
 	public TimeRange getICalTimeRange()
 	{
-		int toMonthsInput = m_serverConfigurationService.getInt("calendar.export.next.months",12);
-		int fromMonthsInput = m_serverConfigurationService.getInt("calendar.export.previous.months",6);
+		int toMonthsInput = serverConfigurationService.getInt("calendar.export.next.months",12);
+		int fromMonthsInput = serverConfigurationService.getInt("calendar.export.previous.months",6);
 
 		java.util.Calendar calTo = java.util.Calendar.getInstance();
 		calTo.add(java.util.Calendar.MONTH, toMonthsInput);
@@ -5272,10 +5114,10 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		java.util.Calendar calFrom = java.util.Calendar.getInstance();
 		calFrom.add(java.util.Calendar.MONTH, -fromMonthsInput);
 
-		Time startTime = m_timeService.newTime(calFrom.getTimeInMillis());
-		Time endTime = m_timeService.newTime(calTo.getTimeInMillis());
+		Time startTime = timeService.newTime(calFrom.getTimeInMillis());
+		Time endTime = timeService.newTime(calTo.getTimeInMillis());
 		
-		return m_timeService.newTimeRange(startTime,endTime,true,true);
+		return timeService.newTimeRange(startTime,endTime,true,true);
 	}
 
 	/**
@@ -5316,7 +5158,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	 */
 	protected String getString(String name, String dflt)
 	{
-		return m_serverConfigurationService.getString(name, dflt);
+		return serverConfigurationService.getString(name, dflt);
 	}
 
 	/*
@@ -5336,7 +5178,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		String timeRangeString = (String) parameters.get(name);
 
 		TimeRange timeRange = null;
-		timeRange = m_timeService.newTimeRange(timeRangeString);
+		timeRange = timeService.newTimeRange(timeRangeString);
 
 		return timeRange;
 	}
@@ -5348,7 +5190,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	throws PermissionException
 	{
 		// Get the list of calendars.from user session
-		List calendarReferenceList = (List)m_sessionManager.getCurrentSession().getAttribute(SESSION_CALENDAR_LIST);
+		List calendarReferenceList = (List)sessionManager.getCurrentSession().getAttribute(SESSION_CALENDAR_LIST);
 	
 		// check if there is any calendar to which the user has acces
 		Iterator it = calendarReferenceList.iterator();
@@ -5395,7 +5237,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		ical.getProperties().add(new XProperty("X-WR-CALDESC", calendarName));
 		
 		TimeZoneRegistry registry = TimeZoneRegistryFactory.getInstance().createRegistry(); 
-		TzId tzId = new TzId( m_timeService.getLocalTimeZone().getID() ); 
+		TzId tzId = new TzId( timeService.getLocalTimeZone().getID() );
 		ical.getComponents().add(registry.getTimeZone(tzId.getValue()).getVTimeZone());
 		
 		CalendarOutputter icalOut = new CalendarOutputter();
@@ -5499,7 +5341,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	{
 		if ( m_services == null ) {
 			m_services = new HashMap<String, Object>();
-			m_services.put("timeservice", m_timeService);
+			m_services.put("timeservice", timeService);
 		}
 		return m_services;
 	}
@@ -5566,7 +5408,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	public String calendarOpaqueUrlReference(Reference ref)
 	{
 		// TODO: Currently not sure whether alias handling will be required for this or not.
-		OpaqueUrl opaqUrl = m_opaqueUrlDao.getOpaqueUrl(m_sessionManager.getCurrentSessionUserId(), ref.getReference());
+		OpaqueUrl opaqUrl = opaqueUrlDao.getOpaqueUrl(sessionManager.getCurrentSessionUserId(), ref.getReference());
 		return getAccessPoint(true) + Entity.SEPARATOR + REF_TYPE_CALENDAR_OPAQUEURL + Entity.SEPARATOR + opaqUrl.getOpaqueUUID() + Entity.SEPARATOR + ref.getId() + ICAL_EXTENSION;
 	}
 	
@@ -5586,7 +5428,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	
 	protected String mapOpaqueGuidToContextId(Reference reference, String opaqueGuid)
 	{
-		OpaqueUrl opaqUrl = m_opaqueUrlDao.getOpaqueUrl(opaqueGuid);
+		OpaqueUrl opaqUrl = opaqueUrlDao.getOpaqueUrl(opaqueGuid);
 		if (opaqUrl != null)
 		{
 			String[] parts = StringUtils.split(opaqUrl.getCalendarRef(), Entity.SEPARATOR);
@@ -5699,13 +5541,13 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		}
 
 		// Extract the alias name to use for the filename.
-		List<Alias> alias =  m_aliasService.getAliases(calRef);
+		List<Alias> alias =  aliasService.getAliases(calRef);
 		String aliasName = "schedule.ics";
 		if ( ! alias.isEmpty() )
 			aliasName =  alias.get(0).getId();
 		
 		List<String> referenceList = getCalendarReferences(ref.getContext());
-		Time modDate = m_timeService.newTime(0);
+		Time modDate = timeService.newTime(0);
 
 		// update date/time reference
 		for (String curCalRef: referenceList)
@@ -5741,10 +5583,10 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		res.setDateHeader("Last-Modified", modDate.getTime() );
 		String calendarName = "";
 		try {
-			calendarName = m_siteService.getSite(ref.getContext()).getTitle();
-			boolean isMyDashboard = m_siteService.isUserSite(ref.getContext());
+			calendarName = siteService.getSite(ref.getContext()).getTitle();
+			boolean isMyDashboard = siteService.isUserSite(ref.getContext());
 			if (isMyDashboard){
-				calendarName = m_serverConfigurationService.getString(UI_SERVICE, SAKAI);
+				calendarName = serverConfigurationService.getString(UI_SERVICE, SAKAI);
 			}
 		} catch (IdUnusedException e) {
 		}
@@ -5761,9 +5603,9 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		}
 		
 		// Make sure the current user can access this calendar first.
-		if (m_siteService.isUserSite(ref.getContext()) && !allowGetCalendar(calRef)) 
+		if (siteService.isUserSite(ref.getContext()) && !allowGetCalendar(calRef))
 		{
-			throw new EntityPermissionException(m_sessionManager.getCurrentSessionUserId(), SECURE_READ, calRef);
+			throw new EntityPermissionException(sessionManager.getCurrentSessionUserId(), SECURE_READ, calRef);
 		}
 		
 		try
@@ -5812,7 +5654,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		String userId = null;
 		if (opaqueGuid != null)
 		{
-			OpaqueUrl opaqUrl = m_opaqueUrlDao.getOpaqueUrl(opaqueGuid);
+			OpaqueUrl opaqUrl = opaqueUrlDao.getOpaqueUrl(opaqueGuid);
 			userId = (opaqUrl != null) ? opaqUrl.getUserUUID() : null;
 		}
 		if (opaqueGuid == null || userId == null)
@@ -5825,14 +5667,14 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		try 
 		{
 			// We want to avoid an inadvertent logout coming from the same UA:
-			UsageSession usage = m_usageSessionService.getSession();
+			UsageSession usage = usageSessionService.getSession();
 			if ((usage != null) && userId.equals(usage.getUserId()) && !usage.isClosed())
 			{
 				isAlreadyLoggedIn = true;
 			}
-			String eid = m_userDirectoryService.getUserEid(userId);
+			String eid = userDirectoryService.getUserEid(userId);
 			Authentication authn = new Authentication(userId, eid);
-			if (m_usageSessionService.login(authn, req))
+			if (usageSessionService.login(authn, req))
 			{
 				// Make sure the current user can access this calendar first.
 				if (allowGetCalendar(calRef)) 
@@ -5863,7 +5705,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		{
 			if (!isAlreadyLoggedIn)
 			{
-				m_usageSessionService.logout();
+				usageSessionService.logout();
 			}
 		}
 	}
@@ -5877,7 +5719,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		// get merged calendars channel refs
 		String initMergeList = null;
 		try {
-			ToolConfiguration tc = m_siteService.getSite(siteId).getToolForCommonId("sakai.schedule");
+			ToolConfiguration tc = siteService.getSite(siteId).getToolForCommonId("sakai.schedule");
 			if (tc != null) {
 				initMergeList = tc.getPlacementConfig().getProperty("mergedCalendarReferences");
 			}
@@ -5904,12 +5746,12 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	protected MergedList loadChannels(String siteId, String primaryCalendarReference, String initMergeList, MergedList.EntryProvider entryProvider) {
 		MergedList mergedCalendarList = new MergedList();
 		String[] channelArray = null;
-		boolean isOnWorkspaceTab = m_siteService.isUserSite(siteId);
+		boolean isOnWorkspaceTab = siteService.isUserSite(siteId);
 		
 		// Figure out the list of channel references that we'll be using.
 		// MyWorkspace is special: if not superuser, and not otherwise defined,
 		// get all channels
-		if (isOnWorkspaceTab && !m_securityService.isSuperUser() && initMergeList == null) {
+		if (isOnWorkspaceTab && !securityService.isSuperUser() && initMergeList == null) {
 			channelArray = mergedCalendarList.getAllPermittedChannels(new CalendarChannelReferenceMaker());
 		} else {
 			channelArray = mergedCalendarList.getChannelReferenceArrayFromDelimitedString(primaryCalendarReference, initMergeList);
@@ -5917,7 +5759,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		if (entryProvider == null) {
 			entryProvider = new MergedListEntryProviderFixedListWrapper(new EntryProvider(), primaryCalendarReference, channelArray, new CalendarReferenceToChannelConverter());
 		}
-		mergedCalendarList.loadChannelsFromDelimitedString(isOnWorkspaceTab, false, entryProvider, m_sessionManager.getCurrentSessionUserId(), channelArray, m_securityService.isSuperUser(), siteId);
+		mergedCalendarList.loadChannelsFromDelimitedString(isOnWorkspaceTab, false, entryProvider, sessionManager.getCurrentSessionUserId(), channelArray, securityService.isSuperUser(), siteId);
 		
 		return mergedCalendarList;
 	}
@@ -5928,7 +5770,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	 * @return The user agent.
 	 */
 	String getUserAgent() {
-		return "Sakai/"+ m_serverConfigurationService.getString("version.sakai", "?") + " (Calendar Subscription)";
+		return "Sakai/"+ serverConfigurationService.getString("version.sakai", "?") + " (Calendar Subscription)";
 	}
 	
 	// Returns the calendar tool id string.
@@ -5949,12 +5791,12 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		Instant oneYearAgo = now.minus(365, ChronoUnit.DAYS);
 		Instant oneYearLater = now.plus(365, ChronoUnit.DAYS);
 
-		return m_timeService.newTimeRange(oneYearAgo, oneYearLater);
+		return timeService.newTimeRange(oneYearAgo, oneYearLater);
 	}
 
 	private String getDirectToolUrl(String siteId) throws IdUnusedException {
-		ToolConfiguration toolConfig = m_siteService.getSite(siteId).getToolForCommonId("sakai.schedule");
-		return m_serverConfigurationService.getPortalUrl() + "/directtool/" + toolConfig.getId();
+		ToolConfiguration toolConfig = siteService.getSite(siteId).getToolForCommonId("sakai.schedule");
+		return serverConfigurationService.getPortalUrl() + "/directtool/" + toolConfig.getId();
 	}
 }
 

@@ -1271,8 +1271,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		// way in UI that we know to do it. However admins can definitely see it from resources
 		// so warn except for admins. This check will return true for site owners even though
 		// the warning is issued.
+		// SAK-50946 - log debug instead of warn so we can delet temporary attachments in SiteMerger
 		if (isAttachmentResource(id) && isCollection(id) && !securityService.isSuperUser())
-		    log.warn("availability check for attachment collection " + id);
+		    log.debug("availability check for attachment collection {} ", id);
 
 		GroupAwareEntity entity = null;
 		//boolean isCollection = id.endsWith(Entity.SEPARATOR);
@@ -3825,6 +3826,89 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		}
 		
 		commitCollection(edit);	
+	}
+
+	public ContentResource copyAttachment(String oAttachmentPath, String toContext, String toolTitle, Map<String, String> attachmentImportMap) 
+		throws IdUnusedException, TypeException, PermissionException
+	{
+		ContentResource oAttachment = null;
+
+		try {
+			oAttachment = this.getResource(oAttachmentPath);
+			log.debug("Loaded resource from path = {} {}", oAttachmentPath, oAttachment);
+		} catch (Exception e) {
+			log.debug("Cannot find the attachment with path = {}, checking map {}", oAttachmentPath, e.toString());
+		}
+
+		if (oAttachment == null && attachmentImportMap != null) {
+			String lookupAttachmentPath = attachmentImportMap.get(oAttachmentPath);
+			if (lookupAttachmentPath == null) {
+				if (oAttachmentPath.startsWith(REFERENCE_ROOT)) {
+					oAttachmentPath = oAttachmentPath.replaceFirst(REFERENCE_ROOT, "");
+				} else {
+					oAttachmentPath = REFERENCE_ROOT + oAttachmentPath;
+				}
+				lookupAttachmentPath = attachmentImportMap.get(oAttachmentPath);
+				if (lookupAttachmentPath == null) {
+					log.warn("Cannot find the attachment in map path = {}, map = {}", oAttachmentPath, attachmentImportMap);
+					return null;
+				}
+			}
+			log.debug("Found the attachment in map = {} -> {}", oAttachmentPath, lookupAttachmentPath);
+			try {
+				oAttachment = this.getResource(lookupAttachmentPath);
+				log.debug("Loaded resource from map path = {} {}", lookupAttachmentPath, oAttachment);
+				oAttachmentPath = lookupAttachmentPath;
+			} catch (Exception e) {
+				log.warn("Cannot find the attachment in map path = {}, {}", lookupAttachmentPath, e.toString());
+			}
+		}
+
+		if (oAttachment == null) {
+			log.warn("Could not find resource associated with attachment {} to copy to site {} toolTitle {}", oAttachmentPath, toContext, toolTitle);
+			return null;
+		}
+
+		ContentResource attachment = null;
+		try {
+			try (InputStream content = oAttachment.streamContent()) {
+				if (this.isAttachmentResource(oAttachmentPath)) {
+					// add the new resource into attachment collection area
+					log.debug("Copying attachment {} to site {} attachments toolTitle {}", oAttachmentPath, toContext, toolTitle);
+					attachment = this.addAttachmentResource(
+							Validator.escapeResourceName(oAttachment.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME)),
+							toContext,
+							toolTitle,
+							oAttachment.getContentType(),
+							content,
+							oAttachment.getProperties());
+				} else {
+					// add the new resource into resource area
+					log.debug("Copying attachment {} to site {} content toolTitle {}", oAttachmentPath, toContext, toolTitle);
+					attachment = this.addResource(
+							Validator.escapeResourceName(oAttachment.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME)),
+							toContext,
+							1,
+							oAttachment.getContentType(),
+							content,
+							oAttachment.getProperties(),
+							Collections.emptyList(),
+							false,
+							null,
+							null,
+							NotificationService.NOTI_NONE);
+				}
+				log.debug("Copied attachment {} to site {} {}", oAttachmentPath, toContext, attachment.getReference());
+				return attachment;
+			} catch (Exception e) {
+				log.warn("Cannot add new attachment with id = {}, {}", oAttachmentPath, e.toString());
+				return null;
+			}
+		} catch (Exception e) {
+			// if cannot find the original attachment, do nothing.
+			log.warn("Cannot get the original attachment with id = {}, {}", oAttachmentPath, e.toString());
+		}
+		return null;
 	}
 
 	/**
@@ -7305,7 +7389,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 							String oldRef = getReference(id);
 
 							// take the name from after /attachment/whatever/
-							id = ATTACHMENTS_COLLECTION + idManager.createUuid()
+							id = ATTACHMENTS_COLLECTION + "TA-" + idManager.createUuid()
 							+ id.substring(id.indexOf('/', ATTACHMENTS_COLLECTION.length()));
 
 							// record the rename

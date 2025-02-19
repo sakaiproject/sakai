@@ -1,3 +1,6 @@
+export const i18nUrl = /getI18nProperties.*announcements$/;
+
+export const i18n = `
 all_pinned_sites=All Pinned Sites
 announcement_sort_label=Sort these announcements
 earliest_first=Earliest first
@@ -17,3 +20,4 @@ url_tooltip=Click to be taken to the announcement
 view=View
 viewing=(viewing announcements from the last 10 days)
 widget_title=Announcements
+`;

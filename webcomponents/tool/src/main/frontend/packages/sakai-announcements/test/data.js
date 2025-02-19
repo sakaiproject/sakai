@@ -1,18 +1,4 @@
-export const i18nUrl = /getI18nProperties.*announcements$/;
-
-export const i18n = `
-viewing=(viewing announcements from the last 10 days)
-site=Site
-search=Search
-title=Title
-site=Site
-site_tooltip=Filter by site
-view=View
-sort_by_title_tooltip=Sort by title
-sort_by_site_tooltip=Sort by title
-widget_title=Announcements
-url_tooltip=Click to be taken to the announcement
-`;
+export { i18n, i18nUrl } from "./i18n.js";
 
 export const userId = "adrian";
 export const siteId = "xyz";
@@ -25,9 +11,9 @@ export const announcementsUrl= `/api/users/me/announcements`;
 export const siteAnnouncementsUrl= `/api/sites/${siteId}/announcements`;
 
 export const announcements = [
-  { subject: "Ears", url: "/annc/ears", siteTitle, siteId },
-  { subject: "Chips", url: "/annc/chips", siteTitle, siteId },
-  { subject: vavavoom, url: "/annc/vavavoom", siteTitle: vavavoomSite, siteId: vavavoom },
+  { subject: "Ears", url: "/annc/ears", visible: true, order: 3, siteTitle, siteId },
+  { subject: "Chips", url: "/annc/chips", visible: true, order: 1, siteTitle, siteId },
+  { subject: vavavoom, url: "/annc/vavavoom", visible: true, order: 2, siteTitle: vavavoomSite, siteId: vavavoom },
 ];
 
 export const siteAnnouncements = [
