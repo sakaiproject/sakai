@@ -2695,7 +2695,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 					// add an exclusion for where this one would have been %%% we are changing it, should it be immutable? -ggolden
 					List exclusions = ((ExclusionSeqRecurrenceRule) bedit.getExclusionRule()).getExclusions();
-					exclusions.add(Integer.valueOf(sequence));
+					exclusions.add(sequence);
 
 					// complete the edit
 					m_storage.commitEvent(this, edit);
@@ -2790,7 +2790,8 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		 * @exception InUseException
 		 *            if the event is locked for edit by someone else.
 		 */
-		public CalendarEventEdit getEditEvent(String eventId, String editType)
+		@Override
+        public CalendarEventEdit getEditEvent(String eventId, String editType)
 			throws IdUnusedException, PermissionException, InUseException
 		{
 			// if the id has a time range encoded, as for one of a sequence of recurring events, separate that out
@@ -2807,7 +2808,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 				}
 				catch (Exception ex)
 				{
-					log.warn("getEditEvent: exception parsing eventId: " + eventId + " : " + ex);
+                    log.warn("getEditEvent: exception parsing eventId: {} : {}", eventId, ex.toString());
 				}
 			}
 
@@ -2872,14 +2873,14 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			// check for closed edit
 			if (!edit.isActiveEdit())
 			{
-				log.warn("commitEvent(): closed CalendarEventEdit " + edit.getId());
+                log.warn("commitEvent(): closed CalendarEventEdit {}", edit.getId());
 				return;
 			}
 
 			BaseCalendarEventEdit bedit = (BaseCalendarEventEdit) edit;
 			         
          // If creator doesn't exist, set it now (backward compatibility)
-         if ( edit.getCreator() == null || edit.getCreator().equals("") )
+         if ( edit.getCreator() == null || edit.getCreator().isEmpty())
             edit.setCreator(); 
          
 			// update modified-by properties for event

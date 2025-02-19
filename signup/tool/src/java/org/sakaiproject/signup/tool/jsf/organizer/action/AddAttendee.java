@@ -87,11 +87,9 @@ public class AddAttendee extends SignupAction {
 				Utilities.postEventTracking(signupEventType, ToolManager.getCurrentPlacement().getContext(), meeting.getId(),
 						meeting.getTitle(), this.signupEventTrackingInfo.getAllAttendeeTransferLogInfo());
 			}
-			log.debug("Meeting Name:" + meeting.getTitle() + " - UserId:" + userId
-					+ this.signupEventTrackingInfo.getAllAttendeeTransferLogInfo());
+            log.debug("Meeting Name:{} - UserId:{}{}", meeting.getTitle(), userId, this.signupEventTrackingInfo.getAllAttendeeTransferLogInfo());
 		} catch (PermissionException pe) {
-			hasException = false;
-			throw new SignupUserActionException(Utilities.rb.getString("no.permissoin.do_it"));
+            throw new SignupUserActionException(Utilities.rb.getString("no.permissoin.do_it"));
 		} finally {
 			meeting = reloadMeeting(meeting.getId());
 			if(!hasException){
@@ -99,7 +97,7 @@ public class AddAttendee extends SignupAction {
 				try {
 					signupMeetingService.modifyCalendar(meeting);
 				} catch (Exception e) {
-					//do nothing
+					log.warn("Error while modifying calendar from a signup: {}", e.toString());
 				}
 			}
 		}

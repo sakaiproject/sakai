@@ -114,7 +114,8 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 	/**
 	 * {@inheritDoc}
 	 */
-	public List<SignupMeeting> getAllSignupMeetings(String currentSiteId, String userId) {
+	@Override
+    public List<SignupMeeting> getAllSignupMeetings(String currentSiteId, String userId) {
 		List<SignupMeeting> meetings = signupMeetingDao.getAllSignupMeetings(currentSiteId);
 
 		return screenAllowableMeetings(currentSiteId, userId, meetings);
@@ -124,7 +125,8 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 	/**
 	 * {@inheritDoc}
 	 */
-	public List<SignupMeeting> getSignupMeetings(String currentSiteId, String userId, Date searchEndDate) {
+	@Override
+    public List<SignupMeeting> getSignupMeetings(String currentSiteId, String userId, Date searchEndDate) {
 		List<SignupMeeting> meetings = signupMeetingDao.getSignupMeetings(currentSiteId, searchEndDate);
 		return screenAllowableMeetings(currentSiteId, userId, meetings);
 	}
@@ -132,7 +134,8 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 	/**
 	 * {@inheritDoc}
 	 */
-	public List<SignupMeeting> getSignupMeetings(String currentSiteId, String userId, Date startDate, Date endDate) {
+	@Override
+    public List<SignupMeeting> getSignupMeetings(String currentSiteId, String userId, Date startDate, Date endDate) {
 		List<SignupMeeting> meetings = signupMeetingDao.getSignupMeetings(currentSiteId, startDate, endDate);
 		return screenAllowableMeetings(currentSiteId, userId, meetings);
 	}
@@ -140,39 +143,39 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 	/**
 	 * {@inheritDoc}
 	 */
-	public List<SignupMeeting> getSignupMeetingsInSiteWithCache(String siteId, Date startDate, int timeFrameInDays) {
-		List<SignupMeeting> meetings = signupCacheService.getAllSignupMeetingsInSite(siteId, startDate, timeFrameInDays);
-		return meetings;
+	@Override
+    public List<SignupMeeting> getSignupMeetingsInSiteWithCache(String siteId, Date startDate, int timeFrameInDays) {
+        return signupCacheService.getAllSignupMeetingsInSite(siteId, startDate, timeFrameInDays);
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
-	public List<SignupMeeting> getSignupMeetingsInSitesWithCache(List<String> siteIds, Date startDate, int timeFrameInDays) {
-		List<SignupMeeting> meetings = signupCacheService.getAllSignupMeetingsInSites(siteIds, startDate, timeFrameInDays);
-		return meetings;
+	@Override
+    public List<SignupMeeting> getSignupMeetingsInSitesWithCache(List<String> siteIds, Date startDate, int timeFrameInDays) {
+        return signupCacheService.getAllSignupMeetingsInSites(siteIds, startDate, timeFrameInDays);
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
 	public List<SignupMeeting> getSignupMeetingsInSite(String siteId, Date startDate, Date endDate) {
-		List<SignupMeeting> meetings = signupMeetingDao.getSignupMeetingsInSite(siteId, startDate, endDate);
-		return meetings;
+        return signupMeetingDao.getSignupMeetingsInSite(siteId, startDate, endDate);
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
-	public List<SignupMeeting> getSignupMeetingsInSites(List<String> siteIds, Date startDate, Date endDate) {
-		List<SignupMeeting> meetings = signupMeetingDao.getSignupMeetingsInSites(siteIds, startDate, endDate);
-		return meetings;
+	@Override
+    public List<SignupMeeting> getSignupMeetingsInSites(List<String> siteIds, Date startDate, Date endDate) {
+        return signupMeetingDao.getSignupMeetingsInSites(siteIds, startDate, endDate);
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
-	public List<SignupMeeting> getRecurringSignupMeetings(String currentSiteId, String userId, Long recurrenceId, Date startDate) {
+	@Override
+    public List<SignupMeeting> getRecurringSignupMeetings(String currentSiteId, String userId, Long recurrenceId, Date startDate) {
 		List<SignupMeeting> meetings = signupMeetingDao.getRecurringSignupMeetings(currentSiteId, recurrenceId, startDate);
 		return screenAllowableMeetings(currentSiteId, userId, meetings);
 	}
@@ -650,11 +653,12 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 	/**
 	 * {@inheritDoc}
 	 */
-	public void modifyCalendar(SignupMeeting meeting) throws Exception {
+	@Override
+    public void modifyCalendar(SignupMeeting meeting) throws Exception {
 		List<SignupSite> signupSites = meeting.getSignupSites();
 		boolean saveMeeting = false;
 		List<SignupTimeslot> calendarBlocks = scanDivideCalendarBlocks(meeting);
-		boolean hasMulptleBlock = calendarBlocks.size() > 1? true : false;
+		boolean hasMulptleBlock = calendarBlocks.size() > 1;
 		
 		/*we remove all the calendar events for custom-defined type to simplify process
 		 * when existing meetings come here. New meeting don't have permission setting yet 
@@ -662,7 +666,7 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 		if(meeting.getPermission() !=null && meeting.getPermission().isUpdate()){
 			//only instructor or maintainer/TF can do this since they can create/delete/move new blocks
 			if(CUSTOM_TIMESLOTS.equals(meeting.getMeetingType())){
-				List<SignupMeeting> smList = new ArrayList<SignupMeeting>();
+				List<SignupMeeting> smList = new ArrayList<>();
 				smList.add(meeting);
 				removeCalendarEvents(smList);
 			}
@@ -718,7 +722,7 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 								continue;
                             }
 						}catch (IdUnusedException e) {
-							log.debug("IdUnusedException: " + e.getMessage());
+                            log.debug("IdUnusedException: {}", e.toString());
 							// If the event was removed from the calendar.
 							eventEdit = calendarEvent(calendar, meeting, site);
                         } finally {
@@ -770,7 +774,7 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 						}
 					}
 				} catch (PermissionException pe) {
-					log.info("PermissionException for calendar-modification: " + pe.getMessage());
+                    log.info("PermissionException for calendar-modification: {}", pe.getMessage());
 					throw pe;
 				}
 			}//end-for
@@ -781,8 +785,6 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 		if (saveMeeting) {
 			updateMeetingWithVersionHandling(meeting);
 		}
-		
-
 	}
 	
 	/**
@@ -798,11 +800,11 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 		TimeRange timeRange = timeService.newTimeRange(start, end, true, false);
 		eventEdit.setRange(timeRange);
 		
-		String attendeeNamesMarkup = "";
+		StringBuilder attendeeNamesMarkup = new StringBuilder();
 		int num = 0;
 
-        if(meeting.getSignupTimeSlots().size() > 0) {
-            attendeeNamesMarkup += "<br /><br /><span style=\"font-weight: bold\"><b>" + rb.getString("signup.event.attendees") + "</b></span><br />";
+        if (!meeting.getSignupTimeSlots().isEmpty()) {
+            attendeeNamesMarkup.append("<br /><br /><span style=\"font-weight: bold\"><b>").append(rb.getString("signup.event.attendees")).append("</b></span><br />");
         }
 
         boolean displayAttendeeName = false;
@@ -814,7 +816,7 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 	            if(ts.isDisplayAttendees() && !ts.getAttendees().isEmpty()){
 	            	//privacy issue
 		            for(SignupAttendee attendee : ts.getAttendees()) {
-		                attendeeNamesMarkup += ("<span style=\"font-weight: italic\"><i>" + sakaiFacade.getUserDisplayName(attendee.getAttendeeUserId()) + "</i></span><br />");
+		                attendeeNamesMarkup.append("<span style=\"font-weight: italic\"><i>").append(sakaiFacade.getUserDisplayName(attendee.getAttendeeUserId())).append("</i></span><br />");
 		            }
 	            }
         	}
@@ -822,7 +824,7 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
         
         if(!displayAttendeeName || num < 1){
         	String currentAttendees = MessageFormat.format(rb.getString("signup.event.currentattendees") ,new Object[] { num });
-        	attendeeNamesMarkup += ("<span style=\"font-weight: italic\"><i>" + currentAttendees + "</i></span><br />");
+        	attendeeNamesMarkup.append("<span style=\"font-weight: italic\"><i>").append(currentAttendees).append("</i></span><br />");
         }
          
 		String desc = meeting.getDescription() + attendeeNamesMarkup;
@@ -933,7 +935,8 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 	/**
 	 * {@inheritDoc}
 	 */
-	@SuppressWarnings("unchecked")
+	@Override
+    @SuppressWarnings("unchecked")
 	public void removeCalendarEvents(List<SignupMeeting> meetings) throws Exception {
 		if (meetings == null || meetings.isEmpty())
 			return;
@@ -961,18 +964,18 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 						}
 					}
 
-					if (eventIds == null || eventIds.trim().length() < 1)
+					if (eventIds == null || eventIds.trim().isEmpty())
 						continue;
 
 					/*separate the eventIds token by '|' */
 					StringTokenizer token = new StringTokenizer(eventIds,"|"); 
-					List<String> evtIds = new ArrayList<String>(); 
+					List<String> evtIds = new ArrayList<>();
 					while (token.hasMoreTokens()) {
 						evtIds.add(token.nextToken().trim()); 
 					}
 					
 					for (String evtId : evtIds) {
-						CalendarEventEdit eventEdit = calendar.getEditEvent(evtId,
+							CalendarEventEdit eventEdit = calendar.getEditEvent(evtId,
 								org.sakaiproject.calendar.api.CalendarService.EVENT_REMOVE_CALENDAR);
 						if (eventEdit == null)
 							continue;
@@ -984,7 +987,7 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 					}
 					
 				} catch (PermissionException e) {
-					log.info("PermissionException for removal of calendar: " + e.getMessage());
+					log.info("PermissionException for removal of calendar: {}", e.toString());
 				}
 			}
 		}

@@ -66,6 +66,7 @@ import net.fortuna.ical4j.model.component.VEvent;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
+@Setter
 @Slf4j
 public class SignupCalendarHelperImpl implements SignupCalendarHelper {
 
@@ -175,7 +176,6 @@ public class SignupCalendarHelperImpl implements SignupCalendarHelper {
 		}
 		
 		return v;
-		
 	}
 
 	/**
@@ -217,12 +217,14 @@ public class SignupCalendarHelperImpl implements SignupCalendarHelper {
 		return externalCalendaringService.cancelEvent(vevent);
 	}
 	
-	public VEvent addUsersToVEvent(VEvent vevent, Set<User> users) {
+	@Override
+    public VEvent addUsersToVEvent(VEvent vevent, Set<User> users) {
 		return externalCalendaringService.addAttendeesToEvent(vevent, users);
 	}
 
-	public VEvent addAttendeesToVEvent(VEvent vevent, Set<SignupAttendee> attendees) {
-        Set<User> users = new HashSet<User>();
+	@Override
+    public VEvent addAttendeesToVEvent(VEvent vevent, Set<SignupAttendee> attendees) {
+        Set<User> users = new HashSet<>();
         for (SignupAttendee attendee : attendees) {
             User user = sakaiFacade.getUser(attendee.getAttendeeUserId());
             if (user != null) {
@@ -278,10 +280,9 @@ public class SignupCalendarHelperImpl implements SignupCalendarHelper {
 			if(StringUtils.isNotBlank(url)){
 				event.setField("vevent_url", url);
 			}
-			
-			
+
 		} catch (PermissionException e) {
-			log.error("SignupCalendarHelperImpl.generateEvent: " + e);
+            log.error("SignupCalendarHelperImpl.generateEvent: {}", String.valueOf(e));
 			return null;
 		}
 		
@@ -315,10 +316,8 @@ public class SignupCalendarHelperImpl implements SignupCalendarHelper {
 	
 
 	
-	@Setter
 	private SakaiFacade sakaiFacade;
 	
-	@Setter
 	private ExternalCalendaringService externalCalendaringService;
 
 }
