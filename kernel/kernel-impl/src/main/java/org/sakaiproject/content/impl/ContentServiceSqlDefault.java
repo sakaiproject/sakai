@@ -234,4 +234,19 @@ public class ContentServiceSqlDefault implements ContentServiceSql {
     public String getDropBoxRootQuotaQuerySql() {
         return "select SUM(FILE_SIZE) from CONTENT_RESOURCE where IN_COLLECTION LIKE ? and not exists (select 1 from SAKAI_USER_ID_MAP where USER_ID = substr(in_collection,length(?)+1,instr(substr(in_collection,length(?)+1),'/')-1))";
     }
+
+    /**
+     * return only one file_path from the content_resource table.
+     */
+    public String getOnlyOneFilePath(String resourceTableName) {
+        return "select file_path from " + resourceTableName + " where resource_sha256 = ? order by file_path desc limit 1";
+    }
+
+    /**
+     * return count file_path from the content_resource table.
+    */
+    public String getCountFilePath(String resourceTableName) {
+        return "select count(file_path) from " + resourceTableName + " where file_path = ?";
+    }
+
 }
