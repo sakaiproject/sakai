@@ -654,7 +654,7 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 	 * {@inheritDoc}
 	 */
 	@Override
-    public void modifyCalendar(SignupMeeting meeting) throws Exception {
+    public void 	modifyCalendar(SignupMeeting meeting) throws Exception {
 		List<SignupSite> signupSites = meeting.getSignupSites();
 		boolean saveMeeting = false;
 		List<SignupTimeslot> calendarBlocks = scanDivideCalendarBlocks(meeting);
