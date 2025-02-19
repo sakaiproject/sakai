@@ -702,10 +702,9 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 						 */
 						eventId = retrieveCustomCalendarEventId(calBlock,eventId);
 					}
-					else{
+					else if(CUSTOM_TIMESLOTS.equals(meeting.getMeetingType())) {
 						/*make sure that instructor/TF will create new Calendar blocks since calendars is already removed*/
-						if(CUSTOM_TIMESLOTS.equals(meeting.getMeetingType()))
-								eventId =null;
+						eventId = null;
 					}
 	
 					boolean isNew = true;
