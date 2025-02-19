@@ -37,10 +37,13 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
@@ -49,6 +52,8 @@ import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityNotDefinedException;
@@ -70,6 +75,7 @@ import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.javax.Filter;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.message.api.Message;
 import org.sakaiproject.message.api.MessageChannel;
@@ -104,14 +110,12 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import lombok.Setter;
-import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * BaseMessage is...
  */
 @Slf4j
-@Accessors(prefix = "m_" )
 public abstract class BaseMessage implements MessageService, DoubleStorageUser
 {
 	/** A Storage object for persistent storage. */
@@ -136,42 +140,46 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/** Dependency: MemoryService. */
-	@Setter protected MemoryService m_memoryService;
+	@Setter protected MemoryService memoryService;
 
 	/** Dependency: ServerConfigurationService. */
-	@Setter protected ServerConfigurationService m_serverConfigurationService;
+	@Setter protected ServerConfigurationService serverConfigurationService;
 
 	/** Dependency: SessionManager. */
-	@Setter protected SessionManager m_sessionManager;
+	@Setter protected SessionManager sessionManager;
 
 	/** Dependency: AuthzGroupService. */
-	@Setter protected AuthzGroupService m_authzGroupService;
+	@Setter protected AuthzGroupService authzGroupService;
 
 	/** Dependency: SecurityService. */
-	@Setter protected SecurityService m_securityService;
+	@Setter protected SecurityService securityService;
 
 	/** Dependency: TimeService. */
-	@Setter protected TimeService m_timeService;
+	@Setter protected TimeService timeService;
 
 	/** Dependency: EventTrackingService. */
-	@Setter protected EventTrackingService m_eventTrackingService;
+	@Setter protected EventTrackingService eventTrackingService;
 
 	/** Dependency: IdManager. */
-	@Setter protected IdManager m_idManager;
+	@Setter protected IdManager idManager;
 
 	/** Dependency: SiteService. */
-	@Setter protected SiteService m_siteService;
+	@Setter protected SiteService siteService;
 
 	/** Dependency: UserDirectoryService. */
-	@Setter protected UserDirectoryService m_userDirectoryService;
+	@Setter protected UserDirectoryService userDirectoryService;
 
 	/** Dependency: ThreadLocalManager. */
-	@Setter protected ThreadLocalManager m_threadLocalManager;
+	@Setter protected ThreadLocalManager threadLocalManager;
 
 	/** Dependency: EntityManager. */
-	@Setter protected EntityManager m_entityManager;
+	@Setter protected EntityManager entityManager;
 	
-	@Setter protected FormattedText m_formattedText;
+	@Setter protected FormattedText formattedText;
+
+	@Setter protected LTIService ltiService;
+
+	@Setter protected ContentHostingService contentHostingService;
 
 	/**
 	 * Access this service from the inner classes.
@@ -196,7 +204,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			// construct a storage helper and read
 			m_storage = newStorage();
 			m_storage.open();
-			messagesCache = m_memoryService.getCache("org.sakaiproject.announcement.tool.messages.cache");
+			messagesCache = memoryService.getCache("org.sakaiproject.announcement.tool.messages.cache");
 			log.info("init()");
 		}
 		catch (Throwable t)
@@ -299,7 +307,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 	 */
 	protected String getAccessPoint(boolean relative)
 	{
-		return (relative ? "" : m_serverConfigurationService.getAccessUrl()) + getReferenceRoot();
+		return (relative ? "" : serverConfigurationService.getAccessUrl()) + getReferenceRoot();
 
 	} // getAccessPoint
 
@@ -335,6 +343,28 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 				+ channelId + Entity.SEPARATOR + id;
 
 	} // messageReference
+
+	/**
+	 * Allows a service extending BaseMessageService to approve a message sender
+	 *
+	 * @param userId
+	 *        The user id of the message sender
+	 * @return true if the message sender is approved, false otherwise
+	 */
+	public boolean importAsDraft() {
+		return serverConfigurationService.getBoolean("import.importAsDraft", true);
+	}
+
+	/**
+	 * Allows a service extendingBase MessageService to approve a message sender
+	 *
+	 * @param userId
+	 *        The user id of the message sender
+	 * @return true if the message sender is approved, false otherwise
+	 */
+	public boolean approveMessageSender(String userId) {
+		return false;
+	}
 
 	/**
 	 * Access the internal reference which can be used to access the message from within the system.
@@ -374,7 +404,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 	 */
 	protected boolean unlockCheck(String lock, String resource)
 	{
-		if (!m_securityService.unlock(eventId(lock), resource))
+		if (!securityService.unlock(eventId(lock), resource))
 		{
 			return false;
 		}
@@ -397,10 +427,10 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 	protected boolean unlockCheck2(String lock1, String lock2, String resource)
 	{
 		// check the first lock
-		if (m_securityService.unlock(eventId(lock1), resource)) return true;
+		if (securityService.unlock(eventId(lock1), resource)) return true;
 
 		// if the second is different, check that
-		if ((!lock1.equals(lock2)) && (m_securityService.unlock(eventId(lock2), resource))) return true;
+		if ((!lock1.equals(lock2)) && (securityService.unlock(eventId(lock2), resource))) return true;
 
 		return false;
 
@@ -420,13 +450,13 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 	protected boolean unlockCheck3(String lock1, String lock2, String lock3, String resource)
 	{
 		// check the first lock
-		if (m_securityService.unlock(eventId(lock1), resource)) return true;
+		if (securityService.unlock(eventId(lock1), resource)) return true;
 
 		// if the second is different, check that
-		if ((!lock1.equals(lock2)) && (m_securityService.unlock(eventId(lock2), resource))) return true;
+		if ((!lock1.equals(lock2)) && (securityService.unlock(eventId(lock2), resource))) return true;
 
 		// if the third is different, check that
-		if ((!lock1.equals(lock3)) && (!lock2.equals(lock3)) && (m_securityService.unlock(eventId(lock3), resource))) return true;
+		if ((!lock1.equals(lock3)) && (!lock2.equals(lock3)) && (securityService.unlock(eventId(lock3), resource))) return true;
 
 		return false;
 
@@ -446,7 +476,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 	{
 		if (!unlockCheck(lock, resource))
 		{
-			throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), eventId(lock), resource);
+			throw new PermissionException(sessionManager.getCurrentSessionUserId(), eventId(lock), resource);
 		}
 
 	} // unlock
@@ -467,7 +497,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 	{
 		if (!unlockCheck2(lock1, lock2, resource))
 		{
-			throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), eventId(lock1) + "|" + eventId(lock2), resource);
+			throw new PermissionException(sessionManager.getCurrentSessionUserId(), eventId(lock1) + "|" + eventId(lock2), resource);
 		}
 
 	} // unlock2
@@ -490,7 +520,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 	{
 		if (!unlockCheck3(lock1, lock2, lock3, resource))
 		{
-			throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), eventId(lock1) + "|" + eventId(lock2) + "|"
+			throw new PermissionException(sessionManager.getCurrentSessionUserId(), eventId(lock1) + "|" + eventId(lock2) + "|"
 					+ eventId(lock3), resource);
 		}
 
@@ -513,9 +543,9 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 
 		ResourceProperties messageProps = message.getProperties();
 
-		String siteId = m_entityManager.newReference(message.getReference()).getContext();
+		String siteId = entityManager.newReference(message.getReference()).getContext();
 
-		if (unlockCheck(SECURE_READ_DRAFT, m_siteService.siteReference(siteId))) {
+		if (unlockCheck(SECURE_READ_DRAFT, siteService.siteReference(siteId))) {
 			return true;
 		}
 
@@ -598,7 +628,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			ref = "!admin";
 		}
 
-		MessageChannel channel = (MessageChannel) m_threadLocalManager.get(ref);
+		MessageChannel channel = (MessageChannel) threadLocalManager.get(ref);
 		if (channel == null)
 		{
 			channel = m_storage.getChannel(ref);
@@ -606,7 +636,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			// "cache" the channel in the current service in case they are needed again in this thread...
 			if (channel != null)
 			{
-				m_threadLocalManager.set(ref, channel);
+				threadLocalManager.set(ref, channel);
 			}
 		}
 
@@ -643,7 +673,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 	public MessageChannelEdit addChannel(String ref) throws IdUsedException, IdInvalidException, PermissionException
 	{
 		// check the name's validity
-		if (!m_entityManager.checkReference(ref)) throw new IdInvalidException(ref);
+		if (!entityManager.checkReference(ref)) throw new IdInvalidException(ref);
 
 		// check for existance
 		if (m_storage.checkChannel(ref))
@@ -668,8 +698,8 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			log.info("addChannel: null channel returned from putChannel("+ref+")");
 		}
 
-		Event event = m_eventTrackingService.newEvent(eventId(SECURE_CREATE), channel_reference, true);
-		m_eventTrackingService.post(event);
+		Event event = eventTrackingService.newEvent(eventId(SECURE_CREATE), channel_reference, true);
+		eventTrackingService.post(event);
 
 		return channel;
 
@@ -832,8 +862,8 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		m_storage.removeChannel(channel);
 
 		// track event
-		Event event = m_eventTrackingService.newEvent(eventId(SECURE_REMOVE_ANY), channel.getReference(), true);
-		m_eventTrackingService.post(event);
+		Event event = eventTrackingService.newEvent(eventId(SECURE_REMOVE_ANY), channel.getReference(), true);
+		eventTrackingService.post(event);
 
 		// mark the channel as removed
 		((BaseMessageChannelEdit) channel).setRemoved(event);
@@ -844,7 +874,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		// remove any realm defined for this resource
 		try
 		{
-			m_authzGroupService.removeAuthzGroup(m_authzGroupService.getAuthzGroup(channel.getReference()));
+			authzGroupService.removeAuthzGroup(authzGroupService.getAuthzGroup(channel.getReference()));
 		}
 		catch (AuthzPermissionException e)
 		{
@@ -899,9 +929,9 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			if (!allowGetMessage(channelReference(ref.getContext(), ref.getContainer()), ref.getReference(), isDraft))
 			{
 			    if (isDraft)
-			        throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), eventId(SECURE_READ_DRAFT), ref.getReference());
+			        throw new PermissionException(sessionManager.getCurrentSessionUserId(), eventId(SECURE_READ_DRAFT), ref.getReference());
 			    else
-			        throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), eventId(SECURE_READ), ref.getReference());
+			        throw new PermissionException(sessionManager.getCurrentSessionUserId(), eventId(SECURE_READ), ref.getReference());
 			}
 		}
 
@@ -983,7 +1013,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			}
 			else
 			{
-				draftsForId = m_sessionManager.getCurrentSessionUserId();
+				draftsForId = sessionManager.getCurrentSessionUserId();
 			}
 		}
 
@@ -1031,7 +1061,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 				if (!isIntersectionGroupRefsToGroups(msgGroups, allowedGroups)) {
 					User currentUsr=null;
 					try {
-						currentUsr = m_userDirectoryService.getUser(m_sessionManager.getCurrentSessionUserId());
+						currentUsr = userDirectoryService.getUser(sessionManager.getCurrentSessionUserId());
 
 					} catch (UserNotDefinedException e1) {
 						// TODO Auto-generated catch block
@@ -1050,7 +1080,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 					
 					Site site = null;
 					try {
-						site = m_siteService.getSite(context);
+						site = siteService.getSite(context);
 					} catch (IdUnusedException e) {
 						// TODO Auto-generated catch block
 						log.debug("Site not found for " + context + " " + e.getMessage());
@@ -1108,11 +1138,11 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		try
 		{
 			// get the channel's site's groups
-			Site site = m_siteService.getSite(m_context);
+			Site site = siteService.getSite(m_context);
 			Collection<Group> groups = site.getGroups();
 
 			// if the user has SECURE_ALL_GROUPS in the context (site), and the function for the channel (channel,site), or is super, select all site groups
-			if (m_securityService.isSuperUser() || (m_securityService.unlock(m_sessionManager.getCurrentSessionUserId(), eventId(SECURE_ALL_GROUPS), m_siteService.siteReference(m_context))
+			if (securityService.isSuperUser() || (securityService.unlock(sessionManager.getCurrentSessionUserId(), eventId(SECURE_ALL_GROUPS), siteService.siteReference(m_context))
 					&& unlockCheck(function, reference)))
 			{
 				return groups;
@@ -1129,7 +1159,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			}
 
 			// ask the authzGroup service to filter them down based on function
-			groupRefs = m_authzGroupService.getAuthzGroupsIsAllowed(m_sessionManager.getCurrentSessionUserId(),
+			groupRefs = authzGroupService.getAuthzGroupsIsAllowed(sessionManager.getCurrentSessionUserId(),
 					eventId(function), groupRefs);
 
 			// pick the Group objects from the site's groups to return, those that are in the groupRefs list
@@ -1151,7 +1181,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 	
 	protected boolean canSeeAllGroups(String userId, Site site){
 		if(site != null && site.getMember(userId) != null){
-			if(m_securityService.unlock(userId, eventId(SECURE_ALL_GROUPS), m_siteService.siteReference(site.getId()))){
+			if(securityService.unlock(userId, eventId(SECURE_ALL_GROUPS), siteService.siteReference(site.getId()))){
 				return true;
 			}
 		}
@@ -1201,8 +1231,8 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 					ByteArrayOutputStream outByteStream = new ByteArrayOutputStream();
 					OutputStreamWriter sw = new OutputStreamWriter(outByteStream);
 
-					String skin = m_serverConfigurationService.getString("skin.default");
-					String skinRepo = m_serverConfigurationService.getString("skin.repo");
+					String skin = serverConfigurationService.getString("skin.default");
+					String skinRepo = serverConfigurationService.getString("skin.repo");
 
 					Message message = getMessage(ref);
 					String title = ref.getDescription();
@@ -1445,7 +1475,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 
 				// check SECURE_ALL_GROUPS - if not, check if the message has groups or not
 				// TODO: the last param needs to be a ContextService.getRef(ref.getContext())... or a ref.getContextAuthzGroup() -ggolden
-				if ((userId == null) || ((!m_securityService.isSuperUser(userId)) && (!m_securityService.unlock(userId, eventId(SECURE_ALL_GROUPS), m_siteService.siteReference(ref.getContext())))))
+				if ((userId == null) || ((!securityService.isSuperUser(userId)) && (!securityService.unlock(userId, eventId(SECURE_ALL_GROUPS), siteService.siteReference(ref.getContext())))))
 				{
 					// get the channel to get the message to get group information
 					// TODO: check for efficiency, cache and thread local caching usage -ggolden
@@ -1613,7 +1643,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		try
 		{
 			// archive the synoptic tool options
-			Site site = m_siteService.getSite(siteId);
+			Site site = siteService.getSite(siteId);
 			ToolConfiguration synTool = site.getToolForCommonId("sakai.synoptic." + getLabel());
 			Properties synProp = synTool.getPlacementConfig();
 			if (synProp != null && synProp.size() > 0) {
@@ -1644,9 +1674,21 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 	/**
 	 * {@inheritDoc}
 	 */
-	public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map attachmentNames, Map userIdTrans,
-			Set userListAllowImport)
+	@Override
+	public String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId, Map<String, String> attachmentNames,
+        Map<Long, Map<String, Object>> ltiContentItems, Map<String, String> userIdTrans, Set<String> userListAllowImport)
 	{
+		// Because of abstract and concrete classes, setters, getters, and dependency injection we double check the services
+		if ( ltiService == null ) {
+			ltiService = ComponentManager.get(LTIService.class);
+		}
+
+		if ( contentHostingService == null ) {
+			contentHostingService = ComponentManager.get(ContentHostingService.class);
+		}
+
+		log.debug("merge ltiService={} contentHostingService={} class={}", ltiService, contentHostingService, this.getClass().getName());
+
 		// get the system name: FROM_WT, FROM_CT, FROM_SAKAI
 		String source = "";
 		// root: <service> node
@@ -1664,9 +1706,8 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		// prepare the buffer for the results log
 		StringBuilder results = new StringBuilder();
 
-		// get the channel associated with this site
+		// get the channel associated with this site (this is overridden in classes that extend BaseMessage)
 		String channelRef = channelReference(siteId, SiteService.MAIN_CONTAINER);
-
 		int count = 0;
 
 		try
@@ -1736,7 +1777,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 
 												// adjust the id
 												String oldId = element4.getAttribute("id");
-												String newId = m_idManager.createUuid();
+												String newId = idManager.createUuid();
 												ids.put(oldId, newId);
 												element4.setAttribute("id", newId);
 
@@ -1755,26 +1796,13 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 														{
 															// map the attachment area folder name
 															String oldUrl = element5.getAttribute("relative-url");
-															if (oldUrl.startsWith("/content/attachment/"))
-															{
-																String newUrl = (String) attachmentNames.get(oldUrl);
-																if (newUrl != null)
-																{
-																	if (newUrl.startsWith("/attachment/"))
-																		newUrl = "/content".concat(newUrl);
-
-																	element5.setAttribute("relative-url", Validator
-																			.escapeQuestionMark(newUrl));
-																}
-															}
-
-															// map any references to this site to the new site id
-															else if (oldUrl.startsWith("/content/group/" + fromSiteId + "/"))
-															{
-																String newUrl = "/content/group/" + siteId
-																		+ oldUrl.substring(15 + fromSiteId.length());
-																element5.setAttribute("relative-url", Validator
-																		.escapeQuestionMark(newUrl));
+															String toolTitle = getToolTitle(oldUrl);
+															if ( StringUtils.isBlank(toolTitle) ) toolTitle = "Messages";
+															log.debug("toolTitle: {} oldUrl {}", toolTitle, oldUrl);
+															ContentResource attachment = contentHostingService.copyAttachment(oldUrl, siteId, toolTitle, attachmentNames);
+															if ( attachment != null ) {
+																String newUrl = attachment.getReference();
+																element5.setAttribute("relative-url", Validator.escapeQuestionMark(newUrl));
 															}
 														}
 													}
@@ -1789,7 +1817,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 					// merge synoptic tool
 					else if (element2.getTagName().equals(SYNOPTIC_TOOL)) 
 					{
-						Site site = m_siteService.getSite(siteId);
+						Site site = siteService.getSite(siteId);
 						ToolConfiguration synTool = site.getToolForCommonId("sakai.synoptic." + getLabel());
 						Properties synProps = synTool.getPlacementConfig();
 
@@ -1846,17 +1874,16 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 								}
 							}
 						}
-						Session session = m_sessionManager.getCurrentSession();
+						Session session = sessionManager.getCurrentSession();
 						ToolSession toolSession = session.getToolSession(synTool.getId());
 						if (toolSession.getAttribute(STATE_UPDATE) == null)
 						{
 							toolSession.setAttribute(STATE_UPDATE, STATE_UPDATE);
 						}
-						m_siteService.save(site);
+						siteService.save(site);
 					}
 				}
 			}
-
 			// one more pass to update reply-to (now we have a complte id mapping),
 			// and we are ready then to create the message
 			children2 = root.getChildNodes();
@@ -1915,11 +1942,13 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 												if (!fUserId.equalsIgnoreCase("postmaster")
 														&& !userSet.contains(element4.getAttribute("from")))
 												{
-													goAhead = false;
+													goAhead = approveMessageSender(fUserId);
 												}
-												// TODO: reall want a draft? -ggolden
-												// set draft status based upon property setting
-												if (!m_serverConfigurationService.getBoolean("import.importAsDraft", true))
+												if (importAsDraft())
+												{
+													element4.setAttribute("draft", "true");
+												}
+												else
 												{
 													String draftAttribute = element4.getAttribute("draft");
 													if (draftAttribute.equalsIgnoreCase("true") || draftAttribute.equalsIgnoreCase("false"))
@@ -1927,19 +1956,20 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 													else
 														element4.setAttribute("draft", "true");
 												}
-												else
-												{
-													element4.setAttribute("draft", "true");
-												}
 											}
 										}
 									}
-
 									// merge if ok
 									if (goAhead)
 									{
 										// create a new message in the channel
 										MessageEdit edit = channel.mergeMessage(element3);
+
+										String description = edit.getBody();
+										description = ltiService.fixLtiLaunchUrls(description, siteId, ltiContentItems);
+										log.debug("description {}", description);
+										edit.setBody(description);
+
 										// commit the new message without notification
 										channel.commitMessage(edit, NotificationService.NOTI_NONE);
 										count++;
@@ -1962,6 +1992,25 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 	} // merge
 
 	/**
+	 * Extract the tool name from an attachment URL path - Can be overridden in the extending classes
+	 * @param url The attachment URL path
+	 * @return The tool name (e.g. "Announcements")
+	 */
+	public String getToolTitle(String url) {
+		if (url == null) return "";
+
+		// Match pattern: /content/attachment/{uuid}/{toolName}/{...}
+		Pattern pattern = Pattern.compile("/content/attachment/[^/]+/([^/]+)/.*");
+		Matcher matcher = pattern.matcher(url);
+
+		if (matcher.matches()) {
+			return matcher.group(1); // Return the captured tool name
+		}
+
+		return "";
+	}
+
+	/**
 	 * Import the synoptic tool options from another site
 	 * 
 	 * @param fromContext
@@ -1972,13 +2021,13 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		try 
 		{
 			// transfer the synoptic tool options
-			Site fromSite = m_siteService.getSite(fromContext);
+			Site fromSite = siteService.getSite(fromContext);
 			ToolConfiguration fromSynTool = fromSite.getToolForCommonId("sakai.synoptic." + getLabel());
 			Properties fromSynProp = null;
 			if (fromSynTool != null) 
 				fromSynProp = fromSynTool.getPlacementConfig();
 
-			Site toSite = m_siteService.getSite(toContext);
+			Site toSite = siteService.getSite(toContext);
 			ToolConfiguration toSynTool = toSite.getToolForCommonId("sakai.synoptic." + getLabel());
 			Properties toSynProp = null;
 			if (toSynTool != null) {
@@ -2013,14 +2062,14 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 					}
 				}
 
-				Session session = m_sessionManager.getCurrentSession();
+				Session session = sessionManager.getCurrentSession();
 				ToolSession toolSession = session.getToolSession(toSynTool.getId());
 				if (toolSession.getAttribute(STATE_UPDATE) == null)
 				{
 					toolSession.setAttribute(STATE_UPDATE, STATE_UPDATE);
 				}
 
-				m_siteService.save(toSite);
+				siteService.save(toSite);
 			}
 		}
 		catch (PermissionException pe)
@@ -2132,7 +2181,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		public BaseMessageChannelEdit(String ref)
 		{
 			// set the ids
-			Reference r = m_entityManager.newReference(ref);
+			Reference r = entityManager.newReference(ref);
 			m_context = r.getContext();
 			m_id = r.getId();
 
@@ -2267,7 +2316,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		 */
 		public String getUrl()
 		{
-			return m_serverConfigurationService.getAccessUrl() + getReference();
+			return serverConfigurationService.getAccessUrl() + getReference();
 
 		} // getUrl
 
@@ -2402,7 +2451,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		public List getMessagesPublic(Filter filter, boolean ascending)
 		{
 			String anncRead = eventId(MessageService.SECURE_READ);
-			boolean isChannelPublic = m_securityService.unlock(m_userDirectoryService.getAnonymousUser(), anncRead, this.getReference());
+			boolean isChannelPublic = securityService.unlock(userDirectoryService.getAnonymousUser(), anncRead, this.getReference());
 
 			return findFilterMessages(new PublicFilter(filter, isChannelPublic), ascending);
 		} // getMessagesPublic
@@ -2424,7 +2473,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			// check security on the message
 			if (!allowGetMessage(getReference(), messageReference(getReference(), messageId)))
 			{
-				throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), eventId(SECURE_READ), messageReference(
+				throw new PermissionException(sessionManager.getCurrentSessionUserId(), eventId(SECURE_READ), messageReference(
 						getReference(), messageId));
 			}
 
@@ -2465,7 +2514,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		protected boolean allowEditMessage(Message m, String fOwn, String fAny)
 		{
 			// is this the user's own?
-			if (m.getHeader().getFrom().getId().equals(m_sessionManager.getCurrentSessionUserId()))
+			if (m.getHeader().getFrom().getId().equals(sessionManager.getCurrentSessionUserId()))
 			{
 				// own or any
 				return unlockCheck2(fOwn, fAny, m.getReference());
@@ -2498,7 +2547,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 
 			// pick the security function
 			String function = null;
-			if (m.getHeader().getFrom().getId().equals(m_sessionManager.getCurrentSessionUserId()))
+			if (m.getHeader().getFrom().getId().equals(sessionManager.getCurrentSessionUserId()))
 			{
 				// own or any
 				function = SECURE_UPDATE_OWN;
@@ -2512,7 +2561,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			// security check
 			if (!allowEditMessage(messageId))
 			{
-				throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), eventId(function), m.getReference());
+				throw new PermissionException(sessionManager.getCurrentSessionUserId(), eventId(function), m.getReference());
 			}
 
 			// ignore the cache - get the message with a lock from the info store
@@ -2553,15 +2602,15 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		m_storage.commitMessage(this, edit);
 
 		// clear out any thread local caching of this message, since it has just changed
-		m_threadLocalManager.set(edit.getReference(), null);
+		threadLocalManager.set(edit.getReference(), null);
 		
 		// pick the security function
 		String function = getUpdateFunction(edit, SECURE_UPDATE_OWN, SECURE_UPDATE_ANY);
 		
 		// track event
-		Event event = m_eventTrackingService.newEvent(eventId(function), edit.getReference(), true,
+		Event event = eventTrackingService.newEvent(eventId(function), edit.getReference(), true,
 					priority);
-		m_eventTrackingService.post(event);
+		eventTrackingService.post(event);
 
 		
 		// close the edit object
@@ -2576,7 +2625,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		private String getUpdateFunction(MessageEdit edit, String ownFunction, String anyFunction) {
 			// pick the security function
 			String function = null;
-			if (edit.getHeader().getFrom().getId().equals(m_sessionManager.getCurrentSessionUserId()))
+			if (edit.getHeader().getFrom().getId().equals(sessionManager.getCurrentSessionUserId()))
 			{
 				// own or any
 				function = ownFunction;
@@ -2677,20 +2726,20 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			m_storage.commitMessage(this, edit);
 
 			// clear out any thread local caching of this message, since it has just changed
-			m_threadLocalManager.set(edit.getReference(), null);
+			threadLocalManager.set(edit.getReference(), null);
 			// clear out this messasge in the threadLocalManager findMessages cache
 			removeFromFindMessagesCache(edit);
 
 			// track event
 			if (edit.getReference().contains("motd")) {
-				Event event = m_eventTrackingService.newEvent(EVENT_MOTD_NEW, edit.getReference(), true,
+				Event event = eventTrackingService.newEvent(EVENT_MOTD_NEW, edit.getReference(), true,
 							priority);
-				m_eventTrackingService.post(event);
+				eventTrackingService.post(event);
 			}
 
-			Event event = m_eventTrackingService.newEvent(eventId(((BaseMessageEdit) edit).getEvent()), edit.getReference(), true,
+			Event event = eventTrackingService.newEvent(eventId(((BaseMessageEdit) edit).getEvent()), edit.getReference(), true,
 						priority);
-			m_eventTrackingService.post(event);
+			eventTrackingService.post(event);
 
 			// channel notification
 			if (priority != NotificationService.NOTI_IGNORE && transientNotification) 
@@ -2705,12 +2754,12 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		
 
 		public void removeFromFindMessagesCache (MessageEdit messageReference) {
-			List msgs = (List) m_threadLocalManager.get(getReference() + ".msgs");
+			List msgs = (List) threadLocalManager.get(getReference() + ".msgs");
 			if (msgs != null)
 			{
 				//Attempt to remove this message
 				msgs.remove(messageReference);
-				m_threadLocalManager.set(getReference() + ".msgs", msgs);
+				threadLocalManager.set(getReference() + ".msgs", msgs);
 			}
 		}
 
@@ -2728,7 +2777,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			m_storage.commitMessage(this, edit);
 
 			// clear out any thread local caching of this message, since it has just changed
-			m_threadLocalManager.set(edit.getReference(), null);
+			threadLocalManager.set(edit.getReference(), null);
 
 			// close the edit object
 			((BaseMessageEdit) edit).closeEdit();
@@ -2847,12 +2896,12 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			// security check
 			if (!allowAddMessage())
 			{
-				throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), eventId(SECURE_ADD), getReference());
+				throw new PermissionException(sessionManager.getCurrentSessionUserId(), eventId(SECURE_ADD), getReference());
 			}
 
 			String id = null;
 			// allocate a new unique message id
-			id = m_idManager.createUuid();
+			id = idManager.createUuid();
 
 			// get a new message in the info store
 			MessageEdit msg = m_storage.putMessage(this, id);
@@ -2920,7 +2969,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			// but we must also assure, that for grouped messages, we can remove it from ALL of the groups
 			if (allowed && (m.getHeader().getAccess() == MessageHeader.MessageAccess.GROUPED))
 			{
-				boolean own = (m.getHeader().getFrom() == null) ? true : m.getHeader().getFrom().getId().equals(m_sessionManager.getCurrentSessionUserId());
+				boolean own = (m.getHeader().getFrom() == null) ? true : m.getHeader().getFrom().getId().equals(sessionManager.getCurrentSessionUserId());
 				allowed = EntityCollections.isContainedEntityRefsToEntities(m.getHeader().getGroups(), getGroupsAllowRemoveMessage(own));
 			}
 			
@@ -2976,14 +3025,14 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			if (!allowRemoveMessage(message))
 			{
 				cancelMessage(message);
-				throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), eventId(function), message.getReference());
+				throw new PermissionException(sessionManager.getCurrentSessionUserId(), eventId(function), message.getReference());
 			}
 
 			m_storage.removeMessage(this, message);
 
 			// track event
-			Event event = m_eventTrackingService.newEvent(eventId(function), message.getReference(), true);
-			m_eventTrackingService.post(event);
+			Event event = eventTrackingService.newEvent(eventId(function), message.getReference(), true);
+			eventTrackingService.post(event);
 
 			startNotifyThread(event);
 
@@ -2993,7 +3042,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			// remove any realm defined for this resource
 			try
 			{
-				m_authzGroupService.removeAuthzGroup(message.getReference());
+				authzGroupService.removeAuthzGroup(message.getReference());
 			}
 			catch (AuthzPermissionException e)
 			{
@@ -3052,7 +3101,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		protected Message findMessage(String messageId)
 		{
 			// if we have "cached" the entire set of messages in the thread, get that and find our message there
-			List msgs = (List) m_threadLocalManager.get(getReference() + ".msgs");
+			List msgs = (List) threadLocalManager.get(getReference() + ".msgs");
 			if (msgs != null)
 			{
 				for (Iterator i = msgs.iterator(); i.hasNext();)
@@ -3066,7 +3115,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			}
 
 			// if we have this one message cached, get that
-			Message m = (Message) m_threadLocalManager.get(messageReference(getReference(), messageId));
+			Message m = (Message) threadLocalManager.get(messageReference(getReference(), messageId));
 
 			// if not, get from storage and cache
 			if (m == null)
@@ -3076,7 +3125,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 				// if we got one, cache it in the thread
 				if (m != null)
 				{
-					m_threadLocalManager.set(m.getReference(), m);
+					threadLocalManager.set(m.getReference(), m);
 				}
 			}
 
@@ -3329,7 +3378,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		{
 			this(channel, "");
 
-			m_body = m_formattedText.decodeFormattedTextAttribute(el, "body");
+			m_body = formattedText.decodeFormattedTextAttribute(el, "body");
 
 			// the children (header, body)
 			NodeList children = el.getChildNodes();
@@ -3355,7 +3404,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 						{
 							// convert from plaintext messages to formatted text messages
 							m_body = element.getChildNodes().item(0).getNodeValue();
-							if (m_body != null) m_body = m_formattedText.convertPlaintextToFormattedText(m_body);
+							if (m_body != null) m_body = formattedText.convertPlaintextToFormattedText(m_body);
 						}
 						if (m_body == null)
 						{
@@ -3438,7 +3487,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		public String getUrl()
 		{
 			if (m_channel == null) return "";
-			return m_serverConfigurationService.getAccessUrl() + getReference();
+			return serverConfigurationService.getAccessUrl() + getReference();
 
 		} // getUrl
 
@@ -3518,7 +3567,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 
 			m_header.toXml(doc, stack);
 
-			m_formattedText.encodeFormattedTextAttribute(message, "body", getBody());
+			formattedText.encodeFormattedTextAttribute(message, "body", getBody());
 
 			/*
 			 * // Note: the old way to set the body - CDATA is too sensitive to the characters within -ggolden Element body = doc.createElement("body"); message.appendChild(body); body.appendChild(doc.createCDATASection(getBody()));
@@ -3736,18 +3785,18 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			m_message = msg;
 			m_id = id;
 			m_message_order=0;
-			m_date = m_timeService.newTime();
+			m_date = timeService.newTime();
 			try
 			{
-				m_from = m_userDirectoryService.getUser(m_sessionManager.getCurrentSessionUserId());
+				m_from = userDirectoryService.getUser(sessionManager.getCurrentSessionUserId());
 			}
 			catch (UserNotDefinedException e)
 			{
-				m_from = m_userDirectoryService.getAnonymousUser();
+				m_from = userDirectoryService.getAnonymousUser();
 			}
 
 			// init the AttachmentContainer
-			m_attachments = m_entityManager.newReferenceList();
+			m_attachments = entityManager.newReferenceList();
 
 		} // BaseMessageHeaderEdit
 
@@ -3761,13 +3810,13 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		{
 			m_message = msg;
 			m_id = other.getId();
-			m_date = m_timeService.newTime(other.getDate().getTime());
+			m_date = timeService.newTime(other.getDate().getTime());
 			m_from = other.getFrom();
 			m_draft = other.getDraft();
 			m_access = other.getAccess();
 			m_message_order=other.getMessage_order();
 
-			m_attachments = m_entityManager.newReferenceList();
+			m_attachments = entityManager.newReferenceList();
 			replaceAttachments(other.getAttachments());
 
 			m_groups = new Vector(other.getGroups());
@@ -3786,13 +3835,13 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			m_id = el.getAttribute("id");
 			try
 			{
-				m_from = m_userDirectoryService.getUser(el.getAttribute("from"));
+				m_from = userDirectoryService.getUser(el.getAttribute("from"));
 			}
 			catch (UserNotDefinedException e)
 			{
-				m_from = m_userDirectoryService.getAnonymousUser();
+				m_from = userDirectoryService.getAnonymousUser();
 			}
-			m_date = m_timeService.newTimeGmt(el.getAttribute("date"));
+			m_date = timeService.newTimeGmt(el.getAttribute("date"));
 			String order = el.getAttribute("message_order");
 			if (order !=null && !"".equals(order)) 
 			{
@@ -3809,7 +3858,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			}
 
 			// attachments and groups
-			m_attachments = m_entityManager.newReferenceList();
+			m_attachments = entityManager.newReferenceList();
 
 			NodeList children = el.getChildNodes();
 			final int length = children.getLength();
@@ -3823,7 +3872,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 					// look for an attachment
 					if (element.getTagName().equals("attachment"))
 					{
-						m_attachments.add(m_entityManager.newReference(element.getAttribute("relative-url")));
+						m_attachments.add(entityManager.newReference(element.getAttribute("relative-url")));
 					}
 
 					// look for an group
@@ -3934,7 +3983,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 				for (Iterator i = m_groups.iterator(); i.hasNext();)
 				{
 					String groupId = (String) i.next();
-					Group group = m_siteService.findGroup(groupId);
+					Group group = siteService.findGroup(groupId);
 					if (group != null)
 					{
 						rv.add(group);
@@ -3972,7 +4021,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			if ((m_message == null) || ((BaseMessageEdit) m_message).m_channel == null)
 			{
 				log.warn("setGroupAccess() called with null message: " + ((m_message == null) ? "null" : ((BaseMessageEdit) m_message).toString()) + " or channel: " + ((m_message == null) ? "" : ((BaseMessageEdit) m_message).m_channel.toString()));
-				throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), "access:channel", ((m_message == null) ? "" : ((BaseMessageEdit) m_message).getReference()));
+				throw new PermissionException(sessionManager.getCurrentSessionUserId(), "access:channel", ((m_message == null) ? "" : ((BaseMessageEdit) m_message).getReference()));
 			}
 
 			// isolate any groups that would be removed or added
@@ -3984,7 +4033,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			if (removedGroups.size() > 0)
 			{
 				// is this the user's own?
-				boolean own = (getFrom() == null) ? true : getFrom().getId().equals(m_sessionManager.getCurrentSessionUserId());
+				boolean own = (getFrom() == null) ? true : getFrom().getId().equals(sessionManager.getCurrentSessionUserId());
 
 				// the Group objects the user has remove permission
 				Collection allowedGroups = ((BaseMessageEdit) m_message).m_channel.getGroupsAllowRemoveMessage(own);
@@ -3996,7 +4045,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 					// is ref a group the user can remove from?
 					if (!EntityCollections.entityCollectionContainsRefString(allowedGroups, ref))
 					{
-						throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), "access:group:remove", ref);
+						throw new PermissionException(sessionManager.getCurrentSessionUserId(), "access:group:remove", ref);
 					}
 				}
 			}
@@ -4014,7 +4063,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 					// is ref a group the user can remove from?
 					if (!EntityCollections.entityCollectionContainsRefString(allowedGroups, ref))
 					{
-						throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), "access:group:add", ref);
+						throw new PermissionException(sessionManager.getCurrentSessionUserId(), "access:group:add", ref);
 					}
 				}
 			}
@@ -4036,14 +4085,14 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			if ((m_message == null) || ((BaseMessageEdit) m_message).m_channel == null)
 			{
 				log.warn("clearGroupAccess() called with null message: " + ((m_message == null) ? "null" : ((BaseMessageEdit) m_message).toString()) + " or channel: " + ((m_message == null) ? "" : ((BaseMessageEdit) m_message).m_channel.toString()));
-				throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), "access:channel", ((m_message == null) ? "" : ((BaseMessageEdit) m_message).getReference()));
+				throw new PermissionException(sessionManager.getCurrentSessionUserId(), "access:channel", ((m_message == null) ? "" : ((BaseMessageEdit) m_message).getReference()));
 			}
 
 			// verify that the user has permission to add in the channel context
 			boolean allowed = ((BaseMessageEdit) m_message).getPropertiesEdit().get("selectedRoles") != null || ((m_message != null) && (((BaseMessageEdit) m_message).m_channel).allowAddChannelMessage());
 			if (!allowed)
 			{
-				throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), "access:channel", ((BaseMessageEdit) m_message).getReference());				
+				throw new PermissionException(sessionManager.getCurrentSessionUserId(), "access:channel", ((BaseMessageEdit) m_message).getReference());
 			}
 
 			// we are clear to perform this
@@ -4121,7 +4170,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 
 		@Override
 		public void setInstant(Instant instant) {
-			setDate(m_timeService.newTime(instant.toEpochMilli()));
+			setDate(timeService.newTime(instant.toEpochMilli()));
 		}
 		
 		/**
@@ -4165,7 +4214,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		 */
 		public List getAttachments()
 		{
-			return m_entityManager.newReferenceList(m_attachments);
+			return entityManager.newReferenceList(m_attachments);
 
 		} // getAttachments
 
@@ -4491,7 +4540,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
         {
             long startTime = System.currentTimeMillis() - (days * 24l * 60l * 60l * 1000l);
 
-            List messages = getMessages(channel, m_timeService.newTime(startTime), items, false, false, false);
+            List messages = getMessages(channel, timeService.newTime(startTime), items, false, false, false);
             Iterator iMsg = messages.iterator();
             Time pubDate = null;
             String summaryText = null;
@@ -4608,7 +4657,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		    finally
 			{
 				//clear any current bindings
-				m_threadLocalManager.clear();
+				threadLocalManager.clear();
 			}
 		}
 		

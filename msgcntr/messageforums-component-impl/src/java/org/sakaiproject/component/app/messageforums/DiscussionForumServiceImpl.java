@@ -830,8 +830,10 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 			}
 		}
 
+		String extendedDescription = getDecodedString(discussionForumElement.getAttribute(DISCUSSION_FORUM_DESC));
+		extendedDescription = ltiService.fixLtiLaunchUrls(extendedDescription, siteId, ltiContentItems);
 		discussionForum
-				.setExtendedDescription(getDecodedString(discussionForumElement.getAttribute(DISCUSSION_FORUM_DESC)));
+				.setExtendedDescription(extendedDescription);
 
 		discussionForum.setShortDescription(
 				getDecodedString(discussionForumElement.getAttribute(DISCUSSION_FORUM_SHORT_DESC)));
