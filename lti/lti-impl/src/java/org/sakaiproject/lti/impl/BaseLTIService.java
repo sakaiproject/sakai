@@ -1339,9 +1339,7 @@ public abstract class BaseLTIService implements LTIService {
 				Object result = this.insertContent(content, toContext);
 				if (result instanceof Long) {
 					Long newContentId = (Long) result;
-					String baseUrl = url.substring(0, url.indexOf("/site/") + 6); // +6 to include "/site/"
-					// Upgrade the access prefix from legacy blti to modern lti
-					String newUrl = baseUrl.replace(LTIService.LAUNCH_PREFIX_LEGACY, LTIService.LAUNCH_PREFIX) + toContext + "/content:" + newContentId;
+					String newUrl = serverConfigurationService.getServerUrl() + LTIService.LAUNCH_PREFIX + toContext + "/content:" + newContentId;
 					text = text.replace(url, newUrl);
 					if ( transversalMap != null ) transversalMap.put(url, newUrl);
 					log.debug("Inserted content item {} in site {} newUrl {}", newContentId, toContext, newUrl);
