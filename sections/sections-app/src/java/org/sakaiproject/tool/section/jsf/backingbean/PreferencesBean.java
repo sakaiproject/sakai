@@ -21,6 +21,7 @@
 package org.sakaiproject.tool.section.jsf.backingbean;
 
 import org.sakaiproject.tool.section.jsf.JsfUtil;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * Stores user preferences for table sorting and paging.  These preferences are
@@ -33,6 +34,7 @@ import org.sakaiproject.tool.section.jsf.JsfUtil;
 public class PreferencesBean extends CourseDependentBean {
 
 	private static final long serialVersionUID = 1L;
+	private static final ResourceLoader rb = new ResourceLoader("pager");
 
 	public PreferencesBean() {
 		overviewSortColumn = "title";
@@ -40,7 +42,7 @@ public class PreferencesBean extends CourseDependentBean {
 
 		rosterSortColumn = "studentName";
 		rosterSortAscending = true;
-		rosterMaxDisplayedRows = 50;
+		rosterMaxDisplayedRows = Integer.parseInt(rb.getString("pager_pageSize"));
 	}
 
 
