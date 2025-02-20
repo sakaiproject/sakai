@@ -1514,6 +1514,12 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 				calendar = edit;
 			}
 
+			// Load up all the calendar titles from existing entries
+			Set<String> calendarTitles = calendar.getEvents(null, null).stream()
+				.map(CalendarEvent::getDisplayName)
+				.collect(Collectors.toCollection(LinkedHashSet::new));
+			log.debug("calendarTitles: {}", calendarTitles);
+
 			// pass the DOM to get new event ids, and adjust attachments
 			NodeList children2 = root.getChildNodes();
 			int length2 = children2.getLength();
@@ -1620,6 +1626,12 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 									// create a new message in the calendar
 									CalendarEventEdit edit = calendar.mergeEvent(element3);
+									String title = edit.getDisplayName();
+									if ( StringUtils.isNotBlank(title) && calendarTitles.contains(title) ) {
+										results.append("merging calendar " + calendarRef + "skipping duplicate event: "+title+"\n");
+										log.debug("merge: skipping duplicate calendar event: {}", title);
+										continue;
+									}
 									String description = edit.getDescriptionFormatted();
 									description = ltiService.fixLtiLaunchUrls(description, siteId, ltiContentItems);
 									edit.setDescriptionFormatted(description);
