@@ -169,7 +169,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		try {
 			return userDirectoryService.getUser(userId);
 		} catch (UserNotDefinedException e) {
-            log.warn("Cannot get user for id: {}", userId);
+			log.warn("Cannot get user for id: {}", userId);
 			return null;
 		}
 	}
@@ -179,7 +179,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		try {
 			return userDirectoryService.getUser(userId);
 		} catch (UserNotDefinedException e) {
-            log.debug("getUserQuietly with id: {} does not exist : {}", userId, e.toString());
+			log.debug("getUserQuietly with id: {} does not exist : {}", userId, e.toString());
 			return null;
 		}
 	}
@@ -192,7 +192,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 				return true;
 			} 
 		} catch (UserNotDefinedException e) {
-            log.debug("User with id: {} does not exist : {}", userId, e.toString());
+			log.debug("User with id: {} does not exist : {}", userId, e.toString());
 		}
 		return false;
 	}
@@ -826,8 +826,8 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		if (!signupUsers.isEmpty() && signupUsers.contains(signupUser)) {
 			for (SignupUser sUser : signupUsers) {
 				if (sUser.getEid().equals(signupUser.getEid())) {
-                    update = !sUser.isPublishedSite() && signupUser.isPublishedSite() || signupUser.isPublishedSite()
-                            && signupUser.getMainSiteId().equals(getCurrentLocationId());
+					update = !sUser.isPublishedSite() && signupUser.isPublishedSite() || signupUser.isPublishedSite()
+							&& signupUser.getMainSiteId().equals(getCurrentLocationId());
 
 					break;
 				}
@@ -893,7 +893,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		try {
 			return userDirectoryService.getUserByEid(eid);
 		} catch (UserNotDefinedException e) {
-            log.debug("User with eid: {} does not exist.", eid);
+			log.debug("User with eid: {} does not exist.", eid);
 		}
 		return null;
 	}
@@ -904,33 +904,33 @@ public class SakaiFacadeImpl implements SakaiFacade {
 	}
 
 	@Override
-    public SecurityAdvisor pushAllowCalendarEdit(final Calendar calendar) {
-        SecurityAdvisor advisor = (userId, function, reference) -> {
-            if(calendar != null && calendar.canModifyAnyEvent(function)) {
-                return SecurityAdvisor.SecurityAdvice.ALLOWED;
-            } else {
-                return SecurityAdvisor.SecurityAdvice.NOT_ALLOWED;
-            }
-        };
+	public SecurityAdvisor pushAllowCalendarEdit(final Calendar calendar) {
+		SecurityAdvisor advisor = (userId, function, reference) -> {
+			if(calendar != null && calendar.canModifyAnyEvent(function)) {
+				return SecurityAdvisor.SecurityAdvice.ALLOWED;
+			} else {
+				return SecurityAdvisor.SecurityAdvice.NOT_ALLOWED;
+			}
+		};
 
-        enableSecurityAdvisor(advisor);
+		enableSecurityAdvisor(advisor);
 
-        return advisor;
-    }
-    
-    @Override
-    public SecurityAdvisor pushSecurityAdvisor() {
-        SecurityAdvisor advisor = (userId, function, reference) -> SecurityAdvisor.SecurityAdvice.ALLOWED;
+		return advisor;
+	}
+	
+	@Override
+	public SecurityAdvisor pushSecurityAdvisor() {
+		SecurityAdvisor advisor = (userId, function, reference) -> SecurityAdvisor.SecurityAdvice.ALLOWED;
 
-        enableSecurityAdvisor(advisor);
+		enableSecurityAdvisor(advisor);
 
-        return advisor;
-    }
+		return advisor;
+	}
 
 	@Override
-    public void popSecurityAdvisor(SecurityAdvisor advisor) {
-        disableSecurityAdvisor(advisor);
-    }
+	public void popSecurityAdvisor(SecurityAdvisor advisor) {
+		disableSecurityAdvisor(advisor);
+	}
 	
 	@Override
 	public String createGroup(String siteId, String title, String description, List<String> userUuids) {
@@ -939,8 +939,8 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		try {
 			site = siteService.getSite(siteId);
 		} catch (Exception e) {
-            log.error("createGroup failed for site: {}", site.getId(), e);
-            return null;
+			log.error("createGroup failed for site: {}", site.getId(), e);
+			return null;
 		}
 							
 		SecurityAdvisor securityAdvisor = (userId, function, reference) -> SecurityAdvisor.SecurityAdvice.ALLOWED;
@@ -991,14 +991,14 @@ public class SakaiFacadeImpl implements SakaiFacade {
 	@Override
 	public boolean addUsersToGroup(Collection<String> userIds, String siteId, String groupId, String timeslottoGroup) {
 
-        log.debug("addUsersToGroup(userIds={}, siteId={}, groupId={}", Collections.singletonList(userIds), siteId, groupId);
+		log.debug("addUsersToGroup(userIds={}, siteId={}, groupId={}", Collections.singletonList(userIds), siteId, groupId);
 		
 		Site site = null;
 		try {
 			site = siteService.getSite(siteId);
 		} catch (Exception e) {
-            log.error("addUserToGroup failed to retrieve site: {}", siteId, e);
-            return false;
+			log.error("addUserToGroup failed to retrieve site: {}", siteId, e);
+			return false;
 		}
 							
 		SecurityAdvisor securityAdvisor = (userId, function, reference) -> SecurityAdvisor.SecurityAdvice.ALLOWED;
@@ -1007,7 +1007,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		Group group = site.getGroup(groupId);		
 		
 		if(group == null) {
-        	log.error("No group for id: " + groupId);
+			log.error("No group for id: " + groupId);
 			return false;
 		}
 			
@@ -1021,10 +1021,10 @@ public class SakaiFacadeImpl implements SakaiFacade {
 				if(timeslottoGroup.equals("toGroup")) {
 					
 					List<String> updateusers = getGroupMembers(siteId, groupId);
-				
+
 					//first clone a new group member
-                    Set<String> tmpUsers = new HashSet<>(updateusers);
-			    
+					Set<String> tmpUsers = new HashSet<>(updateusers);
+
 					//retrieve only the difference members from TimeSlot and SiteGroup
 					tmpUsers.removeAll(userIds);
 				
@@ -1044,10 +1044,10 @@ public class SakaiFacadeImpl implements SakaiFacade {
 				return true;
 			
 			} catch (Exception e) {
-                log.error("addUsersToGroup failed for users: {} and group: {}", Collections.singletonList(userIds), groupId, e);
+				log.error("addUsersToGroup failed for users: {} and group: {}", Collections.singletonList(userIds), groupId, e);
 			} finally {
 				disableSecurityAdvisor(securityAdvisor);
-				}
+			}
 		return false;
 	}
 	
@@ -1058,20 +1058,20 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		try {
 			site = siteService.getSite(siteId);
 		} catch (Exception e) {
-            log.error("synchronizeGroup failed to retrieve site: {}", siteId, e);
-            return false;
+			log.error("synchronizeGroup failed to retrieve site: {}", siteId, e);
+			return false;
 		}
-							
+
 		SecurityAdvisor securityAdvisor = (userId, function, reference) -> SecurityAdvisor.SecurityAdvice.ALLOWED;
 		enableSecurityAdvisor(securityAdvisor);
 		
 		Group group = site.getGroup(groupId);
-		
+
 		if(group == null) {
-        	log.error("No group for id: " + groupId);
+			log.error("No group for id: " + groupId);
 			return false;
 		}
-		
+
 		try {
 			
 			if(group.getTitle().startsWith(GROUP_PREFIX)){
@@ -1087,10 +1087,10 @@ public class SakaiFacadeImpl implements SakaiFacade {
 			}
 			
 		} catch (Exception e) {
-        	log.error("synchGroupTitle failed for group: " + group.getTitle() + " and group: " + groupId, e);
-        } finally {
-        	disableSecurityAdvisor(securityAdvisor);
-        }
+			log.error("synchGroupTitle failed for group: " + group.getTitle() + " and group: " + groupId, e);
+		} finally {
+			disableSecurityAdvisor(securityAdvisor);
+		}
 		return changed;
 	}
 	
@@ -1098,14 +1098,14 @@ public class SakaiFacadeImpl implements SakaiFacade {
 	@Override
 	public boolean removeUserFromGroup(String userId, String siteId, String groupId) {
 
-        log.debug("removeUserFromGroup(userId={}, siteId={}, groupId={}", userId, siteId, groupId);
+		log.debug("removeUserFromGroup(userId={}, siteId={}, groupId={}", userId, siteId, groupId);
 		
 		Site site = null;
 		try {
 			site = siteService.getSite(siteId);
 		} catch (Exception e) {
-            log.error("removeUserFromGroup failed to retrieve site: {}", siteId, e);
-            return false;
+			log.error("removeUserFromGroup failed to retrieve site: {}", siteId, e);
+			return false;
 		}
 							
 		SecurityAdvisor securityAdvisor = (userId1, function, reference) -> SecurityAdvisor.SecurityAdvice.ALLOWED;
@@ -1139,8 +1139,8 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		try {
 			site = siteService.getSite(siteId);
 		} catch (Exception e) {
-            log.error("getGroupMembers failed to retrieve site: {}", siteId, e);
-            return users;
+			log.error("getGroupMembers failed to retrieve site: {}", siteId, e);
+			return users;
 		}
 							
 		SecurityAdvisor securityAdvisor = (userId, function, reference) -> SecurityAdvisor.SecurityAdvice.ALLOWED;
@@ -1152,14 +1152,14 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		
 			for(Member m: members) {
 				users.add(m.getUserId());
-                log.warn("Added user: {} to group: {}", m.getUserId(), groupId);
+				log.warn("Added user: {} to group: {}", m.getUserId(), groupId);
 			}
 			return users;
 		} catch (Exception e) {
-            log.error("getGroupMembers failed for site: {} and group: {}", siteId, groupId, e);
-        } finally {
-        	disableSecurityAdvisor(securityAdvisor);
-        }
+			log.error("getGroupMembers failed for site: {} and group: {}", siteId, groupId, e);
+		} finally {
+			disableSecurityAdvisor(securityAdvisor);
+		}
 		
 		return users;
 	}
@@ -1167,14 +1167,14 @@ public class SakaiFacadeImpl implements SakaiFacade {
 	@Override
 	public boolean checkForGroup(String siteId, String groupId) {
 
-        log.debug("checkForGroup: siteId={}, groupId={}", siteId, groupId);
+		log.debug("checkForGroup: siteId={}, groupId={}", siteId, groupId);
 		
 		Site site = null;
 		try {
 			site = siteService.getSite(siteId);
 		} catch (Exception e) {
-            log.error("checkForGroup failed to retrieve site: {}", siteId, e);
-            return false;
+			log.error("checkForGroup failed to retrieve site: {}", siteId, e);
+			return false;
 		}
 		
 		Group group = site.getGroup(groupId);

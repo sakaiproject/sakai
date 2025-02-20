@@ -2791,7 +2791,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		 *            if the event is locked for edit by someone else.
 		 */
 		@Override
-        public CalendarEventEdit getEditEvent(String eventId, String editType)
+		public CalendarEventEdit getEditEvent(String eventId, String editType)
 			throws IdUnusedException, PermissionException, InUseException
 		{
 			// if the id has a time range encoded, as for one of a sequence of recurring events, separate that out
@@ -2808,7 +2808,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 				}
 				catch (Exception ex)
 				{
-                    log.warn("getEditEvent: exception parsing eventId: {} : {}", eventId, ex.toString());
+					log.warn("getEditEvent: exception parsing eventId: {} : {}", eventId, ex.toString());
 				}
 			}
 
@@ -2873,21 +2873,21 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			// check for closed edit
 			if (!edit.isActiveEdit())
 			{
-                log.warn("commitEvent(): closed CalendarEventEdit {}", edit.getId());
+				log.warn("commitEvent(): closed CalendarEventEdit {}", edit.getId());
 				return;
 			}
 
 			BaseCalendarEventEdit bedit = (BaseCalendarEventEdit) edit;
-			         
-         // If creator doesn't exist, set it now (backward compatibility)
-         if ( edit.getCreator() == null || edit.getCreator().isEmpty())
-            edit.setCreator(); 
-         
+
+			// If creator doesn't exist, set it now (backward compatibility)
+			if ( edit.getCreator() == null || edit.getCreator().isEmpty())
+				edit.setCreator(); 
+
 			// update modified-by properties for event
-         edit.setModifiedBy(); 
+			edit.setModifiedBy(); 
 
 			// if the id has a time range encoded, as for one of a sequence of recurring events, separate that out
-         	String indivEventEntityRef = null;
+			String indivEventEntityRef = null;
 			TimeRange timeRange = null;
 			int sequence = 0;
 			if (bedit.m_id.startsWith("!"))

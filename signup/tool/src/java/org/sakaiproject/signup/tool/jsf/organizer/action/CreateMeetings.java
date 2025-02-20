@@ -374,7 +374,7 @@ public class CreateMeetings extends SignupAction implements MeetingTypes, Signup
 					
 					String groupId = sakaiFacade.createGroup(sakaiFacade.getCurrentLocationId(), title, description, attendees);
 
-                    log.debug("Created group for timeslot: {}", groupId);
+					log.debug("Created group for timeslot: {}", groupId);
 					
 					t.setGroupId(groupId);
 					
@@ -411,29 +411,30 @@ public class CreateMeetings extends SignupAction implements MeetingTypes, Signup
 
 		/* post Calendar */
 		if (isPublishToCalendar()) {
-            for (SignupMeeting meeting : signupMeetings) {
-                try {
-                    signupMeetingService.postToCalendar(meeting);
-                } catch (PermissionException pe) {
-                    Utilities.addErrorMessage(Utilities.rb.getString("error.calendarEvent.posted_failed_due_to_permission"));
-                    log.info("Missing permissions to post to calendar:  - Meeting title:{}", meeting.getTitle());
-                } catch (Exception e) {
-                    Utilities.addErrorMessage(Utilities.rb.getString("error.calendarEvent.posted_failed"));
-                    log.info("Exception posting to calendar - Meeting title:{}", meeting.getTitle());
-                }
-            }
+			for (SignupMeeting meeting : signupMeetings) {
+				try {
+					signupMeetingService.postToCalendar(meeting);
+				} catch (PermissionException pe) {
+					Utilities.addErrorMessage(Utilities.rb.getString("error.calendarEvent.posted_failed_due_to_permission"));
+					log.info("Missing permissions to post to calendar:  - Meeting title:{}", meeting.getTitle());
+				} catch (Exception e) {
+					Utilities.addErrorMessage(Utilities.rb.getString("error.calendarEvent.posted_failed"));
+					log.info("Exception posting to calendar - Meeting title:{}", meeting.getTitle());
+				}
+			}
 		}
 
 		/* post eventTracking info */
 		String recurringInfo = firstOne.isRecurredMeeting() ? " recur_mtng" : "";
-        for (SignupMeeting meeting : signupMeetings) {
-            log.info("{}title:{} - UserId:{} - has created  new meeting(s) at meeting startTime:{}", recurringInfo, meeting.getTitle(), sakaiFacade.getCurrentUserId(), sakaiFacade.getTimeService().newTime(meeting.getStartTime().getTime())
-                    .toStringLocalFull());
-            Utilities.postEventTracking(SignupEventTypes.EVENT_SIGNUP_MTNG_ADD, ToolManager.getCurrentPlacement()
-                    .getContext(), meeting.getId(), meeting.getTitle(), "at startTime:"
-                    + sakaiFacade.getTimeService().newTime(meeting.getStartTime().getTime()).toStringLocalFull()
-                    + recurringInfo);
-        }
+		for (SignupMeeting meeting : signupMeetings) {
+			log.info("{}title:{} - UserId:{} - has created  new meeting(s) at meeting startTime:{}",
+				recurringInfo, meeting.getTitle(), sakaiFacade.getCurrentUserId(),
+				sakaiFacade.getTimeService().newTime(meeting.getStartTime().getTime()).toStringLocalFull());
+			Utilities.postEventTracking(SignupEventTypes.EVENT_SIGNUP_MTNG_ADD, ToolManager.getCurrentPlacement()
+					.getContext(), meeting.getId(), meeting.getTitle(), "at startTime:"
+					+ sakaiFacade.getTimeService().newTime(meeting.getStartTime().getTime()).toStringLocalFull()
+					+ recurringInfo);
+		}
 		
 		
 	}
@@ -441,10 +442,8 @@ public class CreateMeetings extends SignupAction implements MeetingTypes, Signup
 	/**
 	 * It will deep copy the SignupMeeting object
 	 * 
-	 * @param s
-	 *            a SignupMeeting object for copy
-	 * @param addDaysForRecurringLength
-	 *            number of days, which will be added to each time-slot due to recurrences
+	 * @param s a SignupMeeting object for copy
+	 * @param addDaysForRecurringLength number of days, which will be added to each time-slot due to recurrences
 	 * @return a deep-copied SignupMeeting object.
 	 */
 	public SignupMeeting prepareDeepCopy(SignupMeeting s, int addDaysForRecurringLength) {

@@ -87,9 +87,9 @@ public class AddAttendee extends SignupAction {
 				Utilities.postEventTracking(signupEventType, ToolManager.getCurrentPlacement().getContext(), meeting.getId(),
 						meeting.getTitle(), this.signupEventTrackingInfo.getAllAttendeeTransferLogInfo());
 			}
-            log.debug("Meeting Name:{} - UserId:{}{}", meeting.getTitle(), userId, this.signupEventTrackingInfo.getAllAttendeeTransferLogInfo());
+			log.debug("Meeting Name:{} - UserId:{}{}", meeting.getTitle(), userId, this.signupEventTrackingInfo.getAllAttendeeTransferLogInfo());
 		} catch (PermissionException pe) {
-            throw new SignupUserActionException(Utilities.rb.getString("no.permissoin.do_it"));
+			throw new SignupUserActionException(Utilities.rb.getString("no.permissoin.do_it"));
 		} finally {
 			meeting = reloadMeeting(meeting.getId());
 			if(!hasException){

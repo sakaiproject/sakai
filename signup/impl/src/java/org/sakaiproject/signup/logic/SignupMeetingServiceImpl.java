@@ -115,18 +115,16 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 	 * {@inheritDoc}
 	 */
 	@Override
-    public List<SignupMeeting> getAllSignupMeetings(String currentSiteId, String userId) {
+	public List<SignupMeeting> getAllSignupMeetings(String currentSiteId, String userId) {
 		List<SignupMeeting> meetings = signupMeetingDao.getAllSignupMeetings(currentSiteId);
-
 		return screenAllowableMeetings(currentSiteId, userId, meetings);
-
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-    public List<SignupMeeting> getSignupMeetings(String currentSiteId, String userId, Date searchEndDate) {
+	public List<SignupMeeting> getSignupMeetings(String currentSiteId, String userId, Date searchEndDate) {
 		List<SignupMeeting> meetings = signupMeetingDao.getSignupMeetings(currentSiteId, searchEndDate);
 		return screenAllowableMeetings(currentSiteId, userId, meetings);
 	}
@@ -135,7 +133,7 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 	 * {@inheritDoc}
 	 */
 	@Override
-    public List<SignupMeeting> getSignupMeetings(String currentSiteId, String userId, Date startDate, Date endDate) {
+	public List<SignupMeeting> getSignupMeetings(String currentSiteId, String userId, Date startDate, Date endDate) {
 		List<SignupMeeting> meetings = signupMeetingDao.getSignupMeetings(currentSiteId, startDate, endDate);
 		return screenAllowableMeetings(currentSiteId, userId, meetings);
 	}
@@ -144,38 +142,38 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 	 * {@inheritDoc}
 	 */
 	@Override
-    public List<SignupMeeting> getSignupMeetingsInSiteWithCache(String siteId, Date startDate, int timeFrameInDays) {
-        return signupCacheService.getAllSignupMeetingsInSite(siteId, startDate, timeFrameInDays);
+	public List<SignupMeeting> getSignupMeetingsInSiteWithCache(String siteId, Date startDate, int timeFrameInDays) {
+		return signupCacheService.getAllSignupMeetingsInSite(siteId, startDate, timeFrameInDays);
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-    public List<SignupMeeting> getSignupMeetingsInSitesWithCache(List<String> siteIds, Date startDate, int timeFrameInDays) {
-        return signupCacheService.getAllSignupMeetingsInSites(siteIds, startDate, timeFrameInDays);
+	public List<SignupMeeting> getSignupMeetingsInSitesWithCache(List<String> siteIds, Date startDate, int timeFrameInDays) {
+		return signupCacheService.getAllSignupMeetingsInSites(siteIds, startDate, timeFrameInDays);
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
 	public List<SignupMeeting> getSignupMeetingsInSite(String siteId, Date startDate, Date endDate) {
-        return signupMeetingDao.getSignupMeetingsInSite(siteId, startDate, endDate);
+		return signupMeetingDao.getSignupMeetingsInSite(siteId, startDate, endDate);
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-    public List<SignupMeeting> getSignupMeetingsInSites(List<String> siteIds, Date startDate, Date endDate) {
-        return signupMeetingDao.getSignupMeetingsInSites(siteIds, startDate, endDate);
+	public List<SignupMeeting> getSignupMeetingsInSites(List<String> siteIds, Date startDate, Date endDate) {
+		return signupMeetingDao.getSignupMeetingsInSites(siteIds, startDate, endDate);
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-    public List<SignupMeeting> getRecurringSignupMeetings(String currentSiteId, String userId, Long recurrenceId, Date startDate) {
+	public List<SignupMeeting> getRecurringSignupMeetings(String currentSiteId, String userId, Long recurrenceId, Date startDate) {
 		List<SignupMeeting> meetings = signupMeetingDao.getRecurringSignupMeetings(currentSiteId, recurrenceId, startDate);
 		return screenAllowableMeetings(currentSiteId, userId, meetings);
 	}
@@ -654,12 +652,12 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 	 * {@inheritDoc}
 	 */
 	@Override
-    public void 	modifyCalendar(SignupMeeting meeting) throws Exception {
+	public void modifyCalendar(SignupMeeting meeting) throws Exception {
 		List<SignupSite> signupSites = meeting.getSignupSites();
 		boolean saveMeeting = false;
 		List<SignupTimeslot> calendarBlocks = scanDivideCalendarBlocks(meeting);
 		boolean hasMulptleBlock = calendarBlocks.size() > 1;
-		
+
 		/*we remove all the calendar events for custom-defined type to simplify process
 		 * when existing meetings come here. New meeting don't have permission setting yet 
 		 * and it is null.*/
@@ -671,7 +669,7 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 				removeCalendarEvents(smList);
 			}
 		}
-		
+
 		int sequence = 1;
 		boolean firstBlockLoop = true;
 		/*only custom-defined events have multiple discontinued calendar blocks*/
@@ -683,7 +681,7 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 					
 					if (calendar == null)// something went wrong when fetching the calendar
 						continue;
-	
+
 					String eventId = null;
 					if (site.isSiteScope()) {
 						eventId = site.getCalendarEventId();
@@ -695,7 +693,7 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 						}
 					}
 					CalendarEventEdit eventEdit = null;
-					
+
 					if(meeting.getPermission() !=null && !meeting.getPermission().isUpdate() && CUSTOM_TIMESLOTS.equals(meeting.getMeetingType())){
 						/*Case: for customed Calendar blocks, we need to break down the eventIds and update one by one.
 						 *only attendee can come here. Instructor/TF will first remove old Calendar blocks and create new ones again for simplicity!!!
@@ -706,12 +704,12 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 						/*make sure that instructor/TF will create new Calendar blocks since calendars is already removed*/
 						eventId = null;
 					}
-	
+
 					boolean isNew = true;
 					/*for custom_ts type, TF/instructor has no modification here eventId is null*/
 					if (eventId != null && eventId.trim().length() > 1) {
 						//allow attendee to update calendar
-                        SecurityAdvisor advisor = sakaiFacade.pushAllowCalendarEdit(calendar);
+						SecurityAdvisor advisor = sakaiFacade.pushAllowCalendarEdit(calendar);
 
 						try {
 							eventEdit = calendar.getEditEvent(eventId,
@@ -719,14 +717,14 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 							isNew = false;
 							if (!calendar.allowEditEvent(eventId)) {
 								continue;
-                            }
+							}
 						}catch (IdUnusedException e) {
-                            log.debug("IdUnusedException: {}", e.toString());
+							log.debug("IdUnusedException: {}", e.toString());
 							// If the event was removed from the calendar.
 							eventEdit = calendarEvent(calendar, meeting, site);
-                        } finally {
-                            sakaiFacade.popSecurityAdvisor(advisor);
-                        }
+						} finally {
+							sakaiFacade.popSecurityAdvisor(advisor);
+						}
 					} else {
 						eventEdit = calendarEvent(calendar, meeting, site);
 					}
@@ -773,7 +771,7 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 						}
 					}
 				} catch (PermissionException pe) {
-                    log.info("PermissionException for calendar-modification: {}", pe.getMessage());
+					log.info("PermissionException for calendar-modification: {}", pe.getMessage());
 					throw pe;
 				}
 			}//end-for
@@ -802,30 +800,30 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 		StringBuilder attendeeNamesMarkup = new StringBuilder();
 		int num = 0;
 
-        if (!meeting.getSignupTimeSlots().isEmpty()) {
-            attendeeNamesMarkup.append("<br /><br /><span style=\"font-weight: bold\"><b>").append(rb.getString("signup.event.attendees")).append("</b></span><br />");
-        }
+		if (!meeting.getSignupTimeSlots().isEmpty()) {
+			attendeeNamesMarkup.append("<br /><br /><span style=\"font-weight: bold\"><b>").append(rb.getString("signup.event.attendees")).append("</b></span><br />");
+		}
 
-        boolean displayAttendeeName = false;
-        for(SignupTimeslot ts : meeting.getSignupTimeSlots()) {
-        	displayAttendeeName = ts.isDisplayAttendees();//just need one of TS, it is not fine-grained yet
-        	//case: custom calender blocks, only print the related info
-        	if((startTime.getTime() <=  ts.getStartTime().getTime()) && endTime.getTime() >= ts.getEndTime().getTime()){
-        		num += ts.getAttendees().size();
-	            if(ts.isDisplayAttendees() && !ts.getAttendees().isEmpty()){
-	            	//privacy issue
-		            for(SignupAttendee attendee : ts.getAttendees()) {
-		                attendeeNamesMarkup.append("<span style=\"font-weight: italic\"><i>").append(sakaiFacade.getUserDisplayName(attendee.getAttendeeUserId())).append("</i></span><br />");
-		            }
-	            }
-        	}
-        }
-        
-        if(!displayAttendeeName || num < 1){
-        	String currentAttendees = MessageFormat.format(rb.getString("signup.event.currentattendees") ,new Object[] { num });
-        	attendeeNamesMarkup.append("<span style=\"font-weight: italic\"><i>").append(currentAttendees).append("</i></span><br />");
-        }
-         
+		boolean displayAttendeeName = false;
+		for(SignupTimeslot ts : meeting.getSignupTimeSlots()) {
+			displayAttendeeName = ts.isDisplayAttendees();//just need one of TS, it is not fine-grained yet
+			//case: custom calender blocks, only print the related info
+			if((startTime.getTime() <=  ts.getStartTime().getTime()) && endTime.getTime() >= ts.getEndTime().getTime()){
+				num += ts.getAttendees().size();
+				if(ts.isDisplayAttendees() && !ts.getAttendees().isEmpty()){
+					//privacy issue
+					for(SignupAttendee attendee : ts.getAttendees()) {
+						attendeeNamesMarkup.append("<span style=\"font-weight: italic\"><i>").append(sakaiFacade.getUserDisplayName(attendee.getAttendeeUserId())).append("</i></span><br />");
+					}
+				}
+			}
+		}
+		
+		if(!displayAttendeeName || num < 1){
+			String currentAttendees = MessageFormat.format(rb.getString("signup.event.currentattendees") ,new Object[] { num });
+			attendeeNamesMarkup.append("<span style=\"font-weight: italic\"><i>").append(currentAttendees).append("</i></span><br />");
+		}
+		 
 		String desc = meeting.getDescription() + attendeeNamesMarkup;
 		eventEdit.setDescription(PlainTextFormat.convertFormattedHtmlTextToPlaintext(desc));
 		eventEdit.setLocation(meeting.getLocation());
@@ -935,7 +933,7 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 	 * {@inheritDoc}
 	 */
 	@Override
-    @SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked")
 	public void removeCalendarEvents(List<SignupMeeting> meetings) throws Exception {
 		if (meetings == null || meetings.isEmpty())
 			return;
@@ -974,17 +972,11 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 					}
 					
 					for (String evtId : evtIds) {
-							CalendarEventEdit eventEdit = calendar.getEditEvent(evtId,
-								org.sakaiproject.calendar.api.CalendarService.EVENT_REMOVE_CALENDAR);
-						if (eventEdit == null)
-							continue;
-	
-						if (!calendar.allowEditEvent(evtId))
-							continue;
-	
+						CalendarEventEdit eventEdit = calendar.getEditEvent(evtId, org.sakaiproject.calendar.api.CalendarService.EVENT_REMOVE_CALENDAR);
+						if (eventEdit == null) continue;
+						if (!calendar.allowEditEvent(evtId)) continue;
 						calendar.removeEvent(eventEdit);
 					}
-					
 				} catch (PermissionException e) {
 					log.info("PermissionException for removal of calendar: {}", e.toString());
 				}
@@ -1076,7 +1068,6 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 	 * This will return a list of Group objects from the site
 	 * 
 	 * @param site
-	 *            a unique id which represents the current site
 	 * @return a list of Group objects from the site
 	 */
 	private List<Group> groupIds(SignupSite site) {
