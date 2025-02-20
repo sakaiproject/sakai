@@ -88,7 +88,8 @@ public class EvaluationRepositoryImpl extends SpringCrudRepositoryImpl<Evaluatio
         Root<Evaluation> eval = query.from(Evaluation.class);
         query.where(cb.and(cb.equal(eval.get("associationId"), associationId),
                             cb.equal(eval.get("evaluatedItemOwnerId"), userId),
-                            cb.notEqual(eval.get("evaluatedItemId"), userId)));// SAK-50923 this is to prevent a self graded rubric from appearing as a regular rubric evaluation
+                            cb.notEqual(eval.get("evaluatedItemId"), userId),// SAK-50923 this is to prevent a self graded rubric from appearing as a regular rubric evaluation
+                            cb.notEqual(eval.get("evaluatedItemId"), eval.get("creatorId"))));// SAK-50963 this is to prevent a peer graded rubric from appearing as a regular rubric evaluation
 
         return session.createQuery(query).uniqueResultOptional();
     }
