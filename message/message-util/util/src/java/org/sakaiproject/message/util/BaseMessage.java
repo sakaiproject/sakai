@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -1678,15 +1679,6 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 	public String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId, Map<String, String> attachmentNames,
         Map<Long, Map<String, Object>> ltiContentItems, Map<String, String> userIdTrans, Set<String> userListAllowImport)
 	{
-		// Because of abstract and concrete classes, setters, getters, and dependency injection we double check the services
-		if ( ltiService == null ) {
-			ltiService = ComponentManager.get(LTIService.class);
-		}
-
-		if ( contentHostingService == null ) {
-			contentHostingService = ComponentManager.get(ContentHostingService.class);
-		}
-
 		log.debug("merge ltiService={} contentHostingService={} class={}", ltiService, contentHostingService, this.getClass().getName());
 
 		// get the system name: FROM_WT, FROM_CT, FROM_SAKAI
@@ -1723,6 +1715,25 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 				commitChannel(edit);
 				channel = edit;
 			}
+
+			// Get the existing titles for duplicate removal
+			Set<String> messageTitles = new LinkedHashSet<>();
+			try
+			{
+				Iterator messages = channel.getMessages(null, true).iterator();
+				while (messages.hasNext())
+				{
+					MessageEdit msg = (MessageEdit) messages.next();
+					MessageHeaderEdit header = msg.getHeaderEdit();
+					String subject = header.getSubject();
+					if ( StringUtils.isBlank(subject) ) continue;
+					messageTitles.add(subject);
+				}
+			}
+			catch (Exception e) {
+				log.warn("merge: exception in handling " + serviceName() + " : ", e);
+			}
+			log.debug("messageTitles: {}", messageTitles);
 
 			// pass the DOM to get new message ids, record the mapping from old to new, and adjust attachments
 			NodeList children2 = root.getChildNodes();
@@ -1964,6 +1975,12 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 									{
 										// create a new message in the channel
 										MessageEdit edit = channel.mergeMessage(element3);
+
+										String subject = edit.getHeaderEdit().getSubject();
+										if ( StringUtils.isNotBlank(subject) && messageTitles.contains(subject) ) {
+											log.info("merge: skipping duplicate message: {}", subject);
+											continue;
+										}
 
 										String description = edit.getBody();
 										description = ltiService.fixLtiLaunchUrls(description, siteId, ltiContentItems);
@@ -3902,6 +3919,15 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			return m_id;
 
 		} // getId
+
+		/**
+		 * Access the subject of the message.  Expected to be overridden in subclasses.
+		 *
+		 * @return The subject of the message.
+		 */
+		public String getSubject() {
+			return null;
+		}
 
 		/**
 		 * Access the date/time the message was sent to the channel.
