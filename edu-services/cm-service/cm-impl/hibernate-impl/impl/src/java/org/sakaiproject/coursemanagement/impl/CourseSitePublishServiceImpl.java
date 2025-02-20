@@ -49,9 +49,9 @@ public class CourseSitePublishServiceImpl extends HibernateDaoSupport implements
 
     // sakai services
    private CourseManagementService courseManagementService;
-    private FunctionManager functionManager;
-    private SecurityService securityService;
-    private SiteService siteService;
+   private FunctionManager functionManager;
+   private SecurityService securityService;
+   private SiteService siteService;
 
    /**
     * called by the spring framework.
@@ -106,7 +106,7 @@ public class CourseSitePublishServiceImpl extends HibernateDaoSupport implements
    @Override
    public int publishCourseSites(int numDaysBeforeTermStarts) {
 
-       log.info("publishCourseSites({} days before the term starts)", numDaysBeforeTermStarts);
+      log.info("publishCourseSites({} days before the term starts)", numDaysBeforeTermStarts);
 
       Date today             = new Date();
       Date publishDate       = null;
@@ -119,7 +119,7 @@ public class CourseSitePublishServiceImpl extends HibernateDaoSupport implements
          for(AcademicSession academicSession : academicSessions) {
             publishDate = new Date(academicSession.getStartDate().getTime() - numDaysBeforeTermStarts * ONE_DAY_IN_MS);
             // see if the academic is scheduled to start within the specified number of days
-            if (publishDate.getTime() < today.  getTime() && today.getTime() < academicSession.getEndDate().getTime()) {
+            if (publishDate.getTime() < today.getTime() && today.getTime() < academicSession.getEndDate().getTime()) {
 
                // get a list of all published and unpublished course sites in ascending creation date order which are associated with the specified academic session
                Hashtable<String, String> propertyCriteria = new Hashtable<String, String>();
@@ -140,7 +140,7 @@ public class CourseSitePublishServiceImpl extends HibernateDaoSupport implements
                      // if set to auto publish or unset default publish the site
                      if (publishTypeProperty == null || CourseManagementConstants.SITE_PUBLISH_TYPE_AUTO.equals(publishTypeProperty)) {
                            // publish the course site
-                            log.debug("publishing course site {} ({}).", site.getTitle(), site.getId());
+                           log.debug("publishing course site {} ({}).", site.getTitle(), site.getId());
                            if (publishTypeProperty == null) {
                               // Set to auto for future
                               siteProperties.addProperty(CourseManagementConstants.SITE_PUBLISH_TYPE, CourseManagementConstants.SITE_PUBLISH_TYPE_AUTO);
