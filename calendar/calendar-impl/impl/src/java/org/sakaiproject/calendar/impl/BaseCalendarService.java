@@ -1492,6 +1492,9 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	public String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId, Map<String, String> attachmentImportMap,
 		Map<Long, Map<String, Object>> ltiContentItems, Map<String, String> userIdTrans, Set<String> userListAllowImport)
 	{
+
+
+
 		// prepare the buffer for the results log
 		StringBuilder results = new StringBuilder();
 
@@ -1513,6 +1516,16 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 				commitCalendar(edit);
 				calendar = edit;
 			}
+
+			// Load up all the calendar titles from existing entries
+			Set<String> calendarTitles = new LinkedHashSet<>();
+			Iterator events = calendar.getEvents(null, null).iterator();
+			while (events.hasNext())
+			{
+				CalendarEvent event = (CalendarEvent) events.next();
+				calendarTitles.add(event.getDisplayName());
+			}
+			log.debug("calendarTitles: {}", calendarTitles);
 
 			// pass the DOM to get new event ids, and adjust attachments
 			NodeList children2 = root.getChildNodes();
@@ -1620,6 +1633,12 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 									// create a new message in the calendar
 									CalendarEventEdit edit = calendar.mergeEvent(element3);
+									String title = edit.getDisplayName();
+									if ( StringUtils.isNotBlank(title) && calendarTitles.contains(title) ) {
+										results.append("merging calendar " + calendarRef + "skipping duplicate event: "+title+"\n");
+										log.debug("merge: skipping duplicate calendar event: {}", title);
+										continue;
+									}
 									String description = edit.getDescriptionFormatted();
 									description = ltiService.fixLtiLaunchUrls(description, siteId, ltiContentItems);
 									edit.setDescriptionFormatted(description);
