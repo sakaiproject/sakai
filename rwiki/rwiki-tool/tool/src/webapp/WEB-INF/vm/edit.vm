@@ -116,16 +116,18 @@
 				// This code is to obtain the necessary size to see all the groups and set it to the editControl panel
 				// So, for this reason it is important to let the selectedGroups section be the last section
 				let groupsButton = document.querySelector("#selectedGroups+div>button");
-				groupsButton.onclick = function() {
-					let expanded = groupsButton.attributes["aria-expanded"];
-					expanded = (expanded == undefined || expanded.nodeValue == "false")
-					if (expanded) { 
-						let editControlOriginalSize = document.getElementById("editControl").offsetHeight;
-						let editControlSize = editControlOriginalSize + 6 + (30 * (parseInt(document.getElementById("groups-size").value) + 1));
-						let fullSize = editControlSize + "px";
-						document.getElementById("editControl").style.height = fullSize;
-					} else {
-						document.getElementById("editControl").style.height = "";
+				if (groupsButton) {
+					groupsButton.onclick = function() {
+						let expanded = groupsButton.attributes["aria-expanded"];
+						expanded = (expanded == undefined || expanded.nodeValue == "false")
+						if (expanded) { 
+							let editControlOriginalSize = document.getElementById("editControl").offsetHeight;
+							let editControlSize = editControlOriginalSize + 6 + (30 * (parseInt(document.getElementById("groups-size").value) + 1));
+							let fullSize = editControlSize + "px";
+							document.getElementById("editControl").style.height = fullSize;
+						} else {
+							document.getElementById("editControl").style.height = "";
+						}
 					}
 				}
 			})
