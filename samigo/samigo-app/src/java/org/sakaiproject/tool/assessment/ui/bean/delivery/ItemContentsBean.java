@@ -161,8 +161,6 @@ public class ItemContentsBean implements Serializable {
 
 	private List matrixArray;
 
-	//private String[] columnChoices;
-
 	private List<Integer> columnIndexList;
 
 	private String[] columnArray;
@@ -183,6 +181,9 @@ public class ItemContentsBean implements Serializable {
 	// Rubrics
 	private String rubricStateDetails;
 	private boolean hasAssociatedRubric;
+
+	@Getter @Setter
+	private String calculatedQuestionAnswer;
 
 	public ItemContentsBean() {
 	}

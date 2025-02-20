@@ -2406,6 +2406,8 @@ public class DeliveryActionListener
           fins.add(fbean);
       }
 
+      bean.setCalculatedQuestionAnswer(commaDelimitedCalcQuestionAnswers(item , delivery, bean));
+
       FinBean fbean = new FinBean();
       if(service.getTexts().toArray().length>i)
           fbean.setText( (String) service.getTexts().toArray()[i]);
