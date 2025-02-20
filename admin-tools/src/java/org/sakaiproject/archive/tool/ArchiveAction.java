@@ -348,8 +348,21 @@ public class ArchiveAction extends VelocityPortletPaneledAction {
 		int totalItems = displayZips.size();
 		int pageSize = state.getAttribute("pagesize") != null ? ((Integer) state.getAttribute("pagesize")).intValue() : 10;
 		int currentPage = state.getAttribute("current-page") != null ? ((Integer) state.getAttribute("current-page")).intValue() : 1;
+
+		state.setAttribute("totalNumber", totalItems);
+		state.setAttribute("pagesize", pageSize);
+		state.setAttribute("current-page", currentPage);
+		
 		int startIndex = (currentPage - 1) * pageSize;
+		startIndex = Math.max(0, startIndex);
 		int endIndex = Math.min(startIndex + pageSize, totalItems);
+
+		List<SparseFile> pagedZips;
+		if (displayZips.isEmpty()) {
+			pagedZips = new ArrayList<>();
+		} else {
+			pagedZips = displayZips.subList(startIndex, endIndex);
+		}
 
 		context.put("totalNumber", totalItems);
 		context.put("pagesize", pageSize);
@@ -367,8 +380,7 @@ public class ArchiveAction extends VelocityPortletPaneledAction {
 		sizeList.add(new Integer[]{200});
 		context.put("sizeList", sizeList);
 
-		List<SparseFile> pagedZips = displayZips.subList(startIndex, endIndex);
-		context.put("archives", pagedZips);		
+		context.put("archives", pagedZips);
 
 		return "-download";
 	}
@@ -654,44 +666,51 @@ public class ArchiveAction extends VelocityPortletPaneledAction {
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState(((JetspeedRunData)data).getJs_peid());
 		String newPageSize = data.getParameters().getString("selectPageSize");
 		if (newPageSize != null) {
-			state.setAttribute("pagesize", Integer.valueOf(newPageSize));
-			state.setAttribute("current-page", Integer.valueOf(1));
+			state.setAttribute(STATE_PAGESIZE, Integer.valueOf(newPageSize));
+			state.setAttribute(STATE_CURRENT_PAGE, 1);
 		}
 	}
 
 	public void doList_first(RunData data) {
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState(((JetspeedRunData)data).getJs_peid());
-		state.setAttribute("current-page", Integer.valueOf(1));
+		state.setAttribute(STATE_CURRENT_PAGE, 1);
 	}
 
 	public void doList_prev(RunData data) {
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState(((JetspeedRunData)data).getJs_peid());
-		Integer currentPage = (Integer) state.getAttribute("current-page");
+		Integer currentPage = (Integer) state.getAttribute(STATE_CURRENT_PAGE);
 		if (currentPage != null && currentPage > 1) {
-			state.setAttribute("current-page", Integer.valueOf(currentPage - 1));
+			state.setAttribute(STATE_CURRENT_PAGE, currentPage - 1);
 		}
 	}
 
 
 	public void doList_next(RunData data) {
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-		Integer currentPage = (Integer) state.getAttribute("current-page");
-		Integer pageSize = state.getAttribute("pagesize") != null ? (Integer) state.getAttribute("pagesize") : 10;
-		Integer totalItems = state.getAttribute("totalNumber") != null ? (Integer) state.getAttribute("totalNumber") : 0;
-
-		int totalPages = (totalItems + pageSize - 1) / pageSize;
-		if (currentPage != null && currentPage < totalPages) {
-			state.setAttribute("current-page", currentPage + 1);
+		Integer currentPage = (Integer) state.getAttribute(STATE_CURRENT_PAGE);
+		Integer pageSize = (Integer) state.getAttribute(STATE_PAGESIZE);
+		Integer totalItems = (Integer) state.getAttribute("totalNumber");
+		
+		if (currentPage == null) currentPage = 1;
+		if (pageSize == null) pageSize = 10;
+		if (totalItems == null) totalItems = 0;
+		
+		int totalPages = Math.max(1, (totalItems + pageSize - 1) / pageSize);
+		if (currentPage < totalPages) {
+			state.setAttribute(STATE_CURRENT_PAGE, currentPage + 1);
 		}
 	}
 
 	public void doList_last(RunData data) {
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-		Integer pageSize = state.getAttribute("pagesize") != null ? (Integer) state.getAttribute("pagesize") : 10;
-		Integer totalItems = state.getAttribute("totalNumber") != null ? (Integer) state.getAttribute("totalNumber") : 0;
-
-		int lastPage = (totalItems + pageSize - 1) / pageSize;
-		state.setAttribute("current-page", lastPage);
+		Integer pageSize = (Integer) state.getAttribute(STATE_PAGESIZE);
+		Integer totalItems = (Integer) state.getAttribute("totalNumber");
+		
+		if (pageSize == null) pageSize = 10;
+		if (totalItems == null) totalItems = 0;
+		
+		int totalPages = Math.max(1, (totalItems + pageSize - 1) / pageSize);
+		state.setAttribute(STATE_CURRENT_PAGE, totalPages);
 	}
 
 	/**
