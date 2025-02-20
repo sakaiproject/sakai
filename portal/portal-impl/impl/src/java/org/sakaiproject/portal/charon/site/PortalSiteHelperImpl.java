@@ -459,7 +459,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 		} else {
 			//Get gateway site
-			Site gatewaySite = getSite(serverConfigurationService.getGatewaySiteId());
+			Site gatewaySite = getSite(currentSiteId);
 			if (!gatewaySite.isEmpty()) {
 				contextSites.put("gatewaySite", getSiteMap(gatewaySite, currentSiteId, null,false, false, true));
 			}
