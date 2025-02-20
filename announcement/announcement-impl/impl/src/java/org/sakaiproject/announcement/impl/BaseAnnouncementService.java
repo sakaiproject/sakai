@@ -2190,6 +2190,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 		 * 
 		 * @return The subject of the announcement.
 		 */
+		@Override
 		public String getSubject()
 		{
 			return ((m_subject == null) ? "" : m_subject);

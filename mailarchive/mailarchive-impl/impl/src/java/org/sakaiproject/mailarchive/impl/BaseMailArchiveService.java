@@ -1270,6 +1270,7 @@ public abstract class BaseMailArchiveService extends BaseMessage implements Mail
 		 * 
 		 * @return The subject of the mail message.
 		 */
+		@Override
 		public String getSubject()
 		{
 			return ((m_subject == null) ? "" : m_subject);
