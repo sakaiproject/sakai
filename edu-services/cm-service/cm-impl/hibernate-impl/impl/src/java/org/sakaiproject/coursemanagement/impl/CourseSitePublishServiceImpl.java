@@ -46,8 +46,6 @@ public class CourseSitePublishServiceImpl extends HibernateDaoSupport implements
    // class members
    private static final long ONE_DAY_IN_MS = 1000L * 60L * 60L * 24L;    // one day in ms = 1000ms/s · 60s/m · 60m/h · 24h/day
 
-
-    // sakai services
    private CourseManagementService courseManagementService;
    private FunctionManager functionManager;
    private SecurityService securityService;
