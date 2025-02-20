@@ -1720,10 +1720,9 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			Set<String> messageTitles = new LinkedHashSet<>();
 			try
 			{
-				Iterator messages = channel.getMessages(null, true).iterator();
-				while (messages.hasNext())
+				List<MessageEdit> messages = channel.getMessages(null, true);
+				for (MessageEdit msg : messages)
 				{
-					MessageEdit msg = (MessageEdit) messages.next();
 					MessageHeaderEdit header = msg.getHeaderEdit();
 					String subject = header.getSubject();
 					if ( StringUtils.isBlank(subject) ) continue;
