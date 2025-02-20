@@ -1515,13 +1515,9 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			}
 
 			// Load up all the calendar titles from existing entries
-			Set<String> calendarTitles = new LinkedHashSet<>();
-			Iterator events = calendar.getEvents(null, null).iterator();
-			while (events.hasNext())
-			{
-				CalendarEvent event = (CalendarEvent) events.next();
-				calendarTitles.add(event.getDisplayName());
-			}
+			Set<String> calendarTitles = calendar.getEvents(null, null).stream()
+				.map(CalendarEvent::getDisplayName)
+				.collect(Collectors.toCollection(LinkedHashSet::new));
 			log.debug("calendarTitles: {}", calendarTitles);
 
 			// pass the DOM to get new event ids, and adjust attachments
