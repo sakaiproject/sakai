@@ -1731,7 +1731,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 				}
 			}
 			catch (Exception e) {
-				log.warn("merge: exception in handling " + serviceName() + " : ", e);
+				log.warn("merge: exception retrieving message titles for " + serviceName() + " : ", e.toString());
 			}
 			log.debug("messageTitles: {}", messageTitles);
 
