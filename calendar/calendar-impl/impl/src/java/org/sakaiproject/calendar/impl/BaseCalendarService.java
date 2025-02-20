@@ -1492,9 +1492,6 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	public String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId, Map<String, String> attachmentImportMap,
 		Map<Long, Map<String, Object>> ltiContentItems, Map<String, String> userIdTrans, Set<String> userListAllowImport)
 	{
-
-
-
 		// prepare the buffer for the results log
 		StringBuilder results = new StringBuilder();
 
