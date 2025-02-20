@@ -1978,7 +1978,8 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 
 										String subject = edit.getHeaderEdit().getSubject();
 										if ( StringUtils.isNotBlank(subject) && messageTitles.contains(subject) ) {
-											log.info("merge: skipping duplicate message: {}", subject);
+											results.append("merging " + getLabel() + " channel " + channelRef + " skipping duplicate message: "+subject+"\n");
+											log.debug("merge: skipping duplicate message: {}", subject);
 											continue;
 										}
 
