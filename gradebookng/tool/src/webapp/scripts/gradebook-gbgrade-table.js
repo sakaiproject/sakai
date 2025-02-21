@@ -14,7 +14,10 @@ var addHiddenGbItemsCallback = function (hiddenItems) {
 
     hiddenItems.forEach(i => {
 
-      $(".gb-filter :input:checked[value='" + i + "']")
+      $(".gb-filter :input:checked")
+        .filter(function() {
+          return $(this).attr("value") === i;
+        })
         .attr("data-suppress-update-view-preferences", "true")
         .trigger("click", [true]);
     });
