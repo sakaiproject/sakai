@@ -320,6 +320,7 @@ div.fav-title-myworkspace {
     cursor: grab;
     cursor: -moz-grab;
     cursor: -webkit-grab;
+    min-width: 1.5rem;
   }
   > li {
     padding: 5px;
@@ -342,6 +343,8 @@ div.fav-title-myworkspace {
   div {
     display: flex;
     align-items: center;
+    overflow: hidden;
+    justify-content: flex-start;
   }
 }
 
