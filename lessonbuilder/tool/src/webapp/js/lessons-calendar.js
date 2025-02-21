@@ -105,6 +105,10 @@ $(function(){
                 }
             });
             calendar.render();
+
+            $('.collapsibleSectionHeader').on('click', function() {
+                calendar.updateSize();
+            });
         });
     }
 });
