@@ -394,6 +394,7 @@
                             </ul>
                         #end
                         <sakai-rubric-student
+                            site-id="$assignment.context"
                             tool-id="sakai.assignment.grades"
                             entity-id="$assignment.Id"
                             evaluated-item-id="$review.id.assessorUserId"

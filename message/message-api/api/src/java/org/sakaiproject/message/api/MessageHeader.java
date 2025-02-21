@@ -120,6 +120,13 @@ public interface MessageHeader extends AttachmentContainer
 	boolean getDraft();
 
 	/**
+	 * Access the subject of the message.
+	 *
+	 * @return The subject of the message.
+	 */
+	String getSubject();
+
+	/**
 	 * Access the groups defined for this message.
 	 * 
 	 * @return A Collection (String) of group refs (authorization group ids) defined for this message; empty if none are defined.

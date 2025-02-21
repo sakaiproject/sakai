@@ -1514,6 +1514,12 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 				calendar = edit;
 			}
 
+			// Load up all the calendar titles from existing entries
+			Set<String> calendarTitles = calendar.getEvents(null, null).stream()
+				.map(CalendarEvent::getDisplayName)
+				.collect(Collectors.toCollection(LinkedHashSet::new));
+			log.debug("calendarTitles: {}", calendarTitles);
+
 			// pass the DOM to get new event ids, and adjust attachments
 			NodeList children2 = root.getChildNodes();
 			int length2 = children2.getLength();
@@ -1620,6 +1626,12 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 									// create a new message in the calendar
 									CalendarEventEdit edit = calendar.mergeEvent(element3);
+									String title = edit.getDisplayName();
+									if ( StringUtils.isNotBlank(title) && calendarTitles.contains(title) ) {
+										results.append("merging calendar " + calendarRef + "skipping duplicate event: "+title+"\n");
+										log.debug("merge: skipping duplicate calendar event: {}", title);
+										continue;
+									}
 									String description = edit.getDescriptionFormatted();
 									description = ltiService.fixLtiLaunchUrls(description, siteId, ltiContentItems);
 									edit.setDescriptionFormatted(description);
@@ -2695,7 +2707,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 					// add an exclusion for where this one would have been %%% we are changing it, should it be immutable? -ggolden
 					List exclusions = ((ExclusionSeqRecurrenceRule) bedit.getExclusionRule()).getExclusions();
-					exclusions.add(Integer.valueOf(sequence));
+					exclusions.add(sequence);
 
 					// complete the edit
 					m_storage.commitEvent(this, edit);
@@ -2790,6 +2802,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		 * @exception InUseException
 		 *            if the event is locked for edit by someone else.
 		 */
+		@Override
 		public CalendarEventEdit getEditEvent(String eventId, String editType)
 			throws IdUnusedException, PermissionException, InUseException
 		{
@@ -2807,7 +2820,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 				}
 				catch (Exception ex)
 				{
-					log.warn("getEditEvent: exception parsing eventId: " + eventId + " : " + ex);
+					log.warn("getEditEvent: exception parsing eventId: {} : {}", eventId, ex.toString());
 				}
 			}
 
@@ -2872,21 +2885,21 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			// check for closed edit
 			if (!edit.isActiveEdit())
 			{
-				log.warn("commitEvent(): closed CalendarEventEdit " + edit.getId());
+				log.warn("commitEvent(): closed CalendarEventEdit {}", edit.getId());
 				return;
 			}
 
 			BaseCalendarEventEdit bedit = (BaseCalendarEventEdit) edit;
-			         
-         // If creator doesn't exist, set it now (backward compatibility)
-         if ( edit.getCreator() == null || edit.getCreator().equals("") )
-            edit.setCreator(); 
-         
+
+			// If creator doesn't exist, set it now (backward compatibility)
+			if ( edit.getCreator() == null || edit.getCreator().isEmpty())
+				edit.setCreator(); 
+
 			// update modified-by properties for event
-         edit.setModifiedBy(); 
+			edit.setModifiedBy(); 
 
 			// if the id has a time range encoded, as for one of a sequence of recurring events, separate that out
-         	String indivEventEntityRef = null;
+			String indivEventEntityRef = null;
 			TimeRange timeRange = null;
 			int sequence = 0;
 			if (bedit.m_id.startsWith("!"))
