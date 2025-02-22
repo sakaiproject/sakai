@@ -44,4 +44,8 @@ public class LinkMigrationHelper {
 		
 		return getLinkMigrationHelper().migrateOneLink(fromContextRef, targetContextRef, msgBody);
 	}
+
+	public static String migrateLinksInMergedRTE(String siteId, String fromContext, String fromServerUrl, String content) {
+		return getLinkMigrationHelper().migrateLinksInMergedRTE(siteId, fromContext, fromServerUrl, content);
+	}
 }

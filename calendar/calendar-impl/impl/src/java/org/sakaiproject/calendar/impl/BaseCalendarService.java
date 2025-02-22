@@ -97,7 +97,7 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.*;
-import org.sakaiproject.util.cover.LinkMigrationHelper;
+import org.sakaiproject.util.api.LinkMigrationHelper;
 
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.api.app.messageforums.DiscussionForumService;
@@ -152,7 +152,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	@Setter protected FunctionManager functionManager;
 	@Setter protected EventTrackingService eventTrackingService;
 	@Setter protected OpaqueUrlDao opaqueUrlDao;
-
+	@Setter protected LinkMigrationHelper linkMigrationHelper;
    	private PDFExportService pdfExportService;
 
 	private GroupComparator groupComparator = new GroupComparator();
@@ -1492,6 +1492,18 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	public String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId, Map<String, String> attachmentImportMap,
 		Map<Long, Map<String, Object>> ltiContentItems, Map<String, String> userIdTrans, Set<String> userListAllowImport)
 	{
+
+        String archiveContext = "";
+        String archiveServerUrl = "";
+
+        Node parent = root.getParentNode();
+        if (parent.getNodeType() == Node.ELEMENT_NODE)
+        {
+            Element parentEl = (Element)parent;
+            archiveContext = parentEl.getAttribute("source");
+            archiveServerUrl = parentEl.getAttribute("serverurl");
+        }
+
 		// prepare the buffer for the results log
 		StringBuilder results = new StringBuilder();
 
@@ -1634,6 +1646,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 									}
 									String description = edit.getDescriptionFormatted();
 									description = ltiService.fixLtiLaunchUrls(description, siteId, ltiContentItems);
+									description = linkMigrationHelper.migrateLinksInMergedRTE(siteId, archiveContext, archiveServerUrl, description);
 									edit.setDescriptionFormatted(description);
 
 									calendar.commitEvent(edit);
@@ -1897,7 +1910,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 						String msgBodyFormatted = ce.getDescriptionFormatted();						
 						boolean updated = false;
 						StringBuffer msgBodyPreMigrate = new StringBuffer(msgBodyFormatted);
-						msgBodyFormatted = LinkMigrationHelper.migrateAllLinks(entrySet, msgBodyFormatted);
+						msgBodyFormatted = linkMigrationHelper.migrateAllLinks(entrySet, msgBodyFormatted);
 						if(!msgBodyFormatted.equals(msgBodyPreMigrate.toString())){
 						
 							CalendarEventEdit edit = calendarObj.getEditEvent(ce.getId(), org.sakaiproject.calendar.api.CalendarService.EVENT_MODIFY_CALENDAR);
