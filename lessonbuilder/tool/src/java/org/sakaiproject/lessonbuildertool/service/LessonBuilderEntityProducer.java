@@ -843,7 +843,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		   } else if (type == SimplePageItem.TEXT) {
 		        String html = itemElement.getAttribute("html");
 		        explanation = ltiService.fixLtiLaunchUrls(html, siteId, ltiContentItems);
-				explanation = linkMigrationHelper.migrateLinksInMergedRTE(siteId, null, null, explanation);
+				explanation = linkMigrationHelper.migrateLinksInMergedRTE(siteId, archiveContext, archiveServerUrl, explanation);
 		   } else if (type == SimplePageItem.PAGE) {
 		       // sakaiId should be the new page ID
 		       Long newPageId = pageMap.get(Long.valueOf(sakaiId));
