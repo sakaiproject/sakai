@@ -125,7 +125,6 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
   @Setter private SessionManager sessionManager;
   @Setter private EventTrackingService eventTrackingService;
   @Setter private LTIService ltiService;
-  @Setter private LinkMigrationHelper linkMigrationHelper;
 
   protected NotificationService notificationService = null;
   protected String m_relativeAccessPoint = null;
@@ -579,7 +578,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
                                           byte[] decoded = Base64.decodeBase64(body.getBytes("UTF-8"));
                                           body = new String(decoded, charset);
                                           body = ltiService.fixLtiLaunchUrls(body, siteId, ltiContentItems);
-                                          body = linkMigrationHelper.migrateLinksInMergedRTE(siteId, archiveContext, archiveServerUrl, body);
+                                          body = LinkMigrationHelper.migrateLinksInMergedRTE(siteId, archiveContext, archiveServerUrl, body);
                                         }
                                         catch (Exception e)
                                         {

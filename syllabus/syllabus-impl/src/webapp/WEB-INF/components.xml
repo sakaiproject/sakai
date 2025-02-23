@@ -75,7 +75,6 @@
 		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
 		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
 		<property name="ltiService" ref="org.sakaiproject.lti.api.LTIService"/>
-		<property name="linkMigrationHelper" ref="org.sakaiproject.util.api.LinkMigrationHelper"/>
 	</bean>
 
 	<bean id="FixPublicSyllabusAttachmentsJob"
