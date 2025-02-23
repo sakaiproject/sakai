@@ -28,8 +28,8 @@ const defaults = {
 	  this.element.style.minWidth = "200px";
 	  this.setInitialValue();
 	  this.createHiddenFields();
-	  // Sync hidden fields immediately after setting initial value
-	  this.syncHiddenFields(this.parseDate(this.element.value));
+	  // Sync hidden fields with the initial value, preserving exact val if provided
+	  this.syncHiddenFields(this.options.val ? this.parseRawValue(this.options.val) : this.parseDate(this.element.value));
 	  this.setupEventListeners();
 	  this.handleDuration();
 	}
@@ -42,10 +42,16 @@ const defaults = {
 		const date = this.parseDate(initialValue);
 		this.element.value = this.formatForInput(date);
 	  } else if (initialValue) {
-		const date = this.parseDate(initialValue);
-		this.element.value = this.formatForInput(date);
+		// Use raw value for datetime-local input, no Date object manipulation
+		if (this.options.parseFormat === 'YYYY-MM-DD HH:mm:ss' && initialValue.includes(' ')) {
+		  const [datePart, timePart] = initialValue.split(' ');
+		  const [year, month, day] = datePart.split('-');
+		  const [hours, minutes] = timePart.split(':');
+		  this.element.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+		} else {
+		  this.element.value = initialValue; // Assume it's already in datetime-local format
+		}
 	  }
-	  // No need to call syncHiddenFields here; it’s handled in init
 	}
   
 	createHiddenFields() {
@@ -114,32 +120,42 @@ const defaults = {
   
 	  const endDate = new Date(date.getTime() + hours * 60 * 60 * 1000 + minutes * 60 * 1000);
 	  const endString = this.options.useTime
-		? endDate.toLocaleString()
+		? endDate.toLocaleString() // Display only, no storage impact
 		: endDate.toLocaleDateString();
   
 	  document.querySelector(`#${duration.update}`).textContent = endString;
 	}
   
-	parseDate(value) {
-	  if (!value) return this.options.allowEmptyDate ? null : new Date();
+	// Parse raw value without Date object to avoid timezone shifts
+	parseRawValue(value) {
+	  if (!value) return null;
   
-	  if (this.options.parseFormat === 'YYYY-MM-DD HH:mm:ss') {
+	  if (this.options.parseFormat === 'YYYY-MM-DD HH:mm:ss' && value.includes(' ')) {
 		const [datePart, timePart] = value.split(' ');
-		if (datePart && timePart) {
-		  const [year, month, day] = datePart.split('-').map(Number);
-		  const [hours, minutes, seconds] = timePart.split(':').map(Number);
-		  const date = new Date(year, month - 1, day, hours, minutes, seconds);
-		  return isNaN(date.getTime()) ? new Date() : date;
-		}
+		const [year, month, day] = datePart.split('-').map(Number);
+		const [hours, minutes, seconds] = timePart.split(':').map(Number);
+		return { year, month, day, hours, minutes, seconds };
 	  }
   
+	  // Fallback to Date parsing if not in expected format
+	  return this.parseDate(value);
+	}
+  
+	// Parse datetime-local input values or fallback default
+	parseDate(value) {
+	  if (!value) return this.options.allowEmptyDate ? null : this.getPreferredSakaiDatetime();
 	  const date = new Date(value);
-	  return isNaN(date.getTime()) ? new Date() : date;
+	  return isNaN(date.getTime()) ? this.getPreferredSakaiDatetime() : date;
 	}
   
 	formatForInput(date) {
 	  if (!date) return "";
 	  const pad = (num) => String(num).padStart(2, "0");
+	  // If date is a raw object from parseRawValue, use its components
+	  if (typeof date === 'object' && 'year' in date) {
+		return `${date.year}-${pad(date.month)}-${pad(date.day)}T${pad(date.hours)}:${pad(date.minutes)}`;
+	  }
+	  // Otherwise, use Date object (for user-entered values)
 	  const year = date.getFullYear();
 	  const month = pad(date.getMonth() + 1);
 	  const day = pad(date.getDate());
@@ -161,28 +177,57 @@ const defaults = {
 		let newValue = "";
   
 		if (date) {
-		  switch (key) {
-			case "month":
-			  newValue = date.getMonth() + 1;
-			  break;
-			case "day":
-			  newValue = date.getDate();
-			  break;
-			case "year":
-			  newValue = date.getFullYear();
-			  break;
-			case "hour":
-			  newValue = this.options.useTime ? date.getHours() : "";
-			  break;
-			case "minute":
-			  newValue = this.options.useTime ? date.getMinutes() : "";
-			  break;
-			case "ampm":
-			  newValue = this.options.useTime ? (date.getHours() < 12 ? "am" : "pm") : "";
-			  break;
-			case "iso8601":
-			  newValue = date.toISOString();
-			  break;
+		  const pad = (num) => String(num).padStart(2, "0");
+		  // Handle raw value object from initial val
+		  if (typeof date === 'object' && 'year' in date) {
+			switch (key) {
+			  case "month":
+				newValue = date.month;
+				break;
+			  case "day":
+				newValue = date.day;
+				break;
+			  case "year":
+				newValue = date.year;
+				break;
+			  case "hour":
+				newValue = this.options.useTime ? date.hours : "";
+				break;
+			  case "minute":
+				newValue = this.options.useTime ? date.minutes : "";
+				break;
+			  case "ampm":
+				newValue = this.options.useTime ? (date.hours < 12 ? "am" : "pm") : "";
+				break;
+			  case "iso8601":
+				newValue = `${date.year}-${pad(date.month)}-${pad(date.day)}T${pad(date.hours)}:${pad(date.minutes)}:${pad(date.seconds)}.000Z`;
+				break;
+			}
+		  } else {
+			// Handle Date object from user input
+			switch (key) {
+			  case "month":
+				newValue = date.getMonth() + 1;
+				break;
+			  case "day":
+				newValue = date.getDate();
+				break;
+			  case "year":
+				newValue = date.getFullYear();
+				break;
+			  case "hour":
+				newValue = this.options.useTime ? date.getHours() : "";
+				break;
+			  case "minute":
+				newValue = this.options.useTime ? date.getMinutes() : "";
+				break;
+			  case "ampm":
+				newValue = this.options.useTime ? (date.getHours() < 12 ? "am" : "pm") : "";
+				break;
+			  case "iso8601":
+				newValue = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}.000Z`;
+				break;
+			}
 		  }
 		}
   
@@ -195,16 +240,10 @@ const defaults = {
   
 	getPreferredSakaiDatetime() {
 	  const p = window.portal || (window.parent && window.parent.portal);
-	  if (p && p.serverTimeMillis && p.user && p.user.offsetFromServerMillis) {
-		const osTzOffset = new Date().getTimezoneOffset();
-		return new Date(
-		  parseInt(p.serverTimeMillis) +
-			p.user.offsetFromServerMillis +
-			(Date.now() - this.initTime) +
-			osTzOffset * 60 * 1000
-		);
+	  if (p && p.serverTimeMillis) {
+		return new Date(parseInt(p.serverTimeMillis));
 	  }
-	  console.debug("No Sakai timezone or server time. Using local time.");
+	  console.debug("No Sakai server time available. Using local time without adjustment.");
 	  return new Date();
 	}
   }
