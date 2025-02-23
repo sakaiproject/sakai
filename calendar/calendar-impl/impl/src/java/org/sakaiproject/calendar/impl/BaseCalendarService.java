@@ -1493,16 +1493,16 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		Map<Long, Map<String, Object>> ltiContentItems, Map<String, String> userIdTrans, Set<String> userListAllowImport)
 	{
 
-        String archiveContext = "";
-        String archiveServerUrl = "";
+		String archiveContext = "";
+		String archiveServerUrl = "";
 
-        Node parent = root.getParentNode();
-        if (parent.getNodeType() == Node.ELEMENT_NODE)
-        {
-            Element parentEl = (Element)parent;
-            archiveContext = parentEl.getAttribute("source");
-            archiveServerUrl = parentEl.getAttribute("serverurl");
-        }
+		Node parent = root.getParentNode();
+		if (parent.getNodeType() == Node.ELEMENT_NODE)
+		{
+			Element parentEl = (Element)parent;
+			archiveContext = parentEl.getAttribute("source");
+			archiveServerUrl = parentEl.getAttribute("serverurl");
+		}
 
 		// prepare the buffer for the results log
 		StringBuilder results = new StringBuilder();
