@@ -718,7 +718,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
    }
 
     // the pages are already made. this adds the elements
-    private boolean mergePage(Element element, String siteId, String fromSiteId, Map<Long,Long> pageMap,
+    private boolean mergePage(Element element, String oldServer, String siteId, String fromSiteId, Map<Long,Long> pageMap,
 	  Map<Long,Long> itemMap, Map<String,String> entityMap, Map<Long, Map<String, Object>> ltiContentItems,
 	 String archiveContext, String archiveServerUrl) {
   
@@ -1201,6 +1201,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
       int count = 0;
       boolean needFix = false;
 
+      String oldServer = root.getAttribute("server");
+
       if (siteId != null && siteId.trim().length() > 0)
       {
          try
@@ -1271,7 +1273,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		     Long oldPageId = Long.valueOf(pageElement.getAttribute("pageid"));
 		     pageElementMap.put(oldPageId, pageElement);
 
-		     if (mergePage(pageElement, siteId, fromSiteId, pageMap, itemMap, entityMap, ltiContentItems, archiveContext, archiveServerUrl))
+		     if (mergePage(pageElement, oldServer, siteId, fromSiteId, pageMap, itemMap, entityMap, ltiContentItems, archiveContext, archiveServerUrl))
 
 			 needFix = true;
 		 }
