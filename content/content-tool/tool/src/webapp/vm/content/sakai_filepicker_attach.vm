@@ -181,25 +181,24 @@ includeLatestJQuery('sakai_filepicker_attach.vm');
 		</div>
 		
 		#end	
-
-		<ul class="nav nav-tabs" id="resourceTabs">
-			<li class="nav-item">
-				<a class="nav-link #if(!$!navigating_resources && !$!navigating_onedrive  && !$!navigating_googledrive) active #end" data-bs-target="#pickerUploadOption" data-bs-toggle="tab">$tlang.getString("att.upl")</a>
+		<ul class="nav nav-tabs" id="resourceTabs" role="tablist">
+			<li class="nav-item" role="presentation">
+				<button class="nav-link #if(!$!navigating_resources && !$!navigating_onedrive && !$!navigating_googledrive) active #end" id="upload-tab" data-bs-toggle="tab" data-bs-target="#pickerUploadOption" type="button" role="tab" aria-controls="pickerUploadOption" aria-selected="#if(!$!navigating_resources && !$!navigating_onedrive && !$!navigating_googledrive)true#{else}false#end">$tlang.getString("att.upl")</button>
 			</li>
-			<li class="nav-item">
-				<a class="nav-link" data-bs-target="#pickerShareLinkOption" data-bs-toggle="tab">$tlang.getString("addi.or.url")</a>
+			<li class="nav-item" role="presentation">
+				<button class="nav-link" id="sharelink-tab" data-bs-toggle="tab" data-bs-target="#pickerShareLinkOption" type="button" role="tab" aria-controls="pickerShareLinkOption" aria-selected="false">$tlang.getString("addi.or.url")</button>
 			</li>
-			<li class="nav-item">
-				<a class="nav-link #if($!navigating_resources) active #end" data-bs-target="#pickerSelectFormResources" data-bs-toggle="tab">$tlang.getString("att.resource")</a>
+			<li class="nav-item" role="presentation">
+				<button class="nav-link #if($!navigating_resources) active #end" id="resources-tab" data-bs-toggle="tab" data-bs-target="#pickerSelectFormResources" type="button" role="tab" aria-controls="pickerSelectFormResources" aria-selected="#if($!navigating_resources)true#{else}false#end">$tlang.getString("att.resource")</button>
 			</li>
 			#if($!onedriveOn)
-			<li class="nav-item">
-				<a class="nav-link #if($!navigating_onedrive) active #end" data-bs-target="#pickerOneDrive" data-bs-toggle="tab"><span class="fa fa-windows" aria-hidden="true"></span> $tlang.getString("onedrive.integration")</a>
+			<li class="nav-item" role="presentation">
+				<button class="nav-link #if($!navigating_onedrive) active #end" id="onedrive-tab" data-bs-toggle="tab" data-bs-target="#pickerOneDrive" type="button" role="tab" aria-controls="pickerOneDrive" aria-selected="#if($!navigating_onedrive)true#{else}false#end"><span class="fa fa-windows" aria-hidden="true"></span> $tlang.getString("onedrive.integration")</button>
 			</li>
 			#end
 			#if($!googledriveOn)
-			<li class="nav-item">
-				<a class="nav-link #if($!navigating_googledrive) active #end" data-bs-target="#pickerGoogleDrive" data-bs-toggle="tab"><span class="fa fa-google" aria-hidden="true"></span> $tlang.getString("googledrive.integration")</a>
+			<li class="nav-item" role="presentation">
+				<button class="nav-link #if($!navigating_googledrive) active #end" id="googledrive-tab" data-bs-toggle="tab" data-bs-target="#pickerGoogleDrive" type="button" role="tab" aria-controls="pickerGoogleDrive" aria-selected="#if($!navigating_googledrive)true#{else}false#end"><span class="fa fa-google" aria-hidden="true"></span> $tlang.getString("googledrive.integration")</button>
 			</li>
 			#end
 		</ul>
