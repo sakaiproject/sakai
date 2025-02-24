@@ -734,6 +734,19 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 	public String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId, Map<String, String> attachmentNames,
 		Map<Long, Map<String, Object>> ltiContentItems, Map<String, String> userIdTrans, Set<String> userListAllowImport) {
 
+		String archiveContext = "";
+		String archiveServerUrl = "";
+
+		Node parent = root.getParentNode();
+		if (parent.getNodeType() == Node.ELEMENT_NODE)
+		{
+			Element parentEl = (Element)parent;
+			archiveContext = parentEl.getAttribute("source");
+			archiveServerUrl = parentEl.getAttribute("serverurl");
+		}
+
+		log.debug("merge archiveContext={} archiveServerUrl={}", archiveContext, archiveServerUrl);
+
 		Set<String> discussionTitles = new HashSet<>();
 		List<DiscussionForum> discussionForums = dfManager.getDiscussionForumsWithTopicsMembershipNoAttachments(siteId);
 		if (CollectionUtils.isNotEmpty(discussionForums)) {
@@ -751,7 +764,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 				final List<Element> messageForumElementList = elements.stream()
 						.filter(element -> MESSAGEFORUM.equals(element.getTagName())).collect(Collectors.toList());
 				if (!messageForumElementList.isEmpty()) {
-					mergeMessageForumElements(siteId, fromSiteId, attachmentNames, messageForumElementList.get(0), discussionTitles, ltiContentItems);
+					mergeMessageForumElements(siteId, fromSiteId, attachmentNames, messageForumElementList.get(0), discussionTitles, ltiContentItems, archiveContext, archiveServerUrl);
 				}
 			} catch (Exception e) {
 				results.append("merging ").append(getLabel()).append(" failed.\n");
@@ -763,7 +776,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 
 	private void mergeMessageForumElements(final String siteId, final String fromSiteId,
 		final Map<String, String> attachmentNames, final Element siteElement, Set<String> discussionTitles,
-		Map<Long, Map<String, Object>> ltiContentItems) throws Exception {
+		Map<Long, Map<String, Object>> ltiContentItems, String archiveContext, String archiveServerUrl) throws Exception {
 
 		final NodeList messageForumChildNodeList = siteElement.getChildNodes();
 
@@ -777,13 +790,13 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 			if (discussionTitles.contains(title)) {
 				continue;
 			}
-			mergeDiscussionForumElements(siteId, fromSiteId, attachmentNames, discussionForumElement, ltiContentItems);
+			mergeDiscussionForumElements(siteId, fromSiteId, attachmentNames, discussionForumElement, ltiContentItems, archiveContext, archiveServerUrl);
 		}
 	}
 
 	private void mergeDiscussionForumElements(final String siteId, final String fromSiteId,
 			final Map<String, String> attachmentNames, final Element discussionForumElement,
-			Map<Long, Map<String, Object>> ltiContentItems) throws Exception {
+			Map<Long, Map<String, Object>> ltiContentItems, String archiveContext, String archiveServerUrl) throws Exception {
 
 		final DiscussionForum discussionForum = forumManager.createDiscussionForum();
 
@@ -843,12 +856,13 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 
 		// Discussion Forum is saved inside this method
 		mergeDiscussionForumDetailNodeList(siteId, fromSiteId, attachmentNames, discussionForumElement,
-				discussionForum, ltiContentItems);
+				discussionForum, ltiContentItems, archiveContext, archiveServerUrl);
 	}
 
 	private void mergeDiscussionForumDetailNodeList(final String siteId, final String fromSiteId,
 		final Map<String, String> attachmentNames, final Element discussionForumElement,
-		DiscussionForum discussionForum, Map<Long, Map<String, Object>> ltiContentItems) throws Exception {
+		DiscussionForum discussionForum, Map<Long, Map<String, Object>> ltiContentItems,
+		String archiveContext, String archiveServerUrl) throws Exception {
 
 		final NodeList discussionForumDetailNodeList = discussionForumElement.getChildNodes();
 		final List<Element> elements = IntStream.range(0, discussionForumDetailNodeList.getLength())
@@ -880,7 +894,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 
 		final List<Element> discussionTopicElementList = getDiscussionTopicElementList(elements);
 		for (Element discussionTopicElement : discussionTopicElementList) {
-			mergeDiscussionTopicElement(siteId, fromSiteId, attachmentNames, discussionForumReturn, discussionTopicElement, ltiContentItems);
+			mergeDiscussionTopicElement(siteId, fromSiteId, attachmentNames, discussionForumReturn, discussionTopicElement, ltiContentItems, archiveContext, archiveServerUrl);
 		}
 	}
 
@@ -914,7 +928,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 
 	private void mergeDiscussionTopicElement(final String siteId, final String fromSiteId,
 		final Map<String, String> attachmentNames, final DiscussionForum discussionForum,
-		final Element discussionTopicElement, Map<Long, Map<String, Object>> ltiContentItems) throws Exception {
+		final Element discussionTopicElement, Map<Long, Map<String, Object>> ltiContentItems, String archiveContext, String archiveServerUrl) throws Exception {
 
 		DiscussionTopic discussionTopic = forumManager.createDiscussionForumTopic(discussionForum);
 
@@ -925,7 +939,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 		final List<Element> propertiesElementList = elements.stream().filter(e -> PROPERTIES.equals(e.getTagName()))
 				.collect(Collectors.toList());
 		for (Element propertiesElement : propertiesElementList) {
-			mergeDiscussionTopicPropertiesNodes(discussionTopic, propertiesElement, siteId, ltiContentItems);
+			mergeDiscussionTopicPropertiesNodes(discussionTopic, propertiesElement, siteId, ltiContentItems, archiveContext, archiveServerUrl);
 		}
 
 		final List<Element> attachmentElementList = getAttachmentElementList(elements);
@@ -1065,7 +1079,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 				.collect(Collectors.toList());
 	}
 
-	private void mergeDiscussionTopicPropertiesNodes(final DiscussionTopic discussionTopic, final Element propertiesElement, final String siteId, final Map<Long, Map<String, Object>> ltiContentItems) {
+	private void mergeDiscussionTopicPropertiesNodes(final DiscussionTopic discussionTopic, final Element propertiesElement, final String siteId, final Map<Long, Map<String, Object>> ltiContentItems, String archiveContext, String archiveServerUrl) {
 		final NodeList propertyList = propertiesElement.getChildNodes();
 		for (int n = 0; n < propertyList.getLength(); n++) {
 			final Node propertyNode = propertyList.item(n);
@@ -1078,6 +1092,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 					} else if (TOPIC_LONG_DESC.equals(propertyElement.getAttribute(NAME))) {
 						String extendedDescription = getDescriptionFromPropertyElement(propertyElement);
 						extendedDescription = ltiService.fixLtiLaunchUrls(extendedDescription, siteId, ltiContentItems);
+						extendedDescription = LinkMigrationHelper.migrateLinksInMergedRTE(siteId, archiveContext, archiveServerUrl, extendedDescription);
 						discussionTopic.setExtendedDescription(extendedDescription);
 					}
 				}
