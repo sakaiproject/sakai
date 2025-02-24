@@ -6428,12 +6428,8 @@ public class SimplePageBean {
 		if (i >= 0)
 		    name = name.substring(i+1);
 		String base = name;
-		String extension = "";
-		i = name.lastIndexOf(".");
-		if (i > 0) {
-		    base = name.substring(0, i);
-		    extension = name.substring(i+1);
-		}
+		String extension = org.springframework.util.StringUtils.getFilenameExtension(name);
+		base = StringUtils.removeEnd(name, "." + extension);
 
 		base = Validator.escapeResourceName(base);
 		extension = Validator.escapeResourceName(extension);
@@ -6666,13 +6662,7 @@ public class SimplePageBean {
 	}
 
 	public boolean isHtml(SimplePageItem i) {
-		StringTokenizer token = new StringTokenizer(i.getSakaiId(), ".");
-
-		String extension = "";
-					    
-		while (token.hasMoreTokens()) {
-			extension = token.nextToken().toLowerCase();
-		}
+		String extension = org.springframework.util.StringUtils.getFilenameExtension(i.getSakaiId());
 					    
 	    // we are just starting to store the MIME type for resources now. So existing content
 	    // won't have them.
