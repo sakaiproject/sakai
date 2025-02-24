@@ -694,16 +694,16 @@ document.addEventListener('DOMContentLoaded', () => {
 		// Show modal
 		const modal = new bootstrap.Modal('#attachmentModal', {
 			backdrop: 'static',
-			keyboard: false
+			keyboard: true   // Allow Esc to close
 		});
 		modal.show();
 		
-		// Handle modal close
-		document.querySelector('#attachmentModal').addEventListener('hide.bs.modal', () => {
-			document.querySelector('#attachform').insertAdjacentHTML('beforeend', `<input type="hidden" name="cancelButton" value="$tlang.getString("att.cancel")" /> `);
-			const act = '#toolLink("FilePickerAction" "doCancel")';
-			document.getElementById('attachForm').action = act.replace('&amp;','&');
-			submitform('attachForm');
+		// Handle modal close by triggering Cancel button
+		document.querySelector('#attachmentModal').addEventListener('hide.bs.modal', (e) => {
+			// Only handle if closed by backdrop click or Esc key
+			if (e.target === document.querySelector('#attachmentModal')) {
+				document.getElementById('cancelButton').click();
+			}
 		});
 	}
 });
