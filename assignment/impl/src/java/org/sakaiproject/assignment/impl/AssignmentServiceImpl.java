@@ -439,6 +439,18 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     public String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId, Map<String, String> attachmentNames,
         Map<Long, Map<String, Object>> ltiContentItems, Map<String, String> userIdTrans, Set<String> userListAllowImport) {
 
+
+        String archiveContext = "";
+        String archiveServerUrl = "";
+
+        Node parent = root.getParentNode();
+        if (parent.getNodeType() == Node.ELEMENT_NODE)
+        {
+            Element parentEl = (Element)parent;
+            archiveContext = parentEl.getAttribute("source");
+            archiveServerUrl = parentEl.getAttribute("serverurl");
+        }
+
         final StringBuilder results = new StringBuilder();
         results.append("begin merging ").append(getLabel()).append(" context ").append(siteId).append(LINE_SEPARATOR);
         final NodeList allChildrenNodeList = root.getChildNodes();
@@ -454,7 +466,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         for (Element assignmentElement : assignmentElements) {
 
             try {
-                mergeAssignment(siteId, assignmentElement, results, creatorId, assignmentTitles, attachmentNames, ltiContentItems);
+                mergeAssignment(siteId, assignmentElement, results, creatorId, assignmentTitles, attachmentNames, ltiContentItems, archiveContext, archiveServerUrl);
                 assignmentsMerged++;
             } catch (Exception e) {
                 final String error = "could not merge assignment with id: " + assignmentElement.getFirstChild().getFirstChild().getNodeValue();
@@ -990,7 +1002,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Transactional
-    private Assignment mergeAssignment(final String siteId, final Element element, final StringBuilder results, String creatorId, Set<String> assignmentTitles, Map<String, String> attachmentNames, Map<Long, Map<String, Object>> ltiContentItems) throws PermissionException {
+    private Assignment mergeAssignment(final String siteId, final Element element, final StringBuilder results, String creatorId, Set<String> assignmentTitles, Map<String, String> attachmentNames, Map<Long, Map<String, Object>> ltiContentItems, String archiveContext, String archiveServerUrl) throws PermissionException {
 
         if (!allowAddAssignment(siteId)) {
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ADD_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().context(siteId).reckon().getReference());
@@ -1016,6 +1028,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             if ( StringUtils.isNotEmpty(creatorId) ) assignmentFromXml.setAuthor(creatorId);
 
             String newInstructions = ltiService.fixLtiLaunchUrls(assignmentFromXml.getInstructions(), siteId, ltiContentItems);
+            newInstructions = linkMigrationHelper.migrateLinksInMergedRTE(siteId, archiveContext, archiveServerUrl, newInstructions);
             assignmentFromXml.setInstructions(newInstructions);
 
             Long contentKey = ltiService.mergeContentFromImport(element, siteId);
@@ -1092,12 +1105,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             for (int k=0; k<attachments.getLength(); ++k) {
                 Element attachmentElement = (Element) attachments.item(k);
                 String attachmentId = attachmentElement.getTextContent();
-                System.out.println("attachmentId="+attachmentId);
                 AssignmentSupplementItemAttachment attachment = assignmentSupplementItemService.newAttachment();
-                System.out.println("attachmentNames="+attachmentNames);
                 String fromContext = null;  // No-Op, there is no fromContext when importing from a ZIP
                 String nAttachId = transferAttachment(fromContext, siteId, attachmentId, attachmentNames);
-                System.out.println("saved attachment="+nAttachId);
                 attachment.setAssignmentSupplementItemWithAttachment(copy);
                 attachment.setAttachmentId(nAttachId);
                 assignmentSupplementItemService.saveAttachment(attachment);

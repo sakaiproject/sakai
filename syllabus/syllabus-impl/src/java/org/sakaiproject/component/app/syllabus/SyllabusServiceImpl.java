@@ -454,6 +454,19 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
   public String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId, Map<String, String> attachmentNames,
       Map<Long, Map<String, Object>> ltiContentItems, Map<String, String> userIdTrans, Set<String> userListAllowImport) 
   {
+
+	String archiveContext = "";
+	String archiveServerUrl = "";
+
+	Node parent = root.getParentNode();
+	if (parent.getNodeType() == Node.ELEMENT_NODE)
+	{
+		Element parentEl = (Element)parent;
+		archiveContext = parentEl.getAttribute("source");
+		archiveServerUrl = parentEl.getAttribute("serverurl");
+	}
+	log.debug("merge archiveContext={} archiveServerUrl={}", archiveContext, archiveServerUrl);
+
     // Get the existing titles for duplicate removal
     Set<String> syllabusTitles = new LinkedHashSet<>();
     SyllabusItem theItem = syllabusManager.getSyllabusItemByContextId(siteId);
@@ -565,6 +578,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
                                           byte[] decoded = Base64.decodeBase64(body.getBytes("UTF-8"));
                                           body = new String(decoded, charset);
                                           body = ltiService.fixLtiLaunchUrls(body, siteId, ltiContentItems);
+                                          body = LinkMigrationHelper.migrateLinksInMergedRTE(siteId, archiveContext, archiveServerUrl, body);
                                         }
                                         catch (Exception e)
                                         {
