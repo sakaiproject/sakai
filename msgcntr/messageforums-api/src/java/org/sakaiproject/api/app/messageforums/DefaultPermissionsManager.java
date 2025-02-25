@@ -39,7 +39,7 @@ public interface DefaultPermissionsManager
   public static final String FUNCTION_REVISE_OWN="messagecenter.reviseOwn";
   public static final String FUNCTION_DELETE_ANY="messagecenter.deleteAny";
   public static final String FUNCTION_DELETE_OWN="messagecenter.deleteOwn";
-  public static final String FUNCTION_MARK_AS_READ="messagecenter.markAsRead";
+  public static final String FUNCTION_MARK_AS_NOT_READ="messagecenter.markAsNotRead";
   
   public static final String MESSAGE_FUNCTION_PREFIX="msg.";
   public static final String MESSAGE_FUNCTION_EMAIL= MESSAGE_FUNCTION_PREFIX +"emailout";
@@ -83,6 +83,6 @@ public interface DefaultPermissionsManager
 
   public boolean isDeleteOwn(String role);
 
-  public boolean isMarkAsRead(String role);
+  public boolean isMarkAsNotRead(String role);
 
 }
