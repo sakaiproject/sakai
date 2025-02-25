@@ -102,7 +102,7 @@ public interface EntityProducer
 	}
 
 	/**
-	 * Merge the resources from the archive into the given site (adding creatorId)
+	 * Merge the resources from the archive into the given site with MergeConfig
 	 *
 	 * @param siteId
 	 *        The id of the site getting imported into.
@@ -114,17 +114,11 @@ public interface EntityProducer
 	 *        The site id from which these items were archived.
 	 * @param mcx
 	 *        MergeConfig for this import
-	 * @param userIdTrans
-	 *        A map supplied by the called containing keys of old user IDs and values of new user IDs that the content should be attributed to.
-	 * @param userListAllowImport
-	 *        A list of user IDs for which the content should be imported. An importer should ignore content if the user ID of the creator isn't in this
-	 *        set.
 	 * @return A log of status messages from the merge.
 	 */
-	default String merge(String siteId, Element root, String archivePath, String fromSiteId,
-			MergeConfig mcx, Map<String, String> userIdTrans, Set<String> userListAllowImport) {
+	default String merge(String siteId, Element root, String archivePath, String fromSiteId, MergeConfig mcx) {
 		// By default call the old merge without creatorId for those impls that don't need the creatorId
-		return merge(siteId, root, archivePath, fromSiteId, mcx.attachmentNames, userIdTrans, userListAllowImport);
+		return merge(siteId, root, archivePath, fromSiteId, mcx.attachmentNames, mcx.userIdTrans, mcx.userListAllowImport);
 	}
 
 	/**

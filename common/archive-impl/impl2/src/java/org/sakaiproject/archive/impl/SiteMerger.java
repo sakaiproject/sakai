@@ -92,9 +92,7 @@ public class SiteMerger {
 
 	private String DEV_MERGE_KEEP_ATTACHMENTS = "dev.merge.keep.attachments";
 	private Boolean DEV_MERGE_KEEP_ATTACHMENTS_DEFAULT = false;
-	
-	//SWG TODO I have a feeling this is a bug
-	protected HashSet<String> usersListAllowImport = new HashSet<String>(); 
+
 	/**
 	* Process a merge for the file, or if it's a directory, for all contained files (one level deep).
 	* @param fileName The site name (for the archive file) to read from.
@@ -366,7 +364,7 @@ public class SiteMerger {
                                         mcx.archiveServerUrl = parentEl.getAttribute("serverurl");
                                     }
                                     log.debug("Merging archive data for {} ({}) to site {} archive from context {} and server {}", serviceName, fileName, siteId, mcx.archiveContext, mcx.archiveServerUrl);
-		                            msg = service.merge(siteId, element, fileName, fromSite, mcx, new HashMap() /* empty userIdTran map */, usersListAllowImport);
+		                            msg = service.merge(siteId, element, fileName, fromSite, mcx);
 						        } else {
 						            log.warn("Skipping merge archive data for "+serviceName+" ("+fileName+") to site "+siteId+", checked filter failed (filtersOn="+filterSakaiService+", filters="+Arrays.toString(filteredSakaiService)+")");
 						        }
@@ -565,7 +563,7 @@ public class SiteMerger {
 					if (!element3.getTagName().equals("roles")) continue;
 	
 					try  {	
-						mergeSiteRoles(element3, siteId, useIdTrans, filterSakaiRoles, filteredSakaiRoles);
+						mergeSiteRoles(element3, siteId, mcx, filterSakaiRoles, filteredSakaiRoles);
 					} 
 					catch (PermissionException e1) {
 						log.warn(e1.getMessage(), e1);
@@ -632,7 +630,7 @@ public class SiteMerger {
 	* @param element The XML DOM tree of messages to merge.
 	* @param siteId The id of the site getting imported into.
 	*/
-	protected void mergeSiteRoles(Element el, String siteId, HashMap useIdTrans, boolean filterSakaiRoles, String[] filteredSakaiRoles) throws PermissionException
+	protected void mergeSiteRoles(Element el, String siteId, MergeConfig mcx, boolean filterSakaiRoles, String[] filteredSakaiRoles) throws PermissionException
 	{
 		// heck security (throws if not permitted)
 		unlock(SiteService.SECURE_UPDATE_SITE, siteService.siteReference(siteId));
@@ -696,7 +694,7 @@ public class SiteMerger {
 
 					String userId = element3.getAttribute("userId");	
 					// this user has a qualified role, his/her resource will be imported
-					usersListAllowImport.add(userId);
+					mcx.userListAllowImport.add(userId);
 				}
 			} // for
 		}

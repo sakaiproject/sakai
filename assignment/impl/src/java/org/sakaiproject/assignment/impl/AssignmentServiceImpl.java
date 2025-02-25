@@ -436,8 +436,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     @Transactional
-    public String merge(String siteId, Element root, String archivePath, String fromSiteId,
-        MergeConfig mcx, Map<String, String> userIdTrans, Set<String> userListAllowImport) {
+    public String merge(String siteId, Element root, String archivePath, String fromSiteId, MergeConfig mcx) {
 
 
         final StringBuilder results = new StringBuilder();

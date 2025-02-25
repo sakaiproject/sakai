@@ -1131,14 +1131,14 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
    // Externally used for zip import
    @Override
-   public String merge(String siteId, Element root, String archivePath, String fromSiteId, 
-        MergeConfig mcx, Map<String, String> userIdTrans, Set<String> userListAllowImport) {
-       return mergeInternal(siteId, root, archivePath, fromSiteId, mcx, userIdTrans, userListAllowImport, null);
+   public String merge(String siteId, Element root, String archivePath, String fromSiteId, MergeConfig mcx) {
+       Map<String, String> entityMap = null;
+       return mergeInternal(siteId, root, archivePath, fromSiteId, mcx, entityMap);
    }
 
    // Internally used for both site copy and zip import
-   public String mergeInternal(String siteId, Element root, String archivePath, String fromSiteId,
-        MergeConfig mcx, Map userIdTrans, Set userListAllowImport, Map<String, String> entityMap)
+   public String mergeInternal(String siteId, Element root, String archivePath, String fromSiteId, MergeConfig mcx,
+       Map<String, String> entityMap)
    {
 
 	  log.debug("Lessons Merge siteId={} fromSiteId={} creatorId={} archiveContext={} archiveServerUrl={}",
@@ -1542,7 +1542,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 		MergeConfig mcx = new MergeConfig();
 		mcx.creatorId = sessionManager.getCurrentSessionUserId();
-		mergeInternal(toContext,  (Element)doc.getFirstChild().getFirstChild(), "/tmp/archive", fromContext, mcx, null, null, entityMap);
+		mergeInternal(toContext,  (Element)doc.getFirstChild().getFirstChild(), "/tmp/archive", fromContext, mcx, entityMap);
 
 		ToolSession session = sessionManager.getCurrentToolSession();
 

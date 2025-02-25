@@ -461,7 +461,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
     }
 
     public String merge(String siteId, Element root, String archivePath, String fromSiteId,
-            MergeConfig mcx, Map<String, String> userIdTrans, Set<String> userListAllowImport) {
+            MergeConfig mcx) {
 
         log.debug("merge archiveContext={} archiveServerUrl={}", mcx.archiveContext, mcx.archiveServerUrl);
 
