@@ -1,99 +1,88 @@
-$(function () {
-
-    var initDatePickers = function () {
-        $('.pasystem-body .datepicker').each(function() {
-            var $datepicker = $(this);
-
-            var initDate = $(this).data('initDate');
+// Wait for DOM to be fully loaded
+document.addEventListener('DOMContentLoaded', () => {
+    const initDatePickers = () => {
+        document.querySelectorAll('.pasystem-body .datepicker').forEach(datepicker => {
+            const initDate = datepicker.dataset.initDate;
+            console.log('Raw initDate from dataset:', initDate);
+            console.log('Parsed initDate:', parseInt(initDate));
+            console.log('Date object:', new Date(parseInt(initDate)));
 
             // setup date-time picker
             localDatePicker({
-                input: '#' + $datepicker.attr('id'),
+                input: '#' + datepicker.id,
                 useTime: 1,
-                icon: 0,
-                val: (initDate && initDate > 0) ? new Date(initDate) : undefined,
-                ashidden: { iso8601: $datepicker.attr('id') + '_selected_datetime' },
-            });
-
-            // setup input button to trigger date-time picker
-            $datepicker.siblings().find(".invoke-datepicker-btn").click(function() {
-                $datepicker.focus();
+                allowEmptyDate: true,
+                val: (initDate && initDate > 0) ? new Date(parseInt(initDate)) : undefined,
+                ashidden: { iso8601: datepicker.id + '_selected_datetime' },
             });
 
             // add clear action if present
-            $datepicker.siblings().find(".clear-datepicker-btn").click(function() {
-              $datepicker.val("");
+            datepicker.parentElement.querySelector(".clear-datepicker-btn")?.addEventListener('click', () => {
+                datepicker.value = "";
             });
         });
     };
 
+    const initDeleteConfirmation = () => {
+        document.querySelectorAll(".pasystem-delete-btn").forEach(btn => {
+            btn.addEventListener("click", function(event) {
+                event.preventDefault();
+                event.stopPropagation();
 
-    var initDeleteConfirmation = function() {
+                const template = document.getElementById("pasystemDeleteConfirmationModalTemplate")?.innerHTML.trim().toString();
+                const trimPathTemplate = TrimPath.parseTemplate(template, "pasystemDeleteConfirmationModalTemplate");
 
-      document.querySelectorAll(".pasystem-delete-btn").forEach(b => {
+                const modal = trimPathTemplate.process({
+                    recordType: this.dataset.recordType,
+                    deleteURL: this.href
+                });
 
-        b.addEventListener("click", function (event) {
+                this.closest(".portletBody").insertAdjacentHTML('beforeend', modal);
 
-          event.preventDefault();
-          event.stopPropagation();
-
-          const template = document.getElementById("pasystemDeleteConfirmationModalTemplate")?.innerHTML.trim().toString();
-          const trimPathTemplate = TrimPath.parseTemplate(template, "pasystemDeleteConfirmationModalTemplate");
-
-          const modal = trimPathTemplate.process({
-                        recordType: this.dataset.recordType,
-                        deleteURL: this.href
-                        });
-
-          this.closest(".portletBody").insertAdjacentHTML('beforeend', modal);
-
-          const modalId = document.getElementById("pasystemDeleteConfirmationModal");
-          (new bootstrap.Modal(modalId)).show();
-
+                const modalId = document.getElementById("pasystemDeleteConfirmationModal");
+                (new bootstrap.Modal(modalId)).show();
+            });
         });
-      });
     };
 
+    const addPreviewHandlers = () => {
+        document.addEventListener('click', (event) => {
+            const previewBtn = event.target.closest('.preview-btn');
+            if (!previewBtn) return;
 
-    var addPreviewHandlers = function () {
-        $(document).on('click', '.preview-btn', function () {
-            var url = $(this).prop('href')
+            event.preventDefault();
+            const url = previewBtn.href;
 
-            $.ajax({
-                url: url,
-                success: function (data) {
-                    $('#popup-container-content').html(data);
+            fetch(url)
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('popup-container-content').innerHTML = data;
                     new PASystemPopup('preview', 'preview');
-                }
-            });
-
-            return false;
+                });
         });
-    }
+    };
 
+    const addFormHandlers = () => {
+        const openCampaignRadio = document.getElementById('open-campaign-radio');
 
-    var addFormHandlers = function () {
-        var openCampaignRadio = $('#open-campaign-radio');
+        if (openCampaignRadio) {
+            const distribution = document.getElementById('distribution');
 
-        if (openCampaignRadio.length > 0) {
-
-          var distribution = $('#distribution');
-
-          $('.campaign-visibility').on('change', function () {
-            if ($(this).attr('id') == openCampaignRadio.attr('id')) {
-              distribution.prop('disabled', true);
-            } else {
-              distribution.prop('disabled', false);
-            }
-          });
+            document.querySelectorAll('.campaign-visibility').forEach(radio => {
+                radio.addEventListener('change', () => {
+                    distribution.disabled = (radio.id === openCampaignRadio.id);
+                });
+            });
         }
 
-        $('.pasystem-cancel-btn').on('click', function () {
-            window.location.replace($(this).data('target'));
+        document.querySelectorAll('.pasystem-cancel-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                window.location.replace(btn.dataset.target);
+            });
         });
     };
 
-
+    // Initialize all functionality
     initDatePickers();
     initDeleteConfirmation();
     addFormHandlers();
