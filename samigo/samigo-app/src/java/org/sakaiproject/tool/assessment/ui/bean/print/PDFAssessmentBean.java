@@ -225,7 +225,7 @@ public class PDFAssessmentBean implements Serializable {
 		);
 	}
 
-	public void prepPDF() {
+	public String prepPDF() {
 		DeliveryBean deliveryBean = (DeliveryBean) ContextUtil.lookupBean("delivery");
 		deliveryBean.setActionString("previewAssessment");
 
@@ -241,6 +241,8 @@ public class PDFAssessmentBean implements Serializable {
 		setDeliveryParts(deliveryBean.getTableOfContents().getPartsContents());
 
 		prepDocumentPDF();
+		
+		return "print";
 	}
 
 	public void prepDocumentPDF() {
