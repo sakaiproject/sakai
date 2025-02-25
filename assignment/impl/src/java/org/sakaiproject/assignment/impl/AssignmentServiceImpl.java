@@ -439,16 +439,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     public String merge(String siteId, Element root, String archivePath, String fromSiteId,
         MergeConfig mcx, Map<String, String> userIdTrans, Set<String> userListAllowImport) {
 
-        String archiveContext = "";
-        String archiveServerUrl = "";
-
-        Node parent = root.getParentNode();
-        if (parent.getNodeType() == Node.ELEMENT_NODE)
-        {
-            Element parentEl = (Element)parent;
-            archiveContext = parentEl.getAttribute("source");
-            archiveServerUrl = parentEl.getAttribute("serverurl");
-        }
 
         final StringBuilder results = new StringBuilder();
         results.append("begin merging ").append(getLabel()).append(" context ").append(siteId).append(LINE_SEPARATOR);
@@ -465,7 +455,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         for (Element assignmentElement : assignmentElements) {
 
             try {
-                mergeAssignment(siteId, assignmentElement, results, assignmentTitles, mcx, archiveContext, archiveServerUrl);
+                mergeAssignment(siteId, assignmentElement, results, assignmentTitles, mcx);
                 assignmentsMerged++;
             } catch (Exception e) {
                 final String error = "could not merge assignment with id: " + assignmentElement.getFirstChild().getFirstChild().getNodeValue();
@@ -1001,7 +991,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Transactional
-    private Assignment mergeAssignment(final String siteId, final Element element, final StringBuilder results, Set<String> assignmentTitles, MergeConfig mcx, String archiveContext, String archiveServerUrl) throws PermissionException {
+    private Assignment mergeAssignment(final String siteId, final Element element, final StringBuilder results, Set<String> assignmentTitles, MergeConfig mcx) throws PermissionException {
 
         if (!allowAddAssignment(siteId)) {
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ADD_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().context(siteId).reckon().getReference());
@@ -1027,7 +1017,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             if ( StringUtils.isNotEmpty(mcx.creatorId) ) assignmentFromXml.setAuthor(mcx.creatorId);
 
             String newInstructions = ltiService.fixLtiLaunchUrls(assignmentFromXml.getInstructions(), siteId, mcx);
-            newInstructions = linkMigrationHelper.migrateLinksInMergedRTE(siteId, archiveContext, archiveServerUrl, newInstructions);
+            newInstructions = linkMigrationHelper.migrateLinksInMergedRTE(siteId, mcx, newInstructions);
             assignmentFromXml.setInstructions(newInstructions);
 
             Long contentKey = ltiService.mergeContentFromImport(element, siteId);

@@ -1686,20 +1686,9 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		// get the system name: FROM_WT, FROM_CT, FROM_SAKAI
 		// root: <service> node
 		String source = "";
-		String archiveContext = "";
-		String archiveServerUrl = "";
-
-		Node parent = root.getParentNode();
-		if (parent.getNodeType() == Node.ELEMENT_NODE)
-		{
-			Element parentEl = (Element)parent;
-			archiveContext = parentEl.getAttribute("source");
-			archiveServerUrl = parentEl.getAttribute("serverurl");
-			source = parentEl.getAttribute("system");
-		}
 
 		log.debug("merge ltiService={} contentHostingService={} class={} archiveContext={} archiveServerUrl={}",
-		  ltiService, contentHostingService, this.getClass().getName(), archiveContext, archiveServerUrl);
+		  ltiService, contentHostingService, this.getClass().getName(), mcx.archiveContext, mcx.archiveServerUrl);
 
 		HashSet userSet = (HashSet) userListAllowImport;
 
@@ -1994,7 +1983,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 
 										String description = edit.getBody();
 										description = ltiService.fixLtiLaunchUrls(description, siteId, mcx);
-										description = linkMigrationHelper.migrateLinksInMergedRTE(siteId, archiveContext, archiveServerUrl, description);
+										description = linkMigrationHelper.migrateLinksInMergedRTE(siteId, mcx, description);
 										log.debug("description {}", description);
 										edit.setBody(description);
 

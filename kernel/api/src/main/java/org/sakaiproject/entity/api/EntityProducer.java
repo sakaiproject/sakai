@@ -122,8 +122,7 @@ public interface EntityProducer
 	 * @return A log of status messages from the merge.
 	 */
 	default String merge(String siteId, Element root, String archivePath, String fromSiteId,
-			MergeConfig mcx, Map<String, String> userIdTrans,
-			Set<String> userListAllowImport) {
+			MergeConfig mcx, Map<String, String> userIdTrans, Set<String> userListAllowImport) {
 		// By default call the old merge without creatorId for those impls that don't need the creatorId
 		return merge(siteId, root, archivePath, fromSiteId, mcx.attachmentNames, userIdTrans, userListAllowImport);
 	}

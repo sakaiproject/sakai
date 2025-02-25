@@ -357,8 +357,15 @@ public class SiteMerger {
 						if (service != null) {
 						    if ((system.equalsIgnoreCase(ArchiveService.FROM_SAKAI) || system.equalsIgnoreCase(ArchiveService.FROM_SAKAI_2_8))) {
 						        if (checkSakaiService(filterSakaiService, filteredSakaiService, serviceName)) {
-						            // checks passed so now we attempt to do the merge
-		                            log.debug("Merging archive data for {} ({}) to site {}", serviceName, fileName, siteId);
+                                    // checks passed so now we attempt to do the merge
+                                    Node parent = element.getParentNode();
+                                    if (parent.getNodeType() == Node.ELEMENT_NODE)
+                                    {
+                                        Element parentEl = (Element)parent;
+                                        mcx.archiveContext = parentEl.getAttribute("source");
+                                        mcx.archiveServerUrl = parentEl.getAttribute("serverurl");
+                                    }
+                                    log.debug("Merging archive data for {} ({}) to site {} archive from context {} and server {}", serviceName, fileName, siteId, mcx.archiveContext, mcx.archiveServerUrl);
 		                            msg = service.merge(siteId, element, fileName, fromSite, mcx, new HashMap() /* empty userIdTran map */, usersListAllowImport);
 						        } else {
 						            log.warn("Skipping merge archive data for "+serviceName+" ("+fileName+") to site "+siteId+", checked filter failed (filtersOn="+filterSakaiService+", filters="+Arrays.toString(filteredSakaiService)+")");

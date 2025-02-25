@@ -463,18 +463,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
     public String merge(String siteId, Element root, String archivePath, String fromSiteId,
             MergeConfig mcx, Map<String, String> userIdTrans, Set<String> userListAllowImport) {
 
-        String archiveContext = "";
-        String archiveServerUrl = "";
-
-        Node parent = root.getParentNode();
-        if (parent.getNodeType() == Node.ELEMENT_NODE)
-        {
-            Element parentEl = (Element)parent;
-            archiveContext = parentEl.getAttribute("source");
-            archiveServerUrl = parentEl.getAttribute("serverurl");
-        }
-
-        log.debug("merge archiveContext={} archiveServerUrl={}", archiveContext, archiveServerUrl);
+        log.debug("merge archiveContext={} archiveServerUrl={}", mcx.archiveContext, mcx.archiveServerUrl);
 
         List<Poll> pollsList = findAllPolls(siteId);
         Set<String> pollTexts = pollsList.stream().map(Poll::getText).collect(Collectors.toCollection(LinkedHashSet::new));
@@ -493,7 +482,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
             poll.setOwner(mcx.creatorId);
             String details = poll.getDetails();
             details = ltiService.fixLtiLaunchUrls(details, siteId, mcx);
-            details = linkMigrationHelper.migrateLinksInMergedRTE(siteId, archiveContext, archiveServerUrl, details);
+            details = linkMigrationHelper.migrateLinksInMergedRTE(siteId, mcx, details);
             poll.setDetails(details);
 
             savePoll(poll);
@@ -506,7 +495,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
                 option.setPollId(poll.getPollId());
                 String text = option.getText();
                 text = ltiService.fixLtiLaunchUrls(text, siteId, mcx);
-                text = linkMigrationHelper.migrateLinksInMergedRTE(siteId, archiveContext, archiveServerUrl, text);
+                text = linkMigrationHelper.migrateLinksInMergedRTE(siteId, mcx, text);
                 option.setText(text);
                 saveOption(option);
                 poll.addOption(option);

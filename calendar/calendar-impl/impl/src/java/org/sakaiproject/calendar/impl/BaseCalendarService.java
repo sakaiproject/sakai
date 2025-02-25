@@ -1495,17 +1495,6 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		MergeConfig mcx, Map<String, String> userIdTrans, Set<String> userListAllowImport)
 	{
 
-		String archiveContext = "";
-		String archiveServerUrl = "";
-
-		Node parent = root.getParentNode();
-		if (parent.getNodeType() == Node.ELEMENT_NODE)
-		{
-			Element parentEl = (Element)parent;
-			archiveContext = parentEl.getAttribute("source");
-			archiveServerUrl = parentEl.getAttribute("serverurl");
-		}
-
 		// prepare the buffer for the results log
 		StringBuilder results = new StringBuilder();
 
@@ -1648,7 +1637,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 									}
 									String description = edit.getDescriptionFormatted();
 									description = ltiService.fixLtiLaunchUrls(description, siteId, mcx);
-									description = linkMigrationHelper.migrateLinksInMergedRTE(siteId, archiveContext, archiveServerUrl, description);
+									description = linkMigrationHelper.migrateLinksInMergedRTE(siteId, mcx, description);
 									edit.setDescriptionFormatted(description);
 
 									calendar.commitEvent(edit);

@@ -735,18 +735,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 	public String merge(String siteId, Element root, String archivePath, String fromSiteId,
 		MergeConfig mcx, Map<String, String> userIdTrans, Set<String> userListAllowImport) {
 
-		String archiveContext = "";
-		String archiveServerUrl = "";
-
-		Node parent = root.getParentNode();
-		if (parent.getNodeType() == Node.ELEMENT_NODE)
-		{
-			Element parentEl = (Element)parent;
-			archiveContext = parentEl.getAttribute("source");
-			archiveServerUrl = parentEl.getAttribute("serverurl");
-		}
-
-		log.debug("merge archiveContext={} archiveServerUrl={}", archiveContext, archiveServerUrl);
+		log.debug("merge archiveContext={} archiveServerUrl={}", mcx.archiveContext, mcx.archiveServerUrl);
 
 		Set<String> discussionTitles = new HashSet<>();
 		List<DiscussionForum> discussionForums = dfManager.getDiscussionForumsWithTopicsMembershipNoAttachments(siteId);
@@ -765,7 +754,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 				final List<Element> messageForumElementList = elements.stream()
 						.filter(element -> MESSAGEFORUM.equals(element.getTagName())).collect(Collectors.toList());
 				if (!messageForumElementList.isEmpty()) {
-					mergeMessageForumElements(siteId, fromSiteId, messageForumElementList.get(0), discussionTitles, mcx, archiveContext, archiveServerUrl);
+					mergeMessageForumElements(siteId, fromSiteId, messageForumElementList.get(0), discussionTitles, mcx);
 				}
 			} catch (Exception e) {
 				results.append("merging ").append(getLabel()).append(" failed.\n");
@@ -776,8 +765,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 	}
 
 	private void mergeMessageForumElements(final String siteId, final String fromSiteId,
-		final Element siteElement, Set<String> discussionTitles,
-		MergeConfig mcx, String archiveContext, String archiveServerUrl) throws Exception {
+		final Element siteElement, Set<String> discussionTitles, MergeConfig mcx) throws Exception {
 
 		final NodeList messageForumChildNodeList = siteElement.getChildNodes();
 
@@ -791,13 +779,12 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 			if (discussionTitles.contains(title)) {
 				continue;
 			}
-			mergeDiscussionForumElements(siteId, fromSiteId, discussionForumElement, mcx, archiveContext, archiveServerUrl);
+			mergeDiscussionForumElements(siteId, fromSiteId, discussionForumElement, mcx);
 		}
 	}
 
 	private void mergeDiscussionForumElements(final String siteId, final String fromSiteId,
-			final Element discussionForumElement,
-			MergeConfig mcx, String archiveContext, String archiveServerUrl) throws Exception {
+			final Element discussionForumElement, MergeConfig mcx) throws Exception {
 
 		final DiscussionForum discussionForum = forumManager.createDiscussionForum();
 
@@ -856,14 +843,11 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 		discussionForum.setArea(area);
 
 		// Discussion Forum is saved inside this method
-		mergeDiscussionForumDetailNodeList(siteId, fromSiteId, discussionForumElement,
-				discussionForum, mcx, archiveContext, archiveServerUrl);
+		mergeDiscussionForumDetailNodeList(siteId, fromSiteId, discussionForumElement, discussionForum, mcx);
 	}
 
 	private void mergeDiscussionForumDetailNodeList(final String siteId, final String fromSiteId,
-		final Element discussionForumElement,
-		DiscussionForum discussionForum, MergeConfig mcx,
-		String archiveContext, String archiveServerUrl) throws Exception {
+		final Element discussionForumElement, DiscussionForum discussionForum, MergeConfig mcx) throws Exception {
 
 		final NodeList discussionForumDetailNodeList = discussionForumElement.getChildNodes();
 		final List<Element> elements = IntStream.range(0, discussionForumDetailNodeList.getLength())
@@ -895,7 +879,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 
 		final List<Element> discussionTopicElementList = getDiscussionTopicElementList(elements);
 		for (Element discussionTopicElement : discussionTopicElementList) {
-			mergeDiscussionTopicElement(siteId, fromSiteId, discussionForumReturn, discussionTopicElement, mcx, archiveContext, archiveServerUrl);
+			mergeDiscussionTopicElement(siteId, fromSiteId, discussionForumReturn, discussionTopicElement, mcx);
 		}
 	}
 
@@ -919,7 +903,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 	}
 
 	private Attachment mergeAttachmentElement(final String siteId, final String fromSiteId,
-											  final MergeConfig mcx, final Element attachmentElement) {
+											  MergeConfig mcx, final Element attachmentElement) {
 		String oldAttachId = attachmentElement.getAttribute(ATTACH_ID);
 		if (StringUtils.isNotBlank(oldAttachId)) {
 			return copyAttachment(oldAttachId, siteId, mcx);
@@ -928,8 +912,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 	}
 
 	private void mergeDiscussionTopicElement(final String siteId, final String fromSiteId,
-		final DiscussionForum discussionForum,
-		final Element discussionTopicElement, MergeConfig mcx, String archiveContext, String archiveServerUrl) throws Exception {
+		final DiscussionForum discussionForum, final Element discussionTopicElement, MergeConfig mcx) throws Exception {
 
 		DiscussionTopic discussionTopic = forumManager.createDiscussionForumTopic(discussionForum);
 
@@ -940,7 +923,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 		final List<Element> propertiesElementList = elements.stream().filter(e -> PROPERTIES.equals(e.getTagName()))
 				.collect(Collectors.toList());
 		for (Element propertiesElement : propertiesElementList) {
-			mergeDiscussionTopicPropertiesNodes(discussionTopic, propertiesElement, siteId, mcx, archiveContext, archiveServerUrl);
+			mergeDiscussionTopicPropertiesNodes(discussionTopic, propertiesElement, siteId, mcx);
 		}
 
 		final List<Element> attachmentElementList = getAttachmentElementList(elements);
@@ -1080,7 +1063,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 				.collect(Collectors.toList());
 	}
 
-	private void mergeDiscussionTopicPropertiesNodes(final DiscussionTopic discussionTopic, final Element propertiesElement, final String siteId, final MergeConfig mcx, String archiveContext, String archiveServerUrl) {
+	private void mergeDiscussionTopicPropertiesNodes(final DiscussionTopic discussionTopic, final Element propertiesElement, final String siteId, MergeConfig mcx) {
 		final NodeList propertyList = propertiesElement.getChildNodes();
 		for (int n = 0; n < propertyList.getLength(); n++) {
 			final Node propertyNode = propertyList.item(n);
@@ -1093,7 +1076,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 					} else if (TOPIC_LONG_DESC.equals(propertyElement.getAttribute(NAME))) {
 						String extendedDescription = getDescriptionFromPropertyElement(propertyElement);
 						extendedDescription = ltiService.fixLtiLaunchUrls(extendedDescription, siteId, mcx);
-						extendedDescription = LinkMigrationHelper.migrateLinksInMergedRTE(siteId, archiveContext, archiveServerUrl, extendedDescription);
+						extendedDescription = LinkMigrationHelper.migrateLinksInMergedRTE(siteId, mcx, extendedDescription);
 						discussionTopic.setExtendedDescription(extendedDescription);
 					}
 				}

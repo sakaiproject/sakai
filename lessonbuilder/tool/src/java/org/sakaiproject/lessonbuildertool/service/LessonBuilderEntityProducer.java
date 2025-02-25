@@ -682,8 +682,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
     // the pages are already made. this adds the elements
     private boolean mergePage(Element element, String oldServer, String siteId, String fromSiteId, Map<Long,Long> pageMap,
-	  Map<Long,Long> itemMap, Map<String,String> entityMap, MergeConfig mcx,
-	 String archiveContext, String archiveServerUrl) {
+	  Map<Long,Long> itemMap, Map<String,String> entityMap, MergeConfig mcx) {
   
        String oldSiteId = element.getAttribute("siteid");
        String oldPageIdString = element.getAttribute("pageid");
@@ -806,7 +805,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		   } else if (type == SimplePageItem.TEXT) {
 		        String html = itemElement.getAttribute("html");
 		        explanation = ltiService.fixLtiLaunchUrls(html, siteId, mcx);
-				explanation = linkMigrationHelper.migrateLinksInMergedRTE(siteId, archiveContext, archiveServerUrl, explanation);
+				explanation = linkMigrationHelper.migrateLinksInMergedRTE(siteId, mcx, explanation);
 		   } else if (type == SimplePageItem.PAGE) {
 		       // sakaiId should be the new page ID
 		       Long newPageId = pageMap.get(Long.valueOf(sakaiId));
@@ -1141,17 +1140,9 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
    public String mergeInternal(String siteId, Element root, String archivePath, String fromSiteId,
         MergeConfig mcx, Map userIdTrans, Set userListAllowImport, Map<String, String> entityMap)
    {
-	  String archiveContext = "";
-	  String archiveServerUrl = "";
-	  Node parent = root.getParentNode();
-	  if (parent.getNodeType() == Node.ELEMENT_NODE)
-	  {
-		  Element parentEl = (Element)parent;
-		  archiveContext = parentEl.getAttribute("source");
-		  archiveServerUrl = parentEl.getAttribute("serverurl");
-	  }
+
 	  log.debug("Lessons Merge siteId={} fromSiteId={} creatorId={} archiveContext={} archiveServerUrl={}",
-	  	siteId, fromSiteId, mcx.creatorId, archiveContext, archiveServerUrl);
+	  	siteId, fromSiteId, mcx.creatorId, mcx.archiveContext, mcx.archiveServerUrl);
 
       StringBuilder results = new StringBuilder();
       // map old to new page ids
@@ -1236,7 +1227,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		     Long oldPageId = Long.valueOf(pageElement.getAttribute("pageid"));
 		     pageElementMap.put(oldPageId, pageElement);
 
-		     if (mergePage(pageElement, oldServer, siteId, fromSiteId, pageMap, itemMap, entityMap, mcx, archiveContext, archiveServerUrl))
+		     if (mergePage(pageElement, oldServer, siteId, fromSiteId, pageMap, itemMap, entityMap, mcx))
 
 			 needFix = true;
 		 }
