@@ -460,7 +460,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         return results.toString();
     }
 
-    public String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId, Map<String, String> attachmentNames,
+    public String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId,
             MergeConfig mcx, Map<String, String> userIdTrans, Set<String> userListAllowImport) {
 
         String archiveContext = "";

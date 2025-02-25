@@ -145,9 +145,6 @@ public class SiteMerger {
 		}
 
 		MergeConfig mcx = new MergeConfig();
-
-		// track old to new attachment names
-		Map<String, String> attachmentNames = new HashMap();
 		
 		// The archive.xml is really a debug log, not actual archive data - it does not participate in any merge
 		// the web.xml is now merged in the site merger
@@ -175,7 +172,7 @@ public class SiteMerger {
 		{
 			if ((files[i] != null) && (files[i].getPath().indexOf("user.xml") != -1))
 			{
-				processMerge(files[i].getPath(), siteId, results, attachmentNames, mcx, null, filterSakaiServices, filteredSakaiServices, filterSakaiRoles, filteredSakaiRoles);
+				processMerge(files[i].getPath(), siteId, results, mcx, null, filterSakaiServices, filteredSakaiServices, filterSakaiRoles, filteredSakaiRoles);
 				files[i] = null;
 				break;
 			}
@@ -198,7 +195,7 @@ public class SiteMerger {
 		{
 			if ((files[i] != null) && (files[i].getPath().indexOf("attachment.xml") != -1))
 			{
-				processMerge(files[i].getPath(), siteId, results, attachmentNames, mcx, null, filterSakaiServices, filteredSakaiServices, filterSakaiRoles, filteredSakaiRoles);
+				processMerge(files[i].getPath(), siteId, results, mcx, null, filterSakaiServices, filteredSakaiServices, filterSakaiRoles, filteredSakaiRoles);
 				files[i] = null;
 				break;
 			}
@@ -210,21 +207,21 @@ public class SiteMerger {
 			if (files[i] != null)
 				if (files[i].getPath().endsWith(".xml"))
 				{
-					processMerge(files[i].getPath(), siteId, results, attachmentNames, mcx, creatorId, filterSakaiServices, filteredSakaiServices, filterSakaiRoles, filteredSakaiRoles);
+					processMerge(files[i].getPath(), siteId, results, mcx, creatorId, filterSakaiServices, filteredSakaiServices, filterSakaiRoles, filteredSakaiRoles);
 				}
 		}
 
 		if (siteFile != null )
 		{
-			processMerge(siteFile, siteId, results, attachmentNames, mcx, creatorId, filterSakaiServices, filteredSakaiServices, filterSakaiRoles, filteredSakaiRoles);
+			processMerge(siteFile, siteId, results, mcx, creatorId, filterSakaiServices, filteredSakaiServices, filterSakaiRoles, filteredSakaiRoles);
 		}
 
 		// Attachments are of the form
 		// /attachment/TA-8a7a04de-77e1-497c-9ed3-79f4daa0dfd3/Assignments/fbf7609c-e289-459c-951e-187e70b653e4/ietf-jon-postel-07.png
 		// The first two tokens are a folder we need to remove
 		boolean keepAttachments = serverConfigurationService.getBoolean(DEV_MERGE_KEEP_ATTACHMENTS, DEV_MERGE_KEEP_ATTACHMENTS_DEFAULT);
-		for (String key : attachmentNames.keySet()) {
-			String value = attachmentNames.get(key);
+		for (String key : mcx.attachmentNames.keySet()) {
+			String value = mcx.attachmentNames.get(key);
 			if (!StringUtils.startsWith(value, "/attachment/TA-")) {
 				continue;
 			}
@@ -255,12 +252,10 @@ public class SiteMerger {
 	* @param fileName The site name (for the archive file) to read from.
 	* @param siteId The id of the site to merge the content into.
 	* @param results A buffer to accumulate result messages.
-	* @param attachmentNames A map of old to new attachment names.
-	* @param ltiContentItems A map of LTI Content Items associated with this import
-	* @param useIdTrans A map of old WorkTools id to new Ctools id
+	* @param mcx The MergeConfig for this import
 	* @param creatorId The creator id
 	*/
-	protected void processMerge(String fileName, String siteId, StringBuilder results, Map attachmentNames, MergeConfig mcx, String creatorId, boolean filterSakaiService, String[] filteredSakaiService, boolean filterSakaiRoles, String[] filteredSakaiRoles)
+	protected void processMerge(String fileName, String siteId, StringBuilder results, MergeConfig mcx, String creatorId, boolean filterSakaiService, String[] filteredSakaiService, boolean filterSakaiRoles, String[] filteredSakaiRoles)
 	{
 		// correct for windows backslashes
 		fileName = fileName.replace('\\', '/');
@@ -368,7 +363,7 @@ public class SiteMerger {
 						        if (checkSakaiService(filterSakaiService, filteredSakaiService, serviceName)) {
 						            // checks passed so now we attempt to do the merge
 		                            log.debug("Merging archive data for {} ({}) to site {}", serviceName, fileName, siteId);
-		                            msg = service.merge(siteId, element, fileName, fromSite, creatorId, attachmentNames, mcx, new HashMap() /* empty userIdTran map */, usersListAllowImport);
+		                            msg = service.merge(siteId, element, fileName, fromSite, creatorId, mcx, new HashMap() /* empty userIdTran map */, usersListAllowImport);
 						        } else {
 						            log.warn("Skipping merge archive data for "+serviceName+" ("+fileName+") to site "+siteId+", checked filter failed (filtersOn="+filterSakaiService+", filters="+Arrays.toString(filteredSakaiService)+")");
 						        }

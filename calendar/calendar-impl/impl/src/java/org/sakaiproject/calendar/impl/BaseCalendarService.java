@@ -1491,7 +1491,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	}
 
 	@Override
-	public String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId, Map<String, String> attachmentImportMap,
+	public String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId,
 		MergeConfig mcx, Map<String, String> userIdTrans, Set<String> userListAllowImport)
 	{
 
@@ -1629,7 +1629,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 												// map the attachment area folder name
 												String oldUrl = element5.getAttribute("relative-url");
 												String toolTitle = toolManager.getTool("sakai.schedule").getTitle();
-												ContentResource attachment = contentHostingService.copyAttachment(oldUrl, siteId, toolTitle, attachmentImportMap);
+												ContentResource attachment = contentHostingService.copyAttachment(oldUrl, siteId, toolTitle, mcx);
 												if ( attachment != null ) {
 													String newUrl = attachment.getReference();
 													element5.setAttribute("relative-url", Validator.escapeQuestionMark(newUrl));

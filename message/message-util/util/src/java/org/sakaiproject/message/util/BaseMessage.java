@@ -1680,7 +1680,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId, Map<String, String> attachmentNames,
+	public String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId,
 		MergeConfig mcx, Map<String, String> userIdTrans, Set<String> userListAllowImport)
 	{
 		// get the system name: FROM_WT, FROM_CT, FROM_SAKAI
@@ -1819,7 +1819,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 															String toolTitle = getToolTitle(oldUrl);
 															if ( StringUtils.isBlank(toolTitle) ) toolTitle = "Messages";
 															log.debug("toolTitle: {} oldUrl {}", toolTitle, oldUrl);
-															ContentResource attachment = contentHostingService.copyAttachment(oldUrl, siteId, toolTitle, attachmentNames);
+															ContentResource attachment = contentHostingService.copyAttachment(oldUrl, siteId, toolTitle, mcx);
 															if ( attachment != null ) {
 																String newUrl = attachment.getReference();
 																element5.setAttribute("relative-url", Validator.escapeQuestionMark(newUrl));

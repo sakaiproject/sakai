@@ -453,8 +453,8 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
    *      java.util.Set)
    */
   @Transactional
-  public String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId, Map<String, String> attachmentNames,
-      MergeConfig mcx, Map<String, String> userIdTrans, Set<String> userListAllowImport)
+  public String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId, MergeConfig mcx,
+      Map<String, String> userIdTrans, Set<String> userListAllowImport)
   {
 
 	String archiveContext = "";
@@ -599,7 +599,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
                                     {
                                       Element attachElement = (Element) child3;
                                       String oldUrl = attachElement.getAttribute("relative-url");
-                                      String newUrl = transferAttachment(oldUrl, siteId, attachmentNames);
+                                      String newUrl = transferAttachment(oldUrl, siteId, mcx);
                                       if (newUrl != null)
                                       {
                                         attachElement.setAttribute("relative-url", Validator.escapeQuestionMark(newUrl));
@@ -665,10 +665,10 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
     return results.toString();
   }
 
-  private String transferAttachment(String oAttachmentId, String toContext, Map<String, String> attachmentImportMap) {
+  private String transferAttachment(String oAttachmentId, String toContext, MergeConfig mcx) {
     String toolTitle = toolManager.getTool("sakai.syllabus").getTitle();
     try {
-        ContentResource attachment = contentHostingService.copyAttachment(oAttachmentId, toContext, toolTitle, attachmentImportMap);
+        ContentResource attachment = contentHostingService.copyAttachment(oAttachmentId, toContext, toolTitle, mcx);
         if ( attachment != null ) {
             return attachment.getReference();
         }
