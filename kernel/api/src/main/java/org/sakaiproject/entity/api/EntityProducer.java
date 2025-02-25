@@ -112,8 +112,6 @@ public interface EntityProducer
 	 *        The path to the folder where we are reading auxilary files.
 	 * @param fromSiteId
 	 *        The site id from which these items were archived.
-	 * @param creatorId
-	 *        The user that is the site owner of the new site
 	 * @param mcx
 	 *        MergeConfig for this import
 	 * @param userIdTrans
@@ -123,7 +121,7 @@ public interface EntityProducer
 	 *        set.
 	 * @return A log of status messages from the merge.
 	 */
-	default String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId,
+	default String merge(String siteId, Element root, String archivePath, String fromSiteId,
 			MergeConfig mcx, Map<String, String> userIdTrans,
 			Set<String> userListAllowImport) {
 		// By default call the old merge without creatorId for those impls that don't need the creatorId

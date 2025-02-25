@@ -1680,7 +1680,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId,
+	public String merge(String siteId, Element root, String archivePath, String fromSiteId,
 		MergeConfig mcx, Map<String, String> userIdTrans, Set<String> userListAllowImport)
 	{
 		// get the system name: FROM_WT, FROM_CT, FROM_SAKAI

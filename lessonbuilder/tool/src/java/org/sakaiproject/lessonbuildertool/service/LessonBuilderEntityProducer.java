@@ -298,45 +298,6 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
       if (servers.size() == 0)
 	  log.info("LessonBuilderEntityProducer ERROR: neither servername nor serverid defined in sakai.properties");
 
-      // this slightly odd code is for testing. It lets us test by reloading just lesson builder.
-      // otherwise we have to restart sakai, since the entity stuff can't be restarted
-      if (false) {
-	  SecurityAdvisor mergeAdvisor = new SecurityAdvisor() {
-		  public SecurityAdvice isAllowed(String userId, String function, String reference) {
-		      return SecurityAdvice.ALLOWED;
-		  }
-	      };
-
-      try {
-	  Document doc = Xml.createDocument();
-	  Stack stack = new Stack();
-	  Element root = doc.createElement("archive");
-	  doc.appendChild(root);
-	  root.setAttribute("source", "45d48248-ba23-4829-914a-7219c3ced2dd");
-	  root.setAttribute("server", "foo");
-	  root.setAttribute("date", "now");
-	  root.setAttribute("system", "sakai");
-      
-	  stack.push(root);
-
-	  archive("45d48248-ba23-4829-914a-7219c3ced2dd", doc, stack, "/tmp/archive", null);
-
-	  stack.pop();
-	  
-	  Xml.writeDocument(doc, "/tmp/xmlout");
-
-	  // we don't have an actual user at this point, so need to force checks to work
-	  securityService.pushAdvisor(mergeAdvisor);
-
-	  merge("0134937b-ce16-440c-80a6-fb088d79e5ad",  (Element)doc.getFirstChild().getFirstChild(), "/tmp/archive", "45d48248-ba23-4829-914a-7219c3ced2dd", null, null, null);
-
-      } catch (Exception e) {
-	  log.info(e.getMessage(), e);
-      } finally {
-	  securityService.popAdvisor(mergeAdvisor);
-      }
-      }
-
       try {
 	  ComponentManager.loadComponent("org.sakaiproject.lessonbuildertool.service.LessonBuilderEntityProducer", this);
       } catch (Exception e) {
@@ -1171,13 +1132,13 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
    // Externally used for zip import
    @Override
-   public String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId, 
+   public String merge(String siteId, Element root, String archivePath, String fromSiteId, 
         MergeConfig mcx, Map<String, String> userIdTrans, Set<String> userListAllowImport) {
-       return merge(siteId, root, archivePath, fromSiteId, creatorId, mcx, userIdTrans, userListAllowImport, null);
+       return mergeInternal(siteId, root, archivePath, fromSiteId, mcx, userIdTrans, userListAllowImport, null);
    }
 
    // Internally used for both site copy and zip import
-   public String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId,
+   public String mergeInternal(String siteId, Element root, String archivePath, String fromSiteId,
         MergeConfig mcx, Map userIdTrans, Set userListAllowImport, Map<String, String> entityMap)
    {
 	  String archiveContext = "";
@@ -1190,7 +1151,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		  archiveServerUrl = parentEl.getAttribute("serverurl");
 	  }
 	  log.debug("Lessons Merge siteId={} fromSiteId={} creatorId={} archiveContext={} archiveServerUrl={}",
-	  	siteId, fromSiteId, creatorId, archiveContext, archiveServerUrl);
+	  	siteId, fromSiteId, mcx.creatorId, archiveContext, archiveServerUrl);
 
       StringBuilder results = new StringBuilder();
       // map old to new page ids
@@ -1587,9 +1548,10 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		archive(fromContext, doc, stack, "/tmp/archive", null);
 		
 		stack.pop();
-	  
-		String creatorId = sessionManager.getCurrentSessionUserId();
-		merge(toContext,  (Element)doc.getFirstChild().getFirstChild(), "/tmp/archive", fromContext, creatorId, null, null, null, entityMap);
+
+		MergeConfig mcx = new MergeConfig();
+		mcx.creatorId = sessionManager.getCurrentSessionUserId();
+		mergeInternal(toContext,  (Element)doc.getFirstChild().getFirstChild(), "/tmp/archive", fromContext, mcx, null, null, entityMap);
 
 		ToolSession session = sessionManager.getCurrentToolSession();
 

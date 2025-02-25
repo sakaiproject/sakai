@@ -732,7 +732,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 		return transversalMap;
 	}
 
-	public String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId,
+	public String merge(String siteId, Element root, String archivePath, String fromSiteId,
 		MergeConfig mcx, Map<String, String> userIdTrans, Set<String> userListAllowImport) {
 
 		String archiveContext = "";

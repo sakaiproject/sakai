@@ -453,7 +453,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
    *      java.util.Set)
    */
   @Transactional
-  public String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId, MergeConfig mcx,
+  public String merge(String siteId, Element root, String archivePath, String fromSiteId, MergeConfig mcx,
       Map<String, String> userIdTrans, Set<String> userListAllowImport)
   {
 

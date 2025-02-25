@@ -1491,7 +1491,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	}
 
 	@Override
-	public String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId,
+	public String merge(String siteId, Element root, String archivePath, String fromSiteId,
 		MergeConfig mcx, Map<String, String> userIdTrans, Set<String> userListAllowImport)
 	{
 

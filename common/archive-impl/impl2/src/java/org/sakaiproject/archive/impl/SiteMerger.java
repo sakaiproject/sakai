@@ -145,6 +145,7 @@ public class SiteMerger {
 		}
 
 		MergeConfig mcx = new MergeConfig();
+		mcx.creatorId = creatorId;
 		
 		// The archive.xml is really a debug log, not actual archive data - it does not participate in any merge
 		// the web.xml is now merged in the site merger
@@ -172,7 +173,7 @@ public class SiteMerger {
 		{
 			if ((files[i] != null) && (files[i].getPath().indexOf("user.xml") != -1))
 			{
-				processMerge(files[i].getPath(), siteId, results, mcx, null, filterSakaiServices, filteredSakaiServices, filterSakaiRoles, filteredSakaiRoles);
+				processMerge(files[i].getPath(), siteId, results, mcx, filterSakaiServices, filteredSakaiServices, filterSakaiRoles, filteredSakaiRoles);
 				files[i] = null;
 				break;
 			}
@@ -195,7 +196,7 @@ public class SiteMerger {
 		{
 			if ((files[i] != null) && (files[i].getPath().indexOf("attachment.xml") != -1))
 			{
-				processMerge(files[i].getPath(), siteId, results, mcx, null, filterSakaiServices, filteredSakaiServices, filterSakaiRoles, filteredSakaiRoles);
+				processMerge(files[i].getPath(), siteId, results, mcx, filterSakaiServices, filteredSakaiServices, filterSakaiRoles, filteredSakaiRoles);
 				files[i] = null;
 				break;
 			}
@@ -207,13 +208,13 @@ public class SiteMerger {
 			if (files[i] != null)
 				if (files[i].getPath().endsWith(".xml"))
 				{
-					processMerge(files[i].getPath(), siteId, results, mcx, creatorId, filterSakaiServices, filteredSakaiServices, filterSakaiRoles, filteredSakaiRoles);
+					processMerge(files[i].getPath(), siteId, results, mcx, filterSakaiServices, filteredSakaiServices, filterSakaiRoles, filteredSakaiRoles);
 				}
 		}
 
 		if (siteFile != null )
 		{
-			processMerge(siteFile, siteId, results, mcx, creatorId, filterSakaiServices, filteredSakaiServices, filterSakaiRoles, filteredSakaiRoles);
+			processMerge(siteFile, siteId, results, mcx, filterSakaiServices, filteredSakaiServices, filterSakaiRoles, filteredSakaiRoles);
 		}
 
 		// Attachments are of the form
@@ -253,9 +254,8 @@ public class SiteMerger {
 	* @param siteId The id of the site to merge the content into.
 	* @param results A buffer to accumulate result messages.
 	* @param mcx The MergeConfig for this import
-	* @param creatorId The creator id
 	*/
-	protected void processMerge(String fileName, String siteId, StringBuilder results, MergeConfig mcx, String creatorId, boolean filterSakaiService, String[] filteredSakaiService, boolean filterSakaiRoles, String[] filteredSakaiRoles)
+	protected void processMerge(String fileName, String siteId, StringBuilder results, MergeConfig mcx, boolean filterSakaiService, String[] filteredSakaiService, boolean filterSakaiRoles, String[] filteredSakaiRoles)
 	{
 		// correct for windows backslashes
 		fileName = fileName.replace('\\', '/');
@@ -304,11 +304,7 @@ public class SiteMerger {
 			// look for site stuff
 			if (element.getTagName().equals(SiteService.APPLICATION_ID))
 			{	
-				//if the xml file is from WT site, merge it with the translated user ids
-				//if (system.equalsIgnoreCase(ArchiveService.FROM_WT))
-				//	mergeSite(siteId, fromSite, element, userIdTrans, creatorId);
-				//else
-				mergeSite(siteId, fromSite, element, new HashMap()/*empty userIdMap */, creatorId, mcx, filterSakaiRoles, filteredSakaiRoles);
+				mergeSite(siteId, fromSite, element, new HashMap()/*empty userIdMap */, mcx, filterSakaiRoles, filteredSakaiRoles);
 			}
 			else if (element.getTagName().equals(UserDirectoryService.APPLICATION_ID))
 			{	;
@@ -363,7 +359,7 @@ public class SiteMerger {
 						        if (checkSakaiService(filterSakaiService, filteredSakaiService, serviceName)) {
 						            // checks passed so now we attempt to do the merge
 		                            log.debug("Merging archive data for {} ({}) to site {}", serviceName, fileName, siteId);
-		                            msg = service.merge(siteId, element, fileName, fromSite, creatorId, mcx, new HashMap() /* empty userIdTran map */, usersListAllowImport);
+		                            msg = service.merge(siteId, element, fileName, fromSite, mcx, new HashMap() /* empty userIdTran map */, usersListAllowImport);
 						        } else {
 						            log.warn("Skipping merge archive data for "+serviceName+" ("+fileName+") to site "+siteId+", checked filter failed (filtersOn="+filterSakaiService+", filters="+Arrays.toString(filteredSakaiService)+")");
 						        }
@@ -459,10 +455,9 @@ public class SiteMerger {
 	* @param siteId The id of the site getting imported into.
 	* @param fromSiteId The id of the site the archive was made from.
 	* @param element The XML DOM tree of messages to merge.
-	* @param creatorId The creator id
 	* @param mcx The MergeConfig for this import
 	*/
-	protected void mergeSite(String siteId, String fromSiteId, Element element, HashMap useIdTrans, String creatorId, MergeConfig mcx, boolean filterSakaiRoles, String[] filteredSakaiRoles)
+	protected void mergeSite(String siteId, String fromSiteId, Element element, HashMap useIdTrans, MergeConfig mcx, boolean filterSakaiRoles, String[] filteredSakaiRoles)
 	{
 		String source = "";
 
@@ -532,7 +527,7 @@ public class SiteMerger {
 			// merge the site info first
 			try
 			{
-				siteService.merge(siteId, element2, creatorId);
+				siteService.merge(siteId, element2, mcx.creatorId);
 				mergeSiteInfo(element2, siteId);
 			}
 			catch(Exception any)

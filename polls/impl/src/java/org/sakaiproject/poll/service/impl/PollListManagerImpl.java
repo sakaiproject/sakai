@@ -460,7 +460,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         return results.toString();
     }
 
-    public String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId,
+    public String merge(String siteId, Element root, String archivePath, String fromSiteId,
             MergeConfig mcx, Map<String, String> userIdTrans, Set<String> userListAllowImport) {
 
         String archiveContext = "";
@@ -490,7 +490,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
             if ( pollTexts.contains(pollText) ) continue;
 
             poll.setSiteId(siteId);
-            poll.setOwner(creatorId);
+            poll.setOwner(mcx.creatorId);
             String details = poll.getDetails();
             details = ltiService.fixLtiLaunchUrls(details, siteId, mcx);
             details = linkMigrationHelper.migrateLinksInMergedRTE(siteId, archiveContext, archiveServerUrl, details);
