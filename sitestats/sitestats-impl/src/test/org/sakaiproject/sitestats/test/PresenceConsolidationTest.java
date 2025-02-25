@@ -19,6 +19,10 @@ import static org.junit.Assert.assertEquals;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
 
@@ -26,8 +30,6 @@ import org.junit.Test;
 import org.sakaiproject.sitestats.api.presence.Presence;
 import org.sakaiproject.sitestats.impl.PresenceConsolidation;
 import org.sakaiproject.sitestats.impl.PresenceRecord;
-
-import lombok.NonNull;
 
 public class PresenceConsolidationTest {
 
@@ -38,7 +40,8 @@ public class PresenceConsolidationTest {
         // p1: b----e
         // p2:           b---------e
         // p3:                               b---------e
-        Instant base = Instant.now();
+        LocalDateTime midnight = LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT);
+	Instant base = midnight.atZone(ZoneId.systemDefault()).toInstant();
         Presence presence1 = PresenceRecord.builder()
                 .begin(base)
                 .end(base.plus(15, ChronoUnit.MINUTES))
@@ -70,7 +73,8 @@ public class PresenceConsolidationTest {
         // p1: b-----------------------------e
         // p2:      b----------------------------------e
         // p3:           b---------e
-        Instant base = Instant.now();
+        LocalDateTime midnight = LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT);
+	Instant base = midnight.atZone(ZoneId.systemDefault()).toInstant();
         Presence presence1 = PresenceRecord.builder()
                 .begin(base)
                 .end(base.plus(90, ChronoUnit.MINUTES))
@@ -115,7 +119,8 @@ public class PresenceConsolidationTest {
         // p1:           b-------------------------e
         // p2:                b-----------------------------------e
         // p3:                               b----------e
-        Instant base = PresenceConsolidation.toDay(Instant.now());
+        LocalDateTime midnight = LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT);
+	Instant base = midnight.atZone(ZoneId.systemDefault()).toInstant();
         Instant d1 = base;
         Instant d2 = base.plus(1, ChronoUnit.DAYS);
         Instant d3 = base.plus(2, ChronoUnit.DAYS);
