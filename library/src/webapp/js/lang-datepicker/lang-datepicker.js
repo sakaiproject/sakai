@@ -35,24 +35,31 @@ const defaults = {
 	}
   
 	setInitialValue() {
-	  let initialValue = this.options.val || this.element.value.trim();
-  
-	  if (!initialValue && !this.options.allowEmptyDate) {
-		initialValue = this.getPreferredSakaiDatetime();
-		const date = this.parseDate(initialValue);
-		this.element.value = this.formatForInput(date);
-	  } else if (initialValue) {
-		// Use raw value for datetime-local input, no Date object manipulation
-		if (this.options.parseFormat === 'YYYY-MM-DD HH:mm:ss' && initialValue.includes(' ')) {
-		  const [datePart, timePart] = initialValue.split(' ');
-		  const [year, month, day] = datePart.split('-');
-		  const [hours, minutes] = timePart.split(':');
-		  this.element.value = `${year}-${month}-${day}T${hours}:${minutes}`;
-		} else {
-		  this.element.value = initialValue; // Assume it's already in datetime-local format
+		let initialValue = this.options.val || this.element.value.trim();
+	  
+		if (!initialValue && !this.options.allowEmptyDate) {
+		  initialValue = this.getPreferredSakaiDatetime();
+		  const date = this.parseDate(initialValue);
+		  this.element.value = this.formatForInput(date);
+		} else if (initialValue) {
+		  // Handle Date object input
+		  if (initialValue instanceof Date) {
+			this.element.value = this.formatForInput(initialValue);
+		  }
+		  // Handle string input
+		  else {
+			// Use raw value for datetime-local input, no Date object manipulation
+			if (this.options.parseFormat === 'YYYY-MM-DD HH:mm:ss' && initialValue.includes(' ')) {
+			  const [datePart, timePart] = initialValue.split(' ');
+			  const [year, month, day] = datePart.split('-');
+			  const [hours, minutes] = timePart.split(':');
+			  this.element.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+			} else {
+			  this.element.value = initialValue; // Assume it's already in datetime-local format
+			}
+		  }
 		}
 	  }
-	}
   
 	createHiddenFields() {
 	  const hiddenFields = this.options.ashidden;
