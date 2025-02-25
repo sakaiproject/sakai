@@ -86,5 +86,7 @@ public class Task implements PersistableEntity<Long> {
     
     @Column(name = "TASK_OWNER", length = 99)
     private String owner;
-    
+
+    @Column(name = "SOFT_DELETED")
+    private Boolean softDeleted;
 }

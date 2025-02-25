@@ -26,7 +26,6 @@ import java.util.Set;
 import java.time.Instant;
 
 import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaDelete;
@@ -41,23 +40,39 @@ import org.sakaiproject.springframework.data.SpringCrudRepositoryImpl;
 
 public class UserTaskRepositoryImpl extends SpringCrudRepositoryImpl<UserTask, Long> implements UserTaskRepository {
 
-    public List<UserTask> findByTaskIdAndUserIdIn(Long taskId, List<String> userIds) {
-
-        Session session = sessionFactory.getCurrentSession();
-
-        return (List<UserTask>) session.createCriteria(UserTask.class)
-            .add(Restrictions.eq("task.id", taskId))
-            .add(Restrictions.in("userId", userIds)).list();
-    }
-
-    public List<UserTask> findByUserIdAndStartsAfter(String userId, Instant from) {
+    public List<UserTask> findBySiteId(String siteId) {
 
         Session session = sessionFactory.getCurrentSession();
 
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaQuery<UserTask> query = cb.createQuery(UserTask.class);
         Root<UserTask> userTask = query.from(UserTask.class);
-        query.where(cb.equal(userTask.get("userId"), userId), cb.lessThanOrEqualTo(userTask.get("task").get("starts"), from));
+        query.where(cb.equal(userTask.get("task").get("siteId"), siteId));
+
+        return session.createQuery(query).list();
+    }
+
+    public List<UserTask> findByTaskIdAndUserIdIn(Long taskId, List<String> userIds) {
+
+        Session session = sessionFactory.getCurrentSession();
+
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<UserTask> query = cb.createQuery(UserTask.class);
+        Root<UserTask> userTask = query.from(UserTask.class);
+        query.where(cb.equal(userTask.get("task").get("id"), taskId), userTask.get("userId").in(userIds));
+
+        return session.createQuery(query).list();
+    }
+
+    public List<UserTask> findByUserIdAndStartsAfterAndSoftDeleted(String userId, Instant from, Boolean softDeleted) {
+
+        Session session = sessionFactory.getCurrentSession();
+
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<UserTask> query = cb.createQuery(UserTask.class);
+        Root<UserTask> userTask = query.from(UserTask.class);
+        query.where(cb.and(cb.equal(userTask.get("userId"), userId) , cb.lessThanOrEqualTo(userTask.get("task").get("starts"), from))
+                        , cb.or(cb.isNull(userTask.get("softDeleted")), cb.equal(userTask.get("softDeleted"), softDeleted)));
 
         return session.createQuery(query).list();
     }
@@ -66,18 +81,24 @@ public class UserTaskRepositoryImpl extends SpringCrudRepositoryImpl<UserTask, L
 
         Session session = sessionFactory.getCurrentSession();
 
-        return session.createQuery("select u from UserTask u where userId = :userId and task.siteId = :siteId")
-        	.setParameter("userId", userId)
-        	.setParameter("siteId", siteId).list();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<UserTask> query = cb.createQuery(UserTask.class);
+        Root<UserTask> userTask = query.from(UserTask.class);
+        query.where(cb.equal(userTask.get("userId"), userId), cb.equal(userTask.get("task").get("siteId"), siteId));
+
+        return session.createQuery(query).list();
     }
 
-    public List<UserTask> findByUserIdAndTask_StartsLessThanEqual(String userId, Instant instant) {
+    public List<UserTask> findByUserIdAndTask_StartsLessThanEqual(String userId, Instant earlierThan) {
 
         Session session = sessionFactory.getCurrentSession();
 
-        return (List<UserTask>) session.createCriteria(UserTask.class)
-            .add(Restrictions.eq("userId", userId))
-            .add(Restrictions.le("task.starts", instant)).list();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<UserTask> query = cb.createQuery(UserTask.class);
+        Root<UserTask> userTask = query.from(UserTask.class);
+        query.where(cb.equal(userTask.get("userId"), userId), cb.lessThanOrEqualTo(userTask.get("task").get("starts"), earlierThan));
+
+        return session.createQuery(query).list();
     }
 
     public List<UserTask> findByTask_SiteId(String siteId) {
@@ -92,19 +113,21 @@ public class UserTaskRepositoryImpl extends SpringCrudRepositoryImpl<UserTask, L
         cq.where(cb.equal(taskJoin.get("siteId"), siteId));
 
         return session.createQuery(cq).list();
-
     }
 
-    public void deleteByTask(Task task) {
+    public int deleteByTask(Task task) {
 
         Session session = sessionFactory.getCurrentSession();
 
-        session.createQuery("delete from UserTask where task = :task")
-            .setParameter("task", task).executeUpdate();
-        session.delete(task);
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaDelete<UserTask> cd = cb.createCriteriaDelete(UserTask.class);
+        Root<UserTask> userTask = cd.from(UserTask.class);
+        cd.where(cb.equal(userTask.get("task"), task));
+
+        return session.createQuery(cd).executeUpdate();
     }
 
-    public void deleteByTaskAndUserIdNotIn(Task task, Set<String> users) {
+    public int deleteByTaskAndUserIdNotIn(Task task, Set<String> users) {
 
         Session session = sessionFactory.getCurrentSession();
 
@@ -113,6 +136,6 @@ public class UserTaskRepositoryImpl extends SpringCrudRepositoryImpl<UserTask, L
         Root<UserTask> root = cd.from(UserTask.class);
         cd.where(cb.equal(root.get("task"), task), cb.not(root.get("userId").in(users)));
 
-        session.createQuery(cd).executeUpdate();
+        return session.createQuery(cd).executeUpdate();
     }
 }
