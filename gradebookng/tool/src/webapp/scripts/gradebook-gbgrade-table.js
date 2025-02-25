@@ -566,11 +566,20 @@ GbGradeTable.cellFormatter = function(cell, formatterParams, onRendered) {
     } else {
       dropdownToggle.style.display = 'block';
       dropdownToggle.setAttribute('aria-hidden', 'false');
-      const dropdownToggleTooltip = GbGradeTable.templates.gradeMenuTooltip.process({
-        studentName: `${studentData.firstName} ${studentData.lastName}`,
-        columnTitle: columnData.title
-      });
-      dropdownToggle.setAttribute('title', dropdownToggleTooltip);
+      
+      const studentName = studentData && studentData.firstName && studentData.lastName 
+        ? `${studentData.firstName} ${studentData.lastName}`.trim()
+        : 'Unknown Student';
+      
+      const columnTitle = columnData && columnData.title 
+        ? columnData.title.trim() 
+        : 'Unknown Assignment';
+
+      const dropdownToggleTooltip = GbGradeTable.templates.gradeMenuTooltip.process().replace('{0}', studentName).replace('{1}', columnTitle);
+      
+      dropdownToggle.setAttribute('title', dropdownToggleTooltip.replace(/"/g, '&quot;'));
+      
+      dropdownToggle.setAttribute('aria-label', GbGradeTable.i18n['grade.menu.aria.label'].replace('{0}', studentName).replace('{1}', columnTitle));
     }
   }
 
@@ -1008,10 +1017,21 @@ GbGradeTable.renderTable = function (elementId, tableData) {
         if (dropdownToggle) {
           dropdownToggle.style.display = "block";
           dropdownToggle.setAttribute("aria-hidden", "false");
-          const dropdownToggleTooltip =
-            GbGradeTable.templates.gradeHeaderMenuTooltip.process()
-              .replace("{0}", columnDefinition.title);
-          dropdownToggle.setAttribute("title", dropdownToggleTooltip);
+          
+          const studentData = columnDefinition.formatterParams._data_;
+          const studentName = studentData && studentData.firstName && studentData.lastName 
+            ? `${studentData.firstName} ${studentData.lastName}`.trim()
+            : 'Unknown Student';
+          
+          const columnTitle = columnData && columnData.title 
+            ? columnData.title.trim() 
+            : 'Unknown Assignment';
+
+          const dropdownToggleTooltip = GbGradeTable.templates.gradeMenuTooltip.process().replace('{0}', studentName).replace('{1}', columnTitle);
+          
+          dropdownToggle.setAttribute('title', dropdownToggleTooltip.replace(/"/g, '&quot;'));
+          
+          dropdownToggle.setAttribute('aria-label', GbGradeTable.i18n['grade.menu.aria.label'].replace('{0}', studentName).replace('{1}', columnTitle));
         }
       }
   
