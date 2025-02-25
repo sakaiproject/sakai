@@ -2423,6 +2423,12 @@ GbGradeTable.setupKeyboardNavigation = function() {
     const current = document.querySelector("#gradeTableWrapper .tabulator-cell.tabulator-range-only-cell-selected");
     const focus = document.activeElement;
 
+    if (event.key === "Escape") {
+      focus.blur();
+      current.focus();
+      return;
+    }
+
     if (current) {
       // Allow accessibility shortcuts
       if (event.altKey && event.ctrlKey) {
