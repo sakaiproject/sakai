@@ -33,7 +33,7 @@ import org.jsoup.select.Elements;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.util.api.LinkMigrationHelper;
-
+import org.sakaiproject.util.MergeConfig;
 @Slf4j
 public class LinkMigrationHelperImpl implements LinkMigrationHelper {
 	private static final String ESCAPED_SPACE = "%"+"20";
@@ -137,45 +137,44 @@ public class LinkMigrationHelperImpl implements LinkMigrationHelper {
      * Do several transformations to migrate the content links present in a zip import of RTE content
      *
      * @param siteId the site id (Must not be null or empty)
-     * @param fromContext the context of the original content (Can be null)
-     * @param fromServerUrl the server url of the original content (Can be null)
+     * @param mcx the merge config
      * @param content the content to migrate
      * @return the migrated content
      */
-    public String migrateLinksInMergedRTE(String siteId, String fromContext, String fromServerUrl, String content) {
+    public String migrateLinksInMergedRTE(String siteId, MergeConfig mcx, String content) {
 		String before;
         String after = serverConfigurationService.getServerUrl() + ACCESS_CONTENT_GROUP + siteId + "/";
 
         // Replace full match of the fromserverUrl and fromContext (ideal)
-        if ( StringUtils.isNotBlank(fromServerUrl) && StringUtils.isNotBlank(fromContext) ) {
-            before = fromServerUrl + ACCESS_CONTENT_GROUP + fromContext + "/";
+        if ( StringUtils.isNotBlank(mcx.archiveServerUrl) && StringUtils.isNotBlank(mcx.archiveContext) ) {
+            before = mcx.archiveServerUrl + ACCESS_CONTENT_GROUP + mcx.archiveContext + "/";
             content = content.replace(before, after);
         }
 
         // If we don't know the fromServerUrl, but we know the fromContext, replace athe url prefix to get the links onto this server
-        if ( StringUtils.isBlank(fromServerUrl) && StringUtils.isNotBlank(fromContext) ) {
-            before = "https?://[^/]+/" + ACCESS_CONTENT_GROUP + fromContext + "/";
+        if ( StringUtils.isBlank(mcx.archiveServerUrl) && StringUtils.isNotBlank(mcx.archiveContext) ) {
+            before = "https?://[^/]+/" + ACCESS_CONTENT_GROUP + mcx.archiveContext + "/";
             content = content.replaceAll(before, after);
         }
 
         // If we know the fromContext, we can replace urls that start with "/"
-        if ( StringUtils.isNotBlank(fromContext) ) {
-            before = "\"/" + ACCESS_CONTENT_GROUP + fromContext + "/";
+        if ( StringUtils.isNotBlank(mcx.archiveContext) ) {
+            before = "\"/" + ACCESS_CONTENT_GROUP + mcx.archiveContext + "/";
             after = "\"/" + ACCESS_CONTENT_GROUP + siteId + "/";
             content = content.replaceAll(before, after);
         }
 
         // If we know the fromServerUrl and not the fromContext, move old broken urls to this server at a minimum
-        if ( StringUtils.isNotBlank(fromServerUrl) ) {
-            before = fromServerUrl + ACCESS_CONTENT_GROUP;
+        if ( StringUtils.isNotBlank(mcx.archiveServerUrl) ) {
+            before = mcx.archiveServerUrl + ACCESS_CONTENT_GROUP;
             after = serverConfigurationService.getServerUrl() + ACCESS_CONTENT_GROUP;
             content = content.replace(before, after);
         }
 
         // [http://localhost:8080/direct/forum_topic/1]
         // Migrate direct links to the new server if we have the name of the server
-        if ( StringUtils.isNotBlank(fromServerUrl) ) {
-            before = fromServerUrl + DIRECT_LINK;
+        if ( StringUtils.isNotBlank(mcx.archiveServerUrl) ) {
+            before = mcx.archiveServerUrl + DIRECT_LINK;
             after = serverConfigurationService.getServerUrl() + DIRECT_LINK;
             content = content.replace(before, after);
         }

@@ -50,6 +50,7 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.time.api.Time;
+import org.sakaiproject.util.MergeConfig;
 import org.w3c.dom.Document;
 
 /**
@@ -1138,14 +1139,13 @@ public interface ContentHostingService extends EntityProducer
 	 * @param toolTitle
 	 *      The title of the tool that the attachment is being added to (i.d. Discussions or Assignments) - this will be 
 	 *      used to generate the new attachment id / path - required
-	 * @param attachmentImportMap
-	 *      A map of the attachment names that are the result of pre-importing attachments at the beginning of the 
-	 *      SiteMerge process.  It maps from the original attachment path from the import file to the pre-imported path for the 
+	 * @param mcx
+	 *      The MergeConfig for this import
      *      attachment.  If the oAttachmentId points to a non-existant or inaccessible resource, the attachmentNames map will 
 	 *      consulted to see id the oAttachmentId has been pre-imported.
 	 * @return The id of the new attachment.
 	 */
-	public ContentResource copyAttachment(String oAttachmentId, String toContext, String toolTitle, Map<String, String> attachmentImportMap) 
+	public ContentResource copyAttachment(String oAttachmentId, String toContext, String toolTitle, MergeConfig mcx) 
 		throws IdUnusedException, TypeException, PermissionException;
 
 	/**
