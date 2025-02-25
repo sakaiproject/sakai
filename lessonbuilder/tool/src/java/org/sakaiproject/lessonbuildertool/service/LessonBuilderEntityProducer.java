@@ -145,6 +145,8 @@ import org.w3c.dom.NodeList;
 import lombok.extern.slf4j.Slf4j;
 import uk.org.ponder.messageutil.MessageLocator;
 
+import org.sakaiproject.util.MergeConfig;
+
 /**
  * @author hedrick
  * The goal is to get sites to save and copy. However there's actually no data 
@@ -719,7 +721,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
     // the pages are already made. this adds the elements
     private boolean mergePage(Element element, String oldServer, String siteId, String fromSiteId, Map<Long,Long> pageMap,
-	  Map<Long,Long> itemMap, Map<String,String> entityMap, Map<Long, Map<String, Object>> ltiContentItems,
+	  Map<Long,Long> itemMap, Map<String,String> entityMap, MergeConfig mcx,
 	 String archiveContext, String archiveServerUrl) {
   
        String oldSiteId = element.getAttribute("siteid");
@@ -794,11 +796,11 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		                continue;
 		            }
 		        } else {
-		            if ( ltiContentItems == null ) {
+		            if ( mcx.ltiContentItems == null ) {
 		                log.warn("Unable to look up LTI content item with ID: {}", ltiContentId);
 		                continue;
 		            }
-		            Map<String, Object> ltiContentItem = ltiContentItems.get(ltiContentId);
+		            Map<String, Object> ltiContentItem = mcx.ltiContentItems.get(ltiContentId);
 		            if (ltiContentItem == null) {
 		                log.warn("Unable to find LTI content item with ID: {}", ltiContentId);
 		                continue;
@@ -842,7 +844,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		        }
 		   } else if (type == SimplePageItem.TEXT) {
 		        String html = itemElement.getAttribute("html");
-		        explanation = ltiService.fixLtiLaunchUrls(html, siteId, ltiContentItems);
+		        explanation = ltiService.fixLtiLaunchUrls(html, siteId, mcx);
 				explanation = linkMigrationHelper.migrateLinksInMergedRTE(siteId, archiveContext, archiveServerUrl, explanation);
 		   } else if (type == SimplePageItem.PAGE) {
 		       // sakaiId should be the new page ID
@@ -1170,13 +1172,13 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
    // Externally used for zip import
    @Override
    public String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId, Map<String, String> attachmentNames,
-        Map<Long, Map<String, Object>> ltiContentItems, Map<String, String> userIdTrans, Set<String> userListAllowImport) {
-       return merge(siteId, root, archivePath, fromSiteId, creatorId, attachmentNames, ltiContentItems, userIdTrans, userListAllowImport, null);
+        MergeConfig mcx, Map<String, String> userIdTrans, Set<String> userListAllowImport) {
+       return merge(siteId, root, archivePath, fromSiteId, creatorId, attachmentNames, mcx, userIdTrans, userListAllowImport, null);
    }
 
    // Internally used for both site copy and zip import
    public String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId, Map attachmentNames,
-        Map<Long, Map<String, Object>> ltiContentItems, Map userIdTrans, Set userListAllowImport, Map<String, String> entityMap)
+        MergeConfig mcx, Map userIdTrans, Set userListAllowImport, Map<String, String> entityMap)
    {
 	  String archiveContext = "";
 	  String archiveServerUrl = "";
@@ -1273,7 +1275,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		     Long oldPageId = Long.valueOf(pageElement.getAttribute("pageid"));
 		     pageElementMap.put(oldPageId, pageElement);
 
-		     if (mergePage(pageElement, oldServer, siteId, fromSiteId, pageMap, itemMap, entityMap, ltiContentItems, archiveContext, archiveServerUrl))
+		     if (mergePage(pageElement, oldServer, siteId, fromSiteId, pageMap, itemMap, entityMap, mcx, archiveContext, archiveServerUrl))
 
 			 needFix = true;
 		 }

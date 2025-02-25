@@ -75,6 +75,8 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.cover.LinkMigrationHelper;
+import org.sakaiproject.util.MergeConfig;
+
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -452,7 +454,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
    */
   @Transactional
   public String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId, Map<String, String> attachmentNames,
-      Map<Long, Map<String, Object>> ltiContentItems, Map<String, String> userIdTrans, Set<String> userListAllowImport) 
+      MergeConfig mcx, Map<String, String> userIdTrans, Set<String> userListAllowImport)
   {
 
 	String archiveContext = "";
@@ -577,7 +579,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
                                         {
                                           byte[] decoded = Base64.decodeBase64(body.getBytes("UTF-8"));
                                           body = new String(decoded, charset);
-                                          body = ltiService.fixLtiLaunchUrls(body, siteId, ltiContentItems);
+                                          body = ltiService.fixLtiLaunchUrls(body, siteId, mcx);
                                           body = LinkMigrationHelper.migrateLinksInMergedRTE(siteId, archiveContext, archiveServerUrl, body);
                                         }
                                         catch (Exception e)

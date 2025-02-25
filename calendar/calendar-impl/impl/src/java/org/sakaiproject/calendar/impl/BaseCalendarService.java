@@ -103,6 +103,8 @@ import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.api.app.messageforums.DiscussionForumService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 
+import org.sakaiproject.util.MergeConfig;
+
 /**
  * <p>
  * BaseCalendarService is an base implementation of the CalendarService. Extension classes implement object creation, access and storage.
@@ -1490,7 +1492,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 	@Override
 	public String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId, Map<String, String> attachmentImportMap,
-		Map<Long, Map<String, Object>> ltiContentItems, Map<String, String> userIdTrans, Set<String> userListAllowImport)
+		MergeConfig mcx, Map<String, String> userIdTrans, Set<String> userListAllowImport)
 	{
 
 		String archiveContext = "";
@@ -1645,7 +1647,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 										continue;
 									}
 									String description = edit.getDescriptionFormatted();
-									description = ltiService.fixLtiLaunchUrls(description, siteId, ltiContentItems);
+									description = ltiService.fixLtiLaunchUrls(description, siteId, mcx);
 									description = linkMigrationHelper.migrateLinksInMergedRTE(siteId, archiveContext, archiveServerUrl, description);
 									edit.setDescriptionFormatted(description);
 

@@ -106,6 +106,7 @@ import org.sakaiproject.util.EntityCollections;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.api.LinkMigrationHelper;
+import org.sakaiproject.util.MergeConfig;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -1680,7 +1681,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 	 */
 	@Override
 	public String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId, Map<String, String> attachmentNames,
-		Map<Long, Map<String, Object>> ltiContentItems, Map<String, String> userIdTrans, Set<String> userListAllowImport)
+		MergeConfig mcx, Map<String, String> userIdTrans, Set<String> userListAllowImport)
 	{
 		// get the system name: FROM_WT, FROM_CT, FROM_SAKAI
 		// root: <service> node
@@ -1992,7 +1993,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 										}
 
 										String description = edit.getBody();
-										description = ltiService.fixLtiLaunchUrls(description, siteId, ltiContentItems);
+										description = ltiService.fixLtiLaunchUrls(description, siteId, mcx);
 										description = linkMigrationHelper.migrateLinksInMergedRTE(siteId, archiveContext, archiveServerUrl, description);
 										log.debug("description {}", description);
 										edit.setBody(description);

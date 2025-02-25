@@ -32,6 +32,8 @@ import java.util.Stack;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import org.sakaiproject.util.MergeConfig;
+
 /**
  * <p>
  * Services which implement EntityProducer declare themselves as producers of Sakai entities.
@@ -125,7 +127,7 @@ public interface EntityProducer
 	 * @return A log of status messages from the merge.
 	 */
 	default String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId,
-			Map<String, String> attachmentNames, Map<Long, Map<String, Object>> ltiContentItems, Map<String, String> userIdTrans,
+			Map<String, String> attachmentNames, MergeConfig mcx, Map<String, String> userIdTrans,
 			Set<String> userListAllowImport) {
 		// By default call the old merge without creatorId for those impls that don't need the creatorId
 		return merge(siteId, root, archivePath, fromSiteId, attachmentNames, userIdTrans, userListAllowImport);
