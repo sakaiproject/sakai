@@ -164,6 +164,12 @@ const defaults = {
 	  const minutes = pad(date.getMinutes());
 	  return `${year}-${month}-${day}T${hours}:${minutes}`;
 	}
+
+	formatForSakai(d) {
+		const pad = n => n.toString().padStart(2, '0');
+		const offset = -d.getTimezoneOffset();
+		return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}${offset >= 0 ? '+' : '-'}${pad(Math.abs(offset / 60))}:${pad(offset % 60)}`;
+	}
   
 	syncHiddenFields(date) {
 	  const hiddenFields = this.options.ashidden;
@@ -200,7 +206,7 @@ const defaults = {
 				newValue = this.options.useTime ? (date.hours < 12 ? "am" : "pm") : "";
 				break;
 			  case "iso8601":
-				newValue = `${date.year}-${pad(date.month)}-${pad(date.day)}T${pad(date.hours)}:${pad(date.minutes)}:${pad(date.seconds)}.000Z`;
+				newValue = this.formatForSakai(date);
 				break;
 			}
 		  } else {
@@ -225,7 +231,7 @@ const defaults = {
 				newValue = this.options.useTime ? (date.getHours() < 12 ? "am" : "pm") : "";
 				break;
 			  case "iso8601":
-				newValue = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}.000Z`;
+				newValue = this.formatForSakai(date);
 				break;
 			}
 		  }
