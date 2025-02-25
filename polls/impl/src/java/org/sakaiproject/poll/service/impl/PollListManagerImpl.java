@@ -492,6 +492,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
             poll.setOwner(creatorId);
             String details = poll.getDetails();
             details = ltiService.fixLtiLaunchUrls(details, siteId, ltiContentItems);
+            details = linkMigrationHelper.migrateLinksInMergedRTE(siteId, archiveContext, archiveServerUrl, details);
             poll.setDetails(details);
 
             savePoll(poll);
