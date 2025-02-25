@@ -90,7 +90,7 @@ export class SakaiRubricStudent extends rubricsApiMixin(RubricsElement) {
     console.debug("SakaiRubricStudent.render");
     const isInstructor = this.instructor && this.instructor === "true";
 
-    return html`
+    const renderedContent = html`
       <div class="rubric-details grading student-view">
         ${!this.dynamic ? html`
           <h3>
@@ -138,6 +138,8 @@ export class SakaiRubricStudent extends rubricsApiMixin(RubricsElement) {
         <div id="rubric-criteria-summary-${this.instanceSalt}" class="rubric-tab-content"></div>
       </div>
     `;
+    this.dispatchEvent(new CustomEvent("rubric-student-rendered", { bubbles: true, composed: true }));
+    return renderedContent;
   }
 
   _setRubric() {
