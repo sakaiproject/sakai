@@ -1,9 +1,8 @@
 import { css, html, nothing } from "lit";
 import { SakaiShadowElement } from "@sakai-ui/sakai-element";
 import { confirmConnection, ignoreConnection, removeConnection, requestConnection } from "./sakai-connection-utils.js";
-import { getUserId } from "@sakai-ui/sakai-portal-utils";
+import { getSiteId, getUserId } from "@sakai-ui/sakai-portal-utils";
 import "@sakai-ui/sakai-pronunciation-player/sakai-pronunciation-player.js";
-import { getSiteId } from "@sakai-ui/sakai-portal-utils";
 
 /**
  * Renders a user's Sakai profile.
