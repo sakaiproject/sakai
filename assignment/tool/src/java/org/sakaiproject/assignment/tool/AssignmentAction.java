@@ -16227,25 +16227,19 @@ public class AssignmentAction extends PagedResourceActionII {
                 SubmitterSubmission u1 = (SubmitterSubmission) o1;
                 SubmitterSubmission u2 = (SubmitterSubmission) o2;
 
-                if (u1 == null || u2 == null) {
-                    result = (u1 == null && u2 == null) ? 0 : (u1 == null ? -1 : 1);
-                } else {
-                    AssignmentSubmission s1 = u1.getSubmission();
-                    AssignmentSubmission s2 = u2.getSubmission();
+                if (u1 == null && u2 == null) result = 0;
+                else if (u1 == null) result = -1;
+                else if (u2 == null) result = 1;
 
-                    boolean s1IsNull = (s1 == null || s1.getDateSubmitted() == null);
-                    boolean s2IsNull = (s2 == null || s2.getDateSubmitted() == null);
+                AssignmentSubmission s1 = u1.getSubmission();
+                AssignmentSubmission s2 = u2.getSubmission();
+                Instant t1 = (s1 == null ? null : s1.getDateSubmitted());
+                Instant t2 = (s2 == null ? null : s2.getDateSubmitted());
 
-                    if (s1IsNull && s2IsNull) {
-                        result = 0;
-                    } else if (s1IsNull) {
-                        result = -1;
-                    } else if (s2IsNull) {
-                        result = 1;
-                    } else {
-                        result = s1.getDateSubmitted().compareTo(s2.getDateSubmitted());
-                    }
-                }
+                if (t1 == null && t2 == null) result = 0;
+                else if (t1 == null) result = -1;
+                else if (t2 == null) result = 1;
+                else result = t1.compareTo(t2);
             } else if (m_criteria.equals(SORTED_GRADE_SUBMISSION_BY_STATUS)) {
                 // sort by submission status
                 SubmitterSubmission u1 = (SubmitterSubmission) o1;
