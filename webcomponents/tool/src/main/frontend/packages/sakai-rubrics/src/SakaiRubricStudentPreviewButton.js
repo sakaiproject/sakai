@@ -44,8 +44,6 @@ export class SakaiRubricStudentPreviewButton extends rubricsApiMixin(RubricsElem
 
   render() {
 
-    console.debug("SakaiRubricStudentPreviewButton.render");
-
     return html`
       ${this.display === "button" ? html`
         <h3>${this._i18n.grading_rubric}</h3>
