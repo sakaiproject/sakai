@@ -22,6 +22,8 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.sakaiproject.component.api.ServerConfigurationService;
 
+import org.sakaiproject.util.MergeConfig;
+
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
