@@ -118,7 +118,8 @@ public interface Message extends MutableEntity {
     public void setScheduler(Boolean scheduler);
     public Date getScheduledDate();
     public void setScheduledDate(Date scheduledDate);
-    
-    
+
+    public Boolean getSendMail();
+    public void setSendMail(Boolean sendmail);
 
 }

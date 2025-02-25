@@ -1860,6 +1860,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
     
     pMsg.setExternalEmail(booleanEmailOut);
     pMsg.setScheduler(booleanSchedulerSend);
+    pMsg.setSendMail(isSendEmail);
     Map<User, Boolean> recipients = getRecipients();
     
     if(booleanSchedulerSend) {
@@ -1999,6 +2000,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
     dMsg.setExternalEmail(booleanEmailOut);
     dMsg.setScheduler(booleanSchedulerSend);
     dMsg.setScheduledDate(booleanSchedulerSend ? openDate : null);
+    dMsg.setSendMail(isSendEmail());
 
     List<MembershipItem> draftRecipients = drDelegate.getDraftRecipients(getSelectedComposeToList(), courseMemberMap);
     List<MembershipItem> draftBccRecipients = drDelegate.getDraftRecipients(getSelectedComposeBccList(), courseMemberMap);
@@ -2485,6 +2487,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 		    }
 	    }
 	    rrepMsg.setScheduler(booleanSchedulerSend);
+	    rrepMsg.setSendMail(isSendEmail());
 
 	    Map<User, Boolean> recipients = getRecipients();
 
@@ -2877,6 +2880,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 		    }
 	    }
 	    rrepMsg.setScheduler(booleanSchedulerSend);
+	    rrepMsg.setSendMail(isSendEmail());
 
 	    Map<User, Boolean> recipients = getRecipients();
 
@@ -3185,6 +3189,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	        }
 		  }
 		    rrepMsg.setScheduler(booleanSchedulerSend);
+		    rrepMsg.setSendMail(isSendEmail());
 
 	        if(booleanSchedulerSend && !rrepMsg.getDraft()) {
 	            rrepMsg.setScheduledDate(openDate);

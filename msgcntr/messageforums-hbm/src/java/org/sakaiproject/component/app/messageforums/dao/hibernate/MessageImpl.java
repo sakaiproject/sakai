@@ -61,6 +61,8 @@ public class MessageImpl extends MutableEntityImpl implements Message
   private Boolean scheduler = false;
   @Getter @Setter
   private Date scheduledDate;
+  @Getter @Setter
+  private Boolean sendMail = false;
 
 	public static Comparator ATTACHMENT_COMPARATOR;
 	public static Comparator SUBJECT_COMPARATOR;

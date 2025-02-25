@@ -131,7 +131,7 @@ public class PrivateMessageSchedulerServiceImpl implements PrivateMessageSchedul
 		pvtMsg.setScheduler(false);
 		pvtMsg.setDraft(false);
 
-		prtMsgManager.sendPrivateMessage(pvtMsg, recipients, false, false);
+		prtMsgManager.sendPrivateMessage(pvtMsg, recipients, pvtMsg.getSendMail(), false);
 
 		// if you are sending a reply
 		Message replying = pvtMsg.getInReplyTo();
