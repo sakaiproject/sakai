@@ -78,14 +78,14 @@ can be either all members of the site, all members of selected groups, or the se
 
 ## Message Area 1
 	<div id="messages">
-	#if( $selectedGroupsNotFound )
+	#if( !$!groupsList )
+		<div id="msgNoGroupsPresent" class="sak-banner-info">$tlang.getString( "settings.access.noGroupsPresent" )</div>
+	#elseif( $selectedGroupsNotFound )
 		#if( $!groupsList.size() > 0 )
 			<div id="msgSelectedGroupsGoneOtherGroupsPresent" class="sak-banner-info">$tlang.getFormattedMessage("settings.access.selectedGroupsGoneOtherGroupsPresent", $releaseToSiteMsg.toArray())</div>
 		#else
 			<div id="msgSelectedGroupsGoneNoGroups" class="sak-banner-info">$tlang.getFormattedMessage("settings.access.selectedGroupsGoneNoGroups", $releaseToSiteMsg.toArray())</div>
 		#end
-	#elseif( !$!groupsList )
-		<div id="msgNoGroupsPresent" class="sak-banner-info">$tlang.getString( "settings.access.noGroupsPresent" )</div>
 	#end
 	</div>
 

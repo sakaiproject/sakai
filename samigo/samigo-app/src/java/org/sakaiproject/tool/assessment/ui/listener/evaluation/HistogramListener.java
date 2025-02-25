@@ -835,6 +835,9 @@ public class HistogramListener
               }
           }
       }
+      if (qbean.getQuestionType().equals(TypeIfc.IMAGEMAP_QUESTION.toString())) {
+          responses = assessmentGradingIds.size();
+      }
       qbean.setNumResponses(responses);
       qbean.setNumberOfStudentsWithZeroAnswers(numStudentsWithZeroAnswers);
 
@@ -1893,6 +1896,7 @@ public class HistogramListener
 	      numarray[i] = num;
 	      bars[i] = new HistogramBarBean();
 	      bars[i].setLabel(text.getText());
+	      bars[i].setIsCorrect(((Integer) results.get(textId)) >= 1);
 	      bars[i].setNumStudents(num);
 	      bars[i].setNumStudentsText(String.valueOf(num));
 

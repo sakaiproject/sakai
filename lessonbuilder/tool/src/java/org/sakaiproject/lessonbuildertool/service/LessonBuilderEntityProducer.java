@@ -118,6 +118,7 @@ import org.sakaiproject.lessonbuildertool.tool.beans.OrphanPageFinder;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.util.api.LinkMigrationHelper;
 import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
@@ -192,7 +193,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
    private GradebookIfc gradebookIfc;
    private LessonBuilderAccessAPI lessonBuilderAccessAPI;
    private MessageSource messageSource;
-	private LTIService ltiService;
+   private LTIService ltiService;
+   private LinkMigrationHelper linkMigrationHelper;
    public void setLessonBuilderAccessAPI(LessonBuilderAccessAPI l) {
        lessonBuilderAccessAPI = l;
    }
@@ -238,9 +240,6 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
    private Pattern pathPattern;
    private Pattern dummyPattern;
     
-   private Class linkMigrationHelper = null;
-   private Method migrateAllLinks = null;
-   private Object linkMigrationHelperInstance = null;
    final String ITEMDUMMY = "http://lessonbuilder.sakaiproject.org/";
 
 
@@ -256,19 +255,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
       lessonBuilderAccessAPI.setToolApi(this);
 
-      // LinkMigrationHelper is not present before 2.10. So this code can compile on older systems,
-      // find it via introspection.
-
-      try {
-	  linkMigrationHelper = RequestFilter.class.getClassLoader().loadClass("org.sakaiproject.util.api.LinkMigrationHelper");
-	  // this is in the kernel, so it should already be loaded
-	  linkMigrationHelperInstance = ComponentManager.get(linkMigrationHelper);
-	  if (linkMigrationHelper != null)
-	      migrateAllLinks = linkMigrationHelper.getMethod("migrateAllLinks", new Class[] { Set.class, String.class });
-      } catch (Exception e) {
-	  log.info("Exception in introspection " + e);
-	  log.info("loader " + RequestFilter.class.getClassLoader());
-      }
+	  linkMigrationHelper = (LinkMigrationHelper) ComponentManager.get("org.sakaiproject.util.api.LinkMigrationHelper");
 
       // Builds a Regexp selector.
       StringBuilder regexp = new StringBuilder("(");
@@ -731,7 +718,9 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
    }
 
     // the pages are already made. this adds the elements
-    private boolean makePage(Element element, String oldServer, String siteId, String fromSiteId, Map<Long,Long> pageMap, Map<Long,Long> itemMap, Map<String,String> entityMap, Map<Long, Map<String, Object>> ltiContentItems) {
+    private boolean mergePage(Element element, String oldServer, String siteId, String fromSiteId, Map<Long,Long> pageMap,
+	  Map<Long,Long> itemMap, Map<String,String> entityMap, Map<Long, Map<String, Object>> ltiContentItems,
+	 String archiveContext, String archiveServerUrl) {
   
        String oldSiteId = element.getAttribute("siteid");
        String oldPageIdString = element.getAttribute("pageid");
@@ -851,38 +840,10 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		                log.debug("Created new content item: {}", sakaiId);
 		            }
 		        }
-			} else if (type == SimplePageItem.TEXT) {
-			String html = itemElement.getAttribute("html");
-			// TODO: SAK-46983 - Check carefully
-			Pattern idPattern = Pattern.compile("(https?://[^/]+/access/[basic]*lti/site)/" + Pattern.quote(oldSiteId) + "/content:([0-9]+)");
-			Matcher matcher = idPattern.matcher(html);
-			StringBuffer sb = new StringBuffer();
-			boolean foundLtiLink = false;
-			while(matcher.find()) {
-				String urlFirstPart = matcher.group(1);
-				Long ltiContentId = Long.valueOf(matcher.group(2));
-				log.info("Updating reference: {}", matcher.group(0));
-				foundLtiLink = true;
-				try {
-					Map<String, Object> ltiContent = ltiService.getContentDao(ltiContentId, oldSiteId, securityService.isSuperUser());
-					String newSakaiId = copyLTIContent(ltiContent, siteId, oldSiteId);
-					if ( newSakaiId != null ) sakaiId = newSakaiId;
-					String[] bltiId = sakaiId.split("/");
-					ltiContentId = Long.valueOf(bltiId[2]);
-				} catch (Exception e) {
-					log.warn("Unable to import LTI tool to new site: {}", e);
-				} finally {
-					String updatedReference = urlFirstPart + "/" + siteId + "/content:" + ltiContentId;
-					log.info("New reference: {}", updatedReference);
-					matcher.appendReplacement(sb, Matcher.quoteReplacement(updatedReference));
-				}
-			}
-
-			if(foundLtiLink) {
-				matcher.appendTail(sb);
-				explanation = sb.toString();
-				log.info("Updated at least one LTI reference lesson HTML");
-			}
+		   } else if (type == SimplePageItem.TEXT) {
+		        String html = itemElement.getAttribute("html");
+		        explanation = ltiService.fixLtiLaunchUrls(html, siteId, ltiContentItems);
+				explanation = linkMigrationHelper.migrateLinksInMergedRTE(siteId, archiveContext, archiveServerUrl, explanation);
 		   } else if (type == SimplePageItem.PAGE) {
 		       // sakaiId should be the new page ID
 		       Long newPageId = pageMap.get(Long.valueOf(sakaiId));
@@ -1217,7 +1178,17 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
    public String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId, Map attachmentNames,
         Map<Long, Map<String, Object>> ltiContentItems, Map userIdTrans, Set userListAllowImport, Map<String, String> entityMap)
    {
-      log.debug("Lessons Merge siteId={} fromSiteId={} creatorId={}", siteId, fromSiteId, creatorId);
+	  String archiveContext = "";
+	  String archiveServerUrl = "";
+	  Node parent = root.getParentNode();
+	  if (parent.getNodeType() == Node.ELEMENT_NODE)
+	  {
+		  Element parentEl = (Element)parent;
+		  archiveContext = parentEl.getAttribute("source");
+		  archiveServerUrl = parentEl.getAttribute("serverurl");
+	  }
+	  log.debug("Lessons Merge siteId={} fromSiteId={} creatorId={} archiveContext={} archiveServerUrl={}",
+	  	siteId, fromSiteId, creatorId, archiveContext, archiveServerUrl);
 
       StringBuilder results = new StringBuilder();
       // map old to new page ids
@@ -1302,7 +1273,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		     Long oldPageId = Long.valueOf(pageElement.getAttribute("pageid"));
 		     pageElementMap.put(oldPageId, pageElement);
 
-		     if (makePage(pageElement, oldServer, siteId, fromSiteId, pageMap, itemMap, entityMap, ltiContentItems))
+		     if (mergePage(pageElement, oldServer, siteId, fromSiteId, pageMap, itemMap, entityMap, ltiContentItems, archiveContext, archiveServerUrl))
 
 			 needFix = true;
 		 }
@@ -1657,8 +1628,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
     // find the object in the new site and fix up the item id
     public void updateEntityReferences(String toContext, Map<String, String> transversalMap) {
 
-	if (migrateAllLinks != null)
-	    migrateEmbeddedLinks(toContext, transversalMap);
+	migrateEmbeddedLinks(toContext, transversalMap);
 	// update lessonbuilder_ref property of groups and kill bogus groups
 	Map<String,String> mapGroups = new HashMap<String,String>();
 	for (Map.Entry<String,String> entry: transversalMap.entrySet()) {
@@ -1724,7 +1694,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	for (SimplePageItem item: items) {
 	    String msgBody = item.getHtml();
 	    try {
-		String newBody = (String) migrateAllLinks.invoke(linkMigrationHelperInstance, new Object[] { entrySet, msgBody});
+		String newBody = linkMigrationHelper.migrateAllLinks(entrySet, msgBody);
+
 		if (!msgBody.equals(newBody)) {
 		    // items in findTextItemsInSite don't come from hibernate, so we have to get a real one
 		    SimplePageItem i = simplePageToolDao.findItem(item.getId());

@@ -1283,43 +1283,65 @@ public abstract class BaseLTIService implements LTIService {
 		if (StringUtils.isBlank(text)) return text;
 		List<String> urls = SakaiLTIUtil.extractLtiLaunchUrls(text);
 		for (String url : urls) {
-			String[] pieces = SakaiLTIUtil.getLtiLaunchUrlAndSiteId(url);
+			String[] pieces = SakaiLTIUtil.getContentKeyAndSiteId(url);
 			if (pieces != null) {
 				String linkSiteId = pieces[0];
-				String linkContextId = pieces[1];
+				String linkContentId = pieces[1];
 
 				if ( transversalMap != null && transversalMap.containsKey(url) ) {
 					log.debug("Found transversal map entry for {} -> {}", url, transversalMap.get(url));
 					text = text.replace(url, transversalMap.get(url));
-					return text;
-				}
-
-				// We need to load up the content item from the old context which should be successful
-				Long contentKey = Long.parseLong(linkContextId);
-				Map<String, Object> content = this.getContent(contentKey, linkSiteId);
-				if (content == null) {
-					log.error("Could not find content item {} in site {}",contentKey,linkSiteId);
 					continue;
 				}
 
-				// Get the tool id from the content item from the old site
+				// Check if we can load up the content item and tool from the old context
+				Long toolKey = null;
 				Map<String, Object> tool = null;
-				Long newToolId = findOrCreateToolForContentItem(content, tool, toContext, fromContext, ltiContentItems);
-				if (newToolId == null) {
-					log.error("Could not associate new content item {} with a tool in site {}", contentKey, toContext);
+				Long contentKey = Long.parseLong(linkContentId);
+				Map<String, Object> content = this.getContent(contentKey, linkSiteId);
+				if ( content != null ) {
+					toolKey = Foorm.getLongNull(content.get(LTIService.LTI_TOOL_ID));
+					// Make sure we can retrieve the tool in this site
+					if ( toolKey != null ) tool = this.getTool(toolKey, toContext);
+					if ( tool != null ) {
+						content.put(LTIService.LTI_LAUNCH, tool.get(LTI_LAUNCH));
+						log.debug("Copied launch url into content item {}",content.get(LTIService.LTI_TOOL_ID));
+					} else {
+						log.debug("Found content item {} could not load associated tool {}", contentKey, toolKey);
+						content = null;
+						toolKey = null;
+					}
+				}
+
+				// If we cannot find the content item and tool on in this server, get skeleton data
+				// from the basiclti.xml import
+				if ( content == null && ltiContentItems != null ) {
+					log.debug("Could not find content item {} / {} in site {}, checking ltiContentItems", linkContentId, contentKey, linkSiteId);
+					content = ltiContentItems.get(contentKey);
+					tool = null;  // force creation of a new tool in findOrCreateToolForContentItem
+				}
+
+				if (content == null) {
+					log.error("Could not find content item {} / {} in site {} or imported content items",linkContentId, contentKey,linkSiteId);
 					continue;
+				}
+
+				if ( toolKey == null ) {
+					toolKey = findOrCreateToolForContentItem(content, tool, toContext, fromContext, ltiContentItems);
+					if (toolKey == null) {
+						log.error("Could not associate new content item {} with a tool in site {}", contentKey, toContext);
+						continue;
+					}
 				}
 
 				content.put(LTIService.LTI_SITE_ID, toContext);
-				content.put(LTIService.LTI_TOOL_ID, newToolId.toString());
+				content.put(LTIService.LTI_TOOL_ID, toolKey.toString());
 				Object result = this.insertContent(content, toContext);
 				if (result instanceof Long) {
 					Long newContentId = (Long) result;
-					String baseUrl = url.substring(0, url.indexOf("/site/") + 6); // +6 to include "/site/"
-					// Upgrade the access prefix from legacy blti to modern lti
-					String newUrl = baseUrl.replace(LTIService.LAUNCH_PREFIX_LEGACY, LTIService.LAUNCH_PREFIX) + toContext + "/content:" + newContentId;
+					String newUrl = serverConfigurationService.getServerUrl() + LTIService.LAUNCH_PREFIX + toContext + "/content:" + newContentId;
 					text = text.replace(url, newUrl);
-					transversalMap.put(url, newUrl);
+					if ( transversalMap != null ) transversalMap.put(url, newUrl);
 					log.debug("Inserted content item {} in site {} newUrl {}", newContentId, toContext, newUrl);
 				} else {
 					log.error("Could not insert content item {} in site {}",contentKey,toContext);

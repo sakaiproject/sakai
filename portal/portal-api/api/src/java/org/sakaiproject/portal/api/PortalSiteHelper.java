@@ -78,6 +78,8 @@ public interface PortalSiteHelper
 	 */
 	SitePage lookupSitePage(String pageId, Site site);
 
+	List<Map<String, String>> getParentSites(Site s);
+
 	/**
 	 * Produce a page and/or a tool list by iterating through the pages in a site.
 	 *

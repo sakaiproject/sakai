@@ -40,6 +40,9 @@ public class LinkMigrationHelperImpl implements LinkMigrationHelper {
 	private static final String[] ENCODED_IMAGE = {"data:image"};
 	private static final String[] SHORTENER_STRINGS = {"/x/", "bit.ly"};
 
+	public static final String ACCESS_CONTENT_GROUP = "/access/content/group/";
+	public static final String DIRECT_LINK = "/direct/";
+
 	private ServerConfigurationService serverConfigurationService;
 
 	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
@@ -129,6 +132,62 @@ public class LinkMigrationHelperImpl implements LinkMigrationHelper {
 		}
 		return expandedMsgBody;
 	}
+
+    /*
+     * Do several transformations to migrate the content links present in a zip import of RTE content
+     *
+     * @param siteId the site id (Must not be null or empty)
+     * @param fromContext the context of the original content (Can be null)
+     * @param fromServerUrl the server url of the original content (Can be null)
+     * @param content the content to migrate
+     * @return the migrated content
+     */
+    public String migrateLinksInMergedRTE(String siteId, String fromContext, String fromServerUrl, String content) {
+		String before;
+        String after = serverConfigurationService.getServerUrl() + ACCESS_CONTENT_GROUP + siteId + "/";
+
+        // Replace full match of the fromserverUrl and fromContext (ideal)
+        if ( StringUtils.isNotBlank(fromServerUrl) && StringUtils.isNotBlank(fromContext) ) {
+            before = fromServerUrl + ACCESS_CONTENT_GROUP + fromContext + "/";
+            content = content.replace(before, after);
+        }
+
+        // If we don't know the fromServerUrl, but we know the fromContext, replace athe url prefix to get the links onto this server
+        if ( StringUtils.isBlank(fromServerUrl) && StringUtils.isNotBlank(fromContext) ) {
+            before = "https?://[^/]+/" + ACCESS_CONTENT_GROUP + fromContext + "/";
+            content = content.replaceAll(before, after);
+        }
+
+        // If we know the fromContext, we can replace urls that start with "/"
+        if ( StringUtils.isNotBlank(fromContext) ) {
+            before = "\"/" + ACCESS_CONTENT_GROUP + fromContext + "/";
+            after = "\"/" + ACCESS_CONTENT_GROUP + siteId + "/";
+            content = content.replaceAll(before, after);
+        }
+
+        // If we know the fromServerUrl and not the fromContext, move old broken urls to this server at a minimum
+        if ( StringUtils.isNotBlank(fromServerUrl) ) {
+            before = fromServerUrl + ACCESS_CONTENT_GROUP;
+            after = serverConfigurationService.getServerUrl() + ACCESS_CONTENT_GROUP;
+            content = content.replace(before, after);
+        }
+
+        // [http://localhost:8080/direct/forum_topic/1]
+        // Migrate direct links to the new server if we have the name of the server
+        if ( StringUtils.isNotBlank(fromServerUrl) ) {
+            before = fromServerUrl + DIRECT_LINK;
+            after = serverConfigurationService.getServerUrl() + DIRECT_LINK;
+            content = content.replace(before, after);
+        }
+
+        try {
+            content = this.bracketAndNullifySelectedLinks(content);
+        } catch (Exception e) {
+            log.debug("Error bracketing and nullifying links: " + e.toString());
+        }
+
+        return content;
+    }
 
 	private List<String> findLinks(String msgBody) throws Exception {
 		
