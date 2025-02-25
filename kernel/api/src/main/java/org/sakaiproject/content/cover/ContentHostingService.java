@@ -36,6 +36,7 @@ import org.sakaiproject.content.api.GroupAwareEdit;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
+import org.sakaiproject.util.MergeConfig;
 
 import org.sakaiproject.exception.TypeException;
 
@@ -442,7 +443,7 @@ public class ContentHostingService
 		return service.addAttachmentResource(param0);
 	}
 
-	public static ContentResource copyAttachment(String param0, String param1, String param2, java.util.Map<String, String> param3)
+	public static ContentResource copyAttachment(String param0, String param1, String param2, MergeConfig param3)
         throws IdUnusedException, TypeException, PermissionException
 	{
 		org.sakaiproject.content.api.ContentHostingService service = getInstance();
