@@ -333,7 +333,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 		// Precompute a mapping from parent site IDs to child site IDs.
 		Map<String, List<Map<String, String>>> parentToChildSites;
-		if (!Arrays.asList("false", "never").contains(serverConfigurationService.getString("portal.includesubsites"))) {
+		if (!Arrays.asList("false", "never").contains(serverConfigurationService.getString("portal.includesubsites", "false"))) {
 			parentToChildSites = sites.stream()
 					.filter(site -> site.getProperties().getProperty(PROP_PARENT_ID) != null)
 					.collect(Collectors.groupingBy(
