@@ -2481,7 +2481,7 @@ GbGradeTable.setupKeyboardNavigation = function() {
       }
 
       // Handle input and navigation
-      if (!editing && /^[0-9]$/.test(event.key)) {
+      if (!editing && (/^[0-9]$/.test(event.key) || event.key === "Enter")) {
         const rowIndex = +current.getAttribute("data-row-index");
         const colIndex = +current.getAttribute("data-col-index");
       
