@@ -235,13 +235,6 @@
     text-align: center;
     font-style: normal;
   }
-  .gb-flag-not-counted:before {
-    content: '\F1DF';
-    text-decoration-line: line-through;
-  }
-  .gb-flag-not-released:before {
-    content: '\F33F';
-  }
   .gb-flag-counted,
   .gb-flag-released {
     display: none;
@@ -252,12 +245,6 @@
     color:var(--sakai-color-gold--darker-5);
     background-color: var(--sakai-color-gold--lighter-5) !important;
   }
-  .gb-flag-equal-weight:before {
-    content: '\2696';
-  }
-  .gb-flag-extra-credit:before {
-    content: '\F4FC';
-  }
   #gradeTableWrapper .gb-notification.gb-flag-extra-credit:before {
     color:var(--sakai-color-gold--darker-1);
   }
@@ -266,12 +253,7 @@
     color: var(--sakai-text-color-dimmed);
   }
 
-  .gb-flag-excused::before {
-    content: '\F1DF';
-    text-decoration-line: line-through;
-  }
-
-   .gb-flag-external:before {
+  .gb-flag-external:before {
     content: '\F140';
   }
   .gb-flag-read-only:before {
@@ -1675,3 +1657,18 @@ max-height:100px;
 {
   text-decoration: line-through;
 }
+
+.gb-flag-not-counted:before, .gb-flag-excused:before {
+  content: '\F1DF';
+  text-decoration: line-through;
+}
+.gb-flag-not-released:before {
+  content: '\F33F';
+}
+.gb-flag-extra-credit:before {
+  content: '\F4FC';
+}
+.gb-flag-equal-weight:before {
+  content: '\2696';
+}
+

@@ -106,6 +106,7 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
 import org.sakaiproject.calendar.api.CalendarService;
+import org.sakaiproject.calendar.api.CalendarConstants;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.util.comparator.ForumBySortIndexAscAndCreatedDateDesc;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -2301,6 +2302,7 @@ public class DiscussionForumTool {
             begin.setType(getResourceBundleString("sendOpenCloseToCalendar.type"));
             begin.setGroupAccess(allowedGroups, false);
             begin.setRange(this.timeService.newTimeRange(openDate.getTime(), 0));
+            begin.setField(CalendarConstants.EVENT_OWNED_BY_TOOL_ID, FORUMS_TOOL_ID);
             targetCalendar.commitEvent(begin);
           } else {  //if there is a Calendar event for the current forum item, but the open date is cleared, we interpret this as a removal.
             targetCalendar.removeEvent(begin);
@@ -2313,6 +2315,7 @@ public class DiscussionForumTool {
           begin.setType(getResourceBundleString("sendOpenCloseToCalendar.type"));
           begin.setGroupAccess(allowedGroups, false);
           begin.setRange(this.timeService.newTimeRange(openDate.getTime(), 0));
+          begin.setField(CalendarConstants.EVENT_OWNED_BY_TOOL_ID, FORUMS_TOOL_ID);
           targetCalendar.commitEvent(begin);
         }
         if (calendarEndId != null) {
@@ -2329,6 +2332,7 @@ public class DiscussionForumTool {
             end.setType(getResourceBundleString("sendOpenCloseToCalendar.type"));
             end.setGroupAccess(allowedGroups, false);
             end.setRange(this.timeService.newTimeRange(closeDate.getTime(), 0));
+            end.setField(CalendarConstants.EVENT_OWNED_BY_TOOL_ID, FORUMS_TOOL_ID);
             targetCalendar.commitEvent(end);
           } else {  //if there is a Calendar record for the closing, but no close date, we interpret it as a removal.
             targetCalendar.removeEvent(end);
@@ -2341,6 +2345,7 @@ public class DiscussionForumTool {
           end.setType(getResourceBundleString("sendOpenCloseToCalendar.type"));
           end.setGroupAccess(allowedGroups, false);
           end.setRange(this.timeService.newTimeRange(closeDate.getTime(), 0));
+          end.setField(CalendarConstants.EVENT_OWNED_BY_TOOL_ID, FORUMS_TOOL_ID);
           targetCalendar.commitEvent(end);
         }
         if (begin != null) { //put the Calendar entry for Open in the Forum data.

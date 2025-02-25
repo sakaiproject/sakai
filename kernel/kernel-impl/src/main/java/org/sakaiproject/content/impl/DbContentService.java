@@ -1941,7 +1941,7 @@ public class DbContentService extends BaseContentService
 							String filePath = ((BaseResourceEdit) edit).m_filePath;
 							log.info("Removing resource ("+edit.getId()+") content: "+bodyPath+" file:"+filePath);
 
-							String statement = "SELECT COUNT(FILE_PATH) FROM "+resourceTableName+" WHERE FILE_PATH = ?;";
+							String statement = contentServiceSql.getCountFilePath(resourceTableName);
 							int references = -1;
 							try {
 								references = countQuery(statement, filePath);
@@ -2369,7 +2369,7 @@ public class DbContentService extends BaseContentService
                 // Check if there already is an identical file (most recent if there is > 1)
                 boolean singleInstanceStore = serverConfigurationService.getBoolean(PROP_SINGLE_INSTANCE, PROP_SINGLE_INSTANCE_DEFAULT);
                 if ( singleInstanceStore && bodyPath != null && bodyPath.equals(rootFolder)) {
-                    String statement = "SELECT FILE_PATH FROM "+resourceTableName+" WHERE RESOURCE_SHA256 = ? ORDER BY FILE_PATH DESC LIMIT 1;";
+                    String statement = contentServiceSql.getOnlyOneFilePath(resourceTableName);
                     String duplicateFilePath = singleColumnSingleRow(statement, hex);
 
                     if ( duplicateFilePath != null ) {

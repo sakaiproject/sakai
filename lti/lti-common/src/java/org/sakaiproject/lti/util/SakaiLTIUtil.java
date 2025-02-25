@@ -3730,17 +3730,17 @@ public class SakaiLTIUtil {
 	}
 
 	/**
-	 * Extract the lti-launch url and site id from a rich edtext editor string
+	 * Extract the site id and content key from a LTI Launch URL
 	 *
-	 * @param html
-	 * @return an array of two strings, the first is the blti or lti, the second is the site id
+	 * @param url
+	 * @return an array of two strings, the first is the site id, the second is the content key
 	 */
-	public static String[] getLtiLaunchUrlAndSiteId(String html) {
-		if (html == null) {
+	public static String[] getContentKeyAndSiteId(String url) {
+		if (url == null) {
 			return null;
 		}
 		Pattern pattern = Pattern.compile("https?://[^\\s\"']+/access/(?:b)?lti/site/([^\\s\"'/]+)/content:(\\d+)");
-		Matcher matcher = pattern.matcher(html);
+		Matcher matcher = pattern.matcher(url);
 		if (matcher.find()) {
 			return new String[] { matcher.group(1), matcher.group(2) };
 		}

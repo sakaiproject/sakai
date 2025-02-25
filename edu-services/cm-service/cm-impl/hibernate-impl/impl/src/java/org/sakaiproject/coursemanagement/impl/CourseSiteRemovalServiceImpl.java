@@ -98,9 +98,6 @@ public class CourseSiteRemovalServiceImpl extends HibernateDaoSupport implements
     */
    public void init() {
       log.debug("init()");
-
-      // register permissions with sakai
-      functionManager.registerFunction(PERMISSION_COURSE_SITE_REMOVAL);
    }
 
    /**
@@ -115,6 +112,7 @@ public class CourseSiteRemovalServiceImpl extends HibernateDaoSupport implements
     * @return the number of course sites that were removed\\unpublished.
     */
 
+    @Override
     public int removeCourseSites(CourseSiteRemovalService.Action action, int numDaysAfterTermEnds) {
 
        log.info("removeCourseSites({} course sites, {} days after the term ends)", action, numDaysAfterTermEnds);
@@ -206,9 +204,7 @@ public class CourseSiteRemovalServiceImpl extends HibernateDaoSupport implements
                 }
 
                 // check permissions
-                if (!checkPermission(PERMISSION_COURSE_SITE_REMOVAL, siteId)) {
-                    log.error("You do not have permission to {} the site with id {}", action, siteId);
-                } else if (action == CourseSiteRemovalService.Action.remove) {
+                if (action == CourseSiteRemovalService.Action.remove) {
                     // remove the course site
                     log.debug("{} removing course site {} ({}).", action, site.getTitle(), site.getId());
                     siteService.removeSite(site);
@@ -282,10 +278,6 @@ public class CourseSiteRemovalServiceImpl extends HibernateDaoSupport implements
         }
 
         return false;
-    }
-
-    private boolean checkPermission(String lock, String reference) {
-        return securityService.unlock(lock, reference);
     }
 
     private boolean isHandleCrosslistedTerms() {

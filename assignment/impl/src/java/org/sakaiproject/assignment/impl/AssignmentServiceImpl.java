@@ -20,7 +20,6 @@ import static org.sakaiproject.assignment.api.AssignmentServiceConstants.*;
 import static org.sakaiproject.assignment.api.model.Assignment.Access.*;
 
 import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -46,7 +45,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -54,8 +52,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.StringTokenizer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -443,6 +439,18 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     public String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId, Map<String, String> attachmentNames,
         Map<Long, Map<String, Object>> ltiContentItems, Map<String, String> userIdTrans, Set<String> userListAllowImport) {
 
+
+        String archiveContext = "";
+        String archiveServerUrl = "";
+
+        Node parent = root.getParentNode();
+        if (parent.getNodeType() == Node.ELEMENT_NODE)
+        {
+            Element parentEl = (Element)parent;
+            archiveContext = parentEl.getAttribute("source");
+            archiveServerUrl = parentEl.getAttribute("serverurl");
+        }
+
         final StringBuilder results = new StringBuilder();
         results.append("begin merging ").append(getLabel()).append(" context ").append(siteId).append(LINE_SEPARATOR);
         final NodeList allChildrenNodeList = root.getChildNodes();
@@ -458,7 +466,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         for (Element assignmentElement : assignmentElements) {
 
             try {
-                mergeAssignment(siteId, assignmentElement, results, creatorId, assignmentTitles, attachmentNames, ltiContentItems);
+                mergeAssignment(siteId, assignmentElement, results, creatorId, assignmentTitles, attachmentNames, ltiContentItems, archiveContext, archiveServerUrl);
                 assignmentsMerged++;
             } catch (Exception e) {
                 final String error = "could not merge assignment with id: " + assignmentElement.getFirstChild().getFirstChild().getNodeValue();
@@ -994,7 +1002,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Transactional
-    private Assignment mergeAssignment(final String siteId, final Element element, final StringBuilder results, String creatorId, Set<String> assignmentTitles, Map<String, String> attachmentNames, Map<Long, Map<String, Object>> ltiContentItems) throws PermissionException {
+    private Assignment mergeAssignment(final String siteId, final Element element, final StringBuilder results, String creatorId, Set<String> assignmentTitles, Map<String, String> attachmentNames, Map<Long, Map<String, Object>> ltiContentItems, String archiveContext, String archiveServerUrl) throws PermissionException {
 
         if (!allowAddAssignment(siteId)) {
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ADD_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().context(siteId).reckon().getReference());
@@ -1020,6 +1028,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             if ( StringUtils.isNotEmpty(creatorId) ) assignmentFromXml.setAuthor(creatorId);
 
             String newInstructions = ltiService.fixLtiLaunchUrls(assignmentFromXml.getInstructions(), siteId, ltiContentItems);
+            newInstructions = linkMigrationHelper.migrateLinksInMergedRTE(siteId, archiveContext, archiveServerUrl, newInstructions);
             assignmentFromXml.setInstructions(newInstructions);
 
             Long contentKey = ltiService.mergeContentFromImport(element, siteId);
@@ -1031,7 +1040,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             for (String oAttachment : oAttachments) {
                 String fromResourcePath = attachmentNames.get(oAttachment);
                 String fromContext = null;  // No-Op, there is no fromContext when importing from a ZIP
-                String nAttachId = transferAttachment(fromContext, siteId, fromResourcePath, null);
+                String nAttachId = transferAttachment(fromContext, siteId, fromResourcePath, attachmentNames);
                 assignmentFromXml.getAttachments().add(nAttachId);
             }
 
@@ -1064,6 +1073,47 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             results.append(result).append(LINE_SEPARATOR);
             log.debug(result);
         }
+
+        // After we save the assignment, we can save the private note, model answer, and attachments
+        NodeList nodes = element.getElementsByTagName("PrivateNote");
+        for (int j=0; j<nodes.getLength(); ++j) {
+            Element nodeElement = (Element) nodes.item(j);
+            String text = nodeElement.getTextContent();
+            String shareWith = nodeElement.getAttribute("shareWith");
+            AssignmentNoteItem copy = assignmentSupplementItemService.newNoteItem();
+            copy.setAssignmentId(assignmentFromXml.getId());
+            copy.setNote(text);
+            copy.setShareWith(Integer.parseInt(shareWith));
+            copy.setCreatorId(creatorId);
+            assignmentSupplementItemService.saveNoteItem(copy);
+        }
+
+        nodes = element.getElementsByTagName("ModelAnswer");
+        for (int j=0; j<nodes.getLength(); ++j) {
+            Element nodeElement = (Element) nodes.item(j);
+            String text = nodeElement.getTextContent();
+            String showTo = nodeElement.getAttribute("showTo");
+            AssignmentModelAnswerItem copy = assignmentSupplementItemService.newModelAnswer();
+            copy.setAssignmentId(assignmentFromXml.getId());
+            copy.setText(text);
+            copy.setShowTo(Integer.parseInt(showTo));
+
+            // We have to save the model answer so it exists before it can have attachments; otherwise we get a Hibernate exception
+            assignmentSupplementItemService.saveModelAnswer(copy);
+
+            NodeList attachments = nodeElement.getElementsByTagName("attachment");
+            for (int k=0; k<attachments.getLength(); ++k) {
+                Element attachmentElement = (Element) attachments.item(k);
+                String attachmentId = attachmentElement.getTextContent();
+                AssignmentSupplementItemAttachment attachment = assignmentSupplementItemService.newAttachment();
+                String fromContext = null;  // No-Op, there is no fromContext when importing from a ZIP
+                String nAttachId = transferAttachment(fromContext, siteId, attachmentId, attachmentNames);
+                attachment.setAssignmentSupplementItemWithAttachment(copy);
+                attachment.setAttachmentId(nAttachId);
+                assignmentSupplementItemService.saveAttachment(attachment);
+            }
+        }
+
         return assignmentFromXml;
     }
 
@@ -2512,18 +2562,15 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             if (submission != null) {
 
                 // If an Extension exists for the user, we switch out the assignment's overall
-                // close date for the extension deadline but only if the submission object has not been submitted.
-                // Additionally, we make sure that a Resubmission date is not set,
-                // so that this date-switching happens ONLY under Extension-related circumstances.
-                if (StringUtils.isNotBlank(submission.getProperties().get(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME))
-                        && StringUtils.isBlank(submission.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME))) {
+                // close date for the extension deadline
+                if (!isBeforeAssignmentCloseDate && StringUtils.isNotBlank(submission.getProperties().get(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME))) {
                     Instant extensionCloseTime = Instant.ofEpochMilli(Long.parseLong(submission.getProperties().get(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME)));
                     isBeforeAssignmentCloseDate = currentTime.isBefore(extensionCloseTime);
                 }
 
                 // before the assignment close date
-                // and if no date then a submission was never never submitted
-                // or if there is a submitted date and its a not submitted then it is considered a draft
+                // and if no date then a submission was never truly submitted by the student
+                // or if there is a submitted date and it is not submitted, then it is considered a draft
                 if (isBeforeAssignmentCloseDate && (submission.getDateSubmitted() == null || !submission.getSubmitted())) return true;
 
                 // returns true if resubmission is allowed
@@ -3136,8 +3183,13 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     public Optional<AssignmentSubmissionSubmitter> getSubmissionSubmittee(AssignmentSubmission submission) {
-        Objects.requireNonNull(submission, "Submission cannot be null");
-        return submission.getSubmitters().stream().filter(AssignmentSubmissionSubmitter::getSubmittee).findFirst();
+        return Optional.ofNullable(submission)
+                .map(AssignmentSubmission::getSubmitters)
+                .flatMap(submitters -> submitters.stream()
+                        .filter(AssignmentSubmissionSubmitter::getSubmittee)
+                        .findFirst()
+                        .or(() -> submitters.stream().findFirst())
+                );
     }
 
     @Override

@@ -97,7 +97,11 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.*;
-import org.sakaiproject.util.cover.LinkMigrationHelper;
+import org.sakaiproject.util.api.LinkMigrationHelper;
+
+import org.sakaiproject.assignment.api.AssignmentServiceConstants;
+import org.sakaiproject.api.app.messageforums.DiscussionForumService;
+import org.sakaiproject.samigo.util.SamigoConstants;
 
 /**
  * <p>
@@ -148,7 +152,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	@Setter protected FunctionManager functionManager;
 	@Setter protected EventTrackingService eventTrackingService;
 	@Setter protected OpaqueUrlDao opaqueUrlDao;
-
+	@Setter protected LinkMigrationHelper linkMigrationHelper;
    	private PDFExportService pdfExportService;
 
 	private GroupComparator groupComparator = new GroupComparator();
@@ -1488,6 +1492,18 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	public String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId, Map<String, String> attachmentImportMap,
 		Map<Long, Map<String, Object>> ltiContentItems, Map<String, String> userIdTrans, Set<String> userListAllowImport)
 	{
+
+		String archiveContext = "";
+		String archiveServerUrl = "";
+
+		Node parent = root.getParentNode();
+		if (parent.getNodeType() == Node.ELEMENT_NODE)
+		{
+			Element parentEl = (Element)parent;
+			archiveContext = parentEl.getAttribute("source");
+			archiveServerUrl = parentEl.getAttribute("serverurl");
+		}
+
 		// prepare the buffer for the results log
 		StringBuilder results = new StringBuilder();
 
@@ -1509,6 +1525,12 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 				commitCalendar(edit);
 				calendar = edit;
 			}
+
+			// Load up all the calendar titles from existing entries
+			Set<String> calendarTitles = calendar.getEvents(null, null).stream()
+				.map(CalendarEvent::getDisplayName)
+				.collect(Collectors.toCollection(LinkedHashSet::new));
+			log.debug("calendarTitles: {}", calendarTitles);
 
 			// pass the DOM to get new event ids, and adjust attachments
 			NodeList children2 = root.getChildNodes();
@@ -1587,6 +1609,8 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 									String newId = getUniqueId();
 									element3.setAttribute("id", newId);
 
+									if ( ! shouldMergeEvent(element3) ) continue;
+
 									// get the attachment kids
 									NodeList children5 = element3.getChildNodes();
 									final int length5 = children5.getLength();
@@ -1614,8 +1638,15 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 									// create a new message in the calendar
 									CalendarEventEdit edit = calendar.mergeEvent(element3);
+									String title = edit.getDisplayName();
+									if ( StringUtils.isNotBlank(title) && calendarTitles.contains(title) ) {
+										results.append("merging calendar " + calendarRef + "skipping duplicate event: "+title+"\n");
+										log.debug("merge: skipping duplicate calendar event: {}", title);
+										continue;
+									}
 									String description = edit.getDescriptionFormatted();
 									description = ltiService.fixLtiLaunchUrls(description, siteId, ltiContentItems);
+									description = linkMigrationHelper.migrateLinksInMergedRTE(siteId, archiveContext, archiveServerUrl, description);
 									edit.setDescriptionFormatted(description);
 
 									calendar.commitEvent(edit);
@@ -1634,6 +1665,50 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 		results.append("merging calendar " + calendarRef + " (" + count + ") messages.\n");
 		return results.toString();
+	}
+
+	/*
+	 * Look at the properties of the event and determine if it should be merged or ignored
+	 */
+	private boolean shouldMergeEvent(Element el) {
+		NodeList nodeList = el.getElementsByTagName("property");
+
+		for (int i = 0; i < nodeList.getLength(); i++) {
+			Element prop = (Element) nodeList.item(i);
+			String name = prop.getAttribute("name");
+			String value = prop.getAttribute("value");
+			if ("BASE64".equalsIgnoreCase(prop.getAttribute("enc"))) {
+				value = Xml.decodeAttribute(prop, "value");
+			}
+
+			if ( StringUtils.contains(name, CalendarConstants.EVENT_OWNED_BY_TOOL_ID) &&
+				(StringUtils.contains(value, AssignmentServiceConstants.ASSIGNMENT_TOOL_ID) ||
+				StringUtils.contains(value, DiscussionForumService.FORUMS_TOOL_ID ) ||
+				StringUtils.contains(value, SamigoConstants.TOOL_ID) ) ) {
+				log.debug("Not importing assignment event from tool {}", value);
+				return false;
+			}
+
+			// Do not import events associated with an assignment - backwards compatibility
+			if ( StringUtils.contains(name, CalendarConstants.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID) ||
+			     StringUtils.contains(name, CalendarConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED) ) {
+				log.debug("Not importing assignment event {}", value);
+				return false;
+			}
+
+			// Samigo does not mark its events, but the notification message is consitent - backwards compatibility
+			if ( StringUtils.equals(name, "CHEF:description") && StringUtils.contains(value, "samigo-app/servlet/Login")) {
+				log.debug("Not importing samigo event based on description containing Samigo launch URL");
+				return false;
+			}
+
+			// Discussion topic deadlines include calendar-url values inevitably pointing to the wrong place - backwards compatibility
+			if ( StringUtils.equals(name, "CHEF:calendar-url") && StringUtils.contains(value, "portal/site")) {
+				log.debug("Not importing discussion topic deadline event based on calendar-url {}", value);
+				return false;
+			}
+		}
+		return true;
 	}
 
 	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> resourceIds, List<String> options) {
@@ -1835,7 +1910,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 						String msgBodyFormatted = ce.getDescriptionFormatted();						
 						boolean updated = false;
 						StringBuffer msgBodyPreMigrate = new StringBuffer(msgBodyFormatted);
-						msgBodyFormatted = LinkMigrationHelper.migrateAllLinks(entrySet, msgBodyFormatted);
+						msgBodyFormatted = linkMigrationHelper.migrateAllLinks(entrySet, msgBodyFormatted);
 						if(!msgBodyFormatted.equals(msgBodyPreMigrate.toString())){
 						
 							CalendarEventEdit edit = calendarObj.getEditEvent(ce.getId(), org.sakaiproject.calendar.api.CalendarService.EVENT_MODIFY_CALENDAR);
@@ -2645,7 +2720,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 					// add an exclusion for where this one would have been %%% we are changing it, should it be immutable? -ggolden
 					List exclusions = ((ExclusionSeqRecurrenceRule) bedit.getExclusionRule()).getExclusions();
-					exclusions.add(Integer.valueOf(sequence));
+					exclusions.add(sequence);
 
 					// complete the edit
 					m_storage.commitEvent(this, edit);
@@ -2740,6 +2815,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		 * @exception InUseException
 		 *            if the event is locked for edit by someone else.
 		 */
+		@Override
 		public CalendarEventEdit getEditEvent(String eventId, String editType)
 			throws IdUnusedException, PermissionException, InUseException
 		{
@@ -2757,7 +2833,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 				}
 				catch (Exception ex)
 				{
-					log.warn("getEditEvent: exception parsing eventId: " + eventId + " : " + ex);
+					log.warn("getEditEvent: exception parsing eventId: {} : {}", eventId, ex.toString());
 				}
 			}
 
@@ -2822,21 +2898,21 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			// check for closed edit
 			if (!edit.isActiveEdit())
 			{
-				log.warn("commitEvent(): closed CalendarEventEdit " + edit.getId());
+				log.warn("commitEvent(): closed CalendarEventEdit {}", edit.getId());
 				return;
 			}
 
 			BaseCalendarEventEdit bedit = (BaseCalendarEventEdit) edit;
-			         
-         // If creator doesn't exist, set it now (backward compatibility)
-         if ( edit.getCreator() == null || edit.getCreator().equals("") )
-            edit.setCreator(); 
-         
+
+			// If creator doesn't exist, set it now (backward compatibility)
+			if ( edit.getCreator() == null || edit.getCreator().isEmpty())
+				edit.setCreator(); 
+
 			// update modified-by properties for event
-         edit.setModifiedBy(); 
+			edit.setModifiedBy(); 
 
 			// if the id has a time range encoded, as for one of a sequence of recurring events, separate that out
-         	String indivEventEntityRef = null;
+			String indivEventEntityRef = null;
 			TimeRange timeRange = null;
 			int sequence = 0;
 			if (bedit.m_id.startsWith("!"))

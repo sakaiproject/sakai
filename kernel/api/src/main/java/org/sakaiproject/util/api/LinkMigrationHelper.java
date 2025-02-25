@@ -67,5 +67,15 @@ public interface LinkMigrationHelper {
 	 */
 	public String migrateOneLink(String fromContextRef, String targetContextRef, String msgBody);
 
+    /*
+     * Do several transformations to migrate the content links present in a zip import of RTE content
+     *
+     * @param siteId the site id (Must not be null or empty)
+     * @param fromContext the context of the original content (Can be null)
+     * @param fromServerUrl the server url of the original content (Can be null)
+     * @param content the content to migrate
+     * @return the migrated content
+     */
+    public String migrateLinksInMergedRTE(String siteId, String fromContext, String fromServerUrl, String content);
 
 }
