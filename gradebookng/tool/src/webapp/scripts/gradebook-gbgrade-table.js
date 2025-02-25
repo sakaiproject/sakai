@@ -853,9 +853,9 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       input.addEventListener("blur", function () { success(input.value); });
 
       input.addEventListener("keydown", function(e) {
-        if (e.keyCode == 13) {
+        if (e.key === "Enter") {
           success(input.value);
-        } else if (e.keyCode == 27) {
+        } else if (e.key === "Escape") {
           cancel();
         }
       });
@@ -1168,7 +1168,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       GbGradeTable.instance.getRanges().forEach(range => range.remove());
     })
     .on("keydown", function (event) {
-      if (event.keyCode == 13) {
+      if (event.key === "Enter") {
         clearTimeout(filterTimeout);
         GbGradeTable.redrawTable(true);
         return false;
