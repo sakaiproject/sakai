@@ -3215,17 +3215,12 @@ GradebookAPI._GET = function (url, data, responseType, onSuccess, onError) {
 
   fetch(fullUrl, { cache: "no-store" })
     .then(r => {
-
-      if (r.ok) {
-        if (responseType === "text") {
-          r.text().then(t => onSuccess(t));
-        } else {
-          r.json().then(o => onSuccess(o));
-        }
+      if (!r.ok) {
+        throw new Error(`Network error while getting ${fullUrl}`);
       }
-
-      throw new Error(`Network error while getting ${fullUrl}`);
+      return responseType === "text" ? r.text() : r.json();
     })
+    .then(data => onSuccess(data))
     .catch(() => onError && onError());
 };
 
