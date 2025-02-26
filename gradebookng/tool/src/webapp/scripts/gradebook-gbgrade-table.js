@@ -566,11 +566,20 @@ GbGradeTable.cellFormatter = function(cell, formatterParams, onRendered) {
     } else {
       dropdownToggle.style.display = 'block';
       dropdownToggle.setAttribute('aria-hidden', 'false');
-      const dropdownToggleTooltip = GbGradeTable.templates.gradeMenuTooltip.process({
-        studentName: `${studentData.firstName} ${studentData.lastName}`,
-        columnTitle: columnData.title
-      });
-      dropdownToggle.setAttribute('title', dropdownToggleTooltip);
+      
+      const studentName = studentData && studentData.firstName && studentData.lastName 
+        ? `${studentData.firstName} ${studentData.lastName}`.trim()
+        : 'Unknown Student';
+      
+      const columnTitle = columnData && columnData.title 
+        ? columnData.title.trim() 
+        : 'Unknown Assignment';
+
+      const dropdownToggleTooltip = GbGradeTable.templates.gradeMenuTooltip.process().replace('{0}', studentName).replace('{1}', columnTitle);
+      
+      dropdownToggle.setAttribute('title', dropdownToggleTooltip.replace(/"/g, '&quot;'));
+      
+      dropdownToggle.setAttribute('aria-label', GbGradeTable.i18n['grade.menu.aria.label'].replace('{0}', studentName).replace('{1}', columnTitle));
     }
   }
 
@@ -844,9 +853,9 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       input.addEventListener("blur", function () { success(input.value); });
 
       input.addEventListener("keydown", function(e) {
-        if (e.keyCode == 13) {
+        if (e.key === "Enter") {
           success(input.value);
-        } else if (e.keyCode == 27) {
+        } else if (e.key === "Escape") {
           cancel();
         }
       });
@@ -1008,10 +1017,21 @@ GbGradeTable.renderTable = function (elementId, tableData) {
         if (dropdownToggle) {
           dropdownToggle.style.display = "block";
           dropdownToggle.setAttribute("aria-hidden", "false");
-          const dropdownToggleTooltip =
-            GbGradeTable.templates.gradeHeaderMenuTooltip.process()
-              .replace("{0}", columnDefinition.title);
-          dropdownToggle.setAttribute("title", dropdownToggleTooltip);
+          
+          const studentData = columnDefinition.formatterParams._data_;
+          const studentName = studentData && studentData.firstName && studentData.lastName 
+            ? `${studentData.firstName} ${studentData.lastName}`.trim()
+            : 'Unknown Student';
+          
+          const columnTitle = columnData && columnData.title 
+            ? columnData.title.trim() 
+            : 'Unknown Assignment';
+
+          const dropdownToggleTooltip = GbGradeTable.templates.gradeMenuTooltip.process().replace('{0}', studentName).replace('{1}', columnTitle);
+          
+          dropdownToggle.setAttribute('title', dropdownToggleTooltip.replace(/"/g, '&quot;'));
+          
+          dropdownToggle.setAttribute('aria-label', GbGradeTable.i18n['grade.menu.aria.label'].replace('{0}', studentName).replace('{1}', columnTitle));
         }
       }
   
@@ -1148,7 +1168,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       GbGradeTable.instance.getRanges().forEach(range => range.remove());
     })
     .on("keydown", function (event) {
-      if (event.keyCode == 13) {
+      if (event.key === "Enter") {
         clearTimeout(filterTimeout);
         GbGradeTable.redrawTable(true);
         return false;
@@ -2403,6 +2423,12 @@ GbGradeTable.setupKeyboardNavigation = function() {
     const current = document.querySelector("#gradeTableWrapper .tabulator-cell.tabulator-range-only-cell-selected");
     const focus = document.activeElement;
 
+    if (event.key === "Escape") {
+      focus.blur();
+      current.focus();
+      return;
+    }
+
     if (current) {
       // Allow accessibility shortcuts
       if (event.altKey && event.ctrlKey) {
@@ -2455,7 +2481,7 @@ GbGradeTable.setupKeyboardNavigation = function() {
       }
 
       // Handle input and navigation
-      if (!editing && /^[0-9]$/.test(event.key)) {
+      if (!editing && (/^[0-9]$/.test(event.key) || event.key === "Enter")) {
         const rowIndex = +current.getAttribute("data-row-index");
         const colIndex = +current.getAttribute("data-col-index");
       
