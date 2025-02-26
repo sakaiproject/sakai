@@ -162,7 +162,7 @@ public class FormatHelper {
 	 * Format a grade, e.g. 00 => 0 0001 => 1 1.0 => 1 1.25 => 1.25 based on the user's locale
 	 *
 	 * @param grade - string representation of a grade
-	 * @return
+	 * @return - string formatted per the user's preferred locale
 	 */
 	public static String formatGradeFromUserLocale(final String grade) {
 		return formatGradeForLocale(grade, RL.getLocale());
@@ -315,12 +315,8 @@ public class FormatHelper {
 		if (StringUtils.isBlank(s)) {
 			return s;
 		}
-		try {
-			return URLEncoder.encode(s, "UTF-8");
-		} catch (final UnsupportedEncodingException e) {
-			throw new AssertionError("UTF-8 not supported");
-		}
-	}
+        return URLEncoder.encode(s, StandardCharsets.UTF_8);
+    }
 
 	/**
 	 * Helper to decode a string and avoid the ridiculous exception that is never thrown
@@ -332,12 +328,8 @@ public class FormatHelper {
 		if (StringUtils.isBlank(s)) {
 			return s;
 		}
-		try {
-			return URLDecoder.decode(s, "UTF-8");
-		} catch (final UnsupportedEncodingException e) {
-			throw new AssertionError("UTF-8 not supported");
-		}
-	}
+        return URLDecoder.decode(s, StandardCharsets.UTF_8);
+    }
 
 	/**
 	 * Returns a list of drop highest/lowest labels based on the settings of the given category.
