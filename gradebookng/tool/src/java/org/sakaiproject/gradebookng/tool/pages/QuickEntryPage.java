@@ -141,8 +141,7 @@ public class QuickEntryPage extends BasePage {
                 if(noErrors){   //if still no errors, second loop to start saving things
                     for(QuickEntryRowModel row: allgrades){
                         String oldGrade = businessService.getGradeForStudentForItem(row.getStudentid(),itemId).getGrade();
-                        String newGrade = row.getGrade();
-                        GradeSaveResponse succeeded = businessService.saveGrade(itemId, row.getStudentid(), oldGrade, newGrade, row.getComment());
+                        GradeSaveResponse succeeded = businessService.saveGrade(itemId,row.getStudentid(),oldGrade,row.getGrade(),row.getComment());
                         if(succeeded == GradeSaveResponse.ERROR || succeeded == GradeSaveResponse.CONCURRENT_EDIT){
                             getSession().error(MessageFormat.format(getString("quickentry.error"),row.getName()));
                             row.setHasError(true);
@@ -368,7 +367,6 @@ public class QuickEntryPage extends BasePage {
     @Override
     public void renderHead(final IHeaderResponse response) {
         super.renderHead(response);
-        response.render(JavaScriptHeaderItem.forUrl("/gradebookng-tool/scripts/gradebook-gbgrade-table.js"));
         response.render(JavaScriptHeaderItem.forUrl("/gradebookng-tool/scripts/gradebook-quick-entry.js"));
     }
 
