@@ -75,6 +75,8 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.cover.LinkMigrationHelper;
+import org.sakaiproject.util.MergeConfig;
+
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -451,9 +453,11 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
    *      java.util.Set)
    */
   @Transactional
-  public String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId, Map<String, String> attachmentNames,
-      Map<Long, Map<String, Object>> ltiContentItems, Map<String, String> userIdTrans, Set<String> userListAllowImport) 
+  public String merge(String siteId, Element root, String archivePath, String fromSiteId, MergeConfig mcx)
   {
+
+	log.debug("merge archiveContext={} archiveServerUrl={}", mcx.archiveContext, mcx.archiveServerUrl);
+
     // Get the existing titles for duplicate removal
     Set<String> syllabusTitles = new LinkedHashSet<>();
     SyllabusItem theItem = syllabusManager.getSyllabusItemByContextId(siteId);
@@ -564,7 +568,8 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
                                         {
                                           byte[] decoded = Base64.decodeBase64(body.getBytes("UTF-8"));
                                           body = new String(decoded, charset);
-                                          body = ltiService.fixLtiLaunchUrls(body, siteId, ltiContentItems);
+                                          body = ltiService.fixLtiLaunchUrls(body, siteId, mcx);
+                                          body = LinkMigrationHelper.migrateLinksInMergedRTE(siteId, mcx, body);
                                         }
                                         catch (Exception e)
                                         {
@@ -583,7 +588,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
                                     {
                                       Element attachElement = (Element) child3;
                                       String oldUrl = attachElement.getAttribute("relative-url");
-                                      String newUrl = transferAttachment(oldUrl, siteId, attachmentNames);
+                                      String newUrl = transferAttachment(oldUrl, siteId, mcx);
                                       if (newUrl != null)
                                       {
                                         attachElement.setAttribute("relative-url", Validator.escapeQuestionMark(newUrl));
@@ -649,10 +654,10 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
     return results.toString();
   }
 
-  private String transferAttachment(String oAttachmentId, String toContext, Map<String, String> attachmentImportMap) {
+  private String transferAttachment(String oAttachmentId, String toContext, MergeConfig mcx) {
     String toolTitle = toolManager.getTool("sakai.syllabus").getTitle();
     try {
-        ContentResource attachment = contentHostingService.copyAttachment(oAttachmentId, toContext, toolTitle, attachmentImportMap);
+        ContentResource attachment = contentHostingService.copyAttachment(oAttachmentId, toContext, toolTitle, mcx);
         if ( attachment != null ) {
             return attachment.getReference();
         }

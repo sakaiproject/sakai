@@ -17,7 +17,7 @@ package org.sakaiproject.util.api;
 
 import java.util.Map.Entry;
 import java.util.Set;
-
+import org.sakaiproject.util.MergeConfig;
 
 /**
  * From SAK-22283:
@@ -67,5 +67,14 @@ public interface LinkMigrationHelper {
 	 */
 	public String migrateOneLink(String fromContextRef, String targetContextRef, String msgBody);
 
+    /*
+     * Do several transformations to migrate the content links present in a zip import of RTE content
+     *
+     * @param siteId the site id (Must not be null or empty)
+     * @param mcx the merge config
+     * @param content the content to migrate
+     * @return the migrated content
+     */
+    public String migrateLinksInMergedRTE(String siteId, MergeConfig mcx, String content);
 
 }
