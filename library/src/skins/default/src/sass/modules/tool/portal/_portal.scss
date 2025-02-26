@@ -203,6 +203,17 @@
 
 .portal-footer {
   grid-area: footer;
+  .copyright-powered {
+    display: flex;
+    flex-direction: column;
+    margin-left: auto;
+    ul {
+      padding: 0;
+      margin: 0;
+      list-style: none;
+      text-align: right;
+    }
+  }
 }
 .portal-mobilebar {
   grid-area: mobilebar;
