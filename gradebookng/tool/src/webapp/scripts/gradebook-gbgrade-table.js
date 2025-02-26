@@ -2327,7 +2327,12 @@ GbGradeTable.setupConcurrencyCheck = function() {
   // Check for concurrent editors.. and again every 20 seconds
   // (note: there's a 10 second cache)
   performConcurrencyCheck();
-  setInterval(performConcurrencyCheck, 20 * 1000);
+  
+  // Store the interval ID so we can clear it if needed
+  if (GbGradeTable.concurrencyCheckInterval) {
+    clearInterval(GbGradeTable.concurrencyCheckInterval);
+  }
+  GbGradeTable.concurrencyCheckInterval = setInterval(performConcurrencyCheck, 20 * 1000);
 };
 
 GbGradeTable.setupDragAndDrop = function () {
@@ -3179,7 +3184,14 @@ GradebookAPI = {};
 GradebookAPI.isAnotherUserEditing = function (siteId, since, onSuccess) {
 
   const url = `/direct/gbng/isotheruserediting/${siteId}.json`;
-  GradebookAPI._GET(url, { since, auto: true }, "json", onSuccess);
+  GradebookAPI._GET(url, { since, auto: true }, "json", onSuccess, () => {
+    // If this was an automated check (from the interval), stop the checks
+    if (GbGradeTable.concurrencyCheckInterval) {
+      clearInterval(GbGradeTable.concurrencyCheckInterval);
+      GbGradeTable.concurrencyCheckInterval = null;
+      console.warn('Concurrent editing checks stopped due to error');
+    }
+  });
 };
 
 GradebookAPI.getComments = function (siteId, assignmentId, studentUuid, onSuccess, onError) {
