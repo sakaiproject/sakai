@@ -7774,7 +7774,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 
 		try {
 			ContentCollection collection = getCollection(getSiteCollection(siteId));
-			return !m_storage.getResources(collection).isEmpty();
+			List<ContentResourceEdit> resources = m_storage.getResources(collection);
+			if ( resources.size() > 0 ) return true;
+			List<ContentCollectionEdit> collections = m_storage.getCollections(collection);
+			if ( collections.size() > 0 ) return true;
+			return false;
 		} catch (Exception e) {
 			log.warn("Failed to get the entity map for site {}: {}", siteId, e.toString());
 		}
