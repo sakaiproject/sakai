@@ -68,6 +68,7 @@ import org.sakaiproject.poll.model.Vote;
 import org.sakaiproject.poll.util.PollUtil;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.util.api.LinkMigrationHelper;
+import org.sakaiproject.util.MergeConfig;
 
 @Slf4j
 @Data
@@ -459,21 +460,9 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         return results.toString();
     }
 
-    public String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId, Map<String, String> attachmentNames,
-            Map<Long, Map<String, Object>> ltiContentItems, Map<String, String> userIdTrans, Set<String> userListAllowImport) {
+    public String merge(String siteId, Element root, String archivePath, String fromSiteId, MergeConfig mcx) {
 
-        String archiveContext = "";
-        String archiveServerUrl = "";
-
-        Node parent = root.getParentNode();
-        if (parent.getNodeType() == Node.ELEMENT_NODE)
-        {
-            Element parentEl = (Element)parent;
-            archiveContext = parentEl.getAttribute("source");
-            archiveServerUrl = parentEl.getAttribute("serverurl");
-        }
-
-        log.debug("merge archiveContext={} archiveServerUrl={}", archiveContext, archiveServerUrl);
+        log.debug("merge archiveContext={} archiveServerUrl={}", mcx.archiveContext, mcx.archiveServerUrl);
 
         List<Poll> pollsList = findAllPolls(siteId);
         Set<String> pollTexts = pollsList.stream().map(Poll::getText).collect(Collectors.toCollection(LinkedHashSet::new));
@@ -489,10 +478,10 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
             if ( pollTexts.contains(pollText) ) continue;
 
             poll.setSiteId(siteId);
-            poll.setOwner(creatorId);
+            poll.setOwner(mcx.creatorId);
             String details = poll.getDetails();
-            details = ltiService.fixLtiLaunchUrls(details, siteId, ltiContentItems);
-            details = linkMigrationHelper.migrateLinksInMergedRTE(siteId, archiveContext, archiveServerUrl, details);
+            details = ltiService.fixLtiLaunchUrls(details, siteId, mcx);
+            details = linkMigrationHelper.migrateLinksInMergedRTE(siteId, mcx, details);
             poll.setDetails(details);
 
             savePoll(poll);
@@ -504,8 +493,8 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
                 option.setUuid(UUID.randomUUID().toString());
                 option.setPollId(poll.getPollId());
                 String text = option.getText();
-                text = ltiService.fixLtiLaunchUrls(text, siteId, ltiContentItems);
-                text = linkMigrationHelper.migrateLinksInMergedRTE(siteId, archiveContext, archiveServerUrl, text);
+                text = ltiService.fixLtiLaunchUrls(text, siteId, mcx);
+                text = linkMigrationHelper.migrateLinksInMergedRTE(siteId, mcx, text);
                 option.setText(text);
                 saveOption(option);
                 poll.addOption(option);

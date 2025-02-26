@@ -18,6 +18,7 @@ package org.sakaiproject.util.cover;
 import java.util.Set;
 
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.util.MergeConfig;
 
 public class LinkMigrationHelper {
 
@@ -45,7 +46,7 @@ public class LinkMigrationHelper {
 		return getLinkMigrationHelper().migrateOneLink(fromContextRef, targetContextRef, msgBody);
 	}
 
-	public static String migrateLinksInMergedRTE(String siteId, String fromContext, String fromServerUrl, String content) {
-		return getLinkMigrationHelper().migrateLinksInMergedRTE(siteId, fromContext, fromServerUrl, content);
+	public static String migrateLinksInMergedRTE(String siteId, MergeConfig mcx, String content) {
+		return getLinkMigrationHelper().migrateLinksInMergedRTE(siteId, mcx, content);
 	}
 }
