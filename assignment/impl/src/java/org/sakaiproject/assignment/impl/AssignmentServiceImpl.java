@@ -194,7 +194,7 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSSerializer;
 import org.xml.sax.InputSource;
-
+import org.sakaiproject.util.MergeConfig;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -436,20 +436,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     @Transactional
-    public String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId, Map<String, String> attachmentNames,
-        Map<Long, Map<String, Object>> ltiContentItems, Map<String, String> userIdTrans, Set<String> userListAllowImport) {
+    public String merge(String siteId, Element root, String archivePath, String fromSiteId, MergeConfig mcx) {
 
-
-        String archiveContext = "";
-        String archiveServerUrl = "";
-
-        Node parent = root.getParentNode();
-        if (parent.getNodeType() == Node.ELEMENT_NODE)
-        {
-            Element parentEl = (Element)parent;
-            archiveContext = parentEl.getAttribute("source");
-            archiveServerUrl = parentEl.getAttribute("serverurl");
-        }
 
         final StringBuilder results = new StringBuilder();
         results.append("begin merging ").append(getLabel()).append(" context ").append(siteId).append(LINE_SEPARATOR);
@@ -466,7 +454,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         for (Element assignmentElement : assignmentElements) {
 
             try {
-                mergeAssignment(siteId, assignmentElement, results, creatorId, assignmentTitles, attachmentNames, ltiContentItems, archiveContext, archiveServerUrl);
+                mergeAssignment(siteId, assignmentElement, results, assignmentTitles, mcx);
                 assignmentsMerged++;
             } catch (Exception e) {
                 final String error = "could not merge assignment with id: " + assignmentElement.getFirstChild().getFirstChild().getNodeValue();
@@ -1002,7 +990,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Transactional
-    private Assignment mergeAssignment(final String siteId, final Element element, final StringBuilder results, String creatorId, Set<String> assignmentTitles, Map<String, String> attachmentNames, Map<Long, Map<String, Object>> ltiContentItems, String archiveContext, String archiveServerUrl) throws PermissionException {
+    private Assignment mergeAssignment(final String siteId, final Element element, final StringBuilder results, Set<String> assignmentTitles, MergeConfig mcx) throws PermissionException {
 
         if (!allowAddAssignment(siteId)) {
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ADD_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().context(siteId).reckon().getReference());
@@ -1025,10 +1013,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             assignmentFromXml.setId(null);
             assignmentFromXml.setContext(siteId);
             assignmentFromXml.setContentId(null);
-            if ( StringUtils.isNotEmpty(creatorId) ) assignmentFromXml.setAuthor(creatorId);
+            if ( StringUtils.isNotEmpty(mcx.creatorId) ) assignmentFromXml.setAuthor(mcx.creatorId);
 
-            String newInstructions = ltiService.fixLtiLaunchUrls(assignmentFromXml.getInstructions(), siteId, ltiContentItems);
-            newInstructions = linkMigrationHelper.migrateLinksInMergedRTE(siteId, archiveContext, archiveServerUrl, newInstructions);
+            String newInstructions = ltiService.fixLtiLaunchUrls(assignmentFromXml.getInstructions(), siteId, mcx);
+            newInstructions = linkMigrationHelper.migrateLinksInMergedRTE(siteId, mcx, newInstructions);
             assignmentFromXml.setInstructions(newInstructions);
 
             Long contentKey = ltiService.mergeContentFromImport(element, siteId);
@@ -1038,9 +1026,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             Set<String> oAttachments = assignmentFromXml.getAttachments();
             assignmentFromXml.setAttachments(new HashSet<>());
             for (String oAttachment : oAttachments) {
-                String fromResourcePath = attachmentNames.get(oAttachment);
+                String fromResourcePath = mcx.attachmentNames.get(oAttachment);
                 String fromContext = null;  // No-Op, there is no fromContext when importing from a ZIP
-                String nAttachId = transferAttachment(fromContext, siteId, fromResourcePath, attachmentNames);
+                String nAttachId = transferAttachment(fromContext, siteId, fromResourcePath, mcx);
                 assignmentFromXml.getAttachments().add(nAttachId);
             }
 
@@ -1084,7 +1072,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             copy.setAssignmentId(assignmentFromXml.getId());
             copy.setNote(text);
             copy.setShareWith(Integer.parseInt(shareWith));
-            copy.setCreatorId(creatorId);
+            copy.setCreatorId(mcx.creatorId);
             assignmentSupplementItemService.saveNoteItem(copy);
         }
 
@@ -1107,7 +1095,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 String attachmentId = attachmentElement.getTextContent();
                 AssignmentSupplementItemAttachment attachment = assignmentSupplementItemService.newAttachment();
                 String fromContext = null;  // No-Op, there is no fromContext when importing from a ZIP
-                String nAttachId = transferAttachment(fromContext, siteId, attachmentId, attachmentNames);
+                String nAttachId = transferAttachment(fromContext, siteId, attachmentId, mcx);
                 attachment.setAssignmentSupplementItemWithAttachment(copy);
                 attachment.setAttachmentId(nAttachId);
                 assignmentSupplementItemService.saveAttachment(attachment);
@@ -4693,10 +4681,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             .map(ass -> Map.of("id", ass.getId(), "title", ass.getTitle())).collect(Collectors.toList());
     }
 
-    private String transferAttachment(String fromContext, String toContext, String oAttachmentId, Map<String, String> attachmentImportMap) {
+    private String transferAttachment(String fromContext, String toContext, String oAttachmentId, MergeConfig mcx) {
         String toolTitle = toolManager.getTool("sakai.assignment.grades").getTitle();
         try {
-            ContentResource attachment = contentHostingService.copyAttachment(oAttachmentId, toContext, toolTitle, attachmentImportMap);
+            ContentResource attachment = contentHostingService.copyAttachment(oAttachmentId, toContext, toolTitle, mcx);
             if ( attachment != null ) {
                 return attachment.getReference();
             }

@@ -50,7 +50,7 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.time.api.Time;
-
+import org.sakaiproject.util.MergeConfig;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -91,7 +91,7 @@ public class MockContentHostingService implements ContentHostingService
     }
 
     @Override
-    public ContentResource copyAttachment(String oAttachmentId, String toContext, String toolTitle, Map<String, String> attachmentImportMap) throws IdUnusedException, TypeException, PermissionException {
+    public ContentResource copyAttachment(String oAttachmentId, String toContext, String toolTitle, MergeConfig mcx) throws IdUnusedException, TypeException, PermissionException {
         throw new UnsupportedOperationException( "Not supported yet." );
     }
 

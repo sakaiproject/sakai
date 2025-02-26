@@ -323,4 +323,8 @@
       --bs-pagination-hover-color: var(--sakai-text-color-1);
       --bs-pagination-hover-bg: var(--sakai-active-color-2);
     }
+
+    .poweredby__image {
+        filter: invert(1);
+    }
 }
