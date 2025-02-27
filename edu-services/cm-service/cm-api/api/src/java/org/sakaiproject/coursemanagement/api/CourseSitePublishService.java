@@ -31,9 +31,6 @@ package org.sakaiproject.coursemanagement.api;
  */
 public interface CourseSitePublishService {
 
-   // permissions
-   public final static String PERMISSION_COURSE_SITE_PUBLISH     = "course_site_publish_service.publish";
-
    // site property
    public final static String SITE_PROPERTY_COURSE_SITE_PUBLISHED = "course_site_publish_service.publish.set";
 

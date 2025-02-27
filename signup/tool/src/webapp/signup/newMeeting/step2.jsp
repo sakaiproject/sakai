@@ -403,8 +403,10 @@
 						</h:panelGroup>
 						<h:panelGroup styleClass="col-xs-12 col-md-9 valueColumn" layout="block" rendered="#{!NewSignupMeetingBean.announcementType}">
 							<h:panelGroup styleClass="longtext">
-								<h:selectBooleanCheckbox id="showparticipants" value="#{NewSignupMeetingBean.showParticipants}"/>
-								<h:outputLabel for="showparticipants" value="#{msgs.event_yes_show_attendee_public}" escape="false"/>
+								<div class="form-check">
+									<h:selectBooleanCheckbox id="showparticipants" value="#{NewSignupMeetingBean.showParticipants}" styleClass="form-check-input"/>
+									<h:outputLabel for="showparticipants" value="#{msgs.event_yes_show_attendee_public}" escape="false" styleClass="form-check-label ms-2"/>
+								</div>
 							</h:panelGroup>
 						</h:panelGroup>
 					</div>
@@ -417,8 +419,10 @@
 						<h:panelGroup styleClass="col-xs-12 col-md-9 valueColumn" layout="block">
 							<h:dataTable id="meeting_coordinators" value="#{NewSignupMeetingBean.allPossibleCoordinators}" var="coUser" styleClass="coordinatorTab">
 								<h:column>
-									<h:selectBooleanCheckbox id="meetingcoord" value="#{coUser.checked}"/>
-									<h:outputLabel for="meetingcoord" value="#{coUser.displayName}" styleClass="longtext"/>
+									<div class="form-check">
+										<h:selectBooleanCheckbox id="meetingcoord" value="#{coUser.checked}" styleClass="form-check-input"/>
+										<h:outputLabel for="meetingcoord" value="#{coUser.displayName}" styleClass="form-check-label ms-2"/>
+									</div>
 								</h:column>
 							</h:dataTable>
 						</h:panelGroup>
@@ -431,8 +435,10 @@
 						</h:panelGroup>
 						<h:panelGroup styleClass="col-xs-12 col-md-9 valueColumn" layout="block" rendered="#{!NewSignupMeetingBean.announcementType}">
 							<h:panelGroup styleClass="longtext">
-								<h:selectBooleanCheckbox id="receiveemail" value="#{NewSignupMeetingBean.receiveEmail}"/>
-								<h:outputLabel for="receiveemail" value="#{msgs.event_yes_receive_notification}" escape="false"/>
+								<div class="form-check">
+									<h:selectBooleanCheckbox id="receiveemail" value="#{NewSignupMeetingBean.receiveEmail}" styleClass="form-check-input"/>
+									<h:outputLabel for="receiveemail" value="#{msgs.event_yes_receive_notification}" escape="false" styleClass="form-check-label ms-2"/>
+								</div>
 							</h:panelGroup>
 						</h:panelGroup>
 					</div>
@@ -447,20 +453,24 @@
 						<h:panelGroup styleClass="col-xs-12 col-md-9 valueColumn" layout="block">
 							<h:panelGrid columns="1" style="width:100%;margin-left:-3px;" rendered="#{NewSignupMeetingBean.publishedSite}">
 								<h:panelGroup styleClass="editText" >
-									<h:selectBooleanCheckbox id="emailChoice" value="#{NewSignupMeetingBean.sendEmail}" onclick="isShowEmailChoice()" disabled="#{NewSignupMeetingBean.mandatorySendEmail}"/>
-									<h:outputLabel for="emailChoice" value="#{msgs.event_yes_email_notification}" escape="false"/>
+									<div class="form-check">
+										<h:selectBooleanCheckbox id="emailChoice" value="#{NewSignupMeetingBean.sendEmail}" onclick="isShowEmailChoice()" disabled="#{NewSignupMeetingBean.mandatorySendEmail}" styleClass="form-check-input"/>
+										<h:outputLabel for="emailChoice" value="#{msgs.event_yes_email_notification}" escape="false" styleClass="form-check-label ms-2"/>
+									</div>
 								</h:panelGroup>
 								
-								<h:panelGroup id="emailAttendeeOnly">
-									<h:selectOneRadio  value="#{NewSignupMeetingBean.sendEmailToSelectedPeopleOnly}" layout="pageDirection" styleClass="rs" >
+								<h:panelGroup id="emailAttendeeOnly" layout="block" styleClass="ms-4">
+									<h:selectOneRadio value="#{NewSignupMeetingBean.sendEmailToSelectedPeopleOnly}" layout="pageDirection" styleClass="rs">
 										<f:selectItem id="all_attendees" itemValue="all" itemLabel="#{msgs.label_email_all_people}"/>
 										<f:selectItem id="only_organizers" itemValue="organizers_only" itemLabel="#{msgs.label_email_organizers_only}"/>
 									</h:selectOneRadio>
 								</h:panelGroup>
 							</h:panelGrid>
 							<h:panelGroup styleClass="longtext" rendered="#{!NewSignupMeetingBean.publishedSite}">
-								<h:selectBooleanCheckbox id="sendemail" value="#{NewSignupMeetingBean.sendEmail}" disabled="true"/>
-								<h:outputLabel for="sendemail" value="#{msgs.event_email_not_send_out_label}" escape="false" style="color:#b11"/>
+								<div class="form-check">
+									<h:selectBooleanCheckbox id="sendemail" value="#{NewSignupMeetingBean.sendEmail}" disabled="true" styleClass="form-check-input"/>
+									<h:outputLabel for="sendemail" value="#{msgs.event_email_not_send_out_label}" escape="false" style="color:#b11" styleClass="form-check-label ms-2"/>
+								</div>
 							</h:panelGroup>
 						</h:panelGroup>
 					</div>
@@ -472,8 +482,10 @@
 						</h:panelGroup>
 						<h:panelGroup styleClass="col-xs-12 col-md-9 valueColumn" layout="block">
 							<h:panelGroup styleClass="longtext" >
-								<h:selectBooleanCheckbox id="sendemailbyowner" value="#{NewSignupMeetingBean.sendEmailByOwner}"/>
-								<h:outputLabel for="sendemailbyowner" value="#{msgs.event_yes_meeting_default_notify_setting}" escape="false"/>
+								<div class="form-check">
+									<h:selectBooleanCheckbox id="sendemailbyowner" value="#{NewSignupMeetingBean.sendEmailByOwner}" styleClass="form-check-input"/>
+									<h:outputLabel for="sendemailbyowner" value="#{msgs.event_yes_meeting_default_notify_setting}" escape="false" styleClass="form-check-label ms-2"/>
+								</div>
 							</h:panelGroup>
 						</h:panelGroup>
 					</div>

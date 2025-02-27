@@ -118,9 +118,12 @@ $(document).ready(function() {
 
                 <%-- link to display other options on this forum --%>
                 <h:panelGroup rendered="#{ForumTool.newForum || ForumTool.instructor || forum.changeSettings}">
-                    <a href="#" class="btn btn-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <button type="button" 
+                            class="btn dropdown-toggle" 
+                            data-bs-toggle="dropdown" 
+                            aria-expanded="false">
                         <h:outputText value="#{msgs.cdfm__moremenulink}" />
-                    </a>
+                    </button>
                 </h:panelGroup>
 
                 <%-- list of options, revealed when link above is used, model new added options on existing ones--%>    
@@ -275,9 +278,12 @@ $(document).ready(function() {
 
                             <%-- link to display other options on this topic --%>
                             <h:panelGroup rendered="#{forum.newTopic || ForumTool.instructor || topic.changeSettings}">
-                                <a href="#" class="btn btn-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <button type="button" 
+                                        class="btn dropdown-toggle" 
+                                        data-bs-toggle="dropdown" 
+                                        aria-expanded="false">
                                     <h:outputText value="#{msgs.cdfm__moremenulink}" />
-                                </a>
+                                </button>
                             </h:panelGroup>   
 
                             <%-- list of options, revealed when link above is used, model new added options on existing ones--%>

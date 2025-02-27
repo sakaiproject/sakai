@@ -18,10 +18,6 @@
      <ref bean="gradebookHelper"/>
    </property>
 
-   <property name="publishingTargetHelper">
-     <ref bean="publishingTargetHelper"/>
-   </property>
-
    <property name="gradebookServiceHelper">
      <ref bean="gradebookServiceHelper"/>
    </property>
@@ -47,11 +43,6 @@
 <!-- context-sensitive gradebook behavior -->
 <bean name="gradebookHelper"
      class="org.sakaiproject.tool.assessment.integration.helper.integrated.GradebookHelperImpl">
-</bean>
-
-<!-- context-sensitive publishing target behavior -->
-<bean name="publishingTargetHelper"
-     class="org.sakaiproject.tool.assessment.integration.helper.integrated.PublishingTargetHelperImpl">
 </bean>
 
 <!-- context-sensitive gradebook service helper -->

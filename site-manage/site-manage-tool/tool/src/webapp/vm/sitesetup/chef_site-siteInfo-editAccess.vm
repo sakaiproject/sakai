@@ -83,19 +83,19 @@
 	}
 
 	function autoOrManual(clicked){
+		const autoDates = document.getElementById("autosection-dates");
 		if (clicked === "scheduled"){	// scheduled
 			document.getElementById("datesection-pickers").style.display = "block";
-			document.getElementById("datesection-pickers").style.display = "block";
 			document.getElementById("manualsection-options").style.display = "none";
-			document.getElementById("autosection-dates").style.display = "none";
+			autoDates != null && (autoDates.style.display = "none");
 		} else if (clicked === "manual") {	// manual
 			document.getElementById("datesection-pickers").style.display = "none";
 			document.getElementById("manualsection-options").style.display = "block";
-			document.getElementById("autosection-dates").style.display = "none";
+			autoDates != null && (autoDates.style.display = "none");
 		} else {	// auto
 			document.getElementById("datesection-pickers").style.display = "none";
 			document.getElementById("manualsection-options").style.display = "none";
-			document.getElementById("autosection-dates").style.display = "block";
+			autoDates != null && (autoDates.style.display = "block");
 		}
 	}
 

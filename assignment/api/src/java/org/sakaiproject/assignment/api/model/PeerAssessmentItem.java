@@ -20,6 +20,7 @@ import java.util.List;
 import javax.persistence.*;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.entity.api.Reference;
@@ -40,11 +41,13 @@ import org.sakaiproject.entity.api.Reference;
                     query = "from PeerAssessmentItem p where p.assignmentId = :assignmentId order by p.assignmentId, p.id.submissionId, p.id.assessorUserId")})
 @Data
 @NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class PeerAssessmentItem implements Serializable {
 
     private static final long serialVersionUID = -8376570648172966170L;
 
     @EmbeddedId
+    @EqualsAndHashCode.Include
     private AssessorSubmissionId id;
 
     @Column(name = "ASSIGNMENT_ID", nullable = false)

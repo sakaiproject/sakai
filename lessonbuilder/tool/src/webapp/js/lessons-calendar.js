@@ -2,6 +2,8 @@ $(function(){
     let url = $('.site-events-url').first().text().replace(/'/g,'');
     let moreInfoUrl = $('.event-tool-url').text().replace(/'/g,'');
 
+    const userLanguage = window.top.portal.locale;
+
     const $elements = $('.calendar-div');
     if ($elements.length > 0) {
         $elements.each(function() {
@@ -10,6 +12,7 @@ $(function(){
                 displayEventTime: false,
                 allDaySlot: false,
                 themeSystem: 'bootstrap5',
+                locale: userLanguage,
                 headerToolbar: {
                     left: 'prev,next today',
                     center: 'title',
@@ -105,6 +108,10 @@ $(function(){
                 }
             });
             calendar.render();
+
+            $('.collapsibleSectionHeader').on('click', function() {
+                calendar.updateSize();
+            });
         });
     }
 });

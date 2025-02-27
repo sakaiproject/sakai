@@ -184,32 +184,49 @@ export const graderRenderingMixin = Base => class extends Base {
             ` : nothing }
           `}
           ${this.gradable.allowPeerAssessment && this._submission.peerReviews?.length > 0 ? html`
-          <div class="mt-4">
+          <div class="mt-5">
             <h3 class="mb-3">${this._i18n.peer_reviews}</h3>
-            ${this._submission.peerReviews.map(pr => html`
-
-              <div class="card mb-2">
-                <div class="card-header fw-bold">${pr.assessorDisplayName}</div>
-                <div class="card-body">
-                  <div class="card-text">
-                    <div>
-                      <span class="fw-bold me-2">${this._i18n.grade}</span>
-                      <span>${pr.scoreDisplay}</span>
+            <div class="accordion" id="peer-reviews">
+              ${this._submission.peerReviews.map(pr => html`
+                <div class="accordion-item">
+                  <h2 class="accordion-header" id="peer-heading-${pr.assessorUserId}">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#peer-collapse-${pr.assessorUserId}" aria-expanded="true" aria-controls="peer-collapse-${pr.assessorUserId}">
+                      ${pr.assessorDisplayName}
+                    </button>
+                  </h2>
+                  <div id="peer-collapse-${pr.assessorUserId}" class="accordion-collapse collapse" aria-labelledby="peer-heading-${pr.assessorUserId}" data-bs-parent="#peer-reviews">
+                    <div class="accordion-body">
+                      ${this.hasAssociatedRubric === "true" ? html`
+                        <sakai-rubric-student
+                          site-id="${portal.siteId}"
+                          tool-id="${this.toolId}"
+                          entity-id="${this.entityId}"
+                          instructor
+                          is-peer-or-self
+                          evaluated-item-id="${pr.assessorUserId}"
+                          evaluated-item-owner-id="${this._submission.groupId || this._submission.firstSubmitterId}">
+                        </sakai-rubric-student>
+                        <hr class="itemSeparator">
+                      ` : nothing}
+                      <div class="mt-2 mb-3">
+                        <span class="fw-bold me-2">${this._i18n.grade}</span>
+                        <span>${pr.scoreDisplay}</span>
+                      </div>
+                      <div class="mt-2 mb-2 fw-bold">${this._i18n.reviewer_comments}</div>
+                      <div>${unsafeHTML(pr.comment)}</div>
+                      ${pr.attachmentUrlList?.length > 0 ? html`
+                        <div class="fw-bold mb-2">${this._i18n.reviewer_attachments}</div>
+                        ${pr.attachmentUrlList.map((url, i) => html`
+                          <div class="feedback-attachment">
+                            <a href="${url}" title="${this._i18n.feedback_attachment_tooltip}" target="_blank">${this._i18n.attachment} ${i + 1}</a>
+                          </div>
+                        `)}
+                      ` : nothing}
                     </div>
-                    <div class="mt-2 mb-2 fw-bold">${this._i18n.reviewer_comments}</div>
-                    <div>${unsafeHTML(pr.comment)}</div>
-                    ${pr.attachmentUrlList && pr.attachmentUrlList.length > 0 ? html`
-                      <div class="fw-bold mb-2">${this._i18n.reviewer_attachments}</div>
-                      ${pr.attachmentUrlList.map((url, i) => html`
-                        <div class="feedback-attachment">
-                          <a href="${url}" title="${this._i18n.feedback_attachment_tooltip}" target="_blank">${this._i18n.attachment} ${i + 1}</a>
-                        </div>
-                      `)}
-                    ` : nothing}
                   </div>
                 </div>
-              </div>
-            `)}
+              `)}
+            </div>
           </div>
           ` : nothing }
         ` : nothing }
@@ -493,8 +510,8 @@ export const graderRenderingMixin = Base => class extends Base {
                   site-id="${portal.siteId}"
                   tool-id="${this.toolId}"
                   entity-id="${this.entityId}"
-                  instructor="true"
-                  is-peer-or-self="true"
+                  instructor
+                  is-peer-or-self
                   evaluated-item-id="${this._submission.groupId || this._submission.firstSubmitterId}"
                   evaluated-item-owner-id="${this._submission.groupId || this._submission.firstSubmitterId}">
                 </sakai-rubric-student>

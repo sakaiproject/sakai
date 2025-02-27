@@ -180,4 +180,14 @@ public interface ContentServiceSql
 	 */
 	String getSelectByResourceTypeQuerySql();
 
+	/**
+	 * return only one file_path from the content_resource table.
+	 */
+	String getOnlyOneFilePath(String resourceTableName);
+
+	/**
+	 * return count file_path from the content_resource table.
+	 */
+	String getCountFilePath(String resourceTableName);
+
 }

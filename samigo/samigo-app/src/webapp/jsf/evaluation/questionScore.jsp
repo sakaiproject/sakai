@@ -350,7 +350,7 @@ $Id$
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
         </h:selectOneMenu>
     
-    <h:panelGroup styleClass="form-group" layout="block" 
+    <h:panelGroup layout="block" 
                   rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || 
                                  questionScores.typeId == '12' || questionScores.typeId == '4'  || questionScores.typeId == '5')}">
         <h:outputLabel value="&nbsp;#{evaluationMessages.with}&nbsp;" escape="false" />

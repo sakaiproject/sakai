@@ -173,6 +173,7 @@ public class SiteArchiver {
             root.setAttribute("server", m_serverConfigurationService.getServerId());
             root.setAttribute("date", now.toString());
             root.setAttribute("system", fromSystem);
+            root.setAttribute("serverurl", m_serverConfigurationService.getServerUrl());
             root.setAttribute("xmlns:sakai", ArchiveService.SAKAI_ARCHIVE_NS);
             root.setAttribute("xmlns:CHEF", ArchiveService.SAKAI_ARCHIVE_NS.concat("CHEF"));
             root.setAttribute("xmlns:DAV", ArchiveService.SAKAI_ARCHIVE_NS.concat("DAV"));

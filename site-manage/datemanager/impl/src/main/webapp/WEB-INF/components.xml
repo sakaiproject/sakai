@@ -19,12 +19,18 @@
 		<property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
 		<property name="forumManager" ref="org.sakaiproject.api.app.messageforums.MessageForumsForumManager" />
 		<property name="announcementService" ref="org.sakaiproject.announcement.api.AnnouncementService" />
-		<!--<property name="messageService" ref="org.sakaiproject.message.api.MessageService" />-->
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
 		<property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
 		<property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
 		<property name="samigoAvailableNotificationService" ref="org.sakaiproject.samigo.api.SamigoAvailableNotificationService"/>
 		<property name="formattedText" ref="org.sakaiproject.util.api.FormattedText" />
+		<property name="resourceLoader" ref="org.sakaiproject.util.ResourceLoader.datemanager"/>
 	</bean>
+
+	<bean id="org.sakaiproject.util.ResourceLoader.datemanager"
+		  class="org.sakaiproject.util.ResourceLoader">
+		<constructor-arg value="datemanager"/>
+	</bean>
+
 </beans>

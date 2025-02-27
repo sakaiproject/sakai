@@ -1,6 +1,6 @@
 const sakaiCalendar = {
   calendar: {},
-  userLanguage: window.top.portal.locale || navigator.language,
+  userLanguage: window.top.portal.locale,
   userTimeZone: window.top.portal.user.timezone || 'local',
 
   // Initialize the calendar and attach it to the calendar div.

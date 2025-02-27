@@ -225,7 +225,7 @@ public class PDFAssessmentBean implements Serializable {
 		);
 	}
 
-	public void prepPDF() {
+	public String prepPDF() {
 		DeliveryBean deliveryBean = (DeliveryBean) ContextUtil.lookupBean("delivery");
 		deliveryBean.setActionString("previewAssessment");
 
@@ -241,6 +241,8 @@ public class PDFAssessmentBean implements Serializable {
 		setDeliveryParts(deliveryBean.getTableOfContents().getPartsContents());
 
 		prepDocumentPDF();
+		
+		return "print";
 	}
 
 	public void prepDocumentPDF() {
@@ -683,6 +685,8 @@ public class PDFAssessmentBean implements Serializable {
 			}
 			else if(TypeIfc.CALCULATED_QUESTION.equals( item.getItemData().getTypeId() )){
 				contentBuffer.append(item.getAnswerKeyCalcQuestion().replace("<", "&lt;").replace(">", "&gt;"));
+				contentBuffer.append(" = ");
+				contentBuffer.append(item.getCalculatedQuestionAnswer());
 			}
 			else
 				contentBuffer.append(item.getItemData().getAnswerKey());

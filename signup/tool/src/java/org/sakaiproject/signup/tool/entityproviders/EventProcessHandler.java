@@ -39,6 +39,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.signup.logic.SakaiFacade;
@@ -67,6 +69,8 @@ import org.sakaiproject.tool.cover.ToolManager;
  * 
  * @author Peter Liu
  */
+@Setter
+@Getter
 @Slf4j
 public class EventProcessHandler implements SignupBeanConstants {
 	/* name of user request parameter for view range */
@@ -391,30 +395,6 @@ public class EventProcessHandler implements SignupBeanConstants {
 		}
 				
 		return events;
-	}
-
-	public SakaiFacade getSakaiFacade() {
-		return sakaiFacade;
-	}
-
-	public void setSakaiFacade(SakaiFacade sakaiFacade) {
-		this.sakaiFacade = sakaiFacade;
-	}
-
-	public SignupMeetingService getSignupMeetingService() {
-		return signupMeetingService;
-	}
-
-	public void setSignupMeetingService(SignupMeetingService signupMeetingService) {
-		this.signupMeetingService = signupMeetingService;
-	}
-
-	public SignupRESTfulSessionManager getSignupRESTfulSessionManager() {
-		return signupRESTfulSessionManager;
-	}
-
-	public void setSignupRESTfulSessionManager(SignupRESTfulSessionManager signupRESTfulSessionManager) {
-		this.signupRESTfulSessionManager = signupRESTfulSessionManager;
 	}
 
 }

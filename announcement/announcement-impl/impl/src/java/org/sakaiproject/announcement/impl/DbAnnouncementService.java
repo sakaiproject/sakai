@@ -24,12 +24,8 @@ package org.sakaiproject.announcement.impl;
 // import
 import java.sql.Connection;
 import java.sql.ResultSet;
-import java.time.Instant;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Stack;
-import java.util.Collections;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +34,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import org.sakaiproject.announcement.api.AnnouncementMessage;
-import org.sakaiproject.announcement.api.ViewableFilter;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
@@ -490,7 +485,7 @@ public class DbAnnouncementService extends BaseAnnouncementService
 						else
 						{
 							// m.getReference() won't work cause we didn't give it its channel...
-							Reference channel = m_entityManager.newReference(channelId);
+							Reference channel = entityManager.newReference(channelId);
 							String ref = messageReference(channel.getContext(), channel.getId(), m.getId());
 							pubview = getPubView(ref);
 
@@ -572,7 +567,7 @@ public class DbAnnouncementService extends BaseAnnouncementService
 		// get the realm
 		try
 		{
-			AuthzGroup realm = m_authzGroupService.getAuthzGroup(ref);
+			AuthzGroup realm = authzGroupService.getAuthzGroup(ref);
 
 			// if the announcement realm has "pubview" role, then the announcement is publicly viewable
 			Role pubview = realm.getRole("pubview");

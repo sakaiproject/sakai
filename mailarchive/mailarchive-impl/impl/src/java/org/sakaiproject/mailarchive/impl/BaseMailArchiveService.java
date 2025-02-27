@@ -81,13 +81,9 @@ public abstract class BaseMailArchiveService extends BaseMessage implements Mail
 	 * Constructors, Dependencies and their setter methods
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	/** Dependency: NotificationService. */
-	@Setter protected NotificationService notificationService;
-
-	/** Dependency: AliasService */
 	@Setter protected AliasService aliasService;
-
-	@Setter private FunctionManager functionManager;
+	@Setter protected FunctionManager functionManager;
+	@Setter protected NotificationService notificationService;
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
@@ -120,7 +116,7 @@ public abstract class BaseMailArchiveService extends BaseMessage implements Mail
 			functionManager.registerFunction(eventId(SECURE_REMOVE_ANY), true);
 
 			// entity producer registration
-			m_entityManager.registerEntityProducer(this, REFERENCE_ROOT);
+			entityManager.registerEntityProducer(this, REFERENCE_ROOT);
 
 			log.info("init()");
 		}
@@ -531,7 +527,7 @@ public abstract class BaseMailArchiveService extends BaseMessage implements Mail
 	protected void enableMailbox(String siteId)
 	{
 		// form the email channel name
-		String channelRef = channelReference(siteId, m_siteService.MAIN_CONTAINER);
+		String channelRef = channelReference(siteId, siteService.MAIN_CONTAINER);
 
 		// see if there's a channel
 		MessageChannel channel = null;
@@ -601,7 +597,7 @@ public abstract class BaseMailArchiveService extends BaseMessage implements Mail
 	protected void disableMailbox(String siteId)
 	{
 		// form the email channel name
-		String channelRef = channelReference(siteId, m_siteService.MAIN_CONTAINER);
+		String channelRef = channelReference(siteId, siteService.MAIN_CONTAINER);
 
 		// see if there's a channel
 		MessageChannel channel = null;
@@ -819,9 +815,9 @@ public abstract class BaseMailArchiveService extends BaseMessage implements Mail
 				List attachments, String[] body) throws PermissionException
 		{
 			StringBuilder alertMsg = new StringBuilder();
-			final String cleanedHtml = m_formattedText.processFormattedText(body[1], alertMsg);
-			final String cleanedText = m_formattedText.encodeUnicode(body[0]);
-			final String cleanedSubject = m_formattedText.processFormattedText(subject, alertMsg);
+			final String cleanedHtml = formattedText.processFormattedText(body[1], alertMsg);
+			final String cleanedText = formattedText.encodeUnicode(body[0]);
+			final String cleanedSubject = formattedText.processFormattedText(subject, alertMsg);
 
 			MailArchiveMessageEdit edit = (MailArchiveMessageEdit) addMessage();
 			MailArchiveMessageHeaderEdit archiveHeaders = edit.getMailArchiveHeaderEdit();
@@ -923,7 +919,7 @@ public abstract class BaseMailArchiveService extends BaseMessage implements Mail
 		 */
 		public boolean allowAddMessage(User user)
 		{
-			return m_securityService.unlock(user, eventId(SECURE_ADD), getReference());
+			return securityService.unlock(user, eventId(SECURE_ADD), getReference());
 		}
 
 		/*
@@ -1072,7 +1068,7 @@ public abstract class BaseMailArchiveService extends BaseMessage implements Mail
 						{
 							// convert from plaintext messages to formatted text messages
 							m_body = element.getChildNodes().item(0).getNodeValue();
-							if (m_body != null) m_body = m_formattedText.convertPlaintextToFormattedText(m_body);
+							if (m_body != null) m_body = formattedText.convertPlaintextToFormattedText(m_body);
 						}
 						if (m_body == null)
 						{
@@ -1131,7 +1127,7 @@ public abstract class BaseMailArchiveService extends BaseMessage implements Mail
 		 */
 		public String getHtmlBody()
 		{
-			return m_formattedText.getHtmlBody(m_html_body);
+			return formattedText.getHtmlBody(m_html_body);
 		} // getHtmlBody
 
 		/**
@@ -1144,7 +1140,7 @@ public abstract class BaseMailArchiveService extends BaseMessage implements Mail
 			if ( getHtmlBody() != null && getHtmlBody().length() > 0 )
 				return getHtmlBody();
 			else 
-				return m_formattedText.encodeUrlsAsHtml( m_formattedText.convertPlaintextToFormattedText( m_formattedText.decodeNumericCharacterReferences(m_body)) );
+				return formattedText.encodeUrlsAsHtml( formattedText.convertPlaintextToFormattedText( formattedText.decodeNumericCharacterReferences(m_body)) );
 				
 		} // getHtmlBody
 
@@ -1233,7 +1229,7 @@ public abstract class BaseMailArchiveService extends BaseMessage implements Mail
 			// now extract the subject, from address, date sent
 			m_subject = el.getAttribute("subject");
 			m_fromAddress = el.getAttribute("mail-from");
-			m_dateSent = m_timeService.newTimeGmt(el.getAttribute("mail-date"));
+			m_dateSent = timeService.newTimeGmt(el.getAttribute("mail-date"));
 
 			// mail headers
 			NodeList children = el.getChildNodes();
@@ -1274,6 +1270,7 @@ public abstract class BaseMailArchiveService extends BaseMessage implements Mail
 		 * 
 		 * @return The subject of the mail message.
 		 */
+		@Override
 		public String getSubject()
 		{
 			return ((m_subject == null) ? "" : m_subject);
@@ -1341,7 +1338,7 @@ public abstract class BaseMailArchiveService extends BaseMessage implements Mail
 
 		@Override
 		public void setInstantSent(Instant sent) {
-			m_dateSent = m_timeService.newTime(sent.toEpochMilli());
+			m_dateSent = timeService.newTime(sent.toEpochMilli());
 		}
 
 

@@ -196,7 +196,7 @@
                       <div class="pinned-drag-handle">
                         <i class="si si-drag-handle"></i>
                       </div>
-                      <div class="ms-2">
+                      <div class="ms-2 text-truncate" title="${site.siteTitle}">
                       ${site.siteTitleTrunc}
                       </div>
                     </div>

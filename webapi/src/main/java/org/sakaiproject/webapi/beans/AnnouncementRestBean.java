@@ -35,6 +35,7 @@ public class AnnouncementRestBean {
     private String subject;
     private String author;
     private String url;
+    private int order;
     private long date;
     private boolean highlighted;
 
@@ -46,6 +47,7 @@ public class AnnouncementRestBean {
         subject = am.getAnnouncementHeader().getSubject();
         author = am.getAnnouncementHeader().getFrom().getDisplayName();
         date = am.getAnnouncementHeader().getInstant().toEpochMilli();
+        order = am.getAnnouncementHeader().getMessage_order();
 
         ResourceProperties props = am.getProperties();
         highlighted = BooleanUtils.toBoolean(props.getProperty("highlight"));

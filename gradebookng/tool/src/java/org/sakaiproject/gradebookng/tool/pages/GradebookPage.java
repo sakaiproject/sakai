@@ -614,7 +614,7 @@ public class GradebookPage extends BasePage {
 
 		final StringValue focusAssignmentId = getPageParameters().get(FOCUS_ASSIGNMENT_ID_PARAM);
 		final StringValue showPopupForNewItem = getPageParameters().get(NEW_GBITEM_POPOVER_PARAM);
-		if(!showPopupForNewItem.isNull() && !focusAssignmentId.isNull()){
+		if(!showPopupForNewItem.isNull() && !focusAssignmentId.isNull() && this.hasStudents){
 			getPageParameters().remove(FOCUS_ASSIGNMENT_ID_PARAM);
 			getPageParameters().remove(NEW_GBITEM_POPOVER_PARAM);
 			response.render(JavaScriptHeaderItem

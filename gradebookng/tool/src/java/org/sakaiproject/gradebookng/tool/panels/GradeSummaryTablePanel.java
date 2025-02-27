@@ -398,12 +398,12 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 								sakaiRubricButton.setVisible(true);
 							}
 
+							String ownerId = studentUuid;
 							if (assignment.getExternallyMaintained()) {
 								sakaiRubricButton.add(AttributeModifier.append("tool-id", AssignmentConstants.TOOL_ID));
 								String[] bits = assignment.getExternalId().split("/");
 								if (bits != null && bits.length >= 1) {
 									String assignmentId = bits[bits.length-1];
-									String ownerId = studentUuid;
 									if (assignment.getExternalAppName().equals(assignmentService.getToolId())) {
 										try {
 											org.sakaiproject.assignment.api.model.Assignment assignmentsAssignment = assignmentService.getAssignment(assignmentId);
@@ -419,7 +419,8 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 												}).findAny();
 
 												if (groupId.isPresent()) {
-													ownerId = groupId.get();
+													String[] groupBits = groupId.get().split("/");
+													ownerId = groupBits[groupBits.length-1];
 												} else {
 													log.error("Assignment {} is a group assignment, but {} was not in any of the groups", assignmentId, studentUuid);
 												}
@@ -454,7 +455,7 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 								}
 							}
 
-							sakaiRubricButton.add(AttributeModifier.append("evaluated-item-owner-id", studentUuid));
+							sakaiRubricButton.add(AttributeModifier.append("evaluated-item-owner-id", ownerId));
 
 							gradeScore.add(sakaiRubricButton);
 						}

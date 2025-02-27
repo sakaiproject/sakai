@@ -443,8 +443,7 @@ public class Foorm {
 			value = "";
 		StringBuffer sb = new StringBuffer();
 		formInputStart(sb, field, "textarea", label, required, loader);
-		sb.append("<textarea  class=\"form-control\"");
-		// sb.append("<textarea style=\"border:1px solid #555;width:300px\" id=\"");
+		sb.append("<textarea  class=\"form-control\" id=\"");
 		sb.append(field);
 		sb.append("\" name=\"");
 		sb.append(field);

@@ -10,12 +10,13 @@ class Submission {
       if (init.properties) {
         this.submissionLog = Object.keys(init.properties).filter(p => p.startsWith("log"))
           .map(p => init.properties[p]);
+      } else {
+        this.submissionLog = init.submissionLog || [];
       }
 
       init.properties || (init.properties = {});
       init.feedbackComment || (init.feedbackComment = "");
       init.privateNotes || (init.privateNotes = "");
-      this.submissionLog = init.submissionLog || [];
 
       if (init.properties) {
         // Build a history object for this submission

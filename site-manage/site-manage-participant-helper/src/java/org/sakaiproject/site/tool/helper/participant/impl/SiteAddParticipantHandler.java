@@ -778,31 +778,11 @@ public class SiteAddParticipantHandler {
 				
 				// the format of per user entry is: email address,first name,last name
 				// comma separated
-				String[] nonOfficialAccountParts  = nonOfficialAccountAll.split(",");
-				if (nonOfficialAccountParts.length > 3) {
-					// if the input contains more fields than "email address,first name,last name", show an alert
-					targettedMessageList.addMessage(new TargettedMessage(
-							"add.multiple.nonofficial.alert.more",
-							new Object[] {nonOfficialAccountAll},
-							TargettedMessage.SEVERITY_ERROR));
-					break;
-				}
-				String userEid = nonOfficialAccountParts[0].trim();
-				// get last name, if any
-				String userLastName = "";
-				if (nonOfficialAccountParts.length > 1) {
-					userLastName = nonOfficialAccountParts[1].trim();
-				}
-				// get first name, if any
-				String userFirstName = "";
-				if (nonOfficialAccountParts.length > 2)
-				{
-					userFirstName = nonOfficialAccountParts[2].trim();
-				}
-				// remove the trailing dots
-				while (userEid.endsWith(".")) {
-					userEid = userEid.substring(0, userEid.length() - 1);
-				}
+				String[] nonOfficialAccountParts  = parseAccountIntoParts(nonOfficialAccountAll);
+				if (nonOfficialAccountParts == null) continue;
+				String userEid = nonOfficialAccountParts[0];
+				String userLastName = nonOfficialAccountParts[1];
+				String userFirstName = nonOfficialAccountParts[2];
 
 				if (!userEid.isEmpty()) {
 					final String[] parts = userEid.split(EMAIL_CHAR);
@@ -922,7 +902,7 @@ public class SiteAddParticipantHandler {
 						
 						// update the userRoleTable
 						if (!getUsers().contains(userEid) && !existingUsers.contains(userEid)) {
-							userRoleEntries.add(new UserRoleEntry(userEid, "", userFirstName, userLastName));
+							userRoleEntries.add(new UserRoleEntry(userFirstName, userLastName, "", userEid));
 							// not existed user, update account
 							updatedNonOfficialAccountParticipant.append(currentNonOfficialAccount).append("\n");
 						}
@@ -969,6 +949,29 @@ public class SiteAddParticipantHandler {
 						TargettedMessage.SEVERITY_ERROR));
 			}
 		}
+	}
+
+	private String[] parseAccountIntoParts(String account) {
+		if (StringUtils.isBlank(account)) {
+			return null;
+		}
+
+		String[] accountParts = account.split(",", 3);
+		String[] result = new String[3];
+
+		// Parse email (required)
+		result[0] = accountParts[0].trim();
+		while (result[0].endsWith(".")) {
+			result[0] = result[0].substring(0, result[0].length() - 1);
+		}
+
+		// Parse lastName (optional)
+		result[1] = accountParts.length > 1 ? accountParts[1].trim() : "";
+
+		// Parse firstName (optional)
+		result[2] = accountParts.length > 2 ? accountParts[2].trim() : "";
+
+		return result;
 	}
 
 	/**

@@ -162,9 +162,9 @@ function resizeFrame(){
 				</label>
 				<div class="col-md-6">
 					#if ($new=="true")
-						<input type="text" size="45" name="subject" id="subject" value="$formattedText.escapeHtml($tempSubject)" class="form-control" autofocus="autofocus" />                
+						<input type="text" size="45" name="subject" id="subject" value="$formattedText.escapeHtml($tempSubject)" class="form-control" />                
 					#else
-						<input type="text" size="45" name="subject" id="subject" value="$formattedText.escapeHtml($message.Header.subject)" class="form-control" autofocus="autofocus" />
+						<input type="text" size="45" name="subject" id="subject" value="$formattedText.escapeHtml($message.Header.subject)" class="form-control" />
 					#end
 				</div>
 			</div>

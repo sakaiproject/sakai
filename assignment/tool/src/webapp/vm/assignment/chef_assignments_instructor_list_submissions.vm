@@ -459,7 +459,7 @@ function printView(url) {
 										#end
 
 										#if ($gusers)
-											<div style="font-size: smaller; color: blue;">
+											<div class="badge text-bg-info fs-6"> 
 											#foreach ($user in $gusers)
 												#if($velocityCount > 1), #end
 												#set($is_user_duplicate=false)

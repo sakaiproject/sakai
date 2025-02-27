@@ -50,6 +50,7 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.time.api.Time;
+import org.sakaiproject.util.MergeConfig;
 import org.w3c.dom.Document;
 
 /**
@@ -1126,7 +1127,27 @@ public interface ContentHostingService extends EntityProducer
 	 */
 	public ContentResourceEdit addAttachmentResource(String name) throws IdInvalidException, InconsistentException,
 			IdUsedException, PermissionException, ServerOverloadException;
-	
+
+	/**
+	 * Copy an attachment from one context to another.
+	 *
+	 * @param oAttachmentId
+	 *      The id of the original attachment. It is a content path to an existing attachment that is readable by the current user
+	 *      /attachment/60d0b410-0930-4e73-9f0c-f0effe58b2c8/Discussions/33bdba7a-e8c7-4a17-bcee-0003f0b1a7ee/coursera-visit.jpg
+	 * @param toContext
+	 *      The site of the new attachment - required
+	 * @param toolTitle
+	 *      The title of the tool that the attachment is being added to (i.d. Discussions or Assignments) - this will be 
+	 *      used to generate the new attachment id / path - required
+	 * @param mcx
+	 *      The MergeConfig for this import
+     *      attachment.  If the oAttachmentId points to a non-existant or inaccessible resource, the attachmentNames map will 
+	 *      consulted to see id the oAttachmentId has been pre-imported.
+	 * @return The id of the new attachment.
+	 */
+	public ContentResource copyAttachment(String oAttachmentId, String toContext, String toolTitle, MergeConfig mcx) 
+		throws IdUnusedException, TypeException, PermissionException;
+
 	/**
 	 * check permissions for updateResource().
 	 * 

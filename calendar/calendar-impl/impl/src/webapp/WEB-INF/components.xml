@@ -25,6 +25,8 @@
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
 		<property name="usageSessionService" ref="org.sakaiproject.event.api.UsageSessionService" />
+		<property name="ltiService" ref="org.sakaiproject.lti.api.LTIService" />
+		<property name="linkMigrationHelper" ref="org.sakaiproject.util.api.LinkMigrationHelper" />
         <property name="externalCalendarSubscriptionService" ref="org.sakaiproject.calendar.api.ExternalCalendarSubscriptionService" />
 		<property name="opaqueUrlDao" ref="org.sakaiproject.calendar.api.OpaqueUrlDao" />
  		<property name="containerTableName"><value>CALENDAR_CALENDAR</value></property>

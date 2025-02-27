@@ -35,9 +35,6 @@ package org.sakaiproject.coursemanagement.api;
  */
 public interface CourseSiteRemovalService {
 
-   // permissions
-   public final static String PERMISSION_COURSE_SITE_REMOVAL = "course_site_removal_service.removal";
-
     // site property
    public final static String SITE_PROPERTY_COURSE_SITE_REMOVAL = "course_site_removal_service.removal.set";
 

@@ -17,17 +17,22 @@ package org.sakaiproject.datemanager.impl;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -81,6 +86,7 @@ import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
@@ -112,6 +118,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 	@Setter private CalendarService calendarService;
 	@Setter private MessageForumsForumManager forumManager;
 	@Setter private AnnouncementService announcementService;
+	@Setter private ResourceLoader resourceLoader;
 	@Setter private SiteService siteService;
 	@Setter private ServerConfigurationService serverConfigurationService;
 	@Setter private SimplePageToolDao simplePageToolDao;
@@ -120,8 +127,31 @@ public class DateManagerServiceImpl implements DateManagerService {
 	@Setter private SamigoAvailableNotificationService samigoAvailableNotificationService;
 	@Setter private FormattedText formattedText;
 
-	private static final ResourceLoader rb = new ResourceLoader("datemanager");
 	private final Map<String, Calendar> calendarMap = new HashMap<>();
+	private final DateTimeFormatter inputDateFormatter;
+	private final DateTimeFormatter inputDateTimeFormatter;
+	private final DateTimeFormatter outputDateFormatter;
+	private final DateTimeFormatter outputDatePickerFormat;
+
+	public DateManagerServiceImpl() {
+		inputDateFormatter = new DateTimeFormatterBuilder()
+				.appendOptional(DateTimeFormatter.ofPattern("M/d/yyyy"))
+				.appendOptional(DateTimeFormatter.ofPattern("MM/dd/yyyy"))
+				.appendOptional(DateTimeFormatter.ofPattern("dd-MM-yyyy"))
+				.appendOptional(DateTimeFormatter.ofPattern("d-M-yyyy"))
+				.appendOptional(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+				.appendOptional(DateTimeFormatter.ofPattern("yyyy-M-d"))
+				.toFormatter();
+		inputDateTimeFormatter = new DateTimeFormatterBuilder()
+				.appendPattern("yyyy-MM-dd'T'HH:mm:ss")
+				.optionalStart()
+				.appendOffset("+HH:MM", "Z")  // Add the zone offset
+				.optionalEnd()
+				.parseDefaulting(ChronoField.OFFSET_SECONDS, 0)
+				.toFormatter();
+		outputDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		outputDatePickerFormat = DateTimeFormatter.ofPattern(DateManagerConstants.DATEPICKER_DATETIME_FORMAT);
+	}
 
 	public void init() {
 		setAssessmentServiceQueries(assessmentPersistenceService.getAssessmentFacadeQueries());
@@ -133,9 +163,6 @@ public class DateManagerServiceImpl implements DateManagerService {
 		return session != null ? session.getAttribute(name).toString() : "";
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getCurrentSiteId() {
 		String siteID = getCurrentToolSessionAttribute(STATE_SITE_ID);
@@ -146,9 +173,6 @@ public class DateManagerServiceImpl implements DateManagerService {
 		return siteID;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Optional<Site> getCurrentSite() {
 		String siteId = getCurrentSiteId();
@@ -161,17 +185,11 @@ public class DateManagerServiceImpl implements DateManagerService {
 		return Optional.empty();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getCurrentUserId() {
 		return sessionManager.getCurrentSessionUserId();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Locale getUserLocale() {
 		Locale locale = prefService.getLocale(getCurrentUserId());
@@ -179,9 +197,6 @@ public class DateManagerServiceImpl implements DateManagerService {
 		return locale;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public Locale getLocaleForCurrentSiteAndUser() {
 		Locale locale = null;
 
@@ -203,17 +218,11 @@ public class DateManagerServiceImpl implements DateManagerService {
 		return locale;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getMessage(String messageId) {
-		return rb.getString(messageId);
+		return resourceLoader.getString(messageId);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean currentSiteContainsTool(String commonId) {
 		try {
@@ -225,9 +234,6 @@ public class DateManagerServiceImpl implements DateManagerService {
 		return false;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getToolTitle(String commonId) {
 		String toolTitle = "";
@@ -257,15 +263,9 @@ public class DateManagerServiceImpl implements DateManagerService {
 	private String formatToUserInstantFormat(Instant instant) {
 		if (instant == null) return "";
 		ZonedDateTime userDate = ZonedDateTime.ofInstant(instant, userTimeService.getLocalTimeZone().toZoneId());
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DateManagerConstants.DATEPICKER_DATETIME_FORMAT);
-		String text = userDate.format(formatter);
-		return text;
+        return userDate.format(outputDatePickerFormat);
 	}
 
-	/***** ASSIGNMENTS *****/
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public JSONArray getAssignmentsForContext(String siteId) {
 		JSONArray jsonAssignments = new JSONArray();
@@ -282,7 +282,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 				assobj.put(DateManagerConstants.JSON_TOOLTITLE_PARAM_NAME, toolTitle);
 				assobj.put(DateManagerConstants.JSON_URL_PARAM_NAME, assignmentService.getDeepLink(siteId, assignment.getId(), getCurrentUserId()));
 				String extraInfo = "false";
-				if (assignment.getDraft()) extraInfo = rb.getString("itemtype.draft");
+				if (assignment.getDraft()) extraInfo = resourceLoader.getString("itemtype.draft");
 				assobj.put(DateManagerConstants.JSON_EXTRAINFO_PARAM_NAME, extraInfo);
 				jsonAssignments.add(assobj);
 			} catch (Exception e) {
@@ -292,14 +292,11 @@ public class DateManagerServiceImpl implements DateManagerService {
 		return orderJSONArrayByTitle(jsonAssignments);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public DateManagerValidation validateAssignments(String siteId, JSONArray assignments) throws Exception {
 		DateManagerValidation assignmentValidate = new DateManagerValidation();
 		List<DateManagerError> errors = new ArrayList<>();
-		List<Object> updates = new ArrayList<>();
+		List<DateManagerUpdate> updates = new ArrayList<>();
 		String toolTitle = toolManager.getTool(DateManagerConstants.COMMON_ID_ASSIGNMENTS).getTitle();
 		for (int i = 0; i < assignments.size(); i++) {
 			JSONObject jsonAssignment = (JSONObject)assignments.get(i);
@@ -309,14 +306,14 @@ public class DateManagerServiceImpl implements DateManagerService {
 			try {
 
 				if (assignmentId == null) {
-                                        errors.add(new DateManagerError("assignment", rb.getFormattedMessage("error.item.not.found", new Object[]{rb.getString("tool.assignments.item.name")}), "assignments", toolTitle, idx));
+                                        errors.add(new DateManagerError("assignment", resourceLoader.getFormattedMessage("error.item.not.found", resourceLoader.getString("tool.assignments.item.name")), "assignments", toolTitle, idx));
 					continue;
 				}
 
 				String assignmentReference = assignmentService.assignmentReference(siteId, assignmentId);
 
 				if (!assignmentService.allowUpdateAssignment(assignmentReference)) {
-					errors.add(new DateManagerError("assignment", rb.getString("error.update.permission.denied"), "assignments", toolTitle, idx));
+					errors.add(new DateManagerError("assignment", resourceLoader.getString("error.update.permission.denied"), "assignments", toolTitle, idx));
 					continue;
 				}
 
@@ -339,13 +336,13 @@ public class DateManagerServiceImpl implements DateManagerService {
 				} 
 
 				if (openDate == null) {
-					errored = errors.add(new DateManagerError(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, rb.getString("error.open.date.not.found"), "assignments", toolTitle, idx));
+					errored = errors.add(new DateManagerError(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, resourceLoader.getString("error.open.date.not.found"), "assignments", toolTitle, idx));
 				}
 				if (dueDate == null) {
-					errored = errors.add(new DateManagerError(DateManagerConstants.JSON_DUEDATE_PARAM_NAME, rb.getString("error.due.date.not.found"), "assignments", toolTitle, idx));
+					errored = errors.add(new DateManagerError(DateManagerConstants.JSON_DUEDATE_PARAM_NAME, resourceLoader.getString("error.due.date.not.found"), "assignments", toolTitle, idx));
 				}
 				if (acceptUntil == null) {
-					errored = errors.add(new DateManagerError(DateManagerConstants.JSON_ACCEPTUNTIL_PARAM_NAME, rb.getString("error.accept.until.not.found"), "assignments", toolTitle, idx));
+					errored = errors.add(new DateManagerError(DateManagerConstants.JSON_ACCEPTUNTIL_PARAM_NAME, resourceLoader.getString("error.accept.until.not.found"), "assignments", toolTitle, idx));
 				}
 
 				if (errored) {
@@ -355,27 +352,27 @@ public class DateManagerServiceImpl implements DateManagerService {
 				Assignment assignment = assignmentService.getAssignment(assignmentId);
 
 				if (assignment == null) {
-					errors.add(new DateManagerError("assignment", rb.getFormattedMessage("error.item.not.found", new Object[]{rb.getString("tool.assignments.item.name")}), "assignments", toolTitle, idx));
+					errors.add(new DateManagerError("assignment", resourceLoader.getFormattedMessage("error.item.not.found", resourceLoader.getString("tool.assignments.item.name")), "assignments", toolTitle, idx));
 					continue;
 				}
 
 				DateManagerUpdate update = new DateManagerUpdate(assignment, openDate, dueDate, acceptUntil, null, null);
 
 				if (!update.openDate.isBefore(update.dueDate)) {
-					errors.add(new DateManagerError(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, rb.getString("error.open.date.before.due.date"), "assignments", toolTitle, idx));
+					errors.add(new DateManagerError(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, resourceLoader.getString("error.open.date.before.due.date"), "assignments", toolTitle, idx));
 					continue;
 				}
 
 				if (update.dueDate.isAfter(update.acceptUntilDate)) {
-					errors.add(new DateManagerError(DateManagerConstants.JSON_DUEDATE_PARAM_NAME, rb.getString("error.due.date.before.accept.until"), "assignments", toolTitle, idx));
+					errors.add(new DateManagerError(DateManagerConstants.JSON_DUEDATE_PARAM_NAME, resourceLoader.getString("error.due.date.before.accept.until"), "assignments", toolTitle, idx));
 					continue;
 				}
 
 				updates.add(update);
 
 			} catch (Exception ex) {
-				errors.add(new DateManagerError(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, rb.getString("error.uncaught"), "assignments", toolTitle, idx));
-				log.error("Error trying to validate Assignments {}", ex);
+				errors.add(new DateManagerError(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, resourceLoader.getString("error.uncaught"), "assignments", toolTitle, idx));
+				log.error("Error trying to validate Assignments {}", ex.toString());
 			}
 		}
 
@@ -384,12 +381,9 @@ public class DateManagerServiceImpl implements DateManagerService {
 		return assignmentValidate;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void updateAssignments(DateManagerValidation assignmentValidation) throws Exception {
-		for (DateManagerUpdate update : (List<DateManagerUpdate>)(Object) assignmentValidation.getUpdates()) {
+		for (DateManagerUpdate update : assignmentValidation.getUpdates()) {
 			Assignment assignment = (Assignment) update.object;
 			assignment.setOpenDate(update.openDate);
 			assignment.setDueDate(update.dueDate);
@@ -420,10 +414,6 @@ public class DateManagerServiceImpl implements DateManagerService {
 		}
 	}
 
-	/***** ASSESSMENTS *****/
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public JSONArray getAssessmentsForContext(String siteId) {
 		JSONArray jsonAssessments = new JSONArray();
@@ -433,7 +423,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 		String toolTitle = toolManager.getTool(DateManagerConstants.COMMON_ID_ASSESSMENTS).getTitle();
 		for (AssessmentData assessment : assessments) {
 			AssessmentAccessControlIfc control = assessment.getAssessmentAccessControl();
-			boolean lateHandling = (control.getLateHandling() != null && control.getLateHandling() == AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION);
+			boolean lateHandling = (control.getLateHandling() != null && Objects.equals(control.getLateHandling(), AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION));
 			JSONObject assobj = new JSONObject();
 			assobj.put(DateManagerConstants.JSON_ID_PARAM_NAME, assessment.getAssessmentBaseId());
 			assobj.put(DateManagerConstants.JSON_TITLE_PARAM_NAME, assessment.getTitle());
@@ -444,7 +434,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 			assobj.put(DateManagerConstants.JSON_LATEHANDLING_PARAM_NAME, lateHandling);
 			assobj.put(DateManagerConstants.JSON_TOOLTITLE_PARAM_NAME, toolTitle);
 			assobj.put(DateManagerConstants.JSON_URL_PARAM_NAME, url);
-			assobj.put(DateManagerConstants.JSON_EXTRAINFO_PARAM_NAME, rb.getString("itemtype.draft"));
+			assobj.put(DateManagerConstants.JSON_EXTRAINFO_PARAM_NAME, resourceLoader.getString("itemtype.draft"));
 			if (AssessmentFeedbackIfc.FEEDBACK_BY_DATE.equals(assessment.getAssessmentFeedback().getFeedbackDelivery())) {
 				assobj.put(DateManagerConstants.JSON_FEEDBACKSTART_PARAM_NAME, formatToUserDateFormat(control.getFeedbackDate()));
 				assobj.put(DateManagerConstants.JSON_FEEDBACKEND_PARAM_NAME, formatToUserDateFormat(control.getFeedbackEndDate()));
@@ -459,7 +449,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 		for (PublishedAssessmentFacade paf : pubAssessments) {
 			PublishedAssessmentFacade assessment = pubAssessmentServiceQueries.getSettingsOfPublishedAssessment(paf.getPublishedAssessmentId());
 			AssessmentAccessControlIfc control = assessment.getAssessmentAccessControl();
-			boolean lateHandling = (control.getLateHandling() != null && control.getLateHandling() == AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION);
+			boolean lateHandling = (control.getLateHandling() != null && Objects.equals(control.getLateHandling(), AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION));
 			JSONObject assobj = new JSONObject();
 			assobj.put(DateManagerConstants.JSON_ID_PARAM_NAME, assessment.getPublishedAssessmentId());
 			assobj.put(DateManagerConstants.JSON_TITLE_PARAM_NAME, assessment.getTitle());
@@ -485,14 +475,11 @@ public class DateManagerServiceImpl implements DateManagerService {
 		return orderJSONArrayByTitle(jsonAssessments);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public DateManagerValidation validateAssessments(String siteId, JSONArray assessments) throws Exception {
 		DateManagerValidation assessmentValidate = new DateManagerValidation();
 		List<DateManagerError> errors = new ArrayList<>();
-		List<Object> updates = new ArrayList<>();
+		List<DateManagerUpdate> updates = new ArrayList<>();
 		String toolTitle = toolManager.getTool(DateManagerConstants.COMMON_ID_ASSESSMENTS).getTitle();
 		for (int i = 0; i < assessments.size(); i++) {
 			JSONObject jsonAssessment = (JSONObject)assessments.get(i);
@@ -532,32 +519,31 @@ public class DateManagerServiceImpl implements DateManagerService {
 				}
 				boolean isDraft = Boolean.parseBoolean(jsonAssessment.get(DateManagerConstants.JSON_ISDRAFT_PARAM_NAME).toString());
 
-				Object assessment;
+				AssessmentIfc assessment;
 				AssessmentAccessControlIfc control;
 				if (isDraft) {
 					assessment = assessmentServiceQueries.getAssessment(assessmentId);
-					control = ((AssessmentFacade) assessment).getAssessmentAccessControl();
-				} else {
+                } else {
 					assessment = pubAssessmentServiceQueries.getPublishedAssessment(assessmentId);
-					control = ((PublishedAssessmentFacade) assessment).getAssessmentAccessControl();
-				}
-				boolean lateHandling = control.getLateHandling() != null && control.getLateHandling() == AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION;
+                }
+                control = assessment.getAssessmentAccessControl();
+                boolean lateHandling = control.getLateHandling() != null && Objects.equals(control.getLateHandling(), AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION);
 
 				if (assessment == null) {
-					errors.add(new DateManagerError("assessment", rb.getFormattedMessage("error.item.not.found", new Object[]{rb.getString("tool.assessments.item.name")}), "assessments", toolTitle, idx));
+					errors.add(new DateManagerError("assessment", resourceLoader.getFormattedMessage("error.item.not.found", resourceLoader.getString("tool.assessments.item.name")), "assessments", toolTitle, idx));
 					continue;
 				}
 				boolean errored = false;
 
 				if (openDate == null) {
-					errored = errors.add(new DateManagerError(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, rb.getString("error.assessments.open.date.not.found"), "assessments", toolTitle, idx));
+					errored = errors.add(new DateManagerError(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, resourceLoader.getString("error.assessments.open.date.not.found"), "assessments", toolTitle, idx));
 				}
 				if (acceptUntil != null) {
 					if (dueDate == null) {
-						errors.add(new DateManagerError(DateManagerConstants.JSON_DUEDATE_PARAM_NAME,rb.getString("error.due.date.not.found.accept.until"),"assessments", toolTitle, idx));
+						errors.add(new DateManagerError(DateManagerConstants.JSON_DUEDATE_PARAM_NAME, resourceLoader.getString("error.due.date.not.found.accept.until"),"assessments", toolTitle, idx));
 						errored = true;
 					} else if (acceptUntil.isBefore(dueDate) && lateHandling) {
-						errors.add(new DateManagerError(DateManagerConstants.JSON_ACCEPTUNTIL_PARAM_NAME,rb.getString("error.accept.until.before.due.date.open.date"),"assessments", toolTitle, idx));
+						errors.add(new DateManagerError(DateManagerConstants.JSON_ACCEPTUNTIL_PARAM_NAME, resourceLoader.getString("error.accept.until.before.due.date.open.date"),"assessments", toolTitle, idx));
 						errored = true;
 					}
 				}
@@ -565,7 +551,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 				Integer feedbackMode = isDraft ? ((AssessmentFacade) assessment).getAssessmentFeedback().getFeedbackDelivery()
 												: ((PublishedAssessmentFacade) assessment).getAssessmentFeedback().getFeedbackDelivery();
 				if (AssessmentFeedbackIfc.FEEDBACK_BY_DATE.equals(feedbackMode) && feedbackStart == null) {
-					errored = errors.add(new DateManagerError(DateManagerConstants.JSON_FEEDBACKSTART_PARAM_NAME, rb.getString("error.feedback.start.not.found"), "assessments", toolTitle, idx));
+					errored = errors.add(new DateManagerError(DateManagerConstants.JSON_FEEDBACKSTART_PARAM_NAME, resourceLoader.getString("error.feedback.start.not.found"), "assessments", toolTitle, idx));
 				}
 
 				if (errored) {
@@ -580,24 +566,24 @@ public class DateManagerServiceImpl implements DateManagerService {
 				update.setFeedbackEndDate(feedbackEnd);
 
 				if (dueDate != null && !update.openDate.isBefore(update.dueDate)) {
-					errors.add(new DateManagerError(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, rb.getString("error.assessments.open.date.before.due.date"), "assessments", toolTitle, idx));
+					errors.add(new DateManagerError(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, resourceLoader.getString("error.assessments.open.date.before.due.date"), "assessments", toolTitle, idx));
 					continue;
 				}
 
 				if (lateHandling && dueDate != null && acceptUntil != null && update.dueDate.isAfter(update.acceptUntilDate)) {
-					errors.add(new DateManagerError(DateManagerConstants.JSON_DUEDATE_PARAM_NAME, rb.getString("error.due.date.before.accept.until"), "assessments", toolTitle, idx));
+					errors.add(new DateManagerError(DateManagerConstants.JSON_DUEDATE_PARAM_NAME, resourceLoader.getString("error.due.date.before.accept.until"), "assessments", toolTitle, idx));
 					continue;
 				}
 
 				if (AssessmentFeedbackIfc.FEEDBACK_BY_DATE.equals(feedbackMode) && feedbackStart != null && feedbackEnd != null && feedbackEnd.isBefore(feedbackStart)) {
-					errors.add(new DateManagerError(DateManagerConstants.JSON_FEEDBACKEND_PARAM_NAME, rb.getString("error.feedback.start.before.feedback.end"), "assessments", toolTitle, idx));
+					errors.add(new DateManagerError(DateManagerConstants.JSON_FEEDBACKEND_PARAM_NAME, resourceLoader.getString("error.feedback.start.before.feedback.end"), "assessments", toolTitle, idx));
 					continue;
 				}
 
 				updates.add(update);
 
 			} catch (Exception ex) {
-				errors.add(new DateManagerError(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, rb.getString("error.uncaught"), "assessments", toolTitle, idx));
+				errors.add(new DateManagerError(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, resourceLoader.getString("error.uncaught"), "assessments", toolTitle, idx));
 				log.error("Error trying to validate Tests & Quizzes {}", ex);
 			}
 		}
@@ -607,16 +593,13 @@ public class DateManagerServiceImpl implements DateManagerService {
 		return assessmentValidate;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void updateAssessments(DateManagerValidation assessmentsValidation) throws Exception {
-		for (DateManagerUpdate update : (List<DateManagerUpdate>)(Object) assessmentsValidation.getUpdates()) {
+		for (DateManagerUpdate update : assessmentsValidation.getUpdates()) {
 			if (update.object.getClass().equals(AssessmentFacade.class)) {
 				AssessmentFacade assessment = (AssessmentFacade) update.object;
 				AssessmentAccessControlIfc control = assessment.getAssessmentAccessControl();
-				boolean lateHandling = control.getLateHandling() != null && control.getLateHandling() == AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION;
+				boolean lateHandling = control.getLateHandling() != null && Objects.equals(control.getLateHandling(), AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION);
 				control.setStartDate(Date.from(update.openDate));
 				Date dueDateTemp = update.dueDate != null ? Date.from(update.dueDate) : null;
 				control.setDueDate(dueDateTemp);
@@ -642,7 +625,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 				PublishedAssessmentFacade assessment = (PublishedAssessmentFacade) update.object;
 				String id = assessment.getPublishedAssessmentId().toString();
 				AssessmentAccessControlIfc control = assessment.getAssessmentAccessControl();
-				boolean lateHandling = control.getLateHandling() != null && control.getLateHandling() == AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION;
+				boolean lateHandling = control.getLateHandling() != null && Objects.equals(control.getLateHandling(), AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION);
 				control.setStartDate(Date.from(update.openDate));
 				Date dueDateTemp = update.dueDate != null ? Date.from(update.dueDate) : null;
 				control.setDueDate(dueDateTemp);
@@ -687,10 +670,6 @@ public class DateManagerServiceImpl implements DateManagerService {
 		}
 	}
 
-	/***** GRADEBOOK *****/
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public JSONArray getGradebookItemsForContext(String siteId) {
 		JSONArray jsonGradebook = new JSONArray();
@@ -715,18 +694,15 @@ public class DateManagerServiceImpl implements DateManagerService {
 		return orderJSONArrayByTitle(jsonGradebook);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public DateManagerValidation validateGradebookItems(String siteId, JSONArray gradebookItems) throws Exception {
 		DateManagerValidation gradebookItemsValidate = new DateManagerValidation();
 		List<DateManagerError> errors = new ArrayList<>();
-		List<Object> updates = new ArrayList<>();
+		List<DateManagerUpdate> updates = new ArrayList<>();
 
 		String toolTitle = toolManager.getTool(DateManagerConstants.COMMON_ID_GRADEBOOK).getTitle();
 		if (!gradebookItems.isEmpty() && !gradingService.currentUserHasEditPerm(getCurrentSiteId())) {
-			errors.add(new DateManagerError("gbitem", rb.getString("error.update.permission.denied"), "gradebookItems", toolTitle, 0));
+			errors.add(new DateManagerError("gbitem", resourceLoader.getString("error.update.permission.denied"), "gradebookItems", toolTitle, 0));
 		}
 
 		for (int i = 0; i < gradebookItems.size(); i++) {
@@ -735,13 +711,13 @@ public class DateManagerServiceImpl implements DateManagerService {
 
 			try {				
 				Long itemId;
-				if (jsonItem.get(DateManagerConstants.JSON_ID_PARAM_NAME).getClass().getName().indexOf("Long") != -1) {
+				if (jsonItem.get(DateManagerConstants.JSON_ID_PARAM_NAME).getClass().getName().contains("Long")) {
 					itemId = (Long)jsonItem.get(DateManagerConstants.JSON_ID_PARAM_NAME);
 				} else {
 					itemId = Long.parseLong((String)jsonItem.get(DateManagerConstants.JSON_ID_PARAM_NAME));
 				}
 				if (itemId == null) {
-					errors.add(new DateManagerError("gbitem", rb.getFormattedMessage("error.item.not.found", new Object[]{rb.getString("tool.gradebook.item.name")}), "gradebookItems", toolTitle, idx));
+					errors.add(new DateManagerError("gbitem", resourceLoader.getFormattedMessage("error.item.not.found", resourceLoader.getString("tool.gradebook.item.name")), "gradebookItems", toolTitle, idx));
 					continue;
 				}
 
@@ -750,22 +726,27 @@ public class DateManagerServiceImpl implements DateManagerService {
 				if (StringUtils.isNotBlank(dueDateRaw)) {
 					dueDateRaw = dueDateRaw.replaceAll("\"", "").replace("/", "-");
 					try {
-						DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("[M/d/yyyy][MM/dd/yyyy][dd-MM-yyyy][d-M-yyyy][yyyy-MM-dd][yyyy-M-d]");
-						DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-						LocalDate date = LocalDate.parse(dueDateRaw, inputFormatter);
-						dueDateRaw = date.format(outputFormatter);
+
+						LocalDate date;
+						if (dueDateRaw.contains("T")) {
+							date = LocalDateTime.parse(dueDateRaw, inputDateTimeFormatter).toLocalDate();
+						} else {
+							date = LocalDate.parse(dueDateRaw, inputDateFormatter);
+						}
+						ZoneId zone = userTimeService.getLocalTimeZone().toZoneId();
+						dueDate = date.atStartOfDay(zone).toInstant();
 					} catch (DateTimeParseException e) {
-						log.error("Error parsing date: " + dueDateRaw, e);
+						log.warn("Could not parse due date [{}], {}", dueDateRaw, e);
 					}
-					if (!dueDateRaw.contains("T")) {
-						dueDateRaw += "T00:00:00";
-					}
-					dueDate = userTimeService.parseISODateInUserTimezone(dueDateRaw).toInstant();
+				}
+				if (dueDate == null) {
+					errors.add(new DateManagerError(DateManagerConstants.JSON_DUEDATE_PARAM_NAME, resourceLoader.getString("error.due.date.not.found"), "gradebookItems", toolTitle, idx));
+					continue;
 				}
 
 				org.sakaiproject.grading.api.Assignment gbitem = gradingService.getAssignment(getCurrentSiteId(), itemId);
 				if (gbitem == null) {
-					errors.add(new DateManagerError("gbitem", rb.getFormattedMessage("error.item.not.found", new Object[]{rb.getString("tool.gradebook.item.name")}), "gradebookItems", toolTitle, idx));
+					errors.add(new DateManagerError("gbitem", resourceLoader.getFormattedMessage("error.item.not.found", resourceLoader.getString("tool.gradebook.item.name")), "gradebookItems", toolTitle, idx));
 					continue;
 				}
 
@@ -773,8 +754,8 @@ public class DateManagerServiceImpl implements DateManagerService {
 				updates.add(update);
 
 			} catch (Exception ex) {
-				errors.add(new DateManagerError(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, rb.getString("error.uncaught"), "gradebookItems", toolTitle, idx));
-				log.error("Error trying to validate Gradebook {}", ex);
+				errors.add(new DateManagerError(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, resourceLoader.getString("error.uncaught"), "gradebookItems", toolTitle, idx));
+				log.error("Error trying to validate Gradebook {}", ex.toString());
 			}
 		}
 
@@ -783,12 +764,9 @@ public class DateManagerServiceImpl implements DateManagerService {
 		return gradebookItemsValidate;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void updateGradebookItems(DateManagerValidation gradebookItemsValidate) throws Exception {
-		for (DateManagerUpdate update : (List<DateManagerUpdate>)(Object) gradebookItemsValidate.getUpdates()) {
+		for (DateManagerUpdate update : gradebookItemsValidate.getUpdates()) {
 			org.sakaiproject.grading.api.Assignment assignmentDefinition = (org.sakaiproject.grading.api.Assignment) update.object;
 			Date dueDateTemp = update.dueDate != null ? Date.from(update.dueDate) : null;
 			assignmentDefinition.setDueDate(dueDateTemp);
@@ -796,10 +774,6 @@ public class DateManagerServiceImpl implements DateManagerService {
 		}
 	}
 
-	/***** SIGNUP *****/
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public JSONArray getSignupMeetingsForContext(String siteId) {
 		JSONArray jsonMeetings = new JSONArray();
@@ -822,18 +796,15 @@ public class DateManagerServiceImpl implements DateManagerService {
 		return orderJSONArrayByTitle(jsonMeetings);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public DateManagerValidation validateSignupMeetings(String siteId, JSONArray signupMeetings) throws Exception {
 		DateManagerValidation meetingsValidate = new DateManagerValidation();
 		List<DateManagerError> errors = new ArrayList<>();
-		List<Object> updates = new ArrayList<>();
+		List<DateManagerUpdate> updates = new ArrayList<>();
 
 		String toolTitle = toolManager.getTool(DateManagerConstants.COMMON_ID_SIGNUP).getTitle();
 		if (!signupMeetings.isEmpty() && !signupService.isAllowedToCreateinSite(getCurrentUserId(), getCurrentSiteId())) {
-			errors.add(new DateManagerError("signup", rb.getString("error.update.permission.denied"), "signupMeetings", toolTitle, 0));
+			errors.add(new DateManagerError("signup", resourceLoader.getString("error.update.permission.denied"), "signupMeetings", toolTitle, 0));
 		}
 		for (int i = 0; i < signupMeetings.size(); i++) {
 			JSONObject jsonMeeting = (JSONObject)signupMeetings.get(i);
@@ -842,13 +813,13 @@ public class DateManagerServiceImpl implements DateManagerService {
 			try {
 
 				Long meetingId;
-				if (jsonMeeting.get(DateManagerConstants.JSON_ID_PARAM_NAME).getClass().getName().indexOf("Long") != -1) {
+				if (jsonMeeting.get(DateManagerConstants.JSON_ID_PARAM_NAME).getClass().getName().contains("Long")) {
 					meetingId = (Long)jsonMeeting.get(DateManagerConstants.JSON_ID_PARAM_NAME);
 				} else {
 					meetingId = Long.parseLong((String)jsonMeeting.get(DateManagerConstants.JSON_ID_PARAM_NAME));
 				}
 				if (meetingId == null) {
-					errors.add(new DateManagerError("signup", rb.getFormattedMessage("error.item.not.found", new Object[]{rb.getString("tool.signup.item.name")}), "signupMeetings", toolTitle, idx));
+					errors.add(new DateManagerError("signup", resourceLoader.getFormattedMessage("error.item.not.found", resourceLoader.getString("tool.signup.item.name")), "signupMeetings", toolTitle, idx));
 					continue;
 				}
 
@@ -875,16 +846,16 @@ public class DateManagerServiceImpl implements DateManagerService {
 				}
 				boolean errored = false;
 				if (openDate == null) {
-					errored = errors.add(new DateManagerError(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, rb.getString("error.open.date.not.found"), "signupMeetings", toolTitle, idx));
+					errored = errors.add(new DateManagerError(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, resourceLoader.getString("error.open.date.not.found"), "signupMeetings", toolTitle, idx));
 				}
 				if (dueDate == null) {
-					errored = errors.add(new DateManagerError(DateManagerConstants.JSON_DUEDATE_PARAM_NAME, rb.getString("error.due.date.not.found"), "signupMeetings", toolTitle, idx));
+					errored = errors.add(new DateManagerError(DateManagerConstants.JSON_DUEDATE_PARAM_NAME, resourceLoader.getString("error.due.date.not.found"), "signupMeetings", toolTitle, idx));
 				}
 				if (signupBegins == null) {
-					errored = errors.add(new DateManagerError(DateManagerConstants.JSON_SIGNUPBEGINS_PARAM_NAME, rb.getString("error.signup.begins.not.found"), "signupMeetings", toolTitle, idx));
+					errored = errors.add(new DateManagerError(DateManagerConstants.JSON_SIGNUPBEGINS_PARAM_NAME, resourceLoader.getString("error.signup.begins.not.found"), "signupMeetings", toolTitle, idx));
 				}
 				if (signupDeadline == null) {
-					errored = errors.add(new DateManagerError(DateManagerConstants.JSON_SIGNUPDEADLINE_PARAM_NAME, rb.getString("error.signup.deadline.not.found"), "signupMeetings", toolTitle, idx));
+					errored = errors.add(new DateManagerError(DateManagerConstants.JSON_SIGNUPDEADLINE_PARAM_NAME, resourceLoader.getString("error.signup.deadline.not.found"), "signupMeetings", toolTitle, idx));
 				}
 				if (errored) {
 					continue;
@@ -892,7 +863,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 
 				SignupMeeting meeting = signupService.loadSignupMeeting(meetingId, getCurrentUserId(), getCurrentSiteId());
 				if (meeting == null) {
-					errors.add(new DateManagerError("signup", rb.getFormattedMessage("error.item.not.found", new Object[]{rb.getString("tool.signup.item.name")}), "signupMeetings", toolTitle, idx));
+					errors.add(new DateManagerError("signup", resourceLoader.getFormattedMessage("error.item.not.found", resourceLoader.getString("tool.signup.item.name")), "signupMeetings", toolTitle, idx));
 					continue;
 				}
 
@@ -900,25 +871,25 @@ public class DateManagerServiceImpl implements DateManagerService {
 				update.setSignupBegins(signupBegins);
 				update.setSignupDeadline(signupDeadline);
                                 if (update.openDate != null && update.dueDate != null && !update.openDate.isBefore(update.dueDate)) {
-                                        errors.add(new DateManagerError(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, rb.getString("error.open.date.before.due.date"), "signupMeetings", toolTitle, idx));
+                                        errors.add(new DateManagerError(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, resourceLoader.getString("error.open.date.before.due.date"), "signupMeetings", toolTitle, idx));
                                         continue;
                                 }
                                 if (update.signupBegins != null && update.openDate != null && update.signupBegins.isAfter(update.openDate)) {
-                                        errors.add(new DateManagerError(DateManagerConstants.JSON_SIGNUPBEGINS_PARAM_NAME, rb.getString("error.signup.begins.after.open.date"), "signupMeetings", toolTitle, idx));
+                                        errors.add(new DateManagerError(DateManagerConstants.JSON_SIGNUPBEGINS_PARAM_NAME, resourceLoader.getString("error.signup.begins.after.open.date"), "signupMeetings", toolTitle, idx));
                                         continue;
                                 }
                                 if (update.signupDeadline != null && update.dueDate != null && update.signupDeadline.isAfter(update.dueDate)) {
-                                        errors.add(new DateManagerError(DateManagerConstants.JSON_SIGNUPDEADLINE_PARAM_NAME, rb.getString("error.signup.deadline.after.due.date"), "signupMeetings", toolTitle, idx));
+                                        errors.add(new DateManagerError(DateManagerConstants.JSON_SIGNUPDEADLINE_PARAM_NAME, resourceLoader.getString("error.signup.deadline.after.due.date"), "signupMeetings", toolTitle, idx));
                                         continue;
                                 }
                                 if (update.signupBegins != null && update.signupDeadline != null && update.signupBegins.isAfter(update.signupDeadline)) {
-                                        errors.add(new DateManagerError(DateManagerConstants.JSON_SIGNUPBEGINS_PARAM_NAME, rb.getString("error.signup.begins.after.signup.deadline"), "signupMeetings", toolTitle, idx));
+                                        errors.add(new DateManagerError(DateManagerConstants.JSON_SIGNUPBEGINS_PARAM_NAME, resourceLoader.getString("error.signup.begins.after.signup.deadline"), "signupMeetings", toolTitle, idx));
                                         continue;
                                 }
                                 updates.add(update);
 
 			} catch (Exception ex) {
-				errors.add(new DateManagerError(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, rb.getString("error.uncaught"), "signupMeetings", toolTitle, idx));
+				errors.add(new DateManagerError(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, resourceLoader.getString("error.uncaught"), "signupMeetings", toolTitle, idx));
 				log.error("Error trying to validate Sign Up {}", ex);
 			}
 		}
@@ -927,12 +898,9 @@ public class DateManagerServiceImpl implements DateManagerService {
 		return meetingsValidate;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void updateSignupMeetings(DateManagerValidation signupValidate) throws Exception {
-		for (DateManagerUpdate update : (List<DateManagerUpdate>)(Object) signupValidate.getUpdates()) {
+		for (DateManagerUpdate update : signupValidate.getUpdates()) {
 			SignupMeeting meeting = (SignupMeeting) update.object;
 			meeting.setStartTime(Date.from(update.openDate));
 			meeting.setEndTime(Date.from(update.dueDate));
@@ -942,10 +910,6 @@ public class DateManagerServiceImpl implements DateManagerService {
 		}
 	}
 
-	/***** RESOURCES *****/
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public JSONArray getResourcesForContext(String siteId) {
 		JSONArray jsonResources = new JSONArray();
@@ -961,7 +925,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 			else robj.put(DateManagerConstants.JSON_DUEDATE_PARAM_NAME, null);
 			if(res.getReleaseInstant() != null) robj.put(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, formatToUserInstantFormat(res.getReleaseInstant()));
 			else robj.put(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, null);
-			robj.put(DateManagerConstants.JSON_EXTRAINFO_PARAM_NAME, StringUtils.defaultIfBlank(res.getProperties().getProperty(ResourceProperties.PROP_CONTENT_TYPE), rb.getString("itemtype.folder")));
+			robj.put(DateManagerConstants.JSON_EXTRAINFO_PARAM_NAME, StringUtils.defaultIfBlank(res.getProperties().getProperty(ResourceProperties.PROP_CONTENT_TYPE), resourceLoader.getString("itemtype.folder")));
 			robj.put(DateManagerConstants.JSON_TOOLTITLE_PARAM_NAME, toolTitle);
 			robj.put(DateManagerConstants.JSON_URL_PARAM_NAME, url);
 			jsonResources.add(robj);
@@ -969,14 +933,11 @@ public class DateManagerServiceImpl implements DateManagerService {
 		return orderJSONArrayByTitle(jsonResources);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public DateManagerValidation validateResources(String siteId, JSONArray resources) throws Exception {
 		DateManagerValidation resourcesValidate = new DateManagerValidation();
 		List<DateManagerError> errors = new ArrayList<>();
-		List<Object> updates = new ArrayList<>();
+		List<DateManagerUpdate> updates = new ArrayList<>();
 		String toolTitle = toolManager.getTool(DateManagerConstants.COMMON_ID_RESOURCES).getTitle();
 		String entityType = null;
 		ContentResourceEdit resource = null;
@@ -989,7 +950,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 
 				String resourceId = (String)jsonResource.get(DateManagerConstants.JSON_ID_PARAM_NAME);
 				if (resourceId == null) {
-					errors.add(new DateManagerError("resource", rb.getFormattedMessage("error.item.not.found", new Object[]{rb.getString("tool.resources.item.name")}), "resources", toolTitle, idx));
+					errors.add(new DateManagerError("resource", resourceLoader.getFormattedMessage("error.item.not.found", resourceLoader.getString("tool.resources.item.name")), "resources", toolTitle, idx));
 					continue;
 				}
 
@@ -1007,41 +968,41 @@ public class DateManagerServiceImpl implements DateManagerService {
 				}
 
 				if (openDate != null && dueDate != null && !openDate.isBefore(dueDate)) {
-					errors.add(new DateManagerError(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, rb.getString("error.open.date.before.due.date"), "resources", toolTitle, idx));
+					errors.add(new DateManagerError(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, resourceLoader.getString("error.open.date.before.due.date"), "resources", toolTitle, idx));
 					continue;
 				}
-				
+
 				entityType = (String)jsonResource.get(DateManagerConstants.JSON_EXTRAINFO_PARAM_NAME);
-				if(!rb.getString("itemtype.folder").equals(entityType)) {
+				if(!resourceLoader.getString("itemtype.folder").equals(entityType)) {
 					resource = contentHostingService.editResource(resourceId);
 					if (resource == null) {
-						errors.add(new DateManagerError("resource", rb.getFormattedMessage("error.item.not.found", new Object[]{rb.getString("tool.resources.item.name")}), "resources", toolTitle, idx));
+						errors.add(new DateManagerError("resource", resourceLoader.getFormattedMessage("error.item.not.found", resourceLoader.getString("tool.resources.item.name")), "resources", toolTitle, idx));
 						continue;
 					}
 
 					if (!contentHostingService.allowUpdateResource(resourceId)) {
-						errors.add(new DateManagerError("resource", rb.getString("error.update.permission.denied"), "resources", toolTitle, idx));
+						errors.add(new DateManagerError("resource", resourceLoader.getString("error.update.permission.denied"), "resources", toolTitle, idx));
 					}
 					updates.add(new DateManagerUpdate(resource, openDate, dueDate, null, null, null));
 				} else {
 					folder = contentHostingService.editCollection(resourceId);
 					if (folder == null) {
-						errors.add(new DateManagerError("resource", rb.getString("error.folder.not.found"), "resources", toolTitle, idx));
+						errors.add(new DateManagerError("resource", resourceLoader.getString("error.folder.not.found"), "resources", toolTitle, idx));
 						continue;
 					}
 
 					if (!contentHostingService.allowUpdateCollection(resourceId)) {
-						errors.add(new DateManagerError("resource", rb.getString("error.update.permission.denied"), "resources", toolTitle, idx));
+						errors.add(new DateManagerError("resource", resourceLoader.getString("error.update.permission.denied"), "resources", toolTitle, idx));
 					}
 					updates.add(new DateManagerUpdate(folder, openDate, dueDate, null, null, null));
 				}
 
 			} catch(Exception e) {
-				errors.add(new DateManagerError(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, rb.getString("error.uncaught"), "resources", toolTitle, idx));
+				errors.add(new DateManagerError(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, resourceLoader.getString("error.uncaught"), "resources", toolTitle, idx));
 				log.error("Error trying to validate Resources {}", e);
 
 				if(entityType != null) {
-					if(!rb.getString("itemtype.folder").equals(entityType)) {
+					if(!resourceLoader.getString("itemtype.folder").equals(entityType)) {
 						contentHostingService.cancelResource(resource);
 					} else {
 						contentHostingService.cancelCollection(folder);
@@ -1055,13 +1016,10 @@ public class DateManagerServiceImpl implements DateManagerService {
 		return resourcesValidate;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void clearUpdateResourceLocks(DateManagerValidation resourceValidation) throws Exception {
                 try {
-                        for (DateManagerUpdate update : (List<DateManagerUpdate>)(Object) resourceValidation.getUpdates()) {
+                        for (DateManagerUpdate update : resourceValidation.getUpdates()) {
                                 if (update.object instanceof ContentResourceEdit) { 
                                         contentHostingService.cancelResource((ContentResourceEdit) update.getObject());
                                 }
@@ -1071,15 +1029,11 @@ public class DateManagerServiceImpl implements DateManagerService {
                 }
         }
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void updateResources(DateManagerValidation resourceValidation) throws Exception {
-		for (DateManagerUpdate update : (List<DateManagerUpdate>)(Object) resourceValidation.getUpdates()) {
-			if (update.object instanceof ContentCollectionEdit) {
-				ContentCollectionEdit cce = (ContentCollectionEdit) update.object;
-				if(update.dueDate != null) {
+		for (DateManagerUpdate update : resourceValidation.getUpdates()) {
+			if (update.object instanceof ContentCollectionEdit cce) {
+                if (update.dueDate != null) {
 					cce.setRetractInstant(Instant.from(update.dueDate));
 				} else {
 					cce.setRetractDate(null);
@@ -1109,10 +1063,6 @@ public class DateManagerServiceImpl implements DateManagerService {
 		}
 	}
 
-	/***** CALENDAR EVENTS *****/
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public JSONArray getCalendarEventsForContext(String siteId) {
 		JSONArray jsonCalendar = new JSONArray();
@@ -1145,14 +1095,11 @@ public class DateManagerServiceImpl implements DateManagerService {
 		return orderJSONArrayByTitle(jsonCalendar);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public DateManagerValidation validateCalendarEvents(String siteId, JSONArray calendarEvents) throws Exception {
 		DateManagerValidation calendarValidate = new DateManagerValidation();
 		List<DateManagerError> errors = new ArrayList<>();
-		List<Object> updates = new ArrayList<>();
+		List<DateManagerUpdate> updates = new ArrayList<>();
 		String toolTitle = toolManager.getTool(DateManagerConstants.COMMON_ID_CALENDAR).getTitle();
 		Calendar c = getCalendar();
 		CalendarEventEdit calendarEvent = null;
@@ -1164,7 +1111,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 
 			try {
 				if (eventId == null) {
-					errors.add(new DateManagerError("calendar", rb.getFormattedMessage("error.item.not.found", new Object[]{rb.getString("tool.calendar.item.name")}), "calendarEvents", toolTitle, idx));
+					errors.add(new DateManagerError("calendar", resourceLoader.getFormattedMessage("error.item.not.found", resourceLoader.getString("tool.calendar.item.name")), "calendarEvents", toolTitle, idx));
 					continue;
 				}
 				String openDateRaw = (String) jsonEvent.get(DateManagerConstants.JSON_OPENDATE_PARAM_NAME);
@@ -1180,25 +1127,24 @@ public class DateManagerServiceImpl implements DateManagerService {
                                         dueDate = userTimeService.parseISODateInUserTimezone(dueDateRaw).toInstant();
                                 }	
                                 if (openDate == null) {
-                                        errored = errors.add(new DateManagerError(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, rb.getString("error.open.date.not.found"), "calendarEvents", toolTitle, idx));
+                                        errored = errors.add(new DateManagerError(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, resourceLoader.getString("error.open.date.not.found"), "calendarEvents", toolTitle, idx));
                                 }
                                 if (dueDate == null) {
-                                        errored = errors.add(new DateManagerError(DateManagerConstants.JSON_DUEDATE_PARAM_NAME, rb.getString("error.due.date.not.found"), "calendarEvents", toolTitle, idx));
+                                        errored = errors.add(new DateManagerError(DateManagerConstants.JSON_DUEDATE_PARAM_NAME, resourceLoader.getString("error.due.date.not.found"), "calendarEvents", toolTitle, idx));
                                 }
                                 if (openDate != null && dueDate != null && dueDate.isBefore(openDate)) {
-                                        errored = errors.add(new DateManagerError(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, rb.getString("error.open.date.before.end.date"), "calendarEvents", toolTitle, idx));
+                                        errored = errors.add(new DateManagerError(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, resourceLoader.getString("error.open.date.before.end.date"), "calendarEvents", toolTitle, idx));
                                 }
                                 if (errored) {
                                         continue;
                                 }
 
-				if (!c.allowEditEvent(eventId)) {
-					errors.add(new DateManagerError("calendar", rb.getString("error.event.permission"), "calendarEvents", toolTitle, idx));
-				}
-				else {
+				if (c == null || !c.allowEditEvent(eventId)) {
+					errors.add(new DateManagerError("calendar", resourceLoader.getString("error.event.permission"), "calendarEvents", toolTitle, idx));
+				} else {
 					calendarEvent = c.getEditEvent(eventId, CalendarService.EVENT_MODIFY_CALENDAR);
 					if (calendarEvent == null) {
-						errors.add(new DateManagerError("calendar", rb.getFormattedMessage("error.item.not.found", new Object[]{rb.getString("tool.calendar.item.name")}), "calendarEvents", toolTitle, idx));
+						errors.add(new DateManagerError("calendar", resourceLoader.getFormattedMessage("error.item.not.found", resourceLoader.getString("tool.calendar.item.name")), "calendarEvents", toolTitle, idx));
 						continue;
 					}
 
@@ -1206,7 +1152,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 				}
 
 			} catch (Exception ex) {
-				errors.add(new DateManagerError(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, rb.getString("error.uncaught"), "calendarEvents", toolTitle, idx));
+				errors.add(new DateManagerError(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, resourceLoader.getString("error.uncaught"), "calendarEvents", toolTitle, idx));
 				log.error("Cannot edit event {}", eventId, ex);
 
 				// Clear out the lock
@@ -1221,15 +1167,12 @@ public class DateManagerServiceImpl implements DateManagerService {
 		return calendarValidate;
 	}
 
-		/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void clearUpdateCalendarLocks(DateManagerValidation calendarValidate) throws Exception {
 		Calendar c = getCalendar();
 		if (c != null) { 
                         try {
-                                for (DateManagerUpdate update : (List<DateManagerUpdate>)(Object) calendarValidate.getUpdates()) {
+                                for (DateManagerUpdate update : calendarValidate.getUpdates()) {
                                         CalendarEventEdit edit = (CalendarEventEdit) update.object;
                                         c.cancelEvent(edit);
                                 }
@@ -1239,14 +1182,11 @@ public class DateManagerServiceImpl implements DateManagerService {
 		} 
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void updateCalendarEvents(DateManagerValidation calendarValidation) throws Exception {
 		Calendar c = getCalendar();
 		if (c != null) {
-			for (DateManagerUpdate update : (List<DateManagerUpdate>)(Object) calendarValidation .getUpdates()) {
+			for (DateManagerUpdate update : calendarValidation .getUpdates()) {
 				CalendarEventEdit edit = (CalendarEventEdit) update.object;
 				long date1 = Date.from(update.openDate).getTime();
 				long date2 = Date.from(update.dueDate).getTime() - date1;
@@ -1269,10 +1209,6 @@ public class DateManagerServiceImpl implements DateManagerService {
 		return null;
 	}
 
-	/***** FORUMS *****/
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public JSONArray getForumsForContext(String siteId) {
 		JSONArray jsonForums = new JSONArray();
@@ -1291,7 +1227,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 				fobj.put(DateManagerConstants.JSON_DUEDATE_PARAM_NAME, null);
 				fobj.put(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, null);
 			}
-			fobj.put(DateManagerConstants.JSON_EXTRAINFO_PARAM_NAME, rb.getString("itemtype.forum"));
+			fobj.put(DateManagerConstants.JSON_EXTRAINFO_PARAM_NAME, resourceLoader.getString("itemtype.forum"));
 			fobj.put(DateManagerConstants.JSON_TOOLTITLE_PARAM_NAME, toolTitle);
 			fobj.put(DateManagerConstants.JSON_URL_PARAM_NAME, url);
 			for (Object o : forum.getTopicsSet()) {
@@ -1308,7 +1244,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 					tobj.put(DateManagerConstants.JSON_DUEDATE_PARAM_NAME, null);
 					tobj.put(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, null);
 				}
-				tobj.put(DateManagerConstants.JSON_EXTRAINFO_PARAM_NAME, rb.getString("itemtype.topic"));
+				tobj.put(DateManagerConstants.JSON_EXTRAINFO_PARAM_NAME, resourceLoader.getString("itemtype.topic"));
 				tobj.put(DateManagerConstants.JSON_TOOLTITLE_PARAM_NAME, toolTitle);
 				tobj.put(DateManagerConstants.JSON_URL_PARAM_NAME, url);
 				jsonForums.add(tobj);
@@ -1318,14 +1254,11 @@ public class DateManagerServiceImpl implements DateManagerService {
 		return orderJSONArrayByTitle(jsonForums);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public DateManagerValidation validateForums(String siteId, JSONArray forums) throws Exception {
 		DateManagerValidation forumValidate = new DateManagerValidation();
 		List<DateManagerError> errors = new ArrayList<>();
-		List<Object> updates = new ArrayList<>();
+		List<DateManagerUpdate> updates = new ArrayList<>();
 		String toolTitle = toolManager.getTool(DateManagerConstants.COMMON_ID_FORUMS).getTitle();
 		for (int i = 0; i < forums.size(); i++) {
 			JSONObject jsonForum = (JSONObject)forums.get(i);
@@ -1334,13 +1267,13 @@ public class DateManagerServiceImpl implements DateManagerService {
 			try {
 
 				Long forumId;
-				if (jsonForum.get(DateManagerConstants.JSON_ID_PARAM_NAME).getClass().getName().indexOf("Long") != -1) {
+				if (jsonForum.get(DateManagerConstants.JSON_ID_PARAM_NAME).getClass().getName().contains("Long")) {
 					forumId = (Long)jsonForum.get(DateManagerConstants.JSON_ID_PARAM_NAME);
 				} else {
 					forumId = Long.parseLong((String)jsonForum.get(DateManagerConstants.JSON_ID_PARAM_NAME));
 				}
 				if (forumId == null) {
-					errors.add(new DateManagerError("forum", rb.getFormattedMessage("error.item.not.found", new Object[]{rb.getString("tool.forum.topic.item.name")}), "forums", toolTitle, idx));
+					errors.add(new DateManagerError("forum", resourceLoader.getFormattedMessage("error.item.not.found", resourceLoader.getString("tool.forum.topic.item.name")), "forums", toolTitle, idx));
 					continue;
 				}
 
@@ -1359,10 +1292,10 @@ public class DateManagerServiceImpl implements DateManagerService {
 
                                 String entityType = (String)jsonForum.get(DateManagerConstants.JSON_EXTRAINFO_PARAM_NAME);
                                 DateManagerUpdate update;
-                                if(rb.getString("itemtype.forum").equals(entityType)) {
+                                if(resourceLoader.getString("itemtype.forum").equals(entityType)) {
                                         BaseForum forum = forumManager.getForumById(true, forumId);
                                         if (forum == null) {
-                                                errors.add(new DateManagerError("forum",rb.getFormattedMessage("error.item.not.found", new Object[]{rb.getString("tool.forums.item.name")}), "forums", toolTitle, idx));
+                                                errors.add(new DateManagerError("forum", resourceLoader.getFormattedMessage("error.item.not.found", resourceLoader.getString("tool.forums.item.name")), "forums", toolTitle, idx));
                                                 continue;
                                         }
 
@@ -1370,7 +1303,7 @@ public class DateManagerServiceImpl implements DateManagerService {
                                 } else {
                                         Topic topic = forumManager.getTopicById(true, forumId);
                                         if (topic == null) {
-                                                errors.add(new DateManagerError("forum", rb.getFormattedMessage("error.item.not.found", new Object[]{rb.getString("tool.topics.item.name")}), "forums", toolTitle, idx));
+                                                errors.add(new DateManagerError("forum", resourceLoader.getFormattedMessage("error.item.not.found", resourceLoader.getString("tool.topics.item.name")), "forums", toolTitle, idx));
                                                 continue;
                                         }
 
@@ -1380,13 +1313,13 @@ public class DateManagerServiceImpl implements DateManagerService {
 				if (update.openDate != null
 						&& update.dueDate != null
 						&& !update.openDate.isBefore(update.dueDate)) {
-					errors.add(new DateManagerError(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, rb.getString("error.open.date.before.close.date"), "forums", toolTitle, idx));
+					errors.add(new DateManagerError(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, resourceLoader.getString("error.open.date.before.close.date"), "forums", toolTitle, idx));
 					continue;
 				}
 				updates.add(update);
 
 			} catch(Exception e) {
-				errors.add(new DateManagerError(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, rb.getString("error.uncaught"), "forums", toolTitle, idx));
+				errors.add(new DateManagerError(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, resourceLoader.getString("error.uncaught"), "forums", toolTitle, idx));
 				log.error("Error trying to validate Forums {}", e);
 			}
 		}
@@ -1396,12 +1329,9 @@ public class DateManagerServiceImpl implements DateManagerService {
 		return forumValidate;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void updateForums(DateManagerValidation forumValidation) throws Exception {
-                for (DateManagerUpdate update : (List<DateManagerUpdate>)(Object) forumValidation.getUpdates()) {
+                for (DateManagerUpdate update : forumValidation.getUpdates()) {
                     if (update.object instanceof BaseForum) {
                                 DiscussionForum forum = (DiscussionForum) update.object;
                                 if(forum.getAvailabilityRestricted()) {
@@ -1446,10 +1376,6 @@ public class DateManagerServiceImpl implements DateManagerService {
                 }
 	}
 
-	/***** ANNOUNCEMENTS *****/
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public JSONArray getAnnouncementsForContext(String siteId) {
 		JSONArray jsonAnnouncements = new JSONArray();
@@ -1457,9 +1383,8 @@ public class DateManagerServiceImpl implements DateManagerService {
 		try {
 			String url = getUrlForTool(DateManagerConstants.COMMON_ID_ANNOUNCEMENTS);
 			String toolTitle = toolManager.getTool(DateManagerConstants.COMMON_ID_ANNOUNCEMENTS).getTitle();
-			List announcements = announcementService.getMessages(anncRef, null, false, true);
-			for(Object o : announcements) {
-				AnnouncementMessage announcement = (AnnouncementMessage) o;
+			List<AnnouncementMessage> announcements = announcementService.getMessages(anncRef, null, false, true);
+			for(AnnouncementMessage announcement : announcements) {
 				JSONObject aobj = new JSONObject();
 				aobj.put(DateManagerConstants.JSON_ID_PARAM_NAME, announcement.getId());
 				AnnouncementMessageHeader header = announcement.getAnnouncementHeader();
@@ -1485,14 +1410,11 @@ public class DateManagerServiceImpl implements DateManagerService {
 		return orderJSONArrayByTitle(jsonAnnouncements);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public DateManagerValidation validateAnnouncements(String siteId, JSONArray announcements) throws Exception {
 		DateManagerValidation announcementValidate = new DateManagerValidation();
 		List<DateManagerError> errors = new ArrayList<>();
-		List<Object> updates = new ArrayList<>();
+		List<DateManagerUpdate> updates = new ArrayList<>();
 
 		String anncRef = announcementService.channelReference(siteId, SiteService.MAIN_CONTAINER);
 		String toolTitle = toolManager.getTool(DateManagerConstants.COMMON_ID_ANNOUNCEMENTS).getTitle();
@@ -1505,7 +1427,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 
 				String announcementId = (String)jsonAnnouncement.get(DateManagerConstants.JSON_ID_PARAM_NAME);
 				if (announcementId == null) {
-					errors.add(new DateManagerError("announcement", rb.getFormattedMessage("error.item.not.found", new Object[]{rb.getString("tool.announcements.item.name")}), "announcements", toolTitle, idx));
+					errors.add(new DateManagerError("announcement", resourceLoader.getFormattedMessage("error.item.not.found", resourceLoader.getString("tool.announcements.item.name")), "announcements", toolTitle, idx));
 					continue;
 				}
 
@@ -1527,21 +1449,21 @@ public class DateManagerServiceImpl implements DateManagerService {
 				}
 
 				if (openDate != null && dueDate != null && !openDate.isBefore(dueDate)) {
-					errors.add(new DateManagerError(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, rb.getString("error.open.date.before.due.date"), "announcements", toolTitle, idx));
+					errors.add(new DateManagerError(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, resourceLoader.getString("error.open.date.before.due.date"), "announcements", toolTitle, idx));
 					continue;
 				}
 
 				AnnouncementChannel aChannel = announcementService.getAnnouncementChannel(anncRef);
 				announcement = aChannel.editAnnouncementMessage(announcementId);
 				if (announcement == null) {
-					errors.add(new DateManagerError("announcement", rb.getFormattedMessage("error.item.not.found", new Object[]{rb.getString("tool.announcements.item.name")}), "announcements", toolTitle, idx));
+					errors.add(new DateManagerError("announcement", resourceLoader.getFormattedMessage("error.item.not.found", resourceLoader.getString("tool.announcements.item.name")), "announcements", toolTitle, idx));
 					continue;
 				}
 
 				updates.add(new DateManagerUpdate(announcement, openDate, dueDate, null, null, null));
 			} catch(Exception e) {
-				errors.add(new DateManagerError(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, rb.getString("error.uncaught"), "announcements", toolTitle, idx));
-				log.error("Error trying to validate Announcements {}", e);
+				errors.add(new DateManagerError(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, resourceLoader.getString("error.uncaught"), "announcements", toolTitle, idx));
+				log.error("Error trying to validate Announcements {}", e.toString());
 
 				// Clear out the lock
 				if (announcement != null) {
@@ -1554,13 +1476,10 @@ public class DateManagerServiceImpl implements DateManagerService {
 		return announcementValidate;
 	}
 
-		/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void clearUpdateAnnouncementLocks(DateManagerValidation announcementValidate) throws Exception {
                 try {
-                        for (DateManagerUpdate update : (List<DateManagerUpdate>)(Object) announcementValidate.getUpdates()) {
+                        for (DateManagerUpdate update : announcementValidate.getUpdates()) {
                                 announcementService.cancelMessage((AnnouncementMessageEdit) update.getObject());
                         }
                 } catch (Exception e) {
@@ -1568,15 +1487,12 @@ public class DateManagerServiceImpl implements DateManagerService {
                 }
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void updateAnnouncements(DateManagerValidation announcementValidate) {
 		String anncRef = announcementService.channelReference(getCurrentSiteId(), SiteService.MAIN_CONTAINER);
                 try {
                         AnnouncementChannel aChannel = announcementService.getAnnouncementChannel(anncRef);
-                        for (DateManagerUpdate update : (List<DateManagerUpdate>)(Object) announcementValidate.getUpdates()) {
+                        for (DateManagerUpdate update : announcementValidate.getUpdates()) {
                                 AnnouncementMessageEdit msg = (AnnouncementMessageEdit) update.object;
                                 if (update.openDate != null) {				
                                         msg.getPropertiesEdit().addProperty(AnnouncementService.RELEASE_DATE, timeService.newTime(Date.from(update.openDate).getTime()).toString());
@@ -1595,10 +1511,6 @@ public class DateManagerServiceImpl implements DateManagerService {
                 }
 	}
 
-	/***** LESSONS *****/
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public JSONArray getLessonsForContext(String siteId) {
 		JSONArray jsonLessons = new JSONArray();
@@ -1629,7 +1541,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 						lobj.put(DateManagerConstants.JSON_URL_PARAM_NAME, url);
 						lobj.put(DateManagerConstants.JSON_EXTRAINFO_PARAM_NAME, extraInfo);
 						jsonLessons.add(lobj);
-						jsonLessons = addAllSubpages(simplePageToolDao.findItemsOnPage(itemId), itemId, jsonLessons, rb.getString("tool.lessons.extra.subpage"), processedItemIDs);
+						jsonLessons = addAllSubpages(simplePageToolDao.findItemsOnPage(itemId), itemId, jsonLessons, resourceLoader.getString("tool.lessons.extra.subpage"), processedItemIDs);
 					}
 				}
 			}
@@ -1638,14 +1550,11 @@ public class DateManagerServiceImpl implements DateManagerService {
 	}
 
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public DateManagerValidation validateLessons(String siteId, JSONArray lessons) throws Exception {
 		DateManagerValidation lessonsValidate = new DateManagerValidation();
 		List<DateManagerError> errors = new ArrayList<>();
-		List<Object> updates = new ArrayList<>();
+		List<DateManagerUpdate> updates = new ArrayList<>();
 
 		String toolTitle = toolManager.getTool(DateManagerConstants.COMMON_ID_LESSONS).getTitle();
 		for (int i = 0; i < lessons.size(); i++) {
@@ -1657,13 +1566,13 @@ public class DateManagerServiceImpl implements DateManagerService {
 				String openDateRaw = (String) jsonItem.get(DateManagerConstants.JSON_OPENDATE_PARAM_NAME);
 				Instant openDate = null;
 				Long itemId;
-				if (jsonItem.get(DateManagerConstants.JSON_ID_PARAM_NAME).getClass().getName().indexOf("Long") != -1) {
+				if (jsonItem.get(DateManagerConstants.JSON_ID_PARAM_NAME).getClass().getName().contains("Long")) {
 					itemId = (Long)jsonItem.get(DateManagerConstants.JSON_ID_PARAM_NAME);
 				} else {
 					itemId = Long.parseLong((String)jsonItem.get(DateManagerConstants.JSON_ID_PARAM_NAME));
 				}
 				if (itemId == null) {
-					errors.add(new DateManagerError("page", rb.getFormattedMessage("error.item.not.found", new Object[]{rb.getString("tool.lessons.item.name")}), "lessons", toolTitle, idx));
+					errors.add(new DateManagerError("page", resourceLoader.getFormattedMessage("error.item.not.found", resourceLoader.getString("tool.lessons.item.name")), "lessons", toolTitle, idx));
 					continue;
 				}
 
@@ -1673,14 +1582,14 @@ public class DateManagerServiceImpl implements DateManagerService {
 
 				SimplePage page = simplePageToolDao.getPage(itemId);
 				if (page == null) {
-					errors.add(new DateManagerError("page", rb.getFormattedMessage("error.item.not.found", new Object[]{rb.getString("tool.lessons.item.name")}), "lessons", toolTitle, idx));
+					errors.add(new DateManagerError("page", resourceLoader.getFormattedMessage("error.item.not.found", resourceLoader.getString("tool.lessons.item.name")), "lessons", toolTitle, idx));
 					continue;
 				}
 
 				DateManagerUpdate update = new DateManagerUpdate(page, openDate, null, null, null, null);
 				updates.add(update);
 			} catch(Exception e) {
-				errors.add(new DateManagerError(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, rb.getString("error.uncaught"), "lessons", toolTitle, idx));
+				errors.add(new DateManagerError(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, resourceLoader.getString("error.uncaught"), "lessons", toolTitle, idx));
 				log.error("Error trying to validate Lessons {}", e);
 			}
 		}
@@ -1690,12 +1599,9 @@ public class DateManagerServiceImpl implements DateManagerService {
 		return lessonsValidate;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void updateLessons(DateManagerValidation lessonsValidation) throws Exception {
-                for (DateManagerUpdate update : (List<DateManagerUpdate>)(Object) lessonsValidation.getUpdates()) {
+                for (DateManagerUpdate update : lessonsValidation.getUpdates()) {
                         SimplePage page = (SimplePage) update.object;
                         Date openDateTemp = update.openDate != null ? Date.from(update.openDate) : null;
                         page.setReleaseDate(openDateTemp);
@@ -1706,8 +1612,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 	private JSONArray orderJSONArrayByTitle(JSONArray jsonArray) {
 		try {
 			List list = (List) jsonArray.stream()
-				.sorted((json1, json2) -> ((JSONObject) json1).get(DateManagerConstants.JSON_TITLE_PARAM_NAME).toString().toLowerCase()
-					.compareTo(((JSONObject) json2).get(DateManagerConstants.JSON_TITLE_PARAM_NAME).toString().toLowerCase()))
+				.sorted(Comparator.comparing(json -> ((JSONObject) json).get(DateManagerConstants.JSON_TITLE_PARAM_NAME).toString().toLowerCase()))
 				.collect(Collectors.toList());
 			JSONParser jsonParser = new JSONParser();
 			Object obj = jsonParser.parse(JSONArray.toJSONString(list));
@@ -1777,7 +1682,6 @@ public class DateManagerServiceImpl implements DateManagerService {
 				}
 			} else {
 				AssessmentData assesmentData = assessmentServiceQueries.loadAssessment(Long.parseLong(id));
-				AssessmentAccessControlIfc control = assesmentData.getAssessmentAccessControl();
 				assessmentJsonObject.put("is_draft", true);
 				if (AssessmentFeedbackIfc.FEEDBACK_BY_DATE.equals(assesmentData.getAssessmentFeedback().getFeedbackDelivery())) {
 					assessmentJsonObject.put("feedback_start_label", columns[5].replaceAll("\"", ""));
@@ -1852,7 +1756,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 		if (DateManagerConstants.COMMON_ID_FORUMS.equals(toolId.replaceAll("\"", ""))) {
 			JSONObject forumsJsonObject = this.createJsonObject(columnsNames[5], columns, idx);
 			
-			if (StringUtils.isBlank((String) forumsJsonObject.get("due_date")) && columns[2].replaceAll("\"", "").equals("")) {
+			if (StringUtils.isBlank((String) forumsJsonObject.get("due_date")) && columns[2].replaceAll("\"", "").isEmpty()) {
 				forumsJsonObject.remove("due_date");
 				forumsJsonObject.put("due_date", columns[2].replaceAll("\"", ""));
 			}
@@ -1971,17 +1875,18 @@ public class DateManagerServiceImpl implements DateManagerService {
 			if (columns[2] != null && columns[2].matches(".*\\d.*")) {
 				columns[2] = columns[2].replaceAll("\"", "").replace("/", "-");
 				try {
-					DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("[M/d/yyyy][MM/dd/yyyy][dd-MM-yyyy][d-M-yyyy][yyyy-MM-dd]");
-					DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-					LocalDate date = LocalDate.parse(columns[2], inputFormatter);
-					columns[2] = date.format(outputFormatter);
+					LocalDate date;
+					if (columns[2].contains("T")) {
+						date = LocalDateTime.parse(columns[2], inputDateTimeFormatter).toLocalDate();
+					} else {
+						date = LocalDate.parse(columns[2], inputDateFormatter);
+					}
+					columns[2] = date.format(outputDateFormatter);
+					ZoneId zone = userTimeService.getLocalTimeZone().toZoneId();
+					changed = !gbitem.getDueDate().toInstant().atZone(zone).toLocalDate().equals(date);
 				} catch (DateTimeParseException e) {
-					log.error("Error parsing date: " + columns[2], e);
+					log.warn("Could not parse due date [{}], {}", columns[2], e);
 				}
-				if (!columns[2].contains("T")) {
-					columns[2] += "T00:00:00";
-				}
-				changed = this.compareDates(gbitem.getDueDate(), columns[2]);
 			} else if (gbitem.getDueDate() != null) {
 				changed = true; // remove due_date
 			}
@@ -2012,7 +1917,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 				log.error("Cannot identify the tool Content received", ex);
 			}
 		} else if (DateManagerConstants.COMMON_ID_FORUMS.equals(toolId.replaceAll("\"", ""))) {
-			if (columns[4].replaceAll("\"", "").equals(rb.getString("itemtype.forum"))) {
+			if (columns[4].replaceAll("\"", "").equals(resourceLoader.getString("itemtype.forum"))) {
 				DiscussionForum forum = (DiscussionForum) forumManager.getForumByIdWithTopics(Long.parseLong(id));
 				
 				changed = this.compareDates(forum.getOpenDate(), columns[2])
@@ -2027,10 +1932,10 @@ public class DateManagerServiceImpl implements DateManagerService {
 		} else if (DateManagerConstants.COMMON_ID_ANNOUNCEMENTS.equals(toolId.replaceAll("\"", ""))) {
 			try {
 				String anncRef = announcementService.channelReference(siteId, SiteService.MAIN_CONTAINER);
-				List announcements = announcementService.getMessages(anncRef, null, false, true);
+				List<AnnouncementMessage> announcements = announcementService.getMessages(anncRef, null, false, true);
 				int i = 0;
 				while (i < announcements.size() && !changed) {
-					AnnouncementMessage announcement = (AnnouncementMessage) announcements.get(i);
+					AnnouncementMessage announcement = announcements.get(i);
 					boolean releaseDateExist = announcement.getProperties().getProperty(AnnouncementService.RELEASE_DATE) != null;
 					boolean retractDateExist = announcement.getProperties().getProperty(AnnouncementService.RETRACT_DATE) != null;
 					if (announcement.getId().equals(id)) {
@@ -2101,9 +2006,9 @@ public class DateManagerServiceImpl implements DateManagerService {
 	 * @return Date
 	 */
 	public Date stringToDate(String dateString) {
-		DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss").withZone(userTimeService.getLocalTimeZone().toZoneId());
-		Instant instant = Instant.from(dateFormat.parse(dateString));
-		return Date.from(instant);
+		ZoneId zone = userTimeService.getLocalTimeZone().toZoneId();
+		LocalDateTime localDateTime = LocalDateTime.parse(dateString, inputDateTimeFormatter);
+		return Date.from(localDateTime.atZone(zone).toInstant());
 	}
 
 	/**
@@ -2115,7 +2020,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 	 * 
 	 * @return JSONObject
 	 */
-	public JSONObject createJsonObject(String columnsNames[], String[] columns, int idx) {
+	public JSONObject createJsonObject(String[] columnsNames, String[] columns, int idx) {
 		JSONObject jsonObject = new JSONObject();
 		jsonObject.put("idx", idx);
 		for (int i = 0; i < columnsNames.length; i++) {

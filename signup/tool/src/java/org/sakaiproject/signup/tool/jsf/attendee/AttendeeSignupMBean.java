@@ -129,16 +129,14 @@ public class AttendeeSignupMBean extends SignupUIBaseBean {
 				try {
 					signupMeetingService.sendEmailToAttendee(signup.getSignupEventTrackingInfo());
 				} catch (Exception e) {
-					log.error(Utilities.rb.getString("email.exception") + " - " + e.getMessage(), e);
+					log.error("Error attempting to send email to attendee: {}", e.toString());
 					Utilities.addErrorMessage(Utilities.rb.getString("email.exception"));
 				}
 			}
-			
-			
 		} catch (SignupUserActionException ue) {
 			Utilities.addErrorMessage(ue.getMessage());
 		} catch (Exception e) {
-			log.error(Utilities.rb.getString("error.occurred_try_again") + " - " + e.getMessage());
+			log.error("Error during saving attendee signup: {}", e.toString());
 			Utilities.addErrorMessage(Utilities.rb.getString("error.occurred_try_again"));
 		}
 

@@ -34,8 +34,6 @@ export class SakaiRubric extends RubricsElement {
       credentials: "include",
       headers: { "Content-Type": "application/json-patch+json" },
     };
-
-    this.enablePdfExport = false;
   }
 
   set rubric(value) {
@@ -251,6 +249,7 @@ export class SakaiRubric extends RubricsElement {
 
       if (r.ok) {
         this.rubric.title = e.detail;
+        this.rubric.new = false;
         this.requestUpdate();
         this.updateOtherItems();
         this.dispatchEvent(new SharingChangeEvent());

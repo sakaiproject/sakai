@@ -1,7 +1,13 @@
 import "../sakai-user-photo.js";
-import { expect, fixture, waitUntil } from "@open-wc/testing";
+import { elementUpdated, expect, fixture, waitUntil } from "@open-wc/testing";
 import { html } from "lit";
 import * as data from "./data.js";
+import * as profileData from "../../sakai-profile/test/data.js";
+import fetchMock from "fetch-mock/esm/client";
+
+fetchMock
+  .get(profileData.i18nUrl, profileData.i18n, { overwriteRoutes: true })
+  .get("*", 500, { overwriteRoutes: true });
 
 describe("sakai-user-photo tests", () => {
 
@@ -15,9 +21,9 @@ describe("sakai-user-photo tests", () => {
       </sakai-user-photo>
     `);
 
-    await waitUntil(() => el._generatedId);
+    await elementUpdated(el);
 
-    const div = document.getElementById(el._generatedId);
+    const div = el.querySelector("div");
     expect(div).to.exist;
     expect(div.classList.contains("small")).to.be.true;
     expect(div.style.cursor).to.equal("pointer");
@@ -33,7 +39,14 @@ describe("sakai-user-photo tests", () => {
 
   it ("is accessible", async () => {
 
-    const el = await fixture(html`<sakai-user-photo user-id="${data.userId}"></sakai-user-photo>`);
+    let el = await fixture(html`
+      <sakai-user-photo user-id="${data.userId}"
+          label="eggs"
+          profile-popup="on">
+      </sakai-user-photo>
+    `);
+
+    await elementUpdated(el);
     await expect(el).to.be.accessible();
   });
 });

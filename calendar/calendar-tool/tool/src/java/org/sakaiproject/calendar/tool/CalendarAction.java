@@ -6388,7 +6388,7 @@ extends VelocityPortletStateAction
 		int houri;
 		
 		String hour = "";
-		hour = rundata.getParameters().getString("startHour");
+		hour = rundata.getParameters().getString("startHour") != null ? rundata.getParameters().getString("startHour") : "100"; // SAK-51010 applying same default value as non-24h format
 		String title ="";
 		title = rundata.getParameters().getString("activitytitle");
 		String minute = "";

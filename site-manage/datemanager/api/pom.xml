@@ -29,8 +29,6 @@
 		<dependency>
 			<groupId>com.googlecode.json-simple</groupId>
 			<artifactId>json-simple</artifactId>
-			<version>${json.simple.version}</version>
-			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 </project>

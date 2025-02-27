@@ -19,13 +19,6 @@ export class SakaiRubricsList extends RubricsElement {
     _rubrics: { state: true },
   };
 
-  constructor() {
-
-    super();
-
-    this.enablePdfExport = false;
-  }
-
   set siteId(value) {
 
     this._siteId = value;

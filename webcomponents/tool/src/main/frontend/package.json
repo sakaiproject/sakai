@@ -55,7 +55,7 @@
     "eslint-plugin-html": "^8.1.2",
     "eslint-plugin-lit": "^1.15.0",
     "eslint-plugin-wc": "^2.2.0",
-    "fetch-mock": "^12.2.0",
+    "fetch-mock": "^9.11.0",
     "globals": "^15.11.0",
     "imagesloaded": "^5.0.0",
     "lint-staged": "^15.2.10",

@@ -37,8 +37,6 @@ import java.util.Stack;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import java.util.TimeZone;
-
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections4.CollectionUtils;
@@ -46,7 +44,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.Attachment;
-import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.DBMembershipItem;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionForumService;
@@ -69,7 +66,7 @@ import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityTransferrer;
-import org.sakaiproject.entity.api.HttpAccess;
+import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
@@ -83,6 +80,7 @@ import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.cover.LinkMigrationHelper;
+import org.sakaiproject.util.MergeConfig;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -92,7 +90,6 @@ import org.w3c.dom.NodeList;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-
 
 @Slf4j
 public class DiscussionForumServiceImpl implements DiscussionForumService, EntityTransferrer
@@ -145,6 +142,10 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 	private static final String GRADE_ASSIGNMENT = "grade_assignment";
 	private static final String OPEN_DATE = "available_open";
 	private static final String CLOSE_DATE = "available_close";
+	private static final String AUTO_MARK_THREADS_READ = "auto_mark_threads_read";
+	private static final String ALLOW_EMAIL_NOTIFICATIONS = "allow_email_notifications";
+	private static final String INCLUDE_CONTENTS_IN_EMAILS = "include_contents_in_emails";
+	private static final String REVEAL_IDS_TO_ROLES = "reveal_ids_to_roles";
 	private static final String NAME = "name";
 	private static final String ENCODE = "enc";
 	private static final String BASE64 = "BASE64";
@@ -195,6 +196,8 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 	private ToolManager toolManager;
 	@Setter
 	private ServerConfigurationService serverConfigurationService;
+	@Setter
+	private LTIService ltiService;
 
 	private final Base64 base64Encoder = new Base64();
 
@@ -307,6 +310,10 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 				discussionTopicElement.setAttribute(MODERATED, discussionTopic.getModerated().toString());
 				discussionTopicElement.setAttribute(POST_ANONYMOUS, discussionTopic.getPostAnonymous().toString());
 				discussionTopicElement.setAttribute(POST_FIRST, discussionTopic.getPostFirst().toString());
+				discussionTopicElement.setAttribute(ALLOW_EMAIL_NOTIFICATIONS, discussionTopic.getAllowEmailNotifications().toString());
+				discussionTopicElement.setAttribute(INCLUDE_CONTENTS_IN_EMAILS, discussionTopic.getIncludeContentsInEmails().toString());
+				discussionTopicElement.setAttribute(REVEAL_IDS_TO_ROLES, discussionTopic.getRevealIDsToRoles().toString());
+				discussionTopicElement.setAttribute(AUTO_MARK_THREADS_READ, discussionTopic.getAutoMarkThreadsRead().toString());
 				if (discussionTopic.getDefaultAssignName() != null) {
 					discussionTopicElement.setAttribute(GRADE_ASSIGNMENT, discussionTopic.getDefaultAssignName());
 				}
@@ -533,6 +540,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 			.map(f -> Map.of("id", f.getId().toString(), "title", f.getTitle())).collect(Collectors.toList());
 	}
 
+	@Override
 	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> options)
 	{
 		Map<String, String> transversalMap = new HashMap<>();
@@ -611,7 +619,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 						if (fromAttach != null && !fromAttach.isEmpty()) {
 							for (int currAttach=0; currAttach < fromAttach.size(); currAttach++) {                   			
 								Attachment thisAttach = (Attachment)fromAttach.get(currAttach);
-								Attachment newAttachment = copyAttachment(thisAttach.getAttachmentId(), toContext);
+								Attachment newAttachment = copyAttachment(thisAttach.getAttachmentId(), toContext, null);
 								if (newAttachment != null) {
 									newForum.addAttachment(newAttachment);
 								}
@@ -653,7 +661,9 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 									newTopic.setShortDescription(fromTopic.getShortDescription());
 								}
 								if (fromTopic.getExtendedDescription() != null && fromTopic.getExtendedDescription().length() > 0) {
-									newTopic.setExtendedDescription(fromTopic.getExtendedDescription());
+									String extendedDescription = fromTopic.getExtendedDescription();
+									extendedDescription = ltiService.fixLtiLaunchUrls(extendedDescription, fromContext, toContext, transversalMap);
+									newTopic.setExtendedDescription(extendedDescription);
 								}
 								newTopic.setLocked(fromTopic.getLocked());
 								newTopic.setLockedAfterClosed(fromTopic.getLockedAfterClosed());
@@ -663,6 +673,9 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 								newTopic.setSortIndex(fromTopic.getSortIndex());
 								newTopic.setAutoMarkThreadsRead(fromTopic.getAutoMarkThreadsRead());
 								newTopic.setPostAnonymous(fromTopic.getPostAnonymous());
+								newTopic.setAllowEmailNotifications(fromTopic.getAllowEmailNotifications());
+								newTopic.setIncludeContentsInEmails(fromTopic.getIncludeContentsInEmails());
+								newTopic.setAutoMarkThreadsRead(fromTopic.getAutoMarkThreadsRead());
 								newTopic.setRevealIDsToRoles(fromTopic.getRevealIDsToRoles());
 								if(importOpenCloseDates){
 									newTopic.setOpenDate(fromTopic.getOpenDate());
@@ -692,7 +705,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 								if (fromTopicAttach != null && !fromTopicAttach.isEmpty()) {
 									for (int topicAttach=0; topicAttach < fromTopicAttach.size(); topicAttach++) {                   			
 										Attachment thisAttach = (Attachment)fromTopicAttach.get(topicAttach);
-										Attachment newAttachment = copyAttachment(thisAttach.getAttachmentId(), toContext);
+										Attachment newAttachment = copyAttachment(thisAttach.getAttachmentId(), toContext, null);
 										if (newAttachment != null)
 											newTopic.addAttachment(newAttachment);
 									}			
@@ -719,8 +732,18 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 		return transversalMap;
 	}
 
-	public String merge(final String siteId, final Element root, final String archivePath, final String fromSiteId,
-						final Map attachmentNames, final Map userIdTrans, final Set userListAllowImport) {
+	public String merge(String siteId, Element root, String archivePath, String fromSiteId, MergeConfig mcx) {
+
+		log.debug("merge archiveContext={} archiveServerUrl={}", mcx.archiveContext, mcx.archiveServerUrl);
+
+		Set<String> discussionTitles = new HashSet<>();
+		List<DiscussionForum> discussionForums = dfManager.getDiscussionForumsWithTopicsMembershipNoAttachments(siteId);
+		if (CollectionUtils.isNotEmpty(discussionForums)) {
+			for (DiscussionForum discussionForum : discussionForums) {
+				discussionTitles.add(discussionForum.getTitle());
+			}
+		}
+
 		final StringBuilder results = new StringBuilder();
 		if (StringUtils.isNotBlank(siteId)) {
 			results.append("merging ").append(getLabel()).append(" context " + Entity.SEPARATOR).append(siteId)
@@ -730,7 +753,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 				final List<Element> messageForumElementList = elements.stream()
 						.filter(element -> MESSAGEFORUM.equals(element.getTagName())).collect(Collectors.toList());
 				if (!messageForumElementList.isEmpty()) {
-					mergeMessageForumElements(siteId, fromSiteId, attachmentNames, messageForumElementList.get(0));
+					mergeMessageForumElements(siteId, fromSiteId, messageForumElementList.get(0), discussionTitles, mcx);
 				}
 			} catch (Exception e) {
 				results.append("merging ").append(getLabel()).append(" failed.\n");
@@ -741,7 +764,8 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 	}
 
 	private void mergeMessageForumElements(final String siteId, final String fromSiteId,
-										   final Map<String, String> attachmentNames, final Element siteElement) throws Exception {
+		final Element siteElement, Set<String> discussionTitles, MergeConfig mcx) throws Exception {
+
 		final NodeList messageForumChildNodeList = siteElement.getChildNodes();
 
 		final List<Element> discussionForumElementsList = IntStream.range(0, messageForumChildNodeList.getLength())
@@ -750,12 +774,16 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 				.collect(Collectors.toList());
 
 		for (Element discussionForumElement : discussionForumElementsList) {
-			mergeDiscussionForumElements(siteId, fromSiteId, attachmentNames, discussionForumElement);
+			String title = discussionForumElement.getAttribute(DISCUSSION_FORUM_TITLE);
+			if (discussionTitles.contains(title)) {
+				continue;
+			}
+			mergeDiscussionForumElements(siteId, fromSiteId, discussionForumElement, mcx);
 		}
 	}
 
 	private void mergeDiscussionForumElements(final String siteId, final String fromSiteId,
-											  final Map<String, String> attachmentNames, final Element discussionForumElement) throws Exception {
+			final Element discussionForumElement, MergeConfig mcx) throws Exception {
 
 		final DiscussionForum discussionForum = forumManager.createDiscussionForum();
 
@@ -801,8 +829,12 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 				// do nothing b/c invalid
 			}
 		}
+
+		String extendedDescription = getDecodedString(discussionForumElement.getAttribute(DISCUSSION_FORUM_DESC));
+		extendedDescription = ltiService.fixLtiLaunchUrls(extendedDescription, siteId, mcx);
 		discussionForum
-				.setExtendedDescription(getDecodedString(discussionForumElement.getAttribute(DISCUSSION_FORUM_DESC)));
+				.setExtendedDescription(extendedDescription);
+
 		discussionForum.setShortDescription(
 				getDecodedString(discussionForumElement.getAttribute(DISCUSSION_FORUM_SHORT_DESC)));
 
@@ -810,13 +842,11 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 		discussionForum.setArea(area);
 
 		// Discussion Forum is saved inside this method
-		mergeDiscussionForumDetailNodeList(siteId, fromSiteId, attachmentNames, discussionForumElement,
-				discussionForum);
+		mergeDiscussionForumDetailNodeList(siteId, fromSiteId, discussionForumElement, discussionForum, mcx);
 	}
 
 	private void mergeDiscussionForumDetailNodeList(final String siteId, final String fromSiteId,
-													final Map<String, String> attachmentNames, final Element discussionForumElement,
-													DiscussionForum discussionForum) throws Exception {
+		final Element discussionForumElement, DiscussionForum discussionForum, MergeConfig mcx) throws Exception {
 
 		final NodeList discussionForumDetailNodeList = discussionForumElement.getChildNodes();
 		final List<Element> elements = IntStream.range(0, discussionForumDetailNodeList.getLength())
@@ -825,7 +855,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 
 		final List<Element> attachmentElementList = getAttachmentElementList(elements);
 		for (Element attachmentElement : attachmentElementList) {
-			final Attachment newAttachment = mergeAttachmentElement(siteId, fromSiteId, attachmentNames,
+			final Attachment newAttachment = mergeAttachmentElement(siteId, fromSiteId, mcx,
 					attachmentElement);
 			if (newAttachment != null) {
 				discussionForum.addAttachment(newAttachment);
@@ -848,7 +878,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 
 		final List<Element> discussionTopicElementList = getDiscussionTopicElementList(elements);
 		for (Element discussionTopicElement : discussionTopicElementList) {
-			mergeDiscussionTopicElement(siteId, fromSiteId, attachmentNames, discussionForumReturn, discussionTopicElement);
+			mergeDiscussionTopicElement(siteId, fromSiteId, discussionForumReturn, discussionTopicElement, mcx);
 		}
 	}
 
@@ -872,25 +902,16 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 	}
 
 	private Attachment mergeAttachmentElement(final String siteId, final String fromSiteId,
-											  final Map<String, String> attachmentNames, final Element attachmentElement) {
+											  MergeConfig mcx, final Element attachmentElement) {
 		String oldAttachId = attachmentElement.getAttribute(ATTACH_ID);
 		if (StringUtils.isNotBlank(oldAttachId)) {
-			String oldUrl = oldAttachId;
-			if (oldUrl.startsWith("/content/attachment/")) {
-				String newUrl = attachmentNames.get(oldUrl);
-				oldAttachId = StringUtils.replace(newUrl, "?", "_");
-			} else if (oldUrl.startsWith(CONTENT_GROUP + fromSiteId + "/")) {
-				String newUrl = CONTENT_GROUP + siteId + oldUrl.substring(15 + fromSiteId.length());
-				oldAttachId = StringUtils.replace(newUrl, "?", "_");
-			}
-			return copyAttachment(oldAttachId, siteId);
+			return copyAttachment(oldAttachId, siteId, mcx);
 		}
 		return null;
 	}
 
 	private void mergeDiscussionTopicElement(final String siteId, final String fromSiteId,
-											 final Map<String, String> attachmentNames, final DiscussionForum discussionForum,
-											 final Element discussionTopicElement) throws Exception {
+		final DiscussionForum discussionForum, final Element discussionTopicElement, MergeConfig mcx) throws Exception {
 
 		DiscussionTopic discussionTopic = forumManager.createDiscussionForumTopic(discussionForum);
 
@@ -901,12 +922,12 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 		final List<Element> propertiesElementList = elements.stream().filter(e -> PROPERTIES.equals(e.getTagName()))
 				.collect(Collectors.toList());
 		for (Element propertiesElement : propertiesElementList) {
-			mergeDiscussionTopicPropertiesNodes(discussionTopic, propertiesElement);
+			mergeDiscussionTopicPropertiesNodes(discussionTopic, propertiesElement, siteId, mcx);
 		}
 
 		final List<Element> attachmentElementList = getAttachmentElementList(elements);
 		for (Element attachmentElement : attachmentElementList) {
-			final Attachment newAttachment = mergeAttachmentElement(siteId, fromSiteId, attachmentNames,
+			final Attachment newAttachment = mergeAttachmentElement(siteId, fromSiteId, mcx,
 					attachmentElement);
 			if (newAttachment != null) {
 				discussionTopic.addAttachment(newAttachment);
@@ -927,7 +948,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 		// "onReplyTo" attribute
 		final List<Element> messagesElementList = getMessagesElementList(elements);
 		for (Element messagesElement : messagesElementList) {
-			mergeDiscussionTopicMessagesElement(siteId, fromSiteId, attachmentNames, discussionTopic, messagesElement, null);
+			mergeDiscussionTopicMessagesElement(siteId, fromSiteId, mcx, discussionTopic, messagesElement, null);
 		}
 	}
 
@@ -948,6 +969,53 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 		final String topicLockedAfterClosed = discussionTopicElement.getAttribute(LOCKED_AFTER_CLOSED);
 		if (StringUtils.isNotEmpty(topicLockedAfterClosed)) {
 			discussionTopic.setLockedAfterClosed(Boolean.valueOf(topicLockedAfterClosed));
+		}
+
+		final String topicPostAnonymous = discussionTopicElement.getAttribute(POST_ANONYMOUS);
+		if (StringUtils.isNotEmpty(topicPostAnonymous)) {
+			discussionTopic.setPostAnonymous(Boolean.valueOf(topicPostAnonymous));
+		}
+
+		final String topicAutoMarkThreadsRead = discussionTopicElement.getAttribute(AUTO_MARK_THREADS_READ);
+		if (StringUtils.isNotEmpty(topicAutoMarkThreadsRead)) {
+			discussionTopic.setAutoMarkThreadsRead(Boolean.valueOf(topicAutoMarkThreadsRead));
+		}
+
+		final String topicAllowEmailNotifications = discussionTopicElement.getAttribute(ALLOW_EMAIL_NOTIFICATIONS);
+		if (StringUtils.isNotEmpty(topicAllowEmailNotifications)) {
+			discussionTopic.setAllowEmailNotifications(Boolean.valueOf(topicAllowEmailNotifications));
+		}
+
+		final String topicIncludeContentsInEmails = discussionTopicElement.getAttribute(INCLUDE_CONTENTS_IN_EMAILS);
+		if (StringUtils.isNotEmpty(topicIncludeContentsInEmails)) {
+			discussionTopic.setIncludeContentsInEmails(Boolean.valueOf(topicIncludeContentsInEmails));
+		}
+
+		final String topicRevealIdsToRoles = discussionTopicElement.getAttribute(REVEAL_IDS_TO_ROLES);
+		if (StringUtils.isNotEmpty(topicRevealIdsToRoles)) {
+			discussionTopic.setRevealIDsToRoles(Boolean.valueOf(topicRevealIdsToRoles));
+		}
+
+		final String topicAvailableCloseDate = discussionTopicElement.getAttribute(CLOSE_DATE);
+		if (StringUtils.isNotEmpty(topicAvailableCloseDate)) {
+			try {
+				SimpleDateFormat formatter = new SimpleDateFormat(ARCHIVE_DATE_FORMAT);
+				discussionTopic.setCloseDate(formatter.parse(topicAvailableCloseDate));
+				discussionTopic.setAvailabilityRestricted(Boolean.TRUE);
+			} catch (ParseException e) {
+				log.debug("ERROR merging topic: Wrong date format or null in close date", e);
+			}
+		}
+
+		final String topicAvailableOpenDate = discussionTopicElement.getAttribute(OPEN_DATE);
+		if (StringUtils.isNotEmpty(topicAvailableOpenDate)) {
+			try {
+				SimpleDateFormat formatter = new SimpleDateFormat(ARCHIVE_DATE_FORMAT);
+				discussionTopic.setOpenDate(formatter.parse(topicAvailableOpenDate));
+				discussionTopic.setAvailabilityRestricted(Boolean.TRUE);
+			} catch (ParseException e) {
+				log.debug("ERROR merging topic: Wrong date format or null in open date", e);
+			}
 		}
 
 		final String topicModerated = discussionTopicElement.getAttribute(MODERATED);
@@ -994,7 +1062,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 				.collect(Collectors.toList());
 	}
 
-	private void mergeDiscussionTopicPropertiesNodes(final DiscussionTopic discussionTopic, final Element propertiesElement) {
+	private void mergeDiscussionTopicPropertiesNodes(final DiscussionTopic discussionTopic, final Element propertiesElement, final String siteId, MergeConfig mcx) {
 		final NodeList propertyList = propertiesElement.getChildNodes();
 		for (int n = 0; n < propertyList.getLength(); n++) {
 			final Node propertyNode = propertyList.item(n);
@@ -1005,7 +1073,9 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 						final String shortDescription = getDescriptionFromPropertyElement(propertyElement);
 						discussionTopic.setShortDescription(shortDescription);
 					} else if (TOPIC_LONG_DESC.equals(propertyElement.getAttribute(NAME))) {
-						final String extendedDescription = getDescriptionFromPropertyElement(propertyElement);
+						String extendedDescription = getDescriptionFromPropertyElement(propertyElement);
+						extendedDescription = ltiService.fixLtiLaunchUrls(extendedDescription, siteId, mcx);
+						extendedDescription = LinkMigrationHelper.migrateLinksInMergedRTE(siteId, mcx, extendedDescription);
 						discussionTopic.setExtendedDescription(extendedDescription);
 					}
 				}
@@ -1022,7 +1092,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 		}
 	}
 
-	private void mergeDiscussionTopicMessagesElement(final String siteId, final String fromSiteId, final Map<String, String> attachmentNames, final DiscussionTopic discussionTopic,
+	private void mergeDiscussionTopicMessagesElement(final String siteId, final String fromSiteId, MergeConfig mcx, final DiscussionTopic discussionTopic,
 													 final Element messagesElement, final String messageIdInReplyTo) throws Exception {
 		final NodeList messagesNodeList = messagesElement.getChildNodes();
 		for (int m = 0; m < messagesNodeList.getLength(); m++) {
@@ -1037,7 +1107,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 			final List<Element> attachmentElementList = getAttachmentElementList(elements);
 
 			for (Element attachmentElement : attachmentElementList) {
-				final Attachment newAttachment = mergeAttachmentElement(siteId, fromSiteId, attachmentNames,
+				final Attachment newAttachment = mergeAttachmentElement(siteId, fromSiteId, mcx,
 						attachmentElement);
 				if (newAttachment != null) {
 					message.addAttachment(newAttachment);
@@ -1049,7 +1119,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 
 			final List<Element> messagesElementList = getMessagesElementList(elements);
 			for (Element messagesChildElement : messagesElementList) {
-				mergeDiscussionTopicMessagesElement(siteId, fromSiteId, attachmentNames, discussionTopic, messagesChildElement, messageId);
+				mergeDiscussionTopicMessagesElement(siteId, fromSiteId, mcx, discussionTopic, messagesChildElement, messageId);
 			}
 		}
 	}
@@ -1247,14 +1317,10 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 		return value;
 	}
 	
-	private Attachment copyAttachment(String attachmentId, String toContext) {
+	private Attachment copyAttachment(String attachmentId, String toContext, MergeConfig mcx) {
 		try {			
-			ContentResource oldAttachment = contentHostingService.getResource(attachmentId);
-			ContentResource attachment = contentHostingService.addAttachmentResource(
-				Validator.escapeResourceName(oldAttachment.getProperties().getProperty(
-						ResourceProperties.PROP_DISPLAY_NAME)), toContext, toolManager.getTool(
-						"sakai.forums").getTitle(), oldAttachment.getContentType(),
-						oldAttachment.getContent(), oldAttachment.getProperties());
+			ContentResource attachment = contentHostingService.copyAttachment(attachmentId, toContext, toolManager.getTool("sakai.forums").getTitle(), mcx);
+
 			Attachment thisDFAttach = dfManager.createDFAttachment(
 				attachment.getId(), 
 				attachment.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME));

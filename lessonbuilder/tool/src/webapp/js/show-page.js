@@ -3253,9 +3253,9 @@ $(function () {
         if (i === 0 && previousTitle){
           valueContent = 'value="' + previousTitle + '"';
         }
-        newStuff = newStuff + '<label for="link-title">Link title</label><input id="link-title" class="mm-file-input-names" type="text" size="30" maxlength="255" ' + valueContent + '/></p>';
+        newStuff = newStuff + '<label for="link-title">' + msg('simplepage.linkTitle') + '</label><input id="link-title" class="mm-file-input-names" type="text" size="30" maxlength="255" ' + valueContent + '/></p>';
       } else {
-          newStuff = newStuff + '<div><label for="link-title"> Custom name for uploaded file [optional]: </label><input id="link-title" class="mm-file-input-names" type="text" size="30" maxlength="255"/></div>';
+        newStuff = newStuff + '<div><label for="link-title">' + msg('simplepage.addFile_label_name') + '</label><input id="link-title" class="mm-file-input-names" type="text" size="30" maxlength="255"/></div>';
       }
       newStuff = newStuff + '</p>'
       lastInput.after(newStuff);

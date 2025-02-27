@@ -19,6 +19,8 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.coursemanagement.api.AcademicSession;
@@ -37,12 +39,13 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * This class is an implementation of the auto site publish service interface.
  */
+@Getter
+@Setter
 @Slf4j
 public class CourseSitePublishServiceImpl extends HibernateDaoSupport implements CourseSitePublishService {
    // class members
    private static final long ONE_DAY_IN_MS = 1000L * 60L * 60L * 24L;    // one day in ms = 1000ms/s · 60s/m · 60m/h · 24h/day
 
-   // sakai services
    private CourseManagementService courseManagementService;
    private FunctionManager functionManager;
    private SecurityService securityService;
@@ -62,80 +65,6 @@ public class CourseSitePublishServiceImpl extends HibernateDaoSupport implements
     */
    public void init() {
       log.debug("init()");
-
-      // register permissions with sakai
-      functionManager.registerFunction(PERMISSION_COURSE_SITE_PUBLISH);
-   }
-
-   /**
-    * returns the instance of the CourseManagementService injected by the spring framework specified in the components.xml file via IoC.
-    * <br/><br/>
-    * @return the instance of the CourseManagementService injected by the spring framework specified in the components.xml file via IoC.
-    */
-   public CourseManagementService getCourseManagementService() {
-      return courseManagementService;
-   }
-
-   /**
-    * called by the spring framework to initialize the courseManagementService data member specified in the components.xml file via IoC.
-    * <br/><br/>
-    * @param courseManagementService   the implementation of the CourseManagementService interface provided by the spring framework.
-    */
-   public void setCourseManagementService(CourseManagementService courseManagementService) {
-      this.courseManagementService = courseManagementService;
-   }
-   /**
-    * returns the instance of the FunctionManager injected by the spring framework specified in the components.xml file via IoC.
-    * <br/><br/>
-    * @return the instance of the FunctionManager injected by the spring framework specified in the components.xml file via IoC.
-    */
-   public FunctionManager getFunctionManager() {
-      return functionManager;
-   }
-
-   /**
-    * called by the spring framework to initialize the functionManager data member specified in the components.xml file via IoC.
-    * <br/><br/>
-    * @param functionManager   the implementation of the FunctionManager interface provided by the spring framework.
-    */
-   public void setFunctionManager(FunctionManager functionManager) {
-      this.functionManager = functionManager;
-   }
-
-   /**
-    * returns the instance of the SecurityService injected by the spring framework specified in the components.xml file via IoC.
-    * <br/><br/>
-    * @return the instance of the SecurityService injected by the spring framework specified in the components.xml file via IoC.
-    */
-   public SecurityService getSecurityService() {
-      return securityService;
-   }
-
-   /**
-    * called by the spring framework to initialize the securityService data member specified in the components.xml file via IoC.
-    * <br/><br/>
-    * @param securityService   the implementation of the SecurityService interface provided by the spring framework.
-    */
-   public void setSecurityService(SecurityService securityService) {
-      this.securityService = securityService;
-   }
-
-   /**
-    * returns the instance of the SiteService injected by the spring framework specified in the components.xml file via IoC.
-    * <br/><br/>
-    * @return the instance of the SiteService injected by the spring framework specified in the components.xml file via IoC.
-    */
-   public SiteService getSiteService() {
-      return siteService;
-   }
-
-   /**
-    * called by the spring framework to initialize the siteService data member specified in the components.xml file via IoC.
-    * <br/><br/>
-    * @param siteService   the implementation of the SiteService interface provided by the spring framework.
-    */
-   public void setSiteService(SiteService siteService) {
-      this.siteService = siteService;
    }
 
    /**
@@ -172,9 +101,10 @@ public class CourseSitePublishServiceImpl extends HibernateDaoSupport implements
     * </br></br>
     * @return the number of course sites that were published.
     */
+   @Override
    public int publishCourseSites(int numDaysBeforeTermStarts) {
 
-      log.info("publishCourseSites(" + numDaysBeforeTermStarts + " days before the term starts)");
+      log.info("publishCourseSites({} days before the term starts)", numDaysBeforeTermStarts);
 
       Date today             = new Date();
       Date publishDate       = null;
@@ -193,7 +123,7 @@ public class CourseSitePublishServiceImpl extends HibernateDaoSupport implements
                Hashtable<String, String> propertyCriteria = new Hashtable<String, String>();
                propertyCriteria.put("term_eid", academicSession.getEid());
                //We only will check COURSES with the right term_eid property. We will filter later if they are or not published
-               List<String> sites = (List<String>)siteService.getSiteIds(SelectionType.ANY, "course", null, propertyCriteria, SortType.CREATED_ON_ASC, null);
+               List<String> sites = siteService.getSiteIds(SelectionType.ANY, "course", null, propertyCriteria, SortType.CREATED_ON_ASC, null);
 
                for(String siteId : sites) {
                      // see if this service has already published course site once before.
@@ -207,12 +137,8 @@ public class CourseSitePublishServiceImpl extends HibernateDaoSupport implements
 
                      // if set to auto publish or unset default publish the site
                      if (publishTypeProperty == null || CourseManagementConstants.SITE_PUBLISH_TYPE_AUTO.equals(publishTypeProperty)) {
-                        // check permissions
-                        if (!checkPermission(PERMISSION_COURSE_SITE_PUBLISH, site.getId())) {
-                           log.error("You do not have permission to publish the " + site.getTitle() + " (" + site.getId() + ").");
-                        } else {
                            // publish the course site
-                           log.debug("publishing course site " + site.getTitle() + " (" + site.getId() + ").");
+                           log.debug("publishing course site {} ({}).", site.getTitle(), site.getId());
                            if (publishTypeProperty == null) {
                               // Set to auto for future
                               siteProperties.addProperty(CourseManagementConstants.SITE_PUBLISH_TYPE, CourseManagementConstants.SITE_PUBLISH_TYPE_AUTO);
@@ -220,7 +146,6 @@ public class CourseSitePublishServiceImpl extends HibernateDaoSupport implements
                            site.setPublished(true);
                            siteService.save(site);
                            numSitesPublished++;
-                        }
                      }
                   }
                }
@@ -230,14 +155,6 @@ public class CourseSitePublishServiceImpl extends HibernateDaoSupport implements
          log.error(ex.getMessage(), ex);
       }
       return numSitesPublished;
-   }
-
-
-
-   private boolean checkPermission(String lock, String reference) {
-
-      return securityService.unlock(lock, reference);
-
    }
 
 

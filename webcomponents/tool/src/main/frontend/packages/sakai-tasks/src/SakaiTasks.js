@@ -273,8 +273,6 @@ export class SakaiTasks extends SakaiPageableElement {
 
   content() {
 
-    console.debug("SakaiTasks.content()");
-
     return html`
 
       ${this._canAddTask ? html`

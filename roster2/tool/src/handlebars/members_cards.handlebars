@@ -4,11 +4,7 @@
             <sakai-user-photo
                 user-id="{{userId}}"
                 label="{{tr 'profile_picture_alt'}} {{displayName}}"
-                site-id="{{siteId}}"
                 classes="roster-photo"
-                {{#if ../viewPicture}}
-                profile-popup="on"
-                {{/if}}
                 {{#if official}}
                 official
                 {{else}}
@@ -19,6 +15,7 @@
                 {{#if ../printMode}}
                 print
                 {{/if}}
+                profile-popup="on"
             >
             </sakai-user-photo>
         </div> <!-- /roster-picture-card -->

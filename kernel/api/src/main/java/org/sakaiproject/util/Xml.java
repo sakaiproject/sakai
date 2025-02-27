@@ -508,4 +508,66 @@ public class Xml
 			}
 		}
 	}
+
+	/**
+	 * Convert a Node and its children to a readable string representation
+	 * @param node The node to convert
+	 * @return A formatted string showing the node structure
+	 */
+	public static String nodeToString(Node node) {
+		StringBuilder sb = new StringBuilder();
+		appendNodeDetails(node, "", sb);
+		return sb.toString();
+	}
+
+	private static void appendNodeDetails(Node node, String indent, StringBuilder sb) {
+		sb.append(indent)
+		  .append("Node Type: ")
+		  .append(getNodeTypeName(node.getNodeType()))
+		  .append(", Name: ")
+		  .append(node.getNodeName());
+
+		// Handle attributes if it's an element
+		if (node.getNodeType() == Node.ELEMENT_NODE) {
+			Element elem = (Element) node;
+			var attributes = elem.getAttributes();
+			if (attributes.getLength() > 0) {
+				sb.append("\n").append(indent).append("Attributes: ");
+				for (int i = 0; i < attributes.getLength(); i++) {
+					Node attr = attributes.item(i);
+					sb.append("\n").append(indent).append("  ")
+					  .append(attr.getNodeName())
+					  .append("=\"")
+					  .append(attr.getNodeValue())
+					  .append("\"");
+				}
+			}
+		}
+
+		// Handle node value if it exists and isn't just whitespace
+		if (node.getNodeValue() != null && !node.getNodeValue().trim().isEmpty()) {
+			sb.append("\n").append(indent).append("Value: \"")
+			  .append(node.getNodeValue().trim())
+			  .append("\"");
+		}
+
+		sb.append("\n");
+
+		// Recursively process child nodes
+		NodeList children = node.getChildNodes();
+		for (int i = 0; i < children.getLength(); i++) {
+			appendNodeDetails(children.item(i), indent + "  ", sb);
+		}
+	}
+
+	private static String getNodeTypeName(short nodeType) {
+		switch (nodeType) {
+			case Node.ELEMENT_NODE: return "Element";
+			case Node.ATTRIBUTE_NODE: return "Attribute";
+			case Node.TEXT_NODE: return "Text";
+			case Node.CDATA_SECTION_NODE: return "CDATA";
+			case Node.COMMENT_NODE: return "Comment";
+			default: return "Other(" + nodeType + ")";
+		}
+	}
 }

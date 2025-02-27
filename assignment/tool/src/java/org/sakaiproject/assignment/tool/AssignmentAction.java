@@ -9037,6 +9037,9 @@ public class AssignmentAction extends PagedResourceActionII {
                         // the open date been announced
                         integrateWithAnnouncement(state, aOldTitle, a, title, openTime, checkAutoAnnounce, valueOpenDateNotification, oldOpenTime);
 
+                        // It should only be called once when updateAssignment has already been done
+                        eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT, assignmentReference, true));
+
                         // integrate with Gradebook
                         try {
                             initIntegrateWithGradebook(state, siteId, aOldTitle, oAssociateGradebookAssignment, a, title, dueTime, gradeType, gradePoints, addtoGradebook, associateGradebookAssignment, rangeAndGroupSettings.range, category);
@@ -9100,24 +9103,13 @@ public class AssignmentAction extends PagedResourceActionII {
             }
 
             if ((newAssignment && !a.getDraft()) || (!a.getDraft() && !newAssignment)) {
-
-                Collection aGroups = a.getGroups();
-                if (aGroups.size() != 0) {
-                    // If already open
-                    if (openTime.isBefore(Instant.now())) {
-                        eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_ACCESS, assignmentReference, true));
-                    } else {
-                        // Not open yet, delay the event
-                        eventTrackingService.delay(eventTrackingService.newEvent(AssignmentConstants.EVENT_AVAILABLE_ASSIGNMENT, assignmentReference,
-                                true), openTime);
-                    }
+                // If already open
+                if (openTime.isBefore(Instant.now())) {
+                    // post new assignment event since it is fully initialized by now
+                    eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT, assignmentReference, true));
                 } else {
-                    if (openTime.isBefore(Instant.now())) {
-                        // post new assignment event since it is fully initialized by now
-                        eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT, assignmentReference, true));
-                    } else {
-                        eventTrackingService.delay(eventTrackingService.newEvent(AssignmentConstants.EVENT_AVAILABLE_ASSIGNMENT, assignmentReference, true), openTime);
-                    }
+                    // Not open yet, delay the event
+                    eventTrackingService.delay(eventTrackingService.newEvent(AssignmentConstants.EVENT_AVAILABLE_ASSIGNMENT, assignmentReference, true), openTime);
                 }
             }
         }
@@ -9741,6 +9733,7 @@ public class AssignmentAction extends PagedResourceActionII {
             CalendarEventEdit edit = c.getEditEvent(e.getId(), org.sakaiproject.calendar.api.CalendarService.EVENT_ADD_CALENDAR);
 
             edit.setField(CalendarConstants.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID, assignment.getId());
+            edit.setField(CalendarConstants.EVENT_OWNED_BY_TOOL_ID, AssignmentConstants.TOOL_ID);
             edit.setField(AssignmentConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED, assignmentService.getUsersLocalDateTimeString(assignment.getOpenDate()));
 
             c.commitEvent(edit);
@@ -12632,6 +12625,21 @@ public class AssignmentAction extends PagedResourceActionII {
         int month;
         int day;
         int year;
+
+        // visible date is shifted forward by the offset
+        Instant tVisible = t.plusSeconds(visibleDateOffset);
+        LocalDateTime ldtVisible = LocalDateTime.ofInstant(tVisible, userTimeService.getLocalTimeZone().toZoneId());
+        minute = ldtVisible.getMinute();
+        hour = ldtVisible.getHour();
+        month = ldtVisible.getMonthValue();
+        day = ldtVisible.getDayOfMonth();
+        year = ldtVisible.getYear();
+
+        state.setAttribute(NEW_ASSIGNMENT_VISIBLE_MONTH, month);
+        state.setAttribute(NEW_ASSIGNMENT_VISIBLE_DAY, day);
+        state.setAttribute(NEW_ASSIGNMENT_VISIBLE_YEAR, year);
+        state.setAttribute(NEW_ASSIGNMENT_VISIBLE_HOUR, hour);
+        state.setAttribute(NEW_ASSIGNMENT_VISIBLE_MIN, minute);
 
         // open date is shifted forward by the offset
         Instant tOpen = t.plusSeconds(openDateOffset);
@@ -16219,23 +16227,19 @@ public class AssignmentAction extends PagedResourceActionII {
                 SubmitterSubmission u1 = (SubmitterSubmission) o1;
                 SubmitterSubmission u2 = (SubmitterSubmission) o2;
 
-                if (u1 == null || u2 == null) {
-                    result = -1;
-                } else {
-                    AssignmentSubmission s1 = u1.getSubmission();
-                    AssignmentSubmission s2 = u2.getSubmission();
+                if (u1 == null && u2 == null) result = 0;
+                else if (u1 == null) result = -1;
+                else if (u2 == null) result = 1;
 
+                AssignmentSubmission s1 = u1.getSubmission();
+                AssignmentSubmission s2 = u2.getSubmission();
+                Instant t1 = (s1 == null ? null : s1.getDateSubmitted());
+                Instant t2 = (s2 == null ? null : s2.getDateSubmitted());
 
-                    if (s1 == null || s1.getDateSubmitted() == null) {
-                        result = -1;
-                    } else if (s2 == null || s2.getDateSubmitted() == null) {
-                        result = 1;
-                    } else if (s1.getDateSubmitted().isBefore(s2.getDateSubmitted())) {
-                        result = -1;
-                    } else {
-                        result = 1;
-                    }
-                }
+                if (t1 == null && t2 == null) result = 0;
+                else if (t1 == null) result = -1;
+                else if (t2 == null) result = 1;
+                else result = t1.compareTo(t2);
             } else if (m_criteria.equals(SORTED_GRADE_SUBMISSION_BY_STATUS)) {
                 // sort by submission status
                 SubmitterSubmission u1 = (SubmitterSubmission) o1;

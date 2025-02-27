@@ -51,10 +51,22 @@
             <artifactId>coursemanagement-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.msgcntr</groupId>
+            <artifactId>messageforums-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.samigo</groupId>
+            <artifactId>samigo-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
         </dependency>
-            <dependency>
+        <dependency>
+            <groupId>org.sakaiproject.assignment</groupId>
+            <artifactId>sakai-assignment-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>sakai-calendar-hbm</artifactId>
             <version>${project.version}</version>
@@ -122,6 +134,10 @@
         <dependency>
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.lti</groupId>
+            <artifactId>lti-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>

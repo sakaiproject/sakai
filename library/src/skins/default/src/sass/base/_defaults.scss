@@ -118,6 +118,14 @@ h4{
   font-size: #{$default-font-size + 2};
 }
 
+h5{
+  font-size: #{$default-font-size};
+}
+
+h6{
+  font-size: #{$default-font-size - 2};
+}
+
 h3.popover-header {
   margin-top: 0;
 }
@@ -178,7 +186,9 @@ input[type="checkbox"]{
   }
   &:disabled{
     cursor: not-allowed;
-    background-color: var(--sakai-background-color-3);
+    &:not(:checked) {
+      background-color: var(--sakai-background-color-3);
+    }
   }
 }
 input[type="radio"]{

@@ -1,19 +1,5 @@
 <!-- sakai_filepicker_attach.vm, version: Id:  $, use with org.sakaiproject.content.tool.FilePickerAction.java -->
 
-<style type="text/css">
-	#resourceTabs {
-		margin-left: 3px;
-		margin-right: 3px;
-	}
-
-	.joinLabel{
-		margin: -1px 0px 0px -1px;
-	}
-
-	.joinLabel .act {
-		margin: 15px;
-	}
-</style>
 <script> ## This needs to be closed in order for the loads to happen before we use "$"
 includeLatestJQuery('sakai_filepicker_attach.vm');
 </script>
@@ -195,25 +181,24 @@ includeLatestJQuery('sakai_filepicker_attach.vm');
 		</div>
 		
 		#end	
-
-		<ul class="nav nav-tabs" id="resourceTabs">
-			<li class="nav-item">
-				<a class="nav-link #if(!$!navigating_resources && !$!navigating_onedrive  && !$!navigating_googledrive) active #end" data-bs-target="#pickerUploadOption" data-bs-toggle="tab">$tlang.getString("att.upl")</a>
+		<ul class="nav nav-tabs" id="resourceTabs" role="tablist">
+			<li class="nav-item" role="presentation">
+				<button class="nav-link #if(!$!navigating_resources && !$!navigating_onedrive && !$!navigating_googledrive) active #end" id="upload-tab" data-bs-toggle="tab" data-bs-target="#pickerUploadOption" type="button" role="tab" aria-controls="pickerUploadOption" aria-selected="#if(!$!navigating_resources && !$!navigating_onedrive && !$!navigating_googledrive)true#{else}false#end">$tlang.getString("att.upl")</button>
 			</li>
-			<li class="nav-item">
-				<a class="nav-link" data-bs-target="#pickerShareLinkOption" data-bs-toggle="tab">$tlang.getString("addi.or.url")</a>
+			<li class="nav-item" role="presentation">
+				<button class="nav-link" id="sharelink-tab" data-bs-toggle="tab" data-bs-target="#pickerShareLinkOption" type="button" role="tab" aria-controls="pickerShareLinkOption" aria-selected="false">$tlang.getString("addi.or.url")</button>
 			</li>
-			<li class="nav-item">
-				<a class="nav-link #if($!navigating_resources) active #end" data-bs-target="#pickerSelectFormResources" data-bs-toggle="tab">$tlang.getString("att.resource")</a>
+			<li class="nav-item" role="presentation">
+				<button class="nav-link #if($!navigating_resources) active #end" id="resources-tab" data-bs-toggle="tab" data-bs-target="#pickerSelectFormResources" type="button" role="tab" aria-controls="pickerSelectFormResources" aria-selected="#if($!navigating_resources)true#{else}false#end">$tlang.getString("att.resource")</button>
 			</li>
 			#if($!onedriveOn)
-			<li class="nav-item">
-				<a class="nav-link #if($!navigating_onedrive) active #end" data-bs-target="#pickerOneDrive" data-bs-toggle="tab"><span class="fa fa-windows" aria-hidden="true"></span> $tlang.getString("onedrive.integration")</a>
+			<li class="nav-item" role="presentation">
+				<button class="nav-link #if($!navigating_onedrive) active #end" id="onedrive-tab" data-bs-toggle="tab" data-bs-target="#pickerOneDrive" type="button" role="tab" aria-controls="pickerOneDrive" aria-selected="#if($!navigating_onedrive)true#{else}false#end"><span class="fa fa-windows" aria-hidden="true"></span> $tlang.getString("onedrive.integration")</button>
 			</li>
 			#end
 			#if($!googledriveOn)
-			<li class="nav-item">
-				<a class="nav-link #if($!navigating_googledrive) active #end" data-bs-target="#pickerGoogleDrive" data-bs-toggle="tab"><span class="fa fa-google" aria-hidden="true"></span> $tlang.getString("googledrive.integration")</a>
+			<li class="nav-item" role="presentation">
+				<button class="nav-link #if($!navigating_googledrive) active #end" id="googledrive-tab" data-bs-toggle="tab" data-bs-target="#pickerGoogleDrive" type="button" role="tab" aria-controls="pickerGoogleDrive" aria-selected="#if($!navigating_googledrive)true#{else}false#end"><span class="fa fa-google" aria-hidden="true"></span> $tlang.getString("googledrive.integration")</button>
 			</li>
 			#end
 		</ul>
@@ -634,46 +619,92 @@ includeLatestJQuery('sakai_filepicker_attach.vm');
 				</div>
 				############################################# end of GoogleDrive section
 				</div>
-				<p class="act" >
-									<input type="button" name="attachButton" id="attachButton"  accesskey="s"
-										onclick="SPNR.disableControlsAndSpin( this, null ); document.getElementById('attachForm').action='#toolLink("FilePickerAction" "doAddattachments")'; submitform('attachForm');" 
-										value="$tlang.getString("att.finish")" #if($list_has_changed) class="active" #else disabled="disabled" #end />
-									<input type="button" name="cancelButton" id="cancelButton"  accesskey="x" class="cancelButton"
-										onclick=" document.getElementById('attachForm').action='#toolLink("FilePickerAction" "doCancel")'; submitform('attachForm');" 
-										value="$tlang.getString("att.cancel")"  />
-								</p>
+				<div class="d-flex justify-content-end gap-2 mt-3" id="attachment-actions">
+					<button type="button" name="attachButton" id="attachButton" accesskey="s" class="btn btn-primary #if(!$list_has_changed) disabled #end"
+						onclick="SPNR.disableControlsAndSpin(this, null); document.getElementById('attachForm').action='#toolLink("FilePickerAction" "doAddattachments")'; submitform('attachForm');"
+						#if(!$list_has_changed) disabled="disabled" #end>
+						$tlang.getString("att.finish")
+					</button>
+					<button type="button" name="cancelButton" id="cancelButton" accesskey="x" class="btn btn-secondary"
+						onclick="document.getElementById('attachForm').action='#toolLink("FilePickerAction" "doCancel")'; submitform('attachForm');">
+						$tlang.getString("att.cancel")
+					</button>
+				</div>
 			</div>
 		</div>	
 
 <script>
-$(document).ready(function () {
-	$('.googlethumbnail').on('mouseenter', function () {
-		$(this).addClass('googlethumbnailbig');
-		$(this).removeClass('googlethumbnailsmall');
-	}).on('mouseleave', function () {
-		$(this).addClass('googlethumbnailsmall');
-		$(this).removeClass('googlethumbnailbig');
+document.addEventListener('DOMContentLoaded', () => {
+	document.querySelectorAll('.googlethumbnail').forEach(thumbnail => {
+		thumbnail.addEventListener('mouseenter', () => {
+			thumbnail.classList.add('googlethumbnailbig');
+			thumbnail.classList.remove('googlethumbnailsmall');
+		});
+		thumbnail.addEventListener('mouseleave', () => {
+			thumbnail.classList.add('googlethumbnailsmall');
+			thumbnail.classList.remove('googlethumbnailbig');
+		});
 	});
 
-	$('.nav-item.active').find('a').focus();
-});	
+	const activeNavItem = document.querySelector('.nav-item.active');
+	if (activeNavItem) {
+		const focusableElement = activeNavItem.querySelector('a');
+		if (focusableElement) focusableElement.focus();
+	}
 
-if ( $(window).width() > portalSmallBreakPoint() ) { ## Don't go modal when mobile..
-	$('#page-title').hide();
-	$("#portletBody").dialog({
-		title: $('#page-title').text(),
-		width: modalDialogWidth(),
-		modal: true,
-		draggable: false,
-		close: function () {
-			$('#attachform').append('<input type="hidden" name="cancelButton" value="$tlang.getString("att.cancel")" /> ');
-			act = '#toolLink("FilePickerAction" "doCancel")';
-			document.getElementById('attachForm').action = act.replace('&amp;','&');
-			submitform('attachForm');
+	if (window.innerWidth > portalSmallBreakPoint()) { // Don't go modal when mobile
+		const pageTitle = document.getElementById('page-title');
+		if (pageTitle) pageTitle.style.display = 'none';
+		
+		// Create Bootstrap modal dynamically
+		const modalHtml = `
+			<div class="modal fade" id="attachmentModal" tabindex="-1" aria-labelledby="attachmentModalLabel" aria-hidden="true">
+				<div class="modal-dialog modal-lg modal-dialog-scrollable">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h5 class="modal-title" id="attachmentModalLabel">${$('#page-title').text()}</h5>
+							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+						</div>
+						<div class="modal-body">
+						</div>
+						<div class="modal-footer">
+						</div>
+					</div>
+				</div>
+			</div>
+		`;
+		
+		document.body.insertAdjacentHTML('beforeend', modalHtml);
+		
+		// Move content into modal, moving buttons to footer
+		const content = document.getElementById('portletBody');
+		const parent = content.parentNode;
+		const buttons = document.getElementById('attachment-actions');
+		
+		if (buttons) {
+			buttons.parentNode.removeChild(buttons);
 		}
-	});
-	$(window).resize(function() {
-		$("#portletBody").dialog("option", "width", modalDialogWidth());
-	});
-}
+		parent.removeChild(content);
+		
+		document.querySelector('#attachmentModal .modal-body').appendChild(content);
+		if (buttons) {
+			document.querySelector('#attachmentModal .modal-footer').appendChild(buttons);
+		}
+		
+		// Show modal
+		const modal = new bootstrap.Modal('#attachmentModal', {
+			backdrop: 'static',
+			keyboard: true   // Allow Esc to close
+		});
+		modal.show();
+		
+		// Handle modal close by triggering Cancel button
+		document.querySelector('#attachmentModal').addEventListener('hide.bs.modal', (e) => {
+			// Only handle if closed by backdrop click or Esc key
+			if (e.target === document.querySelector('#attachmentModal')) {
+				document.getElementById('cancelButton').click();
+			}
+		});
+	}
+});
 </script>

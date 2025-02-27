@@ -105,6 +105,11 @@ public class PdfExportUtil {
                     for (int k = 0; k < rowData.size(); k++) {
                         table.addCell(createCell(rowData.get(k)));
                     }
+                    if (rowData.size() < tableData.get(0).size()) {
+                        for (int l = 0; l < tableData.get(0).size() - rowData.size(); l++) {
+                            table.addCell(createCell(""));
+                        }
+                    }
                 }
 
                 // Add created table to document

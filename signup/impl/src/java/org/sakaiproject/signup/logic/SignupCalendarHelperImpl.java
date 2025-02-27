@@ -66,6 +66,7 @@ import net.fortuna.ical4j.model.component.VEvent;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
+@Setter
 @Slf4j
 public class SignupCalendarHelperImpl implements SignupCalendarHelper {
 
@@ -117,7 +118,6 @@ public class SignupCalendarHelperImpl implements SignupCalendarHelper {
 		if(v == null) {
 			SecurityAdvisor advisor = sakaiFacade.pushSecurityAdvisor();
 			try {
-				
 				CalendarEventEdit tsEvent = generateEvent(meeting, ts);
 				if(tsEvent == null) {
 					// something went wrong when fetching the calendar
@@ -133,7 +133,7 @@ public class SignupCalendarHelperImpl implements SignupCalendarHelper {
 				//generate VEvent for timeslot
 				v = externalCalendaringService.createEvent(tsEvent, null, true);
 				externalCalendaringService.addChairAttendeesToEvent(v, getCoordinators(meeting));
-				
+				commitEvent(meeting, tsEvent);
 			} finally {
 				sakaiFacade.popSecurityAdvisor(advisor);
 			}
@@ -146,7 +146,7 @@ public class SignupCalendarHelperImpl implements SignupCalendarHelper {
 	public VEvent generateVEventForMeeting(SignupMeeting meeting) {
 		
 		if(meeting == null) {
-			log.error("Meeting was null. Cannot generate VEvent.");
+			log.error("Meeting was null. Cannot generate generateVEventForMeeting.");
 			return null;
 		}
 		
@@ -155,7 +155,6 @@ public class SignupCalendarHelperImpl implements SignupCalendarHelper {
 		if(v == null) {
 			SecurityAdvisor advisor = sakaiFacade.pushSecurityAdvisor();
 			try {
-				
 				CalendarEventEdit mEvent = generateEvent(meeting);
 				if(mEvent == null) {
 					//calendar may not be in site - this will be skipped
@@ -168,14 +167,13 @@ public class SignupCalendarHelperImpl implements SignupCalendarHelper {
 				//generate VEvent for timeslot
 				v = externalCalendaringService.createEvent(mEvent, null, true);
 				externalCalendaringService.addChairAttendeesToEvent(v, getCoordinators(meeting));
-				
+				commitEvent(meeting, mEvent);
 			} finally {
 				sakaiFacade.popSecurityAdvisor(advisor);
 			}
 		}
 		
 		return v;
-		
 	}
 
 	/**
@@ -186,7 +184,7 @@ public class SignupCalendarHelperImpl implements SignupCalendarHelper {
 	 * @return the list of coordinator Users
 	 */
 	private Set<User> getCoordinators(SignupMeeting meeting) {
-		Set<User> users = new HashSet<User>();
+		Set<User> users = new HashSet<>();
 		List<String> ids = meeting.getCoordinatorIdsList();
 		for (String coordinator : ids) {
 			users.add(sakaiFacade.getUserQuietly(coordinator));
@@ -217,12 +215,14 @@ public class SignupCalendarHelperImpl implements SignupCalendarHelper {
 		return externalCalendaringService.cancelEvent(vevent);
 	}
 	
-	public VEvent addUsersToVEvent(VEvent vevent, Set<User> users) {
+	@Override
+    public VEvent addUsersToVEvent(VEvent vevent, Set<User> users) {
 		return externalCalendaringService.addAttendeesToEvent(vevent, users);
 	}
 
-	public VEvent addAttendeesToVEvent(VEvent vevent, Set<SignupAttendee> attendees) {
-        Set<User> users = new HashSet<User>();
+	@Override
+    public VEvent addAttendeesToVEvent(VEvent vevent, Set<SignupAttendee> attendees) {
+        Set<User> users = new HashSet<>();
         for (SignupAttendee attendee : attendees) {
             User user = sakaiFacade.getUser(attendee.getAttendeeUserId());
             if (user != null) {
@@ -278,10 +278,9 @@ public class SignupCalendarHelperImpl implements SignupCalendarHelper {
 			if(StringUtils.isNotBlank(url)){
 				event.setField("vevent_url", url);
 			}
-			
-			
+
 		} catch (PermissionException e) {
-			log.error("SignupCalendarHelperImpl.generateEvent: " + e);
+            log.error("SignupCalendarHelperImpl.generateEvent: {}", String.valueOf(e));
 			return null;
 		}
 		
@@ -296,11 +295,9 @@ public class SignupCalendarHelperImpl implements SignupCalendarHelper {
 	public static final String newline = "<br />";// somehow the "\n" is not working for linebreak here.
 	private String addWarningMessageForCancellation(String meetingDesc, String siteId){
 		meetingDesc = meetingDesc ==null? " ": meetingDesc;
-		StringBuffer sb = new StringBuffer(meetingDesc);
-		sb.append(newline + newline);
-		sb.append(rb.getString("ical.footer.separator"));
-		sb.append(newline + rb.getString("ical.footer.text"));
-		return sb.toString();
+        return meetingDesc + newline + newline +
+                rb.getString("ical.footer.separator") +
+                newline + rb.getString("ical.footer.text");
 	};
 	
 	/**
@@ -312,13 +309,39 @@ public class SignupCalendarHelperImpl implements SignupCalendarHelper {
 		}
 		return null;
 	}
-	
 
-	
-	@Setter
+	// Helper to properly close an opened (locked) CalendarEventEdit
+	private void commitEvent(SignupMeeting meeting, CalendarEventEdit event) {
+		if (meeting == null || event == null) {
+			return;
+		}
+
+		// Get siteId from first signup site, matching generateEvent pattern
+		String siteId = meeting.getSignupSites().get(0).getSiteId();
+		Calendar calendar = null;
+
+		try {
+			calendar = sakaiFacade.getCalendar(siteId);
+			if (calendar == null) {
+				return;
+			}
+
+			calendar.commitEvent(event);
+		} catch (PermissionException e) {
+			log.error("Failed to commit calendar event: {}", e.getMessage());
+		} finally {
+			if (calendar != null && event.isActiveEdit()) {
+				try {
+					calendar.cancelEvent(event);
+				} catch (Exception ce) {
+					log.error("Failed to cancel calendar event after commit failure: {}", ce.getMessage());
+				}
+			}
+		}
+	}
+
 	private SakaiFacade sakaiFacade;
 	
-	@Setter
 	private ExternalCalendaringService externalCalendaringService;
 
 }

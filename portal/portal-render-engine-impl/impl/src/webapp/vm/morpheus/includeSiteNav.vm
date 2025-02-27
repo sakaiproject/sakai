@@ -72,6 +72,25 @@
                 #end
                 #pageListItem ($page, $pageUrl, "${page.icon}", 4)
             #end
+            #if ($site.childSites)
+                <li class="nav-item">
+                    <div class="ps-2">
+                        <div class="dropdown">
+                            <button class="btn btn-nav w-100 dropdown-toggle pe-3 d-flex align-items-center justify-content-between" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <div class="d-flex align-items-center">
+                                    <i class="me-1 bi bi-diagram-2" aria-hidden="true"></i>
+                                    <span>$rloader.sitenav_sub_sites</span>
+                                </div>
+                            </button>
+                            <ul class="dropdown-menu w-100">
+                                #foreach($childSite in $site.childSites)
+                                    <li><a class="dropdown-item px-3 py-2" href="/portal/site/$childSite.id">$childSite.title</a></li>
+                                #end
+                            </ul>
+                        </div>
+                    </div>
+                </li>
+            #end
             </ul>
         </div>
     </li>
