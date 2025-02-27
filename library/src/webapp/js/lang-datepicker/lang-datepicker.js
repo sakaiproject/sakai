@@ -23,77 +23,72 @@ const defaults = {
       
       // Already a Date object
       if (value instanceof Date) {
-        return value;
+        return new Date(value); // Create a new instance to avoid mutation issues
       }
       
       // Our custom date object format
       if (typeof value === 'object' && 'year' in value) {
-        // Convert to a proper Date object
-        const d = new Date();
-        d.setFullYear(value.year);
-        d.setMonth(value.month - 1); // JS months are 0-indexed
-        d.setDate(value.day);
-        d.setHours(value.hours || 0);
-        d.setMinutes(value.minutes || 0);
-        d.setSeconds(value.seconds || 0);
-        d.setMilliseconds(0);
-        return d;
+        // Use Date constructor with specific components
+        return new Date(
+          value.year, 
+          (value.month - 1), // JS months are 0-indexed
+          value.day,
+          value.hours || 0,
+          value.minutes || 0,
+          value.seconds || 0,
+          0 // milliseconds
+        );
       }
       
-      // String parsing
+      // String parsing - try built-in parsing first
       if (typeof value === 'string') {
+        // Try native parsing first
+        const nativeDate = new Date(value);
+        if (!isNaN(nativeDate.getTime())) {
+          return nativeDate;
+        }
+        
         // Handle YYYY-MM-DD HH:mm[:ss] format
         if (value.includes(' ')) {
           const [datePart, timePart] = value.split(' ');
-          const [year, month, day] = datePart.split('-').map(n => parseInt(n, 10));
-          const [hours, minutes] = timePart.split(':').map(n => parseInt(n, 10));
+          const [year, month, day] = datePart.split('-').map(Number);
+          const [hours, minutes] = timePart.split(':').map(Number);
           
           if (!isNaN(year) && !isNaN(month) && !isNaN(day) && !isNaN(hours) && !isNaN(minutes)) {
-            const d = new Date();
-            d.setFullYear(year);
-            d.setMonth(month - 1); // JS months are 0-indexed
-            d.setDate(day);
-            d.setHours(hours);
-            d.setMinutes(minutes);
-            d.setSeconds(0);
-            d.setMilliseconds(0);
-            return d;
+            return new Date(year, month - 1, day, hours, minutes);
           }
         }
         
         // Handle ISO format (YYYY-MM-DDTHH:mm)
         if (value.includes('T')) {
-          const [datePart, timePart] = value.split('T');
-          const [year, month, day] = datePart.split('-').map(n => parseInt(n, 10));
-          const timeComponents = timePart.split(':').map(n => parseInt(n, 10));
-          const hours = timeComponents[0] || 0;
-          const minutes = timeComponents[1] || 0;
+          // Try ISO format parsing with the browser
+          const nativeDate = new Date(value);
+          if (!isNaN(nativeDate.getTime())) {
+            return nativeDate;
+          }
           
-          if (!isNaN(year) && !isNaN(month) && !isNaN(day) && !isNaN(hours) && !isNaN(minutes)) {
-            const d = new Date();
-            d.setFullYear(year);
-            d.setMonth(month - 1); // JS months are 0-indexed
-            d.setDate(day);
-            d.setHours(hours);
-            d.setMinutes(minutes);
-            d.setSeconds(0);
-            d.setMilliseconds(0);
-            return d;
+          // Manual parsing as fallback
+          const [datePart, timePart] = value.split('T');
+          const [year, month, day] = datePart.split('-').map(Number);
+          const timeComponents = timePart.split(':').map(Number);
+          
+          if (!isNaN(year) && !isNaN(month) && !isNaN(day)) {
+            return new Date(
+              year, 
+              month - 1, 
+              day, 
+              timeComponents[0] || 0, 
+              timeComponents[1] || 0
+            );
           }
         }
-      }
-      
-      // Try standard Date parsing
-      const date = new Date(value);
-      if (!isNaN(date.getTime())) {
-        return date;
       }
       
       // Invalid date
       return null;
     }
     
-    // Format a date for the input field
+    // Format a date for the input field using Intl.DateTimeFormat where possible
     static formatForInput(date, useTime = true) {
       if (!date) return "";
       
@@ -118,241 +113,215 @@ const defaults = {
       date = DateHelper.normalize(date);
       if (!date) return "";
       
+      // Use toISOString and then replace the Z with the timezone offset
+      const isoBase = date.toISOString().slice(0, 19); // YYYY-MM-DDTHH:mm:ss
       const offset = -date.getTimezoneOffset();
       const offsetSign = offset >= 0 ? '+' : '-';
       const offsetHours = DateHelper.pad(Math.floor(Math.abs(offset) / 60));
       const offsetMinutes = DateHelper.pad(Math.abs(offset) % 60);
       
-      return `${date.getFullYear()}-${DateHelper.pad(date.getMonth() + 1)}-${DateHelper.pad(date.getDate())}T${DateHelper.pad(date.getHours())}:${DateHelper.pad(date.getMinutes())}:${DateHelper.pad(date.getSeconds())}${offsetSign}${offsetHours}:${offsetMinutes}`;
+      return `${isoBase}${offsetSign}${offsetHours}:${offsetMinutes}`;
+    }
+    
+    // Get a formatted value for a field type from a date
+    static getFieldValue(date, fieldType, useTime = true) {
+      if (!date) return "";
+      
+      date = DateHelper.normalize(date);
+      if (!date) return "";
+      
+      switch (fieldType) {
+        case "month":
+          return DateHelper.pad(date.getMonth() + 1);
+        case "day":
+          return DateHelper.pad(date.getDate());
+        case "year":
+          return date.getFullYear();
+        case "hour":
+          return useTime ? date.getHours() : "";
+        case "minute":
+          return useTime ? date.getMinutes() : "";
+        case "ampm":
+          return useTime ? (date.getHours() < 12 ? "am" : "pm") : "";
+        case "iso8601":
+          return DateHelper.formatForSakai(date);
+        default:
+          return "";
+      }
     }
   }
   
   class SakaiDateTimePicker {
 	constructor(options) {
 	  this.options = { ...defaults, ...options };
-	  this.options.useTime = this.options.useTime === 1 || this.options.useTime === true;
+	  this.options.useTime = Boolean(this.options.useTime === 1 || this.options.useTime === true);
 	  this.element = document.querySelector(this.options.input);
+	  
 	  if (!this.element) {
 		console.error("Input element not found:", this.options.input);
 		return;
 	  }
-	  this.initTime = Date.now();
+	  
 	  this.init();
 	}
   
 	init() {
 	  this.element.style.minWidth = "200px";
 	  
-	  // First try to parse options.val if it exists
-	  let initialDate = null;
-	  if (this.options.val) {
-		initialDate = DateHelper.normalize(this.options.val);
-	  }
-	  // If no valid date from options.val, try the input element's value
-	  if (!initialDate && this.element.value.trim()) {
-		initialDate = this.parseDate(this.element.value.trim());
-	  }
-	  // If still no valid date and we don't allow empty, use current date
-	  if (!initialDate && !this.options.allowEmptyDate) {
-		initialDate = this.getPreferredSakaiDatetime();
-	  }
+	  // Process initial date value
+	  const initialDate = this.getInitialDate();
 
-	  // First set a valid value
-	  if (initialDate) {
-		this.element.value = DateHelper.formatForInput(initialDate, this.options.useTime);
-	  } else {
-		// Clear the value if we allow empty dates
-		this.element.value = '';
-	  }
+	  // Set input value
+	  this.element.value = initialDate 
+	    ? DateHelper.formatForInput(initialDate, this.options.useTime) 
+	    : '';
 
-	  // Only NOW change the input type, after we have a valid value or empty string
+	  // Set input type after setting value
 	  this.element.type = this.options.useTime ? "datetime-local" : "date";
 
+	  // Complete setup
 	  this.createHiddenFields();
-	  // Use the same initialDate for hidden fields to maintain consistency
 	  this.syncHiddenFields(initialDate);
 	  this.setupEventListeners();
-	  this.handleDuration();
+	  this.setupDuration();
 	}
-  
-	setInitialValue() {
-		// If we have an explicit value in options, use that
-		if (this.options.val) {
-			const parsedValue = DateHelper.normalize(this.options.val);
-			if (parsedValue) {
-				this.element.value = DateHelper.formatForInput(parsedValue, this.options.useTime);
-				return;
-			}
-		}
-
-		// If input has a value, try to use that
-		const inputValue = this.element.value.trim();
-		if (inputValue) {
-			const parsedValue = this.parseDate(inputValue);
-			if (parsedValue) {
-				this.element.value = DateHelper.formatForInput(parsedValue, this.options.useTime);
-				return;
-			}
-		}
-
-		// If we get here and don't allow empty dates, use current date
-		if (!this.options.allowEmptyDate) {
-			const currentDate = this.getPreferredSakaiDatetime();
-			this.element.value = DateHelper.formatForInput(currentDate, this.options.useTime);
-		}
-	}
+    
+    // Determine the initial date based on options and input value
+    getInitialDate() {
+      // Try options.val first
+      if (this.options.val) {
+        const date = DateHelper.normalize(this.options.val);
+        if (date) return date;
+      }
+      
+      // Try input value next
+      const inputValue = this.element.value.trim();
+      if (inputValue) {
+        const date = DateHelper.normalize(inputValue);
+        if (date) return date;
+      }
+      
+      // Fall back to current date if empty dates not allowed
+      return this.options.allowEmptyDate ? null : this.getPreferredSakaiDatetime();
+    }
   
 	createHiddenFields() {
 	  const hiddenFields = this.options.ashidden;
 	  if (!hiddenFields) return;
   
-	  for (const [key, id] of Object.entries(hiddenFields)) {
-		if (!document.getElementById(id)) {
-		  const hiddenInput = document.createElement("input");
-		  hiddenInput.type = "hidden";
-		  hiddenInput.name = id;
-		  hiddenInput.id = id;
-		  this.element.insertAdjacentElement("afterend", hiddenInput);
-		}
-	  }
+	  Object.entries(hiddenFields).forEach(([key, id]) => {
+	    if (!document.getElementById(id)) {
+	      const hiddenInput = document.createElement("input");
+	      hiddenInput.type = "hidden";
+	      hiddenInput.name = id;
+	      hiddenInput.id = id;
+	      this.element.insertAdjacentElement("afterend", hiddenInput);
+	    }
+	  });
 	}
   
 	setupEventListeners() {
+	  // Handle input change
 	  this.element.addEventListener("change", () => {
-		const date = this.parseDate(this.element.value);
-		this.syncHiddenFields(date);
-		if (this.options.onDateTimeSelected && date) {
-		  this.options.onDateTimeSelected(date.getTime());
-		}
+	    const date = DateHelper.normalize(this.element.value);
+	    this.syncHiddenFields(date);
+	    
+	    // Trigger callback if provided and we have a valid date
+	    this.options.onDateTimeSelected?.call(this, date?.getTime());
+	    
+	    // Update duration if configured
+	    if (this.options.duration) this.updateDuration();
 	  });
   
+	  // Handle empty date when input is cleared
 	  this.element.addEventListener("blur", () => {
-		if (this.options.allowEmptyDate && !this.element.value) {
-		  this.syncHiddenFields(null);
-		}
+	    if (this.options.allowEmptyDate && !this.element.value) {
+	      this.syncHiddenFields(null);
+	    }
 	  });
-  
-	  if (this.options.duration) {
-		this.element.addEventListener("change", () => this.updateDuration());
-	  }
 	}
   
-	handleDuration() {
-	  const duration = this.options.duration;
+	setupDuration() {
+	  const { duration } = this.options;
 	  if (!duration) return;
   
-	  const hourField = document.querySelector(`#${duration.hour}`);
-	  const minuteField = document.querySelector(`#${duration.minute}`);
-	  const updateField = document.querySelector(`#${duration.update}`);
-  
-	  if (!hourField || !minuteField || !updateField) {
-		console.warn("Duration fields not found:", duration);
-		return;
+	  // Get duration-related elements
+	  const elements = {
+	    hour: document.querySelector(`#${duration.hour}`),
+	    minute: document.querySelector(`#${duration.minute}`),
+	    update: document.querySelector(`#${duration.update}`)
+	  };
+	  
+	  // Validate elements exist
+	  if (!elements.hour || !elements.minute || !elements.update) {
+	    console.warn("Duration fields not found:", duration);
+	    return;
 	  }
-  
+	  
+	  // Initial update
 	  this.updateDuration();
-	  [hourField, minuteField, this.element].forEach((el) => {
-		el.addEventListener("change", () => this.updateDuration());
+	  
+	  // Set up change listeners
+	  [elements.hour, elements.minute].forEach(el => {
+	    el.addEventListener("change", () => this.updateDuration());
 	  });
 	}
   
 	updateDuration() {
-	  const duration = this.options.duration;
+	  const { duration } = this.options;
 	  if (!duration) return;
   
-	  const date = this.parseDate(this.element.value);
+	  // Get base date and duration elements
+	  const date = DateHelper.normalize(this.element.value);
 	  if (!date) return;
-  
-	  const hours = parseInt(document.querySelector(`#${duration.hour}`).value) || 0;
-	  const minutes = parseInt(document.querySelector(`#${duration.minute}`).value) || 0;
-  
-	  const endDate = new Date(date.getTime() + hours * 60 * 60 * 1000 + minutes * 60 * 1000);
-	  const endString = this.options.useTime
-		? endDate.toLocaleString() // Display only, no storage impact
-		: endDate.toLocaleDateString();
-  
-	  document.querySelector(`#${duration.update}`).textContent = endString;
-	}
-  
-	// Parse raw value without Date object to avoid timezone shifts - now uses DateHelper
-	parseRawValue(value) {
-	  if (!value) return null;
-      
-      const date = DateHelper.normalize(value);
-      if (date) return date;
-      
-      // If we get here, we couldn't parse the date, return current date as fallback
-      console.warn('Could not parse date value:', value, 'using current date as fallback');
-      return this.getPreferredSakaiDatetime();
-	}
-  
-	// Parse datetime-local input values or fallback default
-	parseDate(value) {
-	  if (!value) return this.options.allowEmptyDate ? null : this.getPreferredSakaiDatetime();
-	  const date = new Date(value);
-	  return isNaN(date.getTime()) ? this.getPreferredSakaiDatetime() : date;
-	}
-  
-	formatForInput(date) {
-	  return DateHelper.formatForInput(date, this.options.useTime);
-	}
-
-	formatForSakai(date) {
-	  return DateHelper.formatForSakai(date);
+	  
+	  const hourField = document.querySelector(`#${duration.hour}`);
+	  const minuteField = document.querySelector(`#${duration.minute}`);
+	  const updateField = document.querySelector(`#${duration.update}`);
+	  
+	  if (!hourField || !minuteField || !updateField) return;
+	  
+	  // Calculate end date
+	  const hours = parseInt(hourField.value) || 0;
+	  const minutes = parseInt(minuteField.value) || 0;
+	  const durationMs = (hours * 60 + minutes) * 60 * 1000;
+	  const endDate = new Date(date.getTime() + durationMs);
+	  
+	  // Display end date using Intl.DateTimeFormat
+	  const formatter = new Intl.DateTimeFormat(undefined, { 
+	    dateStyle: 'short', 
+	    timeStyle: this.options.useTime ? 'short' : undefined 
+	  });
+	  
+	  updateField.textContent = formatter.format(endDate);
 	}
   
 	syncHiddenFields(date) {
 	  const hiddenFields = this.options.ashidden;
 	  if (!hiddenFields) return;
   
-	  // Normalize the date to ensure we're always working with a Date object
-	  const normalizedDate = date ? DateHelper.normalize(date) : null;
-  
-	  for (const [key, id] of Object.entries(hiddenFields)) {
-		const hiddenInput = document.getElementById(id);
-		if (!hiddenInput) continue;
-  
-		const oldValue = hiddenInput.value;
-		let newValue = "";
-  
-		if (normalizedDate) {
-		  switch (key) {
-			case "month":
-			  newValue = String(normalizedDate.getMonth() + 1).padStart(2, '0');
-			  break;
-			case "day":
-			  newValue = String(normalizedDate.getDate()).padStart(2, '0');
-			  break;
-			case "year":
-			  newValue = normalizedDate.getFullYear();
-			  break;
-			case "hour":
-			  newValue = this.options.useTime ? normalizedDate.getHours() : "";
-			  break;
-			case "minute":
-			  newValue = this.options.useTime ? normalizedDate.getMinutes() : "";
-			  break;
-			case "ampm":
-			  newValue = this.options.useTime ? (normalizedDate.getHours() < 12 ? "am" : "pm") : "";
-			  break;
-			case "iso8601":
-			  newValue = DateHelper.formatForSakai(normalizedDate);
-			  break;
-		  }
-		}
-  
-		hiddenInput.value = newValue;
-		if (oldValue !== newValue) {
-		  hiddenInput.dispatchEvent(new Event("change"));
-		}
-	  }
+	  Object.entries(hiddenFields).forEach(([key, id]) => {
+	    const hiddenInput = document.getElementById(id);
+	    if (!hiddenInput) return;
+	    
+	    const oldValue = hiddenInput.value;
+	    const newValue = date ? DateHelper.getFieldValue(date, key, this.options.useTime) : "";
+	    
+	    if (oldValue !== newValue) {
+	      hiddenInput.value = newValue;
+	      hiddenInput.dispatchEvent(new Event("change"));
+	    }
+	  });
 	}
   
 	getPreferredSakaiDatetime() {
-	  const p = window.portal || (window.parent && window.parent.portal);
-	  if (p && p.serverTimeMillis) {
-		return new Date(parseInt(p.serverTimeMillis));
+	  // Use optional chaining for nested property access
+	  const timestamp = window.portal?.serverTimeMillis || window.parent?.portal?.serverTimeMillis;
+	  
+	  if (timestamp) {
+	    return new Date(parseInt(timestamp));
 	  }
+	  
 	  console.debug("No Sakai server time available. Using local time without adjustment.");
 	  return new Date();
 	}
