@@ -2649,11 +2649,13 @@ public class SimplePageBean {
 
 			if (l != null) {
 				try {
+					// TODO: A lot of things can go wrong here methinks -- Chuck
 					updatePageObject(l);
 					// this should exist except if the page was created by old code
 					SimplePageItem i = simplePageToolDao.findTopLevelPageItemBySakaiId(String.valueOf(l));
 					if (i == null) {
-						// and dummy item, the site is the notional top level page
+						// add vestigial item, the site is the notional top level page
+						log.debug("no vestigial page found, making new item pageId {} title {}", l.toString(), currentPage.getTitle());
 						i = simplePageToolDao.makeItem(0, 0, SimplePageItem.PAGE, l.toString(), currentPage.getTitle());
 						saveItem(i);
 					}
@@ -2671,6 +2673,7 @@ public class SimplePageBean {
 				// No page found. Let's make a new one.
 				String toolId = ((ToolConfiguration) toolManager.getCurrentPlacement()).getPageId();
 				String title = getCurrentSite().getPage(toolId).getTitle(); // Use title supplied
+				log.debug("no page found, making new page toolId {} siteId {} title {}", toolId, getCurrentSiteId(), title);
 
 				// during creation
 				SimplePage page = simplePageToolDao.makePage(toolId, getCurrentSiteId(), title, null, null);
