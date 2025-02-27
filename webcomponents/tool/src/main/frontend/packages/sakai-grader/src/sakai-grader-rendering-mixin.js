@@ -27,7 +27,7 @@ export const graderRenderingMixin = Base => class extends Base {
             <div class="modal-content">
               <div class="modal-header">
                 <h5 class="modal-title" id="grader-settings-modal-label">${this._i18n.settings}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close d-lg-none" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
               <div class="modal-body">
                 <div>
@@ -759,7 +759,7 @@ export const graderRenderingMixin = Base => class extends Base {
                   @click=${this._save}>
                 ${this._i18n["gen.retustud"]}
               </button>
-              <button class="btn btn-link" accesskey="x" name="cancel" @click=${this._cancel}>${this._i18n["gen.can"]}</button>
+              <button class="btn btn-link d-lg-none" accesskey="x" name="cancel" @click=${this._cancel}>${this._i18n["gen.can"]}</button>
             </div>
             ${this._saving ? html`<div class="sak-banner-info">${this._i18n.saving}</div>` : ""}
             ${this._saveSucceeded && this._gradeOrCommentsModified ? html`<div class="sak-banner-success">${this._i18n.successful_save}</div>` : nothing }
