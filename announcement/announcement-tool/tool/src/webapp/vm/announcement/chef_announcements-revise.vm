@@ -377,7 +377,7 @@ function resizeFrame(){
 						</div>
 		                
 		                #set($release_year = $releaseDate.breakdownLocal().year)
-		                #set($release_month = "#if($releaseDate.breakdownLocal().month < 10)0#end$releaseDate.breakdownLocal().month")
+		                #set($release_month = $releaseDate.breakdownLocal().month)
 		                #set($release_day = $releaseDate.breakdownLocal().day)
 
 		                #set($release_hour = $releaseDate.breakdownLocal().hour)
@@ -399,7 +399,7 @@ function resizeFrame(){
 						</div>
 		                
 		                #set($retract_year = $retractDate.breakdownLocal().year)
-		                #set($retract_month = "#if($retractDate.breakdownLocal().month < 10)0#end$retractDate.breakdownLocal().month")
+		                #set($retract_month = $retractDate.breakdownLocal().month)
 		                #set($retract_day = $retractDate.breakdownLocal().day)
 
 		                #set($retract_hour = $retractDate.breakdownLocal().hour)
