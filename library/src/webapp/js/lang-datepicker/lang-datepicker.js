@@ -10,6 +10,123 @@ const defaults = {
 	onDateTimeSelected: null,
   };
   
+  // DateHelper utility to standardize date handling
+  class DateHelper {
+    // Pad a number with leading zeros
+    static pad(num) {
+      return String(num).padStart(2, "0");
+    }
+    
+    // Convert any date representation to a standardized object
+    static normalize(value) {
+      if (!value) return null;
+      
+      // Already a Date object
+      if (value instanceof Date) {
+        return value;
+      }
+      
+      // Our custom date object format
+      if (typeof value === 'object' && 'year' in value) {
+        // Convert to a proper Date object
+        const d = new Date();
+        d.setFullYear(value.year);
+        d.setMonth(value.month - 1); // JS months are 0-indexed
+        d.setDate(value.day);
+        d.setHours(value.hours || 0);
+        d.setMinutes(value.minutes || 0);
+        d.setSeconds(value.seconds || 0);
+        d.setMilliseconds(0);
+        return d;
+      }
+      
+      // String parsing
+      if (typeof value === 'string') {
+        // Handle YYYY-MM-DD HH:mm[:ss] format
+        if (value.includes(' ')) {
+          const [datePart, timePart] = value.split(' ');
+          const [year, month, day] = datePart.split('-').map(n => parseInt(n, 10));
+          const [hours, minutes] = timePart.split(':').map(n => parseInt(n, 10));
+          
+          if (!isNaN(year) && !isNaN(month) && !isNaN(day) && !isNaN(hours) && !isNaN(minutes)) {
+            const d = new Date();
+            d.setFullYear(year);
+            d.setMonth(month - 1); // JS months are 0-indexed
+            d.setDate(day);
+            d.setHours(hours);
+            d.setMinutes(minutes);
+            d.setSeconds(0);
+            d.setMilliseconds(0);
+            return d;
+          }
+        }
+        
+        // Handle ISO format (YYYY-MM-DDTHH:mm)
+        if (value.includes('T')) {
+          const [datePart, timePart] = value.split('T');
+          const [year, month, day] = datePart.split('-').map(n => parseInt(n, 10));
+          const timeComponents = timePart.split(':').map(n => parseInt(n, 10));
+          const hours = timeComponents[0] || 0;
+          const minutes = timeComponents[1] || 0;
+          
+          if (!isNaN(year) && !isNaN(month) && !isNaN(day) && !isNaN(hours) && !isNaN(minutes)) {
+            const d = new Date();
+            d.setFullYear(year);
+            d.setMonth(month - 1); // JS months are 0-indexed
+            d.setDate(day);
+            d.setHours(hours);
+            d.setMinutes(minutes);
+            d.setSeconds(0);
+            d.setMilliseconds(0);
+            return d;
+          }
+        }
+      }
+      
+      // Try standard Date parsing
+      const date = new Date(value);
+      if (!isNaN(date.getTime())) {
+        return date;
+      }
+      
+      // Invalid date
+      return null;
+    }
+    
+    // Format a date for the input field
+    static formatForInput(date, useTime = true) {
+      if (!date) return "";
+      
+      date = DateHelper.normalize(date);
+      if (!date) return "";
+      
+      const year = date.getFullYear();
+      const month = DateHelper.pad(date.getMonth() + 1);
+      const day = DateHelper.pad(date.getDate());
+      
+      if (!useTime) return `${year}-${month}-${day}`;
+      
+      const hours = DateHelper.pad(date.getHours());
+      const minutes = DateHelper.pad(date.getMinutes());
+      return `${year}-${month}-${day}T${hours}:${minutes}`;
+    }
+    
+    // Format a date for Sakai (ISO8601 with timezone)
+    static formatForSakai(date) {
+      if (!date) return "";
+      
+      date = DateHelper.normalize(date);
+      if (!date) return "";
+      
+      const offset = -date.getTimezoneOffset();
+      const offsetSign = offset >= 0 ? '+' : '-';
+      const offsetHours = DateHelper.pad(Math.floor(Math.abs(offset) / 60));
+      const offsetMinutes = DateHelper.pad(Math.abs(offset) % 60);
+      
+      return `${date.getFullYear()}-${DateHelper.pad(date.getMonth() + 1)}-${DateHelper.pad(date.getDate())}T${DateHelper.pad(date.getHours())}:${DateHelper.pad(date.getMinutes())}:${DateHelper.pad(date.getSeconds())}${offsetSign}${offsetHours}:${offsetMinutes}`;
+    }
+  }
+  
   class SakaiDateTimePicker {
 	constructor(options) {
 	  this.options = { ...defaults, ...options };
@@ -29,7 +146,7 @@ const defaults = {
 	  // First try to parse options.val if it exists
 	  let initialDate = null;
 	  if (this.options.val) {
-		initialDate = this.parseRawValue(this.options.val);
+		initialDate = DateHelper.normalize(this.options.val);
 	  }
 	  // If no valid date from options.val, try the input element's value
 	  if (!initialDate && this.element.value.trim()) {
@@ -42,7 +159,7 @@ const defaults = {
 
 	  // First set a valid value
 	  if (initialDate) {
-		this.element.value = this.formatForInput(initialDate);
+		this.element.value = DateHelper.formatForInput(initialDate, this.options.useTime);
 	  } else {
 		// Clear the value if we allow empty dates
 		this.element.value = '';
@@ -61,9 +178,9 @@ const defaults = {
 	setInitialValue() {
 		// If we have an explicit value in options, use that
 		if (this.options.val) {
-			const parsedValue = this.parseRawValue(this.options.val);
+			const parsedValue = DateHelper.normalize(this.options.val);
 			if (parsedValue) {
-				this.element.value = this.formatForInput(parsedValue);
+				this.element.value = DateHelper.formatForInput(parsedValue, this.options.useTime);
 				return;
 			}
 		}
@@ -73,7 +190,7 @@ const defaults = {
 		if (inputValue) {
 			const parsedValue = this.parseDate(inputValue);
 			if (parsedValue) {
-				this.element.value = this.formatForInput(parsedValue);
+				this.element.value = DateHelper.formatForInput(parsedValue, this.options.useTime);
 				return;
 			}
 		}
@@ -81,7 +198,7 @@ const defaults = {
 		// If we get here and don't allow empty dates, use current date
 		if (!this.options.allowEmptyDate) {
 			const currentDate = this.getPreferredSakaiDatetime();
-			this.element.value = this.formatForInput(currentDate);
+			this.element.value = DateHelper.formatForInput(currentDate, this.options.useTime);
 		}
 	}
   
@@ -157,64 +274,16 @@ const defaults = {
 	  document.querySelector(`#${duration.update}`).textContent = endString;
 	}
   
-	// Parse raw value without Date object to avoid timezone shifts
+	// Parse raw value without Date object to avoid timezone shifts - now uses DateHelper
 	parseRawValue(value) {
 	  if (!value) return null;
-
-	  // If it's already a Date object, return it
-	  if (value instanceof Date) {
-		return value;
-	  }
-
-	  // Handle string input
-	  if (typeof value === 'string') {
-		// Handle YYYY-MM-DD HH:mm[:ss] format
-		if (value.includes(' ')) {
-		  const [datePart, timePart] = value.split(' ');
-		  const [year, month, day] = datePart.split('-').map(n => parseInt(n, 10));
-		  const [hours, minutes] = timePart.split(':').map(n => parseInt(n, 10));
-		  
-		  // Validate all parts are actual numbers
-		  if (!isNaN(year) && !isNaN(month) && !isNaN(day) && !isNaN(hours) && !isNaN(minutes)) {
-			return {
-			  year: year,
-			  month: month,
-			  day: day,
-			  hours: hours,
-			  minutes: minutes,
-			  seconds: 0
-			};
-		  }
-		}
-		
-		// Handle ISO format (YYYY-MM-DDTHH:mm)
-		if (value.includes('T')) {
-		  const [datePart, timePart] = value.split('T');
-		  const [year, month, day] = datePart.split('-').map(n => parseInt(n, 10));
-		  const [hours, minutes] = timePart.split(':').map(n => parseInt(n, 10));
-		  
-		  if (!isNaN(year) && !isNaN(month) && !isNaN(day) && !isNaN(hours) && !isNaN(minutes)) {
-			return {
-			  year: year,
-			  month: month,
-			  day: day,
-			  hours: hours,
-			  minutes: minutes,
-			  seconds: 0
-			};
-		  }
-		}
-	  }
-
-	  // If all else fails, try to create a valid Date object
-	  const date = new Date(value);
-	  if (!isNaN(date.getTime())) {
-		return date;
-	  }
-
-	  // If we get here, we couldn't parse the date, return current date as fallback
-	  console.warn('Could not parse date value:', value, 'using current date as fallback');
-	  return this.getPreferredSakaiDatetime();
+      
+      const date = DateHelper.normalize(value);
+      if (date) return date;
+      
+      // If we get here, we couldn't parse the date, return current date as fallback
+      console.warn('Could not parse date value:', value, 'using current date as fallback');
+      return this.getPreferredSakaiDatetime();
 	}
   
 	// Parse datetime-local input values or fallback default
@@ -225,49 +294,19 @@ const defaults = {
 	}
   
 	formatForInput(date) {
-	  if (!date) return "";
-	  const pad = (num) => String(num).padStart(2, "0");
-	  // If date is a raw object from parseRawValue, use its components
-	  if (typeof date === 'object' && 'year' in date) {
-		return `${date.year}-${pad(date.month)}-${pad(date.day)}T${pad(date.hours)}:${pad(date.minutes)}`;
-	  }
-	  // Otherwise, use Date object (for user-entered values)
-	  const year = date.getFullYear();
-	  const month = pad(date.getMonth() + 1);
-	  const day = pad(date.getDate());
-	  if (!this.options.useTime) return `${year}-${month}-${day}`;
-	  const hours = pad(date.getHours());
-	  const minutes = pad(date.getMinutes());
-	  return `${year}-${month}-${day}T${hours}:${minutes}`;
+	  return DateHelper.formatForInput(date, this.options.useTime);
 	}
 
-	formatForSakai(d) {
-		const pad = n => n.toString().padStart(2, '0');
-		
-		// Handle our custom date object
-		if (typeof d === 'object' && 'year' in d) {
-			// For custom objects, we'll add the local timezone offset for debugging convenience
-			const now = new Date();
-			const offset = -now.getTimezoneOffset();
-			return `${d.year}-${pad(d.month)}-${pad(d.day)}T${pad(d.hours)}:${pad(d.minutes)}:${pad(d.seconds || 0)}${offset >= 0 ? '+' : '-'}${pad(Math.abs(offset / 60))}:${pad(Math.abs(offset % 60))}`;
-		}
-		
-		// Handle regular Date object
-		if (d instanceof Date) {
-			const offset = -d.getTimezoneOffset();
-			return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}${offset >= 0 ? '+' : '-'}${pad(Math.abs(offset / 60))}:${pad(Math.abs(offset % 60))}`;
-		}
-
-		// If we somehow get here with an invalid input, return current time
-		console.warn('Invalid date passed to formatForSakai:', d);
-		const now = new Date();
-		const offset = -now.getTimezoneOffset();
-		return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}${offset >= 0 ? '+' : '-'}${pad(Math.abs(offset / 60))}:${pad(Math.abs(offset % 60))}`;
+	formatForSakai(date) {
+	  return DateHelper.formatForSakai(date);
 	}
   
 	syncHiddenFields(date) {
 	  const hiddenFields = this.options.ashidden;
 	  if (!hiddenFields) return;
+  
+	  // Normalize the date to ensure we're always working with a Date object
+	  const normalizedDate = date ? DateHelper.normalize(date) : null;
   
 	  for (const [key, id] of Object.entries(hiddenFields)) {
 		const hiddenInput = document.getElementById(id);
@@ -276,58 +315,29 @@ const defaults = {
 		const oldValue = hiddenInput.value;
 		let newValue = "";
   
-		if (date) {
-		  const pad = (num) => String(num).padStart(2, "0");
-		  // Handle raw value object from initial val
-		  if (typeof date === 'object' && 'year' in date) {
-			switch (key) {
-			  case "month":
-				newValue = String(date.month).padStart(2, '0');
-				break;
-			  case "day":
-				newValue = date.day;
-				break;
-			  case "year":
-				newValue = date.year;
-				break;
-			  case "hour":
-				newValue = this.options.useTime ? date.hours : "";
-				break;
-			  case "minute":
-				newValue = this.options.useTime ? date.minutes : "";
-				break;
-			  case "ampm":
-				newValue = this.options.useTime ? (date.hours < 12 ? "am" : "pm") : "";
-				break;
-			  case "iso8601":
-				newValue = this.formatForSakai(date);
-				break;
-			}
-		  } else {
-			// Handle Date object from user input
-			switch (key) {
-			  case "month":
-				newValue = String(date.getMonth() + 1).padStart(2, '0');
-				break;
-			  case "day":
-				newValue = String(date.getDate()).padStart(2, '0');
-				break;
-			  case "year":
-				newValue = date.getFullYear();
-				break;
-			  case "hour":
-				newValue = this.options.useTime ? date.getHours() : "";
-				break;
-			  case "minute":
-				newValue = this.options.useTime ? date.getMinutes() : "";
-				break;
-			  case "ampm":
-				newValue = this.options.useTime ? (date.getHours() < 12 ? "am" : "pm") : "";
-				break;
-			  case "iso8601":
-				newValue = this.formatForSakai(date);
-				break;
-			}
+		if (normalizedDate) {
+		  switch (key) {
+			case "month":
+			  newValue = String(normalizedDate.getMonth() + 1).padStart(2, '0');
+			  break;
+			case "day":
+			  newValue = String(normalizedDate.getDate()).padStart(2, '0');
+			  break;
+			case "year":
+			  newValue = normalizedDate.getFullYear();
+			  break;
+			case "hour":
+			  newValue = this.options.useTime ? normalizedDate.getHours() : "";
+			  break;
+			case "minute":
+			  newValue = this.options.useTime ? normalizedDate.getMinutes() : "";
+			  break;
+			case "ampm":
+			  newValue = this.options.useTime ? (normalizedDate.getHours() < 12 ? "am" : "pm") : "";
+			  break;
+			case "iso8601":
+			  newValue = DateHelper.formatForSakai(normalizedDate);
+			  break;
 		  }
 		}
   
