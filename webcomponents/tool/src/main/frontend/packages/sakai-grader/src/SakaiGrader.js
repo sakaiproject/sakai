@@ -521,7 +521,10 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
         this._saveSucceeded = false;
         this._gradeOrCommentsModified = false;
         const graderEl = document.getElementById("grader");
-        bootstrap.Offcanvas.getInstance(graderEl).hide();
+        const offcanvasInstance = bootstrap.Offcanvas.getInstance(graderEl);
+        if (offcanvasInstance) {
+          offcanvasInstance.hide();
+        }
       }, closeSidebarTimeout || 1000);
     })
     .catch (e => {
@@ -573,7 +576,10 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
       default:
     }
 
-    bootstrap.Offcanvas.getInstance(document.getElementById("grader")).hide();
+    const offcanvasInstance = bootstrap.Offcanvas.getInstance(document.getElementById("grader"));
+    if (offcanvasInstance) {
+      offcanvasInstance.hide();
+    }
   }
 
   _clearSubmission() {
