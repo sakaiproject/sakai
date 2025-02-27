@@ -143,87 +143,27 @@
 						</h:panelGroup>
 					</div>
 				</div>
+
 				<div class="row d-flex">
 					<div class="col-xs-12 col-sm-2">
-						<h:panelGroup styleClass="shorttext required form-control-label">
-							<h:outputLabel for="list1">
-								<h:outputText value="#{msgs.pvt_select_forward_recipients}"/>
-							</h:outputLabel>
+						<h:panelGroup styleClass="shorttext form-control-label">							
+							<h:outputText value="#{msgs.pvt_bcc}"/>
 						</h:panelGroup>
 					</div>
 					<div class="col-xs-12 col-sm-10">
-						<h:panelGroup styleClass="shorttext">
-							<h:selectManyListbox id="list1" value="#{PrivateMessagesTool.selectedComposeToList}" size="5" style="width: 100%;" title="#{msgs.recipient_placeholder}">
-								<f:selectItems value="#{PrivateMessagesTool.totalComposeToList}"/>
-							</h:selectManyListbox>
-							<f:verbatim>
-								<span>
-								&nbsp;
-							</f:verbatim>
-							<h:graphicImage url="/../../library/image/silk/delete.png" title="#{msgs.pvt_bccClear}" alt="#{msgs.pvt_bccClear}"/>
-							<f:verbatim>
-								<a href="#" onclick="clearSelection(document.getElementById('pvtMsgForward:list1'));">
-							</f:verbatim>
-							<h:outputText value="#{msgs.pvt_bccClear}"/>
-							<f:verbatim>
-								</a>
-								</span>
-							</f:verbatim>
-						</h:panelGroup>
-					</div>
-				</div>
-				<div class="row bcc-row">
-					<div class="col-xs-12 col-sm-2">
-						<h:panelGroup styleClass="shorttext bccLink form-control-label">
-							<h:outputLabel>
-								<f:verbatim>
-									&nbsp;
-								</f:verbatim>
-								<h:graphicImage url="/../../library/image/silk/add.png" title="#{msgs.pvt_addBcc}" alt="#{msgs.pvt_addBcc}"/>
-								<f:verbatim>
-									<a href="#" onclick="fadeInBcc(true);">
-								</f:verbatim>
-								<h:outputText value="#{msgs.pvt_addBcc}"/>
-								<f:verbatim>
-									</a>
-								</f:verbatim>
-							</h:outputLabel>
-						</h:panelGroup>
-						<h:panelGroup styleClass="shorttext bcc" style="display:none">
-							<h:outputLabel for="list2">
-								<h:outputText value="#{msgs.pvt_bcc}"/>
-								<f:verbatim>
-									<br>
-								</f:verbatim>
-								<h:graphicImage url="/../../library/image/silk/cancel.png" title="#{msgs.pvt_removeBcc}" alt="#{msgs.pvt_removeBcc}"/>
-								<f:verbatim>
-									<a href="#" onclick="fadeOutBcc(true);">
-								</f:verbatim>
-								<h:outputText value="#{msgs.pvt_removeBcc}"/>
-								<f:verbatim>
-									</a>
-									&nbsp;
-								</f:verbatim>
-							</h:outputLabel>
-						</h:panelGroup>
-					</div>
-					<div class="col-xs-12 col-sm-10">
+						<h:selectBooleanCheckbox id="bcc_checkbox" onclick="if(this.checked){fadeInBcc(true);}else{fadeOutBcc(true);}"/>
+						<h:outputLabel for="bcc_checkbox">
+							<h:outputText value="#{msgs.pvt_addBcc}"/>
+						</h:outputLabel>
 						<h:panelGroup styleClass="shorttext bccLink"></h:panelGroup>
 						<h:panelGroup styleClass="shorttext bcc" style="display:none">
 							<h:selectManyListbox id="list2" value="#{PrivateMessagesTool.selectedComposeBccList}" size="5" style="width: 100%;" title="#{msgs.recipient_placeholder}">
 								<f:selectItems value="#{PrivateMessagesTool.totalComposeToBccList}"/>
 							</h:selectManyListbox>
-							<f:verbatim>
-								&nbsp;
-							</f:verbatim>
-							<h:graphicImage url="/../../library/image/silk/delete.png" title="#{msgs.pvt_bccClear}" alt="#{msgs.pvt_bccClear}"/>
-							<f:verbatim>
-								<a href="#" onclick="clearSelection(document.getElementById('pvtMsgForward:list2'));">
-							</f:verbatim>
-							<h:outputText value="#{msgs.pvt_bccClear}"/>
-							<f:verbatim>
-								</a>
-							</f:verbatim>
+							<span class="fa fa-trash" aria-hidden="true"></span>
+							<h:outputLink value="#" onclick="clearSelection(document.getElementById('pvtMsgForward:list2')); return false;">
+								<h:outputText value="#{msgs.pvt_bccClear}"/>
+							</h:outputLink>
 						</h:panelGroup>
 					</div>
 				</div>

@@ -33,6 +33,7 @@
 						selectObject.options[i].selected=false;
 					}
 					changeSelect(selectObject);
+					updateClearButtons();
 				}
 				
 				function fadeInBcc(clearSelected){
@@ -52,6 +53,34 @@
 					}
 					resize();
 				}
+				function updateClearButtons() {
+					const list1 = document.getElementById('pvtMsgReply:list1');
+					const list2 = document.getElementById('pvtMsgReply:list2');
+					const list1Clear = document.getElementById('pvtMsgReply:list1_clear');
+					const list2Clear = document.getElementById('pvtMsgReply:list2_clear');
+
+					// Check if any options are selected in list1
+					let list1HasSelection = false;
+					for (let i = 0; i < list1.options.length; i++) {
+						if (list1.options[i].selected) {
+							list1HasSelection = true;
+							break;
+						}
+					}
+
+					// Check if any options are selected in list2 
+					let list2HasSelection = false;
+					for (let i = 0; i < list2.options.length; i++) {
+						if (list2.options[i].selected) {
+							list2HasSelection = true;
+							break;
+						}
+					}
+
+					// Show/hide clear buttons based on selections
+					list1Clear.style.display = list1HasSelection ? 'inline' : 'none';
+					list2Clear.style.display = list2HasSelection ? 'inline' : 'none';
+				}
 				
 				function resize(){
 					mySetMainFrameHeight('<%=org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
@@ -64,6 +93,14 @@
 				  	}
 				  	addTagSelector(document.getElementById('pvtMsgReply:list1'));
 				  	addTagSelector(document.getElementById('pvtMsgReply:list2'));
+
+					// Add change event listeners to both lists
+					$('#pvtMsgReply\\:list1, #pvtMsgReply\\:list2').on('change', function() {
+						updateClearButtons();
+					});
+
+					// Initial update of clear buttons
+					updateClearButtons();
 				  	resize();
 
                     var menuLink = $('#messagesMainMenuLink');
@@ -140,74 +177,37 @@
 							<h:selectManyListbox id="list1" value="#{PrivateMessagesTool.selectedComposeToList}" size="5" style="width: 100%;" title="#{msgs.recipient_placeholder}">
 								<f:selectItems value="#{PrivateMessagesTool.totalComposeToList}"/>
 							</h:selectManyListbox>
-							<f:verbatim>
-								<span>
-								&nbsp;
-							</f:verbatim>
-							<h:graphicImage url="/../../library/image/silk/delete.png" title="#{msgs.pvt_bccClear}" alt="#{msgs.pvt_bccClear}"/>
-							<f:verbatim>
-								<a href="#" onclick="clearSelection(document.getElementById('pvtMsgReply:list1'));">
-							</f:verbatim>
-							<h:outputText value="#{msgs.pvt_bccClear}"/>
-							<f:verbatim>
-								</a>
-								</span>
-							</f:verbatim>
+							<span id="pvtMsgReply:list1_clear" style="display: none;">
+								<span class="fa fa-trash" aria-hidden="true"></span>
+								<h:outputLink value="#" onclick="clearSelection(document.getElementById('pvtMsgReply:list1')); return false;">
+									<h:outputText value="#{msgs.pvt_bccClear}"/>
+								</h:outputLink>
+							</span>
 						</h:panelGroup>
 					</div>
 				</div>
-				<div class="row bcc-row">
+				<div class="row d-flex">
 					<div class="col-xs-12 col-sm-2">
-						<h:panelGroup styleClass="shorttext bccLink form-control-label">
-							<h:outputLabel>
-								<f:verbatim>
-									&nbsp;
-								</f:verbatim>
-								<h:graphicImage url="/../../library/image/silk/add.png" title="#{msgs.pvt_addBcc}" alt="#{msgs.pvt_addBcc}"/>
-								<f:verbatim>
-									<a href="#" onclick="fadeInBcc(true);">
-								</f:verbatim>
-								<h:outputText value="#{msgs.pvt_addBcc}"/>
-								<f:verbatim>
-									</a>
-								</f:verbatim>
-							</h:outputLabel>
-						</h:panelGroup>
-						<h:panelGroup styleClass="shorttext bcc" style="display:none">
-							<h:outputLabel for="list2">
-									<h:outputText value="#{msgs.pvt_bcc}"/>
-									<f:verbatim>
-										<br>
-									</f:verbatim>
-									<h:graphicImage url="/../../library/image/silk/cancel.png" title="#{msgs.pvt_removeBcc}" alt="#{msgs.pvt_removeBcc}"/>
-									<f:verbatim>
-										<a href="#" onclick="fadeOutBcc(true);">
-									</f:verbatim>
-									<h:outputText value="#{msgs.pvt_removeBcc}"/>
-									<f:verbatim>
-										</a>
-										&nbsp;
-									</f:verbatim>
-							</h:outputLabel>
-						</h:panelGroup>
+						<h:outputText value="#{msgs.pvt_bcc}" />
 					</div>
 					<div class="col-xs-12 col-sm-10">
+						<h:panelGroup styleClass="form-control-label">
+							<h:selectBooleanCheckbox id="bcc_toggle" onclick="if(this.checked){fadeInBcc(true);}else{fadeOutBcc(true);}"/>
+							<h:outputLabel for="bcc_toggle">
+								<h:outputText value="#{msgs.pvt_addBcc}"/>
+							</h:outputLabel>
+						</h:panelGroup>
 						<h:panelGroup styleClass="shorttext bccLink"></h:panelGroup>
 						<h:panelGroup styleClass="shorttext bcc" style="display:none">
 							<h:selectManyListbox id="list2" value="#{PrivateMessagesTool.selectedComposeBccList}" size="5" style="width: 100%;" title="#{msgs.recipient_placeholder}">
 								<f:selectItems value="#{PrivateMessagesTool.totalComposeToBccList}"/>
 							</h:selectManyListbox>
-							<f:verbatim>
-								&nbsp;
-							</f:verbatim>
-							<h:graphicImage url="/../../library/image/silk/delete.png" title="#{msgs.pvt_bccClear}" alt="#{msgs.pvt_bccClear}"/>
-							<f:verbatim>
-								<a href="#" onclick="clearSelection(document.getElementById('pvtMsgReply:list2'));">
-							</f:verbatim>
-							<h:outputText value="#{msgs.pvt_bccClear}"/>
-							<f:verbatim>
-								</a>
-							</f:verbatim>
+							<span id="pvtMsgReply:list2_clear" style="display: none;">
+								<span class="fa fa-trash" aria-hidden="true"></span>
+								<h:outputLink value="#" onclick="clearSelection(document.getElementById('pvtMsgReply:list2')); return false;">
+									<h:outputText value="#{msgs.pvt_bccClear}"/>
+								</h:outputLink>
+							</span>
 						</h:panelGroup>
 					</div>
 				</div>
