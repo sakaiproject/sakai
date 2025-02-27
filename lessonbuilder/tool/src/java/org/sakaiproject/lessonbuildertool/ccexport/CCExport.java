@@ -251,11 +251,7 @@ public class CCExport {
 
                 // see if this is HTML. If so, we need to scan it.
                 String filename = entry.getKey();
-                int lastdot = filename.lastIndexOf(".");
-                int lastslash = filename.lastIndexOf("/");
-
-                String extension = "";
-                if (lastdot >= 0 && lastdot > lastslash) extension = filename.substring(lastdot + 1);
+                String extension = org.springframework.util.StringUtils.getFilenameExtension(filename);
 
                 String mimeType = null;
                 if (inSakai) mimeType = resource.getContentType();
