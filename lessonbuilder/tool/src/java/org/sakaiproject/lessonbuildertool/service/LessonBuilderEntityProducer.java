@@ -713,304 +713,281 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		for (int i = 0; i < length; i++) {
 
 			Node node = allChildrenNodes.item(i);
-			if (node.getNodeType() == Node.ELEMENT_NODE) {
-				Element itemElement = (Element) node;
-				if (itemElement.getTagName().equals("item")) {
-					String s = itemElement.getAttribute("sequence");
-					int sequence = new Integer(s);
-					s = itemElement.getAttribute("type");
-					int type = new Integer(s);
-					String sakaiId = itemElement.getAttribute("sakaiid");
-					String name = itemElement.getAttribute("name");
-					String explanation = null;
-					String sakaiTitle = itemElement.getAttribute("sakaititle");
-					String id = itemElement.getAttribute("id");
-					Long itemId = new Long(id);
+			if (node.getNodeType() != Node.ELEMENT_NODE) continue;
+			Element itemElement = (Element) node;
+			if (!itemElement.getTagName().equals("item")) continue;
+			String s = itemElement.getAttribute("sequence");
+			int sequence = new Integer(s);
+			s = itemElement.getAttribute("type");
+			int type = new Integer(s);
+			String sakaiId = itemElement.getAttribute("sakaiid");
+			String name = itemElement.getAttribute("name");
+			String explanation = null;
+			String sakaiTitle = itemElement.getAttribute("sakaititle");
+			log.debug("Processing item {}", sakaiTitle);
+			String id = itemElement.getAttribute("id");
+			Long itemId = new Long(id);
 
-					// URL is probably no longer used, but if it is, it probably doesn't need mapping
-					if (type == SimplePageItem.RESOURCE || type == SimplePageItem.MULTIMEDIA) {
-						String prefix = "/group/" + oldSiteId + "/";
-						if (sakaiId.startsWith(prefix))
-							sakaiId = "/group/" + siteId + "/" + sakaiId.substring(prefix.length());
-						else
-							log.warn("sakaiId not recognized: {}", sakaiId);
-					} else if (type == SimplePageItem.BLTI) {
-						// We need to import the BLTI tool to the new site and update the sakaiid
-						if (sakaiId == null || !sakaiId.startsWith("/blti/")) {
-							log.warn("Invalid BLTI sakaiId format: {}", sakaiId);
-							continue;
+			// URL is probably no longer used, but if it is, it probably doesn't need mapping
+			if (type == SimplePageItem.RESOURCE || type == SimplePageItem.MULTIMEDIA) {
+				String prefix = "/group/" + oldSiteId + "/";
+				if (sakaiId.startsWith(prefix))
+					sakaiId = "/group/" + siteId + "/" + sakaiId.substring(prefix.length());
+				else
+					log.warn("sakaiId not recognized: {}", sakaiId);
+			} else if (type == SimplePageItem.BLTI) {
+				// We need to import the BLTI tool to the new site and update the sakaiid
+				if (sakaiId == null || !sakaiId.startsWith("/blti/")) {
+					log.warn("Invalid BLTI sakaiId format: {}", sakaiId);
+					continue;
+				}
+				String[] bltiId = sakaiId.split("/");
+				Long ltiContentId = NumberUtils.toLong(bltiId[2]);
+				if (ltiContentId < 1) {
+					log.warn("Invalid BLTI sakaiId format: {}", sakaiId);
+					continue;
+				}
+				if ( isSameServer ) {
+					try {
+						Map<String, Object> ltiContent = ltiService.getContentDao(ltiContentId, oldSiteId, securityService.isSuperUser());
+						String newSakaiId = copyLTIContent(ltiContent, siteId, oldSiteId);
+						if ( newSakaiId != null ) sakaiId = newSakaiId;
+					} catch (Exception e) {
+						log.warn("Unable to import LTI tool to new site: {}", e);
+						continue;
+					}
+				} else {
+					if ( mcx.ltiContentItems == null ) {
+						log.warn("Unable to look up LTI content item with ID: {}", ltiContentId);
+						continue;
+					}
+					Map<String, Object> ltiContentItem = mcx.ltiContentItems.get(ltiContentId);
+					if (ltiContentItem == null) {
+						log.warn("Unable to find LTI content item with ID: {}", ltiContentId);
+						continue;
+					}
+
+					// Lets find the right tool to assiociate with if it is already installed
+					Long ltiToolId = null;
+					String launchUrl = ltiContentItem.get(LTIService.LTI_LAUNCH).toString();
+					String toolBaseUrl = SakaiLTIUtil.stripOffQuery(launchUrl);
+					List<Map<String,Object>> tools = ltiService.getTools(null,null,0,0, siteId);
+					Map<String, Object> ltiTool = SakaiLTIUtil.findBestToolMatch(launchUrl, null, tools);
+					if ( ltiTool != null ) ltiToolId = ltiService.getId(ltiTool);
+
+					// If no matching tool, lets get a tool from the import XML if provided
+					// or make a stub tool from the content data
+					if ( ltiToolId == null ) {
+						ltiTool = (Map<String, Object>) ltiContentItem.get(LTIService.TOOL_IMPORT_MAP);
+						if (ltiTool == null) {
+							log.debug("Creating LTI11 Stub Tool for {}", toolBaseUrl);
+							ltiTool = ltiService.createStubLTI11Tool(toolBaseUrl, ltiContentItem.get(LTIService.LTI_TITLE).toString());
 						}
-						String[] bltiId = sakaiId.split("/");
-						Long ltiContentId = NumberUtils.toLong(bltiId[2]);
-						if (ltiContentId < 1) {
-							log.warn("Invalid BLTI sakaiId format: {}", sakaiId);
+						Object toolResult = ltiService.insertTool(ltiTool, siteId);
+						if  (!(toolResult instanceof Long)) {
+							log.warn("Unable to add LTI tool to new site: {}", toolResult);
 							continue;
-						}
-						if ( isSameServer ) {
-							try {
-								Map<String, Object> ltiContent = ltiService.getContentDao(ltiContentId, oldSiteId, securityService.isSuperUser());
-								String newSakaiId = copyLTIContent(ltiContent, siteId, oldSiteId);
-								if ( newSakaiId != null ) sakaiId = newSakaiId;
-							} catch (Exception e) {
-								log.warn("Unable to import LTI tool to new site: {}", e);
-								continue;
-							}
 						} else {
-							if ( mcx.ltiContentItems == null ) {
-								log.warn("Unable to look up LTI content item with ID: {}", ltiContentId);
-								continue;
-							}
-							Map<String, Object> ltiContentItem = mcx.ltiContentItems.get(ltiContentId);
-							if (ltiContentItem == null) {
-								log.warn("Unable to find LTI content item with ID: {}", ltiContentId);
-								continue;
-							}
-
-							// Lets find the right tool to assiociate with if it is already installed
-							Long ltiToolId = null;
-							String launchUrl = ltiContentItem.get(LTIService.LTI_LAUNCH).toString();
-							String toolBaseUrl = SakaiLTIUtil.stripOffQuery(launchUrl);
-							List<Map<String,Object>> tools = ltiService.getTools(null,null,0,0, siteId);
-							Map<String, Object> ltiTool = SakaiLTIUtil.findBestToolMatch(launchUrl, null, tools);
-							if ( ltiTool != null ) ltiToolId = ltiService.getId(ltiTool);
-
-							// If no matching tool, lets get a tool from the import XML if provided
-							// or make a stub tool from the content data
-							if ( ltiToolId == null ) {
-								ltiTool = (Map<String, Object>) ltiContentItem.get(LTIService.TOOL_IMPORT_MAP);
-								if (ltiTool == null) {
-									log.debug("Creating LTI11 Stub Tool for {}", toolBaseUrl);
-									ltiTool = ltiService.createStubLTI11Tool(toolBaseUrl, ltiContentItem.get(LTIService.LTI_TITLE).toString());
-								}
-								Object toolResult = ltiService.insertTool(ltiTool, siteId);
-								if  (!(toolResult instanceof Long)) {
-									log.warn("Unable to add LTI tool to new site: {}", toolResult);
-									continue;
-								} else {
-									ltiToolId = (Long) toolResult;
-								}
-							}
-							// Now store the content item with the toolId
-							ltiContentItem.put(LTIService.LTI_TOOL_ID, ltiToolId);
-							Object contentResult = ltiService.insertContent(ltiContentItem, siteId);
-							if (!(contentResult instanceof Long)) {
-								log.warn("Unable to import LTI content to new site: {}", contentResult);
-								continue;
-							} else {
-								ltiContentId = (Long) contentResult;
-								sakaiId = "/blti/" + ltiContentId;
-								log.debug("Created new content item: {}", sakaiId);
-							}
+							ltiToolId = (Long) toolResult;
 						}
-					} else if (type == SimplePageItem.TEXT) {
-						String html = itemElement.getAttribute("html");
-						explanation = ltiService.fixLtiLaunchUrls(html, siteId, mcx);
-						explanation = linkMigrationHelper.migrateLinksInMergedRTE(siteId, mcx, explanation);
-					} else if (type == SimplePageItem.PAGE) {
-						// sakaiId should be the new page ID
-						Long newPageId = pageMap.get(Long.valueOf(sakaiId));
-						// we've seen a few cases where sakaiId of a subpage is 0. It won't be
-						// in the map, so this leaves it zero.
-						if (newPageId != null)
-							sakaiId = newPageId.toString();
 					}
-
-					if (type == SimplePageItem.ASSIGNMENT || type == SimplePageItem.ASSESSMENT || type == SimplePageItem.FORUM) {
-						sakaiId = SimplePageItem.DUMMY;
-						needFix = true;
-					}
-
-					SimplePageItem item = simplePageToolDao.makeItem(pageId, sequence, type, sakaiId, name);
-
-					if (explanation != null) {
-						item.setHtml(explanation);
+					// Now store the content item with the toolId
+					ltiContentItem.put(LTIService.LTI_TOOL_ID, ltiToolId);
+					Object contentResult = ltiService.insertContent(ltiContentItem, siteId);
+					if (!(contentResult instanceof Long)) {
+						log.warn("Unable to import LTI content to new site: {}", contentResult);
+						continue;
 					} else {
-						item.setHtml(itemElement.getAttribute("html"));
+						ltiContentId = (Long) contentResult;
+						sakaiId = "/blti/" + ltiContentId;
+						log.debug("Created new content item: {}", sakaiId);
 					}
-					s = itemElement.getAttribute("description");
-					if (s != null)
-						item.setDescription(s);
-					s = itemElement.getAttribute("height");
-					if (s != null)
-						item.setHeight(s);
-					s = itemElement.getAttribute("width");
-					if (s != null)
-						item.setWidth(s);
-					s = itemElement.getAttribute("alt");
-					if (s != null)
-						item.setAlt(s);
-					s = itemElement.getAttribute("required");
-					if (s != null)
-						item.setRequired(s.equals("true"));
-					s = itemElement.getAttribute("prerequisite");
-					if (s != null)
-						item.setPrerequisite(s.equals("true"));
-					s = itemElement.getAttribute("subrequirement");
-					if (s != null)
-						item.setSubrequirement(s.equals("true"));
-					s = itemElement.getAttribute("requirementtext");
-					if (s != null)
-						item.setRequirementText(s);
-					s = itemElement.getAttribute("nextpage");
-					if (s != null)
-						item.setNextPage(s.equals("true"));
-					s = itemElement.getAttribute("format");
-					if (s != null)
-						item.setFormat(s);
-					s = itemElement.getAttribute("samewindow");
-					if (s != null)
-						item.setSameWindow(s.equals("true"));
-					s = itemElement.getAttribute("anonymous");
-					if (s != null)
-						item.setAnonymous(s.equals("true"));
-					s = itemElement.getAttribute("showComments");
-					if (s != null)
-						item.setShowComments(s.equals("true"));
-					s = itemElement.getAttribute("forcedCommentsAnonymous");
-					if (s != null)
-						item.setForcedCommentsAnonymous(s.equals("true"));
+				}
+			} else if (type == SimplePageItem.TEXT) {
+				String html = itemElement.getAttribute("html");
+				explanation = ltiService.fixLtiLaunchUrls(html, siteId, mcx);
+				explanation = linkMigrationHelper.migrateLinksInMergedRTE(siteId, mcx, explanation);
+			} else if (type == SimplePageItem.PAGE) {
+				// sakaiId should be the new page ID
+				Long newPageId = pageMap.get(Long.valueOf(sakaiId));
+				// we've seen a few cases where sakaiId of a subpage is 0. It won't be
+				// in the map, so this leaves it zero.
+				if (newPageId != null)
+					sakaiId = newPageId.toString();
+			}
 
+			if (type == SimplePageItem.ASSIGNMENT || type == SimplePageItem.ASSESSMENT || type == SimplePageItem.FORUM) {
+				sakaiId = SimplePageItem.DUMMY;
+				needFix = true;
+			}
 
-					s = itemElement.getAttribute("gradebookTitle");
-					if (s != null)
-						item.setGradebookTitle(s);
-					s = itemElement.getAttribute("altGradebookTitle");
-					if (s != null)
-						item.setAltGradebookTitle(s);
+			log.debug("makePage.makeItem: pageId {} type {} sakaiId {} name {}", pageId, type, sakaiId, name);
+			SimplePageItem item = simplePageToolDao.makeItem(pageId, sequence, type, sakaiId, name);
 
+			if (explanation != null) {
+				item.setHtml(explanation);
+			} else {
+				item.setHtml(itemElement.getAttribute("html"));
+			}
+			s = itemElement.getAttribute("description");
+			if (s != null) item.setDescription(s);
+			s = itemElement.getAttribute("height");
+			if (s != null) item.setHeight(s);
+			s = itemElement.getAttribute("width");
+			if (s != null) item.setWidth(s);
+			s = itemElement.getAttribute("alt");
+			if (s != null) item.setAlt(s);
+			s = itemElement.getAttribute("required");
+			if (s != null) item.setRequired(s.equals("true"));
+			s = itemElement.getAttribute("prerequisite");
+			if (s != null) item.setPrerequisite(s.equals("true"));
+			s = itemElement.getAttribute("subrequirement");
+			if (s != null) item.setSubrequirement(s.equals("true"));
+			s = itemElement.getAttribute("requirementtext");
+			if (s != null)item.setRequirementText(s);
+			s = itemElement.getAttribute("nextpage");
+			if (s != null) item.setNextPage(s.equals("true"));
+			s = itemElement.getAttribute("format");
+			if (s != null) item.setFormat(s);
+			s = itemElement.getAttribute("samewindow");
+			if (s != null) item.setSameWindow(s.equals("true"));
+			s = itemElement.getAttribute("anonymous");
+			if (s != null) item.setAnonymous(s.equals("true"));
+			s = itemElement.getAttribute("showComments");
+			if (s != null) item.setShowComments(s.equals("true"));
+			s = itemElement.getAttribute("forcedCommentsAnonymous");
+			if (s != null)item.setForcedCommentsAnonymous(s.equals("true"));
+			s = itemElement.getAttribute("gradebookTitle");
+			if (s != null) item.setGradebookTitle(s);
+			s = itemElement.getAttribute("altGradebookTitle");
+			if (s != null) item.setAltGradebookTitle(s);
+			s = itemElement.getAttribute("gradebookPoints");
+			if (s != null && !s.equals("null")) item.setGradebookPoints(Integer.valueOf(s));
+			s = itemElement.getAttribute("altPoints");
+			if (s != null && !s.equals("null")) item.setAltPoints(Integer.valueOf(s));
+			s = itemElement.getAttribute("groupOwned");
+			if (s != null) item.setGroupOwned(s.equals("true"));
 
-					s = itemElement.getAttribute("gradebookPoints");
-					if (s != null && !s.equals("null"))
-						item.setGradebookPoints(Integer.valueOf(s));
-					s = itemElement.getAttribute("altPoints");
-					if (s != null && !s.equals("null"))
-						item.setAltPoints(Integer.valueOf(s));
+			if (RESTORE_GROUPS) {
+				String groupString = mergeGroups(itemElement, "ownerGroup", siteGroups, fromSiteId);
+				if (groupString != null)
+					item.setOwnerGroups(groupString);
+			}
 
-					s = itemElement.getAttribute("groupOwned");
-					if (s != null)
-						item.setGroupOwned(s.equals("true"));
+			// save objectid for dummy items so we can do mapping; alt isn't otherwise used for these items
+			if (type == SimplePageItem.ASSIGNMENT || type == SimplePageItem.ASSESSMENT || type == SimplePageItem.FORUM) {
+				item.setAlt(itemElement.getAttribute("objectid"));
+			}
 
-					if (RESTORE_GROUPS) {
-						String groupString = mergeGroups(itemElement, "ownerGroup", siteGroups, fromSiteId);
-						if (groupString != null)
-							item.setOwnerGroups(groupString);
-					}
+			// not currently doing this, although the code has been tested.
+			// The problem is that other tools don't do it. Since much of our group
+			// awareness comes from the other tools, enabling this produces
+			// inconsistent results
+			if (RESTORE_GROUPS) {
+				String groupString = mergeGroups(itemElement, "groups", siteGroups, fromSiteId);
+				if (groupString != null)
+					item.setGroups(groupString);
+			}
 
-					// save objectid for dummy items so we can do mapping; alt isn't otherwise used for these items
-					if (type == SimplePageItem.ASSIGNMENT || type == SimplePageItem.ASSESSMENT || type == SimplePageItem.FORUM) {
-						item.setAlt(itemElement.getAttribute("objectid"));
-					}
+			NodeList attributes = itemElement.getElementsByTagName("attributes");
+			if (attributes != null && attributes.getLength() > 0) {
+				Node attributesNode = attributes.item(0); // only one
+				String attributeString = attributesNode.getTextContent();
+				if(type == SimplePageItem.RESOURCE_FOLDER && StringUtils.isNotEmpty(attributeString)){
+					attributeString = StringUtils.replace(attributeString, oldSiteId, siteId);
+				}
+				item.setAttributeString(attributeString);
+			}
 
-					// not currently doing this, although the code has been tested.
-					// The problem is that other tools don't do it. Since much of our group
-					// awareness comes from the other tools, enabling this produces
-					// inconsistent results
-					if (RESTORE_GROUPS) {
-						String groupString = mergeGroups(itemElement, "groups", siteGroups, fromSiteId);
-						if (groupString != null)
-							item.setGroups(groupString);
-					}
+			simplePageToolDao.quickSaveItem(item);
+			log.debug("itemMap: itemId {} item.getId() {}", itemId, item.getId());
+			itemMap.put(itemId, item.getId());
 
-					NodeList attributes = itemElement.getElementsByTagName("attributes");
-					if (attributes != null && attributes.getLength() > 0) {
-						Node attributesNode = attributes.item(0); // only one
-						String attributeString = attributesNode.getTextContent();
-						if(type == SimplePageItem.RESOURCE_FOLDER && StringUtils.isNotEmpty(attributeString)){
-							attributeString = StringUtils.replace(attributeString, oldSiteId, siteId);
-						}
-						item.setAttributeString(attributeString);
-					}
+			boolean needupdate = false;
 
-					simplePageToolDao.quickSaveItem(item);
-					itemMap.put(itemId, item.getId());
+			// these need the item number, so do after save
+			s = itemElement.getAttribute("gradebookId");
+			if (s != null && !s.equals("null") && !s.equals("")) {
+				// update item number in both gradebook id and title
+				String title = item.getGradebookTitle();
+				if(title == null || title.equals("null") || title.equals("")) {
+					title = s;
+				}
+				// update gb id
+				int ii = s.lastIndexOf(":");
+				s = s.substring(0, ii+1) + item.getId();
+				// update title
+				// can't do this, because Gradebook 2 will create items with the original name.
+				// the plan is to use user-defined names so we avoid this whole problem.
+				if (false) {
+					ii = title.lastIndexOf(":");
+					title = title.substring(0, ii+1) + item.getId() + ")";
+				}
 
-					boolean needupdate = false;
-
-					// these need the item number, so do after save
-					s = itemElement.getAttribute("gradebookId");
-					if (s != null && !s.equals("null") && !s.equals("")) {
-						// update item number in both gradebook id and title
-						String title = item.getGradebookTitle();
-						if(title == null || title.equals("null") || title.equals("")) {
-							title = s;
-						}
-						// update gb id
-						int ii = s.lastIndexOf(":");
-						s = s.substring(0, ii+1) + item.getId();
-						// update title
-						// can't do this, because Gradebook 2 will create items with the original name.
-						// the plan is to use user-defined names so we avoid this whole problem.
-						if (false) {
-							ii = title.lastIndexOf(":");
-							title = title.substring(0, ii+1) + item.getId() + ")";
-						}
-
-						try {
-							gradebookIfc.addExternalAssessment(siteId, s, null, title, Double.valueOf(itemElement.getAttribute("gradebookPoints")), null, LessonBuilderConstants.TOOL_ID);
-							needupdate = true;
-							item.setGradebookId(s);
-						} catch(ConflictingAssignmentNameException cane){
-							log.error("ConflictingAssignmentNameException for title {} and attribute {}.", title, "gradebookId");
-						}
-					}
-
-					s = itemElement.getAttribute("altGradebook");
-					if (s != null && !s.equals("null") && !s.equals("")) {
-						// update item number in both gradebook id and title
-						String title = item.getAltGradebookTitle();
-						if(title == null || title.equals("null") || title.equals("")) {
-							title = s;
-						}
-						// update gb id
-						int ii = s.lastIndexOf(":");
-						s = s.substring(0, ii+1) + item.getId();
-						// update title
-						// can't do this, because Gradebook 2 will create items with the original name.
-						// the plan is to use user-defined names so we avoid this whole problem.
-						if (false) {
-							ii = title.lastIndexOf(":");
-							title = title.substring(0, ii+1) + item.getId() + ")";
-						}
-						try {
-							gradebookIfc.addExternalAssessment(siteId, s, null, title, Double.valueOf(itemElement.getAttribute("altPoints")), null, LessonBuilderConstants.TOOL_ID);
-							needupdate = true;
-							item.setAltGradebook(s);
-						} catch(ConflictingAssignmentNameException cane){
-							log.error("ConflictingAssignmentNameException for title {} and attribute {}.", title, "altGradebook");
-						}
-					}
-
-					// have to save again, I believe
-					if (needupdate) {
-						log.debug("updating item: {}", item);
-						simplePageToolDao.quickUpdate(item);
-					}
-
-					// these needs item id, so it has to be done here
-					// save item ID to object id. This will allow references to be fixed up.
-					// object id identifies the Sakai object in the old site. The fixup will
-					// find the object in the new site and fix up the item. Hence we need
-					// a mapping of item ID to object id.
-
-					simplePageToolDao.syncQRTotals(item);
-
-					if (type == SimplePageItem.ASSIGNMENT || type == SimplePageItem.ASSESSMENT || type == SimplePageItem.FORUM) {
-						String objectid = itemElement.getAttribute("objectid");
-						if (objectid != null) {
-							String entityid = null;
-							if (type == SimplePageItem.ASSIGNMENT)
-								entityid = REF_LB_ASSIGNMENT + item.getId();
-							else if (type == SimplePageItem.ASSESSMENT)
-								entityid = REF_LB_ASSESSMENT + item.getId();
-							else
-								entityid = REF_LB_FORUM + item.getId();
-							if (entityMap != null)
-								entityMap.put(entityid, objectid);
-						}
-					}
-
+				try {
+					gradebookIfc.addExternalAssessment(siteId, s, null, title, Double.valueOf(itemElement.getAttribute("gradebookPoints")), null, LessonBuilderConstants.TOOL_ID);
+					needupdate = true;
+					item.setGradebookId(s);
+				} catch(ConflictingAssignmentNameException cane){
+					log.error("ConflictingAssignmentNameException for title {} and attribute {}.", title, "gradebookId");
 				}
 			}
+
+			s = itemElement.getAttribute("altGradebook");
+			if (s != null && !s.equals("null") && !s.equals("")) {
+				// update item number in both gradebook id and title
+				String title = item.getAltGradebookTitle();
+				if(title == null || title.equals("null") || title.equals("")) {
+					title = s;
+				}
+				// update gb id
+				int ii = s.lastIndexOf(":");
+				s = s.substring(0, ii+1) + item.getId();
+				// update title
+				// can't do this, because Gradebook 2 will create items with the original name.
+				// the plan is to use user-defined names so we avoid this whole problem.
+				if (false) {
+					ii = title.lastIndexOf(":");
+					title = title.substring(0, ii+1) + item.getId() + ")";
+				}
+				try {
+					gradebookIfc.addExternalAssessment(siteId, s, null, title, Double.valueOf(itemElement.getAttribute("altPoints")), null, LessonBuilderConstants.TOOL_ID);
+					needupdate = true;
+					item.setAltGradebook(s);
+				} catch(ConflictingAssignmentNameException cane){
+					log.error("ConflictingAssignmentNameException for title {} and attribute {}.", title, "altGradebook");
+				}
+			}
+
+			// have to save again, I believe
+			if (needupdate) {
+				log.debug("updating item: {}", item);
+				simplePageToolDao.quickUpdate(item);
+			}
+
+			// these needs item id, so it has to be done here
+			// save item ID to object id. This will allow references to be fixed up.
+			// object id identifies the Sakai object in the old site. The fixup will
+			// find the object in the new site and fix up the item. Hence we need
+			// a mapping of item ID to object id.
+
+			simplePageToolDao.syncQRTotals(item);
+
+			if (type == SimplePageItem.ASSIGNMENT || type == SimplePageItem.ASSESSMENT || type == SimplePageItem.FORUM) {
+				String objectid = itemElement.getAttribute("objectid");
+				if (objectid != null) {
+					String entityid = null;
+					if (type == SimplePageItem.ASSIGNMENT)
+						entityid = REF_LB_ASSIGNMENT + item.getId();
+					else if (type == SimplePageItem.ASSESSMENT)
+						entityid = REF_LB_ASSESSMENT + item.getId();
+					else
+						entityid = REF_LB_FORUM + item.getId();
+					if (entityMap != null)
+						entityMap.put(entityid, objectid);
+				}
+			}
+
 		}
 		return needFix;
 	}
@@ -1193,48 +1170,48 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				int numPages = pageNodes.getLength();
 				for (int p = 0; p < numPages; p++) {
 					Node pageNode = pageNodes.item(p);
-					if (pageNode.getNodeType() == Node.ELEMENT_NODE) {
-						Element pageElement = (Element) pageNode;
-						String title = pageElement.getAttribute("title");
-						if (title == null) title = "Page";
-						String oldPageIdString = pageElement.getAttribute("pageid");
-						if (oldPageIdString == null) oldPageIdString = "0";
-						Long oldPageId = Long.valueOf(oldPageIdString);
-						log.debug("oldPageId: {} title: {}", oldPageId, title);
-						SimplePage page = simplePageToolDao.makePage("0", siteId, title, 0L, 0L);
-						String gradebookPoints = pageElement.getAttribute("gradebookpoints");
-						if (StringUtils.isNotEmpty(gradebookPoints)) {
-							page.setGradebookPoints(Double.valueOf(gradebookPoints));
-						}
-						String folder = pageElement.getAttribute("folder");
-						if (StringUtils.isNotEmpty(folder)) page.setFolder(folder);
-						//get new page's Date Release property
-						String dateString = pageElement.getAttribute("releasedate");
-						if (StringUtils.isNotEmpty(dateString)){
-							DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
-							Date date = formatter.parse(dateString);
-							page.setReleaseDate(date);
-						}
-						//get new page's Hidden property
-						String hiddenString = pageElement.getAttribute("hidden");
-						if (StringUtils.isNotEmpty(hiddenString)) page.setHidden(Boolean.valueOf(hiddenString));
-						// Carry over the custom CSS sheet if present. These are of the form
-						// "/group/SITEID/LB-CSS/whatever.css", so we need to map the SITEID
-						String cssSheet = pageElement.getAttribute("csssheet");
-						if (StringUtils.isNotEmpty(cssSheet)) page.setCssSheet(cssSheet.replace("/group/"+fromSiteId+"/", "/group/"+siteId+"/"));
-						log.debug("saving page: {}", page);
-						simplePageToolDao.quickSaveItem(page);
-						log.debug("saved page: {}", page);
-						if (StringUtils.isNotEmpty(gradebookPoints)) {
-							try {
-								gradebookIfc.addExternalAssessment(siteId, "lesson-builder:" + page.getPageId(), null,
-										title, Double.valueOf(gradebookPoints), null, LessonBuilderConstants.TOOL_ID);
-							} catch(ConflictingAssignmentNameException cane){
-								log.error("merge: ConflictingAssignmentNameException for title {}.", title);
-							}
-						}
-						pageMap.put(oldPageId, page.getPageId());
+					if (pageNode.getNodeType() != Node.ELEMENT_NODE) continue;
+
+					Element pageElement = (Element) pageNode;
+					String title = pageElement.getAttribute("title");
+					if (title == null) title = "Page";
+					String oldPageIdString = pageElement.getAttribute("pageid");
+					if (oldPageIdString == null) oldPageIdString = "0";
+					Long oldPageId = Long.valueOf(oldPageIdString);
+					log.debug("oldPageId: {} title: {}", oldPageId, title);
+					SimplePage page = simplePageToolDao.makePage("0", siteId, title, 0L, 0L);
+					String gradebookPoints = pageElement.getAttribute("gradebookpoints");
+					if (StringUtils.isNotEmpty(gradebookPoints)) {
+						page.setGradebookPoints(Double.valueOf(gradebookPoints));
 					}
+					String folder = pageElement.getAttribute("folder");
+					if (StringUtils.isNotEmpty(folder)) page.setFolder(folder);
+					//get new page's Date Release property
+					String dateString = pageElement.getAttribute("releasedate");
+					if (StringUtils.isNotEmpty(dateString)){
+						DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
+						Date date = formatter.parse(dateString);
+						page.setReleaseDate(date);
+					}
+					//get new page's Hidden property
+					String hiddenString = pageElement.getAttribute("hidden");
+					if (StringUtils.isNotEmpty(hiddenString)) page.setHidden(Boolean.valueOf(hiddenString));
+					// Carry over the custom CSS sheet if present. These are of the form
+					// "/group/SITEID/LB-CSS/whatever.css", so we need to map the SITEID
+					String cssSheet = pageElement.getAttribute("csssheet");
+					if (StringUtils.isNotEmpty(cssSheet)) page.setCssSheet(cssSheet.replace("/group/"+fromSiteId+"/", "/group/"+siteId+"/"));
+					log.debug("saving page: {}", page);
+					simplePageToolDao.quickSaveItem(page);
+					log.debug("saved page: {}", page);
+					if (StringUtils.isNotEmpty(gradebookPoints)) {
+						try {
+							gradebookIfc.addExternalAssessment(siteId, "lesson-builder:" + page.getPageId(), null,
+									title, Double.valueOf(gradebookPoints), null, LessonBuilderConstants.TOOL_ID);
+						} catch(ConflictingAssignmentNameException cane){
+							log.error("merge: ConflictingAssignmentNameException for title {}.", title);
+						}
+					}
+					pageMap.put(oldPageId, page.getPageId());
 				}
 
 				log.debug("Starting pass over pages/items pageMap: {}", pageMap);
@@ -1329,8 +1306,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 										}
 									}
 								}
-								// if we alrady have an appropriate blank page from the template, page and tool are set
 
+								// if we alrady have an appropriate blank page from the template, page and tool are set
 								if (page == null) {
 									page = site.addPage();
 									tool = page.addTool(LessonBuilderConstants.TOOL_ID);
