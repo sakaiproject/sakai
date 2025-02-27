@@ -5073,23 +5073,10 @@ public class SimplePageBean {
 	}
 
 	// there's one of these in Validator, but it isn't quite right, because it doesn't look at /
-        // return lowercase version, since we want uppercase versiosns to match
+	// return lowercase version, since we want uppercase versions to match
 	public static String getExtension(String name) {
-
-		// starts after last /
-		int i = name.lastIndexOf("/");
-		if (i >= 0)
-			name = name.substring(i+1);
-	    
-		String extension = "";
-		i = name.lastIndexOf(".");
-		if (i > 0)
-		    extension = name.substring(i+1);
-
-		extension = extension.trim();
-		extension = extension.toLowerCase();
-	    
-		return extension;
+		String extension = org.springframework.util.StringUtils.getFilenameExtension(name);
+		return StringUtils.trimToEmpty(extension).toLowerCase();
 	}
 
 	public boolean isPDFType(SimplePageItem item) {
@@ -6406,12 +6393,8 @@ public class SimplePageBean {
 		if (i >= 0)
 		    name = name.substring(i+1);
 		String base = name;
-		String extension = "";
-		i = name.lastIndexOf(".");
-		if (i > 0) {
-		    base = name.substring(0, i);
-		    extension = name.substring(i+1);
-		}
+		String extension = org.springframework.util.StringUtils.getFilenameExtension(name);
+		base = StringUtils.removeEnd(name, "." + extension);
 
 		base = Validator.escapeResourceName(base);
 		extension = Validator.escapeResourceName(extension);
@@ -6644,13 +6627,7 @@ public class SimplePageBean {
 	}
 
 	public boolean isHtml(SimplePageItem i) {
-		StringTokenizer token = new StringTokenizer(i.getSakaiId(), ".");
-
-		String extension = "";
-					    
-		while (token.hasMoreTokens()) {
-			extension = token.nextToken().toLowerCase();
-		}
+		String extension = org.springframework.util.StringUtils.getFilenameExtension(i.getSakaiId());
 					    
 	    // we are just starting to store the MIME type for resources now. So existing content
 	    // won't have them.
