@@ -1144,6 +1144,32 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	  log.debug("Lessons Merge siteId={} fromSiteId={} creatorId={} archiveContext={} archiveServerUrl={}",
 	  	siteId, fromSiteId, mcx.creatorId, mcx.archiveContext, mcx.archiveServerUrl);
 
+		// Check if there is nothing to import
+		NodeList lessonBuilderTools = root.getElementsByTagName("lessonbuilder");
+		boolean lessonHasContent = false;
+
+		for (int toolIndex = 0; toolIndex < lessonBuilderTools.getLength() && !lessonHasContent; toolIndex++) {
+			Node lessonBuilderNode = lessonBuilderTools.item(toolIndex);
+			if (lessonBuilderNode.getNodeType() == Node.ELEMENT_NODE) {
+				Element lessonBuilderElement = (Element) lessonBuilderNode;
+				NodeList lessonPages = lessonBuilderElement.getElementsByTagName("page");
+
+				for (int pageIndex = 0; pageIndex < lessonPages.getLength() && !lessonHasContent; pageIndex++) {
+					Element currentPage = (Element) lessonPages.item(pageIndex);
+					NodeList pageItems = currentPage.getElementsByTagName("item");
+
+					if (pageItems != null && pageItems.getLength() > 0) {
+						lessonHasContent = true;
+					}
+				}
+			}
+		}
+
+		if (!lessonHasContent) {
+			log.debug("No lessonbuilder pages to import");
+			return "No lessonbuilder pages to import";
+		}
+
       StringBuilder results = new StringBuilder();
       // map old to new page ids
       Map <Long,Long> pageMap = new HashMap<Long,Long>();
