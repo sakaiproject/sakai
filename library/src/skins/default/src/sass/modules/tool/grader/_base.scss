@@ -181,7 +181,7 @@ sakai-grader {
     }
 
     .grader-snippet {
-      background-color: white;
+      background-color: var(--sakai-background-color);
       div:first-child {
         background-color: white;
       }
@@ -531,21 +531,19 @@ sakai-grader {
   @media (min-width: 992px) {
     /* Desktop layout */
     #grader {
-      position: relative;
-      visibility: visible;
+      position: sticky !important;
+      top: 0;
+      visibility: visible !important;
       width: 400px;
-      height: 100%;
-      transform: none;
-      border-left: 1px solid #dee2e6;
-    }
-    
-    #grader-panel-container {
-      flex: 0 0 400px;
-    }
-    
-    #grader-gradable-container {
+      height: auto;
+      max-height: 100vh;
       overflow-y: auto;
-      max-height: calc(100vh - 150px); /* Adjust based on your topbar height */
+      min-height: 920px;
+      transform: none !important;
+      border-left: 1px solid var(--sakai-border-color);
+      right: auto;
+      float: none;
+      flex: 0 0 400px;
     }
     
     /* Hide the close button on desktop */
@@ -557,12 +555,42 @@ sakai-grader {
     #grader-link-block {
       display: none;
     }
+    
+    /* Fix the flex layout for desktop */
+    .d-flex.flex-column.flex-lg-row {
+      display: flex;
+      flex-direction: row;
+      width: 100%;
+      flex-wrap: nowrap;
+      align-items: flex-start;
+    }
+    
+    /* Ensure the gradable container takes appropriate space */
+    #grader-gradable-container {
+      flex: 1;
+      overflow-y: auto;
+      max-width: calc(100% - 420px);
+      margin-right: 20px;
+    }
+    
+    /* Make the grader panel sticky to follow scroll */
+    #grader .offcanvas-body {
+      max-height: calc(100vh - 60px); /* Subtract header height */
+      overflow-y: auto;
+    }
   }
 
   /* For mobile, keep the original offcanvas behavior */
   @media (max-width: 991.98px) {
     #grader {
       width: 100%;
+      max-width: 100%;
+      position: fixed;
+    }
+    
+    /* Show the "Grade Submission" button on mobile */
+    #grader-link-block {
+      display: block;
     }
   }
 }

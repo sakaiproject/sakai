@@ -355,7 +355,7 @@ export const graderRenderingMixin = Base => class extends Base {
 
         <div class="offcanvas-header">
           <h2 class="offcanvas-title" id="grader-label">${this._i18n.grader}</h2>
-          <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+          <button type="button" class="btn-close text-reset d-lg-none" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
 
         <div class="offcanvas-body">
@@ -875,9 +875,7 @@ export const graderRenderingMixin = Base => class extends Base {
             ${this._renderGradable()}
           </div>
         </div>
-        <div id="grader-panel-container" class="d-none d-lg-block">
-          ${this._renderGrader()}
-        </div>
+        ${this._renderGrader()}
       </div>
     `;
   }
