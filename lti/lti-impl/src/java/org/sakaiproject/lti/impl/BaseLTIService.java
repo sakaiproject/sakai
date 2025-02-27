@@ -1305,8 +1305,7 @@ public abstract class BaseLTIService implements LTIService {
 					// Make sure we can retrieve the tool in this site
 					if ( toolKey != null ) tool = this.getTool(toolKey, toContext);
 					if ( tool != null ) {
-						content.put(LTIService.LTI_LAUNCH, tool.get(LTI_LAUNCH));
-						log.debug("Copied launch url into content item {}",content.get(LTIService.LTI_TOOL_ID));
+						log.debug("Found tool {} for content item {}",toolKey, contentKey);
 					} else {
 						log.debug("Found content item {} could not load associated tool {}", contentKey, toolKey);
 						content = null;
