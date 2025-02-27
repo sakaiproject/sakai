@@ -1302,7 +1302,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 												log.debug("items: {}", items);
 												if (items.isEmpty()) {
 													// TODO: REMOVE THIS ERROR AFTER DEBUGGING
-													log.error("reusing page and tool: {} pageTitle: {}", p, config);
+													log.error("reusing page and tool: {} config {} pageTitle: {}", p.getId(), config.getPageId());
 													page = p;
 													tool = config;
 													break;
