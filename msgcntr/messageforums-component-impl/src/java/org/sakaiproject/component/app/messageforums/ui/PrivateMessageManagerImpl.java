@@ -1339,10 +1339,10 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 	}
 
 	return savedMessage.getId();
-  }
-    catch (MessagingException e) 
-    {
-        log.warn("PrivateMessageManagerImpl.sendPrivateMessage: exception: {}", e.getMessage(), e);
+	}
+	catch (MessagingException e) 
+	{
+		log.warn("PrivateMessageManagerImpl.sendPrivateMessage: exception: {}", e.getMessage(), e);
 	}
 	
 	return null;
