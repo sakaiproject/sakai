@@ -351,7 +351,7 @@ export const graderRenderingMixin = Base => class extends Base {
     return html`
       ${this._submission.id !== "dummy" ? html`
 
-      <div id="grader" class="offcanvas offcanvas-end" data-bs-backdrop="static" tabindex="-1" aria-labelledby="grader-label">
+      <div id="grader" class="offcanvas offcanvas-end d-lg-block" data-bs-backdrop="static" tabindex="-1" aria-labelledby="grader-label">
 
         <div class="offcanvas-header">
           <h2 class="offcanvas-title" id="grader-label">${this._i18n.grader}</h2>
@@ -795,83 +795,89 @@ export const graderRenderingMixin = Base => class extends Base {
       <div id="grader-filter-warning" class="sak-banner-warn">${this._i18n.filter_settings_warning}</div>
       ` : nothing }
       ${this._renderTopbar()}
-      <div id="grader-submitted-block" class="grader-block">
-        <div class="d-flex mb-3">
-          <sakai-user-photo user-id="${this._getPhotoUserId()}" classes="grader-photo" profile-popup="on"></sakai-user-photo>
-          <div style="flex: 4;">
-            <span class="submitter-name">
-              ${this._getSubmitter(this._submission)}
-            </span>
-            ${this._submission.draft && this._submission.visible ? html`
-            <span class="draft-submission">(${this._i18n.draft_submission})</span>
-            ` : html`
-              ${this._submission.submittedTime ? html`
-              <div id="grader-submitted-label">${this._i18n.submitted}</div>
+      <div class="d-flex flex-column flex-lg-row">
+        <div id="grader-gradable-container" class="flex-grow-1">
+          <div id="grader-submitted-block" class="grader-block">
+            <div class="d-flex mb-3">
+              <sakai-user-photo user-id="${this._getPhotoUserId()}" classes="grader-photo" profile-popup="on"></sakai-user-photo>
+              <div style="flex: 4;">
+                <span class="submitter-name">
+                  ${this._getSubmitter(this._submission)}
+                </span>
+                ${this._submission.draft && this._submission.visible ? html`
+                <span class="draft-submission">(${this._i18n.draft_submission})</span>
+                ` : html`
+                  ${this._submission.submittedTime ? html`
+                  <div id="grader-submitted-label">${this._i18n.submitted}</div>
+                  ` : nothing }
+                `}
+              </div>
+            </div>
+            <div class="d-flex align-items-center">
+              <div class="submitted-time ${this._submission.draft ? "draft-time" : ""}">${this._submission.submittedTime}</div>
+              ${this._submission.late ? html`<div class="grader-late ms-2">${this._i18n["grades.lateness.late"]}</div>` : ""}
+              ${this._submission.returned ? html`
+                <div class="ms-2"><span class="grader-returned fa fa-eye" title="${this._i18n.returned_tooltip}"></span></div>
               ` : nothing }
-            `}
-          </div>
-        </div>
-        <div class="d-flex align-items-center">
-          <div class="submitted-time ${this._submission.draft ? "draft-time" : ""}">${this._submission.submittedTime}</div>
-          ${this._submission.late ? html`<div class="grader-late ms-2">${this._i18n["grades.lateness.late"]}</div>` : ""}
-          ${this._submission.returned ? html`
-            <div class="ms-2"><span class="grader-returned fa fa-eye" title="${this._i18n.returned_tooltip}"></span></div>
-          ` : nothing }
-        </div>
-        ${this._submission.groupId && this._submission.submittedTime ? html`<div class="grader-group-members">${this._submission.groupMembers}</div>` : nothing }
-        <div class="attachments">
-          ${this._submission.submittedText
-              && this._submission.visible
-              && this.gradable.submissionType === "TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION"
-              && this._submission.hasNonInlineAttachments ? html`
-          <div>
-            <button type="button"
-                class="btn btn-transparent text-decoration-underline"
-                @click=${() => this._submittedTextMode = true}>
-              ${this._i18n.submission_inline}
-            </button>
-          </div>
-          ` : nothing}
-          ${this._submission.submissionLog.length > 0 ? html`
-          <button type="button"
-              class="btn btn-link mb-2"
-              data-bs-toggle="collapse"
-              data-bs-target="#grader-submission-history"
-              aria-controls="grader-submission_history"
-              aria-expanded="false">
-            ${this._i18n.submission_history}
-          </button>
-          <div class="collapse mb-2" id="grader-submission-history">
-            <div class="card card-body">
-            ${this._submission.submissionLog.map(message => html`
-              <div>${message}</div>
-            `)}
             </div>
-          </div>
-          ` : nothing}
-          ${this._submission.submittedAttachments.filter(r => !r.ref.includes("InlineSub")).map(r => html`
-            <div>
+            ${this._submission.groupId && this._submission.submittedTime ? html`<div class="grader-group-members">${this._submission.groupMembers}</div>` : nothing }
+            <div class="attachments">
+              ${this._submission.submittedText
+                  && this._submission.visible
+                  && this.gradable.submissionType === "TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION"
+                  && this._submission.hasNonInlineAttachments ? html`
+              <div>
+                <button type="button"
+                    class="btn btn-transparent text-decoration-underline"
+                    @click=${() => this._submittedTextMode = true}>
+                  ${this._i18n.submission_inline}
+                </button>
+              </div>
+              ` : nothing}
+              ${this._submission.submissionLog.length > 0 ? html`
               <button type="button"
-                  class="btn btn-transparent text-decoration-underline"
-                  data-ref="${r.ref}"
-                  @click=${this._previewAttachment}>
-                <i class="${r.iconClass} me-2"></i>
-                ${r.name} (${r.contentLength} ${this._i18n.at} ${r.creationDate})
+                  class="btn btn-link mb-2"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#grader-submission-history"
+                  aria-controls="grader-submission_history"
+                  aria-expanded="false">
+                ${this._i18n.submission_history}
               </button>
+              <div class="collapse mb-2" id="grader-submission-history">
+                <div class="card card-body">
+                ${this._submission.submissionLog.map(message => html`
+                  <div>${message}</div>
+                `)}
+                </div>
+              </div>
+              ` : nothing}
+              ${this._submission.submittedAttachments.filter(r => !r.ref.includes("InlineSub")).map(r => html`
+                <div>
+                  <button type="button"
+                      class="btn btn-transparent text-decoration-underline"
+                      data-ref="${r.ref}"
+                      @click=${this._previewAttachment}>
+                    <i class="${r.iconClass} me-2"></i>
+                    ${r.name} (${r.contentLength} ${this._i18n.at} ${r.creationDate})
+                  </button>
+                </div>
+              `)}
             </div>
-          `)}
-        </div>
-        <div>
-        ${this._submission.submitters?.length > 0 && this._submission.submitters[0].timeSpent ? html`
-          <span>${this._i18n["gen.assign.spent"]}</span>
-          <span> ${this._submission.submitters[0].timeSpent}</span>
-        ` : nothing}
-        </div>
-      </div> <!-- /grader-submitted-block -->
+            <div>
+            ${this._submission.submitters?.length > 0 && this._submission.submitters[0].timeSpent ? html`
+              <span>${this._i18n["gen.assign.spent"]}</span>
+              <span> ${this._submission.submitters[0].timeSpent}</span>
+            ` : nothing}
+            </div>
+          </div> <!-- /grader-submitted-block -->
 
-      <div id="grader-container">
-        ${this._renderGrader()}
-        ${this._renderGradable()}
+          <div id="grader-gradable-content">
+            ${this._renderGradable()}
+          </div>
+        </div>
+        <div id="grader-panel-container" class="d-none d-lg-block">
+          ${this._renderGrader()}
+        </div>
       </div>
     `;
   }
