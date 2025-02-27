@@ -24,45 +24,66 @@ const defaults = {
 	}
   
 	init() {
-	  this.element.type = this.options.useTime ? "datetime-local" : "date";
 	  this.element.style.minWidth = "200px";
-	  this.setInitialValue();
+	  
+	  // First try to parse options.val if it exists
+	  let initialDate = null;
+	  if (this.options.val) {
+		initialDate = this.parseRawValue(this.options.val);
+	  }
+	  // If no valid date from options.val, try the input element's value
+	  if (!initialDate && this.element.value.trim()) {
+		initialDate = this.parseDate(this.element.value.trim());
+	  }
+	  // If still no valid date and we don't allow empty, use current date
+	  if (!initialDate && !this.options.allowEmptyDate) {
+		initialDate = this.getPreferredSakaiDatetime();
+	  }
+
+	  // First set a valid value
+	  if (initialDate) {
+		this.element.value = this.formatForInput(initialDate);
+	  } else {
+		// Clear the value if we allow empty dates
+		this.element.value = '';
+	  }
+
+	  // Only NOW change the input type, after we have a valid value or empty string
+	  this.element.type = this.options.useTime ? "datetime-local" : "date";
+
 	  this.createHiddenFields();
-	  // Sync hidden fields with the initial value, preserving exact val if provided
-	  this.syncHiddenFields(this.options.val ? this.parseRawValue(this.options.val) : this.parseDate(this.element.value));
+	  // Use the same initialDate for hidden fields to maintain consistency
+	  this.syncHiddenFields(initialDate);
 	  this.setupEventListeners();
 	  this.handleDuration();
 	}
   
 	setInitialValue() {
-		let initialValue = this.options.val || this.element.value.trim();
-	  
-		if (!initialValue && !this.options.allowEmptyDate) {
-		  initialValue = this.getPreferredSakaiDatetime();
-		  const date = this.parseDate(initialValue);
-		  this.element.value = this.formatForInput(date);
-		} else if (initialValue) {
-		  // Handle Date object input
-		  if (initialValue instanceof Date) {
-			this.element.value = this.formatForInput(initialValue);
-		  }
-		  // Handle string input
-		  else {
-			// Use raw value for datetime-local input, no Date object manipulation
-			if ((this.options.parseFormat === 'YYYY-MM-DD HH:mm:ss' || this.options.parseFormat === 'YYYY-MM-DD HH:mm') && initialValue.includes(' ')) {
-				const [datePart, timePart] = initialValue.split(' ');
-				const [year, month, day] = datePart.split('-');
-				const [hours, minutes] = timePart.split(':').slice(0, 2);  // Take only hours and minutes
-				// Ensure month is zero-padded
-				const paddedMonth = month.padStart(2, '0');
-				const paddedDay = day.padStart(2, '0');
-				this.element.value = `${year}-${paddedMonth}-${paddedDay}T${hours}:${minutes}`;
-			} else {
-				this.element.value = initialValue; // Assume it's already in datetime-local format
+		// If we have an explicit value in options, use that
+		if (this.options.val) {
+			const parsedValue = this.parseRawValue(this.options.val);
+			if (parsedValue) {
+				this.element.value = this.formatForInput(parsedValue);
+				return;
 			}
-		  }
 		}
-	  }
+
+		// If input has a value, try to use that
+		const inputValue = this.element.value.trim();
+		if (inputValue) {
+			const parsedValue = this.parseDate(inputValue);
+			if (parsedValue) {
+				this.element.value = this.formatForInput(parsedValue);
+				return;
+			}
+		}
+
+		// If we get here and don't allow empty dates, use current date
+		if (!this.options.allowEmptyDate) {
+			const currentDate = this.getPreferredSakaiDatetime();
+			this.element.value = this.formatForInput(currentDate);
+		}
+	}
   
 	createHiddenFields() {
 	  const hiddenFields = this.options.ashidden;
@@ -139,16 +160,61 @@ const defaults = {
 	// Parse raw value without Date object to avoid timezone shifts
 	parseRawValue(value) {
 	  if (!value) return null;
-  
-	  if (this.options.parseFormat === 'YYYY-MM-DD HH:mm:ss' && value.includes(' ')) {
-		const [datePart, timePart] = value.split(' ');
-		const [year, month, day] = datePart.split('-').map(Number);
-		const [hours, minutes, seconds] = timePart.split(':').map(Number);
-		return { year, month, day, hours, minutes, seconds };
+
+	  // If it's already a Date object, return it
+	  if (value instanceof Date) {
+		return value;
 	  }
-  
-	  // Fallback to Date parsing if not in expected format
-	  return this.parseDate(value);
+
+	  // Handle string input
+	  if (typeof value === 'string') {
+		// Handle YYYY-MM-DD HH:mm[:ss] format
+		if (value.includes(' ')) {
+		  const [datePart, timePart] = value.split(' ');
+		  const [year, month, day] = datePart.split('-').map(n => parseInt(n, 10));
+		  const [hours, minutes] = timePart.split(':').map(n => parseInt(n, 10));
+		  
+		  // Validate all parts are actual numbers
+		  if (!isNaN(year) && !isNaN(month) && !isNaN(day) && !isNaN(hours) && !isNaN(minutes)) {
+			return {
+			  year: year,
+			  month: month,
+			  day: day,
+			  hours: hours,
+			  minutes: minutes,
+			  seconds: 0
+			};
+		  }
+		}
+		
+		// Handle ISO format (YYYY-MM-DDTHH:mm)
+		if (value.includes('T')) {
+		  const [datePart, timePart] = value.split('T');
+		  const [year, month, day] = datePart.split('-').map(n => parseInt(n, 10));
+		  const [hours, minutes] = timePart.split(':').map(n => parseInt(n, 10));
+		  
+		  if (!isNaN(year) && !isNaN(month) && !isNaN(day) && !isNaN(hours) && !isNaN(minutes)) {
+			return {
+			  year: year,
+			  month: month,
+			  day: day,
+			  hours: hours,
+			  minutes: minutes,
+			  seconds: 0
+			};
+		  }
+		}
+	  }
+
+	  // If all else fails, try to create a valid Date object
+	  const date = new Date(value);
+	  if (!isNaN(date.getTime())) {
+		return date;
+	  }
+
+	  // If we get here, we couldn't parse the date, return current date as fallback
+	  console.warn('Could not parse date value:', value, 'using current date as fallback');
+	  return this.getPreferredSakaiDatetime();
 	}
   
 	// Parse datetime-local input values or fallback default
@@ -177,8 +243,26 @@ const defaults = {
 
 	formatForSakai(d) {
 		const pad = n => n.toString().padStart(2, '0');
-		const offset = -d.getTimezoneOffset();
-		return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}${offset >= 0 ? '+' : '-'}${pad(Math.abs(offset / 60))}:${pad(offset % 60)}`;
+		
+		// Handle our custom date object
+		if (typeof d === 'object' && 'year' in d) {
+			// For custom objects, we'll add the local timezone offset for debugging convenience
+			const now = new Date();
+			const offset = -now.getTimezoneOffset();
+			return `${d.year}-${pad(d.month)}-${pad(d.day)}T${pad(d.hours)}:${pad(d.minutes)}:${pad(d.seconds || 0)}${offset >= 0 ? '+' : '-'}${pad(Math.abs(offset / 60))}:${pad(Math.abs(offset % 60))}`;
+		}
+		
+		// Handle regular Date object
+		if (d instanceof Date) {
+			const offset = -d.getTimezoneOffset();
+			return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}${offset >= 0 ? '+' : '-'}${pad(Math.abs(offset / 60))}:${pad(Math.abs(offset % 60))}`;
+		}
+
+		// If we somehow get here with an invalid input, return current time
+		console.warn('Invalid date passed to formatForSakai:', d);
+		const now = new Date();
+		const offset = -now.getTimezoneOffset();
+		return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}${offset >= 0 ? '+' : '-'}${pad(Math.abs(offset / 60))}:${pad(Math.abs(offset % 60))}`;
 	}
   
 	syncHiddenFields(date) {
