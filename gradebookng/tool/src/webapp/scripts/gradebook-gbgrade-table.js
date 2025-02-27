@@ -886,6 +886,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     selectableRange:1,
     selectableRangeColumns:true,
     selectableRangeClearCells:true,
+
     rowFormatter: (row) => {
       const rowElement = row.getElement();
       rowElement.setAttribute("role", "rowheader");
@@ -917,19 +918,19 @@ GbGradeTable.renderTable = function (elementId, tableData) {
 
     const cell = table.getRows()[rowIndex]?.getCells()[colIndex];
     if (!cell) return;
+    const cellElement = cell.getElement();
     const cellRect = cell.getElement().getBoundingClientRect();
+
+    cellElement.scrollIntoView({
+      block: "end",
+      inline: "nearest",
+      behavior: "auto"
+    });
+
+    // Todo: Keep the cell in view when scrolling towards the frozen columns. Its painful to fix it.
   
-    const frozenColumns = table
-      .getColumns()
-      .filter(column => column.getDefinition().frozen)
-      .map(column => column.getElement().getBoundingClientRect());
-  
-    // Scroll to the column if obstructed by frozen columns
-    if (frozenColumns.some(frozenRect => cellRect.left < frozenRect.right)) {
-      table.scrollToColumn(colIndex, "middle", true);
-    }
   });
-  
+
   GbGradeTable.instance.on("cellEdited", function(cell) {
     const oldScore = cell.getOldValue();
     const newScore = cell.getValue();
