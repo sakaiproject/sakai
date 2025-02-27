@@ -23,7 +23,7 @@
  *
  * Copyright (c) 2010 Rutgers, the State University of New Jersey
  *
- * Licensed under the Educational Community License, Version 2.0 (the "License");                                                                
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -149,7 +149,7 @@ import org.sakaiproject.util.MergeConfig;
 
 /**
  * @author hedrick
- * The goal is to get sites to save and copy. However there's actually no data 
+ * The goal is to get sites to save and copy. However there's actually no data
  * involved in this tool. The only configuration is the URL, which is a tool
  * configuration property. That's handled separately in site.xml
  *
@@ -157,531 +157,531 @@ import org.sakaiproject.util.MergeConfig;
 @Slf4j
 public class LessonBuilderEntityProducer extends AbstractEntityProvider
     implements EntityProducer, EntityTransferrer, Serializable,
-	       CoreEntityProvider, AutoRegisterEntityProvider, Statisticable, InputTranslatable, Createable, ToolApi  {
-   private static final String ARCHIVE_VERSION = "2.4"; // in case new features are added in future exports
-   private static final String VERSION_ATTR = "version";
-   private static final String NAME = "name";
-   private static final String VALUE = "value";
-   
-   private static final String PROPERTIES = "properties";
-   private static final String PROPERTY = "property";
-   public static final String REFERENCE_ROOT = "/lessonbuilder";
-   public static final String LESSONBUILDER = "lessonbuilder";
-   public static final String ATTR_TOP_REFRESH = "sakai.vppa.top.refresh";
+			   CoreEntityProvider, AutoRegisterEntityProvider, Statisticable, InputTranslatable, Createable, ToolApi  {
+	private static final String ARCHIVE_VERSION = "2.4"; // in case new features are added in future exports
+	private static final String VERSION_ATTR = "version";
+	private static final String NAME = "name";
+	private static final String VALUE = "value";
 
-   public final static String ENTITY_PREFIX = "lessonbuilder";
+	private static final String PROPERTIES = "properties";
+	private static final String PROPERTY = "property";
+	public static final String REFERENCE_ROOT = "/lessonbuilder";
+	public static final String LESSONBUILDER = "lessonbuilder";
+	public static final String ATTR_TOP_REFRESH = "sakai.vppa.top.refresh";
 
-   public final static String REF_LB = "lessonbuilder/fix/";
-   public final static String REF_LB_ASSIGNMENT = "lessonbuilder/fix/assignment/";
-   public final static String REF_LB_ASSESSMENT = "lessonbuilder/fix/assessment/";
-   public final static String REF_LB_FORUM = "lessonbuilder/fix/forum/";
+	public final static String ENTITY_PREFIX = "lessonbuilder";
 
-
-   // other tools don't copy group access restrictions, so I think we probably shouldn't. The data is
-   // there in the archive
-   public final boolean RESTORE_GROUPS = false;
-
-   private ToolManager toolManager;
-   private SecurityService securityService;
-   private SessionManager sessionManager;
-   private SiteService siteService;
-   private ContentHostingService contentHostingService;
-   private MemoryService memoryService;
-   private SimplePageToolDao simplePageToolDao;
-   private LessonEntity forumEntity;
-   private LessonEntity quizEntity;
-   private LessonEntity assignmentEntity;
-   private LessonEntity bltiEntity;
-   private GradebookIfc gradebookIfc;
-   private LessonBuilderAccessAPI lessonBuilderAccessAPI;
-   private MessageSource messageSource;
-   private LTIService ltiService;
-   private LinkMigrationHelper linkMigrationHelper;
-   public void setLessonBuilderAccessAPI(LessonBuilderAccessAPI l) {
-       lessonBuilderAccessAPI = l;
-   }
+	public final static String REF_LB = "lessonbuilder/fix/";
+	public final static String REF_LB_ASSIGNMENT = "lessonbuilder/fix/assignment/";
+	public final static String REF_LB_ASSESSMENT = "lessonbuilder/fix/assessment/";
+	public final static String REF_LB_FORUM = "lessonbuilder/fix/forum/";
 
 
-   private Set<String> servers;
+	// other tools don't copy group access restrictions, so I think we probably shouldn't. The data is
+	// there in the archive
+	public final boolean RESTORE_GROUPS = false;
 
-    /* 
-     * There are several types of updating when we move a lesson from one site to another:
-     * Fixing HTML text:
-     *  fixItems - during load, called on the XML structure for each page
-     *    for each item object in the new page, if it's text, fixup the URLs (fixUrls)
-     *  fixUrls - for a piece of HTML, fixup urls on it, with convertHtmlContent
-     *  convertHtmlContent - for a piece of HTML, fixup urls on it
-     *      finds all URLs in a text and calls processUrl
-     *  processUrl
-     *      for special dummy "http://lessonbuilder.sakaiproject.org/ITEMID update the ID
-     *      for /access/content, etc, update site ID
-     *      see migrateEmbeddedlinks below for updating references to other sakai objects
-     *
-     * Fixing sakaiid's so that Sakai items point to the assignment, test, etc. in the new site
-     *   updateEntityReferences - called by Sakai as part of load with map of old and new references
-     *          one-argument version called from tool to get anything that couldn't be done during load
-     *      if the kernel supports migrateAllLinks, call migrateEmbeddedLinks
-     *      look up the all items in the map, and update the sakaiId to the new assignment, test, etc, id
-     *          Sakai supplies a map for objects in old site to new site. However not all tools support it
-     *          the one-argument version constructs a map when the entry is an "objectid". This is returned
-     *             from the tool-specific Lessons code, and may be different for assignments, test, quizes, etc.
-     *             but normally the objectid uses the title of the object in the tool since titles of quizes, etc
-     *             are unique in a given site. the update operation calls findobject in the tool-specific interface
-     *             to locate the quiz with that title
-     *   migrateEmbedded links - for all text items in site, call kernel linkMigrationHelper
-     */     
-
-   // The attributes in HTML that should have their values looked at and possibly re-written
-   private Collection<String> attributes = new HashSet<String>(
-				    Arrays.asList(new String[] { "href", "src", "background", "action",
-				    "pluginspage", "pluginurl", "classid", "code", "codebase",
-				    "data", "usemap" }));
-
-   private Pattern attributePattern;
-
-   private Pattern pathPattern;
-   private Pattern dummyPattern;
-    
-   final String ITEMDUMMY = "http://lessonbuilder.sakaiproject.org/";
-
-
-   public void init() {
-      log.info("init()");
-      
-      try {
-         EntityManager.registerEntityProducer(this, REFERENCE_ROOT);
-      }
-      catch (Exception e) {
-         log.warn("Error registering Link Tool Entity Producer", e);
-      }
-
-      lessonBuilderAccessAPI.setToolApi(this);
-
-	  linkMigrationHelper = (LinkMigrationHelper) ComponentManager.get("org.sakaiproject.util.api.LinkMigrationHelper");
-
-      // Builds a Regexp selector.
-      StringBuilder regexp = new StringBuilder("(");
-      for (String attribute : attributes) {
-	  regexp.append(attribute);
-	  regexp.append("|");
-      }
-      if (regexp.length() > 1) {
-	  regexp.deleteCharAt(regexp.length() - 1);
-      }
-      regexp.append(")[\\s]*=[\\s]*([\"'|])([^\"']*)(\\2|#)");
-      attributePattern = Pattern.compile(regexp.toString(),
-					 Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
-      pathPattern = Pattern
-	  .compile("/(?:access/content/group|web|dav|xsl-portal/site|portal/site)/([^/]+)/.*");
-      
-      dummyPattern = Pattern.compile(ITEMDUMMY + "\\d+");
-
-      // Add the server name to the list of servers
-      String serverName = ServerConfigurationService.getString("serverName", null);
-      String serverId = ServerConfigurationService.getString("serverId", null);
-
-      servers = new HashSet<String>();
-      // prefer servername to serverid, by doing it first
-      if (serverName != null)
-	  servers.add(serverName);
-      if (serverId != null)
-	  servers.add(serverId);
-      try {
-	  String hostName = InetAddress.getLocalHost().getHostName();
-	  servers.add(hostName);
-	  hostName = InetAddress.getLocalHost().getCanonicalHostName();
-	  servers.add(hostName);
-      } catch (Exception ignore) {
-      }
-      servers.add("localhost");
-      // if neither is defined we're in trouble;
-      if (servers.size() == 0)
-	  log.info("LessonBuilderEntityProducer ERROR: neither servername nor serverid defined in sakai.properties");
-
-      try {
-	  ComponentManager.loadComponent("org.sakaiproject.lessonbuildertool.service.LessonBuilderEntityProducer", this);
-      } catch (Exception e) {
-	  log.warn("Error registering Lesson Builder Entity Producer with Spring. Lessonbuilder will work, but Lesson Builder instances won't be imported from site archives. This normally happens only if you redeploy Lessonbuilder. Suggest restarting Sakai", e);
-      }
-
-   }
-   
-   /**
-    * Destroy
-    */
-   public void destroy()
-   {
-      log.info("destroy()");
-   }
-
-    // lessonbuilder allows new tools to be created that use lessonbuilder. They will have
-    // different tool ID's. The best way to find them seems to be to look
-    // for all tools that set "linktool" as a keyword. Perhaps I should cache
-    // this value. However in theory it would be possible to dynamically add
-    // tools. Note that the tools are loaded when LinkTool.class is loaded. That's
-    // often after this class, so at init time these lists would be empty.
-   
-   @Override
-   public String[] myToolIds()
-   {
-       String[] toolIds = {LessonBuilderConstants.TOOL_ID};
-       return toolIds;
-   }
-   
-   public List<String> myToolList()
-   {
-       List<String> toolList = new ArrayList<String>();
-       toolList.add(LessonBuilderConstants.TOOL_ID);
-       return toolList;
-   }
-
-   /**
-    * Get the service name for this class
-    * @return
-    */
-   protected String serviceName() {
-      return LessonBuilderEntityProducer.class.getName();
-   }
-   
-    protected void addAttr(Document doc, Element element, String name, String value) {
-	if (value == null)
-	    return;
-	Attr attr = doc.createAttribute(name);
-	attr.setValue(value);
-	element.setAttributeNode(attr);
-    }
-
-    protected void addPage(Document doc, Element element, SimplePage page, Site site, List attachments) {
-
-	long pageId = page.getPageId();
-
-	Element pageElement = doc.createElement("page");
-
-	addAttr(doc, pageElement, "pageid", new Long(pageId).toString());
-	addAttr(doc, pageElement, "toolid", page.getToolId());
-	addAttr(doc, pageElement, "siteid", page.getSiteId());
-	addAttr(doc, pageElement, "title", page.getTitle());
-
-	Long parent = page.getParent();
-	if (parent != null) {
-	    addAttr(doc, pageElement, "parent", parent.toString());
+	private ToolManager toolManager;
+	private SecurityService securityService;
+	private SessionManager sessionManager;
+	private SiteService siteService;
+	private ContentHostingService contentHostingService;
+	private MemoryService memoryService;
+	private SimplePageToolDao simplePageToolDao;
+	private LessonEntity forumEntity;
+	private LessonEntity quizEntity;
+	private LessonEntity assignmentEntity;
+	private LessonEntity bltiEntity;
+	private GradebookIfc gradebookIfc;
+	private LessonBuilderAccessAPI lessonBuilderAccessAPI;
+	private MessageSource messageSource;
+	private LTIService ltiService;
+	private LinkMigrationHelper linkMigrationHelper;
+	public void setLessonBuilderAccessAPI(LessonBuilderAccessAPI l) {
+		lessonBuilderAccessAPI = l;
 	}
-	else {
-		// Get some settings for a top level page that are stored not in SimplePage but in a corresponding SimplePageItem
-		SimplePageItem spi = simplePageToolDao.findTopLevelPageItemBySakaiId(Long.toString(pageId));
-		if (spi != null) {
-			addAttr(doc, pageElement, "required", spi.isRequired() ? "true" : "false");
-			addAttr(doc, pageElement, "prerequisite", spi.isPrerequisite() ? "true" : "false");
+
+
+	private Set<String> servers;
+
+	/*
+	 * There are several types of updating when we move a lesson from one site to another:
+	 * Fixing HTML text:
+	 *  fixItems - during load, called on the XML structure for each page
+	 *    for each item object in the new page, if it's text, fixup the URLs (fixUrls)
+	 *  fixUrls - for a piece of HTML, fixup urls on it, with convertHtmlContent
+	 *  convertHtmlContent - for a piece of HTML, fixup urls on it
+	 *      finds all URLs in a text and calls processUrl
+	 *  processUrl
+	 *      for special dummy "http://lessonbuilder.sakaiproject.org/ITEMID update the ID
+	 *      for /access/content, etc, update site ID
+	 *      see migrateEmbeddedlinks below for updating references to other sakai objects
+	 *
+	 * Fixing sakaiid's so that Sakai items point to the assignment, test, etc. in the new site
+	 *   updateEntityReferences - called by Sakai as part of load with map of old and new references
+	 *          one-argument version called from tool to get anything that couldn't be done during load
+	 *      if the kernel supports migrateAllLinks, call migrateEmbeddedLinks
+	 *      look up the all items in the map, and update the sakaiId to the new assignment, test, etc, id
+	 *          Sakai supplies a map for objects in old site to new site. However not all tools support it
+	 *          the one-argument version constructs a map when the entry is an "objectid". This is returned
+	 *             from the tool-specific Lessons code, and may be different for assignments, test, quizes, etc.
+	 *             but normally the objectid uses the title of the object in the tool since titles of quizes, etc
+	 *             are unique in a given site. the update operation calls findobject in the tool-specific interface
+	 *             to locate the quiz with that title
+	 *   migrateEmbedded links - for all text items in site, call kernel linkMigrationHelper
+	 */
+
+	// The attributes in HTML that should have their values looked at and possibly re-written
+	private Collection<String> attributes = new HashSet<String>(
+			Arrays.asList(new String[] { "href", "src", "background", "action",
+				"pluginspage", "pluginurl", "classid", "code", "codebase",
+				"data", "usemap" }));
+
+	private Pattern attributePattern;
+
+	private Pattern pathPattern;
+	private Pattern dummyPattern;
+
+	final String ITEMDUMMY = "http://lessonbuilder.sakaiproject.org/";
+
+
+	public void init() {
+		log.info("init()");
+
+		try {
+			EntityManager.registerEntityProducer(this, REFERENCE_ROOT);
+		}
+		catch (Exception e) {
+			log.warn("Error registering Link Tool Entity Producer", e);
+		}
+
+		lessonBuilderAccessAPI.setToolApi(this);
+
+		linkMigrationHelper = (LinkMigrationHelper) ComponentManager.get("org.sakaiproject.util.api.LinkMigrationHelper");
+
+		// Builds a Regexp selector.
+		StringBuilder regexp = new StringBuilder("(");
+		for (String attribute : attributes) {
+			regexp.append(attribute);
+			regexp.append("|");
+		}
+		if (regexp.length() > 1) {
+			regexp.deleteCharAt(regexp.length() - 1);
+		}
+		regexp.append(")[\\s]*=[\\s]*([\"'|])([^\"']*)(\\2|#)");
+		attributePattern = Pattern.compile(regexp.toString(),
+				Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+		pathPattern = Pattern
+			.compile("/(?:access/content/group|web|dav|xsl-portal/site|portal/site)/([^/]+)/.*");
+
+		dummyPattern = Pattern.compile(ITEMDUMMY + "\\d+");
+
+		// Add the server name to the list of servers
+		String serverName = ServerConfigurationService.getString("serverName", null);
+		String serverId = ServerConfigurationService.getString("serverId", null);
+
+		servers = new HashSet<String>();
+		// prefer servername to serverid, by doing it first
+		if (serverName != null)
+			servers.add(serverName);
+		if (serverId != null)
+			servers.add(serverId);
+		try {
+			String hostName = InetAddress.getLocalHost().getHostName();
+			servers.add(hostName);
+			hostName = InetAddress.getLocalHost().getCanonicalHostName();
+			servers.add(hostName);
+		} catch (Exception ignore) {
+		}
+		servers.add("localhost");
+		// if neither is defined we're in trouble;
+		if (servers.size() == 0)
+			log.info("LessonBuilderEntityProducer ERROR: neither servername nor serverid defined in sakai.properties");
+
+		try {
+			ComponentManager.loadComponent("org.sakaiproject.lessonbuildertool.service.LessonBuilderEntityProducer", this);
+		} catch (Exception e) {
+			log.warn("Error registering Lesson Builder Entity Producer with Spring. Lessonbuilder will work, but Lesson Builder instances won't be imported from site archives. This normally happens only if you redeploy Lessonbuilder. Suggest restarting Sakai", e);
+		}
+
+	}
+
+	/**
+	 * Destroy
+	 */
+	public void destroy()
+	{
+		log.info("destroy()");
+	}
+
+	// lessonbuilder allows new tools to be created that use lessonbuilder. They will have
+	// different tool ID's. The best way to find them seems to be to look
+	// for all tools that set "linktool" as a keyword. Perhaps I should cache
+	// this value. However in theory it would be possible to dynamically add
+	// tools. Note that the tools are loaded when LinkTool.class is loaded. That's
+	// often after this class, so at init time these lists would be empty.
+
+	@Override
+	public String[] myToolIds()
+	{
+		String[] toolIds = {LessonBuilderConstants.TOOL_ID};
+		return toolIds;
+	}
+
+	public List<String> myToolList()
+	{
+		List<String> toolList = new ArrayList<String>();
+		toolList.add(LessonBuilderConstants.TOOL_ID);
+		return toolList;
+	}
+
+	/**
+	 * Get the service name for this class
+	 * @return
+	 */
+	protected String serviceName() {
+		return LessonBuilderEntityProducer.class.getName();
+	}
+
+	protected void addAttr(Document doc, Element element, String name, String value) {
+		if (value == null)
+			return;
+		Attr attr = doc.createAttribute(name);
+		attr.setValue(value);
+		element.setAttributeNode(attr);
+	}
+
+	protected void addPage(Document doc, Element element, SimplePage page, Site site, List attachments) {
+
+		long pageId = page.getPageId();
+
+		Element pageElement = doc.createElement("page");
+
+		addAttr(doc, pageElement, "pageid", new Long(pageId).toString());
+		addAttr(doc, pageElement, "toolid", page.getToolId());
+		addAttr(doc, pageElement, "siteid", page.getSiteId());
+		addAttr(doc, pageElement, "title", page.getTitle());
+
+		Long parent = page.getParent();
+		if (parent != null) {
+			addAttr(doc, pageElement, "parent", parent.toString());
 		}
 		else {
-			log.error("Cannot find SimplePageItem for top level page id={}", pageId);
+			// Get some settings for a top level page that are stored not in SimplePage but in a corresponding SimplePageItem
+			SimplePageItem spi = simplePageToolDao.findTopLevelPageItemBySakaiId(Long.toString(pageId));
+			if (spi != null) {
+				addAttr(doc, pageElement, "required", spi.isRequired() ? "true" : "false");
+				addAttr(doc, pageElement, "prerequisite", spi.isPrerequisite() ? "true" : "false");
+			}
+			else {
+				log.error("Cannot find SimplePageItem for top level page id={}", pageId);
+			}
+		}
+
+		parent = page.getTopParent();
+		if (parent != null)
+			addAttr(doc, pageElement, "topparent", parent.toString());
+
+		addAttr(doc, pageElement, "hidden", page.isHidden() ? "true" : "false");
+		// we don't read this on input, as copying typically assumes you'll want new release dates
+		Date releaseDate = page.getReleaseDate();
+		if (releaseDate != null)
+			addAttr(doc, pageElement, "releasedate", releaseDate.toString());
+		Double gradebookPoints = page.getGradebookPoints();
+		if (gradebookPoints != null)
+			addAttr(doc, pageElement, "gradebookpoints", gradebookPoints.toString());
+		String cssSheet = page.getCssSheet();
+		if (cssSheet != null && !cssSheet.equals(""))
+			addAttr(doc, pageElement, "csssheet", cssSheet);
+
+		String folder = page.getFolder();
+		if (folder != null && !folder.equals(""))
+			addAttr(doc, pageElement, "folder", folder);
+
+		List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(pageId);
+
+		if (items != null) {
+			for (SimplePageItem item: items) {
+
+				Element itemElement = doc.createElement("item");
+				addAttr(doc, itemElement, "id", new Long(item.getId()).toString());
+				addAttr(doc, itemElement, "pageId", new Long(item.getPageId()).toString());
+				addAttr(doc, itemElement, "sequence", new Integer(item.getSequence()).toString());
+				addAttr(doc, itemElement, "type", new Integer(item.getType()).toString());
+				addAttr(doc, itemElement, "sakaiid", item.getSakaiId());
+				if (!(SimplePageItem.DUMMY).equals(item.getSakaiId())) {
+					if (item.getType() == SimplePageItem.FORUM || item.getType() == SimplePageItem.ASSESSMENT || item.getType() == SimplePageItem.ASSIGNMENT) {
+						LessonEntity e = null;
+						if (item.getType() == SimplePageItem.FORUM)
+							e = forumEntity;
+						else if (item.getType() == SimplePageItem.ASSESSMENT)
+							e = quizEntity;
+						else
+							e = assignmentEntity;
+						e = e.getEntity(item.getSakaiId());
+						if (e != null) {
+							String title = e.getTitle();
+							if (title != null && !title.equals(""))
+								addAttr(doc, itemElement, "sakaititle", title);
+						}
+					}
+
+				}
+
+				String html = item.getHtml();
+
+				// References to assets in html text content (type 5) that aren't in this site's Resources
+				if ((attachments != null) && (item.getType() == SimplePageItem.TEXT) && (html != null) && html.contains("/access/content/")) {
+					org.jsoup.nodes.Document htmlDoc = Jsoup.parse(html);
+
+					// Typically audio or video <source> or <img>
+					Elements media = htmlDoc.select("[src]");
+					for (org.jsoup.nodes.Element src : media) {
+						String link = src.attr("abs:src");
+
+						// embedded fckeditor attachments
+						if (link.contains("/access/content/attachment/")) {
+							String linkRef = link.replace(link.substring(0, link.indexOf("/attachment/")), "");
+							Reference ref = EntityManager.newReference(contentHostingService.getReference(linkRef));
+							attachments.add(ref);
+							log.info("Found attachment asset: {} adding to attachment list as: {}", link, linkRef);
+						}
+
+						// cross-site references
+						if (link.contains("/access/content/group/") && !link.contains(site.getId())) {
+							// URLDecode this to turn it back into a Sakai content ID
+							try {
+								String linkRef = URLDecoder.decode(link.replace(link.substring(0, link.indexOf("/group/")), ""), "UTF-8");
+								Reference ref = EntityManager.newReference(contentHostingService.getReference(linkRef));
+								attachments.add(ref);
+								log.info("Found cross-site asset: {} adding to attachment list as: {}", link, linkRef);
+							} catch (UnsupportedEncodingException e) {
+								log.error("Unable to add link {} to attachment list, {}", link, e.toString());
+							}
+						}
+					}
+				}
+
+				// check for cross-site video resources (type 7)
+				if ((attachments != null) && ((item.getType() == SimplePageItem.MULTIMEDIA) || (item.getType() == SimplePageItem.RESOURCE))) {
+					if (item.getSakaiId().startsWith("/group/") && (item.getSakaiId().split("/").length >=2)) {
+						String groupId = item.getSakaiId().split("/")[2];
+						log.debug("Lessons item in siteid {} with resource group id {}", site.getId(), groupId);
+						if (!site.getId().equals(groupId)) {
+							// Append to the attachment reference list for archive
+							Reference ref = EntityManager.newReference(contentHostingService.getReference(item.getSakaiId()));
+							attachments.add(ref);
+							log.info("Found cross-site item, adding to attachment list: {}", item.getSakaiId());
+						}
+					}
+				}
+
+				// the Sakai ID is good enough for other object types
+				addAttr(doc, itemElement, "name", item.getName());
+				addAttr(doc, itemElement, "html", html);
+				addAttr(doc, itemElement, "description", item.getDescription());
+				addAttr(doc, itemElement, "height", item.getHeight());
+				addAttr(doc, itemElement, "width", item.getWidth());
+				addAttr(doc, itemElement, "alt", item.getAlt());
+				addAttr(doc, itemElement, "required", item.isRequired() ? "true" : "false");
+				addAttr(doc, itemElement, "prerequisite", item.isPrerequisite() ? "true" : "false");
+				addAttr(doc, itemElement, "subrequirement", item.getSubrequirement() ? "true" : "false");
+				addAttr(doc, itemElement, "requirementtext", item.getRequirementText());
+				addAttr(doc, itemElement, "nextpage", item.getNextPage() ? "true" : "false");
+				addAttr(doc, itemElement, "format", item.getFormat());
+				addAttr(doc, itemElement, "anonymous", item.isAnonymous() ? "true" : "false");
+				addAttr(doc, itemElement, "showComments", item.getShowComments() ? "true" : "false");
+				addAttr(doc, itemElement, "forcedCommentsAnonymous", item.getForcedCommentsAnonymous() ? "true" : "false");
+				addAttr(doc, itemElement, "groups", item.getGroups());
+				addAttr(doc, itemElement, "gradebookId", item.getGradebookId());
+				addAttr(doc, itemElement, "gradebookPoints", String.valueOf(item.getGradebookPoints()));
+				addAttr(doc, itemElement, "gradebookTitle", item.getGradebookTitle());
+				addAttr(doc, itemElement, "altGradebook", item.getAltGradebook());
+				addAttr(doc, itemElement, "altPoints", String.valueOf(item.getAltPoints()));
+				addAttr(doc, itemElement, "altGradebookTitle", item.getAltGradebookTitle());
+				addAttr(doc, itemElement, "groupOwned", item.isGroupOwned() ? "true" : "false");
+
+				Collection<Group> siteGroups = site.getGroups();
+				addGroup(doc, itemElement, item.getOwnerGroups(), "ownerGroup", siteGroups);
+
+				if (item.getType() == SimplePageItem.FORUM || item.getType() == SimplePageItem.ASSESSMENT || item.getType() == SimplePageItem.ASSIGNMENT) {
+					LessonEntity e = null;
+					if (item.getType() == SimplePageItem.FORUM)
+						e = forumEntity;
+					else if (item.getType() == SimplePageItem.ASSESSMENT)
+						e = quizEntity;
+					else
+						e = assignmentEntity;
+					e = e.getEntity(item.getSakaiId());
+					if (e != null) {
+						String objectid = e.getObjectId();  // this is something like assignment/ID/TITLE. It's used to find the object in the new site if necessary
+						if (objectid!= null)
+							addAttr(doc, itemElement, "objectid", objectid);
+					}
+				}
+
+				if (item.isSameWindow() != null)
+					addAttr(doc, itemElement, "samewindow", item.isSameWindow() ? "true" : "false");
+
+				String attrString = item.getAttributeString(); //json encoded attributes
+
+				if (attrString != null) {
+					Element attributeElement = doc.createElement("attributes");
+					attributeElement.setTextContent(attrString);
+					itemElement.appendChild(attributeElement);
+				}
+
+				pageElement.appendChild(itemElement);
+			}
+		}
+		element.appendChild(pageElement);
+	}
+
+	void addGroup(Document doc, Element itemElement, String groupString, String attr, Collection<Group>siteGroups) {
+		if (groupString != null && !groupString.equals("") && siteGroups != null) {
+			String [] groups = groupString.split(",");
+			for (int i = 0; i < groups.length ; i++) {
+				Element groupElement = doc.createElement(attr);
+				addAttr(doc, groupElement, "id", groups[i]);
+				Group group = null;
+				for (Group g: siteGroups)
+					if (g.getId().equals(groups[i])) {
+						group = g;
+						break;
+					}
+				if (group != null)
+					addAttr(doc, groupElement, "title", group.getTitle());
+				itemElement.appendChild(groupElement);
+			}
 		}
 	}
 
-	parent = page.getTopParent();
-	if (parent != null)
-	    addAttr(doc, pageElement, "topparent", parent.toString());
 
-	addAttr(doc, pageElement, "hidden", page.isHidden() ? "true" : "false");
-	// we don't read this on input, as copying typically assumes you'll want new release dates
-	Date releaseDate = page.getReleaseDate();
-	if (releaseDate != null)
-	    addAttr(doc, pageElement, "releasedate", releaseDate.toString());
-	Double gradebookPoints = page.getGradebookPoints();
-	if (gradebookPoints != null)
-	    addAttr(doc, pageElement, "gradebookpoints", gradebookPoints.toString());
-	String cssSheet = page.getCssSheet();
-	if (cssSheet != null && !cssSheet.equals(""))
-	    addAttr(doc, pageElement, "csssheet", cssSheet);
+	@Override
+	public String archive(String siteId, Document doc, Stack stack, String archivePath, List attachments)
+	{
+		//prepare the buffer for the results log
+		StringBuilder results = new StringBuilder();
 
-	String folder = page.getFolder();
-	if (folder != null && !folder.equals(""))
-	    addAttr(doc, pageElement, "folder", folder);
+		// Orphaned pages need not apply!
+		SimplePageBean simplePageBean = makeSimplePageBean(siteId);
+		OrphanPageFinder orphanFinder = simplePageBean.getOrphanFinder(siteId);
 
-	List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(pageId);
+		try
+		{
+			Site site = siteService.getSite(siteId);
+			// start with an element with our very own (service) name
+			Element element = doc.createElement(serviceName());
+			element.setAttribute(VERSION_ATTR, ARCHIVE_VERSION);
+			((Element) stack.peek()).appendChild(element);
+			stack.push(element);
 
-	if (items != null) {
-	    for (SimplePageItem item: items) {
-			 
-		Element itemElement = doc.createElement("item");
-		addAttr(doc, itemElement, "id", new Long(item.getId()).toString());
-		addAttr(doc, itemElement, "pageId", new Long(item.getPageId()).toString());
-		addAttr(doc, itemElement, "sequence", new Integer(item.getSequence()).toString());
-		addAttr(doc, itemElement, "type", new Integer(item.getType()).toString());
-		addAttr(doc, itemElement, "sakaiid", item.getSakaiId());
-		if (!(SimplePageItem.DUMMY).equals(item.getSakaiId())) {
-		    if (item.getType() == SimplePageItem.FORUM || item.getType() == SimplePageItem.ASSESSMENT || item.getType() == SimplePageItem.ASSIGNMENT) {
-			LessonEntity e = null;
-			if (item.getType() == SimplePageItem.FORUM)
-			    e = forumEntity;
-			else if (item.getType() == SimplePageItem.ASSESSMENT)
-			    e = quizEntity;
+			Element lessonbuilder = doc.createElement(LESSONBUILDER);
+
+			int orphansSkipped = 0;
+
+			List<SimplePage> sitePages = simplePageToolDao.getSitePages(siteId);
+			if (sitePages != null && !sitePages.isEmpty()) {
+				for (SimplePage page: sitePages) {
+					if (!orphanFinder.isOrphan(page.getPageId())) {
+						addPage(doc, lessonbuilder, page, site, attachments);
+					} else {
+						orphansSkipped++;
+					}
+				}
+			}
+
+			log.info("Skipped over " + orphansSkipped + " orphaned pages while archiving site " + siteId);
+
+			Collection<ToolConfiguration> tools = site.getTools(myToolIds());
+			int count = 0;
+			if (tools != null && !tools.isEmpty())
+			{
+				for (ToolConfiguration config: tools) {
+					element = doc.createElement(LESSONBUILDER);
+
+					addAttr(doc, element, "toolid", config.getPageId());
+					addAttr(doc, element, "name" , config.getContainingPage().getTitle());
+					addAttr(doc, element, "pagePosition" , config.getContainingPage().getPosition() + "");
+
+					Properties props = config.getPlacementConfig();
+					String roleList = StringUtils.trimToEmpty(props.getProperty("functions.require"));
+					String pageVisibility = StringUtils.trimToEmpty(props.getProperty(ToolManager.PORTAL_VISIBLE));
+
+					addAttr(doc, element, "functions.require", roleList);
+					addAttr(doc, element, "pageVisibility" , pageVisibility);
+
+					// should be impossible for these nulls, but we've seen it
+					if (simplePageToolDao.getTopLevelPageId(config.getPageId()) != null)
+						addAttr(doc, element, "pageId", Long.toString(simplePageToolDao.getTopLevelPageId(config.getPageId())));
+					else
+						log.warn("archive site " + siteId + " tool page " + config.getPageId() + " null lesson");
+					// addPage(doc, element,  simplePageToolDao.getTopLevelPageId(config.getPageId()));
+
+					lessonbuilder.appendChild(element);
+					count++;
+				}
+
+				results.append("archiving " + count + " LessonBuilder instances.\n");
+
+			}
 			else
-			    e = assignmentEntity;
-			e = e.getEntity(item.getSakaiId());
-			if (e != null) {
-			    String title = e.getTitle();
-			    if (title != null && !title.equals(""))
-				addAttr(doc, itemElement, "sakaititle", title);
-			}
-		    }
-
-		}
-
-		String html = item.getHtml();
-
-		// References to assets in html text content (type 5) that aren't in this site's Resources
-		if ((attachments != null) && (item.getType() == SimplePageItem.TEXT) && (html != null) && html.contains("/access/content/")) {
-		    org.jsoup.nodes.Document htmlDoc = Jsoup.parse(html);
-
-		    // Typically audio or video <source> or <img>
-		    Elements media = htmlDoc.select("[src]");
-		    for (org.jsoup.nodes.Element src : media) {
-			String link = src.attr("abs:src");
-
-			// embedded fckeditor attachments
-			if (link.contains("/access/content/attachment/")) {
-				String linkRef = link.replace(link.substring(0, link.indexOf("/attachment/")), "");
-				Reference ref = EntityManager.newReference(contentHostingService.getReference(linkRef));
-				attachments.add(ref);
-				log.info("Found attachment asset: {} adding to attachment list as: {}", link, linkRef);
+			{
+				results.append("archiving no LessonBuilder instances.\n");
 			}
 
-			// cross-site references
-			if (link.contains("/access/content/group/") && !link.contains(site.getId())) {
-				// URLDecode this to turn it back into a Sakai content ID
-				try {
-					String linkRef = URLDecoder.decode(link.replace(link.substring(0, link.indexOf("/group/")), ""), "UTF-8");
-					Reference ref = EntityManager.newReference(contentHostingService.getReference(linkRef));
-					attachments.add(ref);
-					log.info("Found cross-site asset: {} adding to attachment list as: {}", link, linkRef);
-				} catch (UnsupportedEncodingException e) {
-					log.error("Unable to add link {} to attachment list, {}", link, e.toString());
-				}
-			}
-		    }
+			((Element) stack.peek()).appendChild(lessonbuilder);
+			stack.push(lessonbuilder);
+
+			stack.pop();
+		}
+		catch (Exception any)
+		{
+			log.warn("archive: exception archiving service: " + any + " " +  serviceName());
 		}
 
-		// check for cross-site video resources (type 7)
-		if ((attachments != null) && ((item.getType() == SimplePageItem.MULTIMEDIA) || (item.getType() == SimplePageItem.RESOURCE))) {
-			if (item.getSakaiId().startsWith("/group/") && (item.getSakaiId().split("/").length >=2)) {
-				String groupId = item.getSakaiId().split("/")[2];
-				log.debug("Lessons item in siteid {} with resource group id {}", site.getId(), groupId);
-				if (!site.getId().equals(groupId)) {
-					// Append to the attachment reference list for archive
-					Reference ref = EntityManager.newReference(contentHostingService.getReference(item.getSakaiId()));
-					attachments.add(ref);
-					log.info("Found cross-site item, adding to attachment list: {}", item.getSakaiId());
-				}
-			}
-		}
+		stack.pop();
 
-		// the Sakai ID is good enough for other object types
-		addAttr(doc, itemElement, "name", item.getName());
-		addAttr(doc, itemElement, "html", html);
-		addAttr(doc, itemElement, "description", item.getDescription());
-		addAttr(doc, itemElement, "height", item.getHeight());
-		addAttr(doc, itemElement, "width", item.getWidth());
-		addAttr(doc, itemElement, "alt", item.getAlt());
-		addAttr(doc, itemElement, "required", item.isRequired() ? "true" : "false");
-		addAttr(doc, itemElement, "prerequisite", item.isPrerequisite() ? "true" : "false");
-		addAttr(doc, itemElement, "subrequirement", item.getSubrequirement() ? "true" : "false");
-		addAttr(doc, itemElement, "requirementtext", item.getRequirementText());
-		addAttr(doc, itemElement, "nextpage", item.getNextPage() ? "true" : "false");
-		addAttr(doc, itemElement, "format", item.getFormat());
-		addAttr(doc, itemElement, "anonymous", item.isAnonymous() ? "true" : "false");
-		addAttr(doc, itemElement, "showComments", item.getShowComments() ? "true" : "false");
-		addAttr(doc, itemElement, "forcedCommentsAnonymous", item.getForcedCommentsAnonymous() ? "true" : "false");
-		addAttr(doc, itemElement, "groups", item.getGroups());
-		addAttr(doc, itemElement, "gradebookId", item.getGradebookId());
-		addAttr(doc, itemElement, "gradebookPoints", String.valueOf(item.getGradebookPoints()));
-		addAttr(doc, itemElement, "gradebookTitle", item.getGradebookTitle());
-		addAttr(doc, itemElement, "altGradebook", item.getAltGradebook());
-		addAttr(doc, itemElement, "altPoints", String.valueOf(item.getAltPoints()));
-		addAttr(doc, itemElement, "altGradebookTitle", item.getAltGradebookTitle());
-		addAttr(doc, itemElement, "groupOwned", item.isGroupOwned() ? "true" : "false");
-
-		Collection<Group> siteGroups = site.getGroups();
-		addGroup(doc, itemElement, item.getOwnerGroups(), "ownerGroup", siteGroups);
-		
-		if (item.getType() == SimplePageItem.FORUM || item.getType() == SimplePageItem.ASSESSMENT || item.getType() == SimplePageItem.ASSIGNMENT) {
-		    LessonEntity e = null;
-		    if (item.getType() == SimplePageItem.FORUM)
-			e = forumEntity;
-		    else if (item.getType() == SimplePageItem.ASSESSMENT)
-			e = quizEntity;
-		    else
-			e = assignmentEntity;
-		    e = e.getEntity(item.getSakaiId());
-		    if (e != null) {
-			String objectid = e.getObjectId();  // this is something like assignment/ID/TITLE. It's used to find the object in the new site if necessary
-			if (objectid!= null)
-			    addAttr(doc, itemElement, "objectid", objectid);
-		    }
-		}
-
-		if (item.isSameWindow() != null)
-		    addAttr(doc, itemElement, "samewindow", item.isSameWindow() ? "true" : "false");
-		
-		String attrString = item.getAttributeString(); //json encoded attributes
-
-		if (attrString != null) {
-		    Element attributeElement = doc.createElement("attributes");
-		    attributeElement.setTextContent(attrString);
-		    itemElement.appendChild(attributeElement);
-		}
-
-		pageElement.appendChild(itemElement);
-	    }
-	}		
-	element.appendChild(pageElement);
-    }
-
-    void addGroup(Document doc, Element itemElement, String groupString, String attr, Collection<Group>siteGroups) {
-	if (groupString != null && !groupString.equals("") && siteGroups != null) {
-	    String [] groups = groupString.split(",");
-	    for (int i = 0; i < groups.length ; i++) {
-		Element groupElement = doc.createElement(attr);
-		addAttr(doc, groupElement, "id", groups[i]);
-		Group group = null;
-		for (Group g: siteGroups)
-		    if (g.getId().equals(groups[i])) {
-			group = g;
-			break;
-		    }
-		if (group != null)
-		    addAttr(doc, groupElement, "title", group.getTitle());
-		itemElement.appendChild(groupElement);
-	    }
+		return results.toString();
 	}
-    }
 
+	@Override
+	public String getEntityUrl(Reference ref)
+	{
+		String URL = "";
+		long id = idFromRef(ref.getReference());
+		if ("page".equals(ref.getSubType())) {
+			SimplePage currentPage = simplePageToolDao.getPage(id);
+			URL = String.format("%s/site/%s/page/%s", ServerConfigurationService.getPortalUrl(), currentPage.getSiteId(), currentPage.getToolId());
+			return URL;
+		}
+		//Just return a URL to the top of the page based on the item's pageId and toolId
+		SimplePageItem item = simplePageToolDao.findItem(id);
+		if (item != null) {
+			URL = item.getURL();
+			if (URL == null || "".equals(URL) ) {
+				//Return a default as portal tool page for now
+				SimplePage currentPage = simplePageToolDao.getPage(item.getPageId());
+				URL = ServerConfigurationService.getPortalUrl()+"/site/"+currentPage.getSiteId()+"/page/"+currentPage.getToolId();
+			}
+		}
+		return URL;
+	}
 
-   @Override
-   public String archive(String siteId, Document doc, Stack stack, String archivePath, List attachments)
-   {
-      //prepare the buffer for the results log
-       StringBuilder results = new StringBuilder();
+	@Override
+	public HttpAccess getHttpAccess()
+	{
+		// not for now
+		return lessonBuilderAccessAPI.getHttpAccess();
+	}
 
-      // Orphaned pages need not apply!
-       SimplePageBean simplePageBean = makeSimplePageBean(siteId);
-       OrphanPageFinder orphanFinder = simplePageBean.getOrphanFinder(siteId);
+	@Override
+	public String getLabel() {
+		return LESSONBUILDER;
+	}
 
-      try 
-      {
-	 Site site = siteService.getSite(siteId);
-         // start with an element with our very own (service) name         
-         Element element = doc.createElement(serviceName());
-         element.setAttribute(VERSION_ATTR, ARCHIVE_VERSION);
-         ((Element) stack.peek()).appendChild(element);
-         stack.push(element);
-
-         Element lessonbuilder = doc.createElement(LESSONBUILDER);
-
-	 int orphansSkipped = 0;
-
-	 List<SimplePage> sitePages = simplePageToolDao.getSitePages(siteId);
-	 if (sitePages != null && !sitePages.isEmpty()) {
-	     for (SimplePage page: sitePages) {
-	       if (!orphanFinder.isOrphan(page.getPageId())) {
-		 addPage(doc, lessonbuilder, page, site, attachments);
-	       } else {
-		 orphansSkipped++;
-	       }
-	     }
-	 }
-
-	 log.info("Skipped over " + orphansSkipped + " orphaned pages while archiving site " + siteId);
-
-         Collection<ToolConfiguration> tools = site.getTools(myToolIds());
-	 int count = 0;
-         if (tools != null && !tools.isEmpty()) 
-         {
-	     for (ToolConfiguration config: tools) {
-		 element = doc.createElement(LESSONBUILDER);
-
-		 addAttr(doc, element, "toolid", config.getPageId());
-		 addAttr(doc, element, "name" , config.getContainingPage().getTitle());
-		 addAttr(doc, element, "pagePosition" , config.getContainingPage().getPosition() + "");
-
-		 Properties props = config.getPlacementConfig();
-		 String roleList = StringUtils.trimToEmpty(props.getProperty("functions.require"));
-		 String pageVisibility = StringUtils.trimToEmpty(props.getProperty(ToolManager.PORTAL_VISIBLE));
-
-		 addAttr(doc, element, "functions.require", roleList);
-		 addAttr(doc, element, "pageVisibility" , pageVisibility);
-		 
-		 // should be impossible for these nulls, but we've seen it
-		 if (simplePageToolDao.getTopLevelPageId(config.getPageId()) != null)
-		     addAttr(doc, element, "pageId", Long.toString(simplePageToolDao.getTopLevelPageId(config.getPageId())));
-		 else
-		     log.warn("archive site " + siteId + " tool page " + config.getPageId() + " null lesson");
-		 // addPage(doc, element,  simplePageToolDao.getTopLevelPageId(config.getPageId()));
-		 
-		 lessonbuilder.appendChild(element);
-		 count++;
-	     }
-            
-	     results.append("archiving " + count + " LessonBuilder instances.\n");
-
-         } 
-         else 
-         {
-	     results.append("archiving no LessonBuilder instances.\n");
-         }
-
-         ((Element) stack.peek()).appendChild(lessonbuilder);
-         stack.push(lessonbuilder);
-
-         stack.pop();
-      }
-      catch (Exception any)
-      {
-         log.warn("archive: exception archiving service: " + any + " " +  serviceName());
-      }
-
-      stack.pop();
-
-      return results.toString();
-   }
-   
-   @Override
-   public String getEntityUrl(Reference ref)
-   {
-       String URL = "";
-       long id = idFromRef(ref.getReference());
-       if ("page".equals(ref.getSubType())) {
-    	   SimplePage currentPage = simplePageToolDao.getPage(id);
-    	   URL = String.format("%s/site/%s/page/%s", ServerConfigurationService.getPortalUrl(), currentPage.getSiteId(), currentPage.getToolId());
-    	   return URL;
-       }
-       //Just return a URL to the top of the page based on the item's pageId and toolId
-       SimplePageItem item = simplePageToolDao.findItem(id);
-       if (item != null) {
-           URL = item.getURL();
-           if (URL == null || "".equals(URL) ) {
-               //Return a default as portal tool page for now
-               SimplePage currentPage = simplePageToolDao.getPage(item.getPageId());
-               URL = ServerConfigurationService.getPortalUrl()+"/site/"+currentPage.getSiteId()+"/page/"+currentPage.getToolId();
-           }
-       }
-       return URL;
-   }
-
-   @Override
-   public HttpAccess getHttpAccess()
-   {
-       // not for now
-       return lessonBuilderAccessAPI.getHttpAccess();
-   }
-
-   @Override
-   public String getLabel() {
-       return LESSONBUILDER;
-   }
-
-    // the pages are already made. this adds the elements
-    private boolean mergePage(Element element, String oldServer, String siteId, String fromSiteId, Map<Long,Long> pageMap,
+	// the pages are already made. this adds the elements
+	private boolean mergePage(Element element, String oldServer, String siteId, String fromSiteId, Map<Long,Long> pageMap,
 			Map<Long,Long> itemMap, Map<String,String> entityMap, MergeConfig mcx) {
 
 		String oldSiteId = element.getAttribute("siteid");
@@ -1015,50 +1015,50 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		return needFix;
 	}
 
-    String mergeGroups(Element itemElement, String attr, Collection<Group> siteGroups, String fromSiteId) {
+	String mergeGroups(Element itemElement, String attr, Collection<Group> siteGroups, String fromSiteId) {
 
-	// not currently doing this, although the code has been tested.
-	// The problem is that other tools don't do it. Since much of our group
-	// awareness comes from the other tools, enabling this produces
-	// inconsistent results
+		// not currently doing this, although the code has been tested.
+		// The problem is that other tools don't do it. Since much of our group
+		// awareness comes from the other tools, enabling this produces
+		// inconsistent results
 
-	String groups = itemElement.getAttribute(attr);
-	String groupString = null;
-	Site oldSite = null;
-	try {
-		oldSite = siteService.getSite(fromSiteId);
-	} catch (Exception e) {
-		log.debug("site " + fromSiteId + " not found.", e);
-	}
-	// For each old group, get the corresponding new group id
-	if (!groups.isEmpty() && siteGroups != null && oldSite != null) {
-		final String[] parts = groups.split(",");
-		for (int n = 0; n < parts.length; n ++) {
-			final Group group = oldSite.getGroup(parts[n]);
-			final String providerID = group.getProviderGroupId();
-			if(providerID == null ) { // only transfer groups which are not old rosters
-				final String title = group.getTitle();
-				if (title != null && !title.equals("")) {
-					for (Group g : siteGroups) {
-						if (title.equals(g.getTitle())) {
-							if (groupString == null) {
-								groupString = g.getId();
-							} else {
-								groupString = groupString + "," + g.getId();
+		String groups = itemElement.getAttribute(attr);
+		String groupString = null;
+		Site oldSite = null;
+		try {
+			oldSite = siteService.getSite(fromSiteId);
+		} catch (Exception e) {
+			log.debug("site " + fromSiteId + " not found.", e);
+		}
+		// For each old group, get the corresponding new group id
+		if (!groups.isEmpty() && siteGroups != null && oldSite != null) {
+			final String[] parts = groups.split(",");
+			for (int n = 0; n < parts.length; n ++) {
+				final Group group = oldSite.getGroup(parts[n]);
+				final String providerID = group.getProviderGroupId();
+				if(providerID == null ) { // only transfer groups which are not old rosters
+					final String title = group.getTitle();
+					if (title != null && !title.equals("")) {
+						for (Group g : siteGroups) {
+							if (title.equals(g.getTitle())) {
+								if (groupString == null) {
+									groupString = g.getId();
+								} else {
+									groupString = groupString + "," + g.getId();
+								}
 							}
 						}
 					}
 				}
 			}
-	    }
+		}
+
+		return groupString;
+
 	}
 
-	return groupString;
-
-    }
-
-    // fix up items on page. does any updates that need the whole page and item map
-    private void fixItems(Element element, String oldServer, String siteId, String fromSiteId, Map<Long,Long> pageMap, Map<Long,Long> itemMap) {
+	// fix up items on page. does any updates that need the whole page and item map
+	private void fixItems(Element element, String oldServer, String siteId, String fromSiteId, Map<Long,Long> pageMap, Map<Long,Long> itemMap) {
 
 		String oldPageIdString = element.getAttribute("pageid");
 		Long oldPageId = Long.valueOf(oldPageIdString);
@@ -1125,1201 +1125,1201 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		}
 	}
 
-    public String fixUrls(String s, String oldServer, String siteId, String fromSiteId, Map<Long,Long> itemMap) {
-        ContentCopyContext context = new ContentCopyContext(fromSiteId, siteId, oldServer);
-        String htmlWithAttachments = transferAttachmentFiles(s, fromSiteId, siteId);
-        return convertHtmlContent(context, htmlWithAttachments, null, itemMap);
-   }
+	public String fixUrls(String s, String oldServer, String siteId, String fromSiteId, Map<Long,Long> itemMap) {
+		ContentCopyContext context = new ContentCopyContext(fromSiteId, siteId, oldServer);
+		String htmlWithAttachments = transferAttachmentFiles(s, fromSiteId, siteId);
+		return convertHtmlContent(context, htmlWithAttachments, null, itemMap);
+	}
 
-   // Externally used for zip import
-   @Override
-   public String merge(String siteId, Element root, String archivePath, String fromSiteId, MergeConfig mcx) {
-       Map<String, String> entityMap = null;
-       return mergeInternal(siteId, root, archivePath, fromSiteId, mcx, entityMap);
-   }
+	// Externally used for zip import
+	@Override
+	public String merge(String siteId, Element root, String archivePath, String fromSiteId, MergeConfig mcx) {
+		Map<String, String> entityMap = null;
+		return mergeInternal(siteId, root, archivePath, fromSiteId, mcx, entityMap);
+	}
 
-   // Internally used for both site copy and zip import
-   public String mergeInternal(String siteId, Element root, String archivePath, String fromSiteId, MergeConfig mcx,
-       Map<String, String> entityMap)
-   {
+	// Internally used for both site copy and zip import
+	public String mergeInternal(String siteId, Element root, String archivePath, String fromSiteId, MergeConfig mcx,
+			Map<String, String> entityMap)
+	{
 
-	   log.debug("Lessons Merge siteId={} fromSiteId={} creatorId={} archiveContext={} archiveServerUrl={}",
-			   siteId, fromSiteId, mcx.creatorId, mcx.archiveContext, mcx.archiveServerUrl);
+		log.debug("Lessons Merge siteId={} fromSiteId={} creatorId={} archiveContext={} archiveServerUrl={}",
+				siteId, fromSiteId, mcx.creatorId, mcx.archiveContext, mcx.archiveServerUrl);
 
-	   // Check if there is nothing to import
-	   NodeList lessonBuilderTools = root.getElementsByTagName("lessonbuilder");
-	   boolean lessonHasContent = false;
+		// Check if there is nothing to import
+		NodeList lessonBuilderTools = root.getElementsByTagName("lessonbuilder");
+		boolean lessonHasContent = false;
 
-	   for (int toolIndex = 0; toolIndex < lessonBuilderTools.getLength() && !lessonHasContent; toolIndex++) {
-		   Node lessonBuilderNode = lessonBuilderTools.item(toolIndex);
-		   if (lessonBuilderNode.getNodeType() == Node.ELEMENT_NODE) {
-			   Element lessonBuilderElement = (Element) lessonBuilderNode;
-			   NodeList lessonPages = lessonBuilderElement.getElementsByTagName("page");
+		for (int toolIndex = 0; toolIndex < lessonBuilderTools.getLength() && !lessonHasContent; toolIndex++) {
+			Node lessonBuilderNode = lessonBuilderTools.item(toolIndex);
+			if (lessonBuilderNode.getNodeType() == Node.ELEMENT_NODE) {
+				Element lessonBuilderElement = (Element) lessonBuilderNode;
+				NodeList lessonPages = lessonBuilderElement.getElementsByTagName("page");
 
-			   for (int pageIndex = 0; pageIndex < lessonPages.getLength() && !lessonHasContent; pageIndex++) {
-				   Element currentPage = (Element) lessonPages.item(pageIndex);
-				   NodeList pageItems = currentPage.getElementsByTagName("item");
+				for (int pageIndex = 0; pageIndex < lessonPages.getLength() && !lessonHasContent; pageIndex++) {
+					Element currentPage = (Element) lessonPages.item(pageIndex);
+					NodeList pageItems = currentPage.getElementsByTagName("item");
 
-				   if (pageItems != null && pageItems.getLength() > 0) {
-					   lessonHasContent = true;
-				   }
-			   }
-		   }
-	   }
+					if (pageItems != null && pageItems.getLength() > 0) {
+						lessonHasContent = true;
+					}
+				}
+			}
+		}
 
-	   if (!lessonHasContent) {
-		   log.debug("No lessonbuilder pages to import");
-		   return "No lessonbuilder pages to import";
-	   }
+		if (!lessonHasContent) {
+			log.debug("No lessonbuilder pages to import");
+			return "No lessonbuilder pages to import";
+		}
 
-	   StringBuilder results = new StringBuilder();
-	   // map old to new page ids
-	   Map <Long,Long> pageMap = new HashMap<Long,Long>();
-	   Map <Long,Long> itemMap = new HashMap<Long,Long>();
+		StringBuilder results = new StringBuilder();
+		// map old to new page ids
+		Map <Long,Long> pageMap = new HashMap<Long,Long>();
+		Map <Long,Long> itemMap = new HashMap<Long,Long>();
 
-	   // a convenient map of the old page id and its corresponding element
-	   Map <Long,Element> pageElementMap = new HashMap<Long,Element>();
+		// a convenient map of the old page id and its corresponding element
+		Map <Long,Element> pageElementMap = new HashMap<Long,Element>();
 
-	   int count = 0;
-	   boolean needFix = false;
+		int count = 0;
+		boolean needFix = false;
 
-	   String oldServer = root.getAttribute("server");
+		String oldServer = root.getAttribute("server");
 
-	   if (siteId != null && siteId.trim().length() > 0)
-	   {
-		   try {
-			   // create pages first, build up map of old to new page
-			   NodeList pageNodes = root.getElementsByTagName("page");
-			   int numPages = pageNodes.getLength();
-			   for (int p = 0; p < numPages; p++) {
-				   Node pageNode = pageNodes.item(p);
-				   if (pageNode.getNodeType() == Node.ELEMENT_NODE) {
-					   Element pageElement = (Element) pageNode;
-					   String title = pageElement.getAttribute("title");
-					   if (title == null) title = "Page";
-					   String oldPageIdString = pageElement.getAttribute("pageid");
-					   if (oldPageIdString == null) oldPageIdString = "0";
-					   Long oldPageId = Long.valueOf(oldPageIdString);
-					   log.debug("oldPageId: {} title: {}", oldPageId, title);
-					   SimplePage page = simplePageToolDao.makePage("0", siteId, title, 0L, 0L);
-					   String gradebookPoints = pageElement.getAttribute("gradebookpoints");
-					   if (StringUtils.isNotEmpty(gradebookPoints)) {
-						   page.setGradebookPoints(Double.valueOf(gradebookPoints));
-					   }
-					   String folder = pageElement.getAttribute("folder");
-					   if (StringUtils.isNotEmpty(folder)) page.setFolder(folder);
-					   //get new page's Date Release property
-					   String dateString = pageElement.getAttribute("releasedate");
-					   if (StringUtils.isNotEmpty(dateString)){
-						   DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
-						   Date date = formatter.parse(dateString);
-						   page.setReleaseDate(date);
-					   }
-					   //get new page's Hidden property
-					   String hiddenString = pageElement.getAttribute("hidden");
-					   if (StringUtils.isNotEmpty(hiddenString)) page.setHidden(Boolean.valueOf(hiddenString));
-					   // Carry over the custom CSS sheet if present. These are of the form
-					   // "/group/SITEID/LB-CSS/whatever.css", so we need to map the SITEID
-					   String cssSheet = pageElement.getAttribute("csssheet");
-					   if (StringUtils.isNotEmpty(cssSheet)) page.setCssSheet(cssSheet.replace("/group/"+fromSiteId+"/", "/group/"+siteId+"/"));
-					   log.debug("saving page: {}", page);
-					   simplePageToolDao.quickSaveItem(page);
-					   log.debug("saved page: {}", page);
-					   if (StringUtils.isNotEmpty(gradebookPoints)) {
-						   try {
-							   gradebookIfc.addExternalAssessment(siteId, "lesson-builder:" + page.getPageId(), null,
-									   title, Double.valueOf(gradebookPoints), null, LessonBuilderConstants.TOOL_ID);
-						   } catch(ConflictingAssignmentNameException cane){
-							   log.error("merge: ConflictingAssignmentNameException for title {}.", title);
-						   }
-					   }
-					   pageMap.put(oldPageId, page.getPageId());
-				   }
-			   }
+		if (siteId != null && siteId.trim().length() > 0)
+		{
+			try {
+				// create pages first, build up map of old to new page
+				NodeList pageNodes = root.getElementsByTagName("page");
+				int numPages = pageNodes.getLength();
+				for (int p = 0; p < numPages; p++) {
+					Node pageNode = pageNodes.item(p);
+					if (pageNode.getNodeType() == Node.ELEMENT_NODE) {
+						Element pageElement = (Element) pageNode;
+						String title = pageElement.getAttribute("title");
+						if (title == null) title = "Page";
+						String oldPageIdString = pageElement.getAttribute("pageid");
+						if (oldPageIdString == null) oldPageIdString = "0";
+						Long oldPageId = Long.valueOf(oldPageIdString);
+						log.debug("oldPageId: {} title: {}", oldPageId, title);
+						SimplePage page = simplePageToolDao.makePage("0", siteId, title, 0L, 0L);
+						String gradebookPoints = pageElement.getAttribute("gradebookpoints");
+						if (StringUtils.isNotEmpty(gradebookPoints)) {
+							page.setGradebookPoints(Double.valueOf(gradebookPoints));
+						}
+						String folder = pageElement.getAttribute("folder");
+						if (StringUtils.isNotEmpty(folder)) page.setFolder(folder);
+						//get new page's Date Release property
+						String dateString = pageElement.getAttribute("releasedate");
+						if (StringUtils.isNotEmpty(dateString)){
+							DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
+							Date date = formatter.parse(dateString);
+							page.setReleaseDate(date);
+						}
+						//get new page's Hidden property
+						String hiddenString = pageElement.getAttribute("hidden");
+						if (StringUtils.isNotEmpty(hiddenString)) page.setHidden(Boolean.valueOf(hiddenString));
+						// Carry over the custom CSS sheet if present. These are of the form
+						// "/group/SITEID/LB-CSS/whatever.css", so we need to map the SITEID
+						String cssSheet = pageElement.getAttribute("csssheet");
+						if (StringUtils.isNotEmpty(cssSheet)) page.setCssSheet(cssSheet.replace("/group/"+fromSiteId+"/", "/group/"+siteId+"/"));
+						log.debug("saving page: {}", page);
+						simplePageToolDao.quickSaveItem(page);
+						log.debug("saved page: {}", page);
+						if (StringUtils.isNotEmpty(gradebookPoints)) {
+							try {
+								gradebookIfc.addExternalAssessment(siteId, "lesson-builder:" + page.getPageId(), null,
+										title, Double.valueOf(gradebookPoints), null, LessonBuilderConstants.TOOL_ID);
+							} catch(ConflictingAssignmentNameException cane){
+								log.error("merge: ConflictingAssignmentNameException for title {}.", title);
+							}
+						}
+						pageMap.put(oldPageId, page.getPageId());
+					}
+				}
 
-			   log.debug("Starting pass over pages/items pageMap: {}", pageMap);
+				log.debug("Starting pass over pages/items pageMap: {}", pageMap);
 
-			   // process pages again to create the items
-			   pageNodes = root.getElementsByTagName("page");
-			   numPages = pageNodes.getLength();
-			   for (int p = 0; p < numPages; p++) {
-				   Node pageNode = pageNodes.item(p);
-				   if (pageNode.getNodeType() == Node.ELEMENT_NODE) {
-					   Element pageElement = (Element) pageNode;
+				// process pages again to create the items
+				pageNodes = root.getElementsByTagName("page");
+				numPages = pageNodes.getLength();
+				for (int p = 0; p < numPages; p++) {
+					Node pageNode = pageNodes.item(p);
+					if (pageNode.getNodeType() == Node.ELEMENT_NODE) {
+						Element pageElement = (Element) pageNode;
 
-					   // The pageElementMap will be referenced later when SimplePageItems corresponding to
-					   // top level pages are created. (These are distinct from the SimplePageItems representing
-					   // items on the page.)
-					   Long oldPageId = Long.valueOf(pageElement.getAttribute("pageid"));
-					   pageElementMap.put(oldPageId, pageElement);
+						// The pageElementMap will be referenced later when SimplePageItems corresponding to
+						// top level pages are created. (These are distinct from the SimplePageItems representing
+						// items on the page.)
+						Long oldPageId = Long.valueOf(pageElement.getAttribute("pageid"));
+						pageElementMap.put(oldPageId, pageElement);
 
-					   if (mergePage(pageElement, oldServer, siteId, fromSiteId, pageMap, itemMap, entityMap, mcx))
+						if (mergePage(pageElement, oldServer, siteId, fromSiteId, pageMap, itemMap, entityMap, mcx))
 
-						   needFix = true;
-				   }
-			   }
+							needFix = true;
+					}
+				}
 
-			   if (needFix) {
-				   Site site = siteService.getSite(siteId);
-				   ResourcePropertiesEdit rp = site.getPropertiesEdit();
-				   rp.addProperty("lessonbuilder-needsfixup", "2");
-				   siteService.save(site);
-				   // unfortunately in duplicate site, site-admin has the site open, so this doesn't actually do anything
-				   // site-manage will stomp on it. However it does work for the other import operations, which is where
-				   // we need it, since site manage will call the fixup itself for duplicate
+				if (needFix) {
+					Site site = siteService.getSite(siteId);
+					ResourcePropertiesEdit rp = site.getPropertiesEdit();
+					rp.addProperty("lessonbuilder-needsfixup", "2");
+					siteService.save(site);
+					// unfortunately in duplicate site, site-admin has the site open, so this doesn't actually do anything
+					// site-manage will stomp on it. However it does work for the other import operations, which is where
+					// we need it, since site manage will call the fixup itself for duplicate
 
-			   }
+				}
 
-			   for (int p = 0; p < numPages; p++) {
-				   Node pageNode = pageNodes.item(p);
-				   if (pageNode.getNodeType() == Node.ELEMENT_NODE) {
-					   Element pageElement = (Element) pageNode;
-					   fixItems(pageElement, oldServer, siteId, fromSiteId, pageMap, itemMap);
-				   }
-			   }
+				for (int p = 0; p < numPages; p++) {
+					Node pageNode = pageNodes.item(p);
+					if (pageNode.getNodeType() == Node.ELEMENT_NODE) {
+						Element pageElement = (Element) pageNode;
+						fixItems(pageElement, oldServer, siteId, fromSiteId, pageMap, itemMap);
+					}
+				}
 
-			   // process tools and top-level pages
-			   // need to fill in the tool id for top level pages and set parents to null
-			   NodeList tools = root.getElementsByTagName("lessonbuilder");
-			   int numTools =  tools.getLength();
-			   for (int i = 0; i < numTools; i++) {
-				   Node node = tools.item(i);
-				   if (node.getNodeType() == Node.ELEMENT_NODE) {
-					   Element element = (Element) node;
-					   // there's an element at top level with no attributes. ignore it
-					   String oldToolId = trimToNull(element.getAttribute("toolid"));
-					   if (oldToolId != null) {
+				// process tools and top-level pages
+				// need to fill in the tool id for top level pages and set parents to null
+				NodeList tools = root.getElementsByTagName("lessonbuilder");
+				int numTools =  tools.getLength();
+				for (int i = 0; i < numTools; i++) {
+					Node node = tools.item(i);
+					if (node.getNodeType() == Node.ELEMENT_NODE) {
+						Element element = (Element) node;
+						// there's an element at top level with no attributes. ignore it
+						String oldToolId = trimToNull(element.getAttribute("toolid"));
+						if (oldToolId != null) {
 
-						   String toolTitle = trimToNull(element.getAttribute("name"));
-						   String rolelist = element.getAttribute("functions.require");
-						   String pagePosition = element.getAttribute("pagePosition");
-						   String pageVisibility = element.getAttribute("pageVisibility");
+							String toolTitle = trimToNull(element.getAttribute("name"));
+							String rolelist = element.getAttribute("functions.require");
+							String pagePosition = element.getAttribute("pagePosition");
+							String pageVisibility = element.getAttribute("pageVisibility");
 
-						   if(toolTitle != null) {
-							   Tool tr = toolManager.getTool(LessonBuilderConstants.TOOL_ID);
-							   SitePage page = null;
-							   ToolConfiguration tool = null;
-							   Site site = siteService.getSite(siteId);
+							if(toolTitle != null) {
+								Tool tr = toolManager.getTool(LessonBuilderConstants.TOOL_ID);
+								SitePage page = null;
+								ToolConfiguration tool = null;
+								Site site = siteService.getSite(siteId);
 
-							   // some code in site action creates all the pages and tools and some doesn't
-							   // so see if we already have this page and tool
-							   Collection<ToolConfiguration> toolConfs = site.getTools(myToolIds());
-							   if (toolConfs != null && !toolConfs.isEmpty())  {
-								   for (ToolConfiguration config: toolConfs) {
-									   if (config.getToolId().equals(LessonBuilderConstants.TOOL_ID)) {
-										   SitePage p = config.getContainingPage();
-										   // only use the Sakai page if it has the right title
-										   // and we don't already have lessson builder info for it
-										   log.debug("checking top level page bash toolTitle: {} pageTitle: {}", toolTitle, p.getTitle());
-										   if (p != null && toolTitle.equals(p.getTitle()) ) {
-											   Long topLevelPageId = simplePageToolDao.getTopLevelPageId(config.getPageId());
-											   log.debug("checking page and tool: {} pageTitle: {} topLevelPageId: {}", p, config, topLevelPageId);
-											   if (topLevelPageId != null) {
-												   List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(topLevelPageId);
-												   log.debug("items: {}", items);
-												   if (items.isEmpty()) {
-													   // TODO: REMOVE THIS ERROR AFTER DEBUGGING
-													   log.error("reusing page and tool: {} pageTitle: {}", p, config);
-													   page = p;
-													   tool = config;
-													   break;
-												   }
-											   }
-										   }
-									   }
-								   }
-							   }
-							   // if we alrady have an appropriate blank page from the template, page and tool are set
+								// some code in site action creates all the pages and tools and some doesn't
+								// so see if we already have this page and tool
+								Collection<ToolConfiguration> toolConfs = site.getTools(myToolIds());
+								if (toolConfs != null && !toolConfs.isEmpty())  {
+									for (ToolConfiguration config: toolConfs) {
+										if (config.getToolId().equals(LessonBuilderConstants.TOOL_ID)) {
+											SitePage p = config.getContainingPage();
+											// only use the Sakai page if it has the right title
+											// and we don't already have lessson builder info for it
+											log.debug("checking top level page bash toolTitle: {} pageTitle: {}", toolTitle, p.getTitle());
+											if (p != null && toolTitle.equals(p.getTitle()) ) {
+												Long topLevelPageId = simplePageToolDao.getTopLevelPageId(config.getPageId());
+												log.debug("checking page and tool: {} pageTitle: {} topLevelPageId: {}", p, config, topLevelPageId);
+												if (topLevelPageId != null) {
+													List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(topLevelPageId);
+													log.debug("items: {}", items);
+													if (items.isEmpty()) {
+														// TODO: REMOVE THIS ERROR AFTER DEBUGGING
+														log.error("reusing page and tool: {} pageTitle: {}", p, config);
+														page = p;
+														tool = config;
+														break;
+													}
+												}
+											}
+										}
+									}
+								}
+								// if we alrady have an appropriate blank page from the template, page and tool are set
 
-							   if (page == null) {
-								   page = site.addPage(); 
-								   tool = page.addTool(LessonBuilderConstants.TOOL_ID);
-								   if (StringUtils.isNotBlank(pagePosition)) {
-									   int integerPosition = Integer.parseInt(pagePosition);
-									   page.setPosition(integerPosition);
-								   }
-							   }
+								if (page == null) {
+									page = site.addPage();
+									tool = page.addTool(LessonBuilderConstants.TOOL_ID);
+									if (StringUtils.isNotBlank(pagePosition)) {
+										int integerPosition = Integer.parseInt(pagePosition);
+										page.setPosition(integerPosition);
+									}
+								}
 
-							   String toolId = tool.getPageId();
-							   if (toolId == null) {
-								   log.error("unable to find new toolid for copy of " + oldToolId);
-								   continue;
-							   }
+								String toolId = tool.getPageId();
+								if (toolId == null) {
+									log.error("unable to find new toolid for copy of " + oldToolId);
+									continue;
+								}
 
-							   if (StringUtils.isNotBlank(rolelist)) {
-								   tool.getPlacementConfig().setProperty("functions.require", rolelist);
-							   }
-							   if (StringUtils.isNotBlank(pageVisibility)) {
-								   tool.getPlacementConfig().setProperty(ToolManager.PORTAL_VISIBLE, pageVisibility);
-							   }
-							   tool.setTitle(toolTitle);
-							   page.setTitle(toolTitle);
-							   page.setTitleCustom(true);
-							   siteService.save(site);
-							   count++;
+								if (StringUtils.isNotBlank(rolelist)) {
+									tool.getPlacementConfig().setProperty("functions.require", rolelist);
+								}
+								if (StringUtils.isNotBlank(pageVisibility)) {
+									tool.getPlacementConfig().setProperty(ToolManager.PORTAL_VISIBLE, pageVisibility);
+								}
+								tool.setTitle(toolTitle);
+								page.setTitle(toolTitle);
+								page.setTitleCustom(true);
+								siteService.save(site);
+								count++;
 
-							   // now fix up the page. new format has it as attribute
-							   String pageId = trimToNull(element.getAttribute("pageId"));
-							   if (pageId == null) {
-								   // old format. we should have a page node
-								   // normally just one
-								   Node pageNode = element.getFirstChild();
-								   if (pageNode == null || pageNode.getNodeType() != Node.ELEMENT_NODE) {
-									   log.error("page node not element");
-									   continue;
-								   }
-								   Element pageElement = (Element)pageNode;
-								   pageId = trimToNull(pageElement.getAttribute("pageid"));
-							   }
-							   if (pageId == null) {
-								   log.error("page node without old pageid");
-								   continue;
-							   }
+								// now fix up the page. new format has it as attribute
+								String pageId = trimToNull(element.getAttribute("pageId"));
+								if (pageId == null) {
+									// old format. we should have a page node
+									// normally just one
+									Node pageNode = element.getFirstChild();
+									if (pageNode == null || pageNode.getNodeType() != Node.ELEMENT_NODE) {
+										log.error("page node not element");
+										continue;
+									}
+									Element pageElement = (Element)pageNode;
+									pageId = trimToNull(pageElement.getAttribute("pageid"));
+								}
+								if (pageId == null) {
+									log.error("page node without old pageid");
+									continue;
+								}
 
-							   // fix up the new copy of the page to be top level
-							   SimplePage simplePage = simplePageToolDao.getPage(pageMap.get(Long.valueOf(pageId)));
-							   if (simplePage == null) {
-								   log.error("can't find new copy of top level page");
-								   continue;
-							   }
-							   simplePage.setParent(null);
-							   simplePage.setTopParent(null);
-							   simplePage.setToolId(toolId);
-							   simplePageToolDao.quickUpdate(simplePage);
-							   log.debug("updated top level page: {} to point to tool: {}", simplePage, toolId);
-							   // create the vestigial item for this top level page
-							   log.debug("creating vestigial item for top level page: {}", simplePage.getPageId());
-							   SimplePageItem item = simplePageToolDao.makeItem(0, 0, SimplePageItem.PAGE, Long.toString(simplePage.getPageId()), simplePage.getTitle());
+								// fix up the new copy of the page to be top level
+								SimplePage simplePage = simplePageToolDao.getPage(pageMap.get(Long.valueOf(pageId)));
+								if (simplePage == null) {
+									log.error("can't find new copy of top level page");
+									continue;
+								}
+								simplePage.setParent(null);
+								simplePage.setTopParent(null);
+								simplePage.setToolId(toolId);
+								simplePageToolDao.quickUpdate(simplePage);
+								log.debug("updated top level page: {} to point to tool: {}", simplePage, toolId);
+								// create the vestigial item for this top level page
+								log.debug("creating vestigial item for top level page: {}", simplePage.getPageId());
+								SimplePageItem item = simplePageToolDao.makeItem(0, 0, SimplePageItem.PAGE, Long.toString(simplePage.getPageId()), simplePage.getTitle());
 
-							   // Revise the top level page's SimplePageItem based on its corresponding pageElement attributes
-							   Element pageElement = pageElementMap.get(Long.valueOf(pageId));
-							   String pageAttribute = pageElement.getAttribute("required");
-							   if (StringUtils.isNotEmpty(pageAttribute)) {
-								   item.setRequired(Boolean.valueOf(pageAttribute));
-							   }
-							   pageAttribute = pageElement.getAttribute("prerequisite");
-							   if (StringUtils.isNotEmpty(pageAttribute)) {
-								   item.setPrerequisite(Boolean.valueOf(pageAttribute));
-							   }
-							   log.debug("saving vestigial item: {}", item);
-							   simplePageToolDao.quickSaveItem(item);
-						   }
-					   }
-				   }
-			   }
-			   results.append("merging link tool " + siteId + " (" + count
-					   + ") items.\n");
-		   }
-		   catch (DOMException e)
-		   {
-			   log.error(e.getMessage(), e);
-			   results.append("merging " + getLabel()
-					   + " failed during xml parsing.\n");
-		   }
-		   catch (Exception e)
-		   {
-			   log.error(e.getMessage(), e);
-			   results.append("merging " + getLabel() + " failed.\n");
-		   }
-	   }
-	   return results.toString();
+								// Revise the top level page's SimplePageItem based on its corresponding pageElement attributes
+								Element pageElement = pageElementMap.get(Long.valueOf(pageId));
+								String pageAttribute = pageElement.getAttribute("required");
+								if (StringUtils.isNotEmpty(pageAttribute)) {
+									item.setRequired(Boolean.valueOf(pageAttribute));
+								}
+								pageAttribute = pageElement.getAttribute("prerequisite");
+								if (StringUtils.isNotEmpty(pageAttribute)) {
+									item.setPrerequisite(Boolean.valueOf(pageAttribute));
+								}
+								log.debug("saving vestigial item: {}", item);
+								simplePageToolDao.quickSaveItem(item);
+							}
+						}
+					}
+				}
+				results.append("merging link tool " + siteId + " (" + count
+						+ ") items.\n");
+			}
+			catch (DOMException e)
+			{
+				log.error(e.getMessage(), e);
+				results.append("merging " + getLabel()
+						+ " failed during xml parsing.\n");
+			}
+			catch (Exception e)
+			{
+				log.error(e.getMessage(), e);
+				results.append("merging " + getLabel() + " failed.\n");
+			}
+		}
+		return results.toString();
 
-   } // merge
+	} // merge
 
-   @Override
-   public boolean parseEntityReference(String reference, Reference ref)
-   {
-	   int i = reference.indexOf("/", 1);
-	   if (i < 0)
-		   return false;
-	   String type = reference.substring(1, i);
-	   if (!type.equals("lessonbuilder"))
-		   return false;
-	   String id = reference.substring(i);
-	   i = id.indexOf("/", 1);
-	   if (i < 0)
-		   return false;
-	   type = id.substring(1, i);
-	   String numstring = id.substring(i+1);
-	   i = numstring.indexOf("/");
-	   if (i >= 0)
-		   numstring = numstring.substring(0, i);
+	@Override
+	public boolean parseEntityReference(String reference, Reference ref)
+	{
+		int i = reference.indexOf("/", 1);
+		if (i < 0)
+			return false;
+		String type = reference.substring(1, i);
+		if (!type.equals("lessonbuilder"))
+			return false;
+		String id = reference.substring(i);
+		i = id.indexOf("/", 1);
+		if (i < 0)
+			return false;
+		type = id.substring(1, i);
+		String numstring = id.substring(i+1);
+		i = numstring.indexOf("/");
+		if (i >= 0)
+			numstring = numstring.substring(0, i);
 
-	   // needed for CC upload
-	   if (type.equals("site")) {
-		   ref.set("sakai:lessonbuilder", "site", id, null, id);
-		   return true;
-	   }
+		// needed for CC upload
+		if (type.equals("site")) {
+			ref.set("sakai:lessonbuilder", "site", id, null, id);
+			return true;
+		}
 
-	   if (!type.equals("item")) {
-		   if (type.equals("page")) {
-			   long num = 0;
-			   try {
-				   num = Long.parseLong(numstring);
-			   } catch (Exception e) {
-				   return false;
-			   }
-			   SimplePage page = simplePageToolDao.getPage(num);
-			   if (page == null) {
-				   return false;
-			   }
-			   ref.set("sakai:lessonbuilder", "page", id, null, page.getSiteId());
-			   return true;
-		   }
-		   return false;
-	   }
+		if (!type.equals("item")) {
+			if (type.equals("page")) {
+				long num = 0;
+				try {
+					num = Long.parseLong(numstring);
+				} catch (Exception e) {
+					return false;
+				}
+				SimplePage page = simplePageToolDao.getPage(num);
+				if (page == null) {
+					return false;
+				}
+				ref.set("sakai:lessonbuilder", "page", id, null, page.getSiteId());
+				return true;
+			}
+			return false;
+		}
 
-	   long num = 0;
-	   try {
-		   num = Long.parseLong(numstring);
-	   } catch (Exception e) {
-		   return false;
-	   }
-	   SimplePageItem item = simplePageToolDao.findItem(num);
-	   if (item == null) {
-		   return false;
-	   }
-	   SimplePage page = simplePageToolDao.getPage(item.getPageId());
-	   if (page == null) {
-		   return false;
-	   }
+		long num = 0;
+		try {
+			num = Long.parseLong(numstring);
+		} catch (Exception e) {
+			return false;
+		}
+		SimplePageItem item = simplePageToolDao.findItem(num);
+		if (item == null) {
+			return false;
+		}
+		SimplePage page = simplePageToolDao.getPage(item.getPageId());
+		if (page == null) {
+			return false;
+		}
 
-	   ref.set("sakai:lessonbuilder", "item", id, null, page.getSiteId());
+		ref.set("sakai:lessonbuilder", "item", id, null, page.getSiteId());
 
-	   // not for the moment
-	   return true;
-   }
+		// not for the moment
+		return true;
+	}
 
-    public String trimToNull(String value)
-    {
-	if (value == null) return null;
-	value = value.trim();
-	if (value.length() == 0) return null;
-	return value;
-    }
+	public String trimToNull(String value)
+	{
+		if (value == null) return null;
+		value = value.trim();
+		if (value.length() == 0) return null;
+		return value;
+	}
 
-   public boolean willArchiveMerge()
-   {
-      return true;
-   }
+	public boolean willArchiveMerge()
+	{
+		return true;
+	}
 
-    @Override
-    public List<Map<String, String>> getEntityMap(String fromContext) {
+	@Override
+	public List<Map<String, String>> getEntityMap(String fromContext) {
 
-        return simplePageToolDao.getSitePages(fromContext).stream()
-            .map(p -> Map.of("id", Long.toString(p.getPageId()), "title", p.getTitle())).collect(Collectors.toList());
-    }
+		return simplePageToolDao.getSitePages(fromContext).stream()
+			.map(p -> Map.of("id", Long.toString(p.getPageId()), "title", p.getTitle())).collect(Collectors.toList());
+	}
 
 	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> options) {
-	    return transferCopyEntitiesImpl(fromContext, toContext, ids, false);
+		return transferCopyEntitiesImpl(fromContext, toContext, ids, false);
 	}
 
 	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> options, boolean cleanup) {
-	    return transferCopyEntitiesImpl(fromContext, toContext, ids, cleanup);
+		return transferCopyEntitiesImpl(fromContext, toContext, ids, cleanup);
 	}
-   
+
 	public Map<String,String> transferCopyEntitiesImpl(String fromContext, String toContext, List ids, boolean cleanup)
-	{	
-	    Map<String,String> entityMap = new HashMap<String,String>();
+	{
+		Map<String,String> entityMap = new HashMap<String,String>();
 
-	    try {
-   
-		if(cleanup == true) {
-		    Site toSite = siteService.getSite(toContext);
-				
-		    List<SitePage> toSitePages = toSite.getPages();
-		    if (toSitePages != null && !toSitePages.isEmpty()) {
-		    	Vector<String> removePageIds = new Vector<>();
-		    	for (SitePage currPage : toSitePages) {
-		    		List<String> toolIds = myToolList();
-		    		List<ToolConfiguration> toolList = currPage.getTools();
-		    		for (ToolConfiguration toolConfig : toolList) {
-		    			if (toolIds.contains(toolConfig.getToolId())) {
-		    				removePageIds.add(toolConfig.getPageId());
-		    			}
-		    		}
-		    	}
-		    	for (String removeId : removePageIds) {
-		    		SitePage sitePage = toSite.getPage(removeId);
-		    		toSite.removePage(sitePage);
-		    	}
-
-		    }
-		    siteService.save(toSite);
-		    ToolSession session = sessionManager.getCurrentToolSession();
-
-		    if (session != null && session.getAttribute(ATTR_TOP_REFRESH) == null) {
-			session.setAttribute(ATTR_TOP_REFRESH, Boolean.TRUE);
-		    }
-			
-		    SimplePageBean simplePageBean = makeSimplePageBean(fromContext);
-		    List<SimplePage> sitePages = simplePageToolDao.getSitePages(toContext);
-		    if (sitePages != null && !sitePages.isEmpty()) {
-			for (SimplePage page: sitePages)
-			    simplePageBean.deletePage(toContext, page.getPageId());
-		    }
-
-		}
-
-		log.debug("lesson builder transferCopyEntities");
-		Document doc = Xml.createDocument();
-		Stack stack = new Stack();
-		Element root = doc.createElement("archive");
-		doc.appendChild(root);
-		root.setAttribute("source", fromContext);
-		root.setAttribute("server", "foo");
-		root.setAttribute("date", "now");
-		root.setAttribute("system", "sakai");
-		
-		stack.push(root);
-		
-		archive(fromContext, doc, stack, "/tmp/archive", null);
-		
-		stack.pop();
-
-		MergeConfig mcx = new MergeConfig();
-		mcx.creatorId = sessionManager.getCurrentSessionUserId();
-		mergeInternal(toContext,  (Element)doc.getFirstChild().getFirstChild(), "/tmp/archive", fromContext, mcx, entityMap);
-
-		ToolSession session = sessionManager.getCurrentToolSession();
-
-		if (session != null && session.getAttribute(ATTR_TOP_REFRESH) == null) {
-		    session.setAttribute(ATTR_TOP_REFRESH, Boolean.TRUE);
-		}
-
-		// We've done the fixups but still need to do group adjustments
-		Site site = siteService.getSite(toContext);
-		ResourcePropertiesEdit rp = site.getPropertiesEdit();
-		rp.removeProperty("lessonbuilder-needsfixup");
-		siteService.save(site);
-		// unfortunately in duplicate site, site-admin has the site open, so this doesn't actually do anything
-		// site-manage will stomp on it. So we need a different way to say that group fixup is needed
-
-	    } catch (Exception e) {
-		log.error(e.getMessage(), e);
-	    }
-
-	    try {
-		Site toSite = siteService.getSite(toContext);
-	    } catch (Exception e) {
-		log.error(e.getMessage(), e);
-	    }		
-
-	    // set this flag for the group update, which we really do need in duplicate
-	    simplePageToolDao.setNeedsGroupFixup(toContext, 2);
-
-	    return entityMap;
-
-	}
-    
-    // update our references to Sakai objects that live in other tools. ID numbers in new site
-    // will of course be different than in the old site
-
-    // map has entities for all objects. Look for all entities that look like /ref/lessonbuilder.
-    // this is mapping from LB item id to underlying object in old site.
-    // find the object in the new site and fix up the item id
-    public void updateEntityReferences(String toContext, Map<String, String> transversalMap) {
-
-	migrateEmbeddedLinks(toContext, transversalMap);
-	// update lessonbuilder_ref property of groups and kill bogus groups
-	Map<String,String> mapGroups = new HashMap<String,String>();
-	for (Map.Entry<String,String> entry: transversalMap.entrySet()) {
-	    String entityid = entry.getKey();
-	    String objectid = entry.getValue();
-	    if (entityid == null || objectid == null || !entityid.startsWith(REF_LB))
-		continue;
-
-	    LessonEntity e = null;
-	    String itemstring = null;
-	    if (entityid.startsWith(REF_LB_ASSIGNMENT)) {
-		e = assignmentEntity;
-		itemstring = entityid.substring(REF_LB_ASSIGNMENT.length());
-	    } else if (entityid.startsWith(REF_LB_ASSESSMENT)) {
-		e = quizEntity;
-		itemstring = entityid.substring(REF_LB_ASSESSMENT.length());
-	    } else {
-		e = forumEntity;
-		itemstring = entityid.substring(REF_LB_FORUM.length());
-	    }
-		
-	    // find the object in the new site. There are two approaches:
-	    // if we're lucky, we find it in the traveralMap. That's built by Sakai, and maps objects in 
-	    //   the old site to objects in the new site.
-	    // this uses the alt field, which for these item types contains an object ID such as assignment/ID/TITLE
-	    // findObject them asks the tool to find that object in the new site. Obviously it's the title we use,
-	    // since the ID will be different in the new site. Of course if the object is in the tranversalMap, we use
-	    // that, but not all tools make entries in the map.
-
-	    String sakaiid = e.findObject(objectid, transversalMap, toContext);
-	    if (sakaiid != null) {
-		long itemid = -1;
 		try {
-		    itemid = Long.parseLong(itemstring);
-		} catch (Exception ignore) {}
-		SimplePageItem item = simplePageToolDao.findItem(itemid);
-		if (item != null) {
-		    String oldSakaiId = item.getSakaiId();
-		    if (oldSakaiId.equals(SimplePageItem.DUMMY)) {
-			mapGroups.put(item.getAlt(), sakaiid);
-		    } else if (!oldSakaiId.equals(sakaiid)) {
-			mapGroups.put(oldSakaiId, sakaiid);
-		    }
-		    item.setSakaiId(sakaiid);
-		    simplePageToolDao.quickUpdate(item);
+
+			if(cleanup == true) {
+				Site toSite = siteService.getSite(toContext);
+
+				List<SitePage> toSitePages = toSite.getPages();
+				if (toSitePages != null && !toSitePages.isEmpty()) {
+					Vector<String> removePageIds = new Vector<>();
+					for (SitePage currPage : toSitePages) {
+						List<String> toolIds = myToolList();
+						List<ToolConfiguration> toolList = currPage.getTools();
+						for (ToolConfiguration toolConfig : toolList) {
+							if (toolIds.contains(toolConfig.getToolId())) {
+								removePageIds.add(toolConfig.getPageId());
+							}
+						}
+					}
+					for (String removeId : removePageIds) {
+						SitePage sitePage = toSite.getPage(removeId);
+						toSite.removePage(sitePage);
+					}
+
+				}
+				siteService.save(toSite);
+				ToolSession session = sessionManager.getCurrentToolSession();
+
+				if (session != null && session.getAttribute(ATTR_TOP_REFRESH) == null) {
+					session.setAttribute(ATTR_TOP_REFRESH, Boolean.TRUE);
+				}
+
+				SimplePageBean simplePageBean = makeSimplePageBean(fromContext);
+				List<SimplePage> sitePages = simplePageToolDao.getSitePages(toContext);
+				if (sitePages != null && !sitePages.isEmpty()) {
+					for (SimplePage page: sitePages)
+						simplePageBean.deletePage(toContext, page.getPageId());
+				}
+
+			}
+
+			log.debug("lesson builder transferCopyEntities");
+			Document doc = Xml.createDocument();
+			Stack stack = new Stack();
+			Element root = doc.createElement("archive");
+			doc.appendChild(root);
+			root.setAttribute("source", fromContext);
+			root.setAttribute("server", "foo");
+			root.setAttribute("date", "now");
+			root.setAttribute("system", "sakai");
+
+			stack.push(root);
+
+			archive(fromContext, doc, stack, "/tmp/archive", null);
+
+			stack.pop();
+
+			MergeConfig mcx = new MergeConfig();
+			mcx.creatorId = sessionManager.getCurrentSessionUserId();
+			mergeInternal(toContext,  (Element)doc.getFirstChild().getFirstChild(), "/tmp/archive", fromContext, mcx, entityMap);
+
+			ToolSession session = sessionManager.getCurrentToolSession();
+
+			if (session != null && session.getAttribute(ATTR_TOP_REFRESH) == null) {
+				session.setAttribute(ATTR_TOP_REFRESH, Boolean.TRUE);
+			}
+
+			// We've done the fixups but still need to do group adjustments
+			Site site = siteService.getSite(toContext);
+			ResourcePropertiesEdit rp = site.getPropertiesEdit();
+			rp.removeProperty("lessonbuilder-needsfixup");
+			siteService.save(site);
+			// unfortunately in duplicate site, site-admin has the site open, so this doesn't actually do anything
+			// site-manage will stomp on it. So we need a different way to say that group fixup is needed
+
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
 		}
-	    }
+
+		try {
+			Site toSite = siteService.getSite(toContext);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
+
+		// set this flag for the group update, which we really do need in duplicate
+		simplePageToolDao.setNeedsGroupFixup(toContext, 2);
+
+		return entityMap;
+
 	}
 
-	simplePageToolDao.setNeedsGroupFixup(toContext, 1);
+	// update our references to Sakai objects that live in other tools. ID numbers in new site
+	// will of course be different than in the old site
 
-    }
+	// map has entities for all objects. Look for all entities that look like /ref/lessonbuilder.
+	// this is mapping from LB item id to underlying object in old site.
+	// find the object in the new site and fix up the item id
+	public void updateEntityReferences(String toContext, Map<String, String> transversalMap) {
 
-    private void migrateEmbeddedLinks(String toContext, Map<String, String> transversalMap){
-    	Set entrySet = (Set) transversalMap.entrySet();
-	// findTextItemsInSite accesses the raw database.
-	// I'm concerned that updates may have been made and not written to the database.
-	// I considered moving findTextItemsInSite to using real hibernate objects.
-	// But we did have a massave failure one time
-	simplePageToolDao.flush();
-	simplePageToolDao.clear();
-	List<SimplePageItem> items = simplePageToolDao.findTextItemsInSite(toContext);
-	for (SimplePageItem item: items) {
-	    String msgBody = item.getHtml();
-	    try {
-		String newBody = linkMigrationHelper.migrateAllLinks(entrySet, msgBody);
+		migrateEmbeddedLinks(toContext, transversalMap);
+		// update lessonbuilder_ref property of groups and kill bogus groups
+		Map<String,String> mapGroups = new HashMap<String,String>();
+		for (Map.Entry<String,String> entry: transversalMap.entrySet()) {
+			String entityid = entry.getKey();
+			String objectid = entry.getValue();
+			if (entityid == null || objectid == null || !entityid.startsWith(REF_LB))
+				continue;
 
-		if (!msgBody.equals(newBody)) {
-		    // items in findTextItemsInSite don't come from hibernate, so we have to get a real one
-		    SimplePageItem i = simplePageToolDao.findItem(item.getId());
-		    if (item != null) {
-			i.setHtml(newBody);
-			log.debug("html - (post mod): {}", msgBody);
-			simplePageToolDao.quickUpdate(i);
-		    }
+			LessonEntity e = null;
+			String itemstring = null;
+			if (entityid.startsWith(REF_LB_ASSIGNMENT)) {
+				e = assignmentEntity;
+				itemstring = entityid.substring(REF_LB_ASSIGNMENT.length());
+			} else if (entityid.startsWith(REF_LB_ASSESSMENT)) {
+				e = quizEntity;
+				itemstring = entityid.substring(REF_LB_ASSESSMENT.length());
+			} else {
+				e = forumEntity;
+				itemstring = entityid.substring(REF_LB_FORUM.length());
+			}
+
+			// find the object in the new site. There are two approaches:
+			// if we're lucky, we find it in the traveralMap. That's built by Sakai, and maps objects in
+			//   the old site to objects in the new site.
+			// this uses the alt field, which for these item types contains an object ID such as assignment/ID/TITLE
+			// findObject them asks the tool to find that object in the new site. Obviously it's the title we use,
+			// since the ID will be different in the new site. Of course if the object is in the tranversalMap, we use
+			// that, but not all tools make entries in the map.
+
+			String sakaiid = e.findObject(objectid, transversalMap, toContext);
+			if (sakaiid != null) {
+				long itemid = -1;
+				try {
+					itemid = Long.parseLong(itemstring);
+				} catch (Exception ignore) {}
+				SimplePageItem item = simplePageToolDao.findItem(itemid);
+				if (item != null) {
+					String oldSakaiId = item.getSakaiId();
+					if (oldSakaiId.equals(SimplePageItem.DUMMY)) {
+						mapGroups.put(item.getAlt(), sakaiid);
+					} else if (!oldSakaiId.equals(sakaiid)) {
+						mapGroups.put(oldSakaiId, sakaiid);
+					}
+					item.setSakaiId(sakaiid);
+					simplePageToolDao.quickUpdate(item);
+				}
+			}
 		}
-	    } catch (Exception e) {
-		log.warn("Problem migrating links in Lessonbuilder"+e);
-	    }
-	}		
-    }
 
-    // called from tool, to fix up all dummy references in site toContext if possible
-    public void updateEntityReferences(String toContext) {
-	List<SimplePageItem> dummyItems = simplePageToolDao.findDummyItemsInSite(toContext);
-	Map<String, String> entityMap = new HashMap<String, String>();
+		simplePageToolDao.setNeedsGroupFixup(toContext, 1);
 
-	// find list of dummy items and and objects, for fixup
-	
-	for (SimplePageItem item: dummyItems) {
-	  String entityid = null;
-	  int type = item.getType();
-	  
-	  if (type == SimplePageItem.ASSIGNMENT)
-	      entityid = REF_LB_ASSIGNMENT + item.getId();
-	    else if (type == SimplePageItem.ASSESSMENT)
-		entityid = REF_LB_ASSESSMENT + item.getId();
-	    else
-		entityid = REF_LB_FORUM + item.getId();
-	    entityMap.put(entityid, item.getAlt());
 	}
 
-	// now do the fixups
-	updateEntityReferences(toContext, entityMap);
+	private void migrateEmbeddedLinks(String toContext, Map<String, String> transversalMap){
+		Set entrySet = (Set) transversalMap.entrySet();
+		// findTextItemsInSite accesses the raw database.
+		// I'm concerned that updates may have been made and not written to the database.
+		// I considered moving findTextItemsInSite to using real hibernate objects.
+		// But we did have a massave failure one time
+		simplePageToolDao.flush();
+		simplePageToolDao.clear();
+		List<SimplePageItem> items = simplePageToolDao.findTextItemsInSite(toContext);
+		for (SimplePageItem item: items) {
+			String msgBody = item.getHtml();
+			try {
+				String newBody = linkMigrationHelper.migrateAllLinks(entrySet, msgBody);
 
-    }
+				if (!msgBody.equals(newBody)) {
+					// items in findTextItemsInSite don't come from hibernate, so we have to get a real one
+					SimplePageItem i = simplePageToolDao.findItem(item.getId());
+					if (item != null) {
+						i.setHtml(newBody);
+						log.debug("html - (post mod): {}", msgBody);
+						simplePageToolDao.quickUpdate(i);
+					}
+				}
+			} catch (Exception e) {
+				log.warn("Problem migrating links in Lessonbuilder"+e);
+			}
+		}
+	}
+
+	// called from tool, to fix up all dummy references in site toContext if possible
+	public void updateEntityReferences(String toContext) {
+		List<SimplePageItem> dummyItems = simplePageToolDao.findDummyItemsInSite(toContext);
+		Map<String, String> entityMap = new HashMap<String, String>();
+
+		// find list of dummy items and and objects, for fixup
+
+		for (SimplePageItem item: dummyItems) {
+			String entityid = null;
+			int type = item.getType();
+
+			if (type == SimplePageItem.ASSIGNMENT)
+				entityid = REF_LB_ASSIGNMENT + item.getId();
+			else if (type == SimplePageItem.ASSESSMENT)
+				entityid = REF_LB_ASSESSMENT + item.getId();
+			else
+				entityid = REF_LB_FORUM + item.getId();
+			entityMap.put(entityid, item.getAlt());
+		}
+
+		// now do the fixups
+		updateEntityReferences(toContext, entityMap);
+
+	}
 
 
-    // fixup access control groups. They have a group property pointing to the
-    // object that they control. That needs to be updated to the object in
-    // the new site or we'll get duplicate groups. Remove any groups with that
-    // property where there's no object in the new site. Presumably those are
-    // some kind of leftover from confusion. Since there's no matching object
-    // they can't be useful for anything.
+	// fixup access control groups. They have a group property pointing to the
+	// object that they control. That needs to be updated to the object in
+	// the new site or we'll get duplicate groups. Remove any groups with that
+	// property where there's no object in the new site. Presumably those are
+	// some kind of leftover from confusion. Since there's no matching object
+	// they can't be useful for anything.
 
-    // it should be OK to call this more than once, though we try not to
+	// it should be OK to call this more than once, though we try not to
 
-    public void fixupGroupRefs (String toContext, SimplePageBean simplePageBean, int fixupType) {
-      // fixup groups
+	public void fixupGroupRefs (String toContext, SimplePageBean simplePageBean, int fixupType) {
+		// fixup groups
 
-      Map<String, String> objectMap = simplePageToolDao.getObjectMap(toContext);
+		Map<String, String> objectMap = simplePageToolDao.getObjectMap(toContext);
 
-      Site site = null;
-      if (fixupType == 2) {
-	  try {
-	      site = siteService.getSite(toContext);
-	  } catch (Exception e) {
-	      log.error("can't get site " + toContext + " " + e);
-	      return;
-	  }
+		Site site = null;
+		if (fixupType == 2) {
+			try {
+				site = siteService.getSite(toContext);
+			} catch (Exception e) {
+				log.error("can't get site " + toContext + " " + e);
+				return;
+			}
 
-	  List<Group>delGroups = new ArrayList<Group>();
-	  Collection<Group> allGroups = site.getGroups();
-	  for (Group group: allGroups) {
-	      String groupRef = group.getProperties().getProperty("lessonbuilder_ref");
-	      if (groupRef != null) {
-		  String newGroupRef = objectMap.get(groupRef);
-		  if (newGroupRef != null && newGroupRef.length() > 1) {
-		      group.getPropertiesEdit().addProperty("lessonbuilder_ref", newGroupRef);
-		  } else if (newGroupRef == null) {
-		      delGroups.add(group);
-		  } else {
-		  }
-		  
-		  // newGroupRef "" is if the group is already a new one. leave it alone
-	      }
-	  }
+			List<Group>delGroups = new ArrayList<Group>();
+			Collection<Group> allGroups = site.getGroups();
+			for (Group group: allGroups) {
+				String groupRef = group.getProperties().getProperty("lessonbuilder_ref");
+				if (groupRef != null) {
+					String newGroupRef = objectMap.get(groupRef);
+					if (newGroupRef != null && newGroupRef.length() > 1) {
+						group.getPropertiesEdit().addProperty("lessonbuilder_ref", newGroupRef);
+					} else if (newGroupRef == null) {
+						delGroups.add(group);
+					} else {
+					}
 
-	  for (Group group: delGroups) {
-	      try {
-	        site.deleteGroup(group);
-	      } catch (AuthzRealmLockException arle) {
-	        log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
-	      }
-	  }
-	  try {
-	      siteService.save(site);
-	  } catch (Exception e) {
-	      log.warn("unable to save set to upgrade groups", e);
-	  }
+					// newGroupRef "" is if the group is already a new one. leave it alone
+				}
+			}
 
-      }
+			for (Group group: delGroups) {
+				try {
+					site.deleteGroup(group);
+				} catch (AuthzRealmLockException arle) {
+					log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
+				}
+			}
+			try {
+				siteService.save(site);
+			} catch (Exception e) {
+				log.warn("unable to save set to upgrade groups", e);
+			}
 
-      // now make sure none of the tools are resstricted to any of our groups
-      // and then add back a clean restriction
-      
-      Set<String> sakaiIds = new HashSet<String>();
-      for (Map.Entry<String,String> entry: objectMap.entrySet()) {
-	  if ("".equals(entry.getValue()))
-	      sakaiIds.add(entry.getKey());
-      }
-	      
+		}
 
-      for (String sakaiId: sakaiIds) {
+		// now make sure none of the tools are resstricted to any of our groups
+		// and then add back a clean restriction
 
-	  if (fixupType == 2) {
+		Set<String> sakaiIds = new HashSet<String>();
+		for (Map.Entry<String,String> entry: objectMap.entrySet()) {
+			if ("".equals(entry.getValue()))
+				sakaiIds.add(entry.getKey());
+		}
 
-	      LessonEntity lessonEntity = null;
-	      lessonEntity = assignmentEntity.getEntity(sakaiId);
-	      if (lessonEntity == null)
-		  lessonEntity = quizEntity.getEntity(sakaiId);
-	      if (lessonEntity == null)
-		  lessonEntity = forumEntity.getEntity(sakaiId);
-	      // remove any of our access control groups.
-	      if (lessonEntity != null) {
-		  Collection<String> groupIds = lessonEntity.getGroups(true);
-		  List<String> okIds = new ArrayList<String>();
-		  if (groupIds != null && groupIds.size() > 0) {
-		      boolean changed = false;
-		      for (String groupId: groupIds) {
-			  Group group = site.getGroup(groupId);
-			  if (group.getProperties().getProperty("lessonbuilder_ref") != null ||
-			      group.getTitle().startsWith("Access: ")) {
-			      changed = true;
-			      continue;
-			  }
-			  okIds.add(groupId);
-		      }
-		      if (changed)
-			  lessonEntity.setGroups(okIds);
-		  }
-		  SimplePageGroup group = simplePageToolDao.findGroup(sakaiId);
-		  if (group != null)
-		      simplePageToolDao.deleteItem(group);
-	      }
-	      // we've now removed anything that checkControlGroup would have done
-	  } // end fixuptype == 2
 
-	  // if items using this group are controlled, put control group back
-	  List<SimplePageItem> items = simplePageToolDao.findItemsBySakaiId(sakaiId);
-	  for (SimplePageItem item: items) {
-	      if (item.isPrerequisite()) {
-		  String sid = item.getSakaiId();
-		  if (!sid.equals(SimplePageItem.DUMMY) && !sid.startsWith("/sam_core/"))
-		      simplePageBean.checkControlGroup(item, true);
-	      }
-	  }
+		for (String sakaiId: sakaiIds) {
 
-      }
+			if (fixupType == 2) {
 
-    }
+				LessonEntity lessonEntity = null;
+				lessonEntity = assignmentEntity.getEntity(sakaiId);
+				if (lessonEntity == null)
+					lessonEntity = quizEntity.getEntity(sakaiId);
+				if (lessonEntity == null)
+					lessonEntity = forumEntity.getEntity(sakaiId);
+				// remove any of our access control groups.
+				if (lessonEntity != null) {
+					Collection<String> groupIds = lessonEntity.getGroups(true);
+					List<String> okIds = new ArrayList<String>();
+					if (groupIds != null && groupIds.size() > 0) {
+						boolean changed = false;
+						for (String groupId: groupIds) {
+							Group group = site.getGroup(groupId);
+							if (group.getProperties().getProperty("lessonbuilder_ref") != null ||
+									group.getTitle().startsWith("Access: ")) {
+								changed = true;
+								continue;
+									}
+							okIds.add(groupId);
+						}
+						if (changed)
+							lessonEntity.setGroups(okIds);
+					}
+					SimplePageGroup group = simplePageToolDao.findGroup(sakaiId);
+					if (group != null)
+						simplePageToolDao.deleteItem(group);
+				}
+				// we've now removed anything that checkControlGroup would have done
+			} // end fixuptype == 2
 
-    public void setToolManager(ToolManager s) {
-	toolManager = s;
-    }
+			// if items using this group are controlled, put control group back
+			List<SimplePageItem> items = simplePageToolDao.findItemsBySakaiId(sakaiId);
+			for (SimplePageItem item: items) {
+				if (item.isPrerequisite()) {
+					String sid = item.getSakaiId();
+					if (!sid.equals(SimplePageItem.DUMMY) && !sid.startsWith("/sam_core/"))
+						simplePageBean.checkControlGroup(item, true);
+				}
+			}
 
-    public void setSecurityService(SecurityService s) {
-	securityService = s;
-    }
+		}
 
-    public void setSessionManager(SessionManager s) {
-	sessionManager = s;
-    }
+	}
 
-    public void setSiteService(SiteService s) {
-	siteService = s;
-    }
+	public void setToolManager(ToolManager s) {
+		toolManager = s;
+	}
 
-    public void setContentHostingService(ContentHostingService s) {
-	contentHostingService = s;
-    }
+	public void setSecurityService(SecurityService s) {
+		securityService = s;
+	}
 
-    public void setSimplePageToolDao(Object dao) {
-	simplePageToolDao = (SimplePageToolDao) dao;
-    }
+	public void setSessionManager(SessionManager s) {
+		sessionManager = s;
+	}
 
-    public void setForumEntity (LessonEntity e) {
-	forumEntity = (LessonEntity)e;
-    }
+	public void setSiteService(SiteService s) {
+		siteService = s;
+	}
 
-    public void setQuizEntity (LessonEntity e) {
-	quizEntity = (LessonEntity)e;
-    }
+	public void setContentHostingService(ContentHostingService s) {
+		contentHostingService = s;
+	}
 
-    public void setAssignmentEntity (LessonEntity e) {
-	assignmentEntity = (LessonEntity)e;
-    }
+	public void setSimplePageToolDao(Object dao) {
+		simplePageToolDao = (SimplePageToolDao) dao;
+	}
 
-    public void setBltiEntity (LessonEntity e) {
-	bltiEntity = (LessonEntity)e;
-    }
+	public void setForumEntity (LessonEntity e) {
+		forumEntity = (LessonEntity)e;
+	}
 
-    public void setGradebookIfc(GradebookIfc g) {
-	gradebookIfc = g;
-    }
+	public void setQuizEntity (LessonEntity e) {
+		quizEntity = (LessonEntity)e;
+	}
 
-    public void setMemoryService(MemoryService m) {
-	memoryService = m;
-    }
+	public void setAssignmentEntity (LessonEntity e) {
+		assignmentEntity = (LessonEntity)e;
+	}
 
-    public void setMessageSource(MessageSource s) {
-	messageSource = s;
-    }
+	public void setBltiEntity (LessonEntity e) {
+		bltiEntity = (LessonEntity)e;
+	}
+
+	public void setGradebookIfc(GradebookIfc g) {
+		gradebookIfc = g;
+	}
+
+	public void setMemoryService(MemoryService m) {
+		memoryService = m;
+	}
+
+	public void setMessageSource(MessageSource s) {
+		messageSource = s;
+	}
 
 	public void setLtiService(LTIService s) {
 		ltiService = s;
 	}
 
-    // sitestats support
+	// sitestats support
 
-    public boolean entityExists(String id) {
-	return true;
-    }
-
-    public String getEntityPrefix() {
-	return ENTITY_PREFIX;
-    }
-
-    /**
-     * Return the associated common tool.id for this tool
-     * 
-     * @return the tool id (example: "sakai.messages")
-     */
-    public String getAssociatedToolId() {
-        return LessonBuilderConstants.TOOL_ID;
-    }
-
-    public final static String[] EVENT_KEYS= 
-	new String[] {LessonBuilderEvents.PAGE_CREATE,
-                    LessonBuilderEvents.PAGE_READ,
-                    LessonBuilderEvents.PAGE_UPDATE,
-                    LessonBuilderEvents.PAGE_DELETE,
-                    LessonBuilderEvents.ITEM_CREATE,
-                    LessonBuilderEvents.ITEM_READ,
-                    LessonBuilderEvents.ITEM_UPDATE,
-                    LessonBuilderEvents.ITEM_DELETE,
-                    LessonBuilderEvents.COMMENT_CREATE,
-                    LessonBuilderEvents.COMMENT_UPDATE,
-                    LessonBuilderEvents.COMMENT_DELETE};
-
-    /**
-     * Return an array of all the event keys which should be tracked for statistics
-     * 
-     * @return an array if event keys (example: "message.new" , "message.delete")
-     */
-    public String[] getEventKeys() {
-	return EVENT_KEYS;
-    }
-
-    /**
-     * OPTIONAL: return null if you do not want to implement this<br/>
-     * Return the event key => event name map for a given Locale,
-     * allows the author to create human readable i18n names for their event keys
-     * 
-     * @param locale the locale to return the names for
-     * @return the map of event key => event name (example: for a 'en' locale: {"message.new","A new message"}) OR null to use the event keys
-     */
-    public Map<String, String> getEventNames (Locale locale) {
-	Map<String, String> localeEventNames = new HashMap<String, String>(); 
-	ResourceLoader msgs = new ResourceLoader("lessons-events");
-	msgs.setContextLocale(locale);
-	for(int i=0; i<EVENT_KEYS.length; i++) {
-	    localeEventNames.put(EVENT_KEYS[i], msgs.getString(EVENT_KEYS[i]));
+	public boolean entityExists(String id) {
+		return true;
 	}
-	return localeEventNames;
-    }
 
-    //
-    // Code to fix up URLs in HTML. Use the kernel service once KNL-737 is implemented.
-    // The code here is copied from the patch.
-    //
-
-    public class ContentCopyContext {
-	String oldSiteId;
-	String newSiteId;
-	String oldServer;
-	ContentCopyContext (String oldId, String newId, String oldServer) {
-	    oldSiteId = oldId;
-	    newSiteId = newId;
+	public String getEntityPrefix() {
+		return ENTITY_PREFIX;
 	}
-	String getOldSiteId () {
-	    return oldSiteId;
+
+	/**
+	 * Return the associated common tool.id for this tool
+	 *
+	 * @return the tool id (example: "sakai.messages")
+	 */
+	public String getAssociatedToolId() {
+		return LessonBuilderConstants.TOOL_ID;
 	}
-	String getNewSiteId () {
-	    return newSiteId;
+
+	public final static String[] EVENT_KEYS=
+		new String[] {LessonBuilderEvents.PAGE_CREATE,
+			LessonBuilderEvents.PAGE_READ,
+			LessonBuilderEvents.PAGE_UPDATE,
+			LessonBuilderEvents.PAGE_DELETE,
+			LessonBuilderEvents.ITEM_CREATE,
+			LessonBuilderEvents.ITEM_READ,
+			LessonBuilderEvents.ITEM_UPDATE,
+			LessonBuilderEvents.ITEM_DELETE,
+			LessonBuilderEvents.COMMENT_CREATE,
+			LessonBuilderEvents.COMMENT_UPDATE,
+			LessonBuilderEvents.COMMENT_DELETE};
+
+	/**
+	 * Return an array of all the event keys which should be tracked for statistics
+	 *
+	 * @return an array if event keys (example: "message.new" , "message.delete")
+	 */
+	public String[] getEventKeys() {
+		return EVENT_KEYS;
 	}
-	String getOldServer () {
-	    return oldServer;
-	}
-    }
 
-    private String convertHtmlContent(ContentCopyContext context, String content, String contentUrl, Map<Long,Long> itemMap) {
-	// this old code (below) seems to have come from an old version of the kerne's reference migrator.
-	// It's too complex for me to verify that it's right.
-	// At this point the kernel just does string replacements. So I'm going to
-	// replace NNN with the new value
-	// and also fix up the dummy references.
-
-        String oldSiteReference = context.getOldSiteId();
-        String newSiteReference = context.getNewSiteId();
-        content = StringUtils.replace(content, oldSiteReference, newSiteReference);
-
-	// no point doing this code unless we actually have a dummy url in it
-	if (content.indexOf(ITEMDUMMY) >= 0) {
-
-	    StringBuffer newcontent = new StringBuffer();
-	    Matcher matcher = dummyPattern.matcher(content);
-	    while (matcher.find()) {
-		String itemnumber = matcher.group().substring(ITEMDUMMY.length());
-		long oldItem = 0;
-		try {
-		    oldItem = Long.parseLong(itemnumber);
-		    Long newItem = itemMap.get(oldItem);
-		    if (newItem != null)
-			matcher.appendReplacement(newcontent, ITEMDUMMY + newItem);
-		} catch (Exception e) {
+	/**
+	 * OPTIONAL: return null if you do not want to implement this<br/>
+	 * Return the event key => event name map for a given Locale,
+	 * allows the author to create human readable i18n names for their event keys
+	 *
+	 * @param locale the locale to return the names for
+	 * @return the map of event key => event name (example: for a 'en' locale: {"message.new","A new message"}) OR null to use the event keys
+	 */
+	public Map<String, String> getEventNames (Locale locale) {
+		Map<String, String> localeEventNames = new HashMap<String, String>();
+		ResourceLoader msgs = new ResourceLoader("lessons-events");
+		msgs.setContextLocale(locale);
+		for(int i=0; i<EVENT_KEYS.length; i++) {
+			localeEventNames.put(EVENT_KEYS[i], msgs.getString(EVENT_KEYS[i]));
 		}
-	    }
-	    matcher.appendTail(newcontent);
-	    content = newcontent.toString();
+		return localeEventNames;
 	}
 
-        return content;
+	//
+	// Code to fix up URLs in HTML. Use the kernel service once KNL-737 is implemented.
+	// The code here is copied from the patch.
+	//
 
-    }
-
-    final int ITEMDUMMYLEN = ITEMDUMMY.length();
-
-    /* support for /direct. 
-       For the moment the only operation is loading a Common Cartridge file.
-       This is a particularly horrendous operation.
-    */
-
-    /* PUT request will send a ZIP file for Cc input.
-       return the input stream so we can load it */
-    public Object translateFormattedData(EntityReference ref, String format, InputStream input, Map<String, Object> params) {
-	return input;
-    }
-
-    /* It's a ZIP file, but the newer formats call it imscc, which probably browsers won't recognize */
-    public String[] getHandledInputFormats() {
-	return null;
-    }
-
-    /* this shouldn't be used, because we override translate */
-    public Object getSampleEntity() {
-	return null;
-    }
-
-    // the real MessageLocator won't work except in an RSAC session, which we can't reasonably create
-    // this is a reasonable fake, given that we have no way to get a locale
-
-    public class MyMessageLocator extends MessageLocator {
-	public String getMessage(String[] code, Object[] args) {
-	    if (code != null) {
-		for (String s: code) {
-		    try {
-			return messageSource.getMessage(s, args, Locale.getDefault());
-		    } catch (Exception e) {
-			// message not found, one presumes
-		    }
+	public class ContentCopyContext {
+		String oldSiteId;
+		String newSiteId;
+		String oldServer;
+		ContentCopyContext (String oldId, String newId, String oldServer) {
+			oldSiteId = oldId;
+			newSiteId = newId;
 		}
-		// if none found, just use the code
-		return code[0];
-	    } else
-		return "";
-	}
-    }
-
-    MyMessageLocator messageLocator = new MyMessageLocator();
-
-    // sakai.session is the JSESSIONID up to the period.
-    // curl -F"cartridge=@/users/sakai/IMS-tests-v1.1/cc1p1vtd01v1p0.imscc;type=application/zip" "http://heidelberg.rutgers.edu/direct/lessonbuilder?site=b51a66b4-a574-489c-8e88-81024d32436e&sakai.session=510667cc-1df2-41d1-98b1-491f57f22c46"
-
-    // the challenge here is that we're not in a request context, but a lot of the support code assumes we are
-    // we have to fake up a fair amount of context
-
-    /* create */
-    public String createEntity(EntityReference ref, Object entity, Map<String, Object> params) {
-	DiskFileItem cartridge = (DiskFileItem)params.get("cartridge");
-	String siteId = (String)params.get("site");
-	
-	return loadCartridge(cartridge.getStoreLocation(), null, siteId);
-    }
-
-    public String loadCartridge(File cartFile, String unzippedDir, String siteId) {
-	if ((cartFile == null && unzippedDir == null) || siteId == null)
-	    return "missing arguments " + cartFile + " " + siteId;
-
-	String siteref = "/site/" + siteId;
-	if (! securityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_UPDATE, siteref))
-	    return "Need lessonbuilder update permission";
-
-	// fake  up a tool session
-	Session ses = sessionManager.getCurrentSession();
-	ToolSession toolSession = null;
-	Site site = null;
-	try {
-	    site = siteService.getSite(siteId);
-	} catch (Exception e) {
-	    return "bad site ID";
-	}
-
-	boolean found = false;
-	String dummyPageId = null;
-
-	// find a lesson builder tool to use for the tool session.
-	// So there must be one entity already.
-	Collection<ToolConfiguration> toolConfs = site.getTools(myToolIds());
-	if (toolConfs != null && !toolConfs.isEmpty())  {
-	    for (ToolConfiguration config: toolConfs) {
-		if (config.getToolId().equals(LessonBuilderConstants.TOOL_ID)) {
-		    // this stuff copied from a JSP to load Samigo assessments.
-		    // I need at least some of it, but I don't guarantee that
-		    // all of this code works.
-		    toolSession = ses.getToolSession(config.getId());
-		    sessionManager.setCurrentToolSession(toolSession);
-		    ThreadLocalManager.set("sakai:ToolComponent:current.placement", config);
-		    ThreadLocalManager.set("sakai:ToolComponent:current.tool", config.getTool());
-		    found = true;
-		    break;
+		String getOldSiteId () {
+			return oldSiteId;
 		}
-	    }
+		String getNewSiteId () {
+			return newSiteId;
+		}
+		String getOldServer () {
+			return oldServer;
+		}
 	}
 
-	if (!found) {
-	    SitePage page = site.addPage();
-	    ToolConfiguration tool = page.addTool(LessonBuilderConstants.TOOL_ID);
-	    tool.setTitle("dummy lesson");
-	    page.setTitle("dummy lesson");
-	    try {
-		siteService.save(site);
-		// don't set until we know the save worked
-		dummyPageId = page.getId();
-	    } catch (Exception e) {
-		log.info("can't add dummy page to site " + e);
-	    }
-	    toolSession = ses.getToolSession(tool.getId());
-	    sessionManager.setCurrentToolSession(toolSession);
-	    ThreadLocalManager.set("sakai:ToolComponent:current.placement", tool);
-	    ThreadLocalManager.set("sakai:ToolComponent:current.tool", tool.getTool());
-	}
+	private String convertHtmlContent(ContentCopyContext context, String content, String contentUrl, Map<Long,Long> itemMap) {
+		// this old code (below) seems to have come from an old version of the kerne's reference migrator.
+		// It's too complex for me to verify that it's right.
+		// At this point the kernel just does string replacements. So I'm going to
+		// replace NNN with the new value
+		// and also fix up the dummy references.
 
-	// this is loosely based on SimplePageBean.importcc
+		String oldSiteReference = context.getOldSiteId();
+		String newSiteReference = context.getNewSiteId();
+		content = StringUtils.replace(content, oldSiteReference, newSiteReference);
 
-	    File root = null;
-	    try {
-		root = File.createTempFile("ccloader", "root");
-		if (root.exists()) {
-		    if (!root.delete())
-			return "unable to delete temp file";
-		}
-		if (!root.mkdir())
-		    return "unable to make temp directory for load";
+		// no point doing this code unless we actually have a dummy url in it
+		if (content.indexOf(ITEMDUMMY) >= 0) {
 
-		CartridgeLoader cartridgeLoader = null;
-		if (unzippedDir != null)
-		    cartridgeLoader = ZipLoader.getUtilities(unzippedDir);
-		else
-		    cartridgeLoader = ZipLoader.getUtilities(cartFile, root.getCanonicalPath());
-
-		Parser parser = Parser.createCartridgeParser(cartridgeLoader);
-
-		// fake up a SimplePageBean. Set up just enough state to let it do the import
-		
-		SimplePageBean simplePageBean = makeSimplePageBean(siteId);
-
-		toolSession.removeAttribute("lessonbuilder.errors");
-
-		parser.parse(new PrintHandler(simplePageBean, cartridgeLoader, simplePageToolDao, quizEntity, forumEntity, bltiEntity, assignmentEntity, false));
-		
-		List <String> errors = simplePageBean.errMessages();
-		if (errors == null)
-		    return "ok";
-
-		String ret = "";
-		for (String e:errors)
-		    ret = ret + e + "\n";
-		return ret;
-
-	    } catch (Exception e) {
-		log.info("exception in createentity " + e);
-		return "exception in createentity " + e;
-	    } finally {
-		try {
-		    deleteRecursive(root);
-		} catch (Exception e){
-		    return "unable to delete temp file " + root;
-		}
-		// if we had to create a dummy lesson, remove it
-		if (dummyPageId != null) {
-		    try {
-			// safest to get fresh copy of site
-			site = siteService.getSite(siteId);
-			List<SitePage> pages = site.getPages();
-			for (SitePage page: pages) {
-			    if (dummyPageId.equals(page.getId())) {
-				site.removePage(page);
-				siteService.save(site);				
-				break;
-			    }
+			StringBuffer newcontent = new StringBuffer();
+			Matcher matcher = dummyPattern.matcher(content);
+			while (matcher.find()) {
+				String itemnumber = matcher.group().substring(ITEMDUMMY.length());
+				long oldItem = 0;
+				try {
+					oldItem = Long.parseLong(itemnumber);
+					Long newItem = itemMap.get(oldItem);
+					if (newItem != null)
+						matcher.appendReplacement(newcontent, ITEMDUMMY + newItem);
+				} catch (Exception e) {
+				}
 			}
-		    } catch (Exception e){
-			return "unable to delete dummy lesson " + e;
-		    }
+			matcher.appendTail(newcontent);
+			content = newcontent.toString();
 		}
-	    }
 
-    }
-    
-    public String deleteOrphanPages(String siteId) {
-    	SimplePageBean spb = makeSimplePageBean(siteId);
-    	return spb.deleteOrphanPagesInternal();
-    }
+		return content;
 
-    SimplePageBean makeSimplePageBean(String siteId) {
-	SimplePageBean simplePageBean = new SimplePageBean();
-	simplePageBean.setMessageLocator(messageLocator);
-	simplePageBean.setToolManager(toolManager);
-	simplePageBean.setSecurityService(securityService);
-	simplePageBean.setSessionManager(sessionManager);
-	simplePageBean.setSiteService(siteService);
-	simplePageBean.setContentHostingService(contentHostingService);
-	simplePageBean.setSimplePageToolDao(simplePageToolDao);
-	simplePageBean.setForumEntity(forumEntity);
-	simplePageBean.setQuizEntity(quizEntity);
-	simplePageBean.setAssignmentEntity(assignmentEntity);
-	simplePageBean.setBltiEntity(bltiEntity);
-	simplePageBean.setGradebookIfc(gradebookIfc);
-	simplePageBean.setCurrentSiteId(siteId);
-	return simplePageBean;
-    }
-
-    public boolean deleteRecursive(File path) throws FileNotFoundException{
-	if (!path.exists()) throw new FileNotFoundException(path.getAbsolutePath());
-	boolean ret = true;
-	if (path.isDirectory()){
-	    for (File f : path.listFiles()){
-		ret = ret && deleteRecursive(f);
-	    }
 	}
-	return ret && path.delete();
-    }
 
-    private long idFromRef (String reference, int length) {
-        long id=-1;
-        try {
-            String[] refParts = reference.split(Entity.SEPARATOR);
-            if (refParts.length == length) {
-                id = Integer.parseInt(refParts[length-1]);
-            }
-        }
-        catch (PatternSyntaxException p) {
-            return id;
-        }
-        catch (NumberFormatException p) {
-            return id;
-        }
-        return id;
-    }
+	final int ITEMDUMMYLEN = ITEMDUMMY.length();
 
-    //Seems like there should be a method for this, but is what most of the code does, lessons length is 4
-    private long idFromRef (String reference) {
-        return idFromRef(reference,4);
-    }
+	/* support for /direct.
+	   For the moment the only operation is loading a Common Cartridge file.
+	   This is a particularly horrendous operation.
+	   */
 
-    /**
-     * Parses an HTML content, extracts the URLs of the HTML content and transfer the missing files into the new site.
-     */
-    private String transferAttachmentFiles(String msgBody, String oldSiteId, String newSiteId) {
-        String replacedBody = msgBody;
-        String serverURL = ServerConfigurationService.getServerUrl();
-        String collectionPrefix = "/access/content/";
-        if(StringUtils.isNotBlank(msgBody)) {
-            org.jsoup.nodes.Document doc = Jsoup.parse(msgBody);
+	/* PUT request will send a ZIP file for Cc input.
+	   return the input stream so we can load it */
+	public Object translateFormattedData(EntityReference ref, String format, InputStream input, Map<String, Object> params) {
+		return input;
+	}
 
-            Elements links = doc.select("a[href]");
-            Elements media = doc.select("[src]");
-            Elements imports = doc.select("link[href]");
-            Set<String> references = new HashSet<>();
-            // href ...
-            for (org.jsoup.nodes.Element link : links) {
-                references.add(link.attr("abs:href"));
-            }
+	/* It's a ZIP file, but the newer formats call it imscc, which probably browsers won't recognize */
+	public String[] getHandledInputFormats() {
+		return null;
+	}
 
-            // img ...
-            for (org.jsoup.nodes.Element src : media) {
-                references.add(src.attr("abs:src"));
-            }
+	/* this shouldn't be used, because we override translate */
+	public Object getSampleEntity() {
+		return null;
+	}
 
-            // js, css, ...
-            for (org.jsoup.nodes.Element link : imports) {
-                references.add(link.attr("abs:href"));
-            }
+	// the real MessageLocator won't work except in an RSAC session, which we can't reasonably create
+	// this is a reasonable fake, given that we have no way to get a locale
 
-            for (String reference : references) {
-                if (reference.contains(oldSiteId) && reference.contains(collectionPrefix)) {
-                    try {
-                        String oldReferenceId = reference;
-                        oldReferenceId = StringUtils.replace(oldReferenceId, collectionPrefix, "/");
-                        oldReferenceId = StringUtils.replace(oldReferenceId, serverURL, StringUtils.EMPTY);
-                        //Try secure and non-secure URLs too, for instances with a mix of configurations.
-                        oldReferenceId = StringUtils.replace(oldReferenceId, StringUtils.replace(serverURL, "https://", "http://"), StringUtils.EMPTY);
-                        oldReferenceId = StringUtils.replace(oldReferenceId, StringUtils.replace(serverURL, "http://", "https://"), StringUtils.EMPTY);
-                        String newReferenceId = StringUtils.replace(oldReferenceId, oldSiteId, newSiteId);
+	public class MyMessageLocator extends MessageLocator {
+		public String getMessage(String[] code, Object[] args) {
+			if (code != null) {
+				for (String s: code) {
+					try {
+						return messageSource.getMessage(s, args, Locale.getDefault());
+					} catch (Exception e) {
+						// message not found, one presumes
+					}
+				}
+				// if none found, just use the code
+				return code[0];
+			} else
+				return "";
+		}
+	}
 
-                        // Avoid creating duplicates if Resources already copied the item
-                        boolean sourceFileExists = false;
-                        boolean targetFileExists = false;
-                        try {
-                            sourceFileExists = contentHostingService.getResource(oldReferenceId).getId() != null;
-                            targetFileExists = contentHostingService.getResource(newReferenceId).getId() != null;
-                        } catch(IdUnusedException e) {
-                            log.debug("Check for source {} and target file {} in site {}", sourceFileExists, targetFileExists, newSiteId);
-                        }
-                        if (sourceFileExists && !targetFileExists) {
-                            contentHostingService.copy(oldReferenceId, newReferenceId);
-                        }
-                        replacedBody = StringUtils.replace(replacedBody, oldSiteId, newSiteId);
-                        } catch(IdUnusedException ide) {
-                            log.warn("Warn transfering file from site {} to site {}.", oldSiteId, newSiteId, ide);
-                        } catch(Exception e) {
-                            log.error("Error transfering file from site {} to site {}.", oldSiteId, newSiteId, e);
-                        }
-                }
-            }
-        }
-        return replacedBody;
-    }
+	MyMessageLocator messageLocator = new MyMessageLocator();
+
+	// sakai.session is the JSESSIONID up to the period.
+	// curl -F"cartridge=@/users/sakai/IMS-tests-v1.1/cc1p1vtd01v1p0.imscc;type=application/zip" "http://heidelberg.rutgers.edu/direct/lessonbuilder?site=b51a66b4-a574-489c-8e88-81024d32436e&sakai.session=510667cc-1df2-41d1-98b1-491f57f22c46"
+
+	// the challenge here is that we're not in a request context, but a lot of the support code assumes we are
+	// we have to fake up a fair amount of context
+
+	/* create */
+	public String createEntity(EntityReference ref, Object entity, Map<String, Object> params) {
+		DiskFileItem cartridge = (DiskFileItem)params.get("cartridge");
+		String siteId = (String)params.get("site");
+
+		return loadCartridge(cartridge.getStoreLocation(), null, siteId);
+	}
+
+	public String loadCartridge(File cartFile, String unzippedDir, String siteId) {
+		if ((cartFile == null && unzippedDir == null) || siteId == null)
+			return "missing arguments " + cartFile + " " + siteId;
+
+		String siteref = "/site/" + siteId;
+		if (! securityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_UPDATE, siteref))
+			return "Need lessonbuilder update permission";
+
+		// fake  up a tool session
+		Session ses = sessionManager.getCurrentSession();
+		ToolSession toolSession = null;
+		Site site = null;
+		try {
+			site = siteService.getSite(siteId);
+		} catch (Exception e) {
+			return "bad site ID";
+		}
+
+		boolean found = false;
+		String dummyPageId = null;
+
+		// find a lesson builder tool to use for the tool session.
+		// So there must be one entity already.
+		Collection<ToolConfiguration> toolConfs = site.getTools(myToolIds());
+		if (toolConfs != null && !toolConfs.isEmpty())  {
+			for (ToolConfiguration config: toolConfs) {
+				if (config.getToolId().equals(LessonBuilderConstants.TOOL_ID)) {
+					// this stuff copied from a JSP to load Samigo assessments.
+					// I need at least some of it, but I don't guarantee that
+					// all of this code works.
+					toolSession = ses.getToolSession(config.getId());
+					sessionManager.setCurrentToolSession(toolSession);
+					ThreadLocalManager.set("sakai:ToolComponent:current.placement", config);
+					ThreadLocalManager.set("sakai:ToolComponent:current.tool", config.getTool());
+					found = true;
+					break;
+				}
+			}
+		}
+
+		if (!found) {
+			SitePage page = site.addPage();
+			ToolConfiguration tool = page.addTool(LessonBuilderConstants.TOOL_ID);
+			tool.setTitle("dummy lesson");
+			page.setTitle("dummy lesson");
+			try {
+				siteService.save(site);
+				// don't set until we know the save worked
+				dummyPageId = page.getId();
+			} catch (Exception e) {
+				log.info("can't add dummy page to site " + e);
+			}
+			toolSession = ses.getToolSession(tool.getId());
+			sessionManager.setCurrentToolSession(toolSession);
+			ThreadLocalManager.set("sakai:ToolComponent:current.placement", tool);
+			ThreadLocalManager.set("sakai:ToolComponent:current.tool", tool.getTool());
+		}
+
+		// this is loosely based on SimplePageBean.importcc
+
+		File root = null;
+		try {
+			root = File.createTempFile("ccloader", "root");
+			if (root.exists()) {
+				if (!root.delete())
+					return "unable to delete temp file";
+			}
+			if (!root.mkdir())
+				return "unable to make temp directory for load";
+
+			CartridgeLoader cartridgeLoader = null;
+			if (unzippedDir != null)
+				cartridgeLoader = ZipLoader.getUtilities(unzippedDir);
+			else
+				cartridgeLoader = ZipLoader.getUtilities(cartFile, root.getCanonicalPath());
+
+			Parser parser = Parser.createCartridgeParser(cartridgeLoader);
+
+			// fake up a SimplePageBean. Set up just enough state to let it do the import
+
+			SimplePageBean simplePageBean = makeSimplePageBean(siteId);
+
+			toolSession.removeAttribute("lessonbuilder.errors");
+
+			parser.parse(new PrintHandler(simplePageBean, cartridgeLoader, simplePageToolDao, quizEntity, forumEntity, bltiEntity, assignmentEntity, false));
+
+			List <String> errors = simplePageBean.errMessages();
+			if (errors == null)
+				return "ok";
+
+			String ret = "";
+			for (String e:errors)
+				ret = ret + e + "\n";
+			return ret;
+
+		} catch (Exception e) {
+			log.info("exception in createentity " + e);
+			return "exception in createentity " + e;
+		} finally {
+			try {
+				deleteRecursive(root);
+			} catch (Exception e){
+				return "unable to delete temp file " + root;
+			}
+			// if we had to create a dummy lesson, remove it
+			if (dummyPageId != null) {
+				try {
+					// safest to get fresh copy of site
+					site = siteService.getSite(siteId);
+					List<SitePage> pages = site.getPages();
+					for (SitePage page: pages) {
+						if (dummyPageId.equals(page.getId())) {
+							site.removePage(page);
+							siteService.save(site);
+							break;
+						}
+					}
+				} catch (Exception e){
+					return "unable to delete dummy lesson " + e;
+				}
+			}
+		}
+
+	}
+
+	public String deleteOrphanPages(String siteId) {
+		SimplePageBean spb = makeSimplePageBean(siteId);
+		return spb.deleteOrphanPagesInternal();
+	}
+
+	SimplePageBean makeSimplePageBean(String siteId) {
+		SimplePageBean simplePageBean = new SimplePageBean();
+		simplePageBean.setMessageLocator(messageLocator);
+		simplePageBean.setToolManager(toolManager);
+		simplePageBean.setSecurityService(securityService);
+		simplePageBean.setSessionManager(sessionManager);
+		simplePageBean.setSiteService(siteService);
+		simplePageBean.setContentHostingService(contentHostingService);
+		simplePageBean.setSimplePageToolDao(simplePageToolDao);
+		simplePageBean.setForumEntity(forumEntity);
+		simplePageBean.setQuizEntity(quizEntity);
+		simplePageBean.setAssignmentEntity(assignmentEntity);
+		simplePageBean.setBltiEntity(bltiEntity);
+		simplePageBean.setGradebookIfc(gradebookIfc);
+		simplePageBean.setCurrentSiteId(siteId);
+		return simplePageBean;
+	}
+
+	public boolean deleteRecursive(File path) throws FileNotFoundException{
+		if (!path.exists()) throw new FileNotFoundException(path.getAbsolutePath());
+		boolean ret = true;
+		if (path.isDirectory()){
+			for (File f : path.listFiles()){
+				ret = ret && deleteRecursive(f);
+			}
+		}
+		return ret && path.delete();
+	}
+
+	private long idFromRef (String reference, int length) {
+		long id=-1;
+		try {
+			String[] refParts = reference.split(Entity.SEPARATOR);
+			if (refParts.length == length) {
+				id = Integer.parseInt(refParts[length-1]);
+			}
+		}
+		catch (PatternSyntaxException p) {
+			return id;
+		}
+		catch (NumberFormatException p) {
+			return id;
+		}
+		return id;
+	}
+
+	//Seems like there should be a method for this, but is what most of the code does, lessons length is 4
+	private long idFromRef (String reference) {
+		return idFromRef(reference,4);
+	}
+
+	/**
+	 * Parses an HTML content, extracts the URLs of the HTML content and transfer the missing files into the new site.
+	 */
+	private String transferAttachmentFiles(String msgBody, String oldSiteId, String newSiteId) {
+		String replacedBody = msgBody;
+		String serverURL = ServerConfigurationService.getServerUrl();
+		String collectionPrefix = "/access/content/";
+		if(StringUtils.isNotBlank(msgBody)) {
+			org.jsoup.nodes.Document doc = Jsoup.parse(msgBody);
+
+			Elements links = doc.select("a[href]");
+			Elements media = doc.select("[src]");
+			Elements imports = doc.select("link[href]");
+			Set<String> references = new HashSet<>();
+			// href ...
+			for (org.jsoup.nodes.Element link : links) {
+				references.add(link.attr("abs:href"));
+			}
+
+			// img ...
+			for (org.jsoup.nodes.Element src : media) {
+				references.add(src.attr("abs:src"));
+			}
+
+			// js, css, ...
+			for (org.jsoup.nodes.Element link : imports) {
+				references.add(link.attr("abs:href"));
+			}
+
+			for (String reference : references) {
+				if (reference.contains(oldSiteId) && reference.contains(collectionPrefix)) {
+					try {
+						String oldReferenceId = reference;
+						oldReferenceId = StringUtils.replace(oldReferenceId, collectionPrefix, "/");
+						oldReferenceId = StringUtils.replace(oldReferenceId, serverURL, StringUtils.EMPTY);
+						//Try secure and non-secure URLs too, for instances with a mix of configurations.
+						oldReferenceId = StringUtils.replace(oldReferenceId, StringUtils.replace(serverURL, "https://", "http://"), StringUtils.EMPTY);
+						oldReferenceId = StringUtils.replace(oldReferenceId, StringUtils.replace(serverURL, "http://", "https://"), StringUtils.EMPTY);
+						String newReferenceId = StringUtils.replace(oldReferenceId, oldSiteId, newSiteId);
+
+						// Avoid creating duplicates if Resources already copied the item
+						boolean sourceFileExists = false;
+						boolean targetFileExists = false;
+						try {
+							sourceFileExists = contentHostingService.getResource(oldReferenceId).getId() != null;
+							targetFileExists = contentHostingService.getResource(newReferenceId).getId() != null;
+						} catch(IdUnusedException e) {
+							log.debug("Check for source {} and target file {} in site {}", sourceFileExists, targetFileExists, newSiteId);
+						}
+						if (sourceFileExists && !targetFileExists) {
+							contentHostingService.copy(oldReferenceId, newReferenceId);
+						}
+						replacedBody = StringUtils.replace(replacedBody, oldSiteId, newSiteId);
+					} catch(IdUnusedException ide) {
+						log.warn("Warn transfering file from site {} to site {}.", oldSiteId, newSiteId, ide);
+					} catch(Exception e) {
+						log.error("Error transfering file from site {} to site {}.", oldSiteId, newSiteId, e);
+					}
+				}
+			}
+		}
+		return replacedBody;
+	}
 
 	private String copyLTIContent(Map<String, Object> ltiContent, String siteId, String oldSiteId)
 	{
