@@ -149,9 +149,6 @@ sakai-grader {
 
   #grader {
 
-    // We need this to be able to use @container queries
-    container-type: size;
-
     background-color: var(--sakai-title-bar-bg-color);
 
     .draft-submission {
@@ -548,25 +545,20 @@ sakai-grader {
       top: 0;
       visibility: visible !important;
       width: 400px;
-      height: auto;
-      max-height: 100vh;
-      overflow-y: auto;
-      min-height: 990px;
+      height: 95vh;
+      overflow-y: scroll;
       transform: none !important;
       border-left: 1px solid var(--sakai-border-color);
       right: auto;
       float: none;
       flex: 0 0 400px;
     }
-    
-    /* Hide the close button on desktop */
-    #grader .btn-close {
-      display: none;
-    }
-    
-    /* Make the "Grade Submission" button only visible on mobile */
-    #grader-link-block {
-      display: none;
+
+    /* Ensure the offcanvas body scrolls properly */
+    #grader .offcanvas-body {
+      height: calc(100vh - 60px); /* Subtract header height */
+      overflow-y: auto;
+      padding-bottom: 20px;
     }
     
     /* Fix the flex layout for desktop */
@@ -586,12 +578,6 @@ sakai-grader {
       max-width: calc(100% - 420px);
       margin-right: 20px;
       overflow-y: scroll;
-    }
-    
-    /* Make the grader panel sticky to follow scroll */
-    #grader .offcanvas-body {
-      max-height: calc(100vh - 60px); /* Subtract header height */
-      overflow-y: auto;
     }
     
     /* Ensure the gradable content area has proper height */

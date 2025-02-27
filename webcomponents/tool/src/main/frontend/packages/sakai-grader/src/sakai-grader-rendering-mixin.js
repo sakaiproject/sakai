@@ -251,7 +251,7 @@ export const graderRenderingMixin = Base => class extends Base {
   _renderGraderLinkBlock() {
 
     return html`
-      <div id="grader-link-block" class="float-end">
+      <div id="grader-link-block" class="float-end d-lg-none">
         <button class="btn btn-primary active"
             data-bs-toggle="offcanvas"
             data-bs-target="#grader"
@@ -664,7 +664,7 @@ export const graderRenderingMixin = Base => class extends Base {
                   ${this._submission.privateNotes ? this._i18n.edit_private_notes : this._i18n.add_private_notes}
                 </button>
               </div>
-              <div class="sak-banner-warn ms-2 ${this._privateNotesRemoved ? "d-block" : "d-none"}">${this._i18n.removed}</div>
+              <div class="sak-banner-warn ${this._privateNotesRemoved ? "d-block" : "d-none"}">${this._i18n.removed}</div>
 
               ${this._submission.privateNotes ? html`
                 <div id="private-notes-snippet" class="card ms-3 mt-2 ${this._privateNotesEditorShowing ? "d-none" : "d-block"}">
@@ -679,7 +679,7 @@ export const graderRenderingMixin = Base => class extends Base {
                   </div>
                 </div>
                 <div class="mt-2 ms-3 ${this._privateNotesEditorShowing ? "d-none" : "d-block"}">
-                  <button class="btn btn-link p-0"
+                  <button class="btn p-0"
                       @click=${this._removePrivateNotes}>
                     ${this._i18n["gen.remove"]}
                   </button>
