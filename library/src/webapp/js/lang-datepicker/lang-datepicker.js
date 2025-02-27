@@ -1,4 +1,4 @@
-// Default options
+	// Default options
 const defaults = {
 	input: null,
 	useTime: true,
@@ -49,13 +49,16 @@ const defaults = {
 		  // Handle string input
 		  else {
 			// Use raw value for datetime-local input, no Date object manipulation
-			if (this.options.parseFormat === 'YYYY-MM-DD HH:mm:ss' && initialValue.includes(' ')) {
-			  const [datePart, timePart] = initialValue.split(' ');
-			  const [year, month, day] = datePart.split('-');
-			  const [hours, minutes] = timePart.split(':');
-			  this.element.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+			if ((this.options.parseFormat === 'YYYY-MM-DD HH:mm:ss' || this.options.parseFormat === 'YYYY-MM-DD HH:mm') && initialValue.includes(' ')) {
+				const [datePart, timePart] = initialValue.split(' ');
+				const [year, month, day] = datePart.split('-');
+				const [hours, minutes] = timePart.split(':').slice(0, 2);  // Take only hours and minutes
+				// Ensure month is zero-padded
+				const paddedMonth = month.padStart(2, '0');
+				const paddedDay = day.padStart(2, '0');
+				this.element.value = `${year}-${paddedMonth}-${paddedDay}T${hours}:${minutes}`;
 			} else {
-			  this.element.value = initialValue; // Assume it's already in datetime-local format
+				this.element.value = initialValue; // Assume it's already in datetime-local format
 			}
 		  }
 		}
@@ -195,7 +198,7 @@ const defaults = {
 		  if (typeof date === 'object' && 'year' in date) {
 			switch (key) {
 			  case "month":
-				newValue = date.month;
+				newValue = String(date.month).padStart(2, '0');
 				break;
 			  case "day":
 				newValue = date.day;
@@ -220,10 +223,10 @@ const defaults = {
 			// Handle Date object from user input
 			switch (key) {
 			  case "month":
-				newValue = date.getMonth() + 1;
+				newValue = String(date.getMonth() + 1).padStart(2, '0');
 				break;
 			  case "day":
-				newValue = date.getDate();
+				newValue = String(date.getDate()).padStart(2, '0');
 				break;
 			  case "year":
 				newValue = date.getFullYear();

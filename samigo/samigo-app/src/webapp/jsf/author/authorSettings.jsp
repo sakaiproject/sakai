@@ -575,13 +575,13 @@
       <div class="form-group row">
           <h:outputLabel styleClass="col-md-10 form-label" for="startDate" value="#{assessmentSettingsMessages.assessment_available}"/>
           <div class="col-md-10">
-              <h:inputText value="#{assessmentSettings.startDateString}" size="25" id="startDate" />
+              <h:inputText size="25" id="startDate" />
           </div>
       </div>
       <div class="form-group row">
           <h:outputLabel styleClass="col-md-10 form-label" for="endDate" value="#{assessmentSettingsMessages.assessment_due}" />
           <div class="col-md-10">
-              <h:inputText value="#{assessmentSettings.dueDateString}" size="25" id="endDate"/>
+              <h:inputText size="25" id="endDate"/>
               <h:outputText value="&#160;" escape="false" />
           </div>
       </div>
