@@ -1043,12 +1043,14 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		String oldPageIdString = element.getAttribute("pageid");
 		Long oldPageId = Long.valueOf(oldPageIdString);
 		Long pageId = pageMap.get(oldPageId);
+		log.debug("fixing items pageId: {} oldPageId: {} pageMap: {} itemMap: {}", pageId, oldPageId, pageMap, itemMap);
 
 		List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(pageId);
 		if (items == null) return;
 
 		for (SimplePageItem item : items) {
 			boolean itemUpdated = false;
+			log.debug("checking item {} for fixing type: {}", item.getId(), item.getType());
 			switch (item.getType()) {
 				case SimplePageItem.TEXT:
 					String html = item.getHtml();
@@ -1101,7 +1103,10 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 					break;
 				default:
 			}
-			if (itemUpdated) simplePageToolDao.quickUpdate(item);
+			if (itemUpdated) {
+				log.debug("fixing items updating item: {}", item.getId());
+				simplePageToolDao.quickUpdate(item);
+			}
 		}
 	}
 
@@ -1253,10 +1258,12 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 			}
 
+			log.debug("fixing items siteId: {} fromSiteId: {} oldServer: {} itemMap: {} pageMap: {}", siteId, fromSiteId, oldServer, itemMap, pageMap);
 			for (int p = 0; p < numPages; p++) {
 				Node pageNode = pageNodes.item(p);
 				if (pageNode.getNodeType() == Node.ELEMENT_NODE) {
 					Element pageElement = (Element) pageNode;
+					log.debug("fixing items pageElement oldPageId: {}", pageElement.getAttribute("pageid"));
 					fixItems(pageElement, oldServer, siteId, fromSiteId, pageMap, itemMap);
 				}
 			}
@@ -1267,133 +1274,131 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			int numTools =  tools.getLength();
 			for (int i = 0; i < numTools; i++) {
 				Node node = tools.item(i);
-				if (node.getNodeType() == Node.ELEMENT_NODE) {
-					Element element = (Element) node;
-					// there's an element at top level with no attributes. ignore it
-					String oldToolId = trimToNull(element.getAttribute("toolid"));
-					if (oldToolId != null) {
+				if (node.getNodeType() != Node.ELEMENT_NODE) continue;
 
-						String toolTitle = trimToNull(element.getAttribute("name"));
-						String rolelist = element.getAttribute("functions.require");
-						String pagePosition = element.getAttribute("pagePosition");
-						String pageVisibility = element.getAttribute("pageVisibility");
+				// there's an element at top level with no attributes. ignore it
+				Element element = (Element) node;
+				String oldToolId = trimToNull(element.getAttribute("toolid"));
+				String toolTitle = trimToNull(element.getAttribute("name"));
+				if (StringUtils.isBlank(oldToolId)) continue;
+				if(StringUtils.isBlank(toolTitle)) continue;
 
-						if(toolTitle != null) {
-							Tool tr = toolManager.getTool(LessonBuilderConstants.TOOL_ID);
-							SitePage page = null;
-							ToolConfiguration tool = null;
-							Site site = siteService.getSite(siteId);
+				String rolelist = element.getAttribute("functions.require");
+				String pagePosition = element.getAttribute("pagePosition");
+				String pageVisibility = element.getAttribute("pageVisibility");
+				Tool tr = toolManager.getTool(LessonBuilderConstants.TOOL_ID);
+				SitePage page = null;
+				ToolConfiguration tool = null;
+				Site site = siteService.getSite(siteId);
 
-							// some code in site action creates all the pages and tools and some doesn't
-							// so see if we already have this page and tool
-							Collection<ToolConfiguration> toolConfs = site.getTools(myToolIds());
-							if (toolConfs != null && !toolConfs.isEmpty())  {
-								for (ToolConfiguration config: toolConfs) {
-									if (config.getToolId().equals(LessonBuilderConstants.TOOL_ID)) {
-										SitePage p = config.getContainingPage();
-										// only use the Sakai page if it has the right title
-										// and we don't already have lessson builder info for it
-										log.debug("checking top level page bash toolTitle: {} pageTitle: {}", toolTitle, p.getTitle());
-										if (p != null && toolTitle.equals(p.getTitle()) ) {
-											Long topLevelPageId = simplePageToolDao.getTopLevelPageId(config.getPageId());
-											log.debug("checking page and tool: {} pageTitle: {} topLevelPageId: {}", p, config, topLevelPageId);
-											if (topLevelPageId != null) {
-												List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(topLevelPageId);
-												log.debug("items: {}", items);
-												if (items.isEmpty()) {
-													// TODO: REMOVE THIS ERROR AFTER DEBUGGING
-													log.error("reusing page and tool: {} config {} pageTitle: {}", p.getId(), config.getPageId());
-													page = p;
-													tool = config;
-													break;
-												}
-											}
-										}
+				// some code in site action creates all the pages and tools and some doesn't
+				// so see if we already have this page and tool
+				Collection<ToolConfiguration> toolConfs = site.getTools(myToolIds());
+				if (toolConfs != null && !toolConfs.isEmpty())  {
+					for (ToolConfiguration config: toolConfs) {
+						if (config.getToolId().equals(LessonBuilderConstants.TOOL_ID)) {
+							SitePage p = config.getContainingPage();
+							log.debug("found lessons tool: {} page: {} pageTitle: {}", config.getId(), p.getId(), p.getTitle());
+							// only use the Sakai page if it has the right title
+							// and we don't already have lessson builder info for it
+							if (p != null && toolTitle.equals(p.getTitle()) ) {
+								Long topLevelPageId = simplePageToolDao.getTopLevelPageId(config.getPageId());
+								log.debug("checking page and tool: {} pageTitle: {} topLevelPageId: {}", p, config, topLevelPageId);
+								if (topLevelPageId != null) {
+									List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(topLevelPageId);
+									log.debug("items: {}", items);
+									if (items.isEmpty()) {
+										// TODO: REMOVE THIS ERROR AFTER DEBUGGING
+										log.error("reusing site page and tool: {} config {} pageTitle: {}", p.getId(), config.getPageId());
+										page = p;
+										tool = config;
+										break;
 									}
 								}
 							}
-
-							// if we alrady have an appropriate blank page from the template, page and tool are set
-							if (page == null) {
-								page = site.addPage();
-								tool = page.addTool(LessonBuilderConstants.TOOL_ID);
-								if (StringUtils.isNotBlank(pagePosition)) {
-									int integerPosition = Integer.parseInt(pagePosition);
-									page.setPosition(integerPosition);
-								}
-								log.debug("added new Lessons toolTitle={} page={} tool={} to site", toolTitle, page.getId(), tool.getId());
-
-							}
-
-							String toolId = tool.getPageId();
-							if (toolId == null) {
-								log.error("unable to find new toolid for copy of " + oldToolId);
-								continue;
-							}
-
-							if (StringUtils.isNotBlank(rolelist)) {
-								tool.getPlacementConfig().setProperty("functions.require", rolelist);
-							}
-							if (StringUtils.isNotBlank(pageVisibility)) {
-								tool.getPlacementConfig().setProperty(ToolManager.PORTAL_VISIBLE, pageVisibility);
-							}
-							tool.setTitle(toolTitle);
-							page.setTitle(toolTitle);
-							page.setTitleCustom(true);
-							log.debug("saving site {}", site.getId());
-							siteService.save(site);
-							count++;
-
-							// now fix up the page. new format has it as attribute
-							String pageId = trimToNull(element.getAttribute("pageId"));
-							if (pageId == null) {
-								// old format. we should have a page node
-								// normally just one
-								Node pageNode = element.getFirstChild();
-								if (pageNode == null || pageNode.getNodeType() != Node.ELEMENT_NODE) {
-									log.error("page node not element");
-									continue;
-								}
-								Element pageElement = (Element)pageNode;
-								pageId = trimToNull(pageElement.getAttribute("pageid"));
-							}
-							if (pageId == null) {
-								log.error("page node without old pageid");
-								continue;
-							}
-
-							log.debug("old pageId: {} new pageId: {}", pageId, pageMap.get(Long.valueOf(pageId)));
-
-							// fix up the new copy of the page to be top level
-							SimplePage simplePage = simplePageToolDao.getPage(pageMap.get(Long.valueOf(pageId)));
-							if (simplePage == null) {
-								log.error("can't find new copy of top level page");
-								continue;
-							}
-							simplePage.setParent(null);
-							simplePage.setTopParent(null);
-							simplePage.setToolId(toolId);
-							simplePageToolDao.quickUpdate(simplePage);
-							log.debug("updated top level page: {} to point to tool: {}", simplePage, toolId);
-							// create the vestigial item for this top level page
-							log.debug("creating vestigial item for top level page: {} type: {}", simplePage.getPageId(), SimplePageItem.PAGE);
-							SimplePageItem item = simplePageToolDao.makeItem(0, 0, SimplePageItem.PAGE, Long.toString(simplePage.getPageId()), simplePage.getTitle());
-
-							// Revise the top level page's SimplePageItem based on its corresponding pageElement attributes
-							Element pageElement = pageElementMap.get(Long.valueOf(pageId));
-							String pageAttribute = pageElement.getAttribute("required");
-							if (StringUtils.isNotEmpty(pageAttribute)) {
-								item.setRequired(Boolean.valueOf(pageAttribute));
-							}
-							pageAttribute = pageElement.getAttribute("prerequisite");
-							if (StringUtils.isNotEmpty(pageAttribute)) {
-								item.setPrerequisite(Boolean.valueOf(pageAttribute));
-							}
-							log.debug("saving vestigial item: {}", item);
-							simplePageToolDao.quickSaveItem(item);
 						}
 					}
 				}
+
+				// if we already have an appropriate blank page from the template, page and tool are set
+				if (page == null) {
+					page = site.addPage();
+					tool = page.addTool(LessonBuilderConstants.TOOL_ID);
+					if (StringUtils.isNotBlank(pagePosition)) {
+						int integerPosition = Integer.parseInt(pagePosition);
+						page.setPosition(integerPosition);
+					}
+					log.debug("Added Lessons toolTitle={} new page={} new tool={} to site", toolTitle, page.getId(), tool.getId());
+
+				}
+
+				String toolId = tool.getPageId();
+				if (toolId == null) {
+					log.error("unable to find new toolid for copy of " + oldToolId);
+					continue;
+				}
+
+				if (StringUtils.isNotBlank(rolelist)) {
+					tool.getPlacementConfig().setProperty("functions.require", rolelist);
+				}
+				if (StringUtils.isNotBlank(pageVisibility)) {
+					tool.getPlacementConfig().setProperty(ToolManager.PORTAL_VISIBLE, pageVisibility);
+				}
+				tool.setTitle(toolTitle);
+				page.setTitle(toolTitle);
+				page.setTitleCustom(true);
+				log.debug("saving site {}", site.getId());
+				siteService.save(site);
+				count++;
+
+				// now fix up the page. new format has it as attribute
+				String pageId = trimToNull(element.getAttribute("pageId"));
+				if (pageId == null) {
+					// old format. we should have a page node
+					// normally just one
+					Node pageNode = element.getFirstChild();
+					if (pageNode == null || pageNode.getNodeType() != Node.ELEMENT_NODE) {
+						log.error("page node not element");
+						continue;
+					}
+					Element pageElement = (Element)pageNode;
+					pageId = trimToNull(pageElement.getAttribute("pageid"));
+				}
+				if (pageId == null) {
+					log.error("page node without old pageid");
+					continue;
+				}
+
+				log.debug("old pageId: {} new pageId: {}", pageId, pageMap.get(Long.valueOf(pageId)));
+
+				// fix up the new copy of the page to be top level
+				SimplePage simplePage = simplePageToolDao.getPage(pageMap.get(Long.valueOf(pageId)));
+				if (simplePage == null) {
+					log.error("can't find new copy of top level page");
+					continue;
+				}
+				simplePage.setParent(null);
+				simplePage.setTopParent(null);
+				simplePage.setToolId(toolId);
+				simplePageToolDao.quickUpdate(simplePage);
+				log.debug("updated top level lessons page: {} to point to site tool: {}", simplePage.getPageId(), toolId);
+
+				// create the vestigial item for this top level page
+				log.debug("creating vestigial item for top level page: {} type: {}", simplePage.getPageId(), SimplePageItem.PAGE);
+				SimplePageItem item = simplePageToolDao.makeItem(0, 0, SimplePageItem.PAGE, Long.toString(simplePage.getPageId()), simplePage.getTitle());
+
+				// Revise the top level page's SimplePageItem based on its corresponding pageElement attributes
+				Element pageElement = pageElementMap.get(Long.valueOf(pageId));
+				String pageAttribute = pageElement.getAttribute("required");
+				if (StringUtils.isNotEmpty(pageAttribute)) {
+					item.setRequired(Boolean.valueOf(pageAttribute));
+				}
+				pageAttribute = pageElement.getAttribute("prerequisite");
+				if (StringUtils.isNotEmpty(pageAttribute)) {
+					item.setPrerequisite(Boolean.valueOf(pageAttribute));
+				}
+				log.debug("saving vestigial item: {}", item.getId());
+				simplePageToolDao.quickSaveItem(item);
 			}
 			results.append("merging link tool " + siteId + " (" + count
 					+ ") items.\n");
