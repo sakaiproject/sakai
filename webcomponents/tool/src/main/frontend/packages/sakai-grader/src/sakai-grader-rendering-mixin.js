@@ -560,25 +560,19 @@ export const graderRenderingMixin = Base => class extends Base {
 
               ${this._submission.feedbackComment ? html`
                 <div id="feedback-snippet"
-                    class="grader-snippet rounded-3 ms-3 mt-2 ${this._feedbackCommentEditorShowing ? "d-none" : "d-block"}">
-                  <div class="grader-snippet position-relative overflow-hidden rounded-3">
-                    <div class="m-2 ${!this._showingFullFeedbackComment && !this._allFeedbackCommentVisible ? "fade-text" : ""}">
-                      ${unsafeHTML(this._submission.feedbackComment)}
-                    </div>
-                    <div class="fade-overlay ${!this._showingFullFeedbackComment && !this._allFeedbackCommentVisible ? "d-block" : "d-none"}">
-                    </div>
+                    class="card ms-3 mt-2 ${this._feedbackCommentEditorShowing ? "d-none" : "d-block"}">
+                  <div class="card-body">
+                    ${unsafeHTML(this._submission.feedbackComment)}
                   </div>
-                  <div class="ms-2 p-2">
-                    <button class="btn btn-transparent
-                                    text-decoration-underline
-                                    ${this._allFeedbackCommentVisible ? "d-none" : "d-inline"}"
-                        @click=${this._toggleFullFeedbackComment}>
-                      ${this._showingFullFeedbackComment ? this._i18n.show_less : this._i18n.show_all}
+                  <div class="card-footer bg-transparent">
+                    <button class="btn btn-link p-0"
+                        @click=${this._toggleFeedbackCommentEditor}>
+                      ${this._i18n.edit}
                     </button>
                   </div>
                 </div>
                 <div class="mt-2 ms-3 ${!this._feedbackCommentEditorShowing ? "d-block" : "d-none"}">
-                  <button class="btn btn-transparent text-decoration-underline"
+                  <button class="btn p-0"
                       @click=${this._removeFeedbackComment}>
                     ${this._i18n["gen.remove"]}
                   </button>
@@ -673,21 +667,19 @@ export const graderRenderingMixin = Base => class extends Base {
               <div class="sak-banner-warn ms-2 ${this._privateNotesRemoved ? "d-block" : "d-none"}">${this._i18n.removed}</div>
 
               ${this._submission.privateNotes ? html`
-                <div id="private-notes-snippet" class="grader-snippet ms-3 mt-2 ${this._privateNotesEditorShowing ? "d-none" : "d-block"}">
-                  <div class="grader-snippet position-relative overflow-hidden">
-                    <div class="m-2 ${!this._showingFullPrivateNotes && !this._allPrivateNotesVisible ? "fade-text" : ""}">${unsafeHTML(this._submission.privateNotes)}</div>
-                    ${!this._showingFullPrivateNotes && !this._allPrivateNotesVisible ? html`
-                    <div class="fade-overlay"></div>
-                    ` : nothing }
+                <div id="private-notes-snippet" class="card ms-3 mt-2 ${this._privateNotesEditorShowing ? "d-none" : "d-block"}">
+                  <div class="card-body">
+                    ${unsafeHTML(this._submission.privateNotes)}
                   </div>
-                  <div class="ms-2 p-2">
-                    <button class="btn btn-transparent text-decoration-underline ${this._allPrivateNotesVisible ? "d-none" : "d-inline"}" @click=${this._toggleFullPrivateNotes}>
-                      ${this._showingFullPrivateNotes ? this._i18n.show_less : this._i18n.show_all}
+                  <div class="card-footer bg-transparent">
+                    <button class="btn btn-link p-0"
+                        @click=${this._togglePrivateNotesEditor}>
+                      ${this._i18n.edit}
                     </button>
                   </div>
                 </div>
                 <div class="mt-2 ms-3 ${this._privateNotesEditorShowing ? "d-none" : "d-block"}">
-                  <button class="btn btn-transparent text-decoration-underline"
+                  <button class="btn btn-link p-0"
                       @click=${this._removePrivateNotes}>
                     ${this._i18n["gen.remove"]}
                   </button>
