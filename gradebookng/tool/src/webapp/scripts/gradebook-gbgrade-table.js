@@ -2449,7 +2449,12 @@ GbGradeTable.setupConcurrencyCheck = function() {
   // Check for concurrent editors.. and again every 20 seconds
   // (note: there's a 10 second cache)
   performConcurrencyCheck();
-  var concurrencyCheckInterval = setInterval(performConcurrencyCheck, 20 * 1000);
+  
+  // Store the interval ID so we can clear it if needed
+  if (GbGradeTable.concurrencyCheckInterval) {
+    clearInterval(GbGradeTable.concurrencyCheckInterval);
+  }
+  GbGradeTable.concurrencyCheckInterval = setInterval(performConcurrencyCheck, 20 * 1000);
 };
 
 
@@ -3604,14 +3609,16 @@ GbGradeTable.saveNewPrediction = function(prediction) {
  */
 GradebookAPI = {};
 
-
 GradebookAPI.isAnotherUserEditing = function(siteId, timestamp, onSuccess, onError) {
-  var endpointURL = "/direct/gbng/isotheruserediting/" + siteId + ".json";
-  var params = {
-    since: timestamp,
-    auto: true // indicate that the request is automatic, not from a user action
-  };
-  GradebookAPI._GET(endpointURL, params, onSuccess, onError);
+  const url = `/direct/gbng/isotheruserediting/${siteId}.json`;
+  GradebookAPI._GET(url, { since: timestamp, auto: true }, "json", onSuccess, () => {
+    // If this was an automated check (from the interval), stop the checks
+    if (GbGradeTable.concurrencyCheckInterval) {
+      clearInterval(GbGradeTable.concurrencyCheckInterval);
+      GbGradeTable.concurrencyCheckInterval = null;
+      console.warn('Concurrent editing checks stopped due to error');
+    }
+  });
 };
 
 
@@ -3645,6 +3652,23 @@ GradebookAPI.updateAssignmentOrder = function(siteId, assignmentId, order, onSuc
                                                       onSuccess, onError, onComplete)
 };
 
+GradebookAPI._GET = function (url, data, responseType, onSuccess, onError) {
+  const params = Object.entries(data).reduce(
+    (params, entry) => { params.append(entry[0], entry[1]); return params; }, new URLSearchParams());
+
+  const fullUrl = `${url}?${params}`;
+
+  fetch(fullUrl, { cache: "no-store" })
+    .then(r => {
+      if (!r.ok) {
+        throw new Error(`Network error while getting ${fullUrl}`);
+      }
+      return responseType === "text" ? r.text() : r.json();
+    })
+    .then(data => onSuccess(data))
+    .catch(() => onError && onError());
+};
+
 
 GradebookAPI.updateCategorizedAssignmentOrder = function(siteId, assignmentId, categoryId, order, onSuccess, onError, onComplete) {
   GradebookAPI._POST("/direct/gbng/categorized-assignment-order", {
@@ -3654,19 +3678,6 @@ GradebookAPI.updateCategorizedAssignmentOrder = function(siteId, assignmentId, c
                                                         order: order
                                                       },
                                                       onSuccess, onError, onComplete)
-};
-
-
-GradebookAPI._GET = function(url, data, onSuccess, onError, onComplete) {
-  $.ajax({
-    type: "GET",
-    url: url,
-    data: data,
-    cache: false,
-    success: onSuccess || $.noop,
-    error: onError || $.noop,
-    complete: onComplete || $.noop
-  });
 };
 
 
