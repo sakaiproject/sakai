@@ -527,4 +527,42 @@ sakai-grader {
       margin-bottom: 6px;
     }
   } //media tablet
+
+  @media (min-width: 992px) {
+    /* Desktop layout */
+    #grader {
+      position: relative;
+      visibility: visible;
+      width: 400px;
+      height: 100%;
+      transform: none;
+      border-left: 1px solid #dee2e6;
+    }
+    
+    #grader-panel-container {
+      flex: 0 0 400px;
+    }
+    
+    #grader-gradable-container {
+      overflow-y: auto;
+      max-height: calc(100vh - 150px); /* Adjust based on your topbar height */
+    }
+    
+    /* Hide the close button on desktop */
+    #grader .btn-close {
+      display: none;
+    }
+    
+    /* Make the "Grade Submission" button only visible on mobile */
+    #grader-link-block {
+      display: none;
+    }
+  }
+
+  /* For mobile, keep the original offcanvas behavior */
+  @media (max-width: 991.98px) {
+    #grader {
+      width: 100%;
+    }
+  }
 }
