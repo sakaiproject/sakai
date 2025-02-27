@@ -538,7 +538,7 @@ sakai-grader {
       height: auto;
       max-height: 100vh;
       overflow-y: auto;
-      min-height: 920px;
+      min-height: 990px;
       transform: none !important;
       border-left: 1px solid var(--sakai-border-color);
       right: auto;
@@ -563,20 +563,28 @@ sakai-grader {
       width: 100%;
       flex-wrap: nowrap;
       align-items: flex-start;
+      height: calc(100vh - 60px); /* Set a height for the container to enable scrolling */
     }
     
-    /* Ensure the gradable container takes appropriate space */
+    /* Ensure the gradable container takes appropriate space and shows scrollbars */
     #grader-gradable-container {
       flex: 1;
-      overflow-y: auto;
+      height: 100%;
       max-width: calc(100% - 420px);
       margin-right: 20px;
+      overflow-y: scroll;
     }
     
     /* Make the grader panel sticky to follow scroll */
     #grader .offcanvas-body {
       max-height: calc(100vh - 60px); /* Subtract header height */
       overflow-y: auto;
+    }
+    
+    /* Ensure the gradable content area has proper height */
+    #grader-gradable-content {
+      height: auto;
+      min-height: 100%;
     }
   }
 
