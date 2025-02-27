@@ -36,24 +36,22 @@
 						selectObject.options[i].selected=false;
 					}
 					changeSelect(selectObject);
+					handleSelectionChange(selectObject, selectObject.id + '_clear');
 				}
 				
-				function fadeInBcc(clearSelected){
-					$('.bccLink').fadeOut(); 
-					$('.bcc').fadeIn();
-					if (clearSelected) {
-						clearSelection(document.getElementById('pvtMsgForward:list2'));
+				function handleSelectionChange(selectElement, clearButtonId) {
+					const clearButton = document.getElementById(clearButtonId);
+					if (clearButton) {
+						clearButton.style.display = selectElement.selectedIndex !== -1 ? 'inline-block' : 'none';
 					}
-					resize();
 				}
 				
-				function fadeOutBcc(clearSelected){
-					$('.bccLink').fadeIn(); 
-					$('.bcc').fadeOut();
-					if (clearSelected) {
-						clearSelection(document.getElementById('pvtMsgForward:list2'));
+				function toggleBcc(checkbox) {
+					const bccBox = document.getElementById('bcc_box');
+					if (bccBox) {
+						bccBox.style.display = checkbox.checked ? 'flex' : 'none';
+						resize();
 					}
-					resize();
 				}
 				
 				function resize(){
@@ -61,12 +59,13 @@
 				}
 				
 				$(document).ready(function() {
-				  	if(document.getElementById('pvtMsgForward:list2').selectedIndex != -1){
-				  		//BCC has selected items, so show it
-				  		fadeInBcc(false);
-				  	}
 				  	addTagSelector(document.getElementById('pvtMsgForward:list1'));
 				  	addTagSelector(document.getElementById('pvtMsgForward:list2'));
+				  	
+				  	// Initial selection check
+				  	handleSelectionChange(document.getElementById('pvtMsgForward:list1'), 'pvtMsgForward:list1_clear');
+				  	handleSelectionChange(document.getElementById('pvtMsgForward:list2'), 'pvtMsgForward:list2_clear');
+				  	
 				  	resize();
                     var menuLink = $('#messagesMainMenuLink');
                     var menuLinkSpan = menuLink.closest('span');
@@ -127,112 +126,46 @@
 							<h:selectManyListbox id="list1" value="#{PrivateMessagesTool.selectedComposeToList}" size="5" style="width: 100%;" title="#{msgs.recipient_placeholder}">
 								<f:selectItems value="#{PrivateMessagesTool.totalComposeToList}"/>
 							</h:selectManyListbox>
-							<f:verbatim>
-								<span>
-								&nbsp;
-							</f:verbatim>
-							<h:graphicImage url="/../../library/image/silk/delete.png" title="#{msgs.pvt_bccClear}" alt="#{msgs.pvt_bccClear}"/>
-							<f:verbatim>
-								<a href="#" onclick="clearSelection(document.getElementById('pvtMsgForward:list1'));">
-							</f:verbatim>
-							<h:outputText value="#{msgs.pvt_bccClear}"/>
-							<f:verbatim>
+							<span id="pvtMsgForward:list1_clear" style="display: none;">
+								<span class="fa fa-times" aria-hidden="true"></span>
+								<a href="#" onclick="clearSelection(document.getElementById('pvtMsgForward:list1')); return false;">
+									<h:outputText value="#{msgs.pvt_bccClear}"/>
 								</a>
-								</span>
-							</f:verbatim>
-						</h:panelGroup>
-					</div>
-				</div>
-				<div class="row bcc-row">
-					<div class="col-xs-12 col-sm-2">
-						<h:panelGroup styleClass="shorttext bccLink form-control-label">
-							<h:outputLabel>
-								<f:verbatim>
-									&nbsp;
-								</f:verbatim>
-								<h:graphicImage url="/../../library/image/silk/add.png" title="#{msgs.pvt_addBcc}" alt="#{msgs.pvt_addBcc}"/>
-								<f:verbatim>
-									<a href="#" onclick="fadeInBcc(true);">
-								</f:verbatim>
-								<h:outputText value="#{msgs.pvt_addBcc}"/>
-								<f:verbatim>
-									</a>
-								</f:verbatim>
-							</h:outputLabel>
-						</h:panelGroup>
-						<h:panelGroup styleClass="shorttext bcc" style="display:none">
-							<h:outputLabel for="list2">
-									<h:outputText value="#{msgs.pvt_bcc}"/>
-									<f:verbatim>
-										<br>
-									</f:verbatim>
-									<h:graphicImage url="/../../library/image/silk/cancel.png" title="#{msgs.pvt_removeBcc}" alt="#{msgs.pvt_removeBcc}"/>
-									<f:verbatim>
-										<a href="#" onclick="fadeOutBcc(true);">
-									</f:verbatim>
-									<h:outputText value="#{msgs.pvt_removeBcc}"/>
-									<f:verbatim>
-										</a>
-										&nbsp;
-									</f:verbatim>
-							</h:outputLabel>
-						</h:panelGroup>
-					</div>
-					<div class="col-xs-12 col-sm-10">
-						<h:panelGroup styleClass="shorttext bccLink"></h:panelGroup>
-						<h:panelGroup styleClass="shorttext bcc" style="display:none">
-							<h:selectManyListbox id="list2" value="#{PrivateMessagesTool.selectedComposeBccList}" size="5" style="width: 100%;" title="#{msgs.recipient_placeholder}">
-								<f:selectItems value="#{PrivateMessagesTool.totalComposeToBccList}"/>
-							</h:selectManyListbox>
-							<f:verbatim>
-								&nbsp;
-							</f:verbatim>
-							<h:graphicImage url="/../../library/image/silk/delete.png" title="#{msgs.pvt_bccClear}" alt="#{msgs.pvt_bccClear}"/>
-							<f:verbatim>
-								<a href="#" onclick="clearSelection(document.getElementById('pvtMsgForward:list2'));">
-							</f:verbatim>
-							<h:outputText value="#{msgs.pvt_bccClear}"/>
-							<f:verbatim>
-								</a>
-							</f:verbatim>
+							</span>
 						</h:panelGroup>
 					</div>
 				</div>
 				<div class="row d-flex">
 					<div class="col-xs-12 col-sm-2">
 						<h:panelGroup styleClass="shorttext form-control-label">
-							<h:outputLabel>
-								<h:outputText value="#{msgs.pvt_send_cc}"/>
+							<h:outputLabel for="bcc_toggle">
+								<h:outputText value="#{msgs.pvt_bcc}"/>
 							</h:outputLabel>
 						</h:panelGroup>
 					</div>
 					<div class="col-xs-12 col-sm-10">
 						<h:panelGroup style="white-space: nowrap;">
-							<h:selectBooleanCheckbox value="#{PrivateMessagesTool.booleanEmailOut}" id="send_email_out" disabled="#{!PrivateMessagesTool.emailCopyOptional}"></h:selectBooleanCheckbox>
-							<h:outputLabel for="send_email_out"><h:outputText value="#{msgs.pvt_send_as_email}"/></h:outputLabel>
-						</h:panelGroup>
-					</div>
-				</div>
-				<div class="row d-flex">
-					<div class="col-xs-12 col-sm-2 form-control-label">
-						<h:panelGroup styleClass="shorttext">
-							<h:outputLabel>
-								<h:outputText styleClass="pvt_read_receipt" value="#{msgs.pvt_read_receipt_label}"/>
+							<h:selectBooleanCheckbox id="bcc_toggle" onclick="toggleBcc(this)"/>
+							<h:outputLabel for="bcc_toggle">
+								<h:outputText value="#{msgs.pvt_addBcc}"/>
 							</h:outputLabel>
 						</h:panelGroup>
-					</div>
-					<div class="col-xs-12 col-sm-10">
-						<h:panelGroup>
-							<h:selectBooleanCheckbox value="#{PrivateMessagesTool.booleanReadReceipt}" id="read_receipt" ></h:selectBooleanCheckbox>
-							<h:outputLabel for="read_receipt">
-								<h:outputText value="#{msgs.pvt_read_receipt_text}"/>
-							</h:outputLabel>
-						</h:panelGroup>
+						<div class="row" id="bcc_box" style="display: none;">
+							<h:selectManyListbox id="list2" value="#{PrivateMessagesTool.selectedComposeBccList}" size="5" style="width: 100%;" title="#{msgs.recipient_placeholder}" onchange="handleSelectionChange(this, 'pvtMsgForward:list2_clear')">
+								<f:selectItems value="#{PrivateMessagesTool.totalComposeToBccList}"/>
+							</h:selectManyListbox>
+							<span id="pvtMsgForward:list2_clear" class="delete_selection" style="display: none;">
+								<span class="fa fa-trash" aria-hidden="true"></span>
+								<h:outputLink value="#" onclick="clearSelection(document.getElementById('pvtMsgForward:list2')); return false;">
+									<h:outputText value="#{msgs.pvt_bccClear}"/>
+								</h:outputLink>
+							</span>
+						</div>
 					</div>
 				</div>
-				<div class="row">
+				<div class="row d-flex my-3">
 					<div class="col-xs-12 col-sm-2">
-						<h:panelGroup  styleClass="shorttext form-control-label">
+						<h:panelGroup styleClass="shorttext form-control-label">
 							<h:outputLabel for="viewlist">
 								<h:outputText value="#{msgs.pvt_label}"/>
 							</h:outputLabel>
@@ -248,41 +181,6 @@
 						</h:panelGroup>
 					</div>
 				</div>
-				<div class="row d-flex">
-					<div class="col-xs-12 col-sm-2">
-						<h:panelGroup styleClass="shorttext form-control-label">
-							<h:outputLabel>
-								<h:outputText styleClass="pvt_send_cc" value="#{msgs.pvt_scheduler_send}"/>
-							</h:outputLabel>
-						</h:panelGroup>
-					</div>
-					<div class="col-xs-12 col-sm-10">
-						<h:panelGroup>
-							<h:selectBooleanCheckbox value="#{PrivateMessagesTool.booleanSchedulerSend}" id="scheduler_send_email" onclick = "document.getElementById('pvtMsgForward:openDateSpan').classList.toggle('d-none')"></h:selectBooleanCheckbox>
-							<h:outputLabel for="scheduler_send_email">
-								<h:outputText value="#{msgs.pvt_scheduler_send_as_email}"/>
-							</h:outputLabel>
-						</h:panelGroup>
-					</div>
-				</div>
-
-				<h:panelGroup id="openDateSpan" styleClass="indnt9 openDateSpan calWidget hidden" >
-					<h:outputLabel value="#{msgs.pvt_scheduler_send_date} " for="openDate" />
-					<h:inputText id="openDate" styleClass="openDate" value="#{PrivateMessagesTool.schedulerSendDateString}" />
-				</h:panelGroup>
-				<script>
-					localDatePicker({
-						input:'.openDate',
-						allowEmptyDate:true,
-						ashidden: { iso8601: 'openDateISO8601' },
-						getval:'.openDate',
-						useTime:1
-					});
-					if(document.getElementById('pvtMsgForward:scheduler_send_email').checked) {
-						document.getElementById('pvtMsgForward:openDateSpan').classList.remove('d-none');
-					}
-
-				</script>
 				<div class="row d-flex">
 					<div class="col-xs-12 col-sm-2">
 						<h:panelGroup styleClass="shorttext required form-control-label">
