@@ -248,10 +248,7 @@ public class AjaxServer extends HttpServlet
 	    if (i >= 0)
 		name = name.substring(i+1);
 	    
-	    String extension = null;	    
-	    i = name.lastIndexOf(".");
-	    if (i > 0)
-		extension = name.substring(i+1);
+	    String extension = org.springframework.util.StringUtils.getFilenameExtension(name);
 	    
 	    if (extension == null)
 		return "";
