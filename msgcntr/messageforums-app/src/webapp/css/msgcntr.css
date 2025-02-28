@@ -148,13 +148,13 @@
 	margin-right: 5px;
 }
 
-.Mrphs-sakai-forums #msgForum a.button.markAsReadIcon{
+.Mrphs-sakai-forums #msgForum a.button.markAsNotReadIcon{
 	cursor: pointer;
 	padding-left: 25px;
 	position:relative;
 }
 
-.Mrphs-sakai-forums #msgForum a.button.markAsReadIcon::before{
+.Mrphs-sakai-forums #msgForum a.button.markAsNotReadIcon::before{
 	content: "";
 	position:absolute;
 	background: url('../images/silk/email.png') 0 center no-repeat;
@@ -165,8 +165,8 @@
 	transform: translateY(-50%);
 }
 
-.Mrphs-sakai-forums #msgForum a.markAsReadIcon:hover::before{
-	background-image: url('../images/silk/email_open.png');
+.Mrphs-sakai-forums #msgForum a.markAsNotReadIcon:hover::before{
+	background-image: url('../images/silk/email_close.png');
 }
 .messagesFlat,.messagesThreaded{
 	margin: 10px 0;
