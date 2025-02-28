@@ -182,7 +182,11 @@ const defaults = {
 	constructor(options) {
 	  this.options = { ...defaults, ...options };
 	  this.options.useTime = Boolean(this.options.useTime === 1 || this.options.useTime === true);
-	  this.element = document.querySelector(this.options.input);
+	  
+	  // Handle both selector strings and DOM elements
+	  this.element = typeof this.options.input === 'string' 
+		? document.querySelector(this.options.input)
+		: this.options.input;
 	  
 	  if (!this.element) {
 		console.error("Input element not found:", this.options.input);
@@ -200,8 +204,8 @@ const defaults = {
 
 	  // Set input value
 	  this.element.value = initialDate 
-	    ? DateHelper.formatForInput(initialDate, this.options.useTime) 
-	    : '';
+		? DateHelper.formatForInput(initialDate, this.options.useTime) 
+		: '';
 
 	  // Set input type after setting value
 	  this.element.type = this.options.useTime ? "datetime-local" : "date";
