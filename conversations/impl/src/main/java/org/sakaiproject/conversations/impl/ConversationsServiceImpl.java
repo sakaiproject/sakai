@@ -39,6 +39,7 @@ import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
+import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
@@ -1367,11 +1368,15 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
             Map<String, GradeDefinition> posterGrades = Collections.emptyMap();
             Long gradingItemId = topic.getGradingItemId();
             if (gradingItemId != null) {
+                SecurityAdvisor advisor = (String userId, String function, String reference) -> SecurityAdvisor.SecurityAdvice.ALLOWED;
                 try {
+                    securityService.pushAdvisor(advisor);
                     posterGrades = gradingService.getGradesForStudentsForItem(siteId, gradingItemId, creatorIds)
                         .stream().collect(Collectors.toMap(GradeDefinition::getStudentUid, gd -> gd));
                 } catch (GradingSecurityException se) {
                     log.warn("Failed to getGradesForStudentsForItem with exception: {}", se.toString());
+                } finally {
+                    securityService.popAdvisor(advisor);
                 }
             } else {
                 log.debug("Grading item ID is null for topic: {}", topic);
