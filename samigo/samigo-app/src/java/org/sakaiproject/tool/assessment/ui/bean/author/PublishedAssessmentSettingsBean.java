@@ -97,6 +97,7 @@ import org.sakaiproject.tool.assessment.ui.listener.author.SaveAssessmentAttachm
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
 import org.sakaiproject.tool.assessment.util.ExtendedTimeValidator;
+import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.comparator.AlphaNumericComparator;
@@ -493,13 +494,13 @@ public class PublishedAssessmentSettingsBean extends SpringBeanAutowiringSupport
   }
 
   private String getCategoryForAssessmentName(String assessmentName) {
-
     Long categoryId = null;
+    String decodedAssessmentName = TextFormat.convertFormattedTextToPlaintext(assessmentName);
 
     String gradebookUid = toolManager.getCurrentPlacement().getContext();
     List<Assignment> gbAssignments = gradingService.getAssignments(gradebookUid);
     for (Assignment assignment : gbAssignments) {
-      if (StringUtils.equals(assessmentName, assignment.getName())) {
+      if (StringUtils.equals(assessmentName, assignment.getName()) || StringUtils.equals(decodedAssessmentName, assignment.getName())) {
         categoryId = assignment.getCategoryId();
       }
     }
