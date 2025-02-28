@@ -18,36 +18,38 @@ const defaults = {
     }
     
     // Convert any date representation to a standardized object
+    // IMPORTANT: We preserve local time exactly as entered, no timezone manipulation
     static normalize(value) {
       if (!value) return null;
       
-      // Already a Date object
+      // Already a Date object - preserve its local time components
       if (value instanceof Date) {
-        return new Date(value); // Create a new instance to avoid mutation issues
+        const d = new Date();
+        d.setFullYear(value.getFullYear());
+        d.setMonth(value.getMonth());
+        d.setDate(value.getDate());
+        d.setHours(value.getHours());
+        d.setMinutes(value.getMinutes());
+        d.setSeconds(value.getSeconds());
+        d.setMilliseconds(0);
+        return d;
       }
       
-      // Our custom date object format
+      // Our custom date object format - use components directly
       if (typeof value === 'object' && 'year' in value) {
-        // Use Date constructor with specific components
-        return new Date(
-          value.year, 
-          (value.month - 1), // JS months are 0-indexed
-          value.day,
-          value.hours || 0,
-          value.minutes || 0,
-          value.seconds || 0,
-          0 // milliseconds
-        );
+        const d = new Date();
+        d.setFullYear(value.year);
+        d.setMonth(value.month - 1); // JS months are 0-indexed
+        d.setDate(value.day);
+        d.setHours(value.hours || 0);
+        d.setMinutes(value.minutes || 0);
+        d.setSeconds(value.seconds || 0);
+        d.setMilliseconds(0);
+        return d;
       }
       
       // String parsing - try built-in parsing first
       if (typeof value === 'string') {
-        // Try native parsing first
-        const nativeDate = new Date(value);
-        if (!isNaN(nativeDate.getTime())) {
-          return nativeDate;
-        }
-        
         // Handle YYYY-MM-DD HH:mm[:ss] format
         if (value.includes(' ')) {
           const [datePart, timePart] = value.split(' ');
@@ -55,32 +57,49 @@ const defaults = {
           const [hours, minutes] = timePart.split(':').map(Number);
           
           if (!isNaN(year) && !isNaN(month) && !isNaN(day) && !isNaN(hours) && !isNaN(minutes)) {
-            return new Date(year, month - 1, day, hours, minutes);
+            const d = new Date();
+            d.setFullYear(year);
+            d.setMonth(month - 1);
+            d.setDate(day);
+            d.setHours(hours);
+            d.setMinutes(minutes);
+            d.setSeconds(0);
+            d.setMilliseconds(0);
+            return d;
           }
         }
         
         // Handle ISO format (YYYY-MM-DDTHH:mm)
         if (value.includes('T')) {
-          // Try ISO format parsing with the browser
-          const nativeDate = new Date(value);
-          if (!isNaN(nativeDate.getTime())) {
-            return nativeDate;
-          }
-          
-          // Manual parsing as fallback
           const [datePart, timePart] = value.split('T');
           const [year, month, day] = datePart.split('-').map(Number);
           const timeComponents = timePart.split(':').map(Number);
           
           if (!isNaN(year) && !isNaN(month) && !isNaN(day)) {
-            return new Date(
-              year, 
-              month - 1, 
-              day, 
-              timeComponents[0] || 0, 
-              timeComponents[1] || 0
-            );
+            const d = new Date();
+            d.setFullYear(year);
+            d.setMonth(month - 1);
+            d.setDate(day);
+            d.setHours(timeComponents[0] || 0);
+            d.setMinutes(timeComponents[1] || 0);
+            d.setSeconds(0);
+            d.setMilliseconds(0);
+            return d;
           }
+        }
+        
+        // Try native parsing as last resort, but preserve local time components
+        const parsed = new Date(value);
+        if (!isNaN(parsed.getTime())) {
+          const d = new Date();
+          d.setFullYear(parsed.getFullYear());
+          d.setMonth(parsed.getMonth());
+          d.setDate(parsed.getDate());
+          d.setHours(parsed.getHours());
+          d.setMinutes(parsed.getMinutes());
+          d.setSeconds(parsed.getSeconds());
+          d.setMilliseconds(0);
+          return d;
         }
       }
       
@@ -88,7 +107,7 @@ const defaults = {
       return null;
     }
     
-    // Format a date for the input field using Intl.DateTimeFormat where possible
+    // Format a date for the input field
     static formatForInput(date, useTime = true) {
       if (!date) return "";
       
@@ -107,20 +126,28 @@ const defaults = {
     }
     
     // Format a date for Sakai (ISO8601 with timezone)
+    // IMPORTANT: We preserve local time exactly as entered, no timezone manipulation
     static formatForSakai(date) {
       if (!date) return "";
       
       date = DateHelper.normalize(date);
       if (!date) return "";
       
-      // Use toISOString and then replace the Z with the timezone offset
-      const isoBase = date.toISOString().slice(0, 19); // YYYY-MM-DDTHH:mm:ss
-      const offset = -date.getTimezoneOffset();
+      // Format the date components directly, preserving local time
+      const year = date.getFullYear();
+      const month = DateHelper.pad(date.getMonth() + 1);
+      const day = DateHelper.pad(date.getDate());
+      const hours = DateHelper.pad(date.getHours());
+      const minutes = DateHelper.pad(date.getMinutes());
+      const seconds = DateHelper.pad(date.getSeconds());
+      
+      // Always use local timezone offset
+      const offset = -new Date().getTimezoneOffset();
       const offsetSign = offset >= 0 ? '+' : '-';
       const offsetHours = DateHelper.pad(Math.floor(Math.abs(offset) / 60));
       const offsetMinutes = DateHelper.pad(Math.abs(offset) % 60);
       
-      return `${isoBase}${offsetSign}${offsetHours}:${offsetMinutes}`;
+      return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}${offsetSign}${offsetHours}:${offsetMinutes}`;
     }
     
     // Get a formatted value for a field type from a date
