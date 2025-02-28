@@ -910,26 +910,6 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     }
   })
 
-  GbGradeTable.instance.on("rangeChanged", function (range) {
-    const colIndex = range._range?.end?.col;
-    const rowIndex = range._range?.end?.row;
-  
-    const table = GbGradeTable.instance;
-
-    const cell = table.getRows()[rowIndex]?.getCells()[colIndex];
-    if (!cell) return;
-    const cellElement = cell.getElement();
-    const cellRect = cell.getElement().getBoundingClientRect();
-
-    cellElement.scrollIntoView({
-      block: "end",
-      inline: "nearest",
-      behavior: "auto"
-    });
-
-    // Todo: Keep the cell in view when scrolling towards the frozen columns. Its painful to fix it.
-  
-  });
 
   GbGradeTable.instance.on("cellEdited", function(cell) {
     const oldScore = cell.getOldValue();
@@ -963,6 +943,19 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     const columns = GbGradeTable.instance.getColumns();
 
     GbGradeTable.CURRENT_FIXED_COLUMN_OFFSET = columns.filter(column => column.getDefinition().frozen).length;
+
+    // Calculate frozen columns boundary using the columns we already have
+    let frozenMaxX = 0;
+    for (let i = 0; i < columns.length; i++) {
+      const column = columns[i];
+      if (column.getDefinition().frozen) {
+        const rect = column.getElement().getBoundingClientRect();
+        if (rect.right > frozenMaxX) frozenMaxX = rect.right;
+      } else {
+        break;
+      }
+    }
+    GbGradeTable.frozenMaxX = frozenMaxX;
 
     columns.forEach(function (column, index) {
       const columnDefinition = column.getDefinition();
@@ -1063,6 +1056,38 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       }
 
     });
+  });
+
+   GbGradeTable.instance.on("rangeChanged", function (range) {
+    const colIndex = range._range.end.col;
+    const rowIndex = range._range.end.row;
+    const table = GbGradeTable.instance;
+
+    const cell = table.getRows()[rowIndex]?.getCells()[colIndex];
+    if (!cell) return;
+
+    const cellElement = cell.getElement();
+    
+    const tableContainer = document.querySelector('.tabulator-tableholder');
+    if (!tableContainer) return;
+    
+    const cellRect = cellElement.getBoundingClientRect();
+    
+    const frozenMaxX = GbGradeTable.frozenMaxX;
+    if (!frozenMaxX) return;
+    
+    if (cellRect.left < frozenMaxX && cellRect.right > frozenMaxX) {
+      const currentScroll = tableContainer.scrollLeft;
+      const targetScroll = cellRect.left - frozenMaxX + currentScroll - 10;
+      
+      tableContainer.scrollLeft = targetScroll;
+    } else {
+      cellElement.scrollIntoView({
+        block: "end",
+        inline: "nearest",
+        behavior: "auto"
+      });
+    }
   });
   
 
