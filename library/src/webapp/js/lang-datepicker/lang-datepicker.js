@@ -211,6 +211,9 @@ const defaults = {
 	  this.syncHiddenFields(initialDate);
 	  this.setupEventListeners();
 	  this.setupDuration();
+	  
+	  // Add hasDatepicker class for backward compatibility with jquery-ui
+	  this.element.classList.add('hasDatepicker');
 	}
     
     // Determine the initial date based on options and input value
