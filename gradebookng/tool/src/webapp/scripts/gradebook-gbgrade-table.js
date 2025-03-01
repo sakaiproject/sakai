@@ -566,11 +566,20 @@ GbGradeTable.cellFormatter = function(cell, formatterParams, onRendered) {
     } else {
       dropdownToggle.style.display = 'block';
       dropdownToggle.setAttribute('aria-hidden', 'false');
-      const dropdownToggleTooltip = GbGradeTable.templates.gradeMenuTooltip.process({
-        studentName: `${studentData.firstName} ${studentData.lastName}`,
-        columnTitle: columnData.title
-      });
-      dropdownToggle.setAttribute('title', dropdownToggleTooltip);
+      
+      const studentName = studentData && studentData.firstName && studentData.lastName 
+        ? `${studentData.firstName} ${studentData.lastName}`.trim()
+        : 'Unknown Student';
+      
+      const columnTitle = columnData && columnData.title 
+        ? columnData.title.trim() 
+        : 'Unknown Assignment';
+
+      const dropdownToggleTooltip = GbGradeTable.templates.gradeMenuTooltip.process().replace('{0}', studentName).replace('{1}', columnTitle);
+      
+      dropdownToggle.setAttribute('title', dropdownToggleTooltip.replace(/"/g, '&quot;'));
+      
+      dropdownToggle.setAttribute('aria-label', GbGradeTable.i18n['grade.menu.aria.label'].replace('{0}', studentName).replace('{1}', columnTitle));
     }
   }
 
@@ -844,9 +853,9 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       input.addEventListener("blur", function () { success(input.value); });
 
       input.addEventListener("keydown", function(e) {
-        if (e.keyCode == 13) {
+        if (e.key === "Enter") {
           success(input.value);
-        } else if (e.keyCode == 27) {
+        } else if (e.key === "Escape") {
           cancel();
         }
       });
@@ -877,6 +886,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     selectableRange:1,
     selectableRangeColumns:true,
     selectableRangeClearCells:true,
+
     rowFormatter: (row) => {
       const rowElement = row.getElement();
       rowElement.setAttribute("role", "rowheader");
@@ -900,27 +910,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     }
   })
 
-  GbGradeTable.instance.on("rangeChanged", function (range) {
-    const colIndex = range._range?.end?.col;
-    const rowIndex = range._range?.end?.row;
-  
-    const table = GbGradeTable.instance;
 
-    const cell = table.getRows()[rowIndex]?.getCells()[colIndex];
-    if (!cell) return;
-    const cellRect = cell.getElement().getBoundingClientRect();
-  
-    const frozenColumns = table
-      .getColumns()
-      .filter(column => column.getDefinition().frozen)
-      .map(column => column.getElement().getBoundingClientRect());
-  
-    // Scroll to the column if obstructed by frozen columns
-    if (frozenColumns.some(frozenRect => cellRect.left < frozenRect.right)) {
-      table.scrollToColumn(colIndex, "middle", true);
-    }
-  });
-  
   GbGradeTable.instance.on("cellEdited", function(cell) {
     const oldScore = cell.getOldValue();
     const newScore = cell.getValue();
@@ -953,6 +943,19 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     const columns = GbGradeTable.instance.getColumns();
 
     GbGradeTable.CURRENT_FIXED_COLUMN_OFFSET = columns.filter(column => column.getDefinition().frozen).length;
+
+    // Calculate frozen columns boundary using the columns we already have
+    let frozenMaxX = 0;
+    for (let i = 0; i < columns.length; i++) {
+      const column = columns[i];
+      if (column.getDefinition().frozen) {
+        const rect = column.getElement().getBoundingClientRect();
+        if (rect.right > frozenMaxX) frozenMaxX = rect.right;
+      } else {
+        break;
+      }
+    }
+    GbGradeTable.frozenMaxX = frozenMaxX;
 
     columns.forEach(function (column, index) {
       const columnDefinition = column.getDefinition();
@@ -1008,10 +1011,21 @@ GbGradeTable.renderTable = function (elementId, tableData) {
         if (dropdownToggle) {
           dropdownToggle.style.display = "block";
           dropdownToggle.setAttribute("aria-hidden", "false");
-          const dropdownToggleTooltip =
-            GbGradeTable.templates.gradeHeaderMenuTooltip.process()
-              .replace("{0}", columnDefinition.title);
-          dropdownToggle.setAttribute("title", dropdownToggleTooltip);
+          
+          const studentData = columnDefinition.formatterParams._data_;
+          const studentName = studentData && studentData.firstName && studentData.lastName 
+            ? `${studentData.firstName} ${studentData.lastName}`.trim()
+            : 'Unknown Student';
+          
+          const columnTitle = columnData && columnData.title 
+            ? columnData.title.trim() 
+            : 'Unknown Assignment';
+
+          const dropdownToggleTooltip = GbGradeTable.templates.gradeMenuTooltip.process().replace('{0}', studentName).replace('{1}', columnTitle);
+          
+          dropdownToggle.setAttribute('title', dropdownToggleTooltip.replace(/"/g, '&quot;'));
+          
+          dropdownToggle.setAttribute('aria-label', GbGradeTable.i18n['grade.menu.aria.label'].replace('{0}', studentName).replace('{1}', columnTitle));
         }
       }
   
@@ -1042,6 +1056,38 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       }
 
     });
+  });
+
+   GbGradeTable.instance.on("rangeChanged", function (range) {
+    const colIndex = range._range.end.col;
+    const rowIndex = range._range.end.row;
+    const table = GbGradeTable.instance;
+
+    const cell = table.getRows()[rowIndex]?.getCells()[colIndex];
+    if (!cell) return;
+
+    const cellElement = cell.getElement();
+    
+    const tableContainer = document.querySelector('.tabulator-tableholder');
+    if (!tableContainer) return;
+    
+    const cellRect = cellElement.getBoundingClientRect();
+    
+    const frozenMaxX = GbGradeTable.frozenMaxX;
+    if (!frozenMaxX) return;
+    
+    if (cellRect.left < frozenMaxX && cellRect.right > frozenMaxX) {
+      const currentScroll = tableContainer.scrollLeft;
+      const targetScroll = cellRect.left - frozenMaxX + currentScroll - 10;
+      
+      tableContainer.scrollLeft = targetScroll;
+    } else {
+      cellElement.scrollIntoView({
+        block: "end",
+        inline: "nearest",
+        behavior: "auto"
+      });
+    }
   });
   
 
@@ -1148,7 +1194,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       GbGradeTable.instance.getRanges().forEach(range => range.remove());
     })
     .on("keydown", function (event) {
-      if (event.keyCode == 13) {
+      if (event.key === "Enter") {
         clearTimeout(filterTimeout);
         GbGradeTable.redrawTable(true);
         return false;
@@ -2408,6 +2454,12 @@ GbGradeTable.setupKeyboardNavigation = function() {
     const current = document.querySelector("#gradeTableWrapper .tabulator-cell.tabulator-range-only-cell-selected");
     const focus = document.activeElement;
 
+    if (event.key === "Escape") {
+      focus.blur();
+      current.focus();
+      return;
+    }
+
     if (current) {
       // Allow accessibility shortcuts
       if (event.altKey && event.ctrlKey) {
@@ -2460,7 +2512,7 @@ GbGradeTable.setupKeyboardNavigation = function() {
       }
 
       // Handle input and navigation
-      if (!editing && /^[0-9]$/.test(event.key)) {
+      if (!editing && (/^[0-9]$/.test(event.key) || event.key === "Enter")) {
         const rowIndex = +current.getAttribute("data-row-index");
         const colIndex = +current.getAttribute("data-col-index");
       
@@ -2473,9 +2525,11 @@ GbGradeTable.setupKeyboardNavigation = function() {
         setTimeout(() => {
           const editorInput = cell.getElement()?.querySelector("input");
           if (editorInput) {
-            editorInput.value = event.key;
-            editorInput.focus();
-  
+            if (event.key === "Enter") {
+              editorInput.focus();
+            } else {
+              editorInput.value = event.key;
+            }
             editorInput.addEventListener("blur", () => {
               const nextRow = GbGradeTable.instance.getRows()[rowIndex + 1];
               if (nextRow) {
