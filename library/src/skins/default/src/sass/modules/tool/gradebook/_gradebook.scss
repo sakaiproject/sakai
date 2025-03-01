@@ -36,6 +36,7 @@
   #gradeTableWrapper .tabulator-editable.tabulator-editing {
     border: 2px solid #007bff !important;
     box-shadow: 0 0 5px rgba(157, 198, 243, 0.75);
+    background-color: var(--sakai-background-color-5) !important;
   }
   #gradeTableWrapper .tabulator-editing .gradebook-input .out-of {
     position: absolute;
@@ -1672,3 +1673,8 @@ max-height:100px;
   content: '\2696';
 }
 
+// Fix for Tabulator bug where the range-active class sometimes remains on previously selected cells
+// when navigating through cells using the keyboard (I don't know why tabulator does this)
+.tabulator-range-active {
+  display: none;
+}
