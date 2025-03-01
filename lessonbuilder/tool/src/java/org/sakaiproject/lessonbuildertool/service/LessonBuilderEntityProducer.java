@@ -1132,7 +1132,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				siteId, fromSiteId, mcx.creatorId, mcx.archiveContext, mcx.archiveServerUrl);
 
 		if (StringUtils.isBlank(siteId) ) {
-			log.debug("Lessons merge stopped siteId is not provided");
+			log.warn("Lessons merge stopped siteId is not provided");
 			return "Lessons merge stopped siteId is not provided";
 		}
 
@@ -1162,6 +1162,45 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			return "No lessonbuilder pages to import";
 		}
 
+		// Check if there are existing Lessons placments in the site that has no real content
+		// that we can reuse.
+		Site site;
+		try {
+			site = siteService.getSite(siteId);
+		} catch(IdUnusedException e) {
+			log.warn("Lessons merge stopped siteId is not provided");
+			return "Lessons merge stopped siteId is not provided";
+		}
+
+		Map<String, Long> emptyPlacements = new HashMap<>();
+
+		// some code in site action creates all the pages and tools and some doesn't
+		// so see if we already have this page and tool
+		Collection<ToolConfiguration> toolConfs = site.getTools(myToolIds());
+		if (toolConfs != null && !toolConfs.isEmpty())  {
+			for (ToolConfiguration config: toolConfs) {
+				if (!config.getToolId().equals(LessonBuilderConstants.TOOL_ID)) continue;
+				SitePage p = config.getContainingPage();
+				log.debug("found lessons tool: {} page: {} pageTitle: {}", config.getId(), p.getId(), p.getTitle());
+				if (p == null ) continue;
+				Long topLevelPageId = simplePageToolDao.getTopLevelPageId(config.getPageId());
+				log.debug("Found topLevelPageId {} {}", p.getTitle(), topLevelPageId);
+				if (topLevelPageId == null) continue;
+				SimplePage topLevelPage = simplePageToolDao.getPage(topLevelPageId);
+				log.debug("topLevelPage={}", topLevelPage);
+				if ( topLevelPage == null ) continue;
+				List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(topLevelPageId);
+				log.debug("items: {}", items);
+				if (items.isEmpty()) {
+					// TODO: REMOVE THIS ERROR AFTER DEBUGGING
+					log.error("found reusble lesson placement: {} {} {} ", p.getId(), p.getTitle(), topLevelPageId);
+					emptyPlacements.put(p.getTitle(), topLevelPageId);
+				}
+			}
+		}
+		log.debug("Empty placements {}", emptyPlacements);
+
+
 		StringBuilder results = new StringBuilder();
 		// map old to new page ids
 		Map <Long,Long> pageMap = new HashMap<Long,Long>();
@@ -1174,6 +1213,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		boolean needFix = false;
 
 		String oldServer = root.getAttribute("server");
+		Set<String> toolsReused = new HashSet<>();
 
 		try {
 			// create pages first, build up map of old to new page
@@ -1186,11 +1226,29 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				Element pageElement = (Element) pageNode;
 				String title = pageElement.getAttribute("title");
 				if (title == null) title = "Page";
+				log.debug("Extracting page {} from archive", title);
+
 				String oldPageIdString = pageElement.getAttribute("pageid");
 				if (oldPageIdString == null) oldPageIdString = "0";
 				Long oldPageId = Long.valueOf(oldPageIdString);
-				log.debug("oldPageId: {} title: {}", oldPageId, title);
-				SimplePage page = simplePageToolDao.makePage("0", siteId, title, 0L, 0L);
+				Long emptyPageId = emptyPlacements.get(title);
+				log.debug("oldPageId: {} title: {} emptyid {}", oldPageId, title, emptyPageId);
+
+				// TODO don't just make a new page :)  Get an old one maybe
+				SimplePage page = null;
+				boolean reused = false;
+				if ( emptyPageId != null && emptyPageId > 0 ) {
+					page = simplePageToolDao.getPage(emptyPageId);
+					log.debug("loaded top levelpage {} found {}", emptyPageId, page.getPageId());
+				}
+				if ( page != null ) {
+					toolsReused.add(title);
+					reused = true;
+				} else {
+					page = simplePageToolDao.makePage("0", siteId, title, 0L, 0L);
+					log.debug("Created new page {}", page.getPageId());
+				}
+
 				String gradebookPoints = pageElement.getAttribute("gradebookpoints");
 				if (StringUtils.isNotEmpty(gradebookPoints)) {
 					page.setGradebookPoints(Double.valueOf(gradebookPoints));
@@ -1211,9 +1269,15 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				// "/group/SITEID/LB-CSS/whatever.css", so we need to map the SITEID
 				String cssSheet = pageElement.getAttribute("csssheet");
 				if (StringUtils.isNotEmpty(cssSheet)) page.setCssSheet(cssSheet.replace("/group/"+fromSiteId+"/", "/group/"+siteId+"/"));
-				log.debug("saving page: {}", page);
-				simplePageToolDao.quickSaveItem(page);
-				log.debug("saved page: {}", page);
+				if ( reused ) {
+			        List<String>elist = new ArrayList<>();
+					boolean requiresEditPermission = true;
+					simplePageToolDao.update(page, elist, messageLocator.getMessage("simplepage.nowrite"), requiresEditPermission);
+					log.debug("updated page: {}", page.getPageId());
+				} else {
+					simplePageToolDao.quickSaveItem(page);
+					log.debug("saving page: {}", page.getPageId());
+				}
 				if (StringUtils.isNotEmpty(gradebookPoints)) {
 					try {
 						gradebookIfc.addExternalAssessment(siteId, "lesson-builder:" + page.getPageId(), null,
@@ -1222,10 +1286,11 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 						log.error("merge: ConflictingAssignmentNameException for title {}.", title);
 					}
 				}
+				log.debug("Adding page to pageMap {} => {}", oldPageId, page.getPageId());
 				pageMap.put(oldPageId, page.getPageId());
 			}
 
-			log.debug("Starting pass over pages/items pageMap: {}", pageMap);
+			log.debug("Starting pass II over pages/items pageMap: {}", pageMap);
 
 			// process pages again to create the items
 			pageNodes = root.getElementsByTagName("page");
@@ -1248,7 +1313,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			}
 
 			if (needFix) {
-				Site site = siteService.getSite(siteId);
+				site = siteService.getSite(siteId);
 				ResourcePropertiesEdit rp = site.getPropertiesEdit();
 				rp.addProperty("lessonbuilder-needsfixup", "2");
 				siteService.save(site);
@@ -1268,7 +1333,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				}
 			}
 
-			// process tools and top-level pages
+			// Need to make sure all the tools are added unless we reused an existing tool placement
+			// and page when we imported the page.  When we add a tool to the site, we
 			// need to fill in the tool id for top level pages and set parents to null
 			NodeList tools = root.getElementsByTagName("lessonbuilder");
 			int numTools =  tools.getLength();
@@ -1279,58 +1345,27 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				// there's an element at top level with no attributes. ignore it
 				Element element = (Element) node;
 				String oldToolId = trimToNull(element.getAttribute("toolid"));
-				String toolTitle = trimToNull(element.getAttribute("name"));
 				if (StringUtils.isBlank(oldToolId)) continue;
+
+				String toolTitle = trimToNull(element.getAttribute("name"));
 				if(StringUtils.isBlank(toolTitle)) continue;
+				if ( toolsReused.contains(toolTitle) ) {
+					log.debug("Not adding new placement for {}", toolTitle);
+					continue;
+				}
 
 				String rolelist = element.getAttribute("functions.require");
 				String pagePosition = element.getAttribute("pagePosition");
 				String pageVisibility = element.getAttribute("pageVisibility");
-				Tool tr = toolManager.getTool(LessonBuilderConstants.TOOL_ID);
-				SitePage page = null;
-				ToolConfiguration tool = null;
-				Site site = siteService.getSite(siteId);
 
-				// some code in site action creates all the pages and tools and some doesn't
-				// so see if we already have this page and tool
-				Collection<ToolConfiguration> toolConfs = site.getTools(myToolIds());
-				if (toolConfs != null && !toolConfs.isEmpty())  {
-					for (ToolConfiguration config: toolConfs) {
-						if (config.getToolId().equals(LessonBuilderConstants.TOOL_ID)) {
-							SitePage p = config.getContainingPage();
-							log.debug("found lessons tool: {} page: {} pageTitle: {}", config.getId(), p.getId(), p.getTitle());
-							// only use the Sakai page if it has the right title
-							// and we don't already have lessson builder info for it
-							if (p != null && toolTitle.equals(p.getTitle()) ) {
-								Long topLevelPageId = simplePageToolDao.getTopLevelPageId(config.getPageId());
-								log.debug("checking page and tool: {} pageTitle: {} topLevelPageId: {}", p, config, topLevelPageId);
-								if (topLevelPageId != null) {
-									List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(topLevelPageId);
-									log.debug("items: {}", items);
-									if (items.isEmpty()) {
-										// TODO: REMOVE THIS ERROR AFTER DEBUGGING
-										log.error("reusing site page and tool: {} config {} pageTitle: {}", p.getId(), config.getPageId());
-										page = p;
-										tool = config;
-										break;
-									}
-								}
-							}
-						}
-					}
+				// Time to add the left nave placement
+				SitePage page = site.addPage();
+				ToolConfiguration tool = page.addTool(LessonBuilderConstants.TOOL_ID);
+				if (StringUtils.isNotBlank(pagePosition)) {
+					int integerPosition = Integer.parseInt(pagePosition);
+					page.setPosition(integerPosition);
 				}
-
-				// if we already have an appropriate blank page from the template, page and tool are set
-				if (page == null) {
-					page = site.addPage();
-					tool = page.addTool(LessonBuilderConstants.TOOL_ID);
-					if (StringUtils.isNotBlank(pagePosition)) {
-						int integerPosition = Integer.parseInt(pagePosition);
-						page.setPosition(integerPosition);
-					}
-					log.debug("Added Lessons toolTitle={} new page={} new tool={} to site", toolTitle, page.getId(), tool.getId());
-
-				}
+				log.debug("Added Lessons toolTitle={} new page={} new tool={} to site", toolTitle, page.getId(), tool.getId());
 
 				String toolId = tool.getPageId();
 				if (toolId == null) {
