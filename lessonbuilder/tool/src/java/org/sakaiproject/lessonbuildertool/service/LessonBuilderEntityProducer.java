@@ -357,7 +357,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 		Element pageElement = doc.createElement("page");
 
-		addAttr(doc, pageElement, "pageid", new Long(pageId).toString());
+		addAttr(doc, pageElement, "pageid", Long.valueOf(pageId).toString());
 		addAttr(doc, pageElement, "toolid", page.getToolId());
 		addAttr(doc, pageElement, "siteid", page.getSiteId());
 		addAttr(doc, pageElement, "title", page.getTitle());
@@ -404,10 +404,10 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			for (SimplePageItem item: items) {
 
 				Element itemElement = doc.createElement("item");
-				addAttr(doc, itemElement, "id", new Long(item.getId()).toString());
-				addAttr(doc, itemElement, "pageId", new Long(item.getPageId()).toString());
-				addAttr(doc, itemElement, "sequence", new Integer(item.getSequence()).toString());
-				addAttr(doc, itemElement, "type", new Integer(item.getType()).toString());
+				addAttr(doc, itemElement, "id", Long.valueOf(item.getId()).toString());
+				addAttr(doc, itemElement, "pageId", Long.valueOf(item.getPageId()).toString());
+				addAttr(doc, itemElement, "sequence", Integer.valueOf(item.getSequence()).toString());
+				addAttr(doc, itemElement, "type", Integer.valueOf(item.getType()).toString());
 				addAttr(doc, itemElement, "sakaiid", item.getSakaiId());
 				if (!(SimplePageItem.DUMMY).equals(item.getSakaiId())) {
 					if (item.getType() == SimplePageItem.FORUM || item.getType() == SimplePageItem.ASSESSMENT || item.getType() == SimplePageItem.ASSIGNMENT) {
@@ -720,16 +720,16 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			if (!itemElement.getTagName().equals("item")) continue;
 
 			String s = itemElement.getAttribute("sequence");
-			int sequence = new Integer(s);
+			int sequence = Integer.valueOf(s);
 			s = itemElement.getAttribute("type");
-			int type = new Integer(s);
+			int type = Integer.valueOf(s);
 			String sakaiId = itemElement.getAttribute("sakaiid");
 			String name = itemElement.getAttribute("name");
 			String explanation = null;
 			String sakaiTitle = itemElement.getAttribute("sakaititle");
 			log.debug("Processing item {}", sakaiTitle);
 			String id = itemElement.getAttribute("id");
-			Long itemId = new Long(id);
+			Long itemId = Long.valueOf(id);
 
 			// URL is probably no longer used, but if it is, it probably doesn't need mapping
 			if (type == SimplePageItem.RESOURCE || type == SimplePageItem.MULTIMEDIA) {
