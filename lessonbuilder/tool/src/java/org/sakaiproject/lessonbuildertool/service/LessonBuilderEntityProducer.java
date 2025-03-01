@@ -591,7 +591,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				}
 			}
 
-			log.info("Skipped over " + orphansSkipped + " orphaned pages while archiving site " + siteId);
+			log.info("Skipped over {} orphaned pages while archiving site {} ", orphansSkipped, siteId);
 
 			Collection<ToolConfiguration> tools = site.getTools(myToolIds());
 			int count = 0;
@@ -615,7 +615,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 					if (simplePageToolDao.getTopLevelPageId(config.getPageId()) != null)
 						addAttr(doc, element, "pageId", Long.toString(simplePageToolDao.getTopLevelPageId(config.getPageId())));
 					else
-						log.warn("archive site " + siteId + " tool page " + config.getPageId() + " null lesson");
+						log.warn("archive site {} tool page {} null lesson", siteId, config.getPageId());
 					// addPage(doc, element,  simplePageToolDao.getTopLevelPageId(config.getPageId()));
 
 					lessonbuilder.appendChild(element);
@@ -637,7 +637,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		}
 		catch (Exception any)
 		{
-			log.warn("archive: exception archiving service: " + any + " " +  serviceName());
+			log.warn("archive: exception archiving service: {} {}", any.toString(), serviceName());
 		}
 
 		stack.pop();
@@ -1008,7 +1008,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		try {
 			oldSite = siteService.getSite(fromSiteId);
 		} catch (Exception e) {
-			log.debug("site " + fromSiteId + " not found.", e);
+			log.debug("site {} not found.", fromSiteId);
 		}
 		// For each old group, get the corresponding new group id
 		if (!groups.isEmpty() && siteGroups != null && oldSite != null) {
@@ -1728,7 +1728,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 					}
 				}
 			} catch (Exception e) {
-				log.warn("Problem migrating links in Lessonbuilder"+e);
+				log.warn("Problem migrating links in Lessonbuilder {}", e.toString());
 			}
 		}
 	}
@@ -1778,7 +1778,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			try {
 				site = siteService.getSite(toContext);
 			} catch (Exception e) {
-				log.error("can't get site " + toContext + " " + e);
+				log.error("can't get site {} {}", toContext, e.toString());
 				return;
 			}
 
@@ -2156,7 +2156,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				// don't set until we know the save worked
 				dummyPageId = page.getId();
 			} catch (Exception e) {
-				log.info("can't add dummy page to site " + e);
+				log.info("can't add dummy page to site {} {}", siteId, e.toString());
 			}
 			toolSession = ses.getToolSession(tool.getId());
 			sessionManager.setCurrentToolSession(toolSession);
@@ -2202,8 +2202,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			return ret;
 
 		} catch (Exception e) {
-			log.info("exception in createentity " + e);
-			return "exception in createentity " + e;
+			log.info("exception in createentity {} {}", siteId, e.toString());
+			return "exception in createentity " + siteId + " " + e.toString();
 		} finally {
 			try {
 				deleteRecursive(root);
@@ -2360,9 +2360,9 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		} else if ( result instanceof Long ) {
 			sakaiId = "/blti/" + result.toString();
 		} else if ( result instanceof String ) {
-			log.error("Could not insert content - "+result);
+			log.error("Could not insert content - {}", result);
 		} else {
-			log.debug("Adding LTI tool "+result);
+			log.debug("Adding LTI tool {}", result);
 		}
 
 		return sakaiId;
