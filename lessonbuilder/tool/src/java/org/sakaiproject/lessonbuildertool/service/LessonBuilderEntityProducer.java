@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *             http://opensource.org/licenses/ecl2
+ *			 http://opensource.org/licenses/ecl2
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,7 +27,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.opensource.org/licenses/ECL-2.0
+ *	   http://www.opensource.org/licenses/ECL-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -156,7 +156,7 @@ import org.sakaiproject.util.MergeConfig;
  */
 @Slf4j
 public class LessonBuilderEntityProducer extends AbstractEntityProvider
-    implements EntityProducer, EntityTransferrer, Serializable,
+	implements EntityProducer, EntityTransferrer, Serializable,
 			   CoreEntityProvider, AutoRegisterEntityProvider, Statisticable, InputTranslatable, Createable, ToolApi  {
 	private static final String ARCHIVE_VERSION = "2.4"; // in case new features are added in future exports
 	private static final String VERSION_ATTR = "version";
@@ -208,26 +208,26 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	 * There are several types of updating when we move a lesson from one site to another:
 	 * Fixing HTML text:
 	 *  fixItems - during load, called on the XML structure for each page
-	 *    for each item object in the new page, if it's text, fixup the URLs (fixUrls)
+	 *	for each item object in the new page, if it's text, fixup the URLs (fixUrls)
 	 *  fixUrls - for a piece of HTML, fixup urls on it, with convertHtmlContent
 	 *  convertHtmlContent - for a piece of HTML, fixup urls on it
-	 *      finds all URLs in a text and calls processUrl
+	 *	  finds all URLs in a text and calls processUrl
 	 *  processUrl
-	 *      for special dummy "http://lessonbuilder.sakaiproject.org/ITEMID update the ID
-	 *      for /access/content, etc, update site ID
-	 *      see migrateEmbeddedlinks below for updating references to other sakai objects
+	 *	  for special dummy "http://lessonbuilder.sakaiproject.org/ITEMID update the ID
+	 *	  for /access/content, etc, update site ID
+	 *	  see migrateEmbeddedlinks below for updating references to other sakai objects
 	 *
 	 * Fixing sakaiid's so that Sakai items point to the assignment, test, etc. in the new site
 	 *   updateEntityReferences - called by Sakai as part of load with map of old and new references
-	 *          one-argument version called from tool to get anything that couldn't be done during load
-	 *      if the kernel supports migrateAllLinks, call migrateEmbeddedLinks
-	 *      look up the all items in the map, and update the sakaiId to the new assignment, test, etc, id
-	 *          Sakai supplies a map for objects in old site to new site. However not all tools support it
-	 *          the one-argument version constructs a map when the entry is an "objectid". This is returned
-	 *             from the tool-specific Lessons code, and may be different for assignments, test, quizes, etc.
-	 *             but normally the objectid uses the title of the object in the tool since titles of quizes, etc
-	 *             are unique in a given site. the update operation calls findobject in the tool-specific interface
-	 *             to locate the quiz with that title
+	 *		  one-argument version called from tool to get anything that couldn't be done during load
+	 *	  if the kernel supports migrateAllLinks, call migrateEmbeddedLinks
+	 *	  look up the all items in the map, and update the sakaiId to the new assignment, test, etc, id
+	 *		  Sakai supplies a map for objects in old site to new site. However not all tools support it
+	 *		  the one-argument version constructs a map when the entry is an "objectid". This is returned
+	 *			 from the tool-specific Lessons code, and may be different for assignments, test, quizes, etc.
+	 *			 but normally the objectid uses the title of the object in the tool since titles of quizes, etc
+	 *			 are unique in a given site. the update operation calls findobject in the tool-specific interface
+	 *			 to locate the quiz with that title
 	 *   migrateEmbedded links - for all text items in site, call kernel linkMigrationHelper
 	 */
 
@@ -1050,13 +1050,13 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 		for (SimplePageItem item : items) {
 			boolean itemUpdated = false;
-			log.debug("checking item {} for fixing type: {}", item.getId(), item.getType());
 			switch (item.getType()) {
 				case SimplePageItem.TEXT:
 					String html = item.getHtml();
 					if (StringUtils.isNotBlank(html)) {
 						String fixed = fixUrls(html, oldServer, siteId, fromSiteId, itemMap);
 						if (!StringUtils.equals(html, fixed)) {
+							log.debug("Fixing HTML {} {}", item.getId(), html);
 							item.setHtml(fixed);
 							itemUpdated = true;
 						}
@@ -1089,6 +1089,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 												parsedAttribute.put("checklistItems", checklistItems); // Update the JSON object for the JSON attribute with the modified checklist
 												item.setAttributeString(parsedAttribute.toJSONString());
 												itemUpdated = true;
+												log.debug("fixing checklist {} {}", item.getId(), parsedAttribute.toJSONString());
 											}
 										}
 									}
@@ -1104,7 +1105,6 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				default:
 			}
 			if (itemUpdated) {
-				log.debug("fixing items updating item: {}", item.getId());
 				simplePageToolDao.quickUpdate(item);
 			}
 		}
@@ -1168,8 +1168,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		try {
 			site = siteService.getSite(siteId);
 		} catch(IdUnusedException e) {
-			log.warn("Lessons merge stopped siteId is not provided");
-			return "Lessons merge stopped siteId is not provided";
+			log.warn("Lessons merge stopped site {} could not be loaded {}", siteId, e.toString());
+			return "Lessons merge stopped site "+siteId+" could not be loaded "+e.toString();
 		}
 
 		Map<String, Long> emptyPlacements = new HashMap<>();
@@ -1181,28 +1181,21 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			for (ToolConfiguration config: toolConfs) {
 				if (!config.getToolId().equals(LessonBuilderConstants.TOOL_ID)) continue;
 				SitePage p = config.getContainingPage();
-				log.debug("found lessons tool: {} page: {} pageTitle: {}", config.getId(), p.getId(), p.getTitle());
 				if (p == null ) continue;
 				Long topLevelPageId = simplePageToolDao.getTopLevelPageId(config.getPageId());
-				log.debug("Found topLevelPageId {} {}", p.getTitle(), topLevelPageId);
 				if (topLevelPageId == null) continue;
 				SimplePage topLevelPage = simplePageToolDao.getPage(topLevelPageId);
-				log.debug("topLevelPage={}", topLevelPage);
 				if ( topLevelPage == null ) continue;
 				List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(topLevelPageId);
-				log.debug("items: {}", items);
 				if (items.isEmpty()) {
-					// TODO: REMOVE THIS ERROR AFTER DEBUGGING
-					log.error("found reusble lesson placement: {} {} {} ", p.getId(), p.getTitle(), topLevelPageId);
+					log.debug("found reusble lesson placement: {} {} {} ", p.getId(), p.getTitle(), topLevelPageId);
 					emptyPlacements.put(p.getTitle(), topLevelPageId);
 				}
 			}
 		}
-		log.debug("Empty placements {}", emptyPlacements);
 
-
+		// Lets start the actual merge()
 		StringBuilder results = new StringBuilder();
-		// map old to new page ids
 		Map <Long,Long> pageMap = new HashMap<Long,Long>();
 		Map <Long,Long> itemMap = new HashMap<Long,Long>();
 
@@ -1226,21 +1219,24 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				Element pageElement = (Element) pageNode;
 				String title = pageElement.getAttribute("title");
 				if (title == null) title = "Page";
-				log.debug("Extracting page {} from archive", title);
 
 				String oldPageIdString = pageElement.getAttribute("pageid");
 				if (oldPageIdString == null) oldPageIdString = "0";
 				Long oldPageId = Long.valueOf(oldPageIdString);
-				Long emptyPageId = emptyPlacements.get(title);
-				log.debug("oldPageId: {} title: {} emptyid {}", oldPageId, title, emptyPageId);
 
-				// TODO don't just make a new page :)  Get an old one maybe
+				// Check to see is we want to reuse an existing empty page placement
+				Long emptyPageId = emptyPlacements.get(title);
+				log.debug("Extracting page {} oldPageId: {} emptyPageId {}", title, oldPageId, emptyPageId);
+
+				// See if we can load the existing and empty page
 				SimplePage page = null;
 				boolean reused = false;
 				if ( emptyPageId != null && emptyPageId > 0 ) {
 					page = simplePageToolDao.getPage(emptyPageId);
 					log.debug("loaded top levelpage {} found {}", emptyPageId, page.getPageId());
 				}
+
+				// If we could reuse an empty page, lets add one and remember
 				if ( page != null ) {
 					toolsReused.add(title);
 					reused = true;
@@ -1249,12 +1245,14 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 					log.debug("Created new page {}", page.getPageId());
 				}
 
+				// Fill the page with all the data from the archive
 				String gradebookPoints = pageElement.getAttribute("gradebookpoints");
 				if (StringUtils.isNotEmpty(gradebookPoints)) {
 					page.setGradebookPoints(Double.valueOf(gradebookPoints));
 				}
 				String folder = pageElement.getAttribute("folder");
 				if (StringUtils.isNotEmpty(folder)) page.setFolder(folder);
+
 				//get new page's Date Release property
 				String dateString = pageElement.getAttribute("releasedate");
 				if (StringUtils.isNotEmpty(dateString)){
@@ -1262,15 +1260,19 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 					Date date = formatter.parse(dateString);
 					page.setReleaseDate(date);
 				}
+
 				//get new page's Hidden property
 				String hiddenString = pageElement.getAttribute("hidden");
 				if (StringUtils.isNotEmpty(hiddenString)) page.setHidden(Boolean.valueOf(hiddenString));
+
 				// Carry over the custom CSS sheet if present. These are of the form
 				// "/group/SITEID/LB-CSS/whatever.css", so we need to map the SITEID
 				String cssSheet = pageElement.getAttribute("csssheet");
 				if (StringUtils.isNotEmpty(cssSheet)) page.setCssSheet(cssSheet.replace("/group/"+fromSiteId+"/", "/group/"+siteId+"/"));
+
+				// Save or update the new pag
 				if ( reused ) {
-			        List<String>elist = new ArrayList<>();
+					List<String>elist = new ArrayList<>();
 					boolean requiresEditPermission = true;
 					simplePageToolDao.update(page, elist, messageLocator.getMessage("simplepage.nowrite"), requiresEditPermission);
 					log.debug("updated page: {}", page.getPageId());
@@ -1290,7 +1292,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				pageMap.put(oldPageId, page.getPageId());
 			}
 
-			log.debug("Starting pass II over pages/items pageMap: {}", pageMap);
+			log.debug("Starting second pass over pages/items pageMap: {}", pageMap);
 
 			// process pages again to create the items
 			pageNodes = root.getElementsByTagName("page");
@@ -1328,14 +1330,14 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				Node pageNode = pageNodes.item(p);
 				if (pageNode.getNodeType() == Node.ELEMENT_NODE) {
 					Element pageElement = (Element) pageNode;
-					log.debug("fixing items pageElement oldPageId: {}", pageElement.getAttribute("pageid"));
 					fixItems(pageElement, oldServer, siteId, fromSiteId, pageMap, itemMap);
 				}
 			}
 
-			// Need to make sure all the tools are added unless we reused an existing tool placement
-			// and page when we imported the page.  When we add a tool to the site, we
-			// need to fill in the tool id for top level pages and set parents to null
+			// Add necessary placements / pages to the left navigation.  Of course if we
+			// reused and existing placement / page we skip those
+			// When we add a tool to the site, we need to fill in the tool id for
+			// top level pages and set parents to null
 			NodeList tools = root.getElementsByTagName("lessonbuilder");
 			int numTools =  tools.getLength();
 			for (int i = 0; i < numTools; i++) {
@@ -1350,7 +1352,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				String toolTitle = trimToNull(element.getAttribute("name"));
 				if(StringUtils.isBlank(toolTitle)) continue;
 				if ( toolsReused.contains(toolTitle) ) {
-					log.debug("Not adding new placement for {}", toolTitle);
+					log.debug("Reusing existing placement for {}", toolTitle);
 					continue;
 				}
 
@@ -1365,11 +1367,11 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 					int integerPosition = Integer.parseInt(pagePosition);
 					page.setPosition(integerPosition);
 				}
-				log.debug("Added Lessons toolTitle={} new page={} new tool={} to site", toolTitle, page.getId(), tool.getId());
+				log.debug("Added Lessons placement toolTitle={} new page={} new tool={} to site", toolTitle, page.getId(), tool.getId());
 
-				String toolId = tool.getPageId();
-				if (toolId == null) {
-					log.error("unable to find new toolid for copy of " + oldToolId);
+				String sakaiPageId = tool.getPageId();
+				if (sakaiPageId == null) {
+					log.error("unable to find new sakaiPageId for copy of {}", toolTitle);
 					continue;
 				}
 
@@ -1414,9 +1416,9 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				}
 				simplePage.setParent(null);
 				simplePage.setTopParent(null);
-				simplePage.setToolId(toolId);
+				simplePage.setToolId(sakaiPageId);
 				simplePageToolDao.quickUpdate(simplePage);
-				log.debug("updated top level lessons page: {} to point to site tool: {}", simplePage.getPageId(), toolId);
+				log.debug("updated top level lessons page: {} to point to site nav page: {}", simplePage.getPageId(), sakaiPageId);
 
 				// create the vestigial item for this top level page
 				log.debug("creating vestigial item for top level page: {} type: {}", simplePage.getPageId(), SimplePageItem.PAGE);
