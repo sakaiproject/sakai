@@ -2645,8 +2645,6 @@ public class SimplePageBean {
 			// No recent activity. Let's go to the top level page.
 			String placementPageId = ((ToolConfiguration) placement).getPageId();
 			l = simplePageToolDao.getTopLevelPageId(placementPageId);
-			// l = simplePageToolDao.getTopLevelPageId(((ToolConfiguration) placement).getPageId());
-			// l = simplePageToolDao.getTopLevelPageId(((ToolConfiguration) toolManager.getCurrentPlacement()).getPageId());
 			log.debug("Top level page for placement {} is {}", placementPageId, l);
 
 			if (l != null) {
