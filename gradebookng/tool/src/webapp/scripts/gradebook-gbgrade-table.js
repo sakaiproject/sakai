@@ -2520,9 +2520,11 @@ GbGradeTable.setupKeyboardNavigation = function() {
         setTimeout(() => {
           const editorInput = cell.getElement()?.querySelector("input");
           if (editorInput) {
-            editorInput.value = event.key;
-            editorInput.focus();
-  
+            if (event.key === "Enter") {
+              editorInput.focus();
+            } else {
+              editorInput.value = event.key;
+            }
             editorInput.addEventListener("blur", () => {
               const nextRow = GbGradeTable.instance.getRows()[rowIndex + 1];
               if (nextRow) {
