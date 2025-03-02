@@ -2643,17 +2643,20 @@ public class SimplePageBean {
 			return l;
 		} else {
 			// No recent activity. Let's go to the top level page.
-
-			l = simplePageToolDao.getTopLevelPageId(((ToolConfiguration) placement).getPageId());
-			// l = simplePageToolDao.getTopLevelPageId(((ToolConfiguration) toolManager.getCurrentPlacement()).getPageId());
+			String placementPageId = ((ToolConfiguration) placement).getPageId();
+			l = simplePageToolDao.getTopLevelPageId(placementPageId);
+			log.debug("Top level page for placement {} is {}", placementPageId, l);
 
 			if (l != null) {
 				try {
+					// TODO: A lot of things can go wrong here methinks -- Chuck
 					updatePageObject(l);
 					// this should exist except if the page was created by old code
+					log.debug("findTopLevelPageItemBySakaiId {}",l);
 					SimplePageItem i = simplePageToolDao.findTopLevelPageItemBySakaiId(String.valueOf(l));
 					if (i == null) {
-						// and dummy item, the site is the notional top level page
+						// add vestigial item, the site is the notional top level page
+						log.debug("no vestigial page found, making new item pageId {} title {}", l.toString(), currentPage.getTitle());
 						i = simplePageToolDao.makeItem(0, 0, SimplePageItem.PAGE, l.toString(), currentPage.getTitle());
 						saveItem(i);
 					}
@@ -2671,8 +2674,10 @@ public class SimplePageBean {
 				// No page found. Let's make a new one.
 				String toolId = ((ToolConfiguration) toolManager.getCurrentPlacement()).getPageId();
 				String title = getCurrentSite().getPage(toolId).getTitle(); // Use title supplied
+				log.debug("no page found, making new page toolId {} siteId {} title {}", toolId, getCurrentSiteId(), title);
 
 				// during creation
+				log.debug("Top level page not found, creating new page {}", title);
 				SimplePage page = simplePageToolDao.makePage(toolId, getCurrentSiteId(), title, null, null);
 				if (!saveItem(page)) {
 					currentPage = null;
@@ -2684,6 +2689,7 @@ public class SimplePageBean {
 					l = page.getPageId();
 
 					// and dummy item, the site is the notional top level page
+					log.debug("Top level page not found, creating new  vestigial item {}", title);
 					SimplePageItem i = simplePageToolDao.makeItem(0, 0, SimplePageItem.PAGE, l.toString(), title);
 					saveItem(i);
 					updatePageItem(i.getId());

@@ -951,7 +951,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		List list = getHibernateTemplate().findByCriteria(d);
 
 		if (list.size() > 1) {
-			log.warn("Problem finding which page we should be on.  Doing the best we can.");
+			log.warn("Multiple top level pages for placement.  Doing the best we can.");
 		}
 
 		if (list != null && list.size() > 0) {
