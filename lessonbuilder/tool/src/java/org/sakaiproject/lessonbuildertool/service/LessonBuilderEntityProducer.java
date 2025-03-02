@@ -1141,9 +1141,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		// Check if there is nothing to import and build trees of pages in the import
 		NodeList lessonBuilderTools = root.getElementsByTagName("lessonbuilder");
 		boolean lessonHasContent = false;
-		Map<Long, String> rootPages = new HashMap<>();
+		Map<Long, String> placementPageMap = new HashMap<>();
 		Map<Long, Long> parentPage = new HashMap<>();
-
 
 		for (int toolIndex = 0; toolIndex < lessonBuilderTools.getLength(); toolIndex++) {
 			Node lessonBuilderNode = lessonBuilderTools.item(toolIndex);
@@ -1153,7 +1152,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				String rootPageName = trimToNull(lessonBuilderElement.getAttribute("name"));
 				if (rootPageId > 0 && StringUtils.isNotBlank(rootPageName)) {
 					log.debug("Found root lessonbuilder {} {}", rootPageName, rootPageId);
-					rootPages.put(rootPageId, rootPageName);
+					placementPageMap.put(rootPageId, rootPageName);
 				}
 
 				NodeList lessonPages = lessonBuilderElement.getElementsByTagName("page");
@@ -1163,6 +1162,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 					Long pageParentId = NumberUtils.toLong(currentPage.getAttribute("parent"), 0L);
 					if ( pageId > 0 && pageParentId > 0 ) {
 						parentPage.put(pageId, pageParentId);
+					} else if ( pageId > 0 ) {
+						parentPage.put(pageId, pageId);  // Top level page is its own parent
 					}
 
 					NodeList pageItems = currentPage.getElementsByTagName("item");
@@ -1180,7 +1181,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		}
 
 		// Do the transitive closure
-		log.debug("Pre-transitive closure {} {}", rootPages, parentPage);
+		log.debug("Pre-transitive closure {} {}", placementPageMap, parentPage);
 		for(int i=0; i< 1000; i++ ) {
 			boolean changed = false;
 			for (Map.Entry<Long, Long> entry : parentPage.entrySet()) {
@@ -1195,7 +1196,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			}
 			if ( changed ) break;
 		}
-		log.debug("Post-transitive closure {} {}", rootPages, parentPage);
+		log.debug("Post-transitive closure {} {}", placementPageMap, parentPage);
 
 		// Check if there are existing Lessons placments in the site that has no real content
 		// that we can reuse.
@@ -1208,9 +1209,11 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		}
 
 		Map<String, Long> emptyPlacements = new HashMap<>();
+		Map<String, Long> fullPlacements = new HashMap<>();
 
-		// some code in site action creates all the pages and tools and some doesn't
-		// so see if we already have this page and tool
+		// some code in site action creates the vertigial page and item for new placements and some doesn't
+		// so we loop through and figure out which placements we already have and patch any existing placements
+		// missing their vertigial page and/or item
 		Collection<ToolConfiguration> toolConfs = site.getTools(myToolIds());
 		if (toolConfs != null && !toolConfs.isEmpty())  {
 			for (ToolConfiguration config: toolConfs) {
@@ -1220,8 +1223,10 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				String title = p.getTitle();
 				Long topLevelPageId = simplePageToolDao.getTopLevelPageId(config.getPageId());
 				log.debug("Looking at placement {} {} topLevelPageId {}",p.getId(), title, topLevelPageId);
+
 				// If there is no top level page associated with a lessonbuilder placement it
-				// we need to create a vestigial page
+				// we need to create a vestigial page and item so it can have its tree of pages
+				// linked into it later
 				if (topLevelPageId == null) {
 					log.debug("Creating top level vestigial page for placement site {} page {} {}",siteId, p.getId(), title);
 					SimplePage page = simplePageToolDao.makePage(p.getId(), siteId, title, null, null);
@@ -1247,29 +1252,64 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				if ( topLevelPage == null ) continue;
 				List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(topLevelPageId);
 				if (items.isEmpty()) {
-					log.debug("found reusble lesson placement: {} {} {} ", p.getId(), title, topLevelPageId);
+					log.debug("found empty lesson placement: {} {} {} ", p.getId(), title, topLevelPageId);
 					emptyPlacements.put(title, topLevelPageId);
+				} else {
+					log.debug("found existing lesson placement: {} {} {} ", p.getId(), title, topLevelPageId);
+					fullPlacements.put(title, topLevelPageId);
 				}
 			}
 		}
 
+		// Note that non existant placements (neither empty nor full) are created later
+		log.debug("Finished scanning placements empty {} full {}", emptyPlacements, fullPlacements);
+
 		// Lets start the actual merge()
 		Map <Long,Long> pageMap = new HashMap<Long,Long>();
-		Map <Long,Long> itemMap = new HashMap<Long,Long>();
 
 		// a convenient map of the old page id and its corresponding element
 		Map <Long,Element> pageElementMap = new HashMap<Long,Element>();
 
 		int count = 0;
-		boolean needFix = false;
 
 		String oldServer = root.getAttribute("server");
+
+		// Scan pages and find the root pages in the import
+
+		log.debug("Scanning for root pages in the import");
+		Map<Long, String> rootOldPageIds = new HashMap<>();
+		NodeList pageNodes = root.getElementsByTagName("page");
+		int numPages = pageNodes.getLength();
+		for (int p = 0; p < numPages; p++) {
+			Node pageNode = pageNodes.item(p);
+			if (pageNode.getNodeType() != Node.ELEMENT_NODE) continue;
+
+			Element pageElement = (Element) pageNode;
+			String title = pageElement.getAttribute("title");
+			if (title == null) continue;
+
+			String oldPageIdString = pageElement.getAttribute("pageid");
+			Long oldPageId = NumberUtils.toLong(oldPageIdString, 0L);
+			if ( oldPageId < 1 ) continue;
+
+			String oldParentString = pageElement.getAttribute("parent");
+			Long oldParent = NumberUtils.toLong(oldParentString, 0L);
+			log.debug("looking for root nodes pageId {} parent {}", oldPageId);
+			if ( oldParent < 1 ) {
+				log.debug("Found root pageId {}", oldPageId);
+				rootOldPageIds.put(oldPageId, title);
+			}
+		}
+
+		log.debug("Found root pages in import {}", rootOldPageIds);
+
+
 		Set<String> toolsReused = new HashSet<>();
 
+		// create pages first, build up map of old to new page, do not create pages
+		// if they are already in one of the rooted trees of pages (duplicate removal)
 		try {
-			// create pages first, build up map of old to new page
-			NodeList pageNodes = root.getElementsByTagName("page");
-			int numPages = pageNodes.getLength();
+			numPages = pageNodes.getLength();
 			for (int p = 0; p < numPages; p++) {
 				Node pageNode = pageNodes.item(p);
 				if (pageNode.getNodeType() != Node.ELEMENT_NODE) continue;
@@ -1279,10 +1319,19 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				if (title == null) title = "Page";
 
 				String oldPageIdString = pageElement.getAttribute("pageid");
-				if (oldPageIdString == null) oldPageIdString = "0";
-				Long oldPageId = Long.valueOf(oldPageIdString);
+				Long oldPageId = NumberUtils.toLong(oldPageIdString, 0L);
+				if ( oldPageId < 1 ) continue;
 
-				// Check to see is we want to reuse an existing empty page placement
+				// Check  if this is associated with an existing top level page/placement
+				Long rootPageId = parentPage.getOrDefault(oldPageId, 0L);
+				String rootTitle = rootOldPageIds.getOrDefault(rootPageId, null);
+				log.debug("Looking at page {} belongs to root page {} {}", oldPageId, rootPageId, rootTitle);
+				if ( StringUtils.isNotBlank(rootTitle) && fullPlacements.containsKey(rootTitle) ) {
+					log.debug("Skipping page {} because root page {} {} is already in site {}", oldPageId, rootPageId, rootTitle, siteId);
+					continue;
+				}
+
+				// Check to see if we want to reuse an existing empty page placement
 				Long emptyPageId = emptyPlacements.get(title);
 				log.debug("Extracting page {} oldPageId: {} emptyPageId {}", title, oldPageId, emptyPageId);
 
@@ -1346,30 +1395,21 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 						log.error("merge: ConflictingAssignmentNameException for title {}.", title);
 					}
 				}
-				log.debug("Adding page to pageMap {} => {}", oldPageId, page.getPageId());
+				log.debug("Adding page to pageElement and pageMap {} => {}", oldPageId, page.getPageId());
 				pageMap.put(oldPageId, page.getPageId());
+				pageElementMap.put(oldPageId, pageElement);
 			}
 
-			log.debug("Starting second pass over pages/items pageMap: {}", pageMap);
+			log.debug("Starting second pass over pages ({}) to create items pageMap: {}", pageElementMap.size(), pageMap);
 
 			// process pages again to create the items
-			pageNodes = root.getElementsByTagName("page");
-			numPages = pageNodes.getLength();
-			for (int p = 0; p < numPages; p++) {
-				Node pageNode = pageNodes.item(p);
-				if (pageNode.getNodeType() == Node.ELEMENT_NODE) {
-					Element pageElement = (Element) pageNode;
+			boolean needFix = false;
+			Map <Long,Long> itemMap = new HashMap<Long,Long>();
+			for (Map.Entry<Long, Element> entry : pageElementMap.entrySet()) {
+				Long oldPageId = entry.getKey();
+				Element pageElement = entry.getValue();
 
-					// The pageElementMap will be referenced later when SimplePageItems corresponding to
-					// top level pages are created. (These are distinct from the SimplePageItems representing
-					// items on the page.)
-					Long oldPageId = Long.valueOf(pageElement.getAttribute("pageid"));
-					pageElementMap.put(oldPageId, pageElement);
-
-					if (mergePage(pageElement, oldServer, siteId, fromSiteId, pageMap, itemMap, entityMap, mcx))
-
-						needFix = true;
-				}
+				if (mergePage(pageElement, oldServer, siteId, fromSiteId, pageMap, itemMap, entityMap, mcx)) needFix = true;
 			}
 
 			if (needFix) {
@@ -1380,20 +1420,17 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				// unfortunately in duplicate site, site-admin has the site open, so this doesn't actually do anything
 				// site-manage will stomp on it. However it does work for the other import operations, which is where
 				// we need it, since site manage will call the fixup itself for duplicate
-
 			}
 
 			log.debug("fixing items siteId: {} fromSiteId: {} oldServer: {} itemMap: {} pageMap: {}", siteId, fromSiteId, oldServer, itemMap, pageMap);
-			for (int p = 0; p < numPages; p++) {
-				Node pageNode = pageNodes.item(p);
-				if (pageNode.getNodeType() == Node.ELEMENT_NODE) {
-					Element pageElement = (Element) pageNode;
-					fixItems(pageElement, oldServer, siteId, fromSiteId, pageMap, itemMap);
-				}
+			for (Map.Entry<Long, Element> entry : pageElementMap.entrySet()) {
+				Element pageElement = entry.getValue();
+
+				fixItems(pageElement, oldServer, siteId, fromSiteId, pageMap, itemMap);
 			}
 
-			// Add necessary placements / pages to the left navigation.  Of course if we
-			// reused and existing placement / page we skip those
+			// Add necessary placements / top level pages to the left navigation.  If we
+			// reused an existing placement / page we  don't re-add them
 			// When we add a tool to the site, we need to fill in the tool id for
 			// top level pages and set parents to null
 			NodeList tools = root.getElementsByTagName("lessonbuilder");
@@ -1414,11 +1451,16 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 					continue;
 				}
 
+				if ( fullPlacements.containsKey(toolTitle) ) {
+					log.debug("Placement already has content for {}", toolTitle);
+					continue;
+				}
+
 				String rolelist = element.getAttribute("functions.require");
 				String pagePosition = element.getAttribute("pagePosition");
 				String pageVisibility = element.getAttribute("pageVisibility");
 
-				// Time to add the left nave placement
+				// Time to add the left nav placement
 				SitePage page = site.addPage();
 				ToolConfiguration tool = page.addTool(LessonBuilderConstants.TOOL_ID);
 				if (StringUtils.isNotBlank(pagePosition)) {
