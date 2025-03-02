@@ -1131,23 +1131,40 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		log.debug("Lessons Merge siteId={} fromSiteId={} creatorId={} archiveContext={} archiveServerUrl={}",
 				siteId, fromSiteId, mcx.creatorId, mcx.archiveContext, mcx.archiveServerUrl);
 
+		StringBuilder results = new StringBuilder();
+
 		if (StringUtils.isBlank(siteId) ) {
 			log.warn("Lessons merge stopped siteId is not provided");
 			return "Lessons merge stopped siteId is not provided";
 		}
 
-		// Check if there is nothing to import
+		// Check if there is nothing to import and build trees of pages in the import
 		NodeList lessonBuilderTools = root.getElementsByTagName("lessonbuilder");
 		boolean lessonHasContent = false;
+		Map<Long, String> rootPages = new HashMap<>();
+		Map<Long, Long> parentPage = new HashMap<>();
 
-		for (int toolIndex = 0; toolIndex < lessonBuilderTools.getLength() && !lessonHasContent; toolIndex++) {
+
+		for (int toolIndex = 0; toolIndex < lessonBuilderTools.getLength(); toolIndex++) {
 			Node lessonBuilderNode = lessonBuilderTools.item(toolIndex);
 			if (lessonBuilderNode.getNodeType() == Node.ELEMENT_NODE) {
 				Element lessonBuilderElement = (Element) lessonBuilderNode;
-				NodeList lessonPages = lessonBuilderElement.getElementsByTagName("page");
+				Long rootPageId = NumberUtils.toLong(lessonBuilderElement.getAttribute("pageId"), 0L);  // Camel case is correct
+				String rootPageName = trimToNull(lessonBuilderElement.getAttribute("name"));
+				if (rootPageId > 0 && StringUtils.isNotBlank(rootPageName)) {
+					log.debug("Found root lessonbuilder {} {}", rootPageName, rootPageId);
+					rootPages.put(rootPageId, rootPageName);
+				}
 
-				for (int pageIndex = 0; pageIndex < lessonPages.getLength() && !lessonHasContent; pageIndex++) {
+				NodeList lessonPages = lessonBuilderElement.getElementsByTagName("page");
+				for (int pageIndex = 0; pageIndex < lessonPages.getLength(); pageIndex++) {
 					Element currentPage = (Element) lessonPages.item(pageIndex);
+					Long pageId = NumberUtils.toLong(currentPage.getAttribute("pageid"), 0L); // Lower case is correct
+					Long pageParentId = NumberUtils.toLong(currentPage.getAttribute("parent"), 0L);
+					if ( pageId > 0 && pageParentId > 0 ) {
+						parentPage.put(pageId, pageParentId);
+					}
+
 					NodeList pageItems = currentPage.getElementsByTagName("item");
 
 					if (pageItems != null && pageItems.getLength() > 0) {
@@ -1161,6 +1178,24 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			log.debug("No lessonbuilder pages to import");
 			return "No lessonbuilder pages to import";
 		}
+
+		// Do the transitive closure
+		log.debug("Pre-transitive closure {} {}", rootPages, parentPage);
+		for(int i=0; i< 1000; i++ ) {
+			boolean changed = false;
+			for (Map.Entry<Long, Long> entry : parentPage.entrySet()) {
+				Long page = entry.getKey();
+				Long parent = entry.getValue();
+				if ( parent < 1 ) continue;
+				Long parentOfParent = parentPage.getOrDefault(parent, 0L);
+				if ( parentOfParent < 1 ) continue;
+				log.debug("Walking page {} up tree from {} to {}", page, parent, parentOfParent);
+				changed = true;
+				parentPage.put(page, parentOfParent);
+			}
+			if ( changed ) break;
+		}
+		log.debug("Post-transitive closure {} {}", rootPages, parentPage);
 
 		// Check if there are existing Lessons placments in the site that has no real content
 		// that we can reuse.
@@ -1182,20 +1217,43 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				if (!config.getToolId().equals(LessonBuilderConstants.TOOL_ID)) continue;
 				SitePage p = config.getContainingPage();
 				if (p == null ) continue;
+				String title = p.getTitle();
 				Long topLevelPageId = simplePageToolDao.getTopLevelPageId(config.getPageId());
-				if (topLevelPageId == null) continue;
+				log.debug("Looking at placement {} {} topLevelPageId {}",p.getId(), title, topLevelPageId);
+				// If there is no top level page associated with a lessonbuilder placement it
+				// we need to create a vestigial page
+				if (topLevelPageId == null) {
+					log.debug("Creating top level vestigial page for placement site {} page {} {}",siteId, p.getId(), title);
+					SimplePage page = simplePageToolDao.makePage(p.getId(), siteId, title, null, null);
+
+					List<String>elist = new ArrayList<>();
+					boolean requiresEditPermission = false;
+					if ( !simplePageToolDao.saveItem(page,  elist, messageLocator.getMessage("simplepage.nowrite"), requiresEditPermission) ) {
+						log.error("Failure creating top level vestigial page for placement site {} page {} {}",siteId, p.getId(), title);
+						results.append("Failure creating top level vestigial page for placement site " + siteId + " page " + p.getId() + " " + title);
+						continue;
+					}
+					topLevelPageId = page.getPageId();
+
+					// create the vestigial item for this top level page
+					log.debug("creating vestigial item for top level page: {} type: {}", topLevelPageId, SimplePageItem.PAGE);
+					SimplePageItem item = simplePageToolDao.makeItem(0, 0, SimplePageItem.PAGE, Long.toString(topLevelPageId), title);
+
+					emptyPlacements.put(title, topLevelPageId);
+					continue;
+				}
+
 				SimplePage topLevelPage = simplePageToolDao.getPage(topLevelPageId);
 				if ( topLevelPage == null ) continue;
 				List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(topLevelPageId);
 				if (items.isEmpty()) {
-					log.debug("found reusble lesson placement: {} {} {} ", p.getId(), p.getTitle(), topLevelPageId);
-					emptyPlacements.put(p.getTitle(), topLevelPageId);
+					log.debug("found reusble lesson placement: {} {} {} ", p.getId(), title, topLevelPageId);
+					emptyPlacements.put(title, topLevelPageId);
 				}
 			}
 		}
 
 		// Lets start the actual merge()
-		StringBuilder results = new StringBuilder();
 		Map <Long,Long> pageMap = new HashMap<Long,Long>();
 		Map <Long,Long> itemMap = new HashMap<Long,Long>();
 
@@ -1437,8 +1495,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				log.debug("saving vestigial item: {}", item.getId());
 				simplePageToolDao.quickSaveItem(item);
 			}
-			results.append("merging link tool " + siteId + " (" + count
-					+ ") items.\n");
+			results.append("merging link tool " + siteId + " (" + count + ") items.\n");
 		}
 		catch (DOMException e)
 		{
