@@ -97,11 +97,13 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.*;
-import org.sakaiproject.util.cover.LinkMigrationHelper;
+import org.sakaiproject.util.api.LinkMigrationHelper;
 
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.api.app.messageforums.DiscussionForumService;
 import org.sakaiproject.samigo.util.SamigoConstants;
+
+import org.sakaiproject.util.MergeConfig;
 
 /**
  * <p>
@@ -152,7 +154,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	@Setter protected FunctionManager functionManager;
 	@Setter protected EventTrackingService eventTrackingService;
 	@Setter protected OpaqueUrlDao opaqueUrlDao;
-
+	@Setter protected LinkMigrationHelper linkMigrationHelper;
    	private PDFExportService pdfExportService;
 
 	private GroupComparator groupComparator = new GroupComparator();
@@ -1489,9 +1491,9 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	}
 
 	@Override
-	public String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId, Map<String, String> attachmentImportMap,
-		Map<Long, Map<String, Object>> ltiContentItems, Map<String, String> userIdTrans, Set<String> userListAllowImport)
+	public String merge(String siteId, Element root, String archivePath, String fromSiteId, MergeConfig mcx)
 	{
+
 		// prepare the buffer for the results log
 		StringBuilder results = new StringBuilder();
 
@@ -1615,7 +1617,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 												// map the attachment area folder name
 												String oldUrl = element5.getAttribute("relative-url");
 												String toolTitle = toolManager.getTool("sakai.schedule").getTitle();
-												ContentResource attachment = contentHostingService.copyAttachment(oldUrl, siteId, toolTitle, attachmentImportMap);
+												ContentResource attachment = contentHostingService.copyAttachment(oldUrl, siteId, toolTitle, mcx);
 												if ( attachment != null ) {
 													String newUrl = attachment.getReference();
 													element5.setAttribute("relative-url", Validator.escapeQuestionMark(newUrl));
@@ -1633,7 +1635,8 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 										continue;
 									}
 									String description = edit.getDescriptionFormatted();
-									description = ltiService.fixLtiLaunchUrls(description, siteId, ltiContentItems);
+									description = ltiService.fixLtiLaunchUrls(description, siteId, mcx);
+									description = linkMigrationHelper.migrateLinksInMergedRTE(siteId, mcx, description);
 									edit.setDescriptionFormatted(description);
 
 									calendar.commitEvent(edit);
@@ -1897,7 +1900,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 						String msgBodyFormatted = ce.getDescriptionFormatted();						
 						boolean updated = false;
 						StringBuffer msgBodyPreMigrate = new StringBuffer(msgBodyFormatted);
-						msgBodyFormatted = LinkMigrationHelper.migrateAllLinks(entrySet, msgBodyFormatted);
+						msgBodyFormatted = linkMigrationHelper.migrateAllLinks(entrySet, msgBodyFormatted);
 						if(!msgBodyFormatted.equals(msgBodyPreMigrate.toString())){
 						
 							CalendarEventEdit edit = calendarObj.getEditEvent(ce.getId(), org.sakaiproject.calendar.api.CalendarService.EVENT_MODIFY_CALENDAR);

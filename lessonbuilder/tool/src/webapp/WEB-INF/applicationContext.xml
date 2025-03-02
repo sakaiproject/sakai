@@ -335,6 +335,7 @@ simplePageBean.addForumSummary,
     <property name="authzGroupService"><ref bean="org.sakaiproject.authz.api.AuthzGroupService"/></property>
     <property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
     <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+    <property name="conditionService" ref="org.sakaiproject.condition.api.ConditionService"/>
 
     <property name="messageLocator" ref="messageLocator"/>
     <property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />

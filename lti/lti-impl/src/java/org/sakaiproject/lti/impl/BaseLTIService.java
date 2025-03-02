@@ -60,6 +60,7 @@ import org.sakaiproject.util.foorm.SakaiFoorm;
 import org.sakaiproject.lti.util.SakaiLTIUtil;
 import org.sakaiproject.util.foorm.Foorm;
 import org.tsugi.lti.LTIUtil;
+import org.sakaiproject.util.MergeConfig;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.Setter;
@@ -1265,21 +1266,21 @@ public abstract class BaseLTIService implements LTIService {
 	}
 
 	@Override
-	public String fixLtiLaunchUrls(String text, String toContext, Map<Long, Map<String, Object>> ltiContentItems) {
+	public String fixLtiLaunchUrls(String text, String toContext, MergeConfig mcx) {
 		String fromContext = null;
 		Map<String, String> transversalMap = null;
-		return fixLtiLaunchUrls(text, fromContext, toContext, ltiContentItems, transversalMap);
+		return fixLtiLaunchUrls(text, fromContext, toContext, mcx, transversalMap);
 	}
 
 	@Override
 	public String fixLtiLaunchUrls(String text, String fromContext, String toContext, Map<String, String> transversalMap) {
-		Map<Long, Map<String, Object>> ltiContentItems = null;
-		return fixLtiLaunchUrls(text, fromContext, toContext, ltiContentItems, transversalMap);
+		MergeConfig mcx = null;
+		return fixLtiLaunchUrls(text, fromContext, toContext, mcx, transversalMap);
 	}
 
 	// http://localhost:8080/access/lti/site/7d529bf7-b856-4400-9da1-ba8670ed1489/content:1
 	// http://localhost:8080/access/lti/site/7d529bf7-b856-4400-9da1-ba8670ed1489/content:42
-	protected String fixLtiLaunchUrls(String text, String fromContext, String toContext, Map<Long, Map<String, Object>> ltiContentItems, Map<String, String> transversalMap) {
+	protected String fixLtiLaunchUrls(String text, String fromContext, String toContext, MergeConfig mcx, Map<String, String> transversalMap) {
 		if (StringUtils.isBlank(text)) return text;
 		List<String> urls = SakaiLTIUtil.extractLtiLaunchUrls(text);
 		for (String url : urls) {
@@ -1304,8 +1305,7 @@ public abstract class BaseLTIService implements LTIService {
 					// Make sure we can retrieve the tool in this site
 					if ( toolKey != null ) tool = this.getTool(toolKey, toContext);
 					if ( tool != null ) {
-						content.put(LTIService.LTI_LAUNCH, tool.get(LTI_LAUNCH));
-						log.debug("Copied launch url into content item {}",content.get(LTIService.LTI_TOOL_ID));
+						log.debug("Found tool {} for content item {}",toolKey, contentKey);
 					} else {
 						log.debug("Found content item {} could not load associated tool {}", contentKey, toolKey);
 						content = null;
@@ -1315,9 +1315,9 @@ public abstract class BaseLTIService implements LTIService {
 
 				// If we cannot find the content item and tool on in this server, get skeleton data
 				// from the basiclti.xml import
-				if ( content == null && ltiContentItems != null ) {
+				if ( content == null && mcx.ltiContentItems != null ) {
 					log.debug("Could not find content item {} / {} in site {}, checking ltiContentItems", linkContentId, contentKey, linkSiteId);
-					content = ltiContentItems.get(contentKey);
+					content = mcx.ltiContentItems.get(contentKey);
 					tool = null;  // force creation of a new tool in findOrCreateToolForContentItem
 				}
 
@@ -1327,7 +1327,7 @@ public abstract class BaseLTIService implements LTIService {
 				}
 
 				if ( toolKey == null ) {
-					toolKey = findOrCreateToolForContentItem(content, tool, toContext, fromContext, ltiContentItems);
+					toolKey = findOrCreateToolForContentItem(content, tool, toContext, fromContext, mcx);
 					if (toolKey == null) {
 						log.error("Could not associate new content item {} with a tool in site {}", contentKey, toContext);
 						continue;
@@ -1359,10 +1359,10 @@ public abstract class BaseLTIService implements LTIService {
 	 * @param tool Tool may be null, may or may not be persisted - if this exists, we will reload to verify it is accessible to the user and site
 	 * @param toSiteId Target site ID
 	 * @param fromSiteId Source site ID
-	 * @param ltiContentItems Map of existing content items by content key, imported from basiclti.xml on Archive import can be null
+	 * @param mcx The MergeConfig for this import
 	 * @return New tool ID or null if tool cannot be found/created
 	 */
-	protected Long findOrCreateToolForContentItem(Map<String, Object> content, Map<String, Object> tool, String toSiteId, String fromSiteId, Map<Long, Map<String, Object>> ltiContentItems) {
+	protected Long findOrCreateToolForContentItem(Map<String, Object> content, Map<String, Object> tool, String toSiteId, String fromSiteId, MergeConfig mcx) {
 		if ( StringUtils.isBlank(toSiteId) ) return null;
 
 		// Get launch URL from content
@@ -1414,8 +1414,8 @@ public abstract class BaseLTIService implements LTIService {
 		}
 
 		// If the tool is null or invalid, check if the tool data is available in the imported content items
-		if ( tool == null && ltiContentItems != null ) {
-			Map<String, Object> importedContent = ltiContentItems.get(contentKey);
+		if ( tool == null && mcx.ltiContentItems != null ) {
+			Map<String, Object> importedContent = mcx.ltiContentItems.get(contentKey);
 			if ( importedContent != null ) {
 				try {
 					// In order to pass only one Map through the entirety of the merge() process,

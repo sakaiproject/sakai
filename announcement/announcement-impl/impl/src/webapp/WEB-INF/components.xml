@@ -37,6 +37,7 @@
 		<property name="aliasService"><ref bean="org.sakaiproject.alias.api.AliasService"/></property>
 		<property name="preferencesService"><ref bean="org.sakaiproject.user.api.PreferencesService"/></property>
 		<property name="ltiService"><ref bean="org.sakaiproject.lti.api.LTIService"/></property>
+		<property name="linkMigrationHelper" ref="org.sakaiproject.util.api.LinkMigrationHelper"/>
  		<property name="toolManager"><ref bean="org.sakaiproject.tool.api.ToolManager"/></property>
 		<property name="siteEmailNotificationAnnc"><ref bean="org.sakaiproject.announcement.impl.SiteEmailNotificationAnnc"/></property>
  		<property name="containerTableName"><value>ANNOUNCEMENT_CHANNEL</value></property>
