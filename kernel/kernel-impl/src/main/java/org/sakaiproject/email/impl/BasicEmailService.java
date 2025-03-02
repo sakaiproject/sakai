@@ -26,6 +26,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.concurrent.CompletableFuture;
 
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
@@ -741,113 +742,121 @@ public class BasicEmailService implements EmailService
 		}
 		return messageSets;
 	}
-	
+
 	private void transportMessage(Session session, List<Address[]> messageSets, Collection<String> headers, MimeMessage msg) {
-		// transport the message
-		long time1 = 0;
-		long time2 = 0;
-		long time3 = 0;
-		long time4 = 0;
-		long time5 = 0;
-		long time6 = 0;
-		long timeExtraConnect = 0;
-		long timeExtraClose = 0;
-		long timeTmp = 0;
-		int numConnects = 1;
-		try
-		{
-			if (log.isDebugEnabled()) time1 = System.currentTimeMillis();
-			Transport transport = session.getTransport(protocol);
-
-			if (log.isDebugEnabled()) time2 = System.currentTimeMillis();
-			msg.saveChanges();
-
-			if (log.isDebugEnabled()) time3 = System.currentTimeMillis();
-			if (smtpUser != null && smtpPassword != null) {
-				transport.connect(smtp,smtpUser,smtpPassword);
-			} else {
-				transport.connect();
-			}
-
-			if (log.isDebugEnabled()) time4 = System.currentTimeMillis();
-
-			// loop the send for each message set
-			for (Iterator<Address[]> i = messageSets.iterator(); i.hasNext();)
+		// Create a CompletableFuture to handle the asynchronous operation
+		CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+			long time1 = 0;
+			long time2 = 0;
+			long time3 = 0;
+			long time4 = 0;
+			long time5 = 0;
+			long time6 = 0;
+			long timeExtraConnect = 0;
+			long timeExtraClose = 0;
+			long timeTmp = 0;
+			int numConnects = 1;
+			try
 			{
-				Address[] toAddresses = i.next();
+				if (log.isDebugEnabled()) time1 = System.currentTimeMillis();
+				Transport transport = session.getTransport(protocol);
 
-				try
+				if (log.isDebugEnabled()) time2 = System.currentTimeMillis();
+				msg.saveChanges();
+
+				if (log.isDebugEnabled()) time3 = System.currentTimeMillis();
+				if (smtpUser != null && smtpPassword != null) {
+					transport.connect(smtp, smtpUser, smtpPassword);
+				} else {
+					transport.connect();
+				}
+
+				if (log.isDebugEnabled()) time4 = System.currentTimeMillis();
+
+				// loop the send for each message set
+				for (Iterator<Address[]> i = messageSets.iterator(); i.hasNext();)
 				{
-					transport.sendMessage(msg, toAddresses);
+					Address[] toAddresses = i.next();
 
-					// if we need to use the connection for just one send, and we have more, close and re-open
-					if ((oneMessagePerConnection) && (i.hasNext()))
+					try
 					{
-						if (log.isDebugEnabled()) timeTmp = System.currentTimeMillis();
-						transport.close();
-						if (log.isDebugEnabled()) timeExtraClose += (System.currentTimeMillis() - timeTmp);
+						transport.sendMessage(msg, toAddresses);
 
-						if (log.isDebugEnabled()) timeTmp = System.currentTimeMillis();
-						transport.connect();
-						if (log.isDebugEnabled())
+						// if we need to use the connection for just one send, and we have more, close and re-open
+						if ((oneMessagePerConnection) && (i.hasNext()))
 						{
-							timeExtraConnect += (System.currentTimeMillis() - timeTmp);
-							numConnects++;
+							if (log.isDebugEnabled()) timeTmp = System.currentTimeMillis();
+							transport.close();
+							if (log.isDebugEnabled()) timeExtraClose += (System.currentTimeMillis() - timeTmp);
+
+							if (log.isDebugEnabled()) timeTmp = System.currentTimeMillis();
+							transport.connect();
+							if (log.isDebugEnabled())
+							{
+								timeExtraConnect += (System.currentTimeMillis() - timeTmp);
+								numConnects++;
+							}
 						}
 					}
+					catch (SendFailedException e)
+					{
+						if (log.isDebugEnabled()) log.debug("transportMessage: " + e);
+					}
+					catch (MessagingException e)
+					{
+						log.warn("transportMessage: " + e);
+					}
 				}
-				catch (SendFailedException e)
-				{
-					if (log.isDebugEnabled()) log.debug("transportMessage: " + e);
-				}
-				catch (MessagingException e)
-				{
-					log.warn("transportMessage: " + e);
-				}
+
+				if (log.isDebugEnabled()) time5 = System.currentTimeMillis();
+				transport.close();
+
+				if (log.isDebugEnabled()) time6 = System.currentTimeMillis();
+			}
+			catch (MessagingException e)
+			{
+				log.warn("transportMessage:" + e);
 			}
 
-			if (log.isDebugEnabled()) time5 = System.currentTimeMillis();
-			transport.close();
-
-			if (log.isDebugEnabled()) time6 = System.currentTimeMillis();
-		}
-		catch (MessagingException e)
-		{
-			log.warn("transportMessage:" + e);
-		}
-
-		// log
-		if (log.isInfoEnabled())
-		{
-			StringBuilder buf = new StringBuilder();
-			buf.append("transportMessage: headers[");
-			for (String header : headers)
+			// log
+			if (log.isInfoEnabled())
 			{
-				buf.append(" ");
-				buf.append(cleanUp(header));
-			}
-			buf.append("]");
-			for (Address[] toAddresses : messageSets)
-			{
-				buf.append(" to[ ");
-				for (int a = 0; a < toAddresses.length; a++)
+				StringBuilder buf = new StringBuilder();
+				buf.append("transportMessage: headers[");
+				for (String header : headers)
 				{
 					buf.append(" ");
-					buf.append(toAddresses[a]);
+					buf.append(cleanUp(header));
 				}
 				buf.append("]");
-			}
+				for (Address[] toAddresses : messageSets)
+				{
+					buf.append(" to[ ");
+					for (int a = 0; a < toAddresses.length; a++)
+					{
+						buf.append(" ");
+						buf.append(toAddresses[a]);
+					}
+					buf.append("]");
+				}
 
-			if (log.isDebugEnabled())
-			{
-				buf.append(" times[ ");
-				buf.append(" getransport:" + (time2 - time1) + " savechanges:" + (time3 - time2) + " connect(#" + numConnects + "):"
-						+ ((time4 - time3) + timeExtraConnect) + " send:" + (((time5 - time4) - timeExtraConnect) - timeExtraClose)
-						+ " close:" + ((time6 - time5) + timeExtraClose) + " total: " + (time6 - time1) + " ]");
-			}
+				if (log.isDebugEnabled())
+				{
+					buf.append(" times[ ");
+					buf.append(" getransport:" + (time2 - time1) + " savechanges:" + (time3 - time2) + " connect(#" + numConnects + "):"
+							+ ((time4 - time3) + timeExtraConnect) + " send:" + (((time5 - time4) - timeExtraConnect) - timeExtraClose)
+							+ " close:" + ((time6 - time5) + timeExtraClose) + " total: " + (time6 - time1) + " ]");
+				}
 
-			log.info(buf.toString());
-		}
+				log.info(buf.toString());
+			}
+		});
+
+		// Optionally handle exceptions or completion
+		future.exceptionally(ex -> {
+			log.error("Error occurred while sending email: " + ex.getMessage());
+			return null;
+		});
 	}
 
 	private Properties createMailSessionProperties()
