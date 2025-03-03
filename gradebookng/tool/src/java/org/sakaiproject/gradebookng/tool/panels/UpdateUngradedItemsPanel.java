@@ -122,13 +122,13 @@ public class UpdateUngradedItemsPanel extends BasePanel {
 						// InvalidGradeException
 						error(getString("grade.notifications.invalid"));
 						target.addChildren(form, FeedbackPanel.class);
-						target.appendJavaScript("new GradebookUpdateUngraded($(\"#" + getParent().getMarkupId() + "\"), /* enableInputs = */ true);");
+						target.appendJavaScript("new GradebookUpdateUngraded(document.getElementById(\"" + getParent().getMarkupId() + "\"), /* enableInputs = */ true);");
 					}
 				} catch (final NumberFormatException e) {
 					// InvalidGradeException
 					error(getString("grade.notifications.invalid"));
 					target.addChildren(form, FeedbackPanel.class);
-					target.appendJavaScript("new GradebookUpdateUngraded($(\"#" + getParent().getMarkupId() + "\"), /* enableInputs = */ true);");
+					target.appendJavaScript("new GradebookUpdateUngraded(document.getElementById(\"" + getParent().getMarkupId() + "\"), /* enableInputs = */ true);");
 				}
 			}
 		};
