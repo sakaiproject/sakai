@@ -1,5 +1,8 @@
 sakai-grader {
 
+  .grader-title {
+    @extend .fw-bold;
+  }
 
   #grader-topbar {
     display: flex;
@@ -412,6 +415,7 @@ sakai-grader {
   .grader-label {
     margin-bottom: 5px;
     margin-top: 10px;
+    @extend .fw-bold;
   }
   .feedback-label span, .private-notes-label span {
     margin-right: 7px;
