@@ -354,13 +354,13 @@ export const graderRenderingMixin = Base => class extends Base {
       <div id="grader" class="offcanvas offcanvas-end d-lg-block" data-bs-backdrop="static" tabindex="-1" aria-labelledby="grader-label">
 
         <div class="offcanvas-header">
-          <h2 class="offcanvas-title" id="grader-label">${this._i18n.grader}</h2>
+          <h2 class="offcanvas-title" id="grader-label">
+            ${this._getSubmitter(this._submission)}
+          </h2>
           <button type="button" class="btn-close text-reset d-lg-none" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
 
         <div class="offcanvas-body">
-
-          <div class="fw-bold fs-5">${this._getSubmitter(this._submission)}</div>
 
           <!-- START ORIGINALITY BLOCK -->
           ${this._submission.originalityShowing ? html`
