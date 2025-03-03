@@ -590,7 +590,7 @@ export const graderRenderingMixin = Base => class extends Base {
                   <sakai-icon type="microphone"></sakai-icon>
                   <sakai-icon type="video"></sakai-icon>
                 </div>
-                <button class="btn btn-primary mt-2" @click=${this._toggleFeedbackCommentEditor}>
+                <button id="grader-feedback-comment-save" class="btn btn-primary mt-2" @click=${this._saveFeedbackComment}>
                   ${this._i18n["gen.don"]}
                 </button>
               </div>
