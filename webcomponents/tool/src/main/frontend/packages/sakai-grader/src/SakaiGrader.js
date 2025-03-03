@@ -356,13 +356,20 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     this._feedbackCommentEditorShowing = !this._feedbackCommentEditorShowing;
 
     if (!this._feedbackCommentEditorShowing) {
-
       this._showingFullFeedbackComment = false;
       this._allFeedbackCommentVisible = false;
       this.updateComplete.then(() => this._setupVisibleFlags());
     } else {
       this._feedbackCommentRemoved = false;
     }
+  }
+
+  _saveFeedbackComment() {
+    // First toggle the editor (close it)
+    this._toggleFeedbackCommentEditor();
+
+    // Then save the data
+    this._save({});
   }
 
   _previewAttachment(e) {
