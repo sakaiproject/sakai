@@ -1123,6 +1123,67 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		return mergeInternal(siteId, root, archivePath, fromSiteId, mcx, entityMap);
 	}
 
+	/*
+	 * To give some context in why merge is so complex, here is a description of the merge process.
+	 *
+	 * An archive of a site is an XML document that describes the site's Lessons content.
+	 * It is created by the export tool.  It contains one or more trees of pages and
+	 * the items within those pages.  Trees in lessons are single parent.  Each page belongs to one
+	 * and only one parent page.  The root page is the only page that does not have a parent.
+	 *
+	 * There is also a list to tool placements in the site left nav that link to the root of each of the
+	 * page trees.  All the pages and items should be accssible by starting at the placeement,
+	 * navigating to the top page for the placement and then going down to each of the
+	 * pages in the tree.  There should be one left nav lesosns placement in the archive for each tree of pages.
+	 *
+	 * The site may or may not already have tool placements.  For each of the tool placements in
+	 * the archive, the placement in the site can be in one of three states:
+	 *
+	 * 1.  The placement exists in the site and contains content.  In this case, the placement is ignored
+	 *      in the import as a duplicate import.
+	 *
+	 * 2.  The placement does not exist in the site.  In this case, the placement is created by
+	 *     adding the placement to the site and adding a vestigial page and item for the placement.
+	 * 	   Then the root page is linked to the placement.
+	 *
+	 * 3.  The placement exists in the site but is empty.  In this case the placement is reused and
+	 *     the ultimate root node for the placement is linked to the placement.
+	 *
+	 * Empty placements are those added to the site that have no content.  Because the creation of the
+	 * vestigial page and item
+	 * are triggered when you navigate to the Lessons placement in the Sakai UI after adding the
+	 * placement in Site Info.  If you add a Lessons placement without navigating to it in the UI first
+	 * and go staight to an merge(), the merge processess detects tha lack of a so the vestigial page and
+	 * item are creates them before reusing the placement for the imported content.
+	 *
+	 * To properly process empty placements and duplicate page removal, the merge process must scan the XML
+	 * content for pages and items and build a transitive closure of the page tree.  It then looks
+	 * through the Site structures to make an inventory of existing Lessons placements ans assess them
+	 * to see if they are full or empty or non-existant.
+	 *
+	 * Then it imports the non-duplicate pages and items from the archive into the site.
+	 *
+	 * At the end it looks at the placements in the XML and creates new placements with a vestigial page and item
+	 * and links the newly created root page and its tree of pages and items into the left navigation of the site.
+	 *
+	 * One note on duplicate removal is that it is done based on the name of the tool in the left navigation.
+	 * If you have a tool labelled "Week 1" with content and you import a site with a tool labelled "Week 1"
+	 * and a set of pages, the imported pages will not be imported a seconds time. However if you rename the
+	 * link to be "Week 1X" and do another import, a new "Week 1" will be imported and the site will have both
+	 * a "Week 1" and "Week 1X " Lessons placements.
+	 *
+	 * One note on the wonderfully named "vestigial" page and item.  They are essential to the proper functioning
+	 * of Lessons.  Not having them leads to the data model getting messed up.  In the Lesosns UI if there are not
+	 * in place, lessons will freak out and make new ones.  The result in this situation is that a bunch of pages
+	 * might disappear.
+	 *
+	 * As Lessons tries to revover from the bad situation, it tends to add more pages and point the new page at
+	 * the placement in the left nav.  This is not good.  It means that there are multiple pages that are somewhat
+	 * non-deterministically chosen as *the* page when a user navigates to a placement in the left nav.  Lessons
+	 * is very careful not to create this situation and we need to make very sure we don't create the
+	 * "multiple page to one placement situation" during impot / merge.
+	 */
+
 	// Internally used for both site copy and zip import
 	public String mergeInternal(String siteId, Element root, String archivePath, String fromSiteId, MergeConfig mcx,
 			Map<String, String> entityMap)
@@ -1307,7 +1368,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		Set<String> toolsReused = new HashSet<>();
 
 		// create pages first, build up map of old to new page.
-		// Do not create pages if they are already in an existing tree associated with a 
+		// Do not create pages if they are already in an existing tree associated with a
 		// placement (duplicate removal)
 		try {
 			numPages = pageNodes.getLength();
