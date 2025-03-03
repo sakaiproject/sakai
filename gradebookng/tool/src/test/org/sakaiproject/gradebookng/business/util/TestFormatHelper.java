@@ -155,7 +155,10 @@ public class TestFormatHelper {
 	public void testFormatStringAsPercentage() {
 		Assert.assertNull(FormatHelper.formatStringAsPercentage(""));
 		Assert.assertNull(FormatHelper.formatStringAsPercentage(null));
+		Locale.setDefault(Locale.ENGLISH);
 		Assert.assertEquals("89.07%", FormatHelper.formatStringAsPercentage("89.065"));
+		Locale.setDefault(SPANISH);
+		Assert.assertEquals("89,07%", FormatHelper.formatStringAsPercentage("89.065"));
 	}
 
 	@Test
@@ -187,6 +190,7 @@ public class TestFormatHelper {
 
 	@Test
 	public void testValidateDouble() {
+		Locale.setDefault(Locale.ENGLISH);
 		Assert.assertEquals(Double.valueOf(90.5), FormatHelper.validateDouble("90.5"));
 		Assert.assertNull(FormatHelper.validateDouble("invalid"));
 	}
@@ -225,15 +229,21 @@ public class TestFormatHelper {
 	@Test
 	public void testFormatGradeForDisplayDouble() {
 		Assert.assertEquals("", FormatHelper.formatGradeForDisplay((Double)null));
-		Assert.assertEquals("89.07", FormatHelper.formatGradeForDisplay(89.065));
 		Assert.assertEquals("90", FormatHelper.formatGradeForDisplay(90.0));
+		Locale.setDefault(Locale.ENGLISH);
+		Assert.assertEquals("89.07", FormatHelper.formatGradeForDisplay(89.065));
+		Locale.setDefault(SPANISH);
+		Assert.assertEquals("89,07", FormatHelper.formatGradeForDisplay(89.065));
 	}
 
 	@Test
 	public void testFormatGradeForDisplayString() {
 		Assert.assertEquals("", FormatHelper.formatGradeForDisplay(""));
-		Assert.assertEquals("89.07", FormatHelper.formatGradeForDisplay("89.065"));
 		Assert.assertEquals("90", FormatHelper.formatGradeForDisplay("90.0"));
+		Locale.setDefault(Locale.ENGLISH);
+		Assert.assertEquals("89.07", FormatHelper.formatGradeForDisplay("89.065"));
+		Locale.setDefault(SPANISH);
+		Assert.assertEquals("89,07", FormatHelper.formatGradeForDisplay("89.065"));
 	}
 
 	@Test
