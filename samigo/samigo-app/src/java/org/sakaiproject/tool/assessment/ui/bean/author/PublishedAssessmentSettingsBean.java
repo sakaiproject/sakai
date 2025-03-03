@@ -93,6 +93,7 @@ import org.sakaiproject.tool.assessment.ui.listener.author.SaveAssessmentAttachm
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
 import org.sakaiproject.tool.assessment.util.ExtendedTimeValidator;
+import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.comparator.AlphaNumericComparator;
@@ -462,6 +463,7 @@ public class PublishedAssessmentSettingsBean extends SpringBeanAutowiringSupport
   private String getCategoryForAssessmentName(String assessmentName) {
     List<Assignment> gbAssignments;
     Long categoryId = null;
+    String decodedAssessmentName = TextFormat.convertFormattedTextToPlaintext(assessmentName);
 
     if (this.gradebookExists) {
       String gradebookUid = toolManager.getCurrentPlacement().getContext();
@@ -470,6 +472,13 @@ public class PublishedAssessmentSettingsBean extends SpringBeanAutowiringSupport
         if (StringUtils.equals(assessmentName, assignment.getName())) {
           categoryId = assignment.getCategoryId();
         }
+=======
+    String gradebookUid = toolManager.getCurrentPlacement().getContext();
+    List<Assignment> gbAssignments = gradingService.getAssignments(gradebookUid);
+    for (Assignment assignment : gbAssignments) {
+      if (StringUtils.equals(assessmentName, assignment.getName()) || StringUtils.equals(decodedAssessmentName, assignment.getName())) {
+        categoryId = assignment.getCategoryId();
+>>>>>>> a2757cc2bff (SAK-50431 Samigo gb category gets lost because of HTML encoding (#13364))
       }
     }
     String catSelected = "-1";
