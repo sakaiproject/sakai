@@ -351,6 +351,14 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     }
   }
 
+  _savePrivateNotes() {
+    // First toggle the editor (close it)
+    this._togglePrivateNotesEditor();
+
+    // Then save the data
+    this._save({});
+  }
+
   _toggleFeedbackCommentEditor() {
 
     this._feedbackCommentEditorShowing = !this._feedbackCommentEditorShowing;
