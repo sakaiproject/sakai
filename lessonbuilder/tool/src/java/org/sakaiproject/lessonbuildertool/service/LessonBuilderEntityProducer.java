@@ -1211,9 +1211,9 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		Map<String, Long> emptyPlacements = new HashMap<>();
 		Map<String, Long> fullPlacements = new HashMap<>();
 
-		// some code in site action creates the vertigial page and item for new placements and some doesn't
+		// some code in site action creates the vestigial page and item for new placements and some doesn't
 		// so we loop through and figure out which placements we already have and patch any existing placements
-		// missing their vertigial page and/or item
+		// missing their vestigial page and/or item
 		Collection<ToolConfiguration> toolConfs = site.getTools(myToolIds());
 		if (toolConfs != null && !toolConfs.isEmpty())  {
 			for (ToolConfiguration config: toolConfs) {
@@ -1265,6 +1265,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		log.debug("Finished scanning placements empty {} full {}", emptyPlacements, fullPlacements);
 
 		// Lets start the actual merge()
+		NodeList pageNodes = root.getElementsByTagName("page");
+
 		Map <Long,Long> pageMap = new HashMap<Long,Long>();
 
 		// a convenient map of the old page id and its corresponding element
@@ -1278,7 +1280,6 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 		log.debug("Scanning for root pages in the import");
 		Map<Long, String> rootOldPageIds = new HashMap<>();
-		NodeList pageNodes = root.getElementsByTagName("page");
 		int numPages = pageNodes.getLength();
 		for (int p = 0; p < numPages; p++) {
 			Node pageNode = pageNodes.item(p);
@@ -1294,9 +1295,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 			String oldParentString = pageElement.getAttribute("parent");
 			Long oldParent = NumberUtils.toLong(oldParentString, 0L);
-			log.debug("looking for root nodes pageId {} parent {}", oldPageId);
 			if ( oldParent < 1 ) {
-				log.debug("Found root pageId {}", oldPageId);
+				log.debug("Found root page in archive pageId {}", oldPageId);
 				rootOldPageIds.put(oldPageId, title);
 			}
 		}
@@ -1306,8 +1306,9 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 		Set<String> toolsReused = new HashSet<>();
 
-		// create pages first, build up map of old to new page, do not create pages
-		// if they are already in one of the rooted trees of pages (duplicate removal)
+		// create pages first, build up map of old to new page.
+		// Do not create pages if they are already in an existing tree associated with a 
+		// placement (duplicate removal)
 		try {
 			numPages = pageNodes.getLength();
 			for (int p = 0; p < numPages; p++) {
@@ -1322,16 +1323,17 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				Long oldPageId = NumberUtils.toLong(oldPageIdString, 0L);
 				if ( oldPageId < 1 ) continue;
 
-				// Check  if this is associated with an existing top level page/placement
+				// Duplicate remove: Check if the page is associated with an existing top level page/placement
+				// Recall that parentPage really points to the top page above a page because we
+				// walked up the tree to compute the closure of the child-parent relationships
 				Long rootPageId = parentPage.getOrDefault(oldPageId, 0L);
 				String rootTitle = rootOldPageIds.getOrDefault(rootPageId, null);
-				log.debug("Looking at page {} belongs to root page {} {}", oldPageId, rootPageId, rootTitle);
 				if ( StringUtils.isNotBlank(rootTitle) && fullPlacements.containsKey(rootTitle) ) {
 					log.debug("Skipping page {} because root page {} {} is already in site {}", oldPageId, rootPageId, rootTitle, siteId);
 					continue;
 				}
 
-				// Check to see if we want to reuse an existing empty page placement
+				// Check to see if we want to reuse an existing empty page placement for this new pahe
 				Long emptyPageId = emptyPlacements.get(title);
 				log.debug("Extracting page {} oldPageId: {} emptyPageId {}", title, oldPageId, emptyPageId);
 
@@ -1343,7 +1345,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 					log.debug("loaded top levelpage {} found {}", emptyPageId, page.getPageId());
 				}
 
-				// If we could reuse an empty page, lets add one and remember
+				// If we are re-using an empty page associated with a placement, lets remember it
+				// otherwise create a new page
 				if ( page != null ) {
 					toolsReused.add(title);
 					reused = true;
@@ -1377,7 +1380,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				String cssSheet = pageElement.getAttribute("csssheet");
 				if (StringUtils.isNotEmpty(cssSheet)) page.setCssSheet(cssSheet.replace("/group/"+fromSiteId+"/", "/group/"+siteId+"/"));
 
-				// Save or update the new pag
+				// Save or update the page
 				if ( reused ) {
 					List<String>elist = new ArrayList<>();
 					boolean requiresEditPermission = true;
@@ -1400,9 +1403,9 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				pageElementMap.put(oldPageId, pageElement);
 			}
 
-			log.debug("Starting second pass over pages ({}) to create items pageMap: {}", pageElementMap.size(), pageMap);
+			log.debug("Starting second pass over pages ({}) {} to create items", pageElementMap.size(), pageMap);
 
-			// process pages again to create the items
+			// Process pages we inserted (in PageElementMap) to create the items
 			boolean needFix = false;
 			Map <Long,Long> itemMap = new HashMap<Long,Long>();
 			for (Map.Entry<Long, Element> entry : pageElementMap.entrySet()) {
@@ -1435,6 +1438,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			// top level pages and set parents to null
 			NodeList tools = root.getElementsByTagName("lessonbuilder");
 			int numTools =  tools.getLength();
+			log.debug("Reading {} lessonbuilder tool placements from archive", numTools);
 			for (int i = 0; i < numTools; i++) {
 				Node node = tools.item(i);
 				if (node.getNodeType() != Node.ELEMENT_NODE) continue;
@@ -1456,32 +1460,34 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 					continue;
 				}
 
+				// Now we need to add a new left nav placement and link it to the root
+				// page for the newly imported pages
 				String rolelist = element.getAttribute("functions.require");
 				String pagePosition = element.getAttribute("pagePosition");
 				String pageVisibility = element.getAttribute("pageVisibility");
 
 				// Time to add the left nav placement
 				SitePage page = site.addPage();
-				ToolConfiguration tool = page.addTool(LessonBuilderConstants.TOOL_ID);
+				ToolConfiguration toolConfig = page.addTool(LessonBuilderConstants.TOOL_ID);
 				if (StringUtils.isNotBlank(pagePosition)) {
 					int integerPosition = Integer.parseInt(pagePosition);
 					page.setPosition(integerPosition);
 				}
-				log.debug("Added Lessons placement toolTitle={} new page={} new tool={} to site", toolTitle, page.getId(), tool.getId());
+				log.debug("Added Lessons placement toolTitle={} new page={} new tool={} to site", toolTitle, page.getId(), toolConfig.getId());
 
-				String sakaiPageId = tool.getPageId();
+				String sakaiPageId = toolConfig.getPageId();
 				if (sakaiPageId == null) {
 					log.error("unable to find new sakaiPageId for copy of {}", toolTitle);
 					continue;
 				}
 
 				if (StringUtils.isNotBlank(rolelist)) {
-					tool.getPlacementConfig().setProperty("functions.require", rolelist);
+					toolConfig.getPlacementConfig().setProperty("functions.require", rolelist);
 				}
 				if (StringUtils.isNotBlank(pageVisibility)) {
-					tool.getPlacementConfig().setProperty(ToolManager.PORTAL_VISIBLE, pageVisibility);
+					toolConfig.getPlacementConfig().setProperty(ToolManager.PORTAL_VISIBLE, pageVisibility);
 				}
-				tool.setTitle(toolTitle);
+				toolConfig.setTitle(toolTitle);
 				page.setTitle(toolTitle);
 				page.setTitleCustom(true);
 				log.debug("saving site {}", site.getId());
@@ -1537,7 +1543,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				log.debug("saving vestigial item: {}", item.getId());
 				simplePageToolDao.quickSaveItem(item);
 			}
-			results.append("merging link tool " + siteId + " (" + count + ") items.\n");
+			results.append("merging lessonbuilder tool " + siteId + " (" + count + ") items.\n");
 		}
 		catch (DOMException e)
 		{
