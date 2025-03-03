@@ -1,7 +1,7 @@
 sakai-grader {
 
   .grader-title {
-    @extend .fw-bold;
+    font-weight: bold;
   }
 
   #grader-topbar {
@@ -268,8 +268,6 @@ sakai-grader {
         .grader-history-title {
           font-weight: bold;
           margin-top: 10px;
-          a {
-          }
         }
         .grader-history-block {
           margin-left: 5px;
@@ -408,14 +406,10 @@ sakai-grader {
     margin-bottom: 5px;
   }
 
-  .attachment-link {
-    //margin-left: 7px;
-  }
-
   .grader-label {
     margin-bottom: 5px;
     margin-top: 10px;
-    @extend .fw-bold;
+    font-weight: bold;
   }
   .feedback-label span, .private-notes-label span {
     margin-right: 7px;

@@ -1,24 +1,25 @@
-// Define BEM structure classes
-.sakai-notifications {
-  &__banner-warn {
-    @extend .sak-banner-warn;
-    @extend .justify-content-around;
-    @extend .fw-bold;
-  }
+.sakai-notifications__banner-warn {
+  @include sakai-banner(var(--warnBanner-bordercolor), var(--warnBanner-bgcolor), var(--warnBanner-color), $warnBanner-icon, false);
 
-  &__banner-error {
-    @extend .sak-banner-error;
-    @extend .justify-content-around;
-    @extend .mb-3;
-  }
+  font-weight: bold;
+  justify-content: space-around;
+}
 
-  &__banner-info {
-    @extend .sak-banner-info;
-    @extend .justify-content-around;
-    @extend .mb-1;
-    @extend .fw-bold;
-  }
-  &__title {
-    @extend .fw-bold;
-  }
+.sakai-notifications__banner-error {
+  @include sakai-banner(var(--errorBanner-bordercolor), var(--errorBanner-bgcolor), var(--errorBanner-color), $errorBanner-icon, false);
+
+  justify-content: space-around;
+  margin-bottom: 1rem;
+}
+
+.sakai-notifications__banner-info {
+  @include sakai-banner(var(--infoBanner-bordercolor), var(--infoBanner-bgcolor), var(--infoBanner-color), $infoBanner-icon, false);
+
+  justify-content: space-around;
+  margin-bottom: 0.25rem;
+  font-weight: bold;
+}
+
+.sakai-notifications__title {
+  font-weight: bold;
 }
