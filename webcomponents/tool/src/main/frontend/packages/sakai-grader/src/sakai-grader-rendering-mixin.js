@@ -354,7 +354,9 @@ export const graderRenderingMixin = Base => class extends Base {
       <div id="grader" class="offcanvas offcanvas-end d-lg-block" data-bs-backdrop="static" tabindex="-1" aria-labelledby="grader-label">
 
         <div class="offcanvas-header">
-          <h2 class="offcanvas-title" id="grader-label">${this._i18n.grader}</h2>
+          <h2 class="offcanvas-title" id="grader-label">
+            ${this._getSubmitter(this._submission)}
+          </h2>
           <button type="button" class="btn-close text-reset d-lg-none" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
 
