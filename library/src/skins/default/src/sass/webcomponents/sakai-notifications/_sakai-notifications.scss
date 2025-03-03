@@ -1,0 +1,24 @@
+// Define BEM structure classes
+.sakai-notifications {
+  &__banner-warn {
+    @extend .sak-banner-warn;
+    @extend .justify-content-around;
+    @extend .fw-bold;
+  }
+
+  &__banner-error {
+    @extend .sak-banner-error;
+    @extend .justify-content-around;
+    @extend .mb-3;
+  }
+
+  &__banner-info {
+    @extend .sak-banner-info;
+    @extend .justify-content-around;
+    @extend .mb-1;
+    @extend .fw-bold;
+  }
+  &__title {
+    @extend .fw-bold;
+  }
+}
