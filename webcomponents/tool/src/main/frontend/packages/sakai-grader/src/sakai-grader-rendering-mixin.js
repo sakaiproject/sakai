@@ -692,8 +692,8 @@ export const graderRenderingMixin = Base => class extends Base {
                 <div class="sak-banner-info">${unsafeHTML(this._i18n.private_notes_tooltip)}</div>
                 <div id="private-notes-unsaved-msg" class="sak-banner-error d-none">${this._i18n.unsaved_text_warning}</div>
                 <textarea id="grader-private-notes" aria-label="${this._i18n.private_notes_label}" .value=${this._submission.privateNotes}></textarea>
-                <button class="btn btn-primary mt-2"
-                    @click=${this._togglePrivateNotesEditor}>
+                <button id="grader-private-notes-save" class="btn btn-primary mt-2"
+                    @click=${this._savePrivateNotes}>
                   ${this._i18n["gen.don"]}
                 </button>
               </div>
