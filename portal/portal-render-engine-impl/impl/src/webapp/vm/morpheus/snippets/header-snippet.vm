@@ -4,7 +4,7 @@
 
   <div class="d-flex align-items-center h-100 ms-3 ms-md-0 #if (${userIsLoggedIn}) w-100 #end">
     <div id="logoWrapper" class="portal-header-logo d-flex h-100 align-items-center">
-      <button id="sidebar-collapse-button" class="btn icon-button btn-sidebar-collapse me-1 ms-3 d-none d-md-block"
+      <button id="sidebar-collapse-button" class="btn icon-button btn-sidebar-collapse portal-header-hamburger-button me-1 ms-3 d-none d-md-block"
           type="button"
           data-portal-sidebar-collapsed="$!{sidebarCollapsed}"
           data-bs-toggle="tooltip"
