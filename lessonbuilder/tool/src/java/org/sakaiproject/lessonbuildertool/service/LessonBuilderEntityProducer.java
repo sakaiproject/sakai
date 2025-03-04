@@ -1038,7 +1038,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	}
 
 	// fix up items on page. does any updates that need the whole page and item map
-	private void fixItems(Element element, String oldServer, String siteId, String fromSiteId, Map<Long,Long> pageMap, Map<Long,Long> itemMap) {
+	private void fixItems(Element element, String oldServer, String siteId, String fromSiteId, Map<Long,Long> pageMap, Map<Long,Long> itemMap, MergeConfig mcx) {
 
 		String oldPageIdString = element.getAttribute("pageid");
 		Long oldPageId = Long.valueOf(oldPageIdString);
@@ -1102,6 +1102,32 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 					}
 					break;
+
+				case SimplePageItem.QUESTION:
+					String attributex = item.getAttributeString(); // json encoded attributes
+					if (StringUtils.isBlank(attributex)) break;
+					final JSONParser jsonParser = new JSONParser();
+					try {
+						Object parsedAttributeObj = jsonParser.parse(attributex);
+						if (parsedAttributeObj instanceof JSONObject) {
+							JSONObject parsedAttribute = (JSONObject) parsedAttributeObj;
+							Object questionTextObj = parsedAttribute.get("questionText");
+							if (questionTextObj instanceof String) {
+								String questionText = (String) questionTextObj;
+								if ( StringUtils.isNotBlank(questionText) ) {
+									questionText = ltiService.fixLtiLaunchUrls(questionText, siteId, mcx);
+									questionText = linkMigrationHelper.migrateLinksInMergedRTE(siteId, mcx, questionText);
+									parsedAttribute.put("questionText", questionText);
+									item.setAttributeString(parsedAttribute.toJSONString());
+									itemUpdated = true;
+								}
+							}
+						}
+					} catch (ParseException pe) {
+						log.warn("Exception caught while parsing checklist array: {}", pe.toString());
+						break;
+					}
+					break;
 				default:
 			}
 			if (itemUpdated) {
@@ -1140,14 +1166,14 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	 * the archive, the placement in the site can be in one of three states:
 	 *
 	 * 1.  The placement exists in the site and contains content.  In this case, the placement is ignored
-	 *      in the import as a duplicate import.
+	 *	  in the import as a duplicate import.
 	 *
 	 * 2.  The placement does not exist in the site.  In this case, the placement is created by
-	 *     adding the placement to the site and adding a vestigial page and item for the placement.
-	 * 	   Then the root page is linked to the placement.
+	 *	 adding the placement to the site and adding a vestigial page and item for the placement.
+	 * 	 Then the root page is linked to the placement.
 	 *
 	 * 3.  The placement exists in the site but is empty.  In this case the placement is reused and
-	 *     the ultimate root node for the placement is linked to the placement.
+	 *	 the ultimate root node for the placement is linked to the placement.
 	 *
 	 * Empty placements are those added to the site that have no content.  Because the creation of the
 	 * vestigial page and item
@@ -1490,7 +1516,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			for (Map.Entry<Long, Element> entry : pageElementMap.entrySet()) {
 				Element pageElement = entry.getValue();
 
-				fixItems(pageElement, oldServer, siteId, fromSiteId, pageMap, itemMap);
+				fixItems(pageElement, oldServer, siteId, fromSiteId, pageMap, itemMap, mcx);
 			}
 
 			// Add necessary placements / top level pages to the left navigation.  If we
