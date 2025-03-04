@@ -15,7 +15,7 @@ Handlebars.registerPartial('comment', Handlebars.partials['comment']);
 Handlebars.registerPartial('wrapped_comment', Handlebars.partials['wrapped_comment']);
 Handlebars.registerPartial('inplace_comment_editor', Handlebars.partials['inplace_comment_editor']);
 
-var commonsHelpers = {};
+const commonsHelpers = {};
 
 commons.states = {
         POSTS: 'posts',
@@ -40,7 +40,7 @@ commons.switchState = function (state, arg) {
         $('#commons-toolbar > li > span').removeClass('current');
         $('#commons-main-link > span').addClass('current');
 
-        var templateData = {
+        const templateData = {
                 currentUserId: commons.userId,
                 isUserSite: commons.isUserSite,
                 maxUploadSize: commons.maxUploadSize
@@ -57,8 +57,8 @@ commons.switchState = function (state, arg) {
         $(document).ready(function () {
             $('.commons-post-editor').toggle(commons.currentUserPermissions.postCreate);
 
-            var editor = $('#commons-post-creator-editor');
-            var wrapAndInsert = function (link, loadThumbnail, text) {
+            const editor = $('#commons-post-creator-editor');
+            const wrapAndInsert = function (link, loadThumbnail, text) {
 
                     const clean = DOMPurify.sanitize(link, {USE_PROFILES: {html: true}});
                     if (DOMPurify.removed) {
@@ -66,11 +66,11 @@ commons.switchState = function (state, arg) {
                         console.warn(DOMPurify.removed);
                     }
 
-                    var url;
-                    var wrapped;
+                    let url;
+                    let wrapped;
                     if (commons.urlRegex.test(clean)) {
-                        var matched_url = clean.match(commons.urlRegex)[0];
-                        var a = document.createElement('a');
+                        const matched_url = clean.match(commons.urlRegex)[0];
+                        const a = document.createElement('a');
                         a.href = matched_url;
                         // We need to add the protocol for the server side code. It needs a valid URL.
                         url = matched_url;
@@ -79,7 +79,7 @@ commons.switchState = function (state, arg) {
                         }
                         text = text || matched_url;
 
-                        wrapped = clean.replace(matched_url, '<a href=\"' + url + '" target="_blank">' + text + "</a>");
+                        wrapped = clean.replace(matched_url, `<a href="${url}" target="_blank">${text}</a>`);
 					} else {
 						text = text || clean;
 					    loadThumbnail = false;
@@ -89,8 +89,8 @@ commons.switchState = function (state, arg) {
                     if (!editor.is(":focus")) editor.focus();
 
                     if (!document.execCommand('insertHtml', false, wrapped)) {
-                        var sel = commons.getSelection();
-                        var range = sel.getRangeAt(0);
+                        const sel = commons.getSelection();
+                        const range = sel.getRangeAt(0);
                         a.innerHTML = text;
                         a.target = '_blank';
                         range.deleteContents();
@@ -99,7 +99,6 @@ commons.switchState = function (state, arg) {
 
                     if (loadThumbnail) {
                        commons.utils.getOGPMarkup(url, function (fragment) {
-
                             if (fragment) {
                                 editor.append(fragment);
                             }
@@ -107,10 +106,10 @@ commons.switchState = function (state, arg) {
                     }
                 };
 
-            var editorPostButton = $('#commons-editor-post-button');
-            var editorCancelButton = $('#commons-editor-cancel-button');
-            var editorLinkButton = $('#commons-editor-link-button');
-            var editorImageButton = $('#commons-editor-image-button');
+            const editorPostButton = $('#commons-editor-post-button');
+            const editorCancelButton = $('#commons-editor-cancel-button');
+            const editorLinkButton = $('#commons-editor-link-button');
+            const editorImageButton = $('#commons-editor-image-button');
 
             if (commons.isUserSite) {
                 editorImageButton.hide();
@@ -118,7 +117,7 @@ commons.switchState = function (state, arg) {
 
 
             // Clear out HTML and enable buttons
-            var enablePostEditor = function (element) {
+            const enablePostEditor = function (element) {
                 if (element.innerHTML == commons.i18n['post_editor_initial_text']) {
                     element.innerHTML = '';
                     editorPostButton.prop('disabled', false);
@@ -146,7 +145,7 @@ commons.switchState = function (state, arg) {
                 e.preventDefault();
             }).blur(function (e) {
 
-                var sel = commons.getSelection();
+                const sel = commons.getSelection();
                 commons.selectedText = (document.selection) ? sel.createRange().htmlText : sel.toString();
                 commons.currentRange = sel.getRangeAt(0);
             });
@@ -163,10 +162,10 @@ commons.switchState = function (state, arg) {
                         editorCancelButton.prop('disabled', true);
                         fileField.val('');
 
-                        var newPlaceholderId = 'commons-post-' + post.id;
+                        const newPlaceholderId = 'commons-post-' + post.id;
 
                         $('#commons-posts').prepend(
-                            '<div id=\"' + newPlaceholderId + '\" class=\"commons-post\"></div>');
+                            `<div id="${newPlaceholderId}" class="commons-post"></div>`);
                         commons.utils.addFormattedDateToPost(post);
                         commons.utils.renderPost(post, newPlaceholderId);
                     });
@@ -179,52 +178,44 @@ commons.switchState = function (state, arg) {
                 editorCancelButton.prop('disabled', true);
             });
 
-            var textField = $('#commons-link-dialog-text');
+            const textField = $('#commons-link-dialog-text');
 
             $('.commons-editor-special-button').click(function (e) {
-
                 if (!editor.is(":focus")) {
                     editor.click();
                 }
             });
 
-            editorLinkButton.qtip({
-                suppress: false,
-                content: { text: $('#commons-link-dialog') },
-                style: { classes: 'commons-qtip qtip-shadow' },
-                show: {event: 'click', delay: 0},
-                hide: {event: 'click', delay: 0},
-                events: {
-                    show: function (event, api) {
-                        textField.val(commons.selectedText);
-                    }
-                }
+            // Replace qtip with Bootstrap modal for link dialog
+            const linkModal = new bootstrap.Modal(document.getElementById('commons-link-dialog'));
+            
+            editorLinkButton.click(function(e) {
+                textField.val(commons.selectedText);
+                linkModal.show();
             });
 
-            var urlField = $('#commons-link-dialog-url');
-            var textField = $('#commons-link-dialog-text');
-            var thumbnailCheckbox = $('#commons-link-dialog-load-thumbnail');
-            var linkInsertButton = $('#commons-link-dialog-insert-button');
+            const urlField = $('#commons-link-dialog-url');
+            const linkTextField = $('#commons-link-dialog-text');
+            const thumbnailCheckbox = $('#commons-link-dialog-load-thumbnail');
+            const linkInsertButton = $('#commons-link-dialog-insert-button');
 
             linkInsertButton.click(function (e) {
-
                 if (commons.currentRange) {
                     commons.getSelection().addRange(commons.currentRange);
                 }
-                var loadThumbnail = thumbnailCheckbox.prop('checked');
-                wrapAndInsert(urlField.val(), loadThumbnail, textField.val());
+                const loadThumbnail = thumbnailCheckbox.prop('checked');
+                wrapAndInsert(urlField.val(), loadThumbnail, linkTextField.val());
                 urlField.val('');
-                textField.val('');
+                linkTextField.val('');
                 thumbnailCheckbox.prop('checked', false);
-                editorLinkButton.qtip('api').hide();
+                linkModal.hide();
             });
 
             $('#commons-link-dialog-cancel-button').click(function (e) {
-
                 urlField.val('');
-                textField.val('');
+                linkTextField.val('');
                 thumbnailCheckbox.prop('checked', false);
-                editorLinkButton.qtip('api').hide();
+                linkModal.hide();
             });
 
             urlField.keydown(function (e) {
@@ -232,41 +223,40 @@ commons.switchState = function (state, arg) {
             });
 
             if (!commons.isUserSite) {
-                editorImageButton.qtip({
-                    suppress: false,
-                    content: { text: $('#commons-image-dialog') },
-                    style: { classes: 'commons-qtip qtip-shadow' },
-                    show: {event: 'click', delay: 0},
-                    hide: {event: 'click', delay: 0}
+                // Replace qtip with Bootstrap modal for image dialog
+                const imageModal = new bootstrap.Modal(document.getElementById('commons-image-dialog'));
+                
+                editorImageButton.click(function(e) {
+                    imageModal.show();
                 });
             }
 
-            var fileInsertButton = $('#commons-image-dialog-insert-button');
-            var fileField = $('#commons-image-dialog-file');
-            var fileMessage = $('#commons-image-dialog-message');
+            const fileInsertButton = $('#commons-image-dialog-insert-button');
+            const fileField = $('#commons-image-dialog-file');
+            const fileMessage = $('#commons-image-dialog-message');
 
             fileInsertButton.click(function (e) {
-
-                var file = fileField[0].files[0];
-                var extension = file.name.substring(file.name.lastIndexOf('.') + 1).toLowerCase();
+                const file = fileField[0].files[0];
+                const extension = file.name.substring(file.name.lastIndexOf('.') + 1).toLowerCase();
 
                 if (commons.imageFileExtensions.indexOf(extension) != -1) {
-                    var formData = new FormData();
+                    const formData = new FormData();
                     formData.append('siteId', commons.siteId);
                     formData.append('imageFile', file);
-                    var xhr = new XMLHttpRequest();
+                    const xhr = new XMLHttpRequest();
                     xhr.open('POST', '/direct/commons/uploadImage', true);
                     xhr.onload = function (e) {
-                        editor.append("<div><img src=\"" + xhr.responseText + "\" class=\"commons-image\" /></div>");
+                        editor.append(`<div><img src="${xhr.responseText}" class="commons-image" /></div>`);
                     };
                     xhr.send(formData);
-                    editorImageButton.qtip('api').hide();
+                    if (!commons.isUserSite) {
+                        imageModal.hide();
+                    }
                 }
             });
 
             fileField.change(function (e) {
-
-                var file = fileField[0].files[0];
+                const file = fileField[0].files[0];
                 if ((file.size/1000000) > parseInt(commons.maxUploadSize)) {
                     fileMessage.html('File too big');
                 } else {
@@ -275,11 +265,12 @@ commons.switchState = function (state, arg) {
             });
 
             $('#commons-image-dialog-cancel-button').click(function (e) {
-
                 fileInsertButton.prop('disabled', true);
                 fileMessage.html('');
                 fileField.val('');
-                editorImageButton.qtip('api').hide();
+                if (!commons.isUserSite) {
+                    imageModal.hide();
+                }
             });
 
             if (window.parent === window) {
@@ -299,8 +290,8 @@ commons.switchState = function (state, arg) {
     } else if (commons.states.POST === state) {
         $('#commons-toolbar > li > span').removeClass('current');
         $('#commons-main-link > span').addClass('current');
-        var url = "/direct/commons/post.json?postId=" + arg.postId;
-        $.ajax( { url : url, dataType: "json", cache: false, timeout: commons.AJAX_TIMEOUT })
+        const url = `/direct/commons/post.json?postId=${arg.postId}`;
+        $.ajax( { url, dataType: "json", cache: false, timeout: commons.AJAX_TIMEOUT })
             .done(function (data) {
                 commons.utils.addFormattedDateToPost(data);
                 commons.utils.renderTemplate('single_post', data, 'commons-content');
@@ -331,7 +322,7 @@ commons.switchState = function (state, arg) {
 
     moment.locale(sakai.locale.userLocale);
 
-    var languagesLoaded = function () {
+    const languagesLoaded = function () {
 
         if (commons.embedder === 'SITE') {
             commons.utils.renderTemplate('toolbar', {} ,'commons-toolbar');
@@ -345,7 +336,7 @@ commons.switchState = function (state, arg) {
             });
         }
 
-        var permissionsCallback = function (permissions) {
+        const permissionsCallback = function (permissions) {
 
                 commons.currentUserPermissions = new CommonsPermissions(permissions);
 
@@ -384,9 +375,6 @@ commons.switchState = function (state, arg) {
     if (CKEDITOR) {
         CKEDITOR.disableAutoInline = true;
     }
-
-    commons.scrollable = $(window.frameElement ? window.frameElement.ownerDocument.defaultView : window);
-    commons.doc = $(window.frameElement ? window.frameElement.ownerDocument : document);
 
 }) (jQuery);
 

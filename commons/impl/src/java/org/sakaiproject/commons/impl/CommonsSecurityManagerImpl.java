@@ -50,6 +50,7 @@ public class CommonsSecurityManagerImpl implements CommonsSecurityManager {
     private SiteService siteService;
     private ToolManager toolManager;
 
+    @Override
     public boolean canCurrentUserCommentOnPost(Post post) {
 
         log.debug("canCurrentUserCommentOnPost()");
@@ -64,13 +65,10 @@ public class CommonsSecurityManagerImpl implements CommonsSecurityManager {
             return true;
         }
 
-        if (sakaiProxy.isAllowedFunction(CommonsFunctions.COMMENT_CREATE, post.getSiteId())) {
-            return true;
-        }
-
-        return false;
+        return sakaiProxy.isAllowedFunction(CommonsFunctions.COMMENT_CREATE, post.getSiteId());
     }
 
+    @Override
     public boolean canCurrentUserDeletePost(Post post) throws SecurityException {
 
         String siteId = post.getSiteId();
@@ -81,15 +79,12 @@ public class CommonsSecurityManagerImpl implements CommonsSecurityManager {
 
         String currentUser = sakaiProxy.getCurrentUserId();
 
-        if (currentUser != null && currentUser.equals(post.getCreatorId())
+        return currentUser != null && currentUser.equals(post.getCreatorId())
                 && (siteId.equals(CommonsConstants.SOCIAL)
-                        || sakaiProxy.isAllowedFunction(CommonsFunctions.POST_DELETE_OWN, siteId))) {
-            return true;
-        }
-
-        return false;
+                || sakaiProxy.isAllowedFunction(CommonsFunctions.POST_DELETE_OWN, siteId));
     }
 
+    @Override
     public boolean canCurrentUserEditPost(Post post) {
 
         // This acts as an override
@@ -111,6 +106,7 @@ public class CommonsSecurityManagerImpl implements CommonsSecurityManager {
         return false;
     }
 
+    @Override
     public boolean canCurrentUserDeleteComment(String siteId, String embedder, String commentCreatorId, String postCreatorId) throws SecurityException {
 
         String currentUserId = sakaiProxy.getCurrentUserId();
@@ -124,39 +120,49 @@ public class CommonsSecurityManagerImpl implements CommonsSecurityManager {
             return true;
         }
 
-        if (embedder.equals(CommonsConstants.SOCIAL) && postCreatorId.equals(currentUserId)) {
-            // You can always delete comments on your social posts
-            return true;
-        }
-
-        return false;
+        // You can always delete comments on your social posts
+        return embedder.equals(CommonsConstants.SOCIAL) && postCreatorId.equals(currentUserId);
     }
 
     /**
      * Tests whether the current user can read each Post and if not, filters
      * that post out of the resulting list
      */
+    @Override
     public List<Post> filter(List<Post> posts, String siteId, String embedder) {
 
-        if (posts != null && posts.size() > 0) {
+        if (posts != null && !posts.isEmpty()) {
             long now = Instant.now().toEpochMilli();
             posts = posts.stream().filter(p -> p.getReleaseDate() <= now).collect(Collectors.toList());
-            if (embedder.equals(CommonsConstants.SITE)) {
-                boolean readAny = securityService.unlock(CommonsFunctions.POST_READ_ANY, "/site/" + siteId);
-                return (readAny) ? posts : new ArrayList<>();
-            } else if (embedder.equals(CommonsConstants.ASSIGNMENT)) {
-                boolean readAny = securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, "/site/" + siteId);
-                return (readAny) ? posts : new ArrayList<>();
-            } else if (embedder.equals(CommonsConstants.SOCIAL) || embedder.equals(CommonsConstants.SEARCH)) {
-                return posts;
-            } else {
-                return new ArrayList<>();
+            switch (embedder) {
+                case CommonsConstants.SITE -> {
+                    if (securityService.unlock(CommonsFunctions.POST_READ_ANY, "/site/" + siteId)) {
+                        return posts;
+                    } else {
+                        // Filter to only keep posts authored by current user
+                        String currentUserId = sakaiProxy.getCurrentUserId();
+                        return posts.stream()
+                                .filter(post -> post.getCreatorId().equals(currentUserId))
+                                .collect(Collectors.toList());
+                    }
+                }
+                case CommonsConstants.ASSIGNMENT -> {
+                    boolean readAny = securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, "/site/" + siteId);
+                    return (readAny) ? posts : new ArrayList<>();
+                }
+                case CommonsConstants.SOCIAL, CommonsConstants.SEARCH -> {
+                    return posts;
+                }
+                default -> {
+                    return new ArrayList<>();
+                }
             }
         } else {
             return posts;
         }
     }
 
+    @Override
     public boolean canCurrentUserReadPost(Post post) {
 
         Site site = sakaiProxy.getSiteOrNull(post.getSiteId());
@@ -168,6 +174,7 @@ public class CommonsSecurityManagerImpl implements CommonsSecurityManager {
         }
     }
 
+    @Override
     public Site getSiteIfCurrentUserCanAccessTool(String siteId) {
 
         Site site;

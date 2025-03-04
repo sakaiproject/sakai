@@ -53,6 +53,7 @@ public class Post implements Entity {
     private long modifiedDate = -1L;
     private long releaseDate = -1L;
     private int numberOfComments = 0;
+    private int numberOfLikes = 0;
     private String embedder;
     private String siteId;
     private String commonsId;
