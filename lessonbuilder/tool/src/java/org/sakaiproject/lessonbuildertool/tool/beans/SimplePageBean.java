@@ -2677,7 +2677,6 @@ public class SimplePageBean {
 				log.debug("no page found, making new page toolId {} siteId {} title {}", toolId, getCurrentSiteId(), title);
 
 				// during creation
-				log.debug("Top level page not found, creating new page {}", title);
 				SimplePage page = simplePageToolDao.makePage(toolId, getCurrentSiteId(), title, null, null);
 				if (!saveItem(page)) {
 					currentPage = null;
@@ -2689,9 +2688,9 @@ public class SimplePageBean {
 					l = page.getPageId();
 
 					// and dummy item, the site is the notional top level page
-					log.debug("Top level page not found, creating new  vestigial item {}", title);
 					SimplePageItem i = simplePageToolDao.makeItem(0, 0, SimplePageItem.PAGE, l.toString(), title);
 					saveItem(i);
+					log.debug("Top level page not found, creating new vestigial item {} for page {} itemId {}", title, l, i.getId());
 					updatePageItem(i.getId());
 				} catch (PermissionException e) {
 					log.warn("getCurrentPageId Permission failed setting to new page");

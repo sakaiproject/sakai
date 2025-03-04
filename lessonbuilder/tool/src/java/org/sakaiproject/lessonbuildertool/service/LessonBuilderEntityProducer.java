@@ -1295,7 +1295,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			return "Lessons merge stopped site "+siteId+" could not be loaded "+e.toString();
 		}
 
-		Map<String, Long> emptyPlacements = new HashMap<>();
+		Map<String, String> emptySakaiIds = new HashMap<>();
+		Map<String, Long> emptyTopLevelPageIds = new HashMap<>();
 		Map<String, Long> fullPlacements = new HashMap<>();
 
 		// some code in site action creates the vestigial page and item for new placements and some doesn't
@@ -1331,7 +1332,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 					log.debug("creating vestigial item for top level page: {} type: {}", topLevelPageId, SimplePageItem.PAGE);
 					SimplePageItem item = simplePageToolDao.makeItem(0, 0, SimplePageItem.PAGE, Long.toString(topLevelPageId), title);
 
-					emptyPlacements.put(title, topLevelPageId);
+					emptyTopLevelPageIds.put(title, topLevelPageId);
+					emptySakaiIds.put(title, p.getId());
 					continue;
 				}
 
@@ -1340,7 +1342,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(topLevelPageId);
 				if (items.isEmpty()) {
 					log.debug("found empty lesson placement: {} {} {} ", p.getId(), title, topLevelPageId);
-					emptyPlacements.put(title, topLevelPageId);
+					emptyTopLevelPageIds.put(title, topLevelPageId);
+					emptySakaiIds.put(title, p.getId());
 				} else {
 					log.debug("found existing lesson placement: {} {} {} ", p.getId(), title, topLevelPageId);
 					fullPlacements.put(title, topLevelPageId);
@@ -1349,14 +1352,14 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		}
 
 		// Note that non existant placements (neither empty nor full) are created later
-		log.debug("Finished scanning placements empty {} full {}", emptyPlacements, fullPlacements);
+		log.debug("Finished scanning placements full {} empty {} / {}", fullPlacements, emptyTopLevelPageIds, emptySakaiIds);
 
 		// Lets start the actual merge()
 		NodeList pageNodes = root.getElementsByTagName("page");
 
 		Map <Long,Long> pageMap = new HashMap<Long,Long>();
 
-		// a convenient map of the old page id and its corresponding element
+		// a convenient map of the xml page id and its corresponding element
 		Map <Long,Element> pageElementMap = new HashMap<Long,Element>();
 
 		int count = 0;
@@ -1390,8 +1393,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 		log.debug("Found root pages in import {}", rootOldPageIds);
 
-
-		Set<String> toolsReused = new HashSet<>();
+		Map<String, Long> toolsReused = new HashMap<>();
 
 		// create pages first, build up map of old to new page.
 		// Do not create pages if they are already in an existing tree associated with a
@@ -1410,7 +1412,11 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				Long oldPageId = NumberUtils.toLong(oldPageIdString, 0L);
 				if ( oldPageId < 1 ) continue;
 
-				// Duplicate remove: Check if the page is associated with an existing top level page/placement
+				String oldParentIdString = pageElement.getAttribute("parent");
+				Long oldParentId = NumberUtils.toLong(oldParentIdString, 0L);
+
+				// Duplicate remove:
+				// Check if the page is associated with an existing complete top level page/placement
 				// Recall that parentPage really points to the top page above a page because we
 				// walked up the tree to compute the closure of the child-parent relationships
 				Long rootPageId = parentPage.getOrDefault(oldPageId, 0L);
@@ -1420,22 +1426,26 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 					continue;
 				}
 
-				// Check to see if we want to reuse an existing empty page placement for this new pahe
-				Long emptyPageId = emptyPlacements.get(title);
-				log.debug("Extracting page {} oldPageId: {} emptyPageId {}", title, oldPageId, emptyPageId);
-
-				// See if we can load the existing and empty page
+				// Check to see if this is the root page and we want to reuse an existing
+				// empty page placement instead of making a new page
 				SimplePage page = null;
 				boolean reused = false;
-				if ( emptyPageId != null && emptyPageId > 0 ) {
-					page = simplePageToolDao.getPage(emptyPageId);
-					log.debug("loaded top levelpage {} found {}", emptyPageId, page.getPageId());
+				log.debug("Extracting {} oldPageId: {} parent {}", title, oldPageId, oldParentId);
+				if ( oldParentId < 1 ) {
+					Long emptyPageId = emptyTopLevelPageIds.get(title);
+					log.debug("Extracting page {} oldPageId: {} emptyPageId {}", title, oldPageId, emptyPageId);
+
+					// See if we can load the existing and empty page
+					if ( emptyPageId != null && emptyPageId > 0 ) {
+						page = simplePageToolDao.getPage(emptyPageId);
+						log.debug("loaded top levelpage {} found {}", emptyPageId, page.getPageId());
+					}
 				}
 
 				// If we are re-using an empty page associated with a placement, lets remember it
 				// otherwise create a new page
 				if ( page != null ) {
-					toolsReused.add(title);
+					toolsReused.put(title, page.getPageId());
 					reused = true;
 				} else {
 					page = simplePageToolDao.makePage("0", siteId, title, 0L, 0L);
@@ -1537,53 +1547,55 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 				String toolTitle = trimToNull(element.getAttribute("name"));
 				if(StringUtils.isBlank(toolTitle)) continue;
-				if ( toolsReused.contains(toolTitle) ) {
-					log.debug("Reusing existing placement for {}", toolTitle);
-					continue;
-				}
 
 				if ( fullPlacements.containsKey(toolTitle) ) {
 					log.debug("Placement already has content for {}", toolTitle);
 					continue;
 				}
 
-				// Now we need to add a new left nav placement and link it to the root
-				// page for the newly imported pages
-				String rolelist = element.getAttribute("functions.require");
-				String pagePosition = element.getAttribute("pagePosition");
-				String pageVisibility = element.getAttribute("pageVisibility");
+				// Check if we are reusing a plcement or if we need to make a new one
+				String sakaiPageId = emptySakaiIds.getOrDefault(toolTitle, null);
+				log.debug("Looking for existing placement for {} = {}", toolTitle, sakaiPageId);
+				if ( sakaiPageId == null ) {
+					log.debug("Createing new placement for {}", toolTitle);
+					// Now we need to add a new left nav placement and link it to the root
+					// page for the newly imported pages
+					String rolelist = element.getAttribute("functions.require");
+					String pagePosition = element.getAttribute("pagePosition");
+					String pageVisibility = element.getAttribute("pageVisibility");
 
-				// Time to add the left nav placement
-				SitePage page = site.addPage();
-				ToolConfiguration toolConfig = page.addTool(LessonBuilderConstants.TOOL_ID);
-				if (StringUtils.isNotBlank(pagePosition)) {
-					int integerPosition = Integer.parseInt(pagePosition);
-					page.setPosition(integerPosition);
-				}
-				log.debug("Added Lessons placement toolTitle={} new page={} new tool={} to site", toolTitle, page.getId(), toolConfig.getId());
+					// Time to add the left nav placement
+					SitePage page = site.addPage();
+					ToolConfiguration toolConfig = page.addTool(LessonBuilderConstants.TOOL_ID);
+					if (StringUtils.isNotBlank(pagePosition)) {
+						int integerPosition = Integer.parseInt(pagePosition);
+						page.setPosition(integerPosition);
+					}
+					log.debug("Added Lessons placement toolTitle={} new page={} new tool={} to site", toolTitle, page.getId(), toolConfig.getId());
 
-				String sakaiPageId = toolConfig.getPageId();
-				if (sakaiPageId == null) {
-					log.error("unable to find new sakaiPageId for copy of {}", toolTitle);
-					continue;
+					sakaiPageId = toolConfig.getPageId();
+					if (sakaiPageId == null) {
+						log.error("unable to find new sakaiPageId for copy of {}", toolTitle);
+						continue;
+					}
+
+					if (StringUtils.isNotBlank(rolelist)) {
+						toolConfig.getPlacementConfig().setProperty("functions.require", rolelist);
+					}
+					if (StringUtils.isNotBlank(pageVisibility)) {
+						toolConfig.getPlacementConfig().setProperty(ToolManager.PORTAL_VISIBLE, pageVisibility);
+					}
+					toolConfig.setTitle(toolTitle);
+					page.setTitle(toolTitle);
+					page.setTitleCustom(true);
+					log.debug("saving site {}", site.getId());
+					siteService.save(site);
+					count++;
 				}
 
-				if (StringUtils.isNotBlank(rolelist)) {
-					toolConfig.getPlacementConfig().setProperty("functions.require", rolelist);
-				}
-				if (StringUtils.isNotBlank(pageVisibility)) {
-					toolConfig.getPlacementConfig().setProperty(ToolManager.PORTAL_VISIBLE, pageVisibility);
-				}
-				toolConfig.setTitle(toolTitle);
-				page.setTitle(toolTitle);
-				page.setTitleCustom(true);
-				log.debug("saving site {}", site.getId());
-				siteService.save(site);
-				count++;
-
-				// now fix up the page. new format has it as attribute
-				String pageId = trimToNull(element.getAttribute("pageId"));
-				if (pageId == null) {
+				// now fix up the lessons page. new format has it as attribute
+				String oldPageId = trimToNull(element.getAttribute("pageId"));
+				if (oldPageId == null) {
 					// old format. we should have a page node
 					// normally just one
 					Node pageNode = element.getFirstChild();
@@ -1592,33 +1604,51 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 						continue;
 					}
 					Element pageElement = (Element)pageNode;
-					pageId = trimToNull(pageElement.getAttribute("pageid"));
+					oldPageId = trimToNull(pageElement.getAttribute("pageid"));
 				}
-				if (pageId == null) {
+				if (oldPageId == null) {
 					log.error("page node without old pageid");
 					continue;
 				}
 
-				log.debug("old pageId: {} new pageId: {}", pageId, pageMap.get(Long.valueOf(pageId)));
+				Long newPageId = pageMap.get(Long.valueOf(oldPageId));
+				log.debug("oldPageId: {} loading new pageId: {}", oldPageId, newPageId);
 
 				// fix up the new copy of the page to be top level
-				SimplePage simplePage = simplePageToolDao.getPage(pageMap.get(Long.valueOf(pageId)));
+				SimplePage simplePage = simplePageToolDao.getPage(newPageId);
 				if (simplePage == null) {
-					log.error("can't find new copy of top level page");
+					log.error("can't find new copy of top level page {}", newPageId);
 					continue;
 				}
+
 				simplePage.setParent(null);
 				simplePage.setTopParent(null);
 				simplePage.setToolId(sakaiPageId);
 				simplePageToolDao.quickUpdate(simplePage);
 				log.debug("updated top level lessons page: {} to point to site nav page: {}", simplePage.getPageId(), sakaiPageId);
 
+				// create or update the vestigial item for the top level page
+				// Check to see if we want to reuse an existing empty page placement for this new page
+				Long emptyPageId = emptyTopLevelPageIds.get(toolTitle);
+				log.debug("Extracting page {} oldPageId: {} emptyPageId {}", toolTitle, oldPageId, emptyPageId);
+
+				// See if we can load the existing and empty page
+				SimplePage page = null;
+				boolean reused = false;
+				if ( emptyPageId != null && emptyPageId > 0 ) {
+					page = simplePageToolDao.getPage(emptyPageId);
+					log.debug("loaded top levelpage {} found {}", emptyPageId, page.getPageId());
+				}
+
+				// log.debug("findTopLevelPageItemBySakaiId {}",l);
+				// SimplePageItem i = simplePageToolDao.findTopLevelPageItemBySakaiId(String.valueOf(l));
+
 				// create the vestigial item for this top level page
 				log.debug("creating vestigial item for top level page: {} type: {}", simplePage.getPageId(), SimplePageItem.PAGE);
 				SimplePageItem item = simplePageToolDao.makeItem(0, 0, SimplePageItem.PAGE, Long.toString(simplePage.getPageId()), simplePage.getTitle());
 
 				// Revise the top level page's SimplePageItem based on its corresponding pageElement attributes
-				Element pageElement = pageElementMap.get(Long.valueOf(pageId));
+				Element pageElement = pageElementMap.get(Long.valueOf(oldPageId));
 				String pageAttribute = pageElement.getAttribute("required");
 				if (StringUtils.isNotEmpty(pageAttribute)) {
 					item.setRequired(Boolean.valueOf(pageAttribute));
