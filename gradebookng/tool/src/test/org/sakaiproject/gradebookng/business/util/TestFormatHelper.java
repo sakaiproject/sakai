@@ -22,6 +22,7 @@ import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.After;
 import org.junit.Test;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.grading.api.CategoryDefinition;
@@ -30,15 +31,27 @@ public class TestFormatHelper {
 
 	private Map<String, Double> schema;
 	private static final Locale SPANISH = new Locale("es", "ES");
+	private Locale originalLocale;
 
 	@Before
 	public void init() {
+		// Save the original locale
+		originalLocale = Locale.getDefault();
+		// Set a consistent locale for all tests
+		Locale.setDefault(Locale.US);
+		
 		schema = new HashMap<String, Double>();
 		schema.put("F", 0.0);
 		schema.put("D", 60.0);
 		schema.put("C", 70.0);
 		schema.put("B", 80.0);
 		schema.put("A", 90.0);
+	}
+	
+	@After
+	public void tearDown() {
+		// Restore the original locale
+		Locale.setDefault(originalLocale);
 	}
 
 	@Test
@@ -147,16 +160,26 @@ public class TestFormatHelper {
 
 	@Test
 	public void testFormatDoubleAsPercentage() {
+		// Test with US locale
+		Locale.setDefault(Locale.US);
 		Assert.assertEquals("89.07%", FormatHelper.formatDoubleAsPercentage(89.065));
+		Assert.assertEquals("90%", FormatHelper.formatDoubleAsPercentage(90.0));
+		
+		// Test with Spanish locale
+		Locale.setDefault(SPANISH);
+		Assert.assertEquals("89,07%", FormatHelper.formatDoubleAsPercentage(89.065));
 		Assert.assertEquals("90%", FormatHelper.formatDoubleAsPercentage(90.0));
 	}
 
 	@Test
 	public void testFormatStringAsPercentage() {
+		// Test with US locale
+		Locale.setDefault(Locale.US);
 		Assert.assertNull(FormatHelper.formatStringAsPercentage(""));
 		Assert.assertNull(FormatHelper.formatStringAsPercentage(null));
-		Locale.setDefault(Locale.ENGLISH);
 		Assert.assertEquals("89.07%", FormatHelper.formatStringAsPercentage("89.065"));
+		
+		// Test with Spanish locale
 		Locale.setDefault(SPANISH);
 		Assert.assertEquals("89,07%", FormatHelper.formatStringAsPercentage("89.065"));
 	}
@@ -190,12 +213,16 @@ public class TestFormatHelper {
 
 	@Test
 	public void testValidateDouble() {
-		Locale.setDefault(Locale.ENGLISH);
+		// Test with US locale
+		Locale.setDefault(Locale.US);
 		Assert.assertEquals(Double.valueOf(90.5), FormatHelper.validateDouble("90.5"));
+		Assert.assertEquals(Double.valueOf(905.0), FormatHelper.validateDouble("90,5")); // In US, comma is a thousands separator
 		Assert.assertNull(FormatHelper.validateDouble("invalid"));
+		
+		// Test with Spanish locale
 		Locale.setDefault(SPANISH);
 		Assert.assertEquals(Double.valueOf(90.5), FormatHelper.validateDouble("90,5"));
-		Assert.assertNull(FormatHelper.validateDouble("invalid"));
+		Assert.assertEquals(Double.valueOf(905.0), FormatHelper.validateDouble("90.5")); // In Spanish, dot is a thousands separator
 	}
 
 	@Test
@@ -224,27 +251,39 @@ public class TestFormatHelper {
 
 	@Test
 	public void testFormatGradeFromUserLocale() {
+		// Test with US locale
+		Locale.setDefault(Locale.US);
 		Assert.assertEquals("", FormatHelper.formatGradeFromUserLocale(""));
 		Assert.assertEquals("89.065", FormatHelper.formatGradeFromUserLocale("89.065"));
 		Assert.assertEquals("90", FormatHelper.formatGradeFromUserLocale("90.0"));
+		
+		// Test with Spanish locale
+		Locale.setDefault(SPANISH);
+		Assert.assertEquals("89,065", FormatHelper.formatGradeFromUserLocale("89,065"));
 	}
 
 	@Test
 	public void testFormatGradeForDisplayDouble() {
+		// Test with US locale
+		Locale.setDefault(Locale.US);
 		Assert.assertEquals("", FormatHelper.formatGradeForDisplay((Double)null));
 		Assert.assertEquals("90", FormatHelper.formatGradeForDisplay(90.0));
-		Locale.setDefault(Locale.ENGLISH);
 		Assert.assertEquals("89.07", FormatHelper.formatGradeForDisplay(89.065));
+		
+		// Test with Spanish locale
 		Locale.setDefault(SPANISH);
 		Assert.assertEquals("89,07", FormatHelper.formatGradeForDisplay(89.065));
 	}
 
 	@Test
 	public void testFormatGradeForDisplayString() {
+		// Test with US locale
+		Locale.setDefault(Locale.US);
 		Assert.assertEquals("", FormatHelper.formatGradeForDisplay(""));
 		Assert.assertEquals("90", FormatHelper.formatGradeForDisplay("90.0"));
-		Locale.setDefault(Locale.ENGLISH);
 		Assert.assertEquals("89.07", FormatHelper.formatGradeForDisplay("89.065"));
+		
+		// Test with Spanish locale
 		Locale.setDefault(SPANISH);
 		Assert.assertEquals("89,07", FormatHelper.formatGradeForDisplay("89.065"));
 	}
@@ -324,39 +363,29 @@ public class TestFormatHelper {
 
 	@Test
 	public void testValidateDoubleWithLocales() {
-		// US locale tests
+		// Test with US locale
+		Locale.setDefault(Locale.US);
 		Assert.assertEquals(Double.valueOf(90.5), FormatHelper.validateDouble("90.5"));
-		Assert.assertEquals(Double.valueOf(905.0), FormatHelper.validateDouble("90,5")); // Invalid in US locale
+		Assert.assertEquals(Double.valueOf(905.0), FormatHelper.validateDouble("90,5")); // In US, comma is a thousands separator
 		
-		// Override default locale temporarily to test Spanish
-		Locale defaultLocale = Locale.getDefault();
-		try {
-			Locale.setDefault(SPANISH);
-			Assert.assertEquals(Double.valueOf(90.5), FormatHelper.validateDouble("90,5"));
-			Assert.assertEquals(Double.valueOf(905.0), FormatHelper.validateDouble("90.5")); // Invalid in Spanish locale
-		} finally {
-			Locale.setDefault(defaultLocale);
-		}
+		// Test with Spanish locale
+		Locale.setDefault(SPANISH);
+		Assert.assertEquals(Double.valueOf(90.5), FormatHelper.validateDouble("90,5"));
+		Assert.assertEquals(Double.valueOf(905.0), FormatHelper.validateDouble("90.5")); // In Spanish, dot is a thousands separator
 	}
 
 	@Test
 	public void testFormatGradeForDisplayWithLocales() {
-		// First store the default locale
-		Locale defaultLocale = Locale.getDefault();
-		try {
-			// Test with Spanish locale
-			Locale.setDefault(SPANISH);
-			Assert.assertEquals("90,57", FormatHelper.formatGradeForDisplay("90.567"));
-			Assert.assertEquals("1.234,57", FormatHelper.formatGradeForDisplay("1234.567"));
-			
-			// Test with US locale
-			Locale.setDefault(Locale.US);
-			Assert.assertEquals("90.57", FormatHelper.formatGradeForDisplay("90.567"));
-			Assert.assertEquals("1,234.57", FormatHelper.formatGradeForDisplay("1234.567"));
-		} finally {
-			// Restore the default locale
-			Locale.setDefault(defaultLocale);
-		}
+		// Test with Spanish locale
+		Locale.setDefault(SPANISH);
+		Assert.assertEquals("90,57", FormatHelper.formatGradeForDisplay("90.567"));
+		Assert.assertEquals("1.234,57", FormatHelper.formatGradeForDisplay("1234.567"));
+		
+		// Test with US locale (reset to default)
+		Locale.setDefault(Locale.US);
+		Assert.assertEquals("90.57", FormatHelper.formatGradeForDisplay("90.567"));
+		Assert.assertEquals("1,234.57", FormatHelper.formatGradeForDisplay("1234.567"));
+		// No need to restore locale as @After will do it
 	}
 
 }
