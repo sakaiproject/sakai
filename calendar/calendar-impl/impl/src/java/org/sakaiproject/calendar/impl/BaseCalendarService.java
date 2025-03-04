@@ -103,6 +103,8 @@ import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.api.app.messageforums.DiscussionForumService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 
+import org.sakaiproject.util.MergeConfig;
+
 /**
  * <p>
  * BaseCalendarService is an base implementation of the CalendarService. Extension classes implement object creation, access and storage.
@@ -1489,20 +1491,8 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	}
 
 	@Override
-	public String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId, Map<String, String> attachmentImportMap,
-		Map<Long, Map<String, Object>> ltiContentItems, Map<String, String> userIdTrans, Set<String> userListAllowImport)
+	public String merge(String siteId, Element root, String archivePath, String fromSiteId, MergeConfig mcx)
 	{
-
-		String archiveContext = "";
-		String archiveServerUrl = "";
-
-		Node parent = root.getParentNode();
-		if (parent.getNodeType() == Node.ELEMENT_NODE)
-		{
-			Element parentEl = (Element)parent;
-			archiveContext = parentEl.getAttribute("source");
-			archiveServerUrl = parentEl.getAttribute("serverurl");
-		}
 
 		// prepare the buffer for the results log
 		StringBuilder results = new StringBuilder();
@@ -1627,7 +1617,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 												// map the attachment area folder name
 												String oldUrl = element5.getAttribute("relative-url");
 												String toolTitle = toolManager.getTool("sakai.schedule").getTitle();
-												ContentResource attachment = contentHostingService.copyAttachment(oldUrl, siteId, toolTitle, attachmentImportMap);
+												ContentResource attachment = contentHostingService.copyAttachment(oldUrl, siteId, toolTitle, mcx);
 												if ( attachment != null ) {
 													String newUrl = attachment.getReference();
 													element5.setAttribute("relative-url", Validator.escapeQuestionMark(newUrl));
@@ -1645,8 +1635,8 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 										continue;
 									}
 									String description = edit.getDescriptionFormatted();
-									description = ltiService.fixLtiLaunchUrls(description, siteId, ltiContentItems);
-									description = linkMigrationHelper.migrateLinksInMergedRTE(siteId, archiveContext, archiveServerUrl, description);
+									description = ltiService.fixLtiLaunchUrls(description, siteId, mcx);
+									description = linkMigrationHelper.migrateLinksInMergedRTE(siteId, mcx, description);
 									edit.setDescriptionFormatted(description);
 
 									calendar.commitEvent(edit);

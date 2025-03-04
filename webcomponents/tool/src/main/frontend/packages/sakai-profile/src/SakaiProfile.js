@@ -25,7 +25,7 @@ export class SakaiProfile extends SakaiShadowElement {
 
     this.loadTranslations("profile-wc").then(i18n => this._i18n = i18n);
 
-    this._imageUrl = `/direct/profile/${this.userId}/image/thumb${getSiteId() ? `?siteId=${getSiteId()}` : ""}`;
+    this._imageUrl = `/direct/profile/${this.userId}/image/${getSiteId() ? `?siteId=${getSiteId()}` : ""}`;
   }
 
   fetchProfileData() {

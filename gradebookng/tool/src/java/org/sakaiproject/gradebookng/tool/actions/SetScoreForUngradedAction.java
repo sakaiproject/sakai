@@ -49,7 +49,7 @@ public class SetScoreForUngradedAction extends InjectableAction implements Seria
 		window.show(target);
 
 		panel.setOutputMarkupId(true);
-		target.appendJavaScript("new GradebookUpdateUngraded($(\"#" + panel.getMarkupId() + "\"));");
+		target.appendJavaScript("new GradebookUpdateUngraded(document.getElementById(\"" + panel.getMarkupId() + "\"));");
 
 		return new EmptyOkResponse();
 	}

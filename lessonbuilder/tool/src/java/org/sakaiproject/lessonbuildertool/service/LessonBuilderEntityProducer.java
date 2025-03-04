@@ -145,6 +145,8 @@ import org.w3c.dom.NodeList;
 import lombok.extern.slf4j.Slf4j;
 import uk.org.ponder.messageutil.MessageLocator;
 
+import org.sakaiproject.util.MergeConfig;
+
 /**
  * @author hedrick
  * The goal is to get sites to save and copy. However there's actually no data 
@@ -295,45 +297,6 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
       // if neither is defined we're in trouble;
       if (servers.size() == 0)
 	  log.info("LessonBuilderEntityProducer ERROR: neither servername nor serverid defined in sakai.properties");
-
-      // this slightly odd code is for testing. It lets us test by reloading just lesson builder.
-      // otherwise we have to restart sakai, since the entity stuff can't be restarted
-      if (false) {
-	  SecurityAdvisor mergeAdvisor = new SecurityAdvisor() {
-		  public SecurityAdvice isAllowed(String userId, String function, String reference) {
-		      return SecurityAdvice.ALLOWED;
-		  }
-	      };
-
-      try {
-	  Document doc = Xml.createDocument();
-	  Stack stack = new Stack();
-	  Element root = doc.createElement("archive");
-	  doc.appendChild(root);
-	  root.setAttribute("source", "45d48248-ba23-4829-914a-7219c3ced2dd");
-	  root.setAttribute("server", "foo");
-	  root.setAttribute("date", "now");
-	  root.setAttribute("system", "sakai");
-      
-	  stack.push(root);
-
-	  archive("45d48248-ba23-4829-914a-7219c3ced2dd", doc, stack, "/tmp/archive", null);
-
-	  stack.pop();
-	  
-	  Xml.writeDocument(doc, "/tmp/xmlout");
-
-	  // we don't have an actual user at this point, so need to force checks to work
-	  securityService.pushAdvisor(mergeAdvisor);
-
-	  merge("0134937b-ce16-440c-80a6-fb088d79e5ad",  (Element)doc.getFirstChild().getFirstChild(), "/tmp/archive", "45d48248-ba23-4829-914a-7219c3ced2dd", null, null, null);
-
-      } catch (Exception e) {
-	  log.info(e.getMessage(), e);
-      } finally {
-	  securityService.popAdvisor(mergeAdvisor);
-      }
-      }
 
       try {
 	  ComponentManager.loadComponent("org.sakaiproject.lessonbuildertool.service.LessonBuilderEntityProducer", this);
@@ -719,8 +682,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
     // the pages are already made. this adds the elements
     private boolean mergePage(Element element, String oldServer, String siteId, String fromSiteId, Map<Long,Long> pageMap,
-	  Map<Long,Long> itemMap, Map<String,String> entityMap, Map<Long, Map<String, Object>> ltiContentItems,
-	 String archiveContext, String archiveServerUrl) {
+	  Map<Long,Long> itemMap, Map<String,String> entityMap, MergeConfig mcx) {
   
        String oldSiteId = element.getAttribute("siteid");
        String oldPageIdString = element.getAttribute("pageid");
@@ -794,11 +756,11 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		                continue;
 		            }
 		        } else {
-		            if ( ltiContentItems == null ) {
+		            if ( mcx.ltiContentItems == null ) {
 		                log.warn("Unable to look up LTI content item with ID: {}", ltiContentId);
 		                continue;
 		            }
-		            Map<String, Object> ltiContentItem = ltiContentItems.get(ltiContentId);
+		            Map<String, Object> ltiContentItem = mcx.ltiContentItems.get(ltiContentId);
 		            if (ltiContentItem == null) {
 		                log.warn("Unable to find LTI content item with ID: {}", ltiContentId);
 		                continue;
@@ -842,8 +804,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		        }
 		   } else if (type == SimplePageItem.TEXT) {
 		        String html = itemElement.getAttribute("html");
-		        explanation = ltiService.fixLtiLaunchUrls(html, siteId, ltiContentItems);
-				explanation = linkMigrationHelper.migrateLinksInMergedRTE(siteId, archiveContext, archiveServerUrl, explanation);
+		        explanation = ltiService.fixLtiLaunchUrls(html, siteId, mcx);
+				explanation = linkMigrationHelper.migrateLinksInMergedRTE(siteId, mcx, explanation);
 		   } else if (type == SimplePageItem.PAGE) {
 		       // sakaiId should be the new page ID
 		       Long newPageId = pageMap.get(Long.valueOf(sakaiId));
@@ -1169,26 +1131,44 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
    // Externally used for zip import
    @Override
-   public String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId, Map<String, String> attachmentNames,
-        Map<Long, Map<String, Object>> ltiContentItems, Map<String, String> userIdTrans, Set<String> userListAllowImport) {
-       return merge(siteId, root, archivePath, fromSiteId, creatorId, attachmentNames, ltiContentItems, userIdTrans, userListAllowImport, null);
+   public String merge(String siteId, Element root, String archivePath, String fromSiteId, MergeConfig mcx) {
+       Map<String, String> entityMap = null;
+       return mergeInternal(siteId, root, archivePath, fromSiteId, mcx, entityMap);
    }
 
    // Internally used for both site copy and zip import
-   public String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId, Map attachmentNames,
-        Map<Long, Map<String, Object>> ltiContentItems, Map userIdTrans, Set userListAllowImport, Map<String, String> entityMap)
+   public String mergeInternal(String siteId, Element root, String archivePath, String fromSiteId, MergeConfig mcx,
+       Map<String, String> entityMap)
    {
-	  String archiveContext = "";
-	  String archiveServerUrl = "";
-	  Node parent = root.getParentNode();
-	  if (parent.getNodeType() == Node.ELEMENT_NODE)
-	  {
-		  Element parentEl = (Element)parent;
-		  archiveContext = parentEl.getAttribute("source");
-		  archiveServerUrl = parentEl.getAttribute("serverurl");
-	  }
+
 	  log.debug("Lessons Merge siteId={} fromSiteId={} creatorId={} archiveContext={} archiveServerUrl={}",
-	  	siteId, fromSiteId, creatorId, archiveContext, archiveServerUrl);
+	  	siteId, fromSiteId, mcx.creatorId, mcx.archiveContext, mcx.archiveServerUrl);
+
+		// Check if there is nothing to import
+		NodeList lessonBuilderTools = root.getElementsByTagName("lessonbuilder");
+		boolean lessonHasContent = false;
+
+		for (int toolIndex = 0; toolIndex < lessonBuilderTools.getLength() && !lessonHasContent; toolIndex++) {
+			Node lessonBuilderNode = lessonBuilderTools.item(toolIndex);
+			if (lessonBuilderNode.getNodeType() == Node.ELEMENT_NODE) {
+				Element lessonBuilderElement = (Element) lessonBuilderNode;
+				NodeList lessonPages = lessonBuilderElement.getElementsByTagName("page");
+
+				for (int pageIndex = 0; pageIndex < lessonPages.getLength() && !lessonHasContent; pageIndex++) {
+					Element currentPage = (Element) lessonPages.item(pageIndex);
+					NodeList pageItems = currentPage.getElementsByTagName("item");
+
+					if (pageItems != null && pageItems.getLength() > 0) {
+						lessonHasContent = true;
+					}
+				}
+			}
+		}
+
+		if (!lessonHasContent) {
+			log.debug("No lessonbuilder pages to import");
+			return "No lessonbuilder pages to import";
+		}
 
       StringBuilder results = new StringBuilder();
       // map old to new page ids
@@ -1273,7 +1253,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		     Long oldPageId = Long.valueOf(pageElement.getAttribute("pageid"));
 		     pageElementMap.put(oldPageId, pageElement);
 
-		     if (mergePage(pageElement, oldServer, siteId, fromSiteId, pageMap, itemMap, entityMap, ltiContentItems, archiveContext, archiveServerUrl))
+		     if (mergePage(pageElement, oldServer, siteId, fromSiteId, pageMap, itemMap, entityMap, mcx))
 
 			 needFix = true;
 		 }
@@ -1585,9 +1565,10 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		archive(fromContext, doc, stack, "/tmp/archive", null);
 		
 		stack.pop();
-	  
-		String creatorId = sessionManager.getCurrentSessionUserId();
-		merge(toContext,  (Element)doc.getFirstChild().getFirstChild(), "/tmp/archive", fromContext, creatorId, null, null, null, null, entityMap);
+
+		MergeConfig mcx = new MergeConfig();
+		mcx.creatorId = sessionManager.getCurrentSessionUserId();
+		mergeInternal(toContext,  (Element)doc.getFirstChild().getFirstChild(), "/tmp/archive", fromContext, mcx, entityMap);
 
 		ToolSession session = sessionManager.getCurrentToolSession();
 

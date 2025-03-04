@@ -16,9 +16,21 @@ import org.sakaiproject.portal.util.PortalUtils;
 
 public class BulkGradePanel extends Panel {
     private static final long serialVersionUID = 1L;
+    private final boolean comment;
+    private final double points;
+    private final Integer gradeType;
 
     public BulkGradePanel(final String id, boolean comment, double points, Integer gradeType) {
         super(id);
+        this.comment = comment;
+        this.points = points;
+        this.gradeType = gradeType;
+    }
+
+    @Override
+    protected void onInitialize() {
+        super.onInitialize();
+
         AjaxLink<Void> replace = new AjaxLink<Void>("replace"){
             @Override
             public void onClick(AjaxRequestTarget target){

@@ -2327,7 +2327,12 @@ GbGradeTable.setupConcurrencyCheck = function() {
   // Check for concurrent editors.. and again every 20 seconds
   // (note: there's a 10 second cache)
   performConcurrencyCheck();
-  setInterval(performConcurrencyCheck, 20 * 1000);
+  
+  // Store the interval ID so we can clear it if needed
+  if (GbGradeTable.concurrencyCheckInterval) {
+    clearInterval(GbGradeTable.concurrencyCheckInterval);
+  }
+  GbGradeTable.concurrencyCheckInterval = setInterval(performConcurrencyCheck, 20 * 1000);
 };
 
 GbGradeTable.setupDragAndDrop = function () {
@@ -3179,7 +3184,14 @@ GradebookAPI = {};
 GradebookAPI.isAnotherUserEditing = function (siteId, since, onSuccess) {
 
   const url = `/direct/gbng/isotheruserediting/${siteId}.json`;
-  GradebookAPI._GET(url, { since, auto: true }, "json", onSuccess);
+  GradebookAPI._GET(url, { since, auto: true }, "json", onSuccess, () => {
+    // If this was an automated check (from the interval), stop the checks
+    if (GbGradeTable.concurrencyCheckInterval) {
+      clearInterval(GbGradeTable.concurrencyCheckInterval);
+      GbGradeTable.concurrencyCheckInterval = null;
+      console.warn('Concurrent editing checks stopped due to error');
+    }
+  });
 };
 
 GradebookAPI.getComments = function (siteId, assignmentId, studentUuid, onSuccess, onError) {
@@ -3203,17 +3215,12 @@ GradebookAPI._GET = function (url, data, responseType, onSuccess, onError) {
 
   fetch(fullUrl, { cache: "no-store" })
     .then(r => {
-
-      if (r.ok) {
-        if (responseType === "text") {
-          r.text().then(t => onSuccess(t));
-        } else {
-          r.json().then(o => onSuccess(o));
-        }
+      if (!r.ok) {
+        throw new Error(`Network error while getting ${fullUrl}`);
       }
-
-      throw new Error(`Network error while getting ${fullUrl}`);
+      return responseType === "text" ? r.text() : r.json();
     })
+    .then(data => onSuccess(data))
     .catch(() => onError && onError());
 };
 

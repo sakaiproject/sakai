@@ -21,10 +21,10 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.gradebookng.business.GradeSaveResponse;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
-import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.tool.panels.BulkGradePanel;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.SortType;
@@ -122,7 +122,7 @@ public class QuickEntryPage extends BasePage {
                 Long itemId = dataNow.getItemIdNow();
                 for(QuickEntryRowModel row: allgrades){ //first loop vor validation only
                     try {
-                        double gradeValidator = Double.parseDouble(row.getGrade());
+                        double gradeValidator = FormatHelper.validateDouble(row.getGrade());
                         if(gradeValidator<0){
                             getSession().error(MessageFormat.format(getString("quickentry.error"),row.getName()));
                             row.setHasError(true);
@@ -203,7 +203,8 @@ public class QuickEntryPage extends BasePage {
                 }
             }
             form.add(new Label("itemtitle", assignmentNow.getName()));
-            String itemdetails = " - " + (Objects.equals(GradingConstants.GRADE_TYPE_PERCENTAGE, gradeType) ? getString("quickentry.percentages") : getString("quickentry.points")) + ": " + assignmentNow.getPoints().toString();
+            String localePoints = FormatHelper.formatGradeForDisplay(assignmentNow.getPoints());
+            String itemdetails = " - " + (Objects.equals(GradingConstants.GRADE_TYPE_PERCENTAGE, gradeType) ? getString("quickentry.percentages") : getString("quickentry.points")) + ": " + localePoints;
             if(assignmentNow.getExternallyMaintained()){
                 itemdetails = itemdetails + " - " + MessageFormat.format(getString("quickentry.externally"),assignmentNow.getExternalAppName());
             }
@@ -238,7 +239,8 @@ public class QuickEntryPage extends BasePage {
                     rowNow.setOriginalComment(null);
                 }
                 String gradeNow = this.businessService.getGradeForStudentForItem(uid,this.assignmentNow.getId()).getGrade();
-                rowNow.setGrade(StringUtils.defaultIfBlank(gradeNow, null));
+                String localeGrade = FormatHelper.formatGradeForDisplay(gradeNow);
+                rowNow.setGrade(StringUtils.defaultIfBlank(localeGrade, null));
                 rowNow.setExcused(!Objects.equals(this.businessService.getAssignmentExcuse(this.assignmentNow.getId(), uid), "0"));
                 rowNow.setLocked(this.assignmentNow.getExternallyMaintained());
                 rowNow.setMaxGrade(this.assignmentNow.getPoints());

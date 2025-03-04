@@ -16227,23 +16227,19 @@ public class AssignmentAction extends PagedResourceActionII {
                 SubmitterSubmission u1 = (SubmitterSubmission) o1;
                 SubmitterSubmission u2 = (SubmitterSubmission) o2;
 
-                if (u1 == null || u2 == null) {
-                    result = -1;
-                } else {
-                    AssignmentSubmission s1 = u1.getSubmission();
-                    AssignmentSubmission s2 = u2.getSubmission();
+                if (u1 == null && u2 == null) result = 0;
+                else if (u1 == null) result = -1;
+                else if (u2 == null) result = 1;
 
+                AssignmentSubmission s1 = u1.getSubmission();
+                AssignmentSubmission s2 = u2.getSubmission();
+                Instant t1 = (s1 == null ? null : s1.getDateSubmitted());
+                Instant t2 = (s2 == null ? null : s2.getDateSubmitted());
 
-                    if (s1 == null || s1.getDateSubmitted() == null) {
-                        result = -1;
-                    } else if (s2 == null || s2.getDateSubmitted() == null) {
-                        result = 1;
-                    } else if (s1.getDateSubmitted().isBefore(s2.getDateSubmitted())) {
-                        result = -1;
-                    } else {
-                        result = 1;
-                    }
-                }
+                if (t1 == null && t2 == null) result = 0;
+                else if (t1 == null) result = -1;
+                else if (t2 == null) result = 1;
+                else result = t1.compareTo(t2);
             } else if (m_criteria.equals(SORTED_GRADE_SUBMISSION_BY_STATUS)) {
                 // sort by submission status
                 SubmitterSubmission u1 = (SubmitterSubmission) o1;

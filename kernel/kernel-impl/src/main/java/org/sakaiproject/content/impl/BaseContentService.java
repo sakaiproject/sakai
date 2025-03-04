@@ -192,6 +192,7 @@ import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.util.Xml;
 import org.sakaiproject.util.api.LinkMigrationHelper;
+import org.sakaiproject.util.MergeConfig;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -3828,7 +3829,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		commitCollection(edit);	
 	}
 
-	public ContentResource copyAttachment(String oAttachmentPath, String toContext, String toolTitle, Map<String, String> attachmentImportMap) 
+	public ContentResource copyAttachment(String oAttachmentPath, String toContext, String toolTitle, MergeConfig mcx) 
 		throws IdUnusedException, TypeException, PermissionException
 	{
 		ContentResource oAttachment = null;
@@ -3840,17 +3841,17 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 			log.debug("Cannot find the attachment with path = {}, checking map {}", oAttachmentPath, e.toString());
 		}
 
-		if (oAttachment == null && attachmentImportMap != null) {
-			String lookupAttachmentPath = attachmentImportMap.get(oAttachmentPath);
+		if (oAttachment == null && mcx != null && mcx.attachmentNames != null) {
+			String lookupAttachmentPath = mcx.attachmentNames.get(oAttachmentPath);
 			if (lookupAttachmentPath == null) {
 				if (oAttachmentPath.startsWith(REFERENCE_ROOT)) {
 					oAttachmentPath = oAttachmentPath.replaceFirst(REFERENCE_ROOT, "");
 				} else {
 					oAttachmentPath = REFERENCE_ROOT + oAttachmentPath;
 				}
-				lookupAttachmentPath = attachmentImportMap.get(oAttachmentPath);
+				lookupAttachmentPath = mcx.attachmentNames.get(oAttachmentPath);
 				if (lookupAttachmentPath == null) {
-					log.warn("Cannot find the attachment in map path = {}, map = {}", oAttachmentPath, attachmentImportMap);
+					log.warn("Cannot find the attachment in map path = {}, map = {}", oAttachmentPath, mcx.attachmentNames);
 					return null;
 				}
 			}
@@ -7773,7 +7774,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 
 		try {
 			ContentCollection collection = getCollection(getSiteCollection(siteId));
-			return !m_storage.getResources(collection).isEmpty();
+			List<ContentResourceEdit> resources = m_storage.getResources(collection);
+			if ( resources.size() > 0 ) return true;
+			List<ContentCollectionEdit> collections = m_storage.getCollections(collection);
+			if ( collections.size() > 0 ) return true;
+			return false;
 		} catch (Exception e) {
 			log.warn("Failed to get the entity map for site {}: {}", siteId, e.toString());
 		}
