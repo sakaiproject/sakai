@@ -193,7 +193,7 @@ public class TestFormatHelper {
 		Locale.setDefault(Locale.ENGLISH);
 		Assert.assertEquals(Double.valueOf(90.5), FormatHelper.validateDouble("90.5"));
 		Assert.assertNull(FormatHelper.validateDouble("invalid"));
-		Locale.setDefault(Locale.SPANISH);
+		Locale.setDefault(SPANISH);
 		Assert.assertEquals(Double.valueOf(90.5), FormatHelper.validateDouble("90,5"));
 		Assert.assertNull(FormatHelper.validateDouble("invalid"));
 	}
