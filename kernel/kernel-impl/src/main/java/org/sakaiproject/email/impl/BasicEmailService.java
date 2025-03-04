@@ -854,7 +854,7 @@ public class BasicEmailService implements EmailService
 
 		// Optionally handle exceptions or completion
 		future.exceptionally(ex -> {
-			log.error("Error occurred while sending email: " + ex.getMessage());
+			log.error("Error occurred while sending email: {}", ex.toString());
 			return null;
 		});
 	}
