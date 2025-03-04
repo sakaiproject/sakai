@@ -320,6 +320,8 @@ GbGradeTable.courseGradeFormatter = function(cell, formatterParams, onRendered) 
 
   $(td).data('metadata', metadata);
 
+  td.setAttribute("aria-label", `${student.firstName} ${student.lastName} - ${GbGradeTable.i18n["metadata.courseGrade"]} ${value[0]}`);
+
   if (scoreState === "synced") {
     td.classList.add("gb-just-synced");
 
@@ -410,6 +412,8 @@ GbGradeTable.cellFormatter = function(cell, formatterParams, onRendered) {
   td.dataset.studentId = studentData.userId;
   td.dataset.rowIndex = rowIndex;
   td.dataset.colIndex = colIndex;
+  td.setAttribute("aria-label", `${studentData.firstName} ${studentData.lastName} - ${value} ${GbGradeTable.i18n["label.gradeitem.points"].replace("{0}", columnData.points)}`);
+
 
   if (isAssignment) {
     td.dataset.assignmentId = columnData.assignmentId;
@@ -631,7 +635,7 @@ GbGradeTable.headerFormatter = function(templateId, columnData) {
     onRendered(() => {
       const localColumnData = columnData;
       if (!localColumnData) return;
-
+      
       columnElement.dataset.columnType = localColumnData.type;
       columnElement.dataset.categoryId = localColumnData.categoryId;
 
@@ -702,9 +706,10 @@ GbGradeTable.studentCellFormatter = function(cell, formatterParams, onRendered) 
   const metadata = {
     id: cellKey,
     student: student,
-    studentName: value.name || ''
   };
+
   td.dataset.metadata = JSON.stringify(metadata);
+  td.setAttribute("aria-label", `${student.firstName} ${student.lastName}`);
 
   return td.innerHTML;
 };
@@ -759,6 +764,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     formatterParams: {
       _data_: GbGradeTable.students,
       columnType: "studentname",
+      title: GbGradeTable.i18n["column.header.students"],
     },
     frozen: true,
     width: 220,
@@ -773,6 +779,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     formatterParams: {
       _data_: tableData.courseGrades,
       columnType: "coursegrade",
+      title: GbGradeTable.i18n["column.header.coursegrade"],
     },
     frozen: true,
     width: GbGradeTable.settings.showPoints ? 220 : 140,
@@ -848,6 +855,12 @@ GbGradeTable.renderTable = function (elementId, tableData) {
 
         input.focus();
         input.value.length > 0 && input.select();
+        const studentData = cell.getRow().getData()[GbGradeTable.STUDENT_COLUMN_INDEX];
+
+        input.setAttribute("aria-label",
+          `${GbGradeTable.i18n["column.header.studentsummary.gradebookitem"]} ${columnData.title} - ${studentData.firstName} ${studentData.lastName} - ${input.value} ${GbGradeTable.i18n["label.gradeitem.points"].replace("{0}", columnData.points)}`
+        );
+
       });
 
       input.addEventListener("blur", function () { success(input.value); });
@@ -963,6 +976,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       const columnData = columnDefinition.formatterParams?._data_;
   
       columnElement.setAttribute("data-col-index", index);
+      columnElement.setAttribute("aria-label", columnDefinition.formatterParams.title || columnData.title);
   
       if (index >= GbGradeTable.CURRENT_FIXED_COLUMN_OFFSET) {
         columnElement.classList.add("gb-item");
@@ -996,51 +1010,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
           }
         }
       }
-  
-      // Assignment-specific formatting
-      if (columnDefinition.formatterParams?.columnType === "assignment") {
-        columnElement.setAttribute("abbr", columnDefinition.title);
-        columnElement.setAttribute("aria-label", columnDefinition.title);
-  
-        if (columnDefinition.externallyMaintained) {
-          const flag = columnElement.querySelector(".gb-external-app");
-          flag && (flag.title = columnDefinition.externalToolTitle);
-        }
-  
-        const dropdownToggle = columnElement.querySelector(".dropdown-toggle");
-        if (dropdownToggle) {
-          dropdownToggle.style.display = "block";
-          dropdownToggle.setAttribute("aria-hidden", "false");
-          
-          const studentData = columnDefinition.formatterParams._data_;
-          const studentName = studentData && studentData.firstName && studentData.lastName 
-            ? `${studentData.firstName} ${studentData.lastName}`.trim()
-            : 'Unknown Student';
-          
-          const columnTitle = columnData && columnData.title 
-            ? columnData.title.trim() 
-            : 'Unknown Assignment';
-
-          const dropdownToggleTooltip = GbGradeTable.templates.gradeMenuTooltip.process().replace('{0}', studentName).replace('{1}', columnTitle);
-          
-          dropdownToggle.setAttribute('title', dropdownToggleTooltip.replace(/"/g, '&quot;'));
-          
-          dropdownToggle.setAttribute('aria-label', GbGradeTable.i18n['grade.menu.aria.label'].replace('{0}', studentName).replace('{1}', columnTitle));
-        }
-      }
-  
-      // Category-specific styling
-      if (GbGradeTable.settings.isCategoriesEnabled) {
-        const color = columnDefinition.color || columnDefinition.categoryColor;
-        if (GbGradeTable.settings.isGroupedByCategory) {
-          columnElement.style.boxShadow = `inset 0 5px 0 0 ${color}`;
-        }
-        const swatch = columnElement.querySelector(".swatch");
-        if (swatch) {
-          swatch.style.backgroundColor = color;
-        }
-      }
-  
+    
       // Handle hidden columns
       if (columnDefinition.hidden) {
         const visualCue = columnElement.querySelector(".gb-hidden-column-visual-cue");
@@ -3144,6 +3114,7 @@ GbGradeTable.setupStudentNumberColumn = function() {
 
     td.dataset.cellInitialized = cellKey;
     td.dataset.studentid = value.userId;
+    td.setAttribute("aria-label", ` ${value}`);
 
     const metadata = {
       id: cellKey,
@@ -3162,6 +3133,7 @@ GbGradeTable.setupStudentNumberColumn = function() {
         return student.studentNumber || "";
       }),
       columnType: "studentnumber",
+      title: GbGradeTable.i18n["column.header.studentnumber"],
     },
     width: studentNumberColumnWidth,
     frozen: true,
@@ -3194,6 +3166,7 @@ GbGradeTable.setupSectionsColumn = function() {
     }
 
     td.dataset.cellInitialized = cellKey;
+    td.setAttribute("aria-label", ` ${value}`);
 
     const metadata = {
       id: cellKey,
@@ -3212,6 +3185,7 @@ GbGradeTable.setupSectionsColumn = function() {
         return student.sections || "";
       }),
       columnType: "sections",
+      title: GbGradeTable.i18n["column.header.sections"],
     },
     width: sectionsColumnWidth,
     frozen: true,
