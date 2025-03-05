@@ -413,7 +413,7 @@ export class SakaiNotifications extends SakaiElement {
 
     return html`
       ${this._state === PUSH_SETUP_INFO ? html`
-        <div class="sakai-notifications__banner-warn">
+        <div class="sak-banner-warn sakai-notifications__banner-warn">
           <div class="fw-bold">${this._i18n.push_setup_failure_info}</div>
           <ol class="mt-2">
             <li>${this._i18n.push_setup_failure_info_1.replace("{0}", getServiceName())}</li>
@@ -425,7 +425,7 @@ export class SakaiNotifications extends SakaiElement {
       ` : nothing}
 
       ${this._state === PUSH_DENIED_INFO ? html`
-        <div class="sakai-notifications__banner-error">
+        <div class="sak-banner-error sakai-notifications__banner-error">
           <div class="mb-3">${this._i18n.notifications_denied.replace("{0}", getServiceName())}</div>
           <div>${this._i18n.notifications_not_allowed2.replace("{0}", getServiceName())}</div>
           ${this._browserInfoUrl ? html`
@@ -440,7 +440,7 @@ export class SakaiNotifications extends SakaiElement {
       ` : nothing}
 
       ${this._state === PUSH_INTRO ? html`
-        <div class="sakai-notifications__banner-info">
+        <div class="sak-banner-info sakai-notifications__banner-info">
           <div>
             <div class="mb-1">${this._i18n.notifications_not_allowed.replace("{0}", getServiceName())}</div>
             <div class="sakai-notifications__title">${this._i18n.notifications_not_allowed2.replace("{0}", getServiceName())}</div>

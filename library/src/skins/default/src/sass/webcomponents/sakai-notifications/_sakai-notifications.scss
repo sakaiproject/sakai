@@ -1,20 +1,14 @@
-.sakai-notifications__banner-warn {
-  @include sakai-banner(var(--warnBanner-bordercolor), var(--warnBanner-bgcolor), var(--warnBanner-color), $warnBanner-icon, false);
-
+.sak-banner-warn.sakai-notifications__banner-warn {
   font-weight: bold;
   justify-content: space-around;
 }
 
-.sakai-notifications__banner-error {
-  @include sakai-banner(var(--errorBanner-bordercolor), var(--errorBanner-bgcolor), var(--errorBanner-color), $errorBanner-icon, false);
-
+.sak-banner-error.sakai-notifications__banner-error {
   justify-content: space-around;
   margin-bottom: 1rem;
 }
 
-.sakai-notifications__banner-info {
-  @include sakai-banner(var(--infoBanner-bordercolor), var(--infoBanner-bgcolor), var(--infoBanner-color), $infoBanner-icon, false);
-
+.sak-banner-info.sakai-notifications__banner-info {
   justify-content: space-around;
   margin-bottom: 0.25rem;
   font-weight: bold;
