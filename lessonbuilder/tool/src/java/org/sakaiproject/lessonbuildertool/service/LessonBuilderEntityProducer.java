@@ -126,6 +126,8 @@ import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
+import org.sakaiproject.time.api.Time;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
@@ -196,6 +198,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	private LessonBuilderAccessAPI lessonBuilderAccessAPI;
 	private MessageSource messageSource;
 	private LTIService ltiService;
+	private TimeService timeService;
 	private LinkMigrationHelper linkMigrationHelper;
 	public void setLessonBuilderAccessAPI(LessonBuilderAccessAPI l) {
 		lessonBuilderAccessAPI = l;
@@ -1121,7 +1124,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 							}
 						}
 					} catch (ParseException pe) {
-						log.warn("Exception caught while parsing checklist array: {}", pe.toString());
+						log.warn("Exception caught while parsing simple question: {}", pe.toString());
 						break;
 					}
 					break;
@@ -1145,7 +1148,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 							}
 						}
 					} catch (ParseException pe) {
-						log.warn("Exception caught while parsing checklist array: {}", pe.toString());
+						log.warn("Exception caught while parsing resource folder: {}", pe.toString());
 						break;
 					}
 					break;
@@ -1153,6 +1156,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				default:
 			}
 			if (itemUpdated) {
+				log.debug("Updating item...");
 				simplePageToolDao.quickUpdate(item);
 			}
 		}
@@ -1858,11 +1862,13 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			log.debug("lesson builder transferCopyEntities");
 			Document doc = Xml.createDocument();
 			Stack stack = new Stack();
+			Time now = timeService.newTime();
 			Element root = doc.createElement("archive");
 			doc.appendChild(root);
 			root.setAttribute("source", fromContext);
-			root.setAttribute("server", "foo");
-			root.setAttribute("date", "now");
+			root.setAttribute("server", ServerConfigurationService.getServerId());
+			root.setAttribute("serverurl", ServerConfigurationService.getServerUrl());
+			root.setAttribute("date", now.toString());
 			root.setAttribute("system", "sakai");
 
 			stack.push(root);
@@ -1873,6 +1879,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 			MergeConfig mcx = new MergeConfig();
 			mcx.creatorId = sessionManager.getCurrentSessionUserId();
+			mcx.archiveContext = fromContext;
+			mcx.archiveServerUrl = ServerConfigurationService.getServerUrl();
 			mergeInternal(toContext,  (Element)doc.getFirstChild().getFirstChild(), "/tmp/archive", fromContext, mcx, entityMap);
 
 			ToolSession session = sessionManager.getCurrentToolSession();
@@ -2192,6 +2200,11 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	public void setLtiService(LTIService s) {
 		ltiService = s;
 	}
+
+	public void setTimeService(TimeService s) {
+		timeService = s;
+	}
+
 
 	// sitestats support
 
