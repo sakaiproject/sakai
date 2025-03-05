@@ -958,7 +958,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 
 		// When there is more than one page associated with a placement, the data model is
 		// broken due to an errant import, timing problem, system crash, NPE or whatever.
-		// hen it happens // we ignore empty pages and return the non-empty page with
+		// when it happens // we ignore empty pages and return the non-empty page with
 		// the largest primary key (a weak proxy for "latest" but it is all we have)
 		// with a warning message.
 		log.debug("Scanning {} top pages for placment toolId=", list.size(), toolId);
