@@ -955,21 +955,15 @@ GbGradeTable.renderTable = function (elementId, tableData) {
 
   GbGradeTable.instance.on("columnsLoaded", function () {
     const columns = GbGradeTable.instance.getColumns();
-
+    
     GbGradeTable.CURRENT_FIXED_COLUMN_OFFSET = columns.filter(column => column.getDefinition().frozen).length;
 
-    // Calculate frozen columns boundary using the columns we already have
-    let frozenMaxX = 0;
-    for (let i = 0; i < columns.length; i++) {
-      const column = columns[i];
-      if (column.getDefinition().frozen) {
-        const rect = column.getElement().getBoundingClientRect();
-        if (rect.right > frozenMaxX) frozenMaxX = rect.right;
-      } else {
-        break;
-      }
-    }
-    GbGradeTable.frozenMaxX = frozenMaxX;
+    // Get rightmost boundary of frozen columns by finding the last frozen column
+    const lastFrozenColumn = columns.find((column, index) => {
+      return column.getDefinition().frozen && (!columns[index + 1]?.getDefinition().frozen);
+    });
+    
+    GbGradeTable.frozenMaxX = lastFrozenColumn ? lastFrozenColumn.getElement().getBoundingClientRect().right : 0;
 
     columns.forEach(function (column, index) {
       const columnDefinition = column.getDefinition();
