@@ -120,7 +120,7 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
   {
   }
 
-    public String getNonDefaultText()
+  public String getNonDefaultText()
   {
     if ("Default".equals(text) || "default".equals(text))
     {
