@@ -62,7 +62,7 @@ public class ActivityWidget extends Panel {
 		super(id);
 		this.siteId = siteId;
 		setRenderBodyOnly(true);
-		setOutputMarkupId(true);
+		// Removed setOutputMarkupId(true) - incompatible with setRenderBodyOnly(true) in Wicket 9
 
 		StatsAuthz statsAuthz = Locator.getFacade().getStatsAuthz();
 		boolean siteStatsAll = statsAuthz.isUserAbleToViewSiteStatsAll(siteId);

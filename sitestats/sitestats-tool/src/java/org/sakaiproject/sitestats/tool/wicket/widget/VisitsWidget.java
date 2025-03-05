@@ -64,7 +64,7 @@ public class VisitsWidget extends Panel {
 		this.siteId = siteId;
 		this.currentUserId = currentUserId;
 		setRenderBodyOnly(true);
-		setOutputMarkupId(true);
+		// Removed setOutputMarkupId(true) - incompatible with setRenderBodyOnly(true) in Wicket 9
 
 		StatsAuthz statsAuthz = Locator.getFacade().getStatsAuthz();
 		boolean siteStatsView = statsAuthz.isUserAbleToViewSiteStats(siteId);

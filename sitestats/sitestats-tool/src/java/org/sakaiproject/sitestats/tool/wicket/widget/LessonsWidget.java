@@ -58,7 +58,7 @@ public class LessonsWidget extends Panel {
         super(id);
         this.siteId = siteId;
         setRenderBodyOnly(true);
-        setOutputMarkupId(true);
+        // Removed setOutputMarkupId(true) - incompatible with setRenderBodyOnly(true) in Wicket 9
 
         // Single values (MiniStat)
         List<WidgetMiniStat> widgetMiniStats = new ArrayList<WidgetMiniStat>();
