@@ -440,21 +440,21 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
 	}
   }
 
-    private void retrievePoolOwnerName(Long poolid) {
-        if (poolid != null) {
-            try {
-                QuestionPoolService questionPoolService = new QuestionPoolService();
-                QuestionPoolFacade pool = questionPoolService.getPool(poolIdToBeDrawn, null);
-                if (pool != null) {
-                    setPoolOwnerDisplay(pool.getOwnerDisplayName());
-                }
-            } catch (Exception e) {
-                log.error("Error retrieving question pool owner info", e);
-            }
-        }
-    }
+	private void retrievePoolOwnerName(Long poolid) {
+		if (poolid != null) {
+			try {
+				QuestionPoolService questionPoolService = new QuestionPoolService();
+				QuestionPoolFacade pool = questionPoolService.getPool(poolIdToBeDrawn, null);
+				if (pool != null) {
+					setPoolOwnerDisplay(pool.getOwnerDisplayName());
+				}
+			} catch (Exception e) {
+				log.error("Error retrieving question pool owner info", e);
+			}
+		}
+	}
 
-    private Instant parseInstant(String dateText) throws ParseException {
+	private Instant parseInstant(String dateText) throws ParseException {
 	try {
 		return LocalDateTime.parse(dateText, DateTimeFormatter.ISO_OFFSET_DATE_TIME).toInstant(ZoneOffset.UTC);
 	} catch (DateTimeParseException ex) {
