@@ -1302,6 +1302,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		// some code in site action creates the vestigial page and item for new placements and some doesn't
 		// so we loop through and figure out which placements we already have and patch any existing placements
 		// missing their vestigial page and/or item
+		log.debug("Looping through {} placements in {}", LessonBuilderConstants.TOOL_ID, siteId);
 		Collection<ToolConfiguration> toolConfs = site.getTools(myToolIds());
 		if (toolConfs != null && !toolConfs.isEmpty())  {
 			for (ToolConfiguration config: toolConfs) {
@@ -1310,7 +1311,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				if (p == null ) continue;
 				String title = p.getTitle();
 				Long topLevelPageId = simplePageToolDao.getTopLevelPageId(config.getPageId());
-				log.debug("Looking at placement {} {} topLevelPageId {}",p.getId(), title, topLevelPageId);
+				log.debug("Looking at tool placement {} page placement {} {} topLevelPageId {}", config.getId(), p.getId(), title, topLevelPageId);
 
 				// If there is no top level page associated with a lessonbuilder placement it
 				// we need to create a vestigial page and item so it can have its tree of pages
@@ -1553,11 +1554,18 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 					continue;
 				}
 
-				// Check if we are reusing a plcement or if we need to make a new one
+				// Check if we are reusing a Sakai left nav placement or if we need to make a new one
 				String sakaiPageId = emptySakaiIds.getOrDefault(toolTitle, null);
+				SimplePage oldLessonsPage = null;
+				SimplePageItem oldLessonsItem = null;
 				log.debug("Looking for existing placement for {} = {}", toolTitle, sakaiPageId);
-				if ( sakaiPageId == null ) {
-					log.debug("Createing new placement for {}", toolTitle);
+				if ( sakaiPageId != null ) {
+					Long l = simplePageToolDao.getTopLevelPageId(sakaiPageId);
+					oldLessonsPage = simplePageToolDao.getPage(l);
+					oldLessonsItem = simplePageToolDao.findTopLevelPageItemBySakaiId(String.valueOf(l));
+					log.debug("Finding page {} {} item {} for {}", l, oldLessonsPage, oldLessonsItem, sakaiPageId);
+				} else {
+					log.debug("Creating new placement for {}", toolTitle);
 					// Now we need to add a new left nav placement and link it to the root
 					// page for the newly imported pages
 					String rolelist = element.getAttribute("functions.require");
@@ -1565,13 +1573,13 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 					String pageVisibility = element.getAttribute("pageVisibility");
 
 					// Time to add the left nav placement
-					SitePage page = site.addPage();
-					ToolConfiguration toolConfig = page.addTool(LessonBuilderConstants.TOOL_ID);
+					SitePage sakaiPage = site.addPage();
+					ToolConfiguration toolConfig = sakaiPage.addTool(LessonBuilderConstants.TOOL_ID);
 					if (StringUtils.isNotBlank(pagePosition)) {
 						int integerPosition = Integer.parseInt(pagePosition);
-						page.setPosition(integerPosition);
+						sakaiPage.setPosition(integerPosition);
 					}
-					log.debug("Added Lessons placement toolTitle={} new page={} new tool={} to site", toolTitle, page.getId(), toolConfig.getId());
+					log.debug("Added Lessons placement toolTitle={} new sakaiPage={} new tool={} to site", toolTitle, sakaiPage.getId(), toolConfig.getId());
 
 					sakaiPageId = toolConfig.getPageId();
 					if (sakaiPageId == null) {
@@ -1586,15 +1594,15 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 						toolConfig.getPlacementConfig().setProperty(ToolManager.PORTAL_VISIBLE, pageVisibility);
 					}
 					toolConfig.setTitle(toolTitle);
-					page.setTitle(toolTitle);
-					page.setTitleCustom(true);
+					sakaiPage.setTitle(toolTitle);
+					sakaiPage.setTitleCustom(true);
 					log.debug("saving site {}", site.getId());
 					siteService.save(site);
 					count++;
 				}
 
 				// now fix up the lessons page. new format has it as attribute
-				String oldPageId = trimToNull(element.getAttribute("pageId"));
+				String oldPageId = trimToNull(element.getAttribute("pageId"));  // Case is correct
 				if (oldPageId == null) {
 					// old format. we should have a page node
 					// normally just one
@@ -1604,7 +1612,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 						continue;
 					}
 					Element pageElement = (Element)pageNode;
-					oldPageId = trimToNull(pageElement.getAttribute("pageid"));
+					oldPageId = trimToNull(pageElement.getAttribute("pageid"));  // Case is correct
 				}
 				if (oldPageId == null) {
 					log.error("page node without old pageid");
@@ -1625,29 +1633,19 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				simplePage.setTopParent(null);
 				simplePage.setToolId(sakaiPageId);
 				simplePageToolDao.quickUpdate(simplePage);
-				log.debug("updated top level lessons page: {} to point to site nav page: {}", simplePage.getPageId(), sakaiPageId);
+				log.debug("updated top level lessons page: {} to point to site nav page: {}", newPageId, sakaiPageId);
 
-				// create or update the vestigial item for the top level page
-				// Check to see if we want to reuse an existing empty page placement for this new page
-				Long emptyPageId = emptyTopLevelPageIds.get(toolTitle);
-				log.debug("Extracting page {} oldPageId: {} emptyPageId {}", toolTitle, oldPageId, emptyPageId);
-
-				// See if we can load the existing and empty page
-				SimplePage page = null;
-				boolean reused = false;
-				if ( emptyPageId != null && emptyPageId > 0 ) {
-					page = simplePageToolDao.getPage(emptyPageId);
-					log.debug("loaded top levelpage {} found {}", emptyPageId, page.getPageId());
+				// See if we can load the existing and empty page - if not we create it
+				SimplePageItem item = simplePageToolDao.findTopLevelPageItemBySakaiId(String.valueOf(newPageId));
+				boolean itemExists = true;
+				log.debug("findTopLevelPageItemBySakaiId {} item {}", newPageId, item);
+				if ( item == null ) {
+					log.debug("creating vestigial item for top level page: {} type: {}", newPageId, SimplePageItem.PAGE);
+					item = simplePageToolDao.makeItem(0, 0, SimplePageItem.PAGE, Long.toString(newPageId), simplePage.getTitle());
+					itemExists = false;
 				}
 
-				// log.debug("findTopLevelPageItemBySakaiId {}",l);
-				// SimplePageItem i = simplePageToolDao.findTopLevelPageItemBySakaiId(String.valueOf(l));
-
-				// create the vestigial item for this top level page
-				log.debug("creating vestigial item for top level page: {} type: {}", simplePage.getPageId(), SimplePageItem.PAGE);
-				SimplePageItem item = simplePageToolDao.makeItem(0, 0, SimplePageItem.PAGE, Long.toString(simplePage.getPageId()), simplePage.getTitle());
-
-				// Revise the top level page's SimplePageItem based on its corresponding pageElement attributes
+				// Revise the top level page's SimplePageItem from the import xml
 				Element pageElement = pageElementMap.get(Long.valueOf(oldPageId));
 				String pageAttribute = pageElement.getAttribute("required");
 				if (StringUtils.isNotEmpty(pageAttribute)) {
@@ -1657,8 +1655,30 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				if (StringUtils.isNotEmpty(pageAttribute)) {
 					item.setPrerequisite(Boolean.valueOf(pageAttribute));
 				}
-				log.debug("saving vestigial item: {}", item.getId());
-				simplePageToolDao.quickSaveItem(item);
+				if ( itemExists ) {
+					log.debug("saving vestigial item: {}", item.getId());
+					simplePageToolDao.quickSaveItem(item);
+				} else {
+					List<String>elist = new ArrayList<>();
+					boolean requiresEditPermission = true;
+					simplePageToolDao.update(item, elist, messageLocator.getMessage("simplepage.nowrite"), requiresEditPermission);
+					log.debug("updated vestigial item page: {}", item.getId());
+				}
+
+				// Include the final configuration for the placement in the results
+				Long postPageKey = simplePageToolDao.getTopLevelPageId(sakaiPageId);
+				SimplePage postPage = null;
+				SimplePageItem postItem = null;
+				if ( postPageKey != null ) {
+					postPage = simplePageToolDao.getPage(postPageKey);
+					postItem  = simplePageToolDao.findTopLevelPageItemBySakaiId(String.valueOf(postPageKey));
+				}
+
+				String result = "Placement "+sakaiPageId+" postPageKey "+postPageKey+
+						" page "+(postPage == null ? null : postPage.getPageId())+
+						" item "+(postItem == null ? null : postItem.getId());
+				log.debug(result);
+				results.append(result);
 			}
 			results.append("merging lessonbuilder tool " + siteId + " (" + count + ") items.\n");
 		}
