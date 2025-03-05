@@ -572,18 +572,11 @@ GbGradeTable.cellFormatter = function(cell, formatterParams, onRendered) {
       dropdownToggle.style.display = 'block';
       dropdownToggle.setAttribute('aria-hidden', 'false');
       
-      const studentName = studentData && studentData.firstName && studentData.lastName 
-        ? `${studentData.firstName} ${studentData.lastName}`.trim()
-        : 'Unknown Student';
-      
-      const columnTitle = columnData && columnData.title 
-        ? columnData.title.trim() 
-        : 'Unknown Assignment';
+      const studentName = `${studentData?.firstName || ''} ${studentData?.lastName || ''}`.trim() || ' ';
+      const columnTitle = columnData?.title?.trim() || ' ';
+      const tooltipTemplate = GbGradeTable.templates.gradeMenuTooltip.process().replace(/"/g, '&quot;');
 
-      const dropdownToggleTooltip = GbGradeTable.templates.gradeMenuTooltip.process().replace('{0}', studentName).replace('{1}', columnTitle);
-      
-      dropdownToggle.setAttribute('title', dropdownToggleTooltip.replace(/"/g, '&quot;'));
-      
+      dropdownToggle.setAttribute('title', tooltipTemplate.replace('{0}', studentName).replace('{1}', columnTitle));
       dropdownToggle.setAttribute('aria-label', GbGradeTable.i18n['grade.menulabel'].replace('{0}', studentName).replace('{1}', columnTitle));
     }
   }
@@ -955,7 +948,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
 
   GbGradeTable.instance.on("columnsLoaded", function () {
     const columns = GbGradeTable.instance.getColumns();
-    
+
     GbGradeTable.CURRENT_FIXED_COLUMN_OFFSET = columns.filter(column => column.getDefinition().frozen).length;
 
     // Get rightmost boundary of frozen columns by finding the last frozen column
