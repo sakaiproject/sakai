@@ -81,39 +81,39 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
   private UserTimeService userTimeService;
 
   @Getter @Setter private String text;
-  @Getter private List<ItemContentsBean> itemContents;
-  private String sectionId;
-  private String number;
+  @Getter @Setter private List<ItemContentsBean> itemContents;
+  @Getter @Setter private String sectionId;
+  @Getter @Setter private String number;
   @Getter @Setter private double maxPoints;
   @Getter @Setter private double points;
   @Getter @Setter private int questions;
   @Getter @Setter private int numbering;
-  private String numParts;
-  private String description;
+  @Getter @Setter private String numParts;
+  @Getter @Setter private String description;
   @Setter private int unansweredQuestions; // ItemContentsBeans
-  private List questionNumbers = new ArrayList();
+  @Getter private List questionNumbers = new ArrayList();
 
   // added section Type , question ordering
-  private Integer sectionAuthorType;
-  private Integer questionOrdering;
-  private Integer numberToBeDrawn;
-  private Long poolIdToBeDrawn;
-  private String poolNameToBeDrawn;
-  private String randomQuestionsDrawDate = "";
-  private String randomQuestionsDrawTime = "";
-  private List attachmentList;
-  private boolean noQuestions;
+  @Getter @Setter private Integer sectionAuthorType;
+  @Getter @Setter private Integer questionOrdering;
+  @Getter @Setter private Integer numberToBeDrawn;
+  @Getter @Setter private Long poolIdToBeDrawn;
+  @Getter @Setter private String poolNameToBeDrawn;
+  @Getter @Setter private String randomQuestionsDrawDate = "";
+  @Getter @Setter private String randomQuestionsDrawTime = "";
+  @Getter @Setter private List attachmentList;
+  @Getter @Setter private boolean noQuestions;
   
   @Getter @Setter private SectionGradingData sectionGradingData;
   @Getter private String timeLimit;
   @Getter private boolean timedSection;
 
-  @Setter private Integer numberToBeFixed;
-  @Setter private Long poolIdToBeFixed;
+  @Getter @Setter @Setter private Integer numberToBeFixed;
+  @Getter @Setter private Long poolIdToBeFixed;
   @Getter @Setter private String poolNameToBeFixed;
   @Getter @Setter private String fixedQuestionsDrawDate = "";
   @Getter @Setter private String fixedQuestionsDrawTime = "";
-  @Setter private List<Long> poolIdsToBeDrawn;
+  @Getter @Setter private List<Long> poolIdsToBeDrawn;
   @Getter @Setter private String poolOwnerDisplay;
 
   public SectionContentsBean()
@@ -163,16 +163,7 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
     return itemContents;
   }
 
-  /**
-   * Contents of part.
-   * @param itemContents item contents of part.
-   */
-  public void setItemContents(List<ItemContentsBean> itemContents)
-  {
-    this.itemContents = itemContents;
-  }
-
-  /**
+    /**
    * Get the size of the contents
    */
   public String getItemContentsSize()
@@ -192,58 +183,35 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
     // noop
   }
 
-  /**
-   * Display part number.
-   * @return display numbering
-   */
-  public String getNumber()
-  {
-    return number;
-  }
-
-  /**
-   * Display part number.
-   * @param number display numbering
-   */
-  public void setNumber(String number)
-  {
-    this.number = number;
-  }
-
-  // added by daisyf on 11/22/04
+    // added by daisyf on 11/22/04
+  @Setter
+  @Getter
   private String title;
   private String sequence;
 
-  // for display/hide score
+    /**
+     * -- SETTER --
+     *  Set the student score currently earned.
+     *
+     * @param setShowStudentQuestionScore true/false Show the student score currently earned?
+     */
+    // for display/hide score
   // private boolean showStudentScore;   // show student Assessment Score
   // Chage showStudentScore to showStudentQuestionScore for SAK-7290
   // We consider the display/hide of part(section) score same as question score 
   // We used to consider them as assessment score as you can see above line and 
   // comment (private boolean showStudentScore;   // show student Assessment Score)
+  @Setter
+  @Getter
   private boolean showStudentQuestionScore;   // show student Assessment Score
   private String pointsDisplayString;
 
-  public String getTitle()
-  {
-    return this.title;
-  }
-
-  public void setTitle(String title)
-  {
-    this.title = title;
-  }
-
-  public List getQuestionNumbers()
-  {
-    return questionNumbers;
-  }
-
-  public void setQuestionNumbers()
+    public void setQuestionNumbers()
   {
     this.questionNumbers = new ArrayList();
     for (int i = 1; i <= this.itemContents.size(); i++)
     {
-      this.questionNumbers.add(new SelectItem( Integer.valueOf(i)));
+      this.questionNumbers.add(new SelectItem(i));
     }
   }
 
@@ -397,7 +365,7 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
 		setPoolIdToBeDrawn(poolid);
 		retrievePoolOwnerName(poolid);
 		if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString().equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE))) {
-			Integer randomPools = Integer.valueOf(section.getSectionMetaDataByLabel(SectionDataIfc.RANDOM_POOL_COUNT));
+			int randomPools = Integer.parseInt(section.getSectionMetaDataByLabel(SectionDataIfc.RANDOM_POOL_COUNT));
 			List<Long> poolIds = new ArrayList<>();
 			poolIds.add(poolid);
 			for (int i = 1; i < randomPools; i++) {
@@ -484,154 +452,28 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
 	}
   }
 
-  public String getSectionId()
-  {
-    return sectionId;
-  }
 
-  /**
-   * Part description.
-   * @param text Part description.
-   */
-  public void setSectionId(String sectionId)
-  {
-    this.sectionId = sectionId;
-  }
-
-  public String getNumParts()
-  {
-    return numParts;
-  }
-
-  public void setNumParts(String newNum)
-  {
-    numParts = newNum;
-  }
-
-  public String getDescription()
-  {
-    return description;
-  }
-
-  public void setDescription(String newDesc)
-  {
-    description = newDesc;
-  }
-
-  public Integer getSectionAuthorType()
-  {
-    return sectionAuthorType;
-  }
-
-  public String getSectionAuthorTypeString()
+    public String getSectionAuthorTypeString()
   {
     return sectionAuthorType.toString();
   }
 
-  public void setSectionAuthorType(Integer param)
-  {
-    sectionAuthorType = param;
-  }
-
-  public Integer getQuestionOrdering()
-  {
-    return questionOrdering;
-  }
-
-  public String getQuestionOrderingString()
+    public String getQuestionOrderingString()
   {
     return questionOrdering.toString();
   }
 
-  public void setQuestionOrdering(Integer param)
-  {
-    questionOrdering = param;
-  }
-
-  public Integer getNumberToBeDrawn()
-  {
-    return numberToBeDrawn;
-  }
-
-  public Integer getNumberToBeFixed()
-  {
-    return numberToBeFixed;
-  }
-
-  public String getNumberToBeDrawnString()
+    public String getNumberToBeDrawnString()
   {
     return numberToBeDrawn.toString();
   }
 
-  public void setNumberToBeDrawn(Integer param)
-  {
-    numberToBeDrawn = param;
-  }
-
-  public String getNumberToBeFixedString()
+    public String getNumberToBeFixedString()
   {
     return numberToBeFixed.toString();
   }
 
-  public void setNumberToBeFixed(Integer param)
-  {
-    numberToBeFixed = param;
-  }
-
-  public Long getPoolIdToBeDrawn()
-  {
-    return poolIdToBeDrawn;
-  }
-
-  public Long getPoolIdToBeFixed()
-  {
-    return poolIdToBeFixed;
-  }
-
-  public void setPoolIdToBeDrawn(Long param)
-  {
-    poolIdToBeDrawn = param;
-  }
-
-  public List<Long> getPoolIdsToBeDrawn()
-  {
-    return poolIdsToBeDrawn;
-  }
-
-  public void setPoolIdsToBeDrawn(List<Long> param)
-  {
-    poolIdsToBeDrawn = param;
-  }
-
-  public void setPoolNameToBeDrawn(String param)
-  {
-    poolNameToBeDrawn = param;
-  }
-
-  public String getPoolNameToBeDrawn()
-  {
-    return poolNameToBeDrawn;
-  }
-
-  /**
-   * Show the student score currently earned?
-   * @return the score
-   */
-  public boolean isShowStudentQuestionScore()
-  {
-    return showStudentQuestionScore;
-  }
-
-  /**
-   * Set the student score currently earned.
-   * @param setShowStudentQuestionScore true/false Show the student score currently earned?
-   */
-  public void setShowStudentQuestionScore(boolean showStudentQuestionScore)
-  {
-    this.showStudentQuestionScore = showStudentQuestionScore;
-  }
-
-  /**
+    /**
    * If we display the score, return it, followed by a slash.
    * @return either, a) the score followed by a slash, or, b) "" (empty string)
    */
@@ -645,49 +487,17 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
     return pointsDisplayString;
   }
 
-  public List getAttachmentList() {
-    return attachmentList;
-  }
-
-  public void setAttachmentList(List attachmentList)
-  {
-    this.attachmentList = attachmentList;
-  }
-
-  private boolean hasAttachment = false;
+    private boolean hasAttachment = false;
   public boolean getHasAttachment(){
-    boolean hasAttachment = false;
-    if (attachmentList!=null && attachmentList.size() >0){
-        hasAttachment = true;
-    }
-    return hasAttachment;
+    boolean hasAttachment = attachmentList != null && !attachmentList.isEmpty();
+      return hasAttachment;
   }
 
   public boolean getNoQuestions() {
 	  return noQuestions;
   }
 
-  public void setNoQuestions(boolean noQuestions)
-  {
-	  this.noQuestions = noQuestions;
-  }
-  public String getRandomQuestionsDrawDate() {
-	  return randomQuestionsDrawDate;
-  }
-
-  public void setRandomQuestionsDrawDate(String randomQuestionsDrawDate) {
-	  this.randomQuestionsDrawDate = randomQuestionsDrawDate;
-  }
-
-  public String getRandomQuestionsDrawTime() {
-	  return randomQuestionsDrawTime;
-  }
-
-  public void setRandomQuestionsDrawTime(String randomQuestionsDrawTime) {
-	  this.randomQuestionsDrawTime = randomQuestionsDrawTime;
-  }
-
-  public boolean isEmiItemPresent() {
+    public boolean isEmiItemPresent() {
     return this.itemContents != null
         ? this.itemContents.stream()
             .filter(item -> TypeIfc.EXTENDED_MATCHING_ITEMS.equals(item.getItemData().getTypeId()))
