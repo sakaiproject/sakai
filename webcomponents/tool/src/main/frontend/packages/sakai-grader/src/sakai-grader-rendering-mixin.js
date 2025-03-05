@@ -27,7 +27,7 @@ export const graderRenderingMixin = Base => class extends Base {
             <div class="modal-content">
               <div class="modal-header">
                 <h5 class="modal-title" id="grader-settings-modal-label">${this._i18n.settings}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close d-lg-none" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
               <div class="modal-body">
                 <div>
@@ -251,7 +251,7 @@ export const graderRenderingMixin = Base => class extends Base {
   _renderGraderLinkBlock() {
 
     return html`
-      <div id="grader-link-block" class="float-end">
+      <div id="grader-link-block" class="float-end d-lg-none">
         <button class="btn btn-primary active"
             data-bs-toggle="offcanvas"
             data-bs-target="#grader"
@@ -351,16 +351,16 @@ export const graderRenderingMixin = Base => class extends Base {
     return html`
       ${this._submission.id !== "dummy" ? html`
 
-      <div id="grader" class="offcanvas offcanvas-end" data-bs-backdrop="static" tabindex="-1" aria-labelledby="grader-label">
+      <div id="grader" class="offcanvas offcanvas-end d-lg-block" data-bs-backdrop="static" tabindex="-1" aria-labelledby="grader-label">
 
         <div class="offcanvas-header">
-          <h2 class="offcanvas-title" id="grader-label">${this._i18n.grader}</h2>
-          <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+          <h2 class="offcanvas-title" id="grader-label">
+            ${this._getSubmitter(this._submission)}
+          </h2>
+          <button type="button" class="btn-close text-reset d-lg-none" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
 
         <div class="offcanvas-body">
-
-          <div class="fw-bold fs-5">${this._getSubmitter(this._submission)}</div>
 
           <!-- START ORIGINALITY BLOCK -->
           ${this._submission.originalityShowing ? html`
@@ -560,25 +560,19 @@ export const graderRenderingMixin = Base => class extends Base {
 
               ${this._submission.feedbackComment ? html`
                 <div id="feedback-snippet"
-                    class="grader-snippet rounded-3 ms-3 mt-2 ${this._feedbackCommentEditorShowing ? "d-none" : "d-block"}">
-                  <div class="grader-snippet position-relative overflow-hidden rounded-3">
-                    <div class="m-2 ${!this._showingFullFeedbackComment && !this._allFeedbackCommentVisible ? "fade-text" : ""}">
-                      ${unsafeHTML(this._submission.feedbackComment)}
-                    </div>
-                    <div class="fade-overlay ${!this._showingFullFeedbackComment && !this._allFeedbackCommentVisible ? "d-block" : "d-none"}">
-                    </div>
+                    class="card ms-3 mt-2 ${this._feedbackCommentEditorShowing ? "d-none" : "d-block"}">
+                  <div class="card-body">
+                    ${unsafeHTML(this._submission.feedbackComment)}
                   </div>
-                  <div class="ms-2 p-2">
-                    <button class="btn btn-transparent
-                                    text-decoration-underline
-                                    ${this._allFeedbackCommentVisible ? "d-none" : "d-inline"}"
-                        @click=${this._toggleFullFeedbackComment}>
-                      ${this._showingFullFeedbackComment ? this._i18n.show_less : this._i18n.show_all}
+                  <div class="card-footer bg-transparent">
+                    <button class="btn btn-link p-0"
+                        @click=${this._toggleFeedbackCommentEditor}>
+                      ${this._i18n.edit}
                     </button>
                   </div>
                 </div>
                 <div class="mt-2 ms-3 ${!this._feedbackCommentEditorShowing ? "d-block" : "d-none"}">
-                  <button class="btn btn-transparent text-decoration-underline"
+                  <button class="btn p-0"
                       @click=${this._removeFeedbackComment}>
                     ${this._i18n["gen.remove"]}
                   </button>
@@ -594,7 +588,7 @@ export const graderRenderingMixin = Base => class extends Base {
                   <sakai-icon type="microphone"></sakai-icon>
                   <sakai-icon type="video"></sakai-icon>
                 </div>
-                <button class="btn btn-primary mt-2" @click=${this._toggleFeedbackCommentEditor}>
+                <button id="grader-feedback-comment-save" class="btn btn-primary mt-2" @click=${this._saveFeedbackComment}>
                   ${this._i18n["gen.don"]}
                 </button>
               </div>
@@ -670,24 +664,22 @@ export const graderRenderingMixin = Base => class extends Base {
                   ${this._submission.privateNotes ? this._i18n.edit_private_notes : this._i18n.add_private_notes}
                 </button>
               </div>
-              <div class="sak-banner-warn ms-2 ${this._privateNotesRemoved ? "d-block" : "d-none"}">${this._i18n.removed}</div>
+              <div class="sak-banner-warn ${this._privateNotesRemoved ? "d-block" : "d-none"}">${this._i18n.removed}</div>
 
               ${this._submission.privateNotes ? html`
-                <div id="private-notes-snippet" class="grader-snippet ms-3 mt-2 ${this._privateNotesEditorShowing ? "d-none" : "d-block"}">
-                  <div class="grader-snippet position-relative overflow-hidden">
-                    <div class="m-2 ${!this._showingFullPrivateNotes && !this._allPrivateNotesVisible ? "fade-text" : ""}">${unsafeHTML(this._submission.privateNotes)}</div>
-                    ${!this._showingFullPrivateNotes && !this._allPrivateNotesVisible ? html`
-                    <div class="fade-overlay"></div>
-                    ` : nothing }
+                <div id="private-notes-snippet" class="card ms-3 mt-2 ${this._privateNotesEditorShowing ? "d-none" : "d-block"}">
+                  <div class="card-body">
+                    ${unsafeHTML(this._submission.privateNotes)}
                   </div>
-                  <div class="ms-2 p-2">
-                    <button class="btn btn-transparent text-decoration-underline ${this._allPrivateNotesVisible ? "d-none" : "d-inline"}" @click=${this._toggleFullPrivateNotes}>
-                      ${this._showingFullPrivateNotes ? this._i18n.show_less : this._i18n.show_all}
+                  <div class="card-footer bg-transparent">
+                    <button class="btn btn-link p-0"
+                        @click=${this._togglePrivateNotesEditor}>
+                      ${this._i18n.edit}
                     </button>
                   </div>
                 </div>
                 <div class="mt-2 ms-3 ${this._privateNotesEditorShowing ? "d-none" : "d-block"}">
-                  <button class="btn btn-transparent text-decoration-underline"
+                  <button class="btn p-0"
                       @click=${this._removePrivateNotes}>
                     ${this._i18n["gen.remove"]}
                   </button>
@@ -698,8 +690,8 @@ export const graderRenderingMixin = Base => class extends Base {
                 <div class="sak-banner-info">${unsafeHTML(this._i18n.private_notes_tooltip)}</div>
                 <div id="private-notes-unsaved-msg" class="sak-banner-error d-none">${this._i18n.unsaved_text_warning}</div>
                 <textarea id="grader-private-notes" aria-label="${this._i18n.private_notes_label}" .value=${this._submission.privateNotes}></textarea>
-                <button class="btn btn-primary mt-2"
-                    @click=${this._togglePrivateNotesEditor}>
+                <button id="grader-private-notes-save" class="btn btn-primary mt-2"
+                    @click=${this._savePrivateNotes}>
                   ${this._i18n["gen.don"]}
                 </button>
               </div>
@@ -767,7 +759,7 @@ export const graderRenderingMixin = Base => class extends Base {
                   @click=${this._save}>
                 ${this._i18n["gen.retustud"]}
               </button>
-              <button class="btn btn-link" accesskey="x" name="cancel" @click=${this._cancel}>${this._i18n["gen.can"]}</button>
+              <button class="btn btn-link d-lg-none" accesskey="x" name="cancel" @click=${this._cancel}>${this._i18n["gen.can"]}</button>
             </div>
             ${this._saving ? html`<div class="sak-banner-info">${this._i18n.saving}</div>` : ""}
             ${this._saveSucceeded && this._gradeOrCommentsModified ? html`<div class="sak-banner-success">${this._i18n.successful_save}</div>` : nothing }
@@ -795,83 +787,87 @@ export const graderRenderingMixin = Base => class extends Base {
       <div id="grader-filter-warning" class="sak-banner-warn">${this._i18n.filter_settings_warning}</div>
       ` : nothing }
       ${this._renderTopbar()}
-      <div id="grader-submitted-block" class="grader-block">
-        <div class="d-flex mb-3">
-          <sakai-user-photo user-id="${this._getPhotoUserId()}" classes="grader-photo" profile-popup="on"></sakai-user-photo>
-          <div style="flex: 4;">
-            <span class="submitter-name">
-              ${this._getSubmitter(this._submission)}
-            </span>
-            ${this._submission.draft && this._submission.visible ? html`
-            <span class="draft-submission">(${this._i18n.draft_submission})</span>
-            ` : html`
-              ${this._submission.submittedTime ? html`
-              <div id="grader-submitted-label">${this._i18n.submitted}</div>
+      <div class="d-flex flex-column flex-lg-row">
+        <div id="grader-gradable-container" class="flex-grow-1">
+          <div id="grader-submitted-block" class="grader-block">
+            <div class="d-flex mb-3">
+              <sakai-user-photo user-id="${this._getPhotoUserId()}" classes="grader-photo" profile-popup="on"></sakai-user-photo>
+              <div style="flex: 4;">
+                <span class="submitter-name">
+                  ${this._getSubmitter(this._submission)}
+                </span>
+                ${this._submission.draft && this._submission.visible ? html`
+                <span class="draft-submission">(${this._i18n.draft_submission})</span>
+                ` : html`
+                  ${this._submission.submittedTime ? html`
+                  <div id="grader-submitted-label">${this._i18n.submitted}</div>
+                  ` : nothing }
+                `}
+              </div>
+            </div>
+            <div class="d-flex align-items-center">
+              <div class="submitted-time ${this._submission.draft ? "draft-time" : ""}">${this._submission.submittedTime}</div>
+              ${this._submission.late ? html`<div class="grader-late ms-2">${this._i18n["grades.lateness.late"]}</div>` : ""}
+              ${this._submission.returned ? html`
+                <div class="ms-2"><span class="grader-returned fa fa-eye" title="${this._i18n.returned_tooltip}"></span></div>
               ` : nothing }
-            `}
-          </div>
-        </div>
-        <div class="d-flex align-items-center">
-          <div class="submitted-time ${this._submission.draft ? "draft-time" : ""}">${this._submission.submittedTime}</div>
-          ${this._submission.late ? html`<div class="grader-late ms-2">${this._i18n["grades.lateness.late"]}</div>` : ""}
-          ${this._submission.returned ? html`
-            <div class="ms-2"><span class="grader-returned fa fa-eye" title="${this._i18n.returned_tooltip}"></span></div>
-          ` : nothing }
-        </div>
-        ${this._submission.groupId && this._submission.submittedTime ? html`<div class="grader-group-members">${this._submission.groupMembers}</div>` : nothing }
-        <div class="attachments">
-          ${this._submission.submittedText
-              && this._submission.visible
-              && this.gradable.submissionType === "TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION"
-              && this._submission.hasNonInlineAttachments ? html`
-          <div>
-            <button type="button"
-                class="btn btn-transparent text-decoration-underline"
-                @click=${() => this._submittedTextMode = true}>
-              ${this._i18n.submission_inline}
-            </button>
-          </div>
-          ` : nothing}
-          ${this._submission.submissionLog.length > 0 ? html`
-          <button type="button"
-              class="btn btn-link mb-2"
-              data-bs-toggle="collapse"
-              data-bs-target="#grader-submission-history"
-              aria-controls="grader-submission_history"
-              aria-expanded="false">
-            ${this._i18n.submission_history}
-          </button>
-          <div class="collapse mb-2" id="grader-submission-history">
-            <div class="card card-body">
-            ${this._submission.submissionLog.map(message => html`
-              <div>${message}</div>
-            `)}
             </div>
-          </div>
-          ` : nothing}
-          ${this._submission.submittedAttachments.filter(r => !r.ref.includes("InlineSub")).map(r => html`
-            <div>
+            ${this._submission.groupId && this._submission.submittedTime ? html`<div class="grader-group-members">${this._submission.groupMembers}</div>` : nothing }
+            <div class="attachments">
+              ${this._submission.submittedText
+                  && this._submission.visible
+                  && this.gradable.submissionType === "TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION"
+                  && this._submission.hasNonInlineAttachments ? html`
+              <div>
+                <button type="button"
+                    class="btn btn-transparent text-decoration-underline"
+                    @click=${() => this._submittedTextMode = true}>
+                  ${this._i18n.submission_inline}
+                </button>
+              </div>
+              ` : nothing}
+              ${this._submission.submissionLog.length > 0 ? html`
               <button type="button"
-                  class="btn btn-transparent text-decoration-underline"
-                  data-ref="${r.ref}"
-                  @click=${this._previewAttachment}>
-                <i class="${r.iconClass} me-2"></i>
-                ${r.name} (${r.contentLength} ${this._i18n.at} ${r.creationDate})
+                  class="btn btn-link mb-2"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#grader-submission-history"
+                  aria-controls="grader-submission_history"
+                  aria-expanded="false">
+                ${this._i18n.submission_history}
               </button>
+              <div class="collapse mb-2" id="grader-submission-history">
+                <div class="card card-body">
+                ${this._submission.submissionLog.map(message => html`
+                  <div>${message}</div>
+                `)}
+                </div>
+              </div>
+              ` : nothing}
+              ${this._submission.submittedAttachments.filter(r => !r.ref.includes("InlineSub")).map(r => html`
+                <div>
+                  <button type="button"
+                      class="btn btn-transparent text-decoration-underline"
+                      data-ref="${r.ref}"
+                      @click=${this._previewAttachment}>
+                    <i class="${r.iconClass} me-2"></i>
+                    ${r.name} (${r.contentLength} ${this._i18n.at} ${r.creationDate})
+                  </button>
+                </div>
+              `)}
             </div>
-          `)}
-        </div>
-        <div>
-        ${this._submission.submitters?.length > 0 && this._submission.submitters[0].timeSpent ? html`
-          <span>${this._i18n["gen.assign.spent"]}</span>
-          <span> ${this._submission.submitters[0].timeSpent}</span>
-        ` : nothing}
-        </div>
-      </div> <!-- /grader-submitted-block -->
+            <div>
+            ${this._submission.submitters?.length > 0 && this._submission.submitters[0].timeSpent ? html`
+              <span>${this._i18n["gen.assign.spent"]}</span>
+              <span> ${this._submission.submitters[0].timeSpent}</span>
+            ` : nothing}
+            </div>
+          </div> <!-- /grader-submitted-block -->
 
-      <div id="grader-container">
+          <div id="grader-gradable-content">
+            ${this._renderGradable()}
+          </div>
+        </div>
         ${this._renderGrader()}
-        ${this._renderGradable()}
       </div>
     `;
   }

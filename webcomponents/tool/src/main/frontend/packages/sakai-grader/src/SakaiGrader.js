@@ -351,18 +351,33 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     }
   }
 
+  _savePrivateNotes() {
+    // First toggle the editor (close it)
+    this._togglePrivateNotesEditor();
+
+    // Then save the data
+    this._save({});
+  }
+
   _toggleFeedbackCommentEditor() {
 
     this._feedbackCommentEditorShowing = !this._feedbackCommentEditorShowing;
 
     if (!this._feedbackCommentEditorShowing) {
-
       this._showingFullFeedbackComment = false;
       this._allFeedbackCommentVisible = false;
       this.updateComplete.then(() => this._setupVisibleFlags());
     } else {
       this._feedbackCommentRemoved = false;
     }
+  }
+
+  _saveFeedbackComment() {
+    // First toggle the editor (close it)
+    this._toggleFeedbackCommentEditor();
+
+    // Then save the data
+    this._save({});
   }
 
   _previewAttachment(e) {
@@ -521,7 +536,10 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
         this._saveSucceeded = false;
         this._gradeOrCommentsModified = false;
         const graderEl = document.getElementById("grader");
-        bootstrap.Offcanvas.getInstance(graderEl).hide();
+        const offcanvasInstance = bootstrap.Offcanvas.getInstance(graderEl);
+        if (offcanvasInstance) {
+          offcanvasInstance.hide();
+        }
       }, closeSidebarTimeout || 1000);
     })
     .catch (e => {
@@ -573,7 +591,10 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
       default:
     }
 
-    bootstrap.Offcanvas.getInstance(document.getElementById("grader")).hide();
+    const offcanvasInstance = bootstrap.Offcanvas.getInstance(document.getElementById("grader"));
+    if (offcanvasInstance) {
+      offcanvasInstance.hide();
+    }
   }
 
   _clearSubmission() {
