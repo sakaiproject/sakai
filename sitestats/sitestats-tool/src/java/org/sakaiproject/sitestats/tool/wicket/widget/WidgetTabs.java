@@ -83,7 +83,7 @@ public class WidgetTabs extends Panel implements IAjaxIndicatorAware {
 		add(loadSelectedTabBehavior);	
 		
 		// select initial tab
-		setSelectedTab(selectedTab, false);
+		setSelectedTab(selectedTab, true);
 	}
 	
 	protected void onBeforeRender() {
