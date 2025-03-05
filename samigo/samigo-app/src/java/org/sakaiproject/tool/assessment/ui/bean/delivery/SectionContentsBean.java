@@ -108,7 +108,7 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
   @Getter private String timeLimit;
   @Getter private boolean timedSection;
 
-  @Getter @Setter @Setter private Integer numberToBeFixed;
+  @Getter @Setter private Integer numberToBeFixed;
   @Getter @Setter private Long poolIdToBeFixed;
   @Getter @Setter private String poolNameToBeFixed;
   @Getter @Setter private String fixedQuestionsDrawDate = "";
