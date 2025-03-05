@@ -117,7 +117,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
                 Map<String, AssignmentSubmission> submissionIdMap = new HashMap<>();
                 //keep track of who has been assigned an assessment
                 Map<String, Map<String, PeerAssessmentItem>> assignedAssessmentsMap = new HashMap<>();
-                //keep track of how many assessor's each student has
+                //keep track of how many assessors each student has
                 Map<String, Integer> studentAssessorsMap = new HashMap<>();
                 String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
 
@@ -148,16 +148,25 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
                     }
                 }
 
-                // this could be an update to an existing assessment... just make sure to grab any existing review items first
+                // Get existing peer assessment items
                 List<PeerAssessmentItem> existingItems = getPeerAssessmentItems(submissionIdMap.keySet(), assignment.getScaleFactor());
+                
+                // Clear all existing peer assessment items that don't have scores or comments
+                // This allows for re-randomization when assignments are edited
                 List<PeerAssessmentItem> removeItems = new ArrayList<>();
-                // screen existing items which have no score or comments
                 existingItems.stream()
                         .filter(item -> item.getScore() == null && (StringUtils.isBlank(item.getComment())))
                         .forEach(removeItems::add);
-                existingItems.removeAll(removeItems);
+                
+                // Also remove all items if we're doing a complete reassignment
+                // This ensures randomization happens on each edit
+                if (!removeItems.isEmpty()) {
+                    getHibernateTemplate().deleteAll(removeItems);
+                    getHibernateTemplate().flush();
+                    existingItems.removeAll(removeItems);
+                }
 
-                // loop through the items and update the map values
+                // loop through the remaining items and update the map values
                 for (PeerAssessmentItem p : existingItems) {
                     String submissionId = p.getId().getSubmissionId();
                     if (submissionIdMap.containsKey(submissionId)) {
@@ -193,12 +202,12 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
                             removeItems.add(p);
                         }
                     } else {
-                        //this isn't realy possible since we looked up the peer assessments by submission id
+                        //this isn't really possible since we looked up the peer assessments by submission id
                         log.error("AssignmentPeerAssessmentServiceImpl: found a peer assessment with an invalid session id: " + p.getId().getSubmissionId());
                     }
                 }
 
-                // remove items
+                // remove any additional items that need to be removed
                 if (!removeItems.isEmpty()) {
                     getHibernateTemplate().deleteAll(removeItems);
                     getHibernateTemplate().flush();
@@ -209,8 +218,10 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
                 // ensure that the number of reviews are set up properly, creating any that are needed
 
                 // randomize the submission id's in order to have a random assigning algorithm
+                // This is the key part for randomization
                 List<String> randomSubmissionIds = new ArrayList<>(submissionIdMap.keySet());
                 Collections.shuffle(randomSubmissionIds);
+                
                 List<PeerAssessmentItem> newItems = new ArrayList<>();
                 int i = 0;
                 for (String submissionId : randomSubmissionIds) {
@@ -227,12 +238,15 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
                     }
                     Integer assignedCount = studentAssessorsMap.computeIfAbsent(submitterId, k -> 0);
 
-                    // by creating a tailing list (snake style), we eliminate the issue where you can be stuck with
-                    // a submission and the same submission user left, making for uneven distributions of submission reviews
+                    // Create a new randomized snake list for each submission
+                    // This ensures better randomization when finding assessors
                     List<String> snakeSubmissionList = new ArrayList<>(randomSubmissionIds.subList(i, randomSubmissionIds.size()));
                     if (i > 0) {
                         snakeSubmissionList.addAll(new ArrayList<>(randomSubmissionIds.subList(0, i)));
                     }
+                    // Shuffle the snake list again for even more randomness
+                    Collections.shuffle(snakeSubmissionList);
+                    
                     while (assignedCount < numOfReviews) {
                         // need to add more reviewers for this user's submission
                         String lowestAssignedAssessor = findLowestAssignedAssessor(assignedAssessmentsMap, submitterId, submissionId, snakeSubmissionList, submissionIdMap);
@@ -272,7 +286,12 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
                                               Map<String, AssignmentSubmission> submissionIdMap) {//find the lowest count of assigned submissions
         String lowestAssignedAssessor = null;
         Integer lowestAssignedAssessorCount = null;
-        for (String sId : snakeSubmissionList) {
+        
+        // Shuffle the list again to ensure randomness when finding the lowest assigned assessor
+        List<String> randomizedList = new ArrayList<>(snakeSubmissionList);
+        Collections.shuffle(randomizedList);
+        
+        for (String sId : randomizedList) {
             AssignmentSubmission s = submissionIdMap.get(sId);
             Optional<AssignmentSubmissionSubmitter> ass = assignmentService.getSubmissionSubmittee(s);//do not include assesseeId (aka the user being assessed)
             if (ass.isPresent()) {
