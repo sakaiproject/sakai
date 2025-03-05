@@ -627,6 +627,8 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
                 // Now strip out any unauthorised info
                 if (!isAllowed(currentUserId, RosterFunctions.ROSTER_FUNCTION_VIEWEMAIL, site.getReference())) {
                     m.setEmail(null);
+                    // Also hide username/displayId when email permission is not granted
+                    m.setDisplayId(null);
                 } else {
                     if (StringUtils.isEmpty(m.getEmail())) {
                         try {
