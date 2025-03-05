@@ -5658,6 +5658,7 @@ public class SiteAction extends PagedResourceActionII {
 				//reverse it
 				s.setSoftlyDeleted(false);
 				siteService.save(s);
+                eventTrackingService.post(eventTrackingService.newEvent(SiteService.SITE_RESTORED, s.getReference(), s.getId(), true, NotificationService.NOTI_OPTIONAL));
 
 			} catch (IdUnusedException e) {
 				log.warn("Error restoring site:" + siteId + ":" + e.getClass() + ":" + e.getMessage());
