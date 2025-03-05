@@ -956,6 +956,11 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 
 		if ( list.size() == 1)  return ((SimplePage) list.get(0)).getPageId();
 
+		// When there is more than one page associated with a placement, the data model is
+		// broken due to an errant import, timing problem, system crash, NPE or whatever.
+		// hen it happens // we ignore empty pages and return the non-empty page with
+		// the largest primary key (a weak proxy for "latest" but it is all we have)
+		// with a warning message.
 		log.debug("Scanning {} top pages for placment toolId=", list.size(), toolId);
 		SimplePage page = null;
 		for (int i = 0; i < list.size(); i++) {
@@ -965,10 +970,10 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 				log.debug("Page {} {} is empty", i, page.getPageId());
 				continue;
 			}
-			log.debug("Page {} {} has {} items", i, page.getPageId(), items.size());
+			log.warn("Multiple top level pages found, choosing page {} {} with {} items", i, page.getPageId(), items.size());
 			return page.getPageId();
 		}
-		log.debug("Returning {} page", (page != null ? page.getPageId() : null));
+		log.warn("Multiple top level pages found, Returning {} page", (page != null ? page.getPageId() : null));
 		return page != null ? page.getPageId() : null;
 	}
 
