@@ -395,7 +395,7 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
 	if (section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW) != null) {
 		Long poolid = new Long(section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW));
 		setPoolIdToBeDrawn(poolid);
-        retrievePoolOwnerName(poolid);
+		retrievePoolOwnerName(poolid);
 		if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString().equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE))) {
 			Integer randomPools = Integer.valueOf(section.getSectionMetaDataByLabel(SectionDataIfc.RANDOM_POOL_COUNT));
 			List<Long> poolIds = new ArrayList<>();
@@ -434,7 +434,7 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
 				setRandomQuestionsDrawTime(drawTimeString);
 
 			} catch(Exception e){
-                log.error("Unable to parse date text: {}", randomDrawDate, e);
+				log.error("Unable to parse date text: {}", randomDrawDate, e.toString());
 			}
 		}
 	}
