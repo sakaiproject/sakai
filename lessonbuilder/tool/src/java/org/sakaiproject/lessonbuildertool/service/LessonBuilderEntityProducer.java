@@ -896,9 +896,6 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			if (attributes != null && attributes.getLength() > 0) {
 				Node attributesNode = attributes.item(0); // only one
 				String attributeString = attributesNode.getTextContent();
-				if(type == SimplePageItem.RESOURCE_FOLDER && StringUtils.isNotEmpty(attributeString)){
-					attributeString = StringUtils.replace(attributeString, oldSiteId, siteId);
-				}
 				item.setAttributeString(attributeString);
 			}
 
@@ -1048,6 +1045,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(pageId);
 		if (items == null) return;
 
+		String attribute;
+		final JSONParser jsonParser = new JSONParser();
 		for (SimplePageItem item : items) {
 			boolean itemUpdated = false;
 			switch (item.getType()) {
@@ -1063,9 +1062,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 					}
 					break;
 				case SimplePageItem.CHECKLIST:
-					String attribute = item.getAttributeString(); // json encoded attributes
+					attribute = item.getAttributeString(); // json encoded attributes
 					if (StringUtils.isNotBlank(attribute)) {
-						final JSONParser jsonParser = new JSONParser();
 						try {
 							Object parsedAttributeObj = jsonParser.parse(attribute);
 							if (parsedAttributeObj instanceof JSONObject) {
@@ -1104,11 +1102,10 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 					break;
 
 				case SimplePageItem.QUESTION:
-					String attributex = item.getAttributeString(); // json encoded attributes
-					if (StringUtils.isBlank(attributex)) break;
-					final JSONParser jsonParser = new JSONParser();
+					attribute = item.getAttributeString(); // json encoded attributes
+					if (StringUtils.isBlank(attribute)) break;
 					try {
-						Object parsedAttributeObj = jsonParser.parse(attributex);
+						Object parsedAttributeObj = jsonParser.parse(attribute);
 						if (parsedAttributeObj instanceof JSONObject) {
 							JSONObject parsedAttribute = (JSONObject) parsedAttributeObj;
 							Object questionTextObj = parsedAttribute.get("questionText");
@@ -1128,6 +1125,31 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 						break;
 					}
 					break;
+
+				case SimplePageItem.RESOURCE_FOLDER:
+					attribute = item.getAttributeString(); // json encoded attributes
+					if (StringUtils.isBlank(attribute)) break;
+					try {
+						Object parsedAttributeObj = jsonParser.parse(attribute);
+						if (parsedAttributeObj instanceof JSONObject) {
+							JSONObject parsedAttribute = (JSONObject) parsedAttributeObj;
+							Object dataDirectoryObj = parsedAttribute.get("dataDirectory");
+							if (dataDirectoryObj instanceof String) {
+								String dataDirectory = (String) dataDirectoryObj;
+								if ( StringUtils.isNotBlank(dataDirectory) ) {
+									dataDirectory = StringUtils.replace(dataDirectory, fromSiteId, siteId);
+									parsedAttribute.put("dataDirectory", dataDirectory);
+									item.setAttributeString(parsedAttribute.toJSONString());
+									itemUpdated = true;
+								}
+							}
+						}
+					} catch (ParseException pe) {
+						log.warn("Exception caught while parsing checklist array: {}", pe.toString());
+						break;
+					}
+					break;
+
 				default:
 			}
 			if (itemUpdated) {
@@ -1675,8 +1697,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				}
 
 				String result = "Placement "+sakaiPageId+" postPageKey "+postPageKey+
-						" page "+(postPage == null ? null : postPage.getPageId())+
-						" item "+(postItem == null ? null : postItem.getId());
+					" page "+(postPage == null ? null : postPage.getPageId())+
+					" item "+(postItem == null ? null : postItem.getId());
 				log.debug(result);
 				results.append(result);
 			}
