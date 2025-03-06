@@ -757,16 +757,15 @@ commons.utils = {
         $('.commons-like-icon').removeClass('si-liked').addClass('si-like');
         
         // Then apply the user's likes
-        for (var i = 0; i < userLikes.length; i++) {
-            var postId = userLikes[i].postId;
-            var likeLink = $('#commons-like-link-' + postId);
-            var likeIcon = $('#commons-like-icon-' + postId);
+        userLikes.forEach(({postId}) => {
+            const likeLink = $(`#commons-like-link-${postId}`);
+            const likeIcon = $(`#commons-like-icon-${postId}`);
             
             if (likeLink.length) {
                 likeIcon.removeClass('si-like').addClass('si-liked');
                 likeLink.addClass('likedAlready');
             }
-        }
+        });
     },
     getPostLikerNames: function(postId){
         var url = "/direct/commons/postLikes.json?&postId=" + postId;
