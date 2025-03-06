@@ -63,7 +63,6 @@ public class ResourcesWidget extends Panel {
 		super(id);
 		this.siteId = siteId;
 		setRenderBodyOnly(true);
-		// Removed setOutputMarkupId(true) - incompatible with setRenderBodyOnly(true) in Wicket 9
 		
 		// Single values (MiniStat)
 		List<WidgetMiniStat> widgetMiniStats = new ArrayList<WidgetMiniStat>();
