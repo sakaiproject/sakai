@@ -102,8 +102,6 @@ public class QuestionScoresBean implements Serializable, PhaseAware {
   private String score;
   @Setter
   private String discount;
-  @Getter @Setter
-  private String minScore;
   @Setter
   private String answer;
   @Setter
