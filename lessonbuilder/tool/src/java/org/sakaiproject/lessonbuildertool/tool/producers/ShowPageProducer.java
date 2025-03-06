@@ -4681,9 +4681,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIOutput.make(form, "mm-url-label", messageLocator.getMessage("simplepage.addLink_label"));
 		UIInput.make(form, "mm-url", "#{simplePageBean.mmUrl}");
 
-		UIOutput.make(form, "mm-url-name-label", messageLocator.getMessage("simplepage.addlink_label_name"));
-		UIInput.make(form, "mm-url-name", "#{simplePageBean.name}");
-
 		FilePickerViewParameters fileparams = new FilePickerViewParameters();
 		fileparams.setSender(currentPage.getPageId());
 		fileparams.setResourceType(true);
