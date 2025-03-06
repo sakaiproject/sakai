@@ -216,9 +216,7 @@ commons.utils = {
             $likeIcon.addClass('si-liked');
             
             // Update the cache
-            if (commons.userLikes) {
-                commons.userLikes.push({ postId: postId });
-            }
+            if (commons.userLikes) { commons.userLikes.push({ postId }); }
         }
         
         // Update the like count
@@ -227,14 +225,14 @@ commons.utils = {
         
         // Show/hide singular/plural text based on count
         if (likeNumber === 1) {
-            $('#commons-likes-person-' + postId).show();
-            $('#commons-likes-people-' + postId).hide();
+            $(`#commons-likes-person-${postId}`).show();
+            $(`#commons-likes-people-${postId}`).hide();
         } else if (likeNumber === 0) {
-            $('#commons-likes-person-' + postId).hide();
-            $('#commons-likes-people-' + postId).hide();
+            $(`#commons-likes-person-${postId}`).hide();
+            $(`#commons-likes-people-${postId}`).hide();
         } else {
-            $('#commons-likes-person-' + postId).hide();
-            $('#commons-likes-people-' + postId).show();
+            $(`#commons-likes-person-${postId}`).hide();
+            $(`#commons-likes-people-${postId}`).show();
         }
     },
     cancelCommentEdit: function (commentId) {
@@ -647,11 +645,7 @@ commons.utils = {
                 $('#commons-load-more').remove();
                 
                 // Add a new load more button
-                $('#commons-posts').append(
-                    '<div id="commons-load-more" class="commons-load-more">' +
-                    '<button class="btn btn-primary">' + commons.i18n.load_more + '</button>' +
-                    '</div>'
-                );
+                $('#commons-posts').append(`<div id="commons-load-more" class="commons-load-more"><button class="btn btn-primary">${commons.i18n.load_more}</button></div>`);
                 
                 // Add click handler for the load more button
                 $('#commons-load-more button').click(function() {
