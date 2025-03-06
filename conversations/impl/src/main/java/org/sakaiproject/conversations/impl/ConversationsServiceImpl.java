@@ -1131,11 +1131,14 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
                 try {
                     Site site = siteService.getSite(decoratedBean.siteId);
 
-                    Map<String, Object> replacements = Map.of("siteTitle", site.getTitle(),
-                                                                "topicTitle", topic.getTitle(),
-                                                                "postUrl", decoratedBean.portalUrl,
-                                                                "creatorDisplayName", decoratedBean.creatorDisplayName,
-                                                                "bundle", new ResourceLoader("conversations_notifications"));
+                    // Use a mutable HashMap instead of Map.of() to avoid UnsupportedOperationException
+                    // The email template service tries to modify this map with putAll() operation
+                    Map<String, Object> replacements = new HashMap<>();
+                    replacements.put("siteTitle", site.getTitle());
+                    replacements.put("topicTitle", topic.getTitle());
+                    replacements.put("postUrl", decoratedBean.portalUrl);
+                    replacements.put("creatorDisplayName", decoratedBean.creatorDisplayName);
+                    replacements.put("bundle", new ResourceLoader("conversations_notifications"));
 
                     if (topic.getType() == TopicType.QUESTION) {
                         String topicCreator = topic.getMetadata().getCreator();
@@ -1366,7 +1369,10 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
 
             Map<String, GradeDefinition> posterGrades = Collections.emptyMap();
             Long gradingItemId = topic.getGradingItemId();
-            if (gradingItemId != null) {
+            String siteRef = siteService.siteReference(siteId);
+            // Check permissions before attempting to get grades to prevent GradingSecurityException
+            // Students who don't have the conversations.grade permission should skip this call
+            if (gradingItemId != null && securityService.unlock(Permissions.GRADE.label, siteRef)) {
                 try {
                     posterGrades = gradingService.getGradesForStudentsForItem(siteId, gradingItemId, creatorIds)
                         .stream().collect(Collectors.toMap(GradeDefinition::getStudentUid, gd -> gd));
@@ -1374,7 +1380,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
                     log.warn("Failed to getGradesForStudentsForItem with exception: {}", se.toString());
                 }
             } else {
-                log.debug("Grading item ID is null for topic: {}", topic);
+                log.debug("Grading item ID is null or user lacks grade permission for topic: {}", topic);
             }
 
             Map<String, GradeDefinition> finalPosterGrades = posterGrades;
