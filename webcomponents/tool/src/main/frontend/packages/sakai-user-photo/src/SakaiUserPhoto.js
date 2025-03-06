@@ -42,11 +42,6 @@ export class SakaiUserPhoto extends SakaiElement {
     this.profilePopup = SakaiUserPhoto.OFF;
   }
 
-  connectedCallback() {
-
-    super.connectedCallback();
-  }
-
   close() {
     bootstrap.Popover.getInstance(this.querySelector("div"))?.hide();
   }
