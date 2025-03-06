@@ -55,7 +55,7 @@ commons.utils = {
             let siteName = a.hostname.toUpperCase();
             matches = markup.match(self.AUTHOR_REGEX);
             if (matches && matches.length == 2) {
-                 siteName += ` | ${commons.i18n['by']} ${matches[1].toUpperCase()}`;
+                 siteName += ` | ${commons.i18n.by} ${matches[1].toUpperCase()}`;
             }
 
             if (!title && !image) {
@@ -156,7 +156,7 @@ commons.utils = {
     },
     deleteCommentHandler: function (e) {
 
-        if (!confirm(commons.i18n['delete_comment_message'])) {
+        if (!confirm(commons.i18n.delete_comment_message)) {
             return false;
         }
 
@@ -258,7 +258,7 @@ commons.utils = {
     formatDate: function (millis) {
 
         if (millis <= 0) {
-            return commons.i18n['none'];
+            return commons.i18n.none;
         } else {
             var m = moment(millis);
             return m.format('L LT');
@@ -299,7 +299,7 @@ commons.utils = {
         if (!postId) postId = '';
 
         if ('' == content) {
-            alert(commons.i18n['no_content_warning']);
+            alert(commons.i18n.no_content_warning);
             return 0;
         }
 
@@ -381,7 +381,7 @@ commons.utils = {
     },
     deletePost: function (postId, callback) {
                         
-        if (!confirm(commons.i18n['delete_post_message'])) {
+        if (!confirm(commons.i18n.delete_post_message)) {
             return false;
         }
 
@@ -501,7 +501,7 @@ commons.utils = {
                 const text = textarea.val().trim();
                 
                 if (text.length === 0) {
-                    alert(commons.i18n['no_content_warning']);
+                    alert(commons.i18n.no_content_warning);
                     return;
                 }
                 
@@ -601,7 +601,7 @@ commons.utils = {
             if ((posts.length === 0 && commons.page === 0) || (data.status === 'END' && commons.postsTotal === 0)) {
                 // Remove any existing "no posts" message to avoid duplicates
                 $('.commons-no-posts').remove();
-                $('#commons-posts').append(`<div class="commons-no-posts">${commons.i18n['no_posts_yet']}</div>`);
+                $('#commons-posts').append(`<div class="commons-no-posts">${commons.i18n.no_posts_yet}</div>`);
                 return;
             }
 
@@ -649,14 +649,14 @@ commons.utils = {
                 // Add a new load more button
                 $('#commons-posts').append(
                     '<div id="commons-load-more" class="commons-load-more">' +
-                    '<button class="btn btn-primary">' + commons.i18n['load_more'] + '</button>' +
+                    '<button class="btn btn-primary">' + commons.i18n.load_more + '</button>' +
                     '</div>'
                 );
                 
                 // Add click handler for the load more button
                 $('#commons-load-more button').click(function() {
                     console.debug('Load more button clicked');
-                    $(this).prop('disabled', true).text(commons.i18n['loading_posts']);
+                    $(this).prop('disabled', true).text(commons.i18n.loading_posts);
                     commons.utils.renderPageOfPosts();
                 });
             } else {
@@ -667,7 +667,7 @@ commons.utils = {
             commons.postsLoading = false;
             
             console.error("Failed to get posts:", xhr, textStatus, errorThrown);
-            $('#commons-posts').append('<div class="commons-error">' + commons.i18n['error_loading_posts'] + '</div>');
+            $('#commons-posts').append('<div class="commons-error">' + commons.i18n.error_loading_posts + '</div>');
             
             // Don't increment page counter on failure
             // Add a "Load More" button to allow retry
@@ -676,14 +676,14 @@ commons.utils = {
             // Add a new load more button
             $('#commons-posts').append(
                 '<div id="commons-load-more" class="commons-load-more">' +
-                '<button class="btn btn-primary">' + commons.i18n['load_more'] + '</button>' +
+                '<button class="btn btn-primary">' + commons.i18n.load_more + '</button>' +
                 '</div>'
             );
             
             // Add click handler for the load more button
             $('#commons-load-more button').click(function() {
                 console.debug('Retry button clicked');
-                $(this).prop('disabled', true).text(commons.i18n['loading_posts']);
+                $(this).prop('disabled', true).text(commons.i18n.loading_posts);
                 commons.utils.renderPageOfPosts();
             });
         });
