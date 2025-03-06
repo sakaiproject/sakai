@@ -136,7 +136,7 @@ public class CommonsSecurityManagerImpl implements CommonsSecurityManager {
             posts = posts.stream().filter(p -> p.getReleaseDate() <= now).collect(Collectors.toList());
             switch (embedder) {
                 case CommonsConstants.SITE -> {
-                    if (securityService.unlock(CommonsFunctions.POST_READ_ANY, "/site/" + siteId)) {
+                    if (securityService.unlock(CommonsFunctions.POST_READ_ANY, siteService.siteReference(siteId)) {
                         return posts;
                     } else {
                         // Filter to only keep posts authored by current user
