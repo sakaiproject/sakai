@@ -231,15 +231,15 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
 
     @Test
     public void getRubrics() {
-
         switchToUser1();
-
-        assertThrows(SecurityException.class, () -> rubricsService.getRubricsForSite(siteId));
+        // Expect empty list instead of exception
+        List<RubricTransferBean> userRubrics = rubricsService.getRubricsForSite(siteId);
+        assertTrue(userRubrics.isEmpty());
 
         switchToTeachingAssistant();
-
-        // Should still throw it as the user doesn't have rubrics.editor
-        assertThrows(SecurityException.class, () -> rubricsService.getRubricsForSite(siteId));
+        // Should also return empty list
+        List<RubricTransferBean> taRubrics = rubricsService.getRubricsForSite(siteId);
+        assertTrue(taRubrics.isEmpty());
 
         switchToInstructor();
         rubricsService.createDefaultRubric(siteId);
@@ -258,7 +258,7 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         String newDescription = "Sandwiches of the world";
         rubricBean.setTitle(newTitle);
         rubricBean = rubricsService.saveRubric(rubricBean);
-        assertEquals(rubricBean.getTitle(), newTitle);
+        assertEquals(newTitle, rubricBean.getTitle());
     }
 
     @Test

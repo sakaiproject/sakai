@@ -275,7 +275,8 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
     public List<RubricTransferBean> getRubricsForSite(String siteId) {
 
         if (!isEditor(siteId)) {
-            throw new SecurityException("You need to be an editor to get a site's rubrics");
+            log.debug("You need to be an editor to get a site's rubrics: {}", siteId);
+            return Collections.emptyList();
         }
 
         return rubricRepository.findByOwnerId(siteId).stream()
