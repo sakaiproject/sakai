@@ -478,21 +478,26 @@ function setFocus(elements)
 	}
 }
 
-function showNotif(item, button,formName)
+function showNotif(item, button, formName)
 {
-	if (button !=="noBlock")
+	if (button !== "noBlock")
 	{
-		eval("document." + formName + "." + button + ".disabled=true");
+		// Replace eval with direct DOM access
+		const form = document.forms[formName];
+		if (form && form.elements[button]) {
+			form.elements[button].disabled = true;
+		}
 	}
-	if (item !=="noNotif")
+	if (item !== "noNotif")
 	{
 		// SAK-21041 simplified to use getElementById
 		document.showItem = document.getElementById(item);
-
-		document.showItem.style.visibility = "visible";
+		if (document.showItem) {
+			document.showItem.style.visibility = "visible";
+		}
 	}
 	
-	for (var i=0;i<document.getElementsByTagName("input").length; i++) 
+	for (var i=0; i<document.getElementsByTagName("input").length; i++) 
 	{
 		if (document.getElementsByTagName("input").item(i).className === "disableme")
 		{
