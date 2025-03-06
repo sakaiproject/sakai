@@ -183,30 +183,18 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
     // noop
   }
 
-    // added by daisyf on 11/22/04
-  @Setter
-  @Getter
-  private String title;
+  @Getter @Setter private String title;
   private String sequence;
 
-    /**
-     * -- SETTER --
-     *  Set the student score currently earned.
-     *
-     * @param setShowStudentQuestionScore true/false Show the student score currently earned?
-     */
-    // for display/hide score
   // private boolean showStudentScore;   // show student Assessment Score
   // Chage showStudentScore to showStudentQuestionScore for SAK-7290
   // We consider the display/hide of part(section) score same as question score 
   // We used to consider them as assessment score as you can see above line and 
   // comment (private boolean showStudentScore;   // show student Assessment Score)
-  @Setter
-  @Getter
-  private boolean showStudentQuestionScore;   // show student Assessment Score
+  @Getter @Setter private boolean showStudentQuestionScore;   // show student Assessment Score
   private String pointsDisplayString;
 
-    public void setQuestionNumbers()
+  public void setQuestionNumbers()
   {
     this.questionNumbers = new ArrayList();
     for (int i = 1; i <= this.itemContents.size(); i++)
@@ -487,7 +475,7 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
     return pointsDisplayString;
   }
 
-    private boolean hasAttachment = false;
+  private boolean hasAttachment = false;
   public boolean getHasAttachment(){
     boolean hasAttachment = attachmentList != null && !attachmentList.isEmpty();
       return hasAttachment;
