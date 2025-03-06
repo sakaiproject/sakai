@@ -63,7 +63,6 @@ public class ResourcesWidget extends Panel {
 		super(id);
 		this.siteId = siteId;
 		setRenderBodyOnly(true);
-		setOutputMarkupId(true);
 		
 		// Single values (MiniStat)
 		List<WidgetMiniStat> widgetMiniStats = new ArrayList<WidgetMiniStat>();

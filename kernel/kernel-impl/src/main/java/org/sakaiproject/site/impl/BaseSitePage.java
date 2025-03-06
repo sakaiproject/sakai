@@ -882,6 +882,19 @@ public class BaseSitePage implements SitePage, Identifiable
 	}
 
 	/**
+	 *
+	 */
+	public void regenerateIds()
+	{
+		m_id = siteService.idManager().createUuid();
+		for (Iterator iTools = getTools().iterator(); iTools.hasNext();)
+		{
+			BaseToolConfiguration tool = (BaseToolConfiguration) iTools.next();
+			tool.regenerateId();
+		}
+	}
+
+	/**
 	 * @inheritDoc
 	 */
 	public Element toXml(Document doc, Stack stack)

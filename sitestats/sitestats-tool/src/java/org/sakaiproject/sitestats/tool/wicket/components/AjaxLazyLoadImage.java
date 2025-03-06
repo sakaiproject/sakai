@@ -269,7 +269,10 @@ public abstract class AjaxLazyLoadImage extends Panel {
 				// parse desired image size
 				Request req = RequestCycle.get().getRequest();
 
-				selectedWidth = req.getQueryParameters().getParameterValue("width").toInt(400);					
+				selectedWidth = req.getQueryParameters().getParameterValue("width").toInt(400);
+				if(selectedWidth < 400) {
+					selectedWidth = 400;
+				}
 
 				selectedHeight = req.getQueryParameters().getParameterValue("height").toInt(200);
 				if(selectedHeight < 200)
