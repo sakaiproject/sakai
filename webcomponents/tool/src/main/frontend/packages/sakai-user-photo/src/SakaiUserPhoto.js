@@ -45,20 +45,23 @@ export class SakaiUserPhoto extends SakaiElement {
   connectedCallback() {
 
     super.connectedCallback();
-
-    if (this.blank) {
-      this.url = "/direct/profile/blank/image";
-    } else {
-      this.url = `/direct/profile/${this.userId}/image/${this.official ? "official" : "thumb"}`
-                  + (getSiteId() ? `?siteId=${getSiteId()}` : "");
-    }
   }
 
   close() {
     bootstrap.Popover.getInstance(this.querySelector("div"))?.hide();
   }
 
-  shouldUpdate() { return this.url; }
+  willUpdate(changedProperties) {
+
+    if (changedProperties.has("userId") || changedProperties.has("official") || changedProperties.has("blank")) {
+      if (this.blank) {
+        this.url = "/direct/profile/blank/image";
+      } else {
+        this.url = `/direct/profile/${this.userId}/image/${this.official ? "official" : "thumb"}`
+                    + (getSiteId() ? `?siteId=${getSiteId()}` : "");
+      }
+    }
+  }
 
   firstUpdated() {
 
