@@ -567,7 +567,7 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
 		
 		// First merge to handle potentially detached instances
 		SakaiPerson mergedPerson = getHibernateTemplate().merge(sakaiPerson);
-		log.debug("Deleted SakaiPerson [{}]", sakaiPerson.getId());
+		log.debug("Deleted SakaiPerson [{}]", mergedPerson.toString());
 		getHibernateTemplate().delete(mergedPerson);
 		eventTrackingService.post(eventTrackingService.newEvent(PROFILE_DELETE, ref, true));
 		
