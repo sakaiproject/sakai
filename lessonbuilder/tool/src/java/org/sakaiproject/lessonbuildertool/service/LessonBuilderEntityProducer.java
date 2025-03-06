@@ -1358,6 +1358,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 					// create the vestigial item for this top level page
 					log.debug("creating vestigial item for top level page: {} type: {}", topLevelPageId, SimplePageItem.PAGE);
 					SimplePageItem item = simplePageToolDao.makeItem(0, 0, SimplePageItem.PAGE, Long.toString(topLevelPageId), title);
+					simplePageToolDao.quickSaveItem(item);
 
 					emptyTopLevelPageIds.put(title, topLevelPageId);
 					emptySakaiIds.put(title, p.getId());
@@ -1533,7 +1534,6 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			boolean needFix = false;
 			Map <Long,Long> itemMap = new HashMap<Long,Long>();
 			for (Map.Entry<Long, Element> entry : pageElementMap.entrySet()) {
-				Long oldPageId = entry.getKey();
 				Element pageElement = entry.getValue();
 
 				if (mergePage(pageElement, oldServer, siteId, fromSiteId, pageMap, itemMap, entityMap, mcx)) needFix = true;

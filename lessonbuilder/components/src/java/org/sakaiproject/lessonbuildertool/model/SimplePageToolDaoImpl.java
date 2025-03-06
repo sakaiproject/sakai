@@ -966,12 +966,11 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		for (int i = 0; i < list.size(); i++) {
 			page = (SimplePage) list.get(i);
 			List<SimplePageItem> items = this.findItemsOnPage(page.getPageId());
-			if ( items.size() == 0 ) {
-				log.debug("Page {} {} is empty", i, page.getPageId());
-				continue;
+			if ( items.size() > 0 ) {
+				log.warn("Multiple top level pages found, choosing page {} {} with {} items", i, page.getPageId(), items.size());
+				return page.getPageId();
 			}
-			log.warn("Multiple top level pages found, choosing page {} {} with {} items", i, page.getPageId(), items.size());
-			return page.getPageId();
+			log.debug("Page {} {} is empty", i, page.getPageId());
 		}
 		log.warn("Multiple top level pages found, Returning {} page", (page != null ? page.getPageId() : null));
 		return page != null ? page.getPageId() : null;
