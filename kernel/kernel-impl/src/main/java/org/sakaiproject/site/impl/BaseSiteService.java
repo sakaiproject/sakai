@@ -3626,12 +3626,12 @@ public abstract class BaseSiteService implements SiteService, Observer
 
 				// addPage
 				BaseSitePage page = new BaseSitePage(this, pageEl, site);
+				page.regenerateIds();
 				site.getPages().add(page);
 				changed = true;
 			}
 
 			if ( changed ) {
-				site.regenerateIds();
 				save(site);
 			}
 		}
