@@ -81,7 +81,7 @@ public class CommonsSecurityManagerImpl implements CommonsSecurityManager {
 
         return currentUser != null && currentUser.equals(post.getCreatorId())
                 && (siteId.equals(CommonsConstants.SOCIAL)
-                || sakaiProxy.isAllowedFunction(CommonsFunctions.POST_DELETE_OWN, siteId));
+                    || sakaiProxy.isAllowedFunction(CommonsFunctions.POST_DELETE_OWN, siteId));
     }
 
     @Override
