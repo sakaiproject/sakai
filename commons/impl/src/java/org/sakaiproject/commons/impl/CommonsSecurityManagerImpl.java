@@ -135,8 +135,8 @@ public class CommonsSecurityManagerImpl implements CommonsSecurityManager {
             long now = Instant.now().toEpochMilli();
             posts = posts.stream().filter(p -> p.getReleaseDate() <= now).collect(Collectors.toList());
             switch (embedder) {
-                case CommonsConstants.SITE -> {
-                    if (securityService.unlock(CommonsFunctions.POST_READ_ANY, siteService.siteReference(siteId)) {
+                case CommonsConstants.SITE:
+                    if (securityService.unlock(CommonsFunctions.POST_READ_ANY, siteService.siteReference(siteId))) {
                         return posts;
                     } else {
                         // Filter to only keep posts authored by current user
@@ -145,17 +145,14 @@ public class CommonsSecurityManagerImpl implements CommonsSecurityManager {
                                 .filter(post -> post.getCreatorId().equals(currentUserId))
                                 .collect(Collectors.toList());
                     }
-                }
-                case CommonsConstants.ASSIGNMENT -> {
+                case CommonsConstants.ASSIGNMENT:
                     boolean readAny = securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, "/site/" + siteId);
                     return (readAny) ? posts : new ArrayList<>();
-                }
-                case CommonsConstants.SOCIAL, CommonsConstants.SEARCH -> {
+                case CommonsConstants.SOCIAL:
+                case CommonsConstants.SEARCH:
                     return posts;
-                }
-                default -> {
+                default:
                     return new ArrayList<>();
-                }
             }
         } else {
             return posts;
