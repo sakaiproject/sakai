@@ -266,6 +266,7 @@ $breadcrumb-divider: '>';
 
 :root {
     font-size: 14px;
+    --default-font-size: #{$default-font-size};
     --portal-nav-sidebar-width: 16rem;
     --portal-header-height: 4.5rem;
 

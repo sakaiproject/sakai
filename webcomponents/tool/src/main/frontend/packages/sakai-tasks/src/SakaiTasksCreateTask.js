@@ -234,7 +234,7 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
 
     return html` 
       ${this.deliverTasks ? html`
-      <div class="label" style="margin-bottom:15px;">
+      <div class="label mb-2">
         <label>${this._getTaskAssignedTo()}</label>
       </div>
       ` : nothing }

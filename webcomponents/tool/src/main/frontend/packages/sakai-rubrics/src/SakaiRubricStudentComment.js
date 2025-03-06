@@ -49,7 +49,7 @@ export class SakaiRubricStudentComment extends RubricsElement {
 
         <div class="rubric-comment-dropdown dropdown-menu">
           <div class="m-2 rubric-comment-body">
-            <div class="fw-bold rubric-criterion-comment-title">${this.tr("comment_for_criterion", [ this.criterion.title ])}</div>
+            <div class="rubric-criterion-comment-title">${this.tr("comment_for_criterion", [ this.criterion.title ])}</div>
             <div>${unsafeHTML(this.criterion.comments)}</div>
             <div class="buttons act float-end">
               <button type="button" class="active btn-xs" @click=${this.hideComment}>${this._i18n.done}</button>

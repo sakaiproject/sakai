@@ -67,7 +67,7 @@ export class SakaiRubricCriterionStudent extends RubricsElement {
   render() {
 
     return html`
-      <div class="criterion grading style-scope sakai-rubric-criterion-student" style="margin-bottom: 20px;">
+      <div class="criterion grading style-scope sakai-rubric-criterion-student mb-4">
         ${this.criteria.map(c => html`
           ${this.isCriterionGroup(c) ? html`
             <div id="criterion_row_${c.id}" class="criterion-row criterion-group">
