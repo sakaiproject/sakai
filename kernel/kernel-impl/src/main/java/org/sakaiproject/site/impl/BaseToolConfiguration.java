@@ -606,4 +606,13 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 		
 		return localizedTitle;
 	}
+
+	/**
+	 * Regenerate the Id for this tool
+	 */
+
+	public void regenerateId()
+	{
+		m_id = siteService.idManager().createUuid();
+	}
 }

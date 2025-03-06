@@ -101,9 +101,6 @@ public class ReportDataPage extends BasePage {
 	private int							selectedWidth		= 0;
 	private int							selectedHeight		= 0;
 
-	// namespace for sakai icons see _icons.scss
-	public static final String ICON_SAKAI = "si-";
-
 	public ReportDataPage(final ReportDefModel reportDef) {
 		this(reportDef, null, null);
 	}
@@ -384,7 +381,7 @@ public class ReportDataPage extends BasePage {
 						toolName = Locator.getFacade().getEventRegistryService().getToolName(toolId);
 					}
 					Label toolLabel = new Label(componentId, " " + toolName);
-					String hclass = ICON_SAKAI + toolId.replace('.', '-');
+					String hclass = ReportsEditPage.ICON_SAKAI + toolId.replace('.', '-');
 					toolLabel.add(new AttributeModifier("class", new Model(hclass)));
 					toolLabel.add(new AttributeModifier("title", new Model(toolName)));
 					item.add(toolLabel);
@@ -406,7 +403,7 @@ public class ReportDataPage extends BasePage {
 					if(toolInfo != null) {
 						String toolId = toolInfo.getToolId();
 						String toolName = Locator.getFacade().getEventRegistryService().getToolName(toolId);
-						String hclass = ICON_SAKAI + toolId.replace('.', '-');
+						String hclass = ReportsEditPage.ICON_SAKAI + toolId.replace('.', '-');
 						eventLabel.add(new AttributeModifier("class", new Model(hclass)));
 						eventLabel.add(new AttributeModifier("title", new Model(toolName)));
 					}

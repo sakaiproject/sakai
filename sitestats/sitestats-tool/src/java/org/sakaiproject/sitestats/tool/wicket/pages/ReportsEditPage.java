@@ -124,6 +124,9 @@ public class ReportsEditPage extends BasePage {
 
 	private ZonedDateTime startDate, endDate;
 
+	// namespace for sakai icons see _icons.scss
+	public static final String ICON_SAKAI = "si si-";
+
 	public ReportsEditPage(ReportDefModel reportDef, PageParameters pageParameters, final WebPage returnPage) {
 		realSiteId = Locator.getFacade().getToolManager().getCurrentPlacement().getContext();
 		if(pageParameters != null) {
@@ -952,7 +955,7 @@ public class ReportsEditPage extends BasePage {
 				SelectOption opt = (SelectOption) object;
 				ToolModel toolModel = (ToolModel) opt.getDefaultModel();
 				String toolId = toolModel.getToolId();
-                return "tool-" + toolId.replace('.', '-');
+                return ICON_SAKAI + toolId.replace('.', '-');
 			}
 		};
 		Collections.sort(tools, Comparators.getOptionRendererComparator(optionRenderer));
@@ -982,7 +985,7 @@ public class ReportsEditPage extends BasePage {
                 String style = "display:block;";
                 String toolId = toolInfo.getToolId();
                 String toolName = Locator.getFacade().getEventRegistryService().getToolName(toolId);
-                String hclass = "tool-" + toolId.replace('.', '-');
+                String hclass = ICON_SAKAI + toolId.replace('.', '-');
                 StylableSelectOptionsGroup group = new StylableSelectOptionsGroup("group", new Model(toolName), new Model(style), new Model(hclass));
                 optgroupItem.add(group);
                 SelectOptions selectOptions = new SelectOptions("selectOptions", events, new IOptionRenderer() {
