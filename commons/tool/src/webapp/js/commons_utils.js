@@ -160,19 +160,19 @@ commons.utils = {
             return false;
         }
 
-        var commentId = this.dataset.commentId;
-        var postId = this.dataset.postId;
-        var numComments = $('#commons-comments-' + postId + ' .commons-comment').length;
+        const commentId = this.dataset.commentId;
+        const postId = this.dataset.postId;
+        let numComments = $('#commons-comments-' + postId + ' .commons-comment').length;
         if (numComments <= 4) {
             $('#commons-hide-comments-link-' + postId).hide();
             $('#commons-show-comments-link-' + postId).hide();
         }
-        var commentToDelete = $('#commons-comment-' + commentId);
+        const commentToDelete = $('#commons-comment-' + commentId);
 
         commons.utils.deleteComment(postId, commentId, function () {
 
                 commentToDelete.remove();
-                var comments = $('#commons-comments-' + postId + ' .commons-comment');
+                const comments = $('#commons-comments-' + postId + ' .commons-comment');
                 numComments = comments.length;
                 if (numComments > 3) {
                     comments.slice(numComments - 4, numComments - 1)
@@ -182,16 +182,15 @@ commons.utils = {
             });
     },
     likePostHandler: function(){
-        var postId = this.dataset.postId;
+        const postId = this.dataset.postId;
         
         // Call the likePost function to update the server
         commons.utils.likePost(postId);
         
-        // Use jQuery for more consistent DOM manipulation
-        var $likeButton = $('#commons-like-link-' + postId);
-        var $likeCount = $('#commons-likes-count-number-' + postId);
-        var $likeIcon = $('#commons-like-icon-' + postId);
-        var likeNumber = parseInt($likeCount.attr('data-count'));
+        const $likeButton = $('#commons-like-link-' + postId);
+        const $likeCount = $('#commons-likes-count-number-' + postId);
+        const $likeIcon = $('#commons-like-icon-' + postId);
+        let likeNumber = parseInt($likeCount.attr('data-count'));
         
         // Update the UI
         $likeIcon.removeClass('si-like si-liked');
