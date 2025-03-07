@@ -1781,7 +1781,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 							}
 						}
 						if ( ! shouldMerge ) {
-							log.debug("Not merging event: " + oEvent.getDisplayName());
+							log.debug("Not merging event: {}", oEvent.getDisplayName());
 							continue;
 						}
 						String description = oEvent.getDescriptionFormatted();
