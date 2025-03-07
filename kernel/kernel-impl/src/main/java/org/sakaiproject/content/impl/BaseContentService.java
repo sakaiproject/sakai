@@ -7299,16 +7299,22 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 					String id = getSiteCollection(siteId) + relId;
 					element.setAttribute("id", id);
 
+					log.debug("Processing collection {}", id);
+
 					// collection: add if missing, else merge in
 					ContentCollection c = mergeCollection(element);
+					String result;
 					if (c == null)
 					{
-						results.append("collection: " + id + " already exists and was not replaced.\n");
+						result = "collection: " + id + " already exists and was not replaced.";
 					}
 					else
 					{
-						results.append("collection: " + id + " imported.\n");
+						result = "collection: " + id + " imported.";
 					}
+					log.debug(result);
+					results.append(result);
+					results.append("\n");
 				}
 
 				// for "resource" kids
@@ -7411,6 +7417,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 
 						element.setAttribute("id", id);
 
+						log.debug("Processing resource {}", id);
 						ContentResource r = null;
 
 						// if the body-location attribute points at another file for the body, get this
@@ -7433,14 +7440,18 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 							r = mergeResource(element);
 						}
 
+						String result;
 						if (r == null)
 						{
-							results.append("resource: " + id + " already exists and was not replaced.\n");
+							result = "resource: " + id + " already exists and was not replaced.";
 						}
 						else
 						{
-							results.append("resource: " + id + " imported.\n");
+							result = "resource: " + id + " imported.";
 						}
+						log.debug(result);
+						results.append(result);
+						results.append("\n");
 					}
 				}
 			}
@@ -8423,21 +8434,32 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 	 * @return a new ContentCollection object, or null if it was not created.
 	 */
 	protected ContentCollection mergeCollection(Element element) throws PermissionException, InconsistentException,
-	IdInvalidException
+	IdInvalidException, TypeException
 	{
 		// read the collection object
 		BaseCollectionEdit collectionFromXml = new BaseCollectionEdit(element);
 		String id = collectionFromXml.getId();
 
+		// Check if it exists - avoids unsupressable WARN in addCollection()
+		BaseCollectionEdit edit;
+		try {
+			edit = (BaseCollectionEdit) getCollection(id);
+			if ( edit != null ) return null;
+		}
+		catch (IdUnusedException e)
+		{
+			log.debug("Collection {} not present, about to add {}", id, e.toString());
+			edit = null;
+		}
+
 		// add it
-		BaseCollectionEdit edit = null;
 		try
 		{
 			edit = (BaseCollectionEdit) addCollection(id);
 		}
 		catch (IdUsedException e)
 		{
-			// ignore if it exists
+			log.debug("Collection {} could not be added {}", id, e.toString());
 			return null;
 		}
 
@@ -8488,7 +8510,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 	 */
 	@Deprecated
 	protected ContentResource mergeResource(Element element) throws PermissionException, InconsistentException, IdInvalidException,
-	OverQuotaException, ServerOverloadException
+	OverQuotaException, ServerOverloadException, TypeException
 	{
 		return mergeResource(element, (InputStream) null);
 
@@ -8512,14 +8534,25 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 	 * @return a new ContentResource object, or null if it was not created.
 	 */
 	protected ContentResource mergeResource(Element element, InputStream in) throws PermissionException, InconsistentException,
-	IdInvalidException, OverQuotaException, ServerOverloadException
+	IdInvalidException, OverQuotaException, ServerOverloadException, TypeException
 	{
 		// make the resource object
 		BaseResourceEdit resourceFromXml = new BaseResourceEdit(element);
 		String id = resourceFromXml.getId();
 
-		// get it added
+		// Check if it exists - avoids unsupressable WARN in addResource()
 		BaseResourceEdit edit = null;
+		try {
+			edit = (BaseResourceEdit) getResource(id);
+			if ( edit != null ) return null;
+		}
+		catch (IdUnusedException e)
+		{
+			log.debug("Resource {} not present, about to add {}", id, e.toString());
+			edit = null;
+		}
+
+		// get it added
 		try
 		{
 			edit = (BaseResourceEdit) addResource(id);
