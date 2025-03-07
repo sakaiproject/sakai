@@ -558,10 +558,6 @@ public class Assignment2Entity implements LessonEntity, AssignmentInterface {
 	ArrayList<UrlItem> list = new ArrayList<UrlItem>();
 	if (haveA2) {
 	    String tool = bean.getCurrentTool("sakai.assignment2");
-	    if (tool != null) {
-		tool = ServerConfigurationService.getToolUrl()+ "/" + tool + "/assignment";
-		list.add(new UrlItem(tool, messageLocator.getMessage("simplepage.create_assignment2")));
-	    }
 	}
 	if (nextEntity != null)
 	    list.addAll(nextEntity.createNewUrls(bean));

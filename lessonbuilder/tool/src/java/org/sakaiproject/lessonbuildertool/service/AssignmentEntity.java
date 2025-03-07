@@ -357,10 +357,6 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
     public List<UrlItem> createNewUrls(SimplePageBean bean) {
 	ArrayList<UrlItem> list = new ArrayList<UrlItem>();
 	String tool = bean.getCurrentTool("sakai.assignment.grades");
-	if (tool != null) {
-	    tool = ServerConfigurationService.getToolUrl() + "/" + tool + "?view=lisofass1&panel=Main&sakai_action=doView";
-	    list.add(new UrlItem(tool, messageLocator.getMessage("simplepage.create_assignment")));
-	}
 	if (nextEntity != null)
 	    list.addAll(nextEntity.createNewUrls(bean));
 	return list;
