@@ -1766,9 +1766,9 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 					CalendarEventEdit oEvent = (CalendarEventEdit) oEvents.get(i);
 					try
 					{
-						log.debug("Found Event: " + oEvent.getDisplayName());
+						log.debug("Found Event: {}", oEvent.getDisplayName());
 						ResourceProperties props = oEvent.getProperties();
-						log.debug("Props: " + props);
+						log.debug("Props: {}", props);
 						Iterator<String> propNames = props.getPropertyNames();
 						boolean shouldMerge = true;
 						while (propNames.hasNext()) {
