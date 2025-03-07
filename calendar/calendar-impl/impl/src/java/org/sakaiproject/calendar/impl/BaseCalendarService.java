@@ -1671,32 +1671,40 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 				value = Xml.decodeAttribute(prop, "value");
 			}
 
-			if ( StringUtils.contains(name, CalendarConstants.EVENT_OWNED_BY_TOOL_ID) &&
-				(StringUtils.contains(value, AssignmentServiceConstants.ASSIGNMENT_TOOL_ID) ||
-				StringUtils.contains(value, DiscussionForumService.FORUMS_TOOL_ID ) ||
-				StringUtils.contains(value, SamigoConstants.TOOL_ID) ) ) {
-				log.debug("Not importing assignment event from tool {}", value);
+			boolean shouldMerge = shouldMergeProperty(name, value);
+			if (!shouldMerge) {
 				return false;
 			}
+		}
+		return true;
+	}
 
-			// Do not import events associated with an assignment - backwards compatibility
-			if ( StringUtils.contains(name, CalendarConstants.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID) ||
-			     StringUtils.contains(name, CalendarConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED) ) {
-				log.debug("Not importing assignment event {}", value);
-				return false;
-			}
+	private boolean shouldMergeProperty(String name, String value) {
+		if ( StringUtils.contains(name, CalendarConstants.EVENT_OWNED_BY_TOOL_ID) &&
+			(StringUtils.contains(value, AssignmentServiceConstants.ASSIGNMENT_TOOL_ID) ||
+			StringUtils.contains(value, DiscussionForumService.FORUMS_TOOL_ID ) ||
+			StringUtils.contains(value, SamigoConstants.TOOL_ID) ) ) {
+			log.debug("Not importing assignment event from tool {}", value);
+			return false;
+		}
 
-			// Samigo does not mark its events, but the notification message is consitent - backwards compatibility
-			if ( StringUtils.equals(name, "CHEF:description") && StringUtils.contains(value, "samigo-app/servlet/Login")) {
-				log.debug("Not importing samigo event based on description containing Samigo launch URL");
-				return false;
-			}
+		// Do not import events associated with an assignment - backwards compatibility
+		if ( StringUtils.contains(name, CalendarConstants.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID) ||
+				StringUtils.contains(name, CalendarConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED) ) {
+			log.debug("Not importing assignment event {}", value);
+			return false;
+		}
 
-			// Discussion topic deadlines include calendar-url values inevitably pointing to the wrong place - backwards compatibility
-			if ( StringUtils.equals(name, "CHEF:calendar-url") && StringUtils.contains(value, "portal/site")) {
-				log.debug("Not importing discussion topic deadline event based on calendar-url {}", value);
-				return false;
-			}
+		// Samigo does not mark its events, but the notification message is consitent - backwards compatibility
+		if ( StringUtils.equals(name, "CHEF:description") && StringUtils.contains(value, "samigo-app/servlet/Login")) {
+			log.debug("Not importing samigo event based on description containing Samigo launch URL");
+			return false;
+		}
+
+		// Discussion topic deadlines include calendar-url values inevitably pointing to the wrong place - backwards compatibility
+		if ( StringUtils.equals(name, "CHEF:calendar-url") && StringUtils.contains(value, "portal/site")) {
+			log.debug("Not importing discussion topic deadline event based on calendar-url {}", value);
+			return false;
 		}
 		return true;
 	}
@@ -1758,11 +1766,24 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 					CalendarEventEdit oEvent = (CalendarEventEdit) oEvents.get(i);
 					try
 					{
-						// Skip calendar events based on assignment due dates
-						String assignmentId = oEvent.getField(CalendarConstants.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID);
-						if (assignmentId != null && assignmentId.length() > 0)
+						log.debug("Found Event: " + oEvent.getDisplayName());
+						ResourceProperties props = oEvent.getProperties();
+						log.debug("Props: " + props);
+						Iterator<String> propNames = props.getPropertyNames();
+						boolean shouldMerge = true;
+						while (propNames.hasNext()) {
+							String key = propNames.next();
+							String value = props.getProperty(key);
+							log.debug("Key: " + key + " Value: " + props.getProperty(key));
+							if ( ! shouldMergeProperty(key, value) ) {
+								shouldMerge = false;
+								break;
+							}
+						}
+						if ( ! shouldMerge ) {
+							log.debug("Not merging event: " + oEvent.getDisplayName());
 							continue;
-
+						}
 						String description = oEvent.getDescriptionFormatted();
 						description = ltiService.fixLtiLaunchUrls(description, fromContext, toContext, transversalMap);
 						oEvent.setDescriptionFormatted(description);
