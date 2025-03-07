@@ -1,7 +1,6 @@
 import { html, nothing } from "lit";
 import { SakaiElement } from "@sakai-ui/sakai-element";
 import "@sakai-ui/sakai-toggle/sakai-toggle.js";
-import "@sakai-ui/sakai-editor";
 import "../sakai-conversations-guidelines.js";
 
 export class SakaiConversationsSettings extends SakaiElement {
@@ -50,8 +49,13 @@ export class SakaiConversationsSettings extends SakaiElement {
   }
 
   _saveGuidelines() {
+    // Using let because guidelines may be reassigned
+    let guidelines = this.querySelector("#settings-guidelines-editor")?.value || "";
 
-    const guidelines = this.querySelector("#settings-guidelines-editor")?.getContent();
+    // If guidelines are empty, use the sample guidelines
+    if (!guidelines.trim()) {
+      guidelines = this._i18n.community_guidelines_sample || "<p>Welcome to our community! Please follow these guidelines...</p>";
+    }
 
     const url = `/api/sites/${this.siteId}/conversations/settings/guidelines`;
     fetch(url, {
@@ -63,7 +67,6 @@ export class SakaiConversationsSettings extends SakaiElement {
       body: `${guidelines}`,
     })
     .then(r => {
-
       if (!r.ok) {
         throw new Error("Network error while saving guidelines");
       } else {
@@ -83,6 +86,11 @@ export class SakaiConversationsSettings extends SakaiElement {
   }
 
   render() {
+
+    // Use the existing guidelines content if available, otherwise use the sample
+    const guidelinesContent = (this.settings.guidelines && this.settings.guidelines.trim())
+      ? this.settings.guidelines
+      : (this._i18n && this._i18n.community_guidelines_sample);
 
     return html`
       <div class="add-topic-wrapper">
@@ -162,11 +170,12 @@ export class SakaiConversationsSettings extends SakaiElement {
         <div id="settings-guidelines-block">
           <div id="settings-guidelines-preview">
             <div>${this._i18n.community_guidelines_preview_heading}</div>
-            <sakai-conversations-guidelines guidelines="${this.settings.guidelines}"></sakai-conversations-guidelines>
+            <sakai-conversations-guidelines guidelines="${guidelinesContent}"></sakai-conversations-guidelines>
           </div>
           ${this._editingGuidelines ? html`
           <div id="settings-guidelines-editor-block">
-            <sakai-editor id="settings-guidelines-editor" content="${this.settings.guidelines}"></sakai-editor>
+            <textarea id="settings-guidelines-editor" 
+                      style="width: 100%; min-height: 150px;">${guidelinesContent}</textarea>
             <div class="act">
               <input type="button" class="active" @click=${this._saveGuidelines} value="${this._i18n.save}">
               <input type="button" class="active" @click="${this._stopEditingGuidelines}" value="${this._i18n.cancel}">
