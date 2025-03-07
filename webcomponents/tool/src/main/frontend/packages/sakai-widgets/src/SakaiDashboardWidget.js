@@ -1,8 +1,8 @@
 import { css, html } from "lit";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { SakaiShadowElement } from "@sakai-ui/sakai-element";
-import { loadProperties } from "@sakai-ui/sakai-i18n";
 import "@sakai-ui/sakai-pager";
+import { loadProperties } from "@sakai-ui/sakai-i18n";
 
 export class SakaiDashboardWidget extends SakaiShadowElement {
 
@@ -35,17 +35,6 @@ export class SakaiDashboardWidget extends SakaiShadowElement {
   }
 
   get widgetId() { return this._widgetId; }
-
-  loadTranslations(options) {
-
-    const p = loadProperties(options);
-    p.then(r => {
-
-      this._i18n = r;
-      this.title = r.widget_title;
-    });
-    return p;
-  }
 
   content() {}
 

@@ -15,7 +15,7 @@ export class SakaiCourseCard extends SakaiElement {
 
     super();
 
-    this.loadTranslations("coursecard").then(r => this._i18n = r);
+    this.loadTranslations("coursecard");
   }
 
   connectedCallback() {
