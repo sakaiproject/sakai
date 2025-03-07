@@ -1845,10 +1845,6 @@ $(document).ready(function () {
           $("#change-assignment").attr("href",
                $("#change-assignment").attr("href").replace("itemId=-1", "itemId=" + itemid));
           $("#require-label").text(msg("simplepage.require_submit_assignment"));
-          $("#edit-item-object-p").show();
-          $("#edit-item-object").attr("href",
-            $("#edit-item-object").attr("href").replace(/(itemId=).*?(&)/, '$1' + itemid + '$2'));
-          $("#edit-item-text").text(msg("simplepage.edit_assignment"));
         }
 
         if (type === '3' || type === '6') {

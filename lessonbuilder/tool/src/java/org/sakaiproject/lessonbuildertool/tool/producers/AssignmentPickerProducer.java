@@ -129,32 +129,11 @@ public class AssignmentPickerProducer implements ViewComponentProducer, Navigati
 			    assignId = currentItem.getSakaiId();
 			}
 			
-			List<UrlItem> createLinks = assignmentEntity.createNewUrls(simplePageBean);
-			int toolNum = 0;
-			for (UrlItem createLink: createLinks) {
-			    UIBranchContainer link = UIBranchContainer.make(tofill, "assignment-create:");
-			    GeneralViewParameters view = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
-			    view.setSendingPage(((GeneralViewParameters) viewparams).getSendingPage());
-			    view.setId(Long.toString(((GeneralViewParameters) viewparams).getItemId()));
-			    view.setSource("CREATE/ASSIGN/" + (toolNum++));
-			    view.setReturnView(VIEW_ID);
-			    view.setTitle(messageLocator.getMessage("simplepage.return_assignment"));
-			    view.setAddBefore(((GeneralViewParameters) viewparams).getAddBefore());
-			    UIInternalLink.make(link, "assignment-create-link", createLink.label , view);
-			}
-
 			UIForm form = UIForm.make(tofill, "assignment-picker");
 			Object sessionToken = SessionManager.getCurrentSession().getAttribute("sakai.csrf.token");
 			if (sessionToken != null)
 			    UIInput.make(form, "csrf", "simplePageBean.csrfToken", sessionToken.toString());
 
-			if (createLinks.size() == 0) {
-			    log.info("creatlinks " + createLinks.size());
-			    UIOutput.make(tofill, "error-div");
-			    UIOutput.make(tofill, "error", messageLocator.getMessage("simplepage.no_assignment_tools"));
-			    UICommand.make(tofill, "cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
-			    return;
-			}
 			List<LessonEntity> alist = assignmentEntity.getEntitiesInSite(simplePageBean);
 
 			if (alist == null || alist.size() < 1) {
