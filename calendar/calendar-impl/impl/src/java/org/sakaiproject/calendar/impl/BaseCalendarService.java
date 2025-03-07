@@ -1774,7 +1774,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 						while (propNames.hasNext()) {
 							String key = propNames.next();
 							String value = props.getProperty(key);
-							log.debug("Key: " + key + " Value: " + props.getProperty(key));
+							log.debug("Key: {}, Value: {}", key, props.getProperty(key));
 							if ( ! shouldMergeProperty(key, value) ) {
 								shouldMerge = false;
 								break;
