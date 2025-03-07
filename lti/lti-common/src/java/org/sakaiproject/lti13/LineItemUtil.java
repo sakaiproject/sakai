@@ -20,10 +20,12 @@ package org.sakaiproject.lti13;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Date;
+import java.util.HashMap;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -41,6 +43,7 @@ import static org.sakaiproject.lti.util.SakaiLTIUtil.getOurServerUrl;
 import org.sakaiproject.lti.util.SakaiLTIUtil;
 
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.util.foorm.Foorm;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -63,6 +66,7 @@ public class LineItemUtil {
 
 	public static final String GB_EXTERNAL_APP_NAME = "IMS-AGS";
 	public static final String ASSIGNMENTS_EXTERNAL_APP_NAME = "Assignments"; // Avoid circular references
+	public static final String ASSIGNMENT_REFERENCE_PREFIX = "/assignment/a";
 
 	public final static String ID_SEPARATOR = "|";
 	public final static String ID_SEPARATOR_REGEX = "\\|";
@@ -291,26 +295,69 @@ public class LineItemUtil {
 	}
 
 	/**
+	 * Return a map of external_id values for LTI assignments in a site
+	 *
+	 * @param context_id
+	 *
+	 * The format of the external_id is:
+	 *
+	 *     tool_id|content_id|resourceLink|tag|
+	 *
+	 * This should be called with the appropriate security advisor in place
+	 *
+	 * @return A map of assignment references to their external_id values
+	 */
+	public static Map<String, String> getExternalIdsForToolAssignments(String context_id) {
+		Map<String, String> retval = new HashMap<>();
+		org.sakaiproject.assignment.api.AssignmentService assignmentService = ComponentManager.get(org.sakaiproject.assignment.api.AssignmentService.class);
+		LTIService ltiService = ComponentManager.get(LTIService.class);
+
+		try {
+			Collection<org.sakaiproject.assignment.api.model.Assignment> assignments = assignmentService.getAssignmentsForContext(context_id);
+			for (org.sakaiproject.assignment.api.model.Assignment a : assignments) {
+				String assignmentReference = org.sakaiproject.assignment.api.AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference();
+				Integer assignmentContentId = a.getContentId();
+				if ( assignmentContentId == null ) continue;
+				Map<String, Object> content = ltiService.getContent(assignmentContentId.longValue(), context_id);
+				if ( content == null ) continue;
+				retval.put(assignmentReference, constructExternalId(content, null));
+			}
+		} catch (Throwable e) {
+			log.error("Unexpected Throwable", e.getMessage());
+		}
+		return retval;
+	}
+
+	/**
 	 * Return a list of assignments associated with this tool in a site
 	 * @param context_id - The site id
 	 * @param tool_id - The tool id
 	 * @return A list of Assignment objects (perhaps empty) or null on failure
 	 */
 	protected static List<Assignment> getColumnsForToolDAO(String context_id, Long tool_id) {
-		List retval = new ArrayList();
+		List<Assignment> retval = new ArrayList<>();
 		GradingService g = (GradingService) ComponentManager
 				.get("org.sakaiproject.grading.api.GradingService");
+		Map<String, String> externalIds = null;
 
 		pushAdvisor();
 		try {
 			List<Assignment> gradebookColumns = g.getAssignments(context_id);
 			for (Iterator i = gradebookColumns.iterator(); i.hasNext();) {
 				Assignment gbColumn = (Assignment) i.next();
-				if ( ! isGradebookColumnLTI(gbColumn) ) continue;
+				String external_id = gbColumn.getExternalId();
+				if ( isGradebookColumnLTI(gbColumn) ) {
+					// We are good to go
+				} else if ( isAssignmentColumn(external_id) ) {
+					if ( externalIds == null ) {
+						externalIds = getExternalIdsForToolAssignments(context_id);
+					}
+					external_id = externalIds.get(external_id);
+					if ( external_id == null ) continue;
+				}
 
 				// Parse the external_id
 				// tool_id|content_id|resourceLink|tag|
-				String external_id = gbColumn.getExternalId();
 				if ( external_id == null || external_id.length() < 1 ) continue;
 
 				String[] parts = external_id.split(ID_SEPARATOR_REGEX);
@@ -437,6 +484,10 @@ public class LineItemUtil {
 		return false;
 	}
 
+	public static boolean isAssignmentColumn(String external_id) {
+		return external_id.startsWith(ASSIGNMENT_REFERENCE_PREFIX);
+	}
+
 	/**
 	 * Get the line items from the gradebook for a tool
 	 * @param site The site we are looking at
@@ -454,17 +505,27 @@ public class LineItemUtil {
 				.get("org.sakaiproject.grading.api.GradingService");
 
 		List<SakaiLineItem> retval = new ArrayList<>();
+		Map<String, String> externalIds = null;
 
 		pushAdvisor();
 		try {
+
 			List gradebookColumns = g.getAssignments(context_id);
 			for (Iterator i = gradebookColumns.iterator(); i.hasNext();) {
 				Assignment gbColumn = (Assignment) i.next();
-				if ( ! isGradebookColumnLTI(gbColumn) ) continue;
+				String external_id = gbColumn.getExternalId();
+				if ( isGradebookColumnLTI(gbColumn) ) {
+					// We are good to go
+				} else if ( isAssignmentColumn(external_id) ) {
+					if ( externalIds == null ) {
+						externalIds = getExternalIdsForToolAssignments(context_id);
+					}
+					external_id = externalIds.get(external_id);
+					if ( external_id == null ) continue;
+				}
 
 				// Parse the external_id
 				// tool_id|content_id|resourceLink|tag|assignmentRef (optional)
-				String external_id = gbColumn.getExternalId();
 				if ( external_id == null || external_id.length() < 1 ) continue;
 
 				String[] parts = external_id.split(ID_SEPARATOR_REGEX);
