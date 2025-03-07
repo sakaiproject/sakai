@@ -27,6 +27,8 @@ import org.springframework.util.comparator.NullSafeComparator;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.Getter;
 
 @Builder
 @NoArgsConstructor
@@ -39,7 +41,7 @@ public class SitePresenceImpl implements SitePresence, Serializable {
 	private Date date;
 	private long duration;
 	private Date lastVisitStartTime;
-	private int currentOpenSessions;
+	@Getter @Setter private Integer currentOpenSessions = 0;
 
 	@Override
 	public int compareTo(SitePresence other) {
@@ -68,8 +70,8 @@ public class SitePresenceImpl implements SitePresence, Serializable {
 				&& date.equals(other.getDate())
 				&& duration == other.getDuration()
 				&& getCount() == other.getCount()
-				&& lastVisitStartTime == other.getLastVisitStartTime()
-				&& currentOpenSessions == other.getCurrentOpenSessions();
+				&& lastVisitStartTime.equals(other.getLastVisitStartTime())
+				&& currentOpenSessions.equals(other.getCurrentOpenSessions());
 	}
 
 	@Override
@@ -144,13 +146,5 @@ public class SitePresenceImpl implements SitePresence, Serializable {
 
 	public long getCount() {
 		return duration;
-	}
-
-	public int getCurrentOpenSessions() {
-		return currentOpenSessions;
-	}
-
-	public void setCurrentOpenSessions(int currentOpenSessions) {
-		this.currentOpenSessions = currentOpenSessions;
 	}
 }

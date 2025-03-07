@@ -561,7 +561,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		SitePresenceImpl result = results.get(0);
 		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(40, ChronoUnit.SECONDS).toMillis(), result.getDuration());
-		assertEquals(0, result.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(0), result.getCurrentOpenSessions());
 	}
 
 	@Test
@@ -586,7 +586,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		SitePresenceImpl result = results.get(0);
 		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(0, ChronoUnit.SECONDS).toMillis(), result.getDuration());
-		assertEquals(1, result.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(1), result.getCurrentOpenSessions());
 
 		// Evaluate at 60 seconds
 		assertTrue(statsUpdateManager.collectEvents(List.of(presence1End)));
@@ -595,7 +595,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		result = results.get(0);
 		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(40, ChronoUnit.SECONDS).toMillis(), result.getDuration());
-		assertEquals(0, result.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(0), result.getCurrentOpenSessions());
 	}
 
 	@Test
@@ -624,7 +624,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		SitePresenceImpl result = results.get(0);
 		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(80, ChronoUnit.SECONDS).toMillis(), result.getDuration());
-		assertEquals(0, result.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(0), result.getCurrentOpenSessions());
 	}
 
 	@Test
@@ -653,7 +653,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		SitePresenceImpl result = results.get(0);
 		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(40, ChronoUnit.SECONDS).toMillis(), result.getDuration());
-		assertEquals(0, result.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(0), result.getCurrentOpenSessions());
 
 		// Evaluate at 100 seconds
 		assertTrue(statsUpdateManager.collectEvents(List.of(presence2Begin)));
@@ -662,7 +662,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		result = results.get(0);
 		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(40, ChronoUnit.SECONDS).toMillis(), result.getDuration());
-		assertEquals(1, result.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(1), result.getCurrentOpenSessions());
 
 		// Evaluate at 140 seconds
 		assertTrue(statsUpdateManager.collectEvents(List.of(presence2End)));
@@ -671,7 +671,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		result = results.get(0);
 		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(80, ChronoUnit.SECONDS).toMillis(), result.getDuration());
-		assertEquals(0, result.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(0), result.getCurrentOpenSessions());
 	}
 
 	@Test
@@ -700,7 +700,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		SitePresenceImpl result = results.get(0);
 		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(0, ChronoUnit.SECONDS).toMillis(), result.getDuration());
-		assertEquals(1, result.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(1), result.getCurrentOpenSessions());
 
 		// Evaluate at 60 seconds
 		assertTrue(statsUpdateManager.collectEvents(List.of(presence1End)));
@@ -709,7 +709,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		result = results.get(0);
 		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(40, ChronoUnit.SECONDS).toMillis(), result.getDuration());
-		assertEquals(0, result.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(0), result.getCurrentOpenSessions());
 
 		// Evaluate at 140 seconds
 		assertTrue(statsUpdateManager.collectEvents(List.of(presence2Begin, presence2End)));
@@ -718,7 +718,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		result = results.get(0);
 		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(80, ChronoUnit.SECONDS).toMillis(), result.getDuration());
-		assertEquals(0, result.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(0), result.getCurrentOpenSessions());
 	}
 
 	@Test
@@ -747,7 +747,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		SitePresenceImpl result = results.get(0);
 		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(1, ChronoUnit.MINUTES).toMillis(), result.getDuration());
-		assertEquals(0, result.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(0), result.getCurrentOpenSessions());
 	}
 
 	@Test
@@ -776,7 +776,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		SitePresenceImpl result = results.get(0);
 		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(0, ChronoUnit.SECONDS).toMillis(), result.getDuration());
-		assertEquals(1, result.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(1), result.getCurrentOpenSessions());
 
 		// Evaluate at 60 seconds
 		assertTrue(statsUpdateManager.collectEvents(List.of(presence2Begin)));
@@ -785,7 +785,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		result = results.get(0);
 		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(0, ChronoUnit.SECONDS).toMillis(), result.getDuration());
-		assertEquals(2, result.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(2), result.getCurrentOpenSessions());
 
 		// Evaluate at 100 seconds
 		assertTrue(statsUpdateManager.collectEvents(List.of(presence1End)));
@@ -794,7 +794,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		result = results.get(0);
 		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(80, ChronoUnit.SECONDS).toMillis(), result.getDuration());
-		assertEquals(1, result.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(1), result.getCurrentOpenSessions());
 
 		// Evaluate at 140 seconds
 		assertTrue(statsUpdateManager.collectEvents(List.of(presence2End)));
@@ -803,7 +803,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		result = results.get(0);
 		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(120, ChronoUnit.SECONDS).toMillis(), result.getDuration());
-		assertEquals(0, result.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(0), result.getCurrentOpenSessions());
 	}
 
 	@Test
@@ -832,7 +832,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		SitePresenceImpl result = results.get(0);
 		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(0, ChronoUnit.SECONDS).toMillis(), result.getDuration());
-		assertEquals(1, result.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(1), result.getCurrentOpenSessions());
 
 		// Evaluate at 100 seconds
 		assertTrue(statsUpdateManager.collectEvents(List.of(presence2Begin, presence1End)));
@@ -841,7 +841,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		result = results.get(0);
 		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(80, ChronoUnit.SECONDS).toMillis(), result.getDuration());
-		assertEquals(1, result.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(1), result.getCurrentOpenSessions());
 
 		// Evaluate at 140 seconds
 		assertTrue(statsUpdateManager.collectEvents(List.of(presence2End)));
@@ -850,7 +850,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		result = results.get(0);
 		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(120, ChronoUnit.SECONDS).toMillis(), result.getDuration());
-		assertEquals(0, result.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(0), result.getCurrentOpenSessions());
 	}
 
 	@Test
@@ -879,7 +879,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		SitePresenceImpl result = results.get(0);
 		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(0, ChronoUnit.SECONDS).toMillis(), result.getDuration());
-		assertEquals(1, result.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(1), result.getCurrentOpenSessions());
 
 		// Evaluate at 60 seconds
 		assertTrue(statsUpdateManager.collectEvents(List.of(presence2Begin)));
@@ -888,7 +888,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		result = results.get(0);
 		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(0, ChronoUnit.SECONDS).toMillis(), result.getDuration());
-		assertEquals(2, result.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(2), result.getCurrentOpenSessions());
 
 		// Evaluate at 140 seconds
 		assertTrue(statsUpdateManager.collectEvents(List.of(presence1End, presence2End)));
@@ -897,7 +897,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		result = results.get(0);
 		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(120, ChronoUnit.SECONDS).toMillis(), result.getDuration());
-		assertEquals(0, result.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(0), result.getCurrentOpenSessions());
 	}
 
 	@Test
@@ -936,7 +936,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		SitePresenceImpl result = results.get(0);
 		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(200, ChronoUnit.SECONDS).toMillis(), result.getDuration());
-		assertEquals(0, result.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(0), result.getCurrentOpenSessions());
 	}
 
 	@Test
@@ -975,7 +975,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		SitePresenceImpl result = results.get(0);
 		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(0, ChronoUnit.SECONDS).toMillis(), result.getDuration());
-		assertEquals(1, result.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(1), result.getCurrentOpenSessions());
 
 		// Evaluate at 60 seconds
 		assertTrue(statsUpdateManager.collectEvents(List.of(presence2Begin)));
@@ -984,7 +984,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		result = results.get(0);
 		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(0, ChronoUnit.SECONDS).toMillis(), result.getDuration());
-		assertEquals(2, result.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(2), result.getCurrentOpenSessions());
 
 		// Evaluate at 100 seconds
 		assertTrue(statsUpdateManager.collectEvents(List.of(presence1End)));
@@ -993,7 +993,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		result = results.get(0);
 		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(80, ChronoUnit.SECONDS).toMillis(), result.getDuration());
-		assertEquals(1, result.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(1), result.getCurrentOpenSessions());
 
 		// Evaluate at 140 seconds
 		assertTrue(statsUpdateManager.collectEvents(List.of(presence2End)));
@@ -1002,7 +1002,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		result = results.get(0);
 		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(120, ChronoUnit.SECONDS).toMillis(), result.getDuration());
-		assertEquals(0, result.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(0), result.getCurrentOpenSessions());
 
 		// Evaluate at 180 seconds 
 		assertTrue(statsUpdateManager.collectEvents(List.of(presence3Begin)));
@@ -1011,7 +1011,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		result = results.get(0);
 		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(120, ChronoUnit.SECONDS).toMillis(), result.getDuration());
-		assertEquals(1, result.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(1), result.getCurrentOpenSessions());
 
 		// Evaluate at 220 seconds
 		assertTrue(statsUpdateManager.collectEvents(List.of(presence3End)));
@@ -1020,7 +1020,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		result = results.get(0);
 		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(160, ChronoUnit.SECONDS).toMillis(), result.getDuration());
-		assertEquals(0, result.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(0), result.getCurrentOpenSessions());
 
 		// Evaluate at 160 seconds 
 		assertTrue(statsUpdateManager.collectEvents(List.of(presence4Begin)));
@@ -1029,7 +1029,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		result = results.get(0);
 		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(160, ChronoUnit.SECONDS).toMillis(), result.getDuration());
-		assertEquals(1, result.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(1), result.getCurrentOpenSessions());
 
 		// Evaluate at 300 seconds
 		assertTrue(statsUpdateManager.collectEvents(List.of(presence4End)));
@@ -1038,7 +1038,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		result = results.get(0);
 		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(200, ChronoUnit.SECONDS).toMillis(), result.getDuration());
-		assertEquals(0, result.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(0), result.getCurrentOpenSessions());
 	}
 
 	@Test
@@ -1077,7 +1077,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		SitePresenceImpl result = results.get(0);
 		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(200, ChronoUnit.SECONDS).toMillis(), result.getDuration());
-		assertEquals(0, result.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(0), result.getCurrentOpenSessions());
 	}
 
 	@Test
@@ -1116,7 +1116,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		SitePresenceImpl result = results.get(0);
 		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(0, ChronoUnit.SECONDS).toMillis(), result.getDuration());
-		assertEquals(1, result.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(1), result.getCurrentOpenSessions());
 
 		// Evaluate at 60 seconds
 		assertTrue(statsUpdateManager.collectEvents(List.of(presence1End)));
@@ -1125,7 +1125,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		result = results.get(0);
 		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(40, ChronoUnit.SECONDS).toMillis(), result.getDuration());
-		assertEquals(0, result.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(0), result.getCurrentOpenSessions());
 
 		// Evaluate at 100 seconds
 		assertTrue(statsUpdateManager.collectEvents(List.of(presence2Begin)));
@@ -1134,7 +1134,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		result = results.get(0);
 		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(40, ChronoUnit.SECONDS).toMillis(), result.getDuration());
-		assertEquals(1, result.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(1), result.getCurrentOpenSessions());
 
 		// Evaluate at 140 seconds
 		assertTrue(statsUpdateManager.collectEvents(List.of(presence2End)));
@@ -1143,7 +1143,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		result = results.get(0);
 		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(80, ChronoUnit.SECONDS).toMillis(), result.getDuration());
-		assertEquals(0, result.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(0), result.getCurrentOpenSessions());
 
 		// Evaluate at 180 seconds
 		assertTrue(statsUpdateManager.collectEvents(List.of(presence3Begin)));
@@ -1152,7 +1152,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		result = results.get(0);
 		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(80, ChronoUnit.SECONDS).toMillis(), result.getDuration());
-		assertEquals(1, result.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(1), result.getCurrentOpenSessions());
 
 		// Evaluate at 220 seconds
 		assertTrue(statsUpdateManager.collectEvents(List.of(presence4Begin)));
@@ -1161,7 +1161,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		result = results.get(0);
 		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(80, ChronoUnit.SECONDS).toMillis(), result.getDuration());
-		assertEquals(2, result.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(2), result.getCurrentOpenSessions());
 
 		// Evaluate at 260 seconds
 		assertTrue(statsUpdateManager.collectEvents(List.of(presence3End)));
@@ -1170,7 +1170,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		result = results.get(0);
 		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(160, ChronoUnit.SECONDS).toMillis(), result.getDuration());
-		assertEquals(1, result.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(1), result.getCurrentOpenSessions());
 
 		// Evaluate at 300 seconds
 		assertTrue(statsUpdateManager.collectEvents(List.of(presence4End)));
@@ -1179,7 +1179,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		result = results.get(0);
 		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(200, ChronoUnit.SECONDS).toMillis(), result.getDuration());
-		assertEquals(0, result.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(0), result.getCurrentOpenSessions());
 	}
 
 	@Test
@@ -1208,7 +1208,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		SitePresenceImpl result = results.get(0);
 		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(80, ChronoUnit.SECONDS).toMillis(), result.getDuration());
-		assertEquals(0, result.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(0), result.getCurrentOpenSessions());
 	}
 
 	@Test
@@ -1237,7 +1237,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		SitePresenceImpl result = results.get(0);
 		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(0, ChronoUnit.SECONDS).toMillis(), result.getDuration());
-		assertEquals(1, result.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(1), result.getCurrentOpenSessions());
 
 		// Evaluate at 100 seconds
 		assertTrue(statsUpdateManager.collectEvents(List.of(presence2Begin, presence2End, presence1End)));
@@ -1246,7 +1246,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		result = results.get(0);
 		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(80, ChronoUnit.SECONDS).toMillis(), result.getDuration());
-		assertEquals(0, result.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(0), result.getCurrentOpenSessions());
 	}
 
 	@Test
@@ -1275,7 +1275,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		SitePresenceImpl result = results.get(0);
 		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(0, ChronoUnit.SECONDS).toMillis(), result.getDuration());
-		assertEquals(2, result.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(2), result.getCurrentOpenSessions());
 
 		// Evaluate at 100 seconds
 		assertTrue(statsUpdateManager.collectEvents(List.of(presence2End, presence1End)));
@@ -1284,7 +1284,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		result = results.get(0);
 		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(80, ChronoUnit.SECONDS).toMillis(), result.getDuration());
-		assertEquals(0, result.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(0), result.getCurrentOpenSessions());
 	}
 
 	@Test
@@ -1313,7 +1313,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		SitePresenceImpl result = results.get(0);
 		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(40, ChronoUnit.SECONDS).toMillis(), result.getDuration());
-		assertEquals(1, result.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(1), result.getCurrentOpenSessions());
 
 		// Evaluate at 100 seconds
 		assertTrue(statsUpdateManager.collectEvents(List.of(presence1End)));
@@ -1322,7 +1322,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		result = results.get(0);
 		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(80, ChronoUnit.SECONDS).toMillis(), result.getDuration());
-		assertEquals(0, result.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(0), result.getCurrentOpenSessions());
 	}
 
 	@Test
@@ -1347,11 +1347,11 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		SitePresenceImpl resultFirstDay = results.get(0);
 		assertEquals(FakeData.USER_A_ID, resultFirstDay.getUserId());
 		assertEquals(Duration.of(24, ChronoUnit.HOURS).toMillis(), resultFirstDay.getDuration());
-		assertEquals(0, resultFirstDay.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(0), resultFirstDay.getCurrentOpenSessions());
 		SitePresenceImpl resultSecondDay = results.get(1);
 		assertEquals(FakeData.USER_A_ID, resultSecondDay.getUserId());
 		assertEquals(Duration.of(24, ChronoUnit.HOURS).toMillis(), resultSecondDay.getDuration());
-		assertEquals(0, resultSecondDay.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(0), resultSecondDay.getCurrentOpenSessions());
 	}
 
 	@Test
@@ -1380,11 +1380,11 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		SitePresenceImpl resultFirstDay = results.get(0);
 		assertEquals(FakeData.USER_A_ID, resultFirstDay.getUserId());
 		assertEquals(Duration.of(18, ChronoUnit.HOURS).toMillis(), resultFirstDay.getDuration());
-		assertEquals(0, resultFirstDay.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(0), resultFirstDay.getCurrentOpenSessions());
 		SitePresenceImpl resultSecondDay = results.get(1);
 		assertEquals(FakeData.USER_A_ID, resultSecondDay.getUserId());
 		assertEquals(Duration.of(12, ChronoUnit.HOURS).toMillis(), resultSecondDay.getDuration());
-		assertEquals(0, resultSecondDay.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(0), resultSecondDay.getCurrentOpenSessions());
 	}
 
 	@Test
@@ -1413,7 +1413,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		SitePresenceImpl resultFirstDay = results.get(0);
 		assertEquals(FakeData.USER_A_ID, resultFirstDay.getUserId());
 		assertEquals(Duration.of(6, ChronoUnit.HOURS).toMillis(), resultFirstDay.getDuration());
-		assertEquals(1, resultFirstDay.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(1), resultFirstDay.getCurrentOpenSessions());
 
 		// Evaluate at 42 hours
 		assertTrue(statsUpdateManager.collectEvents(List.of(presence2End)));
@@ -1422,11 +1422,11 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		resultFirstDay = results.get(0);
 		assertEquals(FakeData.USER_A_ID, resultFirstDay.getUserId());
 		assertEquals(Duration.of(18, ChronoUnit.HOURS).toMillis(), resultFirstDay.getDuration());
-		assertEquals(0, resultFirstDay.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(0), resultFirstDay.getCurrentOpenSessions());
 		SitePresenceImpl resultSecondDay = results.get(1);
 		assertEquals(FakeData.USER_A_ID, resultSecondDay.getUserId());
 		assertEquals(Duration.of(12, ChronoUnit.HOURS).toMillis(), resultSecondDay.getDuration());
-		assertEquals(0, resultSecondDay.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(0), resultSecondDay.getCurrentOpenSessions());
 	}
 
 	@Test
@@ -1455,11 +1455,11 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		SitePresenceImpl resultFirstDay = results.get(0);
 		assertEquals(FakeData.USER_A_ID, resultFirstDay.getUserId());
 		assertEquals(Duration.of(24, ChronoUnit.HOURS).toMillis(), resultFirstDay.getDuration());
-		assertEquals(0, resultFirstDay.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(0), resultFirstDay.getCurrentOpenSessions());
 		SitePresenceImpl resultSecondDay = results.get(1);
 		assertEquals(FakeData.USER_A_ID, resultSecondDay.getUserId());
 		assertEquals(Duration.of(12, ChronoUnit.HOURS).toMillis(), resultSecondDay.getDuration());
-		assertEquals(0, resultSecondDay.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(0), resultSecondDay.getCurrentOpenSessions());
 	}
 
 	@Test
@@ -1488,7 +1488,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		SitePresenceImpl resultFirstDay = results.get(0);
 		assertEquals(FakeData.USER_A_ID, resultFirstDay.getUserId());
 		assertEquals(Duration.of(0, ChronoUnit.HOURS).toMillis(), resultFirstDay.getDuration());
-		assertEquals(2, resultFirstDay.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(2), resultFirstDay.getCurrentOpenSessions());
 
 		// Evaluate at 48 hours
 		assertTrue(statsUpdateManager.collectEvents(List.of(presence1End, presence2End)));
@@ -1497,11 +1497,11 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		resultFirstDay = results.get(0);
 		assertEquals(FakeData.USER_A_ID, resultFirstDay.getUserId());
 		assertEquals(Duration.of(24, ChronoUnit.HOURS).toMillis(), resultFirstDay.getDuration());
-		assertEquals(0, resultFirstDay.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(0), resultFirstDay.getCurrentOpenSessions());
 		SitePresenceImpl resultSecondDay = results.get(1);
 		assertEquals(FakeData.USER_A_ID, resultSecondDay.getUserId());
 		assertEquals(Duration.of(18, ChronoUnit.HOURS).toMillis(), resultSecondDay.getDuration());
-		assertEquals(0, resultSecondDay.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(0), resultSecondDay.getCurrentOpenSessions());
 	}
 
 	@Test
@@ -1530,11 +1530,11 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		SitePresenceImpl resultFirstDay = results.get(0);
 		assertEquals(FakeData.USER_A_ID, resultFirstDay.getUserId());
 		assertEquals(Duration.of(24, ChronoUnit.HOURS).toMillis(), resultFirstDay.getDuration());
-		assertEquals(0, resultFirstDay.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(0), resultFirstDay.getCurrentOpenSessions());
 		SitePresenceImpl resultSecondDay = results.get(1);
 		assertEquals(FakeData.USER_A_ID, resultSecondDay.getUserId());
 		assertEquals(Duration.of(12, ChronoUnit.HOURS).toMillis(), resultSecondDay.getDuration());
-		assertEquals(0, resultSecondDay.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(0), resultSecondDay.getCurrentOpenSessions());
 	}
 
 	@Test
@@ -1563,7 +1563,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		SitePresenceImpl resultFirstDay = results.get(0);
 		assertEquals(FakeData.USER_A_ID, resultFirstDay.getUserId());
 		assertEquals(Duration.of(0, ChronoUnit.HOURS).toMillis(), resultFirstDay.getDuration());
-		assertEquals(2, resultFirstDay.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(2), resultFirstDay.getCurrentOpenSessions());
 
 		// Evaluate at 42 hours
 		assertTrue(statsUpdateManager.collectEvents(List.of(presence1End, presence2End)));
@@ -1572,11 +1572,11 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		resultFirstDay = results.get(0);
 		assertEquals(FakeData.USER_A_ID, resultFirstDay.getUserId());
 		assertEquals(Duration.of(24, ChronoUnit.HOURS).toMillis(), resultFirstDay.getDuration());
-		assertEquals(0, resultFirstDay.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(0), resultFirstDay.getCurrentOpenSessions());
 		SitePresenceImpl resultSecondDay = results.get(1);
 		assertEquals(FakeData.USER_A_ID, resultSecondDay.getUserId());
 		assertEquals(Duration.of(12, ChronoUnit.HOURS).toMillis(), resultSecondDay.getDuration());
-		assertEquals(0, resultSecondDay.getCurrentOpenSessions());
+		assertEquals(Integer.valueOf(0), resultSecondDay.getCurrentOpenSessions());
 	}
 
 	@SuppressWarnings("unchecked")

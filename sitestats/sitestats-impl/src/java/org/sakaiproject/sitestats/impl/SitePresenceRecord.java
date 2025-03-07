@@ -34,10 +34,6 @@ public class SitePresenceRecord extends PresenceRecord {
     private boolean originallyEnding;
 
 
-    public boolean isOriginallyEnding() {
-        return originallyEnding;
-    }
-
     public SitePresenceKey getKey() {
         return SitePresenceKey.from(this);
     }

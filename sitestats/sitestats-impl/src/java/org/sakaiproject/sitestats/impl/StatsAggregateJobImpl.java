@@ -39,6 +39,7 @@ import org.sakaiproject.component.app.scheduler.jobs.SpringStatefulJobBeanWrappe
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.sitestats.api.JobRun;
+import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.StatsUpdateManager;
 
 import lombok.extern.slf4j.Slf4j;
@@ -310,7 +311,7 @@ public class StatsAggregateJobImpl implements StatefulJob {
 						if(firstEventIdProcessedInBlock == -1)
 							firstEventIdProcessedInBlock = lastProcessedEventId;
 						processedCounter++;
-						if (event == "pres.end" || event == "pres.begin") {
+						if (StringUtils.equalsAny(event, StatsManager.SITEVISIT_EVENTID, StatsManager.SITEVISITEND_EVENTID)) {
 							log.debug("Processed event: {}, date: {}, sessionUser: {}, sessionId: {}, eventId: {}", event, date, sessionUser, sessionId, lastProcessedEventId);
 						}
 					}catch(Exception e){
@@ -328,6 +329,7 @@ public class StatsAggregateJobImpl implements StatefulJob {
 				}
 
 				if (firstEventIdProcessedInBlock > 0) {
+					log.debug("Processing events in block: first eventId = {}, last eventId = {}", firstEventIdProcessedInBlock, lastProcessedEventId);
 					// process events
 					boolean processedOk = statsUpdateManager.collectEvents(eventsQueue);
 					eventsQueue.clear();

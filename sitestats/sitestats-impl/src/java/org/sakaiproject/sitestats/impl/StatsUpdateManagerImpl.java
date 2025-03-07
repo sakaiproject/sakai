@@ -1393,10 +1393,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				validUserSitePresences.add(presenceConsolidation);
 			}
 
-			Optional<Integer> savedOpenSessionsOpt = doGetOpenSessions(session, siteId, userId);
-			int savedOpenSessions = savedOpenSessionsOpt.orElse(0);
-			log.debug("savedOpenSessions: {}", savedOpenSessions);
-
+			Integer savedOpenSessions = doGetOpenSessions(session, siteId, userId);
 			int currentOpenSessions = savedOpenSessions + (int) validUserSitePresences.stream()
 				.mapToInt(presence -> {
 					if (presence.isBeginning()) {
@@ -1409,14 +1406,12 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				})
 				.sum();
 
-			log.debug("currentOpenSessions: {}", currentOpenSessions);
-
 			if (!allUserSitePresences.isEmpty() && savedOpenSessions == 0) {
 				// All previus presences are ending
 				savedBegin = Optional.empty();
 			}
 
-			log.debug("Valid presences for siteId: {}, userId: {}: {}", siteId, userId, validUserSitePresences);
+			log.debug("Valid presences for siteId: {}, userId: {}: {}, savedOpenSessions: {}, currentOpenSessions: {}", siteId, userId, validUserSitePresences, savedOpenSessions, currentOpenSessions);
 
 			// Valid presences should have ony complete and beginning events
 			// Get fist begin time of open unclosed session
@@ -1607,7 +1602,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		}
 	}
 
-	private Optional<Integer> doGetOpenSessions(Session session, String siteId, String userId) {
+	private Integer doGetOpenSessions(Session session, String siteId, String userId) {
 		CriteriaBuilder cb = session.getCriteriaBuilder();
 		CriteriaQuery<SitePresenceImpl> cq = cb.createQuery(SitePresenceImpl.class);
 		Root<SitePresenceImpl> root = cq.from(SitePresenceImpl.class);
@@ -1622,11 +1617,12 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 
 		try {
 			return session.createQuery(cq).setMaxResults(1).uniqueResultOptional()
-					.map(SitePresenceImpl::getCurrentOpenSessions);
+					.map(SitePresenceImpl::getCurrentOpenSessions)
+					.orElse(0);
 		} catch (HibernateException e) {
-			log.error("Could not get previus open sessions for siteId [{}] and userId [{}] due to: {}",
+			log.error("Could not get previous open sessions for siteId [{}] and userId [{}] due to: {}",
 					siteId, userId, ExceptionUtils.getStackTrace(e));
-			return Optional.empty();
+			return 0;
 		}
 	}
 
