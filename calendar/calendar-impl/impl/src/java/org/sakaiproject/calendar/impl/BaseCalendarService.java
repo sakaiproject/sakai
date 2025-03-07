@@ -1768,13 +1768,11 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 					{
 						log.debug("Found Event: {}", oEvent.getDisplayName());
 						ResourceProperties props = oEvent.getProperties();
-						log.debug("Props: {}", props);
 						Iterator<String> propNames = props.getPropertyNames();
 						boolean shouldMerge = true;
 						while (propNames.hasNext()) {
 							String key = propNames.next();
 							String value = props.getProperty(key);
-							log.debug("Key: {}, Value: {}", key, props.getProperty(key));
 							if ( ! shouldMergeProperty(key, value) ) {
 								shouldMerge = false;
 								break;
@@ -1784,6 +1782,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 							log.debug("Not merging event: {}", oEvent.getDisplayName());
 							continue;
 						}
+
 						String description = oEvent.getDescriptionFormatted();
 						description = ltiService.fixLtiLaunchUrls(description, fromContext, toContext, transversalMap);
 						oEvent.setDescriptionFormatted(description);
