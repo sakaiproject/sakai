@@ -1111,7 +1111,7 @@ public abstract class BaseLTIService implements LTIService {
 			return null;
 		}
 
-		// Lets find the right tool to assiociate with
+		// Lets find the right tool to associate with
 		// See also lessonbuilder/tool/src/java/org/sakaiproject/lessonbuildertool/service/BltiEntity.java
 		String launchUrl = (String) content.get(LTIService.LTI_LAUNCH);
 		if ( launchUrl == null ) {
