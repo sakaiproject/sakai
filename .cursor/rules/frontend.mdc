@@ -1,0 +1,21 @@
+---
+description: Sakai Frontend rules
+alwaysApply: false
+---
+
+# Sakai Frontend rules
+
+Always prefer SLF4J parameterized logging (logger.info("Value is: {}", value)) instead of string concatenation (logger.info("Value is: " + value)).
+
+## UI Framework
+- **Bootstrap**: Bootstrap 5.2 is the preferred UI framework for styling
+- **Responsive Design**: Ensure all UI components work across different screen sizes
+- **Components**: Leverage Bootstrap 5 components for consistent UI/UX
+
+## JavaScript Development
+- **Modern JavaScript**: Use clean, standard modern JavaScript where possible
+- **Legacy Code**: The codebase contains legacy frameworks and libraries that should be gradually modernized
+- **jQuery**: Update jQuery code to modern JavaScript when making changes, if the changes are minimal
+- **ES6+**: Prefer ES6+ features (arrow functions, template literals, destructuring, etc.)
+- **Modular Code**: Write modular, reusable JavaScript components
+- **Avoid Global Scope**: Minimize use of global variables and functions

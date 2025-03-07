@@ -1,0 +1,15 @@
+---
+description: Sakai Webcomponents
+globs: webcomponents/**/*.js
+alwaysApply: false
+---
+
+# Sakai Webcomponents rules
+
+Sakai Webcomponents use LIT
+
+Lint rules are available in webcomponents/tool/src/main/frontend/eslint.config.mjs
+
+Some lint rules include no trailing spaces.
+
+Use double quotes instead of single quotes.
