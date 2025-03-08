@@ -5,7 +5,7 @@ alwaysApply: false
 
 # Sakai Frontend rules
 
-Always prefer SLF4J parameterized logging (logger.info("Value is: {}", value)) instead of string concatenation (logger.info("Value is: " + value)).
+Sakai frontends use many different UI frameworks including JSF 2.3, Apache Velocity, ThymeLeaf, and Reasonable Server Faces (RSF)
 
 ## UI Framework
 - **Bootstrap**: Bootstrap 5.2 is the preferred UI framework for styling
