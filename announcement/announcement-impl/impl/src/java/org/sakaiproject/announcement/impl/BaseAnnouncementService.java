@@ -114,6 +114,7 @@ import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 /**
  * <p>
@@ -1765,6 +1766,32 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 	@Override
 	public boolean approveMessageSender(String userId) {
 		return true; // Always approve the sender
+	}
+
+	/**
+	 * This method is used to check if a message can be merged - it is called with an element from the XML that represents the message
+	 *
+	 * 	<message body="T3BljAwIEFNIEVTVC4=" body-html="PHA+T3BjAwIEFNIEVTVC48L3A+">
+	 *		<header access="channel" date="20250217200655521" draft="true" from="" id="ad7bcb9a-f335-46a7-ad01-907778fb9df5" message_order="2"
+	 *		 subject="Assignment: Open Date for ''HW2''"/>
+	 *		<properties>
+	 *			<property enc="BASE64" list="list" name="noti_history" value="MjAyNSaXzA=" B64Decoded="2025-02-17T20:06:55.538289588Z_0"/>
+	 *			<property enc="BASE64" name="assignmentReference" value="L2Fzc2e8/5fab8f09-e029-4672-b478-43cfa3e17d64"/>
+	 *		</properties>
+	 *	</message>
+	 */
+	@Override
+	public boolean checkAllowMergeElement(Element element) {
+		NodeList propertyList = element.getElementsByTagName("property");
+		for (int i = 0; i < propertyList.getLength(); i++) {
+			Element propertyElement = (Element) propertyList.item(i);
+			String name = propertyElement.getAttribute("name");
+			if (name.equals("assignmentReference")) {
+				log.debug("Assignment announcement found, not merging");
+				return false;
+			}
+		}
+		return true;
 	}
 
 	@Override

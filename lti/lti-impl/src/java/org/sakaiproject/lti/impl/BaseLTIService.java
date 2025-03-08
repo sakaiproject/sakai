@@ -1089,33 +1089,31 @@ public abstract class BaseLTIService implements LTIService {
 	@Override
 	public Long mergeContentFromImport(Element element, String siteId) {
 
-		Map<String, Object> content = null;
-		Map<String, Object> tool = null;
 		NodeList nl = element.getElementsByTagName(LTIService.ARCHIVE_LTI_CONTENT_TAG);
-		if ( nl.getLength() >= 1 ) {
-			Node toolNode = nl.item(0);
-			if ( toolNode.getNodeType() == Node.ELEMENT_NODE ) {
-				Element toolElement = (Element) toolNode;
-				content = new HashMap();
-				tool = new HashMap();
-				this.mergeContent(toolElement, content, tool);
-				String contentErrors = this.validateContent(content);
-				if ( contentErrors != null ) {
-					log.warn("import found invalid content tag {}", contentErrors);
-					return null;
-				}
+		if ( nl.getLength() < 1 ) return null;
 
-				String toolErrors = this.validateTool(tool);
-				if ( toolErrors != null ) {
-					log.warn("import found invalid tool tag {}", toolErrors);
-					return null;
-				}
-		   }
+		Node toolNode = nl.item(0);
+		if ( toolNode.getNodeType() != Node.ELEMENT_NODE ) return null;
+
+		Element toolElement = (Element) toolNode;
+		Map<String, Object> content = new HashMap();
+		Map<String, Object> tool = new HashMap();
+		this.mergeContent(toolElement, content, tool);
+		String contentErrors = this.validateContent(content);
+		if ( contentErrors != null ) {
+			log.warn("import found invalid content tag {}", contentErrors);
+			return null;
 		}
 
-		// Lets find the right tool to assiociate with
+		String toolErrors = this.validateTool(tool);
+		if ( toolErrors != null ) {
+			log.warn("import found invalid tool tag {}", toolErrors);
+			return null;
+		}
+
+		// Lets find the right tool to associate with
 		// See also lessonbuilder/tool/src/java/org/sakaiproject/lessonbuildertool/service/BltiEntity.java
-		String launchUrl = content != null ? (String) content.get(LTIService.LTI_LAUNCH) : null;
+		String launchUrl = (String) content.get(LTIService.LTI_LAUNCH);
 		if ( launchUrl == null ) {
 			log.warn("lti content import could not find launch url");
 			return null;

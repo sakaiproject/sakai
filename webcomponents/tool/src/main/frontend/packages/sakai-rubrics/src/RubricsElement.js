@@ -32,8 +32,6 @@ export class RubricsElement extends SakaiElement {
 
   showRubricLightbox(id, attributes) {
 
-    console.debug("RubricsElement.showRubricLightbox");
-
     if (this.isUtilsAvailable()) {
       window.top.rubrics.utils.showRubric(id, attributes);
     }

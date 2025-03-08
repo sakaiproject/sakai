@@ -1237,22 +1237,15 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
     @Override
     public String getProfileToolLink(String otherUserId, String siteId) {
-
         try {
             Site site = siteService.getSite(siteService.getUserSiteId(getCurrentUserId()));
-            return Optional.ofNullable(site.getToolForCommonId("sakai.profile2")).map(tc -> {
-
-                return site.getUrl() + "/tool/" + tc.getId()
-                    + (StringUtils.isNotBlank(otherUserId) ? "/viewprofile/" + otherUserId + "?fromSiteId=" + siteId : "");
-            }).orElseGet(() -> {
-                log.info("The current user has not got the profile tool added to their workspace");
-                return "";
-            });
+            return Optional.ofNullable(site.getToolForCommonId("sakai.profile2"))
+                    .map(tc -> site.getUrl() + "/tool/" + tc.getId() + (StringUtils.isNotBlank(otherUserId) ? "/viewprofile/" + otherUserId + "?fromSiteId=" + siteId : ""))
+                    .orElse(StringUtils.EMPTY);
         } catch (Exception e) {
-            log.warn("Error getting profile tool link: {}", e.toString());
+            log.warn("Could not create profile tool link for site: {}, {}", siteId, e.toString());
         }
-
-        return null;
+        return StringUtils.EMPTY;
     }
 
     @Override
