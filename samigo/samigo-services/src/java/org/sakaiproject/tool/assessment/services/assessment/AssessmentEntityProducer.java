@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 import java.util.Set;
 import java.util.Stack;
 import java.util.TreeSet;
+import java.util.Iterator;
 import java.util.stream.Collectors;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -71,6 +72,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.questionpool.QuestionPoolDataIfc;
 import org.sakaiproject.tool.assessment.data.dao.assessment.*;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolItemData;
@@ -325,6 +327,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 		return "samigo";
 	}
 
+	@Override
 	public String merge(String siteId, Element root, String archivePath,
 			String fromSiteId, Map attachmentNames, Map userIdTrans,
 			Set userListAllowImport) {
@@ -421,7 +424,9 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 
 				String assessmentDesc = assessmentFacade.getDescription();
 				if(StringUtils.isNotBlank(assessmentDesc)){
+					log.debug("before migrate assessmentDesc: {}", assessmentDesc);
 					assessmentDesc = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, assessmentDesc);
+					log.debug("after migrate assessmentDesc: {}", assessmentDesc);
 					if(!assessmentDesc.equals(assessmentFacade.getDescription())){
 						//need to save since a ref has been updated:
 						needToUpdate = true;
@@ -434,7 +439,9 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 					SectionFacade section = (SectionFacade) sectionList.get(i);
 					String sectionDesc = section.getDescription();
 					if(StringUtils.isNotBlank(sectionDesc)){
+						log.debug("before migrate sectionDesc: {}", sectionDesc);
 						sectionDesc = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, sectionDesc);
+						log.debug("after migrate sectionDesc: {}", sectionDesc);
 						if(!sectionDesc.equals(section.getDescription())){
 							//need to save since a ref has been updated:
 							needToUpdate = true;
@@ -453,6 +460,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 							continue;
 						}
 
+						// TODO: why are these copyAttachments = false?
 						boolean instructionChanged = migrateText(service, toContext, item, itemHash, hasCaches, hasDuplicates, false,
 								"inst", itemContentCache, entrySet, ItemData::getInstruction, ItemData::setInstruction);
 
@@ -481,9 +489,23 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 							}
 						}
 
+						boolean itemFeedbacksChanged = false;
+						if ( item.getItemFeedbackSet() != null && !item.getItemFeedbackSet().isEmpty() ) {
+							for (Iterator<ItemFeedbackIfc> j = item.getItemFeedbackSet().iterator(); j.hasNext(); ) {
+								ItemFeedback itemFeedback = (ItemFeedback) j.next();
+								log.debug("itemFeedback: {} {}", itemFeedback.getText(), itemFeedback.getTypeId());
+								String migratedText = migrateTextString(service, toContext, itemHash, hasCaches, hasDuplicates, true,
+										"feedback" + itemFeedback.getTypeId(), itemContentCache, entrySet, itemFeedback.getText());
+								log.debug("after migratedText: {}", migratedText);
+								itemFeedback.setText(migratedText);
+								itemFeedbacksChanged = true;
+							}
+						}
+
 						boolean needToUpdateItem = instructionChanged
 								|| descriptionChanged
-								|| itemTextsChanged;
+								|| itemTextsChanged
+								|| itemFeedbacksChanged;
 						needToUpdateCache.put(itemHash, needToUpdateItem);
 
 						needToUpdate = needToUpdate || needToUpdateItem;
@@ -778,36 +800,56 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 			boolean hasCaches,boolean hasDuplicates, boolean copyAttachments, String cacheCode, Map<String, String> textCache,
 			Set<Entry<String, String>> entrySet, Function<T, String> getter, BiConsumer<T, String> setter) {
 
+		log.debug("migrateText: {} {}", itemHash, copyAttachments);
 		String cacheKey = itemHash + "-" + cacheCode;
 
 		if (hasCaches && textCache.containsKey(cacheKey)) {
-			// Item instruction has been cashed, lets get it form the cache
+			// Item instruction has been cached, lets get it from the cache
 			setter.accept(item, textCache.get(cacheKey));
 			return true;
 		} else {
 			// Item instruction has not been cached, lets try migrating
 			String itemText = StringUtils.trimToEmpty(getter.apply(item));
+
+			String migratedText = migrateTextString(assessmentService, toContext, itemHash, hasCaches, hasDuplicates,
+				copyAttachments, cacheCode, textCache, entrySet, itemText);
+
+			if (!StringUtils.equals(itemText, migratedText)) {
+				setter.accept(item, migratedText);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private String migrateTextString(AssessmentService assessmentService, String toContext, String itemHash,
+		boolean hasCaches, boolean hasDuplicates, boolean copyAttachments, String cacheCode, Map<String, String> textCache,
+		Set<Entry<String, String>> entrySet, String itemText) {
+
+		log.debug("migrateTextX: {} {}", itemHash, copyAttachments);
+		String cacheKey = itemHash + "-" + cacheCode;
+
+		if (hasCaches && textCache.containsKey(cacheKey)) {
+			// Item instruction has been cached, lets get it from the cache
+			return textCache.get(cacheKey);
+		} else {
+			// Item instruction has not been cached, lets try migrating
 			String migratedText;
+			log.debug("before itemText: {}", itemText);
 			if (copyAttachments) {
 				migratedText = assessmentService.copyContentHostingAttachments(itemText, toContext);
 			} else {
 				migratedText = itemText;
 			}
-
 			migratedText = linkMigrationHelper.migrateAllLinks(entrySet, migratedText);
-
+			log.debug("after migratedText: {}", migratedText);
 			// Check if there has been a change
 			if (!StringUtils.equals(itemText, migratedText)) {
-				setter.accept(item, migratedText);
-
 				if (hasDuplicates) {
 					textCache.put(cacheKey, migratedText);
 				}
-
-				return true;
 			}
+			return migratedText;
 		}
-
-		return false;
 	}
 }
