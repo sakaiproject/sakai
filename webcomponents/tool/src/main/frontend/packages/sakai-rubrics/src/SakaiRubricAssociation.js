@@ -181,8 +181,6 @@ export class SakaiRubricAssociation extends RubricsElement {
 
   render() {
 
-    console.debug("SakaiRubricAssociation.render()");
-
     return html`
       <h4>${this._i18n.grading_rubric}</h4>
       <div class="sak-banner-warn"><small>${this._i18n.rubric_points_warning}</small></div>
