@@ -37,7 +37,7 @@ export class SakaiConversationsSettings extends SakaiElement {
     .then(r => {
 
       if (!r.ok) {
-        throw new Error(this._i18n?.network_error_toggle_setting || "");
+        throw new Error(`Network error while toggling setting ${setting}`);
       } else {
         this.dispatchEvent(new CustomEvent("setting-updated", { detail: { setting, on }, bubbles: true }));
       }
@@ -50,7 +50,6 @@ export class SakaiConversationsSettings extends SakaiElement {
   }
 
   _saveGuidelines() {
-    // Using let because guidelines may be reassigned
     const guidelines = this.querySelector("#settings-guidelines-editor")?.value?.trim() || this._i18n.community_guidelines_sample;
     this._guidelines = guidelines;
 
@@ -65,7 +64,7 @@ export class SakaiConversationsSettings extends SakaiElement {
     })
     .then(r => {
       if (!r.ok) {
-        throw new Error(this._i18n?.network_error_saving_guidelines || "");
+        throw new Error(`Network error while saving guidelines: ${r.statusText}`);
       } else {
         this.dispatchEvent(new CustomEvent("guidelines-saved", { detail: { guidelines }, bubbles: true }));
         this._editingGuidelines = false;
