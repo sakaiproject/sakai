@@ -48,7 +48,7 @@ community_guidelines=Community Guidelines
 community_guidelines_instruction=Before you can participate in this online community, you need to \
 read through and agree to these community guidelines
 community_guidelines_preview_heading=PREVIEW
-community_guidelines_sample=Be respectful and constructive in all conversations—personal attacks, discriminatory language,\
+community_guidelines_sample=Be respectful and constructive in all conversations. Personal attacks, discriminatory language,\
 or disruptive behaviors are not permitted. Uphold academic integrity and privacy by ensuring discussions remain relevant,\
 courteous, and aligned with our educational mission.
 confirm_comment_delete=Are you sure you want to delete this comment?
