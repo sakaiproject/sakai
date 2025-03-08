@@ -4222,7 +4222,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     nAssignment.setTypeOfSubmission(oAssignment.getTypeOfSubmission());
 
                     // User supplied publish option takes precedence, then property, then source.
-                    if (transferOptions != null && transferOptions.contains(EntityTransferrer.PUBLISH_OPTION)) {
+                    if (oAssignment.getAllowPeerAssessment()) {
+                        // Always set peer assessment assignments to draft on import as they need setup
+                        nAssignment.setDraft(true);
+                    } else if (transferOptions != null && transferOptions.contains(EntityTransferrer.PUBLISH_OPTION)) {
                         nAssignment.setDraft(false);
                     } else if (serverConfigurationService.getBoolean("import.importAsDraft", true)) {
                         nAssignment.setDraft(true);
