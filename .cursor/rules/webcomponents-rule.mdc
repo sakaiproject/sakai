@@ -10,6 +10,6 @@ Sakai Webcomponents use LIT
 
 Lint rules are available in webcomponents/tool/src/main/frontend/eslint.config.mjs
 
-Some lint rules include no trailing spaces.
+Lint rules include no trailing spaces. Use double quotes instead of single quotes.
 
-Use double quotes instead of single quotes.
+Webcomponents are internationalized. Never use an OR switch to also provide english text. Just use the i18n property only.
