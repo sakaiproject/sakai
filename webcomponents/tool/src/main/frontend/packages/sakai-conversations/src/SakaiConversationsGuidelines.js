@@ -10,7 +10,7 @@ export class SakaiConversationsGuidelines extends SakaiElement {
 
     super();
 
-    this.loadTranslations("conversations").then(r => this._i18n = r);
+    this.loadTranslations("conversations");
   }
 
   shouldUpdate() {

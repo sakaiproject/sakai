@@ -237,8 +237,6 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
 
   updateComment(e) {
 
-    console.debug("updateComment");
-
     this._criteria.forEach(c => {
 
       if (c.id === e.detail.criterionId) {
@@ -251,8 +249,6 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
 
   release() {
 
-    console.debug("release");
-
     if (this._evaluation.criterionOutcomes.length) {
       // We only want to inform the enclosing tool about ratings changes
       // for an existing evaluation
@@ -261,15 +257,10 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
   }
 
   save() {
-
-    console.debug("save");
-
     this.dispatchRatingChanged(this._criteria, 1);
   }
 
   decorateCriteria() {
-
-    console.debug("decorateCriteria");
 
     this._evaluation.criterionOutcomes.forEach(ed => {
 
@@ -304,8 +295,6 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
 
   fineTuneRating(e) {
 
-    console.debug("fineTuneRating");
-
     const value = e.target.value;
 
     const parsed = value.replace(/,/g, ".");
@@ -336,8 +325,6 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
   }
 
   dispatchRatingChanged(criteria, status) {
-
-    console.debug("dispatchRatingChanged");
 
     const crit = criteria.map(c => {
 
@@ -394,8 +381,6 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
 
   getOverriddenClass(ovrdvl, selected) {
 
-    console.debug("getOverriddenClass");
-
     if (!this.association.parameters.fineTunePoints) {
       return "";
     }
@@ -428,8 +413,6 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
 
   emptyCriterion(criterion) {
 
-    console.debug("emptyCriterion");
-
     criterion.selectedvalue = 0.0;
     criterion.selectedRatingId = 0;
     criterion.pointoverride = 0.0;
@@ -437,8 +420,6 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
   }
 
   toggleRating(e) {
-
-    console.debug("toggleRating");
 
     e.stopPropagation();
 
@@ -474,15 +455,10 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
   }
 
   commentShown(e) {
-
-    console.debug("commentShown");
-
     this.querySelectorAll(`sakai-rubric-grading-comment:not(#${e.target.id})`).forEach(c => c.hide());
   }
 
   updateTotalPoints(notify = true) {
-
-    console.debug("updateTotalPoints");
 
     this._totalPoints = this._criteria.reduce((a, c) => {
 
@@ -511,8 +487,6 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
 
   cancel() {
 
-    console.debug("cancel");
-
     if (this._evaluation.status !== "DRAFT") return;
 
     const url = `/api/sites/${this.siteId}/rubric-evaluations/${this._evaluation.id}/cancel`;
@@ -539,8 +513,6 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
 
   _getAssociation() {
 
-    console.debug("_getAssociation");
-
     if (!this.toolId || !this.entityId || !this.evaluatedItemId) {
       return;
     }
@@ -556,8 +528,6 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
   }
 
   _getRubric(rubricId) {
-
-    console.debug("_getRubric");
 
     this.apiGetRubric(rubricId)
       .then(rubric => {

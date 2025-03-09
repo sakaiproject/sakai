@@ -12,13 +12,7 @@ export class SakaiRubricReadonly extends SakaiRubric {
     enablePdfExport: { attribute: "enable-pdf-export", type: Boolean },
   };
 
-  constructor() {
-
-    super();
-    this.enablePdfExport = false;
-  }
-
-  shouldUpdate() { return this.rubric; }
+  shouldUpdate() { return super.shouldUpdate() && this.rubric; }
 
   render() {
 

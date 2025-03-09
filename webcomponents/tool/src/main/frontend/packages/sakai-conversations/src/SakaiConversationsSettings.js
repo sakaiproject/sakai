@@ -17,7 +17,7 @@ export class SakaiConversationsSettings extends SakaiElement {
 
     super();
 
-    this.loadTranslations("conversations").then(r => this._i18n = r);
+    this.loadTranslations("conversations");
   }
 
   _setSetting(e) {
