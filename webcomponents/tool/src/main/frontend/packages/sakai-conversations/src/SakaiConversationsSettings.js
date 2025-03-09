@@ -59,7 +59,7 @@ export class SakaiConversationsSettings extends SakaiElement {
         "Content-Type": "application/json",
       },
       credentials: "include",
-      body: `${guidelines}`,
+      body: `${this._guidelines}`,
     })
     .then(r => {
       if (!r.ok) {
