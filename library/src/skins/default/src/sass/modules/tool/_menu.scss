@@ -57,7 +57,8 @@
 					outline-offset: -#{$focus-outline-width};	// to match the width of the default link focus to fit in the tool's link container
 				}
 			}
-			&.current{
+			&.current,
+			a.current {
 				color: var(--tool-tab-active-text-color);
 				font-size: $tool-tab-active-text-size;
 				background-color: var(--tool-tab-active-background-color);
@@ -102,14 +103,6 @@
 			&.inactive{
 				border-left: 0px none;
 			}
-		}
-		a{
-
-			&.current{
-			}
-		}
-		.searchField{
-
 		}
 	}
 }
