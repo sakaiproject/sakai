@@ -105,7 +105,7 @@
 				}
 
 				.hasDatepicker {
-					padding-right: 22%;
+					padding-right: 22px;
 					overflow: hidden;
 					text-overflow: ellipsis;
 				}
@@ -122,6 +122,7 @@
 					right: 22px;
 					cursor: text;
 					text-decoration: none;
+					color: var(--sakai-text-color-1);
 				}
 
 				.ui-datapicker-clear-date-icon {
