@@ -65,7 +65,7 @@ export class SakaiConversationsSettings extends SakaiElement {
       if (!r.ok) {
         throw new Error(`Network error while saving guidelines: ${r.statusText}`);
       } else {
-        this.dispatchEvent(new CustomEvent("guidelines-saved", { detail: { guidelines }, bubbles: true }));
+        this.dispatchEvent(new CustomEvent("guidelines-saved", { detail: { this._guidelines }, bubbles: true }));
         this._editingGuidelines = false;
       }
     })
