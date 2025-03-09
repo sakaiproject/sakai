@@ -82,10 +82,10 @@ export class SakaiConversationsSettings extends SakaiElement {
   }
 
   updated(changedProperties) {
-    if (changedProperties.has("settings") && this.settings) {
+    if (changedProperties.has("settings")) {
       this._guidelines = this.settings.guidelines?.trim()
         ? this.settings.guidelines
-        : (this._i18n && this._i18n.community_guidelines_sample);
+        : this._i18n.community_guidelines_sample;
     }
   }
 
