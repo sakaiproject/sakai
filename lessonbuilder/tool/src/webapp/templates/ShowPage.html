@@ -555,8 +555,6 @@
                       <p class="required mm-url-section">
                         <label id="addLink_label" rsf:id="msg=simplepage.addLink_label_add_or" for="mm-url">URL</label>
                         <input type="text" name="mm-url" rsf:id="mm-url" id="mm-url" class="edit-multimedia-input multimedia-url-box" />
-                        <label name="mm-url-name-label" id="mm-url-name-label" rsf:id="mm-url-name-label" for="mm-url-name" />
-                        <input type="text" class="multimedia-url-box" id="mm-url-name" rsf:id="mm-url-name" />
                       </p>
                     </div>
                   </div>
@@ -2806,28 +2804,6 @@
                     </audio>
                     <embed rsf:id="movieEmbed" autoplay="false" autostart="false" scale="aspect" showControls="true" class="playerwidth" />
                     <iframe rsf:id="pdfEmbed"></iframe>
-                    <object rsf:id="movieObject" class="playerwidth">
-                      <param name="src" rsf:id="movieURLInject" />
-                      <param name="FlashVars" rsf:id="flashvars" />
-                      <param name="autoplay" value="false" />
-                      <param name="autostart" value="false" />
-                      <param name="scale" value="aspect" />
-                      <param name="showControls" value="true" />
-                      <param rsf:id="wmode" name="wmode" value="opaque" />
-                      <p rsf:id="noplugin-p" class="sak-banner-warn-inline mb-1"></p>
-                      <br rsf:id="noplugin-br" />
-                      <a href="#" rsf:id="noplugin" target="_blank"></a>
-                      <embed rsf:id="mp4-embed" autoplay="false" autostart="false" scale="aspect" class="playerwidth" />
-                      <object rsf:id="mp4-object" class="playerwidth">
-                        <param name="src" rsf:id="mp4-inject" />
-                        <param name="autoplay" value="false" />
-                        <param name="autostart" value="false" />
-                        <param name="scale" value="aspect" />
-                        <p rsf:id="mp4-noplugin-p"></p>
-                        <br/>
-                        <a href="#" rsf:id="mp4-noplugin" target="_blank"></a>
-                      </object>
-                    </object>
                     <div rsf:id="movie-td" role="toolbar" class="edit-col">
                       <div>
                         <a rsf:id="edit-movie" role="button" class="usebutton edit-movie" data-bs-toggle="modal" data-bs-target="#movie-dialog" aria-controls="movie-dialog" aria-expanded="false" href="#" onclick="return false">

@@ -64,7 +64,6 @@ public class VisitsWidget extends Panel {
 		this.siteId = siteId;
 		this.currentUserId = currentUserId;
 		setRenderBodyOnly(true);
-		setOutputMarkupId(true);
 
 		StatsAuthz statsAuthz = Locator.getFacade().getStatsAuthz();
 		boolean siteStatsView = statsAuthz.isUserAbleToViewSiteStats(siteId);

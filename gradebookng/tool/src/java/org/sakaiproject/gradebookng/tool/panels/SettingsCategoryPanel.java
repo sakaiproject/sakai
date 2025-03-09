@@ -630,7 +630,7 @@ public class SettingsCategoryPanel extends BasePanel {
 					private static final long serialVersionUID = 1L;
 
 					@Override
-					public void onSubmit(final AjaxRequestTarget target) {
+					protected void onSubmit(final AjaxRequestTarget target) {
 
 						// remove this category from the model
 						final CategoryDefinition current = item.getModelObject();
@@ -639,7 +639,7 @@ public class SettingsCategoryPanel extends BasePanel {
 						int categoryIndex = 0;
 						for (final CategoryDefinition category : SettingsCategoryPanel.this.model.getObject().getGradebookInformation()
 								.getCategories()) {
-							category.setCategoryOrder(Integer.valueOf(categoryIndex));
+							category.setCategoryOrder(categoryIndex);
 							categoryIndex++;
 						}
 

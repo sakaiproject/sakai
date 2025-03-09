@@ -22,6 +22,7 @@
 		<property name="externalLogic"
 			  ref="org.sakaiproject.poll.logic.ExternalLogic"/>
 		<property name="ltiService" ref="org.sakaiproject.lti.api.LTIService" />
+        <property name="linkMigrationHelper" ref="org.sakaiproject.util.api.LinkMigrationHelper"/>
 		<property name="pollVoteManager" ref="org.sakaiproject.tool.poll.api.PollVoteManager"/>
     </bean>
 

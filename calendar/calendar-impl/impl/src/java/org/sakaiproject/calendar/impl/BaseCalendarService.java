@@ -97,11 +97,13 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.*;
-import org.sakaiproject.util.cover.LinkMigrationHelper;
+import org.sakaiproject.util.api.LinkMigrationHelper;
 
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.api.app.messageforums.DiscussionForumService;
 import org.sakaiproject.samigo.util.SamigoConstants;
+
+import org.sakaiproject.util.MergeConfig;
 
 /**
  * <p>
@@ -152,7 +154,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	@Setter protected FunctionManager functionManager;
 	@Setter protected EventTrackingService eventTrackingService;
 	@Setter protected OpaqueUrlDao opaqueUrlDao;
-
+	@Setter protected LinkMigrationHelper linkMigrationHelper;
    	private PDFExportService pdfExportService;
 
 	private GroupComparator groupComparator = new GroupComparator();
@@ -1489,9 +1491,9 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	}
 
 	@Override
-	public String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId, Map<String, String> attachmentImportMap,
-		Map<Long, Map<String, Object>> ltiContentItems, Map<String, String> userIdTrans, Set<String> userListAllowImport)
+	public String merge(String siteId, Element root, String archivePath, String fromSiteId, MergeConfig mcx)
 	{
+
 		// prepare the buffer for the results log
 		StringBuilder results = new StringBuilder();
 
@@ -1615,7 +1617,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 												// map the attachment area folder name
 												String oldUrl = element5.getAttribute("relative-url");
 												String toolTitle = toolManager.getTool("sakai.schedule").getTitle();
-												ContentResource attachment = contentHostingService.copyAttachment(oldUrl, siteId, toolTitle, attachmentImportMap);
+												ContentResource attachment = contentHostingService.copyAttachment(oldUrl, siteId, toolTitle, mcx);
 												if ( attachment != null ) {
 													String newUrl = attachment.getReference();
 													element5.setAttribute("relative-url", Validator.escapeQuestionMark(newUrl));
@@ -1633,7 +1635,8 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 										continue;
 									}
 									String description = edit.getDescriptionFormatted();
-									description = ltiService.fixLtiLaunchUrls(description, siteId, ltiContentItems);
+									description = ltiService.fixLtiLaunchUrls(description, siteId, mcx);
+									description = linkMigrationHelper.migrateLinksInMergedRTE(siteId, mcx, description);
 									edit.setDescriptionFormatted(description);
 
 									calendar.commitEvent(edit);
@@ -1668,32 +1671,40 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 				value = Xml.decodeAttribute(prop, "value");
 			}
 
-			if ( StringUtils.contains(name, CalendarConstants.EVENT_OWNED_BY_TOOL_ID) &&
-				(StringUtils.contains(value, AssignmentServiceConstants.ASSIGNMENT_TOOL_ID) ||
-				StringUtils.contains(value, DiscussionForumService.FORUMS_TOOL_ID ) ||
-				StringUtils.contains(value, SamigoConstants.TOOL_ID) ) ) {
-				log.debug("Not importing assignment event from tool {}", value);
+			boolean shouldMerge = shouldMergeProperty(name, value);
+			if (!shouldMerge) {
 				return false;
 			}
+		}
+		return true;
+	}
 
-			// Do not import events associated with an assignment - backwards compatibility
-			if ( StringUtils.contains(name, CalendarConstants.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID) ||
-			     StringUtils.contains(name, CalendarConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED) ) {
-				log.debug("Not importing assignment event {}", value);
-				return false;
-			}
+	private boolean shouldMergeProperty(String name, String value) {
+		if ( StringUtils.contains(name, CalendarConstants.EVENT_OWNED_BY_TOOL_ID) &&
+			(StringUtils.contains(value, AssignmentServiceConstants.ASSIGNMENT_TOOL_ID) ||
+			StringUtils.contains(value, DiscussionForumService.FORUMS_TOOL_ID ) ||
+			StringUtils.contains(value, SamigoConstants.TOOL_ID) ) ) {
+			log.debug("Not importing assignment event from tool {}", value);
+			return false;
+		}
 
-			// Samigo does not mark its events, but the notification message is consitent - backwards compatibility
-			if ( StringUtils.equals(name, "CHEF:description") && StringUtils.contains(value, "samigo-app/servlet/Login")) {
-				log.debug("Not importing samigo event based on description containing Samigo launch URL");
-				return false;
-			}
+		// Do not import events associated with an assignment - backwards compatibility
+		if ( StringUtils.contains(name, CalendarConstants.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID) ||
+				StringUtils.contains(name, CalendarConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED) ) {
+			log.debug("Not importing assignment event {}", value);
+			return false;
+		}
 
-			// Discussion topic deadlines include calendar-url values inevitably pointing to the wrong place - backwards compatibility
-			if ( StringUtils.equals(name, "CHEF:calendar-url") && StringUtils.contains(value, "portal/site")) {
-				log.debug("Not importing discussion topic deadline event based on calendar-url {}", value);
-				return false;
-			}
+		// Samigo does not mark its events, but the notification message is consitent - backwards compatibility
+		if ( StringUtils.equals(name, "CHEF:description") && StringUtils.contains(value, "samigo-app/servlet/Login")) {
+			log.debug("Not importing samigo event based on description containing Samigo launch URL");
+			return false;
+		}
+
+		// Discussion topic deadlines include calendar-url values inevitably pointing to the wrong place - backwards compatibility
+		if ( StringUtils.equals(name, "CHEF:calendar-url") && StringUtils.contains(value, "portal/site")) {
+			log.debug("Not importing discussion topic deadline event based on calendar-url {}", value);
+			return false;
 		}
 		return true;
 	}
@@ -1755,10 +1766,22 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 					CalendarEventEdit oEvent = (CalendarEventEdit) oEvents.get(i);
 					try
 					{
-						// Skip calendar events based on assignment due dates
-						String assignmentId = oEvent.getField(CalendarConstants.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID);
-						if (assignmentId != null && assignmentId.length() > 0)
+						log.debug("Found Event: {}", oEvent.getDisplayName());
+						ResourceProperties props = oEvent.getProperties();
+						Iterator<String> propNames = props.getPropertyNames();
+						boolean shouldMerge = true;
+						while (propNames.hasNext()) {
+							String key = propNames.next();
+							String value = props.getProperty(key);
+							if ( ! shouldMergeProperty(key, value) ) {
+								shouldMerge = false;
+								break;
+							}
+						}
+						if ( ! shouldMerge ) {
+							log.debug("Not merging event: {}", oEvent.getDisplayName());
 							continue;
+						}
 
 						String description = oEvent.getDescriptionFormatted();
 						description = ltiService.fixLtiLaunchUrls(description, fromContext, toContext, transversalMap);
@@ -1897,7 +1920,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 						String msgBodyFormatted = ce.getDescriptionFormatted();						
 						boolean updated = false;
 						StringBuffer msgBodyPreMigrate = new StringBuffer(msgBodyFormatted);
-						msgBodyFormatted = LinkMigrationHelper.migrateAllLinks(entrySet, msgBodyFormatted);
+						msgBodyFormatted = linkMigrationHelper.migrateAllLinks(entrySet, msgBodyFormatted);
 						if(!msgBodyFormatted.equals(msgBodyPreMigrate.toString())){
 						
 							CalendarEventEdit edit = calendarObj.getEditEvent(ce.getId(), org.sakaiproject.calendar.api.CalendarService.EVENT_MODIFY_CALENDAR);

@@ -2643,17 +2643,21 @@ public class SimplePageBean {
 			return l;
 		} else {
 			// No recent activity. Let's go to the top level page.
-
-			l = simplePageToolDao.getTopLevelPageId(((ToolConfiguration) placement).getPageId());
-			// l = simplePageToolDao.getTopLevelPageId(((ToolConfiguration) toolManager.getCurrentPlacement()).getPageId());
+			String placementPageId = ((ToolConfiguration) placement).getPageId();
+			log.debug("Current placement.getId() {} placementPageId {}", placement.getId(), placementPageId);
+			l = simplePageToolDao.getTopLevelPageId(placementPageId);
+			log.debug("Top level page for placement {} is {}", placementPageId, l);
 
 			if (l != null) {
 				try {
+					// TODO: A lot of things can go wrong here methinks -- Chuck
 					updatePageObject(l);
 					// this should exist except if the page was created by old code
+					log.debug("findTopLevelPageItemBySakaiId {}",l);
 					SimplePageItem i = simplePageToolDao.findTopLevelPageItemBySakaiId(String.valueOf(l));
 					if (i == null) {
-						// and dummy item, the site is the notional top level page
+						// add vestigial item, the site is the notional top level page
+						log.debug("no vestigial page found, making new item pageId {} title {}", l.toString(), currentPage.getTitle());
 						i = simplePageToolDao.makeItem(0, 0, SimplePageItem.PAGE, l.toString(), currentPage.getTitle());
 						saveItem(i);
 					}
@@ -2671,6 +2675,7 @@ public class SimplePageBean {
 				// No page found. Let's make a new one.
 				String toolId = ((ToolConfiguration) toolManager.getCurrentPlacement()).getPageId();
 				String title = getCurrentSite().getPage(toolId).getTitle(); // Use title supplied
+				log.debug("no page found, making new page toolId {} siteId {} title {}", toolId, getCurrentSiteId(), title);
 
 				// during creation
 				SimplePage page = simplePageToolDao.makePage(toolId, getCurrentSiteId(), title, null, null);
@@ -2686,6 +2691,7 @@ public class SimplePageBean {
 					// and dummy item, the site is the notional top level page
 					SimplePageItem i = simplePageToolDao.makeItem(0, 0, SimplePageItem.PAGE, l.toString(), title);
 					saveItem(i);
+					log.debug("Top level page not found, creating new vestigial item {} for page {} itemId {}", title, l, i.getId());
 					updatePageItem(i.getId());
 				} catch (PermissionException e) {
 					log.warn("getCurrentPageId Permission failed setting to new page");
@@ -5101,23 +5107,10 @@ public class SimplePageBean {
 	}
 
 	// there's one of these in Validator, but it isn't quite right, because it doesn't look at /
-        // return lowercase version, since we want uppercase versiosns to match
+	// return lowercase version, since we want uppercase versions to match
 	public static String getExtension(String name) {
-
-		// starts after last /
-		int i = name.lastIndexOf("/");
-		if (i >= 0)
-			name = name.substring(i+1);
-	    
-		String extension = "";
-		i = name.lastIndexOf(".");
-		if (i > 0)
-		    extension = name.substring(i+1);
-
-		extension = extension.trim();
-		extension = extension.toLowerCase();
-	    
-		return extension;
+		String extension = org.springframework.util.StringUtils.getFilenameExtension(name);
+		return StringUtils.trimToEmpty(extension).toLowerCase();
 	}
 
 	public boolean isPDFType(SimplePageItem item) {
@@ -6441,12 +6434,8 @@ public class SimplePageBean {
 		if (i >= 0)
 		    name = name.substring(i+1);
 		String base = name;
-		String extension = "";
-		i = name.lastIndexOf(".");
-		if (i > 0) {
-		    base = name.substring(0, i);
-		    extension = name.substring(i+1);
-		}
+		String extension = org.springframework.util.StringUtils.getFilenameExtension(name);
+		base = StringUtils.removeEnd(name, "." + extension);
 
 		base = Validator.escapeResourceName(base);
 		extension = Validator.escapeResourceName(extension);
@@ -6679,13 +6668,7 @@ public class SimplePageBean {
 	}
 
 	public boolean isHtml(SimplePageItem i) {
-		StringTokenizer token = new StringTokenizer(i.getSakaiId(), ".");
-
-		String extension = "";
-					    
-		while (token.hasMoreTokens()) {
-			extension = token.nextToken().toLowerCase();
-		}
+		String extension = org.springframework.util.StringUtils.getFilenameExtension(i.getSakaiId());
 					    
 	    // we are just starting to store the MIME type for resources now. So existing content
 	    // won't have them.

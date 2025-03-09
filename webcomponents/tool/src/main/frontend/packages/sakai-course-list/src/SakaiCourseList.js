@@ -27,7 +27,7 @@ export class SakaiCourseList extends SakaiElement {
     this._currentFilter = "pinned";
     this._currentTermFilter = "none";
 
-    this.loadTranslations("courselist").then(r => this._i18n = r);
+    this.loadTranslations("courselist");
   }
 
   connectedCallback() {

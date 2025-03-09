@@ -244,8 +244,23 @@
             display: none;
         }
 
-        .roster-picture-cell {
-            text-align: center;
+        th.roster-picture-cell {
+            width: 92px;
+        }
+
+        td.roster-picture-cell {
+            margin-right: 10px;
+            min-width: 76px;
+            max-width: 76px;
+            .roster-photo {
+                min-width: 76px;
+                max-width: 76px;
+                width: 76px;
+                height: 76px;
+                border: 1px solid #BBB;
+                border-radius: 0;
+                background-repeat: no-repeat;
+            }
         }
 
         .roster-hide-pictures {
