@@ -26,7 +26,7 @@ export class SakaiHomeDashboard extends SakaiElement {
 
     this.showSites = true;
 
-    this.loadTranslations("dashboard").then(r => this._i18n = r);
+    this.loadTranslations("dashboard");
   }
 
   set userId(value) {

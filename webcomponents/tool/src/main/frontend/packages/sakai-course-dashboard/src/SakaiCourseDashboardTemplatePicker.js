@@ -1,5 +1,4 @@
 import { css, html } from "lit";
-import { loadProperties } from "@sakai-ui/sakai-i18n";
 import { SakaiDialogContent } from "@sakai-ui/sakai-dialog-content";
 import "@sakai-ui/sakai-button/sakai-button.js";
 
@@ -14,7 +13,7 @@ export class SakaiCourseDashboardTemplatePicker extends SakaiDialogContent {
   constructor() {
 
     super();
-    loadProperties("dashboard").then(r => this._i18n = r);
+    this.loadTranslations("dashboard");
   }
 
   select() {

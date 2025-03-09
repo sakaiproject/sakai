@@ -11,7 +11,6 @@ export class RubricsElement extends SakaiElement {
 
     // Keep a reference to the i18n promise so that sub classes can wait on it.
     this._i18nLoaded = this.loadTranslations("rubrics");
-    this._i18nLoaded.then(r => this._i18n = r);
   }
 
   isUtilsAvailable() {

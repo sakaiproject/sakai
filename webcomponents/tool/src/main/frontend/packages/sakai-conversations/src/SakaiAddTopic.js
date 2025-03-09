@@ -45,7 +45,7 @@ export class SakaiAddTopic extends SakaiElement {
 
     this.new = true;
 
-    this.loadTranslations("conversations").then(r => this._i18n = r);
+    this.loadTranslations("conversations");
   }
 
   set aboutReference(value) {

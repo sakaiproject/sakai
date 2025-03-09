@@ -18,7 +18,7 @@ export class SakaiConversationsTagManager extends SakaiElement {
 
     this._tagsBeingEdited = [];
 
-    this.loadTranslations("conversations").then(r => this._i18n = r);
+    this.loadTranslations("conversations");
   }
 
   _createTags() {

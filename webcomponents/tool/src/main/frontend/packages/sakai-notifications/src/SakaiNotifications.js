@@ -29,7 +29,6 @@ export class SakaiNotifications extends SakaiElement {
 
     this._filteredNotifications = new Map();
     this._i18nLoaded = this.loadTranslations("sakai-notifications");
-    this._i18nLoaded.then(r => this._i18n = r);
   }
 
   connectedCallback() {

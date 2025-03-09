@@ -70,7 +70,7 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
     }, options);
 
 
-    this.loadTranslations("conversations").then(r => this._i18n = r);
+    this.loadTranslations("conversations");
   }
 
   set topic(value) {

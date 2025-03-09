@@ -11,7 +11,7 @@ export class SakaiForums extends SakaiPageableElement {
     super();
 
     this.showPager = true;
-    this.loadTranslations("forums").then(r => this._i18n = r);
+    this.loadTranslations("forums");
   }
 
   async loadAllData() {

@@ -8,7 +8,6 @@ import "../sakai-grades-widget.js";
 import "../sakai-announcements-widget.js";
 import "../sakai-forums-widget.js";
 import "../sakai-widget-picker.js";
-import { loadProperties } from "@sakai-ui/sakai-i18n";
 
 export class SakaiWidgetPanel extends SakaiShadowElement {
 
@@ -28,7 +27,7 @@ export class SakaiWidgetPanel extends SakaiShadowElement {
 
     super();
     this.state = "view";
-    loadProperties("widgetpanel").then(r => this._i18n = r);
+    this.loadTranslations("widgetpanel");
   }
 
   set widgetIds(value) {

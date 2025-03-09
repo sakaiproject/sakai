@@ -1,7 +1,6 @@
 import { css, html } from "lit";
 import { SakaiDashboardWidget } from "./SakaiDashboardWidget.js";
 import { sakaiWidgets } from "./SakaiWidgets.js";
-import { loadProperties } from "@sakai-ui/sakai-i18n";
 
 export class SakaiWidgetPicker extends SakaiDashboardWidget {
 
@@ -25,7 +24,7 @@ export class SakaiWidgetPicker extends SakaiDashboardWidget {
     this.hasOptions = false;
 
     this.loadTranslations(this.widgetId);
-    loadProperties("toolnames").then(r => this.toolnames = r);
+    this.loadTranslations("toolnames").then(r => this.toolnames = r);
   }
 
   set all(value) {
