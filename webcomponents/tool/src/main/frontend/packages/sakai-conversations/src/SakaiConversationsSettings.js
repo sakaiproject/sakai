@@ -50,8 +50,7 @@ export class SakaiConversationsSettings extends SakaiElement {
   }
 
   _saveGuidelines() {
-    const guidelines = this.querySelector("#settings-guidelines-editor")?.value?.trim() || this._i18n.community_guidelines_sample;
-    this._guidelines = guidelines;
+    this._guidelines = this.querySelector("#settings-guidelines-editor")?.value?.trim() || this._i18n.community_guidelines_sample;
 
     const url = `/api/sites/${this.siteId}/conversations/settings/guidelines`;
     fetch(url, {
