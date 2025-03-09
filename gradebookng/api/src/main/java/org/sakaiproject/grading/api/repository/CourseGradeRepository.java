@@ -23,6 +23,5 @@ import org.sakaiproject.springframework.data.SpringCrudRepository;
 
 public interface CourseGradeRepository extends SpringCrudRepository<CourseGrade, Long> {
 
-    List<CourseGrade> findByGradebook_Id(Long gradebookId);
-    List<CourseGrade> findByGradebook_Uid(String gradebookUid);
+    List<CourseGrade> findByGradebookId(String gradebookId);
 }

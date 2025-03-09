@@ -351,7 +351,7 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 					try {
 					    GradingService gradingService = (GradingService) ComponentManager.get("org.sakaiproject.grading.api.GradingService");
 					    final Gradebook gradebook = (Gradebook) gradingService.getGradebook(siteId);
-					    List<Assignment> gbItems = gradingService.getAssignments(gradebook.getUid());
+					    List<Assignment> gbItems = gradingService.getAssignments(gradebook.getId());
 					    if (gbItems != null) {
 					        for (Assignment gbItem : gbItems) {
 					            gbItemNameToId.put(gbItem.getName(), gbItem.getId());

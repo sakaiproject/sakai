@@ -16,7 +16,6 @@
 package org.sakaiproject.grading.impl.repository;
 
 import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
 
 import java.util.Collection;
 import java.util.List;
@@ -36,14 +35,12 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Root;
 
-import org.sakaiproject.hibernate.HibernateCriterionUtils;
-
 import org.sakaiproject.springframework.data.SpringCrudRepositoryImpl;
 
 public class AssignmentGradeRecordRepositoryImpl extends SpringCrudRepositoryImpl<AssignmentGradeRecord, Long>  implements AssignmentGradeRecordRepository {
 
     @Transactional(readOnly = true)
-    public List<AssignmentGradeRecord> findByGradableObject_Gradebook_IdAndGradableObject_RemovedOrderByPointsEarned(Long gradebookId, Boolean removed) {
+    public List<AssignmentGradeRecord> findByGradableObject_Gradebook_IdAndGradableObject_RemovedOrderByPointsEarned(String gradebookId, Boolean removed) {
 
         Session session = sessionFactory.getCurrentSession();
         CriteriaBuilder cb = session.getCriteriaBuilder();
@@ -82,7 +79,7 @@ public class AssignmentGradeRecordRepositoryImpl extends SpringCrudRepositoryImp
     }
 
     @Transactional(readOnly = true)
-    public List<AssignmentGradeRecord> findByGradableObject_Gradebook_Id(Long gradebookId) {
+    public List<AssignmentGradeRecord> findByGradableObject_GradebookId(String gradebookId) {
 
         Session session = sessionFactory.getCurrentSession();
         CriteriaBuilder cb = session.getCriteriaBuilder();
@@ -90,18 +87,6 @@ public class AssignmentGradeRecordRepositoryImpl extends SpringCrudRepositoryImp
         Root<AssignmentGradeRecord> agr = query.from(AssignmentGradeRecord.class);
         Join<GradableObject, Gradebook> gb = agr.join("gradableObject").join("gradebook");
         query.where(cb.equal(gb.get("id"), gradebookId));
-        return session.createQuery(query).list();
-    }
-
-    @Transactional(readOnly = true)
-    public List<AssignmentGradeRecord> findByGradableObject_Gradebook_Uid(String gradebookUid) {
-
-        Session session = sessionFactory.getCurrentSession();
-        CriteriaBuilder cb = session.getCriteriaBuilder();
-        CriteriaQuery<AssignmentGradeRecord> query = cb.createQuery(AssignmentGradeRecord.class);
-        Root<AssignmentGradeRecord> agr = query.from(AssignmentGradeRecord.class);
-        Join<GradableObject, Gradebook> gb = agr.join("gradableObject").join("gradebook");
-        query.where(cb.equal(gb.get("uid"), gradebookUid));
         return session.createQuery(query).list();
     }
 
@@ -120,7 +105,7 @@ public class AssignmentGradeRecordRepositoryImpl extends SpringCrudRepositoryImp
     }
 
     @Transactional(readOnly = true)
-    public List<AssignmentGradeRecord> findByGradableObject_Gradebook_IdAndGradableObject_RemovedAndStudentIdIn(Long gradebookId, Boolean removed, Collection<String> studentIds) {
+    public List<AssignmentGradeRecord> findByGradableObject_Gradebook_IdAndGradableObject_RemovedAndStudentIdIn(String gradebookId, Boolean removed, Collection<String> studentIds) {
 
         Session session = sessionFactory.getCurrentSession();
         CriteriaBuilder cb = session.getCriteriaBuilder();

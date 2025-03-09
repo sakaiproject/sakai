@@ -33,7 +33,7 @@ import org.sakaiproject.springframework.data.SpringCrudRepositoryImpl;
 public class CourseGradeRepositoryImpl extends SpringCrudRepositoryImpl<CourseGrade, Long>  implements CourseGradeRepository {
 
     @Transactional(readOnly = true)
-    public List<CourseGrade> findByGradebook_Id(Long gradebookId) {
+    public List<CourseGrade> findByGradebookId(String gradebookId) {
 
         Session session = sessionFactory.getCurrentSession();
         CriteriaBuilder cb = session.getCriteriaBuilder();
@@ -43,14 +43,4 @@ public class CourseGradeRepositoryImpl extends SpringCrudRepositoryImpl<CourseGr
         return session.createQuery(query).list();
     }
 
-    @Transactional(readOnly = true)
-    public List<CourseGrade> findByGradebook_Uid(String gradebookUid) {
-
-        Session session = sessionFactory.getCurrentSession();
-        CriteriaBuilder cb = session.getCriteriaBuilder();
-        CriteriaQuery<CourseGrade> query = cb.createQuery(CourseGrade.class);
-        Join<CourseGrade, Gradebook> gb = query.from(CourseGrade.class).join("gradebook");
-        query.where(cb.equal(gb.get("uid"), gradebookUid));
-        return session.createQuery(query).list();
-    }
 }

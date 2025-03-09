@@ -43,7 +43,7 @@ public class PermissionRepositoryImpl extends SpringCrudRepositoryImpl<Permissio
     }
 
     @Transactional(readOnly = true)
-    public List<Permission> findByGradebookIdAndUserId(Long gradebookId, String userId) {
+    public List<Permission> findByGradebookIdAndUserId(String gradebookId, String userId) {
 
         Session session = sessionFactory.getCurrentSession();
         CriteriaBuilder cb = session.getCriteriaBuilder();
@@ -55,7 +55,7 @@ public class PermissionRepositoryImpl extends SpringCrudRepositoryImpl<Permissio
     }
 
     @Transactional(readOnly = true)
-    public List<Permission> findByGradebookIdAndUserIdAndCategoryIdIn(Long gradebookId, String userId, List<Long> categoryIds) {
+    public List<Permission> findByGradebookIdAndUserIdAndCategoryIdIn(String gradebookId, String userId, List<Long> categoryIds) {
 
         Session session = sessionFactory.getCurrentSession();
         CriteriaBuilder cb = session.getCriteriaBuilder();
@@ -68,7 +68,7 @@ public class PermissionRepositoryImpl extends SpringCrudRepositoryImpl<Permissio
     }
 
     @Transactional(readOnly = true)
-    public List<Permission> findByGradebookIdAndUserIdAndCategoryIdIsNullAndFunctionNameIn(Long gradebookId, String userId, List<String> functionNames) {
+    public List<Permission> findByGradebookIdAndUserIdAndCategoryIdIsNullAndFunctionNameIn(String gradebookId, String userId, List<String> functionNames) {
 
         Session session = sessionFactory.getCurrentSession();
         CriteriaBuilder cb = session.getCriteriaBuilder();
@@ -82,7 +82,7 @@ public class PermissionRepositoryImpl extends SpringCrudRepositoryImpl<Permissio
     }
 
     @Transactional(readOnly = true)
-    public List<Permission> findByGradebookIdAndUserIdAndGroupIdIsNullAndFunctionNameIn(Long gradebookId, String userId, List<String> functionNames) {
+    public List<Permission> findByGradebookIdAndUserIdAndGroupIdIsNullAndFunctionNameIn(String gradebookId, String userId, List<String> functionNames) {
 
         Session session = sessionFactory.getCurrentSession();
         CriteriaBuilder cb = session.getCriteriaBuilder();
@@ -96,7 +96,7 @@ public class PermissionRepositoryImpl extends SpringCrudRepositoryImpl<Permissio
     }
 
     @Transactional(readOnly = true)
-    public List<Permission> findByGradebookIdAndUserIdAndGroupIdIsNullAndCategoryIdIn(Long gradebookId, String userId, List<Long> categoryIds) {
+    public List<Permission> findByGradebookIdAndUserIdAndGroupIdIsNullAndCategoryIdIn(String gradebookId, String userId, List<Long> categoryIds) {
 
         Session session = sessionFactory.getCurrentSession();
         CriteriaBuilder cb = session.getCriteriaBuilder();
@@ -121,7 +121,7 @@ public class PermissionRepositoryImpl extends SpringCrudRepositoryImpl<Permissio
     }
 
     @Transactional(readOnly = true)
-    public List<Permission> findByGradebookIdAndUserIdAndCategoryIdIsNullAndGroupIdIsNull(Long gradebookId, String userId) {
+    public List<Permission> findByGradebookIdAndUserIdAndCategoryIdIsNullAndGroupIdIsNull(String gradebookId, String userId) {
 
         Session session = sessionFactory.getCurrentSession();
         CriteriaBuilder cb = session.getCriteriaBuilder();
@@ -135,7 +135,7 @@ public class PermissionRepositoryImpl extends SpringCrudRepositoryImpl<Permissio
     }
 
     @Transactional(readOnly = true)
-    public List<Permission> findByGradebookIdAndUserIdAndCategoryIdIsNullAndGroupIdIn(Long gradebookId, String userId, List<String> groupIds) {
+    public List<Permission> findByGradebookIdAndUserIdAndCategoryIdIsNullAndGroupIdIn(String gradebookId, String userId, List<String> groupIds) {
 
         Session session = sessionFactory.getCurrentSession();
         CriteriaBuilder cb = session.getCriteriaBuilder();
@@ -149,7 +149,7 @@ public class PermissionRepositoryImpl extends SpringCrudRepositoryImpl<Permissio
     }
 
     @Transactional(readOnly = true)
-    public List<Permission> findByGradebookIdAndUserIdAndGroupIdIn(Long gradebookId, String userId, List<String> groupIds) {
+    public List<Permission> findByGradebookIdAndUserIdAndGroupIdIn(String gradebookId, String userId, List<String> groupIds) {
 
         Session session = sessionFactory.getCurrentSession();
         CriteriaBuilder cb = session.getCriteriaBuilder();

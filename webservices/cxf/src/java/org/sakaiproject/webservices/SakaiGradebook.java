@@ -142,12 +142,11 @@ public class SakaiGradebook extends AbstractWebService {
             for (String siteId : siteList) {
                 //If the site has gradebook then we
                 Gradebook gradebook = gradingService.getGradebook(siteId);
-                String gradebookUid=gradebook.getUid();
-                Long gradebookId=gradebook.getId();
+                String gradebookId = gradebook.getId();
 
                 if (!isUpdate) { //If it is new then we need to add the scale to every actual gradebook in the list
-                        gradingService.saveGradeMappingToGradebook(scaleUuid, gradebookUid);
-                        log.debug("SakaiGradebook: Adding the new scale " + scaleUuid + " in gradebook: " + gradebook.getUid());
+                        gradingService.saveGradeMappingToGradebook(scaleUuid, gradebookId);
+                        log.debug("SakaiGradebook: Adding the new scale " + scaleUuid + " in gradebook: " + gradebookId);
 
                 }else{ //If it is not new, then update the actual gradebooks with the new values ONLY if updateOld is true
                     if (updateOld)  {
@@ -157,10 +156,10 @@ public class SakaiGradebook extends AbstractWebService {
                                 if (gradeMapping.getGradingScale().getUid().equals(scaleUuid)){
                                     if (updateOnlyNotCustomized){ //We will only update the ones that teachers have not customized
                                         if (mapsAreEqual(defaultBottomPercentsOld, gradeMapping.getGradeMap())){
-                                            log.debug("SakaiGradebook:They are equals " + gradebook.getUid());
+                                            log.debug("SakaiGradebook:They are equals " + gradebookId);
                                             gradeMapping.setDefaultValues();
                                         }else{
-                                            log.debug("SakaiGradebook:They are NOT equals " + gradebook.getUid());
+                                            log.debug("SakaiGradebook:They are NOT equals " + gradebookId);
                                         }
                                     }else{
                                         gradeMapping.setDefaultValues();
@@ -174,8 +173,8 @@ public class SakaiGradebook extends AbstractWebService {
                 }
             }
         } catch (Exception e) {
-            log.error("SakaiGradebook: createOrUpdateGradeScale: Error attempting to manage a gradescale " + e.getClass().getName() + " : " + e.getMessage());
-            return e.getClass().getName() + " : " + e.getMessage();
+            log.error("Attempting to manage a gradescale, {}", e.toString());
+            return e.toString();
         }
         return "success";
     }

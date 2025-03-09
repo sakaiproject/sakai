@@ -54,7 +54,7 @@ public class LetterGradePercentMapping implements PersistableEntity<Long>, Seria
     private Integer version = 0;
 
     @Column(name = "GRADEBOOK_ID", nullable = true)
-    private Long gradebookId;
+    private String gradebookId;
 
     @Column(name = "MAPPING_TYPE", nullable = false)
     private Integer mappingType = 1; //value of 1 or 2 - 1 is the default mapping in the system.

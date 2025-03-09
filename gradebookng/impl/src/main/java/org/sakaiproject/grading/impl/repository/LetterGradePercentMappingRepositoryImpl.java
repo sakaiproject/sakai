@@ -44,7 +44,7 @@ public class LetterGradePercentMappingRepositoryImpl extends SpringCrudRepositor
     }
 
     @Transactional(readOnly = true)
-    public Optional<LetterGradePercentMapping> findByGradebookIdAndMappingType(Long gradebookId, Integer mappingType) {
+    public Optional<LetterGradePercentMapping> findByGradebookIdAndMappingType(String gradebookId, Integer mappingType) {
 
         Session session = sessionFactory.getCurrentSession();
         CriteriaBuilder cb = session.getCriteriaBuilder();

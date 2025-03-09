@@ -47,7 +47,7 @@ public class GbGradeTableData {
 	private Map<String, Double> courseGradeMap;
 	private Map<String, Boolean> hasAssociatedRubricMap;
 	private Long courseGradeId;
-	private Long gradebookId;
+	private String gradebookId;
 	private boolean isStudentNumberVisible;
 	private boolean isSectionsVisible;
 

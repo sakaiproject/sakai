@@ -26,10 +26,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Set;
 
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.AssessmentNotFoundException;
 import org.sakaiproject.grading.api.CategoryDefinition;
@@ -39,6 +41,7 @@ import org.sakaiproject.grading.api.GradebookInformation;
 import org.sakaiproject.grading.api.GradeDefinition;
 import org.sakaiproject.grading.api.GradingAuthz;
 import org.sakaiproject.grading.api.GradingConstants;
+import org.sakaiproject.grading.api.GradingPersistenceManager;
 import org.sakaiproject.grading.api.GradingSecurityException;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.grading.api.model.CourseGrade;
@@ -48,6 +51,9 @@ import org.sakaiproject.grading.api.model.LetterGradePercentMapping;
 import org.sakaiproject.grading.api.repository.CourseGradeRepository;
 import org.sakaiproject.grading.api.repository.LetterGradePercentMappingRepository;
 import org.sakaiproject.grading.impl.GradingServiceImpl;
+import org.sakaiproject.section.api.SectionAwareness;
+import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
+import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -82,11 +88,14 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
     @Autowired private EntityManager entityManager;
     @Autowired private GradingService gradingService;
     @Autowired private LetterGradePercentMappingRepository letterGradePercentMappingRepository;
+    @Autowired private SectionAwareness sectionAwareness;
     @Autowired private SecurityService securityService;
     @Autowired private SessionManager sessionManager;
     @Autowired private SiteService siteService;
     @Autowired private PlusService plusService;
     @Autowired private UserDirectoryService userDirectoryService;
+    @Autowired private GradingPersistenceManager gradingPersistenceManager;
+
 
     private ResourceLoader resourceLoader;
 
@@ -94,10 +103,16 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
     User instructorUser = null;
     String user1 = "user1";
     User user1User = null;
+    EnrollmentRecord erUser1 = null;
+    org.sakaiproject.section.api.coursemanagement.User user1SectionUser = null;
     String user2 = "user2";
     User user2User = null;
+    EnrollmentRecord erUser2 = null;
+    org.sakaiproject.section.api.coursemanagement.User user2SectionUser = null;
 
     String siteId = "xyz";
+    String siteTitle = "Site XYZ";
+    Site site;
 
     String cat1Name = "Category One";
     String cat2Name = "Category Two";
@@ -112,7 +127,7 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
     Assignment ass2 = null;
 
     @Before
-    public void setup() {
+    public void setup() throws IdUnusedException {
 
         reset(sessionManager);
         reset(securityService);
@@ -137,10 +152,29 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
         user1User = mock(User.class);
         when(user1User.getDisplayName()).thenReturn(user1);
 
+        erUser1 = mock(EnrollmentRecord.class);
+        when(erUser1.getRole()).thenReturn(Role.STUDENT);
+        user1SectionUser = mock(org.sakaiproject.section.api.coursemanagement.User.class);
+        when(user1SectionUser.getUserUid()).thenReturn(user1);
+        when(erUser1.getUser()).thenReturn(user1SectionUser);
+
         user2User = mock(User.class);
         when(user2User.getDisplayName()).thenReturn(user2);
 
+        erUser2 = mock(EnrollmentRecord.class);
+        when(erUser2.getRole()).thenReturn(Role.STUDENT);
+        user2SectionUser = mock(org.sakaiproject.section.api.coursemanagement.User.class);
+        when(user2SectionUser.getUserUid()).thenReturn(user2);
+        when(erUser2.getUser()).thenReturn(user2SectionUser);
+
+        site = mock(Site.class);
+
+        when(site.getUsers()).thenReturn(Set.of(instructor, user1, user2));
+        when(sectionAwareness.getSiteMembersInRole(siteId, Role.STUDENT)).thenReturn(List.of(erUser1, erUser2));
+        when(site.getId()).thenReturn(siteId);
+        when(site.getTitle()).thenReturn(siteTitle);
         when(siteService.siteReference(siteId)).thenReturn("/site/" + siteId);
+        when(siteService.getSite(siteId)).thenReturn(site);
 
         resourceLoader = mock(ResourceLoader.class);
         when(resourceLoader.getLocale()).thenReturn(Locale.ENGLISH);
@@ -148,13 +182,16 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
     }
 
     @Test
-    public void addGradebook() {
+    public void addGradebook() throws UserNotDefinedException {
 
         Gradebook gradebook = createGradebook();
-        assertEquals(siteId, gradebook.getUid());
-        assertEquals(siteId, gradebook.getName());
+        assertNotNull(gradebook);
+        // Check that GradebookManager is properly set up
+        assertNotNull(gradebook.getGradebookManager());
+        assertEquals(siteId, gradebook.getGradebookManager().getId());
+        assertEquals(siteTitle, gradebook.getName());
 
-        List<CourseGrade> courseGrades = courseGradeRepository.findByGradebook_Id(gradebook.getId());
+        List<CourseGrade> courseGrades = courseGradeRepository.findByGradebookId(gradebook.getId());
         assertEquals(1, courseGrades.size());
 
         List<LetterGradePercentMapping> mappings = letterGradePercentMappingRepository.findByMappingType(1);
@@ -162,34 +199,37 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
     }
 
     @Test
-    public void deleteGradebook() {
-
+    public void deleteGradebook() throws UserNotDefinedException {
         Gradebook gradebook = createGradebook();
-        //try {
-            gradingService.deleteGradebook(gradebook.getUid());
-        //} catch (Exception e) {
-        //    e.printStackTrace();
-        //}
+        
+        // Set up permissions needed for deletion
+        when(securityService.unlock(GradingAuthz.PERMISSION_EDIT_ASSIGNMENTS, "/site/" + siteId)).thenReturn(true);
+        when(securityService.unlock(GradingAuthz.PERMISSION_GRADE_ALL, "/site/" + siteId)).thenReturn(true);
+
+        gradingService.deleteGradebook(gradebook.getId());
+
+        // Verify the gradebook was deleted
+        assertTrue(gradingPersistenceManager.getGradebook(gradebook.getId()).isEmpty());
     }
 
     @Test
-    public void addAssignment() {
+    public void addAssignment() throws UserNotDefinedException {
 
         Gradebook gradebook = createGradebook();
-        assertEquals(siteId, gradebook.getUid());
+        assertNotNull(gradebook);
 
         switchToInstructor();
 
         when(securityService.unlock(GradingAuthz.PERMISSION_EDIT_ASSIGNMENTS, "/site/" + siteId)).thenReturn(false);
 
-        assertThrows(GradingSecurityException.class, () -> gradingService.addAssignment(gradebook.getUid(), ass1));
+        assertThrows(GradingSecurityException.class, () -> gradingService.addAssignment(siteId, ass1));
 
         when(securityService.unlock(GradingAuthz.PERMISSION_EDIT_ASSIGNMENTS, "/site/" + siteId)).thenReturn(true);
-        //when(siteService.siteReference(gradebook.getUid())).thenReturn("/site/" + gradebook.getUid());
+        //when(siteService.siteReference(gradebook.getId())).thenReturn("/site/" + gradebook.getId());
 
-        gradingService.addAssignment(gradebook.getUid(), ass1);
+        gradingService.addAssignment(siteId, ass1);
 
-        List<Assignment> assignments = gradingService.getAssignments(gradebook.getUid());
+        List<Assignment> assignments = gradingService.getAssignments(siteId);
         assertEquals(1, assignments.size());
         assertEquals(ass1Name, assignments.get(0).getName());
         assertEquals(ass1Points, assignments.get(0).getPoints());
@@ -197,21 +237,22 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
     }
 
     @Test
-    public void getAssignments() {
+    public void getAssignments() throws UserNotDefinedException {
 
         Gradebook gradebook = createGradebook();
-        Long id = createAssignment1(gradebook);
-        List<Assignment> assignments = gradingService.getAssignments(gradebook.getUid());
+        assertNotNull(gradebook);
+        createAssignment1();
+        List<Assignment> assignments = gradingService.getAssignments(siteId);
         assertEquals(1, assignments.size());
-        Long id2 = createAssignment2(gradebook);
-        assignments = gradingService.getAssignments(gradebook.getUid());
+        createAssignment2();
+        assignments = gradingService.getAssignments(siteId);
         assertEquals(2, assignments.size());
     }
 
     @Test
-    public void addAndUpdateExternalAssessment() {
+    public void addAndUpdateExternalAssessment() throws UserNotDefinedException {
 
-        Gradebook gradebook = createGradebook();
+        createGradebook();
         switchToUser1();
 
         String externalId = "bf3eeca2-1b97-4ead-b605-a8b50a0c6950";
@@ -226,8 +267,8 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
 
         switchToInstructor();
 
-        gradingService.addExternalAssessment(gradebook.getUid(), externalId, "http://eggs.com", title, points, dueDate, description, "data", false);
-        Assignment assignment = gradingService.getExternalAssignment(gradebook.getUid(), externalId);
+        gradingService.addExternalAssessment(siteId, externalId, "http://eggs.com", title, points, dueDate, description, "data", false);
+        Assignment assignment = gradingService.getExternalAssignment(siteId, externalId);
 
         assertEquals(title, assignment.getName());
         assertEquals(points, assignment.getPoints());
@@ -238,9 +279,9 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
         String newTitle = "New Title";
         Double newPoints = 23.2D;
 
-        gradingService.updateExternalAssessment(gradebook.getUid(), externalId, "http://eggs.com", "data", newTitle, newPoints, assignment.getDueDate());
+        gradingService.updateExternalAssessment(siteId, externalId, "http://eggs.com", "data", newTitle, newPoints, assignment.getDueDate());
 
-        assignment = gradingService.getExternalAssignment(gradebook.getUid(), externalId);
+        assignment = gradingService.getExternalAssignment(siteId, externalId);
         assertEquals(newTitle, assignment.getName());
         assertEquals(newPoints, assignment.getPoints());
         assertEquals(dueDate, assignment.getDueDate());
@@ -249,31 +290,28 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
     }
 
     @Test
-    public void currentUserHasGradingPerm() {
+    public void currentUserHasGradingPerm() throws UserNotDefinedException {
 
-        Gradebook gradebook = createGradebook();
+        createGradebook();
         switchToUser1();
-        assertFalse(gradingService.currentUserHasGradingPerm(gradebook.getUid()));
+        assertFalse(gradingService.currentUserHasGradingPerm(siteId));
         switchToInstructor();
         when(securityService.unlock(GradingAuthz.PERMISSION_GRADE_ALL, "/site/" + siteId)).thenReturn(true);
-        assertTrue(gradingService.currentUserHasGradingPerm(gradebook.getUid()));
+        assertTrue(gradingService.currentUserHasGradingPerm(siteId));
     }
 
     @Test
-    public void removeAssignment() {
-
-        Gradebook gradebook = createGradebook();
-
-        Long id = createAssignment1(gradebook);
-
+    public void removeAssignment() throws UserNotDefinedException {
+        createGradebook();
+        Long id = createAssignment1();
         gradingService.removeAssignment(id);
-        assertEquals(0, gradingService.getAssignments(gradebook.getUid()).size());
+        assertEquals(0, gradingService.getAssignments(siteId).size());
     }
 
     @Test
-    public void removeExternalAssignment() {
+    public void removeExternalAssignment() throws UserNotDefinedException {
 
-        Gradebook gradebook = createGradebook();
+        createGradebook();
         String externalId = "xyz";
         String externalUrl = "http://xyz.com";
         String title = "External Assignment";
@@ -283,31 +321,27 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
 
         switchToInstructor();
 
-        gradingService.addExternalAssessment(gradebook.getUid(), externalId, externalUrl,
-                title, points, dueDate, externalServiceDescription, null, false);
-
-        Assignment assignment = gradingService.getExternalAssignment(gradebook.getUid(), externalId);
-
+        gradingService.addExternalAssessment(siteId, externalId, externalUrl, title, points, dueDate, externalServiceDescription, null, false);
+        Assignment assignment = gradingService.getExternalAssignment(siteId, externalId);
         assertNotNull(assignment);
 
-        gradingService.removeExternalAssignment(gradebook.getUid(), externalId);
-
-        assertThrows(IllegalArgumentException.class, () -> gradingService.getExternalAssignment(gradebook.getUid(), externalId));
+        gradingService.removeExternalAssignment(siteId, externalId);
+        assertThrows(IllegalArgumentException.class, () -> gradingService.getExternalAssignment(siteId, externalId));
     }
 
     @Test
-    public void updateAssignment() {
+    public void updateAssignment() throws UserNotDefinedException {
 
         Gradebook gradebook = createGradebook();
 
-        Long id = createAssignment1(gradebook);
-        Assignment updated = gradingService.getAssignment(gradebook.getUid(), id);
+        Long id = createAssignment1();
+        Assignment updated = gradingService.getAssignment(siteId, id);
         updated.setExternallyMaintained(true);
         updated.setName("Changed Name");
         updated.setPoints(80D);
         updated.setDueDate(new Date());
-        gradingService.updateAssignment(gradebook.getUid(), id, updated);
-        updated = gradingService.getAssignment(gradebook.getUid(), id);
+        gradingService.updateAssignment(siteId, id, updated);
+        updated = gradingService.getAssignment(siteId, id);
         // You can't change the name, points or due date of externally maintained assignments
         assertEquals(ass1Name, updated.getName());
         // You can't change the points of externally maintained assignments
@@ -316,37 +350,37 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
     }
 
     @Test
-    public void isAssignmentDefined() {
+    public void isAssignmentDefined() throws UserNotDefinedException {
 
         Gradebook gradebook = createGradebook();
-        when(securityService.unlock(GradingAuthz.PERMISSION_EDIT_ASSIGNMENTS, "/site/" + gradebook.getUid())).thenReturn(false);
-        when(securityService.unlock(GradingAuthz.PERMISSION_GRADE_ALL, "/site/" + gradebook.getUid())).thenReturn(false);
-        assertThrows(GradingSecurityException.class, () -> gradingService.isAssignmentDefined(gradebook.getUid(), ass1Name));
-        when(securityService.unlock(GradingAuthz.PERMISSION_EDIT_ASSIGNMENTS, "/site/" + gradebook.getUid())).thenReturn(true);
-        assertFalse(gradingService.isAssignmentDefined(gradebook.getUid(), ass1Name));
-        Long id = createAssignment1(gradebook);
-        assertTrue(gradingService.isAssignmentDefined(gradebook.getUid(), ass1Name));
+        when(securityService.unlock(GradingAuthz.PERMISSION_EDIT_ASSIGNMENTS, "/site/" + siteId)).thenReturn(false);
+        when(securityService.unlock(GradingAuthz.PERMISSION_GRADE_ALL, "/site/" + siteId)).thenReturn(false);
+        assertThrows(GradingSecurityException.class, () -> gradingService.isAssignmentDefined(siteId, ass1Name));
+        when(securityService.unlock(GradingAuthz.PERMISSION_EDIT_ASSIGNMENTS, "/site/" + siteId)).thenReturn(true);
+        assertFalse(gradingService.isAssignmentDefined(siteId, ass1Name));
+        createAssignment1();
+        assertTrue(gradingService.isAssignmentDefined(siteId, ass1Name));
     }
 
     @Test
-    public void setAssignmentScoreString() {
+    public void setAssignmentScoreString() throws UserNotDefinedException {
 
-        Gradebook gradebook = createGradebook();
-        assertThrows(AssessmentNotFoundException.class, () -> gradingService.setAssignmentScoreString(gradebook.getUid(), ass1Name, user1, "43.0", ""));
-        Long id = createAssignment1(gradebook);
+        createGradebook();
+        assertThrows(AssessmentNotFoundException.class, () -> gradingService.setAssignmentScoreString(siteId, ass1Name, user1, "43.0", ""));
+        Long id = createAssignment1();
 
-        gradingService.setAssignmentScoreString(gradebook.getUid(), ass1Name, user1, "43.0", "");
-        assertEquals("43", gradingService.getAssignmentScoreString(gradebook.getUid(), ass1Name, user1));
+        gradingService.setAssignmentScoreString(siteId, ass1Name, user1, "43.0", "");
+        assertEquals("43", gradingService.getAssignmentScoreString(siteId, ass1Name, user1));
 
-        gradingService.setAssignmentScoreString(gradebook.getUid(), ass1Name, user1, "27.5", "");
-        assertEquals("27.5", gradingService.getAssignmentScoreString(gradebook.getUid(), ass1Name, user1));
+        gradingService.setAssignmentScoreString(siteId, ass1Name, user1, "27.5", "");
+        assertEquals("27.5", gradingService.getAssignmentScoreString(siteId, ass1Name, user1));
     }
 
     @Test
-    public void saveGradesAndComments() {
+    public void saveGradesAndComments() throws UserNotDefinedException {
 
-        Gradebook gradebook = createGradebook();
-        Long id = createAssignment1(gradebook);
+        createGradebook();
+        Long id = createAssignment1();
 
         GradeDefinition def1 = new GradeDefinition();
         def1.setStudentUid(user1);
@@ -364,7 +398,7 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
         def2.setGradeComment("Good");
         def2.setGradeEntryType(GradingConstants.GRADE_TYPE_POINTS);
 
-        gradingService.saveGradesAndComments(gradebook.getUid(), id, List.<GradeDefinition>of(def1, def2));
+        gradingService.saveGradesAndComments(siteId, id, List.<GradeDefinition>of(def1, def2));
 
         List<GradingEvent> gradingEvents = gradingService.getGradingEvents(user1, id);
         assertEquals(1, gradingEvents.size());
@@ -374,32 +408,33 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
     }
 
     @Test
-    public void getAverageCourseGrade() {
+    public void getAverageCourseGrade() throws UserNotDefinedException {
 
-        Gradebook gradebook = createGradebook();
-        String average = gradingService.getAverageCourseGrade(gradebook.getUid());
+        createGradebook();
+
+        String average = gradingService.getAverageCourseGrade(siteId);
         assertNull(average);
 
-        Long assId = createAssignment1(gradebook);
+        Long assId = createAssignment1();
 
-        String grade = "3.7";
+        String grade = "12.5";
         String comment = "Rather shoddy";
 
-        gradingService.saveGradeAndCommentForStudent(gradebook.getUid(), assId, user1, grade, comment);
+        gradingService.saveGradeAndCommentForStudent(siteId, assId, user1, grade, comment);
 
-        average = gradingService.getAverageCourseGrade(gradebook.getUid());
-        //assertEquals("3.7", average);
+        average = gradingService.getAverageCourseGrade(siteId);
+        // The actual value might differ depending on calculation method,
+        // so just check that we got a non-null value back
+        assertEquals(average, "B");
     }
 
     @Test
-    public void createGradebookWithCategories() {
+    public void createGradebookWithCategories() throws UserNotDefinedException {
 
-        switchToInstructor();
 
-        gradingService.addGradebook(siteId);
-        Gradebook gradebook = gradingService.getGradebook(siteId);
+        Gradebook gradebook = createGradebook();
 
-        addCategories(gradebook);
+        addCategories();
 
         GradebookInformation gradebookInformation = gradingService.getGradebookInformation(siteId);
 
@@ -408,194 +443,178 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
     }
 
     @Test
-    public void assignmentScoreComment() {
-
+    public void assignmentScoreComment() throws UserNotDefinedException {
         assertThrows(IllegalArgumentException.class, () -> gradingService.setAssignmentScoreComment(null, null, user1, "Great!"));
 
-        Gradebook gradebook = createGradebook();
-
-        Long ass1Id = createAssignment1(gradebook);
-
+        createGradebook();
+        Long ass1Id = createAssignment1();
         String comment = "Great!";
+        gradingService.setAssignmentScoreComment(siteId, ass1Id, user1, comment);
 
-        gradingService.setAssignmentScoreComment(gradebook.getUid(), ass1Id, user1, comment);
-
-        CommentDefinition commentDefinition = gradingService.getAssignmentScoreComment(gradebook.getUid(), ass1Id, user1);
+        CommentDefinition commentDefinition = gradingService.getAssignmentScoreComment(siteId, ass1Id, user1);
         assertEquals(comment, commentDefinition.getCommentText());
 
-        gradingService.deleteAssignmentScoreComment(gradebook.getUid(), ass1Id, user1);
-        commentDefinition = gradingService.getAssignmentScoreComment(gradebook.getUid(), ass1Id, user1);
+        gradingService.deleteAssignmentScoreComment(siteId, ass1Id, user1);
+        commentDefinition = gradingService.getAssignmentScoreComment(siteId, ass1Id, user1);
         assertNull(commentDefinition);
     }
 
     @Test
-    public void courseGradeComment() {
+    public void courseGradeComment() throws UserNotDefinedException {
         Gradebook gradebook = createGradebook();
         String comment = "This is your course grade.";
 
-        gradingService.setAssignmentScoreComment(gradebook.getUid(), gradingService.getCourseGradeId(gradebook.getId()), user1, comment);
-        CommentDefinition commentDefinition = gradingService.getAssignmentScoreComment(gradebook.getUid(), gradingService.getCourseGradeId(gradebook.getId()), user1);
+        gradingService.setAssignmentScoreComment(siteId, gradingService.getCourseGradeId(gradebook.getId()), user1, comment);
+        CommentDefinition commentDefinition = gradingService.getAssignmentScoreComment(siteId, gradingService.getCourseGradeId(gradebook.getId()), user1);
         assertEquals(comment, commentDefinition.getCommentText());
 
-        gradingService.deleteAssignmentScoreComment(gradebook.getUid(), gradingService.getCourseGradeId(gradebook.getId()), user1);
-        commentDefinition = gradingService.getAssignmentScoreComment(gradebook.getUid(), gradingService.getCourseGradeId(gradebook.getId()), user1);
+        gradingService.deleteAssignmentScoreComment(siteId, gradingService.getCourseGradeId(gradebook.getId()), user1);
+        commentDefinition = gradingService.getAssignmentScoreComment(siteId, gradingService.getCourseGradeId(gradebook.getId()), user1);
         assertNull(commentDefinition);
     }
 
     @Test
-    public void getAssignmentByNameOrId() {
+    public void getAssignmentByNameOrId() throws UserNotDefinedException {
 
-        Gradebook gradebook = createGradebook();
+        createGradebook();
 
-        Assignment ass = gradingService.getAssignmentByNameOrId(gradebook.getUid(), "none");
+        Assignment ass = gradingService.getAssignmentByNameOrId(siteId, "none");
         assertNull(ass);
 
-        Long ass1Id = createAssignment1(gradebook);
-
-        ass = gradingService.getAssignmentByNameOrId(gradebook.getUid(), ass1Id.toString());
+        Long ass1Id = createAssignment1();
+        ass = gradingService.getAssignmentByNameOrId(siteId, ass1Id.toString());
         assertNotNull(ass);
     }
 
     @Test
-    public void getCategoryDefinitions() {
+    public void getCategoryDefinitions() throws UserNotDefinedException {
 
-        switchToInstructor();
-
-        gradingService.addGradebook(siteId);
-        Gradebook gradebook = gradingService.getGradebook(siteId);
-        List<CategoryDefinition> cats = gradingService.getCategoryDefinitions(gradebook.getUid());
+        Gradebook gradebook = createGradebook();
+        List<CategoryDefinition> cats = gradingService.getCategoryDefinitions(siteId);
         assertEquals(0, cats.size());
-
-        addCategories(gradebook);
-
-        cats = gradingService.getCategoryDefinitions(gradebook.getUid());
+        addCategories();
+        cats = gradingService.getCategoryDefinitions(siteId);
         assertEquals(2, cats.size());
     }
 
     @Test
-    public void getViewableAssignmentsForCurrentUser() {
+    public void getViewableAssignmentsForCurrentUser() throws UserNotDefinedException {
 
-        Gradebook gradebook = createGradebook();
-        Long id = createAssignment1(gradebook);
-        List<Assignment> assignments = gradingService.getViewableAssignmentsForCurrentUser(gradebook.getUid());
+        createGradebook();
+        createAssignment1();
+        List<Assignment> assignments = gradingService.getViewableAssignmentsForCurrentUser(siteId);
         assertEquals(1, assignments.size());
     }
 
     @Test
-    public void isPointsPossibleValid() {
+    public void isPointsPossibleValid() throws UserNotDefinedException {
 
-        assertThrows(IllegalArgumentException.class, () -> gradingService.isPointsPossibleValid(null, null, null));
+        assertThrows(IllegalArgumentException.class, () -> gradingService.isPointsPossibleValid(null, null));
 
-        Gradebook gradebook = createGradebook();
-        Long id = createAssignment1(gradebook);
-        Assignment updated = gradingService.getAssignment(gradebook.getUid(), id);
-        assertEquals(GradingService.PointsPossibleValidation.INVALID_NUMERIC_VALUE, gradingService.isPointsPossibleValid(gradebook.getUid(), updated, 0D));
-        assertEquals(GradingService.PointsPossibleValidation.INVALID_NULL_VALUE, gradingService.isPointsPossibleValid(gradebook.getUid(), updated, null));
-        assertEquals(GradingService.PointsPossibleValidation.INVALID_DECIMAL, gradingService.isPointsPossibleValid(gradebook.getUid(), updated, 2.344D));
-        assertEquals(GradingService.PointsPossibleValidation.VALID, gradingService.isPointsPossibleValid(gradebook.getUid(), updated, 2.34D));
+        createGradebook();
+        Long id = createAssignment1();
+        Assignment updated = gradingService.getAssignment(siteId, id);
+        assertEquals(GradingService.PointsPossibleValidation.INVALID_NUMERIC_VALUE, gradingService.isPointsPossibleValid(updated, 0D));
+        assertEquals(GradingService.PointsPossibleValidation.INVALID_NULL_VALUE, gradingService.isPointsPossibleValid(updated, null));
+        assertEquals(GradingService.PointsPossibleValidation.INVALID_DECIMAL, gradingService.isPointsPossibleValid(updated, 2.344D));
+        assertEquals(GradingService.PointsPossibleValidation.VALID, gradingService.isPointsPossibleValid(updated, 2.34D));
     }
 
     @Test
-    public void isUserAbleToGradeItemForStudent() {
+    public void isUserAbleToGradeItemForStudent() throws UserNotDefinedException {
 
-        Gradebook gradebook = createGradebook();
-        Long id = createAssignment1(gradebook);
+        createGradebook();
+        Long id = createAssignment1();
         switchToUser1();
-        assertFalse(gradingService.isUserAbleToGradeItemForStudent(gradebook.getUid(), id, user2));
-        when(securityService.unlock(GradingAuthz.PERMISSION_GRADE_ALL, "/site/" + gradebook.getUid())).thenReturn(true);
-        assertTrue(gradingService.isUserAbleToGradeItemForStudent(gradebook.getUid(), id, user2));
+        assertFalse(gradingService.isUserAbleToGradeItemForStudent(siteId, id, user2));
+        when(securityService.unlock(GradingAuthz.PERMISSION_GRADE_ALL, "/site/" + siteId)).thenReturn(true);
+        assertTrue(gradingService.isUserAbleToGradeItemForStudent(siteId, id, user2));
     }
 
     @Test
-    public void isUserAbleToViewItemForStudent() {
+    public void isUserAbleToViewItemForStudent() throws UserNotDefinedException {
 
         Gradebook gradebook = createGradebook();
-        Long id = createAssignment1(gradebook);
-        when(securityService.unlock(GradingAuthz.PERMISSION_GRADE_ALL, "/site/" + gradebook.getUid())).thenReturn(false);
-        assertFalse(gradingService.isUserAbleToViewItemForStudent(gradebook.getUid(), id, user2));
-        when(securityService.unlock(GradingAuthz.PERMISSION_GRADE_ALL, "/site/" + gradebook.getUid())).thenReturn(true);
-        assertTrue(gradingService.isUserAbleToViewItemForStudent(gradebook.getUid(), id, user2));
+        Long id = createAssignment1();
+        when(securityService.unlock(GradingAuthz.PERMISSION_GRADE_ALL, "/site/" + siteId)).thenReturn(false);
+        assertFalse(gradingService.isUserAbleToViewItemForStudent(siteId, id, user2));
+        when(securityService.unlock(GradingAuthz.PERMISSION_GRADE_ALL, "/site/" + siteId)).thenReturn(true);
+        assertTrue(gradingService.isUserAbleToViewItemForStudent(siteId, id, user2));
 
         switchToUser1();
-        when(securityService.unlock(GradingAuthz.PERMISSION_GRADE_ALL, "/site/" + gradebook.getUid())).thenReturn(false);
-        assertFalse(gradingService.isUserAbleToViewItemForStudent(gradebook.getUid(), id, user2));
-        when(securityService.unlock(GradingAuthz.PERMISSION_GRADE_ALL, "/site/" + gradebook.getUid())).thenReturn(true);
-        assertTrue(gradingService.isUserAbleToViewItemForStudent(gradebook.getUid(), id, user2));
+        when(securityService.unlock(GradingAuthz.PERMISSION_GRADE_ALL, "/site/" + siteId)).thenReturn(false);
+        assertFalse(gradingService.isUserAbleToViewItemForStudent(siteId, id, user2));
+        when(securityService.unlock(GradingAuthz.PERMISSION_GRADE_ALL, "/site/" + siteId)).thenReturn(true);
+        assertTrue(gradingService.isUserAbleToViewItemForStudent(siteId, id, user2));
     }
 
     @Test
-    public void getGradeViewFunctionForUserForStudentForItem() {
+    public void getGradeViewFunctionForUserForStudentForItem() throws UserNotDefinedException {
 
         assertThrows(IllegalArgumentException.class, () -> gradingService.getGradeViewFunctionForUserForStudentForItem(null, null, null));
 
-        Gradebook gradebook = createGradebook();
-        Long id = createAssignment1(gradebook);
+        createGradebook();
+        Long id = createAssignment1();
 
-        String perm = gradingService.getGradeViewFunctionForUserForStudentForItem(gradebook.getUid(), id, user1);
-
+        String perm = gradingService.getGradeViewFunctionForUserForStudentForItem(siteId, id, user1);
         assertEquals(GradingConstants.gradePermission, perm);
         
         switchToUser1();
 
-        perm = gradingService.getGradeViewFunctionForUserForStudentForItem(gradebook.getUid(), id, user1);
-
+        perm = gradingService.getGradeViewFunctionForUserForStudentForItem(siteId, id, user1);
         assertEquals(null, perm);
     }
 
     @Test
     public void getPointsEarnedCourseGradeRecords() {
+        // TODO: Implement this test
+        // Skipping for now to prevent timeouts
     }
 
     @Test
-    public void saveGradeAndCommentForStudent() {
+    public void saveGradeAndCommentForStudent() throws UserNotDefinedException {
 
-        Gradebook gradebook = createGradebook();
-        Long assId = createAssignment1(gradebook);
+        createGradebook();
+        Long assId = createAssignment1();
 
         String grade = "3.7";
         String comment = "Rather shoddy";
 
-        gradingService.saveGradeAndCommentForStudent(gradebook.getUid(), assId, user1, grade, comment);
+        gradingService.saveGradeAndCommentForStudent(siteId, assId, user1, grade, comment);
 
-        Site site = mock(Site.class);
         when(site.getGroup(user1)).thenReturn(null);
-        try {
-            when(siteService.getSite(gradebook.getUid())).thenReturn(site);
-        } catch (Exception e) {
-        }
-
-        GradeDefinition gradeDef = gradingService.getGradeDefinitionForStudentForItem(gradebook.getUid(), assId, user1);
+        GradeDefinition gradeDef = gradingService.getGradeDefinitionForStudentForItem(siteId, assId, user1);
 
         assertEquals(grade, gradeDef.getGrade());
         assertEquals(comment, gradeDef.getGradeComment());
     }
 
     @Test
-    public void getCourseGradeForStudents() {
+    public void getCourseGradeForStudents() throws UserNotDefinedException {
 
-        Gradebook gradebook = createGradebook();
-        Long assId = createAssignment1(gradebook);
+        createGradebook();
+        Long assId = createAssignment1();
 
         Map<String, Double> gradeMapping = new HashMap<>();
         gradeMapping.put(user1, 3.0D);
 
-        Map<String, CourseGradeTransferBean> grades = gradingService.getCourseGradeForStudents(gradebook.getUid(), Arrays.asList(user1), gradeMapping);
+        Map<String, CourseGradeTransferBean> grades = gradingService.getCourseGradeForStudents(siteId, Arrays.asList(user1), gradeMapping);
         assertEquals(1, grades.size());
 
         String grade = "3.0";
         String comment = "Rather shoddy";
 
-        gradingService.saveGradeAndCommentForStudent(gradebook.getUid(), assId, user1, grade, comment);
-        grades = gradingService.getCourseGradeForStudents(gradebook.getUid(), Arrays.asList(user1), gradeMapping);
+        gradingService.saveGradeAndCommentForStudent(siteId, assId, user1, grade, comment);
+        grades = gradingService.getCourseGradeForStudents(siteId, Arrays.asList(user1), gradeMapping);
         assertEquals(1, grades.size());
         assertEquals("20.0", grades.get(user1).getCalculatedGrade());
     }
 
     @Test
-    public void getGradesWithoutCommentsForStudentsForItems() {
+    public void getGradesWithoutCommentsForStudentsForItems() throws UserNotDefinedException {
 
-        Gradebook gradebook = createGradebook();
-        Long assId = createAssignment1(gradebook);
+        createGradebook();
+        Long assId = createAssignment1();
 
         String grade = "3.7";
         String comment = "Rather shoddy";
@@ -603,21 +622,21 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
         Map<String, Double> gradeMapping = new HashMap<>();
         gradeMapping.put(user1, 3.7D);
 
-        gradingService.saveGradeAndCommentForStudent(gradebook.getUid(), assId, user1, grade, comment);
+        gradingService.saveGradeAndCommentForStudent(siteId, assId, user1, grade, comment);
 
-        assertThrows(IllegalArgumentException.class, () -> gradingService.getGradesWithoutCommentsForStudentsForItems(gradebook.getUid(), null, null));
+        assertThrows(IllegalArgumentException.class, () -> gradingService.getGradesWithoutCommentsForStudentsForItems(siteId, null, null));
 
         switchToUser2();
-        assertThrows(GradingSecurityException.class, () -> gradingService.getGradesWithoutCommentsForStudentsForItems(gradebook.getUid(), List.of(assId), List.of(user1)));
+        assertThrows(GradingSecurityException.class, () -> gradingService.getGradesWithoutCommentsForStudentsForItems(siteId, List.of(assId), List.of(user1)));
 
         switchToUser1(); // user1 should be able to view their own grades
-        Map<Long, List<GradeDefinition>> user1Grades = gradingService.getGradesWithoutCommentsForStudentsForItems(gradebook.getUid(), List.of(assId), List.of(user1));
+        Map<Long, List<GradeDefinition>> user1Grades = gradingService.getGradesWithoutCommentsForStudentsForItems(siteId, List.of(assId), List.of(user1));
         assertEquals(1, user1Grades.size());
         assertEquals(1, user1Grades.get(assId).size());
         assertEquals(user1, user1Grades.get(assId).get(0).getStudentUid());
 
         switchToInstructor();
-        Map<Long, List<GradeDefinition>> gradeMap = gradingService.getGradesWithoutCommentsForStudentsForItems(gradebook.getUid(), List.of(assId), List.of(user1));
+        Map<Long, List<GradeDefinition>> gradeMap = gradingService.getGradesWithoutCommentsForStudentsForItems(siteId, List.of(assId), List.of(user1));
 
         // The keys should be the assignment ids
         assertTrue(gradeMap.keySet().contains(assId));
@@ -632,21 +651,13 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
     }
 
     @Test
-    public void getUrlForAssignment() {
+    public void getUrlForAssignment() throws UserNotDefinedException {
 
-        Gradebook gradebook = createGradebook();
+        createGradebook();
 
         ToolConfiguration tc = mock(ToolConfiguration.class);
         when(tc.getId()).thenReturn("123456");
-
-
-        Site site = mock(Site.class);
         when(site.getToolForCommonId("sakai.gradebookng")).thenReturn(tc);
-
-        try {
-            when(siteService.getSite(gradebook.getUid())).thenReturn(site);
-        } catch (Exception e) {
-        }
 
         String externalId = "bf3eeca2-1b97-4ead-b605-a8b50a0c6950";
         String reference = "/ref/" + externalId;
@@ -657,38 +668,31 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
         Date dueDate = new Date();
         String description = "The Sakai assignments tool";
 
-        gradingService.addExternalAssessment(gradebook.getUid(), externalId, "http://eggs.com", title, points, dueDate, description, "data", false, null, reference);
-        Assignment assignment = gradingService.getExternalAssignment(gradebook.getUid(), externalId);
+        gradingService.addExternalAssessment(siteId, externalId, "http://eggs.com", title, points, dueDate, description, "data", false, null, reference);
+        Assignment assignment = gradingService.getExternalAssignment(siteId, externalId);
         assertEquals(url, gradingService.getUrlForAssignment(assignment));
 
         // If the gradable reference hasn't been supplied, we should get the gradebook tool url
         String gradebookUrl = "/portal/directtool/" + tc.getId();
         title = "External Two";
-        gradingService.addExternalAssessment(gradebook.getUid(), "blah", "http://ham.com", title, points, dueDate, description, "data", false, null);
-        assignment = gradingService.getExternalAssignment(gradebook.getUid(), "blah");
+        gradingService.addExternalAssessment(siteId, "blah", "http://ham.com", title, points, dueDate, description, "data", false, null);
+        assignment = gradingService.getExternalAssignment(siteId, "blah");
         assertEquals(gradebookUrl, gradingService.getUrlForAssignment(assignment));
     }
 
-    private Long createAssignment1(Gradebook gradebook) {
-
-        when(securityService.unlock(GradingAuthz.PERMISSION_EDIT_ASSIGNMENTS, "/site/" + gradebook.getUid())).thenReturn(true);
-        //when(siteService.siteReference(gradebook.getUid())).thenReturn("/site/" + gradebook.getUid());
-
-        return gradingService.addAssignment(gradebook.getUid(), ass1);
+    private Long createAssignment1() {
+        return gradingService.addAssignment(siteId, ass1);
     }
 
-    private Long createAssignment2(Gradebook gradebook) {
-
-        when(securityService.unlock(GradingAuthz.PERMISSION_EDIT_ASSIGNMENTS, "/site/" + gradebook.getUid())).thenReturn(true);
-        //when(siteService.siteReference(gradebook.getUid())).thenReturn("/site/" + gradebook.getUid());
-
-        return gradingService.addAssignment(gradebook.getUid(), ass2);
+    private Long createAssignment2() {
+        when(securityService.unlock(GradingAuthz.PERMISSION_EDIT_ASSIGNMENTS, "/site/" + siteId)).thenReturn(true);
+        return gradingService.addAssignment(siteId, ass2);
     }
 
 
-    private void addCategories(Gradebook gradebook) {
+    private void addCategories() {
 
-        GradebookInformation gradebookInformation = gradingService.getGradebookInformation(gradebook.getUid());
+        GradebookInformation gradebookInformation = gradingService.getGradebookInformation(siteId);
 
         var cd1 = new CategoryDefinition();
         cd1.setName(cat1Name);
@@ -716,26 +720,21 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
 
         gradebookInformation.setCategories(cats);
 
-        gradingService.updateGradebookSettings(gradebook.getUid(), gradebookInformation);
+        gradingService.updateGradebookSettings(siteId, gradebookInformation);
 
     }
 
-    private Gradebook createGradebook() {
-
+    private Gradebook createGradebook() throws UserNotDefinedException {
         switchToInstructor();
-
-        return gradingService.addGradebook(siteId);
+        return gradingService.getGradebook(siteId);
     }
 
-    private void switchToInstructor() {
+    private void switchToInstructor() throws UserNotDefinedException {
 
         when(sessionManager.getCurrentSessionUserId()).thenReturn(instructor);
         when(securityService.unlock(GradingAuthz.PERMISSION_EDIT_ASSIGNMENTS, "/site/" + siteId)).thenReturn(true);
         when(securityService.unlock(GradingAuthz.PERMISSION_GRADE_ALL, "/site/" + siteId)).thenReturn(true);
-        try {
-            when(userDirectoryService.getUser(instructor)).thenReturn(instructorUser);
-        } catch (UserNotDefinedException unde) {
-        }
+        when(userDirectoryService.getUser(instructor)).thenReturn(instructorUser);
     }
 
     private void switchToUser1() {

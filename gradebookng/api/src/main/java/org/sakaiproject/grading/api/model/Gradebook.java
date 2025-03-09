@@ -28,13 +28,16 @@ import lombok.ToString;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
+import org.hibernate.annotations.GenericGenerator;
 import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.springframework.data.PersistableEntity;
 
@@ -51,20 +54,22 @@ import org.sakaiproject.springframework.data.PersistableEntity;
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString(onlyExplicitlyIncluded = true)
-public class Gradebook implements PersistableEntity<Long>, Serializable {
+public class Gradebook implements PersistableEntity<String>, Serializable {
 
     @Id
-    @GeneratedValue
-    @Column(name = "ID")
-    @ToString.Include
-    private Long id;
-
-    @Column(name = "GRADEBOOK_UID", unique = true, nullable = false)
-    @ToString.Include
+    @Column(name = "ID", length = 36, nullable = false)
     @EqualsAndHashCode.Include
-    private String uid;
+    @GeneratedValue(generator = "uuid")
+    @GenericGenerator(name = "uuid", strategy = "uuid2")
+    @ToString.Include
+    private String id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "SITE_ID", referencedColumnName = "SITE_ID")
+    private GradebookManager gradebookManager;
 
     @Column(name = "VERSION", nullable = false)
+    @Version
     private Integer version = 0;
 
     @Column(name = "NAME", nullable = false)

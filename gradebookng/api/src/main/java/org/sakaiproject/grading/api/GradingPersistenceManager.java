@@ -26,8 +26,10 @@ import org.sakaiproject.grading.api.model.Category;
 import org.sakaiproject.grading.api.model.Comment;
 import org.sakaiproject.grading.api.model.CourseGrade;
 import org.sakaiproject.grading.api.model.CourseGradeRecord;
+import org.sakaiproject.grading.api.model.GradableObject;
 import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.grading.api.model.GradebookAssignment;
+import org.sakaiproject.grading.api.model.GradebookManager;
 import org.sakaiproject.grading.api.model.GradebookProperty;
 import org.sakaiproject.grading.api.model.GradeMapping;
 import org.sakaiproject.grading.api.model.GradingEvent;
@@ -37,13 +39,20 @@ import org.sakaiproject.grading.api.model.Permission;
 
 public interface GradingPersistenceManager {
 
+    void createGradebookManager(GradebookManager gradebookManager);
+
+    GradebookManager saveGradebookManager(GradebookManager gradebookManager);
+
+    Optional<GradebookManager> getGradebookManager(String id);
+
+    boolean existsGradebookManager(String id);
+
     Gradebook saveGradebook(Gradebook gradebook);
-    Optional<Gradebook> getGradebook(String gradebookUid);
-    Optional<Gradebook> getGradebook(Long gradebookId);
-    void deleteGradebook(String gradebookUid);
+    Optional<Gradebook> getGradebook(String gradebookId);
+    void deleteGradebook(String gradebookId);
 
     CourseGrade saveCourseGrade(CourseGrade courseGrade);
-    List<CourseGrade> getCourseGradesByGradebookId(Long gradebookId);
+    List<CourseGrade> getCourseGradesByGradebookId(String gradebookId);
 
     GradingScale saveGradingScale(GradingScale gradingScale);
     List<GradingScale> getAvailableGradingScales();
@@ -52,34 +61,34 @@ public interface GradingPersistenceManager {
 
     LetterGradePercentMapping saveLetterGradePercentMapping(LetterGradePercentMapping lgpm);
     List<LetterGradePercentMapping> getDefaultLetterGradePercentMappings();
-    Optional<LetterGradePercentMapping> getLetterGradePercentMappingForGradebook(Long gradebookId);
+    Optional<LetterGradePercentMapping> getLetterGradePercentMappingForGradebook(String gradebookId);
 
     Optional<GradeMapping> getGradeMapping(Long id);
     GradeMapping saveGradeMapping(GradeMapping gradeMapping);
 
     GradebookAssignment saveAssignment(GradebookAssignment assignment);
     void deleteAssignment(GradebookAssignment assignment);
-    Optional<GradebookAssignment> getAssignmentByNameAndGradebook(String name, String gradebookUid);
-    List<GradebookAssignment> getAssignmentsForGradebook(Long gradebookId);
+    Optional<GradebookAssignment> getAssignmentByNameAndGradebook(String name, String gradebookId);
+    List<GradebookAssignment> getAssignmentsForGradebook(String gradebookId);
     List<GradebookAssignment> getAssignmentsForCategory(Long categoryId);
-    Optional<GradebookAssignment> getAssignmentByIdAndGradebook(Long id, String gradebookUid);
+    Optional<GradebookAssignment> getAssignmentByIdAndGradebook(Long id, String gradebookId);
     Optional<GradebookAssignment> getAssignmentById(Long id);
-    List<GradebookAssignment> getCountedAssignmentsForGradebook(Long gradebookId);
-    List<GradebookAssignment> getCountedAndGradedAssignmentsForGradebook(Long gradebookId);
+    List<GradebookAssignment> getCountedAssignmentsForGradebook(String gradebookId);
+    List<GradebookAssignment> getCountedAndGradedAssignmentsForGradebook(String gradebookId);
     Long countAssignmentsByGradbookAndExternalId(String gradebookUid, String externalId);
     Long countAssignmentsByNameAndGradebookUid(String name, String gradebookUid);
     Long countDuplicateAssignments(GradebookAssignment assignment);
-    Optional<GradebookAssignment> getExternalAssignment(String gradebookUid, String externalId);
+    Optional<GradebookAssignment> getExternalAssignment(String gradebookId, String externalId);
     GradebookAssignment saveGradebookAssignment(GradebookAssignment assignment);
 
-    Optional<Comment> getInternalComment(String studentUid, String gradebookUid, Long assignmentId);
+    Optional<Comment> getInternalComment(String studentUid, String gradebookId, Long gradableId);
     Comment saveComment(Comment comment);
     List<Comment> getCommentsForStudents(GradebookAssignment assignment, Collection<String> studentIds);
-    void deleteInternalComment(String studentUid, String gradebookUid, Long assignmentId);
+    void deleteInternalComment(String studentUid, String gradebookId, Long assignmentId);
     int deleteCommentsForAssignment(GradebookAssignment assignment);
 
     Optional<Category> getCategory(Long categoryId);
-    List<Category> getCategoriesForGradebook(Long gradebookId);
+    List<Category> getCategoriesForGradebook(String gradebookId);
     boolean isCategoryDefined(String name, Gradebook gradebook);
     boolean existsDuplicateCategory(String name, Gradebook gradebook, Long id);
     Category saveCategory(Category category);
@@ -87,15 +96,15 @@ public interface GradingPersistenceManager {
     boolean isAssignmentDefined(Long assignmentId);
 
     List<Permission> getPermissionsForGradebook(Long gradebookId);
-    List<Permission> getPermissionsForGradebookAndUser(Long gradebookId, String userId);
-    List<Permission> getPermissionsForGradebookAndUserAndCategories(Long gradebookId, String userId, List<Long> categoryIds);
-    List<Permission> getUncategorisedPermissionsForGradebookAndUserAndFunctions(Long gradebookId, String userId, List<String> functionNames);
-    List<Permission> getUngroupedPermissionsForGradebookAndUserAndFunctions(Long gradebookId, String userId, List<String> functionNames);
-    List<Permission> getUngroupedPermissionsForGradebookAndUserAndCategories(Long gradebookId, String userId, List<Long> categoryIds);
+    List<Permission> getPermissionsForGradebookAndUser(String gradebookId, String userId);
+    List<Permission> getPermissionsForGradebookAndUserAndCategories(String gradebookId, String userId, List<Long> categoryIds);
+    List<Permission> getUncategorisedPermissionsForGradebookAndUserAndFunctions(String gradebookId, String userId, List<String> functionNames);
+    List<Permission> getUngroupedPermissionsForGradebookAndUserAndFunctions(String gradebookId, String userId, List<String> functionNames);
+    List<Permission> getUngroupedPermissionsForGradebookAndUserAndCategories(String gradebookId, String userId, List<Long> categoryIds);
     List<Permission> getPermissionsForGradebookAndCategories(Long gradebookId, List<Long> categoryIds);
-    List<Permission> getPermissionsForGradebookAnyGroupAnyCategory(Long gradebookId, String userId);
-    List<Permission> getUncategorisedPermissionsForGradebookAndGroups(Long gradebookId, String userId, List<String> groupIds);
-    List<Permission> getPermissionsForGradebookAndGroups(Long gradebookId, String userId, List<String> groupIds);
+    List<Permission> getPermissionsForGradebookAnyGroupAnyCategory(String gradebookId, String userId);
+    List<Permission> getUncategorisedPermissionsForGradebookAndGroups(String gradebookId, String userId, List<String> groupIds);
+    List<Permission> getPermissionsForGradebookAndGroups(String gradebookId, String userId, List<String> groupIds);
     Permission savePermission(Permission permission);
     void deletePermission(Permission permission);
 
@@ -103,16 +112,16 @@ public interface GradingPersistenceManager {
     CourseGradeRecord saveCourseGradeRecord(CourseGradeRecord courseGradeRecord);
     List<CourseGradeRecord> getCourseGradeOverrides(Gradebook gradebook);
     Optional<CourseGradeRecord> getCourseGradeRecord(Gradebook gradebook, String studentId);
-    boolean hasCourseGradeRecordEntries(Long gradebookId, Set<String> studentIds);
+    boolean hasCourseGradeRecordEntries(String gradebookId, Set<String> studentIds);
 
-    List<AssignmentGradeRecord> getAllAssignmentGradeRecordsForGradebook(Long gradebookId);
+    List<AssignmentGradeRecord> getAllAssignmentGradeRecordsForGradebook(String gradebookId);
     List<AssignmentGradeRecord> getAllAssignmentGradeRecordsForAssignment(Long assignmentId);
     AssignmentGradeRecord getAssignmentGradeRecordForAssignmentAndStudent(Long assignmentId, String studentUid);
     AssignmentGradeRecord saveAssignmentGradeRecord(AssignmentGradeRecord record);
     int deleteGradeRecordsForAssignment(GradebookAssignment assignment);
     List<AssignmentGradeRecord> getAssignmentGradeRecordsForAssignmentIdsAndStudentIds(
                 List<Long> gradableObjectIds, List<String> studentUids);
-    List<AssignmentGradeRecord> getAssignmentGradeRecordsForGradebookAndStudents(Long gradebookId, Collection<String> studentIds);
+    List<AssignmentGradeRecord> getAssignmentGradeRecordsForGradebookAndStudents(String gradebookId, Collection<String> studentIds);
     List<AssignmentGradeRecord> getAssignmentGradeRecordsForAssignmentAndStudents(GradebookAssignment assignment, Collection<String> studentIds);
 
     GradingEvent saveGradingEvent(GradingEvent ge);
@@ -122,4 +131,6 @@ public interface GradingPersistenceManager {
 
     Optional<GradebookProperty> getGradebookProperty(String name);
     GradebookProperty saveGradebookProperty(GradebookProperty property);
+
+    Optional<GradableObject> getGradableByIdAndGradebook(String gradebookId, Long gradableObjectId);
 }

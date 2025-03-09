@@ -41,8 +41,8 @@ import javax.persistence.criteria.Root;
 public class CommentRepositoryImpl extends SpringCrudRepositoryImpl<Comment, Long>  implements CommentRepository {
 
     @Transactional(readOnly = true)
-    public Optional<Comment> findByStudentIdAndGradableObject_Gradebook_UidAndGradableObject_IdAndGradableObject_Removed(
-            String studentUid, String gradebookUid, Long assignmentId, Boolean removed) {
+    public Optional<Comment> findByStudentIdAndGradableObject_GradebookIdAndGradableObjectIdAndGradableObject_Removed(
+            String studentUid, String gradebookId, Long assignmentId, Boolean removed) {
 
         Session session = sessionFactory.getCurrentSession();
         CriteriaBuilder cb = session.getCriteriaBuilder();
@@ -51,7 +51,7 @@ public class CommentRepositoryImpl extends SpringCrudRepositoryImpl<Comment, Lon
         Join<Comment, GradableObject> go = comment.join("gradableObject");
         Join<GradableObject, Gradebook> gb = go.join("gradebook");
         query.where(cb.and(cb.equal(comment.get("studentId"), studentUid),
-                            cb.equal(gb.get("uid"), gradebookUid),
+                            cb.equal(gb.get("id"), gradebookId),
                             cb.equal(go.get("id"), assignmentId)));
         return session.createQuery(query).uniqueResultOptional();
     }
@@ -67,14 +67,14 @@ public class CommentRepositoryImpl extends SpringCrudRepositoryImpl<Comment, Lon
     }
 
     @Transactional(readOnly = true)
-    public List<Comment> findByGradableObject_Gradebook_Uid(String gradebookUid) {
+    public List<Comment> findByGradableObjectGradebookId(String gradebookId) {
 
         Session session = sessionFactory.getCurrentSession();
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaQuery<Comment> query = cb.createQuery(Comment.class);
         Root<Comment> comment = query.from(Comment.class);
         Join<GradableObject, Gradebook> gb = comment.join("gradableObject").join("gradebook");
-        return session.createQuery(query.where(cb.equal(gb.get("uid"), gradebookUid))).list();
+        return session.createQuery(query.where(cb.equal(gb.get("id"), gradebookId))).list();
     }
 
     @Transactional

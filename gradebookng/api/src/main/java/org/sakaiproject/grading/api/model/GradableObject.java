@@ -64,11 +64,9 @@ public abstract class GradableObject implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "GRADEBOOK_ID", nullable = false)
-    @EqualsAndHashCode.Include
     protected Gradebook gradebook;
 
     @Column(name = "NAME", nullable = false)
-    @EqualsAndHashCode.Include
     @ToString.Include
     protected String name;
 

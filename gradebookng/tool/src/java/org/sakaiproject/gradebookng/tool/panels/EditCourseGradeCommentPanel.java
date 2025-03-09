@@ -49,7 +49,7 @@ public class EditCourseGradeCommentPanel extends BasePanel {
         final Map<String, Object> modelData = (Map<String, Object>) getDefaultModelObject();
         final Long courseGradeId = (Long) modelData.get("courseGradeId");
         final String studentUuid = (String) modelData.get("studentUuid");
-        final Long gradebookId = (Long) modelData.get("gradebookId");
+        final String gradebookId = (String) modelData.get("gradebookId");
         // fetch current comment
         this.comment = this.businessService.getAssignmentGradeComment(businessService.getCurrentSiteId(), courseGradeId, studentUuid);
         // form model

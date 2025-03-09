@@ -19,7 +19,6 @@ import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaDelete;
@@ -34,20 +33,19 @@ import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.grading.api.model.GradebookAssignment;
 import org.sakaiproject.grading.api.model.GradingEvent;
 import org.sakaiproject.grading.api.repository.GradingEventRepository;
-import org.sakaiproject.hibernate.HibernateCriterionUtils;
 import org.sakaiproject.springframework.data.SpringCrudRepositoryImpl;
 
 public class GradingEventRepositoryImpl extends SpringCrudRepositoryImpl<GradingEvent, Long>  implements GradingEventRepository {
 
     @Transactional(readOnly = true)
-    public List<GradingEvent> findByGradableObject_Gradebook_Uid(String gradebookUid) {
+    public List<GradingEvent> findByGradableObject_GradebookId(String gradebookId) {
 
         Session session = sessionFactory.getCurrentSession();
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaQuery<GradingEvent> query = cb.createQuery(GradingEvent.class);
         Root<GradingEvent> ge = query.from(GradingEvent.class);
         Join<GradingEvent, Gradebook> gb = ge.join("gradableObject").join("gradebook");
-        query.where(cb.equal(gb.get("uid"), gradebookUid));
+        query.where(cb.equal(gb.get("id"), gradebookId));
         return session.createQuery(query).list();
     }
 

@@ -78,19 +78,31 @@ public class CourseGrade extends GradableObject implements PersistableEntity<Lon
      * calculation.
      */
     public void calculateStatistics(final Collection<CourseGradeRecord> gradeRecords, final int numEnrollments) {
-        // Ungraded but enrolled students count as if they have 0% in the course.
-        int numScored = numEnrollments - gradeRecords.size();
+        if (gradeRecords == null) {
+            this.mean = null;
+            this.averageScore = null;
+            return;
+        }
+
+        int numScored = 0;
         BigDecimal total = new BigDecimal("0");
         BigDecimal average = new BigDecimal("0");
 
         for (final CourseGradeRecord record : gradeRecords) {
             final Double score = record.getGradeAsPercentage();
 
-            // Skip manual-only course grades.
+            // Skip manual-only course grades
             if ((record.getEnteredGrade() != null) && (score == null)) {
                 continue;
             }
+
+            if (score != null) {
+                total = total.add(BigDecimal.valueOf(score));
+                average = average.add(BigDecimal.valueOf(score));
+                numScored++;
+            }
         }
+
         if (numScored == 0) {
             this.mean = null;
             this.averageScore = null;

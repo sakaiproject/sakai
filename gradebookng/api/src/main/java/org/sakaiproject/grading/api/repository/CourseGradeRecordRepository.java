@@ -29,6 +29,6 @@ public interface CourseGradeRecordRepository extends SpringCrudRepository<Course
     List<CourseGradeRecord> findByGradableObject_Id(Long id);
     List<CourseGradeRecord> findByGradableObject_GradebookAndEnteredGradeNotNull(Gradebook gradebook);
     Optional<CourseGradeRecord> findByGradableObject_GradebookAndStudentId(Gradebook gradebook, String studentId);
-    Long countByGradableObject_Gradebook_IdAndEnteredGradeNotNullAndStudentIdIn(Long gradebookId, Set<String> studentIds);
-    List<CourseGradeRecord> findByGradableObject_Gradebook_Uid(String gradebookUid);
+    Long countByGradableObject_Gradebook_IdAndEnteredGradeNotNullAndStudentIdIn(String gradebookId, Set<String> studentIds);
+    List<CourseGradeRecord> findByGradableObject_GradebookId(String gradebookId);
 }

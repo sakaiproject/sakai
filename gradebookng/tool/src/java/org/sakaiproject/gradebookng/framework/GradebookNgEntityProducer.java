@@ -130,7 +130,7 @@ public class GradebookNgEntityProducer implements EntityProducer, EntityTransfer
 			return "ERROR: Gradebook not found in site\n";
 		}
 
-		GradebookInformation settings = this.gradingService.getGradebookInformation(gradebook.getUid());
+		GradebookInformation settings = this.gradingService.getGradebookInformation(gradebook.getId());
 		List<GradeMappingDefinition> gradeMappings = settings.getGradeMappings();
 		String configuredGradeMappingId = settings.getSelectedGradeMappingId();
 		GradeMappingDefinition configuredGradeMapping = gradeMappings.stream()
@@ -285,7 +285,7 @@ public class GradebookNgEntityProducer implements EntityProducer, EntityTransfer
 
 		final Gradebook gradebook = (Gradebook) this.gradingService.getGradebook(fromContext);
 
-		final GradebookInformation gradebookInformation = this.gradingService.getGradebookInformation(gradebook.getUid());
+		final GradebookInformation gradebookInformation = this.gradingService.getGradebookInformation(gradebook.getId());
 
 		final List<Assignment> assignments = this.gradingService.getAssignments(fromContext);
 
@@ -300,11 +300,11 @@ public class GradebookNgEntityProducer implements EntityProducer, EntityTransfer
 			final Gradebook gradebook = (Gradebook) this.gradingService.getGradebook(toContext);
 
 			// remove assignments in 'to' site
-			final List<Assignment> assignments = this.gradingService.getAssignments(gradebook.getUid());
+			final List<Assignment> assignments = this.gradingService.getAssignments(gradebook.getId());
 			assignments.forEach(a -> this.gradingService.removeAssignment(a.getId()));
 
 			// remove categories in 'to' site
-			final List<CategoryDefinition> categories = this.gradingService.getCategoryDefinitions(gradebook.getUid());
+			final List<CategoryDefinition> categories = this.gradingService.getCategoryDefinitions(gradebook.getId());
 			categories.forEach(c -> this.gradingService.removeCategory(c.getId()));
 		}
 

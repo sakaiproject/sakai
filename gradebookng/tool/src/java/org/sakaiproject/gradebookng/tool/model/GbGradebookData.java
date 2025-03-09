@@ -68,7 +68,7 @@ public class GbGradebookData {
 	private final List<StudentDefinition> students;
 	private final List<ColumnDefinition> columns;
 	private final Long courseGradeId;
-	private final Long gradebookId;
+	private final String gradebookId;
 	private final List<GbStudentGradeInfo> studentGradeInfoList;
 	private final List<CategoryDefinition> categories;
 	private final GradebookInformation settings;
@@ -206,7 +206,7 @@ public class GbGradebookData {
 		private ResourceLoader i18n;
 		private Map<String, Object> settings;
 		private Long courseGradeId;
-		private Long gradebookId;
+		private String gradebookId;
 		private int rowCount;
 		private int columnCount;
 
@@ -217,7 +217,7 @@ public class GbGradebookData {
 				final ResourceLoader i18n,
 				final Map<String, Object> settings,
 				final Long courseGradeId,
-				final Long gradebookId) {
+				final String gradebookId) {
 			this.students = students;
 			this.columns = columns;
 			this.courseGrades = courseGrades;

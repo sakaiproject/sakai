@@ -18,8 +18,10 @@ package org.sakaiproject.grading.impl;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.sakaiproject.grading.api.GradingPersistenceManager;
 import org.sakaiproject.grading.api.model.AssignmentGradeRecord;
@@ -27,8 +29,10 @@ import org.sakaiproject.grading.api.model.Category;
 import org.sakaiproject.grading.api.model.Comment;
 import org.sakaiproject.grading.api.model.CourseGrade;
 import org.sakaiproject.grading.api.model.CourseGradeRecord;
+import org.sakaiproject.grading.api.model.GradableObject;
 import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.grading.api.model.GradebookAssignment;
+import org.sakaiproject.grading.api.model.GradebookManager;
 import org.sakaiproject.grading.api.model.GradebookProperty;
 import org.sakaiproject.grading.api.model.GradeMapping;
 import org.sakaiproject.grading.api.model.GradingEvent;
@@ -43,6 +47,7 @@ import org.sakaiproject.grading.api.repository.CourseGradeRepository;
 import org.sakaiproject.grading.api.repository.CourseGradeRecordRepository;
 import org.sakaiproject.grading.api.repository.GradebookAssignmentRepository;
 import org.sakaiproject.grading.api.repository.GradebookRepository;
+import org.sakaiproject.grading.api.repository.GradebookManagerRepository;
 import org.sakaiproject.grading.api.repository.GradebookPropertyRepository;
 import org.sakaiproject.grading.api.repository.GradeMappingRepository;
 import org.sakaiproject.grading.api.repository.GradingEventRepository;
@@ -62,6 +67,7 @@ public class GradingPersistenceManagerImpl implements GradingPersistenceManager 
     @Autowired protected CourseGradeRecordRepository courseGradeRecordRepository;
     @Autowired protected GradebookAssignmentRepository gradebookAssignmentRepository;
     @Autowired protected GradebookRepository gradebookRepository;
+    @Autowired protected GradebookManagerRepository gradebookManagerRepository;
     @Autowired protected GradebookPropertyRepository gradebookPropertyRepository;
     @Autowired protected GradeMappingRepository gradeMappingRepository;
     @Autowired protected GradingEventRepository gradingEventRepository;
@@ -69,41 +75,67 @@ public class GradingPersistenceManagerImpl implements GradingPersistenceManager 
     @Autowired protected LetterGradePercentMappingRepository letterGradePercentMappingRepository;
     @Autowired protected PermissionRepository permissionRepository;
 
+    @Override
+    public void createGradebookManager(GradebookManager gradebookManager) {
+        gradebookManagerRepository.createGradebookManager(gradebookManager);
+    }
+
+    @Override
+    public GradebookManager saveGradebookManager(GradebookManager gradebookManager) {
+        return gradebookManagerRepository.save(gradebookManager);
+    }
+
+    @Override
+    public Optional<GradebookManager> getGradebookManager(String id) {
+        return gradebookManagerRepository.findById(id);
+    }
+
+    @Override
+    public boolean existsGradebookManager(String id) {
+        return gradebookManagerRepository.existsById(id);
+    }
+
+
     public Gradebook saveGradebook(Gradebook gradebook) {
         return gradebookRepository.save(gradebook);
     }
 
     @Transactional
-    public void deleteGradebook(String gradebookUid) {
+    public void deleteGradebook(String gradebookId) {
 
-        Gradebook gradebook = gradebookRepository.findByUid(gradebookUid)
-            .orElseThrow(() -> new IllegalArgumentException("No gradebook with uid " + gradebookUid));
-        Long gradebookId = gradebook.getId();
+        Gradebook gradebook = gradebookRepository.findById(gradebookId)
+            .orElseThrow(() -> new IllegalArgumentException("No gradebook with id " + gradebookId));
 
-        gradingEventRepository.deleteAll(gradingEventRepository.findByGradableObject_Gradebook_Uid(gradebookUid));
+        gradingEventRepository.deleteAll(gradingEventRepository.findByGradableObject_GradebookId(gradebookId));
 
-        commentRepository.deleteAll(commentRepository.findByGradableObject_Gradebook_Uid(gradebookUid));
+        commentRepository.deleteAll(commentRepository.findByGradableObjectGradebookId(gradebookId));
 
-        assignmentGradeRecordRepository.deleteAll(assignmentGradeRecordRepository.findByGradableObject_Gradebook_Uid(gradebookUid));
+        assignmentGradeRecordRepository.deleteAll(assignmentGradeRecordRepository.findByGradableObject_GradebookId(gradebookId));
 
-        courseGradeRecordRepository.deleteAll(courseGradeRecordRepository.findByGradableObject_Gradebook_Uid(gradebookUid));
+        courseGradeRecordRepository.deleteAll(courseGradeRecordRepository.findByGradableObject_GradebookId(gradebookId));
 
-        gradebookAssignmentRepository.deleteAll(gradebookAssignmentRepository.findByGradebook_Uid(gradebookUid));
+        gradebookAssignmentRepository.deleteAll(gradebookAssignmentRepository.findByGradebookId(gradebookId));
 
-        courseGradeRepository.deleteAll(courseGradeRepository.findByGradebook_Uid(gradebookUid));
+        courseGradeRepository.deleteAll(courseGradeRepository.findByGradebookId(gradebookId));
 
-        categoryRepository.deleteAll(categoryRepository.findByGradebook_Uid(gradebookUid));
+        categoryRepository.deleteAll(categoryRepository.findByGradebookId(gradebookId));
 
-        gradeMappingRepository.deleteAll(gradeMappingRepository.findByGradebook_Uid(gradebookUid));
+        gradeMappingRepository.deleteAll(gradeMappingRepository.findByGradebookId(gradebookId));
 
-        gradebookRepository.delete(gradebook);
+        GradebookManager gradebookManager = gradebook.getGradebookManager();
+        Set<String> contextIds = gradebookManager.getContextMapping().entrySet().stream()
+                .filter(e -> e.getValue().equals(gradebookId))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toSet());
+        gradebookManager.getGroups().removeAll(contextIds);
+        gradebookManager.getContextMapping().entrySet().removeIf(e -> e.getValue().equals(gradebookId));
+        gradebookManager.getGradebooks().removeIf(g -> g.getId().equals(gradebookId));
+        gradebook.setGradebookManager(null);
+        gradebookManagerRepository.save(gradebookManager);
+        gradebookRepository.deleteById(gradebookId);
     }
 
-    public Optional<Gradebook> getGradebook(String gradebookUid) {
-        return gradebookRepository.findByUid(gradebookUid);
-    }
-
-    public Optional<Gradebook> getGradebook(Long gradebookId) {
+    public Optional<Gradebook> getGradebook(String gradebookId) {
         return gradebookRepository.findById(gradebookId);
     }
 
@@ -111,8 +143,8 @@ public class GradingPersistenceManagerImpl implements GradingPersistenceManager 
         return courseGradeRepository.save(courseGrade);
     }
 
-    public List<CourseGrade> getCourseGradesByGradebookId(Long gradebookId) {
-        return courseGradeRepository.findByGradebook_Id(gradebookId);
+    public List<CourseGrade> getCourseGradesByGradebookId(String gradebookId) {
+        return courseGradeRepository.findByGradebookId(gradebookId);
     }
 
     public List<GradingScale> getAvailableGradingScales() {
@@ -131,7 +163,7 @@ public class GradingPersistenceManagerImpl implements GradingPersistenceManager 
         return letterGradePercentMappingRepository.findByMappingType(1);
     }
 
-    public Optional<LetterGradePercentMapping> getLetterGradePercentMappingForGradebook(Long gradebookId) {
+    public Optional<LetterGradePercentMapping> getLetterGradePercentMappingForGradebook(String gradebookId) {
         return letterGradePercentMappingRepository.findByGradebookIdAndMappingType(gradebookId, 2);
     }
 
@@ -155,28 +187,28 @@ public class GradingPersistenceManagerImpl implements GradingPersistenceManager 
         return gradebookAssignmentRepository.save(assignment);
     }
 
-    public Optional<GradebookAssignment> getAssignmentByNameAndGradebook(String name, String gradebookUid) {
-        return gradebookAssignmentRepository.findByNameAndGradebook_UidAndRemoved(name, gradebookUid, false);
+    public Optional<GradebookAssignment> getAssignmentByNameAndGradebook(String name, String gradebookId) {
+        return gradebookAssignmentRepository.findByNameAndGradebookIdAndRemoved(name, gradebookId, false);
     }
 
-    public List<GradebookAssignment> getAssignmentsForGradebook(Long gradebookId) {
-        return gradebookAssignmentRepository.findByGradebook_IdAndRemoved(gradebookId, false);
+    public List<GradebookAssignment> getAssignmentsForGradebook(String gradebookId) {
+        return gradebookAssignmentRepository.findByGradebookIdAndRemoved(gradebookId, false);
     }
 
     public List<GradebookAssignment> getAssignmentsForCategory(Long categoryId) {
-        return gradebookAssignmentRepository.findByCategory_IdAndRemoved(categoryId, false);
+        return gradebookAssignmentRepository.findByCategoryIdAndRemoved(categoryId, false);
     }
 
-    public List<GradebookAssignment> getCountedAssignmentsForGradebook(Long gradebookId) {
-        return gradebookAssignmentRepository.findByGradebook_IdAndRemovedAndNotCounted(gradebookId, false, false);
+    public List<GradebookAssignment> getCountedAssignmentsForGradebook(String gradebookId) {
+        return gradebookAssignmentRepository.findByGradebookIdAndRemovedAndNotCounted(gradebookId, false, false);
     }
 
-    public List<GradebookAssignment> getCountedAndGradedAssignmentsForGradebook(Long gradebookId) {
-        return gradebookAssignmentRepository.findByGradebook_IdAndRemovedAndNotCountedAndUngraded(gradebookId, false, false, false);
+    public List<GradebookAssignment> getCountedAndGradedAssignmentsForGradebook(String gradebookId) {
+        return gradebookAssignmentRepository.findByGradebookIdAndRemovedAndNotCountedAndUngraded(gradebookId, false, false, false);
     }
 
-    public Optional<GradebookAssignment> getAssignmentByIdAndGradebook(Long id, String gradebookUid) {
-        return gradebookAssignmentRepository.findByIdAndGradebook_UidAndRemoved(id, gradebookUid, false);
+    public Optional<GradebookAssignment> getAssignmentByIdAndGradebook(Long id, String gradebookId) {
+        return gradebookAssignmentRepository.findByIdAndGradebookIdAndRemoved(id, gradebookId, false);
     }
 
     public Optional<GradebookAssignment> getAssignmentById(Long id) {
@@ -184,11 +216,11 @@ public class GradingPersistenceManagerImpl implements GradingPersistenceManager 
     }
 
     public Long countAssignmentsByGradbookAndExternalId(String gradebookUid, String externalId) {
-        return gradebookAssignmentRepository.countByGradebook_UidAndExternalId(gradebookUid, externalId);
+        return gradebookAssignmentRepository.countByGradebookIdAndExternalId(gradebookUid, externalId);
     }
 
     public Long countAssignmentsByNameAndGradebookUid(String name, String gradebookUid) {
-        return gradebookAssignmentRepository.countByNameAndGradebook_UidAndRemoved(name, gradebookUid, false);
+        return gradebookAssignmentRepository.countByNameAndGradebookIdAndRemoved(name, gradebookUid, false);
     }
 
     public Long countDuplicateAssignments(GradebookAssignment assignment) {
@@ -201,23 +233,23 @@ public class GradingPersistenceManagerImpl implements GradingPersistenceManager 
         gradebookAssignmentRepository.delete(assignment);
     }
 
-    public Optional<GradebookAssignment> getExternalAssignment(String gradebookUid, String externalId) {
-        return gradebookAssignmentRepository.findByGradebook_UidAndExternalId(gradebookUid, externalId);
+    public Optional<GradebookAssignment> getExternalAssignment(String gradebookId, String externalId) {
+
+        return gradebookAssignmentRepository.findByGradebookIdAndExternalId(gradebookId, externalId);
     }
 
     public GradebookAssignment saveGradebookAssignment(GradebookAssignment assignment) {
         return gradebookAssignmentRepository.save(assignment);
     }
 
-    public Optional<Comment> getInternalComment(String studentUid, String gradebookUid, Long assignmentId) {
-
-        return commentRepository.findByStudentIdAndGradableObject_Gradebook_UidAndGradableObject_IdAndGradableObject_Removed(
-            studentUid, gradebookUid, assignmentId, false);
+    public Optional<Comment> getInternalComment(String studentUid, String gradebookId, Long gradableId) {
+        return commentRepository.findByStudentIdAndGradableObject_GradebookIdAndGradableObjectIdAndGradableObject_Removed(
+            studentUid, gradebookId, gradableId, false);
     }
 
-    public void deleteInternalComment(String studentUid, String gradebookUid, Long assignmentId) {
+    public void deleteInternalComment(String studentUid, String gradebookId, Long assignmentId) {
 
-        getInternalComment(studentUid, gradebookUid, assignmentId).ifPresent(commentRepository::delete);
+        getInternalComment(studentUid, gradebookId, assignmentId).ifPresent(commentRepository::delete);
     }
 
     public Comment saveComment(Comment comment) {
@@ -236,7 +268,7 @@ public class GradingPersistenceManagerImpl implements GradingPersistenceManager 
         return categoryRepository.findById(categoryId);
     }
 
-    public List<Category> getCategoriesForGradebook(Long gradebookId) {
+    public List<Category> getCategoriesForGradebook(String gradebookId) {
         return categoryRepository.findByGradebook_IdAndRemoved(gradebookId, false);
     }
 
@@ -256,7 +288,7 @@ public class GradingPersistenceManagerImpl implements GradingPersistenceManager 
         return gradebookAssignmentRepository.existsByIdAndRemoved(id, false);
     }
 
-    public List<Permission> getPermissionsForGradebookAndUser(Long gradebookId, String userId) {
+    public List<Permission> getPermissionsForGradebookAndUser(String gradebookId, String userId) {
         return permissionRepository.findByGradebookIdAndUserId(gradebookId, userId);
     }
 
@@ -264,19 +296,19 @@ public class GradingPersistenceManagerImpl implements GradingPersistenceManager 
         return permissionRepository.findByGradebookId(gradebookId);
     }
 
-    public List<Permission> getPermissionsForGradebookAndUserAndCategories(Long gradebookId, String userId, List<Long> categoryIds) {
+    public List<Permission> getPermissionsForGradebookAndUserAndCategories(String gradebookId, String userId, List<Long> categoryIds) {
         return permissionRepository.findByGradebookIdAndUserIdAndCategoryIdIn(gradebookId, userId, categoryIds);
     }
 
-    public List<Permission> getUncategorisedPermissionsForGradebookAndUserAndFunctions(Long gradebookId, String userId, List<String> functions) {
+    public List<Permission> getUncategorisedPermissionsForGradebookAndUserAndFunctions(String gradebookId, String userId, List<String> functions) {
         return permissionRepository.findByGradebookIdAndUserIdAndCategoryIdIsNullAndFunctionNameIn(gradebookId, userId, functions);
     }
 
-    public List<Permission> getUngroupedPermissionsForGradebookAndUserAndFunctions(Long gradebookId, String userId, List<String> functions) {
+    public List<Permission> getUngroupedPermissionsForGradebookAndUserAndFunctions(String gradebookId, String userId, List<String> functions) {
         return permissionRepository.findByGradebookIdAndUserIdAndGroupIdIsNullAndFunctionNameIn(gradebookId, userId, functions);
     }
 
-    public List<Permission> getUngroupedPermissionsForGradebookAndUserAndCategories(Long gradebookId, String userId, List<Long> categoryIds) {
+    public List<Permission> getUngroupedPermissionsForGradebookAndUserAndCategories(String gradebookId, String userId, List<Long> categoryIds) {
         return permissionRepository.findByGradebookIdAndUserIdAndGroupIdIsNullAndCategoryIdIn(gradebookId, userId, categoryIds);
     }
 
@@ -284,15 +316,15 @@ public class GradingPersistenceManagerImpl implements GradingPersistenceManager 
         return permissionRepository.findByGradebookIdAndCategoryIdIn(gradebookId, categoryIds);
     }
 
-    public List<Permission> getPermissionsForGradebookAnyGroupAnyCategory(Long gradebookId, String userId) {
+    public List<Permission> getPermissionsForGradebookAnyGroupAnyCategory(String gradebookId, String userId) {
         return permissionRepository.findByGradebookIdAndUserIdAndCategoryIdIsNullAndGroupIdIsNull(gradebookId, userId);
     }
 
-    public List<Permission> getUncategorisedPermissionsForGradebookAndGroups(Long gradebookId, String userId, List<String> groupIds) {
+    public List<Permission> getUncategorisedPermissionsForGradebookAndGroups(String gradebookId, String userId, List<String> groupIds) {
         return permissionRepository.findByGradebookIdAndUserIdAndCategoryIdIsNullAndGroupIdIn(gradebookId, userId, groupIds);
     }
 
-    public List<Permission> getPermissionsForGradebookAndGroups(Long gradebookId, String userId, List<String> groupIds) {
+    public List<Permission> getPermissionsForGradebookAndGroups(String gradebookId, String userId, List<String> groupIds) {
         return permissionRepository.findByGradebookIdAndUserIdAndGroupIdIn(gradebookId, userId, groupIds);
     }
 
@@ -320,11 +352,11 @@ public class GradingPersistenceManagerImpl implements GradingPersistenceManager 
         return courseGradeRecordRepository.findByGradableObject_GradebookAndStudentId(gradebook, studentId);
     }
 
-    public boolean hasCourseGradeRecordEntries(Long gradebookId, Set<String> studentIds) {
+    public boolean hasCourseGradeRecordEntries(String gradebookId, Set<String> studentIds) {
         return courseGradeRecordRepository.countByGradableObject_Gradebook_IdAndEnteredGradeNotNullAndStudentIdIn(gradebookId, studentIds) > 0L;
     }
 
-    public List<AssignmentGradeRecord> getAllAssignmentGradeRecordsForGradebook(Long gradebookId) {
+    public List<AssignmentGradeRecord> getAllAssignmentGradeRecordsForGradebook(String gradebookId) {
 
         return assignmentGradeRecordRepository
             .findByGradableObject_Gradebook_IdAndGradableObject_RemovedOrderByPointsEarned(gradebookId, false);
@@ -340,7 +372,7 @@ public class GradingPersistenceManagerImpl implements GradingPersistenceManager 
         return assignmentGradeRecordRepository.findByGradableObject_IdAndStudentId(assignmentId, studentUid).orElse(null);
     }
 
-    public List<AssignmentGradeRecord> getAssignmentGradeRecordsForGradebookAndStudents(Long gradebookId, Collection<String> studentIds) {
+    public List<AssignmentGradeRecord> getAssignmentGradeRecordsForGradebookAndStudents(String gradebookId, Collection<String> studentIds) {
         return assignmentGradeRecordRepository.findByGradableObject_Gradebook_IdAndGradableObject_RemovedAndStudentIdIn(gradebookId, false, studentIds);
     }
 
@@ -384,5 +416,10 @@ public class GradingPersistenceManagerImpl implements GradingPersistenceManager 
 
     public GradebookProperty saveGradebookProperty(GradebookProperty property) {
         return gradebookPropertyRepository.save(property);
+    }
+
+    @Override
+    public Optional<GradableObject> getGradableByIdAndGradebook(String gradebookId, Long gradableObjectId) {
+        return gradebookAssignmentRepository.findByGradableIdAndGradebookIdAndRemoved(gradableObjectId, gradebookId, false);
     }
 }

@@ -13,6 +13,7 @@
 		<property name="annotatedClasses">
 			<list>
                 <value>org.sakaiproject.grading.api.model.Gradebook</value>
+                <value>org.sakaiproject.grading.api.model.GradebookManager</value>
                 <value>org.sakaiproject.grading.api.model.GradableObject</value>
                 <value>org.sakaiproject.grading.api.model.GradebookAssignment</value>
                 <value>org.sakaiproject.grading.api.model.AssignmentGradeRecord</value>
@@ -63,6 +64,11 @@
 
     <bean id="org.sakaiproject.grading.api.repository.GradebookRepository"
         class="org.sakaiproject.grading.impl.repository.GradebookRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
+    <bean id="org.sakaiproject.grading.api.repository.GradebookManagerRepository"
+        class="org.sakaiproject.grading.impl.repository.GradebookManagerRepositoryImpl">
         <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
     </bean>
 

@@ -34,13 +34,13 @@ public interface GradingAuthz {
         PERMISSION_VIEW_OWN_GRADES = "gradebook.viewOwnGrades",
         PERMISSION_VIEW_STUDENT_NUMBERS = "gradebook.viewStudentNumbers";
 
-    public boolean isUserAbleToGrade(String gradebookUid);
-    public boolean isUserAbleToGrade(String gradebookUid, String userUid);
-    public boolean isUserAbleToGradeAll(String gradebookUid);
-    public boolean isUserAbleToGradeAll(String gradebookUid, String userUid);
-    public boolean isUserAbleToEditAssessments(String gradebookUid);
-    public boolean isUserAbleToViewOwnGrades(String gradebookUid);
-    public boolean isUserAbleToViewStudentNumbers(String gradebookUid);
+    public boolean isUserAbleToGrade(String siteId);
+    public boolean isUserAbleToGrade(String siteId, String userUid);
+    public boolean isUserAbleToGradeAll(String siteId);
+    public boolean isUserAbleToGradeAll(String siteId, String userUid);
+    public boolean isUserAbleToEditAssessments(String siteId);
+    public boolean isUserAbleToViewOwnGrades(String siteId);
+    public boolean isUserAbleToViewStudentNumbers(String siteId);
 
     /**
      *
@@ -53,27 +53,25 @@ public interface GradingAuthz {
     public boolean isUserAbleToGradeItemForStudent(String gradebookUid, Long itemId, String studentUid)  throws IllegalArgumentException;
 
     /**
-     *
-     * @param gradebookUid
+     * @param siteId
      * @param itemId
      * @param studentUid
      * @return is user authorized to view this gradebook item for this student?
-     *      first checks for special grader perms. if none, uses default perms
+     * first checks for special grader perms. if none, uses default perms
      */
-    public boolean isUserAbleToViewItemForStudent(String gradebookUid, Long itemId, String studentUid)  throws IllegalArgumentException;
+    public boolean isUserAbleToViewItemForStudent(String siteId, Long itemId, String studentUid)  throws IllegalArgumentException;
 
     /**
-     * @param gradebookUid
+     * @param siteId
      * @return all of the CourseSections for this site
      */
-    public List<CourseSection> getAllSections(String gradebookUid);
+    public List<CourseSection> getAllSections(String siteId);
 
     /**
-     *
-     * @param gradebookUid
+     * @param siteId
      * @return all CourseSections that the current user may view or grade
      */
-    public List<CourseSection> getViewableSections(String gradebookUid);
+    public List<CourseSection> getViewableSections(String siteId);
 
     /**
      * @param gradebookUid
@@ -141,10 +139,11 @@ public interface GradingAuthz {
     /**
      * Check to see if current user may grade or view the given student for the given item in the given gradebook.
      * Returns string representation of function per GradingService vars (view/grade) or null if no permission
-     * @param gradebookUid
+     *
+     * @param siteId
      * @param itemId
      * @param studentUid
      * @return GradingService.gradePermission, GradingService.viewPermission, or null if no permission
      */
-    public String getGradeViewFunctionForUserForStudentForItem(String gradebookUid, Long itemId, String studentUid);
+    public String getGradeViewFunctionForUserForStudentForItem(String siteId, Long itemId, String studentUid);
 }

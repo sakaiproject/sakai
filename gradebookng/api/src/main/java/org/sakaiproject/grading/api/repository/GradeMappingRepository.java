@@ -23,5 +23,5 @@ import org.sakaiproject.springframework.data.SpringCrudRepository;
 
 public interface GradeMappingRepository extends SpringCrudRepository<GradeMapping, Long> {
 
-    public List<GradeMapping> findByGradebook_Uid(String gradebookUid);
+    public List<GradeMapping> findByGradebookId(String gradebookId);
 }

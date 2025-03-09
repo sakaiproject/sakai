@@ -34,7 +34,7 @@ import javax.persistence.criteria.Root;
 public class CategoryRepositoryImpl extends SpringCrudRepositoryImpl<Category, Long>  implements CategoryRepository {
 
     @Transactional(readOnly = true)
-    public List<Category> findByGradebook_IdAndRemoved(Long gradebookId, Boolean removed) {
+    public List<Category> findByGradebook_IdAndRemoved(String gradebookId, Boolean removed) {
 
         Session session = sessionFactory.getCurrentSession();
         CriteriaBuilder cb = session.getCriteriaBuilder();
@@ -76,13 +76,13 @@ public class CategoryRepositoryImpl extends SpringCrudRepositoryImpl<Category, L
     }
 
     @Transactional(readOnly = true)
-    public List<Category> findByGradebook_Uid(String gradebookUid) {
+    public List<Category> findByGradebookId(String gradebookId) {
 
         Session session = sessionFactory.getCurrentSession();
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaQuery<Category> query = cb.createQuery(Category.class);
         Join<Category, Gradebook> gb = query.from(Category.class).join("gradebook");
-        query.where(cb.equal(gb.get("uid"), gradebookUid));
+        query.where(cb.equal(gb.get("id"), gradebookId));
         return session.createQuery(query).list();
     }
 }
