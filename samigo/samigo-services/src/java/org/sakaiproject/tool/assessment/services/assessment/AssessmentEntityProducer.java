@@ -64,6 +64,7 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.samigo.api.SamigoReferenceReckoner;
 import org.sakaiproject.samigo.util.SamigoConstants;
+import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -111,6 +112,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
     @Getter @Setter protected UserDirectoryService userDirectoryService;
     @Getter @Setter protected PublishedAssessmentFacadeQueriesAPI publishedAssessmentFacadeQueries;
     @Setter protected LinkMigrationHelper linkMigrationHelper;
+    @Setter protected LTIService ltiService;
 
 	public void init() {
 		log.info("init()");
@@ -462,24 +464,24 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 
 						// TODO: why are these copyAttachments = false?
 						boolean instructionChanged = migrateText(service, toContext, item, itemHash, hasCaches, hasDuplicates, false,
-								"inst", itemContentCache, entrySet, ItemData::getInstruction, ItemData::setInstruction);
+								"inst", itemContentCache, entrySet, transversalMap, ItemData::getInstruction, ItemData::setInstruction);
 
 						boolean descriptionChanged = migrateText(service, toContext, item, itemHash, hasCaches, hasDuplicates, false,
-								"desc", itemContentCache, entrySet, ItemData::getDescription, ItemData::setDescription);
+								"desc", itemContentCache, entrySet, transversalMap, ItemData::getDescription, ItemData::setDescription);
 
 						boolean itemTextsChanged = false;
 						List<ItemTextIfc> itemTexts = item.getItemTextArray();
 						if (itemTexts != null) {
 							for (ItemTextIfc itemText : itemTexts) {
 								boolean itemTextChanged = migrateText(service, toContext, itemText, itemHash, hasCaches, hasDuplicates, true,
-										"it-" + itemText.getSequence(), itemContentCache, entrySet, ItemTextIfc::getText, ItemTextIfc::setText);
+										"it-" + itemText.getSequence(), itemContentCache, entrySet, transversalMap, ItemTextIfc::getText, ItemTextIfc::setText);
 
 								boolean answersChanged = false;
 								List<AnswerIfc> answers =  itemText.getAnswerArray();
 								if (answers != null) {
 									for (AnswerIfc answer : answers) {
 										boolean answerChanged = migrateText(service, toContext, answer, itemHash, hasCaches, hasDuplicates, true,
-												"at-" + itemText.getSequence() + "-"+ answer.getSequence() , itemContentCache, entrySet, AnswerIfc::getText, AnswerIfc::setText);
+												"at-" + itemText.getSequence() + "-"+ answer.getSequence() , itemContentCache, entrySet, transversalMap, AnswerIfc::getText, AnswerIfc::setText);
 
 										answersChanged = answersChanged || answerChanged;
 									}
@@ -495,7 +497,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 								ItemFeedback itemFeedback = (ItemFeedback) j.next();
 								log.debug("itemFeedback: {} {}", itemFeedback.getText(), itemFeedback.getTypeId());
 								String migratedText = migrateTextString(service, toContext, itemHash, hasCaches, hasDuplicates, true,
-										"feedback" + itemFeedback.getTypeId(), itemContentCache, entrySet, itemFeedback.getText());
+										"feedback" + itemFeedback.getTypeId(), itemContentCache, entrySet, transversalMap, itemFeedback.getText());
 								log.debug("after migratedText: {}", migratedText);
 								itemFeedback.setText(migratedText);
 								itemFeedbacksChanged = true;
@@ -798,7 +800,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 	
 	private <T> boolean migrateText(AssessmentService assessmentService, String toContext, T item, String itemHash,
 			boolean hasCaches,boolean hasDuplicates, boolean copyAttachments, String cacheCode, Map<String, String> textCache,
-			Set<Entry<String, String>> entrySet, Function<T, String> getter, BiConsumer<T, String> setter) {
+			Set<Entry<String, String>> entrySet, Map<String, String> transversalMap, Function<T, String> getter, BiConsumer<T, String> setter) {
 
 		log.debug("migrateText: {} {}", itemHash, copyAttachments);
 		String cacheKey = itemHash + "-" + cacheCode;
@@ -812,7 +814,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 			String itemText = StringUtils.trimToEmpty(getter.apply(item));
 
 			String migratedText = migrateTextString(assessmentService, toContext, itemHash, hasCaches, hasDuplicates,
-				copyAttachments, cacheCode, textCache, entrySet, itemText);
+				copyAttachments, cacheCode, textCache, entrySet, transversalMap, itemText);
 
 			if (!StringUtils.equals(itemText, migratedText)) {
 				setter.accept(item, migratedText);
@@ -824,9 +826,9 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 
 	private String migrateTextString(AssessmentService assessmentService, String toContext, String itemHash,
 		boolean hasCaches, boolean hasDuplicates, boolean copyAttachments, String cacheCode, Map<String, String> textCache,
-		Set<Entry<String, String>> entrySet, String itemText) {
+		Set<Entry<String, String>> entrySet, Map<String, String> transversalMap, String itemText) {
 
-		log.debug("migrateTextX: {} {}", itemHash, copyAttachments);
+		log.debug("migrateTextString: {} {}", itemHash, itemText);
 		String cacheKey = itemHash + "-" + cacheCode;
 
 		if (hasCaches && textCache.containsKey(cacheKey)) {
@@ -835,14 +837,15 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 		} else {
 			// Item instruction has not been cached, lets try migrating
 			String migratedText;
-			log.debug("before itemText: {}", itemText);
 			if (copyAttachments) {
 				migratedText = assessmentService.copyContentHostingAttachments(itemText, toContext);
 			} else {
 				migratedText = itemText;
 			}
 			migratedText = linkMigrationHelper.migrateAllLinks(entrySet, migratedText);
-			log.debug("after migratedText: {}", migratedText);
+			String fromContext = null;
+			migratedText = ltiService.fixLtiLaunchUrls(migratedText, fromContext, toContext, transversalMap);
+
 			// Check if there has been a change
 			if (!StringUtils.equals(itemText, migratedText)) {
 				if (hasDuplicates) {
