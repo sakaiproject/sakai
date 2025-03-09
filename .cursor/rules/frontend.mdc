@@ -5,7 +5,7 @@ alwaysApply: false
 
 # Sakai Frontend rules
 
-Sakai frontends use many different UI frameworks including JSF 2.3, Apache Velocity, ThymeLeaf, and Reasonable Server Faces (RSF)
+Sakai frontends use many different UI frameworks including JSF 2.3, Wicket 9, Apache Velocity, ThymeLeaf, Reasonable Server Faces (RSF), and LIT Webcomponents.
 
 ## UI Framework
 - **Bootstrap**: Bootstrap 5.2 is the preferred UI framework for styling
@@ -19,3 +19,4 @@ Sakai frontends use many different UI frameworks including JSF 2.3, Apache Veloc
 - **ES6+**: Prefer ES6+ features (arrow functions, template literals, destructuring, etc.)
 - **Modular Code**: Write modular, reusable JavaScript components
 - **Avoid Global Scope**: Minimize use of global variables and functions
+- **Use Webcomponents**: Use the web components in the webcomponents/ directory when possible

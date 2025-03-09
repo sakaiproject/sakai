@@ -13,3 +13,5 @@ Always prefer SLF4J parameterized logging (logger.info("Value is: {}", value)) i
 ```java
 logger.info("Processing user ID: {}, Status: {}", userId, status);
 ```
+
+Log messages and code comments should in English. Log messages should never be translated.
