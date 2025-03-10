@@ -1,7 +1,6 @@
 import { html, nothing } from "lit";
 import { SakaiElement } from "@sakai-ui/sakai-element";
 import "@sakai-ui/sakai-toggle/sakai-toggle.js";
-import "@sakai-ui/sakai-editor";
 import "../sakai-conversations-guidelines.js";
 
 export class SakaiConversationsSettings extends SakaiElement {
@@ -11,6 +10,7 @@ export class SakaiConversationsSettings extends SakaiElement {
     settings: { type: Object },
     siteId: { attribute: "site-id", type: String },
     _editingGuidelines: { state: true },
+    _guidelines: { state: true },
   };
 
   constructor() {
@@ -51,7 +51,7 @@ export class SakaiConversationsSettings extends SakaiElement {
 
   _saveGuidelines() {
 
-    const guidelines = this.querySelector("#settings-guidelines-editor")?.getContent();
+    this._guidelines = this.querySelector("#settings-guidelines-editor")?.value?.trim() || this._i18n.community_guidelines_sample;
 
     const url = `/api/sites/${this.siteId}/conversations/settings/guidelines`;
     fetch(url, {
@@ -60,14 +60,13 @@ export class SakaiConversationsSettings extends SakaiElement {
         "Content-Type": "application/json",
       },
       credentials: "include",
-      body: `${guidelines}`,
+      body: `${this._guidelines}`,
     })
     .then(r => {
-
       if (!r.ok) {
-        throw new Error("Network error while saving guidelines");
+        throw new Error(`Network error while saving guidelines: ${r.statusText}`);
       } else {
-        this.dispatchEvent(new CustomEvent("guidelines-saved", { detail: { guidelines }, bubbles: true }));
+        this.dispatchEvent(new CustomEvent("guidelines-saved", { detail: { guidelines: this._guidelines }, bubbles: true }));
         this._editingGuidelines = false;
       }
     })
@@ -80,6 +79,14 @@ export class SakaiConversationsSettings extends SakaiElement {
 
   shouldUpdate() {
     return this._i18n && this.settings;
+  }
+
+  updated(changedProperties) {
+    if (changedProperties.has("settings")) {
+      this._guidelines = this.settings.guidelines?.trim()
+        ? this.settings.guidelines
+        : this._i18n.community_guidelines_sample;
+    }
   }
 
   render() {
@@ -162,11 +169,13 @@ export class SakaiConversationsSettings extends SakaiElement {
         <div id="settings-guidelines-block">
           <div id="settings-guidelines-preview">
             <div>${this._i18n.community_guidelines_preview_heading}</div>
-            <sakai-conversations-guidelines guidelines="${this.settings.guidelines}"></sakai-conversations-guidelines>
+            <sakai-conversations-guidelines guidelines="${this._guidelines}"></sakai-conversations-guidelines>
           </div>
           ${this._editingGuidelines ? html`
           <div id="settings-guidelines-editor-block">
-            <sakai-editor id="settings-guidelines-editor" content="${this.settings.guidelines}"></sakai-editor>
+            <textarea id="settings-guidelines-editor"
+                      aria-label="${this._i18n.community_guidelines_editor_label}"
+                      style="width: 100%; min-height: 150px;">${this._guidelines}</textarea>
             <div class="act">
               <input type="button" class="active" @click=${this._saveGuidelines} value="${this._i18n.save}">
               <input type="button" class="active" @click="${this._stopEditingGuidelines}" value="${this._i18n.cancel}">
