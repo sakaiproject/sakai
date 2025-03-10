@@ -215,8 +215,8 @@ public class GradingPersistenceManagerImpl implements GradingPersistenceManager 
         return gradebookAssignmentRepository.findById(id);
     }
 
-    public Long countAssignmentsByGradbookAndExternalId(String gradebookUid, String externalId) {
-        return gradebookAssignmentRepository.countByGradebookIdAndExternalId(gradebookUid, externalId);
+    public Long countAssignmentsByGradbookAndExternalId(String gradebookId, String externalId) {
+        return gradebookAssignmentRepository.countByGradebookIdAndExternalId(gradebookId, externalId);
     }
 
     public Long countAssignmentsByNameAndGradebookUid(String name, String gradebookUid) {

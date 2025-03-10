@@ -143,14 +143,14 @@ public class AssignmentGradeInfoProvider implements ExternalAssignmentProvider, 
         return getAllExternalAssignments(gradebookUid);
     }
 
-    public List<String> getAllExternalAssignments(String gradebookUid) {
+    public List<String> getAllExternalAssignments(String siteId) {
         // We check and cast here on the very slim chance that something other than
         // a AssignmentService is registered as the service. If that is the case,
         // we won't have access to the protected method to get unfiltered assignments
         // and the best we can do is return the filtered list, which is exposed on
         // the AssignmentService interface.
 
-        return assignmentService.getAssignmentsForContext(gradebookUid).stream()
+        return assignmentService.getAssignmentsForContext(siteId).stream()
                 .map(assignmentService::createAssignmentEntity) // get the assignment entity
                 .map(Entity::getReference) // return the reference
                 .filter(Objects::nonNull) // filter nulls

@@ -461,14 +461,14 @@ public class AssignmentToolUtils {
         String submissionId = AssignmentReferenceReckoner.reckoner().reference(submissionRef).reckon().getId();
 
         try {
-            String gradebookUid = (String) options.get("siteId");
-            if (gradebookUid == null) {
-                gradebookUid = toolManager.getCurrentPlacement().getContext();
+            String siteId = (String) options.get("siteId");
+            if (siteId == null) {
+                siteId = toolManager.getCurrentPlacement().getContext();
             }
-            if (gradingService.currentUserHasGradingPerm(gradebookUid)) {
-                boolean isExternalAssignmentDefined = gradingService.isExternalAssignmentDefined(gradebookUid, assignmentRef);
-                boolean isExternalAssociateAssignmentDefined = gradingService.isExternalAssignmentDefined(gradebookUid, associateGradebookAssignment);
-                boolean isAssignmentDefined = gradingService.isAssignmentDefined(gradebookUid, associateGradebookAssignment);
+            if (gradingService.currentUserHasGradingPerm(siteId)) {
+                boolean isExternalAssignmentDefined = gradingService.isExternalAssignmentDefined(siteId, assignmentRef);
+                boolean isExternalAssociateAssignmentDefined = gradingService.isExternalAssignmentDefined(siteId, associateGradebookAssignment);
+                boolean isAssignmentDefined = gradingService.isAssignmentDefined(siteId, associateGradebookAssignment);
 
                 if (addUpdateRemoveAssignment != null) {
                     Assignment a = assignmentService.getAssignment(assignmentId);
@@ -478,7 +478,7 @@ public class AssignmentToolUtils {
                         // add assignment into gradebook
                         try {
                             // add assignment to gradebook
-                            gradingService.addExternalAssessment(gradebookUid, assignmentRef, null, newAssignment_title, newAssignment_maxPoints / (double) a.getScaleFactor(), Date.from(newAssignment_dueTime), assignmentToolId, null, false, category != -1 ? category : null, assignmentRef);
+                            gradingService.addExternalAssessment(siteId, assignmentRef, null, newAssignment_title, newAssignment_maxPoints / (double) a.getScaleFactor(), Date.from(newAssignment_dueTime), assignmentToolId, null, false, category != -1 ? category : null, assignmentRef);
                         } catch (AssignmentHasIllegalPointsException e) {
                             alerts.add(rb.getString("addtogradebook.illegalPoints"));
                             log.warn("integrateGradebook: {}", e.toString());
@@ -498,7 +498,7 @@ public class AssignmentToolUtils {
                             // if there is an external entry created in Gradebook based on this assignment, update it
                             try {
                                 // update attributes if the GB assignment was created for the assignment
-                                gradingService.updateExternalAssessment(gradebookUid, associateGradebookAssignment, null, null, newAssignment_title, newAssignment_maxPoints / (double) a.getScaleFactor(), Date.from(newAssignment_dueTime), false);
+                                gradingService.updateExternalAssessment(siteId, associateGradebookAssignment, null, null, newAssignment_title, newAssignment_maxPoints / (double) a.getScaleFactor(), Date.from(newAssignment_dueTime), false);
                             } catch (Exception e) {
                                 alerts.add(rb.getFormattedMessage("cannotfin_assignment", assignmentRef));
                                 log.warn("{}", rb.getFormattedMessage("cannotfin_assignment", assignmentRef));
@@ -507,7 +507,7 @@ public class AssignmentToolUtils {
                     }    // addUpdateRemove != null
                     else if ("remove".equals(addUpdateRemoveAssignment)) {
                         // remove assignment and all submission grades
-                        removeNonAssociatedExternalGradebookEntry((String) options.get(STATE_CONTEXT_STRING), assignmentRef, associateGradebookAssignment, gradebookUid);
+                        removeNonAssociatedExternalGradebookEntry((String) options.get(STATE_CONTEXT_STRING), assignmentRef, associateGradebookAssignment, siteId);
                     }
                 }
 
@@ -548,26 +548,26 @@ public class AssignmentToolUtils {
                                 if (associateGradebookAssignment != null) {
                                     if (isExternalAssociateAssignmentDefined) {
                                         // the associated assignment is externally maintained
-                                        gradingService.updateExternalAssessmentScoresString(gradebookUid, associateGradebookAssignment, sm);
-                                        gradingService.updateExternalAssessmentComments(gradebookUid, associateGradebookAssignment, cm);
+                                        gradingService.updateExternalAssessmentScoresString(siteId, associateGradebookAssignment, sm);
+                                        gradingService.updateExternalAssessmentComments(siteId, associateGradebookAssignment, cm);
                                     } else if (isAssignmentDefined) {
-                                        Long associateGradebookAssignmentId = gradingService.getAssignment(gradebookUid, associateGradebookAssignment).getId();
+                                        Long associateGradebookAssignmentId = gradingService.getAssignment(siteId, associateGradebookAssignment).getId();
                                         // the associated assignment is internal one, update records one by one
                                         for (Map.Entry<String, String> entry : sm.entrySet()) {
                                             String submitterId = (String) entry.getKey();
                                             String grade = StringUtils.trimToNull(displayGrade((String) sm.get(submitterId), a.getScaleFactor()));
-                                            if (grade != null && gradingService.isUserAbleToGradeItemForStudent(gradebookUid, associateGradebookAssignmentId, submitterId)) {
-                                                gradingService.setAssignmentScoreString(gradebookUid, associateGradebookAssignmentId, submitterId, grade, "");
+                                            if (grade != null && gradingService.isUserAbleToGradeItemForStudent(siteId, associateGradebookAssignmentId, submitterId)) {
+                                                gradingService.setAssignmentScoreString(siteId, associateGradebookAssignmentId, submitterId, grade, "");
                                                 String comment = StringUtils.isNotEmpty(cm.get(submitterId)) ? cm.get(submitterId) : "";
                                                 if (StringUtils.isNotBlank(comment)) {
-					            gradingService.setAssignmentScoreComment(gradebookUid, associateGradebookAssignmentId, submitterId, comment);
+                                                    gradingService.setAssignmentScoreComment(siteId, associateGradebookAssignmentId, submitterId, comment);
                                                 }
                                             }
                                         }
                                     }
                                 } else if (isExternalAssignmentDefined) {
-                                    gradingService.updateExternalAssessmentScoresString(gradebookUid, assignmentRef, sm);
-                                    gradingService.updateExternalAssessmentComments(gradebookUid, assignmentRef, cm);
+                                    gradingService.updateExternalAssessmentScoresString(siteId, assignmentRef, sm);
+                                    gradingService.updateExternalAssessmentComments(siteId, assignmentRef, cm);
                                 }
                             }
                         } else {
@@ -582,27 +582,27 @@ public class AssignmentToolUtils {
                                     //Gradebook only supports plaintext strings
                                     String commentString = formattedText.convertFormattedTextToPlaintext(aSubmission.getFeedbackComment());
                                     if (associateGradebookAssignment != null) {
-                                        if (gradingService.isExternalAssignmentDefined(gradebookUid, associateGradebookAssignment)) {
+                                        if (gradingService.isExternalAssignmentDefined(siteId, associateGradebookAssignment)) {
                                             // the associated assignment is externally maintained
-                                            gradingService.updateExternalAssessmentScore(gradebookUid, associateGradebookAssignment, submitter.getSubmitter(),
+                                            gradingService.updateExternalAssessmentScore(siteId, associateGradebookAssignment, submitter.getSubmitter(),
                                                     (gradeStringToUse != null && aSubmission.getGradeReleased()) ? gradeStringToUse : "");
-                                            gradingService.updateExternalAssessmentComment(gradebookUid, associateGradebookAssignment, submitter.getSubmitter(),
+                                            gradingService.updateExternalAssessmentComment(siteId, associateGradebookAssignment, submitter.getSubmitter(),
                                                     (commentString != null && aSubmission.getGradeReleased()) ? commentString : "");
-                                        } else if (gradingService.isAssignmentDefined(gradebookUid, associateGradebookAssignment)) {
+                                        } else if (gradingService.isAssignmentDefined(siteId, associateGradebookAssignment)) {
                                             // the associated assignment is internal one, update records
-                                            final Long associateGradebookAssignmentId = gradingService.getAssignment(gradebookUid, associateGradebookAssignment).getId();
+                                            final Long associateGradebookAssignmentId = gradingService.getAssignment(siteId, associateGradebookAssignment).getId();
                                             final String submitterId = submitter.getSubmitter();
-                                            if (gradingService.isUserAbleToGradeItemForStudent(gradebookUid, associateGradebookAssignmentId, submitterId)) {
-                                                gradingService.setAssignmentScoreString(gradebookUid, associateGradebookAssignmentId, submitterId,
+                                            if (gradingService.isUserAbleToGradeItemForStudent(siteId, associateGradebookAssignmentId, submitterId)) {
+                                                gradingService.setAssignmentScoreString(siteId, associateGradebookAssignmentId, submitterId,
                                                         (gradeStringToUse != null && aSubmission.getGradeReleased()) ? gradeStringToUse : "", "");
-                                                gradingService.setAssignmentScoreComment(gradebookUid, associateGradebookAssignmentId, submitterId,
+                                                gradingService.setAssignmentScoreComment(siteId, associateGradebookAssignmentId, submitterId,
                                                         (commentString != null && aSubmission.getGradeReleased()) ? commentString : "");
                                             }
                                         }
                                     } else {
-                                        gradingService.updateExternalAssessmentScore(gradebookUid, assignmentRef, submitter.getSubmitter(),
+                                        gradingService.updateExternalAssessmentScore(siteId, assignmentRef, submitter.getSubmitter(),
                                                 (gradeStringToUse != null && aSubmission.getGradeReleased()) ? gradeStringToUse : "");
-                                        gradingService.updateExternalAssessmentComment(gradebookUid, assignmentRef, submitter.getSubmitter(),
+                                        gradingService.updateExternalAssessmentComment(siteId, assignmentRef, submitter.getSubmitter(),
                                                 (commentString != null && aSubmission.getGradeReleased()) ? commentString : "");
                                     }
                                 }
@@ -622,12 +622,12 @@ public class AssignmentToolUtils {
                                      for (User submitter :submitters) {
                                         if (isExternalAssociateAssignmentDefined) {
                                             // if the old associated assignment is an external maintained one
-                                            gradingService.updateExternalAssessmentScore(gradebookUid, associateGradebookAssignment, submitter.getId(), null);
+                                            gradingService.updateExternalAssessmentScore(siteId, associateGradebookAssignment, submitter.getId(), null);
                                         } else if (isAssignmentDefined) {
                                             final String submitterId = submitter.getId();
-                                            final Long associateGradebookAssignmentId = gradingService.getAssignment(gradebookUid, associateGradebookAssignment).getId();
-                                            if (gradingService.isUserAbleToGradeItemForStudent(gradebookUid, associateGradebookAssignmentId, submitterId)) {
-                                                gradingService.setAssignmentScoreString(gradebookUid, associateGradebookAssignment, submitter.getId(), "0", assignmentToolId);
+                                            final Long associateGradebookAssignmentId = gradingService.getAssignment(siteId, associateGradebookAssignment).getId();
+                                            if (gradingService.isUserAbleToGradeItemForStudent(siteId, associateGradebookAssignmentId, submitterId)) {
+                                                gradingService.setAssignmentScoreString(siteId, associateGradebookAssignment, submitter.getId(), "0", assignmentToolId);
                                             }
                                         }
                                     }
@@ -641,13 +641,13 @@ public class AssignmentToolUtils {
                                 for (User submitter :submitters) {
                                     if (isExternalAssociateAssignmentDefined) {
                                         // external assignment
-                                        gradingService.updateExternalAssessmentScore(gradebookUid, assignmentRef, submitter.getId(), null);
+                                        gradingService.updateExternalAssessmentScore(siteId, assignmentRef, submitter.getId(), null);
                                     } else if (isAssignmentDefined) {
                                         // gb assignment
                                         final String submitterId = submitter.getId();
-                                        final Long associateGradebookAssignmentId = gradingService.getAssignment(gradebookUid, associateGradebookAssignment).getId();
-                                        if (gradingService.isUserAbleToGradeItemForStudent(gradebookUid, associateGradebookAssignmentId, submitterId)) {
-                                            gradingService.setAssignmentScoreString(gradebookUid, associateGradebookAssignment, submitter.getId(), "0", "");
+                                        final Long associateGradebookAssignmentId = gradingService.getAssignment(siteId, associateGradebookAssignment).getId();
+                                        if (gradingService.isUserAbleToGradeItemForStudent(siteId, associateGradebookAssignmentId, submitterId)) {
+                                            gradingService.setAssignmentScoreString(siteId, associateGradebookAssignment, submitter.getId(), "0", "");
                                         }
                                     }
                                 }

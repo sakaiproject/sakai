@@ -33,6 +33,7 @@ import java.util.Set;
 
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.grading.api.model.Category;
+import org.sakaiproject.grading.api.model.GradeMapping;
 import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.grading.api.model.GradebookManager;
 import org.sakaiproject.grading.api.model.GradingEvent;
@@ -404,13 +405,13 @@ public interface GradingService extends EntityProducer {
 
     /**
      * @param userUid
-     * @param gradebookUid
+     * @param siteId
      * @param assignmentId
      * @return a map of studentId to view/grade function for the given gradebook and gradebook item that the given userUid is allowed to
-     *         view or grade. students who are not viewable or gradable will not be returned. if the given user does not have grading
-     *         privileges, an empty map is returned
+     * view or grade. students who are not viewable or gradable will not be returned. if the given user does not have grading
+     * privileges, an empty map is returned
      */
-    Map<String, String> getViewableStudentsForItemForUser(String userUid, String gradebookUid, Long assignmentId);
+    Map<String, String> getViewableStudentsForItemForUser(String userUid, String siteId, Long assignmentId);
 
     /**
      * Get the Gradebook. Note that this returns Object to avoid circular dependency with sakai-gradebook-tool Consumers will need to cast
@@ -439,10 +440,10 @@ public interface GradingService extends EntityProducer {
      * Using the grader permissions, return map of section uuid to section name that includes all sections that the current user may view or
      * grade
      *
-     * @param gradebookUid
+     * @param siteId
      * @return
      */
-    Map<String, String> getViewableSectionUuidToNameMap(String gradebookUid);
+    Map<String, String> getViewableSectionUuidToNameMap(String siteId);
 
     /**
      * Check if the current user has the gradebook.gradeAll permission
@@ -589,11 +590,10 @@ public interface GradingService extends EntityProducer {
     /**
      * Get a Map of overridden CourseGrade for students.
      *
-     * @param gradebookUid
+     * @param siteId
      * @return Map of enrollment displayId as key, point as value string
-     *
      */
-    Map<String, String> getEnteredCourseGrade(String gradebookUid);
+    Map<String, String> getEnteredCourseGrade(String siteId);
 
     /**
      * Get student's assignment's score as string.
@@ -685,16 +685,15 @@ public interface GradingService extends EntityProducer {
     void finalizeGrades(String gradebookUid);
 
     /**
-     *
-     * @param gradebookUid
+     * @param siteId
      * @param assignmentId
      * @return the lowest possible grade allowed for the given assignmentId. For example, in a points or %-based gradebook, the lowest
-     *         possible grade for a gradebook item is 0. In a letter-grade gb, it may be 'F' depending on the letter grade mapping. Ungraded
-     *         items have a lowest value of null.
-     * @throws SecurityException if user does not have permission to view assignments in the given gradebook
+     * possible grade for a gradebook item is 0. In a letter-grade gb, it may be 'F' depending on the letter grade mapping. Ungraded
+     * items have a lowest value of null.
+     * @throws SecurityException           if user does not have permission to view assignments in the given gradebook
      * @throws AssessmentNotFoundException if there is no gradebook item with the given gradebookItemId
      */
-    String getLowestPossibleGradeForGbItem(String gradebookUid, Long assignmentId);
+    String getLowestPossibleGradeForGbItem(String siteId, Long assignmentId);
 
     /**
      * @param assignment     (non-null) the Assignment object representing the gradebook item for which you are setting the points possible (aka
@@ -816,7 +815,7 @@ public interface GradingService extends EntityProducer {
      * @param gradebookId
      * @return Set of GradeMappings for the gradebook
      */
-    Set getGradebookGradeMappings(String gradebookId);
+    Set<GradeMapping> getGradebookGradeMappings(String gradebookId);
 
     /**
      * Allows an instructor to set a course grade override for the given student
@@ -995,50 +994,41 @@ public interface GradingService extends EntityProducer {
             throws AssessmentNotFoundException;
 
     /**
-     *
-     * @param gradebookUid
+     * @param siteId
      * @param externalId
      * @param studentUidsToScores
      * @throws AssessmentNotFoundException
-     *
      * @deprecated Replaced by
-     *      {@link updateExternalAssessmentScoresString(String, String, Map<String, String)}
+     * {@link updateExternalAssessmentScoresString(String, String, Map<String, String)}
      */
     @Deprecated
-    void updateExternalAssessmentScores(String gradebookUid,
+    void updateExternalAssessmentScores(String siteId,
         String externalId, Map<String, Double> studentUidsToScores)
         throws AssessmentNotFoundException;
 
     /**
      * Updates a set of external scores for an external assignment in the gradebook.
      *
-     * @param gradebookUid
-     *  The Uid of the gradebook
-     * @param externalId
-     *  The external ID of the assignment/assessment
-     * @param studentUidsToScores
-     *  A map whose String keys are the unique ID strings of the students and whose
-     *  String values are points earned on this assessment or null if the score
-     *  should be removed.
+     * @param siteId              The site id
+     * @param externalId          The external ID of the assignment/assessment
+     * @param studentUidsToScores A map whose String keys are the unique ID strings of the students and whose
+     *                            String values are points earned on this assessment or null if the score
+     *                            should be removed.
      */
-    void updateExternalAssessmentScoresString(String gradebookUid,
+    void updateExternalAssessmentScoresString(String siteId,
             String externalId, Map<String, String> studentUidsToScores)
     throws AssessmentNotFoundException;
 
     /**
      * Updates an external comment for an external assignment in the gradebook.
      *
-     * @param gradebookUid
-     *  The Uid of the gradebook
-     * @param externalId
-     *  The external ID of the assignment/assessment
-     * @param studentUid
-     *  The unique id of the student
-     * @param comment
-     *  The comment to be added to this grade, or null if a comment
-     *  should be removed
+     * @param siteId     The site id
+     * @param externalId The external ID of the assignment/assessment
+     * @param studentUid The unique id of the student
+     * @param comment    The comment to be added to this grade, or null if a comment
+     *                   should be removed
      */
-    void updateExternalAssessmentComment(String gradebookUid,
+    void updateExternalAssessmentComment(String siteId,
             String externalId, String studentUid, String comment )
                     throws AssessmentNotFoundException;
     /**
@@ -1059,10 +1049,10 @@ public interface GradingService extends EntityProducer {
      * in the given gradebook. This will give external assessment systems
      * a chance to avoid the ConflictingExternalIdException.
      *
-     * @param gradebookUid The gradebook's unique identifier
-     * @param externalId The external assessment's external identifier
+     * @param gradebookId The gradebook's unique identifier
+     * @param externalId  The external assessment's external identifier
      */
-    boolean isExternalAssignmentDefined(String gradebookUid, String externalId);
+    boolean isExternalAssignmentDefined(String gradebookId, String externalId);
 
     /**
      * Check with the appropriate external service if a specific assignment is
@@ -1093,19 +1083,19 @@ public interface GradingService extends EntityProducer {
      * with a null providerAppKey, indicating that the gradebook references the
      * assignment, but no provider claims responsibility for it.
      *
-     * @param gradebookUid The gradebook's unique identifier
+     * @param siteId The site id
      * @return A map from the externalId of each activity to the providerAppKey
      */
-    Map<String, String> getExternalAssignmentsForCurrentUser(String gradebookUid);
+    Map<String, String> getExternalAssignmentsForCurrentUser(String siteId);
 
     /**
      * Retrieve a list of all visible, external assignments for a set of users.
      *
-     * @param gradebookUid The gradebook's unique identifier
+     * @param siteId     The gradebook's unique identifier
      * @param studentIds The collection of student IDs for which to retrieve assignments
      * @return A map from the student ID to all visible, external activity IDs
      */
-    Map<String, List<String>> getVisibleExternalAssignments(String gradebookUid, Collection<String> studentIds);
+    Map<String, List<String>> getVisibleExternalAssignments(String siteId, Collection<String> studentIds);
 
     /**
      * Register a new ExternalAssignmentProvider for handling the integration of external
@@ -1128,28 +1118,27 @@ public interface GradingService extends EntityProducer {
      * Break the connection between an external assessment engine and an assessment which
      * it created, giving it up to the Gradebook application to control from now on.
      *
-     * @param gradebookUid
+     * @param siteId
      * @param externalId
      */
-    void setExternalAssessmentToGradebookAssignment(String gradebookUid, String externalId);
+    void setExternalAssessmentToGradebookAssignment(String siteId, String externalId);
 
     /**
      * Get the category of a gradebook with the externalId given
      *
-     * @param gradebookUId
+     * @param siteId
      * @param externalId
      * @return
      */
-    Long getExternalAssessmentCategoryId(String gradebookUId, String externalId);
+    Long getExternalAssessmentCategoryId(String siteId, String externalId);
 
     /**
      * Checks to see whether a gradebook has the categories option enabled.
      *
-     * @param gradebookUid
-     *            The gradebook UID to check
+     * @param siteId The gradebook UID to check
      * @return Whether the gradebook has categories enabled
      */
-    boolean isCategoriesEnabled(String gradebookUid);
+    boolean isCategoriesEnabled(String siteId);
 
     @Transactional
     GradebookManager addGradebookManager(Site site);
@@ -1187,13 +1176,10 @@ public interface GradingService extends EntityProducer {
     /**
      * Adds a new grade scale to an existing gradebook.
      *
-     * @param scaleUuid
-     *   The uuid of the scale we want to be added to the gradebook
-     * @param gradebookUid
-     *   The gradebook with GradeMappings where we will add the grading scale.
-     *
+     * @param scaleUuid The uuid of the scale we want to be added to the gradebook
+     * @param siteId    The gradebook with GradeMappings where we will add the grading scale.
      */
-    void saveGradeMappingToGradebook(String scaleUuid, String gradebookUid);
+    void saveGradeMappingToGradebook(String scaleUuid, String siteId);
 
     /**
      * Update a grademapping with new values.
@@ -1237,11 +1223,10 @@ public interface GradingService extends EntityProducer {
     /**
      * Associate a group with a gradebook
      *
-     * @param siteId The site ID
+     * @param siteId  The site ID
      * @param groupId The group ID
-     * @param gradebookId The gradebook ID
      * @return True if successful, false otherwise
      */
     @Transactional
-    boolean mapGroupToGradebook(String siteId, String groupId, String gradebookId);
+    boolean mapGroupToGradebook(String siteId, String groupId);
 }

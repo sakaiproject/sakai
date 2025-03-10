@@ -44,9 +44,9 @@ public interface ExternalAssignmentProviderCompat {
      * Retrieve all assignments for a gradebook that are marked as externally
      * maintained.
      *
-     * @param gradebookUid The gradebook's unique identifier
+     * @param siteId The site
      * @return A list of external IDs of assignments managed by this provider
      */
-    List<String> getAllExternalAssignments(String gradebookUid);
+    List<String> getAllExternalAssignments(String siteId);
 }
 

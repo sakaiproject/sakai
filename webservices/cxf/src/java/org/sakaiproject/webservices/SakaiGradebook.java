@@ -74,7 +74,8 @@ public class SakaiGradebook extends AbstractWebService {
             @WebParam(name = "updateOnlyNotCustomized", partName = "updateOnlyNotCustomized") @QueryParam("updateOnlyNotCustomized") boolean updateOnlyNotCustomized) {
 
         Session session = establishSession(sessionid);
-        Map defaultBottomPercentsOld = new HashMap(); //stores the old default values, to check if a gradeSet is customized or not.
+        // stores the old default values, to check if a gradeSet is customized or not.
+        Map<String, Double> defaultBottomPercentsOld = new HashMap<>();
 
         if (!securityService.isSuperUser()) {
             log.warn("NonSuperUser trying to change Gradebook Scales: " + session.getUserId());

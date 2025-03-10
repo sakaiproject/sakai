@@ -86,7 +86,7 @@ public class LessonsGradeInfoProvider implements ExternalAssignmentProvider, Ext
         return getAllExternalAssignments(gradebookUid);
     }
 
-    public List<String> getAllExternalAssignments(String gradebookUid) {
+    public List<String> getAllExternalAssignments(String siteId) {
         return new ArrayList<>();
     }
 
