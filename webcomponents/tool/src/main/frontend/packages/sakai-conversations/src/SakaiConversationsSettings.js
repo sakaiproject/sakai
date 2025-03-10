@@ -173,7 +173,8 @@ export class SakaiConversationsSettings extends SakaiElement {
           </div>
           ${this._editingGuidelines ? html`
           <div id="settings-guidelines-editor-block">
-            <textarea id="settings-guidelines-editor" 
+            <textarea id="settings-guidelines-editor"
+                      aria-label="${this._i18n.community_guidelines_editor_label}"
                       style="width: 100%; min-height: 150px;">${this._guidelines}</textarea>
             <div class="act">
               <input type="button" class="active" @click=${this._saveGuidelines} value="${this._i18n.save}">
