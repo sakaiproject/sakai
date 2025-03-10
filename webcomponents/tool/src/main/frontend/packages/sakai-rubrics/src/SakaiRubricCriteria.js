@@ -556,7 +556,7 @@ export class SakaiRubricCriteria extends RubricsElement {
         </div>
       </sakai-reorderer>
       ${!this.isLocked ? html`
-        <div class="action-butons">
+        <div class="action-buttons">
           ${this.weighted ? html`
             <button class="btn-link save-weights" @click="${this.saveWeights}" ?disabled="${!this.validWeight && !this.isDraft}">
               <span class="add fa fa-save"></span>

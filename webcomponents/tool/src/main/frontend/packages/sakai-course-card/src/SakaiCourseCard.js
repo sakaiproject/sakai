@@ -57,8 +57,8 @@ export class SakaiCourseCard extends SakaiElement {
   render() {
 
     return html`
-      <div class="info-block fw-bold rounded-top rounded-top-2 p-4"
-          style="background: linear-gradient( rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5) ), url(${ifDefined(this.courseData.image)})">
+      <div class="info-block"
+          style="background: linear-gradient(var(--sakai-course-card-gradient-start), var(--sakai-course-card-gradient-end)), url(${ifDefined(this.courseData.image)})">
         <div>
           <a class="${!this.courseData.image ? "no-background" : ""}"
               href="${this.courseData.url}"
@@ -71,12 +71,12 @@ export class SakaiCourseCard extends SakaiElement {
         </a>
       </div>
 
-      <div class="tool-alerts-block d-flex align-items-center rounded-bottom rounded-bottom-1 p-2">
+      <div class="tool-alerts-block">
         ${this.courseData.tools.filter(tool => tool.hasAlerts).map(tool => html`
           <div class="mx-2">
             <a href="${tool.url}" @click=${this._toolClicked} data-tool-id="${tool.id}" title="${tool.title}" style="position: relative;">
               <i class="si ${tool.iconClass}"></i>
-              <span class="portal-notifications-indicator p-1 rounded-circle"><span class="visually-hidden">sdfs</span></span>
+              <span class="portal-notifications-indicator"><span class="visually-hidden">${tool.title}</span></span>
             </a>
           </div>
         `)}

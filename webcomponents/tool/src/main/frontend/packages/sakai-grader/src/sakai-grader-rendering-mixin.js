@@ -70,7 +70,7 @@ export const graderRenderingMixin = Base => class extends Base {
         </div>
 
         <div id="grader-title-block">
-          <div class="fw-bold">
+          <div class="grader-title">
             <div class="assessment-title fs-5">${this.gradableTitle}</div>
           </div>
         </div>
@@ -209,13 +209,13 @@ export const graderRenderingMixin = Base => class extends Base {
                         <hr class="itemSeparator">
                       ` : nothing}
                       <div class="mt-2 mb-3">
-                        <span class="fw-bold me-2">${this._i18n.grade}</span>
+                        <span class="grader-title me-2">${this._i18n.grade}</span>
                         <span>${pr.scoreDisplay}</span>
                       </div>
-                      <div class="mt-2 mb-2 fw-bold">${this._i18n.reviewer_comments}</div>
+                      <div class="mt-2 mb-2 grader-title">${this._i18n.reviewer_comments}</div>
                       <div>${unsafeHTML(pr.comment)}</div>
                       ${pr.attachmentUrlList?.length > 0 ? html`
-                        <div class="fw-bold mb-2">${this._i18n.reviewer_attachments}</div>
+                        <div class="grader-title mb-2">${this._i18n.reviewer_attachments}</div>
                         ${pr.attachmentUrlList.map((url, i) => html`
                           <div class="feedback-attachment">
                             <a href="${url}" title="${this._i18n.feedback_attachment_tooltip}" target="_blank">${this._i18n.attachment} ${i + 1}</a>
@@ -360,12 +360,12 @@ export const graderRenderingMixin = Base => class extends Base {
 
         <div class="offcanvas-body">
 
-          <div class="fw-bold fs-5">${this._getSubmitter(this._submission)}</div>
+          <div class="grader-title fs-5">${this._getSubmitter(this._submission)}</div>
 
           <!-- START ORIGINALITY BLOCK -->
           ${this._submission.originalityShowing ? html`
             <div class="grader-block">
-              <label class="grader-label grader-originality-label fw-bold">
+              <label class="grader-label grader-originality-label">
                 <span>${this._submission.originalityServiceName} ${this._i18n["review.report"]}</span>
               </label>
               ${this._submission.originalitySupplies.map(result => html`
@@ -784,7 +784,7 @@ export const graderRenderingMixin = Base => class extends Base {
     if (this._loadingData) {
       return html`
         <div class="sak-banner-info">
-          <div class="mb-3 fs-5 fw-bold">${this._i18n.loading_1}</div>
+          <div class="mb-3 fs-5 grader-title">${this._i18n.loading_1}</div>
           <div>${this._i18n.loading_2}</div>
         </div>
       `;
