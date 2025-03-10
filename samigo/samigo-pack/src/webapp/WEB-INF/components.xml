@@ -390,6 +390,7 @@
     <property name="publishedAssessmentFacadeQueries" ref="PublishedAssessmentFacadeQueries" />
     <property name="qtiService" ref="QTIService"/>
     <property name="linkMigrationHelper" ref="org.sakaiproject.util.api.LinkMigrationHelper"/>
+    <property name="ltiService" ref="org.sakaiproject.lti.api.LTIService"/>
   </bean>
 
 
