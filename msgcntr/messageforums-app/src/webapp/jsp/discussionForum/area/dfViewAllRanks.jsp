@@ -18,7 +18,6 @@
 
 <script>includeLatestJQuery("msgcntr");</script>
 <script src="/messageforums-tool/js/json2.js"></script>
-<script src="/messageforums-tool/js/fluidframework-min.js"></script>
 <script src="/messageforums-tool/js/Scroller.js"></script>
 <script src="/messageforums-tool/js/forum.js"></script>
 
