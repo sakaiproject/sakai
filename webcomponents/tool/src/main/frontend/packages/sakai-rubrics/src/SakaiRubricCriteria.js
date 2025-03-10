@@ -558,6 +558,16 @@ export class SakaiRubricCriteria extends RubricsElement {
       ${!this.isLocked ? html`
         <div class="action-butons">
           ${this.weighted ? html`
+            <div class="card mb-3 p-2 w-25">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="fw-bold">${this.tr("total_weight")}</span>
+                <span class="${!this.validWeight ? "text-danger" : ""}">${this.totalWeight}%</span>
+              </div>
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="fw-bold">${this.tr("total_grade")}</span>
+                <span>${this.maxPoints}</span>
+              </div>
+            </div>
             <button class="btn-link save-weights" @click="${this.saveWeights}" ?disabled="${!this.validWeight && !this.isDraft}">
               <span class="add fa fa-save"></span>
               ${this._i18n.save_weights}
