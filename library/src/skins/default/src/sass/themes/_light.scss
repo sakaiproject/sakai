@@ -46,6 +46,13 @@
     --logo-opacity: 1;
     --logo-background-color: var(--sakai-primary-color-1);
 
+    .logo-light {
+        display: block;
+    }
+    .logo-dark {
+        display: none;
+    }
+
     // Primary branding color. 
     // Suggested: Your institution's main branding color.
     // Used in the top header, action buttons, etc. Commonly used as the background
@@ -197,16 +204,19 @@
     --tool-menu-color: var(--sakai-text-color-1);
     --tool-border-color: var(--sakai-border-color);
     --tool-tab-text-color: var(--tool-menu-color);
-    --tool-tab-background-color: var(--tool-menu-background-color);
+    --tool-tab-background-color: var(--sakai-passive-color-1);
     --tool-tab-border-color: var(--sakai-border-color);
     --tool-tab-hover-text-color: var(--sakai-text-color-3);
-    --tool-tab-hover-background-color: var(--sakai-background-color-3);
+    --tool-tab-hover-background-color: var(--sakai-passive-color-2);
     --tool-tab-hover-highlight-color: var(--sakai-active-color-2);
     --tool-tab-active-text-color: var(--sakai-text-color-3);
     --tool-tab-active-background-color: var(--sakai-background-color-1);
     --tool-tab-active-highlight-color:var(--sakai-active-color-3);
 
-    --top-header-background: var(--sakai-color-gray--darker-5);
+    --top-header-background: var(--sakai-background-color-1);
+    --top-header-background-logo: var(--top-header-background);
+    --top-header-border-color: transparent;
+    --top-header-text-color: var(--sakai-text-color-1);
     --top-header-profile-border-color-top: var(--sakai-secondary-color-1);
     --top-header-profile-border-color-right: var(--sakai-secondary-color-1);
     --top-header-profile-border-color-bottom: var(--sakai-tertiary-color-1);
@@ -214,8 +224,6 @@
     --top-header-profile-border-color-inner: var(--sakai-background-color-1);
 
     --sites-nav-background: var(--sakai-background-color-1);
-
-    --sticky-footer-bg: var(--sakai-background-color-3);
 
     --breadcrumbs-color: var(--sakai-text-color-1);
     --breadcrumbs-tool-color: var(--sakai-primary-color-1);
@@ -357,11 +365,13 @@
     /* End Favorites */
 
     //New sidebar colors
-    --site-nav-btn-color: var(--button-text-color);
+    --site-nav-btn-color: var(--sakai-text-color-2);
     --site-nav-btn-bg: transparent;
     --site-nav-btn-border-color: var(--site-nav-btn-bg);
-    --site-nav-btn-hover-color: var(--site-nav-btn-color);
-    --site-nav-btn-hover-bg: var(--sakai-brand--lighter-6);
+    --site-nav-btn-hover-color: var(--sakai-text-color-2);
+    --site-nav-btn-page-hover-color: var(--sakai-text-color-1);
+    --site-nav-btn-page-hover-border: var(--sakai-brand--darker-4);
+    --site-nav-btn-hover-bg: var(--sakai-brand--lighter-7);
     --site-nav-btn-hover-border-color: var(--site-nav-btn-hover-bg);
     --site-nav-btn-focus-shadow-rgb: 249, 250, 251;
     --site-nav-btn-active-color: var(--site-nav-btn-color);
@@ -387,7 +397,8 @@
     --site-nav-btn-current-disabled-bg: var(--site-nav-btn-current-bg);
     --site-nav-btn-current-disabled-border-color: var(--site-nav-btn-current-border-color);
 
-    --site-nav-bg: var(--sakai-background-color-2);
+    --site-nav-bg: var(--sakai-background-color-1);
+    --site-nav-color: var(--sakai-text-color-2);
     --site-nav-list-item-bg: var(--site-nav-bg);
     --site-nav-list-item-collapse-bg: var(--sakai-background-color-1);
 
@@ -608,21 +619,33 @@
     --progress-bar-bg: var(--sakai-color-blue--lighter-6);
     --progress-bar-empty-bg: transparent;
 
-    --sakai-modal-header-bg: #003a6b;
+    --sakai-modal-header-bg: var(--sakai-brand);
     --sakai-modal-header-color: #fff;
     --sakai-modal-close-btn-bg: #fff;
     --sakai-modal-content-bg: var(--sakai-background-color-2);
-    --sakai-offcanvas-header-bg: #003a6b;
+    --sakai-offcanvas-header-bg: var(--sakai-brand);
     --sakai-offcanvas-header-color: #fff;
     --sakai-offcanvas-close-btn-bg: #000;
 
+    --sakai-pin-color: var(--sakai-text-color-2);
     --sakai-pin-hover-color: black;
 
-    --sakai-selected-page-bg-color: var(--sakai-color-blue--darker-5);
-    --sakai-selected-page-color: white;
+    --sakai-current-site: transparent;
+    --sakai-current-site-color: var(--sakai-text-color-2);
+    --sakai-curent-site-border-color: var(--sakai-brand);
+    --sakai-selected-page-bg-color: var(--sakai-brand);
+    --sakai-selected-page-color: var(--sakai-text-color-inverted);
+
+    --sticky-foooter-color: var(--sakai-brand--lighter-6);
+    --sticky-foooter-color-hover: var(--sakai-brand--lighter-6);
+    --sticky-footer-bg: var(--site-nav-bg);
 
     --sakai-thumbnail-background-color: var(--sakai-background-color-1);
     --sakai-thumbnail-border-color: var(--sakai-border-color);
+
+    --sakai-scrollbar-background-color: var(--sakai-border-color);
+    --sakai-scrollbar-thumb-color: var(--sakai-brand);
+    --sakai-scrollbar-thumb-hover-color: var(--sakai-brand--lighter-3);
 }
 
 // Tables

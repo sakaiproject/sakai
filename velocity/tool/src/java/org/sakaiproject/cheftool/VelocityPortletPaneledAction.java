@@ -1081,6 +1081,8 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 		req.setAttribute(ATTR_PORTLET, portlet);
 		req.setAttribute(ATTR_RUNDATA, rundata);
 
+		context.put("toolOptions", rb.getString("toolOptions"));
+
 		super.doGet(req, res);
 	}
 

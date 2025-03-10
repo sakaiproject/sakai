@@ -286,3 +286,17 @@ if ( ! (self == top) ) {
     });
   });
 </script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const dropdownToggle = document.querySelector('.dropdown-toggle');
+    const navIntraTool = document.querySelector('.navIntraTool');
+    const dropdownNavIntraTool = document.querySelector('.dropdown-navIntraTool');
+
+    if (dropdownNavIntraTool) {
+      dropdownToggle.addEventListener('click', function () {
+        navIntraTool.classList.toggle('dropdown-active');
+      });
+    }
+  });
+</script>
