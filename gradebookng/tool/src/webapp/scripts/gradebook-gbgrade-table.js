@@ -912,8 +912,9 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       // Set sort and update classes
       table.setSort(field, dir);
   
-      table.getColumns().forEach(col => col.getElement().classList.remove('gb-sorted-asc', 'gb-sorted-desc'));
-      column.getElement().classList.add(`gb-sorted-${dir}`);
+      table.getColumns().forEach(col => col.getElement().classList.remove('gb-title', 'gb-sorted-asc', 'gb-sorted-desc'));
+      
+      column.getElement().classList.add(`gb-title`, `gb-sorted-${dir}`);
     }
   })
 
@@ -1012,6 +1013,10 @@ GbGradeTable.renderTable = function (elementId, tableData) {
             );
           }
         }
+      }
+
+      if (columnDefinition.formatterParams?.columnType === "studentname") {
+        columnElement.classList.add('gb-title', 'gb-sorted-desc');
       }
 
     });
@@ -1774,8 +1779,6 @@ GbGradeTable.redrawTable = function(force) {
   GbGradeTable._redrawTableTimeout = setTimeout(function() {
     GbGradeTable.forceRedraw = force || false;
     GbGradeTable.instance.redraw(true);
-    GbGradeTable.currentSortColumn = 0;
-    GbGradeTable.currentSortDirection = 'desc';
     GbGradeTable.instance.setColumns(GbGradeTable.getFilteredColumns());
     GbGradeTable.instance.setData(GbGradeTable.getFilteredData());
     GbGradeTable.refreshSummaryLabels();
