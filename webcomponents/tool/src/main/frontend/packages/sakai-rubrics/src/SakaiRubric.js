@@ -69,7 +69,7 @@ export class SakaiRubric extends RubricsElement {
             rubricSite.toLowerCase().includes(search);
   }
 
-  shouldUpdate() { return this.rubric; }
+  shouldUpdate() { return super.shouldUpdate() && this.rubric; }
 
   firstUpdated() {
 

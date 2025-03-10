@@ -87,7 +87,6 @@ export class SakaiRubricStudent extends rubricsApiMixin(RubricsElement) {
 
   render() {
 
-    console.debug("SakaiRubricStudent.render");
     const isInstructor = this.instructor && this.instructor === "true";
 
     return html`
@@ -158,8 +157,6 @@ export class SakaiRubricStudent extends rubricsApiMixin(RubricsElement) {
   }
 
   _init() {
-
-    console.debug("SakaiRubricStudent.init");
 
     // First, grab the tool association
     this.apiGetAssociation()

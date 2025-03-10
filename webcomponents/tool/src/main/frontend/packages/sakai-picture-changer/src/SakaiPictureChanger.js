@@ -19,7 +19,7 @@ export class SakaiPictureChanger extends SakaiElement {
 
     super();
 
-    this.loadTranslations("sakai-picture-changer").then(r => this._i18n = r);
+    this.loadTranslations("sakai-picture-changer");
   }
 
   _attachCropper() {

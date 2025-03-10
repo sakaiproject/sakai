@@ -171,7 +171,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
             log.error("Hibernate could not save: " + e.toString(), e);
             return false;
         }
-        log.debug(" Poll  " + t.toString() + "successfuly saved");
+        log.debug("Poll {} successfully saved", t.toString());
         externalLogic.registerStatement(t.getText(), newPoll, t.getPollId().toString());
 
         return true;
@@ -197,7 +197,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         if (vote == null || vote.isEmpty()) {
             log.debug("getting votes as they where null");
             vote = pollVoteManager.getAllVotesForPoll(t);
-            log.debug("got " + vote.size() + " vote");
+            log.debug("got {} vote", vote.size());
         }
 
         Set<Vote> voteSet = new HashSet<Vote>(vote);
@@ -216,7 +216,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
 
         dao.delete(t);
 
-        log.info("Poll id " + t.getId() + " deleted");
+        log.debug("Poll id {} deleted", t.getId());
         externalLogic.postEvent("poll.delete", "poll/site/"
                 + t.getSiteId() + "/poll/" + t.getId(), true);
         return true;
@@ -342,7 +342,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
             log.error("Hibernate could not delete: " + e.toString(), e);
             return;
         }
-        log.info("Option id " + option.getId() + " deleted");
+        log.debug("Option id {} deleted", option.getId());
     }
 
     public void deleteOption(Option option, boolean soft) {
@@ -353,7 +353,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
             try {
                 option.setDeleted(Boolean.TRUE);
                 dao.save(option);
-                log.info("Option id " + option.getId() + " soft deleted.");
+                log.debug("Option id {} soft deleted.", option.getId());
             } catch (DataAccessException e) {
                 log.error("Hibernate could not soft delete delete!", e);
                 return;
@@ -373,7 +373,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
             log.error("Hibernate could not save: " + e.toString(), e);
             return false;
         }
-        log.info("Option  " + t.toString() + "successfuly saved");
+        log.debug("Option {} successfully saved", t.toString());
         return true;
     }
 
@@ -416,7 +416,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
     @Override
     public String archive(String siteId, Document doc, Stack<Element> stack, String archivePath,
             List<Reference> attachments) {
-        log.debug("archive: poll " + siteId);
+        log.debug("archive: poll {}", siteId);
         // prepare the buffer for the results log
         StringBuilder results = new StringBuilder();
 
@@ -431,10 +431,10 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         stack.push(element);
 
         List<Poll> pollsList = findAllPolls(siteId);
-        log.debug("got list of " + pollsList.size() + " polls");
+        log.debug("got list of {} polls", pollsList.size());
         for (Poll poll : pollsList) {
             try {
-                log.info("got poll " + poll.getId());
+                log.debug("got poll {}", poll.getId());
 
                 // archive this assignment
                 Element el = poll.toXml(doc, stack);
@@ -690,7 +690,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
             search.addRestriction(new Restriction("userId", userId));
 
             List<Vote> votes = dao.findBySearch(Vote.class, search);
-            //log.info("got " + pollCollection.size() + "votes for this poll");
+            log.debug("got {} votes for this poll", votes.size());
             if (votes.size() > 0) {
                 return true;
             }

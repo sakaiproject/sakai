@@ -37,6 +37,7 @@ import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.event.EventInfo;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
 import org.sakaiproject.sitestats.tool.facade.Locator;
+import org.sakaiproject.sitestats.tool.wicket.pages.ReportsEditPage;
 
 
 /**
@@ -129,7 +130,7 @@ public class EventRegistryTree extends Panel {
 				// image, label, checkbox
 				String toolName = Locator.getFacade().getEventRegistryService().getToolName(ti.getToolId());
 				
-				listItem.add( new Label("toolIcon", "<span class=\"si-" + toolId.replace("_", "-") + "\"></span>").setEscapeModelStrings(false) );
+				listItem.add( new Label("toolIcon", "<span class=\"si " + ReportsEditPage.ICON_SAKAI + toolId.replace("_", "-") + "\"></span>").setEscapeModelStrings(false) );
 
 				listItem.add(new Label("label", new Model(toolName)));
 				CheckBox toolCheckBox = new CheckBox("checkbox", new PropertyModel(ti, "selected"));

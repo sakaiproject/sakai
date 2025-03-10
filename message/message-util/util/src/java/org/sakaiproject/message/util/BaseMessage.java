@@ -372,6 +372,17 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 	}
 
 	/**
+	 * Allows a service extending BaseMessageService to check if a message can be merged
+	 *
+	 * @param element
+	 *        The element to check
+	 * @return true if the message can be merged, false otherwise
+	 */
+	public boolean checkAllowMergeElement(Element element) {
+		return true;
+	}
+
+	/**
 	 * Access the internal reference which can be used to access the message from within the system.
 	 * 
 	 * @param channelRef
@@ -1966,6 +1977,11 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 												}
 											}
 										}
+									}
+
+									// Once last moment to consult the extending service to allow or disallow merging
+									if ( goAhead ) {
+										goAhead = checkAllowMergeElement(element3);
 									}
 									// merge if ok
 									if (goAhead)
