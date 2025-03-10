@@ -13,10 +13,6 @@
  ******************************************************************************/
 package org.sakaiproject.webapi.exception;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
-
-@ResponseStatus(value = HttpStatus.FORBIDDEN, reason = "Forbidden Access")
 public class ForbiddenAccessException extends RuntimeException {
     public ForbiddenAccessException() {
         super();
