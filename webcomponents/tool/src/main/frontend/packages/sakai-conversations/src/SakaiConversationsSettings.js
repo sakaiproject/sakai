@@ -50,6 +50,7 @@ export class SakaiConversationsSettings extends SakaiElement {
   }
 
   _saveGuidelines() {
+
     this._guidelines = this.querySelector("#settings-guidelines-editor")?.value?.trim() || this._i18n.community_guidelines_sample;
 
     const url = `/api/sites/${this.siteId}/conversations/settings/guidelines`;
@@ -65,7 +66,7 @@ export class SakaiConversationsSettings extends SakaiElement {
       if (!r.ok) {
         throw new Error(`Network error while saving guidelines: ${r.statusText}`);
       } else {
-        this.dispatchEvent(new CustomEvent("guidelines-saved", { detail: { this._guidelines }, bubbles: true }));
+        this.dispatchEvent(new CustomEvent("guidelines-saved", { detail: { guidelines: this._guidelines }, bubbles: true }));
         this._editingGuidelines = false;
       }
     })
