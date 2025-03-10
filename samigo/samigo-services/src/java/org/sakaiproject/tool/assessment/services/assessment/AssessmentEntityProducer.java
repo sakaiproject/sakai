@@ -175,8 +175,10 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
         // Question pools referenced in draft and published assessments
         Set<String> poolIds = new TreeSet<String>();
 
-	// Attachments and inline resources referenced in draft and published assssments
-	Set<String> resourceIds = new TreeSet<String>();
+        // Attachments and inline resources referenced in draft and published assssments
+        Set<String> resourceIds = new TreeSet<String>();
+
+        Set<String> assessmentTitles = new TreeSet<String>();
 
         // Draft assessments
         List<AssessmentData> assessmentList 
@@ -186,6 +188,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
             Element assessmentXml = doc.createElement(ARCHIVED_ELEMENT);
             String id = data.getAssessmentId().toString();
             assessmentXml.setAttribute("id", id);
+            assessmentTitles.add(data.getTitle());
 
 	    // QTI representation
 	    String assessmentQti = qtiService.getExportedAssessmentAsString(id, QTI_VERSION);
@@ -220,13 +223,20 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 
         } // draft
 
-	// Published assessments
+	// Published assessments - only include a draft in the archive if a corresponding draft was not included
+	// as assessments are always imported as draft. We only add a published assessment if a teacher has deleted
+	// the draft for the published assessment
 	PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
 	List<PublishedAssessmentData> publishedAssessmentList = publishedAssessmentService.getAllPublishedAssessmentsForSite(siteId);
 	for (PublishedAssessmentData data : publishedAssessmentList) {
 
 		Element assessmentXml = doc.createElement(ARCHIVED_ELEMENT);
 		String publishedAssessmentId = data.getPublishedAssessmentId().toString();
+		String title = data.getTitle();
+		if ( assessmentTitles.contains(title)) {
+			log.debug("Not including published assessment because draft is already included {}", title);
+			continue;
+		}
 
 		String assessmentQti = qtiService.getExportedPublishedAssessmentAsString(publishedAssessmentId, QTI_VERSION);
 		Document assessment = qtiService.getExportedPublishedAssessment(publishedAssessmentId, QTI_VERSION);
