@@ -324,12 +324,14 @@ $(window).load( function() {
         	<f:param value="#{partBean.poolNameToBeDrawn}"/>
         	<f:param value="#{partBean.randomQuestionsDrawDate}"/>
         	<f:param value="#{partBean.randomQuestionsDrawTime}"/>
+        	<f:param value="#{partBean.poolOwnerDisplay}"/>
         </h:outputFormat>
         
         <h:outputFormat rendered="#{partBean.sectionAuthorType!= null && (partBean.sectionAuthorTypeString == '2' || partBean.sectionAuthorTypeString == '4') && !author.isEditPoolFlow && !empty partBean.randomQuestionsDrawDate && !author.isEditPendingAssessmentFlow}" value="#{authorMessages.random_draw_msg_published}" escape="false">
         	<f:param value="#{partBean.poolNameToBeDrawn}"/>
         	<f:param value="#{partBean.randomQuestionsDrawDate}"/>
         	<f:param value="#{partBean.randomQuestionsDrawTime}"/>
+        	<f:param value="#{partBean.poolOwnerDisplay}"/>
         </h:outputFormat>
 
         <h:outputText rendered="#{partBean.sectionAuthorType!= null && partBean.sectionAuthorTypeString == '3' && empty partBean.randomQuestionsDrawDate && empty partBean.fixedQuestionsDrawDate}" value="#{authorMessages.fixed_and_random_draw_msg_no_date}"/>
@@ -340,6 +342,8 @@ $(window).load( function() {
         	<f:param value="#{partBean.poolNameToBeDrawn}"/>
         	<f:param value="#{partBean.randomQuestionsDrawDate}"/>
         	<f:param value="#{partBean.randomQuestionsDrawTime}"/>
+        	<f:param value="#{partBean.poolOwnerDisplay}"/>
+        	<f:param value="#{partBean.poolOwnerDisplay}"/>
         </h:outputFormat>
         
         <h:outputFormat rendered="#{partBean.sectionAuthorType!= null && partBean.sectionAuthorTypeString == '3' && !author.isEditPoolFlow && !empty partBean.randomQuestionsDrawDate && !empty partBean.fixedQuestionsDrawDate && !author.isEditPendingAssessmentFlow}" value="#{authorMessages.fixed_and_random_draw_msg_published}" escape="false">
@@ -349,6 +353,8 @@ $(window).load( function() {
         	<f:param value="#{partBean.poolNameToBeDrawn}"/>
         	<f:param value="#{partBean.randomQuestionsDrawDate}"/>
         	<f:param value="#{partBean.randomQuestionsDrawTime}"/>
+        	<f:param value="#{partBean.poolOwnerDisplay}"/>
+        	<f:param value="#{partBean.poolOwnerDisplay}"/>
         </h:outputFormat>
         
 <!-- this insert should be at the top of each part -->
