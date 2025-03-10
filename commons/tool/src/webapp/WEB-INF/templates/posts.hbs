@@ -11,10 +11,10 @@
             <button id="commons-editor-link-button"
                     class="btn btn-link commons-editor-special-button"
                     title="{{tr 'link_button_tooltip'}}">
-                <i class="si si-link"></i>
+                <span class="si si-link" aria-hidden="true"></span>
             </button>
             <button id="commons-editor-image-button" class="btn btn-link commons-editor-special-button" title="{{tr 'image_button_tooltip'}}">
-                <i class="si si-image"></i>
+                <span class="si si-image" aria-hidden="true"></span>
             </button>
             <span id="commons-editor-priority-container" style="display:none;">
                 <input type="checkbox" id="commons-editor-priority" class="commons-editor-priority"></input>
@@ -26,7 +26,7 @@
                         data-trigger="focus"
                         data-html="true"
                         data-content="{{tr 'priorityHelp'}}">
-                    <i class="si si-question-circle"></i>
+                    <span class="si si-question-circle" aria-hidden="true"></span>
                 </button>
                 <br>
             </span>
@@ -38,41 +38,56 @@
         <div id="commons-posts">
         </div>
 	</div>
-    <div id="commons-loading-image">
-        <img src="/commons-tool/images/ajax-loader.gif" />
-    </div>
-    <div id="commons-link-dialog">
-        <div>
-            <div class="container">
-                <div class="row">
-                    <div class="col">{{tr 'display_text'}}</div>
-                    <div class="col"><input type="text" id="commons-link-dialog-text" /></div>
+    
+    <!-- Link Dialog Modal -->
+    <div class="modal fade" id="commons-link-dialog" tabindex="-1" aria-labelledby="commons-link-dialog-label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="commons-link-dialog-label">{{tr 'link_button_tooltip'}}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{tr 'close'}}"></button>
                 </div>
-                <div class="row mt-1">
-                    <div class="col">{{tr 'link_to'}}</div>
-                    <div class="col"><input type="text" id="commons-link-dialog-url" /></div>
-                </div>
-                <div class="row mt-1">
-                    <div id="commons-link-dialog-thumbnail-setting">
-                        <input type="checkbox" id="commons-link-dialog-load-thumbnail"/ >
-                        <label for="commons-link-dialog-load-thumbnail">{{tr 'load_thumbnail'}}</label>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="commons-link-dialog-text" class="form-label">{{tr 'display_text'}}</label>
+                        <input type="text" class="form-control" id="commons-link-dialog-text" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="commons-link-dialog-url" class="form-label">{{tr 'link_to'}}</label>
+                        <input type="text" class="form-control" id="commons-link-dialog-url" />
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="commons-link-dialog-load-thumbnail" />
+                        <label class="form-check-label" for="commons-link-dialog-load-thumbnail">{{tr 'load_thumbnail'}}</label>
                     </div>
                 </div>
-            </div>
-            <button id="commons-link-dialog-insert-button" class="btn btn-link" disabled="true">{{tr 'insert'}}</button>
-            <button id="commons-link-dialog-cancel-button" class="btn btn-link">{{tr 'cancel'}}</button>
-        </div>
-    </div>
-    <div id="commons-image-dialog">
-        <div>
-            <div class="container">
-                <div class="row">
-                    <label for="commons-image-dialog-file" id="commons-imagefile-instruction" class="mb-2">{{tr 'choose_image_file' max=maxUploadSize}}</label>
-                    <input type="file" id="commons-image-dialog-file" accept=".png,.jpg,.jpeg,.gif,image/png,image/jpeg,image/jpg,image/gif" />
+                <div class="modal-footer">
+                    <button type="button" id="commons-link-dialog-insert-button" class="btn btn-primary" disabled="true">{{tr 'insert'}}</button>
+                    <button type="button" id="commons-link-dialog-cancel-button" class="btn btn-secondary" data-bs-dismiss="modal">{{tr 'cancel'}}</button>
                 </div>
             </div>
-            <button id="commons-image-dialog-insert-button" class="btn btn-link" disabled="true">{{tr 'insert'}}</button>
-            <button id="commons-image-dialog-cancel-button" class="btn btn-link">{{tr 'cancel'}}</button>
-            <span id="commons-image-dialog-message"></span>
+        </div>
+    </div>
+    
+    <!-- Image Dialog Modal -->
+    <div class="modal fade" id="commons-image-dialog" tabindex="-1" aria-labelledby="commons-image-dialog-label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="commons-image-dialog-label">{{tr 'image_button_tooltip'}}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{tr 'close'}}"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="commons-image-dialog-file" id="commons-imagefile-instruction" class="form-label">{{tr 'choose_image_file' max=maxUploadSize}}</label>
+                        <input type="file" class="form-control" id="commons-image-dialog-file" accept=".png,.jpg,.jpeg,.gif,image/png,image/jpeg,image/jpg,image/gif" />
+                        <div id="commons-image-dialog-message" class="form-text text-danger"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="commons-image-dialog-insert-button" class="btn btn-primary" disabled="true">{{tr 'insert'}}</button>
+                    <button type="button" id="commons-image-dialog-cancel-button" class="btn btn-secondary" data-bs-dismiss="modal">{{tr 'cancel'}}</button>
+                </div>
+            </div>
         </div>
     </div>
