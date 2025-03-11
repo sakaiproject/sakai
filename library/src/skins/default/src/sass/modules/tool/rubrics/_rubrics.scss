@@ -114,9 +114,8 @@
     }
 
     .rubric-title-sorting {
-        padding: 0px;
+        background-color: var(--sakai-background-color-3);
         border-width: $rubrics-title-border-size 0px;
-        font-weight: bold;
         @include display-flex;
         @include justify-content(space-between);
 
