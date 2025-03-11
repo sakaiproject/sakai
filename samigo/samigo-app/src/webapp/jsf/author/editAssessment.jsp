@@ -68,16 +68,9 @@ $(window).load( function() {
 			
 		});	
 	});
-	
-	window.onload = function() {
-		document.forms[0].reset(); 
-		disableIt(); 
-		resetSelectMenus();
-		<%= request.getAttribute("html.body.onload") %>
-	};
 </script>
 </head>
-<body>
+<body onload="document.forms[0].reset(); disableIt(); resetSelectMenus(); ;<%= request.getAttribute("html.body.onload") %>">
 
 <div class="portletBody container-fluid">
 <!-- content... -->
