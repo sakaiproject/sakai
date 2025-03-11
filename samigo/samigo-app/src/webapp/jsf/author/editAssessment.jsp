@@ -329,17 +329,14 @@ $(window).load( function() {
 		<h:outputText rendered="#{partBean.sectionAuthorType!= null && (partBean.sectionAuthorTypeString == '2' || partBean.sectionAuthorTypeString == '4') && empty partBean.randomQuestionsDrawDate}" value="#{authorMessages.random_draw_msg_no_date}"/>
         <h:outputFormat rendered="#{partBean.sectionAuthorType!= null && (partBean.sectionAuthorTypeString == '2' || partBean.sectionAuthorTypeString == '4') && !empty partBean.randomQuestionsDrawDate && author.isEditPendingAssessmentFlow}" value="#{authorMessages.random_draw_msg}" escape="false">
         	<f:param value="#{partBean.poolNameToBeDrawn}"/>
+        	<f:param value="#{partBean.randomQuestionsOwnerDisplayName}"/>
         	<f:param value="#{partBean.randomQuestionsDrawDate}"/>
         	<f:param value="#{partBean.randomQuestionsDrawTime}"/>
-        	<f:param value="#{partBean.randomQuestionsOwnerDisplayName}"/>
         </h:outputFormat>
         
         <h:outputFormat rendered="#{partBean.sectionAuthorType!= null && (partBean.sectionAuthorTypeString == '2' || partBean.sectionAuthorTypeString == '4') && !author.isEditPoolFlow && !empty partBean.randomQuestionsDrawDate && !author.isEditPendingAssessmentFlow}" value="#{authorMessages.random_draw_msg_published}" escape="false">
-        	<f:param value="#{partBean.poolNameToBeFixed}"/>
-        	<f:param value="#{partBean.fixedQuestionsOwnerDisplayName}"/>
-        	<f:param value="#{partBean.fixedQuestionsDrawDate}"/>
-        	<f:param value="#{partBean.fixedQuestionsDrawTime}"/>
         	<f:param value="#{partBean.poolNameToBeDrawn}"/>
+        	<f:param value="#{partBean.randomQuestionsOwnerDisplayName}"/>
         	<f:param value="#{partBean.randomQuestionsDrawDate}"/>
         	<f:param value="#{partBean.randomQuestionsDrawTime}"/>
         </h:outputFormat>
