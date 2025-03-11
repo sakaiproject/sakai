@@ -484,14 +484,16 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 						if (itemTexts != null) {
 							for (ItemTextIfc itemText : itemTexts) {
 								boolean itemTextChanged = migrateText(service, toContext, itemText, itemHash, hasCaches, hasDuplicates, true,
-										"it-" + itemText.getSequence(), itemContentCache, entrySet, transversalMap, mcx, ItemTextIfc::getText, ItemTextIfc::setText);
+										"it-" + itemText.getSequence(), itemContentCache, entrySet, transversalMap,
+										mcx, ItemTextIfc::getText, ItemTextIfc::setText);
 
 								boolean answersChanged = false;
 								List<AnswerIfc> answers =  itemText.getAnswerArray();
 								if (answers != null) {
 									for (AnswerIfc answer : answers) {
 										boolean answerChanged = migrateText(service, toContext, answer, itemHash, hasCaches, hasDuplicates, true,
-												"at-" + itemText.getSequence() + "-"+ answer.getSequence() , itemContentCache, entrySet, transversalMap, mcx, AnswerIfc::getText, AnswerIfc::setText);
+												"at-" + itemText.getSequence() + "-"+ answer.getSequence() , itemContentCache, entrySet, transversalMap,
+												mcx, AnswerIfc::getText, AnswerIfc::setText);
 
 										answersChanged = answersChanged || answerChanged;
 									}
@@ -506,7 +508,8 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 							for (Iterator<ItemFeedbackIfc> j = item.getItemFeedbackSet().iterator(); j.hasNext(); ) {
 								ItemFeedbackIfc itemFeedback = (ItemFeedbackIfc) j.next();
 								boolean itemFeedbackCHanged = migrateText(service, toContext, itemFeedback, itemHash, hasCaches, hasDuplicates, true,
-										"feedback" + itemFeedback.getTypeId(), itemContentCache, entrySet, transversalMap, mcx, ItemFeedbackIfc::getText, ItemFeedbackIfc::setText);
+										"feedback" + itemFeedback.getTypeId(), itemContentCache, entrySet, transversalMap,
+										mcx, ItemFeedbackIfc::getText, ItemFeedbackIfc::setText);
 
 								itemFeedbacksChanged = itemFeedbacksChanged || itemFeedbackCHanged;
 							}
@@ -840,17 +843,14 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 
 			// Check if there has been a change
 			if (!StringUtils.equals(itemText, migratedText)) {
+				setter.accept(item, migratedText);
 				if (hasDuplicates) {
 					textCache.put(cacheKey, migratedText);
 				}
-			}
-
-			if (!StringUtils.equals(itemText, migratedText)) {
-				setter.accept(item, migratedText);
 				return true;
 			}
 		}
+
 		return false;
 	}
-
 }
