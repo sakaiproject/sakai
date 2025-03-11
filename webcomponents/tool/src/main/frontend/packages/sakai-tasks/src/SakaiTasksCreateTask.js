@@ -1,5 +1,4 @@
 import { css, html, nothing } from "lit";
-import { loadProperties } from "@sakai-ui/sakai-i18n";
 import { SakaiDialogContent } from "@sakai-ui/sakai-dialog-content";
 import "@sakai-ui/sakai-date-picker/sakai-date-picker.js";
 import "@sakai-ui/sakai-button/sakai-button.js";
@@ -55,7 +54,7 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
     this._assignationType = USER;
     this._mode = "create";
     this.groups = [];
-    loadProperties("tasks").then(r => this._i18n = r);
+    this.loadTranslations("tasks");
   }
 
   set mode(value) {
@@ -234,7 +233,7 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
 
     return html` 
       ${this.deliverTasks ? html`
-      <div class="label" style="margin-bottom:15px;">
+      <div class="label mb-2">
         <label>${this._getTaskAssignedTo()}</label>
       </div>
       ` : nothing }
