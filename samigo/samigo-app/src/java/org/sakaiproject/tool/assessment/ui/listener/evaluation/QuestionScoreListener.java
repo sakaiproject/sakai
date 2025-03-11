@@ -231,7 +231,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 			log.debug("questionScores(): publishedItemHash.size = {}", publishedItemHash.size());
 			// build a hashMap (publishedItemTextId, publishedItemText)
 			Map<Long, ItemTextIfc> publishedItemTextHash = pubService.preparePublishedItemTextHash(publishedAssessment);
-			log.debug("questionScores(): publishedItemTextHash.size = {}", publishedItemTextHash.size());
+			log.debug("publishedItemTextHash.size = {}", publishedItemTextHash.size());
 			GradingService delegate = new GradingService();
 			HashMap<Long, TreeMap<Long, ItemTextIfc>>  allItemsHash = new HashMap<>();
 			for (Long thisKey : publishedItemTextHash.keySet()) {
