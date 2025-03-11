@@ -4177,15 +4177,14 @@ public class GradingServiceImpl implements GradingService {
     }
 
     @Override
-    public boolean isExternalAssignmentDefined(String gradebookId, String externalId) {
-        // SAK-19668
-        return getDbExternalAssignment(gradebookId, externalId).isPresent();
+    public boolean isExternalAssignmentDefined(String siteId, String externalId) {
+        Gradebook gradebook = getGradebook(siteId);
+        return getDbExternalAssignment(gradebook.getId(), externalId).isPresent();
     }
 
     @Override
     public boolean isExternalAssignmentGrouped(final String gradebookId, final String externalId) {
 
-        // SAK-19668
         final Optional<GradebookAssignment> optAssignment = getDbExternalAssignment(gradebookId, externalId);
         // If we check all available providers for an existing, externally maintained assignment
         // and none manage it, return false since grouping is the outlier case and all items

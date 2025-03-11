@@ -43,7 +43,6 @@ import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.site.api.Site;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * This is the externally exposed API of the gradebook application.
@@ -58,7 +57,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public interface GradingService extends EntityProducer {
 
-    static final MathContext MATH_CONTEXT = new MathContext(10, RoundingMode.HALF_DOWN);
+    MathContext MATH_CONTEXT = new MathContext(10, RoundingMode.HALF_DOWN);
 
     /**
      * An enum for defining valid/invalid information for a points possible/relative weight value for a gradebook item. See
@@ -86,13 +85,13 @@ public interface GradingService extends EntityProducer {
     /**
      * Array of chars that are not allowed at the beginning of a gb item title
      */
-    static final String[] INVALID_CHARS_AT_START_OF_GB_ITEM_NAME = { "#", "*", "[" };
+    String[] INVALID_CHARS_AT_START_OF_GB_ITEM_NAME = { "#", "*", "[" };
 
     /**
      * Comparator to ensure correct ordering of letter grades, catering for + and - in the grade This is duplicated in GradebookNG. If
      * changing here, please change there as well. TODO combine them
      */
-    static Comparator<String> lettergradeComparator = (o1, o2) -> {
+    Comparator<String> lettergradeComparator = (o1, o2) -> {
         if (o1.toLowerCase().charAt(0) == o2.toLowerCase().charAt(0)) {
             // only take the first 2 chars, to cater for GradePointsMapping as well
             String s1 = StringUtils.trim(StringUtils.left(o1, 2));
@@ -1049,10 +1048,10 @@ public interface GradingService extends EntityProducer {
      * in the given gradebook. This will give external assessment systems
      * a chance to avoid the ConflictingExternalIdException.
      *
-     * @param gradebookId The gradebook's unique identifier
-     * @param externalId  The external assessment's external identifier
+     * @param siteId     The site id
+     * @param externalId The external assessment's external identifier
      */
-    boolean isExternalAssignmentDefined(String gradebookId, String externalId);
+    boolean isExternalAssignmentDefined(String siteId, String externalId);
 
     /**
      * Check with the appropriate external service if a specific assignment is
@@ -1140,7 +1139,6 @@ public interface GradingService extends EntityProducer {
      */
     boolean isCategoriesEnabled(String siteId);
 
-    @Transactional
     GradebookManager addGradebookManager(Site site);
 
     /**
@@ -1199,7 +1197,6 @@ public interface GradingService extends EntityProducer {
      * @param mode The mode to set (SITE or GROUP)
      * @return True if successful, false otherwise
      */
-    @Transactional
     boolean setGradebookMode(String siteId, GradebookManager.Access mode);
     
     /**
@@ -1208,7 +1205,6 @@ public interface GradingService extends EntityProducer {
      * @param siteId The site ID
      * @return The GradebookManager for the site
      */
-    @Transactional
     GradebookManager getGradebookManager(String siteId) throws IdUnusedException;
     
     /**
@@ -1217,7 +1213,6 @@ public interface GradingService extends EntityProducer {
      * @param siteId The site ID
      * @return List of all gradebooks associated with the site
      */
-    @Transactional  
     List<Gradebook> getGradebooksForSite(String siteId);
     
     /**
@@ -1227,6 +1222,5 @@ public interface GradingService extends EntityProducer {
      * @param groupId The group ID
      * @return True if successful, false otherwise
      */
-    @Transactional
     boolean mapGroupToGradebook(String siteId, String groupId);
 }

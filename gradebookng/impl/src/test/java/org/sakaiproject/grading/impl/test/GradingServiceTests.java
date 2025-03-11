@@ -1322,8 +1322,8 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
         gradingService.addExternalAssessment(siteId, externalId, "http://test.com", title, points, dueDate, description, "data", false);
         
         // Test isExternalAssignmentDefined
-        assertTrue(gradingService.isExternalAssignmentDefined(gradebookId, externalId));
-        assertFalse(gradingService.isExternalAssignmentDefined(gradebookId, "nonexistent-id"));
+        assertTrue(gradingService.isExternalAssignmentDefined(siteId, externalId));
+        assertFalse(gradingService.isExternalAssignmentDefined(siteId, "nonexistent-id"));
         
         // Test isExternalAssignmentGrouped (default is false)
         assertFalse(gradingService.isExternalAssignmentGrouped(gradebookId, externalId));
