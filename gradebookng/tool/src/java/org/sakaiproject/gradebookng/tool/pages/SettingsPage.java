@@ -22,7 +22,6 @@ import java.util.Objects;
 
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.form.Button;
@@ -41,6 +40,7 @@ import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.grading.api.ConflictingCategoryNameException;
 import org.sakaiproject.grading.api.GradebookInformation;
 import org.sakaiproject.grading.api.UnmappableCourseGradeOverrideException;
+import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 
 /**
  * Settings page
@@ -211,12 +211,11 @@ public class SettingsPage extends BasePage {
 		// submit button
 		// required so that we can process the form only when clicked, not when enter is pressed in text field
 		// must be accompanied by a plain html button, not a submit button.
-		final AjaxButton submit = new AjaxButton("submit") {
+		final GbAjaxButton submit = new GbAjaxButton("submit", form) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void onSubmit(final AjaxRequestTarget target) {
-				super.onSubmit();
+			protected void onSubmit(final AjaxRequestTarget target) {
 				final GbSettings model = form.getModelObject();
 
 				Page responsePage = new SettingsPage(SettingsPage.this.gradeEntryPanel.isExpanded(),
@@ -244,7 +243,7 @@ public class SettingsPage extends BasePage {
 			}
 
 			@Override
-			public void onError(final AjaxRequestTarget target) {
+			protected void onError(final AjaxRequestTarget target) {
 				target.add(SettingsPage.this.feedbackPanel);
 				target.appendJavaScript("scroll(0,0);");// Scroll to the top to see the message error
 			}

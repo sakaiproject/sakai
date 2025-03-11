@@ -94,7 +94,7 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
               </div>
               <div class="form-group">
                 <label class="label-rubrics" for="rating-description-${this.rating.id}">${this._i18n.rating_description}</label>
-                <textarea name="" id="rating-description-${this.rating.id}" class="form-control" .value=${this.rating.description}></textarea>
+                <textarea name="rating-description-${this.rating.id}" id="rating-description-${this.rating.id}" class="form-control" .value=${this.rating.description}></textarea>
               </div>
             </div>
             <div class="modal-footer">

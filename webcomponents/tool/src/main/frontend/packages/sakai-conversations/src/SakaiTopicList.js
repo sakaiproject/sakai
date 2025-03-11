@@ -44,7 +44,7 @@ export class SakaiTopicList extends SakaiElement {
 
     this._currentFilter = this.ANY;
 
-    this.loadTranslations("conversations").then(r => this._i18n = r);
+    this.loadTranslations("conversations");
   }
 
   set data(value) {

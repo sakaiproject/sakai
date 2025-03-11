@@ -20,7 +20,14 @@
 				$tlang.getString("sitsav.sitid")
 			</label>
 			<input type="text" name="id" id="id" />
-		</p>	
+		</p>
+		<p class="shorttext required">
+			<span class="reqStar">*</span>
+			<label for="title">
+				$tlang.getString("sittoo.tit")
+			</label>
+			<input type="text" name="title" id="title" />
+		</p>
 		<div class="act">
 			<input type="submit" class="active"  name="eventSubmit_doSaveas" value="$tlang.getString("sitsav.sav")"  accesskey="s" />
 			<input type="submit" name="eventSubmit_doCancel_saveas" value="$tlang.getString("sitsav.can")" accesskey="x" />

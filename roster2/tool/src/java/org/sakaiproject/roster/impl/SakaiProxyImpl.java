@@ -103,7 +103,6 @@ import org.sakaiproject.roster.api.SakaiProxy;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.sitestats.api.SitePresenceTotal;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.tool.api.SessionManager;
@@ -627,12 +626,14 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
                 // Now strip out any unauthorised info
                 if (!isAllowed(currentUserId, RosterFunctions.ROSTER_FUNCTION_VIEWEMAIL, site.getReference())) {
                     m.setEmail(null);
+                    // Also hide username/displayId when email permission is not granted
+                    m.setDisplayId(null);
                 } else {
                     if (StringUtils.isEmpty(m.getEmail())) {
                         try {
                             m.setEmail(userDirectoryService.getUser(m.getUserId()).getEmail());
                         } catch (UserNotDefinedException unde) {
-                            // This ain't gonna happen
+                            log.debug("Unable to find user {} in directory service", m.getUserId());
                         }
                     }
                 }
@@ -1235,22 +1236,15 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
     @Override
     public String getProfileToolLink(String otherUserId, String siteId) {
-
         try {
             Site site = siteService.getSite(siteService.getUserSiteId(getCurrentUserId()));
-            return Optional.ofNullable(site.getToolForCommonId("sakai.profile2")).map(tc -> {
-
-                return site.getUrl() + "/tool/" + tc.getId()
-                    + (StringUtils.isNotBlank(otherUserId) ? "/viewprofile/" + otherUserId + "?fromSiteId=" + siteId : "");
-            }).orElseGet(() -> {
-                log.info("The current user has not got the profile tool added to their workspace");
-                return "";
-            });
+            return Optional.ofNullable(site.getToolForCommonId("sakai.profile2"))
+                    .map(tc -> site.getUrl() + "/tool/" + tc.getId() + (StringUtils.isNotBlank(otherUserId) ? "/viewprofile/" + otherUserId + "?fromSiteId=" + siteId : ""))
+                    .orElse(StringUtils.EMPTY);
         } catch (Exception e) {
-            log.warn("Error getting profile tool link: {}", e.toString());
+            log.warn("Could not create profile tool link for site: {}, {}", siteId, e.toString());
         }
-
-        return null;
+        return StringUtils.EMPTY;
     }
 
     @Override
@@ -1285,8 +1279,10 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
             if (SiteService.SECURE_UPDATE_SITE_MEMBERSHIP.equals(eventName)
                     || SiteService.SECURE_UPDATE_GROUP_MEMBERSHIP.equals(eventName)
-                    || AuthzGroupService.SECURE_REMOVE_AUTHZ_GROUP.equals(eventName)) {
-                log.debug("Site membership or groups updated. Clearing caches ...");
+                    || AuthzGroupService.SECURE_REMOVE_AUTHZ_GROUP.equals(eventName)
+                    || AuthzGroupService.SECURE_UPDATE_AUTHZ_GROUP.equals(eventName)
+            ) {
+                log.debug("Site membership, groups, or permissions updated. Clearing caches because of event: {}", eventName);
                 String siteId = event.getContext();
                 this.removeSiteRosterCache(siteId);
             }

@@ -295,6 +295,12 @@
       <!--Possible Values -->
       <!--True, False -->
       <qtimetadatafield>
+        <fieldlabel>FEEDBACK_SHOW_CORRECTTION</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
         <fieldlabel>FEEDBACK_SHOW_STUDENT_SCORE</fieldlabel>
         <fieldentry>True</fieldentry>
       </qtimetadatafield>
