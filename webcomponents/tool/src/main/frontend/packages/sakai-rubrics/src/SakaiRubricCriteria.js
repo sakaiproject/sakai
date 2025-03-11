@@ -168,11 +168,8 @@ export class SakaiRubricCriteria extends RubricsElement {
     if (value === "") {
       // Allow empty value
     } else {
-      value = value.replace(",", ".");
-      value = parseFloat(value);
-      if (isNaN(value)) {
-        value = 0;
-      }
+      value = parseFloat(value.replace(",", "."));
+      if (Number.isNaN(value)) value = 0;
     }
     const id = parseInt(e.target.getAttribute("data-criterion-id"));
     if (isNaN(id)) {
