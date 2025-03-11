@@ -1,6 +1,5 @@
 import { SakaiShadowElement } from "@sakai-ui/sakai-element";
 import { css, html } from "lit";
-import { loadProperties } from "@sakai-ui/sakai-i18n";
 import "@sakai-ui/sakai-icon";
 
 export class SakaiFileList extends SakaiShadowElement {
@@ -13,7 +12,7 @@ export class SakaiFileList extends SakaiShadowElement {
 
     super();
 
-    loadProperties("file-list").then(r => this._i18n = r);
+    this.loadTranslations("file-list");
   }
 
   shouldUpdate() {

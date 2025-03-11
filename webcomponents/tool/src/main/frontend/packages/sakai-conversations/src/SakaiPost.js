@@ -43,7 +43,7 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
 
     this.commentsBeingEdited = new Map();
 
-    this.loadTranslations("conversations").then(r => this._i18n = r);
+    this.loadTranslations("conversations");
   }
 
   set post(value) {

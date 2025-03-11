@@ -18,7 +18,7 @@ export class SakaiGrades extends SakaiPageableElement {
     super();
 
     this.showPager = true;
-    this.loadTranslations("grades").then(r => this._i18n = r);
+    this.loadTranslations("grades");
   }
 
   async loadAllData() {
