@@ -137,7 +137,7 @@ export class SakaiRubricsManager extends RubricsElement {
 
         <div class="collapse" id="shared_rubrics">
           <div id="sharedlist">
-            <div class="rubric-title-sorting bg-light p-3 rounded mb-3">
+            <div class="rubric-title-sorting bg-light p-3 rounded">
               <div>
                 <button class="btn p-0"
                     @click=${this.sortRubrics}
