@@ -90,7 +90,8 @@ public class GlobalExceptionHandler {
             body.put("detail", ex.getMessage());
         }
         
-        log.error("{}: {}", message, ex.getMessage(), ex);
+        log.error("WEBAPI {}: {}", message, ex.toString());
+        log.debug("WEBAPI full exception", ex);
         return new ResponseEntity<>(body, status);
     }
 } 
