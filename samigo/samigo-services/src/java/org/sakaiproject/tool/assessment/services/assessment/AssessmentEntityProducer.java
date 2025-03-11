@@ -504,13 +504,11 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 						boolean itemFeedbacksChanged = false;
 						if ( item.getItemFeedbackSet() != null && !item.getItemFeedbackSet().isEmpty() ) {
 							for (Iterator<ItemFeedbackIfc> j = item.getItemFeedbackSet().iterator(); j.hasNext(); ) {
-								ItemFeedback itemFeedback = (ItemFeedback) j.next();
-								log.debug("itemFeedback: {} {}", itemFeedback.getText(), itemFeedback.getTypeId());
-								String migratedText = migrateTextString(service, toContext, itemHash, hasCaches, hasDuplicates, true,
-										"feedback" + itemFeedback.getTypeId(), itemContentCache, entrySet, transversalMap, mcx, itemFeedback.getText());
-								log.debug("after migratedText: {}", migratedText);
-								itemFeedback.setText(migratedText);
-								itemFeedbacksChanged = true;
+								ItemFeedbackIfc itemFeedback = (ItemFeedbackIfc) j.next();
+								boolean itemFeedbackCHanged = migrateText(service, toContext, itemFeedback, itemHash, hasCaches, hasDuplicates, true,
+										"feedback" + itemFeedback.getTypeId(), itemContentCache, entrySet, transversalMap, mcx, ItemFeedbackIfc::getText, ItemFeedbackIfc::setText);
+
+								itemFeedbacksChanged = itemFeedbacksChanged || itemFeedbackCHanged;
 							}
 						}
 
@@ -823,30 +821,6 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 		} else {
 			// Item instruction has not been cached, lets try migrating
 			String itemText = StringUtils.trimToEmpty(getter.apply(item));
-
-			String migratedText = migrateTextString(assessmentService, toContext, itemHash, hasCaches, hasDuplicates,
-				copyAttachments, cacheCode, textCache, entrySet, transversalMap, mcx, itemText);
-
-			if (!StringUtils.equals(itemText, migratedText)) {
-				setter.accept(item, migratedText);
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private String migrateTextString(AssessmentService assessmentService, String toContext, String itemHash,
-		boolean hasCaches, boolean hasDuplicates, boolean copyAttachments, String cacheCode, Map<String, String> textCache,
-		Set<Entry<String, String>> entrySet, Map<String, String> transversalMap, MergeConfig mcx, String itemText) {
-
-		log.debug("migrateTextString: {} {}", itemHash, itemText);
-		String cacheKey = itemHash + "-" + cacheCode;
-
-		if (hasCaches && textCache.containsKey(cacheKey)) {
-			// Item instruction has been cached, lets get it from the cache
-			return textCache.get(cacheKey);
-		} else {
-			// Item instruction has not been cached, lets try migrating
 			String migratedText;
 			log.debug("itemText before {}", itemText);
 			if ( mcx != null ) {
@@ -870,7 +844,13 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 					textCache.put(cacheKey, migratedText);
 				}
 			}
-			return migratedText;
+
+			if (!StringUtils.equals(itemText, migratedText)) {
+				setter.accept(item, migratedText);
+				return true;
+			}
 		}
+		return false;
 	}
+
 }
