@@ -1313,7 +1313,7 @@ public abstract class BaseLTIService implements LTIService {
 
 				// If we cannot find the content item and tool on in this server, get skeleton data
 				// from the basiclti.xml import
-				if ( content == null && mcx.ltiContentItems != null ) {
+				if ( content == null && mcx != null && mcx.ltiContentItems != null ) {
 					log.debug("Could not find content item {} / {} in site {}, checking ltiContentItems", linkContentId, contentKey, linkSiteId);
 					content = mcx.ltiContentItems.get(contentKey);
 					tool = null;  // force creation of a new tool in findOrCreateToolForContentItem
