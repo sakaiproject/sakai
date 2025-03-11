@@ -165,9 +165,7 @@ export class SakaiRubricCriteria extends RubricsElement {
   emitWeightChanged(e) {
 
     let value = e.target.value;
-    if (value === "") {
-      // Allow empty value
-    } else {
+    if (value !== "") {
       value = parseFloat(value.replace(",", "."));
       if (Number.isNaN(value)) value = 0;
     }
