@@ -103,7 +103,6 @@ import org.sakaiproject.roster.api.SakaiProxy;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.sitestats.api.SitePresenceTotal;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.tool.api.SessionManager;
@@ -634,7 +633,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
                         try {
                             m.setEmail(userDirectoryService.getUser(m.getUserId()).getEmail());
                         } catch (UserNotDefinedException unde) {
-                            // This ain't gonna happen
+                            log.debug("Unable to find user {} in directory service", m.getUserId());
                         }
                     }
                 }
@@ -1280,8 +1279,10 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
             if (SiteService.SECURE_UPDATE_SITE_MEMBERSHIP.equals(eventName)
                     || SiteService.SECURE_UPDATE_GROUP_MEMBERSHIP.equals(eventName)
-                    || AuthzGroupService.SECURE_REMOVE_AUTHZ_GROUP.equals(eventName)) {
-                log.debug("Site membership or groups updated. Clearing caches ...");
+                    || AuthzGroupService.SECURE_REMOVE_AUTHZ_GROUP.equals(eventName)
+                    || AuthzGroupService.SECURE_UPDATE_AUTHZ_GROUP.equals(eventName)
+            ) {
+                log.debug("Site membership, groups, or permissions updated. Clearing caches because of event: {}", eventName);
                 String siteId = event.getContext();
                 this.removeSiteRosterCache(siteId);
             }
