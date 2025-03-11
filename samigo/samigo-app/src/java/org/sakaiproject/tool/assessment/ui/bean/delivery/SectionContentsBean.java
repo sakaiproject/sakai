@@ -407,7 +407,7 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
 					setFixedQuestionsOwnerDisplayName(pool.getOwnerDisplayName());
 				}
 			} catch (Exception e) {
-				log.error("Error retrieving question pool owner info", e.toString());
+				log.error("Error retrieving question pool owner info, {}", e.toString());
 			}
 		}
 	}
