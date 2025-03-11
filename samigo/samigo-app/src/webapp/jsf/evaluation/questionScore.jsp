@@ -224,6 +224,13 @@ $Id$
      <h:panelGroup rendered="#{question.isExtraCredit == true}">
         <h:outputText styleClass="extraCreditLabel" value=" #{deliveryMessages.extra_credit_preview}" />
      </h:panelGroup>
+     <h:panelGroup styleClass="d-none d-sm-inline small" rendered="#{question.minScore > 0 || question.discount > 0}">
+        <h:outputText value=" (" />
+        <h:outputText value="#{authorMessages.answer_min_point_short}: #{question.minScore}" rendered="#{question.minScore > 0}" />
+        <h:outputText value=", " rendered="#{question.minScore > 0 && question.discount > 0}" />
+        <h:outputText value="#{authorMessages.answer_discount_point_short}: #{question.discount}" rendered="#{question.discount > 0}" />
+        <h:outputText value=")" />
+      </h:panelGroup>
       </h2>
     </div>
   </t:dataList>
@@ -828,7 +835,7 @@ $Id$
                     required="false"
                     onchange="toPoint(this.id);">
       </h:inputText>
-      <h:message for="qscore" style="color:red"/>
+      <h:message for="qscore" styleClass="text-danger"/>
        <h:outputLink title="#{evaluationMessages.saverubricgrading}"
                         rendered="#{questionScores.hasAssociatedRubric}"
                         value="#"
@@ -860,6 +867,13 @@ $Id$
                     onchange="toPoint(this.id);">
 	  </h:inputText>
 	  <h:message for="qscore2" style="color:red"/>
+      <h:panelGroup styleClass="d-none d-sm-inline" rendered="#{questionScores.itemData.minScore != 0 || questionScores.itemData.discount != 0}">
+        <h:outputText value=" (" />
+        <h:outputText value="#{authorMessages.answer_min_point_short}: #{questionScores.itemData.minScore}" rendered="#{questionScores.itemData.minScore != 0}" />
+        <h:outputText value=", " rendered="#{questionScores.itemData.minScore != 0 && questionScores.itemData.discount != 0}" />
+        <h:outputText value="#{authorMessages.answer_discount_point_short}: #{questionScores.itemData.discount}" rendered="#{questionScores.itemData.discount != 0}" />
+        <h:outputText value=")" />
+      </h:panelGroup>
 	  <h:outputLink title="#{evaluationMessages.saverubricgrading}"
                     rendered="#{questionScores.hasAssociatedRubric}"
                     value="#"
@@ -890,6 +904,13 @@ $Id$
                     onchange="toPoint(this.id);">
 	  </h:inputText>
 	  <h:message for="qscore2" style="color:red"/>
+      <h:panelGroup styleClass="d-none d-sm-inline" rendered="#{questionScores.itemData.minScore != 0 || questionScores.itemData.discount != 0}">
+        <h:outputText value=" (" />
+        <h:outputText value="#{authorMessages.answer_min_point_short}: #{questionScores.itemData.minScore}" rendered="#{questionScores.itemData.minScore != 0}" />
+        <h:outputText value=", " rendered="#{questionScores.itemData.minScore != 0 && questionScores.itemData.discount != 0}" />
+        <h:outputText value="#{authorMessages.answer_discount_point_short}: #{questionScores.itemData.discount}" rendered="#{questionScores.itemData.discount != 0}" />
+        <h:outputText value=")" />
+      </h:panelGroup>
 	  <h:outputLink title="#{evaluationMessages.saverubricgrading}"
                     rendered="#{questionScores.hasAssociatedRubric}"
                     value="#"
