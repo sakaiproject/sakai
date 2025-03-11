@@ -505,8 +505,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 
 						boolean itemFeedbacksChanged = false;
 						if ( item.getItemFeedbackSet() != null && !item.getItemFeedbackSet().isEmpty() ) {
-							for (Iterator<ItemFeedbackIfc> j = item.getItemFeedbackSet().iterator(); j.hasNext(); ) {
-								ItemFeedbackIfc itemFeedback = (ItemFeedbackIfc) j.next();
+							for (ItemFeedbackIfc itemFeedback : item.getItemFeedbackSet()) {
 								boolean itemFeedbackCHanged = migrateText(service, toContext, itemFeedback, itemHash, hasCaches, hasDuplicates, true,
 										"feedback" + itemFeedback.getTypeId(), itemContentCache, entrySet, transversalMap,
 										mcx, ItemFeedbackIfc::getText, ItemFeedbackIfc::setText);
@@ -836,8 +835,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 					migratedText = itemText;
 				}
 				migratedText = linkMigrationHelper.migrateAllLinks(entrySet, migratedText);
-				String fromContext = null;
-				migratedText = ltiService.fixLtiLaunchUrls(migratedText, fromContext, toContext, transversalMap);
+				migratedText = ltiService.fixLtiLaunchUrls(migratedText, null, toContext, transversalMap);
 			}
 			log.debug("migratedText after {}", migratedText);
 
