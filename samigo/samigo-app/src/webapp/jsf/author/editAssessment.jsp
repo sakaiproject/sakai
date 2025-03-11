@@ -68,9 +68,16 @@ $(window).load( function() {
 			
 		});	
 	});
+	
+	window.onload = function() {
+		document.forms[0].reset(); 
+		disableIt(); 
+		resetSelectMenus();
+		<%= request.getAttribute("html.body.onload") %>
+	};
 </script>
 </head>
-<body onload="document.forms[0].reset(); disableIt(); resetSelectMenus(); ;<%= request.getAttribute("html.body.onload") %>">
+<body>
 
 <div class="portletBody container-fluid">
 <!-- content... -->
@@ -324,37 +331,40 @@ $(window).load( function() {
         	<f:param value="#{partBean.poolNameToBeDrawn}"/>
         	<f:param value="#{partBean.randomQuestionsDrawDate}"/>
         	<f:param value="#{partBean.randomQuestionsDrawTime}"/>
-        	<f:param value="#{partBean.poolOwnerDisplay}"/>
+        	<f:param value="#{partBean.randomQuestionsOwnerDisplayName}"/>
         </h:outputFormat>
         
         <h:outputFormat rendered="#{partBean.sectionAuthorType!= null && (partBean.sectionAuthorTypeString == '2' || partBean.sectionAuthorTypeString == '4') && !author.isEditPoolFlow && !empty partBean.randomQuestionsDrawDate && !author.isEditPendingAssessmentFlow}" value="#{authorMessages.random_draw_msg_published}" escape="false">
+        	<f:param value="#{partBean.poolNameToBeFixed}"/>
+        	<f:param value="#{partBean.fixedQuestionsOwnerDisplayName}"/>
+        	<f:param value="#{partBean.fixedQuestionsDrawDate}"/>
+        	<f:param value="#{partBean.fixedQuestionsDrawTime}"/>
         	<f:param value="#{partBean.poolNameToBeDrawn}"/>
         	<f:param value="#{partBean.randomQuestionsDrawDate}"/>
         	<f:param value="#{partBean.randomQuestionsDrawTime}"/>
-        	<f:param value="#{partBean.poolOwnerDisplay}"/>
         </h:outputFormat>
 
         <h:outputText rendered="#{partBean.sectionAuthorType!= null && partBean.sectionAuthorTypeString == '3' && empty partBean.randomQuestionsDrawDate && empty partBean.fixedQuestionsDrawDate}" value="#{authorMessages.fixed_and_random_draw_msg_no_date}"/>
         <h:outputFormat rendered="#{partBean.sectionAuthorType!= null && partBean.sectionAuthorTypeString == '3' && !empty partBean.randomQuestionsDrawDate && !empty partBean.fixedQuestionsDrawDate && author.isEditPendingAssessmentFlow}" value="#{authorMessages.fixed_and_random_draw_msg}" escape="false">
         	<f:param value="#{partBean.poolNameToBeFixed}"/>
+        	<f:param value="#{partBean.fixedQuestionsOwnerDisplayName}"/>
         	<f:param value="#{partBean.fixedQuestionsDrawDate}"/>
         	<f:param value="#{partBean.fixedQuestionsDrawTime}"/>
         	<f:param value="#{partBean.poolNameToBeDrawn}"/>
+        	<f:param value="#{partBean.randomQuestionsOwnerDisplayName}"/>
         	<f:param value="#{partBean.randomQuestionsDrawDate}"/>
         	<f:param value="#{partBean.randomQuestionsDrawTime}"/>
-        	<f:param value="#{partBean.poolOwnerDisplay}"/>
-        	<f:param value="#{partBean.poolOwnerDisplay}"/>
         </h:outputFormat>
         
         <h:outputFormat rendered="#{partBean.sectionAuthorType!= null && partBean.sectionAuthorTypeString == '3' && !author.isEditPoolFlow && !empty partBean.randomQuestionsDrawDate && !empty partBean.fixedQuestionsDrawDate && !author.isEditPendingAssessmentFlow}" value="#{authorMessages.fixed_and_random_draw_msg_published}" escape="false">
         	<f:param value="#{partBean.poolNameToBeFixed}"/>
+        	<f:param value="#{partBean.fixedQuestionsOwnerDisplayName}"/>
         	<f:param value="#{partBean.fixedQuestionsDrawDate}"/>
         	<f:param value="#{partBean.fixedQuestionsDrawTime}"/>
         	<f:param value="#{partBean.poolNameToBeDrawn}"/>
+        	<f:param value="#{partBean.randomQuestionsOwnerDisplayName}"/>
         	<f:param value="#{partBean.randomQuestionsDrawDate}"/>
         	<f:param value="#{partBean.randomQuestionsDrawTime}"/>
-        	<f:param value="#{partBean.poolOwnerDisplay}"/>
-        	<f:param value="#{partBean.poolOwnerDisplay}"/>
         </h:outputFormat>
         
 <!-- this insert should be at the top of each part -->

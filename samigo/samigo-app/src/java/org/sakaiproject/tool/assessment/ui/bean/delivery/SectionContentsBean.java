@@ -101,9 +101,10 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
   @Getter @Setter private String poolNameToBeDrawn;
   @Getter @Setter private String randomQuestionsDrawDate = "";
   @Getter @Setter private String randomQuestionsDrawTime = "";
+  @Getter @Setter private String randomQuestionsOwnerDisplayName = "";
   @Getter @Setter private List attachmentList;
   @Getter @Setter private boolean noQuestions;
-  
+
   @Getter @Setter private SectionGradingData sectionGradingData;
   @Getter private String timeLimit;
   @Getter private boolean timedSection;
@@ -113,8 +114,8 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
   @Getter @Setter private String poolNameToBeFixed;
   @Getter @Setter private String fixedQuestionsDrawDate = "";
   @Getter @Setter private String fixedQuestionsDrawTime = "";
+  @Getter @Setter private String fixedQuestionsOwnerDisplayName = "";
   @Getter @Setter private List<Long> poolIdsToBeDrawn;
-  @Getter @Setter private String poolOwnerDisplay;
 
   public SectionContentsBean()
   {
@@ -402,7 +403,8 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
 				QuestionPoolService questionPoolService = new QuestionPoolService();
 				QuestionPoolFacade pool = questionPoolService.getPool(poolIdToBeDrawn, null);
 				if (pool != null) {
-					setPoolOwnerDisplay(pool.getOwnerDisplayName());
+					setRandomQuestionsOwnerDisplayName(pool.getOwnerDisplayName());
+					setFixedQuestionsOwnerDisplayName(pool.getOwnerDisplayName());
 				}
 			} catch (Exception e) {
 				log.error("Error retrieving question pool owner info", e.toString());
