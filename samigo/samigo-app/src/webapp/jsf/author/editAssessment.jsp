@@ -416,6 +416,13 @@ $(window).load( function() {
      <h:outputLabel styleClass="notbold" for="answerptr" rendered="#{question.itemData.score == 1}" value=" #{authorMessages.point_lower_case}"/>
      <h:outputLabel styleClass="notbold" for="answerptr" rendered="#{question.itemData.score >= 0 && question.itemData.score != 1}" value=" #{authorMessages.points_lower_case}"/>
      <h:outputText styleClass="extraCreditLabel" rendered="#{question.itemData.isExtraCredit == true}" value=" #{authorMessages.extra_credit_preview}" />
+     <h:panelGroup styleClass="d-none d-sm-inline" rendered="#{question.itemData.minScore > 0 || question.itemData.discount > 0}">
+      <h:outputText value=" (" />
+      <h:outputText value="#{authorMessages.answer_min_point_short}: #{question.itemData.minScore}" rendered="#{question.itemData.minScore > 0}" />
+      <h:outputText value=", " rendered="#{question.itemData.minScore > 0 && question.itemData.discount > 0}" />
+      <h:outputText value="#{authorMessages.answer_discount_point_short}: #{question.itemData.discount}" rendered="#{question.itemData.discount > 0}" />
+      <h:outputText value=")" />
+    </h:panelGroup>
 	</h:panelGroup>
 
 	<h:outputText escape="false" rendered="#{question.timedQuestion}" value=" <i title='#{authorMessages.timed}' class='fa fa-clock-o'></i>" />
