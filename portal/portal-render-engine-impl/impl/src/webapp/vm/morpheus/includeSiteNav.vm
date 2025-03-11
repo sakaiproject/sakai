@@ -129,7 +129,7 @@
     <nav id="toolMenu" role="navigation" aria-label="${rloader.sit_toolshead}" class="Mrphs-toolsNav__menu sakai-sitesAndToolsNav h-100 d-flex flex-column">
         <h2 class="visually-hidden d-none d-md-block" id="totoolmenu">${rloader.sitenav_title}</h2>
         #if (${userIsLoggedIn})
-            <div class="sites-section">
+            <div id="sites-section-first" class="sites-section">
                 <ul class="mb-0">
                     #siteListItem("home", $sidebarSites.homeSite, false)
                 </ul>
@@ -192,10 +192,10 @@
     window.addEventListener('load', () => {
         const currentSiteElement = document.querySelector('.is-current-site');
         if (currentSiteElement) {
-            // to add margin top
-            const offsetLi = document.createElement('li');
-            currentSiteElement.parentNode.insertBefore(offsetLi, currentSiteElement);
-            offsetLi.scrollIntoView({behavior: 'auto', block: 'start', inline: 'nearest'});
+            const targetUl = document.querySelector('#sites-section-first ul');
+            if (targetUl) {
+                targetUl.insertBefore(currentSiteElement, targetUl.firstChild);
+            }
         }
 
         // put the focus back on the portal wrapper so that keyboard navigation works
