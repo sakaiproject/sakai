@@ -31,6 +31,9 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
 
     this.sort = SORT_OLDEST;
 
+    // Used by the intersection observer to track which posts we've already observed
+    this._observedPosts = new Set();
+
     const options = {
       root: null,
       rootMargin: "0px",
@@ -39,13 +42,18 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
 
     this.observer = new IntersectionObserver((entries, observer) => {
 
-      const postIds = entries.filter(entry => entry.isIntersecting).map(entry => entry.target.dataset.postId);
+      const postIds = entries
+        .filter(entry => entry.isIntersecting)
+        .map(entry => entry.target.dataset.postId)
+        .filter(postId => !this._observedPosts.has(postId)); // Only process posts we haven't marked yet
 
-      if (postIds) {
+      if (postIds.length) {
+        // Add these posts to our tracked set before making the request
+        postIds.forEach(id => this._observedPosts.add(id));
+
         const url = this.topic.links.find(l => l.rel === "markpostsviewed").href;
         fetch(url, {
           method: "POST",
-          credentials: "include",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(postIds),
         })
@@ -55,20 +63,23 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
             // Posts marked. Now unobserve them. We don't want to keep triggering this fetch
             postIds.forEach(postId => {
 
-              observer.unobserve(entries.find(e => e.target.dataset.postId === postId).target);
-              findPost(this.topic, { postId }).viewed = true;
-              this.requestUpdate();
+              const entry = entries.find(e => e.target.dataset.postId === postId);
+              if (entry) {
+                observer.unobserve(entry.target);
+                findPost(this.topic, { postId }).viewed = true;
+              }
             });
+            this.requestUpdate();
             this.dispatchEvent(new CustomEvent("posts-viewed", { detail: { postIds, topicId: this.topic.id } }));
           } else {
+            // If the request fails, remove the posts from our tracked set so we can try again
+            postIds.forEach(id => this._observedPosts.delete(id));
             throw new Error("Network error while marking posts as viewed");
           }
         })
         .catch(error => console.error(error));
       }
-
     }, options);
-
 
     this.loadTranslations("conversations");
   }
@@ -432,18 +443,16 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
 
   _registerPosts(posts) {
 
-    if (posts) {
-      posts.forEach(p => {
+    posts?.forEach(p => {
 
-        if (!p.viewed) {
-          this.observer.observe(this.querySelector(`#post-${p.id}`));
-        }
+      if (!p.viewed && !this._observedPosts.has(p.id)) {
+        const postElement = this.querySelector(`#post-${p.id}`);
+        postElement && this.observer.observe(postElement);
+      }
 
-        if (p.posts) {
-          this._registerPosts(p.posts);
-        }
-      });
-    }
+      // Child posts? Recurse.
+      p.posts && this._registerPosts(p.posts);
+    });
   }
 
   _getMoreReplies() {
