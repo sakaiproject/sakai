@@ -39,8 +39,8 @@
                 display: inline-block;
 
                 @media #{$desktop} {
-                    padding-left: 6px;
-                    padding-right: $standard-spacing;
+                    padding-left: 1px;
+                    padding-right: 1px;
                     border-right: 2px solid $rubrics-title-border-color;
 
                     > span {
