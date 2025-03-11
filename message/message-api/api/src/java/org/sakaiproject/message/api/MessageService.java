@@ -29,6 +29,7 @@ import org.sakaiproject.time.api.Time;
 
 import java.util.List;
 import java.util.Map;
+import org.w3c.dom.Element;
 
 /**
  * <p>
@@ -334,6 +335,15 @@ public interface MessageService extends EntityProducer, EntitySummary
 	 * @return true if the message sender is approved, false otherwise
 	 */
 	public String getToolTitle(String url);
+
+	/**
+	 * Allows a service extending MessageService to check if a message can be merged
+	 *
+	 * @param element
+	 *        The element to check
+	 * @return true if the message can be merged, false otherwise
+	 */
+	public boolean checkAllowMergeElement(Element element);
 
 } // MessageService
 

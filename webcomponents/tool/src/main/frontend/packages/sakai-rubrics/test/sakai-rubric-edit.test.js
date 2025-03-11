@@ -1,6 +1,7 @@
 import "../sakai-rubric-edit.js";
 import { html } from "lit";
 import * as data from "./data.js";
+import "../sakai-rubrics-utils.js";
 import { elementUpdated, expect, fixture, oneEvent, waitUntil } from "@open-wc/testing";
 import fetchMock from "fetch-mock/esm/client";
 
@@ -12,7 +13,7 @@ fetchMock
 
 window.top.portal = { locale: "en_GB" };
 
-describe("sakai-rubrics tests", () => {
+describe("sakai-rubric-edit tests", () => {
 
   beforeEach(() => {
     delete data.rubric1.new;

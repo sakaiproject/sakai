@@ -21,7 +21,7 @@ export class SakaiAnnouncements extends SakaiPageableElement {
     super();
 
     this.showPager = true;
-    this.loadTranslations("announcements").then(r => this._i18n = r);
+    this.loadTranslations("announcements");
   }
 
   set data(value) {

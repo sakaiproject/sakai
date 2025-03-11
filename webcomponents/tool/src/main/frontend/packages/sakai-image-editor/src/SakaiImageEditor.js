@@ -13,7 +13,7 @@ export class SakaiImageEditor extends SakaiDialogContent {
 
     super();
 
-    this.loadProperties("image-editor").then(r => this._i18n = r);
+    this.loadTranslations("image-editor");
   }
 
   title() { return this._i18n.title; }

@@ -29,7 +29,6 @@ export class SakaiNotifications extends SakaiElement {
 
     this._filteredNotifications = new Map();
     this._i18nLoaded = this.loadTranslations("sakai-notifications");
-    this._i18nLoaded.then(r => this._i18n = r);
   }
 
   connectedCallback() {
@@ -413,7 +412,7 @@ export class SakaiNotifications extends SakaiElement {
 
     return html`
       ${this._state === PUSH_SETUP_INFO ? html`
-        <div class="sak-banner-warn justify-content-around">
+        <div class="sak-banner-warn sakai-notifications__banner-warn">
           <div class="fw-bold">${this._i18n.push_setup_failure_info}</div>
           <ol class="mt-2">
             <li>${this._i18n.push_setup_failure_info_1.replace("{0}", getServiceName())}</li>
@@ -425,12 +424,12 @@ export class SakaiNotifications extends SakaiElement {
       ` : nothing}
 
       ${this._state === PUSH_DENIED_INFO ? html`
-        <div class="sak-banner-error justify-content-around">
+        <div class="sak-banner-error sakai-notifications__banner-error">
           <div class="mb-3">${this._i18n.notifications_denied.replace("{0}", getServiceName())}</div>
           <div>${this._i18n.notifications_not_allowed2.replace("{0}", getServiceName())}</div>
           ${this._browserInfoUrl ? html`
           <div class="mt-3">
-            <a href="${this._browserInfoUrl}" class="fw-bold" target="_blank">${this._i18n.browser_info_link_text}</a>
+            <a href="${this._browserInfoUrl}" class="sakai-notifications__title" target="_blank">${this._i18n.browser_info_link_text}</a>
           </div>
           ` : nothing}
         </div>
@@ -440,10 +439,10 @@ export class SakaiNotifications extends SakaiElement {
       ` : nothing}
 
       ${this._state === PUSH_INTRO ? html`
-        <div class="sak-banner-info justify-content-around">
+        <div class="sak-banner-info sakai-notifications__banner-info">
           <div>
             <div class="mb-1">${this._i18n.notifications_not_allowed.replace("{0}", getServiceName())}</div>
-            <div class="fw-bold">${this._i18n.notifications_not_allowed2.replace("{0}", getServiceName())}</div>
+            <div class="sakai-notifications__title">${this._i18n.notifications_not_allowed2.replace("{0}", getServiceName())}</div>
           </div>
         </div>
         <div class="text-center">

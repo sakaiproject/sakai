@@ -49,7 +49,7 @@ export class SakaiConversations extends SakaiElement {
     };
     */
 
-    this.loadTranslations("conversations").then(r => this._i18n = r);
+    this.loadTranslations("conversations");
   }
 
   set siteId(value) {

@@ -164,13 +164,10 @@ export class SakaiRubricCriteria extends RubricsElement {
 
   emitWeightChanged(e) {
 
-    if (e.target.value == "") {
-      e.target.value = 0;
-    }
-    let value = e.target.value.replace(",", ".");
-    value = parseFloat(value);
-    if (isNaN(value)) {
-      value = 0;
+    let value = e.target.value;
+    if (value !== "") {
+      value = parseFloat(value.replace(",", "."));
+      if (Number.isNaN(value)) value = 0;
     }
     const id = parseInt(e.target.getAttribute("data-criterion-id"));
     if (isNaN(id)) {
@@ -470,7 +467,7 @@ export class SakaiRubricCriteria extends RubricsElement {
                           class="form-control"
                           placeholder="0.0"
                           @input="${this.debounce(this.emitWeightChanged, 500)}"
-                          value="${c.weight.toLocaleString(this.locale)}"
+                          value="${c.weight === 0 ? "" : c.weight.toLocaleString(this.locale)}"
                           title="${!this.validWeight ? tr("total_weight_wrong") : ""}"
                         >
                         <span class="form-control-label"
@@ -556,8 +553,18 @@ export class SakaiRubricCriteria extends RubricsElement {
         </div>
       </sakai-reorderer>
       ${!this.isLocked ? html`
-        <div class="action-butons">
+        <div class="action-buttons">
           ${this.weighted ? html`
+            <div class="card mb-3 p-2 w-25">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="fw-bold">${this.tr("total_weight")}</span>
+                <span class="${!this.validWeight ? "text-danger" : ""}">${this.totalWeight}%</span>
+              </div>
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="fw-bold">${this.tr("total_grade")}</span>
+                <span>${this.maxPoints}</span>
+              </div>
+            </div>
             <button class="btn-link save-weights" @click="${this.saveWeights}" ?disabled="${!this.validWeight && !this.isDraft}">
               <span class="add fa fa-save"></span>
               ${this._i18n.save_weights}
