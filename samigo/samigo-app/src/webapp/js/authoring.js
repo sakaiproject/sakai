@@ -722,13 +722,32 @@ function checkUserOrGroupRadio() {
 }
 
 function enableDisableToGradebook() {
-	var toDefaultGradebookVal = $('#assessmentSettingsAction\\:toDefaultGradebook input:checked').val();
-	if (toDefaultGradebookVal == 3) {
-		$('#assessmentSettingsAction\\:toGradebookName').prop('disabled', '');
-	}
-	else {
-		$('#assessmentSettingsAction\\:toGradebookName').prop('disabled', 'disabled');
-	}
+    // Handle the display of the gradebook select dropdown
+    const checkedInput = document.querySelector('#assessmentSettingsAction\\:toDefaultGradebook input:checked');
+    const gradebookSelect = document.querySelector('#assessmentSettingsAction\\:toGradebookNameContainer');
+    
+    if (checkedInput && checkedInput.value === '3') {
+        gradebookSelect.style.display = 'block';
+    } else {
+        gradebookSelect.style.display = 'none';
+    }
+
+    // Call toggleCategories with the current value
+    // For JSF-generated radio buttons, we need to find the checked one
+    const toDefaultGradebook = document.getElementById('assessmentSettingsAction:toDefaultGradebook');
+    if (toDefaultGradebook) {
+        const inputs = toDefaultGradebook.getElementsByTagName('input');
+        let selectedValue = '2'; // Default to "no gradebook"
+        
+        for (let i = 0; i < inputs.length; i++) {
+            if (inputs[i].checked) {
+                selectedValue = inputs[i].value;
+                break;
+            }
+        }
+        
+        toggleCategories(selectedValue);
+    }
 }
 
 //if the containing frame is small, then offsetHeight is pretty good for all but ie/xp.
@@ -824,12 +843,13 @@ if (typeof MathJax != 'undefined') {
 function toggleCategories(checkbox) {
     // Toggle categories selector. If categories are disabled it won't exist
     // so check first.
-    var categoryDiv = $('#assessmentSettingsAction\\:toGradebookCategory');
-    if (categoryDiv.length) {
-        if ($(checkbox).val() === '1') {
-            categoryDiv.fadeIn();
+    const categoryDiv = document.querySelector('#assessmentSettingsAction\\:toGradebookCategory');
+    if (categoryDiv) {
+        // If checkbox is a string, it's the initial call from document ready
+        if (typeof checkbox === 'string') {
+            categoryDiv.style.display = checkbox === '1' ? 'block' : 'none';
         } else {
-            categoryDiv.fadeOut();
+            categoryDiv.style.display = checkbox.value === '1' ? 'block' : 'none';
         }
     }
 }
