@@ -50,7 +50,8 @@
 					box-shadow: var(--button-shadow);
 				}
 			}
-			&.current{
+			&.current,
+			a.current{
 				display: inline-block;
 				margin: 0;
 				padding: 7px 16px;
@@ -134,8 +135,8 @@
 
 	.navIntraToolMobile{
 		opacity: 0;
-        max-height: 0;
-        overflow: hidden;
+		max-height: 0;
+		overflow: hidden;
 		transition: opacity 0.1s ease, margin 0.1s ease, max-height 0.5s ease;
 		border: solid 1px var(--sakai-border-color);
 		border-radius: 4px;
