@@ -66,7 +66,7 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
           aria-expanded="false"
           title="${this._i18n.edit_criterion} ${this.criterion.title}"
           aria-label="${this._i18n.edit_criterion} ${this.criterion.title}">
-        <i class="si si-edit"></i>
+        <span class="si si-edit" aria-hidden="true"></span>
       </button>
 
       <div class="modal fade"

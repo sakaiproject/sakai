@@ -188,7 +188,7 @@ export class SakaiRubric extends RubricsElement {
                 aria-label="${this.tr("copy")} ${this.rubric.title}"
                 @keyup=${this.openEditWithKeyboard}
                 @click=${this.cloneRubric}>
-              <span class="fa fa-copy"></span>
+              <span class="fa fa-copy" aria-hidden="true"></span>
             </button>
           </div>
           ${!this.rubric.locked ? html`

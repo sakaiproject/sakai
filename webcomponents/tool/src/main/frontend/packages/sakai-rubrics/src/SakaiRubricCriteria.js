@@ -276,7 +276,7 @@ export class SakaiRubricCriteria extends RubricsElement {
     e.preventDefault();
     e.stopPropagation();
 
-    const url = `/api/sites/${this.siteId}/rubrics/${this.rubricId}/criteria/${e.target.dataset.criterionId}/copy`;
+    const url = `/api/sites/${this.siteId}/rubrics/${this.rubricId}/criteria/${e.currentTarget.dataset.criterionId}/copy`;
     fetch(url, {
       credentials: "include",
       headers: { "Content-Type": "application/json" },
