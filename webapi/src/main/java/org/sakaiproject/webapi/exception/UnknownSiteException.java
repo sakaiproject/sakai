@@ -13,10 +13,6 @@
  ******************************************************************************/
 package org.sakaiproject.webapi.exception;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
-
-@ResponseStatus(value = HttpStatus.BAD_REQUEST, reason = "Unknown Sakai Site")
 public class UnknownSiteException extends RuntimeException {
 
     public UnknownSiteException() {
