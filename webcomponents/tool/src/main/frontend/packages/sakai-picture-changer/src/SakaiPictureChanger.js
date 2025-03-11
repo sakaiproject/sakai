@@ -60,6 +60,7 @@ export class SakaiPictureChanger extends SakaiElement {
 
     if (e.target.files[0]) {
       this._imageUrl = URL.createObjectURL(e.target.files[0]);
+      this._needsSave = true;
       this.updateComplete.then(() => {
         if (this.cropper) {
           this.cropper.clear();
@@ -67,7 +68,6 @@ export class SakaiPictureChanger extends SakaiElement {
         } else {
           this._attachCropper();
         }
-        this._needsSave = true;
       });
     }
   }
@@ -238,7 +238,7 @@ export class SakaiPictureChanger extends SakaiElement {
               <div id="cropme">
                 <input type="file" accept="image/*" value="Choose an image" @change=${this._filePicked} />
                 ${this._imageUrl ?
-                  html`<img id="image" class="max-width-100" src="${this._imageUrl}" />` :
+                  html`<img id="image" class="max-width-100" src="${this._imageUrl}" alt="${this._i18n.profile_image}" />` :
                   html`<div class="text-muted text-center p-3">${this._i18n.no_image}</div>`
                 }
 
