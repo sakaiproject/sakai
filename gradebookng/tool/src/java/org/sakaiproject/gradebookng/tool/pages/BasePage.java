@@ -231,7 +231,8 @@ public class BasePage extends WebPage {
 	 */
 	protected final void disableLink(final Link<Void> l) {
 		l.add(new AttributeAppender("class", new Model<String>("current"), " "));
-		l.replace(new Label("screenreaderlabel", getString("link.screenreader.tabselected")));
+		l.add(new AttributeModifier("aria-current", "page"));
+		l.replace(new Label("screenreaderlabel", getString("link.screenreader.current.page")));
 		l.setEnabled(false);
 	}
 

@@ -722,25 +722,42 @@
     <h:panelGroup styleClass="row" layout="block" rendered="#{assessmentSettings.valueMap.toGradebook_isInstructorEditable==true}">
       <h:outputLabel for="toDefaultGradebook" styleClass="col-md-10 form-label mt-3" value="#{assessmentSettingsMessages.gradebook_options}"/>
       <div class="col-md-10">
-        <h:selectOneRadio id="toDefaultGradebook" value="#{assessmentSettings.toDefaultGradebook}"  layout="pageDirection"
-          onclick="enableDisableToGradebook();toggleCategories(this);">
+        <h:selectOneRadio id="toDefaultGradebook" value="#{assessmentSettings.toDefaultGradebook}" layout="pageDirection"
+          onchange="enableDisableToGradebook();toggleCategories(this);">
            <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.to_no_gradebook}"/>
            <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.to_default_gradebook}"/>
            <f:selectItem itemValue="3" itemLabel="#{assessmentSettingsMessages.to_selected_gradebook}" itemDisabled="#{empty assessmentSettings.existingGradebook}"/>
         </h:selectOneRadio>
       </div>
-      <h:panelGroup layout="block" id="toGradebookCategory" styleClass="col-md-10 col-md-offset-2" rendered="#{assessmentSettings.categoriesEnabled}" style="display:#{(assessmentSettings.toDefaultGradebook)?'block':'none'}">
-        <h:outputLabel for="selectCategory" value="#{assessmentSettingsMessages.gradebook_category_select}" />
-        <h:selectOneMenu styleClass="categorySelect" id="selectCategory" value="#{assessmentSettings.categorySelected}">
-          <f:selectItems value="#{assessmentSettings.categoriesSelectList}" />
-        </h:selectOneMenu>
-      </h:panelGroup>
-      <h:panelGroup layout="block" styleClass="col-md-10" rendered="#{not empty assessmentSettings.existingGradebook}">
-        <h:selectOneMenu id="toGradebookName" value="#{assessmentSettings.gradebookName}">
-          <f:selectItems value="#{assessmentSettings.existingGradebook}" />
-        </h:selectOneMenu>
-      </h:panelGroup>
     </h:panelGroup>
+    
+    <!-- Gradebook Category (sub-setting) -->
+    <div class="row">
+      <div class="col-md-10">
+        <div class="ps-4">
+          <h:panelGroup id="toGradebookCategory" rendered="#{assessmentSettings.categoriesEnabled}" styleClass="gradebook-category-panel mt-2">
+            <h:outputLabel for="selectCategory" value="#{assessmentSettingsMessages.gradebook_category_select}" styleClass="me-2"/>
+            <h:selectOneMenu styleClass="categorySelect" id="selectCategory" value="#{assessmentSettings.categorySelected}">
+              <f:selectItems value="#{assessmentSettings.categoriesSelectList}" />
+            </h:selectOneMenu>
+          </h:panelGroup>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Gradebook Name (sub-setting) -->
+    <div class="row">
+      <div class="col-md-10">
+        <div class="ps-4">
+          <h:panelGroup id="toGradebookNameContainer" rendered="#{not empty assessmentSettings.existingGradebook}" styleClass="gradebook-name-panel mt-2">
+            <h:outputLabel for="toGradebookName" value="#{assessmentSettingsMessages.gradebook_item_select}" styleClass="me-2"/>
+            <h:selectOneMenu id="toGradebookName" value="#{assessmentSettings.gradebookName}">
+              <f:selectItems value="#{assessmentSettings.existingGradebook}" />
+            </h:selectOneMenu>
+          </h:panelGroup>
+        </div>
+      </div>
+    </div>
 
     <!-- *** FEEDBACK *** -->
     <h:panelGroup rendered="#{assessmentSettings.valueMap.feedbackAuthoring_isInstructorEditable==true or assessmentSettings.valueMap.feedbackType_isInstructorEditable==true or assessmentSettings.valueMap.feedbackComponents_isInstructorEditable==true}" >

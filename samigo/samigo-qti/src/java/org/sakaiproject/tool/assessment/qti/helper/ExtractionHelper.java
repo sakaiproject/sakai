@@ -528,6 +528,16 @@ public class ExtractionHelper
     }
 
     if ("TRUE".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
+        "FEEDBACK_SHOW_CORRECTION")))
+    {
+      feedback.setShowCorrection(Boolean.TRUE);
+    }
+    else if ("FALSE".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
+        "FEEDBACK_SHOW_CORRECTION"))){
+      feedback.setShowCorrection(Boolean.FALSE);
+    }
+
+    if ("TRUE".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
         "FEEDBACK_SHOW_STUDENT_SCORE")))
     {
       feedback.setShowStudentScore(Boolean.TRUE);

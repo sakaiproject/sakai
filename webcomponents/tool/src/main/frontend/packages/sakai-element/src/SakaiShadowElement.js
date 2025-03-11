@@ -41,8 +41,9 @@ export class SakaiShadowElement extends LitElement {
       this.bundle = options.bundle;
     }
 
-    // Pass the call on to the imported function
-    return loadProperties(options);
+    const promise = loadProperties(options);
+    promise.then(r => this._i18n = r);
+    return promise;
   }
 
   setSetting(component, name, value) {

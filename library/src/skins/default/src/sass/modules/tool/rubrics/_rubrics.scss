@@ -108,7 +108,7 @@
                 margin: 0;
             }
         }
-        .action-butons {
+        .action-buttons {
             margin-bottom: $standard-spacing;
         }
     }
@@ -483,6 +483,7 @@ sakai-rubric-student-comment {
 }
 
 .rubric-criterion-comment-title {
+    font-weight: bold;
     margin-bottom: 20px;
 }
 
