@@ -30,7 +30,9 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
     super();
 
     this.sort = SORT_OLDEST;
-    this._observedPosts = new Set(); // Track which posts we've already observed
+
+    // Used by the intersection observer to track which posts we've already observed
+    this._observedPosts = new Set();
 
     const options = {
       root: null,
@@ -45,21 +47,22 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
         .map(entry => entry.target.dataset.postId)
         .filter(postId => !this._observedPosts.has(postId)); // Only process posts we haven't marked yet
 
-      if (postIds.length > 0) {
+      if (postIds.length) {
         // Add these posts to our tracked set before making the request
         postIds.forEach(id => this._observedPosts.add(id));
 
         const url = this.topic.links.find(l => l.rel === "markpostsviewed").href;
         fetch(url, {
           method: "POST",
-          credentials: "include",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(postIds),
         })
         .then(r => {
+
           if (r.ok) {
             // Posts marked. Now unobserve them. We don't want to keep triggering this fetch
             postIds.forEach(postId => {
+
               const entry = entries.find(e => e.target.dataset.postId === postId);
               if (entry) {
                 observer.unobserve(entry.target);
@@ -439,19 +442,17 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
   }
 
   _registerPosts(posts) {
-    if (posts) {
-      posts.forEach(p => {
-        if (!p.viewed && !this._observedPosts.has(p.id)) {
-          const postElement = this.querySelector(`#post-${p.id}`);
-          if (postElement) {
-            this.observer.observe(postElement);
-          }
-        }
-        if (p.posts) {
-          this._registerPosts(p.posts);
-        }
-      });
-    }
+
+    posts?.forEach(p => {
+
+      if (!p.viewed && !this._observedPosts.has(p.id)) {
+        const postElement = this.querySelector(`#post-${p.id}`);
+        postElement && this.observer.observe(postElement);
+      }
+
+      // Child posts? Recurse.
+      p.posts && this._registerPosts(p.posts);
+    });
   }
 
   _getMoreReplies() {
