@@ -92,10 +92,19 @@ import org.sakaiproject.tool.assessment.qti.util.XmlMapper;
 import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.util.TextFormat;
+import org.sakaiproject.samigo.util.SamigoConstants;
+import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.util.MergeConfig;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
+import org.w3c.dom.NodeList;
+
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.TypeException;
 
 /**
  * <p>Has helper methods for data extraction (import) from QTI</p>
@@ -125,8 +134,10 @@ public class ExtractionHelper
   private int qtiVersion = QTIVersion.VERSION_1_2;
   private String overridePath = null; // override defaults and settings
   private String FIB_BLANK_INDICATOR = " {} ";
-  
+  private MergeConfig mcx;
   private String unzipLocation;
+  private String siteId;
+
 
   /**
    * Get ExtractionHelper for QTIVersion.VERSION_1_2
@@ -1163,9 +1174,9 @@ public class ExtractionHelper
   {
 	  Set<ItemAttachmentIfc> set = new HashSet<ItemAttachmentIfc>();
 	  item.setItemAttachmentSet(set);
-	  
+
 	  // if unzipLocation is null, there is no assessment attachment - no action is needed
-	  if (unzipLocation == null) {
+	  if (unzipLocation == null && mcx == null) {
 		  return;
 	  }  
 	  // first check if there is any attachment
@@ -1181,15 +1192,25 @@ public class ExtractionHelper
 	  AssessmentService assessmentService = new AssessmentService();
 	  for (int i = 0; i < attachmentArray.length; i++) {
 		  String[] attachmentInfo = attachmentArray[i].split("\\|");
-		  String fullFilePath = unzipLocation + "/" + attachmentInfo[0];
 		  String filename = attachmentInfo[1];
-		  ContentResource contentResource = attachmentHelper.createContentResource(fullFilePath, filename, attachmentInfo[2]);
-		  // contentResource could be null but is OK (exception catched)
-		  itemAttachment = assessmentService.createItemAttachment(item, contentResource.getId(), filename, ServerConfigurationService.getServerUrl());
+		  if (mcx != null) {
+			  String attachmentImportRef = attachmentInfo[0];
+			  ContentResource contentResource = transferAttachment(siteId, attachmentImportRef, mcx);
+			  if ( contentResource == null ) {
+				  log.warn("Unable to create contentResource for {} {}", siteId, attachmentImportRef);
+				  continue;
+			  }
+			  itemAttachment = assessmentService.createItemAttachment(item, contentResource.getId(), filename, ServerConfigurationService.getServerUrl());
+		  } else {
+			  String fullFilePath = unzipLocation + "/" + attachmentInfo[0];
+			  ContentResource contentResource = attachmentHelper.createContentResource(fullFilePath, filename, attachmentInfo[2]);
+			  // contentResource could be null but is OK (exception catched)
+			  itemAttachment = assessmentService.createItemAttachment(item, contentResource.getId(), filename, ServerConfigurationService.getServerUrl());
+		  }
 		  itemAttachment.setItem(item.getData());
 		  set.add(itemAttachment);
 	  }
-	  item.setItemAttachmentSet(set);
+      item.setItemAttachmentSet(set);
   }
 
   /**
@@ -1552,10 +1573,11 @@ public class ExtractionHelper
   
   public void updateItem(ItemFacade item, Item itemXml, Map itemMap, boolean isRespondus)
   {
+
 	// type and title
     String title = (String) itemMap.get("title");
     item.setDescription(title);
-
+    log.debug("title: {}", title);
     // set meta data
     List metalist = (List) itemMap.get("metadata");
     MetaDataList metadataList = new MetaDataList(metalist);
@@ -1669,7 +1691,6 @@ public class ExtractionHelper
     }
 
   }
-
 
   /**
    *
@@ -3073,6 +3094,16 @@ public class ExtractionHelper
     this.unzipLocation = unzipLocation;
   }
 
+  public void setMcx(MergeConfig mcx)
+  {
+    this.mcx = mcx;
+  }
+
+  public void setSiteId(String siteId)
+  {
+    this.siteId = siteId;
+  }
+
   //------------- EMI -------------------//
 	private String get(Map itemMap, String key) {
 		return ((String) itemMap.get(key)).trim();
@@ -3271,6 +3302,27 @@ public class ExtractionHelper
         String poolid = section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW);
         return StringUtils.isNotBlank(poolid);
 
+    }
+
+    // Note: We need to adjust the name so imported attachments look like attachments created in Sakai.  The QTI XML turns the
+    // "&" into "_" during serialization and we need ot undo that here so the attachments have the same naming convention as those
+    // created as part of the editing of an assesmment in the UI
+
+    // In the QTI Import XML:  /attachment/1ee5eb6d-b14e-417a-9958-ba43b99f75de/Tests _ Quizzes/b9ed28c8-cf15-4c8e-ac58-ea08e53729dc/ietf-jon-postel-10.png
+    // Imported into Sakai as: /attachment/1ee5eb6d-b14e-417a-9958-ba43b99f75de/Tests & Quizzes/b9ed28c8-cf15-4c8e-ac58-ea08e53729dc/ietf-jon-postel-10.png
+    private ContentResource transferAttachment(String toContext, String oAttachmentId, MergeConfig mcx) {
+      String toolTitle = ToolManager.getTool(SamigoConstants.TOOL_ID).getTitle();
+      try {
+        if ( ! oAttachmentId.startsWith("/content")) {
+          oAttachmentId = "/content" + oAttachmentId;
+        }
+        log.debug("ExtractionHelper.transferAttachment - 3345 {} {} {}", toContext, oAttachmentId, mcx);
+        ContentResource attachment = AssessmentService.getContentHostingService().copyAttachment(oAttachmentId, toContext, toolTitle, mcx);
+        return attachment;
+      } catch (IdUnusedException | TypeException | PermissionException e) {
+        log.error("Error copying attachment: {} {} {}", toContext, oAttachmentId, e.toString());
+      }
+      return null;
     }
 
 }

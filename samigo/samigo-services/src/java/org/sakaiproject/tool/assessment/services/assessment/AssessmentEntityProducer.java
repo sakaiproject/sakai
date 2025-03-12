@@ -32,6 +32,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.Set;
+import java.util.HashSet;
 import java.util.Stack;
 import java.util.TreeSet;
 import java.util.Iterator;
@@ -73,6 +74,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.questionpool.QuestionPoolDataIfc;
 import org.sakaiproject.tool.assessment.data.dao.assessment.*;
@@ -159,7 +161,8 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
      * Archive draft and published assessments and question pools referenced by assessments
      * @return Details of what was archived
      */
-    public String archive(String siteId, Document doc, Stack stack, String archivePath, List attachments) {
+    @Override
+    public String archive(String siteId, Document doc, Stack<Element> stack, String archivePath, List<Reference> attachments) {
 
         StringBuilder results = new StringBuilder();
         results.append("archiving ").append(getLabel()).append("\n");
@@ -225,6 +228,17 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 	    // Attachments and inline references
 	    resourceIds.addAll(getAttachmentResourceIds(assessment.getElementsByTagName("qtimetadatafield")));
 	    resourceIds.addAll(getInlineResourceIds(siteId, assessment.getElementsByTagName("mattext")));
+
+		log.debug("siteId: {}", siteId);
+		log.debug("resourceIds: {}", resourceIds);
+		for (String resourceId : resourceIds) {
+			// In Sakai Content:   /attachment/1ee5eb6d-b14e-417a-9958-ba43b99f75de/Tests & Quizzes/b9ed28c8-cf15-4c8e-ac58-ea08e53729dc/ietf-jon-postel-10.png
+			// In the QTI Export:  /attachment/1ee5eb6d-b14e-417a-9958-ba43b99f75de/Tests _ Quizzes/b9ed28c8-cf15-4c8e-ac58-ea08e53729dc/ietf-jon-postel-10.png
+			// In content.xml and attachment.xml /attachment/1ee5eb6d-b14e-417a-9958-ba43b99f75de/Tests & Quizzes/b9ed28c8-cf15-4c8e-ac58-ea08e53729dc/ietf-jon-postel-10.png
+			resourceId = resourceId.replace("_", "&");
+			attachments.add(entityManager.newReference(resourceId));
+		}
+		log.debug("attachments: {}", attachments);
 
         } // draft
 
@@ -363,7 +377,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
             String id = element.getAttribute("id");
             String path = qtiPath + ARCHIVED_ELEMENT + id + ".xml";
             try {
-                AssessmentIfc assessment = qtiService.createImportedAssessment(path, QTI_VERSION,  siteId);
+                AssessmentIfc assessment = qtiService.createImportedAssessment(path, QTI_VERSION,  siteId, mcx);
                 results.append(getLabel() + " imported assessment '" + assessment.getTitle() + "'\n");            
             } catch (Throwable t) {
                 log.error(t.getMessage(), t);
@@ -482,7 +496,6 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 							continue;
 						}
 
-						// TODO: why are these copyAttachments = false?
 						boolean instructionChanged = migrateText(service, toContext, item, itemHash, hasCaches, hasDuplicates, false,
 								"inst", itemContentCache, entrySet, transversalMap, mcx, ItemData::getInstruction, ItemData::setInstruction);
 
@@ -710,6 +723,22 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 	return result;
     }
 
+	private List<String[]> parseImportAttachmentResourceIds(String qText) {
+
+		List<String[]> result = new ArrayList<>();
+
+		String[] attachmentRefs = qText.split("\n");
+		for (String attachmentRef : attachmentRefs) {
+			String[] attachmentParts = attachmentRef.split("\\|");
+			if ( attachmentParts.length != 3 ) {
+				log.debug("Invalid attachment reference: {}", attachmentRef);
+				continue;
+			}
+			result.add(attachmentParts);
+		}
+		return result;
+	}
+
     /*
      * Parse an HTML text blob to extract inline URLs and turn them back into
      * Sakai references. Similar to
@@ -861,4 +890,5 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 
 		return false;
 	}
+
 }
