@@ -257,8 +257,33 @@ commons.utils = {
         if (millis <= 0) {
             return commons.i18n.none;
         } else {
-            var m = moment(millis);
-            return m.format('L LT');
+            try {
+                // Get user's timezone from portal.user if available
+                let timezone = "UTC";
+                if (portal && portal.user && portal.user.timezone) {
+                    timezone = portal.user.timezone;
+                }
+                
+                // Get user's locale from portal if available
+                let locale = navigator.language;
+                if (portal && portal.locale) {
+                    locale = portal.locale;
+                }
+                
+                // Create a formatter with the user's timezone and locale
+                const formatter = new Intl.DateTimeFormat(locale, {
+                    dateStyle: 'short',
+                    timeStyle: 'short',
+                    timeZone: timezone
+                });
+                
+                // Format the date
+                return formatter.format(new Date(millis));
+            } catch (e) {
+                console.error("Error formatting date:", e);
+                // Fallback to basic formatting if Temporal API fails
+                return new Date(millis).toLocaleString();
+            }
         }
     },
     addFormattedDatesToPosts: function (posts) {

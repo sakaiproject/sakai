@@ -18,15 +18,11 @@
 package org.sakaiproject.commons.api.datamodel;
 
 import java.time.Instant;
-import java.time.ZoneId;
-import java.util.Calendar;
 import java.util.Stack;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.TimeZone;
 
 import org.apache.commons.text.StringEscapeUtils;
-import org.sakaiproject.commons.api.CommonsManager;
 import org.sakaiproject.commons.api.CommonsReferenceReckoner;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -61,10 +57,8 @@ public class Comment implements Entity {
         this.setPostId(rs.getString("POST_ID"));
         this.setContent(rs.getString("CONTENT"));
         this.setCreatorId(rs.getString("CREATOR_ID"));
-
-        // retrieve time's in UTC since that's how it's stored
-        this.setCreatedDate(rs.getTimestamp("CREATED_DATE", Calendar.getInstance(TimeZone.getTimeZone(ZoneId.of("UTC")))).getTime());
-        this.setModifiedDate(rs.getTimestamp("MODIFIED_DATE", Calendar.getInstance(TimeZone.getTimeZone(ZoneId.of("UTC")))).getTime());
+        this.setCreatedDate(rs.getTimestamp("CREATED_DATE").getTime());
+        this.setModifiedDate(rs.getTimestamp("MODIFIED_DATE").getTime());
     }
 
     public Comment(String text) {
