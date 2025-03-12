@@ -213,7 +213,8 @@ export class SakaiRubric extends RubricsElement {
       </div>
 
       <div class="collapse" id="rubric-collapse-${this.rubric.id}">
-        <div class="rubric-details style-scope sakai-rubric">
+        <div class="rubric-details style-scope sakai-rubric" rubric-id="${this.rubric.id}">
+          <div class="sak-banner-success d-none" aria-live="polite">${this.tr("saved_successfully")}</div>
           <sakai-rubric-criteria
             rubric-id="${this.rubric.id}"
             site-id="${this.rubric.ownerId}"
@@ -261,39 +262,48 @@ export class SakaiRubric extends RubricsElement {
   }
 
   handleSaveWeights() {
-
     const saveWeightsBtn = document.querySelector(`[rubric-id='${this.rubric.id}'] .save-weights`);
-    const saveSuccessLbl = document.querySelector(`[rubric-id='${this.rubric.id}'] .sak-banner-success`);
-
+    // Disable the save button
     if (saveWeightsBtn) saveWeightsBtn.setAttribute("disabled", true);
 
-    this.rubric.criteria.forEach(cr => {
+    // Track successful saves
+    let successCount = 0;
+    const totalCriteria = this.rubric.criteria.length;
 
+    this.rubric.criteria.forEach(cr => {
       this.updateRubricOptions.body = JSON.stringify([ { "op": "replace", "path": "/weight", "value": cr.weight } ]);
       const url = `/api/sites/${this.rubric.ownerId}/rubrics/${this.rubric.id}/criteria/${cr.id}`;
       fetch(url, this.updateRubricOptions)
       .then(r => {
-
         if (r.ok) {
-
-          if (saveSuccessLbl) {
-            saveSuccessLbl.classList.remove("d-none");
-            setTimeout(() => {
-              saveSuccessLbl.classList.add("d-none");
-            }, 5000);
+          successCount++;
+          // When all criteria have been saved successfully
+          if (successCount === totalCriteria) {
+            // Force the success message to be shown
+            this.updateComplete.then(() => {
+              // Find the success banner using the rubric-id attribute
+              const successBanner = document.querySelector(`[rubric-id='${this.rubric.id}'] .sak-banner-success`);
+              if (successBanner) {
+                // Remove d-none class to show the message
+                successBanner.classList.remove("d-none");
+                // Set a timeout to hide the message after 5 seconds
+                setTimeout(() => {
+                  successBanner.classList.add("d-none");
+                }, 5000);
+              } else {
+                console.error("Success banner element not found");
+              }
+              // Re-enable the save button
+              if (saveWeightsBtn) saveWeightsBtn.removeAttribute("disabled");
+            });
+            this.requestUpdate();
+            this.dispatchEvent(new SharingChangeEvent());
           }
-
-          setTimeout(() => {
-            if (saveWeightsBtn) saveWeightsBtn.removeAttribute("disabled");
-          }, 1000);
-
-          this.requestUpdate();
-          this.dispatchEvent(new SharingChangeEvent());
         } else {
           throw new Error("Network error while setting criterion weight");
         }
       })
-      .catch (error => console.error(error));
+      .catch(error => console.error(error));
     });
   }
 

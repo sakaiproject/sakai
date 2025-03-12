@@ -322,12 +322,14 @@ $(window).load( function() {
 		<h:outputText rendered="#{partBean.sectionAuthorType!= null && (partBean.sectionAuthorTypeString == '2' || partBean.sectionAuthorTypeString == '4') && empty partBean.randomQuestionsDrawDate}" value="#{authorMessages.random_draw_msg_no_date}"/>
         <h:outputFormat rendered="#{partBean.sectionAuthorType!= null && (partBean.sectionAuthorTypeString == '2' || partBean.sectionAuthorTypeString == '4') && !empty partBean.randomQuestionsDrawDate && author.isEditPendingAssessmentFlow}" value="#{authorMessages.random_draw_msg}" escape="false">
         	<f:param value="#{partBean.poolNameToBeDrawn}"/>
+        	<f:param value="#{partBean.randomQuestionsOwnerDisplayName}"/>
         	<f:param value="#{partBean.randomQuestionsDrawDate}"/>
         	<f:param value="#{partBean.randomQuestionsDrawTime}"/>
         </h:outputFormat>
         
         <h:outputFormat rendered="#{partBean.sectionAuthorType!= null && (partBean.sectionAuthorTypeString == '2' || partBean.sectionAuthorTypeString == '4') && !author.isEditPoolFlow && !empty partBean.randomQuestionsDrawDate && !author.isEditPendingAssessmentFlow}" value="#{authorMessages.random_draw_msg_published}" escape="false">
         	<f:param value="#{partBean.poolNameToBeDrawn}"/>
+        	<f:param value="#{partBean.randomQuestionsOwnerDisplayName}"/>
         	<f:param value="#{partBean.randomQuestionsDrawDate}"/>
         	<f:param value="#{partBean.randomQuestionsDrawTime}"/>
         </h:outputFormat>
@@ -335,18 +337,22 @@ $(window).load( function() {
         <h:outputText rendered="#{partBean.sectionAuthorType!= null && partBean.sectionAuthorTypeString == '3' && empty partBean.randomQuestionsDrawDate && empty partBean.fixedQuestionsDrawDate}" value="#{authorMessages.fixed_and_random_draw_msg_no_date}"/>
         <h:outputFormat rendered="#{partBean.sectionAuthorType!= null && partBean.sectionAuthorTypeString == '3' && !empty partBean.randomQuestionsDrawDate && !empty partBean.fixedQuestionsDrawDate && author.isEditPendingAssessmentFlow}" value="#{authorMessages.fixed_and_random_draw_msg}" escape="false">
         	<f:param value="#{partBean.poolNameToBeFixed}"/>
+        	<f:param value="#{partBean.fixedQuestionsOwnerDisplayName}"/>
         	<f:param value="#{partBean.fixedQuestionsDrawDate}"/>
         	<f:param value="#{partBean.fixedQuestionsDrawTime}"/>
         	<f:param value="#{partBean.poolNameToBeDrawn}"/>
+        	<f:param value="#{partBean.randomQuestionsOwnerDisplayName}"/>
         	<f:param value="#{partBean.randomQuestionsDrawDate}"/>
         	<f:param value="#{partBean.randomQuestionsDrawTime}"/>
         </h:outputFormat>
         
         <h:outputFormat rendered="#{partBean.sectionAuthorType!= null && partBean.sectionAuthorTypeString == '3' && !author.isEditPoolFlow && !empty partBean.randomQuestionsDrawDate && !empty partBean.fixedQuestionsDrawDate && !author.isEditPendingAssessmentFlow}" value="#{authorMessages.fixed_and_random_draw_msg_published}" escape="false">
         	<f:param value="#{partBean.poolNameToBeFixed}"/>
+        	<f:param value="#{partBean.fixedQuestionsOwnerDisplayName}"/>
         	<f:param value="#{partBean.fixedQuestionsDrawDate}"/>
         	<f:param value="#{partBean.fixedQuestionsDrawTime}"/>
         	<f:param value="#{partBean.poolNameToBeDrawn}"/>
+        	<f:param value="#{partBean.randomQuestionsOwnerDisplayName}"/>
         	<f:param value="#{partBean.randomQuestionsDrawDate}"/>
         	<f:param value="#{partBean.randomQuestionsDrawTime}"/>
         </h:outputFormat>
@@ -410,6 +416,13 @@ $(window).load( function() {
      <h:outputLabel styleClass="notbold" for="answerptr" rendered="#{question.itemData.score == 1}" value=" #{authorMessages.point_lower_case}"/>
      <h:outputLabel styleClass="notbold" for="answerptr" rendered="#{question.itemData.score >= 0 && question.itemData.score != 1}" value=" #{authorMessages.points_lower_case}"/>
      <h:outputText styleClass="extraCreditLabel" rendered="#{question.itemData.isExtraCredit == true}" value=" #{authorMessages.extra_credit_preview}" />
+     <h:panelGroup styleClass="d-none d-sm-inline" rendered="#{question.itemData.minScore > 0 || question.itemData.discount > 0}">
+      <h:outputText value=" (" />
+      <h:outputText value="#{authorMessages.answer_min_point_short}: #{question.itemData.minScore}" rendered="#{question.itemData.minScore > 0}" />
+      <h:outputText value=", " rendered="#{question.itemData.minScore > 0 && question.itemData.discount > 0}" />
+      <h:outputText value="#{authorMessages.answer_discount_point_short}: #{question.itemData.discount}" rendered="#{question.itemData.discount > 0}" />
+      <h:outputText value=")" />
+    </h:panelGroup>
 	</h:panelGroup>
 
 	<h:outputText escape="false" rendered="#{question.timedQuestion}" value=" <i title='#{authorMessages.timed}' class='fa fa-clock-o'></i>" />
