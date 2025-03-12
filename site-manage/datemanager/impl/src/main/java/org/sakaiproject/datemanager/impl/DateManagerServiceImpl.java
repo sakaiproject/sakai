@@ -1244,7 +1244,13 @@ public class DateManagerServiceImpl implements DateManagerService {
 					tobj.put(DateManagerConstants.JSON_DUEDATE_PARAM_NAME, null);
 					tobj.put(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, null);
 				}
-				tobj.put(DateManagerConstants.JSON_EXTRAINFO_PARAM_NAME, resourceLoader.getString("itemtype.topic"));
+				
+				String extraInfo = resourceLoader.getString("itemtype.topic");
+				if (topic.getDraft()) {
+					extraInfo = extraInfo + " " + resourceLoader.getString("itemtype.draft"); 
+				}
+				
+				tobj.put(DateManagerConstants.JSON_EXTRAINFO_PARAM_NAME, extraInfo);
 				tobj.put(DateManagerConstants.JSON_TOOLTITLE_PARAM_NAME, toolTitle);
 				tobj.put(DateManagerConstants.JSON_URL_PARAM_NAME, url);
 				jsonForums.add(tobj);
