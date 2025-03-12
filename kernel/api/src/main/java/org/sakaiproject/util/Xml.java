@@ -510,6 +510,20 @@ public class Xml
 	}
 
 	/**
+	 * Fetch text value of a child element
+	 * @return Text content of the first child element matching the tag name,
+	 * 	otherwise null if there is no matching element
+	 */
+	public static String getChildElementValue(Element e, String childName) {
+		NodeList list = e.getElementsByTagName(childName);
+		if (list.getLength() > 0) {
+			Element c = (Element) list.item(0);
+			return c.getTextContent();
+		}
+		return null;
+	}
+
+	/**
 	 * Convert a Node and its children to a readable string representation
 	 * @param node The node to convert
 	 * @return A formatted string showing the node structure
