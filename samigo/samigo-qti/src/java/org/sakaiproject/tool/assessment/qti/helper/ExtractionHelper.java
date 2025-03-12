@@ -3304,9 +3304,9 @@ public class ExtractionHelper
 
     }
 
-	// Note: We need to adjust the name so imported attachments look like attachments created in Sakai.  The QTI XML turns the
-	// "&" into "_" during serialization and we need ot undo that here so the attachments have the same naming convention as those
-	// created as part of the editing of an assesmment in the UI
+    // Note: We need to adjust the name so imported attachments look like attachments created in Sakai.  The QTI XML turns the
+    // "&" into "_" during serialization and we need ot undo that here so the attachments have the same naming convention as those
+    // created as part of the editing of an assesmment in the UI
 
     // In the QTI Import XML:  /attachment/1ee5eb6d-b14e-417a-9958-ba43b99f75de/Tests _ Quizzes/b9ed28c8-cf15-4c8e-ac58-ea08e53729dc/ietf-jon-postel-10.png
     // Imported into Sakai as: /attachment/1ee5eb6d-b14e-417a-9958-ba43b99f75de/Tests & Quizzes/b9ed28c8-cf15-4c8e-ac58-ea08e53729dc/ietf-jon-postel-10.png
