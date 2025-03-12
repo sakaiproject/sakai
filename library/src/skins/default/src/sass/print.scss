@@ -41,7 +41,10 @@ aside.offcanvas,
 .#{$namespace}headerLogo,
 .#{$namespace}toolTitleNav__button_container,
 .#{$namespace}toolTitleNav__button_container *,
-##{$namespace}footerApp__chat{
+##{$namespace}footerApp__chat,
+#roleSwitch,
+.breadcrumb,
+.role-switcher {
 	display: none !important;
 }
 
