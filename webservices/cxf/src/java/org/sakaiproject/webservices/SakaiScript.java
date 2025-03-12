@@ -69,6 +69,7 @@ import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.time.api.TimeRange;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.user.api.PreferencesEdit;
@@ -491,34 +492,11 @@ public class SakaiScript extends AbstractWebService {
             return "error : " + e.getMessage();
         }
 
-        PreferencesEdit preference = null;
         if (userId != null) {
-            try {
-                try {
-                    preference = preferencesService.edit(userId);
-                } catch (IdUnusedException iue) {
-                    preference = preferencesService.add(userId);
-                }
-            } catch (Exception e) {
-                log.warn("Could not get the preferences for user [{}], {}", userId, e.toString());
-                return "error : " + e.getMessage();
-            }
-        } else {
-            return "error : User not found with eid [" + eid + "]";
-        }
-
-        if (preference != null) {
-            try {
-                ResourcePropertiesEdit props = preference.getPropertiesEdit(ResourceLoader.APPLICATION_ID);
+            preferencesService.editWithAutoCommit(userId, edit -> {
+                ResourcePropertiesEdit props = edit.getPropertiesEdit(ResourceLoader.APPLICATION_ID);
                 props.addProperty(ResourceLoader.LOCALE_KEY, locale);
-            } catch (Exception e) {
-                log.warn("WS changeUserLocale(): {}", e.toString());
-                preferencesService.cancel(preference);
-                preference = null;
-                return "error : " + e.getMessage();
-            } finally {
-                if (preference != null) preferencesService.commit(preference);
-            }
+            });
         } else {
             return "error : could not set locale for user [" + eid + "]";
         }
@@ -4987,34 +4965,11 @@ public class SakaiScript extends AbstractWebService {
             return "error : " + e.getMessage();
         }
 
-        PreferencesEdit preference = null;
         if (userId != null) {
-            try {
-                try {
-                    preference = preferencesService.edit(userId);
-                } catch (IdUnusedException iue) {
-                    preference = preferencesService.add(userId);
-                }
-            } catch (Exception e) {
-                log.warn("Could not get the preferences for user [{}], {}", userId, e.toString());
-                return "error : " + e.getMessage();
-            }
-        } else {
-            return "error : User not found with eid [" + eid + "]";
-        }
-
-        if (preference != null) {
-            try {
-                ResourcePropertiesEdit props = preference.getPropertiesEdit(timeService.APPLICATION_ID);
-                props.addProperty(timeService.TIMEZONE_KEY, timeZoneId);
-            } catch (Exception e) {
-                log.warn("WS setUserTimeZone(): could not set timezone for user [{}], {}", eid, e.toString());
-                preferencesService.cancel(preference);
-                preference = null;
-                return "error : " + e.getMessage();
-            } finally {
-                if (preference != null) preferencesService.commit(preference);
-            }
+            preferencesService.editWithAutoCommit(userId, edit -> {
+                ResourcePropertiesEdit props = edit.getPropertiesEdit(timeService.APPLICATION_ID);
+                props.addProperty(TimeService.TIMEZONE_KEY, timeZoneId);
+            });
         } else {
             log.warn("WS setUserTimeZone() could not fetch preferences for user [{}]", eid);
             return "error : could not set timezone for user [" + eid + "]";

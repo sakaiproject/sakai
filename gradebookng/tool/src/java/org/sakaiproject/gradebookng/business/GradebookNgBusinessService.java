@@ -2958,38 +2958,18 @@ public class GradebookNgBusinessService {
 	 */
 	public void setUserGbPreference(final String prefName, final String prefValue) {
 		if (StringUtils.isBlank(prefName)) return;
-
 		String siteId = getCurrentSiteId();
 		String userId = getCurrentUser().getId();
 
-		PreferencesEdit preference = null;
-		try {
-			try {
-				preference = preferencesService.edit(userId);
-			} catch (IdUnusedException iue) {
-				preference = preferencesService.add(userId);
-			}
-		} catch (Exception e) {
-			log.warn("Could not get the preferences for user [{}], {}", userId, e.toString());
-		}
-
-		if (preference != null) {
+		preferencesService.editWithAutoCommit(userId, edit -> {
 			String key = GB_PREF_KEY + siteId;
-			try {
-				ResourcePropertiesEdit props = preference.getPropertiesEdit(key);
-                if (prefValue != null) {
-                    props.addProperty(prefName, prefValue);
-                } else {
-                    props.removeProperty(prefName);
-                }
-            } catch (Exception e) {
-				log.warn("Could not set the property [{}] for user [{}] in key [{}], {}", prefName, userId, siteId, e.toString());
-				preferencesService.cancel(preference);
-				preference = null;
-			} finally {
-				if (preference != null) preferencesService.commit(preference);
+			ResourcePropertiesEdit props = edit.getPropertiesEdit(key);
+			if (prefValue != null) {
+				props.addProperty(prefName, prefValue);
+			} else {
+				props.removeProperty(prefName);
 			}
-		}
+		});
 	}
 
 	/**
