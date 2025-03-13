@@ -132,8 +132,8 @@ public class OIDCServlet extends HttpServlet {
 		redirect_uri = StringUtils.trimToNull(redirect_uri);
 
 		String encoded_login_hint = (String) request.getParameter("login_hint");
-		byte[] valueDecoded = Base64.decodeBase64(encoded_login_hint);
-		String login_hint = new String(valueDecoded);
+		// Use Base64DoubleUrlEncodeSafe to properly handle URL encoding issues
+		String login_hint = Base64DoubleUrlEncodeSafe.decodeDoubleSafe(encoded_login_hint);
 		if (StringUtils.isEmpty(login_hint)) {
 			state = null;
 		}
