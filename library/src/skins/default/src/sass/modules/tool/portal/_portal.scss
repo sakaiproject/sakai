@@ -177,7 +177,7 @@
 
   button {
     color: var(--top-header-text-color);
-    i {
+    span.bi {
       font-size: 22px;
     }
   }
@@ -268,7 +268,7 @@
   color: white;
   button, a {
     color: white;
-    i {
+    span.bi {
       font-size: 24px;
     }
   }
@@ -438,7 +438,12 @@
 
       background-color: var(--sakai-current-site);
       border-radius: 4px;
-      border: solid 1px var(--sakai-curent-site-border-color) !important;
+      border: solid 2px var(--sakai-curent-site-border-color) !important;
+
+      &#site-list-gateway-item-gateway {
+        border: none !important;
+        padding: 0 !important;
+      }
 
       a, button {
         color: var(--sakai-current-site-color);

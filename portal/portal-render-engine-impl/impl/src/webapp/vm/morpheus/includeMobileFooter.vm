@@ -10,7 +10,7 @@
           aria-label="$rloader.sit_navigation"
           aria-expanded="false"
           title="$rloader.sit_navigation">
-        <i class="bi bi-grid-3x3-gap-fill"></i>
+        <span class="bi bi-grid-3x3-gap-fill" aria-hidden="true"></span>
       </button>
     </li>
 
@@ -22,7 +22,7 @@
           aria-controls="sakai-notifications-panel"
           aria-label="$rloader.sit_notifications"
           title="$rloader.sit_notifications">
-        <i class="bi-bell"></i>
+        <span class="bi bi-bell" aria-hidden="true"></span>
         <span class="portal-notifications-indicator p-1 rounded-circle d-none">
           <span class="visually-hidden">$rloader.sit_new_notifications_label</span>
         </span>
@@ -35,7 +35,7 @@
       <a class="btn icon-button"
           href="/portal"
           title="$rloader.portal_home">
-        <i class="bi-house"></i>
+        <span class="bi bi-house" aria-hidden="true"></span>
       </a>
     </li>
     #end
@@ -48,7 +48,7 @@
           aria-controls="sakai-search-panel"
           aria-label="$rloader.sit_search_for_content"
           title="$rloader.sit_search_for_content">
-        <i class="bi-search"></i>
+        <span class="bi bi-search" aria-hidden="true"></span>
       </button>
     </li>
     #end
@@ -63,7 +63,7 @@
           aria-label="$rloader.sit_quick_links"
           aria-expanded="false"
           title="$rloader.sit_quick_links">
-        <i class="si si-link"></i>
+        <span class="bi bi-link-45deg" aria-hidden="true"></span>
       </button>
     </li>
   #end

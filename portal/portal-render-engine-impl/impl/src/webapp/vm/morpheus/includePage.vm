@@ -34,7 +34,7 @@
 
         #if (${currentRole} && $roleSwitchState == false)
             <div class="current-role mb-3">
-                <i class="fa fa-user" aria-hidden="true"></i>
+                <span class="bi bi-person-fill" aria-hidden="true"></span>
                 <span class="portal-user-role">${rloader.sit_role} ${currentRole}</span>
             </div>
         #end

@@ -11,7 +11,7 @@
 
         <input type="checkbox" class="btn-check" id="showPwTop" autocomplete="off">
         <label class="input-group-text" for="showPwTop">
-            <i class="bi bi-eye-slash-fill" aria-hidden="true"></i>
+            <span class="bi bi-eye-slash-fill" aria-hidden="true"></span>
             <span class="visually-hidden">${rloader.login_show_pw}</span>
         </label>
     </div>

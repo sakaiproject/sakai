@@ -78,7 +78,7 @@
                         <div class="dropdown">
                             <button class="btn btn-nav w-100 dropdown-toggle pe-3 d-flex align-items-center justify-content-between" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <div class="d-flex align-items-center">
-                                    <i class="me-1 bi bi-diagram-2" aria-hidden="true"></i>
+                                    <span class="me-1 bi bi-diagram-2" aria-hidden="true"></span>
                                     <span>$rloader.sitenav_sub_sites</span>
                                 </div>
                             </button>
@@ -104,15 +104,15 @@
                 title="${page.title}: ${page.description}">
             <div class="d-flex text-start align-items-center">
                 <div class="d-flex me-auto rounded-end">
-                    <i class="me-1 $!{icon}" aria-hidden="true"></i>
+                    <span class="me-1 $!{icon}" aria-hidden="true"></span>
                     <span class="me-2">${page.title}</span>
                 </div>
                 <div>
                 #if ($page.hidden)
-                    <i class="si si-hidden"></i>
+                    <span class="bi bi-eye-slash-fill" aria-hidden="true"></span>
                 #end
                 #if ($page.locked)
-                    <i class="si si-locked"></i>
+                    <span class="bi bi-lock-fill" aria-hidden="true"></span>
                 #end
                 </div>
             </div>
@@ -178,8 +178,8 @@
                 title="Open the view all sites sidebar"
                 aria-label="$rloader.sit_allsites"
                 title="$rloader.sit_allsites">
-            <i class="bi bi-grid-3x3-gap-fill d-none d-md-inline"></i>
-            <i class="bi bi-arrow-right-circle-fill d-inline d-md-none"></i>
+            <span class="bi bi-grid-3x3-gap-fill d-none d-md-inline" aria-hidden="true"></span>
+            <span class="bi bi-arrow-right-circle-fill d-inline d-md-none" aria-hidden="true"></span>
             <span class="ps-1">${rloader.sitenav_link_allsites}</span>
         </button>
     </div>
