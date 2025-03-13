@@ -13,9 +13,8 @@
           aria-controls="portal-nav-sidebar">
         <span class="bi bi-list"></span>
       </button>
-      <a class="btn" href="/portal" title="$rloader.portal_home">
-        <img class="logo-light" src="/library/skin/$!{pageSkin}/images/sakaiLogoBlack.png" alt="Sakai Logo">
-        <img class="logo-dark" src="/library/skin/$!{pageSkin}/images/sakaiLogo.png" alt="Sakai Logo">
+      <a class="btn btn-logo" href="/portal" title="$rloader.portal_home">
+        <span class="visually-hidden">$rloader.portal_home</span>
       </a>
     </div>
     #parse("/vm/morpheus/includePortalHeaderBreadcrumb.vm")
