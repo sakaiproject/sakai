@@ -82,6 +82,7 @@ import org.sakaiproject.lti13.util.SakaiLineItem;
 import org.sakaiproject.lti13.LineItemUtil;
 
 import org.apache.commons.codec.binary.Base64;
+import org.tsugi.util.Base64DoubleUrlEncodeSafe;
 
 @SuppressWarnings("deprecation")
 @Slf4j
@@ -317,8 +318,9 @@ public class LTISecurityServiceImpl implements EntityProducer {
 		String client_id = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_CLIENT_ID));
 		String deployment_id = ServerConfigurationService.getString(SakaiLTIUtil.LTI13_DEPLOYMENT_ID, SakaiLTIUtil.LTI13_DEPLOYMENT_ID_DEFAULT);
 
-		byte[] bytesEncoded = Base64.encodeBase64(login_hint.getBytes());
-		String encoded_login_hint = new String(bytesEncoded);
+		// Use Base64DoubleUrlEncodeSafe to ensure proper URL-safe encoding
+		String encoded_login_hint = Base64DoubleUrlEncodeSafe.encode(login_hint);
+		
 		try {
 			URIBuilder redirect = new URIBuilder(oidc_endpoint.trim());
 			redirect.addParameter("iss", SakaiLTIUtil.getOurServerUrl());
@@ -691,7 +693,7 @@ public class LTISecurityServiceImpl implements EntityProducer {
 		@SuppressWarnings("unchecked")
 		public String archive(String siteId, Document doc, Stack stack, String archivePath, List attachments)
 		{
-			log.debug("-------basic-lti-------- archive('{}, {}, {}, {}, {}')", siteId, doc, stack, archivePath, attachments);
+			log.debug("-------basic-lti-------- archive('{}', {}, {}, {}, {})", siteId, doc, stack, archivePath, attachments);
 
 			StringBuilder results = new StringBuilder("archiving basiclti "+siteId+"\n");
 
