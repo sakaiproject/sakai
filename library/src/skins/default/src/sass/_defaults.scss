@@ -55,7 +55,7 @@ $material-menu-item-padding: calc(#{$standard-spacing} / 2) $standard-spacing !d
 /* Tool tabs */
 $tool-tab-height:                                         32px !default;
 $tool-tab-text-size:                                      12px !default;
-$tool-tab-text-weight:                                    normal !default;
+$tool-tab-text-weight:                                    400 !default;
 $tool-tab-text-transform:                                 none !default;
 $tool-tab-text-letter-spacing:                            normal !default;
 $tool-tab-active-text-size:                               12px !default;
@@ -264,12 +264,22 @@ $scroll-behavior: smooth;
 
 $breadcrumb-divider: '>';
 
+@media (max-width: 767px) {
+    :root {
+        --portal-header-height: 5.5rem;
+    }
+}
+
+@media (min-width: 768px) {
+    :root {
+        --portal-header-height: 4.5rem;
+    }
+}
+
 :root {
     font-size: 14px;
     --default-font-size: #{$default-font-size};
-    --portal-nav-sidebar-width: 16rem;
-    --portal-header-height: 4.5rem;
-
+    --portal-nav-sidebar-width: 22rem;
     --select-background-image-url: url(#{$skin-path}/images/icon-arrow-down.png);
 
     //Dashboard
