@@ -726,10 +726,12 @@ function enableDisableToGradebook() {
     const checkedInput = document.querySelector('#assessmentSettingsAction\\:toDefaultGradebook input:checked');
     const gradebookSelect = document.querySelector('#assessmentSettingsAction\\:toGradebookNameContainer');
     
-    if (checkedInput && checkedInput.value === '3') {
-        gradebookSelect.style.display = 'block';
-    } else {
-        gradebookSelect.style.display = 'none';
+    if (gradebookSelect) {
+        if (checkedInput && checkedInput.value === '3') {
+            gradebookSelect.style.display = 'block';
+        } else {
+            gradebookSelect.style.display = 'none';
+        }
     }
 
     // Call toggleCategories with the current value
