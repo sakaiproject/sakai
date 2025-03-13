@@ -1342,6 +1342,13 @@
   .dropdown-toggle::after {
     display: none;
   }
+  
+  // Masking the auto selected text in dropdowns in Firefox
+  .dropdown-menu.show {
+    a::-moz-selection {
+      background: none;
+    }
+  }
 }
 
 div.wicket-modal, .#{$namespace}sakai-gradebookng {
