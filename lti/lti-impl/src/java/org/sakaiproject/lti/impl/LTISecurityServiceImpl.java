@@ -693,7 +693,7 @@ public class LTISecurityServiceImpl implements EntityProducer {
 		@SuppressWarnings("unchecked")
 		public String archive(String siteId, Document doc, Stack stack, String archivePath, List attachments)
 		{
-			log.debug("-------basic-lti-------- archive('{}', {}, {}, {}, {})", siteId, doc, stack, archivePath, attachments);
+			log.debug("-------basic-lti-------- archive('{}, {}, {}, {}, {}')", siteId, doc, stack, archivePath, attachments);
 
 			StringBuilder results = new StringBuilder("archiving basiclti "+siteId+"\n");
 
