@@ -39,8 +39,8 @@
                 display: inline-block;
 
                 @media #{$desktop} {
-                    padding-left: 6px;
-                    padding-right: $standard-spacing;
+                    padding-left: 1px;
+                    padding-right: 1px;
                     border-right: 2px solid $rubrics-title-border-color;
 
                     > span {
@@ -114,9 +114,8 @@
     }
 
     .rubric-title-sorting {
-        padding: 0px;
+        background-color: var(--sakai-background-color-3);
         border-width: $rubrics-title-border-size 0px;
-        font-weight: bold;
         @include display-flex;
         @include justify-content(space-between);
 
@@ -274,7 +273,7 @@
             .criterion-ratings {
                 display: table-cell;
                 vertical-align: top;
-                width: 75%;
+                width: 70%;
                 height: 100%;
 
                 .cr-table {
@@ -317,7 +316,7 @@
                 padding: $standard-spacing;
                 display: table-cell;
                 background: $rubrics-crit-actions-bg;
-                width: 5%;
+                width: 10%;
                 position: relative;
             }
         }
