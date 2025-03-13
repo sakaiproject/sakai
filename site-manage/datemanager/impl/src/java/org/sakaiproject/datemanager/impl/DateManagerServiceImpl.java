@@ -1266,7 +1266,13 @@ public class DateManagerServiceImpl implements DateManagerService {
 				fobj.put(DateManagerConstants.JSON_DUEDATE_PARAM_NAME, null);
 				fobj.put(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, null);
 			}
-			fobj.put(DateManagerConstants.JSON_EXTRAINFO_PARAM_NAME, rb.getString("itemtype.forum"));
+			
+			String forumExtraInfo = rb.getString("itemtype.forum");
+			if (forum.getDraft()) {
+				forumExtraInfo = forumExtraInfo + " " + rb.getString("itemtype.draft"); 
+			}
+			
+			fobj.put(DateManagerConstants.JSON_EXTRAINFO_PARAM_NAME, forumExtraInfo);
 			fobj.put(DateManagerConstants.JSON_TOOLTITLE_PARAM_NAME, toolTitle);
 			fobj.put(DateManagerConstants.JSON_URL_PARAM_NAME, url);
 			for (Object o : forum.getTopicsSet()) {
@@ -1283,7 +1289,13 @@ public class DateManagerServiceImpl implements DateManagerService {
 					tobj.put(DateManagerConstants.JSON_DUEDATE_PARAM_NAME, null);
 					tobj.put(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, null);
 				}
-				tobj.put(DateManagerConstants.JSON_EXTRAINFO_PARAM_NAME, rb.getString("itemtype.topic"));
+				
+				String extraInfo = rb.getString("itemtype.topic");
+				if (topic.getDraft()) {
+					extraInfo = extraInfo + " " + rb.getString("itemtype.draft"); 
+				}
+				
+				tobj.put(DateManagerConstants.JSON_EXTRAINFO_PARAM_NAME, extraInfo);
 				tobj.put(DateManagerConstants.JSON_TOOLTITLE_PARAM_NAME, toolTitle);
 				tobj.put(DateManagerConstants.JSON_URL_PARAM_NAME, url);
 				jsonForums.add(tobj);
