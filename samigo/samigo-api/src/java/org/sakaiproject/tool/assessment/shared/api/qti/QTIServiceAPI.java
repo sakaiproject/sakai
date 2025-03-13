@@ -27,6 +27,7 @@ import org.w3c.dom.Document;
 
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.util.MergeConfig;
 
 public interface QTIServiceAPI
 {
@@ -46,7 +47,7 @@ public interface QTIServiceAPI
    * @param siteId the site the assessment will be associated with
    * @return a persisted assessment
    */
-  public AssessmentIfc createImportedAssessment(String documentPath, int qtiVersion, String siteId);
+  public AssessmentIfc createImportedAssessment(String documentPath, int qtiVersion, String siteId, MergeConfig mcx);
 
   /**
    * Import an item XML document in QTI format, extract & persist the data.
