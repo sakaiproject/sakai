@@ -231,6 +231,7 @@ public class ArchiveServiceTests extends AbstractTransactionalJUnit4SpringContex
 
         File siteArchiveDir = new File(archiveDir, siteId + "-archive");
         siteArchiveDir.mkdir();
+        System.out.println("Site Archive dir: " + siteArchiveDir.getCanonicalPath());
 
         ((ArchiveService2Impl) AopTestUtils.getTargetObject(archiveService)).setStoragePath(archiveDir.getCanonicalPath() + File.separator);
 
