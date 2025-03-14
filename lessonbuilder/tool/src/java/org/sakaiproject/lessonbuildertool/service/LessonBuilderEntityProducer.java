@@ -2298,7 +2298,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 		String oldSiteReference = context.getOldSiteId();
 		String newSiteReference = context.getNewSiteId();
-		content = StringUtils.replace(content, oldSiteReference, newSiteReference);
+		content = content.replaceAll("\\b" + Pattern.quote(oldSiteReference) + "\\b", newSiteReference);
 
 		// no point doing this code unless we actually have a dummy url in it
 		if (content.indexOf(ITEMDUMMY) >= 0) {
@@ -2602,7 +2602,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 						//Try secure and non-secure URLs too, for instances with a mix of configurations.
 						oldReferenceId = StringUtils.replace(oldReferenceId, StringUtils.replace(serverURL, "https://", "http://"), StringUtils.EMPTY);
 						oldReferenceId = StringUtils.replace(oldReferenceId, StringUtils.replace(serverURL, "http://", "https://"), StringUtils.EMPTY);
-						String newReferenceId = StringUtils.replace(oldReferenceId, oldSiteId, newSiteId);
+						String newReferenceId = oldReferenceId.replaceAll("\\b" + Pattern.quote(oldSiteId) + "\\b", newSiteId);
 
 						// Avoid creating duplicates if Resources already copied the item
 						boolean sourceFileExists = false;
@@ -2616,7 +2616,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 						if (sourceFileExists && !targetFileExists) {
 							contentHostingService.copy(oldReferenceId, newReferenceId);
 						}
-						replacedBody = StringUtils.replace(replacedBody, oldSiteId, newSiteId);
+						replacedBody = replacedBody.replaceAll("\\b" + Pattern.quote(oldSiteId) + "\\b", newSiteId);
 					} catch(IdUnusedException ide) {
 						log.warn("Warn transfering file from site {} to site {}.", oldSiteId, newSiteId, ide);
 					} catch(Exception e) {
