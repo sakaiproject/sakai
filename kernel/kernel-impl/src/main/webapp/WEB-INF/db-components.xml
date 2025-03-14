@@ -235,4 +235,20 @@
 		</property>
 	</bean>
 
+	<bean id="mapperFactory"
+			class="org.sakaiproject.serialization.MapperFactory"
+			init-method="init" />
+
+	<bean id="abstractBasicSerializableRepository"
+			class="org.sakaiproject.serialization.BasicSerializableRepository"
+			abstract="true">
+		<property name="mapperFactory" ref="mapperFactory" />
+	</bean>
+
+	<bean id="abstractSpringCrudRepositoryImpl"
+			class="org.sakaiproject.springframework.data.SpringCrudRepositoryImpl"
+			abstract="true">
+		<property name="mapperFactory" ref="mapperFactory" />
+	</bean>
+
 </beans>
