@@ -140,36 +140,38 @@ public class SakaiGradebook extends AbstractWebService {
             List<String> siteList = siteService.getSiteIds(SelectionType.NON_USER, null, null, null, SortType.NONE, null);
 
             for (String siteId : siteList) {
-                //If the site has gradebook then we
-                Gradebook gradebook = gradingService.getGradebook(siteId);
-                String gradebookUid=gradebook.getUid();
-                Long gradebookId=gradebook.getId();
+                List<String> gradebookUids = Arrays.asList(siteId);
+                if (gradingService.isGradebookGroupEnabled(siteId)) {
+                    gradebookUids = gradingService.getGradebookGroupInstancesIds(siteId);
+                }
+                for (String gradebookUid : gradebookUids) {
+                    Gradebook gradebook = gradingService.getGradebook(gradebookUid, siteId);
+                    Long gradebookId=gradebook.getId();
 
-                if (!isUpdate) { //If it is new then we need to add the scale to every actual gradebook in the list
-                        gradingService.saveGradeMappingToGradebook(scaleUuid, gradebookUid);
-                        log.debug("SakaiGradebook: Adding the new scale " + scaleUuid + " in gradebook: " + gradebook.getUid());
-
-                }else{ //If it is not new, then update the actual gradebooks with the new values ONLY if updateOld is true
-                    if (updateOld)  {
-                        Set<GradeMapping> gradeMappings = gradingService.getGradebookGradeMappings(gradebookId);
-                            for (Iterator iter2 = gradeMappings.iterator(); iter2.hasNext();) {
-                                GradeMapping gradeMapping = (GradeMapping)iter2.next();
-                                if (gradeMapping.getGradingScale().getUid().equals(scaleUuid)){
-                                    if (updateOnlyNotCustomized){ //We will only update the ones that teachers have not customized
-                                        if (mapsAreEqual(defaultBottomPercentsOld, gradeMapping.getGradeMap())){
-                                            log.debug("SakaiGradebook:They are equals " + gradebook.getUid());
-                                            gradeMapping.setDefaultValues();
+                    if (!isUpdate) { //If it is new then we need to add the scale to every actual gradebook in the list
+                            gradingService.saveGradeMappingToGradebook(scaleUuid, gradebookUid);
+                            log.debug("SakaiGradebook: Adding the new scale " + scaleUuid + " in gradebook: " + gradebook.getUid());
+                    }else{ //If it is not new, then update the actual gradebooks with the new values ONLY if updateOld is true
+                        if (updateOld)  {
+                            Set<GradeMapping> gradeMappings = gradingService.getGradebookGradeMappings(gradebookId);
+                                for (Iterator iter2 = gradeMappings.iterator(); iter2.hasNext();) {
+                                    GradeMapping gradeMapping = (GradeMapping)iter2.next();
+                                    if (gradeMapping.getGradingScale().getUid().equals(scaleUuid)){
+                                        if (updateOnlyNotCustomized){ //We will only update the ones that teachers have not customized
+                                            if (mapsAreEqual(defaultBottomPercentsOld, gradeMapping.getGradeMap())){
+                                                log.debug("SakaiGradebook:They are equals " + gradebook.getUid());
+                                                gradeMapping.setDefaultValues();
+                                            }else{
+                                                log.debug("SakaiGradebook:They are NOT equals " + gradebook.getUid());
+                                            }
                                         }else{
-                                            log.debug("SakaiGradebook:They are NOT equals " + gradebook.getUid());
+                                            gradeMapping.setDefaultValues();
                                         }
-                                    }else{
-                                        gradeMapping.setDefaultValues();
+                                        log.debug("SakaiGradebook: updating gradeMapping" + gradeMapping.getName());
+                                        gradingService.updateGradeMapping(gradeMapping.getId(),gradeMapping.getGradeMap());
                                     }
-                                    log.debug("SakaiGradebook: updating gradeMapping" + gradeMapping.getName());
-                                    gradingService.updateGradeMapping(gradeMapping.getId(),gradeMapping.getGradeMap());
                                 }
-                            }
-
+                        }
                     }
                 }
             }

@@ -32,9 +32,13 @@ package org.sakaiproject.tool.assessment.ui.bean.author;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
+import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 
@@ -43,6 +47,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.samigo.api.SamigoAvailableNotificationService;
 import org.sakaiproject.samigo.api.SamigoReferenceReckoner;
 import org.sakaiproject.spring.SpringBeanLocator;
@@ -147,12 +152,20 @@ public class RestoreAssessmentsBean implements Serializable {
                 evaluation = new PublishedEvaluationModel();
                 evaluation.setAssessmentBase(assessment.getData());
             }
+
             if (evaluation.getToGradeBook() != null	&& evaluation.getToGradeBook().equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())) {
+
                 PublishedAssessmentData data = (PublishedAssessmentData) assessment.getData();
                 String ref = SamigoReferenceReckoner.reckoner().site(AgentFacade.getCurrentSiteId()).subtype("p")
                         .id(assessment.getPublishedAssessmentId().toString()).reckon().getReference();
+
                 data.setReference(ref);
-                gbsHelper.addToGradebook(data, data.getCategoryId(), g);
+
+                Map<String, String> groupMap = assessment.getReleaseToGroups();
+                List<String> selectedGroups = groupMap.keySet().stream().collect(Collectors.toList());
+
+                gbsHelper.buildItemToGradebook(data, selectedGroups, g);
+
             }
         } catch (Exception e1) {
             log.warn("RestoreAssessmentsBean - Exception thrown in updateGB():" + e1.getMessage());

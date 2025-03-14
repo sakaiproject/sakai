@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.gradebookng.business.util;
+package org.sakaiproject.grading.api;
 
 import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-import org.sakaiproject.util.ResourceLoader;
 
 /**
  * Handles the retrieval of localised messages and parameter substitution outside of the Wicket context.
@@ -38,9 +37,9 @@ public class MessageHelper {
 	 * @param key
 	 * @return
 	 */
-	public static String getString(final String key) {
+	public static String getString(final String key, final Locale userPreferredLocale) {
 		try {
-			return ResourceBundle.getBundle("gradebookng", getUserPreferredLocale()).getString(key);
+			return ResourceBundle.getBundle("gradebookng", userPreferredLocale).getString(key);
 		} catch (final MissingResourceException e) {
 			return '!' + key + '!';
 		}
@@ -52,13 +51,8 @@ public class MessageHelper {
 	 * @param key
 	 * @return
 	 */
-	public static String getString(final String key, final Object... arguments) {
-		return MessageFormat.format(getString(key), arguments);
+	public static String getString(final String key, final Locale userPreferredLocale, final Object... arguments) {
+		return MessageFormat.format(getString(key, userPreferredLocale), arguments);
 	}
 
-	// helper to get the Locale from Sakai
-	private static Locale getUserPreferredLocale() {
-		final ResourceLoader rl = new ResourceLoader();
-		return rl.getLocale();
-	}
 }
