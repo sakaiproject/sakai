@@ -194,7 +194,7 @@
         if (currentSiteElement) {
             const targetUl = document.querySelector('#sites-section-first ul');
             if (targetUl) {
-                targetUl.insertBefore(currentSiteElement, targetUl.firstChild);
+                targetUl.firstElementChild.after(currentSiteElement);
             }
         }
 
