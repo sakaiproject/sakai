@@ -111,7 +111,7 @@ public class ArchiveServiceTests extends AbstractTransactionalJUnit4SpringContex
 
         File archiveDir = folder.newFolder("archive");
 
-        ((ArchiveService2Impl) AopTestUtils.getTargetObject(archiveService)).setStoragePath(archiveDir.getCanonicalPath() + File.separator);
+        ((ArchiveService2Impl) AopTestUtils.getTargetObject(archiveService)).setStoragePath(archiveDir.getAbsolutePath() + File.separator);
 
         Time time = mock(Time.class);
         when(time.toString()).thenReturn("deprecated time :(");
@@ -230,9 +230,9 @@ public class ArchiveServiceTests extends AbstractTransactionalJUnit4SpringContex
         File siteArchiveDir = new File(archiveDir, siteId + "-archive");
         siteArchiveDir.mkdir();
 
-        ((ArchiveService2Impl) AopTestUtils.getTargetObject(archiveService)).setStoragePath(archiveDir.getCanonicalPath() + File.separator);
+        ((ArchiveService2Impl) AopTestUtils.getTargetObject(archiveService)).setStoragePath(archiveDir.getAbsolutePath() + File.separator);
 
-        String archiveBasePath = siteArchiveDir.getCanonicalPath();
+        String archiveBasePath = siteArchiveDir.getAbsolutePath();
 
         Path siteXmlPath = Paths.get(Objects.requireNonNull(ArchiveServiceTests.class.getResource("/archive/site.xml")).toURI());
         assertNotNull(siteXmlPath);
