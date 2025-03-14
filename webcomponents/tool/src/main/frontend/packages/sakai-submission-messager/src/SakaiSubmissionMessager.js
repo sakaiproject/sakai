@@ -122,7 +122,7 @@ export class SakaiSubmissionMessager extends SakaiElement {
         ` : nothing}
 
         <div class="mb-2">
-		${this.showGroups ? html`
+        ${this.showGroups ? html`
           <label id="sm-group-selector-label-${this.assignmentId}" class="form-label">${this._i18n.select_group}</label>
           <sakai-group-picker
             site-id="${portal.siteId}"
@@ -131,7 +131,7 @@ export class SakaiSubmissionMessager extends SakaiElement {
             class="d-block"
             @groups-selected=${this.groupSelected}>
           </sakai-group-picker>
-          ` : ""}
+        ` : ""}
         </div>
 
         <button type="button" class="btn btn-outline-primary mb-2" @click=${this.listRecipients}>

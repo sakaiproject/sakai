@@ -757,7 +757,7 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 					} else {
 						for (String gradebookUid : gradebookUids) {
 							Assignment a = gradingService.getAssignmentByNameOrId(gradebookUid, siteId, data.get("taskTitle").toString());
-							gradingService.setAssignmentScoreString(gradebookUid, siteId, a.getId(), tiiExternalId, grade, "SYNC");
+							gradingService.setAssignmentScoreString(gradebookUid, siteId, a.getId(), tiiExternalId, grade, "SYNC", null);
 						}
 					}
 					log.info("UPDATED GRADE (" + grade + ") FOR USER (" + tiiExternalId + ") IN ASSIGNMENT ("

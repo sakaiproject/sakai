@@ -192,7 +192,7 @@ public class GradesController extends AbstractSakaiApiController {
         String comment = body.get("comment");
         String reference = body.get("reference");
 
-        gradingService.setAssignmentScoreString(siteId, gradingItemId, userId, grade, "restapi", reference, null);
+        gradingService.setAssignmentScoreString(siteId, siteId, gradingItemId, userId, grade, "restapi", reference);
 
         if (StringUtils.isNotBlank(comment)) {
             gradingService.setAssignmentScoreComment(siteId, gradingItemId, userId, comment);
