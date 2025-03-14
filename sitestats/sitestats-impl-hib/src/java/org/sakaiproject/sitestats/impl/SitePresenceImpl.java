@@ -27,6 +27,8 @@ import org.springframework.util.comparator.NullSafeComparator;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.Getter;
 
 @Builder
 @NoArgsConstructor
@@ -39,6 +41,7 @@ public class SitePresenceImpl implements SitePresence, Serializable {
 	private Date date;
 	private long duration;
 	private Date lastVisitStartTime;
+	@Getter @Setter private Integer currentOpenSessions = 0;
 
 	@Override
 	public int compareTo(SitePresence other) {
@@ -67,7 +70,8 @@ public class SitePresenceImpl implements SitePresence, Serializable {
 				&& date.equals(other.getDate())
 				&& duration == other.getDuration()
 				&& getCount() == other.getCount()
-				&& lastVisitStartTime == other.getLastVisitStartTime();
+				&& lastVisitStartTime.equals(other.getLastVisitStartTime())
+				&& currentOpenSessions.equals(other.getCurrentOpenSessions());
 	}
 
 	@Override
@@ -79,12 +83,13 @@ public class SitePresenceImpl implements SitePresence, Serializable {
 				+ this.getUserId().hashCode()
 				+ this.getDate().hashCode()
 				+ duration
-				+ this.getLastVisitStartTime();
+				+ this.getLastVisitStartTime()
+				+ currentOpenSessions;
 		return hashStr.hashCode();
 	}
 	
 	public String toString(){
-		return siteId + " : " + userId + " : " + date + " : " + duration + " (" + lastVisitStartTime + ")";
+		return siteId + " : " + userId + " : " + date + " : " + duration + " (" + lastVisitStartTime + ") : " + currentOpenSessions;
 	}
 
 	public long getDuration() {
@@ -142,5 +147,4 @@ public class SitePresenceImpl implements SitePresence, Serializable {
 	public long getCount() {
 		return duration;
 	}
-
 }
