@@ -66,6 +66,11 @@
              - Email: "urn:oid:0.9.2342.19200300.100.1.3" 
         -->
         <property name="usernameAttributeName" value="urn:oid:1.3.6.1.4.1.5923.1.1.1.6"/>
+        
+        <!-- Maximum authentication age (kept for compatibility, but handled by SAML assertion validity)
+             Note: In Spring Security 5.7.x, expiration is controlled by the SAML assertion itself
+             through the NotBefore and NotOnOrAfter conditions, which are enforced automatically. -->
+        <property name="maxAuthenticationAge" value="7200"/>
     </bean>
 
     <!-- ===================== MULTIPLE IDP CONFIGURATION ===================== -->

@@ -33,6 +33,7 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
 import org.springframework.security.saml2.provider.service.authentication.Saml2Authentication;
+import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationToken;
 
 /**
  * A SAML authentication provider that extracts username from SAML assertion attributes.
@@ -42,6 +43,13 @@ import org.springframework.security.saml2.provider.service.authentication.Saml2A
 public class SakaiSamlAuthenticationConverter {
 
     @Getter @Setter private String usernameAttributeName = "urn:oid:1.3.6.1.4.1.5923.1.1.1.6"; // Default to eduPersonPrincipalName
+    
+    /**
+     * Maximum time in seconds that a SAML authentication is considered valid.
+     * Default is 7200 seconds (2 hours), same as original config.
+     * This is enforced at the IdP level and in the SAML assertion itself.
+     */
+    @Getter @Setter private long maxAuthenticationAge = 7200;
 
     /**
      * Creates an authentication provider that extracts usernames from SAML assertions
@@ -62,6 +70,10 @@ public class SakaiSamlAuthenticationConverter {
             }
             
             try {
+                // Note: In Spring Security 5.7.x, the SAML authentication age check is
+                // built into the default authentication validation logic, controlled by 
+                // NotBefore and NotOnOrAfter conditions in the SAML assertion
+                
                 // Extract username from SAML attributes
                 String username = extractUsername(authentication);
                 

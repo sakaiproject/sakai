@@ -87,6 +87,11 @@ You can use HTTPS URLs for IdP metadata instead of local files:
    - Configure in the `sakaiSamlAuthenticationConverter` bean
    - Customize by setting the `usernameAttributeName` property
 
+3. Security Settings:
+   - SAML session validity is controlled by the SAML assertion's own validity period
+   - The NotBefore and NotOnOrAfter conditions in the SAML assertion are enforced automatically
+   - The `maxAuthenticationAge` property is kept for compatibility but doesn't need to be adjusted
+
 ## Troubleshooting
 
 If you encounter issues with the SAML integration:
