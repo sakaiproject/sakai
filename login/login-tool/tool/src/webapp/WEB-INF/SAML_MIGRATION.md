@@ -14,7 +14,7 @@ This document provides guidance for migrating from the legacy `spring-security-s
    - `SakaiLogoutHandler` - Handles Sakai session logout during SAML logout
 
 3. Created a new modern SAML configuration file:
-   - `xlogin-context.modern-saml.xml` - Uses the new Spring Security SAML2 APIs
+   - `xlogin-context.modern-saml.xml` - Uses the new Spring Security SAML2 APIs with improved multi-IDP support
 
 ## How to Enable Modern SAML
 
@@ -28,25 +28,64 @@ This document provides guidance for migrating from the legacy `spring-security-s
    cp xlogin-context.modern-saml.xml /opt/tomcat/sakai/xlogin-context.saml.xml
    ```
 
-3. Update the configuration to point to your IDP metadata file:
-   - Edit the `fromMetadataLocation` parameter in the RelyingPartyRegistrations bean
+3. Configure your IdP metadata file(s):
+   - For a single IdP, edit the `fromMetadataLocation` parameter in the default-idp registration
+   - For multiple IdPs, add additional `RelyingPartyRegistration` beans (see example in config)
 
-4. Select the appropriate authentication converter:
-   - Use `SakaiSamlAuthenticationConverter` for eduPersonPrincipalName (default)
-   - Or use `UpnSamlAuthenticationConverter` for UPN-based authentication
-   - Or create your own by extending `SakaiSamlAuthenticationConverter`
+4. Select the appropriate attribute for username extraction:
+   - Default: eduPersonPrincipalName (ePPN): `urn:oid:1.3.6.1.4.1.5923.1.1.1.6`
+   - UPN: `http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn`
+   - Email: `urn:oid:0.9.2342.19200300.100.1.3`
+   - Other attributes as needed by your institution
+
+## Multi-IdP Configuration
+
+The new configuration makes it easy to support multiple identity providers:
+
+1. Each IdP needs a unique registration ID (e.g., `default-idp`, `campus-idp`)
+2. Each IdP needs its own metadata file path
+3. The registration ID is included in the assertion consumer service URL
+
+Example for adding a second IdP:
+
+```xml
+<bean class="org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration"
+      factory-method="withRegistrationId">
+    <constructor-arg value="campus-idp" />
+    <constructor-arg>
+        <bean class="org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrations"
+              factory-method="fromMetadataLocation">
+            <constructor-arg value="file:/opt/tomcat/sakai/campus_idp.xml" />
+        </bean>
+    </constructor-arg>
+    <property name="entityId" value="SakaiSAMLApp" />
+    <property name="assertionConsumerServiceLocation" value="{baseUrl}/container/saml2/SSO/campus-idp" />
+    <property name="singleLogoutServiceLocation" value="{baseUrl}/container/saml2/logout/campus-idp" />
+</bean>
+```
+
+## Using HTTPS Metadata URLs
+
+You can use HTTPS URLs for IdP metadata instead of local files:
+
+```xml
+<bean class="org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrations"
+      factory-method="fromMetadataLocation">
+    <constructor-arg value="https://idp.example.org/metadata.xml" />
+</bean>
+```
 
 ## Key Configuration Elements
 
 1. SAML Configuration Properties:
    - Entity ID: The entity ID for your Sakai instance (default: `SakaiSAMLApp`)
-   - Assertion Consumer Service: `/container/saml2/SSO/sakai`
-   - Single Logout Service: `/container/saml2/logout/sakai`
+   - Assertion Consumer Service: `/container/saml2/SSO/{registrationId}`
+   - Single Logout Service: `/container/saml2/logout/{registrationId}`
+   - SP Metadata: Available at `/container/saml2/metadata/{registrationId}`
 
 2. Attribute Mapping:
-   - The default attribute for username is `urn:oid:1.3.6.1.4.1.5923.1.1.1.6` (eduPersonPrincipalName)
-   - For UPN, the attribute is `http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn`
-   - Customize by setting the `usernameAttributeName` property on the authentication converter
+   - Configure in the `sakaiSamlAuthenticationConverter` bean
+   - Customize by setting the `usernameAttributeName` property
 
 ## Troubleshooting
 
@@ -58,12 +97,13 @@ If you encounter issues with the SAML integration:
    log4j.logger.org.sakaiproject.login.saml=DEBUG
    ```
 
-2. Check that your IDP metadata file is valid and accessible
+2. Check that your IdP metadata file is valid and accessible
 
 3. Verify that your SP metadata is properly configured on your IdP:
-   - SP metadata is available at: `/container/saml2/metadata/sakai`
+   - SP metadata is available at: `/container/saml2/metadata/{registrationId}`
 
 4. Common issues:
    - Missing or incorrect attribute mapping
    - Certificate validation issues
    - Clock synchronization between IdP and SP
+   - Registration ID mismatch in URLs

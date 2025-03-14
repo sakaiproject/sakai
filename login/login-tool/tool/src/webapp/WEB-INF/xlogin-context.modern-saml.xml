@@ -1,4 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  SAML Service Provider Configuration for Sakai
+  This configuration supports multiple IDPs and is streamlined for an SP-only setup.
+  
+  Key Features:
+  - Support for multiple institutional IDPs
+  - Username extraction from SAML attributes (ePPN by default)
+  - Proper Sakai session termination on logout
+  
+  Edit the multipleIdpRegistrationRepository bean to configure multiple IDPs
+-->
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:security="http://www.springframework.org/schema/security"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -9,74 +20,104 @@
 
     <!-- Enable auto-wiring -->
     <context:annotation-config/>
-    
-    <!-- Component scanning for our custom SAML classes -->
     <context:component-scan base-package="org.sakaiproject.login.saml"/>
 
+    <!-- ===================== REDIRECT HANDLERS ===================== -->
+    
     <bean id="containerRedirectStrategy" class="org.springframework.security.web.DefaultRedirectStrategy">
         <property name="contextRelative" value="true"/>
     </bean>
 
-    <!-- Handler deciding where to redirect user after successful login -->
-    <bean id="successRedirectHandler"
-          class="org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler">
+    <bean id="successRedirectHandler" class="org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler">
         <property name="defaultTargetUrl" value="/portal"/>
         <property name="redirectStrategy" ref="containerRedirectStrategy"/>
     </bean>
 
-    <!-- Handler deciding where to redirect user after failed login -->
-    <bean id="failureRedirectHandler"
-          class="org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler">
+    <bean id="failureRedirectHandler" class="org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler">
         <property name="useForward" value="true"/>
         <property name="defaultFailureUrl" value="/portal/xlogin"/>
         <property name="redirectStrategy" ref="containerRedirectStrategy"/>
     </bean>
 
-    <!-- Handler for successful logout -->
     <bean id="successLogoutHandler" class="org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler">
         <property name="defaultTargetUrl" value="/portal"/>
         <property name="redirectStrategy" ref="containerRedirectStrategy"/>
     </bean>
-
-    <!-- Sakai SAML logout handler -->
+    
+    <!-- ===================== SAKAI SESSION HANDLING ===================== -->
+    
+    <!-- Sakai-specific handler to properly terminate Sakai sessions during SAML logout -->
     <bean id="sakaiLogoutHandler" class="org.sakaiproject.login.saml.SakaiLogoutHandler">
         <property name="usageSessionService" ref="org.sakaiproject.event.api.UsageSessionService"/>
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
         <property name="invalidateSakaiSession" value="true"/>
     </bean>
 
-    <!-- SAML Authentication Provider with custom converter -->
+    <!-- ===================== SAML AUTHENTICATION ===================== -->
+    
+    <!-- SAML Authentication Provider with username extraction -->
     <bean id="samlAuthenticationProvider" factory-bean="sakaiSamlAuthenticationConverter" factory-method="createProvider"/>
 
-    <!-- Custom SAML authentication converter that extracts username from SAML attributes -->
+    <!-- Extracts usernames from SAML assertions using the specified attribute -->
     <bean id="sakaiSamlAuthenticationConverter" class="org.sakaiproject.login.saml.SakaiSamlAuthenticationConverter">
-        <!-- Configure which SAML attribute to use for username extraction. Default is ePPN -->
-        <property name="usernameAttributeName" value="urn:oid:1.3.6.1.4.1.5923.1.1.1.6"/>
-        
-        <!-- Alternatively, use UPN attribute by using the UpnSamlAuthenticationConverter instead:
-        <bean id="sakaiSamlAuthenticationConverter" class="org.sakaiproject.login.saml.UpnSamlAuthenticationConverter"/>
+        <!-- Common attribute options: 
+             - ePPN (eduPersonPrincipalName): "urn:oid:1.3.6.1.4.1.5923.1.1.1.6"
+             - UPN: "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn"
+             - Email: "urn:oid:0.9.2342.19200300.100.1.3" 
         -->
+        <property name="usernameAttributeName" value="urn:oid:1.3.6.1.4.1.5923.1.1.1.6"/>
     </bean>
 
-    <!-- RelyingPartyRegistrationRepository -->
-    <bean id="relyingPartyRegistrationRepository" 
+    <!-- ===================== MULTIPLE IDP CONFIGURATION ===================== -->
+    
+    <!-- Repository that holds all IDP registrations - this is the key for multi-IDP support -->
+    <bean id="multipleIdpRegistrationRepository" 
           class="org.springframework.security.saml2.provider.service.registration.InMemoryRelyingPartyRegistrationRepository">
         <constructor-arg>
-            <bean class="org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration"
-                  factory-method="withRegistrationId">
-                <constructor-arg value="sakai" />
-                <constructor-arg>
-                    <bean class="org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrations"
-                          factory-method="fromMetadataLocation">
-                        <constructor-arg value="file:/opt/tomcat/sakai/ssocircle_idp.xml" />
-                    </bean>
-                </constructor-arg>
-                <property name="entityId" value="SakaiSAMLApp" />
-                <property name="assertionConsumerServiceLocation" value="{baseUrl}/container/saml2/SSO/sakai" />
-                <property name="singleLogoutServiceLocation" value="{baseUrl}/container/saml2/logout/sakai" />
-            </bean>
+            <list>
+                <!-- Default IDP configuration -->
+                <bean class="org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration"
+                      factory-method="withRegistrationId">
+                    <constructor-arg value="default-idp" />
+                    <constructor-arg>
+                        <bean class="org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrations"
+                              factory-method="fromMetadataLocation">
+                            <constructor-arg value="file:/opt/tomcat/sakai/ssocircle_idp.xml" />
+                        </bean>
+                    </constructor-arg>
+                    <property name="entityId" value="SakaiSAMLApp" />
+                    <property name="assertionConsumerServiceLocation" value="{baseUrl}/container/saml2/SSO/default-idp" />
+                    <property name="singleLogoutServiceLocation" value="{baseUrl}/container/saml2/logout/default-idp" />
+                </bean>
+                
+                <!-- 
+                Add additional IDPs by copying the bean above and changing:
+                1. The registration ID (must be unique)
+                2. The metadata location to point to the IDP's metadata file
+                3. Change the assertionConsumerServiceLocation and singleLogoutServiceLocation
+                   to use the same registration ID in the path
+                
+                For example:
+                
+                <bean class="org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration"
+                      factory-method="withRegistrationId">
+                    <constructor-arg value="campus-idp" />
+                    <constructor-arg>
+                        <bean class="org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrations"
+                              factory-method="fromMetadataLocation">
+                            <constructor-arg value="file:/opt/tomcat/sakai/campus_idp.xml" />
+                        </bean>
+                    </constructor-arg>
+                    <property name="entityId" value="SakaiSAMLApp" />
+                    <property name="assertionConsumerServiceLocation" value="{baseUrl}/container/saml2/SSO/campus-idp" />
+                    <property name="singleLogoutServiceLocation" value="{baseUrl}/container/saml2/logout/campus-idp" />
+                </bean>
+                -->
+            </list>
         </constructor-arg>
     </bean>
+    
+    <!-- ===================== SAML FILTER CONFIGURATION ===================== -->
     
     <!-- SAML Security Filter Chain -->
     <security:http auto-config="false" use-expressions="false" entry-point-ref="samlLoginEntryPoint">
@@ -90,7 +131,7 @@
     <!-- SAML Login Entry Point -->
     <bean id="samlLoginEntryPoint" 
           class="org.springframework.security.saml2.provider.service.web.authentication.Saml2WebSsoAuthenticationRequestFilter">
-        <constructor-arg ref="relyingPartyRegistrationRepository" />
+        <constructor-arg ref="multipleIdpRegistrationRepository" />
     </bean>
 
     <!-- SAML Authentication Filter -->
@@ -98,7 +139,7 @@
           class="org.springframework.security.saml2.provider.service.web.authentication.Saml2WebSsoAuthenticationFilter">
         <constructor-arg>
             <bean class="org.springframework.security.saml2.provider.service.web.authentication.OpenSaml4AuthenticationRequestResolver">
-                <constructor-arg ref="relyingPartyRegistrationRepository" />
+                <constructor-arg ref="multipleIdpRegistrationRepository" />
             </bean>
         </constructor-arg>
         <constructor-arg>
@@ -120,10 +161,10 @@
     <!-- SAML Logout Filter -->
     <bean id="saml2LogoutFilter"
           class="org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml4LogoutRequestFilter">
-        <constructor-arg ref="relyingPartyRegistrationRepository" />
+        <constructor-arg ref="multipleIdpRegistrationRepository" />
         <property name="logoutRequestResolver">
             <bean class="org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml4LogoutRequestResolver">
-                <constructor-arg ref="relyingPartyRegistrationRepository" />
+                <constructor-arg ref="multipleIdpRegistrationRepository" />
             </bean>
         </property>
         <property name="logoutHandler" ref="sakaiLogoutHandler" />
