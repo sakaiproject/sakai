@@ -166,6 +166,7 @@ public class TasksController extends AbstractSakaiApiController {
         task.setReference("/user/" + taskTransfer.getUserId() + "/" + time);
         task.setDue(taskTransfer.getDue());
         task.setSystem(false);
+        task.setSoftDeleted(Boolean.FALSE);
         String assignationType = taskTransfer.getAssignationType();
         if (AssignationType.site.name().equals(assignationType)) {
             try {
@@ -242,6 +243,7 @@ public class TasksController extends AbstractSakaiApiController {
     }
 
     private String getTaskAssignedDescription(Long taskId, Site site) {
+
         List<TaskAssigned> taskAssignedList = taskService.getTaskAssignments(taskId);
         String result = USER_REPLACE;
         for (TaskAssigned taskAssigned : taskAssignedList) {
@@ -276,6 +278,7 @@ public class TasksController extends AbstractSakaiApiController {
         if (StringUtils.isNotBlank(bean.getReference()) && !bean.getReference().startsWith("/user/")) {
             entityManager.getUrl(bean.getReference(), Entity.UrlType.PORTAL).ifPresent(u -> bean.setUrl(u));
         }
+
         bean.setTaskAssignedTo(getTaskAssignedDescription(bean.getTaskId(), site));
     }
 }

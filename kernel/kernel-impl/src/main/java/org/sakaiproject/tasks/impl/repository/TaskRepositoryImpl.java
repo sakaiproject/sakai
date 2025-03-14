@@ -26,6 +26,7 @@ import java.util.Optional;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.CriteriaUpdate;
 import javax.persistence.criteria.Root;
 
 import org.hibernate.Session;
@@ -35,6 +36,18 @@ import org.sakaiproject.tasks.api.repository.TaskRepository;
 import org.sakaiproject.springframework.data.SpringCrudRepositoryImpl;
 
 public class TaskRepositoryImpl extends SpringCrudRepositoryImpl<Task, Long> implements TaskRepository {
+
+    public List<Task> findBySiteId(String siteId) {
+
+        Session session = sessionFactory.getCurrentSession();
+
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Task> cq = cb.createQuery(Task.class);
+        Root<Task> root = cq.from(Task.class);
+        cq.where(cb.equal(root.get("siteId"), siteId));
+
+        return session.createQuery(cq).list();
+    }
 
     public Optional<Task> findByReference(String reference) {
 
@@ -59,5 +72,17 @@ public class TaskRepositoryImpl extends SpringCrudRepositoryImpl<Task, Long> imp
         cq.select(root).where(cb.isMember(groupId, root.get("groups")));
 
         return session.createQuery(cq).list();
+    }
+
+    public int setSoftDeletedBySiteId(String siteId, Boolean softDeleted) {
+
+        Session session = sessionFactory.getCurrentSession();
+
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaUpdate<Task> cu = cb.createCriteriaUpdate(Task.class);
+        Root<Task> root = cu.from(Task.class);
+        cu.set("softDeleted", softDeleted).where(cb.equal(root.get("siteId"), siteId));
+
+        return session.createQuery(cu).executeUpdate();
     }
 }
