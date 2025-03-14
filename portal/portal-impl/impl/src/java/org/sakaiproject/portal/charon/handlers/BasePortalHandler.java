@@ -221,7 +221,5 @@ public abstract class BasePortalHandler implements PortalHandler
 		TimeZone userTz = timeService.getLocalTimeZone();
 		rcontext.put("userTimezone", userTz.getID());
 		rcontext.put("userTimezoneOffsetMillis", userTz.getOffset(now));
-		String iso8601 = Instant.now().atZone(ZoneId.of(userTz.getID())).toLocalDateTime().toString();
-		rcontext.put("userISO8601Timestamp", iso8601);
 	}
 }
