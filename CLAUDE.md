@@ -63,6 +63,7 @@
 - **Internationalization**: Ensure code supports different languages
 - **Accessibility**: Follow accessibility best practices
 - **Changes**: Make minimal changes, only modifying lines needed for the fix/feature
+- **Backups**: Never make backup files like .bak and never just comment out old code. We use git and have full code history. Delete unnecessary files and content.
 - **Single Issue**: One issue per pull request when possible
 - **Tests**: Include tests where sensible/possible
 - **Java Version**: Java 17 for trunk (Java 11 was used for Sakai 22 and Sakai 23)

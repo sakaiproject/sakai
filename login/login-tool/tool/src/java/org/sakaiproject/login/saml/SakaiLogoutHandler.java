@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2003-2016 The Apereo Foundation
+ * Copyright (c) 2003-2025 The Apereo Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,26 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.login.filter;
-
-import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
-import org.sakaiproject.event.api.UsageSessionService;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.api.SessionManager;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+package org.sakaiproject.login.saml;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+
+import org.sakaiproject.event.api.UsageSessionService;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionManager;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.web.authentication.logout.LogoutHandler;
+
 /**
- * Performs a logout of Sakai invalidating the {@link Session}
- * if {@link #isInvalidateSakaiSession()} is {@code true} and the session is not {@code null}.
+ * A SAML logout handler that integrates with Sakai session management.
+ * This performs a logout of Sakai by invalidating the Sakai session.
  */
 @Slf4j
-public class SakaiLogoutSamlFilter extends SecurityContextLogoutHandler {
+public class SakaiLogoutHandler implements LogoutHandler {
 
     @Setter private UsageSessionService usageSessionService;
     @Setter private SessionManager sessionManager;
@@ -43,18 +44,16 @@ public class SakaiLogoutSamlFilter extends SecurityContextLogoutHandler {
      * Requires the request to be passed in.
      *
      * @param request        from which to obtain the HTTP session (cannot be null)
-     * @param response       not used (can be <code>null</code>)
-     * @param authentication not used (can be <code>null</code>)
+     * @param response       not used
+     * @param authentication not used
      */
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-        super.logout(request, response, authentication);
-
         if (invalidateSakaiSession) {
             Session session = sessionManager.getCurrentSession();
 
             if (session != null) {
-                log.debug("SAML logout invalidating sakai session: {}", session.getId());
+                log.debug("SAML logout invalidating Sakai session: {}", session.getId());
                 usageSessionService.logout();
             }
         }
