@@ -175,4 +175,10 @@
     border: none;
   }
 
+  .navIntraTool {
+    li span.current a {
+      background: unset;
+    }
+  }
+
 }
