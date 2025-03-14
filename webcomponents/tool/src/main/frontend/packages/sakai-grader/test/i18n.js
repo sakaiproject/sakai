@@ -21,8 +21,7 @@ recorded_feedback_label=Record some feedback
 add_attachments_tooltip=Add some attachments to your grading
 grade_this=Grade this
 private_notes_tooltip=Add notes attached to this student submission, for yourself and other \
-instructors and click Done when you've finished. Students will NOT be able to see these. You still \
-need to save the grade
+instructors and click Done when you've finished. Students will NOT be able to see these.
 private_notes_label=Enter your private notes
 settings=Settings
 graded_status_label=Graded Status:
@@ -74,8 +73,6 @@ lti_grade_not_automatic=<b>Note:</b> When the LTI tool sends a grade to the serv
 destroy_rubric_panel_log=Failed to destroy rubric panel. Maybe it wasn't showing in the first place.
 submission_inline=Inline Submission
 assign_grade_overrides=Assign Grade Overrides
-feedback_instruction = Use the box below to enter additional summary comments about this \
-submission and click Done when you've finished. You still need to save the grade
 feedback_comment_label=Enter your feedback
 previous_submission_label=View the previous submission
 next_submission_label=View the next submission
