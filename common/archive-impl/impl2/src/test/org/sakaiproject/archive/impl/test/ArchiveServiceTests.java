@@ -110,8 +110,9 @@ public class ArchiveServiceTests extends AbstractTransactionalJUnit4SpringContex
         when(entityManager.getEntityProducers()).thenReturn(List.of(rubricsProducer, conversationsProducer));
 
         File archiveDir = folder.newFolder("archive");
+        System.out.println("Archive dir: " + archiveDir.getCanonicalPath());
 
-        ((ArchiveService2Impl) AopTestUtils.getTargetObject(archiveService)).setStoragePath(archiveDir.getAbsolutePath() + File.separator);
+        ((ArchiveService2Impl) AopTestUtils.getTargetObject(archiveService)).setStoragePath(archiveDir.getCanonicalPath() + File.separator);
 
         Time time = mock(Time.class);
         when(time.toString()).thenReturn("deprecated time :(");
@@ -221,6 +222,7 @@ public class ArchiveServiceTests extends AbstractTransactionalJUnit4SpringContex
         String siteId = "xyz";
 
         File archiveDir = folder.newFolder("archive");
+        System.out.println("Archive dir: " + archiveDir.getCanonicalPath());
 
         // Set the sakai home path to be the topmost component of the archive dir path. So,
         // definitely above the archive directory
@@ -230,9 +232,9 @@ public class ArchiveServiceTests extends AbstractTransactionalJUnit4SpringContex
         File siteArchiveDir = new File(archiveDir, siteId + "-archive");
         siteArchiveDir.mkdir();
 
-        ((ArchiveService2Impl) AopTestUtils.getTargetObject(archiveService)).setStoragePath(archiveDir.getAbsolutePath() + File.separator);
+        ((ArchiveService2Impl) AopTestUtils.getTargetObject(archiveService)).setStoragePath(archiveDir.getCanonicalPath() + File.separator);
 
-        String archiveBasePath = siteArchiveDir.getAbsolutePath();
+        String archiveBasePath = siteArchiveDir.getCanonicalPath();
 
         Path siteXmlPath = Paths.get(Objects.requireNonNull(ArchiveServiceTests.class.getResource("/archive/site.xml")).toURI());
         assertNotNull(siteXmlPath);
