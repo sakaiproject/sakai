@@ -469,16 +469,9 @@ public class PublishedAssessmentSettingsBean extends SpringBeanAutowiringSupport
       String gradebookUid = toolManager.getCurrentPlacement().getContext();
       gbAssignments = gradebookService.getAssignments(gradebookUid);
       for (Assignment assignment : gbAssignments) {
-        if (StringUtils.equals(assessmentName, assignment.getName())) {
+        if (StringUtils.equals(assessmentName, assignment.getName()) || StringUtils.equals(decodedAssessmentName, assignment.getName())) {
           categoryId = assignment.getCategoryId();
         }
-=======
-    String gradebookUid = toolManager.getCurrentPlacement().getContext();
-    List<Assignment> gbAssignments = gradingService.getAssignments(gradebookUid);
-    for (Assignment assignment : gbAssignments) {
-      if (StringUtils.equals(assessmentName, assignment.getName()) || StringUtils.equals(decodedAssessmentName, assignment.getName())) {
-        categoryId = assignment.getCategoryId();
->>>>>>> a2757cc2bff (SAK-50431 Samigo gb category gets lost because of HTML encoding (#13364))
       }
     }
     String catSelected = "-1";
