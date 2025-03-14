@@ -43,6 +43,15 @@
       <script src="/samigo-app/js/authoringSecureDeliverySettings.js"></script>
       <script src="/library/js/spinner.js"></script>
       <script>includeWebjarLibrary('bootstrap-multiselect');</script>
+      <f:verbatim rendered="#{assessmentSettingsAction.gradebookGroupEnabled}">
+      <script>
+        // Initialize input sync
+        window.addEventListener("load", () => {
+          window.syncGbSelectorInput("gb-selector", "assessmentSettingsAction:gb_selector");
+          window.syncGbSelectorInput("category-selector", "assessmentSettingsAction:category_selector");
+        });
+      </script>
+      </f:verbatim>
       <script>
         $(document).ready(function() {
           // set up the accordion for settings
@@ -723,7 +732,7 @@
           onchange="enableDisableToGradebook();toggleCategories(this);">
            <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.to_no_gradebook}"/>
            <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.to_default_gradebook}"/>
-           <f:selectItem itemValue="3" itemLabel="#{assessmentSettingsMessages.to_selected_gradebook}" itemDisabled="#{empty publishedSettings.existingGradebook}"/>
+           <f:selectItem itemValue="3" itemLabel="#{assessmentSettingsMessages.to_selected_gradebook}" itemDisabled="#{empty publishedSettings.existingGradebook && !publishedSettings.gradebookGroupEnabled}"/>
         </h:selectOneRadio>
       </div>
     </h:panelGroup>
@@ -738,6 +747,15 @@
               <f:selectItems value="#{publishedSettings.categoriesSelectList}" />
             </h:selectOneMenu>
           </h:panelGroup>
+          <h:panelGroup rendered="#{publishedSettings.gradebookGroupEnabled}">
+            <sakai-multi-gradebook
+              id="category-selector"
+              site-id='<h:outputText value="#{publishedSettings.currentSiteId}" />'
+              selected-temp='<h:outputText value="#{publishedSettings.categorySelected}" />'
+              is-category='true'>
+            </sakai-multi-gradebook>
+            <h:inputHidden id="category_selector" value="#{publishedSettings.categorySelected}" />
+          </h:panelGroup>
         </div>
       </div>
     </div>
@@ -751,6 +769,15 @@
             <h:selectOneMenu id="toGradebookName" value="#{publishedSettings.gradebookName}" rendered="#{publishedSettings.firstTargetSelected != 'Anonymous Users'}">
               <f:selectItems value="#{publishedSettings.existingGradebook}" />
             </h:selectOneMenu>
+          </h:panelGroup>
+          <h:panelGroup rendered="#{publishedSettings.gradebookGroupEnabled}">
+            <sakai-multi-gradebook
+              id="gb-selector"
+              site-id='<h:outputText value="#{publishedSettings.currentSiteId}" />'
+              selected-temp='<h:outputText value="#{publishedSettings.gradebookName}" />'
+              app-name="sakai.samigo" >
+            </sakai-multi-gradebook>
+            <h:inputHidden id="gb_selector" value="#{publishedSettings.gradebookName}" />
           </h:panelGroup>
         </div>
       </div>

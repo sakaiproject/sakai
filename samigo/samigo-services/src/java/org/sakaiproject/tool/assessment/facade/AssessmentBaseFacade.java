@@ -764,18 +764,20 @@ public class AssessmentBaseFacade
    */
   public void addAssessmentMetaData(String label, String entry) {
     this.assessmentMetaDataMap = getAssessmentMetaDataMap();
+
+    // If the map stores the key given, then update the value
     if (this.assessmentMetaDataMap.containsKey(label)) {
-      // just update
       Iterator iter = this.assessmentMetaDataSet.iterator();
-      while (iter.hasNext()){
+      while (iter.hasNext()) {
         AssessmentMetaData metadata = (AssessmentMetaData) iter.next();
-        if (metadata.getLabel().equals(label))
+        if (metadata.getLabel().equals(label)) {
           metadata.setEntry(entry);
+        }
       }
-    }
-    else{ // add
+    } else { // The key doesn't exist, then create the new key and it's value
       AssessmentMetaData metadata = null;
-      if (entry!=null && !("").equals(entry)){
+
+      if (entry != null && !("").equals(entry)){
         metadata = new AssessmentMetaData(this.data, label, entry);
         this.assessmentMetaDataSet.add(metadata);
       }
@@ -814,12 +816,23 @@ public class AssessmentBaseFacade
 
   // Refactor these methods and separate them from getAssessmentMetaDataByLabel and updateAssessmentMetaData to improve migration processes.
   public String getAssessmentToGradebookNameMetaData() {
-    String label = AssessmentMetaDataIfc.TO_GRADEBOOK_ID;
-    return this.assessmentMetaDataMap.get(label) != null ? (String) this.assessmentMetaDataMap.get(label) : "";
+    return retrieveMetaDataByLabel(AssessmentMetaDataIfc.TO_GRADEBOOK_ID);
   }
 
   public void updateAssessmentToGradebookNameMetaData(String entry) {
     addAssessmentMetaData(AssessmentMetaDataIfc.TO_GRADEBOOK_ID, entry);
+  }
+
+  public String getAssessmentCategoryListMetaData(String entry) {
+    return retrieveMetaDataByLabel(AssessmentMetaDataIfc.CATEGORY_LIST);
+  }
+
+  public void updateAssessmentCategoryListMetaData(String entry) {
+    addAssessmentMetaData(AssessmentMetaDataIfc.CATEGORY_LIST, entry);
+  }
+
+  public String retrieveMetaDataByLabel(String label) {
+    return this.assessmentMetaDataMap.get(label) != null ? (String) this.assessmentMetaDataMap.get(label) : "";
   }
 
 }

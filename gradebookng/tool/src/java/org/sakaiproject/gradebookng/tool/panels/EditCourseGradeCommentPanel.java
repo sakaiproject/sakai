@@ -51,7 +51,7 @@ public class EditCourseGradeCommentPanel extends BasePanel {
         final String studentUuid = (String) modelData.get("studentUuid");
         final Long gradebookId = (Long) modelData.get("gradebookId");
         // fetch current comment
-        this.comment = this.businessService.getAssignmentGradeComment(businessService.getCurrentSiteId(), courseGradeId, studentUuid);
+        this.comment = this.businessService.getAssignmentGradeComment(currentGradebookUid, courseGradeId, studentUuid);
         // form model
         final GradeComment gradeComment = new GradeComment();
         gradeComment.setGradeComment(this.comment);
@@ -64,7 +64,7 @@ public class EditCourseGradeCommentPanel extends BasePanel {
             @Override
             public void onSubmit(final AjaxRequestTarget target) {
                 final GradeComment updatedComment = (GradeComment) form.getModelObject();
-                final boolean success = EditCourseGradeCommentPanel.this.businessService.updateAssignmentGradeComment(businessService.getCourseGradeId(gradebookId), studentUuid, updatedComment.getGradeComment());
+                final boolean success = businessService.updateAssignmentGradeComment(currentGradebookUid, currentSiteId, businessService.getCourseGradeId(gradebookId), studentUuid, updatedComment.getGradeComment());
                 if (success) {
                     // update member var
                     EditCourseGradeCommentPanel.this.comment = updatedComment.getGradeComment();

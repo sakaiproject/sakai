@@ -46,9 +46,6 @@
 						#set($found=true)
 					#end
 				#end
-				#if(!$found && $!extraSelectedToolList.contains($newTool))
-					#set($found=true)
-				#end
 				## if no added tools found then 
 				#if (!$found)
 					<script type="text/javascript">
@@ -97,6 +94,11 @@
 	<p class="instruction">
 		$tlang.getString("addrc.selected")
 	</p>
+	#set($gbGroups = false)
+	#set($gbMod = false)
+	#if ($value_gb == $value_gbGroups)
+		#set($gbGroups = true)
+	#end
 	<p class="indnt3">
 		#if ($check_home)
 			#if (!$oldSelectedHome)
@@ -115,6 +117,12 @@
 			<br/>
 		#end
 		#foreach ($newTool in $selectedTools)
+			#if ($newTool == "sakai.gradebookng")
+				#set($gbMod = true)
+			#end
+		#end
+		#foreach ($newTool in $selectedTools)
+			#set ($keepGb = ($newTool == "sakai.gradebookng" || !$newTool.endsWith("sakai.gradebookng")) || !$gbMod)
 		 	## SAK-16600 to exclude the home tool here
 			#if (!$homeToolId.equals($newTool))
 				#set($newToolTitle = "")
@@ -129,9 +137,6 @@
 						#set($found=true)
 					#end
 				#end
-				#if(!$found && $!extraSelectedToolList.contains($newTool))
-					#set($found=true)
-				#end
 				#if (!$found)
 					<span class="highlight">
 				#end
@@ -144,7 +149,18 @@
 						#end
 					#end
 					: $!emailId@$serverName
-				#elseif ($!multipleToolIdTitleMap.containsKey($newTool))
+				#elseif ($newTool == "sakai.gradebookng" && $gbGroups)
+					#set($newLine = false)
+					#foreach ($group in $!groupsList)
+						#foreach($groupRef in $selectedGroups)
+							#if ($!group.Id == $!groupRef)
+								#if ($newLine) <br/> #end
+								$group.Title $!newToolTitle $tlang.getString("sitegen.siteinfolist.filter.group.postfix")
+								#set($newLine = true)
+							#end
+						#end
+					#end
+				#elseif ($!multipleToolIdTitleMap.containsKey($newTool) && ($keepGb))
 					## show tool title
 					$!newToolTitle
 					#if ($!allowPageOrderHelper)
@@ -174,7 +190,7 @@
 								$formattedText.escapeHtml($!attributeHashtable.get($attribute))
 							#end)
 						#end
-				#else
+				#elseif ($keepGb)
 					$!newToolTitle
 					## exclude Home tool 
 					#if (!$!newTool.equals($homeToolId) && $!allowPageOrderHelper)
@@ -187,7 +203,9 @@
 				#if (!$found)
 					</span>
 				#end
-				<br />
+				#if ($keepGb)
+					<br />
+				#end
 			#end
 		#end
 		## for LTI tools
