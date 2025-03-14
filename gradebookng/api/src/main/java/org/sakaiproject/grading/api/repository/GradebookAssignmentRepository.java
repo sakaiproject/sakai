@@ -18,23 +18,29 @@ package org.sakaiproject.grading.api.repository;
 import java.util.List;
 import java.util.Optional;
 
+import org.sakaiproject.grading.api.model.GradableObject;
 import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.grading.api.model.GradebookAssignment;
 
 import org.sakaiproject.springframework.data.SpringCrudRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 public interface GradebookAssignmentRepository extends SpringCrudRepository<GradebookAssignment, Long> {
 
-    Optional<GradebookAssignment> findByNameAndGradebook_UidAndRemoved(String name, String gradebookUid, Boolean removed);
-    Optional<GradebookAssignment> findByIdAndGradebook_UidAndRemoved(Long id, String gradebookUid, Boolean removed);
-    List<GradebookAssignment> findByGradebook_IdAndRemoved(Long gradebookId, Boolean removed);
-    List<GradebookAssignment> findByCategory_IdAndRemoved(Long categoryId, Boolean removed);
-    List<GradebookAssignment> findByGradebook_IdAndRemovedAndNotCounted(Long gradebookId, Boolean removed, Boolean notCounted);
-    List<GradebookAssignment> findByGradebook_IdAndRemovedAndNotCountedAndUngraded(Long gradebookId, Boolean removed, Boolean notCounted, Boolean ungraded);
-    Optional<GradebookAssignment> findByGradebook_UidAndExternalId(String gradebookUid, String externalId);
-    Long countByGradebook_UidAndExternalId(String gradebookUid, String externalId);
-    Long countByNameAndGradebook_UidAndRemoved(String name, String gradebookUid, Boolean removed);
+    Optional<GradebookAssignment> findByNameAndGradebookIdAndRemoved(String name, String gradebookId, Boolean removed);
+    Optional<GradebookAssignment> findByIdAndGradebookIdAndRemoved(Long id, String gradebookId, Boolean removed);
+
+    @Transactional(readOnly = true)
+    Optional<GradableObject> findByGradableIdAndGradebookIdAndRemoved(Long id, String gradebookId, Boolean removed);
+
+    List<GradebookAssignment> findByGradebookIdAndRemoved(String gradebookId, Boolean removed);
+    List<GradebookAssignment> findByCategoryIdAndRemoved(Long categoryId, Boolean removed);
+    List<GradebookAssignment> findByGradebookIdAndRemovedAndNotCounted(String gradebookId, Boolean removed, Boolean notCounted);
+    List<GradebookAssignment> findByGradebookIdAndRemovedAndNotCountedAndUngraded(String gradebookId, Boolean removed, Boolean notCounted, Boolean ungraded);
+    Optional<GradebookAssignment> findByGradebookIdAndExternalId(String gradebookId, String externalId);
+    Long countByGradebookIdAndExternalId(String gradebookId, String externalId);
+    Long countByNameAndGradebookIdAndRemoved(String name, String gradebookId, Boolean removed);
     Long countByNameAndGradebookAndNotIdAndRemoved(String name, Gradebook gradebook, Long id, Boolean removed);
     boolean existsByIdAndRemoved(Long id, Boolean removed);
-    List<GradebookAssignment> findByGradebook_Uid(String gradebookUid);
+    List<GradebookAssignment> findByGradebookId(String gradebookId);
 }

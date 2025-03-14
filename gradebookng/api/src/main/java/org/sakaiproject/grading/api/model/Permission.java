@@ -42,7 +42,7 @@ public class Permission implements PersistableEntity<Long>, Serializable {
     private Integer version = 0;
 
     @Column(name = "GRADEBOOK_ID", nullable = false)
-    private Long gradebookId;
+    private String gradebookId;
 
     @Column(name = "USER_ID", nullable = false)
     private String userId;

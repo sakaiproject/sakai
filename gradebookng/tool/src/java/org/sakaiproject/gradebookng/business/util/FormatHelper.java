@@ -34,6 +34,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.DoubleValidator;
 import org.springframework.web.util.HtmlUtils;
@@ -45,7 +46,7 @@ import org.sakaiproject.grading.api.CategoryDefinition;
 @Slf4j
 public class FormatHelper {
 
-	private static ResourceLoader RL = new ResourceLoader();
+	@Setter private static ResourceLoader RL = new ResourceLoader();
 
 	/**
 	 * The value is a double (ie 12.34542) that needs to be formatted as a percentage with two decimal places precision. And drop off any .0

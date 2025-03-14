@@ -25,5 +25,5 @@ import org.sakaiproject.springframework.data.SpringCrudRepository;
 public interface LetterGradePercentMappingRepository extends SpringCrudRepository<LetterGradePercentMapping, Long> {
 
     List<LetterGradePercentMapping> findByMappingType(Integer mappingType);
-    Optional<LetterGradePercentMapping> findByGradebookIdAndMappingType(Long gradebookId, Integer mappingType);
+    Optional<LetterGradePercentMapping> findByGradebookIdAndMappingType(String gradebookId, Integer mappingType);
 }

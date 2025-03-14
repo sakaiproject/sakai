@@ -22,8 +22,6 @@ import org.sakaiproject.grading.api.model.Gradebook;
 
 import org.sakaiproject.springframework.data.SpringCrudRepository;
 
-public interface GradebookRepository extends SpringCrudRepository<Gradebook, Long> {
+public interface GradebookRepository extends SpringCrudRepository<Gradebook, String> {
 
-    Optional<Gradebook> findByUid(String uid);
-    int deleteByUid(String uid);
 }

@@ -16,8 +16,6 @@
 package org.sakaiproject.grading.impl.repository;
 
 import org.hibernate.Session;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -34,7 +32,6 @@ import org.sakaiproject.grading.api.model.CourseGradeRecord;
 import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.grading.api.model.GradableObject;
 import org.sakaiproject.grading.api.repository.CourseGradeRecordRepository;
-import org.sakaiproject.hibernate.HibernateCriterionUtils;
 import org.sakaiproject.springframework.data.SpringCrudRepositoryImpl;
 
 public class CourseGradeRecordRepositoryImpl extends SpringCrudRepositoryImpl<CourseGradeRecord, Long>  implements CourseGradeRecordRepository {
@@ -76,7 +73,7 @@ public class CourseGradeRecordRepositoryImpl extends SpringCrudRepositoryImpl<Co
     }
 
     @Transactional(readOnly = true)
-    public Long countByGradableObject_Gradebook_IdAndEnteredGradeNotNullAndStudentIdIn(Long gradebookId, Set<String> studentIds) {
+    public Long countByGradableObject_Gradebook_IdAndEnteredGradeNotNullAndStudentIdIn(String gradebookId, Set<String> studentIds) {
 
         Session session = sessionFactory.getCurrentSession();
         CriteriaBuilder cb = session.getCriteriaBuilder();
@@ -102,14 +99,14 @@ public class CourseGradeRecordRepositoryImpl extends SpringCrudRepositoryImpl<Co
     }
 
     @Transactional(readOnly = true)
-    public List<CourseGradeRecord> findByGradableObject_Gradebook_Uid(String gradebookUid) {
+    public List<CourseGradeRecord> findByGradableObject_GradebookId(String gradebookId) {
 
         Session session = sessionFactory.getCurrentSession();
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaQuery<CourseGradeRecord> query = cb.createQuery(CourseGradeRecord.class);
         Root<CourseGradeRecord> cgr = query.from(CourseGradeRecord.class);
         Join<GradableObject, Gradebook> gb = cgr.join("gradableObject").join("gradebook");
-        query.where(cb.equal(gb.get("uid"), gradebookUid));
+        query.where(cb.equal(gb.get("id"), gradebookId));
         return session.createQuery(query).list();
     }
 }

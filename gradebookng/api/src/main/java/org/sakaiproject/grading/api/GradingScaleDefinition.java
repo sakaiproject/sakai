@@ -53,17 +53,17 @@ public class GradingScaleDefinition implements Serializable {
 
         // Depending on how this was called, the list may
         // be of Double, String, emtpy String, or null objects. Convert the strings.
-        List<Double> doubleScores = new ArrayList<Double>();
+        List<Double> doubleScores = new ArrayList<>();
         for (Object obj : defaultBottomPercentsList) {
             if (obj instanceof String) {
-                String str = (String)obj;
-                if (str.trim().length() == 0) {
+                String str = (String) obj;
+                if (str.trim().isEmpty()) {
                     obj = null;
                 } else {
-                    obj = Double.valueOf((String)obj);
+                    obj = Double.valueOf((String) obj);
                 }
             }
-            doubleScores.add((Double)obj);
+            doubleScores.add((Double) obj);
         }
         this.defaultBottomPercentsAsList = doubleScores;
     }

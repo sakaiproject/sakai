@@ -24,13 +24,13 @@ import org.sakaiproject.springframework.data.SpringCrudRepository;
 public interface PermissionRepository extends SpringCrudRepository<Permission, Long> {
 
     List<Permission> findByGradebookId(Long gradebookId);
-    List<Permission> findByGradebookIdAndUserId(Long gradebookId, String userId);
-    List<Permission> findByGradebookIdAndUserIdAndCategoryIdIn(Long gradebookId, String userId, List<Long> categoryIds);
-    List<Permission> findByGradebookIdAndUserIdAndCategoryIdIsNullAndFunctionNameIn(Long gradebookId, String userId, List<String> functionNames);
-    List<Permission> findByGradebookIdAndUserIdAndGroupIdIsNullAndFunctionNameIn(Long gradebookId, String userId, List<String> functionNames);
-    List<Permission> findByGradebookIdAndUserIdAndGroupIdIsNullAndCategoryIdIn(Long gradebookId, String userId, List<Long> categoryIds);
+    List<Permission> findByGradebookIdAndUserId(String gradebookId, String userId);
+    List<Permission> findByGradebookIdAndUserIdAndCategoryIdIn(String gradebookId, String userId, List<Long> categoryIds);
+    List<Permission> findByGradebookIdAndUserIdAndCategoryIdIsNullAndFunctionNameIn(String gradebookId, String userId, List<String> functionNames);
+    List<Permission> findByGradebookIdAndUserIdAndGroupIdIsNullAndFunctionNameIn(String gradebookId, String userId, List<String> functionNames);
+    List<Permission> findByGradebookIdAndUserIdAndGroupIdIsNullAndCategoryIdIn(String gradebookId, String userId, List<Long> categoryIds);
     List<Permission> findByGradebookIdAndCategoryIdIn(Long gradebookId, List<Long> categoryIds);
-    List<Permission> findByGradebookIdAndUserIdAndCategoryIdIsNullAndGroupIdIsNull(Long gradebookId, String userId);
-    List<Permission> findByGradebookIdAndUserIdAndCategoryIdIsNullAndGroupIdIn(Long gradebookId, String userId, List<String> groupIds);
-    List<Permission> findByGradebookIdAndUserIdAndGroupIdIn(Long gradebookId, String userId, List<String> groupIds);
+    List<Permission> findByGradebookIdAndUserIdAndCategoryIdIsNullAndGroupIdIsNull(String gradebookId, String userId);
+    List<Permission> findByGradebookIdAndUserIdAndCategoryIdIsNullAndGroupIdIn(String gradebookId, String userId, List<String> groupIds);
+    List<Permission> findByGradebookIdAndUserIdAndGroupIdIn(String gradebookId, String userId, List<String> groupIds);
 }

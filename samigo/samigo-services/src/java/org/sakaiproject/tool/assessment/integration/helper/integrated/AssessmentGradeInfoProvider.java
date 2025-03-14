@@ -208,9 +208,9 @@ public class AssessmentGradeInfoProvider implements ExternalAssignmentProvider, 
         return externalIds;
     }
 
-    public List<String> getAllExternalAssignments(String gradebookUid) {
+    public List<String> getAllExternalAssignments(String siteId) {
         List allPublished = PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().
-            getBasicInfoOfAllPublishedAssessments2("title", true, gradebookUid);
+            getBasicInfoOfAllPublishedAssessments2("title", true, siteId);
 
         List<String> allExternals = new ArrayList<String>();
         for (PublishedAssessmentFacade pub : (List<PublishedAssessmentFacade>) allPublished) {

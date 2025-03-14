@@ -24,8 +24,8 @@ import org.sakaiproject.springframework.data.SpringCrudRepository;
 
 public interface CategoryRepository extends SpringCrudRepository<Category, Long> {
 
-    List<Category> findByGradebook_IdAndRemoved(Long gradebookId, Boolean removed);
+    List<Category> findByGradebook_IdAndRemoved(String gradebookId, Boolean removed);
     boolean existsByNameAndGradebookAndRemoved(String name, Gradebook gradebook, Boolean removed);
     boolean existsByNameAndGradebookAndNotIdAndRemoved(String name, Gradebook gradebook, Long id, Boolean removed);
-    List<Category> findByGradebook_Uid(String gradebookUid);
+    List<Category> findByGradebookId(String gradebookId);
 }
