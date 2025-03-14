@@ -582,7 +582,6 @@ export const graderRenderingMixin = Base => class extends Base {
               ` : nothing }
 
               <div id="feedback-block" class="ms-2 ${this._feedbackCommentEditorShowing ? "d-block" : "d-none"}">
-                <div class="feedback-instruction sak-banner-info">${this._i18n.feedback_instruction}</div>
                 <div id="feedback-comment-unsaved-msg" class="feedback-instruction sak-banner-error d-none">${this._i18n.unsaved_text_warning}</div>
                 <textarea id="grader-feedback-comment" aria-label="${this._i18n.feedback_comment_label}" .value=${this._submission.feedbackComment}></textarea>
                 <div id="grader-media-feedback" class="grader-label">
