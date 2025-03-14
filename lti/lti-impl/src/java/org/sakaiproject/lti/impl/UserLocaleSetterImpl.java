@@ -43,37 +43,17 @@ public class UserLocaleSetterImpl implements UserLocaleSetter {
      /* Email Trusted consumer case we are not creating the user, we look up the user based on the email address. 
       snd user Locale must already be set and simply return*/
     public void setupUserLocale(Map payload, User user, boolean isTrustedConsumer, boolean isEmailTrustedConsumer) {
-
         if (isTrustedConsumer) return;
         if (isEmailTrustedConsumer) return;
 
         String locale = (String) payload.get(LTIConstants.LAUNCH_PRESENTATION_LOCALE);
         if (user != null && locale != null && !locale.isEmpty()) {
             String userId = user.getId();
-            PreferencesEdit preference = null;
-            try {
-                try {
-                    preference = preferencesService.edit(userId);
-                } catch (IdUnusedException iue) {
-                    preference = preferencesService.add(userId);
-                }
-            } catch (Exception e) {
-                log.warn("Could not get the preferences for user [{}], {}", userId, e.toString());
-            }
-
-            if (preference != null) {
-                try {
-                    ResourcePropertiesEdit propsEdit = preference.getPropertiesEdit("sakai:resourceloader");
-                    propsEdit.removeProperty(Preferences.FIELD_LOCALE);
-                    propsEdit.addProperty(Preferences.FIELD_LOCALE, locale);
-                } catch (Exception e) {
-                    log.warn("Could not set the user [{}] locale, {}", userId, e.toString());
-                    preferencesService.cancel(preference);
-                    preference = null; // set to null since it was cancelled, prevents commit in finally
-                } finally {
-                    if (preference != null) preferencesService.commit(preference);
-                }
-            }
+            preferencesService.editWithAutoCommit(userId, edit -> {
+                ResourcePropertiesEdit propsEdit = edit.getPropertiesEdit("sakai:resourceloader");
+                propsEdit.removeProperty(Preferences.FIELD_LOCALE);
+                propsEdit.addProperty(Preferences.FIELD_LOCALE, locale);
+            });
         }
     }
 }

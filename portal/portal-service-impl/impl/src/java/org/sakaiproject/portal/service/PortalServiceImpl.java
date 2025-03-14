@@ -1093,29 +1093,13 @@ public class PortalServiceImpl implements PortalService, Observer
 	}
 
 	private void removeFavoriteSiteData(String userId) {
-		PreferencesEdit edit = null;
-		try {
-			edit = preferencesService.edit(userId);
-		} catch (Exception e) {
-			log.warn("Could not get the preferences for user [{}], {}", userId, e.toString());
-		}
-
-		if (edit != null) {
-			try {
-				ResourcePropertiesEdit props = edit.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
-				log.debug("Clearing favorites data from preferences for user [{}]", userId);
-
-				props.removeProperty(FIRST_TIME_PROPERTY);
-				props.removeProperty(SEEN_SITES_PROPERTY);
-				props.removeProperty(FAVORITES_PROPERTY);
-			} catch (Exception e) {
-				log.warn("Could not remove favorites data for user [{}], {}", userId, e.toString());
-				preferencesService.cancel(edit);
-				edit = null; // set to null since it was cancelled, prevents commit in finally
-			} finally {
-				if (edit != null) preferencesService.commit(edit);
-			}
-		}
+		preferencesService.editWithAutoCommit(userId, edit -> {
+			ResourcePropertiesEdit props = edit.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
+			log.debug("Clearing favorites data from preferences for user [{}]", userId);
+			props.removeProperty(FIRST_TIME_PROPERTY);
+			props.removeProperty(SEEN_SITES_PROPERTY);
+			props.removeProperty(FAVORITES_PROPERTY);
+		});
 	}
 
 	@Override

@@ -439,92 +439,44 @@ public class PrefsBean {
 
 	private static void setPreferenceString(String name, String value) {
 		if (StringUtils.isBlank(name)) return;
-
 		String userId = M_sm.getCurrentSessionUserId();
-		PreferencesEdit preference = null;
-		try {
-			try {
-				preference = M_ps.edit(userId);
-			} catch (IdUnusedException iue) {
-				preference = M_ps.add(userId);
-			}
-		} catch (Exception e) {
-			log.warn("Could not get the preferences for user [{}], {}", userId, e.toString());
-		}
 
-		if (preference != null) {
-			try {
-				ResourcePropertiesEdit props = preference.getPropertiesEdit(PREFS_KEY);
-
-				if (value == null) {
-					props.removeProperty(name);
-				} else {
-					props.addProperty(name, value);
-				}
-			} catch (Exception e) {
-				log.warn("Could not add [{}] to user [{}] preferences, {}", name, userId, e.toString());
-				M_ps.cancel(preference);
-				preference = null; // set to null since it was cancelled, prevents commit in finally
-			} finally {
-				if (preference != null) M_ps.commit(preference);
+		M_ps.editWithAutoCommit(userId, edit -> {
+			ResourcePropertiesEdit props = edit.getPropertiesEdit(PREFS_KEY);
+			if (value == null) {
+				props.removeProperty(name);
+			} else {
+				props.addProperty(name, value);
 			}
-		}
+		});
 	}
 
 	private static void setPreferenceList(String name, Collection<String> values) {
 		if (StringUtils.isBlank(name)) return;
-
 		String userId = M_sm.getCurrentSessionUserId();
-		PreferencesEdit preference = null;
-		try {
-			try {
-				preference = M_ps.edit(userId);
-			} catch (IdUnusedException iue) {
-				preference = M_ps.add(userId);
-			}
-		} catch (Exception e) {
-			log.warn("Could not get the preferences for user [{}], {}", userId, e.toString());
-		}
 
-		if (preference != null) {
-			try {
-				ResourcePropertiesEdit props = preference.getPropertiesEdit(PREFS_KEY);
-
-				if (values == null) {
-					props.removeProperty(name);
-				} else {
-					List<String> existing = props.getPropertyList(name);
-                    for (String value : values) {
-                        if (existing == null || !existing.contains(value))
-                            props.addPropertyToList(name, value);
-                    }
+		M_ps.editWithAutoCommit(userId, edit -> {
+			ResourcePropertiesEdit props = edit.getPropertiesEdit(PREFS_KEY);
+			if (values == null) {
+				props.removeProperty(name);
+			} else {
+				List<String> existing = props.getPropertyList(name);
+				for (String value : values) {
+					if (existing == null || !existing.contains(value))
+						props.addPropertyToList(name, value);
 				}
-			} catch (Exception e) {
-				log.warn("Could not add list [{}] to user [{}] preferences, {}", name, userId, e.toString());
-				M_ps.cancel(preference);
-				preference = null; // set to null since it was cancelled, prevents commit in finally
-			} finally {
-				if (preference != null) M_ps.commit(preference);
 			}
-		}
+		});
 	}
 
 	private static void clearPreferenceList(String name) {
 		if (StringUtils.isBlank(name)) return;
-
 		String userId = M_sm.getCurrentSessionUserId();
-		PreferencesEdit preference = null;
-		try {
-			preference = M_ps.edit(userId);
-			ResourcePropertiesEdit props = preference.getPropertiesEdit(PREFS_KEY);
+
+		M_ps.editWithAutoCommit(userId, edit -> {
+			ResourcePropertiesEdit props = edit.getPropertiesEdit(PREFS_KEY);
 			props.removeProperty(name);
-		} catch (Exception e) {
-			log.warn("Could not clear property [{}] from user [{}] preferences, {}", name, userId, e.toString());
-			M_ps.cancel(preference);
-			preference = null;
-		} finally {
-			if (preference != null) M_ps.commit(preference);
-		}
+		});
 	}
 	
 	private static String getDefaultStringFromSakaiProperties(String name) {

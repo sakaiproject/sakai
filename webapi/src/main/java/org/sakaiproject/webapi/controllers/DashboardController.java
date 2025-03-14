@@ -13,6 +13,7 @@
  ******************************************************************************/
 package org.sakaiproject.webapi.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.StringUtils;
 
 import org.apache.commons.fileupload.FileItem;
@@ -254,29 +255,14 @@ public class DashboardController extends AbstractSakaiApiController implements E
             return;
         }
 
-        PreferencesEdit preference = null;
-        try {
+        preferencesService.editWithAutoCommit(userId, edit -> {
+            ResourcePropertiesEdit props = edit.getPropertiesEdit("dashboard-config");
             try {
-                preference = preferencesService.edit(userId);
-            } catch (IdUnusedException iue) {
-                preference = preferencesService.add(userId);
-            }
-        } catch (Exception e) {
-            log.warn("Could not get the preferences for user [{}], {}", userId, e.toString());
-        }
-
-        if (preference != null) {
-            try {
-                ResourcePropertiesEdit props = preference.getPropertiesEdit("dashboard-config");
                 props.addProperty("layout", (new ObjectMapper()).writeValueAsString(bean.getLayout()));
-            } catch (Exception e) {
-                log.warn("Could not save dashboard config for user [{}], {}", userId, e.toString());
-                preferencesService.cancel(preference);
-                preference = null;
-            } finally {
-                if (preference != null) preferencesService.commit(preference);
+            } catch (JsonProcessingException jpe) {
+                log.warn("Could not save dashboard config for user [{}], {}", userId, jpe.toString());
             }
-        }
+        });
     }
 
     @GetMapping(value = "/sites/{siteId}/dashboard", produces = MediaType.APPLICATION_JSON_VALUE)

@@ -22,6 +22,7 @@
 package org.sakaiproject.user.impl;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -268,6 +269,39 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 
 		return prefs;
 	}
+
+    @Override
+    public boolean editWithAutoCommit(String userId, Consumer<PreferencesEdit> editFunction) {
+        PreferencesEdit edit = null;
+        try {
+            edit = edit(userId);
+        } catch (IdUnusedException iue) {
+            try {
+                edit = add(userId);
+            } catch (PermissionException | IdUsedException e) {
+                log.warn("Failed to add preferences for user {}, {}", userId, e.toString());
+            }
+        } catch (PermissionException | InUseException e) {
+            log.warn("Failed to obtain edit preferences for user {}, {}", userId, e.toString());
+        }
+
+        // failed to get an edit
+        if (edit != null) {
+            try {
+                // have an edit, perform the supplied operation
+                editFunction.accept(edit);
+                return true;
+            } catch (Exception e) {
+                log.warn("Encountered an exception while editing preferences for user {}, {}", userId, e.toString());
+                log.debug("Full Exception:", e);
+                cancel(edit);
+                edit = null; // prevents commit in finally
+            } finally {
+                if (edit != null) commit(edit);
+            }
+        }
+        return false;
+    }
 
 	/**
 	 * @inheritDoc
