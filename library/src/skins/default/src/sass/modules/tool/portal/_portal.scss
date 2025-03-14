@@ -300,9 +300,15 @@
     }
   }
 }
-.portal-header-logo img {
-  max-height: 2rem;
-  max-width: fit-content;
+.portal-header-logo .btn-logo {
+  background-image: var(--logo);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  display: inline-block;
+  max-height: var(--logo-height);
+  min-height: var(--logo-height);
+  width: var(--logo-width)
 }
 .portal-header-logo .btn:hover {
   border-color: transparent !important;

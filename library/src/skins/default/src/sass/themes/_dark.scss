@@ -45,6 +45,7 @@
     // Here, we reduce the opacity of the default logo to make 
     // it fit in better with dark theme.
     // Suggested: decimal .7 and .9
+    --logo: url(./images/sakaiLogo.png);
     --logo-opacity: .7;
 
     .logo-light {
