@@ -16,6 +16,8 @@
 package org.sakaiproject.archive.impl.test;
 
 import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -110,7 +112,6 @@ public class ArchiveServiceTests extends AbstractTransactionalJUnit4SpringContex
         when(entityManager.getEntityProducers()).thenReturn(List.of(rubricsProducer, conversationsProducer));
 
         File archiveDir = folder.newFolder("archive");
-        System.out.println("Archive dir: " + archiveDir.getCanonicalPath());
 
         ((ArchiveService2Impl) AopTestUtils.getTargetObject(archiveService)).setStoragePath(archiveDir.getCanonicalPath() + File.separator);
 
@@ -219,10 +220,12 @@ public class ArchiveServiceTests extends AbstractTransactionalJUnit4SpringContex
     @Test
     public void merge() throws IOException, URISyntaxException {
 
+        String originalHome = System.getProperty("sakai.home");
+        System.setProperty("sakai.home", folder.getRoot().getAbsolutePath());
+
         String siteId = "xyz";
 
         File archiveDir = folder.newFolder("archive");
-        System.out.println("Archive dir: " + archiveDir.getCanonicalPath());
 
         // Set the sakai home path to be the topmost component of the archive dir path. So,
         // definitely above the archive directory
@@ -231,7 +234,6 @@ public class ArchiveServiceTests extends AbstractTransactionalJUnit4SpringContex
 
         File siteArchiveDir = new File(archiveDir, siteId + "-archive");
         siteArchiveDir.mkdir();
-        System.out.println("Site Archive dir: " + siteArchiveDir.getCanonicalPath());
 
         ((ArchiveService2Impl) AopTestUtils.getTargetObject(archiveService)).setStoragePath(archiveDir.getCanonicalPath() + File.separator);
 
@@ -280,6 +282,7 @@ public class ArchiveServiceTests extends AbstractTransactionalJUnit4SpringContex
         when(entityManager.getEntityProducers()).thenReturn(List.of(userProducer, rubricsProducer, conversationsProducer));
 
         archiveService.merge(siteId + "-archive", toSiteId, "admin");
+        //System.setProperty("sakai.home", originalHome);
 
         verify(userProducer).merge(any(), any(), any(), any(), any());
         verify(rubricsProducer).merge(any(), any(), any(), any(), any());
