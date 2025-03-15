@@ -222,7 +222,7 @@ public class ArchiveServiceTests extends AbstractTransactionalJUnit4SpringContex
 
         String originalHome = System.getProperty("sakai.home");
         //System.setProperty("sakai.home", folder.getRoot().getAbsolutePath());
-        System.setProperty("sakai.home", System.getProperty("java.io.tmpdir"));
+        System.setProperty("sakai.home", System.getProperty("user.home"));
 
         String siteId = "xyz";
 

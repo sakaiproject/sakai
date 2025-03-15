@@ -124,9 +124,9 @@ public class SiteMerger {
 				File baseLocation = new File(serverConfigurationService.getSakaiHomePath());
         System.out.println("baseLocation: " + baseLocation.getParentFile().getCanonicalPath());
         System.out.println("file.getCanonicalPath(): " + file.getCanonicalPath());
-				/*if (!file.getCanonicalPath().startsWith(baseLocation.getParentFile().getCanonicalPath())) {
+				if (!file.getCanonicalPath().startsWith(baseLocation.getParentFile().getCanonicalPath())) {
 					throw new Exception();
-				}*/
+				}
 			} catch (Exception ex) {
 				// TODO; this exception will either be thrown by the home path file creation, or
 				// explicitly because the archive is not hosted inside Tomcat's directory structure.
