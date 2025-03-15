@@ -221,7 +221,8 @@ public class ArchiveServiceTests extends AbstractTransactionalJUnit4SpringContex
     public void merge() throws IOException, URISyntaxException {
 
         String originalHome = System.getProperty("sakai.home");
-        System.setProperty("sakai.home", folder.getRoot().getAbsolutePath());
+        //System.setProperty("sakai.home", folder.getRoot().getAbsolutePath());
+        System.setProperty("sakai.home", System.getProperty("java.io.tmpdir"));
 
         String siteId = "xyz";
 
