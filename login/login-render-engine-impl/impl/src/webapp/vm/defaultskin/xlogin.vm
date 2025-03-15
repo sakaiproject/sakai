@@ -7,7 +7,39 @@
         <link href="${pageSkinRepo}/${pageSkin}/tool.css" type="text/css" rel="stylesheet" media="all" />
         <script src="/library/js/modernizr.js$!{portalCDNQuery}"></script>
         <script src="/library/js/headscripts.js$!{portalCDNQuery}"></script>
- 
+        <style>
+            /* Social login styles */
+            .social-login-divider {
+                display: flex;
+                align-items: center;
+                text-align: center;
+                margin: 15px 0;
+            }
+            .divider-line {
+                flex-grow: 1;
+                height: 1px;
+                background-color: #dee2e6;
+            }
+            .divider-text {
+                padding: 0 15px;
+                color: #6c757d;
+                font-size: 14px;
+            }
+            .social-login-container {
+                padding: 0 15px;
+            }
+            .social-login-btn {
+                text-align: center;
+                padding: 10px;
+                font-weight: 500;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .social-login-btn i {
+                font-size: 1.2rem;
+            }
+        </style>
     </head>
     <body class="portalBody Mrphs-portalBody">
         <div id="sakai-login-dialog" class="modal position-static d-block">
@@ -49,6 +81,28 @@
                                 #end
                             </div>
                         </form>
+                        
+                        ## Display social login buttons if enabled
+                        #if (${socialEnabled})
+                            <div class="social-login-container my-4">
+                                <div class="social-login-divider">
+                                    <span class="divider-line"></span>
+                                    <span class="divider-text">or</span>
+                                    <span class="divider-line"></span>
+                                </div>
+                                <div class="social-login-buttons d-flex flex-column gap-2 mt-3">
+                                    #foreach ($providerId in $socialProviders)
+                                        #set($providerName = $!{context.get("social_${providerId}_name")})
+                                        #set($providerIcon = $!{context.get("social_${providerId}_icon")})
+                                        #set($providerUrl = $!{context.get("social_${providerId}_url")})
+                                        <a href="$providerUrl" class="btn btn-outline-secondary social-login-btn">
+                                            <i class="$providerIcon me-2" aria-hidden="true"></i>
+                                            ${rloader.login_with} $providerName
+                                        </a>
+                                    #end
+                                </div>
+                            </div>
+                        #end
 
                         #if (${passwordResetUrl})
                             <div class="text-end px-3 py-2">

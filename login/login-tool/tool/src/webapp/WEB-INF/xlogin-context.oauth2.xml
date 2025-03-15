@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  Social Authentication Configuration for Sakai
+  Supports Microsoft and Google authentication
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd
+                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!-- Enable auto-wiring -->
+    <context:annotation-config/>
+    
+    <!-- Component scanning for our social auth classes -->
+    <context:component-scan base-package="org.sakaiproject.login.social"/>
+
+    <!-- ===================== SOCIAL AUTH SERVICE ===================== -->
+    
+    <!-- Service implementation for social authentication -->
+    <bean id="org.sakaiproject.login.social.SocialAuthenticationService" 
+          class="org.sakaiproject.login.social.SocialAuthenticationServiceImpl">
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="clientRegistrationRepository" ref="clientRegistrationRepository"/>
+    </bean>
+    
+    <!-- Success handler for social authentication -->
+    <bean id="socialAuthSuccessHandler" 
+          class="org.sakaiproject.login.social.SakaiSocialAuthenticationSuccessHandler">
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+        <property name="usageSessionService" ref="org.sakaiproject.event.api.UsageSessionService"/>
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+        <property name="socialAuthenticationService" ref="org.sakaiproject.login.social.SocialAuthenticationService"/>
+    </bean>
+
+    <!-- ===================== OAUTH2 CLIENT CONFIGURATION ===================== -->
+    
+    <!-- Configure client registration repository using property placeholder -->
+    <bean id="clientRegistrationRepository" 
+          class="org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository">
+        <constructor-arg>
+            <list>
+                <!-- Google Client Registration -->
+                <bean id="googleClientRegistration" 
+                      factory-method="withRegistrationId"
+                      class="org.springframework.security.oauth2.client.registration.ClientRegistration">
+                    <constructor-arg value="google"/>
+                    <constructor-arg>
+                        <bean factory-method="getBuilder"
+                              class="org.springframework.security.oauth2.client.registration.ClientRegistration$Builder">
+                            <constructor-arg value="google"/>
+                            <constructor-arg value="com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier$Builder"/>
+                            <constructor-arg value="https://accounts.google.com"/>
+                        </bean>
+                    </constructor-arg>
+                    <property name="clientId" value="${social.authentication.provider.google.client_id:}"/>
+                    <property name="clientSecret" value="${social.authentication.provider.google.client_secret:}"/>
+                    <property name="redirectUri" 
+                              value="{baseUrl}/login/oauth2/code/{registrationId}"/>
+                    <property name="scope">
+                        <list>
+                            <value>openid</value>
+                            <value>email</value>
+                            <value>profile</value>
+                        </list>
+                    </property>
+                </bean>
+                
+                <!-- Microsoft Client Registration -->
+                <bean id="microsoftClientRegistration" 
+                      factory-method="withRegistrationId"
+                      class="org.springframework.security.oauth2.client.registration.ClientRegistration">
+                    <constructor-arg value="microsoft"/>
+                    <constructor-arg>
+                        <bean factory-method="getBuilder"
+                              class="org.springframework.security.oauth2.client.registration.ClientRegistration$Builder">
+                            <constructor-arg value="microsoft"/>
+                            <constructor-arg value="azure"/>
+                            <constructor-arg value="https://login.microsoftonline.com/common/v2.0"/>
+                        </bean>
+                    </constructor-arg>
+                    <property name="clientId" value="${social.authentication.provider.microsoft.client_id:}"/>
+                    <property name="clientSecret" value="${social.authentication.provider.microsoft.client_secret:}"/>
+                    <property name="redirectUri" 
+                              value="{baseUrl}/login/oauth2/code/{registrationId}"/>
+                    <property name="scope">
+                        <list>
+                            <value>openid</value>
+                            <value>email</value>
+                            <value>profile</value>
+                            <value>User.Read</value>
+                        </list>
+                    </property>
+                </bean>
+            </list>
+        </constructor-arg>
+    </bean>
+    
+    <!-- OAuth2 Client Services -->
+    <bean id="oauth2AuthorizedClientService" 
+          class="org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService">
+        <constructor-arg ref="clientRegistrationRepository"/>
+    </bean>
+    
+    <!-- ===================== SECURITY CONFIGURATION ===================== -->
+    
+    <!-- OAuth2 Security Filter Chain -->
+    <security:http pattern="/login/oauth2/**" auto-config="false" use-expressions="false">
+        <security:csrf disabled="true"/>
+        <security:intercept-url pattern="/**" access="permitAll"/>
+        <security:oauth2-client authorized-client-service-ref="oauth2AuthorizedClientService" 
+                               client-registration-repository-ref="clientRegistrationRepository"/>
+        <security:custom-filter ref="oauth2LoginFilter" before="PRE_AUTH_FILTER"/>
+    </security:http>
+
+    <!-- OAuth2 Login Filter -->
+    <bean id="oauth2LoginFilter" 
+          class="org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter">
+        <constructor-arg ref="clientRegistrationRepository"/>
+        <property name="authorizationRequestRepository">
+            <bean class="org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository"/>
+        </property>
+    </bean>
+    
+    <!-- OAuth2 Authorization Token Filter -->
+    <bean id="oauth2AuthorizationCodeGrantFilter" 
+          class="org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter">
+        <constructor-arg ref="clientRegistrationRepository"/>
+        <constructor-arg ref="oauth2AuthorizedClientService"/>
+        <property name="authenticationSuccessHandler" ref="socialAuthSuccessHandler"/>
+    </bean>
+    
+    <security:authentication-manager id="oauth2AuthenticationManager">
+        <security:authentication-provider>
+            <security:user-service>
+                <security:user name="user" password="password" authorities="ROLE_USER"/>
+            </security:user-service>
+        </security:authentication-provider>
+    </security:authentication-manager>
+
+</beans>
