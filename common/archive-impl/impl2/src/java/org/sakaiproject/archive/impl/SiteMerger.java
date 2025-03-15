@@ -122,6 +122,8 @@ public class SiteMerger {
 				// TODO: This seems arbitrary. Why should the archive files be within tomcat's
 				// directory structure?
 				File baseLocation = new File(serverConfigurationService.getSakaiHomePath());
+        System.out.println("baseLocation: " + baseLocation.getParent());
+        System.out.println("file.getCanonicalPath(): " + file.getCanonicalPath());
 				if (!file.getCanonicalPath().startsWith(baseLocation.getParent())) {
 					throw new Exception();
 				}
