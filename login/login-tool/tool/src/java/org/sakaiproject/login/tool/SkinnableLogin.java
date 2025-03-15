@@ -26,6 +26,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.Set;
 
 import javax.security.auth.login.LoginException;
 import javax.servlet.ServletConfig;
@@ -50,6 +52,7 @@ import org.sakaiproject.login.api.LoginCredentials;
 import org.sakaiproject.login.api.LoginRenderContext;
 import org.sakaiproject.login.api.LoginRenderEngine;
 import org.sakaiproject.login.api.LoginService;
+import org.sakaiproject.login.social.SocialAuthenticationService;
 import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -87,6 +90,8 @@ public class SkinnableLogin extends HttpServlet implements Login {
 	private transient SiteService siteService;
 
 	private transient LoginService loginService;
+	
+	private transient SocialAuthenticationService socialAuthenticationService;
 
 	private static ResourceLoader rb = new ResourceLoader("auth");
 	
@@ -114,6 +119,8 @@ public class SkinnableLogin extends HttpServlet implements Login {
 				.get(ServerConfigurationService.class);
 
 		siteService = (SiteService) ComponentManager.get(SiteService.class);
+		
+		socialAuthenticationService = (SocialAuthenticationService) ComponentManager.get(SocialAuthenticationService.class);
 
 		log.info("init()");
 	}
@@ -475,6 +482,26 @@ public class SkinnableLogin extends HttpServlet implements Login {
 		rcontext.put("containerText", containerText);
 		rcontext.put("loginContainerUrl", loginContainerUrl);
 		rcontext.put("rloader", rb);
+		
+		// Add social authentication information if enabled
+		if (socialAuthenticationService != null && socialAuthenticationService.isSocialAuthenticationEnabled()) {
+			Set<String> enabledProviders = socialAuthenticationService.getSupportedProviders();
+			
+			if (!enabledProviders.isEmpty()) {
+				rcontext.put("socialEnabled", true);
+				rcontext.put("socialProviders", enabledProviders);
+				
+				// Add details for each provider
+				for (String providerId : enabledProviders) {
+					Map<String, String> details = socialAuthenticationService.getProviderDetails(providerId);
+					String loginUrl = socialAuthenticationService.getLoginUrl(providerId);
+					
+					rcontext.put("social_" + providerId + "_name", details.get("displayName"));
+					rcontext.put("social_" + providerId + "_icon", details.get("icon"));
+					rcontext.put("social_" + providerId + "_url", loginUrl);
+				}
+			}
+		}
 
 		String eid = StringEscapeUtils.escapeHtml4(request.getParameter("eid"));
 		String pw = StringEscapeUtils.escapeHtml4(request.getParameter("pw"));
