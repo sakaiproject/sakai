@@ -193,6 +193,12 @@
         padding-left: 3px;
         padding-right: 3px;
     }
+
+    .navIntraTool {
+      li span.current a {
+        background: unset;
+      }
+    }
 }
 
 #commons-imagefile-instruction {
