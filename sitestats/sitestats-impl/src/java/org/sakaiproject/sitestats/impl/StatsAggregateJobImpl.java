@@ -78,13 +78,12 @@ public class StatsAggregateJobImpl implements StatefulJob {
 														"order by EVENT_ID asc LIMIT ?";
 	
 	// SAK-28967 - this query is very slow, replace it with the one below
-	private String ORACLE_GET_EVENT					= "SELECT * FROM ( " +
-														"SELECT " +
+	private String ORACLE_GET_EVENT					= "SELECT " +
 															ORACLE_DEFAULT_COLUMNS + ORACLE_CONTEXT_COLUMN + " " +
 														"from SAKAI_EVENT e join SAKAI_SESSION s on e.SESSION_ID=s.SESSION_ID " +
 														"where EVENT_ID >= ? " +
-														"order by EVENT_ID asc) " +
-														"WHERE ROWNUM <= ?";
+														"order by EVENT_ID asc " +
+														"FETCH FIRST ? ROWS ONLY";
 	
 	private String MYSQL_PAST_SITE_EVENTS			= "select " + MYSQL_DEFAULT_COLUMNS + MYSQL_CONTEXT_COLUMN + " " +
 														"from SAKAI_EVENT e join SAKAI_SESSION s on e.SESSION_ID=s.SESSION_ID " +
@@ -265,6 +264,7 @@ public class StatsAggregateJobImpl implements StatefulJob {
 			
 			// Let's make sure we don't end up in a never-ending loop
 			for (int loops = 0; loops < 100; loops++) {
+				log.debug("Looping for block of events, loop: {}", loops);
 				long counter = 0;
 
 				// SAK-28967
@@ -274,7 +274,9 @@ public class StatsAggregateJobImpl implements StatefulJob {
 				st.setLong( 1, offset );
 				st.setLong( 2, sqlBlockSize );
 				
+				log.debug("Executing query sqlGetEvent with offset: {}, block size: {}", offset, sqlBlockSize);
 				rs = st.executeQuery();
+				log.debug("Query sqlGetEvent executed successfully");
 				
 				while(rs.next()){
 					Date date = null;
@@ -284,7 +286,13 @@ public class StatsAggregateJobImpl implements StatefulJob {
 					String sessionUser = null;
 					String sessionId = null;
 					try{
-						//If an exception is launched, iteration is not aborted but no event is added to event queue
+						// If an exception is launched, iteration is not aborted but no event is added to event queue
+
+						// Check if we have already processed this event to avoid duplicates
+						if(rs.getLong("EVENT_ID") < lastProcessedEventId) {
+							log.debug("Event {} has already been processed, skipping.", rs.getLong("EVENT_ID"));
+							continue;
+						}
 
 						// Daily events can only be counted relative to a single time zone (server time). The sakai_event table 
 						// may be storing dates in a time zone different than this. Adjust for the sakai_event time zone if provided.
@@ -316,7 +324,9 @@ public class StatsAggregateJobImpl implements StatefulJob {
 					}
 					counter++;
 				}
+				log.debug("Read {} events in this block", counter);
 				rs.close();
+				log.debug("Closed result set");
 				
 				// If we didn't see a single event, time to break out and wrap up this job
 				if (counter < 1) {
@@ -325,8 +335,11 @@ public class StatsAggregateJobImpl implements StatefulJob {
 
 				if (firstEventIdProcessedInBlock > 0) {
 					// process events
+					log.debug("Processing events in block: {} events", eventsQueue.size());
 					boolean processedOk = statsUpdateManager.collectEvents(eventsQueue);
+					log.debug("Processed events in block: {}", processedOk);
 					eventsQueue.clear();
+					log.debug("Cleared events queue. Events in queue: {}", eventsQueue.size());
 					if(processedOk){
 						lastProcessedEventIdWithSuccess = lastProcessedEventId;
 						lastEventDateWithSuccess = lastEventDate;
@@ -335,6 +348,7 @@ public class StatsAggregateJobImpl implements StatefulJob {
 						jobRun.setLastEventDate(lastEventDateWithSuccess);
 						jobRun.setJobEndDate(new Date(System.currentTimeMillis()));
 						saveJobRun(jobRun);
+						log.debug("Job run saved. Start eventId: {}, End eventId: {}, Last event date: {}", firstEventIdProcessed, lastProcessedEventIdWithSuccess, lastEventDateWithSuccess);
 					}else{
 						returnMessage = "An error occurred while processing/persisting events to db. Please check your logs, fix possible problems and re-run this job (will start after last successful processed event).";
 						log.error(returnMessage);
@@ -346,8 +360,10 @@ public class StatsAggregateJobImpl implements StatefulJob {
 				if(processedCounter >= getMaxEventsPerRun()) {
 					break;
 				} else {
-					offset += sqlBlockSize;
+					offset = lastProcessedEventIdWithSuccess + 1;
 				}
+
+				log.debug("Processed {} events so far", processedCounter);
 			}
 
 		}catch(SQLException e){
