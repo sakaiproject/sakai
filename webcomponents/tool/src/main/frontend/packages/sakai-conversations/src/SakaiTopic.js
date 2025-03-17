@@ -457,8 +457,6 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
 
   _getPosts(topic, page = 0, sort = SORT_OLDEST, postId) {
 
-    //console.log(topic);
-
     const url = `${topic.links.find(l => l.rel === "posts").href}?page=${page}&sort=${sort}${
        postId ? `&postId=${postId}` : ""}`;
 
