@@ -149,6 +149,10 @@ sakai-grader {
       background-size: auto 100%;
     }
 
+    #grader-rubric-block {
+      container-type: inline-size; /* Force the rubrics to display in rows */
+    }
+
     .draft-submission {
         margin-left: 8px;
         color: var(--errorBanner-color);
