@@ -17,7 +17,7 @@
                       data-bs-content='#parse("/vm/morpheus/snippets/serverInfoPopover-snippet.vm")'
                       data-bs-template='${popoverTemplate}'
               >
-                  <i class="bi bi-info-circle"></i>
+                  <span class="bi bi-info-circle" aria-hidden="true"></span>
               </button>
           </li>
         </ul>

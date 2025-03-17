@@ -28,10 +28,20 @@
 #else
     #set( $numberTools = $pageColumn0Tools.size() )
 #end
-<div class="portal-main-container container-fluid mt-2 d-flex flex-column">
-    <main id="$pageWrapperClass" class="portal-main-content #if( $numberTools > 1 || $homePage)Mrphs-multipleTools #end" role="main">
+<div class="portal-main-container container-fluid pt-4 d-flex flex-column">
+    <main id="$pageWrapperClass" class="portal-main-content #if( $numberTools > 1 || $homePage)Mrphs-multipleTools #end px-3" role="main">
         <h1 class="skip visually-hidden" tabindex="-1" id="tocontent">${rloader.sit_contentshead}</h1>
+
+        #if (${currentRole} && $roleSwitchState == false)
+            <div class="current-role mb-3">
+                <span class="bi bi-person-fill" aria-hidden="true"></span>
+                <span class="portal-user-role">${rloader.sit_role} ${currentRole}</span>
+            </div>
+        #end
+
         #parse("/vm/morpheus/snippets/roleSwitch-snippet.vm")
+        #parse("/vm/morpheus/includePortalHeaderBreadcrumb.vm")
+
         #parse("/vm/morpheus/snippets/siteStatus-snippet.vm")
         #if ($pageTwoColumn)
         <div class="row">
