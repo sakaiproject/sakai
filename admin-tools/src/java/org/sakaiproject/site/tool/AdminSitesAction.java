@@ -1144,7 +1144,7 @@ public class AdminSitesAction extends PagedResourceActionII
 	public void doSaveas(RunData data, Context context)
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-		
+
 		if (!"POST".equals(data.getRequest().getMethod())) {
 			return;
 		}
@@ -1160,9 +1160,20 @@ public class AdminSitesAction extends PagedResourceActionII
 		{
 			// make a new site with this id and as a structural copy of site
 			Site savedSite = siteService.addSite(id, site);
-			savedSite.setTitle(title);
 
-			siteService.save(savedSite);
+			if (StringUtils.isNotBlank(title)) {
+				String titleStripped = formattedText.stripHtmlFromText(title, true, true);
+				SiteTitleValidationStatus status = siteService.validateSiteTitle(title, titleStripped);
+
+				if (SiteTitleValidationStatus.TOO_LONG.equals(status)) {
+					addAlert(state, rb.getFormattedMessage("siteTitle.maxLength", new Object[]{SITE_TITLE_MAX_LENGTH}));
+					return;
+				}
+
+				savedSite.setTitle(title);
+
+				siteService.save(savedSite);
+			}
 		}
 		catch (IdUsedException e)
 		{
