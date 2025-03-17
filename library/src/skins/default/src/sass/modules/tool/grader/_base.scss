@@ -540,7 +540,7 @@ sakai-grader {
   @media (min-width: 992px) {
     /* Desktop layout */
     #grader {
-      position: sticky !important;
+      position: sticky;
       top: 0;
       visibility: visible !important;
       width: 400px;
@@ -549,6 +549,7 @@ sakai-grader {
       right: auto;
       float: none;
       flex: 0 0 400px;
+      margin: 0;
     }
 
     /* Ensure the offcanvas body scrolls properly */

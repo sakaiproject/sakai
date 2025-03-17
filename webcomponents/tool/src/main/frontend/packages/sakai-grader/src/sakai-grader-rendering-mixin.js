@@ -362,8 +362,6 @@ export const graderRenderingMixin = Base => class extends Base {
 
         <div class="offcanvas-body">
 
-          <div class="grader-title fs-5">${this._getSubmitter(this._submission)}</div>
-
           <!-- START ORIGINALITY BLOCK -->
           ${this._submission.originalityShowing ? html`
             <div class="grader-block">
@@ -574,7 +572,7 @@ export const graderRenderingMixin = Base => class extends Base {
                   </div>
                 </div>
                 <div class="mt-2 ms-3 ${!this._feedbackCommentEditorShowing ? "d-block" : "d-none"}">
-                  <button class="btn p-0"
+                  <button class="btn btn-transparent text-decoration-underline"
                       @click=${this._removeFeedbackComment}>
                     ${this._i18n["gen.remove"]}
                   </button>
@@ -595,7 +593,7 @@ export const graderRenderingMixin = Base => class extends Base {
               </div>
             </div>
 
-            <div id="grader-feedback-attachments-block" class="grader-block grader-label">
+            <div id="grader-feedback-attachments-block" class="grader-block">
               ${this._submission.feedbackAttachments ? html`
                 <div class="feedback-attachments-title">${this._i18n["download.feedback.attachment"]}</div>
                 <div class="current-feedback-attachments">
@@ -607,11 +605,11 @@ export const graderRenderingMixin = Base => class extends Base {
                         </a>
                       </div>
                       <div class="feedback-attachment-remove">
-                        <a data-ref="${att.ref}"
-                            @click=${this._removeAttachment}
-                            href="javascript:;">
+                        <button class="btn btn-transparent text-decoration-underline"
+                            data-ref="${att.ref}"
+                            @click=${this._removeAttachment}>
                           ${this._i18n["gen.remove"]}
-                        </a>
+                        </button>
                       </div>
                     </div>
                   `)}
@@ -680,7 +678,7 @@ export const graderRenderingMixin = Base => class extends Base {
                   </div>
                 </div>
                 <div class="mt-2 ms-3 ${this._privateNotesEditorShowing ? "d-none" : "d-block"}">
-                  <button class="btn p-0"
+                  <button class="btn btn-transparent text-decoration-underline"
                       @click=${this._removePrivateNotes}>
                     ${this._i18n["gen.remove"]}
                   </button>
@@ -717,7 +715,7 @@ export const graderRenderingMixin = Base => class extends Base {
                     `)}
                     <option value="-1" .selected=${this._submission.resubmitsAllowed === -1}>${this._i18n.unlimited}</option>
                   </select>
-                  <span>${this._i18n["allow.resubmit.closeTime"]}:</span>
+                  <div>${this._i18n["allow.resubmit.closeTime"]}:</div>
                   <sakai-date-picker
                       epoch-millis="${this._submission.resubmitDate}"
                       @datetime-selected=${this._resubmitDateSelected}

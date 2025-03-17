@@ -563,109 +563,98 @@ sakai-rubric-grading-button span.has-evaluation {
     color: green;
 }
 
-@mixin phone_rubrics {
+sakai-rubric,
+sakai-rubric-readonly,
+sakai-rubric-grading,
+sakai-rubric-student {
+    .rubric-title {
+        .actions {
+            @include display-flex;
+            .action-container {
+                text-align: center;
+            }
+        }
+    }
 
-  sakai-rubric,
-  sakai-rubric-readonly,
-  sakai-rubric-grading,
-  sakai-rubric-student {
-      .rubric-title {
-          .actions {
-              @include display-flex;
-              .action-container {
-                  text-align: center;
-              }
-          }
-      }
+    .rubric-details {
+        .criterion .criterion-row,
+        .criterion.sakai-rubric-criterion-readonly .criterion-row {
+            @include display-flex;
+            @include flex-direction(column);
+            width: 100%;
+            border-width: 1px 0;
+            &.criterion-group {
+                @include flex-direction(row);
+                .criterion-actions {
+                    width: auto;
+                }
+                &:not(:first-of-type) {
+                    margin-top: $standard-spacing;
+                }
+                &::before {
+                    display: none;
+                }
+            }
+            &:not(.criterion-group) {
+                margin-bottom: $standard-spacing;
+            }
 
-      .rubric-details {
-          .criterion .criterion-row,
-          .criterion.sakai-rubric-criterion-readonly .criterion-row {
-              @include display-flex;
-              @include flex-direction(column);
-              width: 100%;
-              border-width: 1px 0;
-              &.criterion-group {
-                  @include flex-direction(row);
-                  .criterion-actions {
-                      width: auto;
-                  }
-                  &:not(:first-of-type) {
-                      margin-top: $standard-spacing;
-                  }
-                  &::before {
-                      display: none;
-                  }
-              }
-              &:not(.criterion-group) {
-                  margin-bottom: $standard-spacing;
-              }
-
-              .criterion-detail {
-                  border-left: 1px solid $rubrics-lightbox-border-color;
-                  background-color: var(--sakai-background-color-3);
-                  border-radius: 6px 6px 0 0;
-                  width: 100%;
-                  .add-criterion-item {
-                      right: 0px;
-                      top: 8px;
-                  }
-              }
-              .criterion-ratings {
-                  width: 100%;
-                  margin-bottom: 0;
-                  .cr-table,
-                  .cr-table .cr-table-row {
-                      @include display-flex;
-                      @include flex-direction(column);
-                      .rating-item {
-                          border-bottom: 1px solid $rubrics-lightbox-border-color;
-                          border-left: 1px solid $rubrics-lightbox-border-color;
-                          &:last-of-type {
-                              border-bottom: none;
-                          }
-                          .add-criterion-item {
-                              right: 0px;
-                              top: 8px;
-                          }
-                      }
-                  }
-              }
-              .criterion-actions {
-                  width: 100%;
-                  text-align: center;
-                  border-left: 1px solid $rubrics-lightbox-border-color;
-                  border-right: 1px solid $rubrics-lightbox-border-color;
-                  background-color: var(--sakai-background-color-3);
-                  border-radius: 0 0 6px 6px;
-                  > * {
-                      margin: 0px 8px;
-                  }
-              }
-          }
-          &.grading {
-              .criterion .criterion-row {
-                  .criterion-ratings {
-                      margin-bottom: 0;
-                  }
-                  .criterion-actions {
-                      @include display-flex;
-                      @include flex-direction(row-reverse);
-                      @include align-items(center);
-                      .rubric-grading-points-value {
-                          flex: 1;
-                      }
-                  }
-              }
-          }
-      }
-  }
-}
-
-@container (width < #{$break-small-end}) {
-  @include phone-rubrics;
-}
-
-@media #{$phone} {
-  @include phone-rubrics;
+            .criterion-detail {
+                border-left: 1px solid $rubrics-lightbox-border-color;
+                background-color: var(--sakai-background-color-3);
+                border-radius: 6px 6px 0 0;
+                width: 100%;
+                .add-criterion-item {
+                    right: 0px;
+                    top: 8px;
+                }
+            }
+            .criterion-ratings {
+                width: 100%;
+                margin-bottom: 0;
+                .cr-table,
+                .cr-table .cr-table-row {
+                    @include display-flex;
+                    @include flex-direction(column);
+                    .rating-item {
+                        border-bottom: 1px solid $rubrics-lightbox-border-color;
+                        border-left: 1px solid $rubrics-lightbox-border-color;
+                        &:last-of-type {
+                            border-bottom: none;
+                        }
+                        .add-criterion-item {
+                            right: 0px;
+                            top: 8px;
+                        }
+                    }
+                }
+            }
+            .criterion-actions {
+                width: 100%;
+                text-align: center;
+                border-left: 1px solid $rubrics-lightbox-border-color;
+                border-right: 1px solid $rubrics-lightbox-border-color;
+                background-color: var(--sakai-background-color-3);
+                border-radius: 0 0 6px 6px;
+                > * {
+                    margin: 0px 8px;
+                }
+            }
+        }
+        &.grading {
+            .criterion .criterion-row {
+                .criterion-ratings {
+                    margin-bottom: 0;
+                }
+                .criterion-actions {
+                    @include display-flex;
+                    @include flex-direction(row-reverse);
+                    @include align-items(center);
+                    .rubric-grading-points-value {
+                        flex: 1;
+                    }
+                }
+            }
+        }
+    }
 }
