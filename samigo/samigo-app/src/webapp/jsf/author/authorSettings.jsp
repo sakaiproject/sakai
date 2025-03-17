@@ -746,6 +746,7 @@
           <f:selectItem itemValue="3" itemLabel="#{assessmentSettingsMessages.to_selected_gradebook}" itemDisabled="#{!assessmentSettings.gradebookEnabled}"/>
         </h:selectOneRadio>
       </div>
+       <!-- Gradebook Category (sub-setting) -->
       <h:panelGroup layout="block" id="toGradebookCategory" styleClass="col-md-10 col-md-offset-2" rendered="#{assessmentSettings.categoriesEnabled}" style="#{assessmentSettings.toDefaultGradebook == 1 ? 'display:block;' : 'display:none;'}">
         <h:outputLabel for="selectCategory" value="#{assessmentSettingsMessages.gradebook_category_select}" />
         <h:panelGroup rendered="#{!assessmentSettings.gradebookGroupEnabled}">
