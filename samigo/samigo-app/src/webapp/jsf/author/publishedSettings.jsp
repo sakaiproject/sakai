@@ -777,34 +777,6 @@
       </h:panelGroup>
     </h:panelGroup>
 
-    <!-- Gradebook Category (sub-setting) -->
-    <div class="row">
-      <div class="col-md-10">
-        <div class="ps-4">
-          <h:panelGroup id="toGradebookCategory" rendered="#{publishedSettings.categoriesEnabled}" styleClass="gradebook-category-panel mt-2">
-            <h:outputLabel for="selectCategory" value="#{assessmentSettingsMessages.gradebook_category_select}" styleClass="me-2"/>
-            <h:selectOneMenu styleClass="categorySelect" id="selectCategory" value="#{publishedSettings.categorySelected}">
-              <f:selectItems value="#{publishedSettings.categoriesSelectList}" />
-            </h:selectOneMenu>
-          </h:panelGroup>
-        </div>
-      </div>
-    </div>
-
-    <!-- Gradebook Name (sub-setting) -->
-    <div class="row">
-      <div class="col-md-10">
-        <div class="ps-4">
-          <h:panelGroup id="toGradebookNameContainer" rendered="#{not empty publishedSettings.existingGradebook}" styleClass="gradebook-name-panel mt-2">
-            <h:outputLabel for="toGradebookName" value="#{assessmentSettingsMessages.gradebook_item_select}" styleClass="me-2"/>
-            <h:selectOneMenu id="toGradebookName" value="#{publishedSettings.gradebookName}" rendered="#{publishedSettings.firstTargetSelected != 'Anonymous Users'}">
-              <f:selectItems value="#{publishedSettings.existingGradebook}" />
-            </h:selectOneMenu>
-          </h:panelGroup>
-        </div>
-      </div>
-    </div>
-
     <!-- *** FEEDBACK *** -->
     <h:panelGroup rendered="#{publishedSettings.valueMap.feedbackAuthoring_isInstructorEditable==true or publishedSettings.valueMap.feedbackType_isInstructorEditable==true or publishedSettings.valueMap.feedbackComponents_isInstructorEditable==true}" >
     <div class="samigo-subheading mt-4">
