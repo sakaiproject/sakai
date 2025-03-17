@@ -765,6 +765,7 @@
         </h:panelGroup>
       </h:panelGroup>
 
+      <!-- Gradebook Name (sub-setting) -->
       <h:panelGroup layout="block" id="toGradebookSelected" style="#{assessmentSettings.toDefaultGradebook == 3 ? 'display:block;' : 'display:none;'}" styleClass="col-md-10 col-md-offset-2">
         <h:panelGroup rendered="#{!assessmentSettings.gradebookGroupEnabled}">
           <h:selectOneMenu id="toGradebookName" value="#{assessmentSettings.gradebookName}">
