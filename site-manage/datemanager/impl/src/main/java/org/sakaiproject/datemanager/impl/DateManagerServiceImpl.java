@@ -809,7 +809,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 					}
 					gbitem = gradingService.getAssignmentById(groupId, itemId);
 				} else {
-					gbitem = gradingService.getAssignmentById(getCurrentSiteId(), itemId);
+					gbitem = gradingService.getAssignment(getCurrentSiteId(), getCurrentSiteId(), itemId);
 				}
 				if (gbitem == null) {
 					errors.add(new DateManagerError("gbitem", resourceLoader.getFormattedMessage("error.item.not.found", resourceLoader.getString("tool.gradebook.item.name")), "gradebookItems", toolTitle, idx));
