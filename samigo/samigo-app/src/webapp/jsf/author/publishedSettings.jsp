@@ -742,6 +742,7 @@
           <f:selectItem itemValue="3" itemLabel="#{assessmentSettingsMessages.to_selected_gradebook}" itemDisabled="#{!publishedSettings.gradebookEnabled}"/>
         </h:selectOneRadio>
       </div>
+      <!-- Gradebook Category (sub-setting) -->
       <h:panelGroup layout="block" id="toGradebookCategory" styleClass="col-md-10 col-md-offset-2" rendered="#{publishedSettings.categoriesEnabled}" style="#{publishedSettings.toDefaultGradebook == 1 ? 'display:block;' : 'display:none;'}">
         <h:outputLabel for="selectCategory" value="#{assessmentSettingsMessages.gradebook_category_select}" />
         <h:panelGroup rendered="#{!publishedSettings.gradebookGroupEnabled}">
@@ -760,6 +761,7 @@
         </h:panelGroup>
       </h:panelGroup>
 
+      <!-- Gradebook Name (sub-setting) -->
       <h:panelGroup layout="block" id="toGradebookSelected" style="#{publishedSettings.toDefaultGradebook == 3 ? 'display:block;' : 'display:none;'}" styleClass="col-md-10 col-md-offset-2">
         <h:panelGroup rendered="#{!publishedSettings.gradebookGroupEnabled}">
           <h:selectOneMenu id="toGradebookName" value="#{publishedSettings.gradebookName}" rendered="#{publishedSettings.firstTargetSelected != 'Anonymous Users'}">
