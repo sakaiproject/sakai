@@ -36,6 +36,7 @@ sakai-grader {
       select {
         display: inline-block;
         margin: 0px 8px;
+        max-width: 80%;
         &:focus { outline: 0;}
       }
       a { text-decoration: none; font-weight: bold; }
@@ -134,22 +135,19 @@ sakai-grader {
       margin-top: 5px;
       color: var(--successBanner-color);
     }
-
-    .grader-photo {
-      flex: 1;
-      min-width: 48px;
-      width: 48px;
-      height: 48px;
-      float: left;
-      background-position: 50%;
-      background-size: auto 100%;
-      margin-right: 10px;
-    }
   }
 
   #grader {
 
     background-color: var(--sakai-title-bar-bg-color);
+
+    .grader-photo {
+      min-width: 48px;
+      width: 48px;
+      height: 48px;
+      background-position: 50%;
+      background-size: auto 100%;
+    }
 
     .draft-submission {
         margin-left: 8px;
@@ -574,7 +572,7 @@ sakai-grader {
       flex: 1;
       height: 100%;
       max-width: calc(100% - 420px);
-      margin-right: 20px;
+      margin-right: $standard-spacing;
       overflow-y: scroll;
     }
     
