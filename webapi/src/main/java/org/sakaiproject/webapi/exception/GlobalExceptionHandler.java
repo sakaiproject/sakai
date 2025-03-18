@@ -38,16 +38,6 @@ public class GlobalExceptionHandler {
         return createErrorResponse(HttpStatus.FORBIDDEN, "Missing or invalid Sakai session", ex);
     }
 
-    @ExceptionHandler(UnknownSiteException.class)
-    public ResponseEntity<Object> handleUnknownSiteException(UnknownSiteException ex, WebRequest request) {
-        return createErrorResponse(HttpStatus.BAD_REQUEST, "Unknown Sakai site", ex);
-    }
-
-    @ExceptionHandler(ForbiddenAccessException.class)
-    public ResponseEntity<Object> handleForbiddenAccessException(ForbiddenAccessException ex, WebRequest request) {
-        return createErrorResponse(HttpStatus.FORBIDDEN, "Access forbidden", ex);
-    }
-
     @ExceptionHandler(PermissionException.class)
     public ResponseEntity<Object> handlePermissionException(PermissionException ex, WebRequest request) {
         return createErrorResponse(HttpStatus.FORBIDDEN, "Permission denied", ex);
