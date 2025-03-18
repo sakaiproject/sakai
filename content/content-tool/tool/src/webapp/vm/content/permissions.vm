@@ -11,6 +11,11 @@
   <div class="sak-banner-warn">$warning</div>
   #end
   <div class="mt-4">
-    <sakai-permissions tool="content" on-refresh="${startPage}" #if($reference)reference="$reference"#end></sakai-permissions>
+    <sakai-permissions tool="content"
+		    on-refresh="${startPage}"
+        #if($reference)reference="$reference"#end
+        #if($overrideReference)override-reference="$overrideReference"#end
+    >
+    </sakai-permissions>
   </div>
 </div>
