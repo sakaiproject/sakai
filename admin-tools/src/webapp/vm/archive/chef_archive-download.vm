@@ -6,50 +6,207 @@
 		<h1>$tlang.getString("archive.download.heading")</h1>
 	</div>
 
+	#if($noSearchResults)
+		<div class="sak-banner-info">$noSearchResults</div>
+	#end
+
+	<div class="sakai-table-toolBar d-flex justify-content-between align-items-center mb-3">
+		<div class="sakai-table-filterContainer">
+			<form name="searchForm" class="d-flex align-items-center gap-2" action="#toolForm("$action")" method="post">
+				<div class="form-group mb-0">
+					<label for="search" class="visually-hidden">$tlang.getString("archive.search")</label>
+					<input type="text" size="20" name="search" id="search" class="form-control" value="$!search" placeholder="$tlang.getString('archive.search.placeholder')" />
+				</div>
+				<div class="d-flex gap-2">
+					<input type="submit" name="eventSubmit_doSearch" value="$tlang.getString('archive.search.button')" class="btn btn-secondary" />
+					#if ($search)
+						<input type="submit" name="eventSubmit_doSearch_clear" value="$tlang.getString('archive.search.clear')" class="btn btn-secondary" />
+					#end
+				</div>
+				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+			</form>
+		</div>
+
+		#if($archives.size() > 0)
+		<div class="d-flex align-items-center gap-3">
+			#if($totalNumber>0)
+			<div class="text-muted">
+				$tlang.getFormattedMessage("archive.list.youare", $numbers)
+			</div>
+			#end
+			#if ($pagesize != 0)
+				#if ($goFPButton == "true")
+					<form name="firstpageForm" class="mb-0" method="post" action="#toolForm("$action")">
+						<input type="submit" name="eventSubmit_doList_first" value="|&lt;" title="$tlang.getString("archive.list.first")" class="btn btn-secondary btn-sm" />
+						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+					</form>
+				#else
+					<form name="firstpageForm" class="mb-0" method="post" action="#toolForm("$action")">
+						<input type="submit" name="eventSubmit_doList_first" value="|&lt;" disabled="disabled" class="btn btn-secondary btn-sm" />
+						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+					</form>
+				#end
+				#if ($goPPButton == "true")
+					<form name="prevpageForm" class="mb-0" method="post" action="#toolForm("$action")">
+						<input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getFormattedMessage('archive.list.previous.withsize', $pagesize)" accesskey="p" class="btn btn-secondary btn-sm" />
+						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+					</form>
+				#else
+					<form name="prevpageForm" class="mb-0" method="post" action="#toolForm("$action")">
+						<input type="submit" name="eventSubmit_doList_prev" value="&lt;" disabled="disabled" class="btn btn-secondary btn-sm" />
+						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+					</form>
+				#end
+			#end
+			<form name="pagesizeForm" class="mb-0" method="post" action="#toolForm("$action")">
+				<input type="hidden" name="eventSubmit_doChange_pagesize" value="changepagesize" />
+				<label for="selectPageSize" class="visually-hidden">$tlang.getString("archive.list.show")</label>
+				<select name="selectPageSize" id="selectPageSize" onchange="document.pagesizeForm.submit();">
+					#foreach ($value in $sizeList)
+						#foreach($intValue in $value)
+							#set($ivalue=$intValue.intValue())
+						#end
+						<option value="$ivalue" #if($pagesize == $ivalue) selected="selected" #end>$tlang.getFormattedMessage("archive.list.show", $value)</option>
+					#end
+				</select>
+				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+			</form>
+			#if ($pagesize != 0)
+				#if ($goNPButton == "true")
+					<form name="nextpageForm" class="mb-0" method="post" action="#toolForm("$action")">
+						<input type="submit" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getFormattedMessage('archive.list.next.withsize', $pagesize)" accesskey="n" class="btn btn-secondary btn-sm" />
+						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+					</form>
+				#else
+					<form name="nextpageForm" class="mb-0" method="post" action="#toolForm("$action")">
+						<input type="submit" name="eventSubmit_doList_next" value="&gt;" disabled="disabled" class="btn btn-secondary btn-sm" />
+						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+					</form>
+				#end
+				#if ($goLPButton == "true")
+					<form name="lastpageForm" class="mb-0" method="post" action="#toolForm("$action")">
+						<input type="submit" name="eventSubmit_doList_last" value="&gt;|" title="$tlang.getString('archive.list.last')" class="btn btn-secondary btn-sm" />
+						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+					</form>
+				#else
+					<form name="lastpageForm" class="mb-0" method="post" action="#toolForm("$action")">
+						<input type="submit" name="eventSubmit_doList_last" value="&gt;|" disabled="disabled" class="btn btn-secondary btn-sm" />
+						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+					</form>
+				#end
+			#end
+		</div>
+		#end
+	</div>
+
 	#if($archives.size() == 0)
 		<p>$tlang.getString("archive.download.none")</p>
 	#else
-		<table class="table table-hover table-striped table-bordered">
-		<thead>
-			<tr>
-				<th>
-					$tlang.getString("archive.download.site")
-				</th>
-				<th>
-					$tlang.getString("archive.download.date")
-				</th>
-				<th>
-					$tlang.getString("archive.download.size")
-				</th>
-				<th>
-					$tlang.getString("archive.download.hash")
-				</th>
-			</tr>
-		</thead>
-		<tbody>
-		#foreach($archive in $archives)
-			<tr>
-				<td>
-					<a href="/admin-tools/download/?archive=#chef_html($!archive.filename)" class="downloadLink">
-						#if ($archive.siteTitle)
-							#chef_html($!archive.siteTitle) <small>(#chef_html($!archive.siteId))</small>
-						#else 
-							#chef_html($!archive.siteId)
-						#end
-					</a>
-				<td>
-					$!archive.dateCreated
-				</td>
-				<td>
-					$!archive.size
-				</td>
-				<td>
-					$!archive.hash
-				</td>
-			</tr>
+		<div class="table-responsive">
+			<table id="archiveTable" class="table table-hover table-striped table-bordered">
+			<thead>
+				<tr>
+					<th class="sortable" data-sort="text">
+						$tlang.getString("archive.download.site")
+						<i class="bi bi-arrow-down-up"></i>
+					</th>
+					<th class="sortable" data-sort="date">
+						$tlang.getString("archive.download.date")
+						<i class="bi bi-arrow-down-up"></i>
+					</th>
+					<th class="sortable" data-sort="size">
+						$tlang.getString("archive.download.size")
+						<i class="bi bi-arrow-down-up"></i>
+					</th>
+					<th class="sortable" data-sort="text">
+						$tlang.getString("archive.download.hash")
+						<i class="bi bi-arrow-down-up"></i>
+					</th>
+				</tr>
+			</thead>
+			<tbody>
+			#foreach($archive in $archives)
+				<tr>
+					<td>
+						<a href="/admin-tools/download/?archive=#chef_html($!archive.filename)" class="downloadLink">
+							#if ($archive.siteTitle)
+								#chef_html($!archive.siteTitle) <small>(#chef_html($!archive.siteId))</small>
+							#else 
+								#chef_html($!archive.siteId)
+							#end
+						</a>
+					<td>
+						$!archive.dateCreated
+					</td>
+					<td>
+						$!archive.size
+					</td>
+					<td>
+						$!archive.hash
+					</td>
+				</tr>
 
-		#end
-		</tbody>
-	</table>
+			#end
+			</tbody>
+		</table>
+		</div>
 	#end
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const table = document.getElementById('archiveTable');
+    if (!table) return;
+
+    const headers = table.querySelectorAll('th.sortable');
+    headers.forEach(th => th.classList.add('cursor-pointer'));
+
+    let currentSort = { column: null, asc: true };
+
+    headers.forEach((th, colIndex) => {
+      th.addEventListener('click', () => {
+        const type = th.dataset.sort;
+        currentSort = currentSort.column === colIndex
+          ? { column: colIndex, asc: !currentSort.asc }
+          : { column: colIndex, asc: true };
+
+        table.querySelectorAll('th i').forEach(icon => {
+          icon.className = 'bi bi-arrow-down-up ms-2';
+        });
+
+        const icon = th.querySelector('i');
+        if (icon) {
+          icon.className = 'bi bi-arrow-' + (currentSort.asc ? 'up' : 'down') + ' ms-2';
+        }
+
+        const tbody = table.querySelector('tbody');
+        if (!tbody) return;
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+
+        rows.sort((a, b) => {
+          const cellA = (a.cells[colIndex] && a.cells[colIndex].textContent.trim()) || '';
+          const cellB = (b.cells[colIndex] && b.cells[colIndex].textContent.trim()) || '';
+          let cmp = 0;
+
+          if (type === 'date') {
+            cmp = new Date(cellA) - new Date(cellB);
+          } else if (type === 'size') {
+            const sizes = { B: 1, KB: 1024, MB: 1024 * 1024, GB: 1024 * 1024 * 1024 };
+            const aValParts = cellA.split(' ');
+            const bValParts = cellB.split(' ');
+            const aVal = aValParts[0];
+            const bVal = bValParts[0];
+            const aUnit = aValParts[1] || 'B';
+            const bUnit = bValParts[1] || 'B';
+            cmp = parseFloat(aVal) * (sizes[aUnit] || 0) - parseFloat(bVal) * (sizes[bUnit] || 0);
+          } else {
+            cmp = cellA.localeCompare(cellB, undefined, { numeric: true, sensitivity: 'base' });
+          }
+          return currentSort.asc ? cmp : -cmp;
+        });
+
+        rows.forEach(row => tbody.appendChild(row));
+      });
+    });
+  });
+</script>
