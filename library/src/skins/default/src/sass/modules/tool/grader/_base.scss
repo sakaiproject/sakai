@@ -547,7 +547,7 @@ sakai-grader {
       visibility: visible !important;
       width: 400px;
       transform: none !important;
-      border-left: 1px solid var(--sakai-border-color);
+      z-index: unset;
       right: auto;
       float: none;
       flex: 0 0 400px;
@@ -559,6 +559,14 @@ sakai-grader {
       height: calc(100vh - 90px); /* Subtract header height */
       overflow-y: auto;
       padding-bottom: 20px;
+    }
+
+    #grader .offcanvas-header {
+      justify-content: unset;
+
+      sakai-user-photo {
+        margin-right: 10px;
+      }
     }
     
     /* Fix the flex layout for desktop */
