@@ -2683,7 +2683,7 @@
                   <version>3.1.1</version>
                 </requireMavenVersion>
                 <requireJavaVersion>
-                  <version>${sakai.jdk.version}</version>
+                  <version>[${sakai.jdk.version},12)</version>
                 </requireJavaVersion>
               </rules>
             </configuration>
