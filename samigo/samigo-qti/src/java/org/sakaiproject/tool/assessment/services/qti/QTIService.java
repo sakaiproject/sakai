@@ -34,7 +34,7 @@ import org.sakaiproject.tool.assessment.qti.exception.RespondusMatchingException
 import org.sakaiproject.tool.assessment.qti.helper.AuthoringHelper;
 import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
 import org.sakaiproject.tool.assessment.shared.api.qti.QTIServiceAPI;
-
+import org.sakaiproject.util.MergeConfig;
 /**
  * <p>This service provides translation between database and QTI representations.
  * This is used to import/export IMS QTI format XML, and for web services.
@@ -73,16 +73,16 @@ public class QTIService implements QTIServiceAPI
     }
   }
 
-  public AssessmentFacade createImportedAssessment(Document document, int qtiVersion, String unzipLocation, String templateId) {
-	  return createImportedAssessment(document, qtiVersion, unzipLocation, templateId, null);
+  public AssessmentFacade createImportedAssessment(Document document, int qtiVersion, String unzipLocation, String templateId, MergeConfig mcx) {
+	  return createImportedAssessment(document, qtiVersion, unzipLocation, templateId, null, mcx);
   }
 
-  public AssessmentFacade createImportedAssessment(Document document, int qtiVersion, String unzipLocation, String templateId, String siteId) {  
+  public AssessmentFacade createImportedAssessment(Document document, int qtiVersion, String unzipLocation, String templateId, String siteId, MergeConfig mcx) {  
 	  testQtiVersion(qtiVersion);
 
 	  try {
 		  AuthoringHelper helper = new AuthoringHelper(qtiVersion);
-		  return helper.createImportedAssessment(document, unzipLocation, templateId, siteId);
+		  return helper.createImportedAssessment(document, unzipLocation, templateId, siteId, mcx);
 	  } catch (Exception ex) {
 		  throw new QTIServiceException(ex);
 	  }
@@ -96,10 +96,11 @@ public class QTIService implements QTIServiceAPI
    */
   public AssessmentFacade createImportedAssessment(Document document, int qtiVersion, String unzipLocation)
   {
-	  return createImportedAssessment(document, qtiVersion, unzipLocation, false, null);
+	  return createImportedAssessment(document, qtiVersion, unzipLocation, false, null, null);
   }
   
-  public AssessmentFacade createImportedAssessment(Document document, int qtiVersion, String unzipLocation, boolean isRespondus, List failedMatchingQuestions)
+  public AssessmentFacade createImportedAssessment(Document document, int qtiVersion, String unzipLocation, boolean isRespondus,
+   List failedMatchingQuestions, MergeConfig mcx)
   {
     testQtiVersion(qtiVersion);
 
@@ -121,11 +122,11 @@ public class QTIService implements QTIServiceAPI
    * @param siteId the site the assessment will be associated with
    * @return a persisted assessment
    */
-    public AssessmentFacade createImportedAssessment(String documentPath, int qtiVersion, String siteId) 
+    public AssessmentFacade createImportedAssessment(String documentPath, int qtiVersion, String siteId, MergeConfig mcx) 
     {
         try {
             return createImportedAssessment(XmlUtil.readDocument(documentPath, true),
-                                            qtiVersion, null, null, siteId);
+                                            qtiVersion, null, null, siteId, mcx);
         } catch (Exception e) {
             throw new QTIServiceException(e);
         }

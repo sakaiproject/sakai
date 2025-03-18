@@ -96,6 +96,7 @@ import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.MergeConfig;
 
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
@@ -677,7 +678,7 @@ public class AuthoringHelper
   
   public AssessmentFacade createImportedAssessment(Document document, String unzipLocation, boolean isRespondus, List failedMatchingQuestions)
   {
-    return createImportedAssessment(document, unzipLocation, null, isRespondus, failedMatchingQuestions, null);
+    return createImportedAssessment(document, unzipLocation, null, isRespondus, failedMatchingQuestions, null, null);
   }
 
 	  /**
@@ -685,9 +686,9 @@ public class AuthoringHelper
 	   * @param document the assessment XML document in QTI format
 	   * @return a persisted assessment
 	   */
-  public AssessmentFacade createImportedAssessment(Document document, String unzipLocation, String templateId, String siteId)
+  public AssessmentFacade createImportedAssessment(Document document, String unzipLocation, String templateId, String siteId, MergeConfig mcx)
   {
-	  return createImportedAssessment(document, unzipLocation, templateId, false, null, siteId);
+	  return createImportedAssessment(document, unzipLocation, templateId, false, null, siteId, mcx);
   }
 
   private boolean validateImportXml(Document doc) throws SAXException, IOException{
@@ -724,7 +725,8 @@ public class AuthoringHelper
 	  return AgentFacade.getAgentString();
   }
 
-  public AssessmentFacade createImportedAssessment(Document document, String unzipLocation, String templateId, boolean isRespondus, List failedMatchingQuestions, String siteId)
+  public AssessmentFacade createImportedAssessment(Document document, String unzipLocation, String templateId, boolean isRespondus,
+     List failedMatchingQuestions, String siteId, MergeConfig mcx)
   {
 	AssessmentFacade assessment = null;
         SecurityService securityService = new SecurityService();
@@ -745,6 +747,8 @@ public class AuthoringHelper
       // create the assessment
       ExtractionHelper exHelper = new ExtractionHelper(this.qtiVersion);
       exHelper.setUnzipLocation(unzipLocation);
+      exHelper.setMcx(mcx);
+      exHelper.setSiteId(siteId);
       ItemService itemService = new ItemService();
       // we need to remove a default namespace if present
       Document removeNamespace = exHelper.getTransformDocument(exHelper.REMOVE_NAMESPACE_TRANSFORM);
@@ -1040,6 +1044,7 @@ public class AuthoringHelper
             item.addItemMetaData(ItemMetaData.PARTID, section.getSectionId().toString());
 
             // Item Attachment
+            exHelper.makeItemAttachmentSet(item);
 
             section.addItem(item); // many to one
           } // ... end for each item
@@ -1107,11 +1112,11 @@ public class AuthoringHelper
   }
 
   public QuestionPoolFacade createImportedQuestionPool(Document document, String unzipLocation, boolean isRespondus, List failedMatchingQuestions) {
-      return createImportedQuestionPool(document, unzipLocation, null, isRespondus, failedMatchingQuestions, null);
+      return createImportedQuestionPool(document, unzipLocation, null, isRespondus, failedMatchingQuestions, null, null);
   }
 
   public QuestionPoolFacade createImportedQuestionPool(Document document, String unzipLocation, String templateId, String siteId) {
-      return createImportedQuestionPool(document, unzipLocation, templateId, false, null, siteId);
+      return createImportedQuestionPool(document, unzipLocation, templateId, false, null, siteId, null);
   }
 
   /**
@@ -1120,7 +1125,8 @@ public class AuthoringHelper
   * @param document the XML document in QTI format
   * @return a persisted pool
   */
-  public QuestionPoolFacade createImportedQuestionPool(Document document, String unzipLocation, String templateId, boolean isRespondus, List failedMatchingQuestions, String siteId)
+  public QuestionPoolFacade createImportedQuestionPool(Document document, String unzipLocation, String templateId, boolean isRespondus,
+  List failedMatchingQuestions, String siteId, MergeConfig mcx)
    {
  	QuestionPoolFacade questionpool = new QuestionPoolFacade();
  	QuestionPoolService questionPoolService = new QuestionPoolService();
@@ -1134,6 +1140,8 @@ public class AuthoringHelper
  	  // create the questionpool as an assessment
  	  ExtractionHelper exHelper = new ExtractionHelper(this.qtiVersion);
  	  exHelper.setUnzipLocation(unzipLocation);
+	  exHelper.setMcx(mcx);
+	  exHelper.setSiteId(siteId);
  	  ItemService itemService = new ItemService();
  	  // we need to remove a default namespace if present
   	  Document removeNamespace = exHelper.getTransformDocument(exHelper.REMOVE_NAMESPACE_TRANSFORM);
