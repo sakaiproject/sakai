@@ -349,43 +349,43 @@
 
 #resourceTabs {
 	.nav-item {
-    display: inline-block;
-    font-size: 12px;
-    font-weight: 400;
-    line-height: 18px;
-    margin: 4px 4px 0 0;
-	} 
+		display: inline-block;
+		font-size: 12px;
+		font-weight: 400;
+		line-height: 18px;
+		margin: 4px 4px 0 0;
+	}
 	.nav-link.active {
 		display: inline-block;
-    margin: 0;
-    padding: 7px 16px;
-    border: 1px solid var(--tool-tab-border-color);
-    border-radius: 4px;
-    background: var(--tool-tab-active-background-color);
-    color: var(--tool-tab-active-text-color);
-    text-decoration: none;
-    text-transform: none;
-    cursor: pointer;
-    appearance: none;
-    -moz-appearance: none;
-    -webkit-appearance: none;
-    box-shadow: var(--button-shadow);
+		margin: 0;
+		padding: 7px 16px;
+		border: 1px solid var(--tool-tab-border-color);
+		border-radius: 4px;
+		background: var(--tool-tab-active-background-color);
+		color: var(--tool-tab-active-text-color);
+		text-decoration: none;
+		text-transform: none;
+		cursor: pointer;
+		appearance: none;
+		-moz-appearance: none;
+		-webkit-appearance: none;
+		box-shadow: var(--button-shadow);
 	}
 	.nav-link {
 		display: inline-block;
-    margin: 0;
-    padding: 7px 16px;
-    border: 1px solid var(--tool-tab-border-color);
-    border-radius: 4px;
-    background: var(--tool-tab-background-color);
-    color: var(--tool-tab-text-color);
-    text-decoration: none;
-    text-transform: none;
-    cursor: pointer;
-    appearance: none;
-    -moz-appearance: none;
-    -webkit-appearance: none;
-    box-shadow: var(--button-shadow);
+		margin: 0;
+		padding: 7px 16px;
+		border: 1px solid var(--tool-tab-border-color);
+		border-radius: 4px;
+		background: var(--tool-tab-background-color);
+		color: var(--tool-tab-text-color);
+		text-decoration: none;
+		text-transform: none;
+		cursor: pointer;
+		appearance: none;
+		-moz-appearance: none;
+		-webkit-appearance: none;
+		box-shadow: var(--button-shadow);
 	}
 }
 
