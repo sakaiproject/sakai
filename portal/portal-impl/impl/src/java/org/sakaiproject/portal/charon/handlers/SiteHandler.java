@@ -590,12 +590,7 @@ public class SiteHandler extends WorksiteHandler
 		}
 
 		rcontext.put("siteId", siteId);
-		boolean showShortDescription = serverConfigurationService.getBoolean("portal.title.shortdescription.show", false);
 
-		if (showShortDescription) {
-			rcontext.put("shortDescription", Web.escapeHtml(site.getShortDescription()));
-		}
-		
 		if (siteService.isUserSite(siteId)){
 			rcontext.put("siteTitle", rb.getString("sit_mywor") );
 			rcontext.put("siteUrl", site.getUrl());

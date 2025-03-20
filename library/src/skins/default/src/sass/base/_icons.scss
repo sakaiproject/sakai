@@ -21,7 +21,6 @@ $fa-font-path: "./fonts";
 @mixin sakai-icons($customIcons) {
 
   $iconBaseClass: si;  
-  
 
   $defaultIcons: (
     // sakai native tools
@@ -128,6 +127,7 @@ $fa-font-path: "./fonts";
     //pdf : bi-filetype-pdf,
     //subsite : bi-level-up,
     //subsites-list : bi-level-down,
+    calendar: bi-calendar,
     bookmark: bi-bookmark,
     bookmark-fill: bi-bookmark-fill,
     subsite: bi-arrow-return-right,

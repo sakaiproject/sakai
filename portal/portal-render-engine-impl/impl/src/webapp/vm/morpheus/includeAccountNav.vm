@@ -68,6 +68,17 @@ For opening help sidebar
     </li>
   #end
 
+  <li class="d-none d-md-inline">
+    <button class="btn icon-button"
+        data-bs-toggle="offcanvas"
+        data-bs-target="#sakai-calendar-panel"
+        aria-controls="sakai-calendar-panel"
+        aria-label="$rloader.sit_calendar"
+        title="$rloader.sit_calendar">
+      <i class="portal-calendar-icon si si-calendar"></i>
+    </button>
+  </li>
+
   #if (${useBullhornAlerts})
     <li class="d-none d-md-inline">
       <button class="portal-notifications-button btn icon-button"
