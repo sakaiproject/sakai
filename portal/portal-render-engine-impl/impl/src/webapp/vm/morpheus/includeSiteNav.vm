@@ -38,11 +38,12 @@
                     <img src="${sitePages.pageNavIconUrl}" alt="${rloader.sit_icon_alt}" class="img_site_toolmenu">
                 #end
 
-                #set ($displayTitle = ${site.title})
+                #set ($siteTitle = $ftext.escapeHtml(${site.title}))
+                #set ($displayTitle = $siteTitle)
                 #if ( ( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ) )
-                    #set ($displayTitle = ${site.shortDescription})
+                    #set ($displayTitle = $ftext.escapeHtml(${site.shortDescription}))
                 #end
-                <a href="$site.url" class="sidebar-site-title" title="${site.title}">${displayTitle}</a>
+                <a href="$site.url" class="sidebar-site-title" title="${siteTitle}">${displayTitle}</a>
 
             </div>
             #if ($loggedIn && !${site.isHome})
@@ -50,7 +51,7 @@
                     <button class="d-inline-block p-1 site-opt-pin btn btn-transparent bi $!{pinIconClass}"
                         data-pin-site="${site.id}"
                         data-pinned="$!{site.isPinned}"
-                        data-site-title="${site.title}"
+                        data-site-title="${siteTitle}"
                         title="${pinTitle}"
                         aria-label="${pinTitle}">
                     </button>
