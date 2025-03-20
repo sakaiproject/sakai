@@ -563,8 +563,7 @@ sakai-rubric-grading-button span.has-evaluation {
     color: green;
 }
 
-@mixin phone_rubrics {
-
+@mixin small_screen_rubric_layout {
   sakai-rubric,
   sakai-rubric-readonly,
   sakai-rubric-grading,
@@ -662,10 +661,12 @@ sakai-rubric-grading-button span.has-evaluation {
   }
 }
 
+/* Apply small screen layout when container width is less than break-small-end */
 @container (width < #{$break-small-end}) {
-  @include phone-rubrics;
+  @include small_screen_rubric_layout;
 }
 
+/* Apply small screen layout on mobile devices */
 @media #{$phone} {
-  @include phone-rubrics;
+  @include small_screen_rubric_layout;
 }
