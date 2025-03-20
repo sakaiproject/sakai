@@ -47,6 +47,9 @@ $Id$
     <link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.author.css">
     <script>includeWebjarLibrary('awesomplete')</script>
     <script src="/library/js/sakai-reminder.js"></script>
+    <script>
+      var finFormatError = '<h:outputText value="#{deliveryMessages.fin_invalid_characters_error}" escape="false"/>';
+    </script>
     <script src="/samigo-app/js/finInputValidator.js"></script>
     
     <script>
