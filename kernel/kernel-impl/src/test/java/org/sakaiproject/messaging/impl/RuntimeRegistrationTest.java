@@ -58,12 +58,6 @@ public class RuntimeRegistrationTest extends SakaiTests {
     @Autowired private ServerConfigurationService serverConfigurationService;
     @Autowired private UserMessagingService userMessagingService;
 
-    @Before
-    public void setup() {
-
-        when(serverConfigurationService.getBoolean(eq("portal.bullhorns.enabled"), anyBoolean())).thenReturn(true);
-    }
-
     @Test
     public void givenNoHandlers_whenInitializing_thenItStartsUp() {
 

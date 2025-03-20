@@ -124,14 +124,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-import org.hibernate.exception.ConstraintViolationException;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
 import lombok.Setter;
+
+import javax.persistence.PersistenceException;
 
 @Slf4j
 @Setter
@@ -580,7 +580,6 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         return decoratedBean;
     }
 
-    @Transactional
     private void syncGradingItem(boolean isNew, Long existingGradingItemId, ConversationsTopic topic, TopicTransferBean params) {
 
         // 1. New topic with createGradingItem true
@@ -670,7 +669,6 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         topic = topicRepository.save(topic);
     }
 
-    @Transactional
     private void sendOrScheduleTopicMessages(String topicId, boolean isNew, boolean wasDraft) {
 
         ConversationsTopic topic = topicRepository.findById(topicId)
@@ -1244,7 +1242,6 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
                 Arrays.asList(new MessageMedium[] {MessageMedium.EMAIL}), replacements, NotificationService.NOTI_OPTIONAL);
     }
 
-    @Transactional
     private void updatePostHowActiveScore(ConversationsPost post) {
 
         int howActive = 0;
@@ -1451,21 +1448,6 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         }
 
         int pageSize = serverConfigurationService.getInt(ConversationsService.PROP_THREADS_PAGE_SIZE, 10);
-
-        // This method is only ever called on a topic click. So, if there are no posts we can just
-        // assume that the topic has been viewed in its entirety.
-        if (fullList.isEmpty()) {
-            TopicStatus topicStatus = topicStatusRepository.findByTopicIdAndUserId(topicId, currentUserId)
-                .orElseGet(() -> new TopicStatus(topic, currentUserId));
-            topicStatus.setViewed(true);
-            try {
-                topicStatusRepository.save(topicStatus);
-            } catch (ConstraintViolationException e) {
-                log.debug("Caught a constraint exception while saving topic status. This can happen " +
-                    "due to the way the client detects posts scrolling into view");
-            }
-        }
-
         if (fullList.size() < pageSize) {
             return fullList;
         } else if (requestedThreadId != null) {
@@ -1693,9 +1675,9 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         topicStatus.setViewed(numberOfUnreadPosts == 0L);
         try {
             topicStatusRepository.save(topicStatus);
-        } catch (ConstraintViolationException e) {
-            log.debug("Caught a constraint exception while saving topic status. This can happen " +
-                "due to the way the client detects posts scrolling into view");
+        } catch (PersistenceException pe) {
+            log.debug("Caught an exception while saving topic status. This can happen "
+                    + "due to the way the client detects posts scrolling into view", pe);
         }
 
         Map<String, Map<String, Object>> topicCache = postsCache.get(topicId);
@@ -1720,9 +1702,9 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
 
                 String ref = ConversationsReferenceReckoner.reckoner().post(post).reckon().getReference();
                 eventTrackingService.post(eventTrackingService.newEvent(ConversationsEvents.POST_VIEWED.label, ref, post.getSiteId(), true, NotificationService.NOTI_OPTIONAL));
-            } catch (ConstraintViolationException e) {
-                log.debug("Caught constraint exception while marking post viewed. This can happen " +
-                    "due to the way the client detects posts scrolling into view");
+            } catch (PersistenceException pe) {
+                log.debug("Caught constraint exception while marking post viewed. This can happen "
+                        + "due to the way the client detects posts scrolling into view", pe);
             }
         });
     }
@@ -1924,7 +1906,6 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         return topicBean;
     }
 
-    @Transactional(readOnly = true)
     private long getNumberOfPostsInTopic(ConversationsTopic topic, String currentUserId) {
 
         return postRepository.findByTopicId(topic.getId()).stream().filter(p -> {

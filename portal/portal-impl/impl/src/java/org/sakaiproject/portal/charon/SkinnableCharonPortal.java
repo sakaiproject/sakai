@@ -187,14 +187,12 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
     private String[] poweredByImage;
     private String[] poweredByUrl;
     private boolean containerLogin;
-    private boolean debugNotifications;
     private boolean displayUserloginInfo;
     private boolean enableDirect;
     private boolean forceContainer;
     private boolean googleAnonIp;
     private boolean displayHelpIcon;
     private boolean mathJaxEnabled;
-    private boolean notificationsPushEnabled;
     private boolean paSystemEnabled;
     private boolean portalCookieWarnEnabled;
     private boolean portalDirectUrlToolEnabled;
@@ -242,7 +240,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
 
         containerLogin = serverConfigurationService.getBoolean(PROP_CONTAINER_LOGIN, false);
         copyrightText = serverConfigurationService.getString(PROP_COPYRIGHT_TEXT);
-        debugNotifications = serverConfigurationService.getBoolean(PROP_PUSH_NOTIFICATIONS_DEBUG, false);
         displayUserloginInfo = serverConfigurationService.getBoolean(PROP_DISPLAY_USER_LOGIN, true);
         enableGAM = serverConfigurationService.getString(PROP_GLOBAL_ALERT_MESSAGE, "false");
         favIconUrl = serverConfigurationService.getString(PROP_PORTAL_FAV_ICON);
@@ -258,7 +255,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
         mathJaxEnabled = serverConfigurationService.getBoolean(PROP_MATHJAX_ENABLED, true);
         mathJaxFormat = serverConfigurationService.getStrings(PROP_MATHJAX_FORMAT);
         mathJaxPath = serverConfigurationService.getString(PROP_MATHJAX_SRC_PATH);
-        notificationsPushEnabled = serverConfigurationService.getBoolean(PROP_PUSH_NOTIFICATIONS, true);
         paSystemEnabled = serverConfigurationService.getBoolean(PROP_PA_SYSTEM_ENABLED, true);
         portalCookieWarnUrl = serverConfigurationService.getString(PROP_PORTAL_COOKIE_WARN_URL, "/library/content/cookie_policy.html");
         portalCookieWarnEnabled = serverConfigurationService.getBoolean(PROP_PORTAL_COOKIE_WARN_ENABLED,false);
@@ -1027,10 +1023,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
         // Format properties for MathJax.
         rcontext.put("mathJaxFormat", mathJaxFormat);
 
-        rcontext.put("notificationsPushEnabled", notificationsPushEnabled);
-
-        rcontext.put("debugNotifications", debugNotifications);
-
         rcontext.put("tasksEnabled" , tasksEnabled);
 
         return rcontext;
@@ -1529,7 +1521,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
             rcontext.put("bottomNavSakaiVersion", sakaiVersion);
             rcontext.put("bottomNavServer", serverId);
             rcontext.put("useBullhornAlerts", useBullhornAlerts);
-            rcontext.put("bullhornAlertCount", useBullhornAlerts ? userMessagingService.getNotifications().size() : 0);
             rcontext.put("chromeInfoUrl", serverConfigurationService.getString("notifications.chrome.info.url", ""));
             rcontext.put("firefoxInfoUrl", serverConfigurationService.getString("notifications.firefox.info.url", ""));
             rcontext.put("safariInfoUrl", serverConfigurationService.getString("notifications.safari.info.url", ""));

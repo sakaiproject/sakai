@@ -22,6 +22,7 @@
 package org.sakaiproject.user.api;
 
 import java.util.Locale;
+import java.util.function.Consumer;
 
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.exception.IdUnusedException;
@@ -101,6 +102,16 @@ public interface PreferencesService extends EntityProducer
 	PreferencesEdit add(String id) throws PermissionException, IdUsedException;
 
 	/**
+	 * Edit preferences with automatic commit/cancel handling.
+	 *
+	 * @param userId The user ID whose preferences are being edited
+	 * @param editFunction A function that performs the actual preference modifications
+	 * @return true if the edit was successful and committed, false if there was an error
+	 * @throws IllegalArgumentException if userId is null or empty
+	 */
+	boolean applyEditWithAutoCommit(String userId, Consumer<PreferencesEdit> editFunction);
+
+    /**
 	 * Get a locked Preferences object for editing. Must commit(), cancel() or remove() when done.
 	 * 
 	 * @param id

@@ -81,7 +81,6 @@ import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.user.api.Preferences;
-import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -527,23 +526,17 @@ public class SiteHandler extends WorksiteHandler
 
 			// We need to modify the user's properties. We need to lock the table.
 			if (!StringUtils.equals(currentExpanded, "true") || !StringUtils.equals(expandedSite, siteId)) {
-				PreferencesEdit prefs = null;
-				try {
-					prefs = preferencesService.edit(userId);
-					ResourcePropertiesEdit props = prefs.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
+				String finalSiteId = siteId;
+				preferencesService.applyEditWithAutoCommit(userId, edit -> {
+					ResourcePropertiesEdit props = edit.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
 					props.addProperty(PortalConstants.PROP_CURRENT_EXPANDED, "true");
-					props.addProperty(PortalConstants.PROP_EXPANDED_SITE, siteId);
+					props.addProperty(PortalConstants.PROP_EXPANDED_SITE, finalSiteId);
 
 					boolean themeEnabled = serverConfigurationService.getBoolean(PortalConstants.PROP_PORTAL_THEMES, true);
 					if (!themeEnabled) {
-						prefs.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.USER_SELECTED_UI_THEME_PREFS).addProperty("theme", "sakaiUserTheme-notSet");
+						edit.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.USER_SELECTED_UI_THEME_PREFS).addProperty("theme", "sakaiUserTheme-notSet");
 					}
-				} catch (Exception any) {
-					log.warn("Exception caught whilst setting expanded navigation or theme properties: {}", any.toString());
-					if (prefs != null) preferencesService.cancel(prefs);
-				} finally {
-					if (prefs != null) preferencesService.commit(prefs);
-				}
+				});
 			}
 		}
 
@@ -590,12 +583,7 @@ public class SiteHandler extends WorksiteHandler
 		}
 
 		rcontext.put("siteId", siteId);
-		boolean showShortDescription = serverConfigurationService.getBoolean("portal.title.shortdescription.show", false);
 
-		if (showShortDescription) {
-			rcontext.put("shortDescription", Web.escapeHtml(site.getShortDescription()));
-		}
-		
 		if (siteService.isUserSite(siteId)){
 			rcontext.put("siteTitle", rb.getString("sit_mywor") );
 			rcontext.put("siteUrl", site.getUrl());
