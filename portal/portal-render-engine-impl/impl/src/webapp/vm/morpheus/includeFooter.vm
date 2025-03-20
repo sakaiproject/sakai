@@ -35,6 +35,9 @@
         </div>
         <div id="tutorial" class="Mrphs-tutorial Mrphs-modal"></div>
     </footer>
+
+    #parse("/vm/morpheus/includeFooterExtras.vm")
+
 #else 
 
     <!-- dont compact -->
