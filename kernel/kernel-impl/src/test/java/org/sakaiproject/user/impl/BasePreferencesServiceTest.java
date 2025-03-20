@@ -26,6 +26,7 @@ import org.sakaiproject.exception.SakaiException;
 import org.sakaiproject.test.SakaiKernelTestBase;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -126,5 +127,31 @@ public class BasePreferencesServiceTest extends SakaiKernelTestBase  {
         Assert.assertNotNull(pref);
         String proptest = pref.getProperties().getProperty("testprop");
         Assert.assertEquals(proptest,"testvalue");
+    }
+
+    @Test
+    public void testPreferencesServiceEditAutoCommit() {
+    	String id = "002";
+    	workAsUser("prefuser","prefuser");
+        boolean success = preferencesService.applyEditWithAutoCommit(id, edit -> {
+            Assert.assertNotNull(edit);
+            edit.getPropertiesEdit("EditAutoCommit").addProperty("testprop", "testvalue1");
+        });
+        Assert.assertTrue(success);
+        Preferences preferences = preferencesService.getPreferences(id);
+        Assert.assertNotNull(preferences);
+        String propValue = preferences.getProperties("EditAutoCommit").getProperty("testprop");
+        Assert.assertEquals("testvalue1", propValue);
+
+        success = preferencesService.applyEditWithAutoCommit(id, edit -> {
+            Assert.assertNotNull(edit);
+            edit.getPropertiesEdit("EditAutoCommit").addProperty("testprop", "testvalue2");
+        });
+        Assert.assertTrue(success);
+        preferences = preferencesService.getPreferences(id);
+        Assert.assertNotNull(preferences);
+        propValue = preferences.getProperties("EditAutoCommit").getProperty("testprop");
+        Assert.assertEquals("testvalue2", propValue);
+
     }
 }
