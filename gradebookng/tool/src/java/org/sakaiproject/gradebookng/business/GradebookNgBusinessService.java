@@ -113,7 +113,6 @@ import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.CandidateDetailProvider;
 import org.sakaiproject.user.api.Preferences;
-import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -2961,7 +2960,7 @@ public class GradebookNgBusinessService {
 		String siteId = getCurrentSiteId();
 		String userId = getCurrentUser().getId();
 
-		preferencesService.editWithAutoCommit(userId, edit -> {
+		preferencesService.applyEditWithAutoCommit(userId, edit -> {
 			String key = GB_PREF_KEY + siteId;
 			ResourcePropertiesEdit props = edit.getPropertiesEdit(key);
 			if (prefValue != null) {

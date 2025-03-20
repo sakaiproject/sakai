@@ -43,7 +43,6 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.user.api.Preferences;
-import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -71,7 +70,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -255,7 +253,7 @@ public class DashboardController extends AbstractSakaiApiController implements E
             return;
         }
 
-        preferencesService.editWithAutoCommit(userId, edit -> {
+        preferencesService.applyEditWithAutoCommit(userId, edit -> {
             ResourcePropertiesEdit props = edit.getPropertiesEdit("dashboard-config");
             try {
                 props.addProperty("layout", (new ObjectMapper()).writeValueAsString(bean.getLayout()));

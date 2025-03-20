@@ -32,7 +32,6 @@ import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.contentreview.exception.SubmissionException;
 import org.sakaiproject.contentreview.exception.TransientSubmissionException;
-import org.sakaiproject.contentreview.service.ContentReviewQueueService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.contentreview.dao.ContentReviewConstants;
 import org.sakaiproject.contentreview.dao.ContentReviewItem;
@@ -44,9 +43,7 @@ import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.util.ResourceLoader;
 import org.w3c.dom.Document;
@@ -115,7 +112,7 @@ public abstract class BaseContentReviewService implements ContentReviewService{
     public void updateUserEULATimestamp(String userId) {
         if (StringUtils.isBlank(userId)) return;
 
-		preferencesService.editWithAutoCommit(userId, edit -> {
+		preferencesService.applyEditWithAutoCommit(userId, edit -> {
 			String key = PROP_KEY_EULA + getProviderId();
 			ResourcePropertiesEdit resourcePropEdit = edit.getPropertiesEdit(key);
 			if (resourcePropEdit != null) {

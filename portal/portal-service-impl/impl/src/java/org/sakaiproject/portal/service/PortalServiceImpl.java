@@ -90,7 +90,6 @@ import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.Preferences;
-import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.transaction.annotation.Transactional;
@@ -1093,7 +1092,7 @@ public class PortalServiceImpl implements PortalService, Observer
 	}
 
 	private void removeFavoriteSiteData(String userId) {
-		preferencesService.editWithAutoCommit(userId, edit -> {
+		preferencesService.applyEditWithAutoCommit(userId, edit -> {
 			ResourcePropertiesEdit props = edit.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
 			log.debug("Clearing favorites data from preferences for user [{}]", userId);
 			props.removeProperty(FIRST_TIME_PROPERTY);

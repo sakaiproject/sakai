@@ -24,10 +24,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.NotificationService;
-import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.lti.api.SiteEmailPreferenceSetter;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 
@@ -52,7 +50,7 @@ public class SiteEmailPreferenceSetterImpl implements SiteEmailPreferenceSetter 
             String userId = user.getId();
             String siteId = site.getId();
 
-            preferencesService.editWithAutoCommit(userId, edit -> {
+            preferencesService.applyEditWithAutoCommit(userId, edit -> {
                 int notificationPref = NotificationService.PREF_IMMEDIATE;
 
                 if (emailDeliveryPreference.equals("none")) {

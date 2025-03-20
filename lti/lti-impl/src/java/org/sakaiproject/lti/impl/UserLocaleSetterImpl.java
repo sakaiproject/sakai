@@ -23,10 +23,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.tsugi.lti.LTIConstants;
 
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
-import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.lti.api.UserLocaleSetter;
 import org.sakaiproject.user.api.Preferences;
-import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.PreferencesService;
 
@@ -49,7 +47,7 @@ public class UserLocaleSetterImpl implements UserLocaleSetter {
         String locale = (String) payload.get(LTIConstants.LAUNCH_PRESENTATION_LOCALE);
         if (user != null && locale != null && !locale.isEmpty()) {
             String userId = user.getId();
-            preferencesService.editWithAutoCommit(userId, edit -> {
+            preferencesService.applyEditWithAutoCommit(userId, edit -> {
                 ResourcePropertiesEdit propsEdit = edit.getPropertiesEdit("sakai:resourceloader");
                 propsEdit.removeProperty(Preferences.FIELD_LOCALE);
                 propsEdit.addProperty(Preferences.FIELD_LOCALE, locale);

@@ -50,13 +50,8 @@ import org.sakaiproject.authz.api.AuthzGroupAdvisor;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.IdUsedException;
-import org.sakaiproject.exception.InUseException;
-import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.hbm.privacy.PrivacyRecord;
 import org.sakaiproject.user.api.Preferences;
-import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
@@ -523,7 +518,7 @@ public class PrivacyManagerImpl extends HibernateDaoSupport implements PrivacyMa
 	public void setDefaultPrivacyState(String userId, String visibility) {
 		if (StringUtils.isBlank(userId)) return;
 
-		preferencesService.editWithAutoCommit(userId, edit -> {
+		preferencesService.applyEditWithAutoCommit(userId, edit -> {
 				ResourcePropertiesEdit props = edit.getPropertiesEdit(PRIVACY_PREFS);
 				props.addProperty(PrivacyManager.DEFAULT_PRIVACY_KEY, StringUtils.defaultIfEmpty(visibility, PrivacyManager.VISIBLE));
 		});

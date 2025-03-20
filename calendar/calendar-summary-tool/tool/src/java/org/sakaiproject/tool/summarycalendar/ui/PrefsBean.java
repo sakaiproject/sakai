@@ -45,10 +45,8 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
-import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.Preferences;
-import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -441,7 +439,7 @@ public class PrefsBean {
 		if (StringUtils.isBlank(name)) return;
 		String userId = M_sm.getCurrentSessionUserId();
 
-		M_ps.editWithAutoCommit(userId, edit -> {
+		M_ps.applyEditWithAutoCommit(userId, edit -> {
 			ResourcePropertiesEdit props = edit.getPropertiesEdit(PREFS_KEY);
 			if (value == null) {
 				props.removeProperty(name);
@@ -455,7 +453,7 @@ public class PrefsBean {
 		if (StringUtils.isBlank(name)) return;
 		String userId = M_sm.getCurrentSessionUserId();
 
-		M_ps.editWithAutoCommit(userId, edit -> {
+		M_ps.applyEditWithAutoCommit(userId, edit -> {
 			ResourcePropertiesEdit props = edit.getPropertiesEdit(PREFS_KEY);
 			if (values == null) {
 				props.removeProperty(name);
@@ -473,7 +471,7 @@ public class PrefsBean {
 		if (StringUtils.isBlank(name)) return;
 		String userId = M_sm.getCurrentSessionUserId();
 
-		M_ps.editWithAutoCommit(userId, edit -> {
+		M_ps.applyEditWithAutoCommit(userId, edit -> {
 			ResourcePropertiesEdit props = edit.getPropertiesEdit(PREFS_KEY);
 			props.removeProperty(name);
 		});

@@ -104,11 +104,12 @@ public interface PreferencesService extends EntityProducer
 	/**
 	 * Edit preferences with automatic commit/cancel handling.
 	 *
-	 * @param userId       The user id whose preferences we are editing
-	 * @param editFunction A function that takes PreferencesEdit and performs the edit operations
-	 * @return true if the edit was successful, false if not
+	 * @param userId The user ID whose preferences are being edited
+	 * @param editFunction A function that performs the actual preference modifications
+	 * @return true if the edit was successful and committed, false if there was an error
+	 * @throws IllegalArgumentException if userId is null or empty
 	 */
-	boolean editWithAutoCommit(String userId, Consumer<PreferencesEdit> editFunction);
+	boolean applyEditWithAutoCommit(String userId, Consumer<PreferencesEdit> editFunction);
 
     /**
 	 * Get a locked Preferences object for editing. Must commit(), cancel() or remove() when done.

@@ -133,7 +133,7 @@ public class BasePreferencesServiceTest extends SakaiKernelTestBase  {
     public void testPreferencesServiceEditAutoCommit() {
     	String id = "002";
     	workAsUser("prefuser","prefuser");
-        boolean success = preferencesService.editWithAutoCommit(id, edit -> {
+        boolean success = preferencesService.applyEditWithAutoCommit(id, edit -> {
             Assert.assertNotNull(edit);
             edit.getPropertiesEdit("EditAutoCommit").addProperty("testprop", "testvalue1");
         });
@@ -143,7 +143,7 @@ public class BasePreferencesServiceTest extends SakaiKernelTestBase  {
         String propValue = preferences.getProperties("EditAutoCommit").getProperty("testprop");
         Assert.assertEquals("testvalue1", propValue);
 
-        success = preferencesService.editWithAutoCommit(id, edit -> {
+        success = preferencesService.applyEditWithAutoCommit(id, edit -> {
             Assert.assertNotNull(edit);
             edit.getPropertiesEdit("EditAutoCommit").addProperty("testprop", "testvalue2");
         });

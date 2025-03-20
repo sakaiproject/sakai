@@ -271,7 +271,7 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 	}
 
     @Override
-    public boolean editWithAutoCommit(String userId, Consumer<PreferencesEdit> editFunction) {
+    public boolean applyEditWithAutoCommit(String userId, Consumer<PreferencesEdit> editFunction) {
         PreferencesEdit edit = null;
         try {
             edit = edit(userId);
