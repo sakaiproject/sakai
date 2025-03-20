@@ -56,7 +56,7 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
           aria-expanded="false"
           title="${this._i18n.edit_rating} ${this.rating.title}"
           aria-label="${this._i18n.edit_rating} ${this.rating.title}">
-        <i class="si si-edit"></i>
+        <span class="si si-edit" aria-hidden="true"></span>
       </button>
 
       <div class="modal modal-sm fade"
@@ -94,7 +94,7 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
               </div>
               <div class="form-group">
                 <label class="label-rubrics" for="rating-description-${this.rating.id}">${this._i18n.rating_description}</label>
-                <textarea name="" id="rating-description-${this.rating.id}" class="form-control" .value=${this.rating.description}></textarea>
+                <textarea name="rating-description-${this.rating.id}" id="rating-description-${this.rating.id}" class="form-control" .value=${this.rating.description}></textarea>
               </div>
             </div>
             <div class="modal-footer">

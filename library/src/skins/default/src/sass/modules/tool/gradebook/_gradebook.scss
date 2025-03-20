@@ -36,6 +36,7 @@
   #gradeTableWrapper .tabulator-editable.tabulator-editing {
     border: 2px solid #007bff !important;
     box-shadow: 0 0 5px rgba(157, 198, 243, 0.75);
+    background-color: var(--sakai-background-color-5) !important;
   }
   #gradeTableWrapper .tabulator-editing .gradebook-input .out-of {
     position: absolute;
@@ -131,15 +132,15 @@
     font-family: 'bootstrap-icons';
     content: '\F573';
     position: absolute;
-    right: 1px;
-    top: 5px;
+    right: 28px;
+    top: 10px;
   }
   #gradeTableWrapper .gb-title.gb-sorted-desc:after {
     font-family: 'bootstrap-icons';
     content: '\F571';
     position: absolute;
-    right: 1px;
-    top: 5px;
+    right: 28px;
+    top: 10px;
   }
   #gradeTableWrapper .gb-title .gb-category {
     font-style: italic;
@@ -1341,6 +1342,13 @@
   .dropdown-toggle::after {
     display: none;
   }
+  
+  // Masking the auto selected text in dropdowns in Firefox
+  .dropdown-menu.show {
+    a::-moz-selection {
+      background: none;
+    }
+  }
 }
 
 div.wicket-modal, .#{$namespace}sakai-gradebookng {
@@ -1672,3 +1680,8 @@ max-height:100px;
   content: '\2696';
 }
 
+// Fix for Tabulator bug where the range-active class sometimes remains on previously selected cells
+// when navigating through cells using the keyboard (I don't know why tabulator does this)
+.tabulator-range-active {
+  display: none;
+}

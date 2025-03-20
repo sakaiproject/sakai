@@ -1,7 +1,6 @@
 import { SakaiShadowElement } from "@sakai-ui/sakai-element";
 import { html } from "lit";
 import { ifDefined } from "lit/directives/if-defined.js";
-import { loadProperties } from "@sakai-ui/sakai-i18n";
 import "@sakai-ui/sakai-icon/sakai-icon.js";
 
 /**
@@ -22,9 +21,8 @@ export class SakaiPronunciationPlayer extends SakaiShadowElement {
 
     super();
 
-    loadProperties("pronunciation-player").then(r => { this._i18n = r; this.requestUpdate(); });
+    this.loadTranslations("pronunciation-player");
   }
-
 
   set userId(value) {
 

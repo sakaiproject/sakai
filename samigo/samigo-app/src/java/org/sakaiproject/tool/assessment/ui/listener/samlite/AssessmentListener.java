@@ -29,6 +29,7 @@ import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 import org.sakaiproject.tool.assessment.services.qti.QTIService;
 import org.sakaiproject.tool.assessment.ui.bean.samlite.SamLiteBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.util.MergeConfig;
 
 @Slf4j
 public class AssessmentListener implements ActionListener {
@@ -40,7 +41,7 @@ public class AssessmentListener implements ActionListener {
 		
 		Document doc = samLiteBean.createDocument();
  
-		AssessmentFacade assessment = createImportedAssessment(doc, QTIVersion.VERSION_1_2, samLiteBean.getAssessmentTemplateId());
+		AssessmentFacade assessment = createImportedAssessment(doc, QTIVersion.VERSION_1_2, samLiteBean.getAssessmentTemplateId(), null);
 		
 		String templateId = samLiteBean.getAssessmentTemplateId();
 		if (null != templateId && !"".equals(templateId)) {
@@ -57,9 +58,9 @@ public class AssessmentListener implements ActionListener {
 		EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_CREATE, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId(), true));
 	}
 	
-	public AssessmentFacade createImportedAssessment(Document document, int qti, String templateId) {
+	public AssessmentFacade createImportedAssessment(Document document, int qti, String templateId, MergeConfig mcx) {
 	    QTIService qtiService = new QTIService();
-	    return qtiService.createImportedAssessment(document, qti, null, templateId);
+	    return qtiService.createImportedAssessment(document, qti, null, templateId, mcx);
 	}
 
 }

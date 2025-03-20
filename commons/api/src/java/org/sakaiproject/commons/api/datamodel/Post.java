@@ -18,12 +18,9 @@ package org.sakaiproject.commons.api.datamodel;
 import java.time.Instant;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Stack;
-import java.util.TimeZone;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -53,6 +50,7 @@ public class Post implements Entity {
     private long modifiedDate = -1L;
     private long releaseDate = -1L;
     private int numberOfComments = 0;
+    private int numberOfLikes = 0;
     private String embedder;
     private String siteId;
     private String commonsId;
@@ -76,10 +74,12 @@ public class Post implements Entity {
         this.setContent(rs.getString("CONTENT"));
         this.setCreatorId(rs.getString("CREATOR_ID"));
         this.setPriority(rs.getBoolean("PRIORITY"));
-        // retrieve time's in UTC since that's how it's stored
-        this.setCreatedDate(rs.getTimestamp("CREATED_DATE", Calendar.getInstance(TimeZone.getTimeZone(ZoneId.of("UTC")))).getTime());
-        this.setModifiedDate(rs.getTimestamp("MODIFIED_DATE", Calendar.getInstance(TimeZone.getTimeZone(ZoneId.of("UTC")))).getTime());
-        this.setReleaseDate(rs.getTimestamp("RELEASE_DATE", Calendar.getInstance(TimeZone.getTimeZone(ZoneId.of("UTC")))).getTime());
+
+        // The database stores dates in the server's timezone, not UTC
+        // Simply get the timestamp without timezone manipulation
+        this.setCreatedDate(rs.getTimestamp("CREATED_DATE").getTime());
+        this.setModifiedDate(rs.getTimestamp("MODIFIED_DATE").getTime());
+        this.setReleaseDate(rs.getTimestamp("RELEASE_DATE").getTime());
     }
 
     public void addComment(Comment comment) {

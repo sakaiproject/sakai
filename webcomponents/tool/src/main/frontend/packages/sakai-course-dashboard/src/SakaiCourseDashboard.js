@@ -23,7 +23,7 @@ export class SakaiCourseDashboard extends SakaiElement {
 
     super();
 
-    this.loadTranslations("dashboard").then(r => this._i18n = r);
+    this.loadTranslations("dashboard");
   }
 
   connectedCallback() {

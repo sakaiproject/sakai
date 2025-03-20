@@ -48,6 +48,9 @@ $Id$
     <link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.author.css">
     <script>includeWebjarLibrary('awesomplete')</script>
     <script src="/library/js/sakai-reminder.js"></script>
+    <script>
+      var finFormatError = '<h:outputText value="#{deliveryMessages.fin_invalid_characters_error}" escape="false"/>';
+    </script>
     <script src="/samigo-app/js/finInputValidator.js"></script>
     
     <script>
@@ -233,19 +236,24 @@ function toPoint(id)
                   <h:inputText styleClass="form-control #{delivery.trackingQuestions && question.formattedTimeElapsed ? '' : 'form-control-center'} adjustedScore#{studentScores.assessmentGradingId}.#{question.itemData.itemId}" id="adjustedScore" value="#{question.pointsForEdit}" onchange="toPoint(this.id);" validatorMessage="#{evaluationMessages.number_format_error_adjusted_score}" disabled="#{question.cancelled}">
                     <f:validateDoubleRange/>
                   </h:inputText>
+                  <p class="input-group-addon">
+                    <h:outputText value=" #{deliveryMessages.splash} #{question.roundedMaxPointsToDisplay} " />
+                    <h:outputText value="#{deliveryMessages.pt}" />
+                    <h:message for="adjustedScore" styleClass="sak-banner-error" />
+                    <h:outputText styleClass="extraCreditLabel" rendered="#{question.itemData.isExtraCredit == true}" value=" #{deliveryMessages.extra_credit_preview}" />
+                    <h:panelGroup styleClass="d-none d-sm-inline small" rendered="#{question.itemData.minScore > 0 || question.itemData.discount > 0}">
+                      <h:outputText value=", (" />
+                      <h:outputText value="#{authorMessages.answer_min_point_short}: #{question.itemData.minScore}" rendered="#{question.itemData.minScore > 0}" />
+                      <h:outputText value=", " rendered="#{question.itemData.minScore > 0 && question.itemData.discount > 0}" />
+                      <h:outputText value="#{authorMessages.answer_discount_point_short}: #{question.itemData.discount}" rendered="#{question.itemData.discount > 0}" />
+                      <h:outputText value=")" />
+                    </h:panelGroup>
+                  </p>
                   <h:panelGroup rendered="#{delivery.trackingQuestions && question.formattedTimeElapsed != ''}">
                     <p class="input-group-addon input-group-addon-right">
                       <h:outputText value="#{evaluationMessages.time_elapsed}: #{question.formattedTimeElapsed}" />
                     </p>
                   </h:panelGroup>
-                </h:panelGroup>
-                <h:panelGroup layout="block" styleClass="col-sm-12 input-group">
-                  <p class="samigo-input-group-addon">
-                    <h:outputText value=" #{deliveryMessages.splash} #{question.roundedMaxPointsToDisplay} " />
-                    <h:outputText value="#{deliveryMessages.pt}" />
-                    <h:message for="adjustedScore" styleClass="sak-banner-error" />
-                    <h:outputText styleClass="extraCreditLabel" rendered="#{question.itemData.isExtraCredit == true}" value=" #{deliveryMessages.extra_credit_preview}" />
-                  </p>
                 </h:panelGroup>
               </h:panelGroup>
             </h:panelGroup>

@@ -1719,7 +1719,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		String eventId = e.getEvent();
 		
 		// get contextId (siteId) from new Event.getContext() method, if available
-		if(statsManager.isEventContextSupported()) {
+		if(statsManager.isEventContextSupported() && !(StatsManager.SITEVISIT_EVENTID.equals(eventId) || StatsManager.SITEVISITEND_EVENTID.equals(eventId))) {
 			String contextId = null;
 			try{
 				contextId = (String) e.getClass().getMethod("getContext", (Class<?>[]) null).invoke(e, (Object[]) null);

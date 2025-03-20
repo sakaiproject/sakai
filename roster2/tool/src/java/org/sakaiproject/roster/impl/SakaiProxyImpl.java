@@ -103,7 +103,6 @@ import org.sakaiproject.roster.api.SakaiProxy;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.sitestats.api.SitePresenceTotal;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.tool.api.SessionManager;
@@ -166,55 +165,31 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
     private Pattern userPropsRegex;
 
     public void init() {
+        // Register all Roster functions if they aren't already registered
+        String[] functions = {
+            RosterFunctions.ROSTER_FUNCTION_EXPORT,
+            RosterFunctions.ROSTER_FUNCTION_VIEWALL,
+            RosterFunctions.ROSTER_FUNCTION_VIEWHIDDEN,
+            RosterFunctions.ROSTER_FUNCTION_VIEWGROUP,
+            RosterFunctions.ROSTER_FUNCTION_VIEWENROLLMENTSTATUS,
+            RosterFunctions.ROSTER_FUNCTION_VIEWPROFILE,
+            RosterFunctions.ROSTER_FUNCTION_VIEWEMAIL,
+            RosterFunctions.ROSTER_FUNCTION_VIEWID,
+            RosterFunctions.ROSTER_FUNCTION_VIEWOFFICIALPHOTO,
+            RosterFunctions.ROSTER_FUNCTION_VIEWSITEVISITS,
+            RosterFunctions.ROSTER_FUNCTION_VIEWUSERPROPERTIES,
+            RosterFunctions.ROSTER_FUNCTION_VIEWCANDIDATEDETAILS
+        };
 
         List<String> registered = functionManager.getRegisteredFunctions();
-
-        if (!registered.contains(RosterFunctions.ROSTER_FUNCTION_EXPORT)) {
-            functionManager.registerFunction(RosterFunctions.ROSTER_FUNCTION_EXPORT, true);
-        }
-
-        if (!registered.contains(RosterFunctions.ROSTER_FUNCTION_VIEWALL)) {
-            functionManager.registerFunction(RosterFunctions.ROSTER_FUNCTION_VIEWALL, true);
-        }
-
-        if (!registered.contains(RosterFunctions.ROSTER_FUNCTION_VIEWHIDDEN)) {
-            functionManager.registerFunction(RosterFunctions.ROSTER_FUNCTION_VIEWHIDDEN, true);
-        }
-
-        if (!registered.contains(RosterFunctions.ROSTER_FUNCTION_VIEWGROUP)) {
-            functionManager.registerFunction(RosterFunctions.ROSTER_FUNCTION_VIEWGROUP, true);
-        }
-
-        if (!registered.contains(RosterFunctions.ROSTER_FUNCTION_VIEWENROLLMENTSTATUS)) {
-            functionManager.registerFunction(RosterFunctions.ROSTER_FUNCTION_VIEWENROLLMENTSTATUS, true);
-        }
-
-        if (!registered.contains(RosterFunctions.ROSTER_FUNCTION_VIEWPROFILE)) {
-            functionManager.registerFunction(RosterFunctions.ROSTER_FUNCTION_VIEWPROFILE, true);
-        }
-
-        if (!registered.contains(RosterFunctions.ROSTER_FUNCTION_VIEWEMAIL)) {
-            functionManager.registerFunction(RosterFunctions.ROSTER_FUNCTION_VIEWEMAIL, true);
-        }
-
-        if (!registered.contains(RosterFunctions.ROSTER_FUNCTION_VIEWOFFICIALPHOTO)) {
-            functionManager.registerFunction(RosterFunctions.ROSTER_FUNCTION_VIEWOFFICIALPHOTO, true);
-        }
-
-        if (!registered.contains(RosterFunctions.ROSTER_FUNCTION_VIEWSITEVISITS)) {
-            functionManager.registerFunction(RosterFunctions.ROSTER_FUNCTION_VIEWSITEVISITS, true);
-        }
-
-        if (!registered.contains(RosterFunctions.ROSTER_FUNCTION_VIEWUSERPROPERTIES)) {
-            functionManager.registerFunction(RosterFunctions.ROSTER_FUNCTION_VIEWUSERPROPERTIES, true);
-        }
-
-        if (!registered.contains(RosterFunctions.ROSTER_FUNCTION_VIEWCANDIDATEDETAILS)) {
-            functionManager.registerFunction(RosterFunctions.ROSTER_FUNCTION_VIEWCANDIDATEDETAILS, true);
+        
+        for (String function : functions) {
+            if (!registered.contains(function)) {
+                functionManager.registerFunction(function, true);
+            }
         }
 
         eventTrackingService.addObserver(this);
-
         memberComparator = new RosterMemberComparator(getFirstNameLastName());
         userPropsRegex = Pattern.compile(serverConfigurationService.getString("roster.filter.user.properties.regex", "^udp\\.dn$|additionalInfo|specialNeeds|studentNumber"));
     }
@@ -317,18 +292,15 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
     @Override
     public Boolean getViewEmail(String siteId) {
-
-        //To view emails it first needs to be enabled in sakai.properties and the user must have the permission.
-        if (serverConfigurationService.getBoolean("roster_view_email",DEFAULT_VIEW_EMAIL)) {
-            return hasUserSitePermission(getCurrentUserId(), RosterFunctions.ROSTER_FUNCTION_VIEWEMAIL, siteId);
-        }
-        return false;
+        return serverConfigurationService.getBoolean("roster_view_email", DEFAULT_VIEW_EMAIL) &&
+                hasUserSitePermission(getCurrentUserId(), RosterFunctions.ROSTER_FUNCTION_VIEWEMAIL, siteId);
     }
 
     @Override
-    public Boolean getViewUserDisplayId() {
+    public Boolean  getViewUserDisplayId() {
         return serverConfigurationService.getBoolean(
-                "roster.display.userDisplayId", DEFAULT_VIEW_USER_DISPLAY_ID);
+                "roster.display.userDisplayId", DEFAULT_VIEW_USER_DISPLAY_ID) &&
+                hasUserSitePermission(getCurrentUserId(), RosterFunctions.ROSTER_FUNCTION_VIEWID, getCurrentSiteId());
     }
 
     @Override
@@ -593,7 +565,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
                 }
 
                 // Now add any instructors
-                filtered.addAll(unfiltered.stream().filter(RosterMember::isInstructor).collect(Collectors.toList()));
+                filtered.addAll(unfiltered.stream().filter(RosterMember::isInstructor).toList());
 
                 // The group loop is shuffling members, sort the list again
                 filtered.sort(memberComparator);
@@ -627,14 +599,12 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
                 // Now strip out any unauthorised info
                 if (!isAllowed(currentUserId, RosterFunctions.ROSTER_FUNCTION_VIEWEMAIL, site.getReference())) {
                     m.setEmail(null);
-                    // Also hide username/displayId when email permission is not granted
-                    m.setDisplayId(null);
                 } else {
                     if (StringUtils.isEmpty(m.getEmail())) {
                         try {
                             m.setEmail(userDirectoryService.getUser(m.getUserId()).getEmail());
                         } catch (UserNotDefinedException unde) {
-                            // This ain't gonna happen
+                            log.debug("Unable to find user {} in directory service", m.getUserId());
                         }
                     }
                 }
@@ -788,7 +758,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
      * Returns the enrollment set members for the specified site and enrollment
      * set.
      *
-     * @param siteId the ID of the site.
+     * @param site the entire site object
      * @param enrollmentSetId the ID of the enrollment set.
      * @return the enrollment set members for the specified site and enrollment
      *         set.
@@ -1237,22 +1207,15 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
     @Override
     public String getProfileToolLink(String otherUserId, String siteId) {
-
         try {
             Site site = siteService.getSite(siteService.getUserSiteId(getCurrentUserId()));
-            return Optional.ofNullable(site.getToolForCommonId("sakai.profile2")).map(tc -> {
-
-                return site.getUrl() + "/tool/" + tc.getId()
-                    + (StringUtils.isNotBlank(otherUserId) ? "/viewprofile/" + otherUserId + "?fromSiteId=" + siteId : "");
-            }).orElseGet(() -> {
-                log.info("The current user has not got the profile tool added to their workspace");
-                return "";
-            });
+            return Optional.ofNullable(site.getToolForCommonId("sakai.profile2"))
+                    .map(tc -> site.getUrl() + "/tool/" + tc.getId() + (StringUtils.isNotBlank(otherUserId) ? "/viewprofile/" + otherUserId + "?fromSiteId=" + siteId : ""))
+                    .orElse(StringUtils.EMPTY);
         } catch (Exception e) {
-            log.warn("Error getting profile tool link: {}", e.toString());
+            log.warn("Could not create profile tool link for site: {}, {}", siteId, e.toString());
         }
-
-        return null;
+        return StringUtils.EMPTY;
     }
 
     @Override
@@ -1287,8 +1250,10 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
             if (SiteService.SECURE_UPDATE_SITE_MEMBERSHIP.equals(eventName)
                     || SiteService.SECURE_UPDATE_GROUP_MEMBERSHIP.equals(eventName)
-                    || AuthzGroupService.SECURE_REMOVE_AUTHZ_GROUP.equals(eventName)) {
-                log.debug("Site membership or groups updated. Clearing caches ...");
+                    || AuthzGroupService.SECURE_REMOVE_AUTHZ_GROUP.equals(eventName)
+                    || AuthzGroupService.SECURE_UPDATE_AUTHZ_GROUP.equals(eventName)
+            ) {
+                log.debug("Site membership, groups, or permissions updated. Clearing caches because of event: {}", eventName);
                 String siteId = event.getContext();
                 this.removeSiteRosterCache(siteId);
             }

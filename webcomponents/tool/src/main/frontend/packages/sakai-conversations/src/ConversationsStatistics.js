@@ -22,7 +22,7 @@ export class ConversationsStatistics extends SakaiElement {
     this._sortByNameAscending = true;
     this._count = 0;
 
-    this.loadTranslations("conversations").then(r => this._i18n = r);
+    this.loadTranslations("conversations");
   }
 
   set statsUrl(value) {

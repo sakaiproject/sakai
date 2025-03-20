@@ -177,6 +177,8 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAttachmentD
                                 qtiBooleanString(feedback.getShowGraderComments()));
     assessmentXml.setFieldentry("FEEDBACK_SHOW_STATS",
                                 qtiBooleanString(feedback.getShowStatistics()));
+    assessmentXml.setFieldentry("FEEDBACK_SHOW_CORRECTION",
+                                qtiBooleanString(feedback.getShowCorrection()));
   }
 
   /**

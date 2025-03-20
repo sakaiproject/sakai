@@ -69,7 +69,7 @@ export class SakaiRubric extends RubricsElement {
             rubricSite.toLowerCase().includes(search);
   }
 
-  shouldUpdate() { return this.rubric; }
+  shouldUpdate() { return super.shouldUpdate() && this.rubric; }
 
   firstUpdated() {
 
@@ -157,7 +157,7 @@ export class SakaiRubric extends RubricsElement {
                   aria-label="${this.draftLabel}"
                   @keyup=${this.openEditWithKeyboard}
                   @click=${this.draftChange}>
-                <span class="fa ${this.draftIcon}"></span>
+                <span class="fa ${this.draftIcon}" aria-hidden="true"></span>
               </button>
             </div>
             <div class="action-container">
@@ -167,7 +167,7 @@ export class SakaiRubric extends RubricsElement {
                   aria-label="${this.weightLabel}"
                   @keyup=${this.openEditWithKeyboard}
                   @click=${this.weightedChange}>
-                <span class="fa ${this._weightedIcon}"></span>
+                <span class="fa ${this._weightedIcon}" aria-hidden="true"></span>
               </button>
             </div>`
           : nothing}
@@ -178,7 +178,7 @@ export class SakaiRubric extends RubricsElement {
                 aria-label="${this.tr(this.shareTitleKey, [ this.rubric.title ])}"
                 @keyup=${this.openEditWithKeyboard}
                 @click=${this.sharingChange}>
-              <span class="fa ${this._shareIcon}"></span>
+              <span class="fa ${this._shareIcon}" aria-hidden="true"></span>
             </button>
           </div>
           <div class="action-container">
@@ -188,7 +188,7 @@ export class SakaiRubric extends RubricsElement {
                 aria-label="${this.tr("copy")} ${this.rubric.title}"
                 @keyup=${this.openEditWithKeyboard}
                 @click=${this.cloneRubric}>
-              <span class="fa fa-copy"></span>
+              <span class="fa fa-copy" aria-hidden="true"></span>
             </button>
           </div>
           ${!this.rubric.locked ? html`
@@ -213,7 +213,8 @@ export class SakaiRubric extends RubricsElement {
       </div>
 
       <div class="collapse" id="rubric-collapse-${this.rubric.id}">
-        <div class="rubric-details style-scope sakai-rubric">
+        <div class="rubric-details style-scope sakai-rubric" rubric-id="${this.rubric.id}">
+          <div class="sak-banner-success d-none" aria-live="polite">${this.tr("saved_successfully")}</div>
           <sakai-rubric-criteria
             rubric-id="${this.rubric.id}"
             site-id="${this.rubric.ownerId}"
@@ -261,39 +262,48 @@ export class SakaiRubric extends RubricsElement {
   }
 
   handleSaveWeights() {
-
     const saveWeightsBtn = document.querySelector(`[rubric-id='${this.rubric.id}'] .save-weights`);
-    const saveSuccessLbl = document.querySelector(`[rubric-id='${this.rubric.id}'] .sak-banner-success`);
-
+    // Disable the save button
     if (saveWeightsBtn) saveWeightsBtn.setAttribute("disabled", true);
 
-    this.rubric.criteria.forEach(cr => {
+    // Track successful saves
+    let successCount = 0;
+    const totalCriteria = this.rubric.criteria.length;
 
+    this.rubric.criteria.forEach(cr => {
       this.updateRubricOptions.body = JSON.stringify([ { "op": "replace", "path": "/weight", "value": cr.weight } ]);
       const url = `/api/sites/${this.rubric.ownerId}/rubrics/${this.rubric.id}/criteria/${cr.id}`;
       fetch(url, this.updateRubricOptions)
       .then(r => {
-
         if (r.ok) {
-
-          if (saveSuccessLbl) {
-            saveSuccessLbl.classList.remove("d-none");
-            setTimeout(() => {
-              saveSuccessLbl.classList.add("d-none");
-            }, 5000);
+          successCount++;
+          // When all criteria have been saved successfully
+          if (successCount === totalCriteria) {
+            // Force the success message to be shown
+            this.updateComplete.then(() => {
+              // Find the success banner using the rubric-id attribute
+              const successBanner = document.querySelector(`[rubric-id='${this.rubric.id}'] .sak-banner-success`);
+              if (successBanner) {
+                // Remove d-none class to show the message
+                successBanner.classList.remove("d-none");
+                // Set a timeout to hide the message after 5 seconds
+                setTimeout(() => {
+                  successBanner.classList.add("d-none");
+                }, 5000);
+              } else {
+                console.error("Success banner element not found");
+              }
+              // Re-enable the save button
+              if (saveWeightsBtn) saveWeightsBtn.removeAttribute("disabled");
+            });
+            this.requestUpdate();
+            this.dispatchEvent(new SharingChangeEvent());
           }
-
-          setTimeout(() => {
-            if (saveWeightsBtn) saveWeightsBtn.removeAttribute("disabled");
-          }, 1000);
-
-          this.requestUpdate();
-          this.dispatchEvent(new SharingChangeEvent());
         } else {
           throw new Error("Network error while setting criterion weight");
         }
       })
-      .catch (error => console.error(error));
+      .catch(error => console.error(error));
     });
   }
 
@@ -334,10 +344,8 @@ export class SakaiRubric extends RubricsElement {
     this._minPoints = this.getMinPoints(this.rubric.criteria);
   }
 
-  draftChange(e) {
+  draftChange() {
 
-    e.stopPropagation();
-    e.preventDefault();
     // Draft mode can't be turned off if the total weight doesn't match 100%,
     // this way (+css) also prevents the rubric to be toggled when pressing the disabled button.
     if (this.rubric.draft && this.rubric.weighted && !this._validWeight) {
@@ -360,8 +368,6 @@ export class SakaiRubric extends RubricsElement {
 
   weightedChange(e) {
 
-    e.stopPropagation();
-    e.preventDefault();
     this.rubric.weighted = !this.rubric.weighted;
     if (this.rubric.weighted) {
       this.rubric.criteria.forEach(cr => cr.weight = 0);
@@ -387,9 +393,8 @@ export class SakaiRubric extends RubricsElement {
     });
   }
 
-  sharingChange(e) {
+  sharingChange() {
 
-    e.stopPropagation();
 
     this.rubric.shared = !this.rubric.shared;
 

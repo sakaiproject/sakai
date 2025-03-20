@@ -22,7 +22,6 @@
 			<input type="text" name="id" id="id" />
 		</p>
 		<p class="shorttext required">
-			<span class="reqStar">*</span>
 			<label for="title">
 				$tlang.getString("sittoo.tit")
 			</label>

@@ -1,5 +1,4 @@
 import { html } from "lit";
-import { ifDefined } from "lit/directives/if-defined.js";
 import { SakaiElement } from "@sakai-ui/sakai-element";
 import Cropper from "cropperjs";
 import { getUserId } from "@sakai-ui/sakai-portal-utils";
@@ -20,10 +19,12 @@ export class SakaiPictureChanger extends SakaiElement {
 
     super();
 
-    this.loadTranslations("sakai-picture-changer").then(r => this._i18n = r);
+    this.loadTranslations("sakai-picture-changer");
   }
 
   _attachCropper() {
+
+    if (!this._imageUrl) return;
 
     if (this.cropper) {
       this.cropper.replace(this._imageUrl);
@@ -58,9 +59,16 @@ export class SakaiPictureChanger extends SakaiElement {
   _filePicked(e) {
 
     if (e.target.files[0]) {
-      this.cropper.clear();
-      this.cropper.replace(URL.createObjectURL(e.target.files[0]));
+      this._imageUrl = URL.createObjectURL(e.target.files[0]);
       this._needsSave = true;
+      this.updateComplete.then(() => {
+        if (this.cropper) {
+          this.cropper.clear();
+          this.cropper.replace(this._imageUrl);
+        } else {
+          this._attachCropper();
+        }
+      });
     }
   }
 
@@ -127,7 +135,6 @@ export class SakaiPictureChanger extends SakaiElement {
   }
 
   _loadExisting() {
-    if (this._imageUrl) return;
 
     const url = `/direct/profile-image/details?_=${Date.now()}`;
     fetch(url, { credentials: "include" }).then(r => r.json()).then(json => {
@@ -138,6 +145,8 @@ export class SakaiPictureChanger extends SakaiElement {
           this.updateComplete.then(() => {
             this._attachCropper();
           });
+        } else {
+          this._imageUrl = null;
         }
       }
       this.csrfToken = json.csrf_token;
@@ -228,9 +237,12 @@ export class SakaiPictureChanger extends SakaiElement {
             <div id="image-editor-crop-wrapper">
               <div id="cropme">
                 <input type="file" accept="image/*" value="Choose an image" @change=${this._filePicked} />
-                <img id="image" src="${ifDefined(this._imageUrl)}"/>
+                ${this._imageUrl ?
+                  html`<img id="image" class="max-width-100" src="${this._imageUrl}" alt="${this._i18n.profile_image}" />` :
+                  html`<div class="text-muted text-center p-3">${this._i18n.no_image}</div>`
+                }
 
-                <div id="image-editor-controls-wrapper">
+                <div id="image-editor-controls-wrapper" class="d-${this._imageUrl ? "block" : "none"}">
                   <div id="controls">
                     <sakai-button @click=${this._zoomIn} type="small" title="${this._i18n.zoom_in}" arial-label="${this._i18n.zoom_in}">
                       <sakai-icon type="add"></sakai-icon>
