@@ -408,7 +408,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		}
 		pageMap.put("locked", !toolManager.isFirstToolVisibleToAnyNonMaintainerRole(page));
 		pageMap.put("isPopup", page.isPopUp());
-		pageMap.put("title", page.getTitle());
+		pageMap.put("title", formattedText.escapeHtml(page.getTitle()));
 		pageMap.put("description", getPageDescription(page));
 		return pageMap;
 	}
