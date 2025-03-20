@@ -202,7 +202,7 @@
     submitButton && (submitButton.disabled = !groupTitle?.value);
 
     //Enable or disable the submit button depending on the required fields
-    groupTitle?.addEventListener("keyup", e => submitButton.disabled = !e.target.value);
+    groupTitle?.addEventListener("keyup", e => submitButton && (submitButton.disabled = !e.target.value));
 
     document.querySelectorAll("#groupMembershipFilter, #groupJoinableShowAllUsers")
       .forEach(el => {
