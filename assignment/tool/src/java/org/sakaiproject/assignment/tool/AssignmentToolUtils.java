@@ -414,7 +414,7 @@ public class AssignmentToolUtils {
             if (!isGradebookGroupEnabled) {
                 // In this case, the "associateGradebookAssignment" association is unique,
                 // so no further action is needed.
-                alerts.addAll(integrateGradebook(options, siteId, aReference, associateGradebookAssignment, null, null, null, -1, null, sReference, op, -1));
+                alerts.addAll(integrateGradebook(options, siteId, aReference, associateGradebookAssignment, null, null, -1, null, sReference, op, -1));
             } else {
                 try {
                     // First, we need to retrieve the groups of the submitters of the submission.
@@ -451,7 +451,7 @@ public class AssignmentToolUtils {
 
                             if (isExternalAssignmentDefined) {
                                 // In this case, no further actions are required.
-                                alerts.addAll(integrateGradebook(options, gradebookUid, aReference, item, null, null, null, -1, null, sReference, op, -1));
+                                alerts.addAll(integrateGradebook(options, gradebookUid, aReference, item, null, null, -1, null, sReference, op, -1));
                             } else {
                                 // In this case, we need to find the item in the list that matches the group being iterated.
                                 try {
@@ -461,7 +461,7 @@ public class AssignmentToolUtils {
 
                                     if (gradebookAssignment != null && gradebookAssignment.getGradebook() != null &&
                                         gradebookAssignment.getGradebook().getUid().equals(gradebookUid)) {
-                                        alerts.addAll(integrateGradebook(options, gradebookUid, aReference, item, null, null, null, -1, null, sReference, op, -1));
+                                        alerts.addAll(integrateGradebook(options, gradebookUid, aReference, item, null, null, -1, null, sReference, op, -1));
                                     }
                                 } catch (NumberFormatException e) {
                                     System.out.println("e: " + e);
@@ -512,7 +512,6 @@ public class AssignmentToolUtils {
      * @param assignmentRef                Assignment reference
      * @param associateGradebookAssignment The title for the associated GB assignment
      * @param addUpdateRemoveAssignment    "add" for adding the assignment; "update" for updating the assignment; "remove" for remove assignment
-     * @param oldAssignment_title          The original assignment title
      * @param newAssignment_title          The updated assignment title
      * @param newAssignment_maxPoints      The maximum point of the assignment
      * @param newAssignment_dueTime        The due time of the assignment
@@ -520,7 +519,7 @@ public class AssignmentToolUtils {
      * @param updateRemoveSubmission       "update" for update submission;"remove" for remove submission
      */
     List<String> integrateGradebook(Map<String, Object> options, String gradebookUid, String assignmentRef, String associateGradebookAssignment,
-            String addUpdateRemoveAssignment, String oldAssignment_title, String newAssignment_title,
+            String addUpdateRemoveAssignment, String newAssignment_title,
             int newAssignment_maxPoints, Instant newAssignment_dueTime, String submissionRef,
             String updateRemoveSubmission, long category) {
 
