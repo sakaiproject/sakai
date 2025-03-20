@@ -65,7 +65,7 @@
         <div id="${type}-site-${safeSiteId}-page-list" data-site-id="${site.id}" class="site-list-item-collapse collapse #if ($isExpanded == "true") show #end">
             <ul class="site-page-list nav flex-column py-2">
             #foreach ( $page in $site.pages )
-                #if ($site.isCurrent)
+                #if ($site.isCurrent && $activePageId == $page.id)
                     #set ($pageUrl = $page.resetUrl)
                 #else
                     #set ($pageUrl = $page.url)
