@@ -83,7 +83,7 @@ For opening help sidebar
       </button>
     </li>
   #end
-    <li">
+    <li>
       <button class="btn icon-button sak-sysInd-account p-0 me-3 me-md-4 ms-3"
           type="button"
           data-bs-toggle="offcanvas"
