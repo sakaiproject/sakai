@@ -7957,6 +7957,8 @@ public class AssignmentAction extends PagedResourceActionII {
                 catInt = Long.valueOf(categorySelected);
                 state.setAttribute(NEW_ASSIGNMENT_CATEGORY, catInt);
             }
+        } else {
+            state.setAttribute(NEW_ASSIGNMENT_CATEGORY, catInt);
         }
 
         // only when choose to associate with assignment in Gradebook
