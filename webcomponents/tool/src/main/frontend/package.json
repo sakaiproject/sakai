@@ -49,7 +49,7 @@
     "@sakai-ui/sakai-tasks": "file:packages/sakai-tasks",
     "@sakai-ui/sakai-user-photo": "file:packages/sakai-user-photo",
     "@sakai-ui/sakai-widgets": "file:packages/sakai-widgets",
-    "@web/test-runner": "^0.19.0",
+    "@web/test-runner": "^0.20.0",
     "esbuild": "^0.24.0",
     "eslint": "^9.13.0",
     "eslint-plugin-html": "^8.1.2",
@@ -60,6 +60,7 @@
     "imagesloaded": "^5.0.0",
     "lint-staged": "^15.2.10",
     "lit-analyzer": "^2.0.3",
+    "sinon": "^19.0.2",
     "sortablejs": "^1.15.3",
     "temporal-polyfill": "0.2.5"
   },

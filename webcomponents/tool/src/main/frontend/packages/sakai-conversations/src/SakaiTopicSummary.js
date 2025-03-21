@@ -17,7 +17,7 @@ export class SakaiTopicSummary extends SakaiElement {
   _topicSelected(e) {
 
     e.target.focus();
-    document.querySelector(".portal-main-container").scrollTo({ top: 0, behavior: "smooth" });
+    document.querySelector(".portal-main-container")?.scrollTo({ top: 0, behavior: "smooth" });
     this.dispatchEvent(new CustomEvent("topic-selected", { detail: { topic: this.topic }, bubbles: true }));
   }
 
@@ -111,7 +111,7 @@ export class SakaiTopicSummary extends SakaiElement {
           </div>
 
           <div class="topic-tags">
-          ${this.topic.tags.map(tag => html`
+          ${this.topic.tags?.map(tag => html`
             <div class="tag"><div>${tag.label}</div></div>
           `)}
           </div>

@@ -29,4 +29,10 @@ export const SORT_MOST_ACTIVE = "MOST_ACTIVE";
 export const SORT_LEAST_ACTIVE = "LEAST_ACTIVE";
 export const SORT_ASC_CREATOR = "ASC_CREATOR";
 export const SORT_DESC_CREATOR = "DESC_CREATOR";
+export const REACTION_ICONS = {
+  "THUMBS_UP": "hand-thumbs-up",
+  "LOVE_IT": "heart",
+  "GOOD_IDEA": "lightbulb",
+  "KEY": "key",
+};
 
