@@ -38,6 +38,9 @@ public class ImportExportPage extends BasePage {
 
 	public WebMarkupContainer container;
 
+	private String gradebookUid;
+	private String siteId;
+
 	// Confirmation page displays both SUCCESS and ERROR messages.
 	// GbFeedbackPanels are styled with a single uniform background colour to represent a single 'error level' state.
 	// Since multiple 'error level' states are present, it looks best separated as two different panels
@@ -56,9 +59,14 @@ public class ImportExportPage extends BasePage {
 
 		disableLink(this.importExportPageLink);
 
+		gradebookUid = getCurrentGradebookUid();
+		siteId = getCurrentSiteId();
+
 		container = new WebMarkupContainer("gradebookImportExportContainer");
 		container.setOutputMarkupId(true);
-		container.add(new GradeImportUploadStep("wizard"));
+		GradeImportUploadStep gius = new GradeImportUploadStep("wizard");
+		gius.setCurrentGradebookAndSite(gradebookUid, siteId);
+		container.add(gius);
 		add(container);
 
 		// hide BasePage's feedback panel and use the error/nonError filtered feedback panels

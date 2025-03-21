@@ -622,7 +622,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
                 if (params.createGradingItem) {
                     if (existingGradingItemId != null && gradingService.isExternalAssignmentDefined(params.siteId, topicRef)) {
                         gradingService.updateExternalAssessment(params.siteId, topicRef, topicUrl, null,
-                                     params.title, params.gradingPoints, null, false);
+                                     params.title, null, params.gradingPoints, null, false);
                     } else {
                         addGradingItem(topic, params, topicRef);
                     }
@@ -630,14 +630,14 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
                     if (existingGradingItemId != null && existingGradingItemId != -1) {
                         if (existingGradingItemId != params.gradingItemId) {
                             if (gradingService.isExternalAssignmentDefined(params.siteId, topicRef)) {
-                                gradingService.removeExternalAssignment(params.siteId, topicRef);
+                                gradingService.removeExternalAssignment(params.siteId, topicRef, null);
                             }
 
                             topic.setGradingItemId(params.gradingItemId);
                             topic = topicRepository.save(topic);
                         } else if (gradingService.isExternalAssignmentDefined(params.siteId, topicRef)) {
                             gradingService.updateExternalAssessment(params.siteId, topicRef, topicUrl, null,
-                                     params.title, params.gradingPoints, null, false);
+                                     params.title, null, params.gradingPoints, null, false);
                         }
                     } else {
                         topic.setGradingItemId(params.gradingItemId);
@@ -647,7 +647,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
             }
         } else {
             if (gradingService.isExternalAssignmentDefined(params.siteId, topicRef)) {
-                gradingService.removeExternalAssignment(params.siteId, topicRef);
+                gradingService.removeExternalAssignment(params.siteId, topicRef, null);
             }
             topic.setGradingItemId(null);
             topic = topicRepository.save(topic);
@@ -668,7 +668,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         if (params.gradingCategory != -1L) {
             assignment.setCategoryId(params.gradingCategory);
         }
-        Long gbId = gradingService.addAssignment(params.siteId, assignment);
+        Long gbId = gradingService.addAssignment(params.siteId, params.siteId, assignment);
         topic.setGradingItemId(gbId);
         topic = topicRepository.save(topic);
     }
@@ -868,7 +868,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
 
         String ref = ConversationsReferenceReckoner.reckoner().topic(topic).reckon().getReference();
         if (topic.getGradingItemId() != null && gradingService.isExternalAssignmentDefined(topic.getSiteId(), ref)) {
-            gradingService.removeExternalAssignment(topic.getSiteId(), ref);
+            gradingService.removeExternalAssignment(topic.getSiteId(), ref, null);
         }
 
         afterCommit(() -> {
@@ -1375,7 +1375,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
             // Students who don't have the conversations.grade permission should skip this call
             if (gradingItemId != null && securityService.unlock(Permissions.GRADE.label, siteRef)) {
                 try {
-                    posterGrades = gradingService.getGradesForStudentsForItem(siteId, gradingItemId, creatorIds)
+                    posterGrades = gradingService.getGradesForStudentsForItem(siteId, siteId, gradingItemId, creatorIds)
                         .stream().collect(Collectors.toMap(GradeDefinition::getStudentUid, gd -> gd));
                 } catch (GradingSecurityException se) {
                     log.warn("Failed to getGradesForStudentsForItem with exception: {}", se.toString());
@@ -1897,7 +1897,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
 
         if (topicBean.gradingItemId != null && topicBean.gradingItemId != -1) {
             try {
-                topicBean.gradingPoints = gradingService.getAssignment(topicBean.siteId, topicBean.gradingItemId).getPoints();
+                topicBean.gradingPoints = gradingService.getAssignment(topicBean.siteId, topicBean.siteId, topicBean.gradingItemId).getPoints();
             } catch (AssessmentNotFoundException anfe) {
                 log.warn("No grading assignment for id {}. Points have NOT been set for topic {}", topicBean.gradingItemId, topicBean.id);
             }

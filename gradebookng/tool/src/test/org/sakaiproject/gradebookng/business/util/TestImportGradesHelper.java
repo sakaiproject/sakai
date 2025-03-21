@@ -70,7 +70,7 @@ public class TestImportGradesHelper {
 
 		when(resourceLoader.getLocale()).thenReturn(Locale.getDefault());
 		Map<String, GbUser> mockStudents = mockUserMap();
-		when(service.getUserEidMap()).thenReturn(mockStudents);
+		when(service.getUserEidMap(Mockito.anyObject())).thenReturn(mockStudents);
 	}
 
 	private void setMockResourceLoader(Class clazz, String fieldName) throws NoSuchFieldException, IllegalAccessException {
@@ -144,7 +144,7 @@ public class TestImportGradesHelper {
 	public void when_textcsv_thenCsvImportSucceeds() throws Exception {
 		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper;
 		try (InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import.csv")) {
-			importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "text/csv", "grades_import.csv", service);
+			importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "text/csv", "grades_import.csv", service, "", "gUid", "siteId");
 		}
 		testImport(importedSpreadsheetWrapper);
 	}
@@ -153,7 +153,7 @@ public class TestImportGradesHelper {
 	public void when_textcsv_i18n_thenCsvImportSucceeds() throws Exception {
 		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper;
 		try (InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import_i18n.csv")) {
-			importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "text/csv", "grades_import_i18n.csv", service, ",");
+			importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "text/csv", "grades_import_i18n.csv", service, ",", "gUid", "siteId");
 		}
 		testImport(importedSpreadsheetWrapper);
 	}
@@ -162,7 +162,7 @@ public class TestImportGradesHelper {
 	public void when_textplain_thenCsvImportSucceeds() throws Exception {
 		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper;
 		try (InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import.csv")) {
-			importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "text/plain", "grades_import.csv", service);
+			importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "text/plain", "grades_import.csv", service, "", "gUid", "siteId");
 		}
 		testImport(importedSpreadsheetWrapper);
 	}
@@ -171,7 +171,7 @@ public class TestImportGradesHelper {
 	public void when_textcommaseparatedvalues_thenCsvImportSucceeds() throws Exception {
 		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper;
 		try (InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import.csv")) {
-			importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "text/comma-separated-values", "grades_import.csv", service);
+			importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "text/comma-separated-values", "grades_import.csv", service, "", "gUid", "siteId");
 		}
 		testImport(importedSpreadsheetWrapper);
 	}
@@ -180,7 +180,7 @@ public class TestImportGradesHelper {
 	public void when_textapplicationcsv_thenCsvImportSucceeds() throws Exception {
 		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper;
 		try (InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import.csv")) {
-			importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "application/csv", "grades_import.csv", service);
+			importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "application/csv", "grades_import.csv", service, "", "gUid", "siteId");
 		}
 		testImport(importedSpreadsheetWrapper);
 	}
@@ -191,7 +191,7 @@ public class TestImportGradesHelper {
 		// Windows machine with MS Office installed is going to send this CSV with an Excel mimetype
 		try (InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import.csv")) {
 			// Windows machine with MS Office installed is going to send this CSV with an Excel mimetype
-			importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "application/vnd.ms-excel", "grades_import.csv", service);
+			importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "application/vnd.ms-excel", "grades_import.csv", service, "", "gUid", "siteId");
 		}
 		testImport(importedSpreadsheetWrapper);
 	}
@@ -200,7 +200,7 @@ public class TestImportGradesHelper {
 	public void when_applicationvndmsexcel_thenXlsImportSucceeds() throws Exception {
 		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper;
 		try (InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import.xls")) {
-			importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "application/vnd.ms-excel", "grades_import.xls", service);
+			importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "application/vnd.ms-excel", "grades_import.xls", service, "", "gUid", "siteId");
 		}
 		testImport(importedSpreadsheetWrapper);
 	}
@@ -209,7 +209,7 @@ public class TestImportGradesHelper {
 	public void when_applicationvndopenxmlformatsofficedocumentspreadsheetmlsheet_thenXlsImportSucceeds() throws Exception {
 		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper;
 		try (InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import.xls")) {
-			importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "grades_import.xls", service);
+			importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "grades_import.xls", service, "", "gUid", "siteId");
 		}
 		testImport(importedSpreadsheetWrapper);
 	}
@@ -218,7 +218,7 @@ public class TestImportGradesHelper {
 	public void when_anythingelse_thenImportFails() throws Exception {
 		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper;
 		try (InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import.pdf")) {
-			importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "application/pdf", "grades_import.pdf", service);
+			importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "application/pdf", "grades_import.pdf", service, "", "gUid", "siteId");
 		}
 		testImport(importedSpreadsheetWrapper);
 	}
@@ -227,7 +227,7 @@ public class TestImportGradesHelper {
 	public void when_caseSensitiveDupes_thenImportSucceeds() throws Exception {
 		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper;
 		try (InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import_with_case_sensitive_dupes.csv")) {
-			importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "application/csv", "grades_import_with_case_sensitive_dupes.csv", service);
+			importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "application/csv", "grades_import_with_case_sensitive_dupes.csv", service, "", "gUid", "siteId");
 		}
 		testImport(importedSpreadsheetWrapper);
 	}
@@ -235,7 +235,7 @@ public class TestImportGradesHelper {
 	public void when_exactDupes_thenImportFails() throws Exception {
 		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper;
 		try (InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import_with_exact_dupes.csv")) {
-			importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "application/csv", "grades_import_with_exact_dupes.csv", service);
+			importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "application/csv", "grades_import_with_exact_dupes.csv", service, "", "gUid", "siteId");
 		}
 		testImport(importedSpreadsheetWrapper);
 		Assert.assertEquals("unexpected duplicate column count", 2, importedSpreadsheetWrapper.getHeadingReport().getDuplicateHeadings().size());
@@ -450,7 +450,7 @@ public class TestImportGradesHelper {
 		row3.setCellMap(cellMap3);
 		rows.add(row3);
 
-		importedSpreadsheetWrapper.setRows(rows, service.getUserEidMap());
+		importedSpreadsheetWrapper.setRows(rows, service.getUserEidMap(Mockito.anyObject()));
 
 		return importedSpreadsheetWrapper;
 	}
