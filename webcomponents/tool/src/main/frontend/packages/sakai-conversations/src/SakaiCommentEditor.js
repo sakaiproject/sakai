@@ -1,7 +1,7 @@
 import { html } from "lit";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { SakaiElement } from "@sakai-ui/sakai-element";
-import "@sakai-ui/sakai-editor";
+import "@sakai-ui/sakai-editor/sakai-editor.js";
 
 export class SakaiCommentEditor extends SakaiElement {
 
@@ -68,7 +68,7 @@ export class SakaiCommentEditor extends SakaiElement {
     })
     .catch (error => {
       console.error(error);
-      //TODO: show error message to user here
+      this.dispatchEvent(new CustomEvent("comment-error", { detail: { error }, bubbles: true }));
     });
   }
 
@@ -98,7 +98,7 @@ export class SakaiCommentEditor extends SakaiElement {
         </div>
         ` : html`
         <input class="comment-editor-input p-1 ms-1"
-            aria-label="${this._i18n.comment_editor_placeholder}"
+            aria-label="${this._i18n.comment_editor_label}"
             value="${this._i18n.add_a_comment}"
             @click=${this._startEditing}
             @keydown=${this._startEditing} />

@@ -25,5 +25,8 @@
 		<property name="lastVisitStartTime" type="timestamp" not-null="false">
 			<column name="LAST_VISIT_START_TIME" not-null="false" default="null" />
 		</property>
+		<property name="currentOpenSessions" type="int" not-null="true">
+			<column name="CURRENT_OPEN_SESSIONS" not-null="true" default="0" />
+		</property>
 	</class>
 </hibernate-mapping>

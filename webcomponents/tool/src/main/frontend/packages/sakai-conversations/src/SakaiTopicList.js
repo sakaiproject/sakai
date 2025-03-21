@@ -60,7 +60,7 @@ export class SakaiTopicList extends SakaiElement {
     this._tagsInUse = [];
 
     value.topics.forEach(topic => {
-      topic.tags.forEach(t => { if (!this._tagsInUse.find(e => e.id === t.id)) this._tagsInUse.push(t); });
+      topic.tags?.forEach(t => { if (!this._tagsInUse.find(e => e.id === t.id)) this._tagsInUse.push(t); });
     });
 
     this._hasBookmarked = value.topics.some(t => t.bookmarked);
