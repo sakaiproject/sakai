@@ -189,16 +189,33 @@
 </aside>
 
 <script>
-    // focus the current tool on load and prepare site description popovers
-    window.addEventListener('load', () => {
-        const currentSiteElement = document.querySelector('.is-current-site');
-        if (currentSiteElement) {
-            const targetUl = document.querySelector('#sites-section-first ul');
-            if (targetUl) {
-                targetUl.firstElementChild.after(currentSiteElement);
+    // focus the current site on load and prepare site description popovers
+    var previousSiteTitle = null;
+    const observerToolMenu = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.type === 'childList' && previousSiteTitle === null) {
+                const currentSiteElement = document.querySelector('.is-current-site');
+                const toolMenu = document.getElementById('toolMenu');
+                if (!toolMenu) return;
+                const listItems = Array.from(toolMenu.querySelectorAll('li.site-list-item'));
+                const currentIndex = listItems.indexOf(currentSiteElement.closest('li'));
+                const previousLi = currentIndex > 0 ? listItems[currentIndex - 1] : null;
+                if (previousLi) {
+                    previousSiteTitle = previousLi.querySelector('.sidebar-site-title');
+                    if (previousSiteTitle) {
+                        const rect = previousSiteTitle.getBoundingClientRect();
+                        previousSiteTitle.scrollIntoView({ behavior: 'auto', block: 'start' });
+                    }
+                }
             }
-        }
-
+            else if (previousSiteTitle !== null) {
+                previousSiteTitle.scrollIntoView({ behavior: 'auto', block: 'start' });
+            }
+        });
+    });
+    observerToolMenu.observe(document.body, { childList: true, subtree: true });
+    window.addEventListener('load', () => {
+        observerToolMenu.disconnect();
         // put the focus back on the portal wrapper so that keyboard navigation works
         setTimeout(function() {
             // Preserve focus on login fields if they're currently active
