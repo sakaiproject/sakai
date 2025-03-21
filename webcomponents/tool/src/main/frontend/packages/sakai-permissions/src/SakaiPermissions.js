@@ -10,7 +10,6 @@ export class SakaiPermissions extends SakaiElement {
     tool: { type: String },
     reference: { type: String },
     overrideReference: { attribute: "override-reference", type: String },
-    disableGroups: { attribute: "disabled-groups", type: Boolean },
     enableGroups: { attribute: "enable-groups", type: Boolean },
     bundleKey: { attribute: "bundle-key", type: String },
     onRefresh: { attribute: "on-refresh", type: String },
