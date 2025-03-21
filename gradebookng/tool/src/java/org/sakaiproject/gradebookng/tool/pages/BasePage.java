@@ -20,6 +20,7 @@ import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.behavior.AttributeAppender;
@@ -52,7 +53,6 @@ import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.Preferences;
-import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -385,30 +385,18 @@ public class BasePage extends WebPage {
 	 * @return
 	 */
 	public void setUserGbPreference(final String prefName, final String prefValue) {
-		final String siteId = getCurrentSiteId();
-		final String currentUserId = getCurrentUser().getId();
-		PreferencesEdit preference = null;
-		try {
-			try {
-				preference = preferencesService.edit(currentUserId);
-			} catch (IdUnusedException iue) {
-				preference = preferencesService.add(currentUserId);
-			}
-		} catch (Exception e) {
-			log.warn("Could not get the preferences for user [{}], {}", currentUserId, e.toString());
-		}
+		if (StringUtils.isBlank(prefName)) return;
+		String siteId = getCurrentSiteId();
+		String userId = getCurrentUser().getId();
 
-		if (preference != null) {
-			try {
-				ResourcePropertiesEdit props = preference.getPropertiesEdit(GB_PREF_KEY + siteId);
+		preferencesService.applyEditWithAutoCommit(userId, edit -> {
+			String key = GB_PREF_KEY + siteId;
+			ResourcePropertiesEdit props = edit.getPropertiesEdit(key);
+			if (prefValue != null) {
 				props.addProperty(prefName, prefValue);
-			} catch (Exception e) {
-				log.warn("Could not set the gb preference for user [{}] locale, {}", currentUserId, e.toString());
-				preferencesService.cancel(preference);
-				preference = null; // set to null since it was cancelled, prevents commit in finally
-			} finally {
-				if (preference != null) preferencesService.commit(preference);
+			} else {
+				props.removeProperty(prefName);
 			}
-		}
+		});
 	}
 }
