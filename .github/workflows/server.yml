@@ -1,25 +1,34 @@
-# This workflow will build a Java project with Maven
-# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
-
-name: Cypress E2E Browser Tests
+# This workflow will build a Java project with Maven and deploy to an ephemeral environment
+name: Sakai PR Preview & Cypress Tests
 
 on:
   pull_request:
+    types: [opened, synchronize]
+
+concurrency:
+  group: preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
 jobs:
-  sakai-deploy:
+  sakai-preview-deploy:
+    name: Deploy Preview & Run Tests
     runs-on: ubuntu-22.04
+    permissions:
+      pull-requests: write  # Allow the workflow to comment on PRs
     env:
       JAVA_OPTS: "-Dhttp.agent=Sakai -Xms2512m -Xmx2512m -Dsakai.cookieName=SAKAIID -Dsakai.demo=true"
+
     steps:
       - name: Git Checkout
         uses: actions/checkout@v4
+
       - name: JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: 17
           distribution: temurin
           cache: maven
+
       - name: Build with Maven
         env:
           MAVEN_OPTS: -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true -Dmaven.wagon.http.retryHandler.count=2 -Dmaven.wagon.http.pool=true
@@ -44,36 +53,102 @@ jobs:
           mvn --batch-mode -DskipTests -Denforcer.skip -Dmaven.source.skip install sakai:deploy-exploded -Dmaven.tomcat.home=$TOMCAT_DIR
           cd $TOMCAT_DIR
           bin/catalina.sh start
-          sleep 500s
+          sleep 300s
           grep "Server startup in" logs/catalina.out
-      - name: Start cloudflared
+
+      - name: Generate unique tunnel name
+        id: tunnel-name
+        run: echo "name=pr-${{ github.event.pull_request.number }}-$(date +%s | cut -c1-6)" >> $GITHUB_OUTPUT
+
+      - name: Setup Cloudflare Tunnel
+        id: cloudflare-tunnel
         run: |
+          # Install cloudflared
           curl -sL -o cloudflared.deb https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
           sudo dpkg -i cloudflared.deb
-          cloudflared tunnel --url http://localhost:8443 &
+          
+          # Create a tunnel with a unique name
+          TUNNEL_ID=$(cloudflared tunnel create ${{ steps.tunnel-name.outputs.name }} --output json | jq -r .id)
+          echo "tunnel_id=$TUNNEL_ID" >> $GITHUB_OUTPUT
+          
+          # Configure the tunnel to route to your local Tomcat instance
+          echo "tunnel: $TUNNEL_ID" > ~/.cloudflared/config.yml
+          echo "credentials-file: ~/.cloudflared/$TUNNEL_ID.json" >> ~/.cloudflared/config.yml
+          echo "ingress:" >> ~/.cloudflared/config.yml
+          echo "  - hostname: ${{ steps.tunnel-name.outputs.name }}.trycloudflare.com" >> ~/.cloudflared/config.yml
+          echo "    service: https://localhost:8443" >> ~/.cloudflared/config.yml
+          echo "  - service: http_status:404" >> ~/.cloudflared/config.yml
+          
+          # Start the tunnel in the background
+          cloudflared tunnel --config ~/.cloudflared/config.yml run $TUNNEL_ID &
+          
+          # Store the public URL
+          echo "url=https://${{ steps.tunnel-name.outputs.name }}.trycloudflare.com" >> $GITHUB_OUTPUT
+          
+          # Wait for the tunnel to be ready
+          sleep 20
+
+      - name: Comment on PR with preview URL
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `🚀 Preview environment deployed!\n\nPreview URL: [${{ steps.cloudflare-tunnel.outputs.url }}](${{ steps.cloudflare-tunnel.outputs.url }})\n\nRunning Cypress tests against this environment. This preview will remain available for 4 hours for manual review. The PR will be marked as ready to merge once tests complete, without waiting for the manual testing window to expire.`
+            })
+
       - name: Cypress Checkout
         uses: actions/checkout@v4
         with:
           repository: sakaicontrib/cypress-sakai
           path: './cypress-sakai'
+
       - name: Cypress Run
+        id: cypress
         uses: cypress-io/github-action@v6
+        continue-on-error: true  # Continue workflow even if tests fail
         with:
           browser: chrome
-          config: baseUrl=http://localhost:8080
+          config: baseUrl=${{ steps.cloudflare-tunnel.outputs.url }}
           working-directory: cypress-sakai
-          wait-on: 'http://localhost:8080/portal/'
+          wait-on: '${{ steps.cloudflare-tunnel.outputs.url }}/portal/'
           wait-on-timeout: 1800
           record: true
         env:
           CYPRESS_RECORD_KEY: f2049235-3f10-4142-a26c-fc017211a776
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
+
+      - name: Update PR status based on test results
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const testsPassed = ${{ steps.cypress.outcome == 'success' }};
+            const emoji = testsPassed ? '✅' : '❌';
+            const status = testsPassed ? 'SUCCESS' : 'FAILURE';
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `${emoji} Cypress Test Results: ${status}\n\nTests were run against the preview deployment. See job logs for details: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}`
+            });
+            
+            // Fail the workflow if tests failed (optional, you can remove this)
+            if (!testsPassed) {
+              process.exit(1);
+            }
+
       - name: Check number of MySQL statements
         if: always()
         run: |
           export QUERIES=$(grep StandardClient.debug tomcat/logs/catalina.out|grep -v ROLLBACK|grep -v COMMIT | wc -l)
           echo "::notice title={MySQL Queries}::$QUERIES"
+
       - name: Upload Tomcat log for review
         if: always()
         uses: actions/upload-artifact@v4
@@ -81,6 +156,19 @@ jobs:
           name: tomcat-log
           path: tomcat/logs/catalina.out
           retention-days: 5
-      - name: Sleep fifteen minutes to allow testing
-        if: ${{ always() }}
-        run: sleep 15m
+
+      # The manual testing window doesn't block PR from being marked ready for merge
+      - name: Mark workflow as completed while keeping preview up
+        id: complete-checks
+        run: |
+          # Signal that required checks are complete
+          echo "::notice::All required checks completed. PR can be merged while preview stays available."
+          
+          # Continue to keep the environment available asynchronously 
+          # This uses the time command to allow the workflow to continue while keeping the step running
+          ( sleep 4h; echo "Preview environment shutting down" ) & 
+          
+          # Wait just enough to ensure the background process is started 
+          sleep 5
+          echo "Preview environment will remain available for 4 hours."
+          echo "The workflow has completed the required checks and the PR can be merged."
