@@ -506,7 +506,7 @@ public interface AssignmentService extends EntityProducer {
      *               respectively graded is true and ungraded is false or null for both.
      * @return int count of submissions for the specified assignment.
      */
-    public int countSubmissions(String assignmentRef, Boolean graded);
+    public int countSubmissions(String assignmentRef, Boolean graded, Boolean gradeReleased);
 
     /**
      * Access the grades spreadsheet for the reference, either for an assignment or all assignments in a context.
