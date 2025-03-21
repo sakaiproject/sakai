@@ -5435,7 +5435,7 @@ public class GradingServiceImpl implements GradingService {
             if (userGradebookList.contains(foundGradebookUid)) {
                 Long gradebookItemId = Long.valueOf(gradebookItem);
 
-                matchingUserGradebookItem.put(siteId, gradebookItemId);
+                matchingUserGradebookItem.put(userId, gradebookItemId);
                 return gradebookItemId;
             }
         }
