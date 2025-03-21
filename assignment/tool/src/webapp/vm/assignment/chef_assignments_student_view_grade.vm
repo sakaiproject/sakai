@@ -298,6 +298,7 @@
     #if($!rubricSelfReport)
     <h1>$tlang.getString("autoevaluation")</h1>
     <sakai-rubric-student
+        site-id="$assignment.context"
         tool-id="sakai.assignment.grades"
         entity-id="$assignment.Id"
         instructor="true"
@@ -393,6 +394,7 @@
                             </ul>
                         #end
                         <sakai-rubric-student
+                            site-id="$assignment.context"
                             tool-id="sakai.assignment.grades"
                             entity-id="$assignment.Id"
                             evaluated-item-id="$review.id.assessorUserId"

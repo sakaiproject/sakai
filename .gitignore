@@ -34,3 +34,5 @@ library/src/webapp/skin/morpheus-default/
 **/src/main/frontend/node/
 scormplayer/scorm-tool/contentPackages
 .vscode/
+.java-version
+.aider*

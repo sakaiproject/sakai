@@ -2522,6 +2522,8 @@ public class DeliveryActionListener
           fins.add(fbean);
       }
 
+      bean.setCalculatedQuestionAnswer(commaDelimitedCalcQuestionAnswers(item , delivery, bean));
+
       FinBean fbean = new FinBean();
       if(service.getTexts().toArray().length>i)
           fbean.setText( (String) service.getTexts().toArray()[i]);
@@ -3053,8 +3055,8 @@ public class DeliveryActionListener
 	int decimalPlaces = 3;
 	while(answerSequence <= service.getAnswersMap().size()) {
 		  answer = (String)service.getAnswersMap().get(answerSequence);
-		  decimalPlaces = Integer.valueOf(answer.substring(answer.indexOf(',')+1, answer.length()));
-		  answer = answer.substring(0, answer.indexOf("|")); // cut off extra data e.g. "|2,3"
+		  decimalPlaces = Integer.valueOf(answer.substring(answer.lastIndexOf(',')+1, answer.length()));
+		  answer = answer.substring(0, answer.lastIndexOf("|")); // cut off extra data e.g. "|2,3"
 		  // searching and replacing recursively global variables on the answer
 		  answer = service.checkingEmptyGlobalVariables(answer, service.getMainvariablesWithValues(), service.getGlobalanswersMapValues());
 		  try {

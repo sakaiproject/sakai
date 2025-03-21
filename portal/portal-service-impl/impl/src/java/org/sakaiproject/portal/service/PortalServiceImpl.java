@@ -29,7 +29,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
@@ -38,7 +37,6 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -92,8 +90,8 @@ import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.Preferences;
-import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.PreferencesService;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.Setter;
@@ -119,6 +117,7 @@ public class PortalServiceImpl implements PortalService, Observer
 	@Setter private SessionManager sessionManager;
 	@Setter private SiteNeighbourhoodService siteNeighbourhoodService;
 	@Setter private SiteService siteService;
+	@Setter private UserDirectoryService userDirectoryService;
 
 	private Map<String, Map<String, PortalHandler>> handlerMaps = new ConcurrentHashMap<>();
 	private Editor noopEditor = new BaseEditor("noop", "noop", "", "");
@@ -162,18 +161,10 @@ public class PortalServiceImpl implements PortalService, Observer
 				break;
 			}
 			case SiteService.EVENT_USER_SITE_MEMBERSHIP_ADD: {
-				String userInfo = event.getResource();
-				String[] parts = userInfo.split(";");
-				if (parts.length > 1) {
-					String userPart = parts[0];
-					String[] userParts = userPart.split("=");
-					if (userParts.length == 2) {
-						String userId = userParts[1];
-						if (canUserUpdateSite(userId, event.getContext()) || isUserActiveMemberInPublishedSite(userId, event.getContext())) {
-							addPinnedSite(userId, event.getContext(), true);
-						}
-					}
-				}
+                String userId = userDirectoryService.idFromReference(event.getResource());
+                if (canUserUpdateSite(userId, event.getContext()) || isUserActiveMemberInPublishedSite(userId, event.getContext())) {
+                    addPinnedSite(userId, event.getContext(), true);
+                }
 				break;
 			}
 			case SiteService.SECURE_ADD_SITE:
@@ -1091,7 +1082,8 @@ public class PortalServiceImpl implements PortalService, Observer
 			// use getSiteVisit as it performs proper access checks
 			Site site = siteService.getSiteVisit(siteId);
 			if (site != null) {
-				access = site.getMember(userId).isActive() || site.isAllowed(userId, SiteService.SECURE_UPDATE_SITE);
+				Member member = site.getMember(userId);
+				access = (member != null && member.isActive()) || site.isAllowed(userId, SiteService.SECURE_UPDATE_SITE);
 			}
 		} catch (IdUnusedException | PermissionException e) {
 			log.debug("User [{}] doesn't have access to site [{}], {}", userId, siteId, e.toString());
@@ -1100,29 +1092,13 @@ public class PortalServiceImpl implements PortalService, Observer
 	}
 
 	private void removeFavoriteSiteData(String userId) {
-		PreferencesEdit edit = null;
-		try {
-			edit = preferencesService.edit(userId);
-		} catch (Exception e) {
-			log.warn("Could not get the preferences for user [{}], {}", userId, e.toString());
-		}
-
-		if (edit != null) {
-			try {
-				ResourcePropertiesEdit props = edit.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
-				log.debug("Clearing favorites data from preferences for user [{}]", userId);
-
-				props.removeProperty(FIRST_TIME_PROPERTY);
-				props.removeProperty(SEEN_SITES_PROPERTY);
-				props.removeProperty(FAVORITES_PROPERTY);
-			} catch (Exception e) {
-				log.warn("Could not remove favorites data for user [{}], {}", userId, e.toString());
-				preferencesService.cancel(edit);
-				edit = null; // set to null since it was cancelled, prevents commit in finally
-			} finally {
-				if (edit != null) preferencesService.commit(edit);
-			}
-		}
+		preferencesService.applyEditWithAutoCommit(userId, edit -> {
+			ResourcePropertiesEdit props = edit.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
+			log.debug("Clearing favorites data from preferences for user [{}]", userId);
+			props.removeProperty(FIRST_TIME_PROPERTY);
+			props.removeProperty(SEEN_SITES_PROPERTY);
+			props.removeProperty(FAVORITES_PROPERTY);
+		});
 	}
 
 	@Override

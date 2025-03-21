@@ -33,6 +33,8 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Properties;
 
+import org.apache.commons.lang3.StringUtils;
+
 import org.json.simple.JSONObject;
 
 import lombok.extern.slf4j.Slf4j;
@@ -51,6 +53,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.util.ResourceLoader;
 
 import org.tsugi.lti.LTIUtil;
 import org.sakaiproject.lti.util.SakaiLTIUtil;
@@ -67,6 +70,7 @@ import org.sakaiproject.lti.util.SakaiLTIUtil;
 public class BltiEntity implements LessonEntity, BltiInterface {
     private static Cache bltiCache = null;
     protected static final int DEFAULT_EXPIRATION = 10 * 60;
+    protected static ResourceLoader rb = new ResourceLoader("lessons");
 
     private SimplePageBean simplePageBean;
 
@@ -282,6 +286,8 @@ public class BltiEntity implements LessonEntity, BltiInterface {
         if ( content == null ) return;
         Long toolKey = getLongNull(content.get("tool_id"));
         if (toolKey != null ) tool = ltiService.getTool(toolKey, toolManager.getCurrentPlacement().getContext());
+        // Treat a content item with no associated tool as non-existant
+        if ( tool == null ) content = null;
     }
 
     // properties of entities
@@ -303,7 +309,7 @@ public class BltiEntity implements LessonEntity, BltiInterface {
         loadContent();
         if ( content == null ) return null;
         String result = (String) content.get(LTIService.LTI_FA_ICON);
-        if (result == null) {
+        if (result == null && tool != null ) {
             // Inherit the tool's custom icon if set
             result = (String) tool.get(LTIService.LTI_FA_ICON);
         }
@@ -311,27 +317,37 @@ public class BltiEntity implements LessonEntity, BltiInterface {
     }
 
     private String getErrorUrl() {
-        return "javascript:document.write('" + messageLocator.getMessage("simplepage.format.item_removed").replace("'", "\\'") + "')";
+        return "javascript:alert('" + messageLocator.getMessage("simplepage.format.item_removed_text").replace("'", "\\'") + "')";
     }
 
-    // TODO: Concern regarding the lack of the returnUrl when this is called
+    public String getEditNote() {
+        loadContent();
+        if ( content == null ) return null;  // Lessons will show *deleted*
+
+        if ( tool == null ) {
+            return rb.getString("lti.tool.missing");
+        }
+
+
+        String siteId = getSiteId();
+        if ( StringUtils.isNotEmpty(siteId) && siteId.equals((String) tool.get(LTIService.LTI_SITE_ID))
+             && LTIService.LTI_SECRET_INCOMPLETE.equals((String) tool.get(LTIService.LTI_SECRET))
+             && LTIService.LTI_SECRET_INCOMPLETE.equals((String) tool.get(LTIService.LTI_CONSUMERKEY)) ) {
+            return rb.getString("lti.tool.import.incomplete");
+        }
+
+        if ( ltiService.isDraft(tool) ) {
+            return rb.getString("lti.tool.is.draft");
+        }
+
+        return null;
+    }
+
     public String getUrl() {
         loadContent();
-        // If I return null here, it appears that I cause an NPE in LB
         if ( content == null ) return getErrorUrl();
         String ret = (String) content.get("launch_url");
-        if ( ltiService != null && tool != null && ltiService.isMaintain(getSiteId())
-                && LTIService.LTI_SECRET_INCOMPLETE.equals((String) tool.get(LTIService.LTI_SECRET))
-                && LTIService.LTI_SECRET_INCOMPLETE.equals((String) tool.get(LTIService.LTI_CONSUMERKEY)) ) {
-
-            String toolId = getCurrentTool("sakai.siteinfo");
-            if ( toolId != null ) {
-                ret = editItemUrl(toolId);
-                ret = ret + "&secretonly=true";
-                return ret;
-            }
-                }
-
+        if ( ret == null ) return getErrorUrl();
         ret = ServerConfigurationService.getServerUrl() + ret;
         return ret;
     }
@@ -436,7 +452,7 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 
         // Lets find the right tool to assiociate with
         List<Map<String,Object>> tools = ltiService.getTools(null,null,0,0, simplePageBean.getCurrentSiteId());
-        Map<String, Object> theTool = SakaiLTIUtil.findBestToolMatch(launchUrl, tools);
+        Map<String, Object> theTool = SakaiLTIUtil.findBestToolMatch(launchUrl, null, tools);
 
         if ( theTool == null ) {
             log.debug("Inserting new tool title={} url={}",bltiTitle, launchUrl);
@@ -455,6 +471,7 @@ public class BltiEntity implements LessonEntity, BltiInterface {
             // Allow the content item to choose open in popup so the user can change it in the Lessons UI
             props.setProperty(LTIService.LTI_NEWPAGE, "2");
             props.setProperty(LTIService.LTI_XMLIMPORT,strXml);
+            props.setProperty(LTIService.LTI13,"0");
             if (custom != null)
                 props.setProperty(LTIService.LTI_CUSTOM, custom);
             Object result = ltiService.insertTool(props, simplePageBean.getCurrentSiteId());

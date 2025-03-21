@@ -25,5 +25,5 @@ import lombok.Setter;
 @NoArgsConstructor
 public class DateManagerValidation {
 	private List<DateManagerError> errors;
-	private List<Object> updates;
+	private List<DateManagerUpdate> updates;
 }

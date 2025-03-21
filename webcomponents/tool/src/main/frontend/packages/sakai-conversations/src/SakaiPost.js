@@ -20,6 +20,7 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
     canViewDeleted: { attribute: "can-view-deleted", type: Boolean },
     siteId: { attribute: "site-id", type: String },
     reactionsAllowed: { attribute: "reactions-allowed", type: Boolean },
+    topicReference: { attribute: "topic-reference", type: String },
     gradingItemId: { attribute: "grading-item-id", type: String },
     maxGradePoints: { attribute: "max-grade-points", type: Number },
 
@@ -42,7 +43,7 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
 
     this.commentsBeingEdited = new Map();
 
-    this.loadTranslations("conversations").then(r => this._i18n = r);
+    this.loadTranslations("conversations");
   }
 
   set post(value) {
@@ -301,7 +302,7 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
     fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ grade: this._gradePoints || "", comment: this._gradeComment }),
+      body: JSON.stringify({ grade: this._gradePoints || "", comment: this._gradeComment, reference: this.topicReference }),
     })
     .then(r => {
 
@@ -570,7 +571,7 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
 
         <div class="discussion-post-right-column">
 
-          <div class="discussion-post-content-wrapper ${!this.post.viewed ? "new" : nothing }">
+          <div class="discussion-post-content-wrapper ${!this.post.viewed ? "new" : ""}">
             <div id="post-${this.post.id}" class="discussion-post-content" data-post-id="${this.post.id}">
               ${this._renderAuthorDetails()}
               <div>
@@ -656,10 +657,11 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
                 <sakai-post
                     post="${JSON.stringify(p)}"
                     postType="${this.postType}"
-                    ?is-instructor="${this.isInstructor}"
-                    ?can-view-anonymous="${this.canViewAnonymous}"
-                    ?can-view-deleted="${this.canViewDeleted}"
                     site-id="${this.siteId}"
+                    ?is-instructor=${this.isInstructor}
+                    ?can-view-anonymous=${this.canViewAnonymous}
+                    ?can-view-deleted=${this.canViewDeleted}
+                    ?reactions-allowed=${this.reactionsAllowed}
                     @comment-deleted=${this._commentDeleted}>
                 </sakai-post>
               `)}
@@ -705,31 +707,33 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
         ${this._editing ? html`
           ${this._renderEditor()}
         ` : html`
-        ${this.renderReactionsBar(this.post)}
-        <div class="mb-1 d-flex">
-          <div class="conversations-actions-block d-flex mb-1">
-            ${this._renderReactionsBlock(this.post)}
-            ${this._renderUpvoteBlock(this.post)}
-          </div>
-          <div class="ms-auto">
-            ${this.post.numberOfComments > 0 ? html`
-            <a href="javascript:;"
-                aria-label="${this._showingComments ? this._i18n.hide_comments_tooltip : this._i18n.show_comments_tooltip}"
-                title="${this._showingComments ? this._i18n.hide_comments_tooltip : this._i18n.show_comments_tooltip}"
-                @click=${this._toggleShowingComments}>
-              <div class="d-flex ms-auto fs-6">
-                <div class="post-comment-toggle-icon">
-                  <sakai-icon
-                      type="${this._showingComments ? "chevron-down" : "chevron-up"}"
-                      size="small">
-                  </sakai-icon>
+          ${this.reactionsAllowed ? html`
+            ${this.renderReactionsBar(this.post)}
+          ` : nothing}
+          <div class="mb-1 d-flex">
+            <div class="conversations-actions-block d-flex mb-1">
+              ${this._renderReactionsBlock(this.post)}
+              ${this._renderUpvoteBlock(this.post)}
+            </div>
+            <div class="ms-auto">
+              ${this.post.numberOfComments > 0 ? html`
+              <a href="javascript:;"
+                  aria-label="${this._showingComments ? this._i18n.hide_comments_tooltip : this._i18n.show_comments_tooltip}"
+                  title="${this._showingComments ? this._i18n.hide_comments_tooltip : this._i18n.show_comments_tooltip}"
+                  @click=${this._toggleShowingComments}>
+                <div class="d-flex ms-auto fs-6">
+                  <div class="post-comment-toggle-icon">
+                    <sakai-icon
+                        type="${this._showingComments ? "chevron-down" : "chevron-up"}"
+                        size="small">
+                    </sakai-icon>
+                  </div>
+                  <div>${this.post.numberOfComments} ${this.post.numberOfComments == 1 ? this._i18n.comment : this._i18n.comments}</div>
                 </div>
-                <div>${this.post.numberOfComments} ${this.post.numberOfComments == 1 ? this._i18n.comment : this._i18n.comments}</div>
-              </div>
-            </a>
-            ` : nothing }
+              </a>
+              ` : nothing }
+            </div>
           </div>
-        </div>
         `}
       </div>
 

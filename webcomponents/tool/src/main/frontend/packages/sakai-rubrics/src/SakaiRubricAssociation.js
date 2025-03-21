@@ -91,11 +91,23 @@ export class SakaiRubricAssociation extends RubricsElement {
         if (r.status === 204) {
           return {};
         }
-        return r.json();
+        return r.text().then(text => {
+          if (!text) {
+            this.style.display = "none";
+            return {};
+          }
+          try {
+            return JSON.parse(text);
+          } catch (e) {
+            console.error("Failed to parse response as JSON:", e);
+            return {};
+          }
+        });
       }
 
       if (r.status === 404) {
         this.style.display = "none";
+        return {};
       }
 
       throw new Error("Network error while getting association");
@@ -168,8 +180,6 @@ export class SakaiRubricAssociation extends RubricsElement {
   }
 
   render() {
-
-    console.debug("SakaiRubricAssociation.render()");
 
     return html`
       <h4>${this._i18n.grading_rubric}</h4>

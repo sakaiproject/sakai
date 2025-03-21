@@ -1,7 +1,6 @@
 import { css, html, nothing } from "lit";
 import { SakaiShadowElement } from "@sakai-ui/sakai-element";
 import "@sakai-ui/sakai-pager/sakai-pager.js";
-import { loadProperties } from "@sakai-ui/sakai-i18n";
 
 export class SakaiPageableElement extends SakaiShadowElement {
 
@@ -31,10 +30,6 @@ export class SakaiPageableElement extends SakaiShadowElement {
     if (!this.defer) {
       this.loadData();
     }
-  }
-
-  loadTranslations(options) {
-    return loadProperties(options);
   }
 
   loadData() {
@@ -78,7 +73,6 @@ export class SakaiPageableElement extends SakaiShadowElement {
     const filteredData = this.getFilteredDataBeforeRepaging();
     this.dataPage = filteredData.slice(start, end);
     this.count = Math.ceil(filteredData.length / this.pageSize);
-    this.requestUpdate();
   }
 
   content() {}

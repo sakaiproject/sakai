@@ -32,6 +32,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.Collections;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -87,7 +88,6 @@ import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
 import org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
-import org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetHelper;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
@@ -121,8 +121,6 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
       IntegrationContextFactory.getInstance();
     private static final GradebookServiceHelper gbsHelper =
       integrationContextFactory.getGradebookServiceHelper();
-    private static final PublishingTargetHelper ptHelper =
-      integrationContextFactory.getPublishingTargetHelper();
     private static final boolean integrated =
       integrationContextFactory.isIntegrated();
     private static final ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
@@ -131,7 +129,7 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
   private final static long serialVersionUID = -630950053380808339L;
   private String outcomeSave;
   private String outcomePublish;
-  private AssessmentFacade assessment;
+  @Getter private AssessmentFacade assessment;
   private Long assessmentId;
   private String title;
   private String creator;
@@ -171,10 +169,10 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
   private String lateHandling;
   private String instructorNotification = Integer.toString( SamigoConstants.NOTI_PREF_INSTRUCTOR_EMAIL_DEFAULT ); // Default is 'No - I do not want to receive any emails';
   private String submissionMessage;
-  private String releaseTo;
+  @Setter private String releaseTo;
   private SelectItem[] publishingTargets;
-  private String[] targetSelected;
-  private String firstTargetSelected;
+  @Getter @Setter private String[] targetSelected;
+  @Getter private String firstTargetSelected;
   private String password;
   private String finalPageUrl;
   private String ipAddresses;
@@ -319,11 +317,7 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
   public AssessmentSettingsBean() {
   }
 
-  public AssessmentFacade getAssessment() {
-    return assessment;
-  }
-
-  public void setAssessment(AssessmentFacade assessment) {
+    public void setAssessment(AssessmentFacade assessment) {
     try {
       //1.  set the template info
       AssessmentService service = new AssessmentService();
@@ -500,11 +494,16 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
       this.ipAddresses = "";
       Set ipAddressSet = assessment.getSecuredIPAddressSet();
       if (ipAddressSet != null){
+        List<String> ipList = new ArrayList<>();
         Iterator iter = ipAddressSet.iterator();
         while (iter.hasNext()) {
           SecuredIPAddressIfc ip = (SecuredIPAddressIfc) iter.next();
           if (ip.getIpAddress()!=null)
-            this.ipAddresses = ip.getIpAddress()+"\n"+this.ipAddresses;
+            ipList.add(ip.getIpAddress());
+        }
+        Collections.sort(ipList);
+        for (String ip : ipList) {
+    	    this.ipAddresses += ip + "\n";
         }
       }
       // attachment
@@ -744,11 +743,7 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
     return this.releaseTo;
   }
 
-  public void setReleaseTo(String releaseTo) {
-    this.releaseTo = releaseTo;
-  }
-
-  public Integer getTimeLimit() {
+    public Integer getTimeLimit() {
     return  timedHours*3600
             + timedMinutes*60
             + timedSeconds;
@@ -1444,67 +1439,70 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
     this.noTemplate = noTemplate;
   }
 
-  public boolean validateTarget(String firstTarget){
-    HashMap targets = ptHelper.getTargets();
-    return targets.get(firstTarget) != null;
-  }
+  public boolean validateTarget(String targetToValidate) {
+    SelectItem[] validTargets = getPublishingTargets();
 
-  public SelectItem[] getPublishingTargets(){
-    HashMap targets = ptHelper.getTargets();
-    Set e = targets.keySet();
-    Iterator iter = e.iterator();
-    int numSelections = getNumberOfGroupsForSite() > 0 ? 3 : 2;
-   	SelectItem[] target = new SelectItem[numSelections];
-
-    while (iter.hasNext()){
-	    String t = (String)iter.next();
-	    if ("Anonymous Users".equals(t)) {
-	    	target[0] = new SelectItem(t, assessmentSettingMessages.getString("anonymous_users"));
-	    }
-	    else if (numSelections == 3 && t.equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
-	      target[2] = new SelectItem(t, assessmentSettingMessages.getString("selected_groups"));
-	    }
-	    else if (t.equals(AgentFacade.getCurrentSiteName())) {
-	      target[1] = new SelectItem(t, assessmentSettingMessages.getString("entire_site"));
-	    }
+    for (SelectItem target : validTargets) {
+      if (target.getValue().equals(targetToValidate)) {
+        return true;
+      }
     }
-    return target;
+
+    return false;
   }
 
+  public SelectItem[] getPublishingTargets() {
+    boolean hasGroups = getNumberOfGroupsForSite() > 0;
 
-  public void setTargetSelected(String[] targetSelected){
-    this.targetSelected = targetSelected;
+    if (hasGroups) {
+      return new SelectItem[] {
+        new SelectItem("Anonymous Users", assessmentSettingMessages.getString("anonymous_users")),
+        new SelectItem(AgentFacade.getCurrentSiteName(), assessmentSettingMessages.getString("entire_site")),
+        new SelectItem(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS, assessmentSettingMessages.getString("selected_groups"))
+      };
+    } else {
+      return new SelectItem[] {
+        new SelectItem("Anonymous Users", assessmentSettingMessages.getString("anonymous_users")),
+        new SelectItem(AgentFacade.getCurrentSiteName(), assessmentSettingMessages.getString("entire_site"))
+      };
+    }
   }
 
-  public String[] getTargetSelected(){
-    return targetSelected;
-  }
-
-  public String[] getTargetSelected(String releaseTo){
-	if (releaseTo != null){
-	  String [] releaseToArray = new String[1];
-	  releaseToArray[0] = releaseTo;
-	  this.targetSelected = releaseToArray;
+  public String[] getTargetSelected(String releaseTo) {
+    if (releaseTo != null) {
+      this.targetSelected = new String[]{releaseTo};
     }
     return this.targetSelected;
   }
 
-
-  public void setFirstTargetSelected(String firstTargetSelected){
+  public void setFirstTargetSelected(String firstTargetSelected) {
     this.firstTargetSelected = firstTargetSelected.trim();
-    this.targetSelected[0] = firstTargetSelected.trim();
+    if (this.targetSelected == null || this.targetSelected.length == 0) {
+      this.targetSelected = new String[]{this.firstTargetSelected};
+    } else {
+      this.targetSelected[0] = this.firstTargetSelected;
+    }
   }
 
-  public String getFirstTargetSelected(){
-    return firstTargetSelected;
-  }
+  public String getFirstTargetSelected(String releaseTo) {
+    if (releaseTo != null) {
+      // Get the available targets
+      SelectItem[] publishingTargets = getPublishingTargets();
+      boolean isValid = false;
 
-  public String getFirstTargetSelected(String releaseTo){
-	if (releaseTo != null){
-      String [] releaseToArray = new String[1];
-      releaseToArray[0] = releaseTo;
-      this.targetSelected = releaseToArray;
-      this.firstTargetSelected = targetSelected[0].trim();
+      // Check if the provided value matches any of the publishing targets
+      for (SelectItem target : publishingTargets) {
+        if (target != null && releaseTo.equals(target.getValue())) {
+          isValid = true;
+          break;
+        }
+      }
+
+      // If valid, set it; otherwise, default to the current site name as maybe the site name changed
+      this.firstTargetSelected = isValid ? releaseTo.trim() : AgentFacade.getCurrentSiteName();
+
+      // Update the targetSelected array
+      this.targetSelected = new String[]{this.firstTargetSelected};
     }
     return this.firstTargetSelected;
   }
@@ -1525,22 +1523,6 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
     this.alias = alias;
   }
 
-    public String checkDate(){
-  FacesContext context=FacesContext.getCurrentInstance();
-        String err;
-  if(error)
-      {
-	err=authorMessages.getString("deliveryDate_error");
-    context.addMessage(null,new FacesMessage(err));
-    log.error("START DATE ADD MESSAGE");
-    return "deliveryDate_error";
-      }
-  else
-      {
-    return "saveSettings";
-      }
-
-    }
   public String getFeedbackAuthoring()
   {
     return feedbackAuthoring;

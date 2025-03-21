@@ -43,6 +43,7 @@ import org.w3c.dom.Node;
 import org.json.simple.JSONObject;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.http.client.utils.URIBuilder;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.entity.api.Entity;
@@ -81,6 +82,7 @@ import org.sakaiproject.lti13.util.SakaiLineItem;
 import org.sakaiproject.lti13.LineItemUtil;
 
 import org.apache.commons.codec.binary.Base64;
+import org.tsugi.util.Base64DoubleUrlEncodeSafe;
 
 @SuppressWarnings("deprecation")
 @Slf4j
@@ -316,8 +318,9 @@ public class LTISecurityServiceImpl implements EntityProducer {
 		String client_id = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_CLIENT_ID));
 		String deployment_id = ServerConfigurationService.getString(SakaiLTIUtil.LTI13_DEPLOYMENT_ID, SakaiLTIUtil.LTI13_DEPLOYMENT_ID_DEFAULT);
 
-		byte[] bytesEncoded = Base64.encodeBase64(login_hint.getBytes());
-		String encoded_login_hint = new String(bytesEncoded);
+		// Use Base64DoubleUrlEncodeSafe to ensure proper URL-safe encoding
+		String encoded_login_hint = Base64DoubleUrlEncodeSafe.encode(login_hint);
+		
 		try {
 			URIBuilder redirect = new URIBuilder(oidc_endpoint.trim());
 			redirect.addParameter("iss", SakaiLTIUtil.getOurServerUrl());
@@ -344,7 +347,7 @@ public class LTISecurityServiceImpl implements EntityProducer {
 	{
 
 		String oidc_endpoint = (String) tool.get(LTIService.LTI13_TOOL_ENDPOINT);
-		if (SakaiLTIUtil.isLTI13(tool, content) && StringUtils.isBlank(oidc_endpoint) ) {
+		if (SakaiLTIUtil.isLTI13(tool) && StringUtils.isBlank(oidc_endpoint) ) {
 			String errorMessage = "<p>" + SakaiLTIUtil.getRB(rb, "error.no.oidc_endpoint", "Missing oidc_endpoint value for LTI 1.3 launch") + "</p>";
 			org.tsugi.lti.LTIUtil.sendHTMLPage(res, errorMessage);
 			return false;
@@ -413,7 +416,7 @@ public class LTISecurityServiceImpl implements EntityProducer {
 					// Sanity check for missing config data
 					if ( ! sanityCheck(req, res, null, tool, rb) ) return;
 
-					if (SakaiLTIUtil.isLTI13(tool, null) && StringUtils.isNotBlank(oidc_endpoint) &&
+					if (SakaiLTIUtil.isLTI13(tool) && StringUtils.isNotBlank(oidc_endpoint) &&
 							( StringUtils.isEmpty(state) || StringUtils.isEmpty(state) ) ) {
 						redirectOIDC(req, res, null, tool, oidc_endpoint, rb);
 						return;
@@ -493,7 +496,7 @@ public class LTISecurityServiceImpl implements EntityProducer {
 						// Sanity check for missing config data
 						if ( ! sanityCheck(req, res, content, tool, rb) ) return;
 
-						if (SakaiLTIUtil.isLTI13(tool, content) && StringUtils.isNotBlank(oidc_endpoint) &&
+						if (SakaiLTIUtil.isLTI13(tool) && StringUtils.isNotBlank(oidc_endpoint) &&
 								(StringUtils.isEmpty(state) || StringUtils.isEmpty(nonce) ) ) {
 							redirectOIDC(req, res, content, tool, oidc_endpoint, rb);
 							return;
@@ -657,7 +660,7 @@ public class LTISecurityServiceImpl implements EntityProducer {
 				for(int i=0; i < nodeList.getLength(); i++)
 				{
 					LTIArchiveBean basicLTI = new LTIArchiveBean(nodeList.item(i));
-					log.info("LTI: {}", basicLTI);
+					log.debug("LTI: {}", basicLTI);
 					results.append(", merging basicLTI tool " + basicLTI.getPageTitle());
 
 					SitePage sitePage = site.addPage();
@@ -684,10 +687,13 @@ public class LTISecurityServiceImpl implements EntityProducer {
 			return results.toString();
 		}
 
-	@SuppressWarnings("unchecked")
+		/**
+		 * This archive includes several versions of the LTI content items and tools
+		 */
+		@SuppressWarnings("unchecked")
 		public String archive(String siteId, Document doc, Stack stack, String archivePath, List attachments)
 		{
-			log.info("-------basic-lti-------- archive('{}')", StringUtils.join(new Object[] { siteId, doc, stack, archivePath, attachments }, "','"));
+			log.debug("-------basic-lti-------- archive('{}, {}, {}, {}, {}')", siteId, doc, stack, archivePath, attachments);
 
 			StringBuilder results = new StringBuilder("archiving basiclti "+siteId+"\n");
 
@@ -695,10 +701,10 @@ public class LTISecurityServiceImpl implements EntityProducer {
 			int contentCount = 0;
 			try {
 				Site site = siteService.getSite(siteId);
-				log.info("SITE: {} : {}", site.getId(), site.getTitle());
+				log.debug("SITE: {} : {}", site.getId(), site.getTitle());
 				Element basicLtiList = doc.createElement("org.sakaiproject.lti.service.LTISecurityService");
 
-				// Export the LTI tools
+				// Export the LTI tools (legacy)
 				for (SitePage sitePage : site.getPages()) {
 					for (ToolConfiguration toolConfiguration : sitePage.getTools()) {
 						if ( toolConfiguration.getTool() == null ) continue;
@@ -721,9 +727,18 @@ public class LTISecurityServiceImpl implements EntityProducer {
 				// Export the LTI Content Items
 				List<Map<String,Object>> contents = ltiService.getContentsDao(null, null, 0, 0, siteId, false);
 				for (Map<String,Object> contentItem : contents) {
+					// Legacy circa 2022
 					LTIContentArchiveBean ltiContentArchiveBean = new LTIContentArchiveBean(contentItem);
 					Node newNode = ltiContentArchiveBean.toNode(doc);
 					basicLtiList.appendChild(newNode);
+
+					// Modern (Sakai-25 style)
+					Long contentKey = ltiService.getId(contentItem);
+					if ( contentKey > 0 ) {
+						Element contentElement = ltiService.archiveContentByKey(doc, contentKey, siteId);
+						if ( contentElement != null ) basicLtiList.appendChild(contentElement);
+					}
+
 					contentCount++;
 				}
 

@@ -79,8 +79,10 @@
   <!-- QUESTION PROPERTIES -->
   <!-- this is for creating multiple choice questions -->
   <!-- 1 POINTS -->
-  <div class="form-group row"> 
-    <h:outputLabel for="answerptr" styleClass="col-md-2" value="#{authorMessages.answer_point_value}" />
+  <div class="row mb-3"> 
+    <div class="col-md-2">
+      <h:outputLabel for="answerptr" value="#{authorMessages.answer_point_value}" styleClass="col-form-label" />
+    </div>
     <div class="col-md-2">
       <h:inputText id="answerptr" label="#{authorMessages.pt}" value="#{itemauthor.currentItem.itemScore}" required="true" styleClass="form-control ConvertPoint" disabled="#{author.isEditPoolFlow}">
         <f:validateDoubleRange minimum="0.00" />
@@ -89,8 +91,10 @@
     </div>
   </div>
 
-  <div class="form-group row">
-    <h:outputLabel for="itemScoreDisplay" styleClass="col-md-2" value="#{authorMessages.answer_point_value_display}" />    
+  <div class="row mb-3">
+    <div class="col-md-2">
+      <h:outputLabel for="itemScoreDisplay" value="#{authorMessages.answer_point_value_display}" styleClass="col-form-label" />    
+    </div>
 	<div class="col-md-10">
       <t:selectOneRadio id="itemScoreDisplay" value="#{itemauthor.currentItem.itemScoreDisplayFlag}" layout="spread">
         <f:selectItem itemValue="true" itemLabel="#{authorMessages.yes}" />
@@ -104,35 +108,37 @@
   </div>
 
   <f:subview id="minPoints" rendered="#{itemauthor.allowMinScore}">
-    <div class="form-group row">
-        <h:outputLabel for="answerminptr" value="#{authorMessages.answer_min_point_value}" styleClass="col-md-2" />
-        <div class="col-md-2">          
-            <h:inputText
-                id="answerminptr"
-                value="#{itemauthor.currentItem.itemMinScore}"
-                size="6"
-                onchange="toggleNegativePointVal(this.value);"
-                styleClass=" form-control ConvertPoint"
-                disabled="#{itemauthor.currentItem.renderMinPointsWarning}">
-              <f:validateDoubleRange />
-            </h:inputText>
-            <small>
-              <h:outputText
-                id="min-point-info"
-                value="#{authorMessages.answer_min_point_info}"
-                styleClass="sak-banner-info"
-                rendered="#{!itemauthor.currentItem.renderMinPointsWarning}" />
-            </small>
-            <small>
-                <div><h:outputText
-                    id="min-point-warning"
-                    styleClass="sak-banner-info"
-                    style="display:#{(itemauthor.currentItem.renderMinPointsWarning)?'inline-block':'none'}"
-                    value="#{authorMessages.answer_min_point_value_warning}" />
-                </div>
-            </small>
-            <h:message for="answerminptr" styleClass="validate"/>
+    <div class="row mb-3">
+      <div class="col-md-2">
+        <h:outputLabel for="answerminptr" value="#{authorMessages.answer_min_point_value}" styleClass="col-form-label" />
+      </div>
+      <div class="col-md-10">          
+        <h:inputText
+            id="answerminptr"
+            value="#{itemauthor.currentItem.itemMinScore}"
+            size="6"
+            styleClass="ConvertPoint"
+            disabled="#{itemauthor.currentItem.renderMinPointsWarning}">
+          <f:validateDoubleRange />
+        </h:inputText>
+        <div>
+          <label class="help-block info-text small">
+            <h:outputText
+              id="min-point-info"
+              value="#{authorMessages.answer_min_point_info}"
+              rendered="#{!itemauthor.currentItem.renderMinPointsWarning}" />
+          </label>
         </div>
+        <div>
+          <label class="help-block info-text small">
+            <h:outputText
+              id="min-point-warning"
+              style="display:#{(itemauthor.currentItem.renderMinPointsWarning)?'inline-block':'none'}"
+              value="#{authorMessages.answer_min_point_value_warning}" />
+          </label>
+        </div>
+        <h:message for="answerminptr" styleClass="validate"/>
+      </div>
     </div>
   </f:subview>
 

@@ -60,6 +60,9 @@ public interface UsageSessionService
 	String EVENT_ROLEVIEW_EXIT = ROLEVIEW_PREFIX + ".exit";
 	String EVENT_ROLEVIEW_START = ROLEVIEW_PREFIX + ".start";
 
+	public static final String SAKAI_SESSION_USER_ID = "sakai.session.user.id";
+	public static final String SAKAI_SESSION_USER_EID = "sakai.session.user.eid";
+
 	/**
 	 * Establish a usage session associated with the current request or thread.
 	 * 

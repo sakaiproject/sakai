@@ -413,10 +413,10 @@ public class XMLImportBean implements Serializable {
 	}
     QTIService qtiService = new QTIService();
     if (isCP) {
-    	return qtiService.createImportedAssessment(document, qti, fullFileName.substring(0, fullFileName.lastIndexOf("/")), isRespondus, failedMatchingQuestions);
+    	return qtiService.createImportedAssessment(document, qti, fullFileName.substring(0, fullFileName.lastIndexOf("/")), isRespondus, failedMatchingQuestions, null);
     }
     else {
-    	return qtiService.createImportedAssessment(document, qti, null, isRespondus, failedMatchingQuestions);
+    	return qtiService.createImportedAssessment(document, qti, null, isRespondus, failedMatchingQuestions, null);
     }
   }
 

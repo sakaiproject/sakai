@@ -1698,6 +1698,7 @@ public class AssignmentAction extends PagedResourceActionII {
         String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
         context.put("context", contextString);
         context.put("NamePropSubmissionScaledPreviousGrades", ResourceProperties.PROP_SUBMISSION_SCALED_PREVIOUS_GRADES);
+        context.put("showUserId", serverConfigurationService.getBoolean("assignment.users.ids.show", true));
 
         User user = (User) state.getAttribute(STATE_USER);
         log.debug(this + " BUILD SUBMISSION FORM WITH USER " + user.getId() + " NAME " + user.getDisplayName());
@@ -1778,8 +1779,10 @@ public class AssignmentAction extends PagedResourceActionII {
                 context.put("nonElectronicType", Boolean.TRUE);
             }
             if (assignment.getTypeOfSubmission() == Assignment.SubmissionType.EXTERNAL_TOOL_SUBMISSION) {
-                putExternalToolIntoContext(context, assignment, state);
                 context.put("externalTool", Boolean.TRUE);
+                if ( ! putExternalToolIntoContext(context, assignment, state) ) {
+                    context.put("externalToolDeleted", Boolean.TRUE);
+                }
             }
 
             User submitter = (User) state.getAttribute("student");
@@ -4383,8 +4386,10 @@ public class AssignmentAction extends PagedResourceActionII {
 
         if (assignment.isPresent()) {
             if (assignment.get().getTypeOfSubmission() == Assignment.SubmissionType.EXTERNAL_TOOL_SUBMISSION) {
-                putExternalToolIntoContext(context, assignment.get(), state);
                 context.put("externalTool", Boolean.TRUE);
+                if ( ! putExternalToolIntoContext(context, assignment.get(), state) ) {
+                    context.put("externalToolDeleted", Boolean.TRUE);
+                }
             }
         }
 
@@ -5297,7 +5302,10 @@ public class AssignmentAction extends PagedResourceActionII {
             assignment_extension_option_into_context(context, state);
 
             // put external tool information into context
-            putExternalToolIntoContext(context, assignment, state);
+            context.put("externalTool", Boolean.TRUE);
+            if ( ! putExternalToolIntoContext(context, assignment, state) ) {
+                context.put("externalToolDeleted", Boolean.TRUE);
+            }
 
             // put creator information into context
             putCreatorIntoContext(context, assignment);
@@ -5376,34 +5384,41 @@ public class AssignmentAction extends PagedResourceActionII {
         }
     }
 
-    private void putExternalToolIntoContext(Context context, Assignment assignment, SessionState state) {
+    private boolean putExternalToolIntoContext(Context context, Assignment assignment, SessionState state) {
         context.put("value_ContentId", null);
         context.put("value_ContentTitle", null);
         context.put("value_ContentLaunchURL", null);
         try {
-            if ( assignment == null || assignment.getContentId() == null) return;
+            if ( assignment == null || assignment.getContentId() == null) return false;
             Site site = siteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
             Long contentKey = assignment.getContentId().longValue();
             if ( contentKey < 1 ) {
-				log.warn("putExternalToolIntoContext contentId not set {} ", assignment);
-				return;
-			}
+                log.warn("contentId not set {} ", assignment);
+                return false;
+            }
             Map<String, Object> content = ltiService.getContent(contentKey, site.getId());
-			if ( content == null ) {
-				log.warn("putExternalToolIntoContext contentId not loaded {} ", contentKey);
-				return;
-			}
+            if ( content == null ) {
+                log.warn("contentId not loaded {} ", contentKey);
+                return false;
+            }
             context.put("value_ContentId", contentKey);
             String content_launch = ltiService.getContentLaunch(content);
             context.put("value_ContentLaunchURL", content_launch);
+
             Long toolKey = new Long(content.get(LTIService.LTI_TOOL_ID).toString());
             if (toolKey != null) {
                 Map<String, Object> tool = ltiService.getTool(toolKey, site.getId());
+                if ( tool == null ) {
+                    log.warn("tool not loaded {} ", toolKey);
+                    return false;
+                }
                 String toolTitle = (String) tool.get(LTIService.LTI_TITLE);
                 context.put("value_ContentTitle", toolTitle);
             }
+            return true;
         } catch(org.sakaiproject.exception.IdUnusedException e ) {
-            log.warn("putExternalToolIntoContext could not find site {} ", e);
+            log.warn("could not find site {} ", e);
+            return false;
         }
     }
 
@@ -9022,6 +9037,9 @@ public class AssignmentAction extends PagedResourceActionII {
                         // the open date been announced
                         integrateWithAnnouncement(state, aOldTitle, a, title, openTime, checkAutoAnnounce, valueOpenDateNotification, oldOpenTime);
 
+                        // It should only be called once when updateAssignment has already been done
+                        eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT, assignmentReference, true));
+
                         // integrate with Gradebook
                         try {
                             initIntegrateWithGradebook(state, siteId, aOldTitle, oAssociateGradebookAssignment, a, title, dueTime, gradeType, gradePoints, addtoGradebook, associateGradebookAssignment, rangeAndGroupSettings.range, category);
@@ -9085,24 +9103,13 @@ public class AssignmentAction extends PagedResourceActionII {
             }
 
             if ((newAssignment && !a.getDraft()) || (!a.getDraft() && !newAssignment)) {
-
-                Collection aGroups = a.getGroups();
-                if (aGroups.size() != 0) {
-                    // If already open
-                    if (openTime.isBefore(Instant.now())) {
-                        eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_ACCESS, assignmentReference, true));
-                    } else {
-                        // Not open yet, delay the event
-                        eventTrackingService.delay(eventTrackingService.newEvent(AssignmentConstants.EVENT_AVAILABLE_ASSIGNMENT, assignmentReference,
-                                true), openTime);
-                    }
+                // If already open
+                if (openTime.isBefore(Instant.now())) {
+                    // post new assignment event since it is fully initialized by now
+                    eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT, assignmentReference, true));
                 } else {
-                    if (openTime.isBefore(Instant.now())) {
-                        // post new assignment event since it is fully initialized by now
-                        eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT, assignmentReference, true));
-                    } else {
-                        eventTrackingService.delay(eventTrackingService.newEvent(AssignmentConstants.EVENT_AVAILABLE_ASSIGNMENT, assignmentReference, true), openTime);
-                    }
+                    // Not open yet, delay the event
+                    eventTrackingService.delay(eventTrackingService.newEvent(AssignmentConstants.EVENT_AVAILABLE_ASSIGNMENT, assignmentReference, true), openTime);
                 }
             }
         }
@@ -9726,6 +9733,7 @@ public class AssignmentAction extends PagedResourceActionII {
             CalendarEventEdit edit = c.getEditEvent(e.getId(), org.sakaiproject.calendar.api.CalendarService.EVENT_ADD_CALENDAR);
 
             edit.setField(CalendarConstants.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID, assignment.getId());
+            edit.setField(CalendarConstants.EVENT_OWNED_BY_TOOL_ID, AssignmentConstants.TOOL_ID);
             edit.setField(AssignmentConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED, assignmentService.getUsersLocalDateTimeString(assignment.getOpenDate()));
 
             c.commitEvent(edit);
@@ -12617,6 +12625,21 @@ public class AssignmentAction extends PagedResourceActionII {
         int month;
         int day;
         int year;
+
+        // visible date is shifted forward by the offset
+        Instant tVisible = t.plusSeconds(visibleDateOffset);
+        LocalDateTime ldtVisible = LocalDateTime.ofInstant(tVisible, userTimeService.getLocalTimeZone().toZoneId());
+        minute = ldtVisible.getMinute();
+        hour = ldtVisible.getHour();
+        month = ldtVisible.getMonthValue();
+        day = ldtVisible.getDayOfMonth();
+        year = ldtVisible.getYear();
+
+        state.setAttribute(NEW_ASSIGNMENT_VISIBLE_MONTH, month);
+        state.setAttribute(NEW_ASSIGNMENT_VISIBLE_DAY, day);
+        state.setAttribute(NEW_ASSIGNMENT_VISIBLE_YEAR, year);
+        state.setAttribute(NEW_ASSIGNMENT_VISIBLE_HOUR, hour);
+        state.setAttribute(NEW_ASSIGNMENT_VISIBLE_MIN, minute);
 
         // open date is shifted forward by the offset
         Instant tOpen = t.plusSeconds(openDateOffset);
@@ -16204,23 +16227,19 @@ public class AssignmentAction extends PagedResourceActionII {
                 SubmitterSubmission u1 = (SubmitterSubmission) o1;
                 SubmitterSubmission u2 = (SubmitterSubmission) o2;
 
-                if (u1 == null || u2 == null) {
-                    result = -1;
-                } else {
-                    AssignmentSubmission s1 = u1.getSubmission();
-                    AssignmentSubmission s2 = u2.getSubmission();
+                if (u1 == null && u2 == null) result = 0;
+                else if (u1 == null) result = -1;
+                else if (u2 == null) result = 1;
 
+                AssignmentSubmission s1 = u1.getSubmission();
+                AssignmentSubmission s2 = u2.getSubmission();
+                Instant t1 = (s1 == null ? null : s1.getDateSubmitted());
+                Instant t2 = (s2 == null ? null : s2.getDateSubmitted());
 
-                    if (s1 == null || s1.getDateSubmitted() == null) {
-                        result = -1;
-                    } else if (s2 == null || s2.getDateSubmitted() == null) {
-                        result = 1;
-                    } else if (s1.getDateSubmitted().isBefore(s2.getDateSubmitted())) {
-                        result = -1;
-                    } else {
-                        result = 1;
-                    }
-                }
+                if (t1 == null && t2 == null) result = 0;
+                else if (t1 == null) result = -1;
+                else if (t2 == null) result = 1;
+                else result = t1.compareTo(t2);
             } else if (m_criteria.equals(SORTED_GRADE_SUBMISSION_BY_STATUS)) {
                 // sort by submission status
                 SubmitterSubmission u1 = (SubmitterSubmission) o1;

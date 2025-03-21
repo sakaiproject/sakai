@@ -12,7 +12,7 @@
     #end
 
     #if ($site.isCurrent)
-        #set ($currentSiteClass = "is-current-site mt-2 fw-bold")
+        #set ($currentSiteClass = "is-current-site fw-bold")
         #set ($isExpanded = $currentExpanded)
     #elseif ($type == "gateway")
         #set ($isExpanded = "true")
@@ -21,10 +21,10 @@
         #set ($isExpanded = "false")
     #end
 
-    <li id="site-list-${type}-item-${safeSiteId}" class="site-list-item py-1 $!{currentSiteClass}" data-type="${type}" data-site="${site.id}">
-        <div class="site-list-item-head d-flex align-items-center pe-2 py-1 w-100 justify-content-between">
+    <li id="site-list-${type}-item-${safeSiteId}" class="site-list-item py-1 px-2 mx-3 mt-3 $!{currentSiteClass}" data-type="${type}" data-site="${site.id}">
+        <div class="site-list-item-head d-flex align-items-center py-1 w-100 justify-content-between">
             <div class="site-link-block d-flex align-items-center rounded-end me-1 pe-2">
-                <button class="btn icon-button collapsed me-1"
+                <button class="btn icon-button collapsed px-2 me-1"
                         data-site-id="${site.id}"
                         data-bs-toggle="collapse"
                         data-bs-target="#${type}-site-${safeSiteId}-page-list"
@@ -38,7 +38,12 @@
                     <img src="${sitePages.pageNavIconUrl}" alt="${rloader.sit_icon_alt}" class="img_site_toolmenu">
                 #end
 
-                <a href="$site.url" class="sidebar-site-title" title="${site.title}">${site.title}</a>
+                #set ($siteTitle = $ftext.escapeHtml(${site.title}))
+                #set ($displayTitle = $siteTitle)
+                #if ( ( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ) )
+                    #set ($displayTitle = $ftext.escapeHtml(${site.shortDescription}))
+                #end
+                <a href="$site.url" class="sidebar-site-title" title="${siteTitle}">${displayTitle}</a>
 
             </div>
             #if ($loggedIn && !${site.isHome})
@@ -46,7 +51,7 @@
                     <button class="d-inline-block p-1 site-opt-pin btn btn-transparent bi $!{pinIconClass}"
                         data-pin-site="${site.id}"
                         data-pinned="$!{site.isPinned}"
-                        data-site-title="${site.title}"
+                        data-site-title="${siteTitle}"
                         title="${pinTitle}"
                         aria-label="${pinTitle}">
                     </button>
@@ -59,14 +64,33 @@
             #end
         </div>
         <div id="${type}-site-${safeSiteId}-page-list" data-site-id="${site.id}" class="site-list-item-collapse collapse #if ($isExpanded == "true") show #end">
-            <ul class="site-page-list nav flex-column py-1 mb-2">
+            <ul class="site-page-list nav flex-column py-2">
             #foreach ( $page in $site.pages )
-                #if ($site.isCurrent)
+                #if ($site.isCurrent && $activePageId == $page.id)
                     #set ($pageUrl = $page.resetUrl)
                 #else
                     #set ($pageUrl = $page.url)
                 #end
                 #pageListItem ($page, $pageUrl, "${page.icon}", 4)
+            #end
+            #if ($site.childSites)
+                <li class="nav-item">
+                    <div class="ps-2">
+                        <div class="dropdown">
+                            <button class="btn btn-nav w-100 dropdown-toggle pe-3 d-flex align-items-center justify-content-between" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <div class="d-flex align-items-center">
+                                    <span class="me-1 bi bi-diagram-2" aria-hidden="true"></span>
+                                    <span>$rloader.sitenav_sub_sites</span>
+                                </div>
+                            </button>
+                            <ul class="dropdown-menu w-100">
+                                #foreach($childSite in $site.childSites)
+                                    <li><a class="dropdown-item px-3 py-2" href="/portal/site/$childSite.id">$ftext.escapeHtml(${childSite.title})</a></li>
+                                #end
+                            </ul>
+                        </div>
+                    </div>
+                </li>
             #end
             </ul>
         </div>
@@ -75,21 +99,21 @@
 
 #macro( pageListItem $page $url $icon $indentation)
     
-    <li class="nav-item" tabindex="1">
-        <a class="btn btn-nav w-100 ps-${indentation} #if ($activePageId == $page.id)selected-page#end" data-page-id="${page.id}"
+    <li class="nav-item ms-${indentation}">
+        <a class="btn btn-nav w-100 ps-3 #if ($activePageId == $page.id)selected-page#end" data-page-id="${page.id}"
                 href="$!{url}"
                 title="${page.title}: ${page.description}">
             <div class="d-flex text-start align-items-center">
                 <div class="d-flex me-auto rounded-end">
-                    <i class="me-1 $!{icon}" aria-hidden="true"></i>
+                    <span class="me-1 $!{icon}" aria-hidden="true"></span>
                     <span class="me-2">${page.title}</span>
                 </div>
-                <div class="me-1">
+                <div>
                 #if ($page.hidden)
-                    <i class="si si-hidden"></i>
+                    <span class="bi bi-eye-slash-fill" aria-hidden="true"></span>
                 #end
                 #if ($page.locked)
-                    <i class="si si-locked"></i>
+                    <span class="bi bi-lock-fill" aria-hidden="true"></span>
                 #end
                 </div>
             </div>
@@ -106,7 +130,7 @@
     <nav id="toolMenu" role="navigation" aria-label="${rloader.sit_toolshead}" class="Mrphs-toolsNav__menu sakai-sitesAndToolsNav h-100 d-flex flex-column">
         <h2 class="visually-hidden d-none d-md-block" id="totoolmenu">${rloader.sitenav_title}</h2>
         #if (${userIsLoggedIn})
-            <div class="sites-section">
+            <div id="sites-section-first" class="sites-section">
                 <ul class="mb-0">
                     #siteListItem("home", $sidebarSites.homeSite, false)
                 </ul>
@@ -145,7 +169,7 @@
     </nav>
 
     #if (${userIsLoggedIn})
-    <div class="sticky-footer w-100 d-flex justify-content-around">
+    <div class="sticky-footer w-100 d-flex ps-3">
         <button id="sakai-view-all-sites"
                 type="button"
                 class="btn btn-transparent py-3"
@@ -155,9 +179,8 @@
                 title="Open the view all sites sidebar"
                 aria-label="$rloader.sit_allsites"
                 title="$rloader.sit_allsites">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="si si-all-sites" viewBox="0 0 16 16">
-                <path d="M1 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V2zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1V2zM1 7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V7zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1V7zM1 12a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-2zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-2zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-2z"></path>
-            </svg>
+            <span class="bi bi-grid-3x3-gap-fill d-none d-md-inline" aria-hidden="true"></span>
+            <span class="bi bi-arrow-right-circle-fill d-inline d-md-none" aria-hidden="true"></span>
             <span class="ps-1">${rloader.sitenav_link_allsites}</span>
         </button>
     </div>
@@ -166,10 +189,33 @@
 </aside>
 
 <script>
-    // focus the current tool on load and prepare site description popovers
+    // focus the current site on load and prepare site description popovers
+    var previousSiteTitle = null;
+    const observerToolMenu = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.type === 'childList' && previousSiteTitle === null) {
+                const currentSiteElement = document.querySelector('.is-current-site');
+                const toolMenu = document.getElementById('toolMenu');
+                if (!toolMenu) return;
+                const listItems = Array.from(toolMenu.querySelectorAll('li.site-list-item'));
+                const currentIndex = listItems.indexOf(currentSiteElement.closest('li'));
+                const previousLi = currentIndex > 0 ? listItems[currentIndex - 1] : null;
+                if (previousLi) {
+                    previousSiteTitle = previousLi.querySelector('.sidebar-site-title');
+                    if (previousSiteTitle) {
+                        const rect = previousSiteTitle.getBoundingClientRect();
+                        previousSiteTitle.scrollIntoView({ behavior: 'auto', block: 'start' });
+                    }
+                }
+            }
+            else if (previousSiteTitle !== null) {
+                previousSiteTitle.scrollIntoView({ behavior: 'auto', block: 'start' });
+            }
+        });
+    });
+    observerToolMenu.observe(document.body, { childList: true, subtree: true });
     window.addEventListener('load', () => {
-        document.querySelector('.selected-page')?.scrollIntoView({behavior:'auto', block: 'center'});
-
+        observerToolMenu.disconnect();
         // put the focus back on the portal wrapper so that keyboard navigation works
         setTimeout(function() {
             // Preserve focus on login fields if they're currently active

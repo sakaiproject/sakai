@@ -231,6 +231,13 @@ $Id$
      <h:panelGroup rendered="#{question.isExtraCredit == true}">
         <h:outputText styleClass="extraCreditLabel" value=" #{deliveryMessages.extra_credit_preview}" />
      </h:panelGroup>
+     <h:panelGroup styleClass="d-none d-sm-inline small" rendered="#{question.minScore > 0 || question.discount > 0}">
+        <h:outputText value=" (" />
+        <h:outputText value="#{authorMessages.answer_min_point_short}: #{question.minScore}" rendered="#{question.minScore > 0}" />
+        <h:outputText value=", " rendered="#{question.minScore > 0 && question.discount > 0}" />
+        <h:outputText value="#{authorMessages.answer_discount_point_short}: #{question.discount}" rendered="#{question.discount > 0}" />
+        <h:outputText value=")" />
+      </h:panelGroup>
       </h2>
     </div>
   </t:dataList>
@@ -329,9 +336,11 @@ $Id$
 
   <sakai:flowState bean="#{questionScores}" />
 
-  <h:panelGroup styleClass="form-inline" layout="block" rendered="#{totalScores.anonymous eq 'false'}">
-    <div class="form-group">
-        <h:outputLabel value="#{evaluationMessages.view}" />
+  <h:panelGroup styleClass="row score-box" layout="block" rendered="#{totalScores.anonymous eq 'false'}">
+
+  <h:panelGroup styleClass="col-md-6" layout="block">
+    <h:panelGroup styleClass="form-group" layout="block">
+        <h:outputLabel styleClass="col-md-2" value="#{evaluationMessages.view}" />
         <h:outputText value="&#160;" escape="false" />
         <h:selectOneMenu value="#{questionScores.allSubmissions}" id="allSubmissionsL1"
          required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '2'  && totalScores.multipleSubmissionsAllowed eq 'true'  }">
@@ -347,9 +356,8 @@ $Id$
           <f:valueChangeListener
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
         </h:selectOneMenu>
-    </div>
     
-    <h:panelGroup styleClass="form-group" layout="block" 
+    <h:panelGroup layout="block" 
                   rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || 
                                  questionScores.typeId == '12' || questionScores.typeId == '4'  || questionScores.typeId == '5')}">
         <h:outputLabel value="&nbsp;#{evaluationMessages.with}&nbsp;" escape="false" />
@@ -362,7 +370,6 @@ $Id$
     </h:panelGroup>
     
     <!-- SECTION AWARE -->
-    <div class="form-group">
         <h:outputLabel value="&nbsp;#{evaluationMessages.forAllSectionsGroups}&nbsp;" escape="false" 
                         rendered="#{totalScores.availableSectionSize < 1}"/>
         <h:outputLabel value="&nbsp;#{evaluationMessages.for_s}&nbsp;" rendered="#{totalScores.availableSectionSize >= 1}" 
@@ -376,20 +383,17 @@ $Id$
             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener"/>
             </h:selectOneMenu>
         </h:panelGroup>
-    </div>
-  </h:panelGroup>
-  <br/>
-  <h:panelGroup styleClass="form-inline" layout="block" rendered="#{totalScores.anonymous eq 'false'}">
 
       <h:panelGroup styleClass="form-group" rendered="#{questionScores.typeId == '6'}" layout="block">
         <h:outputLink styleClass="btn btn-default" title="#{evaluationMessages.download_responses}"  value="/samigo-app/servlet/DownloadAllMedia?publishedId=#{questionScores.publishedId}&publishedItemId=#{questionScores.itemId}&createdBy=#{question.itemData.createdBy}&partNumber=#{part.partNumber}&anonymous=#{totalScores.anonymous}&scoringType=#{questionScores.allSubmissions}">
           <h:outputText value="#{evaluationMessages.download_responses}"/>
         </h:outputLink>
       </h:panelGroup>
-      
-      <div class="form-group">
-        <h:panelGroup styleClass="samigo-search-student" layout="block">
-            <h:outputLabel value="#{evaluationMessages.search}"/>
+
+    </h:panelGroup>
+
+        <h:panelGroup styleClass="samigo-search-student form-group" layout="block">
+            <h:outputLabel styleClass="col-md-2" value="#{evaluationMessages.search}"/>
             <h:outputText value="&#160;" escape="false" />
             <h:inputText
                     id="searchString"
@@ -401,14 +405,14 @@ $Id$
             <h:outputText value="&nbsp;" escape="false" />
             <h:commandButton actionListener="#{questionScores.clear}" value="#{evaluationMessages.search_clear}"/>
          </h:panelGroup>
-	  </div>
+    </h:panelGroup>
+
+    <h:panelGroup layout="block" styleClass="samigo-pager col-md-6" style="text-align: right">
+        <sakai:pager id="pager1" totalItems="#{questionScores.dataRows}" firstItem="#{questionScores.firstRow}" pageSize="#{questionScores.maxDisplayedRows}" textStatus="#{evaluationMessages.paging_status}" >
+            <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScorePagerListener" />
+        </sakai:pager>
+    </h:panelGroup>
   </h:panelGroup>
-   
-   <h:panelGroup>
-	<sakai:pager id="pager1" totalItems="#{questionScores.dataRows}" firstItem="#{questionScores.firstRow}" pageSize="#{questionScores.maxDisplayedRows}" textStatus="#{evaluationMessages.paging_status}" >
-		  <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScorePagerListener" />
-	</sakai:pager>
-  </h:panelGroup>  
 
 <h:panelGrid columns="3" columnClasses="samLeftNav,samRightNav" width="100%" rendered="#{totalScores.anonymous eq 'true'}">
   <h:panelGroup>
@@ -891,7 +895,7 @@ $Id$
                     disabled="#{questionScores.deliveryItemCancelled}"
                     onchange="toPoint(this.id);">
       </h:inputText>
-      <h:message for="qscore" style="color:red"/>
+      <h:message for="qscore" styleClass="text-danger"/>
        <h:outputLink title="#{evaluationMessages.saverubricgrading}"
                         rendered="#{questionScores.hasAssociatedRubric}"
                         value="#"
@@ -923,6 +927,13 @@ $Id$
                     onchange="toPoint(this.id);">
 	  </h:inputText>
 	  <h:message for="qscore2" style="color:red"/>
+      <h:panelGroup styleClass="d-none d-sm-inline" rendered="#{questionScores.itemData.minScore != 0 || questionScores.itemData.discount != 0}">
+        <h:outputText value=" (" />
+        <h:outputText value="#{authorMessages.answer_min_point_short}: #{questionScores.itemData.minScore}" rendered="#{questionScores.itemData.minScore != 0}" />
+        <h:outputText value=", " rendered="#{questionScores.itemData.minScore != 0 && questionScores.itemData.discount != 0}" />
+        <h:outputText value="#{authorMessages.answer_discount_point_short}: #{questionScores.itemData.discount}" rendered="#{questionScores.itemData.discount != 0}" />
+        <h:outputText value=")" />
+      </h:panelGroup>
 	  <h:outputLink title="#{evaluationMessages.saverubricgrading}"
                     rendered="#{questionScores.hasAssociatedRubric}"
                     value="#"
@@ -953,6 +964,13 @@ $Id$
                     onchange="toPoint(this.id);">
 	  </h:inputText>
 	  <h:message for="qscore2" style="color:red"/>
+      <h:panelGroup styleClass="d-none d-sm-inline" rendered="#{questionScores.itemData.minScore != 0 || questionScores.itemData.discount != 0}">
+        <h:outputText value=" (" />
+        <h:outputText value="#{authorMessages.answer_min_point_short}: #{questionScores.itemData.minScore}" rendered="#{questionScores.itemData.minScore != 0}" />
+        <h:outputText value=", " rendered="#{questionScores.itemData.minScore != 0 && questionScores.itemData.discount != 0}" />
+        <h:outputText value="#{authorMessages.answer_discount_point_short}: #{questionScores.itemData.discount}" rendered="#{questionScores.itemData.discount != 0}" />
+        <h:outputText value=")" />
+      </h:panelGroup>
 	  <h:outputLink title="#{evaluationMessages.saverubricgrading}"
                     rendered="#{questionScores.hasAssociatedRubric}"
                     value="#"

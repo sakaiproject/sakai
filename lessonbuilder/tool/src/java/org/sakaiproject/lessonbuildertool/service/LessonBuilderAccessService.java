@@ -62,6 +62,7 @@ import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.condition.api.ConditionService;
 import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentFilterService;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -174,6 +175,9 @@ public class LessonBuilderAccessService {
 
 	@Setter
 	private UserTimeService userTimeService;
+
+	@Setter
+	private ConditionService conditionService;
 
 	@Setter
 	private UserDirectoryService userDirectoryService;
@@ -606,6 +610,7 @@ public class LessonBuilderAccessService {
 						simplePageBean.setUserDirectoryService(userDirectoryService);
 						simplePageBean.setUserTimeService(userTimeService);
 						simplePageBean.setAuthzGroupService(authzGroupService);
+						simplePageBean.setConditionService(conditionService);
 						simplePageBean.init();
 
 						if (!simplePageBean.isItemAvailable(item, item.getPageId())) {

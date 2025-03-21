@@ -45,7 +45,15 @@
     // Here, we reduce the opacity of the default logo to make 
     // it fit in better with dark theme.
     // Suggested: decimal .7 and .9
+    --logo: url(./images/sakaiLogo.png);
     --logo-opacity: .7;
+
+    .logo-light {
+      display: none;
+    }
+    .logo-dark {
+        display: block;
+    }
 
     // Primary branding color. 
     // Suggested: Your institution's main branding color.
@@ -172,6 +180,9 @@
 
     // Overrides _light.scss variables when necessary
     //--top-header-background: var(--sakai-background-color-1);
+    //--top-header-background-logo: var(--top-header-background);
+    //--top-header-border-color: transparent;
+    //--top-header-text-color: var(--sakai-text-color-2);
     --breadcrumbs-tool-color: var(--sakai-text-color-color-3);
     --breadcrumbs-hover-color: var(--sakai-primary-color-3);
     --link-color: var(--sakai-text-color-3);
@@ -211,7 +222,8 @@
 
     //New sidebar colors
     --site-nav-btn-current-hover-color: var(--site-nav-btn-active-color);
-    --site-nav-btn-hover-bg: var(--sakai-primary-color-2);
+    --site-nav-btn-hover-bg: var(--sakai-brand);
+    --site-nav-btn-page-hover-border: var(--sakai-brand--lighter-2);
 
     // Dashboard
     --sakai-calendar-button-background-color: var(--sakai-background-color);
@@ -225,7 +237,13 @@
     // Jumbotron
     --jumbotron-bg: var(--sakai-color-blue--darker-5);
     --jumbotron-color: var(--sakai-text-color-1);
-    
+
+    //--sakai-current-site: transparent;
+    //--sakai-current-site-color: var(--sakai-text-color-2);
+    --sakai-curent-site-border-color: var(--sakai-brand--lighter-3);
+    //--sakai-selected-page-bg-color: var(--sakai-brand);
+    //--sakai-selected-page-color: var(--sakai-text-color-inverted);
+
     --sakai-thumbnail-background-color: var(--sakai-background-color-2);
 
     --sakai-modal-header-bg: var(--sakai-background-color-3);
@@ -235,6 +253,12 @@
     --sakai-offcanvas-header-bg: var(--sakai-background-color-3);
     --sakai-offcanvas-header-color: var(--sakai-text-color-1);
     --sakai-offcanvas-close-btn-bg: var(--sakai-background-color-1);
+
+    --sakai-selected-page-bg-color: var(--sakai-brand);
+
+    //--sakai-scrollbar-background-color: var(--sakai-border-color);
+    --sakai-scrollbar-thumb-color: var(--sakai-brand--lighter-7);
+    //--sakai-scrollbar-thumb-hover-color: var(--sakai-brand--lighter-3);
 
     .accordion-button::after {
       filter: invert(100%);
@@ -322,5 +346,9 @@
       --bs-pagination-color: var(--link-color);
       --bs-pagination-hover-color: var(--sakai-text-color-1);
       --bs-pagination-hover-bg: var(--sakai-active-color-2);
+    }
+
+    .poweredby__image {
+        filter: invert(1);
     }
 }

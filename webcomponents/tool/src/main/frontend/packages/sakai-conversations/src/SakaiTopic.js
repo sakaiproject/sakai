@@ -7,7 +7,7 @@ import { findPost, markThreadViewed } from "./utils.js";
 import { reactionsAndUpvotingMixin } from "./reactions-and-upvoting-mixin.js";
 import "@sakai-ui/sakai-editor/sakai-editor.js";
 import "../sakai-post.js";
-import { GROUP, INSTRUCTORS, DISCUSSION, QUESTION, SORT_OLDEST, SORT_NEWEST, SORT_ASC_CREATOR, SORT_DESC_CREATOR, SORT_MOST_ACTIVE, SORT_LEAST_ACTIVE } from "./sakai-conversations-constants.js";
+import { GROUP, INSTRUCTORS, QUESTION, SORT_OLDEST, SORT_NEWEST, SORT_ASC_CREATOR, SORT_DESC_CREATOR, SORT_MOST_ACTIVE, SORT_LEAST_ACTIVE } from "./sakai-conversations-constants.js";
 import "@sakai-ui/sakai-icon";
 
 export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
@@ -31,6 +31,9 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
 
     this.sort = SORT_OLDEST;
 
+    // Used by the intersection observer to track which posts we've already observed
+    this._observedPosts = new Set();
+
     const options = {
       root: null,
       rootMargin: "0px",
@@ -39,13 +42,18 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
 
     this.observer = new IntersectionObserver((entries, observer) => {
 
-      const postIds = entries.filter(entry => entry.isIntersecting).map(entry => entry.target.dataset.postId);
+      const postIds = entries
+        .filter(entry => entry.isIntersecting)
+        .map(entry => entry.target.dataset.postId)
+        .filter(postId => !this._observedPosts.has(postId)); // Only process posts we haven't marked yet
 
-      if (postIds) {
+      if (postIds.length) {
+        // Add these posts to our tracked set before making the request
+        postIds.forEach(id => this._observedPosts.add(id));
+
         const url = this.topic.links.find(l => l.rel === "markpostsviewed").href;
         fetch(url, {
           method: "POST",
-          credentials: "include",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(postIds),
         })
@@ -55,22 +63,25 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
             // Posts marked. Now unobserve them. We don't want to keep triggering this fetch
             postIds.forEach(postId => {
 
-              observer.unobserve(entries.find(e => e.target.dataset.postId === postId).target);
-              findPost(this.topic, { postId }).viewed = true;
-              this.requestUpdate();
+              const entry = entries.find(e => e.target.dataset.postId === postId);
+              if (entry) {
+                observer.unobserve(entry.target);
+                findPost(this.topic, { postId }).viewed = true;
+              }
             });
+            this.requestUpdate();
             this.dispatchEvent(new CustomEvent("posts-viewed", { detail: { postIds, topicId: this.topic.id } }));
           } else {
+            // If the request fails, remove the posts from our tracked set so we can try again
+            postIds.forEach(id => this._observedPosts.delete(id));
             throw new Error("Network error while marking posts as viewed");
           }
         })
         .catch(error => console.error(error));
       }
-
     }, options);
 
-
-    this.loadTranslations("conversations").then(r => this._i18n = r);
+    this.loadTranslations("conversations");
   }
 
   set topic(value) {
@@ -83,16 +94,7 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
 
     this.myReactions = value.myReactions || {};
 
-    const sortAndUpdate = () => {
-
-      if (this.topic.type === QUESTION) {
-        this.topic.posts.sort((p1, p2) => {
-
-          if (p1.isInstructor && p2.isInstructor) return 0;
-          if (p1.isInstructor && !p2.isInstructor) return -1;
-          return 1;
-        });
-      }
+    const update = () => {
 
       this.page = 0;
 
@@ -125,13 +127,13 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
         this.topic.posts = posts;
 
         // We've clicked on a topic and it has no posts. Ergo, it has been "viewed".
-        if (!this.topic.posts.length) this.topic.viewed = true;
+        if (!this.topic?.posts?.length) this.topic.viewed = true;
 
-        sortAndUpdate();
+        update();
         this.dispatchEvent(new CustomEvent("topic-updated", { detail: { topic: this.topic, dontUpdateCurrent: true }, bubbles: true }));
       });
     } else {
-      sortAndUpdate();
+      update();
     }
   }
 
@@ -441,18 +443,16 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
 
   _registerPosts(posts) {
 
-    if (posts) {
-      posts.forEach(p => {
+    posts?.forEach(p => {
 
-        if (!p.viewed) {
-          this.observer.observe(this.querySelector(`#post-${p.id}`));
-        }
+      if (!p.viewed && !this._observedPosts.has(p.id)) {
+        const postElement = this.querySelector(`#post-${p.id}`);
+        postElement && this.observer.observe(postElement);
+      }
 
-        if (p.posts) {
-          this._registerPosts(p.posts);
-        }
-      });
-    }
+      // Child posts? Recurse.
+      p.posts && this._registerPosts(p.posts);
+    });
   }
 
   _getMoreReplies() {
@@ -490,11 +490,10 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
     return fetch(url, { credentials: "include" })
     .then(r => {
 
-      if (!r.ok) {
-        throw new Error(`Network error while retrieving  posts for topic ${topic.id}`);
-      } else {
+      if (r.ok) {
         return r.json();
       }
+      throw new Error(`Network error while retrieving  posts from ${url}`);
     })
     .catch(error => console.error(error));
   }
@@ -759,18 +758,16 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
             ${!this.topic.continued ? html`
             <div class="topic-posts-header">
               <div>${this.topic.type === QUESTION ? this._i18n.answers : this._i18n.responses}</div>
-              ${this.topic.type === DISCUSSION ? html`
               <div>
                 <select @change=${this._postSortSelected}>
-                  <option value="${SORT_OLDEST}">oldest</option>
-                  <option value="${SORT_NEWEST}">most recent</option>
-                  <option value="${SORT_ASC_CREATOR}">ascending author</option>
-                  <option value="${SORT_DESC_CREATOR}">descending author</option>
-                  <option value="${SORT_MOST_ACTIVE}">most active</option>
-                  <option value="${SORT_LEAST_ACTIVE}">least active</option>
+                  <option value="${SORT_OLDEST}">${this._i18n.oldest}</option>
+                  <option value="${SORT_NEWEST}">${this._i18n.most_recent}</option>
+                  <option value="${SORT_ASC_CREATOR}">${this._i18n.ascending_by_author}</option>
+                  <option value="${SORT_DESC_CREATOR}">${this._i18n.descending_by_author}</option>
+                  <option value="${SORT_MOST_ACTIVE}">${this._i18n.most_active}</option>
+                  <option value="${SORT_LEAST_ACTIVE}">${this._i18n.least_active}</option>
                 </select>
               </div>
-              ` : nothing }
             </div>
             ` : nothing }
 
@@ -787,13 +784,14 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
               <sakai-post
                   post="${JSON.stringify(p)}"
                   postType="${this.topic.type}"
-                  ?is-instructor="${this.isInstructor}"
-                  ?can-view-anonymous="${this.canViewAnonymous}"
-                  ?can-view-deleted="${this.canViewDeleted}"
-                  ?reactions-allowed="${this.reactionsAllowed}"
+                  ?is-instructor=${this.isInstructor}
+                  ?can-view-anonymous=${this.canViewAnonymous}
+                  ?can-view-deleted=${this.canViewDeleted}
+                  ?reactions-allowed=${this.reactionsAllowed}
                   grading-item-id=${ifDefined(this.topic.gradingItemId)}
                   max-grade-points=${ifDefined(this.topic.gradingPoints)}
                   site-id="${this.topic.siteId}"
+                  topic-reference="${this.topic.reference}"
                   @post-updated=${this._postUpdated}
                   @post-deleted=${this._postDeleted}
                   @continue-thread=${this._continueThread}

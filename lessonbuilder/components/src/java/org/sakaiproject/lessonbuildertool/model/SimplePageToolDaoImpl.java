@@ -53,6 +53,7 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.criterion.Order;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONArray;
@@ -448,7 +449,8 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 			CriteriaBuilder cb = session.getCriteriaBuilder();
 			CriteriaQuery<SimplePageItemImpl> query = cb.createQuery(SimplePageItemImpl.class);
 			Root<SimplePageItemImpl> root = query.from(SimplePageItemImpl.class);
-			query.select(root).where(cb.and(cb.equal(root.get("pageId"), pageId), cb.equal(root.get("type"), SimplePageItem.PAGE)));
+			// sakaiId is a varchar, so it's important to use String.valueOf(pageId) here
+			query.select(root).where(cb.and(cb.equal(root.get("pageId"), String.valueOf(pageId)), cb.equal(root.get("type"), SimplePageItem.PAGE)));
 			List<SimplePageItem> simplePageItems = new ArrayList<>(session.createQuery(query).getResultList());
 			simplePageItems.sort(spiComparator);
 			return simplePageItems;
@@ -460,7 +462,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 			CriteriaBuilder cb = session.getCriteriaBuilder();
 			CriteriaQuery<SimplePageItemImpl> query = cb.createQuery(SimplePageItemImpl.class);
 			Root<SimplePageItemImpl> root = query.from(SimplePageItemImpl.class);
-			query.select(root).where(cb.and(cb.equal(root.get("sakaiId"), pageId), cb.equal(root.get("type"), SimplePageItem.PAGE)));
+			query.select(root).where(cb.and(cb.equal(root.get("sakaiId"), String.valueOf(pageId)), cb.equal(root.get("type"), SimplePageItem.PAGE)));
 			List<SimplePageItemImpl> result = session.createQuery(query).getResultList();
 			if (result.isEmpty()) return Optional.empty();
 			else {
@@ -945,19 +947,33 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	}
 
 	public Long getTopLevelPageId(String toolId) {
-		DetachedCriteria d = DetachedCriteria.forClass(SimplePage.class).add(Restrictions.eq("toolId", toolId)).add(Restrictions.isNull("parent"));
+		DetachedCriteria d = DetachedCriteria.forClass(SimplePage.class).add(Restrictions.eq("toolId", toolId))
+			.add(Restrictions.isNull("parent")).addOrder(Order.desc("pageId"));
 
 		List list = getHibernateTemplate().findByCriteria(d);
 
-		if (list.size() > 1) {
-			log.warn("Problem finding which page we should be on.  Doing the best we can.");
-		}
+		if ( list == null || list.size() < 1 ) return null;
 
-		if (list != null && list.size() > 0) {
-			return ((SimplePage) list.get(0)).getPageId();
-		} else {
-			return null;
+		if ( list.size() == 1)  return ((SimplePage) list.get(0)).getPageId();
+
+		// When there is more than one page associated with a placement, the data model is
+		// broken due to an errant import, timing problem, system crash, NPE or whatever.
+		// when it happens // we ignore empty pages and return the non-empty page with
+		// the largest primary key (a weak proxy for "latest" but it is all we have)
+		// with a warning message.
+		log.debug("Scanning {} top pages for placment toolId=", list.size(), toolId);
+		SimplePage page = null;
+		for (int i = 0; i < list.size(); i++) {
+			page = (SimplePage) list.get(i);
+			List<SimplePageItem> items = this.findItemsOnPage(page.getPageId());
+			if ( items.size() > 0 ) {
+				log.warn("Multiple top level pages found, choosing page {} {} with {} items", i, page.getPageId(), items.size());
+				return page.getPageId();
+			}
+			log.debug("Page {} {} is empty", i, page.getPageId());
 		}
+		log.warn("Multiple top level pages found, Returning {} page", (page != null ? page.getPageId() : null));
+		return page != null ? page.getPageId() : null;
 	}
 
 	public SimplePage getPage(long pageId) {

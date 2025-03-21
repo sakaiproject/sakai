@@ -21,17 +21,21 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.Set;
+import java.util.HashSet;
 import java.util.Stack;
 import java.util.TreeSet;
+import java.util.Iterator;
 import java.util.stream.Collectors;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -39,7 +43,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -49,52 +52,48 @@ import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.select.Elements;
 
-import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityTransferrer;
-import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
-import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.samigo.api.SamigoReferenceReckoner;
 import org.sakaiproject.samigo.util.SamigoConstants;
+import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
-import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.questionpool.QuestionPoolDataIfc;
 import org.sakaiproject.tool.assessment.data.dao.assessment.*;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolItemData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
-import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI;
+import org.sakaiproject.util.api.LinkMigrationHelper;
+import org.sakaiproject.util.MergeConfig;
 import org.sakaiproject.tool.assessment.shared.api.qti.QTIServiceAPI;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
-import org.w3c.dom.CharacterData;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-import org.w3c.dom.Node;
-import org.w3c.dom.Text;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -115,6 +114,8 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
     @Getter @Setter protected SiteService siteService;
     @Getter @Setter protected UserDirectoryService userDirectoryService;
     @Getter @Setter protected PublishedAssessmentFacadeQueriesAPI publishedAssessmentFacadeQueries;
+    @Setter protected LinkMigrationHelper linkMigrationHelper;
+    @Setter protected LTIService ltiService;
 
 	public void init() {
 		log.info("init()");
@@ -132,9 +133,9 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
         this.qtiService = qtiService;
     }
 
-	public String[] myToolIds() {
-		String[] toolIds = { "sakai.samigo" };
-		return toolIds;
+    @Override
+    public String[] myToolIds() {
+        return new String[]{ "sakai.samigo" };
 	}
 
 	@Override
@@ -145,14 +146,13 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 			.map(ass -> Map.of("id", ass.getAssessmentId().toString(), "title", ass.getTitle())).collect(Collectors.toList());
 	}
 
-	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> transferOptions) {
-
+	@Override
+    public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> transferOptions) {
 		AssessmentService service = new AssessmentService();
-		Map<String, String> transversalMap = new HashMap<String, String>();
+		Map<String, String> transversalMap = new HashMap<>();
 		service.copyAllAssessments(fromContext, toContext, ids, transversalMap);
 		
 		// At a minimum, we need to remap all the attachment URLs to point to the new site
-
 		transversalMap.put("/content/attachment/" + fromContext + "/", "/content/attachment/" + toContext + "/");
 		return transversalMap;
 	}
@@ -161,7 +161,8 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
      * Archive draft and published assessments and question pools referenced by assessments
      * @return Details of what was archived
      */
-    public String archive(String siteId, Document doc, Stack stack, String archivePath, List attachments) {
+    @Override
+    public String archive(String siteId, Document doc, Stack<Element> stack, String archivePath, List<Reference> attachments) {
 
         StringBuilder results = new StringBuilder();
         results.append("archiving ").append(getLabel()).append("\n");
@@ -182,8 +183,10 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
         // Question pools referenced in draft and published assessments
         Set<String> poolIds = new TreeSet<String>();
 
-	// Attachments and inline resources referenced in draft and published assssments
-	Set<String> resourceIds = new TreeSet<String>();
+        // Attachments and inline resources referenced in draft and published assssments
+        Set<String> resourceIds = new TreeSet<String>();
+
+        Set<String> assessmentTitles = new TreeSet<String>();
 
         // Draft assessments
         List<AssessmentData> assessmentList 
@@ -193,6 +196,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
             Element assessmentXml = doc.createElement(ARCHIVED_ELEMENT);
             String id = data.getAssessmentId().toString();
             assessmentXml.setAttribute("id", id);
+            assessmentTitles.add(data.getTitle());
 
 	    // QTI representation
 	    String assessmentQti = qtiService.getExportedAssessmentAsString(id, QTI_VERSION);
@@ -225,15 +229,33 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 	    resourceIds.addAll(getAttachmentResourceIds(assessment.getElementsByTagName("qtimetadatafield")));
 	    resourceIds.addAll(getInlineResourceIds(siteId, assessment.getElementsByTagName("mattext")));
 
+		log.debug("siteId: {}", siteId);
+		log.debug("resourceIds: {}", resourceIds);
+		for (String resourceId : resourceIds) {
+			// In Sakai Content:   /attachment/1ee5eb6d-b14e-417a-9958-ba43b99f75de/Tests & Quizzes/b9ed28c8-cf15-4c8e-ac58-ea08e53729dc/ietf-jon-postel-10.png
+			// In the QTI Export:  /attachment/1ee5eb6d-b14e-417a-9958-ba43b99f75de/Tests _ Quizzes/b9ed28c8-cf15-4c8e-ac58-ea08e53729dc/ietf-jon-postel-10.png
+			// In content.xml and attachment.xml /attachment/1ee5eb6d-b14e-417a-9958-ba43b99f75de/Tests & Quizzes/b9ed28c8-cf15-4c8e-ac58-ea08e53729dc/ietf-jon-postel-10.png
+			resourceId = resourceId.replace("_", "&");
+			attachments.add(entityManager.newReference(resourceId));
+		}
+		log.debug("attachments: {}", attachments);
+
         } // draft
 
-	// Published assessments
+	// Published assessments - only include a draft in the archive if a corresponding draft was not included
+	// as assessments are always imported as draft. We only add a published assessment if a teacher has deleted
+	// the draft for the published assessment
 	PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
 	List<PublishedAssessmentData> publishedAssessmentList = publishedAssessmentService.getAllPublishedAssessmentsForSite(siteId);
 	for (PublishedAssessmentData data : publishedAssessmentList) {
 
 		Element assessmentXml = doc.createElement(ARCHIVED_ELEMENT);
 		String publishedAssessmentId = data.getPublishedAssessmentId().toString();
+		String title = data.getTitle();
+		if ( assessmentTitles.contains(title)) {
+			log.debug("Not including published assessment because draft is already included {}", title);
+			continue;
+		}
 
 		String assessmentQti = qtiService.getExportedPublishedAssessmentAsString(publishedAssessmentId, QTI_VERSION);
 		Document assessment = qtiService.getExportedPublishedAssessment(publishedAssessmentId, QTI_VERSION);
@@ -332,9 +354,9 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 		return "samigo";
 	}
 
-	public String merge(String siteId, Element root, String archivePath,
-			String fromSiteId, Map attachmentNames, Map userIdTrans,
-			Set userListAllowImport) {
+	@Override
+	public String merge(String siteId, Element root, String archivePath, String fromSiteId, MergeConfig mcx) {
+
 	if (log.isDebugEnabled()) log.debug("merging " + getLabel());
         StringBuilder results = new StringBuilder();
         String qtiPath = (new File(archivePath)).getParent() 
@@ -355,7 +377,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
             String id = element.getAttribute("id");
             String path = qtiPath + ARCHIVED_ELEMENT + id + ".xml";
             try {
-                AssessmentIfc assessment = qtiService.createImportedAssessment(path, QTI_VERSION,  siteId);
+                AssessmentIfc assessment = qtiService.createImportedAssessment(path, QTI_VERSION,  siteId, mcx);
                 results.append(getLabel() + " imported assessment '" + assessment.getTitle() + "'\n");            
             } catch (Throwable t) {
                 log.error(t.getMessage(), t);
@@ -363,8 +385,12 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
                                + id + ": " + t.getMessage() + "\n");
             }
         }
+
+        // Update the RTE text areas
+        Map<String, String> transversalMap = new HashMap<> ();
+        updateEntityReferencesInternal(siteId, transversalMap, mcx);
         return results.toString();
-	}
+    }
 
 	public boolean parseEntityReference(String reference, Reference ref) {
 		if (StringUtils.startsWith(reference, REFERENCE_ROOT)) {
@@ -381,19 +407,19 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 		return true;
 	}
 
-	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> options, boolean cleanup) {
+    @Override
+    public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> options, boolean cleanup) {
 
 		try {
 			if (cleanup) {
-				if (log.isDebugEnabled()) log.debug("deleting assessments from " + toContext);
+				log.debug("deleting assessments from {}", toContext);
 				AssessmentService service = new AssessmentService();
-				List assessmentList = service.getAllActiveAssessmentsbyAgent(toContext);
-				log.debug("found " + assessmentList.size() + " assessments in site: " + toContext);
-				for (Iterator iter = assessmentList.iterator(); iter.hasNext();) {
-					AssessmentData oneassessment = (AssessmentData) iter.next();
-					log.debug("removing assessemnt id = " +oneassessment.getAssessmentId() );
-					service.removeAssessment(oneassessment.getAssessmentId().toString());
-				}
+				List<AssessmentData> assessmentList = service.getAllActiveAssessmentsbyAgent(toContext);
+                log.debug("found {} assessments in site: {}", assessmentList.size(), toContext);
+                for (AssessmentData oneassessment : assessmentList) {
+                    log.debug("removing assessemnt id = {}", oneassessment.getAssessmentId());
+                    service.removeAssessment(oneassessment.getAssessmentId().toString());
+                }
 			}
 		} catch (Exception e) {
 			log.error("transferCopyEntities: End removing Assessment data", e);
@@ -402,114 +428,125 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 		return transferCopyEntities(fromContext, toContext, ids, null);
 	}
 
+	@Override
 	public void updateEntityReferences(String toContext, Map<String, String> transversalMap){
-		if(transversalMap != null && transversalMap.size() > 0){
+		MergeConfig mcx = null;
+		updateEntityReferencesInternal(toContext, transversalMap, mcx);
+	}
 
-			Set<Entry<String, String>> entrySet = (Set<Entry<String, String>>) transversalMap.entrySet();
+	// Internal, usable in either transferCopyEntities or merge()
+	public void updateEntityReferencesInternal(String toContext, Map<String, String> transversalMap, MergeConfig mcx){
+		if (mcx != null || (transversalMap != null && !transversalMap.isEmpty()) ) {
+			Set<Entry<String, String>> entrySet = transversalMap.entrySet();
 
 			AssessmentService service = new AssessmentService();
 		
-			List assessmentList = service.getAllActiveAssessmentsbyAgent(toContext);			
-			Iterator assessmentIter =assessmentList.iterator();
-			while (assessmentIter.hasNext()) {
-				AssessmentData assessment = (AssessmentData) assessmentIter.next();		
+			List<AssessmentData> assessmentList = service.getAllActiveAssessmentsbyAgent(toContext);			
+
+			Set<Long> assessmentIds = assessmentList.stream()
+					.map(AssessmentData::getAssessmentBaseId)
+					.filter(Objects::nonNull)
+					.collect(Collectors.toSet());
+
+			Set<String> duplicateHashes = service.getDuplicateItemHashesForAssessmentIds(assessmentIds);
+
+			Map<String, Boolean> needToUpdateCache = new HashMap<>();
+			Map<String, String> itemContentCache = new HashMap<>();
+
+			for (AssessmentData assessment : assessmentList) {
 				//get initialized assessment
-				AssessmentFacade assessmentFacade = (AssessmentFacade) service.getAssessment(assessment.getAssessmentId());		
+				AssessmentFacade assessmentFacade = (AssessmentFacade) service.getAssessment(assessment.getAssessmentId());
 				boolean needToUpdate = false;
-				
+
 				String assessmentDesc = assessmentFacade.getDescription();
-				if(assessmentDesc != null){
+				if(StringUtils.isNotBlank(assessmentDesc)){
+					log.debug("before migrate assessmentDesc: {}", assessmentDesc);
 					assessmentDesc = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, assessmentDesc);
+					log.debug("after migrate assessmentDesc: {}", assessmentDesc);
 					if(!assessmentDesc.equals(assessmentFacade.getDescription())){
 						//need to save since a ref has been updated:
 						needToUpdate = true;
 						assessmentFacade.setDescription(assessmentDesc);
 					}
 				}
-				
+
 				List sectionList = assessmentFacade.getSectionArray();
 				for(int i = 0; i < sectionList.size(); i++){
 					SectionFacade section = (SectionFacade) sectionList.get(i);
 					String sectionDesc = section.getDescription();
-					if(sectionDesc != null){
+					if(StringUtils.isNotBlank(sectionDesc)){
+						log.debug("before migrate sectionDesc: {}", sectionDesc);
 						sectionDesc = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, sectionDesc);
+						log.debug("after migrate sectionDesc: {}", sectionDesc);
 						if(!sectionDesc.equals(section.getDescription())){
 							//need to save since a ref has been updated:
 							needToUpdate = true;
 							section.setDescription(sectionDesc);
 						}
 					}
-					
-					List itemList = section.getItemArray();
-					for(int j = 0; j < itemList.size(); j++){
-						ItemData item = (ItemData) itemList.get(j);
-						
-						
-						String itemIntr = item.getInstruction();
-						if(itemIntr != null){
-							itemIntr = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, itemIntr);
-							if(!itemIntr.equals(item.getInstruction())){
-								//need to save since a ref has been updated:
-								needToUpdate = true;
-								item.setInstruction(itemIntr);
-							}
+
+					List<ItemData> itemList = section.getItemArray();
+					for (ItemData item : itemList) {
+						String itemHash = item.getHash();
+						boolean hasDuplicates = StringUtils.isNotEmpty(itemHash) && duplicateHashes.contains(itemHash);
+						boolean hasCaches = hasDuplicates && needToUpdateCache.containsKey(itemHash);
+
+						// If no update is required so far and we cached that an item does not need an update, we can skip the item
+						if (hasCaches && !needToUpdateCache.get(itemHash)) {
+							continue;
 						}
-						
-						String itemDesc = item.getDescription();
-						if(itemDesc != null){
-							itemDesc = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, itemDesc);
-							if(!itemDesc.equals(item.getDescription())){
-								//need to save since a ref has been updated:
-								needToUpdate = true;
-								item.setDescription(itemDesc);
-							}
-						}
-						
-						List itemTextList = item.getItemTextArray();
-						if(itemTextList != null){
-							for(int k = 0; k < itemTextList.size(); k++){
-								ItemText itemText = (ItemText) itemTextList.get(k);
-								String text = itemText.getText();
-								if(text != null){
-									// Transfer all of the attachments to the new site
-									text = service.copyContentHostingAttachments(text, toContext);
-									
-									text = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, text);
-									if(!text.equals(itemText.getText())){
-										//need to save since a ref has been updated:
-										needToUpdate = true;
-										itemText.setText(text);
+
+						boolean instructionChanged = migrateText(service, toContext, item, itemHash, hasCaches, hasDuplicates, false,
+								"inst", itemContentCache, entrySet, transversalMap, mcx, ItemData::getInstruction, ItemData::setInstruction);
+
+						boolean descriptionChanged = migrateText(service, toContext, item, itemHash, hasCaches, hasDuplicates, false,
+								"desc", itemContentCache, entrySet, transversalMap, mcx, ItemData::getDescription, ItemData::setDescription);
+
+						boolean itemTextsChanged = false;
+						List<ItemTextIfc> itemTexts = item.getItemTextArray();
+						if (itemTexts != null) {
+							for (ItemTextIfc itemText : itemTexts) {
+								boolean itemTextChanged = migrateText(service, toContext, itemText, itemHash, hasCaches, hasDuplicates, true,
+										"it-" + itemText.getSequence(), itemContentCache, entrySet, transversalMap,
+										mcx, ItemTextIfc::getText, ItemTextIfc::setText);
+
+								boolean answersChanged = false;
+								List<AnswerIfc> answers =  itemText.getAnswerArray();
+								if (answers != null) {
+									for (AnswerIfc answer : answers) {
+										boolean answerChanged = migrateText(service, toContext, answer, itemHash, hasCaches, hasDuplicates, true,
+												"at-" + itemText.getSequence() + "-"+ answer.getSequence() , itemContentCache, entrySet, transversalMap,
+												mcx, AnswerIfc::getText, AnswerIfc::setText);
+
+										answersChanged = answersChanged || answerChanged;
 									}
 								}
-								
-								List answerSetList = itemText.getAnswerArray();
-								if (answerSetList != null) {
-									for (int l = 0; l < answerSetList.size(); l++) {
-										Answer answer = (Answer) answerSetList.get(l);
-										String answerText = answer.getText();
-										
-										if (answerText != null) {
-											// Transfer all of the attachments embedded in the answer text
-											answerText = service.copyContentHostingAttachments(answerText, toContext);
-											
-											// Now rewrite the answerText with links to the new site
-											answerText = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, answerText);
-											
-											if (!answerText.equals(answer.getText())) {
-												needToUpdate = true;
-												answer.setText(answerText);
-											}
-										}
-									}
-								}
-								
-								
+
+								itemTextsChanged = itemTextsChanged || itemTextChanged || answersChanged;							
 							}
-						}	
-						
-					}					
+						}
+
+						boolean itemFeedbacksChanged = false;
+						if ( item.getItemFeedbackSet() != null && !item.getItemFeedbackSet().isEmpty() ) {
+							for (ItemFeedbackIfc itemFeedback : item.getItemFeedbackSet()) {
+								boolean itemFeedbackCHanged = migrateText(service, toContext, itemFeedback, itemHash, hasCaches, hasDuplicates, true,
+										"feedback" + itemFeedback.getTypeId(), itemContentCache, entrySet, transversalMap,
+										mcx, ItemFeedbackIfc::getText, ItemFeedbackIfc::setText);
+
+								itemFeedbacksChanged = itemFeedbacksChanged || itemFeedbackCHanged;
+							}
+						}
+
+						boolean needToUpdateItem = instructionChanged
+								|| descriptionChanged
+								|| itemTextsChanged
+								|| itemFeedbacksChanged;
+						needToUpdateCache.put(itemHash, needToUpdateItem);
+
+						needToUpdate = needToUpdate || needToUpdateItem;
+					}
 				}
-				
+
 				if(needToUpdate){
 					//since the text changes were direct manipulations (no iterators),
 					//hibernate will take care of saving everything that changed:
@@ -686,6 +723,22 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 	return result;
     }
 
+	private List<String[]> parseImportAttachmentResourceIds(String qText) {
+
+		List<String[]> result = new ArrayList<>();
+
+		String[] attachmentRefs = qText.split("\n");
+		for (String attachmentRef : attachmentRefs) {
+			String[] attachmentParts = attachmentRef.split("\\|");
+			if ( attachmentParts.length != 3 ) {
+				log.debug("Invalid attachment reference: {}", attachmentRef);
+				continue;
+			}
+			result.add(attachmentParts);
+		}
+		return result;
+	}
+
     /*
      * Parse an HTML text blob to extract inline URLs and turn them back into
      * Sakai references. Similar to
@@ -793,4 +846,49 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
         }
         return result;
     }
+	
+	private <T> boolean migrateText(AssessmentService assessmentService, String toContext, T item, String itemHash,
+			boolean hasCaches,boolean hasDuplicates, boolean copyAttachments, String cacheCode, Map<String, String> textCache,
+			Set<Entry<String, String>> entrySet, Map<String, String> transversalMap, MergeConfig mcx,
+			Function<T, String> getter, BiConsumer<T, String> setter) {
+
+		log.debug("migrateText: {} {}", itemHash, copyAttachments);
+		String cacheKey = itemHash + "-" + cacheCode;
+
+		if (hasCaches && textCache.containsKey(cacheKey)) {
+			// Item instruction has been cached, lets get it from the cache
+			setter.accept(item, textCache.get(cacheKey));
+			return true;
+		} else {
+			// Item instruction has not been cached, lets try migrating
+			String itemText = StringUtils.trimToEmpty(getter.apply(item));
+			String migratedText;
+			log.debug("itemText before {}", itemText);
+			if ( mcx != null ) {
+				migratedText = ltiService.fixLtiLaunchUrls(itemText, toContext, mcx);
+				migratedText = linkMigrationHelper.migrateLinksInMergedRTE(toContext, mcx, migratedText);
+			} else {
+				if (copyAttachments) {
+					migratedText = assessmentService.copyContentHostingAttachments(itemText, toContext);
+				} else {
+					migratedText = itemText;
+				}
+				migratedText = linkMigrationHelper.migrateAllLinks(entrySet, migratedText);
+				migratedText = ltiService.fixLtiLaunchUrls(migratedText, null, toContext, transversalMap);
+			}
+			log.debug("migratedText after {}", migratedText);
+
+			// Check if there has been a change
+			if (!StringUtils.equals(itemText, migratedText)) {
+				setter.accept(item, migratedText);
+				if (hasDuplicates) {
+					textCache.put(cacheKey, migratedText);
+				}
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 }

@@ -1,20 +1,20 @@
 import { html, nothing } from "lit";
 import { LionCalendar } from "@lion/ui/calendar.js";
 import "@sakai-ui/sakai-icon";
-import { loadProperties } from "@sakai-ui/sakai-i18n";
 import { calendarStyles } from "./calendar-styles.js";
 import { SakaiSitePicker } from "@sakai-ui/sakai-site-picker";
 import "@sakai-ui/sakai-site-picker/sakai-site-picker.js";
+import { loadProperties } from "@sakai-ui/sakai-i18n";
 
 export class SakaiCalendar extends LionCalendar {
 
   static properties = {
 
-    userId: { attribute: "user-id", type: String },
     siteId: { attribute: "site-id", type: String },
     defer: { type: Boolean },
     _daysEvents: { state: true },
     _events: { state: true },
+    _i18n: { state: true },
   };
 
   constructor() {

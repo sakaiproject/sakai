@@ -265,28 +265,47 @@ GradebookGradeSummary.prototype.setupStudentView = function() {
 };
 
 
-GradebookGradeSummary.prototype._print = function(headerHTML, contentHTML, $container) {
-  $("#summaryForPrint").remove();
+GradebookGradeSummary.prototype._print = function(headerHTML, contentHTML) {
+  const printWindow = window.open("", "_blank");
 
-  var $iframe = $("<iframe id='summaryForPrint'>").hide();
-  $iframe.one("load", function() {
-    var $head = $iframe.contents().find("head");
-    $(document.head).find("link").each(function() {
-      if ($(this).is("[href*='tool.css']") || $(this).is("[href*='gradebookng-tool']")) {
-        $head.append($($(this).clone().attr("media", "all")[0].outerHTML));
-      }
-    });
-    setTimeout(function() {
-      $iframe.contents().find("body").empty();
-      $iframe.contents().find("body").append(headerHTML);
-      $iframe.contents().find("body").append(contentHTML);
+  if (!printWindow) {
+    alert("Please allow popups for this website to print the document.");
+    return;
+  }
 
-      $iframe[0].contentWindow.print();
-    }, 1000);
-  });
-  $container.append($iframe);
+  printWindow.document.open();
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <title>${document.title}</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      </head>
+      <body>
+        ${headerHTML}
+        ${contentHTML}
+      </body>
+    </html>
+  `);
+  printWindow.document.close();
+
+  const href = $("link[rel='stylesheet'][href*='tool.css']").attr("href");
+  if (href) {
+    printWindow.document.head.insertAdjacentHTML(
+      "beforeend",
+      `<link rel="stylesheet" type="text/css" href="${href.startsWith("http") ? href : window.location.origin + href}">`
+    );
+  }
+
+  printWindow.onload = function () {
+    setTimeout(() => {
+      printWindow.focus();
+      printWindow.print();
+      printWindow.close();
+    }, 100);
+  };
 };
-
 
 GradebookGradeSummary.prototype.setupTableSorting = function() {
   var $table = this.$content.find(".gb-summary-grade-panel table");

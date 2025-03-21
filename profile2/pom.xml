@@ -14,7 +14,7 @@
 	<!-- ProjectVersion -->
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<wicket.version>9.18.0</wicket.version>
+		<wicket.version>9.20.0</wicket.version>
 	</properties>
 	<modules>
 		<module>api</module>

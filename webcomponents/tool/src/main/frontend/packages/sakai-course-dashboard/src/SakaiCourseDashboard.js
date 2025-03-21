@@ -23,7 +23,7 @@ export class SakaiCourseDashboard extends SakaiElement {
 
     super();
 
-    this.loadTranslations("dashboard").then(r => this._i18n = r);
+    this.loadTranslations("dashboard");
   }
 
   connectedCallback() {
@@ -150,16 +150,6 @@ export class SakaiCourseDashboard extends SakaiElement {
   templateSelected(e) {
 
     this.data.template = e.detail.template;
-
-    if (this.data.template == 1) {
-      this.data.layout = this.data.defaultWidgetLayouts["1"];
-    }
-    if (this.data.template == 2) {
-      this.data.layout = this.data.defaultWidgetLayouts["2"];
-    }
-    if (this.data.template == 3) {
-      this.data.layout = this.data.defaultWidgetLayouts["3"];
-    }
 
     this.requestUpdate();
 

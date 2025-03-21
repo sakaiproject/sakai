@@ -167,10 +167,13 @@ public class CCExport {
             if ( includeArchive ) {
                 archiveService.archive(siteId);
 
-                String archiveStorage = serverConfigurationService.getSakaiHomePath() + "archive/" + siteId + "-archive/";
-                patchArchive(ccConfig, archiveStorage);
+                // Find the Archive
+                String storagePath = archiveService.getStoragePathForSiteArchive(siteId);
 
-                File dir = new File(archiveStorage);
+                patchArchive(ccConfig, storagePath);
+
+                File dir = new File(storagePath);
+              
                 addAllArchive(out, ccConfig, dir, "sakai_archive/");
             }
 
@@ -285,11 +288,7 @@ public class CCExport {
 
                 // see if this is HTML. If so, we need to scan it.
                 String filename = entry.getKey();
-                int lastdot = filename.lastIndexOf(".");
-                int lastslash = filename.lastIndexOf("/");
-
-                String extension = "";
-                if (lastdot >= 0 && lastdot > lastslash) extension = filename.substring(lastdot + 1);
+                String extension = org.springframework.util.StringUtils.getFilenameExtension(filename);
 
                 String mimeType = null;
                 if (inSakai) mimeType = resource.getContentType();
@@ -825,19 +824,37 @@ public class CCExport {
             if ( changed) Xml.writeDocument(doc, contentXml);
         }
 
-        // Remove roles / groups / providers data from site.xml
+        String attachmentXml = path + "attachment.xml";
+        doc = Xml.readDocument(attachmentXml);
+        if ( doc != null ) {
+            nodeList = doc.getElementsByTagName("resource");
+            boolean changed = false;
+            for (int i = 0; i < nodeList.getLength(); i++) {
+                Element element = (Element) nodeList.item(i);
+                String sha256 = element.getAttribute("sha256");
+                String bodyLocation = element.getAttribute("body-location");
+                if ( sha256 == null || bodyLocation == null ) continue;
+                String newName = ccConfig.getSha256Map().get(sha256);
+                if ( newName == null ) continue;
+
+                log.debug("Detected two blobs with sha256={} keeping {} removing {}", sha256, newName, bodyLocation);
+                changed = true;
+                element.setAttribute("body-location", "../"+newName);
+                String deletePath = path + bodyLocation;
+                file = new File(deletePath);
+                file.delete();
+            }
+            if ( changed) Xml.writeDocument(doc, attachmentXml);
+        }
+
+        // Remove roles / providers data from site.xml
         String siteXml = path + "site.xml";
         doc = Xml.readDocument(siteXml);
         if ( doc != null ) {
             boolean changed = false;
-            nodeList = doc.getElementsByTagName("roles");
-            while (nodeList.getLength() > 0) {
-                Node node = nodeList.item(0);
-                node.getParentNode().removeChild(node);
-                changed = true;
-            }
 
-            nodeList = doc.getElementsByTagName("groups");
+            // Remove ability tags from roles as they include user ids
+            nodeList = doc.getElementsByTagName("ability");
             while (nodeList.getLength() > 0) {
                 Node node = nodeList.item(0);
                 node.getParentNode().removeChild(node);
@@ -850,9 +867,27 @@ public class CCExport {
                 node.getParentNode().removeChild(node);
                 changed = true;
             }
-            if ( changed) Xml.writeDocument(doc, siteXml);
+            if (changed) Xml.writeDocument(doc, siteXml);
         }
 
+        // Patch assignments.xml- remove any submissions because it is user data
+        String assignmentXml = path + "assignment.xml";
+        doc = Xml.readDocument(assignmentXml);
+        if (doc != null) {
+            boolean changed = false;
+
+            NodeList subNodes = doc.getElementsByTagName("submissions");
+            for (int i = 0; i < subNodes.getLength(); i++) {
+                Node subNode = subNodes.item(i);
+                NodeList children = subNode.getChildNodes();
+                for (int j = 0; j < children.getLength(); j++) {
+                    Node child = children.item(j);
+                    subNode.removeChild(child);
+                    changed = true;
+                }
+            }
+            if (changed) Xml.writeDocument(doc, assignmentXml);
+        }
     }
 
     private static void addAllArchive(ZipPrintStream out, CCConfig ccConfig, File dir, String path) throws IOException {

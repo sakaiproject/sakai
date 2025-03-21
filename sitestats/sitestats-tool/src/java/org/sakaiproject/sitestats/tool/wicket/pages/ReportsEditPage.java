@@ -125,20 +125,8 @@ public class ReportsEditPage extends BasePage {
 	private ZonedDateTime startDate, endDate;
 
 	// namespace for sakai icons see _icons.scss
-	public static final String ICON_SAKAI = "icon-sakai--";
+	public static final String ICON_SAKAI = "si si-";
 
-	public ReportsEditPage() {
-		this(null, null, null);
-	}
-	
-	public ReportsEditPage(ReportDefModel reportDef) {
-		this(reportDef, null, null);
-	}
-
-	public ReportsEditPage(PageParameters pageParameters) {
-		this(null, pageParameters, null);
-	}
-	
 	public ReportsEditPage(ReportDefModel reportDef, PageParameters pageParameters, final WebPage returnPage) {
 		realSiteId = Locator.getFacade().getToolManager().getCurrentPlacement().getContext();
 		if(pageParameters != null) {

@@ -113,7 +113,6 @@ import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.CandidateDetailProvider;
 import org.sakaiproject.user.api.Preferences;
-import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -234,14 +233,8 @@ public class GradebookNgBusinessService {
 	 * @return a list of users as uuids or null if none
 	 */
 	public List<String> getGradeableUsers(final String siteId, final GbGroup groupFilter) {
-
+		final String givenSiteId = StringUtils.defaultIfBlank(siteId, getCurrentSiteId());
 		try {
-
-			String givenSiteId = siteId;
-			if (StringUtils.isBlank(givenSiteId)) {
-				givenSiteId = getCurrentSiteId();
-			}
-
 			// note that this list MUST exclude TAs as it is checked in the
 			// GradingService and will throw a SecurityException if invalid
 			// users are provided
@@ -1793,7 +1786,19 @@ public class GradebookNgBusinessService {
 	 * @return a list of sections and groups in the current site
 	 */
 	public List<GbGroup> getSiteSectionsAndGroups() {
-		final String siteId = getCurrentSiteId();
+		return getSiteSectionsAndGroups(null);
+	}
+
+	/**
+	 * Get a list of sections and groups in a site
+	 *
+	 * @param siteId the site id to get sections/groups for. If null, uses current site.
+	 * @return a list of sections and groups in the site
+	 */
+	public List<GbGroup> getSiteSectionsAndGroups(String siteId) {
+		if (siteId == null) {
+			siteId = getCurrentSiteId();
+		}
 
 		final List<GbGroup> rval = new ArrayList<>();
 
@@ -1808,7 +1813,9 @@ public class GradebookNgBusinessService {
 		// get groups (handles both groups and sections)
 		try {
 			final Site site = this.siteService.getSite(siteId);
-			final Collection<Group> groups = isSuperUser() || role == GbRole.INSTRUCTOR ? site.getGroups() : site.getGroupsWithMember(userDirectoryService.getCurrentUser().getId());
+			final Collection<Group> groups = isSuperUser() || role == GbRole.INSTRUCTOR ? 
+				site.getGroups() : 
+				site.getGroupsWithMember(userDirectoryService.getCurrentUser().getId());
 
 			for (final Group group : groups) {
 				rval.add(new GbGroup(group.getId(), group.getTitle(), group.getReference(), GbGroup.Type.GROUP));
@@ -1819,9 +1826,7 @@ public class GradebookNgBusinessService {
 			log.error("Error retrieving groups", e);
 		}
 
-
-		// if user is a TA, get the groups they can see and filter the GbGroup
-		// list to keep just those
+		// if user is a TA, get the groups they can see and filter the GbGroup list
 		if (role == GbRole.TA) {
 			final Gradebook gradebook = this.getGradebook(siteId);
 			final User user = getCurrentUser();
@@ -1834,7 +1839,6 @@ public class GradebookNgBusinessService {
 			}
 
 			// get the ones the TA can actually view
-			// note that if a group is empty, it will not be included.
 			List<String> viewableGroupIds = this.gradingPermissionService
 					.getViewableGroupsForUser(gradebook.getId(), user.getId(), allGroupIds);
 
@@ -1843,9 +1847,9 @@ public class GradebookNgBusinessService {
 			}
 
 			//FIXME: Another realms hack. The above method only returns groups from gb_permission_t. If this list is empty,
-			//need to check realms to see if user has privilege to grade any groups. This is already done in 
+			//need to check realms to see if user has privilege to grade any groups.
 			if (CollectionUtils.isEmpty(viewableGroupIds)) {
-				List<PermissionDefinition> realmsPerms = this.getPermissionsForUser(user.getId());
+				List<PermissionDefinition> realmsPerms = this.getPermissionsForUser(user.getId(), siteId);
 				if (CollectionUtils.isNotEmpty(realmsPerms)) {
 					for (PermissionDefinition permDef : realmsPerms) {
 						if (permDef.getGroupReference() != null) {
@@ -1867,79 +1871,6 @@ public class GradebookNgBusinessService {
 					}
 				}
 			}
-
-		}
-
-		Collections.sort(rval);
-
-		return rval;
-	}
-
-	private List<GbGroup> getSiteSectionsAndGroups(final String siteId) {
-
-		final List<GbGroup> rval = new ArrayList<>();
-
-		// get groups (handles both groups and sections)
-		try {
-			final Site site = this.siteService.getSite(siteId);
-			final Collection<Group> groups = site.getGroups();
-
-			for (final Group group : groups) {
-				rval.add(new GbGroup(group.getId(), group.getTitle(), group.getReference(), GbGroup.Type.GROUP));
-			}
-
-		} catch (final IdUnusedException e) {
-			// essentially ignore and use what we have
-			log.error("Error retrieving groups", e);
-		}
-
-		GbRole role;
-		try {
-			role = this.getUserRole(siteId);
-		} catch (final GbAccessDeniedException e) {
-			log.warn("GbAccessDeniedException trying to getGradebookCategories", e);
-			return rval;
-		}
-
-		// if user is a TA, get the groups they can see and filter the GbGroup
-		// list to keep just those
-		if (role == GbRole.TA) {
-			final Gradebook gradebook = this.getGradebook(siteId);
-			final User user = getCurrentUser();
-
-			// need list of all groups as REFERENCES (not ids)
-			final List<String> allGroupIds = new ArrayList<>();
-			for (final GbGroup group : rval) {
-				allGroupIds.add(group.getReference());
-			}
-
-			// get the ones the TA can actually view
-			// note that if a group is empty, it will not be included.
-			List<String> viewableGroupIds = this.gradingPermissionService
-					.getViewableGroupsForUser(gradebook.getId(), user.getId(), allGroupIds);
-
-			//FIXME: Another realms hack. The above method only returns groups from gb_permission_t. If this list is empty,
-			//need to check realms to see if user has privilege to grade any groups. This is already done in 
-			if(CollectionUtils.isEmpty(viewableGroupIds)){
-				List<PermissionDefinition> realmsPerms = this.getPermissionsForUser(user.getId(),siteId);
-				if(CollectionUtils.isNotEmpty(realmsPerms)){
-					for(PermissionDefinition permDef : realmsPerms){
-						if(permDef.getGroupReference()!=null){
-							viewableGroupIds.add(permDef.getGroupReference());
-						}
-					}
-				}
-			}
-
-			// remove the ones that the user can't view
-			final Iterator<GbGroup> iter = rval.iterator();
-			while (iter.hasNext()) {
-				final GbGroup group = iter.next();
-				if (!viewableGroupIds.contains(group.getReference())) {
-					iter.remove();
-				}
-			}
-
 		}
 
 		Collections.sort(rval);
@@ -3026,38 +2957,18 @@ public class GradebookNgBusinessService {
 	 */
 	public void setUserGbPreference(final String prefName, final String prefValue) {
 		if (StringUtils.isBlank(prefName)) return;
-
 		String siteId = getCurrentSiteId();
 		String userId = getCurrentUser().getId();
 
-		PreferencesEdit preference = null;
-		try {
-			try {
-				preference = preferencesService.edit(userId);
-			} catch (IdUnusedException iue) {
-				preference = preferencesService.add(userId);
-			}
-		} catch (Exception e) {
-			log.warn("Could not get the preferences for user [{}], {}", userId, e.toString());
-		}
-
-		if (preference != null) {
+		preferencesService.applyEditWithAutoCommit(userId, edit -> {
 			String key = GB_PREF_KEY + siteId;
-			try {
-				ResourcePropertiesEdit props = preference.getPropertiesEdit(key);
-                if (prefValue != null) {
-                    props.addProperty(prefName, prefValue);
-                } else {
-                    props.removeProperty(prefName);
-                }
-            } catch (Exception e) {
-				log.warn("Could not set the property [{}] for user [{}] in key [{}], {}", prefName, userId, siteId, e.toString());
-				preferencesService.cancel(preference);
-				preference = null;
-			} finally {
-				if (preference != null) preferencesService.commit(preference);
+			ResourcePropertiesEdit props = edit.getPropertiesEdit(key);
+			if (prefValue != null) {
+				props.addProperty(prefName, prefValue);
+			} else {
+				props.removeProperty(prefName);
 			}
-		}
+		});
 	}
 
 	/**

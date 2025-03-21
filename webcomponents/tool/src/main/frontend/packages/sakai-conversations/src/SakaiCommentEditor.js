@@ -1,6 +1,5 @@
 import { html } from "lit";
 import { ifDefined } from "lit/directives/if-defined.js";
-import { loadProperties } from "@sakai-ui/sakai-i18n";
 import { SakaiElement } from "@sakai-ui/sakai-element";
 import "@sakai-ui/sakai-editor";
 
@@ -19,7 +18,7 @@ export class SakaiCommentEditor extends SakaiElement {
 
     super();
 
-    loadProperties("conversations").then(r => this._i18n = r);
+    this.loadTranslations("conversations");
   }
 
   set comment(value) {

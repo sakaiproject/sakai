@@ -111,6 +111,10 @@ public class ContentItem {
 	public static final String TEXT = "text";
 	public static final String URL = "url";
 	public static final String LINEITEM = "lineItem";
+	public static final String PLACEMENTADVICE = "placementAdvice";
+	public static final String PRESENTATION_DOCUMENT_TARGET = "presentationDocumentTarget";
+	public static final String PRESENTATION_DOCUMENT_TARGET_IFRAME = "iframe";
+	public static final String PRESENTATION_DOCUMENT_TARGET_WINDOW = "window";
 	public static final String SCORE_CONSTRAINTS = "scoreConstraints";
 	public static final String SCORE_CONSTRAINTS_NORMAL_MAXIMUM = "normalMaximum";
 	public static final String SCORE_CONSTRAINTS_EXTRA_CREDIT_MAXIMUM = "extraCreditMaximum";

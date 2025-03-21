@@ -29,6 +29,7 @@ import org.sakaiproject.time.api.Time;
 
 import java.util.List;
 import java.util.Map;
+import org.w3c.dom.Element;
 
 /**
  * <p>
@@ -78,14 +79,27 @@ public interface MessageService extends EntityProducer, EntitySummary
 
 	public static final String EVENT_MOTD_NEW = "motd.new";
 
+	public static final String RELEASE_DATE = "releaseDate";
+
+	public static final String RETRACT_DATE = "retractDate";
+
 	/**
 	 * check permissions for getChannel().
-	 * 
+	 *
 	 * @param ref
 	 *        The channel reference.
 	 * @return true if the user is allowed to getChannel(channelId), false if not.
 	 */
 	public boolean allowGetChannel(String ref);
+
+    /**
+     *
+     * Is this message viewable by the current user?
+     *
+     * @param message The message to check
+     * @return True if the current user can view the message, false otherwise.
+     */
+    public boolean isMessageViewable(Message message);
 
 	/**
 	 * Return a specific channel.
@@ -298,6 +312,38 @@ public interface MessageService extends EntityProducer, EntitySummary
          *            if the user does not have permission to add a channel.
          */
         public Map getSummary(String ref, int items, int days) throws IdUsedException, IdInvalidException, PermissionException;
+
+	/**
+	 * Allows a service extending MessageService to indicate if it wants things imported as draft
+	 */
+	public boolean importAsDraft();
+
+	/**
+	 * Allows a service extending MessageService to approve a message sender
+	 *
+	 * @param userId
+	 *        The user id of the message sender
+	 * @return true if the message sender is approved, false otherwise
+	 */
+	public boolean approveMessageSender(String userId);
+
+	/**
+	 * Allows a service extending MessageService to return its common tool title
+	 *
+	 * @param url
+	 *        If present, it is the url of the imported attachment (old)
+	 * @return true if the message sender is approved, false otherwise
+	 */
+	public String getToolTitle(String url);
+
+	/**
+	 * Allows a service extending MessageService to check if a message can be merged
+	 *
+	 * @param element
+	 *        The element to check
+	 * @return true if the message can be merged, false otherwise
+	 */
+	public boolean checkAllowMergeElement(Element element);
 
 } // MessageService
 

@@ -65,7 +65,7 @@
   },
   "dependencies": {
     "@sakai-ui/sakai-element": "^3.0.6",
-    "lerna": "^8.1.8",
+    "lerna": "^8.1.9",
     "lit": "^3.2.1"
   }
 }

@@ -1,6 +1,7 @@
 import { css, html, nothing } from "lit";
 import { SakaiShadowElement } from "@sakai-ui/sakai-element";
 import "@sakai-ui/sakai-pronunciation-player/sakai-pronunciation-player.js";
+import { getSiteId } from "@sakai-ui/sakai-portal-utils";
 
 /**
  * Renders a user's Sakai profile.
@@ -12,22 +13,25 @@ export class SakaiProfile extends SakaiShadowElement {
   static properties = {
 
     userId: { attribute: "user-id", type: String },
-    siteId: { attribute: "site-id", type: String },
     tool: { type: String },
 
     _profile: { state: true },
+    _imageUrl: { state: true },
   };
 
-  constructor() {
+  connectedCallback() {
 
-    super();
+    super.connectedCallback();
 
     this.loadTranslations("profile-wc").then(i18n => this._i18n = i18n);
+
+    this._imageUrl = `/direct/profile/${this.userId}/image/${getSiteId() ? `?siteId=${getSiteId()}` : ""}`;
   }
 
   fetchProfileData() {
 
-    const url = `/api/users/${this.userId}/profile`;
+    const siteId = getSiteId();
+    const url = `/api/users/${this.userId}/profile${siteId ? `?siteId=${siteId}` : ""}`;
     fetch(url, { credentials: "include" })
       .then(r => {
 
@@ -48,7 +52,7 @@ export class SakaiProfile extends SakaiShadowElement {
   }
 
   shouldUpdate() {
-    return this._i18n;
+    return this._i18n && this._imageUrl;
   }
 
   render() {
@@ -58,7 +62,7 @@ export class SakaiProfile extends SakaiShadowElement {
     return html`
       <div class="container">
         <div class="header">
-          <div class="photo" style="background-image:url(/direct/profile/${this.userId}/image/thumb)">
+          <div class="photo" style="background-image:url(${this._imageUrl})">
           </div>
           <div>
             <div class="name">${this._profile.name}</div>

@@ -30,6 +30,7 @@ import org.sakaiproject.tool.assessment.services.qti.QTIService;
 import org.sakaiproject.tool.assessment.shared.api.qti.QTIServiceAPI;
 import org.sakaiproject.tool.assessment.services.qti.QTIServiceException;
 import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
+import org.sakaiproject.util.MergeConfig;
 
 /**
  * QTIServiceImpl implements a shared interface to get/set assessment
@@ -63,11 +64,11 @@ public class QTIServiceImpl implements QTIServiceAPI
     return null;
   }
 
-   public AssessmentIfc createImportedAssessment(Document document, int qtiVersion, String unzipLocation, String templateId, String siteId) {
+   public AssessmentIfc createImportedAssessment(Document document, int qtiVersion, String unzipLocation, String templateId, String siteId, MergeConfig mcx) {
     try
     {
       QTIService nativeQTIService = new QTIService();
-      return (AssessmentIfc) nativeQTIService.createImportedAssessment(document, qtiVersion, unzipLocation, templateId, siteId);
+      return (AssessmentIfc) nativeQTIService.createImportedAssessment(document, qtiVersion, unzipLocation, templateId, siteId, mcx);
     }
     catch (Exception ex)
     {
@@ -86,12 +87,12 @@ public class QTIServiceImpl implements QTIServiceAPI
    * @param siteId the site the assessment will be associated with
    * @return a persisted assessment
    */
-    public AssessmentIfc createImportedAssessment(String documentPath, int qtiVersion, String siteId) 
+    public AssessmentIfc createImportedAssessment(String documentPath, int qtiVersion, String siteId, MergeConfig mcx) 
     {
         try
         {
             QTIService nativeQTIService = new QTIService();
-            return (AssessmentIfc) nativeQTIService.createImportedAssessment(documentPath, qtiVersion, siteId);
+            return (AssessmentIfc) nativeQTIService.createImportedAssessment(documentPath, qtiVersion, siteId, mcx);
         }
         catch (Exception ex)
         {

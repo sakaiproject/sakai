@@ -45,7 +45,7 @@ export class SakaiAddTopic extends SakaiElement {
 
     this.new = true;
 
-    this.loadTranslations("conversations").then(r => this._i18n = r);
+    this.loadTranslations("conversations");
   }
 
   set aboutReference(value) {
@@ -103,7 +103,9 @@ export class SakaiAddTopic extends SakaiElement {
   _save(draft) {
 
     if (this.topic.title.length < 4) {
-      this.querySelector("#summary").focus();
+      const summaryInput = this.querySelector("#summary");
+      summaryInput.classList.add("form-control", "is-invalid");
+      summaryInput.focus();
       return;
     }
 

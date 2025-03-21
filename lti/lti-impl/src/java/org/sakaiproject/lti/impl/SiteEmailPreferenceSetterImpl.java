@@ -17,16 +17,15 @@
 package org.sakaiproject.lti.impl;
 
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.NotificationService;
-import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.lti.api.SiteEmailPreferenceSetter;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 
@@ -51,40 +50,21 @@ public class SiteEmailPreferenceSetterImpl implements SiteEmailPreferenceSetter 
             String userId = user.getId();
             String siteId = site.getId();
 
-            PreferencesEdit preference = null;
-            try {
-                try {
-                    preference = preferencesService.edit(userId);
-                } catch (IdUnusedException iue) {
-                    preference = preferencesService.add(userId);
+            preferencesService.applyEditWithAutoCommit(userId, edit -> {
+                int notificationPref = NotificationService.PREF_IMMEDIATE;
+
+                if (emailDeliveryPreference.equals("none")) {
+                    notificationPref = NotificationService.PREF_NONE;
+                } else if (emailDeliveryPreference.equals("digest")) {
+                    notificationPref = NotificationService.PREF_DIGEST;
                 }
-            } catch (Exception e) {
-                log.warn("Could not get the preferences for user [{}], {}", userId, e.toString());
-            }
 
-            if (preference != null) {
-                try {
-                    int notificationPref = NotificationService.PREF_IMMEDIATE;
+                String toolId = ((String) payload.get("tool_id")).replaceFirst(Pattern.quote("."), ":");
 
-                    if (emailDeliveryPreference.equals("none")) {
-                        notificationPref = NotificationService.PREF_NONE;
-                    } else if (emailDeliveryPreference.equals("digest")) {
-                        notificationPref = NotificationService.PREF_DIGEST;
-                    }
-
-                    String toolId = ((String) payload.get("tool_id")).replaceFirst("\\.", ":");
-
-                    ResourcePropertiesEdit propsEdit = preference.getPropertiesEdit(NotificationService.PREFS_TYPE + toolId + "_override");
-                    propsEdit.removeProperty(siteId);
-                    propsEdit.addProperty(siteId, Integer.toString(notificationPref));
-                } catch (Exception e) {
-                    log.warn("Could not set the users [{}] email preference for site [{}], {}", userId, siteId, e.toString());
-                    preferencesService.cancel(preference);
-                    preference = null; // set to null since we called cancel, prevents commit in finally
-                } finally {
-                    if (preference != null) preferencesService.commit(preference);
-                }
-            }
+                ResourcePropertiesEdit propsEdit = edit.getPropertiesEdit(NotificationService.PREFS_TYPE + toolId + "_override");
+                propsEdit.removeProperty(siteId);
+                propsEdit.addProperty(siteId, Integer.toString(notificationPref));
+            });
         }
     }
 }

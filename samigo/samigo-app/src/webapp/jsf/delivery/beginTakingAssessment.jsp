@@ -37,6 +37,7 @@
       </title>
 
       <%@ include file="/jsf/delivery/deliveryjQuery.jsp" %>
+      <script src="/library/js/spinner.js"></script>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>;">
  
@@ -297,7 +298,7 @@
 
   <h:panelGroup rendered="#{delivery.sebSetup}">
     <h:panelGroup rendered="#{delivery.actionString != 'previewAssessment'}">
-      <a id="sebLaunchSeb" class="active">
+      <a id="sebLaunchSeb" class="active" onclick="SPNR.insertSpinnerAfter(this, ['sebDownloadSeb', 'sebDownloadConfiguration', 'takeAssessmentForm:cancel1'], null);">
         <h:outputText value="#{deliveryMessages.seb_launch_seb}"/>
       </a>
       <a id="sebDownloadConfiguration" class="button">
@@ -340,10 +341,14 @@
 </h:panelGroup>
 
 </h:form>
-  
-  <h:outputLink id="sebDownloadSeb" value="#{delivery.sebDownloadLink}" target="_blank">
-    <h:outputText value="#{deliveryMessages.seb_download_seb}"/>
-  </h:outputLink >
+
+  <h:panelGroup rendered="#{delivery.sebSetup}">
+    <h:panelGroup rendered="#{delivery.actionString != 'previewAssessment'}">
+      <h:outputLink id="sebDownloadSeb" value="#{delivery.sebDownloadLink}" target="_blank">
+        <h:outputText value="#{deliveryMessages.seb_download_seb}"/>
+      </h:outputLink >
+    </h:panelGroup>
+  </h:panelGroup>
   <!-- end content -->
   </div>
 </div>

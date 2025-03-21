@@ -533,7 +533,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			
 			//it's a server event
 			if(log.isDebugEnabled()) {
-				log.debug("Server event: "+e.toString());
+				log.debug("Server event: {}", e.toString());
 			}
 			
 			String eventId = e.getEvent();
@@ -551,7 +551,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			
 			//it's a user event
 			if(log.isDebugEnabled()) {
-				log.debug("User event: "+e.toString());
+				log.debug("User event: {}", e.toString());
 			}
 			
 			// user check
@@ -955,7 +955,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				return false;
 			}
 			long endTime = System.currentTimeMillis();
-			log.debug("Time spent in doUpdateConsolidatedEvents(): " + (endTime-startTime) + " ms");
+			log.debug("Time spent in doUpdateConsolidatedEvents(): {} ms", (endTime-startTime));
 		}
 		return true;
 	}
@@ -1355,13 +1355,17 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			int key = userSitePresencesEntry.getKey().hashCode();
 			List<SitePresenceRecord> allUserSitePresences = userSitePresencesEntry.getValue();
 
+			log.debug("Processing siteId: {}, userId: {}, key: {}", siteId, userId, key);
+
 			for (int i = 0; i < allUserSitePresences.size(); i++) {
 				log.debug("k{} p{}: {}", key, i, allUserSitePresences.get(i));
 			}
 
 			Collections.sort(allUserSitePresences);
+			log.debug("Sorted presences for siteId: {}, userId: {}", siteId, userId);
 
 			Optional<Instant> savedBegin = doGetSavedBegin(session, siteId, userId);
+			log.debug("Saved begin for siteId: {}, userId: {}: {}", siteId, userId, savedBegin);
 
 			List<SitePresenceRecord> validUserSitePresences = new ArrayList<>();
 
@@ -1370,6 +1374,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			// For ending events presences fill in the saved being time
 			for (SitePresenceRecord presenceConsolidation : allUserSitePresences) {
 				if (presenceConsolidation.isEnding()) {
+					presenceConsolidation.setOriginallyEnding(true);
 					if (savedBegin.isPresent()) {
 						presenceConsolidation.setBegin(savedBegin.get());
 					} else {
@@ -1387,6 +1392,26 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				// Add the valid beginning and complete presences
 				validUserSitePresences.add(presenceConsolidation);
 			}
+
+			Integer savedOpenSessions = doGetOpenSessions(session, siteId, userId);
+			int currentOpenSessions = savedOpenSessions + (int) validUserSitePresences.stream()
+				.mapToInt(presence -> {
+					if (presence.isBeginning()) {
+						return 1;
+					} else if (presence.isOriginallyEnding()) {
+						return -1;
+					} else {
+						return 0;
+					}
+				})
+				.sum();
+
+			if (!allUserSitePresences.isEmpty() && savedOpenSessions == 0) {
+				// All previus presences are ending
+				savedBegin = Optional.empty();
+			}
+
+			log.debug("Valid presences for siteId: {}, userId: {}: {}, savedOpenSessions: {}, currentOpenSessions: {}", siteId, userId, validUserSitePresences, savedOpenSessions, currentOpenSessions);
 
 			// Valid presences should have ony complete and beginning events
 			// Get fist begin time of open unclosed session
@@ -1411,16 +1436,20 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 						.sorted(Comparator.<Instant>naturalOrder().reversed())
 						.findFirst();
 
+				log.debug("k{} lastEndingOrCompletePresenceEnd: {}, firstBeginningPresenceBegin: {}", key, lastEndingOrCompletePresenceEnd, firstBeginningPresenceBegin);
+
 				// The beginning presences will end at some point and will use this last start
 				// For now we need to consider the beginning presence as complete until that point
 				// This means we fill in lastStart for the end of beginning presences
 				for (SitePresenceRecord presenceConsolidation : validUserSitePresences) {
 					if (presenceConsolidation.isBeginning()) {
-						presenceConsolidation.setEnd(lastStart.get());								
+						presenceConsolidation.setEnd(lastStart.get());
+						log.debug("k{} Set end for beginning presence: {}", key, presenceConsolidation);
 					}
 				}
 			} else {
 				lastStart = savedBegin.or(() -> firstBeginningPresenceBegin);
+				log.debug("k{} savedBegin: {}, firstBeginningPresenceBegin: {}, lastStart: {}", key, savedBegin, firstBeginningPresenceBegin, lastStart);
 			}
 
 			log.debug("k{} lastStart: {}", key, lastStart);
@@ -1431,6 +1460,8 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 					.sorted(SitePresenceRecord.BY_BEGIN_ASC)
 					.collect(Collectors.toList());
 
+			log.debug("Complete presences for siteId: {}, userId: {}: {}", siteId, userId, completeUserSitePresences);
+
 			PresenceConsolidation presenceConsolidation = new PresenceConsolidation();
 			presenceConsolidation.addAll(completeUserSitePresences);
 
@@ -1438,7 +1469,8 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			consolidationByDay.forEach((day, consodation) -> {
 				Long durationMillis = consodation.getDuration().toMillis();
 				// TODO: log the duration we are saving here
-				log.debug("k{} saving duration: {}", key, durationMillis);
+				log.debug("k{} saving duration for day {}: {}", key, day, durationMillis);
+				log.debug("consolidation: {}", consodation);
 
 				SitePresence sitePresence = SitePresenceImpl.builder()
 						.siteId(siteId)
@@ -1446,6 +1478,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 						.duration(durationMillis)
 						.date(Date.from(day))
 						.lastVisitStartTime(lastStart.map(Date::from).orElse(null))
+						.currentOpenSessions(currentOpenSessions < 0 ? 0 : currentOpenSessions)
 						.build();
 
 				doUpdateSitePresence(session, sitePresence);
@@ -1459,13 +1492,14 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 					.collect(Collectors.toList());
 
 			for (SitePresenceRecord unsavedBeginningPresence : unsavedBeginningPresences) {
-				log.debug("k{} saving beginning presence with laststart {}", key, lastStart);
+				log.debug("k{} saving beginning presence with lastStart {}: {}", key, lastStart, unsavedBeginningPresence);
 				SitePresence sitePresence = SitePresenceImpl.builder()
 						.siteId(siteId)
 						.userId(userId)
 						.duration(0)
 						.date(Date.from(unsavedBeginningPresence.getDay()))
 						.lastVisitStartTime(lastStart.map(Date::from).orElse(null))
+						.currentOpenSessions(currentOpenSessions < 0 ? 0 : currentOpenSessions)
 						.build();
 
 				doUpdateSitePresence(session, sitePresence);
@@ -1485,6 +1519,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				long totalDuration = existingPresence.getDuration() + sitePresence.getDuration();
 				existingPresence.setDuration(totalDuration);
 				existingPresence.setLastVisitStartTime(sitePresence.getLastVisitStartTime());
+				existingPresence.setCurrentOpenSessions(sitePresence.getCurrentOpenSessions());
 				session.update(existingPresence);
 			}
 		} catch (HibernateException e) {
@@ -1564,6 +1599,30 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			log.error("Could not get last start date for siteId [{}] and userId [{}] due to: {}",
 					siteId, userId, ExceptionUtils.getStackTrace(e));
 			return Optional.empty();
+		}
+	}
+
+	private Integer doGetOpenSessions(Session session, String siteId, String userId) {
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<SitePresenceImpl> cq = cb.createQuery(SitePresenceImpl.class);
+		Root<SitePresenceImpl> root = cq.from(SitePresenceImpl.class);
+		cq.select(root);
+		cq.where(cb.and(
+			cb.equal(root.get("siteId"), siteId),
+			cb.equal(root.get("userId"), userId)
+		));
+
+		// Order by date in descending order to get the latest date
+		cq.orderBy(cb.desc(root.get("date")));
+
+		try {
+			return session.createQuery(cq).setMaxResults(1).uniqueResultOptional()
+					.map(SitePresenceImpl::getCurrentOpenSessions)
+					.orElse(0);
+		} catch (HibernateException e) {
+			log.error("Could not get previous open sessions for siteId [{}] and userId [{}] due to: {}",
+					siteId, userId, ExceptionUtils.getStackTrace(e));
+			return 0;
 		}
 	}
 
@@ -1660,7 +1719,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		String eventId = e.getEvent();
 		
 		// get contextId (siteId) from new Event.getContext() method, if available
-		if(statsManager.isEventContextSupported()) {
+		if(statsManager.isEventContextSupported() && !(StatsManager.SITEVISIT_EVENTID.equals(eventId) || StatsManager.SITEVISITEND_EVENTID.equals(eventId))) {
 			String contextId = null;
 			try{
 				contextId = (String) e.getClass().getMethod("getContext", (Class<?>[]) null).invoke(e, (Object[]) null);
@@ -1669,9 +1728,9 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				if(contextId != null && contextId.startsWith(sitePrefix)) {
 					contextId = contextId.substring(sitePrefix.length());
 				}
-				log.debug("Context read from Event.getContext() for event: " + eventId + " - context: " + contextId);
+				log.debug("Context read from Event.getContext() for event: {} - context: {}", eventId, contextId);
 			}catch(Exception ex){
-				log.warn("Unable to get Event.getContext() for event: " + eventId, ex);
+				log.warn("Unable to get Event.getContext() for event: {}", eventId, ex);
 			}
 			if(contextId != null)
 				return contextId; 
@@ -1725,18 +1784,18 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				String target = aliasService.getTarget(alias);
 				if(target != null) {
 					String newSiteId = entityManager.newReference(target).getId();
-					log.debug(alias + " is an alias targetting site id: "+newSiteId);
+					log.debug("{} is an alias targetting site id: {}", alias, newSiteId);
 					site = siteService.getSite(newSiteId);
 				}else{
 					throw new IdUnusedException(siteId);
 				}
 			}catch(IdUnusedException e2){
 				// not a valid site
-				log.debug(siteId + " is not a valid site.", e2);
+				log.debug("{} is not a valid site.", siteId, e2);
 			}
 		}catch(Exception ex) {
 			// not a valid site
-			log.debug(siteId + " is not a valid site.", ex);
+			log.debug("{} is not a valid site.", siteId, ex);
 		}
 		return site;
 	}

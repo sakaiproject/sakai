@@ -275,7 +275,7 @@
         #else
             #if($submissionType == 1 || $submissionType == 3)
                 #if (($submission.Submitted || !$alertGradeDraft) && $!value_feedback_text && !$!value_feedback_text.isEmpty())
-                    <p class="text-info">$tlang.getString("gradingsub.belisthe")</p>
+                    <p class="alert alert-info rounded p-2">$tlang.getString("gradingsub.belisthe")</p>
                     <div class="textarea-holder">
                         #set($contextkey = "ckeditor-autosave-context")
                         #set($entitykey = "ckeditor-autosave-entity-id")
@@ -361,38 +361,13 @@
             #end
         #end
 
-        #if ($!hasAssociatedRubric)
+        #if (!$!hasAssociatedRubric)
+            #reviewersInfo( $!peerReviews false )
+        #else
         </div>
         <div role="tabpanel" class="tab-pane mt-2" id="submission-rubric">
-            ## Show reviewer feedback from peer review (if exist and the peer review is closed)
-            #if ($peerReviews)
-            <h3>$tlang.getString("gen.peerReviews")</h3>
-            <div id="peer-accordion">
-                #foreach($review in $peerReviews)
-                    <h5>$review.assessorDisplayName</h5>
-                    <div>
-                        $tlang.getFormattedMessage("gen.score.display", $review.getScoreDisplay())
-                        <br/>
-                        #if($!review.getComment() && $review.getComment().length()>0)
-                            <b>$tlang.getString("gen.comments")</b>
-                            <div class="textPanel borderPanel">$formattedText.escapeHtmlFormattedText($review.getComment())</div>
-                        #end
-                        <sakai-rubric-student
-                            tool-id="sakai.assignment.grades"
-                            entity-id="$assignment.Id"
-                            evaluated-item-id="$review.id.assessorUserId"
-                            instructor="true"
-                            is-peer-or-self="true"
-                            #if ($!assignment.isGroup)
-                                evaluated-item-owner-id="$ownerGroupId"
-                            #else
-                                evaluated-item-owner-id="$submitterId"
-                            #end
-                        ></sakai-rubric-student>
-                    </div>
-                #end
-            </div>
-            #end
+
+            #reviewersInfo( $!peerReviews $!hasAssociatedRubric $!assignment $ownerGroupId $submitterId )
 
             #if($!rubricSelfReport)
             <h1>$tlang.getString("autoevaluation")</h1>
@@ -403,8 +378,8 @@
                 site-id="$!assignment.Context"
                 entity-id="$assignment.Id"
                 tool-id="sakai.assignment.grades"
-                instructor="true"
-                is-peer-or-self="true"
+                instructor
+                is-peer-or-self
                 #if ($!assignment.isGroup)
                     evaluated-item-id="$ownerGroupId"
                     evaluated-item-owner-id="$ownerGroupId"
@@ -482,7 +457,7 @@
                             <a id="infoImg" href="javascript:;"  class="fa fa-info-circle" data-bs-toggle="popover" data-placement="auto" data-content="$tlang.getString('peerassessment.peerGradeInfo')"></a>
                         #end
                         <input type="text" name="$name_grade" size="5" maxlength="11" value="$!value_grade" id="grade" onkeypress="return ASN.handleEnterKeyPress(event);"/>
-                        <span class="text-info">($tlang.getString("grade.max") $!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint))</span>
+                        <span class="alert alert-info rounded p-2">($tlang.getString("grade.max") $!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint))</span>
 
                         <!--for grading via an external scoring service, if enabled for the associated gradebook item -->
                         #if($scoringComponentEnabled)
@@ -756,23 +731,18 @@
             ## hidden value for non-electronic submission
             <input type="hidden" name="$name_allowResubmitNumber" id="allowResubmitNumber" value="0"/>
         #else
-            ##show it only for those assignments not of type non-electronic submission
-            #if($!value_allowResubmitNumber && $submissionType != 4)
+            #set($resubmitStyle="display:none")
+            #set($extensionStyle="display:none") 
+            #set($resubmitVisibility="display:block")
+
+            #if($!value_allowResubmitNumber)
                 #set($resubmitStyle="display:block")
-            #else
-                #set($resubmitStyle="display:none")
             #end
-  ##decide whether to show the Extension options
-            #if($!displayExtensionOptions && $submissionType != 4)
+
+            #if($!displayExtensionOptions)
                 #set($extensionStyle="display:block")
                 #set($resubmitVisibility="display:none")
-            #else
-                #set($extensionStyle="display:none")
-                #if($submissionType != 4)
-                    #set($resubmitVisibility="display:block")
-                #else
-                    #set($resubmitVisibility="display:none")
-                #end
+                #set($resubmitStyle="display:none")
             #end
 
             <h4>
@@ -798,7 +768,7 @@
                     onclick="if(checked){document.getElementById('allowExtensionTime').style.display = 'block';ASN.resizeFrame();}else{document.getElementById('allowExtensionTime').style.display = 'none';}"
                 />
                 <label for="allowExtensionToggle" >$tlang.getString("allowExtension")</label>
-                <label class="text-warning" >$tlang.getString("allowExtensionCaption")</label>
+                <label class="alert alert-warning rounded p-2">$tlang.getString("allowExtensionCaption")</label>
                 <div id="allowExtensionTime"
                     #if($extensionCloseTime && $submissionType != 4)
                         style="display: block"

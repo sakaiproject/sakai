@@ -170,8 +170,6 @@ public class ItemContentsBean implements Serializable {
 
 	private List matrixArray;
 
-	//private String[] columnChoices;
-
 	private List<Integer> columnIndexList;
 
 	private String[] columnArray;
@@ -195,6 +193,9 @@ public class ItemContentsBean implements Serializable {
 	private String associatedRubricType;
 	
 	private Date attemptDate;
+
+	@Getter @Setter
+	private String calculatedQuestionAnswer;
 
 	public ItemContentsBean() {
 	}
@@ -1562,7 +1563,7 @@ public class ItemContentsBean implements Serializable {
 		if(answerKeyToSplit==null){
 			return answerKey;
 		}
-		String keys[] = answerKeyToSplit.split(",");
+		String keys[] = answerKeyToSplit.split(":split:");
 		GradingService gradingService = new GradingService();
 		for(String key: keys){
 			if(!gradingService.extractVariables(key).isEmpty()){

@@ -28,7 +28,7 @@
     <sakai.commons.lang3.version>3.17.0</sakai.commons.lang3.version>
     <sakai.commons.fileupload.version>1.5</sakai.commons.fileupload.version>
     <sakai.commons-math3.version>3.6.1</sakai.commons-math3.version>
-    <sakai.commons-text.version>1.12.0</sakai.commons-text.version>
+    <sakai.commons-text.version>1.13.0</sakai.commons-text.version>
     <sakai.commons-validator.version>1.7</sakai.commons-validator.version>
     <sakai.commons.configuration2.version>2.11.0</sakai.commons.configuration2.version>
     <sakai.commons.net>3.11.1</sakai.commons.net>
@@ -41,10 +41,10 @@
     <sakai.httpclient.version>4.5.14</sakai.httpclient.version>
     <sakai.httpcore.version>4.4.16</sakai.httpcore.version>
     <sakai.httpmime.version>4.5.14</sakai.httpmime.version>
-    <sakai.httpclient5.version>5.4.1</sakai.httpclient5.version>
-    <sakai.httpcore5.version>5.3.1</sakai.httpcore5.version>
-    <sakai.ignite.version>2.16.0</sakai.ignite.version>
-    <sakai.ignite.spring.ext.version>1.0.0</sakai.ignite.spring.ext.version>
+    <sakai.httpclient5.version>5.4.2</sakai.httpclient5.version>
+    <sakai.httpcore5.version>5.3.3</sakai.httpcore5.version>
+    <sakai.ignite.version>2.17.0</sakai.ignite.version>
+    <sakai.ignite.spring.ext.version>2.0.0</sakai.ignite.spring.ext.version>
     <sakai.ignite.hibernate.version>5.3.0</sakai.ignite.hibernate.version>
     <sakai.jackson.version>2.17.2</sakai.jackson.version>
     <sakai.jsoup.version>1.18.1</sakai.jsoup.version>
@@ -57,7 +57,7 @@
     <sakai.lombok.version>1.18.36</sakai.lombok.version>
     <sakai.lucene.version>9.11.1</sakai.lucene.version>
     <sakai.netty.version>4.1.112.Final</sakai.netty.version>
-    <sakai.node.version>v20.18.0</sakai.node.version>
+    <sakai.node.version>v22.14.0</sakai.node.version>
     <sakai.org.json.version>20210307</sakai.org.json.version>
     <sakai.pluto.version>1.1.7</sakai.pluto.version>
     <sakai.quartz.version>2.3.2</sakai.quartz.version>
@@ -69,25 +69,25 @@
     <sakai.spring.data.commons.version>2.5.12</sakai.spring.data.commons.version>
     <sakai.spring.data.jpa.version>2.5.12</sakai.spring.data.jpa.version>
     <sakai.spring.data.rest.version>3.5.12</sakai.spring.data.rest.version>
-    <sakai.spring.security.version>5.7.12</sakai.spring.security.version>
+    <sakai.spring.security.version>5.7.14</sakai.spring.security.version>
     <sakai.spring.hateoas.version>1.5.6</sakai.spring.hateoas.version>
     <sakai.spring.plugin.version>2.0.0.RELEASE</sakai.spring.plugin.version>
     <sakai.tika.version>3.0.0-BETA</sakai.tika.version>
-    <sakai.tomcat.version>9.0.98</sakai.tomcat.version>
+    <sakai.tomcat.version>9.0.102</sakai.tomcat.version>
     <sakai.thymeleaf.version>3.0.15.RELEASE</sakai.thymeleaf.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
-    <sakai.log4j.version>2.24.2</sakai.log4j.version>
+    <sakai.log4j.version>2.24.3</sakai.log4j.version>
     <sakai.slf4j.version>1.7.36</sakai.slf4j.version>
-    <sakai.poi.version>5.3.0</sakai.poi.version>
+    <sakai.poi.version>5.4.0</sakai.poi.version>
     <sakai.mockito.version>3.12.4</sakai.mockito.version>
     <sakai.powermock.version>2.0.9</sakai.powermock.version>
     <sakai.okiosid.version>2.0</sakai.okiosid.version>
-    <joda.time.version>2.13.0</joda.time.version>
+    <joda.time.version>2.13.1</joda.time.version>
     <sakai.weld.shaded.version>3.1.9.Final</sakai.weld.shaded.version>
     <jayway.jsonpath.version>2.9.0</jayway.jsonpath.version>
     <sakai.jakarta.jstl-api.version>1.2.5</sakai.jakarta.jstl-api.version>
-    <sakai.genericdao.version>0.12.0</sakai.genericdao.version>
-    <reflectutils.version>0.9.20</reflectutils.version>
+    <sakai.genericdao.version>0.12.1</sakai.genericdao.version>
+    <reflectutils.version>0.9.21</reflectutils.version>
     <json.simple.version>1.1.1</json.simple.version>
     <handlebars4.version>4.4.0</handlebars4.version>
     <hamcrest.all.version>1.3</hamcrest.all.version>
@@ -415,10 +415,6 @@
         <scope>provided</scope>
         <exclusions>
           <exclusion>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-          </exclusion>
-          <exclusion>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
           </exclusion>
@@ -434,12 +430,6 @@
         <groupId>org.apache.ignite</groupId>
         <artifactId>ignite-spring-data-commons</artifactId>
         <version>1.1.0</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.ignite</groupId>
-        <artifactId>ignite-spring-data-2.2-ext</artifactId>
-        <version>${sakai.ignite.spring.ext.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -797,7 +787,7 @@
       <dependency>
         <groupId>commons-codec</groupId>
         <artifactId>commons-codec</artifactId>
-        <version>1.17.1</version>
+        <version>1.18.0</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -809,7 +799,7 @@
       <dependency>
         <groupId>commons-beanutils</groupId>
         <artifactId>commons-beanutils</artifactId>
-        <version>1.9.4</version>
+        <version>1.10.1</version>
         <scope>provided</scope>
         <exclusions>
           <exclusion>
@@ -2370,7 +2360,7 @@
       <dependency>
           <groupId>org.mariadb.jdbc</groupId>
           <artifactId>mariadb-java-client</artifactId>
-          <version>3.5.1</version>
+          <version>3.5.2</version>
           <scope>provided</scope>
       </dependency>
       <dependency>
@@ -2632,12 +2622,12 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>3.2.5</version>
+          <version>3.5.2</version>
           <dependencies>
             <dependency>
               <groupId>org.apache.maven.surefire</groupId>
               <artifactId>surefire-junit4</artifactId>
-              <version>3.2.5</version>
+              <version>3.5.2</version>
             </dependency>
           </dependencies>
         </plugin>
@@ -2878,6 +2868,7 @@
                     <exclude>commons-logging:commons-logging</exclude>
                     <exclude>log4j:log4j</exclude>
                     <exclude>javax.mail:mail</exclude>
+                    <exclude>org.azeckoski:reflectutils</exclude>
                   </excludes>
                 </bannedDependencies>
               </rules>

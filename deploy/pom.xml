@@ -55,9 +55,9 @@
             </repositories>
             <dependencies>
                 <dependency>
-                    <groupId>com.oracle.jdbc</groupId>
-                    <artifactId>ojdbc7</artifactId>
-                    <version>12.1.0.2</version>
+                    <groupId>com.oracle.database.jdbc</groupId>
+                    <artifactId>ojdbc11</artifactId>
+                    <version>21.16.0.0</version>
                 </dependency>
             </dependencies>
         </profile>
@@ -942,11 +942,6 @@
         <dependency>
             <groupId>org.apache.ignite</groupId>
             <artifactId>ignite-spring-data-commons</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.ignite</groupId>
-            <artifactId>ignite-spring-data-2.2-ext</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>

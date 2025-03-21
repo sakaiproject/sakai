@@ -104,7 +104,7 @@ public class FeedbackLabel extends Label {
             if(this.text!=null){
                 this.setDefaultModel(text);
             } else {
-                this.setDefaultModel(new Model(component.getFeedbackMessages().first()));
+                this.setDefaultModel(new Model(component.getFeedbackMessages().first().getMessage()));
             }
 
             this.add(new AttributeModifier("class", new Model("feedbackLabel " + component.getFeedbackMessages().first().getLevelAsString())));

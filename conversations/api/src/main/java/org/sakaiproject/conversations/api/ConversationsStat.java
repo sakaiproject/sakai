@@ -16,15 +16,17 @@
 package org.sakaiproject.conversations.api;
 
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
-@Setter
 public class ConversationsStat {
 
     public String name;
     public Long topicsCreated;
     public Long topicsViewed;
+    public Long topicReactions;
+    public Long topicUpvotes;
     public Long postsCreated;
-    public Long reactionsMade;
+    public Long postReactions;
+    public Long postUpvotes;
+    public Long postsViewed;
 }

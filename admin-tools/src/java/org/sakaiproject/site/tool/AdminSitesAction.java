@@ -1144,13 +1144,14 @@ public class AdminSitesAction extends PagedResourceActionII
 	public void doSaveas(RunData data, Context context)
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-		
+
 		if (!"POST".equals(data.getRequest().getMethod())) {
 			return;
 		}
 
 		// read the form
 		String id = data.getParameters().getString("id");
+		String title = data.getParameters().getString("title");
 
 		// get the site to copy from
 		Site site = (Site) state.getAttribute("site");
@@ -1158,11 +1159,30 @@ public class AdminSitesAction extends PagedResourceActionII
 		try
 		{
 			// make a new site with this id and as a structural copy of site
-			siteService.addSite(id, site);
+			Site savedSite = siteService.addSite(id, site);
+
+			if (StringUtils.isNotBlank(title)) {
+				String titleStripped = formattedText.stripHtmlFromText(title, true, true);
+				SiteTitleValidationStatus status = siteService.validateSiteTitle(title, titleStripped);
+
+				if (SiteTitleValidationStatus.TOO_LONG.equals(status)) {
+					addAlert(state, rb.getFormattedMessage("siteTitle.maxLength", new Object[]{SITE_TITLE_MAX_LENGTH}));
+					return;
+				}
+
+				savedSite.setTitle(title);
+
+				siteService.save(savedSite);
+			}
 		}
 		catch (IdUsedException e)
 		{
 			addAlert(state, rb.getFormattedMessage("sitact.thesitid", new Object[]{id}));
+			return;
+		}
+		catch (IdUnusedException e)
+		{
+			addAlert(state, rb.getFormattedMessage("sitact.notfound", new Object[]{id}));
 			return;
 		}
 		catch (IdInvalidException e)

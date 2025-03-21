@@ -193,6 +193,12 @@
         padding-left: 3px;
         padding-right: 3px;
     }
+
+    .navIntraTool {
+      li span.current a {
+        background: unset;
+      }
+    }
 }
 
 #commons-imagefile-instruction {
@@ -211,11 +217,6 @@
 }
 #commons-image-dialog-file {
     margin-bottom: $standard-space-2x;
-}
-.qtip.commons-qtip {
-    border: 1px solid var(--sakai-border-color) !important;
-    background-color: var(--sakai-background-color-2) !important;
-    max-width: 310px;
 }
 
 .likedAlready {

@@ -24,7 +24,7 @@ export class SakaiTasks extends SakaiPageableElement {
     this.showPager = true;
     this._canUpdateSite = false;
     this._currentFilter = constants.CURRENT;
-    this.loadTranslations("tasks").then(r => this._i18n = r);
+    this.loadTranslations("tasks");
   }
 
   set data(value) {
@@ -272,8 +272,6 @@ export class SakaiTasks extends SakaiPageableElement {
   }
 
   content() {
-
-    console.debug("SakaiTasks.content()");
 
     return html`
 

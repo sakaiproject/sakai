@@ -129,8 +129,12 @@ public class HistogramListener
     HistogramScoresBean bean = (HistogramScoresBean) ContextUtil.lookupBean(
                                "histogramScores");
     
-    // Set published assessmentId fot histogramScores
+    // Set published assessmentId for histogramScores
     bean.setAssessmentId(totalBean.getPublishedId());
+    if (bean.getAssessmentId().equals("0"))
+    {
+        bean.setAssessmentId((String) ContextUtil.lookupParam("publishedAssessmentId"));
+    }
 
     if (!histogramScores(bean, totalBean))
     {
@@ -830,6 +834,9 @@ public class HistogramListener
                   numStudentsWithZeroAnswers++;
               }
           }
+      }
+      if (qbean.getQuestionType().equals(TypeIfc.IMAGEMAP_QUESTION.toString())) {
+          responses = assessmentGradingIds.size();
       }
       qbean.setNumResponses(responses);
       qbean.setNumberOfStudentsWithZeroAnswers(numStudentsWithZeroAnswers);
@@ -1889,6 +1896,7 @@ public class HistogramListener
 	      numarray[i] = num;
 	      bars[i] = new HistogramBarBean();
 	      bars[i].setLabel(text.getText());
+	      bars[i].setIsCorrect(((Integer) results.get(textId)) >= 1);
 	      bars[i].setNumStudents(num);
 	      bars[i].setNumStudentsText(String.valueOf(num));
 

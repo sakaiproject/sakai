@@ -194,7 +194,11 @@ public class SakaiIFrame extends GenericPortlet {
 					source = placement.getPlacementConfig().getProperty(SOURCE);
 				}
 
-				// If content is still null after patching, let the NPE happen
+				if ( content == null ) {
+					out.println(rb.getString("get.info.notconfig"));
+					return;
+				}
+
 				Long tool_id = getLongNull(content.get(LTIService.LTI_TOOL_ID));
 				if (tool_id != null) {
 					tool = m_ltiService.getTool(tool_id, placement.getContext());

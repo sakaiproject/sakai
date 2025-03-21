@@ -5,13 +5,6 @@ export class SakaiRubricEdit extends RubricsElement {
 
   static properties = { rubric: { type: Object } };
 
-  constructor() {
-
-    super();
-
-    this.rubricClone = {};
-  }
-
   set rubric(value) {
 
     const old = this._rubric;
@@ -19,7 +12,7 @@ export class SakaiRubricEdit extends RubricsElement {
 
     this.rubricClone = { ...value };
     if (this.rubricClone.new) {
-      this.updateComplete.then(() => bootstrap.Modal.getOrCreateInstance(this.querySelector(`#edit-rubric-${value.id}`)).show());
+      this.updateComplete.then(() => bootstrap.Modal.getOrCreateInstance(this.querySelector("div.modal")).show());
     }
 
     this.requestUpdate("rubric", old);
@@ -27,16 +20,16 @@ export class SakaiRubricEdit extends RubricsElement {
 
   get rubric() { return this._rubric; }
 
+  shouldUpdate() {
+    return !!this.rubric && this._i18n;
+  }
+
   firstUpdated() {
 
-    const modal = this.querySelector(`#edit-rubric-${this.rubric.id}`);
+    const modal = this.querySelector("div.modal");
 
     modal.addEventListener("shown.bs.modal", () => {
-      modal.querySelector("input[type='text'").select();
-    });
-
-    modal.addEventListener("hidden.bs.modal", () => {
-      this.rubric.new = false;
+      modal.querySelector("input[type='text']").select();
     });
   }
 
@@ -51,7 +44,7 @@ export class SakaiRubricEdit extends RubricsElement {
           aria-expanded="false"
           title="${this.tr("edit_rubric")} ${this.rubric.title}"
           aria-label="${this.tr("edit_rubric")} ${this.rubric.title}">
-        <i class="si si-edit"></i>
+        <span class="si si-edit" aria-hidden="true"></span>
       </button>
 
       <div class="modal modal-sm fade"
@@ -73,9 +66,8 @@ export class SakaiRubricEdit extends RubricsElement {
                 </label>
                 <input title="${this.tr("rubric_title")}"
                     class="form-control"
-                    id="rubric-title-edit-${this.rubric.id}"
                     type="text"
-                    value="${this.rubricClone.title}"
+                    value="${this.rubricClone?.title}"
                     maxlength="255" autofocus>
               </div>
             </div>
@@ -96,13 +88,14 @@ export class SakaiRubricEdit extends RubricsElement {
   _saveEdit(e) {
 
     e.stopPropagation();
-    const title = e.target.closest(".modal-content").querySelector("input").value;
-    document.getElementById(`rubric-edit-${e.target.dataset.rubricId}`).dispatchEvent(new CustomEvent("update-rubric-title", { detail: title }));
-    bootstrap.Modal.getInstance(this.querySelector(`#edit-rubric-${e.target.dataset.rubricId}`)).hide();
+    const title = this.querySelector("input[type='text']").value;
+    this.dispatchEvent(new CustomEvent("update-rubric-title", { detail: title }));
+    bootstrap.Modal.getInstance(this.querySelector("div.modal")).hide();
   }
 
   _cancelEdit() {
+
     //Reset input values, in case they were changed
-    this.querySelector(`#rubric-title-edit-${this.rubric.id}`).value = this.rubric.title;
+    this.querySelector("input[type='text']").value = this.rubric.title;
   }
 }

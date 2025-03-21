@@ -151,6 +151,8 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Backing bean for Simple pages
@@ -2643,17 +2645,21 @@ public class SimplePageBean {
 			return l;
 		} else {
 			// No recent activity. Let's go to the top level page.
-
-			l = simplePageToolDao.getTopLevelPageId(((ToolConfiguration) placement).getPageId());
-			// l = simplePageToolDao.getTopLevelPageId(((ToolConfiguration) toolManager.getCurrentPlacement()).getPageId());
+			String placementPageId = ((ToolConfiguration) placement).getPageId();
+			log.debug("Current placement.getId() {} placementPageId {}", placement.getId(), placementPageId);
+			l = simplePageToolDao.getTopLevelPageId(placementPageId);
+			log.debug("Top level page for placement {} is {}", placementPageId, l);
 
 			if (l != null) {
 				try {
+					// TODO: A lot of things can go wrong here methinks -- Chuck
 					updatePageObject(l);
 					// this should exist except if the page was created by old code
+					log.debug("findTopLevelPageItemBySakaiId {}",l);
 					SimplePageItem i = simplePageToolDao.findTopLevelPageItemBySakaiId(String.valueOf(l));
 					if (i == null) {
-						// and dummy item, the site is the notional top level page
+						// add vestigial item, the site is the notional top level page
+						log.debug("no vestigial page found, making new item pageId {} title {}", l.toString(), currentPage.getTitle());
 						i = simplePageToolDao.makeItem(0, 0, SimplePageItem.PAGE, l.toString(), currentPage.getTitle());
 						saveItem(i);
 					}
@@ -2671,6 +2677,7 @@ public class SimplePageBean {
 				// No page found. Let's make a new one.
 				String toolId = ((ToolConfiguration) toolManager.getCurrentPlacement()).getPageId();
 				String title = getCurrentSite().getPage(toolId).getTitle(); // Use title supplied
+				log.debug("no page found, making new page toolId {} siteId {} title {}", toolId, getCurrentSiteId(), title);
 
 				// during creation
 				SimplePage page = simplePageToolDao.makePage(toolId, getCurrentSiteId(), title, null, null);
@@ -2686,6 +2693,7 @@ public class SimplePageBean {
 					// and dummy item, the site is the notional top level page
 					SimplePageItem i = simplePageToolDao.makeItem(0, 0, SimplePageItem.PAGE, l.toString(), title);
 					saveItem(i);
+					log.debug("Top level page not found, creating new vestigial item {} for page {} itemId {}", title, l, i.getId());
 					updatePageItem(i.getId());
 				} catch (PermissionException e) {
 					log.warn("getCurrentPageId Permission failed setting to new page");
@@ -5101,23 +5109,10 @@ public class SimplePageBean {
 	}
 
 	// there's one of these in Validator, but it isn't quite right, because it doesn't look at /
-        // return lowercase version, since we want uppercase versiosns to match
+	// return lowercase version, since we want uppercase versions to match
 	public static String getExtension(String name) {
-
-		// starts after last /
-		int i = name.lastIndexOf("/");
-		if (i >= 0)
-			name = name.substring(i+1);
-	    
-		String extension = "";
-		i = name.lastIndexOf(".");
-		if (i > 0)
-		    extension = name.substring(i+1);
-
-		extension = extension.trim();
-		extension = extension.toLowerCase();
-	    
-		return extension;
+		String extension = org.springframework.util.StringUtils.getFilenameExtension(name);
+		return StringUtils.trimToEmpty(extension).toLowerCase();
 	}
 
 	public boolean isPDFType(SimplePageItem item) {
@@ -6441,12 +6436,8 @@ public class SimplePageBean {
 		if (i >= 0)
 		    name = name.substring(i+1);
 		String base = name;
-		String extension = "";
-		i = name.lastIndexOf(".");
-		if (i > 0) {
-		    base = name.substring(0, i);
-		    extension = name.substring(i+1);
-		}
+		String extension = org.springframework.util.StringUtils.getFilenameExtension(name);
+		base = StringUtils.removeEnd(name, "." + extension);
 
 		base = Validator.escapeResourceName(base);
 		extension = Validator.escapeResourceName(extension);
@@ -6679,13 +6670,7 @@ public class SimplePageBean {
 	}
 
 	public boolean isHtml(SimplePageItem i) {
-		StringTokenizer token = new StringTokenizer(i.getSakaiId(), ".");
-
-		String extension = "";
-					    
-		while (token.hasMoreTokens()) {
-			extension = token.nextToken().toLowerCase();
-		}
+		String extension = org.springframework.util.StringUtils.getFilenameExtension(i.getSakaiId());
 					    
 	    // we are just starting to store the MIME type for resources now. So existing content
 	    // won't have them.
@@ -6738,6 +6723,28 @@ public class SimplePageBean {
 			if (!checkCsrf())
 			    return;
 
+			// For the sole case of adding multimedia as content links above another item
+			// (i.e., not the Add Content button at the top of the Lessons page, nor the Add Content '+'
+			// button at the bottom of a section), the items below the newly inserted content links
+			// need to have their sequence values revised, especially if there is more than one item to insert.
+			// First, collect these items in the itemsToFix list before inserting the new content links (which
+			// affects item sequencing for the page). After inserting the new content links, revise the sequence
+			// values for itemsToFix.
+			List<SimplePageItem> itemsToFix = null;
+			boolean fixItemSequence = StringUtils.isNotEmpty(addBefore) && !StringUtils.startsWith(addBefore, "-");
+			if (fixItemSequence) {
+				List<SimplePageItem> items = getItemsOnPage(getCurrentPageId());
+				items.sort(Comparator.comparing(SimplePageItem::getSequence));
+				long addBeforeItemId = Long.valueOf(addBefore);
+				int addBeforeIndex = IntStream.range(0, items.size())
+					.filter(i -> addBeforeItemId == items.get(i).getId())
+					.findFirst()
+					.orElse(-1);
+				if (addBeforeIndex >= 0) {
+					itemsToFix = items.stream().skip(addBeforeIndex).collect(Collectors.toList());
+				}
+			}
+
 			// SAK-41846 - Initialize counters to keep track of files to add and the item sequence values to adjust
 			totalMultimediaFilesToAdd = multipartMap.size();
 			remainingMultimediaFilesToAdd = totalMultimediaFilesToAdd;
@@ -6763,6 +6770,14 @@ public class SimplePageBean {
 					fileindex++;
 				}
 			}
+
+			if (fixItemSequence) {
+				for (SimplePageItem itemToFix : itemsToFix) {
+					itemToFix.setSequence(itemToFix.getSequence() + totalMultimediaFilesToAdd);
+					update(itemToFix);
+				}
+			}
+
 		} catch (Exception exception) {
 			log.error(exception.getMessage(), exception);
 		} finally {
@@ -6772,7 +6787,6 @@ public class SimplePageBean {
 			totalMultimediaFilesToAdd = 0;
 			remainingMultimediaFilesToAdd = 0;
 		}
-		
 	}
 
 	public void addMultimediaFile(MultipartFile file, String name){

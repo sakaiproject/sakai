@@ -192,6 +192,7 @@ import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.util.Xml;
 import org.sakaiproject.util.api.LinkMigrationHelper;
+import org.sakaiproject.util.MergeConfig;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -1271,8 +1272,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		// way in UI that we know to do it. However admins can definitely see it from resources
 		// so warn except for admins. This check will return true for site owners even though
 		// the warning is issued.
+		// SAK-50946 - log debug instead of warn so we can delet temporary attachments in SiteMerger
 		if (isAttachmentResource(id) && isCollection(id) && !securityService.isSuperUser())
-		    log.warn("availability check for attachment collection " + id);
+		    log.debug("availability check for attachment collection {} ", id);
 
 		GroupAwareEntity entity = null;
 		//boolean isCollection = id.endsWith(Entity.SEPARATOR);
@@ -3825,6 +3827,89 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		}
 		
 		commitCollection(edit);	
+	}
+
+	public ContentResource copyAttachment(String oAttachmentPath, String toContext, String toolTitle, MergeConfig mcx) 
+		throws IdUnusedException, TypeException, PermissionException
+	{
+		ContentResource oAttachment = null;
+
+		try {
+			oAttachment = this.getResource(oAttachmentPath);
+			log.debug("Loaded resource from path = {} {}", oAttachmentPath, oAttachment);
+		} catch (Exception e) {
+			log.debug("Cannot find the attachment with path = {}, checking map {}", oAttachmentPath, e.toString());
+		}
+
+		if (oAttachment == null && mcx != null && mcx.attachmentNames != null) {
+			String lookupAttachmentPath = mcx.attachmentNames.get(oAttachmentPath);
+			if (lookupAttachmentPath == null) {
+				if (oAttachmentPath.startsWith(REFERENCE_ROOT)) {
+					oAttachmentPath = oAttachmentPath.replaceFirst(REFERENCE_ROOT, "");
+				} else {
+					oAttachmentPath = REFERENCE_ROOT + oAttachmentPath;
+				}
+				lookupAttachmentPath = mcx.attachmentNames.get(oAttachmentPath);
+				if (lookupAttachmentPath == null) {
+					log.warn("Cannot find the attachment in map path = {}, map = {}", oAttachmentPath, mcx.attachmentNames);
+					return null;
+				}
+			}
+			log.debug("Found the attachment in map = {} -> {}", oAttachmentPath, lookupAttachmentPath);
+			try {
+				oAttachment = this.getResource(lookupAttachmentPath);
+				log.debug("Loaded resource from map path = {} {}", lookupAttachmentPath, oAttachment);
+				oAttachmentPath = lookupAttachmentPath;
+			} catch (Exception e) {
+				log.warn("Cannot find the attachment in map path = {}, {}", lookupAttachmentPath, e.toString());
+			}
+		}
+
+		if (oAttachment == null) {
+			log.warn("Could not find resource associated with attachment {} to copy to site {} toolTitle {}", oAttachmentPath, toContext, toolTitle);
+			return null;
+		}
+
+		ContentResource attachment = null;
+		try {
+			try (InputStream content = oAttachment.streamContent()) {
+				if (this.isAttachmentResource(oAttachmentPath)) {
+					// add the new resource into attachment collection area
+					log.debug("Copying attachment {} to site {} attachments toolTitle {}", oAttachmentPath, toContext, toolTitle);
+					attachment = this.addAttachmentResource(
+							Validator.escapeResourceName(oAttachment.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME)),
+							toContext,
+							toolTitle,
+							oAttachment.getContentType(),
+							content,
+							oAttachment.getProperties());
+				} else {
+					// add the new resource into resource area
+					log.debug("Copying attachment {} to site {} content toolTitle {}", oAttachmentPath, toContext, toolTitle);
+					attachment = this.addResource(
+							Validator.escapeResourceName(oAttachment.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME)),
+							toContext,
+							1,
+							oAttachment.getContentType(),
+							content,
+							oAttachment.getProperties(),
+							Collections.emptyList(),
+							false,
+							null,
+							null,
+							NotificationService.NOTI_NONE);
+				}
+				log.debug("Copied attachment {} to site {} {}", oAttachmentPath, toContext, attachment.getReference());
+				return attachment;
+			} catch (Exception e) {
+				log.warn("Cannot add new attachment with id = {}, {}", oAttachmentPath, e.toString());
+				return null;
+			}
+		} catch (Exception e) {
+			// if cannot find the original attachment, do nothing.
+			log.warn("Cannot get the original attachment with id = {}, {}", oAttachmentPath, e.toString());
+		}
+		return null;
 	}
 
 	/**
@@ -7214,16 +7299,22 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 					String id = getSiteCollection(siteId) + relId;
 					element.setAttribute("id", id);
 
+					log.debug("Processing collection {}", id);
+
 					// collection: add if missing, else merge in
 					ContentCollection c = mergeCollection(element);
+					String result;
 					if (c == null)
 					{
-						results.append("collection: " + id + " already exists and was not replaced.\n");
+						result = "collection: " + id + " already exists and was not replaced.";
 					}
 					else
 					{
-						results.append("collection: " + id + " imported.\n");
+						result = "collection: " + id + " imported.";
 					}
+					log.debug(result);
+					results.append(result);
+					results.append("\n");
 				}
 
 				// for "resource" kids
@@ -7305,7 +7396,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 							String oldRef = getReference(id);
 
 							// take the name from after /attachment/whatever/
-							id = ATTACHMENTS_COLLECTION + idManager.createUuid()
+							id = ATTACHMENTS_COLLECTION + "TA-" + idManager.createUuid()
 							+ id.substring(id.indexOf('/', ATTACHMENTS_COLLECTION.length()));
 
 							// record the rename
@@ -7326,6 +7417,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 
 						element.setAttribute("id", id);
 
+						log.debug("Processing resource {}", id);
 						ContentResource r = null;
 
 						// if the body-location attribute points at another file for the body, get this
@@ -7348,14 +7440,18 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 							r = mergeResource(element);
 						}
 
+						String result;
 						if (r == null)
 						{
-							results.append("resource: " + id + " already exists and was not replaced.\n");
+							result = "resource: " + id + " already exists and was not replaced.";
 						}
 						else
 						{
-							results.append("resource: " + id + " imported.\n");
+							result = "resource: " + id + " imported.";
 						}
+						log.debug(result);
+						results.append(result);
+						results.append("\n");
 					}
 				}
 			}
@@ -7651,7 +7747,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 								if (cch != null) {
 									cch.copy(((ContentResource) oResource));
 								}
-							} catch (PermissionException|IdUsedException|IdInvalidException|InconsistentException|ServerOverloadException e) {
+							} catch (IdUsedException e) {
+								// Resource already exists, thats ok, but we should still put it in the traversalMap
+								traversalMap.put(oResource.getId(), nId);
+								traversalMap.put(oResource.getUrl(), nUrl);
+							} catch (PermissionException|IdInvalidException|InconsistentException|ServerOverloadException e) {
 							}
 						} // if
 					} // if
@@ -7685,7 +7785,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 
 		try {
 			ContentCollection collection = getCollection(getSiteCollection(siteId));
-			return !m_storage.getResources(collection).isEmpty();
+			List<ContentResourceEdit> resources = m_storage.getResources(collection);
+			if ( resources.size() > 0 ) return true;
+			List<ContentCollectionEdit> collections = m_storage.getCollections(collection);
+			if ( collections.size() > 0 ) return true;
+			return false;
 		} catch (Exception e) {
 			log.warn("Failed to get the entity map for site {}: {}", siteId, e.toString());
 		}
@@ -8330,21 +8434,32 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 	 * @return a new ContentCollection object, or null if it was not created.
 	 */
 	protected ContentCollection mergeCollection(Element element) throws PermissionException, InconsistentException,
-	IdInvalidException
+	IdInvalidException, TypeException
 	{
 		// read the collection object
 		BaseCollectionEdit collectionFromXml = new BaseCollectionEdit(element);
 		String id = collectionFromXml.getId();
 
+		// Check if it exists - avoids unsupressable WARN in addCollection()
+		BaseCollectionEdit edit;
+		try {
+			edit = (BaseCollectionEdit) getCollection(id);
+			if ( edit != null ) return null;
+		}
+		catch (IdUnusedException e)
+		{
+			log.debug("Collection {} not present, about to add {}", id, e.toString());
+			edit = null;
+		}
+
 		// add it
-		BaseCollectionEdit edit = null;
 		try
 		{
 			edit = (BaseCollectionEdit) addCollection(id);
 		}
 		catch (IdUsedException e)
 		{
-			// ignore if it exists
+			log.debug("Collection {} could not be added {}", id, e.toString());
 			return null;
 		}
 
@@ -8395,7 +8510,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 	 */
 	@Deprecated
 	protected ContentResource mergeResource(Element element) throws PermissionException, InconsistentException, IdInvalidException,
-	OverQuotaException, ServerOverloadException
+	OverQuotaException, ServerOverloadException, TypeException
 	{
 		return mergeResource(element, (InputStream) null);
 
@@ -8419,14 +8534,25 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 	 * @return a new ContentResource object, or null if it was not created.
 	 */
 	protected ContentResource mergeResource(Element element, InputStream in) throws PermissionException, InconsistentException,
-	IdInvalidException, OverQuotaException, ServerOverloadException
+	IdInvalidException, OverQuotaException, ServerOverloadException, TypeException
 	{
 		// make the resource object
 		BaseResourceEdit resourceFromXml = new BaseResourceEdit(element);
 		String id = resourceFromXml.getId();
 
-		// get it added
+		// Check if it exists - avoids unsupressable WARN in addResource()
 		BaseResourceEdit edit = null;
+		try {
+			edit = (BaseResourceEdit) getResource(id);
+			if ( edit != null ) return null;
+		}
+		catch (IdUnusedException e)
+		{
+			log.debug("Resource {} not present, about to add {}", id, e.toString());
+			edit = null;
+		}
+
+		// get it added
 		try
 		{
 			edit = (BaseResourceEdit) addResource(id);

@@ -832,10 +832,6 @@ roster.init = function () {
     error: () => console.error("failure retrieving search index data")
   });
 
-  document.addEventListener("profile-shown", () => {
-    document.querySelectorAll("sakai-user-photo").forEach(sup => sup.close());
-  });
-
   roster.switchState(roster.state, roster);
 };
 
@@ -913,31 +909,23 @@ roster.loadSiteDataAndInit = function () {
 
 roster.RosterPermissions = function (permissions) {
 
-  const self = this;
+  const permissionMap = {
+    'roster.export': 'rosterExport',
+    'roster.viewallmembers': 'viewAllMembers', 
+    'roster.viewenrollmentstatus': 'viewEnrollmentStatus',
+    'roster.viewgroup': 'viewGroup',
+    'roster.viewhidden': 'viewHidden',
+    'roster.viewprofile': 'viewProfile',
+    'roster.viewofficialphoto': 'viewOfficialPhoto',
+    'roster.viewsitevisits': 'viewSiteVisits',
+    'roster.viewemail': 'viewEmail',
+    'roster.viewid': 'viewUserDisplayId',
+    'site.upd': 'siteUpdate'
+  };
 
-  permissions.forEach(function (p) {
-
-    // roster permissions
-    if ('roster.export' === p) {
-      self.rosterExport = true;
-    } else if ('roster.viewallmembers' === p) {
-      self.viewAllMembers = true;
-    } else if ('roster.viewenrollmentstatus' === p) {
-      self.viewEnrollmentStatus = true;
-    } else if ('roster.viewgroup' === p) {
-      self.viewGroup = true;
-    } else if ('roster.viewhidden' === p) {
-      self.viewHidden = true;
-    } else if ('roster.viewprofile' === p) {
-      self.viewProfile = true;
-    } else if ('roster.viewofficialphoto' === p) {
-      self.viewOfficialPhoto = true;
-    } else if ('roster.viewsitevisits' === p) {
-      self.viewSiteVisits = true;
-    } else if ('roster.viewemail' === p) {
-      self.viewEmail = true;
-    } else if ('site.upd' === p) { // sakai permissions
-      self.siteUpdate = true;
+  permissions.forEach(permission => {
+    if (permissionMap[permission]) {
+      this[permissionMap[permission]] = true;
     }
   });
 };

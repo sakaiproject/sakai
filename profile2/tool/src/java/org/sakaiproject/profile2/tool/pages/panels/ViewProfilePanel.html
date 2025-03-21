@@ -44,10 +44,32 @@
 					<td class="content" wicket:id="nickname">[nickname]</td>
 				</tr>
 				
+				<!-- pronouns -->
+				<tr wicket:id="pronounsContainer">
+					<td class="label" wicket:id="pronounsLabel">[pronounsLabel]</td>
+					<td class="content" wicket:id="pronouns">[pronouns]</td>
+				</tr>
+				
 				<!-- personal summary -->
 				<tr wicket:id="personalSummaryContainer">
 					<td class="label" wicket:id="personalSummaryLabel">[personalSummaryLabel]</td>
 					<td class="content" wicket:id="personalSummary">[personalSummary]</td>
+				</tr>
+
+				<!-- phonetic pronunciation -->
+				<tr wicket:id="phoneticContainer">
+					<td class="label" wicket:id="phoneticLabel">[phoneticLabel]</td>
+					<td class="content" wicket:id="phoneticPronunciation">[phoneticPronunciation]</td>
+				</tr>
+
+				<!-- name recording -->
+				<tr wicket:id="nameRecordingContainer">
+					<td class="label" wicket:id="nameRecordingLabel">[nameRecordingLabel]</td>
+					<td class="content">
+						<audio wicket:id="audioPlayer" controls="controls" style="width: 300px">
+							<source type="audio/webm" />
+						</audio>
+					</td>
 				</tr>
 			</table>
 		</div>

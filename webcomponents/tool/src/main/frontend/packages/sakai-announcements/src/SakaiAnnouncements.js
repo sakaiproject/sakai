@@ -10,7 +10,8 @@ import {
   SITE_A_TO_Z,
   SITE_Z_TO_A,
   EARLIEST_FIRST,
-  LATEST_FIRST
+  LATEST_FIRST,
+  INSTRUCTOR_ORDER,
 } from "./sakai-announcements-constants.js";
 
 export class SakaiAnnouncements extends SakaiPageableElement {
@@ -20,7 +21,7 @@ export class SakaiAnnouncements extends SakaiPageableElement {
     super();
 
     this.showPager = true;
-    this.loadTranslations("announcements").then(r => this._i18n = r);
+    this.loadTranslations("announcements");
   }
 
   set data(value) {
@@ -98,6 +99,14 @@ export class SakaiAnnouncements extends SakaiPageableElement {
           return 0;
         });
         break;
+      case INSTRUCTOR_ORDER:
+        this.data.sort((a1, a2) => {
+
+          if (a1.order < a2.order) return 1;
+          if (a1.order > a2.order) return -1;
+          return 0;
+        });
+        break;
       default:
         console.warn(`Invalid sort option: ${e.target.value}`);
     }
@@ -125,9 +134,11 @@ export class SakaiAnnouncements extends SakaiPageableElement {
             <option value="${TITLE_Z_TO_A}">${this._i18n.title_z_to_a}</option>
             <option value="${SITE_A_TO_Z}">${this._i18n.site_a_to_z}</option>
             <option value="${SITE_Z_TO_A}">${this._i18n.site_z_to_a}</option>
+            <option value="${INSTRUCTOR_ORDER}">${this._i18n.instructor_order}</option>
           </select>
         </div>
       </div>
+
       <div id="viewing">${this._i18n.viewing}</div>
       <div class="announcements ${!this.siteId || this.siteId === "home" ? "home" : "course"}">
         <div class="header">

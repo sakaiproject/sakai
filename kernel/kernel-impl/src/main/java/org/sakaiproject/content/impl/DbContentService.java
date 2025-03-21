@@ -312,8 +312,8 @@ public class DbContentService extends BaseContentService
                 throw new IllegalStateException("There is no FileSystemHandler set for the ContentService!");
             }
 
-            log.info("init(): tables: " + collectionTableName + " " + resourceTableName + " " + resourceBodyTableName + " "
-                    + groupTableName + " locks-in-db: " + m_locksInDb + " bodyPath: " + bodyPath + " storage: " + m_storage);
+            log.info("init(): tables: {} {} {} {} locks-in-db: {} bodyPath: {} storage: {}",
+                collectionTableName, resourceTableName, resourceBodyTableName, groupTableName, m_locksInDb, bodyPath, m_storage);
 
         }
         catch (Exception t)
@@ -414,7 +414,8 @@ public class DbContentService extends BaseContentService
                 {
                     if(p * pageSize + r >= resourceIdList.size())
                     {
-                        log.info("TEMPORARY LOG MESSAGE: test failed ====> p = " + p + " r = " + r + " index out of range: p * pageSize + r = " + (p * pageSize + r) + " resourceIdList.size() = " + resourceIdList.size());
+                        log.info("TEMPORARY LOG MESSAGE: test failed ====> p = {} r = {} index out of range: p * pageSize + r = {} resourceIdList.size() = {}",
+                            p, r, (p * pageSize + r), resourceIdList.size());
                         failCount++;
                     }
                     else if(cr.getId().equals(resourceIdList.get(p * pageSize + r)))
@@ -423,14 +424,15 @@ public class DbContentService extends BaseContentService
                     }
                     else
                     {
-                        log.info("TEMPORARY LOG MESSAGE: test failed ====> p = " + p + " r = " + r + " resource-id doesn't match: cr.getId() = " + cr.getId() + " resourceIdList.get(p * pageSize + r) = resourceIdList.get(" + (p * pageSize + r) + ") = " + resourceIdList.get(p * pageSize + r));
+                        log.info("TEMPORARY LOG MESSAGE: test failed ====> p = {} r = {} resource-id doesn't match: cr.getId() = {} resourceIdList.get(p * pageSize + r) = resourceIdList.get({}) = {}",
+                            p, r, cr.getId(), (p * pageSize + r), resourceIdList.get(p * pageSize + r));
                         failCount++;
                     }
                     r++;
                 }
-                log.info("TEMPORARY LOG MESSAGE: Testing getResourcesOfType() completed page " + p + " of " + (resourceIdList.size() / pageSize));
+                log.info("TEMPORARY LOG MESSAGE: Testing getResourcesOfType() completed page {} of {}", p, (resourceIdList.size() / pageSize));
             }
-            log.info("TEMPORARY LOG MESSAGE: Testing getResourcesOfType() SUCCEEDED: " + successCount + " FAILED: " + failCount);
+            log.info("TEMPORARY LOG MESSAGE: Testing getResourcesOfType() SUCCEEDED: {} FAILED: {}", successCount, failCount);
 
             for(String resourceId : resourceIdList)
             {
@@ -478,7 +480,7 @@ public class DbContentService extends BaseContentService
                 }
                 catch (Exception ignore)
                 {
-                    log.warn("Exception parsing integer from count query: " + val);
+                    log.warn("Exception parsing integer from count query: {}", val);
                 }
             }
             return rv;
@@ -615,7 +617,7 @@ public class DbContentService extends BaseContentService
             connection.setAutoCommit(wasCommit);
 
         } catch (SQLException e) {
-            log.warn("setUuid: failed: " + e);
+            log.warn("setUuid: failed: {}", e);
         }
         finally {
             if (connection != null)
@@ -990,14 +992,14 @@ public class DbContentService extends BaseContentService
                     rs.close();
                 }
             } catch (SQLException ex) {
-                log.error("Failed to close resultset: " + ex, ex);
+                log.error("Failed to close resultset: {}", ex.getMessage(), ex);
             }
             try {
                 if (statement != null) {
                     statement.close();
                 }
             } catch (SQLException ex) {
-                log.error("Failed to close statement: " + ex, ex);
+                log.error("Failed to close statement: {}", ex.getMessage(), ex);
             }
             try {
                 if (selectStatement != null) {
@@ -1939,9 +1941,9 @@ public class DbContentService extends BaseContentService
 					   // if we have been configured to use an external file system
 					   if (removeContent) {
 							String filePath = ((BaseResourceEdit) edit).m_filePath;
-							log.info("Removing resource ("+edit.getId()+") content: "+bodyPath+" file:"+filePath);
+							log.debug("Removing resource ("+edit.getId()+") content: "+bodyPath+" file:"+filePath);
 
-							String statement = "SELECT COUNT(FILE_PATH) FROM "+resourceTableName+" WHERE FILE_PATH = ?;";
+							String statement = contentServiceSql.getCountFilePath(resourceTableName);
 							int references = -1;
 							try {
 								references = countQuery(statement, filePath);
@@ -1950,13 +1952,13 @@ public class DbContentService extends BaseContentService
 							}
 
 							if ( references > 1 ) {
-								log.info("Retaining file blob for resource_id={} because {} reference(s)", edit.getId(), references);
+								log.debug("Retaining file blob for resource_id={} because {} reference(s)", edit.getId(), references);
 							} else {
 								log.debug("Removing resource ("+edit.getId()+") content: "+bodyPath+" file:"+filePath);
 								delResourceBodyFilesystem(bodyPath, edit);
 							}
 					   } else {
-							log.info("Removing original resource reference ("+edit.getId()+") without removing the actual content: "+bodyPath);
+							log.debug("Removing original resource reference ("+edit.getId()+") without removing the actual content: "+bodyPath);
 					   }
 				   }
 				   else
@@ -1964,9 +1966,9 @@ public class DbContentService extends BaseContentService
 					   // otherwise use the database
 					   if (removeContent) {
 						   delResourceBodyDb(edit, resourceBodyTableName);
-						   log.info("Removing resource ("+edit.getId()+") DB content");
+						   log.debug("Removing resource ("+edit.getId()+") DB content");
 					   } else {
-						   log.info("Removing original resource reference ("+edit.getId()+") without removing the actual DB content");
+						   log.debug("Removing original resource reference ("+edit.getId()+") without removing the actual DB content");
 					   }
 				   }
 
@@ -2369,13 +2371,13 @@ public class DbContentService extends BaseContentService
                 // Check if there already is an identical file (most recent if there is > 1)
                 boolean singleInstanceStore = serverConfigurationService.getBoolean(PROP_SINGLE_INSTANCE, PROP_SINGLE_INSTANCE_DEFAULT);
                 if ( singleInstanceStore && bodyPath != null && bodyPath.equals(rootFolder)) {
-                    String statement = "SELECT FILE_PATH FROM "+resourceTableName+" WHERE RESOURCE_SHA256 = ? ORDER BY FILE_PATH DESC LIMIT 1;";
+                    String statement = contentServiceSql.getOnlyOneFilePath(resourceTableName);
                     String duplicateFilePath = singleColumnSingleRow(statement, hex);
 
                     if ( duplicateFilePath != null ) {
                         delResourceBodyFilesystem(rootFolder, resource);
                         ((BaseResourceEdit) resource).m_filePath = duplicateFilePath;
-                        log.info("Duplicate body found path={}",duplicateFilePath);
+                        log.debug("Duplicate body found path={}",duplicateFilePath);
                     } else {
                         log.debug("Content body us unique id={}",resource.getId());
                     }

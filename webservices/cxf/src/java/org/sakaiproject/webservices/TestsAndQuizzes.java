@@ -264,7 +264,7 @@ public class TestsAndQuizzes extends AbstractWebService {
 		log.debug("WS TestsAndQuizzes.createAssessment(): creating assessment - " + title + " in site " + site.getId());
 		
 		QTIService qtiService = new QTIService();
-		AssessmentFacade assessment = qtiService.createImportedAssessment(document, QTIVersion.VERSION_1_2, null, templateId, site.getId());
+		AssessmentFacade assessment = qtiService.createImportedAssessment(document, QTIVersion.VERSION_1_2, null, templateId, site.getId(), null);
 
 		if (assessment == null) {
 			return false;

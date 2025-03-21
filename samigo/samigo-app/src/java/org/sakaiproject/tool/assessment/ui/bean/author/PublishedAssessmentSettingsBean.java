@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -88,7 +89,6 @@ import org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
-import org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetHelper;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
@@ -97,6 +97,7 @@ import org.sakaiproject.tool.assessment.ui.listener.author.SaveAssessmentAttachm
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
 import org.sakaiproject.tool.assessment.util.ExtendedTimeValidator;
+import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.comparator.AlphaNumericComparator;
@@ -117,8 +118,6 @@ public class PublishedAssessmentSettingsBean extends SpringBeanAutowiringSupport
 
   private static final IntegrationContextFactory integrationContextFactory =
     IntegrationContextFactory.getInstance();
-  private static final PublishingTargetHelper ptHelper =
-    integrationContextFactory.getPublishingTargetHelper();
   private static final GradebookServiceHelper gbsHelper =
       integrationContextFactory.getGradebookServiceHelper();
 
@@ -128,7 +127,7 @@ public class PublishedAssessmentSettingsBean extends SpringBeanAutowiringSupport
 
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = -630950053380808339L;
-  private PublishedAssessmentFacade assessment;
+  @Getter private PublishedAssessmentFacade assessment;
   private Long assessmentId;
   private String title;
   private String creator;
@@ -147,7 +146,7 @@ public class PublishedAssessmentSettingsBean extends SpringBeanAutowiringSupport
   private Date retractDate;
   private Date feedbackDate;
   @Getter @Setter private Date feedbackEndDate;
-  private boolean feedbackScoreThresholdEnabled = false;
+  @Setter private boolean feedbackScoreThresholdEnabled = false;
   @Getter @Setter private String feedbackScoreThreshold;
   private Integer timeLimit; // in seconds, calculated from timedHours & timedMinutes
   private Integer timedHours;
@@ -166,8 +165,8 @@ public class PublishedAssessmentSettingsBean extends SpringBeanAutowiringSupport
   private String instructorNotification = Integer.toString( SamigoConstants.NOTI_PREF_INSTRUCTOR_EMAIL_DEFAULT ); // Default is 'No - I do not want to receive any emails';
   private String submissionMessage;
   private SelectItem[] publishingTargets;
-  private String[] targetSelected;
-  private String firstTargetSelected;
+  @Setter @Getter private String[] targetSelected;
+  @Getter private String firstTargetSelected;
   private String releaseTo;
   private String password;
   private String finalPageUrl;
@@ -217,10 +216,10 @@ public class PublishedAssessmentSettingsBean extends SpringBeanAutowiringSupport
   private HashMap values = new HashMap();
 
   // extra properties
-  private String publishedUrl;
-  private String alias;
+  @Getter @Setter private String publishedUrl;
+  @Getter @Setter private String alias;
 
-  private String outcome;
+  @Getter @Setter private String outcome;
   
   private boolean isValidStartDate = true;
   private boolean isValidDueDate = true;
@@ -238,7 +237,7 @@ public class PublishedAssessmentSettingsBean extends SpringBeanAutowiringSupport
   private boolean isMarkForReview;
   private boolean honorPledge;
   private List attachmentList;
-  private boolean editPubAnonyGradingRestricted = false;
+  @Setter private boolean editPubAnonyGradingRestricted = false;
   private String releaseToGroupsAsString;
   private String blockDivs;
 
@@ -292,27 +291,15 @@ public class PublishedAssessmentSettingsBean extends SpringBeanAutowiringSupport
   @Autowired
   @Qualifier("org.sakaiproject.component.api.ServerConfigurationService")
   private ServerConfigurationService serverConfigurationService;
-  private boolean backgroundColorEnabled = serverConfigurationService.getBoolean(SAMIGO_SETTINGS_BACKGROUNDCOLOR_ENABLED, false);
+  @Setter @Getter private boolean backgroundColorEnabled = serverConfigurationService.getBoolean(SAMIGO_SETTINGS_BACKGROUNDCOLOR_ENABLED, false);
 
-  public boolean isBackgroundColorEnabled() {
-	return backgroundColorEnabled;
-  }
-
-  public void setBackgroundColorEnabled(boolean backgroundColorEnabled) {
-	this.backgroundColorEnabled = backgroundColorEnabled;
-  }
-
-/*
+    /*
    * Creates a new AssessmentBean object.
    */
   public PublishedAssessmentSettingsBean() {
   }
 
-  public PublishedAssessmentFacade getAssessment() {
-    return assessment;
-  }
-
-  public void setAssessment(PublishedAssessmentFacade assessment) {
+    public void setAssessment(PublishedAssessmentFacade assessment) {
     try {
       this.assessment = assessment;
       // set the valueMap
@@ -507,13 +494,13 @@ public class PublishedAssessmentSettingsBean extends SpringBeanAutowiringSupport
   }
 
   private String getCategoryForAssessmentName(String assessmentName) {
-
     Long categoryId = null;
+    String decodedAssessmentName = TextFormat.convertFormattedTextToPlaintext(assessmentName);
 
     String gradebookUid = toolManager.getCurrentPlacement().getContext();
     List<Assignment> gbAssignments = gradingService.getAssignments(gradebookUid);
     for (Assignment assignment : gbAssignments) {
-      if (StringUtils.equals(assessmentName, assignment.getName())) {
+      if (StringUtils.equals(assessmentName, assignment.getName()) || StringUtils.equals(decodedAssessmentName, assignment.getName())) {
         categoryId = assignment.getCategoryId();
       }
     }
@@ -1141,11 +1128,16 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
       this.ipAddresses = "";
       Set ipAddressSet = assessment.getSecuredIPAddressSet();
       if (ipAddressSet != null){
+    	  List<String> ipList = new ArrayList<>();
     	  Iterator iter = ipAddressSet.iterator();
     	  while (iter.hasNext()) {
     		  SecuredIPAddressIfc ip = (SecuredIPAddressIfc) iter.next();
     		  if (ip.getIpAddress()!=null)
-    			  this.ipAddresses = ip.getIpAddress()+"\n"+this.ipAddresses;
+    			  ipList.add(ip.getIpAddress());
+    	  }
+    	  Collections.sort(ipList);
+    	  for (String ip : ipList) {
+    		  this.ipAddresses += ip + "\n";
     	  }
       }
   }
@@ -1368,100 +1360,64 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
     return feedbackScoreThresholdEnabled;
   }
 
-  public void setFeedbackScoreThresholdEnabled(boolean feedbackScoreThresholdEnabled) {
-    this.feedbackScoreThresholdEnabled = feedbackScoreThresholdEnabled;
-  }
-
-  public String getPublishedUrl() {
-    return this.publishedUrl;
-  }
-
-  public void setPublishedUrl(String publishedUrl) {
-    this.publishedUrl = publishedUrl;
-  }
-
-  public String getAlias() {
-    return this.alias;
-  }
-
-  public void setAlias(String alias) {
-    this.alias = alias;
-  }
-
   public SelectItem[] getPublishingTargets() {
-	  HashMap targets = ptHelper.getTargets();
-	  Set e = targets.keySet();
-	  Iterator iter = e.iterator();
-	  int numSelections = getNumberOfGroupsForSite() > 0 ? 3 : 2;
-	  SelectItem[] target = new SelectItem[numSelections];
-	  while (iter.hasNext()){
-		  String t = (String)iter.next();
-		  if (t.equals("Anonymous Users")) {
-			  target[0] = new SelectItem(t, assessmentSettingMessages.getString("anonymous_users"));
-		  }
-		  else if (numSelections == 3 && t.equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
-			  target[2] = new SelectItem(t, assessmentSettingMessages.getString("selected_groups"));
-		  }
-		  else if (t.equals(AgentFacade.getCurrentSiteName())) {
-			  target[1] = new SelectItem(t, assessmentSettingMessages.getString("entire_site"));
-		  }
-	  }
-	  return target;
-  }
+    boolean hasGroups = getNumberOfGroupsForSite() > 0;
 
-  
-  public void setTargetSelected(String[] targetSelected) {
-    this.targetSelected = targetSelected;
-  }
-
-  public String[] getTargetSelected() {
-    return targetSelected;
+    if (hasGroups) {
+      return new SelectItem[] {
+        new SelectItem("Anonymous Users", assessmentSettingMessages.getString("anonymous_users")),
+        new SelectItem(AgentFacade.getCurrentSiteName(), assessmentSettingMessages.getString("entire_site")),
+        new SelectItem(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS, assessmentSettingMessages.getString("selected_groups"))
+      };
+    } else {
+      return new SelectItem[] {
+        new SelectItem("Anonymous Users", assessmentSettingMessages.getString("anonymous_users")),
+        new SelectItem(AgentFacade.getCurrentSiteName(), assessmentSettingMessages.getString("entire_site"))
+      };
+    }
   }
 
   public String[] getTargetSelected(String releaseTo) {
-	if (releaseTo != null){
-	  String [] releaseToArray = new String[1];
-	  releaseToArray[0] = releaseTo;
-	  this.targetSelected = releaseToArray;
-	}
+    if (releaseTo != null) {
+      this.targetSelected = new String[]{releaseTo};
+    }
     return this.targetSelected;
   }
 
-  public void setFirstTargetSelected(String firstTargetSelected){
+
+  public void setFirstTargetSelected(String firstTargetSelected) {
     this.firstTargetSelected = firstTargetSelected.trim();
-    this.targetSelected[0] = firstTargetSelected.trim();
+    if (this.targetSelected == null || this.targetSelected.length == 0) {
+      this.targetSelected = new String[]{this.firstTargetSelected};
+    } else {
+      this.targetSelected[0] = this.firstTargetSelected;
+    }
   }
 
-  public String getFirstTargetSelected(){
-    return firstTargetSelected;
-  }
+  public String getFirstTargetSelected(String releaseTo) {
+    if (releaseTo != null) {
+      // Get the available targets
+      SelectItem[] publishingTargets = getPublishingTargets();
+      boolean isValid = false;
 
-  public String getFirstTargetSelected(String releaseTo){
-    if (releaseTo != null){
-    	String [] releaseToArray = new String[1];
-        releaseToArray[0] = releaseTo;
-        this.targetSelected = releaseToArray;
-        this.firstTargetSelected = targetSelected[0].trim();
+      // Check if the provided value matches any of the publishing targets
+      for (SelectItem target : publishingTargets) {
+        if (target != null && releaseTo.equals(target.getValue())) {
+          isValid = true;
+          break;
+        }
+      }
+
+      // If valid, set it; otherwise, default to the current site name as maybe the site name changed
+      this.firstTargetSelected = isValid ? releaseTo.trim() : AgentFacade.getCurrentSiteName();
+
+      // Update the targetSelected array
+      this.targetSelected = new String[]{this.firstTargetSelected};
     }
     return this.firstTargetSelected;
   }
 
-  	/**
-	 * @return Returns the outcome.
-	 */
-	public String getOutcome() {
-		return outcome;
-	}
-
-	/**
-	 * @param outcome
-	 *            The outcome to set.
-	 */
-	public void setOutcome(String outcome) {
-		this.outcome = outcome;
-	}
-
-	public boolean getActive() {
+    public boolean getActive() {
 		Date currentDate = new Date();
 		return !((this.dueDate != null && currentDate.after(this.dueDate))
 				|| (this.retractDate != null && currentDate
@@ -1560,14 +1516,12 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 
 	/**
 	 * Returns the total number of groups for this site
-	 * @return
 	 */
 	public int getNumberOfGroupsForSite() {
 		int numGroups = 0;
 		try {
-			Site site = SiteService.getSite(toolManager.getCurrentPlacement()
-					.getContext());
-			Collection groups = site.getGroups();
+			Site site = SiteService.getSite(toolManager.getCurrentPlacement().getContext());
+			Collection<Group> groups = site.getGroups();
 			if (groups != null) {
 				numGroups = groups.size();
 			}
@@ -1694,11 +1648,7 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 		return list;
 	}
 
-	public void setEditPubAnonyGradingRestricted(boolean editPubAnonyGradingRestricted) {
-		this.editPubAnonyGradingRestricted = editPubAnonyGradingRestricted;
-	}
-
-	public boolean getEditPubAnonyGradingRestricted(){
+    public boolean getEditPubAnonyGradingRestricted(){
 	    return this.editPubAnonyGradingRestricted;
 	}
 
