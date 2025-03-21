@@ -38,6 +38,7 @@ public class ParserListener implements ActionListener {
 		AssessmentService assessmentService = new AssessmentService();
 			    
 		String assessmentTitle = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(samLiteBean.getName());
+		String questionText = samLiteBean.getData();
 		
 		samLiteBean.setOutcome("samLiteValidation");
 		//check assessmentTitle and see if it is duplicated, if is not then proceed, else throw error
@@ -47,7 +48,15 @@ public class ParserListener implements ActionListener {
 			samLiteBean.setOutcome("samLiteEntry");
 			return;
 		}
-			    
+		
+		//check if questionText is empty
+		if (questionText == null || questionText.trim().equals("")) {
+			String questionTextEmptyError = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.SamLite", "samlite_questiontext_empty");
+			context.addMessage(null, new FacesMessage(questionTextEmptyError));
+			samLiteBean.setOutcome("samLiteEntry");
+			return;
+		}
+
 		boolean isUnique = assessmentService.assessmentTitleIsUnique("0", assessmentTitle, false);
 		if (!isUnique){
 			String err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","duplicateName_error");
