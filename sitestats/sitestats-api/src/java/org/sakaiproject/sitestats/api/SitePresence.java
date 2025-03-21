@@ -41,4 +41,10 @@ public interface SitePresence extends Stat, Comparable<SitePresence> {
 	
 	/** Set (temporary) last visit start time */
 	public void setLastVisitStartTime(Date lastVisitStartTime);
+
+	/** Get previous open sessions */
+	public Integer getCurrentOpenSessions();
+
+	/** Set current open sessions */
+	public void setCurrentOpenSessions(Integer currentOpenSessions);
 }

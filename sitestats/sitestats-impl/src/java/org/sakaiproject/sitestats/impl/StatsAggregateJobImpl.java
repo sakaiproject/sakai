@@ -39,6 +39,7 @@ import org.sakaiproject.component.app.scheduler.jobs.SpringStatefulJobBeanWrappe
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.sitestats.api.JobRun;
+import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.StatsUpdateManager;
 
 import lombok.extern.slf4j.Slf4j;
@@ -152,7 +153,7 @@ public class StatsAggregateJobImpl implements StatefulJob {
 		// check for SAKAI_EVENT.CONTEXT column
 		try{
 			checkForContextColumn();
-			log.debug("SAKAI_EVENT.CONTEXT exists? "+isEventContextSupported);
+			log.debug("SAKAI_EVENT.CONTEXT exists? {}", isEventContextSupported);
 		}catch(SQLException e1){
 			log.warn("Unable to check existence of SAKAI_EVENT.CONTEXT", e1);
 		}
@@ -318,9 +319,12 @@ public class StatsAggregateJobImpl implements StatefulJob {
 						if(firstEventIdProcessedInBlock == -1)
 							firstEventIdProcessedInBlock = lastProcessedEventId;
 						processedCounter++;
+						if (StringUtils.equalsAny(event, StatsManager.SITEVISIT_EVENTID, StatsManager.SITEVISITEND_EVENTID)) {
+							log.debug("Processed event: {}, date: {}, sessionUser: {}, sessionId: {}, eventId: {}", event, date, sessionUser, sessionId, lastProcessedEventId);
+						}
 					}catch(Exception e){
 						if(log.isDebugEnabled())
-							log.debug("Ignoring "+event+", "+ref+", "+date+", "+sessionUser+", "+sessionId+" due to: "+e.toString());
+							log.debug("Ignoring {}, {}, {}, {}, {} due to: {}", event, ref, date, sessionUser, sessionId, e.toString());
 					}
 					counter++;
 				}
@@ -330,10 +334,12 @@ public class StatsAggregateJobImpl implements StatefulJob {
 				
 				// If we didn't see a single event, time to break out and wrap up this job
 				if (counter < 1) {
+					log.debug("No events found in this block, breaking out of the loop.");
 					break;
 				}
 
 				if (firstEventIdProcessedInBlock > 0) {
+					log.debug("Processing events in block: first eventId = {}, last eventId = {}", firstEventIdProcessedInBlock, lastProcessedEventId);
 					// process events
 					log.debug("Processing events in block: {} events", eventsQueue.size());
 					boolean processedOk = statsUpdateManager.collectEvents(eventsQueue);
@@ -348,7 +354,8 @@ public class StatsAggregateJobImpl implements StatefulJob {
 						jobRun.setLastEventDate(lastEventDateWithSuccess);
 						jobRun.setJobEndDate(new Date(System.currentTimeMillis()));
 						saveJobRun(jobRun);
-						log.debug("Job run saved. Start eventId: {}, End eventId: {}, Last event date: {}", firstEventIdProcessed, lastProcessedEventIdWithSuccess, lastEventDateWithSuccess);
+
+            log.debug("Job run saved. Start eventId: {}, End eventId: {}, Last event date: {}", firstEventIdProcessed, lastProcessedEventIdWithSuccess, lastEventDateWithSuccess);
 					}else{
 						returnMessage = "An error occurred while processing/persisting events to db. Please check your logs, fix possible problems and re-run this job (will start after last successful processed event).";
 						log.error(returnMessage);
@@ -472,7 +479,7 @@ public class StatsAggregateJobImpl implements StatefulJob {
 					count++;				
 				}catch(Exception e){
 					if(log.isDebugEnabled())
-						log.debug("Ignoring "+event+", "+ref+", "+date+", "+sessionUser+", "+sessionId+" due to: "+e.toString());
+						log.debug("Ignoring {}, {}, {}, {}, {} due to: {}", event, ref, date, sessionUser, sessionId, e.toString());
 				}
 			}
 			
