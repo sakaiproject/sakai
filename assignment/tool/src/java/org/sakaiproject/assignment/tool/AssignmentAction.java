@@ -449,6 +449,10 @@ public class AssignmentAction extends PagedResourceActionII {
      */
     private static final String SORTED_BY_NUM_UNGRADED = "num_ungraded";
     /**
+     * sort by assignment number of released grades
+     */
+    private static final String SORTED_BY_NUM_RELEASED = "num_released";
+    /**
      * sort by assignment submission grade
      */
     private static final String SORTED_BY_GRADE = "grade";
@@ -16079,11 +16083,11 @@ public class AssignmentAction extends PagedResourceActionII {
                 // sort by numbers of submissions
                 Assignment assignment1 = (Assignment) o1;
                 String assignment1reference = AssignmentReferenceReckoner.reckoner().assignment(assignment1).reckon().getReference();
-                int subNum1 = assignment1.getDraft() ? -1 : assignmentService.countSubmissions(assignment1reference, null);
+                int subNum1 = assignment1.getDraft() ? -1 : assignmentService.countSubmissions(assignment1reference, null, null);
 
                 Assignment assignment2 = (Assignment) o2;
                 String assignment2reference = AssignmentReferenceReckoner.reckoner().assignment(assignment2).reckon().getReference();
-                int subNum2 = assignment2.getDraft() ? -1 : assignmentService.countSubmissions(assignment2reference, null);
+                int subNum2 = assignment2.getDraft() ? -1 : assignmentService.countSubmissions(assignment2reference, null, null);
 
                 result = (subNum1 > subNum2) ? 1 : -1;
 
@@ -16112,6 +16116,29 @@ public class AssignmentAction extends PagedResourceActionII {
                 }
 
                 result = (ungraded1 > ungraded2) ? 1 : -1;
+
+            } else if (m_criteria.equals(SORTED_BY_NUM_RELEASED)) {
+                // sort by assignment number of released grades
+
+                // initialize
+                int released1 = 0;
+                int released2 = 0;
+
+                Iterator submissions1 = assignmentService.getSubmissions((Assignment) o1).iterator();
+                while (submissions1.hasNext()) {
+                    AssignmentSubmission submission1 = (AssignmentSubmission) submissions1.next();
+
+                    if (!submission1.getGradeReleased()) released1++;
+                }
+
+                Iterator submissions2 = assignmentService.getSubmissions((Assignment) o2).iterator();
+                while (submissions2.hasNext()) {
+                    AssignmentSubmission submission2 = (AssignmentSubmission) submissions2.next();
+
+                    if (!submission2.getGradeReleased()) released2++;
+                }
+
+                result = (released1 > released2) ? 1 : -1;
 
             } else if (m_criteria.equals(SORTED_BY_GRADE) || m_criteria.equals(SORTED_BY_SUBMISSION_STATUS)) {
                 AssignmentSubmission submission1 = getSubmission(((Assignment) o1).getId(), m_user, "compare", null);

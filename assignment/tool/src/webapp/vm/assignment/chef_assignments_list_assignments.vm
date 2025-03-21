@@ -285,6 +285,17 @@
 										#end
 									</a>
 								#end
+								/
+							<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=num_released")'; return false;"  title="$tlang.getString("listassig.sorbynum3")">$tlang.getString("gen.released")</a>
+								#if ($sortedBy.equals("num_released"))
+									<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=num_released")'; return false;"   title="$tlang.getString("listassig.sorbynum3")">
+										#if ($sortedAsc.equals("true"))
+											<i id="sortascendingungradedsubmissions" class="fa fa-sort-asc" aria-hidden="true" title="$tlang.getString("gen.sorasc")"></i>
+										#else
+											<i id="sortdescendingungradedsubmissions" class="fa fa-sort-desc" aria-hidden="true" title="$tlang.getString("gen.sordes")"></i>
+										#end
+									</a>
+								#end
 						</th>
 						#end
 						#end
@@ -632,11 +643,21 @@
 								<td headers="num_submissions" class="specialLink d-none d-sm-table-cell">
 								## not show the link for draft assignment
 								#if (!$assignment.Draft && $!service.allowGradeSubmission($assignmentReference))
-									#set($ungradedNumber = $!service.countSubmissions($assignmentReference, false))
-									#set($totalNumber = $!service.countSubmissions($assignmentReference, null))
+									#set($ungradedNumber = $!service.countSubmissions($assignmentReference, false, null))
+									#set($totalNumber = $!service.countSubmissions($assignmentReference, null, null))
+									#set($releasedNumber = $!service.countSubmissions($assignmentReference, null, true))
 									<div class="spinnerBesideContainer">
-										<a name="asnActionLink" href="javascript:void(0)" onclick="if(ASN.allowClick(this)){ SPNR.insertSpinnerAfter( this, null, null ); window.location='#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$formattedText.escapeUrl($assignmentReference)")'; }" >
-											<span class="skip"> #if ($gradeScale != 1)$!tlang.getString("gen.assign.gra")#else$!tlang.getString("viewsubmissions")#end : $formattedText.escapeHtml($!assignment.Title). </span> <span class="skip">$!tlang.getString("gen.subm2"): </span>$!totalNumber/<span class="skip">$!tlang.getString("ungra"): </span>$!ungradedNumber
+										<a 
+											name="asnActionLink"
+											href="javascript:void(0)"
+											onclick="if(ASN.allowClick(this)){ SPNR.insertSpinnerAfter( this, null, null ); window.location='#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$formattedText.escapeUrl($assignmentReference)")'; }" 
+										>
+											<span class="skip"> 
+												#if ($gradeScale != 1)$!tlang.getString("gen.assign.gra")
+												#else$!tlang.getString("viewsubmissions")
+												#end : $formattedText.escapeHtml($!assignment.Title). </span>
+											<span class="skip">
+												$!tlang.getString("gen.subm2"): </span>$!totalNumber/<span class="skip">$!tlang.getString("ungra"): </span>$!ungradedNumber/<span class="skip">$!tlang.getString("gen.released"): </span>$!releasedNumber
 										</a>
 									</div>
 								#end

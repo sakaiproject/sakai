@@ -2244,7 +2244,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
-    public int countSubmissions(String assignmentReference, Boolean graded) {
+    public int countSubmissions(String assignmentReference, Boolean graded, Boolean gradeReleased) {
         String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmentReference).reckon().getId();
         try {
             Assignment assignment = getAssignment(assignmentId);
@@ -2266,7 +2266,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             }
             List<String> userIds = allowAddSubmissionUsers.stream().map(User::getId).collect(Collectors.toList());
             // if the assignment is non-electronic don't include submission date or is user submission
-            return (int) assignmentRepository.countAssignmentSubmissions(assignmentId, graded, !isNonElectronic, !isNonElectronic, userIds);
+            return (int) assignmentRepository.countAssignmentSubmissions(assignmentId, graded, gradeReleased, !isNonElectronic, !isNonElectronic, userIds);
         } catch (Exception e) {
             log.warn("Couldn't count submissions for assignment reference {}, {}", assignmentReference, e.getMessage());
         }
