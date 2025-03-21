@@ -134,6 +134,11 @@
       <artifactId>commons-lang3</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.sakaiproject.common</groupId>
+      <artifactId>archive-api</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.opensearch</groupId>
       <artifactId>opensearch</artifactId>
       <version>${sakai.opensearch.version}</version>

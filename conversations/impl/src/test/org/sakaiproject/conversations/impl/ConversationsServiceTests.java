@@ -15,7 +15,7 @@
  */
 package org.sakaiproject.conversations.impl;
 
-import org.junit.Assume;
+import org.sakaiproject.archive.api.ArchiveService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
@@ -61,6 +61,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.Xml;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -81,15 +82,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.Stack;
 import java.util.stream.Collectors;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
-import static org.mockito.Mockito.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import lombok.extern.slf4j.Slf4j;
 
+import static org.mockito.Mockito.*;
 import static org.junit.Assert.*;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -2040,6 +2046,163 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
         savedBean = saveTopic(savedBean);
 
         assertNull(savedBean.gradingItemId);
+    }
+
+    @Test
+    public void archive() {
+
+        switchToInstructor(null);
+
+        String title1 = "Topic 1";
+        TopicTransferBean topic1 = new TopicTransferBean();
+        topic1.aboutReference = site1Ref;
+        topic1.title = title1;
+        topic1.message = "<strong>Something about topic1</strong>";
+        topic1.siteId = site1Id;
+        topic1 = saveTopic(topic1);
+
+        String title2 = "Topic 2";
+        TopicTransferBean topic2 = new TopicTransferBean();
+        topic2.aboutReference = site1Ref;
+        topic2.title = title2;
+        topic2.siteId = site1Id;
+        topic2 = saveTopic(topic2);
+
+        String title3 = "Topic 3";
+        TopicTransferBean topic3 = new TopicTransferBean();
+        topic3.aboutReference = site1Ref;
+        topic3.title = title3;
+        topic3.siteId = site1Id;
+        topic3 = saveTopic(topic3);
+
+        String title4 = "Topic 4";
+        TopicTransferBean topic4 = new TopicTransferBean();
+        topic4.aboutReference = site1Ref;
+        topic4.title = title4;
+        topic4.siteId = site1Id;
+        topic4 = saveTopic(topic4);
+
+        TopicTransferBean[] topicBeans = new TopicTransferBean[] { topic1, topic2, topic3, topic4 };
+
+        Document doc = Xml.createDocument();
+        Stack<Element> stack = new Stack<>();
+
+        Element root = doc.createElement("archive");
+        doc.appendChild(root);
+        root.setAttribute("source", site1Id);
+        root.setAttribute("xmlns:sakai", ArchiveService.SAKAI_ARCHIVE_NS);
+        root.setAttribute("xmlns:CHEF", ArchiveService.SAKAI_ARCHIVE_NS.concat("CHEF"));
+        root.setAttribute("xmlns:DAV", ArchiveService.SAKAI_ARCHIVE_NS.concat("DAV"));
+        stack.push(root);
+
+        assertEquals(1, stack.size());
+
+        String results = conversationsService.archive(site1Id, doc, stack, "", null);
+
+        assertEquals(2, stack.size());
+
+        NodeList conversationsNode = root.getElementsByTagName(conversationsService.getLabel());
+        assertEquals(1, conversationsNode.getLength());
+
+        NodeList topicsNode = ((Element) conversationsNode.item(0)).getElementsByTagName("topics");
+        assertEquals(1, topicsNode.getLength());
+
+        NodeList topicNodes = ((Element) topicsNode.item(0)).getElementsByTagName("topic");
+        assertEquals(topicBeans.length, topicNodes.getLength());
+
+        for (int i = 0; i < topicNodes.getLength(); i++) {
+            Element topicEl = (Element) topicNodes.item(i);
+            assertEquals(topicBeans[i].title, topicEl.getAttribute("title"));
+            assertEquals(topicBeans[i].type, topicEl.getAttribute("type"));
+            assertEquals(topicBeans[i].anonymous, Boolean.parseBoolean(topicEl.getAttribute("anonymous")));
+            assertEquals(topicBeans[i].allowAnonymousPosts, Boolean.parseBoolean(topicEl.getAttribute("allow-anonymous-posts")));
+            assertEquals(topicBeans[i].pinned, Boolean.parseBoolean(topicEl.getAttribute("pinned")));
+            assertEquals(topicBeans[i].draft, Boolean.parseBoolean(topicEl.getAttribute("draft")));
+            assertEquals(topicBeans[i].visibility, topicEl.getAttribute("visibility"));
+            assertEquals(topicBeans[i].creator, topicEl.getAttribute("creator"));
+            assertEquals(topicBeans[i].created.getEpochSecond(), Long.parseLong(topicEl.getAttribute("created")));
+
+            NodeList messageNodes = topicEl.getElementsByTagName("message");
+            assertEquals(1, messageNodes.getLength());
+
+            assertEquals(topicBeans[i].message, ((Element) messageNodes.item(0)).getFirstChild().getNodeValue());
+        }
+    }
+
+    @Test
+    public void merge() {
+
+        Document doc = Xml.readDocumentFromStream(this.getClass().getResourceAsStream("/archive/conversations.xml"));
+
+        Element root = doc.getDocumentElement();
+
+        String fromSite = root.getAttribute("source");
+        String toSite = "my-new-site";
+
+        String toSiteRef = "/site/" + toSite;
+        switchToInstructor(toSiteRef);
+
+        when(siteService.siteReference(toSite)).thenReturn(toSiteRef);
+
+        Element conversationsElement = doc.createElement("not-conversations");
+
+        conversationsService.merge(toSite, conversationsElement, "", fromSite, null, null, null);
+
+        assertEquals("Invalid xml document", conversationsService.merge(toSite, conversationsElement, "", fromSite, null, null, null));
+
+        conversationsElement = (Element) root.getElementsByTagName(conversationsService.getLabel()).item(0);
+
+        conversationsService.merge(toSite, conversationsElement, "", fromSite, null, null, null);
+
+        NodeList topicNodes = ((Element) conversationsElement.getElementsByTagName("topics").item(0)).getElementsByTagName("topic");
+
+        List<ConversationsTopic> topics = topicRepository.findBySiteId(toSite);
+
+        assertEquals(topics.size(), topicNodes.getLength());
+
+        for (int i = 0; i < topicNodes.getLength(); i++) {
+
+            Element topicEl = (Element) topicNodes.item(i);
+
+            String title = topicEl.getAttribute("title");
+            Optional<ConversationsTopic> optTopic = topics.stream().filter(t -> t.getTitle().equals(title)).findAny();
+            assertTrue(optTopic.isPresent());
+
+            ConversationsTopic topic = optTopic.get();
+
+            assertEquals(topic.getType().name(), topicEl.getAttribute("type"));
+            assertEquals(topic.getPinned(), Boolean.parseBoolean(topicEl.getAttribute("pinned")));
+            assertEquals(topic.getAnonymous(), Boolean.parseBoolean(topicEl.getAttribute("anonymous")));
+            assertEquals(topic.getDraft(), Boolean.parseBoolean(topicEl.getAttribute("draft")));
+            assertEquals(topic.getMustPostBeforeViewing(), Boolean.parseBoolean(topicEl.getAttribute("post-before-viewing")));
+
+            NodeList messageNodes = topicEl.getElementsByTagName("message");
+            assertEquals(1, messageNodes.getLength());
+
+            assertEquals(topic.getMessage(), messageNodes.item(0).getFirstChild().getNodeValue());
+        }
+
+        Set<String> oldTitles = topics.stream().map(ConversationsTopic::getTitle).collect(Collectors.toSet());
+
+        // Now let's try and merge this set of rubrics. It has one with a different title, but the
+        // rest the same, so we should end up with only one rubric being added.
+        Document doc2 = Xml.readDocumentFromStream(this.getClass().getResourceAsStream("/archive/conversations2.xml"));
+
+        Element root2 = doc2.getDocumentElement();
+
+        conversationsElement = (Element) root2.getElementsByTagName(conversationsService.getLabel()).item(0);
+
+        conversationsService.merge(toSite, conversationsElement, "", fromSite, null, null, null);
+
+        String extraTitle = "Smurfs";
+
+        assertEquals(topics.size() + 1, topicRepository.findBySiteId(toSite).size());
+
+        Set<String> newTitles = topicRepository.findBySiteId(toSite)
+            .stream().map(ConversationsTopic::getTitle).collect(Collectors.toSet());
+
+        assertFalse(oldTitles.contains(extraTitle));
+        assertTrue(newTitles.contains(extraTitle));
     }
 
     private TopicTransferBean saveTopic(TopicTransferBean topicBean) {

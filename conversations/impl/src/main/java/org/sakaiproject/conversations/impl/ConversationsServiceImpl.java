@@ -32,7 +32,12 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Optional;
 import java.util.Set;
+import java.util.Stack;
 import java.util.stream.Collectors;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -85,7 +90,6 @@ import org.sakaiproject.conversations.api.repository.TopicReactionTotalRepositor
 import org.sakaiproject.conversations.api.repository.TopicStatusRepository;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
-import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -136,7 +140,7 @@ import javax.persistence.PersistenceException;
 @Slf4j
 @Setter
 @Transactional
-public class ConversationsServiceImpl implements ConversationsService, EntityProducer, EntityTransferrer, Observer {
+public class ConversationsServiceImpl implements ConversationsService, EntityTransferrer, Observer {
 
     private AuthzGroupService authzGroupService;
 
@@ -435,7 +439,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
     @Transactional
     public TopicTransferBean saveTopic(final TopicTransferBean topicBean, boolean sendMessage) throws ConversationsPermissionsException {
 
-        String currentUserId = getCheckedCurrentUserId();
+        String currentUserId = StringUtils.isNotBlank(topicBean.creator) ? topicBean.creator : getCheckedCurrentUserId();
 
         String siteRef = siteService.siteReference(topicBean.siteId);
 
@@ -2646,6 +2650,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         return traversalMap;
     }
 
+    @Override
     public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> transferOptions, boolean cleanup) {
 
         if (cleanup) {
@@ -2662,6 +2667,108 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         return transferCopyEntities(fromContext, toContext, ids, transferOptions);
     }
 
+    @Override
+    public boolean willArchiveMerge() {
+        return true;
+    }
+
+    @Override
+    public String getLabel() {
+        return "conversations";
+    }
+
+    @Override
+    public String archive(String siteId, Document doc, Stack<Element> stack, String archivePath, List<Reference> attachments) {
+
+        StringBuilder results = new StringBuilder();
+        results.append("begin archiving ").append(getLabel()).append(" for site ").append(siteId).append(System.lineSeparator());
+
+        Element element = doc.createElement(getLabel());
+        stack.peek().appendChild(element);
+        stack.push(element);
+
+        Element topicsEl = doc.createElement("topics");
+        element.appendChild(topicsEl);
+
+        topicRepository.findBySiteId(siteId).stream().sorted((t1, t2) -> t1.getTitle().compareTo(t2.getTitle())).forEach(topic -> {
+
+            Element topicEl = doc.createElement("topic");
+            topicsEl.appendChild(topicEl);
+            topicEl.setAttribute("title", topic.getTitle());
+            topicEl.setAttribute("type", topic.getType().name());
+            topicEl.setAttribute("post-before-viewing", Boolean.toString(topic.getMustPostBeforeViewing()));
+            topicEl.setAttribute("allow-anonymous-posts", Boolean.toString(topic.getAllowAnonymousPosts()));
+            topicEl.setAttribute("pinned", Boolean.toString(topic.getPinned()));
+            topicEl.setAttribute("draft", Boolean.toString(topic.getDraft()));
+            topicEl.setAttribute("visibility", topic.getVisibility().name());
+            topicEl.setAttribute("creator", topic.getMetadata().getCreator());
+            topicEl.setAttribute("created", Long.toString(topic.getMetadata().getCreated().getEpochSecond()));
+
+            Element messageEl = doc.createElement("message");
+            messageEl.appendChild(doc.createCDATASection(topic.getMessage()));
+            topicEl.appendChild(messageEl);
+        });
+
+        results.append("completed archiving ").append(getLabel()).append(" for site ").append(siteId).append(System.lineSeparator());
+        return results.toString();
+    }
+
+    @Override
+    public String merge(String toSiteId, Element root, String archivePath, String fromSiteId, Map<String, String> attachmentNames, Map<String, String> userIdTrans, Set<String> userListAllowImport) {
+
+        StringBuilder results = new StringBuilder();
+        results.append("begin merging ").append(getLabel()).append(" for site ").append(toSiteId).append(System.lineSeparator());
+
+        if (!root.getTagName().equals(getLabel())) {
+            log.warn("Tried to merge a non <{}> xml document", getLabel());
+            return "Invalid xml document";
+        }
+
+        Set<String> currentTitles = topicRepository.findBySiteId(toSiteId)
+            .stream().map(ConversationsTopic::getTitle).collect(Collectors.toSet());
+
+        NodeList topicNodes = root.getElementsByTagName("topic");
+
+        Instant now = Instant.now();
+
+        for (int i = 0; i < topicNodes.getLength(); i++) {
+
+            Element topicEl = (Element) topicNodes.item(i);
+            String title = topicEl.getAttribute("title");
+
+            if (currentTitles.contains(title)) {
+                log.debug("Topic \"{}\" already exists in site {}. Skipping merge ...", title, toSiteId);
+                continue;
+            }
+
+            TopicTransferBean topicBean = new TopicTransferBean();
+            topicBean.siteId = toSiteId;
+            topicBean.title = title;
+            topicBean.type = topicEl.getAttribute("type");
+            topicBean.created = now;
+            topicBean.mustPostBeforeViewing = Boolean.parseBoolean(topicEl.getAttribute("post-before-viewing"));
+            topicBean.anonymous = Boolean.parseBoolean(topicEl.getAttribute("anonymous"));
+            topicBean.allowAnonymousPosts = Boolean.parseBoolean(topicEl.getAttribute("allow-anonymous-posts"));
+            topicBean.draft = Boolean.parseBoolean(topicEl.getAttribute("draft"));
+            topicBean.pinned = Boolean.parseBoolean(topicEl.getAttribute("pinned"));
+            topicBean.visibility = topicEl.getAttribute("visibility");
+
+            NodeList messageNodes = topicEl.getElementsByTagName("message");
+            if (messageNodes.getLength() == 1) {
+                topicBean.message = ((Element) messageNodes.item(0)).getFirstChild().getNodeValue();
+            }
+
+            try {
+                saveTopic(topicBean, false);
+            } catch (Exception e) {
+                log.warn("Failed to merge topic \"{}\": {}", topicBean.title, e.toString());
+            }
+        }
+
+        return "";
+    }
+
+    @Override
     public boolean parseEntityReference(String referenceString, Reference ref) {
 
         if (referenceString.startsWith(REFERENCE_ROOT)) {
