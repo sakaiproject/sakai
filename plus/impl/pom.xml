@@ -27,6 +27,10 @@
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-test</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-component-manager</artifactId>
     </dependency>
     <dependency>
@@ -69,23 +73,33 @@
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
     </dependency>
-      <dependency>
+    <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
     </dependency>
-        <dependency>
-            <groupId>org.sakaiproject.lti</groupId>
-            <artifactId>lti-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject.lti</groupId>
-            <artifactId>lti-util</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject.lti</groupId>
-            <artifactId>lti-common</artifactId>
-            <version>${sakai.version}</version>
-        </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.dataformat</groupId>
+      <artifactId>jackson-dataformat-xml</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.datatype</groupId>
+      <artifactId>jackson-datatype-jsr310</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.lti</groupId>
+      <artifactId>lti-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.lti</groupId>
+      <artifactId>lti-util</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.lti</groupId>
+      <artifactId>lti-common</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>javax.servlet-api</artifactId>

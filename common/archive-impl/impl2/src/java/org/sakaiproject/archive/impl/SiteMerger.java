@@ -42,7 +42,6 @@ import org.sakaiproject.archive.api.ArchiveService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
@@ -290,68 +289,44 @@ public class SiteMerger {
 				    serviceName = translateServiceName(element.getTagName());
 				}
 
-				// get the service
-				try
-				{
-					// TODO: Do we need this call into the spring context when we have the entity
-					// producer architecture? The only time this would add value is if a service
-					// declared a EntityProducer bean but didn't bother to register it.
-					EntityProducer service = (EntityProducer) ComponentManager.get(serviceName);
 
-                    if (service == null) {
-                        // find the service using the EntityManager
-                        Collection<EntityProducer> entityProducers = entityManager.getEntityProducers();
-                        for (EntityProducer entityProducer : entityProducers) {
-                            if (serviceName.equals(entityProducer.getClass().getName())
-                                    || serviceName.equals(entityProducer.getLabel())
-                            ) {
-                                service = entityProducer;
-                                break;
-                            }
-                        }
-                    }
+                Collection<EntityProducer> entityProducers = entityManager.getEntityProducers();
+				// find the service using the EntityManager
+                EntityProducer service = entityProducers.stream()
+                        .filter(ep -> serviceName.equals(ep.getClass().getName()) || serviceName.equals(ep.getLabel()))
+                        .findFirst()
+                        .orElse(null);
 
-                    try
-					{
-						String msg = "";
-						if (service != null) {
-						    if ((system.equalsIgnoreCase(ArchiveService.FROM_SAKAI) || system.equalsIgnoreCase(ArchiveService.FROM_SAKAI_2_8))) {
-						        if (checkSakaiService(filterSakaiService, filteredSakaiService, serviceName)) {
-                                    // checks passed so now we attempt to do the merge
-                                    Node parent = element.getParentNode();
-                                    if (parent.getNodeType() == Node.ELEMENT_NODE)
-                                    {
-                                        Element parentEl = (Element)parent;
-                                        mcx.archiveContext = parentEl.getAttribute("source");
-                                        mcx.archiveServerUrl = parentEl.getAttribute("serverurl");
-                                    }
-                                    log.debug("Merging archive data for {} ({}) to site {} archive from context {} and server {}", serviceName, filePath, siteId, mcx.archiveContext, mcx.archiveServerUrl);
-		                            msg = service.merge(siteId, element, filePath, fromSite, mcx);
-						        } else {
-						            log.warn("Skipping merge archive data for {} ({}) to site {}, checked filter failed (filtersOn={}, filters={})", serviceName, filePath, siteId, filterSakaiService, Arrays.toString(filteredSakaiService));
-						        }
-						    } else {
-						        log.warn("Skipping archive data for for {} ({}) to site {}, this does not appear to be a sakai archive", serviceName, filePath, siteId);
-						    }
+				try {
+					String msg = "";
+					if (service != null) {
+						if ((system.equalsIgnoreCase(ArchiveService.FROM_SAKAI) || system.equalsIgnoreCase(ArchiveService.FROM_SAKAI_2_8))) {
+							if (checkSakaiService(filterSakaiService, filteredSakaiService, serviceName)) {
+								// checks passed so now we attempt to do the merge
+								Node parent = element.getParentNode();
+								if (parent.getNodeType() == Node.ELEMENT_NODE) {
+									Element parentEl = (Element) parent;
+									mcx.archiveContext = parentEl.getAttribute("source");
+									mcx.archiveServerUrl = parentEl.getAttribute("serverurl");
+								}
+								log.debug("Merging archive data for {} ({}) to site {} archive from context {} and server {}", serviceName, filePath, siteId, mcx.archiveContext, mcx.archiveServerUrl);
+								msg = service.merge(siteId, element, filePath, fromSite, mcx);
+							} else {
+								log.warn("Skipping merge archive data for {} ({}) to site {}, checked filter failed (filtersOn={}, filters={})", serviceName, filePath, siteId, filterSakaiService, Arrays.toString(filteredSakaiService));
+							}
 						} else {
-                            log.warn("Skipping archive data for for {} ({}) to site {}, no service (EntityProducer) could be found to deal with this data", serviceName, filePath, siteId);
+							log.warn("Skipping archive data for for {} ({}) to site {}, this does not appear to be a sakai archive", serviceName, filePath, siteId);
 						}
-						results.append(msg);
+					} else {
+						log.warn("Skipping archive data for for {} ({}) to site {}, no service (EntityProducer) could be found to deal with this data", serviceName, filePath, siteId);
 					}
-					catch (Throwable t)
-					{
-						results.append("Error merging: " + serviceName + " in file: " + filePath + " : " + t.toString() + "\n");
-						log.warn("Error merging: {} in file: {} : {}", serviceName, filePath, t.toString());
-					}
-				}
-				catch (Throwable t)
-				{
-					results.append("Did not recognize the resource service: " + serviceName + " in file: " + filePath + "\n");
-					log.warn("Did not recognize the resource service: {} in file: {} : {}", serviceName, filePath, t.toString());
+					results.append(msg);
+				} catch (Throwable t) {
+					results.append("Error merging: " + serviceName + " in file: " + filePath + " : " + t.toString() + "\n");
+					log.warn("Error merging: {} in file: {} : {}", serviceName, filePath, t.toString());
 				}
 			}
 		}
-
 	}	// processMerge
 
 	/**

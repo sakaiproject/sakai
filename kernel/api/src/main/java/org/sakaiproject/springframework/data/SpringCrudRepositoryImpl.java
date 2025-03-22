@@ -18,10 +18,16 @@ package org.sakaiproject.springframework.data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Projections;
+import org.sakaiproject.serialization.MapperFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,7 +35,9 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+
 import java.io.Serializable;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -42,6 +50,10 @@ public abstract class SpringCrudRepositoryImpl<T extends PersistableEntity<ID>, 
 
     @Getter
     private final Class<T> domainClass;
+
+    @Setter
+    @Autowired // Needed for java configured tests
+    private MapperFactory mapperFactory;
 
     @Setter
     protected SessionFactory sessionFactory;
@@ -66,7 +78,7 @@ public abstract class SpringCrudRepositoryImpl<T extends PersistableEntity<ID>, 
 
         Session session = sessionFactory.getCurrentSession();
 
-        final boolean isNew = entity.getId() == null;
+        boolean isNew = entity.getId() == null;
         if (isNew) {
             session.persist(entity);
             return entity;
@@ -172,6 +184,81 @@ public abstract class SpringCrudRepositoryImpl<T extends PersistableEntity<ID>, 
         } else {
             log.warn("Can not perform delete with a null id");
         }
+    }
+
+    @Override
+    public String toJSON(T t) {
+
+        if (t == null) return "";
+
+        String json = "";
+
+        sessionFactory.getCurrentSession().refresh(t);
+        ObjectMapper mapper = mapperFactory.getJsonMapper();
+        try {
+            json = mapper.writeValueAsString(t);
+        } catch (JsonProcessingException e) {
+            log.warn("Could not serialize to json", e);
+            json = "";
+        }
+        return json;
+    }
+
+    @Override
+    public T fromJSON(String json) {
+
+        if (StringUtils.isBlank(json)) return null;
+
+        T obj = null;
+
+        ObjectMapper mapper = mapperFactory.getJsonMapper();
+        try {
+            obj = mapper.readValue(json, getDomainClass());
+        } catch (IOException e) {
+            log.warn("Could not deserialize json", e);
+            obj = null;
+        }
+        return obj;
+    }
+
+    @Override
+    public String toXML(T t) {
+        return toXML(t, true);
+    }
+
+    @Override
+    public String toXML(T t, boolean cdataasText) {
+
+        if (t == null) return "";
+
+        String xml = "";
+
+        sessionFactory.getCurrentSession().refresh(t);
+        XmlMapper mapper = cdataasText ? mapperFactory.getWrappedXmlMapper() : mapperFactory.getXmlMapper();
+        try {
+            xml = mapper.writeValueAsString(t);
+        } catch (JsonProcessingException e) {
+            log.warn("Could not serialize to xml", e);
+            xml = "";
+        }
+        return xml;
+    }
+
+    @Override
+    public T fromXML(String xml) {
+
+        if (StringUtils.isBlank(xml)) return null;
+
+        T obj = null;
+
+        XmlMapper mapper = mapperFactory.getXmlMapper();
+        try {
+            obj = mapper.readValue(xml, getDomainClass());
+        } catch (IOException e) {
+            log.warn("Could not deserialize xml", e);
+            obj = null;
+        }
+        return obj;
     }
 
     /**

@@ -34,6 +34,7 @@
 				<value>WebService</value>
 				<value>LessonBuilderEntityProducer</value>
 				<value>PollListManager</value>
+				<value>rubrics</value>
 			</list>
 		</property>
 		<property name="mergeFilteredSakaiRoles">
