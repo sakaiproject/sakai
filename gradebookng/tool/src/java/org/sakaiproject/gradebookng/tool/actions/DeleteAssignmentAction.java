@@ -40,10 +40,12 @@ public class DeleteAssignmentAction extends InjectableAction implements Serializ
 
 		window.setTitle(gradebookPage.getString("delete.label"));
 		window.setAssignmentToReturnFocusTo(assignmentId);
-		window.setContent(new DeleteItemPanel(
+		DeleteItemPanel content = new DeleteItemPanel(
 				window.getContentId(),
 				Model.of(Long.valueOf(assignmentId)),
-				window));
+				window);
+		content.setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
+		window.setContent(content);
 		window.showUnloadConfirmation(false);
 		window.show(target);
 

@@ -188,6 +188,7 @@ public class GradeItemImportSelectionStep extends BasePanel {
 
 				// Create the previous panel
 				final Component previousPanel = new GradeImportUploadStep(GradeItemImportSelectionStep.this.panelId);
+				((CreateGradeItemStep)previousPanel).setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
 				previousPanel.setOutputMarkupId(true);
 
 				// AJAX the previous panel into place
@@ -258,8 +259,10 @@ public class GradeItemImportSelectionStep extends BasePanel {
 					importWizardModel.setStep(1);
 					importWizardModel.setTotalSteps(itemsToCreate.size());
 					newPanel = new CreateGradeItemStep(GradeItemImportSelectionStep.this.panelId, Model.of(importWizardModel));
+					((CreateGradeItemStep)newPanel).setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
 				} else {
 					newPanel = new GradeImportConfirmationStep(GradeItemImportSelectionStep.this.panelId, Model.of(importWizardModel));
+					((GradeImportConfirmationStep)newPanel).setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
 				}
 
 				// AJAX the new panel into place

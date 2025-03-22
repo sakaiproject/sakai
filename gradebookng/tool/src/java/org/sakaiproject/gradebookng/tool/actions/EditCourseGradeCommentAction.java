@@ -40,6 +40,7 @@ public class EditCourseGradeCommentAction extends InjectableAction implements Se
         final GradebookPage gradebookPage = (GradebookPage) target.getPage();
         final GbModalWindow window = gradebookPage.getGradeCommentWindow();
         final EditCourseGradeCommentPanel panel = new EditCourseGradeCommentPanel(window.getContentId(), Model.ofMap(model), window);
+        panel.setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
         window.setContent(panel);
         window.showUnloadConfirmation(false);
         window.clearWindowClosedCallbacks();
@@ -62,12 +63,4 @@ public class EditCourseGradeCommentAction extends InjectableAction implements Se
         return new EditCourseGradeCommentAction.EmptyOkResponse();
     }
 
-    public boolean hasCourseGradeComment(final String studentId, final Long courseGradeId, final Long gradebookId){
-        GradebookNgBusinessService businessService = new GradebookNgBusinessService();
-        String comment = businessService.getAssignmentGradeComment(gradebookId.toString(),courseGradeId.longValue(),studentId);
-        if(StringUtils.isBlank(comment)){
-            return false;
-        }
-        return true;
-    }
 }

@@ -1696,8 +1696,20 @@ public class GradingService
     		if (EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString().equals(toGradebook))
     			gbsHelper.updateExternalAssessmentScore(data, gradingService);
     		else if (EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString().equals(toGradebook)) {
-    			Long gradebookItemId = Long.valueOf(pub.getAssessmentToGradebookNameMetaData());
-    			gbsHelper.updateExternalAssessmentScore(data, gradingService, gradebookItemId);
+          if (gbsHelper.isGradebookGroupEnabled(gradingService)) {
+            String gradebookItemString = pub.getAssessmentToGradebookNameMetaData();
+
+            if (gradebookItemString != null && !StringUtils.isBlank(gradebookItemString)) {
+              List<String> gradebookItemList = Arrays.asList(gradebookItemString.split(","));
+
+              for (String gradebookItem : gradebookItemList) {
+                gbsHelper.updateExternalAssessmentScore(data, gradingService, Long.parseLong(gradebookItem));
+              }
+            }
+          } else {
+            Long gradebookItemId = Long.valueOf(pub.getAssessmentToGradebookNameMetaData());
+            gbsHelper.updateExternalAssessmentScore(data, gradingService, gradebookItemId);
+          }
     		}
     		retryCount = 0;
     	}

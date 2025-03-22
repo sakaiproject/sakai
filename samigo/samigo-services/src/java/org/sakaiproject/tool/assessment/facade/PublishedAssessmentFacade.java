@@ -518,7 +518,7 @@ public class PublishedAssessmentFacade
   public HashMap getAssessmentMetaDataMap() {
     HashMap publishedMetaDataMap = new HashMap();
     if (this.publishedMetaDataSet !=null){
-      for (Iterator i = this.publishedMetaDataSet.iterator(); i.hasNext(); ) {
+      for (Iterator i = publishedMetaDataSet.iterator(); i.hasNext(); ) {
         PublishedMetaData publishedMetaData = (PublishedMetaData) i.next();
         publishedMetaDataMap.put(publishedMetaData.getLabel(), publishedMetaData.getEntry());
       }
@@ -532,13 +532,17 @@ public class PublishedAssessmentFacade
 
   public void addAssessmentMetaData(String label, String entry) {
     this.publishedMetaDataMap = getAssessmentMetaDataMap();
+
     if (this.publishedMetaDataMap.containsKey(label)) {
       // just update
       Iterator iter = this.publishedMetaDataSet.iterator();
+
       while (iter.hasNext()){
         PublishedMetaData metadata = (PublishedMetaData) iter.next();
-        if (metadata.getLabel().equals(label))
+
+        if (metadata.getLabel().equals(label)) {
           metadata.setEntry(entry);
+        }
       }
     }
     else{ // add

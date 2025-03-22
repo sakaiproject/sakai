@@ -23,6 +23,7 @@
 				<value>AssignmentService</value>
 				<value>AssessmentEntityProducer</value>
 				<value>ContentHostingService</value>
+				<value>conversations</value>
 				<value>CalendarService</value>
 				<value>ChatEntityProducer</value>
 				<value>DiscussionService</value>

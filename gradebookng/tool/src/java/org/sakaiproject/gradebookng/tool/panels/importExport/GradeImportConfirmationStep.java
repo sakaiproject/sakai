@@ -47,7 +47,6 @@ import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem.Type;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItemDetail;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.business.util.EventHelper;
-import org.sakaiproject.gradebookng.business.util.MessageHelper;
 import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
@@ -57,9 +56,11 @@ import org.sakaiproject.grading.api.AssignmentHasIllegalPointsException;
 import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
 import org.sakaiproject.grading.api.ConflictingExternalIdException;
 import org.sakaiproject.grading.api.GradeDefinition;
+import org.sakaiproject.grading.api.MessageHelper;
 import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.beans.RubricTransferBean;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * Confirmation page for what is going to be imported
@@ -72,9 +73,12 @@ public class GradeImportConfirmationStep extends BasePanel {
 	private final String panelId;
 	private final IModel<ImportWizardModel> model;
 
-	private final String yes = MessageHelper.getString("importExport.confirmation.yes");
-	private final String no = MessageHelper.getString("importExport.confirmation.no");
-	private final String none = MessageHelper.getString("importExport.confirmation.none");
+	@SuppressWarnings("unchecked")
+	private static ResourceLoader RL = new ResourceLoader();
+
+	private final String yes = MessageHelper.getString("importExport.confirmation.yes", RL.getLocale());
+	private final String no = MessageHelper.getString("importExport.confirmation.no", RL.getLocale());
+	private final String none = MessageHelper.getString("importExport.confirmation.none", RL.getLocale());
 
 	private boolean errors = false;
 
@@ -84,7 +88,6 @@ public class GradeImportConfirmationStep extends BasePanel {
 		this.model = importWizardModel;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
@@ -121,8 +124,10 @@ public class GradeImportConfirmationStep extends BasePanel {
 				Component previousPanel;
 				if (assignmentsToCreate.size() > 0) {
 					previousPanel = new CreateGradeItemStep(GradeImportConfirmationStep.this.panelId, Model.of(importWizardModel));
+					((CreateGradeItemStep)previousPanel).setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
 				} else {
 					previousPanel = new GradeItemImportSelectionStep(GradeImportConfirmationStep.this.panelId, Model.of(importWizardModel));
+					((GradeItemImportSelectionStep)previousPanel).setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
 				}
 
 				// AJAX the previous panel into place
@@ -147,7 +152,6 @@ public class GradeImportConfirmationStep extends BasePanel {
 				final Map<String, Long> assignmentMap = new HashMap<>();
 				final List<ProcessedGradeItem> itemsToSave = new ArrayList<>();
 				Set<ProcessedGradeItem> errorColumns = new HashSet<>();
-				final Gradebook gradebook = businessService.getGradebook();
 
 				// Create new GB items
 				Iterator<Map.Entry<ProcessedGradeItem, Assignment>> itAssignments = assignmentsToCreate.entrySet().iterator();
@@ -158,13 +162,13 @@ public class GradeImportConfirmationStep extends BasePanel {
 					Long assignmentId = null;
 					try {
 						ProcessedGradeItem pgi = entry.getKey();
-						assignmentId = GradeImportConfirmationStep.this.businessService.addAssignment(assignment);
+						assignmentId = GradeImportConfirmationStep.this.businessService.addAssignment(currentGradebookUid, currentSiteId, assignment);
 						Map<String, String> rubricParams = pgi.getRubricParameters();
 						if (!rubricParams.isEmpty()) {
 							rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, assignmentId.toString(), rubricParams);
 						}
 
-						success(MessageHelper.getString("notification.addgradeitem.success", assignment.getName()));
+						success(MessageHelper.getString("notification.addgradeitem.success", RL.getLocale(), assignment.getName()));
 
 						// set the processedGradeItem's itemId so we can later save scores from the spreadsheet
 						pgi.setItemId(assignmentId);
@@ -184,7 +188,7 @@ public class GradeImportConfirmationStep extends BasePanel {
 					} catch (final ConflictingAssignmentNameException e) {
 						String title = assignment.getName();
 						if (!StringUtils.isBlank(title)) {
-							error(MessageHelper.getString("error.addgradeitem.title.duplicate", title));
+							error(MessageHelper.getString("error.addgradeitem.title.duplicate", RL.getLocale(), title));
 						} else {
 							error(new ResourceModel("error.addgradeitem.title").getObject());
 						}
@@ -208,14 +212,14 @@ public class GradeImportConfirmationStep extends BasePanel {
 
 					final String itemPoints = FormatHelper.formatGradeFromUserLocale(item.getItemPointValue());
 					final Double points = FormatHelper.validateDouble(itemPoints);
-					final Assignment assignment = GradeImportConfirmationStep.this.businessService.getAssignment(item.getItemTitle());
+					final Assignment assignment = GradeImportConfirmationStep.this.businessService.getAssignment(currentGradebookUid, currentSiteId, item.getItemTitle());
 					assignment.setPoints(points);
 
 					try {
-						GradeImportConfirmationStep.this.businessService.updateAssignment(assignment);
+						GradeImportConfirmationStep.this.businessService.updateAssignment(currentGradebookUid, currentSiteId, assignment);
 					}
 					catch (final Exception e) {
-						getSession().error(MessageHelper.getString("importExport.error.pointsmodification", assignment.getName()));
+						getSession().error(MessageHelper.getString("importExport.error.pointsmodification", RL.getLocale(), assignment.getName()));
 						GradeImportConfirmationStep.this.errors = true;
 						errorColumns.add(item);
 						log.warn("An error occurred updating the assignment", e);
@@ -246,7 +250,7 @@ public class GradeImportConfirmationStep extends BasePanel {
 					//TODO if assignmentId is still null, there will be a problem
 
 					// Get the assignment and details
-					final Assignment assignment = businessService.getAssignment(assignmentId);
+					final Assignment assignment = businessService.getAssignment(currentGradebookUid, currentSiteId, assignmentId);
 					final List<ProcessedGradeItemDetail> processedGradeItemDetails = processedGradeItem.getProcessedGradeItemDetails();
 					List<GradeDefinition> gradeDefList = new ArrayList<>();
 					for (ProcessedGradeItemDetail processedGradeItemDetail : processedGradeItemDetails) {
@@ -257,7 +261,7 @@ public class GradeImportConfirmationStep extends BasePanel {
 						gradeDefList.add(gradeDef);
 					}
 
-					final GradeSaveResponse saveResponse = businessService.saveGradesAndCommentsForImport(gradebook, assignment, gradeDefList);
+					final GradeSaveResponse saveResponse = businessService.saveGradesAndCommentsForImport(currentGradebookUid, currentSiteId, assignment, gradeDefList);
 					switch (saveResponse) {
 						case OK:
 							break;
@@ -377,7 +381,7 @@ public class GradeImportConfirmationStep extends BasePanel {
 
 				String displayTitle = gradeItem.getItemTitle();
 				if (gradeItem.getType() == Type.COMMENT) {
-					displayTitle = MessageHelper.getString("importExport.confirmation.commentsdisplay", gradeItem.getItemTitle());
+					displayTitle = MessageHelper.getString("importExport.confirmation.commentsdisplay", RL.getLocale(), gradeItem.getItemTitle());
 				}
 
 				item.add(new Label("title", displayTitle));
