@@ -790,10 +790,6 @@ public class DateManagerServiceImpl implements DateManagerService {
 						log.warn("Could not parse due date [{}], {}", dueDateRaw, e);
 					}
 				}
-				if (dueDate == null) {
-					errors.add(new DateManagerError(DateManagerConstants.JSON_DUEDATE_PARAM_NAME, resourceLoader.getString("error.due.date.not.found"), "gradebookItems", toolTitle, idx));
-					continue;
-				}
 
 				org.sakaiproject.grading.api.Assignment gbitem;
 				if (gradingService.isGradebookGroupEnabled(getCurrentSiteId())) {
@@ -1962,7 +1958,11 @@ public class DateManagerServiceImpl implements DateManagerService {
 					}
 					columns[2] = date.format(outputDateFormatter);
 					ZoneId zone = userTimeService.getLocalTimeZone().toZoneId();
-					changed = !gbitem.getDueDate().toInstant().atZone(zone).toLocalDate().equals(date);
+					if (gbitem.getDueDate() != null) {
+						changed = !gbitem.getDueDate().toInstant().atZone(zone).toLocalDate().equals(date);
+					} else {
+						changed = true;
+					}
 				} catch (DateTimeParseException e) {
 					log.warn("Could not parse due date [{}], {}", columns[2], e);
 				}
