@@ -19,9 +19,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
@@ -40,8 +38,8 @@ public class PresenceConsolidationTest {
         // p1: b----e
         // p2:           b---------e
         // p3:                               b---------e
-        LocalDateTime midnight = LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT);
-	Instant base = midnight.atZone(ZoneId.systemDefault()).toInstant();
+        LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+	Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
         Presence presence1 = PresenceRecord.builder()
                 .begin(base)
                 .end(base.plus(15, ChronoUnit.MINUTES))
@@ -73,8 +71,8 @@ public class PresenceConsolidationTest {
         // p1: b-----------------------------e
         // p2:      b----------------------------------e
         // p3:           b---------e
-        LocalDateTime midnight = LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT);
-	Instant base = midnight.atZone(ZoneId.systemDefault()).toInstant();
+        LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+	Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
         Presence presence1 = PresenceRecord.builder()
                 .begin(base)
                 .end(base.plus(90, ChronoUnit.MINUTES))
@@ -119,8 +117,8 @@ public class PresenceConsolidationTest {
         // p1:           b-------------------------e
         // p2:                b-----------------------------------e
         // p3:                               b----------e
-        LocalDateTime midnight = LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT);
-	Instant base = midnight.atZone(ZoneId.systemDefault()).toInstant();
+        LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+	Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
         Instant d1 = base;
         Instant d2 = base.plus(1, ChronoUnit.DAYS);
         Instant d3 = base.plus(2, ChronoUnit.DAYS);
