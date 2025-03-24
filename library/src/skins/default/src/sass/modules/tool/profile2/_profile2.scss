@@ -349,6 +349,9 @@
 
   .navIntraTool {
     margin: -2px -14px 0 0;
+    li span.current a {
+        background: unset;
+    }
     @media #{$phone}{
       margin-top: 10px;
     }

@@ -73,48 +73,47 @@ export class SakaiRubricsManager extends RubricsElement {
               title="${this.tr("toggle_site_rubrics")}"
               aria-label="${this.tr("toggle_site_rubrics")}"
               aria-controls="site_rubrics">
-            <span class="collpase-icon fa fa-chevron-down"></span>
+            <span class="collpase-icon fa fa-chevron-down" aria-hidden="true"></span>
           </button>
           <span class="fw-bold">${this.tr("site_rubrics")}</span>
         </div>
 
         <div class="collapse show" id="site_rubrics">
-          <div class="rubric-title-sorting">
+          <div class="rubric-title-sorting p-3 rounded-top">
             <div>
-              <a href="javascript:void(0)"
+              <button class="btn p-0"
                   @click=${this.sortRubrics}
                   data-key="site-name">
                 ${this.tr("site_name")}
-                <span class="collpase-icon fa fa-chevron-up site-name sort-element-site"></span>
-              </a>
+                <span class="collpase-icon fa fa-chevron-up site-name sort-element-site" aria-hidden="true"></span>
+              </button>
             </div>
             <div>
-              <a href="javascript:void(0)"
+              <button class="btn p-0"
                   @click=${this.sortRubrics}
                   data-key="site-title">
                 ${this.tr("site_title")}
-                <span class="collpase-icon fa fa-chevron-up site-title sort-element-site"></span>
-              </a>
+                <span class="collpase-icon fa fa-chevron-up site-title sort-element-site" aria-hidden="true"></span>
+              </button>
             </div>
             <div>
-              <a href="javascript:void(0)"
+              <button class="btn p-0"
                   @click=${this.sortRubrics}
                   data-key="site-creator">
                 ${this.tr("creator_name")}
-                <span class="collpase-icon fa fa-chevron-up site-creator sort-element-site"></span>
-              </a>
+                <span class="collpase-icon fa fa-chevron-up site-creator sort-element-site" aria-hidden="true"></span>
+              </button>
             </div>
             <div>
-              <a href="javascript:void(0)"
+              <button class="btn p-0"
                   @click=${this.sortRubrics}
                   data-key="site-modified">
                 ${this.tr("modified")}
-                <span class="collpase-icon fa fa-chevron-up site-modified sort-element-site"></span>
-              </a>
+                <span class="collpase-icon fa fa-chevron-up site-modified sort-element-site" aria-hidden="true"></span>
+              </button>
             </div>
             <div class="actions">${this.tr("actions")}</div>
           </div>
-          <br>
           <sakai-rubrics-list id="sakai-rubrics" site-id="${this.siteId}" @sharing-change="${this.handleSharingChange}" @copy-share-site="${this.copyShareSite}" ?enable-pdf-export=${this.enablePdfExport}></sakai-rubrics-list>
         </div>
       
@@ -131,52 +130,51 @@ export class SakaiRubricsManager extends RubricsElement {
               title="${this.tr("toggle_shared_rubrics")}"
               aria-label="${this.tr("toggle_shared_rubrics")}"
               aria-controls="shared_rubrics">
-            <span class="collpase-icon fa fa-chevron-right"></span>
+            <span class="collpase-icon fa fa-chevron-right" aria-hidden="true"></span>
           </button>
           <span class="fw-bold">${this.tr("shared_rubrics")}</span>
         </div>
 
         <div class="collapse" id="shared_rubrics">
           <div id="sharedlist">
-            <div class="rubric-title-sorting">
+            <div class="rubric-title-sorting p-3 rounded-top">
               <div>
-                <a href="javascript:void(0)"
+                <button class="btn p-0"
                     @click=${this.sortRubrics}
                     data-key="shared-name">
                   ${this.tr("site_name")}
-                  <span class="collpase-icon fa fa-chevron-up shared-name sort-element-shared"></span>
-                </a>
+                  <span class="collpase-icon fa fa-chevron-up shared-name sort-element-shared" aria-hidden="true"></span>
+                </button>
               </div>
               <div>
-                <a href="javascript:void(0)"
+                <button class="btn p-0"
                     @click=${this.sortRubrics}
                     data-key="shared-title">
                   ${this.tr("site_title")}
-                  <span class="collpase-icon fa shared-title sort-element-shared"></span>
-                </a>
+                  <span class="collpase-icon fa shared-title sort-element-shared" aria-hidden="true"></span>
+                </button>
               </div>
               <div>
-                <a href="javascript:void(0)"
+                <button class="btn p-0"
                     @click=${this.sortRubrics}
                     data-key="shared-creator">
                   ${this.tr("creator_name")}
-                  <span class="collpase-icon fa shared-creator sort-element-shared"></span>
-                </a>
+                  <span class="collpase-icon fa shared-creator sort-element-shared" aria-hidden="true"></span>
+                </button>
               </div>
               <div>
-                <a href="javascript:void(0)"
+                <button class="btn p-0"
                     @click=${this.sortRubrics}
                     data-key="shared-modified">
                   ${this.tr("modified")}
-                  <span class="collpase-icon fa shared-modified sort-element-shared"></span>
-                </a>
+                  <span class="collpase-icon fa shared-modified sort-element-shared" aria-hidden="true"></span>
+                </button>
               </div>
               <div class="actions">${this.tr("actions")}</div>
             </div>
             <br>
             <sakai-rubrics-shared-list id="sakai-rubrics-shared-list" site-id="${this.siteId}" @copy-share-site="${this.copyShareSite}" @update-rubric-list="${this.handleRubricList}" ?enable-pdf-export=${this.enablePdfExport} ?is-super-user=${this.isSuperUser}></sakai-rubrics-shared-list>
           </div>
-          <br>
         </div>
       </div>
     `;

@@ -44,7 +44,7 @@ export class SakaiRubricEdit extends RubricsElement {
           aria-expanded="false"
           title="${this.tr("edit_rubric")} ${this.rubric.title}"
           aria-label="${this.tr("edit_rubric")} ${this.rubric.title}">
-        <i class="si si-edit"></i>
+        <span class="si si-edit" aria-hidden="true"></span>
       </button>
 
       <div class="modal modal-sm fade"

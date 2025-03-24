@@ -17,7 +17,21 @@ export class SakaiConversationsSettings extends SakaiElement {
 
     super();
 
-    this.loadTranslations("conversations");
+    this._i18nPromise = this.loadTranslations("conversations");
+  }
+
+  set settings(value) {
+
+    this._settings = value;
+
+    this._i18nPromise.then(i18n => {
+      // TODO: move this logic to the server
+      this._guidelines = value.guidelines?.trim() || i18n.community_guidelines_sample;
+    });
+  }
+
+  get settings() {
+    return this._settings;
   }
 
   _setSetting(e) {
@@ -29,7 +43,6 @@ export class SakaiConversationsSettings extends SakaiElement {
 
     const url = `/api/sites/${this.siteId}/conversations/settings/${setting}`;
     return fetch(url, {
-      credentials: "include",
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: `${on}`,
@@ -79,14 +92,6 @@ export class SakaiConversationsSettings extends SakaiElement {
 
   shouldUpdate() {
     return this._i18n && this.settings;
-  }
-
-  updated(changedProperties) {
-    if (changedProperties.has("settings")) {
-      this._guidelines = this.settings.guidelines?.trim()
-        ? this.settings.guidelines
-        : this._i18n.community_guidelines_sample;
-    }
   }
 
   render() {
@@ -174,8 +179,10 @@ export class SakaiConversationsSettings extends SakaiElement {
           ${this._editingGuidelines ? html`
           <div id="settings-guidelines-editor-block">
             <textarea id="settings-guidelines-editor"
-                      aria-label="${this._i18n.community_guidelines_editor_label}"
-                      style="width: 100%; min-height: 150px;">${this._guidelines}</textarea>
+                aria-label="${this._i18n.community_guidelines_editor_label}"
+                style="width: 100%; min-height: 150px;"
+                .value=${this._guidelines}>
+            </textarea>
             <div class="act">
               <input type="button" class="active" @click=${this._saveGuidelines} value="${this._i18n.save}">
               <input type="button" class="active" @click="${this._stopEditingGuidelines}" value="${this._i18n.cancel}">

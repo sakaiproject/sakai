@@ -16,6 +16,8 @@
 
 package org.tsugi.util;
 
+import java.nio.charset.StandardCharsets;
+
 public class Base64DoubleUrlEncodeSafe {
 
 	// https://datatracker.ietf.org/doc/html/rfc4648#section-3.2
@@ -30,14 +32,8 @@ public class Base64DoubleUrlEncodeSafe {
      */
     public static String encode(String data) {
 		if ( data == null ) return null;
-		try {
-			String encoded = java.util.Base64.getUrlEncoder().encodeToString(data.getBytes("UTF-8"));
-			return encoded.replace(CHARACTER_TO_AVOID, REPLACEMENT_CHARACTER);
-		} catch (java.io.UnsupportedEncodingException e ) {
-			// Unlikely
-			e.printStackTrace();
-			return null;
-		}
+        String encoded = java.util.Base64.getUrlEncoder().encodeToString(data.getBytes(StandardCharsets.UTF_8));
+        return encoded.replace(CHARACTER_TO_AVOID, REPLACEMENT_CHARACTER);
     }
 
     /**
@@ -45,7 +41,6 @@ public class Base64DoubleUrlEncodeSafe {
      *
      * @param encoded The Base64-Double-UrlEncode-Safe string to be decoded.
      * @return The decoded original string.
-     * @throws java.io.UnsupportedEncodingException If the input string contains invalid characters.
      */
     public static String decode(String encoded) {
 		if ( encoded == null ) return null;

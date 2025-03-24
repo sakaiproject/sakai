@@ -31,6 +31,7 @@ public class SitePresenceRecord extends PresenceRecord {
 
     private String siteId;
     private String userId;
+    private boolean originallyEnding;
 
 
     public SitePresenceKey getKey() {

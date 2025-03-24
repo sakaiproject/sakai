@@ -4,7 +4,7 @@
     <parent>
         <artifactId>master</artifactId>
         <groupId>org.sakaiproject</groupId>
-        <version>25-SNAPSHOT</version>
+        <version>26-SNAPSHOT</version>
         <relativePath>master/pom.xml</relativePath>
     </parent>
 
@@ -82,7 +82,6 @@
                 <module>login</module>
                 <module>mailarchive</module>
                 <module>mailsender</module>
-                <module>meetings</module>
                 <module>message</module>
                 <module>microsoft-integration</module>
                 <module>msgcntr</module>

@@ -17,8 +17,6 @@ package org.sakaiproject.gradebookng.tool.panels;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.gradebookng.tool.chart.CourseGradeChart;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
@@ -34,9 +32,9 @@ public class StudentCourseGradeStatisticsPanel extends BasePanel {
 	private final ModalWindow window;
 	private final CourseGradeTransferBean studentGrade;
 
-	public StudentCourseGradeStatisticsPanel(final String id, final IModel<String> model, final ModalWindow window,
+	public StudentCourseGradeStatisticsPanel(final String id, final ModalWindow window,
 			final CourseGradeTransferBean courseGrade) {
-		super(id, model);
+		super(id);
 		this.window = window;
 		this.studentGrade = courseGrade;
 	}
@@ -46,11 +44,10 @@ public class StudentCourseGradeStatisticsPanel extends BasePanel {
 	public void onInitialize() {
 		super.onInitialize();
 
-		final String siteId = ((Model<String>) getDefaultModel()).getObject();
-
 		StudentCourseGradeStatisticsPanel.this.window.setTitle(new ResourceModel("label.statistics.title.coursegrade"));
 
-		final CourseGradeChart chart = new CourseGradeChart("chart", siteId, studentGrade);
+		final CourseGradeChart chart = new CourseGradeChart("chart", studentGrade);
+		chart.setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
 		add(chart);
 
 		add(new GbAjaxLink<Void>("done") {

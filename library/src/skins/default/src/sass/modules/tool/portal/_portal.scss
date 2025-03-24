@@ -55,22 +55,69 @@
   grid-area: paBanner;
 }
 .portal-header {
+  height: var(--portal-header-height);
   grid-area: header;
   background-color: var(--top-header-background);
+  border-bottom: 3px solid var(--sakai-border-color);
+}
+
+#loginForm input,
+#loginForm button,
+#loginForm .input-group-text {
+  border-color: var(--top-header-text-color);
+  color: var(--top-header-text-color);
+}
+
+@media (min-width: 768px) {
+  .portal-header .portal-header-breadcrumb {
+      display: flex !important;
+      margin: 0 1rem;
+  }
+  .portal-main-content .portal-header-breadcrumb {
+      display: none !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .portal-header .portal-header-breadcrumb {
+      display: none !important;
+  }
+  .portal-main-content .portal-header-breadcrumb {
+      display: flex !important;
+      margin-bottom: 1.5rem !important;
+  }
+}
+
+.portal-header-breadcrumb {
+  flex-wrap: wrap;
+  gap: 0rem 0.5rem;
 }
 
 .portal-header-breadcrumb-separator, .portal-header-breadcrumb-item > a {
-  color: var(--sakai-text-color-inverted) !important;
+  color: var(--sakai-text-color-2) !important;
   text-decoration: none;
+  font-weight: 600;
   &:hover {
     text-decoration: underline;
   }
 }
 
-.portal-header-site-title {
-  padding-bottom: 2px;
+.portal-header-breadcrumb-separator {
+  font-size: 0.65em;
+  flex-shrink: 0;
 }
 
+.portal-header-breadcrumb-item {
+  white-space: nowrap;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.portal-header-hamburger-button {
+  color: var(--top-header-text-color) !important;
+}
 /* 
  * WARNING: This CSS uses deprecated properties because there's currently no alternative way
  * to achieve multi-line text truncation. 
@@ -110,8 +157,8 @@
 // Responsive header for mobile
 @media (max-width: 767px) {
   .portal-header {
-    background-color: rgba(var(--bs-primary-rgb), 1.0) !important;
     justify-content: space-between !important;
+    box-shadow: none !important;
   }
 }
 
@@ -129,16 +176,25 @@
 #sakai-system-indicators {
 
   button {
-    color: #fff;
-    margin: 0px 3px;
-    i {
+    color: var(--top-header-text-color);
+    span.bi {
       font-size: 22px;
     }
   }
 
-  .sakai-accountProfileImage {
-    width: 40px;
+  .sak-sysInd-account {
+    border-radius: 30px;
   }
+
+  .sakai-accountProfileImage {
+    width: 30px;
+    min-width: 30px;
+  }
+}
+
+.sakai-accountProfileImage {
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
 }
 
 .portal-main-content {
@@ -170,17 +226,6 @@
     }
     &:focus {
       outline: 1px solid;
-    }
-  }
-}
-
-.offcanvas {
-  background-color: var(--sakai-background-color-2);
-  .offcanvas-header {
-    background-color: var(--sakai-offcanvas-header-bg);
-    color: var(--sakai-offcanvas-header-color);
-    .btn-close {
-      background-color: var(--sakai-offcanvas-close-btn-bg);
     }
   }
 }
@@ -223,7 +268,7 @@
   color: white;
   button, a {
     color: white;
-    i {
+    span.bi {
       font-size: 24px;
     }
   }
@@ -234,20 +279,43 @@
 .portal-jump-links a {
   color: #fff;
 }
-.portal-header-logo {
-  height: var(--portal-header-height);
-}
-@include media-breakpoint-up(md) {
+.xlogin-logo {
   .portal-header-logo {
-    width: var(--portal-nav-sidebar-width);
+    height: var(--portal-header-height);
   }
 }
-.portal-header-logo img {
-  max-height: 3rem;
+@include media-breakpoint-up(md) {
+  .portal-header {
+    .portal-header-logo {
+      width: fit-content;
+      min-width: fit-content;
+      background: var(--top-header-background-logo);
+      border-right: solid 1px var(--top-header-border-color);
+    }
+  }
+  .xlogin-logo {
+    .portal-header-logo {
+      width: var(--portal-nav-sidebar-width);
+      min-width: var(--portal-nav-sidebar-width);
+    }
+  }
+}
+.portal-header-logo .btn-logo {
+  background-image: var(--logo);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  display: inline-block;
+  max-height: var(--logo-height);
+  min-height: var(--logo-height);
+  width: var(--logo-width)
+}
+.portal-header-logo .btn:hover {
+  border-color: transparent !important;
 }
 
 .portal-user-role {
-  color: var(--sakai-offcanvas-header-color);
+  color: var(--sakai-text-color-2);
 }
 
 .portal-notifications-button {
@@ -259,31 +327,6 @@
   right: 20%;
   color: var(--sakai-primary-color-1);
   background: red;
-}
-
-// make offcanvas header match Sakai's header:
-.offcanvas-header {
-  flex-shrink: 0;
-  height: var(--portal-header-height);
-  color: #fff;
-  background-color: var(--bs-primary);
-}
-// change offcanvas close button's colour to white:
-.offcanvas-header .btn-close {
-  background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23fff'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e") center/1em auto no-repeat;
-}
-// for narrow views, take up the full width of the screen:
-@media (max-width: $offcanvas-horizontal-width) {
-  .offcanvas-start,
-  .offcanvas-end {
-    max-width: 100vw;
-  }
-}
-@include media-breakpoint-down(md) {
-  .offcanvas-start,
-  .offcanvas-end {
-    bottom: var(--portal-header-height);
-  }
 }
 
 .sakai-sitesAndToolsNav .active .list-group-item-action {
@@ -314,7 +357,6 @@
 
   > span {
     font-size: 28px;
-    color: white;
   }
 }
 
@@ -345,61 +387,75 @@
   grid-area: sidebar;
 
   .si-pin {
-    color: transparent;
+    &:hover::before,
+    &:focus::before {
+      content: "\f4ec";
+    }
   }
 
   .si-pin-fill {
     color: var(--sakai-pin-hover-color);
+    &:hover::before,
+    &:focus::before {
+      content: "\f4ed";
+    }
   }
 
   .si-eye-slash-fill {
     color: var(--sakai-text-color-1)
   }
 
-  .site-page-list .selected-page {
-    opacity: 0.7;
-    &:hover {
-      opacity: 0.8;
-    }
-  }
-
   li.site-list-item {
+    border: solid 1px var(--sakai-border-color) !important;
+    border-radius: 4px;
 
     .site-list-item-head {
       button {
-        border: 0px;
-        &:focus, &:hover {
-          border: solid 1px var(--site-nav-btn-current-hover-color);
+        border: solid 1px transparent;
+        &:hover,
+        &:focus {
+          border: solid 1px transparent;
+          color: var(--site-nav-btn-color);
         }
       }
 
       > button {
-        color: var(--sakai-text-color-1);
+        color: var(--sakai-pin-color);
       }
 
       .si-pin {
-        color: transparent;
+        button {
+          border: solid 1px transparent;
+          &:focus, &:hover {
+            border: solid 1px transparent;
+          }
+        }
       }
 
       &:hover {
-        background-color: var(--site-nav-btn-hover-bg);
-        color: var(--site-nav-btn-current-hover-color);
         .si-pin, a, button {
-          color: var(--sakai-text-color-1);
+          color: var(--site-nav-btn-hover-color);
+          text-decoration: underline;
         }
       }
     }
 
     &.is-current-site {
 
+      background-color: var(--sakai-current-site);
+      border-radius: 4px;
+      border: solid 2px var(--sakai-curent-site-border-color) !important;
+
+      &#site-list-gateway-item-gateway {
+        border: none !important;
+        padding: 0 !important;
+      }
+
+      a, button {
+        color: var(--sakai-current-site-color);
+      }
+
       .site-list-item-head {
-        background-color: var(--sakai-selected-page-bg-color);
-        opacity: 0.9;
-
-        .si-pin {
-          color: transparent;
-        }
-
         .si-eye-slash-fill {
           color: var(--sakai-selected-page-color);
         }
@@ -407,19 +463,15 @@
         button {
           border: 0px;
           &:focus, &:hover {
-            border: solid 1px var(--sakai-selected-page-color);
+            border: 0px !important;
           }
-        }
-
-        a, button {
-          font-size: 16px;
-          color: var(--sakai-selected-page-color);
         }
 
         &:hover {
           opacity: 1.0;
+          color: var(--sakai-current-site-color);
           .si-pin, a , button {
-            color: var(--sakai-selected-page-color);
+            color: var(--sakai-current-site-color);
           }
         }
       }
@@ -448,14 +500,10 @@
     }
   }
 
-  .sakai-sitesAndToolsNav {
-    background-color: var(--site-nav-bg);
-  }
-
   .sites-section-heading {
     @extend .mb-0, .pb-2, .pt-3, .ps-3;
     font-size: 16px;
-    background-color: var(--site-nav-list-item-bg);
+    color: var(--site-nav-color);
   }
 
   .sakai-sitesAndToolsNav {
@@ -463,27 +511,42 @@
     overflow-y: scroll;
     position: sticky;
     top: 0;
+    scrollbar-width: none;
+    &:hover,
+    &:focus {
+      scrollbar-width: auto;
+    }
   }
 
   .btn-nav {
     color: var(--site-nav-btn-color);
     &:hover,
     &:focus {
-      outline: none;
-      color: var(--site-nav-btn-current-hover-color);
+      box-shadow: none;
+      border: solid 1px var(--site-nav-btn-page-hover-border);
+      border-radius: 4px;
+      color: var(--site-nav-btn-page-hover-color) !important;
+      background-color: transparent;
     }
 
     &.selected-page {
       background-color: var(--sakai-selected-page-bg-color);
-      border-color: var(--sakai-selected-page-bg-color);
-      color: var(--sakai-selected-page-color);
-      font-weight: 600;
+      color: var(--sakai-selected-page-color) !important;
+      border: solid 1px var(--site-nav-btn-page-hover-border);
+      border-radius: 4px;
+      &:hover,
+      &:focus {
+        box-shadow: none;
+        border: solid 1px var(--site-nav-btn-page-hover-border);
+        border-radius: 4px;
+        color: var(--site-nav-btn-page-hover-color) !important;
+        background-color: transparent;
+      }
     }
 
     span {
       margin-left: 5px;
     }
-    border-radius: 0;
   }
 
   .btn-site-carret {
@@ -508,16 +571,6 @@
   &.portal-nav-sidebar-mobile {
     .btn-site-opt {
       color: var(--sakai-text-color-dimmed);
-    }
-    .site-list-item-collapse {
-      background-color: var(--sakai-background-color-3);
-    }
-  }
-
-  &.portal-nav-sidebar-desktop {
-    background-color: var(--sakai-background-color-3);
-    .site-list-item-collapse {
-      background-color: var(--sakai-background-color-2);
     }
   }
 
@@ -547,19 +600,117 @@
   }
 }
 
+/*
+  Offcanvas bs style
+*/
+@include media-breakpoint-down(md) {
+
+  .offcanvas {
+    --bs-offcanvas-padding-x: 2rem;
+    --bs-offcanvas-padding-y: 2rem;
+    --bs-offcanvas-width: 100%;
+  }
+
+  // make offcanvas header match Sakai's header:
+  .offcanvas-header {
+    height: var(--portal-header-height);
+  }
+
+  .offcanvas-header .btn-close {
+    padding: calc(var(--bs-offcanvas-padding-y)* 0.25) calc(var(--bs-offcanvas-padding-x)* 0.25);
+    margin: 0px;
+  }
+
+  #portal-nav-sidebar .sakai-sitesAndToolsNav {
+    padding-right: calc(var(--bs-offcanvas-padding-x) - 1rem);
+    padding-left: calc(var(--bs-offcanvas-padding-x) - 1rem);
+    padding-top: calc(var(--bs-offcanvas-padding-y) - 1rem);
+    padding-bottom: calc(var(--bs-offcanvas-padding-y) - 1rem);
+  }
+}
+
+@include media-breakpoint-up(md) {
+
+  .offcanvas {
+    margin: 1.5rem 2.5rem 1rem 1rem;
+    border-radius: 6px 6px 4px 4px;
+  }
+
+  .offcanvas-header {
+    border-radius: 4px 4px 0 0;
+  }
+
+  .offcanvas-body {
+    border-bottom: solid 1px var(--sakai-border-color);
+    border-left: solid 1px var(--sakai-border-color);
+    border-right: solid 1px var(--sakai-border-color);
+    border-radius: 0 0 4px 4px;
+  }
+}
+
+.offcanvas {
+  background-color: var(--sakai-background-color-1);
+
+  .offcanvas-header {
+    flex-shrink: 0;
+    background-color: var(--sakai-offcanvas-header-bg);
+    color: var(--sakai-offcanvas-header-color);
+
+    .btn-close {
+      background-color: var(--sakai-offcanvas-close-btn-bg);
+      margin-right: 0;
+    }
+
+    .offcanvas-title {
+      margin: 0;
+      font-size: 16px;
+    }
+  }
+}
+
+// change offcanvas close button's colour to white:
+.offcanvas-header .btn-close {
+  background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23fff'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e") center/1em auto no-repeat;
+}
+
+.offcanvas-start,
+.offcanvas-end {
+  border: none !important;
+}
+
+// for narrow views, take up the full width of the screen:
+@media (max-width: $offcanvas-horizontal-width) {
+
+  .offcanvas-start,
+  .offcanvas-end {
+    max-width: 100vw;
+  }
+}
+
+@include media-breakpoint-down(md) {
+
+  .offcanvas-start,
+  .offcanvas-end {
+    bottom: var(--portal-header-height);
+  }
+}
+
 .sticky-footer {
   position: sticky;
   bottom: 0;
   background-color: var(--sticky-footer-bg);
   color: var(--sticky-foooter-color);
+  border-top: solid 1px var(--sakai-border-color);
 
   &:hover {
     background-color: var(--sticky-footer-bg);
-    color: var(--sticky-foooter-color);
+    color: var(--sticky-foooter-color-hover);
   }
 
   @media (max-width: 767px) {
     background-color: var(--sakai-background-color-5);
+    padding-left: var(--bs-offcanvas-padding-x) !important;
+    padding-right: var(--bs-offcanvas-padding-x) !important;
   }
 }
 
@@ -569,6 +720,11 @@
 
 .portal-nav-sidebar {
   overflow-y: hidden !important;
+  border-right: solid 1px var(--sakai-border-color);
+  & a,
+  & button {
+    color: var(--site-nav-btn-color);
+  }
 }
 
 .toast-header {

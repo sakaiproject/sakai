@@ -2,24 +2,9 @@
 
 <header class="portal-header d-flex align-items-center justify-content-between" role="banner">
 
-  <button class="btn icon-button m-1 d-md-none btn-sidebar-collapse responsive-sidebar-button"
-      data-bs-toggle="offcanvas"
-      data-bs-target="#portal-nav-sidebar"
-      aria-controls="portal-nav-sidebar"
-      aria-label="$rloader.sit_navigation"
-      aria-expanded="false"
-      title="$rloader.sit_navigation">
-    <span class="bi bi-list"></span>
-  </button>
-
-  <div class="d-flex align-items-center">
-    <div id="logoWrapper" class="portal-header-logo d-flex align-items-center justify-content-between bg-primary">
-      <a class="px-3 btn" href="/portal" title="$rloader.portal_home">
-        <button class="btn icon-button btn-logo-button" type="button">
-          <img src="/library/skin/$!{pageSkin}/images/sakaiLogo.png" alt="Sakai Logo">
-        </button>
-      </a>
-      <button id="sidebar-collapse-button" class="btn icon-button btn-sidebar-collapse me-1 d-none d-md-block"
+  <div class="d-flex align-items-center h-100 ms-3 ms-md-0 #if (${userIsLoggedIn}) w-100 #end">
+    <div id="logoWrapper" class="portal-header-logo d-flex h-100 align-items-center">
+      <button id="sidebar-collapse-button" class="btn icon-button btn-sidebar-collapse portal-header-hamburger-button me-1 ms-3 d-none d-md-block"
           type="button"
           data-portal-sidebar-collapsed="$!{sidebarCollapsed}"
           data-bs-toggle="tooltip"
@@ -28,38 +13,11 @@
           aria-controls="portal-nav-sidebar">
         <span class="bi bi-list"></span>
       </button>
+      <a class="btn btn-logo" href="/portal" title="$rloader.portal_home">
+        <span class="visually-hidden">$rloader.portal_home</span>
+      </a>
     </div>
-    #if (${userIsLoggedIn})
-    ## Define font size class based on number of parents
-    #set($fontSizeClass = "fs-4")
-    #if($!siteParents && $siteParents.size() > 2)
-      #set($fontSizeClass = "small")
-    #elseif($!siteParents && $siteParents.size() > 1)
-      #set($fontSizeClass = "fs-6")
-    #end
-    <div class="align-items-center portal-header-breadcrumb d-none d-md-flex ms-3 ${fontSizeClass}">
-
-      #if ($!siteParents)
-        #foreach ($parent in $siteParents)
-          <div class="portal-header-breadcrumb-item portal-header-site-title">
-            <a href="$!{parent.siteUrl}" title="$!{parent.siteTitle}">$!{parent.siteTitle}</a>
-          </div>
-          <div class="mx-2 bi bi-chevron-right portal-header-breadcrumb-separator d-none d-md-block fs-6"></div>
-        #end
-      #end
-      <div id="header-site-title" class="portal-header-breadcrumb-item portal-header-site-title ${fontSizeClass}">
-        <a href="$!{siteUrl}">$!{siteTitle}</a>
-      </div>
-      #foreach( $page in $sitePages.pageNavTools )
-        #if ($page.current)
-          <div class="mx-2 bi bi-chevron-right portal-header-breadcrumb-separator d-none d-md-block fs-6"></div>
-          <div class="portal-header-breadcrumb-item header-tool-title">
-            <a href="${page.pageResetUrl}" title="$rloader.sit_reset">${page.pageTitle}</a>
-          </div>
-        #end
-      #end
-    </div>
-    #end
+    #parse("/vm/morpheus/includePortalHeaderBreadcrumb.vm")
   </div>
 
   <a href="#" class="sak-sysInd-systemAlerts nav-link d-none align-items-center text-white me-auto" onclick="alert('Somehow we will get the dismissed PA System alert to re-appear');">

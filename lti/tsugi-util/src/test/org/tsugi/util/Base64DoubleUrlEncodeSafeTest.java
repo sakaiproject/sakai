@@ -6,7 +6,7 @@ import static org.junit.Assert.assertFalse;
 
 import org.junit.Test;
 
-import org.tsugi.util.Base64DoubleUrlEncodeSafe;
+import java.nio.charset.StandardCharsets;
 
 public class Base64DoubleUrlEncodeSafeTest {
 
@@ -44,10 +44,10 @@ public class Base64DoubleUrlEncodeSafeTest {
 
 		int failcount = 0;
 		for (String input : testStrings) {
-			String base64UrlEncoded = java.util.Base64.getUrlEncoder().encodeToString(input.getBytes("UTF-8"));
+			String base64UrlEncoded = java.util.Base64.getUrlEncoder().encodeToString(input.getBytes(StandardCharsets.UTF_8));
 
 			// URL-encode the base64 URL encoded string
-			String urlEncoded = java.net.URLEncoder.encode(base64UrlEncoded, "UTF-8");
+			String urlEncoded = java.net.URLEncoder.encode(base64UrlEncoded, StandardCharsets.UTF_8);
 
 			// Compare the original encoded string with the URL-encoded string
 			if ( ! base64UrlEncoded.equals(urlEncoded)) failcount ++;
@@ -137,6 +137,134 @@ public class Base64DoubleUrlEncodeSafeTest {
 
 	}
 
+	/**
+	 * Test that decodeDoubleSafe correctly handles invalid Base64 input
+	 * by returning the original string instead of throwing an exception
+	 */
+	@Test
+	public void testDecodeDoubleSafeWithInvalidInput() {
+		// Test with invalid Base64 strings
+		String[] invalidInputs = {
+			"InvalidBase64String!@#$",
+			"Not==Valid==Base64",
+			"Partial/Valid+Base64WithInvalidChars!@#",
+			"AB==CD", // Valid padding but in wrong position
+		};
+		
+		for (String invalidInput : invalidInputs) {
+			// Regular decode would throw an exception
+			try {
+				Base64DoubleUrlEncodeSafe.decode(invalidInput);
+				fail("Expected IllegalArgumentException for invalid input: " + invalidInput);
+			} catch (IllegalArgumentException e) {
+				// Expected behavior
+			}
+			
+			// But decodeDoubleSafe should safely return the original string
+			String result = Base64DoubleUrlEncodeSafe.decodeDoubleSafe(invalidInput);
+			assertEquals("decodeDoubleSafe should return the original string for invalid input", 
+					invalidInput, result);
+		}
+	}
+	
+	/**
+	 * Test the specific case that prompted the fix - handling URL-distorted Base64 strings
+	 * containing tilde characters that get modified during URL transmission
+	 */
+	@Test
+	public void testLoginHintDistortionCase() {
+		// Create a test case similar to the real-world issue
+		String originalUrl = "/access/lti/site/~e9376efc-2102-4eb8-ac60-0e7ba383cb50/content:118";
+		
+		// Step 1: Encode with standard Base64
+		String standardBase64 = new String(java.util.Base64.getEncoder()
+				.encode(originalUrl.getBytes()));
+		
+		// Step 2: Manually create a distorted version similar to what was described in the issue
+		// where the tilde character causes issues
+		String distortedVersion = standardBase64.replace("~", " ").replace("/", " ").replace("+", " ");
+		
+		// Step 3: Attempt to decode with both methods
+		try {
+			// This would throw an exception due to invalid Base64 characters
+			java.util.Base64.getDecoder().decode(distortedVersion);
+			fail("Expected standard Base64 decode to fail on distorted input");
+		} catch (IllegalArgumentException e) {
+			// Expected behavior
+		}
+		
+		// Step 4: But our decodeDoubleSafe should handle it gracefully
+		String result = Base64DoubleUrlEncodeSafe.decodeDoubleSafe(distortedVersion);
+		// It won't recover the original string, but it should not throw an exception
+		assertEquals("decodeDoubleSafe should return the distorted string when it can't decode properly",
+				distortedVersion, result);
+	}
+	
+	/**
+	 * Test the encoding/decoding of strings with the URL-problematic characters
+	 * that our implementation specifically handles (=, /, +)
+	 */
+	@Test
+	public void testProblematicCharacters() {
+		// Create strings with problematic characters for URL encoding
+		String[] problematicStrings = {
+			"String with equals sign = in it",
+			"String with plus + character",
+			"String with forward slash / character",
+			"String with all three = + /",
+			"String with multiple======++++/////"
+		};
+		
+		for (String input : problematicStrings) {
+			// 1. Standard URL-safe Base64 encode
+			String standardUrlSafeEncoded = java.util.Base64.getUrlEncoder().encodeToString(input.getBytes());
+			
+			// 2. Our double-safe encode
+			String doubleUrlSafeEncoded = Base64DoubleUrlEncodeSafe.encode(input);
+			
+			// 3. URL encode both results
+            String urlEncodedStandard = java.net.URLEncoder.encode(standardUrlSafeEncoded, StandardCharsets.UTF_8);
+            String urlEncodedDoubleSafe = java.net.URLEncoder.encode(doubleUrlSafeEncoded, StandardCharsets.UTF_8);
+
+            // 4. The double-safe version should be identical before and after URL encoding
+            assertEquals("Our double-safe encoding should survive URL encoding",
+                    doubleUrlSafeEncoded, urlEncodedDoubleSafe);
+
+            // 5. Verify we can decode properly
+            String decoded = Base64DoubleUrlEncodeSafe.decode(doubleUrlSafeEncoded);
+            assertEquals("Our encoding/decoding should recover the original string",
+                    input, decoded);
+
+            // 6. The double-safe decoder should also handle standard URL-safe encoded strings
+            String decodedStandard = Base64DoubleUrlEncodeSafe.decodeDoubleSafe(standardUrlSafeEncoded);
+            assertEquals("Our decoder should handle standard URL-safe encoded strings",
+                    input, decodedStandard);
+        }
+	}
+	
+	/**
+	 * Test repeated encoding and decoding to verify robustness
+	 */
+	@Test
+	public void testRepeatedEncodeAndDecode() {
+		for (String input : testStrings) {
+			if (input.isEmpty()) continue; // Skip empty string
+			
+			// Encode multiple times
+			String encoded1 = Base64DoubleUrlEncodeSafe.encode(input);
+			String encoded2 = Base64DoubleUrlEncodeSafe.encode(encoded1);
+			String encoded3 = Base64DoubleUrlEncodeSafe.encode(encoded2);
+			
+			// Decode multiple times
+			String decoded3 = Base64DoubleUrlEncodeSafe.decodeDoubleSafe(encoded3);
+			String decoded2 = Base64DoubleUrlEncodeSafe.decodeDoubleSafe(decoded3);
+			String decoded1 = Base64DoubleUrlEncodeSafe.decodeDoubleSafe(decoded2);
+			
+			// Ensure we get back the original string
+			assertEquals("Multiple encoding/decoding should recover the original string",
+					input, decoded1);
+		}
+	}
 
 }
 

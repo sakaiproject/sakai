@@ -359,6 +359,8 @@ public class ConversationsController extends AbstractSakaiApiController {
         if (postBean.canDelete) links.add(Link.of(postBean.url, "delete"));
         if (postBean.canDelete) links.add(Link.of(postBean.url + "/restore", "restore"));
         if (postBean.canReact) links.add(Link.of(postBean.url + "/reactions", "react"));
+        if (postBean.canReact) links.add(Link.of(postBean.url + "/upvote", "upvote"));
+        if (postBean.canReact) links.add(Link.of(postBean.url + "/unupvote", "unupvote"));
         if (postBean.canModerate) links.add(Link.of(postBean.url + "/locked", "lock"));
         if (postBean.canModerate) links.add(Link.of(postBean.url + "/hidden", "hide"));
         recursivelyAddEntityModelForDescendants(postBean);

@@ -168,10 +168,7 @@
 .portletBody
 {
 	padding: 0;
-        margin-bottom: 3rem !important;
-	@media #{$phone}{
-		margin: 2.3em 0 3rem 0;
-	}
+	margin-bottom: 3rem !important;
 	> * {
 		position: relative;
 	}
@@ -180,15 +177,33 @@
 	}
 	.page-header
 	{
-		margin: calc(#{$standard-spacing} + 5px) 0; // additional 5px for equallying the header text descenders
+		margin: calc(#{$standard-spacing} + 9px) 0; // additional 9px for equallying the header text descenders
 		padding: 0 0 $standard-spacing 0;
-		border-bottom: 1px solid var(--tool-border-color);
 
 		h1, h2, h3
 		{
 			margin: 0;
 			padding: 0;
 			line-height: 1;
+		}
+
+		h6 {
+			font-size: $default-font-size;
+		}
+		h5 {
+			font-size: $default-font-size + 0.5px;
+		}
+		h4 {
+			font-size: $default-font-size + 1px;
+		}
+		h3 {
+			font-size: $default-font-size + 1.5px;
+		}
+		h2 {
+			font-size: $default-font-size + 2px;
+		}
+		h1 {
+			font-size: $default-font-size + 3px;
 		}
 	}
 }

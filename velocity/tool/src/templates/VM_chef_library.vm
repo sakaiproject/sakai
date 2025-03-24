@@ -29,7 +29,8 @@
 	#end
 
 	#if (($mnu) && (!$mnu.isEmpty())  && ($hasItems=="true"))
-		<ul class="navIntraTool actionToolBar">
+		<div class="dropdown-toggle dropdown-navIntraTool">$toolOptions</div>
+		<ul class="navIntraTool actionToolBar navIntraToolMobile">
 			#set ($toolbaritemCount=0)	
 			#foreach ($item in $mnu.Items)
 				## figure the link

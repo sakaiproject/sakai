@@ -8,7 +8,7 @@
   <parent>
     <groupId>org.sakaiproject.conversations</groupId>
     <artifactId>sakai-conversations-base</artifactId>
-    <version>25-SNAPSHOT</version>
+    <version>26-SNAPSHOT</version>
   </parent>
 
   <artifactId>sakai-conversations-impl</artifactId>
@@ -109,9 +109,23 @@
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
     </dependency>
-      <dependency>
+    <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-test</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.dataformat</groupId>
+      <artifactId>jackson-dataformat-xml</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.datatype</groupId>
+      <artifactId>jackson-datatype-jsr310</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>
@@ -132,6 +146,11 @@
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.common</groupId>
+      <artifactId>archive-api</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.opensearch</groupId>

@@ -17,7 +17,6 @@ package org.sakaiproject.webservices;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -26,7 +25,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
@@ -53,14 +51,11 @@ import org.sakaiproject.calendar.api.CalendarEdit;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
 import org.sakaiproject.calendar.api.RecurrenceRule;
-import org.sakaiproject.entity.api.EntityProducer;
-import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
@@ -69,16 +64,14 @@ import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.time.api.TimeRange;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
-import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.userauditservice.api.UserAuditService;
-import org.sakaiproject.util.ArrayUtil;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.Web;
 import org.sakaiproject.util.Xml;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
@@ -491,34 +484,11 @@ public class SakaiScript extends AbstractWebService {
             return "error : " + e.getMessage();
         }
 
-        PreferencesEdit preference = null;
         if (userId != null) {
-            try {
-                try {
-                    preference = preferencesService.edit(userId);
-                } catch (IdUnusedException iue) {
-                    preference = preferencesService.add(userId);
-                }
-            } catch (Exception e) {
-                log.warn("Could not get the preferences for user [{}], {}", userId, e.toString());
-                return "error : " + e.getMessage();
-            }
-        } else {
-            return "error : User not found with eid [" + eid + "]";
-        }
-
-        if (preference != null) {
-            try {
-                ResourcePropertiesEdit props = preference.getPropertiesEdit(ResourceLoader.APPLICATION_ID);
+            preferencesService.applyEditWithAutoCommit(userId, edit -> {
+                ResourcePropertiesEdit props = edit.getPropertiesEdit(ResourceLoader.APPLICATION_ID);
                 props.addProperty(ResourceLoader.LOCALE_KEY, locale);
-            } catch (Exception e) {
-                log.warn("WS changeUserLocale(): {}", e.toString());
-                preferencesService.cancel(preference);
-                preference = null;
-                return "error : " + e.getMessage();
-            } finally {
-                if (preference != null) preferencesService.commit(preference);
-            }
+            });
         } else {
             return "error : could not set locale for user [" + eid + "]";
         }
@@ -4987,34 +4957,11 @@ public class SakaiScript extends AbstractWebService {
             return "error : " + e.getMessage();
         }
 
-        PreferencesEdit preference = null;
         if (userId != null) {
-            try {
-                try {
-                    preference = preferencesService.edit(userId);
-                } catch (IdUnusedException iue) {
-                    preference = preferencesService.add(userId);
-                }
-            } catch (Exception e) {
-                log.warn("Could not get the preferences for user [{}], {}", userId, e.toString());
-                return "error : " + e.getMessage();
-            }
-        } else {
-            return "error : User not found with eid [" + eid + "]";
-        }
-
-        if (preference != null) {
-            try {
-                ResourcePropertiesEdit props = preference.getPropertiesEdit(timeService.APPLICATION_ID);
-                props.addProperty(timeService.TIMEZONE_KEY, timeZoneId);
-            } catch (Exception e) {
-                log.warn("WS setUserTimeZone(): could not set timezone for user [{}], {}", eid, e.toString());
-                preferencesService.cancel(preference);
-                preference = null;
-                return "error : " + e.getMessage();
-            } finally {
-                if (preference != null) preferencesService.commit(preference);
-            }
+            preferencesService.applyEditWithAutoCommit(userId, edit -> {
+                ResourcePropertiesEdit props = edit.getPropertiesEdit(timeService.APPLICATION_ID);
+                props.addProperty(TimeService.TIMEZONE_KEY, timeZoneId);
+            });
         } else {
             log.warn("WS setUserTimeZone() could not fetch preferences for user [{}]", eid);
             return "error : could not set timezone for user [" + eid + "]";

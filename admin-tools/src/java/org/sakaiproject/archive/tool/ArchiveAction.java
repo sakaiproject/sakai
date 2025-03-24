@@ -93,7 +93,11 @@ public class ArchiveAction extends VelocityPortletPaneledAction {
 	private static final String SINGLE_MODE = "single";
 	private static final String DOWNLOAD_MODE = "download";
 	private static final String STATE_SUCCESS_MESSAGE = "successMessage";
+	private static final String STATE_SEARCH = "search";
 	
+	private static final String STATE_CURRENT_PAGE = "current-page";
+	private static final String STATE_PAGESIZE = "pagesize";
+
 	/** Resource bundle using current language locale */
 	private static ResourceLoader rb = new ResourceLoader("archive");
 	
@@ -140,6 +144,13 @@ public class ArchiveAction extends VelocityPortletPaneledAction {
 		maxJobTime = Long.valueOf(serverConfigurationService.getInt("archive.max.job.time", MAX_JOB_TIME_DEFAULT));
 		
 		state.setAttribute(STATE_MODE, SINGLE_MODE);
+
+		if (state.getAttribute(STATE_PAGESIZE) == null) {
+			state.setAttribute(STATE_PAGESIZE, Integer.valueOf(10));
+		}
+		if (state.getAttribute(STATE_CURRENT_PAGE) == null) {
+			state.setAttribute(STATE_CURRENT_PAGE, Integer.valueOf(1));
+		}
 	}
 
    
@@ -242,6 +253,9 @@ public class ArchiveAction extends VelocityPortletPaneledAction {
 		context.put("tlang",rb);
 		buildMenu(context, DOWNLOAD_MODE);
 		
+		String search = (String) state.getAttribute(STATE_SEARCH);
+		context.put("search", search);
+		
 		//get list of existing archives
 		File[] files = {};
 		Path sakaiHome = Paths.get(serverConfigurationService.getSakaiHomePath());
@@ -259,13 +273,14 @@ public class ArchiveAction extends VelocityPortletPaneledAction {
 		}
 		
 		List<SparseFile> zips = new ArrayList<SparseFile>();
+		List<SparseFile> filteredZips = new ArrayList<SparseFile>();
 		
 		SimpleDateFormat dateFormatIn = new SimpleDateFormat("yyyyMMddHHmmss");
 		SimpleDateFormat dateFormatOut = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 		Calendar calendar = Calendar.getInstance();
 		
-		//porcess the list. also get the hash for the file if it exists 
+		//process the list. also get the hash for the file if it exists 
 		for(File f: files) {
 			
 			String absolutePath = f.getAbsolutePath();
@@ -311,8 +326,61 @@ public class ArchiveAction extends VelocityPortletPaneledAction {
 			
 			zips.add(sf);
 		}
+
+		// Filter based on search term if present
+		if (search != null) {
+			for (SparseFile sf : zips) {
+				if (StringUtils.containsIgnoreCase(sf.getSiteId(), search) || 
+					(sf.getSiteTitle() != null && StringUtils.containsIgnoreCase(sf.getSiteTitle(), search))) {
+					filteredZips.add(sf);
+				}
+			}
+			
+			if (filteredZips.isEmpty()) {
+				context.put("noSearchResults", rb.getString("archive.search.no.results"));
+			}
+		} else {
+			filteredZips = zips;
+		}
+
+		List<SparseFile> displayZips = (!filteredZips.isEmpty() || search == null) ? filteredZips : new ArrayList<>();
+
+		int totalItems = displayZips.size();
+		int pageSize = state.getAttribute("pagesize") != null ? ((Integer) state.getAttribute("pagesize")).intValue() : 10;
+		int currentPage = state.getAttribute("current-page") != null ? ((Integer) state.getAttribute("current-page")).intValue() : 1;
+
+		state.setAttribute("totalNumber", totalItems);
+		state.setAttribute("pagesize", pageSize);
+		state.setAttribute("current-page", currentPage);
 		
-		context.put("archives", zips);		
+		int startIndex = (currentPage - 1) * pageSize;
+		startIndex = Math.max(0, startIndex);
+		int endIndex = Math.min(startIndex + pageSize, totalItems);
+
+		List<SparseFile> pagedZips;
+		if (displayZips.isEmpty()) {
+			pagedZips = new ArrayList<>();
+		} else {
+			pagedZips = displayZips.subList(startIndex, endIndex);
+		}
+
+		context.put("totalNumber", totalItems);
+		context.put("pagesize", pageSize);
+		context.put("numbers", new Integer[]{startIndex + 1, endIndex, totalItems});
+		context.put("goFPButton", currentPage > 1 ? "true" : "false");
+		context.put("goPPButton", currentPage > 1 ? "true" : "false");
+		context.put("goNPButton", endIndex < totalItems ? "true" : "false");
+		context.put("goLPButton", endIndex < totalItems ? "true" : "false");
+
+		List<Integer[]> sizeList = new ArrayList<>();
+		sizeList.add(new Integer[]{10});
+		sizeList.add(new Integer[]{20});
+		sizeList.add(new Integer[]{50});
+		sizeList.add(new Integer[]{100});
+		sizeList.add(new Integer[]{200});
+		context.put("sizeList", sizeList);
+
+		context.put("archives", pagedZips);
 
 		return "-download";
 	}
@@ -589,8 +657,60 @@ public class ArchiveAction extends VelocityPortletPaneledAction {
 	 * @param data RunData
 	 */
 	public void doView_download(RunData data){
-		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState(((JetspeedRunData)data).getJs_peid());
 		state.setAttribute(STATE_MODE, DOWNLOAD_MODE);
+	}
+
+
+	public void doChange_pagesize(RunData data) {
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState(((JetspeedRunData)data).getJs_peid());
+		String newPageSize = data.getParameters().getString("selectPageSize");
+		if (newPageSize != null) {
+			state.setAttribute(STATE_PAGESIZE, Integer.valueOf(newPageSize));
+			state.setAttribute(STATE_CURRENT_PAGE, 1);
+		}
+	}
+
+	public void doList_first(RunData data) {
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState(((JetspeedRunData)data).getJs_peid());
+		state.setAttribute(STATE_CURRENT_PAGE, 1);
+	}
+
+	public void doList_prev(RunData data) {
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState(((JetspeedRunData)data).getJs_peid());
+		Integer currentPage = (Integer) state.getAttribute(STATE_CURRENT_PAGE);
+		if (currentPage != null && currentPage > 1) {
+			state.setAttribute(STATE_CURRENT_PAGE, currentPage - 1);
+		}
+	}
+
+
+	public void doList_next(RunData data) {
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		Integer currentPage = (Integer) state.getAttribute(STATE_CURRENT_PAGE);
+		Integer pageSize = (Integer) state.getAttribute(STATE_PAGESIZE);
+		Integer totalItems = (Integer) state.getAttribute("totalNumber");
+		
+		if (currentPage == null) currentPage = 1;
+		if (pageSize == null) pageSize = 10;
+		if (totalItems == null) totalItems = 0;
+		
+		int totalPages = Math.max(1, (totalItems + pageSize - 1) / pageSize);
+		if (currentPage < totalPages) {
+			state.setAttribute(STATE_CURRENT_PAGE, currentPage + 1);
+		}
+	}
+
+	public void doList_last(RunData data) {
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		Integer pageSize = (Integer) state.getAttribute(STATE_PAGESIZE);
+		Integer totalItems = (Integer) state.getAttribute("totalNumber");
+		
+		if (pageSize == null) pageSize = 10;
+		if (totalItems == null) totalItems = 0;
+		
+		int totalPages = Math.max(1, (totalItems + pageSize - 1) / pageSize);
+		state.setAttribute(STATE_CURRENT_PAGE, totalPages);
 	}
 
 	/**
@@ -658,7 +778,6 @@ public class ArchiveAction extends VelocityPortletPaneledAction {
         		if (!isLocked()) {
         			throw new RuntimeException("Timeout occurred while running batch archive");
         		}
-        		
         		
         		
         	}
@@ -741,6 +860,25 @@ public class ArchiveAction extends VelocityPortletPaneledAction {
 
 		context.put(Menu.CONTEXT_MENU, bar);
 		context.put(Menu.CONTEXT_ACTION, "ArchiveAction");
+	}
+
+	public void doSearch(RunData data, Context context) {
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState(((JetspeedRunData)data).getJs_peid());
+		String search = StringUtils.trimToNull(data.getParameters().getString("search"));
+		
+		if (search != null) {
+			state.setAttribute(STATE_SEARCH, search);
+		} else {
+			state.removeAttribute(STATE_SEARCH);
+		}
+		
+		state.setAttribute(STATE_CURRENT_PAGE, Integer.valueOf(1));
+	}
+
+	public void doSearch_clear(RunData data, Context context) {
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState(((JetspeedRunData)data).getJs_peid());
+		state.removeAttribute(STATE_SEARCH);
+		state.setAttribute(STATE_CURRENT_PAGE, Integer.valueOf(1));
 	}
 
 }	// ArchiveAction

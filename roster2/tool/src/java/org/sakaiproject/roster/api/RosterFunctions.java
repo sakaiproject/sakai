@@ -75,5 +75,5 @@ public interface RosterFunctions {
 	public static final String ROSTER_FUNCTION_VIEWSITEVISITS = ROSTER_FUNCTION_PREFIX + "viewsitevisits";
 	public static final String ROSTER_FUNCTION_VIEWUSERPROPERTIES = ROSTER_FUNCTION_PREFIX + "viewuserproperties";
 	public static final String ROSTER_FUNCTION_VIEWCANDIDATEDETAILS = ROSTER_FUNCTION_PREFIX + "viewcandidatedetails";
-
+	public static final String ROSTER_FUNCTION_VIEWID = ROSTER_FUNCTION_PREFIX + "viewid";
 }

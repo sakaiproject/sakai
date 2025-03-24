@@ -1,5 +1,6 @@
 import { SakaiElement } from "@sakai-ui/sakai-element";
 import { html } from "lit";
+import { ifDefined } from "lit/directives/if-defined.js";
 
 export class SakaiEditor extends SakaiElement {
 
@@ -9,6 +10,7 @@ export class SakaiEditor extends SakaiElement {
     content: { type: String },
     active: { type: Boolean },
     delay: { type: Boolean },
+    label: { type: String },
     textarea: { type: Boolean },
     toolbar: { attribute: "toolbar", type: String },
     setFocus: { attribute: "set-focus", type: Boolean },
@@ -21,6 +23,16 @@ export class SakaiEditor extends SakaiElement {
     this.toolbar = "Full";
     this.content = "";
     this.elementId = `editable_${Math.floor((1 + Math.random()) * 0x1000000).toString(16).substring(1)}`;
+  }
+
+  connectedCallback() {
+
+    super.connectedCallback();
+
+    // If neither CKEDITOR nor sakai.editor are defined, default to textarea
+    if (typeof CKEDITOR === "undefined" && !sakai?.editor) {
+      this.textarea = true;
+    }
   }
 
   getContent() {
@@ -71,7 +83,7 @@ export class SakaiEditor extends SakaiElement {
 
   attachEditor() {
 
-    CKEDITOR.instances[this.elementId]?.destroy();
+    if (typeof CKEDITOR !== "undefined") CKEDITOR.instances[this.elementId]?.destroy();
 
     if (sakai?.editor?.launch) {
       const options = {
@@ -133,12 +145,18 @@ export class SakaiEditor extends SakaiElement {
 
     if (this.textarea) {
       return html `
-        <textarea style="width: 100%" id="${this.elementId}" @input=${this._fireChanged} aria-label="Sakai editor textarea" tabindex="0">${this.content}</textarea>
+        <textarea style="width: 100%"
+            id="${this.elementId}"
+            @input=${this._fireChanged}
+            aria-label="Sakai editor textarea"
+            tabindex="0"
+            .value=${this.content}>
+        </textarea>
       `;
     }
 
     return html `
-      <textarea id="${this.elementId}">${this.content}</textarea>
+      <textarea id="${this.elementId}" aria-label="${ifDefined(this.label)}">${this.content}</textarea>
     `;
   }
 }

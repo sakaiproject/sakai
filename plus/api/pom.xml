@@ -7,7 +7,7 @@
   <parent>
     <groupId>org.sakaiproject.plus</groupId>
     <artifactId>sakai-plus-base</artifactId>
-    <version>25-SNAPSHOT</version>
+    <version>26-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 

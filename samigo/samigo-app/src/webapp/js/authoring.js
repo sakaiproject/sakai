@@ -726,10 +726,12 @@ function enableDisableToGradebook() {
     const checkedInput = document.querySelector('#assessmentSettingsAction\\:toDefaultGradebook input:checked');
     const gradebookSelect = document.querySelector('#assessmentSettingsAction\\:toGradebookNameContainer');
     
-    if (checkedInput && checkedInput.value === '3') {
-        gradebookSelect.style.display = 'block';
-    } else {
-        gradebookSelect.style.display = 'none';
+    if (gradebookSelect) {
+        if (checkedInput && checkedInput.value === '3') {
+            gradebookSelect.style.display = 'block';
+        } else {
+            gradebookSelect.style.display = 'none';
+        }
     }
 
     // Call toggleCategories with the current value
@@ -844,6 +846,7 @@ function toggleCategories(checkbox) {
     // Toggle categories selector. If categories are disabled it won't exist
     // so check first.
     const categoryDiv = document.querySelector('#assessmentSettingsAction\\:toGradebookCategory');
+    const selectedGradebook = document.querySelector('#assessmentSettingsAction\\:toGradebookSelected');
     if (categoryDiv) {
         // If checkbox is a string, it's the initial call from document ready
         if (typeof checkbox === 'string') {
@@ -852,6 +855,14 @@ function toggleCategories(checkbox) {
             categoryDiv.style.display = checkbox.value === '1' ? 'block' : 'none';
         }
     }
+
+  if (selectedGradebook != undefined && selectedGradebook.length) {
+    if ($(checkbox).val() === '3') {
+      selectedGradebook.fadeIn();
+    } else {
+      selectedGradebook.fadeOut();
+    }
+  }
 }
 
 function expandAccordion(iframId){

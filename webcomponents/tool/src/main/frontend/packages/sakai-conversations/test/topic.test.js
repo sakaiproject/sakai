@@ -1,0 +1,623 @@
+import "../sakai-topic.js";
+import { elementUpdated, expect, fixture, oneEvent, waitUntil } from "@open-wc/testing";
+import { html } from "lit";
+import * as data from "./data.js";
+import fetchMock from "fetch-mock/esm/client";
+import sinon from "sinon";
+import * as constants from "../src/sakai-conversations-constants.js";
+
+describe("sakai-topic tests", () => {
+
+  window.top.portal = { locale: "en_GB", siteId: data.siteId, siteTitle: data.siteTitle, user: { id: "user1", timezone: "Europe/London" } };
+  window.MathJax = { Hub: { Queue: () => {} } };
+
+  const postsUrl = `${data.discussionTopic.links.find(l => l.rel === "posts").href}?page=0&sort=${constants.SORT_OLDEST}`;
+  const markViewedUrl = data.discussionTopic.links.find(l => l.rel === "markpostsviewed").href;
+
+  beforeEach(() => {
+
+    fetchMock
+      .get(data.i18nUrl, data.i18n)
+      .get(postsUrl, [])
+      .post(markViewedUrl, 200);
+
+    data.discussionTopic.canBookmark = false;
+    data.discussionTopic.canPin = false;
+    data.questionTopic.resolved = false;
+    data.discussionTopic.draft = false;
+    data.discussionTopic.hidden = false;
+    data.discussionTopic.locked = false;
+    data.discussionTopic.posts = [];
+  });
+
+  afterEach(() => {
+    fetchMock.restore();
+  });
+
+  it("renders a discussion topic", async () => {
+
+    const unviewedPosts = [
+      { id: "post1", message: "Post 1", viewed: false, canView: true },
+      { id: "post2", message: "Post 2", viewed: false, canView: true }
+    ];
+
+    data.discussionTopic.posts = unviewedPosts;
+
+    const el = await fixture(html`
+      <sakai-topic
+          .topic=${data.discussionTopic}>
+      </sakai-topic>
+    `);
+
+    await waitUntil(() => el._i18n);
+    await elementUpdated(el);
+
+    await expect(el).to.be.accessible();
+
+    expect(el.querySelector(".topic")).to.exist;
+
+    // No status icon for discussion topics
+    expect(el.querySelector(".topic-status-icon-and-text")).to.not.exist;
+
+    expect(el.querySelector(".conversations-topic__creator-name").innerHTML).to.contain(data.discussionTopic.creatorDisplayName);
+    expect(el.querySelector(".topic-question-asked").innerHTML).to.contain(el._i18n.posted);
+    expect(el.querySelector(".conversations-topic__created-date").innerHTML).to.contain(data.discussionTopic.formattedCreatedDate);
+    expect(el.querySelector(`.author-and-tools sakai-user-photo[user-id="${data.discussionTopic.creator}"]`)).to.exist;
+
+    expect(el.querySelector(".conversations-topic__title").innerHTML).to.include(data.discussionTopic.title);
+    expect(el.querySelector(".topic-message").innerHTML).to.include(data.discussionTopic.message);
+  });
+
+  it("renders topic tags correctly", async () => {
+
+    const el = await fixture(html`
+      <sakai-topic
+          .topic=${data.discussionTopic}>
+      </sakai-topic>
+    `);
+
+    await waitUntil(() => el._i18n);
+    await elementUpdated(el);
+
+    // Check if the tags container exists
+    const tagsContainer = el.querySelector(".topic-tags");
+    expect(tagsContainer).to.exist;
+
+    // Check if all tags are rendered
+    const tagElements = tagsContainer.querySelectorAll(".tag");
+    expect(tagElements.length).to.equal(data.discussionTopic.tags.length);
+
+    // Verify each tag's content
+    data.discussionTopic.tags.forEach((tag, index) => {
+      expect(tagElements[index].textContent).to.equal(tag.label);
+    });
+  });
+
+  it("renders a question topic", async () => {
+
+    data.questionTopic.resolved = true;
+
+    const el = await fixture(html`
+      <sakai-topic
+          .topic=${data.questionTopic}>
+      </sakai-topic>
+    `);
+
+    await waitUntil(() => el._i18n);
+    await elementUpdated(el);
+
+    await expect(el).to.be.accessible();
+
+    // This question hase been resolved. It should have a check circle icon.
+    expect(el.querySelector(".topic-status-icon sakai-icon[type='check_circle']")).to.exist;
+
+    expect(el.querySelector(".topic-question-asked").innerHTML).to.contain(el._i18n.asked);
+
+    // Only question topics have a status icon
+    expect(el.querySelector(".topic-status-icon-and-text")).to.exist;
+  });
+
+  it("handles bookmarking a topic", async () => {
+
+    data.discussionTopic.canBookmark = true;
+
+    fetchMock.post(data.discussionTopic.links.find(l => l.rel === "bookmark").href, 200);
+
+    const el = await fixture(html`
+      <sakai-topic
+          .topic=${data.discussionTopic}>
+      </sakai-topic>
+    `);
+
+    await waitUntil(() => el._i18n);
+    await elementUpdated(el);
+
+    await expect(el).to.be.accessible();
+
+    const link = el.querySelector(".topic-message-bottom-bar > div > a");
+    expect(link).to.exist;
+    setTimeout(() => link.click());
+    const { detail } = await oneEvent(el, "topic-updated");
+    expect(detail.topic.bookmarked).to.be.true;
+  });
+
+  it("handles pinning a topic", async () => {
+
+    fetchMock.post(data.discussionTopic.links.find(l => l.rel === "pin").href, 200);
+
+    data.discussionTopic.canPin = true;
+
+    const el = await fixture(html`
+      <sakai-topic
+          .topic=${data.discussionTopic}>
+      </sakai-topic>
+    `);
+
+    await waitUntil(() => el._i18n);
+    await elementUpdated(el);
+
+    await expect(el).to.be.accessible();
+
+    const link = el.querySelector(".topic-message-bottom-bar > div > a");
+    expect(link).to.exist;
+    setTimeout(() => link.click());
+    const { detail } = await oneEvent(el, "topic-updated");
+    expect(detail.topic.pinned).to.be.true;
+  });
+
+  it("handles posting a reply to topic", async () => {
+
+    fetchMock.post(data.discussionTopic.links.find(l => l.rel === "posts").href,
+      (url, opts) => ({ ...JSON.parse(opts.body), id: "posted1", viewed: true }));
+
+    const el = await fixture(html`
+      <sakai-topic
+          .topic=${data.discussionTopic}>
+      </sakai-topic>
+    `);
+
+    await waitUntil(() => el._i18n);
+    await elementUpdated(el);
+
+    expect(el.querySelector("sakai-editor")).to.not.exist;
+
+    // Click reply placeholder to show editor
+    const replyPlaceholder = el.querySelector(".editor-placeholder").parentElement;
+    replyPlaceholder.click();
+    await elementUpdated(el);
+
+    await expect(el).to.be.accessible();
+
+    expect(el.querySelector(".conv-post-editor-header")).to.exist;
+    expect(el.querySelector(".conv-post-editor-header > span:nth-child(2)").innerHTML).to.contain(data.discussionTopic.title);
+
+    const editor = el.querySelector("sakai-editor");
+    expect(editor).to.exist;
+
+    const message = "This is a reply";
+    editor.setContent(message);
+
+    setTimeout(() => el.querySelector(".topic-reply-block input[type='button']").click());
+
+    const { detail } = await oneEvent(el, "topic-updated");
+    expect(detail.topic.id).to.equal(data.discussionTopic.id);
+    expect(detail.topic.posts[0].message).to.equal(message);
+  });
+
+  it("shows appropriate warnings for draft, hidden and locked topics", async () => {
+
+    data.discussionTopic.draft = true;
+    data.discussionTopic.hidden = true;
+    data.discussionTopic.locked = true;
+
+    const el = await fixture(html`
+      <sakai-topic
+          .topic=${data.discussionTopic}>
+      </sakai-topic>
+    `);
+
+    await waitUntil(() => el._i18n);
+    await elementUpdated(el);
+
+    await expect(el).to.be.accessible();
+
+    expect(el.querySelector(".sak-banner-warn")).to.exist;
+    expect(el.querySelector(".sak-banner-warn").innerHTML).to.contain(el._i18n.draft_warning);
+
+    expect(el.querySelector(".sak-banner-warn:nth-child(2)")).to.exist;
+    expect(el.querySelector(".sak-banner-warn:nth-child(2)").innerHTML).to.contain(el._i18n.topic_hidden);
+
+    expect(el.querySelector(".sak-banner-warn:nth-child(3)")).to.exist;
+    expect(el.querySelector(".sak-banner-warn:nth-child(3)").innerHTML).to.contain(el._i18n.moderator_topic_locked);
+
+    data.discussionTopic.visibility = constants.INSTRUCTORS;
+    el.requestUpdate();
+    await elementUpdated(el);
+    await expect(el).to.be.accessible();
+    expect(el.querySelector(".sak-banner-warn:nth-child(4)")).to.exist;
+    expect(el.querySelector(".sak-banner-warn:nth-child(4)").innerHTML).to.contain(el._i18n.topic_instructors_only_tooltip);
+
+    data.discussionTopic.visibility = constants.GROUP;
+    el.requestUpdate();
+    await elementUpdated(el);
+    await expect(el).to.be.accessible();
+    expect(el.querySelector(".sak-banner-warn:nth-child(4)")).to.exist;
+    expect(el.querySelector(".sak-banner-warn:nth-child(4)").innerHTML).to.contain(el._i18n.topic_groups_only_tooltip);
+  });
+
+  it("dispatches events when options menu items are clicked", async () => {
+
+    // Reset topic properties
+    data.discussionTopic.draft = false;
+    data.discussionTopic.hidden = false;
+    data.discussionTopic.locked = false;
+    data.discussionTopic.visibility = constants.SITE;
+
+    // Setup delete URL mock
+    const deleteUrl = data.discussionTopic.links.find(l => l.rel === "delete").href;
+    fetchMock.delete(deleteUrl, 200);
+
+    const hideUrl = data.discussionTopic.links.find(l => l.rel === "hide").href;
+    fetchMock.post(hideUrl, {});
+
+    // Setup lock URL mock
+    const lockUrl = data.discussionTopic.links.find(l => l.rel === "lock").href;
+    fetchMock.post(lockUrl, (url, opts) => {
+      return { ...data.discussionTopic, locked: !data.discussionTopic.locked, selected: true };
+    });
+
+    const el = await fixture(html`
+      <sakai-topic
+          .topic=${data.discussionTopic}>
+      </sakai-topic>
+    `);
+
+    await waitUntil(() => el._i18n);
+    await elementUpdated(el);
+
+    await expect(el).to.be.accessible();
+
+    // Verify options menu exists
+    const optionsMenu = el.querySelector(".topic-options-menu");
+    expect(optionsMenu).to.exist;
+
+    // Test edit button
+    const editButton = el.querySelector(".dropdown-menu button[title='" + el._i18n.edit_topic_tooltip + "']");
+    expect(editButton).to.exist;
+
+    // Setup listener for edit-topic event
+    const editPromise = oneEvent(el, "edit-topic");
+    setTimeout(() => editButton.click());
+    const editEvent = await editPromise;
+    expect(editEvent.detail.topic.id).to.equal(data.discussionTopic.id);
+
+    // Test delete button with confirm mocked
+    const deleteButton = el.querySelector(".dropdown-menu button[title='" + el._i18n.delete_topic_tooltip + "']");
+    expect(deleteButton).to.exist;
+
+    // Mock confirm to return true
+    const originalConfirm = window.confirm;
+    window.confirm = () => true;
+
+    // Setup listener for topic-deleted event
+    const deletePromise = oneEvent(el, "topic-deleted");
+    setTimeout(() => deleteButton.click());
+    const deleteEvent = await deletePromise;
+    expect(deleteEvent.detail.topic.id).to.equal(data.discussionTopic.id);
+
+    // Test hide button
+    const hideButton = el.querySelector(".dropdown-menu button[title='" + el._i18n.hide_topic_tooltip + "']");
+    expect(hideButton).to.exist;
+
+    // Setup listener for topic-updated event
+    const hidePromise = oneEvent(el, "topic-updated");
+    setTimeout(() => hideButton.click());
+    const hideEvent = await hidePromise;
+    expect(hideEvent.detail.topic.hidden).to.be.true;
+
+    // Test lock button
+    const lockButton = el.querySelector(".dropdown-menu button[title='" + el._i18n.lock_topic_tooltip + "']");
+    expect(lockButton).to.exist;
+
+    // Setup listener for topic-updated event
+    const lockPromise = oneEvent(el, "topic-updated");
+    setTimeout(() => lockButton.click());
+    await lockPromise;
+
+    // Restore original confirm
+    window.confirm = originalConfirm;
+
+    fetchMock.restore();
+  });
+
+  it("fires topic-updated event when _postUpdated is called", async () => {
+
+    const testPost = {
+      id: "test-post-1",
+      message: "Original message"
+    };
+
+    const updatedPost = {
+      id: "test-post-1",
+      message: "Updated message"
+    };
+
+    // Add the test post to the topic
+    data.discussionTopic.posts = [ testPost ];
+
+    const el = await fixture(html`
+      <sakai-topic
+          .topic=${data.discussionTopic}>
+      </sakai-topic>
+    `);
+
+    await waitUntil(() => el._i18n);
+    await elementUpdated(el);
+
+    await expect(el).to.be.accessible();
+
+    // Create a synthetic event with the updated post and call _postUpdated method
+    setTimeout(() => el._postUpdated(new CustomEvent("post-updated", { detail: { post: updatedPost } })));
+
+    const { detail } = await oneEvent(el, "topic-updated");
+    expect(detail.topic.id).to.equal(data.discussionTopic.id);
+
+    // Verify the post was updated in the topic
+    const updatedTopicPost = detail.topic.posts.find(p => p.id === testPost.id);
+    expect(updatedTopicPost).to.exist;
+    expect(updatedTopicPost.message).to.equal(updatedPost.message);
+  });
+
+  it("fires topic-updated event when _postDeleted is called", async () => {
+
+    const testPost = {
+      id: "post-to-delete",
+      message: "This post will be deleted"
+    };
+
+    data.discussionTopic.posts = [ testPost ];
+    data.discussionTopic.numberOfPosts = 1;
+
+    const el = await fixture(html`
+      <sakai-topic
+          .topic=${data.discussionTopic}>
+      </sakai-topic>
+    `);
+
+    await waitUntil(() => el._i18n);
+    await elementUpdated(el);
+
+    await expect(el).to.be.accessible();
+
+    setTimeout(() => el._postDeleted(new CustomEvent("post-deleted", { detail: { post: testPost } })));
+
+    const { detail } = await oneEvent(el, "topic-updated");
+
+    // Verify the topic was updated correctly
+    expect(detail.topic.id).to.equal(data.discussionTopic.id);
+    expect(detail.topic.posts.length).to.equal(0);
+    expect(detail.topic.numberOfPosts).to.equal(0);
+  });
+
+  it("renders anonymous topics correctly", async () => {
+
+    // Test with canViewAnonymous = false (regular user)
+    const el = await fixture(html`
+      <sakai-topic
+          .topic=${data.anonymousTopic}>
+      </sakai-topic>
+    `);
+
+    await waitUntil(() => el._i18n);
+    await elementUpdated(el);
+
+    await expect(el).to.be.accessible();
+
+    // Verify the creator name shows as Anonymous
+    expect(el.querySelector(".conversations-topic__creator-name").innerHTML).to.contain(el._i18n.anonymous);
+
+    // Verify the user photo has user-id="blank" when anonymous and user can't view anonymous
+    const userPhoto = el.querySelector(".author-block sakai-user-photo");
+    expect(userPhoto).to.exist;
+    expect(userPhoto.getAttribute("user-id")).to.equal("blank");
+
+    // Now test with canViewAnonymous = true (admin/instructor)
+    const elAdmin = await fixture(html`
+      <sakai-topic
+          .topic=${data.anonymousTopic}
+          ?can-view-anonymous=${true}>
+      </sakai-topic>
+    `);
+
+    await waitUntil(() => elAdmin._i18n);
+    await elementUpdated(elAdmin);
+
+    await expect(elAdmin).to.be.accessible();
+
+    // Admin should see the actual user ID in the photo component
+    const adminUserPhoto = elAdmin.querySelector(".author-block sakai-user-photo");
+    expect(adminUserPhoto).to.exist;
+    expect(adminUserPhoto.getAttribute("user-id")).to.equal(data.anonymousTopic.creator);
+  });
+
+  it("handles anonymous post creation correctly", async () => {
+
+    // Create a copy of the topic with allowAnonymousPosts set to true
+    const topicWithAnonymousAllowed = {
+      ...data.discussionTopic,
+      allowAnonymousPosts: true
+    };
+
+    // Mock the post endpoint
+    fetchMock.post(topicWithAnonymousAllowed.links.find(l => l.rel === "posts").href, (url, opts) => {
+
+      const postData = JSON.parse(opts.body);
+      return { ...postData,
+        creatorDisplayName: postData.anonymous ? "Anonymous" : "Regular User",
+        viewed: true
+      };
+    });
+
+    const el = await fixture(html`
+      <sakai-topic
+          .topic=${topicWithAnonymousAllowed}>
+      </sakai-topic>
+    `);
+
+    await waitUntil(() => el._i18n);
+    await elementUpdated(el);
+
+    await expect(el).to.be.accessible();
+
+    // Click reply placeholder to show editor
+    const replyPlaceholder = el.querySelector(".editor-placeholder").parentElement;
+    replyPlaceholder.click();
+    await elementUpdated(el);
+    await expect(el).to.be.accessible();
+
+    // Verify anonymous checkbox exists
+    const anonymousCheckbox = el.querySelector("#conv-post-editor-anonymous-checkbox");
+    expect(anonymousCheckbox).to.exist;
+
+    // Set content and check anonymous checkbox
+    el.querySelector(".topic-reply-block sakai-editor").setContent("This is an anonymous reply");
+    anonymousCheckbox.checked = true;
+
+    // Submit the post
+    setTimeout(() => el.querySelector(".topic-reply-block input[type='button']").click());
+
+    const { detail } = await oneEvent(el, "topic-updated");
+
+    // Verify the post was created with anonymous flag
+    expect(detail.topic.posts[0].anonymous).to.be.true;
+    expect(detail.topic.posts[0].creatorDisplayName).to.equal("Anonymous");
+  });
+
+  it("does not show anonymous checkbox when anonymous posts are not allowed", async () => {
+
+    // Create a copy of the topic with allowAnonymousPosts set to false
+    const topicWithoutAnonymous = {
+      ...data.discussionTopic,
+      allowAnonymousPosts: false
+    };
+
+    const el = await fixture(html`
+      <sakai-topic
+          .topic=${topicWithoutAnonymous}>
+      </sakai-topic>
+    `);
+
+    await waitUntil(() => el._i18n);
+    await elementUpdated(el);
+
+    await expect(el).to.be.accessible();
+
+    // Click reply placeholder to show editor
+    const replyPlaceholder = el.querySelector(".editor-placeholder").parentElement;
+    replyPlaceholder.click();
+    await elementUpdated(el);
+    await expect(el).to.be.accessible();
+
+    // Verify anonymous checkbox does not exist
+    const anonymousCheckbox = el.querySelector("#conv-post-editor-anonymous-checkbox");
+    expect(anonymousCheckbox).to.not.exist;
+  });
+
+  it("handles post sorting for QUESTION topic types", async () => {
+
+    const posts = [
+      { id: "post1", message: "Post 1", created: 1111, viewed: true, canView: true },
+      { id: "post2", message: "Post 2", created: 2222, viewed: true, canView: true },
+      { id: "post3", message: "Post 3", created: 3333, viewed: true, canView: true }
+    ];
+    const sortedNewestFirst = posts.toReversed();
+
+    data.questionTopic.posts = posts;
+
+    const el = await fixture(html`
+      <sakai-topic
+          .topic=${data.questionTopic}>
+      </sakai-topic>
+    `);
+
+    await waitUntil(() => el._i18n);
+    await elementUpdated(el);
+
+    await expect(el).to.be.accessible();
+
+    // Mock the fetch for the sorted posts URL
+    const postsUrl = `${data.questionTopic.links.find(l => l.rel === "posts").href}?page=0&sort=${constants.SORT_NEWEST}`;
+    fetchMock.get(postsUrl, sortedNewestFirst);
+
+    // Find the sort dropdown and trigger a change event
+    const sortSelect = el.querySelector(".topic-posts-header select");
+    expect(sortSelect).to.exist;
+    sortSelect.value = constants.SORT_NEWEST;
+    sortSelect.dispatchEvent(new Event("change"));
+
+    await elementUpdated(el);
+
+    await expect(el).to.be.accessible();
+
+    // Wait for the fetch to complete and the component to update
+    await waitUntil(() => el.topic.posts[0].id === sortedNewestFirst[0].id);
+
+    // Verify the posts were updated with the sorted results
+    expect(el.topic.posts.length).to.equal(posts.length);
+    expect(el.topic.posts[0].id).to.equal(sortedNewestFirst[0].id);
+    expect(el.topic.posts[1].id).to.equal(sortedNewestFirst[1].id);
+    expect(el.topic.posts[2].id).to.equal(sortedNewestFirst[2].id);
+  });
+
+  it("correctly marks posts as viewed", async () => {
+
+    // Setup test data
+    const unviewedPosts = [
+      { id: "post1", message: "Post 1", viewed: false, canView: true },
+      { id: "post2", message: "Post 2", viewed: false, canView: true }
+    ];
+
+    data.discussionTopic.posts = unviewedPosts;
+
+    const el = await fixture(html`
+      <sakai-topic
+          .topic=${data.discussionTopic}>
+      </sakai-topic>
+    `);
+
+    await waitUntil(() => el._i18n);
+    await elementUpdated(el);
+
+    await expect(el).to.be.accessible();
+
+    // Create mock IntersectionObserver entries
+    const mockEntries = [
+      {
+        isIntersecting: true,
+        target: { dataset: { postId: "post1" } }
+      },
+      {
+        isIntersecting: true,
+        target: { dataset: { postId: "post2" } }
+      }
+    ];
+
+    // Mock the observer.unobserve method
+    const unobserveSpy = sinon.spy();
+    const originalObserver = el.observer;
+    el.observer = { unobserve: unobserveSpy };
+
+    // Call the method directly with the post IDs
+    el._markPostsViewed(["post1"]);
+
+    const { detail } = await oneEvent(el, "posts-viewed");
+
+    expect(detail.postIds).to.include("post1");
+    expect(detail.topicId).to.equal(data.discussionTopic.id);
+
+    expect(unobserveSpy.calledOnce).to.be.true;
+
+    // Restore the original observer
+    el.observer = originalObserver;
+  });
+});

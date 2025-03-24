@@ -7,7 +7,7 @@
    <parent>
            <artifactId>sakai-acadtermmanage</artifactId>
            <groupId>org.sakaiproject.acadtermmanage</groupId>
-          <version>25-SNAPSHOT</version>
+          <version>26-SNAPSHOT</version>
            <relativePath>../pom.xml</relativePath>
    </parent>
    
@@ -54,7 +54,7 @@
       </dependency>
       <dependency>
          <groupId>org.sakaiproject.wicket</groupId>
-         <artifactId>wicket-tool-8</artifactId>
+         <artifactId>wicket-tool-9</artifactId>
       </dependency>
       <dependency>
             <groupId>org.sakaiproject.portal</groupId>

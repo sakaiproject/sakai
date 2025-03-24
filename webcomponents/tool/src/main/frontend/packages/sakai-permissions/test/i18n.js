@@ -1,0 +1,49 @@
+export const i18nUrl = /.*i18n.*resourcebundle=permissions-wc.*/;
+
+export const i18n = `
+alert_permission=You don't have permission to change permission settings.
+gen.alert  = Alert:
+gen.can    = Cancel
+gen.sav    = Save
+gen.don    = Done
+gen.show5   = show 5 items...
+gen.show10  = show 10 items...
+gen.show20  = show 20 items...
+gen.show50  = show 50 items...
+gen.show100 = show 100 items...
+gen.show200 = show 200 items....
+gen.listnavselect = To operate the combo box, first press Alt+Down Arrow to open it, and then use the up and down arrow keys to scroll through the options.
+gen.first = First
+gen.previous = Previous
+gen.next = Next
+gen.last = Last
+gen.enable = Enable
+gen.back=Back
+gen.yes=yes
+gen.no=no
+
+per.alrgra = already granted
+per.lis.head=Permission
+per.lis.head.title=Toggle all permissions for all roles
+per.lis.role.title=Toggle all permissions for this role
+per.lis.perm.title=Toggle all roles for this permission
+per.lis.title = Permissions
+per.lis    = List of roles and permissions that can be applied to this folder. Layout: each row lists the permissions of a role. Layout: column 1 lists the roles, the other columns list the permissions, checkboxes permit enabling a permission for a role.
+per.rol    = Role
+per.alert  = Alert: no roles are defined.
+per.lis.clearall=Clear all
+per.lis.restoredef=Undo changes
+per.lis.selectgrp=Set permissions for
+
+alert.prbset = Permissions can not be set at this time because of an unknown error.\
+  Try closing permissions in other tools before proceeding.
+wating_for_permissions=Waiting for permissions
+`;
+
+export const toolI18nUrl = /.*i18n.*resourcebundle=tool.*/;
+export const toolI18n = `
+perm-tool.create=Create
+perm-tool.delete=Delete
+perm-tool.read=Read
+perm-tool.update=Update
+`;

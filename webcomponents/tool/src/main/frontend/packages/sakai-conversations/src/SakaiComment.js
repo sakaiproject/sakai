@@ -11,7 +11,7 @@ export class SakaiComment extends SakaiElement {
     comment: { type: Object },
     topicId: { attribute: "topic-id", type: String },
     siteId: { attribute: "site-id", type: String },
-    _editing: { attribute: false, type: Boolean },
+    _editing: { state: true },
   };
 
   constructor() {
@@ -89,7 +89,7 @@ export class SakaiComment extends SakaiElement {
               ${this._i18n.edit}
             </button>
           </li>
-          ` : ""}
+          ` : nothing}
           ${this.comment.canDelete ? html`
           <li>
             <button class="dropdown-item"
@@ -148,8 +148,8 @@ export class SakaiComment extends SakaiElement {
             <div class="post-message">${unsafeHTML(this.comment.message)}</div>
             <div class="post-reactions-block">
               ${!this.comment.locked && (this.comment.canEdit || this.comment.canDelete) ? html `
-              ${this._renderOptionsMenu()}
-              ` : ""}
+                ${this._renderOptionsMenu()}
+              ` : nothing}
             </div>
             `}
           </div>

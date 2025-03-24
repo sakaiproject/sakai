@@ -350,6 +350,7 @@ public class RubricsRestController extends AbstractSakaiApiController {
         return rubricsService.getEvaluation(evaluationId, siteId).map(evaluation -> {
 
             ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.registerModule(new JavaTimeModule());
 
             try {
                 JsonNode patched = patch.apply(objectMapper.convertValue(evaluation, JsonNode.class));

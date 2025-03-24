@@ -1,26 +1,20 @@
 import { html, nothing } from "lit";
+import { REACTION_ICONS } from "./sakai-conversations-constants.js";
 
 export const reactionsAndUpvotingMixin = Base => class extends Base {
 
   renderMyReactions(myReactions) {
 
-    const reactionIcons = {
-      "THUMBS_UP": "hand-thumbs-up",
-      "LOVE_IT": "heart",
-      "GOOD_IDEA": "lightbulb",
-      "KEY": "key",
-    };
-
     return html`
       ${Object.entries(myReactions).map(pair => html`
         <li>
-          <button class="dropdown-item ${pair[1] ? "reaction-on" : undefined}"
+          <button class="dropdown-item my-1 ${pair[1] ? "reaction-on" : ""}"
               type="button"
               data-reaction="${pair[0]}"
-              @click=${this.toggleReaction}
+              @click=${this._toggleReaction}
               title="${this._i18n[pair[0]]}"
               aria-label="${this._i18n[pair[0]]}">
-            <i class="bi bi-${reactionIcons[pair[0]]}-fill ${reactionIcons[pair[0]]}"></i>
+            <i class="bi bi-${REACTION_ICONS[pair[0]]}-fill ${REACTION_ICONS[pair[0]]}"></i>
           </button>
         </li>
       `)}
@@ -29,19 +23,14 @@ export const reactionsAndUpvotingMixin = Base => class extends Base {
 
   renderReactionsBar(reactable) {
 
-    const reactionIcons = {
-      "THUMBS_UP": "hand-thumbs-up",
-      "LOVE_IT": "heart",
-      "GOOD_IDEA": "lightbulb",
-      "KEY": "key",
-    };
+    if (!reactable.reactionTotals) return html``;
 
     return html`
-      <div class="d-flex mb-2" tabindex="0">
+      <div class="reactions-block d-flex mb-2" tabindex="0">
       ${Object.entries(reactable.reactionTotals).map(pair => html`
-        <div class="d-flex align-items-center border border-1 rounded-pill px-2 me-1">
+        <div class="reaction-block d-flex align-items-center border border-1 rounded-pill px-2 me-1">
           <div>
-            <i class="bi bi-${reactionIcons[pair[0]]}-fill ${reactionIcons[pair[0]]} small"></i>
+            <i class="bi bi-${REACTION_ICONS[pair[0]]}-fill ${REACTION_ICONS[pair[0]]} small"></i>
           </div>
           <div class="ms-1 small">${pair[1]}</div>
         </div>
@@ -50,13 +39,42 @@ export const reactionsAndUpvotingMixin = Base => class extends Base {
     `;
   }
 
-  toggleReaction(e) {
+  _toggleReaction(e) {
 
     e.stopPropagation();
 
     const reaction = e.currentTarget.dataset.reaction;
     this.myReactions[reaction] = !this.myReactions[reaction];
-    this._postReactions();
+
+    const reactable = this?.post || this?.topic;
+
+    const url = reactable.links.find(l => l.rel === "react").href;
+    fetch(url, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(this.myReactions),
+    })
+    .then(r => {
+
+      if (r.ok) {
+        return r.json();
+      }
+      throw new Error("Network error while posting reactions");
+
+    })
+    .then(reactionTotals => {
+
+      reactable.myReactions = this.myReactions;
+      reactable.reactionTotals = reactionTotals;
+
+      if (this.post) {
+        this.dispatchEvent(new CustomEvent("post-updated", { detail: { post: this.post }, bubbles: true }));
+      } else {
+        this.dispatchEvent(new CustomEvent("topic-updated", { detail: { topic: this.topic }, bubbles: true }));
+      }
+    })
+    .catch(error => console.error(error));
   }
 
   _renderReactionsBlock(reactable) {
@@ -92,7 +110,7 @@ export const reactionsAndUpvotingMixin = Base => class extends Base {
   _renderUpvote(upvotable) {
 
     return html`
-      <div class="converations-action d-flex align-items-center border border-1 rounded-pill py-1 px-2">
+      <div class="upvote converations-action d-flex align-items-center border border-1 rounded-pill py-1 px-2">
         ${upvotable.canUpvote ? html`
         <div><i class="si si-up"></i></div>
         ` : nothing}
@@ -107,11 +125,10 @@ export const reactionsAndUpvotingMixin = Base => class extends Base {
     return upvotable.canViewUpvotes ? html`
       <div>
         ${upvotable.canUpvote ? html`
-          <button type="button" class="btn btn-transparent"
+          <button type="button" class="upvote-button btn btn-transparent"
               @click=${this._toggleUpvote}
               aria-label="${upvotable.upvoted ? this._i18n.downvote_tooltip : this._i18n.upvote_tooltip}"
-              title="${upvotable.upvoted ? this._i18n.downvote_tooltip : this._i18n.upvote_tooltip}"
-              ?disabled=${!upvotable.canUpvote}>
+              title="${upvotable.upvoted ? this._i18n.downvote_tooltip : this._i18n.upvote_tooltip}">
             ${this._renderUpvote(upvotable)}
           </button>
         ` : this._renderUpvote(upvotable)
@@ -126,11 +143,7 @@ export const reactionsAndUpvotingMixin = Base => class extends Base {
 
     const upvoted = this?.post?.upvoted || this?.topic?.upvoted;
 
-    const topicId = this?.post?.topic || this?.topic?.id;
-
-    const siteId = this?.siteId || this?.topic?.siteId;
-
-    const url = `/api/sites/${siteId}/topics/${topicId}` + (this.post ? `/posts/${this.post.id}` : "") + `/${upvoted ? "unupvote" : "upvote"}`;
+    const url = upvotable.links.find(l => l.rel === (upvoted ? "unupvote" : "upvote")).href;
     fetch(url, {
       credentials: "include",
     })

@@ -181,11 +181,11 @@
       conditionOptions() {
         return this.availableToolItems.map((toolItem) => {
           return {
-            label: toolItem.name,
+            label: toolItem.name.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim(),
             options: toolItem.conditions.map((condition) => {
               return {
                 value: condition.id,
-                text: formatConditionText(this.i18n, condition, toolItem.name),
+                text: formatConditionText(this.i18n, condition, toolItem.name).replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim(),
                 disabled: !!this.savedConditions.find((c) => c.id === condition.id),
               };
             }),

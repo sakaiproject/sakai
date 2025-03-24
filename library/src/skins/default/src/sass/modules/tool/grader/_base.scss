@@ -36,6 +36,7 @@ sakai-grader {
       select {
         display: inline-block;
         margin: 0px 8px;
+        max-width: 80%;
         &:focus { outline: 0;}
       }
       a { text-decoration: none; font-weight: bold; }
@@ -134,25 +135,23 @@ sakai-grader {
       margin-top: 5px;
       color: var(--successBanner-color);
     }
-
-    .grader-photo {
-      flex: 1;
-      min-width: 48px;
-      width: 48px;
-      height: 48px;
-      float: left;
-      background-position: 50%;
-      background-size: auto 100%;
-      margin-right: 10px;
-    }
   }
 
   #grader {
 
-    // We need this to be able to use @container queries
-    container-type: size;
-
     background-color: var(--sakai-title-bar-bg-color);
+
+    .grader-photo {
+      min-width: 48px;
+      width: 48px;
+      height: 48px;
+      background-position: 50%;
+      background-size: auto 100%;
+    }
+
+    #grader-rubric-block {
+      container-type: inline-size; /* Force the rubrics to display in rows */
+    }
 
     .draft-submission {
         margin-left: 8px;
@@ -165,6 +164,26 @@ sakai-grader {
 
     .points-input {
       width: 60px;
+    }
+
+    /* Add styles for card-based snippets with text truncation */
+    #feedback-snippet, #private-notes-snippet {
+      .card-body {
+        position: relative;
+        max-height: 100px;
+        overflow: hidden;
+        
+        &::after {
+          content: "";
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          width: 100%;
+          height: 40px;
+          background: linear-gradient(to bottom, rgba(255,255,255,0), var(--sakai-background-color-1, #fff));
+          pointer-events: none;
+        }
+      }
     }
 
     .fade-text {
@@ -180,16 +199,8 @@ sakai-grader {
       pointer-events: none;
     }
 
-    .grader-snippet {
-      background-color: white;
-      div:first-child {
-        background-color: white;
-      }
-    }
-
     #grader-grade-block {
       border-bottom: 1px solid var(--sakai-border-color);
-      padding-top: 15px;
 
       input {
         margin-left: 10px;
@@ -527,4 +538,74 @@ sakai-grader {
       margin-bottom: 6px;
     }
   } //media tablet
+
+  @media (min-width: 992px) {
+    /* Desktop layout */
+    #grader {
+      position: sticky;
+      top: 0;
+      visibility: visible !important;
+      width: 400px;
+      transform: none !important;
+      z-index: unset;
+      right: auto;
+      float: none;
+      flex: 0 0 400px;
+      margin: 0;
+    }
+
+    /* Ensure the offcanvas body scrolls properly */
+    #grader .offcanvas-body {
+      height: calc(100vh - 90px); /* Subtract header height */
+      overflow-y: auto;
+      padding-bottom: 20px;
+    }
+
+    #grader .offcanvas-header {
+      justify-content: unset;
+
+      sakai-user-photo {
+        margin-right: 10px;
+      }
+    }
+    
+    /* Fix the flex layout for desktop */
+    .d-flex.flex-column.flex-lg-row {
+      display: flex;
+      flex-direction: row;
+      width: 100%;
+      flex-wrap: nowrap;
+      align-items: flex-start;
+      height: calc(100vh - 60px); /* Set a height for the container to enable scrolling */
+    }
+    
+    /* Ensure the gradable container takes appropriate space and shows scrollbars */
+    #grader-gradable-container {
+      flex: 1;
+      height: 100%;
+      max-width: calc(100% - 420px);
+      margin-right: $standard-spacing;
+      overflow-y: scroll;
+    }
+    
+    /* Ensure the gradable content area has proper height */
+    #grader-gradable-content {
+      height: auto;
+      min-height: 100%;
+    }
+  }
+
+  /* For mobile, keep the original offcanvas behavior */
+  @media (max-width: 991.98px) {
+    #grader {
+      width: 100%;
+      max-width: 100%;
+      position: fixed;
+    }
+    
+    /* Show the "Grade Submission" button on mobile */
+    #grader-link-block {
+      display: block;
+    }
+  }
 }

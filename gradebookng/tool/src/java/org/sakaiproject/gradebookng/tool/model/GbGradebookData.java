@@ -81,6 +81,7 @@ public class GbGradebookData {
 	private final Map<String, Boolean> hasAssociatedRubricMap;
 	private final boolean isStudentNumberVisible;
 	private final boolean isSectionsVisible;
+	private final String gUid;
 	private final Map<Long, CategoryDefinition> categoryMap = new HashMap<>();
 
 	private final Component parent;
@@ -242,6 +243,7 @@ public class GbGradebookData {
 		this.isUserAbleToEditAssessments = gbGradeTableData.isUserAbleToEditAssessments();
 
 		this.courseGradeMap = gbGradeTableData.getCourseGradeMap();
+		this.gUid = gbGradeTableData.getGradebookUid();
 		this.courseGradeId = gbGradeTableData.getCourseGradeId();
 		this.gradebookId = gbGradeTableData.getGradebookId();
 		this.isStudentNumberVisible = gbGradeTableData.isStudentNumberVisible();
@@ -426,6 +428,7 @@ public class GbGradebookData {
 		result.put("isSectionsVisible", this.isSectionsVisible && ServerConfigurationService.getBoolean("gradebookng.showSections", true));
 		result.put("isSetUngradedToZeroEnabled", ServerConfigurationService.getBoolean(SAK_PROP_SHOW_SET_ZERO_SCORE, SAK_PROP_SHOW_SET_ZERO_SCORE_DEFAULT));
 		result.put("isShowDisplayCourseGradeToStudentEnabled", ServerConfigurationService.getBoolean(SAK_PROP_SHOW_COURSE_GRADE_STUDENT, SAK_PROP_SHOW_COURSE_GRADE_STUDENT_DEFAULT));
+		result.put("gUid", this.gUid);
 
 		return result;
 	};

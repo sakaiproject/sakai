@@ -58,7 +58,7 @@ export class ConversationsStatistics extends SakaiElement {
       if (r.ok) {
         return r.json();
       }
-      throw new Error(`Network error while getting statistics from ${this.siteUrl}`);
+      throw new Error(`Network error while getting statistics from ${this._statsUrl}`);
     })
     .then(data => {
 
@@ -66,7 +66,7 @@ export class ConversationsStatistics extends SakaiElement {
       this._stats = data.stats;
       this._currentPage = data.currentPage;
     })
-    .catch(error => console.error(error));
+    .catch (error => console.error(error));
   }
 
   set interval(value) {
@@ -151,15 +151,21 @@ export class ConversationsStatistics extends SakaiElement {
         <h1>${this._i18n.statistics}</h1>
         <div id="statistics-timeframe-block">
           <div>${this._i18n.timeframe}</div>
-          <input type="radio"
-              name="timeframe"
-              value="${THIS_WEEK}"
-              @click="${this._setThisWeek}"
-              checked>${this._i18n.this_week}
-          <input type="radio"
-              name="timeframe"
-              value="${ALL_TIME}"
-              @click="${this._setAllTime}">${this._i18n.all_time}
+          <label>
+            <input type="radio"
+                name="timeframe"
+                value="${THIS_WEEK}"
+                @click="${this._setThisWeek}"
+                checked>
+              ${this._i18n.this_week}
+          </label>
+          <label>
+            <input type="radio"
+                name="timeframe"
+                value="${ALL_TIME}"
+                @click="${this._setAllTime}">
+              ${this._i18n.all_time}
+          </label>
         </div>
       </div>
         <sakai-pager count="${this._count}" current="${this._currentPage}" @page-selected=${this._pageClicked}></sakai-pager>
