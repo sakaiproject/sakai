@@ -15,35 +15,8 @@
  */
 package org.sakaiproject.assignment.tool;
 
-import static org.sakaiproject.assignment.api.AssignmentConstants.ALLOW_RESUBMIT_CLOSE_DAY;
-import static org.sakaiproject.assignment.api.AssignmentConstants.ALLOW_RESUBMIT_CLOSE_HOUR;
-import static org.sakaiproject.assignment.api.AssignmentConstants.ALLOW_RESUBMIT_CLOSE_MIN;
-import static org.sakaiproject.assignment.api.AssignmentConstants.ALLOW_RESUBMIT_CLOSE_MONTH;
-import static org.sakaiproject.assignment.api.AssignmentConstants.ALLOW_RESUBMIT_CLOSE_YEAR;
-import static org.sakaiproject.assignment.api.AssignmentConstants.ALLOW_EXTENSION_CLOSE_MONTH;
-import static org.sakaiproject.assignment.api.AssignmentConstants.ALLOW_EXTENSION_CLOSE_DAY;
-import static org.sakaiproject.assignment.api.AssignmentConstants.ALLOW_EXTENSION_CLOSE_YEAR;
-import static org.sakaiproject.assignment.api.AssignmentConstants.ALLOW_EXTENSION_CLOSE_HOUR;
-import static org.sakaiproject.assignment.api.AssignmentConstants.ALLOW_EXTENSION_CLOSE_MIN;
-import static org.sakaiproject.assignment.api.AssignmentConstants.GRADEBOOK_INTEGRATION_ADD;
-import static org.sakaiproject.assignment.api.AssignmentConstants.GRADEBOOK_INTEGRATION_ASSOCIATE;
-import static org.sakaiproject.assignment.api.AssignmentConstants.GRADEBOOK_INTEGRATION_NO;
-import static org.sakaiproject.assignment.api.AssignmentConstants.GRADE_SUBMISSION_ASSIGNMENT_ID;
-import static org.sakaiproject.assignment.api.AssignmentConstants.GRADE_SUBMISSION_FEEDBACK_ATTACHMENT;
-import static org.sakaiproject.assignment.api.AssignmentConstants.GRADE_SUBMISSION_FEEDBACK_COMMENT;
-import static org.sakaiproject.assignment.api.AssignmentConstants.GRADE_SUBMISSION_FEEDBACK_TEXT;
-import static org.sakaiproject.assignment.api.AssignmentConstants.GRADE_SUBMISSION_PRIVATE_NOTES;
-import static org.sakaiproject.assignment.api.AssignmentConstants.GRADE_SUBMISSION_GRADE;
-import static org.sakaiproject.assignment.api.AssignmentConstants.GRADE_SUBMISSION_SUBMISSION_ID;
-import static org.sakaiproject.assignment.api.AssignmentConstants.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK;
-import static org.sakaiproject.assignment.api.AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT;
-import static org.sakaiproject.assignment.api.AssignmentConstants.STATE_CONTEXT_STRING;
-import static org.sakaiproject.assignment.api.AssignmentConstants.UNGRADED_GRADE_STRING;
-import static org.sakaiproject.assignment.api.AssignmentConstants.UNGRADED_GRADE_TYPE_STRING;
-import static org.sakaiproject.assignment.api.AssignmentServiceConstants.NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING;
-import static org.sakaiproject.assignment.api.AssignmentServiceConstants.PROP_ASSIGNMENT_GROUP_FILTER_ENABLED;
-import static org.sakaiproject.assignment.api.AssignmentServiceConstants.REFERENCE_ROOT;
-import static org.sakaiproject.assignment.api.AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT;
+import static org.sakaiproject.assignment.api.AssignmentConstants.*;
+import static org.sakaiproject.assignment.api.AssignmentServiceConstants.*;
 
 import org.sakaiproject.calendar.api.CalendarConstants;
 
@@ -7429,6 +7402,7 @@ public class AssignmentAction extends PagedResourceActionII {
         // ------------------- BEGIN GRADING PARAMS -------------------
 
         // grade type and grade points
+        boolean sendToGradebook = params.getBoolean(NEW_ASSIGNMENT_SEND_TO_GRADEBOOK);
         boolean gradeAssignment = params.getBoolean(NEW_ASSIGNMENT_GRADE_ASSIGNMENT);
         state.setAttribute(NEW_ASSIGNMENT_GRADE_ASSIGNMENT, gradeAssignment);
         int gType = gradeAssignment ? params.getInt(NEW_ASSIGNMENT_GRADE_TYPE) : Assignment.GradeType.UNGRADED_GRADE_TYPE.ordinal();
@@ -7453,7 +7427,7 @@ public class AssignmentAction extends PagedResourceActionII {
             }
         }
 
-        String grading = params.getString(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK);
+        String grading = sendToGradebook ? params.getString(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK) : GRADEBOOK_INTEGRATION_NO;
 
         // Currently, gradebook can only handle score types. Force GRADEBOOK_INTEGRATION_NO if the
         // grade type is anything other
