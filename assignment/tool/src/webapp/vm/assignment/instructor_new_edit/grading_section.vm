@@ -81,9 +81,28 @@ This section contains the options for grading this assignment, including rubrics
             </sakai-rubric-association>
         </div>
 
-		<div class="form-group">
-			<div>
-				<div id="assignmentGradingGradebookOptionsPanel">
+		## show the "Add to Gradebook" choices or not
+		#if(!$!allowGroupAssignmentsInGradebook)
+			#set ($addToGBDisplay="none")
+		#else
+			#set ($addToGBDisplay="block")
+		#end
+		#set($sendToGradebook=false)
+		#if($!gradebookChoice.equals("$!gradebookChoice_add") || $!gradebookChoice.equals("$!gradebookChoice_associate"))
+			#set($sendToGradebook=true)
+		#end
+		<div class="form-group" style="display:$!addToGBDisplay">
+			<div style="display:$!addToGBDisplay">
+				<div class="checkbox">  ## Send to Gradebook
+					<label for="$name_SendToGradebook">
+						<input type="checkbox" id="$name_SendToGradebook" name="$name_SendToGradebook" value="true"
+							   #if($sendToGradebook)checked#end
+							   onclick="ASN_INE.handleSendToGradebookClick(this, '$!gradebookChoice_add', '$!gradebookChoice_associate' );" >
+						$tlang.getString("grading.send")
+					</label>
+				</div>
+
+				<div id="assignmentGradingGradebookOptionsPanel" class="indnt3" #if(!$sendToGradebook)style="display: none;"#end>
 					#if (!$!noAddToGradebookChoice)
 						<div class="radio">  ## Add to Gradebook
 							<label id="radioAddToGbLabel" for="$!gradebookChoice_add">
