@@ -8,15 +8,18 @@ GbGradeTable.dropdownShownHandler = e => {
   e.target.nextElementSibling.querySelector("li:not(.d-none) a").focus();
 };
 
-var addHiddenGbItemsCallback = function (hiddenItems) {
-
-  GbGradeTable._onReadyCallbacks.push(function () {
-
-    hiddenItems.forEach(i => {
-
-      $(".gb-filter :input:checked[value='" + i + "']")
-        .attr("data-suppress-update-view-preferences", "true")
-        .trigger("click", [true]);
+const addHiddenGbItemsCallback = (hiddenItems) => {
+  GbGradeTable._onReadyCallbacks.push(() => {
+    hiddenItems.forEach((item) => {
+      document.querySelectorAll('.gb-filter input:checked').forEach((element) => {
+        if (element.value === item) {
+          element.setAttribute('data-suppress-update-view-preferences', 'true');
+          element.dispatchEvent(new Event('click', { 
+            bubbles: true,
+            detail: [true]
+          }));
+        }
+      });
     });
   });
 };
