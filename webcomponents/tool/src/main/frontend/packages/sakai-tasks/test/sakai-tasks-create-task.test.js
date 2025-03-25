@@ -1,20 +1,19 @@
 import "../sakai-tasks-create-task.js";
-import { html } from "lit";
 import * as data from "./data.js";
 import * as dialogContentData from "../../sakai-dialog-content/test/data.js";
 import * as groupPickerData from "../../sakai-group-picker/test/data.js";
 import { SITE } from "../src/assignation-types.js";
-import { expect, fixture, waitUntil, aTimeout } from "@open-wc/testing";
+import { elementUpdated, expect, fixture, html } from "@open-wc/testing";
 import fetchMock from "fetch-mock/esm/client";
 
 describe("sakai-tasks-create-task tests", () => {
 
   const minusFiveHours = -5 * 60 * 60 * 1000;
-  window.top.portal = { locale: "en_GB", user: { offsetFromServerMillis: minusFiveHours, timezone: "America/New_York" } };
+  window.top.portal = { user: { offsetFromServerMillis: minusFiveHours, timezone: "America/New_York" } };
 
   fetchMock
     .get(data.i18nUrl, data.i18n, { overwriteRoutes: true })
-    .get(dialogContentData.i18nUrl, dialogContentData.i18n, { overwriteRoutes: true })
+    .get(dialogContentData.baseI18nUrl, dialogContentData.baseI18n, { overwriteRoutes: true })
     .get(groupPickerData.i18nUrl, groupPickerData.i18n, { overwriteRoutes: true })
     .get(groupPickerData.groupsUrl, groupPickerData.groups, { overwriteRoutes: true })
     .get(data.tasksUrl, data.tasks, { overwriteRoutes: true })
@@ -42,7 +41,9 @@ describe("sakai-tasks-create-task tests", () => {
     const notes = "This task is about going to space";
     const priority = "5";
 
-    await waitUntil(() => el._i18n);
+    await elementUpdated(el);
+
+    await expect(el).to.be.accessible();
 
     const descriptionEl = el.shadowRoot.getElementById("description");
     expect(descriptionEl).to.exist;
@@ -85,7 +86,9 @@ describe("sakai-tasks-create-task tests", () => {
       <sakai-tasks-create-task site-id="${data.siteId}" deliver-tasks></sakai-tasks-create-task>
     `);
 
-    await waitUntil(() => el._i18n && el.groups);
+    await elementUpdated(el);
+
+    await expect(el).to.be.accessible();
 
     const descriptionEl = el.shadowRoot.getElementById("description");
     expect(descriptionEl).to.exist;
@@ -104,20 +107,11 @@ describe("sakai-tasks-create-task tests", () => {
       <sakai-tasks-create-task site-id="${data.siteId}" .groups=${groupPickerData.groups} deliver-tasks></sakai-tasks-create-task>
     `);
 
-    await waitUntil(() => el._i18n && el.groups);
+    await elementUpdated(el);
+
+    await expect(el).to.be.accessible();
 
     expect(el.shadowRoot.getElementById("task-groups")).to.exist;
     expect(el.shadowRoot.querySelector("sakai-group-picker")).to.exist;
-  });
-
-  it ("is accessible", async () => {
-
-    let el = await fixture(html`
-      <sakai-tasks-create-task user-id="${data.userId}"></sakai-tasks-create-task>
-    `);
-
-    await waitUntil(() => el._i18n);
-
-    expect(el.shadowRoot).to.be.accessible();
   });
 });

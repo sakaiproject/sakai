@@ -5,17 +5,12 @@ import "../sakai-rubric-student-preview-button.js";
 import "../sakai-rubric-criterion-preview.js";
 import "../sakai-rubric-criteria-readonly.js";
 import "../sakai-rubrics-utils.js";
-import { html } from "lit";
 import * as data from "./data.js";
-import { elementUpdated, expect, fixture, oneEvent, waitUntil } from "@open-wc/testing";
+import { elementUpdated, expect, fixture, html, oneEvent, waitUntil } from "@open-wc/testing";
 import fetchMock from "fetch-mock/esm/client";
-
-window.top.portal = { locale: "en_GB" };
 
 fetchMock
   .get(data.i18nUrl, data.i18n, { overwriteRoutes: true })
-  //.get(data.rubric1Url, data.rubric1, { overwriteRoutes: true })
-  //.get(data.associationUrl, data.association, { overwriteRoutes: true })
   .get("*", 500, { overwriteRoutes: true });
 
 window.sakai = window.sakai || {

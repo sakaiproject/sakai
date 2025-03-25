@@ -1,6 +1,5 @@
 import "../sakai-reorderer.js";
-import { html } from "lit";
-import { expect, fixture, waitUntil, aTimeout } from "@open-wc/testing";
+import { fixture, html } from "@open-wc/testing";
 
 describe("sakai-reorderer tests", () => {
 

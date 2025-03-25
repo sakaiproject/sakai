@@ -16,7 +16,7 @@ export class SakaiGroupPicker extends SakaiElement {
 
     super();
 
-    this.loadTranslations("group-picker").then(t => this._i18n = t);
+    this.loadTranslations("group-picker");
   }
 
   connectedCallback() {
