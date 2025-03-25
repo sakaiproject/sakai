@@ -203,7 +203,7 @@ describe("sakai-conversations-settings tests", () => {
     await waitUntil(() => el._i18n);
     await elementUpdated(el);
 
-    expect(el).to.be.accessible();
+    await expect(el).to.be.accessible();
 
     // Check if guidelines block is not displayed
     const guidelinesBlock = el.querySelector("#settings-guidelines-block");

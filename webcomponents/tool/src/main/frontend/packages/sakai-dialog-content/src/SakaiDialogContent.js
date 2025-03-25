@@ -6,11 +6,7 @@ import { loadProperties as lp } from "@sakai-ui/sakai-i18n";
 
 export class SakaiDialogContent extends SakaiShadowElement {
 
-  static properties = {
-
-    title: { type: String },
-    _baseI18n: { state: true },
-  };
+  static properties = { _baseI18n: { state: true } };
 
   constructor() {
 
@@ -30,6 +26,8 @@ export class SakaiDialogContent extends SakaiShadowElement {
   loadProperties(options) {
     return lp(options);
   }
+
+  title() {}
 
   content() {}
 

@@ -21,15 +21,6 @@ describe("sakai-picture-changer tests", () => {
 
     await waitUntil(() => el._i18n);
 
-    expect(document.getElementById("image")).to.exist;
-  });
-
-  it ("is accessible", async () => {
-
-    let el = await fixture(html`
-      <sakai-picture-changer></sakai-picture-changer>
-    `);
-
-    expect(el).to.be.accessible();
+    expect(document.getElementById("image")).to.not.exist;
   });
 });

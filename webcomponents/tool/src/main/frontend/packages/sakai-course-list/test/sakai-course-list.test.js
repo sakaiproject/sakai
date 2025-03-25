@@ -1,5 +1,5 @@
 import "../sakai-course-list.js";
-import { expect, fixture, waitUntil } from "@open-wc/testing";
+import { elementUpdated, expect, fixture, waitUntil } from "@open-wc/testing";
 import { html } from "lit";
 import * as data from "./data.js";
 import * as courseCardData from "../../sakai-course-card/test/data.js";
@@ -23,17 +23,11 @@ describe("sakai-course-list tests", () => {
     await waitUntil(() => el._i18n);
     await waitUntil(() => el.sites);
 
-    expect(el.querySelectorAll("#course-list-term-filter option").length).to.equal(3);
-    expect(el.querySelectorAll("sakai-course-card").length).to.equal(3);
-  });
-
-  it ("is accessible", async () => {
-
-    const el = await fixture(html`<sakai-course-list user-id="${data.userId}"></sakai-course-list>`);
-
-    await waitUntil(() => el._i18n);
-    await waitUntil(() => el.sites);
+    await elementUpdated(el);
 
     await expect(el).to.be.accessible();
+
+    expect(el.querySelectorAll("#course-list-term-filter option").length).to.equal(3);
+    expect(el.querySelectorAll("sakai-course-card").length).to.equal(3);
   });
 });

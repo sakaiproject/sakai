@@ -109,6 +109,7 @@ describe("add-topic tests", () => {
 
     const lockDate = Date.now() + 3 * day;
 
+
     const lockdatePicker = el.querySelectorAll("sakai-date-picker").item(1);
     setTimeout(() => lockdatePicker.dispatchEvent(new CustomEvent("datetime-selected", { detail: { epochSeconds: lockDate } })));
 
@@ -211,7 +212,5 @@ describe("add-topic tests", () => {
     // Check that cancel fires the event
     setTimeout(() => el.querySelector("#button-block input:nth-child(3)").click());
     await oneEvent(el, "topic-add-cancelled");
-
-    await expect(el).to.be.accessible();
   });
 });

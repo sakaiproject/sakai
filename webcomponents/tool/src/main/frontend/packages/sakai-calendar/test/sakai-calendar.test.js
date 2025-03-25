@@ -2,7 +2,7 @@ import "../sakai-calendar.js";
 import { html } from "lit";
 import * as data from "./data.js";
 import * as sitePickerData from "../../sakai-site-picker/test/data.js";
-import { expect, fixture, waitUntil, aTimeout } from "@open-wc/testing";
+import { elementUpdated, expect, fixture, waitUntil } from "@open-wc/testing";
 import fetchMock from "fetch-mock/esm/client";
 
 describe("sakai-calendar tests", () => {
@@ -26,21 +26,16 @@ describe("sakai-calendar tests", () => {
 
     waitUntil(() => el.events);
 
+    await elementUpdated(el);
+    await expect(el).to.be.accessible();
+
     el.dispatchEvent(new CustomEvent("user-selected-date-changed", { detail: { selectedDate: data.selectedDate } }));
 
-    await el.updateComplete;
+    await elementUpdated(el);
+    await expect(el).to.be.accessible();
 
     expect(el.shadowRoot.querySelector("#days-events a")).to.exist;
     expect(el.shadowRoot.querySelectorAll("#days-events a span").item(0).innerHTML).to.contain(data.userCalendarEvents.events[0].title);
     expect(el.shadowRoot.querySelectorAll("#days-events a span").item(1).innerHTML).to.contain(data.userCalendarEvents.events[0].siteTitle);
-  });
-
-  it ("is accessible", async () => {
-
-    let el = await fixture(html`
-      <sakai-calendar user-id="${data.userId}"></sakai-calendar>
-    `);
-
-    expect(el.shadowRoot).to.be.accessible();
   });
 });
