@@ -1,7 +1,7 @@
 import { SakaiShadowElement } from "@sakai-ui/sakai-element";
 import { css, html, nothing } from "lit";
 import "@sakai-ui/sakai-button/sakai-button.js";
-import "@lion/dialog/define";
+import "@lion/ui/dialog.js";
 import "@sakai-ui/sakai-image-editor/sakai-image-editor.js";
 
 export class SakaiCourseHeader extends SakaiShadowElement {

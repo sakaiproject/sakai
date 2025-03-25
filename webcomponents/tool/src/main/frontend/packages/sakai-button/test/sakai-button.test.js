@@ -1,20 +1,28 @@
 import "../sakai-button.js";
-import { expect, fixture, waitUntil } from "@open-wc/testing";
-import { html } from "lit";
+import { elementUpdated, expect, fixture, html, waitUntil } from "@open-wc/testing";
 
 describe("sakai-button tests", () => {
 
-  it ("renders correctly", async () => {
+  it ("renders correctly with text content", async () => {
  
-    const el = await fixture(html`<sakai-button primary>Eggs</sakai-button>`);
+    const el = await fixture(html`<sakai-button title="eggs button" primary>Eggs</sakai-button>`);
+
+    await elementUpdated(el);
+
+    await expect(el).to.be.accessible();
 
     expect(el.shadowRoot.querySelector("button").classList.contains("primary")).to.be.true;
   });
 
-  it ("is accessible", async () => {
+  it ("renders correctly with no text", async () => {
+ 
+    const title = "No text button";
+    const el = await fixture(html`<sakai-button title="${title}"></sakai-button>`);
 
-    const el = await fixture(html`<sakai-button>Eggs</sakai-button>`);
+    await elementUpdated(el);
 
     await expect(el).to.be.accessible();
+
+    expect(el.shadowRoot.querySelector("button").getAttribute("title")).to.equal(title);
   });
 });

@@ -1,5 +1,4 @@
 import "../sakai-announcements.js";
-import { html } from "lit";
 import * as data from "./data.js";
 import {
   TITLE_A_TO_Z,
@@ -11,30 +10,32 @@ import {
   INSTRUCTOR_ORDER,
 } from "../src/sakai-announcements-constants.js";
 import * as sitePickerData from "../../sakai-site-picker/test/data.js";
-import { elementUpdated, expect, fixture, waitUntil, aTimeout } from "@open-wc/testing";
+import { elementUpdated, expect, fixture, html } from "@open-wc/testing";
 import fetchMock from "fetch-mock/esm/client";
 
 describe("sakai-announcements tests", () => {
 
-  window.top.portal = { locale: "en_GB" };
+  beforeEach(async () => {
+    fetchMock.get(data.i18nUrl, data.i18n);
+  });
 
-  fetchMock
-    .get(data.i18nUrl, data.i18n, { overwriteRoutes: true })
-    .get(sitePickerData.i18nUrl, sitePickerData.i18n, { overwriteRoutes: true })
-    .get(data.announcementsUrl, data.announcements, { overwriteRoutes: true })
-    .get(data.siteAnnouncementsUrl, data.siteAnnouncements, { overwriteRoutes: true })
-    .get("*", 500, { overwriteRoutes: true });
+  afterEach(() => {
+    fetchMock.restore();
+  });
 
   it ("renders in user mode correctly", async () => {
 
+    fetchMock.get(data.announcementsUrl, { announcements: data.announcements, sites: sitePickerData.sites });
+    fetchMock.get(sitePickerData.i18nUrl, sitePickerData.i18n);
+
     // In user mode, we'd expect to get announcements from multiple sites.
-    let el = await fixture(html`
+    const el = await fixture(html`
       <sakai-announcements user-id="${data.userId}"></sakai-announcements>
     `);
 
-    await waitUntil(() => el.dataPage);
-
     await elementUpdated(el);
+
+    await expect(el).to.be.accessible();
 
     expect(el.shadowRoot.querySelectorAll("div.title").length).to.equal(3);
 
@@ -83,31 +84,23 @@ describe("sakai-announcements tests", () => {
     siteSelect.dispatchEvent(new CustomEvent("sites-selected", { detail: { value: data.vavavoom }, bubbles: true }));
     await elementUpdated(el);
     expect(el.shadowRoot.querySelectorAll("div.title").length).to.equal(1);
+
+    await expect(el).to.be.accessible();
   });
 
   it ("renders in site mode correctly", async () => {
 
-    let el = await fixture(html`
+    fetchMock.get(data.siteAnnouncementsUrl, { announcements: data.siteAnnouncements });
+
+    const el = await fixture(html`
       <sakai-announcements site-id="${data.siteId}"></sakai-announcements>
     `);
 
-    await waitUntil(() => el.dataPage);
     await elementUpdated(el);
+
+    await expect(el).to.be.accessible();
 
     expect(el.shadowRoot.querySelectorAll(".title").length).to.equal(2);
-
     expect(el.shadowRoot.querySelectorAll(".header").length).to.equal(2);
-  });
-
-  it ("is accessible", async () => {
-
-    let el = await fixture(html`
-      <sakai-announcements user-id="${data.userId}"></sakai-announcements>
-    `);
-
-    await waitUntil(() => el.dataPage);
-    await elementUpdated(el);
-
-    expect(el.shadowRoot).to.be.accessible();
   });
 });

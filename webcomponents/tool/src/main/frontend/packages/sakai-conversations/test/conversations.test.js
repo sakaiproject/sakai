@@ -1,13 +1,12 @@
 import "../sakai-conversations.js";
-import { elementUpdated, expect, fixture, waitUntil } from "@open-wc/testing";
-import { html } from "lit";
+import { elementUpdated, expect, fixture, html, waitUntil } from "@open-wc/testing";
 import * as data from "./data.js";
 import fetchMock from "fetch-mock/esm/client";
 import * as constants from "../src/sakai-conversations-constants.js";
 
 describe("sakai-conversations tests", () => {
 
-  window.top.portal = { locale: "en_GB", siteId: data.siteId, siteTitle: data.siteTitle, user: { id: "user1", timezone: "Europe/London" } };
+  window.top.portal = { siteId: data.siteId, siteTitle: data.siteTitle, user: { id: "user1", timezone: "Europe/London" } };
 
   beforeEach(() => {
 

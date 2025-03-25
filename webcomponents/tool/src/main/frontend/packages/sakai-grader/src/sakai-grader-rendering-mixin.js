@@ -13,7 +13,15 @@ import "@sakai-ui/sakai-rubrics/sakai-rubric-grading-button.js";
 import "@sakai-ui/sakai-rubrics/sakai-rubric-grading.js";
 import "@sakai-ui/sakai-rubrics/sakai-rubric-evaluation-remover.js";
 import "@sakai-ui/sakai-rubrics/sakai-rubric-student.js";
-import { GRADE_CHECKED, LETTER_GRADE_TYPE, SCORE_GRADE_TYPE, PASS_FAIL_GRADE_TYPE, CHECK_GRADE_TYPE } from "./sakai-grader-constants.js";
+import { getSiteId } from "@sakai-ui/sakai-portal-utils";
+import {
+  GRADE_CHECKED,
+  LETTER_GRADE_TYPE,
+  SCORE_GRADE_TYPE,
+  PASS_FAIL_GRADE_TYPE,
+  CHECK_GRADE_TYPE,
+  TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION
+} from "./sakai-grader-constants.js";
 
 export const graderRenderingMixin = Base => class extends Base {
 
@@ -160,7 +168,10 @@ export const graderRenderingMixin = Base => class extends Base {
           ${this._submittedTextMode ? html`
             <div>
               <div class="sak-banner-info">${unsafeHTML(this._i18n.inline_feedback_instruction)}</div>
-              <textarea id="grader-inline-feedback-editor" class="${!this._inlineFeedbackEditorShowing ? "d-none" : ""}">${this._submission.feedbackText}</textarea>
+              <textarea id="grader-inline-feedback-editor"
+                  class="${!this._inlineFeedbackEditorShowing ? "d-none" : ""}"
+                  .value=${this._submission.feedbackText}>
+              </textarea>
               <div id="grader-feedback-text" class="${this._inlineFeedbackEditorShowing ? "d-none" : ""}">${unsafeHTML(this._submission.feedbackText)}</div>
               <button class="btn btn-secondary inline-feedback-button ${this._inlineFeedbackEditorShowing ? "d-none" : ""}"
                   @click=${this._toggleInlineFeedback}
@@ -198,7 +209,7 @@ export const graderRenderingMixin = Base => class extends Base {
                     <div class="accordion-body">
                       ${this.hasAssociatedRubric === "true" ? html`
                         <sakai-rubric-student
-                          site-id="${portal.siteId}"
+                          site-id="${getSiteId()}"
                           tool-id="${this.toolId}"
                           entity-id="${this.entityId}"
                           instructor
@@ -292,7 +303,7 @@ export const graderRenderingMixin = Base => class extends Base {
           .value=${submitter ? submitter.overridden ? submitter.grade : "" : this._submission.grade} />
         ${this._renderSaved()}
         ${this._renderFailed()}
-        <span>(${this._i18n["grade.max"]} ${this.gradable.maxGradePoint})</span>
+        <span id="grader-max-point-label">(${this._i18n["grade.max"]} ${this.gradable.maxGradePoint})</span>
         ${this.gradable.allowPeerAssessment ? html`
           <button id="peer-info"
               class="btn transparent-button"
@@ -354,7 +365,7 @@ export const graderRenderingMixin = Base => class extends Base {
       <div id="grader" class="offcanvas offcanvas-end d-lg-block" data-bs-backdrop="static" tabindex="-1" aria-labelledby="grader-label">
 
         <div class="offcanvas-header">
-          <sakai-user-photo site-id="${portal.siteId}" user-id="${this._getPhotoUserId()}" classes="grader-photo" profile-popup="on"></sakai-user-photo>
+          <sakai-user-photo site-id="${getSiteId()}" user-id="${this._getPhotoUserId()}" classes="grader-photo" profile-popup="on"></sakai-user-photo>
           <h2 class="offcanvas-title" id="grader-label">
             ${this._getSubmitter(this._submission)}
           </h2>
@@ -446,7 +457,7 @@ export const graderRenderingMixin = Base => class extends Base {
                         aria-label="${this._i18n.grading_rubric}"
                         title="${this._i18n.grading_rubric}"
                         @click=${this._toggleRubric}
-                        site-id="${portal.siteId}"
+                        site-id="${getSiteId()}"
                         tool-id="${this.toolId}"
                         entity-id="${this.entityId}"
                         evaluated-item-id="${this._submission.id}"
@@ -455,7 +466,7 @@ export const graderRenderingMixin = Base => class extends Base {
                     </sakai-rubric-grading-button>
                     <sakai-rubric-evaluation-remover
                         class="ms-2"
-                        site-id="${portal.siteId}"
+                        site-id="${getSiteId()}"
                         tool-id="${this.toolId}"
                         entity-id="${this.entityId}"
                         evaluated-item-id="${this._submission.id}"
@@ -468,7 +479,7 @@ export const graderRenderingMixin = Base => class extends Base {
 
               <div id="grader-rubric-block" class="ms-2 ${this._rubricShowing ? "d-block" : "d-none"}">
                 <sakai-rubric-grading
-                  site-id="${portal.siteId}"
+                  site-id="${getSiteId()}"
                   tool-id="${this.toolId}"
                   entity-id="${this.entityId}"
                   evaluated-item-id="${this._submission.id}"
@@ -508,7 +519,7 @@ export const graderRenderingMixin = Base => class extends Base {
                 <h1>${this._i18n.autoevaluation}</h1>
                 <p>${this._i18n.studentrubric}</p>
                 <sakai-rubric-student
-                  site-id="${portal.siteId}"
+                  site-id="${getSiteId()}"
                   tool-id="${this.toolId}"
                   entity-id="${this.entityId}"
                   instructor
@@ -791,7 +802,7 @@ export const graderRenderingMixin = Base => class extends Base {
         <div id="grader-gradable-container" class="flex-grow-1">
           <div id="grader-submitted-block" class="grader-block">
             <div class="d-flex mb-3">
-              <sakai-user-photo site-id="${portal.siteId}" user-id="${this._getPhotoUserId()}" classes="grader-photo" profile-popup="on"></sakai-user-photo>
+              <sakai-user-photo site-id="${getSiteId()}" user-id="${this._getPhotoUserId()}" classes="grader-photo" profile-popup="on"></sakai-user-photo>
               <div style="flex: 4;">
                 <span class="submitter-name">
                   ${this._getSubmitter(this._submission)}
@@ -816,7 +827,7 @@ export const graderRenderingMixin = Base => class extends Base {
             <div class="attachments">
               ${this._submission.submittedText
                   && this._submission.visible
-                  && this.gradable.submissionType === "TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION"
+                  && this.gradable.submissionType === TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION
                   && this._submission.hasNonInlineAttachments ? html`
               <div>
                 <button type="button"

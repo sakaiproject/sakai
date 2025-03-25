@@ -1,6 +1,6 @@
 export const userId = "adrian";
 
-export const profileUrl = `/api/users/${userId}/profile`;
+export const profileUrl = /\/api\/users\/.*\/profile.*/;
 
 export const profile = {
   name: "Adrian Fish",

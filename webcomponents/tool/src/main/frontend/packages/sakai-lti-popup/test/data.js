@@ -1,4 +1,4 @@
-export const i18nUrl = "/sakai-ws/rest/i18n/getI18nProperties?locale=en_GB&resourceclass=org.sakaiproject.i18n.InternationalizedMessages&resourcebundle=lti";
+export const i18nUrl = /getI18nProperties.*lti/;
 
 export const i18n = `
 pre_launch_text=Open tool in a new window.

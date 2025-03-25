@@ -1,3 +1,4 @@
+export const i18nUrl = /getI18nProperties.*grader$/;
 export const i18n = `
 at=at
 attachment=Attachment
@@ -137,4 +138,11 @@ gen.can=Cancel
 grades.lateness.late=Late
 gen.assign.spent=Time spent:
 select_category_label=Select a category
+`;
+
+export const filePickerI18nUrl = /getI18nProperties.*file-picker/;
+
+export const filePickerI18n = `
+remove=Remove
+to_be_added=To be added:
 `;

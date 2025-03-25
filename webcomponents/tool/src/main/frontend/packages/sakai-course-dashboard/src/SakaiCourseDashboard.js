@@ -2,7 +2,7 @@ import { html, nothing } from "lit";
 import { SakaiElement } from "@sakai-ui/sakai-element";
 import "@sakai-ui/sakai-button/sakai-button.js";
 import "@sakai-ui/sakai-widgets/sakai-widget-panel.js";
-import "@lion/dialog/define";
+import "@lion/ui/dialog.js";
 import "../sakai-course-dashboard-template-picker.js";
 import "../sakai-course-header.js";
 import "../sakai-course-overview.js";
