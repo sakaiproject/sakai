@@ -7980,56 +7980,58 @@ public class SimplePageBean {
 
 		}
 
-		Integer pointsInt = parseMaxPoints(maxPoints);
+		if (graded) {
+			Integer pointsInt = parseMaxPoints(maxPoints);
 
-		if (pointsInt == null) {
-			return "failure";
-		}
+			if (pointsInt == null) {
+				return "failure";
+			}
 
-		if (!graded || (gradebookTitle != null && gradebookTitle.trim().equals(""))) {
-		    gradebookTitle = null;
-		}
+			if (StringUtils.isBlank(gradebookTitle)) {
+				gradebookTitle = null;
+			}
 
-		List<String> questionGroupList = item.getGroups() != null ? Arrays.asList(item.getGroups().split(",")) : new ArrayList<>();
-		List<String> gradebookUids = Arrays.asList(getCurrentSiteId());
+			List<String> questionGroupList = item.getGroups() != null ? Arrays.asList(item.getGroups().split(",")) : new ArrayList<>();
+			List<String> gradebookUids = Arrays.asList(getCurrentSiteId());
 
-		if (gradebookIfc.isGradebookGroupEnabled(getCurrentSiteId())) {
-			gradebookUids = Arrays.asList(selectedGroups);
+			if (gradebookIfc.isGradebookGroupEnabled(getCurrentSiteId())) {
+				gradebookUids = Arrays.asList(selectedGroups);
 
-			List<String> addedGroups = buildGradebookUidList(questionGroupList, gradebookUids, "CREATE");
-			List<String> updatedGroups = buildGradebookUidList(questionGroupList, gradebookUids, "UPDATE");
-			List<String> deletedGroups = buildGradebookUidList(questionGroupList, gradebookUids, "DELETE");
+				List<String> addedGroups = buildGradebookUidList(questionGroupList, gradebookUids, "CREATE");
+				List<String> updatedGroups = buildGradebookUidList(questionGroupList, gradebookUids, "UPDATE");
+				List<String> deletedGroups = buildGradebookUidList(questionGroupList, gradebookUids, "DELETE");
 
-			if (gradebookTitle != null) {
-				createGradebookItem(addedGroups, item, pointsInt);
-				updateGradebookItem(updatedGroups, item, pointsInt);
-				deleteGradebookItem(deletedGroups, item, questionGroupList);
+				if (gradebookTitle != null) {
+					createGradebookItem(addedGroups, item, pointsInt);
+					updateGradebookItem(updatedGroups, item, pointsInt);
+					deleteGradebookItem(deletedGroups, item, questionGroupList);
+				} else {
+					deleteGradebookItem(questionGroupList, item, questionGroupList);
+					selectedGroups = new String[] {};
+				}
 			} else {
-				deleteGradebookItem(questionGroupList, item, questionGroupList);
-				selectedGroups = new String[] {};
+				if (gradebookTitle != null && (item.getGradebookId() == null || item.getGradebookId().equals(""))) {
+					createGradebookItem(gradebookUids, item, pointsInt);
+				} else if (gradebookTitle != null) {
+					updateGradebookItem(gradebookUids, item, pointsInt);
+				} else if(gradebookTitle == null && (item.getGradebookId() != null && !item.getGradebookId().equals(""))) {
+					deleteGradebookItem(gradebookUids, item, new ArrayList<>());
+				}
 			}
+
+			item.setAttribute("questionGraded", String.valueOf(graded));
+			item.setGradebookPoints(pointsInt);
 		} else {
-			if (gradebookTitle != null && (item.getGradebookId() == null || item.getGradebookId().equals(""))) {
-				createGradebookItem(gradebookUids, item, pointsInt);
-			} else if (gradebookTitle != null) {
-				updateGradebookItem(gradebookUids, item, pointsInt);
-			} else if(gradebookTitle == null && (item.getGradebookId() != null && !item.getGradebookId().equals(""))) {
-				deleteGradebookItem(gradebookUids, item, new ArrayList<>());
-			}
+		    item.setGradebookPoints(null);
 		}
 
-		item.setAttribute("questionGraded", String.valueOf(graded));
 		item.setRequired(required);
-		if (graded)
-		    item.setGradebookPoints(pointsInt);
-		else
-		    item.setGradebookPoints(null);
 		item.setPrerequisite(prerequisite);
-		
+
 		setItemGroups(item, selectedGroups);
 
 		saveOrUpdate(item);
-		
+
 		// Create or update a task
 		String reference = "/lessonbuilder/item/" + item.getId();
 		String title = getPage(item.getPageId()).getTitle() + " - " + messageLocator.getMessage("simplepage.question-task-title");
