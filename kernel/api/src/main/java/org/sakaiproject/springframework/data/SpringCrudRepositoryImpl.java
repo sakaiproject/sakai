@@ -46,14 +46,26 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 public abstract class SpringCrudRepositoryImpl<T extends PersistableEntity<ID>, ID extends Serializable> implements SpringCrudRepository<T, ID> {
 
+    // currently using a static since all entities should use these mappers
+    protected static ObjectMapper jsonMapper = MapperFactory.createDefaultJsonMapper();
+    protected static ObjectMapper xmlMapper = MapperFactory.createDefaultXmlMapper();
+    protected static ObjectMapper xmlMapperDisableCDataAsText = MapperFactory.xmlBuilder()
+            .registerJavaTimeModule()
+            .disableDateTimestamps()
+            .ignoreUnknownProperties()
+            .excludeNulls()
+            .disableOutputCDataAsText()
+            .disableNamespaceAware()
+            .setMaxAttributeSize(32000)
+            .enableRepairingNamespaces()
+            .enablePrettyPrinting()
+            .enableOutputXML11()
+            .build();
+
     public static final int BATCH_SIZE = 100;
 
     @Getter
     private final Class<T> domainClass;
-
-    @Setter
-    @Autowired // Needed for java configured tests
-    private MapperFactory mapperFactory;
 
     @Setter
     protected SessionFactory sessionFactory;
@@ -188,35 +200,29 @@ public abstract class SpringCrudRepositoryImpl<T extends PersistableEntity<ID>, 
 
     @Override
     public String toJSON(T t) {
-
-        if (t == null) return "";
-
         String json = "";
 
-        sessionFactory.getCurrentSession().refresh(t);
-        ObjectMapper mapper = mapperFactory.getJsonMapper();
-        try {
-            json = mapper.writeValueAsString(t);
-        } catch (JsonProcessingException e) {
-            log.warn("Could not serialize to json", e);
-            json = "";
+        if (t != null) {
+            sessionFactory.getCurrentSession().refresh(t);
+            try {
+                json = jsonMapper.writeValueAsString(t);
+            } catch (JsonProcessingException e) {
+                log.warn("Could not serialize to json", e);
+            }
         }
         return json;
     }
 
     @Override
     public T fromJSON(String json) {
-
-        if (StringUtils.isBlank(json)) return null;
-
         T obj = null;
 
-        ObjectMapper mapper = mapperFactory.getJsonMapper();
-        try {
-            obj = mapper.readValue(json, getDomainClass());
-        } catch (IOException e) {
-            log.warn("Could not deserialize json", e);
-            obj = null;
+        if (StringUtils.isNotBlank(json)) {
+            try {
+                obj = jsonMapper.readValue(json, getDomainClass());
+            } catch (IOException e) {
+                log.warn("Could not deserialize json", e);
+            }
         }
         return obj;
     }
@@ -227,36 +233,30 @@ public abstract class SpringCrudRepositoryImpl<T extends PersistableEntity<ID>, 
     }
 
     @Override
-    public String toXML(T t, boolean cdataasText) {
-
-        if (t == null) return "";
-
+    public String toXML(T t, boolean cdataAsText) {
         String xml = "";
 
-        sessionFactory.getCurrentSession().refresh(t);
-        XmlMapper mapper = cdataasText ? mapperFactory.getWrappedXmlMapper() : mapperFactory.getXmlMapper();
-        try {
-            xml = mapper.writeValueAsString(t);
-        } catch (JsonProcessingException e) {
-            log.warn("Could not serialize to xml", e);
-            xml = "";
+        if (t != null) {
+            sessionFactory.getCurrentSession().refresh(t);
+            try {
+                xml = cdataAsText ? xmlMapper.writeValueAsString(t) : xmlMapperDisableCDataAsText.writeValueAsString(t);
+            } catch (JsonProcessingException e) {
+                log.warn("Could not serialize to xml", e);
+            }
         }
         return xml;
     }
 
     @Override
     public T fromXML(String xml) {
-
-        if (StringUtils.isBlank(xml)) return null;
-
         T obj = null;
 
-        XmlMapper mapper = mapperFactory.getXmlMapper();
-        try {
-            obj = mapper.readValue(xml, getDomainClass());
-        } catch (IOException e) {
-            log.warn("Could not deserialize xml", e);
-            obj = null;
+        if (StringUtils.isNotBlank(xml)) {
+            try {
+                obj = xmlMapper.readValue(xml, getDomainClass());
+            } catch (IOException e) {
+                log.warn("Could not deserialize xml", e);
+            }
         }
         return obj;
     }
