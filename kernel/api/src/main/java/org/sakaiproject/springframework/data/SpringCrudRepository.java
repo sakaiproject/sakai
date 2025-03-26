@@ -136,4 +136,47 @@ public interface SpringCrudRepository<T extends PersistableEntity<ID>, ID extend
      * @throws IllegalArgumentException in case the given entity is {@literal null}.
      */
     <S extends T> Iterable<S> saveAll(Iterable<S> entities);
+
+    /**
+     * Serialize object to JSON
+     *
+     * @param t
+     * @return String
+     */
+    String toJSON(T t);
+
+    /**
+     * Deserialize object from JSON
+     *
+     * @param json
+     * @return T
+     */
+    T fromJSON(String json);
+
+    /**
+     * Serialize object to XML. Wraps long strings as cdata inside a wrapper text element
+     *
+     * @param t
+     *
+     * @return String The xml
+     */
+    String toXML(T t);
+
+    /**
+     * Serialize object to XML
+     *
+     * @param t
+     * @param cdataAsText If false, avoids wrapping long strings as cdata inside a text element
+     *
+     * @return String The xml
+     */
+    String toXML(T t, boolean cdataasText);
+
+    /**
+     * Deserialize object from XML
+     *
+     * @param xml
+     * @return T
+     */
+    T fromXML(String xml);
 }

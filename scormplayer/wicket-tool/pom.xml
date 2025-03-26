@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.sakaiproject.scorm</groupId>
         <artifactId>scorm-base</artifactId>
-        <version>25-SNAPSHOT</version>
+        <version>26-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
