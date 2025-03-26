@@ -44,13 +44,13 @@ public class FakeData {
 	public final static int						SITE_C_USER_COUNT	= 2002;
 	
 	// USERs
-	public final static String					USER_A_ID			= "user-a";
-	public final static String					USER_B_ID			= "user-b";
 	public final static String					USER_ID_PREFIX		= "user-";
+	public final static String					USER_A_ID			= USER_ID_PREFIX  + "a";
+	public final static String					USER_B_ID			= USER_ID_PREFIX  + "b";
 
 	// SESSIONs
 	public final static String					SESSION_ID_PREFIX		= "session-id-";
-	public final static String					SESSION_A_ID			= SESSION_ID_PREFIX + "a";
+	public final static String					SESSION_A_ID			= SESSION_ID_PREFIX  + "a";
 	public final static String					SESSION_B_ID			= SESSION_ID_PREFIX  + "b";
 	public final static String					SESSION_C_ID			= SESSION_ID_PREFIX  + "c";
 	public final static String					SESSION_D_ID			= SESSION_ID_PREFIX  + "d";
