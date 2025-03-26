@@ -209,6 +209,8 @@ const defaults = {
 
 	  // Set input type after setting value
 	  this.element.type = this.options.useTime ? "datetime-local" : "date";
+	  // Add max date restriction
+	  this.element.max = this.options.useTime ? "2099-12-31T23:59" : "2099-12-31";
 
 	  // Complete setup
 	  this.createHiddenFields();
