@@ -51,7 +51,6 @@
     <sakai.woodstox.version>7.0.0</sakai.woodstox.version>
     <sakai.stax2.version>4.2.1</sakai.stax2.version>
     <sakai.java.jwt.version>3.1.0</sakai.java.jwt.version>
-    <sakai.jsonwebtoken.jjwt.version>0.11.5</sakai.jsonwebtoken.jjwt.version>
     <sakai.jaxb.version>2.3.6</sakai.jaxb.version>
     <sakai.jstl.version>1.2</sakai.jstl.version>
     <sakai.lombok.version>1.18.36</sakai.lombok.version>
@@ -93,7 +92,7 @@
     <hamcrest.all.version>1.3</hamcrest.all.version>
     <junit.version>4.13.2</junit.version>
     <sakai.nimbus.jose.jwt.version>9.37.2</sakai.nimbus.jose.jwt.version>
-    <sakai.io.jsonwebtoken.version>0.10.5</sakai.io.jsonwebtoken.version>
+    <sakai.io.jsonwebtoken.version>0.11.5</sakai.io.jsonwebtoken.version>
 
     <!-- Sakai modules that are versioned separately -->
     <!-- lessonbuilder tool pom depends on msgcntr ver prop. Need to add a profile to the LB tool pom to mark change between 10.x master and earlier versions -->
