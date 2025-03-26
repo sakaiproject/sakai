@@ -75,8 +75,15 @@ public class Score extends org.tsugi.jackson.objects.JacksonBase {
 	
 	@JsonProperty("timestamp")
 	public String timestamp;
+	/*
+	 * All scoreGiven values MUST be positive number (including 0). scoreMaximum represents the denominator and MUST be present
+	 * when scoreGiven is present. When scoreGiven is not present or null, this indicates there is presently no score for
+	 * that user, and the platform should clear any previous score value it may have previously received from the tool and
+	 *stored for that user and line item.
+	 */
 	@JsonProperty("scoreGiven")
 	public Double scoreGiven;
+	// The maximum score for this line item. Maximum score MUST be a numeric non-null value, strictly greater than 0.
 	@JsonProperty("scoreMaximum")
 	public Double scoreMaximum;
 	@JsonProperty("userId")
@@ -87,4 +94,21 @@ public class Score extends org.tsugi.jackson.objects.JacksonBase {
 	public String activityProgress;
 	@JsonProperty("gradingProgress")
 	public String gradingProgress;
+
+	public Double getScoreGiven() {
+		if (scoreGiven == null ) return null;
+		if ( scoreGiven < 0.0 ) return 0.0;
+		return scoreGiven;
+	}
+
+	public Double getScoreMaximum() {
+		if ( scoreMaximum != null && scoreMaximum >= 0.0 ) return scoreMaximum;
+		Double sg = getScoreGiven();
+		if ( sg != null && sg < 2.0 ) return 1.0;
+		return 100.0;
+	}
+
+	public String toString() {
+		return "Score: " + scoreGiven + " / " + scoreMaximum + " " + userId;
+	}
 }
