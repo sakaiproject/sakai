@@ -25,6 +25,7 @@ package org.sakaiproject.rubrics.impl;
 import static org.sakaiproject.rubrics.api.RubricsConstants.RBCS_CONFIG;
 import static org.sakaiproject.rubrics.api.RubricsConstants.RBCS_MULTIPLE_OPTIONS_CONFIG;
 import static org.sakaiproject.rubrics.api.RubricsConstants.RBCS_PREFIX;
+import static org.sakaiproject.rubrics.api.RubricsConstants.LINE_SEPARATOR;
 
 import java.awt.Color;
 import java.io.ByteArrayOutputStream;
@@ -43,10 +44,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.Stack;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.jsoup.Jsoup;
@@ -58,7 +61,6 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
-import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -88,11 +90,8 @@ import org.sakaiproject.rubrics.api.repository.EvaluationRepository;
 import org.sakaiproject.rubrics.api.repository.RatingRepository;
 import org.sakaiproject.rubrics.api.repository.ReturnedEvaluationRepository;
 import org.sakaiproject.rubrics.api.repository.RubricRepository;
-import org.sakaiproject.site.api.Group;
-import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.UserTimeService;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesAPI;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
@@ -101,13 +100,13 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.Xml;
 import org.sakaiproject.util.api.FormattedText;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import com.lowagie.text.Chunk;
 import com.lowagie.text.Document;
-import com.lowagie.text.Element;
 import com.lowagie.text.Font;
 import com.lowagie.text.FontFactory;
 import com.lowagie.text.PageSize;
@@ -119,10 +118,16 @@ import com.lowagie.text.pdf.PdfWriter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSSerializer;
+
 @Slf4j
 @Setter
 @Transactional
-public class RubricsServiceImpl implements RubricsService, EntityProducer, EntityTransferrer {
+public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
 
     private static final Font BOLD_FONT = FontFactory.getFont(FontFactory.HELVETICA, 10, Font.BOLD);
     private static final Font NORMAL_FONT = FontFactory.getFont(FontFactory.HELVETICA, 7, Font.NORMAL);
@@ -1302,7 +1307,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         PdfPCell header = new PdfPCell();
 
         Paragraph paragraph = new Paragraph(resourceLoader.getFormattedMessage("export_rubric_title", rubric.getTitle() + "\n"), BOLD_FONT);
-        paragraph.setAlignment(Element.ALIGN_LEFT);
+        paragraph.setAlignment(com.lowagie.text.Element.ALIGN_LEFT);
         try {
             String siteTitle = siteService.getSite(rubric.getOwnerId()).getTitle();
             paragraph.add(resourceLoader.getFormattedMessage("export_rubric_site", siteTitle));
@@ -1542,6 +1547,106 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
             deleteSiteRubrics(toContext);
         }
         return transferCopyEntities(fromContext, toContext, ids, null);
+    }
+
+    @Override
+    public String getLabel() {
+        return "rubrics";
+    }
+
+    @Override
+    public boolean willArchiveMerge() {
+        return true;
+    }
+
+    @Override
+    public String archive(String siteId, org.w3c.dom.Document doc, Stack<Element> stack, String archivePath, List<Reference> attachments) {
+
+        StringBuilder results = new StringBuilder();
+        results.append("begin archiving ").append(getLabel()).append(" for site ").append(siteId).append(LINE_SEPARATOR);
+
+        Element rubrics = doc.createElement(getLabel());
+        stack.peek().appendChild(rubrics);
+        stack.push(rubrics);
+
+        rubricRepository.findByOwnerId(siteId).stream().sorted((r1, r2) -> r1.getTitle().compareTo(r2.getTitle())).forEach(rubric -> {
+
+            try {
+                // false here means we get cdata nodes without them being nested in text elements
+                String xml = rubricRepository.toXML(rubric, false);
+                Element rubricEl = Xml.readDocumentFromString(xml).getDocumentElement();
+                Node rubricNode = doc.importNode(rubricEl, true);
+                rubrics.appendChild(rubricNode);
+            } catch (Exception e) {
+                log.warn("Failed to archive rubric \"{}\" from site {}: {}", rubric.getTitle(), siteId, e.toString());
+            }
+        });
+
+        stack.pop();
+
+        results.append("completed archiving ").append(getLabel()).append(" for site ").append(siteId).append(LINE_SEPARATOR);
+        return results.toString();
+    }
+
+    @Override
+    public String merge(String toSiteId, Element root, String archivePath, String fromSiteId, Map<String, String> attachmentNames, Map<String, String> userIdTrans, Set<String> userListAllowImport) {
+
+        StringBuilder results = new StringBuilder();
+        results.append("begin merging ").append(getLabel()).append(" for site ").append(toSiteId).append(LINE_SEPARATOR);
+
+        if (!root.getTagName().equals(getLabel())) {
+            log.warn("Tried to merge a non <{}> xml document", getLabel());
+            return "Invalid xml document";
+        }
+
+        Set<String> currentTitles = rubricRepository.findByOwnerId(toSiteId)
+            .stream().map(Rubric::getTitle).collect(Collectors.toSet());
+
+        Instant now = Instant.now();
+
+        NodeList childNodeList = root.getElementsByTagName("rubric");
+        List<Element> rubricElements = IntStream.range(0, childNodeList.getLength()).mapToObj(index -> (Element) childNodeList.item(index)).collect(Collectors.toList());
+
+        if (rubricElements.isEmpty()) {
+            results.append("No rubrics to import from archive of site ").append(fromSiteId);
+            return results.toString();
+        }
+
+        DOMImplementationLS dom = (DOMImplementationLS) rubricElements.get(0).getOwnerDocument().getImplementation();
+        LSSerializer domSerializer = dom.createLSSerializer();
+        domSerializer.getDomConfig().setParameter("xml-declaration", false);
+
+        rubricElements.forEach(rubricEl -> {
+
+            String xml = domSerializer.writeToString(rubricEl);
+
+            Rubric rubric = null;
+            try {
+                rubric = rubricRepository.fromXML(xml);
+            } catch (Exception e) {
+                log.warn("Failed to merge rubric \"{}\" from site {} archive to site {}: {}", rubricEl.getAttribute("title"), fromSiteId, toSiteId, e.toString());
+                return;
+            }
+
+            if (currentTitles.contains(rubric.getTitle())) {
+                log.debug("Rubric \"{}\" already exists in site {}. Skipping merge ...", rubric.getTitle(), toSiteId);
+                return;
+            }
+
+            rubric.setOwnerId(toSiteId);
+            rubric.setCreatorId(sessionManager.getCurrentSessionUserId());
+            rubric.setCreated(now);
+
+            for (Criterion criterion : rubric.getCriteria()) {
+                criterion.setRubric(rubric);
+                criterion.getRatings().forEach(r -> r.setCriterion(criterion));
+            }
+
+            rubricRepository.save(rubric);
+        });
+
+        results.append("completed merging ").append(getLabel()).append(" for site ").append(toSiteId).append(LINE_SEPARATOR);
+        return results.toString();
     }
 
     @Override

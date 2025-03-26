@@ -20,14 +20,14 @@ import javax.annotation.Resource;
 import static org.mockito.Mockito.*;
 
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
-import org.sakaiproject.test.SakaiTestConfiguration;
 import org.sakaiproject.email.api.DigestService;
 import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.emailtemplateservice.api.EmailTemplateService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.ignite.EagerIgniteSpringBean;
-import org.sakaiproject.user.api.PreferencesService;
+import org.sakaiproject.test.SakaiTestConfiguration;
 import org.sakaiproject.time.api.UserTimeService;
+import org.sakaiproject.user.api.PreferencesService;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

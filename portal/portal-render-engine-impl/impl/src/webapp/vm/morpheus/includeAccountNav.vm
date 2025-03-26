@@ -75,7 +75,7 @@ For opening help sidebar
         aria-controls="sakai-calendar-panel"
         aria-label="$rloader.sit_calendar"
         title="$rloader.sit_calendar">
-      <i class="portal-calendar-icon si si-calendar"></i>
+      <span class="si si-calendar" aria-hidden="true"></span>
     </button>
   </li>
 

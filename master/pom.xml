@@ -17,10 +17,10 @@
   <packaging>pom</packaging>
   <name>Sakai Master</name>
   <description>Corporate POM for the Sakai Open Source Collaborative Learning Environment/Learning Management System</description>
-  <version>25-SNAPSHOT</version>
+  <version>26-SNAPSHOT</version>
 
   <properties>
-    <sakai.version>25-SNAPSHOT</sakai.version>
+    <sakai.version>26-SNAPSHOT</sakai.version>
     <!-- Standard dependency versions -->
     <sakai.commons-httpclient.version>3.1</sakai.commons-httpclient.version>
     <sakai.commons-io.version>2.18.0</sakai.commons-io.version>
@@ -42,7 +42,7 @@
     <sakai.httpcore.version>4.4.16</sakai.httpcore.version>
     <sakai.httpmime.version>4.5.14</sakai.httpmime.version>
     <sakai.httpclient5.version>5.4.2</sakai.httpclient5.version>
-    <sakai.httpcore5.version>5.3.3</sakai.httpcore5.version>
+    <sakai.httpcore5.version>5.3.4</sakai.httpcore5.version>
     <sakai.ignite.version>2.17.0</sakai.ignite.version>
     <sakai.ignite.spring.ext.version>2.0.0</sakai.ignite.spring.ext.version>
     <sakai.ignite.hibernate.version>5.3.0</sakai.ignite.hibernate.version>
@@ -1854,7 +1854,7 @@
       <dependency>
         <groupId>org.sakaiproject.calendar</groupId>
         <artifactId>sakai-calendar-util</artifactId>
-        <version>25-SNAPSHOT</version>
+        <version>26-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.calendaring</groupId>

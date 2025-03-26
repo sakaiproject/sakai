@@ -106,5 +106,4 @@ public class CSVReaderTest {
             Assert.assertEquals("Cancellation", row.get(GenericCalendarImporter.ITEM_TYPE_DEFAULT_COLUMN_HEADER));
         }
     }
-
 }

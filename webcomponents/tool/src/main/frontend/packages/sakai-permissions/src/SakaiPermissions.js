@@ -10,7 +10,7 @@ export class SakaiPermissions extends SakaiElement {
     tool: { type: String },
     reference: { type: String },
     overrideReference: { attribute: "override-reference", type: String },
-    disableGroups: { attribute: "disabled-groups", type: Boolean },
+    enableGroups: { attribute: "enable-groups", type: Boolean },
     bundleKey: { attribute: "bundle-key", type: String },
     onRefresh: { attribute: "on-refresh", type: String },
     fireEvent: { attribute: "fire-event", type: Boolean },
@@ -87,6 +87,9 @@ export class SakaiPermissions extends SakaiElement {
     this.querySelectorAll(`#permissions-container .${role.replace(" ", "_")}-checkbox-cell input:not(:disabled)`).forEach(i => i.checked = !anyChecked);
   }
 
+  /**
+   * If no permissions are selected, select them all.
+   */
   _handlePermissionClick(e) {
 
     e.preventDefault();
@@ -115,11 +118,11 @@ export class SakaiPermissions extends SakaiElement {
     if (this.roles) {
       return html`
 
-        ${!this.reference && this.groups?.length > 0 ? html`
+        ${this.groups?.length ? html`
           <div>
             <label for="permissions-group-picker">${this._i18n["per.lis.selectgrp"]}</label>
             <sakai-group-picker id="permissions-group-picker"
-                groups="${JSON.stringify(this.groups)}"
+                .groups=${this.groups}
                 @groups-selected=${this._groupsSelected}>
             </sakai-group-picker>
           </div>
@@ -189,8 +192,8 @@ export class SakaiPermissions extends SakaiElement {
         </div>
 
         <div class="act">
-          <input type="button" class="active" value="${this._i18n["gen.sav"]}" aria-label="${this._i18n["gen.sav"]}" @click="${this._savePermissions}"/>
-          <input type="button" value="${this._i18n["gen.can"]}" aria-label="${this._i18n["gen.can"]}" @click="${this._completePermissions}"/>
+          <input type="button" class="active" .value=${this._i18n["gen.sav"]} aria-label="${this._i18n["gen.sav"]}" @click=${this._savePermissions} />
+          <input type="button" .value="${this._i18n["gen.can"]}" aria-label="${this._i18n["gen.can"]}" @click=${this._completePermissions} />
           <span id="${this.tool}-failure-message" class="permissions-save-message" style="display: none;">${this._i18n["per.error.save"]}</span>
         </div>
       `;
@@ -198,7 +201,7 @@ export class SakaiPermissions extends SakaiElement {
       return html`<div class="sak-banner-error">${this._i18n.alert_permission}</div>`;
     }
 
-    return html`Waiting for permissions`;
+    return html`<div class="sak-banner-info">${this._i18n.waiting_for_permissions}</div>`;
   }
 
   _loadPermissions() {
@@ -207,8 +210,9 @@ export class SakaiPermissions extends SakaiElement {
     fetch(url, { cache: "no-cache" })
       .then(res => {
 
-        if (res.status === 403) {
+        if (res.status === 403 || res.status === 400) {
           this.error = true;
+          throw new Error("400 or a 403 error");
         } else {
           this.error = false;
           return res.json();
@@ -220,14 +224,13 @@ export class SakaiPermissions extends SakaiElement {
         this.locked = data.locked;
         this.available = data.available;
         this.disabled = data.disabled;
-        if (!this.disableGroups) {
+        if (this.enableGroups) {
           this.groups = data.groups;
         }
-        this.roles = Object.keys(this.on);
         this.roleNameMappings = data.roleNameMappings;
-        this.requestUpdate();
+        this.roles = Object.keys(this.on);
       })
-      .catch(error => console.error(`Failed to load permissions for tool ${this.tool} from ${url}`, error));
+      .catch (error => console.error(`Failed to load permissions for tool ${this.tool} from ${url}`, error));
   }
 
   _savePermissions() {
