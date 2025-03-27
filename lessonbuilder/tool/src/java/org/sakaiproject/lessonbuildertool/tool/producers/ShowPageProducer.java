@@ -690,6 +690,15 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		showAll.setSource("summary");
 		UIInternalLink.make(tofill, "print-view", showAll)
 		    .decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.print_view")));
+
+		boolean	isLessonPrintAllEnabled = ServerConfigurationService.getBoolean("lessonbuilder.printAll", false);
+
+		if (isLessonPrintAllEnabled) {
+			UIOutput.make(tofill, "show-print-all");
+		}
+
+		UIInternalLink.make(tofill, "print-all", showAll)
+ 		    .decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.print_all")));
 		UIInternalLink.make(tofill, "show-pages", showAll)
 		    .decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.showallpages")));
 		
