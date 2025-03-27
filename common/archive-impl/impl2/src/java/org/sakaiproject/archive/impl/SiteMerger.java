@@ -293,7 +293,6 @@ public class SiteMerger {
 
 				EntityProducer service = (EntityProducer) org.sakaiproject.component.cover.ComponentManager.get(serviceName);
 
-				log.debug("service: {}", service);
 				// find the service using the EntityManager
 				if ( service == null ) {
 					Collection<EntityProducer> entityProducers = entityManager.getEntityProducers();
@@ -302,7 +301,6 @@ public class SiteMerger {
 							.findFirst()
 							.orElse(null);
 				}
-				log.debug("service: {}", service);
 
 				try {
 					String msg = "";
