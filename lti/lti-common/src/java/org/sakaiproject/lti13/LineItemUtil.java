@@ -369,9 +369,7 @@ public class LineItemUtil {
 			}
 		} catch (Throwable e) {
 			log.error("Unexpected Throwable", e.toString());
-			if ( log.isDebugEnabled() ) {
-				e.printStackTrace();
-			}
+			log.debug("Stacktrace:", e);
 			retval = null;
 		} finally {
 			popAdvisor();
@@ -395,9 +393,7 @@ public class LineItemUtil {
 			return gradebookColumns;
 		} catch (Throwable e) {
 			log.error("Unexpected Throwable", e.toString());
-			if ( log.isDebugEnabled() ) {
-				e.printStackTrace();
-			}
+			log.debug("Stacktrace:", e);
 			retval = null;
 		} finally {
 			popAdvisor();
@@ -449,9 +445,7 @@ public class LineItemUtil {
 			}
 		} catch (Throwable e) {
 			log.error("Unexpected Throwable", e.toString());
-			if ( log.isDebugEnabled() ) {
-				e.printStackTrace();
-			}
+			log.debug("Stacktrace:", e);
 			retval = null;
 		} finally {
 			popAdvisor();
@@ -558,9 +552,7 @@ public class LineItemUtil {
 			}
 		} catch (Throwable e) {
 			log.error("Unexpected Throwable", e.getMessage());
-			if ( log.isDebugEnabled() ) {
-				e.printStackTrace();
-			}
+			log.debug("Stacktrace:", e);
 		} finally {
 			popAdvisor();
 		}

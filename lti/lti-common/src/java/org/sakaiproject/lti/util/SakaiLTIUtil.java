@@ -635,9 +635,7 @@ public class SakaiLTIUtil {
             if (StringUtils.isNotBlank(sakaiRole)) return sakaiRole;
         } catch (GroupNotDefinedException e) {
 			log.error("site realm not found {}", e.toString());
-			if ( log.isDebugEnabled() ) {
-				e.printStackTrace();
-			}
+			log.debug("Stacktrace:", e);
 		}
 		return null;
 	}
@@ -838,9 +836,7 @@ public class SakaiLTIUtil {
 			site = SiteService.getSite(context);
 		} catch (IdUnusedException e) {
 			log.error("No site/page associated with Launch context={}", context);
-			if ( log.isDebugEnabled() ) {
-				e.printStackTrace();
-			}
+			log.debug("Stacktrace:", e);
 			return false;
 		}
 
@@ -1172,9 +1168,7 @@ public class SakaiLTIUtil {
 				site = SiteService.getSite(context);
 			} catch (IdUnusedException e) {
 				log.error("No site/page associated with Launch context={}", context);
-				if ( log.isDebugEnabled() ) {
-					e.printStackTrace();
-				}
+				log.debug("Stacktrace:", e);
 				return postError("<p>" + getRB(rb, "error.site.missing", "Cannot load site.") + context + "</p>");
 			}
 
@@ -1432,9 +1426,7 @@ public class SakaiLTIUtil {
 					publicKey = LTI13KeySetUtil.getKeyFromKeySet(incoming_kid, tool_keyset);
 				} catch (Exception e) {
 					log.error(e.toString(), e);
-					if ( log.isDebugEnabled() ) {
-						e.printStackTrace();
-					}
+					log.debug("Stacktrace:", e);
 					// Sorry - too many exceptions to explain here - lets keep it simple after logging it
 					throw new RuntimeException("Unable to retrieve kid="+incoming_kid+" from "+tool_keyset+" detail="+e.toString());
 				}
@@ -1578,9 +1570,7 @@ public class SakaiLTIUtil {
 				site = SiteService.getSite(context);
 			} catch (IdUnusedException e) {
 				log.error("No site/page associated with Launch context={}", context);
-				if ( log.isDebugEnabled() ) {
-					e.printStackTrace();
-				}
+				log.debug("Stacktrace:", e);
 				return postError("<p>" + getRB(rb, "error.site.missing", "Cannot load site.") + context + "</p>");
 			}
 
@@ -2373,9 +2363,7 @@ public class SakaiLTIUtil {
 				rv = realm.getProviderGroupId();
 			} catch (GroupNotDefinedException e) {
 				log.error("SiteParticipantHelper.getExternalRealmId: site realm not found {}", e.toString());
-				if ( log.isDebugEnabled() ) {
-					e.printStackTrace();
-				}
+				log.debug("Stacktrace:", e);
 			}
 			return rv;
 		} // getExternalRealmId
@@ -2703,9 +2691,7 @@ public class SakaiLTIUtil {
 				} catch (Exception e) {
 					assignment = null;
 					log.error("Unexpected error getting assignment: {}", e.toString());
-					if ( log.isDebugEnabled() ) {
-						e.printStackTrace();
-					}
+					log.debug("Stacktrace:", e);
 				}
 
 				if ( assignment != null ) {
@@ -2804,9 +2790,7 @@ public class SakaiLTIUtil {
 			return null;
 		} catch (Exception e) {
 			log.error("Unexpected error getting assignment: {}", e.toString());
-			if ( log.isDebugEnabled() ) {
-				e.printStackTrace();
-			}
+			log.debug("Stacktrace:", e);
 		} finally {
 			popAdvisor();
 		}
