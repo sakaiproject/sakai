@@ -36,18 +36,17 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public abstract class BasicSerializableRepository<T, ID extends Serializable> extends HibernateCrudRepository<T, ID> implements SerializableRepository<T, ID> {
 
-    @Setter
-    @Autowired // Needed for java configuration in tests
-    private MapperFactory mapperFactory;
+    // currently using a static since all entities should use these mappers
+    protected static ObjectMapper xmlMapper = MapperFactory.createDefaultXmlMapper();
+    protected static ObjectMapper jsonMapper = MapperFactory.createDefaultJsonMapper();
 
     @Override
     public String toJSON(T t) {
         String json = "";
         if (t != null) {
             sessionFactory.getCurrentSession().refresh(t);
-            ObjectMapper mapper = mapperFactory.getJsonMapper();
             try {
-                json = mapper.writeValueAsString(t);
+                json = jsonMapper.writeValueAsString(t);
             } catch (JsonProcessingException e) {
                 log.warn("Could not serialize to json", e);
                 json = "";
@@ -60,9 +59,8 @@ public abstract class BasicSerializableRepository<T, ID extends Serializable> ex
     public T fromJSON(String json) {
         T obj = null;
         if (StringUtils.isNotBlank(json)) {
-            ObjectMapper mapper = mapperFactory.getJsonMapper();
             try {
-                obj = mapper.readValue(json, getDomainClass());
+                obj = jsonMapper.readValue(json, getDomainClass());
             } catch (IOException e) {
                 log.warn("Could not deserialize json", e);
                 obj = null;
@@ -76,9 +74,8 @@ public abstract class BasicSerializableRepository<T, ID extends Serializable> ex
         String xml = "";
         if (t != null) {
             sessionFactory.getCurrentSession().refresh(t);
-            final XmlMapper mapper = mapperFactory.getWrappedXmlMapper();
             try {
-                xml = mapper.writeValueAsString(t);
+                xml = xmlMapper.writeValueAsString(t);
             } catch (JsonProcessingException e) {
                 log.warn("Could not serialize to xml", e);
                 xml = "";
@@ -91,9 +88,8 @@ public abstract class BasicSerializableRepository<T, ID extends Serializable> ex
     public T fromXML(String xml) {
         T obj = null;
         if (StringUtils.isNotBlank(xml)) {
-            final XmlMapper mapper = mapperFactory.getWrappedXmlMapper();
             try {
-                obj = mapper.readValue(xml, getDomainClass());
+                obj = xmlMapper.readValue(xml, getDomainClass());
             } catch (IOException e) {
                 log.warn("Could not deserialize xml", e);
                 obj = null;
