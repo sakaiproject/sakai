@@ -811,7 +811,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                             //only show peer reviews that have either a score or a comment saved
                             try {
                                 if (assignment.getIsGroup()) {
-                                    String siteId = toolManager.getCurrentPlacement().getContext();
+                                    String siteId = assignment.getContext();
                                     Site site = siteService.getSite(siteId);
                                     review.setAssessorDisplayName(site.getGroup(review.getId().getAssessorUserId()).getTitle());
                                 } else {
