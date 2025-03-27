@@ -58,6 +58,8 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.util.Xml;
 import org.sakaiproject.util.MergeConfig;
 
+import org.sakaiproject.component.cover.ComponentManager;
+
 @Slf4j
 @Setter
 public class SiteMerger {
@@ -289,13 +291,18 @@ public class SiteMerger {
 				    serviceName = translateServiceName(element.getTagName());
 				}
 
+				EntityProducer service = (EntityProducer) org.sakaiproject.component.cover.ComponentManager.get(serviceName);
 
-                Collection<EntityProducer> entityProducers = entityManager.getEntityProducers();
+				log.debug("service: {}", service);
 				// find the service using the EntityManager
-                EntityProducer service = entityProducers.stream()
-                        .filter(ep -> serviceName.equals(ep.getClass().getName()) || serviceName.equals(ep.getLabel()))
-                        .findFirst()
-                        .orElse(null);
+				if ( service == null ) {
+					Collection<EntityProducer> entityProducers = entityManager.getEntityProducers();
+					service = entityProducers.stream()
+							.filter(ep -> serviceName.equals(ep.getClass().getName()) || serviceName.equals(ep.getLabel()))
+							.findFirst()
+							.orElse(null);
+				}
+				log.debug("service: {}", service);
 
 				try {
 					String msg = "";
