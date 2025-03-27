@@ -323,7 +323,7 @@ public class LineItemUtil {
 				if ( content == null ) continue;
 				retval.put(assignmentReference, constructExternalId(content, null));
 			}
-		} catch (Throwable e) {
+		} catch (Exception e) {
 			log.error("Unexpected Throwable", e.toString());
 			log.debug("Stacktrace", e);
 		}
