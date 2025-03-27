@@ -325,9 +325,7 @@ public class LineItemUtil {
 			}
 		} catch (Throwable e) {
 			log.error("Unexpected Throwable", e.toString());
-			if ( log.isDebugEnabled() ) {
-				e.printStackTrace();
-			}
+			log.debug("Stacktrace", e);
 		}
 		return retval;
 	}
