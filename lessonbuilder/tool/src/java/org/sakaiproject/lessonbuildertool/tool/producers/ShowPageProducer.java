@@ -174,6 +174,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
         public boolean allowCcExport = ServerConfigurationService.getBoolean("lessonbuilder.cc-export", true);
         public boolean allowDeleteOrphans = ServerConfigurationService.getBoolean("lessonbuilder.delete-orphans", false);
 
+	public boolean isLessonPrintAllEnabled = ServerConfigurationService.getBoolean("lessonbuilder.printAll", false);
+
 	// I don't much like the static, because it opens us to a possible race
 	// condition, but I don't see much option
 	// see the setter. It has to be static because it's used in makeLink, which
@@ -690,6 +692,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		showAll.setSource("summary");
 		UIInternalLink.make(tofill, "print-view", showAll)
 		    .decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.print_view")));
+
+		if (isLessonPrintAllEnabled) {
+			UIOutput.make(tofill, "show-print-all");
+		}
+
+		UIInternalLink.make(tofill, "print-all", showAll)
+ 		    .decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.print_all")));
 		UIInternalLink.make(tofill, "show-pages", showAll)
 		    .decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.showallpages")));
 		
