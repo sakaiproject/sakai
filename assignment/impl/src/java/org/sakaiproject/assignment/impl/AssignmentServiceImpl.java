@@ -4607,7 +4607,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     AssignmentAllPurposeItem oAllPurposeItem = assignmentSupplementItemService.getAllPurposeItem(oAssignmentId);
                     if (oAllPurposeItem != null) {
                         AssignmentAllPurposeItem nAllPurposeItem = assignmentSupplementItemService.newAllPurposeItem();
-                        assignmentSupplementItemService.saveAllPurposeItem(nAllPurposeItem);
                         nAllPurposeItem.setAssignmentId(nAssignment.getId());
                         nAllPurposeItem.setTitle(oAllPurposeItem.getTitle());
                         nAllPurposeItem.setText(oAllPurposeItem.getText());
