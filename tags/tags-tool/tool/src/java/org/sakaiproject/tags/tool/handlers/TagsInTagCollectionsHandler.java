@@ -55,13 +55,19 @@ public class TagsInTagCollectionsHandler extends BaseHandler {
         int pageNum = extractPageNum(request);
         int pageSize = extractPageSize(request);
 
-        context.put("pageSize",pageSize);
-        context.put("pageNum",pageNum);
-        context.put("totalPages", (int) Math.ceil((double) tagService.getTags().getTotalTagsInCollection(uuid)/(double)pageSize));
-        context.put("countPerPageGroup",countPerPageGroup);
+        int totalTags = tagService.getTags().getTotalTagsInCollection(uuid);
+        
+        int totalPages = (int) Math.ceil((double) totalTags / (double) pageSize);
+        
+        context.put("pageSize", pageSize);
+        context.put("pageNum", pageNum);
+        context.put("totalPages", totalPages);
+        context.put("countPerPageGroup", countPerPageGroup);
+        
+        context.put("showPagination", totalTags > 0 && totalPages > 1);
 
         context.put("subpage", "tagsintagcollection");
-        context.put("tagsintagcollection", tagService.getTags().getTagsPaginatedInCollection(pageNum,pageSize,uuid));
+        context.put("tagsintagcollection", tagService.getTags().getTagsPaginatedInCollection(pageNum, pageSize, uuid));
         context.put("tagserviceactive", tagService.getServiceActive());
         String actualcollectionname="";
         Boolean isExternallyCreated=false;
