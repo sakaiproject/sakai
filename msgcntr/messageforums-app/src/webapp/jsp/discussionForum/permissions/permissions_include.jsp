@@ -4,6 +4,7 @@
     Application app = context.getApplication();
     ValueBinding binding = app.createValueBinding("#{ForumTool}");
     DiscussionForumTool dft = (DiscussionForumTool) binding.getValue(context);
+    boolean isGradebookGroupEnabled = dft.isGradebookGroupEnabled();
     out.print(dft.generatePermissionScript());
 %>
 <!--jsp/discussionForum/permissions/permissions_include.jsp-->
