@@ -10720,8 +10720,8 @@ public class AssignmentAction extends PagedResourceActionII {
                     state.setAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_NUM_REVIEWS, a.getPeerAssessmentNumberReviews());
                     state.setAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_INSTRUCTIONS, a.getPeerAssessmentInstructions());
                 }
-                if (!(Boolean) serverConfigurationService.getBoolean("assignment.usePeerAssessment", true)) {
-                    state.setAttribute(NEW_ASSIGNMENT_USE_PEER_ASSESSMENT, false);
+                if (!serverConfigurationService.getBoolean("assignment.usePeerAssessment", true)) {
+                    state.setAttribute(NEW_ASSIGNMENT_USE_PEER_ASSESSMENT, Boolean.FALSE.toString());
                 }
                 // set whether we use the review service or not
                 // TODO content review
