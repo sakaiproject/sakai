@@ -402,7 +402,7 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 						row.add(member.getSortName());
 					}
 
-					if (sakaiProxy.getViewUserDisplayId()) {
+					if (sakaiProxy.getViewUserDisplayId(site.getId())) {
 						row.add(member.getDisplayId());
 					}
 
