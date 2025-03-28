@@ -378,7 +378,7 @@
 			<h:outputText styleClass="sak-banner-info" value="#{msgs.group_sitegradebook_simple_forum}" />
 		</h:panelGroup>
 
-		<h:panelGrid columns="2" rendered="#{ForumTool.gradebookExist && !ForumTool.selectedForum.markForDeletion && not ForumTool.discussionGeneric}" style="margin-top:.5em;clear:both"  styleClass="itemSummary">
+		<h:panelGrid columns="2" rendered="#{ForumTool.gradebookExist && !ForumTool.selectedForum.markForDeletion && not ForumTool.discussionGeneric}" style="margin-top:.5em;clear:both" styleClass="itemSummary" id="topic_grading">
 			<h:panelGroup  style="white-space:nowrap;">
 				<h:outputLabel for="topic_assignments" value="#{msgs.perm_choose_assignment}"></h:outputLabel>
 			</h:panelGroup>
@@ -512,7 +512,11 @@
 	</h:form>
 	<script>
 		$(document).ready(function () {
-			window.syncGbSelectorInput("gb-selector", "revise:topic_assignments");
+			var isGradebookGroupEnabled = '<%= isGradebookGroupEnabled %>'; 
+			var topicGradingExists = document.getElementById("topic_grading") !== null;
+			if (isGradebookGroupEnabled === 'true' && topicGradingExists) {
+				window.syncGbSelectorInput("gb-selector", "revise:forum_assignments");
+			}
 
 			$('.displayMore').click(function(e) {
 
