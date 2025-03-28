@@ -215,25 +215,18 @@ public class EntityActionsManager {
                 Throwable cause = e.getCause(); // Get the real cause once
 
                 if (cause != null) {
-                    // Use instanceof for correct type checking
                     if (cause instanceof IllegalArgumentException) {
                         throw new IllegalArgumentException(cause.getMessage() + " (rethrown)", cause);
                     } else if (cause instanceof EntityNotFoundException) {
-                        // Assuming EntityNotFoundException constructor takes (String msg, String ref, Throwable cause)
                         throw new EntityNotFoundException(cause.getMessage() + " (rethrown)", ref + "", cause);
                     } else if (cause instanceof FormatUnsupportedException) {
                         FormatUnsupportedException fue = (FormatUnsupportedException) cause;
-                        // Assuming FormatUnsupportedException constructor takes (String msg, Throwable cause, String ref, String format)
                         throw new FormatUnsupportedException(cause.getMessage() + " (rethrown)", cause, ref + "", fue.format);
                     } else if (cause instanceof UnsupportedOperationException) {
                         throw new UnsupportedOperationException(cause.getMessage() + " (rethrown)", cause);
                     } else if (cause instanceof EntityException) {
                         EntityException ee = (EntityException) cause;
-                        // *** Requires EntityException to have a constructor accepting Throwable cause ***
-                        // Example: public EntityException(String msg, String ref, int code, Throwable cause)
                         throw new EntityException(cause.getMessage() + " (rethrown)", ref + "", ee.responseCode, cause);
-                        // If EntityException cannot be modified, use this instead to preserve stack trace:
-                        // throw new RuntimeException("EntityException occurred: " + cause.getMessage() + " (rethrown wrapper)", cause);
                     } else if (cause instanceof IllegalStateException) {
                         throw new IllegalStateException(cause.getMessage() + " (rethrown)", cause);
                     } else if (cause instanceof SecurityException) {
@@ -241,7 +234,7 @@ public class EntityActionsManager {
                     } else {
                         // Log the UNHANDLED cause WITH its stack trace
                         log.error("Unhandled target exception type [{}], rethrowing as a RuntimeException. Original cause:",
-                                cause.getClass().getName(), cause); // Log exception object for stack trace
+                                cause.getClass().getName(), cause);
                         // Rethrowing a generic wrapper, preserving the actual cause
                         throw new RuntimeException("Unhandled exception during custom action execution: " + customAction, cause);
                     }
