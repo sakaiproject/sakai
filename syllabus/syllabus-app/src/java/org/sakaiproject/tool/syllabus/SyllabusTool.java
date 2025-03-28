@@ -1131,11 +1131,6 @@ public class SyllabusTool
                     alertMessage = rb.getString("end_date_required");
                     return "edit_bulk";
                 }
-                // check end date
-                if (bulkEntry.getStartTime() == null) {
-                    alertMessage = rb.getString("start_time_required");
-                    return "edit_bulk";
-                }
                 // end date after start date?
                 if (bulkEntry.getStartDate().after(bulkEntry.getEndDate())) {
                     alertMessage = rb.getString("invalid_dates");
@@ -1178,17 +1173,8 @@ public class SyllabusTool
                 //ok let's loop through the date span
                 //break out if past 1 year (don't want to have a DOS attack)
                 java.util.Calendar cal = java.util.Calendar.getInstance();
-                java.util.Calendar calStartTime = java.util.Calendar.getInstance();
-                java.util.Calendar calEndTime = java.util.Calendar.getInstance();
                 java.util.Calendar calYear = java.util.Calendar.getInstance();
                 cal.setTime(bulkEntry.getStartDate());
-                calStartTime.setTime(bulkEntry.getStartTime());
-                if (bulkEntry.getEndTime() != null) {
-                    calEndTime.setTime(bulkEntry.getEndTime());
-                }
-                cal.set(java.util.Calendar.HOUR_OF_DAY, calStartTime.get(java.util.Calendar.HOUR_OF_DAY));
-                cal.set(java.util.Calendar.MINUTE, calStartTime.get(java.util.Calendar.MINUTE));
-                cal.set(java.util.Calendar.SECOND, calStartTime.get(java.util.Calendar.SECOND));
                 calYear.setTime(bulkEntry.getStartDate());
                 calYear.add(java.util.Calendar.YEAR, 1);
                 //one extra precaution
@@ -1203,18 +1189,19 @@ public class SyllabusTool
                             || bulkEntry.isSunday() && cal.get(java.util.Calendar.DAY_OF_WEEK) == java.util.Calendar.SUNDAY) {
                         Date startDate = cal.getTime();
                         Date endDate = null;
-                        if (bulkEntry.getEndTime() != null) {
-                            //set to end time
-                            cal.set(java.util.Calendar.HOUR_OF_DAY, calEndTime.get(java.util.Calendar.HOUR_OF_DAY));
-                            cal.set(java.util.Calendar.MINUTE, calEndTime.get(java.util.Calendar.MINUTE));
-                            cal.set(java.util.Calendar.SECOND, calEndTime.get(java.util.Calendar.SECOND));
-                            endDate = cal.getTime();
-                            //reset to start time
-                            cal.set(java.util.Calendar.HOUR_OF_DAY, calStartTime.get(java.util.Calendar.HOUR_OF_DAY));
-                            cal.set(java.util.Calendar.MINUTE, calStartTime.get(java.util.Calendar.MINUTE));
-                            cal.set(java.util.Calendar.SECOND, calStartTime.get(java.util.Calendar.SECOND));
+                        if (bulkEntry.getEndDate() != null) {
+                            // Create a new calendar for end date to preserve the time
+                            java.util.Calendar endCal = java.util.Calendar.getInstance();
+                            endCal.setTime(cal.getTime()); // Set to current date
+                            // Get the time components from the end date
+                            java.util.Calendar endDateCal = java.util.Calendar.getInstance();
+                            endDateCal.setTime(bulkEntry.getEndDate());
+                            endCal.set(java.util.Calendar.HOUR_OF_DAY, endDateCal.get(java.util.Calendar.HOUR_OF_DAY));
+                            endCal.set(java.util.Calendar.MINUTE, endDateCal.get(java.util.Calendar.MINUTE));
+                            endCal.set(java.util.Calendar.SECOND, endDateCal.get(java.util.Calendar.SECOND));
+                            endDate = endCal.getTime();
                         }
-                        SyllabusData syllabusDataObj = syllabusManager.createSyllabusDataObject(bulkEntry.getTitle() + " - " + i, initPosition, null, "no", status, "none", startDate, endDate, bulkEntry.isLinkCalendar(), null, null, syllabusItem);
+                        SyllabusData syllabusDataObj = syllabusManager.createSyllabusDataObject(bulkEntry.getTitle() + " - " + i, initPosition, null, "no", status, "none", startDate, null, bulkEntry.isLinkCalendar(), null, null, syllabusItem);
                         syllabusManager.addSyllabusToSyllabusItem(syllabusItem, syllabusDataObj, false);
                         i++;
                         initPosition++;
@@ -2889,19 +2876,17 @@ public class SyllabusTool
   }
   
   public class BulkSyllabusEntry {
-	  public final SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm a");
+	  private static final String DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 	  private String title = "";
 	  private Date startDate = null;
 	  private Date endDate = null;
 	  private boolean monday, tuesday, wednesday, thursday, friday, saturday, sunday = false;
 	  private boolean linkCalendar;
-	  private Date startTime;
-	  private Date endTime;
 	  private String bulkItems;
 	  @Getter @Setter private String addSingleItem = "1";
 	  private String addByItems;
 	  private String addByDate;
-	  
+  
 	public Date getStartDate() {
 		return startDate;
 	}
@@ -2956,18 +2941,6 @@ public class SyllabusTool
 	public void setSunday(boolean sunday) {
 		this.sunday = sunday;
 	}
-	public Date getStartTime() {
-		return startTime;
-	}
-	public void setStartTime(Date startTime) {
-		this.startTime = startTime;
-	}
-	public Date getEndTime() {
-		return endTime;
-	}
-	public void setEndTime(Date endTime) {
-		this.endTime = endTime;
-	}
 	public boolean isLinkCalendar() {
 		return linkCalendar;
 	}
@@ -2982,17 +2955,15 @@ public class SyllabusTool
 	}
   
 	//handle setting dates:
-	public String getStartDateString()
-	  {
+	public String getStartDateString() {
 		String rv = "";
 		if(getStartDate() != null){
-			rv = DateFormatterUtil.format(getStartDate(), DATEPICKER_DATE_FORMAT, rb.getLocale());
+			rv = DateFormatterUtil.format(getStartDate(), DATETIME_FORMAT, rb.getLocale());
 		}
 		return rv;
-	  }
+	}
   
-	public void setStartDateString(String date)
-	{
+	public void setStartDateString(String date) {
 		if(date == null || "".equals(date)){
 			setStartDate(null);
 		}else{
@@ -3006,17 +2977,15 @@ public class SyllabusTool
 		}
 	}
 	
-	public String getEndDateString()
-	  {
+	public String getEndDateString() {
 		String rv = "";
 		if(getEndDate() != null){
-			rv = DateFormatterUtil.format(getEndDate(), DATEPICKER_DATE_FORMAT, rb.getLocale());
+			rv = DateFormatterUtil.format(getEndDate(), DATETIME_FORMAT, rb.getLocale());
 		}
 		return rv;
-	  }
+	}
 
-	public void setEndDateString(String date)
-	{
+	public void setEndDateString(String date) {
 		if(date == null || "".equals(date)){
 			setEndDate(null);
 		}else{
@@ -3027,53 +2996,9 @@ public class SyllabusTool
 			} else {
 				setEndDate(null);
 			}
-			
 		}
 	}
-	
-	public String getStartTimeString()
-	  {
-		String rv = "";
-		if(getStartTime() != null){
-			rv = timeFormat.format(getStartTime());
-		}
-		return rv;
-	  }
 
-	public void setStartTimeString(String time)
-	{
-		if(time == null || "".equals(time)){
-			setStartTime(null);
-		}else{
-			try {
-				setStartTime(timeFormat.parse(time));
-			} catch (ParseException e) {
-				//time won't be changed
-			}
-		}
-	}
-	
-	public String getEndTimeString()
-	  {
-		String rv = "";
-		if(getEndTime() != null){
-			rv = timeFormat.format(getEndTime());
-		}
-		return rv;
-	  }
-
-	public void setEndTimeString(String time)
-	{
-		if(time == null || "".equals(time)){
-			setEndTime(null);
-		}else{
-			try {
-				setEndTime(timeFormat.parse(time));
-			} catch (ParseException e) {
-				//time won't be changed
-			}
-		}
-	}
 	public String getBulkItems() {
 		return bulkItems;
 	}

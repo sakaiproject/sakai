@@ -197,8 +197,6 @@ const defaults = {
 	}
   
 	init() {
-	  this.element.style.minWidth = "200px";
-	  
 	  // Process initial date value
 	  const initialDate = this.getInitialDate();
 
@@ -220,6 +218,7 @@ const defaults = {
 	  
 	  // Add hasDatepicker class for backward compatibility with jquery-ui
 	  this.element.classList.add('hasDatepicker');
+	  this.element.style.minWidth = "200px";
 	}
     
     // Determine the initial date based on options and input value
