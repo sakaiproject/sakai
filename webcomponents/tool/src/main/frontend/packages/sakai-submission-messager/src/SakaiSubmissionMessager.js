@@ -1,5 +1,6 @@
 import { SakaiElement } from "@sakai-ui/sakai-element";
 import { html, nothing } from "lit";
+import { getSiteId } from "@sakai-ui/sakai-portal-utils";
 import { ifDefined } from "lit/directives/if-defined.js";
 import "@sakai-ui/sakai-group-picker/sakai-group-picker.js";
 import "@spectrum-web-components/progress-bar/sp-progress-bar.js";
@@ -10,6 +11,8 @@ export class SakaiSubmissionMessager extends SakaiElement {
 
     assignmentId: { attribute: "assignment-id", type: String },
     title: { type: String },
+    gUid: { attribute: "gradebook-id", type: String },
+
     action: { state: true },
     subject: { state: true },
     body: { state: true },
@@ -21,8 +24,7 @@ export class SakaiSubmissionMessager extends SakaiElement {
     sending: { state: true },
     recipientsRequested: { state: true },
     numSent: { state: true },
-    gUid: { attribute: "gradebook-id", type: String },
-    showGroups: Boolean
+    showGroups: { state: true },
   };
 
   constructor() {
@@ -30,16 +32,118 @@ export class SakaiSubmissionMessager extends SakaiElement {
     super();
 
     this.reset();
-    this.loadTranslations("submission-messager").then(t => this._i18n = t);
+    this.loadTranslations("submission-messager");
     this.showGroups = true;
   }
 
-  firstUpdated() {
-    // S2U-26
-    if (portal.siteId !== this.gUid) {
-      this.group = `/site/${portal.siteId}/group/${this.gUid}`;
+  connectedCallback() {
+
+    super.connectedCallback();
+
+    if (getSiteId() !== this.gUid) {
+      this.group = `/site/${getSiteId()}/group/${this.gUid}`;
       this.showGroups = false;
     }
+  }
+
+  actionChanged(e) {
+
+    this.recipients = [];
+    this.recipientsRequested = false;
+    this.action = e.target.value;
+  }
+
+  minScoreChanged(e) {
+
+    this.recipients = [];
+    this.recipientsRequested = false;
+    this.minScore = e.target.value;
+  }
+
+  maxScoreChanged(e) {
+
+    this.recipients = [];
+    this.recipientsRequested = false;
+    this.maxScore = e.target.value;
+  }
+
+  groupSelected(e) {
+
+    this.recipients = [];
+    this.recipientsRequested = false;
+    this.groupId = e.detail.value[0];
+  }
+
+  reset() {
+
+    this.groupId = `/site/${getSiteId()}`;
+    this.action = "1";
+    this.subject = "";
+    this.body = "";
+    this.error = false;
+    this.recipients = [];
+    this.minScore = "";
+    this.maxScore = "";
+    this.validationError = "";
+    this.recipientsRequested = false;
+    this.numSent = 0;
+    this.success = false;
+    this.showGroups = "";
+  }
+
+  getFormData() {
+
+    const formData = new FormData();
+    formData.set("action", this.action);
+    formData.set("groupRef", this.groupId || "");
+    formData.set("minScore", this.minScore || "");
+    formData.set("maxScore", this.maxScore || "");
+    formData.set("siteId", getSiteId());
+    formData.set("subject", this.subject);
+    formData.set("body", this.body);
+    formData.set("assignmentId", this.assignmentId);
+    formData.set("gUid", this.gUid);
+    return formData;
+  }
+
+  listRecipients() {
+
+    this.recipientsRequested = true;
+    const formData = this.getFormData();
+
+    fetch("/direct/gbng/listMessageRecipients.json", { method: "POST", cache: "no-cache", credentials: "same-origin", body: formData })
+      .then(r => r.json())
+      .then(data => this.recipients = data);
+  }
+
+  sendMessage() {
+
+    if (!this.subject || !this.body) {
+      this.validationError = this._i18n.validation_error;
+      return;
+    }
+
+    const formData = this.getFormData();
+
+    this.sending = true;
+
+    fetch("/direct/gbng/messageStudents.json", { method: "POST", cache: "no-cache", credentials: "same-origin", body: formData })
+      .then(r => {
+
+        if (r.ok) {
+          this.error = false;
+          return r.json();
+        }
+        this.error = true;
+      })
+      .then(data => {
+
+        if (data.result === "SUCCESS") {
+          this.numSent = data.num_sent;
+          this.sending = false;
+          this.success = true;
+        }
+      });
   }
 
   shouldUpdate() {
@@ -47,6 +151,7 @@ export class SakaiSubmissionMessager extends SakaiElement {
   }
 
   render() {
+
     if (this.success) {
       return html`
         <div class="submission-messager">
@@ -88,7 +193,7 @@ export class SakaiSubmissionMessager extends SakaiElement {
                     rows="4"
                     .value=${this.body}
                     placeholder="${this._i18n.message}"
-                    @change=${e => this.body = e.target.value}>${this.body}</textarea>
+                    @change=${e => this.body = e.target.value}></textarea>
         </div>
 
         <div class="mb-2">
@@ -125,28 +230,30 @@ export class SakaiSubmissionMessager extends SakaiElement {
         ${this.showGroups ? html`
           <label id="sm-group-selector-label-${this.assignmentId}" class="form-label">${this._i18n.select_group}</label>
           <sakai-group-picker
-            site-id="${portal.siteId}"
+            site-id="${getSiteId()}"
             group-ref="${ifDefined(this.groupId)}"
             aria-labelledby="sm-group-selector-label-${this.assignmentId}"
             class="d-block"
             @groups-selected=${this.groupSelected}>
           </sakai-group-picker>
-        ` : ""}
+        ` : nothing}
         </div>
 
-        <button type="button" class="btn btn-outline-primary mb-2" @click=${this.listRecipients}>
+        <button type="button"
+            class="sm-show-recipients-button btn btn-outline-primary mb-2"
+            @click=${this.listRecipients}>
           ${this._i18n.show_recipients}
         </button>
 
         ${this.recipientsRequested ? html`
-          ${this.recipients?.length > 0 ? html`
+          ${this.recipients?.length ? html`
             <div class="card mb-2">
               <div class="card-header py-1 d-flex justify-content-between align-items-center">
                 <span class="small">${this._i18n.recipients}</span>
                 <span class="badge bg-secondary">${this.recipients.length}</span>
               </div>
               <div class="card-body p-0" style="max-height: 100px; overflow-y: auto;">
-                <div class="list-group list-group-flush small">
+                <div class="sm-recipients list-group list-group-flush small">
                   ${this.recipients.map(r => html`
                     <div class="list-group-item py-1">${r.displayName}</div>
                   `)}
@@ -178,100 +285,5 @@ export class SakaiSubmissionMessager extends SakaiElement {
         </div>
       </div>
     `;
-  }
-
-  actionChanged(e) {
-    this.recipients = [];
-    this.recipientsRequested = false;
-    this.action = e.target.value;
-  }
-
-  minScoreChanged(e) {
-    this.recipients = [];
-    this.recipientsRequested = false;
-    this.minScore = e.target.value;
-  }
-
-  maxScoreChanged(e) {
-    this.recipients = [];
-    this.recipientsRequested = false;
-    this.maxScore = e.target.value;
-  }
-
-  groupSelected(e) {
-    this.recipients = [];
-    this.recipientsRequested = false;
-    this.groupId = e.detail.value[0];
-  }
-
-  reset() {
-
-    this.groupId = `/site/${portal.siteId}`;
-    this.action = "1";
-    this.subject = "";
-    this.body = "";
-    this.error = false;
-    this.recipients = [];
-    this.minScore = "";
-    this.maxScore = "";
-    this.validationError = "";
-    this.recipientsRequested = false;
-    this.numSent = 0;
-    this.success = false;
-    this.showGroups = "";
-  }
-
-  getFormData() {
-
-    const formData = new FormData();
-    formData.set("action", this.action);
-    formData.set("groupRef", this.groupId || "");
-    formData.set("minScore", this.minScore || "");
-    formData.set("maxScore", this.maxScore || "");
-    formData.set("siteId", portal.siteId);
-    formData.set("subject", this.subject);
-    formData.set("body", this.body);
-    formData.set("assignmentId", this.assignmentId);
-    formData.set("gUid", this.gUid);
-    return formData;
-  }
-
-  listRecipients() {
-    this.recipientsRequested = true;
-    const formData = this.getFormData();
-
-    fetch("/direct/gbng/listMessageRecipients.json", { method: "POST", cache: "no-cache", credentials: "same-origin", body: formData })
-      .then(r => r.json())
-      .then(data => this.recipients = data);
-  }
-
-  sendMessage() {
-
-    if (!this.subject || !this.body) {
-      this.validationError = this._i18n.validation_error;
-      return;
-    }
-
-    const formData = this.getFormData();
-
-    this.sending = true;
-
-    fetch("/direct/gbng/messageStudents.json", { method: "POST", cache: "no-cache", credentials: "same-origin", body: formData })
-      .then(r => {
-
-        if (r.ok) {
-          this.error = false;
-          return r.json();
-        }
-        this.error = true;
-      })
-      .then(data => {
-
-        if (data.result === "SUCCESS") {
-          this.numSent = data.num_sent;
-          this.sending = false;
-          this.success = true;
-        }
-      });
   }
 }

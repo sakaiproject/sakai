@@ -33,8 +33,6 @@ describe("sakai-rubric-student tests", () => {
       </sakai-rubric-student>
     `);
 
-    await waitUntil(() => el._i18n);
-
     await el.updateComplete;
 
     await waitUntil(() => el.querySelector(".rubric-details"), "No .rubric-details created");
@@ -43,7 +41,7 @@ describe("sakai-rubric-student tests", () => {
     await el.updateComplete;
     expect(el.querySelector("sakai-rubric-criterion-student")).to.exist;
 
-    //expect(el).to.be.accessible();
+    await expect(el).to.be.accessible();
   });
 
   it ("rubric student preview renders correctly", async () => {
@@ -51,6 +49,10 @@ describe("sakai-rubric-student tests", () => {
     let el = await fixture(html`
       <sakai-rubric-student site-id="${data.siteId}" rubric-id="1" preview="true"></sakai-rubric-student>
     `);
+
+    await el.updateComplete;
+
+    await expect(el).to.be.accessible();
 
     await waitUntil(() => el.querySelector("sakai-rubric-criterion-preview"), "No sakai-rubric-criterion-preview created");
   });

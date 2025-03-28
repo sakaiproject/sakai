@@ -5,7 +5,7 @@ import * as gradesData from "../../sakai-grades/test/data.js";
 import * as announcementsData from "../../sakai-announcements/test/data.js";
 import * as forumsData from "../../sakai-forums/test/data.js";
 import * as sitePickerData from "../../sakai-site-picker/test/data.js";
-import { expect, fixture, waitUntil, aTimeout } from "@open-wc/testing";
+import { elementUpdated, expect, fixture, waitUntil, aTimeout } from "@open-wc/testing";
 import fetchMock from "fetch-mock/esm/client";
 
 describe("sakai-widget-panel tests", () => {
@@ -31,7 +31,11 @@ describe("sakai-widget-panel tests", () => {
       <sakai-widget-panel user-id="${data.userId}" .widgetIds=${data.widgetIds} .layout="${data.layout1}"></sakai-widget-panel>
     `);
 
-    await waitUntil(() => el.i18n);
+    await waitUntil(() => el._i18n);
+
+    await elementUpdated(el);
+
+    await expect(el).to.be.accessible();
 
     expect(el.shadowRoot.getElementById("grid")).to.exist;
 
@@ -41,9 +45,10 @@ describe("sakai-widget-panel tests", () => {
       .forEach(id => expect(el.shadowRoot.querySelector(`sakai-${id}-widget`)).to.not.exist);
 
     el.editing = true;
-    await el.updateComplete;
+    await elementUpdated(el);
+    await expect(el).to.be.accessible();
 
-    const addLink = el.shadowRoot.querySelector("#add-button a");
+    const addLink = el.renderRoot.querySelector("#add-button button");
     expect(addLink).to.exist;
     // Open the picker
     addLink.click();
@@ -67,17 +72,7 @@ describe("sakai-widget-panel tests", () => {
 
     forums.dispatchEvent(new CustomEvent("remove"));
     await el.updateComplete;
+    await expect(el).to.be.accessible();
     expect(el.shadowRoot.querySelector("#grid > div > sakai-forums-widget")).to.not.exist;
-  });
-
-  it ("is accessible", async () => {
-
-    let el = await fixture(html`
-      <sakai-widget-panel user-id="${data.userId}" .widgetIds="${data.widgetIds}" .layout="${data.layout1}"></sakai-widget-panel>
-    `);
-
-    await waitUntil(() => el.i18n);
-
-    expect(el.shadowRoot).to.be.accessible();
   });
 });

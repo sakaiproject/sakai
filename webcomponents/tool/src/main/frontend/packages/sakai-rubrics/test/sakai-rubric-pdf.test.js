@@ -35,12 +35,13 @@ describe("sakai-rubric-pdf tests", () => {
 
     await elementUpdated(el);
 
+    await expect(el).to.be.accessible();
+
     const link = el.querySelector("a");
     expect(link).to.exist;
     const href = `/api/sites/${data.siteId}/rubrics/${data.rubric1.id}/pdf`;
     expect(link.href).to.match(new RegExp(`.*${href}$`));
 
-    expect(el).to.be.accessible();
   });
 
   it ("tests that a rubric pdf component renders the url when evaluation attributes are supplied", async () => {
@@ -56,12 +57,13 @@ describe("sakai-rubric-pdf tests", () => {
 
     await elementUpdated(el);
 
+    await expect(el).to.be.accessible();
+
     const link = el.querySelector("a");
     expect(link).to.exist;
     const href = `/api/sites/${data.siteId}/rubrics/${data.rubric1.id}/pdf\\?toolId=${data.toolId}&itemId=${data.entityId}&evaluatedItemId=${data.evaluatedItemId}`;
     expect(link.href).to.match(new RegExp(`.*${href}$`));
 
-    expect(el).to.be.accessible();
   });
 });
 

@@ -1,6 +1,6 @@
 import "../sakai-editor.js";
 import { html } from "lit";
-import { expect, fixture, oneEvent } from "@open-wc/testing";
+import { elementUpdated, expect, fixture, oneEvent } from "@open-wc/testing";
 
 describe("sakai-editor tests", () => {
 
@@ -14,9 +14,13 @@ describe("sakai-editor tests", () => {
   it ("renders with textarea correctly", async () => {
 
     // In user mode, we'd expect to get announcements from multiple sites.
-    let el = await fixture(html`
+    const el = await fixture(html`
       <sakai-editor textarea content="eggs" set-focus></sakai-editor>
     `);
+
+    await elementUpdated(el);
+
+    await expect(el).to.be.accessible();
 
     expect(el.querySelectorAll("textarea").length).to.equal(1);
     expect(el.getContent()).to.equal("eggs");
@@ -35,22 +39,17 @@ describe("sakai-editor tests", () => {
   it ("renders with ckeditor correctly", async () => {
 
     // In user mode, we'd expect to get announcements from multiple sites.
-    let el = await fixture(html`
+    const el = await fixture(html`
       <sakai-editor content="eggs"></sakai-editor>
     `);
+
+    await elementUpdated(el);
+
+    await expect(el).to.be.accessible();
 
     expect(el.getContent()).to.contain("eggs");
 
     el.setContent("vinegar");
     expect(el.getContent()).to.equal("vinegar");
-  });
-
-  it ("is accessible", async () => {
-
-    let el = await fixture(html`
-      <sakai-editor textarea></sakai-editor>
-    `);
-
-    expect(el).to.be.accessible();
   });
 });

@@ -1,17 +1,15 @@
-const filteredLogs = ['Running in dev mode', 'lit-html is in dev mode'];
+const filteredLogs = ['Lit is in dev mode. Not recommended for production! See https://lit.dev/msg/dev-mode for more information.'];
 
-export default /** @type {import("@web/test-runner").TestRunnerConfig} */ ({
-  /** Test files to run */
+export default ({
+
   files: 'test/**/*.test.js',
 
-  /** Resolve bare module imports */
-  nodeResolve: {
-    exportConditions: ['browser', 'development'],
-  },
+  rootDir: '../../',
+
+  nodeResolve: true,
 
   /** Filter out lit dev mode logs */
   filterBrowserLogs(log) {
-
     for (const arg of log.args) {
       if (typeof arg === 'string' && filteredLogs.some(l => arg.includes(l))) {
         return false;

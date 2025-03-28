@@ -2,6 +2,7 @@ import { SakaiElement } from "@sakai-ui/sakai-element";
 import { gradableDataMixin } from "./sakai-gradable-data-mixin.js";
 import { graderRenderingMixin } from "./sakai-grader-rendering-mixin.js";
 import { Submission } from "./submission.js";
+import { getSiteId } from "@sakai-ui/sakai-portal-utils";
 import { GRADE_CHECKED, LETTER_GRADE_TYPE, SCORE_GRADE_TYPE, PASS_FAIL_GRADE_TYPE, CHECK_GRADE_TYPE, GRADE_CHANGE_NOTIFY } from "./sakai-grader-constants.js";
 
 export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiElement)) {
@@ -77,7 +78,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
         if ( message.subject !== GRADE_CHANGE_NOTIFY ) return;
         console.debug("The LTI Tool changed a grade - retrieving new grade");
         console.debug(this._submission);
-        fetch(`/direct/assignment/getGrade.json?gradableId=${this.gradableId}&submissionId=${this._submission.id}&courseId=${encodeURIComponent(portal.siteId)}&studentId=${this._submission.firstSubmitterId}`, {
+        fetch(`/direct/assignment/getGrade.json?gradableId=${this.gradableId}&submissionId=${this._submission.id}&courseId=${encodeURIComponent(getSiteId())}&studentId=${this._submission.firstSubmitterId}`, {
           method: "GET",
           cache: "no-cache",
           credentials: "same-origin",
@@ -146,7 +147,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     this._showResubmission = this.__submission.resubmitsAllowed === -1 || this.__submission.resubmitsAllowed > 0;
     this._isChecked = newValue.grade === this._i18n["gen.checked"] || newValue.grade === GRADE_CHECKED;
     this._allowExtension = this.__submission.extensionAllowed;
-    this._submittedTextMode = this.__submission.submittedText;
+    this._submittedTextMode = !!this.__submission.submittedText;
     this._feedbackCommentEditorShowing = false;
 
     // If there's no submitted text and at least one attachment, show the first attachment
@@ -183,10 +184,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
   get _submission() { return this.__submission; }
 
   _loadData(gradableId, submissionId) {
-
-    this._i18nPromise.then(() => {
-      this._loadGradableData(gradableId, submissionId).then(() => this._setup());
-    });
+    Promise.all([ this._i18nPromise, this._loadGradableData(gradableId, submissionId) ]).then(() => this._setup());
   }
 
   shouldUpdate() {
@@ -472,7 +470,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     formData.set("privateNotes", this._submission.privateNotes);
     this.rubricParams.forEach((value, name) => formData.set(name, value));
     formData.set("studentId", this._submission.firstSubmitterId);
-    formData.set("courseId", portal.siteId);
+    formData.set("courseId", getSiteId());
     formData.set("gradableId", this.gradableId);
     formData.set("submissionId", this._submission.id);
 
@@ -485,7 +483,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
       formData.set("extensionDate", this._submission.extensionDate);
     }
 
-    formData.set("siteId", portal.siteId);
+    formData.set("siteId", getSiteId());
 
     return formData;
   }
@@ -497,6 +495,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
     const release = e.target ? e.target.dataset.release : false;
     const formData = this._getFormData();
+
 
     if (formData.valid) {
       formData.set("gradeOption", release ? "return" : "retract");
@@ -513,7 +512,6 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     fetch("/direct/assignment/setGrade.json", {
       method: "POST",
       cache: "no-cache",
-      credentials: "same-origin",
       body: formData
     })
     .then(r => r.json()).then(data => {
@@ -741,7 +739,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
   }
 
   _areSettingsInAction() {
-    return (this.currentGroups?.length > 0 && this.currentGroups[0] !== `/site/${portal.siteId}`) || this._submittedOnly || this._ungradedOnly || this._gradedOnly;
+    return (this.currentGroups?.length > 0 && this.currentGroups[0] !== `/site/${getSiteId()}`) || this._submittedOnly || this._ungradedOnly || this._gradedOnly;
   }
 
   _getSubmitter(submission) {

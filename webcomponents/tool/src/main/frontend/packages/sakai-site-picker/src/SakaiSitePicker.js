@@ -35,9 +35,7 @@ export class SakaiSitePicker extends SakaiShadowElement {
           throw new Error(`Network error while retrieving sites from ${url}`);
         })
         .then(data => {
-
           this.sites = this.whitelist ? data.sites.filter(s => this.whitelist.includes(s.siteId)) : data.sites;
-          this.requestUpdate();
         })
         .catch(error => console.error(error));
     }
@@ -56,7 +54,7 @@ export class SakaiSitePicker extends SakaiShadowElement {
   firstUpdated() {
 
     if (this.multiple) {
-      this.querySelector(`option[value='${SakaiSitePicker.ALL}']`).selected = false;
+      this.renderRoot.querySelector(`option[value='${SakaiSitePicker.ALL}']`).selected = false;
     }
   }
 
@@ -64,7 +62,7 @@ export class SakaiSitePicker extends SakaiShadowElement {
 
     return html`
       <select aria-label="${this._i18n.site_selector_label}" @change=${this._siteChanged} ?multiple=${this.multiple}>
-        <option value="all" ?selected=${!this.selectedSites}>${this._i18n.all_pinned_sites}</option>
+        <option value="${SakaiSitePicker.ALL}" ?selected=${!this.selectedSites}>${this._i18n.all_pinned_sites}</option>
         ${this.sites.map(s => html`
           <option value="${s.siteId}" ?selected=${this.siteId === s.siteId || (this.selectedSites?.includes(s.siteId))}>${s.title}</option>
         `)}

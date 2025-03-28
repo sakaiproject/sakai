@@ -1,5 +1,6 @@
 import { SakaiShadowElement } from "@sakai-ui/sakai-element";
 import { css, html } from "lit";
+import { ifDefined } from "lit/directives/if-defined.js";
 
 export class SakaiButton extends SakaiShadowElement {
 
@@ -27,6 +28,7 @@ export class SakaiButton extends SakaiShadowElement {
       <button
         class="${this.primary ? "primary" : ""} ${this.type ? this.type : ""}"
         @click=${this.clicked}
+        title="${ifDefined(this.title)}"
       >
         <slot>
         </slot>

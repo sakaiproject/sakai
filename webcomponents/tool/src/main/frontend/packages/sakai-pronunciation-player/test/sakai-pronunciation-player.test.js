@@ -1,5 +1,5 @@
 import "../sakai-pronunciation-player.js";
-import { expect, fixture, waitUntil } from "@open-wc/testing";
+import { elementUpdated, fixture, expect } from "@open-wc/testing";
 import { html } from "lit";
 import * as data from "./data.js";
 import fetchMock from "fetch-mock/esm/client";
@@ -14,17 +14,11 @@ describe("sakai-pronunciation-player tests", () => {
 
   it ("renders correctly", async () => {
  
-    let el = await fixture(html`<sakai-pronunciation-player></sakai-pronunciation-player>`);
-    await el.updateComplete;
+    const el = await fixture(html`<sakai-pronunciation-player></sakai-pronunciation-player>`);
+
+    await elementUpdated(el);
+    await expect(el).to.be.accessible();
+
     expect(el.shadowRoot.getElementById("play-button")).to.not.exist;
-  });
-
-  it ("is accessible", async () => {
-
-    let el = await fixture(html`<sakai-pronunciation-player></sakai-pronunciation-player>`);
-
-    await el.updateComplete;
-
-    expect(el.shadowRoot).to.be.accessible();
   });
 });
