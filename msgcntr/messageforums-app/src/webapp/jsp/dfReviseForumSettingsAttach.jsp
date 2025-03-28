@@ -41,7 +41,11 @@
 	</script> 
 	<script>
 	$(document).ready(function() {
-		window.syncGbSelectorInput("gb-selector", "revise:forum_assignments");
+		var isGradebookGroupEnabled = '<%= isGradebookGroupEnabled %>'; 
+		var forumGradingExists = document.getElementById("forum_grading") !== null;
+		if (isGradebookGroupEnabled === 'true' && forumGradingExists) {
+			window.syncGbSelectorInput("gb-selector", "revise:forum_assignments");
+		}
 
 		const radioButtonRestrictedAvailability = document.getElementById('revise:availabilityRestricted:1');
 		if (radioButtonRestrictedAvailability.checked && $(".calWidget")[0].style['display'] === 'none') {

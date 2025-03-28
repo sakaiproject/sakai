@@ -98,7 +98,9 @@
 
             <script>
                 $(document).ready(function() {
-                    window.syncGbSelectorInput("gb-selector", "msgForum:gb_selector");
+                    if ('<%= isGradebookGroupEnabled %>' == 'true') {
+                        window.syncGbSelectorInput("gb-selector", "msgForum:gb_selector");
+                    }
 
                     try {
                         var sakaiReminder = new SakaiReminder();
