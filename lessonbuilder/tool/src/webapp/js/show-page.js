@@ -39,6 +39,15 @@ $(window).load(function () {
     window.print();
   });
 
+  // Print all pages
+  document.getElementById('print-all').addEventListener('click', function() {
+    const url = printViewWithParameter(window.location.href);
+    const win = window.open(url, '_blank');
+    win.focus();
+    win.print();
+    return false;
+  });
+
 });
 
 function fixAddBefore(href) {
