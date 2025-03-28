@@ -219,8 +219,11 @@
         }
         if (breadcrumbs.size() > 0) {
           jQuery(".subpage-breadcrumb-div").append(jQuery(".breadcrumbs span").slice(1));
-          jQuery(".subpage-breadcrumb-div").prepend('<a id="lessonReset">' + jQuery(".Mrphs-hierarchy--toolName").text().trim() + '</a>');
-          jQuery("#lessonReset").attr("href", jQuery(".Mrphs-hierarchy--toolName")[0].href);
+          const toolNameElement = jQuery(".header-tool-title a").first();
+          if (toolNameElement.length > 0) {
+            jQuery(".subpage-breadcrumb-div").prepend('<a id="lessonReset">' + toolNameElement.text().trim() + '</a>');
+            jQuery("#lessonReset").attr("href", toolNameElement.attr("href"));
+          }
         } else {
           jQuery(".subpage-breadcrumb-div").css({
             "display": "none"
