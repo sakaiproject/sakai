@@ -1305,7 +1305,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
         Assert.assertThat(assignment.getSubmissions().size(), is(10)); // ensure we have 10 submissions created
 
-        int count = assignmentService.countSubmissions(assignmentReference, false);
+        int count = assignmentService.countSubmissions(assignmentReference, false, false);
         Assert.assertThat(count, is(0)); // currently none of the submissions are submitted should be 0
 
         // submit 5 submissions
@@ -1320,7 +1320,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             }
         });
 
-        int countSubmitted = assignmentService.countSubmissions(assignmentReference, false);
+        int countSubmitted = assignmentService.countSubmissions(assignmentReference, false, false);
         Assert.assertThat(countSubmitted, is(5)); // should have 5 submissions submitted
 
         // grade 2 submitted submissions
@@ -1334,12 +1334,15 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             }
         });
 
-        int countGraded = assignmentService.countSubmissions(assignmentReference, true);
+        int countGraded = assignmentService.countSubmissions(assignmentReference, true, false);
         Assert.assertThat(countGraded, is(2)); // should have 2 submissions graded
 
         when(securityService.unlockUsers(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, assignmentReference)).thenReturn(new ArrayList<>());
-        int countNoUsers = assignmentService.countSubmissions(assignmentReference, false);
+        int countNoUsers = assignmentService.countSubmissions(assignmentReference, false, false);
         Assert.assertThat(countNoUsers, is(0)); // should have 0 submissions submitted
+        
+        int countReleased = assignmentService.countSubmissions(assignmentReference, false, true);
+        Assert.assertThat(countReleased, is(0)); // should have 0 submissions released
     }
 
     @Test
