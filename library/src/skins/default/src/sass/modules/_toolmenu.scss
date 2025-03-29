@@ -181,15 +181,16 @@ body.is-logged-out{
 	}
 }
 
-#toolMenuWrap .img_site_toolmenu{
+#toolMenu .img_site_toolmenu{
   width: 100%;
-  max-width: $tool-menu-width;
   height: auto;
-  margin: 0 auto;
+  margin: 4px auto;
+	border-radius: 4px;
   @media #{$phone}{
     display: none;
   }
 }
+
 
 #toolMenuWrap{
 	#toolMenu {
