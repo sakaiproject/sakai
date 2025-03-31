@@ -2749,7 +2749,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
             topicBean.mustPostBeforeViewing = Boolean.parseBoolean(topicEl.getAttribute("post-before-viewing"));
             topicBean.anonymous = Boolean.parseBoolean(topicEl.getAttribute("anonymous"));
             topicBean.allowAnonymousPosts = Boolean.parseBoolean(topicEl.getAttribute("allow-anonymous-posts"));
-            topicBean.draft = Boolean.parseBoolean(topicEl.getAttribute("draft"));
+            topicBean.draft = true;
             topicBean.pinned = Boolean.parseBoolean(topicEl.getAttribute("pinned"));
             topicBean.visibility = topicEl.getAttribute("visibility");
 
