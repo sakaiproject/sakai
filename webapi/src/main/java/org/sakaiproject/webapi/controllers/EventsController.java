@@ -33,8 +33,8 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 public class EventsController extends AbstractSakaiApiController {
 
-	@Autowired
-	private ServerConfigurationService serverConfigurationService;
+    @Autowired
+    private ServerConfigurationService serverConfigurationService;
 
     @Autowired
     private UserMessagingService userMessagingService;

@@ -69,8 +69,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import lombok.extern.slf4j.Slf4j;
 
-/**
- */
 @Slf4j
 @RestController
 public class SecureDeliveryController extends AbstractSakaiApiController {

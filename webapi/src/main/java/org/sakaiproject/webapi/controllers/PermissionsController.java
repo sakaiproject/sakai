@@ -39,7 +39,6 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
 
 import org.springframework.http.HttpStatus;
@@ -57,9 +56,6 @@ import org.springframework.web.server.ResponseStatusException;
 @Slf4j
 @RestController
 public class PermissionsController extends AbstractSakaiApiController {
-
-    @Autowired
-    private SiteService siteService;
 
     @Autowired
     private AuthzGroupService authzGroupService;
