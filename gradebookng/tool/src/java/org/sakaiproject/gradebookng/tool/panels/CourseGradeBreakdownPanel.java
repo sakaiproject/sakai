@@ -52,8 +52,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class CourseGradeBreakdownPanel extends BasePanel {
     private static final long serialVersionUID = 1L;
 
-    private final Integer gradeType;
-
     @SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
     protected GradebookNgBusinessService businessService;
 
@@ -67,14 +65,13 @@ public class CourseGradeBreakdownPanel extends BasePanel {
     public CourseGradeBreakdownPanel(final String id, final ModalWindow window) {
         super(id);
         this.window = window;
-        this.weightedCategories = Objects.equals(this.businessService.getGradebookSettings(currentGradebookUid, currentSiteId).getCategoryType(), GradingConstants.CATEGORY_TYPE_WEIGHTED_CATEGORY);
         add(new GbFeedbackPanel("items-feedback"));
-        this.gradeType = this.businessService.getGradebook(currentGradebookUid, currentSiteId).getGradeType();
     }
 
     @Override
     protected void onBeforeRender() {
         super.onBeforeRender();
+        this.weightedCategories = Objects.equals(this.businessService.getGradebookSettings(currentGradebookUid, currentSiteId).getCategoryType(), GradingConstants.CATEGORY_TYPE_WEIGHTED_CATEGORY);
         final IModel<List<GbBreakdownItem>> loadableItemList = new LoadableDetachableModel<List<GbBreakdownItem>>() {
             private static final long serialVersionUID = 1L;
 
