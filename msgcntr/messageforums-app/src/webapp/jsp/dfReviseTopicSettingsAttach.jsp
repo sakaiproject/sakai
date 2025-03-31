@@ -24,14 +24,7 @@
 	<script type="module" src="/webcomponents/bundles/rubric-association-requirements.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
 	
 	<%
-		FacesContext facesContext = FacesContext.getCurrentInstance();
-		Application appContext = facesContext.getApplication();
-		ValueBinding valueBinding = appContext.createValueBinding("#{ForumTool}");
-		DiscussionForumTool discussionForumTool = (DiscussionForumTool) valueBinding.getValue(facesContext);
-
-		boolean isGradebookGroupEnabled = discussionForumTool.isGradebookGroupEnabled();
-
-	  	String thisId = request.getParameter("panel");
+		String thisId = request.getParameter("panel");
 		if (thisId == null) {
     		thisId = "Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
   		}
@@ -42,6 +35,8 @@
   		}
 	</script>
 	<script type="text/javascript">
+		var isGradebookGroupEnabled = <h:outputText value="#{ForumTool.gradebookGroupEnabled}"/>;
+		
 		function setDatesEnabled(radioButton){
 			$(".calWidget, .lockForumAfterCloseDateSpan").fadeToggle('slow');
 		}
@@ -108,7 +103,7 @@
 		}
 
 		function disableFieldsBeforeSubmit() {
-			if ('<%= isGradebookGroupEnabled %>' == 'true') {
+			if (isGradebookGroupEnabled) {
 				$('select[id^="revise\\:perm"]').each(function() {
 					let elementId = $(this).attr("id");
 					let rowIndex = elementId.split(":")[2];
@@ -384,7 +379,7 @@
 			</h:panelGroup>
 
 			<h:panelGroup layout="block" styleClass="row">
-				<% if (!isGradebookGroupEnabled) { %>
+				<f:subview id="non_group_view" rendered="#{!ForumTool.gradebookGroupEnabled}">
 					<h:panelGroup styleClass="gradeSelector itemAction actionItem">
 						<h:selectOneMenu value="#{ForumTool.selectedTopic.gradeAssign}" onchange="updateGradeAssignment()" id="topic_assignments" disabled="#{not ForumTool.editMode}">
 							<f:selectItems value="#{ForumTool.assignments}" />
@@ -395,7 +390,8 @@
 							<h:outputText styleClass="displayMore" value="#{msgs.perm_choose_instruction_more_link}" />
 						</h:outputLink>
 					</h:panelGroup>
-				<% } else { %>
+				</f:subview>
+			    <f:subview id="group_view" rendered="#{ForumTool.gradebookGroupEnabled}">
 					<sakai-multi-gradebook
 						id="gb-selector"
 						app-name="sakai.forums"
@@ -405,7 +401,7 @@
 						selected-temp='<h:outputText value="#{ForumTool.selectedTopic.gradeAssign}" />'>
 					</sakai-multi-gradebook>
 					<h:inputHidden id="topic_assignments" value="#{ForumTool.selectedTopic.gradeAssign}" />
-				<% } %>
+				</f:subview>
 			</h:panelGroup>
 
 			<h:panelGroup styleClass="displayMorePanel" style="display:none"></h:panelGroup>
@@ -512,10 +508,9 @@
 	</h:form>
 	<script>
 		$(document).ready(function () {
-			var isGradebookGroupEnabled = '<%= isGradebookGroupEnabled %>'; 
 			var topicGradingExists = document.getElementById("topic_grading") !== null;
-			if (isGradebookGroupEnabled === 'true' && topicGradingExists) {
-				window.syncGbSelectorInput("gb-selector", "revise:forum_assignments");
+			if (isGradebookGroupEnabled && topicGradingExists) {
+				window.syncGbSelectorInput("gb-selector", "revise:topic_assignments");
 			}
 
 			$('.displayMore').click(function(e) {
