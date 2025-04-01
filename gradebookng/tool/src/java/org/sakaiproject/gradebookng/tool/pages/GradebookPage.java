@@ -364,7 +364,6 @@ public class GradebookPage extends BasePage {
 		SetScoreForUngradedAction setUngraded = new SetScoreForUngradedAction();
 		setUngraded.setCurrentGradebookAndSite(gradebookUid, siteId);
 		this.gradeTable.addEventListener("setUngraded", setUngraded);
-		this.gradeTable.addEventListener("viewGradeSummary", new ViewGradeSummaryAction());
 		this.gradeTable.addEventListener("setStudentNameOrder", new SetStudentNameOrderAction());
 		this.gradeTable.addEventListener("toggleCourseGradePoints", new ToggleCourseGradePoints());
 		this.gradeTable.addEventListener("editSettings", new EditSettingsAction());
