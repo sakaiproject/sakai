@@ -353,7 +353,7 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
       <div>
         ${this.post.canEdit || this.post.canDelete || this.post.canModerate ? html`
           <div class="dropdown">
-            <button class="btn btn-transparent"
+            <button class="btn btn-icon"
                 id="post-menu-${this.post.id}"
                 type="button"
                 data-bs-toggle="dropdown"
@@ -361,7 +361,7 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
                 aria-label="${this._i18n.post_options_menu_tooltip}"
                 aria-haspopup="true"
                 aria-expanded="false">
-              <div><sakai-icon type="menu" size="small"></sakai-icon></div>
+              <sakai-icon type="menu" size="small"></sakai-icon>
             </button>
             <ul class="dropdown-menu conv-dropdown-menu" aria-labelledby="post-menu-${this.post.id}">
               ${this.post.canEdit ? html`

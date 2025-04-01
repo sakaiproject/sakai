@@ -579,7 +579,7 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
           <div class="topic-options-menu">
           ${this.topic.canModerate || this.topic.canEdit || this.topic.canDelete || this.topic.canViewStatistics ? html`
             <div class="dropdown">
-              <button class="btn btn-transparent"
+              <button class="btn btn-icon"
                   id="topic-options-toggle-${this.topic.id}"
                   type="button"
                   title="${this._i18n.topic_options_menu_tooltip}"

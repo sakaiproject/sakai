@@ -68,7 +68,7 @@ export class SakaiComment extends SakaiElement {
 
     return html`
       <div class="dropdown">
-        <button class="btn btn-transparent"
+        <button class="btn btn-icon"
             id="comment-options-${this.comment.id}"
             type="button"
             title="${this._i18n.comment_options_menu_tooltip}"
