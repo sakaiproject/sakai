@@ -2173,7 +2173,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             assertEquals(topic.getType().name(), topicEl.getAttribute("type"));
             assertEquals(topic.getPinned(), Boolean.parseBoolean(topicEl.getAttribute("pinned")));
             assertEquals(topic.getAnonymous(), Boolean.parseBoolean(topicEl.getAttribute("anonymous")));
-            assertEquals(topic.getDraft(), Boolean.parseBoolean(topicEl.getAttribute("draft")));
+            assertEquals(topic.getDraft(), true);
             assertEquals(topic.getMustPostBeforeViewing(), Boolean.parseBoolean(topicEl.getAttribute("post-before-viewing")));
 
             NodeList messageNodes = topicEl.getElementsByTagName("message");
@@ -2203,6 +2203,8 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
 
         assertFalse(oldTitles.contains(extraTitle));
         assertTrue(newTitles.contains(extraTitle));
+
+        topicRepository.findBySiteId(toSite).forEach(t -> assertEquals(t.getDraft(), true));
     }
 
     private TopicTransferBean saveTopic(TopicTransferBean topicBean) {
