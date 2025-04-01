@@ -37,6 +37,7 @@ public class TagsController extends AbstractSakaiApiController {
 
 	@Resource
 	private TagService tagService;
+
 	@Resource
 	private SecurityService securityService;
 

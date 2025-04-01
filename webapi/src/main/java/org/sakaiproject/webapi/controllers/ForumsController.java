@@ -15,8 +15,6 @@ package org.sakaiproject.webapi.controllers;
 
 import org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager;
 import org.sakaiproject.api.app.messageforums.SynopticMsgcntrItem;
-import org.sakaiproject.portal.api.PortalService;
-import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -40,14 +38,8 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 public class ForumsController extends AbstractSakaiApiController {
 
-	@Autowired
-	private PortalService portalService;
-
     @Autowired
     private SynopticMsgcntrManager msgCenterManager;
-
-    @Autowired
-    private SiteService siteService;
 
     private Predicate<SynopticMsgcntrItem> countFilter = i -> i.getNewMessagesCount() > 0 || i.getNewForumCount() > 0;
 
@@ -80,23 +72,25 @@ public class ForumsController extends AbstractSakaiApiController {
         return map;
     };
 
-    @GetMapping(value = "/users/{userEid}/forums/summary", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<Map<String, Object>> getUserForums(@PathVariable String userEid) throws UserNotDefinedException {
+    @GetMapping(value = "/users/current/forums/summary", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Map<String, List> getUserForums() throws UserNotDefinedException {
 
         List<String> pinnedSites = portalService.getPinnedSites();
 
-        return msgCenterManager.getWorkspaceSynopticMsgcntrItems(checkSakaiSession().getUserId())
-                .stream()
-                .filter(i -> pinnedSites.contains(i.getSiteId()))
-                .filter(countFilter)
-                .map(handler)
-                .collect(Collectors.toList());
+        List<Map<String, Object>> forums = msgCenterManager.getWorkspaceSynopticMsgcntrItems(checkSakaiSession().getUserId())
+            .stream()
+            .filter(i -> pinnedSites.contains(i.getSiteId()))
+            .filter(countFilter)
+            .map(handler)
+            .collect(Collectors.toList());
+
+        return Map.of("forums", forums, "sites", getPinnedSiteList());
     }
 
     @GetMapping(value = "/sites/{siteId}/forums/summary", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<Map<String, Object>> getSiteForums(@PathVariable String siteId) throws UserNotDefinedException {
+    public Map<String, List> getSiteForums(@PathVariable String siteId) throws UserNotDefinedException {
 
-        return msgCenterManager.getSiteSynopticMsgcntrItems(List.of(checkSakaiSession().getUserId()), siteId)
-                .stream().filter(countFilter).map(handler).collect(Collectors.toList());
+        return Map.of("forums", msgCenterManager.getSiteSynopticMsgcntrItems(List.of(checkSakaiSession().getUserId()), siteId)
+                .stream().filter(countFilter).map(handler).collect(Collectors.toList()));
     }
 }

@@ -30,7 +30,6 @@ import org.sakaiproject.rubrics.api.beans.CriterionTransferBean;
 import org.sakaiproject.rubrics.api.beans.EvaluationTransferBean;
 import org.sakaiproject.rubrics.api.beans.RatingTransferBean;
 import org.sakaiproject.rubrics.api.beans.RubricTransferBean;
-import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
@@ -76,9 +75,6 @@ public class RubricsRestController extends AbstractSakaiApiController {
 
     @Autowired
     private RubricsService rubricsService;
-
-    @Autowired
-    private SessionManager sessionManager;
 
     @GetMapping(value = "/sites/{siteId}/rubrics", produces = MediaType.APPLICATION_JSON_VALUE)
     List<EntityModel<RubricTransferBean>> getRubricsForSite(@PathVariable String siteId) {
