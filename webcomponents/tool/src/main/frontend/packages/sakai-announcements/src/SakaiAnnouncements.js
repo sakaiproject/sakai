@@ -24,22 +24,6 @@ export class SakaiAnnouncements extends SakaiPageableElement {
     this.loadTranslations("announcements");
   }
 
-  set data(value) {
-
-    this._data = value;
-
-    this._data.forEach(a => a.visible = true);
-
-    if (!this.siteId) {
-      this._sites = this._data.reduce((acc, a) => {
-        if (!acc.some(t => t.siteId === a.siteId)) acc.push({ siteId: a.siteId, title: a.siteTitle });
-        return acc;
-      }, []);
-    }
-  }
-
-  get data() { return this._data; }
-
   async loadAllData() {
 
     const url = this.siteId ? `/api/sites/${this.siteId}/announcements`
@@ -54,7 +38,12 @@ export class SakaiAnnouncements extends SakaiPageableElement {
         throw new Error(`Failed to get announcements from ${url}`);
 
       })
-      .then(data => this.data = data)
+      .then(data => {
+
+        this.data = data.announcements;
+        this.data.forEach(a => a.visible = true);
+        !this.siteId && (this._sites = data.sites);
+      })
       .catch (error => console.error(error));
   }
 

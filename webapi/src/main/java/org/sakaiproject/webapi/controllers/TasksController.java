@@ -76,9 +76,6 @@ public class TasksController extends AbstractSakaiApiController {
     private TaskService taskService;
 
     @Resource
-    private SiteService siteService;
-
-    @Resource
     private UserDirectoryService userDirectoryService;
     
     @Resource
