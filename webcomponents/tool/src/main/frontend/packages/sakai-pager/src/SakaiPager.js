@@ -16,7 +16,7 @@ export class SakaiPager extends LionPagination {
 
   static get styles() {
     return [
-      super.styles,
+      LionPagination.styles,
       css`
         button {
           background-color: var(--sakai-background-color-1);
