@@ -25,6 +25,7 @@ import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.exception.GbAccessDeniedException;
+import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.util.GbStopWatch;
 import org.sakaiproject.grading.api.Assignment;
@@ -86,7 +87,7 @@ public class GbGradeTableData {
 		);
 		stopwatch.time("getGradebookAssignments", stopwatch.getTime());
 
-		String groupFilter = uiSettings.getGroupFilter() != null ? uiSettings.getGroupFilter().getId() : null;
+		String groupFilter = (uiSettings.getGroupFilter() != null && !GbGroup.Type.ALL.equals(uiSettings.getGroupFilter().getType())) ? uiSettings.getGroupFilter().getId() : null;
 		grades = businessService.buildGradeMatrix(currentGradebookUid, currentSiteId, 
 				assignments,
 				businessService.getGradeableUsers(currentGradebookUid, currentSiteId, groupFilter),
