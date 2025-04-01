@@ -36,9 +36,9 @@
 		var isGradebookGroupEnabled = <h:outputText value="#{ForumTool.gradebookGroupEnabled}"/>;
 	
 	$(document).ready(function() {
-		var forumGradingExists = document.getElementById("forum_grading") !== null;
+		var forumGradingExists = document.getElementById("revise:forum_grading") !== null;
 		if (isGradebookGroupEnabled && forumGradingExists) {
-			window.syncGbSelectorInput("gb-selector", "revise:forum_assignments");
+			window.syncGbSelectorInput("gb-selector", "revise:group_view:forum_assignments");
 		}
 
 		const radioButtonRestrictedAvailability = document.getElementById('revise:availabilityRestricted:1');
@@ -52,8 +52,9 @@
 	}
 
 	function updateGradeAssignment(){
-    const forumAssignments = document.getElementById("revise:forum_assignments");
-
+	const forumAssignments = isGradebookGroupEnabled
+			? document.getElementById("revise:group_view:forum_assignments")
+			: document.getElementById("revise:non_group_view:forum_assignments");
     if (forumAssignments?.value === undefined || forumAssignments.value === "Default_0") return;
 
     const elems = document.getElementsByTagName('sakai-rubric-association');

@@ -55,7 +55,9 @@
 		}
 
 		function updateGradeAssignment() {
-			const topicAssignments = document.getElementById("revise:topic_assignments");
+			const topicAssignments = isGradebookGroupEnabled
+					? document.getElementById("revise:group_view:topic_assignments")
+					: document.getElementById("revise:non_group_view:topic_assignments");
 
 			if (topicAssignments?.value === undefined || topicAssignments.value === "Default_0") return;
 
@@ -508,9 +510,9 @@
 	</h:form>
 	<script>
 		$(document).ready(function () {
-			var topicGradingExists = document.getElementById("topic_grading") !== null;
+			var topicGradingExists = document.getElementById("revise:topic_grading") !== null;
 			if (isGradebookGroupEnabled && topicGradingExists) {
-				window.syncGbSelectorInput("gb-selector", "revise:topic_assignments");
+				window.syncGbSelectorInput("gb-selector", "revise:group_view:topic_assignments");
 			}
 
 			$('.displayMore').click(function(e) {
