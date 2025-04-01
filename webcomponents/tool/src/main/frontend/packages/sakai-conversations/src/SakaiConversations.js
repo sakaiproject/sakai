@@ -259,6 +259,7 @@ export class SakaiConversations extends SakaiElement {
       topic && (topic.selected = true);
       this._data.topics.filter(t => t.id !== topic.id).forEach(t => t.selected = false);
       if (!onlySelectInList) {
+
         this._currentTopic = topic;
         this._state = STATE_DISPLAYING_TOPIC;
       }
