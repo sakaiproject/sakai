@@ -26,19 +26,29 @@
         </tr>
       </thead>
       <tbody>
-        {{#each tagcollections}}
-        <tr>
-          <td>{{this.name}}</td>
-          <td>{{this.description}}</td>
-          <td>{{this.externalSourceName}}</td>
-          <td>{{this.externalSourceDescription}}</td>
-          <td class="actions">
-            <a href="{{{actionURL this 'tagcollections' this.tagCollectionId "edit"}}}" class="btn btn-primary btn-xs">{{{t this "Edit"}}}</a>           
-            <a href="{{{actionURL this 'tagsintagcollection' this.tagCollectionId "manage"}}}" class="btn btn-primary btn-xs">{{{t this "Manage Tags"}}}</a>
-            <a href="{{{actionURL this 'tagcollections' this.tagCollectionId "delete"}}}" class="btn btn-warning btn-xs tagservice-delete-btn" data-record-type="tagcollection"><span class="glyphicon glyphicon-trash"></span></a>
-          </td>
-        </tr>
-        {{/each}}
+        {{#if tagcollections.length}}
+          {{#each tagcollections}}
+          <tr>
+            <td>{{this.name}}</td>
+            <td>{{this.description}}</td>
+            <td>{{this.externalSourceName}}</td>
+            <td>{{this.externalSourceDescription}}</td>
+            <td class="actions">
+              <a href="{{{actionURL this 'tagcollections' this.tagCollectionId "edit"}}}" class="btn btn-primary btn-xs">{{{t this "Edit"}}}</a>           
+              <a href="{{{actionURL this 'tagsintagcollection' this.tagCollectionId "manage"}}}" class="btn btn-primary btn-xs">{{{t this "Manage Tags"}}}</a>
+              <a href="{{{actionURL this 'tagcollections' this.tagCollectionId "delete"}}}" class="btn btn-warning btn-xs tagservice-delete-btn" data-record-type="tagcollection"><span class="glyphicon glyphicon-trash"></span></a>
+            </td>
+          </tr>
+          {{/each}}
+        {{else}}
+          <tr>
+            <td colspan="5" class="text-center">
+              <div class="alert alert-info" style="margin-top: 15px;">
+                {{{t this "no_tags_in_collection"}}}
+              </div>
+            </td>
+          </tr>
+        {{/if}}
       </tbody>
     </table>
   {{else}}
@@ -53,43 +63,55 @@
         </tr>
       </thead>
       <tbody>
-        {{#each tagcollections}}
-        <tr>
-          <td>{{this.name}}</td>
-          <td>{{this.description}}</td>
-          <td>{{this.externalSourceName}}</td>
-          <td>{{this.externalSourceDescription}}</td>
-          <td class="actions">          
-            <a href="{{{actionURL this 'tagsintagcollection' this.tagCollectionId "manage"}}}" class="btn btn-primary btn-xs">{{{t this "Manage Tags"}}}</a>
-          </td>
-        </tr>
-        {{/each}}
+        {{#if tagcollections.length}}
+          {{#each tagcollections}}
+          <tr>
+            <td>{{this.name}}</td>
+            <td>{{this.description}}</td>
+            <td>{{this.externalSourceName}}</td>
+            <td>{{this.externalSourceDescription}}</td>
+            <td class="actions">          
+              <a href="{{{actionURL this 'tagsintagcollection' this.tagCollectionId "manage"}}}" class="btn btn-primary btn-xs">{{{t this "Manage Tags"}}}</a>
+            </td>
+          </tr>
+          {{/each}}
+        {{else}}
+          <tr>
+            <td colspan="5" class="text-center">
+              <div class="alert alert-info" style="margin-top: 15px;">
+                {{{t this "no_tags_in_collections"}}}
+              </div>
+            </td>
+          </tr>
+        {{/if}}
       </tbody>
     </table>
   {{/if}}
 
-    <!--pagination param ==> currentPage:{{pageNum}} totalPageCount:{{totalPages}} countPerPageGroup:{{countPerPageGroup}}-->
-    {{#pagination this pageNum totalPages countPerPageGroup}}
-        <div class="paging_bootstrap">
-            <ul class="pagination">
-                {{#if canGoPrevious}}
-                    <li class="prev"><a href="{{actionURLPaginated this 'index' "0" "manage" previousIdx pageSize}}"><i class="icon-double-angle-left">&Lt;</i></a></li>
-                {{else}}
-                    <li class="prev disabled"><a href="#"><i class="icon-double-angle-left">&Lt;</i></a></li>
-                {{/if}}
+    <!--pagination param ==> kkkkk currentPage:{{pageNum}} totalPageCount:{{totalPages}} countPerPageGroup:{{countPerPageGroup}}-->
+    {{#if showPagination}}
+        {{#pagination this pageNum totalPages countPerPageGroup}}
+            <div class="paging_bootstrap">
+                <ul class="pagination">
+                    {{#if canGoPrevious}}
+                        <li class="prev"><a href="{{actionURLPaginated this 'index' "0" "manage" previousIdx pageSize}}"><i class="icon-double-angle-left">&Lt;</i></a></li>
+                    {{else}}
+                        <li class="prev disabled"><a href="#"><i class="icon-double-angle-left">&Lt;</i></a></li>
+                    {{/if}}
 
-                {{#each pages}}
-                    <li {{#if isCurrent}}class="active"{{/if}}><a href="{{actionURLPaginated this 'index' "0" "manage" pageInt pageSize}}">{{page}}</a></li>
-                {{/each}}
+                    {{#each pages}}
+                        <li {{#if isCurrent}}class="active"{{/if}}><a href="{{actionURLPaginated this 'index' "0" "manage" pageInt pageSize}}">{{page}}</a></li>
+                    {{/each}}
 
-                {{#if canGoNext}}
-                    <li class="next"><a href="{{actionURLPaginated this 'index' "0" "manage" nextIdx pageSize}}"><i class="icon-double-angle-right">&Gt;</i></a></li>
-                {{else}}
-                    <li class="next disabled"><a href="#"><i class="icon-double-angle-right">&Gt;</i></a></li>
-                {{/if}}
-            </ul>
-        </div>
-    {{/pagination}}
+                    {{#if canGoNext}}
+                        <li class="next"><a href="{{actionURLPaginated this 'index' "0" "manage" nextIdx pageSize}}"><i class="icon-double-angle-right">&Gt;</i></a></li>
+                    {{else}}
+                        <li class="next disabled"><a href="#"><i class="icon-double-angle-right">&Gt;</i></a></li>
+                    {{/if}}
+                </ul>
+            </div>
+        {{/pagination}}
+    {{/if}}
 
 
 </section>
