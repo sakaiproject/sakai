@@ -1769,7 +1769,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
             topicBean.canPin = settings.getAllowPinning() && securityService.unlock(Permissions.TOPIC_PIN.label, siteRef);
             topicBean.canBookmark = settings.getAllowBookmarking();
             topicBean.canTag = securityService.unlock(Permissions.TOPIC_TAG.label, siteRef);
-            topicBean.canReact = !topicBean.isMine && settings.getAllowReactions();
+            topicBean.canReact = !topicBean.isMine && settings.getAllowReactions() && securityService.unlock(Permissions.POST_REACT.label, siteRef);
             topicBean.canUpvote = !topicBean.isMine && settings.getAllowUpvoting() && !topicBean.hidden && securityService.unlock(Permissions.POST_UPVOTE.label, siteRef);
             topicBean.canViewUpvotes = settings.getAllowUpvoting();
         } else {
