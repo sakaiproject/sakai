@@ -276,7 +276,7 @@ public class GradebookPage extends BasePage {
 		}
 
 		final List<Assignment> assignments = this.businessService.getGradebookAssignments(gradebookUid, siteId, sortBy);
-		String selectedGroup = settings.getGroupFilter() != null ? settings.getGroupFilter().getId() : null;
+		String selectedGroup = (settings.getGroupFilter() != null && !GbGroup.Type.ALL.equals(settings.getGroupFilter().getType())) ? settings.getGroupFilter().getId() : null;
 		final List<String> students = this.businessService.getGradeableUsers(gradebookUid, siteId, selectedGroup);
 
 		this.hasGradebookItems = !assignments.isEmpty();
