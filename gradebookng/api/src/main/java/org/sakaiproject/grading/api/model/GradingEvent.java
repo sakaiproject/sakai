@@ -82,7 +82,7 @@ public class GradingEvent implements PersistableEntity<Long>, Comparable<Object>
     private Date dateGraded;
 
     @Column(name = "IS_EXCLUDED")
-    private GradingEventStatus status;
+    private GradingEventStatus status = GradingEventStatus.GRADE_NONE;
 
     public GradingEvent() {
         this.dateGraded = new Date();
