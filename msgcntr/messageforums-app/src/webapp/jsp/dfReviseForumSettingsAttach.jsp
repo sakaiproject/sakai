@@ -398,6 +398,11 @@
 														 disabled="#{not ForumTool.editMode}">
 											<f:selectItems value="#{ForumTool.assignments}" />
 										</h:selectOneMenu>
+										<h:outputText value="#{msgs.perm_choose_assignment_none_f}" styleClass="instrWOGrades" style="display:none;margin-left:0"/>
+										<h:outputText value=" #{msgs.perm_choose_instruction_forum} " styleClass="instrWithGrades" style="margin-left:0;"/>
+										<h:outputLink value="#" style="text-decoration:none" styleClass="instrWithGrades">
+											<h:outputText styleClass="displayMore" value="#{msgs.perm_choose_instruction_more_link}"/>
+										</h:outputLink>
 									</h:panelGroup>
 							    </f:subview>
 							    <f:subview id="group_view" rendered="#{ForumTool.gradebookGroupEnabled}">
