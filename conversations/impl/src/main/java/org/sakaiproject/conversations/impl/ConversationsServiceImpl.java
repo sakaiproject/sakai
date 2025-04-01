@@ -2697,6 +2697,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
             topicEl.setAttribute("title", topic.getTitle());
             topicEl.setAttribute("type", topic.getType().name());
             topicEl.setAttribute("post-before-viewing", Boolean.toString(topic.getMustPostBeforeViewing()));
+            topicEl.setAttribute("anonymous", Boolean.toString(topic.getAnonymous()));
             topicEl.setAttribute("allow-anonymous-posts", Boolean.toString(topic.getAllowAnonymousPosts()));
             topicEl.setAttribute("pinned", Boolean.toString(topic.getPinned()));
             topicEl.setAttribute("draft", Boolean.toString(topic.getDraft()));
