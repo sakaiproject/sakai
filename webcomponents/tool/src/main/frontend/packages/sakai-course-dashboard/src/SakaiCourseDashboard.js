@@ -248,7 +248,7 @@ export class SakaiCourseDashboard extends SakaiElement {
     return html`
       ${this.titleBlock()}
       <div id="course-dashboard-l2-header-and-overview-block" class="d-sm-flex mb-4">
-        <div id="course-dashboard-l2-header-block" class="me-3 mb-3 mb-sm-0">
+        <div id="course-dashboard-l2-header-block" class="me-sm-3 mb-3 mb-sm-0">
           <sakai-course-header .site=${this.data} @image-edited=${this.imageEdited} ?editing=${this.editing}></sakai-course-header>
         </div>
         <div id="course-dashboard-l2-overview-block">

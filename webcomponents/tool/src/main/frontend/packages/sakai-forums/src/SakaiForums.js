@@ -170,8 +170,9 @@ export class SakaiForums extends SakaiPageableElement {
       a:visited {
         color: var(--link-visited-color);
       }
-      #site-filter {
-        margin-bottom: 12px;
+      #site-filter sakai-site-picker::part(select) {
+        width: 100% !important;
+        margin-bottom: 1rem !important;
       }
       .messages {
         display: grid;
