@@ -2366,6 +2366,7 @@ GbGradeTable.setupDragAndDrop = function () {
       GradebookAPI._POST("/direct/gbng/categorized-assignment-order",
         {
           siteId: GbGradeTable.container.dataset.siteId,
+          gUid: GbGradeTable.container.dataset.guid,
           assignmentId: sourceAssignmentId,
           categoryId: sourceCategoryId,
           order: newIndex,
@@ -2377,6 +2378,7 @@ GbGradeTable.setupDragAndDrop = function () {
       GradebookAPI._POST("/direct/gbng/assignment-order",
         {
           siteId: GbGradeTable.container.dataset.siteId,
+          gUid: GbGradeTable.container.dataset.guid,
           assignmentId: sourceAssignmentId,
           order: newIndex,
         },
