@@ -843,17 +843,29 @@ if (typeof MathJax != 'undefined') {
 }
 
 function toggleCategories(checkbox) {
-    // Toggle categories selector. If categories are disabled it won't exist
-    // so check first.
-    const categoryDiv = document.querySelector('#assessmentSettingsAction\\:toGradebookCategory');
-    if (categoryDiv) {
-        // If checkbox is a string, it's the initial call from document ready
-        if (typeof checkbox === 'string') {
-            categoryDiv.style.display = checkbox === '1' ? 'block' : 'none';
-        } else {
-            categoryDiv.style.display = checkbox.value === '1' ? 'block' : 'none';
-        }
+  // Toggle categories selector. If categories are disabled it won't exist
+  // so check first.
+  const categoryDiv = document.querySelector('#assessmentSettingsAction\\:toGradebookCategory');
+  const selectedGradebook = document.querySelector('#assessmentSettingsAction\\:toGradebookSelected');
+
+  if (categoryDiv) {
+    // If checkbox is a string, it's the initial call from document ready
+    if (typeof checkbox === 'string') {
+        categoryDiv.style.display = checkbox === '1' ? 'block' : 'none';
+    } else {
+        categoryDiv.style.display = checkbox.value === '1' ? 'block' : 'none';
     }
+  }
+
+  if (selectedGradebook) {
+    // If checkbox is a string, it's the initial call from document ready
+    if (typeof checkbox === 'string') {
+      selectedGradebook.style.display = checkbox === '3' ? 'block' : 'none';
+    } else {
+      selectedGradebook.style.display = checkbox.value === '3' ? 'block' : 'none';
+    }
+  }
+
 }
 
 function expandAccordion(iframId){

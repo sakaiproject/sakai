@@ -205,6 +205,10 @@ public class GradingPersistenceManagerImpl implements GradingPersistenceManager 
         return gradebookAssignmentRepository.findByGradebook_UidAndExternalId(gradebookUid, externalId);
     }
 
+    public List<GradebookAssignment> getGradebookUidByExternalId(String externalId) {
+        return gradebookAssignmentRepository.findByExternalId(externalId);
+    }
+
     public GradebookAssignment saveGradebookAssignment(GradebookAssignment assignment) {
         return gradebookAssignmentRepository.save(assignment);
     }

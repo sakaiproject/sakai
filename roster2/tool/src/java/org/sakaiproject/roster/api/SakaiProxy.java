@@ -162,7 +162,9 @@ public interface SakaiProxy {
 	 */
 	public Boolean getViewUserDisplayId();
 
-	/**
+    Boolean  getViewUserDisplayId(String siteId);
+
+    /**
 	 * Returns the value of the <code>roster_view_user_properties</code> Sakai property.
 	 *
 	 * @return the value of the <code>roster_view_user_properties</code> Sakai property.

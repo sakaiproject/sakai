@@ -266,6 +266,8 @@ public class ConversationsController extends AbstractSakaiApiController {
         if (topicBean.canReact) links.add(Link.of(topicBean.url + "/reactions", "react"));
         if (topicBean.canModerate) links.add(Link.of(topicBean.url + "/locked", "lock"));
         if (topicBean.canModerate) links.add(Link.of(topicBean.url + "/hidden", "hide"));
+        if (topicBean.canUpvote) links.add(Link.of(topicBean.url + "/upvote", "upvote"));
+        if (topicBean.canUpvote) links.add(Link.of(topicBean.url + "/unupvote", "unupvote"));
         return EntityModel.of(topicBean, links);
     }
 
@@ -359,6 +361,8 @@ public class ConversationsController extends AbstractSakaiApiController {
         if (postBean.canDelete) links.add(Link.of(postBean.url, "delete"));
         if (postBean.canDelete) links.add(Link.of(postBean.url + "/restore", "restore"));
         if (postBean.canReact) links.add(Link.of(postBean.url + "/reactions", "react"));
+        if (postBean.canReact) links.add(Link.of(postBean.url + "/upvote", "upvote"));
+        if (postBean.canReact) links.add(Link.of(postBean.url + "/unupvote", "unupvote"));
         if (postBean.canModerate) links.add(Link.of(postBean.url + "/locked", "lock"));
         if (postBean.canModerate) links.add(Link.of(postBean.url + "/hidden", "hide"));
         recursivelyAddEntityModelForDescendants(postBean);

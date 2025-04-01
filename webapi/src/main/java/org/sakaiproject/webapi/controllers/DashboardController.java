@@ -13,6 +13,7 @@
  ******************************************************************************/
 package org.sakaiproject.webapi.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.StringUtils;
 
 import org.apache.commons.fileupload.FileItem;
@@ -42,7 +43,6 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.user.api.Preferences;
-import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -70,7 +70,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -254,29 +253,14 @@ public class DashboardController extends AbstractSakaiApiController implements E
             return;
         }
 
-        PreferencesEdit preference = null;
-        try {
+        preferencesService.applyEditWithAutoCommit(userId, edit -> {
+            ResourcePropertiesEdit props = edit.getPropertiesEdit("dashboard-config");
             try {
-                preference = preferencesService.edit(userId);
-            } catch (IdUnusedException iue) {
-                preference = preferencesService.add(userId);
-            }
-        } catch (Exception e) {
-            log.warn("Could not get the preferences for user [{}], {}", userId, e.toString());
-        }
-
-        if (preference != null) {
-            try {
-                ResourcePropertiesEdit props = preference.getPropertiesEdit("dashboard-config");
                 props.addProperty("layout", (new ObjectMapper()).writeValueAsString(bean.getLayout()));
-            } catch (Exception e) {
-                log.warn("Could not save dashboard config for user [{}], {}", userId, e.toString());
-                preferencesService.cancel(preference);
-                preference = null;
-            } finally {
-                if (preference != null) preferencesService.commit(preference);
+            } catch (JsonProcessingException jpe) {
+                log.warn("Could not save dashboard config for user [{}], {}", userId, jpe.toString());
             }
-        }
+        });
     }
 
     @GetMapping(value = "/sites/{siteId}/dashboard", produces = MediaType.APPLICATION_JSON_VALUE)

@@ -18,10 +18,16 @@ package org.sakaiproject.springframework.data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Projections;
+import org.sakaiproject.serialization.MapperFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,7 +35,9 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+
 import java.io.Serializable;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -37,6 +45,22 @@ import java.util.Optional;
 @Slf4j
 @Transactional(readOnly = true)
 public abstract class SpringCrudRepositoryImpl<T extends PersistableEntity<ID>, ID extends Serializable> implements SpringCrudRepository<T, ID> {
+
+    // currently using a static since all entities should use these mappers
+    protected static ObjectMapper jsonMapper = MapperFactory.createDefaultJsonMapper();
+    protected static ObjectMapper xmlMapper = MapperFactory.createDefaultXmlMapper();
+    protected static ObjectMapper xmlMapperDisableCDataAsText = MapperFactory.xmlBuilder()
+            .registerJavaTimeModule()
+            .disableDateTimestamps()
+            .ignoreUnknownProperties()
+            .excludeNulls()
+            .disableOutputCDataAsText()
+            .disableNamespaceAware()
+            .setMaxAttributeSize(32000)
+            .enableRepairingNamespaces()
+            .enablePrettyPrinting()
+            .enableOutputXML11()
+            .build();
 
     public static final int BATCH_SIZE = 100;
 
@@ -66,7 +90,7 @@ public abstract class SpringCrudRepositoryImpl<T extends PersistableEntity<ID>, 
 
         Session session = sessionFactory.getCurrentSession();
 
-        final boolean isNew = entity.getId() == null;
+        boolean isNew = entity.getId() == null;
         if (isNew) {
             session.persist(entity);
             return entity;
@@ -172,6 +196,69 @@ public abstract class SpringCrudRepositoryImpl<T extends PersistableEntity<ID>, 
         } else {
             log.warn("Can not perform delete with a null id");
         }
+    }
+
+    @Override
+    public String toJSON(T t) {
+        String json = "";
+
+        if (t != null) {
+            sessionFactory.getCurrentSession().refresh(t);
+            try {
+                json = jsonMapper.writeValueAsString(t);
+            } catch (JsonProcessingException e) {
+                log.warn("Could not serialize to json", e);
+            }
+        }
+        return json;
+    }
+
+    @Override
+    public T fromJSON(String json) {
+        T obj = null;
+
+        if (StringUtils.isNotBlank(json)) {
+            try {
+                obj = jsonMapper.readValue(json, getDomainClass());
+            } catch (IOException e) {
+                log.warn("Could not deserialize json", e);
+            }
+        }
+        return obj;
+    }
+
+    @Override
+    public String toXML(T t) {
+        return toXML(t, true);
+    }
+
+    @Override
+    public String toXML(T t, boolean cdataAsText) {
+        String xml = "";
+
+        if (t != null) {
+            sessionFactory.getCurrentSession().refresh(t);
+            try {
+                xml = cdataAsText ? xmlMapper.writeValueAsString(t) : xmlMapperDisableCDataAsText.writeValueAsString(t);
+            } catch (JsonProcessingException e) {
+                log.warn("Could not serialize to xml", e);
+            }
+        }
+        return xml;
+    }
+
+    @Override
+    public T fromXML(String xml) {
+        T obj = null;
+
+        if (StringUtils.isNotBlank(xml)) {
+            try {
+                obj = xmlMapper.readValue(xml, getDomainClass());
+            } catch (IOException e) {
+                log.warn("Could not deserialize xml", e);
+            }
+        }
+        return obj;
     }
 
     /**

@@ -18,25 +18,16 @@ package org.sakaiproject.serialization;
 import java.io.IOException;
 import java.io.Serializable;
 
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLOutputFactory;
-
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.hibernate.HibernateCrudRepository;
 
-import com.ctc.wstx.api.WstxInputProperties;
-import com.ctc.wstx.api.WstxOutputProperties;
-import com.ctc.wstx.stax.WstxInputFactory;
-import com.ctc.wstx.stax.WstxOutputFactory;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.dataformat.xml.XmlFactory;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -45,15 +36,17 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public abstract class BasicSerializableRepository<T, ID extends Serializable> extends HibernateCrudRepository<T, ID> implements SerializableRepository<T, ID> {
 
+    // currently using a static since all entities should use these mappers
+    protected static ObjectMapper xmlMapper = MapperFactory.createDefaultXmlMapper();
+    protected static ObjectMapper jsonMapper = MapperFactory.createDefaultJsonMapper();
+
     @Override
     public String toJSON(T t) {
         String json = "";
         if (t != null) {
             sessionFactory.getCurrentSession().refresh(t);
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.registerModules(new JavaTimeModule());
             try {
-                json = mapper.writeValueAsString(t);
+                json = jsonMapper.writeValueAsString(t);
             } catch (JsonProcessingException e) {
                 log.warn("Could not serialize to json", e);
                 json = "";
@@ -66,10 +59,8 @@ public abstract class BasicSerializableRepository<T, ID extends Serializable> ex
     public T fromJSON(String json) {
         T obj = null;
         if (StringUtils.isNotBlank(json)) {
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.registerModules(new JavaTimeModule());
             try {
-                obj = mapper.readValue(json, getDomainClass());
+                obj = jsonMapper.readValue(json, getDomainClass());
             } catch (IOException e) {
                 log.warn("Could not deserialize json", e);
                 obj = null;
@@ -83,9 +74,8 @@ public abstract class BasicSerializableRepository<T, ID extends Serializable> ex
         String xml = "";
         if (t != null) {
             sessionFactory.getCurrentSession().refresh(t);
-            final XmlMapper mapper = createXMLMapper();
             try {
-                xml = mapper.writeValueAsString(t);
+                xml = xmlMapper.writeValueAsString(t);
             } catch (JsonProcessingException e) {
                 log.warn("Could not serialize to xml", e);
                 xml = "";
@@ -98,32 +88,13 @@ public abstract class BasicSerializableRepository<T, ID extends Serializable> ex
     public T fromXML(String xml) {
         T obj = null;
         if (StringUtils.isNotBlank(xml)) {
-            final XmlMapper mapper = createXMLMapper();
             try {
-                obj = mapper.readValue(xml, getDomainClass());
+                obj = xmlMapper.readValue(xml, getDomainClass());
             } catch (IOException e) {
                 log.warn("Could not deserialize xml", e);
                 obj = null;
             }
         }
         return obj;
-    }
-    
-    private XmlMapper createXMLMapper() {
-        final XMLInputFactory ifactory = new WstxInputFactory();
-        ifactory.setProperty(WstxInputProperties.P_MAX_ATTRIBUTE_SIZE, 32000);
-        ifactory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, false);
-
-        final XMLOutputFactory ofactory = new WstxOutputFactory();
-        ofactory.setProperty(WstxOutputProperties.P_OUTPUT_CDATA_AS_TEXT, true);
-        ofactory.setProperty(XMLOutputFactory.IS_REPAIRING_NAMESPACES, true);
-
-        final XmlFactory xf = new XmlFactory(ifactory, ofactory);
-
-        final XmlMapper mapper = new XmlMapper(xf);
-        mapper.registerModules(new JavaTimeModule());
-        mapper.enable(SerializationFeature.INDENT_OUTPUT);
-        mapper.configure(ToXmlGenerator.Feature.WRITE_XML_1_1, true);
-        return mapper;
     }
 }

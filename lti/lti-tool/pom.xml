@@ -5,7 +5,7 @@
     <parent>
         <artifactId>lti</artifactId>
         <groupId>org.sakaiproject.lti</groupId>
-        <version>25-SNAPSHOT</version>
+        <version>26-SNAPSHOT</version>
     </parent>
     
     <name>LTI Admin Tool (lti-tool)</name>

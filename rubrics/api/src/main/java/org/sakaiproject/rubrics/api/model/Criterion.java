@@ -27,9 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.persistence.CascadeType;
-import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -53,6 +51,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlCData;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+
 @AllArgsConstructor
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @Data
@@ -65,23 +69,31 @@ public class Criterion implements PersistableEntity<Long>, Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "rbc_crit_seq")
     @SequenceGenerator(name="rbc_crit_seq", sequenceName="rbc_crit_seq")
+    @JsonIgnore
     private Long id;
 
+    @JacksonXmlProperty(isAttribute = true)
     private String title;
 
     @Lob
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JacksonXmlCData
     private String description;
 
+    @JacksonXmlProperty(isAttribute = true)
     private Float weight = 0F;
 
     @EqualsAndHashCode.Exclude
     @OrderColumn(name = "order_index")
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "criterion")
+    @JacksonXmlElementWrapper(localName = "ratings")
+    @JacksonXmlProperty(localName = "rating")
     private List<Rating> ratings = new ArrayList<>();
 
     @EqualsAndHashCode.Exclude
     @ManyToOne
     @JoinColumn(name = "rubric_id")
+    @JsonIgnore
     private Rubric rubric;
 
     @Override

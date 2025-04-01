@@ -81,7 +81,7 @@ public class DateManagerServiceTest {
         Assignment assignment = Mockito.mock(Assignment.class);
         Date dueDate = Date.from(LocalDate.parse("2025-05-16").atStartOfDay(ZoneOffset.systemDefault()).toInstant());
         when(assignment.getDueDate()).thenReturn(dueDate);
-        when(gradingService.getAssignment(siteId, 78L)).thenReturn(assignment);
+        when(gradingService.getAssignment(siteId, siteId, 78L)).thenReturn(assignment);
 
         // LD due dates are equal, changed = false
         boolean changed = dateManagerService.isChanged(DateManagerConstants.COMMON_ID_GRADEBOOK, new String[]{"78", "Participation", "2025-05-16"});
@@ -127,7 +127,7 @@ public class DateManagerServiceTest {
         when(userTimeService.getLocalTimeZone()).thenReturn(TimeZone.getDefault());
 
         Assignment assignment = Mockito.mock(Assignment.class);
-        when(gradingService.getAssignment(siteId, 78L)).thenReturn(assignment);
+        when(gradingService.getAssignment(siteId, siteId, 78L)).thenReturn(assignment);
 
         try {
             DateManagerValidation validation = dateManagerService.validateGradebookItems(siteId, jsonArray);

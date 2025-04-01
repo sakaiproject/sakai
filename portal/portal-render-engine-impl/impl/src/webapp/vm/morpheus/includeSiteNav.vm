@@ -22,6 +22,9 @@
     #end
 
     <li id="site-list-${type}-item-${safeSiteId}" class="site-list-item py-1 px-2 mx-3 mt-3 $!{currentSiteClass}" data-type="${type}" data-site="${site.id}">
+        #if ($site.isCurrent && ${sitePages.pageNavIconUrl} != "")
+            <img src="${sitePages.pageNavIconUrl}" alt="${rloader.sit_icon_alt}" class="img_site_toolmenu">
+        #end
         <div class="site-list-item-head d-flex align-items-center py-1 w-100 justify-content-between">
             <div class="site-link-block d-flex align-items-center rounded-end me-1 pe-2">
                 <button class="btn icon-button collapsed px-2 me-1"
@@ -34,15 +37,12 @@
                     <i class="bi bi-chevron-right" aria-hidden="true"></i>
                 </button>
 
-                #if ($site.isCurrent && ${sitePages.pageNavIconUrl} != "")
-                    <img src="${sitePages.pageNavIconUrl}" alt="${rloader.sit_icon_alt}" class="img_site_toolmenu">
-                #end
-
-                #set ($displayTitle = ${site.title})
+                #set ($siteTitle = $ftext.escapeHtml(${site.title}))
+                #set ($displayTitle = $siteTitle)
                 #if ( ( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ) )
-                    #set ($displayTitle = ${site.shortDescription})
+                    #set ($displayTitle = $ftext.escapeHtml(${site.shortDescription}))
                 #end
-                <a href="$site.url" class="sidebar-site-title" title="${site.title}">${displayTitle}</a>
+                <a href="$site.url" class="sidebar-site-title" title="${siteTitle}">${displayTitle}</a>
 
             </div>
             #if ($loggedIn && !${site.isHome})
@@ -50,7 +50,7 @@
                     <button class="d-inline-block p-1 site-opt-pin btn btn-transparent bi $!{pinIconClass}"
                         data-pin-site="${site.id}"
                         data-pinned="$!{site.isPinned}"
-                        data-site-title="${site.title}"
+                        data-site-title="${siteTitle}"
                         title="${pinTitle}"
                         aria-label="${pinTitle}">
                     </button>
@@ -84,7 +84,7 @@
                             </button>
                             <ul class="dropdown-menu w-100">
                                 #foreach($childSite in $site.childSites)
-                                    <li><a class="dropdown-item px-3 py-2" href="/portal/site/$childSite.id">$childSite.title</a></li>
+                                    <li><a class="dropdown-item px-3 py-2" href="/portal/site/$childSite.id">$ftext.escapeHtml(${childSite.title})</a></li>
                                 #end
                             </ul>
                         </div>
@@ -188,16 +188,33 @@
 </aside>
 
 <script>
-    // focus the current tool on load and prepare site description popovers
-    window.addEventListener('load', () => {
-        const currentSiteElement = document.querySelector('.is-current-site');
-        if (currentSiteElement) {
-            const targetUl = document.querySelector('#sites-section-first ul');
-            if (targetUl) {
-                targetUl.firstElementChild.after(currentSiteElement);
+    // focus the current site on load and prepare site description popovers
+    var previousSiteTitle = null;
+    const observerToolMenu = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.type === 'childList' && previousSiteTitle === null) {
+                const currentSiteElement = document.querySelector('.is-current-site');
+                const toolMenu = document.getElementById('toolMenu');
+                if (!toolMenu) return;
+                const listItems = Array.from(toolMenu.querySelectorAll('li.site-list-item'));
+                const currentIndex = listItems.indexOf(currentSiteElement.closest('li'));
+                const previousLi = currentIndex > 0 ? listItems[currentIndex - 1] : null;
+                if (previousLi) {
+                    previousSiteTitle = previousLi.querySelector('.sidebar-site-title');
+                    if (previousSiteTitle) {
+                        const rect = previousSiteTitle.getBoundingClientRect();
+                        previousSiteTitle.scrollIntoView({ behavior: 'auto', block: 'start' });
+                    }
+                }
             }
-        }
-
+            else if (previousSiteTitle !== null) {
+                previousSiteTitle.scrollIntoView({ behavior: 'auto', block: 'start' });
+            }
+        });
+    });
+    observerToolMenu.observe(document.body, { childList: true, subtree: true });
+    window.addEventListener('load', () => {
+        observerToolMenu.disconnect();
         // put the focus back on the portal wrapper so that keyboard navigation works
         setTimeout(function() {
             // Preserve focus on login fields if they're currently active

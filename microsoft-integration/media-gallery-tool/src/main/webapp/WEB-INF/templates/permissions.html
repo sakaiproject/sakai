@@ -8,6 +8,6 @@
 
 		<div class="menu" th:insert="fragments/menus :: main (permissions)" />
 
-		<sakai-permissions disabled-groups=true tool="microsoft.channels" bundle-key="microsoft" th:attr="on-refresh=@{/index}" />
+		<sakai-permissions tool="microsoft.channels" bundle-key="microsoft" th:attr="on-refresh=@{/index}" />
 	</body>
 </html>

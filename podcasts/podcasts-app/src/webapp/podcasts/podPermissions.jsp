@@ -10,6 +10,6 @@
     <sakai:view>
         <sakai:view_title value="#{msgs.permissions}" />
 
-        <sakai-permissions group-reference="<h:outputText value="#{podHomeBean.groupReference}" />" disabled-groups=true tool="content" bundle-key="org.sakaiproject.api.podcasts.bundle.Messages" />
+        <sakai-permissions group-reference="<h:outputText value="#{podHomeBean.groupReference}" />" tool="content" bundle-key="org.sakaiproject.api.podcasts.bundle.Messages" />
     </sakai:view>
 </f:view> 

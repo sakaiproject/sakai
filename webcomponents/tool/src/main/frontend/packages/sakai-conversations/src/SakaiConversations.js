@@ -67,7 +67,7 @@ export class SakaiConversations extends SakaiElement {
         }
         throw new Error(`Network error while loading data from ${url}`);
       })
-      .then(async data => {
+      .then(data => {
 
         this._data = data;
 
@@ -259,6 +259,7 @@ export class SakaiConversations extends SakaiElement {
       topic && (topic.selected = true);
       this._data.topics.filter(t => t.id !== topic.id).forEach(t => t.selected = false);
       if (!onlySelectInList) {
+
         this._currentTopic = topic;
         this._state = STATE_DISPLAYING_TOPIC;
       }
@@ -362,9 +363,7 @@ export class SakaiConversations extends SakaiElement {
   _agreeToGuidelines() {
 
     const url = `/api/sites/${this.siteId}/conversations/agree`;
-    fetch(url, {
-      credentials: "include",
-    })
+    fetch(url)
     .then(r => {
 
       if (!r.ok) {
@@ -386,8 +385,6 @@ export class SakaiConversations extends SakaiElement {
     this.wasAddingTopic = true;
     this._state = STATE_MANAGING_TAGS;
   }
-
-  _setStateAddingTopic() { this._state = STATE_ADDING_TOPIC; }
 
   async _setStateSettings() {
 
@@ -428,16 +425,16 @@ export class SakaiConversations extends SakaiElement {
         <button class="btn btn-secondary dropdown-item" @click=${this._setStateSettings}>${this._i18n.general_settings}</button>
       </li>
       <li class=${ifDefined(this._state === STATE_PERMISSIONS ? "setting-active" : undefined)}>
-        <button class="btn btn-secondary dropdown-item" @click="${this._setStatePermissions}">${this._i18n.permissions}</button>
+        <button class="btn btn-secondary dropdown-item" @click=${this._setStatePermissions}>${this._i18n.permissions}</button>
       </li>
       ${this._data.canEditTags ? html`
       <li class=${ifDefined(this._state === STATE_MANAGING_TAGS ? "setting-active" : undefined)}>
-        <button class="btn btn-secondary dropdown-item" @click="${this._setStateManagingTags}">${this._i18n.manage_tags}</button>
+        <button class="btn btn-secondary dropdown-item" @click=${this._setStateManagingTags}>${this._i18n.manage_tags}</button>
       </li>
       ` : nothing }
       ${this._data.canViewSiteStatistics ? html`
       <li class=${ifDefined(this._state === STATE_STATISTICS ? "setting-active" : undefined)}>
-        <button class="btn btn-secondary dropdown-item" @click="${this._setStateStatistics}">${this._i18n.statistics}</button>
+        <button class="btn btn-secondary dropdown-item" @click=${this._setStateStatistics}>${this._i18n.statistics}</button>
       </li>
       ` : nothing }
     `;
@@ -451,7 +448,7 @@ export class SakaiConversations extends SakaiElement {
         ${renderBackButton ? html`
         <div id="conv-back-button-block">
           <div>
-            <a href="javascript:;" @click="${this._setStateNothingSelected}">
+            <a href="javascript:;" @click=${this._setStateNothingSelected} aria-label="${this._i18n.back}">
               <div><sakai-icon type="left"></sakai-icon></div>
             </a>
           </div>
@@ -459,40 +456,42 @@ export class SakaiConversations extends SakaiElement {
         ` : nothing }
 
         <div class="conv-settings-and-create d-flex align-items-center">
-          ${this._data.canUpdatePermissions || this._data.isInstructor ? html`
+
           ${this._searchEnabled ? html`
           <div>
             <button type="button"
                 @click=${this._handleSearch}
-                class="btn btn-link icon-button"
+                class="sakai-conversations__search_button btn btn-link icon-button"
                 data-bs-toggle="offcanvas"
                 data-bs-target="#sakai-search-panel"
                 aria-controls="sakai-search-panel">
               <i class="si si-sakai-search"></i>
-              <span>Search</span>
+              <span>${this._i18n.search}</span>
             </button>
           </div>
           ` : nothing}
-          ${mobile ? html`
-            <div>
-              <div class="dropdown">
-                <button type="button" class="btn btn-icon" data-bs-toggle="dropdown" aria-expanded="false">
-                  <i class="si si-settings"></i>
-                  <span>${this._i18n.settings}</span>
-                </button>
-                <ul class="dropdown-menu">
-                ${this._renderSettingsMenu()}
-                </ul>
+
+          ${this._data.canUpdatePermissions || this._data.isInstructor ? html`
+            ${mobile ? html`
+              <div>
+                <div class="dropdown">
+                  <button type="button" class="btn btn-icon" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="si si-settings"></i>
+                    <span>${this._i18n.settings}</span>
+                  </button>
+                  <ul class="dropdown-menu">
+                  ${this._renderSettingsMenu()}
+                  </ul>
+                </div>
               </div>
+            ` : html`
+            <div class="conv-settings-link">
+              <button type="button" class="btn icon-button text-nowrap" @click=${this._setStateSettings}>
+                <i class="si si-settings"></i>
+                <span>${this._i18n.settings}</span>
+              </button>
             </div>
-          ` : html`
-          <div class="conv-settings-link">
-            <button type="button" class="btn icon-button text-nowrap" @click="${this._setStateSettings}">
-              <i class="si si-settings"></i>
-              <span>${this._i18n.settings}</span>
-            </button>
-          </div>
-          `}
+            `}
           ` : nothing }
 
           ${this._data.canCreateTopic ? html`
@@ -627,7 +626,9 @@ export class SakaiConversations extends SakaiElement {
     return html`
 
       ${this._data.showGuidelines ? html`
-        <sakai-conversations-guidelines guidelines="${this._data.settings.guidelines}"></sakai-conversations-guidelines>
+        <sakai-conversations-guidelines
+            guidelines="${this._data.settings.guidelines || this._i18n.community_guidelines_sample}">
+        </sakai-conversations-guidelines>
         <div class="act">
           <input type="button" class="active" @click=${this._agreeToGuidelines} value="${this._i18n.agree}">
         </div>
@@ -644,7 +645,9 @@ export class SakaiConversations extends SakaiElement {
               </a>
             </div>
             <div id="conv-settings">
+              <ul>
               ${this._renderSettingsMenu()}
+              </ul>
             </div>
           </div>
           ` : this._renderTopicList()}

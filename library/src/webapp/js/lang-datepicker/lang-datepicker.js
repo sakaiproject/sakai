@@ -197,8 +197,6 @@ const defaults = {
 	}
   
 	init() {
-	  this.element.style.minWidth = "200px";
-	  
 	  // Process initial date value
 	  const initialDate = this.getInitialDate();
 
@@ -209,6 +207,8 @@ const defaults = {
 
 	  // Set input type after setting value
 	  this.element.type = this.options.useTime ? "datetime-local" : "date";
+	  // Add max date restriction
+	  this.element.max = this.options.useTime ? "2099-12-31T23:59" : "2099-12-31";
 
 	  // Complete setup
 	  this.createHiddenFields();
@@ -218,6 +218,7 @@ const defaults = {
 	  
 	  // Add hasDatepicker class for backward compatibility with jquery-ui
 	  this.element.classList.add('hasDatepicker');
+	  this.element.style.minWidth = "200px";
 	}
     
     // Determine the initial date based on options and input value

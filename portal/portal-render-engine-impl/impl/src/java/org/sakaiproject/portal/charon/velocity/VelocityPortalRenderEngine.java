@@ -35,6 +35,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.velocity.util.SLF4JLogChute;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.context.Context;
@@ -69,6 +70,7 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 	@Setter PortalService portalService;
 	@Setter ServerConfigurationService serverConfigurationService;
 	@Setter SessionManager sessionManager;
+	@Setter private FormattedText formattedText;
 	private VelocityEngine vengine;
 
 	public void init() throws Exception
@@ -134,6 +136,7 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 	public PortalRenderContext newRenderContext(HttpServletRequest request)
 	{
 		VelocityPortalRenderContext rc = new VelocityPortalRenderContext();
+		rc.put("ftext", formattedText);
 		rc.setRenderEngine(this);
 		rc.setDebug(debug);
 		// this is just for testing, it should be in the path or portal to

@@ -29,9 +29,11 @@ import java.util.Map;
 import java.util.function.Function;
 
 import org.sakaiproject.sitestats.api.presence.Presence;
+import lombok.extern.slf4j.Slf4j;
 
 import lombok.NonNull;
 
+@Slf4j
 public class PresenceConsolidation {
 
 
@@ -54,6 +56,7 @@ public class PresenceConsolidation {
 
         if (records.contains(additialRecord)) {
             // Record is already present in list, leave unchanged
+            log.debug("Record already present: {}", additialRecord);
             return false;
         }
 
@@ -73,10 +76,14 @@ public class PresenceConsolidation {
             }
         }
 
+        log.debug("First overlapping record: {}", firstOverlappingRecord);
+        log.debug("Last overlapping record: {}", lastOverlappingRecord);
+
         // If we have no intersections, just add the new record
         if (firstOverlappingRecord == null && lastOverlappingRecord == null) {
             records.add(additialRecord);
             sort();
+            log.debug("Added new record: {}", additialRecord);
             return true;
         }
 
@@ -85,6 +92,7 @@ public class PresenceConsolidation {
             Presence onlyIntersectingRecord = firstOverlappingRecord;
 
             if (additialRecord.isWithin(onlyIntersectingRecord)) {
+                log.debug("New record is within the existing record: {}", additialRecord);
                 return false;
             }
 
@@ -99,6 +107,7 @@ public class PresenceConsolidation {
                 onlyIntersectingRecord.setEnd(additionalRecordEnd);
             }
 
+            log.debug("Extended existing record: {}", onlyIntersectingRecord);
             return true;
         }
 
@@ -113,6 +122,7 @@ public class PresenceConsolidation {
 
             PresenceRecord mergedRecord = merge(additialRecord, firstOverlappingRecord, lastOverlappingRecord);
             records.add(firstIndex, mergedRecord);
+            log.debug("Merged records into: {}", mergedRecord);
             return true;
         }
 
@@ -155,12 +165,17 @@ public class PresenceConsolidation {
         // Split cross day records
         for (int i = 0; i < records.size(); i++) {
             PresenceRecord record = records.get(i);
+            log.debug("Processing record: {}", record);
 
             if (record.isCrossDay()) {
                 Instant begin = record.getBegin();
                 Instant end = record.getEnd();
                 Instant beginDay = toDay(begin);
                 Instant endDay = toDay(end);
+
+                log.debug("Record crosses day: {}", record);
+                log.debug("Begin: {}, End: {}", begin, end);
+                log.debug("Begin day: {}, End day: {}", beginDay, endDay);
 
                 for (Instant day = beginDay;
                         day.isBefore(end);
@@ -170,6 +185,8 @@ public class PresenceConsolidation {
                     Instant sliceBegin = day.equals(beginDay) ? begin : day;
                     Instant sliceEnd = day.equals(endDay) ? end : day.plus(1, ChronoUnit.DAYS);
 
+                    log.debug("Creating slice: Begin: {}, End: {}", sliceBegin, sliceEnd);
+
                     PresenceRecord presenceSlice = PresenceRecord.builder()
                             .begin(sliceBegin)
                             .end(sliceEnd)
@@ -177,9 +194,11 @@ public class PresenceConsolidation {
 
                     // Get or create presence consolidation for day and add record
                     recordsByDay.computeIfAbsent(day, consolidationFacrory).add(presenceSlice);
+                    log.debug("Added slice to day: {}, Slice: {}", day, presenceSlice);
                 }
             } else {
                 recordsByDay.computeIfAbsent(record.getDay(), consolidationFacrory).add(record);
+                log.debug("Added record to day: {}, Record: {}", record.getDay(), record);
             }
         }
 

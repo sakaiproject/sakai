@@ -87,12 +87,12 @@ public interface AssignmentRepository extends SerializableRepository<Assignment,
     void resetAssignment(Assignment assignment);
 
     /**
-     * Find an assignment that is linked with to a gradebook item
+     * Find assignments that are linked with to a gradebook item
      * @param context the context the assignment is in
      * @param linkId the linked id or name of the gradebook item
      * @return the assignment id or empty if none is found
      */
-    Optional<String> findAssignmentIdForGradebookLink(String context, String linkId);
+    List<Assignment> findAssignmentsForGradebookLink(String context, String linkId);
 
     Collection<String> findGroupsForAssignmentById(String assignmentId);
 

@@ -809,25 +809,19 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                     for (PeerAssessmentItem review : reviews) {
                         if (!review.getRemoved() && (review.getScore() != null || (StringUtils.isNotBlank(review.getComment())))) {
                             //only show peer reviews that have either a score or a comment saved
-                            if (assignment.getPeerAssessmentAnonEval()) {
-                                //annonymous eval
-                                review.setAssessorDisplayName(rb.getFormattedMessage("gen.reviewer.countReview", completedReviews.size() + 1));
-                            } else {
-                                //need to set the assessor's display name
-                                try {
-                                    if (assignment.getIsGroup()) {
-                                        String siteId = toolManager.getCurrentPlacement().getContext();
-                                        Site site = siteService.getSite(siteId);
-                                        review.setAssessorDisplayName(site.getGroup(review.getId().getAssessorUserId()).getTitle());
-                                    } else {
-                                        review.setAssessorDisplayName(userDirectoryService.getUser(review.getId().getAssessorUserId()).getDisplayName());
-                                    }
-                                } catch (IdUnusedException | UserNotDefinedException e) {
-                                    //reviewer doesn't exist or one of userId/groupId/siteId is wrong
-                                    log.warn("Either no site, or user: {}", e.toString());
-                                    //set a default one:
-                                    review.setAssessorDisplayName(rb.getFormattedMessage("gen.reviewer.countReview", completedReviews.size() + 1));
+                            try {
+                                if (assignment.getIsGroup()) {
+                                    String siteId = assignment.getContext();
+                                    Site site = siteService.getSite(siteId);
+                                    review.setAssessorDisplayName(site.getGroup(review.getId().getAssessorUserId()).getTitle());
+                                } else {
+                                    review.setAssessorDisplayName(userDirectoryService.getUser(review.getId().getAssessorUserId()).getDisplayName());
                                 }
+                            } catch (IdUnusedException | UserNotDefinedException e) {
+                                //reviewer doesn't exist or one of userId/groupId/siteId is wrong
+                                log.warn("Either no site, or user: {}", e.toString());
+                                //set a default one:
+                                review.setAssessorDisplayName(rb.getFormattedMessage("gen.reviewer.countReview", completedReviews.size() + 1));
                             }
                             // get attachments for peer review item
                             List<PeerAssessmentAttachment> attachments = assignmentPeerAssessmentService.getPeerAssessmentAttachments(review.getId().getSubmissionId(), review.getId().getAssessorUserId());
@@ -1198,7 +1192,6 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
     @EntityCustomAction(action = "setGrade", viewKey = EntityView.VIEW_NEW)
     public ActionReturn setGrade(Map<String, Object> params) {
-
         String userId = getCheckedCurrentUser();
 
         String courseId = (String) params.get("courseId");
@@ -1923,11 +1916,10 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             }
 
             this.anonymousGrading = assignmentService.assignmentUsesAnonymousGrading(a);
-
             String gradebookAssignmentProp = a.getProperties().get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
             if (StringUtils.isNotBlank(gradebookAssignmentProp)) {
                 // try to get internal gradebook assignment first
-                org.sakaiproject.grading.api.Assignment gAssignment = gradingService.getAssignment(a.getContext(), gradebookAssignmentProp);
+                org.sakaiproject.grading.api.Assignment gAssignment = gradingService.getAssignment(a.getContext(), a.getContext(), gradebookAssignmentProp);
                 if (gAssignment != null) {
                     // linked Gradebook item is internal
                     this.gradebookItemId = gAssignment.getId();

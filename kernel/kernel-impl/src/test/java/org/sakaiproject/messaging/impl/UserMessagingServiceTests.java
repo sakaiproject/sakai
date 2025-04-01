@@ -90,7 +90,6 @@ public class UserMessagingServiceTests extends SakaiTests {
             when(userDirectoryService.getUser(instructor)).thenReturn(instructorUser);
         } catch (UserNotDefinedException unde) {}
 
-        when(serverConfigurationService.getBoolean("portal.bullhorns.enabled", true)).thenReturn(true);
         when(userTimeService.dateTimeFormat(any(), any(), any())).thenReturn("07 Feb 1971");;
 
         userNotification1 = new UserNotification();

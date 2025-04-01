@@ -51,6 +51,7 @@ public class StudentAssignmentStatisticsPanel extends BasePanel {
 
 		final AssignmentGradeChart chart = new AssignmentGradeChart("chart",
 				assignment.getId(), studentGrade);
+		chart.setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
 		add(chart);
 
 		add(new GbAjaxLink<Void>("done") {

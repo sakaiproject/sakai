@@ -14,6 +14,18 @@
       </button>
     </li>
 
+    <li>
+      <button class="btn icon-button"
+          data-bs-toggle="offcanvas"
+          data-bs-target="#sakai-calendar-panel"
+          aria-controls="sakai-calendar-panel"
+          aria-label="$rloader.sit_calendar"
+          title="$rloader.sit_calendar">
+        <span class="si si-calendar" aria-hidden="true"></span>
+      </button>
+    </li>
+
+
     #if (${useBullhornAlerts} && !${loginTopLogin})
     <li>
       <button class="portal-notifications-button btn icon-button"

@@ -13,7 +13,6 @@ export class SakaiProfile extends SakaiShadowElement {
   static properties = {
 
     userId: { attribute: "user-id", type: String },
-    tool: { type: String },
 
     _profile: { state: true },
     _imageUrl: { state: true },
