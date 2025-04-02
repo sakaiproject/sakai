@@ -210,7 +210,7 @@
                 </h:panelGroup>
             </h:panelGrid>
 
-            <h:panelGroup rendered="#{ForumTool.hasAssociatedRubric}">
+            <h:panelGroup rendered="#{hasAssociatedRubric}">
                 <sakai-rubric-grading
                     tool-id="sakai.gradebookng"
                     site-id='<h:outputText value="#{ForumTool.siteId}" />'
