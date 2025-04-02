@@ -72,6 +72,7 @@ jobs:
           echo "tunnel_id=$TUNNEL_ID" >> $GITHUB_OUTPUT
           
           # Configure the tunnel to route to your local Tomcat instance
+          mkdir ~/.cloudflared
           echo "tunnel: $TUNNEL_ID" > ~/.cloudflared/config.yml
           echo "credentials-file: ~/.cloudflared/$TUNNEL_ID.json" >> ~/.cloudflared/config.yml
           echo "ingress:" >> ~/.cloudflared/config.yml
