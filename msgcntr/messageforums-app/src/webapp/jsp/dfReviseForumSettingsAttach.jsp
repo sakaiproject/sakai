@@ -21,13 +21,6 @@
 	<script type="module" src="/webcomponents/bundles/rubric-association-requirements.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
 	<link href="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.css" rel="stylesheet" type="text/css" />
 	<%
-		FacesContext facesContext = FacesContext.getCurrentInstance();
-		Application appContext = facesContext.getApplication();
-		ValueBinding valueBinding = appContext.createValueBinding("#{ForumTool}");
-		DiscussionForumTool discussionForumTool = (DiscussionForumTool) valueBinding.getValue(facesContext);
-
-		boolean isGradebookGroupEnabled = discussionForumTool.isGradebookGroupEnabled();
-
 	  	String thisId = request.getParameter("panel");
   		if (thisId == null) 
   		{
@@ -40,11 +33,12 @@
   		}
 	</script> 
 	<script>
+		var isGradebookGroupEnabled = <h:outputText value="#{ForumTool.gradebookGroupEnabled}"/>;
+	
 	$(document).ready(function() {
-		var isGradebookGroupEnabled = '<%= isGradebookGroupEnabled %>'; 
-		var forumGradingExists = document.getElementById("forum_grading") !== null;
-		if (isGradebookGroupEnabled === 'true' && forumGradingExists) {
-			window.syncGbSelectorInput("gb-selector", "revise:forum_assignments");
+		var forumGradingExists = document.getElementById("revise:forum_grading") !== null;
+		if (isGradebookGroupEnabled && forumGradingExists) {
+			window.syncGbSelectorInput("gb-selector", "revise:group_view:forum_assignments");
 		}
 
 		const radioButtonRestrictedAvailability = document.getElementById('revise:availabilityRestricted:1');
@@ -58,8 +52,9 @@
 	}
 
 	function updateGradeAssignment(){
-    const forumAssignments = document.getElementById("revise:forum_assignments");
-
+	const forumAssignments = isGradebookGroupEnabled
+			? document.getElementById("revise:group_view:forum_assignments")
+			: document.getElementById("revise:non_group_view:forum_assignments");
     if (forumAssignments?.value === undefined || forumAssignments.value === "Default_0") return;
 
     const elems = document.getElementsByTagName('sakai-rubric-association');
@@ -98,7 +93,7 @@
 	};
 
 	function disableFieldsBeforeSubmit() {
-		if ('<%= isGradebookGroupEnabled %>' == 'true') {
+		if (isGradebookGroupEnabled) {
 			$('select[id^="revise\\:perm"]').each(function() {
 				let elementId = $(this).attr("id");
 				let rowIndex = elementId.split(":")[2];
@@ -396,28 +391,33 @@
 					<h:panelGroup layout="block" styleClass="col-md-10 col-sm-10">
 						<h:panelGrid>
 							<h:panelGroup layout="block" styleClass="row">
-								<% if (!isGradebookGroupEnabled) { %>
-									<h:panelGroup  styleClass="gradeSelector  itemAction actionItem">
-										<h:selectOneMenu id="forum_assignments" onchange="updateGradeAssignment()" value="#{ForumTool.selectedForum.gradeAssign}" disabled="#{not ForumTool.editMode}">
+							    <f:subview id="non_group_view" rendered="#{!ForumTool.gradebookGroupEnabled}">
+									<h:panelGroup styleClass="gradeSelector itemAction actionItem">
+										<h:selectOneMenu id="forum_assignments" onchange="updateGradeAssignment()"
+														 value="#{ForumTool.selectedForum.gradeAssign}"
+														 disabled="#{not ForumTool.editMode}">
 											<f:selectItems value="#{ForumTool.assignments}" />
 										</h:selectOneMenu>
 										<h:outputText value="#{msgs.perm_choose_assignment_none_f}" styleClass="instrWOGrades" style="display:none;margin-left:0"/>
 										<h:outputText value=" #{msgs.perm_choose_instruction_forum} " styleClass="instrWithGrades" style="margin-left:0;"/>
-										<h:outputLink value="#" style="text-decoration:none" styleClass="instrWithGrades"><h:outputText styleClass="displayMore" value="#{msgs.perm_choose_instruction_more_link}"/></h:outputLink>
+										<h:outputLink value="#" style="text-decoration:none" styleClass="instrWithGrades">
+											<h:outputText styleClass="displayMore" value="#{msgs.perm_choose_instruction_more_link}"/>
+										</h:outputLink>
 									</h:panelGroup>
-								<% } else { %>
+							    </f:subview>
+							    <f:subview id="group_view" rendered="#{ForumTool.gradebookGroupEnabled}">
 									<sakai-multi-gradebook
-										id="gb-selector"
-										app-name="sakai.forums"
-										site-id='<h:outputText value="#{ForumTool.siteId}" />'
-										user-id='<h:outputText value="#{ForumTool.userId}" />'
-										group-id='<h:outputText value="#{ForumTool.groupId}" />'
-										selected-temp='<h:outputText value="#{ForumTool.selectedForum.gradeAssign}" />'>
+											id="gb-selector"
+											app-name="sakai.forums"
+											site-id='<h:outputText value="#{ForumTool.siteId}" />'
+											user-id='<h:outputText value="#{ForumTool.userId}" />'
+											group-id='<h:outputText value="#{ForumTool.groupId}" />'
+											selected-temp='<h:outputText value="#{ForumTool.selectedForum.gradeAssign}" />'>
 									</sakai-multi-gradebook>
 									<h:inputHidden id="forum_assignments" value="#{ForumTool.selectedForum.gradeAssign}" />
-								<%}%>
-							</h:panelGroup>
-							<h:panelGroup layout="block" styleClass="row"> 
+							    </f:subview>
+					        </h:panelGroup>
+							<h:panelGroup layout="block" styleClass="row">
 								<h:panelGroup styleClass="displayMorePanel" style="display:none" ></h:panelGroup>
 								<h:panelGroup styleClass="itemAction actionItem displayMorePanel" style="display:none" >
 									<h:outputText styleClass="displayMorePanel" value="#{msgs.perm_choose_instruction_forum_more}"/>
