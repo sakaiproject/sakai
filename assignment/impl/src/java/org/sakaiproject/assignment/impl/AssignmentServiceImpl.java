@@ -4628,14 +4628,23 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                             }
                         }
                         nAllPurposeItem.setAttachmentSet(nAllPurposeItemAttachments);
+                        
+                        // First save the AllPurposeItem to persist it before creating access entries
+                        assignmentSupplementItemService.saveAllPurposeItem(nAllPurposeItem);
+                        
+                        // Now clean up existing access entries
                         assignmentSupplementItemService.cleanAllPurposeItemAccess(nAllPurposeItem);
+                        
+                        // Create and save new access entries
                         Set<AssignmentAllPurposeItemAccess> accessSet = new HashSet<>();
                         AssignmentAllPurposeItemAccess access = assignmentSupplementItemService.newAllPurposeItemAccess();
                         access.setAccess(userDirectoryService.getCurrentUser().getId());
                         access.setAssignmentAllPurposeItem(nAllPurposeItem);
-                        assignmentSupplementItemService.saveAllPurposeItemAccess(access);
                         accessSet.add(access);
                         nAllPurposeItem.setAccessSet(accessSet);
+                        
+                        // Save both the access entry and the updated AllPurposeItem
+                        assignmentSupplementItemService.saveAllPurposeItemAccess(access);
                         assignmentSupplementItemService.saveAllPurposeItem(nAllPurposeItem);
                     }
                 } catch (Exception e) {
