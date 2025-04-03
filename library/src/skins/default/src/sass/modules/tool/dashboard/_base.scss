@@ -1,3 +1,6 @@
+// Configuration
+@import "bootstrap/scss/mixins";
+
 html {
   --sakai-dashboard-container-padding: 40px;
   --sakai-dashboard-welcome-font-size: 32px;
@@ -8,7 +11,7 @@ html {
   --sakai-motd-message-font-size: 12px;
 }
 
-@media (max-width: 767px) {
+@include media-breakpoint-down(md) {
   sakai-course-dashboard-template-picker {
     padding: 2rem;
   }
@@ -26,7 +29,7 @@ html {
   margin: -0.5em 0 0.5em 0;
 }
 
-@media (min-width: 992px) {
+@include media-breakpoint-up(lg) {
   .sakai-course-list {
     border-right: solid 1px var(--sakai-border-color);
   }
@@ -74,7 +77,7 @@ sakai-editor div {
   flex: 3;
 }
 
-@media (max-width: 991px) {
+@include media-breakpoint-down(lg) {
   #course-dashboard-l1-overview-and-widgets-block {
     display: block;
   }
@@ -89,7 +92,7 @@ sakai-editor div {
     margin-bottom: 16px;
   }
 }
-@media (min-width: 992px) {
+@include media-breakpoint-up(lg) {
   #course-dashboard-l1-overview-and-widgets-block {
     display: flex;
   }
@@ -112,7 +115,7 @@ sakai-editor div {
 }
 
 
-@media (min-width: 576px) {
+@include media-breakpoint-up(sm) {
   #course-dashboard-l2-header-block {
     flex: 1;
   }
