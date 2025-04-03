@@ -221,7 +221,11 @@ public class SkinnableLogin extends HttpServlet implements Login {
 			}
 			return;
 		}
-		
+		if(session != null && session.getUserId() != null) {
+			String returnUrl = (String) session.getAttribute(Tool.HELPER_DONE_URL);
+			complete(returnUrl, session, tool, res);
+		}
+
 		//SAK-29092 if an auth is specified in the URL, skip any other checks and go straight to it
 		String authPreferred = req.getParameter("auth");
 		log.debug("authPreferred: " + authPreferred);
