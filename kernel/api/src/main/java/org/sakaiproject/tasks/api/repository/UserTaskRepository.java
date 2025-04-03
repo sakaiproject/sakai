@@ -31,11 +31,12 @@ import org.sakaiproject.springframework.data.SpringCrudRepository;
 
 public interface UserTaskRepository extends SpringCrudRepository<UserTask, Long> {
 
+    List<UserTask> findBySiteId(String siteId);
     List<UserTask> findByTaskIdAndUserIdIn(Long taskId, List<String> userIds);
-    List<UserTask> findByUserIdAndStartsAfter(String userId, Instant from);
+    List<UserTask> findByUserIdAndStartsAfterAndSoftDeleted(String userId, Instant from, Boolean softDeleted);
     List<UserTask> findByUserIdAndSiteId(String userId, String siteId);
     List<UserTask> findByUserIdAndTask_StartsLessThanEqual(String userId, Instant instant);
     List<UserTask> findByTask_SiteId(String siteId);
-    void deleteByTask(Task task);
-    void deleteByTaskAndUserIdNotIn(Task task, Set<String> users);
+    int deleteByTask(Task task);
+    int deleteByTaskAndUserIdNotIn(Task task, Set<String> users);
 }
