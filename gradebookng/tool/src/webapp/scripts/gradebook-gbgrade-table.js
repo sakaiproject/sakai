@@ -1563,6 +1563,8 @@ GbGradeTable.editExcuse = function(studentId, assignmentId) {
 
     var postData = {
         action: 'excuseGrade',
+        siteId: GbGradeTable.container.dataset.siteId,
+        gUid: GbGradeTable.container.dataset.guid,
         studentId: studentId,
         assignmentId: assignmentId,
         excuseBit : student.hasExcuse[assignmentIndex],
