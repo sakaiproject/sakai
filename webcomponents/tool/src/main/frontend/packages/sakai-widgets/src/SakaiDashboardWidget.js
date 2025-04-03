@@ -173,7 +173,7 @@ export class SakaiDashboardWidget extends SakaiShadowElement {
         display: flex;
       }
       #widget-mover .btn {
-        --bs-btn-color: var(--sakai-text-color-2) !important;
+        --bs-btn-color: var(--sakai-text-color-2);
       }
       #widget-mover div {
         padding: 5px;
