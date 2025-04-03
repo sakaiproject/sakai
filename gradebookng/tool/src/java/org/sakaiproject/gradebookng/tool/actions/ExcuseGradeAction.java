@@ -90,6 +90,8 @@ public class ExcuseGradeAction extends InjectableAction implements Serializable 
 
         target.addChildren(page, FeedbackPanel.class);
 
+        final String siteId = params.get("siteId").asText();
+        final String gradebookUid = params.get("gUid").asText();
         final String assignmentId = params.get("assignmentId").asText();
         final String studentUuid = params.get("studentId").asText();
         String excuse = params.get("excuseBit").asText();
@@ -103,7 +105,7 @@ public class ExcuseGradeAction extends InjectableAction implements Serializable 
             hasExcuse = true;
         }
 
-        final GradeSaveResponse result = businessService.saveExcuse(currentGradebookUid, currentSiteId, Long.valueOf(assignmentId),
+        final GradeSaveResponse result = businessService.saveExcuse(gradebookUid, siteId, Long.valueOf(assignmentId),
                 studentUuid, hasExcuse);
 
         if (result.equals(GradeSaveResponse.NO_CHANGE)) {
@@ -114,10 +116,10 @@ public class ExcuseGradeAction extends InjectableAction implements Serializable 
                 String.format("GbGradeTable.updateExcuse('%s', '%s', '%s');", assignmentId, studentUuid, excuse));
 
 
-        final CourseGradeTransferBean studentCourseGrade = businessService.getCourseGrade(currentGradebookUid, currentSiteId, studentUuid);
+        final CourseGradeTransferBean studentCourseGrade = businessService.getCourseGrade(gradebookUid, siteId, studentUuid);
 
         boolean isOverride = false;
-        String grade = getGrade(studentCourseGrade, page);
+        String grade = getGrade(studentCourseGrade, page, gradebookUid, siteId);
         String points = "0";
 
         if (studentCourseGrade != null) {
@@ -141,14 +143,14 @@ public class ExcuseGradeAction extends InjectableAction implements Serializable 
                 droppedItems);
     }
 
-    private String getGrade(CourseGradeTransferBean studentCourseGrade, GradebookPage page) {
+    private String getGrade(CourseGradeTransferBean studentCourseGrade, GradebookPage page, String gradebookUid, String siteId) {
 
         final GradebookUiSettings uiSettings = page.getUiSettings();
-        final Gradebook gradebook = businessService.getGradebook(currentGradebookUid, currentSiteId);
+        final Gradebook gradebook = businessService.getGradebook(gradebookUid, siteId);
         final CourseGradeFormatter courseGradeFormatter = new CourseGradeFormatter(
                 gradebook,
                 page.getCurrentRole(),
-                businessService.isCourseGradeVisible(currentGradebookUid, currentSiteId, businessService.getCurrentUser().getId()),
+                businessService.isCourseGradeVisible(gradebookUid, siteId, businessService.getCurrentUser().getId()),
                 uiSettings.getShowPoints(),
                 true,
                 true);
