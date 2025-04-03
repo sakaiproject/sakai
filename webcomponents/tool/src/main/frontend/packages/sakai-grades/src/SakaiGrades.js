@@ -215,9 +215,11 @@ export class SakaiGrades extends SakaiPageableElement {
         text-align: right;
       }
 
+      #site-filter {
+        margin-bottom: 0.25rem;
+      }
       #site-filter sakai-site-picker::part(select) {
-        width: 100% !important;
-        margin-bottom: 0.25rem !important;
+        width: 100%;
       }
 
       #grades {
