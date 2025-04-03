@@ -977,7 +977,11 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       if (GbGradeTable.settings.isGroupedByCategory) {
         columnElement.classList.add("gb-categorized");
       }
-  
+
+      if (columnData.type === "category") {
+        columnElement.classList.add("gb-item-category");
+      }
+
       // Handle hidden column cues
       if (index === GbGradeTable.CURRENT_FIXED_COLUMN_OFFSET - 1) {
         if (GbGradeTable.columns[0]?.hidden && !columnElement.querySelector(".gb-hidden-column-visual-cue")) {
@@ -1120,19 +1124,20 @@ GbGradeTable.renderTable = function (elementId, tableData) {
   
     // Remove "Move left" menu option for the leftmost item and "Move right" for the rightmost item.
     const header = link.closest(".tabulator-col.gb-item");
-    if (header) {
-      let menuOption;
-      const previous = header.previousElementSibling;
-      if (!previous || !previous.classList.contains("gb-item") || previous.classList.contains("gb-item-category")) {
-        menuOption = dropdownMenu.querySelector(".gb-move-left");
-      }
-      const next = header.nextElementSibling;
-      if (!next || next.classList.contains("gb-item-category")) {
-        menuOption = dropdownMenu.querySelector(".gb-move-right");
-      }
-      if (menuOption) {
-        menuOption.parentElement.remove();
-      }
+    if (!header) return;
+
+    const columns = [...document.querySelectorAll(".tabulator-col.gb-item")];
+    const index = columns.indexOf(header);
+    const moveLeftItem = dropdownMenu.querySelector('a.gb-move-left')?.closest('li');
+    const moveRightItem = dropdownMenu.querySelector('a.gb-move-right')?.closest('li');
+    
+    if (columns.length <= 1) {
+      moveLeftItem?.remove();
+      moveRightItem?.remove();
+    } else if (index === 0) {
+      moveLeftItem?.remove();
+    } else if (index === columns.length - 1 || columns[index + 1]?.classList.contains('gb-item-category')) {
+      moveRightItem?.remove();
     }
   });
 
@@ -1563,6 +1568,8 @@ GbGradeTable.editExcuse = function(studentId, assignmentId) {
 
     var postData = {
         action: 'excuseGrade',
+        siteId: GbGradeTable.container.dataset.siteId,
+        gUid: GbGradeTable.container.dataset.guid,
         studentId: studentId,
         assignmentId: assignmentId,
         excuseBit : student.hasExcuse[assignmentIndex],
