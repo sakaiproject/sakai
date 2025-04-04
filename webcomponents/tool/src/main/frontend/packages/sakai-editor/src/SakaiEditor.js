@@ -50,6 +50,8 @@ export class SakaiEditor extends SakaiElement {
 
     this.content = text;
 
+    this.ears = "wax";
+
     if (this.textarea) {
       this.querySelector("textarea").value = this.content;
     } else {
