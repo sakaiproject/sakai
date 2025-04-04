@@ -140,32 +140,26 @@ export class SakaiCourseList extends SakaiElement {
   render() {
 
     return html`
-      <div class="d-flex justify-space-between">
-        <div class="me-1">
-          <select aria-label="${this._i18n.course_filter_label}" @change=${this._siteFilterChanged} .value=${this._currentFilter} ?disabled=${this.sites.length === 0}>
-            <option value="pinned">${this._i18n.all_pinned_sites}</option>
-            <option value="projects">${this._i18n.pinned_projects}</option>
-            <option value="courses">${this._i18n.pinned_courses}</option>
-            <option value="active">${this._i18n.pinned_activity}</option>
-          </select>
-        </div>
-        <div class="mx-1">
-          <select id="course-list-term-filter"
-              aria-label="${this._i18n.term_filter_label}" @change=${this._termSelected} .value=${this._currentTermFilter} ?disabled=${this._availableTerms.length === 0}>
-            <option value="none">${this._i18n.term_filter_none_option}</option>
-            ${this._availableTerms.map(term => html`
-              <option value="${term.id}">${term.name}</option>
-            `)}
-          </select>
-        </div>
-        <div class="ms-1">
-          <select aria-label="${this._i18n.course_sort_label}" @change=${this._siteSortChanged} ?disabled=${this.sites.length === 0}>
-            <option value="title_a_to_z">${this._i18n.title_a_to_z}</option>
-            <option value="title_z_to_a">${this._i18n.title_z_to_a}</option>
-            <option value="code_a_to_z">${this._i18n.code_a_to_z}</option>
-            <option value="code_z_to_a">${this._i18n.code_z_to_a}</option>
-          </select>
-        </div>
+      <div>
+        <select class="w-100 mb-1" aria-label="${this._i18n.course_filter_label}" @change=${this._siteFilterChanged} .value=${this._currentFilter} ?disabled=${this.sites.length === 0}>
+          <option value="pinned">${this._i18n.all_pinned_sites}</option>
+          <option value="projects">${this._i18n.pinned_projects}</option>
+          <option value="courses">${this._i18n.pinned_courses}</option>
+          <option value="active">${this._i18n.pinned_activity}</option>
+        </select>
+        <select class="w-100 mb-1" id="course-list-term-filter"
+            aria-label="${this._i18n.term_filter_label}" @change=${this._termSelected} .value=${this._currentTermFilter} ?disabled=${this._availableTerms.length === 0}>
+          <option value="none">${this._i18n.term_filter_none_option}</option>
+          ${this._availableTerms.map(term => html`
+            <option value="${term.id}">${term.name}</option>
+          `)}
+        </select>
+        <select class="w-100" aria-label="${this._i18n.course_sort_label}" @change=${this._siteSortChanged} ?disabled=${this.sites.length === 0}>
+          <option value="title_a_to_z">${this._i18n.title_a_to_z}</option>
+          <option value="title_z_to_a">${this._i18n.title_z_to_a}</option>
+          <option value="code_a_to_z">${this._i18n.code_a_to_z}</option>
+          <option value="code_z_to_a">${this._i18n.code_z_to_a}</option>
+        </select>
       </div>
       <div>
         ${this.sites.length === 0 ? html`
