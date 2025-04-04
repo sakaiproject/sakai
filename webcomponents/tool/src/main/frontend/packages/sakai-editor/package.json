@@ -6,7 +6,8 @@
   "module": "sakai-editor.js",
   "scripts": {
     "lint:fix": "eslint src --fix",
-    "test": "web-test-runner --coverage"
+    "test": "web-test-runner --coverage",
+    "test:dev": "cd ../../ && npm run test:dev"
   },
   "files": [
     "*.js",

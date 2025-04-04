@@ -1,8 +1,7 @@
 import "../sakai-rubric-criterion-edit.js";
 import "../sakai-rubrics-utils.js";
-import { html } from "lit";
 import * as data from "./data.js";
-import { elementUpdated, expect, fixture, oneEvent, waitUntil } from "@open-wc/testing";
+import { elementUpdated, expect, fixture, html, oneEvent, waitUntil } from "@open-wc/testing";
 import fetchMock from "fetch-mock/esm/client";
 
 window.top.portal = { locale: "en_GB" };
@@ -13,9 +12,6 @@ fetchMock
   .get(data.associationUrl, data.association, { overwriteRoutes: true })
   .get(data.evaluationUrl, data.evaluation, { overwriteRoutes: true })
   .put(data.rubric4CriteriaSortUrl, 200, { overwriteRoutes: true })
-  //.patch(data.rubric4OwnerUrl, 200, { overwriteRoutes: true })
-  //.patch(data.rubric4Criteria5Url, 200, { overwriteRoutes: true })
-  //.patch(data.rubric4Criteria6Url, 200, { overwriteRoutes: true })
   .get("*", 500, { overwriteRoutes: true });
 
 window.sakai = window.sakai || {

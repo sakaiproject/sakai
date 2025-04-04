@@ -1,11 +1,8 @@
 import "../sakai-rubric-student.js";
 import "../sakai-rubrics-utils.js";
-import { html } from "lit";
 import * as data from "./data.js";
-import { aTimeout, elementUpdated, expect, fixture, oneEvent, waitUntil } from "@open-wc/testing";
+import { elementUpdated, expect, html, fixture, waitUntil } from "@open-wc/testing";
 import fetchMock from "fetch-mock/esm/client";
-
-window.top.portal = { locale: "en_GB" };
 
 fetchMock
   .get(data.i18nUrl, data.i18n, { overwriteRoutes: true })
@@ -33,8 +30,6 @@ describe("sakai-rubric-student tests", () => {
       </sakai-rubric-student>
     `);
 
-    await waitUntil(() => el._i18n);
-
     await el.updateComplete;
 
     await waitUntil(() => el.querySelector(".rubric-details"), "No .rubric-details created");
@@ -43,7 +38,7 @@ describe("sakai-rubric-student tests", () => {
     await el.updateComplete;
     expect(el.querySelector("sakai-rubric-criterion-student")).to.exist;
 
-    //expect(el).to.be.accessible();
+    await expect(el).to.be.accessible();
   });
 
   it ("rubric student preview renders correctly", async () => {
@@ -51,6 +46,10 @@ describe("sakai-rubric-student tests", () => {
     let el = await fixture(html`
       <sakai-rubric-student site-id="${data.siteId}" rubric-id="1" preview="true"></sakai-rubric-student>
     `);
+
+    await el.updateComplete;
+
+    await expect(el).to.be.accessible();
 
     await waitUntil(() => el.querySelector("sakai-rubric-criterion-preview"), "No sakai-rubric-criterion-preview created");
   });

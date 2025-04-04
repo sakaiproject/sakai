@@ -1,7 +1,7 @@
 import "../sakai-grades.js";
-import { html } from "lit";
 import * as data from "./data.js";
-import { expect, fixture, waitUntil, aTimeout } from "@open-wc/testing";
+import * as sitePickerData from "../../sakai-site-picker/test/data.js";
+import { elementUpdated, fixture, expect, html } from "@open-wc/testing";
 import fetchMock from "fetch-mock/esm/client";
 
 import { ASSIGNMENT_A_TO_Z, ASSIGNMENT_Z_TO_A, COURSE_A_TO_Z
@@ -10,11 +10,10 @@ import { ASSIGNMENT_A_TO_Z, ASSIGNMENT_Z_TO_A, COURSE_A_TO_Z
 
 describe("sakai-grades tests", () => {
 
-  window.top.portal = { locale: "en_GB" };
-
   fetchMock
     .get(data.i18nUrl, data.i18n, { overwriteRoutes: true })
-    .get(data.gradesUrl, data.grades, { overwriteRoutes: true })
+    .get(sitePickerData.i18nUrl, sitePickerData.i18n, { overwriteRoutes: true })
+    .get(data.gradesUrl, { grades: data.grades, sites: sitePickerData.sites }, { overwriteRoutes: true })
     .get("*", 500, { overwriteRoutes: true });
 
   it ("renders in user mode correctly", async () => {
@@ -24,7 +23,9 @@ describe("sakai-grades tests", () => {
       <sakai-grades user-id="${data.userId}"></sakai-grades>
     `);
 
-    await waitUntil(() => el.dataPage);
+    await elementUpdated(el);
+
+    await expect(el).to.be.accessible();
 
     const gradesEl = el.shadowRoot.getElementById("grades");
     expect(gradesEl).to.exist;
@@ -44,24 +45,16 @@ describe("sakai-grades tests", () => {
 
     filterSelect.value = NEW_HIGH_TO_LOW;
     filterSelect.dispatchEvent(new Event("change"));
-    await el.updateComplete;
+    await elementUpdated(el);
+    await expect(el).to.be.accessible();
     expect(el.shadowRoot.querySelector(".new-count").innerHTML).to.contain(8);
     all = el.shadowRoot.querySelectorAll(".new-count");
     expect(all.item(all.length - 1).innerHTML).to.contain(3);
 
     filterSelect.value = AVG_LOW_TO_HIGH;
     filterSelect.dispatchEvent(new Event("change"));
-    await el.updateComplete;
-  });
 
-  it ("is accessible", async () => {
-
-    let el = await fixture(html`
-      <sakai-grades user-id="${data.userId}"></sakai-grades>
-    `);
-
-    await waitUntil(() => el.dataPage);
-
-    expect(el.shadowRoot).to.be.accessible();
+    await elementUpdated(el);
+    await expect(el).to.be.accessible();
   });
 });

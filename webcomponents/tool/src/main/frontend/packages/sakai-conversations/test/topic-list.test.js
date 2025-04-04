@@ -1,13 +1,12 @@
 import "../sakai-topic-list.js";
-import { elementUpdated, expect, fixture, oneEvent, waitUntil } from "@open-wc/testing";
-import { html } from "lit";
+import { elementUpdated, expect, fixture, html, oneEvent, waitUntil } from "@open-wc/testing";
 import * as data from "./data.js";
 import fetchMock from "fetch-mock/esm/client";
 import * as constants from "../src/sakai-conversations-constants.js";
 
 describe("sakai-topic-list tests", () => {
 
-  window.top.portal = { locale: "en_GB", siteId: data.siteId, siteTitle: data.siteTitle };
+  window.top.portal = { siteId: data.siteId, siteTitle: data.siteTitle };
 
   beforeEach(() => {
     fetchMock.get(data.i18nUrl, data.i18n);
@@ -28,7 +27,6 @@ describe("sakai-topic-list tests", () => {
       </sakai-topic-list>
     `);
 
-    await waitUntil(() => el._i18n);
     await elementUpdated(el);
 
     await expect(el).to.be.accessible();

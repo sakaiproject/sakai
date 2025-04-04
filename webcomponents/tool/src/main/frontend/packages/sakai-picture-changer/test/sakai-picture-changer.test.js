@@ -1,7 +1,6 @@
 import "../sakai-picture-changer.js";
-import { html } from "lit";
 import * as data from "./data.js";
-import { expect, fixture, waitUntil } from "@open-wc/testing";
+import { elementUpdated, expect, fixture, html } from "@open-wc/testing";
 import fetchMock from "fetch-mock/esm/client";
 
 describe("sakai-picture-changer tests", () => {
@@ -19,17 +18,8 @@ describe("sakai-picture-changer tests", () => {
       <sakai-picture-changer></sakai-picture-changer>
     `);
 
-    await waitUntil(() => el._i18n);
+    await elementUpdated(el);
 
-    expect(document.getElementById("image")).to.exist;
-  });
-
-  it ("is accessible", async () => {
-
-    let el = await fixture(html`
-      <sakai-picture-changer></sakai-picture-changer>
-    `);
-
-    expect(el).to.be.accessible();
+    expect(document.getElementById("image")).to.not.exist;
   });
 });

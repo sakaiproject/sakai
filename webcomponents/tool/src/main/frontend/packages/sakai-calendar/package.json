@@ -18,7 +18,8 @@
   ],
   "scripts": {
     "lint:fix": "eslint src --fix",
-    "test": "web-test-runner --coverage"
+    "test": "web-test-runner --coverage",
+    "test:dev": "cd ../../ && npm run test:dev"
   },
   "keywords": [
     "Sakai"
@@ -31,7 +32,6 @@
     "./sakai-calendar.js": "./sakai-calendar.js"
   },
   "dependencies": {
-    "@lion/ui": "^0.7.4",
     "@sakai-ui/sakai-i18n": "file:../sakai-i18n",
     "@sakai-ui/sakai-icon": "file:../sakai-icon"
   }

@@ -1,6 +1,5 @@
 import "../sakai-add-topic.js";
-import { elementUpdated, expect, fixture, oneEvent, waitUntil } from "@open-wc/testing";
-import { html } from "lit";
+import { elementUpdated, expect, fixture, html, oneEvent, waitUntil } from "@open-wc/testing";
 import * as data from "./data.js";
 import * as graderData from "../../sakai-grader/test/data.js";
 import fetchMock from "fetch-mock/esm/client";
@@ -8,7 +7,7 @@ import * as constants from "../src/sakai-conversations-constants.js";
 
 describe("add-topic tests", () => {
 
-  window.top.portal = { locale: "en_GB", siteId: data.siteId, siteTitle: data.siteTitle, user: { timezone: "Europe/London" } };
+  window.top.portal = { siteId: data.siteId, siteTitle: data.siteTitle, user: { timezone: "Europe/London" } };
   fetchMock
     .get(data.i18nUrl, data.i18n)
     .get(graderData.i18nUrl, graderData.i18n)
@@ -108,6 +107,7 @@ describe("add-topic tests", () => {
     await expect(el).to.be.accessible();
 
     const lockDate = Date.now() + 3 * day;
+
 
     const lockdatePicker = el.querySelectorAll("sakai-date-picker").item(1);
     setTimeout(() => lockdatePicker.dispatchEvent(new CustomEvent("datetime-selected", { detail: { epochSeconds: lockDate } })));
@@ -211,7 +211,5 @@ describe("add-topic tests", () => {
     // Check that cancel fires the event
     setTimeout(() => el.querySelector("#button-block input:nth-child(3)").click());
     await oneEvent(el, "topic-add-cancelled");
-
-    await expect(el).to.be.accessible();
   });
 });

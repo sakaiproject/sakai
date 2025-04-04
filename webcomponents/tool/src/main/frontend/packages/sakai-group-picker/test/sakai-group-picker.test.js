@@ -1,12 +1,9 @@
 import '../sakai-group-picker.js';
-import { expect, fixture, oneEvent, waitUntil } from '@open-wc/testing';
-import { html } from "lit";
+import { elementUpdated, expect, fixture, html, oneEvent } from '@open-wc/testing';
 import * as data from "./data.js";
 import fetchMock from "fetch-mock/esm/client";
 
 describe("sakai-group-picker tests", () => {
-
-  window.top.portal = { locale: 'en_GB' };
 
   fetchMock
     .get(data.i18nUrl, data.i18n, { overwriteRoutes: true })
@@ -15,9 +12,14 @@ describe("sakai-group-picker tests", () => {
 
   it ("renders with site and group id", async () => {
 
-    const el = await fixture(html`<sakai-group-picker site-id="${data.siteId}"></sakai-group-picker>`);
+    const el = await fixture(html`
+      <sakai-group-picker site-id="${data.siteId}">
+      </sakai-group-picker>
+    `);
 
-    await waitUntil(() => el._i18n);
+    await elementUpdated(el);
+
+    await expect(el).to.be.accessible();
 
     const select = el.querySelector("select");
     expect(select).to.exist;
@@ -40,7 +42,9 @@ describe("sakai-group-picker tests", () => {
 
     const el = await fixture(html`<sakai-group-picker site-id="${data.siteId}" multiple></sakai-group-picker>`);
 
-    await waitUntil(() => el._i18n && el.groups);
+    await elementUpdated(el);
+
+    await expect(el).to.be.accessible();
 
     const select = el.querySelector("select");
     expect(select).to.exist;
@@ -65,7 +69,9 @@ describe("sakai-group-picker tests", () => {
 
     const el = await fixture(html`<sakai-group-picker .groups=${data.groups} site-id="${data.siteId}"></sakai-group-picker>`);
 
-    await waitUntil(() => el._i18n && el.groups);
+    await elementUpdated(el);
+
+    await expect(el).to.be.accessible();
 
     const select = el.querySelector("select");
     expect(select).to.exist;
@@ -88,7 +94,9 @@ describe("sakai-group-picker tests", () => {
 
     const el = await fixture(html`<sakai-group-picker site-id="${data.siteId}" group-ref="${data.footballRef}"></sakai-group-picker>`);
 
-    await waitUntil(() => el._i18n && el.groups);
+    await elementUpdated(el);
+
+    await expect(el).to.be.accessible();
 
     const select = el.querySelector("select");
     expect(select).to.exist;
@@ -103,18 +111,13 @@ describe("sakai-group-picker tests", () => {
 
     const el = await fixture(html`<sakai-group-picker .groups=${data.groups} .selectedGroups=${data.selectedGroups} site-id="${data.siteId}" multiple></sakai-group-picker>`);
 
-    await waitUntil(() => el._i18n && el.groups);
+    await elementUpdated(el);
+
+    await expect(el).to.be.accessible();
 
     const select = el.querySelector("select");
     expect(select).to.exist;
 
     expect(select.selectedOptions.length).to.equal(data.selectedGroups.length);
-  });
-
-  it ("is accessible", async () => {
-
-    const el = await fixture(html`<sakai-group-picker site-id="${data.siteId}" group-ref="${data.tennisRef}"></sakai-group-picker>`);
-
-    await Promise.all([waitUntil(() => el._i18n), expect(el).to.be.accessible()]);
   });
 });

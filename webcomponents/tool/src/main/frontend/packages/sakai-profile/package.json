@@ -18,7 +18,8 @@
   ],
   "scripts": {
     "lint:fix": "eslint src --fix",
-    "test": "web-test-runner --coverage"
+    "test": "cd ../../ && npm run test",
+    "test:dev": "cd ../../ && npm run test:dev"
   },
   "keywords": [
     "Sakai"

@@ -1,4 +1,4 @@
-export const i18nUrl = /getI18nProperties.*group-picker$/;
+export const i18nUrl = /getI18nProperties.*group-picker/;
 
 export const i18n = `
 group_selector_label=Group selector

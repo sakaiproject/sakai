@@ -1,6 +1,4 @@
-export const i18nUrl = /getI18nProperties.*dialog-content$/;
+export { baseI18nUrl, baseI18n } from "./i18n.js";
 
-export const i18n = `
-cancel=Cancel
-close=Close
-`;
+export const title = "My Title";
+export const content = "My Content";

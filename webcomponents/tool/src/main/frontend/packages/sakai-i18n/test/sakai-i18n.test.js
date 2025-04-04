@@ -1,6 +1,6 @@
 import { loadProperties, tr } from '../src/sakai-i18n.js';
 import { expect } from '@open-wc/testing';
-import { stub } from "sinon";
+import { spy, stub } from "sinon";
 import * as data from "./data.js";
 import fetchMock from "fetch-mock/esm/client";
 
@@ -8,7 +8,6 @@ describe("sakai-i18n tests", () => {
 
   window.top.portal = { locale: 'en_GB' };
 
-  const value = "eggnog";
 
   fetchMock
     .get(data.i18nUrl, data.i18n, { overwriteRoutes: true })
@@ -16,33 +15,40 @@ describe("sakai-i18n tests", () => {
 
   it ("loads properties successfully", async () => {
 
-    let i18n = await loadProperties('test', { debug: true });
+    const value = "eggnog";
+
+    const debugStub = stub(console, "debug");
+
+    const i18n = await loadProperties({ bundle: "test", debug: true });
+
+    expect(debugStub.calledWith("bundle: test")).to.be.true;
+
+    debugStub.restore();
+
     expect(i18n.drink).to.equal(value);
   });
 
   it ("translates", async () => {
 
     const i18n = await loadProperties('test');
-    expect(tr("test", "drink")).to.equal(value);
+    expect(tr("test", "drink")).to.equal(i18n.drink);
   });
 
   it ("translates with a replacements object", async () => {
 
     const i18n = await loadProperties('test');
-    expect(tr('test', 'brain', { "0": "gin" })).to.equal('noggin');
+    const replacement = "gin";
+    expect(tr('test', 'brain', { "0": replacement })).to.equal(i18n.brain.replace("{0}", replacement));
   });
 
   it ("translates with an array", async () => {
 
-    const prefix = "Ogg on";
-
     const i18n = await loadProperties({ bundle: 'test', cache: false });
-    expect(tr('test', 'bog', ["the", "bog"])).to.equal(`${prefix} the bog`);
+    const replacedString = i18n.bog.replace("{}", "the").replace("{}", "bog");
+    expect(tr('test', 'bog', ["the", "bog"])).to.equal(replacedString);
   });
 
   it ("logs an error when no bundle is supplied", async () => {
-
-    const prefix = "Ogg on";
 
     const errorStub = stub(console, "error");
     let i18n = await loadProperties({});
@@ -63,6 +69,8 @@ describe("sakai-i18n tests", () => {
   });
 
   it ("caches", async () => {
+
+    const value = "eggnog";
 
     // This call should cache in sessionStorage
     let i18n = await loadProperties('test');

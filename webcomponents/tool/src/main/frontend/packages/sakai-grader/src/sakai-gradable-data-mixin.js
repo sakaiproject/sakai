@@ -12,7 +12,7 @@ export const gradableDataMixin = Base => class extends Base {
 
       // Then, request the full set of data
       const url = `/direct/assignment/gradable.json?gradableId=${gradableId}${submissionId ? `&submissionId=${submissionId}` : ""}`;
-      fetch(url, { cache: "no-cache", credentials: "same-origin" })
+      fetch(url, { cache: "no-cache" })
       .then(r => {
 
         if (r.ok) {

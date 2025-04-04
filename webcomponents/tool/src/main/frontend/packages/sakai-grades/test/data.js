@@ -1,4 +1,4 @@
-export const i18nUrl = "/sakai-ws/rest/i18n/getI18nProperties?locale=en_GB&resourceclass=org.sakaiproject.i18n.InternationalizedMessages&resourcebundle=grades";
+export const i18nUrl = /getI18nProperties.*grades/;
 
 export const i18n = `
 assignment=Assignment

@@ -1,13 +1,12 @@
 import "../sakai-conversations-tag-manager.js";
-import { aTimeout, elementUpdated, expect, fixture, oneEvent, waitUntil } from "@open-wc/testing";
-import { html } from "lit";
+import { elementUpdated, expect, fixture, html, oneEvent, waitUntil } from "@open-wc/testing";
 import * as data from "./data.js";
 import sinon from "sinon";
 import fetchMock from "fetch-mock/esm/client";
 
 describe("sakai-conversations-tag-manager tests", () => {
 
-  window.top.portal = { locale: "en_GB", siteId: data.siteId, siteTitle: data.siteTitle };
+  window.top.portal = { siteId: data.siteId, siteTitle: data.siteTitle };
 
   beforeEach(() => {
     fetchMock.get(data.i18nUrl, data.i18n);

@@ -1,6 +1,6 @@
 export const userId = "adrian";
 
-export const i18nUrl = "/sakai-ws/rest/i18n/getI18nProperties?locale=en_GB&resourceclass=org.sakaiproject.i18n.InternationalizedMessages&resourcebundle=search";
+export const i18nUrl = /getI18nProperties.*search/;
 
 export const i18n = `
 close_results_tooltip=Close the search results
