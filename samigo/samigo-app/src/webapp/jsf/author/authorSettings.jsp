@@ -43,14 +43,15 @@
       <script src="/samigo-app/js/authoringSecureDeliverySettings.js"></script>
       <script src="/library/js/spinner.js"></script>
       <script>includeWebjarLibrary('bootstrap-multiselect');</script>
-      <f:verbatim rendered="#{assessmentSettingsAction.gradebookGroupEnabled}">
-      <script>
-        // Initialize input sync
-        window.addEventListener("load", () => {
-          window.syncGbSelectorInput("gb-selector", "assessmentSettingsAction:gb_selector");
-          window.syncGbSelectorInput("category-selector", "assessmentSettingsAction:category_selector");
-        });
-      </script>
+
+      <f:verbatim rendered="#{assessmentSettings.gradebookGroupEnabled}">
+        <script>
+          // Initialize input sync
+          window.addEventListener("load", () => {
+            window.syncGbSelectorInput("gb-selector", "assessmentSettingsAction:gb_selector");
+            window.syncGbSelectorInput("category-selector", "assessmentSettingsAction:category_selector");
+          });
+        </script>
       </f:verbatim>
 
       <script>
