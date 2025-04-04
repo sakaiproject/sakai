@@ -1054,11 +1054,20 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       
       tableContainer.scrollLeft = targetScroll;
     } else {
-      cellElement.scrollIntoView({
-        block: "end",
-        inline: "nearest",
-        behavior: "auto"
-      });
+      const tableRect = tableContainer.getBoundingClientRect();
+      const isFullyVisible = 
+        cellRect.top >= tableRect.top && 
+        cellRect.bottom <= tableRect.bottom &&
+        cellRect.left >= tableRect.left && 
+        cellRect.right <= tableRect.right;
+
+      if (!isFullyVisible) {
+        cellElement.scrollIntoView({
+          block: "nearest",
+          inline: "nearest",
+          behavior: "smooth"
+        });
+      }
     }
 
     cellElement.focus();
