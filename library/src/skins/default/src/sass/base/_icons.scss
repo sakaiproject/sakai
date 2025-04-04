@@ -18,6 +18,20 @@ $fa-font-path: "./fonts";
  * the $customIcons varuable
  */
 
+ @mixin widget-icon($widget-name) {
+  .#{$widget-name} {
+      .widget-icon {
+          @extend .si;
+          @extend .si-#{$widget-name};
+      }
+      .widget-icon:hover {
+          @extend .si;
+          @extend .si-#{$widget-name};
+      }
+  }
+}
+
+
 @mixin sakai-icons($customIcons) {
 
   $iconBaseClass: si;  
@@ -188,6 +202,12 @@ $fa-font-path: "./fonts";
     warning: bi-exclamation-lg,
     expanded: bi-chevron-down,
     collapsed: bi-chevron-right,
+    sitestats-widget-visits : bi-person,
+    sitestats-widget-lessons : bi-book,
+    sitestats-widget-activity : bi-bar-chart,
+    sitestats-widget-resources : bi-folder,
+    sitestats-report : bi-file-text,
+    sitestats-add : bi-plus,
   );
 
 
@@ -211,3 +231,10 @@ $customIcons: () !default;
 // call the mixin to actually create css for icons
 @include sakai-icons($customIcons);
 
+// SiteStats specific icon styles
+@include widget-icon('sitestats-widget-visits');
+@include widget-icon('sitestats-widget-lessons');
+@include widget-icon('sitestats-widget-activity');
+@include widget-icon('sitestats-widget-resources');
+@include widget-icon('sitestats-report');
+@include widget-icon('sitestats-add');
