@@ -924,7 +924,12 @@ GbGradeTable.renderTable = function (elementId, tableData) {
 
   GbGradeTable.instance.on("cellEdited", function(cell) {
     const oldScore = cell.getOldValue();
-    const newScore = cell.getValue();
+    let newScore = cell.getValue();
+
+    // Set undefined/null values to empty string
+    if (typeof newScore === 'undefined' || newScore === null) {
+      newScore = "";
+    }
 
     if (oldScore !== newScore) {
       const col = cell.getColumn().getDefinition().field;
