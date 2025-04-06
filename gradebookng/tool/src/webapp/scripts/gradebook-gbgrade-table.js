@@ -3,10 +3,6 @@ GB_HIDDEN_ITEMS_KEY = portal.user.id + "#gradebook#hiddenitems";
 GbGradeTable = { _onReadyCallbacks: [] };
 
 GbGradeTable.dropdownShownHandler = e => {
-  // Ignore if the dropdown is within the Grade Summary panel
-  if (e.target.closest('.gb-grade-summary-content')) {
-    return;
-  }
 
   // Focus the first visible list entry
   e.target.nextElementSibling.querySelector("li:not(.d-none) a").focus();
