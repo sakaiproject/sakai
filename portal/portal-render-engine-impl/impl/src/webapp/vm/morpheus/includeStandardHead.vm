@@ -7,6 +7,12 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
         <script>
+        const originalPreventDefault = Event.prototype.preventDefault;
+        Event.prototype.preventDefault = function() {
+            console.trace('preventDefault called for:', this);
+              originalPreventDefault.apply(this, arguments);
+        };
+
             var portal = {
                 "i18n": {
                     "theme_switch_to_light": "$rloader.sit_theme_switch_to_light",
