@@ -137,7 +137,7 @@ export class SakaiPermissions extends SakaiElement {
 
         <div id="permissions-container" class="container mt-4">
           <div id="permission-header" class="row flex-nowrap">
-            <div class="col-md-6 p-3">
+            <div class="col-md-4 p-3">
               <button class="btn btn-transparent"
                   title="${this._i18n["per.lis.head.title"]}"
                   @click=${this._handlePermissionClick}>
@@ -149,7 +149,7 @@ export class SakaiPermissions extends SakaiElement {
                 data-role="${role}"
                 @mouseenter=${this._handleRoleMouseEnter}
                 @mouseleave=${this._handleRoleMouseLeave}>
-              <button class="btn btn-transparent"
+              <button class="btn btn-transparent text-break"
                   title="${this._i18n["per.lis.role.title"]}"
                   data-role="${role}"
                   @click=${this._handleRoleClick}>
@@ -160,7 +160,7 @@ export class SakaiPermissions extends SakaiElement {
           </div>
           ${this.available.map(perm => html`
           <div class="row permission-row">
-            <div class="col-md-6 p-3 fw-bolder fw-md-normal">
+            <div class="col-md-4 p-3 fw-bolder fw-md-normal">
               <button class="btn btn-transparent fw-bolder fw-md-normal text-start"
                   title="${this._i18n["per.lis.perm.title"]}"
                   data-perm="${perm}"
