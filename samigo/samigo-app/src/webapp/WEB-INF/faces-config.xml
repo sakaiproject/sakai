@@ -828,21 +828,9 @@
       <from-outcome>exportZip</from-outcome>
       <to-view-id>/jsf/test/stub.jsp</to-view-id>
     </navigation-case>
-    <navigation-case>
-      <from-outcome>createNewEmail</from-outcome>
-      <to-view-id>/jsf/evaluation/createNewEmail.jsp</to-view-id>
-    </navigation-case>
-	  <navigation-case>
-      <from-outcome>confirmEmailSent</from-outcome>
-      <to-view-id>/jsf/evaluation/confirmEmailSent.jsp</to-view-id>
-    </navigation-case>
   	<navigation-case>
       <from-outcome>confirmRetake</from-outcome>
       <to-view-id>/jsf/evaluation/confirmRetake.jsp</to-view-id>
-    </navigation-case>
-	<navigation-case>
-      <from-outcome>emailError</from-outcome>
-      <to-view-id>/jsf/evaluation/emailError.jsp</to-view-id>
     </navigation-case>
 
   <!-- XML -->
