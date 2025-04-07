@@ -27,49 +27,20 @@ import javax.faces.event.ActionListener;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.sakaiproject.tool.assessment.facade.AgentFacade;
-import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
-import org.sakaiproject.tool.assessment.ui.bean.util.EmailBean;
-
+/**
+ * Deprecated class for the legacy email functionality that has been replaced by mailto links.
+ * Maintained as a placeholder for compatibility.
+ */
 @Slf4j
 public class EmailListener implements ActionListener {
 
 	/**
-	 * Standard process action method.
+	 * Legacy email action listener - no longer used
 	 * 
-	 * @param ae
-	 *            ActionEvent
+	 * @param ae ActionEvent
 	 * @throws AbortProcessingException
 	 */
 	public void processAction(ActionEvent ae) throws AbortProcessingException {
-		log.debug("Email Action Listener.");
-		EmailBean emailBean = (EmailBean) ContextUtil.lookupBean("email");
-		TotalScoresBean totalScoreBean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
-			
-		emailBean.setMessage(null);
-		emailBean.setAttachmentList(null);
-		emailBean.setHasAttachment(false);
-		emailBean.setCcMe("no");
-			
-		// From Name and email are set in TotalScoreListener
-		
-		// To
-		String toUserId = ContextUtil.lookupParam("toUserId");
-		AgentFacade agent = new AgentFacade(toUserId);
-		String toFirstName = agent.getFirstName();
-		String toName = toFirstName + " " + agent.getLastName();
-		String toEmailAddress = agent.getEmail();
-		emailBean.setToFirstName(toFirstName);
-		emailBean.setToName(toName);
-		emailBean.setToEmailAddress(toEmailAddress);
-			
-		// AssessmentName
-		emailBean.setAssessmentName(totalScoreBean.getAssessmentName());
-			
-		// Subject
-		StringBuilder sb = new StringBuilder(totalScoreBean.getAssessmentName());
-		sb.append(" ");
-		sb.append(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages", "feedback"));
-		emailBean.setSubject(sb.toString());
+		log.debug("Email Action Listener - deprecated functionality");
 	}
 }
