@@ -370,18 +370,17 @@ $(function() {
 				#set($day=$date.getDay())
 				#set($year=$todayYear)
 			#end 
-			<input type="text" id="newCalendarDate" name="newCalendarDate" class="datepicker" value="">
+			<input type="text" id="newCalendarDate" name="newCalendarDate" class="datepicker">
 			<script type="text/javascript">
 				localDatePicker({
 					input:'#newCalendarDate',
 					useTime:0,
-					val:"$year$H$month$H$day",
+					val:"${year}-${month}-${day}",
 					parseFormat: 'YYYY-MM-DD',
 					ashidden:{
 						month:"month",
 						day:"day",
 						year:"yearSelect",
-						iso8601: 'newCalendarDateISO8601'
 					}
 				});
 			</script>
