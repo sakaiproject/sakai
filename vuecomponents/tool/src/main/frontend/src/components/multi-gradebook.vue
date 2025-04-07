@@ -19,7 +19,7 @@
 		</multiselect>
 		<input type="hidden" name="groups[]" v-for="v in value" :value="v.name" />
 	</div>
-	<div v-else>
+	<div v-else-if="isEmpty && !isCategory">
 		<span>{{ i18n.no_items }}</span>
 	</div>
 </template>
