@@ -28,8 +28,8 @@
 #else
     #set( $numberTools = $pageColumn0Tools.size() )
 #end
-<div class="portal-main-container container-fluid mt-2 d-flex flex-column">
-    <main id="$pageWrapperClass" class="portal-main-content #if( $numberTools > 1 || $homePage)Mrphs-multipleTools #end" role="main">
+<div class="portal-main-container container-fluid mt-2">
+    <main id="$pageWrapperClass" class="portal-main-content #if( $numberTools > 1 || $homePage)Mrphs-multipleTools #end" role="main" tabindex="-1">
         <h1 class="skip visually-hidden" tabindex="-1" id="tocontent">${rloader.sit_contentshead}</h1>
         #parse("/vm/morpheus/includeSiteHierarchy.vm")
         #parse("/vm/morpheus/snippets/siteStatus-snippet.vm")
