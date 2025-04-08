@@ -199,6 +199,7 @@
 
 .portal-main-content {
   grid-area: main;
+  outline: none;
 }
 
 .portal-main-container {
@@ -210,7 +211,6 @@
   grid-template-rows: 1fr auto;
   align-content: space-between;
   overflow-x: auto;
-  overflow-y: auto;
 }
 
 #sakai-account-panel {
