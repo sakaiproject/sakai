@@ -203,6 +203,7 @@ public class ReportDataPage extends BasePage {
 			}		
 		};
 		reportChart.setOutputMarkupId(true);
+		reportChart.setVersioned(false);
 		add(reportChart);
 		if(ReportManager.HOW_PRESENTATION_CHART.equals(report.getReportDefinition().getReportParams().getHowPresentationMode())
 				|| ReportManager.HOW_PRESENTATION_BOTH.equals(report.getReportDefinition().getReportParams().getHowPresentationMode()) ) {
