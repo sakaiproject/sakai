@@ -1175,7 +1175,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
         let currentFilterText = event.target.value;
         if (currentFilterText !== previousFilterText) {
           previousFilterText = currentFilterText;
-          GbGradeTable.redrawTable(true);
+          GbGradeTable.redrawRows();
         }
       }, 500);
     })
@@ -1185,7 +1185,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     .on("keydown", function (event) {
       if (event.key === "Enter") {
         clearTimeout(filterTimeout);
-        GbGradeTable.redrawTable(true);
+        GbGradeTable.redrawRows();
         return false;
       }
     });
@@ -1807,6 +1807,10 @@ GbGradeTable.redrawTable = function(force) {
     GbGradeTable.refreshSummaryLabels();
     GbGradeTable.forceRedraw = false;
   }, 100);
+};
+
+GbGradeTable.redrawRows = function() {
+  GbGradeTable.instance.setFilter(row => GbGradeTable.getFilteredData().includes(row));
 };
 
 GbGradeTable._fixedColumns = [];
