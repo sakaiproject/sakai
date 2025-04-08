@@ -3162,6 +3162,7 @@ public class SakaiLTIUtil {
 		if ( autosubmit ) {
 			sb.append("  if ( message.subject == 'org.sakailms.lti.prelaunch.response' ) {\n");
 			sb.append("    console.log('submitting based on org.sakailms.lti.prelaunch.response');\n    ");
+			sb.append("    clearTimeout(plTimeOut);\n  "); // Cancel current timeout, POST is launched already
 			sb.append(doSubmit);
 			sb.append("  }\n");
 		}
@@ -3170,7 +3171,7 @@ public class SakaiLTIUtil {
 		sb.append("parent.postMessage('{ \"subject\": \"org.sakailms.lti.prelaunch\" }', '*');\nconsole.log('Sending prelaunch request');\n\n");
 
 		if ( autosubmit ) {
-			sb.append("setTimeout(function() {\n  console.warn('Submitting after prelaunch timeout');\n  ");
+			sb.append("var plTimeOut = setTimeout(function() {\n  console.warn('Submitting after prelaunch timeout');\n  ");
 			sb.append(doSubmit);
 			sb.append("}, 2000);\n");
 		}
