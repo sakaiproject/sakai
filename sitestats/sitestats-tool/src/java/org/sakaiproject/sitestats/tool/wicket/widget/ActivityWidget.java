@@ -101,7 +101,7 @@ public class ActivityWidget extends Panel {
 
 		// Final Widget object		
 		String title = (String) new ResourceModel("overview_title_activity").getObject();
-		Widget widget = new Widget("widget", "sitestats-widget-activity", title, widgetMiniStats, tabs, siteId);
+		Widget widget = new Widget("widget", "sakai-poll", title, widgetMiniStats, tabs, siteId);
 		add(widget);
 	}
 

@@ -97,7 +97,7 @@ public class ResourcesWidget extends Panel {
 
 		// Final Widget object		
 		String title = (String) new ResourceModel("overview_title_resources").getObject();
-		Widget widget = new Widget("widget", "sitestats-widget-resources", title, widgetMiniStats, tabs, siteId);
+		Widget widget = new Widget("widget", "sakai-resources", title, widgetMiniStats, tabs, siteId);
 		add(widget);
 	}
 

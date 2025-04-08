@@ -112,7 +112,7 @@ public class VisitsWidget extends Panel {
 		// Final Widget object		
 		String title = (String) new ResourceModel("overview_title_visits").getObject();
 		if (siteStatsAll) {
-			add(new Widget("widget", "sitestats-widget-visits", title, widgetMiniStats, tabs, siteId));
+			add(new Widget("widget", "sakai-singleuser", title, widgetMiniStats, tabs, siteId));
 		} else {
 			add(new StudentVisitsWidget("widget", widgetMiniStats));
 		}

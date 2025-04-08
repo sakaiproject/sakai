@@ -18,20 +18,6 @@ $fa-font-path: "./fonts";
  * the $customIcons varuable
  */
 
- @mixin widget-icon($widget-name) {
-  .#{$widget-name} {
-      .widget-icon {
-          @extend .si;
-          @extend .si-#{$widget-name};
-      }
-      .widget-icon:hover {
-          @extend .si;
-          @extend .si-#{$widget-name};
-      }
-  }
-}
-
-
 @mixin sakai-icons($customIcons) {
 
   $iconBaseClass: si;  
@@ -201,13 +187,7 @@ $fa-font-path: "./fonts";
     question: bi-question,
     warning: bi-exclamation-lg,
     expanded: bi-chevron-down,
-    collapsed: bi-chevron-right,
-    sitestats-widget-visits : bi-person,
-    sitestats-widget-lessons : bi-book,
-    sitestats-widget-activity : bi-bar-chart,
-    sitestats-widget-resources : bi-folder,
-    sitestats-report : bi-file-text,
-    sitestats-add : bi-plus,
+    collapsed: bi-chevron-right
   );
 
 
@@ -218,6 +198,18 @@ $fa-font-path: "./fonts";
     .#{$iconBaseClass}-#{$sakaiIcon} {
       @extend .#{$assignedIcon};
     }
+
+    // Apply widget icon styles to all Sakai icons
+    .#{$sakaiIcon} {
+        .widget-icon {
+          @extend .#{$iconBaseClass};
+          @extend .#{$iconBaseClass}-#{$sakaiIcon};
+        }
+        .widget-icon:hover {
+          @extend .#{$iconBaseClass};
+          @extend .#{$iconBaseClass}-#{$sakaiIcon};
+        }
+      }
   }
 
   //Assing icon base class
@@ -231,10 +223,3 @@ $customIcons: () !default;
 // call the mixin to actually create css for icons
 @include sakai-icons($customIcons);
 
-// SiteStats specific icon styles
-@include widget-icon('sitestats-widget-visits');
-@include widget-icon('sitestats-widget-lessons');
-@include widget-icon('sitestats-widget-activity');
-@include widget-icon('sitestats-widget-resources');
-@include widget-icon('sitestats-report');
-@include widget-icon('sitestats-add');
