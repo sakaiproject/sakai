@@ -1811,6 +1811,7 @@ GbGradeTable.redrawTable = function(force) {
 
 GbGradeTable.redrawRows = function() {
   GbGradeTable.instance.setFilter(row => GbGradeTable.getFilteredData().includes(row));
+  GbGradeTable.refreshSummaryLabels();
 };
 
 GbGradeTable._fixedColumns = [];
@@ -2804,9 +2805,9 @@ GbGradeTable.refreshSummaryLabels = function() {
 
   function refreshStudentSummary() {
     $toolbar.find(".gb-student-summary").html(GbGradeTable.templates.studentSummary.process());
-    const visible = GbGradeTable.instance.getData().length;
-    var total = GbGradeTable.students.length;
-    $toolbar.find(".gb-student-summary .visible").html(GbGradeTable.instance.getRows().length);
+    const visible = GbGradeTable.instance.getData("active").length;
+    const total = GbGradeTable.students.length;
+    $toolbar.find(".gb-student-summary .visible").html(visible);
     $toolbar.find(".gb-student-summary .total").html(total);
 
     if (visible < total) {
