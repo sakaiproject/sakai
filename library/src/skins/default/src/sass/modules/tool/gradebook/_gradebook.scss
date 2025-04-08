@@ -1358,6 +1358,19 @@ div.wicket-modal, .#{$namespace}sakai-gradebookng {
   .radio input[type="radio"][disabled]+label{
     color: var(--sakai-text-color-dimmed);
   }
+
+  /* style applied to the UL rendered for a feedback panel */
+  div.feedback {
+    margin: 0;
+    padding: 10px 30px 10px 10px;
+  }
+  ul.feedbackPanel {
+    list-style-type: none;
+    margin: 0;
+  }
+  ul.feedbackPanel li span {
+     display: block;
+  }
 }
 div.wicket-modal div.w_content_3 {
   border: none; /** don't want border wrapping content inside the modal **/
