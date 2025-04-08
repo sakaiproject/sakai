@@ -329,9 +329,6 @@ import org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionNavList
     	         bean.setAssessmentAttachment();
     	         toolSession.removeAttribute("SENT_TO_FILEPICKER_HELPER");
       }
-
-      // case 4: removed legacy email functionality
-      
       else if (target.indexOf("/jsf/evaluation/questionScore") > -1
 				&& ("true").equals(toolSession.getAttribute("SENT_TO_FILEPICKER_HELPER"))) {
 			QuestionScoresBean bean = (QuestionScoresBean) ContextUtil.lookupBeanFromExternalServlet("questionScores", req, res);
