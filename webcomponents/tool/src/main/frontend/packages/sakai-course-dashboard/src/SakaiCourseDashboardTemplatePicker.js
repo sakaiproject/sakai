@@ -75,22 +75,37 @@ export class SakaiCourseDashboardTemplatePicker extends SakaiDialogContent {
   static styles = [
     SakaiDialogContent.styles,
     css`
-    #instruction {
-      width: 745px;
-      margin-bottom: 20px;
+    @media (max-width: 767px) {
+      .selected {
+        margin-bottom: 1rem;
+      }
+      .thumbnail {
+        width: 149px;
+        height: 99px;
+      }
+    }
+    @media (min-width: 768px) {
+      #instruction {
+        width: 745px;
+      }
+      #template-block {
+        display: flex;
+      }
+      #template-block div {
+        flex: 1;
+      }
+      .thumbnail {
+        width: 199px;
+        height: 132px;
+      }
     }
 
-    #template-block {
-      display: flex;
-    }
     #template-block div {
-      flex: 1;
       text-align: center;
+      padding-top: 1rem;
     }
-
-    .thumbnail {
-      width: 199px;
-      height: 132px;
+    #instruction {
+      margin-bottom: 20px;
     }
 
     .selected {

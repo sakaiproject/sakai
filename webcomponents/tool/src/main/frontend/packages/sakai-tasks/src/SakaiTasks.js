@@ -302,7 +302,7 @@ export class SakaiTasks extends SakaiPageableElement {
 
       <div id="controls">
         <div id="filter">
-          <select @change=${this.filterChanged} .value=${this._currentFilter}>
+          <select class="w-100 mb-1" @change=${this.filterChanged} .value=${this._currentFilter}>
             <option value="current">${this._i18n.filter_current}</option>
             <option value="${constants.PRIORITY_5}">${this._i18n.filter_priority_5}</option>
             <option value="${constants.PRIORITY_4}">${this._i18n.filter_priority_4}</option>
@@ -315,7 +315,7 @@ export class SakaiTasks extends SakaiPageableElement {
           </select>
         </div>
         <div id="sort">
-          <select @change=${this.sortChanged}>
+          <select class="w-100 mb-3" @change=${this.sortChanged}>
             <option value="none">${this._i18n.sort_none}</option>
             <option value="due_latest_first">${this._i18n.sort_due_latest_first}</option>
             <option value="due_earliest_first">${this._i18n.sort_due_earliest_first}</option>
@@ -441,10 +441,6 @@ export class SakaiTasks extends SakaiPageableElement {
           border-radius: 2px;
         }
 
-      #controls {
-        display: flex;
-        margin-bottom: 10px;
-      }
         #filter {
           flex: 1;
         }
