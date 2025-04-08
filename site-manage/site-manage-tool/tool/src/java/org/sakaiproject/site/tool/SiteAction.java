@@ -11651,7 +11651,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				if (selectedGroups != null) {
 					for (ToolConfiguration tc : gbs) {
 						Properties props = tc.getPlacementConfig();
-						if (props.getProperty(GB_GROUP_PROPERTY) == null || !selectedGroups.contains(props.getProperty(GB_GROUP_PROPERTY))) {
+						if (gradingService.isGradebookGroupEnabled(site.getId()) && props.getProperty(GB_GROUP_PROPERTY) == null || !selectedGroups.contains(props.getProperty(GB_GROUP_PROPERTY))) {
 							site.removePage(tc.getContainingPage());
 							deletedGroups.add(tc.getPageId()+SiteManageConstants.GRADEBOOK_TOOL_ID);
 						} else {
