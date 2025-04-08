@@ -46,6 +46,8 @@ describe("sakai-topic tests", () => {
 
     expect(el.querySelector(".topic")).to.exist;
 
+    expect(el.querySelector(".conv-graded-no-grading-item-id-warning")).to.not.exist;
+
     // No status icon for discussion topics
     expect(el.querySelector(".topic-status-icon-and-text")).to.not.exist;
 
@@ -573,5 +575,24 @@ describe("sakai-topic tests", () => {
     expect(detail.topicId).to.equal(topic.id);
 
     expect(unobserveSpy.calledOnce).to.be.true;
+  });
+
+  it ("should detect that a draft topic is graded but does not have a gradingItemId", async () => {
+
+    const topic = { ...data.discussionTopic, draft: true, graded: true };
+
+    const el = await fixture(html`
+      <sakai-topic .topic=${topic}>
+      </sakai-topic>
+    `);
+
+    await elementUpdated(el);
+
+    await expect(el).to.be.accessible();
+
+    expect(el.topic.graded).to.be.true;
+
+    expect(el.querySelector(".conv-graded-no-grading-item-id-warning")).to.exist;
+    expect(el.querySelector(".conv-graded-no-grading-item-id-warning").innerHTML).to.contain(el._i18n.graded_no_item_id);
   });
 });
