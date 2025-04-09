@@ -454,8 +454,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			return;
 		}
 
-		// Find the MSIE version, if we're running it.
-		int ieVersion = checkIEVersion();
+		// Internet Explorer is no longer supported
+		// int ieVersion = checkIEVersion(); // Old IE detection removed
 		// as far as I can tell, none of these supports fck or ck
 		// we can make it configurable if necessary, or use WURFL
 		// however this test is consistent with CKeditor's check.
@@ -2173,9 +2173,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
                                         .decorate(new UIFreeAttributeDecorator("src", pdfViewerUrl))
                                         .decorate(new UIFreeAttributeDecorator("alt", messageLocator.getMessage("simplepage.mm_player").replace("{}", abbrevUrl(i.getURL()))));
                             } 
-                            // Use embed tag for Internet Explorer or WAV files
-                            else if (ieVersion > 0 || isWavAudio) {
-                                // Use embed for IE (better compatibility) and WAV files (prevents automatic download)
+                            // Use embed tag for WAV files to prevent automatic download
+                            else if (isWavAudio) {
                                 item2 = UIOutput.make(tableRow, "movieEmbed")
                                         .decorate(new UIFreeAttributeDecorator("src", movieUrl))
                                         .decorate(new UIFreeAttributeDecorator("alt", messageLocator.getMessage("simplepage.mm_player").replace("{}", abbrevUrl(i.getURL()))));
