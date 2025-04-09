@@ -14174,8 +14174,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
      * @exception Exception Anything thrown by ZipContentUtil gets passed upwards.
      */
     public void expandZippedResource(String resourceId) throws Exception {
-        int maxZipExtractSize = ZipContentUtil.getMaxZipExtractFiles();
-        ZipContentUtil extractZipArchive = new ZipContentUtil();
+        ZipContentUtil extractZipArchive = new ZipContentUtil(this, m_serverConfigurationService, sessionManager);
+        int maxZipExtractSize = extractZipArchive.getMaxZipExtractFiles();
 
         // KNL-900 Total size of files should be checked before unzipping (KNL-273)
 		Map<String, Long> zipManifest = extractZipArchive.getZipManifest(resourceId);

@@ -24,7 +24,14 @@ package org.sakaiproject.util;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.util.ZipContentUtil;
+import org.sakaiproject.tool.api.SessionManager;
+
+import static org.sakaiproject.content.util.ZipContentUtil.*;
 
 
 /**
@@ -35,17 +42,34 @@ import org.sakaiproject.content.util.ZipContentUtil;
  */
 public class ZipContentUtilTest {
 
-    /**
-     * Test method for {@link org.sakaiproject.content.util.ZipContentUtil#getMaxZipExtractFiles()}.
-     * 
-     * Ignored since this test requires a running CHS
-     */
-	@Ignore
     @Test
     public void testGetMaxZipExtractSize() {
-        long max = ZipContentUtil.getMaxZipExtractFiles();
-        Assert.assertNotNull(max);
-        Assert.assertTrue(max > 0);
+        SessionManager sm = Mockito.mock(SessionManager.class);
+        ContentHostingService chs = Mockito.mock(ContentHostingService.class);
+        ServerConfigurationService scs = Mockito.mock(ServerConfigurationService.class);
+        ResourceLoader resourceLoader = Mockito.mock(ResourceLoader.class);
+
+        Mockito.when(scs.getString(RESOURCECLASS, DEFAULT_RESOURCECLASS)).thenReturn(DEFAULT_RESOURCECLASS);
+        Mockito.when(scs.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE)).thenReturn(DEFAULT_RESOURCEBUNDLE);
+
+        try (MockedStatic<Resource> resourceMock = Mockito.mockStatic(Resource.class)) {
+            resourceMock.when(() -> Resource.getResourceLoader(DEFAULT_RESOURCECLASS, DEFAULT_RESOURCEBUNDLE)).thenReturn(resourceLoader);
+
+            // test default
+            Mockito.when(scs.getInt(ContentHostingService.RESOURCES_ZIP_EXPAND_MAX, MAX_ZIP_EXTRACT_FILES_DEFAULT)).thenReturn(1000);
+            ZipContentUtil zipContentUtil = new ZipContentUtil(chs, scs, sm);
+            Assert.assertEquals(MAX_ZIP_EXTRACT_FILES_DEFAULT, zipContentUtil.getMaxZipExtractFiles().intValue());
+
+            // test a custom setting that is more than default
+            Mockito.when(scs.getInt(ContentHostingService.RESOURCES_ZIP_EXPAND_MAX, MAX_ZIP_EXTRACT_FILES_DEFAULT)).thenReturn(10000);
+            zipContentUtil = new ZipContentUtil(chs, scs, sm);
+            Assert.assertEquals(10000, zipContentUtil.getMaxZipExtractFiles().intValue());
+
+            // test negative, should revert to default
+            Mockito.when(scs.getInt(ContentHostingService.RESOURCES_ZIP_EXPAND_MAX, MAX_ZIP_EXTRACT_FILES_DEFAULT)).thenReturn(-1);
+            zipContentUtil = new ZipContentUtil(chs, scs, sm);
+            Assert.assertEquals(MAX_ZIP_EXTRACT_FILES_DEFAULT, zipContentUtil.getMaxZipExtractFiles().intValue());
+        }
     }
 
     /* No real way to test this without a running CHS -AZ */
