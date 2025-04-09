@@ -2802,15 +2802,24 @@
                     <div rsf:id="movie-link-div">
                       <a rsf:id="movie-link-link" href="#"></a>
                     </div>
+                    <!-- HTML5 video player with caption support -->
                     <video rsf:id="h5video" controls="controls" class="html5video playerwidth" style="display:none">
                       <source rsf:id="h5source" />
                       <track rsf:id="h5track" kind="captions" />
                     </video>
+                    
+                    <!-- HTML5 audio player -->
                     <audio rsf:id="h5audio" controls="controls" class="html5video playerwidth" style="display:none">
                       <source rsf:id="h5asource" />
                     </audio>
+                    
+                    <!-- Embed fallback (used for IE and WAV files) -->
                     <embed rsf:id="movieEmbed" autoplay="false" autostart="false" scale="aspect" showControls="true" class="playerwidth" />
+                    
+                    <!-- PDF.js viewer -->
                     <iframe rsf:id="pdfEmbed"></iframe>
+                    
+                    <!-- Object fallback (used for PowerPoint and other files) -->
                     <object rsf:id="movieObject" class="playerwidth">
                       <param name="src" rsf:id="movieURLInject" />
                       <param name="FlashVars" rsf:id="flashvars" />

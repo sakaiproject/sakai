@@ -2103,70 +2103,61 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
                             //	if (allowSessionId)
                             //  movieUrl = movieUrl + "?sakai.session=" + SessionManager.getCurrentSession().getId();
-                            boolean useFlvPlayer = false;
-
-                            // isMp4 means we try the flash player (if not HTML5)
-                            // we also try the flash player for FLV but for mp4 we do an
-                            // additional backup if flash fails, but that doesn't make sense for FLV
-                            boolean isMp4 = Arrays.binarySearch(mp4Types, mimeType) >= 0;
-                            boolean isHtml5 = Arrays.binarySearch(html5Types, mimeType) >= 0;
+                            // Determine the appropriate player based on content type
+                            boolean isHtml5Compatible = Arrays.binarySearch(html5Types, mimeType) >= 0;
+                            boolean isAudio = mimeType != null && mimeType.startsWith("audio/");
+                            boolean isPDF = simplePageBean.isPDFType(i);
+                            boolean isWavAudio = mimeType != null && (mimeType.equals("audio/wav") || mimeType.equals("audio/x-wav"));
                             
-                            // wrap whatever stuff we decide to put out in HTML5 if appropriate
-                            // javascript is used to do the wrapping, because RSF can't really handle this
-                            if (isHtml5) {
-				// flag for javascript
-                                boolean isAudio = mimeType.startsWith("audio/");
-                                UIComponent h5video = UIOutput.make(tableRow, (isAudio? "h5audio" : "h5video"));
-                                UIComponent h5source = UIOutput.make(tableRow, (isAudio? "h5asource" : "h5source"));
-				// HTML5 spec says % isn't legal in width, so have to use style
-				String style = null;
-                                if (lengthOk(height))
-				    style = "height: " + height.getNew();
+                            // Step 1: Create HTML5 player for compatible media types (modern browsers)
+                            if (isHtml5Compatible) {
+                                // Create the appropriate HTML5 element (audio or video)
+                                UIComponent html5Player = UIOutput.make(tableRow, (isAudio ? "h5audio" : "h5video"));
+                                UIComponent html5Source = UIOutput.make(tableRow, (isAudio ? "h5asource" : "h5source"));
+                                
+                                // Set up dimensions using CSS style (required for HTML5)
+                                StringBuilder styleBuilder = new StringBuilder();
+                                if (lengthOk(height)) {
+                                    styleBuilder.append("height: ").append(height.getNew());
+                                }
                                 if (lengthOk(width)) {
-				    if (style == null)
-					style = "";
-				    else 
-					style = style + ";";
-				    style = style + "width: " + width.getNew();
-				}
-				if (style != null)    
-				    h5video.decorate(new UIFreeAttributeDecorator("style", style));
-                                h5source.decorate(new UIFreeAttributeDecorator("src", movieUrl)).
-                                decorate(new UIFreeAttributeDecorator("type", mimeType));
-				String caption = i.getAttribute("captionfile");
-				if (!isAudio && caption != null && caption.length() > 0) {
-				    movieLink.decorate(new UIStyleDecorator("has-caption allow-caption"));
-				    String captionUrl = "/access/lessonbuilder/item/" + i.getId() + caption;
-				    sessionParameter = getSessionParameter(captionUrl);
-				    // sessionParameter should always be non-null
-				    // because this overrides all other checks in /access/lessonbuilder,
-				    // we haven't adjusted it to handle these files otherwise
-				    if (sessionParameter != null)
-					captionUrl = captionUrl + "?lb.session=" + sessionParameter;
-				    UIOutput.make(tableRow, "h5track").
-					decorate(new UIFreeAttributeDecorator("src", captionUrl));
-				} else if (!isAudio) {
-				    movieLink.decorate(new UIStyleDecorator("allow-caption"));
-				}
+                                    if (styleBuilder.length() > 0) {
+                                        styleBuilder.append("; ");
+                                    }
+                                    styleBuilder.append("width: ").append(width.getNew());
+                                }
+                                
+                                // Apply style if dimensions specified
+                                if (styleBuilder.length() > 0) {
+                                    html5Player.decorate(new UIFreeAttributeDecorator("style", styleBuilder.toString()));
+                                }
+                                
+                                // Set the media source
+                                html5Source.decorate(new UIFreeAttributeDecorator("src", movieUrl))
+                                         .decorate(new UIFreeAttributeDecorator("type", mimeType));
+                                
+                                // Handle captions for video content
+                                String caption = i.getAttribute("captionfile");
+                                if (!isAudio && caption != null && caption.length() > 0) {
+                                    movieLink.decorate(new UIStyleDecorator("has-caption allow-caption"));
+                                    String captionUrl = "/access/lessonbuilder/item/" + i.getId() + caption;
+                                    sessionParameter = getSessionParameter(captionUrl);
+                                    if (sessionParameter != null) {
+                                        captionUrl = captionUrl + "?lb.session=" + sessionParameter;
+                                    }
+                                    UIOutput.make(tableRow, "h5track")
+                                        .decorate(new UIFreeAttributeDecorator("src", captionUrl));
+                                } else if (!isAudio) {
+                                    movieLink.decorate(new UIStyleDecorator("allow-caption"));
+                                }
                             }
 
-                            // for IE, if we're not supplying a player it's safest
-                            // to use embed
-                            // otherwise Quicktime won't work. Oddly, with IE 9 only
-                            // it works if you set CLASSID to the MIME type,
-                            // but that's so unexpected that I hate to rely on it.
-                            // EMBED is in HTML 5, so I think we're OK
-                            // using it permanently for IE.
-                            // I prefer OBJECT where possible because of the nesting
-                            // ability.
-                            boolean useEmbed = ieVersion > 0 && !mimeType.equals("application/x-shockwave-flash");
-
-                            boolean isPDF = simplePageBean.isPDFType(i);
-
+                            // Step 2: Create fallback players for browsers or content types not supporting HTML5
+                            
+                            // Handle PDF files with PDF.js viewer
                             if (isPDF) {
                                 try {
-                                    // The PDF URL has to be encoded, some URLs can contain characters resulting in the PDF not loading properly.
-                                    // https://github.com/mozilla/pdf.js/wiki/Frequently-Asked-Questions#can-i-specify-a-different-pdf-in-the-default-viewer
+                                    // URL encode for PDF.js viewer (needed for special characters)
                                     movieUrl = URLEncoder.encode(movieUrl, "UTF-8")
                                         .replaceAll("\\+", "%20")
                                         .replaceAll("\\%21", "!")
@@ -2177,15 +2168,23 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
                                 } catch (Exception ex) {
                                     log.warn("Error encoding the PDF url, the PDF might not load in the UI. {}", ex.getMessage());
                                 }
-                                String pdfSRC = String.format("/library/webjars/pdf-js/5.1.91/web/viewer.html?file=%s", movieUrl);
-                                item2 = UIOutput.make(tableRow, "pdfEmbed").decorate(new UIFreeAttributeDecorator("src", pdfSRC)).decorate(new UIFreeAttributeDecorator("alt", messageLocator.getMessage("simplepage.mm_player").replace("{}", abbrevUrl(i.getURL()))));
-                            } else if (useEmbed) {
-                                item2 = UIOutput.make(tableRow, "movieEmbed").decorate(new UIFreeAttributeDecorator("src", movieUrl)).decorate(new UIFreeAttributeDecorator("alt", messageLocator.getMessage("simplepage.mm_player").replace("{}", abbrevUrl(i.getURL()))));
-                            } else if (mimeType != null && (mimeType.equals("audio/wav") || mimeType.equals("audio/x-wav"))) {
-                                // Use embed for WAV files instead of object to prevent automatic downloading
-                                item2 = UIOutput.make(tableRow, "movieEmbed").decorate(new UIFreeAttributeDecorator("src", movieUrl)).decorate(new UIFreeAttributeDecorator("alt", messageLocator.getMessage("simplepage.mm_player").replace("{}", abbrevUrl(i.getURL()))));
-                            } else {
-                               item2 = UIOutput.make(tableRow, "movieObject").decorate(new UIFreeAttributeDecorator("data", movieUrl)).decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.mm_player").replace("{}", abbrevUrl(i.getURL()))));
+                                String pdfViewerUrl = String.format("/library/webjars/pdf-js/5.1.91/web/viewer.html?file=%s", movieUrl);
+                                item2 = UIOutput.make(tableRow, "pdfEmbed")
+                                        .decorate(new UIFreeAttributeDecorator("src", pdfViewerUrl))
+                                        .decorate(new UIFreeAttributeDecorator("alt", messageLocator.getMessage("simplepage.mm_player").replace("{}", abbrevUrl(i.getURL()))));
+                            } 
+                            // Use embed tag for Internet Explorer or WAV files
+                            else if (ieVersion > 0 || isWavAudio) {
+                                // Use embed for IE (better compatibility) and WAV files (prevents automatic download)
+                                item2 = UIOutput.make(tableRow, "movieEmbed")
+                                        .decorate(new UIFreeAttributeDecorator("src", movieUrl))
+                                        .decorate(new UIFreeAttributeDecorator("alt", messageLocator.getMessage("simplepage.mm_player").replace("{}", abbrevUrl(i.getURL()))));
+                            } 
+                            // Use object tag for all other content (PowerPoint, etc.)
+                            else {
+                                item2 = UIOutput.make(tableRow, "movieObject")
+                                        .decorate(new UIFreeAttributeDecorator("data", movieUrl))
+                                        .decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.mm_player").replace("{}", abbrevUrl(i.getURL()))));
                             }
                             if (mimeType != null) {
                                 item2.decorate(new UIFreeAttributeDecorator("type", mimeType));
