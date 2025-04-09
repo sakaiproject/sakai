@@ -1271,7 +1271,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					List<SimplePageItem> subitemList = (List<SimplePageItem>) simplePageBean.getItemsOnPage(Long.valueOf(i.getSakaiId()));
 					printSubpage(subitemList, first, sectionWrapper, sectionContainer, columnContainer, tableContainer, 
 							container, cols, colnum, canEditPage, currentPage, anyItemVisible, newItemId, showRefresh, canSeeAll, 
-							M_locale, ieVersion, showDownloads, iframeJavascriptDone, tofill, placement, params, postedCommentId,
+							M_locale, showDownloads, iframeJavascriptDone, tofill, placement, params, postedCommentId,
 							addedCommentsScript, cameFromGradingPane, pageItem, noEditor, commentsCount, textboxcount);
 					
 					subPageTitleContinue = true;					
@@ -2230,7 +2230,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
                             if (isMp4) {
                                 // do fallback. for ie use EMBED
-                                if (ieVersion > 0) {
+                                if (false) { // IE check removed - IE no longer supported
                                     item2 = UIOutput.make(tableRow, "mp4-embed").decorate(new UIFreeAttributeDecorator("src", i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner()))).decorate(new UIFreeAttributeDecorator("alt", messageLocator.getMessage("simplepage.mm_player").replace("{}", abbrevUrl(i.getURL()))));
                                 } else {
                                     item2 = UIOutput.make(tableRow, "mp4-object").decorate(new UIFreeAttributeDecorator("data", i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner()))).decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.mm_player").replace("{}", abbrevUrl(i.getURL()))));
@@ -4229,37 +4229,12 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	 * Since all I test is > 0, I use a simplified version that returns 0 or 1
 	 * @return
 	 */
+	/**
+	 * Internet Explorer detection removed as IE is no longer supported
+	 * Method retained for backward compatibility
+	 */
 	public int checkIEVersion() {
-		UsageSession usageSession = UsageSessionService.getSession();
-		if (usageSession == null)
-		    return 0;
-		browserString = usageSession.getUserAgent();
-		if (browserString == null)
-		    return 0;
-		int ieIndex = browserString.indexOf("Trident/");
-		if (ieIndex >= 0)
-		    return 1;
-		else
-		    return 0;
-
-		// int ieVersion = 0;
-		// if (ieIndex >= 0) {
-		//	String ieV = browserString.substring(ieIndex + 6);
-		//	int i = 0;
-		//	int e = ieV.length();
-		//	while (i < e) {
-		//		if (Character.isDigit(ieV.charAt(i))) {
-		//			i++;
-		//		} else {
-		//			break;
-		//		}
-		//	}
-		//	if (i > 0) {
-		//		ieV = ieV.substring(0, i);
-		//		ieVersion = Integer.parseInt(ieV);
-		//}			}
-		//
-		//		return ieVersion;
+		return 0;
 	}
 
 	private void createToolBar(UIContainer tofill, SimplePage currentPage) {
