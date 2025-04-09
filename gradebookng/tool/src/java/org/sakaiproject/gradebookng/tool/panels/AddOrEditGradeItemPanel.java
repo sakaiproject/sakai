@@ -24,7 +24,9 @@ import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -104,12 +106,29 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 		// form
 		final Form<Assignment> form = new Form<Assignment>("addOrEditGradeItemForm", formModel);
 
+		// create another container - only visible in ADD mode
+		WebMarkupContainer createAnotherContainer = new WebMarkupContainer("createAnotherContainer") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean isVisible() {
+				return AddOrEditGradeItemPanel.this.mode == UiMode.ADD;
+			}
+		};
+		form.add(createAnotherContainer);
+
+		// create another checkbox
+		final CheckBox createAnother = new CheckBox("createAnother", Model.of(Boolean.FALSE));
+		createAnotherContainer.add(createAnother);
+
+		// modify the submit button to check the checkbox value
 		final GbAjaxButton submit = new GbAjaxButton("submit", form) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void onSubmit(final AjaxRequestTarget target) {
-				createGradeItem(target, form, false);
+				// Get the checkbox value
+				createGradeItem(target, form, createAnother.getModelObject());
 			}
 
 			@Override
@@ -121,26 +140,6 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 		// submit button label
 		submit.add(new Label("submitLabel", getSubmitButtonLabel()));
 		form.add(submit);
-
-		final GbAjaxButton createAnother = new GbAjaxButton("createAnother", form) {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void onSubmit(final AjaxRequestTarget target) {
-				createGradeItem(target, form, true);
-			}
-
-			@Override
-			protected void onError(final AjaxRequestTarget target) {
-				target.addChildren(form, FeedbackPanel.class);
-			}
-
-			@Override
-			public boolean isVisible() {
-				return AddOrEditGradeItemPanel.this.mode == UiMode.ADD;
-			}
-		};
-		form.add(createAnother);
 
 		// add the common components
 		AddOrEditGradeItemPanelContent aegipc = new AddOrEditGradeItemPanelContent("subComponents", formModel, this.mode);

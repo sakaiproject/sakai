@@ -19,19 +19,6 @@
   margin-right: 4px;
 }
 
-.gb-create-or-save {
-  padding-left: 20px !important;
-  padding-right: 20px !important;
-}
-
-.gb-create-or-save + .gb-create-another {
-  margin-left: -8px;
-  border-radius: 0 3px 3px 0 !important;
-}
-
-.gb-create-another > .glyphicon {
-    margin-top: -2px;   /* to compensate for top positioning and sibling button alignment */
-}
 
 /* Toolbar */
 #gradebookGradesToolbar {

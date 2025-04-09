@@ -10,22 +10,26 @@
             <div class="form-group">
                 <div wicket:id="subComponents"></div>
 
-				<div class="d-flex justify-content-start">
-					<div class="ms-2 btn-group">
-						<button wicket:id="submit"
-								type="submit"
-								class="btn btn-primary fc-button gb-create-or-save">
-							<wicket:container wicket:id="submitLabel" />
-						</button>
-						<button wicket:id="createAnother"
-								type="submit"
-								class="btn btn-outline btn-link gb-create-another"
-								wicket:message="title:label.addgradeitem.createanother,aria-label:label.addgradeitem.createanother">
-							<i class="si si-plus-lg gb-create-another-icon"></i>
-						</button>
+				<div class="d-flex justify-content-between align-items-center">
+					<div class="d-flex">
+						<div>
+							<button wicket:id="submit"
+									type="submit"
+									class="btn btn-primary fc-button gb-create-or-save">
+								<wicket:container wicket:id="submitLabel" />
+							</button>
+						</div>
+						<div class="ms-2">
+							<button wicket:id="cancel" type="button" class="btn-link"><wicket:message key="button.cancel" /></button>
+						</div>
 					</div>
-					<div class="ms-2">
-						<button wicket:id="cancel" type="button" class="btn-link"><wicket:message key="button.cancel" /></button>
+					<div wicket:id="createAnotherContainer">
+						<div class="form-check">
+							<input wicket:id="createAnother" type="checkbox" class="form-check-input" id="createAnotherCheckbox" />
+							<label class="form-check-label" for="createAnotherCheckbox">
+								<wicket:message key="label.addgradeitem.createanother" />
+							</label>
+						</div>
 					</div>
 				</div>
 			</div>

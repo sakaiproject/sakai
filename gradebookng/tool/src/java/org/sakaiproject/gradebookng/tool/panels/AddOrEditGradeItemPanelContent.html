@@ -4,7 +4,7 @@
     <body>
         <wicket:panel>
 
-			<div class="form-group form-group-sm">
+			<div class="form-group form-group-sm mt-3">
 				<label wicket:for="title" class="col-xs-3 control-label">
 					<wicket:message key="label.addgradeitem.title" />
 				</label>
@@ -45,11 +45,11 @@
 					<sakai-rubric-association wicket:id="sakai-rubric-association"></sakai-rubric-association>
 				</div>
 			</div>
-			<div class="input-group input-group-sm mb-3">
+			<div class="d-flex align-items-center input-group input-group-sm">
 				<label wicket:for="duedate" class="col-xs-3 control-label">
 					<wicket:message key="label.addgradeitem.due" />
 				</label>
-				<div class="d-flex align-items-center justify-content-evenly gb-input-div">
+				<div class="d-flex align-items-center justify-content-evenly ms-3">
 					<input wicket:id="duedate" type="text" class="form-control gb-datepicker gb-input" aria-describedby="duedate-help" />
 				</div>
 			</div>
