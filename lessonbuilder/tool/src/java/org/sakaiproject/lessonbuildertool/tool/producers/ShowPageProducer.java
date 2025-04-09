@@ -2210,64 +2210,14 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
                                 item2.decorate(new UIFreeAttributeDecorator("height", "300")).decorate(new UIFreeAttributeDecorator("width", "400"));
                             }
                             if (!isWavAudio) { // Only add extra parameters for non-WAV files
-                                if (useFlvPlayer) {
-                                    UIOutput.make(tableRow, "flashvars").decorate(new UIFreeAttributeDecorator("value", "src=" + URLEncoder.encode(myUrl() + i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner()))));
-                                    // need wmode=opaque for player to stack properly with dialogs, etc.
-                                    // there is a performance impact, but I'm guessing in our application we don't 
-                                    // need ultimate performance for embedded video. I'm setting it only for
-                                    // the player, so flash games and other applications will still get wmode=window
-                                    UIOutput.make(tableRow, "wmode");
-                                } else if (mimeType.equals("application/x-shockwave-flash"))
-                                    UIOutput.make(tableRow, "wmode");
-
                                 UIOutput.make(tableRow, "movieURLInject").decorate(new UIFreeAttributeDecorator("value", movieUrl));
-				if (!isMp4 && showDownloads) {
+                                if (showDownloads) {
                                     UIOutput.make(tableRow, "noplugin-p", messageLocator.getMessage("simplepage.noplugin"));
                                     UIOutput.make(tableRow, "noplugin-br");
                                     UILink.make(tableRow, "noplugin", i.getName(), movieUrl);
-				} 
+                                } 
                             }
 
-                            if (isMp4) {
-                                // do fallback. for ie use EMBED
-                                if (false) { // IE check removed - IE no longer supported
-                                    item2 = UIOutput.make(tableRow, "mp4-embed").decorate(new UIFreeAttributeDecorator("src", i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner()))).decorate(new UIFreeAttributeDecorator("alt", messageLocator.getMessage("simplepage.mm_player").replace("{}", abbrevUrl(i.getURL()))));
-                                } else {
-                                    item2 = UIOutput.make(tableRow, "mp4-object").decorate(new UIFreeAttributeDecorator("data", i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner()))).decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.mm_player").replace("{}", abbrevUrl(i.getURL()))));
-                            }
-                                if (oMimeType != null) {
-                                    item2.decorate(new UIFreeAttributeDecorator("type", oMimeType));
-                                }
-
-                                // some object types seem to need a specification, so give a default if needed
-                                if (lengthOk(height) && lengthOk(width)) {
-                                    item2.decorate(new UIFreeAttributeDecorator("height", height.getOld())).decorate(new UIFreeAttributeDecorator("width", width.getOld()));
-				} else if (definiteLength(width)) {
-				    // this is mostly because the default is 640 with no height specified
-				    // we've validated width, so no errors in conversion should occur
-				    Double h = new Double(width.getOld()) * 0.75;
-				    if (oMimeType.startsWith("audio/"))
-					h = 100.0;
-				    item2.decorate(new UIFreeAttributeDecorator("height", Double.toString(h))).decorate(new UIFreeAttributeDecorator("width", width.getOld()));
-				    // flag for javascript to adjust height
-				    if (!oMimeType.startsWith("audio/"))
-					item2.decorate(new UIFreeAttributeDecorator("defaultsize","true"));
-                                } else {
-                                    if (oMimeType.startsWith("audio/"))
-                                    item2.decorate(new UIFreeAttributeDecorator("height", "100")).decorate(new UIFreeAttributeDecorator("width", "100%"));
-                                    else
-                                    item2.decorate(new UIFreeAttributeDecorator("height", "300")).decorate(new UIFreeAttributeDecorator("width", "100%"));
-                                }
-
-                                if (!isWavAudio) { // Only add extra parameters for non-WAV files
-                                    UIOutput.make(tableRow, "mp4-inject").decorate(new UIFreeAttributeDecorator("value", i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner())));
-
-				    if (showDownloads) {
-					UIOutput.make(tableRow, "mp4-noplugin-p", messageLocator.getMessage("simplepage.noplugin"));
-					UILink.make(tableRow, "mp4-noplugin", i.getName(), i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner()));
-				    } 
-                                }
-                            }
 			    UIOutput.make(tableRow, "description3", i.getDescription());
                         } else {
 			    UIOutput.make(tableRow, "notAvailableText", messageLocator.getMessage("simplepage.multimediaItemUnavailable"));
