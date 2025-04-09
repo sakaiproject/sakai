@@ -2106,6 +2106,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
                             boolean isAudio = mimeType != null && mimeType.startsWith("audio/");
                             boolean isPDF = simplePageBean.isPDFType(i);
                             boolean isWavAudio = mimeType != null && (mimeType.equals("audio/wav") || mimeType.equals("audio/x-wav"));
+                            // useEmbed flag for backward compatibility (IE removed)
+                            boolean useEmbed = isWavAudio; // use embed tag only for WAV files now
                             
                             // Step 1: Create HTML5 player for compatible media types (modern browsers)
                             if (isHtml5Compatible) {
