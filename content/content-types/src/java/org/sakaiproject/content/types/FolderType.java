@@ -349,7 +349,7 @@ public class FolderType extends BaseResourceType implements ExpandableResourceTy
 			super(id, actionType, typeId, multipleItemAction, localizer);
 		}
 
-		private ZipContentUtil zipUtil = new ZipContentUtil();
+		private ZipContentUtil zipUtil = new ZipContentUtil(getContentService(), ServerConfigurationService.getInstance(), SessionManager.getInstance());
 
 		public void initializeAction(Reference reference) {
 			try {

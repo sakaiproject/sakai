@@ -197,7 +197,7 @@ public class FileUploadType extends BaseResourceType
 			super(id, actionType, typeId, multipleItemAction, localizer);
 		}
 
-		private ZipContentUtil extractZipArchive = new ZipContentUtil();
+		private ZipContentUtil extractZipArchive = new ZipContentUtil(contentHostingService, ServerConfigurationService.getInstance(), SessionManager.getInstance());
 
 		@Override
 		public void initializeAction(Reference reference) {
