@@ -56,6 +56,7 @@ import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.search.api.EntityContentProducer;
+import org.sakaiproject.search.api.SearchConstants;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.SiteSearchIndexBuilder;
 import org.sakaiproject.search.model.SearchBuilderItem;
@@ -69,8 +70,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder implements SiteSearchIndexBuilder {
-
-    protected static final String SEARCH_TOOL_ID = "sakai.search";
 
     protected static final String ADD_RESOURCE_VALIDATION_KEY_SITE_ID = "SITE_ID";
     protected static final String DELETE_RESOURCE_KEY_SITE_ID = "SITE_ID";
@@ -155,7 +154,7 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
         if (onlyIndexSearchToolSites) {
             try {
                 Site s = siteService.getSite(siteId);
-                ToolConfiguration t = s.getToolForCommonId(SEARCH_TOOL_ID);
+                ToolConfiguration t = s.getToolForCommonId(SearchConstants.TOOL_ID);
                 if (t == null) {
                     throw new IllegalArgumentException("Resource name [" + resourceName + "] for event [" + event
                             + "] not indexable because it is not associated with a site that has the search tool");
@@ -341,7 +340,7 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
     protected boolean isSiteIndexable(Site site) {
         log.debug("Check if '" + site + "' is indexable.");
         return !(siteService.isSpecialSite(site.getId()) ||
-                (isOnlyIndexSearchToolSites() && site.getToolForCommonId(SEARCH_TOOL_ID) == null) ||
+                (isOnlyIndexSearchToolSites() && site.getToolForCommonId(SearchConstants.TOOL_ID) == null) ||
                 (isExcludeUserSites() && siteService.isUserSite(site.getId())) ||
                 (ignoredSitesList.contains(site.getId())));
     }

@@ -19,6 +19,9 @@
 		</multiselect>
 		<input type="hidden" name="groups[]" v-for="v in value" :value="v.name" />
 	</div>
+	<div v-else-if="isEmpty && !isCategory">
+		<span>{{ i18n.no_items }}</span>
+	</div>
 </template>
 <style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
 <style type="scss">
@@ -104,7 +107,7 @@ export default {
 		return {
 			value: [],
 			options: [],
-			isEmpty: false
+			isEmpty: true
 		};
 	},
 	computed: {},
@@ -167,13 +170,9 @@ export default {
 					return parent;
 				});
 				const allItemsEmpty = this.options.every(group => group.items.length === 0);
-				if (allItemsEmpty) {
-					this.isEmpty = true;
-				} else {
+				if (!allItemsEmpty) {
 					this.isEmpty = false;
 				}
-			} else {
-				this.options = [{ name: 'No options found', items: [] }];
 			}
 		})
 		.catch ((error) => console.error(error));

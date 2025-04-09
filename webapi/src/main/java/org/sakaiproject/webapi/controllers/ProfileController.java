@@ -18,7 +18,6 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.profile2.logic.ProfileLinkLogic;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.model.UserProfile;
-import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.CandidateDetailProvider;
@@ -40,8 +39,6 @@ import org.springframework.http.ResponseEntity;
 
 import lombok.extern.slf4j.Slf4j;
 
-/**
- */
 @Slf4j
 @RestController
 public class ProfileController extends AbstractSakaiApiController {
@@ -54,7 +51,6 @@ public class ProfileController extends AbstractSakaiApiController {
     @Autowired private UserDirectoryService userDirectoryService;
     @Autowired private ServerConfigurationService serverConfigurationService;
     @Autowired private SecurityService securityService;
-    @Autowired private SiteService siteService;
     @Autowired private ToolManager toolManager;
 
     // Permission constants for Roster tool

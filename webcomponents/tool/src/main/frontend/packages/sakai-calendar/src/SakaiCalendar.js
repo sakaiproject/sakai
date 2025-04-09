@@ -15,6 +15,7 @@ export class SakaiCalendar extends LionCalendar {
     _daysEvents: { state: true },
     _events: { state: true },
     _i18n: { state: true },
+    _sites: { state: true },
   };
 
   constructor() {
@@ -57,12 +58,7 @@ export class SakaiCalendar extends LionCalendar {
 
       this._allEvents = data.events;
       this._events = data.events;
-      if (!this.siteId) {
-        this._sites = data.events.reduce((acc, e) => {
-          if (e.siteId && !acc.some(a => a.siteId === e.siteId)) acc.push({ siteId: e.siteId, title: e.siteTitle });
-          return acc;
-        }, []);
-      }
+      !this.siteId && (this._sites = data.sites);
 
       this.renderRoot.querySelector(".calendar__day-button[today]")?.click();
     })
@@ -139,7 +135,7 @@ export class SakaiCalendar extends LionCalendar {
   render() {
 
     return html`
-      ${!this.siteId ? html`
+      ${!this.siteId && this._sites ? html`
       <div id="site-filter">
         <sakai-site-picker
             .sites=${this._sites}

@@ -124,6 +124,7 @@ export class SakaiDatePicker extends SakaiElement {
           @change=${this.dateSelected}
           .value=${this.isoDate}
           .disabled=${this._disabled}
+          max="2099-12-31T23:59"
           aria-label="${this.label}"
           title="${this.label}">
       ${this.addHiddenFields && this.isoDate ? html`

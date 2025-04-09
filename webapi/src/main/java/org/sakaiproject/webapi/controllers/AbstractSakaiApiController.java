@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
@@ -26,8 +27,12 @@ import org.sakaiproject.webapi.exception.UnknownSiteException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
-import javax.annotation.Resource;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 abstract class AbstractSakaiApiController {
@@ -37,7 +42,10 @@ abstract class AbstractSakaiApiController {
     private SessionManager sessionManager;
 
     @Autowired
-    private SiteService siteService;
+    protected SiteService siteService;
+
+    @Autowired
+    protected PortalService portalService;
 
     /**
      * Check for a valid session.
@@ -59,15 +67,21 @@ abstract class AbstractSakaiApiController {
     }
 
     /**
-     * Check for a valid site Id and returns site.
+     * Checks for a valid site Id and returns site.
      * If not valid a 400 Bad Request will be returned.
      */
     Site checkSite(String siteId) {
-        try {
-            return siteService.getSite(siteId);
-        } catch (IdUnusedException e) {
-            log.error("Could not retrieve site with id {}", siteId);
-            throw new UnknownSiteException(e.getCause());
-        }
+
+        return siteService.getOptionalSite(siteId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "No site for id: " + siteId));
+    }
+
+    protected List<Map<String, String>> getPinnedSiteList() {
+
+        return portalService.getPinnedSites().stream().map(siteId -> {
+
+            return siteService.getOptionalSite(siteId).map(site -> Map.of("siteId", siteId, "title", site.getTitle()))
+                .orElse(Map.of("siteId", siteId, "title", siteId));
+        }).collect(Collectors.toList());
     }
 }

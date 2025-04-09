@@ -94,4 +94,20 @@ public class EntityException extends EntityBrokerException {
       this.responseCode = responseCode;
    }
 
+   /**
+    * Create an exception to indicate that this entity could not found,
+    * this will trigger an HTTP error related to the responseCode if not caught before reaching the direct servlet
+    *
+    * @param message         a message explaining the failure
+    * @param entityReference the unique reference to an entity
+    * @param responseCode    the response code related to the failure that occurred,
+    *                        should match with the SC constants in {@link HttpServletResponse}
+    * @param cause           the underlying cause of this exception
+    */
+   public EntityException(String message, String entityReference, int responseCode, Throwable cause) {
+       // Assuming EntityBrokerException has a constructor that takes (message, reference, cause)
+       super(message, entityReference, cause);
+       this.responseCode = responseCode;
+   }
+
 }

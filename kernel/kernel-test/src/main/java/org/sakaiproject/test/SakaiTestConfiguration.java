@@ -36,7 +36,6 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.hibernate.AssignableUUIDGenerator;
 import org.sakaiproject.memory.api.MemoryService;
-import org.sakaiproject.serialization.MapperFactory;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
 import org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl;
@@ -162,11 +161,4 @@ public abstract class SakaiTestConfiguration {
         return mock(UserDirectoryService.class);
     }
 
-    @Bean(name = "mapperFactory")
-    public MapperFactory mapperFactory() {
-
-        MapperFactory factory = new MapperFactory();
-        factory.init();
-        return factory;
-    }
 }

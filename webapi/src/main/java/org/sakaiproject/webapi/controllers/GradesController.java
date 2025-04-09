@@ -15,7 +15,6 @@ package org.sakaiproject.webapi.controllers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.entity.api.Entity;
@@ -27,10 +26,8 @@ import org.sakaiproject.grading.api.GradeDefinition;
 import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.grading.api.SortType;
 import org.sakaiproject.grading.api.model.Gradebook;
-import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -50,8 +47,6 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-/**
- */
 @Slf4j
 @RestController
 public class GradesController extends AbstractSakaiApiController {
@@ -61,12 +56,6 @@ public class GradesController extends AbstractSakaiApiController {
 
     @Resource(name = "org.sakaiproject.grading.api.GradingService")
     private org.sakaiproject.grading.api.GradingService gradingService;
-
-    @Resource
-    private PortalService portalService;
-
-    @Resource
-    private SiteService siteService;
 
     @Resource
     private SecurityService securityService;
@@ -161,20 +150,23 @@ public class GradesController extends AbstractSakaiApiController {
     };
 
     @GetMapping(value = "/users/me/grades", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<GradeRestBean> getUserGrades() {
+    public Map<String, List> getUserGrades() {
 
         Session session = checkSakaiSession();
-        return portalService.getPinnedSites(session.getUserId()).stream()
+
+        List<GradeRestBean> grades = portalService.getPinnedSites(session.getUserId()).stream()
                 .flatMap(s -> gradeDataSupplierForSite.apply(s).stream())
                 .collect(Collectors.toList());
+
+        return Map.of("grades", grades, "sites", getPinnedSiteList());
     }
 
     @GetMapping(value = "/sites/{siteId}/grades", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<GradeRestBean> getSiteGrades(@PathVariable String siteId) throws UserNotDefinedException {
+    public Map<String, List> getSiteGrades(@PathVariable String siteId) throws UserNotDefinedException {
 
         checkSakaiSession();
 
-        return gradeDataSupplierForSite.apply(siteId);
+        return Map.of("grades", gradeDataSupplierForSite.apply(siteId));
     }
 
     @GetMapping(value = "/sites/{siteId}/grading/item-data", produces = MediaType.APPLICATION_JSON_VALUE)

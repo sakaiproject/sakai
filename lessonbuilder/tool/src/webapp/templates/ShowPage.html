@@ -84,7 +84,7 @@
 
   <div rsf:id="portletBody" class="portletBody">
 
-<div class="row mt-1">
+<div class="row m-0">
   <div class="column col-12 m-0 p-0 border-0">
     <span rsf:id="tool-bar:" class="navIntraTool" role="application" aria-labelledby="tool-bar::toolbar-label">
       <h2 id="toolbar-label" rsf:id="msg=simplepage.toolbar" class="lb-offscreen"></h2>
@@ -219,8 +219,11 @@
         }
         if (breadcrumbs.size() > 0) {
           jQuery(".subpage-breadcrumb-div").append(jQuery(".breadcrumbs span").slice(1));
-          jQuery(".subpage-breadcrumb-div").prepend('<a id="lessonReset">' + jQuery(".Mrphs-hierarchy--toolName").text().trim() + '</a>');
-          jQuery("#lessonReset").attr("href", jQuery(".Mrphs-hierarchy--toolName")[0].href);
+          const toolNameElement = jQuery(".header-tool-title a").first();
+          if (toolNameElement.length > 0) {
+            jQuery(".subpage-breadcrumb-div").prepend('<a id="lessonReset">' + toolNameElement.text().trim() + '</a>');
+            jQuery("#lessonReset").attr("href", toolNameElement.attr("href"));
+          }
         } else {
           jQuery(".subpage-breadcrumb-div").css({
             "display": "none"
@@ -2385,10 +2388,12 @@
       <!-- WARNING: javascript for add-break-section adds section, ul, li, and sectionedit markup, so if you change here, keep it in sync -->
       <div rsf:id="sectionWrapper:">
         <h3 rsf:id="sectionHeader" id="sectionHeader" class="sectionHeader">
-          <span aria-hidden="true" class="collapseIcon fa-caret-down"></span>
-          <span rsf:id="sectionHeaderText" class="sectionHeaderText"></span>
-          <span class="toggleCollapse" rsf:id="msg=simplepage.clickToCollapse"></span>
-        </h3>
+	  <a class="d-block text-decoration-none" tabindex="0" data-bs-toggle="collapse" href="#collapsibleContent" aria-expanded="true" aria-controls="collapsibleContent">
+            <span aria-hidden="true" class="collapseIcon fa-caret-down"></span>
+            <span rsf:id="sectionHeaderText" class="sectionHeaderText"></span>
+            <span class="toggleCollapse" rsf:id="msg=simplepage.clickToCollapse"></span>
+          </a>
+	</h3>
         <div rsf:id="section:" id="section" class="section">
           <div rsf:id="column:" class="column">
             <div class="editsection">

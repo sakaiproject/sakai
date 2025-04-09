@@ -96,7 +96,7 @@ public class QuickEntryPage extends BasePage {
             }
             @Override
             public String getIdValue(final GbGroup g, final int index) {
-                return g.getId();
+                return g.getId() != null ? g.getId() : "";
             }
         });
         groupFilter.add(new AjaxFormComponentUpdatingBehavior("change") {

@@ -88,7 +88,11 @@ export class SakaiPageableElement extends SakaiShadowElement {
         <div id="content">${this.content()}</div>
         ${this.showPager ? html`
         <div id="pager">
+          ${this.count > 1 ? html`
           <sakai-pager count="${this.count}" current="1" @page-selected=${this.pageClicked}></sakai-pager>
+          ` : html`
+          <div class="mb-3"></div>
+          `}
         </div>
         ` : nothing}
       </div>

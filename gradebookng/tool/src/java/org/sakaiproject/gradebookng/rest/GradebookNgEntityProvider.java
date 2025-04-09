@@ -140,7 +140,7 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		final int order = NumberUtils.toInt((String) params.get("order"));
 
 		// check params supplied are valid
-		if (StringUtils.isBlank(siteId) || assignmentId == 0 || order < 0) {
+		if (StringUtils.isBlank(siteId) || StringUtils.isBlank(gradebookUid) ||assignmentId == 0 || order < 0) {
 			throw new IllegalArgumentException(
 					"Request data was missing / invalid");
 		}
@@ -167,9 +167,9 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		final String gradebookUid = (String) params.get("gUid");
 
 		// check siteId supplied
-		if (StringUtils.isBlank(siteId)) {
+		if (StringUtils.isBlank(siteId) || StringUtils.isBlank(gradebookUid)) {
 			throw new IllegalArgumentException(
-					"Site ID must be set in order to access GBNG data.");
+					"Request data was missing");
 		}
 		checkValidGradebook(siteId, gradebookUid);
 
@@ -198,7 +198,7 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		final int order = NumberUtils.toInt((String) params.get("order"));
 
 		// check params supplied are valid
-		if (StringUtils.isBlank(siteId) || assignmentId == 0 || order < 0) {
+		if (StringUtils.isBlank(siteId) || StringUtils.isBlank(gradebookUid) || assignmentId == 0 || order < 0) {
 			throw new IllegalArgumentException(
 					"Request data was missing / invalid");
 		}

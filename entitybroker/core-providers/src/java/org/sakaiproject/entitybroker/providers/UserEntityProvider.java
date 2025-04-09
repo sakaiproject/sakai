@@ -282,21 +282,34 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
     public List<?> getEntities(EntityReference ref, Search search) {
         Collection<User> users = new ArrayList<User>();
 
-        // fix up the search limits
-        if (search.getLimit() > 50 || search.getLimit() == 0) {
-            search.setLimit(50);
+        // Default and cap the limit
+        long limit = search.getLimit();
+        // Allow configuration of the maximum results per page, default 50
+        int maxLimit = developerHelperService.getConfigurationSetting("entity.users.maxlimit", 50);
+        if (limit <= 0 || limit > maxLimit) {
+            limit = maxLimit;
         }
-        if (search.getStart() == 0 || search.getStart() > 49) {
-            search.setStart(1);
+
+        // Ensure start is at least 1 (assuming Search uses 1-based indexing)
+        long start = search.getStart();
+        if (start <= 0) {
+            start = 1;
         }
+
+        // Calculate 'first' and 'last' for UDS methods (which seem to be 1-based index range)
+        // NOTE: UDS methods expect int, potential overflow if start/limit are huge, though unlikely with maxLimit
+        int first = (int) start;
+        // Calculate the index of the last item needed
+        int last = (int) (start + limit - 1);
 
         // get the search restrictions out
         Restriction restrict = search.getRestrictionByProperty("email");
         if (restrict != null) {
-            // search users by email
+            // search users by email - This method doesn't support pagination directly.
+            // Maintain original behavior: fetch all matching, pagination parameters are ignored.
+            log.warn("Pagination (_start, _limit) is ignored when searching users by email via UserEntityProvider.getEntities");
             users = userDirectoryService.findUsersByEmail(restrict.value.toString());
-        }
-        if (restrict == null) {
+        } else { // No email restriction, handle other searches or listing
             restrict = search.getRestrictionByProperty("eid");
             if (restrict == null) {
                 restrict = search.getRestrictionByProperty("search");
@@ -304,19 +317,31 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
             if (restrict == null) {
                 restrict = search.getRestrictionByProperty("criteria");
             }
+
             if (restrict != null) {
-                // search users but match
-                users = userDirectoryService.searchUsers(restrict.value + "", (int) search.getStart(), (int) search.getLimit());
+                // search users using the calculated first/last
+                log.debug("Searching users with criteria '{}', first={}, last={}", restrict.value, first, last);
+                users = userDirectoryService.searchUsers(restrict.value + "", first, last);
+            } else {
+                // No restriction, list users using the calculated first/last
+                log.debug("Listing users with first={}, last={}", first, last);
+                users = userDirectoryService.getUsers(first, last);
             }
         }
-        if (restrict == null) {
-            users = userDirectoryService.getUsers((int) search.getStart(), (int) search.getLimit());
-        }
+
         // convert these into EntityUser objects
         List<EntityUser> entityUsers = new ArrayList<>();
         boolean hasProfile = hasProfile();
+        String currentRequestingUserId = developerHelperService.getCurrentUserId(); // Get once for logging efficiency
         for (User user : users) {
-            entityUsers.add( convertUser(ref, user, hasProfile) );
+            // Apply permission checks during conversion
+            try {
+                entityUsers.add(convertUser(ref, user, hasProfile));
+            } catch (SecurityException e) {
+                // Log users the current user cannot see, but continue processing others
+                log.debug("User {} cannot view user {} due to SecurityException, skipping. Message: {}", 
+                          currentRequestingUserId, user.getId(), e.getMessage());
+            }
         }
         return entityUsers;
     }
@@ -685,3 +710,4 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
     }
 
 }
+

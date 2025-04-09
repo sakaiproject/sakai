@@ -17,7 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.event.api.UsageSessionService;
-import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.Authentication;
@@ -26,15 +25,9 @@ import org.sakaiproject.user.api.Evidence;
 import org.sakaiproject.util.IdPwEvidence;
 import org.sakaiproject.util.RequestFilter;
 import org.sakaiproject.user.api.AuthenticationManager;
-import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.user.api.UserNotDefinedException;
 
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -44,15 +37,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import javax.annotation.Resource;
 
-/**
- */
 @Slf4j
 @RestController
 public class LoginController extends AbstractSakaiApiController {
-
-
-	@Resource
-	private SiteService siteService;
 
 	@Resource
 	private SessionManager sessionManager;

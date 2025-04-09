@@ -220,10 +220,10 @@ public class LineItemUtil {
 				log.info("Updated assignment: {} with Id: {}", lineItem.label, gradebookColumnId);
 			}
 		} catch (ConflictingAssignmentNameException e) {
-			failure = "ConflictingAssignmentNameException while adding assignment " + e.getMessage();
+			failure = "ConflictingAssignmentNameException while adding assignment " + e.toString();
 			gradebookColumn = null; // Just to make sure
 		} catch (Exception e) {
-			failure = "Exception (may be because GradeBook has not yet been added to the Site) "+ e.getMessage();
+			failure = "Exception (may be because GradeBook has not yet been added to the Site) "+ e.toString();
 			gradebookColumn = null; // Just to make double sure
 		}  finally {
 			popAdvisor();
@@ -323,8 +323,9 @@ public class LineItemUtil {
 				if ( content == null ) continue;
 				retval.put(assignmentReference, constructExternalId(content, null));
 			}
-		} catch (Throwable e) {
-			log.error("Unexpected Throwable", e.getMessage());
+		} catch (Exception e) {
+			log.error("Unexpected Throwable", e.toString());
+			log.debug("Stacktrace", e);
 		}
 		return retval;
 	}
@@ -367,7 +368,8 @@ public class LineItemUtil {
 				retval.add(gbColumn);
 			}
 		} catch (Throwable e) {
-			log.error("Unexpected Throwable", e.getMessage());
+			log.error("Unexpected Throwable", e.toString());
+			log.debug("Stacktrace:", e);
 			retval = null;
 		} finally {
 			popAdvisor();
@@ -390,7 +392,8 @@ public class LineItemUtil {
 			List<Assignment> gradebookColumns = gradingService.getAssignments(context_id, context_id, SortType.SORT_BY_NONE);
 			return gradebookColumns;
 		} catch (Throwable e) {
-			log.error("Unexpected Throwable", e.getMessage());
+			log.error("Unexpected Throwable", e.toString());
+			log.debug("Stacktrace:", e);
 			retval = null;
 		} finally {
 			popAdvisor();
@@ -441,7 +444,8 @@ public class LineItemUtil {
 				}
 			}
 		} catch (Throwable e) {
-			log.error("Unexpected Throwable", e.getMessage());
+			log.error("Unexpected Throwable", e.toString());
+			log.debug("Stacktrace:", e);
 			retval = null;
 		} finally {
 			popAdvisor();
@@ -486,7 +490,7 @@ public class LineItemUtil {
 	}
 
 	public static boolean isAssignmentColumn(String external_id) {
-		return external_id.startsWith(ASSIGNMENT_REFERENCE_PREFIX);
+		return external_id != null && external_id.startsWith(ASSIGNMENT_REFERENCE_PREFIX);
 	}
 
 	/**
@@ -515,13 +519,15 @@ public class LineItemUtil {
 			for (Iterator i = gradebookColumns.iterator(); i.hasNext();) {
 				Assignment gbColumn = (Assignment) i.next();
 				String external_id = gbColumn.getExternalId();
+				log.debug("gbColumn: {} {}", gbColumn.getName(), external_id);
 				if ( isGradebookColumnLTI(gbColumn) ) {
 					// We are good to go
-				} else if ( isAssignmentColumn(external_id) ) {
+				} else if ( StringUtils.isNotEmpty(external_id) && isAssignmentColumn(external_id) ) {
 					if ( externalIds == null ) {
 						externalIds = getExternalIdsForToolAssignments(context_id);
 					}
 					external_id = externalIds.get(external_id);
+					log.debug("derived assignment based on external_id: {} {}", external_id, externalIds);
 					if ( external_id == null ) continue;
 				}
 
@@ -546,6 +552,7 @@ public class LineItemUtil {
 			}
 		} catch (Throwable e) {
 			log.error("Unexpected Throwable", e.getMessage());
+			log.debug("Stacktrace:", e);
 		} finally {
 			popAdvisor();
 		}

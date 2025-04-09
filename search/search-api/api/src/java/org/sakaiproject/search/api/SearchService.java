@@ -360,9 +360,17 @@ public interface SearchService extends Diagnosable
 	String searchXML(Map<String, String[]> parameterMap);
 
 	/**
-	 * @return
+	 * @return true if search is enabled
 	 */
 	boolean isEnabled();
+
+	/**
+	 * Returns true if search is enabled for the given siteId
+	 *
+	 * @param siteId
+	 * @return true if search is enabled for the given siteId
+	 */
+	boolean isEnabledForSite(String siteId);
 
 	/**
 	 * Get the storage location for Digested content. Will return null if system is

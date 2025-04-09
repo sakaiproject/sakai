@@ -24,7 +24,7 @@
         <i class="fa fa-users" aria-hidden="true" title="$tlang.getString('gen.groupassignment')"></i>
     #end
     #if (!$assignment.getAttachments().isEmpty())
-        <i class="icon-sakai--clip" aria-hidden="true"></i>
+        <span class="si si-attachment" aria-hidden="true"></span>
         <span class="sr-only">$tlang.getString("gen.has.att")</span>
     #end
     #if ($assignment.getContentReview())

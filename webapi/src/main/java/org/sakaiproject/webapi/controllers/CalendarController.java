@@ -20,7 +20,6 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
-import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.webapi.beans.CalendarEventRestBean;
@@ -55,9 +54,6 @@ public class CalendarController extends AbstractSakaiApiController {
     private EntityManager entityManager;
 
     @Autowired
-	private PortalService portalService;
-
-    @Autowired
     private ServerConfigurationService serverConfigurationService;
 
     @Autowired
@@ -88,12 +84,14 @@ public class CalendarController extends AbstractSakaiApiController {
 
         checkSakaiSession();
 
-        List<String> refs = portalService.getPinnedSites().stream()
+        List<String> calendarRefs = portalService.getPinnedSites()
+            .stream()
             .map(siteId -> calendarService.calendarReference(siteId, "main"))
             .collect(Collectors.toList());
 
         return Map.of(
-            "events", calendarService.getEvents(refs, null, false).stream().map(convert).collect(Collectors.toList())
+            "events", calendarService.getEvents(calendarRefs, null, false).stream().map(convert).collect(Collectors.toList()),
+            "sites", getPinnedSiteList()
         );
     }
 

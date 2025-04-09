@@ -11,9 +11,13 @@
         #end
     #end
 
+    #if (!$currentSiteTitle)
+        #set($currentSiteTitle = $siteTitle)
+    #end
+
     <div id="header-site-title" class="portal-header-breadcrumb-item portal-header-site-title">
-        <a href="$!{siteUrl}" title="$!{siteTitle}">
-            $siteTitle
+        <a href="$!{siteUrl}" title="$!{currentSiteTitle}">
+            $currentSiteTitle
         </a>
     </div>
 

@@ -862,6 +862,8 @@ public class PublishedAssessmentService extends AssessmentService{
             evaluation.setToGradeBook("0");
             log.warn("Exception thrown in updateGB():" + e.getMessage());
           }
+
+          gbsHelper.manageScoresToNewGradebook(new GradingService(), gradingService, assessmentFacade, evaluation);
         }
       }
     } else { //remove

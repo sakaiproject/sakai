@@ -4649,7 +4649,6 @@ extends VelocityPortletStateAction
 		state.setState(STATE_NEW);
 		state.setCalendarEventId("", "");
 		state.setIsNewCalendar(true);
-		state.setIsPastAlertOff(true);
 		sstate.setAttribute(FREQUENCY_SELECT, null);
 		sstate.setAttribute(CalendarAction.SSTATE__RECURRING_RULE, null);
 		
@@ -4827,18 +4826,6 @@ extends VelocityPortletStateAction
 
 			state.setNewData(calId, title,description,Integer.parseInt(month),Integer.parseInt(day),year,houri,Integer.parseInt(minute),Integer.parseInt(dhour),Integer.parseInt(dminute),type,timeType,location, addfieldsMap, intentionStr);
 			state.setState(STATE_NEW);
-		}
-		else if( event_startTime.before(now_time) && state.getIsPastAlertOff() ) {
-			// IsPastAlertOff
-			// true: no alert shown -> then show the alert, set false;
-			// false: Alert shown, if user click ADD - doAdd again -> accept it, set true, set alert empty;
-			
-			String errorCode = rb.getString("java.alert.past");
-			addAlert(sstate, errorCode);
-			
-			state.setNewData(state.getPrimaryCalendarReference(), title,description,Integer.parseInt(month),Integer.parseInt(day),year,houri,Integer.parseInt(minute),Integer.parseInt(dhour),Integer.parseInt(dminute),type,timeType,location, addfieldsMap, intentionStr);
-			state.setState(STATE_NEW);
-			state.setIsPastAlertOff(false);
 		} else if (!DateFormatterUtil.checkDate(Integer.parseInt(day), Integer.parseInt(month), Integer.parseInt(year))) {
 			addAlert(sstate, rb.getString("date.invalid"));
 			state.setNewData(state.getPrimaryCalendarReference(), title,description,Integer.parseInt(month),Integer.parseInt(day),year,houri,Integer.parseInt(minute),Integer.parseInt(dhour),Integer.parseInt(dminute),type,timeType,location, addfieldsMap, intentionStr);

@@ -81,8 +81,6 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.time.ZoneId;
 
 @ContextConfiguration(classes = {SiteStatsTestConfiguration.class})
@@ -541,8 +539,8 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 
 	@Test
 	public void testSitePresence() throws InterruptedException {
-		LocalDateTime midnight = LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT);
-		Instant base = midnight.atZone(ZoneId.systemDefault()).toInstant();
+		LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+		Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
 
 		// Create events for one presences
 		//     0    20    40    60
@@ -566,8 +564,8 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 
 	@Test
 	public void testSitePresenceInterEvaluation() throws InterruptedException {
-		LocalDateTime midnight = LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT);
-		Instant base = midnight.atZone(ZoneId.systemDefault()).toInstant();
+		LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+		Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
 
 		// Create events for one presences
 		//     0    20    40    60
@@ -600,8 +598,8 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 
 	@Test
 	public void testSuccessiveSitePresences() throws InterruptedException {
-		LocalDateTime midnight = LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT);
-		Instant base = midnight.atZone(ZoneId.systemDefault()).toInstant();
+		LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+		Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
 
 		// Create events for successive presences
 		//     0    20    40    60    80    100   120    140
@@ -629,8 +627,8 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 
 	@Test
 	public void testSuccessiveSitePresencesInterEvaluationCaseA() throws InterruptedException {
-		LocalDateTime midnight = LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT);
-		Instant base = midnight.atZone(ZoneId.systemDefault()).toInstant();
+		LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+		Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
 
 		// Create events for successive presences
 		//     0    20    40    60    80    100   120    140
@@ -676,8 +674,8 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 
 	@Test
 	public void testSuccessiveSitePresencesInterEvaluationCaseB() throws InterruptedException {
-		LocalDateTime midnight = LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT);
-		Instant base = midnight.atZone(ZoneId.systemDefault()).toInstant();
+		LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+		Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
 
 		// Create events for successive presences
 		//     0    20    40    60    80    100   120    140
@@ -723,8 +721,8 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 
 	@Test
 	public void testOverlappingSitePresences() throws InterruptedException {
-		LocalDateTime midnight = LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT);
-		Instant base = midnight.atZone(ZoneId.systemDefault()).toInstant();
+		LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+		Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
 
 		// Create events for overlapping presences
 		//     0    20    40    60   80
@@ -752,8 +750,8 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 
 	@Test
 	public void testOverlappingSitePresencesInterEvaluationCaseA() throws InterruptedException {
-		LocalDateTime midnight = LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT);
-		Instant base = midnight.atZone(ZoneId.systemDefault()).toInstant();
+		LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+		Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
 
 		// Create events for overlapping presences
 		//     0    20    40    60    80   100   120   140
@@ -808,8 +806,8 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 
 	@Test
 	public void testOverlappingSitePresencesInterEvaluationCaseB() throws InterruptedException {
-		LocalDateTime midnight = LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT);
-		Instant base = midnight.atZone(ZoneId.systemDefault()).toInstant();
+		LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+		Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
 
 		// Create events for overlapping presences
 		//     0    20    40    60    80   100   120   140
@@ -855,8 +853,8 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 
 	@Test
 	public void testOverlappingSitePresencesInterEvaluationCaseC() throws InterruptedException {
-		LocalDateTime midnight = LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT);
-		Instant base = midnight.atZone(ZoneId.systemDefault()).toInstant();
+		LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+		Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
 
 		// Create events for overlapping presences
 		//     0    20    40    60    80   100   120   140
@@ -902,8 +900,8 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 
 	@Test
 	public void testCombinedOverlappingAndSuccessiveSitePresencesCaseA() throws InterruptedException {
-		LocalDateTime midnight = LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT);
-		Instant base = midnight.atZone(ZoneId.systemDefault()).toInstant();
+		LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+		Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
 
 		// Create events for overlapping and successive presences
 		//     0    20    40    60    80   100   120   140   160   180   200   220   240   260   280   300
@@ -941,8 +939,8 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 
 	@Test
 	public void testCombinedOverlappingAndSuccessiveSitePresencesCaseAInterEvaluation() throws InterruptedException {
-		LocalDateTime midnight = LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT);
-		Instant base = midnight.atZone(ZoneId.systemDefault()).toInstant();
+		LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+		Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
 
 		// Create events for overlapping and successive presences
 		//     0    20    40    60    80   100   120   140   160   180   200   220   240   260   280   300
@@ -1043,8 +1041,8 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 
 	@Test
 	public void testCombinedOverlappingAndSuccessiveSitePresencesCaseB() throws InterruptedException {
-		LocalDateTime midnight = LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT);
-		Instant base = midnight.atZone(ZoneId.systemDefault()).toInstant();
+		LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+		Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
 
 		// Create events for overlapping and successive presences
 		//     0    20    40    60    80   100   120   140   160   180   200   220   240   260   280   300
@@ -1082,8 +1080,8 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 
 	@Test
 	public void testCombinedOverlappingAndSuccessiveSitePresencesCaseBInterEvaluation() throws InterruptedException {
-		LocalDateTime midnight = LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT);
-		Instant base = midnight.atZone(ZoneId.systemDefault()).toInstant();
+		LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+		Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
 
 		// Create events for overlapping and successive presences
 		//     0    20    40    60    80   100   120   140   160   180   200   220   240   260   280   300
@@ -1184,8 +1182,8 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 
 	@Test
 	public void testTrickyOverlappingSitePresences() throws InterruptedException {
-		LocalDateTime midnight = LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT);
-		Instant base = midnight.atZone(ZoneId.systemDefault()).toInstant();
+		LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+		Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
 
 		// Create events for overlapping presences
 		//     0    20    40    60    80   100
@@ -1213,8 +1211,8 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 
 	@Test
 	public void testTrickyOverlappingSitePresencesInterEvaluationCaseA() throws InterruptedException {
-		LocalDateTime midnight = LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT);
-		Instant base = midnight.atZone(ZoneId.systemDefault()).toInstant();
+		LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+		Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
 
 		// Create events for overlapping presences
 		//     0    20    40    60    80   100
@@ -1251,8 +1249,8 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 
 	@Test
 	public void testTrickyOverlappingSitePresencesInterEvaluationCaseB() throws InterruptedException {
-		LocalDateTime midnight = LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT);
-		Instant base = midnight.atZone(ZoneId.systemDefault()).toInstant();
+		LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+		Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
 
 		// Create events for overlapping presences
 		//     0    20    40    60    80   100
@@ -1289,8 +1287,8 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 
 	@Test
 	public void testTrickyOverlappingSitePresencesInterEvaluationCaseC() throws InterruptedException {
-		LocalDateTime midnight = LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT);
-		Instant base = midnight.atZone(ZoneId.systemDefault()).toInstant();
+		LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+		Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
 
 		// Create events for overlapping presences
 		//     0    20    40    60    80   100
@@ -1327,8 +1325,8 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 
 	@Test
 	public void testSitePresenceTwoDays() throws InterruptedException {
-		LocalDateTime midnight = LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT);
-		Instant base = midnight.atZone(ZoneId.systemDefault()).toInstant();
+		LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+		Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
 
 		// Create events for one presences
 		//     0    24    48	72    
@@ -1356,8 +1354,8 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 
 	@Test
 	public void testSuccessiveSitePresencesTwoDays() throws InterruptedException {
-		LocalDateTime midnight = LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT);
-		Instant base = midnight.atZone(ZoneId.systemDefault()).toInstant();
+		LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+		Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
 
 		// Create events for one presences
 		//     0     6    12    18    24    30    36    42
@@ -1389,8 +1387,8 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 
 	@Test
 	public void testSuccessiveSitePresencesTwoDaysInterEvaluation() throws InterruptedException {
-		LocalDateTime midnight = LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT);
-		Instant base = midnight.atZone(ZoneId.systemDefault()).toInstant();
+		LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+		Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
 
 		// Create events for one presences
 		//     0     6    12    18    24    30    36    42
@@ -1431,8 +1429,8 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 
 	@Test
 	public void testOverlappingSitePresenceTwoDays() throws InterruptedException {
-		LocalDateTime midnight = LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT);
-		Instant base = midnight.atZone(ZoneId.systemDefault()).toInstant();
+		LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+		Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
 
 		// Create events for one presences
 		//     0     6    12    18    24    30    36    42
@@ -1464,8 +1462,8 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 
 	@Test
 	public void testOverlappingSitePresenceTwoDaysInterEvaluation() throws InterruptedException {
-		LocalDateTime midnight = LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT);
-		Instant base = midnight.atZone(ZoneId.systemDefault()).toInstant();
+		LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+		Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
 
 		// Create events for one presences
 		//     0     6    12    18    24    30    36    42    48
@@ -1506,8 +1504,8 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 
 	@Test
 	public void testTrickyOverlappingSitePresenceTwoDays() throws InterruptedException {
-		LocalDateTime midnight = LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT);
-		Instant base = midnight.atZone(ZoneId.systemDefault()).toInstant();
+		LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+		Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
 
 		// Create events for one presences
 		//     0     6    12    18    24    30    36    42
@@ -1539,8 +1537,8 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 
 	@Test
 	public void testTrickyOverlappingSitePresenceTwoDaysInterEvaluation() throws InterruptedException {
-		LocalDateTime midnight = LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT);
-		Instant base = midnight.atZone(ZoneId.systemDefault()).toInstant();
+		LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+		Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
 
 		// Create events for one presences
 		//     0     6    12    18    24    30    36    42

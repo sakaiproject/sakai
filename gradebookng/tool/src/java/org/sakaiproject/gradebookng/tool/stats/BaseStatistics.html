@@ -4,19 +4,19 @@
 <body>
 	<wicket:panel>
 		
-		<dl class="dl-horizontal">
-			<dt><wicket:message key="label.statistics.average"></wicket:message></dt>
-			<dd wicket:id="average"></dd>
-			<dt><wicket:message key="label.statistics.median"></wicket:message></dt>
-			<dd wicket:id="median"></dd>
-			<dt><wicket:message key="label.statistics.deviation"></wicket:message></dt>
-			<dd wicket:id="deviation"></dd>
-			<dt><wicket:message key="label.statistics.lowest"></wicket:message></dt>
-			<dd wicket:id="lowest"></dd>
-			<dt><wicket:message key="label.statistics.highest"></wicket:message></dt>
-			<dd wicket:id="highest"></dd>
-			<dt><wicket:message key="label.statistics.graded"></wicket:message></dt>
-			<dd wicket:id="graded"></dd>
+		<dl class="row">
+			<dt class="col-sm-4"><wicket:message key="label.statistics.average"></wicket:message></dt>
+			<dd class="col-sm-8" wicket:id="average"></dd>
+			<dt class="col-sm-4"><wicket:message key="label.statistics.median"></wicket:message></dt>
+			<dd class="col-sm-8" wicket:id="median"></dd>
+			<dt class="col-sm-4"><wicket:message key="label.statistics.deviation"></wicket:message></dt>
+			<dd class="col-sm-8" wicket:id="deviation"></dd>
+			<dt class="col-sm-4"><wicket:message key="label.statistics.lowest"></wicket:message></dt>
+			<dd class="col-sm-8" wicket:id="lowest"></dd>
+			<dt class="col-sm-4"><wicket:message key="label.statistics.highest"></wicket:message></dt>
+			<dd class="col-sm-8" wicket:id="highest"></dd>
+			<dt class="col-sm-4"><wicket:message key="label.statistics.graded"></wicket:message></dt>
+			<dd class="col-sm-8" wicket:id="graded"></dd>
 			
 			<!--  subclasses can add additional stats within a wicket:extend wrapper, and they will be added here -->
 			<wicket:child />

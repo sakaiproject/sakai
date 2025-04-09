@@ -22,6 +22,9 @@
     #end
 
     <li id="site-list-${type}-item-${safeSiteId}" class="site-list-item py-1 px-2 mx-3 mt-3 $!{currentSiteClass}" data-type="${type}" data-site="${site.id}">
+        #if ($site.isCurrent && ${sitePages.pageNavIconUrl} != "")
+            <img src="${sitePages.pageNavIconUrl}" alt="${rloader.sit_icon_alt}" class="img_site_toolmenu">
+        #end
         <div class="site-list-item-head d-flex align-items-center py-1 w-100 justify-content-between">
             <div class="site-link-block d-flex align-items-center rounded-end me-1 pe-2">
                 <button class="btn icon-button collapsed px-2 me-1"
@@ -33,10 +36,6 @@
                         aria-controls="${type}-site-${safeSiteId}-page-list">
                     <i class="bi bi-chevron-right" aria-hidden="true"></i>
                 </button>
-
-                #if ($site.isCurrent && ${sitePages.pageNavIconUrl} != "")
-                    <img src="${sitePages.pageNavIconUrl}" alt="${rloader.sit_icon_alt}" class="img_site_toolmenu">
-                #end
 
                 #set ($siteTitle = $ftext.escapeHtml(${site.title}))
                 #set ($displayTitle = $siteTitle)

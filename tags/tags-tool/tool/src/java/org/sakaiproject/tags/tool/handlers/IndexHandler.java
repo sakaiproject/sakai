@@ -66,10 +66,17 @@ public class IndexHandler extends BaseHandler {
         int pageNum = extractPageNum(request);
         int pageSize = extractPageSize(request);
 
-        context.put("pageSize",pageSize);
-        context.put("pageNum",pageNum);
-        context.put("totalPages", (int) Math.ceil((double) tagService.getTagCollections().getTotalTagCollections()/(double)pageSize));
-        context.put("countPerPageGroup",countPerPageGroup);
+        int totalTagCollections = tagService.getTagCollections().getTotalTagCollections();
+        
+        int totalPages = (int) Math.ceil((double) totalTagCollections / (double) pageSize);
+        
+        context.put("pageSize", pageSize);
+        context.put("pageNum", pageNum);
+        context.put("totalPages", totalPages);
+        context.put("countPerPageGroup", countPerPageGroup);
+        
+        context.put("showPagination", totalTagCollections > 0 && totalPages > 1);
+        
         context.put("subpage", "index");
         if (securityService.isSuperUser()) {
             context.put("tagcollections", tagService.getTagCollections().getTagCollectionsPaginated(pageNum,pageSize));

@@ -212,27 +212,38 @@ public class EntityActionsManager {
             } catch (IllegalAccessException e) {
                 throw new RuntimeException("Fatal error trying to execute custom action method: " + customAction, e);
             } catch (InvocationTargetException e) {
-                if (e.getCause() != null) {
-                    if (e.getCause().getClass().isAssignableFrom(IllegalArgumentException.class)) {
-                        throw new IllegalArgumentException(e.getCause().getMessage() + " (rethrown)", e.getCause());
-                    } else if (e.getCause().getClass().isAssignableFrom(EntityNotFoundException.class)) {
-                        throw new EntityNotFoundException(e.getCause().getMessage() + " (rethrown)", ref+"", e.getCause());
-                    } else if (e.getCause().getClass().isAssignableFrom(FormatUnsupportedException.class)) {
-                        String format = ((FormatUnsupportedException)e.getCause()).format;
-                        throw new FormatUnsupportedException(e.getCause().getMessage() + " (rethrown)", e.getCause(), ref+"", format);
-                    } else if (e.getCause().getClass().isAssignableFrom(UnsupportedOperationException.class)) {
-                        throw new UnsupportedOperationException(e.getCause().getMessage() + " (rethrown)", e.getCause());
-                    } else if (e.getCause().getClass().isAssignableFrom(EntityException.class)) {
-                        int code = ((EntityException)e.getCause()).responseCode;
-                        throw new EntityException(e.getCause().getMessage() + " (rethrown)", ref+"", code);
-                    } else if (e.getCause().getClass().isAssignableFrom(IllegalStateException.class)) {
-                        throw new IllegalStateException(e.getCause().getMessage() + " (rethrown)", e.getCause());
-                    } else if (e.getCause().getClass().isAssignableFrom(SecurityException.class)) {
-                        throw new SecurityException(e.getCause().getMessage() + " (rethrown)", e.getCause());
+                Throwable cause = e.getCause(); // Get the real cause once
+
+                if (cause != null) {
+                    if (cause instanceof IllegalArgumentException) {
+                        throw new IllegalArgumentException(cause.getMessage() + " (rethrown)", cause);
+                    } else if (cause instanceof EntityNotFoundException) {
+                        throw new EntityNotFoundException(cause.getMessage() + " (rethrown)", ref + "", cause);
+                    } else if (cause instanceof FormatUnsupportedException) {
+                        FormatUnsupportedException fue = (FormatUnsupportedException) cause;
+                        throw new FormatUnsupportedException(cause.getMessage() + " (rethrown)", cause, ref + "", fue.format);
+                    } else if (cause instanceof UnsupportedOperationException) {
+                        throw new UnsupportedOperationException(cause.getMessage() + " (rethrown)", cause);
+                    } else if (cause instanceof EntityException) {
+                        EntityException ee = (EntityException) cause;
+                        throw new EntityException(cause.getMessage() + " (rethrown)", ref + "", ee.responseCode, cause);
+                    } else if (cause instanceof IllegalStateException) {
+                        throw new IllegalStateException(cause.getMessage() + " (rethrown)", cause);
+                    } else if (cause instanceof SecurityException) {
+                        throw new SecurityException(cause.getMessage() + " (rethrown)", cause);
+                    } else {
+                        // Log the UNHANDLED cause WITH its stack trace
+                        log.error("Unhandled target exception type [{}], rethrowing as a RuntimeException. Original cause:",
+                                cause.getClass().getName(), cause);
+                        // Rethrowing a generic wrapper, preserving the actual cause
+                        throw new RuntimeException("Unhandled exception during custom action execution: " + customAction, cause);
                     }
-                    log.error("Target exception class not identified, rethrowing as a RuntimeException: {}", e.getCause().toString());
+                } else {
+                    // InvocationTargetException happened, but getCause() is null. Less common.
+                    // Wrap the InvocationTargetException itself.
+                    log.error("InvocationTargetException occurred with no cause during custom action execution: {}", customAction, e);
+                    throw new RuntimeException("Fatal error trying to execute custom action method (no specific cause): " + customAction, e);
                 }
-                throw new RuntimeException("Fatal error trying to execute custom action method: " + customAction, e);
             }
         }
         if (result != null) {

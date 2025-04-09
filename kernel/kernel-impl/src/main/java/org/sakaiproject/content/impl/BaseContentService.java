@@ -7487,6 +7487,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 					ContentResource oldSiteContentResource = getResource(oldReference);
 					byte[] thisResourceContentRaw = oldSiteContentResource.getContent();
 					rContent = new String(thisResourceContentRaw);
+					StringBuffer saveOldEntity = new StringBuffer(rContent);
 					for (String oldValue : traversalMap.keySet()) {
 						if (!oldValue.equals("/fromContext")){
 							String newValue = "";
@@ -7501,7 +7502,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 					} catch (Exception e) {
 						log.debug ("Forums LinkMigrationHelper.editLinks failed: {}" + e.toString());
 					}					
-					StringBuffer saveOldEntity = new StringBuffer(rContent);
 					try {
 						if(!saveOldEntity.toString().equals(rContent)){
 							ContentResourceEdit edit = editResource(tId);

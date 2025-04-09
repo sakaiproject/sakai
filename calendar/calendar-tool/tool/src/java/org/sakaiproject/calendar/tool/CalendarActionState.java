@@ -76,8 +76,6 @@ public class CalendarActionState
 
 	private String m_AttachmentFlag = "false";
 	private LocalEvent savedData = new LocalEvent();
-	private boolean m_IsPastAlertOff = true;
-
 
 	private String m_state = "";
 	private String currentpage = "second";
@@ -214,32 +212,12 @@ public class CalendarActionState
 	}	// setIsNewCalendar
 
 	/**
-	 * Get the status of past alert off: true - no alert shown; false - alert shown
-	 * @return IsPastAlertOff
-	 */
-	public boolean getIsPastAlertOff()
-	{
-		return m_IsPastAlertOff;
-
-	}	//	getIsPastAlertOff
-
-	/**
 	 * Gets the main calendar ID associated with the event list.  Many calendars may be merged into this list, but there is only one one calendar that is used for adding/modifying events.
 	 */
 	public String getPrimaryCalendarReference()
 	{
 		return m_primaryCalendarReference;
 	}
-
-	/**
-	 * Set the status of past alert off: true - no alert shown; false - alert shown
-	 * @param IsPastAlertOff The status of past alert off: true - no alert shown; false - alert shown
-	 */
-	public void setIsPastAlertOff(boolean IsPastAlertOff)
-	{
-		m_IsPastAlertOff = IsPastAlertOff;
-
-	}	// setIsPastAlertOff
 
 	/**
 	 * Sets the main calendar ID associated with the event list.  Many calendars may be merged into this

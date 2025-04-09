@@ -72,8 +72,10 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.Notification;
 import org.sakaiproject.event.api.NotificationEdit;
 import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.InvalidSearchQueryException;
+import org.sakaiproject.search.api.SearchConstants;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchList;
 import org.sakaiproject.search.api.SearchService;
@@ -83,6 +85,7 @@ import org.sakaiproject.search.api.TermFrequency;
 import org.sakaiproject.search.elasticsearch.filter.SearchItemFilter;
 import org.sakaiproject.search.elasticsearch.serialization.NodeStatsResponseFactory;
 import org.sakaiproject.search.model.SearchBuilderItem;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
@@ -145,6 +148,8 @@ import lombok.extern.slf4j.Slf4j;
     private UserDirectoryService userDirectoryService;
     @Setter
     private SessionManager sessionManager;
+    @Setter
+    private SiteService siteService;
 
     /* internal caches and configs */
     final private ConcurrentHashMap<String, ElasticSearchIndexBuilderRegistration> indexBuilders = new ConcurrentHashMap<>();
@@ -848,6 +853,27 @@ import lombok.extern.slf4j.Slf4j;
     @Override
     public boolean isEnabled() {
         return serverConfigurationService.getBoolean("search.enable", false);
+    }
+
+    @Override
+    public boolean isEnabledForSite(String siteId) {
+
+		if (!isEnabled()) return false;
+
+		if (StringUtils.isBlank(siteId)) {
+			log.warn("empty or null siteId supplied to isEnabledForSite");
+			return false;
+		}
+
+		if (!serverConfigurationService.getBoolean("search.onlyIndexSearchToolSites", false)) return true;
+
+		try {
+			if (siteService.getSite(siteId).getToolForCommonId(SearchConstants.TOOL_ID) != null) return true;
+		} catch (IdUnusedException e) {
+			log.warn("siteId {} is not valid", siteId);
+		}
+
+		return false;
     }
 
     @Override

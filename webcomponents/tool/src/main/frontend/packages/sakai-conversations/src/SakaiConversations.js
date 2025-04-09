@@ -259,6 +259,7 @@ export class SakaiConversations extends SakaiElement {
       topic && (topic.selected = true);
       this._data.topics.filter(t => t.id !== topic.id).forEach(t => t.selected = false);
       if (!onlySelectInList) {
+
         this._currentTopic = topic;
         this._state = STATE_DISPLAYING_TOPIC;
       }
@@ -455,20 +456,22 @@ export class SakaiConversations extends SakaiElement {
         ` : nothing }
 
         <div class="conv-settings-and-create d-flex align-items-center">
+
+          ${this._searchEnabled ? html`
+          <div>
+            <button type="button"
+                @click=${this._handleSearch}
+                class="sakai-conversations__search_button btn btn-link icon-button"
+                data-bs-toggle="offcanvas"
+                data-bs-target="#sakai-search-panel"
+                aria-controls="sakai-search-panel">
+              <i class="si si-sakai-search"></i>
+              <span>${this._i18n.search}</span>
+            </button>
+          </div>
+          ` : nothing}
+
           ${this._data.canUpdatePermissions || this._data.isInstructor ? html`
-            ${this._searchEnabled ? html`
-            <div>
-              <button type="button"
-                  @click=${this._handleSearch}
-                  class="sakai-conversations__search_button btn btn-link icon-button"
-                  data-bs-toggle="offcanvas"
-                  data-bs-target="#sakai-search-panel"
-                  aria-controls="sakai-search-panel">
-                <i class="si si-sakai-search"></i>
-                <span>Search</span>
-              </button>
-            </div>
-            ` : nothing}
             ${mobile ? html`
               <div>
                 <div class="dropdown">

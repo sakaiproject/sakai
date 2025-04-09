@@ -297,10 +297,15 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
     }
 
     @Override
-    public Boolean  getViewUserDisplayId() {
+    public Boolean getViewUserDisplayId() {
+        return getViewUserDisplayId(getCurrentSiteId());
+    }
+
+    @Override
+    public Boolean  getViewUserDisplayId(String siteId) {
         return serverConfigurationService.getBoolean(
                 "roster.display.userDisplayId", DEFAULT_VIEW_USER_DISPLAY_ID) &&
-                hasUserSitePermission(getCurrentUserId(), RosterFunctions.ROSTER_FUNCTION_VIEWID, getCurrentSiteId());
+                hasUserSitePermission(getCurrentUserId(), RosterFunctions.ROSTER_FUNCTION_VIEWID, siteId);
     }
 
     @Override

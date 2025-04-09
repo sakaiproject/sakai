@@ -100,7 +100,6 @@ import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 
-import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.tool.api.ToolSession;
@@ -130,7 +129,6 @@ public class DateManagerServiceImpl implements DateManagerService {
 	@Setter private UserTimeService userTimeService;
 	@Setter private SamigoAvailableNotificationService samigoAvailableNotificationService;
 	@Setter private FormattedText formattedText;
-	@Setter @Getter private List<Gradebook> gradebooksForGroup;
 
 	private final Map<String, Calendar> calendarMap = new HashMap<>();
 	private final DateTimeFormatter inputDateFormatter;
@@ -405,7 +403,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 				contextIds.add(gradebookUid);
 				if (gradingService.isGradebookGroupEnabled(getCurrentSiteId())) {
 					contextIds = new ArrayList<>();
-					List<Gradebook> gradebooks = getGradebooksForGroup(gradebookUid);
+					List<Gradebook> gradebooks = gradingService.getGradebookGroupInstances(gradebookUid);
 					for (Gradebook gradebook : gradebooks) {
 						List<org.sakaiproject.grading.api.Assignment> groupAssignments = gradingService.getAssignments(gradebook.getUid().toString(), getCurrentSiteId(), SortType.SORT_BY_NONE);
 						for (org.sakaiproject.grading.api.Assignment assignmentAux : groupAssignments) {
@@ -680,7 +678,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 				contextIds.add(gradebookUid);
 				if (gradingService.isGradebookGroupEnabled(getCurrentSiteId())) {
 					contextIds = new ArrayList<>();
-					List<Gradebook> gradebooks = getGradebooksForGroup(gradebookUid);
+					List<Gradebook> gradebooks = gradingService.getGradebookGroupInstances(gradebookUid);
 					for (Gradebook gradebook : gradebooks) {
 						List<org.sakaiproject.grading.api.Assignment> groupAssignments = gradingService.getAssignments(gradebook.getUid().toString(), getCurrentSiteId(), SortType.SORT_BY_NONE);
 						for (org.sakaiproject.grading.api.Assignment assignment : groupAssignments) {
@@ -793,7 +791,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 
 				org.sakaiproject.grading.api.Assignment gbitem;
 				if (gradingService.isGradebookGroupEnabled(getCurrentSiteId())) {
-					List<Gradebook> gradebooks = getGradebooksForGroup(siteId);
+					List<Gradebook> gradebooks = gradingService.getGradebookGroupInstances(siteId);
 					String groupId = "";
 					for (Gradebook gra : gradebooks) {
 						List<org.sakaiproject.grading.api.Assignment> groupAssignments = gradingService.getAssignments(gra.getUid().toString(), getCurrentSiteId(), SortType.SORT_BY_NONE);
@@ -2106,12 +2104,5 @@ public class DateManagerServiceImpl implements DateManagerService {
 			jsonObject.put(columnsNames[i], columns[i]);
 		}
 		return  jsonObject;
-	}
-
-	public List<Gradebook> getGradebooksForGroup(String context) {
-		if (gradebooksForGroup == null || gradebooksForGroup.size() > 0) {
-			gradebooksForGroup = gradingService.getGradebookGroupInstances(context);
-		}
-		return gradebooksForGroup;
 	}
 }

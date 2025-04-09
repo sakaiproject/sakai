@@ -15,13 +15,12 @@
 <script src="/library/js/lang-datepicker/lang-datepicker.js"></script>
 <script src="js/syllabus.js"></script>
 <script>
-  var startDateValues = new Array();
   var dataChanged = false;
   var idPrefix = 'syllabusMainEdit:dataTable:';
   $(document).ready(function() {
-  			$(".dateInputStart").each(function(){
+  			$("input.dateInputStart").each(function(){
 				localDatePicker({
-  							input: $(this),
+  							input: $(this)[0],
   							useTime: 1,
   							parseFormat: 'YYYY-MM-DD HH:mm:ss',
   							allowEmptyDate: true,
@@ -30,9 +29,9 @@
   									iso8601: $(this).attr('id').replace(idPrefix,'').replace(':dataStartDate','dataStartDateISO8601')}
   				});
   			});
-			$(".dateInputEnd").each(function(){
+			$("input.dateInputEnd").each(function(){
   				localDatePicker({
-  							input: $(this),
+  							input: $(this)[0],
   							useTime: 1,
   							parseFormat: 'YYYY-MM-DD HH:mm:ss',
   							allowEmptyDate: true,
@@ -48,30 +47,6 @@
 
   });
   $(function() {
-  	//Setup the current values of the start dates (to compare and adjust the end dates when changed)
-  	$(".dateInputStart").each(function(){
-		startDateValues[$(this).attr('id')] = $(this).val();
-  	});
-  	//setup onchange event for startDate changes
-  	$(".dateInputStart").change(function(){
-  		var startDate = new Date($(this).val());
-  		var prevStartDate = new Date(startDateValues[$(this).attr('id')]);
-		if(startDate.getTime() == prevStartDate.getTime()){
-			return;
-		}
-  		var endDate = new Date($(this).closest("tr").find(".dateInputEnd").val());
-  		if(isNaN(startDate.getTime()) == false && isNaN(prevStartDate.getTime()) == false && isNaN(endDate.getTime()) == false){
-  			//we only want to update if all three of these dates have been set
-  			var timeDiff = startDate.getTime() - prevStartDate.getTime();
-  			var newEndDate = new Date(endDate.getTime() + timeDiff);
-  			var newEndTime = {hour: newEndDate.getHours(), minute: newEndDate.getMinutes()};
-			var dataInputEnd = $(this).closest("tr").find(".dateInputEnd");
-			dataInputEnd.datetimepicker("setDate", newEndDate);
-			dataInputEnd.siblings('input[id$=dataEndDateISO8601]').val(moment(newEndDate).format());
-			
-  		}
-  		startDateValues[$(this).attr('id')] = $(this).val();
-  	});
   	
   	//setup data change listener
   	$('input').change(function() {

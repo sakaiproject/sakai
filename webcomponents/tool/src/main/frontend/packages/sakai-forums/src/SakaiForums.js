@@ -18,7 +18,7 @@ export class SakaiForums extends SakaiPageableElement {
 
     this.messagesClass = !this.siteId ? "three-col" : "two-col";
 
-    const url = this.siteId ? `/api/sites/${this.siteId}/forums/summary` : `/api/users/${this.userId}/forums/summary`;
+    const url = this.siteId ? `/api/sites/${this.siteId}/forums/summary` : "/api/users/current/forums/summary";
     return fetch(url)
       .then(r => {
 
@@ -30,20 +30,10 @@ export class SakaiForums extends SakaiPageableElement {
       })
       .then(data => {
 
-        if (!this.siteId) {
-          this.sites = [];
-          const done = [];
-          data.forEach(f => {
+        !this.siteId && (this.sites = data.sites);
 
-            if (!done.includes(f.siteId)) {
-              this.sites.push({ siteId: f.siteId, title: f.siteTitle });
-              done.push(f.siteId);
-            }
-          });
-        }
-
-        this._allData = data;
-        this.data = data;
+        this._allData = data.forums;
+        this.data = data.forums;
 
       })
       .catch (error => console.error(error));

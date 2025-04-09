@@ -55,7 +55,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class LessonsController extends AbstractSakaiApiController {
 
-
     private static final String SITE_SEGMENT = "/site/";
 
     private static final SecurityAdvisor ADVISOR_ALLOW_LESSONBUILDER_UPDATE =
@@ -69,7 +68,6 @@ public class LessonsController extends AbstractSakaiApiController {
 
     @Autowired
     private ContentHostingService contentHostingService;
-
 
     @Autowired
     private GradingService gradingService;

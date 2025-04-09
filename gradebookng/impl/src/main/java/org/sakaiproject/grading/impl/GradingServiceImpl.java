@@ -139,7 +139,6 @@ public class GradingServiceImpl implements GradingService {
 
     private String gradebookGroupEnabledCache = "org.sakaiproject.tool.gradebook.group.enabled";
     private String gradebookGroupInstancesCache = "org.sakaiproject.tool.gradebook.group.instances";
-    private String matchingUserGradebookItemCache = "org.sakaiproject.tool.gradebook.group.user_gradebookItem";
 
     private MemoryService memoryService;
 
@@ -174,11 +173,9 @@ public class GradingServiceImpl implements GradingService {
 
         log.debug(buildCacheLogDebug("creatingCache", gradebookGroupEnabledCache));
         log.debug(buildCacheLogDebug("creatingCache", gradebookGroupInstancesCache));
-        log.debug(buildCacheLogDebug("creatingCache", matchingUserGradebookItemCache));
 
         memoryService.newCache(gradebookGroupEnabledCache);
         memoryService.newCache(gradebookGroupInstancesCache);
-        memoryService.newCache(matchingUserGradebookItemCache);
     }
 
     @Override
@@ -5412,19 +5409,6 @@ public class GradingServiceImpl implements GradingService {
     }
 
     public Long getMatchingUserGradebookItemId(String siteId, String userId, String gradebookItemIdString) {
-        Cache<String, Long> matchingUserGradebookItem = memoryService.getCache(matchingUserGradebookItemCache);
-
-        if (matchingUserGradebookItem != null && matchingUserGradebookItem.containsKey(userId)) {
-            log.debug(buildCacheLogDebug("cacheKeyFound", gradebookGroupInstancesCache));
-            Long gradebookItemId = matchingUserGradebookItem.get(userId);
-
-            if (gradebookItemId != null) {
-                log.debug(buildCacheLogDebug("cacheValueFound", gradebookGroupInstancesCache));
-
-                return gradebookItemId;
-            }
-        }
-
         List<String> userGradebookList = getGradebookInstancesForUser(siteId, userId);
         List<String> gradebookItemList = Arrays.asList(gradebookItemIdString.split(","));
 
@@ -5434,8 +5418,6 @@ public class GradingServiceImpl implements GradingService {
 
             if (userGradebookList.contains(foundGradebookUid)) {
                 Long gradebookItemId = Long.valueOf(gradebookItem);
-
-                matchingUserGradebookItem.put(userId, gradebookItemId);
                 return gradebookItemId;
             }
         }

@@ -101,9 +101,6 @@ public class DashboardController extends AbstractSakaiApiController implements E
     private ServerConfigurationService serverConfigurationService;
 
     @Autowired
-    private SiteService siteService;
-
-    @Autowired
     private UserDirectoryService userDirectoryService;
 
     @Autowired

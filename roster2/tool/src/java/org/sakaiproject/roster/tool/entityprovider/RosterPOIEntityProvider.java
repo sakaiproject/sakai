@@ -175,9 +175,8 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 				final Workbook workbook = getExportData(userId, site, parameters);
 				workbook.write(out);
 				out.close();
-				final ActionReturn actionReturn = new ActionReturn("base64",
-						"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", out);
-				return actionReturn;
+                return new ActionReturn("base64",
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", out);
 
 			} else {
 				throw new EntityException(MSG_NO_EXPORT_PERMISSION, reference.getReference());
@@ -402,7 +401,7 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 						row.add(member.getSortName());
 					}
 
-					if (sakaiProxy.getViewUserDisplayId()) {
+					if (sakaiProxy.getViewUserDisplayId(site.getId())) {
 						row.add(member.getDisplayId());
 					}
 
@@ -511,7 +510,7 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 			row.add(member.getSortName());
 		}
 
-		if (this.sakaiProxy.getViewUserDisplayId()) {
+		if (this.sakaiProxy.getViewUserDisplayId(siteId)) {
 			row.add(member.getDisplayId());
 		}
 
@@ -552,7 +551,7 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 	 * @param rosterMembers site users selection
 	 * @param header column headers
 	 * @param usedCategoryIds used section categories
-	 * @param site
+	 * @param site the RosterSite
 	 */
 	private void addSectionRows(final List<List<String>> dataInRows, final List<RosterMember> rosterMembers,
 			final List<String> header, final List<String> usedCategoryIds, final RosterSite site) {//section12345678
@@ -634,7 +633,7 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 				row.add(member.getSortName());
 			}
 
-			if (this.sakaiProxy.getViewUserDisplayId()) {
+			if (this.sakaiProxy.getViewUserDisplayId(siteId)) {
 				row.add(member.getDisplayId());
 			}
 
@@ -708,12 +707,10 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 
 	private List<String> createColumnHeader(final String viewType, final String siteId, boolean isGroupsSheetHeader) {
 
-		final String userId = this.developerHelperService.getCurrentUserId();
-
 		final List<String> header = new ArrayList<>();
 		header.add(rl.getString("facet_name"));
 
-		if (this.sakaiProxy.getViewUserDisplayId()) {
+		if (this.sakaiProxy.getViewUserDisplayId(siteId)) {
 			header.add(rl.getString("facet_userId"));
 		}
 

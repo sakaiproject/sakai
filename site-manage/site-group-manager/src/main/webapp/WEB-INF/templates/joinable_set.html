@@ -36,11 +36,11 @@
               </div>
               <div class="mb-2">
                 <label class="form-control-label" for="joinableOpenDate" th:text="|#{joinableset.label.opendate}:|">Opening date:</label>
-                <input id="joinableOpenDate" type="datetime-local" class="form-control" name="joinableOpenDate" th:field="*{joinableOpenDate}"/>
+                <input id="joinableOpenDate" type="datetime-local" max="2099-12-31T23:59" class="form-control" name="joinableOpenDate" th:field="*{joinableOpenDate}"/>
               </div>
               <div class="mb-2">
                 <label class="form-control-label" for="joinableCloseDate" th:text="|#{joinableset.label.closedate}:|">Closing date:</label>
-                <input id="joinableCloseDate" type="datetime-local" class="form-control" name="joinableCloseDate" th:field="*{joinableCloseDate}"/>
+                <input id="joinableCloseDate" type="datetime-local" max="2099-12-31T23:59" class="form-control" name="joinableCloseDate" th:field="*{joinableCloseDate}"/>
               </div>
               <div class="mb-2">
                 <label for="sendMail">

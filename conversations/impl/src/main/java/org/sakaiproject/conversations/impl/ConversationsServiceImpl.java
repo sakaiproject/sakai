@@ -1888,7 +1888,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
             topicBean.canPin = settings.getAllowPinning() && securityService.unlock(Permissions.TOPIC_PIN.label, siteRef);
             topicBean.canBookmark = settings.getAllowBookmarking();
             topicBean.canTag = securityService.unlock(Permissions.TOPIC_TAG.label, siteRef);
-            topicBean.canReact = !topicBean.isMine && settings.getAllowReactions();
+            topicBean.canReact = !topicBean.isMine && settings.getAllowReactions() && securityService.unlock(Permissions.POST_REACT.label, siteRef);
             topicBean.canUpvote = !topicBean.isMine && settings.getAllowUpvoting() && !topicBean.hidden && securityService.unlock(Permissions.POST_UPVOTE.label, siteRef);
             topicBean.canViewUpvotes = settings.getAllowUpvoting();
         } else {
@@ -2697,12 +2697,26 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
             topicEl.setAttribute("title", topic.getTitle());
             topicEl.setAttribute("type", topic.getType().name());
             topicEl.setAttribute("post-before-viewing", Boolean.toString(topic.getMustPostBeforeViewing()));
+            topicEl.setAttribute("anonymous", Boolean.toString(topic.getAnonymous()));
             topicEl.setAttribute("allow-anonymous-posts", Boolean.toString(topic.getAllowAnonymousPosts()));
             topicEl.setAttribute("pinned", Boolean.toString(topic.getPinned()));
             topicEl.setAttribute("draft", Boolean.toString(topic.getDraft()));
             topicEl.setAttribute("visibility", topic.getVisibility().name());
             topicEl.setAttribute("creator", topic.getMetadata().getCreator());
             topicEl.setAttribute("created", Long.toString(topic.getMetadata().getCreated().getEpochSecond()));
+
+            if (topic.getShowDate() != null) {
+              topicEl.setAttribute("show-date", Long.toString(topic.getShowDate().getEpochSecond()));
+            }
+            if (topic.getHideDate() != null) {
+              topicEl.setAttribute("hide-date", Long.toString(topic.getHideDate().getEpochSecond()));
+            }
+            if (topic.getLockDate() != null) {
+              topicEl.setAttribute("lock-date", Long.toString(topic.getLockDate().getEpochSecond()));
+            }
+            if (topic.getDueDate() != null) {
+              topicEl.setAttribute("due-date", Long.toString(topic.getDueDate().getEpochSecond()));
+            }
 
             Element messageEl = doc.createElement("message");
             messageEl.appendChild(doc.createCDATASection(topic.getMessage()));
@@ -2749,9 +2763,14 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
             topicBean.mustPostBeforeViewing = Boolean.parseBoolean(topicEl.getAttribute("post-before-viewing"));
             topicBean.anonymous = Boolean.parseBoolean(topicEl.getAttribute("anonymous"));
             topicBean.allowAnonymousPosts = Boolean.parseBoolean(topicEl.getAttribute("allow-anonymous-posts"));
-            topicBean.draft = Boolean.parseBoolean(topicEl.getAttribute("draft"));
+            topicBean.draft = true;
             topicBean.pinned = Boolean.parseBoolean(topicEl.getAttribute("pinned"));
             topicBean.visibility = topicEl.getAttribute("visibility");
+
+            topicBean.showDate = topicEl.hasAttribute("show-date") ? Instant.ofEpochSecond(Long.parseLong(topicEl.getAttribute("show-date"))) : null;
+            topicBean.hideDate = topicEl.hasAttribute("hide-date") ? Instant.ofEpochSecond(Long.parseLong(topicEl.getAttribute("hide-date"))) : null;
+            topicBean.lockDate = topicEl.hasAttribute("lock-date") ? Instant.ofEpochSecond(Long.parseLong(topicEl.getAttribute("lock-date"))) : null;
+            topicBean.dueDate = topicEl.hasAttribute("due-date") ? Instant.ofEpochSecond(Long.parseLong(topicEl.getAttribute("due-date"))) : null;
 
             NodeList messageNodes = topicEl.getElementsByTagName("message");
             if (messageNodes.getLength() == 1) {

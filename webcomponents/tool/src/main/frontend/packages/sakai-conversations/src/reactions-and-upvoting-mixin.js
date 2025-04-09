@@ -144,9 +144,7 @@ export const reactionsAndUpvotingMixin = Base => class extends Base {
     const upvoted = this?.post?.upvoted || this?.topic?.upvoted;
 
     const url = upvotable.links.find(l => l.rel === (upvoted ? "unupvote" : "upvote")).href;
-    fetch(url, {
-      credentials: "include",
-    })
+    fetch(url)
     .then(r => {
 
       if (r.ok) {

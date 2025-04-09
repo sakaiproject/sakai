@@ -15,63 +15,34 @@
  */
 package org.sakaiproject.rubrics.impl.test;
 
-import static org.mockito.Mockito.mock;
-
-import java.io.IOException;
-import java.util.Properties;
-import javax.sql.DataSource;
-
+import lombok.Getter;
 import org.hibernate.SessionFactory;
-import org.hibernate.boot.registry.StandardServiceRegistry;
-import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
-import org.hibernate.dialect.HSQLDialect;
-import org.hibernate.id.factory.internal.MutableIdentifierGeneratorFactoryInitiator;
-import org.hsqldb.jdbcDriver;
-
-import org.sakaiproject.hibernate.AssignableUUIDGenerator;
-import org.sakaiproject.rubrics.api.repository.CriterionRepository;
-import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
-
 import org.sakaiproject.assignment.api.AssignmentService;
-import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.authz.api.FunctionManager;
-import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.entity.api.EntityManager;
-import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.grading.api.GradingService;
+import org.sakaiproject.rubrics.api.repository.AssociationRepository;
+import org.sakaiproject.rubrics.api.repository.CriterionRepository;
 import org.sakaiproject.rubrics.api.repository.EvaluationRepository;
 import org.sakaiproject.rubrics.api.repository.RatingRepository;
 import org.sakaiproject.rubrics.api.repository.RubricRepository;
-import org.sakaiproject.rubrics.api.repository.AssociationRepository;
+import org.sakaiproject.rubrics.impl.repository.AssociationRepositoryImpl;
 import org.sakaiproject.rubrics.impl.repository.CriterionRepositoryImpl;
 import org.sakaiproject.rubrics.impl.repository.EvaluationRepositoryImpl;
 import org.sakaiproject.rubrics.impl.repository.RatingRepositoryImpl;
 import org.sakaiproject.rubrics.impl.repository.RubricRepositoryImpl;
-import org.sakaiproject.rubrics.impl.repository.AssociationRepositoryImpl;
-import org.sakaiproject.serialization.MapperFactory;
-import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
 import org.sakaiproject.test.SakaiTestConfiguration;
 import org.sakaiproject.time.api.UserTimeService;
-import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
-import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.api.FormattedText;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.core.env.Environment;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
-import org.springframework.orm.hibernate5.HibernateTransactionManager;
-import org.springframework.orm.hibernate5.LocalSessionFactoryBuilder;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import lombok.Getter;
+import static org.mockito.Mockito.mock;
 
 @Configuration
 @EnableTransactionManagement
