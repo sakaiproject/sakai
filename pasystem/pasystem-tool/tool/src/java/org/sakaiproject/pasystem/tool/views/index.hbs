@@ -16,7 +16,7 @@
         <th>{{{t this "Message"}}}</th>
         <th>{{{t this "Type"}}}</th>
         <th>{{{t this "Active"}}}</th>
-        <th>{{{t this "From"}}}</th>
+        <th>{{{t this "From"}}}<span class="si si-down" aria-hidden="true"></span></th>
         <th>{{{t this "Until"}}}</th>
         <th><!-- actions --></th>
       </tr>
@@ -28,7 +28,7 @@
         <td>{{{t this "banner_type" this.type}}}</td>
         <td>{{this.active}}</td>
         <td>{{show-time this this.startTime}}</td>
-        <td>{{show-time this this.endTime}}</td>    
+        <td>{{show-time this this.endTime}}</td>
         <td class="actions">
             <a href="{{{actionURL this 'banners' this.uuid "edit"}}}"><button type="button" class="btn btn-primary btn-xs">{{{t this "Edit"}}}</button></a>
             <a href="{{{actionURL this 'banners' this.uuid "delete"}}}" class="pasystem-delete-btn" data-record-type="banner"><button type="button" class="btn btn-danger btn-xs"><i class="si si-trash"></i></button></a>
@@ -51,7 +51,7 @@
       <tr>
         <th>{{{t this "Description"}}}</th>
         <th>{{{t this "Active"}}}</th>
-        <th>{{{t this "From"}}}</th>
+        <th>{{{t this "From"}}}<span class="si si-down" aria-hidden="true"></span></th>
         <th>{{{t this "Until"}}}</th>
         <th><!-- actions --></th>
       </tr>
