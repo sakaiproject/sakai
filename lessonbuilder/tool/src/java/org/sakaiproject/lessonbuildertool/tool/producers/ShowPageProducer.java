@@ -2106,8 +2106,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
                             boolean isAudio = mimeType != null && mimeType.startsWith("audio/");
                             boolean isPDF = simplePageBean.isPDFType(i);
                             boolean isWavAudio = mimeType != null && (mimeType.equals("audio/wav") || mimeType.equals("audio/x-wav"));
-                            // useEmbed flag for backward compatibility (IE removed)
-                            boolean useEmbed = isWavAudio; // use embed tag only for WAV files now
                             
                             // Step 1: Create HTML5 player for compatible media types (modern browsers)
                             if (isHtml5Compatible) {
@@ -2211,7 +2209,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
                                 else
                                 item2.decorate(new UIFreeAttributeDecorator("height", "300")).decorate(new UIFreeAttributeDecorator("width", "400"));
                             }
-                            if (!useEmbed) {
+                            if (!isWavAudio) { // Only add extra parameters for non-WAV files
                                 if (useFlvPlayer) {
                                     UIOutput.make(tableRow, "flashvars").decorate(new UIFreeAttributeDecorator("value", "src=" + URLEncoder.encode(myUrl() + i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner()))));
                                     // need wmode=opaque for player to stack properly with dialogs, etc.
@@ -2261,7 +2259,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
                                     item2.decorate(new UIFreeAttributeDecorator("height", "300")).decorate(new UIFreeAttributeDecorator("width", "100%"));
                                 }
 
-                                if (!useEmbed) {
+                                if (!isWavAudio) { // Only add extra parameters for non-WAV files
                                     UIOutput.make(tableRow, "mp4-inject").decorate(new UIFreeAttributeDecorator("value", i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner())));
 
 				    if (showDownloads) {
