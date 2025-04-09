@@ -206,7 +206,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	// and it's better to let Java's initialization code handle synchronization than do it ourselves in
 	// an init method
 	private static Cache urlCache = memoryService.newCache("org.sakaiproject.lessonbuildertool.tool.producers.ShowPageProducer.url.cache");
-        String browserString = ""; // set by checkIEVersion;
     	public static int majorVersion = getMajorVersion();
         public static String fullVersion = getFullVersion();
 
@@ -454,8 +453,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			return;
 		}
 
-		// Internet Explorer is no longer supported
-		// int ieVersion = checkIEVersion(); // Old IE detection removed
+		// Note: Legacy browser detection removed - modern browsers only
 		// as far as I can tell, none of these supports fck or ck
 		// we can make it configurable if necessary, or use WURFL
 		// however this test is consistent with CKeditor's check.
@@ -1030,7 +1028,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			
 			printSubpage(itemList, first, sectionWrapper, sectionContainer, columnContainer, tableContainer, 
 					container, cols, colnum, canEditPage, currentPage, anyItemVisible, newItemId, showRefresh, canSeeAll, 
-					M_locale, ieVersion, showDownloads, iframeJavascriptDone, tofill, placement, params, postedCommentId, 
+					M_locale, showDownloads, iframeJavascriptDone, tofill, placement, params, postedCommentId, 
 					addedCommentsScript, cameFromGradingPane, pageItem, noEditor, commentsCount, textboxcount);
 
 			// end of items. This is the end for normal users. Following is
@@ -1152,7 +1150,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 	public void printSubpage(List<SimplePageItem> itemList, boolean first, UIBranchContainer sectionWrapper, UIBranchContainer sectionContainer, UIBranchContainer columnContainer, UIBranchContainer tableContainer, 
 			UIBranchContainer container, int cols, int colnum, boolean canEditPage, SimplePage currentPage, boolean[] anyItemVisible, long newItemId, boolean showRefresh, boolean canSeeAll, 
-			Locale M_locale, int ieVersion, boolean showDownloads, boolean iframeJavascriptDone, UIContainer tofill, Placement placement, GeneralViewParameters params, long postedCommentId, 
+			Locale M_locale, boolean showDownloads, boolean iframeJavascriptDone, UIContainer tofill, Placement placement, GeneralViewParameters params, long postedCommentId, 
 			boolean addedCommentsScript, boolean cameFromGradingPane, SimplePageItem pageItem, boolean noEditor, int commentsCount, int textboxcount) {
 			
 			boolean subPageTitleIncluded = false;
