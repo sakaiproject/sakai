@@ -10369,7 +10369,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		// Use the site title for the zip name, remove spaces though.
 		String siteTitle = (String) state.getAttribute(STATE_SITE_TITLE);
 		siteTitle = siteTitle.replace(" ", "");
-		new ZipContentUtil().compressSelectedResources((String)state.getAttribute(STATE_SITE_ID), siteTitle, selectedFolderIds, selectedFiles, response);
+		new ZipContentUtil(contentHostingService, ServerConfigurationService.getInstance(), sessionManager).compressSelectedResources((String)state.getAttribute(STATE_SITE_ID), siteTitle, selectedFolderIds, selectedFiles, response);
 	}
 
 	private long getCollectionRecursiveSize(ContentCollection currentCollection, long maxIndividualFileSize, long zipMaxTotalSize, Set<String> zipSingleFileSizeExceeded, Set<String> zipIncludedFiles) throws ZipMaxTotalSizeException

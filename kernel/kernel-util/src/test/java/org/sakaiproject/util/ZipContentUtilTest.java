@@ -43,7 +43,8 @@ public class ZipContentUtilTest {
 	@Ignore
     @Test
     public void testGetMaxZipExtractSize() {
-        long max = ZipContentUtil.getMaxZipExtractFiles();
+        ZipContentUtil zipContentUtil = new ZipContentUtil(null, null, null);
+        long max = zipContentUtil.getMaxZipExtractFiles();
         Assert.assertNotNull(max);
         Assert.assertTrue(max > 0);
     }
