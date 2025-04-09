@@ -94,25 +94,22 @@
                 <div class="page-header">
                     <sakai:view_title value="#{msgs.create_new_event} #{msgs.basic}"/>
                 </div>
-                <sakai:doc_section>
-                    <h:panelGrid columns="1" styleClass="instruction">
-                        <h:outputText value="#{msgs.create_instruction} " escape="false" />                      
-                        <h:panelGroup>
-                            <h:outputText value="#{msgs.star_character}" style="color:#B11;" />
-                            <h:outputText value="&nbsp;#{msgs.required2}" escape="false" />
-                        </h:panelGroup>
-                        <h:outputText value="&nbsp;" escape="false" />
-                    </h:panelGrid>
-                </sakai:doc_section>
+                <div class="instruction mb-3">
+                     <p><h:outputText value="#{msgs.create_instruction} " escape="false" /></p>
+                     <h:panelGroup>
+                         <h:outputText value="#{msgs.star_character}" style="color:#B11;" />
+                         <h:outputText value="&nbsp;#{msgs.required2}" escape="false" />
+                     </h:panelGroup>
+                 </div>
           	    
           	    <h:inputHidden id="iframeId" value="#{NewSignupMeetingBean.iframeId}" />
             <div onmouseover="delayedRecalculateDateTime();" class="container-fluid">
                 <%-- Title --%>
-                <div class="form-group row">
-                    <h:outputLabel value="#{msgs.event_name}" for="name" styleClass="col-md-2 form-required"/>
+                <div class="row mb-3">
+                    <h:outputLabel value="#{msgs.event_name}" for="name" styleClass="col-md-2 col-form-label form-required"/>
                     <div class="col-md-10">
                         <h:inputText id="name" size="40" value="#{NewSignupMeetingBean.title}" 
-                                    styleClass="editText form-control"  >
+                                    styleClass="form-control"  >
                             <f:validateLength maximum="255" />
                         </h:inputText>
                         <h:message for="name" errorClass="alertMessageInline"/>
@@ -120,65 +117,65 @@
                 </div>
 
                 <%-- Organiser --%>
-                <div class="form-group row">
-                    <h:outputLabel value="#{msgs.event_owner}" styleClass="col-md-2" for="creatorUserId"/>
+                <div class="row mb-3">
+                    <h:outputLabel value="#{msgs.event_owner}" styleClass="col-md-2 col-form-label" for="creatorUserId"/>
                     <div class="col-md-10">
-                        <h:selectOneMenu id="creatorUserId" value="#{NewSignupMeetingBean.creatorUserId}">
+                        <h:selectOneMenu id="creatorUserId" value="#{NewSignupMeetingBean.creatorUserId}" styleClass="form-select">
                             <f:selectItems value="#{NewSignupMeetingBean.instructors}"/>
                         </h:selectOneMenu>
                     </div>
                 </div>
                 
                 <%-- Location --%>
-                <div class="form-group row ">
-                    <h:outputLabel value="#{msgs.event_location}" styleClass="col-md-2 form-required" for="selectedLocation" />
+                <div class="row mb-3">
+                    <h:outputLabel value="#{msgs.event_location}" styleClass="col-md-2 col-form-label form-required" for="selectedLocation" />
                         
                     <div class="col-md-10">
                         <!-- Displays all the locations in the dropdown -->
-                        <h:selectOneMenu id="selectedLocation" value="#{NewSignupMeetingBean.selectedLocation}" rendered="#{!NewSignupMeetingBean.allLocationsEmpty}">
+                        <h:selectOneMenu id="selectedLocation" value="#{NewSignupMeetingBean.selectedLocation}" rendered="#{!NewSignupMeetingBean.allLocationsEmpty}" styleClass="form-select">
                             <f:selectItems value="#{NewSignupMeetingBean.allLocations}"/>
                         </h:selectOneMenu>
-                        <h:inputText id="customLocation" size="30" value="#{NewSignupMeetingBean.customLocation}" styleClass="editText form-control" style="display:none">
+                        <%-- Custom location input, initially hidden --%>
+                        <h:inputText id="customLocation" size="30" value="#{NewSignupMeetingBean.customLocation}" styleClass="form-control" style="display:none">
                             <f:converter converterId="Signup.StringTrimConverter"/>
                             <f:validateLength maximum="255" />
                         </h:inputText>
                         
-                        <h:outputLabel id="customLocationLabel" for="customLocation" styleClass="activeTag"  onclick="handleDropDownAndInput('meeting:customLocationLabel','meeting:customLocationLabel_undo','meeting:customLocation','meeting:selectedLocation')" rendered="#{!NewSignupMeetingBean.allLocationsEmpty}">
-                            <h:graphicImage value="/images/plus.gif" alt="#{msgs.tab_event_location_custom}" title="#{msgs.tab_event_location_custom}" style="border:none;vertical-align: middle; padding:0 5px 0 15px;" styleClass="openCloseImageIcon"/>
+                        <h:commandLink id="customLocationLabel" styleClass="btn btn-link btn-sm ps-3" onclick="handleDropDownAndInput('meeting:customLocationLabel','meeting:customLocationLabel_undo','meeting:customLocation','meeting:selectedLocation'); return false;" rendered="#{!NewSignupMeetingBean.allLocationsEmpty}">
+                            <span class="fa fa-plus me-1" aria-hidden="true"></span>
                             <h:outputText value="#{msgs.tab_event_location_custom}" escape="false" style="vertical-align: middle;"/>
-                        </h:outputLabel>
-                        <h:outputLabel id="customLocationLabel_undo" for="customLocation" styleClass="activeTag" style="display:none" onclick="handleDropDownAndInput('meeting:customLocationLabel','meeting:customLocationLabel_undo','meeting:customLocation','meeting:selectedLocation')" rendered="#{!NewSignupMeetingBean.allLocationsEmpty}">
-                            <h:graphicImage value="/images/minus.gif" alt="#{msgs.event_custom_undo_tip}" title="#{msgs.event_custom_undo_tip}" style="border:none;vertical-align: middle;padding:0 5px 0 15px;" styleClass="openCloseImageIcon"/>
+                        </h:commandLink>
+                        <h:commandLink id="customLocationLabel_undo" styleClass="btn btn-link btn-sm ps-3" style="display:none" onclick="handleDropDownAndInput('meeting:customLocationLabel','meeting:customLocationLabel_undo','meeting:customLocation','meeting:selectedLocation'); return false;" rendered="#{!NewSignupMeetingBean.allLocationsEmpty}">
+                            <span class="fa fa-minus me-1" aria-hidden="true"></span>
                             <h:outputText value="#{msgs.event_custom_undo}" escape="false" style="vertical-align: middle;"/>
-                        </h:outputLabel>
-                        <h:outputText value="&nbsp;" escape="false" rendered="#{!NewSignupMeetingBean.allLocationsEmpty}"/>
+                        </h:commandLink>
 
                         <h:message for="customLocation" errorClass="alertMessageInline"/>
                     </div>
                 </div>
                 <%-- category --%>
-                <div class="form-group row">
-                    <h:outputLabel value="#{msgs.event_category}" styleClass="col-md-2" for="selectedCategory" />
+                <div class="row mb-3">
+                    <h:outputLabel value="#{msgs.event_category}" styleClass="col-md-2 col-form-label" for="selectedCategory" />
 
                     <div class="col-md-10">
                         <!-- Displays all the categories in the dropdown -->
-                        <h:selectOneMenu id="selectedCategory" value="#{NewSignupMeetingBean.selectedCategory}"  rendered="#{NewSignupMeetingBean.categoriesExist}">
+                        <h:selectOneMenu id="selectedCategory" value="#{NewSignupMeetingBean.selectedCategory}" rendered="#{NewSignupMeetingBean.categoriesExist}" styleClass="form-select">
                             <f:selectItems value="#{NewSignupMeetingBean.allCategories}"/>
                         </h:selectOneMenu>
-                        <h:inputText id="customCategory" size="30" value="#{NewSignupMeetingBean.customCategory}" style="display:none" styleClass="editText form-control">
+                        <%-- Custom category input, initially hidden --%>
+                        <h:inputText id="customCategory" size="30" value="#{NewSignupMeetingBean.customCategory}" style="display:none" styleClass="form-control">
                             <f:converter converterId="Signup.StringTrimConverter"/>
                             <f:validateLength maximum="255" />
                         </h:inputText>
                         
-                        <h:outputLabel id="customCategoryLabel" for="customLocation" styleClass="activeTag"  onclick="handleDropDownAndInput('meeting:customCategoryLabel','meeting:customCategoryLabel_undo','meeting:customCategory','meeting:selectedCategory')" rendered="#{NewSignupMeetingBean.categoriesExist}">
-                            <h:graphicImage value="/images/plus.gif" alt="#{msgs.event_category_custom}" title="#{msgs.event_category_custom}" style="border:none;vertical-align: middle; padding:0 5px 0 15px;" styleClass="openCloseImageIcon"/>
+                        <h:commandLink id="customCategoryLabel" styleClass="btn btn-link btn-sm ps-3" onclick="handleDropDownAndInput('meeting:customCategoryLabel','meeting:customCategoryLabel_undo','meeting:customCategory','meeting:selectedCategory'); return false;" rendered="#{NewSignupMeetingBean.categoriesExist}">
+                            <span class="fa fa-plus me-1" aria-hidden="true"></span>
                             <h:outputText value="#{msgs.event_category_custom}" escape="false" style="vertical-align: middle;"/>
-                        </h:outputLabel>
-                        <h:outputLabel id="customCategoryLabel_undo" for="customLocation" styleClass="activeTag" style="display:none" onclick="handleDropDownAndInput('meeting:customCategoryLabel','meeting:customCategoryLabel_undo','meeting:customCategory','meeting:selectedCategory')" rendered="#{NewSignupMeetingBean.categoriesExist}">
-                            <h:graphicImage value="/images/minus.gif" alt="#{msgs.event_custom_undo_tip}" title="#{msgs.event_custom_undo_tip}" style="border:none;vertical-align: middle;padding:0 5px 0 15px;" styleClass="openCloseImageIcon"/>
+                        </h:commandLink>
+                        <h:commandLink id="customCategoryLabel_undo" styleClass="btn btn-link btn-sm ps-3" style="display:none" onclick="handleDropDownAndInput('meeting:customCategoryLabel','meeting:customCategoryLabel_undo','meeting:customCategory','meeting:selectedCategory'); return false;" rendered="#{NewSignupMeetingBean.categoriesExist}">
+                            <span class="fa fa-minus me-1" aria-hidden="true"></span>
                             <h:outputText value="#{msgs.event_custom_undo}" escape="false" style="vertical-align: middle;"/>
-                        </h:outputLabel>
-                        <h:outputText value="&nbsp;" escape="false" rendered="#{NewSignupMeetingBean.categoriesExist}"/>
+                        </h:commandLink>
 
                         <h:message for="customCategory" errorClass="alertMessageInline"/>
                     </div>
@@ -353,14 +350,18 @@
 
                         <h:panelGroup rendered="#{NewSignupMeetingBean.otherSitesAvailability}">
                             <span id="imageOpen_otherSites" style="display:none">
-                                <span class="fa fa-minus" aria-hidden="true" style="cursor:pointer" onclick="showDetails('imageOpen_otherSites','imageClose_otherSites','otherSites');"></span>
+                                <h:commandLink styleClass="btn btn-link btn-sm" onclick="showDetails('imageOpen_otherSites','imageClose_otherSites','otherSites'); return false;">
+                                    <span class="fa fa-minus" aria-hidden="true"></span>
+                                </h:commandLink>
                             </span>
                             <span id="imageClose_otherSites">
-                                <span class="fa fa-plus" aria-hidden="true" style="cursor:pointer" onclick="showDetails('imageOpen_otherSites','imageClose_otherSites','otherSites');"></span>
+                                <h:commandLink styleClass="btn btn-link btn-sm" onclick="showDetails('imageOpen_otherSites','imageClose_otherSites','otherSites'); return false;">
+                                    <span class="fa fa-plus" aria-hidden="true"></span>
+                                </h:commandLink>
                             </span>
-                            <span style="font-weight:bold;cursor:pointer;" onclick="showDetails('imageOpen_otherSites','imageClose_otherSites','otherSites');">
+                            <h:commandLink styleClass="btn btn-link btn-sm" style="font-weight:bold;" onclick="showDetails('imageOpen_otherSites','imageClose_otherSites','otherSites'); return false;">
                                 <h:outputText value="#{msgs.event_other_sites}" escape="false"/>
-                            </span>
+                            </h:commandLink>
                         </h:panelGroup>   
                         <h:panelGroup>
                             <h:outputText value="<div id='otherSites' style='display:none'>" escape="false"/>
@@ -468,7 +469,7 @@
                                 <h:panelGroup rendered="#{NewSignupMeetingBean.userDefineTimeslotBean.userEverCreateCTS}">
                                     <h:commandLink action="#{NewSignupMeetingBean.editUserDefTimeSlots}" >
                                         <span class="fa fa-plus" aria-hidden="true" style="padding-right:5px;"></span>
-                                        <h:outputText value="#{msgs.label_edit_timeslots}" escape="false" styleClass="activeTag"/>
+                                        <h:outputText value="#{msgs.label_edit_timeslots}" escape="false"/>
                                     </h:commandLink>
                                 </h:panelGroup>
                             </h:panelGroup> 
