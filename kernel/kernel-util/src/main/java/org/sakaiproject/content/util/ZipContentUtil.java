@@ -31,6 +31,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
@@ -38,6 +39,7 @@ import java.util.zip.ZipOutputStream;
 import javax.activation.MimetypesFileTypeMap;
 import javax.servlet.http.HttpServletResponse;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.io.IOUtils;
@@ -65,29 +67,33 @@ import org.sakaiproject.util.ResourceLoader;
 
 @Slf4j
 public class ZipContentUtil {
-    private static final String DEFAULT_RESOURCECLASS = "org.sakaiproject.localization.util.ContentProperties";
-    private static final String DEFAULT_RESOURCEBUNDLE = "org.sakaiproject.localization.bundle.content.content";
-    private static final String RESOURCECLASS = "resource.class.content";
-    private static final String RESOURCEBUNDLE = "resource.bundle.content";
-	private static final String STATE_MESSAGE = "message";
+    private static final String STATE_MESSAGE = "message";
 
-	private static final String ZIP_EXTENSION = ".zip";
-	private static final int BUFFER_SIZE = 32000;
-	private static final int MAXIMUM_ATTEMPTS_FOR_UNIQUENESS = 100;
-	private static final int MAX_ZIP_EXTRACT_FILES_DEFAULT = 1000;
-	private static Integer MAX_ZIP_EXTRACT_FILES;
+    public static final String DEFAULT_RESOURCEBUNDLE = "org.sakaiproject.localization.bundle.content.content";
+    public static final String DEFAULT_RESOURCECLASS = "org.sakaiproject.localization.util.ContentProperties";
+    public static final String RESOURCEBUNDLE = "resource.bundle.content";
+    public static final String RESOURCECLASS = "resource.class.content";
+    public static final String ZIP_EXTENSION = ".zip";
+    public static final int BUFFER_SIZE = 32000;
+    public static final int MAXIMUM_ATTEMPTS_FOR_UNIQUENESS = 100;
+    public static final int MAX_ZIP_EXTRACT_FILES_DEFAULT = 1000;
 
+    private final ContentHostingService contentHostingService;
+    private final ServerConfigurationService serverConfigurationService;
+    private final SessionManager sessionManager;
 
-	private final ContentHostingService contentHostingService;
-	private final ServerConfigurationService serverConfigurationService;
-	private final SessionManager sessionManager;
-
-	private final MimetypesFileTypeMap mime;
-	private final ResourceLoader resourceLoader;
+    @Getter
+    private Integer maxZipExtractFiles;
+    private final MimetypesFileTypeMap mime;
+    private final ResourceLoader resourceLoader;
 
 	public ZipContentUtil(ContentHostingService contentHostingService,
 						  ServerConfigurationService serverConfigurationService,
 						  SessionManager sessionManager) {
+		Objects.requireNonNull(contentHostingService, "contentHostingService must not be null");
+		Objects.requireNonNull(serverConfigurationService, "serverConfigurationService must not be null");
+		Objects.requireNonNull(sessionManager, "sessionManager must not be null");
+
 		this.contentHostingService = contentHostingService;
 		this.serverConfigurationService = serverConfigurationService;
 		this.sessionManager = sessionManager;
@@ -97,18 +103,12 @@ public class ZipContentUtil {
 				serverConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE));
 
 		mime = new MimetypesFileTypeMap();
+		maxZipExtractFiles = serverConfigurationService.getInt(ContentHostingService.RESOURCES_ZIP_EXPAND_MAX, MAX_ZIP_EXTRACT_FILES_DEFAULT);
+		if (maxZipExtractFiles <= 0) {
+			maxZipExtractFiles = MAX_ZIP_EXTRACT_FILES_DEFAULT;
+			log.warn("{} is set to a value less than or equal to 0, defaulting to {}", ContentHostingService.RESOURCES_ZIP_EXPAND_MAX, MAX_ZIP_EXTRACT_FILES_DEFAULT);
+		}
 	}
-
-	public int getMaxZipExtractFiles() {
-        if (MAX_ZIP_EXTRACT_FILES == null) {
-            MAX_ZIP_EXTRACT_FILES = serverConfigurationService.getInt(ContentHostingService.RESOURCES_ZIP_EXPAND_MAX,MAX_ZIP_EXTRACT_FILES_DEFAULT);
-        }
-        if (MAX_ZIP_EXTRACT_FILES <= 0) {
-            MAX_ZIP_EXTRACT_FILES = MAX_ZIP_EXTRACT_FILES_DEFAULT; // any less than this is useless so probably a mistake
-            log.warn("content.zip.expand.maxfiles is set to a value less than or equal to 0, defaulting to {}", MAX_ZIP_EXTRACT_FILES_DEFAULT);
-        }
-        return MAX_ZIP_EXTRACT_FILES;
-    }
 
     public void compressSelectedResources(String siteId, String siteTitle, List<String> selectedFolderIds, List<String> selectedFiles, HttpServletResponse response) {
 		Map<String, ContentResource> resourcesToZip = new HashMap<>();
