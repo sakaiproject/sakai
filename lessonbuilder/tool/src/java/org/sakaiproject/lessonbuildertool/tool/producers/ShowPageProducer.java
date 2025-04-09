@@ -4222,20 +4222,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		return new GeneralViewParameters();
 	}
 
-	/**
-	 * Checks for the version of IE. Returns 0 if we're not running IE.
-	 * But there's a problem. IE 11 doesn't have the MSIE tag. But it stiill
-	 * needs to be treated as IE, because the OBJECT tag won't work with Quicktime
-	 * Since all I test is > 0, I use a simplified version that returns 0 or 1
-	 * @return
-	 */
-	/**
-	 * Internet Explorer detection removed as IE is no longer supported
-	 * Method retained for backward compatibility
-	 */
-	public int checkIEVersion() {
-		return 0;
-	}
+	// Internet Explorer support completely removed
 
 	private void createToolBar(UIContainer tofill, SimplePage currentPage) {
 		UIBranchContainer toolBar = UIBranchContainer.make(tofill, "tool-bar:");
