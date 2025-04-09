@@ -1,5 +1,4 @@
-import { html } from "lit";
-import { elementUpdated, fixture, expect, aTimeout, waitUntil } from "@open-wc/testing";
+import { elementUpdated, fixture, expect, html, aTimeout, waitUntil } from "@open-wc/testing";
 import "../conversations-statistics.js";
 import * as constants from "../src/sakai-conversations-constants.js";
 import * as data from "./data.js";
@@ -58,7 +57,6 @@ describe("conversations-statistics", () => {
       </conversations-statistics>
     `);
 
-    await waitUntil(() => el._i18n);
     await elementUpdated(el);
 
     await expect(el).to.be.accessible();

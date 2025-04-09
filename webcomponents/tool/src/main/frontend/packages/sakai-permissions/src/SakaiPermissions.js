@@ -127,6 +127,7 @@ export class SakaiPermissions extends SakaiElement {
             </sakai-group-picker>
           </div>
         ` : nothing }
+
         <div class="mb-1 pt-3">
           <button class="btn btn-secondary"
               aria-label="${this._i18n["per.lis.restoredef"]}"
@@ -136,7 +137,10 @@ export class SakaiPermissions extends SakaiElement {
         </div>
 
         <div id="permissions-container" class="container mt-4">
+
+          <!-- START HEADER -->
           <div id="permission-header" class="row flex-nowrap">
+            <!-- Add the button which toggles all the permissions -->
             <div class="col-md-4 p-3">
               <button class="btn btn-transparent"
                   title="${this._i18n["per.lis.head.title"]}"
@@ -144,6 +148,8 @@ export class SakaiPermissions extends SakaiElement {
                 ${this._i18n["per.lis.head"]}
               </button>
             </div>
+
+            <!-- Now add all the role headers -->
             ${this.roles.map(role => html`
             <div class="col-sm role d-none d-md-block p-3 text-center"
                 data-role="${role}"
@@ -158,8 +164,12 @@ export class SakaiPermissions extends SakaiElement {
             </div>
           `)}
           </div>
+          <!-- END HEADER -->
+
+          <!-- For each available permission, add a row -->
           ${this.available.map(perm => html`
           <div class="row permission-row">
+            <!-- Add the permission title. Clicking this will toggle this permission for each role -->
             <div class="col-md-4 p-3 fw-bolder fw-md-normal">
               <button class="btn btn-transparent fw-bolder fw-md-normal text-start"
                   title="${this._i18n["per.lis.perm.title"]}"
@@ -168,6 +178,8 @@ export class SakaiPermissions extends SakaiElement {
                 ${this._i18n[perm]}
               </button>
             </div>
+
+            <!-- Add a checkbox for each role. If this perm is in the this.on object, it is checked -->
             ${this.roles.map(role => html`
             <div class="col-md ${role.replace(" ", "_")}-checkbox-cell text-start text-md-center p-3 permission-cell border-left-1">
               <label for="${role}:${perm}" class="sr-only">

@@ -1,6 +1,5 @@
 import "../sakai-permissions.js";
-import { elementUpdated, expect, fixture, oneEvent, waitUntil } from "@open-wc/testing";
-import { html } from "lit";
+import { elementUpdated, expect, fixture, html, oneEvent, waitUntil } from "@open-wc/testing";
 import * as data from "./data.js";
 import * as groupPickerData from "../../sakai-group-picker/test/data.js";
 import * as sinon from "sinon";
@@ -8,7 +7,7 @@ import fetchMock from "fetch-mock/esm/client";
 
 describe("sakai-permissions tests", () => {
 
-  window.top.portal = { locale: "en_GB", siteId: data.siteId };
+  window.top.portal = { siteId: data.siteId };
 
   beforeEach(async () => {
 

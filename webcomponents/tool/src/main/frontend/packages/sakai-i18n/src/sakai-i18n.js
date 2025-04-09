@@ -53,10 +53,10 @@ function loadProperties(suppliedOptions) {
   }
 
   if (options.debug) {
-    console.debug(`lang: ${ options.lang}`);
-    console.debug(`resourceClass: ${ options.resourceClass}`);
-    console.debug(`bundle: ${ options.bundle}`);
-    console.debug(`cache: ${ options.cache}`);
+    console.debug(`lang: ${options.lang}`);
+    console.debug(`resourceClass: ${options.resourceClass}`);
+    console.debug(`bundle: ${options.bundle}`);
+    console.debug(`cache: ${options.cache}`);
   }
 
   window.sakai.translations[options.bundle] = window.sakai.translations[options.bundle] || {};
