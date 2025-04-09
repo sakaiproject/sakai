@@ -1175,7 +1175,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
         let currentFilterText = event.target.value;
         if (currentFilterText !== previousFilterText) {
           previousFilterText = currentFilterText;
-          GbGradeTable.redrawTable(true);
+          GbGradeTable.redrawRows();
         }
       }, 500);
     })
@@ -1185,7 +1185,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     .on("keydown", function (event) {
       if (event.key === "Enter") {
         clearTimeout(filterTimeout);
-        GbGradeTable.redrawTable(true);
+        GbGradeTable.redrawRows();
         return false;
       }
     });
@@ -1807,6 +1807,11 @@ GbGradeTable.redrawTable = function(force) {
     GbGradeTable.refreshSummaryLabels();
     GbGradeTable.forceRedraw = false;
   }, 100);
+};
+
+GbGradeTable.redrawRows = function() {
+  GbGradeTable.instance.setFilter(row => GbGradeTable.getFilteredData().includes(row));
+  GbGradeTable.refreshSummaryLabels();
 };
 
 GbGradeTable._fixedColumns = [];
@@ -2800,9 +2805,9 @@ GbGradeTable.refreshSummaryLabels = function() {
 
   function refreshStudentSummary() {
     $toolbar.find(".gb-student-summary").html(GbGradeTable.templates.studentSummary.process());
-    const visible = GbGradeTable.instance.getData().length;
-    var total = GbGradeTable.students.length;
-    $toolbar.find(".gb-student-summary .visible").html(GbGradeTable.instance.getRows().length);
+    const visible = GbGradeTable.instance.getData("active").length;
+    const total = GbGradeTable.students.length;
+    $toolbar.find(".gb-student-summary .visible").html(visible);
     $toolbar.find(".gb-student-summary .total").html(total);
 
     if (visible < total) {

@@ -77,7 +77,6 @@
                             <includes>
                                 <include>bundles/**</include>
                                 <include>node_modules/**</include>
-                                <include>js/assets/**</include>
                                 <include>packages/*/node_modules/**</include>
                             </includes>
                         </fileset>
