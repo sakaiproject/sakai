@@ -1,16 +1,11 @@
 import "../sakai-rubric-pdf.js";
-import { html } from "lit";
 import * as data from "./data.js";
-import { elementUpdated, expect, fixture, oneEvent, waitUntil } from "@open-wc/testing";
+import { elementUpdated, expect, fixture, html, oneEvent, waitUntil } from "@open-wc/testing";
 import fetchMock from "fetch-mock/esm/client";
-
-window.top.portal = { locale: "en_GB" };
 
 fetchMock
   .get(data.i18nUrl, data.i18n, { overwriteRoutes: true })
   .get("*", 500, { overwriteRoutes: true });
-
-window.top.portal = { locale: "en_GB" };
 
 describe("sakai-rubric-pdf tests", () => {
 
@@ -35,12 +30,13 @@ describe("sakai-rubric-pdf tests", () => {
 
     await elementUpdated(el);
 
+    await expect(el).to.be.accessible();
+
     const link = el.querySelector("a");
     expect(link).to.exist;
     const href = `/api/sites/${data.siteId}/rubrics/${data.rubric1.id}/pdf`;
     expect(link.href).to.match(new RegExp(`.*${href}$`));
 
-    expect(el).to.be.accessible();
   });
 
   it ("tests that a rubric pdf component renders the url when evaluation attributes are supplied", async () => {
@@ -56,12 +52,13 @@ describe("sakai-rubric-pdf tests", () => {
 
     await elementUpdated(el);
 
+    await expect(el).to.be.accessible();
+
     const link = el.querySelector("a");
     expect(link).to.exist;
     const href = `/api/sites/${data.siteId}/rubrics/${data.rubric1.id}/pdf\\?toolId=${data.toolId}&itemId=${data.entityId}&evaluatedItemId=${data.evaluatedItemId}`;
     expect(link.href).to.match(new RegExp(`.*${href}$`));
 
-    expect(el).to.be.accessible();
   });
 });
 

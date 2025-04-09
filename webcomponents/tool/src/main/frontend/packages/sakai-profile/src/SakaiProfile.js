@@ -31,7 +31,7 @@ export class SakaiProfile extends SakaiShadowElement {
 
     const siteId = getSiteId();
     const url = `/api/users/${this.userId}/profile${siteId ? `?siteId=${siteId}` : ""}`;
-    fetch(url, { credentials: "include" })
+    fetch(url)
       .then(r => {
 
         if (r.ok && r.status !== 204) return r.json();
