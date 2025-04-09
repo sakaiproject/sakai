@@ -59,7 +59,6 @@ import org.sakaiproject.tool.assessment.ui.bean.evaluation.QuestionScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.StudentScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
-import org.sakaiproject.tool.assessment.ui.bean.util.EmailBean;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreListener;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionNavListener;
 
@@ -330,16 +329,6 @@ import org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionNavList
     	         bean.setAssessmentAttachment();
     	         toolSession.removeAttribute("SENT_TO_FILEPICKER_HELPER");
       }
-
-      // case 4: create new mail, then set
-		// emailBean.attachmentList = filepicker list
-      else if (target.indexOf("/jsf/evaluation/createNewEmail") > -1
-				&& ("true").equals(toolSession.getAttribute("SENT_TO_FILEPICKER_HELPER"))) {
-			EmailBean bean = (EmailBean) ContextUtil.lookupBeanFromExternalServlet("email", req, res);
-			bean.prepareAttachment();
-			toolSession.removeAttribute("SENT_TO_FILEPICKER_HELPER");
-		}
-      
       else if (target.indexOf("/jsf/evaluation/questionScore") > -1
 				&& ("true").equals(toolSession.getAttribute("SENT_TO_FILEPICKER_HELPER"))) {
 			QuestionScoresBean bean = (QuestionScoresBean) ContextUtil.lookupBeanFromExternalServlet("questionScores", req, res);
