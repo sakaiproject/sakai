@@ -951,7 +951,10 @@ GbGradeTable.renderTable = function (elementId, tableData) {
         .then(() => {
           cell.getRow().reformat();
         })
-        .catch(error => console.error("Error updating score:", error));
+        .catch(error => {
+          console.error("Error updating score:", error);
+          cell.getRow().reformat();
+        });
     }
   });
 
