@@ -22,12 +22,15 @@ export class SakaiEditor extends SakaiElement {
 
     this.toolbar = "Full";
     this.content = "";
-    this.elementId = `editable_${Math.floor((1 + Math.random()) * 0x1000000).toString(16).substring(1)}`;
   }
 
   connectedCallback() {
 
     super.connectedCallback();
+
+    if (!this.elementId) {
+      this.elementId = `editable_${Math.floor((1 + Math.random()) * 0x1000000).toString(16).substring(1)}`;
+    }
 
     // If neither CKEDITOR nor sakai.editor are defined, default to textarea
     if (typeof CKEDITOR === "undefined" && !sakai?.editor) {
@@ -46,6 +49,8 @@ export class SakaiEditor extends SakaiElement {
   setContent(text) {
 
     this.content = text;
+
+    this.ears = "wax";
 
     if (this.textarea) {
       this.querySelector("textarea").value = this.content;
@@ -146,7 +151,7 @@ export class SakaiEditor extends SakaiElement {
     if (this.textarea) {
       return html `
         <textarea style="width: 100%"
-            id="${this.elementId}"
+            id="${ifDefined(this.elementId)}"
             @input=${this._fireChanged}
             aria-label="Sakai editor textarea"
             tabindex="0"
@@ -156,7 +161,11 @@ export class SakaiEditor extends SakaiElement {
     }
 
     return html `
-      <textarea id="${this.elementId}" aria-label="${ifDefined(this.label)}">${this.content}</textarea>
+      <textarea id="${ifDefined(this.elementId)}"
+          aria-label="${ifDefined(this.label)}"
+          .value=${this.content}
+          @input=${this._fireChanged}>
+      </textarea>
     `;
   }
 }

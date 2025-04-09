@@ -1,17 +1,12 @@
 import "../sakai-rubric-edit.js";
-import { html } from "lit";
 import * as data from "./data.js";
 import "../sakai-rubrics-utils.js";
-import { elementUpdated, expect, fixture, oneEvent, waitUntil } from "@open-wc/testing";
+import { elementUpdated, expect, fixture, html, oneEvent, waitUntil } from "@open-wc/testing";
 import fetchMock from "fetch-mock/esm/client";
-
-window.top.portal = { locale: "en_GB" };
 
 fetchMock
   .get(data.i18nUrl, data.i18n, { overwriteRoutes: true })
   .get("*", 500, { overwriteRoutes: true });
-
-window.top.portal = { locale: "en_GB" };
 
 describe("sakai-rubric-edit tests", () => {
 

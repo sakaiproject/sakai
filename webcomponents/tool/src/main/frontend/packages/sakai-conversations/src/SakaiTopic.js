@@ -140,7 +140,7 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
         this.dispatchEvent(new CustomEvent("posts-viewed", { detail: { postIds, topicId: this.topic.id } }));
         this.requestUpdate();
       } else {
-        throw new Error("Network error while marking posts as viewed");
+        throw new Error(`Network error while marking posts as viewed at url ${url}`);
       }
     })
     .catch (error => console.error(error));

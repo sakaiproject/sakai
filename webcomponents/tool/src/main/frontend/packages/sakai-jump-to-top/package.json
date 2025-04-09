@@ -16,7 +16,8 @@
   ],
   "scripts": {
     "lint:fix": "eslint sakai-jump-to-top.js --fix",
-    "test": "web-test-runner --coverage"
+    "test": "web-test-runner --coverage",
+    "test:dev": "cd ../../ && npm run test:dev"
   },
   "keywords": [
     "Sakai"

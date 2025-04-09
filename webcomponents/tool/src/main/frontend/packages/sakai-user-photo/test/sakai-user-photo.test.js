@@ -1,6 +1,5 @@
 import "../sakai-user-photo.js";
-import { elementUpdated, expect, fixture, waitUntil } from "@open-wc/testing";
-import { html } from "lit";
+import { elementUpdated, expect, fixture, html, waitUntil } from "@open-wc/testing";
 import * as data from "./data.js";
 import * as profileData from "../../sakai-profile/test/data.js";
 import fetchMock from "fetch-mock/esm/client";
