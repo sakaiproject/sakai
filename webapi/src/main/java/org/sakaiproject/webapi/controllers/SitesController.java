@@ -19,11 +19,8 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.messaging.api.UserMessagingService;
 import org.sakaiproject.messaging.api.model.UserNotification;
-import org.sakaiproject.portal.api.PortalService;
-import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
 import org.springframework.http.MediaType;
@@ -44,8 +41,6 @@ import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 
-/**
- */
 @Slf4j
 @RestController
 public class SitesController extends AbstractSakaiApiController {
@@ -56,12 +51,6 @@ public class SitesController extends AbstractSakaiApiController {
 
 	@Autowired
 	private ServerConfigurationService serverConfigurationService;
-
-	@Autowired
-	private SiteService siteService;
-
-	@Autowired
-	private PortalService portalService;
 
 	@Autowired
 	private UserMessagingService userMessagingService;

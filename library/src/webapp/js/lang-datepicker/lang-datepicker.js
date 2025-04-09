@@ -74,14 +74,18 @@ const defaults = {
           const [datePart, timePart] = value.split('T');
           const [year, month, day] = datePart.split('-').map(Number);
           const timeComponents = timePart.split(':').map(Number);
-          
+        }
+
+        // Handle simple YYYY-MM-DD format
+        if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+          const [year, month, day] = value.split('-').map(Number);
           if (!isNaN(year) && !isNaN(month) && !isNaN(day)) {
             const d = new Date();
             d.setFullYear(year);
-            d.setMonth(month - 1);
+            d.setMonth(month - 1); // JS months are 0-indexed
             d.setDate(day);
-            d.setHours(timeComponents[0] || 0);
-            d.setMinutes(timeComponents[1] || 0);
+            d.setHours(0); // Explicitly set time to midnight local
+            d.setMinutes(0);
             d.setSeconds(0);
             d.setMilliseconds(0);
             return d;
@@ -197,8 +201,6 @@ const defaults = {
 	}
   
 	init() {
-	  this.element.style.minWidth = "200px";
-	  
 	  // Process initial date value
 	  const initialDate = this.getInitialDate();
 
@@ -209,6 +211,8 @@ const defaults = {
 
 	  // Set input type after setting value
 	  this.element.type = this.options.useTime ? "datetime-local" : "date";
+	  // Add max date restriction
+	  this.element.max = this.options.useTime ? "2099-12-31T23:59" : "2099-12-31";
 
 	  // Complete setup
 	  this.createHiddenFields();
@@ -218,6 +222,7 @@ const defaults = {
 	  
 	  // Add hasDatepicker class for backward compatibility with jquery-ui
 	  this.element.classList.add('hasDatepicker');
+	  this.element.style.minWidth = "200px";
 	}
     
     // Determine the initial date based on options and input value

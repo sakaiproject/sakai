@@ -123,6 +123,7 @@ const checkUserChangedThenSet = userId => {
 export const pushSetupComplete = new Promise((resolve, reject) => {
 
   if (!navigator.serviceWorker || !window.Notification) {
+    console.error("Service worker not supported");
     reject(NOT_PUSH_CAPABLE);
     return;
   }

@@ -195,7 +195,10 @@
                                     sakaiReminder.new($(this).val());
                                   });
                                 });
-				initGbSelector("gb-selector", "dfStatisticsForm:gb_selector");
+
+				if (document.getElementById("dfStatisticsForm:multigradebook-group-container") !== null) {
+					window.syncGbSelectorInput("gb-selector", "dfStatisticsForm:gb_selector");
+				}
 
 			});
 		</script>

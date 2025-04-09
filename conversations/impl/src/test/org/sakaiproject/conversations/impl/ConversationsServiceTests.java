@@ -2059,6 +2059,10 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
         topic1.title = title1;
         topic1.message = "<strong>Something about topic1</strong>";
         topic1.siteId = site1Id;
+        topic1.showDate = Instant.now().plus(5, ChronoUnit.HOURS);
+        topic1.dueDate = Instant.now().plus(7, ChronoUnit.HOURS);
+        topic1.hideDate = Instant.now().plus(10, ChronoUnit.HOURS);
+        topic1.lockDate = Instant.now().plus(20, ChronoUnit.HOURS);
         topic1 = saveTopic(topic1);
 
         String title2 = "Topic 2";
@@ -2121,6 +2125,12 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             assertEquals(topicBeans[i].visibility, topicEl.getAttribute("visibility"));
             assertEquals(topicBeans[i].creator, topicEl.getAttribute("creator"));
             assertEquals(topicBeans[i].created.getEpochSecond(), Long.parseLong(topicEl.getAttribute("created")));
+            if (i == 0) {
+                assertEquals(topicBeans[i].showDate.getEpochSecond(), Long.parseLong(topicEl.getAttribute("show-date")));
+                assertEquals(topicBeans[i].hideDate.getEpochSecond(), Long.parseLong(topicEl.getAttribute("hide-date")));
+                assertEquals(topicBeans[i].lockDate.getEpochSecond(), Long.parseLong(topicEl.getAttribute("lock-date")));
+                assertEquals(topicBeans[i].dueDate.getEpochSecond(), Long.parseLong(topicEl.getAttribute("due-date")));
+            }
 
             NodeList messageNodes = topicEl.getElementsByTagName("message");
             assertEquals(1, messageNodes.getLength());
@@ -2173,8 +2183,24 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             assertEquals(topic.getType().name(), topicEl.getAttribute("type"));
             assertEquals(topic.getPinned(), Boolean.parseBoolean(topicEl.getAttribute("pinned")));
             assertEquals(topic.getAnonymous(), Boolean.parseBoolean(topicEl.getAttribute("anonymous")));
-            assertEquals(topic.getDraft(), Boolean.parseBoolean(topicEl.getAttribute("draft")));
+            assertEquals(topic.getDraft(), true);
             assertEquals(topic.getMustPostBeforeViewing(), Boolean.parseBoolean(topicEl.getAttribute("post-before-viewing")));
+
+            if (topicEl.hasAttribute("show-date")) {
+                assertEquals(topic.getShowDate().getEpochSecond(), Long.parseLong(topicEl.getAttribute("show-date")));
+            }
+
+            if (topicEl.hasAttribute("hide-date")) {
+                assertEquals(topic.getHideDate().getEpochSecond(), Long.parseLong(topicEl.getAttribute("hide-date")));
+            }
+
+            if (topicEl.hasAttribute("lock-date")) {
+                assertEquals(topic.getLockDate().getEpochSecond(), Long.parseLong(topicEl.getAttribute("lock-date")));
+            }
+
+            if (topicEl.hasAttribute("due-date")) {
+                assertEquals(topic.getDueDate().getEpochSecond(), Long.parseLong(topicEl.getAttribute("due-date")));
+            }
 
             NodeList messageNodes = topicEl.getElementsByTagName("message");
             assertEquals(1, messageNodes.getLength());
@@ -2203,6 +2229,8 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
 
         assertFalse(oldTitles.contains(extraTitle));
         assertTrue(newTitles.contains(extraTitle));
+
+        topicRepository.findBySiteId(toSite).forEach(t -> assertEquals(t.getDraft(), true));
     }
 
     private TopicTransferBean saveTopic(TopicTransferBean topicBean) {

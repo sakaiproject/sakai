@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "lint:fix": "eslint src --fix",
-    "test": "web-test-runner --coverage"
+    "test": "web-test-runner --coverage",
+    "test:dev": "cd ../../ && npm run test:dev"
   },
   "files": [
     "*.js",
@@ -16,8 +17,7 @@
     "url": "git+https://github.com/sakaiproject/sakai-ui.git"
   },
   "keywords": [
-    "sakai",
-    "datepicker"
+    "sakai"
   ],
   "author": "The Sakai Project <sakai.user.interface@gmail.com>",
   "license": "ECL-2.0",

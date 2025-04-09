@@ -55,6 +55,8 @@ class SitesSidebar {
     currentCollapseButton && currentCollapseButton.addEventListener("shown.bs.collapse", () => update(currentCollapseButton.dataset.siteId, "true"));
     currentCollapseButton && currentCollapseButton.addEventListener("hidden.bs.collapse", () => update(currentCollapseButton.dataset.siteId, "false"));
 
+    this.setupSingleExpandedSite();
+
     // TODO: this needs to be implemented at some point. It would remove the annoying 
     // refresh message in the all sites sidebar
     /*
@@ -200,6 +202,59 @@ class SitesSidebar {
     }
 
     pinButton.removeAttribute("disabled");
+  }
+
+  /**
+   * Control number of expanded sites
+   */
+  setupSingleExpandedSite() {
+    const toolMenu = document.getElementById('toolMenu');
+    if (!toolMenu) return;
+    toolMenu.addEventListener('click', (event) => {
+      const clickedButton = event.target.closest('button[data-bs-toggle="collapse"]');
+      if (!clickedButton) return;
+      const siteLi = clickedButton.closest('li.site-list-item');
+      if (!siteLi || siteLi.classList.contains('is-current-site')) return;
+      // Find all expanded sites except the current one
+      const expandedSites = toolMenu.querySelectorAll('li.site-list-item .site-list-item-collapse.show');
+      expandedSites.forEach((expandedSite) => {
+        const parentLi = expandedSite.closest('li.site-list-item');
+        if (parentLi && parentLi !== siteLi && !parentLi.classList.contains('is-current-site')) {
+          const collapseButton = parentLi.querySelector('button[data-bs-toggle="collapse"]');
+          if (collapseButton) {
+            collapseButton.click();
+          }
+        }
+      });
+      // Ensure the newly expanded site remains visible
+      setTimeout(() => {
+        const listItems = Array.from(toolMenu.querySelectorAll('li.site-list-item'));
+        const currentIndex = listItems.indexOf(siteLi.closest('li'));
+        const previousLi = currentIndex > 0 ? listItems[currentIndex - 1] : undefined;
+        if (previousLi) {
+          let elementToScroll;
+          if (previousLi.classList.contains('is-current-site')) {
+            // If the previous <li> has the class .is-current-site, find the last tool title
+            const lastToolLi = previousLi.querySelector('ul.site-page-list > li:last-child .btn-nav');
+            if (lastToolLi) {
+              elementToScroll = lastToolLi;
+            }
+          } else {
+            // Otherwise, scroll to the .sidebar-site-title of the previous <li>
+            elementToScroll = previousLi.querySelector('.sidebar-site-title');
+          }
+          if (elementToScroll) {
+            elementToScroll.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }
+        else {
+          const firstSitesSection = toolMenu.querySelector('div.sites-section');
+          if (firstSitesSection) {
+            firstSitesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }
+      }, 250);
+    });
   }
 }
 

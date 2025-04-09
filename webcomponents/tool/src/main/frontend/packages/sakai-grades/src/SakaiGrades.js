@@ -23,8 +23,7 @@ export class SakaiGrades extends SakaiPageableElement {
 
   async loadAllData() {
 
-    const url = this.siteId ? `/api/sites/${this.siteId}/grades`
-      : "/api/users/me/grades";
+    const url = this.siteId ? `/api/sites/${this.siteId}/grades` : "/api/users/me/grades";
     return fetch(url)
       .then(r => {
 
@@ -36,18 +35,9 @@ export class SakaiGrades extends SakaiPageableElement {
       })
       .then(data => {
 
-        this.sites = [];
-        const done = [];
-        data.forEach(g => {
-
-          if (!done.includes(g.siteId)) {
-            this.sites.push({ siteId: g.siteId, title: g.siteTitle });
-            done.push(g.siteId);
-          }
-        });
-
-        this.data = data;
-        this._allData = data;
+        this.data = data.grades;
+        !this.siteId && (this.sites = data.sites);
+        this._allData = data.grades;
         this.sortChanged({ target: { value: NEW_LOW_TO_HIGH } });
       })
       .catch (error => console.error(error));

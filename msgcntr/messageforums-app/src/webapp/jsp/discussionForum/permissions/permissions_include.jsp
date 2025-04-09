@@ -1,21 +1,9 @@
-<%  
-    /** initialize javascript from db **/
-    FacesContext context = FacesContext.getCurrentInstance();
-    Application app = context.getApplication();
-    ValueBinding binding = app.createValueBinding("#{ForumTool}");
-    DiscussionForumTool dft = (DiscussionForumTool) binding.getValue(context);
-    out.print(dft.generatePermissionScript());
-%>
 <!--jsp/discussionForum/permissions/permissions_include.jsp-->
 <mf:forumHideDivision title="#{msgs.cdfm_permissions}" id="cntrl_perm" hideByDefault="#{ForumTool.collapsePermissionPanel}">
-  <%--
-  <f:verbatim><p class="act"></f:verbatim>
-    <h:commandButton immediate="true" action="#{ForumTool.processActionAddGroupsUsers}" value="#{msgs.cdfm_button_bar_add_groups_users}" rendered="#{ForumTool.editMode}"/> 
-  <f:verbatim><p/></f:verbatim>
-  --%>
-
 <script>
   setPanelId('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
+  var isGradebookGroupEnabled = <h:outputText value="#{ForumTool.gradebookGroupEnabled}"/>;
+
   $(document).ready(function() {
           $('input[id*="\\:revisePostings\\:"], input[id*="\\:deletePostings\\:"]').each(function() {
                   let elementId = $(this).attr("id");
@@ -45,7 +33,7 @@
             $(this).attr('aria-labelledby', permRoleLabel + " " + $(this).attr('id') + '_label');
           });
 
-          if ('<%= isGradebookGroupEnabled%>' == 'true') {
+          if (isGradebookGroupEnabled) {
             $('select[id^="revise\\:perm"]').each(function() {
               let elementId = $(this).attr("id");
               let rowIndex = elementId.split(":")[2];

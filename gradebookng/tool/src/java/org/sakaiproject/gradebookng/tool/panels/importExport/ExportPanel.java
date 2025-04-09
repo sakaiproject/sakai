@@ -267,7 +267,7 @@ public class ExportPanel extends BasePanel {
 
 			@Override
 			public String getIdValue(final GbGroup g, final int index) {
-				return g.getId();
+				return g.getId() != null ? g.getId() : "";
 			}
 		}).add(new AjaxFormComponentUpdatingBehavior("change") {
 			@Override
@@ -444,7 +444,8 @@ public class ExportPanel extends BasePanel {
 				}
 
 				// get the grade matrix
-				final List<GbStudentGradeInfo> grades = this.businessService.buildGradeMatrixForImportExport(currentGradebookUid, currentSiteId, assignments, group.getId());
+				String selectedGroup = (group != null && !GbGroup.Type.ALL.equals(group.getType())) ? group.getId() : null;
+				final List<GbStudentGradeInfo> grades = this.businessService.buildGradeMatrixForImportExport(currentGradebookUid, currentSiteId, assignments, selectedGroup);
 
 				// add grades
 				grades.forEach(studentGradeInfo -> {

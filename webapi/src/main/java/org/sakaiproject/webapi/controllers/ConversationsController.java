@@ -30,9 +30,9 @@ import org.sakaiproject.conversations.api.model.Settings;
 import org.sakaiproject.conversations.api.model.Tag;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.webapi.beans.ConversationsRestBean;
@@ -57,15 +57,10 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
@@ -88,10 +83,10 @@ public class ConversationsController extends AbstractSakaiApiController {
 	private ServerConfigurationService serverConfigurationService;
 
 	@Autowired
-	private SiteService siteService;
+	private UserDirectoryService userDirectoryService;
 
 	@Autowired
-	private UserDirectoryService userDirectoryService;
+	private SearchService searchService;
 
 	@GetMapping(value = "/sites/{siteId}/conversations", produces = MediaType.APPLICATION_JSON_VALUE)
     public EntityModel<ConversationsRestBean> getSiteConversations(@PathVariable String siteId) throws ConversationsPermissionsException, IdUnusedException {
@@ -126,7 +121,6 @@ public class ConversationsController extends AbstractSakaiApiController {
         bean.canViewSiteStatistics = securityService.unlock(Permissions.VIEW_STATISTICS.label, siteRef);
         bean.canPin = settings.getAllowPinning() && securityService.unlock(Permissions.TOPIC_PIN.label, siteRef);
         bean.canViewAnonymous = securityService.unlock(Permissions.VIEW_ANONYMOUS.label, siteRef);
-        //bean.canViewHidden = securityService.unlock(Permissions.POST_VIEW_HIDDEN.label, siteRef);
         bean.maxThreadDepth = serverConfigurationService.getInt(ConversationsService.PROP_MAX_THREAD_DEPTH, 5);
         bean.settings = settings;
 
@@ -138,7 +132,7 @@ public class ConversationsController extends AbstractSakaiApiController {
 
         bean.blankTopic = conversationsService.getBlankTopic(siteId);
 
-        bean.searchEnabled = serverConfigurationService.getBoolean("search.enable", false);
+        bean.searchEnabled = searchService.isEnabledForSite(siteId);
 
         List<Link> links = new ArrayList<>();
         if (bean.canViewSiteStatistics) links.add(Link.of("/api/sites/" + siteId + "/conversations/stats", "stats"));
@@ -266,6 +260,8 @@ public class ConversationsController extends AbstractSakaiApiController {
         if (topicBean.canReact) links.add(Link.of(topicBean.url + "/reactions", "react"));
         if (topicBean.canModerate) links.add(Link.of(topicBean.url + "/locked", "lock"));
         if (topicBean.canModerate) links.add(Link.of(topicBean.url + "/hidden", "hide"));
+        if (topicBean.canUpvote) links.add(Link.of(topicBean.url + "/upvote", "upvote"));
+        if (topicBean.canUpvote) links.add(Link.of(topicBean.url + "/unupvote", "unupvote"));
         return EntityModel.of(topicBean, links);
     }
 

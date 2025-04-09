@@ -1,6 +1,5 @@
 import "../sakai-icon.js";
-import { expect, fixture } from "@open-wc/testing";
-import { html } from "lit";
+import { expect, fixture, html } from "@open-wc/testing";
 
 describe("sakai-icon tests", () => {
 
@@ -10,12 +9,6 @@ describe("sakai-icon tests", () => {
 
     expect(el.shadowRoot.querySelector("svg")).to.exist;
     expect(el.shadowRoot.querySelector("svg").dataset.icon).to.equal("lock");
-  });
-
-  it ("is accessible", async () => {
-
-    const el = await fixture(html`<sakai-icon type="lock"></sakai-icon>`);
-
     await expect(el).to.be.accessible();
   });
 });

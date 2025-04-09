@@ -199,6 +199,7 @@
 
 .portal-main-content {
   grid-area: main;
+  outline: none;
 }
 
 .portal-main-container {
@@ -210,7 +211,6 @@
   grid-template-rows: 1fr auto;
   align-content: space-between;
   overflow-x: auto;
-  overflow-y: auto;
 }
 
 #sakai-account-panel {
@@ -279,10 +279,19 @@
 .portal-jump-links a {
   color: #fff;
 }
-.xlogin-logo {
+#xlogin-logo {
+  height: calc(var(--portal-header-height) * 2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   .portal-header-logo {
     height: var(--portal-header-height);
   }
+}
+#sakai-login-dialog .alert {
+  margin-right: 1rem;
+  margin-left: 1rem;
 }
 @include media-breakpoint-up(md) {
   .portal-header {
@@ -291,12 +300,6 @@
       min-width: fit-content;
       background: var(--top-header-background-logo);
       border-right: solid 1px var(--top-header-border-color);
-    }
-  }
-  .xlogin-logo {
-    .portal-header-logo {
-      width: var(--portal-nav-sidebar-width);
-      min-width: var(--portal-nav-sidebar-width);
     }
   }
 }

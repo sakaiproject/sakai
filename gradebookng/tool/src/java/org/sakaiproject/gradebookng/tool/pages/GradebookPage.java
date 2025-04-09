@@ -276,7 +276,7 @@ public class GradebookPage extends BasePage {
 		}
 
 		final List<Assignment> assignments = this.businessService.getGradebookAssignments(gradebookUid, siteId, sortBy);
-		String selectedGroup = settings.getGroupFilter() != null ? settings.getGroupFilter().getId() : null;
+		String selectedGroup = (settings.getGroupFilter() != null && !GbGroup.Type.ALL.equals(settings.getGroupFilter().getType())) ? settings.getGroupFilter().getId() : null;
 		final List<String> students = this.businessService.getGradeableUsers(gradebookUid, siteId, selectedGroup);
 
 		this.hasGradebookItems = !assignments.isEmpty();
@@ -364,7 +364,6 @@ public class GradebookPage extends BasePage {
 		SetScoreForUngradedAction setUngraded = new SetScoreForUngradedAction();
 		setUngraded.setCurrentGradebookAndSite(gradebookUid, siteId);
 		this.gradeTable.addEventListener("setUngraded", setUngraded);
-		this.gradeTable.addEventListener("viewGradeSummary", new ViewGradeSummaryAction());
 		this.gradeTable.addEventListener("setStudentNameOrder", new SetStudentNameOrderAction());
 		this.gradeTable.addEventListener("toggleCourseGradePoints", new ToggleCourseGradePoints());
 		this.gradeTable.addEventListener("editSettings", new EditSettingsAction());

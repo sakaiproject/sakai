@@ -1,12 +1,9 @@
 import "../sakai-comment.js";
-import { elementUpdated, expect, fixture, oneEvent, waitUntil } from "@open-wc/testing";
-import { html } from "lit";
+import { elementUpdated, expect, fixture, html, oneEvent, waitUntil } from "@open-wc/testing";
 import * as data from "./data.js";
 import fetchMock from "fetch-mock/esm/client";
 
 describe("sakai-comment tests", () => {
-
-  window.top.portal = { locale: "en_GB" };
 
   beforeEach(() => {
 

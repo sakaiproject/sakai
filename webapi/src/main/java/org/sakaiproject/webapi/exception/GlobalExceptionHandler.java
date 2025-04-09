@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.server.ResponseStatusException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.InUseException;
@@ -71,6 +72,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ServerOverloadException.class)
     public ResponseEntity<Object> handleServerOverloadException(ServerOverloadException ex, WebRequest request) {
         return createErrorResponse(HttpStatus.SERVICE_UNAVAILABLE, "Server is currently overloaded", ex);
+    }
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity handleResponseStatusException(ResponseStatusException ex, WebRequest request) {
+        return ResponseEntity.status(ex.getStatus()).build();
     }
 
     @ExceptionHandler(Exception.class)

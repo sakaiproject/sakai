@@ -1,12 +1,9 @@
 import "../sakai-rubric.js";
 import "../sakai-rubric-criteria.js";
 import "../sakai-rubric-criterion-edit.js";
-import { html } from "lit";
 import * as data from "./data.js";
-import { elementUpdated, expect, fixture, oneEvent, waitUntil } from "@open-wc/testing";
+import { elementUpdated, expect, fixture, html, oneEvent, waitUntil } from "@open-wc/testing";
 import fetchMock from "fetch-mock/esm/client";
-
-window.top.portal = { locale: "en_GB" };
 
 fetchMock
   .get(data.i18nUrl, data.i18n, { overwriteRoutes: true })
@@ -26,7 +23,7 @@ describe("sakai-rubric-criteria tests", () => {
 
   it ("Criterion reorder, then mark as draft", async () => {
 
-    let el = await fixture(html`
+    const el = await fixture(html`
       <sakai-rubric site-id="${data.siteId}"
                     .rubric=${data.rubric4}
                     enable-pdf-export>
