@@ -37,26 +37,28 @@
 				
 					<p class="sak-banner-error" wicket:id="minimumOptions">minimum options message</p>
 					
-					<div class="col-sm-offset-1 col-sm-20">
-						<div class="checkbox">
-							<label>
-								<input wicket:id="letterGrade" type="checkbox" />
-								<span><wicket:message key="settingspage.displaycoursegrade.lettergrade" /></span>
-							</label>
-						</div>
+					<div class="row">
+						<div class="offset-1 col-11">
+							<div class="checkbox">
+								<label>
+									<input wicket:id="letterGrade" type="checkbox" />
+									<span><wicket:message key="settingspage.displaycoursegrade.lettergrade" /></span>
+								</label>
+							</div>
 
-						<div class="checkbox">
-							<label>
-								<input wicket:id="percentage" type="checkbox" />
-								<span><wicket:message key="settingspage.displaycoursegrade.percentage" /></span>
-							</label>
-						</div>
+							<div class="checkbox">
+								<label>
+									<input wicket:id="percentage" type="checkbox" />
+									<span><wicket:message key="settingspage.displaycoursegrade.percentage" /></span>
+								</label>
+							</div>
 
-						<div class="checkbox">
-							<label>
-								<input wicket:id="points" type="checkbox" />
-								<span><wicket:message key="settingspage.displaycoursegrade.points" /></span>
-							</label>
+							<div class="checkbox">
+								<label>
+									<input wicket:id="points" type="checkbox" />
+									<span><wicket:message key="settingspage.displaycoursegrade.points" /></span>
+								</label>
+							</div>
 						</div>
 					</div>
 					
@@ -79,41 +81,43 @@
 					</label>
 				</div>
 				<div class="form-group" wicket:id="allowStudentsToCompareGradesOptionsContainer">
-					<div class="col-sm-offset-1 col-sm-20 grade-comparison">
-						<div class="checkbox grade-comparison-options">
-							<span>
-								<wicket:message key="settingspage.allowcomparegrades.display.label" />
-							</span>
-							<label>
-								<input disabled="disabled" checked="checked" type="checkbox" />
-								<span><wicket:message key="settingspage.allowcomparegrades.display.grades.label" /></span>
-							</label>
-							<label>
-								<input wicket:id="comparingDisplayStudentNames" type="checkbox" />
-								<span><wicket:message key="settingspage.allowcomparegrades.display.names.label" /></span>
-							</label>
-							<label>
-								<input wicket:id="comparingDisplayStudentSurnames" type="checkbox" />
-								<span><wicket:message key="settingspage.allowcomparegrades.display.surnames.label" /></span>
-							</label>
-							<label>
-								<input wicket:id="comparingDisplayTeacherComments" type="checkbox" />
-								<span><wicket:message key="settingspage.allowcomparegrades.display.comments.label" /></span>
-							</label>
-						</div>
+					<div class="row">
+						<div class="offset-1 col-11 grade-comparison">
+							<div class="checkbox grade-comparison-options">
+								<span>
+									<wicket:message key="settingspage.allowcomparegrades.display.label" />
+								</span>
+								<label>
+									<input disabled="disabled" checked="checked" type="checkbox" />
+									<span><wicket:message key="settingspage.allowcomparegrades.display.grades.label" /></span>
+								</label>
+								<label>
+									<input wicket:id="comparingDisplayStudentNames" type="checkbox" />
+									<span><wicket:message key="settingspage.allowcomparegrades.display.names.label" /></span>
+								</label>
+								<label>
+									<input wicket:id="comparingDisplayStudentSurnames" type="checkbox" />
+									<span><wicket:message key="settingspage.allowcomparegrades.display.surnames.label" /></span>
+								</label>
+								<label>
+									<input wicket:id="comparingDisplayTeacherComments" type="checkbox" />
+									<span><wicket:message key="settingspage.allowcomparegrades.display.comments.label" /></span>
+								</label>
+							</div>
 
-						<div class="checkbox">
-							<label>
-								<input wicket:id="comparingIncludeAllGrades" type="checkbox" />
-								<span><wicket:message key="settingspage.allowcomparegrades.include-grades-dont-count.label" /></span>
-							</label>
-						</div>
+							<div class="checkbox">
+								<label>
+									<input wicket:id="comparingIncludeAllGrades" type="checkbox" />
+									<span><wicket:message key="settingspage.allowcomparegrades.include-grades-dont-count.label" /></span>
+								</label>
+							</div>
 
-						<div class="checkbox">
-							<label>
-								<input wicket:id="comparingRandomizeDisplayedData" type="checkbox" />
-								<span><wicket:message key="settingspage.allowcomparegrades.randomize-grades.label" /></span>
-							</label>
+							<div class="checkbox">
+								<label>
+									<input wicket:id="comparingRandomizeDisplayedData" type="checkbox" />
+									<span><wicket:message key="settingspage.allowcomparegrades.randomize-grades.label" /></span>
+								</label>
+							</div>
 						</div>
 					</div>
 				</div>
