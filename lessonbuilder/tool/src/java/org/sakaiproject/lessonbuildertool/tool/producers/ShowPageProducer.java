@@ -2181,6 +2181,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
                                 item2 = UIOutput.make(tableRow, "pdfEmbed").decorate(new UIFreeAttributeDecorator("src", pdfSRC)).decorate(new UIFreeAttributeDecorator("alt", messageLocator.getMessage("simplepage.mm_player").replace("{}", abbrevUrl(i.getURL()))));
                             } else if (useEmbed) {
                                 item2 = UIOutput.make(tableRow, "movieEmbed").decorate(new UIFreeAttributeDecorator("src", movieUrl)).decorate(new UIFreeAttributeDecorator("alt", messageLocator.getMessage("simplepage.mm_player").replace("{}", abbrevUrl(i.getURL()))));
+                            } else if (mimeType != null && (mimeType.equals("audio/wav") || mimeType.equals("audio/x-wav"))) {
+                                // Use embed for WAV files instead of object to prevent automatic downloading
+                                item2 = UIOutput.make(tableRow, "movieEmbed").decorate(new UIFreeAttributeDecorator("src", movieUrl)).decorate(new UIFreeAttributeDecorator("alt", messageLocator.getMessage("simplepage.mm_player").replace("{}", abbrevUrl(i.getURL()))));
                             } else {
                                item2 = UIOutput.make(tableRow, "movieObject").decorate(new UIFreeAttributeDecorator("data", movieUrl)).decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.mm_player").replace("{}", abbrevUrl(i.getURL()))));
                             }
