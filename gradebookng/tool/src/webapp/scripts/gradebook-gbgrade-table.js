@@ -1112,6 +1112,14 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     }
   
     dropdownMenu.classList.add("gb-dropdown-menu");
+    
+    dropdownMenu.addEventListener('keydown', function(event) {
+      if (event.key === 'Enter' && event.target.classList.contains('dropdown-item')) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.target.click();
+      }
+    });
   
     $(dropdownMenu).data("cell", $(link.closest(".tabulator-cell, .tabulator-col")));
   
@@ -2458,6 +2466,12 @@ GbGradeTable.setupKeyboardNavigation = function() {
     }
 
     if (current) {
+      // Handle Enter key for non-editable cells with links
+      if (!current.classList.contains("tabulator-editable") && event.key === "Enter") {
+        const link = current.querySelector("a, link");
+        if (link) link.click();
+      }
+      
       // Allow accessibility shortcuts
       if (event.altKey && event.ctrlKey) {
         return iGotThis(true);

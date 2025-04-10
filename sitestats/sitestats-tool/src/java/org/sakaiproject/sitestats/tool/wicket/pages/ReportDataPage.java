@@ -144,6 +144,9 @@ public class ReportDataPage extends BasePage {
 	
 	@SuppressWarnings("serial")
 	private void renderBody() {
+		// Set versioned to false to prevent StalePageException when using printable version
+		setVersioned(false);
+		
 		// reportAction
 		if(getReportDef().getTitle() != null && getReportDef().getTitle().trim().length() != 0) {
 			String titleStr = null;
@@ -174,7 +177,8 @@ public class ReportDataPage extends BasePage {
 		// print link/info
 		WebMarkupContainer toPrintVersion = new WebMarkupContainer("toPrintVersion");
 		toPrintVersion.setVisible(!inPrintVersion);
-		toPrintVersion.add(new Link("printLink") {
+		toPrintVersion.setVersioned(false);
+		Link<Void> printLink = new Link<Void>("printLink") {
 			@Override
 			public void onClick() {
 				PageParameters params = new PageParameters();
@@ -182,9 +186,14 @@ public class ReportDataPage extends BasePage {
 				params.set("siteId", siteId);
 				setResponsePage(new ReportDataPage(reportDefModel, params));
 			}			
-		});
+		};
+		printLink.setVersioned(false);
+		toPrintVersion.add(printLink);
 		add(toPrintVersion);
-		add(new WebMarkupContainer("inPrintVersion").setVisible(inPrintVersion));
+		WebMarkupContainer inPrintContainer = new WebMarkupContainer("inPrintVersion");
+		inPrintContainer.setVisible(inPrintVersion);
+		inPrintContainer.setVersioned(false);
+		add(inPrintContainer);
 
 		// Report data
 		final ReportsDataProvider dataProvider = new ReportsDataProvider(getPrefsdata(), getReportDef());
@@ -203,6 +212,7 @@ public class ReportDataPage extends BasePage {
 			}		
 		};
 		reportChart.setOutputMarkupId(true);
+		reportChart.setVersioned(false);
 		add(reportChart);
 		if(ReportManager.HOW_PRESENTATION_CHART.equals(report.getReportDefinition().getReportParams().getHowPresentationMode())
 				|| ReportManager.HOW_PRESENTATION_BOTH.equals(report.getReportDefinition().getReportParams().getHowPresentationMode()) ) {
