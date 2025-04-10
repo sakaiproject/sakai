@@ -187,7 +187,7 @@ $fa-font-path: "./fonts";
     question: bi-question,
     warning: bi-exclamation-lg,
     expanded: bi-chevron-down,
-    collapsed: bi-chevron-right,
+    collapsed: bi-chevron-right
   );
 
 
@@ -198,6 +198,18 @@ $fa-font-path: "./fonts";
     .#{$iconBaseClass}-#{$sakaiIcon} {
       @extend .#{$assignedIcon};
     }
+
+    // Apply widget icon styles to all Sakai icons
+    .#{$sakaiIcon} {
+        .widget-icon {
+          @extend .#{$iconBaseClass};
+          @extend .#{$iconBaseClass}-#{$sakaiIcon};
+        }
+        .widget-icon:hover {
+          @extend .#{$iconBaseClass};
+          @extend .#{$iconBaseClass}-#{$sakaiIcon};
+        }
+      }
   }
 
   //Assing icon base class
