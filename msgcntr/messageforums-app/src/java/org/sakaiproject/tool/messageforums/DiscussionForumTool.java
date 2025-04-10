@@ -4671,7 +4671,7 @@ public class DiscussionForumTool {
 
     try {
     	if (selAssignmentName != null) {
-    		setUpGradeInformation(gradebookUid, toolManager.getCurrentPlacement().getContext(), selAssignmentName, userId);//TODO JUANDAVID pasar el/los gradebookuid que toque
+    		setUpGradeInformation(gradebookUid, toolManager.getCurrentPlacement().getContext(), selAssignmentName, userId);
     	} else {
     		// this is the "Select a gradebook item" selection
     		allowedToGradeItem = false;
@@ -6185,6 +6185,46 @@ public class DiscussionForumTool {
   }
   public String getCurrentChange(){
 	return currentChange;
+  }
+
+  public String processGradeAssignChange(ValueChangeEvent vce) 
+  { 
+	  String changeAssign = (String) vce.getNewValue(); 
+	  if (changeAssign == null) 
+	  { 
+		  return null; 
+	  } 
+	  else 
+	  { 
+		  try 
+		  { 
+			  selectedAssign = changeAssign; 
+			  resetGradeInfo();
+
+			  if(!DEFAULT_GB_ITEM.equalsIgnoreCase(selectedAssign)) {
+				  String gradebookUid = toolManager.getCurrentPlacement().getContext();
+				  String studentId;
+				  if (selectedMessage == null && StringUtils.isNotBlank(selectedGradedUserId)) {
+					  studentId = selectedGradedUserId;
+				  }else{
+					  studentId = userDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId();  
+				  }				   
+				  
+				  setUpGradeInformation(gradebookUid, toolManager.getCurrentPlacement().getContext(), selectedAssign, studentId);
+			  } else {
+				  // this is the "Select a gradebook item" option
+				  allowedToGradeItem = false;
+				  selGBItemRestricted = true;
+			  }
+
+			  return GRADE_MESSAGE; 
+		  } 
+		  catch(Exception e) 
+		  { 
+			log.error("processGradeAssignChange in DiscussionFOrumTool - {} ", e.toString());
+			return null;
+		  } 
+	  } 
   }
 
   public void processGradeAssignSend() 
