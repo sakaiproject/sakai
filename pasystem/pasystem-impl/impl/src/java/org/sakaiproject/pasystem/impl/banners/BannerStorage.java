@@ -28,6 +28,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -72,6 +73,11 @@ public class BannerStorage implements Banners, Acknowledger {
                                                 result.getLong("end_time"),
                                                 result.getString("banner_type")));
                                     }
+
+                                    // order by start time descending
+                                    banners.sort(
+                                            Comparator.comparingLong(Banner::getStartTime).reversed()
+                                    );
 
                                     return banners;
                                 }
