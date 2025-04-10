@@ -206,7 +206,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	// and it's better to let Java's initialization code handle synchronization than do it ourselves in
 	// an init method
 	private static Cache urlCache = memoryService.newCache("org.sakaiproject.lessonbuildertool.tool.producers.ShowPageProducer.url.cache");
-        String browserString = ""; // set by checkIEVersion;
     	public static int majorVersion = getMajorVersion();
         public static String fullVersion = getFullVersion();
 
@@ -454,8 +453,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			return;
 		}
 
-		// Find the MSIE version, if we're running it.
-		int ieVersion = checkIEVersion();
+		// Note: Legacy browser detection removed - modern browsers only
 		// as far as I can tell, none of these supports fck or ck
 		// we can make it configurable if necessary, or use WURFL
 		// however this test is consistent with CKeditor's check.
@@ -1030,7 +1028,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			
 			printSubpage(itemList, first, sectionWrapper, sectionContainer, columnContainer, tableContainer, 
 					container, cols, colnum, canEditPage, currentPage, anyItemVisible, newItemId, showRefresh, canSeeAll, 
-					M_locale, ieVersion, showDownloads, iframeJavascriptDone, tofill, placement, params, postedCommentId, 
+					M_locale, showDownloads, iframeJavascriptDone, tofill, placement, params, postedCommentId, 
 					addedCommentsScript, cameFromGradingPane, pageItem, noEditor, commentsCount, textboxcount);
 
 			// end of items. This is the end for normal users. Following is
@@ -1152,7 +1150,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 	public void printSubpage(List<SimplePageItem> itemList, boolean first, UIBranchContainer sectionWrapper, UIBranchContainer sectionContainer, UIBranchContainer columnContainer, UIBranchContainer tableContainer, 
 			UIBranchContainer container, int cols, int colnum, boolean canEditPage, SimplePage currentPage, boolean[] anyItemVisible, long newItemId, boolean showRefresh, boolean canSeeAll, 
-			Locale M_locale, int ieVersion, boolean showDownloads, boolean iframeJavascriptDone, UIContainer tofill, Placement placement, GeneralViewParameters params, long postedCommentId, 
+			Locale M_locale, boolean showDownloads, boolean iframeJavascriptDone, UIContainer tofill, Placement placement, GeneralViewParameters params, long postedCommentId, 
 			boolean addedCommentsScript, boolean cameFromGradingPane, SimplePageItem pageItem, boolean noEditor, int commentsCount, int textboxcount) {
 			
 			boolean subPageTitleIncluded = false;
@@ -1273,7 +1271,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					List<SimplePageItem> subitemList = (List<SimplePageItem>) simplePageBean.getItemsOnPage(Long.valueOf(i.getSakaiId()));
 					printSubpage(subitemList, first, sectionWrapper, sectionContainer, columnContainer, tableContainer, 
 							container, cols, colnum, canEditPage, currentPage, anyItemVisible, newItemId, showRefresh, canSeeAll, 
-							M_locale, ieVersion, showDownloads, iframeJavascriptDone, tofill, placement, params, postedCommentId,
+							M_locale, showDownloads, iframeJavascriptDone, tofill, placement, params, postedCommentId,
 							addedCommentsScript, cameFromGradingPane, pageItem, noEditor, commentsCount, textboxcount);
 					
 					subPageTitleContinue = true;					
@@ -2103,70 +2101,61 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
                             //	if (allowSessionId)
                             //  movieUrl = movieUrl + "?sakai.session=" + SessionManager.getCurrentSession().getId();
-                            boolean useFlvPlayer = false;
-
-                            // isMp4 means we try the flash player (if not HTML5)
-                            // we also try the flash player for FLV but for mp4 we do an
-                            // additional backup if flash fails, but that doesn't make sense for FLV
-                            boolean isMp4 = Arrays.binarySearch(mp4Types, mimeType) >= 0;
-                            boolean isHtml5 = Arrays.binarySearch(html5Types, mimeType) >= 0;
+                            // Determine the appropriate player based on content type
+                            boolean isHtml5Compatible = Arrays.binarySearch(html5Types, mimeType) >= 0;
+                            boolean isAudio = mimeType != null && mimeType.startsWith("audio/");
+                            boolean isPDF = simplePageBean.isPDFType(i);
+                            boolean isWavAudio = mimeType != null && (mimeType.equals("audio/wav") || mimeType.equals("audio/x-wav"));
                             
-                            // wrap whatever stuff we decide to put out in HTML5 if appropriate
-                            // javascript is used to do the wrapping, because RSF can't really handle this
-                            if (isHtml5) {
-				// flag for javascript
-                                boolean isAudio = mimeType.startsWith("audio/");
-                                UIComponent h5video = UIOutput.make(tableRow, (isAudio? "h5audio" : "h5video"));
-                                UIComponent h5source = UIOutput.make(tableRow, (isAudio? "h5asource" : "h5source"));
-				// HTML5 spec says % isn't legal in width, so have to use style
-				String style = null;
-                                if (lengthOk(height))
-				    style = "height: " + height.getNew();
+                            // Step 1: Create HTML5 player for compatible media types (modern browsers)
+                            if (isHtml5Compatible) {
+                                // Create the appropriate HTML5 element (audio or video)
+                                UIComponent html5Player = UIOutput.make(tableRow, (isAudio ? "h5audio" : "h5video"));
+                                UIComponent html5Source = UIOutput.make(tableRow, (isAudio ? "h5asource" : "h5source"));
+                                
+                                // Set up dimensions using CSS style (required for HTML5)
+                                StringBuilder styleBuilder = new StringBuilder();
+                                if (lengthOk(height)) {
+                                    styleBuilder.append("height: ").append(height.getNew());
+                                }
                                 if (lengthOk(width)) {
-				    if (style == null)
-					style = "";
-				    else 
-					style = style + ";";
-				    style = style + "width: " + width.getNew();
-				}
-				if (style != null)    
-				    h5video.decorate(new UIFreeAttributeDecorator("style", style));
-                                h5source.decorate(new UIFreeAttributeDecorator("src", movieUrl)).
-                                decorate(new UIFreeAttributeDecorator("type", mimeType));
-				String caption = i.getAttribute("captionfile");
-				if (!isAudio && caption != null && caption.length() > 0) {
-				    movieLink.decorate(new UIStyleDecorator("has-caption allow-caption"));
-				    String captionUrl = "/access/lessonbuilder/item/" + i.getId() + caption;
-				    sessionParameter = getSessionParameter(captionUrl);
-				    // sessionParameter should always be non-null
-				    // because this overrides all other checks in /access/lessonbuilder,
-				    // we haven't adjusted it to handle these files otherwise
-				    if (sessionParameter != null)
-					captionUrl = captionUrl + "?lb.session=" + sessionParameter;
-				    UIOutput.make(tableRow, "h5track").
-					decorate(new UIFreeAttributeDecorator("src", captionUrl));
-				} else if (!isAudio) {
-				    movieLink.decorate(new UIStyleDecorator("allow-caption"));
-				}
+                                    if (styleBuilder.length() > 0) {
+                                        styleBuilder.append("; ");
+                                    }
+                                    styleBuilder.append("width: ").append(width.getNew());
+                                }
+                                
+                                // Apply style if dimensions specified
+                                if (styleBuilder.length() > 0) {
+                                    html5Player.decorate(new UIFreeAttributeDecorator("style", styleBuilder.toString()));
+                                }
+                                
+                                // Set the media source
+                                html5Source.decorate(new UIFreeAttributeDecorator("src", movieUrl))
+                                         .decorate(new UIFreeAttributeDecorator("type", mimeType));
+                                
+                                // Handle captions for video content
+                                String caption = i.getAttribute("captionfile");
+                                if (!isAudio && caption != null && caption.length() > 0) {
+                                    movieLink.decorate(new UIStyleDecorator("has-caption allow-caption"));
+                                    String captionUrl = "/access/lessonbuilder/item/" + i.getId() + caption;
+                                    sessionParameter = getSessionParameter(captionUrl);
+                                    if (sessionParameter != null) {
+                                        captionUrl = captionUrl + "?lb.session=" + sessionParameter;
+                                    }
+                                    UIOutput.make(tableRow, "h5track")
+                                        .decorate(new UIFreeAttributeDecorator("src", captionUrl));
+                                } else if (!isAudio) {
+                                    movieLink.decorate(new UIStyleDecorator("allow-caption"));
+                                }
                             }
 
-                            // for IE, if we're not supplying a player it's safest
-                            // to use embed
-                            // otherwise Quicktime won't work. Oddly, with IE 9 only
-                            // it works if you set CLASSID to the MIME type,
-                            // but that's so unexpected that I hate to rely on it.
-                            // EMBED is in HTML 5, so I think we're OK
-                            // using it permanently for IE.
-                            // I prefer OBJECT where possible because of the nesting
-                            // ability.
-                            boolean useEmbed = ieVersion > 0 && !mimeType.equals("application/x-shockwave-flash");
-
-                            boolean isPDF = simplePageBean.isPDFType(i);
-
+                            // Step 2: Create fallback players for browsers or content types not supporting HTML5
+                            
+                            // Handle PDF files with PDF.js viewer
                             if (isPDF) {
                                 try {
-                                    // The PDF URL has to be encoded, some URLs can contain characters resulting in the PDF not loading properly.
-                                    // https://github.com/mozilla/pdf.js/wiki/Frequently-Asked-Questions#can-i-specify-a-different-pdf-in-the-default-viewer
+                                    // URL encode for PDF.js viewer (needed for special characters)
                                     movieUrl = URLEncoder.encode(movieUrl, "UTF-8")
                                         .replaceAll("\\+", "%20")
                                         .replaceAll("\\%21", "!")
@@ -2177,12 +2166,22 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
                                 } catch (Exception ex) {
                                     log.warn("Error encoding the PDF url, the PDF might not load in the UI. {}", ex.getMessage());
                                 }
-                                String pdfSRC = String.format("/library/webjars/pdf-js/5.1.91/web/viewer.html?file=%s", movieUrl);
-                                item2 = UIOutput.make(tableRow, "pdfEmbed").decorate(new UIFreeAttributeDecorator("src", pdfSRC)).decorate(new UIFreeAttributeDecorator("alt", messageLocator.getMessage("simplepage.mm_player").replace("{}", abbrevUrl(i.getURL()))));
-                            } else if (useEmbed) {
-                                item2 = UIOutput.make(tableRow, "movieEmbed").decorate(new UIFreeAttributeDecorator("src", movieUrl)).decorate(new UIFreeAttributeDecorator("alt", messageLocator.getMessage("simplepage.mm_player").replace("{}", abbrevUrl(i.getURL()))));
-                            } else {
-                               item2 = UIOutput.make(tableRow, "movieObject").decorate(new UIFreeAttributeDecorator("data", movieUrl)).decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.mm_player").replace("{}", abbrevUrl(i.getURL()))));
+                                String pdfViewerUrl = String.format("/library/webjars/pdf-js/5.1.91/web/viewer.html?file=%s", movieUrl);
+                                item2 = UIOutput.make(tableRow, "pdfEmbed")
+                                        .decorate(new UIFreeAttributeDecorator("src", pdfViewerUrl))
+                                        .decorate(new UIFreeAttributeDecorator("alt", messageLocator.getMessage("simplepage.mm_player").replace("{}", abbrevUrl(i.getURL()))));
+                            } 
+                            // Use embed tag for WAV files to prevent automatic download
+                            else if (isWavAudio) {
+                                item2 = UIOutput.make(tableRow, "movieEmbed")
+                                        .decorate(new UIFreeAttributeDecorator("src", movieUrl))
+                                        .decorate(new UIFreeAttributeDecorator("alt", messageLocator.getMessage("simplepage.mm_player").replace("{}", abbrevUrl(i.getURL()))));
+                            } 
+                            // Use object tag for all other content (PowerPoint, etc.)
+                            else {
+                                item2 = UIOutput.make(tableRow, "movieObject")
+                                        .decorate(new UIFreeAttributeDecorator("data", movieUrl))
+                                        .decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.mm_player").replace("{}", abbrevUrl(i.getURL()))));
                             }
                             if (mimeType != null) {
                                 item2.decorate(new UIFreeAttributeDecorator("type", mimeType));
@@ -2210,65 +2209,15 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
                                 else
                                 item2.decorate(new UIFreeAttributeDecorator("height", "300")).decorate(new UIFreeAttributeDecorator("width", "400"));
                             }
-                            if (!useEmbed) {
-                                if (useFlvPlayer) {
-                                    UIOutput.make(tableRow, "flashvars").decorate(new UIFreeAttributeDecorator("value", "src=" + URLEncoder.encode(myUrl() + i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner()))));
-                                    // need wmode=opaque for player to stack properly with dialogs, etc.
-                                    // there is a performance impact, but I'm guessing in our application we don't 
-                                    // need ultimate performance for embedded video. I'm setting it only for
-                                    // the player, so flash games and other applications will still get wmode=window
-                                    UIOutput.make(tableRow, "wmode");
-                                } else if (mimeType.equals("application/x-shockwave-flash"))
-                                    UIOutput.make(tableRow, "wmode");
-
+                            if (!isWavAudio) { // Only add extra parameters for non-WAV files
                                 UIOutput.make(tableRow, "movieURLInject").decorate(new UIFreeAttributeDecorator("value", movieUrl));
-				if (!isMp4 && showDownloads) {
+                                if (showDownloads) {
                                     UIOutput.make(tableRow, "noplugin-p", messageLocator.getMessage("simplepage.noplugin"));
                                     UIOutput.make(tableRow, "noplugin-br");
                                     UILink.make(tableRow, "noplugin", i.getName(), movieUrl);
-				} 
+                                } 
                             }
 
-                            if (isMp4) {
-                                // do fallback. for ie use EMBED
-                                if (ieVersion > 0) {
-                                    item2 = UIOutput.make(tableRow, "mp4-embed").decorate(new UIFreeAttributeDecorator("src", i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner()))).decorate(new UIFreeAttributeDecorator("alt", messageLocator.getMessage("simplepage.mm_player").replace("{}", abbrevUrl(i.getURL()))));
-                                } else {
-                                    item2 = UIOutput.make(tableRow, "mp4-object").decorate(new UIFreeAttributeDecorator("data", i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner()))).decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.mm_player").replace("{}", abbrevUrl(i.getURL()))));
-                            }
-                                if (oMimeType != null) {
-                                    item2.decorate(new UIFreeAttributeDecorator("type", oMimeType));
-                                }
-
-                                // some object types seem to need a specification, so give a default if needed
-                                if (lengthOk(height) && lengthOk(width)) {
-                                    item2.decorate(new UIFreeAttributeDecorator("height", height.getOld())).decorate(new UIFreeAttributeDecorator("width", width.getOld()));
-				} else if (definiteLength(width)) {
-				    // this is mostly because the default is 640 with no height specified
-				    // we've validated width, so no errors in conversion should occur
-				    Double h = new Double(width.getOld()) * 0.75;
-				    if (oMimeType.startsWith("audio/"))
-					h = 100.0;
-				    item2.decorate(new UIFreeAttributeDecorator("height", Double.toString(h))).decorate(new UIFreeAttributeDecorator("width", width.getOld()));
-				    // flag for javascript to adjust height
-				    if (!oMimeType.startsWith("audio/"))
-					item2.decorate(new UIFreeAttributeDecorator("defaultsize","true"));
-                                } else {
-                                    if (oMimeType.startsWith("audio/"))
-                                    item2.decorate(new UIFreeAttributeDecorator("height", "100")).decorate(new UIFreeAttributeDecorator("width", "100%"));
-                                    else
-                                    item2.decorate(new UIFreeAttributeDecorator("height", "300")).decorate(new UIFreeAttributeDecorator("width", "100%"));
-                                }
-
-                                if (!useEmbed) {
-                                    UIOutput.make(tableRow, "mp4-inject").decorate(new UIFreeAttributeDecorator("value", i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner())));
-
-				    if (showDownloads) {
-					UIOutput.make(tableRow, "mp4-noplugin-p", messageLocator.getMessage("simplepage.noplugin"));
-					UILink.make(tableRow, "mp4-noplugin", i.getName(), i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner()));
-				    } 
-                                }
-                            }
 			    UIOutput.make(tableRow, "description3", i.getDescription());
                         } else {
 			    UIOutput.make(tableRow, "notAvailableText", messageLocator.getMessage("simplepage.multimediaItemUnavailable"));
@@ -4221,46 +4170,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 	public ViewParameters getViewParameters() {
 		return new GeneralViewParameters();
-	}
-
-	/**
-	 * Checks for the version of IE. Returns 0 if we're not running IE.
-	 * But there's a problem. IE 11 doesn't have the MSIE tag. But it stiill
-	 * needs to be treated as IE, because the OBJECT tag won't work with Quicktime
-	 * Since all I test is > 0, I use a simplified version that returns 0 or 1
-	 * @return
-	 */
-	public int checkIEVersion() {
-		UsageSession usageSession = UsageSessionService.getSession();
-		if (usageSession == null)
-		    return 0;
-		browserString = usageSession.getUserAgent();
-		if (browserString == null)
-		    return 0;
-		int ieIndex = browserString.indexOf("Trident/");
-		if (ieIndex >= 0)
-		    return 1;
-		else
-		    return 0;
-
-		// int ieVersion = 0;
-		// if (ieIndex >= 0) {
-		//	String ieV = browserString.substring(ieIndex + 6);
-		//	int i = 0;
-		//	int e = ieV.length();
-		//	while (i < e) {
-		//		if (Character.isDigit(ieV.charAt(i))) {
-		//			i++;
-		//		} else {
-		//			break;
-		//		}
-		//	}
-		//	if (i > 0) {
-		//		ieV = ieV.substring(0, i);
-		//		ieVersion = Integer.parseInt(ieV);
-		//}			}
-		//
-		//		return ieVersion;
 	}
 
 	private void createToolBar(UIContainer tofill, SimplePage currentPage) {
