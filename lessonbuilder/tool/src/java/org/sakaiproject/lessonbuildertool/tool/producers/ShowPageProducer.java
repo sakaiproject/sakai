@@ -4172,8 +4172,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		return new GeneralViewParameters();
 	}
 
-	// Internet Explorer support completely removed
-
 	private void createToolBar(UIContainer tofill, SimplePage currentPage) {
 		UIBranchContainer toolBar = UIBranchContainer.make(tofill, "tool-bar:");
 		boolean studentPage = simplePageBean.isStudentPage(currentPage);
