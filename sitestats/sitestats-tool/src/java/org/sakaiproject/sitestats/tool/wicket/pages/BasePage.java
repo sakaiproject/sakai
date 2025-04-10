@@ -46,6 +46,9 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		ResourceLoader rl = new ResourceLoader();
 		getSession().setLocale(rl.getLocale());
 
+        // Disable versioning to prevent StalePageException errors with Wicket 9
+        setVersioned(false);
+        
         TransparentWebMarkupContainer html = new TransparentWebMarkupContainer("html");
 
         String locale = getSession().getLocale().toString();

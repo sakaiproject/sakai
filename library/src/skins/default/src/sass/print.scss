@@ -33,6 +33,7 @@ sakai-picture-changer,
 #sakai-quickLinksPanel,
 aside.offcanvas,
 .portal-mobilebar,
+.noprint,
 #footer,
 .#{$namespace}siteHierarchy,
 .#{$namespace}container--extras,
@@ -141,12 +142,6 @@ div.portletBody {
     }
     .cols1 {
       width: calc(100% - 32px) !important;
-    }
-}
-
-.#{$namespace}sakai-syllabus {
-    .noprint {
-      display: none;
     }
 }
 
