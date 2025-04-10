@@ -32,11 +32,13 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Index;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.OrderColumn;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import lombok.Getter;
@@ -52,8 +54,9 @@ import lombok.ToString;
 public class GradingScale implements PersistableEntity<Long>, Comparable<Object>, Serializable {
 
     @Id
-    @GeneratedValue
     @Column(name = "ID")
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "gb_grading_scale_id_sequence")
+    @SequenceGenerator(name = "gb_grading_scale_id_sequence", sequenceName = "GB_GRADING_SCALE_S")
     private Long id;
 
     @Column(name = "VERSION", nullable = false)
