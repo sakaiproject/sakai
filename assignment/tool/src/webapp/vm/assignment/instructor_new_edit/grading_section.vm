@@ -90,7 +90,7 @@ This section contains the options for grading this assignment, including rubrics
 			#set ($addToGBDisplay="block")
 		#end
 		#set($sendToGradebook=false)
-		#if($!gradebookChoice.equals("$!gradebookChoice_add") || $!gradebookChoice.equals("$!gradebookChoice_associate"))
+		#if($!gradebookChoice && ($gradebookChoice == $!gradebookChoice_add || $gradebookChoice == $!gradebookChoice_associate))
 			#set($sendToGradebook=true)
 		#end
 		<div class="form-group" style="display:$!addToGBDisplay">
