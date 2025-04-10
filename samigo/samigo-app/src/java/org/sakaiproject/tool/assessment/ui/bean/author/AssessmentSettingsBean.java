@@ -1710,6 +1710,10 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
       try {
           Site site = SiteService.getSite(toolManager.getCurrentPlacement().getContext());
           GradingSectionAwareServiceAPI service = new GradingSectionAwareServiceImpl();
+          if (service.isUserAbleToGradeAll(site.getId(), userId)) {
+              return getGroupsForSite();
+          }
+
           Collection<Group> groups = site.getGroups();
           if (groups != null && !groups.isEmpty()) {
               for (Group group : groups) {
@@ -1718,10 +1722,6 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
                   }
               }
               groupSelectItems = sortedSelectItems.values().toArray(new SelectItem[0]);
-          }
-
-          if (sortedSelectItems.isEmpty() && service.isUserAbleToGradeAll(site.getId(), userId)) {
-              return getGroupsForSite();
           }
       } catch (IdUnusedException ex) {
           log.warn("No site found while attempting to get groups for this user, {}", ex.toString());
