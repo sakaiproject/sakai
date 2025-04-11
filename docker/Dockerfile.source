@@ -1,0 +1,34 @@
+FROM markhobson/maven-chrome:jdk-11 as build
+
+ARG release=main
+
+ENV MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
+COPY maven/settings.xml /usr/share/maven/conf/settings.xml
+RUN mkdir /deploy
+WORKDIR /deploy
+RUN git clone https://github.com/DevTek-ai/sakai.git
+WORKDIR /deploy/sakai
+RUN git checkout ${release} && mvn clean install --no-transfer-progress sakai:deploy-exploded -Dmaven.test.skip=true
+RUN mvn clean && rm -rf /root/.m2/repository 
+
+FROM tomcat:9-jdk17-temurin
+
+COPY tomcat/conf/* /usr/local/tomcat/conf/
+
+RUN mkdir -p /usr/local/tomcat/sakai /usr/local/tomcat/bin
+
+COPY tomcat/sakai/* /usr/local/tomcat/sakai/
+COPY tomcat/bin/* /usr/local/tomcat/bin/
+
+COPY --from=build /deploy/components /usr/local/tomcat/components/
+
+# This might be able to deploy to a different lib directory
+COPY --from=build /deploy/lib /usr/local/tomcat/lib/
+COPY --from=build /deploy/webapps /usr/local/tomcat/webapps/
+RUN curl -L -o /usr/local/tomcat/lib/mysql-connector-java-8.0.33.jar https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.33/mysql-connector-java-8.0.33.jar
+
+COPY tomcat/bin/entrypoint.sh /entrypoint.sh
+# RUN chmod +x /entrypoint.sh
+RUN chmod 755 /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
+

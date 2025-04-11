@@ -1,0 +1,48 @@
+steps:
+  - wait
+
+  - block: ':green_button: Deploy to PRE-PROD'
+    prompt: 'Deploy RS to PRE-PROD environment?'
+    branches: 'main'
+
+  - command:
+      - chmod 755 ./mvnw
+      - chmod 755 auto/build.sh
+      - auto/build.sh
+      - chmod 755 auto/deploy_preprod.sh
+      - auto/deploy_preprod.sh
+    label: ':package: & :rocket: Build & Deploy PRE-PROD: VERSION -> ${BUILDKITE_BUILD_NUMBER}'
+    branches: main
+    agents:
+      queue: 'school:preprod'
+    retry:
+      automatic:
+        - exit_status: -1
+          limit: 1
+    env:
+      BUILD_VERSION: '${BUILDKITE_BUILD_NUMBER}'
+      ENV: 'preprod'
+
+  # - wait
+
+  # - block: ":green_button: Deploy to PROD"
+  #   prompt: "Deploy RS to PROD environment?"
+  #   branches: "master"
+
+  # - command:
+  #     - chmod 755 ./mvnw
+  #     - chmod 755 auto/build.sh
+  #     - auto/build.sh
+  #     - chmod 755 auto/deploy_prod.sh
+  #     - auto/deploy_prod.sh
+  #   label: ":package: & :rocket: Build & Deploy PROD: VERSION -> ${BUILDKITE_BUILD_NUMBER}"
+  #   branches: master
+  #   agents:
+  #     queue: "rs:prod"
+  #   retry:
+  #     automatic:
+  #       - exit_status: -1
+  #         limit: 1
+  #   env:
+  #     BUILD_VERSION: "${BUILDKITE_BUILD_NUMBER}"
+  #     ENV: "prod"
