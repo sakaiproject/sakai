@@ -170,7 +170,7 @@
                 <h:inputHidden id="gb_selector" value="#{ForumTool.currentChange}" />
             </h:panelGroup>
             <h:panelGrid id="grade-message-options" styleClass="jsfFormTable" columns="1" columnClasses="shorttext spinnerBesideContainer" border="0">
-                <h:panelGroup rendered="#{!hasAssociatedRubric} && #{!ForumTool.gradebookGroupEnabled}">
+                <h:panelGroup rendered="#{!hasAssociatedRubric && !ForumTool.gradebookGroupEnabled}">
                     <h:outputLabel for="assignment"  rendered="#{ForumTool.allowedToGradeItem}">
                         <h:outputText value="#{msgs.cdfm_info_required_sign}" styleClass="reqStarInline" style="padding-right:3px"/>
                         <h:outputText  value="#{msgs.cdfm_assignments}"/>
