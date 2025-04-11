@@ -82,6 +82,7 @@ public class TopicTransferBean implements Entity {
     public boolean hiddenByDate;
     public boolean lockedByDate;
     public int upvotes;
+    public boolean graded;
     public Long gradingItemId;
 
     public String creatorDisplayName;
@@ -104,7 +105,6 @@ public class TopicTransferBean implements Entity {
     public String reference;
 
     // Just a message. Not state.
-    public boolean graded;
     public boolean createGradingItem;
     public double gradingPoints;
     public long gradingCategory;
@@ -143,6 +143,7 @@ public class TopicTransferBean implements Entity {
         topicBean.groups = topic.getGroups();
         topicBean.upvotes = topic.getUpvotes();
         topicBean.gradingItemId = topic.getGradingItemId();
+        topicBean.graded = topic.getGraded();
 
         Instant now = Instant.now();
 
@@ -187,6 +188,7 @@ public class TopicTransferBean implements Entity {
         topic.setDueDateCalendarEventId(this.dueDateCalendarEventId);
         topic.setShowMessageScheduleId(this.showMessageScheduleId);
         topic.setGradingItemId(this.gradingItemId);
+        topic.setGraded(this.graded);
 
         return topic;
     }
