@@ -1,3 +1,5 @@
+#set( $H = '-' )
+#set( $T = 'T' )
 #javascript("/library/js/lang-datepicker/lang-datepicker.js")
 
 <script>

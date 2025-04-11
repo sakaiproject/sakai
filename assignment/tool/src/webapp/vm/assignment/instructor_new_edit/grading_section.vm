@@ -4,6 +4,8 @@ This section contains the options for grading this assignment, including rubrics
 
 @author plukasew
 *#
+#set( $H = '-' )
+#set( $T = 'T' )
 
 <script>
 	$(document).ready(function() {

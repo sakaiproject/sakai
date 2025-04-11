@@ -3649,12 +3649,10 @@ public class GradingServiceImpl implements GradingService {
     }
 
     private Optional<GradebookAssignment> getDbExternalAssignment(String gradebookUid, String externalId) {
-
         if (externalId == null) {
-            log.warn("null externalId supplied to getDbExternalAssignment. Returning empty ...");
-            return Optional.<GradebookAssignment>empty();
+            log.debug("A null externalId supplied to getDbExternalAssignment. Returning empty ...");
+            return Optional.empty();
         }
-
         return gradingPersistenceManager.getExternalAssignment(gradebookUid, externalId);
     }
 
@@ -3955,8 +3953,8 @@ public class GradingServiceImpl implements GradingService {
 
         Long assignmentId = gradingPersistenceManager.saveGradebookAssignment(asn).getId();
 
-        log.info("External assessment added to gradebookUid={}, externalId={} by userUid={} from externalApp={}", gradebookUid, externalId,
-                getUserUid(), externalServiceDescription);
+        log.debug("External assessment added to gradebookUid={}, externalId={} from externalApp={}",
+                gradebookUid, externalId, externalServiceDescription);
 
         // Check if this is a plus course and gb is site instance
         if ( plusService.enabled() && isCurrentGbSite(gradebookUid)) {

@@ -1,5 +1,6 @@
 <!-- sakai_properties.vm -->
-
+#set( $H = '-' )
+#set( $T = 'T' )
 <script>includeLatestJQuery('sakai_properties');</script>
 <script>
     includeWebjarLibrary('bootstrap-multiselect');

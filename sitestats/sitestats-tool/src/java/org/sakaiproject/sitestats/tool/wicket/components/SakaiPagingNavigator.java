@@ -103,7 +103,9 @@ public class SakaiPagingNavigator extends AjaxPagingNavigator {
 	 */
 	protected Link newPagingNavigationIncrementLink(String id, IPageable pageable, int increment)
 	{
-		return new AjaxPagingNavigationIncrementLink(id, pageable, increment);
+		AjaxPagingNavigationIncrementLink link = new AjaxPagingNavigationIncrementLink(id, pageable, increment);
+		link.setVersioned(false);
+		return link;
 	}
 
 	/**
@@ -119,7 +121,9 @@ public class SakaiPagingNavigator extends AjaxPagingNavigator {
 	 * @return the pagenumber link
 	 */
 	protected Link newPagingNavigationLink(String id, IPageable pageable, int pageNumber) {
-		return new AjaxPagingNavigationLink(id, pageable, pageNumber);
+		AjaxPagingNavigationLink link = new AjaxPagingNavigationLink(id, pageable, pageNumber);
+		link.setVersioned(false);
+		return link;
 	}
 	
 	protected DropDownChoice newRowNumberSelector(final IPageable pageable) {

@@ -61,7 +61,9 @@ public class SakaiNavigationToolBar extends AjaxNavigationToolbar
 	 */
 	protected SakaiPagingNavigator newPagingNavigator(String navigatorId, final DataTable table)
 	{
-		return new SakaiPagingNavigator(navigatorId, table);
+		SakaiPagingNavigator navigator = new SakaiPagingNavigator(navigatorId, table);
+		navigator.setVersioned(false);
+		return navigator;
 	}
 
 	/**

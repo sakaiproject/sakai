@@ -197,11 +197,9 @@ public class GradebookPage extends BasePage {
 		this.form.add(this.updateUngradedItemsWindow);
 
 		this.rubricGradeWindow = new GbModalWindow("rubricGradeWindow");
-		this.rubricGradeWindow.setPositionAtTop(true);
 		this.form.add(this.rubricGradeWindow);
 
 		this.rubricPreviewWindow = new GbModalWindow("rubricPreviewWindow");
-		this.rubricPreviewWindow.setPositionAtTop(true);
 		this.form.add(this.rubricPreviewWindow);
 
 		this.gradeLogWindow = new GbModalWindow("gradeLogWindow");
@@ -218,20 +216,17 @@ public class GradebookPage extends BasePage {
 		this.form.add(this.deleteItemWindow);
 
 		this.assignmentStatisticsWindow = new GbModalWindow("gradeStatisticsWindow");
-		this.assignmentStatisticsWindow.setPositionAtTop(true);
 		this.form.add(this.assignmentStatisticsWindow);
 
 		this.updateCourseGradeDisplayWindow = new GbModalWindow("updateCourseGradeDisplayWindow");
 		this.form.add(this.updateCourseGradeDisplayWindow);
 
 		this.courseGradeStatisticsWindow = new GbModalWindow("courseGradeStatisticsWindow");
-		this.courseGradeStatisticsWindow.setPositionAtTop(true);
 		this.form.add(this.courseGradeStatisticsWindow);
 
 		this.bulkEditItemsWindow = new GbModalWindow("bulkEditItemsWindow");
 		this.bulkEditItemsWindow.setWidthUnit("%");
 		this.bulkEditItemsWindow.setInitialWidth(65);
-		this.bulkEditItemsWindow.setPositionAtTop(true);
 		this.bulkEditItemsWindow.showUnloadConfirmation(false);
 		this.form.add(this.bulkEditItemsWindow);
 
