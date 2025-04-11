@@ -2,6 +2,7 @@ export const i18nUrl = /getI18nProperties.*grades/;
 
 export const i18n = `
 assignment=Assignment
+no_grades=No grades to view
 sort_new_low_to_high=New: Lowest first
 sort_new_high_to_low=New: Highest first
 sort_average_low_to_high=Average: Lowest first

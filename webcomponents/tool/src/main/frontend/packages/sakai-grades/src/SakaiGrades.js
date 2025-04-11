@@ -9,9 +9,7 @@ import { ASSIGNMENT_A_TO_Z, ASSIGNMENT_Z_TO_A, COURSE_A_TO_Z
 
 export class SakaiGrades extends SakaiPageableElement {
 
-  static properties = {
-    secret: { type: Boolean },
-  };
+  static properties = { secret: { type: Boolean } };
 
   constructor() {
 
@@ -114,6 +112,10 @@ export class SakaiGrades extends SakaiPageableElement {
   }
 
   content() {
+
+    if (this.dataPage.length === 0) {
+      return html`<div class="sak-banner-info">${this._i18n.no_grades}</div>`;
+    }
 
     return html`
       ${!this.siteId ? html`
