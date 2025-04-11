@@ -20,7 +20,9 @@ import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
@@ -34,8 +36,9 @@ import lombok.Setter;
 public class Permission implements PersistableEntity<Long>, Serializable {
 
     @Id
-    @GeneratedValue
     @Column(name = "GB_PERMISSION_ID")
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "gb_permission_id_sequence")
+    @SequenceGenerator(name = "gb_permission_id_sequence", sequenceName = "GB_PERMISSION_S")
     private Long id;
 
     @Column(name = "VERSION", nullable = false)

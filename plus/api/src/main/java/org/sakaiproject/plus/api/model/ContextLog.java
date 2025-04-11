@@ -22,9 +22,11 @@ import javax.persistence.Column;
 import javax.persistence.Lob;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.JoinColumn;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Basic;
@@ -56,8 +58,10 @@ public class ContextLog implements PersistableEntity<Long> {
 		// Add at the end - don't insert new above
 	};
 
-	@Id @GeneratedValue
+	@Id
 	@Column(name = "CONTEXT_LOG_ID")
+	@GeneratedValue(strategy = GenerationType.AUTO, generator = "context_log_id_sequence")
+	@SequenceGenerator(name = "context_log_id_sequence", sequenceName = "PLUS_CONTEXT_LOG_S")
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)

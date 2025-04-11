@@ -25,10 +25,12 @@ import javax.persistence.DiscriminatorType;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -53,8 +55,9 @@ import lombok.ToString;
 public abstract class GradableObject implements Serializable {
 
     @Id
-    @GeneratedValue
     @Column(name = "ID")
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "gb_gradable_object_id_sequence")
+    @SequenceGenerator(name = "gb_gradable_object_id_sequence", sequenceName = "GB_GRADABLE_OBJECT_S")
     @EqualsAndHashCode.Include
     @ToString.Include
     protected Long id;

@@ -27,9 +27,11 @@ import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.MapKeyColumn;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
@@ -46,8 +48,9 @@ import lombok.Setter;
 public class LetterGradePercentMapping implements PersistableEntity<Long>, Serializable {
 
     @Id
-    @GeneratedValue
     @Column(name = "LGP_MAPPING_ID")
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "gb_lettergrade_percent_mapping_id_sequence")
+    @SequenceGenerator(name = "gb_lettergrade_percent_mapping_id_sequence", sequenceName = "GB_LETTER_MAPPING_S")
     private Long id;
 
     @Column(name = "VERSION", nullable = false)

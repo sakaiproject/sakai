@@ -46,7 +46,8 @@ public class FileConversionQueueItem implements PersistableEntity<Long> {
 
     @Id
     @Column(name = "ID")
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "file_conversion_queue_id_sequence")
+    @SequenceGenerator(name = "file_conversion_queue_id_sequence", sequenceName = "FILE_CONVERSION_QUEUE_S")
     @EqualsAndHashCode.Include
     private Long id;
 
