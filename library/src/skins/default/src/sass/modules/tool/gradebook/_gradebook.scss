@@ -1652,16 +1652,20 @@ max-height:100px;
 }
 
 .gb-flag-not-counted:before, .gb-flag-excused:before {
+  font-family: 'bootstrap-icons';
   content: '\F1DF';
   text-decoration: line-through;
 }
 .gb-flag-not-released:before {
+  font-family: 'bootstrap-icons';
   content: '\F33F';
 }
 .gb-flag-extra-credit:before {
+  font-family: 'bootstrap-icons';
   content: '\F4FC';
 }
 .gb-flag-equal-weight:before {
+  font-family: 'bootstrap-icons';
   content: '\2696';
 }
 
