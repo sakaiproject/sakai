@@ -73,7 +73,7 @@ export class SakaiTasks extends SakaiPageableElement {
         if (this._canAddTask) {
           await Promise.allSettled([
             import("../sakai-tasks-create-task.js"),
-            import("@lion/ui/dialog.js"),
+            import("@lion/ui/define/lion-dialog.js"),
           ]);
         }
 
