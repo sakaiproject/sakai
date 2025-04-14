@@ -158,35 +158,39 @@ window.addEventListener("DOMContentLoaded", e => {
   });
   
   // Handle accordion state persistence
-  const saveState = id => {
-  try {
-    document.cookie = `${COOKIE_NAME}=${id || ""};expires=${new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toUTCString()};path=/`;
-  } catch (e) {
-    console.error("Error saving accordion state:", e);
-  }
-  };
-
-  // Restore last opened accordion
-  const restoreState = () => {
-  try {
-    const match = document.cookie.match(new RegExp(`${COOKIE_NAME}=([^;]+)`));
-    if (!match) return;
-    const id = match[1];
-    if (id) {
-      const el = document.getElementById(id);
-      if (el) bootstrap.Collapse.getOrCreateInstance(el).show();
+  const saveState = () => {
+    try {
+      const openedIds = Array.from(triggers)
+        .filter(el => el.classList.contains('show'))
+        .map(el => el.id)
+        .join(',');
+      document.cookie = `${COOKIE_NAME}=${openedIds};expires=${new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toUTCString()};path=/`;
+    } catch (e) {
+      console.error("Error saving accordion state:", e);
     }
-  } catch (e) {
-    console.error("Error restoring accordion state:", e);
-  }
   };
 
-  // Track last opened/closed
+  // Restore opened accordions
+  const restoreState = () => {
+    try {
+      const match = document.cookie.match(new RegExp(`${COOKIE_NAME}=([^;]+)`));
+      if (!match) return;
+      const ids = match[1].split(',').filter(id => id);
+      ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) bootstrap.Collapse.getOrCreateInstance(el).show();
+      });
+    } catch (e) {
+      console.error("Error restoring accordion state:", e);
+    }
+  };
+
+  // Track opened/closed accordions
   triggers.forEach(el => {
-  if (el.id) {
-    el.addEventListener("shown.bs.collapse", () => saveState(el.id));
-    el.addEventListener("hidden.bs.collapse", () => saveState(""));
-  }
+    if (el.id) {
+      el.addEventListener("shown.bs.collapse", () => saveState());
+      el.addEventListener("hidden.bs.collapse", () => saveState());
+    }
   });
 
   restoreState();
