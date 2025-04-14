@@ -2350,6 +2350,10 @@ public class AssignmentAction extends PagedResourceActionII {
             context.put("assignment", assignment);
             context.put("assignmentReference", aReference);
 
+            if (assignment.getTypeOfSubmission() == Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION) {
+                context.put("nonElectronicType", Boolean.TRUE);
+            }
+
             // put creator information into context
             putCreatorIntoContext(context, assignment);
 
