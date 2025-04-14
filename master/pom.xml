@@ -28,7 +28,7 @@
     <sakai.commons.lang3.version>3.17.0</sakai.commons.lang3.version>
     <sakai.commons.fileupload.version>1.5</sakai.commons.fileupload.version>
     <sakai.commons-math3.version>3.6.1</sakai.commons-math3.version>
-    <sakai.commons-text.version>1.13.0</sakai.commons-text.version>
+    <sakai.commons-text.version>1.13.1</sakai.commons-text.version>
     <sakai.commons-validator.version>1.7</sakai.commons-validator.version>
     <sakai.commons.configuration2.version>2.11.0</sakai.commons.configuration2.version>
     <sakai.commons.net>3.11.1</sakai.commons.net>
