@@ -76,10 +76,7 @@ This section contains the options for grading this assignment, including rubrics
 		#else
 			#set ($addToGBDisplay="block")
 		#end
-		#set($sendToGradebook=false)
-		#if($!gradebookChoice.equals("$!gradebookChoice_add") || $!gradebookChoice.equals("$!gradebookChoice_associate"))
-			#set($sendToGradebook=true)
-		#end
+		#set($sendToGradebook = ($!gradebookChoice && ($gradebookChoice == $!gradebookChoice_add || $gradebookChoice == $!gradebookChoice_associate)))
 		<div class="form-group" style="display:$!addToGBDisplay">
 			<div style="display:$!addToGBDisplay">
 				<div class="checkbox">  ## Send to Gradebook
