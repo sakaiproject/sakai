@@ -23,7 +23,7 @@
     <sakai.version>25-SNAPSHOT</sakai.version>
     <!-- Standard dependency versions -->
     <sakai.commons-httpclient.version>3.1</sakai.commons-httpclient.version>
-    <sakai.commons-io.version>2.18.0</sakai.commons-io.version>
+    <sakai.commons-io.version>2.19.0</sakai.commons-io.version>
     <sakai.commons.lang.version>2.6</sakai.commons.lang.version>
     <sakai.commons.lang3.version>3.17.0</sakai.commons.lang3.version>
     <sakai.commons.fileupload.version>1.5</sakai.commons.fileupload.version>
