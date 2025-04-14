@@ -147,6 +147,7 @@ $(function() {
 window.addEventListener("DOMContentLoaded", e => {
 
 	const triggers = document.querySelectorAll("#gradebookSettings .accordion-collapse");
+  const COOKIE_NAME = "sakai_gradebook_accordions";
 
   document.getElementById("gb-settings-expand-all")?.addEventListener("click", e => {
 		triggers.forEach(el => bootstrap.Collapse.getOrCreateInstance(el)?.show());
@@ -155,4 +156,38 @@ window.addEventListener("DOMContentLoaded", e => {
   document.getElementById("gb-settings-collapse-all")?.addEventListener("click", e => {
 		triggers.forEach(el => bootstrap.Collapse.getOrCreateInstance(el)?.hide());
   });
+  
+  // Handle accordion state persistence
+  const saveState = id => {
+  try {
+    document.cookie = `${COOKIE_NAME}=${id || ""};expires=${new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toUTCString()};path=/`;
+  } catch (e) {
+    console.error("Error saving accordion state:", e);
+  }
+  };
+
+  // Restore last opened accordion
+  const restoreState = () => {
+  try {
+    const match = document.cookie.match(new RegExp(`${COOKIE_NAME}=([^;]+)`));
+    if (!match) return;
+    const id = match[1];
+    if (id) {
+      const el = document.getElementById(id);
+      if (el) bootstrap.Collapse.getOrCreateInstance(el).show();
+    }
+  } catch (e) {
+    console.error("Error restoring accordion state:", e);
+  }
+  };
+
+  // Track last opened/closed
+  triggers.forEach(el => {
+  if (el.id) {
+    el.addEventListener("shown.bs.collapse", () => saveState(el.id));
+    el.addEventListener("hidden.bs.collapse", () => saveState(""));
+  }
+  });
+
+  restoreState();
 });
