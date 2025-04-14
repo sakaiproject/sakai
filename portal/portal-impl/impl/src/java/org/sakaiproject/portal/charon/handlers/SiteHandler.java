@@ -858,20 +858,20 @@ public class SiteHandler extends WorksiteHandler
 			else if (allowroleswap)
 			{
 				Site activeSite = null;
-	            try
-	            {
-	            	activeSite = portal.getSiteHelper().getSiteVisit(siteId); // active site
-	            }
-            	catch(IdUnusedException ie)
-	            {
-            		log.error(ie.getMessage(), ie);
-            		throw new IllegalStateException("Site doesn't exist!");
-	            }
-	            catch(PermissionException pe)
-	            {
-	            	log.error(pe.getMessage(), pe);
-	            	throw new IllegalStateException("No permission to view site!");
-	            }
+				try
+				{
+					activeSite = portal.getSiteHelper().getSiteVisit(siteId); // active site
+				}
+				catch(IdUnusedException ie)
+				{
+					log.error(ie.getMessage(), ie);
+					throw new IllegalStateException("Site doesn't exist!");
+				}
+				catch(PermissionException pe)
+				{
+					log.error(pe.getMessage(), pe);
+					throw new IllegalStateException("No permission to view site!");
+				}
 				// this block of code will check to see if the student role exists in the site.
 				// It will be used to determine if we need to display any student view component
 				boolean roleInSite = false;
@@ -931,7 +931,7 @@ public class SiteHandler extends WorksiteHandler
 			rcontext.put("viewAsStudentLink", Boolean.valueOf(roleswapcheck)); // this will tell our UI if we want the link for swapping roles to display
 			rcontext.put("roleSwitchState", roleswitchstate); // this will tell our UI if we are in a role swapped state or not
 			
-			int tabDisplayLabel = 1;
+			int tabDisplayLabel = PreferencesService.USE_SITE_TITLE;
 			boolean sidebarCollapsed = false;
 			boolean currentExpanded = false;
 			String expandedSite = siteId;
@@ -939,43 +939,15 @@ public class SiteHandler extends WorksiteHandler
 
 			if (loggedIn) 
 			{
+				tabDisplayLabel = preferencesService.getSiteTitleDisplayPreference();
+
 				Preferences prefs = preferencesService.getPreferences(session.getUserId());
 				ResourceProperties props = prefs.getProperties(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
 
-				try 
-				{
-					tabDisplayLabel = (int) props.getLongProperty("tab:label");
-				} 
-				catch (Exception any) 
-				{
-					tabDisplayLabel = 1;
-				}
-
-				try {
-					sidebarCollapsed = props.getBooleanProperty(PortalConstants.PROP_SIDEBAR_COLLAPSED);
-				} catch (org.sakaiproject.entity.api.EntityPropertyNotDefinedException any) {
-					sidebarCollapsed = false;
-				} catch (org.sakaiproject.entity.api.EntityPropertyTypeException any) {
-					log.warn("Exception caught whilst getting sidebarCollapsed: {}", any.toString());
-				}
-
-				try {
-					currentExpanded = props.getBooleanProperty(PortalConstants.PROP_CURRENT_EXPANDED);
-					expandedSite = props.getProperty(PortalConstants.PROP_EXPANDED_SITE);
-				} catch (org.sakaiproject.entity.api.EntityPropertyNotDefinedException any) {
-					currentExpanded = false;
-				} catch (org.sakaiproject.entity.api.EntityPropertyTypeException any) {
-					log.warn("Exception caught whilst getting currentExpanded: {}", any.toString());
-				}
-
-
-				try {
-					toolMaximised = props.getBooleanProperty("toolMaximised");
-				} catch (org.sakaiproject.entity.api.EntityPropertyNotDefinedException any) {
-					toolMaximised = false;
-				} catch (org.sakaiproject.entity.api.EntityPropertyTypeException any) {
-					log.warn("Exception caught whilst getting toolMaximised: {}", any.toString());
-				}
+				sidebarCollapsed = props.getBooleanProperty(PortalConstants.PROP_SIDEBAR_COLLAPSED, false);
+				currentExpanded = props.getBooleanProperty(PortalConstants.PROP_CURRENT_EXPANDED, false);
+				expandedSite = props.getProperty(PortalConstants.PROP_EXPANDED_SITE);
+				toolMaximised = props.getBooleanProperty("toolMaximised", false);
 			}
 
 			rcontext.put("tabDisplayLabel", tabDisplayLabel);
