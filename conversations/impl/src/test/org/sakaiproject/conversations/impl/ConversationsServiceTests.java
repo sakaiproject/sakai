@@ -2141,8 +2141,6 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             }
 
             if (i == 0) {
-              System.out.println(topicEl.getAttribute("graded"));
-              System.out.println(topicBeans[i].graded);
               assertEquals(topicBeans[i].graded, Boolean.parseBoolean(topicEl.getAttribute("graded")));
               assertFalse(topicEl.hasAttribute("grading-item-id"));
             }
