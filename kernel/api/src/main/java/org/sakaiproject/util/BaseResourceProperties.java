@@ -450,6 +450,21 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 
 	}
 
+	public boolean getBooleanProperty(String name, boolean defaultValue) {
+
+		String p = getProperty(name);
+
+		if (p == null) return defaultValue;
+
+		try {
+			return Boolean.valueOf(p);
+		} catch (Exception any) {
+			log.warn("Failed to convert {} into a boolean: {}", p, any.toString());
+		}
+
+		return defaultValue;
+	}
+
 	/**
 	 * Access a named property as a long.
 	 * 
