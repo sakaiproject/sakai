@@ -154,7 +154,7 @@ This section contains the options for grading this assignment, including rubrics
 							#if ($isGradebookGroupEnabled)
 								<sakai-multi-gradebook id="gb-selector" site-id='$siteId' selected-temp="$!selectedGradebook" app-name="sakai.assignment.grades" ></sakai-multi-gradebook>
 								<input type="hidden" id="gb_selector" name="$!gb_selector" value="$!selectedGradebook" />
-							#elseif (!$isGradebookGroupEnabled)
+							#else
 								<select name="$!name_AssociateGradebookAssignment" id="gradebookItemSelect">
 									<option value="">$tlang.getString("grading.select")</option>
 									#set($gAssignmentSet = $!gradebookAssignmentsLabel.keySet())
