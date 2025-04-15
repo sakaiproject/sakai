@@ -63,7 +63,7 @@ public class GradesController extends AbstractSakaiApiController {
     @Resource
     private UserDirectoryService userDirectoryService;
 
-    private final Function<String, List<GradeRestBean>> gradeDataSupplierForSite = (siteId) -> {
+    private final Function<String, List<GradeRestBean>> gradeDataSupplierForSite = siteId -> {
 
         List<Assignment> assignments = gradingService.getViewableAssignmentsForCurrentUser(siteId, siteId, SortType.SORT_BY_NONE);
         List<Long> assignmentIds = assignments.stream().map(Assignment::getId).collect(Collectors.toList());
@@ -256,6 +256,7 @@ public class GradesController extends AbstractSakaiApiController {
 
     @GetMapping(value = "/sites/{siteId}/categories", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<GradebookRestBean> getGroupCategoriesList(@PathVariable String siteId) throws UserNotDefinedException {
+
         checkSakaiSession();
 
         List<GradebookRestBean> gbWithItems = new ArrayList<>();
@@ -286,6 +287,7 @@ public class GradesController extends AbstractSakaiApiController {
     }
 
     private Map<String, String> returnFoundGradebooks(String siteId, String userId) {
+
         try {
             List<Gradebook> gradebookList = gradingService.getGradebookGroupInstances(siteId);
             Map<String, String> gradebookGroupMap = new HashMap<>();
