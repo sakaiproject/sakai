@@ -19,7 +19,7 @@ window.top.rubrics.utils = window.top.rubrics.utils || {
         <div class="modal-dialog modal-lg">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title">Rubric Preview</h5>
+              <h5 class="modal-title">${i18n.preview_rubric}</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="${i18n.close_dialog}"></button>
             </div>
             <div class="modal-body">
