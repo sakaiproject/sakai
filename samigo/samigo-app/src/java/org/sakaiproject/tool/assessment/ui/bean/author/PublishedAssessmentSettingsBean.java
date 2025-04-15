@@ -2009,9 +2009,7 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
   }
 
     public List<SelectItem> getExistingGradebook() {
-        if (this.existingGradebook == null || this.existingGradebook.isEmpty()) {
-            this.setExistingGradebook(this.populateExistingGradebookItems());
-        }
+        this.setExistingGradebook(this.populateExistingGradebookItems());
         return this.existingGradebook;
     }
 
