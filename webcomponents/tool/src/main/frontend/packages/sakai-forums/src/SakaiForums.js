@@ -148,7 +148,7 @@ export class SakaiForums extends SakaiPageableElement {
         <div class="cell ${i % 2 === 0 ? "even" : "odd"}"><a href="${m.messageUrl}">${m.messageCount}</a></div>
         <div class="cell ${i % 2 === 0 ? "even" : "odd"}"><a href="${m.forumUrl}">${m.forumCount}</a></div>
         ${!this.siteId ? html`
-        <div class="cell ${i % 2 === 0 ? "even" : "odd"}"><a href="${m.siteUrl}">${m.siteTitle}</a></div>
+        <div class="cell ${i % 2 === 0 ? "even" : "odd"}"><a href="${m.siteUrl}">${m.siteDescription || m.siteTitle}</a></div>
         ` : nothing}
       `)}
       </div>

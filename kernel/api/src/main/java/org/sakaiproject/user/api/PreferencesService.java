@@ -54,6 +54,8 @@ public interface PreferencesService extends EntityProducer
 
 	/** Prefs key under which stuff like the site tab order and hiding is stored. */
 	static final String SITENAV_PREFS_KEY = "sakai:portal:sitenav";
+
+	static final String TAB_LABEL_PREF = "tab:label";
 	
 	/** Prefs key under which stuff like the editor preferences stored. */
 	static final String EDITOR_PREFS_KEY = "sakai:portal:editor";
@@ -69,6 +71,9 @@ public interface PreferencesService extends EntityProducer
 
 	/** Preference key for sakai tutorial flag */
 	static final String TUTORIAL_PREFS = "sakai:portal:tutorialFlag";
+
+	public static final int USE_SITE_TITLE = 1;
+	public static final int USE_SITE_DESCRIPTION = 2;
 
 	/**
 	 * Access a set of preferences associated with this id.
@@ -157,4 +162,12 @@ public interface PreferencesService extends EntityProducer
 	 * @return
 	 */
 	public Locale getLocale( String userId );
+
+	/**
+	 * Gets the current user's preference for displaying the site title. This can be either
+	 * 1 (use site title), or 2 (use site short description)
+	 *
+	 * @return int The code for the site title display preference
+	 */
+	public int getSiteTitleDisplayPreference();
 }
