@@ -4348,7 +4348,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 					log.debug("removing citation list [{}]", data);
 					eventTrackingService.post(eventTrackingService.newEvent(CITATIONS_HARD_DELETE_EVENT, data, true));
 				} catch (ServerOverloadException e) {
-					log.warn("Attempting to remove citation list {}", e);
+					log.error("Could not get content from citations resource with id {}", edit.getId(), e);
 				}
 			}
 		}
