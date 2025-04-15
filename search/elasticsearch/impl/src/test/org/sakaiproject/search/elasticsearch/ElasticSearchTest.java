@@ -545,11 +545,11 @@ public class ElasticSearchTest {
 
         when(serverConfigurationService.getBoolean("search.enable", false)).thenReturn(true);
 
-        when(serverConfigurationService.getBoolean("search.onlyIndexSearchToolSites", false)).thenReturn(false);
+        when(serverConfigurationService.getBoolean("search.onlyIndexSearchToolSites", true)).thenReturn(false);
 
         assertFalse(elasticSearchService.isEnabledForSite(null));
 
-        when(serverConfigurationService.getBoolean("search.onlyIndexSearchToolSites", false)).thenReturn(true);
+        when(serverConfigurationService.getBoolean("search.onlyIndexSearchToolSites", true)).thenReturn(true);
 
         assertFalse(elasticSearchService.isEnabledForSite(null));
 
