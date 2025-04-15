@@ -1432,10 +1432,9 @@ public class GradingServiceImpl implements GradingService {
         } else if (gradingAuthz.isUserAbleToViewOwnGrades(siteId)) {
             // if user is just a student, we need to filter out unreleased items
             for (GradebookAssignment assign : getSortedAssignments(gradebook.getId(), sortBy, true)) {
-                if (assign.isExternallyMaintained()) {
-                  if (!isExternalAssignmentVisible(gradebook.getUid(), assign.getExternalId(), sessionManager.getCurrentSessionUserId())) {
-                      continue;
-                  }
+                if (assign.isExternallyMaintained()
+                      && !isExternalAssignmentVisible(gradebook.getUid(), assign.getExternalId(), sessionManager.getCurrentSessionUserId())) {
+                    continue;
                 }
 
                 if (assign != null && assign.getReleased()) {
