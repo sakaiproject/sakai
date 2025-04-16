@@ -8,7 +8,7 @@ CATALINA_OPTS="-server \
                -Djava.net.preferIPv4Stack=true"
 
 # Memory size
-CATALINA_OPTS="$CATALINA_OPTS -Xms2g -Xmx2g"
+CATALINA_OPTS="$CATALINA_OPTS -Xms3g -Xmx4g"
 
 # Generational New size
 CATALINA_OPTS="$CATALINA_OPTS -XX:NewSize=500m -XX:MaxNewSize=500m"
