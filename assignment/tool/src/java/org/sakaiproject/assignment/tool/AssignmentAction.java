@@ -10601,10 +10601,14 @@ public class AssignmentAction extends PagedResourceActionII {
                         Long toolKey = new Long(content.get(LTIService.LTI_TOOL_ID).toString());
                         if (toolKey != null) {
                             Map<String, Object> tool = ltiService.getTool(toolKey, site.getId());
-                            String toolTitle = (String) tool.get(LTIService.LTI_TITLE);
-                            state.setAttribute(NEW_ASSIGNMENT_CONTENT_TITLE, toolTitle);
-                            Long toolNewpage = SakaiLTIUtil.getLong(tool.get(LTIService.LTI_NEWPAGE));
-                            state.setAttribute(NEW_ASSIGNMENT_CONTENT_TOOL_NEWPAGE, toolNewpage);
+                            if ( tool == null ) {
+                                state.setAttribute(NEW_ASSIGNMENT_CONTENT_TITLE, null);
+                            } else {
+                                String toolTitle = (String) tool.get(LTIService.LTI_TITLE);
+                                state.setAttribute(NEW_ASSIGNMENT_CONTENT_TITLE, toolTitle);
+                                Long toolNewpage = SakaiLTIUtil.getLong(tool.get(LTIService.LTI_NEWPAGE));
+                                state.setAttribute(NEW_ASSIGNMENT_CONTENT_TOOL_NEWPAGE, toolNewpage);
+                            }
                         }
                     } catch(org.sakaiproject.exception.IdUnusedException e ) {
                         // Send error to template
