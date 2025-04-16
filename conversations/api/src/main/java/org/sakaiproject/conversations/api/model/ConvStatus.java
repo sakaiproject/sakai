@@ -18,7 +18,9 @@ package org.sakaiproject.conversations.api.model;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
@@ -36,8 +38,9 @@ import lombok.Setter;
 public class ConvStatus implements PersistableEntity<Long> {
 
     @Id
-    @GeneratedValue
     @Column(name = "ID")
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "conv_status_id_sequence")
+    @SequenceGenerator(name = "conv_status_id_sequence", sequenceName = "CONV_STATUS_S")
     private Long id;
 
     @Column(name = "SITE_ID", length = 99, nullable = false)

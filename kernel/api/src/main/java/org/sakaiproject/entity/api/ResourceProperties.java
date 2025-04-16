@@ -291,6 +291,17 @@ public interface ResourceProperties extends Serializable
 	boolean getBooleanProperty(String name) throws EntityPropertyNotDefinedException, EntityPropertyTypeException;
 
 	/**
+	 * Get the named property as a boolean, or the default value if not found. No exceptions are 
+	 * thrown although a warning will be logged if there is an issue.
+	 *
+	 * @param name The property name.
+	 * @param defaultValue The default value to return if the property is not found.
+	 *
+	 * @return the property value or the default if no property was present or an error occurred.
+	 */
+	boolean getBooleanProperty(String name, boolean defaultValue);
+
+	/**
 	 * Access a named property as a long.
 	 * 
 	 * @param name
