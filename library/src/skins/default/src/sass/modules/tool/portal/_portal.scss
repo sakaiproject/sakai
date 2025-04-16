@@ -204,11 +204,8 @@
 
 .portal-main-container {
   grid-area: mainContainer;
-  display: grid;
-  grid-template-areas: 
-      "main"
-      "footer";
-  grid-template-rows: 1fr auto;
+  display: flex;
+  flex-direction: column;
   align-content: space-between;
   overflow-x: auto;
 }
