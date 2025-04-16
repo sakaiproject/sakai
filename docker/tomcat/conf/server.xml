@@ -5,7 +5,9 @@
   <Listener className="org.apache.catalina.mbeans.GlobalResourcesLifecycleListener" />
   <Listener className="org.apache.catalina.core.ThreadLocalLeakPreventionListener" />
   <Service name="Catalina">
-    <Connector port="8080" protocol="HTTP/1.1" connectionTimeout="20000" redirectPort="8443" URIEncoding="UTF-8" address="0.0.0.0"/>
+    <Connector port="8080" protocol="HTTP/1.1" connectionTimeout="20000" redirectPort="8443"  proxyPort="443"
+           scheme="https"
+           secure="true" URIEncoding="UTF-8" address="0.0.0.0" />
     <Engine name="Catalina" defaultHost="localhost">
       <Host name="localhost" startStopThreads="4" appBase="webapps" unpackWARs="true" autoDeploy="true">
         <!-- Access log processes all example.
