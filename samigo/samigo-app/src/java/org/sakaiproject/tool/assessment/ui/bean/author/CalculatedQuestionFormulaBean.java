@@ -37,6 +37,8 @@ public class CalculatedQuestionFormulaBean implements Serializable, CalculatedQu
     private String formula;
     private String tolerance;
     private String decimalPlaces;
+    private String value;
+    private String status = "OK";
     private boolean active;
     private boolean addedButNotExtracted;
     private transient boolean validatedFormula;
@@ -45,11 +47,13 @@ public class CalculatedQuestionFormulaBean implements Serializable, CalculatedQu
     private static final String DEFAULT_FORMULA = "0";
     private static final String DEFAULT_DECIMAL_PLACES = "3";
     private static final String DEFAULT_TOLERANCE = "0.01";
+    private static final String DEFAULT_VALUE = "0";
     
     public CalculatedQuestionFormulaBean() {
         this.formula = DEFAULT_FORMULA;
         this.decimalPlaces = DEFAULT_DECIMAL_PLACES;
         this.tolerance = DEFAULT_TOLERANCE;
+        this.value = DEFAULT_VALUE;
         this.active = true;
         this.validatedFormula = true;
         this.validatedTolerance = true;
@@ -100,15 +104,31 @@ public class CalculatedQuestionFormulaBean implements Serializable, CalculatedQu
         }
         return this.decimalPlaces;
     }
-    
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     public void setActive(boolean active) {
         this.active = active;
     }
-    
+
     public boolean getActive() {
         return this.active;
     }
-    
+
     /**
      * setValidFormula() controls whether the formula has been successfully
      * validated for syntax and returns a real answer

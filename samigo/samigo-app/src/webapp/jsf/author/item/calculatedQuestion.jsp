@@ -290,14 +290,6 @@ confirmation dialog
 	<div class="tier2">
 		<h:dataTable cellpadding="0" cellspacing="0" styleClass="listHier" id="pairs" 
 				value="#{itemauthor.currentItem.calculatedQuestion.variablesList}" var="variable">
-	      
-	    	<h:column>
-	        	<f:facet name="header">          
-	          		<h:outputText value="" />
-	        	</f:facet>
-	
-	          	<h:outputText value="" />
-	      	</h:column>
 	
 	      	<h:column>
 	        	<f:facet name="header">
@@ -344,13 +336,8 @@ confirmation dialog
 	</div>
 	<div class="tier2 globalvariable">
 		<h:dataTable cellpadding="0" cellspacing="0" styleClass="listHier" columnClasses="first,name,formula" id="globalvariables" 
-				value="#{itemauthor.currentItem.calculatedQuestion.globalVariablesList}" var="globalvariable">
-	      <h:column>
-	        	<f:facet name="header">
-		    		<h:outputText value=""  />
-	    	    </f:facet>
-	          <h:outputText value="" />
-	      </h:column>
+				value="#{itemauthor.currentItem.calculatedQuestion.globalVariablesList}" var="globalvariable"
+				rendered="#{not empty itemauthor.currentItem.calculatedQuestion.globalVariablesList}">
 
 	      <h:column>
 	        	<f:facet name="header">
@@ -410,12 +397,6 @@ confirmation dialog
 	<div class="tier2">
 		<h:dataTable cellpadding="0" cellspacing="0" styleClass="listHier" id="formulas" 
 				value="#{itemauthor.currentItem.calculatedQuestion.formulasList}" var="formula">
-	    	<h:column>
-	        	<f:facet name="header">          
-		    		<h:outputText value=""  />
-	    	    </f:facet>
-	          <h:outputText value="" />
-	      </h:column>
 	
 	      <h:column>
 	        	<f:facet name="header">
@@ -453,6 +434,46 @@ confirmation dialog
 	  			</h:selectOneMenu>          
 	      </h:column>
 		</h:dataTable>
+
+		<h:dataTable cellpadding="0" cellspacing="0" styleClass="listHier" id="formulasCalculation"
+				value="#{itemauthor.currentItem.calculatedQuestion.formulasList}" var="formulaCalculation"
+				rendered="#{itemauthor.currentItem.calculatedQuestion.showFormulasCalculation}">
+			<h:column>
+				<f:facet name="header">
+					<h:outputText value="#{authorMessages.calc_question_formulaname_col}" />
+				</f:facet>
+				<h:outputText escape="false" value="#{formulaCalculation.name}" />
+			</h:column>
+			<h:column>
+				<f:facet name="header">
+					<h:outputText value="#{authorMessages.calc_question_calculation_sample_col}" />
+				</f:facet>
+				<h:outputText escape="false" value="#{formulaCalculation.value}" />
+			</h:column>
+			<h:column>
+				<f:facet name="header">
+					<h:outputText value="#{authorMessages.calc_question_calculation_status_col}" />
+				</f:facet>
+				<h:outputText value="#{formulaCalculation.status}" />
+			</h:column>
+		</h:dataTable>
+
+		<h:commandButton 
+				value="#{commonMessages.check_formulas}" 
+				styleClass="mb-3" 
+				rendered="#{!itemauthor.currentItem.calculatedQuestion.showFormulasCalculation}">
+			<f:setPropertyActionListener target="#{itemauthor.currentItem.calculatedQuestion.showFormulasCalculation}" value="true" />
+			<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.CalculatedQuestionFormulaValidatorListener" />
+		</h:commandButton>
+
+		<h:commandButton 
+				value="#{commonMessages.another_solution}" 
+				styleClass="mb-3"
+				rendered="#{itemauthor.currentItem.calculatedQuestion.showFormulasCalculation}">
+			<f:setPropertyActionListener target="#{itemauthor.currentItem.calculatedQuestion.showFormulasCalculation}" value="true" />
+			<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.CalculatedQuestionFormulaValidatorListener" />
+		</h:commandButton>
+
 		<h:outputLabel value="<p>#{authorMessages.no_formulas_defined}</p>" escape="false"
 				rendered="#{itemauthor.currentItem.calculatedQuestion.formulasList eq '[]'}"/>
 	</div>
@@ -470,12 +491,6 @@ confirmation dialog
                 rendered="#{itemauthor.currentItem.calculatedQuestion.hasCalculations}">
           <h:column>
             <f:facet name="header">
-              <h:outputText value="" />
-            </f:facet>
-            <h:outputText value="" />
-          </h:column>
-          <h:column>
-            <f:facet name="header">
               <h:outputText value="#{authorMessages.calc_question_calculation_col}" />
             </f:facet>
             <h:outputText escape="false" value="#{calculation.text}" />
@@ -484,13 +499,7 @@ confirmation dialog
             <f:facet name="header">
               <h:outputText value="#{authorMessages.calc_question_calculation_sample_col}" />
             </f:facet>
-            <h:outputText escape="false" value="#{calculation.formula}" />
-          </h:column>
-          <h:column>
-            <f:facet name="header">
-              <h:outputText value="" />
-            </f:facet>
-            <h:outputText value="#{calculation.value}" />
+            <h:outputText escape="false" value="#{calculation.formula} = #{calculation.value}" />
           </h:column>
           <h:column>
             <f:facet name="header">

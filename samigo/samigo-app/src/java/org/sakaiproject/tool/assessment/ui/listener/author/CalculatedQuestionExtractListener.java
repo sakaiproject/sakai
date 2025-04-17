@@ -760,7 +760,7 @@ public class CalculatedQuestionExtractListener implements ActionListener{
      * @param answersMap
      * @param errors
      */
-    private static void evaluateCalculations(CalculatedQuestionBean calculatedQuestionBean, GradingService service, Map<String, String> answersMap, Map<String, String> globalAnswersMap, List<String> errors ) {
+    public static void evaluateCalculations(CalculatedQuestionBean calculatedQuestionBean, GradingService service, Map<String, String> answersMap, Map<String, String> globalAnswersMap, List<String> errors ) {
 
         // evaluate each calculation
         for (CalculatedQuestionCalculationBean cqcb : calculatedQuestionBean.getCalculationsList()) {
