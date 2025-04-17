@@ -27,6 +27,7 @@ import java.util.function.Consumer;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -96,9 +97,6 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 		return (relative ? "" : serverConfigurationService().getAccessUrl()) + m_relativeAccessPoint;
 	}
 
-	/**
-	 * @inheritDoc
-	 */
 	public String preferencesReference(String id)
 	{
 		return getAccessPoint(true) + Entity.SEPARATOR + id;
@@ -253,9 +251,7 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 	 * PreferencesService implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	/**
-	 * @inheritDoc
-	 */
+	@Override
 	public Preferences getPreferences(String id)
 	{
 		Preferences prefs = findPreferences(id);
@@ -303,9 +299,7 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
         return false;
     }
 
-	/**
-	 * @inheritDoc
-	 */
+	@Override
 	public PreferencesEdit edit(String id) throws PermissionException, InUseException, IdUnusedException
 	{
 		// security
@@ -335,9 +329,7 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 		return edit;
 	}
 
-	/**
-	 * @inheritDoc
-	 */
+	@Override
 	public void commit(PreferencesEdit edit)
 	{
 		if (edit != null)
@@ -377,9 +369,6 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 		}
 	}
 
-	/**
-	 * @inheritDoc
-	 */
 	public void cancel(PreferencesEdit edit)
 	{
 		if (edit != null)
@@ -414,9 +403,7 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 		}
 	}
 
-	/**
-	 * @inheritDoc
-	 */
+	@Override
 	public void remove(PreferencesEdit edit)
 	{
 		// check for closed edit
@@ -503,23 +490,14 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 		
 		return loc;
 	}
-	
-	
-	
-	
-	
-	
-	/**
-	 * @inheritDoc
-	 */
+
+	@Override
 	public boolean allowUpdate(String id)
 	{
 		return unlockCheck(SECURE_EDIT_PREFS, preferencesReference(id));
 	}
 
-	/**
-	 * @inheritDoc
-	 */
+	@Override
 	public PreferencesEdit add(String id) throws PermissionException, IdUsedException
 	{
 		// check security (throws if not permitted)
@@ -537,21 +515,35 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 		return edit;
 	}
 
+	@Override
+	public int getSiteTitleDisplayPreference() {
+
+		String currentUserId = sessionManager().getCurrentSessionUserId();
+
+		if (StringUtils.isBlank(currentUserId)) return USE_SITE_TITLE;
+
+		Preferences prefs = getPreferences(currentUserId);
+
+		if (prefs == null) return USE_SITE_TITLE;
+
+		ResourceProperties props = prefs.getProperties(SITENAV_PREFS_KEY);
+
+		if (props == null) return USE_SITE_TITLE;
+
+		return NumberUtils.toInt(props.getProperty(TAB_LABEL_PREF), USE_SITE_TITLE);
+	}
+
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * EntityProducer implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	/**
-	 * @inheritDoc
-	 */
+	@Override
 	public String getLabel()
 	{
 		return "preferences";
 	}
 
-	/**
-	 * @inheritDoc
-	 */
+	@Override
 	public boolean parseEntityReference(String reference, Reference ref)
 	{
 		// for preferences access
@@ -575,9 +567,7 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 		return false;
 	}
 
-	/**
-	 * @inheritDoc
-	 */
+	@Override
 	public Collection<String> getEntityAuthzGroups(Reference ref, String userId)
 	{
 		// double check that it's mine
@@ -600,17 +590,13 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 		return rv;
 	}
 
-	/**
-	 * @inheritDoc
-	 */
+	@Override
 	public Entity newResource(Entity container, String id, Object[] others)
 	{
 		return new BasePreferences(id);
 	}
 
-	/**
-	 * @inheritDoc
-	 */
+	@Override
 	public Entity newResource(Entity container, Element element)
 	{
 		return new BasePreferences(element);
@@ -620,17 +606,13 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 	 * StorageUser implementation (no container)
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	/**
-	 * @inheritDoc
-	 */
+	@Override
 	public Entity newResource(Entity container, Entity other)
 	{
 		return new BasePreferences((Preferences) other);
 	}
 
-	/**
-	 * @inheritDoc
-	 */
+	@Override
 	public Edit newResourceEdit(Entity container, String id, Object[] others)
 	{
 		BasePreferences e = new BasePreferences(id);
@@ -638,9 +620,7 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 		return e;
 	}
 
-	/**
-	 * @inheritDoc
-	 */
+	@Override
 	public Edit newResourceEdit(Entity container, Element element)
 	{
 		BasePreferences e = new BasePreferences(element);
@@ -648,9 +628,7 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 		return e;
 	}
 
-	/**
-	 * @inheritDoc
-	 */
+	@Override
 	public Edit newResourceEdit(Entity container, Entity other)
 	{
 		BasePreferences e = new BasePreferences((Preferences) other);
@@ -658,9 +636,7 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 		return e;
 	}
 
-	/**
-	 * @inheritDoc
-	 */
+	@Override
 	public Object[] storageFields(Entity r)
 	{
 		return null;
@@ -915,9 +891,7 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 			m_props.putAll(((BasePreferences) prefs).m_props);
 		}
 
-		/**
-		 * @inheritDoc
-		 */
+		@Override
 		public Element toXml(Document doc, Stack<Element> stack)
 		{
 			Element prefs = doc.createElement("preferences");
@@ -960,58 +934,44 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 			return prefs;
 		}
 
-		/**
-		 * @inheritDoc
-		 */
+		@Override
 		public String getId()
 		{
 			if (m_id == null) return "";
 			return m_id;
 		}
 
-		/**
-		 * @inheritDoc
-		 */
+		@Override
 		public String getUrl()
 		{
 			return getAccessPoint(false) + m_id;
 		}
 
-		/**
-		 * @inheritDoc
-		 */
+		@Override
 		public String getReference()
 		{
 			return preferencesReference(m_id);
 		}
 
-		/**
-		 * @inheritDoc
-		 */
+		@Override
 		public String getReference(String rootProperty)
 		{
 			return getReference();
 		}
 
-		/**
-		 * @inheritDoc
-		 */
+		@Override
 		public String getUrl(String rootProperty)
 		{
 			return getUrl();
 		}
 
-		/**
-		 * @inheritDoc
-		 */
+		@Override
 		public ResourceProperties getProperties()
 		{
 			return m_properties;
 		}
 
-		/**
-		 * @inheritDoc
-		 */
+		@Override
 		public ResourceProperties getProperties(String key)
 		{
 			ResourceProperties rv = m_props.get(key);
@@ -1036,17 +996,13 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 			return props;
 		}
 
-		/**
-		 * @inheritDoc
-		 */
+		@Override
 		public Collection<String> getKeys()
 		{
 			return m_props.keySet();
 		}
 
-		/**
-		 * @inheritDoc
-		 */
+		@Override
 		public boolean equals(Object obj)
 		{
 			if (!(obj instanceof Preferences)) return false;
@@ -1057,17 +1013,13 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 		 * Edit implementation
 		 *****************************************************************************************************************************************************************************************************************************************************/
 
-		/**
-		 * @inheritDoc
-		 */
+		@Override
 		public int hashCode()
 		{
 			return getId().hashCode();
 		}
 
-		/**
-		 * @inheritDoc
-		 */
+		@Override
 		public int compareTo(Object obj)
 		{
 			if (!(obj instanceof Preferences)) throw new ClassCastException();
@@ -1081,9 +1033,7 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 			return compare;
 		}
 
-		/**
-		 * @inheritDoc
-		 */
+		@Override
 		public ResourcePropertiesEdit getPropertiesEdit(String key)
 		{
 			synchronized (m_props)
@@ -1144,9 +1094,7 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 			m_event = event;
 		}
 
-		/**
-		 * @inheritDoc
-		 */
+		@Override
 		public ResourcePropertiesEdit getPropertiesEdit()
 		{
 			return m_properties;
@@ -1160,9 +1108,7 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 			m_active = true;
 		}
 
-		/**
-		 * @inheritDoc
-		 */
+		@Override
 		public boolean isActiveEdit()
 		{
 			return m_active;
@@ -1180,16 +1126,12 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 		 * SessionBindingListener implementation
 		 *****************************************************************************************************************************************************************************************************************************************************/
 
-		/**
-		 * @inheritDoc
-		 */
+		@Override
 		public void valueBound(SessionBindingEvent event)
 		{
 		}
 
-		/**
-		 * @inheritDoc
-		 */
+		@Override
 		public void valueUnbound(SessionBindingEvent event)
 		{
 			if (log.isDebugEnabled()) log.debug("valueUnbound()");
@@ -1201,5 +1143,4 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 			}
 		}
 	}
-
 }

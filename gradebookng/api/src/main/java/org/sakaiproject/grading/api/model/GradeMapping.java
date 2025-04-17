@@ -35,11 +35,13 @@ import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import org.apache.commons.lang3.builder.CompareToBuilder;
@@ -69,8 +71,9 @@ import lombok.ToString;
 public class GradeMapping implements PersistableEntity<Long>, Serializable, Comparable<Object> {
 
     @Id
-    @GeneratedValue
     @Column(name = "ID")
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "gb_grade_map_id_sequence")
+    @SequenceGenerator(name = "gb_grade_map_id_sequence", sequenceName = "GB_GRADE_MAPPING_S")
     @ToString.Include
     protected Long id;
 

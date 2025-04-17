@@ -1,7 +1,7 @@
 import "../sakai-grades.js";
 import * as data from "./data.js";
 import * as sitePickerData from "../../sakai-site-picker/test/data.js";
-import { elementUpdated, fixture, expect, html } from "@open-wc/testing";
+import { elementUpdated, fixture, expect, html, waitUntil } from "@open-wc/testing";
 import fetchMock from "fetch-mock/esm/client";
 
 import { ASSIGNMENT_A_TO_Z, ASSIGNMENT_Z_TO_A, COURSE_A_TO_Z
@@ -10,13 +10,20 @@ import { ASSIGNMENT_A_TO_Z, ASSIGNMENT_Z_TO_A, COURSE_A_TO_Z
 
 describe("sakai-grades tests", () => {
 
-  fetchMock
-    .get(data.i18nUrl, data.i18n, { overwriteRoutes: true })
-    .get(sitePickerData.i18nUrl, sitePickerData.i18n, { overwriteRoutes: true })
-    .get(data.gradesUrl, { grades: data.grades, sites: sitePickerData.sites }, { overwriteRoutes: true })
-    .get("*", 500, { overwriteRoutes: true });
+  beforeEach(async () => {
+
+    fetchMock
+      .get(data.i18nUrl, data.i18n)
+      .get(sitePickerData.i18nUrl, sitePickerData.i18n);
+  });
+
+  afterEach(async () => {
+    fetchMock.restore();
+  });
 
   it ("renders in user mode correctly", async () => {
+
+    fetchMock.get(data.gradesUrl, { grades: data.grades, sites: sitePickerData.sites });
 
     // In user mode, we'd expect to get announcements from multiple sites.
     let el = await fixture(html`
@@ -56,5 +63,21 @@ describe("sakai-grades tests", () => {
 
     await elementUpdated(el);
     await expect(el).to.be.accessible();
+  });
+
+  it ("renders a sakai info banner when there are no grades", async () => {
+
+    fetchMock.get(data.gradesUrl, { grades: [], sites: sitePickerData.sites });
+
+    const el = await fixture(html`
+      <sakai-grades user-id="${data.userId}"></sakai-grades>
+    `);
+
+    await elementUpdated(el);
+
+    await waitUntil(() => el.dataPage);
+
+    expect(el.shadowRoot.querySelector(".sak-banner-info")).to.exist;
+    expect(el.shadowRoot.querySelector(".sak-banner-info").innerHTML).to.contain(el._i18n.no_grades);
   });
 });
