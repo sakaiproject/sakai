@@ -308,7 +308,6 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
   }
 
   _toggleInlineFeedback(e, cancelling) {
-
     this._inlineFeedbackEditorShowing = !this._inlineFeedbackEditorShowing;
 
     if (this._inlineFeedbackEditorShowing) {
@@ -316,9 +315,6 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     } else {
       if (!cancelling) {
         this._submission.feedbackText = this.feedbackTextEditor.getData();
-        if (this.feedbackTextEditor.checkDirty()) {
-          bootstrap.Offcanvas.getOrCreateInstance(document.getElementById("grader")).show();
-        }
         this.requestUpdate();
       } else {
         this.feedbackTextEditor.setData(this._submission.feedbackText, () => this.modified = false);
@@ -658,6 +654,11 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
     if (currentIndex >= 1) {
       this._hydratePrevious(currentIndex);
+
+      if (this._inlineFeedbackEditorShowing) {
+        this._toggleInlineFeedback(null, false);
+      }
+
       this._submission = this._submissions[currentIndex - 1];
     }
   }
@@ -673,11 +674,15 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
   }
 
   _next() {
-
     const currentIndex = this._submissions.findIndex(s => s.id === this._submission.id);
 
     if (currentIndex < this._submissions.length - 1) {
       this._hydrateNext(currentIndex);
+
+      if (this._inlineFeedbackEditorShowing) {
+        this._toggleInlineFeedback(null, false);
+      }
+
       this._submission = this._submissions[currentIndex + 1];
     }
   }
