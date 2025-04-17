@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~  Copyright (c) 2017, University of Dayton
+  ~
+  ~  Licensed under the Educational Community License, Version 2.0 (the "License");
+  ~  you may not use this file except in compliance with the License.
+  ~  You may obtain a copy of the License at
+  ~
+  ~              http://opensource.org/licenses/ecl2
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~  limitations under the License.
+  -->
+
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+<body>
+<wicket:panel>
+    <p class="editCommentInfo">
+        <wicket:message key="attendance.settings.edit.comment.info"/>
+    </p>
+    <form wicket:id="edit-comment-settings-form">
+        <div>
+            <input type="checkbox" wicket:id="show-comments-to-students" id="show-comments-to-students" /><label for="show-comments-to-students"><wicket:message key="attendance.settings.show.comments.label"/></label>
+        </div>
+    </form>
+</wicket:panel>
+</body>
+</html>

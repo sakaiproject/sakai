@@ -1,0 +1,1094 @@
+/*
+ *  Copyright (c) 2017, University of Dayton
+ *
+ *  Licensed under the Educational Community License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *              http://opensource.org/licenses/ecl2
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+body {
+    color: #111;
+}
+
+form {
+    margin-bottom: 1em;
+}
+
+form.attendanceStatusForm {
+    margin-bottom: 0px;
+}
+
+.table > tbody > tr > td.attendanceStatusTd {
+    vertical-align: middle;
+}
+
+div.table-responsive {
+    padding-bottom: 75px;
+}
+
+/* style the Wicket FeedbackPanel to remove the list */
+.attendanceAlertMessage ul, .attendanceMessageSuccess ul {
+    list-style-type: none !important;
+    margin-left: -20px;
+    margin-bottom: 0px;
+    margin-top: 0px;
+    display: inline-block;
+}
+
+.itemListTable a, .itemListTable a:link, .itemListTable a:visited, .itemListTable a:hover, .itemListTable a:focus, .itemListTable a:active{
+    color: #0064cd;
+}
+
+.overviewTable a, .overviewTable a:link, .overviewTable a:visited, .overviewTable a:hover, .overviewTable a:focus, .overviewTable a:active{
+    color: var(--infoBanner-color);
+}
+
+.attendanceBreadcrumbs a, .attendanceBreadcrumbs a:link, .attendanceBreadcrumbs a:visited, .attendanceBreadcrumbs a:hover, .attendanceBreadcrumbs a:focus, .attendanceBreadcrumbs a:active{
+    color: #0064cd;
+}
+
+h1.overviewHeader, h1.itemsHeader, h1.settingsHeader, h1.gradingHeader {
+    color: var(--sakai-text-color-1);
+    margin-top: 1.2em;
+    min-height: 32px;
+}
+
+h1.tightHeader, h2.tightHeader, h3.tightHeader, h4.tightHeader, h5.tightHeader, h6.tightHeader {
+    margin-bottom: 0;
+}
+
+span.itemsHeaderSpan, span.settingsHeaderSpan, span.gradingHeaderSpan {
+    margin: 0 .5em;
+}
+
+p.overviewInstructions, p.addEditInstructions {
+    font-size: 1.2em;
+    line-height: 1.5em;
+}
+
+p.addEditInstructions {
+    width: 70%;
+}
+
+img.overviewInfo, div.attendanceBreadcrumbs img, .div-table-row th.takeAttendanceDateHeader, .vertAlignMiddle {
+    vertical-align: middle;
+}
+
+img.overviewInfo:hover, img.statisticsInfo:hover {
+    cursor: help;
+}
+
+img.overviewInfo:hover + div.overviewInfo {
+    display: block;
+    position: absolute;
+    padding: .5em;
+    width: 400px;
+    background: #fff;
+    border: 1px solid #004b8d;
+    color: #004b8d;
+    font-size: .6em;
+    line-height: 1.5em;
+    left: 25%;
+    font-weight: normal;
+    -webkit-box-shadow: 0 8px 6px -6px black;
+    -moz-box-shadow: 0 8px 6px -6px black;
+    box-shadow: 0 8px 6px -6px black;
+}
+
+div.overviewInfo, div.statisticsInfo, .printHidden {
+    display: none;
+}
+
+img.statisticsInfo {
+    vertical-align: middle;
+    height: 16px;
+}
+
+img.statisticsInfo:hover + div.statisticsInfo, a.statisticsInfo:hover + div.statisticsInfo {
+    display: block;
+    position: absolute;
+    padding: .5em;
+    width: 400px;
+    background: #fff;
+    border: 1px solid #004b8d;
+    color: #004b8d;
+    font-size: 1em;
+    line-height: 1.5em;
+    left: 10%;
+    font-weight: normal;
+    -webkit-box-shadow: 0 8px 6px -6px black;
+    -moz-box-shadow: 0 8px 6px -6px black;
+    box-shadow: 0 8px 6px -6px black;
+}
+
+a.statisticsInfo:hover + div.statisticsInfo {
+    left: 300px;
+}
+
+img.refreshImage {
+    vertical-align: text-top;
+    height: 1.4em;
+}
+
+table.itemListTable, table.eventViewTable, table.takeAttendanceTable {
+    border: 2px solid #ccc;
+    border-collapse: collapse;
+    padding: .5em;
+    margin-left: 35px;
+}
+
+thead tr .tablesorter-header:not(.sorter-false):not(.tablesorter-headerAsc):not(.tablesorter-headerDesc), table.itemListTable thead tr .header, table.takeAttendanceTable thead tr .header, th.tablesorter-headerUnsorted, tr.div-table-row > th.header:not(.headerSortDown):not(.headerSortUp)  {
+    background: url(../images/bg.png) no-repeat bottom .5em right;
+    cursor: pointer;
+    padding-right: 24px;
+}
+
+thead tr .tablesorter-headerAsc, table.itemListTable thead tr .headerSortUp, table.takeAttendanceTable thead tr .headerSortUp, th.headerSortUp {
+    background: url(../images/asc.png) no-repeat bottom .5em right;
+}
+thead tr .tablesorter-headerDesc, table.itemListTable thead tr .headerSortDown, table.takeAttendanceTable thead tr .headerSortDown, th.headerSortDown {
+    background: url(../images/desc.png) no-repeat bottom .5em right;
+}
+
+table.itemListTable, table.eventViewTable, table.takeAttendanceTable, div.eventFormContainer, form.addEditForm, .addComment h3, td.overviewGradeCol form {
+    margin: 0;
+}
+
+.overviewTable td, .overviewTable th, .itemListTable td, .itemListTable th, .eventViewTable td, .eventViewTable th {
+    border: 1px solid #ccc;
+    padding: .5em;
+    text-align: left;
+}
+
+.takeAttendanceTable td, .takeAttendanceTable th {
+    border: 1px solid #ccc;
+    text-align: left;
+}
+
+.takeAttendanceTable td {
+    padding: .5em;
+    text-align: center;
+}
+
+.studentPhotoCol {
+    text-align: center !important;
+    width: 80px;
+    min-height: 60px;
+    max-height: 140px;
+}
+
+.itemListTable th, .eventViewTable th, .takeAttendanceTable th {
+    text-align: center;
+    border-bottom-width: 2px;
+    font-size: 1.2em;
+}
+
+.itemListTable thead tr, .eventViewTable thead tr, .takeAttendanceTable thead tr, .div-table-row-header  {
+    background-color: var(--sakai-background-color-1);
+}
+
+.itemListTable tbody tr:hover, .eventViewTable tbody tr:hover, .takeAttendanceTable tbody tr:hover, table tbody tr.div-table-row:hover {
+    background-color: var(--sakai-background-color-4);
+}
+
+th.overviewDateCol, td.overviewDateCol, td.takeAttendanceDateHeader, th.takeAttendanceDateHeader, td.studentNameCol, th.studentOverviewNameHeader, th.importEventandStudentHeader, th.importNewCommentandStatusHeader,th.importOldCommentandStatusHeader {
+    border-right-width: 3px;
+}
+
+.importChangeTable th{
+    text-align: center;
+    border-bottom-width: 2px;
+    font-size: 1.2em;
+    vertical-align: bottom;
+}
+
+.importChangeTable td{
+    border: 1px solid #ccc;
+    padding: .5em;
+    text-align: right;
+}
+
+.importChangeTable th{
+    border: 1px solid #ccc;
+    padding: .5em;
+    text-align: center;
+}
+
+.importChangeTable thead tr{
+    background-color: #eee;
+}
+
+.importChangeTable tbody tr:hover{
+    background-color: #deeeff;
+}
+
+table.importChangeTable{
+    border: 2px solid #ccc;
+    border-collapse: collapse;
+    padding: .5em;
+    margin-left: 35px;
+}
+
+table.importChangeTable thead tr .header{
+    background: url(../images/bg.gif) no-repeat bottom .5em right;
+    cursor: pointer;
+    padding-right: 24px;
+}
+
+table.importChangeTable thead tr .headerSortUp{
+    background-image: url(../images/asc.gif);
+}
+table.importChangeTable thead tr .headerSortDown{
+    background-image: url(../images/desc.gif);
+}
+
+table.importChangeTable thead tr th.importEventandStudentHeader{
+    background-color: lightgray;
+}
+
+table.importChangeTable thead tr th.importNewCommentandStatusHeader{
+    background-color: lightgreen;
+}
+
+table.importChangeTable thead tr th.importOldCommentandStatusHeader{
+    background-color: lightcoral;
+}
+
+td.importColumn{
+    text-align: right;
+}
+
+.eventViewTable td {
+    text-align: right;
+    font-size: 1.2em;
+}
+
+.eventViewTable td, .eventViewTable th {
+    min-width: 84px;
+}
+
+th.overviewEditCol, td.overviewEditCol, th.itemListEditCol, td.itemListEditCol, td.overviewGradeCol, th.overviewGradeCol {
+    border-left-width: 3px;
+    text-align: center;
+}
+
+tr td.overviewEditCol a span.fa, tr td.overviewPrintCol a span.fa, .attendanceBreadcrumbs span a span.fa, #event-buttons  {
+    color: var(--sakai-text-color-1);
+}
+
+tr td.overviewEditCol a span.fa:hover, tr td.overviewPrintCol a span.fa:hover,
+.attendanceBreadcrumbs span a span.fa:hover, #event-buttons span:hover {
+    color: #999;
+}
+
+#event-buttons span{
+    padding-right: 0;
+}
+
+td.overviewGradeCol {
+    vertical-align: middle;
+}
+
+td.overviewStatusCol {
+    text-align: right;
+}
+
+th.overviewStatusCol, th.takeAttendanceStatusCol {
+    background-color: #e0f7e0 !important;
+}
+
+td.itemListRemoveCol, td.overviewPrintCol, p.printAction {
+    text-align: center;
+}
+
+td.studentNameCol {
+    font-size: 1.2em;
+}
+
+.table > tbody > tr > td.itemNameCol {
+    font-size: 1.2em;
+}
+
+td.actionsButtonCol {
+    text-align: center;
+}
+
+th.takeAttendanceNameHeader {
+    min-width: 160px;
+    vertical-align: middle;
+}
+
+div.addEditContainer, div.itemListContainer, div.takeAttendanceContainer, div.itemInfoContainer,
+div.activeStatusContainer, div.commentContainer, div.gradingContainer {
+    border:1px solid #ccc;
+    padding: 2.5em 2em 2em;
+    vertical-align: top;
+    position:relative;
+    display: block;
+    margin: 2em 2em 2em 35px;
+}
+
+div.rulesContainer {
+    margin: 0 4em 1em 4em;
+    padding: 0 2em;
+    border: 1px solid #ccc;
+}
+
+div.gradeContainer {
+    border:1px solid #ccc;
+    padding: 1.5em 2em 0.5em;
+    vertical-align: top;
+    position:relative;
+    display: block;
+    margin: 2em 2em 2em 35px;
+}
+
+div.takeAttendanceContainer, div.itemInfoContainer, div.gradeContainer {
+    margin: 2em;
+}
+
+div.itemInfoContainer {
+    display: flex;
+}
+
+div.addEditHeader, div.itemListHeader, div.takeAttendanceHeader, div.itemInfoHeader,
+div.activeStatusHeader, div.commentHeader, div.containerHeader {
+    background-color: var(--sakai-background-color-1);
+    position:absolute;
+    top:-1em;
+    left:.5em;
+}
+
+h3.addEditHeader, h3.itemListHeader, h3.takeAttendanceHeader, h3.itemInfoHeader,
+h3.activeStatusHeader, h3.commentHeader, h3.containerHeading {
+    margin: 0;
+    padding: 0 .5em;
+    font-size: 1.4em;
+    font-weight: normal;
+}
+
+label.addEditReq {
+    color: red;
+    font-size: 1.2em;
+}
+
+td.noEventsCol, td.noStudentsCol {
+    text-align: center;
+    font-style: italic;
+    font-size: 1.4em;
+    line-height: 1.7em;
+    background: var(--sakai-background-color-1);
+    color: var(--sakai-text-color-1);
+}
+
+div.editItemModal div.w_caption, div.editItemModal div.w_content {
+    background-color: var(--sakai-background-color-2);
+}
+
+table.addEditFormTable, div.info, .addComment textarea {
+    margin-bottom: 1em;
+}
+
+.addEditFormTable {
+    text-align: left;
+    font-size: 1.2em;
+}
+
+.addEditFormTable td {
+    padding-right: 4em;
+}
+
+div.attendanceBreadcrumbs h2 {
+    margin-left: 10px;
+}
+
+div.attendanceBreadcrumbs span {
+    padding-right: .5em;
+}
+
+.div-table-row {
+    width:auto;
+    clear:both;
+    height: 60px;
+    max-height: 60px;
+}
+
+.div-table{
+    display:table;
+    width:auto;
+    background-color:#fff;
+    border:1px solid  #ccc;
+    font-size: 1.2em;
+}
+
+.div-table-row2 {
+    display:table-row;
+    width:auto;
+    clear:both;
+}
+
+.divHeader {
+    font-weight: bold;
+}
+
+.divTableName {
+    width: 160px;
+    text-align: left;
+}
+
+p.setAll {
+    font-size: 1.2em;
+    color: #555;
+    font-weight: bold;
+    margin-top: 0;
+}
+
+.addComment {
+    position:absolute;
+    background-color: var(--sakai-background-color-3);
+    border: 1px solid #555;
+    width:200px;
+    height:auto;
+    padding:1em;
+    text-align: left;
+    -webkit-box-shadow: 0 8px 6px -6px black;
+    -moz-box-shadow: 0 8px 6px -6px black;
+    box-shadow: 0 8px 6px -6px black;
+    right: 28px;
+    z-index: 40;
+}
+
+div.printContainer {
+    position: fixed;
+    min-width: 300px;
+    padding: .5em 1em;
+    background: #fff;
+    border: 1px solid #004b8d;
+    line-height: 1.5em;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    -webkit-transform: translate(-50%, -50%);
+    font-weight: normal;
+    -webkit-box-shadow: 0 8px 6px -6px black;
+    -moz-box-shadow: 0 8px 6px -6px black;
+    box-shadow: 0 8px 6px -6px black;
+    z-index: 999;
+    background-color: var(--sakai-background-color-3);
+}
+
+.printTable td {
+    vertical-align: top;
+    padding:.5em;
+}
+
+.printTable td:nth-child(odd) {
+    font-weight: bold;
+    text-align: right;
+    color: var(--sakai-text-color-1);
+}
+
+h2.printHeader {
+    margin: .5em 0;
+    padding: 0;
+}
+
+div.printMask:hover, .printImage:hover {
+    cursor: pointer;
+    margin-right: .5em;
+    /*margin-left: 2em;*/
+}
+
+.commentToggle:hover, .div-table-col input:hover {
+    cursor: pointer;
+}
+
+span.cancelPrint, span.cancelAddComment {
+    color: var(--link-color);
+    padding-left: .5em;
+}
+
+span.cancelPrint:hover, span.cancelAddComment:hover {
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+input.grade {
+    width: 4.5em;
+}
+
+img.loadingGif {
+    width: 24px;
+    position:absolute;
+}
+
+img.settings {
+    vertical-align: middle;
+    width: 24px;
+    margin-left: 4px;
+}
+
+ul.statusList {
+    list-style: none;
+    margin: 1.5em;
+    padding: 0;
+}
+
+li.statusItem, li.statusItemPlaceholder {
+    background: url("../images/drag-handle-dark.png") no-repeat right center var(--background-green);
+    border: 1px solid #ccc;
+    font-size: 1.2em;
+    line-height: 1.7em;
+    margin: .5em 0;
+    padding: .5em;
+    width: 240px;
+}
+
+li.statusItemPlaceholder {
+    background: #fff;
+    border: 1px dashed #ccc;
+    height: 1.2em;
+}
+
+li.statusItem:hover {
+    cursor: move;
+}
+
+li.statusItem span {
+    padding-left: 2em;
+}
+
+li.statusItemDisabled  {
+    background-color: var(--sakai-background-color-4);
+}
+
+p.editStatusInfo, p.editGradeInfo, p.editCommentInfo {
+    width: 60%;
+    font-size: 1.2em;
+    line-height: 1.5em;
+    margin: 0;
+}
+
+th.overviewGradeCol img.settings {
+    vertical-align: text-bottom;
+}
+
+ul.gradeSettings {
+    list-style: none;
+    margin: 1em 0 1em 1em;
+    padding: 0;
+}
+
+ul.gradeSettings li {
+    margin: .5em 0;
+}
+
+label.gradeSettingsLabel {
+    font-size: 1.2em;
+    line-height: 1.7em;
+}
+
+div.addItemLine {
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+label.addItemCaptions {
+    position: relative;
+    top: 21%;
+}
+
+#buttonSection > button.saveNewItem {
+    background: #17214A;
+    color: white;
+}
+#buttonSection > button.saveNewItem:hover {
+    background: #111837;
+    border-color: #124466;
+}
+
+ul.actions-dropdown {
+    z-index: 90;
+}
+
+a.StudentOrEventPadding {
+    padding-right: 5px;
+}
+
+div.buttonSection {
+    padding-top: 1em;
+}
+
+span.attendanceMessageSuccess {
+    float: right;
+    padding-top: 20px;
+    padding-right: 28px;
+    color: green;
+}
+
+span.attendanceMessageSuccess:before {
+    font-family: "FontAwesome";
+    content: "\f05d";
+    display: inline-block;
+    font-size: 18px;
+}
+
+span.attendanceAlertMessage {
+    float: right;
+    padding-top: 20px;
+    padding-right: 28px;
+    color: red;
+}
+
+span.attendanceAlertMessage:before {
+    font-family: "FontAwesome";
+    content: "\f05c";
+    display: inline-block;
+    font-size:18px;
+}
+
+span.gradingType > div div label {
+    font-size: 1em;
+    margin-left: 4em;
+}
+
+span.totalPointsColHeader {
+    font-size: .75em;
+}
+
+ul.rulesList {
+    list-style: none;
+}
+
+ul.rulesList form {
+    display: inline-block;
+}
+
+div.addRulesContainer {
+    border-bottom:1px solid #ccc;
+}
+
+form.addRuleForm div {
+    display: inline-block;
+    margin-right: 8px;
+}
+
+form.gradeSettingsForm {
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 1em;
+}
+
+#rulesExplanation {
+    max-width: 740px;
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+#rulesHowLink {
+    display:block;
+    margin-top: 1em;
+}
+
+.printVisible {
+    display: block;
+}
+
+span.status-group-container {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.table > thead > tr > th.status-names-area {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    padding-left: 5%;
+}
+
+span.statusRadioCell {
+    display: table-cell;
+    width: 100%;
+    text-align: center;
+    border: 1px solid transparent;
+}
+
+div.justify-flex-div {
+    display: flex;
+    justify-content: space-around;
+}
+
+label.statusClickBox {
+    cursor: pointer;
+    z-index: 90;
+    height: 100%;
+    width: 100%;
+    font-size: 22px;
+}
+
+label.statusClickBox:hover {
+    opacity: 1;
+}
+
+span.div-table-col:hover {
+    border: 1px solid darkgrey;
+}
+
+label.record-status-name-normal {
+    display: none;
+}
+
+.PRESENT > label, .UNEXCUSED_ABSENCE > label, .EXCUSED_ABSENCE > label, .LATE > label, .LEFT_EARLY > label {
+    opacity: 1;
+    font-weight: bolder;
+}
+
+.fa-clock-o::before, .fa-check::before, .fa-times::before, .fa-genderless::before, .fa-sign-out::before {
+    vertical-align: middle;
+}
+
+label.status-label-centered {
+    text-align: center;
+    padding-left: 0px;
+    padding-right: 0px;
+    min-width: 10em;
+}
+
+span.PRESENT {
+    background-color: #DFF0D8;
+    border: 1px solid green;
+    opacity: 1;
+    color: green;
+}
+
+span.UNEXCUSED_ABSENCE {
+    background-color: #FFBBBB;
+    border: 1px solid red;
+    opacity: 1;
+    color: #b30909;;
+}
+
+span.EXCUSED_ABSENCE {
+    background-color: rgba(0, 61, 255, 0.26);
+    border: 1px solid gray;
+    opacity: 1;
+    color: #0018cc;
+}
+
+span.LATE, span.LEFT_EARLY {
+    background-color: #fcf8a5;
+    border: 1px solid goldenrod;
+    opacity: 1;
+    color: goldenrod;
+}
+
+div.noRecord {
+    padding: .5em;
+    text-align: center;
+    font-weight: bold;
+    font-style: italic;
+    color: #999;
+}
+
+div.comment-container {
+    position: relative;
+}
+
+div.statsPanelSlow {
+    height: 157px;
+}
+
+#settingsSave {
+    margin-left: 35px;
+}
+
+@media (min-width: 1205px) {
+    .record-status-name {
+        display: none;
+    }
+
+    .div-table-col {
+        float:left;/*fix for  buggy browsers*/
+        display: table-cell;
+        width: 100%;
+        text-align: center;
+        border: 1px solid transparent;
+    }
+
+    .div-table-col:first-child {
+        margin-left: 1px;
+    }
+
+    .slim-status-header {
+        display: none;
+    }
+
+    .comment-container {
+        float: right;
+        width: auto;
+        margin-right: .5em;
+    }
+}
+
+@media (max-width: 1204px) {
+    .record-status-name {
+        display: inherit;
+        margin-left: .25em;
+        padding-top: .15em;
+    }
+
+    .div-table-col {
+        display: block;
+        width: 100%;
+        text-align: center;
+        border: 1px solid transparent;
+    }
+
+    div.itemInfoContainer {
+        border: 1px solid transparent;
+    }
+
+    span.status-group-container {
+        display: block;
+    }
+
+    label.record-status-name-normal {
+        display: block;
+    }
+
+    label.record-status-name-normal:hover {
+        cursor: pointer;
+    }
+
+    label.statusClickBox {
+        display: none;
+    }
+
+    label.status-label-centered {
+        display: none;
+    }
+
+    .div-table-col input[name="attendance-record-status-group"] {
+        margin-right: .25em;
+    }
+
+    .slim-status-header {
+        display: inherit;
+    }
+
+    .status-header {
+        display: none;
+    }
+}
+
+@media (max-width: 1204px) and (min-width: 500px) {
+    .comment-container {
+        float: right;
+        margin-left: 2em;
+    }
+}
+
+@media (max-width: 500px) {
+    .comment-container {
+        margin-left: 2em;
+    }
+}
+
+div a.delete {
+    color: red;
+}
+
+div a.delete:hover {
+    color: red;
+}
+
+/* Janked from gradebook-grades.css. Credit goes to steveswinsburg & payten */
+div.wicket-modal div.w_content_3 {
+    border: none; /** don't want border wrapping content inside the modal **/
+}
+
+div.wicket-modal div.w_caption {
+    cursor: move;
+    min-height: 60px;
+    height: auto;
+}
+
+div.wicket-modal h3.w_captionText {
+    padding: 20px;
+    font-size: 1.5em;
+    position: relative;
+    height: auto;
+    color: var(--sakai-text-color-1);
+}
+/* End janking */
+
+div.wicket-modal div.w_content_3 div.messageSuccess, div.wicket-modal div.w_content_3 div.alertMessage {
+    margin-top: 0;
+    margin-bottom: 10px;
+    padding: 7px 30px 7px 30px;
+}
+
+form.takeAttendanceNowForm input {
+    background:#17214A;
+    color: white;
+    margin-bottom: 1em;
+}
+
+form.takeAttendanceNowForm input:hover {
+    background: #111837;
+    border-color: #124466;
+    color: white;
+}
+
+span.yui-skin-sam img {
+    margin-right: .5em;
+}
+
+
+.cancel {
+    background: #e54028;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    -ms-border-radius: 3px;
+    -o-border-radius: 3px;
+    border-radius: 3px;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+    -webkit-transition-property: background;
+    -moz-transition-property: background;
+    -o-transition-property: background;
+    transition-property: background;
+    -webkit-transition-duration: 0.3s;
+    -moz-transition-duration: 0.3s;
+    -o-transition-duration: 0.3s;
+    transition-duration: 0.3s;
+    color: #ffffff;
+    text-shadow: none;
+    border: none;
+    height: 32px;
+    line-height: 32px;
+    padding: 0px 25.6px;
+    font-weight: 300;
+    margin: 0;
+    text-decoration: none;
+    text-align: center;
+    display: inline-block;
+}
+
+.cancel:active {
+    background: darkred;
+    -webkit-box-shadow: inset 0px 1px 0px rgba(255, 255, 255, 0.03), inset 0px -1px 1px rgba(255, 255, 255, 0.05), 0px 1px 0px #777777, 0px 3px 3px rgba(0, 0, 0, 0.03);
+    -moz-box-shadow: inset 0px 1px 0px rgba(255, 255, 255, 0.3), inset 0px -1px 1px rgba(255, 255, 255, 0.05), 0px 1px 0px #777777, 0px 3px 3px rgba(0, 0, 0, 0.03);
+    box-shadow: inset 0px 1px 0px rgba(255, 255, 255, 0.03), inset 0px -1px 1px rgba(255, 255, 255, 0.05), 0px 1px 0px #777777, 0px 3px 3px rgba(0, 0, 0, 0.03);
+}
+.cancel:hover {
+    background: #FF530D;
+    text-decoration: none;
+    color: #ffffff;
+}
+.cancel:active {
+    background: darkred;
+    -webkit-box-shadow: inset 0px 1px 0px rgba(255, 255, 255, 0.03), inset 0px -1px 1px rgba(255, 255, 255, 0.05), 0px 1px 0px #777777, 0px 3px 3px rgba(0, 0, 0, 0.03);
+    -moz-box-shadow: inset 0px 1px 0px rgba(255, 255, 255, 0.3), inset 0px -1px 1px rgba(255, 255, 255, 0.05), 0px 1px 0px #777777, 0px 3px 3px rgba(0, 0, 0, 0.03);
+    box-shadow: inset 0px 1px 0px rgba(255, 255, 255, 0.03), inset 0px -1px 1px rgba(255, 255, 255, 0.05), 0px 1px 0px #777777, 0px 3px 3px rgba(0, 0, 0, 0.03);
+}
+
+.confirm {
+    background: #00B233;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    -ms-border-radius: 3px;
+    -o-border-radius: 3px;
+    border-radius: 3px;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+    -webkit-transition-property: background;
+    -moz-transition-property: background;
+    -o-transition-property: background;
+    transition-property: background;
+    -webkit-transition-duration: 0.3s;
+    -moz-transition-duration: 0.3s;
+    -o-transition-duration: 0.3s;
+    transition-duration: 0.3s;
+    color: #ffffff;
+    text-shadow: none;
+    border: none;
+    height: 32px;
+    line-height: 32px;
+    padding: 0px 25.6px;
+    font-weight: 300;
+    margin: 0;
+    text-decoration: none;
+    text-align: center;
+    display: inline-block;
+}
+
+.confirm:active {
+    background: darkgreen;
+    -webkit-box-shadow: inset 0px 1px 0px rgba(255, 255, 255, 0.03), inset 0px -1px 1px rgba(255, 255, 255, 0.05), 0px 1px 0px #777777, 0px 3px 3px rgba(0, 0, 0, 0.03);
+    -moz-box-shadow: inset 0px 1px 0px rgba(255, 255, 255, 0.3), inset 0px -1px 1px rgba(255, 255, 255, 0.05), 0px 1px 0px #777777, 0px 3px 3px rgba(0, 0, 0, 0.03);
+    box-shadow: inset 0px 1px 0px rgba(255, 255, 255, 0.03), inset 0px -1px 1px rgba(255, 255, 255, 0.05), 0px 1px 0px #777777, 0px 3px 3px rgba(0, 0, 0, 0.03);
+}
+.confirm:hover {
+    background: lightgreen;
+    text-decoration: none;
+    color: #ffffff;
+}
+.confirm:active {
+    background: darkgreen;
+    -webkit-box-shadow: inset 0px 1px 0px rgba(255, 255, 255, 0.03), inset 0px -1px 1px rgba(255, 255, 255, 0.05), 0px 1px 0px #777777, 0px 3px 3px rgba(0, 0, 0, 0.03);
+    -moz-box-shadow: inset 0px 1px 0px rgba(255, 255, 255, 0.3), inset 0px -1px 1px rgba(255, 255, 255, 0.05), 0px 1px 0px #777777, 0px 3px 3px rgba(0, 0, 0, 0.03);
+    box-shadow: inset 0px 1px 0px rgba(255, 255, 255, 0.03), inset 0px -1px 1px rgba(255, 255, 255, 0.05), 0px 1px 0px #777777, 0px 3px 3px rgba(0, 0, 0, 0.03);
+}
+
+.iclPage{
+    padding-left: 35px;
+}
+.exportPage{
+    padding-left: 60px;
+}
+.exportPageDouble{
+    padding-left: 120px;
+}
+.exportPageInfoBox{
+    overflow: auto;
+    border: solid;
+    border-width: 1px;
+    margin-left: 60px;
+    margin-right: 60px;
+}
+.exportPageUL{
+    list-style-type:none;
+}
+.exportPageLI{
+    padding-left: 10px;
+}
+.boldHeader {
+    font-weight:bold;
+    margin-top: 5px;
+}
+.boldSpace {
+    font-weight:bold;
+    padding-right: 4px;
+}
+.eventTablePager {
+    text-align: center;
+    font-size: 1.3em;
+}
+
+div#startDateTime span.yui-skin-sam span.yui-calcontainer, div#startDateTime th.calweekdaycell, div#startDateTime td.calcell:not(.oom), div#startDateTime span.yui-skin-sam span.yui-calcontainer a:not(.calnavright):not(.calnavleft), div#startDateTime span.yui-skin-sam span.yui-calcontainer div.title {
+    background: var(--sakai-background-color-2);
+    color: var(--sakai-text-color-2);
+}

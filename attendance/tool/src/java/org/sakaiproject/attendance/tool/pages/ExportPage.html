@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~  Copyright (c) 2017, University of Dayton
+  ~
+  ~  Licensed under the Educational Community License, Version 2.0 (the "License");
+  ~  you may not use this file except in compliance with the License.
+  ~  You may obtain a copy of the License at
+  ~
+  ~              http://opensource.org/licenses/ecl2
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~  limitations under the License.
+  -->
+
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+
+<body>
+<wicket:extend>
+
+    <h2><wicket:message key="attendance.export.exportHeader" /></h2>
+    <p class = "exportPage"><wicket:message key="attendance.export.exportInfo" /></p>
+    <div class="row">
+        <div class="col-sm-7">
+            <form class = "exportPageDouble" wicket:id="export-form">
+                <p><input type="checkbox" wicket:id="exportIncludeComments" id="exportIncludeComments"> <label for="exportIncludeComments"><wicket:message key="attendance.export.checkbox.comments" /></label></p>
+                <p><input type="checkbox" wicket:id="exportBlankSheet" id="exportBlankSheet"> <label for="exportBlankSheet"><wicket:message key="attendance.export.checkbox.blank" /></label></p>
+                <button id="exportSave" type="submit" wicket:id="submit-link"><wicket:message key="attendance.export.exportButton" /></button>
+             </form>
+
+            <h2><wicket:message key="attendance.export.importHeader" /></h2>
+            <p class = "exportPage"><wicket:message key="attendance.export.importInfo" /></p>
+            <form class = "exportPageDouble" wicket:id="form">
+                <fieldset>
+                    <input type="file" wicket:id="upload" />
+                </fieldset>
+
+                <div class="act">
+                    <button type="submit" id="import-button" wicket:id="submitLink" disabled><wicket:message key="attendance.export.importButton" /></button>
+                </div>
+            </form>
+        </div>
+        <div class="col-sm-5">
+        <!--<div class = "exportPageInfoBox">-->
+            <div class = exportPageInfoBox>
+                <ul class = "exportPageUL">
+                    <li class = "boldHeader"><wicket:message key="attendance.export.exportInfoBox.part1" />
+                    </li>
+                    <li><wicket:message key="attendance.export.exportInfoBox.part2" />
+                    </li>
+                    <li><wicket:message key="attendance.export.exportInfoBox.part3" />
+                        <ul class = exportPageUL>
+                            <li class = "exportPageLI"><span class = "boldSpace"><wicket:message key="attendance.export.exportInfo.labels.A" /></span><span><wicket:message key="attendance.export.exportInfo.labels.A.description" /></span></li>
+                            <li class = "exportPageLI"><span class = "boldSpace"><wicket:message key="attendance.export.exportInfo.labels.P" /></span><span><wicket:message key="attendance.export.exportInfo.labels.P.description" /></span></li>
+                            <li class = "exportPageLI"><span class = "boldSpace"><wicket:message key="attendance.export.exportInfo.labels.L" /></span><span><wicket:message key="attendance.export.exportInfo.labels.L.description" /></span></li>
+                            <li class = "exportPageLI"><span class = "boldSpace"><wicket:message key="attendance.export.exportInfo.labels.LE"/></span><span><wicket:message key="attendance.export.exportInfo.labels.LE.description"/></span></li>
+                            <li class = "exportPageLI"><span class = "boldSpace"><wicket:message key="attendance.export.exportInfo.labels.E" /></span><span><wicket:message key="attendance.export.exportInfo.labels.E.description" /></span></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+    <p></p>
+
+</wicket:extend>
+</body>
+</html>

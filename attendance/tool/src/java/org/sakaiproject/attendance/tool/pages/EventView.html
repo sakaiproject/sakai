@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~  Copyright (c) 2017, University of Dayton
+  ~
+  ~  Licensed under the Educational Community License, Version 2.0 (the "License");
+  ~  you may not use this file except in compliance with the License.
+  ~  You may obtain a copy of the License at
+  ~
+  ~              http://opensource.org/licenses/ecl2
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~  limitations under the License.
+  -->
+
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+
+<body>
+<wicket:extend>
+    <div class="attendanceBreadcrumbs">
+        <h2>
+            <span wicket:id="event-name"></span>
+            <span wicket:id="event-date"></span>
+            <span id="event-buttons">
+                <a wicket:id="edit-link"><span class="fa fa-pencil-square-o fa-lg"></span><span class="sr-only"><wicket:message key="attendance.icon.settings.alt"/></span></a>
+                <span class="fa fa-print fa-lg printImage" id="eventPrintLink"><span class="sr-only"><wicket:message key="attendance.icon.print.alt"/></span></span>
+            </span>
+        </h2>
+    </div>
+    <div class="takeAttendanceContainer">
+        <div class="takeAttendanceHeader">
+            <h3 class="takeAttendanceHeader">
+                <span wicket:id="take-attendance-header"/>
+            </h3>
+        </div>
+        <form wicket:id="filter-table-form">
+            <span wicket:id="group-choice-label" /> <select wicket:id="group-choice" />
+        </form>
+        <form wicket:id="set-all-form">
+            <p><wicket:message key="attendance.event.view.set.all.label" /> <select wicket:id="set-all-status" /></p>
+        </form>
+        <div class="table-responsive">
+        <table id="takeAttendanceTable" class="table table-striped table-bordered">
+            <thead>
+            <tr class="div-table-row">
+                <th>
+                    <span wicket:id="student-photo" />
+                </th>
+                <th class="col-sm-5">
+                    <span wicket:id="student-name" />
+                </th>
+                <th class="row">
+                    <div class="justify-flex-div" id="justify-flex-div" >
+                        <span wicket:id="status-names">
+                            <label class="status-label-centered" wicket:id="header-status-name" />
+                        </span>
+                        <label class="status-label-centered"><wicket:message key="attendance.record.form.view.comment"/></label>
+                    </div>
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr wicket:id="records" class="div-table-row">
+                <td class="studentPhotoCol">
+                    <img wicket:id="stu-photo"/>
+                </td>
+                <td>
+                    <a wicket:id="stu-link"><span wicket:id="stu-name"></span></a>
+                </td>
+                <td id="attendanceStatusTd" class="attendanceStatusTd">
+                    <span wicket:id="dataPanelSlow"></span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+            <div wicket:id="pagingNavigator" class="eventTablePager"></div>
+        </div>
+    </div>
+    <div wicket:id="statsPanelSlow" class="table-responsive"></div>
+    <div id="printContainer" class="printContainer" wicket:id="print-container">
+        <span wicket:id="print-panel"/>
+    </div>
+
+    <div id="printMask" class="printMask" style="display:none;"></div>
+
+    <script type="text/javascript" src="javascript/print.js"></script>
+
+</wicket:extend>
+</body>
+</html>
+
+

@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~  Copyright (c) 2017, University of Dayton
+  ~
+  ~  Licensed under the Educational Community License, Version 2.0 (the "License");
+  ~  you may not use this file except in compliance with the License.
+  ~  You may obtain a copy of the License at
+  ~
+  ~              http://opensource.org/licenses/ecl2
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~  limitations under the License.
+  -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!--  SakaiProxy -->
+ 	<bean id="org.sakaiproject.attendance.logic.SakaiProxy"
+    	class="org.sakaiproject.attendance.logic.SakaiProxyImpl"
+        init-method="init">
+
+        <!-- API injection -->
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+        <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+		<property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService" />
+		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
+
+	</bean>
+
+    <!-- DAO. This uses the DataSource that has already been setup by Sakai  -->
+	<bean id="org.sakaiproject.attendance.dao.AttendanceDaoTarget"
+		  class="org.sakaiproject.attendance.dao.impl.AttendanceDaoImpl"
+		  init-method="init">
+		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+	</bean>
+
+	<!-- Attendance Data Access Object -->
+	<bean id="org.sakaiproject.attendance.dao.AttendanceDao"
+		  class="org.sakaiproject.genericdao.springutil.CurrentClassLoaderTxProxyFactoryBean">
+		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		<property name="target" ref="org.sakaiproject.attendance.dao.AttendanceDaoTarget" />
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+	</bean>
+
+	<!-- AttendanceLogic -->
+	<bean id="org.sakaiproject.attendance.logic.AttendanceLogic"
+		  class="org.sakaiproject.attendance.logic.AttendanceLogicImpl"
+		  init-method="init">
+
+		<property name="dao" ref="org.sakaiproject.attendance.dao.AttendanceDao" />
+		<property name="sakaiProxy" ref="org.sakaiproject.attendance.logic.SakaiProxy" />
+		<property name="attendanceGradebookProvider" ref="org.sakaiproject.attendance.api.AttendanceGradebookProvider" />
+		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
+	</bean>
+
+	<!-- PDFEventExporter -->
+	<bean id="org.sakaiproject.attendance.export.PDFEventExporter"
+		  class="org.sakaiproject.attendance.export.PDFEventExporterImpl"
+		  init-method="init">
+
+		<property name="attendanceLogic" ref="org.sakaiproject.attendance.logic.AttendanceLogic" />
+		<property name="sakaiProxy" ref="org.sakaiproject.attendance.logic.SakaiProxy" />
+
+	</bean>
+
+	<!-- AttendanceGradebookProvider -->
+	<bean id="org.sakaiproject.attendance.api.AttendanceGradebookProvider"
+		  class="org.sakaiproject.attendance.impl.AttendanceGradebookProviderImpl"
+		  init-method="init">
+
+		<property name="attendanceLogic" ref="org.sakaiproject.attendance.logic.AttendanceLogic" />
+		<property name="sakaiProxy" ref="org.sakaiproject.attendance.logic.SakaiProxy" />
+		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
+		<property name="gradingService" ref="org.sakaiproject.grading.api.GradingService" />
+	</bean>
+
+	<!-- Add our HBM files to the Sakai global session factory -->
+	<bean id="org.sakaiproject.attendance.hbm.HBMMappingList"
+		  class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+
+		<property name="mappingResources">
+			<list>
+				<value>org/sakaiproject/attendance/hbm/AttendanceEvent.hbm.xml</value>
+				<value>org/sakaiproject/attendance/hbm/AttendanceGrade.hbm.xml</value>
+				<value>org/sakaiproject/attendance/hbm/AttendanceItemStats.hbm.xml</value>
+				<value>org/sakaiproject/attendance/hbm/AttendanceRecord.hbm.xml</value>
+				<value>org/sakaiproject/attendance/hbm/AttendanceSite.hbm.xml</value>
+				<value>org/sakaiproject/attendance/hbm/AttendanceStatus.hbm.xml</value>
+				<value>org/sakaiproject/attendance/hbm/AttendanceUserStats.hbm.xml</value>
+				<value>org/sakaiproject/attendance/hbm/GradingRule.hbm.xml</value>
+			</list>
+		</property>
+
+	</bean>
+
+	<!-- Cache: ttl=1 hour -->
+	<bean id="org.sakaiproject.attendance.cache.CacheManager"
+		  class="org.sakaiproject.attendance.cache.CacheManagerImpl">
+		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
+	</bean>
+
+	<!-- Job to Sync the Statistics -->
+	<bean id="AttendanceStatCalc"
+		  class="org.sakaiproject.attendance.services.AttendanceStatCalcJob"
+		  init-method="init" destroy-method="destroy">
+		<property name="attendanceStatCalc" ref="org.sakaiproject.attendance.services.AttendanceStatCalc" />
+		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
+		<property name="usageSessionService" ref="org.sakaiproject.event.api.UsageSessionService" />
+		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+	</bean>
+
+	<bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.AttendanceStatCalc"
+		  class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+		  init-method="init">
+		<property name="beanId" value="AttendanceStatCalc" />
+		<property name="jobName" value="Attendance Stat Calc - SEE DOCS" />
+		<property name="schedulerManager" 	ref="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+	</bean>
+
+	<bean id="org.sakaiproject.attendance.services.AttendanceStatCalc"
+		  class="org.sakaiproject.attendance.services.AttendanceStatCalc"
+		  init-method="init" destroy-method="destroy">
+		<property name="dao" ref="org.sakaiproject.attendance.dao.AttendanceDao" />
+		<property name="sakaiProxy" ref="org.sakaiproject.attendance.logic.SakaiProxy" />
+		<property name="attendanceLogic" ref="org.sakaiproject.attendance.logic.AttendanceLogic" />
+	</bean>
+</beans>

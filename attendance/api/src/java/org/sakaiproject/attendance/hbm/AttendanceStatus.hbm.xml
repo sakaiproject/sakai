@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<!--
+  ~  Copyright (c) 2017, University of Dayton
+  ~
+  ~  Licensed under the Educational Community License, Version 2.0 (the "License");
+  ~  you may not use this file except in compliance with the License.
+  ~  You may obtain a copy of the License at
+  ~
+  ~              http://opensource.org/licenses/ecl2
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~  limitations under the License.
+  -->
+
+<!DOCTYPE hibernate-mapping
+        PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="org.sakaiproject.attendance.model">
+
+    <class name="org.sakaiproject.attendance.model.AttendanceStatus" table="ATTENDANCE_STATUS_T">
+
+        <id name="id">
+            <column name="A_STATUS_ID" not-null="true" length="19" />
+            <generator class="native">
+                <param name="sequence">ATTENDANCE_STATUS_S</param>
+            </generator>
+        </id>
+
+        <property name="isActive"       column="IS_ACTIVE"          type="java.lang.Boolean" />
+        <property name="status"         column="STATUS"             type="org.sakaiproject.attendance.types.StatusUserType" />
+        <property name="sortOrder"      column="SORT_ORDER"         type="int" />
+
+        <many-to-one name="attendanceSite" column="A_SITE_ID" unique="false" not-null="true" class="AttendanceSite" lazy="false"/>
+    </class>
+
+    <query name="getAttendanceStatus">
+        <![CDATA[from AttendanceStatus aStatus WHERE aStatus.id = :id]]>
+    </query>
+    <query name="getActiveAttendanceStatusesForSite">
+        <![CDATA[from AttendanceStatus aStatus JOIN FETCH aStatus.attendanceSite WHERE aStatus.attendanceSite = :attendanceSite and aStatus.isActive = true]]>
+    </query>
+    <query name="getAllAttendanceStatusesForSite">
+        <![CDATA[from AttendanceStatus aStatus JOIN FETCH aStatus.attendanceSite WHERE aStatus.attendanceSite = :attendanceSite]]>
+    </query>
+
+</hibernate-mapping>

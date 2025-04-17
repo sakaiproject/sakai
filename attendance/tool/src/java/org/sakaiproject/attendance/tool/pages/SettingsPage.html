@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~  Copyright (c) 2017, University of Dayton
+  ~
+  ~  Licensed under the Educational Community License, Version 2.0 (the "License");
+  ~  you may not use this file except in compliance with the License.
+  ~  You may obtain a copy of the License at
+  ~
+  ~              http://opensource.org/licenses/ecl2
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~  limitations under the License.
+  -->
+
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+
+<body>
+<wicket:extend>
+
+	<h1 class="settingsHeader indnt1">
+		<span wicket:id="header-settings" class="settingsHeaderSpan" />
+	</h1>
+<form wicket:id="settings-form">
+	<div class="activeStatusContainer">
+		<div class="activeStatusHeader">
+			<h3 class="activeStatusHeader"><wicket:message key="attendance.settings.active.status.header" /></h3>
+		</div>
+
+		<div wicket:id="all-statuses-container">
+			<span wicket:id="edit-status-panel" />
+		</div>
+	</div>
+
+	<div class="commentContainer">
+		<div class="commentHeader">
+			<h3 class="commentHeader"><wicket:message key="attendance.settings.comment.header"/></h3>
+		</div>
+
+		<div wicket:id="comment-container">
+			<wicket:container wicket:id="edit-comment-panel"/>
+		</div>
+	</div>
+
+	<button id="settingsSave" type="submit" wicket:id="submit-link"><wicket:message key="attendance.settings.edit.save" /></button>
+</form>
+
+</wicket:extend>
+</body>
+</html>

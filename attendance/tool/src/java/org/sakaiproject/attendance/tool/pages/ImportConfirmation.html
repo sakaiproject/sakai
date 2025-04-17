@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~  Copyright (c) 2017, University of Dayton
+  ~
+  ~  Licensed under the Educational Community License, Version 2.0 (the "License");
+  ~  you may not use this file except in compliance with the License.
+  ~  You may obtain a copy of the License at
+  ~
+  ~              http://opensource.org/licenses/ecl2
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~  limitations under the License.
+  -->
+
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+<body>
+<wicket:extend>
+
+    <h2><wicket:message key="attendance.export.confirmation.pageHeader" /></h2>
+    <p class="iclPage"><wicket:message key="attendance.export.confirmation.info" /></p>
+    <h2> </h2>
+    <form wicket:id="form">
+        <div class="iclPage">
+            <button type="submit" wicket:id="submitLink2" class="cancel"><wicket:message key="attendance.export.confirmation.button.cancel"/></button>
+            <button type="submit" wicket:id="submitLink" class="confirm" ><wicket:message key="attendance.export.confirmation.button.confirm"/></button>
+            <label wicket:id="lowerErrorAlert" class="text-danger" />
+        </div>
+    </form>
+    <br />
+    <h3 class="iclPage"><wicket:message key="attendance.export.confirmation.tableHeader" /></h3>
+    <table wicket:id="student-overview-stats-table" id="overviewTable" class="importChangeTable">
+        <thead>
+        <tr>
+            <th class="importEventandStudentHeader"><span> <wicket:message key="attendance.export.confirmation.header.event" /></span></th>
+            <th class="importEventandStudentHeader"><span> <wicket:message key="attendance.export.confirmation.header.student" /></span></th>
+            <th class="importOldCommentandStatusHeader"><span> <wicket:message key="attendance.export.confirmation.header.oldStatus" /></span></th>
+            <th wicket:id="old-comment-header" class="importOldCommentandStatusHeader"><span> <wicket:message key="attendance.export.confirmation.header.oldComment" /> </span> </th>
+            <th class="importNewCommentandStatusHeader"><span> <wicket:message key="attendance.export.confirmation.header.newStatus" /></span></th>
+            <th wicket:id="new-comment-header" class="importNewCommentandStatusHeader"><span> <wicket:message key="attendance.export.confirmation.header.newComment" /> </span></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr wicket:id="students">
+            <td class="importColumn"><span wicket:id="event-name-label" /></td>
+            <td class="importColumn"><span wicket:id="student-name-label" /></td>
+            <td class="importColumn"><span wicket:id="old-status-label" /></td>
+            <td class="importColumn" wicket:id="old-comment-wmc"><span wicket:id="old-comment-label" /></td>
+            <td class="importColumn"><span wicket:id="new-status-label" /></td>
+            <td class="importColumn" wicket:id="new-comment-wmc"><span wicket:id="new-comment-label" /></td>
+            <!--<td wicket:id="active-status-stats" class="overviewStatusCol"><span wicket:id="student-stats" /></td>-->
+        </tr>
+        <wicket:enclosure child="no-changes">
+            <tr>
+                <td colspan="100" class="importColumn">
+                    <span wicket:id="no-changes" />
+                </td>
+            </tr>
+        </wicket:enclosure>
+        </tbody>
+    </table>
+
+
+
+    <script type="text/javascript" src="javascript/jquery.tablesorter.min.js"></script>
+    <script type="text/javascript" src="javascript/jquery.metadata.js"></script>
+    <script type="text/javascript">
+        $("p.overviewInstructions").width($("#overviewTable").outerWidth());
+        $("#overviewTable").tablesorter({
+            sortList: [[0,0]]
+        });
+    </script>
+</wicket:extend>
+</body>
+</html>
