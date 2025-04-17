@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~  Copyright (c) 2017, University of Dayton
+  ~
+  ~  Licensed under the Educational Community License, Version 2.0 (the "License");
+  ~  you may not use this file except in compliance with the License.
+  ~  You may obtain a copy of the License at
+  ~
+  ~              http://opensource.org/licenses/ecl2
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~  limitations under the License.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	
+	<modelVersion>4.0.0</modelVersion>
+	
+	<name>attendance - Base</name>
+	<groupId>org.sakaiproject.attendance</groupId>
+	<artifactId>attendance</artifactId>
+	
+	<packaging>pom</packaging>
+	
+	<parent>
+    	<groupId>org.sakaiproject</groupId>
+    	<artifactId>master</artifactId>
+    	<version>23-SNAPSHOT</version>
+  	</parent>
+
+	<developers>
+		<developer>
+			<name>Leonardo Canessa</name>
+			<email>lcanessa1@udayton.edu</email>
+			<organization>University of Dayton</organization>
+			<timezone>-5</timezone>
+		</developer>
+		<developer>
+			<name>David Bauer</name>
+			<email>dbauer1@udayton.edu</email>
+			<organization>University of Dayton</organization>
+			<timezone>-5</timezone>
+		</developer>
+	</developers>
+
+	<licenses>
+		<license>
+			<name>Educational Community License, Version 2.0</name>
+			<url>http://www.opensource.org/licenses/ECL-2.0</url>
+		</license>
+	</licenses>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+	
+	<dependencyManagement>
+		<dependencies>
+		
+			<!-- project dependencies -->
+			<dependency>
+      			<groupId>org.sakaiproject.attendance</groupId>
+      			<artifactId>attendance-api</artifactId>
+      			<version>${project.version}</version>
+      			<scope>provided</scope>
+    		</dependency>
+    		<dependency>
+      			<groupId>org.sakaiproject.attendance</groupId>
+      			<artifactId>attendance-impl</artifactId>
+      			<version>${project.version}</version>
+      			<scope>runtime</scope>
+    		</dependency>
+			
+			<!-- third party dependencies -->
+			<dependency>
+				<groupId>org.apache.wicket</groupId>
+				<artifactId>wicket</artifactId>
+				<version>6.21.0</version>
+                <type>pom</type>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.wicket</groupId>
+				<artifactId>wicket-spring</artifactId>
+				<version>6.21.0</version>
+	    	</dependency>
+			<dependency>
+				<groupId>org.apache.wicket</groupId>
+				<artifactId>wicket-datetime</artifactId>
+				<version>6.21.0</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.wicket</groupId>
+				<artifactId>wicket-extensions</artifactId>
+				<version>6.21.0</version>
+			</dependency>
+			<dependency>
+				<groupId>commons-configuration</groupId>
+				<artifactId>commons-configuration</artifactId>
+				<version>1.10</version>
+				<exclusions>
+					<exclusion>
+						<groupId>commons-logging</groupId>
+						<artifactId>commons-logging</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	
+	
+  <modules>
+    <module>tool</module>
+    <module>api</module>
+    <module>impl</module>
+  </modules>
+
+  <profiles>
+    <profile>
+      <id>snapshots</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+        <property>
+          <name>snapshots</name>
+        </property>
+      </activation>
+      <repositories>
+        <repository>
+          <id>sonatype-nexus-snapshots</id>
+          <name>Sonatype Nexus Snapshots</name>
+          <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+          <releases>
+            <enabled>false</enabled>
+          </releases>
+          <snapshots>
+            <enabled>true</enabled>
+          </snapshots>
+        </repository>
+      </repositories>
+    </profile>
+  </profiles>
+
+</project>

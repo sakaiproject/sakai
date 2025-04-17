@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~  Copyright (c) 2017, University of Dayton
+  ~
+  ~  Licensed under the Educational Community License, Version 2.0 (the "License");
+  ~  you may not use this file except in compliance with the License.
+  ~  You may obtain a copy of the License at
+  ~
+  ~              http://opensource.org/licenses/ecl2
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~  limitations under the License.
+  -->
+
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+<body>
+<wicket:panel>
+    <form wicket:id="print-form">
+
+        <h2 class="printHeader"><wicket:message key="attendance.print.header" /></h2>
+
+        <table class="printTable">
+            <tbody>
+            <tr>
+                <td>
+                    <wicket:message key="attendance.print.item.name" />
+                </td>
+                <td>
+                    <span wicket:id="event-name"/>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <wicket:message key="attendance.print.item.date" />
+                </td>
+                <td>
+                    <span wicket:id="event-date"/>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <wicket:message key="attendance.print.group" />
+                </td>
+                <td>
+                    <select wicket:id="group-choice" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <wicket:message key="attendance.print.format" />
+                </td>
+                <td>
+                    <span wicket:id="print-format" />
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <p class="printAction">
+            <input type="submit" wicket:id="print"  wicket:message="value:attendance.overview.header.print" class="printButton">
+            <span id="cancelPrint" class="cancelPrint"><wicket:message key="attendance.print.cancel" /></span>
+        </p>
+        <script type="text/javascript">
+            $("#cancelPrint").on("click", function(){
+                $("#printContainer").slideUp("fast");
+                $("#printMask").hide();
+            });
+            $(".printButton").on("click", function(){
+                $("#printContainer").hide();
+                $("#printMask").hide();
+                return true;
+            });
+        </script>
+
+    </form>
+</wicket:panel>
+</body>
+</html>

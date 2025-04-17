@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~  Copyright (c) 2017, University of Dayton
+  ~
+  ~  Licensed under the Educational Community License, Version 2.0 (the "License");
+  ~  you may not use this file except in compliance with the License.
+  ~  You may obtain a copy of the License at
+  ~
+  ~              http://opensource.org/licenses/ecl2
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~  limitations under the License.
+  -->
+
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+<body>
+<wicket:panel>
+    <div class="addRulesContainer">
+        <div wicket:id="rules-feedback"/>
+        <h3 class="tightHeader"><wicket:message key="attendance.settings.grading.add.rules"/></h3>
+        <p>
+            <wicket:message key="attendance.settings.grading.rules.info"/>
+            <a href="#" id="rulesHowLink" onclick="$('#rulesExplanation').slideToggle();return false;"><wicket:message key="attendance.settings.grading.rules.how" /></a>
+        </p>
+        <div id="rulesExplanation" style="display:none;">
+            <strong><wicket:message key="attendance.settings.grading.rules.explanation" /></strong>
+            <ol>
+                <li>
+                    <wicket:message key="attendance.settings.grading.rules.steps.1" />
+                </li>
+                <li>
+                    <wicket:message key="attendance.settings.grading.rules.steps.2" />
+                </li>
+                <li>
+                    <wicket:message key="attendance.settings.grading.rules.steps.3" />
+                </li>
+                <li>
+                    <wicket:message key="attendance.settings.grading.rules.steps.4" />
+                </li>
+                <li>
+                    <wicket:message key="attendance.settings.grading.rules.steps.5" />
+                </li>
+            </ol>
+            <em><wicket:message key="attendance.settings.grading.rules.example" /></em>
+        </div>
+        <form wicket:id="grading-rule-add-form" class="addRuleForm">
+            <div>
+                <label>
+                    <wicket:message key="attendance.settings.grading.status.label"/> <br />
+                    <select wicket:id="status"></select>
+                </label>
+            </div>
+            <div>
+                <label>
+                    <wicket:message key="attendance.settings.grading.after.label"/> <br />
+                    <input type="text" wicket:id="start-range" size="5" />
+                </label>
+            </div>
+            <div>
+                <label>
+                    <wicket:message key="attendance.settings.grading.until.label"/> <br />
+                    <input type="text" wicket:id="end-range" size="5" />
+                </label>
+            </div>
+            <div>
+                <label>
+                    <wicket:message key="attendance.settings.grading.points.label"/> <br />
+                    <input type="text" wicket:id="points" size="5" />
+                </label>
+            </div>
+            <div>
+                <input type="submit" wicket:id="add-rule-submit" wicket:message="value:attendance.settings.grading.add.rule"/>
+            </div>
+        </form>
+    </div>
+    <div wicket:id="rules-list"></div>
+</wicket:panel>
+</body>
+</html>

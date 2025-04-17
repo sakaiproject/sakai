@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~  Copyright (c) 2017, University of Dayton
+  ~
+  ~  Licensed under the Educational Community License, Version 2.0 (the "License");
+  ~  you may not use this file except in compliance with the License.
+  ~  You may obtain a copy of the License at
+  ~
+  ~              http://opensource.org/licenses/ecl2
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~  limitations under the License.
+  -->
+
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+<body>
+<wicket:panel>
+    <form wicket:id="settings" class="gradeSettingsForm">
+        <ul class="gradeSettings">
+            <li>
+                <input type="number" id="maximumGrade" class="grade" wicket:id="maximumGrade" /> <label class="gradeSettingsLabel" for="maximumGrade" wicket:id="maximum-grade-label" />
+            </li>
+            <div wicket:container wicket:id="grading">
+                <li>
+                    <input type="checkbox" id="isGradeShown" class="vertAlignMiddle" wicket:id="isGradeShown" /> <label class="gradeSettingsLabel" for="isGradeShown" wicket:id="is-grade-shown-label"/>
+                </li>
+                <li>
+                    <input type="checkbox" id="sendToGradebook" class="vertAlignMiddle" wicket:id="sendToGradebook" /> <label class="gradeSettingsLabel" for="sendToGradebook" wicket:id="send-to-gradebook" />
+                    <div wicket:container wicket:id="gradebook" >
+                        <ul class="gradeSettings">
+                            <li>
+                                <input type="text" id="gradebookItemName" wicket:id="gradebookItemName" /> <label class="gradeSettingsLabel" for="gradebookItemName" wicket:id="gradebook-item-name" />
+                            </li>
+                            <li>
+                                <select id="gradebookCategory" wicket:id="gradebookCategory" />
+                                <label for="gradebookCategory" class="gradeSettingsLabel" wicket:id="gradebookCategoryLabel" />
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                <li>
+                    <h3><wicket:message key="attendance.settings.grading.mode"/></h3>
+                    <div wicket:id="use-auto-grading-group">
+                        <div><label class="gradeSettingsLabel"><input type="radio" wicket:id="manual-grading"> <wicket:message key="attendance.settings.grading.manually"/></label></div>
+                        <div><label class="gradeSettingsLabel"><input type="radio" wicket:id="auto-grading"> <wicket:message key="attendance.settings.grading.auto"/></label></div>
+                    </div>
+                    <span wicket:id="auto-grading-type" class="gradingType">
+                        <div wicket:id="auto-grading-type-group">
+                            <div><label class="gradeSettingsLabel"><input type="radio" wicket:id="subtract-grading"> <wicket:message key="attendance.settings.grading.subtraction.based"/></label></div>
+                            <div><label class="gradeSettingsLabel"><input type="radio" wicket:id="add-grading"> <wicket:message key="attendance.settings.grading.addition.based"/></label></div>
+                        </div>
+                    </span>
+                </li>
+            </div>
+        </ul>
+        <input type="submit" wicket:id="submit"/>
+    </form>
+    <div wicket:id="grading-rules" class="rulesContainer"></div>
+</wicket:panel>
+</body>
+</html>

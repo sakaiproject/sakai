@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<!--
+  ~  Copyright (c) 2017, University of Dayton
+  ~
+  ~  Licensed under the Educational Community License, Version 2.0 (the "License");
+  ~  you may not use this file except in compliance with the License.
+  ~  You may obtain a copy of the License at
+  ~
+  ~              http://opensource.org/licenses/ecl2
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~  limitations under the License.
+  -->
+
+<!DOCTYPE hibernate-mapping
+        PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="org.sakaiproject.attendance.model">
+
+    <class name="org.sakaiproject.attendance.model.AttendanceUserStats" table="ATTENDANCE_USER_STATS_T">
+
+        <id name="id">
+            <column name="A_USER_STATS_ID" not-null="true" length="19" />
+            <generator class="native">
+                <param name="sequence">ATTENDANCE_USER_STATS_S</param>
+            </generator>
+        </id>
+        
+        <property name="userID"     column="USER_ID"    type="java.lang.String" />
+
+        <many-to-one name="attendanceSite" column="A_SITE_ID" unique="false" not-null="true" class="AttendanceSite" lazy="false" />
+
+        <property name="present"    column="PRESENT"    type="int" />
+        <property name="unexcused"  column="UNEXCUSED"  type="int" />
+        <property name="excused"    column="EXCUSED"    type="int" />
+        <property name="late"       column="LATE"       type="int" />
+        <property name="leftEarly"  column="LEFT_EARLY" type="int" />
+    </class>
+
+    <query name="getAttendanceUserStats">
+        <![CDATA[FROM AttendanceUserStats aUS JOIN FETCH aUS.attendanceSite WHERE aUS.attendanceSite = :attendanceSite AND aUS.userID = :userID]]>
+    </query>
+
+    <query name="getAttendanceUserStatsForSite">
+        <![CDATA[FROM AttendanceUserStats aUS JOIN FETCH aUS.attendanceSite WHERE aUS.attendanceSite = :attendanceSite]]>
+    </query>
+
+</hibernate-mapping>
