@@ -77,7 +77,8 @@ $(document).ready(function() {
 </f:verbatim>
 </f:subview>
 
-<h:dataTable id="forums" value="#{ForumTool.forums}" rendered="#{!empty ForumTool.forums}"  width="100%" var="forum" cellpadding="0" cellspacing="0" styleClass="specialLink" border="0">
+<div class="table-responsive">
+<h:dataTable id="forums" value="#{ForumTool.forums}" rendered="#{!empty ForumTool.forums}"  width="100%" var="forum" cellpadding="0" cellspacing="0" styleClass="table table-striped table-hover specialLink" border="0">
     <h:column>
         <h:panelGroup layout="block" rendered="#{! forum.nonePermission}">
         <h:panelGrid columns="1" styleClass="forumHeader"  border="0">
@@ -404,3 +405,4 @@ $(document).ready(function() {
         </h:panelGroup>
       </h:column>
   </h:dataTable>
+</div>
