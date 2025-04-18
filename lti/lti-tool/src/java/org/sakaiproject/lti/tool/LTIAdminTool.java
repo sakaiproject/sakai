@@ -1994,7 +1994,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 				log.warn("Could not create gradebook column while processing LineItem");
 			}
 		} catch (Exception e) { // Probably a duplicate title
-			log.info("Could not create gradebook column while processing LineItem");
+			log.warn("Could not create gradebook column while processing LineItem");
 		}
 	}
 

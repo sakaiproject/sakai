@@ -2576,11 +2576,16 @@ public class SakaiLTIUtil {
 		}
 
 		// Now read, set, or delete the non-assignment grade...
+		// For LTI 1.1 columns we don't need to mark them for AGS LineItems retrieval
+		Long tool_id = null;
+		Map<String, Object> content = null;
+
 		Session sess = SessionManager.getCurrentSession();
 
 		SakaiLineItem lineItem = new SakaiLineItem();
 		lineItem.scoreMaximum = 100.0D;
-		org.sakaiproject.grading.api.Assignment gradebookColumn = getGradebookColumn(site, user_id, title, lineItem);
+
+		org.sakaiproject.grading.api.Assignment gradebookColumn = getGradebookColumn(site, user_id, title, lineItem, tool_id, content);
 		if (gradebookColumn == null) {
 			log.warn("gradebookColumn or Id is null, cannot proceed with grading in site {} for column {}", siteId, title);
 			return "Grade failure siteId=" + siteId;
@@ -2650,6 +2655,7 @@ public class SakaiLTIUtil {
 		String title;
 
 		log.debug("siteid: {} tool_id: {} lineitem_key: {} userId: {} scoreObj: {}", site.getId(), tool_id, lineitem_key, userId, scoreObj);
+System.out.println("content="+content);
 
 		// An empty / null score given means to delete the score
 		SakaiLineItem lineItem = new SakaiLineItem();
@@ -2670,7 +2676,7 @@ public class SakaiLTIUtil {
 				log.error("Could not determine content title {}", content.get(LTIService.LTI_ID));
 				return "Could not determine content title key="+content.get(LTIService.LTI_ID);
 			}
-			gradebookColumn = getGradebookColumn(site, userId, title, lineItem);
+			gradebookColumn = getGradebookColumn(site, userId, title, lineItem, tool_id, content);
 		} else {
 			gradebookColumn = LineItemUtil.getColumnByKeyDAO(siteId, tool_id, lineitem_key);
 			if ( gradebookColumn == null || gradebookColumn.getName() == null ) {
@@ -2931,7 +2937,7 @@ public class SakaiLTIUtil {
 		return keyPrefix + next;
 	}
 
-	public static org.sakaiproject.grading.api.Assignment getGradebookColumn(Site site, String userId, String title, SakaiLineItem lineItem) {
+	public static org.sakaiproject.grading.api.Assignment getGradebookColumn(Site site, String userId, String title, SakaiLineItem lineItem, Long tool_id, Map<String, Object> content) {
 		// Look up the gradebook columns so we can find the max points
 		GradingService gradingService = (GradingService) ComponentManager.get("org.sakaiproject.grading.api.GradingService");
 
@@ -2973,6 +2979,11 @@ public class SakaiLTIUtil {
 				returnColumn.setPoints(scoreMaximum);
 				returnColumn.setExternallyMaintained(false);
 				returnColumn.setName(title);
+				if ( tool_id != null && content != null ) {
+					String external_id = LineItemUtil.constructExternalId(tool_id, content, lineItem);
+					returnColumn.setExternalAppName(LineItemUtil.GB_EXTERNAL_APP_NAME);
+					returnColumn.setExternalId(external_id);
+				}
 				// SAK-40043
 				Boolean releaseToStudent = lineItem.releaseToStudent == null ? Boolean.TRUE : lineItem.releaseToStudent; // Default to true
 				Boolean includeInComputation = lineItem.includeInComputation == null ? Boolean.TRUE : lineItem.includeInComputation; // Default true
