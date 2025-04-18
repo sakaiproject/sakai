@@ -24,7 +24,6 @@
 
 package org.sakaiproject.pasystem.impl.popups;
 
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.sql.Clob;
 import java.sql.ResultSet;
@@ -134,7 +133,7 @@ public class PopupStorage implements Popups, Acknowledger {
                             @Override
                             public List<Popup> call(DBConnection db) throws SQLException {
                                 List<Popup> popups = new ArrayList<Popup>();
-                                try (DBResults results = db.run("SELECT * from pasystem_popup_screens")
+                                try (DBResults results = db.run("SELECT * from pasystem_popup_screens ORDER BY start_time DESC")
                                         .executeQuery()) {
                                     for (ResultSet result : results) {
                                         popups.add(Popup.create(result.getString("uuid"),
