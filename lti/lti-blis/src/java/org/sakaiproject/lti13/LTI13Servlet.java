@@ -1693,7 +1693,9 @@ public class LTI13Servlet extends HttpServlet {
 	}
 
 	protected SakaiAccessToken getSakaiAccessToken(Key publicKey, HttpServletRequest request, HttpServletResponse response) {
-		String authorization = request.getHeader("authorization");
+	        log.debug("publicKey={}", publicKey);
+
+	        String authorization = request.getHeader("authorization");
 
 		if (authorization == null || !authorization.startsWith("Bearer")) {
 			log.error("Invalid authorization {}", authorization);
@@ -1715,7 +1717,7 @@ public class LTI13Servlet extends HttpServlet {
 			claims = Jwts.parser().setSigningKey(publicKey).parseClaimsJws(jws).getBody();
 		} catch (ExpiredJwtException | MalformedJwtException | UnsupportedJwtException
 				| io.jsonwebtoken.security.SignatureException | IllegalArgumentException e) {
-			log.error("Signature error {}\n{}", e.getMessage(), jws);
+			log.error("{} Signature error {}\n{}", e.getClass().getName(), e.getMessage(), jws, e);
 			LTI13Util.return403(response, "signature_error");
 			return null;
 		}
@@ -2185,7 +2187,7 @@ public class LTI13Servlet extends HttpServlet {
 	 */
 	private void handleLineItemsGet(String signed_placement, boolean all, SakaiLineItem filter,
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
-		log.debug("signed_placement={}", signed_placement);
+		log.debug("signed_placement={}; all={}", signed_placement, all);
 
 		// Load the access token, checking the the secret
 		SakaiAccessToken sat = getSakaiAccessToken(tokenKeyPair.getPublic(), request, response);
@@ -2249,6 +2251,7 @@ public class LTI13Servlet extends HttpServlet {
 			if ( content != null ) {
 				response.setContentType(SakaiLineItem.CONTENT_TYPE);
 				SakaiLineItem item = LineItemUtil.getDefaultLineItem(site, content);
+				log.debug("single line item = {}", JacksonUtil.prettyPrint(item));
 				PrintWriter out = response.getWriter();
 				out.print(JacksonUtil.prettyPrint(item));
 				return;
@@ -2259,6 +2262,7 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		// Find the line items created for this tool
+		log.debug("filter={}", JacksonUtil.prettyPrint(filter));
 		List<SakaiLineItem> toolItems = LineItemUtil.getLineItemsForTool(signed_placement, site, sat.tool_id, filter);
 
 		response.setContentType(SakaiLineItem.CONTENT_TYPE_CONTAINER);
@@ -2269,6 +2273,7 @@ public class LTI13Servlet extends HttpServlet {
 		for (SakaiLineItem item : toolItems) {
 			out.println(first ? "" : ",");
 			first = false;
+			log.debug("line item = {}", JacksonUtil.prettyPrint(item));
 			out.print(JacksonUtil.prettyPrint(item));
 		}
 		out.println("");

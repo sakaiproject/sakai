@@ -473,6 +473,7 @@ public class LTI13Util {
 		job.put("error", error);
 		String retval = org.tsugi.jackson.JacksonUtil.toString(job);
 		try {
+			log.debug("httpStatus={}; retval={}", httpStatus, retval);
 			PrintWriter out = response.getWriter();
 			out.println(retval);
 		} catch (IOException e) {
