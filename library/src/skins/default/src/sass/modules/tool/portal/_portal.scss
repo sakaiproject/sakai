@@ -198,7 +198,6 @@
 }
 
 .portal-main-content {
-  grid-area: main;
   outline: none;
 }
 
@@ -243,7 +242,6 @@
 }
 
 .portal-footer {
-  grid-area: footer;
   .copyright-powered {
     display: flex;
     flex-direction: column;
