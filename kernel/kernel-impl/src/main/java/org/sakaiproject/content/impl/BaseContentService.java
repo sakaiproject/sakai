@@ -7487,6 +7487,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 					ContentResource oldSiteContentResource = getResource(oldReference);
 					byte[] thisResourceContentRaw = oldSiteContentResource.getContent();
 					rContent = new String(thisResourceContentRaw);
+					rContent = rContent.replace("%2520", "%20");
 					StringBuffer saveOldEntity = new StringBuffer(rContent);
 					for (String oldValue : traversalMap.keySet()) {
 						if (!oldValue.equals("/fromContext")){

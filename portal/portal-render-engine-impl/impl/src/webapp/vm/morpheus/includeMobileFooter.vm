@@ -14,6 +14,7 @@
       </button>
     </li>
 
+    #if (!${loginTopLogin})
     <li>
       <button class="btn icon-button"
           data-bs-toggle="offcanvas"
@@ -24,6 +25,7 @@
         <span class="si si-calendar" aria-hidden="true"></span>
       </button>
     </li>
+    #end
 
 
     #if (${useBullhornAlerts} && !${loginTopLogin})
