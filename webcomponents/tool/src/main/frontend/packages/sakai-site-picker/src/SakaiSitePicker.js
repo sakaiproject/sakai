@@ -61,7 +61,7 @@ export class SakaiSitePicker extends SakaiShadowElement {
   render() {
 
     return html`
-      <select aria-label="${this._i18n.site_selector_label}" @change=${this._siteChanged} ?multiple=${this.multiple}>
+      <select part="select" aria-label="${this._i18n.site_selector_label}" @change=${this._siteChanged} ?multiple=${this.multiple}>
         <option value="${SakaiSitePicker.ALL}" ?selected=${!this.selectedSites}>${this._i18n.all_pinned_sites}</option>
         ${this.sites.map(s => html`
           <option value="${s.siteId}" ?selected=${this.siteId === s.siteId || (this.selectedSites?.includes(s.siteId))}>${s.title}</option>
