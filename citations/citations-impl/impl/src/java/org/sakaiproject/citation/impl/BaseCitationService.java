@@ -36,6 +36,8 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.Stack;
@@ -80,6 +82,8 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.InUseException;
@@ -105,7 +109,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Accessors(prefix = "m_" )
-public abstract class BaseCitationService implements CitationService
+public abstract class BaseCitationService implements CitationService, Observer
 {
 	protected boolean attemptToMatchSchema = false;
 	
@@ -146,6 +150,9 @@ public abstract class BaseCitationService implements CitationService
 	 * Dependency: the ResourceTypeRegistry
 	 */
 	@Setter @Getter protected ResourceTypeRegistry m_resourceTypeRegistry;
+
+	@Setter
+	private EventTrackingService m_eventTrackingService;
 
 	protected static final List<String> AUTHOR_AS_KEY = new Vector<String>();
 	static
@@ -4326,6 +4333,7 @@ public abstract class BaseCitationService implements CitationService
 			m_storage.close();
 			m_storage = null;
 		}
+		m_eventTrackingService.deleteObserver(this);
 	}
 
 	/**
@@ -4731,7 +4739,7 @@ public abstract class BaseCitationService implements CitationService
 		{
 			registerResourceType();
 		}
-
+		m_eventTrackingService.addLocalObserver(this);
 	}
 
 	/**
@@ -5715,6 +5723,31 @@ public abstract class BaseCitationService implements CitationService
     	c.copy(citation);
     	return c;
     }
+
+
+
+	private void hardDeleteCitation(String id) {
+		try {
+			CitationCollection collection = getCollection(id);
+			List<Citation> citations = collection.getCitations();
+			for (Citation citation : citations) {
+				m_storage.removeCitation(citation);
+			}
+			m_storage.removeCollection(collection);
+		} catch (IdUnusedException e) {
+			log.warn("A citation does not exist with id [{}], {}", id, e);
+		}
+	}
+
+	public void update(Observable o, final Object arg) {
+		if (arg instanceof Event e) {
+            String event = e.getEvent();
+			if (event.equals(ContentHostingService.CITATIONS_HARD_DELETE_EVENT)) {
+				String resource = e.getResource();
+				hardDeleteCitation(resource);
+			}
+		}
+	}
 
 } // BaseCitationService
 

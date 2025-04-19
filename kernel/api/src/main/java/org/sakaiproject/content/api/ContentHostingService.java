@@ -292,6 +292,12 @@ public interface ContentHostingService extends EntityProducer
 	public static final String DEFAULT_STUDENT_FOLDER = "student-uploads";
 
 	/**
+	 * Used for hard delete of resources of type citation list
+	 */
+	public static final String CITATIONS_HARD_DELETE_EVENT = "citations.hard.delete";
+	public static final String CITATIONS_RESOURCE_TYPE_ID = "org.sakaiproject.citation.impl.CitationList";
+
+	/**
     * For a given id, return its UUID (creating it if it does not already exist)
     */
    public String getUuid(String id);
