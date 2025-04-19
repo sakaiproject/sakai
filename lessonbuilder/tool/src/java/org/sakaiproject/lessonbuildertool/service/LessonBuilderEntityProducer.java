@@ -1178,7 +1178,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	@Override
 	public String merge(String siteId, Element root, String archivePath, String fromSiteId, MergeConfig mcx) {
 		Map<String, String> entityMap = null;
-		return mergeInternal(siteId, root, archivePath, fromSiteId, mcx, entityMap);
+		boolean isTransferCopy = false;
+		return mergeInternal(siteId, root, archivePath, fromSiteId, mcx, entityMap, isTransferCopy);
 	}
 
 	/*
@@ -1244,11 +1245,11 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 	// Internally used for both site copy and zip import
 	public String mergeInternal(String siteId, Element root, String archivePath, String fromSiteId, MergeConfig mcx,
-			Map<String, String> entityMap)
+			Map<String, String> entityMap, boolean isTransferCopy)
 	{
 
-		log.debug("Lessons Merge siteId={} fromSiteId={} creatorId={} archiveContext={} archiveServerUrl={}",
-				siteId, fromSiteId, mcx.creatorId, mcx.archiveContext, mcx.archiveServerUrl);
+		log.debug("Lessons Merge siteId={} fromSiteId={} creatorId={} archiveContext={} archiveServerUrl={} isTransferCopy={}",
+				siteId, fromSiteId, mcx.creatorId, mcx.archiveContext, mcx.archiveServerUrl, isTransferCopy);
 
 		StringBuilder results = new StringBuilder();
 
@@ -1317,8 +1318,15 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		}
 		log.debug("Post-transitive closure {} {}", placementPageMap, parentPage);
 
-		// Check if there are existing Lessons placements in the site that has no real content
-		// that we can reuse.
+		// If this is a transferCopy operation, cleanup is handled based on the user's
+		// selection before we are called and we put items into existing or new placements
+		// with the same name.  If the user requested "merge" - there is no real duplicate
+		// handling and the user does the cleanup if neded afterwards
+
+		// If this is an import from file, we will do our best to not overwrite any existing
+		// content (i.e. avoid importing the same content twice) by only importing into empty
+		// Lessons placements or creating new Lessons placements.
+
 		Site site;
 		try {
 			site = siteService.getSite(siteId);
@@ -1334,6 +1342,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		// some code in site action creates the vestigial page and item for new placements and some doesn't
 		// so we loop through and figure out which placements we already have and patch any existing placements
 		// missing their vestigial page and/or item
+
 		log.debug("Looping through {} placements in {}", LessonBuilderConstants.TOOL_ID, siteId);
 		Collection<ToolConfiguration> toolConfs = site.getTools(myToolIds());
 		if (toolConfs != null && !toolConfs.isEmpty())  {
@@ -1374,7 +1383,11 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				SimplePage topLevelPage = simplePageToolDao.getPage(topLevelPageId);
 				if ( topLevelPage == null ) continue;
 				List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(topLevelPageId);
-				if (items.isEmpty()) {
+				if ( isTransferCopy ) { // If we are doing transferCopyEntities, pretend it is empty :)
+					log.debug("merging page into lesson placement: {} {} {} ", p.getId(), title, topLevelPageId);
+					emptyTopLevelPageIds.put(title, topLevelPageId);
+					emptySakaiIds.put(title, p.getId());
+				} else if (items.isEmpty()) {
 					log.debug("found empty lesson placement: {} {} {} ", p.getId(), title, topLevelPageId);
 					emptyTopLevelPageIds.put(title, topLevelPageId);
 					emptySakaiIds.put(title, p.getId());
@@ -1887,7 +1900,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			mcx.creatorId = sessionManager.getCurrentSessionUserId();
 			mcx.archiveContext = fromContext;
 			mcx.archiveServerUrl = ServerConfigurationService.getServerUrl();
-			mergeInternal(toContext,  (Element)doc.getFirstChild().getFirstChild(), "/tmp/archive", fromContext, mcx, entityMap);
+			boolean isTransferCopy = true;
+			mergeInternal(toContext,  (Element)doc.getFirstChild().getFirstChild(), "/tmp/archive", fromContext, mcx, entityMap, isTransferCopy);
 
 			ToolSession session = sessionManager.getCurrentToolSession();
 
