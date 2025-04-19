@@ -2523,7 +2523,7 @@ public class GradingServiceImpl implements GradingService {
      * @return a locale-aware Double value representation of the given String
      * @throws ParseException
      */
-    private Double convertStringToDouble(final String doubleAsString) {
+    public Double convertStringToDouble(final String doubleAsString) {
 
         if (StringUtils.isBlank(doubleAsString)) {
             return null;
