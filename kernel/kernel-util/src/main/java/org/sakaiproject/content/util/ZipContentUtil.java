@@ -58,6 +58,7 @@ import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
+import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.tool.api.SessionManager;
@@ -204,13 +205,16 @@ public class ZipContentUtil {
 				contentHostingService.addResource(resourceName, reference.getId(), MAXIMUM_ATTEMPTS_FOR_UNIQUENESS,
 						"application/zip", fis, props, null, false, null, null,
 						NotificationService.NOTI_NONE);
+			} catch (OverQuotaException oqe) {
+				addAlert(toolSession, resourceLoader.getString("overquota_error_zip"));
+				log.warn(oqe.toString(), oqe);
 			} catch (PermissionException pe) {
 				addAlert(toolSession, resourceLoader.getString("permission_error_zip"));
-				log.warn(pe.getMessage(), pe);
+				log.warn(pe.toString(), pe);
 			}
 		} catch (Exception e) {
 			addAlert(toolSession, resourceLoader.getString("generic_error_zip"));
-			log.error(e.getMessage(), e);
+			log.error(e.toString(), e);
 		} 
 		finally {
 			if (temp != null && temp.exists()) {
