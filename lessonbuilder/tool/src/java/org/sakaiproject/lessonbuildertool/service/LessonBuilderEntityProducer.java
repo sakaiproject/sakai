@@ -1321,7 +1321,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		// If this is a transferCopy operation, cleanup is handled based on the user's
 		// selection before we are called and we put items into existing or new placements
 		// with the same name.  If the user requested "merge" - there is no real duplicate
-		// handling and the user does the cleanup if neded afterwards
+		// handling and the user does the cleanup if needed afterwards
 
 		// If this is an import from file, we will do our best to not overwrite any existing
 		// content (i.e. avoid importing the same content twice) by only importing into empty
