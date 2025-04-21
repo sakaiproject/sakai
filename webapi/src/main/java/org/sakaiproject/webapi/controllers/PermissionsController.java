@@ -100,7 +100,8 @@ public class PermissionsController extends AbstractSakaiApiController {
             try {
                 overrideAuthzGroup = authzGroupService.getAuthzGroup(overrideRef);
             } catch (GroupNotDefinedException e) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No realm defined for override ref " + overrideRef);
+                // Instructor editing a folder that doesn't have a realm yet
+                overrideAuthzGroup = authzGroup;
             }
         }
 
@@ -121,7 +122,7 @@ public class PermissionsController extends AbstractSakaiApiController {
 
                 on.put(role.getId(), filteredFunctions);
 
-                if (overrideRole != null) {
+                if (overrideRole != null && !"content".equalsIgnoreCase(tool)) {
                     // If a overrideReference is provided this means that the authzgroup indicated by
                     // that reference takes precedence over what is set in the main group, the one
                     // indicated by "reference". So, if the override authzgroup has a function set,

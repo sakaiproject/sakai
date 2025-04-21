@@ -23,7 +23,8 @@ describe("sakai-permissions tests", () => {
 
   it ("renders correctly", async () => {
 
-    fetchMock.get(data.permsUrl, data.perms);
+    // Encode the ref parameter in the mock URL for the initial load
+    fetchMock.get(`/api/sites/${data.siteId}/permissions/tool?ref=${encodeURIComponent(`/site/${data.siteId}`)}`, data.perms);
 
     const el = await fixture(html`
       <sakai-permissions tool="tool">
@@ -80,7 +81,8 @@ describe("sakai-permissions tests", () => {
 
   it ("tests the _handlePermissionClick method", async () => {
 
-    fetchMock.get(data.permsUrl, data.perms);
+    // Encode the ref parameter in the mock URL for the initial load
+    fetchMock.get(`/api/sites/${data.siteId}/permissions/tool?ref=${encodeURIComponent(`/site/${data.siteId}`)}`, data.perms);
 
     const el = await fixture(html`
       <sakai-permissions tool="tool">
@@ -123,7 +125,7 @@ describe("sakai-permissions tests", () => {
     const overrideRef = "override_ref";
 
     // Mock up a 400 (bad request) response
-    const url = `/api/sites/${data.siteId}/permissions/tool?ref=${ref}&overrideRef=${overrideRef}`;
+    const url = `/api/sites/${data.siteId}/permissions/tool?ref=${encodeURIComponent(ref)}&overrideRef=${encodeURIComponent(overrideRef)}`;
     fetchMock.get(url, 400);
 
     const consoleErrorStub = sinon.stub(console, "error");
@@ -153,7 +155,7 @@ describe("sakai-permissions tests", () => {
     const overrideRef = "override_ref";
     const overriddenPerms = { ...data.perms, locked: { maintain: [ "tool.create", "tool.delete" ] } };
 
-    const url = `/api/sites/${data.siteId}/permissions/tool?ref=${ref}&overrideRef=${overrideRef}`;
+    const url = `/api/sites/${data.siteId}/permissions/tool?ref=${encodeURIComponent(ref)}&overrideRef=${encodeURIComponent(overrideRef)}`;
     fetchMock.get(url, overriddenPerms);
 
     const el = await fixture(html`
@@ -176,7 +178,8 @@ describe("sakai-permissions tests", () => {
 
     const unsetPerms = { ...data.perms, on: { "maintain": [], "access": [] } };
 
-    fetchMock.get(data.permsUrl, unsetPerms);
+    // Encode the ref parameter in the mock URL for the initial load
+    fetchMock.get(`/api/sites/${data.siteId}/permissions/tool?ref=${encodeURIComponent(`/site/${data.siteId}`)}`, unsetPerms);
 
     // Mock the POST request for saving permissions
     const saveUrl = `/api/sites/${data.siteId}/permissions`;
@@ -184,7 +187,6 @@ describe("sakai-permissions tests", () => {
 
     const el = await fixture(html`
       <sakai-permissions tool="tool"
-        site-id="${data.siteId}"
         fire-event>
       </sakai-permissions>
     `);
@@ -224,10 +226,14 @@ describe("sakai-permissions tests", () => {
 
   it ("loads group permissions correctly", async () => {
 
-    fetchMock.get(data.permsUrl, data.perms);
+    const initialRef = `/site/${data.siteId}`;
+    // Encode the initial ref parameter in the mock URL
+    fetchMock.get(`/api/sites/${data.siteId}/permissions/tool?ref=${encodeURIComponent(initialRef)}`, data.perms);
 
     const el = await fixture(html`
       <sakai-permissions tool="tool"
+        reference="${initialRef}" // Explicitly set initial reference
+        enable-groups
         fire-event>
       </sakai-permissions>
     `);
@@ -251,7 +257,7 @@ describe("sakai-permissions tests", () => {
       groups : data.groups,
     };
 
-    fetchMock.get(`/api/sites/${data.siteId}/permissions/tool?ref=${data.groups[0].reference}`, groupPerms);
+    fetchMock.get(`/api/sites/${data.siteId}/permissions/tool?ref=${encodeURIComponent(data.groups[0].reference)}`, groupPerms);
 
     groupPicker.dispatchEvent(new CustomEvent("groups-selected", { detail: { value: data.groups[0].reference }, bubbles: true }));
 
