@@ -193,6 +193,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 	private SiteNeighbourhoodService siteNeighbourhoodService;
 
+	private boolean skipContainer = false;
+
 	//Get user preferences
 	private PreferencesService preferencesService;
     private ProfileImageService profileImageService;
@@ -796,8 +798,23 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			// get the Sakai session
 			Session session = SessionManager.getCurrentSession();
 
-			// recognize what to do from the path
-			String option = URLUtils.getSafePathInfo(req);
+        // recognize what to do from the path
+        String option = URLUtils.getSafePathInfo(req);
+        
+        // Check if this is the root path and user is not logged in
+        if ((option == null || "/".equals(option)) && session.getUserId() == null) {
+            // Save the portal URL as the return URL after login
+            String portalUrl = ServerConfigurationService.getPortalUrl();
+            session.setAttribute(Tool.HELPER_DONE_URL, portalUrl);
+            
+            // Show login page directly without redirect
+            ActiveTool tool = ActiveToolManager.getActiveTool("sakai.login");
+            String loginPath = (!forceContainer && skipContainer ? "/xlogin" : "/relogin");
+            String context = req.getContextPath() + req.getServletPath() + loginPath;
+            tool.help(req, res, context, loginPath);
+			return;
+        }
+
 
 			String[] parts = getParts(req);
 
