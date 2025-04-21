@@ -301,11 +301,13 @@
 			</h:panelGroup>
 			<h:panelGroup id="openDateSpan" styleClass="indnt2 openDateSpan calWidget" style="display: #{ForumTool.selectedTopic.availabilityRestricted ? 'block' : 'none'}">
 				<h:outputLabel value="#{msgs.openDate}: " for="openDate"/>
-				<h:inputText id="openDate" styleClass="openDate" value="#{ForumTool.selectedTopic.openDate}"/>
+				<h:inputText id="openDate" styleClass="openDate" value="#{ForumTool.selectedTopic.openDate}" onchange="storeOpenDateISO(event)"/>
+				<h:inputText id="openDateISO" styleClass="openDateISO hidden" value="#{ForumTool.selectedTopic.openDateISO}"></h:inputText>
 			</h:panelGroup>
 			<h:panelGroup id="closeDateSpan" styleClass="indnt2 openDateSpan calWidget" style="display: #{ForumTool.selectedTopic.availabilityRestricted ? '' : 'none'}">
 				<h:outputLabel value="#{msgs.closeDate}: " for="closeDate"/>
-				<h:inputText id="closeDate" styleClass="closeDate" value="#{ForumTool.selectedTopic.closeDate}"/>
+				<h:inputText id="closeDate" styleClass="closeDate" value="#{ForumTool.selectedTopic.closeDate}" onchange="storeCloseDateISO(event)"/>
+				<h:inputText id="closeDateISO" styleClass="closeDateISO hidden" value="#{ForumTool.selectedTopic.closeDateISO}"></h:inputText>
 			</h:panelGroup>
 			<h:panelGroup styleClass="checkbox" style="display: #{ForumTool.doesSiteHaveCalendar ? '' : 'none'}">
 				<h:panelGroup id="sendOpenCloseDateToCalendarSpan"
@@ -324,21 +326,52 @@
 		</div>
 
 		<script>
+			function storeOpenDateISO(e) {
+				e.preventDefault();
+				document.getElementById("revise:openDateISO").value = document.getElementById("openDateISO8601").value;
+			}
+
+			function storeCloseDateISO(e) {
+				e.preventDefault();
+				document.getElementById("revise:closeDateISO").value = document.getElementById("closeDateISO8601").value;
+			}
+
+			// Initialize the date values when the form loads
+			function initializeDateValues() {
+				// If there's already a date value, make sure the ISO field gets populated too
+				if (document.getElementById("openDateISO8601") && document.getElementById("revise:openDate").value) {
+					document.getElementById("revise:openDateISO").value = document.getElementById("openDateISO8601").value;
+				}
+				if (document.getElementById("closeDateISO8601") && document.getElementById("revise:closeDate").value) {
+					document.getElementById("revise:closeDateISO").value = document.getElementById("closeDateISO8601").value;
+				}
+			}
+
+			// Initialize datepickers
 			localDatePicker({
 				input:'[id="revise:openDate"]',
 				allowEmptyDate: true,
 				ashidden: { iso8601: 'openDateISO8601' },
-				getval:'[id="revise:openDate"]',
-				useTime:1
+				value:'[id="revise:openDate"]',
+				useTime:1,
+				onDateTimeSelected: function() {
+					storeOpenDateISO({preventDefault: function(){}});
+				}
 			});
 
 			localDatePicker({
 				input:'[id="revise:closeDate"]',
 				allowEmptyDate: true,
 				ashidden: { iso8601: 'closeDateISO8601' },
-				getval: '[id="revise:closeDate"]',
-				useTime:1
+				value: '[id="revise:closeDate"]',
+				useTime:1,
+				onDateTimeSelected: function() {
+					storeCloseDateISO({preventDefault: function(){}});
+				}
 			});
+
+			// Initialize date values after datepickers are set up
+			setTimeout(initializeDateValues, 100);
 		</script>
 
 		<h2><h:outputText value="#{msgs.cdfm_forum_notifications}"/></h2>

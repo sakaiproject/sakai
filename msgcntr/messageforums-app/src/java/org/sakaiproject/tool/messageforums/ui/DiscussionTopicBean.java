@@ -1144,16 +1144,20 @@ public class DiscussionTopicBean
 		}
 	}	  
 
+	private String openDateISO = "";
+	private String closeDateISO = "";
+	
 	public void setOpenDate(String openDateStr){
-		if(StringUtils.isNotBlank(openDateStr)) {
-			try{
-				String hiddenOpenDate = (String)FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("openDateISO8601");
-				Date openDate = (Date) datetimeFormat.parse(hiddenOpenDate);
+		// Method is called from JSF binding and also from setOpenDateISO
+		// We only attempt to parse the ISO date if we have one and haven't already set the date value
+		if (StringUtils.isNotBlank(openDateISO) && (topic.getOpenDate() == null || StringUtils.isBlank(openDateStr))) {
+			try {
+				Date openDate = (Date) datetimeFormat.parse(openDateISO);
 				topic.setOpenDate(openDate);
-			}catch (ParseException e) {
+			} catch (ParseException e) {
 				log.error("Couldn't convert open date", e);
 			}
-		}else{
+		} else if (StringUtils.isBlank(openDateStr) && StringUtils.isBlank(openDateISO)) {
 			topic.setOpenDate(null);
 		}
 	}
@@ -1168,15 +1172,16 @@ public class DiscussionTopicBean
 	}	  
 
 	public void setCloseDate(String closeDateStr){
-		if(StringUtils.isNotBlank(closeDateStr)) {
-			try{
-				String hiddenCloseDate = (String)FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("closeDateISO8601");
-				Date CloseDate = (Date) datetimeFormat.parse(hiddenCloseDate);
-				topic.setCloseDate(CloseDate);
-			}catch (ParseException e) {
+		// Method is called from JSF binding and also from setCloseDateISO
+		// We only attempt to parse the ISO date if we have one and haven't already set the date value
+		if (StringUtils.isNotBlank(closeDateISO) && (topic.getCloseDate() == null || StringUtils.isBlank(closeDateStr))) {
+			try {
+				Date closeDate = (Date) datetimeFormat.parse(closeDateISO);
+				topic.setCloseDate(closeDate);
+			} catch (ParseException e) {
 				log.error("Couldn't convert Close date", e);
 			}
-		}else{
+		} else if (StringUtils.isBlank(closeDateStr) && StringUtils.isBlank(closeDateISO)) {
 			topic.setCloseDate(null);
 		}
 	}
@@ -1271,5 +1276,39 @@ public class DiscussionTopicBean
 	}
 	public String getHasRubric(){
 		return rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, topic.getDefaultAssignName()) ? Boolean.TRUE.toString() : Boolean.FALSE.toString();
+	}
+	
+	public String getOpenDateISO() {
+		return openDateISO;
+	}
+	
+	public void setOpenDateISO(String openDateISO) {
+		this.openDateISO = openDateISO;
+		// Only call setOpenDate if we actually have a value to parse
+		if (StringUtils.isNotBlank(openDateISO)) {
+			try {
+				Date openDate = (Date) datetimeFormat.parse(openDateISO);
+				topic.setOpenDate(openDate);
+			} catch (ParseException e) {
+				log.error("Couldn't convert open date from ISO in setOpenDateISO", e);
+			}
+		}
+	}
+	
+	public String getCloseDateISO() {
+		return closeDateISO;
+	}
+	
+	public void setCloseDateISO(String closeDateISO) {
+		this.closeDateISO = closeDateISO;
+		// Only call setCloseDate if we actually have a value to parse
+		if (StringUtils.isNotBlank(closeDateISO)) {
+			try {
+				Date closeDate = (Date) datetimeFormat.parse(closeDateISO);
+				topic.setCloseDate(closeDate);
+			} catch (ParseException e) {
+				log.error("Couldn't convert close date from ISO in setCloseDateISO", e);
+			}
+		}
 	}
 }

@@ -350,12 +350,27 @@
 					document.getElementById("revise:closeDateISO").value = document.getElementById("closeDateISO8601").value;
 				}
 
+				// Initialize the date values when the form loads
+				function initializeDateValues() {
+					// If there's already a date value, make sure the ISO field gets populated too
+					if (document.getElementById("openDateISO8601") && document.getElementById("revise:openDate").value) {
+						document.getElementById("revise:openDateISO").value = document.getElementById("openDateISO8601").value;
+					}
+					if (document.getElementById("closeDateISO8601") && document.getElementById("revise:closeDate").value) {
+						document.getElementById("revise:closeDateISO").value = document.getElementById("closeDateISO8601").value;
+					}
+				}
+
+				// Initialize datepickers
 				localDatePicker({
 					input: '.openDate',
 					allowEmptyDate: true,
 					ashidden: { iso8601: 'openDateISO8601' },
 					value: '.openDate',
-					useTime: 1
+					useTime: 1,
+					onDateTimeSelected: function() {
+						storeOpenDateISO({preventDefault: function(){}});
+					}
 				});
 
 				localDatePicker({
@@ -363,8 +378,14 @@
 					allowEmptyDate: true,
 					ashidden: { iso8601: 'closeDateISO8601' },
 					value: '.closeDate',
-					useTime: 1
+					useTime: 1,
+					onDateTimeSelected: function() {
+						storeCloseDateISO({preventDefault: function(){}});
+					}
 				});
+
+				// Initialize date values after datepickers are set up
+				setTimeout(initializeDateValues, 100);
 			</script>
 
 		<h2><h:outputText value="#{msgs.cdfm_forum_mark_read}"/></h2>

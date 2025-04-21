@@ -561,14 +561,16 @@ public class DiscussionForumBean
 	}
 
 	public void setOpenDate(String openDateStr){
-		if (StringUtils.isNotBlank(openDateISO)) {
+		// Method is called from JSF binding and also from setOpenDateISO
+		// We only attempt to parse the ISO date if we have one and haven't already set the date value
+		if (StringUtils.isNotBlank(openDateISO) && (forum.getOpenDate() == null || StringUtils.isBlank(openDateStr))) {
 			try {
 				Date openDate = (Date) datetimeFormat.parse(openDateISO);
 				forum.setOpenDate(openDate);
 			} catch (ParseException e) {
 				log.error("Couldn't convert open date", e);
 			}
-		} else if (StringUtils.isBlank(openDateStr)) {
+		} else if (StringUtils.isBlank(openDateStr) && StringUtils.isBlank(openDateISO)) {
 			forum.setOpenDate(null);
 		}
 	}
@@ -582,14 +584,16 @@ public class DiscussionForumBean
 	}
 
 	public void setCloseDate(String closeDateStr){
-		if (StringUtils.isNotBlank(closeDateISO)) {
+		// Method is called from JSF binding and also from setCloseDateISO
+		// We only attempt to parse the ISO date if we have one and haven't already set the date value
+		if (StringUtils.isNotBlank(closeDateISO) && (forum.getCloseDate() == null || StringUtils.isBlank(closeDateStr))) {
 			try {
 				Date closeDate = (Date) datetimeFormat.parse(closeDateISO);
 				forum.setCloseDate(closeDate);
 			} catch (ParseException e) {
 				log.error("Couldn't convert Close date", e);
 			}
-		} else if (StringUtils.isBlank(closeDateStr)) {
+		} else if (StringUtils.isBlank(closeDateStr) && StringUtils.isBlank(closeDateISO)) {
 			forum.setCloseDate(null);
 		}
 	}
@@ -620,15 +624,27 @@ public class DiscussionForumBean
 
 	public void setOpenDateISO(String openDateISO) {
 		this.openDateISO = openDateISO;
+		// Only call setOpenDate if we actually have a value to parse
 		if (StringUtils.isNotBlank(openDateISO)) {
-			this.setOpenDate(openDateISO);
+			try {
+				Date openDate = (Date) datetimeFormat.parse(openDateISO);
+				forum.setOpenDate(openDate);
+			} catch (ParseException e) {
+				log.error("Couldn't convert open date from ISO in setOpenDateISO", e);
+			}
 		}
 	}
 
 	public void setCloseDateISO(String closeDateISO) {
 		this.closeDateISO = closeDateISO;
+		// Only call setCloseDate if we actually have a value to parse
 		if (StringUtils.isNotBlank(closeDateISO)) {
-			this.setCloseDate(closeDateISO);
+			try {
+				Date closeDate = (Date) datetimeFormat.parse(closeDateISO);
+				forum.setCloseDate(closeDate);
+			} catch (ParseException e) {
+				log.error("Couldn't convert close date from ISO in setCloseDateISO", e);
+			}
 		}
 	}
 }
