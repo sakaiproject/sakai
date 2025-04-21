@@ -15,15 +15,59 @@
  */
 package org.sakaiproject.messaging.impl;
 
-import org.apache.commons.lang3.StringEscapeUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+import nl.martijndwars.webpush.Notification;
+import nl.martijndwars.webpush.PushService;
+import nl.martijndwars.webpush.Subscription;
+import nl.martijndwars.webpush.Utils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.http.HttpResponse;
-
 import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.interfaces.ECPrivateKey;
 import org.bouncycastle.jce.interfaces.ECPublicKey;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.email.api.DigestService;
+import org.sakaiproject.email.api.EmailService;
+import org.sakaiproject.emailtemplateservice.api.EmailTemplateService;
+import org.sakaiproject.emailtemplateservice.api.RenderedTemplate;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.messaging.api.Message;
+import org.sakaiproject.messaging.api.MessageMedium;
+import org.sakaiproject.messaging.api.UserMessagingService;
+import org.sakaiproject.messaging.api.UserNotificationHandler;
+import org.sakaiproject.messaging.api.model.PushSubscription;
+import org.sakaiproject.messaging.api.model.UserNotification;
+import org.sakaiproject.messaging.api.repository.PushSubscriptionRepository;
+import org.sakaiproject.messaging.api.repository.UserNotificationRepository;
+import org.sakaiproject.serialization.MapperFactory;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.time.api.UserTimeService;
+import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.user.api.Preferences;
+import org.sakaiproject.user.api.PreferencesService;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.ResourceLoader;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.io.FileWriter;
 import java.nio.file.Files;
@@ -38,7 +82,6 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -46,126 +89,66 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import org.hibernate.SessionFactory;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-
-import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.email.api.DigestService;
-import org.sakaiproject.email.api.EmailService;
-import org.sakaiproject.emailtemplateservice.api.RenderedTemplate;
-import org.sakaiproject.emailtemplateservice.api.EmailTemplateService;
-import org.sakaiproject.entity.api.EntityManager;
-import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.event.api.Event;
-import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.event.api.NotificationService;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.messaging.api.model.UserNotification;
-import org.sakaiproject.messaging.api.UserNotificationData;
-import org.sakaiproject.messaging.api.UserNotificationHandler;
-import org.sakaiproject.messaging.api.Message;
-import org.sakaiproject.messaging.api.MessageMedium;
-import org.sakaiproject.messaging.api.model.PushSubscription;
-import org.sakaiproject.messaging.api.model.UserNotification;
-import org.sakaiproject.messaging.api.repository.PushSubscriptionRepository;
-import org.sakaiproject.messaging.api.repository.UserNotificationRepository;
-import static org.sakaiproject.messaging.api.MessageMedium.*;
-import org.sakaiproject.messaging.api.UserMessagingService;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.time.api.UserTimeService;
-import org.sakaiproject.tool.api.Placement;
-import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.user.api.Preferences;
-import org.sakaiproject.user.api.PreferencesService;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.util.ResourceLoader;
-
-import nl.martijndwars.webpush.Notification;
-import nl.martijndwars.webpush.PushService;
-import nl.martijndwars.webpush.Subscription;
-import nl.martijndwars.webpush.Utils;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
-import org.springframework.transaction.support.TransactionTemplate;
-
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
+import static org.sakaiproject.messaging.api.MessageMedium.DIGEST;
+import static org.sakaiproject.messaging.api.MessageMedium.EMAIL;
 
 @Slf4j
 public class UserMessagingServiceImpl implements UserMessagingService, Observer {
 
-    private static final Set<String> HANDLED_EVENTS = new HashSet<>();
 
     @Autowired private DigestService digestService;
     @Autowired private EmailService emailService;
     @Autowired private EmailTemplateService emailTemplateService;
-    @Autowired private EntityManager entityManager;
     @Autowired private EventTrackingService eventTrackingService;
     @Autowired private PreferencesService preferencesService;
     @Autowired private PushSubscriptionRepository pushSubscriptionRepository;
     @Autowired private ServerConfigurationService serverConfigurationService;
-
-    @Qualifier("org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
-    @Autowired private SessionFactory sessionFactory;
-
     @Autowired private SessionManager sessionManager;
     @Autowired private SiteService siteService;
     @Autowired private ToolManager toolManager;
     @Autowired private UserDirectoryService userDirectoryService;
     @Autowired private UserNotificationRepository userNotificationRepository;
-
     @Qualifier("org.sakaiproject.time.api.UserTimeService")
     @Autowired private UserTimeService userTimeService;
 
     @Setter private ResourceLoader resourceLoader;
+    @Setter private TransactionTemplate transactionTemplate;
 
-    @Qualifier("org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager")
-    @Autowired private PlatformTransactionManager transactionManager;
+    private volatile Map<String, UserNotificationHandler> notificationHandlers;
+    private final ObjectMapper objectMapper;
 
-    private List<UserNotificationHandler> handlers = new ArrayList<>();
-    private Map<String, UserNotificationHandler> handlerMap = new HashMap<>();
     private ExecutorService executor;
-    private PushService pushService;
-    private String publicKey = "";
     private boolean pushEnabled = false;
+    private PushService pushService;
+    private int threadPoolSize = 20;
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    public UserMessagingServiceImpl() {
+        objectMapper = MapperFactory.createDefaultJsonMapper();
+        Map<String, UserNotificationHandler> handlerMap = new HashMap<>();
+        // Site publish is handled specially. It should probably be extracted from the logic below,
+        // but for now, fake it in the list of handled events to get it into the if branch.
+        handlerMap.put(SiteService.EVENT_SITE_PUBLISH, null);
+        notificationHandlers = Collections.unmodifiableMap(handlerMap);
+
+        // Web Push Protocol requires Elliptic Curve cryptography for generating VAPID keys
+        Security.addProvider(new BouncyCastleProvider());
+    }
 
     public void init() {
+        // Initialize the executor with configurable thread pool size
+        threadPoolSize = serverConfigurationService.getInt("messaging.threadpool.size", 20);
+        executor = Executors.newFixedThreadPool(threadPoolSize);
+        log.info("Initialized messaging thread pool with {} threads", threadPoolSize);
 
         pushEnabled = serverConfigurationService.getBoolean("portal.notifications.push.enabled", true);
 
         if (pushEnabled) {
-            // Site publish is handled specially. It should probably be extracted from the logic below, but for now,
-            // we fake it in the list of handled events to get it into the if branch.
-            HANDLED_EVENTS.add(SiteService.EVENT_SITE_PUBLISH);
             eventTrackingService.addLocalObserver(this);
-        }
 
-        objectMapper.registerModule(new JavaTimeModule());
-
-        Security.addProvider(new BouncyCastleProvider());
-
-        executor = Executors.newFixedThreadPool(20);
-
-        if (pushEnabled) {
             String home = serverConfigurationService.getSakaiHomePath();
             String publicKeyFileName = serverConfigurationService.getString(PUSH_PUBKEY_PROPERTY, "sakai_push.key.pub");
             Path publicKeyPath = Paths.get(home, publicKeyFileName);
@@ -174,7 +157,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
 
             if (Files.exists(privateKeyPath) && Files.exists(publicKeyPath)) {
                 try {
-                    publicKey = String.join("", Files.readAllLines(Paths.get(home, publicKeyFileName)));
+                    String publicKey = String.join("", Files.readAllLines(Paths.get(home, publicKeyFileName)));
                     String privateKey = String.join("", Files.readAllLines(Paths.get(home, privateKeyFileName)));
                     pushService = new PushService(publicKey, privateKey);
                     String pushSubject = serverConfigurationService.getString("portal.notifications.push.subject", "");
@@ -214,116 +197,14 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
     }
 
     public void destroy() {
-        executor.shutdownNow();
-    }
-
-    private class EmailSender {
-
-        public final String MULTIPART_BOUNDARY = "======sakai-multi-part-boundary======";
-        public final String BOUNDARY_LINE = "\n\n--" + this.MULTIPART_BOUNDARY + "\n";
-        public final String TERMINATION_LINE = "\n\n--" + this.MULTIPART_BOUNDARY + "--\n\n";
-        public final String MIME_ADVISORY = "This message is for MIME-compliant mail readers.";
-        public final String PLAIN_TEXT_HEADERS = "Content-Type: text/plain\n\n";
-        public final String HTML_HEADERS = "Content-Type: text/html; charset=ISO-8859-1\n\n";
-        public final String HTML_END = "\n  </body>\n</html>\n";
-
-        private final User user;
-        private final String subject;
-        private final String message;
-
-        public EmailSender(User user, String subject, String message) {
-
-            this.user = user;
-            this.subject = subject;
-            this.message = message;
-        }
-
-        // do it!
-        public void send() {
-
-            if (StringUtils.isBlank(user.getEmail())) {
-                log.error("SakaiProxy.sendEmail() failed. No email for userId: {}", user.getId());
-                return;
-            }
-
-            // do it
-            emailService.sendToUsers(Collections.singleton(user), getHeaders(user.getEmail(), this.subject),
-                    formatMessage(user.getId(), this.subject, this.message));
-
-            log.info("Email sent to: {}", user.getId());
-        }
-
-        /** helper methods for formatting the message */
-        private String formatMessage(String userId, String subject, String message) {
-
+        if (executor != null) {
             try {
-                Site userSite = siteService.getSite(siteService.getUserSiteId(userId));
-                ToolConfiguration tc = userSite.getToolForCommonId("sakai.preferences");
-                if (tc != null) {
-                    String url = serverConfigurationService.getPortalUrl() + "/site/" + userSite.getId() + "/tool/" + tc.getId();
-                    String prefsLink = "<br /><br />" + resourceLoader.getFormattedMessage("preferences_link_message", url);
-                    message = message + prefsLink;
-                } else {
-                    log.debug("No preferences tool on user {}'s site", userId);
-                }
-            } catch (IdUnusedException iue) {
-                log.warn("User id {} doesn't have a home site yet. We can't add the preferences link until they've logged in a least once", userId);
+                // Attempt a graceful shutdown
+                executor.shutdown();
+                log.info("Messaging thread pool shutdown initiated");
             } catch (Exception e) {
-                log.error("Failed to add preferences link to email message body: {}", e.toString());
+                log.error("Error shutting down messaging thread pool: {}", e.toString());
             }
-
-            StringBuilder sb = new StringBuilder();
-            return sb.append(MIME_ADVISORY)
-                .append(BOUNDARY_LINE)
-                .append(PLAIN_TEXT_HEADERS)
-                .append(StringEscapeUtils.escapeHtml4(message))
-                .append(BOUNDARY_LINE)
-                .append(HTML_HEADERS)
-                .append(htmlPreamble(subject))
-                .append(message)
-                .append(HTML_END)
-                .append(TERMINATION_LINE).toString();
-        }
-
-        private String htmlPreamble(final String subject) {
-
-            StringBuilder sb = new StringBuilder();
-            return sb.append("<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"\n")
-                .append("\"http://www.w3.org/TR/html4/loose.dtd\">\n")
-                .append("<html>\n")
-                .append("<head><title>")
-                .append(subject)
-                .append("</title></head>\n")
-                .append("<body>\n").toString();
-        }
-
-        private List<String> getHeaders(final String emailTo, final String subject) {
-
-            final List<String> headers = new ArrayList<>();
-            headers.add("MIME-Version: 1.0");
-            headers.add("Content-Type: multipart/alternative; boundary=\"" + MULTIPART_BOUNDARY + "\"");
-            headers.add(formatSubject(subject));
-            headers.add(getFrom());
-            if (StringUtils.isNotBlank(emailTo)) {
-                headers.add("To: " + emailTo);
-            }
-            return headers;
-        }
-
-        private String getFrom() {
-
-            StringBuilder sb = new StringBuilder();
-            return sb.append("From: ")
-                .append(serverConfigurationService.getString("ui.service", "Sakai"))
-                .append(" <")
-                .append(serverConfigurationService.getSmtpFrom())
-                .append(">").toString();
-        }
-
-        private String formatSubject(final String subject) {
-
-            StringBuilder sb = new StringBuilder();
-            return sb.append("Subject: ").append(subject).toString();
         }
     }
 
@@ -349,7 +230,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
                 String noti = toolProps.getProperty("2") == null ? String.valueOf(NotificationService.PREF_IMMEDIATE) : toolProps.getProperty("2");
 
                 String siteId = context != null ? context : message.getSiteId();
-                
+
                 String siteOverride = siteId != null ? toolProps.getProperty(siteId) : null;
 
                 media.forEach(m -> {
@@ -387,7 +268,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
     /**
      * Registers a new template with the service, defined by the given XML file
      *
-     * @param templateResourceStream the resource stream for the XML file
+     * @param templateResource the resource stream for the XML file
      * @param templateRegistrationKey the key (name) to register the template under
      * @return true if the template was registered
      */
@@ -400,38 +281,55 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
 
     @Override
     public void registerHandler(UserNotificationHandler handler) {
+        Map<String, UserNotificationHandler> newMap = new HashMap<>(notificationHandlers);
 
-        handler.getHandledEvents().forEach(eventName -> {
-
-            HANDLED_EVENTS.add(eventName);
-            handlerMap.put(eventName, handler);
-            log.debug("Registered user notification handler {} for event: {}", handler.getClass().getName(), eventName);
-        });
+        // Update the copy with new handlers only if the key doesn't exist
+        boolean mapChanged = false;
+        for (String eventName : handler.getHandledEvents()) {
+            boolean added = newMap.putIfAbsent(eventName, handler) == null;
+            if (added) {
+                mapChanged = true;
+                log.debug("Registered user notification handler {} for event: {}", handler.getClass().getName(), eventName);
+            } else {
+                log.debug("Handler for event {} already exists, skipping registration for {}",
+                        eventName, handler.getClass().getName());
+            }
+        }
+        // Only update the reference if changes were made
+        if (mapChanged) {
+            // Atomically replace the reference to the map
+            notificationHandlers = Collections.unmodifiableMap(newMap);
+        }
     }
 
     @Override
     public void unregisterHandler(UserNotificationHandler handler) {
+        Map<String, UserNotificationHandler> newMap = new HashMap<>(notificationHandlers);
 
-        handler.getHandledEvents().forEach(eventName -> {
-
-            UserNotificationHandler current = handlerMap.get(eventName);
-
-            if (handler == current) {
-                HANDLED_EVENTS.remove(eventName);
-                handlerMap.remove(eventName);
+        // Remove handlers for each event this handler handles
+        boolean mapChanged = false;
+        for (String eventName : handler.getHandledEvents()) {
+            if (newMap.containsKey(eventName)) {
+                newMap.remove(eventName);
+                mapChanged = true;
                 log.debug("Unregistered bullhorn handler {} for event: {}", handler.getClass().getName(), eventName);
             }
-        });
-    }
+        }
+
+        // Only update the reference if changes were made
+        if (mapChanged) {
+            // Atomically replace the reference to the map
+            notificationHandlers = Collections.unmodifiableMap(newMap);
+        }
+    }    
 
     public void update(Observable o, final Object arg) {
 
-        if (arg instanceof Event) {
-            Event e = (Event) arg;
+        if (arg instanceof Event e) {
             String event = e.getEvent();
             // We add this comparation with UNKNOWN_USER because implementation of BaseEventTrackingService
             // UNKNOWN_USER is an user in a server without session. 
-            if (HANDLED_EVENTS.contains(event) && !EventTrackingService.UNKNOWN_USER.equals(e.getUserId()) ) {
+            if (notificationHandlers.containsKey(event) && !EventTrackingService.UNKNOWN_USER.equals(e.getUserId()) ) {
                 String ref = e.getResource();
                 String context = e.getContext();
 
@@ -445,28 +343,30 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
 
                 String[] pathParts = ref.split("/");
                 String from = e.getUserId();
-                long at = e.getEventTime().getTime();
                 try {
-                    UserNotificationHandler handler = handlerMap.get(event);
+                    UserNotificationHandler handler = notificationHandlers.get(event);
                     if (handler != null) {
-                        handler.handleEvent(e).ifPresent(notifications -> {
-
-                            notifications.forEach(bd -> {
-                                UserNotification un = doInsert(from, bd.getTo(), event, ref, bd.getTitle(),
-                                                bd.getSiteId(), e.getEventTime(), finalDeferred, bd.getUrl(), bd.getCommonToolId());
-                                if (!finalDeferred && this.pushEnabled) {
-                                    un.setTool(bd.getCommonToolId());
-                                    push(decorateNotification(un));
-                                }
-                            });
-                        });
+                        handler.handleEvent(e).ifPresent(notifications ->
+                                notifications.forEach(bd -> {
+                                    UserNotification un = doInsert(from,
+                                            bd.getTo(),
+                                            event,
+                                            ref,
+                                            bd.getTitle(),
+                                            bd.getSiteId(),
+                                            e.getEventTime(),
+                                            finalDeferred,
+                                            bd.getUrl(),
+                                            bd.getCommonToolId());
+                            if (!finalDeferred && this.pushEnabled) {
+                                un.setTool(bd.getCommonToolId());
+                                push(decorateNotification(un));
+                            }
+                        }));
                     } else if (SiteService.EVENT_SITE_PUBLISH.equals(event)) {
                         final String siteId = pathParts[2];
 
-                        TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
-
                         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-
                             protected void doInTransactionWithoutResult(TransactionStatus status) {
                                 userNotificationRepository.setDeferredBySiteId(siteId, false);
                             }
@@ -479,41 +379,43 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
         }
     }
 
-    private UserNotification doInsert(String from, String to, String event, String ref
-                            , String title, String siteId, Date eventDate, boolean deferred, String url, String tool) {
+    private UserNotification doInsert(String from, String to, String event, String ref, String title,
+                                      String siteId, Date eventDate, boolean deferred, String url, String tool) {
 
-        TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
-
-        return transactionTemplate.execute(new TransactionCallback<UserNotification>() {
-
-            public UserNotification doInTransaction(TransactionStatus status) {
-
-                UserNotification ba = new UserNotification();
-                ba.setFromUser(from);
-                ba.setToUser(to);
-                ba.setEvent(event);
-                ba.setRef(ref);
-                ba.setTitle(title);
-                ba.setSiteId(siteId);
-                ba.setEventDate(eventDate.toInstant());
-                ba.setUrl(url);
-                ba.setTool(tool);
-                ba.setDeferred(deferred);
-
-                return userNotificationRepository.save(ba);
-            }
+        return transactionTemplate.execute(status -> {
+            UserNotification ba = new UserNotification();
+            ba.setFromUser(from);
+            ba.setToUser(to);
+            ba.setEvent(event);
+            ba.setRef(ref);
+            ba.setTitle(title);
+            ba.setSiteId(siteId);
+            ba.setEventDate(eventDate.toInstant());
+            ba.setUrl(url);
+            ba.setTool(tool);
+            ba.setDeferred(deferred);
+            return userNotificationRepository.save(ba);
         });
+    }
+
+    /**
+     * Helper method to get the current user ID and validate it exists
+     * 
+     * @return the current user ID or null if no user is logged in
+     */
+    private String getCurrentUserId() {
+        String userId = sessionManager.getCurrentSessionUserId();
+        if (StringUtils.isBlank(userId)) {
+            log.warn("No current user");
+            return null;
+        }
+        return userId;
     }
 
     @Transactional  
     public boolean clearNotification(long id) {
-
-        String userId = sessionManager.getCurrentSessionUserId();
-
-        if (StringUtils.isBlank(userId)) {
-            log.warn("No current user");
-            return false;
-        }
+        String userId = getCurrentUserId();
+        if (userId == null) return false;
 
         Optional<UserNotification> optUserNotification = userNotificationRepository.findById(id);
 
@@ -533,13 +435,8 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
     }
 
     public List<UserNotification> getNotifications() {
-
-        String userId = sessionManager.getCurrentSessionUserId();
-
-        if (StringUtils.isBlank(userId)) {
-            log.warn("No current user");
-            return Collections.<UserNotification>emptyList();
-        }
+        String userId = getCurrentUserId();
+        if (userId == null) return Collections.emptyList();
 
         return userNotificationRepository.findByToUser(userId)
                 .stream().map(this::decorateNotification).collect(Collectors.toList());
@@ -547,13 +444,8 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
 
     @Transactional
     public boolean clearAllNotifications() {
-
-        String userId = sessionManager.getCurrentSessionUserId();
-
-        if (StringUtils.isBlank(userId)) {
-            log.warn("No current user");
-            return false;
-        }
+        String userId = getCurrentUserId();
+        if (userId == null) return false;
 
         userNotificationRepository.deleteByToUserAndDeferred(userId, false);
         return true;
@@ -561,13 +453,8 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
 
     @Transactional
     public boolean markAllNotificationsViewed(String siteId, String toolId) {
-
-        String userId = sessionManager.getCurrentSessionUserId();
-
-        if (StringUtils.isBlank(userId)) {
-            log.warn("No current user");
-            return false;
-        }
+        String userId = getCurrentUserId();
+        if (userId == null) return false;
 
         userNotificationRepository.setAllNotificationsViewed(userId, siteId, toolId);
         return true;
@@ -593,13 +480,8 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
 
     @Transactional
     public void subscribeToPush(String endpoint, String auth, String userKey, String browserFingerprint) {
-
-        String userId = sessionManager.getCurrentSessionUserId();
-
-        if (StringUtils.isBlank(userId)) {
-            log.warn("No current user");
-            return;
-        }
+        String userId = getCurrentUserId();
+        if (userId == null) return;
 
         pushSubscriptionRepository.deleteByFingerprint(browserFingerprint);
 
@@ -615,13 +497,8 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
     }
 
     public void sendTestNotification() {
-
-        String userId = sessionManager.getCurrentSessionUserId();
-
-        if (StringUtils.isBlank(userId)) {
-            log.warn("No current user");
-            return;
-        }
+        String userId = getCurrentUserId();
+        if (userId == null) return;
 
         UserNotification un = new UserNotification();
         un.setFromUser(userId);
@@ -633,28 +510,226 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
         push(decorateNotification(un));
     }
 
+    /**
+     * Send a push notification to a user
+     * 
+     * @param un the UserNotification to push
+     */
     private void push(UserNotification un) {
+        if (un == null) {
+            log.warn("Cannot push null notification");
+            return;
+        }
+
+        if (!pushEnabled || pushService == null) {
+            log.debug("Push service is not enabled or not initialized");
+            return;
+        }
 
         pushSubscriptionRepository.findByUser(un.getToUser()).forEach(pushSubscription -> {
-
             String pushEndpoint = pushSubscription.getEndpoint();
             String pushUserKey = pushSubscription.getUserKey();
             String pushAuth = pushSubscription.getAuth();
 
-            // We only push if the user has given permission for  notifications
+            // We only push if the user has given permission for notifications
             // and successfully set their subscription details
-            if (!StringUtils.isAnyBlank(pushEndpoint, pushUserKey, pushAuth)) {
-                Subscription sub = new Subscription(pushEndpoint, new Subscription.Keys(pushUserKey, pushAuth));
-                try {
-                    HttpResponse pushResponse = pushService.send(new Notification(sub, objectMapper.writeValueAsString(un)));
-                    log.debug("The push response from {} returned code {} and reason {}",
-                            pushEndpoint,
-                            pushResponse.getStatusLine().getStatusCode(),
+            if (StringUtils.isAnyBlank(pushEndpoint, pushUserKey, pushAuth)) {
+                log.debug("Skipping push notification due to missing subscription details for user {}", un.getToUser());
+                return;
+            }
+
+            Subscription sub = new Subscription(pushEndpoint, new Subscription.Keys(pushUserKey, pushAuth));
+            try {
+                String notificationJson = objectMapper.writeValueAsString(un);
+                HttpResponse pushResponse = pushService.send(new Notification(sub, notificationJson));
+
+                int statusCode = pushResponse.getStatusLine().getStatusCode();
+                if (statusCode >= 200 && statusCode < 300) {
+                    log.debug("Successfully sent push notification to {} with status {}", 
+                            pushEndpoint, statusCode);
+                } else {
+                    log.warn("Push notification to {} failed with status {} and reason {}", 
+                            pushEndpoint, 
+                            statusCode,
                             pushResponse.getStatusLine().getReasonPhrase());
-                } catch (Exception e) {
-                    log.error("Exception while pushing notification: {}", e.toString());
                 }
+            } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+                log.error("Failed to serialize notification for push: {}", e.getMessage());
+            } catch (java.io.IOException e) {
+                log.error("IO error while sending push notification: {}", e.getMessage());
+            } catch (Exception e) {
+                log.error("Unexpected error while pushing notification: {}", e.toString(), e);
             }
         });
+    }
+
+    /**
+     * Helper class for sending formatted emails
+     */
+    private class EmailSender {
+
+        // Constants for email formatting
+        private static final String MULTIPART_BOUNDARY = "======sakai-multi-part-boundary======";
+        private static final String BOUNDARY_LINE = "\n\n--" + MULTIPART_BOUNDARY + "\n";
+        private static final String TERMINATION_LINE = "\n\n--" + MULTIPART_BOUNDARY + "--\n\n";
+        private static final String MIME_ADVISORY = "This message is for MIME-compliant mail readers.";
+        private static final String PLAIN_TEXT_HEADERS = "Content-Type: text/plain\n\n";
+        private static final String HTML_HEADERS = "Content-Type: text/html; charset=UTF-8\n\n";
+        private static final String HTML_END = "\n  </body>\n</html>\n";
+
+        private final User user;
+        private final String subject;
+        private final String message;
+
+        /**
+         * Constructor for EmailSender
+         * 
+         * @param user the user to send email to
+         * @param subject the email subject
+         * @param message the email message body (HTML)
+         */
+        public EmailSender(User user, String subject, String message) {
+            this.user = user;
+            this.subject = subject;
+            this.message = message;
+        }
+
+        /**
+         * Send the email to the user
+         */
+        public void send() {
+            if (user == null) {
+                log.error("Cannot send email to null user");
+                return;
+            }
+
+            if (StringUtils.isBlank(user.getEmail())) {
+                log.error("Cannot send email to user {} with no email address", user.getId());
+                return;
+            }
+
+            try {
+                emailService.sendToUsers(
+                    Collections.singleton(user), 
+                    getHeaders(user.getEmail(), this.subject),
+                    formatMessage(user.getId(), this.subject, this.message)
+                );
+                log.info("Email sent to user: {}", user.getId());
+            } catch (Exception e) {
+                log.error("Failed to send email to user {}: {}", user.getId(), e.getMessage(), e);
+            }
+        }
+
+        /**
+         * Format the email message with both plain text and HTML parts
+         * 
+         * @param userId the user ID
+         * @param subject the email subject
+         * @param message the email message body (HTML)
+         * @return the formatted email message
+         */
+        private String formatMessage(String userId, String subject, String message) {
+            String enhancedMessage = addPreferencesLink(userId, message);
+
+            return new StringBuilder(MIME_ADVISORY)
+                .append(BOUNDARY_LINE)
+                .append(PLAIN_TEXT_HEADERS)
+                .append(StringEscapeUtils.escapeHtml4(enhancedMessage))
+                .append(BOUNDARY_LINE)
+                .append(HTML_HEADERS)
+                .append(htmlPreamble(subject))
+                .append(enhancedMessage)
+                .append(HTML_END)
+                .append(TERMINATION_LINE)
+                .toString();
+        }
+
+        /**
+         * Add a preferences link to the email message if possible
+         * 
+         * @param userId the user ID
+         * @param message the original message
+         * @return the message with preferences link added if possible
+         */
+        private String addPreferencesLink(String userId, String message) {
+            try {
+                Site userSite = siteService.getSite(siteService.getUserSiteId(userId));
+                ToolConfiguration tc = userSite.getToolForCommonId("sakai.preferences");
+                if (tc != null) {
+                    String url = serverConfigurationService.getPortalUrl() + "/site/" + userSite.getId() + "/tool/" + tc.getId();
+                    String prefsLink = "<br /><br />" + resourceLoader.getFormattedMessage("preferences_link_message", url);
+                    return message + prefsLink;
+                } else {
+                    log.debug("No preferences tool on user {}'s site", userId);
+                }
+            } catch (IdUnusedException iue) {
+                log.debug("User {} doesn't have a home site yet. Can't add preferences link.", userId);
+            } catch (Exception e) {
+                log.warn("Failed to add preferences link to email for user {}: {}", userId, e.getMessage());
+            }
+            return message;
+        }
+
+        /**
+         * Create the HTML preamble for the email
+         * 
+         * @param subject the email subject
+         * @return the HTML preamble
+         */
+        private String htmlPreamble(final String subject) {
+            return new StringBuilder("<!DOCTYPE html>\n")
+                .append("<html>\n")
+                .append("<head>\n")
+                .append("  <meta charset=\"UTF-8\">\n")
+                .append("  <title>")
+                .append(subject)
+                .append("</title>\n")
+                .append("</head>\n")
+                .append("<body>\n")
+                .toString();
+        }
+
+        /**
+         * Get the email headers
+         * 
+         * @param emailTo the recipient email address
+         * @param subject the email subject
+         * @return the list of email headers
+         */
+        private List<String> getHeaders(final String emailTo, final String subject) {
+            final List<String> headers = new ArrayList<>();
+            headers.add("MIME-Version: 1.0");
+            headers.add("Content-Type: multipart/alternative; boundary=\"" + MULTIPART_BOUNDARY + "\"");
+            headers.add(formatSubject(subject));
+            headers.add(getFrom());
+            if (StringUtils.isNotBlank(emailTo)) {
+                headers.add("To: " + emailTo);
+            }
+            return headers;
+        }
+
+        /**
+         * Get the From header for the email
+         * 
+         * @return the From header
+         */
+        private String getFrom() {
+            return new StringBuilder("From: ")
+                .append(serverConfigurationService.getString("ui.service", "Sakai"))
+                .append(" <")
+                .append(serverConfigurationService.getSmtpFrom())
+                .append(">")
+                .toString();
+        }
+
+        /**
+         * Format the subject header for the email
+         * 
+         * @param subject the email subject
+         * @return the formatted Subject header
+         */
+        private String formatSubject(final String subject) {
+            return "Subject: " + subject;
+        }
     }
 }
