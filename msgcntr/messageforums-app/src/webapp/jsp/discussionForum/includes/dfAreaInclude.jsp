@@ -78,7 +78,7 @@ $(document).ready(function() {
 </f:subview>
 
 <div class="table-responsive">
-<h:dataTable id="forums" value="#{ForumTool.forums}" rendered="#{!empty ForumTool.forums}"  width="100%" var="forum" cellpadding="0" cellspacing="0" styleClass="table table-striped table-hover specialLink" border="0">
+<h:dataTable id="forums" value="#{ForumTool.forums}" rendered="#{!empty ForumTool.forums}" width="100%" var="forum" styleClass="table table-striped table-hover specialLink">
     <h:column>
         <h:panelGroup layout="block" rendered="#{! forum.nonePermission}">
         <h:panelGrid columns="1" styleClass="forumHeader"  border="0">
