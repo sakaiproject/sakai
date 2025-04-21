@@ -560,7 +560,7 @@ public class DiscussionForumBean
 	}
 
 	public void setOpenDate(String openDateStr){
-		if(StringUtils.isNotBlank(openDateStr)) {
+		if (StringUtils.isNotBlank(openDateStr)) {
 			try{
 				// Get the ISO8601 value directly from the request
 				String hiddenOpenDate = (String)FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("openDateISO8601");
@@ -585,7 +585,7 @@ public class DiscussionForumBean
 	}
 
 	public void setCloseDate(String closeDateStr){
-		if(StringUtils.isNotBlank(closeDateStr)) {
+		if (StringUtils.isNotBlank(closeDateStr)) {
 			try{
 				// Get the ISO8601 value directly from the request
 				String hiddenCloseDate = (String)FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("closeDateISO8601");
