@@ -1,22 +1,3 @@
-<form id="loginForm" class="d-none d-sm-flex gap-2 mx-2" method="post" action="${loginPortalPath}/xlogin" enctype="application/x-www-form-urlencoded">
-    <div class="form-floating my-1">
-        <input name="eid" type="text" class="form-control focus-light" id="eid" placeholder="${rloader.login_username}" autocomplete="username">
-        <label for="eid">${rloader.login_username}</label>
-    </div>
-    <div class="input-group password-field w-auto my-1">
-        <div class="form-floating">
-            <input name="pw" type="password" class="form-control focus-light" id="pw" placeholder="${rloader.login_password}" autocomplete="current-password">
-            <label for="pw">${rloader.login_password}</label>
-        </div>
-
-        <input type="checkbox" class="btn-check" id="showPwTop" autocomplete="off">
-        <label class="input-group-text" for="showPwTop">
-            <i class="bi bi-eye-slash-fill" aria-hidden="true"></i>
-            <span class="visually-hidden">${rloader.login_show_pw}</span>
-        </label>
-    </div>
-    <button type="submit" class="btn btn-outline-light p-3 my-1 ">${rloader.login}</button>
-</form>
 <button id="mobileLoginBtn" class="d-sm-none btn btn-outline-light mb-1 my-1 mx-2">
     ${rloader.login}
 </button>

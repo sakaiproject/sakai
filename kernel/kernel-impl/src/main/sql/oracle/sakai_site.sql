@@ -370,6 +370,11 @@ INSERT INTO SAKAI_SITE_PAGE VALUES('!gateway-600', '!gateway', 'New Account', '0
 INSERT INTO SAKAI_SITE_TOOL VALUES('!gateway-610', '!gateway-600', '!gateway', 'sakai.createuser', 1, 'New Account', NULL );
 INSERT INTO SAKAI_SITE_PAGE VALUES('!gateway-700', '!gateway', 'Reset Password', '0', 7, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!gateway-710', '!gateway-700', '!gateway', 'sakai.resetpass', 1, 'Reset Password', NULL );
+INSERT INTO SAKAI_SITE_PAGE VALUES('!gateway-1500', '!gateway', 'Login', '0', 5, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('!gateway-1510', '!gateway-1500', '!gateway', 'sakai.iframe', 1, 'Login', NULL );
+INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES ('!gateway','!gateway-1500','sitePage.customTitle','true');
+INSERT INTO SAKAI_SITE_TOOL_PROPERTY VALUES('!gateway', '!gateway-1510', 'height', '770px' );
+INSERT INTO SAKAI_SITE_TOOL_PROPERTY VALUES('!gateway', '!gateway-1510', 'source', '/library/content/gateway/acknowledgements.html' );
 
 -- Create the !user site to be used as the template for a new user's site.
 
