@@ -87,7 +87,7 @@ public class Widget extends Panel {
 		WebMarkupContainer icon = new WebMarkupContainer("icon") {
 			@Override
 			protected void onRender() {
-				getResponse().write("<i class='si si-" + iconUrl + " alpha'></i>");
+				getResponse().write("<span class='si si-" + iconUrl + " alpha'></span>");
 			}
 		};
 		add(icon);

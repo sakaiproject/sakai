@@ -198,18 +198,6 @@ $fa-font-path: "./fonts";
     .#{$iconBaseClass}-#{$sakaiIcon} {
       @extend .#{$assignedIcon};
     }
-
-    // Apply widget icon styles to all Sakai icons
-    .#{$sakaiIcon} {
-        .widget-icon {
-          @extend .#{$iconBaseClass};
-          @extend .#{$iconBaseClass}-#{$sakaiIcon};
-        }
-        .widget-icon:hover {
-          @extend .#{$iconBaseClass};
-          @extend .#{$iconBaseClass}-#{$sakaiIcon};
-        }
-      }
   }
 
   //Assing icon base class
