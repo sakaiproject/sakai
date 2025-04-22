@@ -872,6 +872,9 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 0, null, null);
             assertEquals(2, posts.size());
 
+            // Default sort should be newest first
+            assertEquals(posts.iterator().next().id, postBean.id);
+
             // Second page
             posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 1, null, null);
             assertEquals(1, posts.size());

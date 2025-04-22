@@ -10,7 +10,7 @@ describe("sakai-topic tests", () => {
   window.top.portal = { siteId: data.siteId, siteTitle: data.siteTitle, user: { id: "user1", timezone: "Europe/London" } };
   window.MathJax = { Hub: { Queue: () => {} } };
 
-  const postsUrl = `${data.discussionTopic.links.find(l => l.rel === "posts").href}?page=0&sort=${constants.SORT_OLDEST}`;
+  const postsUrl = `${data.discussionTopic.links.find(l => l.rel === "posts").href}?page=0`;
   const markViewedUrl = data.discussionTopic.links.find(l => l.rel === "markpostsviewed").href;
 
   beforeEach(() => {
