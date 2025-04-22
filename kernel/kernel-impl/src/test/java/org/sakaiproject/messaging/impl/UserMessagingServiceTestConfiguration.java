@@ -19,6 +19,7 @@ import javax.annotation.Resource;
 
 import static org.mockito.Mockito.*;
 
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
 import org.sakaiproject.email.api.DigestService;
 import org.sakaiproject.email.api.EmailService;
@@ -91,4 +92,12 @@ public class UserMessagingServiceTestConfiguration extends SakaiTestConfiguratio
     public UserTimeService userTimeService() {
         return mock(UserTimeService.class);
     }
+
+    @Bean(name = "org.sakaiproject.component.api.ServerConfigurationService")
+    public ServerConfigurationService serverConfigurationService() {
+        ServerConfigurationService scs = mock(ServerConfigurationService.class);
+        when(scs.getInt("messaging.threadpool.size", 20)).thenReturn(20);
+        return scs;
+    }
+
 }

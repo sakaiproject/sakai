@@ -99,6 +99,7 @@ import static org.sakaiproject.messaging.api.MessageMedium.EMAIL;
 @Slf4j
 public class UserMessagingServiceImpl implements UserMessagingService, Observer {
 
+    public static final Integer DEFAULT_THREAD_POOL_SIZE = 20;
 
     @Autowired private DigestService digestService;
     @Autowired private EmailService emailService;
@@ -124,7 +125,6 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
     private ExecutorService executor;
     private boolean pushEnabled = false;
     private PushService pushService;
-    private int threadPoolSize = 20;
 
     public UserMessagingServiceImpl() {
         objectMapper = MapperFactory.createDefaultJsonMapper();
@@ -140,7 +140,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
 
     public void init() {
         // Initialize the executor with configurable thread pool size
-        threadPoolSize = serverConfigurationService.getInt("messaging.threadpool.size", 20);
+        int threadPoolSize = serverConfigurationService.getInt("messaging.threadpool.size", DEFAULT_THREAD_POOL_SIZE);
         executor = Executors.newFixedThreadPool(threadPoolSize);
         log.info("Initialized messaging thread pool with {} threads", threadPoolSize);
 
@@ -291,8 +291,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
                 mapChanged = true;
                 log.debug("Registered user notification handler {} for event: {}", handler.getClass().getName(), eventName);
             } else {
-                log.debug("Handler for event {} already exists, skipping registration for {}",
-                        eventName, handler.getClass().getName());
+                log.warn("Handler for event {} already exists, skipping registration for {}", eventName, handler.getClass().getName());
             }
         }
         // Only update the reference if changes were made
@@ -553,12 +552,9 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
                             statusCode,
                             pushResponse.getStatusLine().getReasonPhrase());
                 }
-            } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
-                log.error("Failed to serialize notification for push: {}", e.getMessage());
-            } catch (java.io.IOException e) {
-                log.error("IO error while sending push notification: {}", e.getMessage());
             } catch (Exception e) {
-                log.error("Unexpected error while pushing notification: {}", e.toString(), e);
+                log.error("Failed to serialize notification for push: {}", e.toString());
+                log.debug("Stacktrace", e);
             }
         });
     }
