@@ -8265,12 +8265,12 @@ public class DiscussionForumTool {
       }
 	}
 
-	// Add the attachments
+	// Add the attachments - create true copies of the files, not just references
 	List fromTopicAttach = forumManager.getTopicByIdWithAttachments(originalTopicId).getAttachments();
 	if (fromTopicAttach != null && !fromTopicAttach.isEmpty()) {
 		for (int topicAttach=0; topicAttach < fromTopicAttach.size(); topicAttach++) {
 			Attachment thisAttach = (Attachment)fromTopicAttach.get(topicAttach);
-			Attachment thisDFAttach = forumManager.createDFAttachment(
+			Attachment thisDFAttach = forumManager.createDuplicateDFAttachment(
 					thisAttach.getAttachmentId(),
 					thisAttach.getAttachmentName());
 			newTopic.addAttachment(thisDFAttach);
