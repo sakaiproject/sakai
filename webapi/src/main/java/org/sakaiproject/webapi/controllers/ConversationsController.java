@@ -30,6 +30,7 @@ import org.sakaiproject.conversations.api.model.Settings;
 import org.sakaiproject.conversations.api.model.Tag;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.grading.api.GradingAuthz;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -121,6 +122,7 @@ public class ConversationsController extends AbstractSakaiApiController {
         bean.canViewSiteStatistics = securityService.unlock(Permissions.VIEW_STATISTICS.label, siteRef);
         bean.canPin = settings.getAllowPinning() && securityService.unlock(Permissions.TOPIC_PIN.label, siteRef);
         bean.canViewAnonymous = securityService.unlock(Permissions.VIEW_ANONYMOUS.label, siteRef);
+        bean.canGrade = securityService.unlock(GradingAuthz.PERMISSION_GRADE_ALL, siteRef);
         bean.maxThreadDepth = serverConfigurationService.getInt(ConversationsService.PROP_MAX_THREAD_DEPTH, 5);
         bean.settings = settings;
 

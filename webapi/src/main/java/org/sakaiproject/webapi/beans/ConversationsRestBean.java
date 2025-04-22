@@ -36,6 +36,7 @@ public class ConversationsRestBean {
     public boolean canPin;
     public boolean isInstructor;
     public boolean canViewAnonymous;
+    public boolean canGrade;
     public Settings settings;
     public boolean showGuidelines;
     public List<Tag> tags;
