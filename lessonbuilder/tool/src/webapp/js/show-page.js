@@ -40,14 +40,17 @@ $(window).load(function () {
   });
 
   // Print all pages
-  document.getElementById('print-all').addEventListener('click', function() {
-    const url = printViewWithParameter(window.location.href);
-    const win = window.open(url, '_blank');
-    win.focus();
-    win.print();
-    return false;
-  });
+  const printAllButton = document.getElementById('print-all');
 
+  if (printAllButton) {
+    printAllButton.addEventListener('click', function() {
+      const url = printViewWithParameter(window.location.href);
+      const win = window.open(url, '_blank');
+      win.focus();
+      win.print();
+      return false;
+    });
+  }
 });
 
 function fixAddBefore(href) {
