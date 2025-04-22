@@ -324,11 +324,12 @@
 		</div>
 
 		<script>
+			// Initialize datepickers
 			localDatePicker({
 				input:'[id="revise:openDate"]',
 				allowEmptyDate: true,
 				ashidden: { iso8601: 'openDateISO8601' },
-				getval:'[id="revise:openDate"]',
+				value:'[id="revise:openDate"]',
 				useTime:1
 			});
 
@@ -336,7 +337,7 @@
 				input:'[id="revise:closeDate"]',
 				allowEmptyDate: true,
 				ashidden: { iso8601: 'closeDateISO8601' },
-				getval: '[id="revise:closeDate"]',
+				value: '[id="revise:closeDate"]',
 				useTime:1
 			});
 		</script>
