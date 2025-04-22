@@ -347,7 +347,7 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
                     <div>
                       <sakai-editor
                           @changed=${this._inputGradeComment}
-                          .content=${this.post?.grade?.gradeComment}>
+                          .content=${this.post?.grade?.gradeComment || ""}>
                       </sakai-editor>
                     </div>
                   </label>
