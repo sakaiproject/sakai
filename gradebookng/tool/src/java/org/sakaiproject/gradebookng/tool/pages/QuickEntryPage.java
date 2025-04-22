@@ -10,7 +10,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -40,9 +40,9 @@ public class QuickEntryPage extends BasePage {
     private GbGroup groupNow;
 
     @Getter
-    private ModalWindow bulkGrade;
+    private GbModalWindow bulkGrade;
     @Getter
-    private ModalWindow bulkComment;
+    private GbModalWindow bulkComment;
     private boolean noErrors = true;
 
     private String gradebookUid;
@@ -329,7 +329,7 @@ public class QuickEntryPage extends BasePage {
             }
         }.setDefaultFormProcessing(false).setVisible(this.assignmentNow != null));
 
-        form.add(this.bulkGrade = new ModalWindow("bulkGradeModal"));
+        form.add(this.bulkGrade = new GbModalWindow("bulkGradeModal"));
         bulkGrade.setTitle(getString("quickentry.replacegradelabel"));
         bulkGrade.setInitialHeight(240);
 
@@ -337,6 +337,7 @@ public class QuickEntryPage extends BasePage {
             @Override
             public void onClick(AjaxRequestTarget target)
             {
+                bulkGrade.setComponentToReturnFocusTo(this);
                 bulkGrade.show(target);
             }
             @Override
@@ -344,7 +345,7 @@ public class QuickEntryPage extends BasePage {
                 return assignmentNow != null && !assignmentNow.getExternallyMaintained();
             }
         });
-        form.add(this.bulkComment = new ModalWindow("bulkCommentModal"));
+        form.add(this.bulkComment = new GbModalWindow("bulkCommentModal"));
         bulkComment.setTitle(getString("quickentry.comment.caption"));
         bulkComment.setInitialHeight(300);
 
@@ -352,6 +353,7 @@ public class QuickEntryPage extends BasePage {
             @Override
             public void onClick(AjaxRequestTarget target)
             {
+                bulkComment.setComponentToReturnFocusTo(this);
                 bulkComment.show(target);
             }
             @Override
