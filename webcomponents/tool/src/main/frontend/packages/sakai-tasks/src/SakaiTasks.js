@@ -73,7 +73,7 @@ export class SakaiTasks extends SakaiPageableElement {
         if (this._canAddTask) {
           await Promise.allSettled([
             import("../sakai-tasks-create-task.js"),
-            import("@lion/dialog/define"),
+            import("@lion/ui/define/lion-dialog.js"),
           ]);
         }
 
@@ -291,7 +291,7 @@ export class SakaiTasks extends SakaiPageableElement {
           </sakai-tasks-create-task>
 
           <div slot="invoker">
-            <button type="button" @click=${this._addTask} class="btn btn-primary btn-sm d-flex align-items-center ms-auto p-1 pe-2">
+            <button type="button" @click=${this._addTask} class="btn btn-primary btn-sm d-flex align-items-center ms-auto p-1 pe-2" aria-label="${this._i18n.add_new_task}">
               <i class="si si-add fs-4"></i>${this._i18n.add_new_task}
             </button>
           </div>
@@ -302,7 +302,7 @@ export class SakaiTasks extends SakaiPageableElement {
 
       <div id="controls">
         <div id="filter">
-          <select @change=${this.filterChanged} .value=${this._currentFilter}>
+          <select @change=${this.filterChanged} .value=${this._currentFilter} aria-label="${this._i18n.filter_label}">
             <option value="current">${this._i18n.filter_current}</option>
             <option value="${constants.PRIORITY_5}">${this._i18n.filter_priority_5}</option>
             <option value="${constants.PRIORITY_4}">${this._i18n.filter_priority_4}</option>
@@ -315,7 +315,7 @@ export class SakaiTasks extends SakaiPageableElement {
           </select>
         </div>
         <div id="sort">
-          <select @change=${this.sortChanged}>
+          <select @change=${this.sortChanged} aria-label="${this._i18n.sort_label}">
             <option value="none">${this._i18n.sort_none}</option>
             <option value="due_latest_first">${this._i18n.sort_due_latest_first}</option>
             <option value="due_earliest_first">${this._i18n.sort_due_earliest_first}</option>
@@ -324,14 +324,14 @@ export class SakaiTasks extends SakaiPageableElement {
           </select>
         </div>
       </div>
-      ${this.dataPage.filter(t => t.visible).length > 0 ? html`
+      ${this.dataPage.filter(t => t.visible).length ? html`
         <div id="tasks">
           <div class="priority-block header">${this._i18n.priority}</div>
           <div class="task-block task-block-header header">${this._i18n.task}</div>
           <div class="link-block header">${this._i18n.options}</div>
         ${this.dataPage.filter(t => t.visible).map((t, i) => html`
           <div class="priority-block priority_${t.priority} cell ${i % 2 === 0 ? "even" : "odd"}">
-            <div tabindex="0" title="${this._i18n[`priority_${t.priority}_tooltip`]}" aria-label="${this._i18n[`priority_${t.priority}_tooltip`]}">
+            <div tabindex="0" title="${this._i18n[`priority_${t.priority}_tooltip`]}">
               <sakai-icon size="small" type="priority"></sakai-icon>
             </div>
           </div>
@@ -432,13 +432,6 @@ export class SakaiTasks extends SakaiPageableElement {
           padding: 3px 3px 2px 0;
           vertical-align: middle;
           color: var(--button-primary-text-color);
-        }
-        .add-task-button {
-          margin-left: 1px;
-          background-color: var(--button-primary-background);
-          color: var(--button-primary-text-color);
-          border: 0px solid var(--button-primary-border-color);
-          border-radius: 2px;
         }
 
       #controls {

@@ -19,6 +19,7 @@
   "scripts": {
     "lint:fix": "eslint src --fix",
     "test": "web-test-runner --coverage",
+    "test:dev": "cd ../../ && npm run test:dev",
     "analyze": "lit-analyzer --strict src/*.js"
   },
   "keywords": [

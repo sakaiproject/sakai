@@ -30,6 +30,8 @@ import org.sakaiproject.conversations.api.model.Settings;
 import org.sakaiproject.conversations.api.model.Tag;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.grading.api.GradingAuthz;
+import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -84,6 +86,9 @@ public class ConversationsController extends AbstractSakaiApiController {
 	@Autowired
 	private UserDirectoryService userDirectoryService;
 
+	@Autowired
+	private SearchService searchService;
+
 	@GetMapping(value = "/sites/{siteId}/conversations", produces = MediaType.APPLICATION_JSON_VALUE)
     public EntityModel<ConversationsRestBean> getSiteConversations(@PathVariable String siteId) throws ConversationsPermissionsException, IdUnusedException {
 
@@ -117,7 +122,7 @@ public class ConversationsController extends AbstractSakaiApiController {
         bean.canViewSiteStatistics = securityService.unlock(Permissions.VIEW_STATISTICS.label, siteRef);
         bean.canPin = settings.getAllowPinning() && securityService.unlock(Permissions.TOPIC_PIN.label, siteRef);
         bean.canViewAnonymous = securityService.unlock(Permissions.VIEW_ANONYMOUS.label, siteRef);
-        //bean.canViewHidden = securityService.unlock(Permissions.POST_VIEW_HIDDEN.label, siteRef);
+        bean.canGrade = securityService.unlock(GradingAuthz.PERMISSION_GRADE_ALL, siteRef);
         bean.maxThreadDepth = serverConfigurationService.getInt(ConversationsService.PROP_MAX_THREAD_DEPTH, 5);
         bean.settings = settings;
 
@@ -129,7 +134,7 @@ public class ConversationsController extends AbstractSakaiApiController {
 
         bean.blankTopic = conversationsService.getBlankTopic(siteId);
 
-        bean.searchEnabled = serverConfigurationService.getBoolean("search.enable", false);
+        bean.searchEnabled = searchService.isEnabledForSite(siteId);
 
         List<Link> links = new ArrayList<>();
         if (bean.canViewSiteStatistics) links.add(Link.of("/api/sites/" + siteId + "/conversations/stats", "stats"));

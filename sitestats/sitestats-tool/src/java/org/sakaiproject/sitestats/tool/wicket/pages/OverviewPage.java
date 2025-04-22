@@ -76,6 +76,7 @@ public class OverviewPage extends BasePage {
 	}
 
 	private void renderBody() {
+		setVersioned(false);
 		setRenderBodyOnly(true);
 		add(new Menus("menu", siteId));
 		

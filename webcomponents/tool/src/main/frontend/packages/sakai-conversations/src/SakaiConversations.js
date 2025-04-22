@@ -578,6 +578,7 @@ export class SakaiConversations extends SakaiElement {
         ?can-pin=${this._data.canPin}
         ?can-edit-tags=${this._data.canEditTags}
         ?can-anon=${this._data.settings.allowAnonPosting}
+        ?can-grade=${this._data.canGrade}
         ?disable-discussions=${this._data.disableDiscussions}
         topic=${ifDefined(this._topicBeingEdited ? JSON.stringify(this._topicBeingEdited) : undefined)}>
       </sakai-add-topic>

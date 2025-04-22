@@ -7487,6 +7487,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 					ContentResource oldSiteContentResource = getResource(oldReference);
 					byte[] thisResourceContentRaw = oldSiteContentResource.getContent();
 					rContent = new String(thisResourceContentRaw);
+					rContent = rContent.replace("%2520", "%20");
+					StringBuffer saveOldEntity = new StringBuffer(rContent);
 					for (String oldValue : traversalMap.keySet()) {
 						if (!oldValue.equals("/fromContext")){
 							String newValue = "";
@@ -7501,7 +7503,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 					} catch (Exception e) {
 						log.debug ("Forums LinkMigrationHelper.editLinks failed: {}" + e.toString());
 					}					
-					StringBuffer saveOldEntity = new StringBuffer(rContent);
 					try {
 						if(!saveOldEntity.toString().equals(rContent)){
 							ContentResourceEdit edit = editResource(tId);
@@ -13543,8 +13544,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
      * @exception Exception Anything thrown by ZipContentUtil gets passed upwards.
      */
     public void expandZippedResource(String resourceId) throws Exception {
-        int maxZipExtractSize = ZipContentUtil.getMaxZipExtractFiles();
-        ZipContentUtil extractZipArchive = new ZipContentUtil();
+        ZipContentUtil extractZipArchive = new ZipContentUtil(this, serverConfigurationService, sessionManager);
+        int maxZipExtractSize = extractZipArchive.getMaxZipExtractFiles();
 
         // KNL-900 Total size of files should be checked before unzipping (KNL-273)
 		Map<String, Long> zipManifest = extractZipArchive.getZipManifest(resourceId);

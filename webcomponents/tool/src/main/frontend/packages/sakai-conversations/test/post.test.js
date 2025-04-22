@@ -1,11 +1,10 @@
 import "../sakai-post.js";
-import { elementUpdated, expect, fixture, oneEvent, waitUntil } from "@open-wc/testing";
-import { html } from "lit";
+import { elementUpdated, expect, fixture, html, oneEvent, waitUntil } from "@open-wc/testing";
 import * as data from "./data.js";
 import { DISCUSSION, QUESTION, REACTION_ICONS } from "../src/sakai-conversations-constants.js";
 import fetchMock from "fetch-mock/esm/client";
 
-window.top.portal = { locale: "en_GB", user: { id: "user1" }};
+window.top.portal = { user: { id: "user1" }};
 
 describe("conversations-post tests", () => {
 

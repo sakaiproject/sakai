@@ -196,8 +196,8 @@
                                   });
                                 });
 
-				if (document.getElementById("multigradebook-group-container") !== null) {
-					window.syncGbSelectorInput("gb-selector", "revise:forum_assignments");
+				if (document.getElementById("dfStatisticsForm:multigradebook-group-container") !== null) {
+					window.syncGbSelectorInput("gb-selector", "dfStatisticsForm:gb_selector");
 				}
 
 			});

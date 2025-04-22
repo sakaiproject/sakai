@@ -1,13 +1,12 @@
 import "../sakai-conversations-settings.js";
-import { elementUpdated, expect, fixture, oneEvent, waitUntil } from "@open-wc/testing";
-import { html } from "lit";
+import { elementUpdated, expect, fixture, html, oneEvent, waitUntil } from "@open-wc/testing";
 import * as data from "./data.js";
 import fetchMock from "fetch-mock/esm/client";
 import sinon from "sinon";
 
 describe("sakai-conversations-settings tests", () => {
 
-  window.top.portal = { locale: "en_GB", siteId: data.siteId, siteTitle: data.siteTitle, user: { id: "user1", timezone: "Europe/London" } };
+  window.top.portal = { siteId: data.siteId, siteTitle: data.siteTitle, user: { id: "user1", timezone: "Europe/London" } };
 
   fetchMock
     .get(data.i18nUrl, data.i18n)
@@ -203,7 +202,7 @@ describe("sakai-conversations-settings tests", () => {
     await waitUntil(() => el._i18n);
     await elementUpdated(el);
 
-    expect(el).to.be.accessible();
+    await expect(el).to.be.accessible();
 
     // Check if guidelines block is not displayed
     const guidelinesBlock = el.querySelector("#settings-guidelines-block");

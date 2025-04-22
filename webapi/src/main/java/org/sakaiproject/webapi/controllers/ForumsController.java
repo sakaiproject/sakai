@@ -50,6 +50,7 @@ public class ForumsController extends AbstractSakaiApiController {
         map.put("forumCount", item.getNewForumCount());
         map.put("siteId", item.getSiteId());
         map.put("siteTitle", item.getSiteTitle());
+        map.put("siteDescription", item.getSiteDescription());
 
         try {
             Site site = siteService.getSite(item.getSiteId());

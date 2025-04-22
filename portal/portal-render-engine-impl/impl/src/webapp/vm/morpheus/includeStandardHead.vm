@@ -37,6 +37,7 @@
                     "type": "$!{editorType}",
                 },
                 "portalCDNQuery" : "$!{portalCDNQuery}",
+                "sakaiSkin" : "$!{pageSkin}",
                 "userTheme" : "$!{userTheme}",
                 #if ($themesAutoDetectDark)
                 "userThemeAutoDetectDark" : true,

@@ -11643,15 +11643,16 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 					}
 				}
 			} else if (SiteManageConstants.GRADEBOOK_TOOL_ID.equals(choice)) {
-				isGroupType =  state.getAttribute(GradebookGroupEnabler.FORM_INPUT_ID) != null && GradebookGroupEnabler.VALUE_GRADEBOOK_GROUPS.equals(state.getAttribute(GradebookGroupEnabler.FORM_INPUT_ID));
+				isGroupType = state.getAttribute(GradebookGroupEnabler.FORM_INPUT_ID) != null && GradebookGroupEnabler.VALUE_GRADEBOOK_GROUPS.equals(state.getAttribute(GradebookGroupEnabler.FORM_INPUT_ID));
 				List<String> selectedGroups = isGroupType ? (List<String>)state.getAttribute(GradebookGroupEnabler.SELECTED_GROUPS) : new ArrayList<>();
+
 				List<String> existing = new ArrayList<>();
 
 				Collection<ToolConfiguration> gbs = site.getTools(SiteManageConstants.GRADEBOOK_TOOL_ID);
-				if (selectedGroups != null) {
+				if (serverConfigurationService.getBoolean("gradebookng.multipleGroupInstances", false)) {
 					for (ToolConfiguration tc : gbs) {
 						Properties props = tc.getPlacementConfig();
-						if (props.getProperty(GB_GROUP_PROPERTY) == null || !selectedGroups.contains(props.getProperty(GB_GROUP_PROPERTY))) {
+						if ((isGroupType && props.getProperty(GB_GROUP_PROPERTY) == null) || !selectedGroups.contains(props.getProperty(GB_GROUP_PROPERTY))) {
 							site.removePage(tc.getContainingPage());
 							deletedGroups.add(tc.getPageId()+SiteManageConstants.GRADEBOOK_TOOL_ID);
 						} else {
@@ -14171,9 +14172,6 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			if (site.getToolForCommonId(LESSONS_TOOL_ID) != null) {
 				displayLessons = true;
 			}
-			if (site.getToolForCommonId(GRADEBOOK_TOOL_ID) != null || site.getToolForCommonId(GRADEBOOKNG_TOOL_ID) != null) {
-				displayGradebook = true;
-			}
 		}
 		
 		if (displayWebContent && !toolIdList.contains(WEB_CONTENT_TOOL_ID))
@@ -14182,9 +14180,6 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			toolIdList.add(NEWS_TOOL_ID);
 		if (displayLessons && !toolIdList.contains(LESSONS_TOOL_ID))
 			toolIdList.add(LESSONS_TOOL_ID);
-		if (displayGradebook && !toolIdList.contains(GRADEBOOK_TOOL)){
-			toolIdList.add(GRADEBOOKNG_TOOL_ID);
-		}
 		if (serverConfigurationService.getBoolean("site-manage.importoption.siteinfo", true)){
 			toolIdList.add(SiteManageConstants.SITE_INFO_TOOL_ID);
 		}

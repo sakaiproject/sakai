@@ -1431,23 +1431,23 @@ public class GradingServiceImpl implements GradingService {
             }
         } else if (gradingAuthz.isUserAbleToViewOwnGrades(siteId)) {
             // if user is just a student, we need to filter out unreleased items
-            final List<GradebookAssignment> allAssigns = getSortedAssignments(gradebook.getId(), sortBy, true);
-            if (allAssigns != null) {
-                for (final Iterator aIter = allAssigns.iterator(); aIter.hasNext();) {
-                    final GradebookAssignment assign = (GradebookAssignment) aIter.next();
-                    if (assign != null && assign.getReleased()) {
-                        viewableAssignments.add(assign);
-                    }
+            for (GradebookAssignment assign : getSortedAssignments(gradebook.getId(), sortBy, true)) {
+                if (assign.isExternallyMaintained()
+                      && !isExternalAssignmentVisible(gradebook.getUid(), assign.getExternalId(), sessionManager.getCurrentSessionUserId())) {
+                    continue;
+                }
+
+                if (assign != null && assign.getReleased()) {
+                    viewableAssignments.add(assign);
                 }
             }
         }
 
         // Now we need to convert these to the assignment template objects
-        if (viewableAssignments != null && !viewableAssignments.isEmpty()) {
-            final boolean gbUsesCategories = !Objects.equals(gradebook.getCategoryType(), GradingConstants.CATEGORY_TYPE_NO_CATEGORY);
-            for (final Object element : viewableAssignments) {
-                final GradebookAssignment assignment = (GradebookAssignment) element;
-                assignmentsToReturn.add(getAssignmentDefinition(assignment, gbUsesCategories));
+        if (!viewableAssignments.isEmpty()) {
+            boolean usesCategories = !Objects.equals(gradebook.getCategoryType(), GradingConstants.CATEGORY_TYPE_NO_CATEGORY);
+            for (GradebookAssignment a : viewableAssignments) {
+                assignmentsToReturn.add(getAssignmentDefinition(a, usesCategories));
             }
         }
 
@@ -3649,12 +3649,10 @@ public class GradingServiceImpl implements GradingService {
     }
 
     private Optional<GradebookAssignment> getDbExternalAssignment(String gradebookUid, String externalId) {
-
         if (externalId == null) {
-            log.warn("null externalId supplied to getDbExternalAssignment. Returning empty ...");
-            return Optional.<GradebookAssignment>empty();
+            log.debug("A null externalId supplied to getDbExternalAssignment. Returning empty ...");
+            return Optional.empty();
         }
-
         return gradingPersistenceManager.getExternalAssignment(gradebookUid, externalId);
     }
 
@@ -3955,8 +3953,8 @@ public class GradingServiceImpl implements GradingService {
 
         Long assignmentId = gradingPersistenceManager.saveGradebookAssignment(asn).getId();
 
-        log.info("External assessment added to gradebookUid={}, externalId={} by userUid={} from externalApp={}", gradebookUid, externalId,
-                getUserUid(), externalServiceDescription);
+        log.debug("External assessment added to gradebookUid={}, externalId={} from externalApp={}",
+                gradebookUid, externalId, externalServiceDescription);
 
         // Check if this is a plus course and gb is site instance
         if ( plusService.enabled() && isCurrentGbSite(gradebookUid)) {

@@ -1,10 +1,7 @@
 import "../sakai-rubrics-manager.js";
-import { html } from "lit";
 import * as data from "./data.js";
-import { expect, fixture,  waitUntil } from "@open-wc/testing";
+import { expect, fixture, html, waitUntil } from "@open-wc/testing";
 import fetchMock from "fetch-mock/esm/client";
-
-window.top.portal = { locale: "en_GB" };
 
 fetchMock
   .get(data.i18nUrl, data.i18n, { overwriteRoutes: true })

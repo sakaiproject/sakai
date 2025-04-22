@@ -1,4 +1,4 @@
-export const i18nUrl = /.*i18n.*resourcebundle=permissions-wc.*/;
+export const i18nUrl = /.*i18n.*permissions-wc.*/;
 
 export const i18n = `
 alert_permission=You don't have permission to change permission settings.

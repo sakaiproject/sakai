@@ -1,6 +1,5 @@
 import "../sakai-topic.js";
-import { elementUpdated, expect, fixture, oneEvent, waitUntil } from "@open-wc/testing";
-import { html } from "lit";
+import { elementUpdated, expect, fixture, html, oneEvent, waitUntil } from "@open-wc/testing";
 import * as data from "./data.js";
 import fetchMock from "fetch-mock/esm/client";
 import sinon from "sinon";
@@ -8,10 +7,10 @@ import * as constants from "../src/sakai-conversations-constants.js";
 
 describe("sakai-topic tests", () => {
 
-  window.top.portal = { locale: "en_GB", siteId: data.siteId, siteTitle: data.siteTitle, user: { id: "user1", timezone: "Europe/London" } };
+  window.top.portal = { siteId: data.siteId, siteTitle: data.siteTitle, user: { id: "user1", timezone: "Europe/London" } };
   window.MathJax = { Hub: { Queue: () => {} } };
 
-  const postsUrl = `${data.discussionTopic.links.find(l => l.rel === "posts").href}?page=0&sort=${constants.SORT_OLDEST}`;
+  const postsUrl = `${data.discussionTopic.links.find(l => l.rel === "posts").href}?page=0`;
   const markViewedUrl = data.discussionTopic.links.find(l => l.rel === "markpostsviewed").href;
 
   beforeEach(() => {
@@ -20,14 +19,6 @@ describe("sakai-topic tests", () => {
       .get(data.i18nUrl, data.i18n)
       .get(postsUrl, [])
       .post(markViewedUrl, 200);
-
-    data.discussionTopic.canBookmark = false;
-    data.discussionTopic.canPin = false;
-    data.questionTopic.resolved = false;
-    data.discussionTopic.draft = false;
-    data.discussionTopic.hidden = false;
-    data.discussionTopic.locked = false;
-    data.discussionTopic.posts = [];
   });
 
   afterEach(() => {
@@ -41,15 +32,14 @@ describe("sakai-topic tests", () => {
       { id: "post2", message: "Post 2", viewed: false, canView: true }
     ];
 
-    data.discussionTopic.posts = unviewedPosts;
+    const topic = { ...data.discussionTopic, posts: unviewedPosts };
 
     const el = await fixture(html`
       <sakai-topic
-          .topic=${data.discussionTopic}>
+          .topic=${topic}>
       </sakai-topic>
     `);
 
-    await waitUntil(() => el._i18n);
     await elementUpdated(el);
 
     await expect(el).to.be.accessible();
@@ -70,13 +60,13 @@ describe("sakai-topic tests", () => {
 
   it("renders topic tags correctly", async () => {
 
+    const topic = { ...data.discussionTopic };
+
     const el = await fixture(html`
-      <sakai-topic
-          .topic=${data.discussionTopic}>
+      <sakai-topic .topic=${topic}>
       </sakai-topic>
     `);
 
-    await waitUntil(() => el._i18n);
     await elementUpdated(el);
 
     // Check if the tags container exists
@@ -95,15 +85,14 @@ describe("sakai-topic tests", () => {
 
   it("renders a question topic", async () => {
 
-    data.questionTopic.resolved = true;
+    const topic = { ...data.questionTopic, resolved: true };
 
     const el = await fixture(html`
       <sakai-topic
-          .topic=${data.questionTopic}>
+          .topic=${topic}>
       </sakai-topic>
     `);
 
-    await waitUntil(() => el._i18n);
     await elementUpdated(el);
 
     await expect(el).to.be.accessible();
@@ -119,17 +108,15 @@ describe("sakai-topic tests", () => {
 
   it("handles bookmarking a topic", async () => {
 
-    data.discussionTopic.canBookmark = true;
+    const topic = { ...data.discussionTopic, canBookmark: true };
 
-    fetchMock.post(data.discussionTopic.links.find(l => l.rel === "bookmark").href, 200);
+    fetchMock.post(topic.links.find(l => l.rel === "bookmark").href, 200);
 
     const el = await fixture(html`
-      <sakai-topic
-          .topic=${data.discussionTopic}>
+      <sakai-topic .topic=${topic}>
       </sakai-topic>
     `);
 
-    await waitUntil(() => el._i18n);
     await elementUpdated(el);
 
     await expect(el).to.be.accessible();
@@ -145,15 +132,13 @@ describe("sakai-topic tests", () => {
 
     fetchMock.post(data.discussionTopic.links.find(l => l.rel === "pin").href, 200);
 
-    data.discussionTopic.canPin = true;
+    const topic = { ...data.discussionTopic, canPin: true };
 
     const el = await fixture(html`
-      <sakai-topic
-          .topic=${data.discussionTopic}>
+      <sakai-topic .topic=${topic}>
       </sakai-topic>
     `);
 
-    await waitUntil(() => el._i18n);
     await elementUpdated(el);
 
     await expect(el).to.be.accessible();
@@ -167,16 +152,16 @@ describe("sakai-topic tests", () => {
 
   it("handles posting a reply to topic", async () => {
 
-    fetchMock.post(data.discussionTopic.links.find(l => l.rel === "posts").href,
+    const topic = { ...data.discussionTopic };
+
+    fetchMock.post(topic.links.find(l => l.rel === "posts").href,
       (url, opts) => ({ ...JSON.parse(opts.body), id: "posted1", viewed: true }));
 
     const el = await fixture(html`
-      <sakai-topic
-          .topic=${data.discussionTopic}>
+      <sakai-topic .topic=${topic}>
       </sakai-topic>
     `);
 
-    await waitUntil(() => el._i18n);
     await elementUpdated(el);
 
     expect(el.querySelector("sakai-editor")).to.not.exist;
@@ -206,17 +191,13 @@ describe("sakai-topic tests", () => {
 
   it("shows appropriate warnings for draft, hidden and locked topics", async () => {
 
-    data.discussionTopic.draft = true;
-    data.discussionTopic.hidden = true;
-    data.discussionTopic.locked = true;
+    const topic = { ...data.discussionTopic, draft: true, hidden: true, locked: true };
 
     const el = await fixture(html`
-      <sakai-topic
-          .topic=${data.discussionTopic}>
+      <sakai-topic .topic=${topic}>
       </sakai-topic>
     `);
 
-    await waitUntil(() => el._i18n);
     await elementUpdated(el);
 
     await expect(el).to.be.accessible();
@@ -230,14 +211,14 @@ describe("sakai-topic tests", () => {
     expect(el.querySelector(".sak-banner-warn:nth-child(3)")).to.exist;
     expect(el.querySelector(".sak-banner-warn:nth-child(3)").innerHTML).to.contain(el._i18n.moderator_topic_locked);
 
-    data.discussionTopic.visibility = constants.INSTRUCTORS;
+    topic.visibility = constants.INSTRUCTORS;
     el.requestUpdate();
     await elementUpdated(el);
     await expect(el).to.be.accessible();
     expect(el.querySelector(".sak-banner-warn:nth-child(4)")).to.exist;
     expect(el.querySelector(".sak-banner-warn:nth-child(4)").innerHTML).to.contain(el._i18n.topic_instructors_only_tooltip);
 
-    data.discussionTopic.visibility = constants.GROUP;
+    topic.visibility = constants.GROUP;
     el.requestUpdate();
     await elementUpdated(el);
     await expect(el).to.be.accessible();
@@ -247,32 +228,26 @@ describe("sakai-topic tests", () => {
 
   it("dispatches events when options menu items are clicked", async () => {
 
-    // Reset topic properties
-    data.discussionTopic.draft = false;
-    data.discussionTopic.hidden = false;
-    data.discussionTopic.locked = false;
-    data.discussionTopic.visibility = constants.SITE;
+    const topic = { ...data.discussionTopic };
 
     // Setup delete URL mock
-    const deleteUrl = data.discussionTopic.links.find(l => l.rel === "delete").href;
+    const deleteUrl = topic.links.find(l => l.rel === "delete").href;
     fetchMock.delete(deleteUrl, 200);
 
-    const hideUrl = data.discussionTopic.links.find(l => l.rel === "hide").href;
+    const hideUrl = topic.links.find(l => l.rel === "hide").href;
     fetchMock.post(hideUrl, {});
 
     // Setup lock URL mock
-    const lockUrl = data.discussionTopic.links.find(l => l.rel === "lock").href;
+    const lockUrl = topic.links.find(l => l.rel === "lock").href;
     fetchMock.post(lockUrl, (url, opts) => {
-      return { ...data.discussionTopic, locked: !data.discussionTopic.locked, selected: true };
+      return { ...topic, locked: !data.discussionTopic.locked, selected: true };
     });
 
     const el = await fixture(html`
-      <sakai-topic
-          .topic=${data.discussionTopic}>
+      <sakai-topic .topic=${topic}>
       </sakai-topic>
     `);
 
-    await waitUntil(() => el._i18n);
     await elementUpdated(el);
 
     await expect(el).to.be.accessible();
@@ -343,15 +318,13 @@ describe("sakai-topic tests", () => {
     };
 
     // Add the test post to the topic
-    data.discussionTopic.posts = [ testPost ];
+    const topic = { ...data.discussionTopic, posts: [ testPost ] };
 
     const el = await fixture(html`
-      <sakai-topic
-          .topic=${data.discussionTopic}>
+      <sakai-topic .topic=${topic}>
       </sakai-topic>
     `);
 
-    await waitUntil(() => el._i18n);
     await elementUpdated(el);
 
     await expect(el).to.be.accessible();
@@ -375,16 +348,13 @@ describe("sakai-topic tests", () => {
       message: "This post will be deleted"
     };
 
-    data.discussionTopic.posts = [ testPost ];
-    data.discussionTopic.numberOfPosts = 1;
+    const topic = { ...data.discussionTopic, posts: [ testPost ], numberOfPosts: 1 };
 
     const el = await fixture(html`
-      <sakai-topic
-          .topic=${data.discussionTopic}>
+      <sakai-topic .topic=${topic}>
       </sakai-topic>
     `);
 
-    await waitUntil(() => el._i18n);
     await elementUpdated(el);
 
     await expect(el).to.be.accessible();
@@ -401,14 +371,14 @@ describe("sakai-topic tests", () => {
 
   it("renders anonymous topics correctly", async () => {
 
+    const topic = { ...data.anonymousTopic };
     // Test with canViewAnonymous = false (regular user)
     const el = await fixture(html`
       <sakai-topic
-          .topic=${data.anonymousTopic}>
+          .topic=${topic}>
       </sakai-topic>
     `);
 
-    await waitUntil(() => el._i18n);
     await elementUpdated(el);
 
     await expect(el).to.be.accessible();
@@ -443,13 +413,10 @@ describe("sakai-topic tests", () => {
   it("handles anonymous post creation correctly", async () => {
 
     // Create a copy of the topic with allowAnonymousPosts set to true
-    const topicWithAnonymousAllowed = {
-      ...data.discussionTopic,
-      allowAnonymousPosts: true
-    };
+    const topic = { ...data.discussionTopic, allowAnonymousPosts: true };
 
     // Mock the post endpoint
-    fetchMock.post(topicWithAnonymousAllowed.links.find(l => l.rel === "posts").href, (url, opts) => {
+    fetchMock.post(topic.links.find(l => l.rel === "posts").href, (url, opts) => {
 
       const postData = JSON.parse(opts.body);
       return { ...postData,
@@ -459,12 +426,10 @@ describe("sakai-topic tests", () => {
     });
 
     const el = await fixture(html`
-      <sakai-topic
-          .topic=${topicWithAnonymousAllowed}>
+      <sakai-topic .topic=${topic}>
       </sakai-topic>
     `);
 
-    await waitUntil(() => el._i18n);
     await elementUpdated(el);
 
     await expect(el).to.be.accessible();
@@ -496,18 +461,13 @@ describe("sakai-topic tests", () => {
   it("does not show anonymous checkbox when anonymous posts are not allowed", async () => {
 
     // Create a copy of the topic with allowAnonymousPosts set to false
-    const topicWithoutAnonymous = {
-      ...data.discussionTopic,
-      allowAnonymousPosts: false
-    };
+    const topic = { ...data.discussionTopic, allowAnonymousPosts: false };
 
     const el = await fixture(html`
-      <sakai-topic
-          .topic=${topicWithoutAnonymous}>
+      <sakai-topic .topic=${topic}>
       </sakai-topic>
     `);
 
-    await waitUntil(() => el._i18n);
     await elementUpdated(el);
 
     await expect(el).to.be.accessible();
@@ -532,15 +492,13 @@ describe("sakai-topic tests", () => {
     ];
     const sortedNewestFirst = posts.toReversed();
 
-    data.questionTopic.posts = posts;
+    const topic = { ...data.questionTopic, posts };
 
     const el = await fixture(html`
-      <sakai-topic
-          .topic=${data.questionTopic}>
+      <sakai-topic .topic=${topic}>
       </sakai-topic>
     `);
 
-    await waitUntil(() => el._i18n);
     await elementUpdated(el);
 
     await expect(el).to.be.accessible();
@@ -572,20 +530,18 @@ describe("sakai-topic tests", () => {
   it("correctly marks posts as viewed", async () => {
 
     // Setup test data
-    const unviewedPosts = [
+    const posts = [
       { id: "post1", message: "Post 1", viewed: false, canView: true },
       { id: "post2", message: "Post 2", viewed: false, canView: true }
     ];
 
-    data.discussionTopic.posts = unviewedPosts;
+    const topic = { ...data.discussionTopic, posts };
 
     const el = await fixture(html`
-      <sakai-topic
-          .topic=${data.discussionTopic}>
+      <sakai-topic .topic=${topic}>
       </sakai-topic>
     `);
 
-    await waitUntil(() => el._i18n);
     await elementUpdated(el);
 
     await expect(el).to.be.accessible();
@@ -603,9 +559,10 @@ describe("sakai-topic tests", () => {
     ];
 
     // Mock the observer.unobserve method
+    const observeSpy = sinon.spy();
     const unobserveSpy = sinon.spy();
     const originalObserver = el.observer;
-    el.observer = { unobserve: unobserveSpy };
+    el.observer = { observe: observeSpy, unobserve: unobserveSpy };
 
     // Call the method directly with the post IDs
     el._markPostsViewed(["post1"]);
@@ -613,11 +570,8 @@ describe("sakai-topic tests", () => {
     const { detail } = await oneEvent(el, "posts-viewed");
 
     expect(detail.postIds).to.include("post1");
-    expect(detail.topicId).to.equal(data.discussionTopic.id);
+    expect(detail.topicId).to.equal(topic.id);
 
     expect(unobserveSpy.calledOnce).to.be.true;
-
-    // Restore the original observer
-    el.observer = originalObserver;
   });
 });

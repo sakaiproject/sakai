@@ -61,7 +61,7 @@ public class BannerStorage implements Banners, Acknowledger {
                             @Override
                             public List<Banner> call(DBConnection db) throws SQLException {
                                 List<Banner> banners = new ArrayList<Banner>();
-                                try (DBResults results = db.run("SELECT * from pasystem_banner_alert")
+                                try (DBResults results = db.run("SELECT * from pasystem_banner_alert ORDER BY start_time DESC")
                                         .executeQuery()) {
                                     for (ResultSet result : results) {
                                         banners.add(new Banner(result.getString("uuid"),

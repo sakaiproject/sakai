@@ -1,18 +1,14 @@
 import "../sakai-rubric-association.js";
 import "../sakai-rubrics-utils.js";
-import { html } from "lit";
 import * as data from "./data.js";
-import { expect, fixture, waitUntil } from "@open-wc/testing";
+import { expect, fixture, html, waitUntil } from "@open-wc/testing";
 import fetchMock from "fetch-mock/esm/client";
-
-window.top.portal = { locale: "en_GB" };
 
 fetchMock
   .get(data.i18nUrl, data.i18n, { overwriteRoutes: true })
   .get(data.rubricsUrl, data.rubrics, { overwriteRoutes: true })
   .get(data.rubric1Url, data.rubric1, { overwriteRoutes: true })
   .get(data.associationUrl, data.association, { overwriteRoutes: true })
-  //.get(data.evaluationUrl, data.evaluation, { overwriteRoutes: true })
   .get("*", 500, { overwriteRoutes: true });
 
 window.sakai = window.sakai || {

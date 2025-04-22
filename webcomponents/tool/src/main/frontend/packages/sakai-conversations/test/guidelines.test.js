@@ -1,6 +1,5 @@
 import { expect } from "@open-wc/testing";
-import { html } from "lit";
-import { elementUpdated, fixture, waitUntil } from "@open-wc/testing";
+import { elementUpdated, fixture, html, waitUntil } from "@open-wc/testing";
 import "../sakai-conversations-guidelines.js";
 import  * as data from "./data.js";
 import fetchMock from "fetch-mock/esm/client";

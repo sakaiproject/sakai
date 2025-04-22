@@ -206,10 +206,7 @@
     text-align: left;
     color: var(--sakai-text-color-dimmed);
   }
-  #gradeTableWrapper tbody td .gb-value {
-    line-height: 30px;
-  }
-  #gradeTableWrapper tbody td .gb-value.gb-overridden {
+  #gradeTableWrapper .gb-value.gb-overridden {
     font-weight: bold;
   }
   #gradeTableWrapper tbody td .btn-group {
@@ -605,15 +602,6 @@
   .gb-create-or-save {
     padding-left: 20px !important;
     padding-right: 20px !important;
-  }
-
-  .gb-create-or-save + .gb-create-another {
-    margin-left: -8px;
-    border-radius: 0 3px 3px 0 !important;
-  }
-
-  .gb-create-another > .glyphicon {
-      margin-top: -2px;   /* to compensate for top positioning and sibling button alignment */
   }
 
   /* Toolbar */
@@ -1432,7 +1420,7 @@ div.wicket-modal div.w_right {
 }
 div.wicket-modal a.w_close {
   color: var(--sakai-active-color-1);
-  transform: translateY(-15%);
+  transform: translateY(120%);
 }
 div.wicket-modal div.w_caption {
   cursor: move;
@@ -1448,8 +1436,6 @@ div.wicket-modal .w_blue div.w_content
 {
   background: var(--sakai-background-color-1);
   color: var(--sakai-text-color-1);
-  display: flex;
-  align-items: center;
 }
 
 div.wicket-modal {
@@ -1460,10 +1446,6 @@ div.wicket-modal {
 
 div.wicket-mask-transparent, div.wicket-mask-dark {
   z-index: 998 !important;
-}
-
-.gb-input-div {
-  margin-left: 3px !important;
 }
 
 .gb-input {
@@ -1667,16 +1649,20 @@ max-height:100px;
 }
 
 .gb-flag-not-counted:before, .gb-flag-excused:before {
+  font-family: 'bootstrap-icons';
   content: '\F1DF';
   text-decoration: line-through;
 }
 .gb-flag-not-released:before {
+  font-family: 'bootstrap-icons';
   content: '\F33F';
 }
 .gb-flag-extra-credit:before {
+  font-family: 'bootstrap-icons';
   content: '\F4FC';
 }
 .gb-flag-equal-weight:before {
+  font-family: 'bootstrap-icons';
   content: '\2696';
 }
 

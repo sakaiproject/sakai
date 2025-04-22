@@ -2350,6 +2350,10 @@ public class AssignmentAction extends PagedResourceActionII {
             context.put("assignment", assignment);
             context.put("assignmentReference", aReference);
 
+            if (assignment.getTypeOfSubmission() == Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION) {
+                context.put("nonElectronicType", Boolean.TRUE);
+            }
+
             // put creator information into context
             putCreatorIntoContext(context, assignment);
 
@@ -3462,11 +3466,11 @@ public class AssignmentAction extends PagedResourceActionII {
                 context.put("gb_selector", GB_SELECTOR);
             }
 
-            context.put("gradebookChoice", state.getAttribute(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK));
             if (state.getAttribute(EDIT_ASSIGNMENT_ID) == null) {
                 // This is a new assignment. Pick add new item to gradebook radio option.
-                context.put("gradebookChoice", GRADEBOOK_INTEGRATION_ADD);
+                state.setAttribute(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ADD);
             }
+            context.put("gradebookChoice", state.getAttribute(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK));
             context.put("gradebookChoice_no", GRADEBOOK_INTEGRATION_NO);
             context.put("gradebookChoice_add", GRADEBOOK_INTEGRATION_ADD);
             context.put("gradebookChoice_associate", GRADEBOOK_INTEGRATION_ASSOCIATE);
@@ -10597,10 +10601,14 @@ public class AssignmentAction extends PagedResourceActionII {
                         Long toolKey = new Long(content.get(LTIService.LTI_TOOL_ID).toString());
                         if (toolKey != null) {
                             Map<String, Object> tool = ltiService.getTool(toolKey, site.getId());
-                            String toolTitle = (String) tool.get(LTIService.LTI_TITLE);
-                            state.setAttribute(NEW_ASSIGNMENT_CONTENT_TITLE, toolTitle);
-                            Long toolNewpage = SakaiLTIUtil.getLong(tool.get(LTIService.LTI_NEWPAGE));
-                            state.setAttribute(NEW_ASSIGNMENT_CONTENT_TOOL_NEWPAGE, toolNewpage);
+                            if ( tool == null ) {
+                                state.setAttribute(NEW_ASSIGNMENT_CONTENT_TITLE, null);
+                            } else {
+                                String toolTitle = (String) tool.get(LTIService.LTI_TITLE);
+                                state.setAttribute(NEW_ASSIGNMENT_CONTENT_TITLE, toolTitle);
+                                Long toolNewpage = SakaiLTIUtil.getLong(tool.get(LTIService.LTI_NEWPAGE));
+                                state.setAttribute(NEW_ASSIGNMENT_CONTENT_TOOL_NEWPAGE, toolNewpage);
+                            }
                         }
                     } catch(org.sakaiproject.exception.IdUnusedException e ) {
                         // Send error to template

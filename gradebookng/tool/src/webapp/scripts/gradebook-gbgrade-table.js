@@ -924,7 +924,12 @@ GbGradeTable.renderTable = function (elementId, tableData) {
 
   GbGradeTable.instance.on("cellEdited", function(cell) {
     const oldScore = cell.getOldValue();
-    const newScore = cell.getValue();
+    let newScore = cell.getValue();
+
+    // Set undefined/null values to empty string
+    if (typeof newScore === 'undefined' || newScore === null) {
+      newScore = "";
+    }
 
     if (oldScore !== newScore) {
       const col = cell.getColumn().getDefinition().field;
@@ -946,7 +951,10 @@ GbGradeTable.renderTable = function (elementId, tableData) {
         .then(() => {
           cell.getRow().reformat();
         })
-        .catch(error => console.error("Error updating score:", error));
+        .catch(error => {
+          console.error("Error updating score:", error);
+          cell.getRow().reformat();
+        });
     }
   });
 
@@ -977,7 +985,11 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       if (GbGradeTable.settings.isGroupedByCategory) {
         columnElement.classList.add("gb-categorized");
       }
-  
+
+      if (columnData.type === "category") {
+        columnElement.classList.add("gb-item-category");
+      }
+
       // Handle hidden column cues
       if (index === GbGradeTable.CURRENT_FIXED_COLUMN_OFFSET - 1) {
         if (GbGradeTable.columns[0]?.hidden && !columnElement.querySelector(".gb-hidden-column-visual-cue")) {
@@ -1050,11 +1062,20 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       
       tableContainer.scrollLeft = targetScroll;
     } else {
-      cellElement.scrollIntoView({
-        block: "end",
-        inline: "nearest",
-        behavior: "auto"
-      });
+      const tableRect = tableContainer.getBoundingClientRect();
+      const isFullyVisible = 
+        cellRect.top >= tableRect.top && 
+        cellRect.bottom <= tableRect.bottom &&
+        cellRect.left >= tableRect.left && 
+        cellRect.right <= tableRect.right;
+
+      if (!isFullyVisible) {
+        cellElement.scrollIntoView({
+          block: "nearest",
+          inline: "nearest",
+          behavior: "smooth"
+        });
+      }
     }
 
     cellElement.focus();
@@ -1091,6 +1112,14 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     }
   
     dropdownMenu.classList.add("gb-dropdown-menu");
+    
+    dropdownMenu.addEventListener('keydown', function(event) {
+      if (event.key === 'Enter' && event.target.classList.contains('dropdown-item')) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.target.click();
+      }
+    });
   
     $(dropdownMenu).data("cell", $(link.closest(".tabulator-cell, .tabulator-col")));
   
@@ -1120,19 +1149,20 @@ GbGradeTable.renderTable = function (elementId, tableData) {
   
     // Remove "Move left" menu option for the leftmost item and "Move right" for the rightmost item.
     const header = link.closest(".tabulator-col.gb-item");
-    if (header) {
-      let menuOption;
-      const previous = header.previousElementSibling;
-      if (!previous || !previous.classList.contains("gb-item") || previous.classList.contains("gb-item-category")) {
-        menuOption = dropdownMenu.querySelector(".gb-move-left");
-      }
-      const next = header.nextElementSibling;
-      if (!next || next.classList.contains("gb-item-category")) {
-        menuOption = dropdownMenu.querySelector(".gb-move-right");
-      }
-      if (menuOption) {
-        menuOption.parentElement.remove();
-      }
+    if (!header) return;
+
+    const columns = [...document.querySelectorAll(".tabulator-col.gb-item")];
+    const index = columns.indexOf(header);
+    const moveLeftItem = dropdownMenu.querySelector('a.gb-move-left')?.closest('li');
+    const moveRightItem = dropdownMenu.querySelector('a.gb-move-right')?.closest('li');
+    
+    if (columns.length <= 1) {
+      moveLeftItem?.remove();
+      moveRightItem?.remove();
+    } else if (index === 0) {
+      moveLeftItem?.remove();
+    } else if (index === columns.length - 1 || columns[index + 1]?.classList.contains('gb-item-category')) {
+      moveRightItem?.remove();
     }
   });
 
@@ -1156,7 +1186,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
         let currentFilterText = event.target.value;
         if (currentFilterText !== previousFilterText) {
           previousFilterText = currentFilterText;
-          GbGradeTable.redrawTable(true);
+          GbGradeTable.redrawRows();
         }
       }, 500);
     })
@@ -1166,7 +1196,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     .on("keydown", function (event) {
       if (event.key === "Enter") {
         clearTimeout(filterTimeout);
-        GbGradeTable.redrawTable(true);
+        GbGradeTable.redrawRows();
         return false;
       }
     });
@@ -1563,6 +1593,8 @@ GbGradeTable.editExcuse = function(studentId, assignmentId) {
 
     var postData = {
         action: 'excuseGrade',
+        siteId: GbGradeTable.container.dataset.siteId,
+        gUid: GbGradeTable.container.dataset.guid,
         studentId: studentId,
         assignmentId: assignmentId,
         excuseBit : student.hasExcuse[assignmentIndex],
@@ -1786,6 +1818,11 @@ GbGradeTable.redrawTable = function(force) {
     GbGradeTable.refreshSummaryLabels();
     GbGradeTable.forceRedraw = false;
   }, 100);
+};
+
+GbGradeTable.redrawRows = function() {
+  GbGradeTable.instance.setFilter(row => GbGradeTable.getFilteredData().includes(row));
+  GbGradeTable.refreshSummaryLabels();
 };
 
 GbGradeTable._fixedColumns = [];
@@ -2429,6 +2466,12 @@ GbGradeTable.setupKeyboardNavigation = function() {
     }
 
     if (current) {
+      // Handle Enter key for non-editable cells with links
+      if (!current.classList.contains("tabulator-editable") && event.key === "Enter") {
+        const link = current.querySelector("a, link");
+        if (link) link.click();
+      }
+      
       // Allow accessibility shortcuts
       if (event.altKey && event.ctrlKey) {
         return iGotThis(true);
@@ -2779,9 +2822,9 @@ GbGradeTable.refreshSummaryLabels = function() {
 
   function refreshStudentSummary() {
     $toolbar.find(".gb-student-summary").html(GbGradeTable.templates.studentSummary.process());
-    const visible = GbGradeTable.instance.getData().length;
-    var total = GbGradeTable.students.length;
-    $toolbar.find(".gb-student-summary .visible").html(GbGradeTable.instance.getRows().length);
+    const visible = GbGradeTable.instance.getData("active").length;
+    const total = GbGradeTable.students.length;
+    $toolbar.find(".gb-student-summary .visible").html(visible);
     $toolbar.find(".gb-student-summary .total").html(total);
 
     if (visible < total) {

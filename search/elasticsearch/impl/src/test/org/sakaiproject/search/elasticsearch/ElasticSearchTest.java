@@ -51,12 +51,14 @@ import org.sakaiproject.event.api.NotificationEdit;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.InvalidSearchQueryException;
+import org.sakaiproject.search.api.SearchConstants;
 import org.sakaiproject.search.api.SearchList;
 import org.sakaiproject.search.api.SearchResult;
 import org.sakaiproject.search.elasticsearch.filter.impl.SearchSecurityFilter;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -319,6 +321,7 @@ public class ElasticSearchTest {
         elasticSearchService.setUserDirectoryService(userDirectoryService);
         elasticSearchService.setNotificationService(notificationService);
         elasticSearchService.setThreadLocalManager(threadLocalManager);
+        elasticSearchService.setSiteService(siteService);
         elasticSearchService.setLocalNode(true);
         elasticSearchService.init();
 
@@ -531,6 +534,41 @@ public class ElasticSearchTest {
         long indexedDocs = elasticSearchService.getNDocs();
         assertTrue("pending doc=" + pendingDocs + ", expecting 0", pendingDocs == 0);
         assertTrue("num doc=" + indexedDocs + ", expecting 106.", indexedDocs == 106);
+    }
+
+    @Test
+    public void testIsEnabledForSite() {
+
+        when(serverConfigurationService.getBoolean("search.enable", false)).thenReturn(false);
+
+        assertFalse(elasticSearchService.isEnabledForSite(null));
+
+        when(serverConfigurationService.getBoolean("search.enable", false)).thenReturn(true);
+
+        when(serverConfigurationService.getBoolean("search.onlyIndexSearchToolSites", true)).thenReturn(false);
+
+        assertFalse(elasticSearchService.isEnabledForSite(null));
+
+        when(serverConfigurationService.getBoolean("search.onlyIndexSearchToolSites", true)).thenReturn(true);
+
+        assertFalse(elasticSearchService.isEnabledForSite(null));
+
+        //Site site = mock(Site.class);
+        when(site.getToolForCommonId(SearchConstants.TOOL_ID)).thenReturn(null);
+
+        assertFalse(elasticSearchService.isEnabledForSite(siteId));
+
+        // Anything non null will do
+        when(site.getToolForCommonId(SearchConstants.TOOL_ID)).thenReturn(mock(ToolConfiguration.class));
+        assertTrue(elasticSearchService.isEnabledForSite(siteId));
+
+        String siteWithoutSearchToolId = "site-without-search-tool-id";
+        Site siteWithoutSearchTool = mock(Site.class);
+        try {
+            when(siteService.getSite(siteWithoutSearchToolId)).thenReturn(siteWithoutSearchTool);
+        } catch (Exception e) {
+        }
+        assertFalse(elasticSearchService.isEnabledForSite(siteWithoutSearchToolId));
     }
 
     public class Resource {

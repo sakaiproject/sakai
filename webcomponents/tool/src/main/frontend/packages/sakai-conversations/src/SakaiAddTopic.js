@@ -22,6 +22,7 @@ export class SakaiAddTopic extends SakaiElement {
     tags: { attribute: "tags", type: Array },
     canPin: { attribute: "can-pin", type: Boolean },
     canAnonPost: { attribute: "can-anon", type: Boolean },
+    canGrade: { attribute: "can-grade", type: Boolean },
     canCreateDiscussion: { attribute: "can-create-discussion", type: Boolean },
     canCreateQuestion: { attribute: "can-create-question", type: Boolean },
     disableDiscussions: { attribute: "disable-discussions", type: Boolean },
@@ -461,6 +462,7 @@ export class SakaiAddTopic extends SakaiElement {
           </sakai-editor>
         </div>
 
+        ${this.tags.length || this.canEditTags ? html`
         <div id="tag-post-block" class="add-topic-block">
           <div id="tag-post-label" class="add-topic-label">${this._i18n.tag_topic}</div>
           ${this.tags.length > 0 ? html`
@@ -493,6 +495,7 @@ export class SakaiAddTopic extends SakaiElement {
           `)}
           </div>
         </div>
+        ` : nothing}
 
         <div id="post-to-block" class="add-topic-block">
           <div id="post-to-label" class="add-topic-label">${this._i18n.post_to}</div>
@@ -648,6 +651,7 @@ export class SakaiAddTopic extends SakaiElement {
         </div>
         ` : nothing}
 
+        ${this.canGrade ? html`
         <div class="add-topic-label mb-2">${this._i18n.grading}</div>
         <sakai-grading-item-association
             site-id="${this.siteId}"
@@ -656,6 +660,7 @@ export class SakaiAddTopic extends SakaiElement {
             gradable-ref="${this.topic.reference}"
             ?use-grading=${this.topic.gradingItemId}>
         </sakai-grading-item-association>
+        ` : nothing}
 
         ${this.topic.canModerate ? html`
         <div id="conversations-grading-and-duedate-block" class="add-topic-block">
