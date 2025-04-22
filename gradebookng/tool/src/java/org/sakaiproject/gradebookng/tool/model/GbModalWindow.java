@@ -222,7 +222,7 @@ public class GbModalWindow extends ModalWindow {
 				target.appendJavaScript(
 					"if (typeof GradebookGradeSummaryUtils !== 'undefined' && GradebookGradeSummaryUtils.clearBlur) { " +
 					"  try { GradebookGradeSummaryUtils.clearBlur(); } catch(e) { console.error('Failed to clear blur:', e); } " +
-					"} else { console.warn('GradebookGradeSummaryUtils or clearBlur function not found.'); }"
+					"} else { console.debug('GradebookGradeSummaryUtils or clearBlur function not found.'); }"
 				);
 
 				// Remove the focus trap listener from the document using the correct namespace
