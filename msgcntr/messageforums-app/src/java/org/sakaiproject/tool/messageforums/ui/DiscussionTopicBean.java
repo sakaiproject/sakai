@@ -1147,13 +1147,16 @@ public class DiscussionTopicBean
 	public void setOpenDate(String openDateStr){
 		if(StringUtils.isNotBlank(openDateStr)) {
 			try{
+				// Get the ISO8601 value directly from the request
 				String hiddenOpenDate = (String)FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("openDateISO8601");
-				Date openDate = (Date) datetimeFormat.parse(hiddenOpenDate);
-				topic.setOpenDate(openDate);
-			}catch (ParseException e) {
+				if (StringUtils.isNotBlank(hiddenOpenDate)) {
+					Date openDate = (Date) datetimeFormat.parse(hiddenOpenDate);
+					topic.setOpenDate(openDate);
+				}
+			} catch (ParseException e) {
 				log.error("Couldn't convert open date", e);
 			}
-		}else{
+		} else {
 			topic.setOpenDate(null);
 		}
 	}
@@ -1170,13 +1173,16 @@ public class DiscussionTopicBean
 	public void setCloseDate(String closeDateStr){
 		if(StringUtils.isNotBlank(closeDateStr)) {
 			try{
+				// Get the ISO8601 value directly from the request
 				String hiddenCloseDate = (String)FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("closeDateISO8601");
-				Date CloseDate = (Date) datetimeFormat.parse(hiddenCloseDate);
-				topic.setCloseDate(CloseDate);
-			}catch (ParseException e) {
-				log.error("Couldn't convert Close date", e);
+				if (StringUtils.isNotBlank(hiddenCloseDate)) {
+					Date closeDate = (Date) datetimeFormat.parse(hiddenCloseDate);
+					topic.setCloseDate(closeDate);
+				}
+			} catch (ParseException e) {
+				log.error("Couldn't convert close date", e);
 			}
-		}else{
+		} else {
 			topic.setCloseDate(null);
 		}
 	}

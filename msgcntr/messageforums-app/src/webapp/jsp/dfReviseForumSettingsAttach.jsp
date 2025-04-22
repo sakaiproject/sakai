@@ -315,13 +315,11 @@
                </h:panelGroup>
                <h:panelGroup id="openDateSpan" styleClass="indnt2 openDateSpan calWidget" style="display: #{ForumTool.selectedForum.availabilityRestricted ? 'block' : 'none'}">
                    <h:outputLabel value="#{msgs.openDate}: " for="openDate"/>
-                   <h:inputText id="openDate" styleClass="openDate" value="#{ForumTool.selectedForum.openDate}" onchange="storeOpenDateISO(event)"/>
-                   <h:inputText id="openDateISO" styleClass="openDateISO hidden" value="#{ForumTool.selectedForum.openDateISO}"></h:inputText>
+                   <h:inputText id="openDate" styleClass="openDate" value="#{ForumTool.selectedForum.openDate}"/>
                </h:panelGroup>
                <h:panelGroup id="closeDateSpan" styleClass="indnt2 closeDateSpan calWidget" style="display: #{ForumTool.selectedForum.availabilityRestricted ? 'block' : 'none'}">
                    <h:outputLabel value="#{msgs.closeDate}: " for="closeDate" />
-                   <h:inputText id="closeDate" styleClass="closeDate" value="#{ForumTool.selectedForum.closeDate}" onchange="storeCloseDateISO(event)"/>
-                   <h:inputText id="closeDateISO" styleClass="closeDateISO hidden" value="#{ForumTool.selectedForum.closeDateISO}"></h:inputText>
+                   <h:inputText id="closeDate" styleClass="closeDate" value="#{ForumTool.selectedForum.closeDate}"/>
                </h:panelGroup>
 				<h:panelGroup layout="block" styleClass="checkbox" style="display: #{ForumTool.doesSiteHaveCalendar ? '' : 'none'}">
 					<h:panelGroup id="sendOpenCloseDateToCalendarSpan"
@@ -340,16 +338,7 @@
 			</h:panelGroup>
 
 			<script>
-				function storeOpenDateISO(e) {
-					e.preventDefault();
-					document.getElementById("revise:openDateISO").value = document.getElementById("openDateISO8601").value;
-				}
-
-				function storeCloseDateISO(e) {
-					e.preventDefault();
-					document.getElementById("revise:closeDateISO").value = document.getElementById("closeDateISO8601").value;
-				}
-
+				// Initialize datepickers
 				localDatePicker({
 					input: '.openDate',
 					allowEmptyDate: true,
