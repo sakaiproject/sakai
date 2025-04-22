@@ -5,17 +5,18 @@
 	<wicket:panel>
 
 		<div id="gradebookSorter" class="by-grade-item">
+			<span class="sr-only" wicket:message="aria-label:sortgradeitems.instructions">Instructions for sorting items will go here.</span>
 			<input type="hidden" name="orderby" value="item"/>
-			<ul>
-				<li wicket:id="gradeItemList" class="gb-sorter-sortable">
+			<ul role="list" aria-dropeffect="move">
+				<li wicket:id="gradeItemList" class="gb-sorter-sortable" role="listitem">
 					<input wicket:id="id" type="hidden"/>
 					<input wicket:id="order" type="hidden"/>
 					<input wicket:id="current_order" type="hidden"/>
 					<div class="d-flex align-items-center">
 						<a href="javascript:;"
 								class="me-2 item-drag-handle"
-								wicket:message="title:sortgradeitems.sort_item_label,aria-label:sortgradeitems.sort_item_label">
-							<i class="si si-drag-handle"></i>
+								wicket:message="aria-label:sortgradeitems.sort_item_label_instruct">
+							<span class="si si-drag-handle" aria-hidden="true"></span>
 						</a>
 						<span wicket:id="name"></span>
 					</div>
