@@ -65,7 +65,7 @@ public interface UserMessagingService {
     public List<UserNotification> getNotifications();
 
     /**
-     * Register a handler for broadcast messages. The most recently registered handler that
+     * Register a handler for broadcast messages. The first registered handler that
      * handles a given event will receive it exclusively.
      *
      * @param handler a broadcast message handler; may handle multiple events
@@ -73,8 +73,7 @@ public interface UserMessagingService {
     void registerHandler(UserNotificationHandler handler);
 
     /**
-     * Unregister a handler for broadcast messages from all of the events it handles. If a given event is
-     * handled by a different handler, it will not be unregistered.
+     * Unregister a handler for broadcast messages from all of the events it handles.
      *
      * @param handler the broadcast message handler to unregister from events
      */
