@@ -6,7 +6,7 @@ import fetchMock from "fetch-mock/esm/client";
 
 window.top.portal = { user: { id: "user1" }};
 
-describe("conversations-post tests", () => {
+describe("post tests", () => {
 
   beforeEach(() => {
 
@@ -467,7 +467,7 @@ describe("conversations-post tests", () => {
 
     await expect(el).to.be.accessible();
 
-    const gradeButton = el.querySelector(`#post-${data.post1.id}-grade-dropdown-toggle`);
+    const gradeButton = el.querySelector(".dropdown-toggle");
     expect(gradeButton).to.exist;
 
     setTimeout(() => gradeButton.click());
