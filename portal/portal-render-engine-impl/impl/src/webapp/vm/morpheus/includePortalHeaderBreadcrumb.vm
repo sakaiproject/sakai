@@ -29,6 +29,18 @@
                 ${page.pageTitle}
             </a>
         </div>
+
+        #if(${sitePages.canManageOverview} && ${page.pageProps.is_home_page})
+            <a href="${sitePages.manageOverviewUrl}" title="$rloader.sit_manover" class="Mrphs-hierarchy-item manage-overview-link d-none d-lg-block">
+                <span class="fa fa-pencil"></span>$rloader.sit_manover
+            </a>
+        #end
+        #if(${sitePages.canManageOverviewHome} && ${page.pageProps.is_home_page})
+            <a href="${sitePages.manageOverviewUrlInHome}" title="$rloader.sit_manover" class="Mrphs-hierarchy-item manage-overview-link d-none d-lg-block">
+                <span class="fa fa-pencil"></span>$rloader.sit_manover
+            </a>
+        #end
+
         #end
     #end
 </div>
