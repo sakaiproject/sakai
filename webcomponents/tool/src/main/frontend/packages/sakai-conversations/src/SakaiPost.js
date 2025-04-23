@@ -255,7 +255,7 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
 
   _inputGradeComment(e) {
 
-    this._gradeComment = e.detail.content;
+    this._gradeComment = e.target.value;
     this._gradingInputsInvalid = !this._gradePoints && !this._gradeComment;
   }
 
@@ -289,11 +289,24 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
         this.post.grade.grade = this._gradePoints;
         setTimeout(() => {
 
-          bootstrap.Dropdown.getInstance(this.querySelector(`#post-${this.post.id}-grade-dropdown-toggle`)).hide();
+          bootstrap.Dropdown.getInstance(this.querySelector(".dropdown-toggle")).hide();
           this._gradeSubmitted = false;
         }, 1000);
       }
     });
+  }
+
+  _cancelGrade(e) {
+
+    e.stopPropagation();
+
+    this._gradePoints = undefined;
+    this._gradeComment = undefined;
+    this.querySelector(".dropdown-menu input[type='text']").value = "";
+    this.querySelector("textarea").value = "";
+    this._gradeSubmitted = false;
+
+    bootstrap.Dropdown.getInstance(this.querySelector(".dropdown-toggle")).hide();
   }
 
   _commentDeleted(e) {
@@ -319,7 +332,6 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
         ${this.post.canGrade && this.gradingItemId ? html`
           <div class="dropdown ms-2">
             <button class="btn btn-secondary btn-sm dropdown-toggle"
-                id="post-${this.post.id}-grade-dropdown-toggle"
                 type="button"
                 data-bs-auto-close="false"
                 data-bs-toggle="dropdown"
@@ -342,18 +354,17 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
                   <span>(${this._i18n.max_of} ${this.maxGradePoints})</span>
                 </div>
                 <div class="mt-2">
-                  <label>
+                  <label class="d-block">
                     <div>${this._i18n.grade_comment_label}</div>
-                    <div>
-                      <sakai-editor
-                          @changed=${this._inputGradeComment}
-                          .content=${this.post?.grade?.gradeComment || ""}>
-                      </sakai-editor>
-                    </div>
+                    <textarea class="w-100"
+                        @change=${this._inputGradeComment}
+                        .value=${this.post?.grade?.gradeComment || ""}>
+                    </textarea>
                   </label>
                 </div>
                 <div class="mt-2">
                   <button type="button" class="btn btn-secondary btn-sm" @click=${this._submitGrade}>${this._i18n.submit_grade}</button>
+                  <button type="button" class="btn btn-secondary btn-sm" @click=${this._cancelGrade}>Cancel</button>
                 </div>
               </div>
             </div>
