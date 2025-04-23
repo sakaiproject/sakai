@@ -15,23 +15,28 @@
  */
 package org.sakaiproject.messaging.impl;
 
+import lombok.extern.slf4j.Slf4j;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.Event;
-import org.sakaiproject.messaging.api.UserNotificationHandler;
-import org.sakaiproject.messaging.api.UserNotificationData;
 import org.sakaiproject.messaging.api.UserMessagingService;
+import org.sakaiproject.messaging.api.UserNotificationData;
+import org.sakaiproject.messaging.api.UserNotificationHandler;
 import org.sakaiproject.messaging.api.model.UserNotification;
 import org.sakaiproject.messaging.api.repository.UserNotificationRepository;
-import org.sakaiproject.messaging.impl.UserMessagingServiceImpl;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.test.SakaiTests;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.util.AopTestUtils;
 
 import java.time.Instant;
 import java.util.Collections;
@@ -39,20 +44,8 @@ import java.util.Date;
 import java.util.Observable;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.util.AopTestUtils;
-
-import static org.mockito.Mockito.*;
-
-import lombok.extern.slf4j.Slf4j;
-
 import static org.junit.Assert.*;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import static org.mockito.Mockito.*;
 
 @Slf4j
 @RunWith(SpringJUnit4ClassRunner.class)
