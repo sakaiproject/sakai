@@ -202,7 +202,9 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 			
 			TransformerFactory tFactory = TransformerFactory.newInstance();
 			docTransformer = tFactory.newTransformer();
-			
+
+			siteService.addSiteRemovalAdvisor(this);
+
 			log.info("init()");
 		}
 		catch (Throwable t)
