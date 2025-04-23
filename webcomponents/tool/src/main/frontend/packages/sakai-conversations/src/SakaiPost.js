@@ -61,6 +61,8 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
     const old = this._post;
     this._post = value;
 
+    this._gradePoints = value?.grade?.grade;
+
     this.requestUpdate("post", old);
   }
 
