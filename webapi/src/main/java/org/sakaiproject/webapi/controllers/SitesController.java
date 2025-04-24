@@ -17,21 +17,36 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
+import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.messaging.api.UserMessagingService;
 import org.sakaiproject.messaging.api.model.UserNotification;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-
+import org.sakaiproject.webapi.beans.AssessmentScheduledRestBean;
+import org.sakaiproject.webapi.beans.MembershipScheduledRestBean;
+import org.sakaiproject.webapi.beans.PaginatedResponse;
+import org.sakaiproject.webapi.beans.SiteScheduledRestBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-
+import org.springframework.http.ResponseEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,6 +69,302 @@ public class SitesController extends AbstractSakaiApiController {
 
 	@Autowired
 	private UserMessagingService userMessagingService;
+
+    @Autowired
+    private SqlService sqlService;
+
+    @Autowired
+    private UserDirectoryService userDirectoryService;
+
+    @GetMapping(value = "/assessment/scheduled", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PaginatedResponse<AssessmentScheduledRestBean>> getAssessmentScheduled(
+        @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam LocalDateTime startDate,
+        @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam LocalDateTime endDate,
+        @RequestParam(required = false, defaultValue = "0") Integer page,
+        @RequestParam(required = false, defaultValue = "50") Integer size) {
+
+        // Main query to retrieve assessment data using date range and limit/offset for pagination
+        // The parameters returned are ID, TITLE, CREATEDDATE, LASTMODIFIEDDATE, STARTDATE, and DUEDATE
+        String query = "SELECT pa.ID, pa.TITLE, pa.CREATEDDATE, pa.LASTMODIFIEDDATE, ac.STARTDATE, ac.DUEDATE " +
+            "FROM SAM_PUBLISHEDASSESSMENT_T pa " +
+            "JOIN SAM_ASSESSMENTBASE_T ab ON ab.ID = pa.ASSESSMENTID " +
+            "JOIN SAM_ASSESSACCESSCONTROL_T ac ON ab.ID = ac.ASSESSMENTID " +
+            "WHERE ((pa.CREATEDDATE > ? AND pa.CREATEDDATE <= ?) " +
+            "OR (pa.LASTMODIFIEDDATE > ? AND pa.LASTMODIFIEDDATE <= ?)) " +
+            "AND pa.status = 1 " +
+            "LIMIT ? OFFSET ?";
+
+        // Count query to retrieve the total number of elements matching the date range
+        String countQuery = "SELECT COUNT(*) " +
+            "FROM SAM_PUBLISHEDASSESSMENT_T pa " +
+            "JOIN SAM_ASSESSMENTBASE_T ab ON ab.ID = pa.ASSESSMENTID " +
+            "JOIN SAM_ASSESSACCESSCONTROL_T ac ON ab.ID = ac.ASSESSMENTID " +
+            "WHERE ((pa.CREATEDDATE > ? AND pa.CREATEDDATE <= ?) " +
+            "OR (pa.LASTMODIFIEDDATE > ? AND pa.LASTMODIFIEDDATE <= ?)) " +
+            "AND pa.status = 1";
+
+        List<AssessmentScheduledRestBean> assessmentScheduledList = new ArrayList<>();
+        Integer totalElements = 0;
+
+        Connection conn = null;
+        PreparedStatement ps = null;
+        PreparedStatement countPs = null;
+        ResultSet rs = null;
+        ResultSet countRs = null;
+
+        try {
+            conn = sqlService.borrowConnection();
+            conn.setReadOnly(true);
+
+            // Set date parameters and retrieve total elements
+            countPs = conn.prepareStatement(countQuery);
+            countPs.setTimestamp(1, java.sql.Timestamp.valueOf(startDate));
+            countPs.setTimestamp(2, java.sql.Timestamp.valueOf(endDate));
+            countPs.setTimestamp(3, java.sql.Timestamp.valueOf(startDate));
+            countPs.setTimestamp(4, java.sql.Timestamp.valueOf(endDate));
+            countRs = countPs.executeQuery();
+
+            if (countRs.next()) {
+                totalElements = countRs.getInt(1);
+            }
+
+            // Set date and pagination parameters for the main query to retrieve assessment data
+            ps = conn.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            ps.setTimestamp(1, java.sql.Timestamp.valueOf(startDate));
+            ps.setTimestamp(2, java.sql.Timestamp.valueOf(endDate));
+            ps.setTimestamp(3, java.sql.Timestamp.valueOf(startDate));
+            ps.setTimestamp(4, java.sql.Timestamp.valueOf(endDate));
+            ps.setInt(5, size);
+            ps.setInt(6, page * size);
+
+            PublishedAssessmentService service = new PublishedAssessmentService();
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Long publishedAssessmentId = rs.getLong("ID");
+                String siteId = service.getPublishedAssessmentOwner(publishedAssessmentId);
+                String title = rs.getString("TITLE");
+                String assessmentStartDate = rs.getString("STARTDATE") == null ?  rs.getString("CREATEDDATE") : rs.getString("STARTDATE");
+                String assessmentDueDate = rs.getString("DUEDATE");
+
+                assessmentScheduledList.add(new AssessmentScheduledRestBean(siteId, publishedAssessmentId.toString(),
+                    title, assessmentStartDate, assessmentDueDate));
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (countRs != null) countRs.close();
+                if (ps != null) ps.close();
+                if (countPs != null) countPs.close();
+            } catch (SQLException e) {
+                log.error("SQLException in finally block: " + e);
+            }
+
+            if (conn != null) {
+                sqlService.returnConnection(conn);
+            }
+        }
+
+        PaginatedResponse<AssessmentScheduledRestBean> response = new PaginatedResponse<>(
+            assessmentScheduledList,
+            size,
+            totalElements
+        );
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/membership/scheduled", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PaginatedResponse<MembershipScheduledRestBean>> getMembershipScheduled(
+        @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam LocalDateTime startDate,
+        @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam LocalDateTime endDate,
+        @RequestParam(required = false, defaultValue = "0") Integer page,
+        @RequestParam(required = false, defaultValue = "50") Integer size) {
+
+        // Main query to retrieve membership data using date range and limit/offset for pagination
+        // The parameters returned are site_id, user_id, role_name, audit_stamp, and action_taken
+        String query = "SELECT site_id, user_id, role_name, audit_stamp, action_taken " +
+            "FROM user_audits_log " +
+            "WHERE (audit_stamp > ? AND audit_stamp <= ?) " +
+            "AND action_taken IN ('A', 'U') " +
+            "LIMIT ? OFFSET ?";
+
+        // Count query to retrieve the total number of elements matching the date range
+        String countQuery = "SELECT COUNT(*) " +
+            "FROM user_audits_log " +
+            "WHERE (audit_stamp > ? AND audit_stamp <= ?) " +
+            "AND action_taken IN ('A', 'U')";
+
+        List<MembershipScheduledRestBean> membershipScheduledRestBeans = new ArrayList<>();
+        Integer totalElements = 0;
+
+        Connection conn = null;
+        PreparedStatement ps = null;
+        PreparedStatement countPs = null;
+        ResultSet rs = null;
+        ResultSet countRs = null;
+
+        try {
+            conn = sqlService.borrowConnection();
+            conn.setReadOnly(true);
+
+            // Set date parameters and retrieve total elements
+            countPs = conn.prepareStatement(countQuery);
+            countPs.setTimestamp(1, java.sql.Timestamp.valueOf(startDate));
+            countPs.setTimestamp(2, java.sql.Timestamp.valueOf(endDate));
+            countRs = countPs.executeQuery();
+
+            if (countRs.next()) {
+                totalElements = countRs.getInt(1);
+            }
+
+            // Set date and pagination parameters for the main query to retrieve membership data
+            ps = conn.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            ps.setTimestamp(1, java.sql.Timestamp.valueOf(startDate));
+            ps.setTimestamp(2, java.sql.Timestamp.valueOf(endDate));
+            ps.setInt(3, size);
+            ps.setInt(4, page * size);
+
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                String siteId = rs.getString("site_id");
+                String userId = rs.getString("user_id");
+
+                String userUuid = null;
+
+                try {
+                    User user = userDirectoryService.getUserByEid(userId);
+                    userUuid = user.getId();
+                } catch (UserNotDefinedException e) {
+                    userUuid = userId;
+                }
+
+                String role = rs.getString("role_name");
+                String auditStamp = rs.getString("audit_stamp");
+                membershipScheduledRestBeans.add(new MembershipScheduledRestBean(siteId, userUuid, role, auditStamp));
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (countRs != null) countRs.close();
+                if (ps != null) ps.close();
+                if (countPs != null) countPs.close();
+            } catch (SQLException e) {
+                log.error("SQLException in finally block: " + e);
+            }
+
+            if (conn != null) {
+                sqlService.returnConnection(conn);
+            }
+        }
+
+        PaginatedResponse<MembershipScheduledRestBean> response = new PaginatedResponse<>(
+            membershipScheduledRestBeans,
+            size,
+            totalElements
+        );
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/sites/scheduled", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PaginatedResponse<SiteScheduledRestBean>> getSitesScheduled(
+        @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam LocalDateTime from,
+        @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam LocalDateTime until,
+        @RequestParam(required = false, defaultValue = "0") Integer page,
+        @RequestParam(required = false, defaultValue = "50") Integer size) {
+
+        // Main query to retrieve site data using date range and limit/offset for pagination
+        // The parameters returned are SITE_ID, TITLE, CREATEDON, MODIFIEDON, and SOFTLY_DELETED_DATE
+        String query = "SELECT SITE_ID, TITLE, CREATEDON, MODIFIEDON, SOFTLY_DELETED_DATE " +
+            "FROM SAKAI_SITE " +
+            "WHERE TYPE in ('project', 'course') " +
+            "AND ((CREATEDON > ? AND CREATEDON <= ?) OR (MODIFIEDON > ? AND MODIFIEDON <= ?)) " +
+            "LIMIT ? OFFSET ?";
+
+        // Count query to retrieve the total number of elements matching the date range
+        String countQuery = "SELECT COUNT(*) FROM SAKAI_SITE " +
+            "WHERE TYPE in ('project', 'course') " +
+            "AND ((CREATEDON > ? AND CREATEDON <= ?) OR (MODIFIEDON > ? AND MODIFIEDON <= ?))";
+
+        List<SiteScheduledRestBean> siteScheduledList = new ArrayList<>();
+        Integer totalElements = 0;
+
+        Connection conn = null;
+        PreparedStatement ps = null;
+        PreparedStatement countPs = null;
+        ResultSet rs = null;
+        ResultSet countRs = null;
+
+        try {
+            conn = sqlService.borrowConnection();
+            conn.setReadOnly(true);
+
+            // Set date parameters and retrieve total elements
+            countPs = conn.prepareStatement(countQuery);
+            countPs.setTimestamp(1, java.sql.Timestamp.valueOf(from));
+            countPs.setTimestamp(2, java.sql.Timestamp.valueOf(until));
+            countPs.setTimestamp(3, java.sql.Timestamp.valueOf(from));
+            countPs.setTimestamp(4, java.sql.Timestamp.valueOf(until));
+
+            countRs = countPs.executeQuery();
+            if (countRs.next()) {
+                totalElements = countRs.getInt(1);
+            }
+
+            // Set date and pagination parameters for the main query to retrieve site data
+            ps = conn.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            ps.setTimestamp(1, java.sql.Timestamp.valueOf(from));
+            ps.setTimestamp(2, java.sql.Timestamp.valueOf(until));
+            ps.setTimestamp(3, java.sql.Timestamp.valueOf(from));
+            ps.setTimestamp(4, java.sql.Timestamp.valueOf(until));
+            ps.setInt(5, size);
+            ps.setInt(6, page * size);
+
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                String siteId = rs.getString("SITE_ID");
+                String title = rs.getString("TITLE");
+                String createdOn = rs.getString("CREATEDON");
+                String modifiedOn = rs.getString("MODIFIEDON");
+                String softlyDeletedDate = rs.getString("SOFTLY_DELETED_DATE");
+
+                siteScheduledList.add(new SiteScheduledRestBean(siteId, title, createdOn, modifiedOn, softlyDeletedDate));
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (ps != null) ps.close();
+                if (countRs != null) countRs.close();
+                if (countPs != null) countPs.close();
+            } catch (SQLException e) {
+                log.error("SQLException in finally block: " + e);
+            }
+
+            if (conn != null) {
+                sqlService.returnConnection(conn);
+            }
+        }
+
+        PaginatedResponse<SiteScheduledRestBean> response = new PaginatedResponse<>(
+            siteScheduledList,
+            size,
+            totalElements
+        );
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 
 	@GetMapping(value = "/users/{userId}/sites", produces = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, List<Map<String, Object>>> getSites(@PathVariable String userId, @RequestParam Optional<Boolean> pinned)
