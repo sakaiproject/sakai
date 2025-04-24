@@ -4343,7 +4343,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		//check if resource is of type CitationsList and clean up citation tables
 		if (removeContent && edit.getResourceType().equals(CITATIONS_RESOURCE_TYPE_ID)) {
 			try {
-				String data = new String(edit.getContent());
+				String data = new String(edit.getContent(), StandardCharsets.UTF_8);
 				log.debug("removing citation list [{}]", data);
 				eventTrackingService.post(eventTrackingService.newEvent(CITATIONS_HARD_DELETE_EVENT, data, true));
 			} catch (ServerOverloadException e) {
