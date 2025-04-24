@@ -82,7 +82,7 @@ public class OptionsBean extends CourseDependentBean implements Serializable {
 			management = INTERNAL;
 			// Once manual has been chosen, prevent instructors to switch to externally managed.
 			boolean restrictExternallyManagedSections = ServerConfigurationService.getBoolean(RESTRICT_EXTERNALLY_MANAGED_SECTIONS_PROP, false);
-			managementToggleEnabled = ! (restrictExternallyManagedSections && !isSuperUser());
+			managementToggleEnabled = ((!ExternalIntegrationConfig.MANUAL_MANDATORY.equals(config)) && ! (restrictExternallyManagedSections && !isSuperUser()));
 		}
 		this.openDate = sm.getOpenDate(getCourse().getSiteContext());
 		if (this.openDate!=null){
