@@ -94,7 +94,7 @@
                     <h5 class="modal-title" id="exampleModalLabel">$!tlang.getString("ts.modal.new")</h5>
                     <div class="modal-body">
                         ##BOOTSTRAP (red)
-                        <div id="alertTsheetAddRecord" class="alert alert-danger hidden" role="alert">
+                        <div id="alertTsheetAddRecord" class="alert alert-danger d-none" role="alert">
                                 $!tlang.getString("ts.modal.msg.err")
                         </div>
                         <form>
