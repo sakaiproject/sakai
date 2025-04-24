@@ -109,12 +109,12 @@ ASN_TS_API._POST = function (url, data, onSuccess, onError, onComplete) {
 
 ASN.switchTimesheetTab = function (source) {
     if (['tabAssignment', 'tabTimeSheet'].includes(source)) {
-        document.getElementById('tabAssignmentCurrent').classList.toggle('hidden');
-        document.getElementById('tabAssignmentRef').classList.toggle('hidden');
-        document.getElementById('tabTimeSheetRef').classList.toggle('hidden');
-        document.getElementById('tabTimeSheetCurrent').classList.toggle('hidden');
-        document.getElementById('StudentAssignmentCurrent').classList.toggle('hidden');
-        document.getElementById('StudentTimesheetCurrent').classList.toggle('hidden');
+        document.getElementById('tabAssignmentCurrent').classList.toggle('d-none');
+        document.getElementById('tabAssignmentRef').classList.toggle('d-none');
+        document.getElementById('tabTimeSheetRef').classList.toggle('d-none');
+        document.getElementById('tabTimeSheetCurrent').classList.toggle('d-none');
+        document.getElementById('StudentAssignmentCurrent').classList.toggle('d-none');
+        document.getElementById('StudentTimesheetCurrent').classList.toggle('d-none');
     }
 };
 
