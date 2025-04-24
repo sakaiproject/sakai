@@ -107,28 +107,69 @@
     <%@ include file="/jsf/author/inc/extraCreditSetting.jspf" %>
 
     <%-- 2 QUESTION TEXT --%>
-    <div>
-    <div>
-            <h:outputText value="#{authorMessages.defining_answers}<br/>#{authorMessages.note_defining_answers}" escape="false"/>
-            <h:outputText value=" " escape="false"/>
-            <h:panelGrid columns="2" border="0">
-                <h:outputText value=" " escape="false"/>
-                <h:outputText value="#{authorMessages.range}<br/>#{authorMessages.range_example}" escape="false"/>
-                <h:outputText value=" " escape="false"/>
-                <h:outputText value="#{authorMessages.scientific_notataion}<br/>#{authorMessages.scientific_notataion_example}" escape="false"/>
-                <h:outputText value=" " escape="false"/>
-                <h:outputText value="#{authorMessages.complex_numbers}<br/>#{authorMessages.complex_numbers_example}" escape="false"/>
-            </h:panelGrid >
-            <h:outputText value=" " escape="false"/>
-            <h:outputText value="#{authorMessages.accepted_characters}<br/>" escape="false"/>
-            <div class="mathjax-warning sak-banner-warn" style="display: none;">
-                <h:outputText value="#{authorMessages.mathjax_usage_warning}" escape="false"/>
-            </div>
-            <h:outputText value="#{authorMessages.note_accepted_fin_1}<br/>
-                                 #{authorMessages.note_accepted_fin_2}<br/>
-                                 #{authorMessages.note_accepted_fin_3}" escape="false"/>
-        </div> 
-    </div><br/>
+    <h:panelGroup layout="block" styleClass="container-fluid ps-0">
+        <!-- Header section -->
+        <h:panelGroup layout="block" styleClass="mb-4">
+            <h:outputText value="#{authorMessages.defining_answers}" styleClass="h5 border-bottom pb-2 d-block mb-3" escape="false"/>
+            <h:outputText value="#{authorMessages.note_defining_answers}" styleClass="d-block mb-3" escape="false"/>
+        </h:panelGroup>
+
+        <!-- Examples section -->
+        <h:panelGroup layout="block" styleClass="row row-cols-1 row-cols-md-3 g-4">
+            <!-- Range example -->
+            <h:panelGroup layout="block" styleClass="col">
+                <h:panelGroup layout="block" styleClass="card h-100 card-body">
+                    <h:outputText value="#{authorMessages.range}" styleClass="card-title" escape="false"/>
+                    <h:outputText value="#{authorMessages.range_example}" styleClass="card-text" escape="false"/>
+                </h:panelGroup>
+            </h:panelGroup>
+
+            <!-- Scientific notation example -->
+            <h:panelGroup layout="block" styleClass="col">
+                <h:panelGroup layout="block" styleClass="card h-100 card-body">
+                    <h:outputText value="#{authorMessages.scientific_notataion}" styleClass="card-title" escape="false"/>
+                    <h:outputText value="#{authorMessages.scientific_notataion_example}" styleClass="card-text" escape="false"/>
+                </h:panelGroup>
+            </h:panelGroup>
+
+            <!-- Complex numbers example -->
+            <h:panelGroup layout="block" styleClass="col">
+                <h:panelGroup layout="block" styleClass="card h-100 card-body">
+                    <h:outputText value="#{authorMessages.complex_numbers}" styleClass="card-title" escape="false"/>
+                    <h:outputText value="#{authorMessages.complex_numbers_example}" styleClass="card-text" escape="false"/>
+                </h:panelGroup>
+            </h:panelGroup>
+        </h:panelGroup>
+
+        <!-- Notes section -->
+        <h:panelGroup layout="block" styleClass="mb-4">
+            <h:outputText value="#{authorMessages.accepted_characters}" styleClass="h5 border-bottom pb-2 d-block mb-3" escape="false"/>
+            <h:panelGroup layout="block" styleClass="row row-cols-1 row-cols-md-3 g-4">
+                <h:panelGroup layout="block" styleClass="col">
+                    <h:panelGroup layout="block" styleClass="card h-100 card-body">
+                        <h:outputText value="#{authorMessages.note_accepted_fin_1}" styleClass="card-text" escape="false"/>
+                    </h:panelGroup>
+                </h:panelGroup>
+                <h:panelGroup layout="block" styleClass="col">
+                    <h:panelGroup layout="block" styleClass="card h-100 card-body">
+                        <h:outputText value="#{authorMessages.note_accepted_fin_2}" styleClass="card-text" escape="false"/>
+                    </h:panelGroup>
+                </h:panelGroup>
+                <h:panelGroup layout="block" styleClass="col">
+                    <h:panelGroup layout="block" styleClass="card h-100 card-body">
+                        <h:outputText value="#{authorMessages.note_accepted_fin_3}" styleClass="card-text" escape="false"/>
+                    </h:panelGroup>
+                </h:panelGroup>
+            </h:panelGroup>
+        </h:panelGroup>
+    </h:panelGroup>
+
+    <!-- MathJax warning -->
+    <h:panelGroup layout="block" styleClass="mathjax-warning sak-banner-warn" style="display: none;">
+        <h:outputText value="#{authorMessages.mathjax_usage_warning}" escape="false"/>
+    </h:panelGroup>
+
+    <br/>
     <div class="longtext"> 
         <h:outputLabel for="questionItemText_textinput" value="#{authorMessages.q_text}" />
     </div>
