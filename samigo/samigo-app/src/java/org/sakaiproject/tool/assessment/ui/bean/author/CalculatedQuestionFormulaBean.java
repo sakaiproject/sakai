@@ -23,102 +23,48 @@ package org.sakaiproject.tool.assessment.ui.bean.author;
 
 import java.io.Serializable;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 /**
  * CalculatedQuestionFormulaBean contains the formula for the answer for a
  * Calculated question.  The formula contains references to CalculatedQuestionVariableBeans,
  * which allows a test to have different variables and answers each time that it is taken.
  * @author mgillian
  */
+@Data
+@NoArgsConstructor
 public class CalculatedQuestionFormulaBean implements Serializable, CalculatedQuestionAnswerIfc {
 
     private static final long serialVersionUID = 1747088544228808857L;
+
     private Long sequence;
     private String name;
-    private String formula;
-    private String tolerance;
-    private String decimalPlaces;
-    private String value;
+    private String formula = DEFAULT_FORMULA;
+    private String tolerance = DEFAULT_TOLERANCE;
+    private String decimalPlaces = DEFAULT_DECIMAL_PLACES;
+    private String value = DEFAULT_VALUE;
     private String status = "OK";
-    private boolean active;
+    private boolean active = true;
     private boolean addedButNotExtracted;
-    private transient boolean validatedFormula;
-    private transient boolean validatedTolerance;
-    
+    private transient boolean validatedFormula = true;
+    private transient boolean validatedTolerance = true;
+
     private static final String DEFAULT_FORMULA = "0";
     private static final String DEFAULT_DECIMAL_PLACES = "3";
     private static final String DEFAULT_TOLERANCE = "0.01";
     private static final String DEFAULT_VALUE = "0";
-    
-    public CalculatedQuestionFormulaBean() {
-        this.formula = DEFAULT_FORMULA;
-        this.decimalPlaces = DEFAULT_DECIMAL_PLACES;
-        this.tolerance = DEFAULT_TOLERANCE;
-        this.value = DEFAULT_VALUE;
-        this.active = true;
-        this.validatedFormula = true;
-        this.validatedTolerance = true;
-    }
-
-    public void setSequence(Long sequence) {
-        this.sequence = sequence;
-    }
-    
-    public Long getSequence() {
-        return this.sequence;
-    }
-    
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return this.name;
-    }
 
     public void setText(String formula) {
         this.formula = formula;
     }
 
     public String getText() {
-        if (this.formula == null) {
-            return DEFAULT_FORMULA;
-        }
-        return this.formula;
-    }
-
-    public void setTolerance(String tolerance) {
-        this.tolerance = tolerance;
-    }
-
-    public String getTolerance() {
-        return this.tolerance;
-    }
-
-    public void setDecimalPlaces(String decimalPlaces) {
-        this.decimalPlaces = decimalPlaces;
+        return this.formula == null ? DEFAULT_FORMULA : this.formula;
     }
 
     public String getDecimalPlaces() {
-        if (this.decimalPlaces == null) {
-            return DEFAULT_DECIMAL_PLACES;
-        }
-        return this.decimalPlaces;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
+        return this.decimalPlaces == null ? DEFAULT_DECIMAL_PLACES : this.decimalPlaces;
     }
 
     public void setActive(boolean active) {
@@ -138,7 +84,7 @@ public class CalculatedQuestionFormulaBean implements Serializable, CalculatedQu
     public void setValidFormula(boolean validatedFormula) {
         this.validatedFormula = validatedFormula;
     }
-    
+
     /**
      * getValidFormula() returns whether the formula has been successfully
      * validated for syntax and returns a real answer
@@ -148,7 +94,7 @@ public class CalculatedQuestionFormulaBean implements Serializable, CalculatedQu
     public boolean getValidFormula() {
         return this.validatedFormula;
     }
-    
+
     /**
      * setValidTolerance() controls whether the tolerance has been successfully
      * validated for syntax and returns a real answer
@@ -157,7 +103,7 @@ public class CalculatedQuestionFormulaBean implements Serializable, CalculatedQu
     public void setValidTolerance(boolean validatedTolerance) {
         this.validatedTolerance = validatedTolerance;
     }
-    
+
     /**
      * getValidTolerance() returns whether the tolerance has been successfully
      * validated for syntax a returns a real answer
@@ -167,20 +113,8 @@ public class CalculatedQuestionFormulaBean implements Serializable, CalculatedQu
     public boolean getValidTolerance() {
         return this.validatedTolerance;
     }
-    
+
     public String getMatch() {
-        String match = this.getText() + "|" + 
-                this.getTolerance() + "," + 
-                this.getDecimalPlaces();
-        return match;
+        return this.getText() + "|" + this.getTolerance() + "," + this.getDecimalPlaces();
     }
-
-    public boolean isAddedButNotExtracted() {
-        return addedButNotExtracted;
-    }
-
-    public void setAddedButNotExtracted(boolean addedButNotExtracted) {
-        this.addedButNotExtracted = addedButNotExtracted;
-    }
-
 }
