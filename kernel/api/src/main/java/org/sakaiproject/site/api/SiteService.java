@@ -948,11 +948,17 @@ public interface SiteService extends EntityProducer
     boolean isGlobalJoinFromSiteBrowserEnabled();
 
 	/**
-	 * check permissions for unjoin() - unjoining the site and removing all role relationships.
-	 * 
-	 * @param id
-	 *        The site id.
-	 * @return true if the user is allowed to unjoin(id), false if not.
+	 * Determines if the current user is allowed to unjoin the specified site.
+	 *
+	 * The user can unjoin a site if:
+	 * <ol>
+	 * <li>The user has permission to unjoin</li>
+	 * <li>The site is joinable</li>
+	 * <li>The user is not in a maintain role, unless the site's joiner role is the maintain role</li>
+	 * </ol>
+	 *
+	 * @param id The site id
+	 * @return true if the user is allowed to unjoin the site, false if not
 	 */
 	boolean allowUnjoinSite(String id);
 
