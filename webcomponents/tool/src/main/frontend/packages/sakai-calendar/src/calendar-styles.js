@@ -29,7 +29,7 @@ export const calendarStyles = css`
     min-width: 25px;
     min-height: 25px;
     font-size: 20px;
-    font-weight: bold;
+    font-weight: 600;
     background: var(--sakai-background-color);
     color: var(--link-color);
     cursor: pointer;
@@ -42,9 +42,13 @@ export const calendarStyles = css`
   }
 
   .sakai-calendar__navigation__today > div > a {
-    font-weight: bold;
+    font-weight: 600;
     text-decoration: none;
     color: var(--link-color);
+  }
+
+  #days-events-item{
+    margin-bottom: 5px;
   }
 
   #add-block {
@@ -65,7 +69,7 @@ export const calendarStyles = css`
   }
 
   #days-events {
-    margin-top: 10px;
+    margin-top: 15px;
   }
   
   #days-events sakai-icon {
@@ -73,7 +77,7 @@ export const calendarStyles = css`
   }
   
   #days-events-title {
-    font-weight: bold;
+    font-weight: 700;
     margin-bottom: 10px;
   }
   
@@ -86,13 +90,13 @@ export const calendarStyles = css`
   .calendar__next-month-button,
   .calendar__day-button {
     background-color: var(--sakai-background-color);
-    font-weight: bold;
+    font-weight: 600;
     color: var(--sakai-calendar-button-color);
   }
 
   .has-events, .has-events[next-month] {
-    background-color: var(--sakai-calendar-has-events-bg-color);
-    color: var(--sakai-calendar-has-events-fg-color);
+    background-color: #daf4df;
+    color: var(--sakai-calendar-button-color);
     border-radius: 50%;
   }
 

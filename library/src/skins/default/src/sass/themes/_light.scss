@@ -565,11 +565,13 @@
     --focus-outline-color: var(--sakai-color-blue--lighter-3);
 
     // Dashboard
-    --sakai-dashboard-widget-bg-color: var(--sakai-background-color-1);
+    --sakai-dashboard-widget-bg-color: #fff;
     --sakai-dashboard-widget-border-color: var(--sakai-border-color);
     --sakai-title-bar-bg-color: var(--sakai-background-color-2);
     --sakai-close-icon-color: var(--errorBanner-color);
     --sakai-table-even-color: var(--sakai-background-color-2);
+    --sakai-table-even-blue-color: #dce8f7;
+    --sakai-background-color-dashboard:#c4d6ed;
     --sakai-separator-color: var(--sakai-border-color);
     --sakai-calendar-button-background-color: #FFFFFF;
     --sakai-calendar-button-color: var(--button-text-color);

@@ -158,20 +158,19 @@ export class SakaiDashboardWidget extends SakaiShadowElement {
         flex-flow: column;
         height: 100%;
         background-color: var(--sakai-dashboard-widget-bg-color, white);
-        border-radius: var(--sakai-course-card-border-radius, 4px);
-        border: solid;
+        border-radius: var(--sakai-course-card-border-radius, 20px);
         border-width: var(--sakai-dashboard-widget-border-width, 1px);
         border-color: var(--sakai-dashboard-widget-border-color, rgb(224,224,224));
       }
 
       #title-bar {
-        background-color: var(--sakai-title-bar-bg-color, rgb(244, 244, 244));
-        font-weight: var(--sakai-title-bar-font-weight, bold);
+        background-color: var(--sakai-background-color-1, rgb(244, 244, 244));
+        font-weight: var(--sakai-title-bar-grades-font-weight, bold);
       }
 
         #title {
           flex: 2;
-          margin-left: 12px;
+          font-family: var(--sakai-title-bar-grades-font-family, Roboto);
         }
       #content {
         padding: 10px;
