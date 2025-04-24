@@ -1744,7 +1744,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         evaluations.stream().filter(e -> e.getStatus() == EvaluationStatus.RETURNED)
                 .map(Evaluation::getId)
                 .forEach(returnedEvaluationRepository::deleteByOriginalEvaluationId);
-        evaluationRepository.deleteByList(evaluations);
+        evaluations.forEach(evaluation -> {evaluationRepository.deleteById(evaluation.getId());});
         rubricRepository.deleteByOwnerId(siteId);
     }
 

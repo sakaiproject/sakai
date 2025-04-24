@@ -135,12 +135,6 @@ public class EvaluationRepositoryImpl extends SpringCrudRepositoryImpl<Evaluatio
         return evaluations.size();
     }
 
-
-    public void deleteByList(List<Evaluation> evaluations) {
-        Session session = sessionFactory.getCurrentSession();
-        evaluations.forEach(eval -> session.delete((Evaluation) session.merge(eval)));
-    }
-
     public List<Evaluation> findByOwnerId(String ownerId) {
         Session session = sessionFactory.getCurrentSession();
 
