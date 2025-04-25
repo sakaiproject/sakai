@@ -1229,7 +1229,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				    Integer split = new Integer(i.getAttribute("colsplit") == null ? "1" : i.getAttribute("colsplit"));
 				    colnum += width; // number after this column
 
-				    columnContainer.decorate(new UIStyleDecorator("cols" + cols + (colnum == cols?" lastcol":"") + (width > 1?" double":"") + (split > 1?" split":"") + (color == null?"":" col"+color)));
+				    columnContainer.decorate(new UIStyleDecorator("cols" + cols + (width > 1?" double":"") + (split > 1?" split":"") + (color == null?"":" col"+color)));
 				    UIOutput.make(columnContainer, "break-msg", messageLocator.getMessage(sectionbreak?"simplepage.break-here":"simplepage.break-column-here"));
 
 				    if (canEditPage) {
