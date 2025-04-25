@@ -38,6 +38,7 @@ public class CalculatedQuestionBean implements Serializable {
     private Map<String, CalculatedQuestionVariableBean> variables;
     private Map<String, CalculatedQuestionGlobalVariableBean> globalVariables;
     private List<CalculatedQuestionCalculationBean> calculations;
+    private boolean showFormulasCalculation = false;
 
     public CalculatedQuestionBean() {
         formulas = new HashMap<String, CalculatedQuestionFormulaBean>();
@@ -89,6 +90,14 @@ public class CalculatedQuestionBean implements Serializable {
 
     public void removeFormula(String name) {
         formulas.remove(name);
+    }
+
+    public boolean isShowFormulasCalculation() {
+        return showFormulasCalculation;
+    }
+
+    public void setShowFormulasCalculation(boolean showFormulasCalculation) {
+        this.showFormulasCalculation = showFormulasCalculation;
     }
 
     public Map<String, CalculatedQuestionVariableBean> getVariables() {
