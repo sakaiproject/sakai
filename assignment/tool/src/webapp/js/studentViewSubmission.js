@@ -46,11 +46,11 @@ ASN_TS_API.addTimeSheet = function (button, onSuccess, onError) {
     const params = {
         "tsAssignmentId" : document.getElementById("assignmentId").value,
         "tsStartTime" : document.getElementById("startTime").value,
-        "new_ts_record_day" : document.getElementById("new_ts_record_day").value,
-        "new_ts_record_month" : document.getElementById("new_ts_record_month").value,
-        "new_ts_record_year" : document.getElementById("new_ts_record_year").value,
-        "new_ts_record_hour" : document.getElementById("new_ts_record_hour").value,
-        "new_ts_record_minute" : document.getElementById("new_ts_record_minute").value,
+        "new_ts_record_day" : document.getElementsByName("new_ts_record_day")[0].value,
+        "new_ts_record_month" : document.getElementsByName("new_ts_record_month")[0].value,
+        "new_ts_record_year" : document.getElementsByName("new_ts_record_year")[0].value,
+        "new_ts_record_hour" : document.getElementsByName("new_ts_record_hour")[0].value,
+        "new_ts_record_minute" : document.getElementsByName("new_ts_record_min")[0].value,
         "tsComment" : document.getElementById("comment").value,
         "tsDuration" : document.getElementById("duration").value,
     };
