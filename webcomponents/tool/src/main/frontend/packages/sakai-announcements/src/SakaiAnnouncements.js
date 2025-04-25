@@ -149,7 +149,7 @@ export class SakaiAnnouncements extends SakaiPageableElement {
           </div>
         ` : nothing}
         <div class="header">${this._i18n.view}</div>
-        ${this.dataPage.filter(a => a.visible).map((a, i) => html`
+        ${this.dataPage.filter(a => a.visible).map(a => html`
           <div class="row">
             <div class="title cell">
               ${a.highlighted ? html`
