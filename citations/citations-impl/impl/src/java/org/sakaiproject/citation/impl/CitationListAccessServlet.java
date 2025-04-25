@@ -387,7 +387,7 @@ public class CitationListAccessServlet implements HttpAccess
     		if (logos != null){
     			logoHTML = "<div class='logos'>";
     			for (String logo : logos) {
-    				logoHTML = logoHTML + "<img src='" + formattedText.escapeHtml(logo) + "' width='100' height='100'>";
+    				logoHTML = logoHTML + "<img src='" + logo + "' width='100' height='100'>";
     			}
     			logoHTML = logoHTML + "</div>";
     			out.println(logoHTML);
