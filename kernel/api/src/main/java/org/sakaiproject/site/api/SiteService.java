@@ -954,7 +954,6 @@ public interface SiteService extends EntityProducer
 	 * <ol>
 	 * <li>The user has permission to unjoin</li>
 	 * <li>The site is joinable</li>
-	 * <li>The user is not in a maintain role, unless the site's joiner role is the maintain role</li>
 	 * </ol>
 	 *
 	 * @param id The site id
