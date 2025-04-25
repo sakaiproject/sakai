@@ -126,6 +126,7 @@ export class SakaiGrades extends SakaiPageableElement {
   content() {
 
     return html`
+    <div id="filter-and-sort-block">
       ${!this.siteId ? html`
       <div id="site-filter">
         <sakai-site-picker
@@ -134,11 +135,8 @@ export class SakaiGrades extends SakaiPageableElement {
         </sakai-site-picker>
       </div>
       ` : nothing}
-      ${this.secret ? html `
-      <div class="score-msg">${this._i18n.score_reveal_msg}</div>
-      ` : nothing}
-      <div id="topbar">
-        <div id="filter">
+      <div></div>
+      <div id="sorting">
           <select @change=${this.sortChanged}
               title="${this._i18n.sort_tooltip}"
               aria-label="${this._i18n.sort_tooltip}">
@@ -153,8 +151,12 @@ export class SakaiGrades extends SakaiPageableElement {
             <option value="${COURSE_Z_TO_A}">${this._i18n.sort_course_z_to_a}</option>
             `}
           </select>
-        </div>
       </div>
+    </div>
+      ${html `
+        <div class="score-msg">${this._i18n.score_reveal_msg}</div>
+        <div class="score-msg" id="average-msg">${this._i18n.score_average_msg}</div>
+      `}
 
       <div id="grades" aria-live="polite">
         <div class="header">${this._i18n.course_assignment}</div>
@@ -221,11 +223,18 @@ export class SakaiGrades extends SakaiPageableElement {
       #site-filter {
         margin-bottom: 12px;
       }
+      #filter-and-sort-block {
+        display: flex;
+        justify-content: flex-start;
+        margin-bottom: 6px;
+        gap: 5px;
+      }
 
       #grades {
         display:grid;
         grid-template-columns: 4fr 2fr 0fr;
         grid-auto-rows: minmax(10px, auto);
+        margin-top:15px;
       }
 
         #grades > div:nth-child(-n+3) {
@@ -233,8 +242,8 @@ export class SakaiGrades extends SakaiPageableElement {
         }
         .header {
           display: flex;
-          font-weight: bold;
-          padding: 0 5px 0 5px;
+          font-weight: 600;
+          padding: 10px 5px 0 5px;
         }
         .assignment {
           padding: 8px;
@@ -257,12 +266,18 @@ export class SakaiGrades extends SakaiPageableElement {
           justify-content: center;
         }
         .score-msg {
-          text-align: center;
-          color: red;
-          background-color: var(--sakai-background-color-2);
+          display: flex;
+          justify-content: left;
+          align-items: flex-start;
+          color: var(--sakai-text-color-dimmed, #767676);
+          font-size: var(--sakai-grades-count-font-size, 11px);
+          font-style: font-style;
+        }
+        .average-msg {
+          padding-bottom: 20px;
         }
         .even {
-          background-color: var(--sakai-table-even-color);
+          background-color: var(--sakai-table-even-blue-color);
         }
         .next {
           display: flex;

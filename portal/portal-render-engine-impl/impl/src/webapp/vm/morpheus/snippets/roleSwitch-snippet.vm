@@ -9,6 +9,7 @@
         </a>
     #else
         <div id="roleSwitchDropDown">
+            #*
             #if ($roleswapdropdown)
             <div class="Mrphs-roleSwitch__anchor">
                 <select id="roleSwitchSelect" class="Mrphs-roleSwitch__dropdown" aria-label="${rloader.rs_menuExplanation}">
@@ -23,6 +24,7 @@
                     <span>$rloader.getFormattedMessage("rs_enterRoleSwapWithRole", $roleUrlValue)</span>
                 </a>
             #end ## END OF IF ($roleswapdropdown)
+            *#
         </div>
     #end ## END of IF ($roleSwitchState)
 </div>

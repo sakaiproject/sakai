@@ -72,6 +72,9 @@ $button-radius: 4px !default;
 $button-text-transform: none !default;
 $button-radius-pill:            16px !default;
 
+//
+$button-font-weight-grades: 600 !default;
+
 // Default (non-primary) button design:
 $button-font-weight: 400 !default;
 $button-disabled-font-weight:   300 !default;
@@ -246,6 +249,9 @@ $focus-outline-offset: 2px !default;
 //Used to give round elements an round focus and not square
 $sakai-box-shadow-emulate-focus: 0px 0px 0px $focus-outline-width !default;
 
+// Font Family Dashboard
+$sakai-title-bar-grades-font-family: "Roboto", "Open Sans", sans-serif !default;
+
 $font-family: "Open Sans",sans-serif !default;
 $header-font-family: $font-family !default;
 $header-font-weight: 700 !default;										// 400 or 700 as you wish
@@ -274,6 +280,9 @@ $breadcrumb-divider: '>';
     //Dashboard
     --sakai-course-card-border-radius: #{$button-radius};
     --sakai-title-bar-font-weight: #{$button-font-weight};
+
+    --sakai-title-bar-grades-font-weight: #{$button-font-weight-grades};
+    --sakai-title-bar-grades-font-family:  #{$sakai-title-bar-grades-font-family};
 
     --sakai-font-family: #{$font-family};
 }

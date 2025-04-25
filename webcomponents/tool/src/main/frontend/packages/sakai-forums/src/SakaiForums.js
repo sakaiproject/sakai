@@ -153,10 +153,13 @@ export class SakaiForums extends SakaiPageableElement {
           </a>
         </div>
       ${this.dataPage.map((m, i) => html`
-        <div class="cell ${i % 2 === 0 ? "even" : "odd"}"><a href="${m.messageUrl}">${m.messageCount}</a></div>
-        <div class="cell ${i % 2 === 0 ? "even" : "odd"}"><a href="${m.forumUrl}">${m.forumCount}</a></div>
-        <div class="cell ${i % 2 === 0 ? "even" : "odd"}"><a href="${m.siteUrl}">${m.siteTitle}</a></div>
+        <div class="row">
+          <div class="cell"><a href="${m.messageUrl}">${m.messageCount}</a></div>
+          <div class="cell"><a href="${m.forumUrl}">${m.forumCount}</a></div>
+          <div class="cell"><a href="${m.siteUrl}">${m.siteTitle}</a></div>
+        </div>
       `)}
+
       </div>
     `;
   }
@@ -193,20 +196,39 @@ export class SakaiForums extends SakaiPageableElement {
           padding-bottom: 14px;
         }
         .header {
-          font-weight: bold;
-          padding: 0 5px 0 5px;
+          font-weight: 600;
+          padding: 10px 1px 0 1px;
         }
           .header a {
             text-decoration: none;
             color: var(--sakai-text-color-1, #000);
           }
         .cell {
+          display: flex;
+          align-items: center;
           padding: 8px;
           font-size: var(--sakai-grades-title-font-size);
         }
-        .even {
-          background-color: var(--sakai-table-even-color);
+        .row {
+          display: contents; /* keep layout flow intact */
+        }
+
+        .messages .row > .cell:first-child {
+          border-top-left-radius: 8px;
+          border-bottom-left-radius: 8px;
+        }
+
+        .messages .row > .cell:last-child {
+          border-top-right-radius: 8px;
+          border-bottom-right-radius: 8px;
+        }
+
+        .messages .row > .cell {
+          background-color: var(--sakai-table-even-blue-color);
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+          margin-bottom: 6px;
         }
     `,
   ];
+
 }

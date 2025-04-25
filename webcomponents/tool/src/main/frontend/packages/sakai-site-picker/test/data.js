@@ -2,7 +2,7 @@ export const i18nUrl = /getI18nProperties.*site-picker$/;
 
 export const i18n = `
 site_selector_label=Site selector
-all_pinned_sites=All Pinned Sites
+all_pinned_sites=All
 `;
 
 export const siteOneId = "site1";
