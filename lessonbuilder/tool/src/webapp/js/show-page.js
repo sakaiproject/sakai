@@ -3553,8 +3553,7 @@ function printViewWithParameter(url) {
 function fixupColAttrs() {
     $(".section").each(function (index) {
       var count = $(this).find(".column").size() + $(this).find(".double").size();
-      $(this).find(".column").removeClass('cols1 cols2 cols3 cols4 cols5 cols6 cols7 cols8 cols9 lastcol');
-      $(this).find(".column").last().addClass('lastcol');
+      $(this).find(".column").removeClass('cols1 cols2 cols3 cols4 cols5 cols6 cols7 cols8 cols9');
       $(this).find(".column").addClass('cols' + count);
   });
 };
