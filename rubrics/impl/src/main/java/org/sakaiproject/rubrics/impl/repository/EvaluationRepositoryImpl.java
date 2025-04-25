@@ -119,6 +119,7 @@ public class EvaluationRepositoryImpl extends SpringCrudRepositoryImpl<Evaluatio
         return session.createQuery(delete).executeUpdate();
     }
 
+
     @Override
     public int deleteByOwnerId(String ownerId) {
 
@@ -132,5 +133,16 @@ public class EvaluationRepositoryImpl extends SpringCrudRepositoryImpl<Evaluatio
         List<Evaluation> evaluations = session.createQuery(query).list();
         evaluations.forEach(session::delete);
         return evaluations.size();
+    }
+
+    public List<Evaluation> findByOwnerId(String ownerId) {
+        Session session = sessionFactory.getCurrentSession();
+
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Evaluation> query = cb.createQuery(Evaluation.class);
+        Root<Evaluation> root = query.from(Evaluation.class);
+        query.where(cb.equal(root.get("ownerId"), ownerId));
+
+        return session.createQuery(query).list();
     }
 }
