@@ -68,7 +68,7 @@
                 <artifactId>maven-clean-plugin</artifactId>
                 <configuration>
                     <filesets>
-                        <!-- <fileset>
+                        <fileset>
                             <directory>src/main/frontend</directory>
                             <includes>
                                 <include>**</include>
@@ -84,13 +84,13 @@
                                 <exclude>lint-staged.config.mjs</exclude>
                                 <exclude>.husky/**</exclude>
                             </excludes>
-                        </fileset> -->
+                        </fileset>
                         <fileset>
                             <directory>src/main/frontend/js/assets</directory>
                         </fileset>
-                        <!-- <fileset>
+                        <fileset>
                             <directory>src/main/frontend/node_modules</directory>
-                        </fileset> -->
+                        </fileset>
                     </filesets>
                 </configuration>
             </plugin>
@@ -151,7 +151,7 @@
                             <arguments>install</arguments>
                         </configuration>
                     </execution>
-                    <!-- <execution>
+                    <execution>
                         <id>lint</id>
                         <goals>
                             <goal>npm</goal>
@@ -159,7 +159,7 @@
                         <configuration>
                             <arguments>run lint</arguments>
                         </configuration>
-                    </execution> -->
+                    </execution>
                     <execution>
                         <id>analyze</id>
                         <goals>
