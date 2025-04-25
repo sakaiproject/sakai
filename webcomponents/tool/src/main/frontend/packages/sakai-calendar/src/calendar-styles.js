@@ -19,6 +19,7 @@ export const calendarStyles = css`
 
   .calendar__navigation-heading {
     font-size: 22px;
+    font-weight: 600;
   }
 
   .calendar__navigation__year, .calendar__navigation__month {

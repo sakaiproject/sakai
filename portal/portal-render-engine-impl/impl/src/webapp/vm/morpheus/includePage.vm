@@ -87,8 +87,8 @@
                                     <h2 class="Mrphs-toolTitleNav__title"><span class="Mrphs-toolTitleNav__text">${tool.toolRenderResult.getTitle()}</span><span class="Mrphs-toolTitleNav__addLeft"></span></h2>
 
                                 #end ## END of IF (${tool.toolShowResetButton})
-
                                 <div class="Mrphs-toolTitleNav__button_container #if(${homePage})home#end">
+
 
 
                                 #if (${tool.toolJSR168Edit})
@@ -101,7 +101,7 @@
 
                                 #if ( $toolDirectUrlEnabled && ${tool.showDirectToolUrl} )
 
-                                    <button class="tool-button-container si si-share link--directurl" rel="#${tool.toolPlacementIDJS}_directurl" title="${rloader.tool_direct_link}" aria-haspopup="dialog">
+                                    #* <button class="tool-button-container si si-share link--directurl" rel="#${tool.toolPlacementIDJS}_directurl" title="${rloader.tool_direct_link}" aria-haspopup="dialog">
                                         <span class="Mrphs-itemTitle">${rloader.tool_direct_button_link}</span>
                                     </button>
                                     <div id="${tool.toolPlacementIDJS}_directurl" role="dialog" aria-labelledby="${tool.toolPlacementIDJS}_directurl__title" class="Mrphs-directUrl Mrphs-directUrl__dropDown">
@@ -114,7 +114,7 @@
                                         #end ## END of IF ($toolShortUrlEnabled)
 
                                         <textarea name="${tool.toolPlacementIDJS}_urlholder" id="${tool.toolPlacementIDJS}_urlholder" tabindex="0" class="Mrphs-directUrl__textarea ${tool.toolPlacementIDJS}_urlholder" >${tool.directToolUrl}</textarea>
-                                    </div>
+                                    </div> *#
 
                                 #end ## END of IF ( $toolDirectUrlEnabled && ${tool.showDirectToolUrl} )
                                 </div>

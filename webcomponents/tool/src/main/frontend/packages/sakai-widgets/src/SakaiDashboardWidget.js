@@ -158,9 +158,10 @@ export class SakaiDashboardWidget extends SakaiShadowElement {
         flex-flow: column;
         height: 100%;
         background-color: var(--sakai-dashboard-widget-bg-color, white);
-        border-radius: var(--sakai-course-card-border-radius, 20px);
+        border-radius: var(--sakai-course-card-border-radius, 400px);
         border-width: var(--sakai-dashboard-widget-border-width, 1px);
         border-color: var(--sakai-dashboard-widget-border-color, rgb(224,224,224));
+        box-shadow: var(--sakai-dashboard-widget-box-shadow, 0 2px 8px rgba(0, 0, 0, 0.15));
       }
 
       #title-bar {
