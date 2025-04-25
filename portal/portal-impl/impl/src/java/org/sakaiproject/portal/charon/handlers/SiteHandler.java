@@ -222,6 +222,12 @@ public class SiteHandler extends WorksiteHandler
 		if ((siteId != null) && (parts.length == 5) && (parts[3].equals("tool-reset")))
 		{
 			toolId = parts[4];
+			// Navigate to the Login page if the toolId is gateway-1510
+			if (toolId != null && toolId.contains("gateway-1510")) { 
+				String redirectUrl = req.getContextPath() + "/xlogin";
+				res.sendRedirect(redirectUrl);
+				return RESET_DONE;
+			}
 			String toolUrl = req.getContextPath() + "/site/" + siteId + "/tool"
 					+ Web.makePath(parts, 4, parts.length);
 			portalService.setResetState("true");

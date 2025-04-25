@@ -443,6 +443,29 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			if (excludedSiteIds.contains(currentSiteId)) {
 				recentSitesMaps.add(getSiteMap(getSite(currentSiteId), currentSiteId, userId, false, true, true));
 			}
+			// Filter out Login and Acknowledgment pages from recent sites
+			recentSitesMaps = recentSitesMaps.stream()
+				.map(siteMap -> {
+					if (siteMap.containsKey("pages")) {
+						@SuppressWarnings("unchecked")
+						List<Map<String, Object>> pages = (List<Map<String, Object>>) siteMap.get("pages");
+						// Filter out pages with Login or Acknowledgment titles
+						List<Map<String, Object>> filteredPages = pages.stream()
+							.filter(pageMap -> {
+								String pageTitle = (String) pageMap.get("title");
+								return pageTitle != null && 
+									!pageTitle.contains("Login") &&
+									!pageTitle.contains("Acknowledgements");
+							})
+							.collect(Collectors.toList());
+						
+						// Replace the pages with filtered pages
+						siteMap.put("pages", filteredPages);
+					}
+					return siteMap;
+				})
+				.collect(Collectors.toList());
+
             contextSites.put("recentSites", recentSitesMaps);
 
             // We need a way to only mark one site as the current. We don't want two sites to
@@ -451,13 +474,55 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
                 recentSitesMaps.stream().filter(m -> (Boolean) m.get("isCurrent")).findAny().ifPresent(m -> m.remove("isCurrent"));
             }
 
-		} else {
-			//Get gateway site
-			Site gatewaySite = getSite(serverConfigurationService.getGatewaySiteId());
-			if (!gatewaySite.isEmpty()) {
-				contextSites.put("gatewaySite", getSiteMap(gatewaySite, currentSiteId, null,false, false, true));
-			}
-		}
+        } else {
+            //Get gateway site
+            Site gatewaySite = getSite(serverConfigurationService.getGatewaySiteId());
+            if (!gatewaySite.isEmpty()) {
+                // Find the Reset Password and Login pages
+                SitePage resetPasswordPage = null;
+                SitePage loginPage = null;
+                List<SitePage> allPages = gatewaySite.getPages();
+                
+                for (SitePage page : allPages) {
+                    if ("Reset Password".equals(page.getTitle())) {
+                        resetPasswordPage = page;
+                    } else if ("Login".equals(page.getTitle())) {
+                        loginPage = page;
+                    }
+                    
+                    // Break if we found both pages
+                    if (resetPasswordPage != null && loginPage != null) {
+                        break;
+                    }
+                }
+                
+                // Create a site map with only these specific pages
+                Map<String, Object> siteMap = getSiteMap(gatewaySite, currentSiteId, null, false, false, false);
+                List<Map<String, Object>> pagesMaps = new ArrayList<>();
+                
+    
+                // Add Login page if found
+                if (loginPage != null) {
+                    pagesMaps.add(getPageMap(loginPage));
+                }
+
+				// Add Reset Password page if found
+                if (resetPasswordPage != null) {
+                    pagesMaps.add(getPageMap(resetPasswordPage));
+                }
+                
+                
+                // If we found at least one of the pages, use our filtered map
+                if (!pagesMaps.isEmpty()) {
+                    siteMap.put("pages", pagesMaps);
+                    contextSites.put("gatewaySite", siteMap);
+                } else {
+                    // Fallback to original behavior if pages not found
+                    contextSites.put("gatewaySite", getSiteMap(gatewaySite, currentSiteId, null, false, false, true));
+                }
+            }
+        }
+
 		return contextSites;
 	}
 
