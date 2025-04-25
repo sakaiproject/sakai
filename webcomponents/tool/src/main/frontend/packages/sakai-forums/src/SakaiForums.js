@@ -152,7 +152,7 @@ export class SakaiForums extends SakaiPageableElement {
             ${this._i18n.syn_site_heading}
           </a>
         </div>
-      ${this.dataPage.map((m) => html`
+      ${this.dataPage.map(m => html`
         <div class="row">
           <div class="cell"><a href="${m.messageUrl}">${m.messageCount}</a></div>
           <div class="cell"><a href="${m.forumUrl}">${m.forumCount}</a></div>
