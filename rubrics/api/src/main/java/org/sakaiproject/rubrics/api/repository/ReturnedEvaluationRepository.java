@@ -30,4 +30,5 @@ import org.sakaiproject.springframework.data.SpringCrudRepository;
 public interface ReturnedEvaluationRepository extends SpringCrudRepository<ReturnedEvaluation, Long> {
 
     Optional<ReturnedEvaluation> findByOriginalEvaluationId(Long id);
+    void deleteByOriginalEvaluationId(Long originalEvaluationId);
 }
