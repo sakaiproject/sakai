@@ -2024,51 +2024,22 @@ public abstract class BaseSiteService implements SiteService, Observer
 		}
 	}
 
-	/**
-	 * @inheritDoc
-	 */
-	public boolean allowUnjoinSite(String id)
-	{
-		// basic unjoin AuthzGroup test
-		if (!authzGroupService().allowUnjoinGroup(siteReference(id))) return false;
+    @Override
+    public boolean allowUnjoinSite(String id) {
+        // First check if the user has basic permission to unjoin the AuthzGroup
+        if (!authzGroupService().allowUnjoinGroup(siteReference(id))) return false;
 
-		// one more check - don't let a maintain role user unjoin a non-joinable site, or
-		// a joinable site that does not have the maintain role as the joiner role.
-		try
-		{
-			// get the site
-			Site site = getDefinedSite(id);
+        try {
+            // Get the site
+            Site site = getDefinedSite(id);
 
-			// get the AuthGroup
-			AuthzGroup azg = authzGroupService().getAuthzGroup(siteReference(id));
-
-			String user = sessionManager().getCurrentSessionUserId();
-			if (user == null) return false;
-
-			if ((StringUtil.different(site.getJoinerRole(), azg.getMaintainRole())) || (!site.isJoinable()))
-			{
-				Role role = azg.getUserRole(user);
-				if (role == null)
-				{
-					return false;
-				}
-				if (role.getId().equals(azg.getMaintainRole()))
-				{
-					return false;
-				}
-			}
-		}
-		catch (IdUnusedException e)
-		{
-			return false;
-		}
-		catch (GroupNotDefinedException e)
-		{
-			return false;
-		}
-
-		return true;
-	}
+            // Only joinable sites can be unjoined
+            return site.isJoinable();
+        } catch (Exception e) {
+            log.debug("User cannot unjoin site {}, {}", id, e.toString());
+        }
+        return false;
+    }
 
 	/**
 	 * @inheritDoc
