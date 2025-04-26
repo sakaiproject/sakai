@@ -63,6 +63,7 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 
 import org.tsugi.lti.ContentItem;
+import org.tsugi.lti.LTIUtil;
 
 /**
  * Creates a list of LTI Content Items for the user to choose from. Their choice will be added
