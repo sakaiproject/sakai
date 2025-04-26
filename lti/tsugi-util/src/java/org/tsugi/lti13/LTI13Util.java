@@ -574,70 +574,36 @@ public class LTI13Util {
         return LTIUtil.toNull(str);
     }
 
+    public static Integer getInteger(Object o, Integer defaultValue) {
+        return LTIUtil.toInteger(o, defaultValue);
+    }
+
     public static int getInt(Object o) {
-        if (o instanceof String) {
-            try {
-                return (new Integer((String) o)).intValue();
-            } catch (NumberFormatException e) {
-                return -1;
-            }
-        }
-        if (o instanceof Number) {
-            return ((Number) o).intValue();
-        }
-        return -1;
+        return LTIUtil.toInt(o);
+    }
+
+    public static Long getLong(Object o, Long defaultValue) {
+        return LTIUtil.toLong(o, defaultValue);
     }
 
     public static Long getLongKey(Object key) {
-        return getLong(key);
+        return LTIUtil.toLongKey(key);
     }
 
     public static Long getLong(Object key) {
-        Long retval = getLongNull(key);
-        if (retval != null) {
-            return retval;
-        }
-        return new Long(-1);
+        return LTIUtil.toLong(key, -1L);
     }
 
     public static Long getLongNull(Object key) {
-        if (key == null) {
-            return null;
-        }
-        if (key instanceof Number) {
-            return new Long(((Number) key).longValue());
-        }
-        if (key instanceof String) {
-            if (((String) key).length() < 1) {
-                return new Long(-1);
-            }
-            try {
-                return new Long((String) key);
-            } catch (NumberFormatException e) {
-                return null;
-            }
-        }
-        return null;
+        return LTIUtil.toLongNull(key);
+    }
+
+    public static Double getDouble(Object key, Double defaultValue) {
+        return LTIUtil.toDouble(key, defaultValue);
     }
 
     public static Double getDoubleNull(Object key) {
-        if (key == null) {
-            return null;
-        }
-        if (key instanceof Number) {
-            return ((Number) key).doubleValue();
-        }
-        if (key instanceof String) {
-            if (((String) key).length() < 1) {
-                return null;
-            }
-            try {
-                return new Double((String) key);
-            } catch (NumberFormatException e) {
-                return null;
-            }
-        }
-        return null;
+        return LTIUtil.toDoubleNull(key);
     }
 
     public static String getStringNull(Object value) {

@@ -1576,5 +1576,81 @@ public class LTIUtil {
 
 	}
 
+	/**
+	 * These routines are used to convert objects to their corresponding primitive types. 
+	 * They are inspired by the routines in the Apache Commons Lang library.
+	 * 
+	 * https://commons.apache.org/proper/commons-lang/apidocs/org/apache/commons/lang3/math/NumberUtils.html
+	 * 
+	 * The primary difference various types of objects and convert them no matter what.
+	 * The reas these are needed is when we get data from different databases, we might get an Integer,
+	 * Long, Double, BigDecimal, String, etc. and we want to convert them to the corresponding primitive type regardless
+	 * of the type of the object.
+	 * 
+	 * We would put these into Sakai Kernel except that the tsugi-util cannot have Sakai specific dependencies
+	 * as it can be released as a Java library and used in any environment.
+	 */
+
+	public static Integer toInteger(Object o, Integer defaultValue) {
+		if (o instanceof String) {
+			try {
+				return (Integer.valueOf((String) o)).intValue();
+			} catch (NumberFormatException e) {
+				return defaultValue;
+			}
+		}
+		if (o instanceof Number) {
+			return ((Number) o).intValue();
+		}
+		return defaultValue;
+	}
+
+	public static int toInt(Object o) {
+		Integer retval = toInteger(o, -1);
+		return retval.intValue();
+	}
+
+	public static Long toLong(Object o, Long defaultValue) {
+		if (o instanceof String) {
+			try {
+				return (Long.valueOf((String) o)).longValue();
+			} catch (NumberFormatException e) {
+				return defaultValue;
+			}
+		}
+		if (o instanceof Number) {
+			return ((Number) o).longValue();
+		}
+		return defaultValue;
+	}
+
+	public static Long toLongKey(Object key) {
+		return toLong(key, -1L);
+	}
+
+	public static Long toLongNull(Object key) {
+		return toLong(key, null);
+	}
+
+	public static Double toDouble(Object key, Double defaultValue) {
+		if (key == null) {
+			return defaultValue;
+		}
+		if (key instanceof Number) {
+			return ((Number) key).doubleValue();
+		}
+		if (key instanceof String) {
+			try {
+				return Double.valueOf((String) key);
+			} catch (NumberFormatException e) {
+				return defaultValue;
+			}
+		}
+		return defaultValue;
+	}
+
+	public static Double toDoubleNull(Object key) {
+		return toDouble(key, null);
+	}
 
 }
