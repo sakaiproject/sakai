@@ -74,7 +74,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
 import org.apache.commons.text.StringEscapeUtils;
-
+import org.apache.commons.lang3.StringUtils;
 /* Leave out until we have JTidy 0.8 in the repository
  import org.w3c.tidy.Tidy;
  import java.io.ByteArrayOutputStream;
@@ -133,13 +133,9 @@ public class LTIUtil {
 	public static final String EXTRA_JAVASCRIPT = "extra_javascript";
 	public static final String EXTRA_FORM_ID = "extra_form_id";
 
-	/** To turn on really verbose debugging */
-	private static boolean verbosePrint = false;
 
 	private static final Pattern CUSTOM_REGEX = Pattern.compile("[^A-Za-z0-9]");
 	private static final String UNDERSCORE = "_";
-
-	private static final String EMPTY_JSON_OBJECT = "{\n}\n";
 
 	// Returns true if this is a LTI message with minimum values to meet the protocol
 	public static boolean isRequest(HttpServletRequest request) {
@@ -757,7 +753,7 @@ public class LTIUtil {
 		if ( signature == null ) signature = OAuth.HMAC_SHA1;
 		om.addParameter(OAuth.OAUTH_SIGNATURE_METHOD, signature);
 		om.addParameter(OAuth.OAUTH_VERSION, "1.0");
-		om.addParameter(OAuth.OAUTH_TIMESTAMP, new Long((new Date().getTime()) / 1000).toString());
+		om.addParameter(OAuth.OAUTH_TIMESTAMP, Long.valueOf((new Date().getTime()) / 1000).toString());
 		om.addParameter(OAuth.OAUTH_NONCE, UUID.randomUUID().toString());
 
 		OAuthConsumer oc = new OAuthConsumer(null, oauth_consumer_key, oauth_secret, null);
@@ -873,9 +869,9 @@ public class LTIUtil {
 			return false;
 		}
 
-		String launch_url = toNull(XMLMap.getString(tm,
+		String launch_url = StringUtils.trimToNull(XMLMap.getString(tm,
 					"/basic_lti_link/launch_url"));
-		String secure_launch_url = toNull(XMLMap.getString(tm,
+		String secure_launch_url = StringUtils.trimToNull(XMLMap.getString(tm,
 					"/basic_lti_link/secure_launch_url"));
 		if (launch_url == null && secure_launch_url == null)
 			return false;
@@ -885,9 +881,9 @@ public class LTIUtil {
 
 		// Extensions for hand-authored placements - The export process should scrub
 		// these
-		setProperty(launch_info, "key", toNull(XMLMap.getString(tm,
+		setProperty(launch_info, "key", StringUtils.trimToNull(XMLMap.getString(tm,
 						"/basic_lti_link/x-secure/launch_key")));
-		setProperty(launch_info, "secret", toNull(XMLMap.getString(tm,
+		setProperty(launch_info, "secret", StringUtils.trimToNull(XMLMap.getString(tm,
 						"/basic_lti_link/x-secure/launch_secret")));
 
 		List<Map<String, Object>> theList = XMLMap.getList(tm,
@@ -928,9 +924,9 @@ public class LTIUtil {
 			return false;
 		}
 
-		String launch_url = toNull(XMLMap.getString(tm,
+		String launch_url = StringUtils.trimToNull(XMLMap.getString(tm,
 					"/basic_lti_link/launch_url"));
-		String secure_launch_url = toNull(XMLMap.getString(tm,
+		String secure_launch_url = StringUtils.trimToNull(XMLMap.getString(tm,
 					"/basic_lti_link/secure_launch_url"));
 		if (launch_url == null && secure_launch_url == null)
 			return false;
@@ -940,9 +936,9 @@ public class LTIUtil {
 
 		// Extensions for hand-authored placements - The export process should scrub
 		// these
-		setProperty(launch_info, "key", toNull(XMLMap.getString(tm,
+		setProperty(launch_info, "key", StringUtils.trimToNull(XMLMap.getString(tm,
 						"/basic_lti_link/x-secure/launch_key")));
-		setProperty(launch_info, "secret", toNull(XMLMap.getString(tm,
+		setProperty(launch_info, "secret", StringUtils.trimToNull(XMLMap.getString(tm,
 						"/basic_lti_link/x-secure/launch_secret")));
 
 		List<Map<String, Object>> theList = XMLMap.getList(tm,
@@ -1003,14 +999,6 @@ public class LTIUtil {
 			}
 		}
 		return sb.toString();
-	}
-
-	public static String toNull(String str) {
-		if (str == null)
-			return null;
-		if (str.trim().length() < 1)
-			return null;
-		return str;
 	}
 
 	/**
@@ -1506,11 +1494,11 @@ public class LTIUtil {
 		Object o = obj.get(key);
 
 		if (o instanceof Number)
-			return new Long(((Number) o).longValue());
+			return Long.valueOf(((Number) o).longValue());
 		if (o instanceof String) {
-			if ( ((String)o).length() < 1 ) return new Long(-1);
+			if ( ((String)o).length() < 1 ) return Long.valueOf(-1L);
 			try {
-				return new Long((String) o);
+				return Long.valueOf((String) o);
 			} catch (Exception e) {
 				return null;
 			}
@@ -1525,11 +1513,11 @@ public class LTIUtil {
 		Object o = obj.get(key);
 
 		if (o instanceof Number)
-			return new Double(((Number) o).longValue());
+			return Double.valueOf(((Number) o).doubleValue());
 		if (o instanceof String) {
-			if ( ((String)o).length() < 1 ) return new Double(-1);
+			if ( ((String)o).length() < 1 ) return Double.valueOf(-1.0);
 			try {
-				return new Double((String) o);
+				return Double.valueOf((String) o);
 			} catch (Exception e) {
 				return null;
 			}
@@ -1594,13 +1582,13 @@ public class LTIUtil {
 	public static Integer toInteger(Object o, Integer defaultValue) {
 		if (o instanceof String) {
 			try {
-				return (Integer.valueOf((String) o)).intValue();
+				return Integer.valueOf((String) o);
 			} catch (NumberFormatException e) {
 				return defaultValue;
 			}
 		}
 		if (o instanceof Number) {
-			return ((Number) o).intValue();
+			return Integer.valueOf(((Number) o).intValue());
 		}
 		return defaultValue;
 	}
@@ -1613,15 +1601,19 @@ public class LTIUtil {
 	public static Long toLong(Object o, Long defaultValue) {
 		if (o instanceof String) {
 			try {
-				return (Long.valueOf((String) o)).longValue();
+				return Long.valueOf((String) o);
 			} catch (NumberFormatException e) {
 				return defaultValue;
 			}
 		}
 		if (o instanceof Number) {
-			return ((Number) o).longValue();
+			return Long.valueOf(((Number) o).longValue());
 		}
 		return defaultValue;
+	}
+
+	public static Long toLong(Object key) {
+		return toLong(key, -1L);
 	}
 
 	public static Long toLongKey(Object key) {
@@ -1637,7 +1629,7 @@ public class LTIUtil {
 			return defaultValue;
 		}
 		if (key instanceof Number) {
-			return ((Number) key).doubleValue();
+			return Double.valueOf(((Number) key).doubleValue());
 		}
 		if (key instanceof String) {
 			try {

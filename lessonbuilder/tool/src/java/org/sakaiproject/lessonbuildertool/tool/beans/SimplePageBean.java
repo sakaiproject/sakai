@@ -7070,7 +7070,7 @@ public class SimplePageBean {
 
                 // Retrieve the tool associated with the content item
                 String toolId = ToolUtils.getRequestParameter("toolId");
-                Long toolKey = SakaiLTIUtil.getLongNull(toolId);
+                Long toolKey = LTIUtil.toLongNull(toolId);
                 if ( toolKey == 0 || toolKey < 0 ) {
                         setErrKey("simplepage.lti-import-error-id", toolId);
                         return;

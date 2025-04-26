@@ -215,7 +215,7 @@ public class OIDCServlet extends HttpServlet {
 		String forward = Base64DoubleUrlEncodeSafe.decode((String) request.getParameter("forward"));
 		forward = StringUtils.trimToNull(forward);
 
-		Long toolKey = SakaiLTIUtil.getLongKey((String) request.getParameter("tool_id"));
+		Long toolKey = LTIUtil.toLongKey((String) request.getParameter("tool_id"));
 		if ( StringUtils.isBlank(forward) || toolKey == null ) {
 			LTI13Util.return400(response, "Missing forward or tool_id value");
 			log.error("Missing forward or tool_id value");

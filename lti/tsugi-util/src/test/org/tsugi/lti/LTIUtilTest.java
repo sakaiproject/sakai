@@ -351,25 +351,6 @@ public class LTIUtilTest {
 	}
 
 	@Test
-	public void toNull() {
-		String result = LTIUtil.toNull(null);
-		assertNull(result);
-
-		result = LTIUtil.toNull("");
-		assertNull(result);
-
-		result = LTIUtil.toNull(" ");
-		assertNull(result);
-
-		result = LTIUtil.toNull("   ");
-		assertNull(result);
-
-		result = LTIUtil.toNull("foobar");
-		assertNotNull(result);
-		assertEquals("foobar", result);
-	}
-
-	@Test
 	public void setProperty() {
 		Map<String, String> theMap = new HashMap<>();
 

@@ -33,7 +33,7 @@ public class OAUTH2ObjectTest {
 
 		AccessToken at = new AccessToken();
 		at.access_token = "42";
-		at.expires_in = new Long(3600);
+		at.expires_in = Long.valueOf(3600);
 		at.token_type = AccessToken.TOKEN_TYPE_BEARER;
 		at.scope = "yada scope";
 

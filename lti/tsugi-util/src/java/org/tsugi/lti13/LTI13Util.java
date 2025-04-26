@@ -537,7 +537,7 @@ public class LTI13Util {
         if ( pieces.length < 2 ) return false;
 
         long now = (new java.util.Date()).getTime()/1000;
-        long token_now = getLong(pieces[0]);
+        long token_now = LTIUtil.toLong(pieces[0]);
         long delta = now - token_now;
         boolean retval = (delta >= 0) && (delta <= seconds);
         return retval;
@@ -568,42 +568,6 @@ public class LTI13Util {
         String signature = sha256(base_string);
         if ( ! signature.equals(token_signature) ) return false;
         return true;
-    }
-
-    public static String toNull(String str) {
-        return LTIUtil.toNull(str);
-    }
-
-    public static Integer getInteger(Object o, Integer defaultValue) {
-        return LTIUtil.toInteger(o, defaultValue);
-    }
-
-    public static int getInt(Object o) {
-        return LTIUtil.toInt(o);
-    }
-
-    public static Long getLong(Object o, Long defaultValue) {
-        return LTIUtil.toLong(o, defaultValue);
-    }
-
-    public static Long getLongKey(Object key) {
-        return LTIUtil.toLongKey(key);
-    }
-
-    public static Long getLong(Object key) {
-        return LTIUtil.toLong(key, -1L);
-    }
-
-    public static Long getLongNull(Object key) {
-        return LTIUtil.toLongNull(key);
-    }
-
-    public static Double getDouble(Object key, Double defaultValue) {
-        return LTIUtil.toDouble(key, defaultValue);
-    }
-
-    public static Double getDoubleNull(Object key) {
-        return LTIUtil.toDoubleNull(key);
     }
 
     public static String getStringNull(Object value) {

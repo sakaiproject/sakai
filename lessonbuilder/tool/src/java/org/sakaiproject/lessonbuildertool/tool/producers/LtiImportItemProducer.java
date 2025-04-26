@@ -175,7 +175,7 @@ public class LtiImportItemProducer implements ViewComponentProducer, NavigationC
 			for ( int i = 0 ; i < toolsImportItem.size(); i++ ) {
 				Map<String, Object> tool = toolsImportItem.get(i);
 				if ( tool == null ) continue;
-				Long toolId = SakaiLTIUtil.getLongNull(tool.get(LTIService.LTI_ID));
+				Long toolId = LTIUtil.toLongNull(tool.get(LTIService.LTI_ID));
 
 				// Create a POSTable URL back to this application with the right parameters
 				// Since the external tool will be setting all the POST data per Content Item spec, we need to 

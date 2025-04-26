@@ -35,7 +35,7 @@ public class LTI13KeySetUtil {
 
 	public static String getPublicKID(Key key) {
 		String publicEncoded = LTI13Util.getPublicEncoded(key);
-		return new Integer(publicEncoded.hashCode()).toString();
+		return Integer.valueOf(publicEncoded.hashCode()).toString();
 	}
 
 	public static boolean addPublicKey(Map<String, RSAPublicKey> keys, String publicSerialized)

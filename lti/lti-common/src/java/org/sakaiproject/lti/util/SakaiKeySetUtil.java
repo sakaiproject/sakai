@@ -22,8 +22,6 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.time.Instant;
 
-import org.apache.commons.lang3.StringUtils;
-
 import org.sakaiproject.component.cover.ComponentManager;
 
 import org.springframework.cache.Cache;
@@ -31,16 +29,12 @@ import org.springframework.cache.CacheManager;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.security.Key;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPublicKey;
-import java.security.KeyPairGenerator;
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.tsugi.lti13.LTI13KeySetUtil;
+import org.tsugi.lti.LTIUtil;
 import org.tsugi.lti13.LTI13Util;
 
 /**
@@ -117,7 +111,7 @@ public class SakaiKeySetUtil {
             ComponentManager.get("org.sakaiproject.component.api.ServerConfigurationService");
 
         String daysStr = serverConfigurationService.getString(LTI_ADVANTAGE_KEY_ROTATION_DAYS, LTI_ADVANTAGE_KEY_ROTATION_DAYS_DEFAULT);
-        long days = LTI13Util.getLong(daysStr);
+        long days = LTIUtil.toLong(daysStr);
         return days;
     }
 

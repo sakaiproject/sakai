@@ -27,7 +27,7 @@ public class AccessToken {
 
 	public AccessToken() {
 		this.token_type = TOKEN_TYPE_BEARER;
-		this.expires_in = new Long(3600);
+		this.expires_in = Long.valueOf(3600);
 	}
 
 	// Here it is a comma separated list of scopes - see RFC6750
