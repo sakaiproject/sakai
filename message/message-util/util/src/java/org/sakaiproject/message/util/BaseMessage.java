@@ -562,7 +562,8 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		String siteId = entityManager.newReference(message.getReference()).getContext();
 
 		if (unlockCheck(SECURE_READ_DRAFT, siteService.siteReference(siteId))) {
-			return true;
+			// Instructors with read.draft permission still need to respect close date/retract date
+			// Even though they can access messages in other ways
 		}
 
 		if (message.getHeader().getDraft()) return false;
