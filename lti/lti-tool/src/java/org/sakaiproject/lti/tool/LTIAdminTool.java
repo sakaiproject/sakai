@@ -746,7 +746,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 	private boolean minimalLTI13(Map<String, Object> tool) {
 		boolean retval = false;
 
-		Long tool_id = foorm.getLongNull(tool.get(LTIService.LTI_ID));
+		Long tool_id = LTIUtil.toLongNull(tool.get(LTIService.LTI_ID));
 		String site_id = (String) tool.get(LTIService.LTI_SITE_ID);
 
 		String clientId = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_CLIENT_ID));
