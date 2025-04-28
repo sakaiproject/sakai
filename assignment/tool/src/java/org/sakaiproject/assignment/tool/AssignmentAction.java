@@ -654,6 +654,7 @@ public class AssignmentAction extends PagedResourceActionII {
     private static final String NEW_ASSIGNMENT_CONTENT_TITLE = "new_assignment_content_title";
     private static final String NEW_ASSIGNMENT_CONTENT_LAUNCH_NEW_WINDOW = "new_assignment_content_launch_new_window";
     private static final String NEW_ASSIGNMENT_CONTENT_TOOL_NEWPAGE = "new_assignment_content_tool_newpage";
+    private static final String NEW_ASSIGNMENT_CONTENT_DELETED = "new_assignment_content_deleted";
     private static final String NEW_ASSIGNMENT_CATEGORY = "new_assignment_category";
     private static final String NEW_ASSIGNMENT_GRADE_TYPE = "new_assignment_grade_type";
     private static final String NEW_ASSIGNMENT_GRADE_TYPE_SWITCHING = "new_assignment_grade_type_switching";
@@ -3292,6 +3293,7 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("value_ContentTitle", state.getAttribute(NEW_ASSIGNMENT_CONTENT_TITLE));
         context.put("value_ContentLaunchNewWindow", state.getAttribute(NEW_ASSIGNMENT_CONTENT_LAUNCH_NEW_WINDOW));
         context.put("value_ContentToolNewpage", state.getAttribute(NEW_ASSIGNMENT_CONTENT_TOOL_NEWPAGE));
+        context.put("value_ContentDeleted", state.getAttribute(NEW_ASSIGNMENT_CONTENT_DELETED));
 
         // information related to gradebook categories
         putGradebookCategoryInfoIntoContext(state, context);
@@ -10603,6 +10605,8 @@ public class AssignmentAction extends PagedResourceActionII {
                             Map<String, Object> tool = ltiService.getTool(toolKey, site.getId());
                             if ( tool == null ) {
                                 state.setAttribute(NEW_ASSIGNMENT_CONTENT_TITLE, null);
+                                state.setAttribute(NEW_ASSIGNMENT_CONTENT_DELETED, Boolean.TRUE);
+                                addAlert(state, rb.getString("contentitem.tool.deleted"));
                             } else {
                                 String toolTitle = (String) tool.get(LTIService.LTI_TITLE);
                                 state.setAttribute(NEW_ASSIGNMENT_CONTENT_TITLE, toolTitle);
@@ -13058,6 +13062,7 @@ public class AssignmentAction extends PagedResourceActionII {
         state.setAttribute(NEW_ASSIGNMENT_CONTENT_TITLE, null);
         state.setAttribute(NEW_ASSIGNMENT_CONTENT_LAUNCH_NEW_WINDOW, null);
         state.setAttribute(NEW_ASSIGNMENT_CONTENT_TOOL_NEWPAGE, null);
+        state.setAttribute(NEW_ASSIGNMENT_CONTENT_DELETED, Boolean.FALSE);
         state.setAttribute(NEW_ASSIGNMENT_DESCRIPTION, "");
         state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE, Boolean.FALSE.toString());
         boolean checkAddDueDate = (state.getAttribute(CALENDAR) != null || state.getAttribute(ADDITIONAL_CALENDAR) != null) && serverConfigurationService.getBoolean(AssignmentConstants.SAK_PROP_DUE_DATE_TO_CALENDAR_DEFAULT, DUE_DATE_TO_CALENDAR_DEFAULT);
@@ -13137,7 +13142,7 @@ public class AssignmentAction extends PagedResourceActionII {
         state.removeAttribute(NEW_ASSIGNMENT_CONTENT_TITLE);
         state.removeAttribute(NEW_ASSIGNMENT_CONTENT_LAUNCH_NEW_WINDOW);
         state.removeAttribute(NEW_ASSIGNMENT_CONTENT_TOOL_NEWPAGE);
-
+        state.removeAttribute(NEW_ASSIGNMENT_CONTENT_DELETED);
         state.removeAttribute(ALLPURPOSE_RELEASE_MONTH);
         state.removeAttribute(ALLPURPOSE_RELEASE_DAY);
         state.removeAttribute(ALLPURPOSE_RELEASE_YEAR);
