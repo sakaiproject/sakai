@@ -26,6 +26,8 @@ import java.util.stream.Collectors;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -103,6 +105,8 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	 * Are there unsaved changes?
 	 */
 	boolean dirty;
+	
+
 
 	public SettingsGradingSchemaPanel(final String id, final IModel<GbSettings> model, final boolean expanded) {
 		super(id, model);
@@ -142,6 +146,24 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 		}
 
 		final WebMarkupContainer settingsGradingSchemaPanel = new WebMarkupContainer("settingsGradingSchemaPanel");
+		// Preserve the expand/collapse state of the panel
+		settingsGradingSchemaPanel.add(new AjaxEventBehavior("shown.bs.collapse") {
+			@Override
+			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
+				settingsGradingSchemaPanel.add(new AttributeModifier("class", "accordion-collapse collapse show"));
+				SettingsGradingSchemaPanel.this.expanded = true;
+			}
+		});
+		settingsGradingSchemaPanel.add(new AjaxEventBehavior("hidden.bs.collapse") {
+			@Override
+			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
+				settingsGradingSchemaPanel.add(new AttributeModifier("class", "accordion-collapse collapse"));
+				SettingsGradingSchemaPanel.this.expanded = false;
+			}
+		});
+		if (this.expanded) {
+			settingsGradingSchemaPanel.add(new AttributeModifier("class", "accordion-collapse collapse show"));
+		}
 		add(settingsGradingSchemaPanel);
 
 		// grading scale type chooser
