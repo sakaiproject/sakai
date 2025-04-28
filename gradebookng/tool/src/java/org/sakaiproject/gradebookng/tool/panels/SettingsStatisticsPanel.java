@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.gradebookng.tool.panels;
 
+import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -41,6 +43,24 @@ public class SettingsStatisticsPanel extends BasePanel {
 		super.onInitialize();
 
 		final WebMarkupContainer settingsStatisticsPanel = new WebMarkupContainer("settingsStatisticsPanel");
+		// Preserve the expand/collapse state of the panel
+		settingsStatisticsPanel.add(new AjaxEventBehavior("shown.bs.collapse") {
+			@Override
+			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
+				settingsStatisticsPanel.add(new AttributeModifier("class", "accordion-collapse collapse show"));
+				SettingsStatisticsPanel.this.expanded = true;
+			}
+		});
+		settingsStatisticsPanel.add(new AjaxEventBehavior("hidden.bs.collapse") {
+			@Override
+			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
+				settingsStatisticsPanel.add(new AttributeModifier("class", "accordion-collapse collapse"));
+				SettingsStatisticsPanel.this.expanded = false;
+			}
+		});
+		if (this.expanded) {
+			settingsStatisticsPanel.add(new AttributeModifier("class", "accordion-collapse collapse show"));
+		}
 		add(settingsStatisticsPanel);
 
 		// display assignment stats to students

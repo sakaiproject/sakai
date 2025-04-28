@@ -16,6 +16,9 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
 import lombok.Getter;
+import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.ajax.AjaxEventBehavior;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Radio;
 import org.apache.wicket.markup.html.form.RadioGroup;
@@ -44,6 +47,24 @@ public class SettingsGradeEntryPanel extends BasePanel {
 		super.onInitialize();
 
 		final WebMarkupContainer settingsGradeEntryPanel = new WebMarkupContainer("settingsGradeEntryPanel");
+		// Preserve the expand/collapse state of the panel
+		settingsGradeEntryPanel.add(new AjaxEventBehavior("shown.bs.collapse") {
+			@Override
+			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
+				settingsGradeEntryPanel.add(new AttributeModifier("class", "accordion-collapse collapse show"));
+				SettingsGradeEntryPanel.this.expanded = true;
+			}
+		});
+		settingsGradeEntryPanel.add(new AjaxEventBehavior("hidden.bs.collapse") {
+			@Override
+			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
+				settingsGradeEntryPanel.add(new AttributeModifier("class", "accordion-collapse collapse"));
+				SettingsGradeEntryPanel.this.expanded = false;
+			}
+		});
+		if (this.expanded) {
+			settingsGradeEntryPanel.add(new AttributeModifier("class", "accordion-collapse collapse show"));
+		}
 		add(settingsGradeEntryPanel);
 
 		// grade entry type
