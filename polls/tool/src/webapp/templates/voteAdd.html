@@ -20,7 +20,7 @@
 				input:'#opendate',
 				useTime:1,
 				parseFormat: 'YYYY-MM-DD HH:mm:ss',
-				getval: '#openDate-iso8601',
+				val: document.getElementById('openDate-iso8601').value,
 				ashidden: { iso8601: 'openDate-iso8601' }
 			});
 
@@ -28,7 +28,7 @@
 				input:'#closedate',
 				useTime:1,
 				parseFormat: 'YYYY-MM-DD HH:mm:ss',
-				getval: '#closeDate-iso8601',
+				val: document.getElementById('closeDate-iso8601').value,
 				ashidden: { iso8601: 'closeDate-iso8601' }
 			});
 

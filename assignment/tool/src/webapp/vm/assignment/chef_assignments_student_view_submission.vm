@@ -457,7 +457,7 @@ $(document).ready(function(){
 
 		## show special instruction if this is for an non-electronic submission type of assignment
 		#if ($!nonElectronicType)
-			<p class="instruction">
+			<p class="sak-banner-info">
 				$tlang.getString("nonelec_instruction")
 			</p>
 			## show feedbacks if any

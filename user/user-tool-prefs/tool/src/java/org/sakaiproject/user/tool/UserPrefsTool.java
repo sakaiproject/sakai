@@ -151,8 +151,6 @@ public class UserPrefsTool
 
 	protected final static String ORDER_SITE_LISTS = "order";
 
-	protected final static String TAB_LABEL_PREF = "tab:label";
-
 	protected final static String EDITOR_TYPE = "editor:type";
 
 	protected final static String THEME_PREF = "sakai:portal:theme";
@@ -1376,7 +1374,7 @@ public class UserPrefsTool
 
 	    Preferences prefs = (PreferencesEdit) preferencesService.getPreferences(getUserId());
 	    ResourceProperties props = prefs.getProperties(PreferencesService.SITENAV_PREFS_KEY);
-	    prefTabLabel = props.getProperty(TAB_LABEL_PREF);
+	    prefTabLabel = props.getProperty(PreferencesService.TAB_LABEL_PREF);
 
 	    if ( prefTabLabel == null )
 	        prefTabLabel = String.valueOf(DEFAULT_TAB_LABEL);
@@ -2053,7 +2051,7 @@ public class UserPrefsTool
 				currentFavoriteSites = Collections.<String>emptyList();
 			}
 
-			props.removeProperty(TAB_LABEL_PREF);
+			props.removeProperty(PreferencesService.TAB_LABEL_PREF);
 			props.removeProperty(ORDER_SITE_LISTS);
 			props.removeProperty(EXCLUDE_SITE_LISTS);
 
@@ -2074,7 +2072,7 @@ public class UserPrefsTool
 				}
 			}
 
-			props.addProperty(TAB_LABEL_PREF, prefTabLabel);
+			props.addProperty(PreferencesService.TAB_LABEL_PREF, prefTabLabel);
 
 			preferencesService.commit(m_edit);
 			cancelEdit();

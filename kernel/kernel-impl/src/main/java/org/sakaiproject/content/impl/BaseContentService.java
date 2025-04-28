@@ -4339,6 +4339,19 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		// htripath -store the metadata information into a delete table
 		// assumed uuid is not null as checkExplicitLock(id) throws exception when null
 
+
+		//check if resource is of type CitationsList and clean up citation tables
+		if (removeContent && edit.getResourceType().equals(CITATIONS_RESOURCE_TYPE_ID)) {
+			try {
+				String data = new String(edit.getContent(), StandardCharsets.UTF_8);
+				log.debug("removing citation list [{}]", data);
+				eventTrackingService.post(eventTrackingService.newEvent(CITATIONS_HARD_DELETE_EVENT, data, true));
+			} catch (ServerOverloadException e) {
+				log.error("Could not get content from citations resource with id {}", edit.getId(), e);
+			}
+		}
+		
+
 		try {
 			String uuid = this.getUuid(id);
 			String userId = sessionManager.getCurrentSessionUserId().trim();
@@ -7487,6 +7500,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 					ContentResource oldSiteContentResource = getResource(oldReference);
 					byte[] thisResourceContentRaw = oldSiteContentResource.getContent();
 					rContent = new String(thisResourceContentRaw);
+					rContent = rContent.replace("%2520", "%20");
 					StringBuffer saveOldEntity = new StringBuffer(rContent);
 					for (String oldValue : traversalMap.keySet()) {
 						if (!oldValue.equals("/fromContext")){

@@ -34,7 +34,7 @@
 				input : id,
 				useTime : time,
 				parseFormat : 'YYYY-MM-DD HH:mm:ss',
-				getval : "#" + hidden,
+				val : document.getElementById(hidden) ? document.getElementById(hidden).value : "",
 				ashidden : {
 					iso8601 : hidden
 				}

@@ -86,7 +86,7 @@ public class GbModalWindow extends ModalWindow {
 			js.append(String.format("try { $('#%s').focus(); } catch(e) { console.error('Failed to focus modal content:', e); }",
 					getContent().getMarkupId()));
 		}
-		js.append("}, 50);");
+		js.append("}, 500);");
 
 		js.append("function GbModalWindow_trapFocus(event, modalContentId) {");
 		js.append("  if (!modalContentId || event.key !== 'Tab' && event.keyCode !== 9) return;");
@@ -218,7 +218,12 @@ public class GbModalWindow extends ModalWindow {
 
 				target.appendJavaScript("try { $('#ui-datepicker-div').hide(); } catch(e) { console.error('Failed to hide datepicker:', e); }");
 
-				target.appendJavaScript("try { GradebookGradeSummaryUtils.clearBlur(); } catch(e) { console.error('Failed to clear blur:', e); }");
+				// Check if GradebookGradeSummaryUtils and clearBlur exist before calling
+				target.appendJavaScript(
+					"if (typeof GradebookGradeSummaryUtils !== 'undefined' && GradebookGradeSummaryUtils.clearBlur) { " +
+					"  try { GradebookGradeSummaryUtils.clearBlur(); } catch(e) { console.error('Failed to clear blur:', e); } " +
+					"} else { console.debug('GradebookGradeSummaryUtils or clearBlur function not found.'); }"
+				);
 
 				// Remove the focus trap listener from the document using the correct namespace
 				target.appendJavaScript(String.format("try { $(document).off('keydown.gbTrapFocus_%s'); } catch(e) { console.error('Failed to remove focus trap listener:', e); }", GbModalWindow.this.getMarkupId()));

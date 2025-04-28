@@ -198,18 +198,13 @@
 }
 
 .portal-main-content {
-  grid-area: main;
   outline: none;
 }
 
 .portal-main-container {
   grid-area: mainContainer;
-  display: grid;
-  grid-template-areas: 
-      "main"
-      "footer";
-  grid-template-rows: 1fr auto;
-  align-content: space-between;
+  display: flex;
+  flex-direction: column;
   overflow-x: auto;
 }
 
@@ -247,7 +242,6 @@
 }
 
 .portal-footer {
-  grid-area: footer;
   .copyright-powered {
     display: flex;
     flex-direction: column;

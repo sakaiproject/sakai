@@ -105,7 +105,7 @@
 
 	<hr class="itemSeparator"/>
 	#if ($!nonElectronicType)
-		<p class="instruction">
+		<p class="sak-banner-info">
 			$tlang.getString("nonelec_instruction")
 		</p>
 	#end
