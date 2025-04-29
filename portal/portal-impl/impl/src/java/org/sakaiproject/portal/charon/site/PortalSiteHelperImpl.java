@@ -309,7 +309,11 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 		Map<String, Object> siteMap = new HashMap<>();
 		siteMap.put("id", site.getId());
-		siteMap.put("title", site.getTitle());
+		siteMap.put("title", 
+			site.getId().equals("~admin") ? rb.getString("sit_mywor_admin") : 
+			site.getId().equals("!admin") ? rb.getString("sit_admin") : 
+			userId != null && site.getId().equals(siteService.getUserSiteId(userId)) ? rb.getString("sit_mywor") : 
+			site.getTitle());
 		siteMap.put("url", site.getUrl());
 		siteMap.put("type", site.getType());
 		siteMap.put("description", site.getDescription());
@@ -319,7 +323,6 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		siteMap.put("isCurrent", site.getId().equals(currentSiteId));
 		siteMap.put("isHidden", hidden);
 		siteMap.put("currentSiteId", currentSiteId);
-		siteMap.put("homeTitle", rb.getString("sit_mywor"));
 		if (includePages) {
 			List<SitePage> pageList = getPermittedPagesInOrder(site);
 			siteMap.put("pages", getPageMaps(pageList, site));

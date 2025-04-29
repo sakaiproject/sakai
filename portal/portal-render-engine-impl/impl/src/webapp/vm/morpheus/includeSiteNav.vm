@@ -37,11 +37,7 @@
                     <i class="bi bi-chevron-right" aria-hidden="true"></i>
                 </button>
 
-                #if ($site.isHome)
-                    #set ($siteTitle = $ftext.escapeHtml(${site.homeTitle}))
-                #else
-                    #set ($siteTitle = $ftext.escapeHtml(${site.title}))
-                #end
+                #set ($siteTitle = $ftext.escapeHtml(${site.title}))
                 #set ($displayTitle = $siteTitle)
                 #if ( ( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ) )
                     #set ($displayTitle = $ftext.escapeHtml(${site.shortDescription}))
