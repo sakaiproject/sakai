@@ -45,6 +45,7 @@ confirmation dialog
 	<script src="/samigo-app/js/info.js"></script>
 	<!-- AUTHORING -->
 	<script src="/samigo-app/js/authoring.js"></script>
+	<script src="/samigo-app/js/focusElement.js"></script>
 	<script>
 		const addGlobalVariable = () => {
 			const globalVariable = prompt("<h:outputText value="#{authorMessages.calc_question_enter_global_variable}" escape="false"/>");
@@ -280,6 +281,7 @@ confirmation dialog
   	<!-- 3 ANSWER -->
 
 	  	<h:commandButton rendered="#{itemauthor.target=='assessment' || itemauthor.target=='questionpool'}" 
+				id="extractButton" 
 	  			value="#{authorMessages.calc_question_extract_button}" 
 	  			action="calculatedQuestion" 
 	  			styleClass="active">
@@ -376,6 +378,7 @@ confirmation dialog
 	</div>
 
 	<h:commandButton rendered="#{itemauthor.target=='assessment' || itemauthor.target=='questionpool'}" 
+			id="addGlobalVariableButton"
   			value="#{authorMessages.calc_question_add_global_variable_button}" 
   			onclick="addGlobalVariable();"
   			styleClass="active">
@@ -459,17 +462,9 @@ confirmation dialog
 		</h:dataTable>
 
 		<h:commandButton 
-				value="#{commonMessages.check_formulas}" 
-				styleClass="mb-3" 
-				rendered="#{!itemauthor.currentItem.calculatedQuestion.showFormulasCalculation}">
-			<f:setPropertyActionListener target="#{itemauthor.currentItem.calculatedQuestion.showFormulasCalculation}" value="true" />
-			<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.CalculatedQuestionFormulaValidatorListener" />
-		</h:commandButton>
-
-		<h:commandButton 
-				value="#{commonMessages.another_solution}" 
-				styleClass="mb-3"
-				rendered="#{itemauthor.currentItem.calculatedQuestion.showFormulasCalculation}">
+				id="checkFormulasButton"
+				value="#{itemauthor.currentItem.calculatedQuestion.showFormulasCalculation ? commonMessages.another_solution : commonMessages.check_formulas}" 
+				styleClass="mb-3">
 			<f:setPropertyActionListener target="#{itemauthor.currentItem.calculatedQuestion.showFormulasCalculation}" value="true" />
 			<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.CalculatedQuestionFormulaValidatorListener" />
 		</h:commandButton>
