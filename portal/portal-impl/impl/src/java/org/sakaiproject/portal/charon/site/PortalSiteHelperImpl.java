@@ -99,6 +99,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ArrayUtil;
 import org.sakaiproject.util.MapUtil;
 import org.sakaiproject.util.RequestFilter;
+import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.comparator.AliasCreatedTimeComparator;
@@ -134,6 +135,8 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	private static final boolean SAK_PROP_FORCE_OVERVIEW_TO_TOP_DEFAULT = false;
 	private static final String GRADEBOOK_TOOL_ID = "sakai.gradebookng";
 	private static final String GRADEBOOK_GROUP_PROPERTY = "gb-group";
+
+	private static final ResourceLoader rb = new ResourceLoader("sitenav");
 
 	private final AliasService aliasService;
 	private final AuthzGroupService authzGroupService;
@@ -312,10 +315,11 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		siteMap.put("description", site.getDescription());
 		siteMap.put("shortDescription", site.getShortDescription());
 		siteMap.put("isPinned", pinned);
-        siteMap.put("isHome", userId != null && site.getId().equals(siteService.getUserSiteId(userId)));
-        siteMap.put("isCurrent", site.getId().equals(currentSiteId));
-        siteMap.put("isHidden", hidden);
-        siteMap.put("currentSiteId", currentSiteId);
+		siteMap.put("isHome", userId != null && site.getId().equals(siteService.getUserSiteId(userId)));
+		siteMap.put("isCurrent", site.getId().equals(currentSiteId));
+		siteMap.put("isHidden", hidden);
+		siteMap.put("currentSiteId", currentSiteId);
+		siteMap.put("homeTitle", rb.getString("sit_mywor"));
 		if (includePages) {
 			List<SitePage> pageList = getPermittedPagesInOrder(site);
 			siteMap.put("pages", getPageMaps(pageList, site));
