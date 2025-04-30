@@ -78,6 +78,7 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.sakaiproject.event.api.NotificationService;
 import org.tsugi.lti13.LTICustomVars;
+import org.sakaiproject.authz.api.Role;
 
 @Slf4j
 public class SiteManageServiceImpl implements SiteManageService {
@@ -203,7 +204,13 @@ public class SiteManageServiceImpl implements SiteManageService {
             List<SitePage> pageList = site.getPages();
             Set<String> toolsCopied = new HashSet<>();
 
+            System.out.println("Copying tool permissions from site " + oSiteId + " to site " + nSiteId);
+
             Map<String, String> transversalMap = new HashMap<>();
+            
+            // Add code to copy tool permissions from source site to destination site
+            log.info("About to copy tool permissions from site {} to site {}", oSiteId, nSiteId);
+            copyToolPermissions(oSiteId, nSiteId);
 
             if (pageList != null) {
                 for (SitePage page : pageList) {
@@ -396,6 +403,8 @@ public class SiteManageServiceImpl implements SiteManageService {
 			return;
 		}
 
+        System.out.println("Importing tools into site " + site.getId());
+
 		//if add missing tools is enabled, add the tools ito the site before importing content
 		if (isAddMissingToolsOnImportEnabled()) {
 
@@ -542,6 +551,12 @@ public class SiteManageServiceImpl implements SiteManageService {
 			if (importTools.containsKey(toolId)) {
 				updateEntityReferences(toolId, toSiteId, transversalMap, site);
 			}
+		}
+
+		// Copy permissions from source sites to destination site
+		for (String fromSiteId : siteIds) {
+			log.info("Copying permissions from site {} to site {}", fromSiteId, toSiteId);
+			copyToolPermissions(fromSiteId, toSiteId);
 		}
 
 		// Handle the Context.id.history
@@ -792,6 +807,64 @@ public class SiteManageServiceImpl implements SiteManageService {
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * Copy tool permissions from source site to destination site
+     * @param fromSiteId The source site ID
+     * @param toSiteId The destination site ID
+     */
+    private void copyToolPermissions(String fromSiteId, String toSiteId) {
+        try {
+            // Get the source site
+            log.info("Starting tool permissions copy from site {} to site {}", fromSiteId, toSiteId);
+            Site fromSite = siteService.getSite(fromSiteId);
+            // Get the destination site
+            Site toSite = siteService.getSite(toSiteId);
+            
+            // Copy all role permissions from source site to destination site
+            Set<Role> fromRoles = fromSite.getRoles();
+            log.debug("Found {} roles in source site", fromRoles.size());
+            
+            for (Role fromRole : fromRoles) {
+                String roleName = fromRole.getId();
+                try {
+                    // Get the corresponding role in the destination site
+                    Role toRole = toSite.getRole(roleName);
+                    if (toRole != null) {
+                        // Get all permissions from the source role
+                        Set<String> allPermissions = fromRole.getAllowedFunctions();
+                        log.debug("Copying {} permissions for role {}", allPermissions.size(), roleName);
+                        
+                        // Copy all permissions (don't filter by tool)
+                        for (String permission : allPermissions) {
+                            // If the source role has this permission, add it to the destination role
+                            if (fromRole.isAllowed(permission)) {
+                                toRole.allowFunction(permission);
+                                log.debug("Allowing permission {} for role {}", permission, roleName);
+                            } else {
+                                // If the permission was explicitly disallowed, disallow it in the destination role
+                                toRole.disallowFunction(permission);
+                                log.debug("Disallowing permission {} for role {}", permission, roleName);
+                            }
+                        }
+                    } else {
+                        log.warn("Role {} not found in destination site {}", roleName, toSiteId);
+                    }
+                } catch (Exception e) {
+                    log.warn("Could not find role {} in destination site {}", roleName, toSiteId);
+                }
+            }
+            
+            // Save the destination site with the updated permissions
+            siteService.save(toSite);
+            log.info("Successfully copied all tool permissions from site {} to site {}", fromSiteId, toSiteId);
+            
+        } catch (IdUnusedException e) {
+            log.warn("Could not find site when copying permissions: {}", e.getMessage());
+        } catch (Exception e) {
+            log.error("Error copying tool permissions from site {} to site {}: {}", fromSiteId, toSiteId, e.getMessage(), e);
         }
     }
 }
