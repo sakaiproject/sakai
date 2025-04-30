@@ -5,6 +5,7 @@
 	<category name="myworkspace">
 		<tool id = "home" selected="true" />
 		<tool id = "sakai.sitesetup" required = "true" />
+		<tool id = "sakai.schoolsetup" required = "true" />
 		<tool id = "sakai.membership" required="true" />
 		<tool id = "sakai.preferences" required="true" />
 

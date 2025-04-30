@@ -35,6 +35,14 @@
         <dispatcher>INCLUDE</dispatcher>
     </filter-mapping>
 
+     <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.schoolsetup</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
     <filter-mapping>
         <filter-name>sakai.request</filter-name>
         <servlet-name>sakai.siteinfo</servlet-name>
@@ -119,6 +127,20 @@
     <servlet>
         <servlet-name>
            sakai.sitesetup
+        </servlet-name>
+        <servlet-class>
+            org.sakaiproject.site.tool.SiteAction
+        </servlet-class>
+        <init-param>
+            <param-name>template</param-name>
+            <param-value>sitesetup/chef_site</param-value>            
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+     </servlet>
+
+     <servlet>
+        <servlet-name>
+           sakai.schoolsetup
         </servlet-name>
         <servlet-class>
             org.sakaiproject.site.tool.SiteAction
