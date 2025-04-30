@@ -199,12 +199,14 @@ $(document).ready(function() {
                 <f:subview id="dates" rendered="#{ForumTool.showAvailabilityDates == 'true' && forum.availabilityRestricted == 'true'}">
                     <h:outputLink id="forum_extended_show2" value="javascript:void(0)" title="#{msgs.cdfm_read_dates}"  styleClass="show" style="#{'display:block'}"
                             onclick="toggleDates($(this).next('.hide'), $('div.toggle2:first', $(this).parents('table.forumHeader')), $(this));">
-                        <h:graphicImage url="/images/collapse.gif" /><h:outputText value="#{msgs.cdfm_read_dates}" />
+                        <span class="bi bi-dash-square" aria-hidden="true"></span>
+                        <h:outputText value="#{msgs.cdfm_read_dates}" />
                         
                     </h:outputLink>
                     <h:outputLink id="forum_extended_hide2" value="javascript:void(0)" title="#{msgs.cdfm_hide_dates}" styleClass="hide" style="#{'display:none'}"
                             onclick="toggleDates($(this).prev('.show'), $('div.toggle2:first', $(this).parents('table.forumHeader')), $(this));">
-                        <h:graphicImage url="/images/expand.gif"/> <h:outputText value="#{msgs.cdfm_hide_dates}" />
+                        <span class="bi bi-plus-square" aria-hidden="true"></span>
+                        <h:outputText value="#{msgs.cdfm_hide_dates}" />
                     </h:outputLink>
                     <f:subview id="showDate">
                         <f:verbatim><div class="toggle2" style="display:none;"></f:verbatim>
@@ -235,8 +237,8 @@ $(document).ready(function() {
                     <h:panelGrid columns="1" width="100%" styleClass="specialLink topicBloc" cellpadding="0" cellspacing="0">
                 <h:panelGroup>
                             
-                            <h:graphicImage url="/images/folder.gif" alt="Topic Folder" rendered="#{topic.unreadNoMessages == 0 }" styleClass="topicIcon" style="margin-right:.5em"/>
-                            <h:graphicImage url="/images/folder_unread.gif" alt="Topic Folder" rendered="#{topic.unreadNoMessages > 0 }" styleClass="topicIcon" style="margin-right:.5em"/>
+                            <h:outputText styleClass="bi bi-folder topicIcon" style="margin-right:.5em" rendered="#{topic.unreadNoMessages == 0}" escape="false" />
+                            <h:outputText styleClass="bi bi-folder-fill topicIcon" style="margin-right:.5em" rendered="#{topic.unreadNoMessages > 0}" escape="false" />
                             <h:outputText styleClass="highlight title draftTopic" id="draft" value="#{msgs.cdfm_draft}" rendered="#{topic.topic.draft == 'true'}"/>
                             <h:outputText id="draft_space" value="  - " rendered="#{topic.topic.draft == 'true'}" styleClass="title"/>
                             <h:panelGroup rendered="#{topic.availability == 'false'}" style="margin-right:.5em" title="#{msgs.topic_restricted_message}">
@@ -331,7 +333,7 @@ $(document).ready(function() {
                             <h:panelGroup>
                                 <h:panelGroup layout="block" id="openLinkBlock" styleClass="toggleParent openLinkBlock">
                                     <a href="#" id="showMessage" class="toggle show">
-                                        <h:graphicImage url="/images/collapse.gif" alt=""/>
+                                        <span class="bi bi-dash-square" aria-hidden="true"></span>
                                         <h:outputText value=" #{msgs.cdfm_read_full_description}" />
                                         <h:outputText value=" #{msgs.cdfm_and}" rendered="#{!empty topic.attachList}"/>
                                         <h:outputText value=" #{msgs.cdfm_attach}" rendered="#{!empty topic.attachList}"/>
@@ -339,7 +341,7 @@ $(document).ready(function() {
                                 </h:panelGroup>
                                 <h:panelGroup layout="block" id="hideLinkBlock" styleClass="toggleParent hideLinkBlock display-none">
                                     <a href="#" id="hideMessage" class="toggle show">
-                                        <h:graphicImage url="/images/expand.gif" alt="" />
+                                        <span class="bi bi-plus-square" aria-hidden="true"></span>
                                         <h:outputText value=" #{msgs.cdfm_hide_full_description}"/>
                                         <h:outputText value=" #{msgs.cdfm_and}" rendered="#{!empty topic.attachList}" />
                                         <h:outputText value=" #{msgs.cdfm_attach}" rendered="#{!empty topic.attachList}"/>
@@ -353,7 +355,7 @@ $(document).ready(function() {
                                 <%--//desNote:attach list --%>
                                 <h:dataTable  styleClass="attachListTable" value="#{topic.attachList}" var="eachAttach" rendered="#{!empty topic.attachList}" cellpadding="3" cellspacing="0" columnClasses="attach,bogus" border="0">
                                     <h:column>
-                                        <h:graphicImage url="/images/attachment.gif" alt=""/>
+                                        <span class="bi bi-paperclip" aria-hidden="true"></span>
                                         <h:outputText value=" " />
                                             <h:outputLink value="#{eachAttach.url}" target="_blank">
                                                 <h:outputText value="#{eachAttach.attachment.attachmentName}" />
@@ -369,7 +371,7 @@ $(document).ready(function() {
                                 <%--//desNote:attach list --%>
                                 <h:dataTable  styleClass="attachListTable" value="#{topic.attachList}" var="eachAttach" rendered="#{!empty topic.attachList}" cellpadding="3" cellspacing="0" columnClasses="attach,bogus" style="font-size:.9em;width:auto;margin-left:1em" border="0">
                       <h:column>
-                                        <h:graphicImage url="/images/attachment.gif" alt=""/>
+                                        <span class="bi bi-paperclip" aria-hidden="true"></span>
 <%--                        <h:outputLink value="#{eachAttach.attachmentUrl}" target="_blank">
                             <h:outputText value="#{eachAttach.attachmentName}" />
                         </h:outputLink>--%>
@@ -393,11 +395,11 @@ $(document).ready(function() {
             <f:subview id="topic_dates" rendered="#{ForumTool.showAvailabilityDates == 'true' && topic.availabilityRestricted == 'true'}">
                 <h:outputLink id="forum_extended_show2" value="javascript:void(0)" title="#{msgs.cdfm_read_dates}"  styleClass="show" style="#{'display:block'}"
                         onclick="toggleDates($(this).next('.hide'), $('div.toggle2:first', $(this).parents('tr:first')), $(this));">
-                    <h:graphicImage url="/images/collapse.gif" /><h:outputText value="#{msgs.cdfm_read_dates}" />
+                    <span class="bi bi-dash-square" aria-hidden="true"></span><h:outputText value="#{msgs.cdfm_read_dates}" />
                 </h:outputLink>
                 <h:outputLink id="forum_extended_hide2" value="javascript:void(0)" title="#{msgs.cdfm_hide_dates}" styleClass="hide" style="#{'display:none'}"
                         onclick="toggleDates($(this).prev('.show'), $('div.toggle2:first', $(this).parents('tr:first')), $(this));">
-                    <h:graphicImage url="/images/expand.gif"/> <h:outputText value="#{msgs.cdfm_hide_dates}" />
+                    <span class="bi bi-plus-square" aria-hidden="true"></span> <h:outputText value="#{msgs.cdfm_hide_dates}" />
                 </h:outputLink>
                 <f:subview id="showTopicDate">
                     <f:verbatim><div class="toggle2" style="display:none;"></f:verbatim>

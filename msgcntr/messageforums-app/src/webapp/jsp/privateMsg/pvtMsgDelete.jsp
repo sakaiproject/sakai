@@ -39,9 +39,9 @@
 		  </h:column>
 		  <h:column>
 				<f:facet name="header">
-					<h:graphicImage value="/images/attachment.gif" alt="#{msgs.msg_has_attach}" />								
+					<span class="bi bi-paperclip" aria-label="#{msgs.msg_has_attach}" aria-hidden="true"></span>
 				</f:facet>
-				<h:graphicImage value="/images/attachment.gif" rendered="#{delItems.msg.hasAttachments}" alt="#{msgs.msg_has_attach}" />			 
+				<h:outputText value="" styleClass="bi bi-paperclip" escape="false" rendered="#{delItems.msg.hasAttachments}" />			 
 			</h:column>
 		  <h:column>
 		    <f:facet name="header">
