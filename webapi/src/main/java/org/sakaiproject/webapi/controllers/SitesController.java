@@ -17,7 +17,9 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
+import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.messaging.api.UserMessagingService;
 import org.sakaiproject.messaging.api.model.UserNotification;
 import org.sakaiproject.site.api.Site;
@@ -47,6 +49,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -289,73 +292,40 @@ public class SitesController extends AbstractSakaiApiController {
             "AND ((CREATEDON > ? AND CREATEDON <= ?) OR (MODIFIEDON > ? AND MODIFIEDON <= ?)) " +
             "LIMIT ? OFFSET ?";
 
+        Object[] baseParams = new Object[] {
+            java.sql.Timestamp.valueOf(from),
+            java.sql.Timestamp.valueOf(until),
+            java.sql.Timestamp.valueOf(from),
+            java.sql.Timestamp.valueOf(until)
+        };
+
+        Object[] paginatedParams = Arrays.copyOf(baseParams, baseParams.length + 2);
+        paginatedParams[baseParams.length] = size;
+        paginatedParams[baseParams.length + 1] = page * size;
+
+        List<SiteScheduledRestBean> siteScheduledList = sqlService.dbRead(query, paginatedParams, new SqlReader<SiteScheduledRestBean>(){
+            public SiteScheduledRestBean readSqlResultRecord(ResultSet result) {
+                try {
+                    String siteId = result.getString("SITE_ID");
+                    String title = result.getString("TITLE");
+                    String createdOn = result.getString("CREATEDON");
+                    String modifiedOn = result.getString("MODIFIEDON");
+                    String softlyDeletedDate = result.getString("SOFTLY_DELETED_DATE");
+
+                    return new SiteScheduledRestBean(siteId, title, createdOn, modifiedOn, softlyDeletedDate);
+                } catch (SQLException sqle) {
+                    log.error("Failed to read post from DB.", sqle);
+                    return null;
+                }
+            }
+        });
+
         // Count query to retrieve the total number of elements matching the date range
         String countQuery = "SELECT COUNT(*) FROM SAKAI_SITE " +
             "WHERE TYPE in ('project', 'course') " +
             "AND ((CREATEDON > ? AND CREATEDON <= ?) OR (MODIFIEDON > ? AND MODIFIEDON <= ?))";
 
-        List<SiteScheduledRestBean> siteScheduledList = new ArrayList<>();
-        Integer totalElements = 0;
-
-        Connection conn = null;
-        PreparedStatement ps = null;
-        PreparedStatement countPs = null;
-        ResultSet rs = null;
-        ResultSet countRs = null;
-
-        try {
-            conn = sqlService.borrowConnection();
-            conn.setReadOnly(true);
-
-            // Set date parameters and retrieve total elements
-            countPs = conn.prepareStatement(countQuery);
-            countPs.setTimestamp(1, java.sql.Timestamp.valueOf(from));
-            countPs.setTimestamp(2, java.sql.Timestamp.valueOf(until));
-            countPs.setTimestamp(3, java.sql.Timestamp.valueOf(from));
-            countPs.setTimestamp(4, java.sql.Timestamp.valueOf(until));
-
-            countRs = countPs.executeQuery();
-            if (countRs.next()) {
-                totalElements = countRs.getInt(1);
-            }
-
-            // Set date and pagination parameters for the main query to retrieve site data
-            ps = conn.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-            ps.setTimestamp(1, java.sql.Timestamp.valueOf(from));
-            ps.setTimestamp(2, java.sql.Timestamp.valueOf(until));
-            ps.setTimestamp(3, java.sql.Timestamp.valueOf(from));
-            ps.setTimestamp(4, java.sql.Timestamp.valueOf(until));
-            ps.setInt(5, size);
-            ps.setInt(6, page * size);
-
-            rs = ps.executeQuery();
-
-            while (rs.next()) {
-                String siteId = rs.getString("SITE_ID");
-                String title = rs.getString("TITLE");
-                String createdOn = rs.getString("CREATEDON");
-                String modifiedOn = rs.getString("MODIFIEDON");
-                String softlyDeletedDate = rs.getString("SOFTLY_DELETED_DATE");
-
-                siteScheduledList.add(new SiteScheduledRestBean(siteId, title, createdOn, modifiedOn, softlyDeletedDate));
-            }
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        } finally {
-            try {
-                if (rs != null) rs.close();
-                if (ps != null) ps.close();
-                if (countRs != null) countRs.close();
-                if (countPs != null) countPs.close();
-            } catch (SQLException e) {
-                log.error("SQLException in finally block: " + e);
-            }
-
-            if (conn != null) {
-                sqlService.returnConnection(conn);
-            }
-        }
+        Integer totalElements = getTotalElements(countQuery, baseParams);
 
         PaginatedResponse<SiteScheduledRestBean> response = new PaginatedResponse<>(
             siteScheduledList,
@@ -364,6 +334,21 @@ public class SitesController extends AbstractSakaiApiController {
         );
 
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    public Integer getTotalElements(String query, Object[] params) {
+        List<Integer> listInteger = sqlService.dbRead(query, params, new SqlReader<Integer>() {
+            public Integer readSqlResultRecord(ResultSet result) {
+                try {
+                    return result.getInt(1);
+                } catch (SQLException sqle) {
+                    log.error("Failed to read count from DB.", sqle);
+                    return 0;
+                }
+            }
+        });
+
+        return (listInteger != null && !listInteger.isEmpty()) ? listInteger.get(0) : 0;
     }
 
 	@GetMapping(value = "/users/{userId}/sites", produces = MediaType.APPLICATION_JSON_VALUE)
