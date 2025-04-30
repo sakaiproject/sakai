@@ -28,7 +28,7 @@
         <span class="sr-only">$tlang.getString("gen.has.att")</span>
     #end
     #if ($assignment.getContentReview())
-        <span class="bi bi-trophy" aria-hidden="true" title="$reviewIndicator"></span> <span class="sr-only">$reviewIndicator</span>
+        <span class="bi bi-award" aria-hidden="true" title="$reviewIndicator"></span> <span class="sr-only">$reviewIndicator</span>
     #end
 #end
 

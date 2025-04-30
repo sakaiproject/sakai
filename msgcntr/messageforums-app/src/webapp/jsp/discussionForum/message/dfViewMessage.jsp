@@ -180,7 +180,7 @@
 					
 					<h:commandLink styleClass="button"  title="#{msgs.cdfm_button_bar_grade}" action="#{ForumTool.processDfMsgGrd}" 
 							rendered="#{ForumTool.selectedTopic.isPostToGradebook && ForumTool.gradebookExist}">
-						<span class="bi bi-trophy" aria-hidden="true" title="#{msgs.cdfm_button_bar_grade}"></span>
+						<span class="bi bi-award" aria-hidden="true" title="#{msgs.cdfm_button_bar_grade}"></span>
 						<h:outputText value=" #{msgs.cdfm_button_bar_grade}" />
 					</h:commandLink>
 					<%-- Email --%>
