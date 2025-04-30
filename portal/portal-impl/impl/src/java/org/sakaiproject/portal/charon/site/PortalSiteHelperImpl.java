@@ -509,7 +509,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
                 }
                 
                 // Create a site map with only these specific pages
-                Map<String, Object> siteMap = getSiteMap(gatewaySite, currentSiteId, null, false, false, false);
+                Map<String, Object> siteMap = getSiteMap(gatewaySite, currentSiteId, null, false, false, false,null);
                 List<Map<String, Object>> pagesMaps = new ArrayList<>();
                 
     
@@ -530,7 +530,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
                     contextSites.put("gatewaySite", siteMap);
                 } else {
                     // Fallback to original behavior if pages not found
-                    contextSites.put("gatewaySite", getSiteMap(gatewaySite, currentSiteId, null, false, false, true));
+                    contextSites.put("gatewaySite", getSiteMap(gatewaySite, currentSiteId, null, false, false, true, null));
                 }
             }
         }
