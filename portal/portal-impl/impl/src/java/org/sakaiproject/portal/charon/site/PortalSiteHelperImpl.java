@@ -298,7 +298,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
         return Optional.ofNullable(props.getPropertyList("exclude")).orElseGet(Collections::emptyList);
 	}
 
-	private Map<String, Object> getSiteMap(Site site, String currentSiteId, String userId, boolean pinned, boolean hidden, boolean includePages) {
+	private Map<String, Object> getSiteMap(Site site, String currentSiteId, String userId, boolean pinned, boolean hidden, boolean includePages, List<Map<String, Object>> pinnedSites) {
 
 		Map<String, Object> siteMap = new HashMap<>();
 		siteMap.put("id", site.getId());
@@ -314,7 +314,18 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
         siteMap.put("currentSiteId", currentSiteId);
 		if (includePages) {
 			List<SitePage> pageList = getPermittedPagesInOrder(site);
-			siteMap.put("pages", getPageMaps(pageList, site));
+			List<Map<String, Object>> pageMaps = getPageMaps(pageList, site);
+			
+			// If we have pinned sites, add them to the pages list
+			if (pinnedSites != null && !pinnedSites.isEmpty()) {
+				// Add a special marker to indicate these are pinned sites
+				for (Map<String, Object> pinnedSite : pinnedSites) {
+					pinnedSite.put("isPinnedSite", true);
+				}
+				pageMaps.addAll(pinnedSites);
+			}
+			
+			siteMap.put("pages", pageMaps);
 		}
 		return siteMap;
 	}
@@ -322,7 +333,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	private List<Map<String, Object>> getSiteMaps(Collection<Site> sites, String currentSiteId, String userId, boolean pinned, boolean hidden, boolean includePages) {
 
 		return sites.stream()
-				.map(site -> getSiteMap(site, currentSiteId, userId, pinned, hidden, includePages))
+				.map(site -> getSiteMap(site, currentSiteId, userId, pinned, hidden, includePages, null))
 				.collect(Collectors.toList());
 	}
 
@@ -403,8 +414,6 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		if (loggedIn) {
             // Put Home site in context
 			String userId = sessionManager.getCurrentSessionUserId();
-			contextSites.put("homeSite", getSiteMap(getSite(siteService.getUserSiteId(userId)), currentSiteId, userId,false, false, true));
-
 			List<String> excludedSiteIds = getExcludedSiteIds(userId);
 			// Get pinned sites, excluded sites never appear in the pinned list including current site
             Collection<String> pinnedSiteIds = portalService.getPinnedSites(userId);
@@ -414,7 +423,10 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 					.filter(Objects::nonNull)
 					.collect(Collectors.toList());
             List<Map<String, Object>> pinnedSiteMaps = getSiteMaps(pinnedSites, currentSiteId, userId,true, false, true);
-            contextSites.put("pinnedSites", pinnedSiteMaps);
+            
+			contextSites.put("homeSite", getSiteMap(getSite(siteService.getUserSiteId(userId)), currentSiteId, userId,false, false, true,pinnedSiteMaps));
+
+			contextSites.put("pinnedSites", pinnedSiteMaps);
 
 			// Get most recent sites
 			Collection<String> recentSiteIds = portalService.getRecentSites(userId);
@@ -441,7 +453,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 			// If the current site is excluded it should appear in recent as hidden
 			if (excludedSiteIds.contains(currentSiteId)) {
-				recentSitesMaps.add(getSiteMap(getSite(currentSiteId), currentSiteId, userId, false, true, true));
+				recentSitesMaps.add(getSiteMap(getSite(currentSiteId), currentSiteId, userId, false, true, true, null));
 			}
             contextSites.put("recentSites", recentSitesMaps);
 
@@ -455,7 +467,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			//Get gateway site
 			Site gatewaySite = getSite(serverConfigurationService.getGatewaySiteId());
 			if (!gatewaySite.isEmpty()) {
-				contextSites.put("gatewaySite", getSiteMap(gatewaySite, currentSiteId, null,false, false, true));
+				contextSites.put("gatewaySite", getSiteMap(gatewaySite, currentSiteId, null,false, false, true, null));
 			}
 		}
 		return contextSites;

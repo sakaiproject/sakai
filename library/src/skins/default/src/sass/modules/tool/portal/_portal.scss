@@ -56,7 +56,7 @@
 }
 .portal-header {
   grid-area: header;
-  background-color: var(--top-header-background);
+  background-color: #22375B;
 }
 
 .portal-header-breadcrumb-separator, .portal-header-breadcrumb-item > a {
@@ -118,7 +118,7 @@
 // Responsive header for mobile
 @media (max-width: 767px) {
   .portal-header {
-    background-color: rgba(var(--bs-primary-rgb), 1.0) !important;
+    background-color: #14213D !important;
     justify-content: space-between !important;
   }
 }
@@ -463,13 +463,13 @@
 
   .sakai-sitesAndToolsNav {
     padding-bottom: 96px;
-    overflow-y: scroll;
+    overflow-y: auto;
     position: sticky;
     top: 0;
   }
 
   .btn-nav {
-    color: var(--site-nav-btn-color);
+    color: "white";
     &:hover,
     &:focus {
       outline: none;
@@ -513,14 +513,14 @@
       color: var(--sakai-text-color-dimmed);
     }
     .site-list-item-collapse {
-      background-color: var(--sakai-background-color-3);
+      background-color: #14213D;
     }
   }
 
   &.portal-nav-sidebar-desktop {
-    background-color: var(--sakai-background-color-3);
+    background-color: #14213D;
     .site-list-item-collapse {
-      background-color: var(--sakai-background-color-2);
+      background-color: #14213D;
     }
   }
 
