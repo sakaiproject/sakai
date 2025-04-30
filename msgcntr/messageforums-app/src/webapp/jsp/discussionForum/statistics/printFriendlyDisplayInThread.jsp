@@ -13,7 +13,7 @@
 		<ul class="navIntraTool actionToolBar">
 			<li class="firstToolBarItem">
 				<span>
-					<span class="bi bi-printer-fill" aria-hidden="true" title="#{msgs.print_friendly}"></span>
+					<span class="bi bi-printer-fill" aria-hidden="true" aria-label="#{msgs.print_friendly}"></span>
 					<a id="printIcon" href="javascript:" onClick="javascript:window.print();">
 						<h:outputText value="#{msgs.send_to_printer}" />
 					</a>

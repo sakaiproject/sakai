@@ -156,17 +156,15 @@
 		<h:panelGroup rendered="#{mfSynopticBean.messageForumsPageInSite || mfSynopticBean.forumsPageInSite}">
 			<h:outputText value="#{msgs.syn_no_messages}" rendered="#{mfSynopticBean.siteInfo.unreadForumsAmt == 0}" />
 						<h:panelGroup>
-							<h:outputText value="#{mfSynopticBean.siteInfo.unreadForumsAmt}" rendered="#{mfSynopticBean.siteInfo.unreadForumsAmt > 0}"   style="width:3.5em;display:block;float:left"/>
-							<h:panelGroup   style="display:block;float:left">
-								<span class="bi bi-chat-text" aria-hidden="true" title="#{msgs.syn_goto_forums}" rendered="#{mfSynopticBean.siteInfo.unreadForumsAmt > 0}"></span>
+							<h:outputText value="#{mfSynopticBean.siteInfo.unreadForumsAmt}" rendered="#{mfSynopticBean.siteInfo.unreadForumsAmt > 0}" style="width:3.5em;display:block;float:left"/>
+							<h:panelGroup style="display:block;float:left">
+								<h:panelGroup rendered="#{mfSynopticBean.siteInfo.unreadForumsAmt > 0}">
+									<span class="bi bi-chat-text" aria-hidden="true" aria-label="#{msgs.syn_goto_forums}"></span>
+								</h:panelGroup>
 								<h:outputText value="#{msgs.syn_tool_link_begin}#{mfSynopticBean.siteInfo.mcPageURL}';\">Read</a>" 
 							escape="false" title="#{msgs.syn_goto_forums}" rendered="#{mfSynopticBean.siteInfo.unreadForumsAmt > 0}"/>
-									<%--
-									<h:graphicImage url="/messageforums-tool/images/12-em-check.png" rendered="#{mfSynopticBean.siteInfo.unreadForumsAmt > 0}" />
-									--%>
-		</h:panelGroup>
 						</h:panelGroup>
-					</h:panelGroup>
+		</h:panelGroup>
 	</h:panelGrid>
 
     <!-- This is the div for the popup definition. It is not displayed until the element is moused over -->
