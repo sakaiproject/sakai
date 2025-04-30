@@ -309,11 +309,17 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 		Map<String, Object> siteMap = new HashMap<>();
 		siteMap.put("id", site.getId());
-		siteMap.put("title", 
-			site.getId().equals("~admin") ? rb.getString("sit_mywor_admin") : 
-			site.getId().equals("!admin") ? rb.getString("sit_admin") : 
-			userId != null && site.getId().equals(siteService.getUserSiteId(userId)) ? rb.getString("sit_mywor") : 
-			site.getTitle());
+		String title;
+		if (site.getId().equals("~admin")) {
+			title = rb.getString("sit_mywor_admin");
+		} else if (site.getId().equals("!admin")) {
+			title = rb.getString("sit_admin");
+		} else if (userId != null && site.getId().equals(siteService.getUserSiteId(userId))) {
+			title = rb.getString("sit_mywor");
+		} else {
+			title = site.getTitle();
+		}
+		siteMap.put("title", title);
 		siteMap.put("url", site.getUrl());
 		siteMap.put("type", site.getType());
 		siteMap.put("description", site.getDescription());
@@ -647,7 +653,16 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		&& (s.getId().equals(myWorkspaceSiteId) || effectiveSite
 		.equals(myWorkspaceSiteId))));
 
-		String siteTitleRaw = getUserSpecificSiteTitle(s, false, false, siteProviders);
+		String siteTitleRaw;
+		if (s.getId().equals("~admin")) {
+			siteTitleRaw = rb.getString("sit_mywor_admin");
+		} else if (s.getId().equals("!admin")) {
+			siteTitleRaw = rb.getString("sit_admin");
+		} else if (myWorkspaceSiteId != null && (s.getId().equals(myWorkspaceSiteId) || effectiveSite.equals(myWorkspaceSiteId))) {
+			siteTitleRaw = rb.getString("sit_mywor");
+		} else {
+			siteTitleRaw = getUserSpecificSiteTitle(s, false, false, siteProviders);
+		}
 		String siteTitle = formattedText.escapeHtml(siteTitleRaw);
 		String siteTitleTruncated = formattedText.escapeHtml(formattedText.makeShortenedText(siteTitleRaw, null, null, null));
 		m.put("siteTitle", siteTitle);
