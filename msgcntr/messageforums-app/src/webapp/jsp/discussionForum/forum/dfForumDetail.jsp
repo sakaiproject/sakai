@@ -77,7 +77,7 @@
 				<h:panelGroup>
 					<h:panelGroup layout="block" id="openLinkBlock" styleClass="toggleParent openLinkBlock">
 						<a href="#" id="showMessage" class="toggle show">
-							<span class="bi bi-dash-square" aria-hidden="true"></span>
+							<span class="bi bi-plus-square" aria-hidden="true"></span>
 							<h:outputText value=" #{msgs.cdfm_read_full_description}" />
 							<h:outputText value=" #{msgs.cdfm_and}" rendered="#{!empty ForumTool.selectedForum.attachList}"/>
 							<h:outputText value=" #{msgs.cdfm_attach}" rendered="#{!empty ForumTool.selectedForum.attachList}"/>
@@ -85,7 +85,7 @@
 					</h:panelGroup>
 					<h:panelGroup layout="block" id="hideLinkBlock" styleClass="toggleParent hideLinkBlock display-none">
 						<a href="#" id="hideMessage" class="toggle show">
-							<span class="bi bi-plus-square" aria-hidden="true"></span>
+							<span class="bi bi-dash-square" aria-hidden="true"></span>
 							<h:outputText value=" #{msgs.cdfm_hide_full_description}"/>
 							<h:outputText value=" #{msgs.cdfm_and}" rendered="#{!empty ForumTool.selectedForum.attachList}" />
 							<h:outputText value=" #{msgs.cdfm_attach}" rendered="#{!empty ForumTool.selectedForum.attachList}"/>
@@ -198,7 +198,7 @@
 						<h:panelGroup>
 							<h:panelGroup layout="block" id="openLinkBlock" styleClass="toggleParent openLinkBlock">
 								<a href="#" id="showMessage" class="toggle show">
-									<span class="bi bi-dash-square" aria-hidden="true"></span>
+									<span class="bi bi-plus-square" aria-hidden="true"></span>
 									<h:outputText value=" #{msgs.cdfm_read_full_description}"/>
 									<h:outputText value=" #{msgs.cdfm_and}" rendered="#{!empty topic.attachList}" />
 									<h:outputText value=" #{msgs.cdfm_attach}" rendered="#{!empty topic.attachList}"/>
@@ -206,7 +206,7 @@
 							</h:panelGroup>
 							<h:panelGroup layout="block" id="hideLinkBlock" styleClass="toggleParent hideLinkBlock display-none">
 								<a href="#" id="hideMessage" class="toggle show">
-									<span class="bi bi-plus-square" aria-hidden="true"></span>
+									<span class="bi bi-dash-square" aria-hidden="true"></span>
 									<h:outputText value=" #{msgs.cdfm_hide_full_description}" />
 									<h:outputText value=" #{msgs.cdfm_and}" rendered="#{!empty topic.attachList}"/>
 									<h:outputText value=" #{msgs.cdfm_attach}" rendered="#{!empty topic.attachList}"/>

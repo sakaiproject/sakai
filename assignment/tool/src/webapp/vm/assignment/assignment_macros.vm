@@ -21,14 +21,14 @@
 
 #macro( assignmentIcons $assignment )
     #if ($!assignment.IsGroup)
-        <span class="bi bi-people" aria-hidden="true" title="$tlang.getString('gen.groupassignment')"></span>
+        <span class="bi bi-people" aria-hidden="true" aria-label="$tlang.getString('gen.groupassignment')"></span>
     #end
     #if (!$assignment.getAttachments().isEmpty())
         <span class="bi bi-paperclip" aria-hidden="true"></span>
         <span class="sr-only">$tlang.getString("gen.has.att")</span>
     #end
     #if ($assignment.getContentReview())
-        <span class="bi bi-award" aria-hidden="true" title="$reviewIndicator"></span> <span class="sr-only">$reviewIndicator</span>
+        <span class="bi bi-award" aria-hidden="true"></span> <span class="sr-only">$reviewIndicator</span>
     #end
 #end
 

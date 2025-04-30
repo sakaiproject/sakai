@@ -87,14 +87,14 @@ $(document).ready(function() {
                 <h:outputText styleClass="highlight title draftForum" id="draft" value="#{msgs.cdfm_draft}" rendered="#{forum.forum.draft == 'true'}"/>
                 <h:outputText id="draft_space" value=" -  " rendered="#{forum.forum.draft == 'true'}" styleClass="title"/>
                 <%-- availability marker --%>
-                <h:panelGroup rendered="#{forum.availability == 'false'}" style="margin-right:.5em" title="#{msgs.forum_restricted_message}">
+                <h:panelGroup rendered="#{forum.availability == 'false'}" style="margin-right:.5em">
                     <span class="bi bi-calendar-x" aria-hidden="true"></span>
-                    <span class="sr-only">#{msgs.forum_restricted_message}</span>
+                    <span class="sr-only"><h:outputText value="#{msgs.forum_restricted_message}" escape="false" /></span>
                 </h:panelGroup>
                 <%-- locked marker --%>
-                <h:panelGroup rendered="#{forum.locked == 'true'}" style="margin-right:.5em" title="#{msgs.cdfm_forum_locked}">
+                <h:panelGroup rendered="#{forum.locked == 'true'}" style="margin-right:.5em">
                     <span class="bi bi-lock-fill" aria-hidden="true"></span>
-                    <span class="sr-only">#{msgs.cdfm_forum_locked}</span>
+                    <span class="sr-only"><h:outputText value="#{msgs.cdfm_forum_locked}" escape="false" /></span>
                 </h:panelGroup>
                 <%-- Rubrics marker --%>
                 <h:panelGroup rendered="#{forum.hasRubric == 'true'}">
@@ -163,7 +163,7 @@ $(document).ready(function() {
                 <h:panelGroup>
                     <h:panelGroup layout="block" id="openLinkBlock" styleClass="toggleParent openLinkBlock">
                         <a href="#" id="showMessage" class="toggle show">
-                            <h:graphicImage url="/images/collapse.gif" alt=""/>
+                            <span class="bi bi-plus-square" aria-hidden="true"></span>
                             <h:outputText value=" #{msgs.cdfm_read_full_description}" />
                             <h:outputText value=" #{msgs.cdfm_and}" rendered="#{!empty forum.attachList}"/>
                             <h:outputText value=" #{msgs.cdfm_attach}" rendered="#{!empty forum.attachList}"/>
@@ -171,7 +171,7 @@ $(document).ready(function() {
                     </h:panelGroup>
                     <h:panelGroup layout="block" id="hideLinkBlock" styleClass="toggleParent hideLinkBlock display-none">
                         <a href="#" id="hideMessage" class="toggle show">
-                            <h:graphicImage url="/images/expand.gif" alt="" />
+                            <span class="bi bi-dash-square" aria-hidden="true"></span>
                             <h:outputText value=" #{msgs.cdfm_hide_full_description}"/>
                             <h:outputText value=" #{msgs.cdfm_and}" rendered="#{!empty forum.attachList}" />
                             <h:outputText value=" #{msgs.cdfm_attach}" rendered="#{!empty forum.attachList}"/>
@@ -199,13 +199,13 @@ $(document).ready(function() {
                 <f:subview id="dates" rendered="#{ForumTool.showAvailabilityDates == 'true' && forum.availabilityRestricted == 'true'}">
                     <h:outputLink id="forum_extended_show2" value="javascript:void(0)" title="#{msgs.cdfm_read_dates}"  styleClass="show" style="#{'display:block'}"
                             onclick="toggleDates($(this).next('.hide'), $('div.toggle2:first', $(this).parents('table.forumHeader')), $(this));">
-                        <span class="bi bi-dash-square" aria-hidden="true"></span>
+                        <span class="bi bi-plus-square" aria-hidden="true"></span>
                         <h:outputText value="#{msgs.cdfm_read_dates}" />
                         
                     </h:outputLink>
                     <h:outputLink id="forum_extended_hide2" value="javascript:void(0)" title="#{msgs.cdfm_hide_dates}" styleClass="hide" style="#{'display:none'}"
                             onclick="toggleDates($(this).prev('.show'), $('div.toggle2:first', $(this).parents('table.forumHeader')), $(this));">
-                        <span class="bi bi-plus-square" aria-hidden="true"></span>
+                        <span class="bi bi-dash-square" aria-hidden="true"></span>
                         <h:outputText value="#{msgs.cdfm_hide_dates}" />
                     </h:outputLink>
                     <f:subview id="showDate">
@@ -241,13 +241,13 @@ $(document).ready(function() {
                             <h:outputText styleClass="bi bi-folder-fill topicIcon" style="margin-right:.5em" rendered="#{topic.unreadNoMessages > 0}" escape="false" />
                             <h:outputText styleClass="highlight title draftTopic" id="draft" value="#{msgs.cdfm_draft}" rendered="#{topic.topic.draft == 'true'}"/>
                             <h:outputText id="draft_space" value="  - " rendered="#{topic.topic.draft == 'true'}" styleClass="title"/>
-                            <h:panelGroup rendered="#{topic.availability == 'false'}" style="margin-right:.5em" title="#{msgs.topic_restricted_message}">
+                            <h:panelGroup rendered="#{topic.availability == 'false'}" style="margin-right:.5em">
                                 <span class="bi bi-calendar-x" aria-hidden="true"></span>
-                                <span class="sr-only">#{msgs.topic_restricted_message}</span>
+                                <span class="sr-only"><h:outputText value="#{msgs.topic_restricted_message}" escape="false" /></span>
                             </h:panelGroup>
-                            <h:panelGroup rendered="#{forum.locked == 'true' || topic.locked == 'true'}" style="margin-right:.5em" title="#{msgs.cdfm_forum_locked}">
+                            <h:panelGroup rendered="#{forum.locked == 'true' || topic.locked == 'true'}" style="margin-right:.5em">
                                 <span class="bi bi-lock-fill" aria-hidden="true"></span>
-                                <span class="sr-only">#{msgs.cdfm_forum_locked}</span>
+                                <span class="sr-only"><h:outputText value="#{msgs.cdfm_forum_locked}" escape="false" /></span>
                             </h:panelGroup>
                             <%-- Rubrics marker --%>
                             <h:panelGroup rendered="#{topic.hasRubric == 'true'}">
@@ -333,7 +333,7 @@ $(document).ready(function() {
                             <h:panelGroup>
                                 <h:panelGroup layout="block" id="openLinkBlock" styleClass="toggleParent openLinkBlock">
                                     <a href="#" id="showMessage" class="toggle show">
-                                        <span class="bi bi-dash-square" aria-hidden="true"></span>
+                                        <span class="bi bi-plus-square" aria-hidden="true"></span>
                                         <h:outputText value=" #{msgs.cdfm_read_full_description}" />
                                         <h:outputText value=" #{msgs.cdfm_and}" rendered="#{!empty topic.attachList}"/>
                                         <h:outputText value=" #{msgs.cdfm_attach}" rendered="#{!empty topic.attachList}"/>
@@ -341,7 +341,7 @@ $(document).ready(function() {
                                 </h:panelGroup>
                                 <h:panelGroup layout="block" id="hideLinkBlock" styleClass="toggleParent hideLinkBlock display-none">
                                     <a href="#" id="hideMessage" class="toggle show">
-                                        <span class="bi bi-plus-square" aria-hidden="true"></span>
+                                        <span class="bi bi-dash-square" aria-hidden="true"></span>
                                         <h:outputText value=" #{msgs.cdfm_hide_full_description}"/>
                                         <h:outputText value=" #{msgs.cdfm_and}" rendered="#{!empty topic.attachList}" />
                                         <h:outputText value=" #{msgs.cdfm_attach}" rendered="#{!empty topic.attachList}"/>
@@ -395,11 +395,11 @@ $(document).ready(function() {
             <f:subview id="topic_dates" rendered="#{ForumTool.showAvailabilityDates == 'true' && topic.availabilityRestricted == 'true'}">
                 <h:outputLink id="forum_extended_show2" value="javascript:void(0)" title="#{msgs.cdfm_read_dates}"  styleClass="show" style="#{'display:block'}"
                         onclick="toggleDates($(this).next('.hide'), $('div.toggle2:first', $(this).parents('tr:first')), $(this));">
-                    <span class="bi bi-dash-square" aria-hidden="true"></span><h:outputText value="#{msgs.cdfm_read_dates}" />
+                    <span class="bi bi-plus-square" aria-hidden="true"></span> <h:outputText value="#{msgs.cdfm_read_dates}" />
                 </h:outputLink>
                 <h:outputLink id="forum_extended_hide2" value="javascript:void(0)" title="#{msgs.cdfm_hide_dates}" styleClass="hide" style="#{'display:none'}"
                         onclick="toggleDates($(this).prev('.show'), $('div.toggle2:first', $(this).parents('tr:first')), $(this));">
-                    <span class="bi bi-plus-square" aria-hidden="true"></span> <h:outputText value="#{msgs.cdfm_hide_dates}" />
+                    <span class="bi bi-dash-square" aria-hidden="true"></span> <h:outputText value="#{msgs.cdfm_hide_dates}" />
                 </h:outputLink>
                 <f:subview id="showTopicDate">
                     <f:verbatim><div class="toggle2" style="display:none;"></f:verbatim>

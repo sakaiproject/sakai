@@ -114,9 +114,12 @@
 			<%-- topic short description and long description --%>
 			<h:panelGroup layout="block" styleClass="topicBloc">
 				<h:panelGroup layout="block" styleClass="textPanel">
-					<h:graphicImage url="/images/silk/date_delete.png" title="#{msgs.topic_restricted_message}" alt="#{msgs.topic_restricted_message}" rendered="#{ForumTool.selectedTopic.availability == 'false'}" style="margin-right:.5em"/>
-					<h:graphicImage url="/images/silk/lock.png" alt="#{msgs.cdfm_forum_locked}" 
-						 rendered="#{ForumTool.selectedTopic.locked =='true'}" style="margin-right:.5em"/>
+					<h:panelGroup rendered="#{ForumTool.selectedTopic.availability == 'false'}">
+						<span class="bi bi-calendar-x" aria-hidden="true" style="margin-right:.5em"></span>
+					</h:panelGroup>
+					<h:panelGroup rendered="#{ForumTool.selectedTopic.locked =='true'}">
+						<span class="bi bi-lock-fill" aria-hidden="true" style="margin-right:.5em"></span>
+					</h:panelGroup>
 					<h:outputText value="#{ForumTool.selectedTopic.topic.shortDescription}" />
 				</h:panelGroup>
 				<%-- link to open and close long desc. --%>

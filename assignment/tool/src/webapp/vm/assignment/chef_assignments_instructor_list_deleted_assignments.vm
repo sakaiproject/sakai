@@ -79,7 +79,7 @@
 												#end
 												$formattedText.escapeHtml($!assignment.title)
 												#if ($assignment.getContentReview())
-													<span class="bi bi-award" aria-hidden="true" title="$reviewIndicator"></span> <span class="sr-only">$reviewIndicator</span>
+													<span class="bi bi-award" aria-hidden="true"></span> <span class="sr-only">$reviewIndicator</span>
 												#end
 												#assignmentIcons($assignment)
 											</strong>
