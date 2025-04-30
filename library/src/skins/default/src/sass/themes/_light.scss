@@ -352,7 +352,7 @@
     /* End Favorites */
 
     //New sidebar colors
-    --site-nav-btn-color: var(--button-text-color);
+    --site-nav-btn-color: #CBD5E1;
     --site-nav-btn-bg: transparent;
     --site-nav-btn-border-color: var(--site-nav-btn-bg);
     --site-nav-btn-hover-color: var(--site-nav-btn-color);
@@ -370,7 +370,7 @@
     --site-nav-btn-current-color: var(--button-text-color);
     --site-nav-btn-current-bg: transparent;
     --site-nav-btn-current-border-color: var(--site-nav-btn-current-bg);
-    --site-nav-btn-current-hover-color: var(--site-nav-btn-current-color);
+    --site-nav-btn-current-hover-color: #0e0e0e;
     --site-nav-btn-current-hover-bg: var(--sakai-brand--lighter-5);
     --site-nav-btn-current-hover-border-color: var(--site-nav-btn-current-hover-bg);
     --site-nav-btn-current-focus-shadow-rgb: 249, 250, 251;
@@ -382,7 +382,7 @@
     --site-nav-btn-current-disabled-bg: var(--site-nav-btn-current-bg);
     --site-nav-btn-current-disabled-border-color: var(--site-nav-btn-current-border-color);
 
-    --site-nav-bg: var(--sakai-background-color-2);
+    --site-nav-bg: #14213D;
     --site-nav-list-item-bg: var(--site-nav-bg);
     --site-nav-list-item-collapse-bg: var(--sakai-background-color-1);
 

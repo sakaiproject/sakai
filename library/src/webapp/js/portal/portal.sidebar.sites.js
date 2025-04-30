@@ -11,7 +11,7 @@ class SitesSidebar {
     const sitesListItems = element.querySelectorAll(".site-list-item");
 
     const pinButtonElements = element.querySelectorAll(".site-opt-pin");
-    pinButtonElements.forEach(buttonEl => new PinButton(buttonEl, { i18n: this._i18n?.pinButtons}));
+    pinButtonElements.forEach(buttonEl => new PinButton(buttonEl, { i18n: this._i18n?.pinButtons }));
 
     element.querySelectorAll(".site-description-button").forEach(buttonEl => new bootstrap.Popover(buttonEl));
 
@@ -23,27 +23,37 @@ class SitesSidebar {
 
       chevron.className = `bi-chevron-${btn.classList.contains("show") ? "down" : "right"}`;
 
-      btn.addEventListener("show.bs.collapse", e => {
+      if (btn.id.includes("home-site")) {
+        btn.classList.add("show");
+        chevron.className = "bi-chevron-down";
 
-        e.stopPropagation();
-        chevron.classList.replace("bi-chevron-right", "bi-chevron-down");
-      });
-      btn.addEventListener("hide.bs.collapse", e => {
+        // Remove collapse functionality for "Home"
+        btn.removeAttribute("data-bs-toggle");
+        btn.removeAttribute("data-bs-target");
+      } else {
 
-        e.stopPropagation();
-        chevron.classList.replace("bi-chevron-down", "bi-chevron-right");
-      });
+        btn.addEventListener("show.bs.collapse", e => {
+
+          e.stopPropagation();
+          chevron.classList.replace("bi-chevron-right", "bi-chevron-down");
+        });
+        btn.addEventListener("hide.bs.collapse", e => {
+
+          e.stopPropagation();
+          chevron.classList.replace("bi-chevron-down", "bi-chevron-right");
+        });
+      }
     });
 
     const update = (siteId, expanded) => {
 
       fetch(`/direct/userPrefs/updateKey/${portal.user.id}/sakai:portal:sitenav?currentExpanded=${expanded}&expandedSite=${siteId}`, { method: "PUT" })
-      .then(r => {
+        .then(r => {
 
-        if (!r.ok) {
-          console.error("Could not set current expanded state.");
-        }
-      });
+          if (!r.ok) {
+            console.error("Could not set current expanded state.");
+          }
+        });
     };
 
     const currentCollapseButton = element.querySelector("li.is-current-site .site-list-item-collapse");
@@ -78,7 +88,7 @@ class SitesSidebar {
       }, { once: true })
     } else {
       //Set desktop view
-      
+
       //Check if we can find an offcanvas instance and dispose it
       bootstrap.Offcanvas.getInstance(this._element)?.dispose();
 
@@ -152,46 +162,46 @@ class SitesSidebar {
           method: "POST",
           body: data,
         })
-        .then(r => {
+          .then(r => {
 
-          if (!r.ok) {
-            throw new Error(`Network error while updating pinned sites at url ${url}`);
-          } else {
-            const currentItem = pinButton.closest(".site-list-item");
-            const clone = currentItem.cloneNode(true);
-
-            if (pinned) {
-              this._updatePinned(clone, "recent", "pinned");
-
-              document.getElementById("sites-no-pinned-label").classList.add("d-none");
-
-              currentItem.remove();
-
+            if (!r.ok) {
+              throw new Error(`Network error while updating pinned sites at url ${url}`);
             } else {
-              this._updatePinned(clone, "pinned", "recent");
+              const currentItem = pinButton.closest(".site-list-item");
+              const clone = currentItem.cloneNode(true);
 
-              currentItem.remove();
+              if (pinned) {
+                this._updatePinned(clone, "recent", "pinned");
 
-              if (!this._pinnedSiteList.children.length) {
-                this._pinnedSiteList.classList.add("d-none");
-                document.getElementById("sites-no-pinned-label").classList.remove("d-none");
+                document.getElementById("sites-no-pinned-label").classList.add("d-none");
+
+                currentItem.remove();
+
+              } else {
+                this._updatePinned(clone, "pinned", "recent");
+
+                currentItem.remove();
+
+                if (!this._pinnedSiteList.children.length) {
+                  this._pinnedSiteList.classList.add("d-none");
+                  document.getElementById("sites-no-pinned-label").classList.remove("d-none");
+                }
+              }
+
+              const siteTitle = pinButton.dataset.siteTitle;
+              document.body.dispatchEvent(new CustomEvent("site-pin-changed", { detail: { siteId, pinned, siteTitle }, bubbles: true }));
+
+              if (!this._recentSiteList.children.length) {
+                this._recentSiteList.parentElement.classList.add("d-none");
+              } else {
+                this._recentSiteList.parentElement.classList.remove("d-none");
               }
             }
-
-            const siteTitle = pinButton.dataset.siteTitle;
-            document.body.dispatchEvent(new CustomEvent("site-pin-changed", { detail: { siteId, pinned, siteTitle }, bubbles: true }));
-
-            if (!this._recentSiteList.children.length) {
-              this._recentSiteList.parentElement.classList.add("d-none");
-            } else {
-              this._recentSiteList.parentElement.classList.remove("d-none");
-            }
-          }
-        })
-        .catch (error => console.error(error));
+          })
+          .catch(error => console.error(error));
       }
     } else {
-        console.error(`Failed to request favorites ${favoritesReq.text}`)
+      console.error(`Failed to request favorites ${favoritesReq.text}`)
     }
 
     pinButton.removeAttribute("disabled");
@@ -235,7 +245,7 @@ class PinButton {
 
   toggleIcon() {
 
-    const buttonClasses =  this._element.classList;
+    const buttonClasses = this._element.classList;
     const pinnedIcon = "si-pin";
     const unPinnedIcon = "si-pin-fill";
     buttonClasses.toggle(pinnedIcon);

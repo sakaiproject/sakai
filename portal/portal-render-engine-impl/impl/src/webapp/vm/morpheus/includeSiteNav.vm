@@ -3,7 +3,9 @@
     ## Remove those special site chars. They don't play well with html attributes.
     #set ($safeSiteId = $site.id.replace("!", "").replace("~", "").replace(".",""))
 
-    #if ($site.isPinned)
+    #if ($type == "home")
+        #set ($isExpanded = "true")
+    #elseif ($site.isPinned)
         #set ($pinTitle = $rloader.sitenav_btn_unpin)
         #set ($pinIconClass = "si si-pin-fill")
     #else
@@ -22,14 +24,14 @@
     #end
 
     <li id="site-list-${type}-item-${safeSiteId}" class="site-list-item py-1 $!{currentSiteClass}" data-type="${type}" data-site="${site.id}">
-        <div class="site-list-item-head d-flex align-items-center pe-2 py-1 w-100 justify-content-between">
+        <div class="site-list-item-head d-flex align-items-center pe-2 py-1 w-100 justify-content-between #if ($type == 'home')d-none#end">
             <div class="site-link-block d-flex align-items-center rounded-end me-1 pe-2">
                 <button class="btn icon-button collapsed me-1"
                         data-site-id="${site.id}"
                         data-bs-toggle="collapse"
                         data-bs-target="#${type}-site-${safeSiteId}-page-list"
                         aria-expanded="${isExpanded}"
-                        title="#if ($isExpanded == "true")$rloader.sitenav_collapse_tools#else$rloader.sitenav_expand_tools#end"
+                        title="#if ($isExpanded == 'true')$rloader.sitenav_collapse_tools#else$rloader.sitenav_expand_tools#end"
                         aria-controls="${type}-site-${safeSiteId}-page-list">
                     <i class="bi bi-chevron-right" aria-hidden="true"></i>
                 </button>
@@ -63,18 +65,105 @@
                 #end
             #end
         </div>
-        <div id="${type}-site-${safeSiteId}-page-list" data-site-id="${site.id}" class="site-list-item-collapse collapse #if ($isExpanded == "true") show #end">
-            <ul class="site-page-list nav flex-column py-1 mb-2">
-            #foreach ( $page in $site.pages )
-                #if ($site.isCurrent)
-                    #set ($pageUrl = $page.resetUrl)
-                #else
-                    #set ($pageUrl = $page.url)
-                #end
-                #pageListItem ($page, $pageUrl, "${page.icon}", 4)
+       <div id="${type}-site-${safeSiteId}-page-list" data-site-id="${site.id}" class="site-list-item-collapse collapse #if ($isExpanded == 'true') show #end">
+    <ul class="site-page-list nav flex-column py-1 mb-2">
+    ## Parent dropdown select box added here at line 70
+    ##if ($site.userType == "Parent")
+        <li class="nav-item parent-select-container py-2 px-4 d-none">
+            <select id="parent-select-${safeSiteId}" class="form-select parent-student-select" style="background-color: #A3E635; border-color: #A3E635;" aria-label="Select student to view">
+                <option selected>Choose a student...</option>
+                <option value="student1">John Smith</option>
+                <option value="student2">Emma Johnson</option>
+                <option value="student3">Michael Brown</option>
+            </select>
+        </li>
+    ##end
+    #if ($site.pages)
+        ## Check if site has pages with type key
+        #set ($hasCoursePages = false)
+        #set ($coursePages = [])
+        #set ($regularPages = [])
+        
+        ## Sort pages into course and regular
+        #foreach ($page in $site.pages)
+            #if ($page.type && $page.type.contains("course"))
+                #set ($hasCoursePages = true)
+                #set ($discard = $coursePages.add($page))
+            #else
+                #set ($discard = $regularPages.add($page))
             #end
-            </ul>
-        </div>
+        #end
+        
+        ## Display regular pages first
+        #foreach ($page in $regularPages)
+            #if ($site.isCurrent)
+                #set ($pageUrl = $page.resetUrl)
+            #else
+                #set ($pageUrl = $page.url)
+            #end
+            #pageListItem ($page, $pageUrl, "${page.icon}", 4)
+        #end
+        
+        ## If we have course pages, create a collapsible section for them
+        #if ($hasCoursePages)
+            <li class="nav-item course-pages-container">
+                <button class="btn btn-nav w-100 ps-4 d-flex text-start align-items-center new-dropdowns" 
+                        data-bs-toggle="collapse" 
+                        data-bs-target="#course-pages-${safeSiteId}" 
+                        aria-expanded="false" 
+                        aria-controls="course-pages-${safeSiteId}">
+                    <div class="d-flex me-auto rounded-end">
+                        <i class="me-1 si si-sakai-preferences" aria-hidden="true"></i>
+                        <span class="me-2">Courses</span>
+                    </div>
+                  <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                </button>
+                <div class="collapse" id="course-pages-${safeSiteId}">
+                    <ul class="nav flex-column">
+                        #foreach ($page in $coursePages)
+                            <li class="nav-item">
+                                 <button class="btn btn-nav w-100 d-flex ps-5 text-start align-items-center new-dropdowns" 
+                        data-bs-toggle="collapse" 
+                        data-bs-target="#course-page-${safeSiteId}-${velocityCount}" 
+                        aria-expanded="false" 
+                        aria-controls="course-page-${safeSiteId}-${velocityCount}">
+                    <div class="d-flex me-auto rounded-end">
+                        <i class="me-1 si si-sakai-preferences" aria-hidden="true"></i>
+                        <span class="me-2 course-page-title">${page.title}</span>
+                    </div>
+                   <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                </button>
+                <div class="collapse" id="course-page-${safeSiteId}-${velocityCount}">
+                                <ul class="nav flex-column">
+                                    #foreach ($page_s in $page.pages)
+                                        #if ($site.isCurrent)
+                                            #set ($pageUrl = $page_s.resetUrl)
+                                        #else
+                                            #set ($pageUrl = $page_s.url)
+                                        #end
+                                        #pageListItem ($page_s, $pageUrl, "${page_s.icon}", 5)
+                                    #end
+                                </ul>
+                                </div>
+                            </li>
+                        #end
+                    </ul>
+                </div>
+            </li>
+        #end
+    #else
+        ## Original code for when site.pages is not available
+        #foreach ($page in $site.pages)
+            #if ($site.isCurrent)
+                #set ($pageUrl = $page.resetUrl)
+            #else
+                #set ($pageUrl = $page.url)
+            #end
+            #pageListItem ($page, $pageUrl, "${page.icon}", 4)
+        #end
+    #end
+    </ul>
+</div>
     </li>
 #end
 
@@ -116,7 +205,7 @@
                     #siteListItem("home", $sidebarSites.homeSite, false)
                 </ul>
             </div>
-            <div class="sites-section pinned-site-section">
+            <div class="sites-section pinned-site-section d-none">
                 <h3 class="sites-section-heading #if (! $showSiteLabels) d-none #end">${rloader.sitenav_title_pinned}</h3>
                 <ul id="pinned-site-list" class="mb-0 #if ($sidebarSites.pinnedSites.empty)d-none#end">
                     #foreach ($site in $sidebarSites.pinnedSites)
@@ -129,7 +218,7 @@
                 <span id="sites-no-pinned-label"></span>
                 #end
             </div>
-            <div class="sites-section #if ($sidebarSites.recentSites.empty)d-none#end">
+            <div class="sites-section d-none #if ($sidebarSites.recentSites.empty)d-none#end">
                 <h3 class="sites-section-heading #if (! $showSiteLabels) d-none #end">${rloader.sitenav_title_recent}</h3>
                 <ul id="recent-site-list" class="mb-0">
                     #foreach ($site in $sidebarSites.recentSites)
@@ -148,25 +237,6 @@
             #end
         #end
     </nav>
-
-    #if (${userIsLoggedIn})
-    <div class="sticky-footer w-100 d-flex justify-content-around">
-        <button id="sakai-view-all-sites"
-                type="button"
-                class="btn btn-transparent py-3"
-                data-bs-toggle="offcanvas"
-                data-bs-target="#select-site-sidebar"
-                aria-controls="select-site-sidebar"
-                title="Open the view all sites sidebar"
-                aria-label="$rloader.sit_allsites"
-                title="$rloader.sit_allsites">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="si si-all-sites" viewBox="0 0 16 16">
-                <path d="M1 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V2zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1V2zM1 7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V7zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1V7zM1 12a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-2zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-2zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-2z"></path>
-            </svg>
-            <span class="ps-1">${rloader.sitenav_link_allsites}</span>
-        </button>
-    </div>
-    #end
 
 </aside>
 
@@ -193,6 +263,17 @@
                 new bootstrap.Popover(el, opts);
             }
         })
+    });
+    document.addEventListener('DOMContentLoaded', () => {
+        // Select all elements containing page titles
+        const pageTitleElements = document.querySelectorAll('.course-page-title');
+
+        pageTitleElements.forEach(element => {
+            const originalText = element.textContent.trim();
+            if (originalText.length > 10) {
+                element.textContent = originalText.substring(0, 10) + '...';
+            }
+        });
     });
 </script>
 <!-- END VM includeSiteNav.vm -->
