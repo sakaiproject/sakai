@@ -110,24 +110,26 @@ div.profile2-profile-content-thumb {
     padding-left: 18px;
 }
 
-.connection-request {
-	background-image: url(/library/image/silk/group_gear.png);
+.connection-request::before {
+	content: "\F615"; /* bi-people-fill */
+	font-family: bootstrap-icons;
+	margin-right: 5px;
 }
 
-.connection-add {
-	background-image: url(/library/image/silk/user_add.png);
-	background-repeat: no-repeat;
+.connection-add::before {
+	content: "\F4FE"; /* bi-person-plus-fill */
+	font-family: bootstrap-icons;
+	margin-right: 5px;
 }
 
-.connection-confirmed {
-	background-image: url(/library/image/silk/group_link.png);
+.connection-confirmed::before {
+	content: "\F517"; /* bi-person-check-fill */
+	font-family: bootstrap-icons;
+	margin-right: 5px;
 }
 
-.connection-self {
-	background-image: url(/library/image/silk/vcard.png);
-}
-
-.profile-image {
-	background-image: url(/library/image/silk/vcard.png);
-	background-repeat: no-repeat;
+.connection-self::before, .profile-image::before {
+	content: "\F4E1"; /* bi-person-badge */
+	font-family: bootstrap-icons;
+	margin-right: 5px;
 }

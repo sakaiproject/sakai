@@ -475,12 +475,22 @@ tr.list-row-even td, tr.list-row-odd td {
 	margin-right: 5px;
 }
 .iconAdd {
-      background: url("/library/image/silk/add.png") no-repeat scroll 0 0 transparent;
+      background: none;
       padding-left: 20px;
 }
+.iconAdd:before {
+      content: "";
+      font-family: bootstrap-icons;
+      margin-right: 5px;
+}
 .iconAttach {
-      background: url("/library/image/silk/attach.png") no-repeat scroll 0 0 transparent;
+      background: none;
       padding-left: 20px;
+}
+.iconAttach:before {
+      content: "";
+      font-family: bootstrap-icons;
+      margin-right: 5px;
 }
 .greyBox {
       background: none repeat-x scroll 50% 50% var(--sakai-background-color-2);

@@ -87,9 +87,15 @@ $(document).ready(function() {
                 <h:outputText styleClass="highlight title draftForum" id="draft" value="#{msgs.cdfm_draft}" rendered="#{forum.forum.draft == 'true'}"/>
                 <h:outputText id="draft_space" value=" -  " rendered="#{forum.forum.draft == 'true'}" styleClass="title"/>
                 <%-- availability marker --%>
-                <h:graphicImage url="/images/silk/date_delete.png" title="#{msgs.forum_restricted_message}" alt="#{msgs.forum_restricted_message}" rendered="#{forum.availability == 'false'}" style="margin-right:.5em"/>
+                <h:panelGroup rendered="#{forum.availability == 'false'}" style="margin-right:.5em" title="#{msgs.forum_restricted_message}">
+                    <span class="bi bi-calendar-x" aria-hidden="true"></span>
+                    <span class="sr-only">#{msgs.forum_restricted_message}</span>
+                </h:panelGroup>
                 <%-- locked marker --%>
-                <h:graphicImage url="/images/silk/lock.png" alt="#{msgs.cdfm_forum_locked}" rendered="#{forum.locked == 'true'}" style="margin-right:.5em"/>
+                <h:panelGroup rendered="#{forum.locked == 'true'}" style="margin-right:.5em" title="#{msgs.cdfm_forum_locked}">
+                    <span class="bi bi-lock-fill" aria-hidden="true"></span>
+                    <span class="sr-only">#{msgs.cdfm_forum_locked}</span>
+                </h:panelGroup>
                 <%-- Rubrics marker --%>
                 <h:panelGroup rendered="#{forum.hasRubric == 'true'}">
                     <sakai-rubric-student-preview-button
@@ -233,8 +239,14 @@ $(document).ready(function() {
                             <h:graphicImage url="/images/folder_unread.gif" alt="Topic Folder" rendered="#{topic.unreadNoMessages > 0 }" styleClass="topicIcon" style="margin-right:.5em"/>
                             <h:outputText styleClass="highlight title draftTopic" id="draft" value="#{msgs.cdfm_draft}" rendered="#{topic.topic.draft == 'true'}"/>
                             <h:outputText id="draft_space" value="  - " rendered="#{topic.topic.draft == 'true'}" styleClass="title"/>
-                            <h:graphicImage url="/images/silk/date_delete.png" title="#{msgs.topic_restricted_message}" alt="#{msgs.topic_restricted_message}" rendered="#{topic.availability == 'false'}" style="margin-right:.5em"/>
-                            <h:graphicImage url="/images/silk/lock.png" alt="#{msgs.cdfm_forum_locked}" rendered="#{forum.locked == 'true' || topic.locked == 'true'}" style="margin-right:.5em"/>
+                            <h:panelGroup rendered="#{topic.availability == 'false'}" style="margin-right:.5em" title="#{msgs.topic_restricted_message}">
+                                <span class="bi bi-calendar-x" aria-hidden="true"></span>
+                                <span class="sr-only">#{msgs.topic_restricted_message}</span>
+                            </h:panelGroup>
+                            <h:panelGroup rendered="#{forum.locked == 'true' || topic.locked == 'true'}" style="margin-right:.5em" title="#{msgs.cdfm_forum_locked}">
+                                <span class="bi bi-lock-fill" aria-hidden="true"></span>
+                                <span class="sr-only">#{msgs.cdfm_forum_locked}</span>
+                            </h:panelGroup>
                             <%-- Rubrics marker --%>
                             <h:panelGroup rendered="#{topic.hasRubric == 'true'}">
                                 <sakai-rubric-student-preview-button

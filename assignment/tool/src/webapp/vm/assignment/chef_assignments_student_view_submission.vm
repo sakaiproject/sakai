@@ -606,7 +606,7 @@ $(document).ready(function(){
 							#end
 							#if ($plagiarismNote)
 								<p>
-									<img alt="$reviewIndicator" title="$reviewIndicator" src="/library/image/silk/rosette.png" class="assignmentRosette"/>
+									<span class="bi bi-award" aria-hidden="true" aria-label="$reviewIndicator"></span>
 									<em>
 										$plagiarismNote
 										#if ($plagiarismFileTypes || $plagiarismProviderInfo)
@@ -708,7 +708,7 @@ $(document).ready(function(){
 				#if (($submissionType == 2) || ($submissionType == 5))
 					#if ($plagiarismNote)
 						<p>
-							<img alt="$reviewIndicator" title="$reviewIndicator" src="/library/image/silk/rosette.png" class="assignmentRosette"/>
+							<span class="bi bi-award" aria-hidden="true" aria-label="$reviewIndicator"></span>
 							<em>
 								$plagiarismNote
 								#if ($plagiarismFileTypes || $plagiarismProviderInfo)

@@ -15,30 +15,49 @@
  */
 /* stylesheet for the profile2 help to add some tweaks */
 
-li.profile {
-	list-style-image:url("/library/image/silk/vcard.png");
+/* Using Bootstrap icon classes instead of silk */
+li.profile:before {
+	content: "\F4D6"; /* person-vcard */
+	font-family: "bootstrap-icons";
+	margin-right: 5px;
 }
-li.image {
-	list-style-image:url("/library/image/silk/photo.png");
+li.image:before {
+	content: "\F302"; /* image */
+	font-family: "bootstrap-icons";
+	margin-right: 5px;
 }
-li.status {
-	list-style-image:url("/library/image/silk/transmit.png");
+li.status:before {
+	content: "\F6FA"; /* broadcast */
+	font-family: "bootstrap-icons";
+	margin-right: 5px;
 }
-li.connections {
-	list-style-image:url("/library/image/silk/group.png");
+li.connections:before {
+	content: "\F3FF"; /* people */
+	font-family: "bootstrap-icons";
+	margin-right: 5px;
 }
-li.privacy {
-	list-style-image:url("/library/image/silk/lock.png");
+li.privacy:before {
+	content: "\F335"; /* lock */
+	font-family: "bootstrap-icons";
+	margin-right: 5px;
 }
-li.preferences {
-	list-style-image:url("/library/image/silk/cog.png");
+li.preferences:before {
+	content: "\F3E4"; /* gear */
+	font-family: "bootstrap-icons";
+	margin-right: 5px;
 }
-li.search {
-	list-style-image:url("/library/image/silk/magnifier.png");
+li.search:before {
+	content: "\F52A"; /* search */
+	font-family: "bootstrap-icons";
+	margin-right: 5px;
 }
-li.pictures {
-	list-style-image:url("/library/image/silk/pictures.png");
+li.pictures:before {
+	content: "\F392"; /* images */
+	font-family: "bootstrap-icons";
+	margin-right: 5px;
 }
-li.messages {
-	list-style-image:url("/library/image/silk/comments.png");
+li.messages:before {
+	content: "\F24E"; /* chat */
+	font-family: "bootstrap-icons";
+	margin-right: 5px;
 }

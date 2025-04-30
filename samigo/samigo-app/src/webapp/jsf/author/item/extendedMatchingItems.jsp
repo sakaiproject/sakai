@@ -207,7 +207,7 @@
 									<h:outputLink id="RemoveLink"
 										title="#{authorMessages.t_removeO}">
 										<f:verbatim>
-											<img src="/library/image/silk/cross.png" border="0" />
+											<span class="bi bi-x" aria-hidden="true"></span>
 										</f:verbatim>
 									</h:outputLink>
 								</h:panelGroup>
@@ -503,7 +503,7 @@
 								<h:outputLink id="RemoveLink"
 									title="#{authorMessages.t_removeI}" rendered="true">
 									<f:verbatim>
-										<img src="/library/image/silk/cross.png" border="0" />
+										<span class="bi bi-x" aria-hidden="true"></span>
 									</f:verbatim>
 								</h:outputLink>
 							</h:panelGroup>

@@ -24,6 +24,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.sitestats.api.StatsManager;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 
 
 /**
@@ -42,7 +43,13 @@ public class ImageWithLink extends Panel {
 		boolean exists = (lnkTarget != null && lnkLabel != null && lnkUrl != null);
 		ExternalLink lnk = null;
 		if(exists) {
-			add( new ExternalImage("image", imgUrl).setVisible(imgUrl != null) );
+			if(imgUrl != null) {
+				WebMarkupContainer icon = new WebMarkupContainer("image");
+				icon.add(new AttributeModifier("class", new Model("bi bi-file-earmark")));
+				add(icon);
+			} else {
+				add(new WebMarkupContainer("image").setVisible(false));
+			}
 			lnk = new ExternalLink("link", lnkUrl, lnkLabel);
 			lnk.add(new AttributeModifier("target", new Model(lnkTarget)));
 		}else{
@@ -50,7 +57,9 @@ public class ImageWithLink extends Panel {
 			b.append(lnkLabel);
 			b.append(' ');
 			b.append(((String) new ResourceModel("overview_file_unavailable").getObject()));
-			add( new ExternalImage("image", StatsManager.SILK_ICONS_DIR + "cross.png").setVisible(true) );
+			WebMarkupContainer icon = new WebMarkupContainer("image");
+			icon.add(new AttributeModifier("class", new Model("bi bi-x")));
+			add(icon);
 			lnk = new ExternalLink("link", lnkUrl, b.toString());
 			lnk.setEnabled(false);
 		}

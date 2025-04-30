@@ -184,7 +184,8 @@
 				<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
 			</h:commandLink>&nbsp;
 			<h:outputLink styleClass="button" id="print" value="javascript:printFriendly('#{ForumTool.printFriendlyUrl}');">
-				<h:graphicImage url="/../../library/image/silk/printer.png" alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />
+				<span class="bi bi-printer" aria-hidden="true"></span>
+				<span class="sr-only"><h:outputText value="#{msgs.print_friendly}" /></span>
 			</h:outputLink>
  		</h:panelGroup>
 
@@ -192,8 +193,12 @@
 				<h:panelGroup>
 					<h:outputText styleClass="highlight title" id="draft" value="#{msgs.cdfm_draft}" rendered="#{ForumTool.selectedTopic.topic.draft == 'true'}"/>
 					<h:outputText id="draft_space" value="  - " rendered="#{ForumTool.selectedTopic.topic.draft == 'true'}" styleClass="title"/>
-					<h:graphicImage url="/images/silk/date_delete.png" title="#{msgs.topic_restricted_message}" alt="#{msgs.topic_restricted_message}" rendered="#{ForumTool.selectedTopic.topic.availability == 'false'}" style="margin-right:.5em"/>
-					<h:graphicImage url="/images/silk/lock.png" alt="#{msgs.cdfm_forum_locked}" rendered="#{ForumTool.selectedForum.forum.locked == 'true' || ForumTool.selectedTopic.topic.locked == 'true'}" style="margin-right:.5em"/>
+					<h:panelGroup rendered="#{ForumTool.selectedTopic.topic.availability == 'false'}">
+						<span class="bi bi-calendar-x" title="#{msgs.topic_restricted_message}" aria-hidden="true" style="margin-right:.5em"></span>
+					</h:panelGroup>
+					<h:panelGroup rendered="#{ForumTool.selectedForum.forum.locked == 'true' || ForumTool.selectedTopic.topic.locked == 'true'}">
+						<span class="bi bi-lock-fill" aria-hidden="true" style="margin-right:.5em"></span>
+					</h:panelGroup>
 					<%-- Rubrics marker --%>
 					<h:panelGroup rendered="#{ForumTool.selectedTopic.hasRubric == 'true'}" >
 					  <sakai-rubric-student-preview-button

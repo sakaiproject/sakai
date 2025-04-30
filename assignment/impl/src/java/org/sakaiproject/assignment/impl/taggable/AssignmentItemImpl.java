@@ -129,7 +129,8 @@ public class AssignmentItemImpl implements TaggableItem {
 
 	public String getIconUrl()
 	{
-		String url = producer.serverConfigurationService.getServerUrl() + "/library/image/silk/page_edit.png";
+		// Using Bootstrap icons instead of silk
+		String url = producer.serverConfigurationService.getServerUrl() + "/library/bootstrap-icons/pencil-square.svg";
 		return url;
 	}
 	

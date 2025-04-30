@@ -340,11 +340,11 @@ function removeOptionalAttributeBlock(elem) {
 	&nbsp;
 	<input type="text" name="optionalAttrValue_$attrNum" value="$val" />
 	&nbsp;
-	<a href="#" onclick="javascript:removeOptionalAttributeBlock(this);return false"><img src="/library/image/silk/cross.png" alt="$tlang.getString("optional.attributes.remove")" /></a>
+	<a href="#" onclick="javascript:removeOptionalAttributeBlock(this);return false"><span class="bi bi-x" aria-hidden="true"></span> <span class="sr-only">$tlang.getString("optional.attributes.remove")</span></a>
 
 #end
 
 ##default attribute form, used by javascript
 ## must be on one line
 ## contains placeholders for the values that will be replaced
-#macro( AddOptionalAttributeBlock $map )<p class="shorttext"><select name="SELECT_LIST_ATTR">#foreach ($entry in $map.entrySet())<option value="$entry.key">$entry.value</option>#end</select>&nbsp;<input type="text" name="INPUT_ATTR" />&nbsp;<a href="#" onclick="javascript:removeOptionalAttributeBlock(this);return false"><img src="/library/image/silk/cross.png" alt="$tlang.getString("optional.attributes.remove")" /></a></p>#end
+#macro( AddOptionalAttributeBlock $map )<p class="shorttext"><select name="SELECT_LIST_ATTR">#foreach ($entry in $map.entrySet())<option value="$entry.key">$entry.value</option>#end</select>&nbsp;<input type="text" name="INPUT_ATTR" />&nbsp;<a href="#" onclick="javascript:removeOptionalAttributeBlock(this);return false"><span class="bi bi-x" aria-hidden="true"></span> <span class="sr-only">$tlang.getString("optional.attributes.remove")</span></a></p>#end
