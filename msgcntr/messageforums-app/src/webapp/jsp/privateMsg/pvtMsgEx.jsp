@@ -51,13 +51,15 @@
 		  </h:column>
 		  <h:column>
 		    <f:facet name="header">
-		        <span class="bi bi-paperclip" aria-label="#{msgs.sort_attachment}" aria-hidden="true"></span>
+		        <h:outputText value="" styleClass="bi bi-paperclip" escape="false" />
+				<h:outputText value="#{msgs.sort_attachment}" styleClass="sr-only" />
 			</f:facet>
 			<h:outputText value="" styleClass="bi bi-paperclip" escape="false" rendered="#{rcvdItems.msg.hasAttachments}" />
 		  </h:column>
 		  <h:column>
 		    <f:facet name="header">
-		        <span class="bi bi-flag-fill" aria-label="#{msgs.pvt_msgs_replied}" aria-hidden="true"></span>
+		        <h:outputText value="" styleClass="bi bi-flag-fill" escape="false" />
+				<h:outputText value="#{msgs.pvt_msgs_replied}" styleClass="sr-only" />
 			</f:facet>
 			<h:outputText value="" styleClass="bi bi-flag-fill" escape="false" rendered="#{rcvdItems.replied}" />
 		  </h:column>

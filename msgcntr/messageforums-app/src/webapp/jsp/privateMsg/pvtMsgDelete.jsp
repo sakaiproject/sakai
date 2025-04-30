@@ -39,7 +39,8 @@
 		  </h:column>
 		  <h:column>
 				<f:facet name="header">
-					<span class="bi bi-paperclip" aria-label="#{msgs.msg_has_attach}" aria-hidden="true"></span>
+					<h:outputText value="" styleClass="bi bi-paperclip" escape="false" />
+					<h:outputText value="#{msgs.msg_has_attach}" styleClass="sr-only" />
 				</f:facet>
 				<h:outputText value="" styleClass="bi bi-paperclip" escape="false" rendered="#{delItems.msg.hasAttachments}" />			 
 			</h:column>
