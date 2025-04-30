@@ -170,10 +170,6 @@ export class SakaiCourseDashboard extends SakaiElement {
 
     return html`
       <div id="course-dashboard-title-and-edit-block">
-        <div id="course-dashboard-title-block">
-          <h2>${this.data.title}</h2>
-          <div id="course-dashboard-programme" @input=${this.programmeUpdated} ?contenteditable=${this.editing}>${this.data.programme}</div>
-        </div>
         <div id="course-dashboard-edit-block">
           ${this.data.editable ? html`
             ${this.editing ? html`
@@ -186,11 +182,7 @@ export class SakaiCourseDashboard extends SakaiElement {
               <div id="course-dashboard-cancel" class="mt-1 mt-sm-0">
                 <sakai-button @click=${this.cancel} title="${this._i18n.cancel_tooltip}" aria-label="${this._i18n.cancel_tooltip}">${this._i18n.cancel}</sakai-button>
               </div>
-            ` : html`
-              <div id="course-dashboard-edit">
-                <sakai-button slot="invoker" @click=${this.edit} title="${this._i18n.edit_tooltip}" arial-label="${this._i18n.edit_tooltip}">${this._i18n.edit}</sakai-button>
-              </div>
-            `}
+            ` : nothing }
           ` : nothing}
         </div>
       </div>
@@ -218,9 +210,6 @@ export class SakaiCourseDashboard extends SakaiElement {
     return html`
       ${this.titleBlock()}
       <div id="course-dashboard-l1-overview-and-widgets-block">
-        <div id="course-dashboard-l1-overview-block">
-          ${this.renderOverview()}
-        </div>
         <div id="course-dashboard-l1-widgets">
           ${this.widgetPanel(1)}
         </div>
@@ -232,14 +221,6 @@ export class SakaiCourseDashboard extends SakaiElement {
 
     return html`
       ${this.titleBlock()}
-      <div id="course-dashboard-l2-header-and-overview-block" class="d-sm-flex mb-4">
-        <div id="course-dashboard-l2-header-block" class="me-3 mb-3 mb-sm-0">
-          <sakai-course-header .site=${this.data} @image-edited=${this.imageEdited} ?editing=${this.editing}></sakai-course-header>
-        </div>
-        <div id="course-dashboard-l2-overview-block">
-          ${this.renderOverview()}
-        </div>
-      </div>
       <div id="course-dashboard-l2-widgets">
         ${this.widgetPanel(3)}
       </div>
@@ -251,9 +232,6 @@ export class SakaiCourseDashboard extends SakaiElement {
     return html`
       ${this.titleBlock()}
       <div id="course-dashboard-l3-overview-and-widgets-block">
-        <div id="course-dashboard-l3-overview-block">
-          ${this.renderOverview()}
-        </div>
         <div id="course-dashboard-l3-widgets">
           ${this.widgetPanel(2)}
         </div>

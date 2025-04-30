@@ -148,17 +148,17 @@ export class SakaiCalendar extends LionCalendar {
       </div>
       ` : nothing}
 
-      <div class="calendar-msg">${this._i18n?.pinned_sites_message}</div>
 
+ 
       <div id="container">
-        ${super.render()}
+              ${super.render()}
         ${this._daysEvents?.length > 0 ? html`
         <div id="days-events">
           <div id="days-events-title">
             ${this._i18n?.events_for} ${new Date(this._daysEvents[0].start).toLocaleDateString(undefined, { dateStyle: "medium" })}
           </div>
           ${this._daysEvents.map(e => html`
-            <div>
+            <div class="days-events-item">
               <a href="${e.url}">
                 <sakai-icon type="${e.tool}" size="small"></sakai-icon>
                 <span>${e.title}</span><span> (${e.siteTitle})</span>

@@ -149,24 +149,27 @@ export class SakaiAnnouncements extends SakaiPageableElement {
           </div>
         ` : nothing}
         <div class="header">${this._i18n.view}</div>
-      ${this.dataPage.filter(a => a.visible).map((a, i) => html`
-        <div class="title cell ${i % 2 === 0 ? "even" : "odd"}">
-          ${a.highlighted ? html`
-          <sakai-icon type="favourite" size="small"></sakai-icon>
-          ` : nothing}
-          <span class="${ifDefined(a.highlighted ? "highlighted" : undefined)}">${a.subject}</span>
-        </div>
-        ${!this.siteId || this.siteId === "home" ? html`
-          <div class="site cell ${i % 2 === 0 ? "even" : "odd"}">${a.siteTitle}</div>
-        ` : nothing}
-        <div class="url cell ${i % 2 === 0 ? "even" : "odd"}">
-          <a href="${a.url}"
-              title="${this._i18n.url_tooltip}"
-              aria-label="${this._i18n.url_tooltip}">
-            <sakai-icon type="right" size="small"></sakai-icon>
-          </a>
-        </div>
-      `)}
+        ${this.dataPage.filter(a => a.visible).map(a => html`
+          <div class="row">
+            <div class="title cell">
+              ${a.highlighted ? html`
+              <sakai-icon type="favourite" size="small"></sakai-icon>
+              ` : nothing}
+              <span class="${ifDefined(a.highlighted ? "highlighted" : undefined)}">${a.subject}</span>
+            </div>
+            ${!this.siteId || this.siteId === "home" ? html`
+              <div class="site cell">${a.siteTitle}</div>
+            ` : nothing}
+            <div class="url cell">
+              <a href="${a.url}"
+                  title="${this._i18n.url_tooltip}"
+                  aria-label="${this._i18n.url_tooltip}">
+                <sakai-icon type="right" size="small"></sakai-icon>
+              </a>
+            </div>
+          </div>
+        `)}
+        
       </div>
     `;
   }
@@ -195,15 +198,13 @@ export class SakaiAnnouncements extends SakaiPageableElement {
       }
       #filter-and-sort-block {
         display: flex;
-        justify-content: space-between;
+        justify-content: flex-start;
         margin-bottom: 6px;
-      }
-      #sorting {
-        margin-left: auto;
+        gap: 5px;
       }
       #viewing {
         margin-bottom: 20px;
-        font-size: var(--sakai-grades-title-font-size, 14px);
+        font-size: var(--sakai-grades-title-font-size, 11px);
       }
       .announcements {
         display:grid;
@@ -221,7 +222,7 @@ export class SakaiAnnouncements extends SakaiPageableElement {
           padding-bottom: 14px;
         }
         .header {
-          font-weight: bold;
+          font-weight: 600;
           padding: 0 5px 0 5px;
         }
           .header a {
@@ -238,8 +239,28 @@ export class SakaiAnnouncements extends SakaiPageableElement {
           font-size: var(--sakai-grades-title-font-size);
         }
         .even {
-          background-color: var(--sakai-table-even-color);
+          background-color: var(--sakai-table-even-blue-color);
         }
+        .row {
+          display: contents; /* keep layout flow intact */
+        }
+
+        .announcements .row > .cell:first-child {
+          border-top-left-radius: 8px;
+          border-bottom-left-radius: 8px;
+        }
+
+        .announcements .row > .cell:last-child {
+          border-top-right-radius: 8px;
+          border-bottom-right-radius: 8px;
+        }
+
+        .announcements .row > .cell {
+          background-color: var(--sakai-table-even-blue-color);
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+          margin-bottom: 10px;
+        }
+
         .site {
           flex: 1;
         }

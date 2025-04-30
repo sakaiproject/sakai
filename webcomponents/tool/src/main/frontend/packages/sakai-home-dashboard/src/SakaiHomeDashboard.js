@@ -104,23 +104,6 @@ export class SakaiHomeDashboard extends SakaiElement {
     return html`
 
       <div id="container">
-        <div id="welcome-and-edit-block">
-          <div id="welcome">${this._i18n.welcome} ${this.data.givenName}</div>
-          <div id="edit-block">
-          ${this._editing ? html`
-            <div id="save">
-              <sakai-button @click=${this.save} title="${this._i18n.save_tooltip}" aria-label="${this._i18n.save_tooltip}">${this._i18n.save}</sakai-button>
-            </div>
-            <div id="cancel">
-              <sakai-button @click=${this.cancel} title="${this._i18n.cancel_tooltip}" aria-label="${this._i18n.cancel_tooltip}">${this._i18n.cancel}</sakai-button>
-            </div>
-          ` : html`
-            <div id="edit">
-              <sakai-button slot="invoker" @click=${this.edit} title="${this._i18n.edit_tooltip}" arial-label="${this._i18n.edit_tooltip}">${this._i18n.edit}</sakai-button>
-            </div>
-          `}
-          </div>
-        </div>
         ${this.data.worksiteSetupUrl ? html`
           <div id="toolbar">
             <sakai-button href="${this.data.worksiteSetupUrl}" title="${this._i18n.worksite_setup_tooltip}" aria-label="${this._i18n.worksite_setup_tooltip}">

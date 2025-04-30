@@ -332,6 +332,7 @@ INSERT INTO SAKAI_SITE_TOOL VALUES('!gateway-610', '!gateway-600', '!gateway', '
 INSERT INTO SAKAI_SITE_PAGE VALUES('!gateway-700', '!gateway', 'Reset Password', '0', 7, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!gateway-710', '!gateway-700', '!gateway', 'sakai.resetpass', 1, 'Reset Password', NULL );
 
+
 -- Create the !user site to be used as the template for a new user's site.
 
 INSERT INTO SAKAI_SITE VALUES('!user', 'Home', null, null, 'Home Site', null, null, null, 1, 0, 0, '', 'admin', 'admin', NOW(), NOW(), 1, 0, 0, 0, null);
