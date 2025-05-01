@@ -2642,6 +2642,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							    makeCsrf(peerForm, "csrf6");
 							    UICommand.make(peerForm, "save-peereval-link",  messageLocator.getMessage("simplepage.submit"), "#{simplePageBean.savePeerEvalResult}");
 							    UIOutput.make(peerForm, "save-peereval-text", messageLocator.getMessage("simplepage.save"));
+							    UIOutput.make(peerForm, "cancel-peereval-button");
 							    UIOutput.make(peerForm, "cancel-peereval-link");
 							    UIOutput.make(peerForm, "cancel-peereval-text", messageLocator.getMessage("simplepage.cancel"));
 							
