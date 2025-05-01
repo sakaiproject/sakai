@@ -55,18 +55,10 @@ public class CloseButton extends Panel{
 		};
 		
 		closeButton.add(link);
-		
+
 		add(closeButton);
-		
-		
-	
-		
-	
-		
-	
-		
+
 		//extend this to allow a behaviour to be set so that when its clicked, something happens
 	}
-	
 	
 }
