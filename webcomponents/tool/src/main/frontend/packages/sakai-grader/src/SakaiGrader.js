@@ -131,6 +131,12 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
   set _submission(newValue) {
 
+    // If switching submissions and the inline editor for the PREVIOUS submission is open,
+    // close and destroy it by simulating a cancel action.
+    if (newValue.id !== this._submission?.id && this._inlineFeedbackEditorShowing) {
+      this._toggleInlineFeedback(null, true); // Pass true for cancelling
+    }
+
     if (!this._nonEditedSubmission || newValue.id !== this._nonEditedSubmission.id) {
       this._nonEditedSubmission = {};
       Object.assign(this._nonEditedSubmission, newValue);
