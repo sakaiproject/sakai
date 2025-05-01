@@ -1821,7 +1821,11 @@ GbGradeTable.redrawTable = function(force) {
 };
 
 GbGradeTable.redrawRows = function() {
-  GbGradeTable.instance.setFilter(row => GbGradeTable.getFilteredData().includes(row));
+  const filteredStudentIds = GbGradeTable.getFilteredData().map(row => row[GbGradeTable.STUDENT_COLUMN_INDEX].userId);
+  GbGradeTable.instance.setFilter(row => {
+    const studentId = row[GbGradeTable.STUDENT_COLUMN_INDEX].userId;
+    return filteredStudentIds.includes(studentId);
+  });
   GbGradeTable.refreshSummaryLabels();
 };
 
