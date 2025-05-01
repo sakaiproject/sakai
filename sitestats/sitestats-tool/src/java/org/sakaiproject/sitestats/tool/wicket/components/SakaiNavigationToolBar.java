@@ -30,7 +30,6 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.FormComponentUpdatingBehavior;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
-import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
@@ -69,6 +68,7 @@ public class SakaiNavigationToolBar extends AjaxNavigationToolbar
 	 *            dataview used by datatable
 	 * @return paging navigator that will be used to navigate the data table
 	 */
+	@Override
 	protected AjaxPagingNavigator newPagingNavigator(String navigatorId, final DataTable table)
 	{
 		// Create a standard AjaxPagingNavigator without customization
@@ -103,7 +103,7 @@ public class SakaiNavigationToolBar extends AjaxNavigationToolbar
 			
 			@Override
 			public void setObject(String object) {
-				table.setItemsPerPage(Integer.valueOf(object));
+				table.setItemsPerPage(Integer.parseInt(object));
 			}
 		};
 
@@ -154,6 +154,7 @@ public class SakaiNavigationToolBar extends AjaxNavigationToolbar
 	 * @return navigator label that will be used to navigate the data table
 	 * 
 	 */
+	@Override
 	protected WebComponent newNavigatorLabel(String navigatorId, final DataTable table)
 	{
 		return new SakaiNavigatorLabel(navigatorId, table);
