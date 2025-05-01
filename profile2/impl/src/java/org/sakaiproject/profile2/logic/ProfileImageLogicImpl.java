@@ -170,7 +170,8 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		if(StringUtils.isNotBlank(siteId)){
 			if(!sakaiProxy.isUserMyWorkspace(siteId)) {
 				log.debug("checking if user: " + currentUserUuid + " has permissions in site: " + siteId);
-				allowed = sakaiProxy.isUserAllowedInSite(currentUserUuid, ProfileConstants.ROSTER_VIEW_PHOTO, siteId);
+				allowed = sakaiProxy.isUserAllowedInSite(currentUserUuid, ProfileConstants.ROSTER_VIEW_PHOTO, siteId) || 
+					sakaiProxy.isUserAllowedInSite(currentUserUuid, ProfileConstants.ROSTER_VIEW_PROFILE, siteId);
 			}
 		}
 		
