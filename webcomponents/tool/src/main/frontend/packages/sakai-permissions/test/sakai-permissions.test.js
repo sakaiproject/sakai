@@ -228,7 +228,6 @@ describe("sakai-permissions tests", () => {
 
     const el = await fixture(html`
       <sakai-permissions tool="tool"
-        enable-groups
         fire-event>
       </sakai-permissions>
     `);
@@ -260,9 +259,6 @@ describe("sakai-permissions tests", () => {
 
     await waitUntil(() => el.on.maintain.length === 0);
 
-    // Wait for the data fetch to complete.
-    //await new Promise(resolve => setTimeout(resolve, 1000));
-
     await elementUpdated(el);
 
     Object.entries(groupPerms.on).forEach(([role, perms]) => {
@@ -272,4 +268,25 @@ describe("sakai-permissions tests", () => {
       });
     });
   });
+
+  it ("handles disable-groups correctly", async () => {
+
+    fetchMock.get(data.permsUrl, data.perms);
+
+    const el = await fixture(html`
+      <sakai-permissions tool="tool"
+        disable-groups
+        fire-event>
+      </sakai-permissions>
+    `);
+
+    await waitUntil(() => el._i18n);
+
+    await elementUpdated(el);
+
+    expect(el.groups).to.be.undefined;
+
+    expect(el.querySelector("sakai-group-picker")).to.not.exist;
+  });
+
 });

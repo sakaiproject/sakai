@@ -1740,7 +1740,11 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
             throw new SecurityException("You must be a rubrics editor to delete a site's rubrics");
         }
 
-        evaluationRepository.deleteByOwnerId(siteId);
+        List<Evaluation> evaluations = evaluationRepository.findByOwnerId(siteId);
+        evaluations.stream().filter(e -> e.getStatus() == EvaluationStatus.RETURNED)
+                .map(Evaluation::getId)
+                .forEach(returnedEvaluationRepository::deleteByOriginalEvaluationId);
+        evaluations.forEach(evaluation -> {evaluationRepository.deleteById(evaluation.getId());});
         rubricRepository.deleteByOwnerId(siteId);
     }
 

@@ -78,7 +78,7 @@ public class ReturnedEvaluation implements PersistableEntity<Long>, Serializable
     private String overallComment;
 
     @EqualsAndHashCode.Exclude
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL,orphanRemoval = true)
     @JoinTable(name = "rbc_returned_criterion_outs",
         joinColumns = @JoinColumn(name = "rbc_returned_evaluation_id", referencedColumnName = "id", nullable = false),
         inverseJoinColumns = @JoinColumn(name = "rbc_returned_criterion_out_id", referencedColumnName = "id", nullable = false),

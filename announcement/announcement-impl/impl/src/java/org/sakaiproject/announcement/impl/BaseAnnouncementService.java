@@ -202,7 +202,9 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 			
 			TransformerFactory tFactory = TransformerFactory.newInstance();
 			docTransformer = tFactory.newTransformer();
-			
+
+			siteService.addSiteRemovalAdvisor(this);
+
 			log.info("init()");
 		}
 		catch (Throwable t)
@@ -211,6 +213,16 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 		}
 
 	} // init
+
+	/**
+	 * Destroy
+	 */
+	public void destroy()
+	{
+		siteService.removeSiteRemovalAdvisor(this);
+		super.destroy();
+		log.info("destroy()");
+	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * StorageUser implementation

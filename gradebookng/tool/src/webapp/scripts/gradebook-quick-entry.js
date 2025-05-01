@@ -1,30 +1,60 @@
 document.addEventListener( 'keydown', ( event ) => {
-    const currentInput = document.activeElement;
-    const currentTd = currentInput.parentNode;
-    const currentTr = currentTd.parentNode;
-    const index = Array.from(currentTr.children).indexOf(currentTd);
-    switch (event.key) {
-        case "ArrowLeft":
-            // Left pressed
-            currentTd.previousElementSibling.querySelectorAll('input,textarea')[0].focus();
-            break;
-        case "ArrowRight":
-            // Right pressed
-            currentTd.nextElementSibling.querySelectorAll('input,textarea')[0].focus();
-            break;
-        case "ArrowUp":
-            // Up pressed
-            Array.from( currentTr.previousElementSibling.children )[index].querySelectorAll('input,textarea')[0].focus();
-            break;
-        case "ArrowDown":
-            // Down pressed
-            Array.from( currentTr.nextElementSibling.children )[index].querySelectorAll('input,textarea')[0].focus();
-            break;
-        case "Enter":
-            // Down pressed
-            event.preventDefault();
-            Array.from( currentTr.nextElementSibling.children )[index].querySelectorAll('input,textarea')[0].focus();
-            break;
+    const currentElement = document.activeElement;
+
+    // Handle Enter key press
+    if (event.key === "Enter") {
+        // If the focused element is a button, simulate a click
+        if (currentElement.tagName === 'BUTTON') {
+             event.preventDefault(); // Prevent default form submission if applicable
+             currentElement.click();
+             return; // Stop further processing for buttons
+        }
+
+        // Original logic for inputs/textareas within the table
+        const currentTd = currentElement.closest('td'); // Find the parent TD if it exists
+        if (currentTd) {
+            const currentTr = currentTd.parentNode;
+            const index = Array.from(currentTr.children).indexOf(currentTd);
+            const nextTr = currentTr.nextElementSibling;
+            if (nextTr) {
+                 const nextFocusableElement = Array.from(nextTr.children)[index]?.querySelectorAll('input,textarea')[0];
+                 if (nextFocusableElement) {
+                     event.preventDefault();
+                     nextFocusableElement.focus();
+                     return; // Stop further processing
+                 }
+            }
+        }
+        // Potentially add default browser behavior or other handling if needed
+        return;
+    }
+
+    // Original logic for Arrow keys within the table
+    const currentTd = currentElement.closest('td');
+    if (currentTd) {
+        const currentTr = currentTd.parentNode;
+        const index = Array.from(currentTr.children).indexOf(currentTd);
+        let targetElement = null;
+
+        switch (event.key) {
+            case "ArrowLeft":
+                targetElement = currentTd.previousElementSibling?.querySelectorAll('input,textarea')[0];
+                break;
+            case "ArrowRight":
+                targetElement = currentTd.nextElementSibling?.querySelectorAll('input,textarea')[0];
+                break;
+            case "ArrowUp":
+                targetElement = currentTr.previousElementSibling ? Array.from(currentTr.previousElementSibling.children)[index]?.querySelectorAll('input,textarea')[0] : null;
+                break;
+            case "ArrowDown":
+                targetElement = currentTr.nextElementSibling ? Array.from(currentTr.nextElementSibling.children)[index]?.querySelectorAll('input,textarea')[0] : null;
+                break;
+        }
+
+        if (targetElement) {
+             event.preventDefault(); // Prevent default scrolling
+             targetElement.focus();
+        }
     }
 });
 

@@ -1,7 +1,7 @@
 import { html } from "lit";
 import { SakaiElement } from "@sakai-ui/sakai-element";
 import "@sakai-ui/sakai-icon";
-import "@sakai-ui/sakai-pager";
+import "@sakai-ui/sakai-pager/sakai-pager.js";
 import { SORT_NAME, SORT_TOPICS_CREATED, SORT_TOPICS_VIEWED, SORT_TOPIC_REACTIONS,
   SORT_TOPIC_UPVOTES, SORT_POSTS_CREATED, SORT_POSTS_VIEWED, SORT_POST_REACTIONS,
   SORT_POST_UPVOTES, ALL_TIME, THIS_WEEK } from "./sakai-conversations-constants.js";

@@ -229,7 +229,7 @@
 						input:'.openDate',
 						allowEmptyDate:true,
 						ashidden: { iso8601: 'openDateISO8601' },
-						getval:'.openDate',
+						val: document.querySelector('.openDate').value,
 						useTime:1
 					});
 					if(document.getElementById('compose:scheduler_send_email').checked) {
