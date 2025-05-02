@@ -173,9 +173,6 @@ public class ProfileConstants {
 	public static final String ENTITY_SET_ACADEMIC = "displayName,imageUrl";
 	public static final String ENTITY_SET_MINIMAL = "displayName,statusMessage,statusDate";
 
-	//entity css
-	public static final String ENTITY_CSS_PROFILE = "/profile2-tool/css/profile2-profile-entity.css";
-
 	//max length of the personal summary in the formatted profile
 	public static final String FORMATTED_PROFILE_SUMMARY_MAX_LENGTH = "1000"; //profile2.formatted.profile.summary.max
 
