@@ -428,8 +428,8 @@ $(window).load( function() {
 	<h:outputText escape="false" rendered="#{question.timedQuestion}" value=" <i title='#{authorMessages.timed}' class='fa fa-clock-o'></i>" />
 
 	<!--Rubrics icon-->
-	<h:outputText styleClass="fa icon-sakai--sakai-rubrics" id="rubrics-question-icon" rendered="#{author.isEditPendingAssessmentFlow && author.questionHasRubric(assessmentBean.assessmentId, question.itemData.itemIdString, false)}" title="#{authorMessages.question_use_rubric}" style="margin-left:0.5em"/>
-	<h:outputText styleClass="fa icon-sakai--sakai-rubrics" id="rubrics-published-question-icon" rendered="#{!author.isEditPendingAssessmentFlow && author.questionHasRubric(author.editPublishedAssessmentID, question.itemData.itemIdString, true)}" title="#{authorMessages.question_use_rubric}" style="margin-left:0.5em"/>
+	<h:outputText styleClass="si si-sakai-rubrics" id="rubrics-question-icon" rendered="#{author.isEditPendingAssessmentFlow && author.questionHasRubric(assessmentBean.assessmentId, question.itemData.itemIdString, false)}" title="#{authorMessages.question_use_rubric}" style="margin-left:0.5em"/>
+	<h:outputText styleClass="si si-sakai-rubrics" id="rubrics-published-question-icon" rendered="#{!author.isEditPendingAssessmentFlow && author.questionHasRubric(author.editPublishedAssessmentID, question.itemData.itemIdString, true)}" title="#{authorMessages.question_use_rubric}" style="margin-left:0.5em"/>
 
 
         </h:panelGroup>
