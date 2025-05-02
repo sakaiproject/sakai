@@ -15,6 +15,7 @@ package org.sakaiproject.webapi.controllers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.entity.api.Entity;
@@ -23,9 +24,11 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.grading.api.GradeDefinition;
+import org.sakaiproject.grading.api.GradingAuthz;
 import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.grading.api.SortType;
 import org.sakaiproject.grading.api.model.Gradebook;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -79,10 +82,14 @@ public class GradesController extends AbstractSakaiApiController {
 
             List<String> userIds = isMaintainer
                     ? site.getRoles().stream()
+                            .filter(r -> {
+                                return (r.isAllowed(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION)
+                                            || r.isAllowed(SamigoConstants.CAN_TAKE))
+                                    && !r.isAllowed(GradingAuthz.PERMISSION_GRADE_ALL)
+                                    && !r.isAllowed(GradingAuthz.PERMISSION_GRADE_SECTION);
+                            })
                             .map(Role::getId)
-                            .filter(r -> !site.getMaintainRole().equals(r))
-                            .flatMap(r -> site.getUsersHasRole(r).stream())
-                            .collect(Collectors.toList())
+                            .flatMap(rId -> site.getUsersHasRole(rId).stream()).collect(Collectors.toList())
                     : List.of(userId);
 
             Map<Long, List<GradeDefinition>> gradeDefinitions = gradingService.getGradesWithoutCommentsForStudentsForItems(siteId, siteId, assignmentIds, userIds);
