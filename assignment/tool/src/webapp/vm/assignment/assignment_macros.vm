@@ -24,7 +24,7 @@
         <span class="bi bi-people" aria-hidden="true" aria-label="$tlang.getString('gen.groupassignment')"></span>
     #end
     #if (!$assignment.getAttachments().isEmpty())
-        <span class="bi bi-paperclip" aria-hidden="true"></span>
+        <span class="si si-attachment" aria-hidden="true"></span>
         <span class="sr-only">$tlang.getString("gen.has.att")</span>
     #end
     #if ($assignment.getContentReview())
