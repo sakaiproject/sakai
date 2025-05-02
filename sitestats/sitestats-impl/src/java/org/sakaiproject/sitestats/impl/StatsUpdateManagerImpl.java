@@ -98,7 +98,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	@Getter private boolean				collectThreadEnabled				= true;
 	@Getter @Setter public long			collectThreadUpdateInterval			= 4000L;
 	@Getter @Setter private boolean		collectAdminEvents					= false;
-	@Getter @Setter private boolean		collectEventsForSiteWithToolOnly	= false;
+	@Getter @Setter private boolean		collectEventsForSiteWithToolOnly	= true;
 	@Getter @Setter private boolean		collectDetailedEvents				= false;
 	@Setter private TransactionTemplate	transactionTemplate;
 
