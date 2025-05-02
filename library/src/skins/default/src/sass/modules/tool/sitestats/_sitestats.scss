@@ -1,4 +1,86 @@
 .#{$namespace}sakai-sitestats{
+  /* Pagination navigation styling */
+  .sakai-navigator {
+    a.first,
+    a.prev,
+    a.next,
+    a.last {
+      display: inline-block;
+      text-decoration: none;
+      margin: 0 2px;
+      /* Use the secondary button mixin for consistent styling */
+      font-weight: $button-font-weight;
+      text-align: center;
+      vertical-align: middle;
+      cursor: pointer;
+      padding: calc(#{$standard-spacing} / 2) $standard-spacing;
+      font-size: var(--sui-btn-font-size);
+      line-height: var(--sui-btn-line-height);
+      border-radius: var(--sui-btn-border-radius);
+      color: var(--button-text-color);
+      background-color: var(--button-background);
+      border: var(--sui-btn-border-width) solid var(--button-border-color);
+      box-shadow: var(--button-shadow);
+    }
+    
+    a.first:hover,
+    a.prev:hover,
+    a.next:hover,
+    a.last:hover {
+      color: var(--button-hover-text-color);
+      background-color: var(--button-hover-background);
+      border-color: var(--button-hover-border-color);
+      box-shadow: var(--button-hover-shadow);
+    }
+    
+    a.first[disabled="disabled"],
+    a.prev[disabled="disabled"],
+    a.next[disabled="disabled"],
+    a.last[disabled="disabled"] {
+      opacity: 0.65;
+      pointer-events: none;
+      color: var(--button-disabled-text-color);
+      background-color: var(--button-disabled-background);
+      border-color: var(--button-disabled-border-color);
+      box-shadow: var(--button-disabled-shadow);
+      cursor: not-allowed;
+    }
+    
+    /* Page number links styling */
+    span.goto a {
+      display: inline-block;
+      padding: calc(#{$standard-spacing} / 2) $standard-spacing;
+      margin: 0 2px;
+      text-decoration: none;
+      border: var(--sui-btn-border-width) solid var(--button-border-color);
+      border-radius: var(--sui-btn-border-radius);
+      color: var(--button-text-color);
+      background-color: var(--button-background);
+    }
+    
+    span.goto a[disabled="disabled"] {
+      background-color: var(--button-primary-background);
+      border-color: var(--button-primary-border-color);
+      color: var(--button-primary-text-color);
+      opacity: 1;
+    }
+  }
+  
+  /* Instruction and form styling */
+  .listNav {
+    .instruction {
+      margin-bottom: $standard-space;
+    }
+    
+    select {
+      margin-left: $standard-space;
+      @extend .form-select;
+      @extend .form-select-sm;
+      width: auto;
+      display: inline-block;
+    }
+  }
+  
   .widget {
     .header {
       @include display-flex;
