@@ -23,27 +23,26 @@ import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
-import org.sakaiproject.sitestats.api.StatsManager;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 
-
 /**
+ * A component that displays a resource or site link with an appropriate icon
  * @author Nuno Fernandes
  */
-public class ImageWithLink extends Panel {
+public class ResourceLinkWithIcon extends Panel {
 	private static final long serialVersionUID	= 1L;
 
-	public ImageWithLink(String id) {
+	public ResourceLinkWithIcon(String id) {
 		this(id, null, null, null, null);
 	}
 	
-	public ImageWithLink(String id, String imgUrl, String lnkUrl, String lnkLabel, String lnkTarget) {
+	public ResourceLinkWithIcon(String id, String iconClass, String lnkUrl, String lnkLabel, String lnkTarget) {
 		super(id);
 		setRenderBodyOnly(false);
 		boolean exists = (lnkTarget != null && lnkLabel != null && lnkUrl != null);
 		ExternalLink lnk = null;
 		if(exists) {
-			if(imgUrl != null) {
+			if(iconClass != null) {
 				WebMarkupContainer icon = new WebMarkupContainer("image");
 				icon.add(new AttributeModifier("class", new Model("bi bi-file-earmark")));
 				add(icon);
@@ -52,7 +51,7 @@ public class ImageWithLink extends Panel {
 			}
 			lnk = new ExternalLink("link", lnkUrl, lnkLabel);
 			lnk.add(new AttributeModifier("target", new Model(lnkTarget)));
-		}else{
+		} else {
 			StringBuilder b = new StringBuilder();
 			b.append(lnkLabel);
 			b.append(' ');
