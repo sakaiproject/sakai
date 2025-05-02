@@ -99,12 +99,11 @@ export class SakaiGrades extends SakaiPageableElement {
 
   firstUpdated() {
 
-    if (this.secret) {
-      const gradesDiv = this.shadowRoot.getElementById("grades");
-      gradesDiv.addEventListener("click", () => {
-        this.secret = false;
-      }, { once: true });
-    }
+    if (this.dataPage.length === 0 || !this.secret) return;
+
+    this.shadowRoot.getElementById("grades").addEventListener("click", () => {
+      this.secret = false;
+    }, { once: true });
   }
 
   shouldUpdate(changedProperties) {
@@ -140,7 +139,7 @@ export class SakaiGrades extends SakaiPageableElement {
             <option value="${AVG_HIGH_TO_LOW}">${this._i18n.sort_average_high_to_low}</option>
             <option value="${ASSIGNMENT_A_TO_Z}">${this._i18n.sort_assignment_a_to_z}</option>
             <option value="${ASSIGNMENT_Z_TO_A}">${this._i18n.sort_assignment_z_to_a}</option>
-            ${this.siteId ? "" : html`
+            ${this.siteId ? nothing : html`
             <option value="${COURSE_A_TO_Z}">${this._i18n.sort_course_a_to_z}</option>
             <option value="${COURSE_Z_TO_A}">${this._i18n.sort_course_z_to_a}</option>
             `}
