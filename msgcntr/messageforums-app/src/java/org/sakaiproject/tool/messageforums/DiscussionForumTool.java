@@ -8379,7 +8379,7 @@ public class DiscussionForumTool {
 		if (fromForumAttach != null && !fromForumAttach.isEmpty()) {
 			for (int topicAttach=0; topicAttach < fromForumAttach.size(); topicAttach++) {
 				Attachment thisAttach = (Attachment)fromForumAttach.get(topicAttach);
-				Attachment thisDFAttach = forumManager.createDFAttachment(
+				Attachment thisDFAttach = forumManager.createDuplicateDFAttachment(
 						thisAttach.getAttachmentId(),
 						thisAttach.getAttachmentName());
 				forum.addAttachment(thisDFAttach);
