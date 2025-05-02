@@ -130,22 +130,6 @@
 	top: 50%;
 	transform: translateY(-50%);
 }
-.markAllAsRead {
-	border:1px solid var(--sakai-border-color);
-	padding:3px;
-	padding-left:30px;
-	background-color: var(--sakai-background-color-2);
-	position: relative;
-}
-
-.markAllAsRead::before {
-	content: "\F129";
-	font-family: bootstrap-icons;
-	position: absolute;
-	left: 5px;
-	top: 50%;
-	transform: translateY(-50%);
-}
 
 .topicIcon{
 /*	display:none; 	comment to hide blue or orange speech balloons by topics in Forum list view */

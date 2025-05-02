@@ -146,8 +146,9 @@
 				</h:panelGroup>
 			</h:panelGroup>
 			<h:messages globalOnly="true" infoClass="success" errorClass="alertMessage" rendered="#{! empty facesContext.maximumSeverity}"/>
-			<h:panelGroup styleClass="margin-left:1em;">
-				<span class="bi bi-table" aria-hidden="true" title="#{msgs.cdfm_message_count}"></span>&nbsp;<h:outputText value="#{msgs.cdfm_message_count}" />:&nbsp;
+			<h:panelGroup styleClass="ms-2">
+				<span class="bi bi-table" aria-hidden="true"></span>&nbsp;
+				<h:outputText value="#{msgs.cdfm_message_count}" />:&nbsp;
 				<h:panelGroup id="counttotal"></h:panelGroup>
 			</h:panelGroup>
 			<h:panelGrid columns="2" 
