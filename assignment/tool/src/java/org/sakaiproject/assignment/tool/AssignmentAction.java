@@ -2837,6 +2837,8 @@ public class AssignmentAction extends PagedResourceActionII {
             context.put("taggable", Boolean.TRUE);
         }
 
+        Map<String, String> assignmentAlertMap = new HashMap<>();
+
         String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
         context.put("contextString", contextString);
         context.put("user", state.getAttribute(STATE_USER));
@@ -2997,6 +2999,14 @@ public class AssignmentAction extends PagedResourceActionII {
             }
             context.put("asnGroupTitleMap", groupTitleMap);
 
+            for (Assignment assignment : assignments) {
+                Integer contentKey = assignment.getContentId();
+                if (contentKey != null && !isContentToolIdValid(contentKey, site)) {
+                    assignmentAlertMap.put(assignment.getId(), rb.getString("external.tool.deleted"));
+                    continue;
+                }
+            }
+
         } catch (Exception ignore) {
             log.warn(this + ":build_list_assignments_context " + ignore.getMessage());
             log.warn(this + ignore.getMessage() + " siteId= " + contextString);
@@ -3021,6 +3031,8 @@ public class AssignmentAction extends PagedResourceActionII {
 
         // set time sheet visibility
         context.put("isTimesheet", assignmentService.isTimeSheetEnabled(contextString));
+
+        context.put("assignmentAlertMap", assignmentAlertMap);
 
         String template = (String) getContext(data).get("template");
         return template + TEMPLATE_LIST_ASSIGNMENTS;
@@ -3066,6 +3078,21 @@ public class AssignmentAction extends PagedResourceActionII {
 
     private Set<String> getSubmittersIdSet(List<AssignmentSubmission> submissions) {
         return submissions.stream().map(AssignmentSubmission::getSubmitters).flatMap(Set::stream).map(AssignmentSubmissionSubmitter::getSubmitter).collect(Collectors.toSet());
+    }
+
+    public boolean isContentToolIdValid(Integer contentKey, Site site) {
+        if ( contentKey == null ) return true;
+        Long contentLong = contentKey.longValue();
+        Map<String, Object> content = ltiService.getContent(contentLong, site.getId());
+        if ( content == null ) return false;
+
+        Long toolKey = Long.valueOf(content.get(LTIService.LTI_TOOL_ID).toString());
+        if ( toolKey == null ) return false;
+
+        Map<String, Object> tool = ltiService.getTool(toolKey, site.getId());
+        if ( tool == null ) return false;
+
+        return true;
     }
 
     /**
@@ -5475,6 +5502,7 @@ public class AssignmentAction extends PagedResourceActionII {
             if ( assignment == null || assignment.getContentId() == null) return false;
             Site site = siteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
             Long contentKey = assignment.getContentId().longValue();
+
             if ( contentKey < 1 ) {
                 log.warn("contentId not set {} ", assignment);
                 return false;
@@ -5488,7 +5516,7 @@ public class AssignmentAction extends PagedResourceActionII {
             String content_launch = ltiService.getContentLaunch(content);
             context.put("value_ContentLaunchURL", content_launch);
 
-            Long toolKey = new Long(content.get(LTIService.LTI_TOOL_ID).toString());
+            Long toolKey = Long.valueOf(content.get(LTIService.LTI_TOOL_ID).toString());
             if (toolKey != null) {
                 Map<String, Object> tool = ltiService.getTool(toolKey, site.getId());
                 if ( tool == null ) {
