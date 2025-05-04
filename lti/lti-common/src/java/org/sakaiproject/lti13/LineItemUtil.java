@@ -54,8 +54,7 @@ import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.SortType;
 import org.sakaiproject.lti13.util.SakaiLineItem;
 
-import static org.tsugi.lti.LTIUtil.getObject;
-import static org.tsugi.lti.LTIUtil.parseIMS8601;
+import org.tsugi.lti.LTIUtil;
 
 /**
  * Some Sakai Utility code for IMS LTI This is mostly code to support the
@@ -95,7 +94,7 @@ public class LineItemUtil {
 	 */
 	public static String constructExternalId(Map<String, Object> content, SakaiLineItem lineItem)
 	{
-		Long tool_id = SakaiLTIUtil.getLongKey(content.get(LTIService.LTI_TOOL_ID));
+		Long tool_id = LTIUtil.toLongKey(content.get(LTIService.LTI_TOOL_ID));
 		return constructExternalId(tool_id, content, lineItem);
 	}
 
@@ -208,7 +207,7 @@ public class LineItemUtil {
 			gradebookColumn.setReleased(releaseToStudent); // default true
 			gradebookColumn.setCounted(includeInComputation); // default true
 			gradebookColumn.setUngraded(false);
-			Date endDateTime = parseIMS8601(lineItem.endDateTime);
+			Date endDateTime = LTIUtil.parseIMS8601(lineItem.endDateTime);
 			if ( endDateTime != null ) gradebookColumn.setDueDate(endDateTime);
 
 			if ( createNew ) {
@@ -282,7 +281,7 @@ public class LineItemUtil {
 		gradebookColumn.setReleased(releaseToStudent); // default true
 		gradebookColumn.setCounted(includeInComputation); // default true
 		gradebookColumn.setUngraded(false);
-		Date dueDate = org.tsugi.lti.LTIUtil.parseIMS8601(lineItem.endDateTime);
+		Date dueDate = LTIUtil.parseIMS8601(lineItem.endDateTime);
 		if ( dueDate != null ) gradebookColumn.setDueDate(dueDate);
 
 		pushAdvisor();
@@ -609,7 +608,7 @@ public class LineItemUtil {
 	 */
 	public static SakaiLineItem getDefaultLineItem(Site site, Map<String, Object> content) {
 		String signed_placement = SakaiLTIUtil.getSignedPlacement(content);
-		Long tool_id = SakaiLTIUtil.getLongKey(content.get(LTIService.LTI_TOOL_ID));
+		Long tool_id = LTIUtil.toLongKey(content.get(LTIService.LTI_TOOL_ID));
 		List<SakaiLineItem> toolItems = LineItemUtil.getLineItemsForTool(signed_placement, site, tool_id, null /* filter */);
 		String title = (String) content.get(LTIService.LTI_TITLE);
 		for (SakaiLineItem item : toolItems) {
@@ -637,8 +636,8 @@ public class LineItemUtil {
 		if ( response == null ) return null;
 
 		// Check if this a DeepLinkResponse
-		JSONObject lineItem = getObject(response, DeepLinkResponse.LINEITEM);
-		if ( lineItem == null ) lineItem = getObject(response, ContentItem.LINEITEM);
+		JSONObject lineItem = LTIUtil.getObject(response, DeepLinkResponse.LINEITEM);
+		if ( lineItem == null ) lineItem = LTIUtil.getObject(response, ContentItem.LINEITEM);
 
 		// Nothing to parse here...
 		if ( lineItem == null ) return null;

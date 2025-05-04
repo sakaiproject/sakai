@@ -12,7 +12,7 @@ public class BaseJWT extends JacksonBase {
 	// Put in the basic values - which can be removed or replaced in out calling code
 	public BaseJWT()
 	{
-		this.issued = new Long(System.currentTimeMillis() / 1000L);
+		this.issued = Long.valueOf(System.currentTimeMillis() / 1000L);
 		this.expires = this.issued + 3600L;
 		this.jti = UUID.randomUUID().toString();
 		// Move this to LaunchJWT and DeepLinkResponse
