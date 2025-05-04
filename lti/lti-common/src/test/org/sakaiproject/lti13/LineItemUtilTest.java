@@ -33,12 +33,12 @@ public class LineItemUtilTest {
 	public void testOne() {
 		String fakeDeepLink = "{\"icon_url\":\"http:\\/\\/localhost:8888\\/tsugi-static\\/fontawesome-free-5.8.2-web\\/png\\/trophy.png\",\"fa_icon\":\"fa-trophy\",\"thumbnail\":{\"width\":90,\"url\":\"https:\\/\\/lti.example.com\\/thumb.jpg\",\"height\":90},\"lineItem\":{\"scoreMaximum\":\"70\",\"label\":\"Trophy70\"},\"custom\":{\"submissionEnd\":\"$ResourceLink.submission.endDateTime\",\"availableStart\":\"$ResourceLink.available.startDateTime\",\"availableEnd\":\"$ResourceLink.available.endDateTime\",\"canvas_caliper_url\":\"$Caliper.url\",\"submissionStart\":\"$ResourceLink.submission.startDateTime\"},\"icon\":{\"fa_icon\":\"fa-magic\",\"width\":100,\"url\":\"https:\\/\\/lti.example.com\\/image.jpg\",\"height\":100},\"type\":\"ltiResourceLink\",\"title\":\"Trophy70\",\"url\":\"http:\\/\\/localhost:8888\\/py4e\\/mod\\/trophy\\/\"}";
 		SakaiLineItem li = LineItemUtil.extractLineItem(fakeDeepLink);
-		assertEquals(li.scoreMaximum, new Double(70));
+		assertEquals(li.scoreMaximum, Double.valueOf(70));
 
 		String fakeContentItem = "{\"@type\":\"LtiLinkItem\",\"@id\":\":item1\",\"title\":\"Trophy\",\"mediaType\":\"application\\/vnd.ims.lti.v1.ltilink\",\"text\":\"This tool gives students a grade of 0.95 for a launch.\\r\\n\",\"url\":\"http:\\/\\/localhost:8888\\/py4e\\/mod\\/trophy\\/\",\"placementAdvice\":{\"presentationDocumentTarget\":\"iframe\"},\"icon\":{\"@id\":\"http:\\/\\/localhost:8888\\/tsugi-static\\/fontawesome-free-5.8.2-web\\/png\\/trophy.png\",\"fa_icon\":\"fa-trophy\",\"width\":64,\"height\":64},\"lineItem\":{\"@type\":\"LineItem\",\"label\":\"Trophy\",\"reportingMethod\":\"res:totalScore\",\"assignedActivity\":{\"@id\":\"http:\\/\\/toolprovider.example.com\\/assessment\\/66400\",\"activityId\":\"a-9334df-33\"},\"scoreConstraints\":{\"@type\":\"NumericLimits\",\"normalMaximum\":\"8675\"}},\"custom\":{\"availableStart\":\"$ResourceLink.available.startDateTime\",\"availableEnd\":\"$ResourceLink.available.endDateTime\",\"submissionStart\":\"$ResourceLink.submission.startDateTime\",\"submissionEnd\":\"$ResourceLink.submission.endDateTime\",\"canvas_caliper_url\":\"$Caliper.url\"}}";
 
 		li = LineItemUtil.extractLineItem(fakeContentItem);
-		assertEquals(li.scoreMaximum, new Double(8675));
+		assertEquals(li.scoreMaximum, Double.valueOf(8675));
 	}
 
 	@Test
