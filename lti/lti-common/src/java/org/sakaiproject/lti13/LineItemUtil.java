@@ -150,7 +150,7 @@ public class LineItemUtil {
 		if (external_id == null) {
 			return null;
 		}
-		String[] parts = external_id.split(ID_SEPARATOR_REGEX);
+		String[] parts = StringUtils.split(external_id, ID_SEPARATOR_REGEX);
 		return (parts.length < 2) ? null : Long.valueOf(parts[1]);
 	}
 
