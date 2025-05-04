@@ -559,7 +559,7 @@ public class LineItemUtil {
 				if ( parts.length < 1 || ! parts[0].equals(tool_id.toString()) ) continue;
 
 				SakaiLineItem item = getLineItem(signed_placement, gbColumn);
-				if ( parts.length > 1 && ! "0".equals(parts[1]) ) {
+				if ( parts.length > 1 && ! StringUtils.equals("0", parts[1]) ) {
 					item.resourceLinkId = "content:" + parts[1];
 				}
 
