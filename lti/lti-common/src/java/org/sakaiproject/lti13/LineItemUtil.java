@@ -151,7 +151,7 @@ public class LineItemUtil {
 			return null;
 		}
 		String[] parts = StringUtils.split(external_id, ID_SEPARATOR_REGEX);
-		return (parts.length < 2) ? null : Long.valueOf(parts[1]);
+		return (parts == null || parts.length < 2) ? null : Long.valueOf(parts[1]);
 	}
 
 	public static Assignment createLineItem(Site site, Long tool_id, Map<String, Object> content, SakaiLineItem lineItem) {
