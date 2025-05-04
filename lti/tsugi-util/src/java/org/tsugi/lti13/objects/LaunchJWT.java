@@ -107,7 +107,7 @@ public class LaunchJWT extends BaseJWT {
 	// Constructor
 	public LaunchJWT(String messageType) {
 		super();
-		this.message_type = messageType;
+		this.message_type = messageType == null ? MESSAGE_TYPE_LAUNCH : messageType;
 		this.version = "1.3.0";
 		this.launch_presentation = new LaunchPresentation();
 		this.nonce = this.jti;
