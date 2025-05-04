@@ -2655,7 +2655,6 @@ public class SakaiLTIUtil {
 		String title;
 
 		log.debug("siteid: {} tool_id: {} lineitem_key: {} userId: {} scoreObj: {}", site.getId(), tool_id, lineitem_key, userId, scoreObj);
-System.out.println("content="+content);
 
 		// An empty / null score given means to delete the score
 		SakaiLineItem lineItem = new SakaiLineItem();
