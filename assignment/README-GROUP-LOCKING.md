@@ -8,17 +8,17 @@ When an assignment is set up with group submission mode, the system locks the gr
 
 ## Group Locking Behavior
 
-### Default Behavior (Prior to SAK-51462)
+### Default Behavior (Prior to SAK-49085)
 
-In Sakai prior to SAK-51462, group locking behavior was as follows:
+In Sakai prior to SAK-49085, group locking behavior was as follows:
 
 1. When an assignment with group submissions is posted (i.e., saved and not in draft mode), the system immediately applies a lock to all associated groups.
 2. Once locked, the group membership cannot be modified until the assignment is deleted or fully graded.
 3. This immediate locking caused issues for instructors who wanted to post assignments in advance but still allow group membership changes until the assignment opened.
 
-### Enhanced Behavior (SAK-51462)
+### Enhanced Behavior (SAK-49085)
 
-The enhanced group locking behavior introduced in SAK-51462 operates as follows:
+The enhanced group locking behavior introduced in SAK-49085 operates as follows:
 
 1. When an assignment with group submissions is posted, the system checks the assignment's open date:
    - If the open date is in the future, the groups remain unlocked
