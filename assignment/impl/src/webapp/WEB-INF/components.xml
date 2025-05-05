@@ -301,6 +301,39 @@
         <property name="taskService" ref="org.sakaiproject.tasks.api.TaskService"/>
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
     </bean>
+    
+    <!-- Group Locking Jobs -->
+    <bean id="org.sakaiproject.assignment.impl.jobs.AssignmentGroupLockingJob"
+          class="org.sakaiproject.assignment.impl.jobs.AssignmentGroupLockingJob">
+        <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
+        <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+    </bean>
+    
+    <bean id="org.sakaiproject.assignment.impl.jobs.AssignmentGroupUnlockingJob"
+          class="org.sakaiproject.assignment.impl.jobs.AssignmentGroupUnlockingJob">
+        <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
+        <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+    </bean>
+    
+    <bean id="org.sakaiproject.assignment.impl.jobs.AssignmentGroupLockingJob.jobWrapper"
+          class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+          init-method="init">
+        <property name="beanId" value="org.sakaiproject.assignment.impl.jobs.AssignmentGroupLockingJob"/>
+        <property name="jobName" value="Assignment Group Locking Job"/>
+        <property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager"/>
+    </bean>
+    
+    <bean id="org.sakaiproject.assignment.impl.jobs.AssignmentGroupUnlockingJob.jobWrapper"
+          class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+          init-method="init">
+        <property name="beanId" value="org.sakaiproject.assignment.impl.jobs.AssignmentGroupUnlockingJob"/>
+        <property name="jobName" value="Assignment Group Unlocking Job"/>
+        <property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager"/>
+    </bean>
 
     <bean id="org.sakaiproject.assignment.impl.AssignmentSiteFsVolume"
           class="org.sakaiproject.assignment.impl.AssignmentToolFsVolumeFactory"

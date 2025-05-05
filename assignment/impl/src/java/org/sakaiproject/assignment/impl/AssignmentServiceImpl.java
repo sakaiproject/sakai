@@ -1619,10 +1619,20 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                     // exception: it's an ACCESS group, membership won't be locked
                                     // as users are dynamically added to be able to see the related assignment on Lessons
                                     group.setLockForReference(reference, AuthzGroup.RealmLockMode.DELETE);
+                                    authzGroupService.save(group);
                                 } else {
-                                    group.setLockForReference(reference, AuthzGroup.RealmLockMode.ALL);
+                                    // Schedule group locking on the assignment open date instead of locking immediately
+                                    if (!assignment.getDraft() && assignment.getOpenDate().isAfter(Instant.now())) {
+                                        // If the assignment is posted and the open date is in the future, schedule locking
+                                        // the lock itself will be applied by the scheduled job when the assignment opens
+                                        log.debug("Scheduling group lock for assignment {} on open date {}", assignment.getId(), assignment.getOpenDate());
+                                    } else {
+                                        // If the assignment is already open or the open date has passed, lock immediately
+                                        group.setLockForReference(reference, AuthzGroup.RealmLockMode.ALL);
+                                        authzGroupService.save(group);
+                                    }
                                 }
-                                authzGroupService.save(group);
+                                
                             } catch (GroupNotDefinedException | AuthzPermissionException e) {
                                 log.warn("Exception while adding lock ALL for assignment {}, {}", assignment.getId(), e.toString());
                             }
@@ -1631,6 +1641,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         for (String groupRef : currentAssignedGroupRefs) {
                             try {
                                 AuthzGroup group = authzGroupService.getAuthzGroup(groupRef);
+                                
+                                // For Lessons access groups, always use DELETE lock mode
                                 group.setLockForReference(reference, AuthzGroup.RealmLockMode.DELETE);
                                 authzGroupService.save(group);
                             } catch (GroupNotDefinedException | AuthzPermissionException e) {
@@ -1638,6 +1650,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                             }
                         }
                     }
+                    
+                    // If the open date has been changed to a future date after the assignment was published,
+                    // we need to handle that specially. The AssignmentGroupUnlockingJob will check for this condition
+                    // and unlock groups if no submissions have been made yet.
                 }
                 break;
             case SITE:
