@@ -60,6 +60,8 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.services.GradebookServiceException;
 import org.sakaiproject.tool.assessment.services.GradingService;
+import org.sakaiproject.tool.assessment.services.PublishedItemService;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.AgentResults;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.QuestionScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
@@ -103,6 +105,15 @@ import org.sakaiproject.tool.cover.SessionManager;
     QuestionScoresBean bean = (QuestionScoresBean) ContextUtil.lookupBean("questionScores");
     TotalScoresBean tbean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
     log.debug("Calling saveQuestionScores.");
+    
+    // Ensure itemData is set when sorting
+    if (bean.getItemData() == null) {
+        String itemId = ContextUtil.lookupParam("itemId");
+        if (itemId != null && !itemId.isEmpty()) {
+            PublishedItemService itemService = new PublishedItemService();
+            bean.setItemData((ItemDataIfc) itemService.getItem(itemId));
+        }
+    }
     
     Long publishedId = Long.valueOf(ContextUtil.lookupParam("publishedId"));
     Long publishedIdFromBean = tbean.getPublishedAssessment().getPublishedAssessmentId();
