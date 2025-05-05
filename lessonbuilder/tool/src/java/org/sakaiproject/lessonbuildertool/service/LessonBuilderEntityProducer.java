@@ -1195,7 +1195,29 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	 * navigating to the top page for the placement and then going down to each of the
 	 * pages in the tree.  There should be one left nav lessons placement in the archive for each tree of pages.
 	 *
-	 * The site may or may not already have tool placements.  For each of the tool placements in
+	 * This code is called in one of two ways: (1) as part of the second half of transferCopyEntities or
+	 * (2) for an import from a CC+ zip file.  They are processed somewhat differently.  For (1), the user
+	 * is presented with the option to replace or merge data and for (2) there is an expectation that
+	 * the same data is not to be imported twice (i.e. duplicate removal).
+	 *
+	 * For use case (1), the user choice is handled before we are called.  If the user asks to replace
+	 * Lessons data, all of the lessons placements from the new site are deleted before we are
+	 * called and the expectation that we will create new top level Lessons placements for each
+	 * placement in the "from" site with all the pages and items.  If on the other hand, the user
+	 * requested "merge", then this code makes brand new lessons placements and imports (perhaps a
+	 * second copy) of the lessons placements from the archive.  This means that if a "merge" copy
+	 * is done from a site with two Lessons placements, the new site will have two, four, six etc..
+	 * placements with a new pair of placements appearing for each succssive import.
+	 *
+	 * This makes things simple for (1) transferCopyEntities use case.  In the code below, we always
+	 * make a new Lessons placement for each lesson placement in the import content.  There is no
+	 * duplicate removal at all for transferCopyEntities calls.
+	 *
+	 * On the other hand, for scenario (2 - import from ZIP) we want the first import into an
+	 * empty site to clone the exported site and the second and following imports to not import
+	 * anything due to duplicate removal processing as follows:
+	 *
+	 * For (2), the site may or may not already have tool placements.  For each of the tool placements in
 	 * the archive, the placement in the site can be in one of three states:
 	 *
 	 * 1.  The placement exists in the site and contains content.  In this case, the placement is ignored
@@ -1477,8 +1499,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				// empty page placement instead of making a new page
 				SimplePage page = null;
 				boolean reused = false;
-				log.debug("Extracting {} oldPageId: {} parent {}", title, oldPageId, oldParentId);
-				if ( oldParentId < 1 ) {
+				log.debug("Extracting {} oldPageId: {} parent {} isTransferCopy {}", title, oldPageId, oldParentId, isTransferCopy);
+				if ( ! isTransferCopy && oldParentId < 1 ) {
 					Long emptyPageId = emptyTopLevelPageIds.get(title);
 					log.debug("Extracting page {} oldPageId: {} emptyPageId {}", title, oldPageId, emptyPageId);
 
@@ -1604,7 +1626,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				SimplePage oldLessonsPage = null;
 				SimplePageItem oldLessonsItem = null;
 				log.debug("Looking for existing placement for {} = {}", toolTitle, sakaiPageId);
-				if ( sakaiPageId != null ) {
+				if ( ! isTransferCopy && sakaiPageId != null ) {
 					Long l = simplePageToolDao.getTopLevelPageId(sakaiPageId);
 					oldLessonsPage = simplePageToolDao.getPage(l);
 					oldLessonsItem = simplePageToolDao.findTopLevelPageItemBySakaiId(String.valueOf(l));
