@@ -1969,7 +1969,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 } catch(PermissionException e) {
                     courseGroupId = null;
                 }
-                Long toolKey = Long.valueOf(content.get(LTIService.LTI_TOOL_ID).toString());
+                Long toolKey = LTIUtil.toLongNull(content.get(LTIService.LTI_TOOL_ID));
                 Map<String, Object> tool = null;
                 if (toolKey != null) {
                     tool = ltiService.getTool(toolKey, site.getId());
@@ -3086,7 +3086,7 @@ public class AssignmentAction extends PagedResourceActionII {
         Map<String, Object> content = ltiService.getContent(contentLong, site.getId());
         if ( content == null ) return false;
 
-        Long toolKey = Long.valueOf(content.get(LTIService.LTI_TOOL_ID).toString());
+        Long toolKey = LTIUtil.toLongNull(content.get(LTIService.LTI_TOOL_ID));
         if ( toolKey == null ) return false;
 
         Map<String, Object> tool = ltiService.getTool(toolKey, site.getId());
@@ -5516,7 +5516,7 @@ public class AssignmentAction extends PagedResourceActionII {
             String content_launch = ltiService.getContentLaunch(content);
             context.put("value_ContentLaunchURL", content_launch);
 
-            Long toolKey = Long.valueOf(content.get(LTIService.LTI_TOOL_ID).toString());
+            Long toolKey = LTIUtil.toLongNull(content.get(LTIService.LTI_TOOL_ID));
             if (toolKey != null) {
                 Map<String, Object> tool = ltiService.getTool(toolKey, site.getId());
                 if ( tool == null ) {
