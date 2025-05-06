@@ -3,12 +3,34 @@ package org.tsugi.util;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
+/**
+ * Test class for Base64DoubleUrlEncodeSafe utility.
+ * This class tests the following aspects:
+ * 1. URL-safe encoding and decoding of strings
+ * 2. Handling of special characters and edge cases
+ * 3. Double-safe decoding functionality
+ * 4. Robustness against malformed input
+ * 5. Performance with large strings
+ * 6. Compatibility with standard Base64 encoding
+ */
 public class Base64DoubleUrlEncodeSafeTest {
+
+	private Base64.Encoder standardUrlEncoder;
+	private Base64.Encoder standardEncoder;
+
+	@Before
+	public void setUp() {
+		standardUrlEncoder = Base64.getUrlEncoder();
+		standardEncoder = Base64.getEncoder();
+	}
 
 	public static String[] testStrings = {
 		"Hello, Base64DoubleUrlEncodeSafe!",
@@ -37,8 +59,11 @@ public class Base64DoubleUrlEncodeSafeTest {
 		""
 	};
 
-	// Make sure at least one of the testStrings produces a string that changes upon URLEncoding to
-	// prove that Java's built-in Base64 URL Safe Encoder *fails* our core use case
+	/**
+	 * Tests that Java's built-in URL-safe Base64 encoding is not sufficient
+	 * for our use case where the encoded string needs to be URL-safe even
+	 * after URL encoding.
+	 */
 	@Test
 	public void testVerifyJavaBase64UrlSafeEncodingIsNotSufficient() throws java.io.UnsupportedEncodingException {
 
@@ -55,6 +80,9 @@ public class Base64DoubleUrlEncodeSafeTest {
 		assertFalse(failcount == 0);
 	}
 
+	/**
+	 * Tests basic encoding and decoding functionality
+	 */
 	@Test
 	public void testEncodeAndDecode() throws java.io.UnsupportedEncodingException {
 		for (String input : testStrings) {
@@ -74,6 +102,10 @@ public class Base64DoubleUrlEncodeSafeTest {
 		assertEquals("Decode of null should produce null: ", null, Base64DoubleUrlEncodeSafe.decode(null));
 	}
 
+	/**
+	 * Tests the double-safe decoding feature which should handle both
+	 * regular Base64 and URL-safe Base64 encoded strings
+	 */
 	@Test
 	public void testEncodeAndDoubleDecodeSafely() throws java.io.UnsupportedEncodingException {
 		for (String input : testStrings) {
@@ -88,7 +120,9 @@ public class Base64DoubleUrlEncodeSafeTest {
 		}
 	}
 
-	// Make sure that we never get the replacement character from a normal encode
+	/**
+	 * Tests handling of replacement characters in the encoding/decoding process
+	 */
 	@Test
 	public void testReplacementCharacter() throws java.io.UnsupportedEncodingException {
 
@@ -100,7 +134,9 @@ public class Base64DoubleUrlEncodeSafeTest {
 		}
 	}
 
-	// Test that invalid characters fail when decoded
+	/**
+	 * Tests that decoding invalid characters fails as expected
+	 */
 	@Test(expected = java.lang.IllegalArgumentException.class)
 	public void testDecodeInvalidCharactersFail() {
 		String invalidBase64DoubleUrlEncodeSafeString = "InvalidString$#@!";
@@ -109,10 +145,10 @@ public class Base64DoubleUrlEncodeSafeTest {
 		fail("Expected IllegalArgumentException for invalid Base64DoubleUrlEncodeSafe string");
 	}
 
-	// Make a long string with every code point, up to but not including surrogate pair code points
-	// https://en.wikipedia.org/wiki/Universal_Character_Set_characters#Surrogates
+	/**
+	 * Tests encoding and decoding of all non-surrogate Unicode code points
+	 */
 	@Test
-	// public void testAllNonSurrogateCodePoints() throws java.io.UnsupportedEncodingException {
 	public void testAllNonSurrogateCodePoints() {
 		char c;
 		int i;
@@ -134,12 +170,10 @@ public class Base64DoubleUrlEncodeSafeTest {
 		} catch (java.io.UnsupportedEncodingException e) {
 			fail("Unxpected UnsupportedEncodingException for URLEncoder "+encoded);
 		}
-
 	}
 
 	/**
-	 * Test that decodeDoubleSafe correctly handles invalid Base64 input
-	 * by returning the original string instead of throwing an exception
+	 * Tests that decodeDoubleSafe properly handles invalid input
 	 */
 	@Test
 	public void testDecodeDoubleSafeWithInvalidInput() {
@@ -263,6 +297,120 @@ public class Base64DoubleUrlEncodeSafeTest {
 			// Ensure we get back the original string
 			assertEquals("Multiple encoding/decoding should recover the original string",
 					input, decoded1);
+		}
+	}
+
+	/**
+	 * Test empty string and null handling
+	 */
+	@Test
+	public void testEmptyAndNullStrings() {
+		// Test empty string
+		String emptyResult = Base64DoubleUrlEncodeSafe.encode("");
+		assertEquals("Empty string should encode to empty string", "", emptyResult);
+		assertEquals("Empty string should decode to empty string", "", Base64DoubleUrlEncodeSafe.decode(emptyResult));
+
+		// Test null handling
+		assertNull("Null should encode to null", Base64DoubleUrlEncodeSafe.encode(null));
+		assertNull("Null should decode to null", Base64DoubleUrlEncodeSafe.decode(null));
+		assertNull("Null should double-safe decode to null", Base64DoubleUrlEncodeSafe.decodeDoubleSafe(null));
+	}
+
+	/**
+	 * Test very long strings to ensure no buffer overflow
+	 */
+	@Test
+	public void testLongStrings() {
+		StringBuilder longString = new StringBuilder();
+		for (int i = 0; i < 10000; i++) {
+			longString.append("This is a very long string that needs to be encoded properly. ");
+		}
+		String input = longString.toString();
+		String encoded = Base64DoubleUrlEncodeSafe.encode(input);
+		String decoded = Base64DoubleUrlEncodeSafe.decode(encoded);
+		assertEquals("Long string should be encoded and decoded correctly", input, decoded);
+	}
+
+	/**
+	 * Test boundary conditions for URL encoding
+	 */
+	@Test
+	public void testUrlEncodingBoundaries() {
+		String[] boundaryStrings = {
+			"http://example.com/path?param=value&other=value2",
+			"http://example.com/path#fragment",
+			"http://example.com/path;param=value",
+			"http://example.com/path space/file.txt",
+			"http://example.com/path%20space/file.txt"
+		};
+
+		for (String input : boundaryStrings) {
+			String encoded = Base64DoubleUrlEncodeSafe.encode(input);
+			try {
+				String urlEncoded = java.net.URLEncoder.encode(encoded, StandardCharsets.UTF_8.name());
+				assertEquals("URL encoding should not change the encoded string", encoded, urlEncoded);
+				
+				String decoded = Base64DoubleUrlEncodeSafe.decode(encoded);
+				assertEquals("URL with special characters should round-trip correctly", input, decoded);
+			} catch (java.io.UnsupportedEncodingException e) {
+				fail("Unexpected encoding exception: " + e.getMessage());
+			}
+		}
+	}
+
+	/**
+	 * Test that the encoder properly handles all ASCII characters
+	 */
+	@Test
+	public void testAllAsciiCharacters() {
+		StringBuilder asciiChars = new StringBuilder();
+		// Generate all ASCII characters from 0 to 127
+		for (int i = 0; i < 128; i++) {
+			asciiChars.append((char) i);
+		}
+		String input = asciiChars.toString();
+		String encoded = Base64DoubleUrlEncodeSafe.encode(input);
+		String decoded = Base64DoubleUrlEncodeSafe.decode(encoded);
+		assertEquals("All ASCII characters should be encoded and decoded correctly", input, decoded);
+	}
+
+	/**
+	 * Tests handling of surrogate pairs in Unicode strings
+	 */
+	@Test
+	public void testSurrogatePairs() {
+		String[] surrogatePairs = {
+			new String(new int[] { 0x1F600 }, 0, 1),  // 😀 Grinning Face
+			new String(new int[] { 0x1F64F }, 0, 1),  // 🙏 Folded Hands
+			new String(new int[] { 0x1F3F3 }, 0, 1)   // 🏳 White Flag
+		};
+		
+		for (String input : surrogatePairs) {
+			String encoded = Base64DoubleUrlEncodeSafe.encode(input);
+			String decoded = Base64DoubleUrlEncodeSafe.decode(encoded);
+			assertEquals("Surrogate pairs should be preserved", input, decoded);
+		}
+	}
+	
+	/**
+	 * Tests handling of mixed ASCII and Unicode content
+	 */
+	@Test
+	public void testMixedContent() {
+		String[] mixedStrings = {
+			"Hello 世界",
+			"Test123 🌟 Star",
+			"Mixed ASCII and ひらがな"
+		};
+		
+		for (String input : mixedStrings) {
+			String encoded = Base64DoubleUrlEncodeSafe.encode(input);
+			String decoded = Base64DoubleUrlEncodeSafe.decode(encoded);
+			assertEquals("Mixed content should be preserved", input, decoded);
+			
+			// Verify URL safety
+			assertFalse("Encoded string should not contain URL-unsafe characters",
+				encoded.contains("+") || encoded.contains("/") || encoded.contains("="));
 		}
 	}
 
