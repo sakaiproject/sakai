@@ -1979,7 +1979,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 context.put("browser-feature-allow", String.join(";", serverConfigurationService.getStrings("browser.feature.allow")));
 
                 // Copy title, description, and dates from Assignment to content if mis-match
-                int protect = SakaiLTIUtil.getInt(content.get(LTIService.LTI_PROTECT));
+                int protect = LTIUtil.toInt(content.get(LTIService.LTI_PROTECT));
                 String assignmentTitle = StringUtils.trimToEmpty(assignment.getTitle());
                 String assignmentDesc = StringUtils.trimToEmpty(assignment.getInstructions());
                 Instant visibleDate = assignment.getVisibleDate();
@@ -10606,7 +10606,7 @@ public class AssignmentAction extends PagedResourceActionII {
                             } else {
                                 String toolTitle = (String) tool.get(LTIService.LTI_TITLE);
                                 state.setAttribute(NEW_ASSIGNMENT_CONTENT_TITLE, toolTitle);
-                                Long toolNewpage = SakaiLTIUtil.getLong(tool.get(LTIService.LTI_NEWPAGE));
+                                Long toolNewpage = LTIUtil.toLong(tool.get(LTIService.LTI_NEWPAGE));
                                 state.setAttribute(NEW_ASSIGNMENT_CONTENT_TOOL_NEWPAGE, toolNewpage);
                             }
                         }

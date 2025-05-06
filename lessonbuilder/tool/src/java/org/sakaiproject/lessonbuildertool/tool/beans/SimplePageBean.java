@@ -128,6 +128,7 @@ import org.sakaiproject.util.comparator.AlphaNumericComparator;
 import org.springframework.http.MediaType;
 import org.springframework.web.multipart.MultipartFile;
 import org.tsugi.lti.ContentItem;
+import org.tsugi.lti.LTIUtil;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIInternalLink;
@@ -7070,7 +7071,7 @@ public class SimplePageBean {
 
                 // Retrieve the tool associated with the content item
                 String toolId = ToolUtils.getRequestParameter("toolId");
-                Long toolKey = SakaiLTIUtil.getLongNull(toolId);
+                Long toolKey = LTIUtil.toLongNull(toolId);
                 if ( toolKey == 0 || toolKey < 0 ) {
                         setErrKey("simplepage.lti-import-error-id", toolId);
                         return;

@@ -585,15 +585,15 @@ public class SiteHandler extends WorksiteHandler
 		rcontext.put("siteId", siteId);
 
 		if (siteService.isUserSite(siteId)){
-			rcontext.put("siteTitle", rb.getString("sit_mywor") );
+			rcontext.put("siteTitle", siteId.equals("~admin") ? rb.getString("sit_mywor_admin") : rb.getString("sit_mywor"));
 			rcontext.put("siteUrl", site.getUrl());
-			rcontext.put("siteTitleTruncated", rb.getString("sit_mywor") );
+			rcontext.put("siteTitleTruncated", siteId.equals("~admin") ? rb.getString("sit_mywor_admin") : rb.getString("sit_mywor"));
 			rcontext.put("isUserSite", true);
 		}else{
-			rcontext.put("siteTitle", portal.getSiteHelper().getUserSpecificSiteTitle(site, false, true, providers));
+			rcontext.put("siteTitle", siteId.equals("!admin") ? rb.getString("sit_admin") : portal.getSiteHelper().getUserSpecificSiteTitle(site, false, true, providers));
 			rcontext.put("siteUrl", site.getUrl());
 			rcontext.put("siteParents", portal.getSiteHelper().getParentSites(site));
-			rcontext.put("siteTitleTruncated", Validator.escapeHtml(portal.getSiteHelper().getUserSpecificSiteTitle(site, true, false, providers)));
+			rcontext.put("siteTitleTruncated", siteId.equals("!admin") ? rb.getString("sit_admin") : Validator.escapeHtml(portal.getSiteHelper().getUserSpecificSiteTitle(site, true, false, providers)));
 			rcontext.put("isUserSite", false);
 		}
 		

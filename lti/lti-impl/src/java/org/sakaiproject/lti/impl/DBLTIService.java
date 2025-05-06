@@ -37,7 +37,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import lombok.extern.slf4j.Slf4j;
 
-
+import org.tsugi.lti.LTIUtil;
 /**
  * <p>
  * DBLTIService extends the BaseLTIService.
@@ -276,7 +276,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 			return rb.getString("error.invalid.toolid");
 		}
 
-		Long visible = foorm.getLongNull(tool.get(LTI_VISIBLE));
+		Long visible = LTIUtil.toLongNull(tool.get(LTI_VISIBLE));
 		if ( visible == null ) visible = new Long(0);
 		if ( ! isAdminRole ) {
 			// Tool is stealthed and not deployed to the site.
@@ -326,7 +326,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		if (  content == null ) {
 			return rb.getString("error.content.not.found");
 		}
-		Long oldToolKey = foorm.getLongNull(content.get(LTI_TOOL_ID));
+		Long oldToolKey = LTIUtil.toLongNull(content.get(LTI_TOOL_ID));
 
 		Object oToolId = (Object) foorm.getField(newProps, LTI_TOOL_ID);
 		Long newToolKey = null;
@@ -349,7 +349,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 
 		// If the user is not an admin, they cannot switch to 
 		// a tool that is stealthed
-		Long visible = foorm.getLongNull(tool.get(LTI_VISIBLE));
+		Long visible = LTIUtil.toLongNull(tool.get(LTI_VISIBLE));
 		if ( visible == null ) visible = new Long(0);
 		if ( ( !isAdminRole ) && ( ! oldToolKey.equals(newToolKey) )  ) {
 			// Tool is stealthed and not deployed to the site.

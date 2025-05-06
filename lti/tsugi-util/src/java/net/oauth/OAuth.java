@@ -93,9 +93,9 @@ public class OAuth {
         public static final Map<String, Integer> TO_HTTP_CODE = mapToHttpCode();
 
         private static Map<String, Integer> mapToHttpCode() {
-            Integer badRequest = new Integer(400);
-            Integer unauthorized = new Integer(401);
-            Integer serviceUnavailable = new Integer(503);
+            Integer badRequest = Integer.valueOf(400);
+            Integer unauthorized = Integer.valueOf(401);
+            Integer serviceUnavailable = Integer.valueOf(503);
             Map<String, Integer> map = new HashMap<String, Integer>();
 
             map.put(Problems.VERSION_REJECTED, badRequest);
