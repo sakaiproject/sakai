@@ -78,9 +78,6 @@ public class Gradebook implements PersistableEntity<Long>, Serializable {
     @OneToMany(mappedBy = "gradebook", orphanRemoval = true, cascade = CascadeType.ALL)
     private Set<GradeMapping> gradeMappings = new HashSet<>();
 
-    //@OneToMany(mappedBy = "gradebook", orphanRemoval = true, cascade = CascadeType.REMOVE)
-    //private Set<Spreadsheet> spreadsheets = new HashSet<>();
-
     @Column(name = "ASSIGNMENTS_DISPLAYED", nullable = false)
     private Boolean assignmentsDisplayed = Boolean.FALSE;
 
