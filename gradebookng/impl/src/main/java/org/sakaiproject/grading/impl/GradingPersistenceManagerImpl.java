@@ -94,6 +94,10 @@ public class GradingPersistenceManagerImpl implements GradingPersistenceManager 
 
         categoryRepository.deleteAll(categoryRepository.findByGradebook_Uid(gradebookUid));
 
+        gradebookRepository.deleteSpreadsheetsForGradebook(gradebook.getId());
+
+        permissionRepository.deleteAll(permissionRepository.findByGradebookId(gradebook.getId()));
+
         gradeMappingRepository.deleteAll(gradeMappingRepository.findByGradebook_Uid(gradebookUid));
 
         gradebookRepository.delete(gradebook);
@@ -388,5 +392,9 @@ public class GradingPersistenceManagerImpl implements GradingPersistenceManager 
 
     public GradebookProperty saveGradebookProperty(GradebookProperty property) {
         return gradebookPropertyRepository.save(property);
+    }
+
+    public boolean isGradebookDefined(final String gradebookUid) {
+        return gradebookRepository.isGradebookDefined(gradebookUid);
     }
 }

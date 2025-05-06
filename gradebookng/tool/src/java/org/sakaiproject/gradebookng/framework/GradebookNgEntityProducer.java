@@ -34,6 +34,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityTransferrer;
+import org.sakaiproject.entity.api.HardDeleteAware;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.grading.api.GradingConstants;
@@ -61,7 +62,7 @@ import lombok.Setter;
  * sites
  */
 @Slf4j
-public class GradebookNgEntityProducer implements EntityProducer, EntityTransferrer {
+public class GradebookNgEntityProducer implements EntityProducer, EntityTransferrer, HardDeleteAware {
 
 	protected static final String[] TOOL_IDS = { "sakai.gradebookng" };
 
@@ -416,4 +417,10 @@ public class GradebookNgEntityProducer implements EntityProducer, EntityTransfer
 		// now migrate
 		return this.transferCopyEntities(fromContext, toContext, ids, null);
 	}
+
+	@Override
+	public void hardDelete(String siteId) {
+		gradingService.hardDeleteGradebook(siteId);
+	}
+
 }
