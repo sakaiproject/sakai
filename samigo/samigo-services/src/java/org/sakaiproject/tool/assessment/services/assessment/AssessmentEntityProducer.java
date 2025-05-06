@@ -122,11 +122,8 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 		try {
 			entityManager.registerEntityProducer(this, REFERENCE_ROOT);
 		} catch (Exception e) {
-			log.warn("Error registering Samigo Entity Producer", e);
+			log.warn("Error registering Samigo Entity Producer", e.toString());
 		}
-	}
-
-	public void destroy() {
 	}
 
     public void setQtiService(QTIServiceAPI qtiService)  {
@@ -137,6 +134,26 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
     public String[] myToolIds() {
         return new String[]{ "sakai.samigo" };
 	}
+
+    @Override
+    public Entity getEntity(Reference reference) {
+
+        String ref = reference.getReference();
+
+        if (!ref.startsWith(SamigoConstants.REFERENCE_ROOT)) Optional.empty();
+
+        SamigoReferenceReckoner.SamigoReference samigoReference
+            = SamigoReferenceReckoner.reckoner().reference(ref).reckon();
+
+        switch (samigoReference.getSubtype()) {
+            case "p":
+	            PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+                return publishedAssessmentService.getPublishedAssessment(samigoReference.getId());
+            default:
+                log.warn("Unknown subtype {}", samigoReference.getSubtype());
+                return null;
+        }
+    }
 
 	@Override
 	public List<Map<String, String>> getEntityMap(String fromContext) {
