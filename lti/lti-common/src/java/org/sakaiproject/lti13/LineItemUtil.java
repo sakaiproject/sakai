@@ -121,7 +121,7 @@ public class LineItemUtil {
 	// TODO: Remember to dream that someday this will be JSON :)
 	public static String constructExternalId(Long tool_id, Map<String, Object> content, SakaiLineItem lineItem)
 	{
-		Long content_id = (content == null) ? null : ((Integer) content.get(LTIService.LTI_ID)).longValue();
+		Long content_id = (content == null) ? null : LTI13Util.getLongNull(content.get(LTIService.LTI_ID));
 		log.debug("content_id={}", content_id);
 		return constructExternalIdImpl(tool_id, content_id, lineItem);
 	}
