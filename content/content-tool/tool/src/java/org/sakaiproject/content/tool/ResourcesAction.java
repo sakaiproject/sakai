@@ -827,7 +827,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	
 	/** vm files for each mode. */
 	private static final String TEMPLATE_DAV = "content/chef_resources_webdav";
-
+	
 	private static final String TEMPLATE_QUOTA = "resources/sakai_quota";
 
 	private static final String TEMPLATE_DELETE_CONFIRM = "content/chef_resources_deleteConfirm";
@@ -3802,17 +3802,17 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				
 			} 
 			catch (IdUnusedException e) 
-			{ 
+			{
 				// TODO Auto-generated catch block
 				log.warn("IdUnusedException {}", e.getMessage());
 			} 
 			catch (TypeException e) 
-			{ 
+			{
 				// TODO Auto-generated catch block
 				log.warn("TypeException {}", e.getMessage());
 			} 
 			catch (PermissionException e) 
-			{ 
+			{
 				// TODO Auto-generated catch block
 				log.warn("PermissionException {}", e.getMessage());
 			}
@@ -5720,7 +5720,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 * Iterate over attributes in ToolSession and remove all attributes starting with a particular prefix.
 	 * @param toolSession
 	 * @param prefix
-	 */ 
+	 */
 	protected void cleanup(ToolSession toolSession, String prefix) 
 	{
 		log.debug("{}.cleanup()", this);
