@@ -122,7 +122,7 @@ public class PermissionsController extends AbstractSakaiApiController {
 
                 on.put(role.getId(), filteredFunctions);
 
-                if (overrideRole != null && !"content".equalsIgnoreCase(tool)) {
+                if (overrideRole != null) {
                     // If a overrideReference is provided this means that the authzgroup indicated by
                     // that reference takes precedence over what is set in the main group, the one
                     // indicated by "reference". So, if the override authzgroup has a function set,
