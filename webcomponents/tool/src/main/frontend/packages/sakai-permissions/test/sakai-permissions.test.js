@@ -277,7 +277,8 @@ describe("sakai-permissions tests", () => {
 
   it ("handles disable-groups correctly", async () => {
 
-    fetchMock.get(data.permsUrl, data.perms);
+    // Replace the incorrect mock with the proper URL pattern
+    fetchMock.get(`/api/sites/${data.siteId}/permissions/tool?ref=${encodeURIComponent(`/site/${data.siteId}`)}`, data.perms);
 
     const el = await fixture(html`
       <sakai-permissions tool="tool"
