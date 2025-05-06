@@ -21,6 +21,7 @@
 
 package org.sakaiproject.assignment.impl.jobs;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import java.time.Instant;
@@ -36,6 +37,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.quartz.JobExecutionContext;
+import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
@@ -84,6 +86,7 @@ public class AssignmentGroupUnlockingJobTest {
         when(assignment.getId()).thenReturn("assignment-1");
         when(assignment.getDraft()).thenReturn(false);
         when(assignment.getTypeOfAccess()).thenReturn(Assignment.Access.GROUP);
+        when(assignment.getContext()).thenReturn("site-1");
         
         // Set up a future open date
         Instant now = Instant.now();
@@ -99,7 +102,7 @@ public class AssignmentGroupUnlockingJobTest {
         when(siteService.getSites(any(), any(), any(), any(), any(), any())).thenReturn(sites);
         
         Collection<Assignment> assignments = Arrays.asList(assignment);
-        when(assignmentService.getAssignmentsForContext(site.getId())).thenReturn(assignments);
+        when(assignmentService.getAssignmentsForContext("site-1")).thenReturn(assignments);
         
         // No submissions for this assignment
         when(assignmentService.getSubmissions(assignment)).thenReturn(Collections.emptySet());
@@ -121,8 +124,12 @@ public class AssignmentGroupUnlockingJobTest {
         when(authzGroupService.getAuthzGroup("group-1")).thenReturn(authzGroup1);
         when(authzGroupService.getAuthzGroup("group-2")).thenReturn(authzGroup2);
         
-        // Mock the reference
-        String reference = "assignment/site-1/assignment-1";
+        // Create the actual reference that will be used by the job
+        String reference = AssignmentReferenceReckoner.reckoner()
+                .context("site-1")
+                .id("assignment-1")
+                .reckon()
+                .getReference();
         
         // Execute the job
         job.execute(jobExecutionContext);
@@ -146,6 +153,7 @@ public class AssignmentGroupUnlockingJobTest {
         when(assignment.getId()).thenReturn("assignment-1");
         when(assignment.getDraft()).thenReturn(false);
         when(assignment.getTypeOfAccess()).thenReturn(Assignment.Access.GROUP);
+        when(assignment.getContext()).thenReturn("site-1");
         
         // Set up a future open date
         Instant now = Instant.now();
@@ -161,11 +169,18 @@ public class AssignmentGroupUnlockingJobTest {
         when(siteService.getSites(any(), any(), any(), any(), any(), any())).thenReturn(sites);
         
         Collection<Assignment> assignments = Arrays.asList(assignment);
-        when(assignmentService.getAssignmentsForContext(site.getId())).thenReturn(assignments);
+        when(assignmentService.getAssignmentsForContext("site-1")).thenReturn(assignments);
         
         // Assignment has submissions, so we should NOT unlock the groups
         Set<AssignmentSubmission> submissions = new HashSet<>(Arrays.asList(mock(AssignmentSubmission.class)));
         when(assignmentService.getSubmissions(assignment)).thenReturn(submissions);
+        
+        // Create the actual reference that will be used by the job
+        String reference = AssignmentReferenceReckoner.reckoner()
+                .context("site-1")
+                .id("assignment-1")
+                .reckon()
+                .getReference();
         
         // Execute the job
         job.execute(jobExecutionContext);

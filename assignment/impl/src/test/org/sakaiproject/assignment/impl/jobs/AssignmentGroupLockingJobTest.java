@@ -21,6 +21,7 @@
 
 package org.sakaiproject.assignment.impl.jobs;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import java.time.Instant;
@@ -85,6 +86,7 @@ public class AssignmentGroupLockingJobTest {
         when(assignment.getId()).thenReturn("assignment-1");
         when(assignment.getDraft()).thenReturn(false);
         when(assignment.getTypeOfAccess()).thenReturn(Assignment.Access.GROUP);
+        when(assignment.getContext()).thenReturn("site-1");
         
         // Set up a future open date that is within the 5-minute window that the job checks
         Instant now = Instant.now();
@@ -100,7 +102,7 @@ public class AssignmentGroupLockingJobTest {
         when(siteService.getSites(any(), any(), any(), any(), any(), any())).thenReturn(sites);
         
         Collection<Assignment> assignments = Arrays.asList(assignment);
-        when(assignmentService.getAssignmentsForContext(site.getId())).thenReturn(assignments);
+        when(assignmentService.getAssignmentsForContext("site-1")).thenReturn(assignments);
         
         // Set up mocked group objects
         Group group1 = mock(Group.class);
@@ -119,8 +121,12 @@ public class AssignmentGroupLockingJobTest {
         when(authzGroupService.getAuthzGroup("group-1")).thenReturn(authzGroup1);
         when(authzGroupService.getAuthzGroup("group-2")).thenReturn(authzGroup2);
         
-        // Mock the reference
-        String reference = "assignment/site-1/assignment-1";
+        // Create the actual reference that will be used by the job
+        String reference = AssignmentReferenceReckoner.reckoner()
+                .context("site-1")
+                .id("assignment-1")
+                .reckon()
+                .getReference();
         
         // Execute the job
         job.execute(jobExecutionContext);
@@ -144,6 +150,7 @@ public class AssignmentGroupLockingJobTest {
         when(assignment.getId()).thenReturn("assignment-1");
         when(assignment.getDraft()).thenReturn(false);
         when(assignment.getTypeOfAccess()).thenReturn(Assignment.Access.GROUP);
+        when(assignment.getContext()).thenReturn("site-1");
         
         // Set up a future open date that is OUTSIDE the 5-minute window
         Instant now = Instant.now();
@@ -159,7 +166,7 @@ public class AssignmentGroupLockingJobTest {
         when(siteService.getSites(any(), any(), any(), any(), any(), any())).thenReturn(sites);
         
         Collection<Assignment> assignments = Arrays.asList(assignment);
-        when(assignmentService.getAssignmentsForContext(site.getId())).thenReturn(assignments);
+        when(assignmentService.getAssignmentsForContext("site-1")).thenReturn(assignments);
         
         // Execute the job
         job.execute(jobExecutionContext);
