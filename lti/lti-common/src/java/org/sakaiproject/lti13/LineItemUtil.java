@@ -55,6 +55,7 @@ import org.sakaiproject.grading.api.SortType;
 import org.sakaiproject.lti13.util.SakaiLineItem;
 
 import org.tsugi.lti.LTIUtil;
+import org.tsugi.lti13.LTI13Util;
 
 /**
  * Some Sakai Utility code for IMS LTI This is mostly code to support the
@@ -121,7 +122,7 @@ public class LineItemUtil {
 	// TODO: Remember to dream that someday this will be JSON :)
 	public static String constructExternalId(Long tool_id, Map<String, Object> content, SakaiLineItem lineItem)
 	{
-		Long content_id = (content == null) ? null : LTI13Util.getLongNull(content.get(LTIService.LTI_ID));
+		Long content_id = (content == null) ? null : LTIUtil.toLongNull(content.get(LTIService.LTI_ID));
 		log.debug("content_id={}", content_id);
 		return constructExternalIdImpl(tool_id, content_id, lineItem);
 	}
