@@ -27,7 +27,9 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -75,7 +77,6 @@ public class AssignmentGroupLockingJobTest {
         // Mock site
         Site site = mock(Site.class);
         when(site.getId()).thenReturn("site-1");
-        when(site.isSpecial()).thenReturn(false);
         when(site.isPublished()).thenReturn(true);
         when(site.isSoftlyDeleted()).thenReturn(false);
         
@@ -91,7 +92,7 @@ public class AssignmentGroupLockingJobTest {
         when(assignment.getOpenDate()).thenReturn(fourMinutesFromNow);
         
         // Set up groups for the assignment
-        List<String> groupRefs = Arrays.asList("group-1", "group-2");
+        Set<String> groupRefs = new HashSet<>(Arrays.asList("group-1", "group-2"));
         when(assignment.getGroups()).thenReturn(groupRefs);
         
         // Set up collections to return from service calls
@@ -135,7 +136,6 @@ public class AssignmentGroupLockingJobTest {
         // Mock site
         Site site = mock(Site.class);
         when(site.getId()).thenReturn("site-1");
-        when(site.isSpecial()).thenReturn(false);
         when(site.isPublished()).thenReturn(true);
         when(site.isSoftlyDeleted()).thenReturn(false);
         
@@ -151,7 +151,7 @@ public class AssignmentGroupLockingJobTest {
         when(assignment.getOpenDate()).thenReturn(tenMinutesFromNow);
         
         // Set up groups for the assignment
-        List<String> groupRefs = Arrays.asList("group-1", "group-2");
+        Set<String> groupRefs = new HashSet<>(Arrays.asList("group-1", "group-2"));
         when(assignment.getGroups()).thenReturn(groupRefs);
         
         // Set up collections to return from service calls

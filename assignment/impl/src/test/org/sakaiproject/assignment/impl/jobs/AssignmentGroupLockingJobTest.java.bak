@@ -24,21 +24,20 @@ package org.sakaiproject.assignment.impl.jobs;
 import static org.mockito.Mockito.*;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.quartz.JobExecutionContext;
+import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.Assignment;
-import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.site.api.Group;
@@ -47,9 +46,9 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 
-public class AssignmentGroupUnlockingJobTest {
+public class AssignmentGroupLockingJobTest {
 
-    private AssignmentGroupUnlockingJob job;
+    private AssignmentGroupLockingJob job;
     
     @Mock private AssignmentService assignmentService;
     @Mock private AuthzGroupService authzGroupService;
@@ -62,7 +61,7 @@ public class AssignmentGroupUnlockingJobTest {
     public void setUp() {
         MockitoAnnotations.openMocks(this);
         
-        job = new AssignmentGroupUnlockingJob();
+        job = new AssignmentGroupLockingJob();
         job.setAssignmentService(assignmentService);
         job.setAuthzGroupService(authzGroupService);
         job.setSessionManager(sessionManager);
@@ -72,7 +71,7 @@ public class AssignmentGroupUnlockingJobTest {
     }
     
     @Test
-    public void testGroupUnlockingJobForAssignmentWithNoSubmissions() throws Exception {
+    public void testGroupLockingJobForAssignmentAboutToOpen() throws Exception {
         // Mock site
         Site site = mock(Site.class);
         when(site.getId()).thenReturn("site-1");
@@ -85,13 +84,13 @@ public class AssignmentGroupUnlockingJobTest {
         when(assignment.getDraft()).thenReturn(false);
         when(assignment.getTypeOfAccess()).thenReturn(Assignment.Access.GROUP);
         
-        // Set up a future open date
+        // Set up a future open date that is within the 5-minute window that the job checks
         Instant now = Instant.now();
-        Instant twoHoursFromNow = now.plusSeconds(2 * 60 * 60);
-        when(assignment.getOpenDate()).thenReturn(twoHoursFromNow);
+        Instant fourMinutesFromNow = now.plusSeconds(4 * 60);
+        when(assignment.getOpenDate()).thenReturn(fourMinutesFromNow);
         
         // Set up groups for the assignment
-        Set<String> groupRefs = new HashSet<>(Arrays.asList("group-1", "group-2"));
+        Set<String> groupRefs = new HashSet<>(Arrays.asList("group-1", "group-2");
         when(assignment.getGroups()).thenReturn(groupRefs);
         
         // Set up collections to return from service calls
@@ -100,9 +99,6 @@ public class AssignmentGroupUnlockingJobTest {
         
         Collection<Assignment> assignments = Arrays.asList(assignment);
         when(assignmentService.getAssignmentsForContext(site.getId())).thenReturn(assignments);
-        
-        // No submissions for this assignment
-        when(assignmentService.getSubmissions(assignment)).thenReturn(Collections.emptySet());
         
         // Set up mocked group objects
         Group group1 = mock(Group.class);
@@ -127,14 +123,14 @@ public class AssignmentGroupUnlockingJobTest {
         // Execute the job
         job.execute(jobExecutionContext);
         
-        // Verify that the groups were unlocked (set to NONE lock mode)
-        verify(authzGroup1).setLockForReference(reference, AuthzGroup.RealmLockMode.NONE);
-        verify(authzGroup2).setLockForReference(reference, AuthzGroup.RealmLockMode.NONE);
+        // Verify that the groups were locked with the ALL lock mode
+        verify(authzGroup1).setLockForReference(reference, AuthzGroup.RealmLockMode.ALL);
+        verify(authzGroup2).setLockForReference(reference, AuthzGroup.RealmLockMode.ALL);
         verify(authzGroupService, times(2)).save(any(AuthzGroup.class));
     }
     
     @Test
-    public void testGroupUnlockingJobForAssignmentWithSubmissions() throws Exception {
+    public void testGroupLockingJobForAssignmentNotReady() throws Exception {
         // Mock site
         Site site = mock(Site.class);
         when(site.getId()).thenReturn("site-1");
@@ -147,13 +143,13 @@ public class AssignmentGroupUnlockingJobTest {
         when(assignment.getDraft()).thenReturn(false);
         when(assignment.getTypeOfAccess()).thenReturn(Assignment.Access.GROUP);
         
-        // Set up a future open date
+        // Set up a future open date that is OUTSIDE the 5-minute window
         Instant now = Instant.now();
-        Instant twoHoursFromNow = now.plusSeconds(2 * 60 * 60);
-        when(assignment.getOpenDate()).thenReturn(twoHoursFromNow);
+        Instant tenMinutesFromNow = now.plusSeconds(10 * 60);
+        when(assignment.getOpenDate()).thenReturn(tenMinutesFromNow);
         
         // Set up groups for the assignment
-        Set<String> groupRefs = new HashSet<>(Arrays.asList("group-1", "group-2"));
+        Set<String> groupRefs = new HashSet<>(Arrays.asList("group-1", "group-2");
         when(assignment.getGroups()).thenReturn(groupRefs);
         
         // Set up collections to return from service calls
@@ -163,14 +159,10 @@ public class AssignmentGroupUnlockingJobTest {
         Collection<Assignment> assignments = Arrays.asList(assignment);
         when(assignmentService.getAssignmentsForContext(site.getId())).thenReturn(assignments);
         
-        // Assignment has submissions, so we should NOT unlock the groups
-        Set<AssignmentSubmission> submissions = new HashSet<>(Arrays.asList(mock(AssignmentSubmission.class)));
-        when(assignmentService.getSubmissions(assignment)).thenReturn(submissions);
-        
         // Execute the job
         job.execute(jobExecutionContext);
         
-        // Verify that the authzGroupService.save was never called since the assignment has submissions
+        // Verify that the authzGroupService.save was never called since the assignment isn't ready to be locked
         verify(authzGroupService, never()).save(any(AuthzGroup.class));
     }
 }

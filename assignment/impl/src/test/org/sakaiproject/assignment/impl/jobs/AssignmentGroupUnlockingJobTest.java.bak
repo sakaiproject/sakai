@@ -91,7 +91,7 @@ public class AssignmentGroupUnlockingJobTest {
         when(assignment.getOpenDate()).thenReturn(twoHoursFromNow);
         
         // Set up groups for the assignment
-        Set<String> groupRefs = new HashSet<>(Arrays.asList("group-1", "group-2"));
+        Set<String> groupRefs = new HashSet<>(Arrays.asList("group-1", "group-2");
         when(assignment.getGroups()).thenReturn(groupRefs);
         
         // Set up collections to return from service calls
@@ -102,7 +102,7 @@ public class AssignmentGroupUnlockingJobTest {
         when(assignmentService.getAssignmentsForContext(site.getId())).thenReturn(assignments);
         
         // No submissions for this assignment
-        when(assignmentService.getSubmissions(assignment)).thenReturn(Collections.emptySet());
+        when(assignmentService.getSubmissions(assignment)).thenReturn(Collections.emptyList());
         
         // Set up mocked group objects
         Group group1 = mock(Group.class);
@@ -153,7 +153,7 @@ public class AssignmentGroupUnlockingJobTest {
         when(assignment.getOpenDate()).thenReturn(twoHoursFromNow);
         
         // Set up groups for the assignment
-        Set<String> groupRefs = new HashSet<>(Arrays.asList("group-1", "group-2"));
+        Set<String> groupRefs = new HashSet<>(Arrays.asList("group-1", "group-2");
         when(assignment.getGroups()).thenReturn(groupRefs);
         
         // Set up collections to return from service calls
@@ -164,7 +164,7 @@ public class AssignmentGroupUnlockingJobTest {
         when(assignmentService.getAssignmentsForContext(site.getId())).thenReturn(assignments);
         
         // Assignment has submissions, so we should NOT unlock the groups
-        Set<AssignmentSubmission> submissions = new HashSet<>(Arrays.asList(mock(AssignmentSubmission.class)));
+        Collection<AssignmentSubmission> submissions = Arrays.asList(mock(AssignmentSubmission.class));
         when(assignmentService.getSubmissions(assignment)).thenReturn(submissions);
         
         // Execute the job

@@ -72,8 +72,8 @@ public class AssignmentGroupLockingJob implements Job {
             
             for (Site site : sites) {
                 try {
-                    // Skip special sites, unpublished sites, or softly deleted sites
-                    if (site.isSpecial() || !site.isPublished() || site.isSoftlyDeleted()) {
+                    // Skip unpublished sites or softly deleted sites
+                    if (!site.isPublished() || site.isSoftlyDeleted()) {
                         continue;
                     }
                     
