@@ -549,23 +549,21 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 	 *        The channel reference.
 	 * @return true if the user is allowed to getChannel(channelId), false if not.
 	 */
+	@Override
 	public boolean allowGetChannel(String ref)
 	{
 		return unlockCheck(SECURE_READ, ref);
 
 	} // allowGetChannel
 
+	@Override
 	public boolean isMessageViewable(Message message) {
-
-		ResourceProperties messageProps = message.getProperties();
-
-		String siteId = entityManager.newReference(message.getReference()).getContext();
-
 		if (message.getHeader().getDraft()) return false;
+		ResourceProperties messageProps = message.getProperties();
 
 		Instant now = Instant.now();
 		try {
-			Instant releaseDate = message.getProperties().getInstantProperty(RELEASE_DATE);
+			Instant releaseDate = messageProps.getInstantProperty(RELEASE_DATE);
 
 			if (now.isBefore(releaseDate)) {
 				return false;
@@ -575,7 +573,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		}
 
 		try {
-			Instant retractDate = message.getProperties().getInstantProperty(RETRACT_DATE);
+			Instant retractDate = messageProps.getInstantProperty(RETRACT_DATE);
 
 			if (now.isAfter(retractDate)) {
 				return false;
