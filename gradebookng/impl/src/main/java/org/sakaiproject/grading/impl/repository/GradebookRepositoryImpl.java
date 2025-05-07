@@ -27,6 +27,7 @@ import java.util.Optional;
 import org.springframework.transaction.annotation.Transactional;
 
 import org.sakaiproject.grading.api.model.Gradebook;
+import org.sakaiproject.grading.api.model.Spreadsheet;
 import org.sakaiproject.grading.api.repository.GradebookRepository;
 import org.sakaiproject.springframework.data.SpringCrudRepositoryImpl;
 
@@ -53,4 +54,33 @@ public class GradebookRepositoryImpl extends SpringCrudRepositoryImpl<Gradebook,
         delete.where(cb.equal(gradebook.get("uid"), uid));
         return session.createQuery(delete).executeUpdate();
     }
+
+    @Transactional(readOnly = true)
+    public boolean isGradebookDefined(final String gradebookUid) {
+        /*
+        return ((Long) sessionFactory.getCurrentSession().createCriteria(Gradebook.class)
+                .add(Restrictions.eq("uid", gradebookUid))
+                .setProjection(Projections.rowCount())
+                .uniqueResult()) == 1L;
+         */
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Gradebook> query = cb.createQuery(Gradebook.class);
+        Root<Gradebook> gradebook = query.from(Gradebook.class);
+        query.where(cb.equal(gradebook.get("uid"), gradebookUid));
+        return session.createQuery(query).uniqueResultOptional().isPresent();
+    }
+
+    @Transactional
+    public int deleteSpreadsheetsForGradebook(final Long id) {
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaDelete<Spreadsheet> delete = cb.createCriteriaDelete(Spreadsheet.class);
+        Root<Spreadsheet> spreadsheet = delete.from(Spreadsheet.class);
+        delete.where(cb.equal(spreadsheet.get("gradebook").get("id"), id));
+        return session.createQuery(delete).executeUpdate();
+    }
+
+
+
 }

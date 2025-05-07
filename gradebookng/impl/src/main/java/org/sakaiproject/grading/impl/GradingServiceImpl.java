@@ -5422,4 +5422,29 @@ public class GradingServiceImpl implements GradingService {
 
         return null;
     }
+
+        /*
+        @Override
+    public void hardDelete(String siteId) {
+        if (isGradebookDefined(context)) {
+            log.debug("Site " + context + " has been deleted. Removing associated gradebook data.");
+            try {
+                this.gradebookFrameworkService.deleteGradebook(context);
+            } catch (final GradebookNotFoundException e) {
+                log.debug("Couldnt find gradebook. Nothing to delete.", e);
+            }
+
+
+     */
+
+
+    public void hardDeleteGradebook(String siteId) {
+        try {
+            if (gradingPersistenceManager.isGradebookDefined(siteId)) {
+                deleteGradebook(siteId);
+            }
+        } catch (Exception e) {
+            log.warn("Could not hardDelete gradebook for context {}", siteId);
+        }
+    }
 }
