@@ -2056,6 +2056,12 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
 
         switchToInstructor(null);
 
+        Long gradingItemId = 123L;
+
+        Assignment ass = mock(Assignment.class);
+
+        when(gradingService.getAssignment(site1Id, site1Id, gradingItemId)).thenReturn(ass);
+
         String title1 = "Topic 1";
         TopicTransferBean topic1 = new TopicTransferBean();
         topic1.aboutReference = site1Ref;
@@ -2066,6 +2072,8 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
         topic1.dueDate = Instant.now().plus(7, ChronoUnit.HOURS);
         topic1.hideDate = Instant.now().plus(10, ChronoUnit.HOURS);
         topic1.lockDate = Instant.now().plus(20, ChronoUnit.HOURS);
+        topic1.graded = true;
+        topic1.gradingItemId = gradingItemId;
         topic1 = saveTopic(topic1);
 
         String title2 = "Topic 2";
@@ -2133,6 +2141,11 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
                 assertEquals(topicBeans[i].hideDate.getEpochSecond(), Long.parseLong(topicEl.getAttribute("hide-date")));
                 assertEquals(topicBeans[i].lockDate.getEpochSecond(), Long.parseLong(topicEl.getAttribute("lock-date")));
                 assertEquals(topicBeans[i].dueDate.getEpochSecond(), Long.parseLong(topicEl.getAttribute("due-date")));
+            }
+
+            if (i == 0) {
+              assertEquals(topicBeans[i].graded, Boolean.parseBoolean(topicEl.getAttribute("graded")));
+              assertFalse(topicEl.hasAttribute("grading-item-id"));
             }
 
             NodeList messageNodes = topicEl.getElementsByTagName("message");
@@ -2203,6 +2216,11 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
 
             if (topicEl.hasAttribute("due-date")) {
                 assertEquals(topic.getDueDate().getEpochSecond(), Long.parseLong(topicEl.getAttribute("due-date")));
+            }
+
+            if (i == 0) {
+                assertNull(topic.getGradingItemId());
+                assertEquals(topic.getGraded(), Boolean.parseBoolean(topicEl.getAttribute("graded")));
             }
 
             NodeList messageNodes = topicEl.getElementsByTagName("message");

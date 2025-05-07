@@ -524,7 +524,12 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
       <div class="topic">
         ${this.topic.draft ? html`
         <div class="sak-banner-warn">${this._i18n.draft_warning}</div>
-        ` : nothing }
+          ${this.topic.graded && !this.topic.gradingItemId ? html`
+          <div class="sak-banner-error conv-graded-no-grading-item-id-warning">
+            ${this._i18n.graded_no_item_id}
+          </div>
+          ` : nothing}
+        ` : nothing}
         ${this.topic.hidden ? html`
         <div class="sak-banner-warn">${this._i18n.topic_hidden}</div>
         ` : nothing }
