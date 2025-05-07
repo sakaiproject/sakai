@@ -159,7 +159,10 @@ export const graderRenderingMixin = Base => class extends Base {
           ${this._submittedTextMode ? html`
             <div>
               <div class="sak-banner-info">${unsafeHTML(this._i18n.inline_feedback_instruction)}</div>
-              <textarea id="grader-inline-feedback-editor" class="${!this._inlineFeedbackEditorShowing ? "d-none" : ""}">${this._submission.feedbackText}</textarea>
+              <textarea id="grader-inline-feedback-editor"
+                class="${!this._inlineFeedbackEditorShowing ? "d-none" : ""}"
+                .value=${this._submission.feedbackText}>
+              </textarea>
               <div id="grader-feedback-text" class="${this._inlineFeedbackEditorShowing ? "d-none" : ""}">${unsafeHTML(this._submission.feedbackText)}</div>
               <button class="btn btn-secondary inline-feedback-button ${this._inlineFeedbackEditorShowing ? "d-none" : ""}"
                   @click=${this._toggleInlineFeedback}
