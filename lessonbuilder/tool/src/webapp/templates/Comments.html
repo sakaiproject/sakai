@@ -29,14 +29,14 @@
 		
 		<span rsf:id="gradingSpan" class="commentGradePanel"><img class="statusImg icon-image" src="$context/images/no-status.png" id="statusImg" alt=""></img><span rsf:id="msg=simplepage.comments-points"></span><span style="display:none" class="uuidBox" rsf:id="commentsUUID"></span><span style="display:none" class="pointsSpan" rsf:id="commentPoints"></span> <input rsf:id="pointsBox" class="pointsBox" type="text" size="3"></input><span rsf:id="maxpoints"></span></span>
 		<span rsf:id="contextSpan" style="float:right; vertical-align:top;"><a class="usebutton" href="#" target="_lbcomments" rsf:id="contextLink"></a></span>
-        <img src="/library/image/silk/comment.png" class="comment-image" />
+        <span class="bi bi-chat comment-image" aria-hidden="true"></span>
 		<h3 class="author" rsf:id="userId"></h3><span class="commentPageTitle" rsf:id="pageTitle"></span><span rsf:id="timePosted" class="textPanelFooter"></span>
 		<span style="display:none;" class="authorUUID" rsf:id="authorUUID"></span>
 		<span rsf:id="deleteSpan"><a href="#" style="display:none" rsf:id="deleteCommentURL" class="deleteComment"></a>
 		<a rsf:id="deleteComment" onclick="deleteComment($(this));" class="deleteLink"><img src="$context/images/delete.png"></img></a></span>
 		
 		<a rsf:id="editComment" class="editLink"><img src="$context/images/edit.png"></img></a>
-		<a rsf:id="replyTo" class="replyLink"><img src="/library/image/silk/arrow_left.png"></img></a>
+		<a rsf:id="replyTo" class="replyLink"><span class="bi bi-arrow-left" aria-hidden="true"></span></a>
 		
 		<br />
 		<div class="commentBody" rsf:id="comment"></div>

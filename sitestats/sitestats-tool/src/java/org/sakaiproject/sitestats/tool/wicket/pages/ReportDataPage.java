@@ -71,7 +71,7 @@ import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.api.report.ReportParams;
 import org.sakaiproject.sitestats.tool.facade.Locator;
 import org.sakaiproject.sitestats.tool.wicket.components.AjaxLazyLoadImage;
-import org.sakaiproject.sitestats.tool.wicket.components.ImageWithLink;
+import org.sakaiproject.sitestats.tool.wicket.components.ResourceLinkWithIcon;
 import org.sakaiproject.sitestats.tool.wicket.components.LastJobRun;
 import org.sakaiproject.sitestats.tool.wicket.components.Menus;
 import org.sakaiproject.sitestats.tool.wicket.components.SakaiDataTable;
@@ -333,7 +333,7 @@ public class ReportDataPage extends BasePage {
 						lbl = (String) new ResourceModel("site_unknown").getObject();
 						href = null;
 					}
-					item.add(new ImageWithLink(componentId, null, href, lbl, "_parent"));
+					item.add(new ResourceLinkWithIcon(componentId, null, href, lbl, "_parent"));
 				}
 			});
 		}
@@ -437,7 +437,7 @@ public class ReportDataPage extends BasePage {
 							lnkLabel = (String) new ResourceModel("overview_file_unavailable").getObject();
 						}					
 					}
-					resourceComp = new ImageWithLink(componentId, imgUrl, lnkUrl, lnkLabel, "_new");					
+					resourceComp = new ResourceLinkWithIcon(componentId, imgUrl, lnkUrl, lnkLabel, "_new");					
 					item.add(resourceComp);
 				}
 			});
@@ -471,7 +471,7 @@ public class ReportDataPage extends BasePage {
 				    if (lnkLabel == null) {
 					    lnkLabel = (String) new ResourceModel("resource_unknown").getObject();
 					}
-					Component resourceComp = new ImageWithLink(componentId, imgUrl, lnkUrl, lnkLabel, "_new");
+					Component resourceComp = new ResourceLinkWithIcon(componentId, imgUrl, lnkUrl, lnkLabel, "_new");
 					item.add(resourceComp);
 				}
 			});

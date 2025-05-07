@@ -20,11 +20,11 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
+import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.image.ContextImage;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
-import org.sakaiproject.profile2.util.ProfileConstants;
 
 import java.util.Optional;
 
@@ -38,9 +38,6 @@ public class CloseButton extends Panel{
 		WebMarkupContainer closeButton = new WebMarkupContainer("closeButton");
 		closeButton.setOutputMarkupId(true);
 		
-		//image
-		ContextImage image = new ContextImage("img",new Model(ProfileConstants.CLOSE_IMAGE));
-		image.add(new AttributeModifier("alt",""));
 		
 		AjaxFallbackLink<Void> link = new AjaxFallbackLink<Void>("link") {
 			@Override
@@ -57,20 +54,11 @@ public class CloseButton extends Panel{
 						
 		};
 		
-		
-		link.add(image);
-		
 		closeButton.add(link);
-		
+
 		add(closeButton);
-		
-		
-	
-		
-	
-		
+
 		//extend this to allow a behaviour to be set so that when its clicked, something happens
 	}
-	
 	
 }

@@ -68,7 +68,7 @@
 
 		<h:panelGroup id="forumsAction">
 			<h:outputLink styleClass="button" id="print" value="javascript:printFriendly('#{ForumTool.printFriendlyDisplayInThread}');" title="#{msgs.cdfm_print}">
-				<h:graphicImage url="/../../library/image/silk/printer.png" alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />
+				<span class="bi bi-printer" aria-hidden="true"></span>
 			</h:outputLink>
 		</h:panelGroup>
 

@@ -63,7 +63,7 @@
 				#if ($campusDirectory)
 					<a href="#" onclick="javascript:window.open('$campusDirectory','new_window'); return false;"
 						title="$tlang.getString("nscourse.look_up_an_username")">
-						<img alt="" src="/library/image/silk/magnifier.png" style="vertical-align:middle"/>
+						<span class="bi bi-search" aria-hidden="true"></span>
 					</a>
 				#end
 			</p>

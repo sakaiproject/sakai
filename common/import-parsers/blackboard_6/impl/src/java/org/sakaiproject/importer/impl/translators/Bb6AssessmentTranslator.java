@@ -315,7 +315,7 @@ public class Bb6AssessmentTranslator implements IMSResourceTranslator{
 			if ("".equals(label)) {
 				label = "Document Link";
 			}
-			return "\n<br/><br/><IMG SRC=\"/library/image/silk/report.png\" alt=\"\" />&nbsp;<a href=\"" + uri + "\">" + label + "</a>";
+			return "\n<br/><br/><span class=\"bi bi-file-earmark-text\" aria-hidden=\"true\"></span>&nbsp;<a href=\"" + uri + "\">" + label + "</a>";
 		}
 		else {
 			return "";

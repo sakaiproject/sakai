@@ -79,7 +79,7 @@
 												#end
 												$formattedText.escapeHtml($!assignment.title)
 												#if ($assignment.getContentReview())
-													<img alt="$reviewIndicator" title="$reviewIndicator" src="/library/image/silk/rosette.png" />
+													<span class="bi bi-award" aria-hidden="true"></span> <span class="sr-only">$reviewIndicator</span>
 												#end
 												#assignmentIcons($assignment)
 											</strong>

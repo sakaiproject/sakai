@@ -31,7 +31,7 @@
 		</p>
 		#if ($plagiarismNote)
 			<p>
-				<img alt="$reviewIndicator" title="$reviewIndicator" src="/library/image/silk/rosette.png" class="assignmentRosette" aria-hidden="true"/>
+				<span class="bi bi-award assignmentRosette" aria-hidden="true" aria-label="$reviewIndicator"></span>
 				<em>
 					$plagiarismNote
 				</em>

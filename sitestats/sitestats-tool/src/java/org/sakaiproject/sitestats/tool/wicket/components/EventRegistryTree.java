@@ -150,7 +150,6 @@ public class EventRegistryTree extends Panel {
                 
 				listItem.add(new ExternalImage("navCollapse", StatsManager.SITESTATS_WEBAPP + "/images/line-last.gif"));
 				listItem.add(new ExternalImage("navExpand", StatsManager.SITESTATS_WEBAPP + "/images/nav-plus.gif").setVisible(false));
-				//listItem.add(new ExternalImage("image", StatsManager.SILK_ICONS_DIR + "bullet_feed.png"));
 				Label imageIcon = new Label("toolIcon", new Model("") );
 				listItem.add(imageIcon);
 				String eventName = Locator.getFacade().getEventRegistryService().getEventName(ei.getEventId());
@@ -167,7 +166,6 @@ public class EventRegistryTree extends Panel {
 				listItem.setVisible(false);
 				listItem.add(new ExternalImage("navCollapse", StatsManager.SITESTATS_WEBAPP + "/images/line-last.gif"));
 				listItem.add(new ExternalImage("navExpand", StatsManager.SITESTATS_WEBAPP + "/images/nav-plus.gif").setVisible(false));
-				//listItem.add(new ExternalImage("image", StatsManager.SILK_ICONS_DIR + "bullet_feed.png").setVisible(false));
 				Label imageIcon = new Label("toolIcon", new Model("") );
 				listItem.add(imageIcon);
 				listItem.add(new Label("label").setVisible(false));

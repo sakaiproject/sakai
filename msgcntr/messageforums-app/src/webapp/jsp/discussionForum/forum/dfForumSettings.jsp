@@ -54,8 +54,12 @@ if (thisId == null)
 		<table class="forumHeader">
 			  <tr>
 					<td><h:messages styleClass="sak-banner-warn" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}" />
-				<h:graphicImage url="/images/silk/lock.png" alt="#{msgs.cdfm_forum_locked}" rendered="#{ForumTool.selectedForum.locked=='true'}"  style="margin-right:.3em"/>
-				<h:graphicImage url="/images/silk/lock_open.png" alt="#{msgs.cdfm_forum_locked}" rendered="#{ForumTool.selectedForum.locked=='false'}"  style="margin-right:.3em"/>
+				<h:panelGroup rendered="#{ForumTool.selectedForum.locked=='true'}">
+					<span class="bi bi-lock-fill" aria-hidden="true" style="margin-right:.3em"></span>
+				</h:panelGroup>
+				<h:panelGroup rendered="#{ForumTool.selectedForum.locked=='false'}">
+					<span class="bi bi-unlock-fill" aria-hidden="true" style="margin-right:.3em"></span>
+				</h:panelGroup>
 				<span class="title">
                     <h:outputText value="#{ForumTool.selectedForum.forum.title}" rendered="#{!ForumTool.selectedForum.markForDuplication}"/>
 				    <h:inputText size="50" value="#{ForumTool.selectedForum.forum.title}" id="forum_title" rendered="#{ForumTool.selectedForum.markForDuplication}">

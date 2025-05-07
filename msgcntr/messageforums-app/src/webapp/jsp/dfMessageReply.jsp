@@ -111,7 +111,7 @@
 		    <h:inputHidden id="msgHidden" value="#{ForumTool.selectedMessage.message.body}" />
 		    <h:inputHidden id="titleHidden" value="#{ForumTool.selectedMessage.message.title}" />
 			<h:outputText value="&nbsp;&nbsp;&nbsp; " escape="false" />
-			<img src="/library/image/silk/paste_plain.png" />
+			<span class="bi bi-clipboard" aria-hidden="true"></span>
 			<a href="javascript:void(0)"  onclick="InsertHTML('<b><i><h:outputText value="#{msgs.cdfm_insert_original_text_comment}"/></i></b><br/><b><i><h:outputText value="#{msgs.cdfm_from}" /></i></b> <i><h:outputText value="#{ForumTool.selectedTopic.topic.postAnonymous ? ForumTool.selectedMessage.anonId : ForumTool.selectedMessage.message.authorEscaped}" /><h:outputText value=" #{msgs.cdfm_openb}" /><h:outputText value="#{ForumTool.selectedMessage.message.created}" ><f:convertDateTime pattern="#{msgs.date_format_static}" locale="#{ForumTool.userLocale}" timeZone="#{ForumTool.userTimeZone}"/></h:outputText><h:outputText value="#{msgs.cdfm_closeb}" /></i><br/><b><i><h:outputText value="#{msgs.cdfm_subject}" /></i></b>');">
 					<h:outputText value="#{msgs.cdfm_message_insert}" />
 				</a>

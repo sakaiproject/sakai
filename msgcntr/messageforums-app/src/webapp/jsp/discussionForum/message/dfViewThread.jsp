@@ -91,9 +91,14 @@
 					  	  <h:outputText value="#{ForumTool.selectedTopic.topic.title}"/>
 				  	  </h:commandLink>
 				  <h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
-				  	<h:graphicImage url="/images/silk/date_delete.png" title="#{msgs.topic_restricted_message}" alt="#{msgs.topic_restricted_message}" rendered="#{ForumTool.selectedTopic.availability == 'false'}" style="margin-right:.5em"/>
-				  	<h:graphicImage url="/images/silk/lock.png" alt="#{msgs.cdfm_forum_locked}" 
-						 rendered="#{ForumTool.selectedTopic.locked =='true'}" style="margin-right:.5em"/>
+				  	<h:panelGroup rendered="#{ForumTool.selectedTopic.availability == 'false'}">
+				  		<span class="bi bi-calendar-x" aria-hidden="true" style="margin-right:.5em"></span>
+				  		<h:outputText styleClass="sr-only" value="#{msgs.topic_restricted_message}" />
+				  	</h:panelGroup>
+				  	<h:panelGroup rendered="#{ForumTool.selectedTopic.locked =='true'}">
+				  		<span class="bi bi-lock-fill" aria-hidden="true" style="margin-right:.5em"></span>
+				  		<h:outputText styleClass="sr-only" value="#{msgs.cdfm_forum_locked}" />
+				  	</h:panelGroup>
 				  	  <h:outputText value="#{ForumTool.selectedThreadHead.message.title}" />
 					  <f:verbatim></h3></div></f:verbatim>
 
@@ -124,7 +129,8 @@
 				action="#{ForumTool.processDfMsgReplyThread}" immediate="true"/>&nbsp;
 			<h:commandLink styleClass="button" value=" #{msgs.cdfm_mark_all_as_read}" id="markAllRead" action="#{ForumTool.processActionMarkAllThreadAsRead}" rendered="#{ForumTool.selectedTopic.isMarkAsRead and not ForumTool.selectedTopic.topic.autoMarkThreadsRead}"/>&nbsp;
 			<h:outputLink styleClass="button" id="print" value="javascript:printFriendly('#{ForumTool.printFriendlyUrlThread}');">
-				<h:graphicImage url="/../../library/image/silk/printer.png" alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />
+				<span class="bi bi-printer-fill" aria-hidden="true"></span>
+				<h:outputText value="#{msgs.print_friendly}" styleClass="sr-only" />
 			</h:outputLink>
 		</h:panelGroup>
 

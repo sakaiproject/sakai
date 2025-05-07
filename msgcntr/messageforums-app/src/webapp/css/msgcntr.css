@@ -117,14 +117,18 @@
 .jumpToNew a {
 	border:1px solid var(--sakai-border-color);
 	padding:3px;
-	padding-left:18px;
-	background: var(--sakai-background-color-2) url(../images/silk/arrow_down.png) center left no-repeat;
+	padding-left:25px;
+	background-color: var(--sakai-background-color-2);
+	position: relative;
 }
-.markAllAsRead {
-	border:1px solid var(--sakai-border-color);
-	padding:3px;
-	padding-left:30px;
-	background: var(--sakai-background-color-2) url(../images/markAsRead.gif)  5px center no-repeat;
+
+.jumpToNew a::before {
+	content: "\F129";
+	font-family: bootstrap-icons;
+	position: absolute;
+	left: 5px;
+	top: 50%;
+	transform: translateY(-50%);
 }
 
 .topicIcon{
@@ -155,18 +159,17 @@
 }
 
 .Mrphs-sakai-forums #msgForum a.button.markAsReadIcon::before{
-	content: "";
-	position:absolute;
-	background: url('../images/silk/email.png') 0 center no-repeat;
-	width: 20px;
-	height: 16px;
+	content: "\F132";
+	font-family: bootstrap-icons;
+	position: absolute;
 	top: 50%;
 	left: 5px;
 	transform: translateY(-50%);
 }
 
 .Mrphs-sakai-forums #msgForum a.markAsReadIcon:hover::before{
-	background-image: url('../images/silk/email_open.png');
+	content: "\F133";
+	font-family: bootstrap-icons;
 }
 .messagesFlat,.messagesThreaded{
 	margin: 10px 0;

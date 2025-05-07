@@ -802,9 +802,9 @@
 											<span class="indnt2">
 												#if($review.getSubmitted())
 													#if ($assignment.IsGroup)
-														$tlang.getFormattedMessage("peerassessment.group", $reviewCount)&nbsp;<img alt="$tlang.getString("gen.subm4")" src="/library/image/silk/accept.png"/>
+														$tlang.getFormattedMessage("peerassessment.group", $reviewCount)&nbsp;<span class="bi bi-check" aria-hidden="true" aria-label="$tlang.getString("gen.subm4")"></span>
 													#else
-														$tlang.getFormattedMessage("peerassessment.student", $reviewCount)&nbsp;<img alt="$tlang.getString("gen.subm4")" src="/library/image/silk/accept.png"/>
+														$tlang.getFormattedMessage("peerassessment.student", $reviewCount)&nbsp;<span class="bi bi-check" aria-hidden="true" aria-label="$tlang.getString("gen.subm4")"></span>
 													#end
 												#else
 													<a name="asnActionLink" href="#toolLinkParam("$action" "doEdit_review" "assignmentId=$formattedText.escapeUrl($assignmentReference)&submissionId=$formattedText.escapeUrl($review.id.SubmissionId)")">

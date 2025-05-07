@@ -81,7 +81,7 @@ $(function() {
 	       // don't do this to samigo view
                if ($(".returnwarning, iframe[src*='samigo-app'").size() === 0) {
                    $(".itemHeader").addClass("itemHeader-resource");
-	           $(".title span").text('');
+		   $(".title span").text('');
                } else { // for tests, etc need the return warning, but kill the title
                    $(".itemTitle .title").addClass("instruction title-instruction");
                    $(".title .crumb-item").hide();
@@ -111,7 +111,7 @@ $(function() {
 		    cursor: 'pointer',
 		    activation: 'click',
 		    closePosition: 'title',
-		    closeText: '<img src="/library/image/silk/cross.png" alt="close" />'
+		    closeText: '<span class="bi bi-x" aria-hidden="true"></span>'
 		    });
 });
 

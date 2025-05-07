@@ -51,8 +51,12 @@
 		<div class="topicBloc" style="padding:0 .5em"><h:messages styleClass="sak-banner-warn" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}" />
 			<p>
 				<span class="title">
-					<h:graphicImage url="/images/silk/lock.png" alt="#{msgs.cdfm_forum_locked}" rendered="#{ForumTool.selectedTopic.topic.locked=='true'}"  style="margin-right:.3em"/>
-					<h:graphicImage url="/images/silk/lock_open.png" alt="#{msgs.cdfm_forum_locked}" rendered="#{ForumTool.selectedTopic.topic.locked=='false'}"  style="margin-right:.3em"/>
+					<h:panelGroup rendered="#{ForumTool.selectedTopic.topic.locked=='true'}">
+						<span class="bi bi-lock-fill" aria-hidden="true" style="margin-right:.3em"></span>
+					</h:panelGroup>
+					<h:panelGroup rendered="#{ForumTool.selectedTopic.topic.locked=='false'}">
+						<span class="bi bi-unlock-fill" aria-hidden="true" style="margin-right:.3em"></span>
+					</h:panelGroup>
 					<h:outputText value="#{ForumTool.selectedTopic.topic.title}" rendered="#{!ForumTool.selectedTopic.markForDuplication}"/>
                     <h:inputText size="50" value="#{ForumTool.selectedTopic.topic.title}" id="topic_title" rendered="#{ForumTool.selectedTopic.markForDuplication}">
                         <f:validateLength maximum="255" minimum="1" />

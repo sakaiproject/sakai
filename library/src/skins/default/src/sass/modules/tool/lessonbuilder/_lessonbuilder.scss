@@ -1626,7 +1626,15 @@
   }
 
   .deleteCandidate td:first-child {
-    background: transparent url('/library/image/silk/delete.png') 2px 3px no-repeat;
+    position: relative;
+    padding-left: 25px;
+    &::before {
+      content: "\F5DE"; /* bi-trash */
+      font-family: bootstrap-icons;
+      position: absolute;
+      left: 2px;
+      top: 3px;
+    }
   }
   .deleteCandidate td:first-child div {
     margin-left: 25px;
@@ -1729,10 +1737,24 @@
   }
   .portletTitle .action a.tool-directurl {
     padding:2px;
-    background: url(/library/image/silk/link.png) center right no-repeat;
+    position: relative;
+    padding-right: 20px;
+    &::after {
+      content: "\F277"; /* bi-link-45deg */
+      font-family: bootstrap-icons;
+      position: absolute;
+      right: 0;
+    }
   }
   .portletTitle .action a.tool-directurl:hover {
-    background: url(/library/image/silk/link_go.png) center right no-repeat;
+    position: relative;
+    padding-right: 20px;
+    &::after {
+      content: "\F144"; /* bi-box-arrow-up-right */
+      font-family: bootstrap-icons;
+      position: absolute;
+      right: 0;
+    }
   }
   .direct-url-wrap {
     font-size: 85%;

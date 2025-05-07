@@ -73,35 +73,117 @@
   #guillotineFixer { clear: both }
 
   /* Stop deleting stuff and not testing it :( */
+  /* Using Bootstrap icons instead of silk images */
   #toolbarButtonSave {
-    background: url(/library/image/silk/page_save.png) center center no-repeat
+    background: none;
+    position: relative;
+    &:before {
+      content: "\F259"; /* save */
+      font-family: "bootstrap-icons";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
   }
   #toolbarButtonBold {
-    background: url(/library/image/silk/text_bold.png) center center no-repeat
+    background: none;
+    position: relative;
+    &:before {
+      content: "\F5FC"; /* type-bold */
+      font-family: "bootstrap-icons";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
   }
   #toolbarButtonItalic {
-    background: url(/library/image/silk/text_italic.png) center center no-repeat
+    background: none;
+    position: relative;
+    &:before {
+      content: "\F5FD"; /* type-italic */
+      font-family: "bootstrap-icons";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
   }
   #toolbarButtonSuper {
-    background: url(/library/image/silk/text_superscript.png) center center no-repeat
+    background: none;
+    position: relative;
+    &:before {
+      content: "\F607"; /* type-h1 */
+      font-family: "bootstrap-icons";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
   }
   #toolbarButtonSub {
-    background: url(/library/image/silk/text_subscript.png) center center no-repeat
+    background: none;
+    position: relative;
+    &:before {
+      content: "\F607"; /* type-h2 */
+      font-family: "bootstrap-icons";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
   }
   #toolbarButtonHeading { }
   #toolbarButtonTable {
-    background: url(/library/image/silk/table.png) center center no-repeat
+    background: none;
+    position: relative;
+    &:before {
+      content: "\F564"; /* table */
+      font-family: "bootstrap-icons";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
   }
   #toolbarButtonLink {
-      background: url(/library/image/silk/page_link.png) center center no-repeat
+    background: none;
+    position: relative;
+    &:before {
+      content: "\F341"; /* link */
+      font-family: "bootstrap-icons";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
   }
   #toolbarButtonImage {
-      background: url(/library/image/silk/picture.png) center center no-repeat
+    background: none;
+    position: relative;
+    &:before {
+      content: "\F302"; /* image */
+      font-family: "bootstrap-icons";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
   }
   #toolbarButtonRecover {
-      background: url(/library/image/silk/arrow_undo.png) center center no-repeat;
-      height: 1.7em;
-      vertical-align: middle
+    background: none;
+    position: relative;
+    height: 1.7em;
+    vertical-align: middle;
+    &:before {
+      content: "\F124"; /* arrow-counterclockwise */
+      font-family: "bootstrap-icons";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
   }
 
 
@@ -182,19 +264,34 @@
       -moz-border-radius: 5px
   }
   #rwiki_sidebar .rwiki_renderedContent *:first-child{ margin-top: 0 }
+  /* Using Bootstrap icons instead of silk icons */
   #sidebar_switch_on {
       text-align: right;
       float: right;
       padding-right: 18px;
       display: none;
-      background: url(/library/image/silk/arrow_left.png) bottom right no-repeat
+      position: relative;
+      &:after {
+        content: "\F12E"; /* arrow-left */
+        font-family: "bootstrap-icons"; 
+        position: absolute;
+        right: 0;
+        bottom: 0;
+      }
   }
   #sidebar_switch_off {
       text-align: right;
       float: right;
       padding-right: 18px;
       display: block;
-      background: url(/library/image/silk/arrow_right.png) bottom right no-repeat
+      position: relative;
+      &:after {
+        content: "\F135"; /* arrow-right */
+        font-family: "bootstrap-icons";
+        position: absolute;
+        right: 0;
+        bottom: 0;
+      }
   }
   .rwiki_previousContent { width: 90%; overflow: auto }
   .rwiki_create_sidebar .instruction { font-size: 20% }
@@ -267,10 +364,18 @@
 
   #wikiCrumb li{
       list-style:none;
-      background:var(--sakai-background-color-2) url(/library/image/silk/page_white_text.png) 5px 5px  no-repeat;
+      background-color: var(--sakai-background-color-2);
       padding:.3em 1em .3em 2em;
       line-height:1.5em;
       margin:0;
+      position: relative;
+      &:before {
+        content: "\F0F6"; /* file-text */
+        font-family: "bootstrap-icons";
+        position: absolute;
+        left: 5px;
+        top: 5px;
+      }
   }
   #visitedPages{
       padding-left:1em;
@@ -375,17 +480,39 @@
 
   /*PART 1 - info*/
   /*outgoing and incoming links*/
+  /* Using Bootstrap icons instead of silk icons */
   #referencedLinks li span{
-      background: url(/library/image/silk/arrow_right.png) bottom right no-repeat;
-      padding: .3em 2em 0 0
+      padding: .3em 2em 0 0;
+      position: relative;
+      &:after {
+        content: "\F135"; /* arrow-right */
+        font-family: "bootstrap-icons";
+        position: absolute;
+        right: 0;
+        bottom: 0;
+      }
   }
   #referencingLinks li span{
-      background: url(/library/image/silk/arrow_right.png) bottom left no-repeat;
-      padding: .3em  0 0 2em
+      padding: .3em 0 0 2em;
+      position: relative;
+      &:before {
+        content: "\F135"; /* arrow-right */
+        font-family: "bootstrap-icons";
+        position: absolute;
+        left: 0;
+        bottom: 0;
+      }
   }
   #commentLinks li span{
-      background: url(/library/image/silk/comment.png) bottom left no-repeat;
-      padding: .3em  0 0 2em
+      padding: .3em 0 0 2em;
+      position: relative;
+      &:before {
+        content: "\F24C"; /* chat */
+        font-family: "bootstrap-icons";
+        position: absolute;
+        left: 0;
+        bottom: 0;
+      }
   }
 
   /*PART 1 - View*/
@@ -480,8 +607,16 @@
       font-size: .8em;
       line-height:2em;}
   #createCommentLink{
-      background: url(/library/image/silk/comment_add.png) center left no-repeat;
+      position: relative;
       padding:3em 1.6em;
+      &:before {
+        content: "\F4ED"; /* chat-plus */
+        font-family: "bootstrap-icons";
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+      }
   }
 
   .rwiki_comments { list-style: none; margin: 0; padding: 0 }

@@ -127,10 +127,8 @@ public class AssignmentItemImpl implements TaggableItem {
 		return true;
 	}
 
-	public String getIconUrl()
-	{
-		String url = producer.serverConfigurationService.getServerUrl() + "/library/image/silk/page_edit.png";
-		return url;
+	public String getIconUrl() {
+		return "bi bi-pencil-square";
 	}
 	
 	public String getOwner() {

@@ -186,36 +186,45 @@
 
 			<h:panelGroup id="forumsAction">
 				<h:outputLink styleClass="button" id="print" value="javascript:printFriendly('#{ForumTool.printFriendlyAllAuthoredMsg}');" title="#{msgs.cdfm_print}">
-					<h:graphicImage url="/../../library/image/silk/printer.png" alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />
+					<span class="bi bi-printer" aria-hidden="true"></span>
+					<span class="sr-only"><h:outputText value="#{msgs.print_friendly}" /></span>
 				</h:outputLink>
 			</h:panelGroup>
 
 			 <%}%>
-			  <f:verbatim>
-			  	<div class="success" id="gradesSavedDiv" class="success" style="display:none">
-			  </f:verbatim>
-			  		<h:outputText value="#{msgs.cdfm_grade_successful}"/>
-			  <f:verbatim>
-			  	</div>
-			  </f:verbatim>
-			  <f:verbatim>
-				<div id="dialogDiv" title="Grade Messages" style="display:none">
-			       <iframe id="dialogFrame" name="dialogFrame" width="100%" height="100%" frameborder="0"></iframe>
-			    </div>
-			</f:verbatim>
-			  <f:verbatim><div style="font-weight:bold;" styleClass="specialLink"></f:verbatim>
-					<h:commandLink  action="#{mfStatisticsBean.toggleTopicTitleSort3}" title=" #{msgs.stat_sort_by_topic}">
+			  <div class="success" id="gradesSavedDiv" class="success" style="display:none">
+			  	<h:outputText value="#{msgs.cdfm_grade_successful}"/>
+			  </div>
+
+			  <div id="dialogDiv" title="Grade Messages" style="display:none">
+			    <iframe id="dialogFrame" name="dialogFrame" width="100%" height="100%" frameborder="0"></iframe>
+			  </div>
+
+			  <div style="font-weight:bold;" styleClass="specialLink">
+					<h:commandLink action="#{mfStatisticsBean.toggleTopicTitleSort3}" title=" #{msgs.stat_sort_by_topic}">
 						<h:outputText value="#{msgs.stat_sort_by_topic}" />
-						<h:graphicImage value="/images/sortascending.gif" rendered="#{mfStatisticsBean.topicTitleSort3 && mfStatisticsBean.ascendingForUser3}" alt="#{msgs.stat_topic_title}"/>
-						<h:graphicImage value="/images/sortdescending.gif" rendered="#{mfStatisticsBean.topicTitleSort3 && !mfStatisticsBean.ascendingForUser3}" alt="#{msgs.stat_topic_title}"/>
+						<h:panelGroup rendered="#{mfStatisticsBean.topicTitleSort3 && mfStatisticsBean.ascendingForUser3}">
+							<span class="bi bi-sort-up" aria-hidden="true"></span>
+							<span class="sr-only"><h:outputText value="#{msgs.stat_topic_title}"/></span>
+						</h:panelGroup>
+						<h:panelGroup rendered="#{mfStatisticsBean.topicTitleSort3 && !mfStatisticsBean.ascendingForUser3}">
+							<span class="bi bi-sort-down" aria-hidden="true"></span>
+							<span class="sr-only"><h:outputText value="#{msgs.stat_topic_title}"/></span>
+						</h:panelGroup>
 					</h:commandLink>
 	  				<h:outputText value=" " /><h:outputText value=" | " /><h:outputText value=" " />
 					<h:commandLink action="#{mfStatisticsBean.toggleDateSort3}" title=" #{msgs.stat_sort_by_date}">	
 						<h:outputText value="#{msgs.stat_sort_by_date}" />
-						<h:graphicImage value="/images/sortascending.gif" rendered="#{mfStatisticsBean.forumDateSort3 && mfStatisticsBean.ascendingForUser3}" alt="#{msgs.stat_forum_date}"/>
-						<h:graphicImage value="/images/sortdescending.gif" rendered="#{mfStatisticsBean.forumDateSort3 && !mfStatisticsBean.ascendingForUser3}" alt="#{msgs.stat_forum_date}"/>
+						<h:panelGroup rendered="#{mfStatisticsBean.forumDateSort3 && mfStatisticsBean.ascendingForUser3}">
+							<span class="bi bi-sort-up" aria-hidden="true"></span>
+							<span class="sr-only"><h:outputText value="#{msgs.stat_forum_date}"/></span>
+						</h:panelGroup>
+						<h:panelGroup rendered="#{mfStatisticsBean.forumDateSort3 && !mfStatisticsBean.ascendingForUser3}">
+							<span class="bi bi-sort-down" aria-hidden="true"></span>
+							<span class="sr-only"><h:outputText value="#{msgs.stat_forum_date}"/></span>
+						</h:panelGroup>
 					</h:commandLink>
-			  <f:verbatim></div></f:verbatim>
+			  </div>
   			<h:dataTable id="staticAllMessages" value="#{mfStatisticsBean.userAuthoredStatistics2}" var="stat" styleClass="messagesFlat" columnClasses="bogus">	
    				<h:column>
 				<h:panelGroup rendered="#{!stat.msgDeleted}" layout="block"> 
@@ -252,7 +261,7 @@
 								<f:param value="dialogFrame" name="frameId"/>
 								<f:param value="gradesSavedDiv" name="gradesSavedDiv"/>
 								<f:param value="#{mfStatisticsBean.selectedSiteUserId}" name="userId"/>
-								<h:graphicImage value="/../../library/image/silk/award_star_gold_1.png" alt="#{msgs.cdfm_button_bar_grade}" />
+								<span class="bi bi-star-fill" aria-hidden="true"></span>
 								<h:outputText value=" #{msgs.cdfm_button_bar_grade}" />
 							</h:outputLink>
 							<h:outputText value=" #{msgs.cdfm_toolbar_separator} " rendered="#{ForumTool.instructor}" />
