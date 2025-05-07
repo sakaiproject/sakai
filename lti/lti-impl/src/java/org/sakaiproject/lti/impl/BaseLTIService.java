@@ -1070,7 +1070,7 @@ public abstract class BaseLTIService implements LTIService {
 		Map<String, Object> content = this.getContent(contentKey.longValue(), siteId);
 		if ( content == null ) return null;
 
-		Long toolKey = Long.valueOf(content.get(LTIService.LTI_TOOL_ID).toString());
+		Long toolKey = LTIUtil.toLong(content.get(LTIService.LTI_TOOL_ID));
 		if (toolKey == null) return null;
 
 		Map<String, Object> tool = this.getTool(toolKey, siteId);
