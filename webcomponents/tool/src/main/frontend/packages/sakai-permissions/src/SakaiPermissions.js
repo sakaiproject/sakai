@@ -218,7 +218,7 @@ export class SakaiPermissions extends SakaiElement {
 
   _loadPermissions() {
 
-    const url = `/api/sites/${portal.siteId}/permissions/${this.tool}?ref=${this.reference}${this.overrideReference ? `&overrideRef=${this.overrideReference}` : ""}`;
+    const url = `/api/sites/${portal.siteId}/permissions/${this.tool}?ref=${encodeURIComponent(this.reference)}${this.overrideReference ? `&overrideRef=${encodeURIComponent(this.overrideReference)}` : ""}`;
     fetch(url, { cache: "no-cache" })
       .then(res => {
 
