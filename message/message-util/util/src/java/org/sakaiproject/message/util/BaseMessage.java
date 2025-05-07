@@ -523,43 +523,39 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 	 *        The channel reference.
 	 * @return true if the user is allowed to getChannel(channelId), false if not.
 	 */
+	@Override
 	public boolean allowGetChannel(String ref)
 	{
 		return unlockCheck(SECURE_READ, ref);
 
 	} // allowGetChannel
 
+	@Override
 	public boolean isMessageViewable(Message message) {
-
-		ResourceProperties messageProps = message.getProperties();
-
-		String siteId = m_entityManager.newReference(message.getReference()).getContext();
-
-		if (unlockCheck(SECURE_READ_DRAFT, m_siteService.siteReference(siteId))) {
-			return true;
-		}
-
 		if (message.getHeader().getDraft()) return false;
+		ResourceProperties messageProps = message.getProperties();
 
 		Instant now = Instant.now();
 		try {
-			Instant releaseDate = message.getProperties().getInstantProperty(RELEASE_DATE);
+			Instant releaseDate = messageProps.getInstantProperty(RELEASE_DATE);
 
 			if (now.isBefore(releaseDate)) {
 				return false;
 			}
 		} catch (Exception e) {
 			// Just not using/set Release Date
+			log.debug("isMessageViewable: exception getting release date for message: {}", message.getId());
 		}
 
 		try {
-			Instant retractDate = message.getProperties().getInstantProperty(RETRACT_DATE);
+			Instant retractDate = messageProps.getInstantProperty(RETRACT_DATE);
 
 			if (now.isAfter(retractDate)) {
 				return false;
 			}
 		} catch (Exception e) {
 			// Just not using/set Retract Date
+			log.debug("isMessageViewable: exception getting retract date for message: {}", message.getId());
 		}
 
 		return true;
