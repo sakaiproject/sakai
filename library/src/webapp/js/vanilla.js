@@ -324,9 +324,7 @@ class Vanilla {
     // Prepare fetch options
     const fetchOptions = {
       method: type,
-      headers: {},
-      // Don't set credentials by default to maintain backward compatibility
-      credentials: 'same-origin'
+      headers: {}
     };
 
     // Set content type header if provided

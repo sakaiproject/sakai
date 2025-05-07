@@ -21,7 +21,6 @@
 
 import { addClass, ajax, append, attr, domReady, fadeIn, fadeOut, hasClass, html, on, remove, removeAttr, removeClass, text, trigger, val }
   from '/library/js/vanilla.js';
-  // from '../../../../library/src/webapp/js/vanilla.js';
 
 // Define constants for window objects
 const portal = window.portal || { user: { id: '' }, siteId: '' };
