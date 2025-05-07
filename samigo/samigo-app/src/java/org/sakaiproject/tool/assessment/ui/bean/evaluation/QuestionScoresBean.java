@@ -98,6 +98,8 @@ public class QuestionScoresBean implements Serializable, PhaseAware {
   private Collection sections;
   @Getter @Setter
   private Collection deliveryItem;
+  @Getter @Setter
+  private ItemDataIfc itemData;
   @Setter
   private String score;
   @Setter
