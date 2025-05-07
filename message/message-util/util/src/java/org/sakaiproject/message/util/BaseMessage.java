@@ -570,6 +570,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			}
 		} catch (Exception e) {
 			// Just not using/set Release Date
+			log.debug("isMessageViewable: exception getting release date for message: {}", message.getId());
 		}
 
 		try {
@@ -580,6 +581,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			}
 		} catch (Exception e) {
 			// Just not using/set Retract Date
+			log.debug("isMessageViewable: exception getting retract date for message: {}", message.getId());
 		}
 
 		return true;
