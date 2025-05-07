@@ -489,6 +489,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 				bean.setItemId(item.getItemId().toString());
 				bean.setPartName(item.getSection().getSequence().toString());
 				bean.setItemName(item.getSequence().toString());
+				bean.setItemData(item);
 				item.setHint("***"); // Keyword to not show student answer
 				// for short answer/ essey question, if there is a model short
 				// answer for this question

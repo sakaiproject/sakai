@@ -50,6 +50,7 @@ import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.assessment.business.entity.RecordingData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener;
@@ -96,6 +97,8 @@ public class QuestionScoresBean implements Serializable, PhaseAware {
   @Getter @Setter
   private Collection deliveryItem;
   @Getter @Setter
+  private ItemDataIfc itemData;
+  @Setter
   private String score;
   @Getter @Setter
   private String discount;
