@@ -126,12 +126,9 @@ export class SakaiGrades extends SakaiPageableElement {
         </sakai-site-picker>
       </div>
       ` : nothing}
-      ${this.secret ? html `
-      <div class="score-msg">${this._i18n.score_reveal_msg}</div>
-      ` : nothing}
-      <div id="topbar">
+      <div id="topbar" class="mt-0 mb-3">
         <div id="filter">
-          <select @change=${this.sortChanged}
+          <select class="w-100" @change=${this.sortChanged}
               title="${this._i18n.sort_tooltip}"
               aria-label="${this._i18n.sort_tooltip}">
             <option value="${NEW_LOW_TO_HIGH}">${this._i18n.sort_new_low_to_high}</option>
@@ -147,6 +144,9 @@ export class SakaiGrades extends SakaiPageableElement {
           </select>
         </div>
       </div>
+      ${this.secret ? html `
+        <div class="score-msg mb-3 p-2">${this._i18n.score_reveal_msg}</div>
+      ` : nothing}
 
       <div id="grades" aria-live="polite">
         <div class="header">${this._i18n.course_assignment}</div>
@@ -164,7 +164,7 @@ export class SakaiGrades extends SakaiPageableElement {
           `}
         </div>
         <div class="score cell ${i % 2 === 0 ? "even" : "odd"}${this.secret ? " blurred" : ""}" aria-hidden="${this.secret ? "true" : "false"}">
-            ${a.notGradedYet ? "-" : a.score} ${!a.notGradedYet && a.siteRole === "Instructor" ? html`${this._i18n.course_average}` : nothing}
+            <span>${a.notGradedYet ? "-" : a.score} ${!a.notGradedYet && a.siteRole === "Instructor" ? html`${this._i18n.course_average}` : nothing}</span>
         </div>
         <div class="next cell ${i % 2 === 0 ? "even" : "odd"}">
           <a href="${a.url}"
@@ -211,7 +211,10 @@ export class SakaiGrades extends SakaiPageableElement {
       }
 
       #site-filter {
-        margin-bottom: 12px;
+        margin-bottom: 0.25rem;
+      }
+      #site-filter sakai-site-picker::part(select) {
+        width: 100%;
       }
 
       #grades {
@@ -252,6 +255,7 @@ export class SakaiGrades extends SakaiPageableElement {
           text-align: center;
           color: red;
           background-color: var(--sakai-background-color-2);
+          border-radius: 4px;
         }
         .even {
           background-color: var(--sakai-table-even-color);
@@ -261,7 +265,7 @@ export class SakaiGrades extends SakaiPageableElement {
           justify-content: right;
           align-items: center;
         }
-        .blurred {
+        .blurred span {
           filter: blur(3px);
         }
     `,
