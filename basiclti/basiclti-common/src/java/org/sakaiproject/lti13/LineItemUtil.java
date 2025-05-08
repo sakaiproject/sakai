@@ -52,6 +52,7 @@ import org.sakaiproject.lti13.util.SakaiLineItem;
 
 import static org.tsugi.basiclti.BasicLTIUtil.getObject;
 import static org.tsugi.basiclti.BasicLTIUtil.parseIMS8601;
+import org.tsugi.lti13.LTI13Util;
 
 /**
  * Some Sakai Utility code for IMS LTI This is mostly code to support the
@@ -117,12 +118,15 @@ public class LineItemUtil {
 	// TODO: Remember to dream that someday this will be JSON :)
 	public static String constructExternalId(Long tool_id, Map<String, Object> content, SakaiLineItem lineItem)
 	{
+		Long content_id = (content == null) ? null : SakaiBLTIUtil.toLongNull(content.get(LTIService.LTI_ID));
+		log.debug("content_id={}", content_id);
+		return constructExternalIdImpl(tool_id, content_id, lineItem);
+	}
+
+	private static String constructExternalIdImpl(Long tool_id, Long content_id, SakaiLineItem lineItem)
+	{
 		String retval = tool_id.toString();
-		if ( content == null ) {
-			retval += ID_SEPARATOR + "0" + ID_SEPARATOR;
-		} else {
-			retval += ID_SEPARATOR + content.get(LTIService.LTI_ID) + "|";
-		}
+		retval += ID_SEPARATOR + ((content_id == null) ? "0" : content_id.toString()) + ID_SEPARATOR;
 		if ( lineItem != null ) {
 			if ( lineItem.resourceId == null ) {
 				retval += ID_SEPARATOR;
@@ -135,7 +139,16 @@ public class LineItemUtil {
 				retval += URLEncode(lineItem.tag.replace("|", "")) + ID_SEPARATOR;
 			}
 		}
+		log.debug("retval={}", retval);
 		return retval;
+	}
+
+	private static Long deriveContentIdFromGradebookExternalId(String external_id) {
+		if (external_id == null) {
+			return null;
+		}
+		String[] parts = StringUtils.split(external_id, ID_SEPARATOR_REGEX);
+		return (parts == null || parts.length < 2) ? null : Long.valueOf(parts[1]);
 	}
 
 	public static Assignment createLineItem(Site site, Long tool_id, Map<String, Object> content, SakaiLineItem lineItem) {
@@ -266,7 +279,12 @@ public class LineItemUtil {
 			gradebookColumn.setPoints(Double.valueOf(lineItem.scoreMaximum));
 		}
 
-		String external_id = constructExternalId(tool_id, null, lineItem);
+		Long content_id = deriveContentIdFromGradebookExternalId(gradebookColumn.getExternalId());
+		String external_id = (content_id != null) ? constructExternalIdImpl(tool_id, content_id, lineItem) : constructExternalId(tool_id, null, lineItem);
+
+		log.debug("gb item id={}; gb item title={}; external_id={}; prior external_id={}; derived content id={}", gradebookColumn.getId(),
+			  gradebookColumn.getName(), external_id, gradebookColumn.getExternalId(), content_id);
+
 		gradebookColumn.setExternalId(external_id);
 		if ( lineItem.label != null ) {
 			gradebookColumn.setName(lineItem.label);
@@ -446,6 +464,8 @@ public class LineItemUtil {
 	 */
 	public static List<SakaiLineItem> getLineItemsForTool(String signed_placement, Site site, Long tool_id, SakaiLineItem filter) {
 
+		log.debug("signed_placement={}; site id={}; tool_id={}", signed_placement, site.getId(), tool_id);
+
 		String context_id = site.getId();
 		if ( tool_id == null ) {
 			throw new RuntimeException("tool_id is required");
@@ -467,11 +487,13 @@ public class LineItemUtil {
 				String external_id = gbColumn.getExternalId();
 				if ( external_id == null || external_id.length() < 1 ) continue;
 
+				log.debug("gb column id={}; title={}; external_id={}", gbColumn.getId(), gbColumn.getName(), external_id);
+
 				String[] parts = external_id.split(ID_SEPARATOR_REGEX);
 				if ( parts.length < 1 || ! parts[0].equals(tool_id.toString()) ) continue;
 
 				SakaiLineItem item = getLineItem(signed_placement, gbColumn);
-				if ( parts.length > 1 ) {
+				if ( parts.length > 1 && ! StringUtils.equals("0", parts[1]) ) {
 					item.resourceLinkId = "content:" + parts[1];
 				}
 
@@ -541,6 +563,7 @@ public class LineItemUtil {
 	public static SakaiLineItem getDefaultLineItem(Site site, Map<String, Object> content) {
 		String signed_placement = SakaiBLTIUtil.getSignedPlacement(content);
 		Long tool_id = SakaiBLTIUtil.getLongKey(content.get(LTIService.LTI_TOOL_ID));
+		log.debug("signed_placement={}; site id={}; tool_id={}", signed_placement, site.getId(), tool_id);
 		List<SakaiLineItem> toolItems = LineItemUtil.getLineItemsForTool(signed_placement, site, tool_id, null /* filter */);
 		String title = (String) content.get(LTIService.LTI_TITLE);
 		for (SakaiLineItem item : toolItems) {
