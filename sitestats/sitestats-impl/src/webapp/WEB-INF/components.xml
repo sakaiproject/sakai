@@ -254,8 +254,8 @@
 		<!-- Aggregate administrator events? (default: false) -->
 		<property name="collectAdminEvents" value="false" />
 
-		<!-- Aggregate events ONLY for sites with SiteStats tool? (default: true) -->
-		<property name="collectEventsForSiteWithToolOnly" value="true" />
+		<!-- Aggregate events ONLY for sites with SiteStats tool? (default: false) -->
+		<property name="collectEventsForSiteWithToolOnly" value="false" />
 		<!-- /OPTIONS -->
 
 		<!-- Sakai services -->
