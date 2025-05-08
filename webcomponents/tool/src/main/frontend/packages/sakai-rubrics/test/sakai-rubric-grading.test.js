@@ -3,24 +3,6 @@ import * as data from "./data.js";
 import { elementUpdated, expect, fixture, html, oneEvent, waitUntil } from "@open-wc/testing";
 import fetchMock from "fetch-mock/esm/client";
 
-fetchMock
-  .get(data.i18nUrl, data.i18n, { overwriteRoutes: true })
-  .get(data.rubric1Url, data.rubric1, { overwriteRoutes: true })
-  .patch(data.rubric1OwnerUrl, 200, { overwriteRoutes: true })
-  .patch(data.rubric3OwnerUrl, 200, { overwriteRoutes: true })
-  .get(data.associationUrl, data.association, { overwriteRoutes: true })
-  .get(data.evaluationUrl, data.evaluation, { overwriteRoutes: true })
-  .post(`/api/sites/${data.siteId}/rubric-evaluations`, (url, opts) => {
-
-      return Object.assign({
-        id: "" + Math.floor(Math.random() * 20) + 1,
-        creator: "adrian",
-        created: Date.now(),
-        creatorDisplayName: "Adrian Fish",
-      }, JSON.parse(opts.body));
-    }, { overwriteRoutes: true })
-  .get("*", 500, { overwriteRoutes: true });
-
 window.sakai = window.sakai || {
   editor: {
     launch: () => ({ focus: () => "", on: () => "", setData: (data, callback) => "" })
@@ -29,9 +11,30 @@ window.sakai = window.sakai || {
 
 describe("sakai-rubric-grading tests", () => {
 
+  beforeEach(async () => {
+    fetchMock.get(data.i18nUrl, data.i18n);
+  });
+
+  afterEach(() => {
+    fetchMock.restore();
+  });
+
   it ("rubric grading renders correctly", async () => {
 
-    let el = await fixture(html`
+    fetchMock.get(data.rubric1Url, data.rubric1)
+      .get(data.associationUrl, data.association)
+      .get(data.evaluationUrl, data.evaluation)
+      .post(`/api/sites/${data.siteId}/rubric-evaluations`, (url, opts) => {
+
+        return Object.assign({
+          id: "" + Math.floor(Math.random() * 20) + 1,
+          creator: "adrian",
+          created: Date.now(),
+          creatorDisplayName: "Adrian Fish",
+        }, JSON.parse(opts.body));
+      });
+
+    const el = await fixture(html`
       <sakai-rubric-grading
           site-id="${data.siteId}"
           tool-id="${data.toolId}"
@@ -42,7 +45,9 @@ describe("sakai-rubric-grading tests", () => {
       </sakai-rubric-grading>
     `);
 
-    await waitUntil(() => el._i18n && el.association);
+    await elementUpdated(el);
+
+    await expect(el).to.be.accessible();
 
     // Some basic element checks
     expect(el.querySelector(".grading")).to.exist;
@@ -77,5 +82,29 @@ describe("sakai-rubric-grading tests", () => {
     fineTuneInput.dispatchEvent(new Event("input"));
     await el.updateComplete;
     expect(totalPoints.value).to.equal("1.8");
+  });
+
+  it ("calculates percentage totals correctly", async () => {
+
+    fetchMock.get(data.rubric1Url, data.rubric1)
+      .get(data.associationUrl, data.association)
+      .get(data.evaluationUrl, data.evaluation);
+
+    const el = await fixture(html`
+      <sakai-rubric-grading
+          site-id="${data.siteId}"
+          tool-id="${data.toolId}"
+          entity-id="${data.entityId}"
+          evaluated-item-id="${data.evaluatedItemId}"
+          evaluated-item-owner-id="${data.evaluatedItemOwnerId}"
+          enable-pdf-export
+          total-as-percentage>
+      </sakai-rubric-grading>
+    `);
+
+    await elementUpdated(el);
+
+    await waitUntil(() => el.querySelector("#sakai-rubrics-total-points"));
+    expect(el.querySelector("#sakai-rubrics-total-points").textContent).to.contain("66.67 %");
   });
 });
