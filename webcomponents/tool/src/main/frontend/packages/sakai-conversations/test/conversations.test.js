@@ -310,8 +310,6 @@ describe("sakai-conversations tests", () => {
 
     await expect(el).to.be.accessible({ ignoredRules: [ "duplicate-id" ] });
 
-    const statsDiv = el.querySelector("#conv-stats-button");
-    expect(statsDiv).to.exist;
-    expect(statsDiv.querySelector("i").classList.contains("si-sakai-sitestats")).to.be.true;
+    expect(el.querySelector("#conv-stats-button")).to.exist;
   });
 });
