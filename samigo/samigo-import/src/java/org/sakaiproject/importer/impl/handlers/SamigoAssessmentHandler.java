@@ -136,11 +136,9 @@ public class SamigoAssessmentHandler implements HandlesImportable {
 			assessment.setSectionSet(sectionSet);
 			as.saveAssessment(assessment);
 		} catch (Exception e) {
-			// error creating this assessment
-			log.error(e.getMessage(), e);
+			log.warn("Error creating assessment: {}", e.toString());
 		} catch (AssessmentException e) {
-			// TODO Auto-generated catch block
-			log.error(e.getMessage(), e);
+			log.warn("Error creating assessment: {}", e.toString());
 		}
 	}
 	

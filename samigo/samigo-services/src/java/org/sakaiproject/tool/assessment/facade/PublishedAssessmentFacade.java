@@ -21,6 +21,7 @@
 
 package org.sakaiproject.tool.assessment.facade;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,6 +30,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -37,6 +39,8 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.samigo.api.SamigoReferenceReckoner;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedMetaData;
@@ -57,7 +61,7 @@ import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentS
 
 @Slf4j
 public class PublishedAssessmentFacade
-    implements java.io.Serializable, PublishedAssessmentIfc, Cloneable
+    implements Serializable, Entity, PublishedAssessmentIfc, Cloneable
 {
   private static final long serialVersionUID = 7526471155622776147L;
   public static final Integer ACTIVE_STATUS =  Integer.valueOf(1);
@@ -111,7 +115,8 @@ public class PublishedAssessmentFacade
   private int submittedCount;
   private Date lastNeedResubmitDate;
   private int activeStatus = 0;
-  private Map releaseToGroups;
+  @Getter private Map<String, String> releaseToGroups;
+  @Setter private Set<String> groupReferences;
   private int enrolledStudentCount;
   private Integer timeLimit;
   private String lastModifiedDateForDisplay;
@@ -133,22 +138,22 @@ public class PublishedAssessmentFacade
 
   // constructor that whole min. info, used for listing
   public PublishedAssessmentFacade(Long id, String title, String releaseTo,
-                                 Date startDate, Date dueDate, Map releaseToGroups){
+                                 Date startDate, Date dueDate, Map<String, String> releaseToGroups){
 	  this(id, title, releaseTo, startDate, dueDate, releaseToGroups, null, null);
   }
   
   public PublishedAssessmentFacade(Long id, String title, String releaseTo,
-		  Date startDate, Date dueDate, Map releaseToGroups, Date lastModifiedDate, String lastModifiedBy){
+		  Date startDate, Date dueDate, Map<String, String> releaseToGroups, Date lastModifiedDate, String lastModifiedBy){
 	  this(id, title, releaseTo, startDate, dueDate, null, null, releaseToGroups, lastModifiedDate, lastModifiedBy, null, null, null);
   }
 
   public PublishedAssessmentFacade(Long id, String title, String releaseTo,
-		  Date startDate, Date dueDate, Integer status, Map releaseToGroups, Date lastModifiedDate, String lastModifiedBy){
+		  Date startDate, Date dueDate, Integer status, Map<String, String> releaseToGroups, Date lastModifiedDate, String lastModifiedBy){
 	  this(id, title, releaseTo, startDate, dueDate, null, status, releaseToGroups, lastModifiedDate, lastModifiedBy, null, null, null);
   }
 
   public PublishedAssessmentFacade(Long id, String title, String releaseTo,
-		  Date startDate, Date dueDate, Date retractDate, Integer status, Map releaseToGroups, 
+		  Date startDate, Date dueDate, Date retractDate, Integer status, Map<String, String> releaseToGroups, 
 		  Date lastModifiedDate, String lastModifiedBy, Integer lateHandling,
 		  Boolean unlimitedSubmissions, Integer submissionsAllowed){
 	  this.publishedAssessmentId = id;
@@ -258,7 +263,7 @@ public class PublishedAssessmentFacade
     this.publishedSectionSet = data.getSectionSet();
   }
   
-  public PublishedAssessmentFacade(PublishedAssessmentIfc data, Map releaseToGroups) {
+  public PublishedAssessmentFacade(PublishedAssessmentIfc data, Map<String, String> releaseToGroups) {
     setProperties(data);
     this.publishedSectionSet = data.getSectionSet();
     this.releaseToGroups = releaseToGroups;
@@ -287,10 +292,17 @@ public class PublishedAssessmentFacade
     this.publishedAccessControl = data.getAssessmentAccessControl();
     this.publishedFeedback = data.getAssessmentFeedback();
     this.publishedEvaluationModel = data.getEvaluationModel();
-    this.publishedMetaDataMap = data.getAssessmentMetaDataMap(
-        this.publishedMetaDataSet);
+    this.publishedMetaDataMap = data.getAssessmentMetaDataMap(this.publishedMetaDataSet);
     this.publishedSecuredIPAddressSet = data.getSecuredIPAddressSet();
     this.publishedAssessmentAttachmentSet = data.getAssessmentAttachmentSet();
+  }
+
+  /**
+   * From Entity
+   */
+  @Override
+  public String getId() {
+    return publishedAssessmentId.toString();
   }
 
   public Long getPublishedAssessmentId(){
@@ -300,6 +312,22 @@ public class PublishedAssessmentFacade
   public void setPublishedAssessmentId(Long publishedAssessmentId) {
     this.publishedAssessmentId = publishedAssessmentId;
     this.data.setAssessmentBaseId(publishedAssessmentId);
+  }
+
+  /**
+   * From Entity
+   */
+  @Override
+  public String getReference() {
+    return SamigoReferenceReckoner.reckoner().site(getOwnerSiteId()).subtype("p").id(this.getId()).reckon().getReference();
+  }
+
+  /**
+   * From Entity
+   */
+  @Override
+  public Optional<Set<String>> getGroupReferences() {
+    return Optional.of(groupReferences);
   }
 
   // assessment returns is AssessmentFacade
@@ -832,10 +860,6 @@ public class PublishedAssessmentFacade
 	    return (String)this.publishedMetaDataMap.get(HASMETADATAFORQUESTIONS);
   }
 
-  public Map getReleaseToGroups() {
-	    return this.releaseToGroups;
-  }
-  
   public boolean getHasAssessmentGradingData() {
 	  return hasAssessmentGradingData;
   }

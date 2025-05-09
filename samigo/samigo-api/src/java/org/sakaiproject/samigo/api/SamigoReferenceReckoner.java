@@ -24,15 +24,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.samigo.util.SamigoConstants;
 
-/**
- * Created by enietzel on 5/11/17.
- */
-
 @Slf4j
 public class SamigoReferenceReckoner {
 
     @Value
     public static class SamigoReference {
+
         private final String type = "samigo";
         private String site;
         private String subtype;

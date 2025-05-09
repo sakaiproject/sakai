@@ -21,7 +21,9 @@
 
 package org.sakaiproject.entity.api;
 
+import java.util.Set;
 import java.util.Stack;
+import java.util.Optional;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -53,6 +55,15 @@ public interface Entity
 	 * @return The the internal reference which can be used to access the entity from within the system.
 	 */
 	String getReference();
+
+	/**
+	 * If this entity is associated with any groups, get the entity references of those groups.
+	 *
+	 * @return An Optional of the group entity reference.
+	 */
+	default Optional<Set<String>> getGroupReferences() {
+		return Optional.empty();
+	}
 
 	/**
 	 * Access the alternate URL which can be used to access the entity.

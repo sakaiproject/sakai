@@ -15,6 +15,9 @@ package org.sakaiproject.webapi.controllers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.entity.api.Entity;
@@ -26,6 +29,8 @@ import org.sakaiproject.grading.api.GradeDefinition;
 import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.grading.api.SortType;
 import org.sakaiproject.grading.api.model.Gradebook;
+import org.sakaiproject.samigo.api.SamigoReferenceReckoner;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -52,6 +57,9 @@ import java.util.stream.Collectors;
 public class GradesController extends AbstractSakaiApiController {
 
     @Resource
+    private AuthzGroupService authzGroupService;
+
+    @Resource
     private EntityManager entityManager;
 
     @Resource(name = "org.sakaiproject.grading.api.GradingService")
@@ -73,11 +81,12 @@ public class GradesController extends AbstractSakaiApiController {
 
         // collect site information
         return siteService.getOptionalSite(siteId).map(site -> {
+
             String userId = checkSakaiSession().getUserId();
             Role role = site.getUserRole(userId);
             boolean isMaintainer = StringUtils.equalsIgnoreCase(site.getMaintainRole(), role.getId());
 
-            List<String> userIds = isMaintainer
+            List<String> siteUserIds = isMaintainer
                     ? site.getRoles().stream()
                             .map(Role::getId)
                             .filter(r -> !site.getMaintainRole().equals(r))
@@ -85,7 +94,7 @@ public class GradesController extends AbstractSakaiApiController {
                             .collect(Collectors.toList())
                     : List.of(userId);
 
-            Map<Long, List<GradeDefinition>> gradeDefinitions = gradingService.getGradesWithoutCommentsForStudentsForItems(siteId, siteId, assignmentIds, userIds);
+            Map<Long, List<GradeDefinition>> gradeDefinitions = gradingService.getGradesWithoutCommentsForStudentsForItems(siteId, siteId, assignmentIds, siteUserIds);
 
             List<GradeRestBean> beans = new ArrayList<>();
             // collect information for each gradebook item
@@ -97,11 +106,38 @@ public class GradesController extends AbstractSakaiApiController {
                 // collect information for internal gb item
                 List<GradeDefinition> gd = gradeDefinitions.get(a.getId());
 
+                String reference = a.getExternallyMaintained() ? a.getExternalId() : "";
+
+                // Samigo only sets the assessment id as the external id, not an Entity reference
+                if (a.getExternalAppName().equals(SamigoConstants.TOOL_ID)) {
+                    reference = SamigoReferenceReckoner.reckoner().site(siteId).subtype("p").id(a.getExternalId()).reckon().getReference();
+                }
+
+                int totalGradableUserCount = a.getExternallyMaintained() ?
+                        entityManager.getEntity(reference).map(externalEntity -> {
+
+                            return externalEntity.getGroupReferences().map(groupReferences -> {
+
+                                if (groupReferences.isEmpty()) return siteUserIds.size();
+
+                                return groupReferences.stream().reduce(0, (t, gr) -> {
+
+                                    try {
+                                        return t + authzGroupService.getAuthzGroup(gr).getUsers().size();
+                                    } catch (Exception e) {
+                                        log.warn("No authz group found for reference {}", gr);
+                                    }
+                                    return t;
+                                }, Integer::sum);
+                            }).orElse(siteUserIds.size());
+                        }).orElse(0)
+                    : siteUserIds.size();
+
                 if (gd == null) {
                     // no grades for this gb assignment yet
                     bean.setScore("");
                     if (isMaintainer) {
-                        bean.setUngraded(userIds.size());
+                        bean.setUngraded(totalGradableUserCount);
                     }
                     bean.setNotGradedYet(true);
                 } else {
@@ -116,7 +152,7 @@ public class GradesController extends AbstractSakaiApiController {
                             }
                         }
                         bean.setScore(total > 0 ? String.format("%.2f", total / gd.size()) : "");
-                        bean.setUngraded(userIds.size() - gd.size());
+                        bean.setUngraded(totalGradableUserCount - gd.size());
                         bean.setNotGradedYet(gd.isEmpty());
                     } else {
                         if (a.getReleased() && !gd.isEmpty()) {
