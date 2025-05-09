@@ -111,9 +111,9 @@ export const groups = [
 export const data = {
   tags,
   blankTopic,
-  canCreateTopic: true,
-  canCreateQuestion: true,
-  canCreateDiscussion: true,
+  //canCreateTopic: true,
+  //canCreateQuestion: true,
+  //canCreateDiscussion: true,
   settings: {
     allowAnonPosting: true,
   },
