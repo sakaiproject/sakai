@@ -202,6 +202,9 @@ public final class SamigoConstants {
      */
     public static final     String      REFERENCE_PREFIX_QUESTIONPOOL                       = "/sam_questionpool";
 
+    public static final String CAN_TAKE = "assessment.takeAssessment";
+    public static final String CAN_PUBLISH = "assessment.publishAssessment.any";
+
     private SamigoConstants() {
     	throw new AssertionError();
     }
