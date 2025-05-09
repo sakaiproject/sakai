@@ -341,7 +341,7 @@ $(document).ready(function() {
                                 <%--//desNote:attach list --%>
                                 <h:dataTable  styleClass="attachListTable" value="#{topic.attachList}" var="eachAttach" rendered="#{!empty topic.attachList}" cellpadding="3" cellspacing="0" columnClasses="attach,bogus" border="0">
                                     <h:column>
-                                        <h:graphicImage url="/images/attachment.gif" alt=""/>
+                                        <span class="bi bi-paperclip" aria-hidden="true"></span>
                                         <h:outputText value=" " />
                                             <h:outputLink value="#{eachAttach.url}" target="_blank">
                                                 <h:outputText value="#{eachAttach.attachment.attachmentName}" />
@@ -357,7 +357,7 @@ $(document).ready(function() {
                                 <%--//desNote:attach list --%>
                                 <h:dataTable  styleClass="attachListTable" value="#{topic.attachList}" var="eachAttach" rendered="#{!empty topic.attachList}" cellpadding="3" cellspacing="0" columnClasses="attach,bogus" style="font-size:.9em;width:auto;margin-left:1em" border="0">
                       <h:column>
-                                        <h:graphicImage url="/images/attachment.gif" alt=""/>
+                                        <span class="bi bi-paperclip" aria-hidden="true"></span>
 <%--                        <h:outputLink value="#{eachAttach.attachmentUrl}" target="_blank">
                             <h:outputText value="#{eachAttach.attachmentName}" />
                         </h:outputLink>--%>
