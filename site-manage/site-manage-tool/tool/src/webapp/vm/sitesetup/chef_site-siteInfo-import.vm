@@ -76,7 +76,9 @@
             <input type="hidden" name="continue" value="27" />
             <p class="act">
                 <input type="submit" accesskey="s" class="active" name="eventSubmit_doContinue" value="$tlang.getString("sitinfimp.con")" onclick="SPNR.disableControlsAndSpin( this, null );" />
-                <input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" onclick="SPNR.disableControlsAndSpin( this, null );" />
+                #if ($cleanImport)
+                    <input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" onclick="SPNR.disableControlsAndSpin( this, null );" />
+                #end
                 <input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString("sitinfimp.can")" onclick="SPNR.disableControlsAndSpin( this, null );" />
             </p>
 		#else
