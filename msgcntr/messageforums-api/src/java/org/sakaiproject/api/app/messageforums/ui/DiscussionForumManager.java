@@ -508,6 +508,14 @@ public interface DiscussionForumManager
   public Attachment createDFAttachment(String attachId, String name);
   
   /**
+   * Creates a duplicate of an attachment by making a copy of the actual file
+   * @param attachId The ID of the attachment to duplicate
+   * @param name The name of the attachment
+   * @return A new Attachment object with a unique ID pointing to a new copy of the file
+   */
+  public Attachment createDuplicateDFAttachment(String attachId, String name);
+  
+  /**
    * Get the read status of a list of messages for a given user	  
    * @param msgIds the msg ids to check
    * @param userId the user - can be null
