@@ -33,6 +33,8 @@ import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.grading.api.Assignment;
+import org.sakaiproject.grading.api.GradebookInformation;
+import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbUser;
@@ -100,6 +102,13 @@ public class RubricGradePanel extends BasePanel {
         }
         form.add(sakaiRubricGrading);
         form.add(sakaiRubricViewer);
+
+        GradebookInformation info
+            = businessService.getGradebookSettings();
+
+        if (info.getGradeType() == GradingConstants.GRADE_TYPE_PERCENTAGE) {
+            sakaiRubricGrading.add(AttributeModifier.append("total-as-percentage", ""));
+        }
 
         final GbAjaxButton submit = new GbAjaxButton("submit") {
             @Override

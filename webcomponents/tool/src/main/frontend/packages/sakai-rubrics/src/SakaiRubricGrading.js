@@ -19,6 +19,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
     evaluatedItemOwnerId: { attribute: "evaluated-item-owner-id", type: String },
     group: { type: Boolean },
     enablePdfExport: { attribute: "enable-pdf-export", type: Boolean },
+    totalAsPercentage: { attribute: "total-as-percentage", type: Boolean },
 
     _evaluation: { state: true },
     _totalPoints: { state: true },
@@ -181,12 +182,13 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
                   </sakai-rubric-grading-comment>
                   <div class="rubric-grading-points-value">
                     <strong id="points-display-${c.id}" class="points-display ${this.getOverriddenClass(c.pointoverride, c.selectedvalue)}">
-                      ${c.selectedvalue.toLocaleString(this.locale)}
+                      ${c.selectedvalue?.toLocaleString(this.locale) || 0}
                     </strong>
                   </div>
                   ${this.association.parameters.fineTunePoints ? html`
                     <input
                         title="${this.tr("point_override_details")}"
+                        aria-label="${this.tr("point_override_details")}"
                         data-criterion-id="${c.id}"
                         name="rbcs-${this.evaluatedItemId}-${this.entityId}-criterion-override-${c.id}"
                         class="fine-tune-points form-control hide-input-arrows"
@@ -204,12 +206,15 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
           </div>
           <div class="rubric-totals">
             <input type="hidden"
-                aria-labelledby="${super.tr("total")}"
+                aria-labelledby="${this.tr("total")}"
                 id="rbcs-${this.evaluatedItemId}-${this.entityId}-totalpoints"
                 name="rbcs-${this.evaluatedItemId}-${this.entityId}-totalpoints"
                 .value="${this._totalPoints.toString()}">
             <div class="total-points">
-              <span>${this._i18n.total}</span>: <strong id="sakai-rubrics-total-points">${this._totalPoints.toLocaleString(this.locale, { maximumFractionDigits: 2 })}</strong>
+              <span>${this._i18n.total}</span>:
+              <strong id="sakai-rubrics-total-points">
+              ${this._totalPoints.toLocaleString(this.locale, { maximumFractionDigits: 2 })} ${this.totalAsPercentage ? this.tr("percent_sign") : ""}
+              </strong>
             </div>
           </div>
         </div>
@@ -481,7 +486,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
 
     console.debug("updateTotalPoints");
 
-    this._totalPoints = this._criteria.reduce((a, c) => {
+    const points = this._criteria.reduce((a, c) => {
 
       if (c.pointoverride) {
         return a + parseFloat(c.pointoverride);
@@ -491,6 +496,8 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
       return a;
 
     }, 0);
+
+    this._totalPoints = this.totalAsPercentage ? (points / this._maxPoints) * 100 : points;
 
     // Make sure total points is not negative
     if (parseFloat(this._totalPoints) < 0) this._totalPoints = 0;
@@ -559,13 +566,15 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
     this.apiGetRubric(rubricId)
       .then(rubric => {
 
+        this._rubric = rubric;
+        this._criteria = this._rubric.criteria;
+
         if (this.evaluatedItemId) {
+
           this.apiGetEvaluation()
             .then(evaluation => {
 
               this._evaluation = evaluation || { criterionOutcomes: [] };
-              this._rubric = rubric;
-              this._criteria = this._rubric.criteria;
               this._criteria.forEach(c => {
 
                 c.pointoverride = "";
@@ -579,10 +588,9 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
               this.decorateCriteria();
             })
             .catch(error => console.error(error));
-        } else {
-          this._rubric = rubric;
-          this._criteria = this._rubric.criteria;
         }
+
+        this._maxPoints = this._criteria.flatMap(c => c.ratings).reduce((a, r) => a + r.points, 0);
       })
       .catch(error => console.error(error));
   }
