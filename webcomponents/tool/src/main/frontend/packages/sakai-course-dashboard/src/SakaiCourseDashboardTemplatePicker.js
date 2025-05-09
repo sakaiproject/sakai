@@ -22,6 +22,11 @@ export class SakaiCourseDashboardTemplatePicker extends SakaiDialogContent {
     this.dispatchEvent(new CustomEvent("template-selected", { detail: { template: this.template }, bubbles: true }));
   }
 
+  close() {
+    super.close();
+    this.dispatchEvent(new CustomEvent("template-picker-cancelled", { bubbles: true }));
+  }
+
   title() {
     return html`${this._i18n.template_picker_title}`;
   }
@@ -70,6 +75,10 @@ export class SakaiCourseDashboardTemplatePicker extends SakaiDialogContent {
     return html`
       <sakai-button @click=${this.select} primary>${this._i18n.select}</sakai-button>
     `;
+  }
+
+  cancel() {
+    this.close();
   }
 
   static styles = [
