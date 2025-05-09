@@ -20,6 +20,8 @@ import static org.sakaiproject.assignment.api.AssignmentServiceConstants.*;
 import static org.sakaiproject.assignment.api.model.Assignment.Access.*;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -89,6 +91,7 @@ import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemAttachment;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemService;
+import org.sakaiproject.assignment.api.model.PeerAssessmentItem;
 import org.sakaiproject.assignment.api.persistence.AssignmentRepository;
 import org.sakaiproject.assignment.api.reminder.AssignmentDueReminderService;
 import org.sakaiproject.assignment.api.taggable.AssignmentActivityProducer;
@@ -640,13 +643,15 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             } else {
                 // determine the type of download to create using the reference that was requested
                 AssignmentReferenceReckoner.AssignmentReference refReckoner = AssignmentReferenceReckoner.reckoner().reference(ref.getReference()).reckon();
+
+                String queryString = req.getQueryString();
+
                 if (REFERENCE_ROOT.equals("/" + refReckoner.getType())) {
                     // don't process any references that are not of type assignment
                     switch (refReckoner.getSubtype()) {
                         case REF_TYPE_CONTENT:
                         case REF_TYPE_ASSIGNMENT:
                             String date = DateTimeFormatter.ofPattern("yyyyMMddHHmmss").withZone(userTimeService.getLocalTimeZone().toZoneId()).format(ZonedDateTime.now());
-                            String queryString = req.getQueryString();
                             if (StringUtils.isNotBlank(refReckoner.getId())) {
                                 // if subtype is assignment then were downloading all submissions for an assignment
                                 try {
@@ -682,6 +687,91 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                     gradeSheetExporter.writeGradesSpreadsheet(out, queryString);
                                 } catch (Exception e) {
                                     log.warn("Could not stream the grades for reference: {}", ref.getReference(), e);
+                                }
+                            }
+                            break;
+                        case REF_TYPE_RUBRIC:
+                            String assignmentId = refReckoner.getId();
+                            StringTokenizer queryTokens = new StringTokenizer(queryString, "&");
+
+                            String rubricId = null;
+
+                            while (queryTokens.hasMoreTokens()) {
+                                String token = queryTokens.nextToken().trim();
+
+                                if (token.contains("rubricId")) {
+                                    rubricId = token.contains("=") ? token.substring(token.indexOf("=") + 1) : "";
+                                }
+                            }
+
+                            if (rubricId != null) {
+                                try {
+                                    Assignment assignment = getAssignment(assignmentId);
+                                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                                    ZipOutputStream out = new ZipOutputStream(baos);
+
+                                    String assigmentReference = "/" + refReckoner.getType() + "/a/" + refReckoner.getContext() + "/" + refReckoner.getId();
+                                    List<User> allowAddSubmissionUsers = securityService.unlockUsers(SECURE_ADD_ASSIGNMENT, assigmentReference);
+
+                                    Set<String> userIds = allowAddSubmissionUsers.stream().map(Entity::getId).collect(Collectors.toSet());
+
+                                    String toolId = "sakai.assignment.grades";
+                                    String siteId = assignment.getContext();
+                                    String itemId = assignment.getId();
+                                    String title = assignment.getTitle();
+
+                                    Site site = siteService.getSite(assignment.getContext());
+
+                                    for (AssignmentSubmission submission : assignment.getSubmissions()) {
+                                        String name = null;
+
+                                        if(!assignment.getIsGroup()){
+                                            for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()){
+                                                User user = userDirectoryService.getUser(submitter.getSubmitter());
+                                                if(!userIds.contains(user.getId())){
+                                                    name = user.getEid();
+                                                }
+                                            }
+                                        } else {
+                                            Group group = site.getGroup(submission.getGroupId());
+                                            name = group.getTitle();
+                                        }
+
+                                        String evaluatedItemId = submission.getId();
+
+                                        if (name != null){
+                                            byte[] pdf = rubricsService.createPdf(siteId, Long.parseLong(rubricId), toolId, itemId, evaluatedItemId);
+
+                                            final ZipEntry zipEntryPdf = new ZipEntry(name + "_" + title + ".pdf");
+
+                                            out.putNextEntry(zipEntryPdf);
+                                            out.write(pdf);
+                                            out.closeEntry();
+                                        }
+                                    }
+
+                                    out.finish();
+                                    out.flush();
+                                    out.close();
+                                    res.setContentType("application/zip");
+
+                                    date = DateTimeFormatter.ofPattern("yyyyMMddHHmmss").withZone(userTimeService.getLocalTimeZone().toZoneId()).format(ZonedDateTime.now());
+
+                                    String filename = (escapeInvalidCharsEntry(assignment.getTitle())) + "_" + resourceLoader.getString("rubrics.zip") + "_" + date;
+
+                                    res.setHeader("Content-Disposition", "attachment; filename=\"" + filename + ".zip\"");
+                                    res.setContentLength(baos.size());
+
+                                    baos.writeTo(res.getOutputStream());
+                                    res.getOutputStream().flush();
+                                } catch (UserNotDefinedException e) {
+                                    log.error("User not defined for ref = {}", ref.getReference(), e);
+                                } catch (IdUnusedException e) {
+                                    log.error("Site not defined for ref = {}", ref.getReference(), e);
+                                } catch (PermissionException e) {
+                                    log.error("Permission denied for retriving assignment data with ref = {}", ref.getReference(), e);
+                                } catch (IOException e) {
+                                    log.warn("I/O error while creating the rubric file = {}", ref.getReference(), e);
                                 }
                             }
                             break;

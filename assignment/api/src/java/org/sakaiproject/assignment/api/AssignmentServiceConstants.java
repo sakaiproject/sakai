@@ -98,6 +98,10 @@ public final class AssignmentServiceConstants {
      */
     public static final String REF_TYPE_CONTENT = "c";
     /**
+     * The Reference type for a rubric.
+     */
+    public static final String REF_TYPE_RUBRIC = "r";
+    /**
      * The prefix for a Reference ID.
      */
     public static final String REF_PREFIX = "/content";

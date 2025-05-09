@@ -16,6 +16,9 @@
 package org.sakaiproject.assignment.api;
 
 import static org.sakaiproject.assignment.api.AssignmentServiceConstants.REFERENCE_ROOT;
+import static org.sakaiproject.assignment.api.AssignmentServiceConstants.REF_TYPE_ASSIGNMENT;
+import static org.sakaiproject.assignment.api.AssignmentServiceConstants.REF_TYPE_CONTENT;
+import static org.sakaiproject.assignment.api.AssignmentServiceConstants.REF_TYPE_RUBRIC;
 
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -65,9 +68,12 @@ public class AssignmentReferenceReckoner {
                     // peer review type
                     reference = reference + Entity.SEPARATOR + "peer_review";
                     break;
-                case "a":
+                case REF_TYPE_RUBRIC:
+                    reference = reference + Entity.SEPARATOR + REF_TYPE_RUBRIC;
+                    break;
+                case REF_TYPE_ASSIGNMENT:
                     // assignment type
-                case "c":
+                case REF_TYPE_CONTENT:
                     // assignment content type
                     // deprecated using assignment type
                 default:
