@@ -432,11 +432,6 @@ export class SakaiConversations extends SakaiElement {
         <button class="btn btn-secondary dropdown-item" @click=${this._setStateManagingTags}>${this._i18n.manage_tags}</button>
       </li>
       ` : nothing }
-      ${this._data.canViewSiteStatistics ? html`
-      <li class=${ifDefined(this._state === STATE_STATISTICS ? "setting-active" : undefined)}>
-        <button class="btn btn-secondary dropdown-item" @click=${this._setStateStatistics}>${this._i18n.statistics}</button>
-      </li>
-      ` : nothing }
     `;
   }
 
@@ -461,23 +456,29 @@ export class SakaiConversations extends SakaiElement {
           <div>
             <button type="button"
                 @click=${this._handleSearch}
-                class="sakai-conversations__search_button btn btn-link icon-button"
+                class="sakai-conversations__search_button btn btn-secondary"
                 data-bs-toggle="offcanvas"
                 data-bs-target="#sakai-search-panel"
                 aria-controls="sakai-search-panel">
-              <i class="si si-sakai-search"></i>
-              <span>${this._i18n.search}</span>
+              ${this._i18n.search}
             </button>
           </div>
           ` : nothing}
+
+          ${this._data.canViewStatistics ? html`
+            <div id="conv-stats-button" class="ms-1">
+              <button type="button" class="btn btn-secondary" @click=${this._setStateStatistics}>
+                ${this._i18n.statistics}
+              </button>
+            </div>
+          ` : nothing }
 
           ${this._data.canUpdatePermissions || this._data.isInstructor ? html`
             ${mobile ? html`
               <div>
                 <div class="dropdown">
                   <button type="button" class="btn btn-icon" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="si si-settings"></i>
-                    <span>${this._i18n.settings}</span>
+                    ${this._i18n.settings}
                   </button>
                   <ul class="dropdown-menu">
                   ${this._renderSettingsMenu()}
@@ -485,24 +486,18 @@ export class SakaiConversations extends SakaiElement {
                 </div>
               </div>
             ` : html`
-            <div class="conv-settings-link">
-              <button type="button" class="btn icon-button text-nowrap" @click=${this._setStateSettings}>
-                <i class="si si-settings"></i>
-                <span>${this._i18n.settings}</span>
+            <div class="conv-settings-link me-3">
+              <button type="button" class="btn btn-secondary" @click=${this._setStateSettings}>
+                ${this._i18n.settings}
               </button>
             </div>
             `}
           ` : nothing }
 
           ${this._data.canCreateTopic ? html`
-          <a href="javascript:;" @click=${this._addTopic}>
-            <div class="conv-add-topic">
-                <span class="add-topic-text">
-                ${this._i18n.create_new}
-                </span>
-                <sakai-icon class="add-topic-icon" type="add" size="medium"></sakai-icon>
-            </div>
-          </a>
+          <button type="button" class="btn btn-primary" @click=${this._addTopic}>
+            ${this._i18n.create_new}
+          </button>
           ` : nothing }
         </div>
       </div>
@@ -637,7 +632,7 @@ export class SakaiConversations extends SakaiElement {
       : html`
         <div id="overlay"></div>
         <div id="conv-desktop">
-          ${this._showingSettings && (this._data.canUpdatePermissions || this._data.isInstructor) ? html`
+          ${(this._showingSettings || this._state === STATE_STATISTICS) && (this._data.canUpdatePermissions || this._data.isInstructor) ? html`
           <div>
             <div id="conv-back-button-block">
               <a href="javascript:;" @click=${this._resetState}>
@@ -645,11 +640,13 @@ export class SakaiConversations extends SakaiElement {
                 <div>${this._i18n.back}</div>
               </a>
             </div>
-            <div id="conv-settings">
-              <ul>
-              ${this._renderSettingsMenu()}
-              </ul>
-            </div>
+            ${this._state === STATE_STATISTICS ? this._renderStatistics() : html`
+              <div id="conv-settings">
+                <ul>
+                ${this._renderSettingsMenu()}
+                </ul>
+              </div>
+            `}
           </div>
           ` : this._renderTopicList()}
 
