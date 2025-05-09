@@ -1,7 +1,7 @@
 <f:view>
 	<sakai:view title="#{msgs.room_list_title}">
       <h:outputText value="#{Portal.latestJQuery}" escape="false"/>
-      <script src="/sakai-chat-tool/js/chatscript.js"></script>
+      <script src="/sakai-chat-tool/js/chat.js" type="module"></script>
       <script>
         $(document).ready( function () {
           // Assign the current class to the tab in the template
@@ -72,7 +72,7 @@
 				</h:column>
 
 			</h:dataTable>
-			
+
 			<sakai:button_bar>
 				<h:commandButton id="back"
 					action="#{ChatTool.processActionBackToRoom}"

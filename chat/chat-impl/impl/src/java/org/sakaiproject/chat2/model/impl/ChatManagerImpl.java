@@ -137,7 +137,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
     //stores users timezone
     private Cache<String, String> timezoneCache;
 
-    @Getter private int pollInterval = 5000; //5 sec
+    @Getter private int pollInterval = 10000;
 
     /* JGroups channel for keeping the above maps in sync across nodes in a Sakai cluster */
     private JChannel clusterChannel = null;
@@ -1366,20 +1366,23 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
      * @return
      */
     private boolean isOnline(String channelId, String sessionId) {
-        if(heartbeatMap.getIfPresent(channelId) == null) {
-            return false;
-        }
+        if (StringUtils.isAnyBlank(channelId, sessionId)) return false;
 
         // Check to see how active the user has been
-        TransferableChatMessage userHeartbeat = heartbeatMap.getIfPresent(channelId).getIfPresent(sessionId);
-        if (userHeartbeat == null || userHeartbeat.getTimestamp() < 1L) {
-            return false;
-        }
+        Cache<String, TransferableChatMessage> sessionsInChannel = heartbeatMap.getIfPresent(channelId);
+        if (sessionsInChannel != null) {
+            TransferableChatMessage userHeartbeat = sessionsInChannel.getIfPresent(sessionId);
+            if (userHeartbeat != null && userHeartbeat.getTimestamp() >= 1L) {
 
-        long timeDiff = ((new Date()).getTime()) - userHeartbeat.getTimestamp();
-        log.debug("Heartbeat diff for {} is {}; interval={}", sessionId, timeDiff, pollInterval*2);
-        // Safari seems to back off on setTimeout calls when in background for 60 seconds
-        return timeDiff <= 60000 + (pollInterval*2);
+                long timeDiff = (System.currentTimeMillis() - userHeartbeat.getTimestamp());
+                long doublePollInterval = pollInterval * 2L;
+
+                log.debug("Heartbeat diff for {} is {}; interval={}", sessionId, timeDiff, doublePollInterval);
+                // Safari seems to back off on setTimeout calls when in background for 60 seconds
+                return timeDiff <= 60000 + doublePollInterval;
+            }
+        }
+        return false;
     }
     
     private void sendToCluster(TransferableChatMessage message){

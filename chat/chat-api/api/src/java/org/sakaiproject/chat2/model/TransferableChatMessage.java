@@ -65,7 +65,7 @@ public class TransferableChatMessage implements Serializable {
 		this.siteId = siteId;
 		this.channelId = channelId;
 		this.content = content;
-		this.timestamp = (new Date()).getTime();
+		this.timestamp = System.currentTimeMillis();
 	}
 	
 	public static TransferableChatMessage HeartBeat(String channelId, String sessionKey){
