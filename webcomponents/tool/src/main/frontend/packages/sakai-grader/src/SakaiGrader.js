@@ -323,7 +323,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
       if (!cancelling) {
         this._submission.feedbackText = this.feedbackTextEditor.getData();
         if (this.feedbackTextEditor.checkDirty()) {
-          bootstrap.Offcanvas.getOrCreateInstance(document.getElementById("grader")).show();
+          this._save({});
         }
         this.requestUpdate();
       } else {
