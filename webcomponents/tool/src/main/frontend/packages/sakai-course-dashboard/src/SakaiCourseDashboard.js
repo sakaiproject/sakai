@@ -15,6 +15,7 @@ export class SakaiCourseDashboard extends SakaiElement {
     userId: { attribute: "user-id", type: String },
     siteId: { attribute: "site-id", type: String },
     editing: { type: Boolean },
+    showingTemplates: { type: Boolean },
 
     data: { state: true },
   };
@@ -24,6 +25,7 @@ export class SakaiCourseDashboard extends SakaiElement {
     super();
 
     this.loadTranslations("dashboard");
+    this.showingTemplates = false;
   }
 
   connectedCallback() {
@@ -62,6 +64,7 @@ export class SakaiCourseDashboard extends SakaiElement {
   edit() {
 
     this.editing = !this.editing;
+    this.showingTemplates = false;
     this.imageBackup = this.data.image;
     this.overviewBackup = this.data.overview;
     this.programmeBackup = this.data.programme;
@@ -72,6 +75,7 @@ export class SakaiCourseDashboard extends SakaiElement {
   cancel() {
 
     this.editing = false;
+    this.showingTemplates = false;
     this.data.overview = this.overviewBackup;
     this.data.programme = this.programmeBackup;
     document.getElementById("course-dashboard-programme").innerHTML = this.data.programme;
@@ -85,6 +89,7 @@ export class SakaiCourseDashboard extends SakaiElement {
   save() {
 
     this.editing = !this.editing;
+    this.showingTemplates = false;
 
     if (this.newImageBlob) {
 
@@ -144,18 +149,28 @@ export class SakaiCourseDashboard extends SakaiElement {
   }
 
   showTemplates() {
-    document.getElementById("templates").__toggle();
+    this.showingTemplates = true;
+    this.requestUpdate();
+    this.updateComplete.then(() => {
+      document.getElementById("templates").__toggle();
+    });
   }
 
   templateSelected(e) {
 
     this.data.template = e.detail.template;
+    this.showingTemplates = false;
 
     this.requestUpdate();
 
     this.updateComplete.then(() => {
       this.querySelector("#course-dashboard-save sakai-button").focus();
     });
+  }
+
+  templatePickerCancelled() {
+    this.showingTemplates = false;
+    this.requestUpdate();
   }
 
   programmeUpdated(e) {
@@ -274,10 +289,12 @@ export class SakaiCourseDashboard extends SakaiElement {
   render() {
 
     return html`
-      <lion-dialog id="templates">
-        <sakai-course-dashboard-template-picker .data=${this.data} .template=${this.data.template} slot="content" @template-selected=${this.templateSelected}></sakai-course-dashboard-template-picker>
-        <div slot="invoker" style="display: none;"></div>
-      </lion-dialog>
+      ${this.editing && this.showingTemplates ? html`
+        <lion-dialog id="templates">
+          <sakai-course-dashboard-template-picker .data=${this.data} .template=${this.data.template} slot="content" @template-selected=${this.templateSelected} @template-picker-cancelled=${this.templatePickerCancelled}></sakai-course-dashboard-template-picker>
+          <div slot="invoker" style="display: none;"></div>
+        </lion-dialog>
+      ` : nothing}
       <div class="course-dashboard-container mt-2">
         ${this.data.template === 1 ? this.template1() : nothing }
         ${this.data.template === 2 ? this.template2() : nothing }
