@@ -184,6 +184,7 @@ describe("sakai-grader tests", () => {
     expect(el._submittedOnly).to.be.true;
     expect(el.querySelector("#grader-filter-warning")).to.exist;
     expect(el.querySelector("#grader-filter-warning").innerHTML).to.contain(el._i18n.filter_settings_warning);
+
     submittedOnlyCheckbox.click();
     await elementUpdated(el);
     await expect(el).to.be.accessible();
