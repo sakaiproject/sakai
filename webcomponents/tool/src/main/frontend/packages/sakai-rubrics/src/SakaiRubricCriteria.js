@@ -24,7 +24,13 @@ export class SakaiRubricCriteria extends RubricsElement {
     minPoints: { attribute: "min-points", type: String },
     isLocked: { attribute: "is-locked", type: Boolean },
     isDraft: { attribute: "is-draft", type: Boolean },
+    _savingWeights: { state: true, type: Boolean },
   };
+
+  constructor() {
+    super();
+    this._savingWeights = false;
+  }
 
   _criteriaReordered(e) {
 
@@ -319,6 +325,51 @@ export class SakaiRubricCriteria extends RubricsElement {
     this.dispatchEvent(new CustomEvent("save-weights"));
   }
 
+  connectedCallback() {
+    super.connectedCallback && super.connectedCallback();
+
+    // Listen for events from parent component
+    this.addEventListener("weights-saving", this.handleWeightsSaving.bind(this));
+    this.addEventListener("weights-saved", this.handleWeightsSaved.bind(this));
+  }
+
+  disconnectedCallback() {
+    // Clean up event listeners
+    this.removeEventListener("weights-saving", this.handleWeightsSaving.bind(this));
+    this.removeEventListener("weights-saved", this.handleWeightsSaved.bind(this));
+
+    super.disconnectedCallback && super.disconnectedCallback();
+  }
+
+  handleWeightsSaving(e) {
+    // Only respond if this event is for this rubric
+    if (e.detail.rubricId === this.rubricId) {
+      // Set internal state to indicate saving in progress
+      this._savingWeights = true;
+      this.requestUpdate();
+    }
+  }
+
+  handleWeightsSaved(e) {
+    // Only respond if this event is for this rubric
+    if (e.detail.rubricId === this.rubricId) {
+      // Reset internal state
+      this._savingWeights = false;
+
+      if (e.detail.success) {
+        // Show the success banner
+        const successBanner = this.parentNode.querySelector(".sak-banner-success");
+        if (successBanner) {
+          successBanner.classList.remove("d-none");
+          setTimeout(() => {
+            successBanner.classList.add("d-none");
+          }, 5000);
+        }
+      }
+      this.requestUpdate();
+    }
+  }
+
   createCriterion(e, empty = false) {
 
     const url = `/api/sites/${this.siteId}/rubrics/${this.rubricId}/criteria/default${empty ? "Empty" : ""}`;
@@ -571,16 +622,18 @@ export class SakaiRubricCriteria extends RubricsElement {
                 <span>${this.maxPoints}</span>
               </div>
             </div>
-            <button class="btn-link save-weights" @click="${this.saveWeights}" ?disabled="${!this.validWeight && !this.isDraft}">
-              <span class="add fa fa-save" aria-hidden="true"></span>
-              ${this._i18n.save_weights}
+            <button class="btn btn-secondary save-weights"
+                @click="${this.saveWeights}"
+                ?disabled=${!this.validWeight || this._savingWeights}>
+              <span class="add fa ${this._savingWeights ? "fa-spinner fa-spin" : "fa-save"}" aria-hidden="true"></span>
+              ${this._savingWeights ? this.tr("saving") : this._i18n.save_weights}
             </button>
           ` : nothing }
-          <button class="btn-link add-criterion" @click="${this.createCriterion}">
+          <button class="btn btn-secondary add-criterion" @click="${this.createCriterion}">
             <span class="add fa fa-plus" aria-hidden="true"></span>
             ${this._i18n.add_criterion}
           </button>
-          <button class="btn-link add-empty-criterion" @click="${event => this.createCriterion(event, true)}">
+          <button class="btn btn-secondary add-empty-criterion" @click="${event => this.createCriterion(event, true)}">
             <span class="add fa fa-plus" aria-hidden="true"></span>
             ${this._i18n.add_criterion_group}
           </button>

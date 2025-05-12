@@ -262,9 +262,12 @@ export class SakaiRubric extends RubricsElement {
   }
 
   handleSaveWeights() {
-    const saveWeightsBtn = document.querySelector(`[rubric-id='${this.rubric.id}'] .save-weights`);
-    // Disable the save button
-    if (saveWeightsBtn) saveWeightsBtn.setAttribute("disabled", true);
+    // Use an event to notify SakaiRubricCriteria to disable the button
+    this.dispatchEvent(new CustomEvent("weights-saving", {
+      bubbles: true,
+      composed: true,
+      detail: { rubricId: this.rubric.id }
+    }));
 
     // Track successful saves
     let successCount = 0;
@@ -279,27 +282,23 @@ export class SakaiRubric extends RubricsElement {
           successCount++;
           // When all criteria have been saved successfully
           if (successCount === totalCriteria) {
-            // Force the success message to be shown
-            this.updateComplete.then(() => {
-              // Find the success banner using the rubric-id attribute
-              const successBanner = document.querySelector(`[rubric-id='${this.rubric.id}'] .sak-banner-success`);
-              if (successBanner) {
-                // Remove d-none class to show the message
-                successBanner.classList.remove("d-none");
-                // Set a timeout to hide the message after 5 seconds
-                setTimeout(() => {
-                  successBanner.classList.add("d-none");
-                }, 5000);
-              } else {
-                console.error("Success banner element not found");
-              }
-              // Re-enable the save button
-              if (saveWeightsBtn) saveWeightsBtn.removeAttribute("disabled");
-            });
+            // Fire a success event that the criteria component can respond to
+            this.dispatchEvent(new CustomEvent("weights-saved", {
+              bubbles: true,
+              composed: true,
+              detail: { rubricId: this.rubric.id, success: true }
+            }));
+
             this.requestUpdate();
             this.dispatchEvent(new SharingChangeEvent());
           }
         } else {
+          // Notify of an error
+          this.dispatchEvent(new CustomEvent("weights-saved", {
+            bubbles: true,
+            composed: true,
+            detail: { rubricId: this.rubric.id, success: false }
+          }));
           throw new Error("Network error while setting criterion weight");
         }
       })
