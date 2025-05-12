@@ -101,3 +101,26 @@ sakai-editor div {
 #course-dashboard-l2-header-and-overview-block sakai-editor {
   margin-top: 0px;
 }
+
+#course-dashboard-template-picker-instruction {
+  width: 745px;
+  margin-bottom: 20px;
+}
+
+#course-dashboard-template-picker-template-block {
+  display: flex;
+}
+
+#course-dashboard-template-picker-template-block div {
+  flex: 1;
+  text-align: center;
+}
+
+.course-dashboard-template-picker-thumbnail {
+  width: 199px;
+  height: 132px;
+}
+
+.course-dashboard-template-picker-selected {
+  border: 3px black solid;
+}
