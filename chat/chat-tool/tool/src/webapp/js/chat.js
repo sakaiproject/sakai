@@ -298,7 +298,7 @@ class Chat {
       }
 
       // Always schedule the next poll, but use a longer interval when the page is hidden
-      // console.log("[DEBUG_LOG] updateChatData set next poll in", this.pollInterval, "ms");
+      console.debug("updateChatData set next poll in", this.pollInterval, "ms");
       this.timeoutVar = setTimeout(() => {
         this.updateChatData();
       }, this.pollInterval);
@@ -313,7 +313,7 @@ class Chat {
         "siteId": portal.siteId,
         "channelId": this.currentChatChannelId
       };
-      // console.log("[DEBUG_LOG] doUpdateChatData making request to:", url, "with params:", params);
+      console.debug("doUpdateChatData making request to:", url, "with params:", params);
       ajax({
         url: url,
         data: params,
@@ -321,7 +321,7 @@ class Chat {
         contentType: 'application/x-www-form-urlencoded',
         cache: false,
         success: (data) => {
-          // console.log("[DEBUG_LOG] doUpdateChatData received response:", data);
+          console.debug("doUpdateChatData received response:", data);
           this.addMessages(data.data.messages);
           this.updatePresentUsers(data.data.presentUsers);
           this.deleteMessages(data.data.deletedMessages);
@@ -474,7 +474,7 @@ class Chat {
     }
 
     updatePresentUsers(users) {
-      // console.log("[DEBUG_LOG] updatePresentUsers called with users:", users);
+      console.debug("updatePresentUsers called with users:", users);
       const presence = document.getElementById("presence");
 
       // No need to switch tabs, just update the presence list directly
@@ -482,7 +482,7 @@ class Chat {
 
       // Check if users array is empty or undefined
       if (!users || users.length === 0) {
-        // console.log("[DEBUG_LOG] No users to display in presence list");
+        console.log("No users to display in presence list");
         if (presence) {
           // Clear the presence list and add a message
           presence.textContent = "";
@@ -499,7 +499,7 @@ class Chat {
         presence.textContent = "";
         addClass(presence, "list-group");
       } else {
-        // console.log("[DEBUG_LOG] Presence element not found");
+        console.log("Presence element not found");
         return;
       }
 
