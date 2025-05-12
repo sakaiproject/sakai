@@ -4381,6 +4381,8 @@ public class SiteAction extends PagedResourceActionII {
 		context.put("sites", visibleSiteList);
 		context.put("templateSites", templateSiteList);
 		context.put("hiddenSites", hiddenSiteList);
+
+		context.put("cleanImport", serverConfigurationService.getBoolean(SiteConstants.SAK_PROP_CLEAN_IMPORT_SITE, SiteConstants.SAK_PROP_CLEAN_IMPORT_SITE_DEFAULT));
 	}
 
 	/**
