@@ -50,25 +50,6 @@ public class MenuBuilder
     private static final SiteService SS = (SiteService) ComponentManager.get( SiteService.class );
     private static final ToolManager TM = (ToolManager) ComponentManager.get( ToolManager.class );
 
-    // sakai.properties
-    private static final String     SAK_PROP_SITE_SETUP_IMPORT_FILE                 = "site.setup.import.file";
-    private static final boolean    SAK_PROP_SITE_SETUP_IMPORT_FILE_DEFAULT         = true;
-
-    private static final String     SAK_PROP_DISPLAY_USER_AUDIT_LOG                 = "user_audit_log_display";
-    private static final boolean    SAK_PROP_DISPLAY_USER_AUDIT_LOG_DEFAULT         = true;
-
-    private static final String     SAK_PROP_CLEAN_IMPORT_SITE                      = "clean.import.site";
-    private static final boolean    SAK_PROP_CLEAN_IMPORT_SITE_DEFAULT              = true;
-
-    private static final String     SAK_PROP_ALLOW_DUPLICATE_SITE                   = "site.setup.allowDuplicateSite";
-    private static final boolean    SAK_PROP_ALLOW_DUPLICATE_SITE_DEFAULT           = false;
-
-    private static final String     SAK_PROP_SITE_SETUP_ALLOW_EDIT_ROSTER           = "site.setup.allow.editRoster";
-    private static final boolean    SAK_PROP_SITE_SETUP_ALLOW_EDIT_ROSTER_DEFAULT   = true;
-    
-    private static final String     SAK_PROP_CM_IMPLEMENTED                         = "site-manage.courseManagementSystemImplemented";
-    private static final boolean    SAK_PROP_CM_IMPLEMENTED_DEFAULT                 = true;
-
     /**
      * Enumerate the possible choices in the Site Info menu bar.
      */
@@ -120,7 +101,7 @@ public class MenuBuilder
         menu.add( buildMenuEntry( rl.getString( "mb.cursit" ), "doGoto_unjoinable", activeTab.equals( MembershipActiveTab.CURRENT_SITES ) ) );
 
         // Official course enrolments
-        boolean courseManagementEnabled = ServerConfigurationService.getBoolean( SAK_PROP_CM_IMPLEMENTED, SAK_PROP_CM_IMPLEMENTED_DEFAULT );
+        boolean courseManagementEnabled = ServerConfigurationService.getBoolean( SiteConstants.SAK_PROP_CM_IMPLEMENTED, SiteConstants.SAK_PROP_CM_IMPLEMENTED_DEFAULT );
         if (courseManagementEnabled)
         {
             menu.add( buildMenuEntry( rl.getString( "mb.enrolments"), "doGoto_enrolments", activeTab.equals( MembershipActiveTab.OFFICIAL_ENROLMENTS ) ) );
@@ -259,7 +240,7 @@ public class MenuBuilder
 
         if( allowUpdateSiteMembership && !isMyWorkspace )
         {
-            boolean allowEditRosterEnabled = ServerConfigurationService.getBoolean( SAK_PROP_SITE_SETUP_ALLOW_EDIT_ROSTER, SAK_PROP_SITE_SETUP_ALLOW_EDIT_ROSTER_DEFAULT );
+            boolean allowEditRosterEnabled = ServerConfigurationService.getBoolean( SiteConstants.SAK_PROP_SITE_SETUP_ALLOW_EDIT_ROSTER, SiteConstants.SAK_PROP_SITE_SETUP_ALLOW_EDIT_ROSTER_DEFAULT );
             if( allowEditRosterEnabled && siteType != null && SiteTypeUtil.isCourseSite( siteType ) )
             {
                 // 'Edit Class Roster(s)'
@@ -302,7 +283,7 @@ public class MenuBuilder
                 // 'Manage Access'
                 menu.add( buildMenuEntry( rl.getString( "java.siteaccess" ), "doMenu_edit_site_access", activeTab.equals( SiteInfoActiveTab.MANAGE_ACCESS ) ) );
 
-                boolean duplicateSiteEnabled = ServerConfigurationService.getBoolean( SAK_PROP_ALLOW_DUPLICATE_SITE, SAK_PROP_ALLOW_DUPLICATE_SITE_DEFAULT );
+                boolean duplicateSiteEnabled = ServerConfigurationService.getBoolean( SiteConstants.SAK_PROP_ALLOW_DUPLICATE_SITE, SiteConstants.SAK_PROP_ALLOW_DUPLICATE_SITE_DEFAULT );
                 if( SS.allowAddSite( null ) && duplicateSiteEnabled )
                 {
                     // 'Duplicate Site'
@@ -313,13 +294,13 @@ public class MenuBuilder
                 List<Site> updatableSites = SS.getSites( SelectionType.UPDATE, null, null, null, SortType.TITLE_ASC, null );
                 if( updatableSites.size() > 0 )
                 {
-                    String action = ServerConfigurationService.getBoolean( SAK_PROP_CLEAN_IMPORT_SITE, SAK_PROP_CLEAN_IMPORT_SITE_DEFAULT )
+                    String action = ServerConfigurationService.getBoolean( SiteConstants.SAK_PROP_CLEAN_IMPORT_SITE, SiteConstants.SAK_PROP_CLEAN_IMPORT_SITE_DEFAULT )
                                     ? "doMenu_siteInfo_importSelection" : "doMenu_siteInfo_import";
 
                     // 'Import from Site'
                     menu.add( buildMenuEntry( rl.getString( "java.import" ), action, activeTab.equals( SiteInfoActiveTab.IMPORT_FROM_SITE ) ) );
 
-                    boolean importFromFileEnabled = ServerConfigurationService.getBoolean( SAK_PROP_SITE_SETUP_IMPORT_FILE, SAK_PROP_SITE_SETUP_IMPORT_FILE_DEFAULT );
+                    boolean importFromFileEnabled = ServerConfigurationService.getBoolean( SiteConstants.SAK_PROP_SITE_SETUP_IMPORT_FILE, SiteConstants.SAK_PROP_SITE_SETUP_IMPORT_FILE_DEFAULT );
                     if( importFromFileEnabled )
                     {
                         // 'Import from Archive File'
@@ -328,7 +309,7 @@ public class MenuBuilder
                 }
             }
 
-            boolean eventLogEnabled = ServerConfigurationService.getBoolean( SAK_PROP_DISPLAY_USER_AUDIT_LOG, SAK_PROP_DISPLAY_USER_AUDIT_LOG_DEFAULT );
+            boolean eventLogEnabled = ServerConfigurationService.getBoolean( SiteConstants.SAK_PROP_DISPLAY_USER_AUDIT_LOG, SiteConstants.SAK_PROP_DISPLAY_USER_AUDIT_LOG_DEFAULT );
             if( !TM.isStealthed( "sakai.useraudit" ) && eventLogEnabled )
             {
                 // 'User Audit Log'
