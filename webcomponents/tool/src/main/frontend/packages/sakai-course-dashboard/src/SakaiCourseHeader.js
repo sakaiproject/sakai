@@ -1,10 +1,8 @@
-import { SakaiShadowElement } from "@sakai-ui/sakai-element";
-import { css, html, nothing } from "lit";
-import "@sakai-ui/sakai-button/sakai-button.js";
-import "@lion/ui/dialog.js";
-import "@sakai-ui/sakai-image-editor/sakai-image-editor.js";
+import { SakaiElement } from "@sakai-ui/sakai-element";
+import { html, nothing } from "lit";
+import "@sakai-ui/sakai-image-editor/image-editor-launcher.js";
 
-export class SakaiCourseHeader extends SakaiShadowElement {
+export class SakaiCourseHeader extends SakaiElement {
 
   static properties = {
 
@@ -15,26 +13,18 @@ export class SakaiCourseHeader extends SakaiShadowElement {
   constructor() {
 
     super();
+
     this.loadTranslations("dashboard");
   }
 
-  set site(value) {
+  _imageEdited(e) {
 
-    const old = this._site;
-
-    this._site = value;
-
-    this.requestUpdate("site", old);
+    this.dispatchEvent(new CustomEvent("image-edited", { detail: e.detail, bubbles: true }));
+    this.querySelector("image-editor-launcher").close();
   }
-
-  get site() { return this._site; }
 
   shouldUpdate() {
     return this.site;
-  }
-
-  imageEdited(e) {
-    this.dispatchEvent(new CustomEvent("image-edited", { detail: e.detail, bubbles: true }));
   }
 
   render() {
@@ -44,22 +34,10 @@ export class SakaiCourseHeader extends SakaiShadowElement {
         <div id="image-block">
           <img id="course-image" src="${this.site.image}"></img>
           ${this.editing ? html`
-            <lion-dialog>
-              <sakai-image-editor slot="content" image-url="${this.site.image}" @image-edited=${this.imageEdited}></sakai-image-editor>
-              <sakai-button slot="invoker">${this._i18n.change_this_image}</sakai-button>
-            </lion-dialog>
+          <image-editor-launcher image-url="${this.site.image}" @image-edited=${this._imageEdited}></image-editor-launcher>
           ` : nothing}
         </div>
       </div>
     `;
   }
-
-  static styles = css`
-    #container {
-      background-color: var(--sakai-tool-bg-color);
-    }
-    #course-image {
-      max-width: 100%;
-    }
-  `;
 }

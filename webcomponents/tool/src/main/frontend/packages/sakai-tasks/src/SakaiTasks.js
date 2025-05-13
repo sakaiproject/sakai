@@ -1,9 +1,11 @@
 import { css, html, nothing } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { SakaiPageableElement } from "@sakai-ui/sakai-pageable-element";
+import "../sakai-tasks-create-task.js";
 import "@sakai-ui/sakai-icon/sakai-icon.js";
 import { sakaiFormatDistance } from "@sakai-ui/sakai-date-fns";
 import * as constants from "./sakai-tasks-constants.js";
+import "@lion/ui/define/lion-dialog.js";
 
 export class SakaiTasks extends SakaiPageableElement {
 
@@ -65,20 +67,12 @@ export class SakaiTasks extends SakaiPageableElement {
         throw new Error(`Failed to get tasks from ${url}`);
 
       })
-      .then(async response => {
+      .then(data => {
 
-        this.data = response.tasks;
-        this._canAddTask = response.canAddTask;
-
-        if (this._canAddTask) {
-          await Promise.allSettled([
-            import("../sakai-tasks-create-task.js"),
-            import("@lion/ui/define/lion-dialog.js"),
-          ]);
-        }
-
-        this._canUpdateSite = response.canUpdateSite;
-        this._groups = response.groups;
+        this.data = data.tasks;
+        this._canAddTask = data.canAddTask;
+        this._canUpdateSite = data.canUpdateSite;
+        this._groups = data.groups;
         this.filter(constants.CURRENT);
       })
       .catch (error => console.error(error));
