@@ -36,6 +36,4 @@ scormplayer/scorm-tool/contentPackages
 .vscode/
 .java-version
 .aider*
-
 **/.claude/settings.local.json
-tmp_rsf_check/
