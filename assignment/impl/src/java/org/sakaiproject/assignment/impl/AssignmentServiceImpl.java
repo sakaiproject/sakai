@@ -1197,6 +1197,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 existingAssignment.getProperties().entrySet().stream()
                         .filter(e -> !PROPERTIES_EXCLUDED_FROM_DUPLICATE_ASSIGNMENTS.contains(e.getKey()))
                         .forEach(e -> properties.put(e.getKey(), e.getValue()));
+                
+                // Always set duplicated assignments to use "Create new Gradebook item" option
+                properties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ADD);
 
                 assignmentRepository.newAssignment(assignment);
                 log.debug("Created duplicate assignment {} from {}", assignment.getId(), assignmentId);
