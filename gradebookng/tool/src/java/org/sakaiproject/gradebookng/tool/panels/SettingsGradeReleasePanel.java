@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
@@ -67,8 +69,25 @@ public class SettingsGradeReleasePanel extends BasePanel {
 
 		final SettingsPage settingsPage = (SettingsPage) getPage();
 
+		final WebMarkupContainer settingsGradeAccordionButton = new WebMarkupContainer("settingsGradeAccordionButton");
 		final WebMarkupContainer settingsGradeReleasePanel = new WebMarkupContainer("settingsGradeReleasePanel");
+
+		// Set up accordion behavior
+		setupAccordionBehavior(settingsGradeAccordionButton, settingsGradeReleasePanel, this.expanded, 
+			new AccordionStateUpdater() {
+				@Override
+				public void updateState(boolean newState) {
+					SettingsGradeReleasePanel.this.expanded = newState;
+				}
+				
+				@Override
+				public boolean getState() {
+					return SettingsGradeReleasePanel.this.expanded;
+				}
+			});
+		
 		add(settingsGradeReleasePanel);
+		add(settingsGradeAccordionButton);
 
 		// display released items to students
 		final AjaxCheckBox displayReleased = new AjaxCheckBox("displayReleased",

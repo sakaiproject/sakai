@@ -26,6 +26,8 @@ import java.util.stream.Collectors;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -103,6 +105,8 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	 * Are there unsaved changes?
 	 */
 	boolean dirty;
+	
+
 
 	public SettingsGradingSchemaPanel(final String id, final IModel<GbSettings> model, final boolean expanded) {
 		super(id, model);
@@ -141,8 +145,25 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 			gradeMappingMap.put(gradeMapping.getId(), gradeMapping.getName());
 		}
 
+		final WebMarkupContainer settingsGradingSchemaAccordionButton = new WebMarkupContainer("settingsGradingSchemaAccordionButton");
 		final WebMarkupContainer settingsGradingSchemaPanel = new WebMarkupContainer("settingsGradingSchemaPanel");
+		
+		// Set up accordion behavior
+		setupAccordionBehavior(settingsGradingSchemaAccordionButton, settingsGradingSchemaPanel, this.expanded, 
+			new AccordionStateUpdater() {
+				@Override
+				public void updateState(boolean newState) {
+					SettingsGradingSchemaPanel.this.expanded = newState;
+				}
+				
+				@Override
+				public boolean getState() {
+					return SettingsGradingSchemaPanel.this.expanded;
+				}
+			});
+		
 		add(settingsGradingSchemaPanel);
+		add(settingsGradingSchemaAccordionButton);
 
 		// grading scale type chooser
 		final List<String> gradingSchemaList = new ArrayList<>(gradeMappingMap.keySet());

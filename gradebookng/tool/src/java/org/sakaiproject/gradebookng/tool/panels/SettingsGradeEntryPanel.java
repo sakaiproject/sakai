@@ -16,6 +16,9 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
 import lombok.Getter;
+import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.ajax.AjaxEventBehavior;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Radio;
 import org.apache.wicket.markup.html.form.RadioGroup;
@@ -43,8 +46,25 @@ public class SettingsGradeEntryPanel extends BasePanel {
 	public void onInitialize() {
 		super.onInitialize();
 
+		final WebMarkupContainer settingsGradeEntryAccordionButton = new WebMarkupContainer("settingsGradeEntryAccordionButton");
 		final WebMarkupContainer settingsGradeEntryPanel = new WebMarkupContainer("settingsGradeEntryPanel");
+		
+		// Set up accordion behavior
+		setupAccordionBehavior(settingsGradeEntryAccordionButton, settingsGradeEntryPanel, this.expanded, 
+			new AccordionStateUpdater() {
+				@Override
+				public void updateState(boolean newState) {
+					SettingsGradeEntryPanel.this.expanded = newState;
+				}
+				
+				@Override
+				public boolean getState() {
+					return SettingsGradeEntryPanel.this.expanded;
+				}
+			});
+		
 		add(settingsGradeEntryPanel);
+		add(settingsGradeEntryAccordionButton);
 
 		// grade entry type
 		final RadioGroup<Integer> gradeEntry = new RadioGroup<>("gradeEntry",
