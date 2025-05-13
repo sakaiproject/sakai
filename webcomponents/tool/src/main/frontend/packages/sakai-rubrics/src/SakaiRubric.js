@@ -220,11 +220,11 @@ export class SakaiRubric extends RubricsElement {
       <div class="collapse" id="rubric-collapse-${this.rubric.id}">
         <div class="rubric-details style-scope sakai-rubric" rubric-id="${this.rubric.id}">
           <div class="sak-banner-success d-none" aria-live="polite">${this.tr("saved_successfully")}</div>
+          <div class="sak-banner-error d-none" aria-live="polite">${this.tr("save_failed")}</div>
           <sakai-rubric-criteria
             rubric-id="${this.rubric.id}"
             site-id="${this.rubric.ownerId}"
             .criteria="${this.rubric.criteria}"
-            @save-weights="${this.handleSaveWeights}"
             @weight-changed=${this.handleCriterionWeightChange}
             @refresh-total-weight=${this.handleRefreshTotalWeight}
             .weighted=${this.rubric.weighted}
@@ -266,50 +266,42 @@ export class SakaiRubric extends RubricsElement {
     .catch (error => console.error(error));
   }
 
-  handleSaveWeights() {
-    const saveWeightsBtn = document.querySelector(`[rubric-id='${this.rubric.id}'] .save-weights`);
-    // Disable the save button
-    if (saveWeightsBtn) saveWeightsBtn.setAttribute("disabled", true);
+  saveCriterionWeights() {
 
-    // Track successful saves
-    let successCount = 0;
-    const totalCriteria = this.rubric.criteria.length;
+    const all = Promise.all(this.rubric.criteria.map(cr => {
 
-    this.rubric.criteria.forEach(cr => {
       this.updateRubricOptions.body = JSON.stringify([ { "op": "replace", "path": "/weight", "value": cr.weight } ]);
+
       const url = `/api/sites/${this.rubric.ownerId}/rubrics/${this.rubric.id}/criteria/${cr.id}`;
-      fetch(url, this.updateRubricOptions)
-      .then(r => {
-        if (r.ok) {
-          successCount++;
-          // When all criteria have been saved successfully
-          if (successCount === totalCriteria) {
-            // Force the success message to be shown
-            this.updateComplete.then(() => {
-              // Find the success banner using the rubric-id attribute
-              const successBanner = document.querySelector(`[rubric-id='${this.rubric.id}'] .sak-banner-success`);
-              if (successBanner) {
-                // Remove d-none class to show the message
-                successBanner.classList.remove("d-none");
-                // Set a timeout to hide the message after 5 seconds
-                setTimeout(() => {
-                  successBanner.classList.add("d-none");
-                }, 5000);
-              } else {
-                console.error("Success banner element not found");
-              }
-              // Re-enable the save button
-              if (saveWeightsBtn) saveWeightsBtn.removeAttribute("disabled");
-            });
-            this.requestUpdate();
-            this.dispatchEvent(new SharingChangeEvent());
+
+      return fetch(url, this.updateRubricOptions)
+        .then(r => {
+
+          if (!r.ok) {
+            throw new Error(`Network error while setting criterion weight for ${cr.id}`);
           }
-        } else {
-          throw new Error("Network error while setting criterion weight");
-        }
-      })
-      .catch(error => console.error(error));
+
+          console.debug(`Saved weight for criterion ${cr.id}`);
+        });
+    }));
+
+    all.then(() => {
+
+      this.dispatchEvent(new SharingChangeEvent());
+
+      const successBanner = this.querySelector(".sak-banner-success");
+      successBanner.classList.remove("d-none");
+
+      setTimeout(() => successBanner.classList.add("d-none"), 5000);
+    }).catch(() => {
+
+      const errorBanner = this.querySelector(".sak-banner-error");
+      errorBanner.classList.remove("d-none");
+
+      setTimeout(() => errorBanner.classList.add("d-none"), 5000);
     });
+
+    return all;
   }
 
   handleCriterionWeightChange(e) {
@@ -364,7 +356,7 @@ export class SakaiRubric extends RubricsElement {
     .then(r => {
 
       if (r.ok) {
-        this.handleSaveWeights();
+        this.saveCriterionWeights();
         this.handleDraftBtn();
         this.requestUpdate();
       }
@@ -381,7 +373,7 @@ export class SakaiRubric extends RubricsElement {
       if (firstCriterion) {
         //Set weight of first criterion to 100 (%)
         firstCriterion.weight = 100;
-        this.handleSaveWeights(e);
+        this.saveCriterionWeights(e);
       }
       this.handleRefreshTotalWeight();
     }
