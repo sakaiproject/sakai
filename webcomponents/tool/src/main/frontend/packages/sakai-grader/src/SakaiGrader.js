@@ -663,18 +663,44 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     const currentIndex = this._submissions.findIndex(s => s.id === this._submission.id);
 
     if (currentIndex >= 1) {
-      this._hydratePrevious(currentIndex);
-      this._submission = this._submissions[currentIndex - 1];
+      // Check if the previous submission is hydrated before trying to navigate
+      const prevSubmission = this._submissions[currentIndex - 1];
+      if (!prevSubmission.hydrated) {
+        // If not hydrated, fetch it first
+        this._hydrateCluster(prevSubmission.id).then(submission => {
+          if (submission) {
+            this._submission = submission;
+          } else {
+            // Fallback to normal behavior if hydration fails
+            this._hydratePrevious(currentIndex);
+            this._submission = this._submissions[currentIndex - 1];
+          }
+        });
+      } else {
+        // If already hydrated, just set it
+        this._submission = prevSubmission;
+      }
     }
   }
 
   _studentSelected(e) {
 
-    const test = this._submissions.find(s => s.id === e.target.value);
-    if (!test.hydrated) {
-      this._hydrateCluster(test.id).then(s => this._submission = s);
+    const selectedSubmission = this._submissions.find(s => s.id === e.target.value);
+    if (!selectedSubmission) {
+      console.error("Selected submission not found in filtered submissions");
+      return;
+    }
+
+    if (!selectedSubmission.hydrated) {
+      this._hydrateCluster(selectedSubmission.id).then(s => {
+        if (s) {
+          this._submission = s;
+        } else {
+          console.error("Failed to hydrate selected submission");
+        }
+      });
     } else {
-      this._submission = this._submissions.find(s => s.id === e.target.value);
+      this._submission = selectedSubmission;
     }
   }
 
@@ -683,8 +709,23 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     const currentIndex = this._submissions.findIndex(s => s.id === this._submission.id);
 
     if (currentIndex < this._submissions.length - 1) {
-      this._hydrateNext(currentIndex);
-      this._submission = this._submissions[currentIndex + 1];
+      // Check if the next submission is hydrated before trying to navigate
+      const nextSubmission = this._submissions[currentIndex + 1];
+      if (!nextSubmission.hydrated) {
+        // If not hydrated, fetch it first
+        this._hydrateCluster(nextSubmission.id).then(submission => {
+          if (submission) {
+            this._submission = submission;
+          } else {
+            // Fallback to normal behavior if hydration fails
+            this._hydrateNext(currentIndex);
+            this._submission = this._submissions[currentIndex + 1];
+          }
+        });
+      } else {
+        // If already hydrated, just set it
+        this._submission = nextSubmission;
+      }
     }
   }
 
@@ -711,31 +752,36 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
       filtered = filtered.filter(s => group.users.includes(s.firstSubmitterId));
     }
 
-    if (filtered.length > 0) {
-      if (filtered.some(s => s.id === this._submission.id)) {
-        this._hydrateCluster(this._submission.id).then(submission => {
-          if (submission) {
-            this._submissions = [ ...filtered ];
-            this._submission = submission;
-          }
-        });
-      } else {
-        const firstSubmissionId = filtered[0].id;
-        this._hydrateCluster(firstSubmissionId).then(submission => {
-          if (submission) {
-            this._submissions = [ ...filtered ];
-            this._submission = submission;
-          }
-        });
-      }
-    } else {
-      this._submission = new Submission();
-    }
+    // Set the filtered submissions first so navigation functions have the correct array
+    this._submissions = [ ...filtered ];
 
     this._totalGraded = filtered.filter(s => s.graded).length;
     this._totalSubmissions = filtered.length;
 
-    this._submissions = [ ...filtered ];
+    if (filtered.length > 0) {
+      // Check if current submission is in the filtered list
+      const currentSubmissionInFilter = filtered.some(s => s.id === this._submission.id);
+
+      // Find submission to display
+      const submissionToHydrateId = currentSubmissionInFilter ? this._submission.id : filtered[0].id;
+
+      // If current submission is not in filter, we need to immediately show the first filtered one
+      if (!currentSubmissionInFilter) {
+        // Use the filtered submission directly to ensure UI update happens immediately
+        const firstFilteredSubmission = filtered.find(s => s.id === submissionToHydrateId);
+        // Make a direct assignment to force immediate update
+        this._submission = firstFilteredSubmission;
+      }
+
+      // Also do hydration to get full data
+      this._hydrateCluster(submissionToHydrateId).then(submission => {
+        if (submission) {
+          this._submission = submission;
+        }
+      });
+    } else {
+      this._submission = new Submission();
+    }
   }
 
   _submittedOnlyChanged(e) {
