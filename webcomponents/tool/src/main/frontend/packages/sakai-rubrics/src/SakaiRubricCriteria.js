@@ -24,6 +24,7 @@ export class SakaiRubricCriteria extends RubricsElement {
     minPoints: { attribute: "min-points", type: String },
     isLocked: { attribute: "is-locked", type: Boolean },
     isDraft: { attribute: "is-draft", type: Boolean },
+    _savingWeights: { state: true },
   };
 
   _criteriaReordered(e) {
@@ -317,13 +318,11 @@ export class SakaiRubricCriteria extends RubricsElement {
 
   saveWeights(e) {
 
-    const saveButton = this.querySelector("button.save-weights");
-
-    saveButton.disabled = true;
+    this._savingWeights = true;
 
     const parentRubric = this.closest("sakai-rubric");
     if (parentRubric) {
-      parentRubric.saveCriterionWeights().finally(() => saveButton.disabled = false);
+      parentRubric.saveCriterionWeights().finally(() => this._savingWeights = false);
     } else {
       console.error("Parent rubric not found");
     }
@@ -581,7 +580,7 @@ export class SakaiRubricCriteria extends RubricsElement {
                 <span>${this.maxPoints}</span>
               </div>
             </div>
-            <button class="btn-link save-weights" @click="${this.saveWeights}" ?disabled="${!this.validWeight && !this.isDraft}">
+            <button class="btn-link save-weights" @click="${this.saveWeights}" .disabled=${this._savingWeights || (!this.validWeight && !this.isDraft)}>
               <span class="add fa fa-save" aria-hidden="true"></span>
               ${this._i18n.save_weights}
             </button>
