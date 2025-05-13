@@ -117,6 +117,11 @@
 
 .portal-header-hamburger-button {
   color: var(--top-header-text-color) !important;
+  &:hover,
+  &:focus {
+    border: solid 1px transparent !important;
+    box-shadow: none !important;
+  }
 }
 /* 
  * WARNING: This CSS uses deprecated properties because there's currently no alternative way
@@ -305,7 +310,7 @@
   display: inline-block;
   max-height: var(--logo-height);
   min-height: var(--logo-height);
-  width: var(--logo-width)
+  width: var(--logo-width);
 }
 .portal-header-logo .btn:hover {
   border-color: transparent !important;
@@ -377,6 +382,30 @@
   cursor: move;
   background: var(--sakai-modal-header-bg) !important;
   color: var(--sakai-modal-header-color) !important;
+}
+
+.portal-nav-sidebar-icon {
+  &::before {
+    content: "\f479";
+  }
+  &:hover::before {
+    content: "\f659";
+  }
+}
+
+.portal-nav-sidebar-icon-collapsed {
+  &::before {
+    content: "\f479";
+  }
+  &:hover::before {
+    content: "\f138";
+  }
+}
+
+.portal-nav-sidebar-icon-hover {
+  &::before {
+    content: "\f659";
+  }
 }
 
 #portal-nav-sidebar {
@@ -509,9 +538,29 @@
     position: sticky;
     top: 0;
     scrollbar-width: none;
+
     &:hover,
     &:focus {
-      scrollbar-width: auto;
+      & .site-list-item {
+        margin-right: 0.14rem !important;
+      }
+    }
+  }
+
+  .sakai-sitesAndToolsNav:hover,
+  .sakai-sitesAndToolsNav:focus {
+    scrollbar-width: auto;
+
+    &::-webkit-scrollbar-track,
+    &::-webkit-scrollbar-corner {
+      background: var(--sakai-background-color-1);
+    }
+
+    &::-webkit-scrollbar-thumb {
+      border: solid 4px var(--sakai-background-color-1);
+    }
+    &::-webkit-scrollbar-thumb:hover {
+      border: solid 4px var(--sakai-background-color-1);
     }
   }
 
