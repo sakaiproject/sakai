@@ -62,6 +62,8 @@ export class SakaiRubricAssociation extends RubricsElement {
       this.isAssociated = 2;
       this.selectedConfigOptions = {};
     }
+    
+    // Fetch the latest rubrics to check if the associated rubric is in draft mode
     this._getRubrics();
   }
 
@@ -120,7 +122,6 @@ export class SakaiRubricAssociation extends RubricsElement {
       } else {
         this.isAssociated = 0;
       }
-      this._getRubrics();
     })
     .catch (error => console.error(error));
   }
@@ -149,9 +150,19 @@ export class SakaiRubricAssociation extends RubricsElement {
 
   _handleRubrics(data) {
 
-    this._rubrics = data.slice().filter(rubric => !rubric.draft);
+    // Check if our selected rubric is now in draft mode
+    const allRubrics = data.slice();
+    const selectedRubricNowDraft = this._selectedRubricId && 
+      allRubrics.find(r => r.id === this._selectedRubricId && r.draft);
+    
+    this._rubrics = allRubrics.filter(rubric => !rubric.draft);
 
-    if (this._rubrics.length && this.isAssociated != 1) {
+    if (selectedRubricNowDraft) {
+      // The previously selected rubric is now in draft mode
+      // Set isAssociated to 0 to deselect all rubrics
+      this.isAssociated = 0;
+      this._selectedRubricId = null;
+    } else if (this._rubrics.length && this.isAssociated != 1) {
       // Not associated yet, select the first rubric in the list.
       this._selectedRubricId = this._rubrics[0].id;
     }
