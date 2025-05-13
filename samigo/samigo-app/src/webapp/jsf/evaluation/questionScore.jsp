@@ -927,11 +927,11 @@ $Id$
                     onchange="toPoint(this.id);">
 	  </h:inputText>
 	  <h:message for="qscore2" style="color:red"/>
-      <h:panelGroup styleClass="d-none d-sm-inline" rendered="#{questionScores.itemData.minScore != 0 || questionScores.itemData.discount != 0}">
+      <h:panelGroup styleClass="d-none d-sm-inline" rendered="#{questionScores.itemData.minScore > 0 || questionScores.itemData.discount > 0}">
         <h:outputText value=" (" />
-        <h:outputText value="#{authorMessages.answer_min_point_short}: #{questionScores.itemData.minScore}" rendered="#{questionScores.itemData.minScore != 0}" />
-        <h:outputText value=", " rendered="#{questionScores.itemData.minScore != 0 && questionScores.itemData.discount != 0}" />
-        <h:outputText value="#{authorMessages.answer_discount_point_short}: #{questionScores.itemData.discount}" rendered="#{questionScores.itemData.discount != 0}" />
+        <h:outputText value="#{authorMessages.answer_min_point_short}: #{questionScores.itemData.minScore}" rendered="#{questionScores.itemData.minScore > 0}" />
+        <h:outputText value=", " rendered="#{questionScores.itemData.minScore > 0 && questionScores.itemData.discount > 0}" />
+        <h:outputText value="#{authorMessages.answer_discount_point_short}: #{questionScores.itemData.discount}" rendered="#{questionScores.itemData.discount > 0}" />
         <h:outputText value=")" />
       </h:panelGroup>
 	  <h:outputLink title="#{evaluationMessages.saverubricgrading}"
@@ -963,12 +963,12 @@ $Id$
                     required="false"
                     onchange="toPoint(this.id);">
 	  </h:inputText>
-	  <h:message for="qscore2" style="color:red"/>
-      <h:panelGroup styleClass="d-none d-sm-inline" rendered="#{questionScores.itemData.minScore != 0 || questionScores.itemData.discount != 0}">
+	  <h:message for="qscore2" styleClass="text-danger"/>
+      <h:panelGroup styleClass="d-none d-sm-inline" rendered="#{questionScores.itemData.minScore > 0 || questionScores.itemData.discount > 0}">
         <h:outputText value=" (" />
-        <h:outputText value="#{authorMessages.answer_min_point_short}: #{questionScores.itemData.minScore}" rendered="#{questionScores.itemData.minScore != 0}" />
-        <h:outputText value=", " rendered="#{questionScores.itemData.minScore != 0 && questionScores.itemData.discount != 0}" />
-        <h:outputText value="#{authorMessages.answer_discount_point_short}: #{questionScores.itemData.discount}" rendered="#{questionScores.itemData.discount != 0}" />
+        <h:outputText value="#{authorMessages.answer_min_point_short}: #{questionScores.itemData.minScore}" rendered="#{questionScores.itemData.minScore > 0}" />
+        <h:outputText value=", " rendered="#{questionScores.itemData.minScore > 0 && questionScores.itemData.discount > 0}" />
+        <h:outputText value="#{authorMessages.answer_discount_point_short}: #{questionScores.itemData.discount}" rendered="#{questionScores.itemData.discount > 0}" />
         <h:outputText value=")" />
       </h:panelGroup>
 	  <h:outputLink title="#{evaluationMessages.saverubricgrading}"

@@ -137,9 +137,12 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		// and break the tests.
 		statsUpdateManager.setCollectThreadEnabled(false);
 
+		statsUpdateManager.setCollectEventsForSiteWithToolOnly(false);
+
 		((StatsManagerImpl) ((Advised) statsManager).getTargetSource().getTarget()).setShowAnonymousAccessEvents(true);
 		((StatsManagerImpl) ((Advised) statsManager).getTargetSource().getTarget()).setEnableSitePresences(true);
 		((ReportManagerImpl) ((Advised) reportManager).getTargetSource().getTarget()).setResourceLoader(resourceLoader);
+
 	}
 
 	// Basic tests: not much to test, work is on other methods...
@@ -398,6 +401,8 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		//		2 new resource    (site-a, user-a and user-b) 
 		//		2 new resource    (site-b, 2x user-a)
 		//		1 resource revise (site-b, user-b)
+		statsUpdateManager.setCollectEventsForSiteWithToolOnly(true);
+
 		Event e1 = statsUpdateManager.buildEvent(new Date(), FakeData.EVENT_CONTENTNEW, "/content/group/" + FakeData.SITE_A_ID + "/resource_id", FakeData.SITE_A_ID, FakeData.USER_A_ID, "session-id-a");
 		Event e2 = statsUpdateManager.buildEvent(new Date(), FakeData.EVENT_CONTENTNEW, "/content/group/" + FakeData.SITE_A_ID + "/resource_id", FakeData.SITE_A_ID, FakeData.USER_B_ID, "session-id-b");
 		Event e3 = statsUpdateManager.buildEvent(new Date(), FakeData.EVENT_CONTENTNEW, "/content/group/" + FakeData.SITE_B_ID + "/resource_id", FakeData.SITE_B_ID, FakeData.USER_A_ID, "session-id-a");
@@ -1756,7 +1761,6 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 	@Test
 	public void testConfigIsCollectEventsForAnySite() {
 		// make sure events get processed for any sites
-		statsUpdateManager.setCollectEventsForSiteWithToolOnly(false);
 		assertFalse(statsUpdateManager.isCollectEventsForSiteWithToolOnly());
 		Event e1 = statsUpdateManager.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, "session-id-a");
 		statsUpdateManager.collectEvent(e1);
@@ -1808,6 +1812,8 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		statsUpdateManager.collectEvents(Arrays.asList(e1, e2));
 		List<EventStatImpl> results1 = db.getResultsForClass(EventStatImpl.class);
 		assertEquals(2, results1.size());
+
+		statsUpdateManager.setCollectEventsForSiteWithToolOnly(true);
 
 		// none of these events will be picked up
 		((StatsManagerImpl) ((Advised) statsManager).getTargetSource().getTarget()).setEventContextSupported(false);

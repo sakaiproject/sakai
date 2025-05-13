@@ -18,6 +18,8 @@ package org.sakaiproject.assignment.api;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Optional;
+import java.util.Set;
 import java.util.Stack;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -88,6 +90,11 @@ public class AssignmentEntity implements Entity {
     @Override
     public String getReference() {
         return (reference != null) ? reference.getReference() : null;
+    }
+
+    @Override
+    public Optional<Set<String>> getGroupReferences() {
+        return Optional.of(assignment.getGroups());
     }
 
     @Override

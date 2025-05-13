@@ -348,6 +348,9 @@
 										#end
 											$formattedText.escapeHtml($!assignment.Title)
 										</a>
+										#if ($assignmentAlertMap.containsKey($assignment.getId()))
+											<span>$assignmentAlertMap.get($assignment.getId())</span>
+										#end
 
 										#assignmentIcons($assignment)
 										#if ($rubricMap.containsKey($assignment.getId()))

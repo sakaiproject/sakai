@@ -33,6 +33,7 @@ import lombok.Getter;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
+import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -151,8 +152,25 @@ public class SettingsCategoryPanel extends BasePanel {
 			this.model.getObject().getGradebookInformation().getCategories().add(stubCategoryDefinition());
 		}
 
+		final WebMarkupContainer settingsCategoriesAccordionButton = new WebMarkupContainer("settingsCategoriesAccordionButton");
 		final WebMarkupContainer settingsCategoriesPanel = new WebMarkupContainer("settingsCategoriesPanel");
+		
+		// Set up accordion behavior
+		setupAccordionBehavior(settingsCategoriesAccordionButton, settingsCategoriesPanel, this.expanded, 
+			new AccordionStateUpdater() {
+				@Override
+				public void updateState(boolean newState) {
+					SettingsCategoryPanel.this.expanded = newState;
+				}
+				
+				@Override
+				public boolean getState() {
+					return SettingsCategoryPanel.this.expanded;
+				}
+			});
+		
 		add(settingsCategoriesPanel);
+		add(settingsCategoriesAccordionButton);
 
 		// category types (note categoriesAndWeighting treated differently due to inter panel updates)
 		final RadioGroup<Integer> categoryType = new RadioGroup<>("categoryType",

@@ -23,6 +23,7 @@ package org.sakaiproject.tool.assessment.facade;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -701,7 +702,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 	public PublishedAssessmentFacade getPublishedAssessment(Long assessmentId, boolean withGroupsInfo) {
 		PublishedAssessmentData a = loadPublishedAssessment(assessmentId);
 		a.setSectionSet(getSectionSetForAssessment(a)); // this is making things slow -pbd
-		Map releaseToGroups = new HashMap();
+		Map<String, String> releaseToGroups = new HashMap<>();
+		Set<String> groupReferences = new HashSet<>();
 		if (withGroupsInfo) {
 			//TreeMap groupsForSite = getGroupsForSite();
 			
@@ -709,9 +711,11 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
             String siteId = getPublishedAssessmentSiteId(assessmentId.toString());
             Map groupsForSite = getGroupsForSite(siteId);
 			releaseToGroups = getReleaseToGroups(groupsForSite, assessmentId);
+			groupReferences = releaseToGroups.keySet().stream().map(id -> siteService.siteGroupReference(siteId, id)).collect(Collectors.toSet());
 		}
 		
 		PublishedAssessmentFacade f = new PublishedAssessmentFacade(a, releaseToGroups);
+		f.setGroupReferences(groupReferences);
 		return f;
 	}
 	
@@ -1411,7 +1415,11 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		Set<String> keysGroupIdsMap = new HashSet<>();
 		try {
 			site = siteService.getSite(siteAgentId);
-			siteGroups = site.getGroupsWithMember(userId);
+			if (service.isUserAbleToGradeAll(site.getId(), userId)) {
+				siteGroups = site.getGroups();
+			} else {
+				siteGroups = site.getGroupsWithMember(userId);
+			}
 			Map<String, String> groupIdsMap = siteGroups.stream()
 				.collect(Collectors.toMap(Group::getId, Group::getId));
 			keysGroupIdsMap = groupIdsMap.keySet();
@@ -2409,24 +2417,15 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 	 * @param siteId
 	 * @return
 	 */
-	private Map getGroupsForSite(String siteId){
-		Map sortedGroups = new TreeMap();
-		Site site;
+	private Map<String, String> getGroupsForSite(String siteId){
+
 		try {
-			site = siteService.getSite(siteId);
-			Collection groups = site.getGroups();
-			if (groups != null && groups.size() > 0) {
-				Iterator groupIter = groups.iterator();
-				while (groupIter.hasNext()) {
-					Group group = (Group) groupIter.next();
-					sortedGroups.put(group.getId(), group.getTitle());
-				}
-			}
+			return siteService.getSite(siteId).getGroups()
+				.stream().collect(Collectors.toMap(Group::getId, Group::getTitle));
+		} catch (IdUnusedException ex) {
+			log.warn("No site for id {}", siteId);
 		}
-		catch (IdUnusedException ex) {
-			// No site available
-		}
-		return sortedGroups;
+		return Collections.EMPTY_MAP;
 	}
 
 	/**

@@ -1,7 +1,7 @@
 <f:view>
     <sakai:view title="#{msgs['custom.chatroom']}">
         <h:outputText value="#{Portal.latestJQuery}" escape="false"/>
-        <script src='/sakai-chat-tool/js/chatscript.js<h:outputText value="#{Portal.CDNQuery}" />'></script>
+        <script src='/sakai-chat-tool/js/chat.js<h:outputText value="#{Portal.CDNQuery}" />' type="module"></script>
         <script>
             if ( window.frameElement) window.frameElement.className='wcwmenu';
             $(document).ready( function () {
@@ -43,7 +43,7 @@
                     </h:panelGroup>
                 </div>
 
-                <ul class="nav nav-tabs" role="tabpanel">
+                <ul class="nav nav-tabs" role="tablist">
                     <li class="active">
                         <a href="#chatListWrapperCont" role="tab" data-bs-toggle="tab"><span><h:outputText value="#{msgs.messages}" /></span></a>
                     </li>
@@ -65,13 +65,6 @@
                                 <h:outputText value="#{msgs.lay_restricted_note_none}" rendered="#{ChatTool.canRenderNoMessages}" />
                             </div>
                             <div id="chat2_messages_shown_total" class="shown_total"></div>
-                            <script type="text/javascript">
-                                var chat2_totalMessages = <h:outputText value="#{ChatTool.roomMessagesCount}" />;
-                                var chat2_shownMessages = chat2_totalMessages;
-                                var chat2_messageCountTemplate = "<h:outputText value="#{ChatTool.messagesShownTotalText}" />"; // replace *SHOWN* and *TOTAL*
-                                var chat2_messagesUnreadedTemplate = "<h:outputText value="#{ChatTool.unreadedMessagesText}" />"; // replace *SHOWN* and *TOTAL*
-                                var unreadedMessages = 0;
-                            </script>
                             <h:messages  rendered="#{!empty facesContext.maximumSeverity}" />
                             <div id="Monitor" class="chatListMonitor">
                                 <%@ include file="roomMonitor.jspf" %>
@@ -155,9 +148,14 @@
         </div>
 
         <script type="text/javascript">
-            chatscript.currentChatChannelId = "<h:outputText value="#{ChatTool.currentChatChannelId}" />";
-            chatscript.pollInterval = "<h:outputText value="#{ChatTool.pollInterval}" />";
-            chatscript.init();
+            // Store chat configuration to be used after chat module is loaded
+            window.chatConfig = {
+                totalMessages: "<h:outputText value="#{ChatTool.roomMessagesCount}" />",
+                messageCountTemplate: "<h:outputText value="#{ChatTool.messagesShownTotalText}" />",
+                messagesUnreadedTemplate: "<h:outputText value="#{ChatTool.unreadedMessagesText}" />",
+                currentChatChannelId: "<h:outputText value="#{ChatTool.currentChatChannelId}" />",
+                pollInterval: "<h:outputText value="#{ChatTool.pollInterval}" />"
+            };
         </script>
 
         <script type="text/javascript">
