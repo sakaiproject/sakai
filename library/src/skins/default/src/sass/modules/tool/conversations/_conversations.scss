@@ -33,7 +33,7 @@
     border-top: 1px solid var(--sakai-border-color);
   }
 
-  #conv-settings > li {
+  #conv-settings li {
     list-style: none;
     margin-bottom: 20px;
     button {
@@ -113,21 +113,6 @@
           }
         }
       }
-    }
-  }
-
-  .conv-add-topic {
-    white-space: nowrap;
-    border-radius: 100px;
-    padding: 6px 12px;
-    background: #0F4B6F;
-    color: white;
-    margin-left: 14px;
-
-    a {
-      font-size: 14px;
-      text-decoration: none;
-      color: white;
     }
   }
 
