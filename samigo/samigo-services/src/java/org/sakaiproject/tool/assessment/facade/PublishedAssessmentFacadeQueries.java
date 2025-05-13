@@ -1411,7 +1411,11 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		Set<String> keysGroupIdsMap = new HashSet<>();
 		try {
 			site = siteService.getSite(siteAgentId);
-			siteGroups = site.getGroupsWithMember(userId);
+			if (service.isUserAbleToGradeAll(site.getId(), userId)) {
+				siteGroups = site.getGroups();
+			} else {
+				siteGroups = site.getGroupsWithMember(userId);
+			}
 			Map<String, String> groupIdsMap = siteGroups.stream()
 				.collect(Collectors.toMap(Group::getId, Group::getId));
 			keysGroupIdsMap = groupIdsMap.keySet();
