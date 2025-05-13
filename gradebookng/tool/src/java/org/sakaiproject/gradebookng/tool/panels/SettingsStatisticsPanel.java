@@ -42,26 +42,25 @@ public class SettingsStatisticsPanel extends BasePanel {
 	public void onInitialize() {
 		super.onInitialize();
 
+		final WebMarkupContainer settingsStatisticsAccordionButton = new WebMarkupContainer("settingsStatisticsAccordionButton");
 		final WebMarkupContainer settingsStatisticsPanel = new WebMarkupContainer("settingsStatisticsPanel");
-		// Preserve the expand/collapse state of the panel
-		settingsStatisticsPanel.add(new AjaxEventBehavior("shown.bs.collapse") {
-			@Override
-			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
-				settingsStatisticsPanel.add(new AttributeModifier("class", "accordion-collapse collapse show"));
-				SettingsStatisticsPanel.this.expanded = true;
-			}
-		});
-		settingsStatisticsPanel.add(new AjaxEventBehavior("hidden.bs.collapse") {
-			@Override
-			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
-				settingsStatisticsPanel.add(new AttributeModifier("class", "accordion-collapse collapse"));
-				SettingsStatisticsPanel.this.expanded = false;
-			}
-		});
-		if (this.expanded) {
-			settingsStatisticsPanel.add(new AttributeModifier("class", "accordion-collapse collapse show"));
-		}
+		
+		// Set up accordion behavior
+		setupAccordionBehavior(settingsStatisticsAccordionButton, settingsStatisticsPanel, this.expanded, 
+			new AccordionStateUpdater() {
+				@Override
+				public void updateState(boolean newState) {
+					SettingsStatisticsPanel.this.expanded = newState;
+				}
+				
+				@Override
+				public boolean getState() {
+					return SettingsStatisticsPanel.this.expanded;
+				}
+			});
+		
 		add(settingsStatisticsPanel);
+		add(settingsStatisticsAccordionButton);
 
 		// display assignment stats to students
 		final AjaxCheckBox displayAssignmentStats = new AjaxCheckBox("displayAssignmentStats",

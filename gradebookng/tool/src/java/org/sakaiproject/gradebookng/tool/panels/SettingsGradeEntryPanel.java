@@ -46,26 +46,25 @@ public class SettingsGradeEntryPanel extends BasePanel {
 	public void onInitialize() {
 		super.onInitialize();
 
+		final WebMarkupContainer settingsGradeEntryAccordionButton = new WebMarkupContainer("settingsGradeEntryAccordionButton");
 		final WebMarkupContainer settingsGradeEntryPanel = new WebMarkupContainer("settingsGradeEntryPanel");
-		// Preserve the expand/collapse state of the panel
-		settingsGradeEntryPanel.add(new AjaxEventBehavior("shown.bs.collapse") {
-			@Override
-			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
-				settingsGradeEntryPanel.add(new AttributeModifier("class", "accordion-collapse collapse show"));
-				SettingsGradeEntryPanel.this.expanded = true;
-			}
-		});
-		settingsGradeEntryPanel.add(new AjaxEventBehavior("hidden.bs.collapse") {
-			@Override
-			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
-				settingsGradeEntryPanel.add(new AttributeModifier("class", "accordion-collapse collapse"));
-				SettingsGradeEntryPanel.this.expanded = false;
-			}
-		});
-		if (this.expanded) {
-			settingsGradeEntryPanel.add(new AttributeModifier("class", "accordion-collapse collapse show"));
-		}
+		
+		// Set up accordion behavior
+		setupAccordionBehavior(settingsGradeEntryAccordionButton, settingsGradeEntryPanel, this.expanded, 
+			new AccordionStateUpdater() {
+				@Override
+				public void updateState(boolean newState) {
+					SettingsGradeEntryPanel.this.expanded = newState;
+				}
+				
+				@Override
+				public boolean getState() {
+					return SettingsGradeEntryPanel.this.expanded;
+				}
+			});
+		
 		add(settingsGradeEntryPanel);
+		add(settingsGradeEntryAccordionButton);
 
 		// grade entry type
 		final RadioGroup<Integer> gradeEntry = new RadioGroup<>("gradeEntry",

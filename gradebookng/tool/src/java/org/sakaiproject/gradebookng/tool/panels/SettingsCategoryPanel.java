@@ -152,32 +152,25 @@ public class SettingsCategoryPanel extends BasePanel {
 			this.model.getObject().getGradebookInformation().getCategories().add(stubCategoryDefinition());
 		}
 
+		final WebMarkupContainer settingsCategoriesAccordionButton = new WebMarkupContainer("settingsCategoriesAccordionButton");
 		final WebMarkupContainer settingsCategoriesPanel = new WebMarkupContainer("settingsCategoriesPanel");
-
-		System.out.println("SettingsCategoryPanel.this.expanded = " + SettingsCategoryPanel.this.expanded);
-		// Preserve the expand/collapse state of the panel
-		settingsCategoriesPanel.add(new AjaxEventBehavior("shown.bs.collapse") {
-			@Override
-			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
-				settingsCategoriesPanel.add(new AttributeModifier("class", "accordion-collapse collapse show"));
-				System.out.println("SettingsCategoryPanel.this.expanded = true");
-				SettingsCategoryPanel.this.expanded = true;
-				System.out.println("SettingsCategoryPanel.this.expanded = " + SettingsCategoryPanel.this.expanded);
-			}
-		});
-		settingsCategoriesPanel.add(new AjaxEventBehavior("hidden.bs.collapse") {
-			@Override
-			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
-				settingsCategoriesPanel.add(new AttributeModifier("class", "accordion-collapse collapse"));
-				SettingsCategoryPanel.this.expanded = false;
-			}
-		});
-		if (this.expanded) {
-			settingsCategoriesPanel.add(new AttributeModifier("class", "accordion-collapse collapse show"));
-			System.out.println("SettingsCategoryPanel.this.expanded = true");
-		}
-		System.out.println("SettingsCategoryPanel.this.expanded = " + SettingsCategoryPanel.this.expanded);
+		
+		// Set up accordion behavior
+		setupAccordionBehavior(settingsCategoriesAccordionButton, settingsCategoriesPanel, this.expanded, 
+			new AccordionStateUpdater() {
+				@Override
+				public void updateState(boolean newState) {
+					SettingsCategoryPanel.this.expanded = newState;
+				}
+				
+				@Override
+				public boolean getState() {
+					return SettingsCategoryPanel.this.expanded;
+				}
+			});
+		
 		add(settingsCategoriesPanel);
+		add(settingsCategoriesAccordionButton);
 
 		// category types (note categoriesAndWeighting treated differently due to inter panel updates)
 		final RadioGroup<Integer> categoryType = new RadioGroup<>("categoryType",

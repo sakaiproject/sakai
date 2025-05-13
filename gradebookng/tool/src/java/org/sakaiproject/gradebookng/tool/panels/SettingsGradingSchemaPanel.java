@@ -145,26 +145,25 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 			gradeMappingMap.put(gradeMapping.getId(), gradeMapping.getName());
 		}
 
+		final WebMarkupContainer settingsGradingSchemaAccordionButton = new WebMarkupContainer("settingsGradingSchemaAccordionButton");
 		final WebMarkupContainer settingsGradingSchemaPanel = new WebMarkupContainer("settingsGradingSchemaPanel");
-		// Preserve the expand/collapse state of the panel
-		settingsGradingSchemaPanel.add(new AjaxEventBehavior("shown.bs.collapse") {
-			@Override
-			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
-				settingsGradingSchemaPanel.add(new AttributeModifier("class", "accordion-collapse collapse show"));
-				SettingsGradingSchemaPanel.this.expanded = true;
-			}
-		});
-		settingsGradingSchemaPanel.add(new AjaxEventBehavior("hidden.bs.collapse") {
-			@Override
-			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
-				settingsGradingSchemaPanel.add(new AttributeModifier("class", "accordion-collapse collapse"));
-				SettingsGradingSchemaPanel.this.expanded = false;
-			}
-		});
-		if (this.expanded) {
-			settingsGradingSchemaPanel.add(new AttributeModifier("class", "accordion-collapse collapse show"));
-		}
+		
+		// Set up accordion behavior
+		setupAccordionBehavior(settingsGradingSchemaAccordionButton, settingsGradingSchemaPanel, this.expanded, 
+			new AccordionStateUpdater() {
+				@Override
+				public void updateState(boolean newState) {
+					SettingsGradingSchemaPanel.this.expanded = newState;
+				}
+				
+				@Override
+				public boolean getState() {
+					return SettingsGradingSchemaPanel.this.expanded;
+				}
+			});
+		
 		add(settingsGradingSchemaPanel);
+		add(settingsGradingSchemaAccordionButton);
 
 		// grading scale type chooser
 		final List<String> gradingSchemaList = new ArrayList<>(gradeMappingMap.keySet());

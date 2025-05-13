@@ -26,6 +26,10 @@ import org.apache.wicket.request.IRequestParameters;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.AjaxEventBehavior;
+import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.AttributeModifier;
 
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -194,5 +198,72 @@ public abstract class BasePanel extends Panel {
 		});
 
 		return map;
+	}
+
+	/**
+	 * Utility method to set up accordion behavior for settings panels
+	 * 
+	 * @param accordionButton The button that toggles the accordion
+	 * @param accordionPanel The panel that is shown/hidden
+	 * @param expandedState Reference to the panel's expanded state boolean
+	 * @param expandedStateUpdater Function to update the expanded state in the panel
+	 */
+	protected void setupAccordionBehavior(final WebMarkupContainer accordionButton, final WebMarkupContainer accordionPanel, 
+			final boolean initialExpandedState, final AccordionStateUpdater expandedStateUpdater) {
+		
+		// Add click event to toggle accordion
+		accordionButton.add(new AjaxEventBehavior("click") {
+			@Override
+			protected void onEvent(final AjaxRequestTarget target) {
+				// Toggle the expanded state in the panel class
+				expandedStateUpdater.updateState(!expandedStateUpdater.getState());
+				
+				// Update UI based on new state
+				updateAccordionState(accordionButton, accordionPanel, expandedStateUpdater.getState(), target);
+			}
+		});
+		
+		// Set initial state
+		updateAccordionState(accordionButton, accordionPanel, initialExpandedState, null);
+		
+		// Make components update via AJAX
+		accordionPanel.setOutputMarkupId(true);
+		accordionButton.setOutputMarkupId(true);
+	}
+	
+	/**
+	 * Interface for updating the expanded state in panel classes
+	 */
+	public interface AccordionStateUpdater {
+		void updateState(boolean newState);
+		boolean getState();
+	}
+	
+	/**
+	 * Updates the accordion state based on the expanded flag
+	 * 
+	 * @param accordionButton The button that toggles the accordion
+	 * @param accordionPanel The panel that is shown/hidden
+	 * @param expanded Whether the accordion is expanded
+	 * @param target Optional AJAX target to add components to
+	 */
+	private void updateAccordionState(final WebMarkupContainer accordionButton, final WebMarkupContainer accordionPanel, 
+			final boolean expanded, final AjaxRequestTarget target) {
+		
+		if (expanded) {
+			accordionPanel.add(new AttributeModifier("class", "accordion-collapse collapse show"));
+			accordionButton.add(new AttributeModifier("class", "accordion-button fw-bold"));
+			accordionButton.add(new AttributeModifier("aria-expanded", "true"));
+		} else {
+			accordionPanel.add(new AttributeModifier("class", "accordion-collapse collapse"));
+			accordionButton.add(new AttributeModifier("class", "accordion-button collapsed fw-bold"));
+			accordionButton.add(new AttributeModifier("aria-expanded", "false"));
+		}
+		
+		// Add components to AJAX response if target provided
+		if (target != null) {
+			target.add(accordionPanel);
+			target.add(accordionButton);
+		}
 	}
 }

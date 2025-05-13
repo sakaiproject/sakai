@@ -69,26 +69,25 @@ public class SettingsGradeReleasePanel extends BasePanel {
 
 		final SettingsPage settingsPage = (SettingsPage) getPage();
 
+		final WebMarkupContainer settingsGradeAccordionButton = new WebMarkupContainer("settingsGradeAccordionButton");
 		final WebMarkupContainer settingsGradeReleasePanel = new WebMarkupContainer("settingsGradeReleasePanel");
-		// Preserve the expand/collapse state of the panel
-		settingsGradeReleasePanel.add(new AjaxEventBehavior("shown.bs.collapse") {
-			@Override
-			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
-				settingsGradeReleasePanel.add(new AttributeModifier("class", "accordion-collapse collapse show"));
-				SettingsGradeReleasePanel.this.expanded = true;
-			}
-		});
-		settingsGradeReleasePanel.add(new AjaxEventBehavior("hidden.bs.collapse") {
-			@Override
-			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
-				settingsGradeReleasePanel.add(new AttributeModifier("class", "accordion-collapse collapse"));
-				SettingsGradeReleasePanel.this.expanded = false;
-			}
-		});
-		if (this.expanded) {
-			settingsGradeReleasePanel.add(new AttributeModifier("class", "accordion-collapse collapse show"));
-		}
+
+		// Set up accordion behavior
+		setupAccordionBehavior(settingsGradeAccordionButton, settingsGradeReleasePanel, this.expanded, 
+			new AccordionStateUpdater() {
+				@Override
+				public void updateState(boolean newState) {
+					SettingsGradeReleasePanel.this.expanded = newState;
+				}
+				
+				@Override
+				public boolean getState() {
+					return SettingsGradeReleasePanel.this.expanded;
+				}
+			});
+		
 		add(settingsGradeReleasePanel);
+		add(settingsGradeAccordionButton);
 
 		// display released items to students
 		final AjaxCheckBox displayReleased = new AjaxCheckBox("displayReleased",
