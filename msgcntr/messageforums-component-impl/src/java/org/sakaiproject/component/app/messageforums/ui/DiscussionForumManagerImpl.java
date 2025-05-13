@@ -2125,6 +2125,44 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       return null;
     }
   }
+  
+  @Override
+  public Attachment createDuplicateDFAttachment(String attachId, String name)
+  {
+    try
+    {
+      // Get the current context
+      String currentContext = toolManager.getCurrentPlacement().getContext();
+
+      // Copy the attachment using the ContentHostingService's copyAttachment method
+      ContentResource attachment = contentHostingService.copyAttachment(
+          attachId, 
+          currentContext, 
+          toolManager.getTool("sakai.forums").getTitle(), 
+          null);  // Using null for MergeConfig as we're duplicating within the same site
+
+      // Now create the attachment object pointing to the new file
+      Attachment attach = messageManager.createAttachment();
+      attach.setAttachmentId(attachment.getId());
+      attach.setAttachmentName(name);
+
+      // Set other properties from the new resource
+      attach.setAttachmentSize((Long.valueOf(attachment.getContentLength())).toString());
+      attach.setCreatedBy(attachment.getProperties().getProperty(
+          attachment.getProperties().getNamePropCreator()));
+      attach.setModifiedBy(attachment.getProperties().getProperty(
+          attachment.getProperties().getNamePropModifiedBy()));
+      attach.setAttachmentType(attachment.getContentType());
+      attach.setAttachmentUrl("/url");
+      
+      return attach;
+    }
+    catch (Exception e)
+    {
+      log.error("Error creating duplicate attachment: {}", e.toString());
+      return null;
+    }
+  }
 
 	public List getDiscussionForumsWithTopics()
 	{

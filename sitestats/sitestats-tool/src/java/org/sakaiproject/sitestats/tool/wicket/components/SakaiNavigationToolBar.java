@@ -18,12 +18,21 @@
  */
 package org.sakaiproject.sitestats.tool.wicket.components;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigator;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxNavigationToolbar;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable;
 import org.apache.wicket.markup.html.WebComponent;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.form.DropDownChoice;
+import org.apache.wicket.markup.html.form.FormComponentUpdatingBehavior;
+import org.apache.wicket.markup.html.form.IChoiceRenderer;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.StringResourceModel;
 
 /**
  * @author Nuno Fernandes
@@ -59,11 +68,80 @@ public class SakaiNavigationToolBar extends AjaxNavigationToolbar
 	 *            dataview used by datatable
 	 * @return paging navigator that will be used to navigate the data table
 	 */
-	protected SakaiPagingNavigator newPagingNavigator(String navigatorId, final DataTable table)
+	@Override
+	protected AjaxPagingNavigator newPagingNavigator(String navigatorId, final DataTable table)
 	{
-		SakaiPagingNavigator navigator = new SakaiPagingNavigator(navigatorId, table);
+		// Create a standard AjaxPagingNavigator without customization
+		AjaxPagingNavigator navigator = new AjaxPagingNavigator(navigatorId, table);
 		navigator.setVersioned(false);
+		
+		// Add the row selector as a separate component next to the navigator
+		WebMarkupContainer span = (WebMarkupContainer) get("span");
+		
+		// Only add the row selector if it doesn't already exist
+		if (span.get("rowSizeSelector") == null) {
+			span.add(createRowNumberSelector("rowSizeSelector", table));
+		}
+		
 		return navigator;
+	}
+	
+	/**
+	 * Creates a row size selector dropdown that changes items per page
+	 */
+	protected DropDownChoice createRowNumberSelector(String id, final DataTable table) {
+		List<String> choices = Arrays.asList("5", "10", "20", "50", "100", "200");
+		
+		// Create a model that gets/sets the page size from the table
+		IModel<String> model = new Model<String>() {
+			private static final long serialVersionUID = 1L;
+			
+			@Override
+			public String getObject() {
+				return String.valueOf(table.getItemsPerPage());
+			}
+			
+			@Override
+			public void setObject(String object) {
+				table.setItemsPerPage(Integer.parseInt(object));
+			}
+		};
+
+		DropDownChoice<String> rowNumberSelector = new DropDownChoice<>(id, model, choices, new IChoiceRenderer<>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public String getDisplayValue(String object) {
+				return new StringResourceModel("pager_textPageSize")
+						.setParameters(object)
+						.getString();
+			}
+
+			@Override
+			public String getIdValue(String object, int index) {
+				return object;
+			}
+
+			@Override
+			public String getObject(String id, IModel choices) {
+				return id;
+			}
+		});
+
+		rowNumberSelector.add(new FormComponentUpdatingBehavior() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void onUpdate() {
+				// Tell the PageableListView which page to print next
+				table.setCurrentPage(0);
+
+				// Return the current page
+				setResponsePage(getPage());
+			}
+		});
+
+		return rowNumberSelector;
 	}
 
 	/**
@@ -76,6 +154,7 @@ public class SakaiNavigationToolBar extends AjaxNavigationToolbar
 	 * @return navigator label that will be used to navigate the data table
 	 * 
 	 */
+	@Override
 	protected WebComponent newNavigatorLabel(String navigatorId, final DataTable table)
 	{
 		return new SakaiNavigatorLabel(navigatorId, table);

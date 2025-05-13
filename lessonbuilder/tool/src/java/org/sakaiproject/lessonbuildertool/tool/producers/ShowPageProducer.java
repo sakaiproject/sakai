@@ -1229,7 +1229,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				    Integer split = new Integer(i.getAttribute("colsplit") == null ? "1" : i.getAttribute("colsplit"));
 				    colnum += width; // number after this column
 
-				    columnContainer.decorate(new UIStyleDecorator("cols" + cols + (colnum == cols?" lastcol":"") + (width > 1?" double":"") + (split > 1?" split":"") + (color == null?"":" col"+color)));
+				    columnContainer.decorate(new UIStyleDecorator("cols" + cols + (width > 1?" double":"") + (split > 1?" split":"") + (color == null?"":" col"+color)));
 				    UIOutput.make(columnContainer, "break-msg", messageLocator.getMessage(sectionbreak?"simplepage.break-here":"simplepage.break-column-here"));
 
 				    if (canEditPage) {
@@ -2642,6 +2642,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							    makeCsrf(peerForm, "csrf6");
 							    UICommand.make(peerForm, "save-peereval-link",  messageLocator.getMessage("simplepage.submit"), "#{simplePageBean.savePeerEvalResult}");
 							    UIOutput.make(peerForm, "save-peereval-text", messageLocator.getMessage("simplepage.save"));
+							    UIOutput.make(peerForm, "cancel-peereval-button");
 							    UIOutput.make(peerForm, "cancel-peereval-link");
 							    UIOutput.make(peerForm, "cancel-peereval-text", messageLocator.getMessage("simplepage.cancel"));
 							

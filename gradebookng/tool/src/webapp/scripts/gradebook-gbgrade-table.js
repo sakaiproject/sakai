@@ -10,16 +10,15 @@ GbGradeTable.dropdownShownHandler = e => {
 
 const addHiddenGbItemsCallback = (hiddenItems) => {
   GbGradeTable._onReadyCallbacks.push(() => {
-    hiddenItems.forEach((item) => {
-      document.querySelectorAll('.gb-filter input:checked').forEach((element) => {
-        if (element.value === item) {
-          element.setAttribute('data-suppress-update-view-preferences', 'true');
-          element.dispatchEvent(new Event('click', { 
-            bubbles: true,
-            detail: [true]
-          }));
-        }
-      });
+
+    hiddenItems.forEach(i => {
+      const selector = `.gb-filter input:checked[value="${CSS.escape(i)}"]`;
+      const inputElement = document.querySelector(selector);
+
+      if (inputElement) {
+        inputElement.dataset.suppressUpdateViewPreferences = "true";
+        inputElement.click();
+      }
     });
   });
 };
@@ -1837,7 +1836,11 @@ GbGradeTable.redrawTable = function(force) {
 };
 
 GbGradeTable.redrawRows = function() {
-  GbGradeTable.instance.setFilter(row => GbGradeTable.getFilteredData().includes(row));
+  const filteredStudentIds = GbGradeTable.getFilteredData().map(row => row[GbGradeTable.STUDENT_COLUMN_INDEX].userId);
+  GbGradeTable.instance.setFilter(row => {
+    const studentId = row[GbGradeTable.STUDENT_COLUMN_INDEX].userId;
+    return filteredStudentIds.includes(studentId);
+  });
   GbGradeTable.refreshSummaryLabels();
 };
 

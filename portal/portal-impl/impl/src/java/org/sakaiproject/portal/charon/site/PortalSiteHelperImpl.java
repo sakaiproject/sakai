@@ -99,6 +99,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ArrayUtil;
 import org.sakaiproject.util.MapUtil;
 import org.sakaiproject.util.RequestFilter;
+import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.comparator.AliasCreatedTimeComparator;
@@ -134,6 +135,8 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	private static final boolean SAK_PROP_FORCE_OVERVIEW_TO_TOP_DEFAULT = false;
 	private static final String GRADEBOOK_TOOL_ID = "sakai.gradebookng";
 	private static final String GRADEBOOK_GROUP_PROPERTY = "gb-group";
+
+	private static final ResourceLoader rb = new ResourceLoader("sitenav");
 
 	private final AliasService aliasService;
 	private final AuthzGroupService authzGroupService;
@@ -306,16 +309,26 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 		Map<String, Object> siteMap = new HashMap<>();
 		siteMap.put("id", site.getId());
-		siteMap.put("title", site.getTitle());
+		String title;
+		if (site.getId().equals("~admin")) {
+			title = rb.getString("sit_mywor_admin");
+		} else if (site.getId().equals("!admin")) {
+			title = rb.getString("sit_admin");
+		} else if (userId != null && site.getId().equals(siteService.getUserSiteId(userId))) {
+			title = rb.getString("sit_mywor");
+		} else {
+			title = site.getTitle();
+		}
+		siteMap.put("title", title);
 		siteMap.put("url", site.getUrl());
 		siteMap.put("type", site.getType());
 		siteMap.put("description", site.getDescription());
 		siteMap.put("shortDescription", site.getShortDescription());
 		siteMap.put("isPinned", pinned);
-        siteMap.put("isHome", userId != null && site.getId().equals(siteService.getUserSiteId(userId)));
-        siteMap.put("isCurrent", site.getId().equals(currentSiteId));
-        siteMap.put("isHidden", hidden);
-        siteMap.put("currentSiteId", currentSiteId);
+		siteMap.put("isHome", userId != null && site.getId().equals(siteService.getUserSiteId(userId)));
+		siteMap.put("isCurrent", site.getId().equals(currentSiteId));
+		siteMap.put("isHidden", hidden);
+		siteMap.put("currentSiteId", currentSiteId);
 		if (includePages) {
 			List<SitePage> pageList = getPermittedPagesInOrder(site);
 			siteMap.put("pages", getPageMaps(pageList, site));
@@ -640,7 +653,16 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		&& (s.getId().equals(myWorkspaceSiteId) || effectiveSite
 		.equals(myWorkspaceSiteId))));
 
-		String siteTitleRaw = getUserSpecificSiteTitle(s, false, false, siteProviders);
+		String siteTitleRaw;
+		if (s.getId().equals("~admin")) {
+			siteTitleRaw = rb.getString("sit_mywor_admin");
+		} else if (s.getId().equals("!admin")) {
+			siteTitleRaw = rb.getString("sit_admin");
+		} else if (myWorkspaceSiteId != null && (s.getId().equals(myWorkspaceSiteId) || effectiveSite.equals(myWorkspaceSiteId))) {
+			siteTitleRaw = rb.getString("sit_mywor");
+		} else {
+			siteTitleRaw = getUserSpecificSiteTitle(s, false, false, siteProviders);
+		}
 		String siteTitle = formattedText.escapeHtml(siteTitleRaw);
 		String siteTitleTruncated = formattedText.escapeHtml(formattedText.makeShortenedText(siteTitleRaw, null, null, null));
 		m.put("siteTitle", siteTitle);

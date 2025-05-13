@@ -22,8 +22,8 @@
 <html xmlns:wicket>
 <body>
   <wicket:panel>
-    <a wicket:id="first" class="btn btn-light first"><wicket:message key="pager_textFirst"/></a>
-    <a wicket:id="prev" rel="prev" class="btn btn-light prev"><wicket:message key="pager_textPrev"/></a>
+    <a wicket:id="first" class="btn btn-link first"><wicket:message key="pager_textFirst"/></a>
+    <a wicket:id="prev" rel="prev" class="btn btn-link prev"><wicket:message key="pager_textPrev"/></a>
     <span wicket:id="navigation">
           <a wicket:id="pageLink" href="#"><span wicket:id="pageNumber">5</span></a>
     </span>
@@ -31,8 +31,8 @@
             <option>10</option>
             <option>20</option>
         </select>
-    <a wicket:id="next" rel="next" class="btn btn-light next"><wicket:message key="pager_textNext"/></a>
-    <a wicket:id="last" class="btn btn-light last"><wicket:message key="pager_textLast"/></a>
+    <a wicket:id="next" rel="next" class="btn btn-link next"><wicket:message key="pager_textNext"/></a>
+    <a wicket:id="last" class="btn btn-link last"><wicket:message key="pager_textLast"/></a>
   </wicket:panel>
 </body>
 </html>

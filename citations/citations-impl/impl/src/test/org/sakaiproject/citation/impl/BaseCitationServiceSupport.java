@@ -29,6 +29,7 @@ import org.sakaiproject.citation.impl.openurl.KEVFormat;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.id.api.IdManager;
 
 public class BaseCitationServiceSupport extends MockObjectTestCase {
@@ -39,6 +40,7 @@ public class BaseCitationServiceSupport extends MockObjectTestCase {
 		final ConfigurationService csMock = mock(ConfigurationService.class);
 		final ServerConfigurationService scsMock = mock(ServerConfigurationService.class);
 		final IdManager imMock = mock(IdManager.class);
+		final EventTrackingService etsMock = mock(EventTrackingService.class);
 		
 		// Just mocking them up so thing startup.
 		checking(new Expectations(){
@@ -48,6 +50,7 @@ public class BaseCitationServiceSupport extends MockObjectTestCase {
 				ignoring(csMock);
 				ignoring(scsMock);
 				ignoring(imMock);
+				ignoring(etsMock);
 			}
 		});
 
@@ -57,6 +60,7 @@ public class BaseCitationServiceSupport extends MockObjectTestCase {
 		api.setConfigurationService(csMock);
 		api.setServerConfigurationService(scsMock);
 		api.setIdManager(imMock);
+		api.setEventTrackingService(etsMock);
 		
 		api.init();
 		return api;

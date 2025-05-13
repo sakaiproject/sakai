@@ -534,11 +534,11 @@ public abstract class BaseLTIService implements LTIService {
 
 		for ( Map<String,Object> content : contents ) {
 			// the content with same tool id remove the content link first
-			Long content_key = foorm.getLongNull(content.get(LTIService.LTI_ID));
+			Long content_key = LTIUtil.toLongNull(content.get(LTIService.LTI_ID));
 			if ( content_key == null ) continue;
 
 			// Check the tool_id - just double checking in case the WHER clause fails
-			Long tool_id = foorm.getLongNull(content.get(LTIService.LTI_TOOL_ID));
+			Long tool_id = LTIUtil.toLongNull(content.get(LTIService.LTI_TOOL_ID));
 			if ( ! key.equals(tool_id) ) continue;
 
 			// Admin edits all sites with the content item
@@ -1070,7 +1070,7 @@ public abstract class BaseLTIService implements LTIService {
 		Map<String, Object> content = this.getContent(contentKey.longValue(), siteId);
 		if ( content == null ) return null;
 
-		Long toolKey = Long.valueOf(content.get(LTIService.LTI_TOOL_ID).toString());
+		Long toolKey = LTIUtil.toLong(content.get(LTIService.LTI_TOOL_ID));
 		if (toolKey == null) return null;
 
 		Map<String, Object> tool = this.getTool(toolKey, siteId);
@@ -1137,7 +1137,7 @@ public abstract class BaseLTIService implements LTIService {
 			log.info("No tool to associate to content item {}", launchUrl);
 			return null;
 		} else {
-			Long toolId = Foorm.getLongNull(theTool.get(LTIService.LTI_ID));
+			Long toolId = LTIUtil.toLongNull(theTool.get(LTIService.LTI_ID));
 			log.debug("Matched toolId={} for launchUrl={}", toolId, launchUrl);
 			content.put(LTIService.LTI_TOOL_ID, toolId.intValue());
 			Object result = this.insertContent(convertToProperties(content), siteId);
@@ -1151,7 +1151,7 @@ public abstract class BaseLTIService implements LTIService {
 				log.warn("Could not re-retrieve inserted content item {}", launchUrl);
 				return null;
 			} else {
-				Long contentKey = Foorm.getLongNull(theContent.get(LTIService.LTI_ID));
+				Long contentKey = LTIUtil.toLongNull(theContent.get(LTIService.LTI_ID));
 				log.debug("Created contentKey={} for launchUrl={}", contentKey, launchUrl);
 				return contentKey;
 			}
@@ -1172,7 +1172,7 @@ public abstract class BaseLTIService implements LTIService {
 		Long newToolId = null;
 
 		// Check the tool_id - if the tool_id is global we are cool
-		Long ltiToolId = Foorm.getLong(ltiContent.get(LTIService.LTI_TOOL_ID));
+		Long ltiToolId = LTIUtil.toLong(ltiContent.get(LTIService.LTI_TOOL_ID));
 
 		// Get the tool bypassing security
 		Map<String, Object> ltiTool = this.getToolDao(ltiToolId, siteId, true);
@@ -1193,7 +1193,7 @@ public abstract class BaseLTIService implements LTIService {
 				String oldLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
 				if ( oldLaunch == null ) continue;
 				if ( oldLaunch.equals(toolLaunch) ) {
-					newToolId = Foorm.getLong(tool.get(LTIService.LTI_ID));
+					newToolId = LTIUtil.toLong(tool.get(LTIService.LTI_ID));
 					break;
 				}
 			}
@@ -1259,7 +1259,7 @@ public abstract class BaseLTIService implements LTIService {
 
 	@Override
 	public Long getId(Map<String, Object> thing) {
-		Long contentKey = foorm.getLongKey(thing.get(LTIService.LTI_ID));
+		Long contentKey = LTIUtil.toLongKey(thing.get(LTIService.LTI_ID));
 		return contentKey;
 	}
 
@@ -1299,7 +1299,7 @@ public abstract class BaseLTIService implements LTIService {
 				Long contentKey = Long.parseLong(linkContentId);
 				Map<String, Object> content = this.getContent(contentKey, linkSiteId);
 				if ( content != null ) {
-					toolKey = Foorm.getLongNull(content.get(LTIService.LTI_TOOL_ID));
+					toolKey = LTIUtil.toLongNull(content.get(LTIService.LTI_TOOL_ID));
 					// Make sure we can retrieve the tool in this site
 					if ( toolKey != null ) tool = this.getTool(toolKey, toContext);
 					if ( tool != null ) {
@@ -1366,7 +1366,7 @@ public abstract class BaseLTIService implements LTIService {
 		// Get launch URL from content
 		String launchUrl = (String) content.get(LTIService.LTI_LAUNCH);
 		Long contentKey = this.getId(content);  // May be empty null or not yet persisted or be an id from some other system
-		Long contentToolId = Foorm.getLongNull(content.get(LTIService.LTI_TOOL_ID));
+		Long contentToolId = LTIUtil.toLongNull(content.get(LTIService.LTI_TOOL_ID));
 		Map<String, Object> contentTool = null;
 
 		if (StringUtils.isBlank(launchUrl)) {

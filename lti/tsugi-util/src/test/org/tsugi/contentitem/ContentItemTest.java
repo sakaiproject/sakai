@@ -1,153 +1,211 @@
 package org.tsugi.contentitem;
-import static org.junit.Assert.*;
 
-import java.util.ArrayList;
+import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.util.Properties;
+import org.springframework.mock.web.MockHttpServletRequest;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.mock.web.MockHttpServletRequest;
 import org.tsugi.lti.ContentItem;
-import org.tsugi.jackson.JacksonUtil;
-
 import org.tsugi.contentitem.objects.Icon;
 import org.tsugi.contentitem.objects.PlacementAdvice;
 import org.tsugi.contentitem.objects.LtiLinkItem;
 import org.tsugi.contentitem.objects.ContentItemResponse;
 
+/**
+ * Test class for Content Item Message processing.
+ * Tests the functionality of Content Item objects according to IMS Content Item Message specification.
+ * @see <a href="https://www.imsglobal.org/specs/lticiv1p0/specification">IMS Content-Item Message Specification</a>
+ */
 @Slf4j
 public class ContentItemTest {
 
     @Rule
     public ExpectedException expectedEx = ExpectedException.none();
 
-	@Before
-	public void setUp() throws Exception {
-	}
+    private MockHttpServletRequest request;
+    private Icon testIcon;
+    private PlacementAdvice testPlacementAdvice;
+    private LtiLinkItem testLtiLinkItem;
 
-	@Test
-	public void testBuildObjects() {
-		Icon icon = new Icon("https://www.apereo.org/sites/all/themes/apereo/images/apereo-logo-white-bg.png");
-		icon.setHeight(64);
-		icon.setWidth(64);
+    @Before
+    public void setUp() {
+        request = new MockHttpServletRequest();
+        
+        // Initialize test icon
+        testIcon = new Icon("https://www.apereo.org/sites/all/themes/apereo/images/apereo-logo-white-bg.png");
+        testIcon.setHeight(64);
+        testIcon.setWidth(64);
+        
+        // Initialize placement advice
+        testPlacementAdvice = new PlacementAdvice();
+        
+        // Initialize LTI link item
+        testLtiLinkItem = new LtiLinkItem("sakai.announcements", testPlacementAdvice, testIcon);
+        testLtiLinkItem.setTitle("A cool tool hosted in the Sakai environment.");
+        testLtiLinkItem.setText("For more information on how to build and host powerful LTI-based Tools quickly, see www.tsugi.org");
+        testLtiLinkItem.setUrl("http://www.tsugi.org");
+    }
 
-		String output = icon.prettyPrintLog();
-		assertNotNull(output);
+    /**
+     * Tests the creation and validation of Content Item objects
+     */
+    @Test
+    public void testBuildObjects() {
+        // Test Icon object
+        String output = testIcon.prettyPrintLog();
+        assertNotNull("Icon pretty print should not be null", output);
+        assertTrue("Icon output should contain image path", output.contains("apereo-logo-white"));
+        assertTrue("Icon output should contain dimensions", output.contains("64"));
 
-		assertTrue(output.contains("apereo-logo-white"));
-		assertTrue(output.contains("64"));
+        // Test PlacementAdvice object
+        output = testPlacementAdvice.prettyPrintLog();
+        assertNotNull("PlacementAdvice pretty print should not be null", output);
 
-		PlacementAdvice placementAdvice = new PlacementAdvice();
-		output = placementAdvice.prettyPrintLog();
-		assertNotNull(output);
+        // Test LtiLinkItem object
+        output = testLtiLinkItem.prettyPrintLog();
+        assertNotNull("LtiLinkItem pretty print should not be null", output);
+        assertTrue("LtiLinkItem output should contain title", output.contains("cool"));
 
-		LtiLinkItem item = new LtiLinkItem("sakai.announcements", placementAdvice, icon);
-		item.setTitle("A cool tool hosted in the Sakai environment.");
-		item.setText("For more information on how to build and host powerful LTI-based Tools quickly, see www.tsugi.org");
-		item.setUrl("http://www.tsugi.org");
-		output = item.prettyPrintLog();
-		assertNotNull(output);
-		assertTrue(output.contains("cool"));
+        // Test ContentItemResponse object
+        ContentItemResponse resp = new ContentItemResponse();
+        resp.addGraph(testLtiLinkItem);
+        output = resp.prettyPrintLog();
+        assertNotNull("ContentItemResponse pretty print should not be null", output);
+        assertTrue("Response should contain @graph", output.contains("@graph"));
+        assertTrue("Response should contain icon details", output.contains("apereo-logo-white"));
+        assertTrue("Response should contain dimensions", output.contains("64"));
+        assertTrue("Response should contain title", output.contains("cool"));
 
-		ContentItemResponse resp = new ContentItemResponse();
-		resp.addGraph(item);
-		output = resp.prettyPrintLog();
-		assertNotNull(output);
-		assertTrue(output.contains("@graph"));
-		assertTrue(output.contains("apereo-logo-white"));
-		assertTrue(output.contains("64"));
-		assertTrue(output.contains("cool"));
+        log.debug("ContentItemResponse output: {}", output);
+    }
 
-		log.debug("output={}", output);		
-	}
+    /**
+     * Tests validation when no content items are present
+     */
+    @Test
+    public void testContentItemThrowsNoContentItems() {
+        request.addParameter("data", "{\"eggs\": \"chips\"}");
+        expectedEx.expect(RuntimeException.class);
+        expectedEx.expectMessage(ContentItem.NO_CONTENT_ITEMS);
+        new ContentItem(request);
+    }
 
-	@Test
-	public void testContentItemThrowsNoContentItems() throws Exception {
+    /**
+     * Tests validation of malformed content items
+     */
+    @Test
+    public void testContentItemThrowsBadContentItems() {
+        request.addParameter("data", "{\"eggs\": \"chips\"}");
+        request.addParameter(ContentItem.CONTENT_ITEMS, "[\"bad\"]");
+        expectedEx.expect(RuntimeException.class);
+        expectedEx.expectMessage(ContentItem.BAD_CONTENT_MESSAGE);
+        new ContentItem(request);
+    }
 
-		MockHttpServletRequest req = new MockHttpServletRequest();
-		req.addParameter("data", "{\"eggs\": \"chips\"}");
-		expectedEx.expect(RuntimeException.class);
-		expectedEx.expectMessage(ContentItem.NO_CONTENT_ITEMS);
-		ContentItem contentItem = new ContentItem(req);
-	}
+    /**
+     * Tests validation when data parameter is missing
+     */
+    @Test
+    public void testContentItemThrowsNoData() {
+        request.addParameter(ContentItem.CONTENT_ITEMS, "{\"@graph\": \"ene\"}");
+        expectedEx.expect(RuntimeException.class);
+        expectedEx.expectMessage(ContentItem.NO_DATA_MESSAGE);
+        new ContentItem(request);
+    }
 
-	@Test
-	public void testContentItemThrowsBadContentItems() throws Exception {
+    /**
+     * Tests validation of malformed data parameter
+     */
+    @Test
+    public void testContentItemThrowsBadData() {
+        request.addParameter(ContentItem.CONTENT_ITEMS, "{\"@graph\": \"ene\"}");
+        request.addParameter("data", "[\"eggs\"]");
+        expectedEx.expect(RuntimeException.class);
+        expectedEx.expectMessage(ContentItem.BAD_DATA_MESSAGE);
+        new ContentItem(request);
+    }
 
-		MockHttpServletRequest req = new MockHttpServletRequest();
-		req.addParameter("data", "{\"eggs\": \"chips\"}");
-		req.addParameter(ContentItem.CONTENT_ITEMS, "[\"bad\"]");
-		expectedEx.expect(RuntimeException.class);
-		expectedEx.expectMessage(ContentItem.BAD_CONTENT_MESSAGE);
-		ContentItem contentItem = new ContentItem(req);
-	}
+    /**
+     * Tests validation when @graph is missing
+     */
+    @Test
+    public void testContentItemThrowsNoGraph() {
+        request.addParameter(ContentItem.CONTENT_ITEMS, "{\"no\": \"graph\"}");
+        request.addParameter("data", "{\"eggs\": \"chips\"}");
+        expectedEx.expect(RuntimeException.class);
+        expectedEx.expectMessage(ContentItem.NO_GRAPH_MESSAGE);
+        new ContentItem(request);
+    }
 
-	@Test
-	public void testContentItemThrowsNoData() throws Exception {
+    /**
+     * Tests successful content item creation and data property access
+     */
+    @Test
+    public void testContentItem() {
+        request.addParameter(ContentItem.CONTENT_ITEMS, "{\"@graph\": \"ene\"}");
+        request.addParameter("data", "{\"eggs\": \"chips\"}");
+        ContentItem contentItem = new ContentItem(request);
+        assertEquals("Data property should be accessible", "chips", 
+            contentItem.getDataProperties().getProperty("eggs"));
+    }
 
-		MockHttpServletRequest req = new MockHttpServletRequest();
-		req.addParameter(ContentItem.CONTENT_ITEMS, "{\"@graph\": \"ene\"}");
-		expectedEx.expect(RuntimeException.class);
-		expectedEx.expectMessage(ContentItem.NO_DATA_MESSAGE);
-		ContentItem contentItem = new ContentItem(req);
-	}
+    /**
+     * Tests handling of escaped JSON data
+     */
+    @Test
+    public void testContentItemEscapedData() {
+        request.addParameter(ContentItem.CONTENT_ITEMS, "{\"@graph\": \"ene\"}");
+        request.addParameter("data", "{\\\"eggs\\\": \\\"chips\\\"}");
+        ContentItem contentItem = new ContentItem(request);
+        assertEquals("Escaped JSON should be properly parsed", "chips", 
+            contentItem.getDataProperties().getProperty("eggs"));
+    }
 
-	@Test
-	public void testContentItemThrowsBadData() throws Exception {
+    /**
+     * Tests parsing of graph content and type validation
+     */
+    @Test
+    public void testContentItemGraphParsing() {
+        request.addParameter(ContentItem.CONTENT_ITEMS, 
+            "{\"@graph\": [{\"@type\": \"" + ContentItem.TYPE_LTILINKITEM + "\"}]}");
+        request.addParameter("data", "{\"eggs\": \"chips\"}");
+        ContentItem contentItem = new ContentItem(request);
+        assertNotNull("Should find item of correct type", 
+            contentItem.getItemOfType(ContentItem.TYPE_LTILINKITEM));
+    }
 
-		MockHttpServletRequest req = new MockHttpServletRequest();
-		req.addParameter(ContentItem.CONTENT_ITEMS, "{\"@graph\": \"ene\"}");
-		req.addParameter("data", "[\"eggs\"]");
-		expectedEx.expect(RuntimeException.class);
-		expectedEx.expectMessage(ContentItem.BAD_DATA_MESSAGE);
-		ContentItem contentItem = new ContentItem(req);
-	}
+    /**
+     * Tests handling of empty content items
+     */
+    @Test
+    public void testEmptyContentItems() {
+        request.addParameter(ContentItem.CONTENT_ITEMS, "{\"@graph\": []}");
+        request.addParameter("data", "{}");
+        ContentItem contentItem = new ContentItem(request);
+        assertNull("Should return null for non-existent type", 
+            contentItem.getItemOfType("non-existent-type"));
+    }
 
-	@Test
-	public void testContentItemThrowsNoGraph() throws Exception {
-
-		MockHttpServletRequest req = new MockHttpServletRequest();
-		req.addParameter(ContentItem.CONTENT_ITEMS, "{\"no\": \"graph\"}");
-		req.addParameter("data", "{\"eggs\": \"chips\"}");
-		expectedEx.expect(RuntimeException.class);
-		expectedEx.expectMessage(ContentItem.NO_GRAPH_MESSAGE);
-		ContentItem contentItem = new ContentItem(req);
-	}
-
-	@Test
-	public void testContentItem() {
-
-		MockHttpServletRequest req = new MockHttpServletRequest();
-		req.addParameter(ContentItem.CONTENT_ITEMS, "{\"@graph\": \"ene\"}");
-		req.addParameter("data", "{\"eggs\": \"chips\"}");
-		ContentItem contentItem = new ContentItem(req);
-		assertTrue(contentItem.getDataProperties().getProperty("eggs").equals("chips"));
-	}
-
-	@Test
-	public void testContentItemEscapedData() {
-
-		MockHttpServletRequest req = new MockHttpServletRequest();
-		req.addParameter(ContentItem.CONTENT_ITEMS, "{\"@graph\": \"ene\"}");
-		req.addParameter("data", "{\\\"eggs\\\": \\\"chips\\\"}");
-		ContentItem contentItem = new ContentItem(req);
-		assertTrue(contentItem.getDataProperties().getProperty("eggs").equals("chips"));
-	}
-
-	@Test
-	public void testContentItemGraphParsing() {
-
-		MockHttpServletRequest req = new MockHttpServletRequest();
-		req.addParameter(ContentItem.CONTENT_ITEMS, "{\"@graph\": [{\"@type\": \"" + ContentItem.TYPE_LTILINKITEM + "\"}]}");
-		req.addParameter("data", "{\"eggs\": \"chips\"}");
-		ContentItem contentItem = new ContentItem(req);
-		assertTrue(contentItem.getItemOfType(ContentItem.TYPE_LTILINKITEM) != null);
-	}
+    /**
+     * Tests content item with multiple graph items
+     */
+    @Test
+    public void testMultipleGraphItems() {
+        String multipleItems = "{\"@graph\": [" +
+            "{\"@type\": \"" + ContentItem.TYPE_LTILINKITEM + "\", \"title\": \"First Item\"}," +
+            "{\"@type\": \"" + ContentItem.TYPE_LTILINKITEM + "\", \"title\": \"Second Item\"}" +
+            "]}";
+        request.addParameter(ContentItem.CONTENT_ITEMS, multipleItems);
+        request.addParameter("data", "{}");
+        ContentItem contentItem = new ContentItem(request);
+        assertNotNull("Should find first item of type", 
+            contentItem.getItemOfType(ContentItem.TYPE_LTILINKITEM));
+    }
 }
 

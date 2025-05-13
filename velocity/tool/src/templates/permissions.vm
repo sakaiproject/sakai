@@ -4,4 +4,4 @@
 	</h1>
 </div>
 
-<sakai-permissions tool="$!toolKey" bundle-key="$!bundleKey" />
+<sakai-permissions tool="$!toolKey" bundle-key="$!bundleKey"></sakai-permissions>

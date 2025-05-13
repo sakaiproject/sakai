@@ -204,6 +204,7 @@ public class ProfileConstants {
 
 	public static final String ROSTER_VIEW_PHOTO = "roster.viewofficialphoto";
 	public static final String ROSTER_VIEW_EMAIL = "roster.viewemail";
+	public static final String ROSTER_VIEW_PROFILE = "roster.viewprofile";
 
 	/*
 	 * INTEGRATIONS
