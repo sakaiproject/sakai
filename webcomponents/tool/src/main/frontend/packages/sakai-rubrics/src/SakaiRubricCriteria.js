@@ -316,7 +316,7 @@ export class SakaiRubricCriteria extends RubricsElement {
     edit.requestUpdate();
   }
 
-  saveWeights(e) {
+  saveWeights() {
 
     this._savingWeights = true;
 

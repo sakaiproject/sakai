@@ -265,21 +265,20 @@ export class SakaiRubric extends RubricsElement {
 
     const all = Promise.all(this.rubric.criteria.map(cr => {
 
-        this.updateRubricOptions.body = JSON.stringify([ { "op": "replace", "path": "/weight", "value": cr.weight } ]);
+      this.updateRubricOptions.body = JSON.stringify([ { "op": "replace", "path": "/weight", "value": cr.weight } ]);
 
-        const url = `/api/sites/${this.rubric.ownerId}/rubrics/${this.rubric.id}/criteria/${cr.id}`;
+      const url = `/api/sites/${this.rubric.ownerId}/rubrics/${this.rubric.id}/criteria/${cr.id}`;
 
-        return fetch(url, this.updateRubricOptions)
-          .then(r => {
+      return fetch(url, this.updateRubricOptions)
+        .then(r => {
 
-            if (!r.ok) {
-              throw new Error(`Network error while setting criterion weight for ${cr.id}`);
-            }
+          if (!r.ok) {
+            throw new Error(`Network error while setting criterion weight for ${cr.id}`);
+          }
 
-            console.debug(`Saved weight for criterion ${cr.id}`);
-          });
-      })
-    );
+          console.debug(`Saved weight for criterion ${cr.id}`);
+        });
+    }));
 
     all.then(() => {
 
@@ -289,7 +288,7 @@ export class SakaiRubric extends RubricsElement {
       successBanner.classList.remove("d-none");
 
       setTimeout(() => successBanner.classList.add("d-none"), 5000);
-    }).catch(error => {
+    }).catch(() => {
 
       const errorBanner = this.querySelector(".sak-banner-error");
       errorBanner.classList.remove("d-none");
