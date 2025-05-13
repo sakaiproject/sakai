@@ -234,7 +234,7 @@ public abstract class BasePanel extends Panel {
 	/**
 	 * Interface for updating the expanded state in panel classes
 	 */
-	public interface AccordionStateUpdater {
+	public interface AccordionStateUpdater extends java.io.Serializable {
 		void updateState(boolean newState);
 		boolean getState();
 	}
