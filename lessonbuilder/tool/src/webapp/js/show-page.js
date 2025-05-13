@@ -2771,7 +2771,7 @@ $(document).ready(function () {
     cursor: 'pointer',
     activation: 'click',
     closePosition: 'title',
-    closeText: '<img src="/library/image/silk/cross.png" alt="close" />'
+    closeText: '<span class="bi bi-x" aria-hidden="true"></span>'
   });
 
   function submitgrading(item) {

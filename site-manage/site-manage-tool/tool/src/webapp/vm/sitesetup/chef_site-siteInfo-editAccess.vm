@@ -624,7 +624,7 @@
 					<td style="vertical-align:top;">
 						<label for="showAuthTools">$tlang.getString("shopping.showTools.label"): </label>
 						<br/>
-						<img id="shoppingToolsWarning" src="/library/image/silk/exclamation.png" style="display:none"/>
+						<span id="shoppingToolsWarning" class="bi bi-exclamation-triangle" aria-hidden="true" style="display:none"></span>
 					</td>
 					<td>
 						<div id="shoppingtabs">

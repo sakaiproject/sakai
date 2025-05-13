@@ -61,7 +61,7 @@
 									--%>
 											<h:outputText value="#{eachSite.unreadPrivateAmt}" rendered="#{eachSite.unreadPrivateAmt > 0}" style="width:3.5em;display:block;float:left"/>
 											<h:panelGroup style="display:block;float:left">
-											<h:graphicImage url="/../library/image/silk/email_go.png" rendered="#{eachSite.unreadPrivateAmt > 0}" />	
+											<span class="bi bi-envelope-fill" aria-hidden="true" rendered="#{eachSite.unreadPrivateAmt > 0}"></span>	
 											<h:outputText value="#{msgs.syn_tool_link_begin}#{eachSite.privateMessagesUrl}';\">
 												Read</a>" 
 													escape="false" title="#{msgs.syn_goto_messages}" rendered="#{eachSite.unreadPrivateAmt > 0}"
@@ -77,12 +77,6 @@
 													<h:graphicImage url="/images/trans.gif" alt="#{msgs.syn_mark_as_read}"
 															rendered="#{eachSite.unreadPrivateAmt > 0}"  styleClass="markAsReadIcon"/>
 															<h:outputText  value="#{msgs.syn_mark_as_read}"/>
-													<%--		
-							<h:graphicImage url="/../library/image/silk/email_edit.png" title="#{msgs.syn_mark_as_read}"
-								onmouseover="ImageRollOver(this, '/..//library/image/silk/email_open.png');"
-								onmouseout="ImageRollOver(this, '/../library/image/silk/email_edit.png');"
-								rendered="#{eachSite.unreadPrivateAmt > 0}" />
-													--%>	
 														
 														
 							<f:param name="contextId" value="#{eachSite.siteId}" />
@@ -102,12 +96,9 @@
 										<h:outputText value="#{eachSite.unreadForumsAmt}" rendered="#{eachSite.unreadForumsAmt > 0}" style="width:3.5em;display:block;float:left"/>								
 										<h:panelGroup style="display:block;float:left">
 					<%-- === To create a link to (Messages &) Forums home page === --%>
-										<h:graphicImage url="/../library/image/silk/comments.png" alt="#{msgs.syn_goto_forums}"  rendered="#{eachSite.unreadForumsAmt > 0}"/>
+										<span class="bi bi-chat-text" aria-hidden="true" title="#{msgs.syn_goto_forums}" rendered="#{eachSite.unreadForumsAmt > 0}"></span>
 										<h:outputText value="#{msgs.syn_tool_link_begin}#{eachSite.mcPageURL}';\">Read</a>" 
 							escape="false" title="#{msgs.syn_goto_forums}" rendered="#{eachSite.unreadForumsAmt > 0}"/>
-										<%--
-					<h:graphicImage url="#{PrivateMessagesTool.serverUrl}/library/image/silk/email.png" rendered="#{eachSite.unreadForumsAmt > 0}" />
-										--%>
 									</h:panelGroup>
 
 					<h:outputText value="#{msgs.syn_no_messages}" rendered="#{eachSite.unreadForumsAmt == 0}" />
@@ -141,7 +132,7 @@
 			<h:panelGroup rendered="#{mfSynopticBean.siteInfo.unreadPrivateAmt > 0}" >
 							<h:outputText value="#{mfSynopticBean.siteInfo.unreadPrivateAmt}" rendered="#{mfSynopticBean.siteInfo.unreadPrivateAmt > 0}" style="width:3.5em;display:block;float:left"/>
 							<h:panelGroup style="display:block;float:left">
-								<h:graphicImage url="/../library/image/silk/email_go.png" alt="#{msgs.syn_mark_as_read}"
+								<h:outputText value="" styleClass="bi bi-envelope-fill"
 										rendered="#{mfSynopticBean.siteInfo.unreadPrivateAmt > 0}"/>
 				<h:outputText 
 										value="#{msgs.syn_tool_link_begin}#{mfSynopticBean.siteInfo.privateMessagesUrl}';\">Read</a>"
@@ -165,17 +156,15 @@
 		<h:panelGroup rendered="#{mfSynopticBean.messageForumsPageInSite || mfSynopticBean.forumsPageInSite}">
 			<h:outputText value="#{msgs.syn_no_messages}" rendered="#{mfSynopticBean.siteInfo.unreadForumsAmt == 0}" />
 						<h:panelGroup>
-							<h:outputText value="#{mfSynopticBean.siteInfo.unreadForumsAmt}" rendered="#{mfSynopticBean.siteInfo.unreadForumsAmt > 0}"   style="width:3.5em;display:block;float:left"/>
-							<h:panelGroup   style="display:block;float:left">
-								<h:graphicImage url="/../library/image/silk/comments.png" alt="#{msgs.syn_goto_forums}"  rendered="#{mfSynopticBean.siteInfo.unreadForumsAmt > 0}"/>
+							<h:outputText value="#{mfSynopticBean.siteInfo.unreadForumsAmt}" rendered="#{mfSynopticBean.siteInfo.unreadForumsAmt > 0}" style="width:3.5em;display:block;float:left"/>
+							<h:panelGroup style="display:block;float:left">
+								<h:panelGroup rendered="#{mfSynopticBean.siteInfo.unreadForumsAmt > 0}">
+									<span class="bi bi-chat-text" aria-hidden="true" aria-label="#{msgs.syn_goto_forums}"></span>
+								</h:panelGroup>
 								<h:outputText value="#{msgs.syn_tool_link_begin}#{mfSynopticBean.siteInfo.mcPageURL}';\">Read</a>" 
 							escape="false" title="#{msgs.syn_goto_forums}" rendered="#{mfSynopticBean.siteInfo.unreadForumsAmt > 0}"/>
-									<%--
-									<h:graphicImage url="/messageforums-tool/images/12-em-check.png" rendered="#{mfSynopticBean.siteInfo.unreadForumsAmt > 0}" />
-									--%>
-		</h:panelGroup>
 						</h:panelGroup>
-					</h:panelGroup>
+		</h:panelGroup>
 	</h:panelGrid>
 
     <!-- This is the div for the popup definition. It is not displayed until the element is moused over -->

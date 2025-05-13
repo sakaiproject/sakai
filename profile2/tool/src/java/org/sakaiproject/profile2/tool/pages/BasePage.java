@@ -138,12 +138,6 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		}
 		add(preferencesContainer);
 
-		// rss link
-		/*
-		 * ContextImage icon = new ContextImage("icon",new Model(ProfileImageManager.RSS_IMG)); Link rssLink = new Link("rssLink") { public
-		 * void onClick() { } }; rssLink.add(icon); rssLink.add(new AttributeModifier("title", new ResourceModel("link.title.rss")));
-		 * icon.setVisible(true); add(rssLink);
-		 */
 
 	}
 
