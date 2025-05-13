@@ -315,8 +315,18 @@ export class SakaiRubricCriteria extends RubricsElement {
     edit.requestUpdate();
   }
 
-  saveWeights() {
-    this.dispatchEvent(new CustomEvent("save-weights"));
+  saveWeights(e) {
+
+    const saveButton = this.querySelector("button.save-weights");
+
+    saveButton.disabled = true;
+
+    const parentRubric = this.closest("sakai-rubric");
+    if (parentRubric) {
+      parentRubric.saveCriterionWeights().finally(() => saveButton.disabled = false);
+    } else {
+      console.error("Parent rubric not found");
+    }
   }
 
   createCriterion(e, empty = false) {
