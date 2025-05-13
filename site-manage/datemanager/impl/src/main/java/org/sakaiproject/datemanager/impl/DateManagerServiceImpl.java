@@ -1744,7 +1744,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 			Object obj = jsonParser.parse(JSONArray.toJSONString(list));
 			jsonArray = (JSONArray) obj;
 		} catch (Exception ex) {
-			log.error("Cannot order the resources by hierarchy: {}", ex.getMessage());
+			log.error("Cannot order the resources by hierarchy: {}", ex.toString());
 		}
 		return jsonArray;
 	}
