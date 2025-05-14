@@ -78,6 +78,7 @@ public class TimedAssessmentRunnable implements Runnable {
   }
 
   
+  @Override
   public void run(){
     try {
       TimedAssessmentGradingModel timedAG = this.queue.get(this.timedAGId);
@@ -102,8 +103,22 @@ public class TimedAssessmentRunnable implements Runnable {
           Integer extendedTime = null;
 
           // The specific student has more time than the thread knows about
-          if (assessmentExtended != null && assessmentExtended.hasExtendedTime()) {
+          if (assessmentExtended.hasExtendedTime()) {
             extendedTime = assessmentExtended.getTimeLimit();
+            
+            // Check if this is a late exception (starting after due date but before retract date)
+            Date assessmentDueDate = publishedAssessment.getDueDate();
+            Date extendedDueDate = assessmentExtended.getDueDate();
+            Date attemptDate = ag.getAttemptDate();
+            // If the student has an extended due date, and they started after the regular due date
+            if (extendedDueDate != null && assessmentDueDate != null && 
+                attemptDate != null && extendedDueDate.after(assessmentDueDate) && 
+                attemptDate.after(assessmentDueDate) && attemptDate.before(extendedDueDate)) {
+              // Allow student to take the assessment with their extended time
+              log.info("SAMIGO_TIMED_ASSESSMENT:LATE_EXCEPTION ID:{} user_id:{} attempt_after_due_date", this.timedAGId, ag.getAgentId());
+              timedAG.setNewTimeLimit(extendedTime);
+              return;
+            }
           }
           // Maybe the instructor extended the time allowed after the student began?
           else if (publishedAssessment != null && publishedAssessment.getTimeLimit() != null) {
