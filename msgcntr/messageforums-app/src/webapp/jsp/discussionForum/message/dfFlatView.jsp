@@ -124,7 +124,7 @@
 				<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
 			</h:commandLink>&nbsp;
 			<h:outputLink styleClass="button" id="print" value="javascript:printFriendly('#{ForumTool.printFriendlyUrl}');">
-				<h:graphicImage url="/../../library/image/silk/printer.png" alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />
+				<span class="bi bi-printer-fill" aria-hidden="true" title="#{msgs.print_friendly}"></span>
 			</h:outputLink>
  		</h:panelGroup>
 
