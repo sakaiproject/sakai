@@ -10,8 +10,6 @@ class SitesSidebar {
     this._currentSite = config?._currentSite;
 
     this._sitesAndToolsNav = document.querySelector("#portal-nav-sidebar");
-    console.log("this._sitesAndToolsNav", this._sitesAndToolsNav);
-
     if (this._sitesAndToolsNav) {
         this._sitesAndToolsNav.addEventListener("mouseover", this.onHover.bind(this));
         this._sitesAndToolsNav.addEventListener("mouseout", this.onHoverOut.bind(this));
