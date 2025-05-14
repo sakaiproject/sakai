@@ -78,7 +78,6 @@ public class SakaiCacheManagerFactoryBean implements FactoryBean<CacheManager>, 
     private static final Method createWithConfiguration =
             ClassUtils.getMethodIfAvailable(CacheManager.class, "create", Configuration.class);
     /** cache defaults **/
-    private final static String DEFAULT_CACHE_SERVER_URL = "localhost:9510";
     private final static int DEFAULT_CACHE_TIMEOUT = 600; // 10 mins
     private final static int DEFAULT_CACHE_MAX_OBJECTS = 10000;
     protected ServerConfigurationService serverConfigurationService;
@@ -139,7 +138,7 @@ public class SakaiCacheManagerFactoryBean implements FactoryBean<CacheManager>, 
      * Configure cluster caches using: memory.cluster.{cacheName}.{property)={value}
      *
      * @param clusterCacheName the full name of the cache (e.g. org.sakaiproject.event.impl.ClusterEventTracking.eventsCache)
-     * @return Terracotta cluster cache configuration
+     * @return cluster cache configuration
      */
     private CacheConfiguration createClusterCacheConfiguration(String clusterCacheName) {
         String clusterConfigName = "memory.cluster."+clusterCacheName;
@@ -161,8 +160,7 @@ public class SakaiCacheManagerFactoryBean implements FactoryBean<CacheManager>, 
     
     /**
      * This is the init method
-     * If using Terracotta, enable caching via sakai.properties and ensure the Terracotta server is reachable
-     * Use '-Dcom.tc.tc.config.total.timeout=10000' to specify how long we should try to connect to the TC server
+     * Initialize caching system based on configuration in sakai.properties
      */
     public void afterPropertiesSet() throws IOException {
         log.info("Initializing EhCache CacheManager");
@@ -177,6 +175,19 @@ public class SakaiCacheManagerFactoryBean implements FactoryBean<CacheManager>, 
             // force the sizeof calculations to not generate lots of warnings OR degrade server performance
             configuration.getSizeOfPolicyConfiguration().maxDepthExceededBehavior(SizeOfPolicyConfiguration.MaxDepthExceededBehavior.ABORT);
             configuration.getSizeOfPolicyConfiguration().maxDepth(100);
+            
+            // Add a default cache configuration
+            CacheConfiguration defaultCacheConfiguration = new CacheConfiguration();
+            defaultCacheConfiguration.setMaxEntriesLocalHeap(5000);
+            defaultCacheConfiguration.setTimeToIdleSeconds(360);
+            defaultCacheConfiguration.setTimeToLiveSeconds(600);
+            defaultCacheConfiguration.setEternal(false);
+            defaultCacheConfiguration.setStatistics(true);
+            defaultCacheConfiguration.setDiskPersistent(false);
+            defaultCacheConfiguration.setMaxElementsOnDisk(1000);
+            defaultCacheConfiguration.setOverflowToDisk(false);
+            configuration.setDefaultCacheConfiguration(defaultCacheConfiguration);
+            log.info("Added default cache configuration to Ehcache Configuration");
 
             // use cache if enabled
             if (this.cacheEnabled) {
@@ -226,11 +237,9 @@ public class SakaiCacheManagerFactoryBean implements FactoryBean<CacheManager>, 
                 }
             }
         } catch (CacheException ce) {
-            // this is thrown if we can't connect to the Terracotta server on initialization
+            // this is thrown if there's an error during cache initialization
             if (this.cacheEnabled && this.cacheManager == null) {
-                log.error("You have cluster caching enabled in sakai.properties, but do not have a Terracotta server running at "+
-                        serverConfigurationService.getString("memory.cluster.server.urls", DEFAULT_CACHE_SERVER_URL)+
-                        ". Please ensure the server is running and available.", ce);
+                log.error("Error initializing cluster caching: " + ce.getMessage(), ce);
                 // use the default cache instead
                 this.cacheEnabled = false;
                 afterPropertiesSet();

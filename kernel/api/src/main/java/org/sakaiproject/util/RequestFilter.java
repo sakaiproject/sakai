@@ -240,7 +240,7 @@ public class RequestFilter implements Filter
 	/** The servlet context for the filter. */
 	protected ServletContext m_servletContext = null;
 	
-	/** Session handling indicator - previously used for Terracotta, now used for RebuildBreakdownService */
+	/** Session handling indicator - used for RebuildBreakdownService */
 	protected boolean USE_SESSION_HANDLING = false;
 
 	/** Allow setting the cookie in a request parameter */
@@ -835,7 +835,7 @@ public class RequestFilter implements Filter
 			m_uploadMaxPerFile = true;
 		}
 
-		// Removed Terracotta configuration
+		// Initialize session handling
 
 		// retrieve the configured cookie name, if any
 		if (System.getProperty(SAKAI_COOKIE_PROP) != null)
@@ -1388,9 +1388,8 @@ public class RequestFilter implements Filter
 	}
 
 	/**
-	 * isSessionClusteringEnabled() checks if session information is clustered.
-	 * Clustering can be either through Terracotta clustering or through
-	 * RebuildBreakdownService session clustering
+	 * isSessionClusteringEnabled() checks if session information is clustered
+	 * through RebuildBreakdownService session clustering
 	 * @return true if sessionClustering is enabled
 	 */
 	private boolean isSessionClusteringEnabled()
