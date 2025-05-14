@@ -68,7 +68,7 @@
   color: var(--top-header-text-color);
 }
 
-@media (min-width: 768px) {
+@include media-breakpoint-up(md) {
   .portal-header .portal-header-breadcrumb {
       display: flex !important;
       margin: 0 1rem;
@@ -78,7 +78,7 @@
   }
 }
 
-@media (max-width: 767px) {
+@include media-breakpoint-down(md) {
   .portal-header .portal-header-breadcrumb {
       display: none !important;
   }
@@ -134,7 +134,7 @@
  * These may break in future browser versions, so monitor this and update if a more standardized 
  * approach becomes available.
  */
- @media (min-width: 767px) {
+@include media-breakpoint-up(md) {
   .sidebar-site-title {
     width: 128px;
     display: -webkit-box;  /* Deprecated, but necessary for multi-line text truncation */
@@ -160,7 +160,7 @@
 }
 
 // Responsive header for mobile
-@media (max-width: 767px) {
+@include media-breakpoint-down(md) {
   .portal-header {
     justify-content: space-between !important;
     box-shadow: none !important;
@@ -538,11 +538,15 @@
     position: sticky;
     top: 0;
     scrollbar-width: none;
+  }
 
-    &:hover,
-    &:focus {
-      & .site-list-item {
-        margin-right: 0.14rem !important;
+  @include media-breakpoint-up(md) {
+    .sakai-sitesAndToolsNav {
+      &:hover,
+      &:focus {
+        & .site-list-item {
+          margin-right: 0.14rem !important;
+        }
       }
     }
   }
@@ -753,7 +757,7 @@
     color: var(--sticky-foooter-color-hover);
   }
 
-  @media (max-width: 767px) {
+  @include media-breakpoint-down(md) {
     background-color: var(--sakai-background-color-5);
     padding-left: var(--bs-offcanvas-padding-x) !important;
     padding-right: var(--bs-offcanvas-padding-x) !important;
