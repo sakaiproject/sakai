@@ -984,16 +984,6 @@
             <artifactId>ehcache-core</artifactId>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-            <groupId>org.terracotta</groupId>
-            <artifactId>terracotta-toolkit-1.6-runtime</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.sf.ehcache</groupId>
-            <artifactId>ehcache-terracotta</artifactId>
-            <scope>compile</scope>
-        </dependency>
 
         <!-- other -->
         <dependency>

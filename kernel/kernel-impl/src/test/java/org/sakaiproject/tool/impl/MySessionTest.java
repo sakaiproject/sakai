@@ -444,9 +444,7 @@ public class MySessionTest extends BaseSessionComponentTest {
 	public void testNonPortableAttributesStoreAndRetrieve() {
 		MySession session = createSession();
 		String value = "VALUE";
-		System.setProperty("sakai.cluster.terracotta","true");
 		session.setAttribute("SESSION_KEY", value);
-		System.setProperty("sakai.cluster.terracotta","false");
 		session.setAttribute("SESSION_KEY_2", value);
 		assertEquals(value,session.getAttribute("SESSION_KEY"));
 		assertEquals(value,session.getAttribute("SESSION_KEY_2"));
@@ -454,28 +452,27 @@ public class MySessionTest extends BaseSessionComponentTest {
 	
 	public void testNonPortableBindNotifiesValueIfIsSessionBindingListener() {
 		MySession session = createSession();
-		System.setProperty("sakai.cluster.terracotta","true");
 		ListeningAttribValue attribValue = new ListeningAttribValue();
 		session.bind("SESSION_KEY", attribValue);
 		assertEquals(1, attribValue.sessionValueBoundInvokedWith.size());
 		SessionBindingEvent event = attribValue.sessionValueBoundInvokedWith.get(0);
 		assertEventState(event, "SESSION_KEY", session, attribValue);
-		System.setProperty("sakai.cluster.terracotta","false");
+		
 	}
 	
 	public void testNonPortableUnbindNotifiesValueIfIsSessionBindingListener() {
 		MySession session = createSession();
-		System.setProperty("sakai.cluster.terracotta","true");
+		
 		ListeningAttribValue attribValue = new ListeningAttribValue();
 		session.unBind("SESSION_KEY", attribValue);
 		assertEquals(1, attribValue.sessionValueUnboundInvokedWith.size());
 		SessionBindingEvent event = attribValue.sessionValueUnboundInvokedWith.get(0);
 		assertEventState(event, "SESSION_KEY", session, attribValue);
-		System.setProperty("sakai.cluster.terracotta","false");
+		
 	}
 	
 	public void testNonPortableRemoveAttributeReleasesAttributeAndFiresUnbind() {
-		System.setProperty("sakai.cluster.terracotta","true");
+		
 		MyTestableSession session = createSession();
 		allowToolCheck("simple.unit.test");
 		final String sessionAttribKey = "SESSION_ATTRIB_KEY";
@@ -487,12 +484,12 @@ public class MySessionTest extends BaseSessionComponentTest {
 		assertEquals(new HashMap<String,Object>() {{
 			put(sessionAttribKey, sessionAttribValue);
 		}}, session.unbindInvokedWith);
-		System.setProperty("sakai.cluster.terracotta","false");
+		
 	}
 
 	public void testNonPortableClearUnbindsAttributes() {
 		final MyTestableSession session = createSession();
-		System.setProperty("sakai.cluster.terracotta","true");
+		
 		allowToolCheck("simple.unit.test");
 		allowPlacementCheck("sakai-context-1");
 		doTestSessionClear(session, new Runnable() {
@@ -500,7 +497,7 @@ public class MySessionTest extends BaseSessionComponentTest {
 				session.clear();
 			}
 		});
-		System.setProperty("sakai.cluster.terracotta","false");
+		
 	}
 	
 	protected void assertEventState(SessionBindingEvent event, String name,

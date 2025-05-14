@@ -2375,18 +2375,6 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.terracotta</groupId>
-        <artifactId>terracotta-toolkit-1.6-runtime</artifactId>
-        <version>5.9.0</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>net.sf.ehcache</groupId>
-        <artifactId>ehcache-terracotta</artifactId>
-        <version>${sakai.ehcache.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
         <groupId>org.jvnet.opendmk</groupId>
         <artifactId>jmxremote_optional</artifactId>
         <version>1.0_01-ea</version>

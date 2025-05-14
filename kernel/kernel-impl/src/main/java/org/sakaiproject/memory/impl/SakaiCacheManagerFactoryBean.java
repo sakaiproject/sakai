@@ -29,7 +29,9 @@ import lombok.extern.slf4j.Slf4j;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.config.*;
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.config.SizeOfPolicyConfiguration;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -152,15 +154,8 @@ public class SakaiCacheManagerFactoryBean implements FactoryBean<CacheManager>, 
                     .timeToIdleSeconds(serverConfigurationService.getInt(clusterConfigName + ".timeToIdle", DEFAULT_CACHE_TIMEOUT))
                     .timeToLiveSeconds(serverConfigurationService.getInt(clusterConfigName + ".timeToLive", DEFAULT_CACHE_TIMEOUT));
         }
-        clusterCache.terracotta(new TerracottaConfiguration()
-                .nonstop(new NonstopConfiguration()
-                        .timeoutBehavior(new TimeoutBehaviorConfiguration()
-                                .type(TimeoutBehaviorConfiguration.LOCAL_READS_TYPE_NAME))
-                        .enabled(true)));
         // Make sure we don't go to local disk
         clusterCache.overflowToOffHeap(false);
-        // Required to control the L2 cache size in terracotta itself, default should be adequate
-        clusterCache.maxElementsOnDisk(10000);
         return clusterCache;
     }
     
@@ -177,28 +172,17 @@ public class SakaiCacheManagerFactoryBean implements FactoryBean<CacheManager>, 
         }
 
         try {
-            Configuration configuration = (is != null) ? ConfigurationFactory.parseConfiguration(is) : ConfigurationFactory.parseConfiguration();
+            Configuration configuration = new Configuration();
             configuration.setName(this.cacheManagerName);
             // force the sizeof calculations to not generate lots of warnings OR degrade server performance
             configuration.getSizeOfPolicyConfiguration().maxDepthExceededBehavior(SizeOfPolicyConfiguration.MaxDepthExceededBehavior.ABORT);
             configuration.getSizeOfPolicyConfiguration().maxDepth(100);
 
-            // Setup the Terracotta cluster config
-            TerracottaClientConfiguration terracottaConfig = new TerracottaClientConfiguration();
-
-            // use Terracotta server if running and available
+            // use cache if enabled
             if (this.cacheEnabled) {
-                log.info("Attempting to load cluster caching using Terracotta at: "+
-                        serverConfigurationService.getString("memory.cluster.server.urls", DEFAULT_CACHE_SERVER_URL)+".");
-                // set the URL to the server
-                String[] serverUrls = serverConfigurationService.getStrings("memory.cluster.server.urls");
-                // create comma-separated string of URLs
-                String serverUrlsString = StringUtils.join(serverUrls, ",");
-                terracottaConfig.setUrl(serverUrlsString);
-                terracottaConfig.setRejoin(true);
-                configuration.addTerracottaConfig(terracottaConfig);
+                log.info("Attempting to load cluster caching.");
 
-                // retrieve the names of all caches that will be managed by Terracotta and create cache configurations for them
+                // retrieve the names of all caches that will be managed and create cache configurations for them
                 String[] caches = serverConfigurationService.getStrings("memory.cluster.names");
                 if (ArrayUtils.isNotEmpty(caches)) {
                     for (String cacheName : caches) {
@@ -220,7 +204,6 @@ public class SakaiCacheManagerFactoryBean implements FactoryBean<CacheManager>, 
                 // A bit convoluted for EhCache 1.x/2.0 compatibility.
                 // To be much simpler once we require EhCache 2.1+
                 log.info("Attempting to load default cluster caching.");
-                configuration.addTerracottaConfig(terracottaConfig);
                 if (this.cacheManagerName != null) {
                     if (this.shared && createWithConfiguration == null) {
                         // No CacheManager.create(Configuration) method available before EhCache 2.1;

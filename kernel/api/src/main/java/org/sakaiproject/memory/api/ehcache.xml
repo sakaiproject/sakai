@@ -286,8 +286,6 @@
 
     "localRestartable" — Enables the RestartStore and copies all cache entries (on-heap and/or off-heap) to disk. This option provides fast restartability with fault tolerant cache persistence on disk. This option is available for BigMemory Go only.
 
-    "distributed" — Defers to the <terracotta> configuration for persistence settings. This option is for BigMemory Max only.
-
     "localTempSwap" — Enables temporary local disk usage. This option provides an extra tier for storage during cache operation, but this disk storage is not persisted. After a restart, the disk tier is cleared of any cache data.
 
     "none" — Does not offload cache entries to disk. With this option, all of the cache is kept in memory. This is the default mode.

@@ -93,7 +93,6 @@ public class MyLittleSession implements ToolSession, ContextSession, HttpSession
 	private transient SessionManager sessionManager;
 	private transient SessionStore sessionStore;
 	private transient ThreadLocalManager threadLocalManager;
-	private transient boolean TERRACOTTA_CLUSTER;
 	private transient NonPortableSession m_nonPortalSession;
 	private transient SessionAttributeListener sessionListener;
 
@@ -112,8 +111,6 @@ public class MyLittleSession implements ToolSession, ContextSession, HttpSession
 		this.sessionListener = sessionListener;
 		m_created = System.currentTimeMillis();
 		m_accessed = m_created;
-		String clusterTerracotta = System.getProperty("sakai.cluster.terracotta");
-		TERRACOTTA_CLUSTER = "true".equals(clusterTerracotta);
 	}
 
     /**
@@ -165,19 +162,11 @@ public class MyLittleSession implements ToolSession, ContextSession, HttpSession
 		
 		threadLocalManager = (ThreadLocalManager)compMgr.get(org.sakaiproject.thread_local.api.ThreadLocalManager.class); 
 		
-		// set the TERRACOTTA_CLUSTER flag
-		resolveTerracottaClusterProperty();
-		
 		m_nonPortalSession = new MyNonPortableSession();
 		
 		sessionListener = (SessionAttributeListener)compMgr.get(org.sakaiproject.tool.api.SessionBindingListener.class);
 	}
 	
-	protected void resolveTerracottaClusterProperty() 
-	{
-		String clusterTerracotta = System.getProperty("sakai.cluster.terracotta");
-		TERRACOTTA_CLUSTER = "true".equals(clusterTerracotta);
-	}
 
 	/**
 	 * @inheritDoc
@@ -338,12 +327,9 @@ public class MyLittleSession implements ToolSession, ContextSession, HttpSession
 
 			Object old = null;
 			
-			// If this is not a terracotta clustered environment then immediately
-			// place the attribute in the normal data structure
-			// Otherwise, if this *IS* a TERRACOTTA_CLUSTER, then check the current
-			// tool id against the tool whitelist, to see if attributes from this
-			// tool should be clustered, or not.
-			if ((!TERRACOTTA_CLUSTER) || (sessionStore.isCurrentToolClusterable()))
+			// Place the attribute in the normal data structure
+			// Check the current tool id against the tool whitelist
+			if (sessionStore.isCurrentToolClusterable())
 			{
 				old = m_attributes.put(name, value);
 			}

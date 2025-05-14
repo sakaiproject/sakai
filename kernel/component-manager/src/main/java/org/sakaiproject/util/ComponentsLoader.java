@@ -276,19 +276,7 @@ public class ComponentsLoader
 
 		// make the array from the list
 		URL[] urlArray = (URL[]) urls.toArray(new URL[urls.size()]);
-		ClassLoader loader = null;
-
-		// Check to see if Terracotta clustering is turned on
-		// String clusterTerracotta = ServerConfigurationService.getString("cluster.terracotta","false");
-		String clusterTerracotta = System.getProperty("sakai.cluster.terracotta");
-		
-		if ("true".equals(clusterTerracotta)) {
-			// If Terracotta clustering is turned on then use the Special Terracotta Class loader
-			loader = new TerracottaClassLoader(urlArray, getClass().getClassLoader(), dir.getName());
-		} else {
-			// Terracotta clustering is turned off, so use the normal URLClassLoader
-			loader = new URLClassLoader(urlArray, getClass().getClassLoader());
-		}
+		ClassLoader loader = new URLClassLoader(urlArray, getClass().getClassLoader());
 
 		return loader;
 	}

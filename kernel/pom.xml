@@ -30,19 +30,6 @@
         <module>kernel-test</module>
     </modules>
 
-    <profiles>
-        <profile>
-            <id>terracotta</id>
-            <activation>
-                <property>
-                    <name>terracotta</name>
-                </property>
-            </activation>
-            <modules>
-                <module>kernel-tim</module>
-            </modules>
-        </profile>
-    </profiles>
 
 
     <build>
