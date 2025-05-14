@@ -1869,7 +1869,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 		 *            If the user does not have any permissions to read the message.
 		 */
 		@Override
-        public AnnouncementMessage getAnnouncementMessage(String messageId) throws IdUnusedException, PermissionException
+		public AnnouncementMessage getAnnouncementMessage(String messageId) throws IdUnusedException, PermissionException
 		{
 			AnnouncementMessage msg = (AnnouncementMessage) getMessage(messageId);
 
@@ -2305,16 +2305,26 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 		 * @return true if the object is accepted by the filter, false if not.
 		 */
 		@Override
-        public boolean accept(Object o)
+		public boolean accept(Object o)
 		{
 			// first if o is a announcement message that's a draft from another user, reject it
 			if (o instanceof AnnouncementMessage)
 			{
 				AnnouncementMessage msg = (AnnouncementMessage) o;
 
+				// Check draft visibility
 				if ((msg.getAnnouncementHeader()).getDraft() && (!securityService.isSuperUser())
 						&& (!msg.getHeader().getFrom().getId().equals(sessionManager.getCurrentSessionUserId()))
 						&& (!unlockCheck(SECURE_READ_DRAFT, msg.getReference())))
+				{
+					return false;
+				}
+
+				// Check release/retract date visibility
+				// If not super-user and not the message creator, check if viewable by dates
+				if (!securityService.isSuperUser()
+						&& !msg.getHeader().getFrom().getId().equals(sessionManager.getCurrentSessionUserId())
+						&& !isMessageViewable(msg))
 				{
 					return false;
 				}
