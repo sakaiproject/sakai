@@ -2375,18 +2375,6 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>com.hazelcast</groupId>
-        <artifactId>hazelcast</artifactId>
-        <version>3.12.13</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.hazelcast</groupId>
-        <artifactId>hazelcast-client</artifactId>
-        <version>3.12.13</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
         <groupId>org.terracotta</groupId>
         <artifactId>terracotta-toolkit-1.6-runtime</artifactId>
         <version>5.9.0</version>

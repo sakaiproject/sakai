@@ -41,7 +41,6 @@ import org.sakaiproject.memory.api.*;
 public class BaseMemoryService implements MemoryService {
 
     public static final String TYPE_EHCACHE = "ehcache";
-    public static final String TYPE_HAZELCAST = "hazelcast";
 
     ServerConfigurationService serverConfigurationService;
     CacheManager cacheManager;
@@ -72,12 +71,6 @@ public class BaseMemoryService implements MemoryService {
                     memoryService = ems;
                     log.info("INIT complete: new: EhcacheMemoryService");
 
-                } else if (TYPE_HAZELCAST.equals(cacheManagerType)) {
-                    // HazelCast based implementation
-                    HazelcastMemoryService hcms = new HazelcastMemoryService(serverConfigurationService);
-                    hcms.init();
-                    memoryService = hcms;
-                    log.info("INIT complete: new: HazelcastMemoryService");
 
                 /* Add new implementation service init here -AZ
                 } else if (TYPE_NEW.equals(cacheManagerType)) {
@@ -109,8 +102,6 @@ public class BaseMemoryService implements MemoryService {
             if (memoryService instanceof EhcacheMemoryService) {
                 ((EhcacheMemoryService)memoryService).destroy();
 
-            } else if (memoryService instanceof HazelcastMemoryService) {
-                ((HazelcastMemoryService)memoryService).destroy();
 
             /* Add new implementation destroy here -AZ
             } else if (memoryService instanceof NewMemoryService) {
