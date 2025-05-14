@@ -1868,20 +1868,23 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 		 * @exception PermissionException
 		 *            If the user does not have any permissions to read the message.
 		 */
-		public AnnouncementMessage getAnnouncementMessage(String messageId) throws IdUnusedException, PermissionException
+		@Override
+        public AnnouncementMessage getAnnouncementMessage(String messageId) throws IdUnusedException, PermissionException
 		{
 			AnnouncementMessage msg = (AnnouncementMessage) getMessage(messageId);
 
-			// filter out drafts not by this user (unless this user is a super user or has access_draft ability)
-			if ((msg.getAnnouncementHeader()).getDraft() && (!securityService.isSuperUser())
-					&& (!msg.getHeader().getFrom().getId().equals(sessionManager.getCurrentSessionUserId()))
-					&& (!unlockCheck(SECURE_READ_DRAFT, msg.getReference())))
-			{
+			// Apply the privacy filter to check draft permissions
+			PrivacyFilter filter = new PrivacyFilter(null);
+			if (!filter.accept(msg)) {
+				throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_READ, msg.getReference());
+			}
+
+			// Check group access permissions: empty list returned means no permission to view
+			if (filterGroupAccess(Collections.singletonList(msg)).isEmpty()) {
 				throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_READ, msg.getReference());
 			}
 
 			return msg;
-
 		} // getAnnouncementMessage
 
 		/**
@@ -2301,7 +2304,8 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 		 * 
 		 * @return true if the object is accepted by the filter, false if not.
 		 */
-		public boolean accept(Object o)
+		@Override
+        public boolean accept(Object o)
 		{
 			// first if o is a announcement message that's a draft from another user, reject it
 			if (o instanceof AnnouncementMessage)
