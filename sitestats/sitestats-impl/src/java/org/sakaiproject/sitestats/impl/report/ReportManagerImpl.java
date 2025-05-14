@@ -19,6 +19,7 @@
 package org.sakaiproject.sitestats.impl.report;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
@@ -119,9 +120,14 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 	private ReportFormattedParams	formattedParams	= new ReportFormattedParamsImpl();
 
 	/** FOP */
-	private FopFactory				fopFactory		= FopFactory.newInstance();
+	private FopFactory				fopFactory;
 	private Templates				cachedXmlFoXSLT	= null;
 	private static final String		XML_FO_XSL_FILE	= "xmlReportToFo.xsl";
+	
+	{
+		// Initialize FopFactory with base URI
+		fopFactory = FopFactory.newInstance(new File(".").toURI());
+	}
 
 	/** Date formatters. */
 	private SimpleDateFormat		dateMonthFrmt 	= new SimpleDateFormat("yyyy-MM");
@@ -1069,8 +1075,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		try{
 			// Setup a buffer to obtain the content length
 		    out = new ByteArrayOutputStream();		    
-		    fopFactory.setURIResolver(new LibraryURIResolver());			
-		    FOUserAgent foUserAgent = fopFactory.newFOUserAgent();			
+		    FOUserAgent foUserAgent = fopFactory.newFOUserAgent();
 			
             // Construct fop with desired output format
             Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, foUserAgent, out);
