@@ -115,7 +115,7 @@ public class SaveAssessmentSettingsListener implements ActionListener
     }
 
 	// check that due date is after start date
-	if (!assessmentSettings.getIsDueAfterStart()) {
+	if (!assessmentSettings.isDueAfterStart()) {
 		String dueDateErr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "due_earlier_than_available");
 		context.addMessage(null, new FacesMessage(dueDateErr));
 		error = true;
