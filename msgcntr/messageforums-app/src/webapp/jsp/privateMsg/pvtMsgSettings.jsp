@@ -95,7 +95,8 @@
 	  						<h:outputText value="#{hiddenGroup.groupId}"/>
 	  						<h:commandLink action="#{PrivateMessagesTool.processActionRemoveHiddenGroup}">
 				      			<f:param value="#{hiddenGroup.groupId}" name="groupId"/>
-				      			<h:graphicImage url="/images/silk/cross.png" title="#{msgs.hiddenGroups_remove}" alt="#{msgs.hiddenGroups_remove}" style="margin-left:.5em"/>
+				      			<span class="bi bi-x-circle" aria-hidden="true" style="margin-left:.5em"></span>
+								<h:outputText value="#{msgs.hiddenGroups_remove}" styleClass="sr-only"/>
 				      		</h:commandLink>
 	  					</h:column>
 	  				</h:dataTable>
