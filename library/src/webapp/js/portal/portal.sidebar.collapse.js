@@ -26,6 +26,14 @@ class SidebarCollapseButton {
     this._portalContainer.classList.toggle(this._toggleClass, this.collapsed);
     this._sitesSidebar.classList.toggle(this._toggleClass, this.collapsed);
     this._element.title = this.collapsed ? this._i18n.titleCollapsed : this._i18n.titleExpanded;
+
+    const iconElement = this._element.querySelector("span");
+    if (iconElement) {
+        const collapsedIconClass = "portal-nav-sidebar-icon-collapsed";
+        const expandedIconClass = "portal-nav-sidebar-icon";
+        iconElement.classList.toggle(collapsedIconClass, this.collapsed);
+        iconElement.classList.toggle(expandedIconClass, !this.collapsed);
+    }
   }
 
   async setCollapsed(collapsed) {
