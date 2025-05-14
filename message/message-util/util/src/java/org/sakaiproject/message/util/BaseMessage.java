@@ -1054,48 +1054,48 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		List<Message> filtered = new ArrayList<>();
 		Collection<Group> allowedGroups = null;
 
-        for (Message msg : msgs) {
-            // if grouped, check that the end user has get access to any of this message's groups; reject if not
-            if (msg.getHeader().getAccess() == MessageHeader.MessageAccess.GROUPED) {
-                // check the message's groups to the allowed (get) groups for the current user
-                Collection<String> msgGroups = msg.getHeader().getGroups();
+		for (Message msg : msgs) {
+			// if grouped, check that the end user has get access to any of this message's groups; reject if not
+			if (msg.getHeader().getAccess() == MessageHeader.MessageAccess.GROUPED) {
+				// check the message's groups to the allowed (get) groups for the current user
+				Collection<String> msgGroups = msg.getHeader().getGroups();
 
-                // we need the allowed groups, so get it if we have not done so yet
-                if (allowedGroups == null) {
-                    allowedGroups = getGroupsAllowFunction(SECURE_READ, context, reference);
-                }
+				// we need the allowed groups, so get it if we have not done so yet
+				if (allowedGroups == null) {
+					allowedGroups = getGroupsAllowFunction(SECURE_READ, context, reference);
+				}
 
-                // reject if there is no intersection in groups, but go through and validate special case
-                if (!isIntersectionGroupRefsToGroups(msgGroups, allowedGroups)) {
-                    User currentUsr = null;
-                    try {
-                        currentUsr = userDirectoryService.getUser(sessionManager.getCurrentSessionUserId());
-                    } catch (UserNotDefinedException e1) {
-                        log.info("User Not Defined: {}", e1.getMessage());
-                    }
+				// reject if there is no intersection in groups, but go through and validate special case
+				if (!isIntersectionGroupRefsToGroups(msgGroups, allowedGroups)) {
+					User currentUsr = null;
+					try {
+						currentUsr = userDirectoryService.getUser(sessionManager.getCurrentSessionUserId());
+					} catch (UserNotDefinedException e1) {
+						log.info("User Not Defined: {}", e1.getMessage());
+					}
 
-                    //its possible the user wasn't found above
-                    String userId = "";
-                    if (currentUsr != null) {
-                        userId = currentUsr.getId();
-                    }
+					//its possible the user wasn't found above
+					String userId = "";
+					if (currentUsr != null) {
+						userId = currentUsr.getId();
+					}
 
-                    //If user is not instructor
-                    Site site = null;
-                    try {
-                        site = siteService.getSite(context);
-                    } catch (IdUnusedException e) {
-                        log.debug("Site not found for {} {}", context, e.toString());
-                    }
+					//If user is not instructor
+					Site site = null;
+					try {
+						site = siteService.getSite(context);
+					} catch (IdUnusedException e) {
+						log.debug("Site not found for {} {}", context, e.toString());
+					}
 
-                    if (!canSeeAllGroups(userId, site)) {
-                        continue;
-                    }
-                }
-            }
-            //Add it to the group filtered list
-            filtered.add(msg);
-        }
+					if (!canSeeAllGroups(userId, site)) {
+						continue;
+					}
+				}
+			}
+			//Add it to the group filtered list
+			filtered.add(msg);
+		}
 		return filtered;
 	}
 	
