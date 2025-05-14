@@ -5,14 +5,16 @@
 
 	<wicket:panel>
 
-		<div class="tabbable tabs-left mt-3">
-			<ul class="navIntraTool actionToolbar" wicket:id="tabs-container">
-				<li wicket:id="tabs" class="">
-					<a class="" href="#" wicket:id="link"><span wicket:id="title">[tab title]</span></a>
+		<div class="tabbable mt-3">
+			<ul class="nav nav-tabs" role="tablist" wicket:id="tabs-container">
+				<li wicket:id="tabs" class="nav-item" role="presentation">
+					<a class="nav-link" href="#" wicket:id="link" tabindex="0" role="tab">
+						<span wicket:id="title">[tab title]</span>
+					</a>
 				</li>
 			</ul>
 			<div class="tab-content">
-				<div wicket:id="panel" class="tab-pane active">[tab]</div>
+				<div wicket:id="panel" class="tab-pane active" role="tabpanel" tabindex="0">[tab]</div>
 			</div>
 		</div>
 
