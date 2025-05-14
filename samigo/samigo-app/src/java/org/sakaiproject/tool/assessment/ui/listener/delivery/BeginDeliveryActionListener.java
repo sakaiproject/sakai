@@ -407,22 +407,6 @@ public class BeginDeliveryActionListener implements ActionListener
     }  
     else {
     	delivery.setFirstTimeTaking(true);
-        
-        // Check if this is a late exception (starting after due date but before retract date)
-        if (extTimeService.hasExtendedTime()) {
-            Date assessmentDueDate = pubAssessment.getAssessmentAccessControl().getDueDate();
-            Date extendedDueDate = extTimeService.getDueDate();
-            Date currentDate = new Date();
-            
-            // If student is attempting after the regular due date but before their extended due date
-            if (extendedDueDate != null && assessmentDueDate != null && 
-                currentDate.after(assessmentDueDate) && 
-                currentDate.before(extendedDueDate)) {
-                log.info("SAMIGO_TIMED_ASSESSMENT:INIT_LATE_EXCEPTION user_id:{} pub_id:{}", 
-                    AgentFacade.getAgentString(), pubAssessment.getPublishedAssessmentId());
-            }
-        }
-        
     	setTimedAssessment(delivery, pubAssessment, extTimeService, null);
     }
 
