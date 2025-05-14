@@ -240,8 +240,8 @@ public class RequestFilter implements Filter
 	/** The servlet context for the filter. */
 	protected ServletContext m_servletContext = null;
 	
-	/** Is this a Terracotta clustered environment? */
-	protected boolean TERRACOTTA_CLUSTER = false;
+	/** Session handling indicator - previously used for Terracotta, now used for RebuildBreakdownService */
+	protected boolean USE_SESSION_HANDLING = false;
 
 	/** Allow setting the cookie in a request parameter */
 	protected boolean m_sessionParamAllow = false;
@@ -486,8 +486,8 @@ public class RequestFilter implements Filter
 						threadLocalManager.set(ServerConfigurationService.CURRENT_PORTAL_PATH, "/" + m_contextId);
 					}
 
-					// Only synchronize on session for Terracotta. See KNL-218, KNL-75.
-					if (TERRACOTTA_CLUSTER) {
+					// Only synchronize on session when needed for session breakdown handling
+					if (USE_SESSION_HANDLING) {
 						synchronized(s) {
 							// Pass control on to the next filter or the servlet
 							chain.doFilter(req, resp);
@@ -835,8 +835,7 @@ public class RequestFilter implements Filter
 			m_uploadMaxPerFile = true;
 		}
 
-		String clusterTerracotta = System.getProperty("sakai.cluster.terracotta");
-		TERRACOTTA_CLUSTER = "true".equals(clusterTerracotta);
+		// Removed Terracotta configuration
 
 		// retrieve the configured cookie name, if any
 		if (System.getProperty(SAKAI_COOKIE_PROP) != null)
@@ -1396,7 +1395,8 @@ public class RequestFilter implements Filter
 	 */
 	private boolean isSessionClusteringEnabled()
 	{
-	    return TERRACOTTA_CLUSTER || rebuildBreakdownService != null && rebuildBreakdownService.isSessionHandlingEnabled();
+	    USE_SESSION_HANDLING = rebuildBreakdownService != null && rebuildBreakdownService.isSessionHandlingEnabled();
+		return USE_SESSION_HANDLING;
 	}
 
 	/**
@@ -1419,8 +1419,7 @@ public class RequestFilter implements Filter
 			{
 				if (cookies[i].getName().equals(name))
 				{
-					// If this is NOT a terracotta cluster environment
-					// and the suffix passed in to this method is not null
+					// If a suffix is passed in to this method, 
 					// then only match the cookie if the end of the cookie
 					// value is equal to the suffix passed in.
 					if (isSessionClusteringEnabled() || ((suffix == null) || cookies[i].getValue().endsWith(suffix)))

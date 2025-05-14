@@ -111,7 +111,6 @@ public class MySession implements Session, HttpSession, Serializable
 	private transient SessionStore sessionStore;
 	private transient ThreadLocalManager threadLocalManager;
 	private transient IdManager idManager;
-	private transient boolean TERRACOTTA_CLUSTER;
 	private transient NonPortableSession m_nonPortalSession;
 	private transient SessionAttributeListener sessionListener;
 	private transient RebuildBreakdownService rebuildBreakdownService;
@@ -132,8 +131,6 @@ public class MySession implements Session, HttpSession, Serializable
 		m_accessed = m_created;
 		this.expirationTimeSuggestion = expirationTimeSuggestion;
 		resetExpirationTimeSuggestion();
-		// set the TERRACOTTA_CLUSTER flag
-		resolveTerracottaClusterProperty();
 		this.rebuildBreakdownService = rebuildBreakdownService;
 	}
 
@@ -158,19 +155,12 @@ public class MySession implements Session, HttpSession, Serializable
 
 		idManager = (IdManager)compMgr.get(org.sakaiproject.id.api.IdManager.class);
 		
-		// set the TERRACOTTA_CLUSTER flag
-		resolveTerracottaClusterProperty();
 		
 		m_nonPortalSession = new MyNonPortableSession();
 		
 		sessionListener = (SessionAttributeListener)compMgr.get(org.sakaiproject.tool.api.SessionBindingListener.class);
     }
 	
-	protected void resolveTerracottaClusterProperty() 
-	{
-		String clusterTerracotta = System.getProperty("sakai.cluster.terracotta");
-		TERRACOTTA_CLUSTER = "true".equals(clusterTerracotta);
-	}
 
 	/**
 	 * @inheritDoc
@@ -564,12 +554,10 @@ public class MySession implements Session, HttpSession, Serializable
 
 			Object old = null;
 
-			// If this is not a terracotta clustered environment then immediately
-			// place the attribute in the normal data structure
-			// Otherwise, if this *IS* a TERRACOTTA_CLUSTER, then check the current
-			// tool id against the tool whitelist, to see if attributes from this
+			// Place the attribute in the normal data structure
+			// Check the current tool id against the tool whitelist to see if attributes from this
 			// tool should be clustered, or not.
-			if ((!TERRACOTTA_CLUSTER) || (sessionStore.isCurrentToolClusterable()))
+			if (sessionStore.isCurrentToolClusterable())
 			{
 				old = m_attributes.put(name, value);
 			}
