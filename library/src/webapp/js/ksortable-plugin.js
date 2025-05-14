@@ -4,9 +4,9 @@ jQuery.fn.extend({
     this.sortable(options);
 
     // 2) Ensure live region exists; create if missing
-    let $live = $('#ksortableLive');
+    let $live = $('#ksortable-live');
     if (!$live.length) {
-      $live = $('<div id="ksortableLive" aria-live="polite" aria-atomic="true" class="visually-hidden"></div>');
+      $live = $('<div id="ksortable-live" aria-live="polite" aria-atomic="true" class="visually-hidden"></div>');
       $('body').append($live);
     }
 

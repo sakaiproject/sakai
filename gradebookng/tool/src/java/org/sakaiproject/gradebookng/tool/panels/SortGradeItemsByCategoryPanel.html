@@ -4,17 +4,15 @@
 <body>
 	<wicket:panel>
 
-	<div id="gradebookSorter" class="by-category">
-      <span id="sortInstr" class="sr-only">
-        <wicket:message key="sortgradeitems.instructions">
-          Instructions for sorting categories will go here.
-        </wicket:message>
-      </span>
-
-      <!-- live region for dynamic announcements -->
-      <div id="sortLive" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+		<div id="gradebookSorter" class="by-category">
+			<span id="sort-instructions" class="sr-only">
+				<wicket:message key="sortgradeitems.instructions">
+					Instructions for sorting categories will go here.
+				</wicket:message>
+			</span>
 
 			<input type="hidden" name="orderby" value="category"/>
+
 			<div wicket:id="categoriesList" class="gb-sorter-category" role="listitem">
 				<input wicket:id="category_id" type="hidden"/>
 				<input wicket:id="category_order" type="hidden"/>
@@ -23,7 +21,7 @@
 					<button type="button"
 							class="btn-transparent me-2 category-drag-handle"
 							aria-pressed="false"
-							aria-describedby="sortInstr">
+							aria-describedby="sort-instructions">
 						<span class="si si-drag-handle" aria-hidden="true"></span>
 					</button>
 					<h4 wicket:id="name"></h4>
@@ -37,7 +35,7 @@
 							<button type="button"
 									class="btn-transparent me-2 category-item-drag-handle"
 									aria-pressed="false"
-                    				aria-describedby="sortInstr">
+									aria-describedby="sort-instructions">
 								<span class="si si-drag-handle" aria-hidden="true"></span>
 							</button>
 							<span wicket:id="name"></span>
