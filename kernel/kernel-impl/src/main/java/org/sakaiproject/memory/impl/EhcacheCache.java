@@ -58,10 +58,8 @@ public class EhcacheCache<K, V> extends BasicCache<K, V> implements CacheEventLi
     public EhcacheCache(Ehcache cache) {
         super(cache.getName());
         this.cache = cache;
-        // check if distributed
-        if (cache.getCacheConfiguration() != null && cache.getCacheConfiguration().getTerracottaConfiguration() != null) {
-            this.distributed = cache.getCacheConfiguration().getTerracottaConfiguration().isClustered();
-        }
+        // Cache is not distributed
+        this.distributed = false;
     }
 
     @Override
