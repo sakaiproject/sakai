@@ -11,6 +11,8 @@ export class SakaiRubricsManager extends RubricsElement {
     siteId: { attribute: "site-id", type: String },
     enablePdfExport: { attribute: "enable-pdf-export", type: Boolean },
     isSuperUser: { attribute: "is-super-user", type: Boolean },
+
+    sharedRubricsLoaded: { state: true },
   };
 
   constructor() {
@@ -19,6 +21,7 @@ export class SakaiRubricsManager extends RubricsElement {
 
     this.siteRubricsExpanded = "true";
     this.sharedRubricsExpanded = "false";
+    this.sharedRubricsLoaded = false;
     this.enablePdfExport = false;
     this.isSuperUser = false;
   }
@@ -39,6 +42,7 @@ export class SakaiRubricsManager extends RubricsElement {
 
     sharedRubricsBlock.addEventListener("show.bs.collapse", () => {
       this.querySelector("#shared-rubrics-toggle span.fa").classList.replace("fa-chevron-right", "fa-chevron-down");
+      this.sharedRubricsLoaded = true;
     });
 
     sharedRubricsBlock.addEventListener("hide.bs.collapse", () => {
@@ -59,7 +63,7 @@ export class SakaiRubricsManager extends RubricsElement {
       <div class="row">
         <div class="col-md-4 form-group">
           <label class="label-rubrics" for="rubrics-search-bar">${this.tr("search_rubrics")}</label>
-          <input type="text" id="rubrics-search-bar" name="rubrics-search-bar" class="form-control" @keyup=${this.filterRubrics}>
+          <input type="text" id="rubrics-search-bar" name="rubrics-search-bar" class="form-control" @focus=${this.loadSharedRubricsOnFocus} @keyup=${this.filterRubrics}>
         </div>
       </div>
 
@@ -172,8 +176,9 @@ export class SakaiRubricsManager extends RubricsElement {
               </div>
               <div class="actions">${this.tr("actions")}</div>
             </div>
-            <br>
-            <sakai-rubrics-shared-list id="sakai-rubrics-shared-list" site-id="${this.siteId}" @copy-share-site="${this.copyShareSite}" @update-rubric-list="${this.handleRubricList}" ?enable-pdf-export=${this.enablePdfExport} ?is-super-user=${this.isSuperUser}></sakai-rubrics-shared-list>
+            ${this.sharedRubricsLoaded ? html`
+              <sakai-rubrics-shared-list id="sakai-rubrics-shared-list" site-id="${this.siteId}" @copy-share-site="${this.copyShareSite}" @update-rubric-list="${this.handleRubricList}" ?enable-pdf-export=${this.enablePdfExport} ?is-super-user=${this.isSuperUser}></sakai-rubrics-shared-list>
+            ` : ""}
           </div>
         </div>
       </div>
@@ -195,7 +200,25 @@ export class SakaiRubricsManager extends RubricsElement {
     this.querySelector("sakai-rubrics-list").refresh();
   }
 
+  loadSharedRubricsOnFocus() {
+    if (!this.sharedRubricsLoaded) {
+      this.sharedRubricsLoaded = true;
+    }
+  }
+
   filterRubrics(e) {
+    const doSearch = () => {
+      this.removeEventListener("shared-list-loaded", doSearch);
+      this.querySelectorAll("sakai-rubrics-list, sakai-rubrics-shared-list").forEach(rubricList => {
+        rubricList.search(e.target.value.toLowerCase());
+      });
+    };
+
+    if (!this.sharedRubricsLoaded) {
+      this.sharedRubricsLoaded = true;
+      this.addEventListener("shared-list-loaded", doSearch);
+      return;
+    }
 
     this.querySelectorAll("sakai-rubrics-list, sakai-rubrics-shared-list").forEach(rubricList => {
       rubricList.search(e.target.value.toLowerCase());

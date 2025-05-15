@@ -1,6 +1,7 @@
 import { html } from "lit";
 import "../sakai-rubric-readonly.js";
 import "../sakai-rubrics-list.js";
+import "@sakai-ui/sakai-pager/sakai-pager.js";
 import { SakaiRubricsHelpers } from "./SakaiRubricsHelpers.js";
 import { SakaiRubricsList } from "./SakaiRubricsList.js";
 import { SharingChangeEvent } from "./SharingChangeEvent.js";
@@ -14,6 +15,8 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
 
   rubricIdToDelete = null;
   rubricTitleToDelete = null;
+  _searchTerm = "";
+
   static properties = {
 
     siteId: { attribute: "site-id", type: String },
@@ -21,6 +24,9 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
     isSuperUser: { attribute: "is-super-user", type: Boolean },
 
     _rubrics: { state: true },
+    _currentPage: { state: true },
+    _itemsPerPage: { state: true },
+    _searchTerm: { state: true },
   };
 
   constructor() {
@@ -32,6 +38,8 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
       credentials: "include",
       headers: { "Content-Type": "application/json-patch+json" },
     };
+    this._currentPage = 1;
+    this._itemsPerPage = 5;
     this.getSharedRubrics();
   }
 
@@ -39,11 +47,34 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
     return this._rubrics;
   }
 
+  search(term) {
+    this._searchTerm = term;
+    this._currentPage = 1;
+    this.requestUpdate();
+  }
+
+  getFilteredRubrics() {
+    if (!this._rubrics) return [];
+    if (!this._searchTerm) return this._rubrics;
+    const term = this._searchTerm.toLowerCase();
+    return this._rubrics.filter(r =>
+      (r.title && r.title.toLowerCase().includes(term)) ||
+      (r.siteTitle && r.siteTitle.toLowerCase().includes(term)) ||
+      (r.creatorDisplayName && r.creatorDisplayName.toLowerCase().includes(term))
+    );
+  }
+
   render() {
+    const filteredRubrics = this.getFilteredRubrics();
+    const totalRubrics = filteredRubrics.length;
+    const totalPages = Math.ceil(totalRubrics / this._itemsPerPage);
+    const start = (this._currentPage - 1) * this._itemsPerPage;
+    const end = start + this._itemsPerPage;
+    const paginatedRubrics = filteredRubrics.slice(start, end);
 
     return html`
       <div role="tablist">
-      ${this._rubrics.map(r => html`
+      ${paginatedRubrics.map(r => html`
         <sakai-rubric-readonly .rubric=${r}
         @copy-to-site=${this.copyToSite}
         @delete-rubric=${this.showDeleteModal}
@@ -53,6 +84,12 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
         </sakai-rubric-readonly>
       `)}
       </div>
+      <sakai-pager
+        .current=${this._currentPage}
+        .count=${totalPages}
+        @page-selected=${this._onPageSelected}
+        ?hidden=${totalPages <= 1}>
+      </sakai-pager>
       <div class="modal fade" id="delete-modal" tabindex="-1" aria-labelledby="delete-modal-label" aria-hidden="true">
         <div class="modal-dialog">
           <div class="modal-content">
@@ -73,6 +110,10 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
     `;
   }
 
+  _onPageSelected(e) {
+    this._currentPage = e.detail.page;
+  }
+
   refresh() {
 
     this.getSharedRubrics();
@@ -89,7 +130,11 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
       }
       throw new Error("Network error while getting shared rubrics");
     })
-    .then(rubrics => this._rubrics = rubrics)
+    .then(rubrics => {
+      this._rubrics = rubrics;
+      this._currentPage = 1;
+      this.dispatchEvent(new CustomEvent("shared-list-loaded", { bubbles: true, composed: true }));
+    })
     .catch (error => console.error(error));
   }
 
