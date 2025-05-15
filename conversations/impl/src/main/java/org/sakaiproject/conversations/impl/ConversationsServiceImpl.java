@@ -820,10 +820,8 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
 
         String currentUserId = getCheckedCurrentUserId();
 
-        ConversationsTopic topic = topicRepository.getReferenceById(topicId);
-
-        TopicStatus topicStatus = topicStatusRepository.findByTopicIdAndUserId(topicId, currentUserId)
-            .orElseGet(() -> new TopicStatus(topic, currentUserId));
+        // Using our safer method to handle concurrent creation/update
+        TopicStatus topicStatus = topicStatusRepository.saveTopicStatus(topicId, currentUserId, false);
         topicStatus.setBookmarked(bookmarked);
         topicStatusRepository.save(topicStatus);
     }
