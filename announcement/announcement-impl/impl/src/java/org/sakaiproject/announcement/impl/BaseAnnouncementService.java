@@ -1880,7 +1880,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 			}
 
 			// Check group access permissions: empty list returned means no permission to view
-			if (filterGroupAccess(Collections.singletonList(msg)).isEmpty()) {
+			if (filterGroupAccess(List.of(msg)).isEmpty()) {
 				throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_READ, msg.getReference());
 			}
 
