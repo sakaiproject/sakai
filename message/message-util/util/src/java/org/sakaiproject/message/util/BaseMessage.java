@@ -1075,10 +1075,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 					}
 
 					//its possible the user wasn't found above
-					String userId = "";
-					if (currentUsr != null) {
-						userId = currentUsr.getId();
-					}
+					String userId = currentUsr != null ? currentUsr.getId() : "";
 
 					//If user is not instructor
 					Site site = null;
