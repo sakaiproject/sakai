@@ -30,6 +30,7 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.event.CacheEventListener;
+import net.sf.ehcache.statistics.StatisticsGateway;
 
 import org.sakaiproject.memory.api.CacheEventListener.CacheEntryEvent;
 import org.sakaiproject.memory.api.CacheEventListener.EventType;
@@ -105,7 +106,6 @@ public class EhcacheCache<K, V> extends BasicCache<K, V> implements CacheEventLi
     @Override
     public void clear() {
         cache.removeAll(false); // no listener triggers
-        cache.getStatistics().clearStatistics();
     } // clear
 
     @Override
@@ -113,7 +113,7 @@ public class EhcacheCache<K, V> extends BasicCache<K, V> implements CacheEventLi
         return new Configuration() {
             @Override
             public boolean isStatisticsEnabled() {
-                return cache.isStatisticsEnabled();
+                return true;
             }
 
             @Override
@@ -144,7 +144,7 @@ public class EhcacheCache<K, V> extends BasicCache<K, V> implements CacheEventLi
                 p.put("timeToLiveSeconds", cc.getTimeToLiveSeconds());
                 p.put("timeToIdleSeconds", cc.getTimeToIdleSeconds());
                 p.put("eternal", cc.isEternal());
-                p.put("statisticsEnabled", cache.isStatisticsEnabled());
+                p.put("statisticsEnabled", true);
                 return p;
             }
         };
@@ -192,7 +192,7 @@ public class EhcacheCache<K, V> extends BasicCache<K, V> implements CacheEventLi
         p.put("cacheClass", cache.getClass().getName());
         p.put("guid", cache.getGuid());
         p.put("disabled", cache.isDisabled());
-        p.put("statsEnabled", cache.isStatisticsEnabled());
+        p.put("statsEnabled", true);
         p.put("status", cache.getStatus().toString());
         p.put("maxEntries", cache.getCacheConfiguration().getMaxEntriesLocalHeap());
         p.put("timeToLiveSecs", cache.getCacheConfiguration().getTimeToLiveSeconds());
@@ -200,13 +200,12 @@ public class EhcacheCache<K, V> extends BasicCache<K, V> implements CacheEventLi
         p.put("distributed", isDistributed());
         p.put("eternal", cache.getCacheConfiguration().isEternal());
         if (includeExpensiveDetails) {
+            StatisticsGateway stats = cache.getStatistics();
             p.put("size", cache.getSize());
-            p.put("avgGetTime", cache.getStatistics().getAverageGetTime());
-            p.put("hits", cache.getStatistics().getCacheHits());
-            p.put("misses", cache.getStatistics().getCacheMisses());
-            p.put("evictions", cache.getStatistics().getEvictionCount());
-            p.put("count", cache.getStatistics().getMemoryStoreObjectCount());
-            p.put("searchPerSec", cache.getStatistics().getSearchesPerSecond());
+            p.put("hits", stats.cacheHitCount());
+            p.put("misses", stats.cacheMissCount());
+            p.put("evictions", stats.cacheEvictedCount());
+            p.put("count", cache.getSize());
         }
         return p;
     }
@@ -231,13 +230,14 @@ public class EhcacheCache<K, V> extends BasicCache<K, V> implements CacheEventLi
         if (isDistributed()) {
             buf.append(" Distributed");
         }
-        final long hits = cache.getStatistics().getCacheHits();
-        final long misses = cache.getStatistics().getCacheMisses();
+        StatisticsGateway stats = cache.getStatistics();
+        final long hits = stats.cacheHitCount();
+        final long misses = stats.cacheMissCount();
         final long total = hits + misses;
         final long hitRatio = ((total > 0) ? ((100l * hits) / total) : 0);
         // Even when we're not collecting statistics ehcache knows how many objects are in the cache
-        buf.append(": ").append(" count:").append(cache.getStatistics().getObjectCount());
-        if (cache.isStatisticsEnabled()) {
+        buf.append(": ").append(" count:").append(cache.getSize());
+        if (true) {
             buf.append(" hits:").append(hits).append(" misses:").append(misses).append(" hit%:").append(hitRatio);
         } else {
             buf.append(" NO statistics (not enabled for cache)");
@@ -370,8 +370,9 @@ public class EhcacheCache<K, V> extends BasicCache<K, V> implements CacheEventLi
         final long misses;
 
         public EhcacheCacheStatistics(Ehcache cache) {
-            this.hits = cache.getStatistics().getCacheHits();
-            this.misses = cache.getStatistics().getCacheMisses();
+            StatisticsGateway stats = cache.getStatistics();
+            this.hits = stats.cacheHitCount();
+            this.misses = stats.cacheMissCount();
         }
 
         @Override

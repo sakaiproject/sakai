@@ -390,17 +390,6 @@ public class EhCacheFactoryBean implements FactoryBean, BeanNameAware, Initializ
 
 			this.cacheManager.addCache(rawCache);
 		}
-		boolean override = false;
-		if (serverConfigurationService != null) {
-			override = serverConfigurationService.getBoolean(
-					"memory.cache.statistics.force.disabled", false);
-		}
-		if (this.statisticsEnabled && !override) {
-			rawCache.setStatisticsEnabled(true);
-		}
-		if (this.sampledStatisticsEnabled) {
-			rawCache.setSampledStatisticsEnabled(true);
-		}
 
 		// Decorate cache if necessary.
 		Ehcache decoratedCache = decorateCache(rawCache);
