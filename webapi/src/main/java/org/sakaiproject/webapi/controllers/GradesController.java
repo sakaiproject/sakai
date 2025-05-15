@@ -100,7 +100,7 @@ public class GradesController extends AbstractSakaiApiController {
             for (Assignment a : assignments) {
                 GradeRestBean bean = new GradeRestBean(a);
                 bean.setSiteTitle(site.getTitle());
-                bean.setSiteRole(role.getId());
+                bean.setCanGrade(canGrade);
 
                 // collect information for internal gb item
                 List<GradeDefinition> gd = gradeDefinitions.get(a.getId());
