@@ -2916,6 +2916,11 @@ function xCloseAddMultimediaDialog() {
   $("#mm-error").text('');
   $("#mm-error-container").hide();
   accumulatedFileSize = 0; 
+
+  //close the modal
+  const addmmdialogEl = document.querySelector("#add-multimedia-dialog");
+  const modal = bootstrap.Modal.getInstance(addmmdialogEl);
+  modal && modal.hide();
 }
 
 function setCollapsedStatus(header, collapse) {
