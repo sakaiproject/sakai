@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.hibernate.Session;
+import org.hibernate.exception.ConstraintViolationException;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaDelete;
@@ -31,9 +32,12 @@ import org.sakaiproject.conversations.api.model.ConversationsTopic;
 import org.sakaiproject.conversations.api.model.TopicStatus;
 import org.sakaiproject.conversations.api.repository.TopicStatusRepository;
 import org.sakaiproject.springframework.data.SpringCrudRepositoryImpl;
-
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class TopicStatusRepositoryImpl extends SpringCrudRepositoryImpl<TopicStatus, Long>  implements TopicStatusRepository {
 
     @Transactional
@@ -55,44 +59,59 @@ public class TopicStatusRepositoryImpl extends SpringCrudRepositoryImpl<TopicSta
     public TopicStatus saveTopicStatus(String topicId, String userId, boolean viewed) {
         Session session = sessionFactory.getCurrentSession();
         
-        // Try to find the existing record first
-        CriteriaBuilder cb = session.getCriteriaBuilder();
-        CriteriaQuery<TopicStatus> query = cb.createQuery(TopicStatus.class);
-        Root<TopicStatus> root = query.from(TopicStatus.class);
-        query.where(
-            cb.and(
-                cb.equal(root.get("topic").get("id"), topicId),
-                cb.equal(root.get("userId"), userId)
-            )
-        );
-        
-        TopicStatus status = session.createQuery(query).uniqueResultOptional().orElse(null);
-        
-        if (status != null) {
-            // Update existing record
-            status.setViewed(viewed);
-            session.merge(status);
-            return status;
-        } else {
-            // No record found, create a new one with a new transaction
-            // This is to avoid race condition with other concurrent operations
-            session.flush();
+        try {
+            // Try to find the existing record first
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<TopicStatus> query = cb.createQuery(TopicStatus.class);
+            Root<TopicStatus> root = query.from(TopicStatus.class);
+            query.where(
+                cb.and(
+                    cb.equal(root.get("topic").get("id"), topicId),
+                    cb.equal(root.get("userId"), userId)
+                )
+            );
             
-            // Get the topic entity
-            CriteriaQuery<ConversationsTopic> topicQuery = cb.createQuery(ConversationsTopic.class);
-            Root<ConversationsTopic> topicRoot = topicQuery.from(ConversationsTopic.class);
-            topicQuery.where(cb.equal(topicRoot.get("id"), topicId));
-            ConversationsTopic topic = session.createQuery(topicQuery).uniqueResult();
+            TopicStatus status = session.createQuery(query).uniqueResultOptional().orElse(null);
             
-            if (topic == null) {
-                throw new IllegalArgumentException("No topic found for id: " + topicId);
+            if (status != null) {
+                // Update existing record
+                status.setViewed(viewed);
+                session.merge(status);
+                return status;
+            } else {
+                // Get the topic entity
+                CriteriaQuery<ConversationsTopic> topicQuery = cb.createQuery(ConversationsTopic.class);
+                Root<ConversationsTopic> topicRoot = topicQuery.from(ConversationsTopic.class);
+                topicQuery.where(cb.equal(topicRoot.get("id"), topicId));
+                ConversationsTopic topic = session.createQuery(topicQuery).uniqueResult();
+                
+                if (topic == null) {
+                    throw new IllegalArgumentException("No topic found for id: " + topicId);
+                }
+                
+                // Create and save new status
+                TopicStatus newStatus = new TopicStatus(topic, userId);
+                newStatus.setViewed(viewed);
+                try {
+                    session.save(newStatus);
+                    return newStatus;
+                } catch (ConstraintViolationException | DataIntegrityViolationException e) {
+                    // Another thread created the record first, so let's get it and update it
+                    log.debug("Caught concurrent creation exception, fetching the existing record: {}", e.getMessage());
+                    session.clear(); // Clear session to avoid stale data
+                    
+                    // Fetch the record that was just created by another thread
+                    status = session.createQuery(query).uniqueResultOptional()
+                        .orElseThrow(() -> new IllegalStateException("Expected to find TopicStatus after constraint violation"));
+                    
+                    status.setViewed(viewed);
+                    session.merge(status);
+                    return status;
+                }
             }
-            
-            // Create and save new status
-            TopicStatus newStatus = new TopicStatus(topic, userId);
-            newStatus.setViewed(viewed);
-            session.save(newStatus);
-            return newStatus;
+        } catch (Exception e) {
+            log.warn("Error in saveTopicStatus: {}", e.getMessage());
+            throw e;
         }
     }
 
