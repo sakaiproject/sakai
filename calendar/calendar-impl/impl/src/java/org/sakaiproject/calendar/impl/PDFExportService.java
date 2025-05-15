@@ -59,7 +59,7 @@ import org.apache.fop.apps.Fop;
 import org.apache.fop.apps.FopFactory;
 import org.apache.fop.apps.FopFactoryBuilder;
 import org.apache.fop.apps.MimeConstants;
-import org.apache.fop.configuration.DefaultConfigurationBuilder;
+// Removed unused configuration imports
 import org.apache.xmlgraphics.io.Resource;
 import org.apache.xmlgraphics.io.ResourceResolver;
 import org.sakaiproject.calendar.api.CalendarEvent;
@@ -161,9 +161,6 @@ public class PDFExportService {
 
     // Misc.
     private static final String HOUR_MINUTE_SEPARATOR = ":";
-    
-    // FOP Configuration
-    private final static String FOP_USERCONFIG = "fonts/fop.xml";
 
     private TimeService timeService;
     private TransformerFactory transformerFactory;
@@ -177,19 +174,16 @@ public class PDFExportService {
         transformerFactory = TransformerFactory.newInstance();
         transformerFactory.setURIResolver(new MyURIResolver(getClass().getClassLoader()));
         
-        // Create a FOP factory with the configuration file that includes system font directories
+        // Create a FOP factory with system fonts (auto-detect)
         try {
-            // Load the configuration file from the classpath
-            InputStream configStream = getClass().getClassLoader().getResourceAsStream(FOP_USERCONFIG);
-            if (configStream == null) {
-                log.warn("Could not find FOP configuration file: {}. Using default configuration.", FOP_USERCONFIG);
-                fopFactory = FopFactory.newInstance(new File(".").toURI());
-            } else {
-                // Create a builder with the base directory and load the config file
-                URI baseDir = new File(".").toURI();
-                fopFactory = FopFactory.newInstance(baseDir, configStream);
-                log.info("PDF export initialized with system fonts for improved CJK character support");
-            }
+            // Create default FOP factory with auto-detection of system fonts
+            FopFactoryBuilder builder = new FopFactoryBuilder(new File(".").toURI());
+            
+            // Enable auto-detection of system fonts
+            fopFactory = builder.build();
+            
+            // Log success message
+            log.info("PDF export initialized with system fonts");
             
         } catch (Exception e) {
             // We won't be able to do anything if we can't create a FopFactory
