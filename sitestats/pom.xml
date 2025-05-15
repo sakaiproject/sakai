@@ -18,7 +18,7 @@
   <!-- Project versions -->
   <properties>
     <commons-betwixt.version>0.8</commons-betwixt.version>
-    <fop.version>2.10</fop.version>
+    <fop.version>2.11</fop.version>
     <jfreechart.version>1.5.3</jfreechart.version>
     <sst.wicket.version>9.20.0</sst.wicket.version>
   </properties>
