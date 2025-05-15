@@ -341,6 +341,12 @@ roster.renderMembership = function (options) {
     }
   }
 
+  if (roster.noParticipants) {
+    // We've searched and found no participants, maybe in another view.
+    roster.renderNoParticipants();
+    return;
+  }
+
   if (options.renderAll) {
     $('#roster-members').empty();
   }
@@ -520,8 +526,13 @@ roster.readyClearButton = function (state) {
     roster.roleToView = null;
     roster.groupToView = null;
     roster.userIds = null;
+    roster.noParticipants = false;
     roster.switchState(state);
   });
+};
+
+roster.renderNoParticipants = function () {
+  $('#roster-members').html(`<div id="roster-information">${roster.i18n.no_participants}</div>`);
 };
 
 roster.search = function (query) {
@@ -546,7 +557,8 @@ roster.search = function (query) {
       roster.userIds = userIds;
       roster.renderMembership({ replace: true });
     } else {
-      $('#roster-members').html('<div id="roster-information">' + roster.i18n.no_participants + '</div>');
+      roster.noParticipants = true;
+      roster.renderNoParticipants();
       $('#roster-members-total').hide();
       $('#roster_type_selector').hide();
     }
@@ -701,8 +713,6 @@ roster.clickViewCardRadio = function (render) {
 
   $('#roster_content').removeClass('view_mode_spreadsheet view_mode_photogrid');
 
-  //document.querySelector(".roster-print-button").style.display = "initial";
-
   roster.currentLayout = "cards";
 
   // Re-render table with dynamic page size for card view
@@ -725,8 +735,6 @@ roster.clickViewSpreadsheetRadio = function() {
 
   $('#roster_content').removeClass('view_mode_cards view_mode_photogrid');
   $('#roster_content').addClass('view_mode_spreadsheet');
-
-  //document.querySelector(".roster-print-button").style.display = "none";
 
   roster.currentLayout = "spreadsheet";
   roster.renderMembership({ replace: true });
