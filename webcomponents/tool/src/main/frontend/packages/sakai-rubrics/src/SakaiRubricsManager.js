@@ -176,7 +176,6 @@ export class SakaiRubricsManager extends RubricsElement {
               </div>
               <div class="actions">${this.tr("actions")}</div>
             </div>
-            <br>
             <sakai-rubrics-shared-list site-id="${this.siteId}"
                 @copy-share-site=${this.handleRubricList}
                 @update-rubric-list=${this.handleRubricList}
