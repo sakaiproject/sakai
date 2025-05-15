@@ -167,10 +167,8 @@ public class MySession implements Session, HttpSession, Serializable
 	 */
 	public Object getAttribute(String name)
 	{
+		// With Hazelcast/Terracotta removal, we only use the normal data structure
 		Object target = m_attributes.get(name);
-		if ((target == null) && (m_nonPortalSession != null)) {
-			target = m_nonPortalSession.getAttribute(name);
-		}
 		return target;
 	}
 
@@ -179,9 +177,8 @@ public class MySession implements Session, HttpSession, Serializable
 	 */
 	public Enumeration getAttributeNames()
 	{
-		Set<String> nonPortableAttributeNames = m_nonPortalSession.getAllAttributes().keySet();
-		IteratorChain ic = new IteratorChain(m_attributes.keySet().iterator(),nonPortableAttributeNames.iterator());
-		return new IteratorEnumeration(ic);
+		// With Hazelcast/Terracotta removal, we only use the normal data structure
+		return new IteratorEnumeration(m_attributes.keySet().iterator());
 	}
 
 	/**
@@ -374,7 +371,6 @@ public class MySession implements Session, HttpSession, Serializable
 		Map unbindMap = null;
 		Map toolMap = null;
 		Map contextMap = null;
-		Map<String,Object> nonPortableMap = null;
 		synchronized (this)
 		{
 			unbindMap = new HashMap(m_attributes);
@@ -385,8 +381,8 @@ public class MySession implements Session, HttpSession, Serializable
 
 			contextMap = new HashMap(m_contextSessions);
 			m_contextSessions.clear();
-
-			nonPortableMap = m_nonPortalSession.getAllAttributes();
+			
+			// With Hazelcast/Terracotta removal, we still need to clear non-portable attributes
 			m_nonPortalSession.clear();
 		}
 
@@ -406,7 +402,7 @@ public class MySession implements Session, HttpSession, Serializable
 			t.clearAttributes();
 		}
 
-		// send unbind events for normal (possibly clustered) session data
+		// send unbind events for session data
 		for (Iterator i = unbindMap.entrySet().iterator(); i.hasNext();)
 		{
 			Map.Entry e = (Map.Entry) i.next();
@@ -415,11 +411,7 @@ public class MySession implements Session, HttpSession, Serializable
 			unBind(name, value);
 		}
 
-		// send unbind events for non clustered session data (in a clustered environment)
-		for (Map.Entry<String, Object> e: nonPortableMap.entrySet())
-		{
-			unBind(e.getKey(), e.getValue());
-		}
+		// With Hazelcast/Terracotta removal, we don't need to handle non-portable attributes separately
 	}
 	
 	/**
@@ -429,7 +421,6 @@ public class MySession implements Session, HttpSession, Serializable
 	{
 		// save any attributes in names
 		Map saveAttributes = new HashMap();
-		Map<String,Object> saveNonPortableAttributes = new HashMap<String,Object>();
 		for (Iterator i = names.iterator(); i.hasNext();)
 		{
 			String name = (String) i.next();
@@ -439,13 +430,8 @@ public class MySession implements Session, HttpSession, Serializable
 				// remove, but do NOT unbind
 				m_attributes.remove(name);
 				saveAttributes.put(name, value);
-			} else {
-				value = m_nonPortalSession.removeAttribute(name);
-				if (value != null)
-				{
-					saveNonPortableAttributes.put(name, value);
-				}
 			}
+			// With Hazelcast/Terracotta removal, we don't need to handle non-portable attributes separately
 		}
 
 		// clear the remaining
@@ -460,10 +446,7 @@ public class MySession implements Session, HttpSession, Serializable
 			m_attributes.put(name, value);
 		}
 
-		for(Map.Entry<String,Object> e: saveNonPortableAttributes.entrySet())
-		{
-			m_nonPortalSession.setAttribute(e.getKey(), e.getValue());
-		}
+		// With Hazelcast/Terracotta removal, we don't need to handle non-portable attributes separately
 	}
 	
 	/**
@@ -501,13 +484,8 @@ public class MySession implements Session, HttpSession, Serializable
 	 */
 	public void removeAttribute(String name)
 	{
-		// remove
+		// With Hazelcast/Terracotta removal, we only use the normal data structure
 		Object value = m_attributes.remove(name);
-
-		if ((value == null) && (m_nonPortalSession != null))
-		{
-			value = m_nonPortalSession.removeAttribute(name);
-		}
 
 		// unbind event
 		unBind(name, value);
@@ -557,14 +535,8 @@ public class MySession implements Session, HttpSession, Serializable
 			// Place the attribute in the normal data structure
 			// Check the current tool id against the tool whitelist to see if attributes from this
 			// tool should be clustered, or not.
-			if (sessionStore.isCurrentToolClusterable())
-			{
-				old = m_attributes.put(name, value);
-			}
-			else
-			{
-				old = m_nonPortalSession.setAttribute(name, value);
-			}
+			// With Hazelcast/Terracotta removal, we always use the normal data structure
+			old = m_attributes.put(name, value);
 
 			// bind event
 			bind(name, value);

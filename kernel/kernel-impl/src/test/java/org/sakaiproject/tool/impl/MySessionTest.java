@@ -577,6 +577,8 @@ public class MySessionTest extends BaseSessionComponentTest {
 	
 	protected ListeningAttribValue setNewListeningAttribValue(MySession session,
 			String key) {
+		// Since we're removing Hazelcast/Terracotta, mock the toolManager to handle the call
+		allowEmptyToolCheck();
 		ListeningAttribValue value = new ListeningAttribValue();
 		session.setAttribute(key, value);
 		return value;
