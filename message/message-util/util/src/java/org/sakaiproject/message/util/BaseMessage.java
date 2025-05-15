@@ -1137,23 +1137,15 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			}
 
 			// otherwise, check the groups for function
-
 			// get a list of the group refs, which are authzGroup ids
-			Collection<String> groupRefs = new Vector<String>();
-            for (Group group : groups) {
-                groupRefs.add(group.getReference());
-            }
+			Set<String> groupRefs = groups.stream().map(Group::getReference).collect(Collectors.toSet());
 
 			// ask the authzGroup service to filter them down based on function
 			groupRefs = authzGroupService.getAuthzGroupsIsAllowed(sessionManager.getCurrentSessionUserId(),
 					eventId(function), groupRefs);
 
 			// pick the Group objects from the site's groups to return, those that are in the groupRefs list
-            for (Group group : groups) {
-                if (groupRefs.contains(group.getReference())) {
-                    rv.add(group);
-                }
-            }
+			groups.stream().filter(g -> groupRefs.contains(g.getReference())).forEach(rv::add);
 		}
 		catch (IdUnusedException e)
 		{
