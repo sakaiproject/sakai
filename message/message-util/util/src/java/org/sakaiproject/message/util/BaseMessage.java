@@ -41,6 +41,7 @@ import java.util.Stack;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -1121,7 +1122,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 	 */
 	protected Collection<Group> getGroupsAllowFunction(String function, String m_context, String reference)
 	{
-		Collection<Group> rv = new Vector<Group>();
+		Collection<Group> rv = new ArrayList<>();
 
 		try
 		{
@@ -1141,11 +1142,11 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			Set<String> groupRefs = groups.stream().map(Group::getReference).collect(Collectors.toSet());
 
 			// ask the authzGroup service to filter them down based on function
-			groupRefs = authzGroupService.getAuthzGroupsIsAllowed(sessionManager.getCurrentSessionUserId(),
+			final Set<String> finalGroupRefs = authzGroupService.getAuthzGroupsIsAllowed(sessionManager.getCurrentSessionUserId(),
 					eventId(function), groupRefs);
 
-			// pick the Group objects from the site's groups to return, those that are in the groupRefs list
-			groups.stream().filter(g -> groupRefs.contains(g.getReference())).forEach(rv::add);
+			// pick the Group objects from the site's groups to return, those that are in the finalGroupRefs list
+			groups.stream().filter(g -> finalGroupRefs.contains(g.getReference())).forEach(rv::add);
 		}
 		catch (IdUnusedException e)
 		{
