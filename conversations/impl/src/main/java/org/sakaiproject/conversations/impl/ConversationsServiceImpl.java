@@ -1099,8 +1099,8 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
             topicRepository.save(topic);
         }
 
-        TopicStatus topicStatus = topicStatusRepository.findByTopicIdAndUserId(topic.getId(), currentUserId)
-            .orElse(new TopicStatus(topic, currentUserId));
+        // Using the safer method to handle concurrent updates
+        TopicStatus topicStatus = topicStatusRepository.saveTopicStatus(topic.getId(), currentUserId, false);
         topicStatus.setPosted(true);
         boolean topicWasViewed = topicStatus.getViewed();
         topicStatusRepository.save(topicStatus);
