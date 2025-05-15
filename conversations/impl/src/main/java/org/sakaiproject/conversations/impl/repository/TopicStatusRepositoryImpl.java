@@ -27,6 +27,7 @@ import javax.persistence.criteria.CriteriaQuery;
 //import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Root;
 
+import org.sakaiproject.conversations.api.model.ConversationsTopic;
 import org.sakaiproject.conversations.api.model.TopicStatus;
 import org.sakaiproject.conversations.api.repository.TopicStatusRepository;
 import org.sakaiproject.springframework.data.SpringCrudRepositoryImpl;
@@ -48,6 +49,51 @@ public class TopicStatusRepositoryImpl extends SpringCrudRepositoryImpl<TopicSta
                             cb.equal(status.get("userId"), userId)));
 
         return session.createQuery(query).uniqueResultOptional();
+    }
+    
+    @Transactional
+    public TopicStatus saveTopicStatus(String topicId, String userId, boolean viewed) {
+        Session session = sessionFactory.getCurrentSession();
+        
+        // Try to find the existing record first
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<TopicStatus> query = cb.createQuery(TopicStatus.class);
+        Root<TopicStatus> root = query.from(TopicStatus.class);
+        query.where(
+            cb.and(
+                cb.equal(root.get("topic").get("id"), topicId),
+                cb.equal(root.get("userId"), userId)
+            )
+        );
+        
+        TopicStatus status = session.createQuery(query).uniqueResultOptional().orElse(null);
+        
+        if (status != null) {
+            // Update existing record
+            status.setViewed(viewed);
+            session.merge(status);
+            return status;
+        } else {
+            // No record found, create a new one with a new transaction
+            // This is to avoid race condition with other concurrent operations
+            session.flush();
+            
+            // Get the topic entity
+            CriteriaQuery<ConversationsTopic> topicQuery = cb.createQuery(ConversationsTopic.class);
+            Root<ConversationsTopic> topicRoot = topicQuery.from(ConversationsTopic.class);
+            topicQuery.where(cb.equal(topicRoot.get("id"), topicId));
+            ConversationsTopic topic = session.createQuery(topicQuery).uniqueResult();
+            
+            if (topic == null) {
+                throw new IllegalArgumentException("No topic found for id: " + topicId);
+            }
+            
+            // Create and save new status
+            TopicStatus newStatus = new TopicStatus(topic, userId);
+            newStatus.setViewed(viewed);
+            session.save(newStatus);
+            return newStatus;
+        }
     }
 
     @Transactional
