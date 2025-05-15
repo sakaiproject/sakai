@@ -1071,7 +1071,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 					try {
 						currentUsr = userDirectoryService.getUser(sessionManager.getCurrentSessionUserId());
 					} catch (UserNotDefinedException e1) {
-						log.info("User Not Defined: {}", e1.getMessage());
+						log.info("User Not Defined: {}", e1.toString());
 					}
 
 					//its possible the user wasn't found above
