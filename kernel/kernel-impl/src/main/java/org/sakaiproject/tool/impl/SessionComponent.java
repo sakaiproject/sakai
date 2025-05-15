@@ -289,30 +289,11 @@ public abstract class SessionComponent implements SessionManager, SessionStore
 
 	/**
 	 * Checks the current Tool ID to determine if this tool is marked for clustering.
+	 * With Hazelcast/Terracotta removal, this always returns false as clustering is removed.
 	 *
-	 * @return true if the tool is marked for clustering, false otherwise.
+	 * @return false since clustering is removed
 	 */
 	public boolean isCurrentToolClusterable() {
-		ToolManager toolManager = toolManager();
-		Tool tool = null;
-		// ToolManager should exist.  Protect against it being
-		// null and just log a message if it is.
-		if (toolManager != null) {
-			tool = toolManager.getCurrentTool();
-			// tool can be null, this is common during startup for example
-			if (tool != null) {
-				String toolId = tool.getId();
-				// if the tool exists, the toolid should.  But protect and only
-				// log a message if it is null
-				if (toolId != null) {
-					return clusterableTools.contains(toolId);
-				} else {
-					log.error("SessionComponent.isCurrentToolClusterable(): toolId was null.");
-				}
-			}
-		} else {
-			log.error("SessionComponent.isCurrentToolClusterable(): toolManager was null.");
-		}
 		return false;
 	}
 
