@@ -216,24 +216,19 @@ public class SakaiCacheManagerFactoryBean implements FactoryBean<CacheManager>, 
                 // To be much simpler once we require EhCache 2.1+
                 log.info("Attempting to load default cluster caching.");
                 if (this.cacheManagerName != null) {
-                    if (this.shared && createWithConfiguration == null) {
-                        // No CacheManager.create(Configuration) method available before EhCache 2.1;
-                        // can only set CacheManager name after creation.
-                        this.cacheManager = (is != null ? CacheManager.create(is) : CacheManager.create());
-                        this.cacheManager.setName(this.cacheManagerName);
+                    // Set the name on the configuration object
+                    configuration.setName(this.cacheManagerName);
+                }
+                
+                if (this.shared) {
+                    if (createWithConfiguration != null) {
+                        this.cacheManager = (CacheManager) ReflectionUtils.invokeMethod(createWithConfiguration, null, configuration);
                     } else {
-                        configuration.setName(this.cacheManagerName);
-                        if (this.shared) {
-                            this.cacheManager = (CacheManager) ReflectionUtils.invokeMethod(createWithConfiguration, null, configuration);
-                        } else {
-                            this.cacheManager = new CacheManager(configuration);
-                        }
+                        // For strict backwards compatibility: use simplest possible constructors...
+                        this.cacheManager = (is != null ? CacheManager.create(is) : CacheManager.create());
                     }
-                } else if (this.shared) {
-                    // For strict backwards compatibility: use simplest possible constructors...
-                    this.cacheManager = (is != null ? CacheManager.create(is) : CacheManager.create());
                 } else {
-                    this.cacheManager = (is != null ? new CacheManager(is) : new CacheManager());
+                    this.cacheManager = (is != null ? new CacheManager(is) : new CacheManager(configuration));
                 }
             }
         } catch (CacheException ce) {

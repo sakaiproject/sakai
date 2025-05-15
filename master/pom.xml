@@ -33,8 +33,8 @@
     <sakai.commons.configuration2.version>2.12.0</sakai.commons.configuration2.version>
     <sakai.commons.net>3.11.1</sakai.commons.net>
     <sakai.ehcache.groupId>net.sf.ehcache</sakai.ehcache.groupId>
-    <sakai.ehcache.artifactId>ehcache-core</sakai.ehcache.artifactId>
-    <sakai.ehcache.version>2.6.11</sakai.ehcache.version>
+    <sakai.ehcache.artifactId>ehcache</sakai.ehcache.artifactId>
+    <sakai.ehcache.version>2.10.9.2</sakai.ehcache.version>
     <sakai.opensearch.version>2.16.0</sakai.opensearch.version>
     <sakai.hibernate.version>5.6.15.Final</sakai.hibernate.version>
     <sakai.hikaricp.version>6.0.0</sakai.hikaricp.version>
@@ -869,7 +869,7 @@
       </dependency>
       <dependency>
         <groupId>net.sf.ehcache</groupId>
-        <artifactId>ehcache-core</artifactId>
+        <artifactId>ehcache</artifactId>
         <version>${sakai.ehcache.version}</version>
         <scope>provided</scope>
       </dependency>
