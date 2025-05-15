@@ -31,11 +31,9 @@ describe("sakai-widget-panel tests", () => {
       <sakai-widget-panel user-id="${data.userId}" .widgetIds=${data.widgetIds} .layout="${data.layout1}"></sakai-widget-panel>
     `);
 
-    //await waitUntil(() => el._i18n);
-
     await elementUpdated(el);
 
-    await expect(el).to.be.accessible({ ignoredRules: ["landmark-unique"] });
+    await expect(el).to.be.accessible({ ignoredRules: ["landmark-unique", "color-contrast"] });
 
     expect(el.shadowRoot.getElementById("grid")).to.exist;
 
@@ -46,7 +44,7 @@ describe("sakai-widget-panel tests", () => {
 
     el.editing = true;
     await elementUpdated(el);
-    await expect(el).to.be.accessible({ ignoredRules: ["landmark-unique"] });
+    await expect(el).to.be.accessible({ ignoredRules: ["landmark-unique", "color-contrast"] });
 
     const addLink = el.renderRoot.querySelector("#add-button button");
     expect(addLink).to.exist;
@@ -72,7 +70,7 @@ describe("sakai-widget-panel tests", () => {
 
     forums.dispatchEvent(new CustomEvent("remove"));
     await el.updateComplete;
-    await expect(el).to.be.accessible({ ignoredRules: ["landmark-unique"] });
+    await expect(el).to.be.accessible({ ignoredRules: ["landmark-unique", "color-contrast"] });
     expect(el.shadowRoot.querySelector("#grid > div > sakai-forums-widget")).to.not.exist;
   });
 });

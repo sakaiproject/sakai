@@ -19,7 +19,7 @@ import org.sakaiproject.grading.api.Assignment;
 import lombok.Data;
 
 /**
- * This bean holds grading data that is later serialized to json.*
+ * This bean holds grading data that is later serialized to json
  */
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -33,8 +33,8 @@ public class GradeRestBean {
     private int ungraded;
     private String url;
     private String siteTitle;
-    private String siteRole;
     private String siteId;
+    private boolean canGrade;
 
     public GradeRestBean(Assignment assignment) {
 
