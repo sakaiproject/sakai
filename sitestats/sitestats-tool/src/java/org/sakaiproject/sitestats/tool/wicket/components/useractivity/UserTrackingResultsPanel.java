@@ -24,7 +24,6 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.DefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.NavigationToolbar;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractToolbar;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.navigation.paging.IPageable;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -80,15 +79,6 @@ public class UserTrackingResultsPanel extends Panel
 		resultsTable.setOutputMarkupId(true);
 		resultsTable.setVersioned(false);
 		
-		// Replace default NavigationToolbar with custom one that doesn't show total
-		// First remove any existing NavigationToolbar
-		for (AbstractToolbar toolbar : resultsTable.getTopToolbars()) {
-			if (toolbar instanceof NavigationToolbar) {
-				resultsTable.removeToolbar(toolbar);
-				break;
-			}
-		}
-		
 		// Add our custom toolbar
 		resultsTable.addTopToolbar(new CustomNavigationToolbar(resultsTable));
 		
@@ -132,19 +122,27 @@ public class UserTrackingResultsPanel extends Panel
 			
 			@Override
 			public String getObject() {
-				// Calculate current "showing X to Y" values
-				long current = pageable.getCurrentPage() * pageable.getItemsPerPage();
-				long first = current + 1;
-				long last = current + ((DataTable<?, ?>)pageable).getItemsPerPage();
+				// We know this is a DataTable, so cast it safely
+				DataTable<?, ?> table = (DataTable<?, ?>)pageable;
 				
-				// Get actual last item index (in case we're on last page with less than full items)
-				if (last > current + ((DataTable<?, ?>)pageable).getRowCount()) {
-					last = current + ((DataTable<?, ?>)pageable).getRowCount();
-				}
+				// Get the row count for display
+				long rowCount = table.getRowCount();
 				
 				// No results case
-				if (((DataTable<?, ?>)pageable).getRowCount() == 0) {
+				if (rowCount == 0) {
 					return "No results found";
+				}
+				
+				// Calculate current "showing X to Y" values
+				long currentPage = pageable.getCurrentPage();
+				long itemsPerPage = table.getItemsPerPage();
+				long current = currentPage * itemsPerPage;
+				long first = current + 1;
+				long last = current + itemsPerPage;
+				
+				// Adjust last item if needed (for last page with fewer items)
+				if (last > current + rowCount) {
+					last = current + rowCount;
 				}
 				
 				return String.format("Showing %d to %d", first, last);
