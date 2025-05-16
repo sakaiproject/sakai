@@ -21,12 +21,10 @@ import java.util.List;
 
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.HeadersToolbar;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.NoRecordsToolbar;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.AttributeModifier;
-import org.sakaiproject.sitestats.tool.wicket.components.SakaiNavigationToolBar;
+import org.sakaiproject.sitestats.tool.wicket.components.SakaiDataTable;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
@@ -54,7 +52,7 @@ public class UserTrackingResultsPanel extends Panel
 
 	private static final int DEFAULT_PAGE_SIZE = 20;
 
-	private DataTable<DetailedEvent, String> resultsTable;
+	private SakaiDataTable resultsTable;
 
 	/**
 	 * Constructor
@@ -76,43 +74,17 @@ public class UserTrackingResultsPanel extends Panel
 	{
 		super.onInitialize();
 		
-		// Create a custom data table that doesn't add a navigation toolbar by default
-		resultsTable = new CustomDataTable<>(
-			"table", getTableColumns(), provider, DEFAULT_PAGE_SIZE);
+		// Create a standard data table with Sakai navigation
+		resultsTable = new SakaiDataTable(
+			"table", (List)getTableColumns(), provider, true);
 		
 		resultsTable.setOutputMarkupId(true);
 		resultsTable.setVersioned(false);
+		resultsTable.add(new AttributeModifier("class", "table table-hover table-striped table-bordered userTrackingResults sakai-cardTable640"));
 		
 		add(resultsTable);
 	}
 	
-	/**
-	 * Custom DataTable that creates only the toolbars we want
-	 * Extends DataTable directly instead of DefaultDataTable to avoid duplicate toolbars
-	 */
-	private class CustomDataTable<T, S> extends DataTable<T, S> {
-		private static final long serialVersionUID = 1L;
-		
-		public CustomDataTable(String id, List<? extends IColumn<T, S>> columns, 
-				SortableDataProvider<T, S> dataProvider, int rowsPerPage) {
-			super(id, columns, dataProvider, rowsPerPage);
-			
-			// Add CSS class to the table for styling
-			add(new AttributeModifier("class", "table table-striped table-bordered sakaiUserTrackingTable"));
-			
-			// Add only the toolbars we want with custom CSS classes
-			HeadersToolbar<S> headersToolbar = new HeadersToolbar<>(this, dataProvider);
-			headersToolbar.add(new AttributeModifier("class", "sakaiUserTrackingHeaders"));
-			addTopToolbar(headersToolbar);
-			
-			// Use the existing SakaiNavigationToolBar which includes a row selector
-			addTopToolbar(new SakaiNavigationToolBar(this));
-			
-			NoRecordsToolbar noRecordsToolbar = new NoRecordsToolbar(this);
-			noRecordsToolbar.add(new AttributeModifier("class", "sakaiUserTrackingNoRecords"));
-			addBottomToolbar(noRecordsToolbar);
-		}
-	}
 
 	/**
 	 * Sets the parameters to use for the search. Resets paging back to the first page since search params have changed.
