@@ -21,11 +21,13 @@ import java.util.List;
 
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.DefaultDataTable;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.HeadersToolbar;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.NavigationToolbar;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.NoRecordsToolbar;
+import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
+import org.apache.wicket.AttributeModifier;
+import org.sakaiproject.sitestats.tool.wicket.components.SakaiNavigationToolBar;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.navigation.paging.IPageable;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
@@ -64,6 +66,9 @@ public class UserTrackingResultsPanel extends Panel
 		super(id);
 		siteID = trackingParams.siteId;
 		provider = new UserTrackingDataProvider(trackingParams);
+		
+		// Add a CSS class to the panel for styling
+		add(new AttributeModifier("class", "sakaiUserTrackingPanel"));
 	}
 
 	@Override
@@ -71,82 +76,41 @@ public class UserTrackingResultsPanel extends Panel
 	{
 		super.onInitialize();
 		
-		// Create a standard Wicket DataTable without Ajax
-		// This avoids duplicate navigation toolbars
-		resultsTable = new DefaultDataTable<>(
+		// Create a custom data table that doesn't add a navigation toolbar by default
+		resultsTable = new CustomDataTable<>(
 			"table", getTableColumns(), provider, DEFAULT_PAGE_SIZE);
 		
 		resultsTable.setOutputMarkupId(true);
 		resultsTable.setVersioned(false);
 		
-		// Add our custom toolbar
-		resultsTable.addTopToolbar(new CustomNavigationToolbar(resultsTable));
-		
 		add(resultsTable);
 	}
 	
 	/**
-	 * Custom navigation toolbar that uses a label without "of X" part
+	 * Custom DataTable that creates only the toolbars we want
+	 * Extends DataTable directly instead of DefaultDataTable to avoid duplicate toolbars
 	 */
-	private static class CustomNavigationToolbar extends NavigationToolbar {
+	private class CustomDataTable<T, S> extends DataTable<T, S> {
 		private static final long serialVersionUID = 1L;
 		
-		public CustomNavigationToolbar(final DataTable<?, ?> table) {
-			super(table);
-		}
-		
-		@Override
-		protected Label newNavigatorLabel(String navigatorId, DataTable<?, ?> table) {
-			return new CustomNavigatorLabel(navigatorId, table);
-		}
-	}
-	
-	/**
-	 * Custom navigator label that only shows "Showing X to Y" without the total
-	 */
-	private static class CustomNavigatorLabel extends Label {
-		private static final long serialVersionUID = 1L;
-		
-		public CustomNavigatorLabel(String id, IPageable pageable) {
-			super(id);
-			setDefaultModel(new CustomLabelModel(pageable));
-		}
-		
-		private static class CustomLabelModel extends Model<String> {
-			private static final long serialVersionUID = 1L;
-			private final IPageable pageable;
+		public CustomDataTable(String id, List<? extends IColumn<T, S>> columns, 
+				SortableDataProvider<T, S> dataProvider, int rowsPerPage) {
+			super(id, columns, dataProvider, rowsPerPage);
 			
-			public CustomLabelModel(IPageable pageable) {
-				this.pageable = pageable;
-			}
+			// Add CSS class to the table for styling
+			add(new AttributeModifier("class", "sakaiUserTrackingTable"));
 			
-			@Override
-			public String getObject() {
-				// We know this is a DataTable, so cast it safely
-				DataTable<?, ?> table = (DataTable<?, ?>)pageable;
-				
-				// Get the row count for display
-				long rowCount = table.getRowCount();
-				
-				// No results case
-				if (rowCount == 0) {
-					return "No results found";
-				}
-				
-				// Calculate current "showing X to Y" values
-				long currentPage = pageable.getCurrentPage();
-				long itemsPerPage = table.getItemsPerPage();
-				long current = currentPage * itemsPerPage;
-				long first = current + 1;
-				long last = current + itemsPerPage;
-				
-				// Adjust last item if needed (for last page with fewer items)
-				if (last > current + rowCount) {
-					last = current + rowCount;
-				}
-				
-				return String.format("Showing %d to %d", first, last);
-			}
+			// Add only the toolbars we want with custom CSS classes
+			HeadersToolbar<S> headersToolbar = new HeadersToolbar<>(this, dataProvider);
+			headersToolbar.add(new AttributeModifier("class", "sakaiUserTrackingHeaders"));
+			addTopToolbar(headersToolbar);
+			
+			// Use the existing SakaiNavigationToolBar which includes a row selector
+			addTopToolbar(new SakaiNavigationToolBar(this));
+			
+			NoRecordsToolbar noRecordsToolbar = new NoRecordsToolbar(this);
+			noRecordsToolbar.add(new AttributeModifier("class", "sakaiUserTrackingNoRecords"));
+			addBottomToolbar(noRecordsToolbar);
 		}
 	}
 
