@@ -89,8 +89,9 @@ public class UserTrackingDataProvider extends SortableDataProvider<DetailedEvent
 	@Override
 	public long size()
 	{
-		// Just return a large but not excessive number for pagination
-		return 10000;
+		// Get the actual total count from the DetailedEventsManager
+		DetailedEventsManager dem = Locator.getFacade().getDetailedEventsManager();
+		return dem.getDetailedEventsCount(trackingParams);
 	}
 
 	@Override
