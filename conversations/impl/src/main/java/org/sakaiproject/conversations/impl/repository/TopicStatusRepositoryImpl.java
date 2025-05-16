@@ -76,8 +76,7 @@ public class TopicStatusRepositoryImpl extends SpringCrudRepositoryImpl<TopicSta
             if (status != null) {
                 // Update existing record
                 status.setViewed(viewed);
-                session.merge(status);
-                return status;
+                return session.merge(status);
             } else {
                 // Get the topic entity
                 CriteriaQuery<ConversationsTopic> topicQuery = cb.createQuery(ConversationsTopic.class);
@@ -93,7 +92,7 @@ public class TopicStatusRepositoryImpl extends SpringCrudRepositoryImpl<TopicSta
                 TopicStatus newStatus = new TopicStatus(topic, userId);
                 newStatus.setViewed(viewed);
                 try {
-                    session.save(newStatus);
+                    session.persist(newStatus);
                     return newStatus;
                 } catch (ConstraintViolationException | DataIntegrityViolationException e) {
                     // Another thread created the record first, so let's get it and update it
@@ -105,8 +104,7 @@ public class TopicStatusRepositoryImpl extends SpringCrudRepositoryImpl<TopicSta
                         .orElseThrow(() -> new IllegalStateException("Expected to find TopicStatus after constraint violation"));
                     
                     status.setViewed(viewed);
-                    session.merge(status);
-                    return status;
+                    return session.merge(status);
                 }
             }
         } catch (Exception e) {
