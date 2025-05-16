@@ -2189,7 +2189,10 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
             return Collections.<Tag>emptyList();
         }
 
-        return tagRepository.findBySiteId(siteId);
+        List<Tag> tags = tagRepository.findBySiteId(siteId);
+        // Sort tags alphabetically by label
+        tags.sort((tag1, tag2) -> tag1.getLabel().compareToIgnoreCase(tag2.getLabel()));
+        return tags;
     }
 
     public void deleteTag(Long tagId) throws ConversationsPermissionsException {
