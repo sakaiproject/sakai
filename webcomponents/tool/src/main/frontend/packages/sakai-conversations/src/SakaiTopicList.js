@@ -65,9 +65,9 @@ export class SakaiTopicList extends SakaiElement {
 
     this._hasBookmarked = value.topics.some(t => t.bookmarked);
     this._hasQuestions = value.topics.some(t => t.type === QUESTION);
-    this._hasAnweredQuestions = value.topics.some(t => t.type === QUESTION && t.resolved);
+    this._hasAnsweredQuestions = value.topics.some(t => t.type === QUESTION && t.resolved);
     this._hasDiscussions = value.topics.some(t => t.type === DISCUSSION);
-    this._hasDiscussionsWithPosts = value.topics.some(t => t.type === DISCUSSION && t.posts);
+    this._hasDiscussionsWithPosts = value.topics.some(t => t.type === DISCUSSION && t.numberOfPosts);
     this._hasUnviewed = value.topics.some(t => !t.viewed);
     this._hasModerated = value.topics.some(t => t.hidden || t.locked);
 
@@ -192,11 +192,11 @@ export class SakaiTopicList extends SakaiElement {
               ${this._hasQuestions ? html`
               <option value="${this.BY_QUESTION}">${this._i18n.filter_questions}</option>
               ` : nothing }
-              ${this._hasAnsweredQuestions ? html`
-              <option value="${this.BY_RESOLVED_QUESTION}">${this._i18n.filter_answered}</option>
-              ` : nothing }
               ${this._hasDiscussions ? html`
               <option value="${this.BY_DISCUSSION}">${this._i18n.filter_discussions}</option>
+              ` : nothing }
+              ${this._hasAnsweredQuestions ? html`
+              <option value="${this.BY_RESOLVED_QUESTION}">${this._i18n.filter_answered}</option>
               ` : nothing }
               ${this._hasDiscussionsWithPosts ? html`
               <option value="${this.BY_DISCUSSION_WITH_POSTS}">${this._i18n.filter_discussions_with_posts}</option>
