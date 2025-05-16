@@ -44,6 +44,10 @@ public class UserTrackingDataProvider extends SortableDataProvider<DetailedEvent
 	private static final long serialVersionUID = 1L;
 	@Setter private TrackingParams trackingParams;
 	private boolean hasNextPage = false;
+	
+	// Keep track of the last counts for better pagination display
+	private long lastOffset = 0;
+	private long lastReturnedCount = 0;
 
 	/**
 	 * Constructor
@@ -81,10 +85,6 @@ public class UserTrackingDataProvider extends SortableDataProvider<DetailedEvent
 		
 		return deList.iterator();
 	}
-
-	// Keep track of the last count for better pagination display
-	private long lastOffset = 0;
-	private long lastReturnedCount = 0;
 
 	@Override
 	public long size()
