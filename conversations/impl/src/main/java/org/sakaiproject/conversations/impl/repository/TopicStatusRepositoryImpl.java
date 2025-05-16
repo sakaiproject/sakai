@@ -55,6 +55,7 @@ public class TopicStatusRepositoryImpl extends SpringCrudRepositoryImpl<TopicSta
         return session.createQuery(query).uniqueResultOptional();
     }
     
+    @Override
     @Transactional
     public TopicStatus saveTopicStatus(String topicId, String userId, boolean viewed) {
         Session session = sessionFactory.getCurrentSession();
@@ -76,7 +77,7 @@ public class TopicStatusRepositoryImpl extends SpringCrudRepositoryImpl<TopicSta
             if (status != null) {
                 // Update existing record
                 status.setViewed(viewed);
-                return session.merge(status);
+                return (TopicStatus) session.merge(status);
             } else {
                 // Get the topic entity
                 CriteriaQuery<ConversationsTopic> topicQuery = cb.createQuery(ConversationsTopic.class);
@@ -104,11 +105,11 @@ public class TopicStatusRepositoryImpl extends SpringCrudRepositoryImpl<TopicSta
                         .orElseThrow(() -> new IllegalStateException("Expected to find TopicStatus after constraint violation"));
                     
                     status.setViewed(viewed);
-                    return session.merge(status);
+                    return (TopicStatus) session.merge(status);
                 }
             }
         } catch (Exception e) {
-            log.warn("Error in saveTopicStatus: {}", e.getMessage());
+            log.warn("Error in saveTopicStatus: {}", e.toString());
             throw e;
         }
     }
