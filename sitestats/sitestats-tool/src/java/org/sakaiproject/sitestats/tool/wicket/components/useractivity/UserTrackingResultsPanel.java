@@ -23,6 +23,10 @@ import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulato
 import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.DefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.NavigationToolbar;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractToolbar;
+import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.navigation.paging.IPageable;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
@@ -76,7 +80,76 @@ public class UserTrackingResultsPanel extends Panel
 		resultsTable.setOutputMarkupId(true);
 		resultsTable.setVersioned(false);
 		
+		// Replace default NavigationToolbar with custom one that doesn't show total
+		// First remove any existing NavigationToolbar
+		for (AbstractToolbar toolbar : resultsTable.getTopToolbars()) {
+			if (toolbar instanceof NavigationToolbar) {
+				resultsTable.removeToolbar(toolbar);
+				break;
+			}
+		}
+		
+		// Add our custom toolbar
+		resultsTable.addTopToolbar(new CustomNavigationToolbar(resultsTable));
+		
 		add(resultsTable);
+	}
+	
+	/**
+	 * Custom navigation toolbar that uses a label without "of X" part
+	 */
+	private static class CustomNavigationToolbar extends NavigationToolbar {
+		private static final long serialVersionUID = 1L;
+		
+		public CustomNavigationToolbar(final DataTable<?, ?> table) {
+			super(table);
+		}
+		
+		@Override
+		protected Label newNavigatorLabel(String navigatorId, DataTable<?, ?> table) {
+			return new CustomNavigatorLabel(navigatorId, table);
+		}
+	}
+	
+	/**
+	 * Custom navigator label that only shows "Showing X to Y" without the total
+	 */
+	private static class CustomNavigatorLabel extends Label {
+		private static final long serialVersionUID = 1L;
+		
+		public CustomNavigatorLabel(String id, IPageable pageable) {
+			super(id);
+			setDefaultModel(new CustomLabelModel(pageable));
+		}
+		
+		private static class CustomLabelModel extends Model<String> {
+			private static final long serialVersionUID = 1L;
+			private final IPageable pageable;
+			
+			public CustomLabelModel(IPageable pageable) {
+				this.pageable = pageable;
+			}
+			
+			@Override
+			public String getObject() {
+				// Calculate current "showing X to Y" values
+				long current = pageable.getCurrentPage() * pageable.getItemsPerPage();
+				long first = current + 1;
+				long last = current + ((DataTable<?, ?>)pageable).getItemsPerPage();
+				
+				// Get actual last item index (in case we're on last page with less than full items)
+				if (last > current + ((DataTable<?, ?>)pageable).getRowCount()) {
+					last = current + ((DataTable<?, ?>)pageable).getRowCount();
+				}
+				
+				// No results case
+				if (((DataTable<?, ?>)pageable).getRowCount() == 0) {
+					return "No results found";
+				}
+				
+				return String.format("Showing %d to %d", first, last);
+			}
+		}
 	}
 
 	/**
