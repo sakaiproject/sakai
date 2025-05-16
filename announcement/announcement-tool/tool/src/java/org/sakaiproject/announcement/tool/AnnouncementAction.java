@@ -2135,11 +2135,11 @@ public class AnnouncementAction extends PagedResourceActionII
 		}
 		catch (IdUnusedException e)
 		{
-			log.debug("{}.buildShowMetadataContext()", this, e);
+			log.debug("Unable to find announcement for metadata display", e);
 		}
 		catch (PermissionException e)
 		{
-			log.debug("{}.buildShowMetadataContext()", this, e);
+			log.debug("User doesn't have permission to view announcement", e);
 			addAlert(sstate, rb.getFormattedMessage("java.youmess.pes", e.toString()));
 		}
 		finally {
