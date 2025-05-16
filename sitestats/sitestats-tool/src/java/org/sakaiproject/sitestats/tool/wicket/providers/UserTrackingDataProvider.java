@@ -21,11 +21,9 @@ import java.util.List;
 import lombok.Setter;
 
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.ISortableDataProvider;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 
 import org.sakaiproject.sitestats.api.event.detailed.DetailedEvent;
 import org.sakaiproject.sitestats.api.event.detailed.DetailedEventsManager;
@@ -39,17 +37,13 @@ import org.sakaiproject.sitestats.tool.wicket.models.LoadableDetailedEventModel;
  * A standard SortableDataProvider for User Activity searches.
  * @author plukasew, bjones86
  */
+@Setter
 public class UserTrackingDataProvider extends SortableDataProvider<DetailedEvent, String>
 {
 	private static final long serialVersionUID = 1L;
-	@Setter private TrackingParams trackingParams;
-	private boolean hasNextPage = false;
-	
-	// Keep track of the last counts for better pagination display
-	private long lastOffset = 0;
-	private long lastReturnedCount = 0;
+	private TrackingParams trackingParams;
 
-	/**
+    /**
 	 * Constructor
 	 * @param trackingParams search parameters
 	 */
@@ -64,26 +58,18 @@ public class UserTrackingDataProvider extends SortableDataProvider<DetailedEvent
 	{
 		SortParam<String> sort = getSort();
 		DetailedEventsManager dem = Locator.getFacade().getDetailedEventsManager();
-		
-		// Save for pagination display
-		this.lastOffset = first;
-		
-		// Request one extra item to determine if there are more pages
+
+        // Request one extra item to determine if there are more pages
 		List<DetailedEvent> deList = dem.getDetailedEvents(trackingParams, new PagingParams(first, count + 1),
 			new SortingParams(sort.getProperty(), sort.isAscending()));
 		
 		// Check if we have more pages
-		hasNextPage = false;
-		if (deList.size() > count)
+        if (deList.size() > count)
 		{
-			hasNextPage = true;
-			deList.remove(deList.size() - 1); // Remove the extra item
+            deList.remove(deList.size() - 1); // Remove the extra item
 		}
 
-		// Save for pagination display
-		this.lastReturnedCount = deList.size();
-		
-		return deList.iterator();
+        return deList.iterator();
 	}
 
 	@Override
@@ -99,14 +85,5 @@ public class UserTrackingDataProvider extends SortableDataProvider<DetailedEvent
 	{
 		return new LoadableDetailedEventModel(event);
 	}
-	
 
-	/**
-	 * Returns true if there is a next page based on the last iterator call
-	 * @return true if there are more results
-	 */
-	public boolean hasNextPage()
-	{
-		return hasNextPage;
-	}
 }
