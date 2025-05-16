@@ -155,6 +155,7 @@ export class SakaiCalendar extends LionCalendar {
           </div>
           ${this._daysEvents.map(e => html`
             <div>
+              <sakai-icon type="${e.tool}" size="small"></sakai-icon>
               ${e.url ? html`
                 <a href="${e.url}" role="link" aria-label="${e.title}">
                   <span>${e.title}</span><span> (${e.siteTitle})</span>
@@ -162,7 +163,6 @@ export class SakaiCalendar extends LionCalendar {
               ` : html`
                 <span>${e.title}</span><span> (${e.siteTitle})</span>
               `}
-              <sakai-icon type="${e.tool}" size="small"></sakai-icon>
             </div>
           `)}
         </div>
