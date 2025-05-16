@@ -20,12 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
-import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.AttributeModifier;
 import org.sakaiproject.sitestats.tool.wicket.components.SakaiDataTable;
-import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
@@ -49,8 +46,6 @@ public class UserTrackingResultsPanel extends Panel
 	private final UserTrackingDataProvider provider;
 
 	private String siteID;
-
-	private static final int DEFAULT_PAGE_SIZE = 20;
 
 	private SakaiDataTable resultsTable;
 
