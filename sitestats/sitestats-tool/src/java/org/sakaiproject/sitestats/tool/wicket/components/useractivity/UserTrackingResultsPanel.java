@@ -98,7 +98,7 @@ public class UserTrackingResultsPanel extends Panel
 			super(id, columns, dataProvider, rowsPerPage);
 			
 			// Add CSS class to the table for styling
-			add(new AttributeModifier("class", "sakaiUserTrackingTable"));
+			add(new AttributeModifier("class", "table table-striped table-bordered sakaiUserTrackingTable"));
 			
 			// Add only the toolbars we want with custom CSS classes
 			HeadersToolbar<S> headersToolbar = new HeadersToolbar<>(this, dataProvider);
