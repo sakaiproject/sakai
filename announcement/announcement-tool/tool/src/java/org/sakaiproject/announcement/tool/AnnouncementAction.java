@@ -556,6 +556,8 @@ public class AnnouncementAction extends PagedResourceActionII
 	public String buildMergeContext(VelocityPortlet portlet, Context context, RunData runData, AnnouncementActionState state,
 			SessionState sstate)
 	{
+		// Add resource bundle to velocity context
+		context.put("tlang", rb);
 
 		MergedList mergedAnnouncementList = new MergedList();
 
@@ -570,7 +572,6 @@ public class AnnouncementAction extends PagedResourceActionII
 		// Place this object in the context so that the velocity template
 		// can get at it.
 		context.put(VELOCITY_MERGED_CHANNEL_LIST, mergedAnnouncementList);
-		context.put("tlang", rb);
 		sstate.setAttribute(SSTATE_ATTRIBUTE_MERGED_CHANNELS, mergedAnnouncementList);
 
 		String template = (String) getContext(runData).get("template");
@@ -583,7 +584,7 @@ public class AnnouncementAction extends PagedResourceActionII
 	public String buildReorderContext(VelocityPortlet portlet, Context context, RunData runData, AnnouncementActionState state,
 			SessionState sstate)
 	{
-
+		// Add resource bundle to velocity context
 		context.put("tlang", rb);		
 
 		String template = (String) getContext(runData).get("template");
@@ -610,6 +611,9 @@ public class AnnouncementAction extends PagedResourceActionII
 	 */
 	public String buildMainPanelContext(VelocityPortlet portlet, Context context, RunData rundata, SessionState sstate)
 	{
+		// Add resource bundle to velocity context
+		context.put("tlang", rb);
+
 		// retrieve the state from state object
 		AnnouncementActionState state = (AnnouncementActionState) getState(portlet, rundata, AnnouncementActionState.class);
 
@@ -966,6 +970,9 @@ public class AnnouncementAction extends PagedResourceActionII
 
 	public void buildSortedContext(VelocityPortlet portlet, Context context, RunData rundata, SessionState sstate)
 	{
+		// Add resource bundle to velocity context
+		context.put("tlang", rb);
+
 		//SAK-21532: making one list of messages in order to allow uniform sorting
 		Vector<AnnouncementWrapper> messageList = new Vector<>();
 		Vector showMessagesList = new Vector();
@@ -1101,6 +1108,9 @@ public class AnnouncementAction extends PagedResourceActionII
 	 */
 	public String buildOptionsPanelContext(VelocityPortlet portlet, Context context, RunData runData, SessionState state)
 	{
+		// Add resource bundle to velocity context
+		context.put("tlang", rb);
+
 		// retrieve the state from state object
 		AnnouncementActionState actionState = (AnnouncementActionState) getState(portlet, runData, AnnouncementActionState.class);
 		context.put(CONTEXT_VAR_DISPLAY_OPTIONS, actionState.getDisplayOptions());
@@ -1448,6 +1458,9 @@ public class AnnouncementAction extends PagedResourceActionII
 	 */
 	protected String buildPreviewContext(VelocityPortlet portlet, Context context, RunData rundata, AnnouncementActionState state)
 	{
+		// Add resource bundle to velocity context
+		context.put("tlang", rb);
+
 		context.put("conService", contentHostingService);
 
 		// to get the content Type Image Service
@@ -1607,6 +1620,9 @@ public class AnnouncementAction extends PagedResourceActionII
 	protected String buildReviseAnnouncementContext(VelocityPortlet portlet, Context context, RunData rundata,
 			AnnouncementActionState state, SessionState sstate)
 	{
+		// Add resource bundle to velocity context
+		context.put("tlang", rb);
+
 		context.put("service", contentHostingService);
 		String siteId = ToolManager.getCurrentPlacement().getContext();
 		try {
@@ -1956,6 +1972,9 @@ public class AnnouncementAction extends PagedResourceActionII
 	protected String buildShowMetadataContext(VelocityPortlet portlet, Context context, RunData rundata,
 			AnnouncementActionState state, SessionState sstate)
 	{
+		// Add resource bundle to velocity context
+		context.put("tlang", rb);
+
 		context.put("conService", contentHostingService);
 
 		// to get the content Type Image Service
@@ -2082,9 +2101,9 @@ public class AnnouncementAction extends PagedResourceActionII
 			}
 			MenuBuilder.buildMenuForMetaDataView(portlet, rundata, state.getDisplayOptions(), activeTab, rb, context, menu_new, menu_revise, menu_delete);
 
-			context.put("allow_new", Boolean.valueOf(menu_new));
-			context.put("allow_delete", Boolean.valueOf(menu_delete));
-			context.put("allow_revise", Boolean.valueOf(menu_revise));
+			context.put("allow_new", menu_new);
+			context.put("allow_delete", menu_delete);
+			context.put("allow_revise", menu_revise);
 
 			// navigation bar display control
 			List msgs = (List) sstate.getAttribute(STATE_MESSAGES);
@@ -2116,11 +2135,11 @@ public class AnnouncementAction extends PagedResourceActionII
 		}
 		catch (IdUnusedException e)
 		{
-			if (log.isDebugEnabled()) log.debug("{}.buildShowMetadataContext()", this, e);
+			log.debug("Unable to find announcement for metadata display", e);
 		}
 		catch (PermissionException e)
 		{
-			if (log.isDebugEnabled()) log.debug("{}.buildShowMetadataContext()", this, e);
+			log.debug("User doesn't have permission to view announcement", e);
 			addAlert(sstate, rb.getFormattedMessage("java.youmess.pes", e.toString()));
 		}
 		finally {
@@ -2262,6 +2281,9 @@ public class AnnouncementAction extends PagedResourceActionII
 	 */
 	protected String buildCancelContext(VelocityPortlet portlet, Context context, RunData rundata, AnnouncementActionState state)
 	{
+		// Add resource bundle to velocity context
+		context.put("tlang", rb);
+
 		// buildNormalContext(portlet, context, rundata);
 
 		String template = (String) getContext(rundata).get("template");
@@ -2275,6 +2297,9 @@ public class AnnouncementAction extends PagedResourceActionII
 	protected String buildBulkOperationContext(VelocityPortlet portlet, Context context, RunData rundata,
 			AnnouncementActionState state, BulkOperation operation)
 	{
+		// Add resource bundle to velocity context
+		context.put("tlang", rb);
+
 		Collection<AnnouncementMessage> messages = state.getDeleteMessages();
 		context.put("delete_messages", messages.iterator());
 

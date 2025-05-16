@@ -25,6 +25,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -40,6 +41,7 @@ import java.util.Stack;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -1050,56 +1052,42 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 	 */
 	public List <Message> filterGroupAccess(List <Message> msgs, String context, String reference) {
 		// check for the allowed groups of the current end use if we need it, and only once
-		List filtered = new Vector();
-		Collection allowedGroups = null;
-		
-		for (int i = 0; i < msgs.size(); i++)
-		{
-			Message msg = (Message) msgs.get(i);
+		List<Message> filtered = new ArrayList<>();
+		Collection<Group> allowedGroups = null;
 
+		for (Message msg : msgs) {
 			// if grouped, check that the end user has get access to any of this message's groups; reject if not
-			if (msg.getHeader().getAccess() == MessageHeader.MessageAccess.GROUPED)
-			{
+			if (msg.getHeader().getAccess() == MessageHeader.MessageAccess.GROUPED) {
 				// check the message's groups to the allowed (get) groups for the current user
-				Collection msgGroups = msg.getHeader().getGroups();
+				Collection<String> msgGroups = msg.getHeader().getGroups();
 
 				// we need the allowed groups, so get it if we have not done so yet
-				if (allowedGroups == null)
-				{
+				if (allowedGroups == null) {
 					allowedGroups = getGroupsAllowFunction(SECURE_READ, context, reference);
 				}
 
 				// reject if there is no intersection in groups, but go through and validate special case
 				if (!isIntersectionGroupRefsToGroups(msgGroups, allowedGroups)) {
-					User currentUsr=null;
+					User currentUsr = null;
 					try {
 						currentUsr = userDirectoryService.getUser(sessionManager.getCurrentSessionUserId());
-
 					} catch (UserNotDefinedException e1) {
-						// TODO Auto-generated catch block
-						log.info("User Not Defined: " + e1.getMessage());
+						log.info("User Not Defined: {}", e1.toString());
 					}
-					
-//					boolean isViewingAs = (m_securityService.getUserEffectiveRole(context) != null);
-					
+
 					//its possible the user wasn't found above
-					String userId = "";
-					if (currentUsr != null) {
-						userId = currentUsr.getId();
-					}
-					
-					//If user is not instructor 
-					
+					String userId = currentUsr != null ? currentUsr.getId() : "";
+
+					//If user is not instructor
 					Site site = null;
 					try {
 						site = siteService.getSite(context);
 					} catch (IdUnusedException e) {
-						// TODO Auto-generated catch block
-						log.debug("Site not found for " + context + " " + e.getMessage());
+						log.debug("Site not found for {} {}", context, e.toString());
 					}
 
-					if (!canSeeAllGroups(userId, site)){
-						continue;	
+					if (!canSeeAllGroups(userId, site)) {
+						continue;
 					}
 				}
 			}
@@ -1118,22 +1106,11 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 	 *        The collection (Group) of group objects.
 	 * @return true if there is interesection, false if not.
 	 */
-	protected boolean isIntersectionGroupRefsToGroups(Collection groupRefs, Collection groups)
+	protected boolean isIntersectionGroupRefsToGroups(Collection<String> groupRefs, Collection<Group> groups)
 	{
-		for (Iterator iRefs = groupRefs.iterator(); iRefs.hasNext();)
-		{
-			String findThisGroupRef = (String) iRefs.next();
-			for (Iterator iGroups = groups.iterator(); iGroups.hasNext();)
-			{
-				String thisGroupRef = ((Group) iGroups.next()).getReference();
-				if (thisGroupRef.equals(findThisGroupRef))
-				{
-					return true;
-				}
-			}
-		}
-
-		return false;
+		return groups.stream()
+			.map(Group::getReference)
+			.anyMatch(groupRefs::contains);
 	}
 	
 	/**
@@ -1145,7 +1122,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 	 */
 	protected Collection<Group> getGroupsAllowFunction(String function, String m_context, String reference)
 	{
-		Collection<Group> rv = new Vector<Group>();
+		Collection<Group> rv = new ArrayList<>();
 
 		try
 		{
@@ -1161,31 +1138,19 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			}
 
 			// otherwise, check the groups for function
-
 			// get a list of the group refs, which are authzGroup ids
-			Collection<String> groupRefs = new Vector<String>();
-			for (Iterator<Group> i = groups.iterator(); i.hasNext();)
-			{
-				Group group = (Group) i.next();
-				groupRefs.add(group.getReference());
-			}
+			Set<String> groupRefs = groups.stream().map(Group::getReference).collect(Collectors.toSet());
 
 			// ask the authzGroup service to filter them down based on function
-			groupRefs = authzGroupService.getAuthzGroupsIsAllowed(sessionManager.getCurrentSessionUserId(),
+			final Set<String> finalGroupRefs = authzGroupService.getAuthzGroupsIsAllowed(sessionManager.getCurrentSessionUserId(),
 					eventId(function), groupRefs);
 
-			// pick the Group objects from the site's groups to return, those that are in the groupRefs list
-			for (Iterator<Group> i = groups.iterator(); i.hasNext();)
-			{
-				Group group = (Group) i.next();
-				if (groupRefs.contains(group.getReference()))
-				{
-					rv.add(group);
-				}
-			}
+			// pick the Group objects from the site's groups to return, those that are in the finalGroupRefs list
+			groups.stream().filter(g -> finalGroupRefs.contains(g.getReference())).forEach(rv::add);
 		}
 		catch (IdUnusedException e)
 		{
+			log.warn("getGroupsAllowFunction: site not found for {} {}", m_context, e.toString());
 		}
 
 		return rv;
@@ -1193,9 +1158,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 	
 	protected boolean canSeeAllGroups(String userId, Site site){
 		if(site != null && site.getMember(userId) != null){
-			if(securityService.unlock(userId, eventId(SECURE_ALL_GROUPS), siteService.siteReference(site.getId()))){
-				return true;
-			}
+            return securityService.unlock(userId, eventId(SECURE_ALL_GROUPS), siteService.siteReference(site.getId()));
 		}
 		return false;
 	}
