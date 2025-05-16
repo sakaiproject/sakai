@@ -27,7 +27,9 @@
 						<xsl:value-of select="PARTICIPANTS/SITE_TITLE" /> - Page <fo:page-number />
 					</fo:block>
 				</fo:static-content>
-				<fo:static-content flow-name="xsl-region-after"> </fo:static-content>
+				<fo:static-content flow-name="xsl-region-after">
+					<fo:block></fo:block>
+				</fo:static-content>
 				<fo:flow flow-name="xsl-region-body" font-size="9pt">
 					<fo:table table-layout="fixed" width="7.5in">
 						<fo:table-column column-width="2.5in" />

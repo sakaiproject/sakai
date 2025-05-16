@@ -33,6 +33,7 @@ import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 import javax.faces.model.SelectItem;
 
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -63,17 +64,9 @@ import org.sakaiproject.util.api.FormattedText;
  * @version $Id$
  */
 @Slf4j
-public class SaveAssessmentSettingsListener
-    implements ActionListener
+@NoArgsConstructor
+public class SaveAssessmentSettingsListener implements ActionListener
 {
-
-	private GradingService gradingService;
-  //private static final GradebookServiceHelper gbsHelper = IntegrationContextFactory.getInstance().getGradebookServiceHelper();
-  //private static final boolean integrated = IntegrationContextFactory.getInstance().isIntegrated();
-
-  public SaveAssessmentSettingsListener()
-  {
-  }
 
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
@@ -101,13 +94,19 @@ public class SaveAssessmentSettingsListener
 	context.addMessage(null,new FacesMessage(nameUnique_err));
 	error=true;
     }
-    
-    // check if start date is valid
+
+	// check if either a valid due date is set OR late submissions are allowed and a valid retract date is set
+	boolean hasDueDate = assessmentSettings.getDueDate() != null;
+	boolean allowsLateSubmission = AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.toString().equals(assessmentSettings.getLateHandling());
+	boolean hasRetractDate = assessmentSettings.getRetractDate() != null;
+
+	// check if start date is valid
     if(!assessmentSettings.getIsValidStartDate()){
     	String startDateErr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","invalid_start_date");
     	context.addMessage(null,new FacesMessage(startDateErr));
     	error=true;
     }
+
     // check if due date is valid
     if(!assessmentSettings.getIsValidDueDate()){
     	String dueDateErr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","invalid_due_date");
@@ -115,12 +114,19 @@ public class SaveAssessmentSettingsListener
     	error=true;
     }
 
-    // check if RetractDate needs to be nulled if not accepting late submissions
+	// check that due date is after start date
+	if (!assessmentSettings.isDueAfterStart()) {
+		String dueDateErr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "due_earlier_than_available");
+		context.addMessage(null, new FacesMessage(dueDateErr));
+		error = true;
+	}
+
+	// check if RetractDate needs to be nulled if not accepting late submissions
     if (AssessmentAccessControlIfc.NOT_ACCEPT_LATE_SUBMISSION.toString().equals(assessmentSettings.getLateHandling())){
         assessmentSettings.setRetractDateString(null);
     }
 
-    if(assessmentSettings.getDueDate() == null && assessmentSettings.getRetractDate() != null && AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.toString().equals(assessmentSettings.getLateHandling())){
+	if (!hasDueDate && hasRetractDate && allowsLateSubmission) {
         String dueDateErr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "due_null_with_retract_date");
         context.addMessage(null,new FacesMessage(dueDateErr));
         error = true;
@@ -138,6 +144,13 @@ public class SaveAssessmentSettingsListener
     	String retractDateErr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "retract_earlier_than_due");
     	context.addMessage(null, new FacesMessage(retractDateErr));
     	error = true;
+    }
+
+	// check if both due and retract date are set and if late submissions are allowed
+    if (!hasDueDate && !(allowsLateSubmission && hasRetractDate)) {
+        String settingsErr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "due_retract_with_late_error");
+        context.addMessage(null, new FacesMessage(settingsErr));
+        error = true;
     }
 
     // if using a time limit, ensure open window is greater than or equal to time limit

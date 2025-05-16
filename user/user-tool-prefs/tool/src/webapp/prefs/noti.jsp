@@ -82,10 +82,8 @@
 	      					</h:column>
 	      					<h:column>
 	      						<h:outputText value="&nbsp;" escape="false" />
-	      						<h:outputText onclick="javascript:removeOverride(this);" id="deleteImage" 
-	      							styleClass="bi bi-trash cursor-pointer" 
-	      							escape="false" 
-	      							value="" />
+	      						<h:panelGroup onclick="javascript:removeOverride(this);" id="deleteImage"
+	      							styleClass="bi bi-trash cursor-pointer" />
 	      						<t:inputHidden id="shouldRemove" forceId="true" value="#{decoOverrideSite.remove}" />
 	      					</h:column>
 	      				</h:dataTable>

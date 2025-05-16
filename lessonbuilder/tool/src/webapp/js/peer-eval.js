@@ -119,13 +119,14 @@ $(function() {
     };
 
     $("#addRowBtn").click(function () {
-      addEmptyCategoryRow("#peer-eval-create-table", 2);
+      addEmptyCategoryRow("#peer-eval-create-table", -1);
     });
 
     buildExistingRubrics = function (rubric) {
 
       $form = $(".peer-eval-create-form");
       $(".peer-eval-input-title").val(rubric.title);
+      $("#peer-eval-create-table tbody tr").remove();
       for (let i = 0; i < rubric.rows.length; i++) {
         addCategoryRow("#peer-eval-create-table", rubric.rows[i].text, rubric.rows[i].id);
       }
