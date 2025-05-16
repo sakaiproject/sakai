@@ -120,22 +120,9 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 	private ReportFormattedParams	formattedParams	= new ReportFormattedParamsImpl();
 
 	/** FOP */
-	private static final FopFactory fopFactory;
+	private FopFactory fopFactory;
 	private Templates cachedXmlFoXSLT = null;
 	private static final String XML_FO_XSL_FILE = "xmlReportToFo.xsl";
-
-	// Static initialization block for the thread-safe FopFactory
-	static {
-		// Create a factory with default configuration
-		// We're using a safe, absolute URI that doesn't depend on current directory
-		try {
-			fopFactory = FopFactory.newInstance(new File(System.getProperty("java.io.tmpdir")).toURI());
-		} catch (Exception e) {
-			// Log error but allow class to load - will throw exception at runtime if used
-			log.error("Failed to initialize FOP factory", e);
-			throw new RuntimeException("Failed to initialize FOP factory", e);
-		}
-	}
 
 	/** Date formatters. */
 	private SimpleDateFormat		dateMonthFrmt 	= new SimpleDateFormat("yyyy-MM");
@@ -166,6 +153,17 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		// Initialize cacheReportDef and event observer for cacheReportDef invalidation across cluster
 		eventTrackingService.addPriorityObserver(this);
 		cacheReportDef = memoryService.getCache(ReportDef.class.getName());
+		
+		// Initialize FopFactory (moved from static initializer)
+		// Create a factory with default configuration
+		// We're using a safe, absolute URI that doesn't depend on current directory
+		try {
+			fopFactory = FopFactory.newInstance(new File(System.getProperty("java.io.tmpdir")).toURI());
+			log.debug("FOP factory initialized successfully");
+		} catch (Exception e) {
+			log.error("Failed to initialize FOP factory", e);
+			throw new RuntimeException("Failed to initialize FOP factory", e);
+		}
 	}
 	
 	public void destroy(){
