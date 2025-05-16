@@ -65,4 +65,13 @@ public interface DetailedEventsManager
 	 * @return a List of user uuids from the site who can be tracked
 	 */
 	public List<String> getUsersForTracking(String siteID);
+	
+	/**
+	 * Returns the total count of detailed events matching the given tracking parameters.
+	 * This is used for accurate pagination.
+	 * 
+	 * @param trackingParams parameters related to site, user, event types, and date range.
+	 * @return the total count of matching events
+	 */
+	public long getDetailedEventsCount(final TrackingParams trackingParams);
 }

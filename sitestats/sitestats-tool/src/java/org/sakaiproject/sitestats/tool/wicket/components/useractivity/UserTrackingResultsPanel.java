@@ -21,6 +21,8 @@ import java.util.List;
 
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
+import org.apache.wicket.AttributeModifier;
+import org.sakaiproject.sitestats.tool.wicket.components.SakaiDataTable;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
@@ -31,11 +33,10 @@ import org.sakaiproject.sitestats.api.event.detailed.TrackingParams;
 import org.sakaiproject.sitestats.tool.facade.Locator;
 import org.sakaiproject.sitestats.tool.wicket.components.SakaiResponsiveAbstractColumn;
 import org.sakaiproject.sitestats.tool.wicket.components.SakaiResponsivePropertyColumn;
-import org.sakaiproject.sitestats.tool.wicket.components.paging.infinite.SakaiInfinitePagingDataTable;
 import org.sakaiproject.sitestats.tool.wicket.providers.UserTrackingDataProvider;
 
 /**
- * Panel displaying the results of a User Activity search using a SakaiInfinitePagingDataTable
+ * Panel displaying the results of a User Activity search using standard Wicket DataTable
  * @author plukasew, bjones86
  */
 public class UserTrackingResultsPanel extends Panel
@@ -46,9 +47,7 @@ public class UserTrackingResultsPanel extends Panel
 
 	private String siteID;
 
-	private static final int DEFAULT_PAGE_SIZE = 20;
-
-	private SakaiInfinitePagingDataTable resultsTable;
+	private SakaiDataTable resultsTable;
 
 	/**
 	 * Constructor
@@ -60,15 +59,27 @@ public class UserTrackingResultsPanel extends Panel
 		super(id);
 		siteID = trackingParams.siteId;
 		provider = new UserTrackingDataProvider(trackingParams);
+		
+		// Add a CSS class to the panel for styling
+		add(new AttributeModifier("class", "sakaiUserTrackingPanel"));
 	}
 
 	@Override
 	protected void onInitialize()
 	{
 		super.onInitialize();
-		resultsTable = new SakaiInfinitePagingDataTable("table", getTableColumns(), provider, DEFAULT_PAGE_SIZE);
+		
+		// Create a standard data table with Sakai navigation
+		resultsTable = new SakaiDataTable(
+			"table", (List)getTableColumns(), provider, true);
+		
+		resultsTable.setOutputMarkupId(true);
+		resultsTable.setVersioned(false);
+		resultsTable.add(new AttributeModifier("class", "table table-hover table-striped table-bordered userTrackingResults sakai-cardTable640"));
+		
 		add(resultsTable);
 	}
+	
 
 	/**
 	 * Sets the parameters to use for the search. Resets paging back to the first page since search params have changed.
@@ -78,12 +89,12 @@ public class UserTrackingResultsPanel extends Panel
 	{
 		provider.setTrackingParams(value);
 		siteID = value.siteId;
-		resultsTable.setOffset(0); // new params, reset paging
+		resultsTable.setCurrentPage(0); // new params, reset paging
 	}
 
-	private List<IColumn> getTableColumns()
+	private List<IColumn<DetailedEvent, String>> getTableColumns()
 	{
-		List<IColumn> cols = new ArrayList<>();
+		List<IColumn<DetailedEvent, String>> cols = new ArrayList<>();
 
 		cols.add(new SakaiResponsivePropertyColumn<DetailedEvent, String>(new ResourceModel("de_resultsTable_timestamp"), "eventDate", "eventDate")
 		{
