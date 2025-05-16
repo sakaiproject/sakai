@@ -227,7 +227,6 @@ allsites.setup = function () {
         .forEach(el => el.style.display = "none");
 
       const matchedSites = Array.from(sidebar.querySelectorAll(".fav-sites-entry")).filter(el => {
-        console.log(el);
         return el.querySelector(".fav-title a span.fullTitle").textContent.toLowerCase().indexOf(queryString) >= 0;
       });
 

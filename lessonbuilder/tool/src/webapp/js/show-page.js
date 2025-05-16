@@ -889,7 +889,7 @@ $(document).ready(function () {
         const categoryText = $(".peerReviewText" , $(this)).text();
         rubric.rows.push({"id":categoryId , "text":categoryText});
       });
-      rubric.title = row.find(".peer-eval-title").text();
+      rubric.title = (row.find(".peer-eval-row").text())?row.find(".peer-eval-row").text():"";
       buildExistingRubrics(rubric);
 
       const forcedAnon = row.find(".forcedAnon").text();
@@ -2916,6 +2916,11 @@ function xCloseAddMultimediaDialog() {
   $("#mm-error").text('');
   $("#mm-error-container").hide();
   accumulatedFileSize = 0; 
+
+  //close the modal
+  const addmmdialogEl = document.querySelector("#add-multimedia-dialog");
+  const modal = bootstrap.Modal.getInstance(addmmdialogEl);
+  modal && modal.hide();
 }
 
 function setCollapsedStatus(header, collapse) {
