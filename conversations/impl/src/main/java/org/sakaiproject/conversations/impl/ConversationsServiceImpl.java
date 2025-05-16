@@ -820,10 +820,8 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
 
         String currentUserId = getCheckedCurrentUserId();
 
-        ConversationsTopic topic = topicRepository.getReferenceById(topicId);
-
-        TopicStatus topicStatus = topicStatusRepository.findByTopicIdAndUserId(topicId, currentUserId)
-            .orElseGet(() -> new TopicStatus(topic, currentUserId));
+        // Using our safer method to handle concurrent creation/update
+        TopicStatus topicStatus = topicStatusRepository.saveTopicStatus(topicId, currentUserId, false);
         topicStatus.setBookmarked(bookmarked);
         topicStatusRepository.save(topicStatus);
     }
@@ -1101,8 +1099,8 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
             topicRepository.save(topic);
         }
 
-        TopicStatus topicStatus = topicStatusRepository.findByTopicIdAndUserId(topic.getId(), currentUserId)
-            .orElse(new TopicStatus(topic, currentUserId));
+        // Using the safer method to handle concurrent updates
+        TopicStatus topicStatus = topicStatusRepository.saveTopicStatus(topic.getId(), currentUserId, false);
         topicStatus.setPosted(true);
         boolean topicWasViewed = topicStatus.getViewed();
         topicStatusRepository.save(topicStatus);
@@ -1674,15 +1672,8 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
             .findByTopicIdAndUserIdAndViewed(topicId, currentUserId, true).stream().count();
         long numberOfUnreadPosts = numberOfPosts - read;
 
-        TopicStatus topicStatus = topicStatusRepository.findByTopicIdAndUserId(topicId, currentUserId)
-            .orElseGet(() -> new TopicStatus(topic, currentUserId));
-        topicStatus.setViewed(numberOfUnreadPosts == 0L);
-        try {
-            topicStatusRepository.save(topicStatus);
-        } catch (PersistenceException pe) {
-            log.debug("Caught an exception while saving topic status. This can happen "
-                    + "due to the way the client detects posts scrolling into view", pe);
-        }
+        // Using the new method that handles concurrent updates with a safer approach
+        topicStatusRepository.saveTopicStatus(topicId, currentUserId, numberOfUnreadPosts == 0L);
 
         Map<String, Map<String, Object>> topicCache = postsCache.get(topicId);
         if (topicCache != null) topicCache.remove(currentUserId);
@@ -2189,7 +2180,10 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
             return Collections.<Tag>emptyList();
         }
 
-        return tagRepository.findBySiteId(siteId);
+        List<Tag> tags = tagRepository.findBySiteId(siteId);
+        // Sort tags alphabetically by label
+        tags.sort((tag1, tag2) -> tag1.getLabel().compareToIgnoreCase(tag2.getLabel()));
+        return tags;
     }
 
     public void deleteTag(Long tagId) throws ConversationsPermissionsException {

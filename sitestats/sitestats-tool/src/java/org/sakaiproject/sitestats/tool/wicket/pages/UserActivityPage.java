@@ -206,7 +206,8 @@ public class UserActivityPage extends BasePage
 				Locator.getFacade().getStatsManager().logEvent(new UserId(user), StatsManager.LOG_ACTION_TRACK, siteId, false);
 			}
 		};
-		//searchButton.setEnabled(false);
+		searchButton.setOutputMarkupId(true);
+		searchButton.setEnabled(false);
 		form.add(searchButton);
 	}	// onInitialize()
 }
