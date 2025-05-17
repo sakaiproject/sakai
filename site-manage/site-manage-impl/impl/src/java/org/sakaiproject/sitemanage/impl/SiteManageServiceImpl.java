@@ -403,8 +403,6 @@ public class SiteManageServiceImpl implements SiteManageService {
 			return;
 		}
 
-        System.out.println("Importing tools into site " + site.getId());
-
 		//if add missing tools is enabled, add the tools ito the site before importing content
 		if (isAddMissingToolsOnImportEnabled()) {
 
