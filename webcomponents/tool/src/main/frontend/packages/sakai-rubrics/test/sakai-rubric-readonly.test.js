@@ -43,7 +43,7 @@ describe("sakai-rubric-readonly tests", () => {
     expect(el.querySelector(".delete-rubric-button")).to.exist;
 
     // Test the toggling of the criteria
-    const toggleEl = el.querySelector(`#rubric-toggle-shared-${el.rubric.id}`);
+    const toggleEl = el.querySelector(".rubric-toggle");
     expect(toggleEl).to.exist;
 
     // Wait until the bootstrap Collapse is shown

@@ -33,6 +33,10 @@ describe("sakai-rubric-criteria tests", () => {
     await waitUntil(() => el._i18n);
     await el.updateComplete;
 
+    el.querySelector(".rubric-toggle").click();
+
+    await el.updateComplete;
+
     // Check initial ordering (should be id 5 then 6)
     let reorderableRows = el.querySelectorAll("div.criterion-row");
     expect(reorderableRows[0].getAttribute('data-criterion-id')).to.equal(String(data.criteria3[0].id));
