@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.lti.impl.model;
+package org.sakaiproject.lti.api.model;
 
 import java.time.Instant;
 
@@ -32,24 +32,21 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Simplified JPA mapping of the LTI content model.
+ * Simplified JPA mapping of the LTI tool model.
  */
 @Entity
-@Table(name = "LTI_CONTENT")
+@Table(name = "LTI_TOOLS")
 @Getter
 @Setter
-public class LtiContent implements PersistableEntity<Long> {
+public class LtiTool implements PersistableEntity<Long> {
 
     @Id
     @Column(name = "ID")
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "lti_content_id_sequence")
-    @SequenceGenerator(name = "lti_content_id_sequence", sequenceName = "LTI_CONTENT_S")
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "lti_tools_id_sequence")
+    @SequenceGenerator(name = "lti_tools_id_sequence", sequenceName = "LTI_TOOLS_S")
     private Long id;
 
-    @Column(name = "TOOL_ID")
-    private Long toolId;
-
-    @Column(name = "SITE_ID", length = 99, nullable = false)
+    @Column(name = "SITE_ID", length = 99)
     private String siteId;
 
     @Column(name = "TITLE", length = 1024, nullable = false)
@@ -58,29 +55,29 @@ public class LtiContent implements PersistableEntity<Long> {
     @Column(name = "DESCRIPTION", length = 4096)
     private String description;
 
+    @Column(name = "LAUNCH", length = 1024, nullable = false)
+    private String launch;
+
+    @Column(name = "VISIBLE")
+    private Integer visible;
+
+    @Column(name = "CONSUMERKEY", length = 1024)
+    private String consumerKey;
+
+    @Column(name = "SECRET", length = 1024)
+    private String secret;
+
     @Column(name = "FRAMEHEIGHT")
     private Integer frameHeight;
 
-    @Column(name = "NEWPAGE")
-    private Boolean newpage;
+    @Column(name = "ALLOWOUTCOMES")
+    private Boolean allowOutcomes;
 
-    @Column(name = "PROTECT")
-    private Boolean protect;
+    @Column(name = "ALLOWLINEITEMS")
+    private Boolean allowLineitems;
 
-    @Column(name = "DEBUG")
-    private Boolean debug;
-
-    @Column(name = "CUSTOM", length = 16384)
-    private String custom;
-
-    @Column(name = "PLACEMENT", length = 256)
-    private String placement;
-
-    @Column(name = "PLACEMENTSECRET", length = 512)
-    private String placementSecret;
-
-    @Column(name = "OLDPLACEMENTSECRET", length = 512)
-    private String oldPlacementSecret;
+    @Column(name = "ALLOWROSTER")
+    private Boolean allowRoster;
 
     @Type(type = "org.hibernate.type.InstantType")
     @Column(name = "CREATED_AT")

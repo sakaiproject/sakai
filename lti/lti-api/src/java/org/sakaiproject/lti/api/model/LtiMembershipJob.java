@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.lti.impl.model;
+package org.sakaiproject.lti.api.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -36,7 +36,23 @@ public class LtiMembershipJob implements PersistableEntity<String> {
 
     @Id
     @Column(name = "SITE_ID", length = 99)
-    private String siteId;
+    private String id;  // This is both the ID and the site ID
+
+    /**
+     * Gets the site ID (same as the ID).
+     * @return the site ID
+     */
+    public String getSiteId() {
+        return id;
+    }
+
+    /**
+     * Sets the site ID (same as the ID).
+     * @param siteId the site ID
+     */
+    public void setSiteId(String siteId) {
+        this.id = siteId;
+    }
 
     @Column(name = "MEMBERSHIPS_ID", length = 256, nullable = false)
     private String membershipsId;

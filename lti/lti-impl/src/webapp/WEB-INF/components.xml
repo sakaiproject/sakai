@@ -11,10 +11,10 @@
         class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
         <property name="annotatedClasses">
             <list>
-                <value>org.sakaiproject.lti.impl.model.LtiTool</value>
-                <value>org.sakaiproject.lti.impl.model.LtiContent</value>
-                <value>org.sakaiproject.lti.impl.model.LtiToolSite</value>
-                <value>org.sakaiproject.lti.impl.model.LtiMembershipJob</value>
+                <value>org.sakaiproject.lti.api.model.LtiTool</value>
+                <value>org.sakaiproject.lti.api.model.LtiContent</value>
+                <value>org.sakaiproject.lti.api.model.LtiToolSite</value>
+                <value>org.sakaiproject.lti.api.model.LtiMembershipJob</value>
             </list>
         </property>
     </bean>
