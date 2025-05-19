@@ -827,7 +827,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	
 	/** vm files for each mode. */
 	private static final String TEMPLATE_DAV = "content/chef_resources_webdav";
-	
+
 	private static final String TEMPLATE_QUOTA = "resources/sakai_quota";
 
 	private static final String TEMPLATE_DELETE_CONFIRM = "content/chef_resources_deleteConfirm";
@@ -4871,7 +4871,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		String reference = (String) state.getAttribute("folder_group_reference");
 		String overrideReference = null;
 		if (StringUtils.isNotBlank(reference)) {
-			overrideReference = contentHostingService.getContainingCollectionId(reference);
+			// Skip getting containing collection for site root paths
+			// Site root paths look like /content/group/site-id/
+			if (!reference.matches("/content/group/[^/]+/$")) {
+				overrideReference = contentHostingService.getContainingCollectionId(reference);
+			}
 		}
 
 		String folderName = (String) state.getAttribute("folder_name");
@@ -6229,7 +6233,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 						noti = NotificationService.NOTI_OPTIONAL;
 					}
 				}
-				
+
 				List<String> alerts = item.checkRequiredProperties(copyrightManager);
 
 				if(alerts.isEmpty())
@@ -6244,11 +6248,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 						    iAction.finalizeAction(entityManager.newReference(contentHostingService.getReference(resource.getId())), pipe.getInitializationId());
 						}
 						toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
-		
+
 						// show folder if in hierarchy view
 						Set<String> expandedCollections = getExpandedCollections(state);
 						expandedCollections.add(collectionId);
-		
+
 						state.setAttribute(STATE_MODE, MODE_LIST);
 					}
 					catch(OverQuotaException e)
