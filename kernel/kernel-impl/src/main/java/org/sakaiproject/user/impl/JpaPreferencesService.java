@@ -30,6 +30,7 @@ public class JpaPreferencesService extends BasePreferencesService {
 
     @Override
     protected Storage newStorage() {
+        log.info("Creating new JPA-based preferences storage implementation");
         return new JpaStorage();
     }
     
