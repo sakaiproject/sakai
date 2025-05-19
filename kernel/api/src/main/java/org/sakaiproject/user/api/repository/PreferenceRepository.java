@@ -5,6 +5,4 @@ import org.sakaiproject.user.api.model.Preference;
 
 public interface PreferenceRepository extends SpringCrudRepository<Preference, String> {
     // All methods are inherited from SpringCrudRepository
-    // The save method signature from the parent interface is:
-    // <S extends T> S save(S entity);
 }
