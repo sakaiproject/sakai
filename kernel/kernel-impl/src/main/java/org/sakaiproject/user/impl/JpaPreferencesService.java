@@ -91,56 +91,82 @@ public class JpaPreferencesService extends BasePreferencesService {
     @lombok.RequiredArgsConstructor
     protected class JpaStorage implements Storage {
 
-        public void open() {}
+        public void open() {
+            // Nothing to do here for JPA implementation
+        }
 
         public void close() {}
 
         public boolean check(String id) {
-            return preferenceRepository.existsById(id);
+            try {
+                return preferenceRepository.existsById(id);
+            } catch (Exception e) {
+                log.warn("Error checking preference existence for id {}: {}", id, e.getMessage());
+                return false;
+            }
         }
 
         public Preferences get(String id) {
-            Optional<Preference> opt = preferenceRepository.findById(id);
-            if (!opt.isPresent()) return null;
-            Preference pref = opt.get();
-            if (pref.getXml() == null) return new BasePreferences(id);
-            Document doc = StorageUtils.readDocumentFromString(pref.getXml());
-            if (doc == null) return new BasePreferences(id);
-            Element el = doc.getDocumentElement();
-            return new BasePreferences(el);
+            try {
+                Optional<Preference> opt = preferenceRepository.findById(id);
+                if (!opt.isPresent()) return null;
+                Preference pref = opt.get();
+                if (pref.getXml() == null) return new BasePreferences(id);
+                Document doc = StorageUtils.readDocumentFromString(pref.getXml());
+                if (doc == null) return new BasePreferences(id);
+                Element el = doc.getDocumentElement();
+                return new BasePreferences(el);
+            } catch (Exception e) {
+                log.warn("Error retrieving preference for id {}: {}", id, e.getMessage());
+                return new BasePreferences(id);
+            }
         }
 
         public PreferencesEdit put(String id) {
-            if (preferenceRepository.existsById(id)) return null;
-            BasePreferences pref = new BasePreferences(id);
-            pref.activate();
-            return pref;
+            try {
+                if (preferenceRepository.existsById(id)) return null;
+                BasePreferences pref = new BasePreferences(id);
+                pref.activate();
+                return pref;
+            } catch (Exception e) {
+                log.warn("Error creating new preference for id {}: {}", id, e.getMessage());
+                return null;
+            }
         }
 
         public PreferencesEdit edit(String id) {
-            Optional<Preference> opt = preferenceRepository.findById(id);
-            if (!opt.isPresent()) return null;
-            Preference pref = opt.get();
-            BasePreferences bp;
-            if (pref.getXml() == null) {
-                bp = new BasePreferences(id);
-            } else {
-                Document doc = StorageUtils.readDocumentFromString(pref.getXml());
-                if (doc == null) return null;
-                bp = new BasePreferences(doc.getDocumentElement());
+            try {
+                Optional<Preference> opt = preferenceRepository.findById(id);
+                if (!opt.isPresent()) return null;
+                Preference pref = opt.get();
+                BasePreferences bp;
+                if (pref.getXml() == null) {
+                    bp = new BasePreferences(id);
+                } else {
+                    Document doc = StorageUtils.readDocumentFromString(pref.getXml());
+                    if (doc == null) return null;
+                    bp = new BasePreferences(doc.getDocumentElement());
+                }
+                bp.activate();
+                return bp;
+            } catch (Exception e) {
+                log.warn("Error editing preference for id {}: {}", id, e.getMessage());
+                return null;
             }
-            bp.activate();
-            return bp;
         }
 
         public void commit(PreferencesEdit edit) {
-            Document doc = StorageUtils.createDocument();
-            ((BasePreferences) edit).toXml(doc, new Stack<>());
-            String xml = StorageUtils.writeDocumentToString(doc);
-            Preference pref = preferenceRepository.findById(edit.getId()).orElse(new Preference());
-            pref.setId(edit.getId());
-            pref.setXml(xml);
-            preferenceRepository.save(pref);
+            try {
+                Document doc = StorageUtils.createDocument();
+                ((BasePreferences) edit).toXml(doc, new Stack<>());
+                String xml = StorageUtils.writeDocumentToString(doc);
+                Preference pref = preferenceRepository.findById(edit.getId()).orElse(new Preference());
+                pref.setId(edit.getId());
+                pref.setXml(xml);
+                preferenceRepository.save(pref);
+            } catch (Exception e) {
+                log.warn("Error committing preference edit for id {}: {}", edit.getId(), e.getMessage());
+            }
         }
 
         public void cancel(PreferencesEdit edit) {
@@ -148,7 +174,11 @@ public class JpaPreferencesService extends BasePreferencesService {
         }
 
         public void remove(PreferencesEdit edit) {
-            preferenceRepository.deleteById(edit.getId());
+            try {
+                preferenceRepository.deleteById(edit.getId());
+            } catch (Exception e) {
+                log.warn("Error removing preference for id {}: {}", edit.getId(), e.getMessage());
+            }
         }
     }
 }
