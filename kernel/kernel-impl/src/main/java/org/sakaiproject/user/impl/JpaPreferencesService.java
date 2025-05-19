@@ -3,8 +3,6 @@ package org.sakaiproject.user.impl;
 import java.util.Optional;
 import java.util.Stack;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -27,11 +25,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class JpaPreferencesService extends BasePreferencesService {
 
+    @Setter
     private PreferenceRepository preferenceRepository;
-    
-    public void setPreferenceRepository(PreferenceRepository preferenceRepository) {
-        this.preferenceRepository = preferenceRepository;
-    }
 
     @Override
     protected Storage newStorage() {
@@ -39,37 +34,46 @@ public class JpaPreferencesService extends BasePreferencesService {
     }
     
     // Abstract method implementations for dependencies
-    private MemoryService m_memoryService = null;
+    private final MemoryService m_memoryService = null;
+    @Override
     protected MemoryService memoryService() { return m_memoryService; }
 
-    private ServerConfigurationService m_serverConfigurationService = null;
+    private final ServerConfigurationService m_serverConfigurationService = null;
+    @Override
     protected ServerConfigurationService serverConfigurationService() { return m_serverConfigurationService; }
 
-    private EntityManager m_entityManager = null;
+    private final EntityManager m_entityManager = null;
+    @Override
     protected EntityManager entityManager() { return m_entityManager; }
 
-    private SecurityService m_securityService = null;
+    private final SecurityService m_securityService = null;
+    @Override
     protected SecurityService securityService() { return m_securityService; }
 
-    private FunctionManager m_functionManager = null;
+    private final FunctionManager m_functionManager = null;
+    @Override
     protected FunctionManager functionManager() { return m_functionManager; }
 
-    private SessionManager m_sessionManager = null;
+    private final SessionManager m_sessionManager = null;
+    @Override
     protected SessionManager sessionManager() { return m_sessionManager; }
 
-    private EventTrackingService m_eventTrackingService = null;
+    private final EventTrackingService m_eventTrackingService = null;
+    @Override
     protected EventTrackingService eventTrackingService() { return m_eventTrackingService; }
 
-    private UserDirectoryService m_userDirectoryService = null;
+    private final UserDirectoryService m_userDirectoryService = null;
+    @Override
     protected UserDirectoryService userDirectoryService() { return m_userDirectoryService; }
     
     // Added for backward compatibility with SqlService
-    private SqlService m_sqlService = null;
+    private final SqlService m_sqlService = null;
     protected SqlService sqlService() { return m_sqlService; }
     
     /**
      * Final initialization, once all dependencies are set.
      */
+    @Override
     public void init() {
         try {
             super.init();
@@ -83,6 +87,7 @@ public class JpaPreferencesService extends BasePreferencesService {
     /**
      * Returns to uninitialized state.
      */
+    @Override
     public void destroy() {
         super.destroy();
         log.info("destroy(): JPA-based preference storage shutdown");
@@ -91,12 +96,15 @@ public class JpaPreferencesService extends BasePreferencesService {
     @lombok.RequiredArgsConstructor
     protected class JpaStorage implements Storage {
 
+        @Override
         public void open() {
             // Nothing to do here for JPA implementation
         }
 
+        @Override
         public void close() {}
 
+        @Override
         public boolean check(String id) {
             try {
                 return preferenceRepository.existsById(id);
@@ -106,10 +114,11 @@ public class JpaPreferencesService extends BasePreferencesService {
             }
         }
 
+        @Override
         public Preferences get(String id) {
             try {
                 Optional<Preference> opt = preferenceRepository.findById(id);
-                if (!opt.isPresent()) return null;
+                if (opt.isEmpty()) return null;
                 Preference pref = opt.get();
                 if (pref.getXml() == null) return new BasePreferences(id);
                 Document doc = StorageUtils.readDocumentFromString(pref.getXml());
@@ -122,6 +131,7 @@ public class JpaPreferencesService extends BasePreferencesService {
             }
         }
 
+        @Override
         public PreferencesEdit put(String id) {
             try {
                 if (preferenceRepository.existsById(id)) return null;
@@ -134,6 +144,7 @@ public class JpaPreferencesService extends BasePreferencesService {
             }
         }
 
+        @Override
         public PreferencesEdit edit(String id) {
             try {
                 Optional<Preference> opt = preferenceRepository.findById(id);
@@ -155,10 +166,11 @@ public class JpaPreferencesService extends BasePreferencesService {
             }
         }
 
+        @Override
         public void commit(PreferencesEdit edit) {
             try {
                 Document doc = StorageUtils.createDocument();
-                ((BasePreferences) edit).toXml(doc, new Stack<>());
+                edit.toXml(doc, new Stack<>());
                 String xml = StorageUtils.writeDocumentToString(doc);
                 Preference pref = preferenceRepository.findById(edit.getId()).orElse(new Preference());
                 pref.setId(edit.getId());
@@ -169,10 +181,12 @@ public class JpaPreferencesService extends BasePreferencesService {
             }
         }
 
+        @Override
         public void cancel(PreferencesEdit edit) {
             // nothing to do
         }
 
+        @Override
         public void remove(PreferencesEdit edit) {
             try {
                 preferenceRepository.deleteById(edit.getId());
