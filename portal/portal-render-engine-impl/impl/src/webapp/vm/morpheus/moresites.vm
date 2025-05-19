@@ -4,7 +4,7 @@
     <div class="fav-title #if (${site.isMyWorkspace}) fav-title-myworkspace #end">
       <a href="${site.siteUrl}" title="${site.siteTitle}">
         #if (${site.isMyWorkspace})
-          <span class="bi-house-fill" aria-hidden="true"></span><span class="fullTitle">${rloader.sit_mywor}</span>
+          <span class="bi-house-fill" aria-hidden="true"></span><span class="fullTitle">${site.siteTitle}</span>
         #elseif ( ( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ) )
           <span class="fullTitle">${site.shortDescription}</span>
         #else

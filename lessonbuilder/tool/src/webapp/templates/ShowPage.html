@@ -146,6 +146,12 @@
           <span class="bi-printer" aria-hidden="true"></span>
         </a>
       </span>
+      <span class="contentButton" rsf:id="show-print-all">
+        <a role="button" href="#" rsf:id="print-all" id="print-all" class="btn btn-link my-1 Mrphs-toolTitleNav__link top-icon">
+          <span rsf:id="msg=simplepage.print_all" class="Mrphs-itemTitle me-1 d-none d-xl-inline-block"></span>
+          <span class="bi-printer-fill" aria-hidden="true"></span>
+        </a>
+      </span>
       <span class="contentButton">
         <a role="button" href="#" rsf:id="show-pages" id="show-pages" class="btn btn-link my-1 Mrphs-toolTitleNav__link top-icon">
           <span rsf:id="msg=simplepage.showallpages" class="Mrphs-itemTitle me-1 d-none d-lg-inline-block"></span>
@@ -608,7 +614,7 @@
               <input class="bold" type="submit" id="mm-test" rsf:id="mm-test" />
               <input class="bold" type="submit" id="mm-add-item" rsf:id="mm-add-item" />
               <input type="button" class="bold mm-test-reset" rsf:id="mm-test-start-over" />
-              <input type="submit" rsf:id="mm-cancel" onclick="closeAddMultimediaDialog(); return false" />
+              <input type="submit" rsf:id="mm-cancel" onclick="xCloseAddMultimediaDialog(); return false;" />
               <input type="hidden" rsf:id="mm-item-id" id="mm-item-id" />
               <input type="hidden" rsf:id="mm-add-before" id="mm-add-before" />
               <input type="hidden" rsf:id="mm-is-mm" id="mm-is-mm" />
@@ -2802,15 +2808,32 @@
                     <div rsf:id="movie-link-div">
                       <a rsf:id="movie-link-link" href="#"></a>
                     </div>
+                    <!-- HTML5 video player with caption support -->
                     <video rsf:id="h5video" controls="controls" class="html5video playerwidth" style="display:none">
                       <source rsf:id="h5source" />
                       <track rsf:id="h5track" kind="captions" />
                     </video>
+                    
+                    <!-- HTML5 audio player -->
                     <audio rsf:id="h5audio" controls="controls" class="html5video playerwidth" style="display:none">
                       <source rsf:id="h5asource" />
                     </audio>
-                    <embed rsf:id="movieEmbed" autoplay="false" autostart="false" scale="aspect" showControls="true" class="playerwidth" />
+                    
+                    <!-- PDF.js viewer -->
                     <iframe rsf:id="pdfEmbed"></iframe>
+                    
+                    <!-- Object fallback (used for PowerPoint and other files) -->
+                    <object rsf:id="movieObject" class="playerwidth">
+                      <param name="src" rsf:id="movieURLInject" />
+                      <param name="autoplay" value="false" />
+                      <param name="autostart" value="false" />
+                      <param name="scale" value="aspect" />
+                      <param name="showControls" value="true" />
+                      <p rsf:id="noplugin-p" class="sak-banner-warn-inline mb-1"></p>
+                      <br rsf:id="noplugin-br" />
+                      <a href="#" rsf:id="noplugin" target="_blank"></a>
+                      <embed rsf:id="mp4-embed" autoplay="false" autostart="false" scale="aspect" class="playerwidth" />
+                    </object>
                     <div rsf:id="movie-td" role="toolbar" class="edit-col">
                       <div>
                         <a rsf:id="edit-movie" role="button" class="usebutton edit-movie" data-bs-toggle="modal" data-bs-target="#movie-dialog" aria-controls="movie-dialog" aria-expanded="false" href="#" onclick="return false">
@@ -2942,7 +2965,7 @@
                   <div class="studentDiv" rsf:id="studentDiv">
                     <div rsf:id="item-group-titles7" class="item-group-titles"></div>
                     <div class="studentContentTable" rsf:id="studentContentTable" role="list">
-                      <img src="/library/image/silk/page_white_stack.png" class="item-image student-image" />
+                      <span class="bi bi-file-earmark-text item-image student-image" aria-hidden="true"></span>
                       <h3 class="studentContentTitle" rsf:id="studentContentTitle" id="studentContentTitle"></h3>
                       <div rsf:id="studentRow:" class="studentRow" role="listitem">
                         <span rsf:id="newPageImg" aria-hidden="true" class="fa-file-o fa-fw"></span>
@@ -3086,7 +3109,7 @@
                           </tbody>
                         </table>
                       </div>
-                      <button class="btn btn-link">
+                      <button class="btn btn-link" rsf:id="cancel-peereval-button">
                         <a rsf:id="cancel-peereval-link" class="cancel-peereval-link" onclick="return false;">
                           <span rsf:id="cancel-peereval-text"></span>
                         </a>
@@ -3117,7 +3140,7 @@
                     </div>
 
                     <div class="contentCol">
-                      <img src="/library/image/silk/text_list_bullets.png" class="item-image question-image" />
+                      <span class="bi bi-list-ul item-image question-image" aria-hidden="true"></span>
                       <span class="lb-offscreen" rsf:id="questionNote"></span>
                       <div class="questionText fs-4 fw-bold" rsf:id="questionText"></div>
                       <div class="multiplechoiceDiv" rsf:id="multipleChoiceDiv">

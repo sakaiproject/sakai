@@ -9,4 +9,6 @@ export class SakaiElement extends SakaiShadowElement {
     // custom elements, not full blown web components
     return this;
   }
+
+  static styles = [ ];
 }

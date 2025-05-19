@@ -1178,7 +1178,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	@Override
 	public String merge(String siteId, Element root, String archivePath, String fromSiteId, MergeConfig mcx) {
 		Map<String, String> entityMap = null;
-		return mergeInternal(siteId, root, archivePath, fromSiteId, mcx, entityMap);
+		boolean isTransferCopy = false;
+		return mergeInternal(siteId, root, archivePath, fromSiteId, mcx, entityMap, isTransferCopy);
 	}
 
 	/*
@@ -1194,7 +1195,29 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	 * navigating to the top page for the placement and then going down to each of the
 	 * pages in the tree.  There should be one left nav lessons placement in the archive for each tree of pages.
 	 *
-	 * The site may or may not already have tool placements.  For each of the tool placements in
+	 * This code is called in one of two ways: (1) as part of the second half of transferCopyEntities or
+	 * (2) for an import from a CC+ zip file.  They are processed somewhat differently.  For (1), the user
+	 * is presented with the option to replace or merge data and for (2) there is an expectation that
+	 * the same data is not to be imported twice (i.e. duplicate removal).
+	 *
+	 * For use case (1), the user choice is handled before we are called.  If the user asks to replace
+	 * Lessons data, all of the lessons placements from the new site are deleted before we are
+	 * called and the expectation that we will create new top level Lessons placements for each
+	 * placement in the "from" site with all the pages and items.  If on the other hand, the user
+	 * requested "merge", then this code makes brand new lessons placements and imports (perhaps a
+	 * second copy) of the lessons placements from the archive.  This means that if a "merge" copy
+	 * is done from a site with two Lessons placements, the new site will have two, four, six etc..
+	 * placements with a new pair of placements appearing for each succssive import.
+	 *
+	 * This makes things simple for (1) transferCopyEntities use case.  In the code below, we always
+	 * make a new Lessons placement for each lesson placement in the import content.  There is no
+	 * duplicate removal at all for transferCopyEntities calls.
+	 *
+	 * On the other hand, for scenario (2 - import from ZIP) we want the first import into an
+	 * empty site to clone the exported site and the second and following imports to not import
+	 * anything due to duplicate removal processing as follows:
+	 *
+	 * For (2), the site may or may not already have tool placements.  For each of the tool placements in
 	 * the archive, the placement in the site can be in one of three states:
 	 *
 	 * 1.  The placement exists in the site and contains content.  In this case, the placement is ignored
@@ -1244,11 +1267,11 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 	// Internally used for both site copy and zip import
 	public String mergeInternal(String siteId, Element root, String archivePath, String fromSiteId, MergeConfig mcx,
-			Map<String, String> entityMap)
+			Map<String, String> entityMap, boolean isTransferCopy)
 	{
 
-		log.debug("Lessons Merge siteId={} fromSiteId={} creatorId={} archiveContext={} archiveServerUrl={}",
-				siteId, fromSiteId, mcx.creatorId, mcx.archiveContext, mcx.archiveServerUrl);
+		log.debug("Lessons Merge siteId={} fromSiteId={} creatorId={} archiveContext={} archiveServerUrl={} isTransferCopy={}",
+				siteId, fromSiteId, mcx.creatorId, mcx.archiveContext, mcx.archiveServerUrl, isTransferCopy);
 
 		StringBuilder results = new StringBuilder();
 
@@ -1317,8 +1340,15 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		}
 		log.debug("Post-transitive closure {} {}", placementPageMap, parentPage);
 
-		// Check if there are existing Lessons placements in the site that has no real content
-		// that we can reuse.
+		// If this is a transferCopy operation, cleanup is handled based on the user's
+		// selection before we are called and we put items into existing or new placements
+		// with the same name.  If the user requested "merge" - there is no real duplicate
+		// handling and the user does the cleanup if needed afterwards
+
+		// If this is an import from file, we will do our best to not overwrite any existing
+		// content (i.e. avoid importing the same content twice) by only importing into empty
+		// Lessons placements or creating new Lessons placements.
+
 		Site site;
 		try {
 			site = siteService.getSite(siteId);
@@ -1334,6 +1364,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		// some code in site action creates the vestigial page and item for new placements and some doesn't
 		// so we loop through and figure out which placements we already have and patch any existing placements
 		// missing their vestigial page and/or item
+
 		log.debug("Looping through {} placements in {}", LessonBuilderConstants.TOOL_ID, siteId);
 		Collection<ToolConfiguration> toolConfs = site.getTools(myToolIds());
 		if (toolConfs != null && !toolConfs.isEmpty())  {
@@ -1374,7 +1405,11 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				SimplePage topLevelPage = simplePageToolDao.getPage(topLevelPageId);
 				if ( topLevelPage == null ) continue;
 				List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(topLevelPageId);
-				if (items.isEmpty()) {
+				if ( isTransferCopy ) { // If we are doing transferCopyEntities, pretend it is empty :)
+					log.debug("merging page into lesson placement: {} {} {} ", p.getId(), title, topLevelPageId);
+					emptyTopLevelPageIds.put(title, topLevelPageId);
+					emptySakaiIds.put(title, p.getId());
+				} else if (items.isEmpty()) {
 					log.debug("found empty lesson placement: {} {} {} ", p.getId(), title, topLevelPageId);
 					emptyTopLevelPageIds.put(title, topLevelPageId);
 					emptySakaiIds.put(title, p.getId());
@@ -1464,8 +1499,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				// empty page placement instead of making a new page
 				SimplePage page = null;
 				boolean reused = false;
-				log.debug("Extracting {} oldPageId: {} parent {}", title, oldPageId, oldParentId);
-				if ( oldParentId < 1 ) {
+				log.debug("Extracting {} oldPageId: {} parent {} isTransferCopy {}", title, oldPageId, oldParentId, isTransferCopy);
+				if ( ! isTransferCopy && oldParentId < 1 ) {
 					Long emptyPageId = emptyTopLevelPageIds.get(title);
 					log.debug("Extracting page {} oldPageId: {} emptyPageId {}", title, oldPageId, emptyPageId);
 
@@ -1591,7 +1626,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				SimplePage oldLessonsPage = null;
 				SimplePageItem oldLessonsItem = null;
 				log.debug("Looking for existing placement for {} = {}", toolTitle, sakaiPageId);
-				if ( sakaiPageId != null ) {
+				if ( ! isTransferCopy && sakaiPageId != null ) {
 					Long l = simplePageToolDao.getTopLevelPageId(sakaiPageId);
 					oldLessonsPage = simplePageToolDao.getPage(l);
 					oldLessonsItem = simplePageToolDao.findTopLevelPageItemBySakaiId(String.valueOf(l));
@@ -1887,7 +1922,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			mcx.creatorId = sessionManager.getCurrentSessionUserId();
 			mcx.archiveContext = fromContext;
 			mcx.archiveServerUrl = ServerConfigurationService.getServerUrl();
-			mergeInternal(toContext,  (Element)doc.getFirstChild().getFirstChild(), "/tmp/archive", fromContext, mcx, entityMap);
+			boolean isTransferCopy = true;
+			mergeInternal(toContext,  (Element)doc.getFirstChild().getFirstChild(), "/tmp/archive", fromContext, mcx, entityMap, isTransferCopy);
 
 			ToolSession session = sessionManager.getCurrentToolSession();
 

@@ -473,6 +473,7 @@ public class LTI13Util {
 		job.put("error", error);
 		String retval = org.tsugi.jackson.JacksonUtil.toString(job);
 		try {
+			log.debug("httpStatus={}; retval={}", httpStatus, retval);
 			PrintWriter out = response.getWriter();
 			out.println(retval);
 		} catch (IOException e) {
@@ -537,7 +538,7 @@ public class LTI13Util {
         if ( pieces.length < 2 ) return false;
 
         long now = (new java.util.Date()).getTime()/1000;
-        long token_now = getLong(pieces[0]);
+        long token_now = LTIUtil.toLong(pieces[0]);
         long delta = now - token_now;
         boolean retval = (delta >= 0) && (delta <= seconds);
         return retval;
@@ -568,76 +569,6 @@ public class LTI13Util {
         String signature = sha256(base_string);
         if ( ! signature.equals(token_signature) ) return false;
         return true;
-    }
-
-    public static String toNull(String str) {
-        return LTIUtil.toNull(str);
-    }
-
-    public static int getInt(Object o) {
-        if (o instanceof String) {
-            try {
-                return (new Integer((String) o)).intValue();
-            } catch (NumberFormatException e) {
-                return -1;
-            }
-        }
-        if (o instanceof Number) {
-            return ((Number) o).intValue();
-        }
-        return -1;
-    }
-
-    public static Long getLongKey(Object key) {
-        return getLong(key);
-    }
-
-    public static Long getLong(Object key) {
-        Long retval = getLongNull(key);
-        if (retval != null) {
-            return retval;
-        }
-        return new Long(-1);
-    }
-
-    public static Long getLongNull(Object key) {
-        if (key == null) {
-            return null;
-        }
-        if (key instanceof Number) {
-            return new Long(((Number) key).longValue());
-        }
-        if (key instanceof String) {
-            if (((String) key).length() < 1) {
-                return new Long(-1);
-            }
-            try {
-                return new Long((String) key);
-            } catch (NumberFormatException e) {
-                return null;
-            }
-        }
-        return null;
-    }
-
-    public static Double getDoubleNull(Object key) {
-        if (key == null) {
-            return null;
-        }
-        if (key instanceof Number) {
-            return ((Number) key).doubleValue();
-        }
-        if (key instanceof String) {
-            if (((String) key).length() < 1) {
-                return null;
-            }
-            try {
-                return new Double((String) key);
-            } catch (NumberFormatException e) {
-                return null;
-            }
-        }
-        return null;
     }
 
     public static String getStringNull(Object value) {

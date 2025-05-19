@@ -262,7 +262,7 @@ function toPoint(id)
       <h:panelGroup rendered="#{question.hasAssociatedRubric}">
         <ul class="nav nav-tabs">
           <li class="nav-item active">
-            <a class="nav-link" data-bs-toggle="tab" href="<h:outputText value="#submition#{question.itemData.itemId}" />">
+            <a class="nav-link active" data-bs-toggle="tab" href="<h:outputText value="#submition#{question.itemData.itemId}" />">
               <h:outputText value="#{commonMessages.student_response}" />
             </a>
           </li>

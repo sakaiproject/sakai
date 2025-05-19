@@ -29,8 +29,6 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
 
     super();
 
-    this.sort = SORT_OLDEST;
-
     // Used by the intersection observer to track which posts we've already observed
     this._observedPosts = new Set();
 
@@ -91,7 +89,7 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
     };
 
     if (!this.topic.posts && (!this.topic.mustPostBeforeViewing || this.topic.canPost)) {
-      this._getPosts(this.topic, 0, SORT_OLDEST, this.postId).then(posts => {
+      this._getPosts(this.topic, 0, null, this.postId).then(posts => {
 
         this.topic.posts = posts;
 
@@ -455,10 +453,10 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
     });
   }
 
-  _getPosts(topic, page = 0, sort = SORT_OLDEST, postId) {
+  _getPosts(topic, page = 0, sort, postId) {
 
-    const url = `${topic.links.find(l => l.rel === "posts").href}?page=${page}&sort=${sort}${
-       postId ? `&postId=${postId}` : ""}`;
+    const baseUrl = topic.links.find(l => l.rel === "posts").href;
+    const url = `${baseUrl}?page=${page}${sort ? `&sort=${sort}` : ""}${postId ? `&postId=${postId}` : ""}`;
 
     return fetch(url)
     .then(r => {
@@ -739,8 +737,8 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
               <div>${this.topic.type === QUESTION ? this._i18n.answers : this._i18n.responses}</div>
               <div>
                 <select @change=${this._postSortSelected} aria-label="${this._i18n.sort_by_label}">
-                  <option value="${SORT_OLDEST}">${this._i18n.oldest}</option>
                   <option value="${SORT_NEWEST}">${this._i18n.most_recent}</option>
+                  <option value="${SORT_OLDEST}">${this._i18n.oldest}</option>
                   <option value="${SORT_ASC_CREATOR}">${this._i18n.ascending_by_author}</option>
                   <option value="${SORT_DESC_CREATOR}">${this._i18n.descending_by_author}</option>
                   <option value="${SORT_MOST_ACTIVE}">${this._i18n.most_active}</option>

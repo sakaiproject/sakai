@@ -3,7 +3,7 @@ let scriptTag = document.createElement("script");
 scriptTag.type = "text/x-mathjax-config";
 
 // window.top is needed to get the properties even from an iFrame (for DeliveryBean).
-let format = (window.top.portal.mathJaxConfig.format);
+let format = window.top.portal?.mathJaxConfig?.format || undefined;
 let ext = [];
 let input = [];
 let defaultDelimiters = false;
@@ -15,7 +15,7 @@ function useDefaultFormat(){
 }
 
 if (format === undefined) {
-    console.error("No property for MathJax config was specified. Using LaTeX as default.");
+    console.warn("No property for MathJax config was specified. Using LaTeX as default.");
     useDefaultFormat();
 } else {
     format.forEach(extension => {

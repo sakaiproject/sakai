@@ -46,11 +46,11 @@ ASN_TS_API.addTimeSheet = function (button, onSuccess, onError) {
     const params = {
         "tsAssignmentId" : document.getElementById("assignmentId").value,
         "tsStartTime" : document.getElementById("startTime").value,
-        "new_ts_record_day" : document.getElementById("new_ts_record_day").value,
-        "new_ts_record_month" : document.getElementById("new_ts_record_month").value,
-        "new_ts_record_year" : document.getElementById("new_ts_record_year").value,
-        "new_ts_record_hour" : document.getElementById("new_ts_record_hour").value,
-        "new_ts_record_minute" : document.getElementById("new_ts_record_minute").value,
+        "new_ts_record_day" : document.getElementsByName("new_ts_record_day")[0].value,
+        "new_ts_record_month" : document.getElementsByName("new_ts_record_month")[0].value,
+        "new_ts_record_year" : document.getElementsByName("new_ts_record_year")[0].value,
+        "new_ts_record_hour" : document.getElementsByName("new_ts_record_hour")[0].value,
+        "new_ts_record_minute" : document.getElementsByName("new_ts_record_min")[0].value,
         "tsComment" : document.getElementById("comment").value,
         "tsDuration" : document.getElementById("duration").value,
     };
@@ -109,12 +109,12 @@ ASN_TS_API._POST = function (url, data, onSuccess, onError, onComplete) {
 
 ASN.switchTimesheetTab = function (source) {
     if (['tabAssignment', 'tabTimeSheet'].includes(source)) {
-        document.getElementById('tabAssignmentCurrent').classList.toggle('hidden');
-        document.getElementById('tabAssignmentRef').classList.toggle('hidden');
-        document.getElementById('tabTimeSheetRef').classList.toggle('hidden');
-        document.getElementById('tabTimeSheetCurrent').classList.toggle('hidden');
-        document.getElementById('StudentAssignmentCurrent').classList.toggle('hidden');
-        document.getElementById('StudentTimesheetCurrent').classList.toggle('hidden');
+        document.getElementById('tabAssignmentCurrent').classList.toggle('d-none');
+        document.getElementById('tabAssignmentRef').classList.toggle('d-none');
+        document.getElementById('tabTimeSheetRef').classList.toggle('d-none');
+        document.getElementById('tabTimeSheetCurrent').classList.toggle('d-none');
+        document.getElementById('StudentAssignmentCurrent').classList.toggle('d-none');
+        document.getElementById('StudentTimesheetCurrent').classList.toggle('d-none');
     }
 };
 

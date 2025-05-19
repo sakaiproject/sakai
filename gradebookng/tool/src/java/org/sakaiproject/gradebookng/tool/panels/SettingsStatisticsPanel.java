@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.gradebookng.tool.panels;
 
+import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -40,8 +42,25 @@ public class SettingsStatisticsPanel extends BasePanel {
 	public void onInitialize() {
 		super.onInitialize();
 
+		final WebMarkupContainer settingsStatisticsAccordionButton = new WebMarkupContainer("settingsStatisticsAccordionButton");
 		final WebMarkupContainer settingsStatisticsPanel = new WebMarkupContainer("settingsStatisticsPanel");
+		
+		// Set up accordion behavior
+		setupAccordionBehavior(settingsStatisticsAccordionButton, settingsStatisticsPanel, this.expanded, 
+			new AccordionStateUpdater() {
+				@Override
+				public void updateState(boolean newState) {
+					SettingsStatisticsPanel.this.expanded = newState;
+				}
+				
+				@Override
+				public boolean getState() {
+					return SettingsStatisticsPanel.this.expanded;
+				}
+			});
+		
 		add(settingsStatisticsPanel);
+		add(settingsStatisticsAccordionButton);
 
 		// display assignment stats to students
 		final AjaxCheckBox displayAssignmentStats = new AjaxCheckBox("displayAssignmentStats",

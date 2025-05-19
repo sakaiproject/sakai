@@ -6,9 +6,7 @@
 <ul id="topForm:chatList" class="chatList">
     <li id="chatListItem" class="d-none">
         <c:out value="
-            <span class=\"chatUserAvatar\">
-                <span class=\"chatUserOnline\"></span>
-            </span>
+            <sakai-user-photo user-id=\"USER_ID_PLACEHOLDER\" profile-popup=\"on\"></sakai-user-photo>
             <span class=\"chatNameDate\">
                 <span class=\"chatName\"></span>
                 <span class=\"chatDate\"></span>
@@ -38,7 +36,7 @@
                 <c:out value="<li data-message-id='${message.chatMessage.id}' data-owner-id='${message.chatMessage.owner}' data-millis='${message.timeInMillis}'>" escapeXml="false" />
             </c:otherwise>
         </c:choose>        
-            <c:out value="<sakai-user-photo user-id='${message.chatMessage.owner}' profile-popup='on'></sakai-user-photo>" escapeXml="false" />
+            <c:out value="<sakai-user-photo user-id=\"${message.chatMessage.owner}\" profile-popup=\"on\"></sakai-user-photo>" escapeXml="false" />
             <c:out value="</span>" escapeXml="false" />
 
             <c:out value="<span class='chatNameDate'><span class='chatName'>${fn:escapeXml(message.owner)}</span>" escapeXml="false" />
@@ -80,7 +78,6 @@
 </ul>
 
 <script type="text/javascript">
-    //set for the chatscript.js
     deleteMsg = "<h:outputText value="#{msgs['list.del']}" />";
     deleteUrl = "<h:outputText value="#{ChatTool.toolContext}/sakai.chat.deleteMessage.helper/deleteMessageConfirm?session.current_message=" />";
     chat2_shownMessages = ${serial};

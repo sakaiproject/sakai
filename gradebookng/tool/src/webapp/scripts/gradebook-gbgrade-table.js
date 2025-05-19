@@ -10,16 +10,15 @@ GbGradeTable.dropdownShownHandler = e => {
 
 const addHiddenGbItemsCallback = (hiddenItems) => {
   GbGradeTable._onReadyCallbacks.push(() => {
-    hiddenItems.forEach((item) => {
-      document.querySelectorAll('.gb-filter input:checked').forEach((element) => {
-        if (element.value === item) {
-          element.setAttribute('data-suppress-update-view-preferences', 'true');
-          element.dispatchEvent(new Event('click', { 
-            bubbles: true,
-            detail: [true]
-          }));
-        }
-      });
+
+    hiddenItems.forEach(i => {
+      const selector = `.gb-filter input:checked[value="${CSS.escape(i)}"]`;
+      const inputElement = document.querySelector(selector);
+
+      if (inputElement) {
+        inputElement.dataset.suppressUpdateViewPreferences = "true";
+        inputElement.click();
+      }
     });
   });
 };
@@ -1112,6 +1111,14 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     }
   
     dropdownMenu.classList.add("gb-dropdown-menu");
+    
+    dropdownMenu.addEventListener('keydown', function(event) {
+      if (event.key === 'Enter' && event.target.classList.contains('dropdown-item')) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.target.click();
+      }
+    });
   
     $(dropdownMenu).data("cell", $(link.closest(".tabulator-cell, .tabulator-col")));
   
@@ -1813,7 +1820,11 @@ GbGradeTable.redrawTable = function(force) {
 };
 
 GbGradeTable.redrawRows = function() {
-  GbGradeTable.instance.setFilter(row => GbGradeTable.getFilteredData().includes(row));
+  const filteredStudentIds = GbGradeTable.getFilteredData().map(row => row[GbGradeTable.STUDENT_COLUMN_INDEX].userId);
+  GbGradeTable.instance.setFilter(row => {
+    const studentId = row[GbGradeTable.STUDENT_COLUMN_INDEX].userId;
+    return filteredStudentIds.includes(studentId);
+  });
   GbGradeTable.refreshSummaryLabels();
 };
 
@@ -2458,6 +2469,12 @@ GbGradeTable.setupKeyboardNavigation = function() {
     }
 
     if (current) {
+      // Handle Enter key for non-editable cells with links
+      if (!current.classList.contains("tabulator-editable") && event.key === "Enter") {
+        const link = current.querySelector("a, link");
+        if (link) link.click();
+      }
+      
       // Allow accessibility shortcuts
       if (event.altKey && event.ctrlKey) {
         return iGotThis(true);

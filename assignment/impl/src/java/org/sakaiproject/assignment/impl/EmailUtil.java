@@ -26,11 +26,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
-import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.util.ZipContentUtil;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
@@ -38,11 +38,11 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.api.FormattedText;
 
 @Slf4j
 public class EmailUtil {
@@ -51,10 +51,11 @@ public class EmailUtil {
     private static final String INDENT = "    ";
 
     @Setter private AssignmentService assignmentService;
+    @Setter private ContentHostingService contentHostingService;
     @Setter private EntityManager entityManager;
-    @Setter private FormattedText formattedText;
     @Setter private ResourceLoader resourceLoader;
     @Setter private ServerConfigurationService serverConfigurationService;
+    @Setter private SessionManager sessionManager;
     @Setter private SiteService siteService;
     @Setter private UserDirectoryService userDirectoryService;
 
@@ -240,7 +241,7 @@ public class EmailUtil {
         // assume archive is empty until at least one entry is found
         boolean archiveIsEmpty = true;
         if (".zip".equals(extension)) {
-            ZipContentUtil zipUtil = new ZipContentUtil();
+            ZipContentUtil zipUtil = new ZipContentUtil(contentHostingService, serverConfigurationService, sessionManager);
             Map<String, Long> manifest = zipUtil.getZipManifest(r);
             Set<Map.Entry<String, Long>> set = manifest.entrySet();
             archiveIsEmpty = set.isEmpty();

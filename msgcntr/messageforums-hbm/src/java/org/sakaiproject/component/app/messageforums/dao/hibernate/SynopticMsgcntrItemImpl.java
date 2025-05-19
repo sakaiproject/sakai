@@ -17,6 +17,9 @@ package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
 import java.util.Date;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.sakaiproject.api.app.messageforums.SynopticMsgcntrItem;
 
 public class SynopticMsgcntrItemImpl implements SynopticMsgcntrItem{
@@ -26,6 +29,10 @@ public class SynopticMsgcntrItemImpl implements SynopticMsgcntrItem{
 	private String userId;
 	private String siteId;
 	private String siteTitle;
+
+	@Getter @Setter
+	private String siteDescription;
+
 	private int newMessagesCount = 0;
 	private Date messagesLastVisit = new Date();
 	private int newForumCount = 0;

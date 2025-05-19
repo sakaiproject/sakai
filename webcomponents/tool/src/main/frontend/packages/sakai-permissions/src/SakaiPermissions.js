@@ -10,7 +10,7 @@ export class SakaiPermissions extends SakaiElement {
     tool: { type: String },
     reference: { type: String },
     overrideReference: { attribute: "override-reference", type: String },
-    enableGroups: { attribute: "enable-groups", type: Boolean },
+    disableGroups: { attribute: "disable-groups", type: Boolean },
     bundleKey: { attribute: "bundle-key", type: String },
     onRefresh: { attribute: "on-refresh", type: String },
     fireEvent: { attribute: "fire-event", type: Boolean },
@@ -218,7 +218,7 @@ export class SakaiPermissions extends SakaiElement {
 
   _loadPermissions() {
 
-    const url = `/api/sites/${portal.siteId}/permissions/${this.tool}?ref=${this.reference}${this.overrideReference ? `&overrideRef=${this.overrideReference}` : ""}`;
+    const url = `/api/sites/${portal.siteId}/permissions/${this.tool}?ref=${encodeURIComponent(this.reference)}${this.overrideReference ? `&overrideRef=${encodeURIComponent(this.overrideReference)}` : ""}`;
     fetch(url, { cache: "no-cache" })
       .then(res => {
 
@@ -236,9 +236,7 @@ export class SakaiPermissions extends SakaiElement {
         this.locked = data.locked;
         this.available = data.available;
         this.disabled = data.disabled;
-        if (this.enableGroups) {
-          this.groups = data.groups;
-        }
+        !this.disableGroups && (this.groups = data.groups);
         this.roleNameMappings = data.roleNameMappings;
         this.roles = Object.keys(this.on);
       })

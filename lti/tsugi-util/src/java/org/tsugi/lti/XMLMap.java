@@ -350,7 +350,7 @@ public class XMLMap {
 			Node node = nl.item(i);
 			if (node.getNodeType() == node.ELEMENT_NODE ) {
 				Integer count = childMap.get(node.getNodeName());
-				if ( count == null ) count = new Integer(0);
+				if ( count == null ) count = Integer.valueOf(0);
 				count = count + 1;
 				// Insert or Replace
 				childMap.put(node.getNodeName(), count);
@@ -676,7 +676,7 @@ public class XMLMap {
 			log.debug("Index String = {}", indStr);
 			nodeName = nodeName.substring(0,begpos);
 			log.debug("New Nodename={}", nodeName);
-			Integer iVal = new Integer(indStr); 
+			Integer iVal = Integer.valueOf(indStr); 
 			log.debug("Integer = {}", iVal);
 			whichNode = iVal;
 		}

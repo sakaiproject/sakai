@@ -22,6 +22,7 @@ import java.util.Locale;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.wicket.Component;
 import org.apache.wicket.core.request.mapper.CryptoMapper;
 import org.apache.wicket.core.util.crypt.KeyInSessionSunJceCryptFactory;
@@ -46,6 +47,7 @@ import org.sakaiproject.util.ResourceLoader;
 
 @Setter
 @Getter
+@Slf4j
 public class SiteStatsApplication extends WebApplication {
 	private static final ResourceLoader msgs = new ResourceLoader("Messages");
 	private static final ResourceLoader evnts = new ResourceLoader("Events");
@@ -64,6 +66,10 @@ public class SiteStatsApplication extends WebApplication {
 		getResourceSettings().getStringResourceLoaders().add(new SiteStatsStringResourceLoader());
 		getResourceSettings().getResourceFinders().add(new WebApplicationPath(getServletContext(), "html"));
 		getResourceSettings().setResourceStreamLocator(new SiteStatsResourceStreamLocator());
+		
+		// Configure settings to fix StalePageException
+		getRequestCycleSettings().setRenderStrategy(org.apache.wicket.settings.RequestCycleSettings.RenderStrategy.ONE_PASS_RENDER);
+		getRequestCycleSettings().setBufferResponse(false);
 
 		// configure bottom page script loading
 		//setHeaderResponseDecorator(new JavaScriptToBucketResponseDecorator("bottom-script-container"));
@@ -77,6 +83,20 @@ public class SiteStatsApplication extends WebApplication {
 		// On wicket session timeout, redirect to main page
 		getApplicationSettings().setPageExpiredErrorPage(OverviewPage.class);
 		getApplicationSettings().setAccessDeniedPage(OverviewPage.class);
+		
+		// Add a custom StalePageException handler to gracefully handle stale page issues
+		getRequestCycleListeners().add(new IRequestCycleListener() {
+			@Override
+			public IRequestHandler onException(RequestCycle cycle, Exception ex) {
+				if (ex instanceof org.apache.wicket.core.request.mapper.StalePageException) {
+					// Log the stale page exception but allow normal handling - page will be re-rendered
+					// This prevents the error from being displayed to the user
+					log.warn("StalePageException caught for request cycle: {} : {}", cycle, ex.toString());
+					return null; // Return null to let Wicket's default handling occur
+				}
+				return null;
+			}
+		});
 
 		{
 			// Throw RuntimeDeceptions so they are caught by the Sakai ErrorReportHandler

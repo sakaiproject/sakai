@@ -22,7 +22,7 @@ export class SakaiProfile extends SakaiShadowElement {
 
     super.connectedCallback();
 
-    this.loadTranslations("profile-wc").then(i18n => this._i18n = i18n);
+    this.loadTranslations("profile-wc");
 
     this._imageUrl = `/direct/profile/${this.userId}/image/${getSiteId() ? `?siteId=${getSiteId()}` : ""}`;
   }
@@ -61,13 +61,12 @@ export class SakaiProfile extends SakaiShadowElement {
     return html`
       <div class="container">
         <div class="header">
-          <div class="photo" style="background-image:url(${this._imageUrl})">
-          </div>
+          <div class="photo" style="background-image:url(${this._imageUrl})"></div>
           <div>
             <div class="name">${this._profile.name}</div>
             ${this._profile.role ? html`
             <div class="role">${this._profile.role}</div>
-            ` : nothing}
+            ` : nothing }
             <div class="pronouns">${this._profile.pronouns}</div>
           </div>
         </div>
@@ -129,6 +128,7 @@ export class SakaiProfile extends SakaiShadowElement {
         font-weight: var(--sakai-profile-name-weight, 700);
         font-size: var(--sakai-profile-name-size, 16px);
         margin-bottom: var(--sakai-profile-name-margin-bottom, 8px);
+        word-break: break-all;
       }
       .role, .pronouns {
         font-weight: var(--sakai-profile-header-weight, 400);

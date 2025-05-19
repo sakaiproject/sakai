@@ -367,12 +367,12 @@ public class CitationListAccessServlet implements HttpAccess
 					"<div class=\"banner\"><h1 style=\" margin-left:15px; color:" + ServerConfigurationService.getString("official.institution.text.colour") + ";\">" +
 					formattedText.escapeHtml(title) + "</h1></div> " +
 					"<div class=\"bannerLinks\">"  +
-					(!isPrintView ? "<a class=\"export\" href=" + exportUrlAll + ">Export</a>"  + "<a class=\"print\" target=\"_blank\" href=" + req.getRequestURL() + "?printView" + ">Print</a>"  : "") +
+					(!isPrintView ? "<a class=\"export\" href=\"" + formattedText.escapeHtml(exportUrlAll) + "\">Export</a>"  + "<a class=\"print\" target=\"_blank\" href=\"" + formattedText.escapeHtml(req.getRequestURL().toString()) + "?printView" + "\">Print</a>"  : "") +
 					"<div class=\"lastUpdated\">Last updated: " +  displayDate + "</div>" + "</div>" + "</div>");
     		out.println("<div style=\"clear:both;\"></div>");
     		if( introduction != null && !introduction.trim().equals("") )
     		{
-    			out.println("\t<div class='descriptionView'>" + introduction + "</div>");
+    			out.println("\t<div class='descriptionView'>" + formattedText.escapeHtml(introduction) + "</div>");
     		}
 
     		// nested sections
@@ -563,7 +563,7 @@ public class CitationListAccessServlet implements HttpAccess
 			} else {
 				// We only want to show the open url if no custom urls have been specified.
 				if (citation.getCitationProperty("otherIds") instanceof Vector) {
-					out.println("\t\t\t\t<a href=\"" + ((Vector) citation.getCitationProperty("otherIds")).get(0) + "\" target=\"_blank\">"
+					out.println("\t\t\t\t<a href=\"" + formattedText.escapeHtml(((Vector) citation.getCitationProperty("otherIds")).get(0).toString()) + "\" target=\"_blank\">"
 							+ "Find it" + " on SOLO" + "</a>");
 				}
 			}
@@ -666,6 +666,7 @@ public class CitationListAccessServlet implements HttpAccess
 
 	private void displayNestedSections(String title, String citationCollectionId, CitationService citationService, CitationCollection collection, CitationCollection fullCollection, PrintWriter out, String contentCollectionId) throws IdUnusedException {
 
+		FormattedText formattedText = ComponentManager.get(FormattedText.class);
 		CitationCollectionOrder nestedCollection = citationService.getNestedCollection(citationCollectionId);
 		int nestedSectionsSize = nestedCollection.getChildren().size();
 
@@ -686,7 +687,7 @@ public class CitationListAccessServlet implements HttpAccess
 						(nestedSection.getChildren().size() > 0 ? "<img border='0' width='16' height='16' align='top' alt='Citation View' " +
 						"src='/library/image/sakai/white-arrow-right.gif' class='toggleIcon accordionArrow' id='" + toggleImg + "'>" : "") + "</div>" +
 						"<div id = '" + editorDivId + "' class='editor accordionDiv'>" +
-						(nestedSection.getValue()!=null ? nestedSection.getValue() : "") + (citationNo!=0 ? " (" + citationNo + " citations)" : "") + "</div></div>");
+						(nestedSection.getValue()!=null ? formattedText.escapeHtml(nestedSection.getValue()) : "") + (citationNo!=0 ? " (" + citationNo + " citations)" : "") + "</div></div>");
 
 				// h2 sections
 				if (nestedSection.getChildren().size() > 0) {
@@ -710,7 +711,7 @@ public class CitationListAccessServlet implements HttpAccess
 									(h2Section.getChildren().size() > 0 ? "<img border='0' width='16' height='16' align='top' alt='Citation View' " +
 											"src='/library/image/sakai/collapse.gif' class='toggleIcon accordionArrow' id='" + toggleImg + "'>" : "") + "</div>" +
 									"<div id = '" + editorDivId + "' class='editor h2Editor' style='min-height:30px; padding:5px;'>" +
-									(h2Section.getValue()!=null ? h2Section.getValue() : "") + "</div></div>");
+									(h2Section.getValue()!=null ? formattedText.escapeHtml(h2Section.getValue()) : "") + "</div></div>");
 
 							// h3 sections
 							if (h2Section.getChildren().size() > 0) {
@@ -733,7 +734,7 @@ public class CitationListAccessServlet implements HttpAccess
 														"src='/library/image/sakai/collapse.gif' class='toggleIcon accordionArrow' id='" + toggleImg + "'>" : "") + "</div>" +
 												"<div style='' id = '" + editorDivId + "' class='editor h3Editor' " +
 												"style='padding-left:20px; '>" +
-												"<div style=''>" + (h3Section.getValue()!=null ? h3Section.getValue() : "") + "</div></div></div>");
+												"<div style=''>" + (h3Section.getValue()!=null ? formattedText.escapeHtml(h3Section.getValue()) : "") + "</div></div></div>");
 
 										//  nested citations
 										if (h3Section.getChildren().size() > 0) {
@@ -751,7 +752,7 @@ public class CitationListAccessServlet implements HttpAccess
 													out.println("<li id = '" + linkId + "' class='h3Section' data-location='" + nestedCitation.getLocation() + "' data-sectiontype='" +
 															nestedCitation.getSectiontype() + "' style='background: #cef none repeat scroll 0 0;'>" +
 															"<div id = '" + editorDivId + "' class='editor description' style='min-height:30px; padding:5px;'>" +
-															nestedCitation.getValue() + "</div></li>");
+															formattedText.escapeHtml(nestedCitation.getValue()) + "</div></li>");
 												}
 											}
 											if (h3Citations!=null && !h3Citations.isEmpty()){
@@ -775,7 +776,7 @@ public class CitationListAccessServlet implements HttpAccess
 										out.println("<li id = '" + linkId + "' class='h3Section' data-location='" + h3Section.getLocation() + "' data-sectiontype='" +
 												h3Section.getSectiontype() + "' style='background: #cef none repeat scroll 0 0;'>" +
 												"<div id = '" + editorDivId + "' class='editor description' style='min-height:30px; padding:5px;'>" +
-												h3Section.getValue() + "</div></li>");
+												formattedText.escapeHtml(h3Section.getValue()) + "</div></li>");
 									}
 								} // h3 section iteration
 								out.println("</ol>"); // end ol for h3 section
@@ -798,7 +799,7 @@ public class CitationListAccessServlet implements HttpAccess
 							out.println("<li id = '" + linkId + "' class='h2Section' data-location='" + h2Section.getLocation() + "' data-sectiontype='" +
 									h2Section.getSectiontype() + "' style='background: #cef none repeat scroll 0 0;'>" +
 									"<div id = '" + editorDivId + "' class='editor description' style='min-height:30px; padding:5px;'>" +
-									h2Section.getValue() + "</div></li>");
+									formattedText.escapeHtml(h2Section.getValue()) + "</div></li>");
 						}
 					} // end of h2 sections
 					out.println("</ol>");

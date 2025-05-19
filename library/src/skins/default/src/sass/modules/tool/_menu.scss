@@ -17,15 +17,30 @@
 		font-weight: $tool-tab-text-weight;
 		line-height: 18px;
 		margin: $standard-space $standard-space 0 0;
-		span{
-			display: inline;
-			a{
+		
+		// Define tab styles for both direct anchors and spans with anchors
+		span a, > a{
+			display: inline-block;
+			margin: 0;
+			padding: 7px 16px;
+			border: 1px solid var(--tool-tab-border-color);
+			border-radius: 4px;
+			background: var(--tool-tab-background-color);
+			color: var(--tool-tab-text-color);
+			text-decoration: none;
+			text-transform: none;
+			cursor: pointer;
+			-moz-appearance: none;
+			-webkit-appearance: none;
+			box-shadow: var(--button-shadow);
+			&:hover,
+			&:focus {
 				display: inline-block;
 				margin: 0;
 				padding: 7px 16px;
 				border: 1px solid var(--tool-tab-border-color);
 				border-radius: 4px;
-				background: var(--tool-tab-background-color);
+				background: var(--tool-tab-hover-background-color);
 				color: var(--tool-tab-text-color);
 				text-decoration: none;
 				text-transform: none;
@@ -33,62 +48,53 @@
 				-moz-appearance: none;
 				-webkit-appearance: none;
 				box-shadow: var(--button-shadow);
-				&:hover,
-				&:focus {
-					display: inline-block;
-					margin: 0;
-					padding: 7px 16px;
-					border: 1px solid var(--tool-tab-border-color);
-					border-radius: 4px;
-					background: var(--tool-tab-hover-background-color);
-					color: var(--tool-tab-text-color);
-					text-decoration: none;
-					text-transform: none;
-					cursor: pointer;
-					-moz-appearance: none;
-					-webkit-appearance: none;
-					box-shadow: var(--button-shadow);
-				}
 			}
-			&.current,
-			a.current{
+		}
+		
+		// Current state styles for spans and direct anchors
+		span.current, span a.current, > a.current {
+			display: inline-block;
+			margin: 0;
+			padding: 7px 16px;
+			border: 1px solid var(--tool-tab-border-color);
+			border-radius: 4px;
+			background: var(--tool-tab-active-background-color);
+			color: var(--tool-tab-active-text-color);
+			text-decoration: none;
+			text-transform: none;
+			cursor: pointer;
+			-moz-appearance: none;
+			-webkit-appearance: none;
+			box-shadow: var(--button-shadow);
+			&:hover,
+			&:focus{
 				display: inline-block;
 				margin: 0;
 				padding: 7px 16px;
 				border: 1px solid var(--tool-tab-border-color);
 				border-radius: 4px;
-				background: var(--tool-tab-active-background-color);
-				color: var(--tool-tab-active-text-color);
+				background: var(--tool-tab-hover-background-color);
+				color: var(--tool-tab-text-color);
 				text-decoration: none;
 				text-transform: none;
 				cursor: pointer;
 				-moz-appearance: none;
 				-webkit-appearance: none;
 				box-shadow: var(--button-shadow);
-				&:hover,
-				&:focus{
-					display: inline-block;
-					margin: 0;
-					padding: 7px 16px;
-					border: 1px solid var(--tool-tab-border-color);
-					border-radius: 4px;
-					background: var(--tool-tab-hover-background-color);
-					color: var(--tool-tab-text-color);
-					text-decoration: none;
-					text-transform: none;
-					cursor: pointer;
-					-moz-appearance: none;
-					-webkit-appearance: none;
-					box-shadow: var(--button-shadow);
-				}
-				a{
-				    border: 0px none;
-				    font-size: 1em;
-				    margin: 0;
-				    padding: 0;
-				    top: 1px;
-				}
 			}
+		}
+		
+		// Specific styling for span.current > a
+		span.current a{
+			border: 0px none;
+			font-size: 1em;
+			margin: 0;
+			padding: 0;
+			top: 1px;
+		}
+		
+		span{
+			display: inline;
 			&.inactive{
 				border-left: 0px none;
 			}

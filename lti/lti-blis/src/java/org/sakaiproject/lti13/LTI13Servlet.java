@@ -66,8 +66,6 @@ import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.lti.util.LegacyShaUtil;
-import static org.sakaiproject.lti.util.SakaiLTIUtil.getInt;
-import static org.sakaiproject.lti.util.SakaiLTIUtil.getLongKey;
 import org.sakaiproject.lti.util.SakaiLTIUtil;
 import org.sakaiproject.lti.util.SakaiKeySetUtil;
 import static org.sakaiproject.lti.util.SakaiLTIUtil.LTI13_PATH;
@@ -113,6 +111,8 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
+
+import org.tsugi.lti.LTIUtil;
 
 /**
  *
@@ -494,7 +494,7 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		Long toolKey = getLongKey(content.get(LTIService.LTI_TOOL_ID));
+		Long toolKey = LTIUtil.toLongKey(content.get(LTIService.LTI_TOOL_ID));
 		if (toolKey < 0 ) {
 			log.error("Content / Tool invalid content={} tool={}", content.get(LTIService.LTI_ID), toolKey);
 			LTI13Util.return400(response, "Content / Tool mismatch");
@@ -520,7 +520,7 @@ public class LTI13Servlet extends HttpServlet {
 		String subject = SakaiLTIUtil.getSubject(user_id, context_id);
 
 		try {
-			Long issued = new Long(System.currentTimeMillis() / 1000L);
+			Long issued = Long.valueOf(System.currentTimeMillis() / 1000L);
 			String body =
 				"{\n" +
 				"\"iss\": \""+SakaiLTIUtil.getOurServerUrl()+"\",\n" +
@@ -843,7 +843,7 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		Long toolKey = getLongKey(tool_id);
+		Long toolKey = LTIUtil.toLongKey(tool_id);
 		if (toolKey < 1) {
 			LTI13Util.return400(response, "Invalid tool key");
 			log.error("Invalid tool key {}", tool_id);
@@ -877,13 +877,13 @@ public class LTI13Servlet extends HttpServlet {
 
 		scope = scope.toLowerCase();
 
-		int allowOutcomes = getInt(tool.get(LTIService.LTI_ALLOWOUTCOMES));
-		int allowRoster = getInt(tool.get(LTIService.LTI_ALLOWROSTER));
-		int allowLineItems = getInt(tool.get(LTIService.LTI_ALLOWLINEITEMS));
+		int allowOutcomes = LTIUtil.toInt(tool.get(LTIService.LTI_ALLOWOUTCOMES));
+		int allowRoster = LTIUtil.toInt(tool.get(LTIService.LTI_ALLOWROSTER));
+		int allowLineItems = LTIUtil.toInt(tool.get(LTIService.LTI_ALLOWLINEITEMS));
 
 		SakaiAccessToken sat = new SakaiAccessToken();
 		sat.tool_id = toolKey;
-		Long issued = new Long(System.currentTimeMillis() / 1000L);
+		Long issued = Long.valueOf(System.currentTimeMillis() / 1000L);
 		sat.expires = issued + 3600L;
 
 		// https://datatracker.ietf.org/doc/html/rfc6749#section-5.1
@@ -1372,9 +1372,9 @@ public class LTI13Servlet extends HttpServlet {
 		int paging = NumberUtils.toInt(pagingstr, -1);
 		if ( paging > 0 && ( limit < 0 || limit > paging ) ) limit = paging;
 
-		int releaseName = getInt(tool.get(LTIService.LTI_SENDNAME));
-		int releaseEmail = getInt(tool.get(LTIService.LTI_SENDEMAILADDR));
-		// int allowOutcomes = getInt(tool.get(LTIService.LTI_ALLOWOUTCOMES));
+		int releaseName = LTIUtil.toInt(tool.get(LTIService.LTI_SENDNAME));
+		int releaseEmail = LTIUtil.toInt(tool.get(LTIService.LTI_SENDEMAILADDR));
+		// int allowOutcomes = LTIUtil.toInt(tool.get(LTIService.LTI_ALLOWOUTCOMES));
 
 		/* SAK-47261 - Scope NRPS to Context, not Resource Link
 		String assignment_name = (String) content.get(LTIService.LTI_TITLE);
@@ -1693,7 +1693,9 @@ public class LTI13Servlet extends HttpServlet {
 	}
 
 	protected SakaiAccessToken getSakaiAccessToken(Key publicKey, HttpServletRequest request, HttpServletResponse response) {
-		String authorization = request.getHeader("authorization");
+	        log.debug("publicKey={}", publicKey);
+
+	        String authorization = request.getHeader("authorization");
 
 		if (authorization == null || !authorization.startsWith("Bearer")) {
 			log.error("Invalid authorization {}", authorization);
@@ -1715,7 +1717,7 @@ public class LTI13Servlet extends HttpServlet {
 			claims = Jwts.parser().setSigningKey(publicKey).parseClaimsJws(jws).getBody();
 		} catch (ExpiredJwtException | MalformedJwtException | UnsupportedJwtException
 				| io.jsonwebtoken.security.SignatureException | IllegalArgumentException e) {
-			log.error("Signature error {}\n{}", e.getMessage(), jws);
+			log.error("{} Signature error {}\n{}", e.getClass().getName(), e.getMessage(), jws, e);
 			LTI13Util.return403(response, "signature_error");
 			return null;
 		}
@@ -1802,7 +1804,7 @@ public class LTI13Servlet extends HttpServlet {
 		log.debug("signature={} context_id={} placement_id={}", received_signature, context_id, placement_id);
 
 		String contentIdStr = placement_id.substring(8);
-		Long contentKey = getLongKey(contentIdStr);
+		Long contentKey = LTIUtil.toLongKey(contentIdStr);
 		if (contentKey < 0) {
 			log.error("Bad placement format {}", signed_placement);
 			LTI13Util.return400(response, "bad placement");
@@ -1899,7 +1901,7 @@ public class LTI13Servlet extends HttpServlet {
 	}
 
 	protected Map<String, Object> loadToolForContent(Map<String, Object> content, Site site, Long expected_tool_id, HttpServletResponse response) {
-		Long toolKey = getLongKey(content.get(LTIService.LTI_TOOL_ID));
+		Long toolKey = LTIUtil.toLongKey(content.get(LTIService.LTI_TOOL_ID));
 		if (toolKey < 0 || !toolKey.equals(expected_tool_id)) {
 			log.error("Content / Tool invalid content={} tool={}", content.get(LTIService.LTI_ID), toolKey);
 			LTI13Util.return400(response, "Content / Tool mismatch");
@@ -2185,7 +2187,7 @@ public class LTI13Servlet extends HttpServlet {
 	 */
 	private void handleLineItemsGet(String signed_placement, boolean all, SakaiLineItem filter,
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
-		log.debug("signed_placement={}", signed_placement);
+		log.debug("signed_placement={}; all={}", signed_placement, all);
 
 		// Load the access token, checking the the secret
 		SakaiAccessToken sat = getSakaiAccessToken(tokenKeyPair.getPublic(), request, response);
@@ -2249,6 +2251,7 @@ public class LTI13Servlet extends HttpServlet {
 			if ( content != null ) {
 				response.setContentType(SakaiLineItem.CONTENT_TYPE);
 				SakaiLineItem item = LineItemUtil.getDefaultLineItem(site, content);
+				log.debug("single line item = {}", JacksonUtil.prettyPrint(item));
 				PrintWriter out = response.getWriter();
 				out.print(JacksonUtil.prettyPrint(item));
 				return;
@@ -2259,6 +2262,7 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		// Find the line items created for this tool
+		log.debug("filter={}", JacksonUtil.prettyPrint(filter));
 		List<SakaiLineItem> toolItems = LineItemUtil.getLineItemsForTool(signed_placement, site, sat.tool_id, filter);
 
 		response.setContentType(SakaiLineItem.CONTENT_TYPE_CONTAINER);
@@ -2269,6 +2273,7 @@ public class LTI13Servlet extends HttpServlet {
 		for (SakaiLineItem item : toolItems) {
 			out.println(first ? "" : ",");
 			first = false;
+			log.debug("line item = {}", JacksonUtil.prettyPrint(item));
 			out.print(JacksonUtil.prettyPrint(item));
 		}
 		out.println("");

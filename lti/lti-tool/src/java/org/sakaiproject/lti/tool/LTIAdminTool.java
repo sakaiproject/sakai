@@ -94,6 +94,7 @@ import org.sakaiproject.time.api.UserTimeService;
 // We need to interact with the RequestFilter
 import org.sakaiproject.util.RequestFilter;
 import org.tsugi.lti13.LTI13JwtUtil;
+import org.tsugi.lti.LTIUtil;
 
 /**
  * <p>
@@ -711,7 +712,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			return "lti_error";
 		}
 
-		Long launchType = foorm.getLongNull( (Integer) tool.get(LTIService.LTI13) );
+		Long launchType = LTIUtil.toLongNull( (Integer) tool.get(LTIService.LTI13) );
 		context.put("launchType", launchType);
 		context.put("isAdmin", ltiService.isAdmin(getSiteId(state)) ? Boolean.TRUE : Boolean.FALSE);
 
@@ -745,7 +746,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 	private boolean minimalLTI13(Map<String, Object> tool) {
 		boolean retval = false;
 
-		Integer tool_id = (Integer) tool.get(LTIService.LTI_ID);
+		Long tool_id = LTIUtil.toLongNull(tool.get(LTIService.LTI_ID));
 		String site_id = (String) tool.get(LTIService.LTI_SITE_ID);
 
 		String clientId = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_CLIENT_ID));
@@ -872,7 +873,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		if ( StringUtils.isNotBlank(toolConfigUrl) ) toolConfigUrl = toolConfigUrl.trim();
 
 		// Retrieve the tool
-		Long toolKey = foorm.getLongNull(data.getParameters().getString(LTIService.LTI_TOOL_ID));
+		Long toolKey = LTIUtil.toLongNull(data.getParameters().getString(LTIService.LTI_TOOL_ID));
 		if (toolKey == 0 || toolKey < 0) {
 			addAlert(state, rb.getString("error.tool.not.found"));
 			switchPanel(state, "Error");
@@ -1750,7 +1751,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			}
 
 			if (key == null) {
-				key = foorm.getLongNull(content.get(LTIService.LTI_TOOL_ID));
+				key = LTIUtil.toLongNull(content.get(LTIService.LTI_TOOL_ID));
 				if (key != null) {
 					tool = ltiService.getTool(key, getSiteId(state));
 				}
@@ -1805,7 +1806,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		context.put(LTIService.LTI_TOOL_ID, key);
 		if (tool != null) {
 			context.put("tool_description", tool.get(LTIService.LTI_DESCRIPTION));
-			Long visible = foorm.getLong(tool.get(LTIService.LTI_VISIBLE));
+			Long visible = LTIUtil.toLong(tool.get(LTIService.LTI_VISIBLE));
 			context.put("tool_visible", visible);
 		}
 
@@ -1993,7 +1994,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 				log.warn("Could not create gradebook column while processing LineItem");
 			}
 		} catch (Exception e) { // Probably a duplicate title
-			log.info("Could not create gradebook column while processing LineItem");
+			log.warn("Could not create gradebook column while processing LineItem");
 		}
 	}
 
@@ -2032,7 +2033,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		}
 
 		// Retrieve the tool associated with the content item
-		Long toolKey = foorm.getLongNull(data.getParameters().getString(LTIService.LTI_TOOL_ID));
+		Long toolKey = LTIUtil.toLongNull(data.getParameters().getString(LTIService.LTI_TOOL_ID));
 		if (toolKey == 0 || toolKey < 0) {
 			addAlert(state, rb.getString("error.contentitem.missing"));
 			switchPanel(state, errorPanel);
@@ -2295,7 +2296,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		log.debug("flow={} returnUrl={}", flow, returnUrl);
 
 		// Retrieve the tool associated with the content item
-		Long toolKey = foorm.getLongNull(data.getParameters().getString(LTIService.LTI_TOOL_ID));
+		Long toolKey = LTIUtil.toLongNull(data.getParameters().getString(LTIService.LTI_TOOL_ID));
 		if (toolKey == 0 || toolKey < 0) {
 			addAlert(state, rb.getString("error.contentitem.missing"));
 			switchPanel(state, errorPanel);
@@ -2430,7 +2431,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 				item.put("content_newpage", reqProps.getProperty(LTIService.LTI_NEWPAGE));
 				item.put("tool_key", toolKey);
 				item.put("tool_title", (String) tool.get(LTIService.LTI_TITLE));
-				item.put("tool_newpage", foorm.getLong(tool.get(LTIService.LTI_NEWPAGE)));
+				item.put("tool_newpage", LTIUtil.toLong(tool.get(LTIService.LTI_NEWPAGE)));
 				new_content.add(item);
 				goodcount++;
 			}
@@ -2530,7 +2531,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 				item.put("content_newpage", reqProps.getProperty(LTIService.LTI_NEWPAGE));
 				item.put("tool_key", toolKey);
 				item.put("tool_title", (String) tool.get(LTIService.LTI_TITLE));
-				item.put("tool_newpage", foorm.getLong(tool.get(LTIService.LTI_NEWPAGE)));
+				item.put("tool_newpage", LTIUtil.toLong(tool.get(LTIService.LTI_NEWPAGE)));
 				new_content.add(item);
 				goodcount++;
 			}
@@ -2874,11 +2875,11 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		Map<String, Object> content = null;
 		Map<String, Object> tool = null;
 
-		Long toolKey = foorm.getLongNull(data.getParameters().getString(LTIService.LTI_TOOL_ID));
+		Long toolKey = LTIUtil.toLongNull(data.getParameters().getString(LTIService.LTI_TOOL_ID));
 
-		Long contentKey = foorm.getLongNull(data.getParameters().getString(LTIService.LTI_ID));
+		Long contentKey = LTIUtil.toLongNull(data.getParameters().getString(LTIService.LTI_ID));
 		if (contentKey == null && previousPost != null) {
-			contentKey = foorm.getLongNull(previousPost.getProperty(LTIService.LTI_ID));
+			contentKey = LTIUtil.toLongNull(previousPost.getProperty(LTIService.LTI_ID));
 		}
 		if (contentKey != null) {
 			content = ltiService.getContent(contentKey, getSiteId(state));
@@ -2887,10 +2888,10 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 				state.removeAttribute(STATE_CONTENT_ID);
 				return "lti_error";
 			}
-			toolKey = foorm.getLongNull(content.get(LTIService.LTI_TOOL_ID));
+			toolKey = LTIUtil.toLongNull(content.get(LTIService.LTI_TOOL_ID));
 		}
 		if (toolKey == null && previousPost != null) {
-			toolKey = foorm.getLongNull(previousPost.getProperty(LTIService.LTI_TOOL_ID));
+			toolKey = LTIUtil.toLongNull(previousPost.getProperty(LTIService.LTI_TOOL_ID));
 		}
 		if (toolKey != null) {
 			tool = ltiService.getTool(toolKey, getSiteId(state));
@@ -2990,8 +2991,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		}
 
 		// Check if we are supposed to let the tool configure itself
-		Long allowLinkSelection = foorm.getLong(tool.get(LTIService.LTI_MT_LINKSELECTION));
-		Long allowLaunch = foorm.getLong(tool.get(LTIService.LTI_MT_LAUNCH));
+		Long allowLinkSelection = LTIUtil.toLong(tool.get(LTIService.LTI_MT_LINKSELECTION));
+		Long allowLaunch = LTIUtil.toLong(tool.get(LTIService.LTI_MT_LAUNCH));
 		// SAK-47867 - If both are set, prefer DeepLink / Content Item
 		if ( allowLinkSelection > 0 ) allowLaunch = 0L;
 
@@ -3112,7 +3113,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			if ( previousFlow != null ) flow = previousFlow;
 		}
 
-		Long toolKey = foorm.getLongNull(data.getParameters().getString(LTIService.LTI_TOOL_ID));
+		Long toolKey = LTIUtil.toLongNull(data.getParameters().getString(LTIService.LTI_TOOL_ID));
 
 		log.debug("flow={} toolKey={} returnUrl={}", flow, toolKey, returnUrl);
 
@@ -3136,12 +3137,12 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		List<Map<String, Object>> toolsCI = new ArrayList<Map<String, Object>> ();
 		List<Map<String, Object>> toolsLaunch = new ArrayList<Map<String, Object>> ();
 		for (Map<String, Object> lt : allTools) {
-			Long isCI = foorm.getLong(lt.get(LTIService.LTI_MT_LINKSELECTION));
+			Long isCI = LTIUtil.toLong(lt.get(LTIService.LTI_MT_LINKSELECTION));
 			if ( isCI > 0 ) {
 				toolsCI.add(lt);
 			}
 
-			if (foorm.getLong(lt.get(LTIService.LTI_MT_LAUNCH)) > 0) {
+			if (LTIUtil.toLong(lt.get(LTIService.LTI_MT_LAUNCH)) > 0) {
 				toolsLaunch.add(lt);
 			}
 		}
@@ -3167,7 +3168,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		// producers to find the tool_id the user selected from the list
 		if (toolKey != null && tool == null) {
 			for (Map<String, Object> t : toolsCI) {
-				Long editKey = foorm.getLongNull(t.get(LTIService.LTI_ID));
+				Long editKey = LTIUtil.toLongNull(t.get(LTIService.LTI_ID));
 				log.debug("CI/DL editKey={}", editKey);
 				if (toolKey.equals(editKey)) {
 					doContent = true;
@@ -3180,7 +3181,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		// See if the user selected a regular directly launchable tool...
 		if (toolKey != null && tool == null) {
 			for (Map<String, Object> t : toolsLaunch) {
-				Long editKey = foorm.getLongNull(t.get(LTIService.LTI_ID));
+				Long editKey = LTIUtil.toLongNull(t.get(LTIService.LTI_ID));
 				log.debug("RL editKey={}", editKey);
 				if (toolKey.equals(editKey)) {
 					doContent = false;
@@ -3298,7 +3299,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		Long contentKey = null;
 		if (id != null && id.startsWith("/blti/")) {
 			String cid = id.substring(6);
-			contentKey = foorm.getLongNull(cid);
+			contentKey = LTIUtil.toLongNull(cid);
 		}
 
 		String contentUrl = null;
@@ -3324,7 +3325,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			return "lti_error";
 		}
 
-		Long key = foorm.getLongNull(content.get(LTIService.LTI_TOOL_ID));
+		Long key = LTIUtil.toLongNull(content.get(LTIService.LTI_TOOL_ID));
 		Map<String, Object> tool = ltiService.getTool(key, getSiteId(state));
 
 		JSONArray new_content = new JSONArray();
@@ -3338,13 +3339,13 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		}
 		item.put(ContentItem.TITLE, title);
 
-		Long contentNewPage = foorm.getLongNull(content.get(LTIService.LTI_NEWPAGE));
+		Long contentNewPage = LTIUtil.toLongNull(content.get(LTIService.LTI_NEWPAGE));
 		if ( contentNewPage == null ) contentNewPage = Long.valueOf(0);
 		item.put("content_newpage", contentNewPage);
 
 		Long toolNewPage = Long.valueOf(LTIService.LTI_TOOL_NEWPAGE_CONTENT);
 		if ( tool != null ) {
-			toolNewPage = foorm.getLongNull(tool.get(LTIService.LTI_NEWPAGE));
+			toolNewPage = LTIUtil.toLongNull(tool.get(LTIService.LTI_NEWPAGE));
 			if ( toolNewPage == null ) toolNewPage = Long.valueOf(LTIService.LTI_TOOL_NEWPAGE_CONTENT);
 			item.put("tool_newpage", toolNewPage);
 		}
@@ -3423,7 +3424,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 		if ( new_content.size() > 0 ) {
 			JSONObject job = (JSONObject) new_content.get(0);
-			context.put("contentId", foorm.getLong(job.get("content_key")));
+			context.put("contentId", LTIUtil.toLong(job.get("content_key")));
 			context.put("contentTitle", (String) job.get("title"));
 			context.put("toolTitle", (String) job.get("tool_title"));
 		}

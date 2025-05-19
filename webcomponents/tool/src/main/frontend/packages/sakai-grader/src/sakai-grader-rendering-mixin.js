@@ -201,7 +201,7 @@ export const graderRenderingMixin = Base => class extends Base {
               ${this._submission.peerReviews.map(pr => html`
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="peer-heading-${pr.assessorUserId}">
-                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#peer-collapse-${pr.assessorUserId}" aria-expanded="true" aria-controls="peer-collapse-${pr.assessorUserId}">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#peer-collapse-${pr.assessorUserId}" aria-expanded="false" aria-controls="peer-collapse-${pr.assessorUserId}">
                       ${pr.assessorDisplayName}
                     </button>
                   </h2>
@@ -262,7 +262,7 @@ export const graderRenderingMixin = Base => class extends Base {
   _renderGraderLinkBlock() {
 
     return html`
-      <div id="grader-link-block" class="float-end d-lg-none">
+      <div id="grader-link-block" class="float-end d-xl-none">
         <button class="btn btn-primary active"
             data-bs-toggle="offcanvas"
             data-bs-target="#grader"
@@ -369,7 +369,7 @@ export const graderRenderingMixin = Base => class extends Base {
           <h2 class="offcanvas-title" id="grader-label">
             ${this._getSubmitter(this._submission)}
           </h2>
-          <button type="button" class="btn-close text-reset d-lg-none" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+          <button type="button" class="btn-close text-reset d-xl-none" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
 
         <div class="offcanvas-body">
@@ -770,7 +770,7 @@ export const graderRenderingMixin = Base => class extends Base {
                   @click=${this._save}>
                 ${this._i18n["gen.retustud"]}
               </button>
-              <button class="btn btn-link d-lg-none" accesskey="x" name="cancel" @click=${this._cancel}>${this._i18n["gen.can"]}</button>
+              <button class="btn btn-link d-xl-none" accesskey="x" name="cancel" @click=${this._cancel}>${this._i18n["gen.can"]}</button>
             </div>
             ${this._saving ? html`<div class="sak-banner-info">${this._i18n.saving}</div>` : ""}
             ${this._saveSucceeded && this._gradeOrCommentsModified ? html`<div class="sak-banner-success">${this._i18n.successful_save}</div>` : nothing }

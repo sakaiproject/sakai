@@ -60,6 +60,7 @@
 ## Code Style Guidelines
 - **Commit Messages**: `<issue key> <component> <brief description>` (e.g., `SAK-12345 Assignments add option x`)
 - **Indentation**: Maintain consistent format (tabs/spaces) as in existing files
+- **kebab-case**: Prefer kebab-case for values of HTML class and id attributes
 - **Internationalization**: Ensure code supports different languages
 - **Accessibility**: Follow accessibility best practices
 - **Changes**: Make minimal changes, only modifying lines needed for the fix/feature

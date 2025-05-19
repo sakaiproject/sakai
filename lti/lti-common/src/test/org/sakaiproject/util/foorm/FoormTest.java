@@ -76,9 +76,9 @@ public class FoormTest {
 		log.debug("{}", foorm.parseFormString("sendemail:radio:requred=true:label=bl_sendemail:choices=on,off,part"));
 
 		HashMap row = new HashMap(); row.put("title", "Fred"); row.put("description","Desc");
-		row.put("sendemail", new Integer(1)); 
-		row.put("acceptgrades", new Integer(1));
-		row.put("preferheight", new Integer(100));
+		row.put("sendemail", Integer.valueOf(1)); 
+		row.put("acceptgrades", Integer.valueOf(1));
+		row.put("preferheight", Integer.valueOf(100));
 
 		log.debug("{}", foorm.getField(row,"title"));
 
@@ -108,15 +108,15 @@ public class FoormTest {
 		log.debug("--- Result Map --- {}", rm);
 
 		HashMap crow = new HashMap(); 
-		crow.put("allowtitle", new Integer(0)); 
+		crow.put("allowtitle", Integer.valueOf(0)); 
 		// Should suppress 
-		crow.put("allowpreferheight",new Integer(1)); 
-		crow.put("allowwebpage",new Integer(0)); 
+		crow.put("allowpreferheight", Integer.valueOf(1)); 
+		crow.put("allowwebpage", Integer.valueOf(0)); 
 		// Should suppress 
-		crow.put("sendname", new Integer(1)); 
+		crow.put("sendname", Integer.valueOf(1)); 
 		// Should suppress 
-		crow.put("acceptgrades", new Integer(2)); 
-		// crow.put("preferheight", new Integer(100)); (Leave alone - should be allowed)
+		crow.put("acceptgrades", Integer.valueOf(2)); 
+		// crow.put("preferheight", Integer.valueOf(100)); (Leave alone - should be allowed)
 
 		String [] ff = foorm.filterForm(crow, test_form); 
 		log.debug(Arrays.toString(ff));

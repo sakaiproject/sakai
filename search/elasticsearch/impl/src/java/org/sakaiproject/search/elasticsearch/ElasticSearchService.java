@@ -865,7 +865,7 @@ import lombok.extern.slf4j.Slf4j;
 			return false;
 		}
 
-		if (!serverConfigurationService.getBoolean("search.onlyIndexSearchToolSites", false)) return true;
+		if (!serverConfigurationService.getBoolean("search.onlyIndexSearchToolSites", true)) return true;
 
 		try {
 			if (siteService.getSite(siteId).getToolForCommonId(SearchConstants.TOOL_ID) != null) return true;

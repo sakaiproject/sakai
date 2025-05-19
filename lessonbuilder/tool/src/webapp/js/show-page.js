@@ -39,6 +39,18 @@ $(window).load(function () {
     window.print();
   });
 
+  // Print all pages
+  const printAllButton = document.getElementById('print-all');
+
+  if (printAllButton) {
+    printAllButton.addEventListener('click', function() {
+      const url = printViewWithParameter(window.location.href);
+      const win = window.open(url, '_blank');
+      win.focus();
+      win.print();
+      return false;
+    });
+  }
 });
 
 function fixAddBefore(href) {
@@ -877,7 +889,7 @@ $(document).ready(function () {
         const categoryText = $(".peerReviewText" , $(this)).text();
         rubric.rows.push({"id":categoryId , "text":categoryText});
       });
-      rubric.title = row.find(".peer-eval-title").text();
+      rubric.title = (row.find(".peer-eval-row").text())?row.find(".peer-eval-row").text():"";
       buildExistingRubrics(rubric);
 
       const forcedAnon = row.find(".forcedAnon").text();
@@ -2759,7 +2771,7 @@ $(document).ready(function () {
     cursor: 'pointer',
     activation: 'click',
     closePosition: 'title',
-    closeText: '<img src="/library/image/silk/cross.png" alt="close" />'
+    closeText: '<span class="bi bi-x" aria-hidden="true"></span>'
   });
 
   function submitgrading(item) {
@@ -2904,6 +2916,11 @@ function xCloseAddMultimediaDialog() {
   $("#mm-error").text('');
   $("#mm-error-container").hide();
   accumulatedFileSize = 0; 
+
+  //close the modal
+  const addmmdialogEl = document.querySelector("#add-multimedia-dialog");
+  const modal = bootstrap.Modal.getInstance(addmmdialogEl);
+  modal && modal.hide();
 }
 
 function setCollapsedStatus(header, collapse) {
@@ -3665,8 +3682,7 @@ function printViewWithParameter(url) {
 function fixupColAttrs() {
     $(".section").each(function (index) {
       var count = $(this).find(".column").size() + $(this).find(".double").size();
-      $(this).find(".column").removeClass('cols1 cols2 cols3 cols4 cols5 cols6 cols7 cols8 cols9 lastcol');
-      $(this).find(".column").last().addClass('lastcol');
+      $(this).find(".column").removeClass('cols1 cols2 cols3 cols4 cols5 cols6 cols7 cols8 cols9');
       $(this).find(".column").addClass('cols' + count);
   });
 };

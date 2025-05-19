@@ -21,11 +21,14 @@ import java.util.stream.Collectors;
 
 import org.sakaiproject.rubrics.api.model.Rubric;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class RubricTransferBean {
 
     private Long id;

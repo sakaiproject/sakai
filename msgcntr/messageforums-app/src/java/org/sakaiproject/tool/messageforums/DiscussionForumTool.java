@@ -4671,7 +4671,7 @@ public class DiscussionForumTool {
 
     try {
     	if (selAssignmentName != null) {
-    		setUpGradeInformation(gradebookUid, toolManager.getCurrentPlacement().getContext(), selAssignmentName, userId);//TODO JUANDAVID pasar el/los gradebookuid que toque
+    		setUpGradeInformation(gradebookUid, toolManager.getCurrentPlacement().getContext(), selAssignmentName, userId);
     	} else {
     		// this is the "Select a gradebook item" selection
     		allowedToGradeItem = false;
@@ -6185,6 +6185,46 @@ public class DiscussionForumTool {
   }
   public String getCurrentChange(){
 	return currentChange;
+  }
+
+  public String processGradeAssignChange(ValueChangeEvent vce) 
+  { 
+	  String changeAssign = (String) vce.getNewValue(); 
+	  if (changeAssign == null) 
+	  { 
+		  return null; 
+	  } 
+	  else 
+	  { 
+		  try 
+		  { 
+			  selectedAssign = changeAssign; 
+			  resetGradeInfo();
+
+			  if(!DEFAULT_GB_ITEM.equalsIgnoreCase(selectedAssign)) {
+				  String gradebookUid = toolManager.getCurrentPlacement().getContext();
+				  String studentId;
+				  if (selectedMessage == null && StringUtils.isNotBlank(selectedGradedUserId)) {
+					  studentId = selectedGradedUserId;
+				  }else{
+					  studentId = userDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId();  
+				  }				   
+				  
+				  setUpGradeInformation(gradebookUid, toolManager.getCurrentPlacement().getContext(), selectedAssign, studentId);
+			  } else {
+				  // this is the "Select a gradebook item" option
+				  allowedToGradeItem = false;
+				  selGBItemRestricted = true;
+			  }
+
+			  return GRADE_MESSAGE; 
+		  } 
+		  catch(Exception e) 
+		  { 
+			log.error("processGradeAssignChange in DiscussionFOrumTool - {} ", e.toString());
+			return null;
+		  } 
+	  } 
   }
 
   public void processGradeAssignSend() 
@@ -8225,12 +8265,12 @@ public class DiscussionForumTool {
       }
 	}
 
-	// Add the attachments
+	// Add the attachments - create true copies of the files, not just references
 	List fromTopicAttach = forumManager.getTopicByIdWithAttachments(originalTopicId).getAttachments();
 	if (fromTopicAttach != null && !fromTopicAttach.isEmpty()) {
 		for (int topicAttach=0; topicAttach < fromTopicAttach.size(); topicAttach++) {
 			Attachment thisAttach = (Attachment)fromTopicAttach.get(topicAttach);
-			Attachment thisDFAttach = forumManager.createDFAttachment(
+			Attachment thisDFAttach = forumManager.createDuplicateDFAttachment(
 					thisAttach.getAttachmentId(),
 					thisAttach.getAttachmentName());
 			newTopic.addAttachment(thisDFAttach);
@@ -8339,7 +8379,7 @@ public class DiscussionForumTool {
 		if (fromForumAttach != null && !fromForumAttach.isEmpty()) {
 			for (int topicAttach=0; topicAttach < fromForumAttach.size(); topicAttach++) {
 				Attachment thisAttach = (Attachment)fromForumAttach.get(topicAttach);
-				Attachment thisDFAttach = forumManager.createDFAttachment(
+				Attachment thisDFAttach = forumManager.createDuplicateDFAttachment(
 						thisAttach.getAttachmentId(),
 						thisAttach.getAttachmentName());
 				forum.addAttachment(thisDFAttach);

@@ -32,7 +32,12 @@ import javax.mail.internet.MimeMessage;
 
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
+
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+
 import org.hibernate.query.Query;
 import org.hibernate.type.StringType;
 import org.springframework.orm.hibernate5.HibernateCallback;
@@ -58,9 +63,11 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 
 @Slf4j
+@Setter
 public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements SynopticMsgcntrManager {
 
 	private static final String QUERY_WORKSPACE_SYNOPTIC_ITEMS = "findWorkspaceSynopticMsgcntrItems";
@@ -70,48 +77,57 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 	private HashMap mfPageInSiteMap, sitesMap;
 	// transient variable for when on home page of site
 	private transient DecoratedCompiledMessageStats siteContents;
+
 	private MessageForumsMessageManager messageManager;
 	private UIPermissionsManager uiPermissionsManager;
+	private PreferencesService preferencesService;
+
+	@Getter
 	private PrivateMessageManager pvtMessageManager;
+
 	private MessageForumsTypeManager typeManager;
 	private DiscussionForumManager forumManager;
-	
+
 	/* Kernel */
 	private SqlService sqlService;
 	private SecurityService securityService;
 	private SiteService siteService;
 
-	public void setSecurityService(SecurityService securityService) {
-		this.securityService = securityService;
-	}
-
-	public void setSiteService(SiteService siteService) {
-		this.siteService = siteService;
-	}
-
-	public void setSqlService(SqlService sqlService) {
-		this.sqlService = sqlService;
-	}
-	
 	private static int ORACLE_IN_CLAUSE_SIZE_LIMIT = 1000;
 
-	
 	public SynopticMsgcntrManagerImpl() {}
-	
+
 	public void init() {
 		log.info("init()");
 	}
 
-	public List<SynopticMsgcntrItem> getWorkspaceSynopticMsgcntrItems(final String userId) {
+    public List<SynopticMsgcntrItem> getWorkspaceSynopticMsgcntrItems(final String userId) {
 
-		HibernateCallback<List<SynopticMsgcntrItem>> hcb = session -> {
+        HibernateCallback<List<SynopticMsgcntrItem>> hcb = session -> {
             Query q = session.getNamedQuery(QUERY_WORKSPACE_SYNOPTIC_ITEMS);
             q.setParameter("userId", userId, StringType.INSTANCE);
             return q.list();
         };
 
-		return getHibernateTemplate().execute(hcb);
-	}
+        List<SynopticMsgcntrItem> items = getHibernateTemplate().execute(hcb);
+
+        if (preferencesService.getSiteTitleDisplayPreference() == PreferencesService.USE_SITE_DESCRIPTION) {
+
+            items.forEach(item -> {
+
+                try {
+                    Site site = siteService.getSite(item.getSiteId());
+                    if (StringUtils.isNotBlank(site.getShortDescription())) {
+                        item.setSiteDescription(site.getShortDescription());
+                    }
+                } catch (IdUnusedException e) {
+                    log.warn("No site for id {}", item.getSiteId());
+                }
+            });
+        }
+
+        return items;
+    }
 
 	public List<SynopticMsgcntrItem> getSiteSynopticMsgcntrItems(final List<String> userIds, final String siteId) {
 		if(userIds == null || userIds.size() == 0){
@@ -141,27 +157,27 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 		}
 		return items;
 	}
-	
+
 	public void deleteSynopticMsgcntrItem(SynopticMsgcntrItem item){
 		getHibernateTemplate().delete(getHibernateTemplate().merge(item));
 	}
-	
+
 	public void incrementMessagesSynopticToolInfo(List<String> userIds, String siteId){
 		incAndDecSynopticToolInfo(userIds, siteId, true, true);
 	}
-	
+
 	public void incrementForumSynopticToolInfo(List<String> userIds, String siteId){
 		incAndDecSynopticToolInfo(userIds, siteId, false, true);
 	}
-	
+
 	public void decrementMessagesSynopticToolInfo(List<String> userIds, String siteId){
 		incAndDecSynopticToolInfo(userIds, siteId, true, false);
 	}
-	
+
 	public void decrementForumSynopticToolInfo(List<String> userIds, String siteId){
 		incAndDecSynopticToolInfo(userIds, siteId, false, false);
 	}
-	
+
 	private void incAndDecSynopticToolInfo(List<String> userIds, String siteId, boolean messages, boolean increment){
 		if(userIds == null || userIds.size() == 0){
 			return;
@@ -176,9 +192,9 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 				  foundUsers.add(item.getUserId());
 			  }
 		  }
-		  
+
 		  items = resetMessagesAndForumSynopticInfo(missingUsers, siteId, items);
-		  
+
 		  if(foundUsers != null && foundUsers.size() > 0){
 			  //now take the existing list of found items and decrement them
 			  String[] userIdsArr = foundUsers.toArray(new String[]{});
@@ -202,8 +218,8 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 					}
 					inParams += ")";
 					query = query.replace("(?)", inParams);
-					
-					Connection clConnection = null;  	
+
+					Connection clConnection = null;
 					//Statement statement = null;
 					PreparedStatement updateStatement = null;
 					try {
@@ -223,16 +239,16 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 							}
 						}
 						sqlService.returnConnection(clConnection);
-					}					
-					
+					}
+
 					subArrayIndex = subArrayIndex + subArraySize;
 				}while(subArrayIndex < userIdsArr.length);
-		  }		 
+		  }
 	}
-	
-	
+
+
 	public List<SynopticMsgcntrItem> resetMessagesAndForumSynopticInfo(List<String> userIds, String siteId, List<SynopticMsgcntrItem> items) {
-		
+
 		//MSGCNTR-430 we can't do this if we don't know the user -DH
 		if (userIds == null || userIds.size() == 0) {
 			return items;
@@ -246,7 +262,7 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 		}
 		//Get Stats for all users:
 		Map<String, DecoratedCompiledMessageStats> dcmStats = this.getSiteInfo(siteId, userIds);
-		
+
 		//update existing ones:
 		for(SynopticMsgcntrItem item : items){
 			DecoratedCompiledMessageStats dcmStat = dcmStats.get(item.getUserId());
@@ -258,7 +274,7 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 				item.setForumLastVisitToCurrentDt();
 			}
 		}
-		
+
 		//now create the new items:
 		for(String userId : newUsers){
 			DecoratedCompiledMessageStats dcmStat = dcmStats.get(userId);
@@ -276,30 +292,30 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 	public void setMessagesSynopticInfoHelper(String userId, String siteId, int newMessageCount){
 		setSynopticInfoHelper(userId, siteId, true, newMessageCount);
 	}
-	
+
 	public void setForumSynopticInfoHelper(String userId, String siteId, int newMessageCount){
 		setSynopticInfoHelper(userId, siteId, false, newMessageCount);
 	}
-	
+
 	private void setSynopticInfoHelper(String userId, String siteId, boolean messages, int newMessageCount){
 		//this could be an anon access
 		if (userId == null && forumManager.getAnonRole()) {
 			return;
 		}
-		
+
 		List<SynopticMsgcntrItem> items = getSiteSynopticMsgcntrItems(Arrays.asList(userId), siteId);
 		SynopticMsgcntrItem item = null;
 		if(items != null && items.size() == 1){
 			item = items.get(0);
 		}
 		if(item == null){
-			//item does not exist, call the reset function to set the 
+			//item does not exist, call the reset function to set the
 			//actually number of unread messages instead of decrementing
 			resetMessagesAndForumSynopticInfo(Arrays.asList(userId), siteId, items);
 		}else{
 			List<SynopticMsgcntrItem> newItems = new ArrayList<>();
 			if(messages){
-				item.setNewMessagesCount(newMessageCount);				
+				item.setNewMessagesCount(newMessageCount);
 				item.setMessagesLastVisitToCurrentDt();
 			}else{
 				item.setNewForumCount(newMessageCount);
@@ -309,19 +325,19 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 			saveSynopticMsgcntrItems(newItems);
 		}
 	}
-	
+
 	/*
 	 * Update Difference will get the existing count and add the difference (if negative, then its a subtract mathamatically)
 	 */
-	
+
 	public void updateDifferenceMessagesSynopticInfoHelper(String userId, String siteId, int differenceCount){
 		updateDifferenceSynopticInfoHelper(userId, siteId, true, differenceCount);
 	}
-	
+
 	public void updateDifferenceForumSynopticInfoHelper(String userId, String siteId, int differenceCount){
 		updateDifferenceSynopticInfoHelper(userId, siteId, false, differenceCount);
 	}
-	
+
 	private void updateDifferenceSynopticInfoHelper(String userId, String siteId, boolean messages, int differenceCount){
 		List<SynopticMsgcntrItem> items = getSiteSynopticMsgcntrItems(Arrays.asList(userId), siteId);
 		SynopticMsgcntrItem item = null;
@@ -329,7 +345,7 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 			item = items.get(0);
 		}
 		if(item == null){
-			//item does not exist, call the reset function to set the 
+			//item does not exist, call the reset function to set the
 			//actually number of unread messages instead of decrementing
 			items = resetMessagesAndForumSynopticInfo(Arrays.asList(userId), siteId, items);
 		}else{
@@ -339,7 +355,7 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 				if(newCount < 0){
 					newCount = 0;
 				}
-				item.setNewMessagesCount(newCount);				
+				item.setNewMessagesCount(newCount);
 				item.setMessagesLastVisitToCurrentDt();
 			}else{
 				int newCount = item.getNewForumCount() + differenceCount;
@@ -353,9 +369,9 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 			saveSynopticMsgcntrItems(newItems);
 		}
 	}
-	
-	
-	public void createOrUpdateSynopticToolInfo(List<String> userIds, String siteId, String siteTitle, Map<String, Integer[]> unreadCounts){	
+
+
+	public void createOrUpdateSynopticToolInfo(List<String> userIds, String siteId, String siteTitle, Map<String, Integer[]> unreadCounts){
 		List<SynopticMsgcntrItem> items = getSiteSynopticMsgcntrItems(userIds, siteId);
 		List<String> newUsers = new ArrayList<String>(userIds);
 		for(SynopticMsgcntrItem item : items){
@@ -366,7 +382,7 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 			if(unreadCounts.containsKey(item.getUserId())){
 				int unreadMessageCount = unreadCounts.get(item.getUserId())[0];
 				int unreadForumCount = unreadCounts.get(item.getUserId())[1];
-				item.setNewMessagesCount(unreadMessageCount);				
+				item.setNewMessagesCount(unreadMessageCount);
 				item.setMessagesLastVisitToCurrentDt();
 
 				item.setNewForumCount(unreadForumCount);
@@ -381,11 +397,11 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 			if(unreadCounts.containsKey(userId)){
 				int unreadMessageCount = unreadCounts.get(userId)[0];
 				int unreadForumCount = unreadCounts.get(userId)[1];
-				SynopticMsgcntrItem synopticMsgcntrItem = createSynopticMsgcntrItem(userId, siteId, siteTitle);	
+				SynopticMsgcntrItem synopticMsgcntrItem = createSynopticMsgcntrItem(userId, siteId, siteTitle);
 				synopticMsgcntrItem.setNewMessagesCount(unreadMessageCount);
 				synopticMsgcntrItem.setNewForumCount(unreadForumCount);
 
-				items.add(synopticMsgcntrItem);	
+				items.add(synopticMsgcntrItem);
 			}
 		}
 		saveSynopticMsgcntrItems(items);
@@ -393,17 +409,17 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 			updateAllSiteTitles(siteId, siteTitle);
 		}
 	}
-	
-	
-	
+
+
+
 	/**
-	 * @return 
+	 * @return
 	 * 		DecoratedCompiledMessageStats for a single site
 	 */
 	public Map<String, DecoratedCompiledMessageStats> getSiteInfo(String siteId, List<String> userIds) {
 		return getSiteContents(siteId, userIds);
 	}
-	
+
 	public int findAllUnreadMessages(List aggregateList){
 		int unreadCount = 0;
 	    for (Iterator i = aggregateList.iterator(); i.hasNext();){
@@ -412,14 +428,14 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 	      if (Boolean.TRUE.equals(element[0])){
 	        continue;
 	      }
-	      else{        
+	      else{
 	        unreadCount += ((Integer) element[2]).intValue();
-	      }      
+	      }
 	    }
-	            
-	    return unreadCount;    
+
+	    return unreadCount;
 	}
-	
+
 	public void resetAllUsersSynopticInfoInSite(String siteId){
 		List<String> users = new ArrayList<String>();
 		Site site;
@@ -431,25 +447,25 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 				String userId = member.getUserId();
 				users.add(userId);
 			}
-			
+
 			resetAllUsersSynopticInfoInSite(siteId, users);
-			
+
 		} catch (IdUnusedException e) {
 			log.error(e.getMessage(), e);
 		}
 	}
-	
+
 	public void resetAllUsersSynopticInfoInSite(String siteId, List<String> users){
-		String NEW_MESSAGE_COUNT_FOR_ALL_USERS_SQL = "SELECT USER_ID, count(*) unread_messages " + 
-														"FROM MFR_PVT_MSG_USR_T message " +									
+		String NEW_MESSAGE_COUNT_FOR_ALL_USERS_SQL = "SELECT USER_ID, count(*) unread_messages " +
+														"FROM MFR_PVT_MSG_USR_T message " +
 														"where READ_STATUS = 0 and CONTEXT_ID = ? " +
 														"Group By USER_ID";
-		
+
 		String RETURN_ALL_FORUMS_AND_TOPICS_SQL = "select forum.ID as FORUM_ID, topic.ID as TOPIC_ID, forum.DRAFT as isForumDraft, topic.DRAFT as isTopicDraft, topic.MODERATED as isTopicModerated, forum.LOCKED as isForumLocked, topic.LOCKED as isTopicLocked, forum.CREATED_BY as forumCreatedBy, topic.CREATED_BY as topicCreatedBy, forum.AVAILABILITY as forumAvailability, topic.AVAILABILITY as topicAvailability  " +
-														"from MFR_AREA_T area, MFR_OPEN_FORUM_T forum, MFR_TOPIC_T topic " + 
+														"from MFR_AREA_T area, MFR_OPEN_FORUM_T forum, MFR_TOPIC_T topic " +
 														"Where area.ID = forum.surrogateKey and forum.ID = topic.of_surrogateKey " +
 														"and area.CONTEXT_ID = ?";
-		Connection clConnection = null;  	
+		Connection clConnection = null;
 		//Statement statement = null;
 		PreparedStatement newMessageCountForAllUsers = null;
 		PreparedStatement returnAllForumsAndTopics = null;
@@ -457,29 +473,29 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 		ResultSet newMessagesCountRS = null;
 		try {
 			Site site = getSite(siteId);
-			
-			
+
+
 			clConnection = sqlService.borrowConnection();
-						
+
 			//setup prepared statements:
 			newMessageCountForAllUsers = clConnection.prepareStatement(NEW_MESSAGE_COUNT_FOR_ALL_USERS_SQL);
 			newMessageCountForAllUsers.setString(1, siteId);
 			returnAllForumsAndTopics = clConnection.prepareStatement(RETURN_ALL_FORUMS_AND_TOPICS_SQL);
 			returnAllForumsAndTopics.setString(1, siteId);
-			
-			forumsAndTopicsRS = returnAllForumsAndTopics.executeQuery();			
+
+			forumsAndTopicsRS = returnAllForumsAndTopics.executeQuery();
 			HashMap<Long, DecoratedForumInfo> dfHM = getDecoratedForumsAndTopics(forumsAndTopicsRS);
-			
+
 			newMessagesCountRS = newMessageCountForAllUsers.executeQuery();
 			HashMap<String, Integer> unreadMessagesHM = getUnreadMessagesHM(newMessagesCountRS);
-						
+
 			Map<String, DecoratedCompiledMessageStats> cdmsMap = getDMessageStats(users, siteId, site, dfHM, unreadMessagesHM);
 			//creat a map of the unread counts:
 			Map<String, Integer[]> unreadCounts = new HashMap<String, Integer[]>();
 			for(Entry<String, DecoratedCompiledMessageStats> entry : cdmsMap.entrySet()){
 				unreadCounts.put(entry.getKey(), new Integer[]{entry.getValue().getUnreadPrivateAmt(), entry.getValue().getUnreadForumsAmt()});
 			}
-			createOrUpdateSynopticToolInfo(users, siteId, site.getTitle(), unreadCounts);		
+			createOrUpdateSynopticToolInfo(users, siteId, site.getTitle(), unreadCounts);
 		} catch (IdUnusedException e) {
 			log.error(e.getMessage());
 		} catch (SQLException e) {
@@ -513,18 +529,18 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 			}
 			sqlService.returnConnection(clConnection);
 		}
-		
+
 	}
-	
-	
+
+
 	/**
 	 * This method is used to get live information regarding the new message count per user for a forum ID
-	 * 
+	 *
 	 * This information can be used to compare against a later current information set after an event takes place
 	 * (ie. after saving a forum)  By only looking at the one forum that was updated, we can compare the two results
 	 * and update the synoptic data based on the difference while avoiding calling unneeded forums, which can slow
 	 * down this process significantly
-	 * 
+	 *
 	 * @param siteId
 	 * @param forumId
 	 * @return
@@ -532,18 +548,18 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 	public HashMap<String, Integer> getUserToNewMessagesForForumMap(String siteId, Long forumId, Long topicId){
 		HashMap<String, Integer> returnHM = new HashMap<String, Integer>();
 		String RETURN_ALL_TOPICS_FOR_FORUM_SQL = "select forum.ID as FORUM_ID, topic.ID as TOPIC_ID, forum.DRAFT as isForumDraft, topic.DRAFT as isTopicDraft, topic.MODERATED as isTopicModerated, forum.LOCKED as isForumLocked, topic.LOCKED as isTopicLocked, forum.CREATED_BY as forumCreatedBy, topic.CREATED_BY as topicCreatedBy, forum.AVAILABILITY as forumAvailability, topic.AVAILABILITY as topicAvailability  " +
-													"from MFR_AREA_T area, MFR_OPEN_FORUM_T forum, MFR_TOPIC_T topic " + 
+													"from MFR_AREA_T area, MFR_OPEN_FORUM_T forum, MFR_TOPIC_T topic " +
 													"Where area.ID = forum.surrogateKey and forum.ID = topic.of_surrogateKey " +
 													"and area.CONTEXT_ID = ? and forum.ID = ?";
 		if(topicId != null){
-			RETURN_ALL_TOPICS_FOR_FORUM_SQL = RETURN_ALL_TOPICS_FOR_FORUM_SQL + " and topic.ID = ?"; 
+			RETURN_ALL_TOPICS_FOR_FORUM_SQL = RETURN_ALL_TOPICS_FOR_FORUM_SQL + " and topic.ID = ?";
 		}
-		
-		
-		
+
+
+
 		List<String> users = new ArrayList<String>();
 		Site site;
-		Connection clConnection = null;  	
+		Connection clConnection = null;
 		PreparedStatement returnAllTopicsForForum = null;
 		ResultSet forumsAndTopicsRS = null;
 		try {
@@ -555,30 +571,30 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 				String userId = member.getUserId();
 				users.add(userId);
 			}
-			
-			
-			
-			
+
+
+
+
 			clConnection = sqlService.borrowConnection();
 			returnAllTopicsForForum = clConnection.prepareStatement(RETURN_ALL_TOPICS_FOR_FORUM_SQL);
 			returnAllTopicsForForum.setString(1, siteId);
 			returnAllTopicsForForum.setString(2, "" +forumId);
 			if(topicId != null)
 				returnAllTopicsForForum.setString(3, "" +topicId);
-			
-			
-			forumsAndTopicsRS = returnAllTopicsForForum.executeQuery();			
+
+
+			forumsAndTopicsRS = returnAllTopicsForForum.executeQuery();
 			HashMap<Long, DecoratedForumInfo> dfHM = getDecoratedForumsAndTopics(forumsAndTopicsRS);
-			
+
 			Map<String, DecoratedCompiledMessageStats> dcmsMap = getDMessageStats(users, siteId, site, dfHM, null);
 			for (Iterator iterator = users.iterator(); iterator.hasNext();) {
-        		String userId = (String) iterator.next();        		
+                String userId = (String) iterator.next();
         		//by passing a null, we can ignore all message tool calls (speeding up the process)
         		if(dcmsMap.containsKey(userId)){
         			returnHM.put(userId, Integer.valueOf(dcmsMap.get(userId).getUnreadForumsAmt()));
         		}
 			}
-						
+
 		} catch (IdUnusedException e) {
 			log.error(e.getMessage(), e);
 		} catch (SQLException e) {
@@ -596,13 +612,13 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 			} catch (Exception e) {
 				log.warn(e.getMessage(), e);
 			}
-			
+
 			sqlService.returnConnection(clConnection);
 		}
-		
+
 		return returnHM;
 	}
-	
+
 	public void updateSynopticMessagesForForumComparingOldMessagesCount(String siteId, Long forumId, Long topicId, HashMap<String, Integer> previousCountHM){
 		if(previousCountHM != null){
 
@@ -628,7 +644,7 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 					Integer oldForumCountInt = previousCountHM.get(userId);
 					if(oldForumCountInt != null){
 						oldForumCount = oldForumCountInt.intValue();
-					}	
+					}
 
 					Integer newForumCountInt = newCountHM.get(userId);
 					if(newForumCountInt != null){
@@ -642,17 +658,17 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 			}
 		}
 	}
-	
-	
+
+
 	private Map<String, DecoratedCompiledMessageStats> getDMessageStats(List<String> userIds, String siteId, Site site, HashMap<Long, DecoratedForumInfo> dfHM, Map<String, Integer> unreadMessagesHM){
-		
+
 		final Map<String, DecoratedCompiledMessageStats> dcms = new HashMap<String, DecoratedCompiledMessageStats>();
 
 		// Check if tool within site
 		// if so, get stats for just this site
 
 		boolean isMessageForumsPageInSite = isMessageForumsPageInSite(site);
-		
+
 		//MSGCNTR-430 if this is the anon user we can't actually do anything more -DH
 		if (userIds == null || userIds.size() == 0) {
 			return dcms;
@@ -663,8 +679,8 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 			dcm.setSiteId(siteId);
 			dcms.put(user, dcm);
 		}
-				
-		if (isMessageForumsPageInSite || isMessagesPageInSite(site)) 
+
+		if (isMessageForumsPageInSite || isMessagesPageInSite(site))
 		{
 			if(unreadMessagesHM != null){
 
@@ -688,19 +704,19 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 						Integer newMessageCount = unreadMessagesHM.get(entry.getKey());
 						if(newMessageCount != null){
 							entry.getValue().setUnreadPrivateAmt(newMessageCount.intValue());
-						}								
+						}
 					}
 				}
 			}
 		}
 
-		if (isMessageForumsPageInSite || isForumsPageInSite(site)) 
+		if (isMessageForumsPageInSite || isForumsPageInSite(site))
 		{
 			Set<Long> dfKeySet = null;
 			if(dfHM != null){
 				Map<String, Boolean> overridingPermissionMap = new HashMap<String, Boolean>();
 				for(String user : userIds){
-					boolean hasOverridingPermission = securityService.isSuperUser(user) || getForumManager().isInstructor(user, "/site/" + siteId);
+					boolean hasOverridingPermission = securityService.isSuperUser(user) || forumManager.isInstructor(user, "/site/" + siteId);
 					overridingPermissionMap.put(user, hasOverridingPermission);
 				}
 
@@ -720,7 +736,7 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 						// Only count unread messages for forums the user can view:
 						final Iterator<DecoratedTopicsInfo> topicIter = dForum.getTopics().iterator();
 
-						while (topicIter.hasNext()) 
+						while (topicIter.hasNext())
 						{
 							DecoratedTopicsInfo topic = (DecoratedTopicsInfo) topicIter.next();
 							for(String userId : userIds){
@@ -736,22 +752,22 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 									//Only count unread messages for topics the user can view:
 									if ((isTopicDraft.equals(Boolean.FALSE) && topic.getAvailability())
 											|| overridingPermissionMap.get(userId)
-											||forumManager.isTopicOwner(topicId, topicOwner, userId, "/site/" + siteId)){ 
+											||forumManager.isTopicOwner(topicId, topicOwner, userId, "/site/" + siteId)){
 
-										if (getUiPermissionsManager().isRead(topicId, isTopicDraft, dForum.getIsDraft(), userId, siteId))
+										if (uiPermissionsManager.isRead(topicId, isTopicDraft, dForum.getIsDraft(), userId, siteId))
 										{
-											if (!isTopicModerated.booleanValue() || (isTopicModerated.booleanValue() && 
-													getUiPermissionsManager().isModeratePostings(topicId, dForum.getIsLocked(), dForum.getIsDraft(), isTopicLocked, isTopicDraft, userId, siteId)))
+											if (!isTopicModerated.booleanValue() || (isTopicModerated.booleanValue() &&
+													uiPermissionsManager.isModeratePostings(topicId, dForum.getIsLocked(), dForum.getIsDraft(), isTopicLocked, isTopicDraft, userId, siteId)))
 											{
 												//TODO: to improve this performance, try using the logic in MessageForumStatisticsBean.getTopicStatistics
 												//essentially, get the number of possible messages for that user and subtract the number read.  See commit for SAK-27810 for more details.
-												dcms.get(userId).setUnreadForumsAmt(dcms.get(userId).getUnreadForumsAmt() + getMessageManager().findUnreadMessageCountByTopicIdByUserId(topicId, userId));
+												dcms.get(userId).setUnreadForumsAmt(dcms.get(userId).getUnreadForumsAmt() + messageManager.findUnreadMessageCountByTopicIdByUserId(topicId, userId));
 											}
 											else
-											{	
+											{
 												// b/c topic is moderated and user does not have mod perm, user may only
 												// see approved msgs or pending/denied msgs authored by user
-												dcms.get(userId).setUnreadForumsAmt(dcms.get(userId).getUnreadForumsAmt() + getMessageManager().findUnreadViewableMessageCountByTopicIdByUserId(topicId, userId));
+												dcms.get(userId).setUnreadForumsAmt(dcms.get(userId).getUnreadForumsAmt() + messageManager.findUnreadViewableMessageCountByTopicIdByUserId(topicId, userId));
 											}
 										}
 									}
@@ -766,35 +782,35 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 
 		return dcms;
 	}
-	
-	
+
+
 	/**
 	 * Returns List to populate page if on Home page of a site
-	 * 
+	 *
 	 * @return
 	 * 		List of DecoratedCompiledMessageStats for a particular site
 	 */
-	private Map<String, DecoratedCompiledMessageStats> getSiteContents(String siteId, List<String> userIds) 
+	private Map<String, DecoratedCompiledMessageStats> getSiteContents(String siteId, List<String> userIds)
 	{
 		String NEW_MESSAGE_COUNT_SQL = "SELECT USER_ID, count(*) unread_messages " +
-										"FROM MFR_PVT_MSG_USR_T message " +									
+										"FROM MFR_PVT_MSG_USR_T message " +
 										"where READ_STATUS = 0 and USER_ID in (?) and CONTEXT_ID = ? " +
 										"Group By USER_ID";
-		
+
 		String RETURN_ALL_FORUMS_AND_TOPICS_SQL = "select forum.ID as FORUM_ID, topic.ID as TOPIC_ID, forum.DRAFT as isForumDraft, topic.DRAFT as isTopicDraft, topic.MODERATED as isTopicModerated, forum.LOCKED as isForumLocked, topic.LOCKED as isTopicLocked, forum.CREATED_BY as forumCreatedBy, topic.CREATED_BY as topicCreatedBy, forum.AVAILABILITY as forumAvailability, topic.AVAILABILITY as topicAvailability  " +
-													"from MFR_AREA_T area, MFR_OPEN_FORUM_T forum, MFR_TOPIC_T topic " + 
+													"from MFR_AREA_T area, MFR_OPEN_FORUM_T forum, MFR_TOPIC_T topic " +
 													"Where area.ID = forum.surrogateKey and forum.ID = topic.of_surrogateKey " +
 													"and area.CONTEXT_ID = ?";
-		
-		Connection clConnection = null;  	
+
+		Connection clConnection = null;
 		PreparedStatement returnAllForumsAndTopics = null;
 		ResultSet forumsAndTopicsRS = null;
-		
+
 		Map<String, DecoratedCompiledMessageStats> stats = new HashMap<String, DecoratedCompiledMessageStats>();
 		Map<String, Integer> unreadMessagesHM = new HashMap<String, Integer>();
 		try{
 			clConnection = sqlService.borrowConnection();
-			
+
 			//First create the messages map:
 			String[] userIdsArr = userIds.toArray(new String[]{});
 			int subArrayIndex = 0;
@@ -837,29 +853,29 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 					} catch (Exception e) {
 						log.warn(e.getMessage(), e);
 					}
-					
-				}		
+
+				}
 
 				subArrayIndex = subArrayIndex + subArraySize;
 			}while(subArrayIndex < userIdsArr.length);
 
 			//now get the forum data:
-			returnAllForumsAndTopics = clConnection.prepareStatement(RETURN_ALL_FORUMS_AND_TOPICS_SQL);			
-			returnAllForumsAndTopics.setString(1, siteId);			
-			forumsAndTopicsRS = returnAllForumsAndTopics.executeQuery();			
+			returnAllForumsAndTopics = clConnection.prepareStatement(RETURN_ALL_FORUMS_AND_TOPICS_SQL);
+			returnAllForumsAndTopics.setString(1, siteId);
+			forumsAndTopicsRS = returnAllForumsAndTopics.executeQuery();
 			HashMap<Long, DecoratedForumInfo> dfHM = getDecoratedForumsAndTopics(forumsAndTopicsRS);
-			
+
 			Site site = getSite(siteId);
-			
+
 			//now we have the data, update each user:
 			stats.putAll(getDMessageStats(userIds, siteId, site, dfHM, unreadMessagesHM));
-			
+
 		}catch(IdUnusedException e) {
 			log.error("IdUnusedException while trying to check if site has MF tool.");
 		} catch (SQLException e) {
 			log.error(e.getMessage(), e);
 		} finally{
-			
+
 			try {
 				if(forumsAndTopicsRS != null)
 					forumsAndTopicsRS.close();
@@ -872,15 +888,15 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 					returnAllForumsAndTopics.close();
 			} catch (Exception e) {
 				log.warn(e.getMessage(), e);
-			}	
-			
+			}
+
 			sqlService.returnConnection(clConnection);
 		}
-		
+
 		return stats;
 	}
-	
-	
+
+
 	private HashMap<Long, DecoratedForumInfo> getDecoratedForumsAndTopics(ResultSet rs){
 		HashMap<Long, DecoratedForumInfo> returnHM = new HashMap<Long, DecoratedForumInfo>();
 
@@ -904,28 +920,28 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 
 
 				//hashmap already has this site id, now look for forum id:
-				if(returnHM.containsKey(FORUM_ID)){						
+				if(returnHM.containsKey(FORUM_ID)){
 					DecoratedTopicsInfo dTopic = new DecoratedTopicsInfo(TOPIC_ID, IS_TOPIC_LOCKED, IS_TOPIC_DRAFT, TOPIC_AVAILABILITY, IS_TOPIC_MODERATED, TOPIC_CREATED_BY);
 					returnHM.get(FORUM_ID).addTopic(dTopic);
 				}else{
-					//this is a new forum, so add it to the list						
+					//this is a new forum, so add it to the list
 					DecoratedTopicsInfo dTopic = new DecoratedTopicsInfo(TOPIC_ID, IS_TOPIC_LOCKED, IS_TOPIC_DRAFT, TOPIC_AVAILABILITY, IS_TOPIC_MODERATED, TOPIC_CREATED_BY);
 					DecoratedForumInfo dForum = new DecoratedForumInfo(FORUM_ID, IS_FORUM_LOCKED, IS_FORUM_DRAFT, FORUM_AVAILABILITY, FORUM_CREATED_BY);
 					dForum.addTopic(dTopic);
 
 					returnHM.put(FORUM_ID, dForum);
-				}												
+				}
 			}
 		} catch (SQLException e) {
 			log.error(e.getMessage(), e);
 		}
-		
+
 		return returnHM;
 	}
-	
+
 	public HashMap<String, Integer> getUnreadMessagesHM(ResultSet rs){
 		HashMap<String, Integer> returnHM = new HashMap<String, Integer>();
-		
+
 		if(rs != null){
 			try{
 				String userId;
@@ -934,13 +950,13 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 				userId = rs.getString("USER_ID");
 				messageCount = Integer.valueOf(rs.getInt("unread_messages"));
 
-				returnHM.put(userId, messageCount);		
+				returnHM.put(userId, messageCount);
 			}
 			}catch(Exception e){
 				log.error(e.getMessage(), e);
 			}
 		}
-		
+
 		return returnHM;
 	}
 
@@ -952,50 +968,50 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 		if (mfPageInSiteMap == null) {
 			mfPageInSiteMap = new HashMap();
 		}
-		
+
 		Boolean isMFPageInSite;
 		if ((isMFPageInSite = (Boolean) mfPageInSiteMap.get(thisSite)) == null) {
 			isMFPageInSite = isToolInSite(thisSite, DiscussionForumService.MESSAGE_CENTER_ID);
 			mfPageInSiteMap.put(thisSite, isMFPageInSite);
 		}
-		
+
 		return isMFPageInSite;
 	}
-	
+
 	/**
 	 * Return TRUE if tool with id passed in exists in site passed in
 	 * FALSE otherwise.
-	 * 
+	 *
 	 * @param thisSite
 	 * 			Site object to check
 	 * @param toolId
 	 * 			Tool id to be checked
-	 * 
+	 *
 	 * @return
 	 */
 	private boolean isToolInSite(Site thisSite, String toolId) {
 		final Collection toolsInSite = thisSite.getTools(toolId);
 
-		return ! toolsInSite.isEmpty();		
+		return ! toolsInSite.isEmpty();
 	}
 
-	
+
 	/**
 	 * Returns the Site object for this id, if it exists.
 	 * If not, returns IdUnusedException
-	 * 
+	 *
 	 * @param siteId
 	 * 			The site id to check
-	 * 
+	 *
 	 * @return
 	 * 			Site object for this id
 	 */
-	private Site getSite(String siteId) 
+	private Site getSite(String siteId)
 	throws IdUnusedException {
 		if (sitesMap == null) {
 			sitesMap = new HashMap();
 		}
-	
+
 		if (sitesMap.get(siteId) == null) {
 			Site site = siteService.getSite(siteId);
 			sitesMap.put(site.getId(), site);
@@ -1006,7 +1022,7 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 		}
 	}
 
-	
+
 	/**
 	 * @return TRUE if Messages tool exists in this site,
 	 *         FALSE otherwise
@@ -1014,7 +1030,7 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 	private boolean isMessagesPageInSite(Site thisSite) {
 		return isToolInSite(thisSite, DiscussionForumService.MESSAGES_TOOL_ID);
 	}
-	
+
 	/**
 	 * @return TRUE if Forums tool exists in this site,
 	 *         FALSE otherwise
@@ -1022,48 +1038,7 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 	private boolean isForumsPageInSite(Site thisSite) {
 		return isToolInSite(thisSite, DiscussionForumService.FORUMS_TOOL_ID);
 	}
-	
-	
-	public MessageForumsMessageManager getMessageManager() {
-		return messageManager;
-	}
 
-	public void setMessageManager(MessageForumsMessageManager messageManager) {
-		this.messageManager = messageManager;
-	}
-	
-	public UIPermissionsManager getUiPermissionsManager() {
-		return uiPermissionsManager;
-	}
-
-	public void setUiPermissionsManager(UIPermissionsManager uiPermissionsManager) {
-		this.uiPermissionsManager = uiPermissionsManager;
-	}
-	
-	public PrivateMessageManager getPvtMessageManager() {
-		return pvtMessageManager;
-	}
-
-	public void setPvtMessageManager(PrivateMessageManager pvtMessageManager) {
-		this.pvtMessageManager = pvtMessageManager;
-	}
-
-	public MessageForumsTypeManager getTypeManager() {
-		return typeManager;
-	}
-
-	public void setTypeManager(MessageForumsTypeManager typeManager) {
-		this.typeManager = typeManager;
-	}
-	
-	public DiscussionForumManager getForumManager() {
-		return forumManager;
-	}
-
-	public void setForumManager(DiscussionForumManager forumManager) {
-		this.forumManager = forumManager;
-	}
-	
 	/**
 	 * Used to store synoptic information for a users unread messages.
 	 * Whether on the Home page of a site or in MyWorkspace determines
@@ -1074,16 +1049,16 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 	 * </p>
 	 * <p>
 	 * If in the Home page of a site, each object contains either the
-	 * number of unread Private Messages or number of unread Discussion 
+	 * number of unread Private Messages or number of unread Discussion
 	 * Forum messages.</p>
-	 * 
+	 *
 	 * @author josephrodriguez
 	 *
 	 */
 	public class DecoratedCompiledMessageStats {
 		private String siteName;
 		private String siteId;
-		
+
 		/** MyWorkspace information */
 		private int unreadPrivateAmt = 0;
 		private int unreadForumsAmt = 0;
@@ -1092,7 +1067,7 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 		private boolean messagesandForums;
 		private boolean messages;
 		private boolean forums;
-		
+
 		public String getSiteName() {
 			return siteName;
 		}
@@ -1165,14 +1140,14 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 			this.forums = forums;
 		}
 	}
-	
+
 public class DecoratedForumInfo{
-		
+
 		private Long forumId;
 		private Boolean isLocked, isDraft, availability;
 		private String creator;
 		private ArrayList<DecoratedTopicsInfo> topics = new ArrayList<DecoratedTopicsInfo>();
-		
+
 		public DecoratedForumInfo(Long forumId, Boolean isLocked, Boolean isDraft, Boolean availability, String creator){
 			this.forumId = forumId;
 			this.isLocked = isLocked;
@@ -1216,7 +1191,7 @@ public class DecoratedForumInfo{
 		public void addTopic(DecoratedTopicsInfo dTopics){
 			topics.add(dTopics);
 		}
-		
+
 		public ArrayList<DecoratedTopicsInfo> getTopics(){
 			return topics;
 		}
@@ -1231,11 +1206,11 @@ public class DecoratedForumInfo{
 	}
 
 	public class DecoratedTopicsInfo{
-		
+
 		private Long topicId;
 		private Boolean isLocked, isDraft, isModerated, availability;
 		private String creator;
-		
+
 		public DecoratedTopicsInfo(Long topicId, Boolean isLocked, Boolean isDraft, Boolean availability, Boolean isModerated, String creator){
 			this.topicId = topicId;
 			this.isLocked = isLocked;
@@ -1304,18 +1279,18 @@ public class DecoratedForumInfo{
 
 		getHibernateTemplate().execute(hcb);
 	}
-	
+
 	public void sendPrivateMessageDesktop(PrivateMessage currentMessage, MimeMessage msg, StringBuilder[] bodyBuf, List<Reference> attachments, String from) throws MessagingException {
-		PrivateMessage rrepMsg = getPvtMessageManager().getPvtMsgReplyMessage(currentMessage, msg, bodyBuf, attachments, from);
-		getPvtMessageManager().processPvtMsgReplySentAction(currentMessage, rrepMsg);
+		PrivateMessage rrepMsg = pvtMessageManager.getPvtMsgReplyMessage(currentMessage, msg, bodyBuf, attachments, from);
+		pvtMessageManager.processPvtMsgReplySentAction(currentMessage, rrepMsg);
 		if (!rrepMsg.getDraft()){
-			Map<User, Boolean> recipients = getPvtMessageManager().getRecipients(rrepMsg.getRecipients());
+			Map<User, Boolean> recipients = pvtMessageManager.getRecipients(rrepMsg.getRecipients());
 			incrementSynopticToolInfo(recipients.keySet(), rrepMsg, false);
 		}
 	}
-	  
+
 	public void incrementSynopticToolInfo(Set<User> recipients, PrivateMessage rrepMsg, boolean updateCurrentUser){
-		  
+
 		String siteId = ((PrivateMessageRecipient)rrepMsg.getRecipients().get(0)).getContextId();
 		String currentUser = rrepMsg.getAuthorId();
 		List<String> userIds = new ArrayList<>();
@@ -1325,7 +1300,7 @@ public class DecoratedForumInfo{
 		}
 		incrementMessagesSynopticToolInfo(userIds, siteId, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
 	}
-	  
+
 	private void incrementMessagesSynopticToolInfo(List<String> userIds, String siteId, int numOfAttempts) {
 		try {
 			incrementMessagesSynopticToolInfo(userIds, siteId);
@@ -1338,7 +1313,7 @@ public class DecoratedForumInfo{
 				// Restore interrupted state...
 				Thread.currentThread().interrupt();
 			}
-			
+
 			if (numOfAttempts <= 0) {
 				log.info("SynopticMsgcntrManagerImpl: incrementMessagesSynopticToolInfo: HibernateOptimisticLockingFailureException no more retries left");
 				log.error(holfe.getMessage(), holfe);
@@ -1348,5 +1323,5 @@ public class DecoratedForumInfo{
 				incrementMessagesSynopticToolInfo(userIds, siteId, numOfAttempts-1);
 			}
 		}
-	}	
+	}
 }

@@ -242,7 +242,8 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
   private boolean isValidFeedbackDate = true;
   private boolean isValidFeedbackEndDate = true;
   private boolean isRetractAfterDue = true;
-  
+  @Getter private boolean isDueAfterStart = true;
+
   private String originalStartDateString;
   private String originalDueDateString;
   private String originalRetractDateString;
@@ -1291,14 +1292,17 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
     if (dueDateString == null || dueDateString.trim().equals("")) {
       this.isValidDueDate = true;
       this.dueDate = null;
+      this.isDueAfterStart = true;
     }
     else {
 
       Date tempDate = tu.parseISO8601String(ContextUtil.lookupParam(HIDDEN_END_DATE_FIELD));
+      Date tempStartDate = tu.parseISO8601String(ContextUtil.lookupParam(HIDDEN_START_DATE_FIELD));
 
       if (tempDate != null) {
         this.isValidDueDate = true;
         this.dueDate = tempDate;
+        this.isDueAfterStart = !(tempStartDate != null && tempDate.before(tempStartDate));
       }
       else {
         log.error("setDueDateString could not parse hidden date field: " + ContextUtil.lookupParam(HIDDEN_END_DATE_FIELD));
@@ -1664,6 +1668,7 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
 	  this.isValidRetractDate = true;
 	  this.isValidFeedbackDate = true;
 	  this.isValidFeedbackEndDate = true;
+	  this.isDueAfterStart = true;
   }
   
   public void resetOriginalDateString() {
@@ -1710,6 +1715,10 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
       try {
           Site site = SiteService.getSite(toolManager.getCurrentPlacement().getContext());
           GradingSectionAwareServiceAPI service = new GradingSectionAwareServiceImpl();
+          if (service.isUserAbleToGradeAll(site.getId(), userId)) {
+              return getGroupsForSite();
+          }
+
           Collection<Group> groups = site.getGroups();
           if (groups != null && !groups.isEmpty()) {
               for (Group group : groups) {
@@ -1718,10 +1727,6 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
                   }
               }
               groupSelectItems = sortedSelectItems.values().toArray(new SelectItem[0]);
-          }
-
-          if (sortedSelectItems.isEmpty() && service.isUserAbleToGradeAll(site.getId(), userId)) {
-              return getGroupsForSite();
           }
       } catch (IdUnusedException ex) {
           log.warn("No site found while attempting to get groups for this user, {}", ex.toString());
@@ -2231,9 +2236,7 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
     }
 
     public List<SelectItem> getExistingGradebook() {
-        if (this.existingGradebook == null || this.existingGradebook.isEmpty()) {
-            this.setExistingGradebook(this.populateExistingGradebookItems());
-        }
+        this.setExistingGradebook(this.populateExistingGradebookItems());
         return this.existingGradebook;
     }
   

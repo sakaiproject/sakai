@@ -285,7 +285,7 @@
 					#end
 					#if ($value_SubmissionType == 4)##for non-electronic submission type
 						<h4>$tlang.getString("gen.subm")</h4>
-						<p class="instruction">$tlang.getString("nonelec_instruction")</p>
+						<p class="sak-banner-info">$tlang.getString("nonelec_instruction")</p>
 					#else	
 						<h4>$tlang.getString("gen.staass")</h4>
 						## 1- text only; 2-attachment only; 3-text and attachment

@@ -103,6 +103,13 @@
 		</div>
 	#end
 
+	<hr class="itemSeparator"/>
+	#if ($!nonElectronicType)
+		<p class="sak-banner-info">
+			$tlang.getString("nonelec_instruction")
+		</p>
+	#end
+
 	<form name="viewAssignmentsForm" action="#toolForm("AssignmentAction")" method="post">
 		<input type="hidden" name="assignmentId" value="$assignmentReference" />
 		<div class="d-grid gap-2 d-md-flex justify-content-md-end">

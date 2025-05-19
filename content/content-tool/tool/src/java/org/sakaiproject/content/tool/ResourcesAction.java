@@ -4869,15 +4869,15 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		log.debug("{}.buildPermissionsPageContext()", this);
 
 		String reference = (String) state.getAttribute("folder_group_reference");
+		String overrideReference = null;
+		if (StringUtils.isNotBlank(reference)) {
+			overrideReference = contentHostingService.getContainingCollectionId(reference);
+		}
 
-		String siteId = toolManager.getCurrentPlacement().getContext();
-
-		String siteCollectionId = contentHostingService.getSiteCollection(siteId);
-		String overrideReference = contentHostingService.getReference(siteCollectionId);
 		String folderName = (String) state.getAttribute("folder_name");
 		if (StringUtils.isNoneBlank(reference, folderName)) {
 			context.put("reference", reference);
-			if (!reference.equals(overrideReference)) {
+			if (overrideReference != null && !reference.equals(overrideReference)) {
 				context.put("overrideReference", overrideReference);
 			}
 			context.put("folderName", folderName);
@@ -4890,7 +4890,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		context.put("permissionsLabel", rb.getString("list.fPerm"));
 
 		String toolId = toolManager.getCurrentPlacement().getId();
-		String startUrl = ServerConfigurationService.getPortalUrl() + "/site/" + siteId + "/tool/" + toolId + "?panel=Main";
+		String startUrl = ServerConfigurationService.getPortalUrl() + "/site/" + toolManager.getCurrentPlacement().getContext() + "/tool/" + toolId + "?panel=Main";
 		context.put("startPage", startUrl);
 
 		state.setAttribute (STATE_MODE, MODE_LIST);
@@ -6991,32 +6991,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		state.setAttribute(STATE_LIST_PREFERENCE, LIST_HIERARCHY);
 	}
 
-	//	private static void resetCurrentMode(SessionState state)
-//	{
-//		String mode = (String) state.getAttribute(STATE_MODE);
-//		if(isStackEmpty(state))
-//		{
-//			if(MODE_HELPER.equals(mode))
-//			{
-//				cleanupState(state);
-//				state.setAttribute(STATE_RESOURCES_HELPER_MODE, MODE_ATTACHMENT_DONE);
-//			}
-//			else
-//			{
-//				state.setAttribute(STATE_MODE, MODE_LIST);
-//				state.removeAttribute(STATE_RESOURCES_HELPER_MODE);
-//			}
-//			return;
-//		}
-//		Map current_stack_frame = peekAtStack(state);
-//		String helper_mode = (String) current_stack_frame.get(STATE_RESOURCES_HELPER_MODE);
-//		if(helper_mode != null)
-//		{
-//			state.setAttribute(STATE_RESOURCES_HELPER_MODE, helper_mode);
-//		}
-//
-//	}
-//
 	/**
 	* Expand all the collection resources and put in EXPANDED_COLLECTIONS attribute.
 	*/
@@ -10369,7 +10343,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		// Use the site title for the zip name, remove spaces though.
 		String siteTitle = (String) state.getAttribute(STATE_SITE_TITLE);
 		siteTitle = siteTitle.replace(" ", "");
-		new ZipContentUtil().compressSelectedResources((String)state.getAttribute(STATE_SITE_ID), siteTitle, selectedFolderIds, selectedFiles, response);
+		new ZipContentUtil(contentHostingService, ServerConfigurationService.getInstance(), sessionManager).compressSelectedResources((String)state.getAttribute(STATE_SITE_ID), siteTitle, selectedFolderIds, selectedFiles, response);
 	}
 
 	private long getCollectionRecursiveSize(ContentCollection currentCollection, long maxIndividualFileSize, long zipMaxTotalSize, Set<String> zipSingleFileSizeExceeded, Set<String> zipIncludedFiles) throws ZipMaxTotalSizeException
