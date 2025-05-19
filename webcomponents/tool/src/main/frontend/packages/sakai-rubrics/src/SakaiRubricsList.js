@@ -36,10 +36,6 @@ export class SakaiRubricsList extends RubricsElement {
     });
   }
 
-  shouldUpdate() {
-    return super.shouldUpdate();
-  }
-
   render() {
 
     if (!this._rubrics) {
