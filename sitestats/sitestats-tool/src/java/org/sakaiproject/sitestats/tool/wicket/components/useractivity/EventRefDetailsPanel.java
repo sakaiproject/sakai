@@ -79,12 +79,16 @@ public class EventRefDetailsPanel extends GenericPanel<ResolvedEventData>
 		if (DetailType.TEXT.equals(rr.getType()))
 		{
 			frag = new Fragment("details", "text", this);
-			frag.add(new Label("displayValue", rr.getDisplayValue()).setRenderBodyOnly(true));
+			Label label = new Label("displayValue", rr.getDisplayValue());
+			label.setEscapeModelStrings(false); // Don't escape HTML in the displayValue
+			label.setRenderBodyOnly(true);
+			frag.add(label);
 		}
 		else if (DetailType.LINK.equals(rr.getType()))
 		{
 			frag = new Fragment("details", "link", this);
 			ExternalLink displayLink = new ExternalLink("displayLink", rr.getUrl(), rr.getDisplayValue());
+			displayLink.setEscapeModelStrings(false); // Don't escape HTML in the displayValue
 			displayLink.add(new AttributeModifier("target", "_blank"));
 			displayLink.add(new AttributeModifier("rel", "noreferrer"));
 			frag.add(displayLink);
