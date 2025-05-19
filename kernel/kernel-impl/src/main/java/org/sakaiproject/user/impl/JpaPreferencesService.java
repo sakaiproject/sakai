@@ -173,6 +173,7 @@ public class JpaPreferencesService extends BasePreferencesService {
                 Document doc = StorageUtils.createDocument();
                 edit.toXml(doc, new Stack<>());
                 String xml = StorageUtils.writeDocumentToString(doc);
+                
                 Preference pref = preferenceRepository.findById(edit.getId()).orElse(new Preference());
                 pref.setId(edit.getId());
                 pref.setXml(xml);

@@ -44,7 +44,7 @@ public class PushSubscriptionRepositoryImpl extends SpringCrudRepositoryImpl<Pus
         return session.createQuery(query).list();
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = false)
     public int deleteByFingerprint(String browserFingerprint) {
 
         Session session = sessionFactory.getCurrentSession();
