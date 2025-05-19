@@ -80,9 +80,14 @@ public class EntityCollections {
 	 * @return true if there is containment, false if not.
 	 */
 	public static boolean isContainedEntityRefsToEntities(Collection<String> entityRefs, Collection<? extends Entity> entities) {
-		// null or empty sets are never contained
-		if (entityRefs == null || entities == null || entities.isEmpty() || entityRefs.isEmpty()) {
+		// null sets or empty entities are never contained
+		if (entityRefs == null || entities == null || entities.isEmpty()) {
 			return false;
+		}
+
+		// An empty set of references is always contained in any non-empty set of entities
+		if (entityRefs.isEmpty()) {
+			return true;
 		}
 
 		// Convert entities to a set of reference strings for more efficient lookups
