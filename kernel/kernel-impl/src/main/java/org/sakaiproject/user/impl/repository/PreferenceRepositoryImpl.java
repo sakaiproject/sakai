@@ -8,6 +8,8 @@ import org.sakaiproject.user.api.model.Preference;
 import org.sakaiproject.user.api.repository.PreferenceRepository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Slf4j
 public class PreferenceRepositoryImpl extends SpringCrudRepositoryImpl<Preference, String> implements PreferenceRepository {
     // Explicitly set the domain class for this repository
