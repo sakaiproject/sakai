@@ -45,11 +45,11 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
       <div role="tablist">
       ${this._rubrics.map(r => html`
         <sakai-rubric-readonly .rubric=${r}
-        @copy-to-site=${this.copyToSite}
-        @delete-rubric=${this.showDeleteModal}
-        @revoke-shared-rubric=${this.sharingChange}
-        ?enablePdfExport=${this.enablePdfExport}
-        ?is-super-user=${this.isSuperUser}>
+            @copy-to-site=${this.copyToSite}
+            @delete-rubric=${this.showDeleteModal}
+            @revoke-shared-rubric=${this.sharingChange}
+            ?enablePdfExport=${this.enablePdfExport}
+            ?is-super-user=${this.isSuperUser}>
         </sakai-rubric-readonly>
       `)}
       </div>
