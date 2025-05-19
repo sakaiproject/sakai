@@ -24,7 +24,7 @@ public class PreferenceRepositoryImpl extends SpringCrudRepositoryImpl<Preferenc
     @Override
     @Transactional
     public <S extends Preference> S save(S entity) {
-        SessionFactory sf = getSessionFactory();
+        SessionFactory sf = sessionFactory;
         if (sf == null) {
             log.error("SessionFactory is null, cannot save entity");
             return entity;
@@ -53,7 +53,7 @@ public class PreferenceRepositoryImpl extends SpringCrudRepositoryImpl<Preferenc
                 return Optional.empty();
             }
             
-            SessionFactory sf = getSessionFactory();
+            SessionFactory sf = sessionFactory;
             if (sf == null) {
                 log.error("SessionFactory is null, cannot find entity");
                 return Optional.empty();
@@ -89,7 +89,7 @@ public class PreferenceRepositoryImpl extends SpringCrudRepositoryImpl<Preferenc
                 return;
             }
             
-            SessionFactory sf = getSessionFactory();
+            SessionFactory sf = sessionFactory;
             if (sf == null) {
                 log.error("SessionFactory is null, cannot delete entity");
                 return;
