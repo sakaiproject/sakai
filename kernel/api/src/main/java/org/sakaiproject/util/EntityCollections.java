@@ -22,17 +22,34 @@
 package org.sakaiproject.util;
 
 import java.util.Collection;
-import java.util.Iterator;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.sakaiproject.entity.api.Entity;
 
 /**
  * <p>
- * EntityUtil collects some entity utility methods dealing with collections of entities and entity references.
+ * EntityCollections provides utility methods for working with collections of entities and entity references
+ * in the Sakai platform. This class facilitates common operations such as comparing, testing, and manipulating
+ * collections of Entity objects and their reference strings.
+ * </p>
+ * <p>
+ * The methods in this class help with operations like:
+ * <ul>
+ *   <li>Testing for intersection between collections of entity references and entity objects</li>
+ *   <li>Checking if one collection is contained within another</li>
+ *   <li>Verifying equality between collections of different types</li>
+ *   <li>Converting between collections of entities and their reference strings</li>
+ *   <li>Computing differences between collections</li>
+ * </ul>
+ * </p>
+ * <p>
+ * These utilities are particularly useful when working with Sakai's entity framework and
+ * when implementing entity producers or consumers that need to manipulate collections of entities.
  * </p>
  */
-public class EntityCollections
-{
+public class EntityCollections {
+
 	/**
 	 * See if the collection of entity reference strings has at least one entity that is in the collection of Entity objects.
 	 * 
@@ -40,24 +57,17 @@ public class EntityCollections
 	 *        The collection (String) of entity references.
 	 * @param entities
 	 *        The collection (Entity) of entity objects.
-	 * @return true if there is interesection, false if not.
+	 * @return true if there is intersection, false if not.
 	 */
-	public static boolean isIntersectionEntityRefsToEntities(Collection<String> entityRefs, Collection<Entity> entities)
-	{
-		for (Iterator<String> iRefs = entityRefs.iterator(); iRefs.hasNext();)
-		{
-			String findThisEntityRef = iRefs.next();
-			for (Iterator<Entity> iEntities = entities.iterator(); iEntities.hasNext();)
-			{
-				String thisEntityRef = ((Entity) iEntities.next()).getReference();
-				if (thisEntityRef.equals(findThisEntityRef))
-				{
-					return true;
-				}
-			}
+	public static boolean isIntersectionEntityRefsToEntities(Collection<String> entityRefs, Collection<? extends Entity> entities) {
+		if (entityRefs == null || entities == null || entityRefs.isEmpty() || entities.isEmpty()) {
+			return false;
 		}
 
-		return false;
+		return entityRefs.stream()
+			.anyMatch(ref -> entities.stream()
+				.map(Entity::getReference)
+				.anyMatch(ref::equals));
 	}
 
 	/**
@@ -69,15 +79,18 @@ public class EntityCollections
 	 *        The collection (Entity) of entity objects.
 	 * @return true if there is containment, false if not.
 	 */
-	public static boolean isContainedEntityRefsToEntities(Collection<String> entityRefs, Collection<Entity> entities)
-	{
-		for (Iterator<String> iRefs = entityRefs.iterator(); iRefs.hasNext();)
-		{
-			String findThisEntityRef = iRefs.next();
-			if (!entityCollectionContainsRefString(entities, findThisEntityRef)) return false;
+	public static boolean isContainedEntityRefsToEntities(Collection<String> entityRefs, Collection<? extends Entity> entities) {
+		// null or empty sets are never contained
+		if (entityRefs == null || entities == null || entities.isEmpty() || entityRefs.isEmpty()) {
+			return false;
 		}
 
-		return true;
+		// Convert entities to a set of reference strings for more efficient lookups
+		Collection<String> entityRefStrings = entities.stream()
+			.map(Entity::getReference)
+			.collect(Collectors.toSet());
+
+		return entityRefStrings.containsAll(entityRefs);
 	}
 
 	/**
@@ -89,33 +102,29 @@ public class EntityCollections
 	 *        The collection (Entity) of entity objects.
 	 * @return true if there is a match, false if not.
 	 */
-	public static boolean isEqualEntityRefsToEntities(Collection<String> entityRefs, Collection<Entity> entities)
-	{
-		// if the colletions are the same size
-		if (entityRefs.size() != entities.size()) return false;
-
-		// and each ref is found
-		for (Iterator<String> iRefs = entityRefs.iterator(); iRefs.hasNext();)
-		{
-			String entityRef = iRefs.next();
-			if (!entityCollectionContainsRefString(entities, entityRef)) {
-				return false;
-			}
-		}
-		// we need the second loop incase there is duplication of enements
-		for (Iterator<Entity> iEntities = entities.iterator(); iEntities.hasNext();)
-		{
-			String findThisEntityRef = iEntities.next().getReference();
-			if(!entityRefs.contains(findThisEntityRef)) {
-				return false;
-			}
+	public static boolean isEqualEntityRefsToEntities(Collection<String> entityRefs, Collection<? extends Entity> entities) {
+		// If the collections are null or not the same size, they can't be equal
+		if (entityRefs == null || entities == null || entityRefs.size() != entities.size()) {
+			return false;
 		}
 
-		return true;
+		// Convert entities to a set of reference strings for more efficient lookups
+		Collection<String> entityRefStrings = entities.stream()
+			.map(Entity::getReference)
+			.collect(Collectors.toSet());
+
+		// Check if all entityRefs are in entityRefStrings
+		if (entityRefs.stream().anyMatch(ref -> !entityRefStrings.contains(ref))) {
+			return false;
+		}
+
+		// Check if all entityRefStrings are in entityRefs
+		// This is needed in case there are duplicates in one collection but not the other
+		return entityRefs.containsAll(entityRefStrings);
 	}
 
 	/**
-	 * Test a collection of Entity object for the specified entity reference
+	 * Test a collection of Entity objects for the specified entity reference
 	 * 
 	 * @param entities
 	 *        The collection (Entity) of entities
@@ -123,15 +132,14 @@ public class EntityCollections
 	 *        The string entity reference to find.
 	 * @return true if found, false if not.
 	 */
-	public static boolean entityCollectionContainsRefString(Collection<Entity> entities, String entityRef)
-	{
-		for (Iterator<Entity> i = entities.iterator(); i.hasNext();)
-		{
-			Entity entity = i.next();
-			if (entity.getReference().equals(entityRef)) return true;
+	public static boolean entityCollectionContainsRefString(Collection<? extends Entity> entities, String entityRef) {
+		if (entities == null || entityRef == null || entities.isEmpty()) {
+			return false;
 		}
 
-		return false;
+		return entities.stream()
+			.map(Entity::getReference)
+			.anyMatch(entityRef::equals);
 	}
 
 	/**
@@ -143,16 +151,13 @@ public class EntityCollections
 	 *        The Entity to find.
 	 * @return true if found, false if not.
 	 */
-	public static boolean refCollectionContainsEntity(Collection<String> refs, Entity entity)
-	{
-		String targetRef = entity.getReference();
-		for (Iterator<String> i = refs.iterator(); i.hasNext();)
-		{
-			String entityRef = i.next();
-			if (entityRef.equals(targetRef)) return true;
+	public static boolean refCollectionContainsEntity(Collection<String> refs, Entity entity) {
+		if (refs == null || entity == null || refs.isEmpty()) {
+			return false;
 		}
 
-		return false;
+		String targetRef = entity.getReference();
+		return refs.contains(targetRef);
 	}
 
 	/**
@@ -163,40 +168,55 @@ public class EntityCollections
 	 * @param entities
 	 *        The collection (Entity) of entity objects to use.
 	 */
-	public static void setEntityRefsFromEntities(Collection<String> refs, Collection<Entity> entities)
-	{
+	public static void setEntityRefsFromEntities(Collection<String> refs, Collection<? extends Entity> entities) {
+		if (refs == null || entities == null) {
+			return;
+		}
+
 		refs.clear();
-		for (Iterator<Entity> i = entities.iterator(); i.hasNext();)
-		{
-			Entity entity = i.next();
-			refs.add(entity.getReference());
+
+		if (!entities.isEmpty()) {
+			entities.stream()
+				.map(Entity::getReference)
+				.forEach(refs::add);
 		}
 	}
 
 	/**
-	 * Fill in the two collections of Entity reference strings - those added in newEntities that were not in oldEntityRefs, and those removed, i.e. in oldEntityRefs not in newEntities.
+	 * Fill in the two collections of Entity reference strings - those added in newEntities that were not in oldEntityRefs, 
+	 * and those removed, i.e. in oldEntityRefs not in newEntities.
+	 * 
+	 * @param addedEntities
+	 *        The collection to fill with references to entities that are in newEntities but not in oldEntityRefs.
+	 * @param removedEntities
+	 *        The collection to fill with references to entities that are in oldEntityRefs but not in newEntities.
+	 * @param newEntities
+	 *        The collection of new Entity objects to compare against oldEntityRefs.
+	 * @param oldEntityRefs
+	 *        The collection of old entity reference strings to compare against newEntities.
 	 */
-	public static void computeAddedRemovedEntityRefsFromNewEntitiesOldRefs(Collection<String> addedEntities, Collection<String> removedEntities,
-			Collection<Entity> newEntities, Collection<String> oldEntityRefs)
-	{
-		// added
-		for (Iterator<Entity> i = newEntities.iterator(); i.hasNext();)
-		{
-			Entity entity = i.next();
-			if (!refCollectionContainsEntity(oldEntityRefs, entity))
-			{
-				addedEntities.add(entity.getReference());
-			}
+	public static void computeAddedRemovedEntityRefsFromNewEntitiesOldRefs(Collection<String> addedEntities,
+																		   Collection<String> removedEntities,
+																		   Collection<? extends Entity> newEntities,
+																		   Collection<String> oldEntityRefs) {
+		if (addedEntities == null || removedEntities == null || newEntities == null || oldEntityRefs == null) {
+			return;
 		}
 
-		// removed
-		for (Iterator<String> i = oldEntityRefs.iterator(); i.hasNext();)
-		{
-			String entityRef = i.next();
-			if (!entityCollectionContainsRefString(newEntities, entityRef))
-			{
-				removedEntities.add(entityRef);
-			}
-		}
+		// Convert collections to sets for more efficient lookups
+		Collection<String> newEntityRefs = newEntities.stream()
+			.map(Entity::getReference)
+			.collect(Collectors.toSet());
+
+		// Find added entities (in newEntities but not in oldEntityRefs)
+		newEntities.stream()
+			.map(Entity::getReference)
+			.filter(ref -> !oldEntityRefs.contains(ref))
+			.forEach(addedEntities::add);
+
+		// Find removed entities (in oldEntityRefs but not in newEntities)
+		oldEntityRefs.stream()
+			.filter(ref -> !newEntityRefs.contains(ref))
+			.forEach(removedEntities::add);
 	}
 }

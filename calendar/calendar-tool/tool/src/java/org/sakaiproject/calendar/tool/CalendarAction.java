@@ -52,6 +52,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.api.AliasService;
+import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.calendar.api.Calendar;
@@ -59,7 +60,7 @@ import org.sakaiproject.calendar.api.CalendarConstants;
 import org.sakaiproject.calendar.api.CalendarEdit;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
-import org.sakaiproject.calendar.api.CalendarEventVector;
+import org.sakaiproject.calendar.api.CalendarEventList;
 import org.sakaiproject.calendar.api.ExternalCalendarSubscriptionService;
 import org.sakaiproject.calendar.api.ExternalSubscriptionDetails;
 import org.sakaiproject.calendar.api.OpaqueUrl;
@@ -143,7 +144,7 @@ extends VelocityPortletStateAction
 	private static ResourceLoader rb = new ResourceLoader("calendar");
 
 	private static final String ALERT_MSG_KEY = "alertMessage";
-	
+
 	private static final String CONFIRM_IMPORT_WIZARD_STATE = "CONFIRM_IMPORT";
 	private static final String WIZARD_IMPORT_FILE = "importFile";
 	private static final String GENERIC_SELECT_FILE_IMPORT_WIZARD_STATE = "GENERIC_SELECT_FILE";
@@ -158,20 +159,20 @@ extends VelocityPortletStateAction
 	private static final String WEEK_VIEW = "week";
 	private static final String DAY_VIEW = "day";
 	private static final String MONTH_VIEW = "month";
-	
+
 	private static final String STATE_YEAR = "calYear";
 	private static final String STATE_MONTH = "calMonth";
 	private static final String STATE_DAY = "calDay";
-	
+
 	private static final String STATE_SET_FREQUENCY = "setFrequency";
 	private static final String FREQUENCY_SELECT = "frequencySelect";
 	private static final String TEMP_FREQ_SELECT = "tempFrequencySelect";
 	private static final String FREQ_ONCE = "once";
 	private static final String DEFAULT_FREQ = FREQ_ONCE;
-	
+
 	private static final String SSTATE__RECURRING_RULE = "rule";
 	private static final String STATE_BEFORE_SET_RECURRENCE = "state_before_set_recurrence";
-	
+
 	private final static String TIME_FILTER_OPTION_VAR = "timeFilterOption";
 	private final static String TIME_FILTER_SETTING_CUSTOM_START_YEAR = "customStartYear";
 	private final static String TIME_FILTER_SETTING_CUSTOM_END_YEAR = "customEndYear";
@@ -179,28 +180,28 @@ extends VelocityPortletStateAction
 	private final static String TIME_FILTER_SETTING_CUSTOM_END_MONTH = "customEndMonth";
 	private final static String TIME_FILTER_SETTING_CUSTOM_START_DAY = "customStartDay";
 	private final static String TIME_FILTER_SETTING_CUSTOM_END_DAY = "customEndDay";
-	
+
 	private static final String FORM_ALIAS			= "alias";
 	private static final String FORM_ICAL_ENABLE = "icalEnable";
 	private static final String ICAL_EXTENSION = ".ics";
 
 	/** state selected view */
 	private static final String STATE_SELECTED_VIEW = "state_selected_view";
-	
+
 	/** DELIMITER used to separate the list of custom fields for this calendar. */
 	private final static String ADDFIELDS_DELIMITER = "_,_";
 
 	protected final static String STATE_INITED = "calendar.state.inited";
-	
+
 	/** for sorting in list view */
 	private static final String STATE_DATE_SORT_DSC = "dateSortedDsc";
-	
+
 	// for group/section awareness
 	private final static String STATE_SCHEDULE_TO = "scheduleTo";
 	private final static String STATE_SCHEDULE_TO_GROUPS = "scheduleToGroups";
-	
+
 	private ContentHostingService contentHostingService;
-   
+
 	private EntityBroker entityBroker;
 
 	// Dependency: setup in init
@@ -212,17 +213,20 @@ extends VelocityPortletStateAction
 	private ExternalCalendarSubscriptionService externalCalendarSubscriptionService;
 
 	private AliasService aliasService;
-	
+
 	private TaskService taskService;
-   
+
 	// tbd fix shared definition from org.sakaiproject.assignment.api.AssignmentEntityProvider
 	private final static String ASSN_ENTITY_ID     = "assignment";
 	private final static String ASSN_ENTITY_ACTION = "deepLink";
 	private final static String ASSN_ENTITY_PREFIX = EntityReference.SEPARATOR+ASSN_ENTITY_ID+EntityReference.SEPARATOR+ASSN_ENTITY_ACTION+EntityReference.SEPARATOR;
-	
+
+	private final static String SAMIGO_ENTITY_ID   = "sam_pub";
+	private final static String SAMIGO_ENTITY_PREFIX = EntityReference.SEPARATOR+SAMIGO_ENTITY_ID+EntityReference.SEPARATOR;
+
 	private final static String FULLCALENDAR_ASPECTRATIO = ServerConfigurationService.getString("calendar.fullCalendar.aspectRatio", "1.35");
 	private final static String FULLCALENDAR_SCROLLTIME = ServerConfigurationService.getString("calendar.fullCalendar.scrollTime", "06:00:00"); 
-   
+
 	private NumberFormat monthFormat = null;
 
 	public CalendarAction() {
@@ -231,7 +235,7 @@ extends VelocityPortletStateAction
 		externalCalendarSubscriptionService = ComponentManager.get(ExternalCalendarSubscriptionService.class);
 		taskService = ComponentManager.get(TaskService.class);
 	}
-	
+
 	/**
 	 * Converts a string that is used to store additional attribute fields to an array of strings.
 	 */
@@ -239,7 +243,7 @@ extends VelocityPortletStateAction
 	{
 		String [] fields = addfields_str.split(delimiter);
 		List destStringList = new ArrayList();
-			
+
 		// Don't copy empty fields.
 		for ( int i=0; i < fields.length; i++)
 		{
@@ -248,95 +252,95 @@ extends VelocityPortletStateAction
 				destStringList.add(fields[i]);
 			}
 		}
-			
+
 		return (String[]) destStringList.toArray(new String[destStringList.size()]);
 	}
-	
+
 	// myYear class
 	public class MyYear
 	{
 		private MyMonth[][] yearArray;
-		
+
 		private int year;
 		private MyMonth m;
-		
+
 		public MyYear()
 		{
 			yearArray = new MyMonth[4][3];
 			m = null;
 			year = 0;
 		}
-		
+
 		public void setMonth(MyMonth m, int x, int y)
 		{
-			
+
 			yearArray[x][y] = m;
-			
+
 		}
-		
-		
+
+
 		public MyMonth getMonth(int x, int y)
 		{
 			m = yearArray[x][y];
 			return (m);
 		}
-		
+
 		public void setYear(int y)
 		{
 			year = y;
 		}
-		
+
 		public int getYear()
 		{
 			return year;
 		}
-		
-		
+
+
 	}// myYear class
-	
+
 	// my week
 	public class MyWeek
 	{
 		private MyDate[] week;
 		private int weekOfMonth;
-		
+
 		public MyWeek()
 		{
 			week = new MyDate[7];
 			weekOfMonth = 0;
 		}
-		
+
 		public void setWeek(int i, MyDate date)
 		{
 			week[i] = date;
 		}
-		
+
 		public MyDate getWeek(int i)
 		{
 			return week[i];
 		}
-		
+
 		public String getWeekRange()
 		{
 			String range = null;
 			range =	week[0].getTodayDate() + "	  "+ "-" + " " + week[6].getTodayDate();
 			return range;
 		}
-		
+
 		public void setWeekOfMonth(int w)
 		{
 			weekOfMonth = w;
 		}
-		
+
 		public int getWeekOfMonth()
 		{
 			return weekOfMonth+1;
 		}
-		
-		
-		
+
+
+
 	}
-	
+
 	// myMonth class
 	public class MyMonth
 	{
@@ -346,7 +350,7 @@ extends VelocityPortletStateAction
 		private int month;
 		private int row;
 		private int numberOfDaysInMonth;
-		
+
 		public MyMonth()
 		{
 			result = null;
@@ -355,60 +359,60 @@ extends VelocityPortletStateAction
 			row = 0;
 			numberOfDaysInMonth=0;
 		}
-		
+
 		public void setRow(int r)
 		{
 			row = r;
 		}
-		
+
 		public int getRow()
 		{
 			return row;
 		}
-		
+
 		public void setNumberOfDaysInMonth(int daysInMonth)
 		{
 			numberOfDaysInMonth = daysInMonth;
 		}
-		
+
 		public int getNumberOfDaysInMonth()
 		{
 			return numberOfDaysInMonth;
 		}
-		
+
 		public void setDay(MyDate d,int x, int y)
 		{
 			monthArray[x][y] = d;
 		}
-		
+
 		public MyDate getDay(int x,int y)
 		{
 			result = monthArray[x][y];
 			return (result);
 		}
-		
+
 		public void setMonthName(String name)
 		{
 			monthName = name;
 		}
-		
+
 		public String getMonthName()
 		{
 			return monthName;
 		}
-		
+
 		public void setMonth(int m)
 		{
 			month = m;
 		}
-		
+
 		public int getMonth()
 		{
 			return month;
 		}
-		
+
 	}// myMonth
-	
+
 	// myDay class
 	public class MyDay
 	{
@@ -421,7 +425,7 @@ extends VelocityPortletStateAction
 		private int month;
 		private String dayName; // name for each day
 		private String todayDate;
-		
+
 		public MyDay()
 		{
 			m_data = "";
@@ -431,58 +435,58 @@ extends VelocityPortletStateAction
 			dayName = "";
 			todayDate = "";
 		}
-		
-		
+
+
 		public void setDay(int d)
 		{
 			day = d;
 		}
-		
+
 		public int getDay()
 		{
 			return day;
 		}
-		
+
 		public void setFlag(int flag)
 		{
 			m_flag = flag;
 		}
-		
-		
+
+
 		public void setData(String data)
 		{
 			m_data = data;
 		}
-		
-		
+
+
 		public int getFlag()
 		{
 			return m_flag;
 		}
-		
-		
+
+
 		public String getData()
 		{
 			return(m_data);
 		}
-		
-		
+
+
 		public void setAttachment(String data)
 		{
 			m_attachment_data = data;
 		}
-		
-		
+
+
 		public String getAttachment()
 		{
 			return(m_attachment_data);
 		}
-		
+
 		public void setDayName(String dname)
 		{
 			dayName = dname;
 		}
-		
+
 		public String getDayName()
 		{
 			SimpleDateFormat df = new SimpleDateFormat("EEE");
@@ -490,51 +494,51 @@ extends VelocityPortletStateAction
 			dayName = df.format(calendar.getTime());
 			return dayName;
 		}
-		
-		
+
+
 		public void setTodayDate(String date)
 		{
 			todayDate = date;
 		}
-		
+
 		public String getTodayDate()
 		{
 			return todayDate;
 		}
-		
+
 		public void setYear(int y)
 		{
 			year = y;
 		}
-		
+
 		public int getYear()
 		{
 			return year;
 		}
-		
+
 		public void setMonth(int m)
 		{
 			month = m;
 		}
-		
+
 		public int getMonth()
 		{
 			return month;
 		}
 	}// myDay class
-	
+
 	public class EventClass
 	{
 		private String displayName;
 		private long firstTime;
 		private String eventId;
-		
+
 		public EventClass()
 		{
 			displayName = "";
 			firstTime = 0;
 		}
-		
+
 		public void setDisplayName(String name)
 		{
 			displayName = name;
@@ -543,82 +547,82 @@ extends VelocityPortletStateAction
 		{
 			firstTime = time;
 		}
-		
+
 		public String getDisplayName()
 		{
 			return displayName;
 		}
-		
+
 		public long getfirstTime()
 		{
 			return firstTime;
 		}
-		
+
 		public void setId(String id)
 		{
 			eventId = id;
 		}
-		
+
 		public String getId()
 		{
 			return eventId;
 		}
 	}
-	
+
 	public class EventDisplayClass
 	{
 		private CalendarEvent calendareventobj;
 		private boolean eventConflict;
 		private int eventPosition;
-		
+
 		public EventDisplayClass()
 		{
-			
+
 			eventConflict = false;
 			calendareventobj = null;
 			eventPosition = 0;
 		}
-		
-		
+
+
 		public void setEvent(CalendarEvent ce, boolean eventconf, int pos)
 		{
 			eventConflict = eventconf;
 			calendareventobj = ce;
 			eventPosition = pos;
-			
+
 		}
-		
-		
+
+
 		public void setFlag(boolean conflict)
 		{
 			eventConflict = conflict;
 		}
-		
+
 		public void setPosition(int position)
 		{
 			eventPosition = position;
 		}
-		
-		
+
+
 		public int getPosition()
 		{
 			return eventPosition;
 		}
-		
+
 		public CalendarEvent getEvent()
 		{
 			return calendareventobj;
 		}
-		
+
 		public boolean getFlag()
 		{
 			return eventConflict;
 		}
-		
-		
-		
+
+
+
 	}
-	
+
 	public class MyDate
 	{
 		private MyDay day = null;
@@ -628,100 +632,100 @@ extends VelocityPortletStateAction
 		private Iterator iteratorObj = null;
 		private int flag = -1;
 		private Vector eVector;
-		
-		
-		
+
+
+
 		public MyDate()
 		{
 			day = new MyDay();
 			month = new MyMonth();
 			year = new MyYear();
 		}
-		
+
 		public void setTodayDate(int m, int d, int y)
 		{
 			day.setDay(d);
 			month.setMonth(m);
 			year.setYear(y);
 		}
-		
-		
+
+
 		public void setNumberOfDaysInMonth(int daysInMonth)
 		{
 			month.setNumberOfDaysInMonth(daysInMonth);
 		}
-		
-		
+
+
 		public int getNumberOfDaysInMonth()
 		{
 			return month.getNumberOfDaysInMonth();
 		}
-		
-		
+
+
 		public String getTodayDate()
 		{
 			DateFormat f = DateFormat.getDateInstance(DateFormat.SHORT);
-						
+
 			return f.format(new Date(year.getYear(), month.getMonth(), day.getDay()));
 		}
-		
+
 		public void setFlag(int i)
 		{
 			flag = i;
 		}
-		
+
 		public int getFlag()
 		{
 			return flag;
 		}
-		
+
 		public void setDayName(String name)
 		{
 			dayName = name;
 		}
-		
+
 		public void setNameOfMonth(String name)
 		{
 			month.setMonthName(name);
 		}
-		
+
 		public String getDayName()
 		{
 			return dayName;
 		}
-		
+
 		public int getDay()
 		{
 			return day.getDay();
 		}
-		
+
 		public int getMonth()
 		{
 			return month.getMonth();
 		}
-		
+
 		public String getNameOfMonth()
 		{
 			return month.getMonthName();
 		}
-		
+
 		public int getYear()
 		{
 			return year.getYear();
 		}
-		
+
 		public void setEventBerWeek(Vector eventVector)
 		{
-			
+
 			eVector = eventVector;
 		}
-		
+
 		public void setEventBerDay(Vector eventVector)
 		{
-			
+
 			eVector = eventVector;
 		}
-		
+
 		public Vector getEventsPerDay(int index)
 		{
 			Vector dayVector = new Vector();
@@ -731,31 +735,31 @@ extends VelocityPortletStateAction
 
 			if (dayVector == null)
 				dayVector = new Vector();
-			
+
 			return dayVector;
 
 		}
-		
-		
+
+
 		public Vector getEventsBerWeek(int index)
 		{
 			Vector dayVector = new Vector();
 			if (eVector != null)
 				dayVector = (Vector)eVector.get(index);
-				
+
 			if (dayVector == null)
 				dayVector = new Vector();
-				
+
 			return dayVector;
 		}
-		
-		
+
+
 		public void setEvents(Iterator t)
 		{
 			iteratorObj = t;
 		}
-		
-		
+
+
 		public Vector getEvents()
 		{
 			Vector vectorObj = new Vector();
@@ -770,23 +774,23 @@ extends VelocityPortletStateAction
 			}
 			return vectorObj;
 		}
-		
+
 	}
-	
+
 	public class Helper
 	{
 		private int numberOfActivity =0;
-		
-		
+
+
 		public int getduration(long x, int b)
 		{
-			
+
 			Long l = Long.valueOf(x);
 			int v = l.intValue()/3600000;
 			return v;
 		}
-		
-		
+
+
 		public int getFractionIn(long x,int b)
 		{
 			Long ll = Long.valueOf(x);
@@ -794,15 +798,15 @@ extends VelocityPortletStateAction
 			int m = (y/60000);
 			return m;
 		}
-		
-		
+
+
 		public CalendarEvent getActivity(Vector mm)
 		{
 			int size = mm.size();
 			numberOfActivity = size;
-			
+
 			CalendarEvent activityEvent,event=null;
-			
+
 			if(size>0)
 			{
 				activityEvent = (CalendarEvent)mm.elementAt(0);
@@ -819,23 +823,23 @@ extends VelocityPortletStateAction
 			}
 			else
 				event = null;
-			
+
 			return event;
 		}
-		
-		
+
+
 		public int getNumberOfActivity()
 		{
 			return numberOfActivity;
 		}
-		
+
 		public int getInt(long x)
 		{
 			Long temp = Long.valueOf(x);
 			return(temp.intValue());
 		}
 	}
-	
+
 	/**
 	 * An inner class that can be initiated to perform text formatting
 	 */
@@ -844,9 +848,9 @@ extends VelocityPortletStateAction
 		// constructor
 		public CalendarFormattedText()
 		{
-			
+
 		}
-		
+
 		/**
 		 * Use of FormattedText object's trimFormattedText function.
 		 * @param formattedText The formatted text to trim
@@ -860,7 +864,7 @@ extends VelocityPortletStateAction
 			return sb.toString();
 		}
 	}
-	
+
 	/**
 	 * Given a current date via the calendarUtil paramter, returns a TimeRange for the week.
 	 */
@@ -868,19 +872,19 @@ extends VelocityPortletStateAction
 	CalendarUtil calendarUtil)
 	{
 		int dayofweek = 0;
-		
+
 		dayofweek = calendarUtil.getDay_Of_Week(true)-1;
 		int tempCurrentYear = calendarUtil.getYear();
 		int tempCurrentMonth = calendarUtil.getMonthInteger();
 		int tempCurrentDay = calendarUtil.getDayOfMonth();
-		
+
 		calendarUtil.setPrevDate(dayofweek);
-		
+
 		Time startTime = TimeService.newTimeLocal(calendarUtil.getYear(),calendarUtil.getMonthInteger(),calendarUtil.getDayOfMonth(),00,00,00,000);
-		
+
 		calendarUtil.setDay(tempCurrentYear,tempCurrentMonth,tempCurrentDay);
 		dayofweek = calendarUtil.getDay_Of_Week(true);
-		
+
 		if (dayofweek< 7)
 		{
 			for(int i = dayofweek; i<=6;i++)
@@ -888,43 +892,43 @@ extends VelocityPortletStateAction
 				calendarUtil.nextDate();
 			}
 		}
-		
+
 		Time endTime = TimeService.newTimeLocal(calendarUtil.getYear(),calendarUtil.getMonthInteger(),calendarUtil.getDayOfMonth(),23,59,59,000);
-		
+
 		return TimeService.newTimeRange(startTime,endTime,true,true);
-		
+
 	} // etWeekTimeRange
-	
+
 	/**
 	 * Given a current date via the calendarUtil paramter, returns a TimeRange for the month.
 	 */
 	public TimeRange getMonthTimeRange(CalendarUtil calendarUtil)
 	{
-		
+
 		int dayofweek = 0;
-		
+
 		calendarUtil.setDay(calendarUtil.getYear(), calendarUtil.getMonthInteger(), 1);
 		int numberOfCurrentDays = calendarUtil.getNumberOfDays();
 		int tempCurrentMonth = calendarUtil.getMonthInteger();
 		int tempCurrentYear = calendarUtil.getYear();
-		
+
 		// get the index of the first day in the month
 		int firstDay_of_Month = calendarUtil.getDay_Of_Week(true) - 1;
-		
+
 		// Construct the time range to get all the days in the current month plus the days in the first week in the previous month and
 		// the days in the last week from the last month
-		
+
 		// get the days in the first week that exists in the prev month
 		calendarUtil.setPrevDate(firstDay_of_Month);
-		
+
 		Time startTime = TimeService.newTimeLocal(calendarUtil.getYear(),calendarUtil.getMonthInteger(),calendarUtil.getDayOfMonth(),00,00,00,000);
-		
+
 		// set the date object to the current month and last day in the current month
 		calendarUtil.setDay(tempCurrentYear,tempCurrentMonth,numberOfCurrentDays);
-		
+
 		// get the index of the last day in the current month
 		dayofweek = calendarUtil.getDay_Of_Week(true);
-		
+
 		// move the date object to the last day in the last week of the current month , this day will be one of those days in the
 		// following month
 		if (dayofweek < 7)
@@ -934,8 +938,8 @@ extends VelocityPortletStateAction
 				calendarUtil.nextDate();
 			}
 		}
-		
-		
+
+
 		Time endTime = TimeService.newTimeLocal(calendarUtil.getYear(),calendarUtil.getMonthInteger(),calendarUtil.getDayOfMonth(),23,59,59,000);
 		return TimeService.newTimeRange(startTime,endTime,true,true);
 	}
@@ -950,12 +954,12 @@ extends VelocityPortletStateAction
 
 		// Name used in the velocity template for the list of merged/non-merged calendars
 		private final String mergedCalendarsCollection = "mergedCalendarsCollection";
-		
+
 		public MergePage()
 		{
 			super();
 		}
-		
+
 		/**
 		 * Build the context for showing merged view
 		 */
@@ -971,7 +975,7 @@ extends VelocityPortletStateAction
 				loadChannels( state.getPrimaryCalendarReference(), 
 								  portlet.getPortletConfig().getInitParameter(PORTLET_CONFIG_PARM_MERGED_CALENDARS),
 								  new EntryProvider() );
-		
+
 			// Place this object in the context so that the velocity template
 			// can get at it.
 			context.put(mergedCalendarsCollection, calendarList);
@@ -982,7 +986,7 @@ extends VelocityPortletStateAction
 
 			buildMenu(portlet, context, runData, state);
 		}
-		
+
 		/**
 		 * Action is used when the docancel is requested when the user click on cancel  in the new view
 		 */
@@ -994,16 +998,16 @@ extends VelocityPortletStateAction
 		{
 			// Go back to whatever state we were in beforehand.
 			state.setReturnState(CalendarAction.STATE_INITED);
-			
+
 			// cancel the options, release the site lock, cleanup
 			cancelOptions();
-			
+
 			// Clear the previous state so that we don't get confused elsewhere.
 			state.setPrevState("");
-			
+
 			sstate.removeAttribute(STATE_MODE);
 		} // doCancel
-		
+
 		/**
 		 * Handle the "Merge" button on the toolbar
 		 */
@@ -1016,10 +1020,10 @@ extends VelocityPortletStateAction
 			// TODO: really?
 			// get a lock on the site and setup for options work
 			doOptions(runData, context);
-			
+
 			// if we didn't end up in options mode, bail out
 			if (!MODE_OPTIONS.equals(sstate.getAttribute(STATE_MODE))) return;
-			
+
 			// Save the previous state so that we can get to it after we're done with the options mode.
 			// if the previous state is Description, we need to remember one more step back
 			// coz there is a back link in description view
@@ -1031,10 +1035,10 @@ extends VelocityPortletStateAction
 			{
 				state.setPrevState(state.getState());
 			}
-			
+
 			state.setState(CalendarAction.STATE_MERGE_CALENDARS);
 		} // doMerge
-		
+
 		/**
 		 * Handles the user clicking on the save button on the page to specify which
 		 * calendars will be merged into the present schedule.
@@ -1049,17 +1053,17 @@ extends VelocityPortletStateAction
 			MergedList mergedCalendarList =
 			(MergedList) sstate.getAttribute(
 			CalendarAction.SSTATE_ATTRIBUTE_MERGED_CALENDARS);
-			
+
 			if (mergedCalendarList != null)
 			{
 				// Get the information from the run data and load it into
 				// our calendar list that we have in the session state.
 				mergedCalendarList.loadFromRunData(runData.getParameters());
 			}
-			
+
 			// update the tool config
 			Placement placement = ToolManager.getCurrentPlacement();
-			
+
 			// myWorkspace is special (a null mergedCalendar list defaults to all channels),
 			// so we add the primary calendar here to indicate no other channels are wanted
 			if (mergedCalendarList != null && isOnWorkspaceTab())
@@ -1070,7 +1074,7 @@ extends VelocityPortletStateAction
 				placement.getPlacementConfig().setProperty(
 											 PORTLET_CONFIG_PARM_MERGED_CALENDARS, channelRef );
 			}
-			
+
 			// Otherwise, just set the list as specified
 			else if (mergedCalendarList != null && !isOnWorkspaceTab())
 			{
@@ -1084,20 +1088,20 @@ extends VelocityPortletStateAction
 			{
 				placement.getPlacementConfig().remove(PORTLET_CONFIG_PARM_MERGED_CALENDARS);
 			}
-			
+
 			// commit the change
 			saveOptions();
-			
+
 			// Go back to whatever state we were in beforehand.
 			state.setReturnState(CalendarAction.STATE_INITED);
-			
+
 			// Clear the previous state so that we don't get confused elsewhere.
 			state.setPrevState("");
-			
+
 			sstate.removeAttribute(STATE_MODE);
-			
+
 		} // doUpdate
-		
+
 		/* (non-Javadoc)
 		 * @see org.chefproject.actions.schedulePages.SchedulePage#getMenuHandlerID()
 		 */
@@ -1105,7 +1109,7 @@ extends VelocityPortletStateAction
 		{
 			return mergeScheduleButtonHandler;
 		}
-		
+
 		/* (non-Javadoc)
 		 * @see org.chefproject.actions.schedulePages.SchedulePage#getMenuText()
 		 */
@@ -1113,10 +1117,10 @@ extends VelocityPortletStateAction
 		{
 			return rb.getString("java.merge");
 		}
-		
+
 	}
-	
-	
+
+
 	/**
 	 * This class controls the page that allows the user to add arbitrary
 	 * attributes to the attribute list for the primary calendar that
@@ -1124,21 +1128,21 @@ extends VelocityPortletStateAction
 	 */
 	public class CustomizeCalendarPage
 	{
-		
+
 		//This is the session attribute name to store init and current addFields list
-		
+
 		// Name used in the velocity template for the list of calendar addFields
 		private final static String ADDFIELDS_CALENDARS_COLLECTION = "addFieldsCalendarsCollection";
 		private final static String ADDFIELDS_CALENDARS_COLLECTION_ISEMPTY = "addFieldsCalendarsCollectionIsEmpty";
 		private final static String OPTIONS_BUTTON_HANDLER = "doCustomize";
-		
-		
-		
+
+
+
 		public CustomizeCalendarPage()
 		{
 			super();
 		}
-		
+
 		/**
 		 * Build the context for addfields calendar (Options menu)
 		 */
@@ -1150,14 +1154,14 @@ extends VelocityPortletStateAction
 		SessionState sstate)
 		{
 			String[] addFieldsCalendarArray = null;
-			
+
 			// Get a list of current calendar addFields.	 This is a comma-delimited list.
 			if (sstate.getAttribute(CalendarAction.SSTATE_ATTRIBUTE_ADDFIELDS_PAGE).toString().equals(CalendarAction.PAGE_MAIN))	 //when the 'Options' button click
 			{
 				//when the 'Options' button click
-				
+
 				Calendar calendarObj = null;
-				
+
 				String calId = state.getPrimaryCalendarReference();
 				try
 				{
@@ -1175,10 +1179,10 @@ extends VelocityPortletStateAction
 					log.warn(".buildCustomizeContext(): " + e);
 					return;
 				}
-				
+
 				// Get a current list of add fields.  This is a comma-delimited string.
 				String addfieldsCalendars = calendarObj.getEventFields();
-				
+
 				if (addfieldsCalendars != null)
 				{
 					addFieldsCalendarArray =
@@ -1186,21 +1190,21 @@ extends VelocityPortletStateAction
 					addfieldsCalendars,
 					ADDFIELDS_DELIMITER);
 				}
-				
+
 				sstate.setAttribute(CalendarAction.SSTATE_ATTRIBUTE_ADDFIELDS_CALENDARS_INIT, addfieldsCalendars);
 				sstate.setAttribute(CalendarAction.SSTATE_ATTRIBUTE_ADDFIELDS_CALENDARS, addfieldsCalendars);
-				
+
 				context.put("delFields", (List)sstate.getAttribute(CalendarAction.SSTATE_ATTRIBUTE_DELFIELDS));
 				sstate.removeAttribute(CalendarAction.SSTATE_ATTRIBUTE_DELFIELDS);
 			}
 			else //after the 'Options' button click
 			{
 				String addFieldsCollection = (String) sstate.getAttribute(CalendarAction.SSTATE_ATTRIBUTE_ADDFIELDS_CALENDARS);
-				
+
 				if (addFieldsCollection != null)
 					addFieldsCalendarArray = fieldStringToArray(addFieldsCollection, ADDFIELDS_DELIMITER);
 			}
-			
+
 			// Place this object in the context so that the velocity template
 			// can get at it.
 			context.put(ADDFIELDS_CALENDARS_COLLECTION, addFieldsCalendarArray);
@@ -1211,7 +1215,7 @@ extends VelocityPortletStateAction
 				context.put(ADDFIELDS_CALENDARS_COLLECTION_ISEMPTY, Boolean.valueOf(false));
 
 			buildMenu(portlet, context, runData, state);
-			
+
 		} //buildCustomizeCalendarContext
 
 		/*
@@ -1266,7 +1270,7 @@ extends VelocityPortletStateAction
 					String [] initString = new String[1];
 					initString[0] = addField;
 					addFieldsCalendarList = initString;
-					
+
 				}
 
 				if (dupAddfield.equals("N"))
@@ -1275,13 +1279,13 @@ extends VelocityPortletStateAction
 						addFields = addFields + ADDFIELDS_DELIMITER + addField;
 					else
 						addFields = addField;
-					
+
 					sstate.setAttribute(CalendarAction.SSTATE_ATTRIBUTE_ADDFIELDS_CALENDARS, addFields);
 				}
 			}
 
 			sstate.setAttribute(CalendarAction.SSTATE_ATTRIBUTE_ADDFIELDS_PAGE, CalendarAction.PAGE_ADDFIELDS);
-		
+
 		}
 
 		/**
@@ -1297,11 +1301,11 @@ extends VelocityPortletStateAction
 		{
 			// Go back to whatever state we were in beforehand.
 			state.setReturnState(CalendarAction.STATE_INITED);
-			
+
 			sstate.setAttribute(CalendarAction.SSTATE_ATTRIBUTE_ADDFIELDS_CALENDARS, sstate.getAttribute(CalendarAction.SSTATE_ATTRIBUTE_ADDFIELDS_CALENDARS_INIT));
 			sstate.setAttribute(CalendarAction.SSTATE_ATTRIBUTE_ADDFIELDS_PAGE, CalendarAction.PAGE_MAIN);
 		} // doCancel
-		
+
 		/**
 		 * This initiates the page where the user can add/remove additional
 		 * properties to/from events that will be added to the calendar.
@@ -1323,10 +1327,10 @@ extends VelocityPortletStateAction
 			{
 				state.setPrevState(state.getState());
 			}
-			
+
 			state.setState(CalendarAction.STATE_CUSTOMIZE_CALENDAR);
 		}
-		
+
 		/*
 		 * Handles the removal of event fields in the calendar.
 		 */
@@ -1336,25 +1340,25 @@ extends VelocityPortletStateAction
 		CalendarActionState state,
 		SessionState sstate)
 		{
-			
+
 			ParameterParser params = runData.getParameters();
 			String addFields = (String) sstate.getAttribute(CalendarAction.SSTATE_ATTRIBUTE_ADDFIELDS_CALENDARS);
 			String [] addFieldsCalendarList = null, newAddFieldsCalendarList = null;
 			List delFields = new Vector();
-			
+
 			int nextNewFieldsIndex = 0;
 			if (addFields != null)
 			{
 				addFieldsCalendarList = fieldStringToArray(addFields,ADDFIELDS_DELIMITER);
-				
+
 				// The longest the new array can possibly be is the current size of the list.
 				newAddFieldsCalendarList = new String[addFieldsCalendarList.length];
 
-				
+
 				for (int i=0; i< addFieldsCalendarList.length; i++)
 				{
 					String fieldName = params.getString(addFieldsCalendarList[i]);
-					
+
 					// If a value is present, then that means that the user has checked
 					// the box for the field to be removed.  Don't add it to the
 					// new list of field names.  If it is not present, then add it
@@ -1370,17 +1374,17 @@ extends VelocityPortletStateAction
 				}
 				addFields = arrayToString(newAddFieldsCalendarList, ADDFIELDS_DELIMITER);
 			}
-			
+
 			// Go back to whatever state we were in beforehand.
 			state.setReturnState(CalendarAction.STATE_INITED);
-			
+
 			sstate.setAttribute(CalendarAction.SSTATE_ATTRIBUTE_ADDFIELDS_CALENDARS, addFields);
 			sstate.setAttribute(CalendarAction.SSTATE_ATTRIBUTE_DELFIELDS, delFields);
-			
+
 			sstate.setAttribute(CalendarAction.SSTATE_ATTRIBUTE_ADDFIELDS_PAGE, CalendarAction.PAGE_ADDFIELDS);
-			
+
 		}
-		
+
 		/*
 		 * Handles the saving process of changes fields in calendar events.
 		 */
@@ -1425,7 +1429,7 @@ extends VelocityPortletStateAction
 		{
 			return OPTIONS_BUTTON_HANDLER;
 		}
-		
+
 		/* (non-Javadoc)
 		 * @see org.chefproject.actions.schedulePages.SchedulePage#getMenuText()
 		 */
@@ -1433,7 +1437,7 @@ extends VelocityPortletStateAction
 		{
 			return rb.getString("java.fields");
 		}
-		
+
 		/**
 		 * Loads additional fields information from the calendar object passed
 		 * as a parameter and loads them into the context object for the Velocity
@@ -1445,9 +1449,9 @@ extends VelocityPortletStateAction
 		{
 			// Get a current list of add fields.  This is a ADDFIELDS_DELIMITER string.
 			String addfieldsCalendars = calendarObj.getEventFields();
-			
+
 			String[] addfieldsCalendarArray = null;
-			
+
 			if (addfieldsCalendars != null)
 			{
 				addfieldsCalendarArray =
@@ -1455,7 +1459,7 @@ extends VelocityPortletStateAction
 				addfieldsCalendars,
 				ADDFIELDS_DELIMITER);
 			}
-			
+
 			// Place this object in the context so that the velocity template
 			// can get at it.
 			context.put(ADDFIELDS_CALENDARS_COLLECTION, addfieldsCalendarArray);
@@ -1465,7 +1469,7 @@ extends VelocityPortletStateAction
 			else
 				context.put(ADDFIELDS_CALENDARS_COLLECTION_ISEMPTY, Boolean.valueOf(false));
 		}
-		
+
 		/**
 		 * Loads additional fields from the run data into a provided map object.
 		 */
@@ -1479,7 +1483,7 @@ extends VelocityPortletStateAction
 			{
 				String [] addfields = fieldStringToArray(addfields_str, ADDFIELDS_DELIMITER);
 				String eachfield;
-				
+
 				for (int i=0; i < addfields.length; i++)
 				{
 					eachfield = addfields[i];
@@ -1488,10 +1492,10 @@ extends VelocityPortletStateAction
 			}
 		}
 	}
-	
 
-	
-	
+
+
+
 	/**
 	 * This class controls the page that allows the user to configure
 	 * external calendar subscriptions.
@@ -1623,7 +1627,7 @@ extends VelocityPortletStateAction
 						.calendarSubscriptionReference(contextId, id);
 				String currentUserId = sessionManager.getCurrentSessionUserId();
 				String currentUserTzid = TimeService.getLocalTimeZone().getID();
-				
+
 				addSubscriptions.add(new SubscriptionWrapper(calendarName, ref, currentUserId, currentUserTzid, true));
 
 				// Sort collections by name
@@ -1734,15 +1738,15 @@ extends VelocityPortletStateAction
 					if (!subscriptionTC.isEmpty()) {
 						propValue = subscriptionTC.stream().collect(Collectors.joining(ExternalCalendarSubscriptionService.SUBS_REF_DELIMITER));										
 					}
-					
+
 					String propValueWithTZ = "";
 					if (!subscriptionTCWithTZ.isEmpty()) {
 						propValueWithTZ = subscriptionTCWithTZ.stream().collect(Collectors.joining(ExternalCalendarSubscriptionService.SUBS_REF_DELIMITER));										
 					}
-					
+
 					config.setProperty(ExternalCalendarSubscriptionService.TC_PROP_SUBCRIPTIONS, propValue);
 					config.setProperty(ExternalCalendarSubscriptionService.TC_PROP_SUBCRIPTIONS_WITH_TZ, propValueWithTZ);
-					
+
 					// commit the change
 					saveOptions();
 				}
@@ -1773,9 +1777,9 @@ extends VelocityPortletStateAction
 			private boolean isSelected;
 
 			private String userId;
-			
+
 			private String userTzid;
-			
+
 			public SubscriptionWrapper()
 			{
 			}
@@ -1857,19 +1861,19 @@ extends VelocityPortletStateAction
 			{
 				this.isSelected = isSelected;
 			}
-			
+
 			public String getUserId() {
 				return userId;
 			}
-			
+
 			public void setUserId(String userId) {
 				this.userId = userId;
 			}
-			
+
 			public String getUserTzid() {
 				return userTzid;
 			}
-			
+
 			public void setUserTzid(String userTzid) {
 				this.userTzid = userTzid;
 			}
@@ -1884,7 +1888,7 @@ extends VelocityPortletStateAction
 
 		}
 	}
-	
+
 	/**
 	 * Utility class to figure out permissions for a calendar object.
 	 */
@@ -1897,7 +1901,7 @@ extends VelocityPortletStateAction
 		{
 			super();
 		}
-		
+
 		/**
 		 * Returns true if the primary and selected calendar are the same, but not null.
 		 */
@@ -1918,18 +1922,18 @@ extends VelocityPortletStateAction
 				return true;
 			}
 		}
-		
+
 		/**
 		 * Utility routint to get the calendar for a given calendar id.
 		 */
 		static private Calendar getTheCalendar(String calendarReference)
 		{
 			Calendar calendarObj = null;
-			
+
 			try
 			{
 				calendarObj = CalendarService.getCalendar(calendarReference);
-				
+
 				if (calendarObj == null)
 				{
 					// If the calendar isn't there, try adding it.
@@ -1938,37 +1942,37 @@ extends VelocityPortletStateAction
 					calendarObj = CalendarService.getCalendar(calendarReference);
 				}
 			}
-			
+
 			catch (IdUnusedException e)
 			{
 				log.debug("CalendarPermissions.getTheCalendar(): ",e);
 			}
-			
+
 			catch (PermissionException e)
 			{
 				log.debug("CalendarPermissions.getTheCalendar(): " + e);
 			}
-			
+
 			catch (IdUsedException e)
 			{
 				log.debug("CalendarPermissions.getTheCalendar(): " + e);
 			}
-			
+
 			catch (IdInvalidException e)
 			{
 				log.debug("CalendarPermissions.getTheCalendar(): " + e);
 			}
-			
+
 			return calendarObj;
 		}
-		
+
 		/**
 		 * Returns true if the current user can see the events in a calendar.
 		 */
 		static public boolean allowViewEvents(String calendarReference)
 		{
 			Calendar calendarObj = getTheCalendar(calendarReference);
-			
+
 			if (calendarObj == null)
 			{
 				return false;
@@ -1978,7 +1982,7 @@ extends VelocityPortletStateAction
 				return calendarObj.allowGetEvents();
 			}
 		}
-		
+
 		/**
 		 * Returns true if the current user is allowed to delete events on the calendar id
 		 * passed in as the selectedCalendarReference parameter.	 The selected calendar must match
@@ -1996,9 +2000,9 @@ extends VelocityPortletStateAction
 			{
 				return false;
 			}
-			
+
 			Calendar calendarObj = getTheCalendar(primaryCalendarReference);
-			
+
 			if (calendarObj == null)
 			{
 				return false;
@@ -2018,7 +2022,7 @@ extends VelocityPortletStateAction
 				{
 					log.debug("CalendarPermissions.canDeleteEvent(): " + e);
 				}
-				
+
 				if (event == null)
 				{
 					return false;
@@ -2029,7 +2033,7 @@ extends VelocityPortletStateAction
 				}
 			}
 		}
-		
+
 		/**
 		 * Returns true if the current user is allowed to revise events on the calendar id
 		 * passed in as the selectedCalendarReference parameter.	 The selected calendar must match
@@ -2047,9 +2051,9 @@ extends VelocityPortletStateAction
 			{
 				return false;
 			}
-			
+
 			Calendar calendarObj = getTheCalendar(primaryCalendarReference);
-			
+
 			if (calendarObj == null)
 			{
 				return false;
@@ -2059,7 +2063,7 @@ extends VelocityPortletStateAction
 				return calendarObj.allowEditEvent(eventId);
 			}
 		}
-		
+
 		/**
 		 * Returns true if the current user is allowed to create events on the calendar id
 		 * passed in as the selectedCalendarReference parameter.	 The selected calendar must match
@@ -2076,7 +2080,7 @@ extends VelocityPortletStateAction
 			// The primary and selected calendar ids must match, unless the selected calendar
 			// is null or empty.
 			//
- 
+
 			if ( selectedCalendarReference != null &&
 				 selectedCalendarReference.length() > 0 &&
 				 !verifyPrimarySelectedMatch(primaryCalendarReference, selectedCalendarReference) )
@@ -2084,9 +2088,9 @@ extends VelocityPortletStateAction
 				return false;
 			}
  */
-			
+
 			Calendar calendarObj = getTheCalendar(primaryCalendarReference);
-			
+
 			if (calendarObj == null)
 			{
 				return false;
@@ -2096,7 +2100,7 @@ extends VelocityPortletStateAction
 				return calendarObj.allowAddEvent();
 			}
 		}
-		
+
 		/**
 		 * Returns true if the user is allowed to merge events from different calendars
 		 * within the default channel.
@@ -2105,7 +2109,7 @@ extends VelocityPortletStateAction
 		{
 			return CalendarService.allowMergeCalendar(calendarReference);
 		}
-		
+
 		/**
 		 * Returns true if the use is allowed to modify properties of the calendar itself,
 		 * and not just the events within the calendar.
@@ -2132,7 +2136,7 @@ extends VelocityPortletStateAction
 		{
 			return CalendarService.allowSubscribeCalendar(calendarReference);
 		}
-		
+
 		/**
 		 * Returns true if the user is allowed to subscribe to the implicit
 		 * calendar.
@@ -2142,7 +2146,7 @@ extends VelocityPortletStateAction
 			return CalendarService.allowSubscribeThisCalendar(calendarReference);
 	}
 	}
-	
+
 	private final static String SSTATE_ATTRIBUTE_ADDFIELDS_PAGE =
 	"addfieldsPage";
 	private final static String SSTATE_ATTRIBUTE_ADDFIELDS_CALENDARS_INIT =
@@ -2150,54 +2154,54 @@ extends VelocityPortletStateAction
 	private final static String SSTATE_ATTRIBUTE_ADDFIELDS_CALENDARS =
 	"addfields";
 	private final static String SSTATE_ATTRIBUTE_DELFIELDS = "delFields";
-	
+
 	private final static String SSTATE_ATTRIBUTE_SUBSCRIPTIONS = "calendarSubscriptions";
 	private final static String SSTATE_ATTRIBUTE_ADDSUBSCRIPTIONS = "addCalendarSubscriptions";
 
 	private final static String STATE_NEW = "new";
 	private static final String EVENT_REFERENCE_PARAMETER = "eventReference";
-	
+
 	private static final String EVENT_CONTEXT_VAR = "event";
 	private static final String NO_EVENT_FLAG_CONTEXT_VAR = "noEvent";
 	private static final String NOT_OPEN_EVENT_FLAG_CONTEXT_VAR = "notOpenEvent";
 	//
 	// These are variables used in the context for communication between this
 	// action class and the Velocity template.
-	
+
 	// This is the property name in the portlet config for the list of calendars
 	// that are not merged.
 	private final static String PORTLET_CONFIG_PARM_MERGED_CALENDARS = "mergedCalendarReferences";
-   
+
 	// default calendar view property
 	private final static String PORTLET_CONFIG_DEFAULT_VIEW = "defaultCalendarView";
 	private final static String PORTLET_CONFIG_DEFAULT_SUBVIEW = "defaultCalendarSubview";
-	
+
 	private final static String PAGE_MAIN = "main";
 	private final static String PAGE_ADDFIELDS = "addFields";
-	
+
 	/** The flag name and value in state to indicate an update to the portlet is needed. */
 	private final static String SSTATE_ATTRIBUTE_MERGED_CALENDARS = "mergedCalendars";
-	
+
 	// String constants for user interface states
 	private final static String STATE_MERGE_CALENDARS = "mergeCalendars";
 	private final static String STATE_CALENDAR_SUBSCRIPTIONS = "calendarSubscriptions";
 	private final static String STATE_CUSTOMIZE_CALENDAR = "customizeCalendar";
-	
+
 	// for detailed event view navigator
 	private final static String STATE_PREV_ACT = "toPrevActivity";
 	private final static String STATE_NEXT_ACT = "toNextActivity";
 	private final static String STATE_CURRENT_ACT = "toCurrentActivity";
 	private final static String STATE_EVENTS_LIST ="eventIds";
 	private final static String STATE_NAV_DIRECTION = "navigationDirection";
-	
+
 	private MergePage mergedCalendarPage =	new MergePage();
-	
+
 	private CustomizeCalendarPage customizeCalendarPage =	new CustomizeCalendarPage();
-	
+
 	private CalendarSubscriptionsPage calendarSubscriptionsPage =	new CalendarSubscriptionsPage();
-	
+
 	private String defaultStateView;
-	
+
 	/**
 	 * See if the current tab is the workspace tab (i.e. user site)
 	 * @return true if we are currently on the "My Workspace" tab.
@@ -2206,14 +2210,14 @@ extends VelocityPortletStateAction
 	{
 		return SiteService.isUserSite(ToolManager.getCurrentPlacement().getContext());
 	}
-	
-	
+
+
 	protected Class getStateClass()
 	{
 		return CalendarActionState.class;
-		
+
 	}	 // getStateClass
-	
+
 	/**
 	 ** loadChannels -- load specified primaryCalendarReference 
 	 ** or merged calendars if initMergeList is defined
@@ -2224,7 +2228,7 @@ extends VelocityPortletStateAction
 	{
 		MergedList mergedCalendarList = new MergedList();		
 		String[] channelArray = null;
-		
+
 		// Figure out the list of channel references that we'll be using.
 		// MyWorkspace is special: if not superuser, and not otherwise defined, get all channels
 		if ( isOnWorkspaceTab()	 && !SecurityService.isSuperUser() && initMergeList == null )
@@ -2232,7 +2236,7 @@ extends VelocityPortletStateAction
 		else
 			channelArray = mergedCalendarList.getChannelReferenceArrayFromDelimitedString(
 												primaryCalendarReference, initMergeList );
-												
+
 		if (entryProvider == null )
 		{
 			entryProvider = new MergedListEntryProviderFixedListWrapper(
@@ -2250,10 +2254,10 @@ extends VelocityPortletStateAction
 								channelArray, 
 								SecurityService.isSuperUser(),
 								ToolManager.getCurrentPlacement().getContext());
-								
+
 		return mergedCalendarList;
 	}
-	
+
 	/**
 	 * Gets an array of all the calendars whose events we can access.
 	 */
@@ -2264,17 +2268,17 @@ extends VelocityPortletStateAction
 			loadChannels( primaryCalendarReference, 
 							  portlet.getPortletConfig().getInitParameter(PORTLET_CONFIG_PARM_MERGED_CALENDARS),
 							  null );
-		
+
 		// add external calendar subscriptions
       List referenceList = mergedCalendarList.getReferenceList();
       Set<ExternalSubscriptionDetails> subscriptionDetailsList = externalCalendarSubscriptionService.getCalendarSubscriptionChannelsForChannels(
     		  primaryCalendarReference,
     		  referenceList);
       subscriptionDetailsList.stream().forEach(x->referenceList.add(x.getReference()));
-      
+
       return referenceList;
 	}
-	
+
 	/**
 	 * Gets the session state from the Jetspeed RunData
 	 */
@@ -2284,16 +2288,16 @@ extends VelocityPortletStateAction
 		String peid = ((JetspeedRunData)runData).getJs_peid();
 		return ((JetspeedRunData)runData).getPortletSessionState(peid);
 	}
-	
+
 	public String buildMainPanelContext(  VelocityPortlet portlet,
 	Context context,
 	RunData runData,
 	SessionState sstate)
 	{
 		CalendarActionState state = (CalendarActionState)getState(portlet, runData, CalendarActionState.class);
-		
+
 		String template = (String)getContext(runData).get("template");
-		
+
 		// get current state (view); if not set use tool default or default to calendar view
 		String stateName = state.getState();
 		if (StringUtils.isBlank(stateName)) { 
@@ -2389,15 +2393,15 @@ extends VelocityPortletStateAction
 
 		TimeZone timeZone = TimeService.getLocalTimeZone();
 		context.put("timezone", timeZone.getDisplayName(timeZone.inDaylightTime(new Date()), TimeZone.SHORT) );
-		
+
 		//the AM/PM strings
 		context.put("amString", CalendarUtil.getLocalAMString());
 		context.put("pmString", CalendarUtil.getLocalPMString());
-		
+
 		// group realted variables
 		context.put("siteAccess", CalendarEvent.EventAccess.SITE);
 		context.put("groupAccess", CalendarEvent.EventAccess.GROUPED);
-		
+
 		context.put("message", state.getState());
 		context.put("state", state.getKey());
 		context.put("tlang",rb);
@@ -2408,31 +2412,31 @@ extends VelocityPortletStateAction
 		context.put("timeFormat", getTimeFormatString());
 
 		return template;
-		
+
 	}	 // buildMainPanelContext
-	
-	
+
+
 	private void buildImportContext(VelocityPortlet portlet, Context context, RunData runData, CalendarActionState state, SessionState state2)
 	{
 		// Place this object in the context so that the velocity template
 		// can get at it.
-			
+
 		// Start at the beginning if nothing is set yet.
 		if ( state.getImportWizardState() == null )
 		{
 			state.setImportWizardState(IMPORT_WIZARD_SELECT_TYPE_STATE);
 		}
-		
+
 		// (optional) ical.public.userdefined.subscribe import (ical.experimental is deprecated)
 		context.put("icalEnable", 
 						ServerConfigurationService.getBoolean("ical.public.userdefined.subscribe",ServerConfigurationService.getBoolean("ical.experimental",true)));
-		
+
 		// Set whatever the current wizard state is.
 		context.put("importWizardState", state.getImportWizardState());
 		context.put("tlang",rb);
 		// Set the imported events into the context.
 		context.put("wizardImportedEvents", state.getWizardImportedEvents());
-		
+
 		String calId = state.getPrimaryCalendarReference();
 		try
 		{
@@ -2455,7 +2459,7 @@ extends VelocityPortletStateAction
 					context.put("scheduleTo", "groups");
 				}
 			}
-		
+
 			Collection groups = calendarObj.getGroupsAllowAddEvent();
 			if (groups.size() > 0)
 			{
@@ -2483,10 +2487,10 @@ extends VelocityPortletStateAction
 	private void setPrimaryCalendarReferenceInState(VelocityPortlet portlet, CalendarActionState state)
 	{
 		String calendarReference = state.getPrimaryCalendarReference();
-		
+
 		if (calendarReference == null)
 		{
-			
+
 			calendarReference = StringUtils.trimToNull(portlet.getPortletConfig().getInitParameter(CALENDAR_INIT_PARAMETER));
 			if (calendarReference == null)
 			{
@@ -2507,18 +2511,18 @@ extends VelocityPortletStateAction
 	{
 		String peid = ((JetspeedRunData)runData).getJs_peid();
 		SessionState sstate = ((JetspeedRunData)runData).getPortletSessionState(peid);
-		
+
 		// under 3 conditions, we get into this page
 		// 1st, brand new event, no freq or rule set up, coming from revise page
 		// 2nd, exisitng event, coming from revise page
 		// 3rd, new event, stay in this page after changing frequency by calling js function onchange()
 		// 4th, existing event, stay in this page after changing frequency by calling js function onchange()
-		
+
 		// sstate attribute TEMP_FREQ_SELECT is one of the flags
 		// if this attribute is not null, means changeFrequency() is called thru onchange().
 		// Then rule is another flag, if rule is null, means new event
 		// Combination of these 2 flags should cover all the conditions
-	
+
 		RecurrenceRule rule = (RecurrenceRule) sstate.getAttribute(CalendarAction.SSTATE__RECURRING_RULE);
 
 		CalendarUtil calutil = new CalendarUtil();
@@ -2526,7 +2530,7 @@ extends VelocityPortletStateAction
 		// defaultly set frequency to be once
 		// if there is a saved state frequency attribute, replace the default one
 		String freq = CalendarAction.DEFAULT_FREQ;
-		
+
 		if (sstate.getAttribute(TEMP_FREQ_SELECT) != null)
 		{
 			freq = (String)sstate.getAttribute(TEMP_FREQ_SELECT);
@@ -2547,9 +2551,9 @@ extends VelocityPortletStateAction
 		context.put("cutil",calutil);
 		// get the data the user just input in the preview new/revise page
 		context.put("savedData",state.getNewData());
-		
+
 		context.put("realDate", TimeService.newTime());
-				
+
 		if (DEFAULT_FREQ.equals(freq))
 		{
 			LocalEvent savedData = state.getNewData();
@@ -2557,7 +2561,7 @@ extends VelocityPortletStateAction
 			context.put("freqOnceDate", m_time.toStringLocalDate());
 		}
 	} // buildFrequencyContext
-	
+
 	/**
 	 * Build the context for showing revise view
 	 */
@@ -2575,12 +2579,12 @@ extends VelocityPortletStateAction
 		MyDate dateObj1 = null;
 		dateObj1 = new MyDate();
 		boolean getEventsFlag = false;
-		
+
 		List attachments = state.getAttachments();
-		
+
 		String peid = ((JetspeedRunData)runData).getJs_peid();
 		SessionState sstate = ((JetspeedRunData)runData).getPortletSessionState(peid);
-		
+
 		Time m_time = TimeService.newTime();
 		TimeBreakdown b = m_time.breakdownLocal();
 		int stateYear = b.getYear();
@@ -2593,8 +2597,8 @@ extends VelocityPortletStateAction
 			stateDay = ((Integer)sstate.getAttribute(STATE_DAY)).intValue();
 		}
 		calObj.setDay(stateYear, stateMonth, stateDay);
-		
-		
+
+
 		dateObj1.setTodayDate(calObj.getMonthInteger(),calObj.getDayOfMonth(),calObj.getYear());
 		String calId = state.getPrimaryCalendarReference();
 		if( state.getIsNewCalendar() == false)
@@ -2621,7 +2625,7 @@ extends VelocityPortletStateAction
 					}
 					else
 						getEventsFlag = false;
-					
+
 					// Add any additional fields in the calendar.
 					customizeCalendarPage.loadAdditionalFieldsIntoContextFromCalendar( calendarObj, context);
 					context.put("tlang",rb);
@@ -2637,7 +2641,7 @@ extends VelocityPortletStateAction
 					{
 						context.put("backToRevise", "true");
 					}
-					
+
 					//Vector attachments = state.getAttachments();
 					if ( attachments != null )
 					{
@@ -2647,7 +2651,7 @@ extends VelocityPortletStateAction
 					{
 						context.put("attachNull", "true");
 					}
-					
+
 					context.put("fromAttachmentFlag",state.getfromAttachmentFlag());
 				}
 				catch(IdUnusedException e)
@@ -2672,9 +2676,9 @@ extends VelocityPortletStateAction
 			context.put("attachments", attachments);
 			context.put("fromAttachmentFlag",state.getfromAttachmentFlag());
 		}
-		
+
 		// Output for recurring events
-		
+
 		// for an existing event
 		// if the saved recurring rule equals to string FREQ_ONCE, set it as not recurring
 		// if there is a saved recurring rule in sstate, display it
@@ -2693,17 +2697,17 @@ extends VelocityPortletStateAction
 			}
 			else
 				context.put("rule", rule);
-			
+
 			if (rule != null)
 			{
 				context.put("freq", rule.getFrequencyDescription());
 			} // if (rule != null)
 		} //if ((String) sstate.getAttribute(FREQUENCY_SELECT).equals(FREQ_ONCE))
-		
+
 		try
 		{
 			calendarObj = CalendarService.getCalendar(calId);
-			
+
 			String scheduleTo = (String)sstate.getAttribute(STATE_SCHEDULE_TO);
 			if (scheduleTo != null && scheduleTo.length() != 0)
 			{
@@ -2722,7 +2726,7 @@ extends VelocityPortletStateAction
 					context.put("scheduleTo", "groups");
 				}
 			}
-		
+
 			Collection groups = calendarObj.getGroupsAllowAddEvent();
 
 			// add to these any groups that the message already has
@@ -2733,7 +2737,7 @@ extends VelocityPortletStateAction
 				for (Iterator i = otherGroups.iterator(); i.hasNext();)
 				{
 					Group g = (Group) i.next();
-					
+
 					if (!groups.contains(g))
 					{
 						groups.add(g);
@@ -2764,21 +2768,21 @@ extends VelocityPortletStateAction
 		context.put("message","revise");
 		context.put("savedData",state.getNewData());
 		context.put("getEventsFlag", Boolean.valueOf(getEventsFlag));
-		
+
 		if(state.getIsNewCalendar()==true)
 			context.put("vmtype",STATE_NEW);
 		else
 			context.put("vmtype","revise");
-		
+
 		context.put("service", contentHostingService);
-		
+
 		// output the real time
 		context.put("realDate", TimeService.newTime());
-		
+
 	} // buildReviseContext
-	
-	
-	
+
+
+
 	/**
 	 * Build the context for showing description for events
 	 */
@@ -2787,29 +2791,29 @@ extends VelocityPortletStateAction
 	RunData runData,
 	CalendarActionState state)
 	{
-		
+
 		// to get the content Type Image Service
 		context.put("contentTypeImageService", ContentTypeImageService.getInstance());
 		context.put("tlang",rb);
 		context.put("Context", ToolManager.getCurrentPlacement().getContext());
 		context.put("CalendarService", CalendarService.getInstance());
 		context.put("SiteService", SiteService.getInstance());
-					 
+
 		Calendar calendarObj = null;
 		CalendarEvent calEvent = null;
-		
+
 		MyDate dateObj1 = null;
 		dateObj1 = new MyDate();
-		
+
 		String peid = ((JetspeedRunData)runData).getJs_peid();
 		SessionState sstate = ((JetspeedRunData)runData).getPortletSessionState(peid);
-		
+
 		navigatorContextControl(portlet, context, runData, (String)sstate.getAttribute(STATE_NAV_DIRECTION));
 		boolean prevAct = sstate.getAttribute(STATE_PREV_ACT) != null;
 		boolean nextAct = sstate.getAttribute(STATE_NEXT_ACT) != null;
 		context.put("prevAct", Boolean.valueOf(prevAct));
 		context.put("nextAct", Boolean.valueOf(nextAct));
-		
+
 		Time m_time = TimeService.newTime();
 		TimeBreakdown b = m_time.breakdownLocal();
 		int stateYear = b.getYear();
@@ -2823,16 +2827,16 @@ extends VelocityPortletStateAction
 		}
 		CalendarUtil calObj= new CalendarUtil();
 		calObj.setDay(stateYear, stateMonth, stateDay);
-		
+
 		// get the today date in month/day/year format
 		dateObj1.setTodayDate(calObj.getMonthInteger(),calObj.getDayOfMonth(),calObj.getYear());
-		
+
 		// get the event id from the CalendarService.
 		// send the event to the vm
 		String ce = state.getCalendarEventId();
-		
+
 		String selectedCalendarReference = state.getSelectedCalendarReference();
-		
+
 		if ( !CalendarPermissions.allowViewEvents(selectedCalendarReference) )
 		{
 			context.put(ALERT_MSG_KEY,rb.getString("java.alert.younotallow")); 
@@ -2845,42 +2849,67 @@ extends VelocityPortletStateAction
 			{
 				calendarObj = CalendarService.getCalendar(selectedCalendarReference);
 				calEvent = calendarObj.getEvent(ce);
-				
+
 				// Add any additional fields in the calendar.
 				customizeCalendarPage.loadAdditionalFieldsIntoContextFromCalendar( calendarObj, context);
-				
+
 				context.put(EVENT_CONTEXT_VAR, calEvent);
 				context.put("tlang",rb);
-				
+
 				// Get the attachments from assignment tool for viewing
 				String assignmentId = calEvent.getField(CalendarConstants.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID);
-				
-				if (assignmentId != null && assignmentId.length() > 0)
-				{
-					// pass in the assignment reference to get the assignment data we need
-					Map<String, Object> assignData = new HashMap<String, Object>();
-					StringBuilder entityId = new StringBuilder( ASSN_ENTITY_PREFIX );
-					entityId.append( (CalendarService.getCalendar(calEvent.getCalendarReference())).getContext() );
-					entityId.append( EntityReference.SEPARATOR );
-					entityId.append( assignmentId );
-					try{
-						ActionReturn ret = entityBroker.executeCustomAction(entityId.toString(), ASSN_ENTITY_ACTION, null, null);
-						if (ret != null && ret.getEntityData() != null) {
-							Object returnData = ret.getEntityData().getData();
-							assignData = (Map<String, Object>)returnData;
+				// Get the assessment from Samigo tool for viewing
+				String assessmentId = calEvent.getField(CalendarConstants.NEW_ASSESSMENT_CALENDAR_ASSESSMENT_ID);
+
+				if (assignmentId != null && !assignmentId.isEmpty()) {
+					Map<String, Object> assignData = new HashMap<>();
+					String reference = AssignmentReferenceReckoner.reckoner().context(calendarObj.getContext()).id(assignmentId).reckon().getReference();
+					try {
+						ActionReturn action = entityBroker.executeCustomAction(reference, ASSN_ENTITY_ACTION, null, null);
+						if (action != null && action.getEntityData() != null && action.getEntityData().getData() instanceof Map) {
+							assignData = (Map<String, Object>) action.getEntityData().getData();
 						}
-						context.put("assignmenturl", (String) assignData.get("assignmentUrl"));
-						context.put("assignmentTitle", (String) assignData.get("assignmentTitle"));
-					}catch(SecurityException e){
-						final String openDateErrorDescription = rb.getFormattedMessage("java.alert.opendatedescription",
-								calEvent.getField(CalendarConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED));
-						context.put(ALERT_MSG_KEY, rb.getString("java.alert.opendate") + " " + openDateErrorDescription);
+						context.put("assignmenturl", assignData.get("assignmentUrl"));
+						context.put("assignmentTitle", assignData.get("assignmentTitle"));
+					} catch (SecurityException e) {
+						String error = rb.getFormattedMessage("java.alert.opendatedescription", calEvent.getField(CalendarConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED));
+						context.put(ALERT_MSG_KEY, rb.getString("java.alert.opendate") + " " + error);
 						context.put(NOT_OPEN_EVENT_FLAG_CONTEXT_VAR, Boolean.TRUE.toString());
 						return;
- 					}
+					}
+				} else if (assessmentId != null && !assessmentId.isEmpty()) {
+					try {
+						StringBuilder entityId = new StringBuilder(SAMIGO_ENTITY_PREFIX);
+						entityId.append((CalendarService.getCalendar(calEvent.getCalendarReference())).getContext());
+						entityId.append(EntityReference.SEPARATOR);
+						entityId.append(assessmentId);
+
+						String reference = entityId.toString();
+
+						// Get the properties using the entity broker
+						Map<String, String> props = entityBroker.getProperties(reference);
+						if (props != null && !props.isEmpty()) {
+							// Get the URL to the assessment
+							String assessmentUrl = ServerConfigurationService.getPortalUrl()
+									+ "/directtool/"
+									+ ToolManager.getCurrentPlacement().getId()
+									+ "?publishedId="
+									+ assessmentId;
+							context.put("assessmentUrl", assessmentUrl);
+
+							// Get the title from the entity properties
+							String title = props.get("title");
+							if (title != null) {
+								context.put("assessmentTitle", title);
+							}
+						}
+					} catch (Exception e) {
+						log.warn("Failed to get assessment data for calendar event, {}", e.toString());
+						log.debug("Stacktrace:", e);
+					}
 				}
-						
-				
+
+
 				String ownerId = calEvent.getCreator();
 				if ( ownerId != null && ! ownerId.equals("") )
 				// if the user not defined, assigned the owner_name as ""
@@ -2893,20 +2922,20 @@ extends VelocityPortletStateAction
 				catch (UserNotDefinedException e) {
 					context.put("owner_name", "");
 				}
-				
+
 				String siteName = calEvent.getSiteName();
 				if ( siteName != null )
 					context.put("site_name", siteName );
-               
+
 				RecurrenceRule rule = calEvent.getRecurrenceRule();
 				// for a brand new event, there is no saved recurring rule
 				if (rule != null)
 				{
 					context.put("freq", rule.getFrequencyDescription());
-					
+
 					context.put("rule", rule);
 				}
-				
+
 				// show all the groups in this calendar that user has get event in
 				Collection groups = calendarObj.getGroupsAllowGetEvent();
 				if (groups != null)
@@ -2926,8 +2955,8 @@ extends VelocityPortletStateAction
 				return;
 			}
 		}
-		
-		
+
+
 		context.put(
 				"allowDelete",
 				Boolean.valueOf(CalendarPermissions.allowDeleteEvent(
@@ -2949,31 +2978,31 @@ extends VelocityPortletStateAction
 		return StringUtils.equals(defaultView, currentView);
 	}
 
-	protected Vector getNewEvents(int year, int month, int day, CalendarActionState state, RunData rundata, int time, int numberofcycles,Context context,CalendarEventVector CalendarEventVectorObj)
+	protected Vector getNewEvents(int year, int month, int day, CalendarActionState state, RunData rundata, int time, int numberofcycles, Context context, CalendarEventList calendarEventList)
 	{
 		boolean firstTime = true; // Don't need to do complex checking the first time.
 		Vector events = new Vector(); // A vector of vectors, each of the vectors containing a range of previous events.
-		
+
 		Time timeObj = TimeService.newTimeLocal(year,month,day,time,00,00,000);
-		
+
 		long duration = ((30*60)*(1000));
 		Time updatedTime = TimeService.newTime(timeObj.getTime()+ duration);
-		
+
 		/*** include the start time ***/
 		TimeRange timeRangeObj = TimeService.newTimeRange(timeObj,updatedTime,true,false);
-		
+
 		for (int range = 0; range <=numberofcycles;range++)
 		{
 			Iterator calEvent = null;
-			
-			calEvent = CalendarEventVectorObj.getEvents(timeRangeObj);
-			
+
+			calEvent = calendarEventList.eventsInRangeIterator(timeRangeObj);
+
 			Vector vectorObj = new Vector(); // EventDisplay of calevent.
 			EventDisplayClass eventDisplayObj;
 			Vector newVectorObj = null; // Ones we haven't see before?
 			boolean swapflag=true;
 			EventDisplayClass eventdisplayobj = null;
-			
+
 			if (calEvent.hasNext()) // While we still have more events in this range.
 			{
 				int i = 0; // Size of vectorObj
@@ -2981,11 +3010,11 @@ extends VelocityPortletStateAction
 				{
 					eventdisplayobj = new EventDisplayClass();
 					eventdisplayobj.setEvent((CalendarEvent)calEvent.next(),false,i);
-					
+
 					vectorObj.add(i,eventdisplayobj); // Copy into vector, wrapping in EventDisplay
 					i++;
 				} // while
-				
+
 				if(firstTime) // First range
 				{
 					events.add(range,vectorObj);
@@ -3037,14 +3066,14 @@ extends VelocityPortletStateAction
 														newVectorObj.add(eom, eventDisplayObj); // Add the one that's out of position.
 														int neweom = eom;
 														neweom = neweom+1;
-														
+
 														while(vectorObj.isEmpty()==false)
 														{
 															newVectorObj.add(neweom,vectorObj.elementAt(0));
 															vectorObj.removeElementAt(0);
 															neweom++;
 														}
-														
+
 														for(int vv =0;vv<newVectorObj.size();vv++)
 														{
 															vectorObj.add(vv,newVectorObj.elementAt(vv));
@@ -3058,10 +3087,10 @@ extends VelocityPortletStateAction
 							}	 // if
 						}	 // for
 					}	 // while
-					
+
 					events.add(range,vectorObj);
 				}	 // if - else firstTime
-				
+
 				timeRangeObj.shiftForward(1800000);
 			}
 			else
@@ -3084,27 +3113,27 @@ extends VelocityPortletStateAction
 		context.put("tlang",rb);
 		// to get the content Type Image Service
 		context.put("contentTypeImageService", ContentTypeImageService.getInstance());
-		
+
 		MyDate dateObj1 = new MyDate();
-		
+
 		CalendarUtil calObj= new CalendarUtil();
-		
+
 		// set real today's date as default
 		Time m_time = TimeService.newTime();
 		TimeBreakdown b = m_time.breakdownLocal();
 		calObj.setDay(b.getYear(), b.getMonth(), b.getDay());
-		
+
 		dateObj1.setTodayDate(calObj.getMonthInteger(),calObj.getDayOfMonth(),calObj.getYear());
-		
+
 		// get the event id from the CalendarService.
 		// send the event to the vm
 		dateObj1.setNumberOfDaysInMonth(calObj.getNumberOfDays());
 		List attachments = state.getAttachments();
 		context.put("attachments",attachments);
-		
+
 		String calId = state.getPrimaryCalendarReference();
 		Calendar calendarObj = null;
-		
+
 		try
 		{
 			calendarObj = CalendarService.getCalendar(calId);
@@ -3112,17 +3141,17 @@ extends VelocityPortletStateAction
 
 			String peid = ((JetspeedRunData)runData).getJs_peid();
 			SessionState sstate = ((JetspeedRunData)runData).getPortletSessionState(peid);
-			
+
 			if ((sstate.getAttribute(STATE_YEAR) != null) && (sstate.getAttribute(STATE_MONTH) != null) && (sstate.getAttribute(STATE_DAY) != null))
 			{
 				int stateYear = ((Integer)sstate.getAttribute(STATE_YEAR)).intValue();
 				int stateMonth = ((Integer)sstate.getAttribute(STATE_MONTH)).intValue();
 				int stateDay = ((Integer)sstate.getAttribute(STATE_DAY)).intValue();
-				
+
 				calObj.setDay(stateYear, stateMonth, stateDay);
 				dateObj1.setTodayDate(calObj.getMonthInteger(),calObj.getDayOfMonth(),calObj.getYear());
 			}
-		
+
 			String scheduleTo = (String)sstate.getAttribute(STATE_SCHEDULE_TO);
 			if (scheduleTo != null && scheduleTo.length() != 0)
 			{
@@ -3146,7 +3175,7 @@ extends VelocityPortletStateAction
 			{
 				List schToGroups = (List)(sstate.getAttribute(STATE_SCHEDULE_TO_GROUPS));
 				context.put("scheduleToGroups", schToGroups);
-				
+
 				context.put("groups", groups);
 			}
 		}
@@ -3162,14 +3191,14 @@ extends VelocityPortletStateAction
 			log.debug(".buildNewContext(): " + e);
 			return;
 		}
-		
+
 		// Add any additional fields in the calendar.
 		customizeCalendarPage.loadAdditionalFieldsIntoContextFromCalendar( calendarObj, context);
-		
+
 		// Output for recurring events
 		String peid = ((JetspeedRunData)runData).getJs_peid();
 		SessionState sstate = ((JetspeedRunData)runData).getPortletSessionState(peid);
-		
+
 		// if the saved recurring rule equals to string FREQ_ONCE, set it as not recurring
 		// if there is a saved recurring rule in sstate, display it		
 		RecurrenceRule rule = (RecurrenceRule) sstate.getAttribute(CalendarAction.SSTATE__RECURRING_RULE);
@@ -3188,7 +3217,7 @@ extends VelocityPortletStateAction
 
 		buildMenu(portlet, context, runData, state);
 	} // buildNewContext
-	
+
 	/**
 	 * Setup for iCal Export.
 	 */
@@ -3196,7 +3225,7 @@ extends VelocityPortletStateAction
 	{
 		String calId = state.getPrimaryCalendarReference();
 		Calendar calendarObj = null;
-		
+
 		try
 		{
 			calendarObj = CalendarService.getCalendar(calId);
@@ -3230,16 +3259,16 @@ extends VelocityPortletStateAction
 			String.valueOf(ServerConfigurationService.getInt("calendar.export.previous.months",6))};
 		String icalInfoStr = rb.getFormattedMessage("ical.info", icalInfoArr);
 		context.put("icalInfoStr",icalInfoStr);
-			
+
 		// Add iCal Export URL
 		Reference calendarRef = EntityManager.newReference(calId);
 		String icalUrl = ServerConfigurationService.getAccessUrl()
 			+ CalendarService.calendarICalReference(calendarRef);
 		context.put("icalUrl", icalUrl );
-		
+
 		boolean exportAllowed = CalendarPermissions.allowImport(	calId );
 		context.put("allow_export", String.valueOf(exportAllowed) );
-		
+
 		boolean exportEnabled = CalendarService.getExportEnabled(calId);
 		context.put("enable_export", String.valueOf(exportEnabled) );
 
@@ -3250,7 +3279,7 @@ extends VelocityPortletStateAction
 		return template + "_icalexport";
 
 	} // buildIcalExportPanelContext
-	
+
 	/**
 	 * Setup for Opaque URL Export ("No URL").
 	 */
@@ -3265,7 +3294,7 @@ extends VelocityPortletStateAction
 		context.put("icalInfoStr",icalInfoStr);
 		buildMenu(portlet, context, runData, state);
 	}
-	
+
 	/**
 	 * Setup for Opaque URL Export ("URL exists").
 	 */
@@ -3289,7 +3318,7 @@ extends VelocityPortletStateAction
 		context.put("form-cancel", BUTTON + "doCancel");
 		buildMenu(portlet, context, runData, state);
 	}
-	
+
 	/**
 	 * Build the context for showing delete view
 	 */
@@ -3301,20 +3330,20 @@ extends VelocityPortletStateAction
 		context.put("tlang",rb);
 		// to get the content Type Image Service
 		context.put("contentTypeImageService", ContentTypeImageService.getInstance());
-		
+
 		Calendar calendarObj = null;
 		CalendarEvent calEvent = null;
-		
+
 		// get the event id from the CalendarService.
 		// send the event to the vm
 		String calId = state.getPrimaryCalendarReference();
 		String calendarEventObj = state.getCalendarEventId();
-		
+
 		try
 		{
 			calendarObj = CalendarService.getCalendar(calId);
 			calEvent = calendarObj.getEvent(calendarEventObj);
-			
+
 			RecurrenceRule rule = calEvent.getRecurrenceRule();
 			// for a brand new event, there is no saved recurring rule
 			if (rule != null)
@@ -3322,10 +3351,10 @@ extends VelocityPortletStateAction
 				context.put("freq", rule.getFrequencyDescription());				
 				context.put("rule", rule);
 			}
-			
+
 			context.put("message","delete");
 			context.put("event",calEvent);
-			
+
 			// show all the groups in this calendar that user has get event in
 			Collection groups = calendarObj.getGroupsAllowGetEvent();
 			if (groups != null)
@@ -3344,15 +3373,15 @@ extends VelocityPortletStateAction
 			log.debug(".buildDeleteContext(): " + e);
 		}		
 	}	 // buildDeleteContext
-	
-	
-	
+
+
+
 	/**
 	 * calculate the days in the month and there events if any
 	 * @param month is int
 	 * @param m_calObj is object of calendar
 	 */
-	public MyMonth calMonth(int month, CalendarUtil m_calObj, CalendarActionState state, CalendarEventVector CalendarEventVectorObj)
+	public MyMonth calMonth(int month, CalendarUtil m_calObj, CalendarActionState state, CalendarEventList calendarEventList)
 	{
 		int numberOfDays = 0;
 		int firstDay_of_Month = 0;
@@ -3363,23 +3392,23 @@ extends VelocityPortletStateAction
 		Time startTime = null;
 		Time endTime = null;
 		TimeRange timeRange = null;
-		
+
 		// new objects of myYear, myMonth, myDay, myWeek classes.
 		monthObj = new MyMonth();
-		
+
 		// set the calendar to the begining of the month
 		m_calObj.setDay(m_calObj.getYear(), month, 1);
 		numberOfDays = m_calObj.getNumberOfDays();
-		
+
 		// get the index of the first day in the month
 		firstDay_of_Month = m_calObj.getDay_Of_Week(true) - 1;
-		
+
 		// get the index of the day
 		monthObj.setMonthName(calendarUtilGetMonth(m_calObj.getMonthInteger()));
-		
+
 		// get the index of first day (-1) to display (may be in previous month)
 		m_calObj.setPrevDate(firstDay_of_Month+1);
-		
+
 		for(int weekInMonth = 0; weekInMonth < 1; weekInMonth++)
 		{
 			// got the seven days in the first week of the month do..
@@ -3396,42 +3425,42 @@ extends VelocityPortletStateAction
 					{
 						dateObj.setFlag(1);
 					}
-					
+
 					// Each monthObj contains dayObjs for the number of the days in the month.
 					dateObj.setTodayDate(m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),m_calObj.getYear());
-					
+
 					startTime = TimeService.newTimeLocal(m_calObj.getYear(),m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),00,00,00,000);
 					endTime = TimeService.newTimeLocal(m_calObj.getYear(),m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),23,59,59,999);
-					
-					eventList = CalendarEventVectorObj.getEvents(TimeService.newTimeRange(startTime,endTime,true,true));
-					
+
+					eventList = calendarEventList.eventsInRangeIterator(TimeService.newTimeRange(startTime,endTime,true,true));
+
 					dateObj.setEvents(eventList);
-					
+
 					// keep iterator of events in the dateObj
 					numberOfDays--;
 					monthObj.setDay(dateObj,weekInMonth,dayInWeek);
 					start = false;
-					
+
 				}
 				else if (start == true)
 				{
 					// fill empty spaces for the first days in the first week in the month before reach the first day of the month
 					dateObj.setTodayDate(m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),m_calObj.getYear());
-					
+
 					startTime = TimeService.newTimeLocal(m_calObj.getYear(),m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),00,00,00,000);
 					endTime = TimeService.newTimeLocal(m_calObj.getYear(),m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),23,59,59,999);
-					
+
 					timeRange = TimeService.newTimeRange(startTime,endTime,true,true);
-					
-					eventList = CalendarEventVectorObj.getEvents(timeRange);
+
+					eventList = calendarEventList.eventsInRangeIterator(timeRange);
 					dateObj.setEvents(eventList);
-					
+
 					monthObj.setDay(dateObj,weekInMonth,dayInWeek);
 					dateObj.setFlag(0);
 				}// end else
 			}// end for m
 		}// end for i
-		
+
 		// Construct the weeks left in the month and save it in the monthObj.
 		// row is the max number of rows in the month., Col is equal to 7 which is the max number of col in the month.
 		for(int row = 1; row<6; row++)
@@ -3445,16 +3474,16 @@ extends VelocityPortletStateAction
 					m_calObj.nextDate();
 					if ((m_calObj.getDayOfMonth() == state.getcurrentDay()) && (state.getcurrentMonth()== m_calObj.getMonthInteger()) && (state.getcurrentYear() == m_calObj.getYear()))
 						dateObj.setFlag(1);
-					
+
 					dateObj.setTodayDate(m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),m_calObj.getYear());
 					startTime = TimeService.newTimeLocal(m_calObj.getYear(),m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),00,00,00,000);
 					endTime = TimeService.newTimeLocal(m_calObj.getYear(),m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),23,59,59,999);
-					
-					
+
+
 					timeRange = TimeService.newTimeRange(startTime,endTime,true,true);
-					eventList = CalendarEventVectorObj.getEvents(timeRange);
+					eventList = calendarEventList.eventsInRangeIterator(timeRange);
 					dateObj.setEvents(eventList);
-					
+
 					numberOfDays--;
 					monthObj.setDay(dateObj,row,col);
 					monthObj.setRow(row);
@@ -3471,13 +3500,13 @@ extends VelocityPortletStateAction
 						dateObj = new MyDate();
 						m_calObj.nextDate();
 						dateObj.setTodayDate(m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),m_calObj.getYear());
-						
+
 						startTime = TimeService.newTimeLocal(m_calObj.getYear(),m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),00,00,00,000);
 						endTime = TimeService.newTimeLocal(m_calObj.getYear(),m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),23,59,59,999);
-						
+
 						timeRange = TimeService.newTimeRange(startTime,endTime,true,true);
-						
-						eventList = CalendarEventVectorObj.getEvents(timeRange);
+
+						eventList = calendarEventList.eventsInRangeIterator(timeRange);
 						dateObj.setEvents(eventList);
 						monthObj.setDay(dateObj,row,col);
 						monthObj.setRow(row);
@@ -3486,11 +3515,11 @@ extends VelocityPortletStateAction
 				}
 			}// end for
 		}// end for
-		
+
 		return monthObj;
 	}
-	
-	
+
+
 	public void doAttachments(RunData rundata, Context context)
 	{
 		// get into helper mode with this helper tool
@@ -3499,7 +3528,7 @@ extends VelocityPortletStateAction
 		// setup the parameters for the helper
 		SessionState state = ((JetspeedRunData) rundata).getPortletSessionState(((JetspeedRunData) rundata).getJs_peid());
 		CalendarActionState State = (CalendarActionState)getState( context, rundata, CalendarActionState.class );
-		
+
 		int houri;
 
 		// put a the real attachments into the stats - let the helper update it directly if the user chooses to save their attachment editing.
@@ -3531,15 +3560,15 @@ extends VelocityPortletStateAction
 		type = rundata.getParameters().getString("eventType");
 		String location = "";
 		location = rundata.getParameters().getString("location");
-		
+
 		readEventGroupForm(rundata, context);
-		
+
 		// read the recurrence modification intention
 		String intentionStr = rundata.getParameters().getString("intention");
 		if (intentionStr == null) intentionStr = "";
-		
+
 		Calendar calendarObj = null;
-		
+
 		String calId = State.getPrimaryCalendarReference();
 		try
 		{
@@ -3557,12 +3586,12 @@ extends VelocityPortletStateAction
 			log.debug(".buildCustomizeContext(): " + e);
 			return;
 		}
-		
+
 		Map addfieldsMap = new HashMap();
-		
+
 		// Add any additional fields in the calendar.
 		customizeCalendarPage. loadAdditionalFieldsMapFromRunData(rundata, addfieldsMap, calendarObj);
-		
+
 		if (timeType.equals("pm"))
 		{
 			if (Integer.parseInt(hour)>11)
@@ -3578,14 +3607,14 @@ extends VelocityPortletStateAction
 		{
 			houri = Integer.parseInt(hour);
 		}
-		
+
 		State.clearData();
 		State.setNewData(State.getPrimaryCalendarReference(), title,description,Integer.parseInt(month),Integer.parseInt(day),year,houri,Integer.parseInt(minute),Integer.parseInt(dhour),Integer.parseInt(dminute),type,timeType,location, addfieldsMap, intentionStr);
-		
+
 		// **************** changed for the new attachment editor **************************
 
 	} // doAttachments
-	
+
 	/**
 	 * Action is used when doDescription is requested when the user click on an event
 	 */
@@ -3593,11 +3622,11 @@ extends VelocityPortletStateAction
 	{
 		CalendarEvent calendarEventObj = null;
 		Calendar calendarObj = null;
-		
+
 		CalendarActionState state = (CalendarActionState)getState(context, data, CalendarActionState.class);
 		String peid = ((JetspeedRunData)data).getJs_peid();
 		SessionState sstate = ((JetspeedRunData)data).getPortletSessionState(peid);
-		
+
 		// "crack" the reference (a.k.a dereference, i.e. make a Reference)
 		// and get the event id and calendar reference
 		Reference ref = EntityManager.newReference(data.getParameters().getString(EVENT_REFERENCE_PARAMETER));
@@ -3618,15 +3647,15 @@ extends VelocityPortletStateAction
 			try
 			{
 				calendarEventObj = calendarObj.getEvent(eventId);
-				
+
 				TimeBreakdown b = calendarEventObj.getRange().firstTime().breakdownLocal();
-				
+
 				sstate.setAttribute(STATE_YEAR,	Integer.valueOf(b.getYear()));
 				sstate.setAttribute(STATE_MONTH,	 Integer.valueOf(b.getMonth()));
 				sstate.setAttribute(STATE_DAY,  Integer.valueOf(b.getDay()));
-				
+
 				sstate.setAttribute(STATE_NAV_DIRECTION, STATE_CURRENT_ACT);
-				
+
 			}
 			catch (IdUnusedException err)
 			{
@@ -3656,7 +3685,7 @@ extends VelocityPortletStateAction
 			addAlert(sstate, rb.getString("java.alert.youcreate"));
 			return;
 		}
-		
+
 		// store the state coming from, like day view, week view, month view or list view
 		String returnState = state.getState();
 		state.setPrevState(CalendarAction.STATE_INITED);
@@ -3672,7 +3701,7 @@ extends VelocityPortletStateAction
 	public void doOk(RunData data, Context context)
 	{
 		CalendarActionState state = (CalendarActionState)getState(context, data, CalendarActionState.class);
-		
+
 		// return to the state coming from
 		String returnState = state.getReturnState();
 		if( "".equals(returnState) || CalendarAction.STATE_INITED.equals(returnState) ) {
@@ -3680,8 +3709,8 @@ extends VelocityPortletStateAction
 		}
 		state.setState(returnState);
 	}
-	
-	
+
+
 	/**
 	 * Action is used when the user click on the doRevise in the menu
 	 */
@@ -3689,11 +3718,11 @@ extends VelocityPortletStateAction
 	{
 		CalendarEvent calendarEventObj = null;
 		Calendar calendarObj = null;
-		
+
 		CalendarActionState state = (CalendarActionState)getState(context, data, CalendarActionState.class);
 		String peid = ((JetspeedRunData)data).getJs_peid();
 		SessionState sstate = ((JetspeedRunData)data).getPortletSessionState(peid);
-		
+
 		String calId = state.getPrimaryCalendarReference();
 		state.setPrevState(state.getState());
 		state.setState("goToReviseCalendar");
@@ -3703,7 +3732,7 @@ extends VelocityPortletStateAction
 		sstate.setAttribute(CalendarAction.SSTATE__RECURRING_RULE, null);
 
 		state.clearData();
-		
+
 		try
 		{
 			calendarObj = CalendarService.getCalendar(calId);
@@ -3749,10 +3778,10 @@ extends VelocityPortletStateAction
 		{
 			addAlert(sstate, rb.getString("java.alert.youcreate"));
 		}
-		
+
 	} // doRevise
-	
-	
+
+
 	/**
 	 * Handle the "continue" button on the schedule import wizard.
 	 */
@@ -3761,16 +3790,16 @@ extends VelocityPortletStateAction
 		CalendarActionState state = (CalendarActionState)getState(context, data, CalendarActionState.class);
 		String peid = ((JetspeedRunData)data).getJs_peid();
 		SessionState sstate = ((JetspeedRunData)data).getPortletSessionState(peid);
-		
+
 		if ( SELECT_TYPE_IMPORT_WIZARD_STATE.equals(state.getImportWizardState()) )
 		{
 			// If the type is Outlook, the next state is
 			// the "other" file select mode where we just select a file without
 			// all of the extra info on the generic import page.
-			
+
 			String importType = data.getParameters ().getString(WIZARD_IMPORT_TYPE);
-			
-			
+
+
 			if ( CalendarImporterService.OUTLOOK_IMPORT.equals(importType) || CalendarImporterService.ICALENDAR_IMPORT.equals(importType))
 			{
 				if (CalendarImporterService.OUTLOOK_IMPORT.equals(importType))
@@ -3788,21 +3817,21 @@ extends VelocityPortletStateAction
 			{
 				// Remember the type we're importing
 				state.setImportWizardType(CalendarImporterService.CSV_IMPORT);
-				
+
 				state.setImportWizardState(GENERIC_SELECT_FILE_IMPORT_WIZARD_STATE);
 			}
 		}
 		else if ( GENERIC_SELECT_FILE_IMPORT_WIZARD_STATE.equals(state.getImportWizardState()) )
 		{ 
 			boolean importSucceeded = false;
-			
+
 			// Do the import and send us to the confirm page
 			FileItem importFile = data.getParameters().getFileItem(WIZARD_IMPORT_FILE);
-			
+
 			try (InputStream stream = importFile.getInputStream())
 			{
 				Map columnMap = CalendarImporterService.getDefaultColumnMap(CalendarImporterService.CSV_IMPORT);
-				
+
 				String [] addFieldsCalendarArray = getCustomFieldsArray(state, sstate);
 
 				if ( addFieldsCalendarArray != null )
@@ -3853,9 +3882,9 @@ extends VelocityPortletStateAction
 
 			// Do the import and send us to the confirm page
 			FileItem importFile = data.getParameters().getFileItem(WIZARD_IMPORT_FILE);
-			
+
 			String [] addFieldsCalendarArray = getCustomFieldsArray(state, sstate);
-			
+
 			try (InputStream stream = importFile.getInputStream())
 			{
 				state.setWizardImportedEvents(
@@ -3864,7 +3893,7 @@ extends VelocityPortletStateAction
 						stream,
 						null,
 						addFieldsCalendarArray));
-						
+
 				importSucceeded = true;
 			}
 			catch (ImportException e)
@@ -3875,7 +3904,7 @@ extends VelocityPortletStateAction
 			{
 				log.warn("Failed to close stream.", e);
 			}
-				
+
 			if ( importSucceeded )
 			{
 				// If all is well, go on to the confirmation page. 
@@ -3892,15 +3921,15 @@ extends VelocityPortletStateAction
 			// If there are errors, send us back to Either
 			// the OTHER_SELECT_FILE or GENERIC_SELECT_FILE states.
 			// Otherwise, we're done.
-			
+
 			List wizardCandidateEventList = state.getWizardImportedEvents();
-			
+
 			// for group awareness - read user selection
 			readEventGroupForm(data, context);
-			
+
 			String scheduleTo = (String)sstate.getAttribute(STATE_SCHEDULE_TO);
 			Collection groupChoice = (Collection) sstate.getAttribute(STATE_SCHEDULE_TO_GROUPS);
-			
+
 			if ( scheduleTo != null && 
 				  ( scheduleTo.equals("site") || 
 					 (scheduleTo.equals("groups") && groupChoice!=null && groupChoice.size()>0) ) )
@@ -3910,7 +3939,7 @@ extends VelocityPortletStateAction
 					// The line numbers are one-based.
 					String selectionName =	"eventSelected" + (i+1);
 					String selectdValue = data.getParameters().getString(selectionName);
-					
+
 					if ( Boolean.TRUE.toString().equals(selectdValue) )
 					{
 						// Add the events
@@ -3919,41 +3948,41 @@ extends VelocityPortletStateAction
 						{
 							Calendar calendarObj = CalendarService.getCalendar(calId);
 							CalendarEvent event = (CalendarEvent) wizardCandidateEventList.get(i);
-							
+
 							CalendarEventEdit newEvent = calendarObj.addEvent();
 							state.setEdit(newEvent);
-							
+
 							if ( event.getDescriptionFormatted() != null )
 							{
 								newEvent.setDescriptionFormatted( event.getDescriptionFormatted() ); 
 							}
-							
+
 							// Range must be present at this point, so don't check for null.
 							newEvent.setRange(event.getRange());
-	
+
 							if ( event.getDisplayName() != null )
 							{
 								newEvent.setDisplayName(event.getDisplayName());
 							}
-							 
+
 							// The type must have either been set or defaulted by this point.
 							newEvent.setType(event.getType());
-							 
+
 							if ( event.getLocation() != null )
 							{
 								newEvent.setLocation(event.getLocation());
 							}
-							 
+
 							if ( event.getRecurrenceRule() != null )
 							{
 								newEvent.setRecurrenceRule(event.getRecurrenceRule()); 
 							}
-							
+
 							String [] customFields = getCustomFieldsArray(state, sstate); 
-							
+
 							// Set the creator
 							newEvent.setCreator();
-						
+
 							// Copy any custom fields.
 							if ( customFields != null )
 							{
@@ -3962,7 +3991,7 @@ extends VelocityPortletStateAction
 									newEvent.setField(customFields[j], event.getField(customFields[j]));
 								}
 							} 
-	
+
 							// group awareness
 							try
 							{
@@ -3976,7 +4005,7 @@ extends VelocityPortletStateAction
 								else if (scheduleTo.equals("groups"))
 								{
 									Site site = SiteService.getSite(calendarObj.getContext());
-									
+
 									// make a collection of Group objects from the collection of group ref strings
 									Collection groups = new Vector();
 									for (Iterator iGroups = groupChoice.iterator(); iGroups.hasNext();)
@@ -3984,7 +4013,7 @@ extends VelocityPortletStateAction
 										String groupRef = (String) iGroups.next();
 										groups.add(site.getGroup(groupRef));
 									}
-									
+
 									newEvent.setGroupAccess(groups, true);
 								}
 							}
@@ -3992,7 +4021,7 @@ extends VelocityPortletStateAction
 							{
 								log.warn("doScheduleContinue: " + e);
 							}
-							
+
 							calendarObj.commitEvent(newEvent);
 							state.setEdit(null);							
 						}
@@ -4010,7 +4039,7 @@ extends VelocityPortletStateAction
 						}
 					}
 				}
-				
+
 				// Cancel wizard mode.
 				doCancelImportWizard(data, context);
 			}
@@ -4019,7 +4048,7 @@ extends VelocityPortletStateAction
 				addAlert(sstate, rb.getString("java.alert.youchoosegroup"));
 			}
 		}
-		
+
 	}
 
 	/**
@@ -4030,7 +4059,7 @@ extends VelocityPortletStateAction
 		SessionState sstate)
 	{
 		Calendar calendarObj = null;
-		
+
 		try
 		{
 			calendarObj =
@@ -4045,10 +4074,10 @@ extends VelocityPortletStateAction
 		{
 			addAlert(sstate, e.getMessage());
 		}
-		
+
 		// Get a current list of add fields.  This is a comma-delimited string.
 		String[] addFieldsCalendarArray = null;
-				
+
 		if ( calendarObj != null )
 		{
 			String addfieldsCalendars = calendarObj.getEventFields();
@@ -4062,14 +4091,14 @@ extends VelocityPortletStateAction
 		}
 		return addFieldsCalendarArray;
 	}
-	
+
 	/**
 	 * Handle the back button on the schedule import wizard
 	 */
 	public void doScheduleBack(RunData data, Context context)
 	{
 		CalendarActionState state = (CalendarActionState)getState(context, data, CalendarActionState.class);
-		
+
 		if (GENERIC_SELECT_FILE_IMPORT_WIZARD_STATE.equals(state.getImportWizardState())
 			|| ICAL_SELECT_FILE_IMPORT_WIZARD_STATE.equals(state.getImportWizardState())
 			|| OTHER_SELECT_FILE_IMPORT_WIZARD_STATE.equals(state.getImportWizardState()))
@@ -4093,7 +4122,7 @@ extends VelocityPortletStateAction
 			}
 		}
 	}
-	
+
 	/**
 	 * Called when the user cancels the import wizard.
 	 */
@@ -4103,14 +4132,14 @@ extends VelocityPortletStateAction
 
 		// Get rid of any events
 		state.setWizardImportedEvents(null);
-		
+
 		// Make sure that we start the wizard at the beginning.
 		state.setImportWizardState(null);
-		
+
 		// Return to the previous state.
 		state.setState(this.defaultStateView);
 	}
-	
+
 	/**
 	 * Action is used when the docancel is requested when the user click on cancel  in the new view
 	 */
@@ -4119,11 +4148,11 @@ extends VelocityPortletStateAction
 		CalendarActionState state = (CalendarActionState)getState(context, data, CalendarActionState.class);
 		String peid = ((JetspeedRunData)data).getJs_peid();
 		SessionState sstate = ((JetspeedRunData)data).getPortletSessionState(peid);
-		
+
 		Calendar calendarObj = null;
 		String currentState = state.getState();
 		String returnState = this.defaultStateView;
-		
+
 		if (currentState.equals(STATE_NEW))
 		{
 			// no need to release the lock. 
@@ -4150,7 +4179,7 @@ extends VelocityPortletStateAction
 					calendarSubscriptionsPage.doCancel(data, context, state, getSessionState(data));
 					//returnState=state.getPrevState();
 					returnState=state.getReturnState();
-					
+
 					if (returnState.endsWith("!!!fromDescription"))
 					{
 						state.setReturnState(returnState.substring(0, returnState.indexOf("!!!fromDescription")));
@@ -4164,7 +4193,7 @@ extends VelocityPortletStateAction
 				{
 					mergedCalendarPage.doCancel(data, context, state, getSessionState(data));
 					returnState=state.getReturnState();
-					
+
 					if (returnState.endsWith("!!!fromDescription"))
 					{
 						state.setReturnState(returnState.substring(0, returnState.indexOf("!!!fromDescription")));
@@ -4177,13 +4206,13 @@ extends VelocityPortletStateAction
 					if ((currentState.equals("revise"))|| (currentState.equals("goToReviseCalendar")))
 					{
 						String calId = state.getPrimaryCalendarReference();
-						
+
 						if (state.getPrimaryCalendarEdit() != null)
 						{
 							try
 							{
 								calendarObj = CalendarService.getCalendar(calId);
-								
+
 								// the event is locked, now we need to release the lock
 								calendarObj.cancelEvent(state.getPrimaryCalendarEdit());
 								state.setPrimaryCalendarEdit(null);
@@ -4208,11 +4237,11 @@ extends VelocityPortletStateAction
 					}
 
 		state.setState(returnState);
-		
+
 		state.setAttachments(null);
 	}	 // doCancel
-	
-	
+
+
 	/**
 	 * Action is used when the doBack is called when the user click on the back on the EventActivity view
 	 */
@@ -4221,14 +4250,14 @@ extends VelocityPortletStateAction
 		CalendarActionState state = (CalendarActionState)getState(context, data, CalendarActionState.class);
 		String peid = ((JetspeedRunData)data).getJs_peid();
 		SessionState sstate = ((JetspeedRunData)data).getPortletSessionState(peid);
-		
+
 		Calendar calendarObj = null;
 		String calId = state.getPrimaryCalendarReference();
-		
+
 		try
 		{
 			calendarObj = CalendarService.getCalendar(calId);
-			
+
 			// the event is locked, now we need to release the lock
 			calendarObj.cancelEvent(state.getPrimaryCalendarEdit());
 			state.setPrimaryCalendarEdit(null);
@@ -4242,34 +4271,34 @@ extends VelocityPortletStateAction
 		{
 			addAlert(sstate, rb.getString("java.alert.youcreate"));
 		}
-		
+
 		String returnState = state.getReturnState();
 		if(StringUtils.isBlank(returnState) || CalendarAction.STATE_INITED.equals(returnState)) {
 			returnState = this.defaultStateView;
 		}
 		state.setState(returnState);
-		
+
 	}	 // doBack
-	
-	
+
+
 	/**
 	 * Action is used when the doDelete is called when the user click on delete in menu
 	 */
-	
+
 	public void doDelete(RunData data, Context context)
 	{
 		CalendarActionState state = (CalendarActionState)getState(context, data, CalendarActionState.class);
 		String peid = ((JetspeedRunData)data).getJs_peid();
 		SessionState sstate = ((JetspeedRunData)data).getPortletSessionState(peid);
-		
+
 		CalendarEvent calendarEventObj = null;
 		Calendar calendarObj = null;
 		String calId = state.getPrimaryCalendarReference();
-		
+
 		try
 		{
 			calendarObj = CalendarService.getCalendar(calId);
-			
+
 			try
 			{
 				String eventId = state.getCalendarEventId();
@@ -4280,7 +4309,7 @@ extends VelocityPortletStateAction
 				state.setPrimaryCalendarEdit(edit);
 				calendarEventObj = calendarObj.getEvent(eventId);
 				state.setAttachments(calendarEventObj.getAttachments());
-				
+
 				// after deletion, it needs to go back to previous page
 				// if coming from description, it won't go back to description
 				// but the state one step ealier
@@ -4328,25 +4357,25 @@ extends VelocityPortletStateAction
 			addAlert(sstate, rb.getString("java.alert.youcreate"));
 		}
 	}	 // doDelete
-	
+
 	/**
 	 * Action is used when the doConfirm is called when the user click on confirm to delete event in the delete view.
 	 */
-	
+
 	public void doConfirm(RunData data, Context context)
 	{
 		Calendar calendarObj = null;
 		CalendarActionState state = (CalendarActionState)getState(context, data, CalendarActionState.class);
 		String peid = ((JetspeedRunData)data).getJs_peid();
 		SessionState sstate = ((JetspeedRunData)data).getPortletSessionState(peid);
-		
+
 		// read the intention field
 		String intentionStr = data.getParameters().getString("intention");
 		int intention = CalendarService.MOD_NA;
 		if ("t".equals(intentionStr)) intention = CalendarService.MOD_THIS;
 
 		String calId = state.getPrimaryCalendarReference();
-		
+
 		try
 		{
 			calendarObj = CalendarService.getCalendar(calId);
@@ -4364,18 +4393,18 @@ extends VelocityPortletStateAction
 			addAlert(sstate, rb.getString("java.alert.youcreate"));
 			log.debug(".doConfirm(): " + e);
 		}
-		
+
 		String stateName = ServerConfigurationService.getString("calendar.default.view", defaultStateView);
 		state.setState(stateName);
 		state.setReturnState(stateName);
-		
+
 	} // doConfirm
-	
-	
+
+
 	public void doView (RunData data, Context context)
 	{
 			SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-	
+
 			String viewMode = data.getParameters ().getString("view");
 			if (StringUtils.isNotBlank(viewMode) && viewMode.equalsIgnoreCase(rb.getString("java.listeve"))) {
 				doList(data, context);
@@ -4383,7 +4412,7 @@ extends VelocityPortletStateAction
 				doViewCalendar(data, context);
 			}
 			state.setAttribute(STATE_SELECTED_VIEW, viewMode);
-	
+
 	}	// doView
 
 	/**
@@ -4404,7 +4433,7 @@ extends VelocityPortletStateAction
 		CalendarActionState state = (CalendarActionState)getState(context, data, CalendarActionState.class);
 		String peid = ((JetspeedRunData)data).getJs_peid();
 		SessionState sstate = ((JetspeedRunData)data).getPortletSessionState(peid);
-		
+
 		String sY = data.getParameters().getString(TIME_FILTER_SETTING_CUSTOM_START_YEAR);
 		String sM = data.getParameters().getString(TIME_FILTER_SETTING_CUSTOM_START_MONTH);
 		String sD = data.getParameters().getString(TIME_FILTER_SETTING_CUSTOM_START_DAY);
@@ -4417,22 +4446,22 @@ extends VelocityPortletStateAction
 		if (eD.length() == 1) eD = "0"+eD;
 		sY = sY.substring(2);
 		eY = eY.substring(2);
-		
+
 		String startingDateStr = sM + "/" + sD + "/" + sY;
 		String endingDateStr	  = eM + "/" + eD + "/" + eY;
-		
+
 		// Pass in a buffer for a possible error message.
 		StringBuilder errorMessage = new StringBuilder();
-		
+
 		// Try to simultaneously set the start/end dates.
 		// If that doesn't work, add an error message.
 		if ( !state.getCalendarFilter().setStartAndEndListViewDates(startingDateStr, endingDateStr, errorMessage) )
 		{
 			addAlert(sstate, errorMessage.toString());
 		}
-		
+
 	}	 // doCustomdate
-	
+
 	/**
 	 * Action doFilter is requested when the user clicks on the list box
 	 * to select a filtering mode for the list view.
@@ -4446,30 +4475,30 @@ extends VelocityPortletStateAction
 
 		state.getCalendarFilter().setListViewFilterMode(
 			data.getParameters().getString(TIME_FILTER_OPTION_VAR));
-		
+
 	}	 // doFilter
 
 	/*
 	 * Action is requsted when the user select day from menu in Activityevent view.
 	 */
-	
+
 	public void doActivityday(RunData data, Context context)
 	{
-		
+
 		CalendarEvent ce = null;
 		Calendar calendarObj = null;
-		
+
 		CalendarActionState state = (CalendarActionState)getState(context, data, CalendarActionState.class);
 		String peid = ((JetspeedRunData)data).getJs_peid();
 		SessionState sstate = ((JetspeedRunData)data).getPortletSessionState(peid);
-		
+
 		CalendarUtil m_calObj = new CalendarUtil();
-		
+
 		String id = state.getCalendarEventId();
-		
+
 		String calId = state.getPrimaryCalendarReference();
-		
-		
+
+
 		try
 		{
 			calendarObj = CalendarService.getCalendar(calId);
@@ -4487,20 +4516,20 @@ extends VelocityPortletStateAction
 			log.warn(".doActivityday(): " + e);
 			return;
 		}
-		
+
 		TimeRange tr = ce.getRange();
 		Time t = tr.firstTime();
 		TimeBreakdown b = t.breakdownLocal();
 		m_calObj.setDay(b.getYear(),b.getMonth(),b.getDay()) ;
-		
+
 		sstate.setAttribute(STATE_YEAR, Integer.valueOf(b.getYear()));
 		sstate.setAttribute(STATE_MONTH, Integer.valueOf(b.getMonth()));
 		sstate.setAttribute(STATE_DAY, Integer.valueOf(b.getDay()));
-		
+
 		state.setState("day");
-		
+
 	} // doActivityDay
-	
+
 	/**
 	 * Enter the schedule import wizard
 	 */
@@ -4509,16 +4538,16 @@ extends VelocityPortletStateAction
 		CalendarActionState state = (CalendarActionState)getState(context, data, CalendarActionState.class);
 		String peid = ((JetspeedRunData)data).getJs_peid();
 		SessionState sstate = ((JetspeedRunData)data).getPortletSessionState(peid);
-		
+
 		sstate.removeAttribute(STATE_SCHEDULE_TO);
 		sstate.removeAttribute(STATE_SCHEDULE_TO_GROUPS);
-		
+
 		// Remember the state prior to entering the wizard.
 		state.setPrevState(state.getState());
-		
+
 		// Enter wizard mode.
 		state.setState(STATE_SCHEDULE_IMPORT);
-		
+
 	}	 // doImport
 
 	/**
@@ -4529,23 +4558,23 @@ extends VelocityPortletStateAction
 		CalendarActionState state = (CalendarActionState)getState(context, data, CalendarActionState.class);
 		String peid = ((JetspeedRunData)data).getJs_peid();
 		SessionState sstate = ((JetspeedRunData)data).getPortletSessionState(peid);
-		
+
 		sstate.removeAttribute(STATE_SCHEDULE_TO);
 		sstate.removeAttribute(STATE_SCHEDULE_TO_GROUPS);
-		
+
 		//	 store the state coming from
 		String returnState = state.getState();
 		if ( ! returnState.equals("description") )
 		{
 			state.setReturnState(returnState);
 		}
-		
+
 		state.clearData();
 		state.setAttachments(null);
 		state.setPrevState(state.getState());
 		state.setState("icalEx");
 	}	 // doIcalExportName
-	
+
 	/**
 	 * Action doIcalExport acts on a "Submit" request in the icalexport form
 	 */
@@ -4554,26 +4583,26 @@ extends VelocityPortletStateAction
 		CalendarActionState state = (CalendarActionState)getState(context, data, CalendarActionState.class);
 		String peid = ((JetspeedRunData)data).getJs_peid();
 		SessionState sstate = ((JetspeedRunData)data).getPortletSessionState(peid);
-		
+
 		String enable = StringUtils.trimToNull(data.getParameters().getString(FORM_ICAL_ENABLE));
 		String alias = StringUtils.trimToNull(data.getParameters().getString(FORM_ALIAS));
-      
+
 		// this will verify that no invalid characters are used
 		if ( ! Validator.escapeResourceName(alias).equals(alias) )
 		{
 			addAlert(sstate, rb.getString("java.alert.invalidname"));
 			return;
 		}
-		
+
 		String calId = state.getPrimaryCalendarReference();
 		Calendar calendarObj = null;
-		
+
 		boolean oldExportEnabled = CalendarService.getExportEnabled(calId);
-		
+
 		try
 		{
 			calendarObj = CalendarService.getCalendar(calId);
-		
+
 			List aliasList =	aliasService.getAliases( calendarObj.getReference() );
 			String oldAlias = null;
 			if ( ! aliasList.isEmpty() )
@@ -4581,13 +4610,13 @@ extends VelocityPortletStateAction
 				String aliasSplit[] = ((Alias)aliasList.get(0)).getId().split("\\.");
 				oldAlias =	aliasSplit[0];
 			}
-		
+
 			// Add the desired alias (if changed)
 			if ( alias != null && (oldAlias == null || !oldAlias.equals(alias)) )
 			{
 				// first, clear any alias set to this calendar
 				aliasService.removeTargetAliases(calendarObj.getReference());
-				
+
 				alias += ICAL_EXTENSION;
 				aliasService.setAlias(alias, calendarObj.getReference());
 			}
@@ -4614,35 +4643,35 @@ extends VelocityPortletStateAction
 			log.debug(".doIcalExport() Other: " + e);
 			return;
 		}
-		
+
 		// enable/disable export (if changed)
 		if ( enable != null && !oldExportEnabled )
 			CalendarService.setExportEnabled( calId, true );
 		else if ( enable == null && oldExportEnabled )
 			CalendarService.setExportEnabled( calId, false );
-			
+
 		String returnState = "icalEx";
 		state.setState(returnState);
-		
+
 	}	 // doIcalExport
-	
+
 	public void doNew(RunData data, Context context)
 	{
 		CalendarActionState state = (CalendarActionState)getState(context, data, CalendarActionState.class);
 		String peid = ((JetspeedRunData)data).getJs_peid();
 		SessionState sstate = ((JetspeedRunData)data).getPortletSessionState(peid);
-		
+
 		//clean group awareness state info
 		sstate.removeAttribute(STATE_SCHEDULE_TO);
 		sstate.removeAttribute(STATE_SCHEDULE_TO_GROUPS);
-		
+
 		// store the state coming from
 		String returnState = state.getState();
 		if ( ! returnState.equals("description") )
 		{
 			state.setReturnState(returnState);
 		}
-		
+
 		state.clearData();
 		state.setAttachments(null);
 		state.setPrevState(state.getState());
@@ -4651,9 +4680,9 @@ extends VelocityPortletStateAction
 		state.setIsNewCalendar(true);
 		sstate.setAttribute(FREQUENCY_SELECT, null);
 		sstate.setAttribute(CalendarAction.SSTATE__RECURRING_RULE, null);
-		
+
 	}	 // doNew
-	
+
 	/**
 	 * Read user inputs in announcement form
 	 * @param data
@@ -4674,7 +4703,7 @@ extends VelocityPortletStateAction
 			{
 				state.setAttribute(STATE_SCHEDULE_TO_GROUPS, new ArrayList(Arrays.asList(groupChoice)));
 			}
-			
+
 			if (groupChoice== null || groupChoice.length == 0)
 			{
 				state.removeAttribute(STATE_SCHEDULE_TO_GROUPS);
@@ -4684,22 +4713,22 @@ extends VelocityPortletStateAction
 		{
 			state.removeAttribute(STATE_SCHEDULE_TO_GROUPS);
 		}
-		
+
 	}	// readEventGroupForm
-	
+
 	/**
 	 * Action doAdd is requested when the user click on the add in the new view to add an event into a calendar.
 	 */
-	
+
 	public void doAdd(RunData runData, Context context) {
 		CalendarUtil m_calObj = new CalendarUtil();// null;
 		Calendar calendarObj = null;
 		int houri;
-		
+
 		CalendarActionState state = (CalendarActionState)getState(context, runData, CalendarActionState.class);
 		String peid = ((JetspeedRunData)runData).getJs_peid();
 		SessionState sstate = ((JetspeedRunData)runData).getPortletSessionState(peid);
-		
+
 		Time m_time = TimeService.newTime();
 		TimeBreakdown b = m_time.breakdownLocal();
 		int stateYear = b.getYear();
@@ -4712,7 +4741,7 @@ extends VelocityPortletStateAction
 			stateDay = ((Integer)sstate.getAttribute(STATE_DAY)).intValue();
 		}
 		m_calObj.setDay(stateYear, stateMonth, stateDay);
-		
+
 		String hour = "";
 		hour = runData.getParameters().getString("startHour");
 		String title ="";
@@ -4728,7 +4757,7 @@ extends VelocityPortletStateAction
 		description = processFormattedTextFromBrowser(sstate, description);
 		String month = "";
 		month = runData.getParameters().getString("month");
-		
+
 		String day = "";
 		day = runData.getParameters().getString("day");
 		String year = "";
@@ -4741,7 +4770,7 @@ extends VelocityPortletStateAction
 		location = runData.getParameters().getString("location");
 
         String siteId = ToolManager.getCurrentPlacement().getContext();
-		
+
 		String calId = state.getPrimaryCalendarReference();
 		try {
 			calendarObj = CalendarService.getCalendar(calId);
@@ -4762,7 +4791,7 @@ extends VelocityPortletStateAction
 
 		// Add any additional fields in the calendar.
 		customizeCalendarPage.loadAdditionalFieldsMapFromRunData(runData, addfieldsMap, calendarObj);
-		
+
 		if (timeType.equals("pm")) {
 			if (Integer.parseInt(hour)>11)
 				houri = Integer.parseInt(hour);
@@ -4788,9 +4817,9 @@ extends VelocityPortletStateAction
 		// 3th, frequency revised, the state saved rule is null, but state-saved freq exists (0, 1)
 		// --> non-recurring, no alert needed (0)
 		// so the only possiblityto show the alert is under condistion 2.
-		
+
 		boolean earlierEnding = false;
-		
+
 		String freq = "";
 		if ((( freq = (String) sstate.getAttribute(FREQUENCY_SELECT))!= null) && (!(freq.equals(FREQ_ONCE)))) {
 			RecurrenceRule rule = (RecurrenceRule) sstate.getAttribute(CalendarAction.SSTATE__RECURRING_RULE);
@@ -4806,7 +4835,7 @@ extends VelocityPortletStateAction
 
 		String scheduleTo = (String)sstate.getAttribute(STATE_SCHEDULE_TO);
 		Collection groupChoice = (Collection) sstate.getAttribute(STATE_SCHEDULE_TO_GROUPS);
-		
+
 		if(title.length() == 0) {
 			String errorCode = rb.getString("java.pleasetitle");
 			addAlert(sstate, errorCode);
@@ -4883,7 +4912,7 @@ extends VelocityPortletStateAction
 					edit.setRecurrenceRule(rule);
 				else
 					edit.setRecurrenceRule(null);
-				
+
 				// save it
 				calendarObj.commitEvent(edit);
 				state.setEdit(null);
@@ -4903,7 +4932,7 @@ extends VelocityPortletStateAction
 				// clean state
 				sstate.removeAttribute(STATE_SCHEDULE_TO);
 				sstate.removeAttribute(STATE_SCHEDULE_TO_GROUPS);
-				
+
 				// Create task
 				String reference = "/calendar/dashboard/" + calendarObj.getContext() + Entity.SEPARATOR + calendarObj.getId() + Entity.SEPARATOR + edit.getId();
 				Task task = new Task();
@@ -4928,7 +4957,7 @@ extends VelocityPortletStateAction
 					users.add(UserDirectoryService.getCurrentUser().getId());
 				}
 				taskService.createTask(task, users, Priorities.HIGH);
-	
+
 			} catch (IdUnusedException e) {
 				addAlert(sstate, rb.getString("java.alert.noexist"));
 				log.debug(".doAdd(): " + e);
@@ -4942,39 +4971,39 @@ extends VelocityPortletStateAction
 
 		}	 // elseif
 	}	 // doAdd
-	
+
 	/**
 	 * Action doUpdateGroupView is requested when the user click on the Update button on the list view.
 	 */
-	
+
 	public void doUpdateGroupView(RunData runData, Context context)
 	{
 		readEventGroupForm(runData, context);		
 		//stay at the list view
 	}
-	
+
 	/**
 	 * Action doUpdate is requested when the user click on the save button on the revise screen.
 	 */
-	
+
 	public void doUpdate(RunData runData, Context context)
 	{
 		CalendarActionState state = (CalendarActionState)getState(context, runData, CalendarActionState.class);
 		String peid = ((JetspeedRunData)runData).getJs_peid();
 		SessionState sstate = ((JetspeedRunData)runData).getPortletSessionState(peid);
-		
+
 		CalendarUtil m_calObj= new CalendarUtil();
-		
+
 		// read the intention field
 		String intentionStr = runData.getParameters().getString("intention");
 		int intention = CalendarService.MOD_NA;
 		if ("t".equals(intentionStr)) intention = CalendarService.MOD_THIS;
-		
+
 		// See if we're in the "options" state.
 		if (state.getState().equalsIgnoreCase(STATE_MERGE_CALENDARS))
 		{
 			mergedCalendarPage.doUpdate(runData, context, state, getSessionState(runData));
-			
+
 			// ReturnState was set up above.	 Switch states now.
 			String returnState = state.getReturnState();
 			if(returnState.equals(CalendarAction.STATE_INITED)) {
@@ -4990,13 +5019,13 @@ extends VelocityPortletStateAction
 				state.setReturnState(STATE_MERGE_CALENDARS);
 				state.setState(returnState);
 			}
-			
+
 		}
 		else
 			if (state.getState().equalsIgnoreCase(STATE_CALENDAR_SUBSCRIPTIONS))
 			{
 				calendarSubscriptionsPage.doUpdate(runData, context, state, getSessionState(runData));
-				
+
 				// ReturnState was set up above.  Switch states now.
 				String returnState = state.getReturnState();
 				if(returnState.compareTo(CalendarAction.STATE_INITED) == 0) {
@@ -5012,14 +5041,14 @@ extends VelocityPortletStateAction
 					state.setReturnState(this.defaultStateView);
 					state.setState(returnState);
 				}
-				
+
 			}
 		else
 			if (state.getState().equalsIgnoreCase(STATE_CUSTOMIZE_CALENDAR))
 			{
 				//customizeCalendarPage.doDeletefield( runData, context, state, getSessionState(runData));
 				customizeCalendarPage.doUpdate(runData, context, state, getSessionState(runData));
-				
+
 				// ReturnState was set up above.	 Switch states now.
 				String returnState = state.getReturnState();
 				if (returnState.endsWith("!!!fromDescription"))
@@ -5037,7 +5066,7 @@ extends VelocityPortletStateAction
 			{
 				int houri;
 				Calendar calendarObj = null;
-				
+
 				String hour = "";
 				hour = runData.getParameters().getString("startHour");
 				String title = "";
@@ -5063,7 +5092,7 @@ extends VelocityPortletStateAction
 				type = runData.getParameters().getString("eventType");
 				String location = "";
 				location = runData.getParameters().getString("location");
-				
+
 				String calId = state.getPrimaryCalendarReference();
 				try
 				{
@@ -5081,18 +5110,18 @@ extends VelocityPortletStateAction
 					log.debug(".doUpdate() Other: " + e);
 					return;
 				}
-				
+
 				// for group/section awareness
 				readEventGroupForm(runData, context);
-				
+
 				String scheduleTo = (String)sstate.getAttribute(STATE_SCHEDULE_TO);
 				Collection groupChoice = (Collection) sstate.getAttribute(STATE_SCHEDULE_TO_GROUPS);
-				
+
 				Map addfieldsMap = new HashMap();
-				
+
 				// Add any additional fields in the calendar.
 				customizeCalendarPage.loadAdditionalFieldsMapFromRunData(runData, addfieldsMap, calendarObj);
-				
+
 				if (timeType.equals("pm"))
 				{
 					if (Integer.parseInt(hour)>11)
@@ -5108,7 +5137,7 @@ extends VelocityPortletStateAction
 				{
 					houri = Integer.parseInt(hour);
 				}
-				
+
 				// conditions for an existing event: (if recurring event, if state-saved-rule exists, if state-saved-freq exists)
 				// 1st, an existing recurring one, just revised without frequency change, no save state rule or state freq (1, 0, 0)
 				// --> the starting time might has been modified, compare the ending and starting date, show alert if needed (1)
@@ -5122,10 +5151,10 @@ extends VelocityPortletStateAction
 				// --> non-recurring, no alert needed (0)
 				// 6th, an existing recurring one, changed only the starting time, showed alert for ealier ending time, 
 				// so the only possiblity to show the alert is under condistion 1 & 3: recurring one stays as recurring
-				
+
 				boolean earlierEnding = false;
-				
-				
+
+
 				CalendarEventEdit edit = state.getPrimaryCalendarEdit();
 				if (edit != null)
 				{
@@ -5135,7 +5164,7 @@ extends VelocityPortletStateAction
 						String freq = (String) sstate.getAttribute(FREQUENCY_SELECT);
 						RecurrenceRule rule = (RecurrenceRule) sstate.getAttribute(CalendarAction.SSTATE__RECURRING_RULE);
 						boolean comparisonNeeded = false;
-						
+
 						if ((freq == null) && (rule == null))
 						{
 							// condition 1: recurring without frequency touched, but the starting might change
@@ -5152,7 +5181,7 @@ extends VelocityPortletStateAction
 							if (rule != null)
 							{
 								Time startingTime = TimeService.newTimeLocal(Integer.parseInt(year),Integer.parseInt(month),Integer.parseInt(day),houri,Integer.parseInt(minute),00,000);
-								
+
 								Time endingTime = rule.getUntil();
 								if ((endingTime != null) && endingTime.before(startingTime))
 									earlierEnding = true;
@@ -5165,7 +5194,7 @@ extends VelocityPortletStateAction
 				{
 					String errorCode = rb.getString("java.pleasetitle");
 					addAlert(sstate, errorCode);
-					
+
 					state.setNewData(calId, title,description,Integer.parseInt(month),Integer.parseInt(day),year,houri,Integer.parseInt(minute),Integer.parseInt(dhour),Integer.parseInt(dminute),type,timeType,location, addfieldsMap, intentionStr);
 					state.setState("revise");
 				}
@@ -5174,7 +5203,7 @@ extends VelocityPortletStateAction
 				{
 					String errorCode = "Please enter a time";
 					addAlert(sstate, errorCode);
-					
+
 					state.setNewData(calId, title,description,Integer.parseInt(month),Integer.parseInt(day),year,houri,Integer.parseInt(minute),Integer.parseInt(dhour),Integer.parseInt(dminute),type,timeType,location, addfieldsMap);
 					state.setState("revise");
 				}
@@ -5182,7 +5211,7 @@ extends VelocityPortletStateAction
 				else if( earlierEnding ) // if ending date is earlier than the starting date, show alert
 				{
 					addAlert(sstate, rb.getString("java.theend") );
-					
+
 					state.setNewData(calId, title,description,Integer.parseInt(month),Integer.parseInt(day),year,houri,Integer.parseInt(minute),Integer.parseInt(dhour),Integer.parseInt(dminute),type,timeType,location, addfieldsMap, intentionStr);
 					state.setState("revise");
 				}
@@ -5204,7 +5233,7 @@ extends VelocityPortletStateAction
 					{
 						calendarObj = CalendarService.getCalendar(calId);
 						Time timeObj = TimeService.newTimeLocal(Integer.parseInt(year),Integer.parseInt(month),Integer.parseInt(day),houri,Integer.parseInt(minute),00,000);
-						
+
 						long du = (((Integer.parseInt(dhour) * 60)*60)*1000) + ((Integer.parseInt(dminute)*60)*(1000));
 						Time endTime = TimeService.newTime(timeObj.getTime() + du);
 						boolean includeEndTime = false;
@@ -5244,13 +5273,13 @@ extends VelocityPortletStateAction
 							// 5th, and existing non-recurring one, changed but kept as non-recurring, the state-saved rule is null, but state-saved freq exists (0, 1)
 							// --> replace the edit rule with state-saved rule
 							// so if the state-saved freq exists, replace the event rule
-							
+
 							String freq = (String) sstate.getAttribute(FREQUENCY_SELECT);
 							if (sstate.getAttribute(FREQUENCY_SELECT) != null)
 							{
 								edit.setRecurrenceRule(rule);
 							}
-							
+
 							// section awareness
 							try
 							{
@@ -5264,14 +5293,14 @@ extends VelocityPortletStateAction
 								else if (scheduleTo.equals("groups"))
 								{
 									Site site = SiteService.getSite(calendarObj.getContext());
-									
+
 									// make a collection of Group objects from the collection of group ref strings
 									for (Iterator iGroups = groupChoice.iterator(); iGroups.hasNext();)
 									{
 										String groupRef = (String) iGroups.next();
 										groups.add(site.getGroup(groupRef));
 									}
-									
+
 									edit.setGroupAccess(groups, edit.isUserOwner());
 								}
 							}
@@ -5284,18 +5313,18 @@ extends VelocityPortletStateAction
 							state.setPrimaryCalendarEdit(null);
 							state.setEdit(null);
 							state.setIsNewCalendar(false);
-							
+
 							// post update-type events for the revised schedule event
 							postEventsForChanges(edit);
-							
+
 						} // if (edit != null)
-						
+
 						m_calObj.setDay(Integer.parseInt(year),Integer.parseInt(month),Integer.parseInt(day));
-						
+
 						sstate.setAttribute(STATE_YEAR, Integer.valueOf(m_calObj.getYear()));
 						sstate.setAttribute(STATE_MONTH, Integer.valueOf(m_calObj.getMonthInteger()));
 						sstate.setAttribute(STATE_DAY, Integer.valueOf(m_calObj.getDayOfMonth()));
-						
+
 						// clear the saved recurring rule and the selected frequency
 						sstate.setAttribute(CalendarAction.SSTATE__RECURRING_RULE, null);
 						sstate.setAttribute(FREQUENCY_SELECT, null);
@@ -5310,11 +5339,11 @@ extends VelocityPortletStateAction
 						{
 							state.setState(CALENDAR_INIT_PARAMETER);
 						}
-						
+
 						// clean state
 						sstate.removeAttribute(STATE_SCHEDULE_TO);
 						sstate.removeAttribute(STATE_SCHEDULE_TO_GROUPS);
-						
+
 						// Create task
 						String reference = "/calendar/dashboard/" + calendarObj.getContext() + Entity.SEPARATOR + calendarObj.getId() + Entity.SEPARATOR + edit.getId();
 						Optional<Task> optTask = taskService.getTask(reference);
@@ -5367,36 +5396,36 @@ extends VelocityPortletStateAction
 				state.setState(stateName);
 				state.setReturnState(stateName);
 			} // if (state.getState().equalsIgnoreCase(STATE_CUSTOMIZE_CALENDAR))
-		
+
 	}	 // doUpdate
-	
+
 	/**
 	 * Handle the button click to remove fields to calendar events.
 	 */
 	public void doDeletefield(RunData runData, Context context)
 	{
 		CalendarActionState state = (CalendarActionState)getState(context, runData, CalendarActionState.class);
-		
+
 		customizeCalendarPage.doDeletefield( runData, context, state, getSessionState(runData));
 	    doUpdate(runData, context);
 	}
-	
+
 	/**
 	 * Handle the button click to add fields to calendar events.
 	 */
 	public void doAddfield(RunData runData, Context context)
 	{
 		CalendarActionState state = (CalendarActionState)getState(context, runData, CalendarActionState.class);
-		
+
 		customizeCalendarPage.doAddfield( runData, context, state, getSessionState(runData));
 		doUpdate(runData, context);
 	}
-	
-	
+
+
 	public void doAddSubscription(RunData runData, Context context)
 	{
 		CalendarActionState state = (CalendarActionState)getState(context, runData, CalendarActionState.class);
-		
+
 		calendarSubscriptionsPage.doAddSubscription( runData, context, state, getSessionState(runData));
 	}
 
@@ -5408,7 +5437,7 @@ extends VelocityPortletStateAction
 	{
 		String peid = ((JetspeedRunData)runData).getJs_peid();
 		SessionState sstate = ((JetspeedRunData)runData).getPortletSessionState(peid);
-		
+
 		sstate.setAttribute(STATE_NAV_DIRECTION, STATE_PREV_ACT);
 	} //doPrev_activity
 
@@ -5419,7 +5448,7 @@ extends VelocityPortletStateAction
 	{
 		String peid = ((JetspeedRunData)runData).getJs_peid();
 		SessionState sstate = ((JetspeedRunData)runData).getPortletSessionState(peid);
-		
+
 		sstate.setAttribute(STATE_NAV_DIRECTION, STATE_NEXT_ACT);
 	} // doNext_activity
 
@@ -5431,13 +5460,13 @@ extends VelocityPortletStateAction
 	{
 		String peid = ((JetspeedRunData)runData).getJs_peid();
 		SessionState sstate = ((JetspeedRunData)runData).getPortletSessionState(peid);
-		
+
 		CalendarActionState state = (CalendarActionState)getState(context, runData, CalendarActionState.class);
-		
+
 		String eventId = state.getCalendarEventId();
-		
+
 		List events = prepEventList(portlet, context, runData);
-		
+
 		int index = -1;
 		int size = events.size();
 		for (int i=0; i<size; i++)
@@ -5446,7 +5475,7 @@ extends VelocityPortletStateAction
 			if (e.getId().equals(eventId))
 				index = i;
 		}
-		
+
 		// navigate to the previous activity
 		if (STATE_PREV_ACT.equals(direction) && index > 0) 
 		{
@@ -5458,7 +5487,7 @@ extends VelocityPortletStateAction
 				calId = CalendarService.calendarSubscriptionReference(ref.getContext(), ref.getContainer());
 			else
 				calId = CalendarService.calendarReference(ref.getContext(), ref.getContainer());
-			
+
 			state.setCalendarEventId(calId, eventId);
 			state.setAttachments(null);
 		}
@@ -5473,34 +5502,34 @@ extends VelocityPortletStateAction
 				calId = CalendarService.calendarSubscriptionReference(ref.getContext(), ref.getContainer());
 			else
 				calId = CalendarService.calendarReference(ref.getContext(), ref.getContainer());
-			
+
 			state.setCalendarEventId(calId, eventId);
 			state.setAttachments(null);
 		}
-		
+
 		if (index > 0)
 			sstate.setAttribute(STATE_PREV_ACT, "");
 		else
 			sstate.removeAttribute(STATE_PREV_ACT);
-		
+
 		if(index < size-1)
 			sstate.setAttribute(STATE_NEXT_ACT, "");
 		else
 			sstate.removeAttribute(STATE_NEXT_ACT);
-		
+
 		sstate.setAttribute(STATE_NAV_DIRECTION, STATE_CURRENT_ACT);
-		
+
 	} // navigatorControl
-	
-	private CalendarEventVector prepEventList(VelocityPortlet portlet,
-			Context context,
-			RunData runData)
+
+	private CalendarEventList prepEventList(VelocityPortlet portlet,
+											Context context,
+											RunData runData)
 	{
 		String peid = ((JetspeedRunData)runData).getJs_peid();
 		SessionState sstate = ((JetspeedRunData)runData).getPortletSessionState(peid);
-		
+
 		CalendarActionState state = (CalendarActionState)getState(context, runData, CalendarActionState.class);
-		
+
 		TimeRange fullTimeRange =
 			TimeService.newTimeRange(
 				TimeService.newTimeLocal(
@@ -5519,22 +5548,22 @@ extends VelocityPortletStateAction
 					59,
 					59,
 					999));
-		
+
 		// We need to get events from all calendars for the full time range.
-		CalendarEventVector masterEventVectorObj =
+		CalendarEventList masterEventVectorObj =
 			CalendarService.getEvents(
 				getCalendarReferenceList(
 					portlet,
 					state.getPrimaryCalendarReference(),
 					isOnWorkspaceTab()),
 				fullTimeRange);
-		
+
 		sstate.setAttribute(STATE_EVENTS_LIST, masterEventVectorObj);
 		return masterEventVectorObj;
-		
+
 	} // eventList
-	
-	
+
+
 	/**
 	 * Action is to parse the function calls
 	 **/
@@ -5565,8 +5594,8 @@ extends VelocityPortletStateAction
 				break;
 		}
 	}	 // doParse
-	
-	
+
+
 	/**
 	 * Action doList is requested when the user click on the list in the toolbar
 	 */
@@ -5575,7 +5604,7 @@ extends VelocityPortletStateAction
 		CalendarActionState state = (CalendarActionState)getState(context, data, CalendarActionState.class);
 		String peid = ((JetspeedRunData)data).getJs_peid();
 		SessionState sstate = ((JetspeedRunData)data).getPortletSessionState(peid);
-		
+
 		Time m_time = TimeService.newTime();
 		TimeBreakdown b = m_time.breakdownLocal();
 		int stateYear = b.getYear();
@@ -5587,14 +5616,14 @@ extends VelocityPortletStateAction
 			stateMonth = ((Integer)sstate.getAttribute(STATE_MONTH)).intValue();
 			stateDay = ((Integer)sstate.getAttribute(STATE_DAY)).intValue();
 		}
-		
+
 		String sM;
 		String eM;
 		String sD;
 		String eD;
 		String sY;
 		String eY;
-		
+
 		CalendarUtil calObj = new CalendarUtil();
 		calObj.setDay(stateYear, stateMonth, stateDay);
 
@@ -5637,7 +5666,7 @@ extends VelocityPortletStateAction
 		state.setState(LIST_VIEW);
 		this.defaultStateView = LIST_VIEW;
 	}	 // doList
-	
+
 	/**
 	 * Action doSort_by_date_toggle is requested when the user click on the sorting icon in the list view
 	 */
@@ -5651,29 +5680,29 @@ extends VelocityPortletStateAction
 			sstate.removeAttribute(STATE_DATE_SORT_DSC);
 		else
 			sstate.setAttribute(STATE_DATE_SORT_DSC, "");
-		
+
 	}	 // doSort_by_date_toggle
-	
+
 	/**
 	 * Handle a request from the "merge" page to merge calendars from other groups into this group's Schedule display.
 	 */
 	public void doMerge(RunData runData, Context context)
 	{
 		CalendarActionState state = (CalendarActionState)getState(context, runData, CalendarActionState.class);
-		
+
 		mergedCalendarPage.doMerge( runData, context, state, getSessionState(runData));
 	} // doMerge
-	
+
 	/**
 	 * Handle a request from the "subscriptions" page to subscribe calendars.
 	 */
 	public void doSubscriptions(RunData runData, Context context)
 	{
 		CalendarActionState state = (CalendarActionState)getState(context, runData, CalendarActionState.class);
-		
+
 		calendarSubscriptionsPage.doSubscriptions( runData, context, state, getSessionState(runData));
 	} // doMerge
-	
+
 	/**
 	 * Action is used when the user clicks on the 'Subscribe' link:
 	 */
@@ -5687,14 +5716,14 @@ extends VelocityPortletStateAction
 		String newState = (opaqUrl == null) ? "opaqueUrlClean" : "opaqueUrlExisting";
 		state.setState(newState);
 	}
-	
+
 	public void doOpaqueUrlGenerate(RunData data, Context context)
 	{
 		CalendarActionState state = (CalendarActionState)getState(context, data, CalendarActionState.class);
 		opaqueUrlDao.newOpaqueUrl(sessionManager.getCurrentSessionUserId(), state.getPrimaryCalendarReference());
 		state.setState("opaqueUrlExisting");
 	}
-	
+
 	public void doOpaqueUrlRegenerate(RunData data, Context context)
 	{
 		CalendarActionState state = (CalendarActionState)getState(context, data, CalendarActionState.class);
@@ -5703,14 +5732,14 @@ extends VelocityPortletStateAction
 		opaqueUrlDao.deleteOpaqueUrl(userUUID, calendarRef);
 		opaqueUrlDao.newOpaqueUrl(userUUID, calendarRef);
 	}
-	
+
 	public void doOpaqueUrlDelete(RunData data, Context context)
 	{
 		CalendarActionState state = (CalendarActionState)getState(context, data, CalendarActionState.class);
 		opaqueUrlDao.deleteOpaqueUrl(sessionManager.getCurrentSessionUserId(), state.getPrimaryCalendarReference());
 		state.setState("opaqueUrlClean");
 	}
-	
+
 	/**
 	 * Handle a request to set options.
 	 */
@@ -5720,14 +5749,14 @@ extends VelocityPortletStateAction
 		(CalendarActionState) getState(context,
 		runData,
 		CalendarActionState.class);
-		
+
 		customizeCalendarPage.doCustomize(
 		runData,
 		context,
 		state,
 		getSessionState(runData));
 	}
-	
+
 	/**
 	 * Build the context for showing list view
 	 */
@@ -5738,7 +5767,7 @@ extends VelocityPortletStateAction
 		context.put("tlang",rb);
 		MyMonth monthObj2 = null;
 		MyDate dateObj1 = new MyDate();
-		CalendarEventVector calendarEventVectorObj = null;
+		CalendarEventList calendarEventListObj = null;
 		boolean allowed = false;
 		LinkedHashMap yearMap = new LinkedHashMap();
 
@@ -5748,10 +5777,10 @@ extends VelocityPortletStateAction
 			monthFormat = NumberFormat.getInstance(new ResourceLoader().getLocale());
 			monthFormat.setMinimumIntegerDigits(2);
 		}
-		
+
 		String peid = ((JetspeedRunData)runData).getJs_peid();
 		SessionState sstate = ((JetspeedRunData)runData).getPortletSessionState(peid);
-		
+
 		Time m_time = TimeService.newTime();
 		TimeBreakdown b = m_time.breakdownLocal();
 		int stateYear = b.getYear();
@@ -5763,7 +5792,7 @@ extends VelocityPortletStateAction
 			stateMonth = ((Integer)sstate.getAttribute(STATE_MONTH)).intValue();
 			stateDay = ((Integer)sstate.getAttribute(STATE_DAY)).intValue();
 		}
-		
+
 		// Set up list filtering information in the context.
 		context.put(TIME_FILTER_OPTION_VAR, state.getCalendarFilter().getListViewFilterMode());
 
@@ -5772,23 +5801,23 @@ extends VelocityPortletStateAction
 		//
 		String sDate; // starting date
 		String eDate; // ending date
-		
+
 		java.util.Calendar userCal = java.util.Calendar.getInstance();
 		context.put("ddStartYear", Integer.valueOf(userCal.get(java.util.Calendar.YEAR) - 3));
 		context.put("ddEndYear", Integer.valueOf(userCal.get(java.util.Calendar.YEAR) + 4));
-		
+
 		String sM;
 		String eM;
 		String sD;
 		String eD;
 		String sY;
 		String eY;
-		
+
 		if (state.getCalendarFilter().isCustomListViewDates() )
 		{
 			sDate = state.getCalendarFilter().getStartingListViewDateString();
 			eDate = state.getCalendarFilter().getEndingListViewDateString();
-			
+
 			sM = sDate.substring(0, 2);
 			eM = eDate.substring(0, 2);
 			sD = sDate.substring(3, 5);
@@ -5805,29 +5834,29 @@ extends VelocityPortletStateAction
 			sD = String.valueOf( weekRange.firstTime().breakdownLocal().getDay() );
 			sY = String.valueOf( weekRange.firstTime().breakdownLocal().getYear() );
 			sM = monthFormat.format( weekRange.firstTime().breakdownLocal().getMonth() );
-			
+
 			eD = String.valueOf( weekRange.lastTime().breakdownLocal().getDay() );
 			eY = String.valueOf( weekRange.lastTime().breakdownLocal().getYear() );
 			eM = monthFormat.format( weekRange.lastTime().breakdownLocal().getMonth() );
 		}
-		
+
 		context.put(TIME_FILTER_SETTING_CUSTOM_START_YEAR,	 Integer.valueOf(sY));
 		context.put(TIME_FILTER_SETTING_CUSTOM_END_YEAR,	 Integer.valueOf(eY));
 		context.put(TIME_FILTER_SETTING_CUSTOM_START_MONTH, Integer.valueOf(sM));
 		context.put(TIME_FILTER_SETTING_CUSTOM_END_MONTH,	 Integer.valueOf(eM));
 		context.put(TIME_FILTER_SETTING_CUSTOM_START_DAY,	 Integer.valueOf(sD));
 		context.put(TIME_FILTER_SETTING_CUSTOM_END_DAY,		 Integer.valueOf(eD));
-		
+
 		CalendarUtil calObj= new CalendarUtil();
 		calObj.setDay(stateYear, stateMonth, stateDay);
 		dateObj1.setTodayDate(calObj.getMonthInteger(),calObj.getDayOfMonth(),calObj.getYear());
-		
+
 		// fill this month object with all days avilable for this month
 		if (CalendarService.allowGetCalendar(state.getPrimaryCalendarReference())== false)
 		{
 			allowed = false;
 			context.put(ALERT_MSG_KEY,rb.getString("java.alert.younotallow"));
-			calendarEventVectorObj = new	CalendarEventVector();
+			calendarEventListObj = new CalendarEventList();
 		}
 		else
 		{
@@ -5846,9 +5875,9 @@ extends VelocityPortletStateAction
 				log.debug(".buildMonthContext(): " + e);
 			}
 		}
-		
+
 		int yearInt, monthInt, dayInt=1;
-		
+
 		TimeRange fullTimeRange =
 			TimeService.newTimeRange(
 				TimeService.newTimeLocal(
@@ -5867,21 +5896,21 @@ extends VelocityPortletStateAction
 					59,
 					59,
 					999));
-		
+
 		// We need to get events from all calendars for the full time range.
-		CalendarEventVector masterEventVectorObj =
+		CalendarEventList masterEventVectorObj =
 			CalendarService.getEvents(
 				getCalendarReferenceList(
 					portlet,
 					state.getPrimaryCalendarReference(),
 					isOnWorkspaceTab()),
 				fullTimeRange);
-		
+
 		// groups awareness - filtering
 		String calId = state.getPrimaryCalendarReference();
 
 		String scheduleTo = (String)sstate.getAttribute(STATE_SCHEDULE_TO);
-		
+
 		boolean showAllEvents   = StringUtils.isBlank(scheduleTo) || "all".equalsIgnoreCase(scheduleTo);
 		boolean showSiteEvents  = "site".equalsIgnoreCase(scheduleTo);
 		boolean showGroupEvents = "groups".equalsIgnoreCase(scheduleTo);
@@ -5890,7 +5919,7 @@ extends VelocityPortletStateAction
 		{
 			Calendar calendarObj = CalendarService.getCalendar(calId);
 			context.put("cal", calendarObj);
-			
+
 			if (scheduleTo != null && scheduleTo.length() != 0)
 			{
 				context.put("scheduleTo", scheduleTo);
@@ -5908,17 +5937,17 @@ extends VelocityPortletStateAction
 					context.put("scheduleTo", "groups");
 				}
 			}
-		
+
 			Collection groups = calendarObj.getGroupsAllowGetEvent();
 			if (groups.size() > 0)
 			{
 				context.put("groups", groups);
-				
+
 			}
 			List schToGroups = (List)(sstate.getAttribute(STATE_SCHEDULE_TO_GROUPS));
 			context.put("scheduleToGroups", schToGroups);
-			
-			CalendarEventVector newEventVectorObj = new CalendarEventVector();
+
+			CalendarEventList newEventVectorObj = new CalendarEventList();
 			if (showAllEvents) {
 				newEventVectorObj.addAll(masterEventVectorObj);
 			} else {
@@ -5967,12 +5996,12 @@ extends VelocityPortletStateAction
 		{
 			log.debug(".buildListContext(): " + e);
 		}
-		
+
 		boolean dateDsc = sstate.getAttribute(STATE_DATE_SORT_DSC) != null;
 		context.put("currentDateSortAsc", Boolean.valueOf(!dateDsc));
-		
+
 		boolean dateAsc = !dateDsc;
-		
+
 		for (yearInt = dateAsc ? CalendarFilter.LIST_VIEW_STARTING_YEAR : CalendarFilter.LIST_VIEW_ENDING_YEAR;
 			dateAsc ? yearInt <= CalendarFilter.LIST_VIEW_ENDING_YEAR : yearInt >= CalendarFilter.LIST_VIEW_STARTING_YEAR ;
 			yearInt = yearInt + (dateAsc ? 1 : -1)
@@ -5992,60 +6021,60 @@ extends VelocityPortletStateAction
 
 				// Get the events for the particular month from the
 				// master list of events.
-				calendarEventVectorObj =
-					new CalendarEventVector(
+				calendarEventListObj =
+					new CalendarEventList(
 						state.getCalendarFilter().filterEvents(
-							masterEventVectorObj.getEvents(
+							masterEventVectorObj.eventsInRangeIterator(
 								getMonthTimeRange((CalendarUtil) AcalObj))));
 
-				if (!calendarEventVectorObj.isEmpty())
+				if (!calendarEventListObj.isEmpty())
 				{
 					AcalObj.setDay(dateObj1.getYear(),dateObj1.getMonth(),dateObj1.getDay());
 
-					monthObj2 = calMonth(monthInt, (CalendarUtil)AcalObj, state, calendarEventVectorObj);
+					monthObj2 = calMonth(monthInt, (CalendarUtil)AcalObj, state, calendarEventListObj);
 
 					AcalObj.setDay(dateObj1.getYear(),dateObj1.getMonth(),dateObj1.getDay());
 
-					if (!calendarEventVectorObj.isEmpty())
+					if (!calendarEventListObj.isEmpty())
 						arrayOfMonths.add(monthObj2);
 				}
 			}
 			if (!arrayOfMonths.isEmpty())
 				yearMap.put(Integer.valueOf(yearInt), arrayOfMonths.iterator());
 		}
-		
+
 		context.put("yearMap", yearMap);
-		
+
 		int row = 5;
 		context.put("row",Integer.valueOf(row));
 		calObj.setDay(stateYear, stateMonth, stateDay);
-		
+
 		// using session state stored year-month-day to replace saving calObj
 		sstate.setAttribute(STATE_YEAR, Integer.valueOf(stateYear));
 		sstate.setAttribute(STATE_MONTH, Integer.valueOf(stateMonth));
 		sstate.setAttribute(STATE_DAY, Integer.valueOf(stateDay));
-		
+
 		state.setState(LIST_VIEW);
 		context.put("date",dateObj1);
-		
+
 		// output CalendarService and SiteService
 		context.put("CalendarService", CalendarService.getInstance());
 		context.put("SiteService", SiteService.getInstance());
 		context.put("Context", ToolManager.getCurrentPlacement().getContext());
-		
+
 		buildMenu(portlet, context, runData, state);
-		
+
 		// added by zqian for toolbar
 		context.put("allow_new", Boolean.valueOf(allowed));
 		context.put("allow_delete", Boolean.valueOf(false));
 		context.put("allow_revise", Boolean.valueOf(false));
 		context.put("realDate", TimeService.newTime());
-		
+
 		context.put("selectedView", rb.getString("java.listeve"));
-		
+
 		context.put("isDefaultView", isDefaultView(state, ToolManager.getCurrentPlacement()));
 		context.put("isUpdater", SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()));
-		
+
 		context.put("tlang",rb);
 
 		context.put("calendarFormattedText", new CalendarFormattedText());
@@ -6055,12 +6084,12 @@ extends VelocityPortletStateAction
         context.put("canViewAudience", !canViewEventAudience);
 
 	}	 // buildListContext
-	
+
 	private void buildPrintLink(VelocityPortlet portlet, RunData runData, CalendarActionState state, Context context ) {
 		String peid = ((JetspeedRunData)runData).getJs_peid();
 		SessionState sstate = ((JetspeedRunData)runData).getPortletSessionState(peid);
 		String stateName = state.getState();
-		
+
 		if (StringUtils.equalsAny(stateName, CALENDAR_INIT_PARAMETER, LIST_VIEW)) {
 			int printType = CalendarService.UNKNOWN_VIEW;
 			String timeRangeString;
@@ -6121,7 +6150,7 @@ extends VelocityPortletStateAction
 		MenuEntry add = new MenuEntry(rb.getString("java.new"), rb.getString("java.new.title"), null, allow_new, MenuItem.CHECKED_NA, "doNew");
 		add.setIsCurrent(status.equals(STATE_NEW));
 		bar.add(add);
-		
+
 		// See if we are allowed to import items.
 		if ( allow_import_export )
 		{
@@ -6129,14 +6158,14 @@ extends VelocityPortletStateAction
 			importEntry.setIsCurrent(status.equals(STATE_SCHEDULE_IMPORT));
 			bar.add(importEntry);
 		}
-		
+
 		//
 		// See if we are allowed to merge items.
 		//
 		MenuEntry merge = new MenuEntry(mergedCalendarPage.getButtonText(), null, allow_merge_calendars, MenuItem.CHECKED_NA, mergedCalendarPage.getButtonHandlerID());
 		merge.setIsCurrent(status.equals(STATE_MERGE_CALENDARS));
 		bar.add(merge);
-		
+
 		// See if we are allowed to configure external calendar subscriptions
 		if ( allow_subscribe && ServerConfigurationService.getBoolean(ExternalCalendarSubscriptionService.SAK_PROP_EXTSUBSCRIPTIONS_ENABLED,true))
 			{
@@ -6144,7 +6173,7 @@ extends VelocityPortletStateAction
 				subscriptions.setIsCurrent(status.equals(STATE_CALENDAR_SUBSCRIPTIONS));
 				bar.add(subscriptions);
 			}
-		
+
 		// See if we are allowed to export items.
 		String calId = state.getPrimaryCalendarReference();
 		if ( (allow_import_export || CalendarService.getExportEnabled(calId)) && 
@@ -6154,8 +6183,8 @@ extends VelocityPortletStateAction
 			export.setIsCurrent(status.equals("icalEx"));
 			bar.add(export);
 		}
-		
-		
+
+
 		// A link for subscribing to the implicit calendar if the user is logged in.
 		if ( sessionManager.getCurrentSessionUserId() != null &&
 				(ServerConfigurationService.getBoolean("ical.public.secureurl.subscribe", ServerConfigurationService.getBoolean("ical.opaqueurl.subscribe", true))) )
@@ -6164,20 +6193,20 @@ extends VelocityPortletStateAction
 			privateExport.setIsCurrent(status.equals("opaqueUrlClean") || status.equals("opaqueUrlExisting"));
 			bar.add(privateExport);
 		}
-		
+
 		//2nd menu bar for the PDF print only
 		Menu bar_print = new MenuImpl(portlet, runData, "CalendarAction");
 		buildPrintLink( portlet, runData, state, context );	
-      
+
 		if (SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()))
 		{
 			bar_print.add( new MenuEntry(rb.getString("java.default_view"), "doDefaultview") );
 		}
-					
+
 		MenuEntry customize = new MenuEntry(customizeCalendarPage.getButtonText(), null, allow_modify_calendar_properties, MenuItem.CHECKED_NA, customizeCalendarPage.getButtonHandlerID());
 		customize.setIsCurrent(status.equals(STATE_CUSTOMIZE_CALENDAR));
 		bar.add(customize);
-		
+
 		// add permissions, if allowed
 		//SAK-21684 don't show in myworkspace site unless super user.
 		String currentSiteId = ToolManager.getCurrentPlacement().getContext();
@@ -6185,14 +6214,14 @@ extends VelocityPortletStateAction
 		{
 			bar.add( new MenuEntry(rb.getString("java.permissions"), "doPermissions") );
 		}
-		
+
 		// Set menu state attribute
 		SessionState stateForMenus = ((JetspeedRunData)runData).getPortletSessionState(portlet.getID());
 		stateForMenus.setAttribute(MenuItem.STATE_MENU, bar);
 		context.put("tlang",rb);
 		context.put(Menu.CONTEXT_MENU, bar);
 		context.put(Menu.CONTEXT_ACTION, "CalendarAction");
-		
+
 	}	 // buildMenu
 
 	private void buildMenu(VelocityPortlet portlet, Context context, RunData runData, CalendarActionState state) {
@@ -6224,7 +6253,7 @@ extends VelocityPortletStateAction
 			CalendarPermissions.allowSubscribeThis(
 				state.getPrimaryCalendarReference()));
 	}
-	
+
 	/**
 	 * Align the edit's fields with these values.
 	 * @param edit The CalendarEventEdit.
@@ -6240,10 +6269,10 @@ extends VelocityPortletStateAction
 			String value = (String) entry.getValue();
 			edit.setField(name, value);
 		}
-		
+
 	}	 // setFields
-	
-   
+
+
 	/** Set current calendar view as tool default
 	 **/
 	public void doDefaultview( RunData rundata, Context context ) {
@@ -6274,7 +6303,7 @@ extends VelocityPortletStateAction
 			saveOptions();
 		}
 	}
-	
+
 	/**
 	 * Fire up the permissions editor
 	 */
@@ -6293,33 +6322,33 @@ extends VelocityPortletStateAction
 	/**
 	 * Action doFrequency is requested when "set Frequency" button is clicked in new/revise page
 	 */
-	
+
 	public void doEditfrequency(RunData rundata, Context context)
 	{
 		CalendarActionState state = (CalendarActionState)getState(context, rundata, CalendarActionState.class);
-		
+
 		String peid = ((JetspeedRunData)rundata).getJs_peid();
 		SessionState sstate = ((JetspeedRunData)rundata).getPortletSessionState(peid);
-		
+
 		String calId = "";
 		Calendar calendarObj = null;
-		
+
 		String eventId = state.getCalendarEventId();
-		
+
 		try
 		{
 			calId = state.getPrimaryCalendarReference();
 			calendarObj = CalendarService.getCalendar(calId);
-			
+
 			String freq = (String) sstate.getAttribute(FREQUENCY_SELECT);
-			
+
 			// conditions when the doEditfrequency is called:
 			// 1. new/existing event, in create-new/revise page first time: freq is null.
 			//		It has been set to null in both doNew & doRevise.
 			//		Make sure to re-set the freq in this step.
 			// 2. new/existing event, back from cancel/save-frequency-setting page: freq is sth, because when
 			// the first time doEditfrequency is called, there is a freq set up already
-			
+
 			// condition 1 -
 			if ((freq == null)||(freq.equals("")))
 			{
@@ -6370,10 +6399,10 @@ extends VelocityPortletStateAction
 		{
 			log.debug(".doEditfrequency() + CalendarService.getCalendar(): " + e);
 		}
-		
-		
+
+
 		int houri;
-		
+
 		String hour = "";
 		hour = rundata.getParameters().getString("startHour") != null ? rundata.getParameters().getString("startHour") : "100"; // SAK-51010 applying same default value as non-24h format
 		String title ="";
@@ -6389,7 +6418,7 @@ extends VelocityPortletStateAction
 		description = processFormattedTextFromBrowser(sstate, description);
 		String month = "";
 		month = rundata.getParameters().getString("month");
-		
+
 		String day = "";
 		day = rundata.getParameters().getString("day");
 		String year = "";
@@ -6402,19 +6431,19 @@ extends VelocityPortletStateAction
 		location = rundata.getParameters().getString("location");
 
 		readEventGroupForm(rundata, context);
-		
+
 		// read the recurrence modification intention
 		String intentionStr = rundata.getParameters().getString("intention");
 		if (intentionStr == null) intentionStr = "";
-		
+
 		try
 		{
 			calendarObj = CalendarService.getCalendar(calId);
 			Map addfieldsMap = new HashMap();
-			
+
 			// Add any additional fields in the calendar.
 			customizeCalendarPage.loadAdditionalFieldsMapFromRunData(rundata, addfieldsMap, calendarObj);
-			
+
 			if (timeType.equals("pm"))
 			{
 				if (Integer.parseInt(hour)>11)
@@ -6443,48 +6472,48 @@ extends VelocityPortletStateAction
 			context.put(ALERT_MSG_KEY,rb.getString("java.alert.youdont"));
 			log.debug(".doEditfrequency(): " + e);
 		}
-		
+
 		sstate.setAttribute(STATE_BEFORE_SET_RECURRENCE, state.getState());
 		state.setState(STATE_SET_FREQUENCY);
-		
+
 	}	 // doEditfrequency
-	
+
 	/**
 	 * Action doChangefrequency is requested when the user changes the selected frequency at the frequency setting page
 	 */
-	
+
 	public void doChangefrequency(RunData rundata, Context context)
 	{
 		CalendarActionState state = (CalendarActionState)getState(context, rundata, CalendarActionState.class);
-		
+
 		String freqSelect = rundata.getParameters().getString(FREQUENCY_SELECT);
-		
+
 		String peid = ((JetspeedRunData)rundata).getJs_peid();
 		SessionState sstate = ((JetspeedRunData)rundata).getPortletSessionState(peid);
-		
+
 		sstate.setAttribute(FREQUENCY_SELECT, freqSelect);
-		
+
 		//TEMP_FREQ_SELECT only works for the onchange javascript function when user changes the frequency selection
 		// and will be discarded when buildFrequecyContext has caught its value
 		sstate.setAttribute(TEMP_FREQ_SELECT, freqSelect);
-		
+
 		state.setState(STATE_SET_FREQUENCY);
-		
+
 	}	 // doChangefrequency
-	
+
 	/**
 	 * Action doSavefrequency is requested when the user click on the "Save" button in the frequency setting page
 	 */
-	
+
 	public void doSavefrequency(RunData rundata, Context context)
 	{		
 		CalendarActionState state = (CalendarActionState)getState(context, rundata, CalendarActionState.class);
-		
+
 		String peid = ((JetspeedRunData)rundata).getJs_peid();
 		SessionState sstate = ((JetspeedRunData)rundata).getPortletSessionState(peid);
-		
+
 		String returnState = (String)sstate.getAttribute(STATE_BEFORE_SET_RECURRENCE);
-		
+
 		// if by any chance, the returnState is not available, 
 		// then reset it as either "new" or "revise". 
 		// For new event, the id is null or empty string
@@ -6497,10 +6526,10 @@ extends VelocityPortletStateAction
 				returnState = "revise";
 		}
 		state.setState(returnState);
-		
+
 		// get the current frequency setting the user has selected - daily, weekly, or etc.
 		String freq = (String) rundata.getParameters().getString(FREQUENCY_SELECT);
-			
+
 		if ((freq == null)||(freq.equals(FREQ_ONCE)))
 		{
 			sstate.setAttribute(CalendarAction.SSTATE__RECURRING_RULE, null);
@@ -6509,10 +6538,10 @@ extends VelocityPortletStateAction
 		else
 		{
 			sstate.setAttribute(FREQUENCY_SELECT, freq);
-			
+
 			String interval = rundata.getParameters().getString("interval");
 			int intInterval = Integer.parseInt(interval);
-			
+
 			RecurrenceRule rule = null;
 
 			String CountOrTill = rundata.getParameters().getString("CountOrTill");
@@ -6528,7 +6557,7 @@ extends VelocityPortletStateAction
 				int intEndMonth = Integer.parseInt(endMonth);
 				int intEndDay = Integer.parseInt(endDay);
 				int intEndYear = Integer.parseInt(endYear);
-				
+
 				//construct time object from individual ints, Local Time values
 				Time endTime = TimeService.newTimeLocal(intEndYear, intEndMonth, intEndDay, 23, 59, 59, 999);
 				rule = CalendarService.newRecurrence(freq, intInterval, endTime);
@@ -6541,21 +6570,21 @@ extends VelocityPortletStateAction
 			}
 			sstate.setAttribute(CalendarAction.SSTATE__RECURRING_RULE, rule);
 		}
-		
+
 	}	 // doSavefrequency
-	
+
 	/**
 	 * Populate the state object, if needed.
 	 */
 	protected void initState(SessionState state, VelocityPortlet portlet, JetspeedRunData rundata)
 	{
 		super.initState(state, portlet, rundata);
-		
+
 		if (contentHostingService == null)
 		{
 			contentHostingService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
 		}
-		
+
 		if (entityBroker == null)
 		{
 			entityBroker = (EntityBroker) ComponentManager.get("org.sakaiproject.entitybroker.EntityBroker");
@@ -6579,7 +6608,7 @@ extends VelocityPortletStateAction
 		if (state.getAttribute(STATE_INITED) == null)
 		{
 			state.setAttribute(STATE_INITED,STATE_INITED);
-			
+
 			// load all calendar channels (either primary or merged calendars)
 			MergedList mergedCalendarList = 
 				loadChannels( calState.getPrimaryCalendarReference(), 
@@ -6599,7 +6628,7 @@ extends VelocityPortletStateAction
 	 {
 		 StringBuilder sb = new StringBuilder("");
 		 String empty = "";
-		  
+
 		 if (array == null)
 			 return empty;
 
@@ -6620,7 +6649,7 @@ extends VelocityPortletStateAction
 		 }
 		 return str;
 	 }
-	 
+
 	/**
 	 * Processes formatted text that is coming back from the browser 
 	 * (from the formatted text editing widget).
@@ -6643,8 +6672,8 @@ extends VelocityPortletStateAction
 			return strFromBrowser;
 		}
 	}
-	
-	
+
+
 	/**
 	* Access the current month as a string.
 	* @return the current month as a string.
@@ -6663,7 +6692,7 @@ extends VelocityPortletStateAction
 		return months[l_month-1];
 
 	}	// getMonth
-	
+
 	/**
 	* Get the name of the day.
 	* @return the name of the day.
@@ -6673,7 +6702,7 @@ extends VelocityPortletStateAction
 
 		CalendarUtil calUtil = new CalendarUtil();
 		String[] l_ndays = calUtil.getCalendarDaysOfWeekNames(true);
-		
+
 		if ( dayofweek > 7 ) 
 		{
 			dayofweek = 1;
@@ -6682,11 +6711,11 @@ extends VelocityPortletStateAction
 		{
 			dayofweek = 7;
 		}
-		
+
 		return l_ndays[dayofweek - 1];
-			
+
 	}	// calendarUtilGetDay
-	
+
 	/**
 	 * @param newEvent
 	 */
@@ -6701,11 +6730,11 @@ extends VelocityPortletStateAction
 				{
 					CalendarEvent savedEvent = calendar.getEvent(newEvent.getId());
 					if(savedEvent == null) {
-						
+
 					} else {
-						
+
 						EventTrackingService m_eventTrackingService = (EventTrackingService) ComponentManager.get(EventTrackingService.class);
-					    
+
 						// has type changed? 
 						String savedType = savedEvent.getType();
 						String newType = newEvent.getType();
@@ -6718,13 +6747,13 @@ extends VelocityPortletStateAction
 								m_eventTrackingService.post(m_eventTrackingService.newEvent(CalendarService.EVENT_MODIFY_CALENDAR_EVENT_TYPE, newEvent.getReference() + "::" + savedType + "::" + newType, true));
 							}
 						}
-						
+
 						// has title changed?
 						if(savedEvent.getDisplayName() != null && ! savedEvent.getDisplayName().equals(newEvent.getDisplayName())) {
 							// post title-change event
 							m_eventTrackingService.post(m_eventTrackingService.newEvent(CalendarService.EVENT_MODIFY_CALENDAR_EVENT_TITLE, newEvent.getReference(), true));
 						}
-						
+
 						// has start-time changed?
 						TimeRange savedRange = savedEvent.getRange();
 						TimeRange newRange = newEvent.getRange();
@@ -6734,7 +6763,7 @@ extends VelocityPortletStateAction
 							// post time-change event 
 							m_eventTrackingService.post(m_eventTrackingService.newEvent(CalendarService.EVENT_MODIFY_CALENDAR_EVENT_TIME, newEvent.getReference(), true));
 						}
-						
+
 						// has access changed?
 						if(savedEvent.getAccess() != newEvent.getAccess()) {
 							// post access-change event
@@ -6747,7 +6776,7 @@ extends VelocityPortletStateAction
 								m_eventTrackingService.post(m_eventTrackingService.newEvent(CalendarService.EVENT_MODIFY_CALENDAR_EVENT_ACCESS, newEvent.getReference(), true));
 							}
 						}
-						
+
 						// has frequency changed (other than exclusions)? 
 						RecurrenceRule savedRule = savedEvent.getRecurrenceRule();
 						RecurrenceRule newRule = newEvent.getRecurrenceRule();
@@ -6837,13 +6866,13 @@ extends VelocityPortletStateAction
 		context.put("allow_revise", Boolean.valueOf(false));
 		context.put(Menu.CONTEXT_ACTION, "CalendarAction");
 		context.put("selectedView", rb.getString("java.bycalendar"));
-		
+
 		context.put("isDefaultView", isDefaultView(state, ToolManager.getCurrentPlacement()));
 		context.put("defaultSubview", ToolManager.getCurrentPlacement().getPlacementConfig().getProperty(PORTLET_CONFIG_DEFAULT_SUBVIEW));
 		context.put("isUpdater", SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()));
 		context.put("aspectRatio", FULLCALENDAR_ASPECTRATIO);
 		context.put("scrollTime", FULLCALENDAR_SCROLLTIME);
-		
+
 	} // buildCalendarContext
 
 }	 // CalendarAction

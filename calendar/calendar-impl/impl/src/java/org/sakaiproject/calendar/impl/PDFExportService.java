@@ -59,7 +59,7 @@ import org.apache.fop.configuration.DefaultConfigurationBuilder;
 import org.apache.xmlgraphics.io.Resource;
 import org.apache.xmlgraphics.io.ResourceResolver;
 import org.sakaiproject.calendar.api.CalendarEvent;
-import org.sakaiproject.calendar.api.CalendarEventVector;
+import org.sakaiproject.calendar.api.CalendarEventList;
 import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeBreakdown;
@@ -353,12 +353,12 @@ public class PDFExportService {
                 int maxConcurrentEventsOverListNode = 1;
 
                 // Get a list of merged events.
-                CalendarEventVector calendarEventVector = baseCalendarService.getEvents(calendarReferenceList, currentTimeRange);
+                CalendarEventList calendarEventList = baseCalendarService.getEvents(calendarReferenceList, currentTimeRange);
 
                 //
                 // We don't need to generate "empty" event lists for the list view.
                 //
-                if (scheduleType == CalendarService.LIST_VIEW && calendarEventVector.size() == 0) {
+                if (scheduleType == CalendarService.LIST_VIEW && calendarEventList.size() == 0) {
                     continue;
                 }
 
@@ -389,7 +389,7 @@ public class PDFExportService {
                 // Attach this list to the top-level node
                 root.appendChild(eventList);
 
-                Iterator itEvent = calendarEventVector.iterator();
+                Iterator itEvent = calendarEventList.iterator();
                 // Generate XML for all the events.
                 while (itEvent.hasNext())  {
                     CalendarEvent event = (CalendarEvent) itEvent.next();
@@ -452,9 +452,9 @@ public class PDFExportService {
         List<TimeRange> listOfDays = new ArrayList<>();
 
         // Get a list of merged events.
-        CalendarEventVector calendarEventVector = baseCalendarService.getEvents(calendarReferenceList, timeRange, reverseOrder);
+        CalendarEventList calendarEventList = baseCalendarService.getEvents(calendarReferenceList, timeRange, reverseOrder);
 
-        Iterator itEvents = calendarEventVector.iterator();
+        Iterator itEvents = calendarEventList.iterator();
         HashMap datesSeenSoFar = new HashMap(DEFAULT_INITIAL_HASH_CAPACITY);
 
         while (itEvents.hasNext()) {

@@ -17,10 +17,7 @@ package org.sakaiproject.tool.assessment.integration.helper.integrated;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import lombok.Getter;
@@ -98,7 +95,7 @@ public class CalendarServiceHelperImpl implements CalendarServiceHelper {
 	}
 
 	@Override
-    public String addCalendarEvent(String siteId, String title, String desc, long dateTime, List<Group> groupRestrictions, String calendarEventType){
+    public String addCalendarEvent(String siteId, String title, String desc, long dateTime, List<Group> groupRestrictions, String calendarEventType, String assessmentId){
 		String eventId = null;		
 		String calendarId = calendarReference(siteId, SiteService.MAIN_CONTAINER);
 		try {
@@ -122,14 +119,17 @@ public class CalendarServiceHelperImpl implements CalendarServiceHelper {
 
 				eventId = event.getId();
 
-				// now add the linkage to the assignment on the calendar side
+				// now add the linkage to the assessment on the calendar side
 				if (event.getId() != null) {
-					// add the assignmentId to the calendar object
+					// add the assessmentId to the calendar object
 
 					CalendarEventEdit edit = calendar.getEditEvent(event.getId(), CalendarService.EVENT_ADD_CALENDAR);
 
 					edit.setDescriptionFormatted(desc);
 					edit.setField(CalendarConstants.EVENT_OWNED_BY_TOOL_ID, SamigoConstants.TOOL_ID);
+					if (assessmentId != null && !assessmentId.isEmpty()) {
+						edit.setField(CalendarConstants.NEW_ASSESSMENT_CALENDAR_ASSESSMENT_ID, assessmentId);
+					}
 
 					calendar.commitEvent(edit);
 				}
@@ -169,11 +169,12 @@ public class CalendarServiceHelperImpl implements CalendarServiceHelper {
 					dueDateTitlePrefix + pub.getTitle(), eventDesc, pub
 					.getAssessmentAccessControl().getDueDate()
 					.getTime(), authorizedGroups,
-					CalendarServiceHelper.DEADLINE_EVENT_TYPE);
-			
+					CalendarServiceHelper.DEADLINE_EVENT_TYPE,
+					pub.getPublishedAssessmentId().toString());
+
 		}
-		
-		
+
+
 		boolean found = false;
 		PublishedMetaData meta = null;
 		for(PublishedMetaData pubMetData : (Set<PublishedMetaData>) pub.getAssessmentMetaDataSet()){

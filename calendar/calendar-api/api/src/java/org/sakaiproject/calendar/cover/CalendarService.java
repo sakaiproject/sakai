@@ -21,6 +21,7 @@
 
 package org.sakaiproject.calendar.cover;
 
+import org.sakaiproject.calendar.api.CalendarEventList;
 import org.sakaiproject.component.cover.ComponentManager;
 
 /**
@@ -240,7 +241,7 @@ public class CalendarService
 		return service.eventSubscriptionReference(param0, param1, param2);
 	}
 
-	public static org.sakaiproject.calendar.api.CalendarEventVector getEvents(java.util.List param0, org.sakaiproject.time.api.TimeRange param1)
+	public static CalendarEventList getEvents(java.util.List param0, org.sakaiproject.time.api.TimeRange param1)
 	{
 		org.sakaiproject.calendar.api.CalendarService service = getInstance();
 		if (service == null)

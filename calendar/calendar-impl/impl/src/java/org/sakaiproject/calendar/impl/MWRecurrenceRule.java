@@ -27,6 +27,7 @@ import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.sakaiproject.calendar.api.RecurrenceInstance;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.cover.TimeService;

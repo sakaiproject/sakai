@@ -46,7 +46,7 @@ import org.joda.time.DateTimeZone;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.calendar.api.CalendarConstants;
 import org.sakaiproject.calendar.api.CalendarEvent;
-import org.sakaiproject.calendar.api.CalendarEventVector;
+import org.sakaiproject.calendar.api.CalendarEventList;
 import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.calendar.api.ExternalCalendarSubscriptionService;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -76,7 +76,6 @@ import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.EntityReference;
-import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 
 @Slf4j
@@ -117,7 +116,7 @@ public class CalendarBean {
 	private MonthWeek								week4					= new MonthWeek();
 	private MonthWeek								week5					= new MonthWeek();
 	private MonthWeek								week6					= new MonthWeek();
-	private CalendarEventVector						calendarEventVector		= null;
+	private CalendarEventList calendarEventList = null;
 	private String									siteId					= null;
 
 	private Map	<String, String>					eventIconMap			= new HashMap<String, String>();
@@ -160,7 +159,7 @@ public class CalendarBean {
 			readPreferences();
 		
 		// re-read events from API for selected month/week
-		calendarEventVector = null;
+		calendarEventList = null;
 		
 		return "";
 	}
@@ -244,8 +243,8 @@ public class CalendarBean {
 		return M_sm.getCurrentSessionUserId();
 	}
 	
-	private CalendarEventVector getEventsFromSchedule() {
-		if(calendarEventVector == null) {
+	private CalendarEventList getEventsFromSchedule() {
+		if(calendarEventList == null) {
 			Calendar firstDay;
 			Calendar lastDay;
 			
@@ -321,14 +320,14 @@ public class CalendarBean {
 			Time firstTime = M_ts.newTime(firstDay.getTimeInMillis());
 			Time lastTime = M_ts.newTime(lastDay.getTimeInMillis());
 			TimeRange range = M_ts.newTimeRange(firstTime, lastTime);
-			calendarEventVector = M_ca.getEvents(getCalendarReferences(), range);
+			calendarEventList = M_ca.getEvents(getCalendarReferences(), range);
 		}
-		return calendarEventVector;
+		return calendarEventList;
 	}
 	
 	
-	private CalendarEventVector getScheduleEventsForDay(Calendar c) {
-		CalendarEventVector cev = new CalendarEventVector();
+	private CalendarEventList getScheduleEventsForDay(Calendar c) {
+		CalendarEventList cev = new CalendarEventList();
 		
 		TimeZone timeZone = getCurrentUserTimezone();
 		DateTime start = new DateTime(c).withZone(DateTimeZone.forTimeZone(timeZone)).withTime(0, 0, 0, 0);
@@ -362,7 +361,7 @@ public class CalendarBean {
 	}
 //	}
 	
-	private List getDayEvents(CalendarEventVector dayEventVector) {
+	private List getDayEvents(CalendarEventList dayEventVector) {
 		ListIterator i = dayEventVector.listIterator();
 		List eventList = new ArrayList();
 		while (i.hasNext()){
@@ -381,11 +380,11 @@ public class CalendarBean {
 		return eventList;
 	}
 
-	private int getDayEventCount(CalendarEventVector dayEventVector) {
+	private int getDayEventCount(CalendarEventList dayEventVector) {
 		return dayEventVector.size();
 	}
 
-	private String getDayPriorityCSSProperty(CalendarEventVector dayEventVector) {
+	private String getDayPriorityCSSProperty(CalendarEventList dayEventVector) {
 		ListIterator i = dayEventVector.listIterator();
 		String highestPriorityFound = "";
 		while (i.hasNext()){
@@ -596,7 +595,7 @@ public class CalendarBean {
 				}
 				for(int i = 0; i < 7; i++){
 					Day day = week.getDay(i);
-					CalendarEventVector vector = null;
+					CalendarEventList vector = null;
 					if((weekNo == 0) && (i < dayOfWeek - 1)){
 						int nDay = prevMonthLastDay - dayOfWeek + 2 + i;
 						c.set(Calendar.MONTH, selMonth - 1);
@@ -664,7 +663,7 @@ public class CalendarBean {
 				boolean sameMonth = (selMonth == c.get(Calendar.MONTH));
 				boolean selected = (selectedDay != null) && (sameDay(c, selectedDay));
 
-				CalendarEventVector vector = getScheduleEventsForDay(c);
+				CalendarEventList vector = getScheduleEventsForDay(c);
 				day = new Day(c, getDayEventCount(vector) > 0);
 				day.setOccursInOtherMonth(!sameMonth);
 				day.setBackgroundCSSProperty(getDayPriorityCSSProperty(vector));
@@ -742,6 +741,7 @@ public class CalendarBean {
 		return getDayEvents(getScheduleEventsForDay(c));
 	}
 
+	// TODO need to look into this ERN
 	public EventSummary getSelectedEvent() {
 		if(selectedEvent == null){
 			try{

@@ -21,7 +21,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEvent;
-import org.sakaiproject.calendar.api.CalendarEventVector;
+import org.sakaiproject.calendar.api.CalendarEventList;
 import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
@@ -45,8 +45,6 @@ import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.util.CalendarEventType;
 
 import lombok.Setter;
-
-import org.sakaiproject.util.CalendarUtil;
 
 /**
  * The sakai entity used to access calendar events.
@@ -334,8 +332,8 @@ public class CalendarEventEntityProvider extends AbstractEntityProvider
 	private List getMergedCalendarEventsForSite(final String siteId, final TimeRange range) {
 		final List mergeCal = new ArrayList<>();
 		Map<String, String> eventIconMap = CalendarEventType.getIcons();
-		CalendarEventVector calendarEventVector = calendarService.getEvents(calendarService.getCalendarReferences(siteId), range);
-		for (Object o : calendarEventVector) {
+		CalendarEventList calendarEventList = calendarService.getEvents(calendarService.getCalendarReferences(siteId), range);
+		for (Object o : calendarEventList) {
 			CalendarEvent event = (CalendarEvent) o;
 
 			CalendarEventDetails eventDetails = new CalendarEventDetails(event);
