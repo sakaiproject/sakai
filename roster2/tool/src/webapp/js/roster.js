@@ -399,7 +399,6 @@ roster.renderMembership = function (options) {
     url: url,
     dataType: "json",
     cache: false,
-    async: false,
     success: function (data) {
 
       if (data.status && data.status === 'END') {
