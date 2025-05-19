@@ -13,6 +13,7 @@
  ******************************************************************************/
 package org.sakaiproject.webapi.beans;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.calendar.api.CalendarConstants;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -60,8 +61,54 @@ public class CalendarEventRestBean {
         duration = timeRange.duration();
         recurrence = new RecurrenceRuleRestBean(ce.getRecurrenceRule());
         assignmentId = ce.getField(CalendarConstants.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID);
-        if (assignmentId != null) {
+
+        // Set the tool property based on the event type or assignmentId
+        if (StringUtils.isNotBlank(assignmentId)) {
             this.tool = "assignments";
+        } else {
+            // Map calendar event types to appropriate icon types based on raw (non-localized) event type strings
+            // These are the values defined in CalendarEventType.java
+            switch (type) {
+                case "Deadline":
+                    this.tool = "deadline";
+                    break;
+                case "Meeting", "Class section - Small Group", "Workshop":
+                    this.tool = "users";
+                    break;
+                case "Exam":
+                    this.tool = "gradebook";
+                    break;
+                case "Quiz", "Formative Assessment":
+                    this.tool = "quizzes";
+                    break;
+                case "Special event", "Academic Calendar":
+                    this.tool = "pin";
+                    break;
+                case "Multidisciplinary Conference", "Class section - Discussion":
+                    this.tool = "forums";
+                    break;
+                case "Class session", "Class section - Lecture":
+                    this.tool = "teacher";
+                    break;
+                case "Class section - Lab", "Computer Session":
+                    this.tool = "cog";
+                    break;
+                case "Tutorial":
+                    this.tool = "lightbulb";
+                    break;
+                case "Web Assignment":
+                    this.tool = "assignments";
+                    break;
+                case "Submission Date", "Activity":
+                    this.tool = "file";
+                    break;
+                case "Cancellation":
+                    this.tool = "delete";
+                    break;
+                default:
+                    this.tool = "bell";
+                    break;
+            }
         }
 
         attachments = ce.getAttachments().stream().map(ref -> {
