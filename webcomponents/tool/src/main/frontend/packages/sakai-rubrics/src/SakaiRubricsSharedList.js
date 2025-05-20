@@ -14,14 +14,8 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
 
   rubricIdToDelete = null;
   rubricTitleToDelete = null;
-  static properties = {
 
-    siteId: { attribute: "site-id", type: String },
-    enablePdfExport: { attribute: "enable-pdf-export", type: Boolean },
-    isSuperUser: { attribute: "is-super-user", type: Boolean },
-
-    _rubrics: { state: true },
-  };
+  static properties = { isSuperUser: { attribute: "is-super-user", type: Boolean } };
 
   constructor() {
 
@@ -29,17 +23,17 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
 
     this.updateRubricOptions = {
       method: "PATCH",
-      credentials: "include",
       headers: { "Content-Type": "application/json-patch+json" },
     };
-    this.getSharedRubrics();
-  }
-
-  shouldUpdate() {
-    return this._rubrics;
   }
 
   render() {
+
+    if (!this._rubrics) {
+      return html`
+        <div class="sak-banner-warn">${this._i18n.loading}</div>
+      `;
+    }
 
     return html`
       <div role="tablist">
@@ -73,15 +67,10 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
     `;
   }
 
-  refresh() {
-
-    this.getSharedRubrics();
-  }
-
-  getSharedRubrics() {
+  getRubrics() {
 
     const url = "/api/rubrics/shared";
-    fetch(url, { credentials: "include" })
+    fetch(url)
     .then(r => {
 
       if (r.ok) {
