@@ -36,6 +36,13 @@ export class SakaiRubricCriteria extends RubricsElement {
 
       this.querySelectorAll("sakai-reorderer").forEach(el => el.requestUpdate());
       this.querySelector(`[data-criterion-id="${e.detail.data.criterionId}"] .drag-handle`).focus();
+
+      // Announce the change for screen readers
+      const announcer = this.querySelector("#rubric-reorder-announcer");
+      const criterion = this.criteriaMap.get(parseInt(e.detail.data.criterionId));
+      const newPosition = e.detail.reorderedIds.indexOf(e.detail.data.criterionId) + 1;
+      const total = e.detail.reorderedIds.length;
+      announcer.textContent = `${criterion.title} moved to position ${newPosition} of ${total}`;
     });
 
     // Reordering doesn't really care about the weight changes, but the event does get the criteria to update in the parent rubric object
@@ -71,6 +78,13 @@ export class SakaiRubricCriteria extends RubricsElement {
     // Focus the moved rating's drag handle
     this.updateComplete.then(() => {
       this.querySelector(`[data-rating-id="${e.detail.data.ratingId}"] .drag-handle`).focus();
+
+      // Announce the change for screen readers
+      const announcer = this.querySelector("#rubric-reorder-announcer");
+      const rating = criterion.ratings.find(r => r.id == e.detail.data.ratingId);
+      const newPosition = e.detail.reorderedIds.indexOf(e.detail.data.ratingId) + 1;
+      const total = e.detail.reorderedIds.length;
+      announcer.textContent = `Rating ${rating.title} moved to position ${newPosition} of ${total}`;
     });
 
     const url = `/api/sites/${this.siteId}/rubrics/${this.rubricId}/criteria/${criterionId}/ratings/sort`;
@@ -393,6 +407,7 @@ export class SakaiRubricCriteria extends RubricsElement {
   render() {
 
     return html`
+      <div id="rubric-reorder-announcer" aria-live="polite" class="sr-only"></div>
       <sakai-reorderer drop-class="criterion-row" @reordered=${this._criteriaReordered}>
         <div data-rubric-id="${this.rubricId}" class="criterion style-scope sakai-rubric-criterion">
         ${repeat(this.criteria, c => c.id, c => html`
@@ -401,12 +416,12 @@ export class SakaiRubricCriteria extends RubricsElement {
               <div class="criterion-detail criterion-title">
                 <h4 class="criterion-title d-flex align-items-center">
                   <div>
-                    <span tabindex="0"
+                    <button type="button"
                         title="${this.tr("drag_order")}"
                         data-criterion-id="${c.id}"
                         aria-label="${this.tr("drag_to_reorder_label")}"
-                        class="drag-handle reorder-icon si si-drag-handle fs-3">
-                    </span>
+                        class="btn-transparent drag-handle reorder-icon si si-drag-handle fs-3">
+                    </button>
                   </div>
                   <div class="ms-1">${c.title}</div>
                   <div>
@@ -436,12 +451,12 @@ export class SakaiRubricCriteria extends RubricsElement {
               <div class="criterion-detail">
                 <h4 class="criterion-title d-flex align-items-center">
                   <div>
-                    <span tabindex="0"
+                    <button type="button"
                         title="${this.tr("drag_order")}"
                         data-criterion-id="${c.id}"
                         aria-label="${this.tr("drag_to_reorder_label")}"
-                        class="drag-handle reorder-icon si si-drag-handle fs-3">
-                    </span>
+                        class="btn-transparent drag-handle reorder-icon si si-drag-handle fs-3">
+                    </button>
                   </div>
                   <div class="ms-1">${c.title}</div>
                   <div>
@@ -535,14 +550,14 @@ export class SakaiRubricCriteria extends RubricsElement {
                         <div class="add-criterion-item">
                           ${this._renderAddRatingButton(c, i + 1)}
                         </div>
-                        <span tabindex="0"
+                        <button type="button"
                             data-criterion-id="${c.id}"
                             data-rating-id="${r.id}"
                             title="${this.tr("drag_order")}"
                             aria-label="${this.tr("drag_to_reorder_label")}"
                             aria-describedby="rubrics-reorder-info"
-                            class="drag-handle reorder-icon sideways si si-drag-handle">
-                        </span>
+                            class="btn-transparent drag-handle reorder-icon sideways si si-drag-handle">
+                        </button>
                       ` : nothing }
                     </div>
                   `)}

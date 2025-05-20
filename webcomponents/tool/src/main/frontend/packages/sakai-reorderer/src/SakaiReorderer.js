@@ -105,18 +105,18 @@ export class SakaiReorderer extends SakaiShadowElement {
       const reorderable = e.target.closest("[draggable='true']");
       const reorderableId = reorderable?.dataset.reorderableId;
 
-      if ([ "e", "d" ].includes(e.key.toLowerCase())) {
+      if ([ "e", "d", "ArrowLeft", "ArrowRight" ].includes(e.key)) {
         const index = this._reorderableIds.indexOf(reorderableId);
 
         let changed = false;
 
-        if (e.key.toLowerCase() === "e") {
+        if (e.key.toLowerCase() === "e" || e.key === "ArrowLeft") {
           if (reorderable.previousElementSibling) {
             this._reorderableIds.splice(index, 1);
             this._reorderableIds.splice(index - 1, 0, reorderableId);
             changed = true;
           }
-        } else if (e.key.toLowerCase() === "d") {
+        } else if (e.key.toLowerCase() === "d" || e.key === "ArrowRight") {
           if (reorderable.nextElementSibling) {
             this._reorderableIds.splice(index, 1);
             this._reorderableIds.splice(index + 1, 0, reorderableId);
