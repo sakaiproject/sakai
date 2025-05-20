@@ -17,6 +17,7 @@ package org.sakaiproject.gradebookng.tool.panels;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
@@ -114,13 +115,14 @@ public class ExportRubricPanel extends BasePanel {
 	private File buildFile() {
 		final String[] userIds = receivedParams.get("userIds").asText().split(",");
 
-		File tempFile;
+		File tempFile = null;
+		ZipOutputStream out = null;
 
 		try {
 			if (rubric != null) {
 				Long rubricId = rubric.getId();
 				tempFile = File.createTempFile("tempZip", ".zip");
-				ZipOutputStream out = new ZipOutputStream(new FileOutputStream(tempFile));
+				out = new ZipOutputStream(new FileOutputStream(tempFile));
 				for (String userId : userIds) {
 					String evaluatedItemId = rubricsService.getRubricEvaluationObjectId(gradebookAssignmentId, userId, toolId, currentSiteId);
 					String name = userDirectoryService.getUser(userId).getEid();
@@ -135,14 +137,25 @@ public class ExportRubricPanel extends BasePanel {
 					out.write(pdf);
 					out.closeEntry();
 				}
-
-				out.finish();
-				out.flush();
-				out.close();
-				return tempFile;
 			}
 		} catch (final Exception e) {
 			log.error(e.toString(), e);
+		} finally {
+			if (out != null) {
+				try {
+					out.finish();
+					out.flush();
+				} catch (IOException e) {
+					log.error("Error ocurred while finish ZipOutputStream: " + e.toString(), e);
+				}
+				try {
+					out.close();
+				} catch (IOException e) {
+					log.error("Error ocurred while closing ZipOutputStream: " + e.toString(), e);
+				}
+
+				return tempFile;
+			}
 		}
 		return null;
 	}

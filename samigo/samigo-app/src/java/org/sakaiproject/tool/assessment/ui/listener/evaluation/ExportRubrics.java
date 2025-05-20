@@ -23,8 +23,10 @@ package org.sakaiproject.tool.assessment.ui.listener.evaluation;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -60,51 +62,50 @@ public class ExportRubrics implements ActionListener {
    * Standard process action method.
    * @param ae ActionEvent
    * @throws AbortProcessingException
-   */
+  */
   public void processAction(ActionEvent ae) throws AbortProcessingException {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    QuestionScoresBean bean = (QuestionScoresBean) ContextUtil.lookupBean("questionScores");
+    TotalScoresBean tBean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
+    String templateFilename = rb.getString("question") + "_" + bean.getItemName();
+    String toolId = "sakai.samigo";
 
-    try {
-      ZipOutputStream out = new ZipOutputStream(baos);
+    try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      ZipOutputStream out = new ZipOutputStream(baos)) {
+        List<AgentResults> agents = (List<AgentResults>) bean.getAgents();
+        List<User> users = userDirectoryService.getUsersByEids(agents.stream()
+          .map(AgentResults::getAgentEid)
+          .collect(Collectors.toList()));
 
-      QuestionScoresBean bean = (QuestionScoresBean) ContextUtil.lookupBean("questionScores");
-      TotalScoresBean tBean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
-      String templateFilename = rb.getString("question") + "_" + bean.getItemName();
-      String toolId = "sakai.samigo";
-      List<AgentResults> agents = (List<AgentResults>) bean.getAgents();
+        for (User user : users) {
+            String itemId = "pub." + bean.getPublishedId() + "." + ContextUtil.lookupParam("itemId");
+            Optional<ToolItemRubricAssociation> optAssociation = associationRepository.findByToolIdAndItemId(toolId, itemId);
+            long rubricId = optAssociation.isPresent() ? optAssociation.get().getRubric().getId() : 0L;
+            String evaluatedItemId = rubricsService.getRubricEvaluationObjectId(itemId, user.getId(), toolId, AgentFacade.getCurrentSiteId());
+            byte[] pdf = rubricsService.createPdf(AgentFacade.getCurrentSiteId(), rubricId, toolId, itemId, evaluatedItemId);
+            final ZipEntry zipEntryPdf = new ZipEntry(user.getEid() + "_" + templateFilename + ".pdf");
+            out.putNextEntry(zipEntryPdf);
+            out.write(pdf);
+            out.closeEntry();
+        }
 
-      for (AgentResults ar : agents) {
-        String itemId = "pub." + bean.getPublishedId() + "." + ContextUtil.lookupParam("itemId");
-        User user = userDirectoryService.getUserByEid(ar.getAgentEid());
+        out.finish();
 
-        Optional<ToolItemRubricAssociation> optAssociation = associationRepository.findByToolIdAndItemId(toolId, itemId);
-        long rubricId = optAssociation.isPresent()? optAssociation.get().getRubric().getId() : 0l;
+        FacesContext faces = FacesContext.getCurrentInstance();
+        HttpServletResponse response = (HttpServletResponse)faces.getExternalContext().getResponse();
+        String fileName = tBean.getAssessmentName().replaceAll(" ", "_") + "_" + templateFilename;
 
-        String evaluatedItemId = rubricsService.getRubricEvaluationObjectId(itemId, user.getId(), toolId, AgentFacade.getCurrentSiteId());
-        byte[] pdf = rubricsService.createPdf(AgentFacade.getCurrentSiteId(), rubricId, toolId, itemId, evaluatedItemId);
-        final ZipEntry zipEntryPdf = new ZipEntry(user.getEid() + "_" + templateFilename + ".pdf");
+        response.reset();
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "_" + rb.getString("rubrics") + ".zip\"");
+        response.setContentType("application/zip");
+        response.setContentLength(baos.size());
 
-        out.putNextEntry(zipEntryPdf);
-        out.write(pdf);
-        out.closeEntry();
-      }
+        try (var outputStream = response.getOutputStream()) {
+            baos.writeTo(outputStream);
+        }
 
-      out.finish();
-      out.close();
-
-      FacesContext faces = FacesContext.getCurrentInstance();
-      HttpServletResponse response = (HttpServletResponse)faces.getExternalContext().getResponse();
-      String fileName = tBean.getAssessmentName().replaceAll(" ", "_") + "_" + templateFilename;
-
-      response.reset();	// Eliminate the added-on stuff
-      response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "_" + rb.getString("rubrics") + ".zip\"");
-      response.setContentType("application/zip");
-      response.setContentLength(baos.size());
-
-      baos.writeTo(response.getOutputStream());
-      faces.responseComplete();
+        faces.responseComplete();
     } catch (Exception e) {
-      log.error(e.toString(), e);
+        log.error("Error exporting rubrics", e);
     }
   }
 }
