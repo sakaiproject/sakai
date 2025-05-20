@@ -424,7 +424,7 @@ describe("sakai-rubrics tests", () => {
     console.debug(`Validating for '${titleToCheck}'`);
 
     expect(el.querySelector(".rubric-name").textContent).to.equal(titleToCheck);
-    expect(el.querySelector(`#rubric-toggle-${rubricData.id}`).title).to.equal(`${el._i18n.toggle_details} ${titleToCheck}`);
+    expect(el.querySelector(".rubric-toggle").title).to.equal(`${el._i18n.toggle_details} ${titleToCheck}`);
 
     if (rubricData.locked) {
       console.debug("Checking locked elements...");

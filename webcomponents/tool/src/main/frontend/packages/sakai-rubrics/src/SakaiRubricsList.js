@@ -36,11 +36,13 @@ export class SakaiRubricsList extends RubricsElement {
     });
   }
 
-  shouldUpdate() {
-    return this._rubrics && super.shouldUpdate();
-  }
-
   render() {
+
+    if (!this._rubrics) {
+      return html`
+        <div class="sak-banner-warn">${this._i18n.loading}</div>
+      `;
+    }
 
     return html`
       <div role="presentation">
@@ -73,7 +75,6 @@ export class SakaiRubricsList extends RubricsElement {
 
     const url = `/api/sites/${this.siteId}/rubrics`;
     fetch(url, {
-      credentials: "include",
       headers: { "Content-Type": "application/json" },
     })
     .then(r => {

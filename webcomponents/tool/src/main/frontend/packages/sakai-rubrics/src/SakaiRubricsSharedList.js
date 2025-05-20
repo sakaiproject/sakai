@@ -10,26 +10,13 @@ const rubricModified = "modified";
 
 export class SakaiRubricsSharedList extends SakaiRubricsList {
 
-  static properties = {
-
-    siteId: { attribute: "site-id", type: String },
-    enablePdfExport: { attribute: "enable-pdf-export", type: Boolean },
-
-    _rubrics: { state: true },
-  };
-
-  constructor() {
-
-    super();
-
-    this.getSharedRubrics();
-  }
-
-  shouldUpdate() {
-    return this._rubrics;
-  }
-
   render() {
+
+    if (!this._rubrics) {
+      return html`
+        <div class="sak-banner-warn">${this._i18n.loading}</div>
+      `;
+    }
 
     return html`
       <div role="tablist">
@@ -40,14 +27,10 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
     `;
   }
 
-  refresh() {
-    this.getSharedRubrics();
-  }
-
-  getSharedRubrics() {
+  getRubrics() {
 
     const url = "/api/rubrics/shared";
-    fetch(url, { credentials: "include" })
+    fetch(url)
     .then(r => {
 
       if (r.ok) {
