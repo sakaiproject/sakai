@@ -128,6 +128,23 @@ roster.changeActiveTab = function (state) {
   }
 };
 
+roster.selectViewMode = function (mode) {
+
+  switch (mode) {
+    case "spreadsheet":
+      roster.clickViewSpreadsheetRadio();
+      break;
+    case "photogrid":
+      roster.clickViewPhotogridRadio();
+      break;
+    case "cards":
+      roster.clickViewCardRadio(true);
+      break;
+    default:
+      break;
+  }
+};
+
 roster.switchState = function (state, args) {
 
   roster.currentState = state;
@@ -161,24 +178,26 @@ roster.switchState = function (state, args) {
     roster.nextPage = 0;
 
     roster.render('overview',
-        { siteGroups: roster.site.siteGroups,
-            membersTotal: roster.i18n.currently_displaying_participants.replace(/\{0\}/, roster.site.membersTotal),
-            roleFragments: roster.getRoleFragments(roster.site.roleCounts),
-            roles: roster.site.userRoles.sort(),
-            checkOfficialPicturesButton: roster.officialPictureMode,
-            viewGroup : roster.currentUserPermissions.viewGroup,
-            viewOfficialPhoto: roster.currentUserPermissions.viewOfficialPhoto,
-            defaultOverviewModeCards: ('cards' === roster.defaultOverviewMode),
-            defaultOverviewModeSpreadsheet: ('spreadsheet' === roster.defaultOverviewMode),
-            defaultOverviewModePhotogrid: ('photogrid' === roster.defaultOverviewMode)},
-        'roster_content');
+      {
+        siteGroups: roster.site.siteGroups,
+        membersTotal: roster.i18n.currently_displaying_participants.replace(/\{0\}/, roster.site.membersTotal),
+        roleFragments: roster.getRoleFragments(roster.site.roleCounts),
+        roles: roster.site.userRoles.sort(),
+        checkOfficialPicturesButton: roster.officialPictureMode,
+        viewGroup : roster.currentUserPermissions.viewGroup,
+        viewOfficialPhoto: roster.currentUserPermissions.viewOfficialPhoto,
+        cardLayout: roster.currentLayout === "cards",
+        tableLayout: roster.currentLayout === "spreadsheet",
+        photogridLayout: roster.currentLayout === "photogrid",
+      },
+      'roster_content');
 
     $('#roster-header-loading-image').hide();
 
     $(function () {
 
-      if (args && args.group) {
-          $('#roster-group-option-' + args.group).prop('selected', true);
+      if (args?.group) {
+        $('#roster-group-option-' + args.group).prop('selected', true);
       }
 
       roster.addPhotoSourceHandlers();
@@ -186,13 +205,7 @@ roster.switchState = function (state, args) {
       roster.addViewModeHandlers();
       roster.addExportHandler();
 
-      if (roster.defaultOverviewMode === 'spreadsheet') {
-        roster.clickViewSpreadsheetRadio();
-      } else if (roster.defaultOverviewMode === 'photogrid') {
-        roster.clickViewPhotogridRadio();
-      } else {
-        roster.clickViewCardRadio(true);
-      }
+      roster.selectViewMode(roster.currentLayout || roster.defaultOverviewMode);
 
       roster.setupPrintButton();
       roster.readySearchButton();
@@ -540,16 +553,14 @@ roster.renderNoParticipants = function () {
 
 roster.search = function (query) {
 
-  if (query !== roster.i18n.roster_search_text && query !== "") {
-    let userIds = [];
-    var i = 0;
-    roster.searchIndexValues.forEach(function (displayName) {
+  if (query && query !== roster.i18n.roster_search_text) {
+    const regex = new RegExp(query, 'i');
+    const userIds = [];
+    roster.searchIndexValues.forEach((displayName, i) => {
 
-      var regex = new RegExp(query, 'i');
       if (regex.test(displayName)) {
         userIds.push(roster.searchIndexKeys[i]);
       }
-      i++;
     });
     //if query string is too short, show 20 users as much
     if (query.length < 3 && userIds.length > 20) {
@@ -758,8 +769,6 @@ roster.clickViewPhotogridRadio = function() {
   $('#roster_content').removeClass('view_mode_cards view_mode_spreadsheet');
   $('#roster_content').addClass('view_mode_photogrid');
 
-  //document.querySelector(".roster-print-button").style.display = "initial";
-
   roster.currentLayout = "photogrid";
 
   // Re-render table with dynamic page size for grid view
@@ -948,7 +957,7 @@ var loadRoster = function () {
   loadProperties("roster").then(i18n => {
 
     roster.i18n = i18n;
-    roster.helpers["tr"] =  (key, ...insertions) => {
+    roster.helpers.tr =  (key, ...insertions) => {
       let translation = roster.i18n[key];
       insertions?.forEach((insertion, index) => translation = translation?.replace(`{${index}}`, insertion));
       return translation;
@@ -967,5 +976,5 @@ var loadRoster = function () {
   });
 };
 
-export {loadRoster};
+export { loadRoster };
 // # vim: softtabstop=2 sw=2 expandtab
