@@ -145,6 +145,9 @@ public class ConversationsTopic implements PersistableEntity<String> {
     @Column(name = "UPVOTES")
     private Integer upvotes = 0;
 
+    @Column(name = "GRADED")
+    private Boolean graded = Boolean.FALSE;
+
     @Column(name = "GRADING_ITEM_ID")
     private Long gradingItemId;
 
