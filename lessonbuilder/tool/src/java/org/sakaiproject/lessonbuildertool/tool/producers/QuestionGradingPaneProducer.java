@@ -131,9 +131,8 @@ public class QuestionGradingPaneProducer implements ViewComponentProducer, ViewP
 		
 		SimplePageItem questionItem = simplePageToolDao.findItem(params.questionItemId);
 		SimplePage containingPage = simplePageToolDao.getPage(questionItem.getPageId());
-		String heading = messageLocator.getMessage("simplepage.question-grading").replace("{}", questionItem.getAttribute("questionText"));
-		
-		UIVerbatim.make(tofill, "page-header", heading);
+
+		UIVerbatim.make(tofill, "question-text", questionItem.getAttribute("questionText"));
 		
 		List<SimplePageQuestionResponse> responses = simplePageToolDao.findQuestionResponses(questionItem.getId());
 		
