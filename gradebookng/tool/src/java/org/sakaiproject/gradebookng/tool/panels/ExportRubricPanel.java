@@ -17,6 +17,7 @@ package org.sakaiproject.gradebookng.tool.panels;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
@@ -114,37 +115,38 @@ public class ExportRubricPanel extends BasePanel {
 	private File buildFile() {
 		final String[] userIds = receivedParams.get("userIds").asText().split(",");
 
-		File tempFile;
+		if (rubric == null) {
+			return null;
+		}
 
 		try {
-			if (rubric != null) {
-				Long rubricId = rubric.getId();
-				tempFile = File.createTempFile("tempZip", ".zip");
-				ZipOutputStream out = new ZipOutputStream(new FileOutputStream(tempFile));
+			Long rubricId = rubric.getId();
+			File tempFile = File.createTempFile("tempZip", ".zip");
+
+			try (ZipOutputStream out = new ZipOutputStream(new FileOutputStream(tempFile))) {
 				for (String userId : userIds) {
-					String evaluatedItemId = rubricsService.getRubricEvaluationObjectId(gradebookAssignmentId, userId, toolId, currentSiteId);
+					String evaluatedItemId = rubricsService.getRubricEvaluationObjectId(
+						gradebookAssignmentId, userId, toolId, currentSiteId);
 					String name = userDirectoryService.getUser(userId).getEid();
-
-					Assignment assignment = businessService.getAssignment(currentGradebookUid, currentSiteId, Long.parseLong(gradebookAssignmentId));
-
+					Assignment assignment = businessService.getAssignment(
+						currentGradebookUid, currentSiteId, Long.parseLong(gradebookAssignmentId));
 					String title = assignment.getName();
-					byte[] pdf = rubricsService.createPdf(currentSiteId, rubricId, toolId, gradebookAssignmentId, evaluatedItemId);
-					final ZipEntry zipEntryPdf = new ZipEntry(name + "_" + title + ".pdf");
+					byte[] pdf = rubricsService.createPdf(
+						currentSiteId, rubricId, toolId, gradebookAssignmentId, evaluatedItemId);
 
+					final ZipEntry zipEntryPdf = new ZipEntry(name + "_" + title + ".pdf");
 					out.putNextEntry(zipEntryPdf);
 					out.write(pdf);
 					out.closeEntry();
 				}
+			} // ZipOutputStream is automatically closed here
 
-				out.finish();
-				out.flush();
-				out.close();
-				return tempFile;
-			}
+			return tempFile;
+
 		} catch (final Exception e) {
-			log.error(e.toString(), e);
+			log.error("Error occurred while building zip file: " + e.toString(), e);
+			return null;
 		}
-		return null;
 	}
 
 }

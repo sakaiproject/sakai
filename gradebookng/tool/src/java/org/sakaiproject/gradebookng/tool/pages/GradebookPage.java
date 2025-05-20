@@ -239,11 +239,8 @@ public class GradebookPage extends BasePage {
 
 		add(new CloseOnESCBehavior(bulkEditItemsWindow));
 
-
-
 		this.exportRubricWindow = new GbModalWindow("exportRubricWindow");
 		this.form.add(this.exportRubricWindow);
-
 
 		// first get any settings data from the session
 		final GradebookUiSettings settings = getUiSettings();
