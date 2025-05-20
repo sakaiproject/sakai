@@ -603,7 +603,6 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
 
         String topicRef = ConversationsReferenceReckoner.reckoner().topic(topic).reckon().getReference();
         if (params.graded) {
-            String topicUrl = getTopicPortalUrl(params.id).orElse("");
 
             if (isNew) {
                 if (params.createGradingItem) {
@@ -619,6 +618,8 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
                     log.warn("When grading a topic, either create grading item should be specified, or an existing item should have been selected");
                 }
             } else {
+                String topicUrl = getTopicPortalUrl(params.id).orElse("");
+
                 if (params.createGradingItem) {
                     if (existingGradingItemId != null && gradingService.isExternalAssignmentDefined(params.siteId, topicRef)) {
                         gradingService.updateExternalAssessment(params.siteId, topicRef, topicUrl, null,
@@ -2698,6 +2699,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
             topicEl.setAttribute("visibility", topic.getVisibility().name());
             topicEl.setAttribute("creator", topic.getMetadata().getCreator());
             topicEl.setAttribute("created", Long.toString(topic.getMetadata().getCreated().getEpochSecond()));
+            topicEl.setAttribute("graded", Boolean.toString(topic.getGraded()));
 
             if (topic.getShowDate() != null) {
               topicEl.setAttribute("show-date", Long.toString(topic.getShowDate().getEpochSecond()));
@@ -2760,6 +2762,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
             topicBean.draft = true;
             topicBean.pinned = Boolean.parseBoolean(topicEl.getAttribute("pinned"));
             topicBean.visibility = topicEl.getAttribute("visibility");
+            topicBean.graded = Boolean.parseBoolean(topicEl.getAttribute("graded"));
 
             topicBean.showDate = topicEl.hasAttribute("show-date") ? Instant.ofEpochSecond(Long.parseLong(topicEl.getAttribute("show-date"))) : null;
             topicBean.hideDate = topicEl.hasAttribute("hide-date") ? Instant.ofEpochSecond(Long.parseLong(topicEl.getAttribute("hide-date"))) : null;
