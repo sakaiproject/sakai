@@ -30,7 +30,8 @@
   },
   "exports": {
     ".": "./index.js",
-    "./sakai-image-editor.js": "./sakai-image-editor.js"
+    "./sakai-image-editor.js": "./sakai-image-editor.js",
+    "./image-editor-launcher.js": "./image-editor-launcher.js"
   },
   "dependencies": {
     "@sakai-ui/sakai-dialog-content": "file:../sakai-dialog-content",
