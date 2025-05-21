@@ -399,6 +399,7 @@
     <property name="publishedAssessmentFacadeQueries" ref="PublishedAssessmentFacadeQueries" />
     <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
     <property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService" />
+    <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
   </bean>
 
   <bean id ="org.sakaiproject.tool.assessment.entity.api.CoreAssessmentEntityProvider"

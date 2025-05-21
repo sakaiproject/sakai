@@ -89,6 +89,7 @@ import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
+import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.exception.IdInvalidException;
@@ -2879,36 +2880,20 @@ extends VelocityPortletStateAction
 					}
 				} else if (assessmentId != null && !assessmentId.isEmpty()) {
 					try {
-						StringBuilder entityId = new StringBuilder(SAMIGO_ENTITY_PREFIX);
-						entityId.append((CalendarService.getCalendar(calEvent.getCalendarReference())).getContext());
-						entityId.append(EntityReference.SEPARATOR);
-						entityId.append(assessmentId);
+						String reference = SAMIGO_ENTITY_PREFIX + assessmentId;
+						ActionReturn action = entityBroker.executeCustomAction(reference, "deepLink", null, null);
 
-						String reference = entityId.toString();
-
-						// Get the properties using the entity broker
-						Map<String, String> props = entityBroker.getProperties(reference);
-						if (props != null && !props.isEmpty()) {
-							// Get the URL to the assessment
-							String assessmentUrl = ServerConfigurationService.getPortalUrl()
-									+ "/directtool/"
-									+ ToolManager.getCurrentPlacement().getId()
-									+ "?publishedId="
-									+ assessmentId;
-							context.put("assessmentUrl", assessmentUrl);
-
-							// Get the title from the entity properties
-							String title = props.get("title");
-							if (title != null) {
-								context.put("assessmentTitle", title);
-							}
+						if (action != null && action.getEntityData() != null && action.getEntityData().getData() instanceof Map) {
+							Map<String, Object> assessData = (Map<String, Object>) action.getEntityData().getData();
+							context.put("assessmentUrl", assessData.get("assessmentUrl"));
+							context.put("assessmentTitle", assessData.get("assessmentTitle"));
 						}
 					} catch (Exception e) {
 						log.warn("Failed to get assessment data for calendar event, {}", e.toString());
 						log.debug("Stacktrace:", e);
+						return;
 					}
 				}
-
 
 				String ownerId = calEvent.getCreator();
 				if ( ownerId != null && ! ownerId.equals("") )
