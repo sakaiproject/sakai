@@ -26,6 +26,7 @@
                 <span>
                     <h:commandLink title="#{generalMessages.t_assessment}" action="author" immediate="true">
                         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
+                        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetResultsCalculatedListener" />
                         <h:outputText value="#{generalMessages.assessment}" />
                     </h:commandLink>
                 </span>

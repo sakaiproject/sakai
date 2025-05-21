@@ -1005,7 +1005,10 @@ function showLoadingMessage() {
       <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
    </h:commandButton>
-   <h:commandButton value="#{commonMessages.cancel_action}" action="author"/>
+   <h:commandButton value="#{commonMessages.cancel_action}" action="author">
+      <f:actionListener
+         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetResultsCalculatedListener" />
+   </h:commandButton>
 
 </p>
 </div>

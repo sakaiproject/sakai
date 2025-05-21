@@ -56,12 +56,16 @@
                      type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
                    <f:actionListener
                      type="org.sakaiproject.tool.assessment.ui.listener.questionpool.CancelImportToAssessmentListener" />
+                   <f:actionListener
+                     type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetResultsCalculatedListener" />
                </h:commandLink>
 
                <h:commandLink title="#{generalMessages.t_assessment}" rendered="#{questionpool.importToAuthoring eq false}" action="author"  immediate="true">
                <h:outputText value="#{generalMessages.assessment}"/>
                    <f:actionListener
                      type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
+                   <f:actionListener
+                     type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetResultsCalculatedListener" />
                </h:commandLink>
             </h:panelGroup>
         </li>
