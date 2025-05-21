@@ -10,7 +10,6 @@
   padding: 4px 10px;
   background-color: var(--sakai-background-color-3);
   margin-bottom: 4px;
-  cursor: move;
   position: relative;
 }
 

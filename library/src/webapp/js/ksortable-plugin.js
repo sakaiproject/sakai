@@ -1,7 +1,14 @@
 jQuery.fn.extend({
   ksortable(options) {
-    // 1) Init jQuery UI sortable
-    this.sortable(options);
+    // jQuery UI's default `cancel` option prevents dragging when the initial
+    // mousedown is on a <button>.  Because our accessible drag handles are
+    // real <button> elements, we need to remove `button` from that selector
+    // so mouse-based dragging still works.
+
+    const opts = $.extend({ cancel: "input,textarea,select,option" }, options);
+
+    // 1) Init jQuery UI sortable with the tweaked options
+    this.sortable(opts);
 
     // 2) Ensure live region exists; create if missing
     let $live = $('#ksortable-live');
@@ -11,14 +18,14 @@ jQuery.fn.extend({
     }
 
     // Enhance only the drag handle
-    this.find(options.handle).attr({
+    this.find(opts.handle).attr({
       role: 'button',
       tabindex: 0,
       'aria-roledescription': 'draggable',
       'aria-pressed': 'false'
     }).off('keydown').on('keydown', function(e) {
       const $h       = $(this);
-      const $item    = $h.closest(options.itemClass);
+      const $item    = $h.closest(opts.itemClass);
       const label    = $.trim($item.text());
       const pressed  = $h.attr('aria-pressed') === 'true';
 
@@ -26,8 +33,14 @@ jQuery.fn.extend({
         $live.text(msg);
       }
 
-      // Space or Enter = toggle grab/drop
-      if (e.key === ' ' || e.key === 'Enter') {
+      // Space or Enter = toggle grab/drop.  Different browsers/OSs report the
+      // space key differently (" ", "Space", "Spacebar"), so check all
+      // common variants and fall back to keyCode for older browsers.
+
+      const isSpace = e.key === ' ' || e.key === 'Space' || e.key === 'Spacebar' || e.keyCode === 32;
+      const isEnter = e.key === 'Enter' || e.keyCode === 13;
+
+      if (isSpace || isEnter) {
         e.preventDefault();
         $h.attr('aria-pressed', String(!pressed));
         announce(!pressed
@@ -57,7 +70,7 @@ jQuery.fn.extend({
 
       // announce move, fire stop callback, refocus handle
       announce(`${label} moved to position ${$item.index()+1}.`);
-      options.stop?.({}, { item: $item[0] });
+      opts.stop?.({}, { item: $item[0] });
       $h.focus();
     });
 
