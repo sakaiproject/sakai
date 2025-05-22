@@ -2375,7 +2375,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 						String userRole = msgSite.getMember(currentUserId).getRole().getId();
 						return selectedRoles.contains(userRole);
 					} catch (IdUnusedException idue) {
-						log.error("No site for id {}", messageSiteId);
+						log.warn("No site found with id {}", messageSiteId);
 						return false;
 					}
 				}
