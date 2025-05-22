@@ -811,8 +811,11 @@ public class BaseAuthzGroup implements AuthzGroup
 	{
 		if (m_lazy) baseAuthzGroupService.m_storage.completeGet(this);
 
+		// Optimize role view type checking by using batch lookup
+		Set<String> roleViewUsers = userDirectoryService.getRoleViewTypeUsers(m_userGrants.keySet());
+
 		return m_userGrants.entrySet().stream()
-				.filter(e -> e.getValue().isActive() && !userDirectoryService.isRoleViewType(e.getKey()))
+				.filter(e -> e.getValue().isActive() && !roleViewUsers.contains(e.getKey()))
 				.map(Map.Entry::getKey)
 				.collect(Collectors.toSet());
 	}
@@ -824,8 +827,11 @@ public class BaseAuthzGroup implements AuthzGroup
 
 		if (m_lazy) baseAuthzGroupService.m_storage.completeGet(this);
 
+		// Optimize role view type checking by using batch lookup
+		Set<String> roleViewUsers = userDirectoryService.getRoleViewTypeUsers(m_userGrants.keySet());
+		
 		return m_userGrants.entrySet().stream()
-				.filter(e -> !userDirectoryService.isRoleViewType(e.getKey()))
+				.filter(e -> !roleViewUsers.contains(e.getKey()))
 				.map(Map.Entry::getValue)
 				.collect(Collectors.toSet());
 	}
@@ -835,10 +841,13 @@ public class BaseAuthzGroup implements AuthzGroup
 	{
 		if (m_lazy) baseAuthzGroupService.m_storage.completeGet(this);
 
+		// Optimize role view type checking by using batch lookup
+		Set<String> roleViewUsers = userDirectoryService.getRoleViewTypeUsers(m_userGrants.keySet());
+
 		return m_userGrants.entrySet().stream()
 				.filter(e -> e.getValue().isActive()
 						&& e.getValue().getRole().isAllowed(lock)
-						&& !userDirectoryService.isRoleViewType(e.getKey()))
+						&& !roleViewUsers.contains(e.getKey()))
 				.map(Map.Entry::getKey)
 				.collect(Collectors.toSet());
 	}
@@ -848,10 +857,13 @@ public class BaseAuthzGroup implements AuthzGroup
 	{
 		if (m_lazy) baseAuthzGroupService.m_storage.completeGet(this);
 
+		// Optimize role view type checking by using batch lookup
+		Set<String> roleViewUsers = userDirectoryService.getRoleViewTypeUsers(m_userGrants.keySet());
+
 		return m_userGrants.entrySet().stream()
 				.filter(e -> e.getValue().isActive()
 						&& e.getValue().getRole().getId().equals(role)
-						&& !userDirectoryService.isRoleViewType(e.getKey()))
+						&& !roleViewUsers.contains(e.getKey()))
 				.map(Map.Entry::getKey)
 				.collect(Collectors.toSet());
 	}

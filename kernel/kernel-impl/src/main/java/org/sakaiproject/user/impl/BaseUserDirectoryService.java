@@ -36,6 +36,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.TreeSet;
 import java.util.Vector;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -245,6 +246,36 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	public boolean isRoleViewType(String id) {
 		if (id == null) return false;
 		return getOptionalUser(id).map(u -> ROLEVIEW_USER_TYPE.equals(u.getType())).orElse(false);
+	}
+
+	/**
+	 * Check if multiple users are role view types efficiently using batch lookup.
+	 * 
+	 * @param userIds Collection of user IDs to check
+	 * @return Set of user IDs that are role view types
+	 */
+	public Set<String> getRoleViewTypeUsers(Collection<String> userIds) {
+		if (userIds == null || userIds.isEmpty()) {
+			return Collections.emptySet();
+		}
+		
+		// Filter out null IDs
+		Set<String> validIds = userIds.stream()
+				.filter(id -> id != null)
+				.collect(Collectors.toSet());
+		
+		if (validIds.isEmpty()) {
+			return Collections.emptySet();
+		}
+		
+		// Use batch getUsers to fetch all users at once
+		List<User> users = getUsers(validIds);
+		
+		// Return set of IDs that are role view types
+		return users.stream()
+				.filter(user -> ROLEVIEW_USER_TYPE.equals(user.getType()))
+				.map(User::getId)
+				.collect(Collectors.toSet());
 	}
 
 	/**

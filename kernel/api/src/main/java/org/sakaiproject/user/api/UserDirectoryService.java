@@ -28,6 +28,7 @@ import org.w3c.dom.Element;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * <p>
@@ -515,6 +516,14 @@ public interface UserDirectoryService extends EntityProducer
 	 * @return true if the user is only for role view purposes
 	 */
 	boolean isRoleViewType(String id);
+
+	/**
+	 * Check if multiple users are role view types efficiently using batch lookup.
+	 * 
+	 * @param userIds Collection of user IDs to check
+	 * @return Set of user IDs that are role view types
+	 */
+	Set<String> getRoleViewTypeUsers(Collection<String> userIds);
 
 	/**
 	 * Indicates if a password is valid and if it has passed the validation check

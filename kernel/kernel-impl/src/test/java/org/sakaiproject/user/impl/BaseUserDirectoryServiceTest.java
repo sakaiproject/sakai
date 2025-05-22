@@ -205,4 +205,23 @@ public class BaseUserDirectoryServiceTest extends SakaiKernelTestBase  {
         Assert.assertNull(cleaned);
     }
 
+    /**
+     * Test method for {@link org.sakaiproject.user.impl.BaseUserDirectoryService#getRoleViewTypeUsers(java.util.Collection)}.
+     */
+    @Test
+    public void testGetRoleViewTypeUsers() {
+        // Test with empty collection - this should work without storage being initialized
+        java.util.Set<String> result = userDirectoryService.getRoleViewTypeUsers(java.util.Collections.emptySet());
+        Assert.assertNotNull(result);
+        Assert.assertTrue(result.isEmpty());
+
+        // Test with null collection
+        result = userDirectoryService.getRoleViewTypeUsers(null);
+        Assert.assertNotNull(result);
+        Assert.assertTrue(result.isEmpty());
+
+        // Note: Testing with actual user IDs would require fully initialized storage,
+        // so we just test the edge cases that don't require database access
+    }
+
 }

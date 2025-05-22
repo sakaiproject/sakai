@@ -299,7 +299,7 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 			edit.setFirstName(info.firstName);
 			edit.setLastName(info.lastName);
 			edit.setEmail(info.email);
-			edit.setPassword("sakai");
+			//edit.setPassword("sakai");
 			edit.setType("registered");
 		}
 
