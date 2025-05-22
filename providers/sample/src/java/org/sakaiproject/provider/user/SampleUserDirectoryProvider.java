@@ -32,7 +32,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.user.api.DisplayAdvisorUDP;
@@ -66,11 +65,14 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 	/** how many students to recognize (1.. this). */
 	private int courseStudents = 1000;
 
-	@Setter
 	private ValueEncryptionUtilities encryptionUtilities;
 
 	public void setCourseStudents(String count) {
 		this.courseStudents = Integer.parseInt(count);
+	}
+
+	public void setValueEncryptionUtilities(ValueEncryptionUtilities encryptionUtilities) {
+		this.encryptionUtilities = encryptionUtilities;
 	}
 
 	/**
