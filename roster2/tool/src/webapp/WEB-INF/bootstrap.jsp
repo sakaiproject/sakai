@@ -61,6 +61,8 @@
         <!-- wrap tool in portletBody div for PDA portal compatibility -->
         <div class="portletBody container-fluid">
 
+            <div id="roster-header-loading-image"><img src="/sakai-roster2-tool/images/ajax-loader.gif" /></div>
+
             <ul id="roster_navbar" class="navIntraTool actionToolBar" role="menu"></ul>
 
             <div id="rosterMainContainer">
