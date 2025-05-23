@@ -1467,8 +1467,10 @@ public abstract class BaseSiteService implements SiteService, Observer
 			//made it verbose for logging purposes
 			if(isUserSite(site.getId())) {
 				log.debug("Site: {} is user site and will be hard deleted.", site.getId());
+				isHardDelete = true;
 			} else if (isSpecialSite(site.getId())) {
 				log.debug("Site: {} is special site and will be hard deleted.", site.getId());
+				isHardDelete = true;
 			} else {
 				log.debug("Site: {} is not user or special site and will be soft deleted.", site.getId());
 			
