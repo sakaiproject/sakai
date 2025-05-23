@@ -32,6 +32,7 @@ import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.javax.Filter;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.api.Time;
 import org.w3c.dom.Element;
@@ -263,14 +264,14 @@ public interface Calendar
 	 * 
 	 * @return The Collection (Group) of groups defined for the context of this calendar that the end user has add event permissions in, empty if none.
 	 */
-	Collection getGroupsAllowAddEvent();
+	Collection<Group> getGroupsAllowAddEvent();
 
 	/**
 	 * Get the collection of Group defined for the context of this calendar that the end user has get event permissions in.
 	 * 
 	 * @return The Collection (Group) of groups defined for the context of this calendar that the end user has get event permissions in, empty if none.
 	 */
-	Collection getGroupsAllowGetEvent();
+	Collection<Group> getGroupsAllowGetEvent();
 
 	/**
 	 * Get the collection of Group defined for the context of this channel that the end user has remove event permissions in.
@@ -279,7 +280,7 @@ public interface Calendar
 	 * 
 	 * @return The Collection (Group) of groups defined for the context of this channel that the end user has remove event permissions in, empty if none.
 	 */
-	Collection getGroupsAllowRemoveEvent( boolean own );
+	Collection<Group> getGroupsAllowRemoveEvent( boolean own );
 	
 	/**
 	 * Checks if user has permission to modify any event (or fields) in this calendar

@@ -361,7 +361,7 @@ public interface CalendarService
 	* @param range The time period to use to select events. If this is null, one year before and after will be used.
 	* @return CalendarEventVector object with the union of all events from the list of calendars in the given time range.
 	*/
-	public CalendarEventVector getEvents(List references, TimeRange range);
+	public CalendarEventList getEvents(List references, TimeRange range);
 	
 	/**
 	 * Takes several calendar References and merges their events from within a given time range.
@@ -371,7 +371,7 @@ public interface CalendarService
 	 * @param reverseOrder CalendarEventVector object will be ordered reverse.       
 	 * @return CalendarEventVector object with the union of all events from the list of calendars in the given time range.
 	 */
-	public CalendarEventVector getEvents(List references, TimeRange range, boolean reverseOrder);
+	public CalendarEventList getEvents(List references, TimeRange range, boolean reverseOrder);
 
 	/**
 	 * Retrieves a list of events for the current user, filtered by the supplied options. This method
