@@ -821,8 +821,10 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
 
         String currentUserId = getCheckedCurrentUserId();
 
-        // Using our safer method to handle concurrent creation/update
-        TopicStatus topicStatus = topicStatusRepository.saveTopicStatus(topicId, currentUserId, false);
+        ConversationsTopic topic = topicRepository.getReferenceById(topicId);
+
+        TopicStatus topicStatus = topicStatusRepository.findByTopicIdAndUserId(topicId, currentUserId)
+            .orElseGet(() -> new TopicStatus(topic, currentUserId));
         topicStatus.setBookmarked(bookmarked);
         topicStatusRepository.save(topicStatus);
     }
@@ -1100,8 +1102,8 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
             topicRepository.save(topic);
         }
 
-        // Using the safer method to handle concurrent updates
-        TopicStatus topicStatus = topicStatusRepository.saveTopicStatus(topic.getId(), currentUserId, false);
+        TopicStatus topicStatus = topicStatusRepository.findByTopicIdAndUserId(topic.getId(), currentUserId)
+            .orElse(new TopicStatus(topic, currentUserId));
         topicStatus.setPosted(true);
         boolean topicWasViewed = topicStatus.getViewed();
         topicStatusRepository.save(topicStatus);
@@ -1673,8 +1675,15 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
             .findByTopicIdAndUserIdAndViewed(topicId, currentUserId, true).stream().count();
         long numberOfUnreadPosts = numberOfPosts - read;
 
-        // Using the new method that handles concurrent updates with a safer approach
-        topicStatusRepository.saveTopicStatus(topicId, currentUserId, numberOfUnreadPosts == 0L);
+        TopicStatus topicStatus = topicStatusRepository.findByTopicIdAndUserId(topicId, currentUserId)
+            .orElseGet(() -> new TopicStatus(topic, currentUserId));
+        topicStatus.setViewed(numberOfUnreadPosts == 0L);
+        try {
+            topicStatusRepository.save(topicStatus);
+        } catch (PersistenceException pe) {
+            log.debug("Caught an exception while saving topic status. This can happen "
+                    + "due to the way the client detects posts scrolling into view", pe);
+        }
 
         Map<String, Map<String, Object>> topicCache = postsCache.get(topicId);
         if (topicCache != null) topicCache.remove(currentUserId);

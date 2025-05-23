@@ -28,5 +28,4 @@ public interface TopicStatusRepository extends SpringCrudRepository<TopicStatus,
     List<Object[]> countBySiteIdAndViewed(String siteId, Boolean viewed);
     Integer setViewedByTopicId(String topicId, Boolean viewed);
     Integer setViewedByTopicIdAndUserId(String topicId, String userId, Boolean viewed);
-    TopicStatus saveTopicStatus(String topicId, String userId, boolean viewed);
 }
