@@ -29,6 +29,8 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.springframework.data.PersistableEntity;
 
 import lombok.Getter;
@@ -40,7 +42,9 @@ import lombok.Setter;
     indexes = { @Index(name = "conv_topic_status_topic_user_idx", columnList = "TOPIC_ID, USER_ID") })
 @Getter
 @Setter
+@Slf4j
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@NoArgsConstructor
 public class TopicStatus implements PersistableEntity<Long> {
 
     @Id
@@ -73,12 +77,9 @@ public class TopicStatus implements PersistableEntity<Long> {
     @Column(name = "UPVOTED")
     private Boolean upvoted = Boolean.FALSE;
 
-    public TopicStatus() {
-    }
-
     public TopicStatus(ConversationsTopic topic, String userId) {
-
         this.topic = topic;
         this.userId = userId;
+        log.debug("NEW TopicStatus, topic={}, userId={}", topic.getId(), userId);
     }
 }
