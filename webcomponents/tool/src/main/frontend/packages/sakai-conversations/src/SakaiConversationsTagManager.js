@@ -24,10 +24,25 @@ export class SakaiConversationsTagManager extends SakaiElement {
   _createTags() {
 
     const field = this.querySelector("#tag-creation-field");
+    const rawValue = field?.value || "";
 
-    // Split it, trim it, filter it and use a Set to make them unique, no duplicates!
-    const tagLabels
-      = [ ...new Set(field?.value?.split(",").map(t => t.trim()).filter(t => t.length > 0)) ];
+    const parsedTags = [];
+    if (rawValue.trim().length > 0) {
+      const regex = /"([^"]*)"|([^,]+)/g;
+      let match;
+      while ((match = regex.exec(rawValue)) !== null) {
+        // match[1] is the content of a quoted string (e.g., "tag, with comma" -> tag, with comma)
+        // match[2] is an unquoted segment (e.g., simpletag)
+        // Prioritize quoted content, then unquoted, then trim.
+        const tag = match[1] ? match[1].trim() : (match[2] ? match[2].trim() : "");
+        if (tag.length > 0) {
+          parsedTags.push(tag);
+        }
+      }
+    }
+
+    // Use a Set to make them unique, no duplicates!
+    const tagLabels = [ ...new Set(parsedTags.filter(t => t.length > 0)) ];
 
     // If any tags are already defined, ignore them
     this.tags.map(t => t.label).forEach(t => {
@@ -55,12 +70,11 @@ export class SakaiConversationsTagManager extends SakaiElement {
       if (!r.ok) {
         throw new Error("Network error while creating tags.");
       }
-      return r.json();
     })
-    .then(tags => {
+    .then(() => {
 
       field.value = "";
-      this.dispatchEvent(new CustomEvent("tags-created", { detail: { tags }, bubbles: true }));
+      this.dispatchEvent(new CustomEvent("tags-created", { bubbles: true, composed: true }));
       this._saveable = false;
     })
     .catch (error => console.error(error));
