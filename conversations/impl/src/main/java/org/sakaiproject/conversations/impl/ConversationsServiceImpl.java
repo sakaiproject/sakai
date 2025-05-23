@@ -35,6 +35,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
+import org.sakaiproject.util.comparator.AlphaNumericComparator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -2170,6 +2171,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         return tags.stream().map(tagRepository::save).collect(Collectors.toList());
     }
 
+    @Override
     @Transactional(readOnly = true)
     public List<Tag> getTagsForSite(String siteId) throws ConversationsPermissionsException {
 
@@ -2183,7 +2185,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
 
         List<Tag> tags = tagRepository.findBySiteId(siteId);
         // Sort tags alphabetically by label
-        tags.sort((tag1, tag2) -> tag1.getLabel().compareToIgnoreCase(tag2.getLabel()));
+        tags.sort(Comparator.comparing(Tag::getLabel, new AlphaNumericComparator()));
         return tags;
     }
 
