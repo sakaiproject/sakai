@@ -1837,15 +1837,12 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         topicBean.canModerate = securityService.unlock(Permissions.MODERATE.label, siteRef);
 
         if (topic != null) {
-            topicBean.tags = topic.getTagIds().stream().map(tagId -> {
 
-                Optional<Tag> optTag = tagRepository.findById(tagId);
-                if (optTag.isPresent()) {
-                    return optTag.get();
-                } else {
-                    return null;
-                }
-            }).collect(Collectors.toList());
+            topicBean.tags = topic.getTagIds().stream()
+                    .map(tagRepository::findById)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .collect(Collectors.toList());
 
             topicStatusRepository.findByTopicIdAndUserId(topic.getId(), currentUserId)
                 .ifPresent(s -> {
@@ -2198,6 +2195,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         return tags;
     }
 
+    @Override
     public void deleteTag(Long tagId) throws ConversationsPermissionsException {
 
         getCheckedCurrentUserId();
@@ -2213,7 +2211,10 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
 
             tagRepository.deleteById(tagId);
 
-            topicRepository.findByTags_Id(tagId).forEach(t -> t.getTagIds().remove(tagId));
+            // Update the topics that were using this tag
+            List<ConversationsTopic> topicsToUpdate = topicRepository.findByTags_Id(tagId);
+            topicsToUpdate.forEach(t -> t.getTagIds().remove(tagId));
+            topicRepository.saveAll(topicsToUpdate);
         } else {
             throw new IllegalArgumentException("No tag with id " + tagId);
         }
