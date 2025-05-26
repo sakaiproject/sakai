@@ -24,6 +24,7 @@ export class SakaiRubricsList extends RubricsElement {
     _lastSortType: { state: true },
     _lastSortAscending: { state: true },
     _lastCreatedRubricId: { state: true },
+    _paginatedRubrics: { state: true },
   };
 
   constructor() {
@@ -32,8 +33,6 @@ export class SakaiRubricsList extends RubricsElement {
 
     this._currentPage = 1;
     this._itemsPerPage = 20;
-    this._searchTerm = "";
-    this._lastSortType = null;
     this._lastSortAscending = true;
   }
 
@@ -50,22 +49,38 @@ export class SakaiRubricsList extends RubricsElement {
     this._searchTerm = term;
     this._currentPage = 1;
     this._lastCreatedRubricId = null;
-    this._updatePagination();
-    this.requestUpdate();
+    this.repage();
   }
 
-  getFilteredRubrics() {
+  _getFilteredRubrics() {
 
     if (!this._rubrics) return [];
     if (!this._searchTerm) return this._rubrics;
     const term = this._searchTerm.toLowerCase();
     return this._rubrics.filter(r =>
-      (r.title && r.title.toLowerCase().includes(term)) ||
-      (r.siteTitle && r.siteTitle.toLowerCase().includes(term)) ||
-      (r.creatorDisplayName && r.creatorDisplayName.toLowerCase().includes(term)) ||
-      (this._lastCreatedRubricId && r.id === this._lastCreatedRubricId)
+      (r?.title.toLowerCase().includes(term)) ||
+      (r?.siteTitle.toLowerCase().includes(term)) ||
+      (r?.creatorDisplayName.toLowerCase().includes(term)) ||
+      (r.id === this?._lastCreatedRubricId)
     );
   }
+
+  _onPageSelected(e) {
+
+    this._currentPage = e.detail.page;
+    this.repage();
+  }
+
+  repage() {
+
+    const filteredRubrics = this._getFilteredRubrics();
+    const filteredRubricTotal = filteredRubrics.length;
+    this._totalPages = Math.ceil(filteredRubricTotal / this._itemsPerPage);
+    const start = (this._currentPage - 1) * this._itemsPerPage;
+    const end = start + this._itemsPerPage;
+    this._paginatedRubrics = filteredRubrics.slice(start, end);
+  }
+
 
   render() {
 
@@ -104,22 +119,7 @@ export class SakaiRubricsList extends RubricsElement {
     `;
   }
 
-  _onPageSelected(e) {
-
-    this._currentPage = e.detail.page;
-    this._updatePagination();
-  }
-
-  _updatePagination() {
-
-    const filteredRubrics = this.getFilteredRubrics();
-    this._totalRubrics = filteredRubrics.length;
-    this._totalPages = Math.ceil(this._totalRubrics / this._itemsPerPage);
-    const start = (this._currentPage - 1) * this._itemsPerPage;
-    const end = start + this._itemsPerPage;
-    this._paginatedRubrics = filteredRubrics.slice(start, end);
-  }
-
+  
   refresh() {
 
     this.getRubrics();
@@ -141,7 +141,7 @@ export class SakaiRubricsList extends RubricsElement {
     .then(rubrics => {
       this._rubrics = rubrics;
       this._currentPage = 1;
-      this._updatePagination();
+      this.repage();
     })
     .catch (error => console.error(error));
   }
@@ -164,14 +164,12 @@ export class SakaiRubricsList extends RubricsElement {
 
     this._lastCreatedRubricId = nr.id;
 
-    const filtered = this.getFilteredRubrics();
-    const idx = filtered.findIndex(r => r.id === nr.id);
-    if (idx !== -1) {
-      this._currentPage = Math.floor(idx / this._itemsPerPage) + 1;
+    const index = this._getFilteredRubrics().findIndex(r => r.id === nr.id);
+    if (index !== -1) {
+      this._currentPage = Math.floor(index / this._itemsPerPage) + 1;
     }
 
-    this._updatePagination();
-    this.requestUpdate();
+    this.repage();
   }
 
   _rubricDeleted(e) {
@@ -185,13 +183,10 @@ export class SakaiRubricsList extends RubricsElement {
 
     this.dispatchEvent(new SharingChangeEvent());
 
-    this._updatePagination();
     if (this._currentPage > this._totalPages) {
       this._currentPage = Math.max(1, this._totalPages);
-      this._updatePagination();
     }
-
-    this.requestUpdate();
+    this.repage();
   }
 
   cloneRubric(e) {
@@ -231,6 +226,7 @@ export class SakaiRubricsList extends RubricsElement {
   }
 
   sortRubrics(rubricType, ascending) {
+
     this._lastSortType = rubricType;
     this._lastSortAscending = ascending;
 
@@ -248,7 +244,6 @@ export class SakaiRubricsList extends RubricsElement {
         this._rubrics.sort((a, b) => ascending ? a.modified - b.modified : b.modified - a.modified);
         break;
     }
-    this._updatePagination();
-    this.requestUpdate("_rubrics");
+    this.repage();
   }
 }
