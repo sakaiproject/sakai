@@ -757,13 +757,7 @@ public class SiteAddParticipantHandler {
 							// not existed user, update account
 							updatedOfficialAccountParticipant.append(currentOfficialAccount).append("\n");
 						}
-					} else if (eidsForAllMatches.isEmpty()) {
-						// not valid user
-						targettedMessageList.addMessage(new TargettedMessage(
-								"java.username",
-								new Object[] {officialAccount},
-								TargettedMessage.SEVERITY_ERROR));
-					}
+cu
 				}
 			}
 		}
