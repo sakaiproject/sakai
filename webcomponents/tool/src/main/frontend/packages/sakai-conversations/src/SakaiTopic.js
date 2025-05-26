@@ -551,9 +551,9 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
         <div class="sak-banner-warn">${this._i18n.topic_groups_only_tooltip}</div>
         ` : nothing }
         <div class="topic-tags">
-          ${this.topic.tags?.map(tag => tag ? html`
+          ${this.topic.tags?.map(tag => html`
             <div class="tag">${tag.label}</div>
-          ` : nothing)}
+          `)}
         </div>
         <div class="author-and-tools">
           <div class="author-block">
