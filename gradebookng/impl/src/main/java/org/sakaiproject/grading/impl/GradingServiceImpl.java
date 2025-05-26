@@ -2308,8 +2308,11 @@ public class GradingServiceImpl implements GradingService {
             throw new GradingSecurityException();
         }
 
-        return getCategories(getGradebook(gradebookUid).getId())
-            .stream().map(ca -> buildCategoryDefinition(ca, siteId)).collect(Collectors.toList());
+        Long gradebookId = getGradebook(gradebookUid).getId();
+
+        return getCategories(gradebookId).stream()
+            .map(category -> buildCategoryDefinition(category, siteId))
+            .collect(Collectors.toList());
     }
 
     private CategoryDefinition buildCategoryDefinition(final Category category, final String siteId) {
