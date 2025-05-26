@@ -2325,7 +2325,7 @@ public class GradingServiceImpl implements GradingService {
             categoryDef.setDropLowest(category.getDropLowest());
             categoryDef.setDropHighest(category.getDropHighest());
             categoryDef.setKeepHighest(category.getKeepHighest());
-            categoryDef.setAssignmentList(getAssignmentsWithCategory(category.getGradebook().getUid(), siteId, category.getName()));
+            categoryDef.setAssignmentList(getAssignmentsWithCategory(category.getGradebook().getUid(), siteId, category.getId()));
             categoryDef.setDropKeepEnabled(category.isDropScores());
             categoryDef.setExtraCredit(category.getExtraCredit());
             categoryDef.setEqualWeight(category.getEqualWeightAssignments());
@@ -2551,14 +2551,28 @@ public class GradingServiceImpl implements GradingService {
      * shared GradebookAssignment object.
      *
      * @param gradebookUid
-     * @param categoryName
+     * @param siteId
+     * @param categoryId
      * @return
      */
-    private List<Assignment> getAssignmentsWithCategory(String gradebookUid, String siteId, String categoryName) {
+    private List<Assignment> getAssignmentsWithCategory(String gradebookUid, String siteId, Long categoryId) {
+        if (!isUserAbleToViewAssignments(siteId)) {
+            log.warn("AUTHORIZATION FAILURE: User {} in gradebook {} attempted to get assignments list", getUserUid(), gradebookUid);
+           throw new GradingSecurityException();
+        }
 
-        return getAssignments(gradebookUid, siteId, SortType.SORT_BY_NONE).stream()
-            .filter(a -> StringUtils.equals(a.getCategoryName(), categoryName))
-            .collect(Collectors.toList());
+        Gradebook gradebook = getGradebook(gradebookUid);
+        // Determine whether this gradebook uses Categories Only or Weighted Categories by checking category type.
+        // We will avoid adding any legacy category information on the individual gb items if the instructor is no
+        // longer using categories in the gradebook.
+        boolean gbUsesCategories = !Objects.equals(gradebook.getCategoryType(), GradingConstants.CATEGORY_TYPE_NO_CATEGORY);
+
+        List<GradebookAssignment> filtered = getAssignmentsByGradebookAndCategoryId(gradebook.getId(), categoryId);
+
+        return sortAssignments(filtered, SortType.SORT_BY_NONE, true)
+                   .stream()
+                   .map(ga -> getAssignmentDefinition(ga, gbUsesCategories))
+                   .collect(Collectors.toList());
     }
 
     /**
@@ -4549,6 +4563,10 @@ public class GradingServiceImpl implements GradingService {
 
     private List<GradebookAssignment> getAssignments(Long gradebookId) {
         return gradingPersistenceManager.getAssignmentsForGradebook(gradebookId);
+    }
+
+    private List<GradebookAssignment> getAssignmentsByGradebookAndCategoryId(Long gradebookId, Long categoryId) {
+        return gradingPersistenceManager.getAssignmentsForGradebookAndCategoryId(gradebookId, categoryId);
     }
 
     public String getGradebookUid(final Long id) {
