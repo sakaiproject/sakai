@@ -16,16 +16,7 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
   rubricIdToDelete = null;
   rubricTitleToDelete = null;
 
-  static properties = {
-
-    siteId: { attribute: "site-id", type: String },
-    isSuperUser: { attribute: "is-super-user", type: Boolean },
-
-    _rubrics: { state: true },
-    _currentPage: { state: true },
-    _itemsPerPage: { state: true },
-    _searchTerm: { state: true },
-  };
+  static properties = { isSuperUser: { attribute: "is-super-user", type: Boolean } };
 
   constructor() {
 
@@ -35,30 +26,6 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
       method: "PATCH",
       headers: { "Content-Type": "application/json-patch+json" },
     };
-    this._currentPage = 1;
-    this._itemsPerPage = 20;
-    this._searchTerm = "";
-    this.getSharedRubrics();
-  }
-
-  search(term) {
-
-    this._searchTerm = term;
-    this._currentPage = 1;
-    this._updatePagination();
-    this.requestUpdate();
-  }
-
-  getFilteredRubrics() {
-
-    if (!this._rubrics) return [];
-    if (!this._searchTerm) return this._rubrics;
-    const term = this._searchTerm.toLowerCase();
-    return this._rubrics.filter(r =>
-      (r.title && r.title.toLowerCase().includes(term)) ||
-      (r.siteTitle && r.siteTitle.toLowerCase().includes(term)) ||
-      (r.creatorDisplayName && r.creatorDisplayName.toLowerCase().includes(term))
-    );
   }
 
   render() {
@@ -76,7 +43,7 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
             @copy-to-site=${this.copyToSite}
             @delete-rubric=${this.showDeleteModal}
             @revoke-shared-rubric=${this.sharingChange}
-            ?enablePdfExport=${this.enablePdfExport}
+            ?enable-pdf-export=${this.enablePdfExport}
             ?is-super-user=${this.isSuperUser}>
         </sakai-rubric-readonly>
       `)}
@@ -107,28 +74,7 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
     `;
   }
 
-  _onPageSelected(e) {
-
-    this._currentPage = e.detail.page;
-    this._updatePagination();
-  }
-
-  _updatePagination() {
-
-    const filteredRubrics = this.getFilteredRubrics();
-    this._totalRubrics = filteredRubrics.length;
-    this._totalPages = Math.ceil(this._totalRubrics / this._itemsPerPage);
-    const start = (this._currentPage - 1) * this._itemsPerPage;
-    const end = start + this._itemsPerPage;
-    this._paginatedRubrics = filteredRubrics.slice(start, end);
-  }
-
-  refresh() {
-
-    this.getSharedRubrics();
-  }
-
-  getSharedRubrics() {
+  getRubrics() {
 
     const url = "/api/rubrics/shared";
     fetch(url)
@@ -212,24 +158,5 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
       }
     })
     .catch (error => console.error(error));
-  }
-
-  sortRubrics(rubricType, ascending) {
-
-    switch (rubricType) {
-      case rubricName:
-        this._rubrics.sort((a, b) => ascending ? a.title.localeCompare(b.title) : b.title.localeCompare(a.title));
-        break;
-      case rubricTitle:
-        this._rubrics.sort((a, b) => ascending ? a.siteTitle.localeCompare(b.siteTitle) : b.siteTitle.localeCompare(a.siteTitle));
-        break;
-      case rubricCreator:
-        this._rubrics.sort((a, b) => ascending ? a.creatorDisplayName.localeCompare(b.creatorDisplayName) : b.creatorDisplayName.localeCompare(a.creatorDisplayName));
-        break;
-      case rubricModified:
-        this._rubrics.sort((a, b) => ascending ? a.modified - b.modified : b.modified - a.modified);
-    }
-    this._updatePagination();
-    this.requestUpdate("_rubrics");
   }
 }
