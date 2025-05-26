@@ -61,7 +61,7 @@ public interface GradingPersistenceManager {
     void deleteAssignment(GradebookAssignment assignment);
     Optional<GradebookAssignment> getAssignmentByNameAndGradebook(String name, String gradebookUid);
     List<GradebookAssignment> getAssignmentsForGradebook(Long gradebookId);
-    List<GradebookAssignment> getAssignmentsForGradebookAndCategoryName(Long gradebookId, String categoryName);
+    List<GradebookAssignment> getAssignmentsForGradebookAndCategoryId(Long gradebookId, Long categoryId);
     List<GradebookAssignment> getAssignmentsForCategory(Long categoryId);
     Optional<GradebookAssignment> getAssignmentByIdAndGradebook(Long id, String gradebookUid);
     Optional<GradebookAssignment> getAssignmentById(Long id);

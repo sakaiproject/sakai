@@ -91,7 +91,7 @@ public class GradebookAssignmentRepositoryImpl extends SpringCrudRepositoryImpl<
     }
 
     @Transactional(readOnly = true)
-    public List<GradebookAssignment> findByGradebook_IdAndCategory_NameAndRemoved(Long gradebookId, String categoryName, Boolean removed) {
+    public List<GradebookAssignment> findByGradebook_IdAndCategory_IdAndRemoved(Long gradebookId, Long categoryId, Boolean removed) {
 
         Session session = sessionFactory.getCurrentSession();
         CriteriaBuilder cb = session.getCriteriaBuilder();
@@ -102,10 +102,10 @@ public class GradebookAssignmentRepositoryImpl extends SpringCrudRepositoryImpl<
         Join<GradebookAssignment, Category> cat = ga.join("category");
 
         Predicate byGradebook = cb.equal(gb.get("id"), gradebookId);
-        Predicate byCategoryName = cb.equal(cat.get("name"), categoryName);
+        Predicate byCategoryId = cb.equal(cat.get("id"), categoryId);
         Predicate byRemoved = cb.equal(ga.get("removed"), removed);
 
-        query.where(cb.and(byGradebook, byCategoryName, byRemoved));
+        query.where(cb.and(byGradebook, byCategoryId, byRemoved));
 
         return session.createQuery(query).list();
     }

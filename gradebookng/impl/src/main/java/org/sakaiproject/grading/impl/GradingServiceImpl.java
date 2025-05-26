@@ -2322,7 +2322,7 @@ public class GradingServiceImpl implements GradingService {
             categoryDef.setDropLowest(category.getDropLowest());
             categoryDef.setDropHighest(category.getDropHighest());
             categoryDef.setKeepHighest(category.getKeepHighest());
-            categoryDef.setAssignmentList(getAssignmentsWithCategory(category.getGradebook().getUid(), siteId, category.getName()));
+            categoryDef.setAssignmentList(getAssignmentsWithCategory(category.getGradebook().getUid(), siteId, category.getId()));
             categoryDef.setDropKeepEnabled(category.isDropScores());
             categoryDef.setExtraCredit(category.getExtraCredit());
             categoryDef.setEqualWeight(category.getEqualWeightAssignments());
@@ -2549,10 +2549,10 @@ public class GradingServiceImpl implements GradingService {
      *
      * @param gradebookUid
      * @param siteId
-     * @param categoryName
+     * @param categoryId
      * @return
      */
-    private List<Assignment> getAssignmentsWithCategory(String gradebookUid, String siteId, String categoryName) {
+    private List<Assignment> getAssignmentsWithCategory(String gradebookUid, String siteId, Long categoryId) {
         if (!isUserAbleToViewAssignments(siteId)) {
             log.warn("AUTHORIZATION FAILURE: User {} in gradebook {} attempted to get assignments list", getUserUid(), gradebookUid);
            throw new GradingSecurityException();
@@ -2564,7 +2564,7 @@ public class GradingServiceImpl implements GradingService {
         // longer using categories in the gradebook.
         boolean gbUsesCategories = !Objects.equals(gradebook.getCategoryType(), GradingConstants.CATEGORY_TYPE_NO_CATEGORY);
 
-        List<GradebookAssignment> filtered = getAssignmentsByGradebookAndCategoryName(gradebook.getId(), categoryName);
+        List<GradebookAssignment> filtered = getAssignmentsByGradebookAndCategoryId(gradebook.getId(), categoryId);
 
         return sortAssignments(filtered, SortType.SORT_BY_NONE, true)
                    .stream()
@@ -4562,8 +4562,8 @@ public class GradingServiceImpl implements GradingService {
         return gradingPersistenceManager.getAssignmentsForGradebook(gradebookId);
     }
 
-    private List<GradebookAssignment> getAssignmentsByGradebookAndCategoryName(Long gradebookId, String categoryName) {
-        return gradingPersistenceManager.getAssignmentsForGradebookAndCategoryName(gradebookId, categoryName);
+    private List<GradebookAssignment> getAssignmentsByGradebookAndCategoryId(Long gradebookId, Long categoryId) {
+        return gradingPersistenceManager.getAssignmentsForGradebookAndCategoryId(gradebookId, categoryId);
     }
 
     public String getGradebookUid(final Long id) {
