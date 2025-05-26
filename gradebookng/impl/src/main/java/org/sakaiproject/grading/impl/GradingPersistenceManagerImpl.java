@@ -163,6 +163,10 @@ public class GradingPersistenceManagerImpl implements GradingPersistenceManager 
         return gradebookAssignmentRepository.findByGradebook_IdAndRemoved(gradebookId, false);
     }
 
+    public List<GradebookAssignment> getAssignmentsForGradebookAndCategoryId(Long gradebookId, Long categoryId) {
+        return gradebookAssignmentRepository.findByGradebook_IdAndCategory_IdAndRemoved(gradebookId, categoryId, false);
+    }
+
     public List<GradebookAssignment> getAssignmentsForCategory(Long categoryId) {
         return gradebookAssignmentRepository.findByCategory_IdAndRemoved(categoryId, false);
     }
