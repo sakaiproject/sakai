@@ -1507,7 +1507,9 @@ public class DateManagerServiceImpl implements DateManagerService {
 				}
 				aobj.put(DateManagerConstants.JSON_TOOLTITLE_PARAM_NAME, toolTitle);
 				aobj.put(DateManagerConstants.JSON_URL_PARAM_NAME, url + "?itemReference=" + formattedText.escapeUrl(announcement.getReference()) + "&panel=Main&sakai_action=doShowmetadata&sakai.state.reset=true");
-				aobj.put(DateManagerConstants.JSON_EXTRAINFO_PARAM_NAME, "false");
+				String extraInfo = "false";
+				if (header.getDraft()) extraInfo = resourceLoader.getString("itemtype.draft");
+				aobj.put(DateManagerConstants.JSON_EXTRAINFO_PARAM_NAME, extraInfo);
 				jsonAnnouncements.add(aobj);
 			}
 		} catch (Exception e) {
