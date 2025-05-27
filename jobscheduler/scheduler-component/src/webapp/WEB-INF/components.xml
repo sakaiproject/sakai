@@ -335,7 +335,7 @@
         <property name="courseSiteRemovalService"  ><ref bean="org.sakaiproject.coursemanagement.api.CourseSiteRemovalService"/></property>
         <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"   /></property>
         <property name="sessionManager"            ><ref bean="org.sakaiproject.tool.api.SessionManager"                    /></property>
-
+        <property name="eventTrackingService"      ><ref bean="org.sakaiproject.event.api.EventTrackingService"             /></property>
     </bean>
 
 
@@ -356,6 +356,7 @@
         <property name="courseSitePublishService"  ><ref bean="org.sakaiproject.coursemanagement.api.CourseSitePublishService"/></property>
         <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"   /></property>
         <property name="sessionManager"            ><ref bean="org.sakaiproject.tool.api.SessionManager"                    /></property>
+        <property name="eventTrackingService"      ><ref bean="org.sakaiproject.event.api.EventTrackingService"             /></property>
     </bean>
 
     <!-- Hide LB-CSS folder from access user-->

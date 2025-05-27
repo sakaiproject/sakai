@@ -51,7 +51,6 @@ public class CourseSitePublishJob implements StatefulJob {
    private EventTrackingService eventTrackingService;
    private ServerConfigurationService serverConfigurationService;
    private SessionManager sessionManager;
-   private SiteService siteService;
 
    // data members
    private int numDaysBeforeTermStarts;    // number of days before a term starts when course sites will be published and made available to students enrolled in the course.
@@ -113,8 +112,7 @@ public class CourseSitePublishJob implements StatefulJob {
                log.info("{} course sites were published.", publishedSiteIds.size());
 
                for (String siteId : publishedSiteIds) {
-                  String siteReference = siteService.siteReference(siteId);
-                  eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_SITE_PUBLISH, siteReference, true));
+                  eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_SITE_PUBLISH, siteId, true));
                }
             } catch (Exception ex) {
                log.error("Error while publishing course sites: {}", ex.toString());

@@ -52,7 +52,6 @@ public class CourseSiteRemovalJob implements StatefulJob {
    private EventTrackingService eventTrackingService;
    private ServerConfigurationService serverConfigurationService;
    private SessionManager sessionManager;
-   private SiteService siteService;
    private CourseSiteRemovalService.Action action;                  // action to be taken when a course site is found to be expired.
    private int numDaysAfterTermEnds;    // number of days after a term ends when course sites expire.
 
@@ -131,8 +130,7 @@ public class CourseSiteRemovalJob implements StatefulJob {
                   SiteService.SECURE_REMOVE_SITE : SiteService.EVENT_SITE_UNPUBLISH;
 
                for (String siteId : removedSiteIds) {
-                  String siteReference = siteService.siteReference(siteId);
-                  eventTrackingService.post(eventTrackingService.newEvent(eventType, siteReference, true));
+                  eventTrackingService.post(eventTrackingService.newEvent(eventType, siteId, true));
                }
             } catch (Exception ex) {
                log.error("Error while removing course sites: {}", ex.toString());
