@@ -604,7 +604,7 @@ export class SakaiConversations extends SakaiElement {
                 <div>${this._i18n.back}</div>
               </a>
             </div>
-            ${this._state === STATE_STATISTICS ? this._renderStatistics() : html`
+            ${this._state === STATE_STATISTICS ? nothing : html`
               <div id="conv-settings">
                 <ul>
                 ${this._renderSettingsMenu()}
