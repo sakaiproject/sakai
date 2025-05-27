@@ -1839,9 +1839,8 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         if (topic != null) {
 
             topicBean.tags = topic.getTagIds().stream()
-                    .map(tagRepository::findById)
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
+                    .map(id -> tagRepository.findById(id).orElse(null))
+                    .filter(Objects::nonNull)
                     .collect(Collectors.toList());
 
             topicStatusRepository.findByTopicIdAndUserId(topic.getId(), currentUserId)
