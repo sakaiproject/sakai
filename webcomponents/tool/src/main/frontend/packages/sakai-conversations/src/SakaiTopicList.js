@@ -61,7 +61,7 @@ export class SakaiTopicList extends SakaiElement {
 
     value.topics.forEach(topic => {
       (topic.tags || []).forEach(tag => {
-        if (tag != null && tag.id != null && !this._tagsInUse.some(e => e?.id === tag.id)) {
+        if (tag?.id && !this._tagsInUse.some(e => e?.id === tag.id)) {
           this._tagsInUse.push(tag);
         }
       });
