@@ -138,7 +138,7 @@ public class CourseSitePublishServiceImpl extends HibernateDaoSupport implements
                      // if set to auto publish or unset default publish the site
                      if (publishTypeProperty == null || CourseManagementConstants.SITE_PUBLISH_TYPE_AUTO.equals(publishTypeProperty)) {
                            // publish the course site
-                           log.debug("publishing course site {} ({}).", site.getTitle(), site.getId());
+                           log.info("publishing course site {} ({}).", site.getTitle(), site.getId());
                            if (publishTypeProperty == null) {
                               // Set to auto for future
                               siteProperties.addProperty(CourseManagementConstants.SITE_PUBLISH_TYPE, CourseManagementConstants.SITE_PUBLISH_TYPE_AUTO);

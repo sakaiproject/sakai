@@ -206,12 +206,12 @@ public class CourseSiteRemovalServiceImpl extends HibernateDaoSupport implements
                 // check permissions
                 if (action == CourseSiteRemovalService.Action.remove) {
                     // remove the course site
-                    log.debug("{} removing course site {} ({}).", action, site.getTitle(), site.getId());
+                    log.info("{} removing course site {} ({}).", action, site.getTitle(), site.getId());
                     siteService.removeSite(site);
                     numSitesRemoved++;
                 } else {
                     // unpublish the course site (default)
-                    log.debug("unpublishing course site {}", siteId);
+                    log.info("unpublishing course site {}", siteId);
 
                     if (silentlyUnpublish) {
                         toUnpublish.add(siteId);
