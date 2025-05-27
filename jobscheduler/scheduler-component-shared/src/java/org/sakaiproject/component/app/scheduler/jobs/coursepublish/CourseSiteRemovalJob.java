@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.component.app.scheduler.jobs.coursepublish;
 
+import java.util.List;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +27,8 @@ import org.quartz.StatefulJob;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.coursemanagement.api.CourseSiteRemovalService;
+import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 
@@ -45,8 +49,10 @@ public class CourseSiteRemovalJob implements StatefulJob {
 
    // sakai services
    private CourseSiteRemovalService courseSiteRemovalService;
+   private EventTrackingService eventTrackingService;
    private ServerConfigurationService serverConfigurationService;
    private SessionManager sessionManager;
+   private SiteService siteService;
    private CourseSiteRemovalService.Action action;                  // action to be taken when a course site is found to be expired.
    private int numDaysAfterTermEnds;    // number of days after a term ends when course sites expire.
 
@@ -118,8 +124,16 @@ public class CourseSiteRemovalJob implements StatefulJob {
                Session sakaiSesson = sessionManager.getCurrentSession();
                sakaiSesson.setUserId("admin");
 
-               int numSitesRemoved = courseSiteRemovalService.removeCourseSites(action, numDaysAfterTermEnds);
-               log.info("removeCourseSites: {} {}", numSitesRemoved, actionStr);
+               List<String> removedSiteIds = courseSiteRemovalService.removeCourseSites(action, numDaysAfterTermEnds);
+               log.info("removeCourseSites: {} {}", removedSiteIds.size(), actionStr);
+
+               String eventType = CourseSiteRemovalService.Action.remove.equals(action) ? 
+                  SiteService.SECURE_REMOVE_SITE : SiteService.EVENT_SITE_UNPUBLISH;
+
+               for (String siteId : removedSiteIds) {
+                  String siteReference = siteService.siteReference(siteId);
+                  eventTrackingService.post(eventTrackingService.newEvent(eventType, siteReference, true));
+               }
             } catch (Exception ex) {
                log.error("Error while removing course sites: {}", ex.toString());
             }

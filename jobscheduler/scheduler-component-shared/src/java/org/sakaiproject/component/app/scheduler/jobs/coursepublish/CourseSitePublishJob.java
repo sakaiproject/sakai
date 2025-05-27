@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.component.app.scheduler.jobs.coursepublish;
 
+import java.util.List;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +27,8 @@ import org.quartz.StatefulJob;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.coursemanagement.api.CourseSitePublishService;
+import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 
@@ -44,8 +48,10 @@ public class CourseSitePublishJob implements StatefulJob {
 
    // sakai services
    private CourseSitePublishService   courseSitePublishService;
+   private EventTrackingService eventTrackingService;
    private ServerConfigurationService serverConfigurationService;
    private SessionManager sessionManager;
+   private SiteService siteService;
 
    // data members
    private int numDaysBeforeTermStarts;    // number of days before a term starts when course sites will be published and made available to students enrolled in the course.
@@ -103,8 +109,13 @@ public class CourseSitePublishJob implements StatefulJob {
                Session sakaiSesson = sessionManager.getCurrentSession();
                sakaiSesson.setUserId("admin");
 
-               int numSitesPublished = courseSitePublishService.publishCourseSites(numDaysBeforeTermStarts);
-                log.info("{} course sites were published.", numSitesPublished);
+               List<String> publishedSiteIds = courseSitePublishService.publishCourseSites(numDaysBeforeTermStarts);
+               log.info("{} course sites were published.", publishedSiteIds.size());
+
+               for (String siteId : publishedSiteIds) {
+                  String siteReference = siteService.siteReference(siteId);
+                  eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_SITE_PUBLISH, siteReference, true));
+               }
             } catch (Exception ex) {
                log.error("Error while publishing course sites: {}", ex.toString());
             }
