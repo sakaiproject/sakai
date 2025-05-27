@@ -188,7 +188,7 @@ export class SakaiAddTopic extends SakaiElement {
 
     !this.topic.tags && (this.topic.tags = []);
 
-    const existingIndex = this.topic.tags.findIndex(t => t && t.id == tagId);
+    const existingIndex = this.topic.tags.findIndex(t => t?.id == tagId);
     if (existingIndex !== -1) {
       this.topic.tags.splice(existingIndex, 1);
     } else {
