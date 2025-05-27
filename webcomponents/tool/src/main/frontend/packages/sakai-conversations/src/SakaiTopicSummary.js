@@ -113,7 +113,6 @@ export class SakaiTopicSummary extends SakaiElement {
           <div class="topic-tags">
           ${this.topic.tags?.map(tag => tag && tag.label ? html`
             <div class="tag"><div>${tag.label}</div></div>
-          ` : nothing)}
           </div>
 
           <div>
