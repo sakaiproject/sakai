@@ -79,7 +79,7 @@ public class ConversationsTopic implements PersistableEntity<String> {
     @ElementCollection
     @CollectionTable(name = "CONV_TOPIC_TAGS",
                      joinColumns = @JoinColumn(name = "TOPIC_ID"),
-                     uniqueConstraints = @UniqueConstraint(columnNames = {"TOPIC_ID", "TAG"}))
+                     uniqueConstraints = @UniqueConstraint(name="UK_TOPIC_TAG", columnNames = {"TOPIC_ID", "TAG"}))
     @Column(name = "TAG")
     private Set<Long> tagIds = new HashSet<>();
 
