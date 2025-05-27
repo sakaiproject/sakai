@@ -463,7 +463,7 @@ export class SakaiAddTopic extends SakaiElement {
           <div id="tag-post-label" class="add-topic-label">${this._i18n.tag_topic}</div>
           ${this.tags.length > 0 ? html`
           <select @change="${this._setSelectedTagId}" aria-labelledby="tag-post-label">
-            ${this.tags.filter(t => t).map(tag => html`
+            ${this.tags.map(tag => html`
             <option value="${tag.id}">${tag.label}</option>
             `)}
           </select>
@@ -479,7 +479,7 @@ export class SakaiAddTopic extends SakaiElement {
           </span>
           ` : nothing}
           <div id="tags">
-          ${this.topic.tags?.filter(tag => tag).map(tag => html`
+          ${this.topic.tags?.map(tag => html`
             <div class="tag">
               <div>${tag.label}</div>
               <a href="javascript:;" data-tag-id="${tag.id}" @click=${this._removeTag} aria-label="${this._i18n.remove} ${tag.label}">
