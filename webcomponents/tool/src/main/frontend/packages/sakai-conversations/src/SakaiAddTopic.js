@@ -192,10 +192,8 @@ export class SakaiAddTopic extends SakaiElement {
     if (existingIndex !== -1) {
       this.topic.tags.splice(existingIndex, 1);
     } else {
-      const tag = this.tags.find(t => t && t.id == tagId);
-      if (tag) {
-        this.topic.tags.push(tag);
-      }
+      const tag = this.tags.find(t => t?.id == tagId);
+      tag && this.topic.tags.push(tag);
     }
 
     this._saveWip();
