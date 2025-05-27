@@ -28,6 +28,7 @@ import org.quartz.StatefulJob;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.coursemanagement.api.CourseSiteRemovalService;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
@@ -130,7 +131,7 @@ public class CourseSiteRemovalJob implements StatefulJob {
                   SiteService.SECURE_REMOVE_SITE : SiteService.EVENT_SITE_UNPUBLISH;
 
                for (String siteId : removedSiteIds) {
-                  eventTrackingService.post(eventTrackingService.newEvent(eventType, siteId, true));
+                  eventTrackingService.post(eventTrackingService.newEvent(eventType, "/site/" + siteId, siteId, true, NotificationService.NOTI_OPTIONAL));
                }
             } catch (Exception ex) {
                log.error("Error while removing course sites: {}", ex.toString());

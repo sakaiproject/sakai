@@ -28,6 +28,7 @@ import org.quartz.StatefulJob;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.coursemanagement.api.CourseSitePublishService;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
@@ -112,7 +113,7 @@ public class CourseSitePublishJob implements StatefulJob {
                log.info("{} course sites were published.", publishedSiteIds.size());
 
                for (String siteId : publishedSiteIds) {
-                  eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_SITE_PUBLISH, siteId, true));
+                  eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_SITE_PUBLISH, "/site/" + siteId, siteId,true, NotificationService.NOTI_OPTIONAL));
                }
             } catch (Exception ex) {
                log.error("Error while publishing course sites: {}", ex.toString());
