@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.coursemanagement.api;
 
+import java.util.List;
+
 
 /**
  * sakai service for removing\\unpublishing course sites whose terms have ended.
@@ -51,7 +53,7 @@ public interface CourseSiteRemovalService {
     * @param action                 whether to delete the course site or to simply unpublish it.
     * @param numDaysAfterTermEnds   number of days after a term ends when course sites expire.
     * </br></br>
-    * @return the number of course sites that were removed\\unpublished.
+    * @return the list of course site IDs that were removed\\unpublished.
     */
-   public int removeCourseSites(Action action, int numDaysAfterTermEnds);
+   public List<String> removeCourseSites(Action action, int numDaysAfterTermEnds);
 }
