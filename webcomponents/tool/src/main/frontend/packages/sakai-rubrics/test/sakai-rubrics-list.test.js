@@ -1,6 +1,6 @@
 import "../sakai-rubrics-list.js";
 import * as data from "./data.js";
-import { elementUpdated, expect, fixture, html, oneEvent, waitUntil } from "@open-wc/testing";
+import { elementUpdated, expect, fixture, html, waitUntil } from "@open-wc/testing";
 import fetchMock from "fetch-mock/esm/client";
 
 fetchMock
@@ -90,12 +90,7 @@ describe("sakai-rubrics-list pagination", () => {
     await elementUpdated(el);
     // Simulate create
     const newRubric = { ...data.rubric1, id: "26", title: "Rubric 26" };
-    el._rubrics.push(newRubric);
-    el._lastCreatedRubricId = "26";
-    // Simulate createRubricResponse logic
-    let idx = el.getFilteredRubrics().findIndex(r => r.id === "26");
-    el._currentPage = Math.floor(idx / el._itemsPerPage) + 1;
-    el._updatePagination();
+    el.createRubricResponse(newRubric);
     await elementUpdated(el);
     expect(el._currentPage).to.equal(2);
     expect(el._paginatedRubrics.some(r => r.id === "26")).to.be.true;
@@ -114,11 +109,7 @@ describe("sakai-rubrics-list pagination", () => {
     await elementUpdated(el);
     // Simulate duplicate
     const duplicated = { ...data.rubric1, id: "27", title: "Rubric 27" };
-    el._rubrics.push(duplicated);
-    el._lastCreatedRubricId = "27";
-    let idx = el.getFilteredRubrics().findIndex(r => r.id === "27");
-    el._currentPage = Math.floor(idx / el._itemsPerPage) + 1;
-    el._updatePagination();
+    el.createRubricResponse(duplicated);
     await elementUpdated(el);
     expect(el._currentPage).to.equal(2);
     expect(el._paginatedRubrics.some(r => r.id === "27")).to.be.true;

@@ -120,7 +120,7 @@ export class SakaiRubricsManager extends RubricsElement {
               ?enable-pdf-export=${this.enablePdfExport}>
           </sakai-rubrics-list>
         </div>
-      
+
         <hr>
         <h3>${this.tr("public_rubrics_title")}</h3>
         <p>${this.tr("public_rubrics_info")}</p>

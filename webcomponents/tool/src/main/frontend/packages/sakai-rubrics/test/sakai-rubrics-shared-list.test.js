@@ -1,7 +1,7 @@
 import "../sakai-rubrics-list.js";
 import "../sakai-rubrics-shared-list.js";
 import * as data from "./data.js";
-import { elementUpdated, expect, fixture, html, oneEvent, waitUntil } from "@open-wc/testing";
+import { elementUpdated, expect, fixture, html, waitUntil } from "@open-wc/testing";
 import fetchMock from "fetch-mock/esm/client";
 
 // Patch Bootstrap Modal for test environment

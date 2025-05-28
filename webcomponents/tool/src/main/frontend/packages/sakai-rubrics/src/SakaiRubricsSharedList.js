@@ -6,11 +6,6 @@ import { SakaiRubricsHelpers } from "./SakaiRubricsHelpers.js";
 import { SakaiRubricsList } from "./SakaiRubricsList.js";
 import { SharingChangeEvent } from "./SharingChangeEvent.js";
 
-const rubricName = "name";
-const rubricTitle = "title";
-const rubricCreator = "creator";
-const rubricModified = "modified";
-
 export class SakaiRubricsSharedList extends SakaiRubricsList {
 
   rubricIdToDelete = null;
@@ -26,6 +21,27 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
       method: "PATCH",
       headers: { "Content-Type": "application/json-patch+json" },
     };
+  }
+
+  connectedCallback() {
+    super.connectedCallback && super.connectedCallback();
+    this.getSharedRubrics();
+  }
+
+  _onPageSelected(e) {
+
+    this._currentPage = e.detail.page;
+    this.repage();
+  }
+
+  repage() {
+
+    const filteredRubrics = this._getFilteredRubrics();
+    const filteredRubricTotal = filteredRubrics.length;
+    this._totalPages = Math.ceil(filteredRubricTotal / this._itemsPerPage);
+    const start = (this._currentPage - 1) * this._itemsPerPage;
+    const end = start + this._itemsPerPage;
+    this._paginatedRubrics = filteredRubrics.slice(start, end);
   }
 
   render() {
@@ -74,7 +90,12 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
     `;
   }
 
-  getRubrics() {
+  refresh() {
+
+    this.getSharedRubrics();
+  }
+
+  getSharedRubrics() {
 
     const url = "/api/rubrics/shared";
     fetch(url)
@@ -88,7 +109,7 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
     .then(rubrics => {
       this._rubrics = rubrics;
       this._currentPage = 1;
-      this._updatePagination();
+      this.repage();
     })
     .catch (error => console.error(error));
   }
@@ -126,10 +147,10 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
 
       this._rubrics = this._rubrics.filter(rubric => rubric.id !== this.rubricIdToDelete);
 
-      this._updatePagination();
+      this.repage();
       if (this._currentPage > this._totalPages) {
         this._currentPage = Math.max(1, this._totalPages);
-        this._updatePagination();
+        this.repage();
       }
 
       this.requestUpdate();
