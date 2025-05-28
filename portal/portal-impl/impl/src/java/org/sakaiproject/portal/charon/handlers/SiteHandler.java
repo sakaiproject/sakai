@@ -656,7 +656,7 @@ public class SiteHandler extends WorksiteHandler
 		} else if (StringUtils.equals(site.getProperties().getProperty("publish_type"), "auto")) {	// automatically-managed publishing
 			try {
 				if (courseManagementService.getAcademicSession(site.getProperties().getProperty("term_eid")).getStartDate() != null) {
-					long leadtime = serverConfigurationService.getInt("course_site_publish_service.num_days_before_term_starts", 14) * 1000L * 60L * 60L * 24L;
+					long leadtime = serverConfigurationService.getInt("course_site_publish_service.num_days_before_term_starts", 0) * 1000L * 60L * 60L * 24L;
 					Date publishDate = new Date(courseManagementService.getAcademicSession(site.getProperties().getProperty("term_eid")).getStartDate().getTime() - leadtime);
 					if (publishDate.toInstant().isAfter(Instant.now())) {
 						rcontext.put("scheduledate", userTimeService.dateFormat(publishDate, rb.getLocale(), DateFormat.LONG));

@@ -2666,7 +2666,7 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("authAllowed", serverConfigurationService.getBoolean("sitemanage.grant.auth", false));
 			context.put("anonAllowed", serverConfigurationService.getBoolean("sitemanage.grant.anon", false));
 
-			int daysbefore = serverConfigurationService.getInt("course_site_publish_service.num_days_before_term_starts", 14);
+			int daysbefore = serverConfigurationService.getInt("course_site_publish_service.num_days_before_term_starts", 0);
 			int daysafter = serverConfigurationService.getInt("course_site_removal_service.num_days_after_term_ends", 14);
 			if(daysbefore > 0){
 				context.put("daysbefore", daysbefore);
@@ -7312,7 +7312,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			}
 
 			if (SITE_PUBLISH_TYPE_AUTO.equals(sitePublishType)) {
-				Date termstart = new Date(courseManagementService.getAcademicSession(rp.getProperty(Site.PROP_SITE_TERM_EID)).getStartDate().getTime() + (ONE_DAY_IN_MS * serverConfigurationService.getInt("course_site_publish_service.num_days_before_term_starts", 14)));
+				Date termstart = new Date(courseManagementService.getAcademicSession(rp.getProperty(Site.PROP_SITE_TERM_EID)).getStartDate().getTime() + (ONE_DAY_IN_MS * serverConfigurationService.getInt("course_site_publish_service.num_days_before_term_starts", 0)));
 				Date termend = new Date(courseManagementService.getAcademicSession(rp.getProperty(Site.PROP_SITE_TERM_EID)).getEndDate().getTime() + (ONE_DAY_IN_MS * serverConfigurationService.getInt("course_site_removal_service.num_days_after_term_ends", 14)));
 				if(Instant.now().isAfter(termstart.toInstant()) && Instant.now().isBefore(termend.toInstant())) {
 					site.setPublished(true);
@@ -9724,7 +9724,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		boolean currentSitePublished = sEdit != null && sEdit.isPublished();
 
 		boolean include = state.getAttribute(STATE_SITE_ACCESS_INCLUDE) != null && (Boolean) state.getAttribute(STATE_SITE_ACCESS_INCLUDE);
-		int daysbefore = serverConfigurationService.getInt("course_site_publish_service.num_days_before_term_starts", 14);
+		int daysbefore = serverConfigurationService.getInt("course_site_publish_service.num_days_before_term_starts", 0);
 		int daysafter = serverConfigurationService.getInt("course_site_removal_service.num_days_after_term_ends", 14);
 		if (sEdit != null) {
 			// editing existing site
@@ -12613,7 +12613,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				addAlert(state, rb.getString("ediacc.errorparse"));
 			}
 		} else if(StringUtils.equals(siteInfo.properties.getProperty(SITE_PUBLISH_TYPE), SITE_PUBLISH_TYPE_AUTO)){
-			int daysbefore = serverConfigurationService.getInt("course_site_publish_service.num_days_before_term_starts", 14);
+			int daysbefore = serverConfigurationService.getInt("course_site_publish_service.num_days_before_term_starts", 0);
 			int daysafter = serverConfigurationService.getInt("course_site_removal_service.num_days_after_term_ends", 14);
 			siteInfo.published = false;
 			Date publishingDate = new Date(courseManagementService.getAcademicSession(siteInfo.term).getStartDate().getTime() - (ONE_DAY_IN_MS * daysbefore));
