@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.component.app.scheduler.jobs.coursepublish;
 
+import java.util.List;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -26,6 +28,9 @@ import org.quartz.StatefulJob;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.coursemanagement.api.CourseSitePublishService;
+import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 
@@ -43,6 +48,7 @@ public class CourseSitePublishJob implements StatefulJob {
 
    // sakai services
    private CourseSitePublishService   courseSitePublishService;
+   private EventTrackingService eventTrackingService;
    private ServerConfigurationService serverConfigurationService;
    private SessionManager sessionManager;
 
@@ -81,8 +87,12 @@ public class CourseSitePublishJob implements StatefulJob {
                Session sakaiSesson = sessionManager.getCurrentSession();
                sakaiSesson.setUserId("admin");
 
-               int numSitesPublished = courseSitePublishService.publishCourseSites(numDaysBeforeTermStarts);
-                log.info("{} course sites were published.", numSitesPublished);
+               List<String> publishedSiteIds = courseSitePublishService.publishCourseSites(numDaysBeforeTermStarts);
+               log.info("{} course sites were published.", publishedSiteIds.size());
+
+               for (String siteId : publishedSiteIds) {
+                  eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_SITE_PUBLISH, "/site/" + siteId, siteId,true, NotificationService.NOTI_OPTIONAL));
+               }
             } catch (Exception ex) {
                log.error("Error while publishing course sites: {}", ex.toString());
             }
