@@ -5,15 +5,5 @@
 
     <!-- PAC4J configuration for CAS and SAML authentication -->
     <import resource="xlogin-context.pac4j.xml" />
-
-    <!-- Legacy configurations - commented out, replaced by PAC4J -->
-    <!-- Sample configuration for SAML -->
-    <!-- import resource="xlogin-context.saml.xml" / -->
-
-    <!-- Sample configuration for SAML with ADFS IdP -->
-    <!-- import resource="xlogin-context.saml.adfs-prod.xml" / -->
-
-    <!-- Sample configuration for CAS authentication -->
-    <!-- import resource="xlogin-context.cas3.xml" / -->
 </beans>
 

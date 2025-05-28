@@ -24,8 +24,9 @@ The login tool has been updated to use PAC4J instead of:
 
 ### Spring Context
 - **New**: `xlogin-context.pac4j.xml` - Unified PAC4J configuration
-- **Deprecated**: `xlogin-context.cas.xml` - Legacy CAS configuration
-- **Deprecated**: `xlogin-context.saml.xml` - Legacy SAML configuration
+- **Removed**: `xlogin-context.cas.xml` - Legacy CAS configuration
+- **Removed**: `xlogin-context.cas3.xml` - Legacy CAS3 configuration  
+- **Removed**: `xlogin-context.saml.xml` - Legacy SAML configuration
 
 ### Properties Configuration
 PAC4J uses property-based configuration instead of XML beans:
@@ -45,22 +46,24 @@ sakai.login.saml.entity.id=SakaiSAMLApp
 
 ### Removed Classes
 - `SakaiCasAuthenticationFilter` - Replaced by `SakaiPac4jAuthenticationFilter`
+- `SakaiLogoutSamlFilter` - Replaced by `SakaiPac4jLogoutHandler`
 - `SHA256SAMLBootstrap` - No longer needed with PAC4J SAML
 
 ### New Classes
 - `Pac4jConfig` - Main PAC4J configuration
 - `SakaiPac4jAuthenticationFilter` - PAC4J authentication integration
 - `SakaiPac4jLogoutHandler` - PAC4J logout integration
+- `SakaiPac4jEntryPoint` - PAC4J authentication entry point
+- `SakaiPac4jAuthenticationProvider` - Spring Security authentication provider
 
 ### Preserved Classes
-- `SakaiLogoutSamlFilter` - Still used as base logout handler
 - `SafeDelegatingFilterProxy` - General purpose filter proxy
 
 ## Migration Steps
 
 1. **Update sakai.properties** with PAC4J configuration properties
 2. **Update applicationContext.xml** to import `xlogin-context.pac4j.xml`
-3. **Remove or comment out** old CAS/SAML context imports
+3. **Remove all old CAS/SAML context files** - they have been completely removed
 4. **Test authentication flows** for both CAS and SAML
 5. **Update documentation** and deployment guides
 
