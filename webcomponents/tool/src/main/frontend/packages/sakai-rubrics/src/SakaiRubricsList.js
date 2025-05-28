@@ -81,7 +81,6 @@ export class SakaiRubricsList extends RubricsElement {
     this._paginatedRubrics = filteredRubrics.slice(start, end);
   }
 
-
   render() {
 
     if (!this._rubrics) {
@@ -119,7 +118,6 @@ export class SakaiRubricsList extends RubricsElement {
     `;
   }
 
-  
   refresh() {
 
     this.getRubrics();
@@ -183,10 +181,13 @@ export class SakaiRubricsList extends RubricsElement {
 
     this.dispatchEvent(new SharingChangeEvent());
 
+    this.repage();
     if (this._currentPage > this._totalPages) {
       this._currentPage = Math.max(1, this._totalPages);
+      this.repage();
     }
-    this.repage();
+
+    this.requestUpdate();
   }
 
   cloneRubric(e) {
