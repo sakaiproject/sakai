@@ -3,6 +3,10 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
+    <!-- PAC4J configuration for CAS and SAML authentication -->
+    <import resource="xlogin-context.pac4j.xml" />
+
+    <!-- Legacy configurations - commented out, replaced by PAC4J -->
     <!-- Sample configuration for SAML -->
     <!-- import resource="xlogin-context.saml.xml" / -->
 

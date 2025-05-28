@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans xmlns="http://www.springframework.org/schema/beans" 
+       xmlns:security="http://www.springframework.org/schema/security"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd
+                        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!-- Enable auto-wiring -->
+    <context:annotation-config/>
+
+    <!-- Scan for PAC4J configuration classes -->
+    <context:component-scan base-package="org.sakaiproject.login.config"/>
+
+    <!-- PAC4J Security Configuration Bean -->
+    <bean id="pac4jConfigBean" class="org.sakaiproject.login.config.Pac4jConfig"/>
+    
+    <!-- PAC4J Config from Bean -->
+    <bean id="pac4jConfig" factory-bean="pac4jConfigBean" factory-method="config"/>
+
+    <!-- PAC4J Filter Chain -->
+    <bean id="pac4jFilter" class="org.springframework.security.web.FilterChainProxy">
+        <security:filter-chain-map request-matcher="ant">
+            <security:filter-chain pattern="/container/cas/**" filters="pac4jAuthenticationFilter"/>
+            <security:filter-chain pattern="/container/saml/**" filters="pac4jAuthenticationFilter"/>
+            <security:filter-chain pattern="/container/logout/**" filters="pac4jLogoutFilter"/>
+        </security:filter-chain-map>
+    </bean>
+
+    <!-- PAC4J Authentication Filter -->
+    <bean id="pac4jAuthenticationFilter" class="org.sakaiproject.login.filter.SakaiPac4jAuthenticationFilter">
+        <constructor-arg ref="pac4jConfig"/>
+        <property name="clients" value="cas,saml2"/>
+    </bean>
+
+    <!-- Secured pages with PAC4J as entry point -->
+    <security:http entry-point-ref="pac4jEntryPoint" use-expressions="false">
+        <security:csrf disabled="true"/>
+        <security:intercept-url pattern="/**" access="IS_AUTHENTICATED_FULLY"/>
+        <security:custom-filter after="BASIC_AUTH_FILTER" ref="pac4jFilter"/>
+    </security:http>
+
+    <!-- Custom PAC4J Entry Point -->
+    <bean id="pac4jEntryPoint" class="org.sakaiproject.login.filter.SakaiPac4jEntryPoint">
+        <property name="config" ref="pac4jConfig"/>
+        <property name="clientName" value="cas,saml2"/>
+    </bean>
+
+    <!-- Redirect Strategy -->
+    <bean id="containerRedirectStrategy" class="org.springframework.security.web.DefaultRedirectStrategy">
+        <property name="contextRelative" value="true"/>
+    </bean>
+
+    <!-- Success Handler -->
+    <bean id="successRedirectHandler"
+          class="org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler">
+        <property name="defaultTargetUrl" value="/portal"/>
+        <property name="redirectStrategy" ref="containerRedirectStrategy"/>
+    </bean>
+
+    <!-- Failure Handler -->
+    <bean id="failureRedirectHandler"
+          class="org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler">
+        <property name="useForward" value="true"/>
+        <property name="defaultFailureUrl" value="/portal/xlogin"/>
+        <property name="redirectStrategy" ref="containerRedirectStrategy"/>
+    </bean>
+
+    <!-- Logout Success Handler -->
+    <bean id="successLogoutHandler" class="org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler">
+        <property name="defaultTargetUrl" value="/portal"/>
+        <property name="redirectStrategy" ref="containerRedirectStrategy"/>
+    </bean>
+
+    <!-- Authentication Manager -->
+    <security:authentication-manager alias="authenticationManager">
+        <!-- PAC4J Authentication Provider -->
+        <security:authentication-provider ref="pac4jAuthenticationProvider"/>
+    </security:authentication-manager>
+
+    <!-- Custom PAC4J Authentication Provider -->
+    <bean id="pac4jAuthenticationProvider" class="org.sakaiproject.login.filter.SakaiPac4jAuthenticationProvider">
+        <property name="config" ref="pac4jConfig"/>
+    </bean>
+
+    <!-- PAC4J Logout Filter -->
+    <bean id="pac4jLogoutFilter" class="org.springframework.security.web.authentication.logout.LogoutFilter">
+        <constructor-arg index="0" ref="successLogoutHandler"/>
+        <constructor-arg index="1" ref="pac4jLogoutHandler"/>
+    </bean>
+
+    <!-- PAC4J Logout Handler -->
+    <bean id="pac4jLogoutHandler" class="org.sakaiproject.login.filter.SakaiPac4jLogoutHandler">
+        <property name="usageSessionService" ref="org.sakaiproject.event.api.UsageSessionService"/>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+        <property name="config" ref="pac4jConfig"/>
+        <property name="invalidateHttpSession" value="true"/>
+        <property name="invalidateSakaiSession" value="true"/>
+        <property name="clearAuthentication" value="true"/>
+        <property name="defaultUrl" value="/portal"/>
+        <property name="logoutUrlPattern" value="/container/logout"/>
+    </bean>
+
+</beans>

@@ -210,13 +210,6 @@
 
     <!-- SAML Authentication Provider responsible for validating of received SAML messages -->
     <bean id="samlAuthenticationProvider" class="org.springframework.security.saml.SAMLAuthenticationProvider">
-        <!-- OPTIONAL property: can be used to store/load user data after login -->
-        <!-- Uncomment below to extract the eduPersonPrincipalName as the user id for Sakai
-        <property name="forcePrincipalAsString" value="false" />
-        <property name="userDetails">
-            <bean class="org.sakaiproject.login.filter.EppnSamlFilter" />
-        </property>
-        -->
     </bean>
 
     <!-- Provider of default SAML Context -->
