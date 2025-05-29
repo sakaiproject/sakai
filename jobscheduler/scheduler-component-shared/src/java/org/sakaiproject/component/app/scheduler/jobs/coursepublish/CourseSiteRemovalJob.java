@@ -16,6 +16,7 @@
 package org.sakaiproject.component.app.scheduler.jobs.coursepublish;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,6 +34,7 @@ import org.sakaiproject.tool.api.SessionManager;
  */
 @Getter
 @Setter
+@NoArgsConstructor
 @Slf4j
 public class CourseSiteRemovalJob implements StatefulJob {
    // sakai.properties
@@ -49,14 +51,6 @@ public class CourseSiteRemovalJob implements StatefulJob {
    private SessionManager sessionManager;
    private CourseSiteRemovalService.Action action;                  // action to be taken when a course site is found to be expired.
    private int numDaysAfterTermEnds;    // number of days after a term ends when course sites expire.
-
-
-   /**
-    * default constructor.
-    */
-   public CourseSiteRemovalJob() {
-      // no code necessary
-   }
 
    /**
     * called by the spring framework.
@@ -77,18 +71,7 @@ public class CourseSiteRemovalJob implements StatefulJob {
    public void init() {
       log.debug("init()");
 
-      // get the number of days after a term ends after which course sites that have expired will be removed
-      try{
-         numDaysAfterTermEnds= serverConfigurationService.getInt(PROPERTY_COURSE_SITE_REMOVAL_NUM_DAYS_AFTER_TERM_ENDS, DEFAULT_VALUE_COURSE_SITE_REMOVAL_NUM_DAYS_AFTER_TERM_ENDS);
-      } catch (NumberFormatException ex) {
-         log.error("The value specified for numDaysAfterTermEnds in sakai.properties, " + PROPERTY_COURSE_SITE_REMOVAL_NUM_DAYS_AFTER_TERM_ENDS + ", is not valid.  A default value of " + DEFAULT_VALUE_COURSE_SITE_REMOVAL_NUM_DAYS_AFTER_TERM_ENDS + " will be used instead.");
-         numDaysAfterTermEnds = DEFAULT_VALUE_COURSE_SITE_REMOVAL_NUM_DAYS_AFTER_TERM_ENDS;
-      }
-      if (numDaysAfterTermEnds < 0) {
-         log.error("The value specified for numDaysAfterTermEnds in sakai.properties, " + PROPERTY_COURSE_SITE_REMOVAL_NUM_DAYS_AFTER_TERM_ENDS + ", is not valid.  A default value of " + DEFAULT_VALUE_COURSE_SITE_REMOVAL_NUM_DAYS_AFTER_TERM_ENDS + " will be used instead.");
-         numDaysAfterTermEnds = DEFAULT_VALUE_COURSE_SITE_REMOVAL_NUM_DAYS_AFTER_TERM_ENDS;
-      }
-
+      numDaysAfterTermEnds= serverConfigurationService.getInt(PROPERTY_COURSE_SITE_REMOVAL_NUM_DAYS_AFTER_TERM_ENDS, DEFAULT_VALUE_COURSE_SITE_REMOVAL_NUM_DAYS_AFTER_TERM_ENDS);
       // get the action to be taken when a course is found to be expired
       String actionString = serverConfigurationService.getString(PROPERTY_COURSE_SITE_REMOVAL_ACTION);
       if (actionString == null || actionString.trim().isEmpty()) {

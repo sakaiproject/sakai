@@ -16,6 +16,7 @@
 package org.sakaiproject.component.app.scheduler.jobs.coursepublish;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,37 +34,25 @@ import org.sakaiproject.tool.api.SessionManager;
  */
 @Getter
 @Setter
+@NoArgsConstructor
 @Slf4j
 public class CourseSitePublishJob implements StatefulJob {
 
    // sakai.properties
    public final static String PROPERTY_COURSE_SITE_PUBLISH_NUM_DAYS_BEFORE_TERM_STARTS      = "course_site_publish_service.num_days_before_term_starts";
 
-   // default values for the sakai.properties
-   public final static int DEFAULT_VALUE_COURSE_SITE_PUBLISH_NUM_DAYS_BEFORE_TERM_STARTS = 14;
-
    // sakai services
    private CourseSitePublishService   courseSitePublishService;
    private ServerConfigurationService serverConfigurationService;
    private SessionManager sessionManager;
 
-   // data members
-   private int numDaysBeforeTermStarts;    // number of days before a term starts when course sites will be published and made available to students enrolled in the course.
-
-   /**
-    * default constructor.
-    */
-   public CourseSitePublishJob() {
-      // no code necessary
-	}
+   private int numDaysBeforeTermStarts = 0;    // number of days before a term starts when course sites will be published and made available to students enrolled in the course.
 
    /**
     * called by the spring framework.
     */
    public void destroy() {
       log.info("destroy()");
-
-      // no code necessary
    }
 
    /**
@@ -75,19 +64,8 @@ public class CourseSitePublishJob implements StatefulJob {
    public void init() {
 
       log.debug("init()");
-
-      // get the number of days after a term ends after which course sites that have expired will be removed
-      try{
-         numDaysBeforeTermStarts= serverConfigurationService.getInt(PROPERTY_COURSE_SITE_PUBLISH_NUM_DAYS_BEFORE_TERM_STARTS, DEFAULT_VALUE_COURSE_SITE_PUBLISH_NUM_DAYS_BEFORE_TERM_STARTS);
-         } catch (NumberFormatException ex) {
-            log.error("The value specified for numDaysBeforeTermStarts in sakai.properties, " + PROPERTY_COURSE_SITE_PUBLISH_NUM_DAYS_BEFORE_TERM_STARTS + ", is not valid.  A default value of " + DEFAULT_VALUE_COURSE_SITE_PUBLISH_NUM_DAYS_BEFORE_TERM_STARTS + " will be used instead.");
-            numDaysBeforeTermStarts = DEFAULT_VALUE_COURSE_SITE_PUBLISH_NUM_DAYS_BEFORE_TERM_STARTS;
-         }
-      if (numDaysBeforeTermStarts < 0) {
-         log.error("The value specified for numDaysBeforeTermStartsString in sakai.properties, " + PROPERTY_COURSE_SITE_PUBLISH_NUM_DAYS_BEFORE_TERM_STARTS + ", is not valid.  A default value of " + DEFAULT_VALUE_COURSE_SITE_PUBLISH_NUM_DAYS_BEFORE_TERM_STARTS + " will be used instead.");
-         numDaysBeforeTermStarts = DEFAULT_VALUE_COURSE_SITE_PUBLISH_NUM_DAYS_BEFORE_TERM_STARTS;
-      }
-	}
+      numDaysBeforeTermStarts = serverConfigurationService.getInt(PROPERTY_COURSE_SITE_PUBLISH_NUM_DAYS_BEFORE_TERM_STARTS, 0);
+   }
 
    /**
     * implement the quartz job interface, which is called by the scheduler when a trigger associated with the job fires.
