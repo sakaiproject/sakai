@@ -683,12 +683,14 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             // it does not accept group IDs directly. For group assignments, we use
             // a representative user ID from the group.
 
-            log.info("submitters.size()={}", submitters.size());
-
             if (submitters.size() >= 1) {
-                // Get a valid submitter ID for LTI using our helper method
-                String submitterId = findValidSubmitterIdForLTI(as, assignment);
-                
+                String submitterId = null;
+                Optional<AssignmentSubmissionSubmitter> submittee = assignmentService.getSubmissionSubmittee(as);
+                if (submittee.isPresent()) {
+                    submitterId = submittee.get().getSubmitter();
+                    log.info("Using submittee user: {}", submitterId);
+                }
+                                
                 Integer contentKey = assignment.getContentId();
                 if (StringUtils.isNotBlank(submitterId) && contentKey != null) {
                     String siteId = assignment.getContext();
@@ -1095,15 +1097,30 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                 if (!submission.containsKey("userSubmission")) continue;
                 String ltiSubmissionLaunch = null;
                 
-                String submitterId = findValidSubmitterIdFromMap(submission, site);
-                
-                if (StringUtils.isNotBlank(submitterId)) {
-                    ltiSubmissionLaunch = "/access/lti/site/" + siteId + "/content:" + contentKey + "?for_user=" + submitterId;
-                    
-                    // Check for submission review capability
-                    if (contentItem.indexOf("\"submissionReview\"") > 0) {
-                        ltiSubmissionLaunch = ltiSubmissionLaunch + "&message_type=content_review";
+                try {
+                    String subId = (String) submission.get("id");
+                    if (StringUtils.isNotBlank(subId)) {
+                        AssignmentSubmission as = assignmentService.getSubmission(subId);
+                        
+                        String submitterId = null;
+                        Optional<AssignmentSubmissionSubmitter> submittee = assignmentService.getSubmissionSubmittee(as);
+                        if (submittee.isPresent()) {
+                            submitterId = submittee.get().getSubmitter();
+                            log.info("Using submittee user: {}", submitterId);
+                        }
+                        
+                        
+                        if (StringUtils.isNotBlank(submitterId)) {
+                            ltiSubmissionLaunch = "/access/lti/site/" + siteId + "/content:" + contentKey + "?for_user=" + submitterId;
+                            
+                            // Check for submission review capability
+                            if (contentItem.indexOf("\"submissionReview\"") > 0) {
+                                ltiSubmissionLaunch = ltiSubmissionLaunch + "&message_type=content_review";
+                            }
+                        }
                     }
+                } catch (Exception e) {
+                    log.warn("Error getting submitter ID for LTI: {}", e.getMessage());
                 }
                 
                 submission.put("ltiSubmissionLaunch", ltiSubmissionLaunch);
@@ -2251,83 +2268,5 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                     .map(Reference::getUrl)
                     .collect(Collectors.toList());
         }
-    }
-
-    /**
-     * Helper method to find a valid submitter ID for LTI from an AssignmentSubmission
-     */
-    private String findValidSubmitterIdForLTI(AssignmentSubmission as, Assignment assignment) {
-        Set<AssignmentSubmissionSubmitter> submitters = as.getSubmitters();
-        
-        if (!submitters.isEmpty()) {
-            for (AssignmentSubmissionSubmitter submitter : submitters) {
-                if (submitter.getSubmittee() != null && submitter.getSubmittee()) {
-                    String submitterId = submitter.getSubmitter();
-                    log.info("Found actual submitter (submittee=true): {}", submitterId);
-                    return submitterId;
-                }
-            }
-        }
-        
-        if (assignment.getIsGroup() && StringUtils.isNotBlank(as.getGroupId())) {
-            try {
-                Site site = siteService.getSite(assignment.getContext());
-                Group group = site.getGroup(as.getGroupId());
-                if (group != null && !group.getUsers().isEmpty()) {
-                    String submitterId = group.getUsers().iterator().next();
-                    log.info("Using first user from group: {}", submitterId);
-                    return submitterId;
-                }
-            } catch (Exception e) {
-                log.warn("Error getting users from group: {}", e.getMessage());
-            }
-        }
-        
-        if (!submitters.isEmpty()) {
-            String submitterId = submitters.iterator().next().getSubmitter();
-            log.info("Using first submitter from list: {}", submitterId);
-            return submitterId;
-        }
-        
-        log.warn("Could not find a valid submitter ID for assignment: {}", assignment.getId());
-        return null;
-    }
-    
-    /**
-     * Helper method to find a valid submitter ID for LTI from a submission Map
-     */
-    private String findValidSubmitterIdFromMap(Map<String, Object> submission, Site site) {
-        if (submission.containsKey("groupId")) {
-            String groupId = (String) submission.get("groupId");
-            if (StringUtils.isNotBlank(groupId)) {
-                try {
-                    Group group = site.getGroup(groupId);
-                    if (group != null && !group.getUsers().isEmpty()) {
-                        String submitterId = group.getUsers().iterator().next();
-                        log.info("Using user from group: {}", submitterId);
-                        return submitterId;
-                    }
-                } catch (Exception e) {
-                    log.warn("Error getting users from group: {}", e.getMessage());
-                }
-            }
-        }
-        
-        if (submission.containsKey("submitters")) {
-            List<Map<String, Object>> submitters = (List<Map<String, Object>>) submission.get("submitters");
-            if (!submitters.isEmpty()) {
-                for (Map<String, Object> submitter : submitters) {
-                    if (submitter != null && submitter.containsKey("id") && submitter.get("id") != null) {
-                        String submitterId = (String) submitter.get("id");
-                        log.info("Using any submitter: {}", submitterId);
-                        return submitterId;
-                    }
-                }
-            }
-        }
-        
-        // If we get here, we couldn't find a valid submitter ID
-        log.warn("Could not find a valid submitter ID for submission");
-        return null;
     }
 }
