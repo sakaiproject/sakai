@@ -688,7 +688,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                 Optional<AssignmentSubmissionSubmitter> submittee = assignmentService.getSubmissionSubmittee(as);
                 if (submittee.isPresent()) {
                     submitterId = submittee.get().getSubmitter();
-                    log.info("Using submittee user: {}", submitterId);
+                    log.debug("LTI found submittee: {}", submitterId);
                 }
                                 
                 Integer contentKey = assignment.getContentId();
