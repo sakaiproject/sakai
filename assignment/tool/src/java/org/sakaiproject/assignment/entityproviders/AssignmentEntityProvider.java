@@ -1120,7 +1120,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                         }
                     }
                 } catch (Exception e) {
-                    log.warn("Error getting submitter ID for LTI: {}", e.getMessage());
+                    log.warn("Could not get submitter ID for LTI: {}", e.toString());
                 }
                 
                 submission.put("ltiSubmissionLaunch", ltiSubmissionLaunch);
