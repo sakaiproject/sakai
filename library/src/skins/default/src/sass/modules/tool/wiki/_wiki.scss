@@ -207,7 +207,7 @@
   }
   .previewToolBarContainer select { zoom: 1; font-size: .9em; border: 1px solid #efeffe }
   .autosaveToolBarContainer input { zoom: 1; font-size: .9em; border: 1px solid #efeffe }
-  a.anchorpoint { vertical-align: top }
+  a.anchorpoint { vertical-align: top; text-decoration: none; }
   .publicview { padding: 10px 10px 10px 30px }
   /* head is the edit page headder */
   #rwiki_head{ background-color: var(--sakai-background-color-2); height: 100%; overflow: hidden }
