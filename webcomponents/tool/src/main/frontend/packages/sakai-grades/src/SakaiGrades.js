@@ -12,6 +12,7 @@ export class SakaiGrades extends SakaiPageableElement {
   static properties = {
     secret: { type: Boolean },
     _canGradeAny: { state: true },
+    _currentSort: { state: true },
   };
 
   constructor() {
@@ -39,13 +40,19 @@ export class SakaiGrades extends SakaiPageableElement {
         this.data = data.grades;
         !this.siteId && (this.sites = data.sites);
         this._allData = data.grades;
-        this.sortChanged({ target: { value: UNGRADED_LEAST_TO_MOST } });
         this._canGradeAny = this.data.some(g => g.canGrade);
+
+        // Set default sort based on user role
+        const defaultSort = this._canGradeAny ? UNGRADED_LEAST_TO_MOST : SCORE_LOW_TO_HIGH;
+        this._currentSort = defaultSort;
+        this.sortChanged({ target: { value: defaultSort } });
       })
       .catch (error => console.error(error));
   }
 
   sortChanged(e) {
+
+    this._currentSort = e.target.value;
 
     switch (e.target.value) {
       case ASSIGNMENT_A_TO_Z:
@@ -135,6 +142,7 @@ export class SakaiGrades extends SakaiPageableElement {
       <div id="topbar">
         <div id="filter">
           <select @change=${this.sortChanged}
+              .value=${this._currentSort}
               title="${this._i18n.sort_tooltip}"
               aria-label="${this._i18n.sort_tooltip}">
             ${this._canGradeAny ? html`
