@@ -3,7 +3,7 @@
 <body>
 	<wicket:panel>
 
-		<div id="gradebookSorter" class="by-grade-item">
+		<div id="gradebookSorter" class="by-grade-item" role="application">
 			<span id="sort-instructions" class="sr-only">
 				<wicket:message key="sortgradeitems.instructions">
 					Instructions for sorting items will go here.
@@ -24,9 +24,9 @@
 										aria-pressed="false"
 										aria-describedby="sort-instructions">
 							<span class="si si-drag-handle" aria-hidden="true"></span>
+							<span wicket:id="name"></span>
 						</button>
 
-						<span wicket:id="name"></span>
 					</div>
 				</li>
 			</ul>
