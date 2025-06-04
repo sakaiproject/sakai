@@ -23,27 +23,6 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
     };
   }
 
-  connectedCallback() {
-    super.connectedCallback && super.connectedCallback();
-    this.getSharedRubrics();
-  }
-
-  _onPageSelected(e) {
-
-    this._currentPage = e.detail.page;
-    this.repage();
-  }
-
-  repage() {
-
-    const filteredRubrics = this._getFilteredRubrics();
-    const filteredRubricTotal = filteredRubrics.length;
-    this._totalPages = Math.ceil(filteredRubricTotal / this._itemsPerPage);
-    const start = (this._currentPage - 1) * this._itemsPerPage;
-    const end = start + this._itemsPerPage;
-    this._paginatedRubrics = filteredRubrics.slice(start, end);
-  }
-
   render() {
 
     if (!this._rubrics) {
@@ -67,7 +46,7 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
       <sakai-pager
         .current=${this._currentPage}
         .count=${this._totalPages}
-        @page-selected=${this._onPageSelected}
+        @page-selected=${e => this._onPageSelected(e)}
         ?hidden=${this._totalPages <= 1}>
       </sakai-pager>
       <div class="modal fade" id="delete-modal" tabindex="-1" aria-labelledby="delete-modal-label" aria-hidden="true">
@@ -90,12 +69,7 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
     `;
   }
 
-  refresh() {
-
-    this.getSharedRubrics();
-  }
-
-  getSharedRubrics() {
+  getRubrics() {
 
     const url = "/api/rubrics/shared";
     fetch(url)
