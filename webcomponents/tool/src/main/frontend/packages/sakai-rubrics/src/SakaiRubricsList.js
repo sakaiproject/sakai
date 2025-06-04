@@ -58,10 +58,10 @@ export class SakaiRubricsList extends RubricsElement {
     if (!this._searchTerm) return this._rubrics;
     const term = this._searchTerm.toLowerCase();
     return this._rubrics.filter(r =>
+      (r.id === this?._lastCreatedRubricId) ||
       (r?.title.toLowerCase().includes(term)) ||
       (r?.siteTitle.toLowerCase().includes(term)) ||
-      (r?.creatorDisplayName.toLowerCase().includes(term)) ||
-      (r.id === this?._lastCreatedRubricId)
+      (r?.creatorDisplayName.toLowerCase().includes(term))
     );
   }
 
@@ -186,8 +186,6 @@ export class SakaiRubricsList extends RubricsElement {
       this._currentPage = Math.max(1, this._totalPages);
       this.repage();
     }
-
-    this.requestUpdate();
   }
 
   cloneRubric(e) {

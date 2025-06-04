@@ -18,19 +18,19 @@ describe("sakai-rubrics-list pagination", () => {
     }));
     fetchMock.get(data.rubricsUrl, rubrics, { overwriteRoutes: true });
     const el = await fixture(html`<sakai-rubrics-list site-id="${data.siteId}"></sakai-rubrics-list>`);
-    await waitUntil(() => el._rubrics && el._rubrics.length === 25, "Rubrics not loaded");
+    await waitUntil(() => el._rubrics?.length === rubrics.length, "Rubrics not loaded");
     await elementUpdated(el);
     // Should show first 20 rubrics on first page
     expect(el._paginatedRubrics.length).to.equal(20);
-    expect(el._paginatedRubrics[0].title).to.equal("Rubric 1");
-    expect(el._paginatedRubrics[19].title).to.equal("Rubric 20");
+    expect(el._paginatedRubrics[0].title).to.equal(rubrics[0].title);
+    expect(el._paginatedRubrics[19].title).to.equal(rubrics[19].title);
     expect(el._totalPages).to.equal(2);
     // Go to next page
     el._onPageSelected({ detail: { page: 2 } });
     await elementUpdated(el);
     expect(el._paginatedRubrics.length).to.equal(5);
-    expect(el._paginatedRubrics[0].title).to.equal("Rubric 21");
-    expect(el._paginatedRubrics[4].title).to.equal("Rubric 25");
+    expect(el._paginatedRubrics[0].title).to.equal(rubrics[20].title);
+    expect(el._paginatedRubrics[4].title).to.equal(rubrics[24].title);
   });
 
   it("should go to previous page if last item on last page is deleted", async () => {
@@ -43,7 +43,7 @@ describe("sakai-rubrics-list pagination", () => {
     }));
     fetchMock.get(data.rubricsUrl, rubrics, { overwriteRoutes: true });
     const el = await fixture(html`<sakai-rubrics-list site-id="${data.siteId}"></sakai-rubrics-list>`);
-    await waitUntil(() => el._rubrics && el._rubrics.length === 41, "Rubrics not loaded");
+    await waitUntil(() => el._rubrics?.length === rubrics.length, "Rubrics not loaded");
     await elementUpdated(el);
     // Go to last page
     el._onPageSelected({ detail: { page: 3 } });
