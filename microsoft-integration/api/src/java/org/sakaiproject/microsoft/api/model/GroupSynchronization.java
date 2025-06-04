@@ -70,6 +70,6 @@ public class GroupSynchronization {
 	@Convert(converter = JpaConverterSynchronizationStatus.class)
 	private SynchronizationStatus status = SynchronizationStatus.NONE;
 	
-	@Column(name = "status_updated_at", columnDefinition = "datetime")
+	@Column(name = "status_updated_at")
 	private ZonedDateTime statusUpdatedAt;
 }

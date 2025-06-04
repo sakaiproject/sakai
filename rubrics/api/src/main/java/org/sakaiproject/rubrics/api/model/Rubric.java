@@ -98,7 +98,7 @@ public class Rubric implements PersistableEntity<Long>, Serializable, Cloneable 
     @JsonIgnore
     private List<ToolItemRubricAssociation> associations = new ArrayList<>();
 
-    @Column(nullable = false, columnDefinition = "datetime")
+    @Column(nullable = false)
     @JsonIgnore
     private Instant created = Instant.now();
 
@@ -121,7 +121,7 @@ public class Rubric implements PersistableEntity<Long>, Serializable, Cloneable 
     private Double maxPoints = 0D;
 
     @JacksonXmlProperty(isAttribute = true)
-    @Column(columnDefinition = "default false", nullable = false)
+    @Column
     private Boolean adhoc = Boolean.FALSE;
 
     @Transient

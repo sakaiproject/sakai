@@ -137,9 +137,7 @@
     <many-to-one name="item" class="org.sakaiproject.tool.assessment.data.dao.assessment.ItemData"
       column="ITEMID" not-null="true" index="SAM_ITEMHISTORICAL_ITEMID_I" />
     <property name="modifiedBy" type="string" length="255" column="MODIFIEDBY" not-null="true" />
-    <property name="modifiedDate" type="java.util.Date" not-null="true">
-      <column name="MODIFIEDDATE" sql-type="datetime(0)" />
-    </property>
+    <property name="modifiedDate" type="java.util.Date" column="MODIFIEDDATE" not-null="true"/>
   </class>
 
   <class name="org.sakaiproject.tool.assessment.data.dao.assessment.Answer" table="SAM_ANSWER_T">

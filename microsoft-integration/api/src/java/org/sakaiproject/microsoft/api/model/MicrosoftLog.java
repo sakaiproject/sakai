@@ -126,7 +126,7 @@ public class MicrosoftLog {
 	@Convert(converter = JpaConverterMap.class)
 	private Map<String, String> context;
 	
-	@Column(name = "event_date", columnDefinition = "datetime")
+	@Column(name = "event_date")
 	@Builder.Default
 	private ZonedDateTime eventDate = ZonedDateTime.now();
 	

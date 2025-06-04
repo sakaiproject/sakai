@@ -77,13 +77,13 @@ public class SiteSynchronization {
 	@Column(name = "forced")
 	private boolean forced;
 	
-	@Column(name = "date_from", columnDefinition = "datetime")
+	@Column(name = "date_from")
 	private ZonedDateTime syncDateFrom;
 	
-	@Column(name = "date_to", columnDefinition = "datetime")
+	@Column(name = "date_to")
 	private ZonedDateTime syncDateTo;
 	
-	@Column(name = "status_updated_at", columnDefinition = "datetime")
+	@Column(name = "status_updated_at")
 	private ZonedDateTime statusUpdatedAt;
 	
 	@OneToMany(mappedBy = "siteSynchronization", fetch = FetchType.LAZY, orphanRemoval = true)

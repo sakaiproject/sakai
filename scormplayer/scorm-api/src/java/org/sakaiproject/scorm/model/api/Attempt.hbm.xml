@@ -15,12 +15,8 @@
 		<property name="learnerId" column="LEARNER_ID" />
 		<property name="learnerName" column="LEARNER_NAME" />
 		<property name="attemptNumber" column="ATTEMPT_NUMBER" />
-		<property name="beginDate" type="java.util.Date">
-		  <column name="CREATED_ON" sql-type="datetime(0)" />
-		</property>
-		<property name="lastModifiedDate" type="java.util.Date">
-			<column name="MODIFIED_ON" sql-type="datetime(0)"/>
-		</property>
+		<property name="beginDate" column="CREATED_ON" />
+		<property name="lastModifiedDate" column="MODIFIED_ON" />
 		<property name="suspended" column="IS_SUSPENDED" />
 		<property name="notExited" column="IS_NOT_EXITED" />
 
