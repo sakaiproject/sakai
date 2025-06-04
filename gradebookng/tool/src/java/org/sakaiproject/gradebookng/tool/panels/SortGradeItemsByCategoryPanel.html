@@ -4,7 +4,7 @@
 <body>
 	<wicket:panel>
 
-		<div id="gradebookSorter" class="by-category">
+		<div id="gradebookSorter" class="by-category" role="application">
 			<span id="sort-instructions" class="sr-only">
 				<wicket:message key="sortgradeitems.instructions">
 					Instructions for sorting categories will go here.
@@ -23,8 +23,8 @@
 							aria-pressed="false"
 							aria-describedby="sort-instructions">
 						<span class="si si-drag-handle" aria-hidden="true"></span>
+						<span class="category-name h4" wicket:id="name"></span>
 					</button>
-					<h4 wicket:id="name"></h4>
 				</div>
 				<ul>
 					<li wicket:id="gradeItemList" class="gb-sorter-sortable">
@@ -37,8 +37,8 @@
 									aria-pressed="false"
 									aria-describedby="sort-instructions">
 								<span class="si si-drag-handle" aria-hidden="true"></span>
+								<span wicket:id="name"></span>
 							</button>
-							<span wicket:id="name"></span>
 						</div>
 					</li>
 				</ul>
