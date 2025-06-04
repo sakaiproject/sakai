@@ -13,7 +13,7 @@
 
 			<input type="hidden" name="orderby" value="category"/>
 
-			<div wicket:id="categoriesList" class="gb-sorter-category" role="listitem">
+			<div wicket:id="categoriesList" class="gb-sorter-category" aria-level="1" role="listitem">
 				<input wicket:id="category_id" type="hidden"/>
 				<input wicket:id="category_order" type="hidden"/>
 				<input wicket:id="category_current_order" type="hidden"/>
@@ -27,7 +27,7 @@
 					</button>
 				</div>
 				<ul>
-					<li wicket:id="gradeItemList" class="gb-sorter-sortable">
+					<li wicket:id="gradeItemList" class="gb-sorter-sortable" aria-level="2">
 						<input wicket:id="id" type="hidden"/>
 						<input wicket:id="order" type="hidden"/>
 						<input wicket:id="current_order" type="hidden"/>

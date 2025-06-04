@@ -399,6 +399,9 @@ public class SettingsCategoryPanel extends BasePanel {
 				});
 				item.add(name);
 
+				// Proper label for the drag handle (for screen readers)
+				item.add(new WebMarkupContainer("handle").add(new AttributeModifier("aria-label", new PropertyModel<>(category, "name"))));
+
 				// weight
 				final TextField<Double> weight = new TextField<Double>("weight", new PropertyModel<Double>(category, "weight")) {
 					private static final long serialVersionUID = 1L;
