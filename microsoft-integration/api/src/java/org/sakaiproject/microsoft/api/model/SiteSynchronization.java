@@ -63,7 +63,7 @@ public class SiteSynchronization {
 	@GenericGenerator(name = "uuid", strategy = "uuid2")
 	private String id;
 
-	@Column(name = "site_id", nullable = false)
+	@Column(name = "site_id", length = 99, nullable = false)
 	private String siteId;
 	
 	@Column(name = "team_id", nullable = false)
@@ -77,13 +77,13 @@ public class SiteSynchronization {
 	@Column(name = "forced")
 	private boolean forced;
 	
-	@Column(name = "date_from")
+	@Column(name = "date_from", columnDefinition = "datetime")
 	private ZonedDateTime syncDateFrom;
 	
-	@Column(name = "date_to")
+	@Column(name = "date_to", columnDefinition = "datetime")
 	private ZonedDateTime syncDateTo;
 	
-	@Column(name = "status_updated_at")
+	@Column(name = "status_updated_at", columnDefinition = "datetime")
 	private ZonedDateTime statusUpdatedAt;
 	
 	@OneToMany(mappedBy = "siteSynchronization", fetch = FetchType.LAZY, orphanRemoval = true)

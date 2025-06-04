@@ -16,12 +16,22 @@
 		<property name="manifestResourceId" column="MANIFEST_RESOURCE_ID" />
 		<property name="context" column="CONTEXT" />
 		<property name="url" column="URL" />
-		<property name="releaseOn" column="RELEASE_ON" />
-		<property name="dueOn" column="DUE_ON" />
-		<property name="acceptUntil" column="ACCEPT_UNTIL" />
-		<property name="createdOn" column="CREATED_ON" />
+		<property name="releaseOn" type="java.util.Date">
+			<column name="RELEASE_ON" sql-type="datetime(0)"/>
+		</property>
+		<property name="dueOn" type="java.util.Date">
+			<column name="DUE_ON" sql-type="datetime(0)"/>
+		</property>
+		<property name="acceptUntil" type="java.util.Date">
+			<column name="ACCEPT_UNTIL" sql-type="datetime(0)"/>
+		</property>
+		<property name="createdOn" type="java.util.Date">
+			<column name="CREATED_ON" sql-type="datetime(0)"/>
+		</property>
 		<property name="createdBy" column="CREATED_BY" />
-		<property name="modifiedOn" column="MODIFIED_ON" />
+		<property name="modifiedOn" type="java.util.Date">
+			<column name="MODIFIED_ON" sql-type="datetime(0)"/>
+		</property>
 		<property name="modifiedBy" column="MODIFIED_BY" />
 		<property name="numberOfTries" column="NUMBER_OF_TRIES" />
 		<property name="deleted" column="IS_DELETED" />
