@@ -20,10 +20,12 @@ import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Lob;
 
@@ -44,8 +46,8 @@ public class ConversationsComment implements PersistableEntity<String> {
 
     @Id
     @Column(name = "COMMENT_ID", length = 36, nullable = false)
-    @GeneratedValue(generator = "uuid")
-    @GenericGenerator(name = "uuid", strategy = "uuid2")
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "conv_comment_id_sequence")
+    @SequenceGenerator(name = "conv_comment_id_sequence", sequenceName = "CONV_COMMENT_S")
     private String id;
 
     @Column(name = "SITE_ID", length = 99, nullable = false)

@@ -28,10 +28,12 @@ import javax.persistence.Entity;
 import javax.persistence.Enumerated;
 import javax.persistence.EnumType;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
@@ -58,8 +60,8 @@ public class ConversationsTopic implements PersistableEntity<String> {
 
     @Id
     @Column(name = "TOPIC_ID", length = 36, nullable = false)
-    @GeneratedValue(generator = "uuid")
-    @GenericGenerator(name = "uuid", strategy = "uuid2")
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "conv_topic_id_sequence")
+    @SequenceGenerator(name = "conv_topic_id_sequence", sequenceName = "CONV_TOPIC_S")
     @EqualsAndHashCode.Include
     private String id;
 
