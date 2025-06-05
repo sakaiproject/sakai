@@ -242,8 +242,7 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
   private boolean isValidFeedbackDate = true;
   private boolean isValidFeedbackEndDate = true;
   private boolean isRetractAfterDue = true;
-  @Getter private boolean isDueAfterStart = true;
-
+  
   private String originalStartDateString;
   private String originalDueDateString;
   private String originalRetractDateString;
@@ -1292,17 +1291,14 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
     if (dueDateString == null || dueDateString.trim().equals("")) {
       this.isValidDueDate = true;
       this.dueDate = null;
-      this.isDueAfterStart = true;
     }
     else {
 
       Date tempDate = tu.parseISO8601String(ContextUtil.lookupParam(HIDDEN_END_DATE_FIELD));
-      Date tempStartDate = tu.parseISO8601String(ContextUtil.lookupParam(HIDDEN_START_DATE_FIELD));
 
       if (tempDate != null) {
         this.isValidDueDate = true;
         this.dueDate = tempDate;
-        this.isDueAfterStart = !(tempStartDate != null && tempDate.before(tempStartDate));
       }
       else {
         log.error("setDueDateString could not parse hidden date field: " + ContextUtil.lookupParam(HIDDEN_END_DATE_FIELD));
@@ -1668,7 +1664,6 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
 	  this.isValidRetractDate = true;
 	  this.isValidFeedbackDate = true;
 	  this.isValidFeedbackEndDate = true;
-	  this.isDueAfterStart = true;
   }
   
   public void resetOriginalDateString() {
