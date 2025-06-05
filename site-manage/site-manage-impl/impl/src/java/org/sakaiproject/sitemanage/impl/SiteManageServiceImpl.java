@@ -851,7 +851,7 @@ public class SiteManageServiceImpl implements SiteManageService {
                         log.warn("Role {} not found in destination site {}", roleName, toSiteId);
                     }
                 } catch (Exception e) {
-                    log.warn("Could not find role {} in destination site {}", roleName, toSiteId);
+                    log.warn("Could not find role {} in destination site {}, {}", roleName, toSiteId, e.toString());
                 }
             }
             
