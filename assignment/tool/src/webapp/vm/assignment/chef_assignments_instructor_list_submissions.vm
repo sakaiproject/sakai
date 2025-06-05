@@ -576,7 +576,7 @@ function printView(url) {
 													#if($item.isDraft())
 														-&nbsp;$tlang.getString("gen.dra1")
 													#else
-														<img src="/library/image/silk/accept.png"/>
+														<span class="bi bi-check" aria-hidden="true"></span>
 													#end
 												</span>
 											#end

@@ -31,11 +31,13 @@ describe("sakai-tasks tests", () => {
       <sakai-tasks user-id="${data.userId}"></sakai-tasks>
     `);
 
+    await waitUntil(() => el.data);
+
     await elementUpdated(el);
 
     await expect(el).to.be.accessible({ ignoredRules: [ "aria-allowed-attr" ] });
 
-    await waitUntil(() => el.shadowRoot.getElementById("controls"), "controls not created");
+    await waitUntil(() => el.shadowRoot.getElementById("controls"), "controls not created", { timeout: 3000 });
     expect(el.shadowRoot.getElementById("controls")).to.exist;
     expect(el.shadowRoot.getElementById("add-block")).to.exist;
     expect(el.shadowRoot.getElementById("add-edit-dialog")).to.exist;

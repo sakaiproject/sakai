@@ -35,6 +35,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
+import org.sakaiproject.util.comparator.AlphaNumericComparator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -603,7 +604,6 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
 
         String topicRef = ConversationsReferenceReckoner.reckoner().topic(topic).reckon().getReference();
         if (params.graded) {
-            String topicUrl = getTopicPortalUrl(params.id).orElse("");
 
             if (isNew) {
                 if (params.createGradingItem) {
@@ -619,6 +619,8 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
                     log.warn("When grading a topic, either create grading item should be specified, or an existing item should have been selected");
                 }
             } else {
+                String topicUrl = getTopicPortalUrl(params.id).orElse("");
+
                 if (params.createGradingItem) {
                     if (existingGradingItemId != null && gradingService.isExternalAssignmentDefined(params.siteId, topicRef)) {
                         gradingService.updateExternalAssessment(params.siteId, topicRef, topicUrl, null,
@@ -1835,15 +1837,11 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         topicBean.canModerate = securityService.unlock(Permissions.MODERATE.label, siteRef);
 
         if (topic != null) {
-            topicBean.tags = topic.getTagIds().stream().map(tagId -> {
 
-                Optional<Tag> optTag = tagRepository.findById(tagId);
-                if (optTag.isPresent()) {
-                    return optTag.get();
-                } else {
-                    return null;
-                }
-            }).collect(Collectors.toList());
+            topicBean.tags = topic.getTagIds().stream()
+                    .map(id -> tagRepository.findById(id).orElse(null))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
 
             topicStatusRepository.findByTopicIdAndUserId(topic.getId(), currentUserId)
                 .ifPresent(s -> {
@@ -2178,6 +2176,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         return tags.stream().map(tagRepository::save).collect(Collectors.toList());
     }
 
+    @Override
     @Transactional(readOnly = true)
     public List<Tag> getTagsForSite(String siteId) throws ConversationsPermissionsException {
 
@@ -2189,9 +2188,13 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
             return Collections.<Tag>emptyList();
         }
 
-        return tagRepository.findBySiteId(siteId);
+        List<Tag> tags = tagRepository.findBySiteId(siteId);
+        // Sort tags alphabetically by label
+        tags.sort(Comparator.comparing(Tag::getLabel, new AlphaNumericComparator()));
+        return tags;
     }
 
+    @Override
     public void deleteTag(Long tagId) throws ConversationsPermissionsException {
 
         getCheckedCurrentUserId();
@@ -2207,7 +2210,10 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
 
             tagRepository.deleteById(tagId);
 
-            topicRepository.findByTags_Id(tagId).forEach(t -> t.getTagIds().remove(tagId));
+            // Update the topics that were using this tag
+            List<ConversationsTopic> topicsToUpdate = topicRepository.findByTags_Id(tagId);
+            topicsToUpdate.forEach(t -> t.getTagIds().remove(tagId));
+            topicRepository.saveAll(topicsToUpdate);
         } else {
             throw new IllegalArgumentException("No tag with id " + tagId);
         }
@@ -2704,6 +2710,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
             topicEl.setAttribute("visibility", topic.getVisibility().name());
             topicEl.setAttribute("creator", topic.getMetadata().getCreator());
             topicEl.setAttribute("created", Long.toString(topic.getMetadata().getCreated().getEpochSecond()));
+            topicEl.setAttribute("graded", Boolean.toString(topic.getGraded()));
 
             if (topic.getShowDate() != null) {
               topicEl.setAttribute("show-date", Long.toString(topic.getShowDate().getEpochSecond()));
@@ -2766,6 +2773,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
             topicBean.draft = true;
             topicBean.pinned = Boolean.parseBoolean(topicEl.getAttribute("pinned"));
             topicBean.visibility = topicEl.getAttribute("visibility");
+            topicBean.graded = Boolean.parseBoolean(topicEl.getAttribute("graded"));
 
             topicBean.showDate = topicEl.hasAttribute("show-date") ? Instant.ofEpochSecond(Long.parseLong(topicEl.getAttribute("show-date"))) : null;
             topicBean.hideDate = topicEl.hasAttribute("hide-date") ? Instant.ofEpochSecond(Long.parseLong(topicEl.getAttribute("hide-date"))) : null;

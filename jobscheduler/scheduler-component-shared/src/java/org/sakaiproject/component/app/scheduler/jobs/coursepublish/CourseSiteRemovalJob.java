@@ -15,7 +15,10 @@
  */
 package org.sakaiproject.component.app.scheduler.jobs.coursepublish;
 
+import java.util.List;
+
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -25,6 +28,9 @@ import org.quartz.StatefulJob;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.coursemanagement.api.CourseSiteRemovalService;
+import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 
@@ -33,6 +39,7 @@ import org.sakaiproject.tool.api.SessionManager;
  */
 @Getter
 @Setter
+@NoArgsConstructor
 @Slf4j
 public class CourseSiteRemovalJob implements StatefulJob {
    // sakai.properties
@@ -45,18 +52,11 @@ public class CourseSiteRemovalJob implements StatefulJob {
 
    // sakai services
    private CourseSiteRemovalService courseSiteRemovalService;
+   private EventTrackingService eventTrackingService;
    private ServerConfigurationService serverConfigurationService;
    private SessionManager sessionManager;
    private CourseSiteRemovalService.Action action;                  // action to be taken when a course site is found to be expired.
    private int numDaysAfterTermEnds;    // number of days after a term ends when course sites expire.
-
-
-   /**
-    * default constructor.
-    */
-   public CourseSiteRemovalJob() {
-      // no code necessary
-   }
 
    /**
     * called by the spring framework.
@@ -77,18 +77,7 @@ public class CourseSiteRemovalJob implements StatefulJob {
    public void init() {
       log.debug("init()");
 
-      // get the number of days after a term ends after which course sites that have expired will be removed
-      try{
-         numDaysAfterTermEnds= serverConfigurationService.getInt(PROPERTY_COURSE_SITE_REMOVAL_NUM_DAYS_AFTER_TERM_ENDS, DEFAULT_VALUE_COURSE_SITE_REMOVAL_NUM_DAYS_AFTER_TERM_ENDS);
-      } catch (NumberFormatException ex) {
-         log.error("The value specified for numDaysAfterTermEnds in sakai.properties, " + PROPERTY_COURSE_SITE_REMOVAL_NUM_DAYS_AFTER_TERM_ENDS + ", is not valid.  A default value of " + DEFAULT_VALUE_COURSE_SITE_REMOVAL_NUM_DAYS_AFTER_TERM_ENDS + " will be used instead.");
-         numDaysAfterTermEnds = DEFAULT_VALUE_COURSE_SITE_REMOVAL_NUM_DAYS_AFTER_TERM_ENDS;
-      }
-      if (numDaysAfterTermEnds < 0) {
-         log.error("The value specified for numDaysAfterTermEnds in sakai.properties, " + PROPERTY_COURSE_SITE_REMOVAL_NUM_DAYS_AFTER_TERM_ENDS + ", is not valid.  A default value of " + DEFAULT_VALUE_COURSE_SITE_REMOVAL_NUM_DAYS_AFTER_TERM_ENDS + " will be used instead.");
-         numDaysAfterTermEnds = DEFAULT_VALUE_COURSE_SITE_REMOVAL_NUM_DAYS_AFTER_TERM_ENDS;
-      }
-
+      numDaysAfterTermEnds= serverConfigurationService.getInt(PROPERTY_COURSE_SITE_REMOVAL_NUM_DAYS_AFTER_TERM_ENDS, DEFAULT_VALUE_COURSE_SITE_REMOVAL_NUM_DAYS_AFTER_TERM_ENDS);
       // get the action to be taken when a course is found to be expired
       String actionString = serverConfigurationService.getString(PROPERTY_COURSE_SITE_REMOVAL_ACTION);
       if (actionString == null || actionString.trim().isEmpty()) {
@@ -118,8 +107,15 @@ public class CourseSiteRemovalJob implements StatefulJob {
                Session sakaiSesson = sessionManager.getCurrentSession();
                sakaiSesson.setUserId("admin");
 
-               int numSitesRemoved = courseSiteRemovalService.removeCourseSites(action, numDaysAfterTermEnds);
-               log.info("removeCourseSites: {} {}", numSitesRemoved, actionStr);
+               List<String> removedSiteIds = courseSiteRemovalService.removeCourseSites(action, numDaysAfterTermEnds);
+               log.info("removeCourseSites: {} {}", removedSiteIds.size(), actionStr);
+
+               String eventType = CourseSiteRemovalService.Action.remove.equals(action) ? 
+                  SiteService.SECURE_REMOVE_SITE : SiteService.EVENT_SITE_UNPUBLISH;
+
+               for (String siteId : removedSiteIds) {
+                  eventTrackingService.post(eventTrackingService.newEvent(eventType, "/site/" + siteId, siteId, true, NotificationService.NOTI_OPTIONAL));
+               }
             } catch (Exception ex) {
                log.error("Error while removing course sites: {}", ex.toString());
             }

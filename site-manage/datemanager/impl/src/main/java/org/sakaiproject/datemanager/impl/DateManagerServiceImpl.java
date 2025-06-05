@@ -59,6 +59,7 @@ import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
 import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -974,14 +975,46 @@ public class DateManagerServiceImpl implements DateManagerService {
 	@Override
 	public JSONArray getResourcesForContext(String siteId) {
 		JSONArray jsonResources = new JSONArray();
-		List<ContentEntity> unformattedList = contentHostingService.getAllEntities("/group/"+siteId+"/");
+		String siteCollection = contentHostingService.getSiteCollection(siteId);
+		List<ContentEntity> unformattedList = contentHostingService.getAllEntities(siteCollection);
 		String url = getUrlForTool(DateManagerConstants.COMMON_ID_RESOURCES);
 		String toolTitle = toolManager.getTool(DateManagerConstants.COMMON_ID_RESOURCES).getTitle();
 		for(ContentEntity res : unformattedList) {
 			JSONObject robj = new JSONObject();
 			ResourceProperties contentResourceProps = res.getProperties();
-			robj.put(DateManagerConstants.JSON_ID_PARAM_NAME, res.getId());
-			robj.put(DateManagerConstants.JSON_TITLE_PARAM_NAME, contentResourceProps.getProperty(ResourceProperties.PROP_DISPLAY_NAME));
+			String resourceId = res.getId();
+			String displayName = contentResourceProps.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+
+			// Extract the path information from the resource ID relative to site collection
+			String relativePath = "";
+			if (resourceId.startsWith(siteCollection) && !resourceId.equals(siteCollection)) {
+				// Remove the site collection prefix and trailing slash if it's a collection
+				String pathPart = resourceId.substring(siteCollection.length());
+				if (res instanceof ContentCollection && pathPart.endsWith("/")) {
+					pathPart = pathPart.substring(0, pathPart.length() - 1);
+				}
+
+				// Build the relative path for display
+				if (pathPart.contains("/")) {
+					int lastSlash = pathPart.lastIndexOf("/");
+					if (lastSlash > 0) {
+						relativePath = pathPart.substring(0, lastSlash);
+						relativePath = relativePath.replace("/", " > ");
+						robj.put(DateManagerConstants.JSON_TITLE_PARAM_NAME, relativePath + " > " + displayName);
+					} else {
+						robj.put(DateManagerConstants.JSON_TITLE_PARAM_NAME, displayName);
+					}
+				} else {
+					robj.put(DateManagerConstants.JSON_TITLE_PARAM_NAME, displayName);
+				}
+			} else {
+				robj.put(DateManagerConstants.JSON_TITLE_PARAM_NAME, displayName);
+			}
+			
+			// Store original path for sorting
+			robj.put("resourcePath", resourceId);
+			robj.put(DateManagerConstants.JSON_ID_PARAM_NAME, resourceId);
+			
 			if(res.getRetractInstant() != null) robj.put(DateManagerConstants.JSON_DUEDATE_PARAM_NAME, formatToUserInstantFormat(res.getRetractInstant()));
 			else robj.put(DateManagerConstants.JSON_DUEDATE_PARAM_NAME, null);
 			if(res.getReleaseInstant() != null) robj.put(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, formatToUserInstantFormat(res.getReleaseInstant()));
@@ -991,7 +1024,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 			robj.put(DateManagerConstants.JSON_URL_PARAM_NAME, url);
 			jsonResources.add(robj);
 		}
-		return orderJSONArrayByTitle(jsonResources);
+		return orderResourcesByHierarchy(jsonResources);
 	}
 
 	@Override
@@ -1474,7 +1507,9 @@ public class DateManagerServiceImpl implements DateManagerService {
 				}
 				aobj.put(DateManagerConstants.JSON_TOOLTITLE_PARAM_NAME, toolTitle);
 				aobj.put(DateManagerConstants.JSON_URL_PARAM_NAME, url + "?itemReference=" + formattedText.escapeUrl(announcement.getReference()) + "&panel=Main&sakai_action=doShowmetadata&sakai.state.reset=true");
-				aobj.put(DateManagerConstants.JSON_EXTRAINFO_PARAM_NAME, "false");
+				String extraInfo = "false";
+				if (header.getDraft()) extraInfo = resourceLoader.getString("itemtype.draft");
+				aobj.put(DateManagerConstants.JSON_EXTRAINFO_PARAM_NAME, extraInfo);
 				jsonAnnouncements.add(aobj);
 			}
 		} catch (Exception e) {
@@ -1692,6 +1727,26 @@ public class DateManagerServiceImpl implements DateManagerService {
 			jsonArray = (JSONArray) obj;
 		} catch (Exception ex) {
 			log.error("Cannot order the JSONArray elements alphabetically: {}", ex.getMessage());
+		}
+		return jsonArray;
+	}
+	
+	/**
+	 * Orders resources by their folder hierarchy path
+	 * Resources in the same folder will be grouped together
+	 * @param jsonArray JSONArray of resources
+	 * @return ordered JSONArray
+	 */
+	private JSONArray orderResourcesByHierarchy(JSONArray jsonArray) {
+		try {
+			List list = (List) jsonArray.stream()
+				.sorted(Comparator.comparing(json -> ((JSONObject) json).get("resourcePath").toString().toLowerCase()))
+				.collect(Collectors.toList());
+			JSONParser jsonParser = new JSONParser();
+			Object obj = jsonParser.parse(JSONArray.toJSONString(list));
+			jsonArray = (JSONArray) obj;
+		} catch (Exception ex) {
+			log.error("Cannot order the resources by hierarchy: {}", ex.toString());
 		}
 		return jsonArray;
 	}

@@ -7,7 +7,7 @@
 
 	<div class="accordion-item" id="settingsCategoriesHeader">
 		<h2 class="accordion-header">
-			<button class="accordion-button collapsed fw-bold"
+			<button wicket:id="settingsCategoriesAccordionButton" class="accordion-button collapsed fw-bold"
 				type="button"
 				data-bs-toggle="collapse"
 				data-bs-target="#settingsCategories"
@@ -68,10 +68,11 @@
 						<tbody>
 							<tr wicket:id="categoriesView" class="gb-category-row">
 								<td>
-									<a href="javascript:void(0);"
-											class="gb-category-sort-handle ui-sortable-handle"
-											wicket:message="title:sortgradeitems.sort_category_label,aria-label:sortgradeitems.sort_category_label">
-									</a>
+									<button type="button"
+											class="btn-transparent gb-category-sort-handle ui-sortable-handle"
+											aria-pressed="false"
+											wicket:message="aria-label:sortgradeitems.sort_category_label">
+									</button>
 									<input wicket:id="categoryOrder" class="gb-category-order-field" type="hidden" />
 								</td>
 								<td>

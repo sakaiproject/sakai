@@ -10,28 +10,17 @@
                 <param name="sequence">SCORM_UID_S</param>
             </generator>
         </id>
-		
-		<property name="contentPackageId" column="CONTENT_PACKAGE_ID"/>
-		
-		<property name="courseId" column="COURSE_ID"/> 
-		
-		<property name="scoId" column="SCO_ID" not-null="true"/> 
-        <!-- 
-           alter table SCORM_DATAMANAGER_T MODIFY SCO_ID varchar(255) not null;
-         -->
-		
-		<property name="activityId" column="ACTIVITY_ID"/>
 
+		<property name="contentPackageId" column="CONTENT_PACKAGE_ID"/>
+		<property name="courseId" column="COURSE_ID"/>
+		<property name="scoId" column="SCO_ID" not-null="true"/>
+		<property name="activityId" column="ACTIVITY_ID"/>
 		<property name="userId" column="USER_ID"/>
-		
 		<property name="title" column="TITLE"/>
-		
 		<property name="attemptNumber" column="ATTEMPT_NUMBER"/>
-		
 		<property name="beginDate" column="BEGIN_DATE"/>
-		
 		<property name="lastModifiedDate" column="LAST_MODIFIED_DATE"/>
-		
+
 		<map name="dataModels" table="SCORM_MAP_DATAMODELS_T" cascade="all">
 			<cache usage="nonstrict-read-write"/>
     		<key column="DATAMANAGER_ID"/>

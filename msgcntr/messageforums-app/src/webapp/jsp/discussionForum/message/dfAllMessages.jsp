@@ -164,7 +164,7 @@
 					  <h:outputText value="#{ForumTool.selectedTopic.topic.title}" />
 						<%--//designNote: up arrow should go here - get decent image and put title into link. --%>
 						<h:commandLink action="#{ForumTool.processActionDisplayForum}"  title="#{msgs.cdfm_up_level_title}" rendered="#{ForumTool.showForumLinksInNav}" style="margin-left:.3em">
-							<h:graphicImage url="/images/silk/arrow_turn_up.gif" style="vertical-align:top;padding:0;margin-top:-2px" alt="" />	
+							<span class="bi bi-arrow-90deg-up" aria-hidden="true"></span>
 							<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 						</h:commandLink>
 					  <f:verbatim></h1></div></f:verbatim>
@@ -184,7 +184,8 @@
 				<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
 			</h:commandLink>&nbsp;
 			<h:outputLink styleClass="button" id="print" value="javascript:printFriendly('#{ForumTool.printFriendlyUrl}');">
-				<h:graphicImage url="/../../library/image/silk/printer.png" alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />
+				<span class="bi bi-printer" aria-hidden="true"></span>
+				<span class="sr-only"><h:outputText value="#{msgs.print_friendly}" /></span>
 			</h:outputLink>
  		</h:panelGroup>
 
@@ -192,8 +193,13 @@
 				<h:panelGroup>
 					<h:outputText styleClass="highlight title" id="draft" value="#{msgs.cdfm_draft}" rendered="#{ForumTool.selectedTopic.topic.draft == 'true'}"/>
 					<h:outputText id="draft_space" value="  - " rendered="#{ForumTool.selectedTopic.topic.draft == 'true'}" styleClass="title"/>
-					<h:graphicImage url="/images/silk/date_delete.png" title="#{msgs.topic_restricted_message}" alt="#{msgs.topic_restricted_message}" rendered="#{ForumTool.selectedTopic.topic.availability == 'false'}" style="margin-right:.5em"/>
-					<h:graphicImage url="/images/silk/lock.png" alt="#{msgs.cdfm_forum_locked}" rendered="#{ForumTool.selectedForum.forum.locked == 'true' || ForumTool.selectedTopic.topic.locked == 'true'}" style="margin-right:.5em"/>
+					<h:panelGroup rendered="#{ForumTool.selectedTopic.topic.availability == 'false'}">
+						<span class="bi bi-calendar-x" aria-hidden="true" style="margin-right:.5em"></span>
+						<h:outputText value="#{msgs.topic_restricted_message}" />
+					</h:panelGroup>
+					<h:panelGroup rendered="#{ForumTool.selectedForum.forum.locked == 'true' || ForumTool.selectedTopic.topic.locked == 'true'}">
+						<span class="bi bi-lock-fill" aria-hidden="true" style="margin-right:.5em"></span>
+					</h:panelGroup>
 					<%-- Rubrics marker --%>
 					<h:panelGroup rendered="#{ForumTool.selectedTopic.hasRubric == 'true'}" >
 					  <sakai-rubric-student-preview-button
@@ -221,7 +227,7 @@
 					<h:panelGroup rendered="#{!empty ForumTool.selectedTopic.attachList || ForumTool.selectedTopic.topic.extendedDescription != '' && ForumTool.selectedTopic.topic.extendedDescription != null && ForumTool.selectedTopic.topic.extendedDescription != '<br/>'}">
 						<p id="openLinkBlock" class="toggleParent openLinkBlock">
 							<a href="#" id="showMessage" class="toggle show">
-								<h:graphicImage url="/images/collapse.gif" alt=""/>
+								<span class="bi bi-plus-square" aria-hidden="true"></span>
 								<h:outputText value=" #{msgs.cdfm_read_full_description}" />
 								<h:outputText value=" #{msgs.cdfm_and}" rendered="#{!empty ForumTool.selectedTopic.attachList}"/>
 								<h:outputText value=" #{msgs.cdfm_attach}" rendered="#{!empty ForumTool.selectedTopic.attachList}"/>
@@ -229,7 +235,7 @@
 						</p>
 						<p id="hideLinkBlock" class="toggleParent hideLinkBlock display-none">
 							<a href="#" id="hideMessage" class="toggle show">
-								<h:graphicImage url="/images/expand.gif" alt="" />
+								<span class="bi bi-dash-square" aria-hidden="true"></span>
 								<h:outputText value=" #{msgs.cdfm_hide_full_description}"/>
 								<h:outputText value=" #{msgs.cdfm_and}" rendered="#{!empty ForumTool.selectedTopic.attachList}" />
 								<h:outputText value=" #{msgs.cdfm_attach}" rendered="#{!empty ForumTool.selectedTopic.attachList}"/>
@@ -270,8 +276,8 @@
                         <a class="button display-topic-picker" id="msgForum:df_move_message_commandLink" onclick="resizeFrameForDialog();" href="#" >
 				    </f:verbatim>
                     <h:outputText value="#{msgs.move_thread}" />
-					<f:verbatim></a></f:verbatim>
-					<f:verbatim></div></f:verbatim>
+					</a>
+					</div>
    				</h:panelGroup>
 			<%--//designNote: need a rendered attribute here that will toggle the display of the table (if messages) or a textblock (class="instruction") if there are no messages--%>
 			<h:outputText styleClass="messageAlert" value="#{msgs.cdfm_postFirst_warning}" rendered="#{ForumTool.selectedTopic != null && ForumTool.needToPostFirst}"/>				
@@ -345,9 +351,9 @@
 				<%-- Rendered to view current message only --%>
 					<%-- shows the message "This message has been deleted" if the message has been deleted --%>
 					<h:panelGroup styleClass="inactive firstChild" rendered="#{message.deleted && (message.depth != 0 || message.childCount == 0)}" >
-					<f:verbatim><span></f:verbatim>
+					<span>
 						<h:outputText value="#{msgs.cdfm_msg_deleted_label}" />
-					<f:verbatim></span></f:verbatim>
+					</span>
 				</h:panelGroup>
 
 					<%-- render the message that has not been deleted, what else? --%>

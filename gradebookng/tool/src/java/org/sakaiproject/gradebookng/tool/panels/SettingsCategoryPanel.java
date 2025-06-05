@@ -33,6 +33,7 @@ import lombok.Getter;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
+import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -151,8 +152,22 @@ public class SettingsCategoryPanel extends BasePanel {
 			this.model.getObject().getGradebookInformation().getCategories().add(stubCategoryDefinition());
 		}
 
+		final WebMarkupContainer settingsCategoriesAccordionButton = new WebMarkupContainer("settingsCategoriesAccordionButton");
 		final WebMarkupContainer settingsCategoriesPanel = new WebMarkupContainer("settingsCategoriesPanel");
+		
+		// Set initial state for Bootstrap accordion (no AJAX behavior)
+		if (this.expanded) {
+			settingsCategoriesPanel.add(new AttributeModifier("class", "accordion-collapse collapse show"));
+			settingsCategoriesAccordionButton.add(new AttributeModifier("class", "accordion-button fw-bold"));
+			settingsCategoriesAccordionButton.add(new AttributeModifier("aria-expanded", "true"));
+		} else {
+			settingsCategoriesPanel.add(new AttributeModifier("class", "accordion-collapse collapse"));
+			settingsCategoriesAccordionButton.add(new AttributeModifier("class", "accordion-button collapsed fw-bold"));
+			settingsCategoriesAccordionButton.add(new AttributeModifier("aria-expanded", "false"));
+		}
+		
 		add(settingsCategoriesPanel);
+		add(settingsCategoriesAccordionButton);
 
 		// category types (note categoriesAndWeighting treated differently due to inter panel updates)
 		final RadioGroup<Integer> categoryType = new RadioGroup<>("categoryType",

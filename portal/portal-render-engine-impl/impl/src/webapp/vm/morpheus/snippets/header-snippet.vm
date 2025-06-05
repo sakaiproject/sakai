@@ -11,7 +11,7 @@
           data-bs-placement="bottom"
           title="${sidebarCollapseBtnTitle}"
           aria-controls="portal-nav-sidebar">
-        <span class="bi bi-list"></span>
+        <span class="bi ${portalNavSidebarIcon}" aria-hidden="true"></span>
       </button>
       <a class="btn btn-logo mx-2 ms-md-0" href="/portal" title="$rloader.portal_home">
         <span class="visually-hidden">$rloader.portal_home</span>
