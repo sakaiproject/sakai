@@ -1543,7 +1543,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 				}
 				catch (Exception e)
 				{
-					log.warn("Error while removing existing forums during copy: {}", e.getMessage());
+					log.warn("could not remove existing forums during copy: {}", e.toString());
 				}
 			}
 			
