@@ -4,7 +4,6 @@
       // get the HTML fragment for the header from the Sakai portal,
       // and then add Samigo's own tool-specific CSS file to it.
       String head = (String) request.getAttribute("sakai.html.head");
-      head += "<link href=\"/samigo-app/css/tool_sam.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
       head += org.sakaiproject.portal.util.PortalUtils.includeLatestJQuery("Samigo");
       head += "<script type=\"text/javascript\" src=\"/library/webjars/jquery.tablesorter/2.27.7/dist/js/jquery.tablesorter.min.js\"></script>\n";
       head += "<link href=\"/library/webjars/jquery.tablesorter/2.27.7/dist/css/theme.default.min.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
@@ -21,7 +20,6 @@
       request.setAttribute("html.head",
          "<link href=\"" + org.sakaiproject.portal.util.CSSUtils.getCssToolBase() + "\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n" +
          "<link href=\"" + org.sakaiproject.portal.util.CSSUtils.getCssToolSkin(org.sakaiproject.portal.util.CSSUtils.adjustCssSkinFolder(null)) + "\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n" +
-         "<link href=\"/samigo-app/css/tool_sam.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n" +
          "<link href=\"/library/webjars/jquery-ui/1.12.1/jquery-ui.min.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n" +
          "<script type=\"text/javascript\" src=\"/library/webjars/jquery/1.12.4/jquery.min.js\"></script>\n" +
          "<script type=\"text/javascript\" src=\"/library/webjars/jquery-ui/1.12.1/jquery-ui.min.js\"></script>\n" +

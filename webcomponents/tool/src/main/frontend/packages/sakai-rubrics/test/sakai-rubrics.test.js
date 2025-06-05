@@ -70,7 +70,7 @@ describe("sakai-rubrics tests", () => {
   function validateRubricTitle(rubricData, el, titleToCheck) {
 
     expect(el.querySelector(".rubric-name").textContent).to.equal(titleToCheck);
-    expect(el.querySelector(`#rubric-toggle-${rubricData.id}`).title).to.equal(`${el._i18n.toggle_details} ${titleToCheck}`);
+    expect(el.querySelector(".rubric-toggle").title).to.equal(`${el._i18n.toggle_details} ${titleToCheck}`);
 
     if (rubricData.locked) {
       elementChecks(el, "span.locked", titleToCheck);

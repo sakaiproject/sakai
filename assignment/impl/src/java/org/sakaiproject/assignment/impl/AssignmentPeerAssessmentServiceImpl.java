@@ -53,6 +53,7 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.grading.api.GradingAuthz;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
@@ -461,8 +462,8 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
                         || AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT.equals(function)
                         || AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT.equals(function)
                         || AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION.equals(function)
-                        || AssignmentServiceConstants.GRADEBOOK_PERMISSION_GRADE_ALL.equals(function)
-                        || AssignmentServiceConstants.GRADEBOOK_PERMISSION_EDIT_ASSIGNMENTS.equals(function)) {
+                        || GradingAuthz.PERMISSION_GRADE_ALL.equals(function)
+                        || GradingAuthz.PERMISSION_EDIT_ASSIGNMENTS.equals(function)) {
                     return SecurityAdvice.ALLOWED;
                 } else {
                     return SecurityAdvice.PASS;

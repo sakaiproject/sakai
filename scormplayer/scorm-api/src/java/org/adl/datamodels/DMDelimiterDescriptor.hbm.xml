@@ -17,7 +17,7 @@
 		
 		<property name="mValueSPM" column="VALUE_SPM" />
 		
-		<many-to-one name="mValidator" column="VALIDATOR" index="SCORM_DELIM_DESC_VAL_IDX" class="org.adl.datamodels.DMTypeValidator" cascade="all" lazy="false"/>
+		<many-to-one name="mValidator" column="VALIDATOR" class="org.adl.datamodels.DMTypeValidator" cascade="all" lazy="false"/>
 		
 	</class>
 	

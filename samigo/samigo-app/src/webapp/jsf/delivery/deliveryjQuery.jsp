@@ -24,6 +24,7 @@
 
 <script>
 	var portal = portal || { locale: "<h:outputText value="#{delivery.localeString}"/>" };
+	portal.locale = portal.locale || "<h:outputText value="#{delivery.localeString}"/>";
 	var honorPledgeIsChecked = true;
 	var understandPledgeIsChecked = true;
 	var button_ok = "<h:outputText value="#{deliveryMessages.button_ok} "/>";

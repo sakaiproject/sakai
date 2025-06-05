@@ -201,7 +201,7 @@ export const graderRenderingMixin = Base => class extends Base {
               ${this._submission.peerReviews.map(pr => html`
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="peer-heading-${pr.assessorUserId}">
-                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#peer-collapse-${pr.assessorUserId}" aria-expanded="true" aria-controls="peer-collapse-${pr.assessorUserId}">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#peer-collapse-${pr.assessorUserId}" aria-expanded="false" aria-controls="peer-collapse-${pr.assessorUserId}">
                       ${pr.assessorDisplayName}
                     </button>
                   </h2>

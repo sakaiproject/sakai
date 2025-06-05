@@ -114,6 +114,9 @@ grade_posts_by=Grade posts by {}
 grade_submitted=Grade submitted
 grade_warning=You need to enter a grade or a comment
 graded=Graded for {} points
+graded_no_item_id=This draft topic has been marked as graded but no grading item is associated \
+with it. This is most likely because this topic was imported from an archive, in which case you \
+need to setup grading before you publish.
 groups=Only members of selected groups
 hidden_message=This post has been hidden.
 hide=Hide

@@ -32,6 +32,9 @@ import java.util.Map;
 import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 
 import org.apache.commons.lang3.StringUtils;
 import org.osid.assessment.AssessmentException;
@@ -55,21 +58,37 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionMetaDataIfc;
  */
 
 @Slf4j
+@Getter
+@Setter
 public class AssessmentFacade extends AssessmentBaseFacade
     implements java.io.Serializable, AssessmentIfc
 {
   private static final long serialVersionUID = 7526471155622776147L;
+
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
   private AssessmentIfc data;
+
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
   private Long assessmentTemplateId;
+
   private Long assessmentId;
+
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
   private Set sectionSet;
+
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
   private Set assessmentAttachmentSet;
+
   private Integer questionSize;
   private Date startDate;
   private Date dueDate;
   private String lastModifiedDateForDisplay;
   private String releaseTo;
-  private Map releaseToGroups;
+  private Map<String, String> releaseToGroups;
   private int groupCount;
   private boolean selected;
   private Integer multipleTimers;
@@ -120,7 +139,7 @@ public class AssessmentFacade extends AssessmentBaseFacade
     super.setLastModifiedBy(lastModifiedBy);
   }
 
-  public AssessmentFacade(Long id, String title, Date lastModifiedDate, Date startDate, Date dueDate, String releaseTo, Map releaseToGroups, String lastModifiedBy, int questionSize) {
+  public AssessmentFacade(Long id, String title, Date lastModifiedDate, Date startDate, Date dueDate, String releaseTo, Map<String, String> releaseToGroups, String lastModifiedBy, int questionSize) {
 	    // in the case of template assessmentBaseId is the assessmentTemplateId
 	    super.setAssessmentBaseId(id);
 	    super.setTitle(title);
@@ -303,72 +322,12 @@ public class AssessmentFacade extends AssessmentBaseFacade
     return list;
   }
 
-  public Integer getQuestionSize() {
-	  return questionSize;
-  }
-
-  public void setQuestionSize(Integer questionSize) {
-	  this.questionSize = questionSize;
-  }
-
-  public Date getStartDate() {
-	  return this.startDate;
-  }
-
-  public void setStartDate(Date startDate) {
-	  this.startDate = startDate;
-  }
-
-  public Date getDueDate() {
-	  return this.dueDate;
-  }
-
-  public void setDueDate(Date dueDate) {
-	  this.dueDate = dueDate;
-  }
-  
-  public String getLastModifiedDateForDisplay() {
-	  return lastModifiedDateForDisplay;
-  }
-
-  public void setLastModifiedDateForDisplay(String lastModifiedDateForDisplay) {
-	  this.lastModifiedDateForDisplay = lastModifiedDateForDisplay;
-  }
-
-  public String getReleaseTo() {
-	  return this.releaseTo;
-  }
-
-  public void setReleaseTo(String releaseTo) {
-	  this.releaseTo = releaseTo;
-  }
-
-  public Map getReleaseToGroups() {
-	  return this.releaseToGroups;
-  }
-
-  public void setReleaseToGroups(Map releaseToGroups) {
-	  this.releaseToGroups = releaseToGroups;
-  }
-
   public void setGroupCount() {
     if (releaseToGroups != null) {
       groupCount = releaseToGroups.size();
     } else {
       groupCount = 0;
     }
-  }
-
-  public int getGroupCount() {
-    return groupCount;
-  }
-
-  public boolean isSelected() {
-    return this.selected;
-  }
-
-  public void setSelected(boolean selected) {
-    this.selected = selected;
   }
 
   public int hasMultipleTimers() {

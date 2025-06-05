@@ -65,6 +65,7 @@ function checkUpdate()
             <h:commandLink title="#{generalMessages.t_assessment}" action="author"  immediate="true">
                 <h:outputText value="#{generalMessages.assessment}"/>
                 <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
+                <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetResultsCalculatedListener" />
             </h:commandLink>
         </span>
     </li>

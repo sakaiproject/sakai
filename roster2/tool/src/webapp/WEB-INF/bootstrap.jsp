@@ -23,7 +23,6 @@
       xml:lang="${language}"
       lang="${language}">
     <head>
-        <link rel="stylesheet" type="text/css" href="/profile2-tool/css/profile2-profile-entity.css${portalCDNQuery}" media="all" />
         <link rel="stylesheet" media="print" type="text/css" href="/sakai-roster2-tool/css/print.css${portalCDNQuery}" />
 
         <script>
@@ -60,6 +59,8 @@
 
         <!-- wrap tool in portletBody div for PDA portal compatibility -->
         <div class="portletBody container-fluid">
+
+            <div id="roster-header-loading-image"><img src="/sakai-roster2-tool/images/ajax-loader.gif" /></div>
 
             <ul id="roster_navbar" class="navIntraTool actionToolBar" role="menu"></ul>
 

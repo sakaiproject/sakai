@@ -1,9 +1,6 @@
 import { html, nothing } from "lit";
 import { SakaiElement } from "@sakai-ui/sakai-element";
-import "@sakai-ui/sakai-button/sakai-button.js";
 import "@sakai-ui/sakai-widgets/sakai-widget-panel.js";
-import "@lion/ui/dialog.js";
-import "../sakai-course-dashboard-template-picker.js";
 import "../sakai-course-header.js";
 import "../sakai-course-overview.js";
 
@@ -124,7 +121,6 @@ export class SakaiCourseDashboard extends SakaiElement {
     const url = `/api/sites/${this.siteId}/dashboard`;
     fetch(url, {
       method: "PUT",
-      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     }).then(r => {
@@ -143,18 +139,14 @@ export class SakaiCourseDashboard extends SakaiElement {
     this.requestUpdate();
   }
 
-  showTemplates() {
-    document.getElementById("templates").__toggle();
-  }
-
   templateSelected(e) {
 
-    this.data.template = e.detail.template;
+    this.data.template = parseInt(e.target.dataset.template);
 
     this.requestUpdate();
 
     this.updateComplete.then(() => {
-      this.querySelector("#course-dashboard-save sakai-button").focus();
+      this.querySelector("#course-dashboard-save button").focus();
     });
   }
 
@@ -178,17 +170,40 @@ export class SakaiCourseDashboard extends SakaiElement {
           ${this.data.editable ? html`
             ${this.editing ? html`
               <div id="course-dashboard-layout">
-                <sakai-button title="${this._i18n.layout_tooltip}" @click=${this.showTemplates}>${this._i18n.layout}</sakai-button>
+                <button type="button"
+                    class="btn btn-secondary"
+                    data-bs-toggle="modal"
+                    data-bs-target="#course-dashboard-template-picker">
+                  ${this._i18n.layout}
+                </button>
               </div>
               <div id="course-dashboard-save" class="mt-1 mt-sm-0">
-                <sakai-button @click=${this.save} title="${this._i18n.save_tooltip}" aria-label="${this._i18n.save_tooltip}" primary>${this._i18n.save}</sakai-button>
+                <button type="button"
+                    class="btn btn-primary"
+                    @click=${this.save}
+                    title="${this._i18n.save_tooltip}"
+                    aria-label="${this._i18n.save_tooltip}">
+                  ${this._i18n.save}
+                </button>
               </div>
               <div id="course-dashboard-cancel" class="mt-1 mt-sm-0">
-                <sakai-button @click=${this.cancel} title="${this._i18n.cancel_tooltip}" aria-label="${this._i18n.cancel_tooltip}">${this._i18n.cancel}</sakai-button>
+                <button type="button"
+                    class="btn btn-secondary"
+                    @click=${this.cancel}
+                    title="${this._i18n.cancel_tooltip}"
+                    aria-label="${this._i18n.cancel_tooltip}">
+                  ${this._i18n.cancel}
+                </button>
               </div>
             ` : html`
               <div id="course-dashboard-edit">
-                <sakai-button slot="invoker" @click=${this.edit} title="${this._i18n.edit_tooltip}" arial-label="${this._i18n.edit_tooltip}">${this._i18n.edit}</sakai-button>
+                <button type="button"
+                    class="btn btn-secondary"
+                    @click=${this.edit}
+                    title="${this._i18n.edit_tooltip}"
+                    aria-label="${this._i18n.edit_tooltip}">
+                  ${this._i18n.edit}
+                </button>
               </div>
             `}
           ` : nothing}
@@ -274,10 +289,45 @@ export class SakaiCourseDashboard extends SakaiElement {
   render() {
 
     return html`
-      <lion-dialog id="templates">
-        <sakai-course-dashboard-template-picker .data=${this.data} .template=${this.data.template} slot="content" @template-selected=${this.templateSelected}></sakai-course-dashboard-template-picker>
-        <div slot="invoker" style="display: none;"></div>
-      </lion-dialog>
+
+      <div class="modal fade" id="course-dashboard-template-picker" tabindex="-1" aria-labelledby="course-dashboard-template-picker-label" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="course-dashboard-template-picker-label">Pick a layout template</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="${this._i18n.close}"></button>
+            </div>
+            <div class="modal-body">
+              <div id="course-dashboard-template-picker-instruction">${this._i18n.template_picker_instruction}</div>
+
+              <div id="course-dashboard-template-picker-template-block">
+                <div class=${this.data.template === 1 ? "course-dashboard-template-picker-selected" : ""}>
+                  <a href="javascript:;" @click=${this.templateSelected} data-template="1">
+                    <img data-template="1" src="${this.data.layout1ThumbnailUrl}" class="thumbnail" alt="${this._i18n.layout1_alt}" />
+                  </a>
+                  <h2>${this._i18n.option1}</h2>
+                </div>
+                <div class=${this.data.template === 2 ? "course-dashboard-template-picker-selected" : ""}>
+                  <a href="javascript:;" @click=${this.templateSelected} data-template="2">
+                    <img data-template="2" src="${this.data.layout2ThumbnailUrl}" class="thumbnail" alt="${this._i18n.layout2_alt}" />
+                  </a>
+                  <h2>${this._i18n.option2}</h2>
+                </div>
+                <div class=${this.data.template === 3 ? "course-dashboard-template-picker-selected" : ""}>
+                  <a href="javascript:;" @click=${this.templateSelected} data-template="3">
+                    <img data-template="3" src="${this.data.layout3ThumbnailUrl}" class="thumbnail" alt="${this._i18n.layout3_alt}" />
+                  </a>
+                  <h2>${this._i18n.option3}</h2>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" data-bs-dismiss="modal">${this._i18n.close}</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="course-dashboard-container mt-2">
         ${this.data.template === 1 ? this.template1() : nothing }
         ${this.data.template === 2 ? this.template2() : nothing }

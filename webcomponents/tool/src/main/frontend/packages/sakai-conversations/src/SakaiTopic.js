@@ -108,20 +108,28 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
 
   _markPostsViewed(postIds) {
 
+    // Filter out postIds that have already been marked as viewed
+    const newPostIds = postIds.filter(id => !this._observedPosts.has(id));
+
+    // If there are no new posts to mark as viewed, return early
+    if (newPostIds.length === 0) {
+      return;
+    }
+
     // Add these posts to our tracked set before making the request
-    postIds.forEach(id => this._observedPosts.add(id));
+    newPostIds.forEach(id => this._observedPosts.add(id));
 
     const url = this.topic.links.find(l => l.rel === "markpostsviewed").href;
     fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(postIds),
+      body: JSON.stringify(newPostIds),
     })
     .then(r => {
 
       if (r.ok) {
         // Posts marked. Now unobserve them. We don't want to keep triggering this fetch
-        postIds.forEach(postId => {
+        newPostIds.forEach(postId => {
 
           const post = findPost(this.topic, { postId });
           if (post) {
@@ -135,7 +143,7 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
           }
         });
 
-        this.dispatchEvent(new CustomEvent("posts-viewed", { detail: { postIds, topicId: this.topic.id } }));
+        this.dispatchEvent(new CustomEvent("posts-viewed", { detail: { postIds: newPostIds, topicId: this.topic.id } }));
         this.requestUpdate();
       } else {
         throw new Error(`Network error while marking posts as viewed at url ${url}`);
@@ -524,7 +532,12 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
       <div class="topic">
         ${this.topic.draft ? html`
         <div class="sak-banner-warn">${this._i18n.draft_warning}</div>
-        ` : nothing }
+          ${this.topic.graded && !this.topic.gradingItemId ? html`
+          <div class="sak-banner-error conv-graded-no-grading-item-id-warning">
+            ${this._i18n.graded_no_item_id}
+          </div>
+          ` : nothing}
+        ` : nothing}
         ${this.topic.hidden ? html`
         <div class="sak-banner-warn">${this._i18n.topic_hidden}</div>
         ` : nothing }
@@ -538,9 +551,9 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
         <div class="sak-banner-warn">${this._i18n.topic_groups_only_tooltip}</div>
         ` : nothing }
         <div class="topic-tags">
-          ${this.topic.tags?.map(tag => html`
+          ${this.topic.tags?.map(tag => tag ? html`
             <div class="tag">${tag.label}</div>
-          `)}
+          ` : nothing)}
         </div>
         <div class="author-and-tools">
           <div class="author-block">

@@ -5080,9 +5080,11 @@ public class AssignmentAction extends PagedResourceActionII {
 
             initViewSubmissionListOption(state);
 
-            if ( ! putExternalToolIntoContext(context, assignment, state) ) {
-                context.put("externalToolDeleted", Boolean.TRUE);
-                addAlert(state, rb.getString("contentitem.tool.deleted"));
+            if (assignment.getTypeOfSubmission() == Assignment.SubmissionType.EXTERNAL_TOOL_SUBMISSION) {
+                if ( ! putExternalToolIntoContext(context, assignment, state) ) {
+                    context.put("externalToolDeleted", Boolean.TRUE);
+                    addAlert(state, rb.getString("contentitem.tool.deleted"));
+                }
             }
 
             String view = (String) state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
@@ -5411,10 +5413,12 @@ public class AssignmentAction extends PagedResourceActionII {
             assignment_extension_option_into_context(context, state);
 
             // put external tool information into context
-            context.put("externalTool", Boolean.TRUE);
-            if ( ! putExternalToolIntoContext(context, assignment, state) ) {
-                context.put("externalToolDeleted", Boolean.TRUE);
-                addAlert(state, rb.getString("contentitem.tool.deleted"));
+            if (assignment.getTypeOfSubmission() == Assignment.SubmissionType.EXTERNAL_TOOL_SUBMISSION) {
+                context.put("externalTool", Boolean.TRUE);
+                if ( ! putExternalToolIntoContext(context, assignment, state) ) {
+                    context.put("externalToolDeleted", Boolean.TRUE);
+                    addAlert(state, rb.getString("contentitem.tool.deleted"));
+                }
             }
 
             // put creator information into context

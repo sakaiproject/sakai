@@ -13,7 +13,7 @@
 				<ul class="navIntraTool actionToolBar">
 				<li class="firstToolBarItem">
 				<span>
-					<h:graphicImage url="/../../library/image/silk/printer.png" alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />
+					<span class="bi bi-printer" aria-hidden="true"></span>
 					<a id="printIcon" href="javascript:" onClick="javascript:window.print();">
 						<h:outputText value="#{msgs.send_to_printer}" />
 					</a>

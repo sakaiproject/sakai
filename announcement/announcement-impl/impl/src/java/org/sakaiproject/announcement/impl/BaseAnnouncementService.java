@@ -1026,28 +1026,28 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 	 *            if the user does not have read permission to the channel.
 	 * @exception NullPointerException
 	 */
-	public List<AnnouncementMessage> getMessages(String channelReference,Filter filter, boolean ascending, boolean merged) throws IdUnusedException, PermissionException, NullPointerException {
+	public List<AnnouncementMessage> getMessages(String channelReference, Filter filter, boolean ascending, boolean merged) throws IdUnusedException, PermissionException, NullPointerException {
 
 		List<AnnouncementMessage> messageList = new ArrayList<>();
 
-		filter = new PrivacyFilter(filter);  		// filter out drafts this user cannot see
+		filter = new PrivacyFilter(filter); // filter out drafts this user cannot see
 		Site site = null;
 		String initMergeList = null;
-	
+
 		try {
 			site = siteService.getSite(getAnnouncementChannel(channelReference).getContext());
 
 			ToolConfiguration tc=site.getToolForCommonId(SAKAI_ANNOUNCEMENT_TOOL_ID);
 			if (tc!=null){
-				initMergeList = tc.getPlacementConfig().getProperty(PORTLET_CONFIG_PARM_MERGED_CHANNELS);	
+				initMergeList = tc.getPlacementConfig().getProperty(PORTLET_CONFIG_PARM_MERGED_CHANNELS);
 			}
-			
+
 			MergedList mergedAnnouncementList = new MergedList();
-			String[] channelArrayFromConfigParameterValue = null;	
-			
+			String[] channelArrayFromConfigParameterValue = null;
+
 			//get array of associated channels: similar logic as found in AnnouncementAction.getMessages() for viewing
 			channelArrayFromConfigParameterValue = mergedAnnouncementList.getChannelReferenceArrayFromDelimitedString(channelReference, initMergeList);
-			
+
 			//get messages for each channel
 			for(int i=0; i<channelArrayFromConfigParameterValue.length;i++)
 			{
@@ -1063,19 +1063,23 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 					}
 				}
 			}
-			
+
 			//sort messages
 			Collections.sort(messageList);
 			if (!ascending)
 			{
 				Collections.reverse(messageList);
-			}			
+			}
 		}
 		catch (NullPointerException e) {
 			log.warn(e.getMessage());
 		}
-		return messageList;
 
+		String currentUserId = sessionManager.getCurrentSessionUserId();
+		RoleAccessFilter roleFilter = new RoleAccessFilter(currentUserId);
+		return messageList.stream()
+			.filter(roleFilter::accept)
+			.collect(Collectors.toList());
 	} // getMessages
 
 	private class AnnouncementChannelReferenceMaker implements MergedList.ChannelReferenceMaker {
@@ -1402,23 +1406,10 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 			}
 		}
 
-		return messageList.stream().filter(message -> {
-
-			List<String> selectedRoles = message.getProperties().getPropertyList("selectedRoles");
-			boolean isOwner = currentUserId.equals(message.getAnnouncementHeader().getFrom().getId());
-			if (selectedRoles == null || isOwner || securityService.isSuperUser()) {
-				return true;
-			} else {
-				String messageSiteId = entityManager.newReference(message.getReference()).getContext();
-				try {
-					Site site = siteService.getSite(messageSiteId);
-					return selectedRoles.contains(site.getMember(currentUserId).getRole().getId());
-				} catch (IdUnusedException idue) {
-					log.error("No site for id {}", messageSiteId);
-					return false;
-				}
-			}
-		}).collect(Collectors.toList());
+		RoleAccessFilter roleFilter = new RoleAccessFilter(currentUserId);
+		return messageList.stream()
+			.filter(roleFilter::accept)
+			.collect(Collectors.toList());
 	}
 
 	/**
@@ -1868,20 +1859,29 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 		 * @exception PermissionException
 		 *            If the user does not have any permissions to read the message.
 		 */
+		@Override
 		public AnnouncementMessage getAnnouncementMessage(String messageId) throws IdUnusedException, PermissionException
 		{
 			AnnouncementMessage msg = (AnnouncementMessage) getMessage(messageId);
 
-			// filter out drafts not by this user (unless this user is a super user or has access_draft ability)
-			if ((msg.getAnnouncementHeader()).getDraft() && (!securityService.isSuperUser())
-					&& (!msg.getHeader().getFrom().getId().equals(sessionManager.getCurrentSessionUserId()))
-					&& (!unlockCheck(SECURE_READ_DRAFT, msg.getReference())))
-			{
+			// Apply the privacy filter to check draft permissions
+			PrivacyFilter filter = new PrivacyFilter(null);
+			if (!filter.accept(msg)) {
 				throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_READ, msg.getReference());
 			}
 
-			return msg;
+			// Check group access permissions: empty list returned means no permission to view
+			if (filterGroupAccess(List.of(msg)).isEmpty()) {
+				throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_READ, msg.getReference());
+			}
 
+			String currentUserId = sessionManager.getCurrentSessionUserId();
+			RoleAccessFilter roleFilter = new RoleAccessFilter(currentUserId);
+			if (!roleFilter.accept(msg)) {
+				throw new PermissionException(currentUserId, SECURE_READ, msg.getReference());
+			}
+
+			return msg;
 		} // getAnnouncementMessage
 
 		/**
@@ -2301,6 +2301,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 		 * 
 		 * @return true if the object is accepted by the filter, false if not.
 		 */
+		@Override
 		public boolean accept(Object o)
 		{
 			// first if o is a announcement message that's a draft from another user, reject it
@@ -2308,9 +2309,19 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 			{
 				AnnouncementMessage msg = (AnnouncementMessage) o;
 
+				// Check draft visibility
 				if ((msg.getAnnouncementHeader()).getDraft() && (!securityService.isSuperUser())
 						&& (!msg.getHeader().getFrom().getId().equals(sessionManager.getCurrentSessionUserId()))
 						&& (!unlockCheck(SECURE_READ_DRAFT, msg.getReference())))
+				{
+					return false;
+				}
+
+				// Check release/retract date visibility
+				// If not super-user and not the message creator, check if viewable by dates
+				if (!securityService.isSuperUser()
+						&& !msg.getHeader().getFrom().getId().equals(sessionManager.getCurrentSessionUserId())
+						&& !isMessageViewable(msg))
 				{
 					return false;
 				}
@@ -2324,6 +2335,54 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 		} // accept
 
 	} // PrivacyFilter
+
+	/**
+	 * Filter to control access to messages based on custom roles.
+	 * Only users whose role is included in the message's "selectedRoles" property,
+	 * the message owner, or superusers will be able to access the message.
+	 */
+	protected class RoleAccessFilter implements Filter {
+
+		private final String currentUserId;
+
+		/**
+		 * Constructs a RoleAccessFilter for the specified user.
+		 *
+		 * @param currentUserId the ID of the user whose access is being checked
+		 */
+		public RoleAccessFilter(String currentUserId) {
+			this.currentUserId = currentUserId;
+		}
+
+		/**
+		 * Determines if the given object (announcement message) is accessible to the current user.
+		 *
+		 * @param o the object to check (should be an AnnouncementMessage)
+		 * @return true if the user can access the message, false otherwise
+		 */
+		@Override
+		public boolean accept(Object o) {
+			if (o instanceof AnnouncementMessage) {
+				AnnouncementMessage msg = (AnnouncementMessage) o;
+				List<String> selectedRoles = msg.getProperties().getPropertyList("selectedRoles");
+				boolean isOwner = currentUserId.equals(msg.getAnnouncementHeader().getFrom().getId());
+				if (selectedRoles == null || isOwner || securityService.isSuperUser()) {
+					return true;
+				} else {
+					String messageSiteId = entityManager.newReference(msg.getReference()).getContext();
+					try {
+						Site msgSite = siteService.getSite(messageSiteId);
+						String userRole = msgSite.getMember(currentUserId).getRole().getId();
+						return selectedRoles.contains(userRole);
+					} catch (IdUnusedException idue) {
+						log.warn("No site found with id {}", messageSiteId);
+						return false;
+					}
+				}
+			}
+			return true;
+		}
+	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.entity.api.EntitySummary#summarizableToolIds()
