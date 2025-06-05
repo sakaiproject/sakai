@@ -43,7 +43,6 @@ import org.sakaiproject.profile2.hbm.model.ProfileImageUploaded;
 import org.sakaiproject.profile2.model.MimeTypeByteArray;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfileImage;
-import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.util.Messages;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
@@ -64,9 +63,6 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 
 	@Setter
 	private SakaiProxy sakaiProxy;
-
-	@Setter
-	private ProfilePreferencesLogic preferencesLogic;
 
 	@Setter
 	private ProfileDao dao;
@@ -90,8 +86,8 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
     }
 	
 	@Override
-	public ProfileImage getProfileImage(String userUuid, ProfilePreferences prefs, int size) {
-		return getProfileImage(userUuid, prefs, size, null);
+	public ProfileImage getProfileImage(String userUuid, int size) {
+		return getProfileImage(userUuid, size, null);
 	}
 	
 	@Override
@@ -124,7 +120,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 	}
 	
 	@Override
-	public ProfileImage getProfileImage(String userUuid, ProfilePreferences prefs, int size, String siteId) {
+	public ProfileImage getProfileImage(String userUuid, int size, String siteId) {
 		
 		ProfileImage image = new ProfileImage();
 		boolean allowed = false;
@@ -150,15 +146,6 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 			// this is where the logic for handling public profile images will go
 			//right now we throw a security exception.
 			throw new SecurityException("Must be logged in to request a profile image.");
-		}
-		
-		//check prefs supplied was valid, if given
-		if(prefs != null && !StringUtils.equals(userUuid, prefs.getUserUuid())) {
-			log.error("ProfilePreferences data supplied was not for user: " + userUuid);
-			image.setExternalImageUrl(defaultImageUrl);
-			image.setAltText(getAltText(userUuid, isSameUser, false));
-			image.setDefault(true);
-			return image;
 		}
 		
 		//check if same user
@@ -195,29 +182,8 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		//lookup global image setting, this will be used if no preferences were supplied.
 		int imageType = sakaiProxy.getProfilePictureType();
 		
-		//if we have no prefs, try to get one, it won't be considered if it is still null.
-		if(prefs == null){
-			prefs = preferencesLogic.getPreferencesRecordForUser(userUuid);
-		}
-		
-		//if we have prefs and the conditions are set for a user to be able to make a choice, get the pref.
-		if(prefs != null && sakaiProxy.isUsingOfficialImageButAlternateSelectionEnabled()) {
-			if(prefs.isUseOfficialImage()){
-				imageType = ProfileConstants.PICTURE_SETTING_OFFICIAL;
-			}
-		}
-		
-		//prefs for gravatar, only if enabled
-		if(prefs != null && sakaiProxy.isGravatarImageEnabledGlobally()) {
-			if(prefs.isUseGravatar()){
-				imageType = ProfileConstants.PICTURE_SETTING_GRAVATAR;
-			}
-		}
-		
-		if(log.isDebugEnabled()){
-			log.debug("image type: " + imageType);
-			log.debug("size requested: " + size);
-		}
+		log.debug("image type: {}", imageType);
+		log.debug("size requested: {}", size);
 		
 		//get the image based on the global type/preference
 		switch (imageType) {
@@ -251,18 +217,6 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 			
 			case ProfileConstants.PICTURE_SETTING_OFFICIAL: 
 				image = getOfficialImage(userUuid,image,defaultImageUrl,isSameUser);
-			break;
-			
-			case ProfileConstants.PICTURE_SETTING_GRAVATAR:
-				String gravatarUrl = getGravatarUrl(userUuid);
-				if(StringUtils.isBlank(gravatarUrl)) {
-					image.setExternalImageUrl(defaultImageUrl);
-					image.setAltText(getAltText(userUuid, isSameUser, false));
-					image.setDefault(true);
-				} else {
-					image.setExternalImageUrl(gravatarUrl);
-					image.setAltText(getAltText(userUuid, isSameUser, true));
-				}
 			break;
 			
 			default:
@@ -355,7 +309,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 				}
 			}
 			catch (IOException e) {
-				log.error("Could not find/read official profile image file: " + filename + ". The default profile image will be used instead.");
+				log.error("Could not find/read official profile image file: {}. The default profile image will be used instead.", filename);
 				image.setExternalImageUrl(defaultImageUrl);
 				image.setDefault(true);
 			}
@@ -365,26 +319,16 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		return image;
 	}
 	
-	/**
- 	 * {@inheritDoc}
- 	 */
 	@Override
 	public ProfileImage getProfileImage(Person person, int size) {
-		return getProfileImage(person.getUuid(), person.getPreferences(), size, null);
+		return getProfileImage(person.getUuid(), size, null);
 	}
 	
-	/**
- 	 * {@inheritDoc}
- 	 */
 	@Override
 	public ProfileImage getProfileImage(Person person, int size, String siteId) {
-		return getProfileImage(person.getUuid(), person.getPreferences(), size, siteId);
+		return getProfileImage(person.getUuid(), size, siteId);
 	}
 	
-	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean setUploadedProfileImage(String userUuid, byte[] imageBytes, String mimeType, String fileName) {
 		
@@ -466,9 +410,6 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 				
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean setExternalProfileImage(String userUuid, String fullSizeUrl, String thumbnailUrl, String avatar) {
 		
@@ -499,9 +440,6 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		return false;
 	}
 	
-	/**
- 	 * {@inheritDoc}
- 	 */
 	@Override
 	public boolean saveOfficialImageUrl(final String userUuid, final String url) {
 		
@@ -515,23 +453,6 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		return false;
 	}
 	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	@Override
-	public String getGravatarUrl(final String userUuid) {
-		
-		String email = sakaiProxy.getUserEmail(userUuid);
-		if(StringUtils.isBlank(email)){
-			return null;
-		}
-				
-		return ProfileConstants.GRAVATAR_BASE_URL + ProfileUtils.calculateMD5(email) + "?s=200";
-	}
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
 	@Override
 	public boolean resetProfileImage(final String userUuid) {
 		if(dao.invalidateCurrentProfileImage(userUuid)) {
@@ -541,12 +462,9 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		return false;
 	}
 	
-	/**
- 	 * {@inheritDoc}
- 	 */
 	@Override
 	public boolean profileImageIsDefault(final String userUuid) {
-		ProfileImage image = getProfileImage(userUuid, null, ProfileConstants.PROFILE_IMAGE_MAIN);
+		ProfileImage image = getProfileImage(userUuid, ProfileConstants.PROFILE_IMAGE_MAIN);
 		return image.isDefault();
 	}
 
@@ -563,25 +481,16 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		return path.toString();
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getUnavailableImageURL() {
 		return getUnavailableImageURL(ProfileConstants.UNAVAILABLE_IMAGE_FULL);
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getUnavailableImageThumbnailURL() {
 		return getUnavailableImageURL(ProfileConstants.UNAVAILABLE_IMAGE_THUMBNAIL);
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getProfileImageEntityUrl(String userUuid, int size) {
 	
@@ -962,7 +871,6 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 	public boolean isPicEditorEnabled() {
 		String userUuid = sakaiProxy.getCurrentUserId();
 		UserProfile userProfile = (UserProfile) profileLogic.getUserProfile(userUuid);
-		ProfilePreferences prefs = preferencesLogic.getPreferencesRecordForUser(userUuid);
 		// -is picture changing disabled? (property, or locked).
 		// -if using official images, is the user allowed to select an alternate?
 		//  or have they specified the official image in their preferences.
@@ -970,7 +878,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		if ((!sakaiProxy.isProfilePictureChangeEnabled() || userProfile.isLocked()) && !sakaiProxy.isSuperUser()) {
 			return false;
 		}
-		if (sakaiProxy.isOfficialImageEnabledGlobally() && (!sakaiProxy.isUsingOfficialImageButAlternateSelectionEnabled() || prefs.isUseOfficialImage())) {
+		if (sakaiProxy.isOfficialImageEnabledGlobally() && (!sakaiProxy.isUsingOfficialImageButAlternateSelectionEnabled())) {
 			return false;
 		}
 		if (sakaiProxy.isProfilePictureChangeEnabled() && sakaiProxy.isUsingOfficialImage()) {
