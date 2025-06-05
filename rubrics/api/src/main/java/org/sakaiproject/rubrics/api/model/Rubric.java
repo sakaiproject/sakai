@@ -121,6 +121,7 @@ public class Rubric implements PersistableEntity<Long>, Serializable, Cloneable 
     private Double maxPoints = 0D;
 
     @JacksonXmlProperty(isAttribute = true)
+    @Column
     private Boolean adhoc = Boolean.FALSE;
 
     @Transient
