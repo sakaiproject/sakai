@@ -63,7 +63,7 @@ public class SiteSynchronization {
 	@GenericGenerator(name = "uuid", strategy = "uuid2")
 	private String id;
 
-	@Column(name = "site_id", nullable = false)
+	@Column(name = "site_id", length = 99, nullable = false)
 	private String siteId;
 	
 	@Column(name = "team_id", nullable = false)

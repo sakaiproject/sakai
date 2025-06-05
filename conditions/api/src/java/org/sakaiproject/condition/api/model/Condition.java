@@ -61,24 +61,24 @@ public class Condition {
     private String id;
 
     @NonNull
-    @Column(name = "COND_TYPE", nullable = false)
+    @Column(name = "COND_TYPE", length = 99, nullable = false)
     @Enumerated(EnumType.STRING)
     private ConditionType type;
 
-    @Column(name = "OPERATOR", nullable = true)
+    @Column(name = "OPERATOR", length = 99)
     @Enumerated(EnumType.STRING)
     private ConditionOperator operator;
 
-    @Column(name = "ARGUMENT", nullable = true)
+    @Column(name = "ARGUMENT", length = 999)
     private String argument;
 
-    @Column(name = "SITE_ID", nullable = false)
+    @Column(name = "SITE_ID", length = 36, nullable = false)
     private String siteId;
 
-    @Column(name = "TOOL_ID", nullable = false)
+    @Column(name = "TOOL_ID", length = 99, nullable = false)
     private String toolId;
 
-    @Column(name = "ITEM_ID", nullable = true)
+    @Column(name = "ITEM_ID", length = 99)
     private String itemId;
 
     @JsonIgnore
