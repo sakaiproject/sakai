@@ -553,7 +553,7 @@ public class SiteManageServiceImpl implements SiteManageService {
 
 		// Copy permissions from source sites to destination site
 		for (String fromSiteId : siteIds) {
-			log.info("Copying permissions from site {} to site {}", fromSiteId, toSiteId);
+			log.debug("Copying permissions from site {} to site {}", fromSiteId, toSiteId);
 			copyToolPermissions(fromSiteId, toSiteId);
 		}
 
