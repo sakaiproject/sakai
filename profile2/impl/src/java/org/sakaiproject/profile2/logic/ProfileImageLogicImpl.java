@@ -147,7 +147,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 			//right now we throw a security exception.
 			throw new SecurityException("Must be logged in to request a profile image.");
 		}
-		
+
 		//check if same user
 		if(isSameUser){
 			allowed = true;
@@ -252,14 +252,23 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 				boolean isFromUrl = false;
 
 				if (getUnavailableImageURL().equals(image.getOfficialImageUrl())) {
-					boolean useAvatarInitials = Boolean.valueOf(sakaiProxy.getServerConfigurationParameter("profile2.avatar.initials.enabled", "true"));
-					if (useAvatarInitials) {
-						image = this.getProfileAvatarInitials(userUuid);
-						image.setMimeType("image/png");
+					// First try to fall back to uploaded profile image
+					MimeTypeByteArray uploadedImage = getUploadedProfileImage(userUuid, ProfileConstants.PROFILE_IMAGE_MAIN);
+					if (uploadedImage != null && uploadedImage.getBytes() != null) {
+						log.debug("No official image available, falling back to uploaded profile image for user: " + userUuid);
+						image.setUploadedImage(uploadedImage.getBytes());
+						image.setMimeType(uploadedImage.getMimeType());
+						isFromUrl = false;
 					} else {
-						image.setExternalImageUrl(defaultImageUrl);
-						image.setDefault(true);
-						isFromUrl = true;
+						boolean useAvatarInitials = Boolean.valueOf(sakaiProxy.getServerConfigurationParameter("profile2.avatar.initials.enabled", "true"));
+						if (useAvatarInitials) {
+							image = this.getProfileAvatarInitials(userUuid);
+							image.setMimeType("image/png");
+						} else {
+							image.setExternalImageUrl(defaultImageUrl);
+							image.setDefault(true);
+							isFromUrl = true;
+						}
 					}
 				} else isFromUrl = true;
 
@@ -275,13 +284,21 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		} else if(StringUtils.equals(officialImageSource, ProfileConstants.OFFICIAL_IMAGE_SETTING_PROVIDER)){
 			String data = getOfficialImageEncoded(userUuid);
 			if(StringUtils.isBlank(data)) {
-				boolean useAvatarInitials = Boolean.valueOf(sakaiProxy.getServerConfigurationParameter("profile2.avatar.initials.enabled", "true"));
-				if (useAvatarInitials) {
-					image = this.getProfileAvatarInitials(userUuid);
-					image.setMimeType("image/png");
+				// First try to fall back to uploaded profile image
+				MimeTypeByteArray uploadedImage = getUploadedProfileImage(userUuid, ProfileConstants.PROFILE_IMAGE_MAIN);
+				if (uploadedImage != null && uploadedImage.getBytes() != null) {
+					log.debug("No official image from provider, falling back to uploaded profile image for user: " + userUuid);
+					image.setUploadedImage(uploadedImage.getBytes());
+					image.setMimeType(uploadedImage.getMimeType());
 				} else {
-					image.setExternalImageUrl(defaultImageUrl);
-					image.setDefault(true);
+					boolean useAvatarInitials = Boolean.valueOf(sakaiProxy.getServerConfigurationParameter("profile2.avatar.initials.enabled", "true"));
+					if (useAvatarInitials) {
+						image = this.getProfileAvatarInitials(userUuid);
+						image.setMimeType("image/png");
+					} else {
+						image.setExternalImageUrl(defaultImageUrl);
+						image.setDefault(true);
+					}
 				}
 			} else {
 				image.setOfficialImageEncoded(data);
@@ -298,37 +315,54 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 				if(data != null) {
 					image.setUploadedImage(data);
 				} else {
-					boolean useAvatarInitials = Boolean.valueOf(sakaiProxy.getServerConfigurationParameter("profile2.avatar.initials.enabled", "true"));
-					if (useAvatarInitials) {
-						image = this.getProfileAvatarInitials(userUuid);
-						image.setMimeType("image/png");
+					// First try to fall back to uploaded profile image
+					MimeTypeByteArray uploadedImage = getUploadedProfileImage(userUuid, ProfileConstants.PROFILE_IMAGE_MAIN);
+					if (uploadedImage != null && uploadedImage.getBytes() != null) {
+						log.debug("No official image file found, falling back to uploaded profile image for user: " + userUuid);
+						image.setUploadedImage(uploadedImage.getBytes());
+						image.setMimeType(uploadedImage.getMimeType());
 					} else {
-						image.setExternalImageUrl(defaultImageUrl);
-						image.setDefault(true);
+						boolean useAvatarInitials = Boolean.valueOf(sakaiProxy.getServerConfigurationParameter("profile2.avatar.initials.enabled", "true"));
+						if (useAvatarInitials) {
+							image = this.getProfileAvatarInitials(userUuid);
+							image.setMimeType("image/png");
+						} else {
+							image.setExternalImageUrl(defaultImageUrl);
+							image.setDefault(true);
+						}
 					}
 				}
 			}
 			catch (IOException e) {
 				log.error("Could not find/read official profile image file: {}. The default profile image will be used instead.", filename);
-				image.setExternalImageUrl(defaultImageUrl);
-				image.setDefault(true);
+				// First try to fall back to uploaded profile image
+				MimeTypeByteArray uploadedImage = getUploadedProfileImage(userUuid, ProfileConstants.PROFILE_IMAGE_MAIN);
+				if (uploadedImage != null && uploadedImage.getBytes() != null) {
+					log.debug("IOException on official image file, falling back to uploaded profile image for user: " + userUuid);
+					image.setUploadedImage(uploadedImage.getBytes());
+					image.setMimeType(uploadedImage.getMimeType());
+				} else {
+					log.debug("No uploaded profile image available, using default image for user: " + userUuid);
+					image.setExternalImageUrl(defaultImageUrl);
+					image.setDefault(true);
+				}
 			}
 		}
 		image.setAltText(getAltText(userUuid, isSameUser, true));
 				
 		return image;
 	}
-	
+
 	@Override
 	public ProfileImage getProfileImage(Person person, int size) {
 		return getProfileImage(person.getUuid(), size, null);
 	}
-	
+
 	@Override
 	public ProfileImage getProfileImage(Person person, int size, String siteId) {
 		return getProfileImage(person.getUuid(), size, siteId);
 	}
-	
+
 	@Override
 	public boolean setUploadedProfileImage(String userUuid, byte[] imageBytes, String mimeType, String fileName) {
 		
@@ -409,7 +443,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		return false;
 				
 	}
-	
+
 	@Override
 	public boolean setExternalProfileImage(String userUuid, String fullSizeUrl, String thumbnailUrl, String avatar) {
 		
@@ -439,7 +473,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		
 		return false;
 	}
-	
+
 	@Override
 	public boolean saveOfficialImageUrl(final String userUuid, final String url) {
 		
@@ -452,7 +486,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		
 		return false;
 	}
-	
+
 	@Override
 	public boolean resetProfileImage(final String userUuid) {
 		if(dao.invalidateCurrentProfileImage(userUuid)) {
@@ -461,7 +495,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		}
 		return false;
 	}
-	
+
 	@Override
 	public boolean profileImageIsDefault(final String userUuid) {
 		ProfileImage image = getProfileImage(userUuid, ProfileConstants.PROFILE_IMAGE_MAIN);
@@ -480,17 +514,17 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		path.append(imagePath);
 		return path.toString();
 	}
-	
+
 	@Override
 	public String getUnavailableImageURL() {
 		return getUnavailableImageURL(ProfileConstants.UNAVAILABLE_IMAGE_FULL);
 	}
-	
+
 	@Override
 	public String getUnavailableImageThumbnailURL() {
 		return getUnavailableImageURL(ProfileConstants.UNAVAILABLE_IMAGE_THUMBNAIL);
 	}
-	
+
 	@Override
 	public String getProfileImageEntityUrl(String userUuid, int size) {
 	
