@@ -209,7 +209,7 @@ public class SiteManageServiceImpl implements SiteManageService {
             Map<String, String> transversalMap = new HashMap<>();
             
             // Add code to copy tool permissions from source site to destination site
-            log.info("About to copy tool permissions from site {} to site {}", oSiteId, nSiteId);
+            log.debug("About to copy tool permissions from site {} to site {}", oSiteId, nSiteId);
             copyToolPermissions(oSiteId, nSiteId);
 
             if (pageList != null) {
