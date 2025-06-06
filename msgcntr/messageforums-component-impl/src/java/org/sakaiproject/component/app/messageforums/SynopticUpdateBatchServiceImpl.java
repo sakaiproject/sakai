@@ -16,6 +16,7 @@
 package org.sakaiproject.component.app.messageforums;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -133,40 +134,52 @@ public class SynopticUpdateBatchServiceImpl implements SynopticUpdateBatchServic
         // Take a snapshot of entries to process to avoid concurrent modification
         List<Map.Entry<String, SynopticUpdate>> entriesToProcess = new ArrayList<>(pendingUpdates.entrySet());
         
-        // Process all queued updates
+        // Prepare batch updates
+        Map<String, Integer> forumUpdates = new HashMap<>();
+        Map<String, Integer> messageUpdates = new HashMap<>();
+        
         for (Map.Entry<String, SynopticUpdate> entry : entriesToProcess) {
             String key = entry.getKey();
             SynopticUpdate update = entry.getValue();
 
-            try {
-                // Process forum update if present
-                if (update.newForumCount != null) {
-                    log.debug("Processing forum update for user {} in site {} with count {}", 
-                             update.userId, update.siteId, update.newForumCount);
-                    synopticMsgcntrManager.setForumSynopticInfoHelper(
-                        update.userId, update.siteId, update.newForumCount);
-                }
+            if (update.newForumCount != null) {
+                forumUpdates.put(key, update.newForumCount);
+                log.debug("Batching forum update for user {} in site {} with count {}", 
+                         update.userId, update.siteId, update.newForumCount);
+            }
 
-                // Process message update if present
-                if (update.newMessageCount != null) {
-                    log.debug("Processing message update for user {} in site {} with count {}", 
-                             update.userId, update.siteId, update.newMessageCount);
-                    synopticMsgcntrManager.setMessagesSynopticInfoHelper(
-                        update.userId, update.siteId, update.newMessageCount);
-                }
-
-                // Remove successfully processed update
-                pendingUpdates.remove(key);
-                processed++;
-
-            } catch (Exception e) {
-                log.warn("Failed to process synoptic update for key {}: {}", key, e.getMessage());
-                // Leave the update in the queue for retry in next batch
+            if (update.newMessageCount != null) {
+                messageUpdates.put(key, update.newMessageCount);
+                log.debug("Batching message update for user {} in site {} with count {}", 
+                         update.userId, update.siteId, update.newMessageCount);
             }
         }
 
+        try {
+            // Perform batch updates using true Hibernate batching
+            if (!forumUpdates.isEmpty()) {
+                synopticMsgcntrManager.batchUpdateForumCounts(forumUpdates);
+                log.debug("Batch updated {} forum counts", forumUpdates.size());
+            }
+
+            if (!messageUpdates.isEmpty()) {
+                synopticMsgcntrManager.batchUpdateMessageCounts(messageUpdates);
+                log.debug("Batch updated {} message counts", messageUpdates.size());
+            }
+
+            // Remove all successfully processed updates
+            for (Map.Entry<String, SynopticUpdate> entry : entriesToProcess) {
+                pendingUpdates.remove(entry.getKey());
+                processed++;
+            }
+
+        } catch (Exception e) {
+            log.warn("Failed to process batch synoptic updates: {}", e.getMessage());
+            // Leave all updates in the queue for retry in next batch
+        }
+
         long duration = System.currentTimeMillis() - startTime;
-        log.debug("Processed {} synoptic updates in {}ms", processed, duration);
+        log.debug("Processed {} synoptic updates in {}ms using batch operations", processed, duration);
     }
 
     @Override

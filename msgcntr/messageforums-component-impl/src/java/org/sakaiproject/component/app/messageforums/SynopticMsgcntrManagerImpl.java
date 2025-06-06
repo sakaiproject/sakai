@@ -1324,4 +1324,102 @@ public class DecoratedForumInfo{
 			}
 		}
 	}
+
+	@Override
+	public void batchUpdateForumCounts(Map<String, Integer> updates) {
+		if (updates == null || updates.isEmpty()) {
+			return;
+		}
+
+		log.debug("Batch updating forum counts for {} entries", updates.size());
+
+		HibernateCallback<Void> hcb = session -> {
+			int batchSize = 50;
+			int count = 0;
+
+			for (Map.Entry<String, Integer> entry : updates.entrySet()) {
+				String[] parts = entry.getKey().split(":");
+				if (parts.length != 2) {
+					log.warn("Invalid key format for batch update: {}", entry.getKey());
+					continue;
+				}
+				
+				String userId = parts[0];
+				String siteId = parts[1];
+				Integer newCount = entry.getValue();
+
+				// Use HQL update for each entry - Hibernate will batch these automatically
+				Query updateQuery = session.createQuery(
+					"UPDATE SynopticMsgcntrItemImpl SET newForumCount = :newCount, forumLastVisit = CURRENT_TIMESTAMP " +
+					"WHERE userId = :userId AND siteId = :siteId"
+				);
+				updateQuery.setParameter("newCount", newCount);
+				updateQuery.setParameter("userId", userId);
+				updateQuery.setParameter("siteId", siteId);
+				updateQuery.executeUpdate();
+
+				count++;
+				if (count % batchSize == 0) {
+					session.flush();
+					session.clear();
+				}
+			}
+
+			session.flush();
+			session.clear();
+			return null;
+		};
+
+		getHibernateTemplate().execute(hcb);
+		log.debug("Completed batch update of {} forum count entries", updates.size());
+	}
+
+	@Override
+	public void batchUpdateMessageCounts(Map<String, Integer> updates) {
+		if (updates == null || updates.isEmpty()) {
+			return;
+		}
+
+		log.debug("Batch updating message counts for {} entries", updates.size());
+
+		HibernateCallback<Void> hcb = session -> {
+			int batchSize = 50;
+			int count = 0;
+
+			for (Map.Entry<String, Integer> entry : updates.entrySet()) {
+				String[] parts = entry.getKey().split(":");
+				if (parts.length != 2) {
+					log.warn("Invalid key format for batch update: {}", entry.getKey());
+					continue;
+				}
+				
+				String userId = parts[0];
+				String siteId = parts[1];
+				Integer newCount = entry.getValue();
+
+				// Use HQL update for each entry - Hibernate will batch these automatically
+				Query updateQuery = session.createQuery(
+					"UPDATE SynopticMsgcntrItemImpl SET newMessagesCount = :newCount, messagesLastVisit = CURRENT_TIMESTAMP " +
+					"WHERE userId = :userId AND siteId = :siteId"
+				);
+				updateQuery.setParameter("newCount", newCount);
+				updateQuery.setParameter("userId", userId);
+				updateQuery.setParameter("siteId", siteId);
+				updateQuery.executeUpdate();
+
+				count++;
+				if (count % batchSize == 0) {
+					session.flush();
+					session.clear();
+				}
+			}
+
+			session.flush();
+			session.clear();
+			return null;
+		};
+
+		getHibernateTemplate().execute(hcb);
+		log.debug("Completed batch update of {} message count entries", updates.size());
+	}
 }

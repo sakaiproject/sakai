@@ -19,6 +19,9 @@ import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -51,13 +54,15 @@ public class SynopticUpdateBatchServiceImplTest {
         batchService.queueForumUpdate("user1", "site1", 5);
         
         // Then it should not call the manager immediately
-        verify(synopticMsgcntrManager, never()).setForumSynopticInfoHelper(anyString(), anyString(), anyInt());
+        verify(synopticMsgcntrManager, never()).batchUpdateForumCounts(any());
         
         // When we process the queue
         batchService.processQueuedUpdates();
         
-        // Then it should call the manager
-        verify(synopticMsgcntrManager, times(1)).setForumSynopticInfoHelper("user1", "site1", 5);
+        // Then it should call the batch update method
+        Map<String, Integer> expectedUpdates = new HashMap<>();
+        expectedUpdates.put("user1:site1", 5);
+        verify(synopticMsgcntrManager, times(1)).batchUpdateForumCounts(expectedUpdates);
     }
     
     @Test
@@ -70,8 +75,13 @@ public class SynopticUpdateBatchServiceImplTest {
         // When we process the queue
         batchService.processQueuedUpdates();
         
-        // Then it should call both methods with the latest values
-        verify(synopticMsgcntrManager).setForumSynopticInfoHelper("user1", "site1", 5);
-        verify(synopticMsgcntrManager).setMessagesSynopticInfoHelper("user1", "site1", 2);
+        // Then it should call both batch methods with the latest values
+        Map<String, Integer> expectedForumUpdates = new HashMap<>();
+        expectedForumUpdates.put("user1:site1", 5);
+        verify(synopticMsgcntrManager).batchUpdateForumCounts(expectedForumUpdates);
+        
+        Map<String, Integer> expectedMessageUpdates = new HashMap<>();
+        expectedMessageUpdates.put("user1:site1", 2);
+        verify(synopticMsgcntrManager).batchUpdateMessageCounts(expectedMessageUpdates);
     }
 }
