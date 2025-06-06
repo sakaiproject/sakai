@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.component.app.messageforums;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -38,10 +40,8 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 public class SynopticUpdateBatchServiceImpl implements SynopticUpdateBatchService {
 
     private static final String BATCH_INTERVAL_PROPERTY = "msgcntr.synoptic.batch.interval.seconds";
-    private static final String BATCH_SIZE_PROPERTY = "msgcntr.synoptic.batch.size";
 
     private static final long DEFAULT_BATCH_INTERVAL_SECONDS = 10;
-    private static final int DEFAULT_BATCH_SIZE = 100;
 
     private SynopticMsgcntrManager synopticMsgcntrManager;
     private ServerConfigurationService serverConfigurationService;
@@ -125,31 +125,32 @@ public class SynopticUpdateBatchServiceImpl implements SynopticUpdateBatchServic
             return;
         }
 
-        int batchSize = getBatchSize();
         int processed = 0;
         long startTime = System.currentTimeMillis();
 
         log.debug("Processing {} queued synoptic updates", pendingUpdates.size());
 
-        // Process updates in batches to avoid overwhelming the database
-        for (Map.Entry<String, SynopticUpdate> entry : pendingUpdates.entrySet()) {
-            if (processed >= batchSize) {
-                log.debug("Batch size limit reached, remaining updates will be processed in next batch");
-                break;
-            }
-
+        // Take a snapshot of entries to process to avoid concurrent modification
+        List<Map.Entry<String, SynopticUpdate>> entriesToProcess = new ArrayList<>(pendingUpdates.entrySet());
+        
+        // Process all queued updates
+        for (Map.Entry<String, SynopticUpdate> entry : entriesToProcess) {
             String key = entry.getKey();
             SynopticUpdate update = entry.getValue();
 
             try {
                 // Process forum update if present
                 if (update.newForumCount != null) {
+                    log.debug("Processing forum update for user {} in site {} with count {}", 
+                             update.userId, update.siteId, update.newForumCount);
                     synopticMsgcntrManager.setForumSynopticInfoHelper(
                         update.userId, update.siteId, update.newForumCount);
                 }
 
                 // Process message update if present
                 if (update.newMessageCount != null) {
+                    log.debug("Processing message update for user {} in site {} with count {}", 
+                             update.userId, update.siteId, update.newMessageCount);
                     synopticMsgcntrManager.setMessagesSynopticInfoHelper(
                         update.userId, update.siteId, update.newMessageCount);
                 }
@@ -172,20 +173,33 @@ public class SynopticUpdateBatchServiceImpl implements SynopticUpdateBatchServic
     public void startBatchProcessing() {
         if (batchingStarted.compareAndSet(false, true)) {
             long intervalSeconds = getBatchIntervalSeconds();
+            
+            // Validate interval to prevent IllegalArgumentException
+            if (intervalSeconds <= 0) {
+                log.warn("Invalid batch interval: {}s, using default: {}s", intervalSeconds, DEFAULT_BATCH_INTERVAL_SECONDS);
+                intervalSeconds = DEFAULT_BATCH_INTERVAL_SECONDS;
+            }
+            
             batchExecutor = Executors.newSingleThreadScheduledExecutor(r -> {
                 Thread t = new Thread(r, "SynopticUpdateBatch");
                 t.setDaemon(true);
                 return t;
             });
 
-            batchExecutor.scheduleWithFixedDelay(
-                this::processQueuedUpdates,
-                intervalSeconds,
-                intervalSeconds,
-                TimeUnit.SECONDS
-            );
+            try {
+                batchExecutor.scheduleWithFixedDelay(
+                    this::processQueuedUpdates,
+                    intervalSeconds,
+                    intervalSeconds,
+                    TimeUnit.SECONDS
+                );
 
-            log.info("Started synoptic update batch processing with {}s interval", intervalSeconds);
+                log.info("Started synoptic update batch processing with {}s interval", intervalSeconds);
+            } catch (IllegalArgumentException e) {
+                log.error("Failed to start batch processing with interval {}s: {}", intervalSeconds, e.getMessage());
+                batchExecutor.shutdown();
+                batchingStarted.set(false);
+            }
         }
     }
 
@@ -213,9 +227,5 @@ public class SynopticUpdateBatchServiceImpl implements SynopticUpdateBatchServic
 
     private long getBatchIntervalSeconds() {
         return serverConfigurationService.getLong(BATCH_INTERVAL_PROPERTY, DEFAULT_BATCH_INTERVAL_SECONDS);
-    }
-
-    private int getBatchSize() {
-        return serverConfigurationService.getInt(BATCH_SIZE_PROPERTY, DEFAULT_BATCH_SIZE);
     }
 }

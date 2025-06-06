@@ -57,7 +57,7 @@ public class SynopticUpdateBatchServiceImplTest {
         batchService.processQueuedUpdates();
         
         // Then it should call the manager
-        verify(synopticMsgcntrManager).setForumSynopticInfoHelper("user1", "site1", 5);
+        verify(synopticMsgcntrManager, times(1)).setForumSynopticInfoHelper("user1", "site1", 5);
     }
     
     @Test
