@@ -58,10 +58,10 @@ public class GradebookAssignmentRepositoryImpl extends SpringCrudRepositoryImpl<
         CriteriaQuery<GradebookAssignment> query = cb.createQuery(GradebookAssignment.class);
         Root<GradebookAssignment> ga = query.from(GradebookAssignment.class);
         Join<GradebookAssignment, Category> cat = ga.join("category");
-        query.where(cb.and(cb.equal(cat.get("id"), categoryId),
-                            cb.equal(ga.get("removed"), removed)));
+        query.where(cb.and(cb.equal(cat.get("id"), categoryId), cb.equal(ga.get("removed"), removed)));
         return session.createQuery(query).list();
     }
+
 
     @Transactional(readOnly = true)
     public Optional<GradebookAssignment> findByIdAndGradebook_UidAndRemoved(Long id, String gradebookUid, Boolean removed) {

@@ -252,14 +252,11 @@ public class GradingPersistenceManagerImpl implements GradingPersistenceManager 
         List<Category> categories = categoryRepository.findByGradebook_IdAndRemoved(gradebookId, false);
 
         if (!categories.isEmpty()) {
-            List<Long> categoryIds = categories.stream()
-                .map(Category::getId)
-                .collect(java.util.stream.Collectors.toList());
-
             List<GradebookAssignment> allAssignments = gradebookAssignmentRepository
-                .findByCategory_IdInAndRemoved(categoryIds, false);
+                .findByGradebook_IdAndRemoved(gradebookId, false);
 
             java.util.Map<Long, List<GradebookAssignment>> assignmentsByCategory = allAssignments.stream()
+                .filter(assignment -> assignment.getCategory() != null)
                 .collect(java.util.stream.Collectors.groupingBy(assignment -> assignment.getCategory().getId()));
 
             categories.forEach(category -> {
