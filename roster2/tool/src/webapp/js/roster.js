@@ -169,6 +169,18 @@ roster.switchState = function (state, args) {
     }
   }
 
+  // don't show card game tab if user doesn't have permission to view all members or official photos
+  if (roster.currentUserPermissions && 
+      (!roster.currentUserPermissions.viewAllMembers || !roster.currentUserPermissions.viewOfficialPhoto)) {
+
+    $('#navbar_card_game_link').hide();
+
+    // this can happen if roster.default.state=4 (card game)
+    if (roster.STATE_CARD_GAME === state) {
+      state = roster.DEFAULT_STATE;
+    }
+  }
+
   if (roster.STATE_OVERVIEW === state) {
 
     roster.enrollmentSetToView = null;
