@@ -105,4 +105,16 @@ public interface SynopticMsgcntrManager {
 	public void sendPrivateMessageDesktop(PrivateMessage pmReturn, MimeMessage msg, StringBuilder[] bodyBuf, List<Reference> attachments, String from) throws MessagingException;
 
 	public void incrementSynopticToolInfo(Set<User> recipients, PrivateMessage rrepMsg, boolean updateCurrentUser);
+
+	/**
+	 * Batch update forum synoptic counts for multiple users in a single database operation
+	 * @param updates Map of "userId:siteId" to new forum count
+	 */
+	public void batchUpdateForumCounts(Map<String, Integer> updates);
+
+	/**
+	 * Batch update message synoptic counts for multiple users in a single database operation
+	 * @param updates Map of "userId:siteId" to new message count
+	 */
+	public void batchUpdateMessageCounts(Map<String, Integer> updates);
 }
