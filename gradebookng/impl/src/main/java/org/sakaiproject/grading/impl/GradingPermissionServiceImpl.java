@@ -1215,17 +1215,7 @@ public class GradingPermissionServiceImpl implements GradingPermissionService {
     }
 
     private List<Category> getCategoriesWithAssignments(Long gradebookId) {
-
-        List<Category> categoriesWithAssignments = new ArrayList<>();
-        for (Category category : gradingPersistenceManager.getCategoriesForGradebook(gradebookId)) {
-            if (category != null) {
-                List<GradebookAssignment> assignments = gradingPersistenceManager.getAssignmentsForCategory(category.getId());
-                category.setAssignmentList(assignments);
-                categoriesWithAssignments.add(category);
-            }
-        }
-
-        return categoriesWithAssignments;
+        return gradingPersistenceManager.getCategoriesWithAssignmentsForGradebook(gradebookId);
     }
 
     private Gradebook getGradebook(String gradebookUid) {
