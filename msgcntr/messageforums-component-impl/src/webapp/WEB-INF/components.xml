@@ -478,6 +478,25 @@
          </property>    
  
      </bean>
+
+     <bean id="org.sakaiproject.api.app.messageforums.SynopticUpdateBatchService"
+           class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+         <property name="transactionManager">
+             <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+         </property>
+         <property name="target">
+             <bean class="org.sakaiproject.component.app.messageforums.SynopticUpdateBatchServiceImpl" 
+                   init-method="init" destroy-method="destroy">
+                 <property name="synopticMsgcntrManager" ref="org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager"/>
+                 <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+             </bean>
+         </property>
+         <property name="transactionAttributes">
+             <props>
+                 <prop key="*">PROPAGATION_REQUIRED</prop>
+             </props>
+         </property>
+     </bean>
  
      
      <bean id="org.sakaiproject.component.app.messageforums.jobs.UpdateSynopticMessageCounts"
