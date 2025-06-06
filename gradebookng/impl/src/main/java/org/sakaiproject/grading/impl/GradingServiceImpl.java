@@ -5429,7 +5429,7 @@ public class GradingServiceImpl implements GradingService {
                 deleteGradebook(siteId);
             }
         } catch (Exception e) {
-            log.warn("Could not hardDelete gradebook for context {}", siteId);
+            log.warn("Could not hard delete gradebook for context {}", siteId, e);
         }
     }
 }
