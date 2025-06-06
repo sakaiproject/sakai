@@ -57,12 +57,6 @@ public class GradebookRepositoryImpl extends SpringCrudRepositoryImpl<Gradebook,
 
     @Transactional(readOnly = true)
     public boolean isGradebookDefined(final String gradebookUid) {
-        /*
-        return ((Long) sessionFactory.getCurrentSession().createCriteria(Gradebook.class)
-                .add(Restrictions.eq("uid", gradebookUid))
-                .setProjection(Projections.rowCount())
-                .uniqueResult()) == 1L;
-         */
         Session session = sessionFactory.getCurrentSession();
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaQuery<Gradebook> query = cb.createQuery(Gradebook.class);
