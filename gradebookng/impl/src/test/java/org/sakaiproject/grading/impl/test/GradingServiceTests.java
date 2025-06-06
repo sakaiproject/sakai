@@ -709,5 +709,4 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
         } catch (UserNotDefinedException unde) {
         }
     }
-
 }
