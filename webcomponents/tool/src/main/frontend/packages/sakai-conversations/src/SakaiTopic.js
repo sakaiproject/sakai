@@ -113,14 +113,14 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
 
     // If there are no new posts to mark as viewed, return early
     if (newPostIds.length === 0) {
-      return;
+      return Promise.resolve();
     }
 
     // Add these posts to our tracked set before making the request
     newPostIds.forEach(id => this._observedPosts.add(id));
 
     const url = this.topic.links.find(l => l.rel === "markpostsviewed").href;
-    fetch(url, {
+    return fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(newPostIds),
@@ -149,7 +149,10 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
         throw new Error(`Network error while marking posts as viewed at url ${url}`);
       }
     })
-    .catch (error => console.error(error));
+    .catch (error => {
+      console.error(error);
+      throw error;
+    });
   }
 
   _savePostAsDraft() { this._postToTopic(true); }
