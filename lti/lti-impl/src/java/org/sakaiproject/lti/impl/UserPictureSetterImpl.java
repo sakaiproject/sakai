@@ -18,14 +18,14 @@ package org.sakaiproject.lti.impl;
 
 import java.util.Map;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.tsugi.lti.LTIConstants;
+import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.lti.api.UserPictureSetter;
 import org.sakaiproject.profile2.logic.ProfileImageLogic;
-import org.sakaiproject.profile2.logic.ProfilePreferencesLogic;
-import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.user.api.User;
 
 /**
@@ -34,19 +34,12 @@ import org.sakaiproject.user.api.User;
 @Slf4j
 public class UserPictureSetterImpl implements UserPictureSetter {
 
+    @Setter
     private ProfileImageLogic profileImageLogic = null;
-    public void setProfileImageLogic(ProfileImageLogic profileImageLogic) {
-        this.profileImageLogic = profileImageLogic;
-    }
-
-    private ProfilePreferencesLogic profilePreferencesLogic = null;
-    public void setProfilePreferencesLogic(ProfilePreferencesLogic profilePreferencesLogic) {
-        this.profilePreferencesLogic = profilePreferencesLogic;
-    }
 
     /**
      * LTI-155. If Profile2 is installed, set the profile picture to the user_image url, if supplied.
-     * 
+     *
      * @param payload The LTI launch parameters in a Map
      * @param user The provisioned user who MUST be already logged in.
      * @param isTrustedConsumer If this is true, do nothing as we assume that a local
@@ -55,22 +48,19 @@ public class UserPictureSetterImpl implements UserPictureSetter {
      * 							user corresponding to the consumer user already exists
      */
     public void setupUserPicture(Map payload, User user, boolean isTrustedConsumer, boolean isEmailTrustedConsumer) {
-    	
-    	if(isTrustedConsumer) return;
-    	if(isEmailTrustedConsumer)return;
-    	
+
+        if (isTrustedConsumer) return;
+        if (isEmailTrustedConsumer) return;
+
     	String imageUrl = (String) payload.get(LTIConstants.USER_IMAGE);
-    	        
-    	if(imageUrl != null && imageUrl.length() > 0) {
+
+        if (StringUtils.isNotBlank(imageUrl)) {
     		log.debug("User image supplied by consumer: {}", imageUrl);
-    	        
+
             try {
                 profileImageLogic.saveOfficialImageUrl(user.getId(), imageUrl);
-                ProfilePreferences prefs = profilePreferencesLogic.getPreferencesRecordForUser(user.getId());
-                prefs.setUseOfficialImage(true);
-                profilePreferencesLogic.savePreferencesRecord(prefs);
             } catch(Exception e) {
-                log.error("Failed to setup launcher's Profile2 picture.",e);
+                log.error("Failed to setup launcher's Profile2 picture.", e.toString());
             }
     	}
     }

@@ -18,7 +18,6 @@ package org.sakaiproject.profile2.logic;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -710,9 +709,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 		else if (StringUtils.equals(pictureType, ProfileConstants.PICTURE_SETTING_OFFICIAL_PROP)) {
 			return ProfileConstants.PICTURE_SETTING_OFFICIAL;
 		}
-		// gravatar is not an enforceable setting, hence no block here. it is purely a user preference.
-		// but can be disabled
-
 		// otherwise return default
 		else {
 			return ProfileConstants.PICTURE_SETTING_DEFAULT;
@@ -901,12 +897,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 	@Override
 	public boolean checkForSite(final String siteId) {
 		return this.siteService.siteExists(siteId);
-	}
-
-	@Override
-	public boolean isGravatarImageEnabledGlobally() {
-		return this.serverConfigurationService.getBoolean("profile2.gravatar.image.enabled",
-				ProfileConstants.SAKAI_PROP_PROFILE2_GRAVATAR_IMAGE_ENABLED);
 	}
 
 	@Override

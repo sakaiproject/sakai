@@ -23,7 +23,6 @@ import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.AttributeModifier;
 
-import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.tool.components.ProfileImage;
 import org.sakaiproject.profile2.tool.pages.panels.ViewProfilePanel;
 import org.sakaiproject.profile2.util.ProfileConstants;
@@ -55,8 +54,6 @@ public class ViewProfile extends BasePage {
 			throw new RestartResponseException(new MyProfile(userUuid));
 		}
 
-		preferencesLink.setVisible(false);
-
 		// post view event
 		this.sakaiProxy.postEvent(ProfileConstants.EVENT_PROFILE_VIEW_OTHER, "/profile/" + userUuid, false);
 
@@ -72,8 +69,6 @@ public class ViewProfile extends BasePage {
 		otherProfileLink.setEnabled(false);
 		otherProfileContainer.add(new AttributeModifier("class", "current"));
 		final String userType = user.getType();
-
-		final ProfilePreferences prefs = this.preferencesLogic.getPreferencesRecordForUser(userUuid);
 
 		/* IMAGE */
 		ProfileImage profileImage = new ProfileImage("photo", new Model<String>(userUuid));

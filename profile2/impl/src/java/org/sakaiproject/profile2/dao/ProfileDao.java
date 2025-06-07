@@ -21,7 +21,6 @@ import org.sakaiproject.profile2.hbm.model.ProfileImageExternal;
 import org.sakaiproject.profile2.hbm.model.ProfileImageOfficial;
 import org.sakaiproject.profile2.hbm.model.ProfileImageUploaded;
 import org.sakaiproject.profile2.model.ExternalIntegrationInfo;
-import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.SocialNetworkingInfo;
 
 /**
@@ -120,27 +119,6 @@ public interface ProfileDao {
 	 * @return
 	 */
 	public boolean saveExternalImage(final ProfileImageExternal externalImage);
-	
-	/**
-	 * Persist a new ProfilePreferences record and return it.
-	 *
-	 * @param prefs		complete ProfilePreferences record
-	 */
-	public ProfilePreferences addNewPreferencesRecord(ProfilePreferences prefs);
-
-	/**
-	 * Get a ProfilePreferences record for the user
-	 * @param userId	uuid for the user
-	 * @return
-	 */
-	public ProfilePreferences getPreferencesRecordForUser(final String userId);
-	
-	/**
-	 * Save a ProfilePreferences record
-	 * @param prefs		ProfilePreferences record
-	 * @return
-	 */
-	public boolean savePreferencesRecord(ProfilePreferences prefs);
 	
 	/**
 	 * Get the ExternalIntegrationInfo record for a user

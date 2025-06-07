@@ -39,7 +39,6 @@ import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.profile2.logic.ProfileExternalIntegrationLogic;
 import org.sakaiproject.profile2.logic.ProfileImageLogic;
 import org.sakaiproject.profile2.logic.ProfileLogic;
-import org.sakaiproject.profile2.logic.ProfilePreferencesLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
@@ -54,9 +53,6 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	@SpringBean(name = "org.sakaiproject.profile2.logic.ProfileLogic")
 	protected ProfileLogic profileLogic;
 
-	@SpringBean(name = "org.sakaiproject.profile2.logic.ProfilePreferencesLogic")
-	protected ProfilePreferencesLogic preferencesLogic;
-
 	@SpringBean(name = "org.sakaiproject.profile2.logic.ProfileImageLogic")
 	protected ProfileImageLogic imageLogic;
 
@@ -65,11 +61,9 @@ public class BasePage extends WebPage implements IHeaderContributor {
 
 	Link<Void> myProfileLink;
 	Link<Void> otherProfileLink;
-	Link<Void> preferencesLink;
 	
 	WebMarkupContainer myProfileContainer;
 	WebMarkupContainer otherProfileContainer;
-	WebMarkupContainer preferencesContainer;
 
 	public BasePage() {
 		// super();
@@ -118,27 +112,6 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		this.otherProfileLink.setVisible(false);
 		otherProfileContainer.add(this.otherProfileLink);
 		add(otherProfileContainer);
-
-		// preferences link and container
-		preferencesContainer = new WebMarkupContainer("preferencesContainer");
-		this.preferencesLink = new Link<Void>("preferencesLink") {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void onClick() {
-				setResponsePage(new MyPreferences());
-			}
-		};
-		this.preferencesLink.add(new Label("preferencesLabel", new ResourceModel("link.my.preferences")));
-		this.preferencesLink.add(new AttributeModifier("title", new ResourceModel("link.my.preferences.tooltip")));
-		preferencesContainer.add(this.preferencesLink);
-
-		if (!this.sakaiProxy.isPreferenceEnabledGlobally()) {
-			this.preferencesLink.setVisible(false);
-		}
-		add(preferencesContainer);
-
-
 	}
 
 	// Style it like a Sakai tool

@@ -174,7 +174,6 @@ public class ProfileLogicImpl implements ProfileLogic {
 		p.setUuid(userUuid);
 		p.setDisplayName(user.getDisplayName());
 		p.setType(user.getType());
-		p.setPreferences(preferencesLogic.getPreferencesRecordForUser(userUuid));
 		p.setProfile(getUserProfile(userUuid));
 
 		return p;
@@ -280,9 +279,6 @@ public class ProfileLogicImpl implements ProfileLogic {
 
 	@Setter
 	private ProfileDao dao;
-
-	@Setter
-	private ProfilePreferencesLogic preferencesLogic;
 
 	@Setter
 	private ProfileImageLogic imageLogic;

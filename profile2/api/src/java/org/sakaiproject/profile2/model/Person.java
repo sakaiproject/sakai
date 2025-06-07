@@ -38,8 +38,4 @@ public class Person extends BasicPerson implements Serializable {
 	
 	@Getter @Setter
 	private UserProfile profile;
-	
-	@Getter @Setter
-	private ProfilePreferences preferences;
-	
 }

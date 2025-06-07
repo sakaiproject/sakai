@@ -72,7 +72,7 @@ public class ForumMessageEntityProviderImpl implements ForumMessageEntityProvide
   private SiteService siteService;
   private UserDirectoryService userDirectoryService;
 
-private RequestStorage requestStorage;
+  private RequestStorage requestStorage;
   public void setRequestStorage(RequestStorage requestStorage) {
       this.requestStorage = requestStorage;
   }
