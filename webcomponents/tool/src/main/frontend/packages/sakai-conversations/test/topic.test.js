@@ -569,8 +569,8 @@ describe("sakai-topic tests", () => {
     // Set up event listener for "posts-viewed" before calling the method
     const eventPromise = oneEvent(el, "posts-viewed");
     
-    // Call the method directly with the post IDs
-    await el._markPostsViewed(["post1"]);
+    // Call the method directly with the post IDs using setTimeout to ensure proper async timing
+    setTimeout(() => el._markPostsViewed(["post1"]), 0);
 
     const { detail } = await eventPromise;
 
