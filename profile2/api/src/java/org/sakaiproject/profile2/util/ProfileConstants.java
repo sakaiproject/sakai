@@ -69,9 +69,6 @@ public class ProfileConstants {
 	public static final String PICTURE_SETTING_URL_PROP = "url";
 	public static final int PICTURE_SETTING_OFFICIAL = 3;
 	public static final String PICTURE_SETTING_OFFICIAL_PROP = "official";
-	public static final int PICTURE_SETTING_GRAVATAR = 4;
-	//n.b a gravatar is not an enforceable setting, hence no property here. it is purely a choice.
-	//it can be disabled in sakai.properties if required.
 
 	public static final int PICTURE_SETTING_DEFAULT = PICTURE_SETTING_UPLOAD;
 
@@ -86,9 +83,6 @@ public class ProfileConstants {
 	//the property that an external provider may set into the user properties for the jpegPhoto field.
 	public static final String USER_PROPERTY_JPEG_PHOTO = "jpegPhoto";
 
-	//gravatar base URL
-	public static final String GRAVATAR_BASE_URL = "//www.gravatar.com/avatar/";
-
     // Defines the name of the blank image, the one a user gets when nothing else is available
     public static final String BLANK = "blank";
 
@@ -98,7 +92,6 @@ public class ProfileConstants {
 
 	//these values are used when creating a default preferences record for a user
 	public static final boolean DEFAULT_OFFICIAL_IMAGE_SETTING = false;
-	public static final boolean DEFAULT_GRAVATAR_SETTING = false;
 
 	public static final boolean DEFAULT_BIRTHYEAR_VISIBILITY = true;
 
@@ -118,7 +111,6 @@ public class ProfileConstants {
 	public static final boolean SAKAI_PROP_PROFILE2_PROFILE_INTERESTS_ENABLED = true; //profile2.profile.interests.enabled
 	public static final boolean SAKAI_PROP_PROFILE2_PROFILE_PRONUNCIATION_ENABLED = true; //profile2.profile.name.pronunciation.enabled
 	public static final boolean SAKAI_PROP_PROFILE2_OFFICIAL_IMAGE_ENABLED = false; //profile2.official.image.enabled
-	public static final boolean SAKAI_PROP_PROFILE2_GRAVATAR_IMAGE_ENABLED = true; //profile2.gravatar.image.enabled
 	public static final boolean SAKAI_PROP_PROFILE2_GOOGLE_INTEGRATION_ENABLED = false; //profile2.integration.google.enabled
 	public static final boolean SAKAI_PROP_PROFILE2_PROFILE_FIELDS_ENABLED = true; //profile2.profile.fields.enabled
 	public static final boolean SAKAI_PROP_PROFILE2_MENU_ENABLED = true; //profile2.menu.enabled
