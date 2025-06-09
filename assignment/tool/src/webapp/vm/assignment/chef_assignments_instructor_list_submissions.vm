@@ -607,6 +607,7 @@ function printView(url) {
 									#end
 									#if ($rubricId)
 									<sakai-rubric-student-button
+										class="ms-1"
 										rubric-id="$rubricId"
 										site-id="$assignment.context"
 										dont-check-association
