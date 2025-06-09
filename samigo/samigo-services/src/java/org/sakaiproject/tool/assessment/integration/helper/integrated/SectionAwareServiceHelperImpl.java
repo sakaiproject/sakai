@@ -83,6 +83,10 @@ public class SectionAwareServiceHelperImpl extends AbstractSectionsImpl implemen
 		return getSectionAwareness().isSiteMemberInRole(siteid, userUid, Role.STUDENT);
 	}
 
+	public boolean isUserInstructor(String siteid, String userUid) {
+		return getSectionAwareness().isSiteMemberInRole(siteid, userUid, Role.INSTRUCTOR);
+	}
+
 	/**
 	 */
 	public List<EnrollmentRecord> getAvailableEnrollments(String siteid, String userUid) {
