@@ -1431,13 +1431,23 @@ public class GradingServiceImpl implements GradingService {
             }
         } else if (gradingAuthz.isUserAbleToViewOwnGrades(siteId)) {
             // if user is just a student, we need to filter out unreleased items
-            for (GradebookAssignment assign : getSortedAssignments(gradebook.getId(), sortBy, true)) {
-                if (assign.isExternallyMaintained()
-                      && !isExternalAssignmentVisible(gradebook.getUid(), assign.getExternalId(), sessionManager.getCurrentSessionUserId())) {
-                    continue;
+            final List<GradebookAssignment> allAssignments = getSortedAssignments(gradebook.getId(), sortBy, true);
+            final String currentUserId = sessionManager.getCurrentSessionUserId();
+
+            // Pre-filter external assignments for visibility in batch
+            final Map<String, Boolean> externalVisibilityMap = getBatchExternalAssignmentVisibility(
+                gradebook.getUid(), allAssignments, currentUserId);
+
+            for (GradebookAssignment assign : allAssignments) {
+                if (assign.isExternallyMaintained()) {
+                    // Use pre-computed visibility result
+                    Boolean isVisible = externalVisibilityMap.get(assign.getExternalId());
+                    if (isVisible == null || !isVisible) {
+                        continue;
+                    }
                 }
 
-                if (assign != null && assign.getReleased()) {
+                if (assign.getReleased()) {
                     viewableAssignments.add(assign);
                 }
             }
@@ -1452,6 +1462,83 @@ public class GradingServiceImpl implements GradingService {
         }
 
         return new ArrayList<>(assignmentsToReturn);
+    }
+
+    /**
+     * Batch check external assignment visibility to avoid N+1 queries.
+     * Uses the provider's getAllExternalAssignments method when available for better performance.
+     */
+    private Map<String, Boolean> getBatchExternalAssignmentVisibility(String gradebookUid, 
+            List<GradebookAssignment> assignments, String userId) {
+
+        Map<String, Boolean> visibilityMap = new HashMap<>();
+
+        // Group external assignments by app name
+        Map<String, List<GradebookAssignment>> assignmentsByApp = assignments.stream()
+            .filter(GradebookAssignment::isExternallyMaintained)
+            .collect(Collectors.groupingBy(GradebookAssignment::getExternalAppName));
+
+        // Process each app's assignments
+        for (Map.Entry<String, List<GradebookAssignment>> entry : assignmentsByApp.entrySet()) {
+            String appName = entry.getKey();
+            List<GradebookAssignment> appAssignments = entry.getValue();
+
+            // Find the provider for this app
+            ExternalAssignmentProvider provider = getExternalAssignmentProviders().get(appName);
+            if (provider == null) {
+                // No provider found, default to visible (matches existing behavior)
+                appAssignments.forEach(assignment -> 
+                    visibilityMap.put(assignment.getExternalId(), true));
+                log.debug("No provider found for external app: {}, defaulting {} assignments to visible", 
+                    appName, appAssignments.size());
+                continue;
+            }
+
+            // Try to use batch method if available
+            try {
+                Map<String, List<String>> allExternalAssignments = 
+                    provider.getAllExternalAssignments(gradebookUid, Collections.singleton(userId));
+
+                List<String> visibleAssignmentIds = allExternalAssignments.get(userId);
+                if (visibleAssignmentIds != null) {
+                    // Use batch result - assignments in the list are visible
+                    Set<String> visibleIds = new HashSet<>(visibleAssignmentIds);
+                    for (GradebookAssignment assignment : appAssignments) {
+                        boolean isVisible = visibleIds.contains(assignment.getExternalId());
+                        visibilityMap.put(assignment.getExternalId(), isVisible);
+                    }
+                    log.debug("Used batch method for app {}: {} assignments processed", 
+                        appName, appAssignments.size());
+                    continue;
+                }
+            } catch (Exception e) {
+                log.debug("Batch method failed for provider {}, falling back to individual checks: {}", 
+                    appName, e.getMessage());
+            }
+
+            // Fallback to individual visibility checks
+            for (GradebookAssignment assignment : appAssignments) {
+                boolean isVisible = true; // Default to visible
+
+                if (provider.isAssignmentDefined(appName, assignment.getExternalId())) {
+                    try {
+                        isVisible = provider.isAssignmentVisible(assignment.getExternalId(), userId);
+                    } catch (Exception e) {
+                        log.warn("Error checking visibility for assignment {}: {}", 
+                            assignment.getExternalId(), e.getMessage());
+                        // Keep default visible on error
+                    }
+                }
+
+                visibilityMap.put(assignment.getExternalId(), isVisible);
+            }
+
+            log.debug("Used individual checks for app {}: {} assignments processed", 
+                appName, appAssignments.size());
+        }
+
+        log.debug("Batch processed {} external assignments for visibility", visibilityMap.size());
+        return visibilityMap;
     }
 
     @Override
