@@ -3093,6 +3093,10 @@ public class GradingServiceImpl implements GradingService {
             return Optional.empty();
         }
 
+        // CRITICAL FIX: Create a copy of the grade records to avoid modifying the shared list
+        // This prevents the issue where calculating one category affects subsequent category calculations
+        final List<AssignmentGradeRecord> gradeRecordsCopy = new ArrayList<>(gradeRecords);
+
         // setup
         int numScored = 0;
         int numOfAssignments = 0;
@@ -3101,11 +3105,11 @@ public class GradingServiceImpl implements GradingService {
         BigDecimal totalPossible = new BigDecimal("0");
 
         // apply any drop/keep settings for this category
-        applyDropScores(gradeRecords, categoryType);
+        applyDropScores(gradeRecordsCopy, categoryType);
 
         // find the records marked as dropped (highest/lowest) before continuing,
         // as gradeRecords will be modified in place after this and these records will be removed
-        final List<Long> droppedItemIds = gradeRecords.stream()
+        final List<Long> droppedItemIds = gradeRecordsCopy.stream()
                 .filter(AssignmentGradeRecord::getDroppedFromGrade)
                 .map(agr -> agr.getAssignment().getId())
                 .collect(Collectors.toList());
@@ -3122,7 +3126,7 @@ public class GradingServiceImpl implements GradingService {
         // Rule 7. extra credit items have their grade value counted only. Their total points possible does not apply to the calculations
         log.debug("categoryId: {}", categoryId);
 
-        gradeRecords.removeIf(gradeRecord -> {
+        gradeRecordsCopy.removeIf(gradeRecord -> {
 
             final GradebookAssignment assignment = gradeRecord.getAssignment();
 
@@ -3144,16 +3148,16 @@ public class GradingServiceImpl implements GradingService {
             return false;
         });
 
-        log.debug("gradeRecords.size(): {}", gradeRecords.size());
+        log.debug("gradeRecordsCopy.size(): {}", gradeRecordsCopy.size());
 
         // pre-calculation
         // Rule 1. If category only has a single EC item, don't try to calculate category total.
-        if (gradeRecords.size() == 1 && gradeRecords.get(0).getAssignment().getExtraCredit()) {
+        if (gradeRecordsCopy.size() == 1 && gradeRecordsCopy.get(0).getAssignment().getExtraCredit()) {
             return Optional.empty();
         }
 
         // iterate the filtered list and set the variables for the calculation
-        for (AssignmentGradeRecord gradeRecord : gradeRecords) {
+        for (AssignmentGradeRecord gradeRecord : gradeRecordsCopy) {
 
             GradebookAssignment assignment = gradeRecord.getAssignment();
             BigDecimal possiblePoints = new BigDecimal(assignment.getPointsPossible().toString());
