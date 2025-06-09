@@ -137,7 +137,9 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 					categoryNamesToAssignments.get(categoryName).add(assignment);
 				}
 			}
-			// get the category scores and mark any dropped items
+			// get all category scores in one efficient operation and mark any dropped items
+			final Map<Long, CategoryScoreData> allCategoryScores = this.businessService.getAllCategoryScoresForStudent(currentGradebookUid, currentSiteId, userId, false); // Dont include non-released items in the category calc
+			
 			for (final String catName : categoryNamesToAssignments.keySet()) {
 				if (catName.equals(getString(GradebookPage.UNCATEGORISED))) {
 					continue;
@@ -147,8 +149,10 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 				if (!catItems.isEmpty()) {
 					final Long catId = catItems.get(0).getCategoryId();
 					if (catId != null) {
-						this.businessService.getCategoryScoreForStudent(currentGradebookUid, currentSiteId, catId, userId, false) // Dont include non-released items in the category calc
-							.ifPresent(avg -> storeAvgAndMarkIfDropped(avg, catId, categoryAverages, grades));
+						final CategoryScoreData categoryScore = allCategoryScores.get(catId);
+						if (categoryScore != null) {
+							storeAvgAndMarkIfDropped(categoryScore, catId, categoryAverages, grades);
+						}
 					}
 				}
 			}

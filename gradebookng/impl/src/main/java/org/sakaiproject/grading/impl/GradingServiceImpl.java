@@ -2855,6 +2855,136 @@ public class GradingServiceImpl implements GradingService {
     }
 
     /**
+     * Calculate category scores for all categories for a student in one efficient operation.
+     * This is much more efficient than calling calculateCategoryScore repeatedly for each category.
+     *
+     * @param gradebookId the gradebook id
+     * @param studentUuid the student uuid
+     * @param includeNonReleasedItems whether to include non-released items
+     * @param categoryType the category type of the gradebook
+     * @return map of categoryId to CategoryScoreData for all categories that have calculable scores
+     */
+    public Map<Long, CategoryScoreData> calculateAllCategoryScores(Long gradebookId, String studentUuid,
+            boolean includeNonReleasedItems, Integer categoryType) {
+
+        log.debug("Calculating all category scores for student: {} in gradebook: {}", studentUuid, gradebookId);
+
+        // get all grade records for the student ONCE
+        Map<String, List<AssignmentGradeRecord>> gradeRecMap = getGradeRecordMapForStudents(gradebookId, Collections.singletonList(studentUuid));
+        List<AssignmentGradeRecord> allGradeRecords = gradeRecMap.get(studentUuid);
+
+        if (allGradeRecords == null || allGradeRecords.isEmpty()) {
+            log.debug("No grade records found for student: {}", studentUuid);
+            return new HashMap<>();
+        }
+
+        // Get all categories for this gradebook
+        List<Category> categories = getCategories(gradebookId);
+        if (categories.isEmpty()) {
+            log.debug("No categories found for gradebook: {}", gradebookId);
+            return new HashMap<>();
+        }
+
+        Map<Long, CategoryScoreData> categoryScores = new HashMap<>();
+
+        // Calculate score for each category using the same grade records
+        for (Category category : categories) {
+            if (category.getRemoved()) {
+                continue; // Skip removed categories
+            }
+
+            Optional<CategoryScoreData> scoreData = calculateCategoryScore(
+                    studentUuid, 
+                    category.getId(), 
+                    allGradeRecords, 
+                    includeNonReleasedItems, 
+                    categoryType, 
+                    category.getEqualWeightAssignments()
+            );
+
+            if (scoreData.isPresent()) {
+                categoryScores.put(category.getId(), scoreData.get());
+            }
+        }
+
+        log.debug("Calculated {} category scores for student: {}", categoryScores.size(), studentUuid);
+        return categoryScores;
+    }
+
+    /**
+     * Calculate category scores for multiple students and all categories in one bulk operation.
+     * This is the most efficient method when you need category scores for multiple students.
+     *
+     * @param gradebookId the gradebook id
+     * @param studentUuids list of student uuids
+     * @param includeNonReleasedItems whether to include non-released items
+     * @param categoryType the category type of the gradebook
+     * @return nested map: studentUuid -> categoryId -> CategoryScoreData
+     */
+    public Map<String, Map<Long, CategoryScoreData>> calculateAllCategoryScoresForStudents(Long gradebookId, 
+            List<String> studentUuids, boolean includeNonReleasedItems, Integer categoryType) {
+
+        if (studentUuids == null || studentUuids.isEmpty()) {
+            log.debug("No student UUIDs provided for bulk category score calculation");
+            return new HashMap<>();
+        }
+
+        log.debug("Calculating all category scores for {} students in gradebook: {}", studentUuids.size(), gradebookId);
+
+        // get all grade records for all students ONCE
+        Map<String, List<AssignmentGradeRecord>> gradeRecMap = getGradeRecordMapForStudents(gradebookId, studentUuids);
+
+        // Get all categories for this gradebook ONCE
+        List<Category> categories = getCategories(gradebookId);
+        if (categories.isEmpty()) {
+            log.debug("No categories found for gradebook: {}", gradebookId);
+            return new HashMap<>();
+        }
+
+        Map<String, Map<Long, CategoryScoreData>> allCategoryScores = new HashMap<>();
+
+        // Calculate scores for each student
+        for (String studentUuid : studentUuids) {
+            List<AssignmentGradeRecord> studentGradeRecords = gradeRecMap.get(studentUuid);
+            
+            if (studentGradeRecords == null || studentGradeRecords.isEmpty()) {
+                log.debug("No grade records found for student: {}", studentUuid);
+                allCategoryScores.put(studentUuid, new HashMap<>());
+                continue;
+            }
+
+            Map<Long, CategoryScoreData> studentCategoryScores = new HashMap<>();
+
+            // Calculate score for each category using the student's grade records
+            for (Category category : categories) {
+                if (category.getRemoved()) {
+                    continue; // Skip removed categories
+                }
+
+                Optional<CategoryScoreData> scoreData = calculateCategoryScore(
+                        studentUuid, 
+                        category.getId(), 
+                        studentGradeRecords, 
+                        includeNonReleasedItems, 
+                        categoryType, 
+                        category.getEqualWeightAssignments()
+                );
+
+                if (scoreData.isPresent()) {
+                    studentCategoryScores.put(category.getId(), scoreData.get());
+                }
+            }
+
+            allCategoryScores.put(studentUuid, studentCategoryScores);
+        }
+
+        int totalScores = allCategoryScores.values().stream().mapToInt(Map::size).sum();
+        log.debug("Calculated {} total category scores for {} students", totalScores, studentUuids.size());
+
+        return allCategoryScores;
+    }
+
+    /**
      * Does the heavy lifting for the category calculations. Requires the List of AssignmentGradeRecord so that we can applyDropScores.
      *
      * @param studentUuid the student uuid

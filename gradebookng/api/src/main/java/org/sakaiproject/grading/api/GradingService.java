@@ -570,6 +570,32 @@ public interface GradingService extends EntityProducer {
             final List<Assignment> categoryAssignments, Map<Long, String> gradeMap, boolean includeNonReleasedItems);
 
     /**
+     * Calculate category scores for all categories for a student in one efficient operation.
+     * This is much more efficient than calling calculateCategoryScore repeatedly for each category.
+     *
+     * @param gradebookId the gradebook id
+     * @param studentUuid the student uuid
+     * @param includeNonReleasedItems whether to include non-released items
+     * @param categoryType the category type of the gradebook
+     * @return map of categoryId to CategoryScoreData for all categories that have calculable scores
+     */
+    Map<Long, CategoryScoreData> calculateAllCategoryScores(Long gradebookId, String studentUuid,
+            boolean includeNonReleasedItems, Integer categoryType);
+
+    /**
+     * Calculate category scores for multiple students and all categories in one bulk operation.
+     * This is the most efficient method when you need category scores for multiple students.
+     *
+     * @param gradebookId the gradebook id
+     * @param studentUuids list of student uuids
+     * @param includeNonReleasedItems whether to include non-released items
+     * @param categoryType the category type of the gradebook
+     * @return nested map: studentUuid -> categoryId -> CategoryScoreData
+     */
+    Map<String, Map<Long, CategoryScoreData>> calculateAllCategoryScoresForStudents(Long gradebookId, 
+            List<String> studentUuids, boolean includeNonReleasedItems, Integer categoryType);
+
+    /**
      * Get the course grade for a student
      *
      * @param gradebookUid
