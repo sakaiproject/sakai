@@ -27,7 +27,7 @@
         #end
         <div class="site-list-item-head d-flex align-items-center py-1 w-100 justify-content-between">
             <div class="site-link-block d-flex align-items-center rounded-end me-1 pe-2">
-                <button class="btn icon-button collapsed px-2 me-1"
+                <button class="btn icon-button collapsed px-2 me-1 tool-list-button"
                         data-site-id="${site.id}"
                         data-bs-toggle="collapse"
                         data-bs-target="#${type}-site-${safeSiteId}-page-list"
@@ -104,7 +104,9 @@
     #end
 
     <li class="nav-item ms-${indentation} $!{hideClass}">
-        <a class="btn btn-nav w-100 ps-3 #if ($activePageId == $page.id)selected-page#end" data-page-id="${page.id}"
+        <a class="btn btn-nav w-100 ps-3 #if ($activePageId == $page.id)selected-page#end"
+                data-page-id="${page.id}"
+                data-common-tool-id="$!{page.commonToolId}"
                 href="$!{url}"
                 title="${page.title}: ${page.description}">
             <div class="d-flex text-start align-items-center">

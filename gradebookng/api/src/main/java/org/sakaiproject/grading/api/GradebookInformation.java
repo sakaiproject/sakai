@@ -17,6 +17,7 @@
 package org.sakaiproject.grading.api;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -46,11 +47,11 @@ public class GradebookInformation implements Serializable {
     /**
      * The grading schema map currently in use for the this gradebook. For example A+ = 100 etc.
      */
-    private Map<String, Double> selectedGradingScaleBottomPercents;
+    private Map<String, Double> selectedGradingScaleBottomPercents = new HashMap<>();
 
     private Boolean displayReleasedGradeItemsToStudents;
 
-    private Integer gradeType = GradingConstants.GRADE_TYPE_POINTS;
+    private GradeType gradeType = GradeType.POINTS;
 
     private Integer categoryType;
 

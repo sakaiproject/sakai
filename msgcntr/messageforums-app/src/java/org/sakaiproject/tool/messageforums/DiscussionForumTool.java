@@ -128,15 +128,16 @@ import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.grading.api.AssessmentNotFoundException;
 import org.sakaiproject.grading.api.Assignment;
-import org.sakaiproject.grading.api.model.Gradebook;
-import org.sakaiproject.grading.api.model.GradebookAssignment;
+import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.grading.api.GradeDefinition;
+import org.sakaiproject.grading.api.GradeType;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.grading.api.SortType;
+import org.sakaiproject.grading.api.model.Gradebook;
+import org.sakaiproject.grading.api.model.GradebookAssignment;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -4813,21 +4814,24 @@ public class DiscussionForumTool {
 		  selGBItemRestricted = false;
 	  }
 	  
-	  // get the grade entry type for the gradebook
-	  Integer gradeEntryType = gradingService.getGradeEntryType(gradebookUid);
-	  if (Objects.equals(GradingConstants.GRADE_TYPE_LETTER, gradeEntryType)) {
-	      gradeByLetter = true;
-	      gradeByPoints = false;
-	      gradeByPercent = false;
-	  } else if (Objects.equals(GradingConstants.GRADE_TYPE_PERCENTAGE, gradeEntryType)) {
-	      gradeByLetter = false;
-	      gradeByPoints = false;
-	      gradeByPercent = true;
-	  } else {
-	      gradeByLetter = false;
-	      gradeByPoints = true;
-	      gradeByPercent = false;
-	  }
+		// get the grade entry type for the gradebook
+		GradeType gradeEntryType = gradingService.getGradeEntryType(gradebookUid);
+		switch (gradeEntryType) {
+			case LETTER:
+				gradeByLetter = true;
+				gradeByPoints = false;
+				gradeByPercent = false;
+				break;
+			case PERCENTAGE:
+				gradeByPercent = true;
+				gradeByPoints = false;
+				gradeByLetter = false;
+				break;
+			default:
+				gradeByPoints = true;
+				gradeByLetter = false;
+				gradeByPercent = false;
+		}
 
 	  NumberFormat numberFormat = DecimalFormat.getInstance(new ResourceLoader().getLocale());
 	  if (!selGBItemRestricted) {
@@ -4906,7 +4910,6 @@ public class DiscussionForumTool {
     List childMsgs = new ArrayList();
     messageManager
         .getChildMsgs(selectedMessage.getMessage().getId(), childMsgs);
-    // selectedMessage.getMessage().setTopic(selectedTopic.getTopic());
 
     return null;
   }
@@ -5123,13 +5126,6 @@ public class DiscussionForumTool {
 		}
 		String currentBody = getComposeBody();
 
-		/*    if(currentBody != null && currentBody.length()>0 && currentBody.startsWith("Last Revised By "))
-    {
-    	if(currentBody.lastIndexOf(" <br/> ") > 0)
-    	{
-    		currentBody = currentBody.substring(currentBody.lastIndexOf(" <br/> ") + 7);
-    	}
-    }*/
 		// optionally include the revision history. by default, revision history is included
 		boolean showRevisionHistory = ServerConfigurationService.getBoolean("msgcntr.forums.showRevisionHistory",true);
 		if (showRevisionHistory) {
@@ -5163,10 +5159,6 @@ public class DiscussionForumTool {
 				.getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
 		dMsg.setTopic((DiscussionTopic) forumManager
 				.getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
-		//    selectedTopic.getTopic().setBaseForum(selectedForum.getForum());
-		//    Topic currentTopic = forumManager.getTopicByIdWithMessagesAndAttachments(dMsg.getTopic().getId());
-		//    dMsg.getTopic().setBaseForum(currentTopic.getBaseForum());
-		//dMsg.getTopic().setBaseForum(selectedTopic.getTopic().getBaseForum());
 		
 		if (dMsg.getInReplyTo() != null) {
 			//grab a fresh copy of the message incase it has changes (staleobjectexception)
@@ -6414,7 +6406,7 @@ public class DiscussionForumTool {
        if (!gradeValid) {
            // see if we can figure out why
            String errorMessageRef = GRADE_INVALID_GENERIC;
-           if (!Objects.equals(GradingConstants.GRADE_TYPE_LETTER, gradingService.getGradeEntryType(gradebookUid))) {
+           if (GradeType.LETTER != gradingService.getGradeEntryType(gradebookUid)) {
                if(!isNumber(gradePoint))
                {
                    errorMessageRef = GRADE_GREATER_ZERO;

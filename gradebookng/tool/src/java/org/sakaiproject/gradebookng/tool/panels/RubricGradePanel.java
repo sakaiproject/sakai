@@ -34,7 +34,7 @@ import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.GradebookInformation;
-import org.sakaiproject.grading.api.GradingConstants;
+import org.sakaiproject.grading.api.GradeType;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbUser;
@@ -106,7 +106,7 @@ public class RubricGradePanel extends BasePanel {
         GradebookInformation info
             = businessService.getGradebookSettings(currentGradebookUid, currentSiteId);
 
-        if (info.getGradeType() == GradingConstants.GRADE_TYPE_PERCENTAGE) {
+        if (info.getGradeType() == GradeType.PERCENTAGE) {
             sakaiRubricGrading.add(AttributeModifier.append("total-as-percentage", ""));
         }
 

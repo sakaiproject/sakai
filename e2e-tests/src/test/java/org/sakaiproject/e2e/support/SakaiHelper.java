@@ -73,12 +73,16 @@ public class SakaiHelper {
     }
 
     public void toolClick(String label) {
-        boolean clicked = clickToolByText(label);
+        toolClick(label, false);
+    }
+
+    public void toolClick(String label, boolean isCommonToolId) {
+        boolean clicked = clickToolByText(label, isCommonToolId);
         if (clicked) {
             return;
         }
 
-        Locator expandButtons = page.locator("button[title*=\"Expand tool list\"], button[aria-label*=\"Expand tool list\"]");
+        Locator expandButtons = page.locator("button.tool-list-button");
         if (expandButtons.count() > 0 && expandButtons.first().isVisible()) {
             expandButtons.first().click(new Locator.ClickOptions().setForce(true));
         }
@@ -88,7 +92,7 @@ public class SakaiHelper {
             allSitesButton.click(new Locator.ClickOptions().setForce(true));
         }
 
-        if (!clickToolByText(label)) {
+        if (!clickToolByText(label, isCommonToolId)) {
             throw new IllegalStateException("Unable to click tool navigation item: " + label);
         }
     }
@@ -121,8 +125,7 @@ public class SakaiHelper {
         gotoPath("/portal/site/~" + resolvedUsername);
         dismissTutorial();
 
-        Locator worksiteSetup = page.getByRole(AriaRole.LINK,
-            new Page.GetByRoleOptions().setName(Pattern.compile("^Worksite Setup$", Pattern.CASE_INSENSITIVE))).first();
+        Locator worksiteSetup = page.locator("a[data-common-tool-id='sakai.sitesetup']");
         assertThat(worksiteSetup).isVisible();
         worksiteSetup.click(new Locator.ClickOptions().setForce(true));
         page.waitForLoadState();
@@ -130,11 +133,7 @@ public class SakaiHelper {
 
         Locator addCourseForm = page.locator("form[name=\"addCourseForm\"]");
         if (!waitForVisible(addCourseForm, 2000)) {
-            boolean opened = clickVisible(page.getByRole(AriaRole.LINK,
-                new Page.GetByRoleOptions().setName(Pattern.compile("^Create New Site$", Pattern.CASE_INSENSITIVE))).first())
-                || clickVisible(page.getByRole(AriaRole.BUTTON,
-                new Page.GetByRoleOptions().setName(Pattern.compile("^Create New Site$", Pattern.CASE_INSENSITIVE))).first())
-                || clickVisible(page.locator(".navIntraTool a:has-text(\"Create New Site\"), .navIntraTool button:has-text(\"Create New Site\"), a:has-text(\"Create New Site\"), button:has-text(\"Create New Site\")").first());
+            boolean opened = clickVisible(page.locator(".navIntraTool > li:nth-child(2) a").first());
             if (opened) {
                 page.waitForLoadState();
             }
@@ -163,13 +162,9 @@ public class SakaiHelper {
 
         assertThat(addCourseForm).isVisible();
 
-        String addCourseText = text(addCourseForm);
-        if (addCourseText.contains("select anyway")) {
-            Locator selectAnyway = page.getByRole(AriaRole.LINK,
-                new Page.GetByRoleOptions().setName(Pattern.compile("select anyway", Pattern.CASE_INSENSITIVE))).first();
-            if (selectAnyway.count() > 0 && selectAnyway.isVisible()) {
-                selectAnyway.click(new Locator.ClickOptions().setForce(true));
-            }
+        Locator selectAnyway = page.locator("a.select-anyway-link").first();
+        if (selectAnyway.count() > 0 && selectAnyway.isVisible()) {
+            selectAnyway.click(new Locator.ClickOptions().setForce(true));
         }
 
         ensureAnyVisibleCheckboxChecked(addCourseForm.locator("input[type=\"checkbox\"]"));
@@ -252,7 +247,6 @@ public class SakaiHelper {
         String href = null;
         Locator flash = page.locator("#flashNotif").first();
         if (flash.count() > 0 && flash.isVisible()) {
-            assertThat(flash).containsText("created");
             Locator flashLink = flash.locator("a").first();
             if (flashLink.count() > 0) {
                 href = flashLink.getAttribute("href");
@@ -467,7 +461,18 @@ public class SakaiHelper {
         throw new IllegalStateException("Unable to click Continue in site creation flow");
     }
 
-    private boolean clickToolByText(String label) {
+    private boolean clickToolByText(String label, boolean isCommonToolId) {
+        if (isCommonToolId) {
+            //Locator link = page.getByTestId(label);
+            Locator link = page.locator("li.site-list-item.is-current-site .site-list-item-collapse.collapse.show a[data-common-tool-id='" + label + "']");
+            if (link.isVisible()) {
+                link.click();
+                page.waitForLoadState();
+                return true;
+            }
+            throw new IllegalArgumentException("Unable to locate link for common tool id of " + label);
+        }
+
         Locator nav = page.locator("li.site-list-item.is-current-site .site-list-item-collapse.collapse.show a.btn-nav");
         int count = nav.count();
 

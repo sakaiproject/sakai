@@ -8,6 +8,7 @@
 		<h2 class="accordion-header">
 			<button wicket:id="settingsGradeEntryAccordionButton" class="accordion-button collapsed fw-bold"
 				type="button"
+				data-testid="settings-grade-entry-accordion-button"
 				data-bs-toggle="collapse"
 				data-bs-target="#settingsGradeEntry"
 				aria-expanded="false"
@@ -22,6 +23,7 @@
 					<div wicket:id="gradeEntry">
 						<div class="radio"><label><input class="me-1" wicket:id="points" type="radio"/><wicket:message key="settingspage.gradeentry.points" /></label></div>
 						<div class="radio"><label><input class="me-1" wicket:id="percentages" type="radio"/><wicket:message key="settingspage.gradeentry.percentages" /></label></div>
+						<div class="radio"><label><input class="me-1" wicket:id="letter" data-testid="letter-grade-entry-radio" type="radio"/><wicket:message key="settingspage.gradeentry.letter" /></label></div>
 					</div>
 				</div>
 			</div>

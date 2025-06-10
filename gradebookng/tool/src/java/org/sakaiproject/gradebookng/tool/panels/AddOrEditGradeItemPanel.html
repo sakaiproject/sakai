@@ -15,12 +15,13 @@
 						<div>
 							<button wicket:id="submit"
 									type="submit"
+									data-testid="edit-grade-item-submit-button"
 									class="btn btn-primary fc-button gb-create-or-save">
 								<wicket:container wicket:id="submitLabel" />
 							</button>
 						</div>
 						<div class="ms-2">
-							<button wicket:id="cancel" type="button" class="btn-link"><wicket:message key="button.cancel" /></button>
+							<button wicket:id="cancel" data-testid="cancel-button" type="button" class="btn-link"><wicket:message key="button.cancel" /></button>
 						</div>
 					</div>
 					<div wicket:id="createAnotherContainer">

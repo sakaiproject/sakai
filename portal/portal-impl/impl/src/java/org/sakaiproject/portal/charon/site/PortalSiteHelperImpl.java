@@ -375,6 +375,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		if (toolList != null && !toolList.isEmpty()) {
 			if (toolList.size() == 1) {
 				String toolId = toolList.get(0).getId();
+				String commonToolId = toolList.get(0).getTool().getId();
 				pageUriBuilder.replacePath(null);
                 for (String segment : pathSegments) {
 					// find first occurrence of page in the path and replace then stop
@@ -391,6 +392,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				// replace {page} with tool-reset in url
 				pageMap.put("resetUrl", pageUriBuilder.buildAndExpand("tool-reset").toUriString());
 				pageMap.put("toolId", toolId);
+				pageMap.put("commonToolId", commonToolId);
 			} else {
 				pageMap.put("url", page.getUrl());
 				pageUriBuilder.replacePath(null);

@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
+import org.sakaiproject.grading.api.GradeType;
 import org.sakaiproject.util.ResourceLoader;
 
 public class TestGradebookNgBusinessService {
@@ -52,10 +53,10 @@ public class TestGradebookNgBusinessService {
 		NumberFormat nf = NumberFormat.getInstance(Locale.getDefault());
 		String roundedExcepted = nf.format(de);
 
-		String rounded = FormatHelper.formatGradeForDisplay(d);
+		String rounded = FormatHelper.formatGradeForDisplay(d, GradeType.POINTS);
 		Assert.assertEquals(rounded, roundedExcepted);
 
-		rounded = FormatHelper.formatGradeForDisplay(s);
+		rounded = FormatHelper.formatGradeForDisplay(s, GradeType.POINTS);
 		Assert.assertEquals(rounded, roundedExcepted);
 
 		rounded = FormatHelper.formatStringAsPercentage(s);
@@ -71,10 +72,10 @@ public class TestGradebookNgBusinessService {
 		NumberFormat nf = NumberFormat.getInstance(Locale.getDefault());
 		String roundedExcepted = nf.format(de);
 
-		String rounded = FormatHelper.formatGradeForDisplay(d);
+		String rounded = FormatHelper.formatGradeForDisplay(d, GradeType.POINTS);
 		Assert.assertEquals(rounded, roundedExcepted);
 
-		rounded = FormatHelper.formatGradeForDisplay(s);
+		rounded = FormatHelper.formatGradeForDisplay(s, GradeType.POINTS);
 		Assert.assertEquals(rounded, roundedExcepted);
 
 		rounded = FormatHelper.formatStringAsPercentage(s);
@@ -86,10 +87,10 @@ public class TestGradebookNgBusinessService {
 		double d = 89.0000D;
 		String s = "89.000000";
 
-		String rounded = FormatHelper.formatGradeForDisplay(d);
+		String rounded = FormatHelper.formatGradeForDisplay(d, GradeType.POINTS);
 		Assert.assertEquals(rounded, "89");
 
-		rounded = FormatHelper.formatGradeForDisplay(s);
+		rounded = FormatHelper.formatGradeForDisplay(s, GradeType.POINTS);
 		Assert.assertEquals(rounded, "89");
 
 		rounded = FormatHelper.formatStringAsPercentage(s);

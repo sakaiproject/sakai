@@ -41,19 +41,24 @@ public class GradebookHelper {
     /**
      * Validate assignment points and name is valid
      * @param assignmentDefition
+     * @param gradeType
      * @throws InvalidGradeItemNameException
      * @throws AssignmentHasIllegalPointsException
      * @throws ConflictingAssignmentNameException
      * @return validated name
      */
 
-    public static String validateAssignmentNameAndPoints(final org.sakaiproject.grading.api.Assignment assignmentDefinition)
+    public static String validateAssignmentNameAndPoints(Assignment assignmentDefinition, GradeType gradeType)
         throws InvalidGradeItemNameException, AssignmentHasIllegalPointsException, ConflictingAssignmentNameException {
-        // Ensure that points is > zero.
-        final Double points = assignmentDefinition.getPoints();
-        if ((points == null) || (points <= 0)) {
-            throw new AssignmentHasIllegalPointsException("Points must be > 0");
+
+        if (gradeType != GradeType.LETTER) {
+            // Ensure that points is > zero.
+            final Double points = assignmentDefinition.getPoints();
+            if ((points == null) || (points <= 0)) {
+                throw new AssignmentHasIllegalPointsException("Points must be > 0");
+            }
         }
+
         return validateGradeItemName(assignmentDefinition.getName());
     }
 }

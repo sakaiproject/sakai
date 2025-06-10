@@ -34,7 +34,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -74,7 +73,7 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.GradeDefinition;
-import org.sakaiproject.grading.api.GradingConstants;
+import org.sakaiproject.grading.api.GradeType;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.grading.api.SortType;
 import org.sakaiproject.site.api.Group;
@@ -2964,22 +2963,25 @@ public class MessageForumStatisticsBean {
 			}
 			Assignment assignment = gradingService.getAssignmentByNameOrId(gradebookUid, siteId, selAssignName);
 			
-			Integer gradeEntryType = gradingService.getGradeEntryType(gradebookUid);
-            if (Objects.equals(gradeEntryType, GradingConstants.GRADE_TYPE_LETTER)) {
-                gradeByLetter = true;
-                gradeByPoints = false;
-                gradeByPercent = false;
-            } else if (Objects.equals(gradeEntryType, GradingConstants.GRADE_TYPE_PERCENTAGE)) {
-                gradeByPercent = true;
-                gradeByPoints = false;
-                gradeByLetter = false;
-            } else {
-                gradeByPoints = true;
-                gradeByPercent = false;
-                gradeByLetter = false;
+			GradeType gradeEntryType = gradingService.getGradeEntryType(gradebookUid);
+			switch (gradeEntryType) {
+				case LETTER:
+					gradeByLetter = true;
+					gradeByPoints = false;
+					gradeByPercent = false;
+					break;
+				case PERCENTAGE:
+					gradeByPercent = true;
+					gradeByPoints = false;
+					gradeByLetter = false;
+					break;
+				default:
+					gradeByPoints = true;
+					gradeByPercent = false;
+					gradeByLetter = false;
             }
 
-			if(assignment != null){
+			if (assignment != null){
 				gbItemPointsPossible = assignment.getPoints().toString();
 				//grab all grades for the id's that the user is able to grade:
 				String userUid = sessionManager.getCurrentSessionUserId();
@@ -3185,13 +3187,13 @@ public class MessageForumStatisticsBean {
 		
 		GradingService gradingService = getGradingService();
 		String gradebookUid = toolManager.getCurrentPlacement().getContext();
-		List<String> studentsWithInvalidGrades = gradingService.identifyStudentsWithInvalidGrades(
+		Set<String> studentsWithInvalidGrades = gradingService.identifyStudentsWithInvalidGrades(
 		        gradebookUid, studentIdToGradeMap);
 		
 		if (studentsWithInvalidGrades != null && !studentsWithInvalidGrades.isEmpty()) {
 		    // let's see if we can give the user additional information. Otherwise,
 		    // just use the generic error message
-		    if (Objects.equals(GradingConstants.GRADE_TYPE_LETTER, gradingService.getGradeEntryType(gradebookUid))) {
+		    if (GradeType.LETTER == gradingService.getGradeEntryType(gradebookUid)) {
 		        setErrorMessage(getResourceBundleString(GRADE_INVALID_GENERIC));
 		        return false;
 		    }

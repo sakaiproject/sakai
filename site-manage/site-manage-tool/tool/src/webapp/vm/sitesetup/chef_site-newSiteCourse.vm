@@ -147,7 +147,7 @@
 									<h5>
 									<label for="course$courseNumber" title="$sectionObject.eid">$formattedText.escapeHtml($sectionObject.title) $!sectionObject.getCategoryDescription()</label>
 									#if ($!sectionObject.attached)
-										<span class="instruction">($tlang.getString("nscourse.site_exists") <a href="#" onclick="javascript:enableCheckBox($!courseNumber)">$tlang.getString("nscourse.select_anyways")</a>)</span>
+										<span class="instruction">($tlang.getString("nscourse.site_exists") <a href="#" onclick="javascript:enableCheckBox($!courseNumber)" class="select-anyway-link">$tlang.getString("nscourse.select_anyways")</a>)</span>
 									#end
 									#set ($courseNumber = $courseNumber +1)
 									</h5>

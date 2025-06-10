@@ -18,8 +18,10 @@ package org.sakaiproject.grading.api;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -47,7 +49,7 @@ public class CategoryDefinition implements Serializable {
     private Boolean equalWeight;
     private Integer categoryOrder;
     private Boolean dropKeepEnabled;
-    private List<Assignment> assignmentList;
+    private List<Assignment> assignmentList = new ArrayList<>();
     public static Comparator<CategoryDefinition> orderComparator;
 
     public CategoryDefinition() { }
@@ -104,19 +106,32 @@ public class CategoryDefinition implements Serializable {
     }
 
     /**
-     * Helper method to get the total points associated with a category
+     * Helper method to get the total points associated with a category.
      *
-     * @return the sum of all assignment totals associated with this category
+     * For POINTS or PERCENTAGE grade types, returns the sum of each 
+     * assignment’s points as stored on the Assignment.
+     *
+     * For LETTER grade type, requires a uniform per-assignment maximum:
+     * total points = assignmentList.size() * maxPoints.
+     *
+     * @param gradeType   the grading scheme in use
+     * @param maxPoints   ignored for non-LETTER types; must be non-null and > 0 for LETTER
+     *
+     * @return total points for this category under the specified gradeType
      */
-    public Double getTotalPoints() {
-        BigDecimal totalPoints = new BigDecimal(0);
+    public Double getTotalPoints(GradeType gradeType, Double maxPoints) {
 
-        if (getAssignmentList() != null) {
-            for (final Assignment assignment : getAssignmentList()) {
-                totalPoints = totalPoints.add(BigDecimal.valueOf(assignment.getPoints()));
+        if (gradeType != GradeType.LETTER) {
+            return getAssignmentList().stream()
+                    .filter(a -> a.getPoints() != null)
+                    .mapToDouble(Assignment::getPoints)
+                    .sum();
+        } else {
+            if (maxPoints == null || maxPoints <= 0D) {
+                throw new IllegalArgumentException("maxPoints must be > 0 for LETTER grade type");
             }
+            return getAssignmentList().size() * maxPoints;
         }
-        return totalPoints.doubleValue();
     }
 
     public boolean isAssignmentInThisCategory(String assignmentId) {
