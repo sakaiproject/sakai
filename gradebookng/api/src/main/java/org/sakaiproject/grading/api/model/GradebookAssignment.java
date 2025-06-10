@@ -28,6 +28,7 @@ import javax.persistence.Entity;
 import javax.persistence.Lob;
 import javax.persistence.Transient;
 
+import org.sakaiproject.grading.api.GradeType;
 import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.springframework.data.PersistableEntity;
 
@@ -541,9 +542,9 @@ public class GradebookAssignment extends GradableObject implements PersistableEn
                 return this.itemType;
             }
 
-            if (Objects.equals(gb.getGradeType(), GradingConstants.GRADE_TYPE_PERCENTAGE)) {
+            if (gb.getGradeType() == GradeType.PERCENTAGE) {
                 this.itemType = item_type_percentage;
-            } else if (Objects.equals(gb.getGradeType(), GradingConstants.GRADE_TYPE_LETTER)) {
+            } else if (gb.getGradeType() == GradeType.LETTER) {
                 this.itemType = item_type_letter;
             } else {
                 this.itemType = item_type_points;
@@ -567,7 +568,7 @@ public class GradebookAssignment extends GradableObject implements PersistableEn
         if (!this.removed &&
                 !getUngraded() &&
                 getCounted() &&
-                (isExtraCredit() || (this.pointsPossible != null && this.pointsPossible > 0))) {
+                (this.getGradebook().getGradeType() == GradeType.LETTER || isExtraCredit() || (this.pointsPossible != null && this.pointsPossible > 0))) {
             isIncludedInCalculations = true;
         }
 

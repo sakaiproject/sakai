@@ -104,11 +104,9 @@ public class LetterGradePercentMapping implements PersistableEntity<Long>, Seria
     private String getGradeMapping(Double value)  {
 
         if (gradeMap != null) {
-            Iterator iter = gradeMap.keySet().iterator();
-            while (iter.hasNext()) {
-                String key = (String) iter.next();
+            for (String key : gradeMap.keySet()) {
                 Double gradeValue = gradeMap.get(key);
-                if(gradeValue.equals(value)) {
+                if (gradeValue.equals(value)) {
                     return key;
                 }
             }
@@ -128,8 +126,7 @@ public class LetterGradePercentMapping implements PersistableEntity<Long>, Seria
     public String standardizeInputGrade(String inputGrade) {
 
         String standardizedGrade = null;
-        for (Iterator iter = gradeMap.keySet().iterator(); iter.hasNext(); ) {
-            String grade = (String)iter.next();
+        for (String grade : gradeMap.keySet()) {
             if (grade.equalsIgnoreCase(inputGrade)) {
                 standardizedGrade = grade;
                 break;

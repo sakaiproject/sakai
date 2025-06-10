@@ -437,7 +437,6 @@ public class GradingAuthzImpl implements GradingAuthz {
                         }
                     }
                 }
-
             } else {
                 // use default section-based permissions
                 return getEnrollmentMapUsingDefaultPermissions(userUid, studentIdEnrRecMap, sectionIdCourseSectionMap, optionalSectionUid);

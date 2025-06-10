@@ -22,6 +22,7 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.wicket.model.IModel;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
+import org.sakaiproject.grading.api.GradeType;
 
 /**
  * Implementation of {@link BaseStatistics} to render assignment stats
@@ -31,6 +32,8 @@ public class AssignmentStatistics extends BaseStatistics {
 	private static final long serialVersionUID = 1L;
 	private final List<GbStudentGradeInfo> gradeInfo;
 	private final Long assignmentId;
+	private final Map<String, Double> gradeMap;
+	private final GradeType gradeType;
 
 	public AssignmentStatistics(final String id, final IModel<?> model) {
 		super(id, model);
@@ -39,6 +42,8 @@ public class AssignmentStatistics extends BaseStatistics {
 		final Map<String, Object> modelData = (Map<String, Object>) getDefaultModelObject();
 		this.gradeInfo = (List<GbStudentGradeInfo>) modelData.get("gradeInfo");
 		this.assignmentId = (Long) modelData.get("assignmentId");
+		this.gradeMap = (Map<String, Double>) modelData.get("gradeMap");
+		this.gradeType = (GradeType) modelData.get("gradeType");
 	}
 
 	/**
@@ -52,13 +57,13 @@ public class AssignmentStatistics extends BaseStatistics {
 		final DescriptiveStatistics stats = new DescriptiveStatistics();
 
 		for (int i = 0; i < this.gradeInfo.size(); i++) {
-			final GbStudentGradeInfo studentGradeInfo = this.gradeInfo.get(i);
+			GbStudentGradeInfo studentGradeInfo = this.gradeInfo.get(i);
 
-			final Map<Long, GbGradeInfo> studentGrades = studentGradeInfo.getGrades();
-			final GbGradeInfo grade = studentGrades.get(this.assignmentId);
+			Map<Long, GbGradeInfo> studentGrades = studentGradeInfo.getGrades();
+			GbGradeInfo grade = studentGrades.get(this.assignmentId);
 
 			if (grade != null && grade.getGrade() != null) {
-				stats.addValue(Double.valueOf(grade.getGrade()));
+				stats.addValue(gradeType == GradeType.LETTER ? gradeMap.get(grade.getGrade()) : Double.valueOf(grade.getGrade()));
 			}
 		}
 

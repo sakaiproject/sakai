@@ -17,7 +17,6 @@
 package org.sakaiproject.grading.api.model;
 
 import java.math.BigDecimal;
-import java.util.Comparator;
 
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
@@ -42,67 +41,14 @@ import lombok.Setter;
 public class AssignmentGradeRecord extends AbstractGradeRecord implements Cloneable {
 
     @Transient
-    private String letterEarned;
-
-    @Transient
     private Double percentEarned;
-
-    @Transient
-    private boolean userAbleToView;
 
     @Column(name = "IS_EXCLUDED_FROM_GRADE")
     private Boolean excludedFromGrade = Boolean.FALSE;
 
-    @Transient
-    private transient BigDecimal earnedWeightedPercentage;
-
-    @Transient
-    private transient BigDecimal overallWeight;
-
-    @Transient
-    private transient Boolean isDropped = Boolean.FALSE;
-
     // used for drop highest/lowest score functionality
     @Transient
     private Boolean droppedFromGrade = Boolean.FALSE;
-
-    public static Comparator<AssignmentGradeRecord> numericComparator;
-
-    static{
-        numericComparator = new Comparator<AssignmentGradeRecord>() {
-
-            @Override
-            public int compare(AssignmentGradeRecord agr1, AssignmentGradeRecord agr2) {
-
-                if (agr1 == null && agr2 == null) {
-                    return 0;
-                }
-                if (agr1 == null) {
-                    return -1;
-                }
-                if (agr2 == null) {
-                    return 1;
-                }
-                Double agr1Points = agr1.getGradeAsPercentage(); // Use percent in case the category is equal weight
-                Double agr2Points = agr2.getGradeAsPercentage();
-
-                if (agr1Points == null && agr2Points == null) {
-                    return 0;
-                }
-                if (agr1Points == null && agr2Points != null) {
-                    return -1;
-                }
-                if (agr1Points != null && agr2Points == null) {
-                    return 1;
-                }
-                try {
-                    return agr1Points.compareTo(agr2Points);
-                } catch (NumberFormatException e) {
-                    return agr1Points.compareTo(agr2Points); // if not number, default to calcComparator functionality
-                }
-            }
-        };
-    }
 
     public AssignmentGradeRecord() { }
 
@@ -111,46 +57,18 @@ public class AssignmentGradeRecord extends AbstractGradeRecord implements Clonea
      * grade manager before the database is updated.
      * @param assignment The assignment this grade record is associated with
      * @param studentId The student id for whom this grade record belongs
-     * @param grade The grade, or points earned
+     * @param grade The points grade earned
+     * @param letterGrade The letter grade earned
      */
-    public AssignmentGradeRecord(GradebookAssignment assignment, String studentId, Double grade) {
+    public AssignmentGradeRecord(GradebookAssignment assignment, String studentId, Double pointsGrade, String letterGrade) {
 
         super();
         this.gradableObject = assignment;
         this.studentId = studentId;
-        this.pointsEarned = grade;
-    }
 
-    public static Comparator<AssignmentGradeRecord> calcComparator;
+        if (pointsGrade != null) this.pointsEarned = pointsGrade;
 
-    static {
-        calcComparator = new Comparator<AssignmentGradeRecord>() {
-            @Override
-            public int compare(AssignmentGradeRecord agr1, AssignmentGradeRecord agr2) {
-                if(agr1 == null && agr2 == null) {
-                    return 0;
-                }
-                if(agr1 == null) {
-                    return -1;
-                }
-                if(agr2 == null) {
-                    return 1;
-                }
-                Double agr1Points = agr1.getPointsEarned();
-                Double agr2Points = agr2.getPointsEarned();
-
-                if (agr1Points == null && agr2Points == null) {
-                    return 0;
-                }
-                if (agr1Points == null && agr2Points != null) {
-                    return -1;
-                }
-                if (agr1Points != null && agr2Points == null) {
-                    return 1;
-                }
-                return agr1Points.compareTo(agr2Points);
-            }
-        };
+        if (letterGrade != null) this.letterEarned = letterGrade;
     }
 
     /**

@@ -45,7 +45,7 @@ import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.GraderPermission;
-import org.sakaiproject.grading.api.GradingConstants;
+import org.sakaiproject.grading.api.GradeType;
 import org.sakaiproject.grading.api.PermissionDefinition;
 import org.sakaiproject.util.NumberUtil;
 import org.sakaiproject.util.api.FormattedText;
@@ -80,7 +80,7 @@ public class UpdateUngradedItemsPanel extends BasePanel {
 
 		final Assignment assignment = this.businessService.getAssignment(currentGradebookUid, currentSiteId, assignmentId);
 
-		final Integer gradeType = this.getGradebook().getGradeType();
+		final GradeType gradeType = this.getGradebook().getGradeType();
 
 		// form model
 		final GradeOverride override = new GradeOverride();
@@ -146,7 +146,7 @@ public class UpdateUngradedItemsPanel extends BasePanel {
 
 		form.add(new TextField<Double>("grade").setRequired(true));
 
-		if (Objects.equals(GradingConstants.GRADE_TYPE_PERCENTAGE, gradeType)) {
+		if (gradeType == GradeType.PERCENTAGE) {
 			form.add(new Label("points", getString("label.percentage.plain")));
 		} else {
 			form.add(new Label("points",
@@ -154,7 +154,7 @@ public class UpdateUngradedItemsPanel extends BasePanel {
 		}
 
 		final WebMarkupContainer hiddenGradePoints = new WebMarkupContainer("gradePoints");
-		if (Objects.equals(GradingConstants.GRADE_TYPE_PERCENTAGE, gradeType)) {
+		if (gradeType == GradeType.PERCENTAGE) {
 			hiddenGradePoints.add(new AttributeModifier("value", 100));
 		} else {
 			hiddenGradePoints.add(new AttributeModifier("value", assignment.getPoints()));
@@ -235,10 +235,10 @@ public class UpdateUngradedItemsPanel extends BasePanel {
 						.setParameters("${score}", "${group}")).setEscapeModelStrings(false));
 	}
 
-	private boolean getExtraCredit(Double grade, Assignment assignment, Integer gradeType) {
+	private boolean getExtraCredit(Double grade, Assignment assignment, GradeType gradeType) {
 
-		return (Objects.equals(GradingConstants.GRADE_TYPE_PERCENTAGE, gradeType) && grade > 100)
-				|| (Objects.equals(GradingConstants.GRADE_TYPE_POINTS, gradeType) && grade > assignment.getPoints());
+		return (gradeType == GradeType.PERCENTAGE && grade > 100)
+				|| (gradeType == GradeType.POINTS && grade > assignment.getPoints());
 	}
 
 	/**

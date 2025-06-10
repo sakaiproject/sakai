@@ -70,6 +70,18 @@ public class AssignmentGradeRecordRepositoryImpl extends SpringCrudRepositoryImp
     }
 
     @Transactional(readOnly = true)
+    public List<AssignmentGradeRecord> findByGradableObject_IdAndGradableObject_Removed(Long gradableObjectId, Boolean removed) {
+
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<AssignmentGradeRecord> query = cb.createQuery(AssignmentGradeRecord.class);
+        Root<AssignmentGradeRecord> agr = query.from(AssignmentGradeRecord.class);
+        Join<AssignmentGradeRecord, GradableObject> go = agr.join("gradableObject");
+        query.where(cb.and(cb.equal(go.get("id"), gradableObjectId), cb.equal(go.get("removed"), removed)));
+        return session.createQuery(query).list();
+    }
+
+    @Transactional(readOnly = true)
     public Optional<AssignmentGradeRecord> findByGradableObject_IdAndStudentId(Long gradableObjectId, String studentId) {
 
         Session session = sessionFactory.getCurrentSession();
@@ -150,7 +162,6 @@ public class AssignmentGradeRecordRepositoryImpl extends SpringCrudRepositoryImp
         query.where(cb.and(cb.equal(agr.get("gradableObject"), assignment), studentIdPredicate));
         return session.createQuery(query).list();
     }
-
 
     @Transactional
     public int deleteByGradableObject(GradebookAssignment assignment) {

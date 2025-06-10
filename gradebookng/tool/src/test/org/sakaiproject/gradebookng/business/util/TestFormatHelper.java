@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.sakaiproject.grading.api.CategoryDefinition;
+import org.sakaiproject.grading.api.GradeType;
 import org.sakaiproject.util.ResourceLoader;
 
 public class TestFormatHelper {
@@ -259,26 +260,26 @@ public class TestFormatHelper {
 	public void testFormatGradeForDisplayDouble() {
 		// Test with US locale
 		Mockito.when(resourceLoader.getLocale()).thenReturn(Locale.US);
-		Assert.assertEquals("", FormatHelper.formatGradeForDisplay((Double)null));
-		Assert.assertEquals("90", FormatHelper.formatGradeForDisplay(90.0));
-		Assert.assertEquals("89.07", FormatHelper.formatGradeForDisplay(89.065));
+		Assert.assertEquals("", FormatHelper.formatGradeForDisplay((Double) null, GradeType.POINTS));
+		Assert.assertEquals("90", FormatHelper.formatGradeForDisplay(90.0, GradeType.POINTS));
+		Assert.assertEquals("89.07", FormatHelper.formatGradeForDisplay(89.065, GradeType.POINTS));
 		
 		// Test with spanishLocale locale
 		Mockito.when(resourceLoader.getLocale()).thenReturn(spanishLocale);
-		Assert.assertEquals("89,07", FormatHelper.formatGradeForDisplay(89.065));
+		Assert.assertEquals("89,07", FormatHelper.formatGradeForDisplay(89.065, GradeType.POINTS));
 	}
 
 	@Test
 	public void testFormatGradeForDisplayString() {
 		// Test with US locale
 		Mockito.when(resourceLoader.getLocale()).thenReturn(Locale.US);
-		Assert.assertEquals("", FormatHelper.formatGradeForDisplay(""));
-		Assert.assertEquals("90", FormatHelper.formatGradeForDisplay("90.0"));
-		Assert.assertEquals("89.07", FormatHelper.formatGradeForDisplay("89.065"));
+		Assert.assertEquals("", FormatHelper.formatGradeForDisplay("", GradeType.POINTS));
+		Assert.assertEquals("90", FormatHelper.formatGradeForDisplay("90.0", GradeType.POINTS));
+		Assert.assertEquals("89.07", FormatHelper.formatGradeForDisplay("89.065", GradeType.POINTS));
 		
 		// Test with spanishLocale locale
 		Mockito.when(resourceLoader.getLocale()).thenReturn(spanishLocale);
-		Assert.assertEquals("89,07", FormatHelper.formatGradeForDisplay("89.065"));
+		Assert.assertEquals("89,07", FormatHelper.formatGradeForDisplay("89.065", GradeType.POINTS));
 	}
 
 	@Test
@@ -370,14 +371,18 @@ public class TestFormatHelper {
 	public void testFormatGradeForDisplayWithLocales() {
 		// Test with spanishLocale locale
 		Mockito.when(resourceLoader.getLocale()).thenReturn(spanishLocale);
-		Assert.assertEquals("90,57", FormatHelper.formatGradeForDisplay("90.567"));
-		Assert.assertEquals("1.234,57", FormatHelper.formatGradeForDisplay("1234.567"));
+		Assert.assertEquals("90,57", FormatHelper.formatGradeForDisplay("90.567", GradeType.POINTS));
+		Assert.assertEquals("1.234,57", FormatHelper.formatGradeForDisplay("1234.567", GradeType.POINTS));
 		
 		// Test with the US locale (reset to default)
 		Mockito.when(resourceLoader.getLocale()).thenReturn(Locale.US);
-		Assert.assertEquals("90.57", FormatHelper.formatGradeForDisplay("90.567"));
-		Assert.assertEquals("1,234.57", FormatHelper.formatGradeForDisplay("1234.567"));
+		Assert.assertEquals("90.57", FormatHelper.formatGradeForDisplay("90.567", GradeType.POINTS));
+		Assert.assertEquals("1,234.57", FormatHelper.formatGradeForDisplay("1234.567", GradeType.POINTS));
 		// No need to restore locale as @After will do it
 	}
 
+	@Test
+	public void testFormatGradeForDisplayWithLetterGrade() {
+		Assert.assertEquals("A+", FormatHelper.formatGradeForDisplay("A+", GradeType.LETTER));
+	}
 }
