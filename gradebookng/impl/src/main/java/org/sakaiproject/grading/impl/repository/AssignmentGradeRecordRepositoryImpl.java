@@ -70,6 +70,18 @@ public class AssignmentGradeRecordRepositoryImpl extends SpringCrudRepositoryImp
     }
 
     @Transactional(readOnly = true)
+    public List<AssignmentGradeRecord> findByGradableObject_IdAndGradableObject_Removed(Long gradableObjectId, Boolean removed) {
+
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<AssignmentGradeRecord> query = cb.createQuery(AssignmentGradeRecord.class);
+        Root<AssignmentGradeRecord> agr = query.from(AssignmentGradeRecord.class);
+        Join<AssignmentGradeRecord, GradableObject> go = agr.join("gradableObject");
+        query.where(cb.and(cb.equal(go.get("id"), gradableObjectId), cb.equal(go.get("removed"), removed)));
+        return session.createQuery(query).list();
+    }
+
+    @Transactional(readOnly = true)
     public Optional<AssignmentGradeRecord> findByGradableObject_IdAndStudentId(Long gradableObjectId, String studentId) {
 
         Session session = sessionFactory.getCurrentSession();
@@ -130,17 +142,6 @@ public class AssignmentGradeRecordRepositoryImpl extends SpringCrudRepositoryImp
         Join<GradableObject, Gradebook> gb = go.join("gradebook");
         query.where(cb.and(cb.equal(gb.get("id"), gradebookId), cb.equal(go.get("removed"), false), agr.get("studentId").in(studentIds)));
         return session.createQuery(query).list();
-
-        /*
-        return (List<AssignmentGradeRecord>) sessionFactory.getCurrentSession()
-            .createCriteria(AssignmentGradeRecord.class)
-            .createAlias("gradableObject", "go")
-            .createAlias("gradableObject.gradebook", "gb")
-            .add(Restrictions.equal("gb.id", gradebookId))
-            .add(Restrictions.equal("go.removed", false))
-            .add(HibernateCriterionUtils.CriterionInRestrictionSplitter("studentId", studentIds))
-            .list();
-            */
     }
 
     @Transactional(readOnly = true)
@@ -152,16 +153,7 @@ public class AssignmentGradeRecordRepositoryImpl extends SpringCrudRepositoryImp
         Root<AssignmentGradeRecord> agr = query.from(AssignmentGradeRecord.class);
         query.where(cb.and(cb.equal(agr.get("gradableObject"), assignment), agr.get("studentId").in(studentIds)));
         return session.createQuery(query).list();
-
-        /*
-        return (List<AssignmentGradeRecord>) sessionFactory.getCurrentSession()
-            .createCriteria(AssignmentGradeRecord.class)
-            .add(Restrictions.equal("gradableObject", assignment))
-            .add(HibernateCriterionUtils.CriterionInRestrictionSplitter("studentId", studentIds))
-            .list();
-        */
     }
-
 
     @Transactional
     public int deleteByGradableObject(GradebookAssignment assignment) {
