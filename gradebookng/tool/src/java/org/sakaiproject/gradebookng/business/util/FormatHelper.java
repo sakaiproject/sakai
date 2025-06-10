@@ -41,6 +41,7 @@ import org.sakaiproject.util.ResourceLoader;
 
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.grading.api.CategoryDefinition;
+import org.sakaiproject.grading.api.GradeType;
 import org.sakaiproject.grading.api.MessageHelper;
 
 @Slf4j
@@ -58,10 +59,9 @@ public class FormatHelper {
 	 */
 	public static String formatDoubleToDecimal(final Double score) {
 		if (score == null) {
-                        return "";
-		}
-		else {
-                        return formatDoubleToDecimal(score, 2);
+			return "";
+		} else {
+			return formatDoubleToDecimal(score, 2);
 		}
 	}
 
@@ -131,7 +131,7 @@ public class FormatHelper {
 	 * @return percentage to decimal places with a '%' for good measure
 	 */
 	public static String formatDoubleAsPercentage(final Double score) {
-		return formatGradeForDisplay(score) + "%";
+		return formatGradeForDisplay(score, null) + "%";
 	}
 
 	/**
@@ -176,8 +176,8 @@ public class FormatHelper {
 	 * @param grade - string representation of a grade
 	 * @return
 	 */
-	public static String formatGradeForDisplay(final Double grade) {
-		return formatGradeForDisplay(formatDoubleToDecimal(grade));
+	public static String formatGradeForDisplay(Double grade, GradeType gradeType) {
+		return formatGradeForDisplay(formatDoubleToDecimal(grade), gradeType);
 	}
 
 	/**
@@ -186,9 +186,13 @@ public class FormatHelper {
 	 * @param grade - string representation of a grade
 	 * @return
 	 */
-	public static String formatGradeForDisplay(final String grade) {
+	public static String formatGradeForDisplay(final String grade, GradeType gradeType) {
 		if (StringUtils.isBlank(grade)) {
 			return "";
+		}
+
+		if (gradeType != null && gradeType == GradeType.LETTER) {
+			return grade;
 		}
 
 		String s;
@@ -225,7 +229,7 @@ public class FormatHelper {
 	 * @param locale
 	 * @return
 	 */
-	public static String formatGradeForLocale(final String grade, final Locale locale) {
+	private static String formatGradeForLocale(final String grade, final Locale locale) {
 		if (StringUtils.isBlank(grade)) {
 			return "";
 		}
