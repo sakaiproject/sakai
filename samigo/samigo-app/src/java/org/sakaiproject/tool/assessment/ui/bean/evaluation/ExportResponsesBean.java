@@ -248,7 +248,8 @@ public class ExportResponsesBean extends SpringBeanAutowiringSupport implements 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
         StringBuilder fileName = new StringBuilder(ContextUtil.getLocalizedString(MSG_BUNDLE,"assessment"));
         if(StringUtils.trimToNull(assessmentName) != null) {
-        	assessmentName = assessmentName.replaceAll("\\s", "_"); // replace whitespace with '_'
+        	// Sanitize filename: replace problematic characters with underscore
+        	assessmentName = assessmentName.replaceAll("[\\s<>&;\"'\\\\/:*?|]", "_");
             fileName.append("-");
             fileName.append(assessmentName);
         }
@@ -259,15 +260,10 @@ public class ExportResponsesBean extends SpringBeanAutowiringSupport implements 
     
     
 	public void writeDataToResponse(List<List<Object>> spreadsheetData, String fileName, HttpServletResponse response) {
-		String mimetype = "application/vnd.ms-excel";
-		String extension = ".xls";
+		String mimetype = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+		String extension = ".xlsx";
 		int columns = findColumnSize(spreadsheetData);
-		if (columns >= 255) {
-			// allows for greater than 255 columns - SAK-16560
-			mimetype = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-			extension = ".xlsx";
-            log.info("Samigo export ({} columns): Using xlsx mimetype: {}", columns, mimetype);
-		}
+		log.info("Samigo export ({} columns): Using xlsx mimetype: {}", columns, mimetype);
 		response.setContentType(mimetype);
 		
 		String escapedFilename = org.sakaiproject.util.Validator.escapeUrl(fileName);
@@ -290,15 +286,8 @@ public class ExportResponsesBean extends SpringBeanAutowiringSupport implements 
 	public Workbook getAsWorkbook(List<List<Object>> spreadsheetData) {
 		// outer list is rows, inner list is columns (cells in the row)
 		int columns = findColumnSize(spreadsheetData);
-		Workbook wb;
-		if (columns < 255) {
-			log.info("Samigo export ({} columns): Using xls format", columns);
-			wb = new HSSFWorkbook();
-		} else {
-			// allows for greater than 255 columns - SAK-16560
-			log.info("Samigo export ({} columns): Using xlsx format", columns);
-			wb = new XSSFWorkbook();
-		}
+		log.info("Samigo export ({} columns): Using xlsx format", columns);
+		Workbook wb = new XSSFWorkbook();
 
 		CellStyle boldStyle = wb.createCellStyle();
 		Font boldFont = wb.createFont();
