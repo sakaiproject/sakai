@@ -8404,6 +8404,11 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		
 		saveFeatures(params, state, site);
 		
+		if (memoryService != null) {
+			memoryService.destroyCache("org.sakaiproject.tool.gradebook.group.enabled");
+			memoryService.destroyCache("org.sakaiproject.tool.gradebook.group.instances");
+		}
+
 		if (state.getAttribute(STATE_MESSAGE) == null) {
 			// clean state variables
 			state.removeAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
