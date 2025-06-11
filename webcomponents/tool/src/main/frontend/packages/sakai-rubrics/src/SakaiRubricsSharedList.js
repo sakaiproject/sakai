@@ -46,7 +46,7 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
       <sakai-pager
         .current=${this._currentPage}
         .count=${this._totalPages}
-        @page-selected=${e => this._onPageSelected(e)}
+        @page-selected=${this._onPageSelected}
         ?hidden=${this._totalPages <= 1}>
       </sakai-pager>
       <div class="modal fade" id="delete-modal" tabindex="-1" aria-labelledby="delete-modal-label" aria-hidden="true">
