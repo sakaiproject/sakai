@@ -347,7 +347,7 @@ public class CardGameController extends AbstractSakaiApiController {
 
             // If official image is default/initials, try profile image as fallback
             if (primaryImage.isDefault() || primaryImage.isInitials()) {
-                fallbackImage = profileImageLogic.getProfileImage(userId, null, ProfileConstants.PROFILE_IMAGE_MAIN, siteId);
+                fallbackImage = profileImageLogic.getProfileImage(userId, ProfileConstants.PROFILE_IMAGE_MAIN, siteId);
             }
         } else {
             primaryImage = profileImageLogic.getProfileImage(userId, ProfileConstants.PROFILE_IMAGE_MAIN, siteId);
