@@ -142,9 +142,7 @@ function initRubricDialog(gradingId, doneText, cancelText, titleText, alertText)
       {
         text: cancelText,
         click: function () {
-          if (this.querySelector(`sakai-rubric-grading`)) { this.querySelector(`sakai-rubric-grading`).cancel(); }
-          else if (this.querySelector(`sakai-dynamic-rubric`)) {
-            this.querySelector(`sakai-dynamic-rubric`).cancel();
+          if (componentFound) {
             previousScore = componentFound.querySelector('input[name="previous'+gradingIdAux+'"]').value;
           }
           $(this).dialog("close");
