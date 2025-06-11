@@ -583,30 +583,6 @@ implements ActionListener
 				context.addMessage(null,new FacesMessage(str_err));
 			}
 		}
-		
-		// check secure delivery exit password
-		SecureDeliveryServiceAPI secureDeliveryService = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
-		if ( secureDeliveryService.isSecureDeliveryAvaliable() ) {
-			
-			String moduleId = assessmentSettings.getSecureDeliveryModule();
-			if ( ! SecureDeliveryServiceAPI.NONE_ID.equals( moduleId ) ) {
-			
-				String exitPassword = assessmentSettings.getSecureDeliveryModuleExitPassword(); 
-				if ( exitPassword != null && exitPassword.length() > 0 ) {
-					
-					for ( int i = 0; i < exitPassword.length(); i++ ) {
-						
-						char c = exitPassword.charAt(i);
-						if ( ! (( c >= 'a' && c <= 'z' ) || ( c >= 'A' && c <= 'Z' ) || ( c >= '0' && c <= '9' )) ) {
-							error = true;
-							String  submission_err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","exit_password_error");
-							context.addMessage(null,new FacesMessage(submission_err));
-							break;
-						}
-					}					
-				}
-			}			
-		}
 
 		org.sakaiproject.grading.api.GradingService gradingService =
 			(org.sakaiproject.grading.api.GradingService) ComponentManager.get("org.sakaiproject.grading.api.GradingService");
