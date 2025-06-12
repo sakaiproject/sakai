@@ -271,7 +271,7 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     }
 
     @Override
-    public long countAssignmentSubmissions(String assignmentId, Boolean graded, Boolean hasSubmissionDate, Boolean userSubmission, List<String> userIds) {
+    public long countAssignmentSubmissions(String assignmentId, Boolean graded, Boolean gradeReleased, Boolean hasSubmissionDate, Boolean userSubmission, List<String> userIds) {
         Criteria criteria = geCurrentSession().createCriteria(AssignmentSubmission.class)
                 .setProjection(Projections.countDistinct("id"))
                 .add(Restrictions.eq("assignment.id", assignmentId))
@@ -280,6 +280,9 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
 
         if (graded != null) {
             criteria.add(Restrictions.eq("graded", graded));
+        }
+        if (gradeReleased != null) {
+            criteria.add(Restrictions.eq("gradeReleased", gradeReleased));
         }
         if (hasSubmissionDate != null) {
             criteria.add(hasSubmissionDate ? Restrictions.isNotNull("dateSubmitted") : Restrictions.isNull("dateSubmitted"));
