@@ -50,7 +50,7 @@ should be included in file importing DeliveryMessages
                     answer.isCorrect != null && !answer.isCorrect && answer.hasInput && !delivery.noFeedback=='true'}">
       </h:panelGroup>
       <h:panelGroup rendered="#{answer.hasInput && delivery.actionString !='gradeAssessment' && delivery.actionString !='reviewAssessment'}">
-        <h:outputLabel styleClass="sr-only" for="fib" value="#{deliveryMessages.fib_sr_answer_label_part1} #{question.answerCounter}. #{deliveryMessages.fib_sr_answer_label_part2}" />
+        <h:outputLabel styleClass="sr-only" for="fib" value="#{deliveryMessages.fib_sr_answer_label_part2} #{answer.text}" />
         <h:inputText size="20" value="#{answer.response}" onkeypress="return noenter()" id="fib" />
       </h:panelGroup>
       <h:outputText style="text-decoration: underline" rendered="#{delivery.actionString=='gradeAssessment' || delivery.actionString=='reviewAssessment'}"
