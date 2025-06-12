@@ -197,10 +197,50 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     return this._i18n;
   }
 
-  _setup() {
+  _closeGrader(e) {
 
-    //Disable Offcanvas FocusTrap
-    bootstrap.Offcanvas.prototype._initializeFocusTrap = function () { return { activate() {}, deactivate() {} }; };
+    this.querySelector("sakai-rubric-grading")?.closeCommentEditors();
+
+    if (this.modified || this.querySelector("sakai-grader-file-picker")?.hasFiles()) {
+      e.preventDefault();
+      this._save({ bannerTimout: 2000 });
+    }
+
+    // Close all the collapses on the hidden event, so we don't have loads of sliding
+    // about going on at once.
+    bootstrap.Collapse.getInstance(this.querySelector("#feedback-block"))?.hide();
+    bootstrap.Collapse.getInstance(this.querySelector("#private-notes-block"))?.hide();
+    this._feedbackCommentRemoved = false;
+    this._privateNotesRemoved = false;
+    this._closeRubric();
+    this._closeStudentRubric();
+
+    bootstrap.Collapse.getInstance(this.querySelector("#feedback-block"))?.hide();
+
+    this._toggleGrader();
+  }
+
+  _toggleGrader() {
+
+    const graderEl = this.querySelector("#grader");
+    const gradableEl = this.querySelector("#grader-gradable-container");
+
+    if (graderEl.classList.contains("d-none")) {
+      graderEl.classList.remove("d-none");
+      graderEl.classList.add("d-block");
+      gradableEl.classList.add("d-none");
+      graderEl.classList.add("rounded-3");
+      graderEl.classList.add("mt-2");
+    } else {
+      graderEl.classList.remove("d-block");
+      graderEl.classList.remove("rounded-3");
+      graderEl.classList.add("d-none");
+      gradableEl.classList.remove("d-none");
+      graderEl.classList.remove("mt-2");
+    }
+  }
+
+  _setup() {
 
     this.feedbackCommentEditor = this._replaceWithEditor("grader-feedback-comment", data => {
       this._submission.feedbackComment = data;
@@ -210,31 +250,6 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     this.privateNotesEditor = this._replaceWithEditor("grader-private-notes", data => {
       this._submission.privateNotes = data;
       this._gradeOrCommentsModified = true;
-    });
-
-    document.getElementById("grader").addEventListener("hide.bs.offcanvas", e => {
-
-      this.querySelector("sakai-rubric-grading")?.closeCommentEditors();
-
-      if (this.modified || this.querySelector("sakai-grader-file-picker")?.hasFiles()) {
-        e.preventDefault();
-        this._save({ closeSidebarTimeout: 2000 });
-      }
-
-    });
-
-    document.getElementById("grader").addEventListener("hidden.bs.offcanvas", () => {
-
-      // Close all the collapses on the hidden event, so we don't have loads of sliding
-      // about going on at once.
-      bootstrap.Collapse.getInstance(document.getElementById("feedback-block"))?.hide();
-      bootstrap.Collapse.getInstance(document.getElementById("private-notes-block"))?.hide();
-      this._feedbackCommentRemoved = false;
-      this._privateNotesRemoved = false;
-      this._closeRubric();
-      this._closeStudentRubric();
-
-      bootstrap.Collapse.getInstance(document.getElementById("feedback-block"))?.hide();
     });
 
     this._setupVisibleFlags();
@@ -502,16 +517,15 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     const release = e.target ? e.target.dataset.release : false;
     const formData = this._getFormData();
 
-
     if (formData.valid) {
       formData.set("gradeOption", release ? "return" : "retract");
-      this._submitGradingData(formData, e.closeSidebarTimeout);
-      const rubricGrading = document.getElementsByTagName("sakai-rubric-grading").item(0);
+      this._submitGradingData(formData, e.bannerTimout);
+      const rubricGrading = this.querySelector("sakai-rubric-grading");
       rubricGrading && (release ? rubricGrading.release() : rubricGrading.save());
     }
   }
 
-  _submitGradingData(formData, closeSidebarTimeout) {
+  _submitGradingData(formData, bannerTimout = 1000) {
 
     this._saving = true;
 
@@ -539,12 +553,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
         this._saveSucceeded = false;
         this._gradeOrCommentsModified = false;
-        const graderEl = document.getElementById("grader");
-        const offcanvasInstance = bootstrap.Offcanvas.getInstance(graderEl);
-        if (offcanvasInstance) {
-          offcanvasInstance.hide();
-        }
-      }, closeSidebarTimeout || 1000);
+      }, bannerTimout);
     })
     .catch (e => {
 
@@ -573,32 +582,29 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
     switch (this.gradeScale) {
       case SCORE_GRADE_TYPE: {
-        const input = document.getElementById("score-grade-input");
+        const input = this.querySelector("#score-grade-input");
         input && (input.value = this._submission.grade);
         break;
       }
       case PASS_FAIL_GRADE_TYPE: {
-        const input = document.getElementById("pass-fail-selector");
+        const input = this.querySelector("#pass-fail-selector");
         input && (input.value = this._submission.grade);
         break;
       }
       case LETTER_GRADE_TYPE: {
-        const input = document.getElementById("letter-grade-selector");
+        const input = this.querySelector("#letter-grade-selector");
         input && (input.value = this._submission.grade);
         break;
       }
       case CHECK_GRADE_TYPE: {
-        const input = document.getElementById("check-grade-input");
+        const input = this.querySelector("#check-grade-input");
         input && (input.checked = this._submission.grade === this._i18n["gen.checked"] || this._submission.grade === GRADE_CHECKED);
         break;
       }
       default:
     }
 
-    const offcanvasInstance = bootstrap.Offcanvas.getInstance(document.getElementById("grader"));
-    if (offcanvasInstance) {
-      offcanvasInstance.hide();
-    }
+    this._toggleGrader();
   }
 
   _clearSubmission() {

@@ -355,6 +355,7 @@
 										#assignmentIcons($assignment)
 										#if ($rubricMap.containsKey($assignment.getId()))
 										<sakai-rubric-student-button
+											class="ms-1"
 											force-preview
 											dont-check-association
 											rubric-id="$rubricMap.get($assignment.getId())"

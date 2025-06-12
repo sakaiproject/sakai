@@ -262,12 +262,9 @@ export const graderRenderingMixin = Base => class extends Base {
   _renderGraderLinkBlock() {
 
     return html`
-      <div id="grader-link-block" class="float-end d-xl-none">
-        <button class="btn btn-primary active"
-            data-bs-toggle="offcanvas"
-            data-bs-target="#grader"
-            aria-controls="grader">
-            ${this._i18n.grade_submission}
+      <div id="grader-link-block" class="float-end d-lg-none">
+        <button @click=${this._toggleGrader} class="btn btn-primary active">
+          ${this._i18n.grade_submission}
         </button>
       </div>`;
   }
@@ -362,17 +359,19 @@ export const graderRenderingMixin = Base => class extends Base {
     return html`
       ${this._submission.id !== "dummy" ? html`
 
-      <div id="grader" class="offcanvas offcanvas-end d-lg-block" data-bs-backdrop="static" tabindex="-1" aria-labelledby="grader-label">
+      <div id="grader" class="d-none d-lg-block m-lg-0 p-3" tabindex="-1" aria-labelledby="grader-label">
 
-        <div class="offcanvas-header">
-          <sakai-user-photo site-id="${getSiteId()}" user-id="${this._getPhotoUserId()}" classes="grader-photo" profile-popup="on"></sakai-user-photo>
-          <h2 class="offcanvas-title" id="grader-label">
-            ${this._getSubmitter(this._submission)}
-          </h2>
-          <button type="button" class="btn-close text-reset d-xl-none" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        <div class="d-lg-none d-flex justify-content-between mb-3">
+          <div class="d-flex align-self-center">
+            <sakai-user-photo site-id="${getSiteId()}" user-id="${this._getPhotoUserId()}" classes="grader-photo" profile-popup="on"></sakai-user-photo>
+            <h2 id="grader-label" class="ms-2">
+              ${this._getSubmitter(this._submission)}
+            </h2>
+          </div>
+          <button type="button" @click=${this._closeGrader} class="btn-close text-reset" aria-label="Close"></button>
         </div>
 
-        <div class="offcanvas-body">
+        <div>
 
           <!-- START ORIGINALITY BLOCK -->
           ${this._submission.originalityShowing ? html`
@@ -628,6 +627,7 @@ export const graderRenderingMixin = Base => class extends Base {
                 </div>
               ` : nothing }
               <sakai-grader-file-picker button-text="${this._i18n["gen.addatt"]}"
+                  class="mt-2"
                   style="display: inline-block;"
                   title="${this._i18n.add_attachments_tooltip}">
               </sakai-grader-file-picker>
@@ -770,7 +770,7 @@ export const graderRenderingMixin = Base => class extends Base {
                   @click=${this._save}>
                 ${this._i18n["gen.retustud"]}
               </button>
-              <button class="btn btn-link d-xl-none" accesskey="x" name="cancel" @click=${this._cancel}>${this._i18n["gen.can"]}</button>
+              <button class="btn btn-link d-lg-none" accesskey="x" name="cancel" @click=${this._cancel}>${this._i18n["gen.can"]}</button>
             </div>
             ${this._saving ? html`<div class="sak-banner-info">${this._i18n.saving}</div>` : ""}
             ${this._saveSucceeded && this._gradeOrCommentsModified ? html`<div class="sak-banner-success">${this._i18n.successful_save}</div>` : nothing }
@@ -801,9 +801,9 @@ export const graderRenderingMixin = Base => class extends Base {
       <div class="d-flex flex-column flex-lg-row">
         <div id="grader-gradable-container" class="flex-grow-1">
           <div id="grader-submitted-block" class="grader-block">
-            <div class="d-flex mb-3">
+            <div class="d-flex align-items-center mb-3">
               <sakai-user-photo site-id="${getSiteId()}" user-id="${this._getPhotoUserId()}" classes="grader-photo" profile-popup="on"></sakai-user-photo>
-              <div style="flex: 4;">
+              <div class="ms-2">
                 <span class="submitter-name">
                   ${this._getSubmitter(this._submission)}
                 </span>
