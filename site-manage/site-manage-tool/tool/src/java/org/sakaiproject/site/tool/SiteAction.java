@@ -8404,11 +8404,6 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		
 		saveFeatures(params, state, site);
 		
-		if (memoryService != null) {
-			memoryService.destroyCache("org.sakaiproject.tool.gradebook.group.enabled");
-			memoryService.destroyCache("org.sakaiproject.tool.gradebook.group.instances");
-		}
-
 		if (state.getAttribute(STATE_MESSAGE) == null) {
 			// clean state variables
 			state.removeAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
@@ -11780,6 +11775,13 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 						if (!existing.contains(g))
 							newGroups.add(g);
 					}
+				}
+
+				if (memoryService != null) {
+					Cache gradebookGroupEnabledCache = memoryService.getCache("org.sakaiproject.tool.gradebook.group.enabled");
+					Cache gradebookGroupInstancesCache = memoryService.getCache("org.sakaiproject.tool.gradebook.group.instances");
+					if (gradebookGroupEnabledCache != null) gradebookGroupEnabledCache.clear();
+					if (gradebookGroupInstancesCache != null) gradebookGroupInstancesCache.clear();
 				}
 			}else if (choice.equals(TOOL_ID_SITEINFO)) {
 				hasSiteInfo = true;
