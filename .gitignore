@@ -38,3 +38,4 @@ scormplayer/scorm-tool/contentPackages
 .aider*
 
 **/.claude/settings.local.json
+.mcp.json
