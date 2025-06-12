@@ -4,11 +4,15 @@ export const calendarStyles = css`
   .calendar-msg {
     color: var(--infoBanner-color);
     background-color: var(--infoBanner-bgcolor);
-    padding: 4px;
+    margin-bottom: 1rem !important;
+    padding: 0.5rem !important;
   }
 
   #site-filter {
-    margin-bottom: 12px;
+    margin-bottom: 0.25rem;
+  }
+  #site-filter sakai-site-picker::part(select) {
+    width: 100%;
   }
 
   .calendar__navigation {
