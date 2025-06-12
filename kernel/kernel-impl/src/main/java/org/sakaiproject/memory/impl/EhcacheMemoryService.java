@@ -383,10 +383,6 @@ public class EhcacheMemoryService implements MemoryService {
             if (serverConfigurationService != null) {
                 enabled = !serverConfigurationService.getBoolean("memory.cache.statistics.force.disabled", false);
             }
-            if (cache.isStatisticsEnabled() != enabled) {
-                cache.setStatisticsEnabled(enabled);
-            }
-
         }
 
         // apply config to the cache (every time)
@@ -406,7 +402,6 @@ public class EhcacheMemoryService implements MemoryService {
                 }
             }
             cache.getCacheConfiguration().setEternal(configuration.isEternal());
-            cache.setStatisticsEnabled(configuration.isStatisticsEnabled());
             log.info("Configured ehcache (" + name + ") from inputs: " + configuration);
         }
 
