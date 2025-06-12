@@ -19,6 +19,7 @@
 package org.sakaiproject.sitestats.impl.report;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
@@ -119,9 +120,9 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 	private ReportFormattedParams	formattedParams	= new ReportFormattedParamsImpl();
 
 	/** FOP */
-	private FopFactory				fopFactory		= FopFactory.newInstance();
-	private Templates				cachedXmlFoXSLT	= null;
-	private static final String		XML_FO_XSL_FILE	= "xmlReportToFo.xsl";
+	private FopFactory fopFactory;
+	private Templates cachedXmlFoXSLT = null;
+	private static final String XML_FO_XSL_FILE = "xmlReportToFo.xsl";
 
 	/** Date formatters. */
 	private SimpleDateFormat		dateMonthFrmt 	= new SimpleDateFormat("yyyy-MM");
@@ -152,6 +153,17 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		// Initialize cacheReportDef and event observer for cacheReportDef invalidation across cluster
 		eventTrackingService.addPriorityObserver(this);
 		cacheReportDef = memoryService.getCache(ReportDef.class.getName());
+		
+		// Initialize FopFactory (moved from static initializer)
+		// Create a factory with default configuration
+		// We're using a safe, absolute URI that doesn't depend on current directory
+		try {
+			fopFactory = FopFactory.newInstance(new File(System.getProperty("java.io.tmpdir")).toURI());
+			log.debug("FOP factory initialized successfully");
+		} catch (Exception e) {
+			log.error("Failed to initialize FOP factory", e);
+			throw new RuntimeException("Failed to initialize FOP factory", e);
+		}
 	}
 	
 	public void destroy(){
@@ -1069,8 +1081,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		try{
 			// Setup a buffer to obtain the content length
 		    out = new ByteArrayOutputStream();		    
-		    fopFactory.setURIResolver(new LibraryURIResolver());			
-		    FOUserAgent foUserAgent = fopFactory.newFOUserAgent();			
+		    FOUserAgent foUserAgent = fopFactory.newFOUserAgent();
 			
             // Construct fop with desired output format
             Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, foUserAgent, out);
