@@ -92,6 +92,7 @@ import org.sakaiproject.api.app.messageforums.Rank;
 import org.sakaiproject.api.app.messageforums.RankImage;
 import org.sakaiproject.api.app.messageforums.RankManager;
 import org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager;
+import org.sakaiproject.api.app.messageforums.SynopticUpdateBatchService;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.cover.ForumScheduleNotificationCover;
 import org.sakaiproject.api.app.messageforums.cover.SynopticMsgcntrManagerCover;
@@ -436,6 +437,8 @@ public class DiscussionForumTool {
   private EmailNotificationManager emailNotificationManager;
   @ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager\"]}")
   private SynopticMsgcntrManager synopticMsgcntrManager;
+  @ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.SynopticUpdateBatchService\"]}")
+  private SynopticUpdateBatchService synopticUpdateBatchService;
   @ManagedProperty(value="#{Components[\"org.sakaiproject.content.api.ContentHostingService\"]}")
   private ContentHostingService contentHostingService;
   @ManagedProperty(value="#{Components[\"org.sakaiproject.authz.api.AuthzGroupService\"]}")
@@ -769,31 +772,7 @@ public class DiscussionForumTool {
   
   public void setForumSynopticInfoHelper(String userId, String siteId,
 		  int unreadMessagesCount, int numOfAttempts) {
-	  try {
-		  // update synotpic info for forums only:
-		  getSynopticMsgcntrManager().setForumSynopticInfoHelper(userId, siteId, unreadMessagesCount);
-	  } catch (HibernateOptimisticLockingFailureException holfe) {
-
-		  // failed, so wait and try again
-		  try {
-			  Thread.sleep(SynopticMsgcntrManager.OPT_LOCK_WAIT);
-		  } catch (InterruptedException e) {
-			  log.error(e.getMessage(), e);
-		  }
-
-		  numOfAttempts--;
-
-		  if (numOfAttempts <= 0) {
-			  log.info("DiscussionForumTool: setForumSynopticInfoHelper: HibernateOptimisticLockingFailureException no more retries left");
-			  log.error(holfe.getMessage(), holfe);
-		  } else {
-			  log.info("DiscussionForumTool: setForumSynopticInfoHelper: HibernateOptimisticLockingFailureException: attempts left: "
-					  + numOfAttempts);
-			  setForumSynopticInfoHelper(userId, siteId, 
-					  unreadMessagesCount, numOfAttempts);
-		  }
-	  }
-
+	  synopticUpdateBatchService.queueForumUpdate(userId, siteId, unreadMessagesCount);
   }
 
   /**
