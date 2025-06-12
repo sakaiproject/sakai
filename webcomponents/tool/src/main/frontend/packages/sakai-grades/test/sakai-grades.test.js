@@ -80,4 +80,43 @@ describe("sakai-grades tests", () => {
     expect(el.shadowRoot.querySelector(".sak-banner-info")).to.exist;
     expect(el.shadowRoot.querySelector(".sak-banner-info").innerHTML).to.contain(el._i18n.no_grades);
   });
+
+  it ("sets correct default sort for instructor view", async () => {
+
+    fetchMock.get(data.gradesUrl, { grades: data.grades, sites: sitePickerData.sites });
+
+    const el = await fixture(html`
+      <sakai-grades user-id="${data.userId}"></sakai-grades>
+    `);
+
+    await elementUpdated(el);
+    await waitUntil(() => el._canGradeAny !== undefined);
+
+    // Should have instructor view since some grades have canGrade: true
+    expect(el._canGradeAny).to.be.true;
+    expect(el._currentSort).to.equal(UNGRADED_LEAST_TO_MOST);
+
+    const filterSelect = el.shadowRoot.querySelector("#filter select");
+    expect(filterSelect.value).to.equal(UNGRADED_LEAST_TO_MOST);
+  });
+
+  it ("sets correct default sort for student view", async () => {
+
+    const studentGrades = data.grades.map(g => ({ ...g, canGrade: false }));
+    fetchMock.get(data.gradesUrl, { grades: studentGrades, sites: sitePickerData.sites });
+
+    const el = await fixture(html`
+      <sakai-grades user-id="${data.userId}"></sakai-grades>
+    `);
+
+    await elementUpdated(el);
+    await waitUntil(() => el._canGradeAny !== undefined);
+
+    // Should have student view since no grades have canGrade: true
+    expect(el._canGradeAny).to.be.false;
+    expect(el._currentSort).to.equal(SCORE_LOW_TO_HIGH);
+
+    const filterSelect = el.shadowRoot.querySelector("#filter select");
+    expect(filterSelect.value).to.equal(SCORE_LOW_TO_HIGH);
+  });
 });
