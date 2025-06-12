@@ -5372,11 +5372,20 @@ public class GradingServiceImpl implements GradingService {
             Collection<ToolConfiguration> gbs = site.getTools("sakai.gradebookng");
             for (ToolConfiguration tc : gbs) {
                 Properties props = tc.getPlacementConfig();
-                if (props.getProperty(GB_GROUP_TOOL_PROPERTY) != null) {
-                    log.debug("Detected gradebook for group {}", props.getProperty(GB_GROUP_TOOL_PROPERTY));
-                    Optional<Gradebook> gb = gradingPersistenceManager.getGradebook(props.getProperty(GB_GROUP_TOOL_PROPERTY));
+                String groupId = props.getProperty(GB_GROUP_TOOL_PROPERTY);
+                if (groupId != null) {
+                    log.debug("Detected gradebook for group {}", groupId);
+                    Optional<Gradebook> gb = gradingPersistenceManager.getGradebook(groupId);
                     if (gb.isPresent()) {
                         gbList.add(gb.get());
+                    } else {
+                        Gradebook createdGb = getGradebook(groupId, siteId);
+                        if (createdGb != null) {
+                            log.debug("Gradebook added for groupId={}", groupId);
+                            gbList.add(createdGb);
+                        } else {
+                            log.warn("Gradebook not found in DB for groupId '{}'", groupId);
+                        }
                     }
                 }
             }

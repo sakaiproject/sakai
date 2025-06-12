@@ -11784,6 +11784,13 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 							newGroups.add(g);
 					}
 				}
+
+				if (memoryService != null) {
+					Cache gradebookGroupEnabledCache = memoryService.getCache("org.sakaiproject.tool.gradebook.group.enabled");
+					Cache gradebookGroupInstancesCache = memoryService.getCache("org.sakaiproject.tool.gradebook.group.instances");
+					if (gradebookGroupEnabledCache != null) gradebookGroupEnabledCache.clear();
+					if (gradebookGroupInstancesCache != null) gradebookGroupInstancesCache.clear();
+				}
 			}else if (choice.equals(TOOL_ID_SITEINFO)) {
 				hasSiteInfo = true;
 			}
