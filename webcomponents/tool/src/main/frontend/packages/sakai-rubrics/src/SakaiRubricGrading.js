@@ -278,7 +278,10 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
             c.pointoverride = ed.points;
             const ratingItem = c.ratings.filter(r => r.id == ed.selectedRatingId)[0];
             if (ratingItem) {
-              c.selectedvalue = ratingItem.points;
+              const points = this._rubric.weighted && c.weight ?
+                (ratingItem.points * (c.weight / 100)).toFixed(2) :
+                ratingItem.points;
+              c.selectedvalue = points;
               ratingItem.selected = true;
             }
           } else {
@@ -569,7 +572,17 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
             .catch(error => console.error(error));
         }
 
-        this._maxPoints = this._criteria.flatMap(c => c.ratings).reduce((a, r) => a + r.points, 0);
+        this._maxPoints = this._criteria.reduce((total, criterion) => {
+          if (criterion.ratings.length === 0) return total;
+
+          const maxRatingPoints = Math.max(...criterion.ratings.map(r => {
+            return this._rubric.weighted && criterion.weight ?
+              r.points * (criterion.weight / 100) :
+              r.points;
+          }));
+
+          return total + maxRatingPoints;
+        }, 0);
       })
       .catch(error => console.error(error));
   }
