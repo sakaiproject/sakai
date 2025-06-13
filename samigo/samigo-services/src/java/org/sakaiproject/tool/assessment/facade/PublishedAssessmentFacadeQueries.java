@@ -701,7 +701,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 
 	public PublishedAssessmentFacade getPublishedAssessment(Long assessmentId, boolean withGroupsInfo) {
 		PublishedAssessmentData a = loadPublishedAssessment(assessmentId);
-		a.setSectionSet(getSectionSetForAssessment(a)); // this is making things slow -pbd
+		// Fetch sections separately to avoid modifying the managed entity
+		Set<PublishedSectionData> sectionSet = getSectionSetForAssessment(a);
 		Map<String, String> releaseToGroups = new HashMap<>();
 		Set<String> groupReferences = new HashSet<>();
 		if (withGroupsInfo) {
@@ -715,6 +716,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		}
 		
 		PublishedAssessmentFacade f = new PublishedAssessmentFacade(a, releaseToGroups);
+		// Set sections on the facade after construction to avoid dirty checking
+		f.setSectionSet(sectionSet);
 		f.setGroupReferences(groupReferences);
 		return f;
 	}
@@ -992,8 +995,9 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		List<PublishedAssessmentData> list = (List<PublishedAssessmentData>) getHibernateTemplate().find("from PublishedAssessmentData p order by p." + orderBy);
 		List<PublishedAssessmentFacade> assessmentList = new ArrayList<>();
 		for (PublishedAssessmentData a : list) {
-			a.setSectionSet(getSectionSetForAssessment(a));
+			Set<PublishedSectionData> sectionSet = getSectionSetForAssessment(a);
 			PublishedAssessmentFacade f = new PublishedAssessmentFacade(a);
+			f.setSectionSet(sectionSet);
 			assessmentList.add(f);
 		}
 		return assessmentList;
@@ -1011,8 +1015,9 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 
 		List<PublishedAssessmentFacade> assessmentList = new ArrayList<>();
 		for (PublishedAssessmentData a : list) {
-			a.setSectionSet(getSectionSetForAssessment(a));
+			Set<PublishedSectionData> sectionSet = getSectionSetForAssessment(a);
 			PublishedAssessmentFacade f = new PublishedAssessmentFacade(a);
+			f.setSectionSet(sectionSet);
 			assessmentList.add(f);
 		}
 		return assessmentList;
@@ -1029,9 +1034,10 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		log.debug("**** pageList=" + pageList);
 		List<PublishedAssessmentFacade> assessmentList = new ArrayList();
 		for (PublishedAssessmentData a : pageList) {
-			a.setSectionSet(getSectionSetForAssessment(a));
+			Set<PublishedSectionData> sectionSet = getSectionSetForAssessment(a);
 			log.debug("****  published assessment=" + a.getTitle());
 			PublishedAssessmentFacade f = new PublishedAssessmentFacade(a);
+			f.setSectionSet(sectionSet);
 			log.debug("**** published assessment title=" + f.getTitle());
 			assessmentList.add(f);
 		}
@@ -1592,8 +1598,9 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
                 break;
             case 1:
                 PublishedAssessmentData data = list.get(0);
-                data.setSectionSet(getSectionSetForAssessment(data));
+                Set<PublishedSectionData> sectionSet = getSectionSetForAssessment(data);
                 PublishedAssessmentFacade assessment = new PublishedAssessmentFacade(data);
+                assessment.setSectionSet(sectionSet);
                 assessment.setFeedbackComponentOption(data.getAssessmentFeedback().getFeedbackComponentOption());
                 return assessment;
             default:
