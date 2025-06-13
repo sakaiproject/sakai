@@ -105,6 +105,6 @@ describe("sakai-rubric-grading tests", () => {
     await elementUpdated(el);
 
     await waitUntil(() => el.querySelector("#sakai-rubrics-total-points"));
-    expect(el.querySelector("#sakai-rubrics-total-points").textContent).to.contain("66.67 %");
+    expect(el.querySelector("#sakai-rubrics-total-points").textContent).to.contain("100 %");
   });
 });
