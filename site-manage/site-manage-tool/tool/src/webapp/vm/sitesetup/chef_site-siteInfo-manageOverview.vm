@@ -218,7 +218,7 @@
                          #set ($currentTool = $toolIds.contains($widget.Id))
                          #if ($currentTool == false)
                              <li class="list-group-item-action disabled">
-                                 <span class="fa si-ban"></span>
+                                 <span class="bi bi-ban"></span>
                                  <span class="widgetName">$formattedText.escapeHtml($widget.Title)</span>
                              </li>
                          #end

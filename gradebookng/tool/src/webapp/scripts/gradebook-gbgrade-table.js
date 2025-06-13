@@ -2395,6 +2395,13 @@ GbGradeTable.setupDragAndDrop = function () {
 
     const sourceAssignmentId = column.getElement().dataset.assignmentId;
     const sourceCategoryId = column.getElement().dataset.categoryId;
+    const columnType = column.getElement().dataset.columnType;
+
+    // Only process assignment columns, not category columns
+    if (columnType !== "assignment" || !sourceAssignmentId) {
+      console.debug("Skipping drag and drop for non-assignment column");
+      return;
+    }
 
     let newIndex = columns.findIndex(c => c._column.field === column._column.field) - GbGradeTable.FIXED_COLUMN_OFFSET;
 
