@@ -555,13 +555,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
-    public Entity createAssignmentEntity(Assignment assignment) {
-        AssignmentEntity entity = assignmentEntityFactory.getObject();
-        entity.initEntity(assignment);
-        return entity;
-    }
-
-    @Override
     public String getEntityUrl(Reference reference) {
         return getEntity(reference).getUrl();
     }

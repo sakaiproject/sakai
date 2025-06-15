@@ -184,9 +184,9 @@ describe("sakai-topic tests", () => {
     const message = "This is a reply";
     editor.setContent(message);
 
-    setTimeout(() => el.querySelector(".topic-reply-block input[type='button']").click());
-
-    const { detail } = await oneEvent(el, "topic-updated");
+    const eventPromise = oneEvent(el, "topic-updated");
+    el.querySelector(".topic-reply-block input[type='button']").click();
+    const { detail } = await eventPromise;
     expect(detail.topic.id).to.equal(data.discussionTopic.id);
     expect(detail.topic.posts[0].message).to.equal(message);
   });
@@ -264,7 +264,7 @@ describe("sakai-topic tests", () => {
 
     // Setup listener for edit-topic event
     const editPromise = oneEvent(el, "edit-topic");
-    setTimeout(() => editButton.click());
+    editButton.click();
     const editEvent = await editPromise;
     expect(editEvent.detail.topic.id).to.equal(data.discussionTopic.id);
 
@@ -278,7 +278,7 @@ describe("sakai-topic tests", () => {
 
     // Setup listener for topic-deleted event
     const deletePromise = oneEvent(el, "topic-deleted");
-    setTimeout(() => deleteButton.click());
+    deleteButton.click();
     const deleteEvent = await deletePromise;
     expect(deleteEvent.detail.topic.id).to.equal(data.discussionTopic.id);
 
@@ -288,7 +288,7 @@ describe("sakai-topic tests", () => {
 
     // Setup listener for topic-updated event
     const hidePromise = oneEvent(el, "topic-updated");
-    setTimeout(() => hideButton.click());
+    hideButton.click();
     const hideEvent = await hidePromise;
     expect(hideEvent.detail.topic.hidden).to.be.true;
 
@@ -298,7 +298,7 @@ describe("sakai-topic tests", () => {
 
     // Setup listener for topic-updated event
     const lockPromise = oneEvent(el, "topic-updated");
-    setTimeout(() => lockButton.click());
+    lockButton.click();
     await lockPromise;
 
     // Restore original confirm
@@ -332,9 +332,9 @@ describe("sakai-topic tests", () => {
     await expect(el).to.be.accessible();
 
     // Create a synthetic event with the updated post and call _postUpdated method
-    setTimeout(() => el._postUpdated(new CustomEvent("post-updated", { detail: { post: updatedPost } })));
-
-    const { detail } = await oneEvent(el, "topic-updated");
+    const eventPromise = oneEvent(el, "topic-updated");
+    el._postUpdated(new CustomEvent("post-updated", { detail: { post: updatedPost } }));
+    const { detail } = await eventPromise;
     expect(detail.topic.id).to.equal(data.discussionTopic.id);
 
     // Verify the post was updated in the topic
@@ -361,9 +361,9 @@ describe("sakai-topic tests", () => {
 
     await expect(el).to.be.accessible();
 
-    setTimeout(() => el._postDeleted(new CustomEvent("post-deleted", { detail: { post: testPost } })));
-
-    const { detail } = await oneEvent(el, "topic-updated");
+    const eventPromise = oneEvent(el, "topic-updated");
+    el._postDeleted(new CustomEvent("post-deleted", { detail: { post: testPost } }));
+    const { detail } = await eventPromise;
 
     // Verify the topic was updated correctly
     expect(detail.topic.id).to.equal(data.discussionTopic.id);
@@ -451,9 +451,9 @@ describe("sakai-topic tests", () => {
     anonymousCheckbox.checked = true;
 
     // Submit the post
-    setTimeout(() => el.querySelector(".topic-reply-block input[type='button']").click());
-
-    const { detail } = await oneEvent(el, "topic-updated");
+    const eventPromise = oneEvent(el, "topic-updated");
+    el.querySelector(".topic-reply-block input[type='button']").click();
+    const { detail } = await eventPromise;
 
     // Verify the post was created with anonymous flag
     expect(detail.topic.posts[0].anonymous).to.be.true;
@@ -566,13 +566,28 @@ describe("sakai-topic tests", () => {
     const originalObserver = el.observer;
     el.observer = { observe: observeSpy, unobserve: unobserveSpy };
 
-    // Call the method directly with the post IDs
-    el._markPostsViewed(["post1"]);
+    // Clear any previously observed posts to ensure the event will fire
+    el._observedPosts = new Set();
 
-    const { detail } = await oneEvent(el, "posts-viewed");
+    // Mock the fetch to return success
+    const originalFetch = window.fetch;
+    window.fetch = sinon.stub().resolves({ ok: true });
 
-    expect(detail.postIds).to.include("post1");
-    expect(detail.topicId).to.equal(topic.id);
+    try {
+      // Set up event listener for "posts-viewed" before calling the method
+      const eventPromise = oneEvent(el, "posts-viewed");
+      
+      // Call the method directly with the post IDs
+      el._markPostsViewed(["post1"]);
+
+      const { detail } = await eventPromise;
+
+      expect(detail.postIds).to.include("post1");
+      expect(detail.topicId).to.equal(topic.id);
+    } finally {
+      // Restore original fetch
+      window.fetch = originalFetch;
+    }
 
     expect(unobserveSpy.calledOnce).to.be.true;
   });

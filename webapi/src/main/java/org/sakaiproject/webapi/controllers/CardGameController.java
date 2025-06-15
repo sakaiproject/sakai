@@ -332,19 +332,32 @@ public class CardGameController extends AbstractSakaiApiController {
         return configuredAllowedRoles != null ? configuredAllowedRoles : ALLOWED_ROLE_IDS_DEFAULT;
     }
 
-    private Boolean hasDefaultImage(String userId, String siteId, boolean official) {
+    private Boolean hasDefaultImage(String userId, String siteId, boolean preferOfficial) {
         if (StringUtils.isAnyBlank(userId, siteId)) {
             log.debug("blank userId or siteId");
             return null;
         }
 
-        ProfileImage profileImage;
-        if (official) {
-            profileImage = profileImageLogic.getOfficialProfileImage(userId, siteId);
+        ProfileImage primaryImage;
+        ProfileImage fallbackImage = null;
+
+        if (preferOfficial) {
+            // Try official image first
+            primaryImage = profileImageLogic.getOfficialProfileImage(userId, siteId);
+
+            // If official image is default/initials, try profile image as fallback
+            if (primaryImage.isDefault() || primaryImage.isInitials()) {
+                fallbackImage = profileImageLogic.getProfileImage(userId, ProfileConstants.PROFILE_IMAGE_MAIN, siteId);
+            }
         } else {
-            profileImage = profileImageLogic.getProfileImage(userId, null, ProfileConstants.PROFILE_IMAGE_MAIN, siteId);
+            primaryImage = profileImageLogic.getProfileImage(userId, ProfileConstants.PROFILE_IMAGE_MAIN, siteId);
         }
 
-        return profileImage.isDefault() || profileImage.isInitials();
+        // Check if we have a usable image (either primary or fallback)
+        boolean primaryIsDefault = primaryImage.isDefault() || primaryImage.isInitials();
+        boolean fallbackIsDefault = fallbackImage == null || fallbackImage.isDefault() || fallbackImage.isInitials();
+
+        // Only skip user if both primary and fallback (if applicable) are default/initials
+        return primaryIsDefault && fallbackIsDefault;
     }
 }
