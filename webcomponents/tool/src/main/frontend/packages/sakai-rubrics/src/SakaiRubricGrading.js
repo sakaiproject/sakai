@@ -197,7 +197,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
                         name="rbcs-${this.evaluatedItemId}-${this.entityId}-criterion-override-${c.id}"
                         class="fine-tune-points form-control hide-input-arrows"
                         @input=${this.fineTuneRating}
-                        .value="${c.pointoverride && typeof c.pointoverride === 'number' ? c.pointoverride.toLocaleString(this.locale) : c.pointoverride}"
+                        .value="${c.pointoverride && typeof c.pointoverride === "number" ? c.pointoverride.toLocaleString(this.locale) : c.pointoverride}"
                     >
                   ` : nothing }
                   <input aria-labelledby="${this.tr("points")}" type="hidden" id="rbcs-${this.evaluatedItemId}-${this.entityId}-criterion-${c.id}" name="rbcs-${this.evaluatedItemId}-${this.entityId}-criterion-${c.id}" .value="${c.selectedvalue}">
