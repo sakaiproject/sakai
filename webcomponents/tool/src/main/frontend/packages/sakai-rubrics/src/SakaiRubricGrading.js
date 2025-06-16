@@ -197,7 +197,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
                         name="rbcs-${this.evaluatedItemId}-${this.entityId}-criterion-override-${c.id}"
                         class="fine-tune-points form-control hide-input-arrows"
                         @input=${this.fineTuneRating}
-                        .value="${c.pointoverride.toLocaleString(this.locale)}"
+                        .value="${c.pointoverride && typeof c.pointoverride === 'number' ? c.pointoverride.toLocaleString(this.locale) : c.pointoverride}"
                     >
                   ` : nothing }
                   <input aria-labelledby="${this.tr("points")}" type="hidden" id="rbcs-${this.evaluatedItemId}-${this.entityId}-criterion-${c.id}" name="rbcs-${this.evaluatedItemId}-${this.entityId}-criterion-${c.id}" .value="${c.selectedvalue}">
@@ -278,16 +278,26 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
             c.pointoverride = ed.points;
             const ratingItem = c.ratings.filter(r => r.id == ed.selectedRatingId)[0];
             if (ratingItem) {
-              c.selectedvalue = ratingItem.points;
+              const points = this._rubric.weighted && c.weight ?
+                (ratingItem.points * (c.weight / 100)).toFixed(2) :
+                ratingItem.points;
+              c.selectedvalue = points;
               ratingItem.selected = true;
             }
           } else {
             const ratingItem = c.ratings.filter(r => r.id == ed.selectedRatingId)[0];
             if (ratingItem) {
               ratingItem.selected = true;
+              // Apply weight if rubric is weighted
+              const points = this._rubric.weighted && c.weight ?
+                (ratingItem.points * (c.weight / 100)).toFixed(2) :
+                ratingItem.points;
+              c.selectedvalue = points;
+              c.pointoverride = points;
+            } else {
+              c.pointoverride = ed.points;
+              c.selectedvalue = ed.points;
             }
-            c.pointoverride = ed.points;
-            c.selectedvalue = ed.points;
           }
 
           c.comments = ed.comments;
@@ -569,7 +579,17 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
             .catch(error => console.error(error));
         }
 
-        this._maxPoints = this._criteria.flatMap(c => c.ratings).reduce((a, r) => a + r.points, 0);
+        this._maxPoints = this._criteria.reduce((total, criterion) => {
+          if (criterion.ratings.length === 0) return total;
+
+          const maxRatingPoints = Math.max(...criterion.ratings.map(r => {
+            return this._rubric.weighted && criterion.weight ?
+              r.points * (criterion.weight / 100) :
+              r.points;
+          }));
+
+          return total + maxRatingPoints;
+        }, 0);
       })
       .catch(error => console.error(error));
   }
