@@ -237,7 +237,7 @@ export const weightedRubric = {
 
 export const evaluatedItemOwnerId = "fisha";
 
-export const rubricsUrl = /api\/sites\/xyz\/rubrics[?w=]*$/;
+export const rubricsUrl = /api\/sites\/xyz\/rubrics(\?withshared=true)?$/;
 export const rubrics = [ rubric1, rubric2 ];
 
 export const rubric1Url = `/api/sites/${siteId}/rubrics/${rubric1.id}`;
