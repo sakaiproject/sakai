@@ -414,6 +414,22 @@ public interface GradingService extends EntityProducer {
     public Map<Long, List<GradeDefinition>> getGradesWithoutCommentsForStudentsForItems(String gradebookUid, String siteId, List<Long> gradableOjbectIds, List<String> studentIds);
 
     /**
+     * This method gets grades for multiple gradebook items including comments with emphasis on performance.
+     *
+     * @param gradebookUid
+     * @param siteId
+     * @param gradableObjectIds
+     * @param studentIds
+     * @return a Map of GradableObjectIds to a List of GradeDefinitions containing the grade information for the given students for the
+     *         given gradableObjectIds. Comments are included. If a student does not have a grade on a
+     *         gradableObject, the GradeDefinition will be omitted
+     * @throws SecurityException if the current user is not authorized with gradeAll in this gradebook
+     * @throws IllegalArgumentException if gradableObjectIds is null/empty, or if gradableObjectIds contains items that are not members of
+     *             the gradebook with uid = gradebookUid
+     */
+    public Map<Long, List<GradeDefinition>> getGradesWithCommentsForStudentsForItems(String gradebookUid, String siteId, List<Long> gradableObjectIds, List<String> studentIds);
+
+    /**
      *
      * @param gradebookUuid
      * @param grade

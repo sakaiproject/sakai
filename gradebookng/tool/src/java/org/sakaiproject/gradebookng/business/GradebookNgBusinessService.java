@@ -82,7 +82,6 @@ import org.sakaiproject.gradebookng.business.util.GbStopWatch;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.grading.api.GradingService;
-import org.sakaiproject.grading.api.MessageHelper;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.section.api.SectionManager;
@@ -104,7 +103,6 @@ import org.sakaiproject.grading.api.model.GradingEvent;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tasks.api.Priorities;
 import org.sakaiproject.tasks.api.Task;
 import org.sakaiproject.tasks.api.TaskService;
@@ -2226,8 +2224,7 @@ public class GradebookNgBusinessService {
 		}
 
 		// Fetch all grades in one bulk operation
-		final Map<Long, GradeDefinition> gradeDefinitions = getBulkGradeDefinitionsForStudent(
-				gradebookUid, siteId, studentUuid, assignmentIds);
+		final Map<Long, GradeDefinition> gradeDefinitions = getBulkGradeDefinitionsWithCommentsForStudent(gradebookUid, siteId, studentUuid, assignmentIds);
 
 		// Build the result map maintaining assignment order
 		for (final Assignment assignment : assignments) {
@@ -2819,52 +2816,7 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Get all grade definitions for a student in one bulk operation instead of separate queries for each assignment.
-	 * This is an optimized version that reduces database round trips and excludes comments for better performance.
-	 *
-	 * @param gradebookUid the gradebook uid
-	 * @param siteId the site id
-	 * @param studentUuid the student's uuid
-	 * @param assignmentIds list of assignment IDs to fetch grades for
-	 * @return map of assignment ID to GradeDefinition (without comments)
-	 */
-	public Map<Long, GradeDefinition> getBulkGradeDefinitionsForStudent(final String gradebookUid, final String siteId, 
-			final String studentUuid, final List<Long> assignmentIds) {
-		
-		if (assignmentIds == null || assignmentIds.isEmpty()) {
-			log.debug("No assignment IDs provided for bulk grade fetch for student: {}", studentUuid);
-			return new HashMap<>();
-		}
-
-		log.debug("Fetching {} grade definitions in bulk for student: {}", assignmentIds.size(), studentUuid);
-		
-		// Use the bulk method from GradingService that fetches grades for multiple assignments and students
-		// This method is optimized for performance and excludes comments which we don't need here
-		final Map<Long, List<GradeDefinition>> bulkGrades = this.gradingService.getGradesWithoutCommentsForStudentsForItems(
-				gradebookUid, siteId, assignmentIds, Collections.singletonList(studentUuid));
-		
-		// Convert to flat map for efficient lookup by assignment ID
-		final Map<Long, GradeDefinition> gradeMap = new HashMap<>();
-		for (final Map.Entry<Long, List<GradeDefinition>> entry : bulkGrades.entrySet()) {
-			final Long assignmentId = entry.getKey();
-			final List<GradeDefinition> gradeDefinitions = entry.getValue();
-			
-			// Find the grade definition for our specific student
-			for (final GradeDefinition def : gradeDefinitions) {
-				if (def != null && def.getStudentUid().equals(studentUuid)) {
-					gradeMap.put(assignmentId, def);
-					break; // Only one grade per student per assignment
-				}
-			}
-		}
-		
-		log.debug("Retrieved {} actual grade definitions for student: {}", gradeMap.size(), studentUuid);
-		return gradeMap;
-	}
-
-	/**
 	 * Get all grade definitions for a student including comments in one bulk operation.
-	 * Use this method when you need both grades and comments, but be aware it's slower than getBulkGradeDefinitionsForStudent.
 	 *
 	 * @param gradebookUid the gradebook uid
 	 * @param siteId the site id
@@ -2884,17 +2836,21 @@ public class GradebookNgBusinessService {
 		
 		final Map<Long, GradeDefinition> gradeMap = new HashMap<>();
 		
-		// For grades with comments, we need to use individual calls as there's no bulk method with comments
-		// However, this is still better than the original approach as we can control when comments are needed
-		for (final Long assignmentId : assignmentIds) {
-			try {
-				final GradeDefinition def = this.gradingService.getGradeDefinitionForStudentForItem(
-						gradebookUid, siteId, assignmentId, studentUuid);
-				if (def != null) {
+		// Use the new bulk method for fetching grades with comments
+		final Map<Long, List<GradeDefinition>> bulkGrades = this.gradingService.getGradesWithCommentsForStudentsForItems(
+				gradebookUid, siteId, assignmentIds, Collections.singletonList(studentUuid));
+
+		// Extract grades for the single student from the bulk result
+		for (final Map.Entry<Long, List<GradeDefinition>> entry : bulkGrades.entrySet()) {
+			final Long assignmentId = entry.getKey();
+			final List<GradeDefinition> gradeDefinitions = entry.getValue();
+			
+			// Find the grade for our specific student
+			for (final GradeDefinition def : gradeDefinitions) {
+				if (def != null && studentUuid.equals(def.getStudentUid())) {
 					gradeMap.put(assignmentId, def);
+					break; // Only one grade per student per assignment
 				}
-			} catch (final Exception e) {
-				log.warn("Error fetching grade definition for assignment: {}, student: {}", assignmentId, studentUuid, e);
 			}
 		}
 		
@@ -2902,58 +2858,4 @@ public class GradebookNgBusinessService {
 		return gradeMap;
 	}
 
-	/**
-	 * Get all grade definitions for multiple students and assignments in one bulk operation.
-	 * This is the most efficient method for building grade matrices and reports.
-	 *
-	 * @param gradebookUid the gradebook uid
-	 * @param siteId the site id
-	 * @param studentUuids list of student UUIDs to fetch grades for
-	 * @param assignmentIds list of assignment IDs to fetch grades for
-	 * @return nested map: studentUuid -> assignmentId -> GradeDefinition (without comments)
-	 */
-	public Map<String, Map<Long, GradeDefinition>> getBulkGradeDefinitionsForStudentsAndAssignments(
-			final String gradebookUid, final String siteId, final List<String> studentUuids, final List<Long> assignmentIds) {
-		
-		if (studentUuids == null || studentUuids.isEmpty() || assignmentIds == null || assignmentIds.isEmpty()) {
-			log.debug("No student UUIDs or assignment IDs provided for bulk grade fetch");
-			return new HashMap<>();
-		}
-
-		log.debug("Fetching grades for {} students and {} assignments in bulk", studentUuids.size(), assignmentIds.size());
-		
-		// Use the bulk method from GradingService that fetches grades for multiple assignments and students
-		// This method is optimized for performance and excludes comments
-		final Map<Long, List<GradeDefinition>> bulkGrades = this.gradingService.getGradesWithoutCommentsForStudentsForItems(
-				gradebookUid, siteId, assignmentIds, studentUuids);
-		
-		// Convert to nested map structure: studentUuid -> assignmentId -> GradeDefinition
-		final Map<String, Map<Long, GradeDefinition>> result = new HashMap<>();
-		
-		// Initialize maps for all students
-		for (final String studentUuid : studentUuids) {
-			result.put(studentUuid, new HashMap<>());
-		}
-		
-		// Populate with actual grade data
-		for (final Map.Entry<Long, List<GradeDefinition>> entry : bulkGrades.entrySet()) {
-			final Long assignmentId = entry.getKey();
-			final List<GradeDefinition> gradeDefinitions = entry.getValue();
-			
-			for (final GradeDefinition def : gradeDefinitions) {
-				if (def != null && def.getStudentUid() != null) {
-					final Map<Long, GradeDefinition> studentGrades = result.get(def.getStudentUid());
-					if (studentGrades != null) {
-						studentGrades.put(assignmentId, def);
-					}
-				}
-			}
-		}
-		
-		int totalGrades = result.values().stream().mapToInt(Map::size).sum();
-		log.debug("Retrieved {} total grade definitions for {} students across {} assignments", 
-				totalGrades, studentUuids.size(), assignmentIds.size());
-		
-		return result;
-	}
 }

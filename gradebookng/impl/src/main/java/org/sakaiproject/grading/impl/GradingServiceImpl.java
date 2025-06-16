@@ -1769,6 +1769,111 @@ public class GradingServiceImpl implements GradingService {
         return gradesMap;
     }
 
+    @Override
+    public Map<Long, List<GradeDefinition>> getGradesWithCommentsForStudentsForItems(final String gradebookUid, final String siteId,
+            final List<Long> gradableObjectIds, final List<String> studentIds) {
+
+        if (gradableObjectIds == null || gradableObjectIds.isEmpty()) {
+            throw new IllegalArgumentException("null or empty gradableObjectIds passed to getGradesWithCommentsForStudentsForItems");
+        }
+
+        // when user is not able to grade and user isn't requesting to view only their grades throw exception
+        if (!this.gradingAuthz.isUserAbleToGrade(siteId) &&
+                !(currentUserHasViewOwnGradesPerm(siteId)
+                        && CollectionUtils.isEqualCollection(studentIds, List.of(sessionManager.getCurrentSessionUserId())))) {
+            throw new GradingSecurityException();
+        }
+
+        final Map<Long, List<GradeDefinition>> gradesMap = new HashMap<>();
+        if (studentIds == null || studentIds.isEmpty()) {
+            return gradesMap;
+        }
+
+        // Get all the grades for the gradableObjectIds
+        final List<AssignmentGradeRecord> gradeRecords = getAllAssignmentGradeRecordsForGbItems(gradableObjectIds, studentIds);
+
+        // Group grade records by assignment ID to organize comment retrieval
+        final Map<Long, List<AssignmentGradeRecord>> recordsByAssignment = gradeRecords.stream()
+                .collect(Collectors.groupingBy(record -> record.getGradableObject().getId()));
+
+        // Build comprehensive comment map: assignmentId -> studentId -> commentText
+        final Map<Long, Map<String, String>> allCommentsMap = new HashMap<>();
+        for (final Long assignmentId : recordsByAssignment.keySet()) {
+            // Get assignment from first grade record (they all have same assignment)
+            final GradebookAssignment assignment = (GradebookAssignment) recordsByAssignment.get(assignmentId).get(0).getGradableObject();
+
+            // Get comments for this assignment and all students
+            final List<Comment> commentRecs = getComments(assignment, studentIds);
+            final Map<String, String> studentCommentMap = new HashMap<>();
+            if (commentRecs != null) {
+                for (final Comment comment : commentRecs) {
+                    if (comment != null) {
+                        studentCommentMap.put(comment.getStudentId(), comment.getCommentText());
+                    }
+                }
+            }
+            allCommentsMap.put(assignmentId, studentCommentMap);
+        }
+
+        // Process grade records and add to results map
+        for (final AssignmentGradeRecord gradeRecord : gradeRecords) {
+            final GradebookAssignment gbo = (GradebookAssignment) gradeRecord.getGradableObject();
+            final Long gboId = gbo.getId();
+            final Gradebook gradebook = gbo.getGradebook();
+            if (!gradebookUid.equals(gradebook.getUid())) {
+                throw new IllegalArgumentException("gradableObjectIds must belong to grades within this gradebook");
+            }
+
+            // Get comment for this specific student and assignment
+            final String commentText = allCommentsMap.get(gboId).get(gradeRecord.getStudentId());
+            final GradeDefinition gradeDef = convertGradeRecordToGradeDefinition(gradeRecord, gbo, gradebook, commentText);
+
+            List<GradeDefinition> gradeList = gradesMap.computeIfAbsent(gboId, k -> new ArrayList<>());
+            gradeList.add(gradeDef);
+        }
+
+        // Handle students who have comments but no grades (like the single-item version)
+        for (final Long assignmentId : gradableObjectIds) {
+            final Map<String, String> commentsForAssignment = allCommentsMap.get(assignmentId);
+            if (commentsForAssignment != null) {
+                for (final String studentId : studentIds) {
+                    final String commentText = commentsForAssignment.get(studentId);
+                    if (commentText != null) {
+                        // Check if we already have a grade record for this student/assignment combination
+                        final List<GradeDefinition> existingGrades = gradesMap.get(assignmentId);
+                        boolean hasGradeRecord = false;
+                        if (existingGrades != null) {
+                            hasGradeRecord = existingGrades.stream()
+                                    .anyMatch(gd -> studentId.equals(gd.getStudentUid()));
+                        }
+
+                        // If no grade record exists but comment exists, create a GradeDefinition with just the comment
+                        if (!hasGradeRecord) {
+                            // We need the assignment to create the GradeDefinition
+                            final GradebookAssignment assignment = recordsByAssignment.containsKey(assignmentId) ?
+                                    (GradebookAssignment) recordsByAssignment.get(assignmentId).get(0).getGradableObject() :
+                                    getAssignmentWithoutStatsByID(gradebookUid, assignmentId);
+
+                            if (assignment != null) {
+                                final Gradebook gradebook = assignment.getGradebook();
+                                final GradeDefinition gradeDef = new GradeDefinition();
+                                gradeDef.setStudentUid(studentId);
+                                gradeDef.setGradeComment(commentText);
+                                gradeDef.setGradeEntryType(gradebook.getGradeType());
+                                gradeDef.setGradeReleased(assignment.getReleased());
+
+                                List<GradeDefinition> gradeList = gradesMap.computeIfAbsent(assignmentId, k -> new ArrayList<>());
+                                gradeList.add(gradeDef);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return gradesMap;
+    }
+
     /**
      * Converts an AssignmentGradeRecord into a GradeDefinition object.
      *
