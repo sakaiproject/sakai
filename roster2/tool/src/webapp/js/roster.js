@@ -170,8 +170,7 @@ roster.switchState = function (state, args) {
   }
 
   // don't show card game tab if user doesn't have permission to view all members or official photos
-  if (roster.currentUserPermissions && 
-      (!roster.currentUserPermissions.viewAllMembers || !roster.currentUserPermissions.viewOfficialPhoto)) {
+  if (roster.currentUserPermissions && !roster.currentUserPermissions.viewAllMembers) {
 
     $('#navbar_card_game_link').hide();
 
