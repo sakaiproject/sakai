@@ -889,7 +889,7 @@ $(document).ready(function () {
         const categoryText = $(".peerReviewText" , $(this)).text();
         rubric.rows.push({"id":categoryId , "text":categoryText});
       });
-      rubric.title = (row.find(".peer-eval-row").text())?row.find(".peer-eval-row").text():"";
+      rubric.title = (row.find(".peer-eval-title").text() && row.find(".peer-eval-title").text() !== "null")?row.find(".peer-eval-title").text():"";
       buildExistingRubrics(rubric);
 
       const forcedAnon = row.find(".forcedAnon").text();
