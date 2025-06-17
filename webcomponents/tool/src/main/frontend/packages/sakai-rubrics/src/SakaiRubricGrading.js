@@ -278,10 +278,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
             c.pointoverride = ed.points;
             const ratingItem = c.ratings.filter(r => r.id == ed.selectedRatingId)[0];
             if (ratingItem) {
-              const points = this._rubric.weighted && c.weight ?
-                (ratingItem.points * (c.weight / 100)).toFixed(2) :
-                ratingItem.points;
-              c.selectedvalue = points;
+              c.selectedvalue = this.calculateCriterionScore(c, ratingItem);
               ratingItem.selected = true;
             }
           } else {
@@ -289,9 +286,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
             if (ratingItem) {
               ratingItem.selected = true;
               // Apply weight if rubric is weighted
-              const points = this._rubric.weighted && c.weight ?
-                (ratingItem.points * (c.weight / 100)).toFixed(2) :
-                ratingItem.points;
+              const points = this.calculateCriterionScore(c, ratingItem);
               c.selectedvalue = points;
               c.pointoverride = points;
             } else {
@@ -583,14 +578,18 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
           if (criterion.ratings.length === 0) return total;
 
           const maxRatingPoints = Math.max(...criterion.ratings.map(r => {
-            return this._rubric.weighted && criterion.weight ?
-              r.points * (criterion.weight / 100) :
-              r.points;
+            return this.calculateCriterionScore(criterion, r);
           }));
 
           return total + maxRatingPoints;
         }, 0);
       })
       .catch(error => console.error(error));
+  }
+
+  calculateCriterionScore(criterion, rating) {
+    return this._rubric.weighted && criterion.weight ?
+      rating.points * (criterion.weight / 100).toFixed(2) :
+      rating.points;
   }
 }

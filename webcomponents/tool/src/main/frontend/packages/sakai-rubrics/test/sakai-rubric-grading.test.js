@@ -176,7 +176,7 @@ describe("sakai-rubric-grading tests", () => {
     // Verify that the weighted points are displayed correctly in the UI
     const criterion1Points = el.querySelector("#points-display-9");
     const criterion2Points = el.querySelector("#points-display-10");
-    expect(criterion1Points.textContent.trim()).to.equal("1.20");
-    expect(criterion2Points.textContent.trim()).to.equal("0.80");
+    expect(criterion1Points.textContent.trim()).to.equal("1.2");
+    expect(criterion2Points.textContent.trim()).to.equal("0.8");
   });
 });

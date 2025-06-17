@@ -81,10 +81,6 @@ window.top.rubrics.utils = window.top.rubrics.utils || {
       el.setAttribute("peer-or-self", attributes["peer-or-self"]);
     }
 
-    // Add the show class to the lightbox before showing the modal
-    // This helps with testing, as the waitUntil condition can be met faster
-    this.lightbox.classList.add("show");
-
     bootstrap.Modal.getOrCreateInstance(this.lightbox).show();
 
     this.lightbox.addEventListener("hidden.bs.modal", () => this.closeLightbox());
