@@ -650,3 +650,18 @@ img.authorImage {
 .openDateSpan {
 	display: block;
 }
+
+/* Draft forum topic styling - topics in draft forums appear unavailable to students */
+.draft-forum-topic {
+	color: #666;
+	opacity: 0.6;
+}
+
+.draft-forum-topic a {
+	color: #666 !important;
+	text-decoration: none;
+}
+
+.draft-forum-topic a:hover {
+	color: #333 !important;
+}
