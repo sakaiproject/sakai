@@ -2313,24 +2313,19 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 				// Check draft visibility
 				if ((msg.getAnnouncementHeader()).getDraft())
 				{
-					// Allow if user is a super user
-					if (securityService.isSuperUser()) {
-						return true;
-					}
-					
 					// Allow if user is the creator of the message
 					if (msg.getHeader().getFrom().getId().equals(currentUserId)) {
 						return true;
 					}
 					
-					// Allow if user has READ_DRAFT permission
+					// Allow if user has READ_DRAFT permission (this also covers superusers)
 					if (unlockCheck(SECURE_READ_DRAFT, msg.getReference())) {
 						return true;
 					}
 					
 					// Allow if user has site.upd permission (instructor)
 					String siteId = entityManager.newReference(msg.getReference()).getContext();
-					String siteRef = "/site/" + siteId;
+					String siteRef = siteService.siteReference(siteId);
 					if (securityService.unlock(SiteService.SECURE_UPDATE_SITE, siteRef)) {
 						log.debug("PrivacyFilter: Allowing draft message {} to be viewed by instructor with site.upd in site {}", 
 							msg.getId(), siteId);
