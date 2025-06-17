@@ -2224,7 +2224,7 @@ public class GradebookNgBusinessService {
 		}
 
 		// Fetch all grades in one bulk operation
-		final Map<Long, GradeDefinition> gradeDefinitions = getBulkGradeDefinitionsWithCommentsForStudent(gradebookUid, siteId, studentUuid, assignmentIds);
+		final Map<Long, GradeDefinition> gradeDefinitions = getAllGradeDefinitionsWithCommentsForStudent(gradebookUid, siteId, studentUuid, assignmentIds);
 
 		// Build the result map maintaining assignment order
 		for (final Assignment assignment : assignments) {
@@ -2824,7 +2824,7 @@ public class GradebookNgBusinessService {
 	 * @param assignmentIds list of assignment IDs to fetch grades for
 	 * @return map of assignment ID to GradeDefinition (with comments if available)
 	 */
-	public Map<Long, GradeDefinition> getBulkGradeDefinitionsWithCommentsForStudent(final String gradebookUid, final String siteId, 
+	public Map<Long, GradeDefinition> getAllGradeDefinitionsWithCommentsForStudent(final String gradebookUid, final String siteId, 
 			final String studentUuid, final List<Long> assignmentIds) {
 		
 		if (assignmentIds == null || assignmentIds.isEmpty()) {
