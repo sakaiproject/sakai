@@ -76,6 +76,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.Resource;
 
@@ -142,7 +143,20 @@ public class AssignmentDueReminderServiceImpl implements AssignmentDueReminderSe
 
             // Do not send reminders if the site is unpublished or softly deleted
             if (site.isPublished() && !site.isSoftlyDeleted()) {
-                for (Member member : site.getMembers()) {
+                Set<Member> members = site.getMembers();
+                if (Assignment.Access.GROUP.equals(assignment.getTypeOfAccess())) {
+                    // Get members from assigned groups only
+                    members = new HashSet<>();
+                    for (String groupRef : assignment.getGroups()) {
+                        String groupId = groupRef.substring(groupRef.lastIndexOf("/") + 1);
+                        org.sakaiproject.site.api.Group group = site.getGroup(groupId);
+                        if (group != null) {
+                            members.addAll(group.getMembers());
+                        }
+                    }
+                }
+
+                for (Member member : members) {
                     if (member.isActive() && assignmentService.canSubmit(assignment, member.getUserId()) && !assignmentService.allowAddAssignment(assignment.getContext(), member.getUserId()) && checkEmailPreference(member)) {
                         sendEmailReminder(site, assignment, member);
                     }
