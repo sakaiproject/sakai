@@ -259,12 +259,15 @@ public class AssignmentDueReminderServiceImpl implements AssignmentDueReminderSe
         try {
             Preferences memberPreferences = preferencesService.getPreferences(member.getUserId());
             ResourceProperties memberProps = memberPreferences.getProperties(NotificationService.PREFS_TYPE + "sakai:assignment");
-            return (int) memberProps.getLongProperty("2") == 2;
+            if (memberProps.getProperty("2") != null) {
+                return (int) memberProps.getLongProperty("2") == 2;
+            }
         } catch (EntityPropertyNotDefinedException | EntityPropertyTypeException e) {
             // Preference not set / defined for user, ignore and send email.
             log.debug(e.getLocalizedMessage(), e);
-            return true;
         }
+        // Default to sending email if preference not set
+        return true;
     }
 
     private String getReplyTo(Set<Member> instructors) {
