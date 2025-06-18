@@ -803,10 +803,10 @@ Handlebars.registerHelper('translate', function (key) {
 });
 
 Handlebars.registerHelper('getName', function (firstNameLastName) {
-  return (firstNameLastName) ? this.displayName : this.sortName;
+  return firstNameLastName ? this.displayName : this.lastName + ", <wbr />" + this.firstName;
 });
 
-Handlebars.registerHelper('ifCond', function(v1, v2, options) {
+Handlebars.registerHelper('ifCond', function (v1, v2, options) {
   if(v1 === v2) {
     return options.fn(this);
   }
