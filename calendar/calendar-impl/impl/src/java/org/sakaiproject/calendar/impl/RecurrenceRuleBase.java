@@ -28,6 +28,7 @@ import java.util.TimeZone;
 import java.util.Vector;
 
 import lombok.extern.slf4j.Slf4j;
+import org.sakaiproject.calendar.api.RecurrenceInstance;
 import org.w3c.dom.Element;
 
 import org.xml.sax.Attributes;
