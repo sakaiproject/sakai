@@ -40,6 +40,26 @@ export const criterion1 = {
 export const criteria1 = [
   criterion1,
   {
+    id: 3,
+    title: "Content",
+    description: "Quality of content",
+    ratings: [
+      {
+        id: 3,
+        title: "Poor",
+        description: "Poor content quality",
+        points: 1,
+      },
+      {
+        id: 4,
+        title: "Good",
+        description: "Good content quality",
+        points: 3,
+      },
+    ],
+    pointoverride: "2.5",
+  },
+  {
     id: 2,
     title: "Group 1",
     description: "Groups 1 group",
@@ -119,6 +139,49 @@ export const criteria3 = [
   },
 ];
 
+export const weightedCriteria = [
+  {
+    id: 9,
+    title: "Criterion 1",
+    description: "First weighted criterion",
+    weight: 60,
+    ratings: [
+      {
+        id: 9,
+        title: "Poor",
+        description: "Poor performance",
+        points: 1,
+      },
+      {
+        id: 10,
+        title: "Good",
+        description: "Good performance",
+        points: 2,
+      },
+    ]
+  },
+  {
+    id: 10,
+    title: "Criterion 2",
+    description: "Second weighted criterion",
+    weight: 40,
+    ratings: [
+      {
+        id: 11,
+        title: "Poor",
+        description: "Poor performance",
+        points: 1,
+      },
+      {
+        id: 12,
+        title: "Good",
+        description: "Good performance",
+        points: 2,
+      },
+    ],
+  },
+];
+
 export const rubric1 = {
   id: "1",
   title: "Rubric 1",
@@ -161,9 +224,20 @@ export const rubric4 = {
   criteria: criteria3
 };
 
+export const weightedRubric = {
+  id: "5",
+  title: "Weighted Rubric",
+  ownerId,
+  siteTitle,
+  creatorDisplayName,
+  formattedModifiedDate,
+  weighted: true,
+  criteria: weightedCriteria
+};
+
 export const evaluatedItemOwnerId = "fisha";
 
-export const rubricsUrl = /api\/sites\/xyz\/rubrics[\?\w=]*$/;
+export const rubricsUrl = /api\/sites\/xyz\/rubrics(\?withshared=true)?$/;
 export const rubrics = [ rubric1, rubric2 ];
 
 export const rubric1Url = `/api/sites/${siteId}/rubrics/${rubric1.id}`;
@@ -174,7 +248,7 @@ export const associationUrl = `/api/sites/${siteId}/rubric-associations/tools/${
 
 export const association = {
   rubricId: rubric1.id,
-  siteId: siteId,
+  siteId,
   parameters: {
     fineTunePoints: true,
   },
@@ -184,7 +258,8 @@ export const evaluationUrl = `/api/sites/${siteId}/rubric-evaluations/tools/${to
 
 export const evaluation = {
   criterionOutcomes: [
-    { criterionId: 1, selectedRatingId: 2, comments: "Rubbish", points: 2 }
+    { criterionId: 1, selectedRatingId: 2, comments: "Rubbish", points: 2 },
+    { criterionId: 3, selectedRatingId: 4, comments: "Good content", points: 3 }
   ],
 };
 
@@ -192,3 +267,23 @@ export const rubric4OwnerUrl = `/api/sites/${ownerId}/rubrics/${rubric4.id}`;
 export const rubric4CriteriaSortUrl = `/api/sites/${ownerId}/rubrics/${rubric4.id}/criteria/sort`;
 export const rubric4Criteria5Url = `/api/sites/${ownerId}/rubrics/${rubric4.id}/criteria/5`;
 export const rubric4Criteria6Url = `/api/sites/${ownerId}/rubrics/${rubric4.id}/criteria/6`;
+
+export const weightedRubricUrl = `/api/sites/${siteId}/rubrics/${weightedRubric.id}`;
+export const weightedRubricOwnerUrl = `/api/sites/${ownerId}/rubrics/${weightedRubric.id}`;
+
+export const weightedAssociationUrl = `/api/sites/${siteId}/rubric-associations/tools/${toolId}/items/weighted-entity`;
+export const weightedAssociation = {
+  rubricId: weightedRubric.id,
+  siteId,
+  parameters: {
+    fineTunePoints: true,
+  },
+};
+
+export const weightedEvaluationUrl = `/api/sites/${siteId}/rubric-evaluations/tools/${toolId}/items/weighted-entity/evaluations/weighted-item/owners/${evaluatedItemOwnerId}`;
+export const weightedEvaluation = {
+  criterionOutcomes: [
+    { criterionId: 9, selectedRatingId: 10, comments: "Good work", points: 2 },
+    { criterionId: 10, selectedRatingId: 12, comments: "Excellent", points: 2 }
+  ],
+};

@@ -59,8 +59,6 @@ public interface AssignmentService extends EntityProducer {
 
     Entity createAssignmentEntity(String assignmentId);
 
-    Entity createAssignmentEntity(Assignment assignment);
-
     /**
      * Check permissions for receiving assignment submission notification email
      *

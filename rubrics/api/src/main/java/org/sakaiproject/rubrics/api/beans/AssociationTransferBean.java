@@ -18,14 +18,11 @@ import java.util.Objects;
 
 import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class AssociationTransferBean {
 
     private Long id;

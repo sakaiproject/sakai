@@ -414,6 +414,22 @@ public interface GradingService extends EntityProducer {
     public Map<Long, List<GradeDefinition>> getGradesWithoutCommentsForStudentsForItems(String gradebookUid, String siteId, List<Long> gradableOjbectIds, List<String> studentIds);
 
     /**
+     * This method gets grades for multiple gradebook items including comments with emphasis on performance.
+     *
+     * @param gradebookUid
+     * @param siteId
+     * @param gradableObjectIds
+     * @param studentIds
+     * @return a Map of GradableObjectIds to a List of GradeDefinitions containing the grade information for the given students for the
+     *         given gradableObjectIds. Comments are included. If a student does not have a grade on a
+     *         gradableObject, the GradeDefinition will be omitted
+     * @throws SecurityException if the current user is not authorized with gradeAll in this gradebook
+     * @throws IllegalArgumentException if gradableObjectIds is null/empty, or if gradableObjectIds contains items that are not members of
+     *             the gradebook with uid = gradebookUid
+     */
+    public Map<Long, List<GradeDefinition>> getGradesWithCommentsForStudentsForItems(String gradebookUid, String siteId, List<Long> gradableObjectIds, List<String> studentIds);
+
+    /**
      *
      * @param gradebookUuid
      * @param grade
@@ -568,6 +584,32 @@ public interface GradingService extends EntityProducer {
      */
     Optional<CategoryScoreData> calculateCategoryScore(Object gradebook, String studentUuid, CategoryDefinition category,
             final List<Assignment> categoryAssignments, Map<Long, String> gradeMap, boolean includeNonReleasedItems);
+
+    /**
+     * Calculate category scores for all categories for a student in one efficient operation.
+     * This is much more efficient than calling calculateCategoryScore repeatedly for each category.
+     *
+     * @param gradebookId the gradebook id
+     * @param studentUuid the student uuid
+     * @param includeNonReleasedItems whether to include non-released items
+     * @param categoryType the category type of the gradebook
+     * @return map of categoryId to CategoryScoreData for all categories that have calculable scores
+     */
+    Map<Long, CategoryScoreData> calculateAllCategoryScores(Long gradebookId, String studentUuid,
+            boolean includeNonReleasedItems, Integer categoryType);
+
+    /**
+     * Calculate category scores for multiple students and all categories in one bulk operation.
+     * This is the most efficient method when you need category scores for multiple students.
+     *
+     * @param gradebookId the gradebook id
+     * @param studentUuids list of student uuids
+     * @param includeNonReleasedItems whether to include non-released items
+     * @param categoryType the category type of the gradebook
+     * @return nested map: studentUuid -> categoryId -> CategoryScoreData
+     */
+    Map<String, Map<Long, CategoryScoreData>> calculateAllCategoryScoresForStudents(Long gradebookId, 
+            List<String> studentUuids, boolean includeNonReleasedItems, Integer categoryType);
 
     /**
      * Get the course grade for a student

@@ -220,6 +220,7 @@
     #roster-members-table {
         .roster-name-cell {
             max-width: 130px;
+            word-wrap: break-word;
         }
 
         .roster-mobile-label {
@@ -266,7 +267,6 @@
 
     }
 
-    // S2U-42
     #card-game {
         .act > button {
             margin-bottom: $standard-space;

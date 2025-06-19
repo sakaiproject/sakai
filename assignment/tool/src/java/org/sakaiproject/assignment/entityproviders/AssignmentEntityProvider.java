@@ -1467,7 +1467,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         try {
             Assignment assignment = assignmentService.getAssignment(assignmentId);
-            Entity entity = assignmentService.createAssignmentEntity(assignment);
+            Entity entity = assignmentService.createAssignmentEntity(assignmentId);
             props.put("title", assignment.getTitle());
             props.put("author", assignment.getAuthor());
             props.put("description", entity.getReference());

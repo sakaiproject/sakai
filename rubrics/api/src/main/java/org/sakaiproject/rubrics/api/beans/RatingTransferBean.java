@@ -18,13 +18,10 @@ import org.sakaiproject.rubrics.api.model.Rating;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-
 import java.util.Objects;
 
 @Data
 @NoArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class RatingTransferBean {
 
     private Long id;

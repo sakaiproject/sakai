@@ -38,12 +38,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFCellStyle;
-import org.apache.poi.hssf.usermodel.HSSFFont;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.AgentResults;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
@@ -99,8 +99,8 @@ public class TotalScoresExportBean implements Serializable {
 	}
 
 	private void writeDataToResponse(List<String> headerList, List dataList, String fileName, HttpServletResponse response) {
-		response.setContentType("application/vnd.ms-excel");
-		response.setHeader("Content-disposition", "attachment; filename=" + fileName + ".xls");
+		response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+		response.setHeader("Content-disposition", "attachment; filename=" + fileName + ".xlsx");
 		OutputStream out = null;
 		try {
 			out = response.getOutputStream();
@@ -117,17 +117,17 @@ public class TotalScoresExportBean implements Serializable {
 		}
 	}
 
-	private HSSFWorkbook getAsWorkbook(List<String> headerList, List dataList) {
-		HSSFWorkbook wb = new HSSFWorkbook();
-		HSSFCellStyle boldStyle = wb.createCellStyle();
-		HSSFFont font = wb.createFont();
+	private XSSFWorkbook getAsWorkbook(List<String> headerList, List dataList) {
+		XSSFWorkbook wb = new XSSFWorkbook();
+		XSSFCellStyle boldStyle = wb.createCellStyle();
+		XSSFFont font = wb.createFont();
 		font.setBold(true);
 		boldStyle.setFont(font);
 
-		HSSFSheet sheet = wb.createSheet();
+		XSSFSheet sheet = wb.createSheet();
 
 		//The first list in the list contains column headers.
-		HSSFRow headerRow = sheet.createRow((short)0);
+		XSSFRow headerRow = sheet.createRow((short)0);
 
 		for (short i = 0; i < headerList.size(); i++) {
 			createCell(headerRow, i, boldStyle).setCellValue(headerList.get(i).toString());
@@ -136,10 +136,10 @@ public class TotalScoresExportBean implements Serializable {
 		Iterator dataIter = dataList.iterator();
 		while (dataIter.hasNext()) {
 			AgentResults agent = (AgentResults) dataIter.next();
-			HSSFRow row = sheet.createRow(rowPos++);
+			XSSFRow row = sheet.createRow(rowPos++);
 
 			//Añadimos la informacion en las celdas
-			HSSFCell cell = createCell(row, (short)0, null);
+			XSSFCell cell = createCell(row, (short)0, null);
 			cell.setCellValue(agent.getLastName() + ", " + agent.getFirstName());
 
 			cell = createCell(row, (short)1, null);
@@ -174,8 +174,8 @@ public class TotalScoresExportBean implements Serializable {
 		return wb;
 	}
 
-	private HSSFCell createCell(HSSFRow row, short column, HSSFCellStyle cellStyle) {
-		HSSFCell cell = row.createCell(column);
+	private XSSFCell createCell(XSSFRow row, short column, XSSFCellStyle cellStyle) {
+		XSSFCell cell = row.createCell(column);
 
 		if (cellStyle != null) {
 			cell.setCellStyle(cellStyle);

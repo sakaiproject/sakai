@@ -64,10 +64,26 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 
 	private UiMode mode;
 
+	private boolean createAnotherChecked = false;
+
 	public AddOrEditGradeItemPanel(final String id, final GbModalWindow window, final IModel<Long> model) {
 		super(id);
 		this.model = model;
 		this.window = window;
+
+		// determine mode
+		if (model != null) {
+			this.mode = UiMode.EDIT;
+		} else {
+			this.mode = UiMode.ADD;
+		}
+   }
+
+	public AddOrEditGradeItemPanel(final String id, final GbModalWindow window, final IModel<Long> model, final boolean createAnotherChecked) {
+		super(id);
+		this.model = model;
+		this.window = window;
+		this.createAnotherChecked = createAnotherChecked;
 
 		// determine mode
 		if (model != null) {
@@ -118,7 +134,7 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 		form.add(createAnotherContainer);
 
 		// create another checkbox
-		final CheckBox createAnother = new CheckBox("createAnother", Model.of(Boolean.FALSE));
+		final CheckBox createAnother = new CheckBox("createAnother", Model.of(this.createAnotherChecked));
 		createAnotherContainer.add(createAnother);
 
 		// modify the submit button to check the checkbox value
@@ -197,7 +213,7 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 			if (category != null && !category.getEqualWeight()) {
 				final Assignment mismatched = category.getAssignmentList()
 						.stream()
-						.filter(a -> Double.compare(a.getPoints().doubleValue(), assignment.getPoints().doubleValue()) != 0)
+						.filter(a -> Double.compare(a.getPoints(), assignment.getPoints()) != 0)
 						.findFirst()
 						.orElse(null);
 				if (mismatched != null) {
@@ -272,7 +288,7 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 							.success(successMessage);
 
 					if (createAnother) {
-						final Component newFormPanel = new AddOrEditGradeItemPanel(this.window.getContentId(), this.window, null);
+						final Component newFormPanel = new AddOrEditGradeItemPanel(this.window.getContentId(), this.window, null, true);
 						((AddOrEditGradeItemPanel)newFormPanel).setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
 						AddOrEditGradeItemPanel.this.replaceWith(newFormPanel);
 						this.window.setAssignmentToReturnFocusTo(String.valueOf(assignmentId));

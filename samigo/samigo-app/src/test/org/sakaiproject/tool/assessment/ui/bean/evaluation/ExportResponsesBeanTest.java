@@ -94,7 +94,7 @@ public class ExportResponsesBeanTest extends AbstractJUnit4SpringContextTests {
         wb = bean.getAsWorkbook(spreadsheetData);
         Assert.assertNotNull(wb);
         Assert.assertNotNull(wb.getSheet("responses"));
-        Assert.assertEquals(wb.getClass().getName(), "org.apache.poi.hssf.usermodel.HSSFWorkbook");
+        Assert.assertEquals(wb.getClass().getName(), "org.apache.poi.xssf.usermodel.XSSFWorkbook");
 
         // medium test (100 columns x 200 rows)
         spreadsheetData = new ArrayList<>();
@@ -110,7 +110,7 @@ public class ExportResponsesBeanTest extends AbstractJUnit4SpringContextTests {
         wb = bean.getAsWorkbook(spreadsheetData);
         Assert.assertNotNull(wb);
         Assert.assertNotNull(wb.getSheet("responses"));
-        Assert.assertEquals(wb.getClass().getName(), "org.apache.poi.hssf.usermodel.HSSFWorkbook");
+        Assert.assertEquals(wb.getClass().getName(), "org.apache.poi.xssf.usermodel.XSSFWorkbook");
     }
 
     @Test

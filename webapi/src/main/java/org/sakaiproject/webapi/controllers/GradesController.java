@@ -38,7 +38,6 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.webapi.beans.GradebookItemRestBean;
 import org.sakaiproject.webapi.beans.GradebookRestBean;
 import org.sakaiproject.webapi.beans.GradeRestBean;
@@ -86,7 +85,6 @@ public class GradesController extends AbstractSakaiApiController {
         return siteService.getOptionalSite(siteId).map(site -> {
 
             String userId = checkSakaiSession().getUserId();
-            Role role = site.getUserRole(userId);
             boolean canGrade = securityService.unlock(GradingAuthz.PERMISSION_GRADE_ALL, site.getReference())
               || securityService.unlock(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, site.getReference())
               || securityService.unlock(SamigoConstants.AUTHZ_GRADE_ASSESSMENT_ANY, site.getReference());
@@ -112,25 +110,27 @@ public class GradesController extends AbstractSakaiApiController {
                     reference = SamigoReferenceReckoner.reckoner().site(siteId).subtype("p").id(a.getExternalId()).reckon().getReference();
                 }
 
-                int totalGradableUserCount = a.getExternallyMaintained() ?
-                        entityManager.getEntity(reference).map(externalEntity -> {
+                int totalGradableUserCount = siteUserIds.size();
 
-                            return externalEntity.getGroupReferences().map(groupReferences -> {
+                if (a.getExternallyMaintained()) {
+                    Optional<Entity> optionalEntity = entityManager.getEntity(reference);
+                    if (optionalEntity.isEmpty() || optionalEntity.get().getGroupReferences().isEmpty()) continue; // entity is not accessible, so skip
 
-                                if (groupReferences.isEmpty()) return siteUserIds.size();
-
-                                return groupReferences.stream().reduce(0, (t, gr) -> {
-
-                                    try {
-                                        return t + getGradableUsers(authzGroupService.getAuthzGroup(gr)).size();
-                                    } catch (Exception e) {
-                                        log.warn("No authz group found for reference {}", gr);
-                                    }
-                                    return t;
-                                }, Integer::sum);
-                            }).orElse(siteUserIds.size());
-                        }).orElse(0)
-                    : siteUserIds.size();
+                    Entity entity = optionalEntity.get();
+                    totalGradableUserCount = entity.getGroupReferences()
+                            .filter(refs -> !refs.isEmpty())
+                            .map(refs -> refs.stream()
+                                    .mapToInt(g -> {
+                                        try {
+                                            return getGradableUsers(authzGroupService.getAuthzGroup(g)).size();
+                                        } catch (Exception e) {
+                                            log.warn("No authz group found for reference {}", g);
+                                            return 0;
+                                        }
+                                    })
+                                    .sum())
+                            .orElse(siteUserIds.size());
+                }
 
                 if (gd == null) {
                     // no grades for this gb assignment yet

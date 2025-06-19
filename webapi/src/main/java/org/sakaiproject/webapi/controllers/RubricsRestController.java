@@ -30,6 +30,7 @@ import org.sakaiproject.rubrics.api.beans.CriterionTransferBean;
 import org.sakaiproject.rubrics.api.beans.EvaluationTransferBean;
 import org.sakaiproject.rubrics.api.beans.RatingTransferBean;
 import org.sakaiproject.rubrics.api.beans.RubricTransferBean;
+import org.sakaiproject.serialization.MapperFactory;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
@@ -55,9 +56,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,6 +70,15 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @Slf4j
 public class RubricsRestController extends AbstractSakaiApiController {
+
+    private ObjectMapper jsonMapper;
+
+    public RubricsRestController() {
+        jsonMapper = MapperFactory.jsonBuilder()
+                .includeEmpty()
+                .registerJavaTimeModule()
+                .build();
+    }
 
     @Autowired
     private RubricsService rubricsService;
@@ -246,11 +253,9 @@ public class RubricsRestController extends AbstractSakaiApiController {
 
         return rubricsService.getRubric(rubricId).map(rubric -> {
 
-            ObjectMapper objectMapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
-
             try {
-                JsonNode patched = patch.apply(objectMapper.convertValue(rubric, JsonNode.class));
-                RubricTransferBean patchedBean  = objectMapper.treeToValue(patched, RubricTransferBean.class);
+                JsonNode patched = patch.apply(jsonMapper.convertValue(rubric, JsonNode.class));
+                RubricTransferBean patchedBean = jsonMapper.treeToValue(patched, RubricTransferBean.class);
                 rubricsService.saveRubric(patchedBean);
                 return ResponseEntity.ok().build();
             } catch (Exception e) {
@@ -345,12 +350,9 @@ public class RubricsRestController extends AbstractSakaiApiController {
 
         return rubricsService.getEvaluation(evaluationId, siteId).map(evaluation -> {
 
-            ObjectMapper objectMapper = new ObjectMapper();
-            objectMapper.registerModule(new JavaTimeModule());
-
             try {
-                JsonNode patched = patch.apply(objectMapper.convertValue(evaluation, JsonNode.class));
-                EvaluationTransferBean patchedBean  = objectMapper.treeToValue(patched, EvaluationTransferBean.class);
+                JsonNode patched = patch.apply(jsonMapper.convertValue(evaluation, JsonNode.class));
+                EvaluationTransferBean patchedBean  = jsonMapper.treeToValue(patched, EvaluationTransferBean.class);
                 return ResponseEntity.ok(rubricsService.saveEvaluation(patchedBean, siteId));
             } catch (Exception e) {
                 log.error("Failed to patch evaluation", e);
@@ -438,11 +440,9 @@ public class RubricsRestController extends AbstractSakaiApiController {
 
         return rubricsService.getCriterion(criterionId, siteId).map(criterion -> {
 
-            ObjectMapper objectMapper = new ObjectMapper();
-
             try {
-                JsonNode patched = patch.apply(objectMapper.convertValue(criterion, JsonNode.class));
-                CriterionTransferBean patchedBean  = objectMapper.treeToValue(patched, CriterionTransferBean.class);
+                JsonNode patched = patch.apply(jsonMapper.convertValue(criterion, JsonNode.class));
+                CriterionTransferBean patchedBean  = jsonMapper.treeToValue(patched, CriterionTransferBean.class);
                 return ResponseEntity.ok(entityModelForCriterionBean(rubricsService.updateCriterion(patchedBean, siteId)));
             } catch (Exception e) {
                 log.error("Failed to patch criterion", e);

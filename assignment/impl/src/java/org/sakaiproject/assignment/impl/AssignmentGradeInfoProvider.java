@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.assignment.api.model.Assignment;
@@ -134,7 +135,9 @@ public class AssignmentGradeInfoProvider implements ExternalAssignmentProvider, 
             List<AuthzGroup> matched = authzGroupService.getAuthzUserGroupIds(azgList, userId);
             visible = (matched.size() > 0);
         } else {
-            visible = securityService.unlock(userId, AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, assignmentService.createAssignmentEntity(a).getReference());
+            visible = securityService.unlock(userId,
+                    AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT,
+                    AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference());
         }
         return visible;
     }
@@ -144,17 +147,10 @@ public class AssignmentGradeInfoProvider implements ExternalAssignmentProvider, 
     }
 
     public List<String> getAllExternalAssignments(String gradebookUid) {
-        // We check and cast here on the very slim chance that something other than
-        // a AssignmentService is registered as the service. If that is the case,
-        // we won't have access to the protected method to get unfiltered assignments
-        // and the best we can do is return the filtered list, which is exposed on
-        // the AssignmentService interface.
-
         return assignmentService.getAssignmentsForContext(gradebookUid).stream()
-                .map(assignmentService::createAssignmentEntity) // get the assignment entity
-                .map(Entity::getReference) // return the reference
-                .filter(Objects::nonNull) // filter nulls
-                .collect(Collectors.toList()); // return the list
+                .filter(Objects::nonNull)
+                .map(a -> AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference())
+                .collect(Collectors.toList());
     }
 
     public Map<String, List<String>> getAllExternalAssignments(String gradebookUid, Collection<String> studentIds) {
@@ -165,7 +161,7 @@ public class AssignmentGradeInfoProvider implements ExternalAssignmentProvider, 
 
         Map<Assignment, List<String>> submitters = assignmentService.getSubmittableAssignmentsForContext(gradebookUid);
         for (Assignment assignment : submitters.keySet()) {
-            String externalId = assignmentService.createAssignmentEntity(assignment).getReference();
+            String externalId = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
             for (String userId : submitters.get(assignment)) {
                 if (allExternals.containsKey(userId)) {
                     allExternals.get(userId).add(externalId);

@@ -2308,19 +2308,39 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 			if (o instanceof AnnouncementMessage)
 			{
 				AnnouncementMessage msg = (AnnouncementMessage) o;
+				String currentUserId = sessionManager.getCurrentSessionUserId();
 
 				// Check draft visibility
-				if ((msg.getAnnouncementHeader()).getDraft() && (!securityService.isSuperUser())
-						&& (!msg.getHeader().getFrom().getId().equals(sessionManager.getCurrentSessionUserId()))
-						&& (!unlockCheck(SECURE_READ_DRAFT, msg.getReference())))
+				if ((msg.getAnnouncementHeader()).getDraft())
 				{
+					// Allow if user is the creator of the message
+					if (msg.getHeader().getFrom().getId().equals(currentUserId)) {
+						return true;
+					}
+					
+					// Allow if user has READ_DRAFT permission (this also covers superusers)
+					if (unlockCheck(SECURE_READ_DRAFT, msg.getReference())) {
+						return true;
+					}
+					
+					// Allow if user has site.upd permission (instructor)
+					String siteId = entityManager.newReference(msg.getReference()).getContext();
+					String siteRef = siteService.siteReference(siteId);
+					if (securityService.unlock(SiteService.SECURE_UPDATE_SITE, siteRef)) {
+						log.debug("PrivacyFilter: Allowing draft message {} to be viewed by instructor with site.upd in site {}", 
+							msg.getId(), siteId);
+						return true;
+					}
+					
+					log.debug("PrivacyFilter: Rejecting draft message {} for user {} in site {}", 
+						msg.getId(), currentUserId, siteId);
 					return false;
 				}
 
 				// Check release/retract date visibility
 				// If not super-user and not the message creator, check if viewable by dates
 				if (!securityService.isSuperUser()
-						&& !msg.getHeader().getFrom().getId().equals(sessionManager.getCurrentSessionUserId())
+						&& !msg.getHeader().getFrom().getId().equals(currentUserId)
 						&& !isMessageViewable(msg))
 				{
 					return false;

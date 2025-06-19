@@ -170,8 +170,7 @@ roster.switchState = function (state, args) {
   }
 
   // don't show card game tab if user doesn't have permission to view all members or official photos
-  if (roster.currentUserPermissions && 
-      (!roster.currentUserPermissions.viewAllMembers || !roster.currentUserPermissions.viewOfficialPhoto)) {
+  if (roster.currentUserPermissions && !roster.currentUserPermissions.viewAllMembers) {
 
     $('#navbar_card_game_link').hide();
 
@@ -803,10 +802,10 @@ Handlebars.registerHelper('translate', function (key) {
 });
 
 Handlebars.registerHelper('getName', function (firstNameLastName) {
-  return (firstNameLastName) ? this.displayName : this.sortName;
+  return firstNameLastName ? this.displayName : this.lastName + ", <wbr />" + this.firstName;
 });
 
-Handlebars.registerHelper('ifCond', function(v1, v2, options) {
+Handlebars.registerHelper('ifCond', function (v1, v2, options) {
   if(v1 === v2) {
     return options.fn(this);
   }

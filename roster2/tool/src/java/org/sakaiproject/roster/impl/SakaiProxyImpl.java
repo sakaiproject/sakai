@@ -705,6 +705,8 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
         RosterMember rosterMember = new RosterMember(userId);
         rosterMember.setEid(user.getEid());
+        rosterMember.setFirstName(user.getFirstName());
+        rosterMember.setLastName(user.getLastName());
         rosterMember.setDisplayId(member.getUserDisplayId());
         rosterMember.setRole(member.getRole().getId());
         rosterMember.setEmail(user.getEmail());
