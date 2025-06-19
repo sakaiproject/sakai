@@ -21,17 +21,16 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.ListResourceBundle;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ResourceBundle;
 
+import org.junit.Assert;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.entity.api.Entity;
-import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.grading.api.Assignment;
-import org.sakaiproject.grading.api.AssessmentNotFoundException;
 import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.grading.api.CommentDefinition;
 import org.sakaiproject.grading.api.CourseGradeTransferBean;
@@ -49,21 +48,18 @@ import org.sakaiproject.grading.api.repository.CourseGradeRepository;
 import org.sakaiproject.grading.api.repository.LetterGradePercentMappingRepository;
 import org.sakaiproject.grading.api.SortType;
 import org.sakaiproject.grading.impl.GradingServiceImpl;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.plus.api.PlusService;
 import org.sakaiproject.util.ResourceLoader;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.util.AopTestUtils;
 
 import static org.mockito.Mockito.*;
 
@@ -72,21 +68,18 @@ import lombok.extern.slf4j.Slf4j;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.springframework.test.util.AopTestUtils;
 
 @Slf4j
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {GradingTestConfiguration.class})
 public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContextTests {
 
     @Autowired private CourseGradeRepository courseGradeRepository;
-    @Autowired private EntityManager entityManager;
     @Autowired private GradingService gradingService;
     @Autowired private LetterGradePercentMappingRepository letterGradePercentMappingRepository;
     @Autowired private SecurityService securityService;
     @Autowired private SessionManager sessionManager;
     @Autowired private SiteService siteService;
-    @Autowired private PlusService plusService;
     @Autowired private UserDirectoryService userDirectoryService;
 
     private ResourceLoader resourceLoader;
@@ -99,6 +92,7 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
     User user2User = null;
 
     String siteId = "xyz";
+    String groupId = "group-one";
 
     String cat1Name = "Category One";
     String cat2Name = "Category Two";
@@ -163,14 +157,66 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
     }
 
     @Test
-    public void deleteGradebook() {
+    public void addGroupGradebook() {
 
+        Gradebook gradebook = createGroupGradebook();
+        assertEquals(groupId, gradebook.getUid());
+        assertEquals("Group One", gradebook.getName());
+
+        List<CourseGrade> courseGrades = courseGradeRepository.findByGradebook_Id(gradebook.getId());
+        assertEquals(1, courseGrades.size());
+
+        List<LetterGradePercentMapping> mappings = letterGradePercentMappingRepository.findByMappingType(1);
+        assertEquals(1, mappings.size());
+    }
+
+    @Test
+    public void addInvalidGradebook() {
+
+        switchToInstructor();
+
+        Gradebook gradebook = gradingService.getGradebook(null);
+        Assert.assertNull(gradebook);
+
+        gradebook = gradingService.getGradebook("");
+        Assert.assertNull(gradebook);
+
+        gradebook = gradingService.getGradebook("non-existent-site");
+        Assert.assertNull(gradebook);
+    }
+
+    @Test
+    public void addInvalidGroupGradebook() {
+
+        switchToInstructor();
+
+        Site site1 = createSiteMock(siteId);
+        createGroupMock(groupId, site1);
+        Site site2 = createSiteMock("abc");
+        createGroupMock("group-two", site2);
+
+        // group does not exist but site does
+        Gradebook gradebook = gradingService.getGradebook("non-existent-group", siteId);
+        Assert.assertNull(gradebook);
+
+        // group exists but site does not
+        gradebook = gradingService.getGradebook(groupId, "non-existent-site");
+        Assert.assertNull(gradebook);
+
+        // group and site mismatch
+        gradebook = gradingService.getGradebook(groupId, "abc");
+        Assert.assertNull(gradebook);
+
+        gradebook = gradingService.getGradebook("group-two", siteId);
+        Assert.assertNull(gradebook);
+    }
+
+    @Test
+    public void deleteGradebook() {
         Gradebook gradebook = createGradebook();
-        //try {
-            gradingService.deleteGradebook(gradebook.getUid());
-        //} catch (Exception e) {
-        //    e.printStackTrace();
-        //}
+        gradingService.deleteGradebook(gradebook.getUid());
+        Gradebook gradebook1 = gradingService.getGradebook(gradebook.getUid());
+        Assert.assertNotEquals(gradebook.getId(), gradebook1.getId());
     }
 
     @Test
@@ -186,7 +232,6 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
         assertThrows(GradingSecurityException.class, () -> gradingService.addAssignment(gradebook.getUid(), siteId, ass1));
 
         when(securityService.unlock(GradingAuthz.PERMISSION_EDIT_ASSIGNMENTS, "/site/" + siteId)).thenReturn(true);
-        //when(siteService.siteReference(gradebook.getUid())).thenReturn("/site/" + gradebook.getUid());
 
         gradingService.addAssignment(gradebook.getUid(), siteId, ass1);
 
@@ -396,7 +441,6 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
 
         switchToInstructor();
 
-        gradingService.addGradebook(siteId, siteId);
         Gradebook gradebook = gradingService.getGradebook(siteId, siteId);
 
         addCategories(gradebook);
@@ -461,7 +505,6 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
 
         switchToInstructor();
 
-        gradingService.addGradebook(siteId, siteId);
         Gradebook gradebook = gradingService.getGradebook(siteId, siteId);
         List<CategoryDefinition> cats = gradingService.getCategoryDefinitions(gradebook.getUid(), siteId);
         assertEquals(0, cats.size());
@@ -556,14 +599,6 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
         String grade = "15.0";
         gradingService.saveGradeAndCommentForStudent(gradebook.getUid(), siteId, assignmentId, user1, grade, "");
 
-        // Mock the site service to return a site with a null group
-        Site site = mock(Site.class);
-        when(site.getGroup(user1)).thenReturn(null);
-        try {
-            when(siteService.getSite(gradebook.getUid())).thenReturn(site);
-        } catch (Exception e) {
-        }
-
         // Get the assignment to check if the weight was set correctly
         Assignment retrievedAssignment = gradingService.getAssignment(gradebook.getUid(), siteId, assignmentId);
 
@@ -599,13 +634,6 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
         String comment = "Rather shoddy";
 
         gradingService.saveGradeAndCommentForStudent(gradebook.getUid(), siteId, assId, user1, grade, comment);
-
-        Site site = mock(Site.class);
-        when(site.getGroup(user1)).thenReturn(null);
-        try {
-            when(siteService.getSite(gradebook.getUid())).thenReturn(site);
-        } catch (Exception e) {
-        }
 
         GradeDefinition gradeDef = gradingService.getGradeDefinitionForStudentForItem(gradebook.getUid(), siteId, assId, user1);
 
@@ -728,8 +756,53 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
     private Gradebook createGradebook() {
 
         switchToInstructor();
+        createSiteMock(siteId);
 
-        return gradingService.addGradebook(siteId, siteId);
+        Gradebook gradebook = gradingService.getGradebook(siteId, siteId);
+        Assert.assertNotNull("Gradebook should not be null", gradebook);
+        return gradebook;
+    }
+
+    private Gradebook createGroupGradebook() {
+
+        switchToInstructor();
+
+        Site site = createSiteMock(siteId);
+        createGroupMock(groupId, site);
+
+        Gradebook gradebook = gradingService.getGradebook(groupId, siteId);
+        Assert.assertNotNull("Gradebook should not be null", gradebook);
+        return gradebook;
+    }
+
+    private Site createSiteMock(String id) {
+        Site site = mock(Site.class);
+        when(site.getId()).thenReturn(id);
+
+        try {
+            when(siteService.getSite(id)).thenReturn(site);
+            when(siteService.siteExists(id)).thenReturn(true);
+        } catch (Exception e) {
+            Assert.fail("Failed to mock site");
+        }
+
+        return site;
+    }
+
+    private Group createGroupMock(String id, Site site) {
+        Group group = mock(Group.class);
+        when(group.getId()).thenReturn(id);
+        when(group.getTitle()).thenReturn("One");
+        when(group.getContainingSite()).thenReturn(site);
+
+        try {
+            when(site.getGroup(id)).thenReturn(group);
+            when(siteService.findGroup(id)).thenReturn(group);
+        } catch (Exception e) {
+            Assert.fail("Failed to mock group");
+        }
+
+        return group;
     }
 
     private void switchToInstructor() {
