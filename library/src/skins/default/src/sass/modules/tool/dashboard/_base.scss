@@ -1,3 +1,6 @@
+// Configuration
+@import "bootstrap/scss/mixins";
+
 html {
   --sakai-dashboard-container-padding: 40px;
   --sakai-dashboard-welcome-font-size: 32px;
@@ -8,6 +11,12 @@ html {
   --sakai-motd-message-font-size: 12px;
 }
 
+@include media-breakpoint-down(md) {
+  sakai-course-dashboard-template-picker {
+    padding: 2rem;
+  }
+}
+
 #course-dashboard-container {
   padding: var(--sakai-dashboard-container-padding);
   background-color: var(--sakai-tool-bg-color);
@@ -16,6 +25,14 @@ html {
 #course-dashboard-programme {
   font-style: italic;
   font-weight: bold;
+  font-size: small;
+  margin: -0.5em 0 0.5em 0;
+}
+
+@include media-breakpoint-up(lg) {
+  .sakai-course-list {
+    border-right: solid 1px var(--sakai-border-color);
+  }
 }
 
 #course-dashboard-widgets {
@@ -52,15 +69,6 @@ sakai-editor div {
   margin-top: 0px;
 }
 
-#course-dashboard-l1-overview-and-widgets-block {
-  display: flex;
-}
-
-#course-dashboard-l1-overview-block {
-  flex: 2;
-  margin-right: 16px;
-}
-
 #course-dashboard-l1-widgets {
   flex: 1;
 }
@@ -69,13 +77,37 @@ sakai-editor div {
   flex: 3;
 }
 
-#course-dashboard-l3-overview-and-widgets-block {
-  display: flex;
-}
+@include media-breakpoint-down(lg) {
+  #course-dashboard-l1-overview-and-widgets-block {
+    display: block;
+  }
+  #course-dashboard-l1-overview-block {
+    margin-bottom: 16px;
+  }
 
-#course-dashboard-l3-overview-block {
-  flex: 2;
-  margin-right: 16px;
+  #course-dashboard-l3-overview-and-widgets-block {
+    display: block;
+  }
+  #course-dashboard-l3-overview-block {
+    margin-bottom: 16px;
+  }
+}
+@include media-breakpoint-up(lg) {
+  #course-dashboard-l1-overview-and-widgets-block {
+    display: flex;
+  }
+  #course-dashboard-l1-overview-block {
+    flex: 2;
+    margin-right: 16px;
+  }
+
+  #course-dashboard-l3-overview-and-widgets-block {
+    display: flex;
+  }
+  #course-dashboard-l3-overview-block {
+    flex: 2;
+    margin-right: 16px;
+  }
 }
 
 #course-dashboard-l3-widgets {
@@ -83,7 +115,7 @@ sakai-editor div {
 }
 
 
-@media (min-width: 576px) {
+@include media-breakpoint-up(sm) {
   #course-dashboard-l2-header-block {
     flex: 1;
   }
@@ -102,23 +134,45 @@ sakai-editor div {
   margin-top: 0px;
 }
 
-#course-dashboard-template-picker-instruction {
-  width: 745px;
-  margin-bottom: 20px;
+@include media-breakpoint-down(lg) {
+
+  .course-dashboard-template-picker-selected {
+    margin-bottom: 1rem;
+  }
+
+  .course-dashboard-template-picker-thumbnail {
+    width: 149px;
+    height: 99px;
+  }
 }
 
-#course-dashboard-template-picker-template-block {
-  display: flex;
+@include media-breakpoint-up(lg) {
+
+  #course-dashboard-template-picker-instruction {
+    width: 745px;
+  }
+
+  #course-dashboard-template-picker-template-block {
+    display: flex;
+  }
+
+  #course-dashboard-template-picker-template-block div {
+    flex: 1;
+  }
+
+  .course-dashboard-template-picker-thumbnail {
+    width: 199px;
+    height: 132px;
+  }
 }
 
 #course-dashboard-template-picker-template-block div {
-  flex: 1;
   text-align: center;
+  padding-top: 1rem;
 }
 
-.course-dashboard-template-picker-thumbnail {
-  width: 199px;
-  height: 132px;
+#course-dashboard-template-picker-instruction {
+  margin-bottom: 20px;
 }
 
 .course-dashboard-template-picker-selected {
