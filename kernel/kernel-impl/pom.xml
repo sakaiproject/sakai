@@ -424,6 +424,12 @@
             <artifactId>json-simple</artifactId>
             <version>${json.simple.version}</version>
         </dependency>
+        <dependency>
+           <groupId>org.junit.jupiter</groupId>
+           <artifactId>junit-jupiter-api</artifactId>
+           <version>5.11.0</version> <!-- Use the latest version -->
+           <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <profiles>
