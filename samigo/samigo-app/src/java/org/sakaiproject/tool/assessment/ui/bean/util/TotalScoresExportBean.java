@@ -89,7 +89,8 @@ public class TotalScoresExportBean implements Serializable {
 		DateFormat df = new SimpleDateFormat(dateFormat);
 		StringBuilder fileName = new StringBuilder(ContextUtil.getLocalizedString(EVALUATION_MESSAGES_BUNDLE, "assessment"));
 		if(StringUtils.trimToNull(assessmentName) != null) {
-			assessmentName = assessmentName.replaceAll("\\s", "_"); // replace whitespace with '_'
+			// Sanitize filename: replace problematic characters with underscore
+			assessmentName = assessmentName.replaceAll("[\\s<>&;\"'\\\\/:*?|]", "_");
 			fileName.append("-");
 			fileName.append(assessmentName);
 		}

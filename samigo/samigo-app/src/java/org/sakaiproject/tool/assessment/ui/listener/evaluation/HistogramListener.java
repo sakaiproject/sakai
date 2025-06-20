@@ -2947,6 +2947,13 @@ public class HistogramListener
     	headerList.add(rb.getString("discrim_abbrev"));
     }
     headerList.add(rb.getString("frequency"));
+    
+    // Add metadata headers if metadata is enabled
+    if (bean.getShowObjectivesColumn()) {
+        headerList.add(rb.getString("obj"));
+        headerList.add(rb.getString("keywords"));
+    }
+    
     spreadsheetRows.add(headerList);
     
     headerList = new ArrayList<Object>();
@@ -2962,6 +2969,12 @@ public class HistogramListener
 
     // No Answer
     headerList.add(rb.getString("no_answer"));
+    
+    // Add empty cells for metadata columns in second header
+    if (bean.getShowObjectivesColumn()) {
+        headerList.add(""); // Objectives column
+        headerList.add(""); // Keywords column
+    }
     
     // Label the response options A, B, C, ...
       for (char colHeader=65; colHeader < 65+bean.getMaxNumberOfAnswers(); colHeader++) {
@@ -3054,6 +3067,12 @@ public class HistogramListener
    				log.warn("questionBean.getHistogramBars()[" + i + "] is null. " + npe);
    			}
    		}
+    	
+    	// Add metadata data if metadata is enabled
+    	if (bean.getShowObjectivesColumn()) {
+    		statsLine.add(questionBean.getObjectives() != null ? questionBean.getObjectives() : "");
+    		statsLine.add(questionBean.getKeywords() != null ? questionBean.getKeywords() : "");
+    	}
     	
     	spreadsheetRows.add(statsLine);
     }
