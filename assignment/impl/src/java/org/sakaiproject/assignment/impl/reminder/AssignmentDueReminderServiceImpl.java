@@ -142,7 +142,20 @@ public class AssignmentDueReminderServiceImpl implements AssignmentDueReminderSe
 
             // Do not send reminders if the site is unpublished or softly deleted
             if (site.isPublished() && !site.isSoftlyDeleted()) {
-                for (Member member : site.getMembers()) {
+                Set<Member> members = site.getMembers();
+                if (Assignment.Access.GROUP.equals(assignment.getTypeOfAccess())) {
+                    // Get members from assigned groups only
+                    members = new HashSet<>();
+                    for (String groupRef : assignment.getGroups()) {
+                        String groupId = groupRef.substring(groupRef.lastIndexOf("/") + 1);
+                        org.sakaiproject.site.api.Group group = site.getGroup(groupId);
+                        if (group != null) {
+                            members.addAll(group.getMembers());
+                        }
+                    }
+                }
+
+                for (Member member : members) {
                     if (member.isActive() && assignmentService.canSubmit(assignment, member.getUserId()) && !assignmentService.allowAddAssignment(assignment.getContext(), member.getUserId()) && checkEmailPreference(member)) {
                         sendEmailReminder(site, assignment, member);
                     }
@@ -246,12 +259,15 @@ public class AssignmentDueReminderServiceImpl implements AssignmentDueReminderSe
         try {
             Preferences memberPreferences = preferencesService.getPreferences(member.getUserId());
             ResourceProperties memberProps = memberPreferences.getProperties(NotificationService.PREFS_TYPE + "sakai:assignment");
-            return (int) memberProps.getLongProperty("2") == 2;
+            if (memberProps.getProperty("2") != null) {
+                return (int) memberProps.getLongProperty("2") == 2;
+            }
         } catch (EntityPropertyNotDefinedException | EntityPropertyTypeException e) {
             // Preference not set / defined for user, ignore and send email.
             log.debug(e.getLocalizedMessage(), e);
-            return true;
         }
+        // Default to sending email if preference not set
+        return true;
     }
 
     private String getReplyTo(Set<Member> instructors) {
