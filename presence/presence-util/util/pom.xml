@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.sakaiproject.presence</groupId>
         <artifactId>presence</artifactId>
-        <version>25.0</version>
+        <version>25-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     

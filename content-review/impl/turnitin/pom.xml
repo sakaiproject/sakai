@@ -9,7 +9,7 @@
 	<parent>
 		<artifactId>content-review-impl</artifactId>
 		<groupId>org.sakaiproject.contentreview</groupId>
-		<version>25.0</version>
+		<version>25-SNAPSHOT</version>
 	</parent>
 
 	<dependencies>
