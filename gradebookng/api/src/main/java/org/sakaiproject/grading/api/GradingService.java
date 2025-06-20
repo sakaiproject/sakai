@@ -24,7 +24,6 @@ package org.sakaiproject.grading.api;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +38,6 @@ import org.sakaiproject.grading.api.model.GradingEvent;
 import org.sakaiproject.grading.api.model.GradingScale;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 
-import org.apache.commons.lang3.StringUtils;
 import org.hibernate.HibernateException;
 import org.sakaiproject.entity.api.EntityProducer;
 
@@ -327,9 +325,36 @@ public interface GradingService extends EntityProducer {
     public Map<String, String> getViewableStudentsForItemForUser(String userUid, String gradebookUid, String siteId, Long assignmentId);
 
     /**
-     * Get the Gradebook. Note that this returns Object to avoid circular dependency with sakai-gradebook-tool Consumers will need to cast
-     * to {@link org.sakaiproject.tool.gradebook.Gradebook}
+     * Retrieves a gradebook by its unique identifier.
      *
+     * <p>This method looks up an existing gradebook using the provided UID. The UID can represent
+     * either a site identifier or a group identifier within a site.</p>
+     *
+     * @param uid the unique identifier of the gradebook to retrieve; must not be null or blank
+     * @return the {@link Gradebook} associated with the given UID, or {@code null} if no
+     *         gradebook exists with that identifier
+     *
+     * @see #getGradebook(String, String)
+     * @since 1.0
+     */
+    Gradebook getGradebook(String uid);
+
+    /**
+     * Retrieves a gradebook by its unique identifier, creating a new one if it doesn't exist.
+     *
+     * <p>This method first attempts to find an existing gradebook with the given UID. If no gradebook
+     * is found, it creates a new one with an appropriate name based on whether the UID represents
+     * a site or a group within a site.</p>
+     *
+     * <p>For group gradebooks (when uid != siteId), the gradebook name is constructed by combining
+     * a localized "group.gradebook" prefix with the group's title.</p>
+     *
+     * @param uid the unique identifier of the gradebook to retrieve or create
+     * @param siteId the site identifier used for context when creating new gradebooks
+     * @return the existing or newly created {@link Gradebook}, or {@code null} if the gradebook
+     *         cannot be found and creation fails
+     *
+     * @see #addGradebook(String, String)
      */
     public Gradebook getGradebook(String uid, String siteId);
 

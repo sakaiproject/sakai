@@ -50,9 +50,9 @@ import org.apache.commons.lang3.math.NumberUtils;
 
 import org.hibernate.StaleObjectStateException;
 
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.entity.api.Entity.UrlType;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -118,7 +118,6 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.plus.api.PlusService;
 import org.sakaiproject.grading.api.GradingAuthz;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.StringUtil;
 import org.springframework.lang.Nullable;
 import org.springframework.orm.hibernate5.HibernateOptimisticLockingFailureException;
 
@@ -140,8 +139,6 @@ public class GradingServiceImpl implements GradingService {
     private String gradebookGroupEnabledCache = "org.sakaiproject.tool.gradebook.group.enabled";
     private String gradebookGroupInstancesCache = "org.sakaiproject.tool.gradebook.group.instances";
 
-    private MemoryService memoryService;
-
     public static final String UID_OF_DEFAULT_GRADING_SCALE_PROPERTY = "uidOfDefaultGradingScale";
 
     public static final String PROP_COURSE_POINTS_DISPLAYED = "gradebook.coursepoints.displayed";
@@ -150,14 +147,16 @@ public class GradingServiceImpl implements GradingService {
     public static final String PROP_ASSIGNMENT_STATS_DISPLAYED = "gradebook.stats.assignments.displayed";
     public static final String PROP_COURSE_GRADE_STATS_DISPLAYED = "gradebook.stats.coursegrade.displayed";
 
+    @Autowired private AuthzGroupService authzGroupService;
     @Autowired private EventTrackingService eventTrackingService;
     @Autowired private EntityManager entityManager;
     @Autowired private GradingAuthz gradingAuthz;
     @Autowired private GradingPermissionService gradingPermissionService;
     @Autowired private GradingPersistenceManager gradingPersistenceManager;
+    @Autowired private MemoryService memoryService;
+    @Autowired private PlusService plusService;
     @Autowired private ResourceLoader resourceLoader;
     @Autowired private SiteService siteService;
-    @Autowired private PlusService plusService;
     @Autowired private SectionAwareness sectionAwareness;
     @Autowired private SecurityService securityService;
     @Autowired private SessionManager sessionManager;
@@ -169,8 +168,6 @@ public class GradingServiceImpl implements GradingService {
     private Map<String, String> propertiesMap = new HashMap<>();
 
     public void init() {
-        log.debug("INIT");
-
         log.debug(buildCacheLogDebug("creatingCache", gradebookGroupEnabledCache));
         log.debug(buildCacheLogDebug("creatingCache", gradebookGroupInstancesCache));
 
@@ -4866,25 +4863,87 @@ public class GradingServiceImpl implements GradingService {
         gradingPersistenceManager.deleteInternalComment(studentUid, gradebookUid, assignmentId);
     }
 
-    private Gradebook getGradebook(String uid) {
+    @Transactional
+    @Override
+    public Gradebook getGradebook(String uid) {
         return getGradebook(uid, uid);
     }
+
+    @Transactional
+    @Override
     public Gradebook getGradebook(String uid, String siteId)  {
+        if (!isValidGradebookUid(uid)) {
+            log.warn("must have a valid uid [{}]", uid);
+            return null;
+        }
+
         Optional<Gradebook> gradebook = gradingPersistenceManager.getGradebook(uid);
         if (gradebook.isPresent()) {
            return gradebook.get();
         }
+
         String name = uid;
-        if (!uid.equals(siteId)) {
-            try {
-                name = MessageHelper.getString("group.gradebook", resourceLoader.getLocale()) + siteService.getSite(siteId).getGroup(uid).getTitle();
-            } catch (final IdUnusedException ex) {
-                log.error("Error looking up site: {}", siteId, ex);
+        if (!StringUtils.equals(uid, siteId)) {
+            // gradebook by group
+            Group group = siteService.findGroup(uid);
+            if (group != null && group.getContainingSite().getId().equals(siteId)) {
+                name = MessageHelper.getString("group.gradebook", resourceLoader.getLocale())
+                        + " "
+                        + group.getTitle();
+            } else {
+                log.warn("must have a valid group [{}]", uid);
                 return null;
             }
         }
         return addGradebook(uid, name);
-        
+    }
+
+    /**
+     * Validates that a gradebook UID corresponds to either a valid site or an existing group.
+     *
+     * <p>This method performs a two-step validation process:</p>
+     * <ol>
+     *   <li>First checks if the UID represents an existing site</li>
+     *   <li>If not a site, verifies the UID represents an existing group</li>
+     * </ol>
+     *
+     * <p>The validation ensures that gradebook operations are only performed on legitimate
+     * site or group contexts, preventing unauthorized access to gradebook data.</p>
+     *
+     * @param gradebookUid the unique identifier to validate; must not be null, empty, or blank
+     * @return {@code true} if the gradebookUid represents either:
+     *         <ul>
+     *           <li>An existing site, or</li>
+     *           <li>An existing group</li>
+     *         </ul>
+     *         {@code false} otherwise, including when gradebookUid is blank
+     *
+     * @implNote This method logs debug information indicating the type (Site/Group) and
+     *           validation result for troubleshooting purposes
+     *
+     * @see SiteService#siteExists(String)
+     * @see SiteService#findGroup(String)
+     */
+    private boolean isValidGradebookUid(String gradebookUid) {
+        boolean valid = false;
+        char type = '-';
+
+        if (StringUtils.isNotBlank(gradebookUid)) {
+            if (siteService.siteExists(gradebookUid)) {
+                // is a site
+                type = 'S';
+                valid = true;
+            } else {
+                // is a group
+                Group group = siteService.findGroup(gradebookUid);
+                if (group != null) {
+                    type = 'G';
+                    valid = true;
+                }
+            }
+        }
+        log.debug("gradebook uid [{}:{}] is valid: [{}]", type, gradebookUid, valid);
+        return valid;
     }
 
     private List<GradebookAssignment> getAssignments(Long gradebookId) {
