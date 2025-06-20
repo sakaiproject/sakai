@@ -67,14 +67,6 @@ for (i=0; i<document.links.length; i++) {
 document.links[newindex].onclick(); 
 }
 
-function printQuiz() {
-  const originalContents = document.body.innerHTML;
-  document.body.innerHTML = document.getElementById("quizWrapper").innerHTML;
-  window.print();
-  document.body.innerHTML = originalContents;
-  return false;
-}
-
 </script>
 </head>
 
@@ -146,7 +138,7 @@ function printQuiz() {
       <!-- Buttons -->
       <div class="d-flex gap-2">
         <h:commandButton action="#{pdfAssessment.prepDocumentPDF}" value="#{printMessages.apply_settings}" styleClass="btn btn-primary d-none auto-apply-settings" />
-        <h:commandButton onclick="printQuiz();" value="#{printMessages.print_html}" type="button" styleClass="btn btn-secondary" />
+        <h:commandButton onclick="print();" value="#{printMessages.print_html}" type="button" styleClass="btn btn-secondary" />
         <h:commandButton action="#{pdfAssessment.getPDFAttachment}" value="#{printMessages.print_pdf}" styleClass="btn btn-secondary" />
       </div>
     </div>
