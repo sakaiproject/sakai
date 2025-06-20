@@ -10,7 +10,7 @@
     <parent>
         <groupId>org.sakaiproject.cloudstorage</groupId>
         <artifactId>cloud-storage</artifactId>
-        <version>25-SNAPSHOT</version>
+        <version>25.0</version>
     </parent>
 
     <modules>

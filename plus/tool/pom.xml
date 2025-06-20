@@ -4,7 +4,7 @@
 	<parent>
     <groupId>org.sakaiproject.plus</groupId>
     <artifactId>sakai-plus-base</artifactId>
-    <version>25-SNAPSHOT</version>
+    <version>25.0</version>
   </parent>
 
 	<artifactId>sakai-plus-tool</artifactId>

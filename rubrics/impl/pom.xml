@@ -4,7 +4,7 @@
     <parent>
         <artifactId>rubrics-base</artifactId>
         <groupId>org.sakaiproject.rubrics</groupId>
-        <version>25-SNAPSHOT</version>
+        <version>25.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
