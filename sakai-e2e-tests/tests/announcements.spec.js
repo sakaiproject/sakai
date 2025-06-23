@@ -23,8 +23,8 @@ test.describe('Announcements', () => {
     await helpers.sakaiLogin(instructor);
     
     sakaiUrl = await helpers.sakaiCreateCourse(instructor, [
-      "sakai\\.announcements", 
-      "sakai\\.schedule"
+      "sakai.announcements", 
+      "sakai.schedule"
     ]);
     
     await page.close();

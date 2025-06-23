@@ -28,10 +28,10 @@ test.describe('Lessons', () => {
 
       if (sakaiUrl == null) {
         sakaiUrl = await helpers.sakaiCreateCourse(instructor, [
-          "sakai\\.rubrics",
-          "sakai\\.assignment\\.grades",
-          "sakai\\.gradebookng",
-          "sakai\\.lessonbuildertool"
+          "sakai.rubrics",
+          "sakai.assignment.grades",
+          "sakai.gradebookng",
+          "sakai.lessonbuildertool"
         ]);
       }
     });

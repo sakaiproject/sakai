@@ -27,7 +27,7 @@ test.describe('Commons', () => {
 
       if (sakaiUrl == null) {
         sakaiUrl = await helpers.sakaiCreateCourse(instructor, [
-          "sakai\\.commons"
+          "sakai.commons"
         ]);
       }
     });

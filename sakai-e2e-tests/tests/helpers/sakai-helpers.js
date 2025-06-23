@@ -152,18 +152,30 @@ class SakaiHelpers {
     
     await this.page.locator('.act input[name="continue"]').click();
 
-    // Add specified tools
+    // Add specified tools - first let's see what tools are available
+    const allToolInputs = await this.page.locator('input[type="checkbox"]').all();
+    const availableTools = [];
+    for (const input of allToolInputs) {
+      const id = await input.getAttribute('id');
+      if (id) availableTools.push(id);
+    }
+    console.log('Available tool checkboxes:', availableTools);
+    
     for (const toolName of toolNames) {
-      // Remove double-escaping for Playwright (Cypress artifact)
-      const cleanToolName = toolName.replace(/\\\\/g, '\\');
-      const toolSelector = `input#${cleanToolName}`;
-      console.log(`Looking for tool: ${cleanToolName} with selector: ${toolSelector}`);
+      const toolSelector = `input#${toolName}`;
+      console.log(`Looking for tool: ${toolName} with selector: ${toolSelector}`);
+      
+      const toolExists = await this.page.locator(toolSelector).count();
+      if (toolExists === 0) {
+        console.error(`Tool ${toolName} not found in available tools: ${availableTools.join(', ')}`);
+        throw new Error(`Tool ${toolName} not found`);
+      }
       
       await this.page.locator(toolSelector).check();
     }
 
     // Press additional continue button when Lessons tool is added
-    if (toolNames.includes('sakai\\.lessonbuildertool') || toolNames.includes('sakai.lessonbuildertool')) {
+    if (toolNames.includes('sakai.lessonbuildertool')) {
       await this.page.locator('#btnContinue').click();
     }
 

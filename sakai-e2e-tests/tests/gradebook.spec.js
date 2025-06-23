@@ -39,7 +39,7 @@ test.describe('Gradebook', () => {
       await helpers.sakaiLogin(instructor);
       
       if (sakaiUrl == null) {
-        sakaiUrl = await helpers.sakaiCreateCourse(instructor, ["sakai\\.gradebookng"]);
+        sakaiUrl = await helpers.sakaiCreateCourse(instructor, ["sakai.gradebookng"]);
       }
     });
 

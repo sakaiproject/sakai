@@ -28,9 +28,9 @@ test.describe('Assignments', () => {
 
       if (sakaiUrl == null) {
         sakaiUrl = await helpers.sakaiCreateCourse(instructor, [
-          "sakai\\.rubrics",
-          "sakai\\.assignment\\.grades",
-          "sakai\\.gradebookng"
+          "sakai.rubrics",
+          "sakai.assignment.grades",
+          "sakai.gradebookng"
         ]);
       }
     });
