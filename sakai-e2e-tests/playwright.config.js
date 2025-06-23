@@ -15,7 +15,7 @@ module.exports = defineConfig({
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
+  reporter: process.env.CI ? 'list' : 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
@@ -27,8 +27,8 @@ module.exports = defineConfig({
     /* Take screenshot on failure */
     screenshot: 'only-on-failure',
     
-    /* Video recording */
-    video: 'retain-on-failure',
+    /* No video recording - text reports only */
+    video: 'off',
     
     /* Default timeout for actions */
     actionTimeout: 10000,

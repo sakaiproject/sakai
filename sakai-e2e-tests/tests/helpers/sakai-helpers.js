@@ -21,7 +21,7 @@ class SakaiHelpers {
       password = username === 'admin' ? 'admin' : 'sakai';
     }
 
-    console.log(`Logging in as: ${username}`);
+    console.debug(`Logging in as: ${username}`);
 
     // Go to the login page first
     const loginResponse = await this.page.request.get('/portal/xlogin');
