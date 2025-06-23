@@ -16,6 +16,20 @@ test.describe('Announcements', () => {
   let sakaiUrl;
   let helpers;
 
+  test.beforeAll(async ({ browser }) => {
+    // Create the course once for all tests to share
+    const page = await browser.newPage();
+    helpers = new SakaiHelpers(page);
+    await helpers.sakaiLogin(instructor);
+    
+    sakaiUrl = await helpers.sakaiCreateCourse(instructor, [
+      "sakai\\.announcements", 
+      "sakai\\.schedule"
+    ]);
+    
+    await page.close();
+  });
+
   test.beforeEach(async ({ page }) => {
     helpers = new SakaiHelpers(page);
     
@@ -24,16 +38,6 @@ test.describe('Announcements', () => {
   });
 
   test.describe('Create a new Announcement', () => {
-    test('can create a new course', async ({ page }) => {
-      await helpers.sakaiLogin(instructor);
-
-      if (sakaiUrl == null) {
-        sakaiUrl = await helpers.sakaiCreateCourse(instructor, [
-          "sakai\\.announcements",
-          "sakai\\.schedule"
-        ]);
-      }
-    });
 
     test('can create a future announcement', async ({ page }) => {
       await helpers.sakaiLogin(instructor);

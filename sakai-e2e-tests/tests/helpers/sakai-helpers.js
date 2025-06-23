@@ -97,7 +97,7 @@ class SakaiHelpers {
     await this.page.waitForTimeout(2000);
 
     // Click the Source button to switch to HTML mode
-    const sourceButtonSelector = `#cke_${elementId.replace(/\./g, '\\.')} a.cke_button__source`;
+    const sourceButtonSelector = `#cke_${elementId} a.cke_button__source`;
     await this.page.locator(sourceButtonSelector).click();
 
     // Set the content directly via CKEditor API
@@ -140,16 +140,30 @@ class SakaiHelpers {
 
     await this.page.locator('form input#courseDesc1').click();
     await this.page.locator('input#continueButton').click();
-    await this.page.locator('textarea').last().fill('Cypress Testing');
+    
+    // Try to fill the course description textarea if it exists and is visible
+    const descriptionTextarea = this.page.locator('textarea[name="description"]');
+    try {
+      await descriptionTextarea.waitFor({ state: 'visible', timeout: 5000 });
+      await descriptionTextarea.fill('Cypress Testing');
+    } catch (error) {
+      console.log('Course description textarea not visible, skipping...');
+    }
+    
     await this.page.locator('.act input[name="continue"]').click();
 
     // Add specified tools
     for (const toolName of toolNames) {
-      await this.page.locator(`input#${toolName.replace(/\./g, '\\.')}`).check();
+      // Remove double-escaping for Playwright (Cypress artifact)
+      const cleanToolName = toolName.replace(/\\\\/g, '\\');
+      const toolSelector = `input#${cleanToolName}`;
+      console.log(`Looking for tool: ${cleanToolName} with selector: ${toolSelector}`);
+      
+      await this.page.locator(toolSelector).check();
     }
 
     // Press additional continue button when Lessons tool is added
-    if (toolNames.includes('sakai\\.lessonbuildertool')) {
+    if (toolNames.includes('sakai\\.lessonbuildertool') || toolNames.includes('sakai.lessonbuildertool')) {
       await this.page.locator('#btnContinue').click();
     }
 
@@ -162,10 +176,16 @@ class SakaiHelpers {
     await this.page.locator('input#addSite').click();
     
     // Wait for creation confirmation
-    await this.page.locator('#flashNotif').filter({ hasText: 'has been created' }).waitFor();
+    await this.page.locator('#flashNotif').filter({ hasText: 'has been created' }).waitFor({ timeout: 30000 });
     
-    // Extract the site URL
-    const siteLink = await this.page.locator('#flashNotif a').getAttribute('href');
+    // Extract the site URL - get the first link that has a real href (not the dismiss button)
+    const siteLink = await this.page.locator('#flashNotif a[href^="/portal/site/"]').first().getAttribute('href');
+    
+    if (!siteLink) {
+      throw new Error('Failed to extract site URL from creation confirmation');
+    }
+    
+    console.log(`Site created successfully: ${siteLink}`);
     return siteLink;
   }
 
