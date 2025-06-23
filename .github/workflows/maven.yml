@@ -1,7 +1,7 @@
-# This workflow will build a Java project with Maven
+# This workflow will build a Java project with Maven and run E2E tests
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
 
-name: Maven Build
+name: Maven Build & E2E Tests
 
 on:
   pull_request:
@@ -42,4 +42,87 @@ jobs:
         env:
           MAVEN_OPTS: -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true -Dmaven.wagon.http.retryHandler.count=2 -Dmaven.wagon.http.pool=true
         run: mvn -Duser.language=es -Duser.country=ES --show-version --batch-mode -PskipBrokenTests test
+
+  playwright-e2e:
+    runs-on: ubuntu-22.04
+    env:
+      JAVA_OPTS: "-Dhttp.agent=Sakai -Xms2512m -Xmx2512m -Dsakai.cookieName=SAKAIID -Dsakai.demo=true"
+    steps:
+      - name: Git Checkout
+        uses: actions/checkout@v4
+      - name: JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: temurin
+          cache: maven
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'sakai-e2e-tests/package-lock.json'
+      - name: Build and Deploy Sakai
+        env:
+          MAVEN_OPTS: -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true -Dmaven.wagon.http.retryHandler.count=2 -Dmaven.wagon.http.pool=true
+        run: |
+          sudo systemctl start mysql.service
+          echo "127.0.0.1 repository.dev.java.net" | sudo tee -a /etc/hosts
+          echo "127.0.0.1 maven-repository.dev.java.net" | sudo tee -a /etc/hosts
+          echo "127.0.0.1 maven2-repository.dev.java.net" | sudo tee -a /etc/hosts
+          export TOMCAT_DIR=$PWD/tomcat
+          mkdir $TOMCAT_DIR
+          cd $TOMCAT_DIR
+          curl -s -o tomcat.tar.gz https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.106/bin/apache-tomcat-9.0.106.tar.gz
+          tar --strip-components=1 -xzf tomcat.tar.gz
+          git clone https://github.com/sakaiproject/nightly-config.git sakai
+          cp sakai/setenv.sh bin/setenv.sh
+          cp sakai/cypress.properties sakai/sakai.properties
+          cp -f sakai/context.xml conf/context.xml
+          cp -f sakai/catalina.properties conf/catalina.properties
+          sed -i 's:<Service name="Catalina">:<Service name="Catalina"><Connector port="8443" protocol="org.apache.coyote.http11.Http11NioProtocol" scheme="https" secure="true" />:g' conf/server.xml
+          mysql -u root -proot -e "create database sakai"; 
+          cd ..
+          mvn --batch-mode -DskipTests -Denforcer.skip -Dmaven.source.skip install sakai:deploy-exploded -Dmaven.tomcat.home=$TOMCAT_DIR
+          cd $TOMCAT_DIR
+          bin/catalina.sh start
+          sleep 500s
+          grep "Server startup in" logs/catalina.out
+      - name: Install Playwright Dependencies
+        working-directory: sakai-e2e-tests
+        run: |
+          npm ci
+          npx playwright install chromium
+      - name: Run Playwright Tests
+        working-directory: sakai-e2e-tests
+        env:
+          BASE_URL: http://localhost:8080
+        run: |
+          npx playwright test --project=chromium --reporter=line
+      - name: Upload Playwright Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: sakai-e2e-tests/playwright-report/
+          retention-days: 30
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-test-results
+          path: sakai-e2e-tests/test-results/
+          retention-days: 5
+      - name: Check number of MySQL statements
+        if: always()
+        run: |
+          export QUERIES=$(grep StandardClient.debug tomcat/logs/catalina.out|grep -v ROLLBACK|grep -v COMMIT | wc -l)
+          echo "::notice title={MySQL Queries}::$QUERIES"
+      - name: Upload Tomcat log for review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tomcat-log
+          path: tomcat/logs/catalina.out
+          retention-days: 5
 

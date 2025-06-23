@@ -127,6 +127,7 @@
                 <module>webservices</module>
                 <module>wicket</module>
                 <module>admin-bulk-user-membership</module>
+                <module>sakai-e2e-tests</module>
             </modules>
         </profile>
         <profile>
