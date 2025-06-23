@@ -1,7 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:component-scan base-package="org.sakaiproject.lti.impl.repository"/>
+
+    <bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappings.lti"
+        class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+        <property name="annotatedClasses">
+            <list>
+                <value>org.sakaiproject.lti.api.model.LtiTool</value>
+                <value>org.sakaiproject.lti.api.model.LtiContent</value>
+                <value>org.sakaiproject.lti.api.model.LtiToolSite</value>
+                <value>org.sakaiproject.lti.api.model.LtiMembershipJob</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="org.sakaiproject.lti.api.repository.LtiToolRepository"
+          class="org.sakaiproject.lti.impl.repository.LtiToolRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+    </bean>
+    <bean id="org.sakaiproject.lti.api.repository.LtiContentRepository"
+          class="org.sakaiproject.lti.impl.repository.LtiContentRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+    </bean>
+    <bean id="org.sakaiproject.lti.api.repository.LtiToolSiteRepository"
+          class="org.sakaiproject.lti.impl.repository.LtiToolSiteRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+    </bean>
+    <bean id="org.sakaiproject.lti.api.repository.LtiMembershipJobRepository"
+          class="org.sakaiproject.lti.impl.repository.LtiMembershipJobRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+    </bean>
 
         <bean id="org.sakaiproject.lti.service.LTISecurityService"
                 class="org.sakaiproject.lti.impl.LTISecurityServiceImpl"

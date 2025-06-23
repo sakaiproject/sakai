@@ -104,11 +104,8 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 			boolean doReset = false;
 			if (doReset) log.error("DO NOT RUN IN PRODUCTION WITH doReset TRUE");
 
-			foorm.autoDDL("lti_content", LTIService.CONTENT_MODEL, m_sql, m_autoDdl, doReset);
-			foorm.autoDDL("lti_tools", LTIService.TOOL_MODEL, m_sql, m_autoDdl, doReset);
-			foorm.autoDDL("lti_memberships_jobs", LTIService.MEMBERSHIPS_JOBS_MODEL, m_sql, m_autoDdl, doReset);
-			foorm.autoDDL("lti_tool_site", LTIService.TOOL_SITE_MODEL, m_sql, m_autoDdl, doReset);
-			super.init();
+                        // schema generation handled by Hibernate
+                        super.init();
 		} catch (Exception t) {
 			log.warn("init(): ", t);
 		}
@@ -888,11 +885,11 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	/*-- Straight-up API methods ------------------------*/
 
 	// Utility to return a resultset
-	public List<Map<String, Object>> getResultSet(String statement, Object[] fields,
-			final String[] columns) {
-		log.debug("getResultSet sql={} fields={}", statement, fields);
-		List rv = jdbcTemplate.query(statement, fields, new FoormMapRowMapper(columns));
-		log.debug("getResultSet size={} sql={}", rv.size(), statement);
+        public List<Map<String, Object>> getResultSet(String statement, Object[] fields,
+                        final String[] columns) {
+                log.debug("getResultSet sql={} fields={}", statement, fields);
+                List rv = jdbcTemplate.query(statement, fields, new org.springframework.jdbc.core.ColumnMapRowMapper());
+                log.debug("getResultSet size={} sql={}", rv.size(), statement);
 
 		return (List<Map<String, Object>>) rv;
 	}
