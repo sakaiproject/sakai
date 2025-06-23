@@ -124,7 +124,8 @@ class SakaiHelpers {
     // Go to user Home and create new course site
     await this.page.goto(`/portal/site/~${username}`);
     await this.page.locator('a').filter({ hasText: 'Worksite Setup' }).click({ force: true });
-    await this.page.locator('a').filter({ hasText: 'Create New Site' }).click({ force: true });
+    // Use more specific selector to avoid strict mode violations
+    await this.page.locator('.portletBody a').filter({ hasText: 'Create New Site' }).first().click({ force: true });
     await this.page.locator('input#course').click();
     await this.page.locator('select#selectTerm').selectOption({ index: 1 });
     await this.page.locator('input#submitBuildOwn').click();

@@ -1,0 +1,13 @@
+# Playwright test artifacts
+test-results/
+playwright-report/
+
+# Node modules
+node_modules/
+
+# Coverage reports
+coverage/
+
+# Environment variables
+.env
+.env.local

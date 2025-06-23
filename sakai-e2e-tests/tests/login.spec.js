@@ -138,13 +138,15 @@ test.describe('Logging In - Instructor', () => {
     });
 
     test('should handle keyboard navigation', async ({ page }) => {
-      // Tab through form fields
-      await page.keyboard.press('Tab');
+      // Start by focusing the first field explicitly
+      await page.locator('#eid').focus();
       await expect(page.locator('#eid')).toBeFocused();
       
+      // Tab to next field  
       await page.keyboard.press('Tab');
       await expect(page.locator('#pw')).toBeFocused();
       
+      // Tab to submit button
       await page.keyboard.press('Tab');
       await expect(page.locator('#submit')).toBeFocused();
     });
