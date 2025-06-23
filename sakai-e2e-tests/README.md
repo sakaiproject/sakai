@@ -11,43 +11,24 @@ End-to-end tests for Sakai LMS using Playwright.
 
 ### Installation
 
-1. Install Playwright browsers:
+Install Playwright and browsers:
 ```bash
 cd sakai-e2e-tests
 npm install
 npm run install-browsers
 ```
 
-2. Or use Maven to install browsers:
-```bash
-mvn test-compile
-```
-
 ## Configuration
 
-Configure test environment in `src/test/resources/test.properties` or via system properties:
+Configure test environment by setting environment variables or editing `playwright.config.js`:
 
-```properties
-sakai.baseUrl=http://localhost:8080
-sakai.testUser=admin
-sakai.testPassword=admin
+```bash
+export BASE_URL=http://localhost:9080
+export SAKAI_TEST_USER=admin
+export SAKAI_TEST_PASSWORD=admin
 ```
 
 ## Running Tests
-
-### Using Maven
-```bash
-# Run all E2E tests
-mvn test -Pe2e-tests
-
-# Run with custom configuration
-mvn test -Pe2e-tests -Dsakai.baseUrl=http://localhost:8080 -Dsakai.testUser=admin
-
-# Run specific test
-mvn test -Pe2e-tests -Dtest=LoginTest
-```
-
-### Using Playwright directly
 ```bash
 cd sakai-e2e-tests
 npx playwright test
@@ -66,12 +47,16 @@ npx playwright test --debug
 
 ```
 sakai-e2e-tests/
-├── src/test/java/          # Java test utilities
-├── src/test/resources/     # Test configuration
 ├── tests/                  # Playwright test files
-│   └── login.spec.js      # Login functionality tests
+│   ├── helpers/           # Test helper utilities
+│   │   └── sakai-helpers.js
+│   ├── login.spec.js      # Login functionality tests
+│   ├── announcements.spec.js
+│   ├── assignments.spec.js
+│   └── ...               # Additional test suites
 ├── playwright.config.js   # Playwright configuration
-└── package.json           # Node.js dependencies
+├── package.json           # Node.js dependencies
+└── pom.xml                # Maven integration (minimal)
 ```
 
 ## Available Tests
@@ -128,13 +113,12 @@ All tests have been converted from the original Cypress test suite:
 | `SAKAI_TEST_USER` | Test username | `admin` |
 | `SAKAI_TEST_PASSWORD` | Test password | `admin` |
 
-## Maven Profiles
+## GitHub Actions Integration
 
-### `e2e-tests`
-Runs end-to-end tests with default configuration:
-```bash
-mvn test -Pe2e-tests
-```
+The tests automatically run in CI/CD via the `playwright-e2e` job in `.github/workflows/maven.yml`:
+- Builds and deploys full Sakai instance
+- Runs all Playwright tests with Chromium
+- Uploads test reports and artifacts
 
 ## Troubleshooting
 
