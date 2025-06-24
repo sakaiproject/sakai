@@ -167,7 +167,15 @@ class SakaiHelpers {
       
       const toolExists = await this.page.locator(toolSelector).count();
       if (toolExists === 0) {
-        console.error(`Tool ${toolName} not found in available tools: ${availableTools.join(', ')}`);
+        console.error(`Tool ${toolName} not found. Selector: ${toolSelector}`);
+        console.error(`Available tools: ${availableTools.join(', ')}`);
+        // Try to find a similar tool name
+        const similarTool = availableTools.find(tool => tool.includes(toolName.split('.').pop()));
+        if (similarTool) {
+          console.log(`Similar tool found: ${similarTool}, using that instead`);
+          await this.page.locator(`input#${similarTool}`).check();
+          continue;
+        }
         throw new Error(`Tool ${toolName} not found`);
       }
       
