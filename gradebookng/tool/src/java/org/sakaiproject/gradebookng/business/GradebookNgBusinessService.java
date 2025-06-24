@@ -82,7 +82,6 @@ import org.sakaiproject.gradebookng.business.util.GbStopWatch;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.grading.api.GradingService;
-import org.sakaiproject.grading.api.MessageHelper;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.section.api.SectionManager;
@@ -104,7 +103,6 @@ import org.sakaiproject.grading.api.model.GradingEvent;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tasks.api.Priorities;
 import org.sakaiproject.tasks.api.Task;
 import org.sakaiproject.tasks.api.TaskService;
@@ -1236,45 +1234,37 @@ public class GradebookNgBusinessService {
 			}
 		}
 
-		// build category columns
-		for (final CategoryDefinition category : categories) {
-
-			Long categoryId = category.getId();
-
-			// use the category mappings for faster lookup of the assignmentIds
-			// and grades in the category
-			final Set<Long> categoryAssignmentIds = categoryAssignments.get(categoryId);
-
-			// if there are no assignments in the category (ie its a new category) this will be null, so skip
-			if (categoryAssignmentIds != null) {
-				for (final GbUser student : gbStudents) {
-					final GbStudentGradeInfo sg = matrix.get(student.getUserUuid());
-
-					// get grades
-					final Map<Long, GbGradeInfo> grades = sg.getGrades();
-
-					// build map of just the grades we want
-					final Map<Long, String> gradeMap = new HashMap<>();
-					for (final Long assignmentId : categoryAssignmentIds) {
-						final GbGradeInfo gradeInfo = grades.get(assignmentId);
-						if (gradeInfo != null && !gradeInfo.isExcused()) {
-								gradeMap.put(assignmentId, gradeInfo.getGrade());
+		// build category columns efficiently with bulk category score calculation
+		if (!categories.isEmpty() && !gbStudents.isEmpty()) {
+			final boolean includeNonReleasedItems = (role == GbRole.TA || role == GbRole.INSTRUCTOR);
+			
+			// Get all category scores for all students in one efficient operation
+			final Map<String, Map<Long, CategoryScoreData>> allCategoryScores = gradingService.calculateAllCategoryScoresForStudents(
+					gradebook.getId(), studentUuids, includeNonReleasedItems, gradebook.getCategoryType());
+			
+			// Apply the results to each student
+			for (final GbUser student : gbStudents) {
+				final GbStudentGradeInfo sg = matrix.get(student.getUserUuid());
+				final Map<Long, GbGradeInfo> grades = sg.getGrades();
+				final Map<Long, CategoryScoreData> studentCategoryScores = allCategoryScores.get(student.getUserUuid());
+				
+				if (studentCategoryScores != null) {
+					for (final CategoryDefinition category : categories) {
+						final Long categoryId = category.getId();
+						final CategoryScoreData categoryScore = studentCategoryScores.get(categoryId);
+						
+						if (categoryScore != null) {
+							// Mark dropped items
+							for (Long droppedItemId : categoryScore.droppedItems) {
+								final GbGradeInfo gradeInfo = grades.get(droppedItemId);
+								if (gradeInfo != null) {
+									gradeInfo.setDroppedFromCategoryScore(true);
+								}
+							}
+							// add to GbStudentGradeInfo
+							sg.addCategoryAverage(categoryId, categoryScore.score);
 						}
 					}
-
-					final Optional<CategoryScoreData> categoryScore = gradingService.calculateCategoryScore(gradebook,
-							student.getUserUuid(), category, category.getAssignmentList(), gradeMap, (role == GbRole.TA || role == GbRole.INSTRUCTOR));
-					categoryScore.ifPresent(data -> {
-						for (Long item : gradeMap.keySet())	{
-							if (data.droppedItems.contains(item)) {
-								grades.get(item).setDroppedFromCategoryScore(true);
-							}
-						}
-						// add to GbStudentGradeInfo
-						sg.addCategoryAverage(category.getId(), data.score);
-					});
-
-					// TODO the TA permission check could reuse this iteration... check performance.
 				}
 			}
 		}
@@ -2203,7 +2193,6 @@ public class GradebookNgBusinessService {
 
 		final Map<Long, GbGradeInfo> rval = new LinkedHashMap<>();
 
-		// iterate all assignments and get the grades
 		// if student, only proceed if grades are released for the site
 		// if instructor or TA, skip this check
 		// permission checks are still applied at the assignment level in the
@@ -2212,23 +2201,41 @@ public class GradebookNgBusinessService {
 		try {
 			role = this.getUserRole(siteId);
 		} catch (final GbAccessDeniedException e) {
-			log.warn("GbAccessDeniedException trying to getGradesForStudent", e);
+			log.warn("GbAccessDeniedException trying to getGradesForStudent for student: {}", studentUuid, e);
 			return rval;
 		}
 
 		if (role == GbRole.STUDENT) {
 			final boolean released = gradebook.getAssignmentsDisplayed();
 			if (!released) {
+				log.debug("Grades not released for gradebook: {}, returning empty map", gradebookUid);
 				return rval;
 			}
 		}
 
-		for (final Assignment assignment : assignments) {
-			final GradeDefinition def = this.gradingService.getGradeDefinitionForStudentForItem(gradebookUid, siteId,
-					assignment.getId(), studentUuid);
-			rval.put(assignment.getId(), new GbGradeInfo(def));
+		// Extract assignment IDs for bulk fetch
+		final List<Long> assignmentIds = assignments.stream()
+				.map(Assignment::getId)
+				.collect(Collectors.toList());
+
+		if (assignmentIds.isEmpty()) {
+			log.debug("No assignments found for student: {} in gradebook: {}", studentUuid, gradebookUid);
+			return rval;
 		}
 
+		// Fetch all grades in one bulk operation
+		final Map<Long, GradeDefinition> gradeDefinitions = getAllGradeDefinitionsWithCommentsForStudent(gradebookUid, siteId, studentUuid, assignmentIds);
+
+		// Build the result map maintaining assignment order
+		for (final Assignment assignment : assignments) {
+			final Long assignmentId = assignment.getId();
+			final GradeDefinition def = gradeDefinitions.get(assignmentId);
+			
+			// Create GbGradeInfo even if there's no grade definition (will be null grade)
+			rval.put(assignmentId, new GbGradeInfo(def));
+		}
+
+		log.debug("Retrieved grades for {} assignments for student: {}", rval.size(), studentUuid);
 		return rval;
 	}
 
@@ -2252,6 +2259,26 @@ public class GradebookNgBusinessService {
 
 		final Optional<CategoryScoreData> result = gradingService.calculateCategoryScore(gradebook.getId(), studentUuid, categoryId, isInstructor, gradebook.getCategoryType(), null);
 		log.debug("Category score for category: {}, student: {}:{}", categoryId, studentUuid, result.map(r -> r.score).orElse(null));
+
+		return result;
+	}
+
+	/**
+	 * Get all category scores for the given student in one efficient operation.
+	 * This is much more efficient than calling getCategoryScoreForStudent repeatedly for each category.
+	 *
+	 * @param gradebookUid
+	 * @param siteId
+	 * @param studentUuid uuid of student
+	 * @param isInstructor will calculate the category score with non-released items for instructors but not for students
+	 * @return map of category ID to CategoryScoreData for all categories that have calculable scores
+	 */
+	public Map<Long, CategoryScoreData> getAllCategoryScoresForStudent(final String gradebookUid, final String siteId, final String studentUuid, final boolean isInstructor) {
+
+		final Gradebook gradebook = getGradebook(gradebookUid, siteId);
+
+		final Map<Long, CategoryScoreData> result = gradingService.calculateAllCategoryScores(gradebook.getId(), studentUuid, isInstructor, gradebook.getCategoryType());
+		log.debug("Retrieved {} category scores for student: {}", result.size(), studentUuid);
 
 		return result;
 	}
@@ -2787,4 +2814,48 @@ public class GradebookNgBusinessService {
 			return "";
 		}
 	}
+
+	/**
+	 * Get all grade definitions for a student including comments in one bulk operation.
+	 *
+	 * @param gradebookUid the gradebook uid
+	 * @param siteId the site id
+	 * @param studentUuid the student's uuid
+	 * @param assignmentIds list of assignment IDs to fetch grades for
+	 * @return map of assignment ID to GradeDefinition (with comments if available)
+	 */
+	public Map<Long, GradeDefinition> getAllGradeDefinitionsWithCommentsForStudent(final String gradebookUid, final String siteId, 
+			final String studentUuid, final List<Long> assignmentIds) {
+		
+		if (assignmentIds == null || assignmentIds.isEmpty()) {
+			log.debug("No assignment IDs provided for bulk grade fetch with comments for student: {}", studentUuid);
+			return new HashMap<>();
+		}
+
+		log.debug("Fetching {} grade definitions with comments in bulk for student: {}", assignmentIds.size(), studentUuid);
+		
+		final Map<Long, GradeDefinition> gradeMap = new HashMap<>();
+		
+		// Use the new bulk method for fetching grades with comments
+		final Map<Long, List<GradeDefinition>> bulkGrades = this.gradingService.getGradesWithCommentsForStudentsForItems(
+				gradebookUid, siteId, assignmentIds, Collections.singletonList(studentUuid));
+
+		// Extract grades for the single student from the bulk result
+		for (final Map.Entry<Long, List<GradeDefinition>> entry : bulkGrades.entrySet()) {
+			final Long assignmentId = entry.getKey();
+			final List<GradeDefinition> gradeDefinitions = entry.getValue();
+			
+			// Find the grade for our specific student
+			for (final GradeDefinition def : gradeDefinitions) {
+				if (def != null && studentUuid.equals(def.getStudentUid())) {
+					gradeMap.put(assignmentId, def);
+					break; // Only one grade per student per assignment
+				}
+			}
+		}
+		
+		log.debug("Retrieved {} grade definitions with comments for student: {}", gradeMap.size(), studentUuid);
+		return gradeMap;
+	}
+
 }
