@@ -9179,7 +9179,7 @@ public class SimplePageBean {
 			else
 			   rowId = Long.valueOf(fields[0]);
 			if (rowId <= 0L)
-			    rowId = ++max;
+			    rowId = max - rowId;
 			String text = fields[1];
 			simplePageToolDao.addPeerEvalRow(item, rowId, text);
 		}
