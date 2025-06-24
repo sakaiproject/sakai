@@ -17,6 +17,7 @@ class SakaiHelpers {
   async goto(url) {
     await this.page.goto(url);
     await this.page.waitForLoadState('networkidle');
+    await this.page.waitForTimeout(2000);
   }
 
   /**
@@ -131,7 +132,7 @@ class SakaiHelpers {
    */
   async sakaiCreateCourse(username, toolNames) {
     // Go to user Home and create new course site
-    await this.page.goto(`/portal/site/~${username}`);
+    await this.goto(`/portal/site/~${username}`);
     await this.page.locator('a').filter({ hasText: 'Worksite Setup' }).click({ force: true });
     // Use more specific selector to avoid strict mode violations
     await this.page.locator('.portletBody a').filter({ hasText: 'Create New Site' }).click();
@@ -201,7 +202,7 @@ class SakaiHelpers {
    */
   async createRubric(instructor, sakaiUrl) {
     await this.sakaiLogin(instructor);
-    await this.page.goto(sakaiUrl);
+    await this.goto(sakaiUrl);
     await this.sakaiToolClick('Rubrics');
 
     // Create new rubric

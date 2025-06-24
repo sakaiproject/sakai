@@ -35,7 +35,7 @@ test.describe('Announcements', () => {
     }
     await page.locator('.act input.active').first().click();
     // Wait for navigation back to the main announcements list
-    await expect(page.locator('.portletBody h3')).toContainText('Announcements');
+    await expect(page.locator('.page-header')).toContainText('Announcements');
   };
 
   test.beforeAll(async ({ browser }) => {
