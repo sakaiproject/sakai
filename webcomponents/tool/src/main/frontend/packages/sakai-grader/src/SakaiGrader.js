@@ -663,13 +663,11 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     this._gradeOrCommentsModified = true;
   }
 
-
   _previous() {
 
     const currentIndex = this._submissions.findIndex(s => s.id === this._submission.id);
 
     if (currentIndex >= 1) {
-
       // Check if the previous submission is hydrated before trying to navigate
       const prevSubmission = this._submissions[currentIndex - 1];
       if (!prevSubmission.hydrated) {
@@ -716,7 +714,6 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     const currentIndex = this._submissions.findIndex(s => s.id === this._submission.id);
 
     if (currentIndex < this._submissions.length - 1) {
-
       // Check if the next submission is hydrated before trying to navigate
       const nextSubmission = this._submissions[currentIndex + 1];
       if (!nextSubmission.hydrated) {
