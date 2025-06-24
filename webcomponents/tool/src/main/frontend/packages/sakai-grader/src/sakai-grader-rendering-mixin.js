@@ -281,11 +281,11 @@ export const graderRenderingMixin = Base => class extends Base {
             aria-label="${this._i18n.lettergrade_selector_label}"
             class=${ifDefined(submitter ? "grader-grade-override" : undefined)}
             data-user-id="${ifDefined(submitter ? submitter.id : undefined)}"
-            @change=${submitter ? undefined : this._gradeSelected}
-            .value=${submitter ? submitter.overridden ? submitter.grade : "" : this._submission.grade}>
+            @change=${submitter ? undefined : this._gradeSelected}>
           <option value="">${this._i18n["non.submission.grade.select"]}</option>
           ${this.letterGradeOptions.map(grade => html`
-          <option value="${grade}">
+          <option value="${grade}"
+              .selected=${submitter ? submitter.overridden && submitter.grade === grade : this._submission.grade === grade}>
             ${grade}
           </option>
           `)}
