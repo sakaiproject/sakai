@@ -134,6 +134,11 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
   set _submission(newValue) {
 
+    // If we have unsaved changes when switching to a different submission, cancel them first
+    if (this.modified && newValue.id !== this._submission?.id) {
+      this._cancel();
+    }
+
     // If switching submissions and the inline editor for the PREVIOUS submission is open,
     // close and destroy it by simulating a cancel action.
     if (newValue.id !== this._submission?.id && this._inlineFeedbackEditorShowing) {
@@ -174,7 +179,6 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
     this.querySelector("sakai-rubric-grading")?.setAttribute("evaluated-item-id", this.__submission.id);
     this.requestUpdate();
-
 
     if (this.gradable.allowPeerAssessment) {
       this.updateComplete.then(() => (new bootstrap.Popover(this.querySelector("#peer-info"))));
@@ -659,21 +663,12 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     this._gradeOrCommentsModified = true;
   }
 
-  _revertUnsavedChanges(submissionIndex = null) {
-    if (this.modified) {
-      const originalSubmission = Object.create(this.originalSubmissions.find(os => os.id === this._submission.id));
-      const index = submissionIndex ?? this._submissions.findIndex(s => s.id === this._submission.id);
-      this._submissions.splice(index, 1, originalSubmission);
-    }
-  }
 
   _previous() {
 
     const currentIndex = this._submissions.findIndex(s => s.id === this._submission.id);
 
     if (currentIndex >= 1) {
-      // When switching students, revert any unsaved changes to the current submission
-      this._revertUnsavedChanges(currentIndex);
 
       // Check if the previous submission is hydrated before trying to navigate
       const prevSubmission = this._submissions[currentIndex - 1];
@@ -703,11 +698,6 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
       return;
     }
 
-    // When switching students, revert any unsaved changes to the current submission
-    if (this.modified && this._submission.id !== e.target.value) {
-      this._revertUnsavedChanges();
-    }
-
     if (!selectedSubmission.hydrated) {
       this._hydrateCluster(selectedSubmission.id).then(s => {
         if (s) {
@@ -726,8 +716,6 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     const currentIndex = this._submissions.findIndex(s => s.id === this._submission.id);
 
     if (currentIndex < this._submissions.length - 1) {
-      // When switching students, revert any unsaved changes to the current submission
-      this._revertUnsavedChanges(currentIndex);
 
       // Check if the next submission is hydrated before trying to navigate
       const nextSubmission = this._submissions[currentIndex + 1];
