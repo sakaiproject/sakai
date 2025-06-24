@@ -5,9 +5,9 @@
     <li>
       <button class="btn icon-button responsive-allsites-button"
           data-bs-toggle="offcanvas"
-          data-bs-target="#select-site-sidebar"
+          data-bs-target="#portal-nav-sidebar"
+          aria-controls="portal-nav-sidebar"
           aria-label="$rloader.sit_allsites"
-          aria-controls="select-site-sidebar"
           title="$rloader.sit_allsites">
           <i class="si si-all-sites"></i>
       </button>
