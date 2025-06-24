@@ -42,7 +42,7 @@ test.describe('Lessons', () => {
 
     test('create a new lesson item', async ({ page }) => {
       await helpers.sakaiLogin(instructor);
-      await page.goto(sakaiUrl);
+      await helpers.goto(sakaiUrl);
       
       // Go to lessons tool
       await helpers.sakaiToolClick('Lessons');

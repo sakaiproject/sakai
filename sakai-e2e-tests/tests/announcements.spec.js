@@ -48,7 +48,7 @@ test.describe('Announcements', () => {
       "sakai.announcements",
       "sakai.schedule"
     ]);
-    await page.goto(sakaiUrl);
+    await helpers.goto(sakaiUrl);
 
     // Create all necessary announcements for the tests
     await createAnnouncement(page, helpers, futureAnnouncementTitle,
@@ -73,7 +73,7 @@ test.describe('Announcements', () => {
 
   test('instructor can see all announcements with correct statuses', async ({ page }) => {
     await helpers.sakaiLogin(instructor);
-    await page.goto(sakaiUrl);
+    await helpers.goto(sakaiUrl);
     await helpers.sakaiToolClick('Announcements');
 
     // Verify we have 2 inactive (past and future) and 1 active (current) announcements
@@ -86,7 +86,7 @@ test.describe('Announcements', () => {
 
   test('student can only see current announcement', async ({ page }) => {
     await helpers.sakaiLogin(student11);
-    await page.goto(sakaiUrl);
+    await helpers.goto(sakaiUrl);
     
     // Check Announcements tool first
     await helpers.sakaiToolClick('Announcements');

@@ -18,7 +18,7 @@ test.describe('Accessibility', () => {
   test.beforeEach(async ({ page }) => {
     helpers = new SakaiHelpers(page);
     await helpers.sakaiLogin(instructor);
-    await page.goto('/portal');
+    await helpers.goto('/portal');
     
     // Note: For full accessibility testing, you would inject axe here:
     // await injectAxe(page);
@@ -115,7 +115,7 @@ test.describe('Accessibility', () => {
 
     test('form elements have proper labels', async ({ page }) => {
       // Navigate to a form (login page)
-      await page.goto('/portal/xlogin');
+      await helpers.goto('/portal/xlogin');
       
       // Check that form inputs have proper labels or aria-label
       const usernameInput = page.locator('#eid');

@@ -38,7 +38,7 @@ test.describe('Commons', () => {
 
     test('can create a commons post as student', async ({ page }) => {
       await helpers.sakaiLogin(student11);
-      await page.goto(sakaiUrl);
+      await helpers.goto(sakaiUrl);
       await helpers.sakaiToolClick('Commons');
 
       // Create new commons post
@@ -52,7 +52,7 @@ test.describe('Commons', () => {
 
     test('can create a commons post as instructor', async ({ page }) => {
       await helpers.sakaiLogin(instructor);
-      await page.goto(sakaiUrl);
+      await helpers.goto(sakaiUrl);
       await helpers.sakaiToolClick('Commons');
 
       // Check for student post

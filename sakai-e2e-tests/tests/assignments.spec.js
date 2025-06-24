@@ -41,7 +41,7 @@ test.describe('Assignments', () => {
   // This test is self-contained and can run independently
   test('can create, grade, and delete a letter grade assignment', async ({ page }) => {
     await helpers.sakaiLogin(instructor);
-    await page.goto(sakaiUrl);
+    await helpers.goto(sakaiUrl);
     await helpers.sakaiToolClick('Assignments');
 
     // Create new assignment
@@ -99,7 +99,7 @@ test.describe('Assignments', () => {
   test('can create and delete a non-electronic assignment', async ({ page }) => {
     const assignmentTitle = 'Non-electronic Assignment';
     await helpers.sakaiLogin(instructor);
-    await page.goto(sakaiUrl);
+    await helpers.goto(sakaiUrl);
     await helpers.sakaiToolClick('Assignments');
 
     // Create new assignment
@@ -150,7 +150,7 @@ test.describe('Assignments', () => {
       // Cleanup: Remove the assignment created during the workflow
       helpers = new SakaiHelpers(page);
       await helpers.sakaiLogin(instructor);
-      await page.goto(sakaiUrl);
+      await helpers.goto(sakaiUrl);
       await helpers.sakaiToolClick('Assignments');
       
       const row = page.locator('tr', { hasText: assignTitle });
@@ -163,7 +163,7 @@ test.describe('Assignments', () => {
 
     test('can create a points assignment with a rubric', async ({ page }) => {
       await helpers.sakaiLogin(instructor);
-      await page.goto(sakaiUrl);
+      await helpers.goto(sakaiUrl);
       await helpers.sakaiToolClick('Assignments');
 
       // Create new assignment
@@ -209,7 +209,7 @@ test.describe('Assignments', () => {
     test('student 1 can submit on desktop', async ({ page }) => {
       await page.setViewportSize(devices['Desktop Chrome'].viewport);
       await helpers.sakaiLogin(student11);
-      await page.goto(sakaiUrl);
+      await helpers.goto(sakaiUrl);
       await helpers.sakaiToolClick('Assignments');
 
       await page.locator('a').filter({ hasText: assignTitle }).click();
@@ -233,7 +233,7 @@ test.describe('Assignments', () => {
     test('student 2 can submit on iphone', async ({ page }) => {
       await page.setViewportSize(devices['iPhone X'].viewport);
       await helpers.sakaiLogin(student12);
-      await page.goto(sakaiUrl);
+      await helpers.goto(sakaiUrl);
       await page.locator('button.responsive-allsites-button').first().click();
       await page.locator('ul.site-page-list a.btn-nav').filter({ hasText: 'Assignments' }).click();
 
@@ -256,7 +256,7 @@ test.describe('Assignments', () => {
 
     test('instructor can grade and allow resubmission for student 2', async ({ page }) => {
       await helpers.sakaiLogin(instructor);
-      await page.goto(sakaiUrl);
+      await helpers.goto(sakaiUrl);
       await helpers.sakaiToolClick('Assignments');
 
       await page.locator('.itemAction a').filter({ hasText: 'Grade' }).click();
@@ -277,7 +277,7 @@ test.describe('Assignments', () => {
     test('student 2 can resubmit on iphone', async ({ page }) => {
       await page.setViewportSize(devices['iPhone X'].viewport);
       await helpers.sakaiLogin(student12);
-      await page.goto(sakaiUrl);
+      await helpers.goto(sakaiUrl);
       await page.locator('button.responsive-allsites-button').first().click();
       await page.locator('ul.site-page-list a.btn-nav').filter({ hasText: 'Assignments' }).click();
 

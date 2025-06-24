@@ -18,7 +18,7 @@ test.describe('Become User', () => {
     });
 
     test('Administration Workspace - Become User', async ({ page }) => {
-      await page.goto('/portal/site/!admin');
+      await helpers.goto('/portal/site/!admin');
       await expect(page.locator('body')).toContainText('Administration Workspace');
       await page.locator('#site-list-recent-item-admin a.btn-nav').filter({ hasText: 'Become User' }).click();
       
@@ -27,12 +27,12 @@ test.describe('Become User', () => {
       await expect(page.locator('#su input[type="text"]')).toHaveValue('instructor1');
       
       await page.locator('#su\\:become').click();
-      await page.goto('/portal/site/!admin');
+      await helpers.goto('/portal/site/!admin');
       await expect(page.locator('body')).toContainText('Site Unavailable');
       
       await page.locator('.sak-sysInd-account').click();
       await page.locator('a#loginLink1').filter({ hasText: 'Return to' }).click();
-      await page.goto('/portal/site/!admin');
+      await helpers.goto('/portal/site/!admin');
       await expect(page.locator('body')).not.toContainText('Site Unavailable');
     });
   });

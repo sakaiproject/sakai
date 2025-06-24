@@ -49,7 +49,7 @@ test.describe('Gradebook', () => {
 
     test('Can create gradebook categories', async ({ page }) => {
       await helpers.sakaiLogin(instructor);
-      await page.goto(sakaiUrl);
+      await helpers.goto(sakaiUrl);
       await helpers.sakaiToolClick('Gradebook');
 
       // DOM is being modified by Wicket so wait for the POST to complete
@@ -79,7 +79,7 @@ test.describe('Gradebook', () => {
 
     test('Can create gradebook items', async ({ page }) => {
       await helpers.sakaiLogin(instructor);
-      await page.goto(sakaiUrl);
+      await helpers.goto(sakaiUrl);
       await helpers.sakaiToolClick('Gradebook');
 
       for (let i = 0; i < cats.length; i++) {

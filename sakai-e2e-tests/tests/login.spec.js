@@ -14,9 +14,10 @@ test.describe('Logging In - Instructor', () => {
 
   test.describe('Unauthorized', () => {
     test('is forced to auth when no session', async ({ page }) => {
+      const helpers = new SakaiHelpers(page);
       // We must have a valid session cookie to be logged in
       // else we are redirected to /unauthorized
-      await page.goto('/portal/site/!admin');
+      await helpers.goto('/portal/site/!admin');
       
       await expect(page.locator('h2')).toContainText('Log in');
     });
@@ -24,7 +25,8 @@ test.describe('Logging In - Instructor', () => {
 
   test.describe('HTML form submission', () => {
     test.beforeEach(async ({ page }) => {
-      await page.goto('/portal/');
+      const helpers = new SakaiHelpers(page);
+      await helpers.goto('/portal/');
     });
 
     test('displays errors on login', async ({ page }) => {
@@ -93,7 +95,7 @@ test.describe('Logging In - Instructor', () => {
     test('can visit /portal', async ({ page }) => {
       // After login via API, the session cookie has been set
       // and we can visit a protected page
-      await page.goto('/portal/');
+      await helpers.goto('/portal/');
       
       // Check that we're logged in by verifying we're NOT on the login page
       const pageContent = await page.textContent('body');
@@ -105,7 +107,7 @@ test.describe('Logging In - Instructor', () => {
       expect(sakaiCookie).toBeTruthy();
 
       // Or another protected page  
-      await page.goto(`/portal/site/~${username}`);
+      await helpers.goto(`/portal/site/~${username}`);
       
       // Should be able to access user workspace without redirect to login
       const currentUrl = page.url();
@@ -115,7 +117,8 @@ test.describe('Logging In - Instructor', () => {
 
   test.describe('Additional login form tests', () => {
     test.beforeEach(async ({ page }) => {
-      await page.goto('/portal/xlogin');
+      const helpers = new SakaiHelpers(page);
+      await helpers.goto('/portal/xlogin');
     });
 
     test('should display login form elements', async ({ page }) => {

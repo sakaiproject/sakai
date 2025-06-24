@@ -11,6 +11,15 @@ class SakaiHelpers {
   }
 
   /**
+   * Navigate to a URL and wait for network to be idle
+   * @param {string} url - The URL to navigate to
+   */
+  async goto(url) {
+    await this.page.goto(url);
+    await this.page.waitForLoadState('networkidle');
+  }
+
+  /**
    * Login to Sakai as a specific user
    * @param {string} username - Username to login with
    * @param {string} password - Password (optional, defaults based on username)
@@ -38,7 +47,7 @@ class SakaiHelpers {
     expect([200, 302]).toContain(loginSubmitResponse.status());
 
     // Visit portal to establish session
-    await this.page.goto('/portal/');
+    await this.goto('/portal/');
     
     // Clear tutorial flag to prevent overlapping
     await this.page.evaluate(() => {
