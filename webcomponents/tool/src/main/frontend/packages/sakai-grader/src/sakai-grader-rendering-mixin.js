@@ -1,6 +1,7 @@
 import { html, nothing } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { ifDefined } from "lit/directives/if-defined.js";
+import { live } from "lit/directives/live.js";
 import "../sakai-grader-file-picker.js";
 import { Submission } from "./submission.js";
 import "@sakai-ui/sakai-date-picker";
@@ -281,11 +282,11 @@ export const graderRenderingMixin = Base => class extends Base {
             aria-label="${this._i18n.lettergrade_selector_label}"
             class=${ifDefined(submitter ? "grader-grade-override" : undefined)}
             data-user-id="${ifDefined(submitter ? submitter.id : undefined)}"
-            @change=${submitter ? undefined : this._gradeSelected}>
+            @change=${submitter ? undefined : this._gradeSelected}
+            .value=${live(submitter ? submitter.overridden ? submitter.grade : "" : this._submission.grade)}>
           <option value="">${this._i18n["non.submission.grade.select"]}</option>
           ${this.letterGradeOptions.map(grade => html`
-          <option value="${grade}"
-              .selected=${submitter ? submitter.overridden && submitter.grade === grade : this._submission.grade === grade}>
+          <option value="${grade}">
             ${grade}
           </option>
           `)}
@@ -300,7 +301,7 @@ export const graderRenderingMixin = Base => class extends Base {
           data-user-id="${ifDefined(submitter ? submitter.id : undefined)}"
           type="text"
           class="points-input ${ifDefined(submitter ? "grader-grade-override" : "")}"
-          .value=${submitter ? submitter.overridden ? submitter.grade : "" : this._submission.grade} />
+          .value=${live(submitter ? submitter.overridden ? submitter.grade : "" : this._submission.grade)} />
         ${this._renderSaved()}
         ${this._renderFailed()}
         <span id="grader-max-point-label">(${this._i18n["grade.max"]} ${this.gradable.maxGradePoint})</span>
@@ -323,7 +324,7 @@ export const graderRenderingMixin = Base => class extends Base {
                   class=${ifDefined(submitter ? "grader-grade-override" : undefined)}
                   data-user-id="${ifDefined(submitter ? submitter.id : undefined)}"
                   @change=${submitter ? undefined : this._gradeSelected}
-                  .value=${submitter ? submitter.grade : this._submission.grade}>
+                  .value=${live(submitter ? submitter.grade : this._submission.grade)}>
           <option value="ungraded"
               .selected=${submitter ? !submitter.overridden : this._submission.grade === this._i18n.ungra}>
             ${this._i18n.ungra}
@@ -348,7 +349,7 @@ export const graderRenderingMixin = Base => class extends Base {
                 class=${ifDefined(submitter ? "grader-grade-override" : undefined)}
                 @click=${submitter ? undefined : this._gradeSelected}
                 value=${GRADE_CHECKED}
-                .checked=${submitter ? submitter.overridden && submitter.grade === this._i18n["gen.checked"] : this._submission.grade === this._i18n["gen.checked"]}>
+                .checked=${live(submitter ? submitter.overridden && submitter.grade === this._i18n["gen.checked"] : this._submission.grade === this._i18n["gen.checked"])}>
         </input>
         <span>${this._i18n["gen.gra2"]} ${this._i18n["gen.checked"]}</span>
         ${this._renderSaved()}
