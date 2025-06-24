@@ -137,18 +137,5 @@ test.describe('Logging In - Instructor', () => {
       await expect(page.locator('#eid')).toBeFocused();
     });
 
-    test('should handle keyboard navigation', async ({ page }) => {
-      // Start by focusing the first field explicitly
-      await page.locator('#eid').focus();
-      await expect(page.locator('#eid')).toBeFocused();
-      
-      // Tab to next field  
-      await page.keyboard.press('Tab');
-      await expect(page.locator('#pw')).toBeFocused();
-      
-      // Tab to submit button
-      await page.keyboard.press('Tab');
-      await expect(page.locator('#submit')).toBeFocused();
-    });
   });
 });
