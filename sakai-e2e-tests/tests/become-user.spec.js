@@ -2,7 +2,7 @@ const { test, expect } = require('@playwright/test');
 const { SakaiHelpers } = require('./helpers/sakai-helpers');
 
 /**
- * Sakai Become User Tests - Converted from Cypress
+ * Sakai Become User Tests 
  * 
  * Tests the admin "Become User" functionality for user impersonation
  */

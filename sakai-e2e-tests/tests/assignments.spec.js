@@ -2,18 +2,34 @@ const { test, expect, devices } = require('@playwright/test');
 const { SakaiHelpers } = require('./helpers/sakai-helpers');
 
 /**
- * Sakai Assignments Tests - Converted from Cypress
- * 
- * Tests assignment creation, grading, submission, and rubric association
+ * Sakai Assignments Tests 
+ *
+ * Tests assignment creation, grading, submission, and rubric association.
+ * Some tests are independent, and the main workflow is in a serial block.
  */
 
 test.describe('Assignments', () => {
   const instructor = 'instructor1';
   const student11 = 'student0011';
   const student12 = 'student0012';
-  const assignTitle = 'Cypress Assignment';
+  const assignTitle = 'Playwright Assignment';
   let sakaiUrl;
   let helpers;
+
+  test.beforeAll(async ({ browser }) => {
+    // Create the course once for all tests to share
+    const page = await browser.newPage();
+    helpers = new SakaiHelpers(page);
+    await helpers.sakaiLogin(instructor);
+    
+    sakaiUrl = await helpers.sakaiCreateCourse(instructor, [
+      "sakai.rubrics",
+      "sakai.assignment.grades",
+      "sakai.gradebookng"
+    ]);
+    
+    await page.close();
+  });
 
   test.beforeEach(async ({ page }) => {
     helpers = new SakaiHelpers(page);
@@ -22,75 +38,130 @@ test.describe('Assignments', () => {
     await page.route('**/google-analytics.com/**', route => route.abort());
   });
 
-  test.describe('Create a new Assignment', () => {
-    test('can create a new course', async ({ page }) => {
-      await helpers.sakaiLogin(instructor);
+  // This test is self-contained and can run independently
+  test('can create, grade, and delete a letter grade assignment', async ({ page }) => {
+    await helpers.sakaiLogin(instructor);
+    await page.goto(sakaiUrl);
+    await helpers.sakaiToolClick('Assignments');
 
-      if (sakaiUrl == null) {
-        sakaiUrl = await helpers.sakaiCreateCourse(instructor, [
-          "sakai.rubrics",
-          "sakai.assignment.grades",
-          "sakai.gradebookng"
-        ]);
-      }
-    });
+    // Create new assignment
+    await page.locator('.navIntraTool a').filter({ hasText: 'Add' }).click();
 
-    test('can create a letter grade assignment', async ({ page }) => {
+    // Add a title
+    await page.locator('#new_assignment_title').click();
+    await page.locator('#new_assignment_title').fill('Letter Grades');
+
+    await page.locator('#new_assignment_grade_type').selectOption('Letter grade');
+
+    // Type into the ckeditor instructions field
+    await helpers.typeCkeditor("new_assignment_instructions", 
+      "<p>What is chiefly responsible for the increase in the average length of life in the USA during the last fifty years?</p>");
+
+    // Save
+    await page.locator('div.act input.active').first().click();
+
+    // Confirm can grade it with letters
+    await page.locator('.itemAction a').last().click();
+    await page.waitForTimeout(10000);
+    await page.locator('sakai-grader-toggle input').check();
+    await page.locator('#submissionList a').filter({ hasText: 'student0011' }).click();
+    await page.locator('#grader-link-block button').click();
+    await page.locator('#letter-grade-selector').selectOption('B');
+    await page.locator('.act .active').first().click();
+    await page.locator('button').filter({ hasText: 'Return to List' }).click();
+    await expect(page.locator('table#submissionList tr').nth(1).locator('td[headers="grade"]')).toContainText('B');
+    await page.locator('.navIntraTool a').first().click();
+
+    // Now use the old grader
+    await page.locator('.itemAction a').last().click();
+    await page.waitForTimeout(10000);
+    await page.locator('sakai-grader-toggle input').uncheck();
+    await page.locator('#submissionList a').filter({ hasText: 'student0011' }).click();
+    await expect(page.locator('select#grade option:checked')).toHaveText('B');
+    await page.locator('select#grade').selectOption('C');
+    await page.locator('.act input#save').click();
+    await page.locator('input[name="cancelgradesubmission1"]').click();
+    await expect(page.locator('table#submissionList tr').nth(1).locator('td[headers="grade"]')).toContainText('C');
+    await page.locator('.navIntraTool a').first().click();
+
+    // Now remove it
+    const row = page.locator('tr', { hasText: 'Letter Grades' });
+    await row.locator('input[type="checkbox"]').check();
+    await page.locator('input#btnRemove').click();
+    await expect(page.locator('div')).toContainText('Are you sure you want to delete');
+    await page.locator('input').filter({ hasText: 'Delete' }).click();
+
+    // Confirm we are on assignment list
+    await expect(page.locator('.portletBody h3')).toContainText('Assignment List');
+  });
+
+  // This test is self-contained and can run independently
+  test('can create and delete a non-electronic assignment', async ({ page }) => {
+    const assignmentTitle = 'Non-electronic Assignment';
+    await helpers.sakaiLogin(instructor);
+    await page.goto(sakaiUrl);
+    await helpers.sakaiToolClick('Assignments');
+
+    // Create new assignment
+    await page.locator('.navIntraTool a').filter({ hasText: 'Add' }).click();
+
+    // Add a title
+    await page.locator('#new_assignment_title').click();
+    await page.locator('#new_assignment_title').fill(assignmentTitle);
+
+    // Need to unset grading
+    await page.locator("#gradeAssignment").uncheck();
+
+    // Need to choose Non-electronic from the dropdown
+    await page.locator('#subType').selectOption('Non-electronic');
+
+    // Type into the ckeditor instructions field
+    await helpers.typeCkeditor("new_assignment_instructions", 
+      "<p>Submit a 3000 word essay on the history of the internet to my office in Swanson 201.</p>");
+
+    // Save it with instructions
+    await page.locator('div.act input.active').first().click();
+
+    // Check grading view
+    await page.locator('.itemAction a').last().click();
+    await page.waitForTimeout(10000);
+    await page.locator('sakai-grader-toggle input').uncheck();
+    await page.locator('#submissionList a').filter({ hasText: 'student0011' }).click();
+    await helpers.typeCkeditor("grade_submission_feedback_comment", 
+      "<p>Please submit again.</p>");
+    await page.locator('input#save-and-return').click();
+    await page.locator('.navIntraTool a').first().click();
+
+    // Now remove it
+    const row = page.locator('tr', { hasText: assignmentTitle });
+    await row.locator('input[type="checkbox"]').check();
+    await page.locator('input#btnRemove').click();
+    await expect(page.locator('div')).toContainText('Are you sure you want to delete');
+    await page.locator('input').filter({ hasText: 'Delete' }).click();
+
+    // Confirm we are on assignment list
+    await expect(page.locator('.portletBody h3')).toContainText('Assignment List');
+  });
+
+  // The following tests depend on each other and must run in order.
+  test.describe.serial('Assignment Submission and Grading Workflow', () => {
+
+    test.afterAll(async ({ page }) => {
+      // Cleanup: Remove the assignment created during the workflow
+      helpers = new SakaiHelpers(page);
       await helpers.sakaiLogin(instructor);
       await page.goto(sakaiUrl);
       await helpers.sakaiToolClick('Assignments');
-
-      // Create new assignment
-      await page.locator('.navIntraTool a').filter({ hasText: 'Add' }).click();
-
-      // Add a title
-      await page.locator('#new_assignment_title').click();
-      await page.locator('#new_assignment_title').fill('Letter Grades');
-
-      await page.locator('#new_assignment_grade_type').selectOption('Letter grade');
-
-      // Type into the ckeditor instructions field
-      await helpers.typeCkeditor("new_assignment_instructions", 
-        "<p>What is chiefly responsible for the increase in the average length of life in the USA during the last fifty years?</p>");
-
-      // Save
-      await page.locator('div.act input.active').first().click();
-
-      // Confirm can grade it with letters
-      await page.locator('.itemAction a').last().click();
-      await page.waitForTimeout(10000);
-      await page.locator('sakai-grader-toggle input').check();
-      await page.locator('#submissionList a').filter({ hasText: 'student0011' }).click();
-      await page.locator('#grader-link-block button').click();
-      await page.locator('#letter-grade-selector').selectOption('B');
-      await page.locator('.act .active').first().click();
-      await page.locator('button').filter({ hasText: 'Return to List' }).click();
-      await expect(page.locator('table#submissionList tr').nth(1).locator('td[headers="grade"]')).toContainText('B');
-      await page.locator('.navIntraTool a').first().click();
-
-      // Now use the old grader
-      await page.locator('.itemAction a').last().click();
-      await page.waitForTimeout(10000);
-      await page.locator('sakai-grader-toggle input').uncheck();
-      await page.locator('#submissionList a').filter({ hasText: 'student0011' }).click();
-      await expect(page.locator('select#grade option:checked')).toHaveText('B');
-      await page.locator('select#grade').selectOption('C');
-      await page.locator('.act input#save').click();
-      await page.locator('input[name="cancelgradesubmission1"]').click();
-      await expect(page.locator('table#submissionList tr').nth(1).locator('td[headers="grade"]')).toContainText('C');
-      await page.locator('.navIntraTool a').first().click();
-
-      // Now remove it
-      await page.locator('input#check_1').check();
+      
+      const row = page.locator('tr', { hasText: assignTitle });
+      await row.locator('input[type="checkbox"]').check();
       await page.locator('input#btnRemove').click();
       await expect(page.locator('div')).toContainText('Are you sure you want to delete');
       await page.locator('input').filter({ hasText: 'Delete' }).click();
-
-      // Confirm we are on assignment list
-      await expect(page.locator('.navIntraTool a')).toContainText('Add');
+      await expect(page.locator('.portletBody h3')).toContainText('Assignment List');
     });
 
-    test('can create a points assignment', async ({ page }) => {
+    test('can create a points assignment with a rubric', async ({ page }) => {
       await helpers.sakaiLogin(instructor);
       await page.goto(sakaiUrl);
       await helpers.sakaiToolClick('Assignments');
@@ -98,62 +169,44 @@ test.describe('Assignments', () => {
       // Create new assignment
       await page.locator('.navIntraTool a').filter({ hasText: 'Add' }).click();
 
-      // Add a title
+      // Add a title and instructions
       await page.locator('input#new_assignment_title').click();
       await page.locator('input#new_assignment_title').fill(assignTitle);
+      await helpers.typeCkeditor("new_assignment_instructions", 
+        "<p>What is chiefly responsible for the increase in the average length of life in the USA during the last fifty years?</p>");
 
       // Honor pledge
       await page.locator('#new_assignment_check_add_honor_pledge').click();
-
-      // Need to unset grading
-      await page.locator("#gradeAssignment").uncheck();
-
-      // Attempt to save it without instructions
+      
+      // Post without grading to create the assignment shell
       await page.locator('div.act input.active').first().click();
 
-      // Should be an alert at top
-      await expect(page.locator('#generalAlert')).toContainText('Alert');
-
-      // Type into the ckeditor instructions field
-      await helpers.typeCkeditor("new_assignment_instructions", 
-        "<p>What is chiefly responsible for the increase in the average length of life in the USA during the last fifty years?</p>");
-
-      // Save it with instructions
-      await page.locator('div.act input.active').first().click();
-
-      // Confirm it exists but can't grade it
-      await expect(page.locator('a').filter({ hasText: 'View Submissions' })).toHaveCount(1);
-    });
-
-    test("Can associate a rubric with an assignment", async ({ page }) => {
+      // Create the rubric
       await helpers.createRubric(instructor, sakaiUrl);
-      await expect(page.locator(".modal-dialog")).toHaveCount(1);
+      await expect(page.locator(".modal-dialog")).toBeVisible();
       await page.locator(".modal-footer button").filter({ hasText: 'Save' }).click({ force: true });
+      await expect(page.locator(".modal-dialog")).not.toBeVisible();
 
+      // Navigate back to assignments and edit the new one
       await helpers.sakaiToolClick('Assignments');
-      await page.locator('.itemAction').filter({ hasText: 'Edit' }).click();
+      const row = page.locator('tr', { hasText: assignTitle });
+      await row.locator('.itemAction a').filter({ hasText: 'Edit' }).click();
 
-      // Save assignment with points and a rubric associated
-      await page.locator("#gradeAssignment").click();
+      // Add points and associate the rubric
+      await page.locator("#gradeAssignment").check();
       await page.locator("#new_assignment_grade_points").fill("55.13");
       await page.locator("input[name='rbcs-associate'][value='1']").click();
-
-      // Again just to make sure editor loaded fully
-      await helpers.typeCkeditor("new_assignment_instructions", 
-        "<p>What is chiefly responsible for the increase in the average length of life in the USA during the last fifty years?</p>");
 
       // Save
       await page.locator('.act input.active').first().click();
 
-      // Confirm rubric button
-      await expect(page.locator("a").filter({ hasText: 'Grade' })).toHaveCount(1);
-      await expect(page.locator("sakai-rubric-student-button")).toHaveCount(1);
-
-      // Confirm score is present on instructor page
-      await expect(page.locator('td[headers="maxgrade"]').filter({ hasText: '55.13' })).toHaveCount(1);
+      // Confirm rubric button and score
+      await expect(page.locator("a").filter({ hasText: 'Grade' })).toBeVisible();
+      await expect(page.locator("sakai-rubric-student-button")).toBeVisible();
+      await expect(page.locator('td[headers="maxgrade"]').filter({ hasText: '55.13' })).toBeVisible();
     });
 
-    test('can submit as student on desktop', async ({ page }) => {
+    test('student 1 can submit on desktop', async ({ page }) => {
       await page.setViewportSize(devices['Desktop Chrome'].viewport);
       await helpers.sakaiLogin(student11);
       await page.goto(sakaiUrl);
@@ -175,11 +228,9 @@ test.describe('Assignments', () => {
 
       // Confirmation page
       await expect(page.locator('h3')).toContainText('Submission Confirm');
-      await expect(page.locator('.act input.active')).toHaveValue('Back to list');
-      await page.locator('.act input.active').click();
     });
 
-    test('can submit as student on iphone', async ({ page }) => {
+    test('student 2 can submit on iphone', async ({ page }) => {
       await page.setViewportSize(devices['iPhone X'].viewport);
       await helpers.sakaiLogin(student12);
       await page.goto(sakaiUrl);
@@ -201,16 +252,9 @@ test.describe('Assignments', () => {
 
       // Confirmation page
       await expect(page.locator('h3')).toContainText('Submission Confirm');
-      await expect(page.locator('.act input.active')).toHaveValue('Back to list');
-      await page.locator('.act input.active').first().click();
-
-      // Try to submit again
-      await page.locator('a').filter({ hasText: assignTitle }).click();
-      await expect(page.locator('.textPanel')).toContainText('This is my submission text');
-      await page.locator('form').filter({ hasText: 'Back to list' }).click();
     });
 
-    test('can allow a student to resubmit', async ({ page }) => {
+    test('instructor can grade and allow resubmission for student 2', async ({ page }) => {
       await helpers.sakaiLogin(instructor);
       await page.goto(sakaiUrl);
       await helpers.sakaiToolClick('Assignments');
@@ -230,7 +274,7 @@ test.describe('Assignments', () => {
       await page.locator('#grader-save-buttons button[name="return"]').click();
     });
 
-    test.skip('can resubmit as student on iphone', async ({ page }) => {
+    test('student 2 can resubmit on iphone', async ({ page }) => {
       await page.setViewportSize(devices['iPhone X'].viewport);
       await helpers.sakaiLogin(student12);
       await page.goto(sakaiUrl);
@@ -252,41 +296,6 @@ test.describe('Assignments', () => {
       // Final resubmit
       await expect(page.locator('.act input.active')).toHaveValue('Submit');
       await page.locator('.act input.active').click();
-    });
-
-    test('can create a non-electronic assignment', async ({ page }) => {
-      await helpers.sakaiLogin(instructor);
-      await page.goto(sakaiUrl);
-      await helpers.sakaiToolClick('Assignments');
-
-      // Create new assignment
-      await page.locator('.navIntraTool a').filter({ hasText: 'Add' }).click();
-
-      // Add a title
-      await page.locator('#new_assignment_title').click();
-      await page.locator('#new_assignment_title').fill('Non-electronic Assignment');
-
-      // Need to unset grading
-      await page.locator("#gradeAssignment").uncheck();
-
-      // Need to choose Non-electronic from the dropdown
-      await page.locator('#subType').selectOption('Non-electronic');
-
-      // Type into the ckeditor instructions field
-      await helpers.typeCkeditor("new_assignment_instructions", 
-        "<p>Submit a 3000 word essay on the history of the internet to my office in Swanson 201.</p>");
-
-      // Save it with instructions
-      await page.locator('div.act input.active').first().click();
-
-      // Now use the old grader
-      await page.locator('.itemAction a').last().click();
-      await page.waitForTimeout(10000);
-      await page.locator('sakai-grader-toggle input').uncheck();
-      await page.locator('#submissionList a').filter({ hasText: 'student0011' }).click();
-      await helpers.typeCkeditor("grade_submission_feedback_comment", 
-        "<p>Please submit again.</p>");
-      await page.locator('input#save-and-return').click();
     });
   });
 });

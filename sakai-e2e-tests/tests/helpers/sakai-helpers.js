@@ -2,7 +2,7 @@ const { expect } = require('@playwright/test');
 
 /**
  * Sakai Helper Functions for Playwright
- * Converted from Cypress commands.js
+ * Converted from Playwright commands.js
  */
 
 class SakaiHelpers {
@@ -16,12 +16,12 @@ class SakaiHelpers {
    * @param {string} password - Password (optional, defaults based on username)
    */
   async sakaiLogin(username, password = null) {
-    // Default password logic from Cypress
+    // Default password logic from Playwright
     if (!password) {
       password = username === 'admin' ? 'admin' : 'sakai';
     }
 
-    console.debug(`Logging in as: ${username}`);
+    //console.debug(`Logging in as: ${username}`);
 
     // Go to the login page first
     const loginResponse = await this.page.request.get('/portal/xlogin');
@@ -61,6 +61,7 @@ class SakaiHelpers {
    */
   async sakaiToolClick(toolName) {
     console.log(`Clicking tool: ${toolName}`);
+    await this.page.waitForLoadState('networkidle');
     await this.page.locator('.site-list-item-collapse.collapse.show a.btn-nav')
       .filter({ hasText: toolName })
       .click();
@@ -81,10 +82,9 @@ class SakaiHelpers {
    * @returns {Promise<Frame>} The loaded iframe content
    */
   async iframeLoaded(iframeLocator) {
-    await iframeLocator.waitFor({ state: 'attached' });
-    const iframe = await iframeLocator.contentFrame();
-    await iframe.waitForLoadState('load');
-    return iframe;
+    const iframe = await iframeLocator.elementHandle();
+    await new Promise(resolve => iframe.on('load', resolve));
+    return await iframe.contentFrame();
   }
 
   /**
@@ -125,7 +125,7 @@ class SakaiHelpers {
     await this.page.goto(`/portal/site/~${username}`);
     await this.page.locator('a').filter({ hasText: 'Worksite Setup' }).click({ force: true });
     // Use more specific selector to avoid strict mode violations
-    await this.page.locator('.portletBody a').filter({ hasText: 'Create New Site' }).first().click({ force: true });
+    await this.page.locator('.portletBody a').filter({ hasText: 'Create New Site' }).click();
     await this.page.locator('input#course').click();
     await this.page.locator('select#selectTerm').selectOption({ index: 1 });
     await this.page.locator('input#submitBuildOwn').click();
@@ -145,40 +145,16 @@ class SakaiHelpers {
     const descriptionTextarea = this.page.locator('textarea[name="description"]');
     try {
       await descriptionTextarea.waitFor({ state: 'visible', timeout: 5000 });
-      await descriptionTextarea.fill('Cypress Testing');
+      await descriptionTextarea.fill('Playwright Testing');
     } catch (error) {
       console.log('Course description textarea not visible, skipping...');
     }
     
     await this.page.locator('.act input[name="continue"]').click();
 
-    // Add specified tools - first let's see what tools are available
-    const allToolInputs = await this.page.locator('input[type="checkbox"]').all();
-    const availableTools = [];
-    for (const input of allToolInputs) {
-      const id = await input.getAttribute('id');
-      if (id) availableTools.push(id);
-    }
-    console.log('Available tool checkboxes:', availableTools);
-    
+    // Add specified tools
     for (const toolName of toolNames) {
-      const toolSelector = `input#${toolName}`;
-      console.log(`Looking for tool: ${toolName} with selector: ${toolSelector}`);
-      
-      const toolExists = await this.page.locator(toolSelector).count();
-      if (toolExists === 0) {
-        console.error(`Tool ${toolName} not found. Selector: ${toolSelector}`);
-        console.error(`Available tools: ${availableTools.join(', ')}`);
-        // Try to find a similar tool name
-        const similarTool = availableTools.find(tool => tool.includes(toolName.split('.').pop()));
-        if (similarTool) {
-          console.log(`Similar tool found: ${similarTool}, using that instead`);
-          await this.page.locator(`input#${similarTool}`).check();
-          continue;
-        }
-        throw new Error(`Tool ${toolName} not found`);
-      }
-      
+      const toolSelector = `input[id="${toolName}"]`;
       await this.page.locator(toolSelector).check();
     }
 

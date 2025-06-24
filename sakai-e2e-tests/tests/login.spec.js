@@ -2,7 +2,7 @@ const { test, expect } = require('@playwright/test');
 const { SakaiHelpers } = require('./helpers/sakai-helpers');
 
 /**
- * Sakai Login Tests - Converted from Cypress
+ * Sakai Login Tests 
  * 
  * Tests the core login functionality of Sakai LMS
  */

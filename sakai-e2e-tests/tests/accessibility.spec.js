@@ -2,7 +2,7 @@ const { test, expect } = require('@playwright/test');
 const { SakaiHelpers } = require('./helpers/sakai-helpers');
 
 /**
- * Sakai Accessibility Tests - Converted from Cypress
+ * Sakai Accessibility Tests
  * 
  * Tests accessibility features and compliance
  * Note: For full accessibility testing, install @axe-core/playwright

@@ -2,7 +2,7 @@ const { test, expect } = require('@playwright/test');
 const { SakaiHelpers } = require('./helpers/sakai-helpers');
 
 /**
- * Sakai Gradebook Tests - Converted from Cypress
+ * Sakai Gradebook Tests 
  * 
  * Tests gradebook category creation and gradebook item management
  */
@@ -34,14 +34,18 @@ test.describe('Gradebook', () => {
     });
   });
 
+  test.beforeAll(async ({ browser }) => {
+    // Create the course once for all tests to share
+    const page = await browser.newPage();
+    helpers = new SakaiHelpers(page);
+    await helpers.sakaiLogin(instructor);
+    
+    sakaiUrl = await helpers.sakaiCreateCourse(instructor, ["sakai.gradebookng"]);
+    
+    await page.close();
+  });
+
   test.describe('Create site and add gradebook', () => {
-    test('can create a new course', async ({ page }) => {
-      await helpers.sakaiLogin(instructor);
-      
-      if (sakaiUrl == null) {
-        sakaiUrl = await helpers.sakaiCreateCourse(instructor, ["sakai.gradebookng"]);
-      }
-    });
 
     test('Can create gradebook categories', async ({ page }) => {
       await helpers.sakaiLogin(instructor);

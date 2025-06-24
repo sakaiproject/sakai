@@ -2,7 +2,7 @@ const { test, expect } = require('@playwright/test');
 const { SakaiHelpers } = require('./helpers/sakai-helpers');
 
 /**
- * Sakai Lessons Tests - Converted from Cypress
+ * Sakai Lessons Tests 
  * 
  * Tests lesson creation functionality including checklists
  */
@@ -11,7 +11,7 @@ test.describe('Lessons', () => {
   const instructor = 'instructor1';
   const student11 = 'student0011';
   const student12 = 'student0012';
-  const lessonTitle = 'Cypress Lesson';
+  const lessonTitle = 'Playwright Lesson';
   let sakaiUrl;
   let helpers;
 
@@ -22,19 +22,23 @@ test.describe('Lessons', () => {
     await page.route('**/google-analytics.com/**', route => route.abort());
   });
 
-  test.describe('Lessons Tests', () => {
-    test('can create a new course', async ({ page }) => {
-      await helpers.sakaiLogin(instructor);
+  test.beforeAll(async ({ browser }) => {
+    // Create the course once for all tests to share
+    const page = await browser.newPage();
+    helpers = new SakaiHelpers(page);
+    await helpers.sakaiLogin(instructor);
+    
+    sakaiUrl = await helpers.sakaiCreateCourse(instructor, [
+      "sakai.rubrics",
+      "sakai.assignment.grades",
+      "sakai.gradebookng",
+      "sakai.lessonbuildertool"
+    ]);
+    
+    await page.close();
+  });
 
-      if (sakaiUrl == null) {
-        sakaiUrl = await helpers.sakaiCreateCourse(instructor, [
-          "sakai.rubrics",
-          "sakai.assignment.grades",
-          "sakai.gradebookng",
-          "sakai.lessonbuildertool"
-        ]);
-      }
-    });
+  test.describe('Lessons Tests', () => {
 
     test('create a new lesson item', async ({ page }) => {
       await helpers.sakaiLogin(instructor);

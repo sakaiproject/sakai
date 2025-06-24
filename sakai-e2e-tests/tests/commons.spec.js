@@ -2,7 +2,7 @@ const { test, expect } = require('@playwright/test');
 const { SakaiHelpers } = require('./helpers/sakai-helpers');
 
 /**
- * Sakai Commons Tests - Converted from Cypress
+ * Sakai Commons Tests 
  * 
  * Tests commons functionality for creating and viewing posts
  */
@@ -14,6 +14,19 @@ test.describe('Commons', () => {
   let sakaiUrl;
   let helpers;
 
+  test.beforeAll(async ({ browser }) => {
+    // Create the course once for all tests to share
+    const page = await browser.newPage();
+    helpers = new SakaiHelpers(page);
+    await helpers.sakaiLogin(instructor);
+    
+    sakaiUrl = await helpers.sakaiCreateCourse(instructor, [
+      "sakai.commons"
+    ]);
+    
+    await page.close();
+  });
+
   test.beforeEach(async ({ page }) => {
     helpers = new SakaiHelpers(page);
     
@@ -22,15 +35,6 @@ test.describe('Commons', () => {
   });
 
   test.describe('Create a new commons post', () => {
-    test('can create a new course', async ({ page }) => {
-      await helpers.sakaiLogin(instructor);
-
-      if (sakaiUrl == null) {
-        sakaiUrl = await helpers.sakaiCreateCourse(instructor, [
-          "sakai.commons"
-        ]);
-      }
-    });
 
     test('can create a commons post as student', async ({ page }) => {
       await helpers.sakaiLogin(student11);
