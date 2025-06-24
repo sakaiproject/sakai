@@ -659,16 +659,21 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     this._gradeOrCommentsModified = true;
   }
 
+  _revertUnsavedChanges(submissionIndex = null) {
+    if (this.modified) {
+      const originalSubmission = Object.create(this.originalSubmissions.find(os => os.id === this._submission.id));
+      const index = submissionIndex ?? this._submissions.findIndex(s => s.id === this._submission.id);
+      this._submissions.splice(index, 1, originalSubmission);
+    }
+  }
+
   _previous() {
 
     const currentIndex = this._submissions.findIndex(s => s.id === this._submission.id);
 
     if (currentIndex >= 1) {
       // When switching students, revert any unsaved changes to the current submission
-      if (this.modified) {
-        const originalSubmission = Object.create(this.originalSubmissions.find(os => os.id === this._submission.id));
-        this._submissions.splice(currentIndex, 1, originalSubmission);
-      }
+      this._revertUnsavedChanges(currentIndex);
 
       // Check if the previous submission is hydrated before trying to navigate
       const prevSubmission = this._submissions[currentIndex - 1];
@@ -700,9 +705,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
     // When switching students, revert any unsaved changes to the current submission
     if (this.modified && this._submission.id !== e.target.value) {
-      const originalSubmission = Object.create(this.originalSubmissions.find(os => os.id === this._submission.id));
-      const i = this._submissions.findIndex(s => s.id === this._submission.id);
-      this._submissions.splice(i, 1, originalSubmission);
+      this._revertUnsavedChanges();
     }
 
     if (!selectedSubmission.hydrated) {
@@ -724,10 +727,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
     if (currentIndex < this._submissions.length - 1) {
       // When switching students, revert any unsaved changes to the current submission
-      if (this.modified) {
-        const originalSubmission = Object.create(this.originalSubmissions.find(os => os.id === this._submission.id));
-        this._submissions.splice(currentIndex, 1, originalSubmission);
-      }
+      this._revertUnsavedChanges(currentIndex);
 
       // Check if the next submission is hydrated before trying to navigate
       const nextSubmission = this._submissions[currentIndex + 1];
