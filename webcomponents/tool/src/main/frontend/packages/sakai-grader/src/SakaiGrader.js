@@ -134,15 +134,16 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
   set _submission(newValue) {
 
-    // If we have unsaved changes when switching to a different submission, cancel them first
-    if (this.modified && newValue.id !== this._submission?.id) {
-      this._cancel();
-    }
-
-    // If switching submissions and the inline editor for the PREVIOUS submission is open,
-    // close and destroy it by simulating a cancel action.
-    if (newValue.id !== this._submission?.id && this._inlineFeedbackEditorShowing) {
-      this._toggleInlineFeedback(null, true); // Pass true for cancelling
+    // If switching to a different submission, handle cleanup
+    if (newValue.id !== this._submission?.id) {
+      // Cancel any unsaved changes first
+      if (this.modified) {
+        this._cancel();
+      }
+      // Close inline editor if open
+      if (this._inlineFeedbackEditorShowing) {
+        this._toggleInlineFeedback(null, true); // Pass true for cancelling
+      }
     }
 
     if (!this._nonEditedSubmission || newValue.id !== this._nonEditedSubmission.id) {
