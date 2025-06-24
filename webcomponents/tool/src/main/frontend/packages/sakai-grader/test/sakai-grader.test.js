@@ -190,4 +190,77 @@ describe("sakai-grader tests", () => {
     expect(el._submittedOnly).to.be.false;
     expect(el.querySelector("#grader-filter-warning")).to.not.exist;
   });
+
+  it ("updates grade input field when navigating between students", async () => {
+
+    // This test verifies that the grade input field correctly updates when switching
+    // between students, especially after user interaction with the field.
+
+    // Create 3 submissions with different grades
+    const submissions = Array.from({ length: 3 }, () => generateSubmission());
+
+    // Set different grades for each submission
+    submissions[0].grade = "85";
+    submissions[0].submitted = true;
+    submissions[0].graded = true;
+
+    submissions[1].grade = "92";
+    submissions[1].submitted = true;
+    submissions[1].graded = true;
+
+    submissions[2].grade = "78";
+    submissions[2].submitted = true;
+    submissions[2].graded = true;
+
+    const gradingData = { ...data.gradableData, submissions, totalSubmissions: submissions.length };
+    const selectedSubmissionId = submissions[0].id;
+
+    const url = `/direct/assignment/gradable.json?gradableId=${gradingData.gradable.id}&submissionId=${selectedSubmissionId}`;
+    fetchMock.get(url, gradingData);
+
+    const el = await fixture(html`
+      <sakai-grader gradable-id="${gradingData.gradable.id}"
+          submission-id="${selectedSubmissionId}">
+      </sakai-grader>
+    `);
+
+    await waitUntil(() => !el._loadingData);
+    await elementUpdated(el);
+
+    const gradeInput = el.querySelector("#score-grade-input");
+    expect(gradeInput).to.exist;
+
+    // Verify initial grade is displayed
+    expect(gradeInput.value).to.equal("85");
+
+    // Simulate user interaction: type in the field and then navigate away
+    gradeInput.focus();
+    gradeInput.value = "88"; // User types a different value
+    gradeInput.dispatchEvent(new Event("keyup", { bubbles: true }));
+
+    // This modifies the current submission's grade to "88"
+    expect(el._submission.grade).to.equal("88");
+
+    // Now navigate to the second student
+    const submitterSelect = el.querySelector("#grader-submitter-select");
+    submitterSelect.value = submissions[1].id;
+    submitterSelect.dispatchEvent(new Event("change", { bubbles: true }));
+
+    await elementUpdated(el);
+
+    // The grade input should now show the second student's grade, not the user's typed value
+    expect(gradeInput.value).to.equal("92");
+    expect(el._submission.grade).to.equal("92");
+
+    // Navigate back to the first student - this should show the ORIGINAL grade (85), not the user-typed value (88)
+    submitterSelect.value = submissions[0].id;
+    submitterSelect.dispatchEvent(new Event("change", { bubbles: true }));
+
+    await elementUpdated(el);
+
+    // The key test: when we go back to the first student, we should see their original grade
+    // NOT the value that was typed by the user, because we didn't save the changes
+    expect(gradeInput.value).to.equal("85");
+    expect(el._submission.grade).to.equal("85");
+  });
 });
