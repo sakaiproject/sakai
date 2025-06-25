@@ -190,5 +190,4 @@ describe("sakai-grader tests", () => {
     expect(el._submittedOnly).to.be.false;
     expect(el.querySelector("#grader-filter-warning")).to.not.exist;
   });
-
 });

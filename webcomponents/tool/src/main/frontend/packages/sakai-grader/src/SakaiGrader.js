@@ -318,12 +318,6 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
       startupFocus: true,
     });
 
-    // Safety check - editor will be null if element doesn't exist
-    if (!editor) {
-      console.warn(`Editor element with id '${id}' not found`);
-      return null;
-    }
-
     editor.on("change", e => {
 
       changedCallback?.(e.editor.getData());
