@@ -353,7 +353,7 @@ public class ExportPanel extends BasePanel {
 				if (isCustomExport && this.includeStudentDisplayId) {
 					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.studentDisplayId")));
 				}
-				if (!isCustomExport && this.includeStudentNumber) {
+				if (this.includeStudentNumber) {
 					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.studentNumber")));
 				}
 				if (isCustomExport && this.includeSectionMembership) {
@@ -422,6 +422,10 @@ public class ExportPanel extends BasePanel {
 					}
 				}
 
+				// Add ignore column header when assignments exist to match data alignment
+				if (!assignments.isEmpty()) {
+					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.example.ignore")));
+				}
 
 				if (isCustomExport && this.includeCourseGrade) {
 					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.courseGrade")));
@@ -457,7 +461,7 @@ public class ExportPanel extends BasePanel {
 					if (isCustomExport && this.includeStudentDisplayId) {
 						line.add(studentGradeInfo.getStudentDisplayId());
 					}
-					if (!isCustomExport && this.includeStudentNumber)
+					if (this.includeStudentNumber)
 					{
 						line.add(studentGradeInfo.getStudentNumber());
 					}
@@ -489,6 +493,8 @@ public class ExportPanel extends BasePanel {
 								line.add(null);
 								line.add(null);
 							}
+							// Add ignore column value to match template header
+							line.add(null);
 						}
 						else {
 							final Map<Long, Double> categoryAverages = studentGradeInfo.getCategoryAverages();
@@ -528,8 +534,11 @@ public class ExportPanel extends BasePanel {
 						}
 					}
 
-					// Add the "ignore" column value to keep alignment
-					line.add(null); // for the ignore column
+					// Add the "ignore" column value to keep alignment, but only if assignments exist
+					// (when assignments are empty, the template already includes an ignore column)
+					if (!assignments.isEmpty()) {
+						line.add(null); // for the ignore column
+					}
 					
 					if (isCustomExport && this.includeCourseGrade) {
 						line.add(courseGrade.getMappedGrade());
