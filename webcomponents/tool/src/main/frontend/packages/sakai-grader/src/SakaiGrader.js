@@ -185,6 +185,8 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     this._showRemoveFeedbackComment = (typeof this.__submission.feedbackComment !== "undefined");
     this._showingFullPrivateNotes = false;
     this._showingFullFeedbackComment = false;
+
+    this.updateComplete.then(() => this._resetGradeInputs());
   }
 
   get _submission() { return this.__submission; }
@@ -580,6 +582,13 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
     this.modified = false;
 
+    this._resetGradeInputs();
+
+    this._toggleGrader();
+  }
+
+  _resetGradeInputs() {
+
     switch (this.gradeScale) {
       case SCORE_GRADE_TYPE: {
         const input = this.querySelector("#score-grade-input");
@@ -603,8 +612,6 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
       }
       default:
     }
-
-    this._toggleGrader();
   }
 
   _clearSubmission() {
