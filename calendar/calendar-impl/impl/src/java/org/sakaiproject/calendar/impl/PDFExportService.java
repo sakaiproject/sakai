@@ -183,7 +183,7 @@ public class PDFExportService {
             fopFactory = builder.build();
             
             // Log success message
-            log.info("PDF export initialized with system fonts");
+            log.debug("PDF export initialized with system fonts");
             
         } catch (Exception e) {
             // We won't be able to do anything if we can't create a FopFactory
