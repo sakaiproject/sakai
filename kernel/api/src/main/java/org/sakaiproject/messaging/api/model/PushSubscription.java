@@ -46,7 +46,7 @@ public class PushSubscription implements PersistableEntity<Long> {
     @Id
     @Column(name = "ID", nullable = false)
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "push_subscription_id_sequence")
-    @SequenceGenerator(name = "push_subscription_id_sequence", sequenceName = "PUSH_SUBSCRIPTION_S")
+    @SequenceGenerator(name = "push_subscription_id_sequence", sequenceName = "PUSH_SUBSCRIPTIONS_SEQ")
     @EqualsAndHashCode.Include
     private Long id;
 
