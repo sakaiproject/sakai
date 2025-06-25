@@ -98,7 +98,6 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 		final boolean showingStudentView = (boolean) data.get("showingStudentView");
 		final Integer gradeType = (Integer) data.get("gradeType");
 		final String studentUuid = (String) data.get("studentUuid");
-		
 		this.isGroupedByCategory = (boolean) data.get("isGroupedByCategory");
 		final Map<String, CategoryDefinition> categoriesMap = (Map<String, CategoryDefinition>) data.get("categoriesMap");
 		final ModalWindow assignmentStatsWindow = new ModalWindow("assignmentStatsWindow");
