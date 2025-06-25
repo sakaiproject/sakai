@@ -65,13 +65,11 @@ public class AssessmentGradeInfoProvider implements ExternalAssignmentProvider, 
     private SiteService siteService;
     private MemoryService memoryService;
 
-    private Cache<String, Boolean> groupedCache;
     private Cache<String, PublishedAssessmentIfc> pubAssessmentCache;
     
     public void init() {
         log.info("INIT and Register Samigo AssessmentGradeInfoProvider");
         gradingService.registerExternalAssignmentProvider(this);
-        groupedCache = memoryService.getCache("org.sakaiproject.tool.assessment.integration.helper.integrated.AssessmentGradeInfoProvider.groupedCache");
         pubAssessmentCache = memoryService.getCache("org.sakaiproject.tool.assessment.integration.helper.integrated.AssessmentGradeInfoProvider.pubAssessmentCache");
     }
 
@@ -86,7 +84,7 @@ public class AssessmentGradeInfoProvider implements ExternalAssignmentProvider, 
 
     
     private PublishedAssessmentIfc getPublishedAssessment(String id) {
-        PublishedAssessmentIfc a = (PublishedAssessmentIfc) pubAssessmentCache.get(id);
+        PublishedAssessmentIfc a = pubAssessmentCache.get(id);
         if (a != null) {
             log.debug("Returning assessment {} from cache", id);
             return a;
@@ -130,6 +128,7 @@ public class AssessmentGradeInfoProvider implements ExternalAssignmentProvider, 
     }
 
     
+    @Override
     public boolean isAssignmentGrouped(String id) {
         // SAM-3068 avoid looking up another tool's id
         if (!StringUtils.isNumeric(id)) {
@@ -137,30 +136,16 @@ public class AssessmentGradeInfoProvider implements ExternalAssignmentProvider, 
         }
 
         log.debug("Samigo provider isAssignmentGrouped: {}", id);
-        
-        Boolean g = null;
-        if (groupedCache.containsKey(id)) {
-            g = (Boolean)groupedCache.get(id);
-            if(g != null) {
-                if (log.isDebugEnabled()) {
-                    log.debug("returning grouped value from cache: " + id);
-                }
-                return (boolean) g;
-            }
-        }
-        
-        PublishedAssessmentService pas = new PublishedAssessmentService();
-        boolean grouped = false;
+
         try {
-            grouped = pas.isReleasedToGroups(id);
+            return AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS.equals
+                    (getPublishedAssessment(id).getAssessmentAccessControl().getReleaseTo());
         } catch (Exception e) {
             //isReleasedToGroups does not error check
-            if (log.isDebugEnabled()) {
-                log.debug("Assignment lookup failed for ID: " + id + " -- " + e.getMessage());
-            }
+            log.debug("Assignment lookup failed for ID: {} -- {}", id, e.toString());
         }
-        groupedCache.put(id, grouped);
-        return grouped;
+
+        return false;
     }
 
     //FIXME: Visibility logic is ripped from LoginServlet, modified some for params we have here

@@ -33,6 +33,7 @@ import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.GenericGenerator;
@@ -76,7 +77,9 @@ public class ConversationsTopic implements PersistableEntity<String> {
     private String message = "";
 
     @ElementCollection
-    @CollectionTable(name = "CONV_TOPIC_TAGS", joinColumns = @JoinColumn(name = "TOPIC_ID"))
+    @CollectionTable(name = "CONV_TOPIC_TAGS",
+                     joinColumns = @JoinColumn(name = "TOPIC_ID"),
+                     uniqueConstraints = @UniqueConstraint(name="UK_TOPIC_TAG", columnNames = {"TOPIC_ID", "TAG"}))
     @Column(name = "TAG")
     private Set<Long> tagIds = new HashSet<>();
 
@@ -144,6 +147,9 @@ public class ConversationsTopic implements PersistableEntity<String> {
 
     @Column(name = "UPVOTES")
     private Integer upvotes = 0;
+
+    @Column(name = "GRADED")
+    private Boolean graded = Boolean.FALSE;
 
     @Column(name = "GRADING_ITEM_ID")
     private Long gradingItemId;

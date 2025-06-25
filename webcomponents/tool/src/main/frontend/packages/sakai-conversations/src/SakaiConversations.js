@@ -52,38 +52,34 @@ export class SakaiConversations extends SakaiElement {
     this.loadTranslations("conversations");
   }
 
-  set siteId(value) {
-
-    this._siteId = value;
+  _fetchConversationsData() {
 
     this._loadingData = true;
-
-    const url = `/api/sites/${value}/conversations`;
+    const url = `/api/sites/${this.siteId}/conversations`;
     this._dataPromise = fetch(url)
       .then(r => {
-
         if (r.ok) {
           return r.json();
         }
         throw new Error(`Network error while loading data from ${url}`);
       })
       .then(data => {
-
         this._data = data;
-
         this._searchEnabled = data.searchEnabled;
-
         if (this.topicId) {
           this._selectTopic(this.topicId);
         }
-
-        // If this topic has some sessions stored changes, load them up into wipTopic.
         this.wipTopicKey = `${this._data.userId}-wipTopic`;
         const wipTopicJson = sessionStorage.getItem(this.wipTopicKey);
         wipTopicJson && (this.wipTopic = JSON.parse(wipTopicJson));
       })
-      .catch (error => console.error(error))
-      .finally (() => this._loadingData = false);
+      .catch(error => console.error(error))
+      .finally(() => this._loadingData = false);
+  }
+
+  set siteId(value) {
+    this._siteId = value;
+    this._fetchConversationsData();
   }
 
   get siteId() { return this._siteId; }
@@ -281,38 +277,6 @@ export class SakaiConversations extends SakaiElement {
     }
   }
 
-  _tagsCreated(e) {
-
-    this._data.tags = this._data.tags.concat(e.detail.tags);
-    this.requestUpdate();
-  }
-
-  _tagUpdated(e) {
-
-    const index = this._data.tags.findIndex(t => t.id == e.detail.tag.id);
-    this._data.tags.splice(index, 1, e.detail.tag);
-    this._data.topics.forEach(topic => {
-
-      const index1 = topic.tags.findIndex(t => t.id == e.detail.tag.id);
-      topic.tags.splice(index1, 1, e.detail.tag);
-    });
-
-    this.requestUpdate();
-  }
-
-  _tagDeleted(e) {
-
-    const index = this._data.tags.findIndex(t => t.id == e.detail.id);
-    this._data.tags.splice(index, 1);
-    this._data.topics.forEach(topic => {
-
-      const index1 = topic.tags.findIndex(t => t.id == e.detail.id);
-      topic.tags.splice(index1, 1);
-    });
-
-    this.requestUpdate();
-  }
-
   _permissionsComplete() {
 
     if (this._currentTopic) {
@@ -432,11 +396,6 @@ export class SakaiConversations extends SakaiElement {
         <button class="btn btn-secondary dropdown-item" @click=${this._setStateManagingTags}>${this._i18n.manage_tags}</button>
       </li>
       ` : nothing }
-      ${this._data.canViewSiteStatistics ? html`
-      <li class=${ifDefined(this._state === STATE_STATISTICS ? "setting-active" : undefined)}>
-        <button class="btn btn-secondary dropdown-item" @click=${this._setStateStatistics}>${this._i18n.statistics}</button>
-      </li>
-      ` : nothing }
     `;
   }
 
@@ -461,23 +420,29 @@ export class SakaiConversations extends SakaiElement {
           <div>
             <button type="button"
                 @click=${this._handleSearch}
-                class="sakai-conversations__search_button btn btn-link icon-button"
+                class="sakai-conversations__search_button btn btn-secondary"
                 data-bs-toggle="offcanvas"
                 data-bs-target="#sakai-search-panel"
                 aria-controls="sakai-search-panel">
-              <i class="si si-sakai-search"></i>
-              <span>${this._i18n.search}</span>
+              ${this._i18n.search}
             </button>
           </div>
           ` : nothing}
+
+          ${this._data.canViewStatistics ? html`
+            <div id="conv-stats-button" class="ms-1">
+              <button type="button" class="btn btn-secondary" @click=${this._setStateStatistics}>
+                ${this._i18n.statistics}
+              </button>
+            </div>
+          ` : nothing }
 
           ${this._data.canUpdatePermissions || this._data.isInstructor ? html`
             ${mobile ? html`
               <div>
                 <div class="dropdown">
                   <button type="button" class="btn btn-icon" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="si si-settings"></i>
-                    <span>${this._i18n.settings}</span>
+                    ${this._i18n.settings}
                   </button>
                   <ul class="dropdown-menu">
                   ${this._renderSettingsMenu()}
@@ -485,24 +450,18 @@ export class SakaiConversations extends SakaiElement {
                 </div>
               </div>
             ` : html`
-            <div class="conv-settings-link">
-              <button type="button" class="btn icon-button text-nowrap" @click=${this._setStateSettings}>
-                <i class="si si-settings"></i>
-                <span>${this._i18n.settings}</span>
+            <div class="conv-settings-link me-3">
+              <button type="button" class="btn btn-secondary" @click=${this._setStateSettings}>
+                ${this._i18n.settings}
               </button>
             </div>
             `}
           ` : nothing }
 
           ${this._data.canCreateTopic ? html`
-          <a href="javascript:;" @click=${this._addTopic}>
-            <div class="conv-add-topic">
-                <span class="add-topic-text">
-                ${this._i18n.create_new}
-                </span>
-                <sakai-icon class="add-topic-icon" type="add" size="medium"></sakai-icon>
-            </div>
-          </a>
+          <button type="button" class="btn btn-primary conv-add-topic" @click=${this._addTopic}>
+            ${this._i18n.create_new}
+          </button>
           ` : nothing }
         </div>
       </div>
@@ -525,9 +484,9 @@ export class SakaiConversations extends SakaiElement {
       <sakai-conversations-tag-manager
           .tags="${this._data.tags}"
           site-id="${this.siteId}"
-          @tags-created=${this._tagsCreated}
-          @tag-updated=${this._tagUpdated}
-          @tag-deleted=${this._tagDeleted}
+          @tags-created=${this._fetchConversationsData}
+          @tag-updated=${this._fetchConversationsData}
+          @tag-deleted=${this._fetchConversationsData}
       >
       </sakai-conversations-tag-manager>
     `;
@@ -637,7 +596,7 @@ export class SakaiConversations extends SakaiElement {
       : html`
         <div id="overlay"></div>
         <div id="conv-desktop">
-          ${this._showingSettings && (this._data.canUpdatePermissions || this._data.isInstructor) ? html`
+          ${(this._showingSettings || this._state === STATE_STATISTICS) && (this._data.canUpdatePermissions || this._data.isInstructor) ? html`
           <div>
             <div id="conv-back-button-block">
               <a href="javascript:;" @click=${this._resetState}>
@@ -645,11 +604,13 @@ export class SakaiConversations extends SakaiElement {
                 <div>${this._i18n.back}</div>
               </a>
             </div>
-            <div id="conv-settings">
-              <ul>
-              ${this._renderSettingsMenu()}
-              </ul>
-            </div>
+            ${this._state === STATE_STATISTICS ? nothing : html`
+              <div id="conv-settings">
+                <ul>
+                ${this._renderSettingsMenu()}
+                </ul>
+              </div>
+            `}
           </div>
           ` : this._renderTopicList()}
 

@@ -726,7 +726,11 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		Set<String> keysGroupIdsMap = new HashSet<>();
 		try {
 			site = SiteService.getSite(siteAgentId);
-			siteGroups = site.getGroupsWithMember(userId);
+			if (service.isUserAbleToGradeAll(site.getId(), userId)) {
+				siteGroups = site.getGroups();
+			} else {
+				siteGroups = site.getGroupsWithMember(userId);
+			}
 			Map<String, String> groupIdsMap = siteGroups.stream()
 				.collect(Collectors.toMap(Group::getId, Group::getId));
 			keysGroupIdsMap = groupIdsMap.keySet();
@@ -1729,7 +1733,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 					while (itemIter.hasNext()) {
 						ItemData item = (ItemData) itemIter.next();
 						//We use this place to add the saveItem Events used by the search index to index all the new questions
-						EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/saved itemId=" + item.getItemId().toString(), true));
+						EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SAVEITEM, "/sam/" + toContext + "/saved itemId=" + item.getItemId().toString(), true));
 						String oldRef = assessmentMap.get(a);
 						String associationId = oldRef.substring(CoreAssessmentEntityProvider.ENTITY_PREFIX.length() + 1) + "." + item.getOriginalItemId();
 						if (rubricsInUseAssociationList.contains(associationId)) {

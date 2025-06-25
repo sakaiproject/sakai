@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.coursemanagement.impl;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
@@ -99,16 +100,16 @@ public class CourseSitePublishServiceImpl extends HibernateDaoSupport implements
     * </br></br>
     * @param numDaysBeforeTermStarts   number of days before a term starts that course sites should be published.
     * </br></br>
-    * @return the number of course sites that were published.
+    * @return the list of course site IDs that were published.
     */
    @Override
-   public int publishCourseSites(int numDaysBeforeTermStarts) {
+   public List<String> publishCourseSites(int numDaysBeforeTermStarts) {
 
       log.info("publishCourseSites({} days before the term starts)", numDaysBeforeTermStarts);
 
-      Date today             = new Date();
-      Date publishDate       = null;
-      int  numSitesPublished = 0;
+      Date today                  = new Date();
+      Date publishDate            = null;
+      List<String> publishedSiteIds = new ArrayList<>();
 
       try {
          // get the list of the academic terms
@@ -138,14 +139,14 @@ public class CourseSitePublishServiceImpl extends HibernateDaoSupport implements
                      // if set to auto publish or unset default publish the site
                      if (publishTypeProperty == null || CourseManagementConstants.SITE_PUBLISH_TYPE_AUTO.equals(publishTypeProperty)) {
                            // publish the course site
-                           log.debug("publishing course site {} ({}).", site.getTitle(), site.getId());
+                           log.info("publishing course site {} ({}).", site.getTitle(), site.getId());
                            if (publishTypeProperty == null) {
                               // Set to auto for future
                               siteProperties.addProperty(CourseManagementConstants.SITE_PUBLISH_TYPE, CourseManagementConstants.SITE_PUBLISH_TYPE_AUTO);
                            }
                            site.setPublished(true);
                            siteService.save(site);
-                           numSitesPublished++;
+                           publishedSiteIds.add(siteId);
                      }
                   }
                }
@@ -154,7 +155,7 @@ public class CourseSitePublishServiceImpl extends HibernateDaoSupport implements
       } catch (Exception ex) {
          log.error(ex.getMessage(), ex);
       }
-      return numSitesPublished;
+      return publishedSiteIds;
    }
 
 

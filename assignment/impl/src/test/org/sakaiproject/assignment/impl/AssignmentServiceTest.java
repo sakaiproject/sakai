@@ -715,6 +715,12 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         Assert.assertEquals(assignment.getDropDeadDate(), duplicateAssignment.getDropDeadDate());
         Assert.assertEquals(assignment.getCloseDate(), duplicateAssignment.getCloseDate());
         Assert.assertEquals(assignment.getPosition(), duplicateAssignment.getPosition());
+
+        // Check on AssignmentConstants.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK
+        Assert.assertEquals(AssignmentConstants.GRADEBOOK_INTEGRATION_ADD, duplicateAssignment.getProperties().get(AssignmentConstants.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK));
+        duplicateAssignment.getProperties().remove(AssignmentConstants.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK);
+
+        // Check that the properties are the same
         Assert.assertEquals(
                 assignment.getProperties().entrySet().stream()
                         .filter(e -> !AssignmentServiceConstants.PROPERTIES_EXCLUDED_FROM_DUPLICATE_ASSIGNMENTS.contains(e.getKey()))

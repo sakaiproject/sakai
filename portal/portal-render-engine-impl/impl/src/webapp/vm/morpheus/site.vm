@@ -11,8 +11,10 @@
     #if (${sidebarCollapsed})
         #set ($sidebarCollapsedClass = "sidebar-collapsed")
         #set ($sidebarCollapseBtnTitle = $rloader.mainnav_btn_sidebar_expand)
+        #set ($portalNavSidebarIcon = "portal-nav-sidebar-icon-collapsed")
     #else
         #set ($sidebarCollapseBtnTitle = $rloader.mainnav_btn_sidebar_collapse)
+        #set ($portalNavSidebarIcon = "portal-nav-sidebar-icon")
     #end
 
 

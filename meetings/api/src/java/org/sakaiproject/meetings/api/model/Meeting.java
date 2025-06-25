@@ -67,12 +67,12 @@ public class Meeting {
     @Column(name = "meeting_site_id", length = 99)
     private String siteId;
     
-    @Column(name = "meeting_start_date")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss[.SSS]Z", timezone = "UTC")
+    @Column(name = "meeting_start_date", columnDefinition = "datetime(0)")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
     private Instant startDate;
-    
-    @Column(name = "meeting_end_date")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss[.SSS]Z", timezone = "UTC")
+
+    @Column(name = "meeting_end_date", columnDefinition = "datetime(0)")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
     private Instant endDate;
     
     @Column(name = "meeting_url", length = 255)

@@ -4,33 +4,41 @@
 <body>
 	<wicket:panel>
 
-		<div id="gradebookSorter" class="by-category" role="list" aria-dropeffect="move">
-			<span class="sr-only" wicket:message="aria-label:sortgradeitems.instructions">Instructions for sorting will go here.</span>
+		<div id="gradebookSorter" class="by-category" role="application">
+			<span id="sort-instructions" class="sr-only">
+				<wicket:message key="sortgradeitems.instructions">
+					Instructions for sorting categories will go here.
+				</wicket:message>
+			</span>
+
 			<input type="hidden" name="orderby" value="category"/>
-			<div wicket:id="categoriesList" class="gb-sorter-category" role="listitem">
+
+			<div wicket:id="categoriesList" class="gb-sorter-category" aria-level="1" role="listitem">
 				<input wicket:id="category_id" type="hidden"/>
 				<input wicket:id="category_order" type="hidden"/>
 				<input wicket:id="category_current_order" type="hidden"/>
 				<div class="d-flex align-items-center">
-					<a href="javascript:;"
-							class="me-2 category-drag-handle"
-							wicket:message="aria-label:sortgradeitems.sort_category_label_instruct">
-						<i class="si si-drag-handle"></i>
-					</a>
-					<h4 wicket:id="name"></h4>
+					<button type="button"
+							class="btn-transparent me-2 category-drag-handle"
+							aria-pressed="false"
+							aria-describedby="sort-instructions">
+						<span class="si si-drag-handle" aria-hidden="true"></span>
+						<span class="category-name h4" wicket:id="name"></span>
+					</button>
 				</div>
-				<ul role="list" aria-dropeffect="move">
-					<li wicket:id="gradeItemList" class="gb-sorter-sortable" role="listitem" aria-grabbed="false">
+				<ul>
+					<li wicket:id="gradeItemList" class="gb-sorter-sortable" aria-level="2">
 						<input wicket:id="id" type="hidden"/>
 						<input wicket:id="order" type="hidden"/>
 						<input wicket:id="current_order" type="hidden"/>
 						<div class="d-flex align-items-center">
-							<a href="javascript:;"
-									class="me-2 category-item-drag-handle"
-									wicket:message="aria-label:sortgradeitems.sort_item_label_instruct">
-								<i class="si si-drag-handle"></i>
-							</a>
-							<span wicket:id="name"></span>
+							<button type="button"
+									class="btn-transparent me-2 category-item-drag-handle"
+									aria-pressed="false"
+									aria-describedby="sort-instructions">
+								<span class="si si-drag-handle" aria-hidden="true"></span>
+								<span wicket:id="name"></span>
+							</button>
 						</div>
 					</li>
 				</ul>

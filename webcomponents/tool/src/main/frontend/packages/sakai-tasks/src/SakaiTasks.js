@@ -1,9 +1,11 @@
 import { css, html, nothing } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { SakaiPageableElement } from "@sakai-ui/sakai-pageable-element";
+import "../sakai-tasks-create-task.js";
 import "@sakai-ui/sakai-icon/sakai-icon.js";
 import { sakaiFormatDistance } from "@sakai-ui/sakai-date-fns";
 import * as constants from "./sakai-tasks-constants.js";
+import "@lion/ui/define/lion-dialog.js";
 
 export class SakaiTasks extends SakaiPageableElement {
 
@@ -65,20 +67,12 @@ export class SakaiTasks extends SakaiPageableElement {
         throw new Error(`Failed to get tasks from ${url}`);
 
       })
-      .then(async response => {
+      .then(data => {
 
-        this.data = response.tasks;
-        this._canAddTask = response.canAddTask;
-
-        if (this._canAddTask) {
-          await Promise.allSettled([
-            import("../sakai-tasks-create-task.js"),
-            import("@lion/ui/define/lion-dialog.js"),
-          ]);
-        }
-
-        this._canUpdateSite = response.canUpdateSite;
-        this._groups = response.groups;
+        this.data = data.tasks;
+        this._canAddTask = data.canAddTask;
+        this._canUpdateSite = data.canUpdateSite;
+        this._groups = data.groups;
         this.filter(constants.CURRENT);
       })
       .catch (error => console.error(error));
@@ -302,7 +296,7 @@ export class SakaiTasks extends SakaiPageableElement {
 
       <div id="controls">
         <div id="filter">
-          <select @change=${this.filterChanged} .value=${this._currentFilter} aria-label="${this._i18n.filter_label}">
+          <select class="w-100 mb-1" @change=${this.filterChanged} .value=${this._currentFilter} aria-label="${this._i18n.filter_label}">
             <option value="current">${this._i18n.filter_current}</option>
             <option value="${constants.PRIORITY_5}">${this._i18n.filter_priority_5}</option>
             <option value="${constants.PRIORITY_4}">${this._i18n.filter_priority_4}</option>
@@ -315,7 +309,7 @@ export class SakaiTasks extends SakaiPageableElement {
           </select>
         </div>
         <div id="sort">
-          <select @change=${this.sortChanged} aria-label="${this._i18n.sort_label}">
+          <select class="w-100 mb-3" @change=${this.sortChanged} aria-label="${this._i18n.sort_label}">
             <option value="none">${this._i18n.sort_none}</option>
             <option value="due_latest_first">${this._i18n.sort_due_latest_first}</option>
             <option value="due_earliest_first">${this._i18n.sort_due_earliest_first}</option>
@@ -434,10 +428,6 @@ export class SakaiTasks extends SakaiPageableElement {
           color: var(--button-primary-text-color);
         }
 
-      #controls {
-        display: flex;
-        margin-bottom: 10px;
-      }
         #filter {
           flex: 1;
         }

@@ -18,6 +18,7 @@ package org.sakaiproject.meetings.controller;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Locale;
@@ -406,8 +407,8 @@ public class MeetingsController {
 			// Meeting info
 			meeting = new Meeting();
 			BeanUtils.copyProperties(data, meeting);
-			meeting.setStartDate(Instant.parse(data.getStartDate()));
-			meeting.setEndDate(Instant.parse(data.getEndDate()));
+			meeting.setStartDate(Instant.parse(data.getStartDate()).truncatedTo(ChronoUnit.SECONDS));
+			meeting.setEndDate(Instant.parse(data.getEndDate()).truncatedTo(ChronoUnit.SECONDS));
 			meeting.setOwnerId(user.getId());
 			// Online meeting creation with the selected provider
 			String onlineMeetingId = null;
@@ -509,8 +510,8 @@ public class MeetingsController {
 			// Meeting info
 			meeting.setTitle(data.getTitle());
 			meeting.setDescription(data.getDescription());
-			meeting.setStartDate(Instant.parse(data.getStartDate()));
-			meeting.setEndDate(Instant.parse(data.getEndDate()));
+			meeting.setStartDate(Instant.parse(data.getStartDate()).truncatedTo(ChronoUnit.SECONDS));
+			meeting.setEndDate(Instant.parse(data.getEndDate()).truncatedTo(ChronoUnit.SECONDS));
 
 			List<String> coorganizerEmails = new ArrayList<>();
 			if (MS_TEAMS.equals(data.getProvider())) {

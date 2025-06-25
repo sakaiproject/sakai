@@ -5,8 +5,8 @@ import { elementUpdated, fixture, expect, html, waitUntil } from "@open-wc/testi
 import fetchMock from "fetch-mock/esm/client";
 
 import { ASSIGNMENT_A_TO_Z, ASSIGNMENT_Z_TO_A, COURSE_A_TO_Z
-  , COURSE_Z_TO_A, NEW_HIGH_TO_LOW, NEW_LOW_TO_HIGH
-  , AVG_LOW_TO_HIGH, AVG_HIGH_TO_LOW } from "../src/sakai-grades-constants.js";
+  , COURSE_Z_TO_A, UNGRADED_MOST_TO_LEAST, UNGRADED_LEAST_TO_MOST
+  , SCORE_LOW_TO_HIGH, SCORE_HIGH_TO_LOW } from "../src/sakai-grades-constants.js";
 
 describe("sakai-grades tests", () => {
 
@@ -42,23 +42,23 @@ describe("sakai-grades tests", () => {
     const filterSelect = el.shadowRoot.querySelector("#filter select");
     expect(filterSelect).to.exist;
 
-    filterSelect.value = NEW_LOW_TO_HIGH;
+    filterSelect.value = UNGRADED_LEAST_TO_MOST;
     filterSelect.dispatchEvent(new Event("change"));
     await el.updateComplete;
-    expect(el.shadowRoot.querySelector(".new-count")).to.exist;
-    expect(el.shadowRoot.querySelector(".new-count").innerHTML).to.contain(3);
-    let all = el.shadowRoot.querySelectorAll(".new-count");
+    expect(el.shadowRoot.querySelector(".ungraded-count")).to.exist;
+    expect(el.shadowRoot.querySelector(".ungraded-count").innerHTML).to.contain(3);
+    let all = el.shadowRoot.querySelectorAll(".ungraded-count");
     expect(all.item(all.length - 1).innerHTML).to.contain(8);
 
-    filterSelect.value = NEW_HIGH_TO_LOW;
+    filterSelect.value = UNGRADED_MOST_TO_LEAST;
     filterSelect.dispatchEvent(new Event("change"));
     await elementUpdated(el);
     await expect(el).to.be.accessible();
-    expect(el.shadowRoot.querySelector(".new-count").innerHTML).to.contain(8);
-    all = el.shadowRoot.querySelectorAll(".new-count");
+    expect(el.shadowRoot.querySelector(".ungraded-count").innerHTML).to.contain(8);
+    all = el.shadowRoot.querySelectorAll(".ungraded-count");
     expect(all.item(all.length - 1).innerHTML).to.contain(3);
 
-    filterSelect.value = AVG_LOW_TO_HIGH;
+    filterSelect.value = SCORE_LOW_TO_HIGH;
     filterSelect.dispatchEvent(new Event("change"));
 
     await elementUpdated(el);

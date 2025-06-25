@@ -56,6 +56,8 @@ public class RosterMember {
 
 	private final String userId;
 	private String eid;
+	private String firstName;
+	private String lastName;
 	private String displayId;
 	private String displayName;
 	private String sortName;

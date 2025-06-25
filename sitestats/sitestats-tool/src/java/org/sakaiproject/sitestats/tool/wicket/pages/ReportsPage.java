@@ -192,7 +192,7 @@ public class ReportsPage extends BasePage {
 			// icon
 			WebMarkupContainer icon = new WebMarkupContainer("icon");
 			if(mode == ReportDefsProvider.MODE_PREDEFINED_REPORTS) {
-				icon.add(new AttributeModifier("src", new Model(StatsManager.SILK_ICONS_DIR + "report.png")));
+				icon.add(new AttributeModifier("class", new Model("bi bi-file-earmark-bar-graph")));
 			}
 			add(icon);
 			

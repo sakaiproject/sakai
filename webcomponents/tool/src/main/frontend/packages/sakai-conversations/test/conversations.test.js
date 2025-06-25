@@ -1,37 +1,33 @@
 import "../sakai-conversations.js";
-import { elementUpdated, expect, fixture, html, waitUntil } from "@open-wc/testing";
+import { aTimeout, elementUpdated, expect, fixture, html, waitUntil } from "@open-wc/testing";
 import * as data from "./data.js";
 import fetchMock from "fetch-mock/esm/client";
 import * as constants from "../src/sakai-conversations-constants.js";
 
 describe("sakai-conversations tests", () => {
 
-  window.top.portal = { siteId: data.siteId, siteTitle: data.siteTitle, user: { id: "user1", timezone: "Europe/London" } };
+  window.top.portal = { user: { id: "user1", timezone: "Europe/London" } };
 
   beforeEach(() => {
-
-    fetchMock
-      .get(data.i18nUrl, data.i18n)
-      .get(`/api/sites/${data.siteId}/conversations`, data.data)
-      .get(/.*posts.*/, [], { overwriteRoutes: true });
+    fetchMock.get(data.i18nUrl, data.i18n);
   });
 
   afterEach(() => {
-
     fetchMock.restore();
-    data.data.searchEnabled = false;
-    data.data.isInstructor = false;
   });
 
   it ("renders add topic button correctly", async () => {
+
+    fetchMock.get(`/api/sites/${data.siteId}/conversations`, { ...data.data, canCreateTopic: true });
 
     const el = await fixture(html`
       <sakai-conversations site-id="${data.siteId}">
       </sakai-conversations>
     `);
 
-    await waitUntil(() => el._i18n);
     await waitUntil(() => el._data);
+
+    await elementUpdated(el);
 
     await expect(el).to.be.accessible({ ignoredRules: [ "duplicate-id" ] });
 
@@ -46,7 +42,7 @@ describe("sakai-conversations tests", () => {
 
   it ("renders guidelines correctly", async () => {
 
-    fetchMock.get(`/api/sites/${data.siteId}/conversations`, { ...data.data, showGuidelines: true }, { overwriteRoutes: true });
+    fetchMock.get(`/api/sites/${data.siteId}/conversations`, { ...data.data, showGuidelines: true });
 
     const el = await fixture(html`
       <sakai-conversations site-id="${data.siteId}">
@@ -68,6 +64,8 @@ describe("sakai-conversations tests", () => {
   });
 
   it ("renders loading data correctly", async () => {
+
+    fetchMock.get(`/api/sites/${data.siteId}/conversations`, data.data);
 
     const el = await fixture(html`
       <sakai-conversations site-id="${data.siteId}">
@@ -91,8 +89,7 @@ describe("sakai-conversations tests", () => {
   it("renders settings menu correctly for instructors", async () => {
 
     fetchMock.get(`/api/sites/${data.siteId}/conversations`,
-      { ...data.data, isInstructor: true, canUpdatePermissions: true, canEditTags: true, canViewSiteStatistics: true },
-      { overwriteRoutes: true });
+      { ...data.data, isInstructor: true, canUpdatePermissions: true, canEditTags: true });
 
     const el = await fixture(html`
       <sakai-conversations site-id="${data.siteId}">
@@ -118,10 +115,11 @@ describe("sakai-conversations tests", () => {
     expect(settingsMenu.textContent).to.include(el._i18n.general_settings);
     expect(settingsMenu.textContent).to.include(el._i18n.permissions);
     expect(settingsMenu.textContent).to.include(el._i18n.manage_tags);
-    expect(settingsMenu.textContent).to.include(el._i18n.statistics);
   });
 
   it("renders settings menu correctly for non-instructors", async () => {
+
+    fetchMock.get(`/api/sites/${data.siteId}/conversations`, data.data);
 
     const el = await fixture(html`
       <sakai-conversations site-id="${data.siteId}">
@@ -138,9 +136,8 @@ describe("sakai-conversations tests", () => {
   it("handles topic selection correctly", async () => {
 
     fetchMock
-      .get(`/api/sites/${data.siteId}/conversations`,
-        { ...data.data, topics: [ data.discussionTopic, data.questionTopic ] },
-        { overwriteRoutes: true });
+      .get(`/api/sites/${data.siteId}/conversations`, { ...data.data, topics: [ data.discussionTopic, data.questionTopic ] })
+      .get(/.*posts.*/, []);
 
     const el = await fixture(html`
       <sakai-conversations site-id="${data.siteId}">
@@ -170,7 +167,8 @@ describe("sakai-conversations tests", () => {
 
   it("handles adding a new topic correctly", async () => {
 
-    fetchMock.get("*", {});
+    fetchMock
+      .get(`/api/sites/${data.siteId}/conversations`, data.data)
 
     const el = await fixture(html`
       <sakai-conversations site-id="${data.siteId}">
@@ -192,10 +190,10 @@ describe("sakai-conversations tests", () => {
 
   it("handles search functionality correctly", async () => {
 
-    data.data.searchEnabled = true;
+    fetchMock.get(`/api/sites/${data.siteId}/conversations`, { ...data.data, searchEnabled: true });
 
     // TODO: this should not need to be set to use search!
-    data.data.isInstructor = true;
+    //data.data.isInstructor = true;
 
     const el = await fixture(html`
       <sakai-conversations site-id="${data.siteId}">
@@ -218,6 +216,10 @@ describe("sakai-conversations tests", () => {
   });
 
   it("handles topic saving correctly", async () => {
+
+    fetchMock
+      .get(`/api/sites/${data.siteId}/conversations`, data.data)
+      .get(/.*posts.*/, []);
 
     const el = await fixture(html`
       <sakai-conversations site-id="${data.siteId}">
@@ -250,7 +252,7 @@ describe("sakai-conversations tests", () => {
 
   it("handles topic editing correctly", async () => {
 
-    fetchMock.get("*", {});
+    fetchMock.get(`/api/sites/${data.siteId}/conversations`, data.data)
 
     const el = await fixture(html`
       <sakai-conversations site-id="${data.siteId}">
@@ -276,5 +278,38 @@ describe("sakai-conversations tests", () => {
     // Check if topic was added to the list and selected
     expect(el._topicBeingEdited).to.equal(mockTopic);
     expect(el._state).to.equal(constants.STATE_ADDING_TOPIC);
+  });
+
+  it("hides the stats button correctly", async () => {
+
+    fetchMock.get(`/api/sites/${data.siteId}/conversations`, data.data);
+
+    const el = await fixture(html`
+      <sakai-conversations site-id="${data.siteId}">
+      </sakai-conversations>
+    `);
+
+    await waitUntil(() => el._i18n);
+    await waitUntil(() => el._data);
+
+    expect(el.querySelector("#conv-stats-button")).to.not.exist;
+  });
+
+  it("displays the stats button correctly", async () => {
+
+    fetchMock
+      .get(`/api/sites/${data.siteId}/conversations`, { ...data.data, canViewStatistics: true });
+
+    const el = await fixture(html`
+      <sakai-conversations site-id="${data.siteId}">
+      </sakai-conversations>
+    `);
+
+    await waitUntil(() => el._i18n);
+    await waitUntil(() => el._data);
+
+    await expect(el).to.be.accessible({ ignoredRules: [ "duplicate-id" ] });
+
+    expect(el.querySelector("#conv-stats-button")).to.exist;
   });
 });

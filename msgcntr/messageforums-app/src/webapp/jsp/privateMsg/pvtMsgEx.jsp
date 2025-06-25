@@ -51,21 +51,17 @@
 		  </h:column>
 		  <h:column>
 		    <f:facet name="header">
-		        <h:graphicImage value="/images/attachment.gif"
-		                        title="#{msgs.sort_attachment}"
-		                        alt="#{msgs.sort_attachment}" />
+		        <h:outputText value="" styleClass="bi bi-paperclip" escape="false" />
+				<h:outputText value="#{msgs.sort_attachment}" styleClass="sr-only" />
 			</f:facet>
-			<h:graphicImage value="/images/attachment.gif" rendered="#{rcvdItems.msg.hasAttachments}" alt="#{msgs.msg_has_attach}" />
+			<h:outputText value="" styleClass="bi bi-paperclip" escape="false" rendered="#{rcvdItems.msg.hasAttachments}" />
 		  </h:column>
 		  <h:column>
 		    <f:facet name="header">
-			<h:graphicImage value="/images/replied_menu.png"
-		                        title="#{msgs.pvt_msgs_replied}"
-		                        alt="#{msgs.pvt_msgs_replied}" />
+		        <h:outputText value="" styleClass="bi bi-flag-fill" escape="false" />
+				<h:outputText value="#{msgs.pvt_msgs_replied}" styleClass="sr-only" />
 			</f:facet>
-			<h:graphicImage value="/images/replied_flag.png" rendered="#{rcvdItems.replied}"
-								title="#{msgs.pvt_replied}"
-								alt="#{msgs.pvt_replied}" />
+			<h:outputText value="" styleClass="bi bi-flag-fill" escape="false" rendered="#{rcvdItems.replied}" />
 		  </h:column>
 		  <h:column>
 		    <f:facet name="header">

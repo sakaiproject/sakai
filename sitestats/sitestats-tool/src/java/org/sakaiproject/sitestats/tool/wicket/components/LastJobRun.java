@@ -91,7 +91,7 @@ public class LastJobRun extends Panel {
 				StringResourceModel model = new StringResourceModel("lastJobRun_server_time").setParameters(localSakaiName, serverDateStr);
 				lastJobRunServerDate.setDefaultModel(model);
 
-				ExternalImage lastJobRunImage = new ExternalImage("lastJobRunImage", "/library/image/silk/information.png");
+				WebMarkupContainer lastJobRunImage = new WebMarkupContainer("lastJobRunImage");
 				lastJobRunImage.add(new AttributeModifier("title", new ResourceModel("info_last_update")));
 				lastJobRun.add(lastJobRunImage);
 

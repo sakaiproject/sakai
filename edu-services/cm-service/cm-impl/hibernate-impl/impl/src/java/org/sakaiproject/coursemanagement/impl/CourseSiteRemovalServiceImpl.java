@@ -109,11 +109,11 @@ public class CourseSiteRemovalServiceImpl extends HibernateDaoSupport implements
     * @param action                 whether to delete the course site or to simply unpublish it.
     * @param numDaysAfterTermEnds   number of days after a term ends when course sites expire.
     * </br></br>
-    * @return the number of course sites that were removed\\unpublished.
+    * @return the list of course site IDs that were removed\\unpublished.
     */
 
     @Override
-    public int removeCourseSites(CourseSiteRemovalService.Action action, int numDaysAfterTermEnds) {
+    public List<String> removeCourseSites(CourseSiteRemovalService.Action action, int numDaysAfterTermEnds) {
 
        log.info("removeCourseSites({} course sites, {} days after the term ends)", action, numDaysAfterTermEnds);
        Date today           = new Date();
@@ -127,18 +127,18 @@ public class CourseSiteRemovalServiceImpl extends HibernateDaoSupport implements
        // get the list of the academic term(s)
        List<AcademicSession> academicSessions = courseManagementService.getAcademicSessions();
 
-       int numSitesRemoved = 0;
+       List<String> removedSiteIds = new ArrayList<>();
        for (AcademicSession academicSession : academicSessions) {
           // see if the academic session ended more than the specified number of days ago
           if (academicSession.getEndDate().getTime() < expirationDate.getTime()) {
              // get a list of all published course sites in ascending creation date order which are associated with the specified academic session
              Map<String, String> propertyCriteria = new HashMap<>();
              propertyCriteria.put("term_eid", academicSession.getEid());
-             numSitesRemoved += removeCourseSitesWithCriteria(action, propertyCriteria, expirationDate);
+             removedSiteIds.addAll(removeCourseSitesWithCriteria(action, propertyCriteria, expirationDate));
           }
        }
 
-       return numSitesRemoved;
+       return removedSiteIds;
     }
 
     /**
@@ -148,11 +148,11 @@ public class CourseSiteRemovalServiceImpl extends HibernateDaoSupport implements
      * @param action action to perform: remove / unpublish (default: unpublish)
      * @param propertyCriteria map of propertyCriteria for SiteService.getSites(...)
      * @param expirationDate sessions are considered expired if they fall before this date
-     * @return the number of sites that were successfully removed
+     * @return the list of site IDs that were successfully removed
      */
-    private int removeCourseSitesWithCriteria(CourseSiteRemovalService.Action action, Map<String, String> propertyCriteria, Date expirationDate) {
+    private List<String> removeCourseSitesWithCriteria(CourseSiteRemovalService.Action action, Map<String, String> propertyCriteria, Date expirationDate) {
 
-        int numSitesRemoved = 0;
+        List<String> removedSiteIds = new ArrayList<>();
 
         // select published / non-deleted sites only:
         // SelectionType: id=any, ignoreSpecial=false, ignoreUser=false, ignoreUnpublished=true, ignoreSoftlyDeleted=true
@@ -206,12 +206,12 @@ public class CourseSiteRemovalServiceImpl extends HibernateDaoSupport implements
                 // check permissions
                 if (action == CourseSiteRemovalService.Action.remove) {
                     // remove the course site
-                    log.debug("{} removing course site {} ({}).", action, site.getTitle(), site.getId());
+                    log.info("{} removing course site {} ({}).", action, site.getTitle(), site.getId());
                     siteService.removeSite(site);
-                    numSitesRemoved++;
+                    removedSiteIds.add(siteId);
                 } else {
                     // unpublish the course site (default)
-                    log.debug("unpublishing course site {}", siteId);
+                    log.info("unpublishing course site {}", siteId);
 
                     if (silentlyUnpublish) {
                         toUnpublish.add(siteId);
@@ -219,7 +219,7 @@ public class CourseSiteRemovalServiceImpl extends HibernateDaoSupport implements
                         // Unpublish the site and commit site property addition
                         site.setPublished(false);
                         siteService.save(site);
-                        numSitesRemoved++;
+                        removedSiteIds.add(siteId);
                     }
                 }
                 
@@ -246,11 +246,11 @@ public class CourseSiteRemovalServiceImpl extends HibernateDaoSupport implements
 
             // Add site property on sites
             siteService.saveSitePropertyOnSites(SITE_PROPERTY_COURSE_SITE_REMOVAL, "set", toUnpublish.toArray(new String[toUnpublish.size()]));
-            numSitesRemoved += toUnpublish.size();
+            removedSiteIds.addAll(toUnpublish);
             log.info("{} sites unpublished.", toUnpublish.size());
         }
 
-        return numSitesRemoved;
+        return removedSiteIds;
     }
 
     /**

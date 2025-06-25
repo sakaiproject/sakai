@@ -614,7 +614,7 @@
               <input class="bold" type="submit" id="mm-test" rsf:id="mm-test" />
               <input class="bold" type="submit" id="mm-add-item" rsf:id="mm-add-item" />
               <input type="button" class="bold mm-test-reset" rsf:id="mm-test-start-over" />
-              <input type="submit" rsf:id="mm-cancel" onclick="closeAddMultimediaDialog(); return false" />
+              <input type="submit" rsf:id="mm-cancel" onclick="xCloseAddMultimediaDialog(); return false;" />
               <input type="hidden" rsf:id="mm-item-id" id="mm-item-id" />
               <input type="hidden" rsf:id="mm-add-before" id="mm-add-before" />
               <input type="hidden" rsf:id="mm-is-mm" id="mm-is-mm" />
@@ -2965,7 +2965,7 @@
                   <div class="studentDiv" rsf:id="studentDiv">
                     <div rsf:id="item-group-titles7" class="item-group-titles"></div>
                     <div class="studentContentTable" rsf:id="studentContentTable" role="list">
-                      <img src="/library/image/silk/page_white_stack.png" class="item-image student-image" />
+                      <span class="bi bi-file-earmark-text item-image student-image" aria-hidden="true"></span>
                       <h3 class="studentContentTitle" rsf:id="studentContentTitle" id="studentContentTitle"></h3>
                       <div rsf:id="studentRow:" class="studentRow" role="listitem">
                         <span rsf:id="newPageImg" aria-hidden="true" class="fa-file-o fa-fw"></span>
@@ -3140,7 +3140,7 @@
                     </div>
 
                     <div class="contentCol">
-                      <img src="/library/image/silk/text_list_bullets.png" class="item-image question-image" />
+                      <span class="bi bi-list-ul item-image question-image" aria-hidden="true"></span>
                       <span class="lb-offscreen" rsf:id="questionNote"></span>
                       <div class="questionText fs-4 fw-bold" rsf:id="questionText"></div>
                       <div class="multiplechoiceDiv" rsf:id="multipleChoiceDiv">

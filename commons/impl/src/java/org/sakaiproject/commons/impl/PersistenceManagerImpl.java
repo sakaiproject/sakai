@@ -288,21 +288,22 @@ public class PersistenceManagerImpl implements PersistenceManager {
     }
 
     public int countPostLikes(String postId){
-        int likes =  sqlService.dbRead(LIKE_COUNT, new Object[]{postId}, new SqlReader<Integer>(){
+        Integer likes =  sqlService.dbRead(LIKE_COUNT, new Object[]{postId}, new SqlReader<Integer>(){
             public Integer readSqlResultRecord(ResultSet result) {
                 try{
                     return result.getInt("COUNT(POST_ID)");
                 } catch (SQLException s){
+                    log.error("Failed to count likes for post: {}", postId, s);
                     return null;
                 }
             }
         }).get(0);
-        return likes;
+        return (likes == null) ? 0 : likes;
     }
 
     public int doesUserLike(String postId, String userId){
         PostLike likeRecord = getLike(postId, userId);
-        return likeRecord.isLiked() ? 1 : 0;
+        return likeRecord != null && likeRecord.isLiked() ? 1 : 0;
     }
 
     public List<PostLike> getAllUserLikes(String userId){
@@ -355,7 +356,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
         if (commons.size() > 0) {
             return commons.get(0);
         } else {
-            log.warn("No commons for id '" + commonsId + "'. Returning null ...");
+            log.warn("No commons for id '{}'. Returning null ...", commonsId);
             return null;
         }
     }

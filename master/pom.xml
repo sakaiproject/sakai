@@ -26,7 +26,7 @@
     <sakai.commons-io.version>2.19.0</sakai.commons-io.version>
     <sakai.commons.lang.version>2.6</sakai.commons.lang.version>
     <sakai.commons.lang3.version>3.17.0</sakai.commons.lang3.version>
-    <sakai.commons.fileupload.version>1.5</sakai.commons.fileupload.version>
+    <sakai.commons.fileupload.version>1.6.0</sakai.commons.fileupload.version>
     <sakai.commons-math3.version>3.6.1</sakai.commons-math3.version>
     <sakai.commons-text.version>1.13.1</sakai.commons-text.version>
     <sakai.commons-validator.version>1.7</sakai.commons-validator.version>
@@ -41,7 +41,7 @@
     <sakai.httpclient.version>4.5.14</sakai.httpclient.version>
     <sakai.httpcore.version>4.4.16</sakai.httpcore.version>
     <sakai.httpmime.version>4.5.14</sakai.httpmime.version>
-    <sakai.httpclient5.version>5.4.4</sakai.httpclient5.version>
+    <sakai.httpclient5.version>5.5</sakai.httpclient5.version>
     <sakai.httpcore5.version>5.3.4</sakai.httpcore5.version>
     <sakai.ignite.version>2.17.0</sakai.ignite.version>
     <sakai.ignite.spring.ext.version>2.0.0</sakai.ignite.spring.ext.version>
@@ -72,7 +72,7 @@
     <sakai.spring.hateoas.version>1.5.6</sakai.spring.hateoas.version>
     <sakai.spring.plugin.version>2.0.0.RELEASE</sakai.spring.plugin.version>
     <sakai.tika.version>3.0.0-BETA</sakai.tika.version>
-    <sakai.tomcat.version>9.0.104</sakai.tomcat.version>
+    <sakai.tomcat.version>9.0.106</sakai.tomcat.version>
     <sakai.thymeleaf.version>3.0.15.RELEASE</sakai.thymeleaf.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
     <sakai.log4j.version>2.24.3</sakai.log4j.version>
@@ -2621,12 +2621,12 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>3.5.2</version>
+          <version>3.5.3</version>
           <dependencies>
             <dependency>
               <groupId>org.apache.maven.surefire</groupId>
               <artifactId>surefire-junit4</artifactId>
-              <version>3.5.2</version>
+              <version>3.5.3</version>
             </dependency>
           </dependencies>
         </plugin>
@@ -2687,7 +2687,7 @@
         <plugin>
           <groupId>com.github.spotbugs</groupId>
           <artifactId>spotbugs-maven-plugin</artifactId>
-          <version>4.8.6.2</version>
+          <version>4.9.3.0</version>
          <configuration>
             <spotbugsXmlOutput>true</spotbugsXmlOutput>
             <xmlOutput>true</xmlOutput>
@@ -2698,7 +2698,7 @@
             <dependency>
               <groupId>com.github.spotbugs</groupId>
               <artifactId>spotbugs</artifactId>
-               <version>4.8.6</version>
+               <version>4.9.3</version>
              </dependency>
           </dependencies>
         </plugin>
@@ -2738,7 +2738,7 @@
         <plugin>
             <groupId>com.mycila</groupId>
             <artifactId>license-maven-plugin</artifactId>
-            <version>4.6</version>
+            <version>5.0.0</version>
             <configuration>
                 <licenseSets>
                     <licenseSet>
@@ -2766,7 +2766,7 @@
                 <dependency>
                     <groupId>com.mycila</groupId>
                     <artifactId>license-maven-plugin-git</artifactId>
-                    <version>4.6</version>
+                    <version>5.0.0</version>
                 </dependency>
             </dependencies>
         </plugin>

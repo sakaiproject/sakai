@@ -6,21 +6,15 @@ import "../sakai-rubric-pdf.js";
 export class SakaiRubricReadonly extends SakaiRubric {
 
   static properties = {
-
-    rubric: { type: Object },
     isSuperUser: { attribute: "is-super-user", type: Boolean },
-    enablePdfExport: { attribute: "enable-pdf-export", type: Boolean },
   };
-
-  shouldUpdate() { return super.shouldUpdate() && this.rubric; }
 
   render() {
 
     return html`
       <div class="rubric-title">
         <div>
-          <button class="btn btn-icon"
-              id="rubric-toggle-shared-${this.rubric.id}"
+          <button class="btn btn-icon rubric-toggle"
               data-bs-toggle="collapse"
               data-bs-target="#rubric-collapse-shared-${this.rubric.id}"
               aria-controls="rubric-collapse-shared-${this.rubric.id}"
@@ -96,9 +90,11 @@ export class SakaiRubricReadonly extends SakaiRubric {
       </div>
 
       <div class="collapse" id="rubric-collapse-shared-${this.rubric.id}">
+        ${this._renderCriteria ? html`
         <div class="rubric-details style-scope sakai-rubric">
           <sakai-rubric-criteria-readonly .criteria="${this.rubric.criteria}" .weighted=${this.rubric.weighted}></sakai-rubric-criteria-readonly>
         </div>
+        ` : nothing}
       </div>
     `;
   }

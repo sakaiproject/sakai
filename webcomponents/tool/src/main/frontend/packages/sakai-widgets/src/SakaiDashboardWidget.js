@@ -72,7 +72,7 @@ export class SakaiDashboardWidget extends SakaiShadowElement {
                     @click=${this.moveUp}
                     title="${this._baseI18n.up}"
                     arial-label="${this._baseI18n.up}">
-                  <i class="si si-up fs-6"></i>
+                  <span class="si si-up fs-6" aria-hidden="true"></span>
                 </button>
               </div>
               <div class="${ifDefined(this.disableRightAndDown ? "d-none" : undefined)}">
@@ -81,7 +81,7 @@ export class SakaiDashboardWidget extends SakaiShadowElement {
                     @click=${this.moveDown}
                     title="${this._baseI18n.down}"
                     arial-label="${this._baseI18n.down}">
-                  <i class="si si-down fs-6"></i>
+                  <span class="si si-down fs-6" aria-hidden="true"></span>
                 </button>
               </div>
               <div class="${ifDefined(this.disableLeftAndUp ? "d-none" : undefined)}">
@@ -90,7 +90,7 @@ export class SakaiDashboardWidget extends SakaiShadowElement {
                     @click=${this.moveLeft}
                     title="${this._baseI18n.left}"
                     arial-label="${this._baseI18n.left}">
-                  <i class="si si-left fs-6"></i>
+                  <span class="si si-left fs-6" aria-hidden="true"></span>
                 </button>
               </div>
               <div class="${ifDefined(this.disableRightAndDown ? "d-none" : undefined)}">
@@ -99,16 +99,16 @@ export class SakaiDashboardWidget extends SakaiShadowElement {
                     @click=${this.moveRight}
                     title="${this._baseI18n.right}"
                     arial-label="${this._baseI18n.right}">
-                  <i class="si si-right fs-6"></i>
+                  <span class="si si-right fs-6" aria-hidden="true"></span>
                 </button>
               </div>
               <div>
                 <button type="button"
-                    class="btn btn-icon btn-sm"
+                    class="btn btn-icon btn-sm bg-danger"
                     @click=${this.remove}
                     title="${this._baseI18n.remove} ${this.title}"
                     aria-label="${this._baseI18n.remove} ${this.title}">
-                  <i class="si si-close fs-6 text-danger"></i>
+                  <span class="si si-close fs-6" aria-hidden="true"></span>
                 </button>
               </div>
             </div>
@@ -172,10 +172,13 @@ export class SakaiDashboardWidget extends SakaiShadowElement {
       #widget-mover {
         display: flex;
       }
-        #widget-mover div {
-          padding: 5px;
-          flex: 1;
-        }
+      #widget-mover .btn {
+        --bs-btn-color: var(--sakai-text-color-2);
+      }
+      #widget-mover div {
+        padding: 5px;
+        flex: 1;
+      }
     `
   ];
 }

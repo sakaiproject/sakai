@@ -1,13 +1,11 @@
 import { css, html } from "lit";
-import { SakaiDialogContent } from "@sakai-ui/sakai-dialog-content";
+import { SakaiShadowElement } from "@sakai-ui/sakai-element";
 import Cropper from "cropperjs";
 import { cropperStyles } from "./cropperStyles.js";
 
-export class SakaiImageEditor extends SakaiDialogContent {
+export class SakaiImageEditor extends SakaiShadowElement {
 
-  static properties = {
-    imageUrl: { attribute: "image-url", type: String },
-  };
+  static properties = { imageUrl: { attribute: "image-url", type: String } };
 
   constructor() {
 
@@ -16,11 +14,10 @@ export class SakaiImageEditor extends SakaiDialogContent {
     this.loadTranslations("image-editor");
   }
 
-  title() { return this._i18n.title; }
-
-  updated() {
+  firstUpdated() {
 
     const image = this.shadowRoot.getElementById("image");
+
     this.cropper = new Cropper(image, {
       aspectRatio: 509 / 293,
       checkCrossOrigin: false,
@@ -47,7 +44,6 @@ export class SakaiImageEditor extends SakaiDialogContent {
       const url = URL.createObjectURL(blob);
       this.dispatchEvent(new CustomEvent("image-edited", { detail: { url, blob }, composed: true, bubbles: true }));
     }, "image/webp", 0.75);
-    this.close();
   }
 
   zoomIn() { this.cropper.zoom(0.1); }
@@ -69,11 +65,15 @@ export class SakaiImageEditor extends SakaiDialogContent {
     this.cropper.crop();
   }
 
-  content() {
+  shouldUpdate(changed) {
+    return this._i18n && this.imageUrl && super.shouldUpdate(changed);
+  }
+
+  render() {
 
     return html`
       <input type="file" accept="image/*" aria-label="${this._i18n.image_picker_label}" @change=${this.filePicked} />
-      <img id="image" src="${this.imageUrl}" width="200" />
+      <div><img id="image" src="${this.imageUrl}" /></div>
       <div id="controls">
         <sakai-button @click=${this.zoomIn} type="small" title="${this._i18n.zoom_in}" arial-label="${this._i18n.zoom_in}">
           <sakai-icon type="add"></sakai-icon>
@@ -97,22 +97,12 @@ export class SakaiImageEditor extends SakaiDialogContent {
           <sakai-icon type="refresh"></sakai-icon>
         </sakai-button>
       </div>
+      <button type="button" class="btn btn-primary mt-2" @click=${this.done} primary>${this._i18n.done}</button>
     `;
-  }
-
-  buttons() {
-
-    return html`
-      <sakai-button @click=${this.done} primary>Done</sakai-button>
-    `;
-  }
-
-  shouldUpdate(changed) {
-    return this._i18n && this.imageUrl && super.shouldUpdate(changed);
   }
 
   static styles = [
-    SakaiDialogContent.styles,
+    SakaiShadowElement.styles,
     cropperStyles,
     css`
       input[type='file'] {
@@ -123,6 +113,9 @@ export class SakaiImageEditor extends SakaiDialogContent {
       }
       #controls sakai-button {
         margin: 0;
+      }
+      #image {
+        max-width: 100%;
       }
     `
   ];
