@@ -134,16 +134,10 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
   set _submission(newValue) {
 
-    // If switching to a different submission, handle cleanup
-    if (newValue.id !== this._submission?.id) {
-      // Cancel any unsaved changes first
-      if (this.modified) {
-        this._cancel();
-      }
-      // Close inline editor if open
-      if (this._inlineFeedbackEditorShowing) {
-        this._toggleInlineFeedback(null, true); // Pass true for cancelling
-      }
+    // If switching submissions and the inline editor for the PREVIOUS submission is open,
+    // close and destroy it by simulating a cancel action.
+    if (newValue.id !== this._submission?.id && this._inlineFeedbackEditorShowing) {
+      this._toggleInlineFeedback(null, true); // Pass true for cancelling
     }
 
     if (!this._nonEditedSubmission || newValue.id !== this._nonEditedSubmission.id) {
@@ -180,6 +174,12 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
     this.querySelector("sakai-rubric-grading")?.setAttribute("evaluated-item-id", this.__submission.id);
     this.requestUpdate();
+
+    // Ensure form controls are synchronized with the new submission data
+    // This handles cases where browser form control state diverges from reactive properties
+    this.updateComplete.then(() => {
+      this._syncFormControlsWithSubmission();
+    });
 
     if (this.gradable.allowPeerAssessment) {
       this.updateComplete.then(() => (new bootstrap.Popover(this.querySelector("#peer-info"))));
@@ -560,23 +560,9 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     });
   }
 
-  _cancel() {
-
-    const originalSubmission = Object.create(this.originalSubmissions.find(os => os.id === this._submission.id));
-    const i = this._submissions.findIndex(s => s.id === this._submission.id);
-    this._submissions.splice(i, 1, originalSubmission);
-    this._submission = this._submissions[i];
-
-    if (this.feedbackCommentEditor) {
-      this.feedbackCommentEditor.setData(this._submission.feedbackComment, () => this.feedbackCommentEditor.resetDirty());
-    }
-
-    if (this.privateNotesEditor) {
-      this.privateNotesEditor.setData(this._submission.privateNotes, () => this.privateNotesEditor.resetDirty());
-    }
-
-    this.modified = false;
-
+  _syncFormControlsWithSubmission() {
+    // Synchronize all form controls with the current submission data
+    // This ensures that browser form control state matches the reactive properties
     switch (this.gradeScale) {
       case SCORE_GRADE_TYPE: {
         const input = document.getElementById("score-grade-input");
@@ -600,6 +586,27 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
       }
       default:
     }
+  }
+
+  _cancel() {
+
+    const originalSubmission = Object.create(this.originalSubmissions.find(os => os.id === this._submission.id));
+    const i = this._submissions.findIndex(s => s.id === this._submission.id);
+    this._submissions.splice(i, 1, originalSubmission);
+    this._submission = this._submissions[i];
+
+    if (this.feedbackCommentEditor) {
+      this.feedbackCommentEditor.setData(this._submission.feedbackComment, () => this.feedbackCommentEditor.resetDirty());
+    }
+
+    if (this.privateNotesEditor) {
+      this.privateNotesEditor.setData(this._submission.privateNotes, () => this.privateNotesEditor.resetDirty());
+    }
+
+    this.modified = false;
+
+    // Use the centralized form sync method
+    this._syncFormControlsWithSubmission();
 
     const offcanvasInstance = bootstrap.Offcanvas.getInstance(document.getElementById("grader"));
     if (offcanvasInstance) {
@@ -666,6 +673,15 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
   _previous() {
 
+    // Check for unsaved changes before navigating
+    if (this.modified) {
+      if (!confirm(this._i18n.unsaved_changes_warning)) {
+        return;
+      }
+      // User confirmed - discard the unsaved changes
+      this._cancel();
+    }
+
     const currentIndex = this._submissions.findIndex(s => s.id === this._submission.id);
 
     if (currentIndex >= 1) {
@@ -691,6 +707,17 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
   _studentSelected(e) {
 
+    // Check for unsaved changes before navigating
+    if (this.modified && e.target.value !== this._submission.id) {
+      if (!confirm(this._i18n.unsaved_changes_warning)) {
+        // Reset the select to the current submission
+        e.target.value = this._submission.id;
+        return;
+      }
+      // User confirmed - discard the unsaved changes
+      this._cancel();
+    }
+
     const selectedSubmission = this._submissions.find(s => s.id === e.target.value);
     if (!selectedSubmission) {
       console.error("Selected submission not found in filtered submissions");
@@ -711,6 +738,15 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
   }
 
   _next() {
+
+    // Check for unsaved changes before navigating
+    if (this.modified) {
+      if (!confirm(this._i18n.unsaved_changes_warning)) {
+        return;
+      }
+      // User confirmed - discard the unsaved changes
+      this._cancel();
+    }
 
     const currentIndex = this._submissions.findIndex(s => s.id === this._submission.id);
 

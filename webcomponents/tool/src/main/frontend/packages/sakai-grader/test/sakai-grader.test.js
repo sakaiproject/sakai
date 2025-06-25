@@ -241,6 +241,10 @@ describe("sakai-grader tests", () => {
     // This modifies the current submission's grade to "88"
     expect(el._submission.grade).to.equal("88");
 
+    // Mock the confirm dialog to return true (user wants to proceed without saving)
+    const originalConfirm = window.confirm;
+    window.confirm = () => true;
+
     // Now navigate to the second student
     const submitterSelect = el.querySelector("#grader-submitter-select");
     submitterSelect.value = submissions[1].id;
@@ -248,18 +252,22 @@ describe("sakai-grader tests", () => {
 
     await elementUpdated(el);
 
+    // Restore original confirm
+    window.confirm = originalConfirm;
+
     // The grade input should now show the second student's grade, not the user's typed value
     expect(gradeInput.value).to.equal("92");
     expect(el._submission.grade).to.equal("92");
 
-    // Navigate back to the first student - this should show the ORIGINAL grade (85), not the user-typed value (88)
+    // Navigate back to the first student - with save confirmation, the user's typed value should persist
+    // until they explicitly save or cancel
     submitterSelect.value = submissions[0].id;
     submitterSelect.dispatchEvent(new Event("change", { bubbles: true }));
 
     await elementUpdated(el);
 
-    // The key test: when we go back to the first student, we should see their original grade
-    // NOT the value that was typed by the user, because we didn't save the changes
+    // With save confirmation approach: after discarding changes with _cancel(), 
+    // the original grade should be restored
     expect(gradeInput.value).to.equal("85");
     expect(el._submission.grade).to.equal("85");
   });
