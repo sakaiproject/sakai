@@ -352,6 +352,8 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 
 						final WebMarkupContainer gradeScore = new WebMarkupContainer("gradeScore");
 						if (Objects.equals(GradingConstants.GRADE_TYPE_PERCENTAGE, gradeType)) {
+							// For percentage gradebooks, show just the percentage (e.g., "80%")
+							// Don't show the relative weight as it's confusing to students
 							gradeScore.add(new Label("grade",
 									new StringResourceModel("label.percentage.valued")
 											.setParameters(FormatHelper.formatGrade(rawGrade))) {
@@ -361,6 +363,7 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 								}
 							});
 
+							// Hide the "/22" relative weight part for percentage gradebooks
 							gradeScore.add(new Label("outOf").setVisible(false));
 
 							final WebMarkupContainer sakaiRubricButton = new WebMarkupContainer("sakai-rubric-student-button");
@@ -386,6 +389,7 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 
 							gradeScore.add(sakaiRubricButton);
 						} else {
+							// For points/letter gradebooks, show grade with "out of" points
 							gradeScore.add(
 									new Label("grade", FormatHelper.convertEmptyGradeToDash(FormatHelper.formatGradeForDisplay(rawGrade))));
 							gradeScore.add(new Label("outOf",
