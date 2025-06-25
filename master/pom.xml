@@ -2621,12 +2621,12 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>3.5.2</version>
+          <version>3.5.3</version>
           <dependencies>
             <dependency>
               <groupId>org.apache.maven.surefire</groupId>
               <artifactId>surefire-junit4</artifactId>
-              <version>3.5.2</version>
+              <version>3.5.3</version>
             </dependency>
           </dependencies>
         </plugin>
@@ -2687,7 +2687,7 @@
         <plugin>
           <groupId>com.github.spotbugs</groupId>
           <artifactId>spotbugs-maven-plugin</artifactId>
-          <version>4.8.6.2</version>
+          <version>4.9.3.0</version>
          <configuration>
             <spotbugsXmlOutput>true</spotbugsXmlOutput>
             <xmlOutput>true</xmlOutput>
@@ -2698,7 +2698,7 @@
             <dependency>
               <groupId>com.github.spotbugs</groupId>
               <artifactId>spotbugs</artifactId>
-               <version>4.8.6</version>
+               <version>4.9.3</version>
              </dependency>
           </dependencies>
         </plugin>
@@ -2738,7 +2738,7 @@
         <plugin>
             <groupId>com.mycila</groupId>
             <artifactId>license-maven-plugin</artifactId>
-            <version>4.6</version>
+            <version>5.0.0</version>
             <configuration>
                 <licenseSets>
                     <licenseSet>
@@ -2766,7 +2766,7 @@
                 <dependency>
                     <groupId>com.mycila</groupId>
                     <artifactId>license-maven-plugin-git</artifactId>
-                    <version>4.6</version>
+                    <version>5.0.0</version>
                 </dependency>
             </dependencies>
         </plugin>
