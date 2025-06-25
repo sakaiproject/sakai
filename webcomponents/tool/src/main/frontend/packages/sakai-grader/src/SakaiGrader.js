@@ -173,7 +173,6 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     }
 
     this.querySelector("sakai-rubric-grading")?.setAttribute("evaluated-item-id", this.__submission.id);
-    this.requestUpdate();
 
     if (this.gradable.allowPeerAssessment) {
       this.updateComplete.then(() => (new bootstrap.Popover(this.querySelector("#peer-info"))));
@@ -551,7 +550,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     });
   }
 
-  _cancel() {
+  _cancel(toggle = true) {
 
     const originalSubmission = Object.create(this.originalSubmissions.find(os => os.id === this._submission.id));
     const i = this._submissions.findIndex(s => s.id === this._submission.id);
@@ -570,7 +569,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
     this._resetGradeInputs();
 
-    this._toggleGrader();
+    toggle && this._toggleGrader();
   }
 
   _resetGradeInputs() {
@@ -659,6 +658,15 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
   _previous() {
 
+    // Check for unsaved changes before navigating
+    if (this.modified) {
+      if (!confirm(this._i18n.unsaved_changes_warning)) {
+        return;
+      }
+      // User confirmed - discard the unsaved changes
+      this._cancel(false);
+    }
+
     const currentIndex = this._submissions.findIndex(s => s.id === this._submission.id);
 
     if (currentIndex >= 1) {
@@ -684,6 +692,17 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
   _studentSelected(e) {
 
+    // Check for unsaved changes before navigating
+    if (this.modified && e.target.value !== this._submission.id) {
+      if (!confirm(this._i18n.unsaved_changes_warning)) {
+        // Reset the select to the current submission
+        e.target.value = this._submission.id;
+        return;
+      }
+      // User confirmed - discard the unsaved changes
+      this._cancel(false);
+    }
+
     const selectedSubmission = this._submissions.find(s => s.id === e.target.value);
     if (!selectedSubmission) {
       console.error("Selected submission not found in filtered submissions");
@@ -704,6 +723,15 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
   }
 
   _next() {
+
+    // Check for unsaved changes before navigating
+    if (this.modified) {
+      if (!confirm(this._i18n.unsaved_changes_warning)) {
+        return;
+      }
+      // User confirmed - discard the unsaved changes
+      this._cancel(false);
+    }
 
     const currentIndex = this._submissions.findIndex(s => s.id === this._submission.id);
 
