@@ -2029,13 +2029,16 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		List<SimplePageItem> items = simplePageToolDao.findTextItemsInSite(toContext);
 		for (SimplePageItem item: items) {
 			String msgBody = item.getHtml();
+			if (msgBody == null) {
+				continue;
+			}
 			try {
 				String newBody = linkMigrationHelper.migrateAllLinks(entrySet, msgBody);
 
 				if (!msgBody.equals(newBody)) {
 					// items in findTextItemsInSite don't come from hibernate, so we have to get a real one
 					SimplePageItem i = simplePageToolDao.findItem(item.getId());
-					if (item != null) {
+					if (i != null) {
 						i.setHtml(newBody);
 						log.debug("html - (post mod): {}", msgBody);
 						simplePageToolDao.quickUpdate(i);
