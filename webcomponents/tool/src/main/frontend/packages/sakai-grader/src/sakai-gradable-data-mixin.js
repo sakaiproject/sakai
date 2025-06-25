@@ -62,9 +62,12 @@ export const gradableDataMixin = Base => class extends Base {
         this.hasUnsubmitted = this._submissions.some(s => !s.submitted);
         this.hasSubmitted = this._submissions.some(s => s.submitted);
 
-        if (submissionId && !this._submission) {
+        if (submissionId) {
           this._submission = this._submissions.find(s => s.id === submissionId);
-        } else {
+        }
+
+        // Only default to first submission if no submissionId was provided and no submission is set
+        if (!this._submission) {
           this._submission = this._submissions[0];
         }
 
