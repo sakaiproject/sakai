@@ -3,7 +3,7 @@ import { gradableDataMixin } from "./sakai-gradable-data-mixin.js";
 import { graderRenderingMixin } from "./sakai-grader-rendering-mixin.js";
 import { Submission } from "./submission.js";
 import { getSiteId } from "@sakai-ui/sakai-portal-utils";
-import { GRADE_CHECKED, LETTER_GRADE_TYPE, SCORE_GRADE_TYPE, PASS_FAIL_GRADE_TYPE, CHECK_GRADE_TYPE, GRADE_CHANGE_NOTIFY } from "./sakai-grader-constants.js";
+import { GRADE_CHECKED, SCORE_GRADE_TYPE, CHECK_GRADE_TYPE, GRADE_CHANGE_NOTIFY } from "./sakai-grader-constants.js";
 
 export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiElement)) {
 
@@ -25,7 +25,6 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     _saving: { state: true },
     _submittedTextMode: { state: true },
     _submission: { state: true },
-    _nonEditedSubmission: { state: true },
     _selectedAttachment: { state: true },
     _selectedPreview: { state: true },
     _saveSucceeded: { state: true },
@@ -109,8 +108,12 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     const oldValue = this._gradableId;
     this._gradableId = value;
 
-    if (this.submissionId) {
-      this._loadData(value, this.submissionId);
+    // Check URL parameters before loading data
+    this._checkUrlParameters();
+
+    const submissionId = this._submissionId || this.submissionId;
+    if (submissionId) {
+      this._loadData(value, submissionId);
     }
 
     this.requestUpdate("gradableId", oldValue);
@@ -121,10 +124,17 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
   set submissionId(value) {
 
     const oldValue = this._submissionId;
-    this._submissionId = value;
 
-    if (this.gradableId) {
-      this._loadData(this.gradableId, value);
+    // Check URL parameters first - they take precedence over the attribute
+    this._checkUrlParameters();
+
+    // Only use the passed value if no URL parameter was found
+    if (!this._submissionId || this._submissionId === oldValue) {
+      this._submissionId = value;
+    }
+
+    if (this.gradableId && this._submissionId) {
+      this._loadData(this.gradableId, this._submissionId);
     }
 
     this.requestUpdate("submissionId", oldValue);
@@ -138,11 +148,6 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     // close and destroy it by simulating a cancel action.
     if (newValue.id !== this._submission?.id && this._inlineFeedbackEditorShowing) {
       this._toggleInlineFeedback(null, true); // Pass true for cancelling
-    }
-
-    if (!this._nonEditedSubmission || newValue.id !== this._nonEditedSubmission.id) {
-      this._nonEditedSubmission = {};
-      Object.assign(this._nonEditedSubmission, newValue);
     }
 
     this.__submission = newValue;
@@ -175,12 +180,6 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     this.querySelector("sakai-rubric-grading")?.setAttribute("evaluated-item-id", this.__submission.id);
     this.requestUpdate();
 
-    // Ensure form controls are synchronized with the new submission data
-    // This handles cases where browser form control state diverges from reactive properties
-    this.updateComplete.then(() => {
-      this._syncFormControlsWithSubmission();
-    });
-
     if (this.gradable.allowPeerAssessment) {
       this.updateComplete.then(() => (new bootstrap.Popover(this.querySelector("#peer-info"))));
     }
@@ -195,8 +194,24 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
   get _submission() { return this.__submission; }
 
+  _checkUrlParameters() {
+    // Check if URL contains a submissionId parameter and override the attribute value
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlSubmissionId = urlParams.get("submissionId");
+    if (urlSubmissionId) {
+      // Override the submission-id attribute with the URL parameter
+      this.setAttribute("submission-id", urlSubmissionId);
+      this._submissionId = urlSubmissionId;
+      return true; // Indicate that URL parameter was processed
+    }
+    return false;
+  }
+
   _loadData(gradableId, submissionId) {
-    Promise.all([ this._i18nPromise, this._loadGradableData(gradableId, submissionId) ]).then(() => this._setup());
+    Promise.all([ this._i18nPromise, this._loadGradableData(gradableId, submissionId) ]).then(() => {
+      // Wait for the component to render before setting up editors
+      this.updateComplete.then(() => this._setup());
+    });
   }
 
   shouldUpdate() {
@@ -302,6 +317,12 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
       autosave: { delay: 10000000, messageType: "no" },
       startupFocus: true,
     });
+
+    // Safety check - editor will be null if element doesn't exist
+    if (!editor) {
+      console.warn(`Editor element with id '${id}' not found`);
+      return null;
+    }
 
     editor.on("change", e => {
 
@@ -560,65 +581,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     });
   }
 
-  _syncFormControlsWithSubmission() {
-    // Synchronize all form controls with the current submission data
-    // This ensures that browser form control state matches the reactive properties
-    switch (this.gradeScale) {
-      case SCORE_GRADE_TYPE: {
-        const input = document.getElementById("score-grade-input");
-        input && (input.value = this._submission.grade);
-        break;
-      }
-      case PASS_FAIL_GRADE_TYPE: {
-        const input = document.getElementById("pass-fail-selector");
-        input && (input.value = this._submission.grade);
-        break;
-      }
-      case LETTER_GRADE_TYPE: {
-        const input = document.getElementById("letter-grade-selector");
-        input && (input.value = this._submission.grade);
-        break;
-      }
-      case CHECK_GRADE_TYPE: {
-        const input = document.getElementById("check-grade-input");
-        input && (input.checked = this._submission.grade === this._i18n["gen.checked"] || this._submission.grade === GRADE_CHECKED);
-        break;
-      }
-      default:
-    }
-  }
-
-  _cancel() {
-
-    const originalSubmission = Object.create(this.originalSubmissions.find(os => os.id === this._submission.id));
-    const i = this._submissions.findIndex(s => s.id === this._submission.id);
-    this._submissions.splice(i, 1, originalSubmission);
-    this._submission = this._submissions[i];
-
-    if (this.feedbackCommentEditor) {
-      this.feedbackCommentEditor.setData(this._submission.feedbackComment, () => this.feedbackCommentEditor.resetDirty());
-    }
-
-    if (this.privateNotesEditor) {
-      this.privateNotesEditor.setData(this._submission.privateNotes, () => this.privateNotesEditor.resetDirty());
-    }
-
-    this.modified = false;
-
-    // Use the centralized form sync method
-    this._syncFormControlsWithSubmission();
-
-    const offcanvasInstance = bootstrap.Offcanvas.getInstance(document.getElementById("grader"));
-    if (offcanvasInstance) {
-      offcanvasInstance.hide();
-    }
-  }
-
   _clearSubmission() {
-
-    const currentIndex = this._submissions.findIndex(s => s.id === this._submission.id);
-    this._submissions[currentIndex] = this._nonEditedSubmission;
-    this._submission = this._nonEditedSubmission;
     this.querySelector("sakai-grader-file-picker").reset();
     this.querySelector("sakai-rubric-grading")?.cancel();
     this.querySelector("sakai-rubric-student")?.cancel();
@@ -672,103 +635,39 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
   }
 
   _previous() {
-
-    // Check for unsaved changes before navigating
-    if (this.modified) {
-      if (!confirm(this._i18n.unsaved_changes_warning)) {
-        return;
-      }
-      // User confirmed - discard the unsaved changes
-      this._cancel();
-    }
-
     const currentIndex = this._submissions.findIndex(s => s.id === this._submission.id);
-
     if (currentIndex >= 1) {
-      // Check if the previous submission is hydrated before trying to navigate
-      const prevSubmission = this._submissions[currentIndex - 1];
-      if (!prevSubmission.hydrated) {
-        // If not hydrated, fetch it first
-        this._hydrateCluster(prevSubmission.id).then(submission => {
-          if (submission) {
-            this._submission = submission;
-          } else {
-            // Fallback to normal behavior if hydration fails
-            this._hydratePrevious(currentIndex);
-            this._submission = this._submissions[currentIndex - 1];
-          }
-        });
-      } else {
-        // If already hydrated, just set it
-        this._submission = prevSubmission;
-      }
+      const prevSubmissionId = this._submissions[currentIndex - 1].id;
+      this._navigateToSubmission(prevSubmissionId);
     }
   }
 
   _studentSelected(e) {
-
-    // Check for unsaved changes before navigating
-    if (this.modified && e.target.value !== this._submission.id) {
-      if (!confirm(this._i18n.unsaved_changes_warning)) {
-        // Reset the select to the current submission
-        e.target.value = this._submission.id;
-        return;
-      }
-      // User confirmed - discard the unsaved changes
-      this._cancel();
-    }
-
-    const selectedSubmission = this._submissions.find(s => s.id === e.target.value);
-    if (!selectedSubmission) {
-      console.error("Selected submission not found in filtered submissions");
-      return;
-    }
-
-    if (!selectedSubmission.hydrated) {
-      this._hydrateCluster(selectedSubmission.id).then(s => {
-        if (s) {
-          this._submission = s;
-        } else {
-          console.error("Failed to hydrate selected submission");
-        }
-      });
-    } else {
-      this._submission = selectedSubmission;
+    const selectedSubmissionId = e.target.value;
+    if (selectedSubmissionId !== this._submission.id) {
+      this._navigateToSubmission(selectedSubmissionId);
     }
   }
 
   _next() {
-
-    // Check for unsaved changes before navigating
-    if (this.modified) {
-      if (!confirm(this._i18n.unsaved_changes_warning)) {
-        return;
-      }
-      // User confirmed - discard the unsaved changes
-      this._cancel();
-    }
-
     const currentIndex = this._submissions.findIndex(s => s.id === this._submission.id);
-
     if (currentIndex < this._submissions.length - 1) {
-      // Check if the next submission is hydrated before trying to navigate
-      const nextSubmission = this._submissions[currentIndex + 1];
-      if (!nextSubmission.hydrated) {
-        // If not hydrated, fetch it first
-        this._hydrateCluster(nextSubmission.id).then(submission => {
-          if (submission) {
-            this._submission = submission;
-          } else {
-            // Fallback to normal behavior if hydration fails
-            this._hydrateNext(currentIndex);
-            this._submission = this._submissions[currentIndex + 1];
-          }
-        });
-      } else {
-        // If already hydrated, just set it
-        this._submission = nextSubmission;
-      }
+      const nextSubmissionId = this._submissions[currentIndex + 1].id;
+      this._navigateToSubmission(nextSubmissionId);
     }
+  }
+
+  _navigateToSubmission(submissionId) {
+    // Ensure we have a valid submission ID from the current filtered list
+    const targetSubmission = this._submissions.find(s => s.id === submissionId);
+    if (!targetSubmission) {
+      console.error(`Submission ${submissionId} not found in current filtered submissions`);
+      return;
+    }
+
+    const url = new URL(window.location.href);
+    url.searchParams.set("submissionId", submissionId);
+    window.location.href = url.toString();
   }
 
   _applyFilters() {
