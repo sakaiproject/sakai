@@ -99,8 +99,6 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 		final Integer gradeType = (Integer) data.get("gradeType");
 		final String studentUuid = (String) data.get("studentUuid");
 		
-		log.debug("GradeSummaryTablePanel: gradeType={} (PERCENTAGE={}), showingStudentView={}", 
-			gradeType, GradingConstants.GRADE_TYPE_PERCENTAGE, showingStudentView);
 		this.isGroupedByCategory = (boolean) data.get("isGroupedByCategory");
 		final Map<String, CategoryDefinition> categoriesMap = (Map<String, CategoryDefinition>) data.get("categoriesMap");
 		final ModalWindow assignmentStatsWindow = new ModalWindow("assignmentStatsWindow");
@@ -357,8 +355,6 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 						if (Objects.equals(GradingConstants.GRADE_TYPE_PERCENTAGE, gradeType)) {
 							// For percentage gradebooks, show just the percentage (e.g., "80%")
 							// Don't show the relative weight as it's confusing to students
-							log.debug("PERCENTAGE PATH: gradeType={}, rawGrade={}, formattedGrade={}, assignment.getPoints()={}", 
-								gradeType, rawGrade, FormatHelper.formatGrade(rawGrade), assignment.getPoints());
 							gradeScore.add(new Label("grade",
 									new StringResourceModel("label.percentage.valued")
 											.setParameters(FormatHelper.formatGrade(rawGrade))) {
