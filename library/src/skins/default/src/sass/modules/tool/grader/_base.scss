@@ -1,5 +1,11 @@
 sakai-grader {
 
+  .grader--visible {
+    @extend .d-block;
+    @extend .rounded-3;
+    @extend .mt-2;
+  }
+
   .grader-title {
     font-weight: bold;
   }

@@ -224,22 +224,8 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
   _toggleGrader() {
 
-    const graderEl = this.querySelector("#grader");
-    const gradableEl = this.querySelector("#grader-gradable-container");
-
-    if (graderEl.classList.contains("d-none")) {
-      graderEl.classList.remove("d-none");
-      graderEl.classList.add("d-block");
-      gradableEl.classList.add("d-none");
-      graderEl.classList.add("rounded-3");
-      graderEl.classList.add("mt-2");
-    } else {
-      graderEl.classList.remove("d-block");
-      graderEl.classList.remove("rounded-3");
-      graderEl.classList.add("d-none");
-      gradableEl.classList.remove("d-none");
-      graderEl.classList.remove("mt-2");
-    }
+    this.querySelector("#grader").classList.toggle("grader--visible");
+    this.querySelector("#grader-gradable-container").classList.toggle("d-none");
   }
 
   _setup() {
@@ -295,9 +281,9 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
     this.updateComplete.then(() => {
 
-      this.querySelector("#grader-rubric-link").focus();
-      this.querySelector("sakai-rubric-grading-button").setHasEvaluation();
-      this.querySelector("sakai-rubric-evaluation-remover").setHasEvaluation();
+      this.querySelector("#grader-rubric-link")?.focus();
+      this.querySelector("sakai-rubric-grading-button")?.setHasEvaluation();
+      this.querySelector("sakai-rubric-evaluation-remover")?.setHasEvaluation();
     });
   }
 
