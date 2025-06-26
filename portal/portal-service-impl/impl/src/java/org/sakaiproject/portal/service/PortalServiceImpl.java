@@ -960,10 +960,14 @@ public class PortalServiceImpl implements PortalService, Observer
 
 		List<String> current = getRecentSites(userId);
 
-		if (current.size() == 3) {
-			// Oldest is last
-			String last = current.toArray(new String[] {})[current.size() - 1];
+		int maxRecentSites = serverConfigurationService.getInt("portal.max.recent.sites", 3);
+		// Clean up excess sites if user has more than the limit
+		while (current.size() >= maxRecentSites && !current.isEmpty()) {
+			// Remove oldest entry (last in the list)
+			String last = current.get(current.size() - 1);
 			recentSiteRepository.deleteByUserIdAndSiteId(userId, last);
+			// Refresh the list after deletion
+			current = getRecentSites(userId);
 		}
 
 		RecentSite recentSite = new RecentSite();
