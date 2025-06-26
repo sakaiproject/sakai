@@ -362,6 +362,15 @@ public class ExportPanel extends BasePanel {
 				if (isCustomExport && this.includePoints) {
 					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.points")));
 				}
+				if (isCustomExport && this.includeCourseGrade) {
+					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.courseGrade")));
+				}
+				if (isCustomExport && this.includeCalculatedGrade) {
+					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.calculatedGrade")));
+				}
+				if (isCustomExport && this.includeGradeOverride) {
+					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.gradeOverride")));
+				}
 				if (isCustomExport && this.includeLastLogDate) {
 					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.lastLogDate")));
 				}
@@ -427,16 +436,6 @@ public class ExportPanel extends BasePanel {
 					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.example.ignore")));
 				}
 
-				if (isCustomExport && this.includeCourseGrade) {
-					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.courseGrade")));
-				}
-				if (isCustomExport && this.includeCalculatedGrade) {
-					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.calculatedGrade")));
-				}
-				if (isCustomExport && this.includeGradeOverride) {
-					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.gradeOverride")));
-				}
-				
 				csvWriter.writeNext(header.toArray(new String[] {}));
 
 				// apply section/group filter
@@ -474,6 +473,19 @@ public class ExportPanel extends BasePanel {
 
 					if (isCustomExport && this.includePoints) {
 						line.add(FormatHelper.formatGradeForDisplay(FormatHelper.formatDoubleToDecimal(courseGrade.getPointsEarned())));
+					}
+					if (isCustomExport && this.includeCourseGrade) {
+						line.add(courseGrade.getMappedGrade());
+					}
+					if (isCustomExport && this.includeCalculatedGrade) {
+						line.add(FormatHelper.formatGradeForDisplay(courseGrade.getCalculatedGrade()));
+					}
+					if (isCustomExport && this.includeGradeOverride) {
+						if (courseGrade.getEnteredGrade() != null) {
+							line.add(FormatHelper.formatGradeForDisplay(courseGrade.getEnteredGrade()));
+						} else {
+							line.add(null);
+						}
 					}
 					if (isCustomExport && this.includeLastLogDate) {
 						if (courseGrade.getDateRecorded() == null) {
@@ -538,20 +550,6 @@ public class ExportPanel extends BasePanel {
 					// (when assignments are empty, the template already includes an ignore column)
 					if (!assignments.isEmpty()) {
 						line.add(null); // for the ignore column
-					}
-					
-					if (isCustomExport && this.includeCourseGrade) {
-						line.add(courseGrade.getMappedGrade());
-					}
-					if (isCustomExport && this.includeCalculatedGrade) {
-						line.add(FormatHelper.formatGradeForDisplay(courseGrade.getCalculatedGrade()));
-					}
-					if (isCustomExport && this.includeGradeOverride) {
-						if (courseGrade.getEnteredGrade() != null) {
-							line.add(FormatHelper.formatGradeForDisplay(courseGrade.getEnteredGrade()));
-						} else {
-							line.add(null);
-						}
 					}
 					
 					csvWriter.writeNext(line.toArray(new String[] {}));
