@@ -117,7 +117,7 @@ class SubPageNavigation {
     }
 
     // If the current page is not a subpage, then highlight the main page.
-    if (subPageElement && subPageNavToolIdInput) {
+    if (!subPageElement && subPageNavToolIdInput) {
       subPageElement = document.querySelector(`#toolMenu a[href$="/tool-reset/${subPageNavToolIdInput.value}"]`);
     }
 

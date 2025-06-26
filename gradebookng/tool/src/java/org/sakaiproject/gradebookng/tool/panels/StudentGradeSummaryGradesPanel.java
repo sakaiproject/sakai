@@ -170,7 +170,7 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 		tableModel.put("isCategoryWeightEnabled", isCategoryWeightEnabled());
 		tableModel.put("isGroupedByCategory", this.isGroupedByCategory);
 		tableModel.put("showingStudentView", true);
-		tableModel.put("gradingType", gradebook.getGradeType());
+		tableModel.put("gradeType", gradebook.getGradeType());
 		tableModel.put("categoriesMap", categoriesMap);
 		tableModel.put("studentUuid", userId);
 
