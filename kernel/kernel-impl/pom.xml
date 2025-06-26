@@ -471,12 +471,7 @@
                                 <argument>-connectionURL</argument>
                                 <argument>The database connection URL.</argument>
                                 <argument>-connectionUsername</argument>
-                                <argument>The database connection username.</argument><dependency>
-    <groupId>org.mockito</groupId>
-    <artifactId>mockito-junit-jupiter</artifactId>
-    <version>4.5.1</version>
-    <scope>test</scope>
-</dependency>
+                                <argument>The database connection username.</argument>
                                 <argument>-connectionPassword</argument>
                                 <argument>The database connection password.</argument>
                                 <argument>-sourceFileSystemHandler</argument>
