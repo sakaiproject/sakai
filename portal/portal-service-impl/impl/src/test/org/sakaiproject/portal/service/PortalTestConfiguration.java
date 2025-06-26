@@ -74,7 +74,8 @@ public class PortalTestConfiguration extends SakaiTestConfiguration {
     @Bean(name = "org.sakaiproject.component.api.ServerConfigurationService")
     public ServerConfigurationService serverConfigurationService() {
         ServerConfigurationService mock = mock(ServerConfigurationService.class);
-        when(mock.getInt("portal.max.recent.sites", 3)).thenReturn(3);
+        when(mock.getInt("portal.max.recent.sites", PortalServiceImpl.DEFAULT_MAX_RECENT_SITES))
+            .thenReturn(PortalServiceImpl.DEFAULT_MAX_RECENT_SITES);
         return mock;
     }
 }

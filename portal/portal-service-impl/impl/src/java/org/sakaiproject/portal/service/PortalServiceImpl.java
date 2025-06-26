@@ -125,6 +125,8 @@ public class PortalServiceImpl implements PortalService, Observer
 	private Map<String, PortalRenderEngine> renderEngines = new ConcurrentHashMap<>();
 	private Collection<PortalSubPageNavProvider> portalSubPageNavProviders;
 
+	public static final int DEFAULT_MAX_RECENT_SITES = 3;
+
 	public void init() {
 		try {
 			// configure the parser for castor, before anything else get a chance
@@ -958,16 +960,14 @@ public class PortalServiceImpl implements PortalService, Observer
 
 		recentSiteRepository.deleteByUserIdAndSiteId(userId, siteId);
 
-		List<String> current = getRecentSites(userId);
+		List<String> current = new ArrayList<>(getRecentSites(userId));
 
-		int maxRecentSites = serverConfigurationService.getInt("portal.max.recent.sites", 3);
+		int maxRecentSites = serverConfigurationService.getInt("portal.max.recent.sites", DEFAULT_MAX_RECENT_SITES);
 		// Clean up excess sites if user has more than the limit
 		while (current.size() >= maxRecentSites && !current.isEmpty()) {
 			// Remove oldest entry (last in the list)
-			String last = current.get(current.size() - 1);
+			String last = current.remove(current.size() - 1);
 			recentSiteRepository.deleteByUserIdAndSiteId(userId, last);
-			// Refresh the list after deletion
-			current = getRecentSites(userId);
 		}
 
 		RecentSite recentSite = new RecentSite();
