@@ -383,6 +383,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+           <groupId>org.mockito</groupId>
+           <artifactId>mockito-junit-jupiter</artifactId>
+           <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
             <version>3.23.1</version>
@@ -423,12 +428,6 @@
             <groupId>com.googlecode.json-simple</groupId>
             <artifactId>json-simple</artifactId>
             <version>${json.simple.version}</version>
-        </dependency>
-        <dependency>
-           <groupId>org.junit.jupiter</groupId>
-           <artifactId>junit-jupiter-api</artifactId>
-           <version>5.11.0</version> <!-- Use the latest version -->
-           <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -472,7 +471,12 @@
                                 <argument>-connectionURL</argument>
                                 <argument>The database connection URL.</argument>
                                 <argument>-connectionUsername</argument>
-                                <argument>The database connection username.</argument>
+                                <argument>The database connection username.</argument><dependency>
+    <groupId>org.mockito</groupId>
+    <artifactId>mockito-junit-jupiter</artifactId>
+    <version>4.5.1</version>
+    <scope>test</scope>
+</dependency>
                                 <argument>-connectionPassword</argument>
                                 <argument>The database connection password.</argument>
                                 <argument>-sourceFileSystemHandler</argument>
