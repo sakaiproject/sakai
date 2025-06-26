@@ -1892,8 +1892,8 @@ public class GradingServiceImpl implements GradingService {
         if (Objects.equals(GradingConstants.GRADE_TYPE_LETTER, gradeEntryType)) {
             grade = gradeRecord.getLetterEarned();
         } else if (Objects.equals(GradingConstants.GRADE_TYPE_PERCENTAGE, gradeEntryType)) {
-            final Double percentEarned = gradeRecord.getPercentEarned();
-            grade = percentEarned != null ? percentEarned.toString() : null;
+            final Double percent = calculateEquivalentPercent(gbo.getPointsPossible(), gradeRecord.getPointsEarned());
+            grade = percent != null ? percent.toString() : null;
         } else {
             final Double pointsEarned = gradeRecord.getPointsEarned();
             grade = pointsEarned != null ? pointsEarned.toString() : null;
