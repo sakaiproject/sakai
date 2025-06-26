@@ -50,9 +50,9 @@ import org.apache.commons.lang3.math.NumberUtils;
 
 import org.hibernate.StaleObjectStateException;
 
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.entity.api.Entity.UrlType;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -118,7 +118,6 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.plus.api.PlusService;
 import org.sakaiproject.grading.api.GradingAuthz;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.StringUtil;
 import org.springframework.lang.Nullable;
 import org.springframework.orm.hibernate5.HibernateOptimisticLockingFailureException;
 
@@ -140,8 +139,6 @@ public class GradingServiceImpl implements GradingService {
     private String gradebookGroupEnabledCache = "org.sakaiproject.tool.gradebook.group.enabled";
     private String gradebookGroupInstancesCache = "org.sakaiproject.tool.gradebook.group.instances";
 
-    private MemoryService memoryService;
-
     public static final String UID_OF_DEFAULT_GRADING_SCALE_PROPERTY = "uidOfDefaultGradingScale";
 
     public static final String PROP_COURSE_POINTS_DISPLAYED = "gradebook.coursepoints.displayed";
@@ -150,14 +147,16 @@ public class GradingServiceImpl implements GradingService {
     public static final String PROP_ASSIGNMENT_STATS_DISPLAYED = "gradebook.stats.assignments.displayed";
     public static final String PROP_COURSE_GRADE_STATS_DISPLAYED = "gradebook.stats.coursegrade.displayed";
 
+    @Autowired private AuthzGroupService authzGroupService;
     @Autowired private EventTrackingService eventTrackingService;
     @Autowired private EntityManager entityManager;
     @Autowired private GradingAuthz gradingAuthz;
     @Autowired private GradingPermissionService gradingPermissionService;
     @Autowired private GradingPersistenceManager gradingPersistenceManager;
+    @Autowired private MemoryService memoryService;
+    @Autowired private PlusService plusService;
     @Autowired private ResourceLoader resourceLoader;
     @Autowired private SiteService siteService;
-    @Autowired private PlusService plusService;
     @Autowired private SectionAwareness sectionAwareness;
     @Autowired private SecurityService securityService;
     @Autowired private SessionManager sessionManager;
@@ -169,8 +168,6 @@ public class GradingServiceImpl implements GradingService {
     private Map<String, String> propertiesMap = new HashMap<>();
 
     public void init() {
-        log.debug("INIT");
-
         log.debug(buildCacheLogDebug("creatingCache", gradebookGroupEnabledCache));
         log.debug(buildCacheLogDebug("creatingCache", gradebookGroupInstancesCache));
 
@@ -1431,13 +1428,23 @@ public class GradingServiceImpl implements GradingService {
             }
         } else if (gradingAuthz.isUserAbleToViewOwnGrades(siteId)) {
             // if user is just a student, we need to filter out unreleased items
-            for (GradebookAssignment assign : getSortedAssignments(gradebook.getId(), sortBy, true)) {
-                if (assign.isExternallyMaintained()
-                      && !isExternalAssignmentVisible(gradebook.getUid(), assign.getExternalId(), sessionManager.getCurrentSessionUserId())) {
-                    continue;
+            final List<GradebookAssignment> allAssignments = getSortedAssignments(gradebook.getId(), sortBy, true);
+            final String currentUserId = sessionManager.getCurrentSessionUserId();
+
+            // Pre-filter external assignments for visibility in batch
+            final Map<String, Boolean> externalVisibilityMap = getBatchExternalAssignmentVisibility(
+                gradebook.getUid(), allAssignments, currentUserId);
+
+            for (GradebookAssignment assign : allAssignments) {
+                if (assign.isExternallyMaintained()) {
+                    // Use pre-computed visibility result
+                    Boolean isVisible = externalVisibilityMap.get(assign.getExternalId());
+                    if (isVisible == null || !isVisible) {
+                        continue;
+                    }
                 }
 
-                if (assign != null && assign.getReleased()) {
+                if (assign.getReleased()) {
                     viewableAssignments.add(assign);
                 }
             }
@@ -1452,6 +1459,83 @@ public class GradingServiceImpl implements GradingService {
         }
 
         return new ArrayList<>(assignmentsToReturn);
+    }
+
+    /**
+     * Batch check external assignment visibility to avoid N+1 queries.
+     * Uses the provider's getAllExternalAssignments method when available for better performance.
+     */
+    private Map<String, Boolean> getBatchExternalAssignmentVisibility(String gradebookUid, 
+            List<GradebookAssignment> assignments, String userId) {
+
+        Map<String, Boolean> visibilityMap = new HashMap<>();
+
+        // Group external assignments by app name
+        Map<String, List<GradebookAssignment>> assignmentsByApp = assignments.stream()
+            .filter(GradebookAssignment::isExternallyMaintained)
+            .collect(Collectors.groupingBy(GradebookAssignment::getExternalAppName));
+
+        // Process each app's assignments
+        for (Map.Entry<String, List<GradebookAssignment>> entry : assignmentsByApp.entrySet()) {
+            String appName = entry.getKey();
+            List<GradebookAssignment> appAssignments = entry.getValue();
+
+            // Find the provider for this app
+            ExternalAssignmentProvider provider = getExternalAssignmentProviders().get(appName);
+            if (provider == null) {
+                // No provider found, default to visible (matches existing behavior)
+                appAssignments.forEach(assignment -> 
+                    visibilityMap.put(assignment.getExternalId(), true));
+                log.debug("No provider found for external app: {}, defaulting {} assignments to visible", 
+                    appName, appAssignments.size());
+                continue;
+            }
+
+            // Try to use batch method if available
+            try {
+                Map<String, List<String>> allExternalAssignments = 
+                    provider.getAllExternalAssignments(gradebookUid, Collections.singleton(userId));
+
+                List<String> visibleAssignmentIds = allExternalAssignments.get(userId);
+                if (visibleAssignmentIds != null) {
+                    // Use batch result - assignments in the list are visible
+                    Set<String> visibleIds = new HashSet<>(visibleAssignmentIds);
+                    for (GradebookAssignment assignment : appAssignments) {
+                        boolean isVisible = visibleIds.contains(assignment.getExternalId());
+                        visibilityMap.put(assignment.getExternalId(), isVisible);
+                    }
+                    log.debug("Used batch method for app {}: {} assignments processed", 
+                        appName, appAssignments.size());
+                    continue;
+                }
+            } catch (Exception e) {
+                log.debug("Batch method failed for provider {}, falling back to individual checks: {}", 
+                    appName, e.getMessage());
+            }
+
+            // Fallback to individual visibility checks
+            for (GradebookAssignment assignment : appAssignments) {
+                boolean isVisible = true; // Default to visible
+
+                if (provider.isAssignmentDefined(appName, assignment.getExternalId())) {
+                    try {
+                        isVisible = provider.isAssignmentVisible(assignment.getExternalId(), userId);
+                    } catch (Exception e) {
+                        log.warn("Error checking visibility for assignment {}: {}", 
+                            assignment.getExternalId(), e.getMessage());
+                        // Keep default visible on error
+                    }
+                }
+
+                visibilityMap.put(assignment.getExternalId(), isVisible);
+            }
+
+            log.debug("Used individual checks for app {}: {} assignments processed", 
+                appName, appAssignments.size());
+        }
+
+        log.debug("Batch processed {} external assignments for visibility", visibilityMap.size());
+        return visibilityMap;
     }
 
     @Override
@@ -1677,6 +1761,111 @@ public class GradingServiceImpl implements GradingService {
                 gradesMap.put(gboId, gradeList);
             }
             gradeList.add(gradeDef);
+        }
+
+        return gradesMap;
+    }
+
+    @Override
+    public Map<Long, List<GradeDefinition>> getGradesWithCommentsForStudentsForItems(final String gradebookUid, final String siteId,
+            final List<Long> gradableObjectIds, final List<String> studentIds) {
+
+        if (gradableObjectIds == null || gradableObjectIds.isEmpty()) {
+            throw new IllegalArgumentException("null or empty gradableObjectIds passed to getGradesWithCommentsForStudentsForItems");
+        }
+
+        // when user is not able to grade and user isn't requesting to view only their grades throw exception
+        if (!this.gradingAuthz.isUserAbleToGrade(siteId) &&
+                !(currentUserHasViewOwnGradesPerm(siteId)
+                        && CollectionUtils.isEqualCollection(studentIds, List.of(sessionManager.getCurrentSessionUserId())))) {
+            throw new GradingSecurityException();
+        }
+
+        final Map<Long, List<GradeDefinition>> gradesMap = new HashMap<>();
+        if (studentIds == null || studentIds.isEmpty()) {
+            return gradesMap;
+        }
+
+        // Get all the grades for the gradableObjectIds
+        final List<AssignmentGradeRecord> gradeRecords = getAllAssignmentGradeRecordsForGbItems(gradableObjectIds, studentIds);
+
+        // Group grade records by assignment ID to organize comment retrieval
+        final Map<Long, List<AssignmentGradeRecord>> recordsByAssignment = gradeRecords.stream()
+                .collect(Collectors.groupingBy(record -> record.getGradableObject().getId()));
+
+        // Build comprehensive comment map: assignmentId -> studentId -> commentText
+        final Map<Long, Map<String, String>> allCommentsMap = new HashMap<>();
+        for (final Long assignmentId : recordsByAssignment.keySet()) {
+            // Get assignment from first grade record (they all have same assignment)
+            final GradebookAssignment assignment = (GradebookAssignment) recordsByAssignment.get(assignmentId).get(0).getGradableObject();
+
+            // Get comments for this assignment and all students
+            final List<Comment> commentRecs = getComments(assignment, studentIds);
+            final Map<String, String> studentCommentMap = new HashMap<>();
+            if (commentRecs != null) {
+                for (final Comment comment : commentRecs) {
+                    if (comment != null) {
+                        studentCommentMap.put(comment.getStudentId(), comment.getCommentText());
+                    }
+                }
+            }
+            allCommentsMap.put(assignmentId, studentCommentMap);
+        }
+
+        // Process grade records and add to results map
+        for (final AssignmentGradeRecord gradeRecord : gradeRecords) {
+            final GradebookAssignment gbo = (GradebookAssignment) gradeRecord.getGradableObject();
+            final Long gboId = gbo.getId();
+            final Gradebook gradebook = gbo.getGradebook();
+            if (!gradebookUid.equals(gradebook.getUid())) {
+                throw new IllegalArgumentException("gradableObjectIds must belong to grades within this gradebook");
+            }
+
+            // Get comment for this specific student and assignment
+            final String commentText = allCommentsMap.get(gboId).get(gradeRecord.getStudentId());
+            final GradeDefinition gradeDef = convertGradeRecordToGradeDefinition(gradeRecord, gbo, gradebook, commentText);
+
+            List<GradeDefinition> gradeList = gradesMap.computeIfAbsent(gboId, k -> new ArrayList<>());
+            gradeList.add(gradeDef);
+        }
+
+        // Handle students who have comments but no grades (like the single-item version)
+        for (final Long assignmentId : gradableObjectIds) {
+            final Map<String, String> commentsForAssignment = allCommentsMap.get(assignmentId);
+            if (commentsForAssignment != null) {
+                for (final String studentId : studentIds) {
+                    final String commentText = commentsForAssignment.get(studentId);
+                    if (commentText != null) {
+                        // Check if we already have a grade record for this student/assignment combination
+                        final List<GradeDefinition> existingGrades = gradesMap.get(assignmentId);
+                        boolean hasGradeRecord = false;
+                        if (existingGrades != null) {
+                            hasGradeRecord = existingGrades.stream()
+                                    .anyMatch(gd -> studentId.equals(gd.getStudentUid()));
+                        }
+
+                        // If no grade record exists but comment exists, create a GradeDefinition with just the comment
+                        if (!hasGradeRecord) {
+                            // We need the assignment to create the GradeDefinition
+                            final GradebookAssignment assignment = recordsByAssignment.containsKey(assignmentId) ?
+                                    (GradebookAssignment) recordsByAssignment.get(assignmentId).get(0).getGradableObject() :
+                                    getAssignmentWithoutStatsByID(gradebookUid, assignmentId);
+
+                            if (assignment != null) {
+                                final Gradebook gradebook = assignment.getGradebook();
+                                final GradeDefinition gradeDef = new GradeDefinition();
+                                gradeDef.setStudentUid(studentId);
+                                gradeDef.setGradeComment(commentText);
+                                gradeDef.setGradeEntryType(gradebook.getGradeType());
+                                gradeDef.setGradeReleased(assignment.getReleased());
+
+                                List<GradeDefinition> gradeList = gradesMap.computeIfAbsent(assignmentId, k -> new ArrayList<>());
+                                gradeList.add(gradeDef);
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         return gradesMap;
@@ -2308,8 +2497,11 @@ public class GradingServiceImpl implements GradingService {
             throw new GradingSecurityException();
         }
 
-        return getCategories(getGradebook(gradebookUid).getId())
-            .stream().map(ca -> buildCategoryDefinition(ca, siteId)).collect(Collectors.toList());
+        Long gradebookId = getGradebook(gradebookUid).getId();
+
+        return getCategories(gradebookId).stream()
+            .map(category -> buildCategoryDefinition(category, siteId))
+            .collect(Collectors.toList());
     }
 
     private CategoryDefinition buildCategoryDefinition(final Category category, final String siteId) {
@@ -2322,7 +2514,7 @@ public class GradingServiceImpl implements GradingService {
             categoryDef.setDropLowest(category.getDropLowest());
             categoryDef.setDropHighest(category.getDropHighest());
             categoryDef.setKeepHighest(category.getKeepHighest());
-            categoryDef.setAssignmentList(getAssignmentsWithCategory(category.getGradebook().getUid(), siteId, category.getName()));
+            categoryDef.setAssignmentList(getAssignmentsWithCategory(category.getGradebook().getUid(), siteId, category.getId()));
             categoryDef.setDropKeepEnabled(category.isDropScores());
             categoryDef.setExtraCredit(category.getExtraCredit());
             categoryDef.setEqualWeight(category.getEqualWeightAssignments());
@@ -2523,7 +2715,7 @@ public class GradingServiceImpl implements GradingService {
      * @return a locale-aware Double value representation of the given String
      * @throws ParseException
      */
-    private Double convertStringToDouble(final String doubleAsString) {
+    public Double convertStringToDouble(final String doubleAsString) {
 
         if (StringUtils.isBlank(doubleAsString)) {
             return null;
@@ -2548,14 +2740,28 @@ public class GradingServiceImpl implements GradingService {
      * shared GradebookAssignment object.
      *
      * @param gradebookUid
-     * @param categoryName
+     * @param siteId
+     * @param categoryId
      * @return
      */
-    private List<Assignment> getAssignmentsWithCategory(String gradebookUid, String siteId, String categoryName) {
+    private List<Assignment> getAssignmentsWithCategory(String gradebookUid, String siteId, Long categoryId) {
+        if (!isUserAbleToViewAssignments(siteId)) {
+            log.warn("AUTHORIZATION FAILURE: User {} in gradebook {} attempted to get assignments list", getUserUid(), gradebookUid);
+           throw new GradingSecurityException();
+        }
 
-        return getAssignments(gradebookUid, siteId, SortType.SORT_BY_NONE).stream()
-            .filter(a -> StringUtils.equals(a.getCategoryName(), categoryName))
-            .collect(Collectors.toList());
+        Gradebook gradebook = getGradebook(gradebookUid);
+        // Determine whether this gradebook uses Categories Only or Weighted Categories by checking category type.
+        // We will avoid adding any legacy category information on the individual gb items if the instructor is no
+        // longer using categories in the gradebook.
+        boolean gbUsesCategories = !Objects.equals(gradebook.getCategoryType(), GradingConstants.CATEGORY_TYPE_NO_CATEGORY);
+
+        List<GradebookAssignment> filtered = getAssignmentsByGradebookAndCategoryId(gradebook.getId(), categoryId);
+
+        return sortAssignments(filtered, SortType.SORT_BY_NONE, true)
+                   .stream()
+                   .map(ga -> getAssignmentDefinition(ga, gbUsesCategories))
+                   .collect(Collectors.toList());
     }
 
     /**
@@ -2838,6 +3044,136 @@ public class GradingServiceImpl implements GradingService {
     }
 
     /**
+     * Calculate category scores for all categories for a student in one efficient operation.
+     * This is much more efficient than calling calculateCategoryScore repeatedly for each category.
+     *
+     * @param gradebookId the gradebook id
+     * @param studentUuid the student uuid
+     * @param includeNonReleasedItems whether to include non-released items
+     * @param categoryType the category type of the gradebook
+     * @return map of categoryId to CategoryScoreData for all categories that have calculable scores
+     */
+    public Map<Long, CategoryScoreData> calculateAllCategoryScores(Long gradebookId, String studentUuid,
+            boolean includeNonReleasedItems, Integer categoryType) {
+
+        log.debug("Calculating all category scores for student: {} in gradebook: {}", studentUuid, gradebookId);
+
+        // get all grade records for the student ONCE
+        Map<String, List<AssignmentGradeRecord>> gradeRecMap = getGradeRecordMapForStudents(gradebookId, Collections.singletonList(studentUuid));
+        List<AssignmentGradeRecord> allGradeRecords = gradeRecMap.get(studentUuid);
+
+        if (allGradeRecords == null || allGradeRecords.isEmpty()) {
+            log.debug("No grade records found for student: {}", studentUuid);
+            return new HashMap<>();
+        }
+
+        // Get all categories for this gradebook
+        List<Category> categories = getCategories(gradebookId);
+        if (categories.isEmpty()) {
+            log.debug("No categories found for gradebook: {}", gradebookId);
+            return new HashMap<>();
+        }
+
+        Map<Long, CategoryScoreData> categoryScores = new HashMap<>();
+
+        // Calculate score for each category using the same grade records
+        for (Category category : categories) {
+            if (category.getRemoved()) {
+                continue; // Skip removed categories
+            }
+
+            Optional<CategoryScoreData> scoreData = calculateCategoryScore(
+                    studentUuid, 
+                    category.getId(), 
+                    allGradeRecords, 
+                    includeNonReleasedItems, 
+                    categoryType, 
+                    category.getEqualWeightAssignments()
+            );
+
+            if (scoreData.isPresent()) {
+                categoryScores.put(category.getId(), scoreData.get());
+            }
+        }
+
+        log.debug("Calculated {} category scores for student: {}", categoryScores.size(), studentUuid);
+        return categoryScores;
+    }
+
+    /**
+     * Calculate category scores for multiple students and all categories in one bulk operation.
+     * This is the most efficient method when you need category scores for multiple students.
+     *
+     * @param gradebookId the gradebook id
+     * @param studentUuids list of student uuids
+     * @param includeNonReleasedItems whether to include non-released items
+     * @param categoryType the category type of the gradebook
+     * @return nested map: studentUuid -> categoryId -> CategoryScoreData
+     */
+    public Map<String, Map<Long, CategoryScoreData>> calculateAllCategoryScoresForStudents(Long gradebookId, 
+            List<String> studentUuids, boolean includeNonReleasedItems, Integer categoryType) {
+
+        if (studentUuids == null || studentUuids.isEmpty()) {
+            log.debug("No student UUIDs provided for bulk category score calculation");
+            return new HashMap<>();
+        }
+
+        log.debug("Calculating all category scores for {} students in gradebook: {}", studentUuids.size(), gradebookId);
+
+        // get all grade records for all students ONCE
+        Map<String, List<AssignmentGradeRecord>> gradeRecMap = getGradeRecordMapForStudents(gradebookId, studentUuids);
+
+        // Get all categories for this gradebook ONCE
+        List<Category> categories = getCategories(gradebookId);
+        if (categories.isEmpty()) {
+            log.debug("No categories found for gradebook: {}", gradebookId);
+            return new HashMap<>();
+        }
+
+        Map<String, Map<Long, CategoryScoreData>> allCategoryScores = new HashMap<>();
+
+        // Calculate scores for each student
+        for (String studentUuid : studentUuids) {
+            List<AssignmentGradeRecord> studentGradeRecords = gradeRecMap.get(studentUuid);
+            
+            if (studentGradeRecords == null || studentGradeRecords.isEmpty()) {
+                log.debug("No grade records found for student: {}", studentUuid);
+                allCategoryScores.put(studentUuid, new HashMap<>());
+                continue;
+            }
+
+            Map<Long, CategoryScoreData> studentCategoryScores = new HashMap<>();
+
+            // Calculate score for each category using the student's grade records
+            for (Category category : categories) {
+                if (category.getRemoved()) {
+                    continue; // Skip removed categories
+                }
+
+                Optional<CategoryScoreData> scoreData = calculateCategoryScore(
+                        studentUuid, 
+                        category.getId(), 
+                        studentGradeRecords, 
+                        includeNonReleasedItems, 
+                        categoryType, 
+                        category.getEqualWeightAssignments()
+                );
+
+                if (scoreData.isPresent()) {
+                    studentCategoryScores.put(category.getId(), scoreData.get());
+                }
+            }
+
+            allCategoryScores.put(studentUuid, studentCategoryScores);
+        }
+
+        int totalScores = allCategoryScores.values().stream().mapToInt(Map::size).sum();
+        log.debug("Calculated {} total category scores for {} students", totalScores, studentUuids.size());
+
+        return allCategoryScores;
+    }
+
+    /**
      * Does the heavy lifting for the category calculations. Requires the List of AssignmentGradeRecord so that we can applyDropScores.
      *
      * @param studentUuid the student uuid
@@ -2859,6 +3195,10 @@ public class GradingServiceImpl implements GradingService {
             return Optional.empty();
         }
 
+        // CRITICAL FIX: Create a copy of the grade records to avoid modifying the shared list
+        // This prevents the issue where calculating one category affects subsequent category calculations
+        final List<AssignmentGradeRecord> gradeRecordsCopy = new ArrayList<>(gradeRecords);
+
         // setup
         int numScored = 0;
         int numOfAssignments = 0;
@@ -2867,11 +3207,11 @@ public class GradingServiceImpl implements GradingService {
         BigDecimal totalPossible = new BigDecimal("0");
 
         // apply any drop/keep settings for this category
-        applyDropScores(gradeRecords, categoryType);
+        applyDropScores(gradeRecordsCopy, categoryType);
 
         // find the records marked as dropped (highest/lowest) before continuing,
         // as gradeRecords will be modified in place after this and these records will be removed
-        final List<Long> droppedItemIds = gradeRecords.stream()
+        final List<Long> droppedItemIds = gradeRecordsCopy.stream()
                 .filter(AssignmentGradeRecord::getDroppedFromGrade)
                 .map(agr -> agr.getAssignment().getId())
                 .collect(Collectors.toList());
@@ -2888,7 +3228,7 @@ public class GradingServiceImpl implements GradingService {
         // Rule 7. extra credit items have their grade value counted only. Their total points possible does not apply to the calculations
         log.debug("categoryId: {}", categoryId);
 
-        gradeRecords.removeIf(gradeRecord -> {
+        gradeRecordsCopy.removeIf(gradeRecord -> {
 
             final GradebookAssignment assignment = gradeRecord.getAssignment();
 
@@ -2910,16 +3250,16 @@ public class GradingServiceImpl implements GradingService {
             return false;
         });
 
-        log.debug("gradeRecords.size(): {}", gradeRecords.size());
+        log.debug("gradeRecordsCopy.size(): {}", gradeRecordsCopy.size());
 
         // pre-calculation
         // Rule 1. If category only has a single EC item, don't try to calculate category total.
-        if (gradeRecords.size() == 1 && gradeRecords.get(0).getAssignment().getExtraCredit()) {
+        if (gradeRecordsCopy.size() == 1 && gradeRecordsCopy.get(0).getAssignment().getExtraCredit()) {
             return Optional.empty();
         }
 
         // iterate the filtered list and set the variables for the calculation
-        for (AssignmentGradeRecord gradeRecord : gradeRecords) {
+        for (AssignmentGradeRecord gradeRecord : gradeRecordsCopy) {
 
             GradebookAssignment assignment = gradeRecord.getAssignment();
             BigDecimal possiblePoints = new BigDecimal(assignment.getPointsPossible().toString());
@@ -4523,29 +4863,95 @@ public class GradingServiceImpl implements GradingService {
         gradingPersistenceManager.deleteInternalComment(studentUid, gradebookUid, assignmentId);
     }
 
-    private Gradebook getGradebook(String uid) {
+    @Transactional
+    @Override
+    public Gradebook getGradebook(String uid) {
         return getGradebook(uid, uid);
     }
+
+    @Transactional
+    @Override
     public Gradebook getGradebook(String uid, String siteId)  {
+        if (!isValidGradebookUid(uid)) {
+            log.warn("must have a valid uid [{}]", uid);
+            return null;
+        }
+
         Optional<Gradebook> gradebook = gradingPersistenceManager.getGradebook(uid);
         if (gradebook.isPresent()) {
            return gradebook.get();
         }
+
         String name = uid;
-        if (!uid.equals(siteId)) {
-            try {
-                name = MessageHelper.getString("group.gradebook", resourceLoader.getLocale()) + siteService.getSite(siteId).getGroup(uid).getTitle();
-            } catch (final IdUnusedException ex) {
-                log.error("Error looking up site: {}", siteId, ex);
+        if (!StringUtils.equals(uid, siteId)) {
+            // gradebook by group
+            Group group = siteService.findGroup(uid);
+            if (group != null && group.getContainingSite().getId().equals(siteId)) {
+                name = MessageHelper.getString("group.gradebook", resourceLoader.getLocale())
+                        + " "
+                        + group.getTitle();
+            } else {
+                log.warn("must have a valid group [{}]", uid);
                 return null;
             }
         }
         return addGradebook(uid, name);
-        
+    }
+
+    /**
+     * Validates that a gradebook UID corresponds to either a valid site or an existing group.
+     *
+     * <p>This method performs a two-step validation process:</p>
+     * <ol>
+     *   <li>First checks if the UID represents an existing site</li>
+     *   <li>If not a site, verifies the UID represents an existing group</li>
+     * </ol>
+     *
+     * <p>The validation ensures that gradebook operations are only performed on legitimate
+     * site or group contexts, preventing unauthorized access to gradebook data.</p>
+     *
+     * @param gradebookUid the unique identifier to validate; must not be null, empty, or blank
+     * @return {@code true} if the gradebookUid represents either:
+     *         <ul>
+     *           <li>An existing site, or</li>
+     *           <li>An existing group</li>
+     *         </ul>
+     *         {@code false} otherwise, including when gradebookUid is blank
+     *
+     * @implNote This method logs debug information indicating the type (Site/Group) and
+     *           validation result for troubleshooting purposes
+     *
+     * @see SiteService#siteExists(String)
+     * @see SiteService#findGroup(String)
+     */
+    private boolean isValidGradebookUid(String gradebookUid) {
+        boolean valid = false;
+        char type = '-';
+
+        if (StringUtils.isNotBlank(gradebookUid)) {
+            if (siteService.siteExists(gradebookUid)) {
+                // is a site
+                type = 'S';
+                valid = true;
+            } else {
+                // is a group
+                Group group = siteService.findGroup(gradebookUid);
+                if (group != null) {
+                    type = 'G';
+                    valid = true;
+                }
+            }
+        }
+        log.debug("gradebook uid [{}:{}] is valid: [{}]", type, gradebookUid, valid);
+        return valid;
     }
 
     private List<GradebookAssignment> getAssignments(Long gradebookId) {
         return gradingPersistenceManager.getAssignmentsForGradebook(gradebookId);
+    }
+
+    private List<GradebookAssignment> getAssignmentsByGradebookAndCategoryId(Long gradebookId, Long categoryId) {
+        return gradingPersistenceManager.getAssignmentsForGradebookAndCategoryId(gradebookId, categoryId);
     }
 
     public String getGradebookUid(final Long id) {
@@ -4937,11 +5343,20 @@ public class GradingServiceImpl implements GradingService {
             Collection<ToolConfiguration> gbs = site.getTools("sakai.gradebookng");
             for (ToolConfiguration tc : gbs) {
                 Properties props = tc.getPlacementConfig();
-                if (props.getProperty(GB_GROUP_TOOL_PROPERTY) != null) {
-                    log.debug("Detected gradebook for group {}", props.getProperty(GB_GROUP_TOOL_PROPERTY));
-                    Optional<Gradebook> gb = gradingPersistenceManager.getGradebook(props.getProperty(GB_GROUP_TOOL_PROPERTY));
+                String groupId = props.getProperty(GB_GROUP_TOOL_PROPERTY);
+                if (groupId != null) {
+                    log.debug("Detected gradebook for group {}", groupId);
+                    Optional<Gradebook> gb = gradingPersistenceManager.getGradebook(groupId);
                     if (gb.isPresent()) {
                         gbList.add(gb.get());
+                    } else {
+                        Gradebook createdGb = getGradebook(groupId, siteId);
+                        if (createdGb != null) {
+                            log.debug("Gradebook added for groupId={}", groupId);
+                            gbList.add(createdGb);
+                        } else {
+                            log.warn("Gradebook not found in DB for groupId '{}'", groupId);
+                        }
                     }
                 }
             }

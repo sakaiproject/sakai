@@ -114,9 +114,12 @@
 			<%-- topic short description and long description --%>
 			<h:panelGroup layout="block" styleClass="topicBloc">
 				<h:panelGroup layout="block" styleClass="textPanel">
-					<h:graphicImage url="/images/silk/date_delete.png" title="#{msgs.topic_restricted_message}" alt="#{msgs.topic_restricted_message}" rendered="#{ForumTool.selectedTopic.availability == 'false'}" style="margin-right:.5em"/>
-					<h:graphicImage url="/images/silk/lock.png" alt="#{msgs.cdfm_forum_locked}" 
-						 rendered="#{ForumTool.selectedTopic.locked =='true'}" style="margin-right:.5em"/>
+					<h:panelGroup rendered="#{ForumTool.selectedTopic.availability == 'false'}">
+						<span class="bi bi-calendar-x" aria-hidden="true" style="margin-right:.5em"></span>
+					</h:panelGroup>
+					<h:panelGroup rendered="#{ForumTool.selectedTopic.locked =='true'}">
+						<span class="bi bi-lock-fill" aria-hidden="true" style="margin-right:.5em"></span>
+					</h:panelGroup>
 					<h:outputText value="#{ForumTool.selectedTopic.topic.shortDescription}" />
 				</h:panelGroup>
 				<%-- link to open and close long desc. --%>
@@ -143,8 +146,9 @@
 				</h:panelGroup>
 			</h:panelGroup>
 			<h:messages globalOnly="true" infoClass="success" errorClass="alertMessage" rendered="#{! empty facesContext.maximumSeverity}"/>
-			<h:panelGroup styleClass="margin-left:1em;">
-				<h:graphicImage url="/../../library/image/silk/table_add.png" alt="#{msgs.cdfm_message_count}" />&nbsp;<h:outputText value="#{msgs.cdfm_message_count}" />:&nbsp;
+			<h:panelGroup styleClass="ms-2">
+				<span class="bi bi-table" aria-hidden="true"></span>&nbsp;
+				<h:outputText value="#{msgs.cdfm_message_count}" />:&nbsp;
 				<h:panelGroup id="counttotal"></h:panelGroup>
 			</h:panelGroup>
 			<h:panelGrid columns="2" 
@@ -157,58 +161,58 @@
 				<h:panelGroup style="display:block">
 					<h:commandLink styleClass="button" title="#{msgs.cdfm_button_bar_reply_to_msg}" action="#{ForumTool.processDfMsgReplyMsg}" 
 							rendered="#{ForumTool.selectedTopic.isNewResponseToResponse && ForumTool.selectedMessage.msgApproved && !ForumTool.selectedTopic.locked && !ForumTool.selectedForum.locked == 'true'}">
-						<h:graphicImage value="/../../library/image/silk/email_go.png" alt="#{msgs.cdfm_button_bar_reply_to_msg}" rendered="#{ForumTool.selectedTopic.isNewResponseToResponse}" />
+						<span class="bi bi-reply-fill" aria-hidden="true" title="#{msgs.cdfm_button_bar_reply_to_msg}"></span>
 						<h:outputText value=" #{msgs.cdfm_button_bar_reply_to_msg}" />
 					</h:commandLink>
 					
 					<h:commandLink styleClass="button"  title="#{msgs.cdfm_button_bar_reply_to_thread}" action="#{ForumTool.processDfMsgReplyThread}" 
 							rendered="#{ForumTool.selectedTopic.isNewResponseToResponse && ForumTool.selectedThreadHead.msgApproved && !ForumTool.selectedTopic.locked && !ForumTool.selectedForum.locked == 'true'}">
-						<h:graphicImage value="/../../library/image/silk/folder_go.png" alt="#{msgs.cdfm_button_bar_reply_to_thread}" />
+						<span class="bi bi-reply-all-fill" aria-hidden="true" title="#{msgs.cdfm_button_bar_reply_to_thread}"></span>
 						<h:outputText value=" #{msgs.cdfm_button_bar_reply_to_thread}" />
 					</h:commandLink>
 					
 					<h:commandLink styleClass="button"  title="#{msgs.cdfm_button_bar_delete_msg}" action="#{ForumTool.processDfMsgDeleteConfirm}" rendered="#{ForumTool.selectedMessage.userCanDelete}" >
-						<h:graphicImage value="/../../library/image/silk/email_delete.png" alt="#{msgs.cdfm_button_bar_delete_msg}" />
+						<span class="bi bi-trash-fill" aria-hidden="true" title="#{msgs.cdfm_button_bar_delete_msg}"></span>
 						<h:outputText value=" #{msgs.cdfm_button_bar_delete_msg}" />
 					</h:commandLink>
 					
 					<h:commandLink styleClass="button"  title="#{msgs.cdfm_button_bar_revise}" action="#{ForumTool.processDfMsgRvs}" 
 							rendered="#{ForumTool.selectedMessage.revise}">
-						<h:graphicImage value="/../../library/image/silk/email_edit.png" alt="#{msgs.cdfm_button_bar_revise}" />
+						<span class="bi bi-pencil-fill" aria-hidden="true" title="#{msgs.cdfm_button_bar_revise}"></span>
 						<h:outputText value=" #{msgs.cdfm_button_bar_revise}" />
 					</h:commandLink>
 					
 					<h:commandLink styleClass="button"  title="#{msgs.cdfm_button_bar_grade}" action="#{ForumTool.processDfMsgGrd}" 
 							rendered="#{ForumTool.selectedTopic.isPostToGradebook && ForumTool.gradebookExist}">
-						<h:graphicImage value="/../../library/image/silk/award_star_gold_1.png" alt="#{msgs.cdfm_button_bar_grade}" />
+						<span class="bi bi-award" aria-hidden="true" title="#{msgs.cdfm_button_bar_grade}"></span>
 						<h:outputText value=" #{msgs.cdfm_button_bar_grade}" />
 					</h:commandLink>
 					<%-- Email --%>
 					<h:outputLink styleClass="button"  id="createEmail1" value="mailto:#{ForumTool.selectedMessage.authorEmail}" rendered="#{ForumTool.selectedMessage.userCanEmail && ForumTool.selectedMessage.authorEmail != '' && ForumTool.selectedMessage.authorEmail != null}"> 
 						<f:param value="#{msgs.cdfm_feedback_on} #{ForumTool.selectedMessage.message.title}" name="subject" />
-						<h:graphicImage value="/../../library/image/silk/email_edit.png" alt="#{msgs.cdfm_button_bar_email}" />
+						<span class="bi bi-envelope" aria-hidden="true" title="#{msgs.cdfm_button_bar_email}"></span>
   						<h:outputText value=" #{msgs.cdfm_button_bar_email}"/>
 					</h:outputLink>
 					<%-- premalink --%>
 					<h:outputLink id="permalink1" value="#{ForumTool.messageURL}" styleClass="button permaLink" title="#{msgs.cdfm_button_bar_permalink_message}"> 
-						<h:graphicImage value="/../../library/image/silk/folder_go.png" alt="#{msgs.cdfm_button_bar_permalink}" />
+						<span class="bi bi-link" aria-hidden="true" title="#{msgs.cdfm_button_bar_permalink}"></span>
   						<h:outputText value=" #{msgs.cdfm_button_bar_permalink}"/>
 					</h:outputLink>
 				</h:panelGroup>
 				<h:panelGroup style="display:block;white-space:nowrap;">
 					<h:commandLink styleClass="button" title="#{msgs.cdfm_button_bar_deny}" action="#{ForumTool.processDfMsgDeny}" 
 							rendered="#{ForumTool.allowedToDenyMsg}">
-						<h:graphicImage value="/../../library/image/silk/cross.png" alt="#{msgs.cdfm_button_bar_deny}" />
+						<span class="bi bi-x-circle" aria-hidden="true" title="#{msgs.cdfm_button_bar_deny}"></span>
 						<h:outputText value=" #{msgs.cdfm_button_bar_deny}" />
 					</h:commandLink>
 					<h:commandLink styleClass="button" title="#{msgs.cdfm_button_bar_add_comment}" action="#{ForumTool.processDfMsgAddComment}" 
 							rendered="#{ForumTool.allowedToApproveMsg && ForumTool.selectedMessage.msgDenied}">
-						<h:graphicImage value="/../../library/image/silk/comment.png" alt="#{msgs.cdfm_button_bar_add_comment}" />
+						<span class="bi bi-chat-text" aria-hidden="true" title="#{msgs.cdfm_button_bar_add_comment}"></span>
 						<h:outputText value=" #{msgs.cdfm_button_bar_add_comment}" />
 					</h:commandLink>
 					<h:commandLink styleClass="button" title="#{msgs.cdfm_button_bar_approve}" action="#{ForumTool.processDfMsgApprove}" 
 							rendered="#{ForumTool.allowedToApproveMsg}">
-						<h:graphicImage value="/../../library/image/silk/tick.png" alt="#{msgs.cdfm_button_bar_approve}" />
+						<span class="bi bi-check-circle" aria-hidden="true" title="#{msgs.cdfm_button_bar_approve}"></span>
 						<h:outputText value=" #{msgs.cdfm_button_bar_approve}" />
 					</h:commandLink>
 				</h:panelGroup>

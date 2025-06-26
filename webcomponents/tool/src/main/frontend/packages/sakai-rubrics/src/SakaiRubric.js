@@ -6,7 +6,6 @@ import "../sakai-rubric-criteria-readonly.js";
 import "../sakai-rubric-edit.js";
 import "../sakai-item-delete.js";
 import "../sakai-rubric-pdf.js";
-import { tr } from "./SakaiRubricsLanguage.js";
 import { SharingChangeEvent } from "./SharingChangeEvent.js";
 
 export class SakaiRubric extends RubricsElement {
@@ -23,6 +22,7 @@ export class SakaiRubric extends RubricsElement {
     _validWeight: { state: true },
     _maxPoints: { state: true },
     _minPoints: { state: true },
+    _renderCriteria: { state: true },
   };
 
   constructor() {
@@ -73,20 +73,22 @@ export class SakaiRubric extends RubricsElement {
 
   firstUpdated() {
 
-    const shared = this.tagName === "SAKAI-RUBRIC-READONLY" ? "shared-" : "";
-
-    const criteriaBlock = this.querySelector(`#rubric-collapse-${shared}${this.rubric.id}`);
+    const criteriaBlock = this.querySelector(".collapse");
 
     criteriaBlock.addEventListener("show.bs.collapse", e => {
 
+      this._renderCriteria = true;
+
       e.stopPropagation();
-      this.querySelector(`#rubric-toggle-${shared}${this.rubric.id} span.fa`).classList.replace("fa-chevron-right", "fa-chevron-down");
+      this.querySelector(".rubric-toggle span.fa").classList.replace("fa-chevron-right", "fa-chevron-down");
     });
 
     criteriaBlock.addEventListener("hide.bs.collapse", e => {
 
+      this._renderCriteria = false;
+
       e.stopPropagation();
-      this.querySelector(`#rubric-toggle-${shared}${this.rubric.id} span.fa`).classList.replace("fa-chevron-down", "fa-chevron-right");
+      this.querySelector(".rubric-toggle span.fa").classList.replace("fa-chevron-down", "fa-chevron-right");
     });
   }
 
@@ -96,8 +98,7 @@ export class SakaiRubric extends RubricsElement {
       <div class="rubric-title">
         <div>
           <button type="button"
-              class="btn btn-icon btn-sm"
-              id="rubric-toggle-${this.rubric.id}"
+              class="btn btn-icon btn-sm rubric-toggle"
               data-bs-toggle="collapse"
               data-bs-target="#rubric-collapse-${this.rubric.id}"
               aria-controls="rubric-collapse-${this.rubric.id}"
@@ -213,13 +214,14 @@ export class SakaiRubric extends RubricsElement {
       </div>
 
       <div class="collapse" id="rubric-collapse-${this.rubric.id}">
+        ${this._renderCriteria ? html`
         <div class="rubric-details style-scope sakai-rubric" rubric-id="${this.rubric.id}">
           <div class="sak-banner-success d-none" aria-live="polite">${this.tr("saved_successfully")}</div>
+          <div class="sak-banner-error d-none" aria-live="polite">${this.tr("save_failed")}</div>
           <sakai-rubric-criteria
             rubric-id="${this.rubric.id}"
             site-id="${this.rubric.ownerId}"
             .criteria="${this.rubric.criteria}"
-            @save-weights="${this.handleSaveWeights}"
             @weight-changed=${this.handleCriterionWeightChange}
             @refresh-total-weight=${this.handleRefreshTotalWeight}
             .weighted=${this.rubric.weighted}
@@ -231,6 +233,7 @@ export class SakaiRubric extends RubricsElement {
             ?is-draft="${this.rubric.draft}">
           </sakai-rubric-criteria>
         </div>
+        ` : nothing}
       </div>
     `;
   }
@@ -261,50 +264,40 @@ export class SakaiRubric extends RubricsElement {
     .catch (error => console.error(error));
   }
 
-  handleSaveWeights() {
-    const saveWeightsBtn = document.querySelector(`[rubric-id='${this.rubric.id}'] .save-weights`);
-    // Disable the save button
-    if (saveWeightsBtn) saveWeightsBtn.setAttribute("disabled", true);
+  saveCriterionWeights() {
 
-    // Track successful saves
-    let successCount = 0;
-    const totalCriteria = this.rubric.criteria.length;
+    const all = Promise.all(this.rubric.criteria.map(cr => {
 
-    this.rubric.criteria.forEach(cr => {
       this.updateRubricOptions.body = JSON.stringify([ { "op": "replace", "path": "/weight", "value": cr.weight } ]);
+
       const url = `/api/sites/${this.rubric.ownerId}/rubrics/${this.rubric.id}/criteria/${cr.id}`;
-      fetch(url, this.updateRubricOptions)
-      .then(r => {
-        if (r.ok) {
-          successCount++;
-          // When all criteria have been saved successfully
-          if (successCount === totalCriteria) {
-            // Force the success message to be shown
-            this.updateComplete.then(() => {
-              // Find the success banner using the rubric-id attribute
-              const successBanner = document.querySelector(`[rubric-id='${this.rubric.id}'] .sak-banner-success`);
-              if (successBanner) {
-                // Remove d-none class to show the message
-                successBanner.classList.remove("d-none");
-                // Set a timeout to hide the message after 5 seconds
-                setTimeout(() => {
-                  successBanner.classList.add("d-none");
-                }, 5000);
-              } else {
-                console.error("Success banner element not found");
-              }
-              // Re-enable the save button
-              if (saveWeightsBtn) saveWeightsBtn.removeAttribute("disabled");
-            });
-            this.requestUpdate();
-            this.dispatchEvent(new SharingChangeEvent());
+
+      return fetch(url, this.updateRubricOptions)
+        .then(r => {
+
+          if (!r.ok) {
+            throw new Error(`Network error while setting criterion weight for ${cr.id}`);
           }
-        } else {
-          throw new Error("Network error while setting criterion weight");
-        }
-      })
-      .catch(error => console.error(error));
+        });
+    }));
+
+    all.then(() => {
+
+      this.dispatchEvent(new SharingChangeEvent());
+
+      const successBanner = this.querySelector(".sak-banner-success");
+      successBanner.classList.remove("d-none");
+
+      setTimeout(() => successBanner.classList.add("d-none"), 5000);
+    }).catch(() => {
+
+      const errorBanner = this.querySelector(".sak-banner-error");
+      errorBanner.classList.remove("d-none");
+
+      setTimeout(() => errorBanner.classList.add("d-none"), 5000);
     });
+
+    return all;
   }
 
   handleCriterionWeightChange(e) {
@@ -359,7 +352,7 @@ export class SakaiRubric extends RubricsElement {
     .then(r => {
 
       if (r.ok) {
-        this.handleSaveWeights();
+        this.saveCriterionWeights();
         this.handleDraftBtn();
         this.requestUpdate();
       }
@@ -376,7 +369,7 @@ export class SakaiRubric extends RubricsElement {
       if (firstCriterion) {
         //Set weight of first criterion to 100 (%)
         firstCriterion.weight = 100;
-        this.handleSaveWeights(e);
+        this.saveCriterionWeights(e);
       }
       this.handleRefreshTotalWeight();
     }
@@ -419,19 +412,19 @@ export class SakaiRubric extends RubricsElement {
       this.draftIcon = "fa-eye-slash highlight";
       if (this.rubric.weighted) {
         if (!this._validWeight) {
-          this.draftLabel = tr("draft_invalid_weight_publish") + tr("total_weight_wrong");
+          this.draftLabel = this.tr("draft_invalid_weight_publish") + this.tr("total_weight_wrong");
         } else {
-          this.draftLabel = tr("draft_turn_off") + tr("draft_save_weights");
+          this.draftLabel = this.tr("draft_turn_off") + this.tr("draft_save_weights");
         }
       } else {
-        this.draftLabel = tr("draft_turn_off");
+        this.draftLabel = this.tr("draft_turn_off");
       }
     } else {
       this.draftIcon = "fa-eye";
       if (this.rubric.weighted) {
-        this.draftLabel = tr("draft_turn_on") + tr("draft_save_weights");
+        this.draftLabel = this.tr("draft_turn_on") + this.tr("draft_save_weights");
       } else {
-        this.draftLabel = tr("draft_turn_on");
+        this.draftLabel = this.tr("draft_turn_on");
       }
     }
   }
@@ -440,10 +433,10 @@ export class SakaiRubric extends RubricsElement {
 
     if (this.rubric.weighted) {
       this._weightedIcon = "fa-percent";
-      this.weightLabel = tr("weighted_label");
+      this.weightLabel = this.tr("weighted_label");
     } else {
       this._weightedIcon = "fa-hashtag";
-      this.weightLabel = tr("standard_label");
+      this.weightLabel = this.tr("standard_label");
     }
 
     this.dispatchEvent(new SharingChangeEvent());

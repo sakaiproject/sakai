@@ -2,6 +2,7 @@ export const i18nUrl = /.*getI18nProperties.*image-editor.*/;
 
 export const i18n = `
 cancel=Cancel
+done=Done
 image_picker_label=Select an image to use
 pan_down=Pan image down
 pan_left=Pan image left

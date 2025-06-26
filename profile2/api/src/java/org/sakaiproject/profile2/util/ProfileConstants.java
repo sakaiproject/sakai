@@ -51,16 +51,12 @@ public class ProfileConstants {
 	public static final String UNAVAILABLE_IMAGE = "images/no_image.gif";
 	public static final String UNAVAILABLE_IMAGE_THUMBNAIL = "/profile2-tool/images/no_image_thumbnail.gif";
 	public static final String UNAVAILABLE_IMAGE_FULL = "/profile2-tool/images/no_image.gif";
-	public static final String CLOSE_IMAGE = "/library/image/silk/cross.png";
-	public static final String INFO_IMAGE = "/library/image/silk/information.png";
 	public static final String DFLT_PROFILE_AVATAR_COLORS = "#1abc9c,#16a085,#f1c40f,#f39c12,#2ecc71,#27ae60,#e67e22,#d35400,#3498db,#2980b9,#e74c3c,#c0392b,#9b59b6,#8e44ad,#bdc3c7,#34495e,#2c3e50,#95a5a6,#7f8c8d,#ec87bf,#d870ad,#f69785,#9ba37e,#b49255,#b49255,#a94136";
 	public static final int PROFILE_AVATAR_WIDTH = 200;
 	public static final int PROFILE_AVATAR_HEIGHT = 200;
 	public static final String DFLT_PROFILE_AVATAR_FONT_FAMILY = "sans-serif";
 	public static final String DFLT_PROFILE_AVATAR_FONT_SIZE_1_CHAR = "120";
 	public static final String DFLT_PROFILE_AVATAR_FONT_SIZE_2_CHAR = "90";
-
-	public static final String RSS_IMG = "/library/image/silk/feed.png";
 
 	//css classes for fontawsome icons
 	public static final String INFO_ICON = "infoIcon";
@@ -73,9 +69,6 @@ public class ProfileConstants {
 	public static final String PICTURE_SETTING_URL_PROP = "url";
 	public static final int PICTURE_SETTING_OFFICIAL = 3;
 	public static final String PICTURE_SETTING_OFFICIAL_PROP = "official";
-	public static final int PICTURE_SETTING_GRAVATAR = 4;
-	//n.b a gravatar is not an enforceable setting, hence no property here. it is purely a choice.
-	//it can be disabled in sakai.properties if required.
 
 	public static final int PICTURE_SETTING_DEFAULT = PICTURE_SETTING_UPLOAD;
 
@@ -90,9 +83,6 @@ public class ProfileConstants {
 	//the property that an external provider may set into the user properties for the jpegPhoto field.
 	public static final String USER_PROPERTY_JPEG_PHOTO = "jpegPhoto";
 
-	//gravatar base URL
-	public static final String GRAVATAR_BASE_URL = "//www.gravatar.com/avatar/";
-
     // Defines the name of the blank image, the one a user gets when nothing else is available
     public static final String BLANK = "blank";
 
@@ -102,7 +92,6 @@ public class ProfileConstants {
 
 	//these values are used when creating a default preferences record for a user
 	public static final boolean DEFAULT_OFFICIAL_IMAGE_SETTING = false;
-	public static final boolean DEFAULT_GRAVATAR_SETTING = false;
 
 	public static final boolean DEFAULT_BIRTHYEAR_VISIBILITY = true;
 
@@ -122,7 +111,6 @@ public class ProfileConstants {
 	public static final boolean SAKAI_PROP_PROFILE2_PROFILE_INTERESTS_ENABLED = true; //profile2.profile.interests.enabled
 	public static final boolean SAKAI_PROP_PROFILE2_PROFILE_PRONUNCIATION_ENABLED = true; //profile2.profile.name.pronunciation.enabled
 	public static final boolean SAKAI_PROP_PROFILE2_OFFICIAL_IMAGE_ENABLED = false; //profile2.official.image.enabled
-	public static final boolean SAKAI_PROP_PROFILE2_GRAVATAR_IMAGE_ENABLED = true; //profile2.gravatar.image.enabled
 	public static final boolean SAKAI_PROP_PROFILE2_GOOGLE_INTEGRATION_ENABLED = false; //profile2.integration.google.enabled
 	public static final boolean SAKAI_PROP_PROFILE2_PROFILE_FIELDS_ENABLED = true; //profile2.profile.fields.enabled
 	public static final boolean SAKAI_PROP_PROFILE2_MENU_ENABLED = true; //profile2.menu.enabled
@@ -176,9 +164,6 @@ public class ProfileConstants {
 	//entity set defaults
 	public static final String ENTITY_SET_ACADEMIC = "displayName,imageUrl";
 	public static final String ENTITY_SET_MINIMAL = "displayName,statusMessage,statusDate";
-
-	//entity css
-	public static final String ENTITY_CSS_PROFILE = "/profile2-tool/css/profile2-profile-entity.css";
 
 	//max length of the personal summary in the formatted profile
 	public static final String FORMATTED_PROFILE_SUMMARY_MAX_LENGTH = "1000"; //profile2.formatted.profile.summary.max

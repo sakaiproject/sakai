@@ -15,6 +15,9 @@ package org.sakaiproject.webapi.controllers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.entity.api.Entity;
@@ -23,9 +26,12 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.grading.api.GradeDefinition;
+import org.sakaiproject.grading.api.GradingAuthz;
 import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.grading.api.SortType;
 import org.sakaiproject.grading.api.model.Gradebook;
+import org.sakaiproject.samigo.api.SamigoReferenceReckoner;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -52,6 +58,9 @@ import java.util.stream.Collectors;
 public class GradesController extends AbstractSakaiApiController {
 
     @Resource
+    private AuthzGroupService authzGroupService;
+
+    @Resource
     private EntityManager entityManager;
 
     @Resource(name = "org.sakaiproject.grading.api.GradingService")
@@ -66,6 +75,7 @@ public class GradesController extends AbstractSakaiApiController {
     private final Function<String, List<GradeRestBean>> gradeDataSupplierForSite = siteId -> {
 
         List<Assignment> assignments = gradingService.getViewableAssignmentsForCurrentUser(siteId, siteId, SortType.SORT_BY_NONE);
+
         List<Long> assignmentIds = assignments.stream().map(Assignment::getId).collect(Collectors.toList());
 
         // no need to continue if the site doesn't have gradebook items
@@ -73,39 +83,64 @@ public class GradesController extends AbstractSakaiApiController {
 
         // collect site information
         return siteService.getOptionalSite(siteId).map(site -> {
+
             String userId = checkSakaiSession().getUserId();
-            Role role = site.getUserRole(userId);
-            boolean isMaintainer = StringUtils.equalsIgnoreCase(site.getMaintainRole(), role.getId());
+            boolean canGrade = securityService.unlock(GradingAuthz.PERMISSION_GRADE_ALL, site.getReference())
+              || securityService.unlock(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, site.getReference())
+              || securityService.unlock(SamigoConstants.AUTHZ_GRADE_ASSESSMENT_ANY, site.getReference());
 
-            List<String> userIds = isMaintainer
-                    ? site.getRoles().stream()
-                            .map(Role::getId)
-                            .filter(r -> !site.getMaintainRole().equals(r))
-                            .flatMap(r -> site.getUsersHasRole(r).stream())
-                            .collect(Collectors.toList())
-                    : List.of(userId);
+            List<String> siteUserIds = canGrade ? getGradableUsers(site) : List.of(userId);
 
-            Map<Long, List<GradeDefinition>> gradeDefinitions = gradingService.getGradesWithoutCommentsForStudentsForItems(siteId, siteId, assignmentIds, userIds);
+            Map<Long, List<GradeDefinition>> gradeDefinitions = gradingService.getGradesWithoutCommentsForStudentsForItems(siteId, siteId, assignmentIds, siteUserIds);
 
             List<GradeRestBean> beans = new ArrayList<>();
             // collect information for each gradebook item
             for (Assignment a : assignments) {
                 GradeRestBean bean = new GradeRestBean(a);
                 bean.setSiteTitle(site.getTitle());
-                bean.setSiteRole(role.getId());
+                bean.setCanGrade(canGrade);
 
                 // collect information for internal gb item
                 List<GradeDefinition> gd = gradeDefinitions.get(a.getId());
 
+                String reference = a.getExternallyMaintained() ? a.getExternalId() : "";
+
+                // Samigo only sets the assessment id as the external id, not an Entity reference
+                if (StringUtils.equals(a.getExternalAppName(), SamigoConstants.TOOL_ID)) {
+                    reference = SamigoReferenceReckoner.reckoner().site(siteId).subtype("p").id(a.getExternalId()).reckon().getReference();
+                }
+
+                int totalGradableUserCount = siteUserIds.size();
+
+                if (a.getExternallyMaintained()) {
+                    Optional<Entity> optionalEntity = entityManager.getEntity(reference);
+                    if (optionalEntity.isEmpty() || optionalEntity.get().getGroupReferences().isEmpty()) continue; // entity is not accessible, so skip
+
+                    Entity entity = optionalEntity.get();
+                    totalGradableUserCount = entity.getGroupReferences()
+                            .filter(refs -> !refs.isEmpty())
+                            .map(refs -> refs.stream()
+                                    .mapToInt(g -> {
+                                        try {
+                                            return getGradableUsers(authzGroupService.getAuthzGroup(g)).size();
+                                        } catch (Exception e) {
+                                            log.warn("No authz group found for reference {}", g);
+                                            return 0;
+                                        }
+                                    })
+                                    .sum())
+                            .orElse(siteUserIds.size());
+                }
+
                 if (gd == null) {
                     // no grades for this gb assignment yet
                     bean.setScore("");
-                    if (isMaintainer) {
-                        bean.setUngraded(userIds.size());
+                    if (canGrade) {
+                        bean.setUngraded(totalGradableUserCount);
                     }
                     bean.setNotGradedYet(true);
                 } else {
-                    if (isMaintainer) {
+                    if (canGrade) {
                         double total = 0;
                         for (GradeDefinition d : gd) {
                             if (Objects.equals(GradingConstants.GRADE_TYPE_POINTS, d.getGradeEntryType())) {
@@ -116,7 +151,7 @@ public class GradesController extends AbstractSakaiApiController {
                             }
                         }
                         bean.setScore(total > 0 ? String.format("%.2f", total / gd.size()) : "");
-                        bean.setUngraded(userIds.size() - gd.size());
+                        bean.setUngraded(totalGradableUserCount - gd.size());
                         bean.setNotGradedYet(gd.isEmpty());
                     } else {
                         if (a.getReleased() && !gd.isEmpty()) {
@@ -148,6 +183,18 @@ public class GradesController extends AbstractSakaiApiController {
             return beans;
         }).orElse(Collections.emptyList());
     };
+
+    private List<String> getGradableUsers(AuthzGroup gr) {
+
+      return gr.getRoles().stream().filter(r -> {
+
+        return (r.isAllowed(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION)
+                  || r.isAllowed(SamigoConstants.CAN_TAKE))
+              && !r.isAllowed(GradingAuthz.PERMISSION_GRADE_ALL)
+              && !r.isAllowed(GradingAuthz.PERMISSION_GRADE_SECTION);
+      })
+      .flatMap(r -> gr.getUsersHasRole(r.getId()).stream()).collect(Collectors.toList());
+    }
 
     @GetMapping(value = "/users/me/grades", produces = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, List> getUserGrades() {

@@ -173,7 +173,6 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     }
 
     this.querySelector("sakai-rubric-grading")?.setAttribute("evaluated-item-id", this.__submission.id);
-    this.requestUpdate();
 
     if (this.gradable.allowPeerAssessment) {
       this.updateComplete.then(() => (new bootstrap.Popover(this.querySelector("#peer-info"))));
@@ -185,6 +184,8 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     this._showRemoveFeedbackComment = (typeof this.__submission.feedbackComment !== "undefined");
     this._showingFullPrivateNotes = false;
     this._showingFullFeedbackComment = false;
+
+    this.updateComplete.then(() => this._resetGradeInputs());
   }
 
   get _submission() { return this.__submission; }
@@ -197,10 +198,36 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     return this._i18n;
   }
 
-  _setup() {
+  _closeGrader(e) {
 
-    //Disable Offcanvas FocusTrap
-    bootstrap.Offcanvas.prototype._initializeFocusTrap = function () { return { activate() {}, deactivate() {} }; };
+    this.querySelector("sakai-rubric-grading")?.closeCommentEditors();
+
+    if (this.modified || this.querySelector("sakai-grader-file-picker")?.hasFiles()) {
+      e.preventDefault();
+      this._save({ bannerTimout: 2000 });
+    }
+
+    // Close all the collapses on the hidden event, so we don't have loads of sliding
+    // about going on at once.
+    bootstrap.Collapse.getInstance(this.querySelector("#feedback-block"))?.hide();
+    bootstrap.Collapse.getInstance(this.querySelector("#private-notes-block"))?.hide();
+    this._feedbackCommentRemoved = false;
+    this._privateNotesRemoved = false;
+    this._closeRubric();
+    this._closeStudentRubric();
+
+    bootstrap.Collapse.getInstance(this.querySelector("#feedback-block"))?.hide();
+
+    this._toggleGrader();
+  }
+
+  _toggleGrader() {
+
+    this.querySelector("#grader").classList.toggle("grader--visible");
+    this.querySelector("#grader-gradable-container").classList.toggle("d-none");
+  }
+
+  _setup() {
 
     this.feedbackCommentEditor = this._replaceWithEditor("grader-feedback-comment", data => {
       this._submission.feedbackComment = data;
@@ -210,31 +237,6 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     this.privateNotesEditor = this._replaceWithEditor("grader-private-notes", data => {
       this._submission.privateNotes = data;
       this._gradeOrCommentsModified = true;
-    });
-
-    document.getElementById("grader").addEventListener("hide.bs.offcanvas", e => {
-
-      this.querySelector("sakai-rubric-grading")?.closeCommentEditors();
-
-      if (this.modified || this.querySelector("sakai-grader-file-picker")?.hasFiles()) {
-        e.preventDefault();
-        this._save({ closeSidebarTimeout: 2000 });
-      }
-
-    });
-
-    document.getElementById("grader").addEventListener("hidden.bs.offcanvas", () => {
-
-      // Close all the collapses on the hidden event, so we don't have loads of sliding
-      // about going on at once.
-      bootstrap.Collapse.getInstance(document.getElementById("feedback-block"))?.hide();
-      bootstrap.Collapse.getInstance(document.getElementById("private-notes-block"))?.hide();
-      this._feedbackCommentRemoved = false;
-      this._privateNotesRemoved = false;
-      this._closeRubric();
-      this._closeStudentRubric();
-
-      bootstrap.Collapse.getInstance(document.getElementById("feedback-block"))?.hide();
     });
 
     this._setupVisibleFlags();
@@ -278,9 +280,9 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
     this.updateComplete.then(() => {
 
-      this.querySelector("#grader-rubric-link").focus();
-      this.querySelector("sakai-rubric-grading-button").setHasEvaluation();
-      this.querySelector("sakai-rubric-evaluation-remover").setHasEvaluation();
+      this.querySelector("#grader-rubric-link")?.focus();
+      this.querySelector("sakai-rubric-grading-button")?.setHasEvaluation();
+      this.querySelector("sakai-rubric-evaluation-remover")?.setHasEvaluation();
     });
   }
 
@@ -323,7 +325,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
       if (!cancelling) {
         this._submission.feedbackText = this.feedbackTextEditor.getData();
         if (this.feedbackTextEditor.checkDirty()) {
-          bootstrap.Offcanvas.getOrCreateInstance(document.getElementById("grader")).show();
+          this._save({});
         }
         this.requestUpdate();
       } else {
@@ -502,16 +504,15 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     const release = e.target ? e.target.dataset.release : false;
     const formData = this._getFormData();
 
-
     if (formData.valid) {
       formData.set("gradeOption", release ? "return" : "retract");
-      this._submitGradingData(formData, e.closeSidebarTimeout);
-      const rubricGrading = document.getElementsByTagName("sakai-rubric-grading").item(0);
+      this._submitGradingData(formData, e.bannerTimout);
+      const rubricGrading = this.querySelector("sakai-rubric-grading");
       rubricGrading && (release ? rubricGrading.release() : rubricGrading.save());
     }
   }
 
-  _submitGradingData(formData, closeSidebarTimeout) {
+  _submitGradingData(formData, bannerTimout = 1000) {
 
     this._saving = true;
 
@@ -539,12 +540,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
         this._saveSucceeded = false;
         this._gradeOrCommentsModified = false;
-        const graderEl = document.getElementById("grader");
-        const offcanvasInstance = bootstrap.Offcanvas.getInstance(graderEl);
-        if (offcanvasInstance) {
-          offcanvasInstance.hide();
-        }
-      }, closeSidebarTimeout || 1000);
+      }, bannerTimout);
     })
     .catch (e => {
 
@@ -554,7 +550,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     });
   }
 
-  _cancel() {
+  _cancel(toggle = true) {
 
     const originalSubmission = Object.create(this.originalSubmissions.find(os => os.id === this._submission.id));
     const i = this._submissions.findIndex(s => s.id === this._submission.id);
@@ -571,33 +567,35 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
     this.modified = false;
 
+    this._resetGradeInputs();
+
+    toggle && this._toggleGrader();
+  }
+
+  _resetGradeInputs() {
+
     switch (this.gradeScale) {
       case SCORE_GRADE_TYPE: {
-        const input = document.getElementById("score-grade-input");
+        const input = this.querySelector("#score-grade-input");
         input && (input.value = this._submission.grade);
         break;
       }
       case PASS_FAIL_GRADE_TYPE: {
-        const input = document.getElementById("pass-fail-selector");
+        const input = this.querySelector("#pass-fail-selector");
         input && (input.value = this._submission.grade);
         break;
       }
       case LETTER_GRADE_TYPE: {
-        const input = document.getElementById("letter-grade-selector");
+        const input = this.querySelector("#letter-grade-selector");
         input && (input.value = this._submission.grade);
         break;
       }
       case CHECK_GRADE_TYPE: {
-        const input = document.getElementById("check-grade-input");
+        const input = this.querySelector("#check-grade-input");
         input && (input.checked = this._submission.grade === this._i18n["gen.checked"] || this._submission.grade === GRADE_CHECKED);
         break;
       }
       default:
-    }
-
-    const offcanvasInstance = bootstrap.Offcanvas.getInstance(document.getElementById("grader"));
-    if (offcanvasInstance) {
-      offcanvasInstance.hide();
     }
   }
 
@@ -660,31 +658,101 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
 
   _previous() {
 
+    // Check for unsaved changes before navigating
+    if (this.modified) {
+      if (!confirm(this._i18n.unsaved_changes_warning)) {
+        return;
+      }
+      // User confirmed - discard the unsaved changes
+      this._cancel(false);
+    }
+
     const currentIndex = this._submissions.findIndex(s => s.id === this._submission.id);
 
     if (currentIndex >= 1) {
-      this._hydratePrevious(currentIndex);
-      this._submission = this._submissions[currentIndex - 1];
+      // Check if the previous submission is hydrated before trying to navigate
+      const prevSubmission = this._submissions[currentIndex - 1];
+      if (!prevSubmission.hydrated) {
+        // If not hydrated, fetch it first
+        this._hydrateCluster(prevSubmission.id).then(submission => {
+          if (submission) {
+            this._submission = submission;
+          } else {
+            // Fallback to normal behavior if hydration fails
+            this._hydratePrevious(currentIndex);
+            this._submission = this._submissions[currentIndex - 1];
+          }
+        });
+      } else {
+        // If already hydrated, just set it
+        this._submission = prevSubmission;
+      }
     }
   }
 
   _studentSelected(e) {
 
-    const test = this._submissions.find(s => s.id === e.target.value);
-    if (!test.hydrated) {
-      this._hydrateCluster(test.id).then(s => this._submission = s);
+    // Check for unsaved changes before navigating
+    if (this.modified && e.target.value !== this._submission.id) {
+      if (!confirm(this._i18n.unsaved_changes_warning)) {
+        // Reset the select to the current submission
+        e.target.value = this._submission.id;
+        return;
+      }
+      // User confirmed - discard the unsaved changes
+      this._cancel(false);
+    }
+
+    const selectedSubmission = this._submissions.find(s => s.id === e.target.value);
+    if (!selectedSubmission) {
+      console.error("Selected submission not found in filtered submissions");
+      return;
+    }
+
+    if (!selectedSubmission.hydrated) {
+      this._hydrateCluster(selectedSubmission.id).then(s => {
+        if (s) {
+          this._submission = s;
+        } else {
+          console.error("Failed to hydrate selected submission");
+        }
+      });
     } else {
-      this._submission = this._submissions.find(s => s.id === e.target.value);
+      this._submission = selectedSubmission;
     }
   }
 
   _next() {
 
+    // Check for unsaved changes before navigating
+    if (this.modified) {
+      if (!confirm(this._i18n.unsaved_changes_warning)) {
+        return;
+      }
+      // User confirmed - discard the unsaved changes
+      this._cancel(false);
+    }
+
     const currentIndex = this._submissions.findIndex(s => s.id === this._submission.id);
 
     if (currentIndex < this._submissions.length - 1) {
-      this._hydrateNext(currentIndex);
-      this._submission = this._submissions[currentIndex + 1];
+      // Check if the next submission is hydrated before trying to navigate
+      const nextSubmission = this._submissions[currentIndex + 1];
+      if (!nextSubmission.hydrated) {
+        // If not hydrated, fetch it first
+        this._hydrateCluster(nextSubmission.id).then(submission => {
+          if (submission) {
+            this._submission = submission;
+          } else {
+            // Fallback to normal behavior if hydration fails
+            this._hydrateNext(currentIndex);
+            this._submission = this._submissions[currentIndex + 1];
+          }
+        });
+      } else {
+        // If already hydrated, just set it
+        this._submission = nextSubmission;
+      }
     }
   }
 
@@ -711,31 +779,36 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
       filtered = filtered.filter(s => group.users.includes(s.firstSubmitterId));
     }
 
-    if (filtered.length > 0) {
-      if (filtered.some(s => s.id === this._submission.id)) {
-        this._hydrateCluster(this._submission.id).then(submission => {
-          if (submission) {
-            this._submissions = [ ...filtered ];
-            this._submission = submission;
-          }
-        });
-      } else {
-        const firstSubmissionId = filtered[0].id;
-        this._hydrateCluster(firstSubmissionId).then(submission => {
-          if (submission) {
-            this._submissions = [ ...filtered ];
-            this._submission = submission;
-          }
-        });
-      }
-    } else {
-      this._submission = new Submission();
-    }
+    // Set the filtered submissions first so navigation functions have the correct array
+    this._submissions = [ ...filtered ];
 
     this._totalGraded = filtered.filter(s => s.graded).length;
     this._totalSubmissions = filtered.length;
 
-    this._submissions = [ ...filtered ];
+    if (filtered.length > 0) {
+      // Check if current submission is in the filtered list
+      const currentSubmissionInFilter = filtered.some(s => s.id === this._submission.id);
+
+      // Find submission to display
+      const submissionToHydrateId = currentSubmissionInFilter ? this._submission.id : filtered[0].id;
+
+      // If current submission is not in filter, we need to immediately show the first filtered one
+      if (!currentSubmissionInFilter) {
+        // Use the filtered submission directly to ensure UI update happens immediately
+        const firstFilteredSubmission = filtered.find(s => s.id === submissionToHydrateId);
+        // Make a direct assignment to force immediate update
+        this._submission = firstFilteredSubmission;
+      }
+
+      // Also do hydration to get full data
+      this._hydrateCluster(submissionToHydrateId).then(submission => {
+        if (submission) {
+          this._submission = submission;
+        }
+      });
+    } else {
+      this._submission = new Submission();
+    }
   }
 
   _submittedOnlyChanged(e) {

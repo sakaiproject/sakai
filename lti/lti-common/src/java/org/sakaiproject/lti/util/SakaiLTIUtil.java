@@ -2576,11 +2576,16 @@ public class SakaiLTIUtil {
 		}
 
 		// Now read, set, or delete the non-assignment grade...
+		// For LTI 1.1 columns we don't need to mark them for AGS LineItems retrieval
+		Long tool_id = null;
+		Map<String, Object> content = null;
+
 		Session sess = SessionManager.getCurrentSession();
 
 		SakaiLineItem lineItem = new SakaiLineItem();
 		lineItem.scoreMaximum = 100.0D;
-		org.sakaiproject.grading.api.Assignment gradebookColumn = getGradebookColumn(site, user_id, title, lineItem);
+
+		org.sakaiproject.grading.api.Assignment gradebookColumn = getGradebookColumn(site, user_id, title, lineItem, tool_id, content);
 		if (gradebookColumn == null) {
 			log.warn("gradebookColumn or Id is null, cannot proceed with grading in site {} for column {}", siteId, title);
 			return "Grade failure siteId=" + siteId;
@@ -2660,17 +2665,22 @@ public class SakaiLTIUtil {
 		// Are we in the default lineitem for the content object?
 		// Check if this is as assignment placement and handle it if it is
 		if ( lineitem_key == null ) {
-			org.sakaiproject.assignment.api.model.Assignment assignment = getAssignment(site, content);
-			if ( assignment != null ) {
-				retval = handleAssignment(assignment, userId, scoreObj);
-				return retval;
+			pushAdvisor(); // Add security advisor to allow access to assignments
+			try {
+				org.sakaiproject.assignment.api.model.Assignment assignment = getAssignment(site, content);
+				if ( assignment != null ) {
+					retval = handleAssignment(assignment, userId, scoreObj);
+					return retval;
+				}
+			} finally {
+				popAdvisor(); // Remove security advisor
 			}
 			title = (String) content.get(LTIService.LTI_TITLE);
 			if (title == null || title.length() < 1) {
 				log.error("Could not determine content title {}", content.get(LTIService.LTI_ID));
 				return "Could not determine content title key="+content.get(LTIService.LTI_ID);
 			}
-			gradebookColumn = getGradebookColumn(site, userId, title, lineItem);
+			gradebookColumn = getGradebookColumn(site, userId, title, lineItem, tool_id, content);
 		} else {
 			gradebookColumn = LineItemUtil.getColumnByKeyDAO(siteId, tool_id, lineitem_key);
 			if ( gradebookColumn == null || gradebookColumn.getName() == null ) {
@@ -2682,22 +2692,27 @@ public class SakaiLTIUtil {
 			String external_id = gradebookColumn.getExternalId();
 			log.debug("external_id: {} {}", external_id);
 			if ( external_id != null && LineItemUtil.isAssignmentColumn(external_id) ) {
-				org.sakaiproject.assignment.api.AssignmentService assignmentService = ComponentManager.get(org.sakaiproject.assignment.api.AssignmentService.class);
-				org.sakaiproject.assignment.api.model.Assignment assignment;
+				pushAdvisor(); // Add security advisor to allow access to assignments
 				try {
-					org.sakaiproject.assignment.api.AssignmentReferenceReckoner.AssignmentReference assignmentReference = org.sakaiproject.assignment.api.AssignmentReferenceReckoner.reckoner().reference(external_id).reckon();
-					log.debug("assignmentReference.id {}", assignmentReference.getId());
-					assignment = assignmentService.getAssignment(assignmentReference.getId());
-				} catch (Exception e) {
-					assignment = null;
-					log.error("Unexpected error getting assignment: {}", e.toString());
-					log.debug("Stacktrace:", e);
-				}
+					org.sakaiproject.assignment.api.AssignmentService assignmentService = ComponentManager.get(org.sakaiproject.assignment.api.AssignmentService.class);
+					org.sakaiproject.assignment.api.model.Assignment assignment;
+					try {
+						org.sakaiproject.assignment.api.AssignmentReferenceReckoner.AssignmentReference assignmentReference = org.sakaiproject.assignment.api.AssignmentReferenceReckoner.reckoner().reference(external_id).reckon();
+						log.debug("assignmentReference.id {}", assignmentReference.getId());
+						assignment = assignmentService.getAssignment(assignmentReference.getId());
+					} catch (Exception e) {
+						assignment = null;
+						log.error("Unexpected error getting assignment: {}", e.toString());
+						log.debug("Stacktrace:", e);
+					}
 
-				if ( assignment != null ) {
-					log.debug("Gradebook column is owned by assignment: {}", assignment.getId());
-					retval = handleAssignment(assignment, userId, scoreObj);
-					return retval;
+					if ( assignment != null ) {
+						log.debug("Gradebook column is owned by assignment: {}", assignment.getId());
+						retval = handleAssignment(assignment, userId, scoreObj);
+						return retval;
+					}
+				} finally {
+					popAdvisor(); // Remove security advisor
 				}
 			}
 			title = gradebookColumn.getName();
@@ -2826,6 +2841,7 @@ public class SakaiLTIUtil {
 		org.sakaiproject.assignment.api.AssignmentService assignmentService = ComponentManager.get(org.sakaiproject.assignment.api.AssignmentService.class);
 		org.sakaiproject.user.api.PreferencesService preferencesService  = ComponentManager.get(org.sakaiproject.user.api.PreferencesService.class);
 		UserTimeService userTimeService = ComponentManager.get(UserTimeService.class);
+		org.sakaiproject.site.api.SiteService siteService = ComponentManager.get(org.sakaiproject.site.api.SiteService.class);
 
 		String activityProgress = scoreObj.activityProgress != null ? scoreObj.activityProgress : Score.ACTIVITY_COMPLETED ;
 		String gradingProgress = scoreObj.gradingProgress != null ? scoreObj.gradingProgress : Score.GRADING_FULLYGRADED;
@@ -2841,10 +2857,51 @@ public class SakaiLTIUtil {
 
 		pushAdvisor();
 		try {
-			org.sakaiproject.assignment.api.model.AssignmentSubmission submission = assignmentService.getSubmission(a.getId(), user);
-			if ( submission == null ) {
-				submission = assignmentService.addSubmission(a.getId(), user.getId());
+			org.sakaiproject.assignment.api.model.AssignmentSubmission submission = null;
+			
+			// For group assignments, we need to find the group the user belongs to
+			if (a.getIsGroup()) {
+				log.debug("This is a group assignment {}", a.getId());
+				String context = a.getContext();
+				try {
+					org.sakaiproject.site.api.Site site = siteService.getSite(context);
+					// Find all groups user is a member of that are also assignment groups
+					Set<String> assignmentGroups = a.getGroups();
+					Collection<org.sakaiproject.site.api.Group> userGroups = site.getGroupsWithMember(userId);
+					
+					// Find the first matching group between assignment groups and user groups
+					String groupId = null;
+					for (org.sakaiproject.site.api.Group group : userGroups) {
+						if (assignmentGroups.contains(group.getReference())) {
+							groupId = group.getId();
+							break;
+						}
+					}
+					
+					if (groupId != null) {
+						log.debug("Found group for user: groupId={} userId={}", groupId, userId);
+						// Try to get existing group submission
+						submission = assignmentService.getSubmission(a.getId(), groupId);
+						if (submission == null) {
+							// Create new submission for the group
+							submission = assignmentService.addSubmission(a.getId(), groupId);
+						}
+					} else {
+						log.warn("No matching group found for user in group assignment: userId={}, assignmentId={}", userId, a.getId());
+					}
+				} catch (org.sakaiproject.exception.IdUnusedException e) {
+					log.warn("Site not found: {}, {}", context, e.toString());
+				}
 			}
+			
+			// If this isn't a group assignment, or we couldn't find a group, get/create individual submission
+			if (submission == null) {
+				submission = assignmentService.getSubmission(a.getId(), user);
+				if (submission == null) {
+					submission = assignmentService.addSubmission(a.getId(), user.getId());
+				}
+			}
+			
 			log.debug("submission: {} {} {}", scaledGrade, user.getId(), submission);
 
 			StringBuilder logEntry = new StringBuilder();
@@ -2877,7 +2934,11 @@ public class SakaiLTIUtil {
 			submission.setUserSubmission(true);
 			submission.setFeedbackComment(scoreObj.comment);
 			submission.setDateModified(now);
-			submission.getSubmitters().stream().filter(s -> s.getSubmitter().equals(userId)).findFirst().ifPresent(s -> s.setSubmittee(true));
+			
+			// For individual submissions or when we know the specific user
+			if (!a.getIsGroup() || submission.getSubmitters().stream().anyMatch(s -> s.getSubmitter().equals(userId))) {
+				submission.getSubmitters().stream().filter(s -> s.getSubmitter().equals(userId)).findFirst().ifPresent(s -> s.setSubmittee(true));
+			}
 
 			// SAK-46548 - Any new LTI grade unchecks assignments "released to student"
 			submission.setGradeReleased(false);
@@ -2931,7 +2992,7 @@ public class SakaiLTIUtil {
 		return keyPrefix + next;
 	}
 
-	public static org.sakaiproject.grading.api.Assignment getGradebookColumn(Site site, String userId, String title, SakaiLineItem lineItem) {
+	public static org.sakaiproject.grading.api.Assignment getGradebookColumn(Site site, String userId, String title, SakaiLineItem lineItem, Long tool_id, Map<String, Object> content) {
 		// Look up the gradebook columns so we can find the max points
 		GradingService gradingService = (GradingService) ComponentManager.get("org.sakaiproject.grading.api.GradingService");
 
@@ -2973,6 +3034,11 @@ public class SakaiLTIUtil {
 				returnColumn.setPoints(scoreMaximum);
 				returnColumn.setExternallyMaintained(false);
 				returnColumn.setName(title);
+				if ( tool_id != null && content != null ) {
+					String external_id = LineItemUtil.constructExternalId(tool_id, content, lineItem);
+					returnColumn.setExternalAppName(LineItemUtil.GB_EXTERNAL_APP_NAME);
+					returnColumn.setExternalId(external_id);
+				}
 				// SAK-40043
 				Boolean releaseToStudent = lineItem.releaseToStudent == null ? Boolean.TRUE : lineItem.releaseToStudent; // Default to true
 				Boolean includeInComputation = lineItem.includeInComputation == null ? Boolean.TRUE : lineItem.includeInComputation; // Default true

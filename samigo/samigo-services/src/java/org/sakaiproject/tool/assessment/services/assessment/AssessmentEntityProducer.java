@@ -122,11 +122,8 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 		try {
 			entityManager.registerEntityProducer(this, REFERENCE_ROOT);
 		} catch (Exception e) {
-			log.warn("Error registering Samigo Entity Producer", e);
+			log.warn("Error registering Samigo Entity Producer", e.toString());
 		}
-	}
-
-	public void destroy() {
 	}
 
     public void setQtiService(QTIServiceAPI qtiService)  {
@@ -137,6 +134,26 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
     public String[] myToolIds() {
         return new String[]{ "sakai.samigo" };
 	}
+
+    @Override
+    public Entity getEntity(Reference reference) {
+
+        String ref = reference.getReference();
+
+        if (!ref.startsWith(SamigoConstants.REFERENCE_ROOT)) Optional.empty();
+
+        SamigoReferenceReckoner.SamigoReference samigoReference
+            = SamigoReferenceReckoner.reckoner().reference(ref).reckon();
+
+        switch (samigoReference.getSubtype()) {
+            case "p":
+	            PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+                return publishedAssessmentService.getPublishedAssessment(samigoReference.getId());
+            default:
+                log.warn("Unknown subtype {}", samigoReference.getSubtype());
+                return null;
+        }
+    }
 
 	@Override
 	public List<Map<String, String>> getEntityMap(String fromContext) {
@@ -413,16 +430,26 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 		try {
 			if (cleanup) {
 				log.debug("deleting assessments from {}", toContext);
+				// Delete all draft assessments
 				AssessmentService service = new AssessmentService();
 				List<AssessmentData> assessmentList = service.getAllActiveAssessmentsbyAgent(toContext);
-                log.debug("found {} assessments in site: {}", assessmentList.size(), toContext);
+                log.debug("found {} draft assessments in site: {}", assessmentList.size(), toContext);
                 for (AssessmentData oneassessment : assessmentList) {
-                    log.debug("removing assessemnt id = {}", oneassessment.getAssessmentId());
+                    log.debug("removing draft assessment id = {}", oneassessment.getAssessmentId());
                     service.removeAssessment(oneassessment.getAssessmentId().toString());
+                }
+                
+                // Delete all published assessments
+                PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+                List<PublishedAssessmentData> publishedAssessmentList = publishedAssessmentService.getAllPublishedAssessmentsForSite(toContext);
+                log.debug("found {} published assessments in site: {}", publishedAssessmentList.size(), toContext);
+                for (PublishedAssessmentData publishedAssessment : publishedAssessmentList) {
+                    log.debug("removing published assessment id = {}", publishedAssessment.getPublishedAssessmentId());
+                    publishedAssessmentService.removeAssessment(publishedAssessment.getPublishedAssessmentId().toString());
                 }
 			}
 		} catch (Exception e) {
-			log.error("transferCopyEntities: End removing Assessment data", e);
+			log.error("attempting to remove assessment data", e);
 		}
 		
 		return transferCopyEntities(fromContext, toContext, ids, null);

@@ -24,7 +24,7 @@
     <property name="gradedDate" type="timestamp" column="GRADEDDATE" not-null="false" />
     <property name="review" type="boolean" column="REVIEW" not-null="false" />
     <property name="attemptsRemaining" type="integer" column="ATTEMPTSREMAINING" not-null="false" />
-    <property name="attemptDate" type="timestamp" column="ATTEMPTDATE" not-null="false" />
+    <property name="attemptDate" type="java.util.Date" column="ATTEMPTDATE" not-null="false"/>
     <property name="lastDuration" type="string" length="36" column="LASTDURATION" not-null="false" />
 	<property name="isCorrect" type="boolean" column="ISCORRECT" not-null="false" />
 	
@@ -167,6 +167,6 @@
     <property name="assessmentGradingId" type="long" column="ASSESSMENTGRADINGID" not-null="true" unique-key="uniqueStudentSectionResponse" />
     <property name="publishedSectionId" type="long" column="PUBLISHEDSECTIONID" not-null="true" unique-key="uniqueStudentSectionResponse" />
     <property name="agentId" type="string" length="255" column="AGENTID" not-null="true" unique-key="uniqueStudentSectionResponse" />
-    <property name="attemptDate" type="timestamp" column="ATTEMPTDATE" not-null="false" />
+    <property name="attemptDate" type="java.util.Date" column="ATTEMPTDATE" not-null="false"/>
   </class>
 </hibernate-mapping>

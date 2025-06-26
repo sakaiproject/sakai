@@ -2175,7 +2175,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
                                 } catch (Exception ex) {
                                     log.warn("Error encoding the PDF url, the PDF might not load in the UI. {}", ex.getMessage());
                                 }
-                                String pdfViewerUrl = String.format("/library/webjars/pdf-js/5.1.91/web/viewer.html?file=%s", movieUrl);
+                                String pdfViewerUrl = String.format("/library/webjars/pdf-js/5.3.31/web/viewer.html?file=%s", movieUrl);
                                 item2 = UIOutput.make(tableRow, "pdfEmbed")
                                         .decorate(new UIFreeAttributeDecorator("src", pdfViewerUrl))
                                         .decorate(new UIFreeAttributeDecorator("alt", messageLocator.getMessage("simplepage.mm_player").replace("{}", abbrevUrl(i.getURL()))));
@@ -5228,7 +5228,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIInput.make(form, "question-addBefore", "#{simplePageBean.addBefore}");
 		
 		UICommand.make(form, "delete-question-item", messageLocator.getMessage("simplepage.delete"), "#{simplePageBean.deleteItem}");
-		UICommand.make(form, "update-question", messageLocator.getMessage("simplepage.edit"), "#{simplePageBean.updateQuestion}");
+		UICommand.make(form, "update-question", messageLocator.getMessage("simplepage.save"), "#{simplePageBean.updateQuestion}");
 		UICommand.make(form, "cancel-question", messageLocator.getMessage("simplepage.cancel"), null);
 	}
 

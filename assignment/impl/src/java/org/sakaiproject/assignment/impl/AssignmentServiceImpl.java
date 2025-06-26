@@ -555,13 +555,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
-    public Entity createAssignmentEntity(Assignment assignment) {
-        AssignmentEntity entity = assignmentEntityFactory.getObject();
-        entity.initEntity(assignment);
-        return entity;
-    }
-
-    @Override
     public String getEntityUrl(Reference reference) {
         return getEntity(reference).getUrl();
     }
@@ -1197,6 +1190,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 existingAssignment.getProperties().entrySet().stream()
                         .filter(e -> !PROPERTIES_EXCLUDED_FROM_DUPLICATE_ASSIGNMENTS.contains(e.getKey()))
                         .forEach(e -> properties.put(e.getKey(), e.getValue()));
+                
+                // Always set duplicated assignments to use "Create new Gradebook item" option
+                properties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ADD);
 
                 assignmentRepository.newAssignment(assignment);
                 log.debug("Created duplicate assignment {} from {}", assignment.getId(), assignmentId);

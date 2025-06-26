@@ -1336,7 +1336,7 @@ public class BasicEmailService implements EmailService
 			StringBuilder buf = new StringBuilder();
 			buf.append("Email.sendMail:");
 			appendAddresses(buf, msg.getFrom(), " from:");
-			buf.append("subject: ");
+			buf.append(" subject: ");
 			buf.append(msg.getSubject());
 			appendAddresses(buf, to, " to:");
 			appendAddresses(buf, msg.getRecipients(Message.RecipientType.TO), " headerTo{to}:");

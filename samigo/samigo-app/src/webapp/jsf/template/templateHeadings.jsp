@@ -27,6 +27,7 @@
                     <h:commandLink title="#{generalMessages.t_assessment}" action="author" id="authorlink" immediate="true" rendered="#{authorization.adminAssessment}">
                         <h:outputText value="#{generalMessages.assessment}" />
                         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
+                        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetResultsCalculatedListener" />
                     </h:commandLink>
                 </span>
             </li>

@@ -1,30 +1,41 @@
 <!DOCTYPE html>
 <html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd">
-
 <body>
 	<wicket:panel>
 
-		<div id="gradebookSorter" class="by-grade-item">
-			<span class="sr-only" wicket:message="aria-label:sortgradeitems.instructions">Instructions for sorting items will go here.</span>
+		<div id="gradebookSorter" class="by-grade-item" role="application">
+			<span id="sort-instructions" class="sr-only">
+				<wicket:message key="sortgradeitems.instructions">
+					Instructions for sorting items will go here.
+				</wicket:message>
+			</span>
+
 			<input type="hidden" name="orderby" value="item"/>
-			<ul role="list" aria-dropeffect="move">
-				<li wicket:id="gradeItemList" class="gb-sorter-sortable" role="listitem">
+
+			<ul>
+				<li wicket:id="gradeItemList" class="gb-sorter-sortable">
 					<input wicket:id="id" type="hidden"/>
 					<input wicket:id="order" type="hidden"/>
 					<input wicket:id="current_order" type="hidden"/>
+
 					<div class="d-flex align-items-center">
-						<a href="javascript:;"
-								class="me-2 item-drag-handle"
-								wicket:message="aria-label:sortgradeitems.sort_item_label_instruct">
+						<button type="button"
+										class="btn-transparent me-2 item-drag-handle"
+										aria-pressed="false"
+										aria-describedby="sort-instructions">
 							<span class="si si-drag-handle" aria-hidden="true"></span>
-						</a>
-						<span wicket:id="name"></span>
+							<span wicket:id="name"></span>
+						</button>
+
 					</div>
 				</li>
 			</ul>
 		</div>
 
-		<script>new GradebookSorter($("#gradebookSorter"));</script>
+		<script>
+			new GradebookSorter($("#gradebookSorter"));
+		</script>
+
 	</wicket:panel>
 </body>
 </html>

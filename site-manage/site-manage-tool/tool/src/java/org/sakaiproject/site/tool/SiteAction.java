@@ -4381,6 +4381,8 @@ public class SiteAction extends PagedResourceActionII {
 		context.put("sites", visibleSiteList);
 		context.put("templateSites", templateSiteList);
 		context.put("hiddenSites", hiddenSiteList);
+
+		context.put("cleanImport", serverConfigurationService.getBoolean(SiteConstants.SAK_PROP_CLEAN_IMPORT_SITE, SiteConstants.SAK_PROP_CLEAN_IMPORT_SITE_DEFAULT));
 	}
 
 	/**
@@ -4627,6 +4629,15 @@ public class SiteAction extends PagedResourceActionII {
 	}
 
 	public void doDateManagerHelper(RunData data) {
+		SessionState state = ((JetspeedRunData) data)
+				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		// Check if the user has appropriate permissions
+		if (!siteService.allowUpdateSite(toolManager.getCurrentPlacement().getContext())) {
+			addAlert(state, rb.getString("java.notaccess"));
+			return;
+		}
+
 		startHelper(data.getRequest(), "sakai.datemanager");
 	}
 
@@ -4653,6 +4664,15 @@ public class SiteAction extends PagedResourceActionII {
 	 * 
 	 */
 	public void doManageGroupHelper(RunData data) {
+		SessionState state = ((JetspeedRunData) data)
+				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		// Check if the user has appropriate permissions
+		if (!siteService.allowUpdateSite(toolManager.getCurrentPlacement().getContext())) {
+			addAlert(state, rb.getString("java.notaccess"));
+			return;
+		}
+
 		startHelper(data.getRequest(), "sakai-site-group-manager");
 	}
 
@@ -4665,6 +4685,12 @@ public class SiteAction extends PagedResourceActionII {
 	public void doLinkHelper(RunData data) {
 		SessionState state = ((JetspeedRunData) data)
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		// Check if the user has appropriate permissions
+		if (!siteService.allowUpdateSite(toolManager.getCurrentPlacement().getContext())) {
+			addAlert(state, rb.getString("java.notaccess"));
+			return;
+		}
 
 		// pass in the siteId of the site to be ordered (so it can configure
 		// sites other then the current site)
@@ -4679,6 +4705,13 @@ public class SiteAction extends PagedResourceActionII {
 	 */
 	public void doManageOverviewFromHome(RunData data) {
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		// Check if the user has appropriate permissions
+		if (!siteService.allowUpdateSite(toolManager.getCurrentPlacement().getContext())) {
+			addAlert(state, rb.getString("java.notaccess"));
+			return;
+		}
+
 		state.setAttribute("fromHome", true);
 		doManageOverview(data);
 	}
@@ -4689,6 +4722,12 @@ public class SiteAction extends PagedResourceActionII {
 	public void doManageOverview(RunData data) {
 		SessionState state = ((JetspeedRunData) data)
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		// Check if the user has appropriate permissions
+		if (!siteService.allowUpdateSite(toolManager.getCurrentPlacement().getContext())) {
+			addAlert(state, rb.getString("java.notaccess"));
+			return;
+		}
 
 		siteToolsIntoState(state);
 
@@ -4718,6 +4757,12 @@ public class SiteAction extends PagedResourceActionII {
 		SessionState state = ((JetspeedRunData) data)
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
+		// Check if the user has appropriate permissions
+		if (!siteService.allowUpdateSite(toolManager.getCurrentPlacement().getContext())) {
+			addAlert(state, rb.getString("java.notaccess"));
+			return;
+		}
+
 		// pass in the siteId of the site to be ordered (so it can configure
 		// sites other then the current site)
 		sessionManager.getCurrentToolSession().setAttribute(HELPER_ID + ".siteId", getStateSite(state).getId());
@@ -4736,6 +4781,12 @@ public class SiteAction extends PagedResourceActionII {
 	public void doAttachmentsMtrlFrmFile(RunData data) {
 		SessionState state = ((JetspeedRunData) data)
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		// Check if the user has appropriate permissions
+		if (!siteService.allowUpdateSite(toolManager.getCurrentPlacement().getContext())) {
+			addAlert(state, rb.getString("java.notaccess"));
+			return;
+		}
 
 		// state.setAttribute(FILE_UPLOAD_MAX_SIZE,
 		// serverConfigurationService.getString("content.upload.max", "1"));
@@ -8392,6 +8443,12 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		SessionState state = ((JetspeedRunData) data)
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
+		// Check if the user has appropriate permissions
+		if (!siteService.allowUpdateSite(toolManager.getCurrentPlacement().getContext())) {
+			addAlert(state, rb.getString("java.notaccess"));
+			return;
+		}
+
 		// get the tools
 		siteToolsIntoState(state);
 
@@ -8407,6 +8464,12 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	public void doMenu_siteInfo_import(RunData data) {
 		SessionState state = ((JetspeedRunData) data)
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		// Check if the user has appropriate permissions
+		if (!siteService.allowUpdateSite(toolManager.getCurrentPlacement().getContext())) {
+			addAlert(state, rb.getString("java.notaccess"));
+			return;
+		}
 
 		// get the tools
 		siteToolsIntoState(state);
@@ -8424,6 +8487,12 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		SessionState state = ((JetspeedRunData) data)
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
+		// Check if the user has appropriate permissions
+		if (!siteService.allowUpdateSite(toolManager.getCurrentPlacement().getContext())) {
+			addAlert(state, rb.getString("java.notaccess"));
+			return;
+		}
+
 		if (state.getAttribute(STATE_MESSAGE) == null) {
 			state.setAttribute(STATE_TEMPLATE_INDEX, "61");	// import users
 		}
@@ -8433,6 +8502,12 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	public void doMenu_siteInfo_importMigrate(RunData data) {
 		SessionState state = ((JetspeedRunData) data)
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		// Check if the user has appropriate permissions
+		if (!siteService.allowUpdateSite(toolManager.getCurrentPlacement().getContext())) {
+			addAlert(state, rb.getString("java.notaccess"));
+			return;
+		}
 
 		// get the tools
 		siteToolsIntoState(state);
@@ -8449,6 +8524,13 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 */
 	public void doMenu_siteInfo_manageParticipants(RunData data) {
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		// Check if the user has appropriate permissions
+		if (!siteService.allowUpdateSite(toolManager.getCurrentPlacement().getContext())) {
+			addAlert(state, rb.getString("java.notaccess"));
+			return;
+		}
+
 		state.setAttribute(STATE_TEMPLATE_INDEX, STATE_TEMPLATE_INDEX_MANAGE_PARTICIPANTS);
 	}
 
@@ -8472,6 +8554,12 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		SessionState state = ((JetspeedRunData) data)
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
+		// Check if the user has appropriate permissions
+		if (!siteService.allowUpdateSite(toolManager.getCurrentPlacement().getContext())) {
+			addAlert(state, rb.getString("java.notaccess"));
+			return;
+		}
+
 		state.setAttribute(STATE_TEMPLATE_INDEX, "43");
 
 	} // doMenu_siteInfo_editClass
@@ -8482,6 +8570,12 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	public void doMenu_siteInfo_addClass(RunData data) {
 		SessionState state = ((JetspeedRunData) data)
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		// Check if the user has appropriate permissions
+		if (!siteService.allowUpdateSite(toolManager.getCurrentPlacement().getContext())) {
+			addAlert(state, rb.getString("java.notaccess"));
+			return;
+		}
 
 		Site site = getStateSite(state);
 		String termEid = site.getProperties().getProperty(Site.PROP_SITE_TERM_EID);
@@ -8559,11 +8653,17 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 
 	/**
 	 * doMenu_edit_site_info
-	 * 
+	 *
 	 */
 	public void doMenu_edit_site_info(RunData data) {
 		SessionState state = ((JetspeedRunData) data)
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		// Check if the user has appropriate permissions
+		if (!siteService.allowUpdateSite(toolManager.getCurrentPlacement().getContext())) {
+			addAlert(state, rb.getString("java.notaccess"));
+			return;
+		}
 
 		sitePropertiesIntoState(state);
 
@@ -8575,11 +8675,17 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 
 	/**
 	 * doMenu_edit_site_tools
-	 * 
+	 *
 	 */
 	public void doMenu_edit_site_tools(RunData data) {
 		SessionState state = ((JetspeedRunData) data)
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		// Check if the user has appropriate permissions
+		if (!siteService.allowUpdateSite(toolManager.getCurrentPlacement().getContext())) {
+			addAlert(state, rb.getString("java.notaccess"));
+			return;
+		}
 
 		// Clean up state on our first entry from a shortcut
 		String panel = data.getParameters().getString("panel");
@@ -8609,11 +8715,17 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 
 	/**
 	 * doMenu_edit_site_access
-	 * 
+	 *
 	 */
 	public void doMenu_edit_site_access(RunData data) {
 		SessionState state = ((JetspeedRunData) data)
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		// Check if the user has appropriate permissions
+		if (!siteService.allowUpdateSite(toolManager.getCurrentPlacement().getContext())) {
+			addAlert(state, rb.getString("java.notaccess"));
+			return;
+		}
 
 		try {
 			Site site = getStateSite(state);
@@ -9643,16 +9755,16 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 					}
 					if(state.getAttribute(SITE_UNPUBLISH_DATE) != null){
 						unpublishingDate = sdf.parse(String.valueOf(state.getAttribute(SITE_UNPUBLISH_DATE)));
-						if(unpublishingDate.toInstant().isBefore(publishingDate.toInstant())){	//make sure unpublish date is actually after publish date
+						if(publishingDate != null && unpublishingDate.toInstant().isBefore(publishingDate.toInstant())){	//make sure unpublish date is actually after publish date
 							addAlert(state, rb.getString("ediacc.errorafter"));
 						}
 					}
-                    if(Instant.now().isAfter(publishingDate.toInstant()) && (unpublishingDate == null || Instant.now().isBefore(unpublishingDate.toInstant()))){
+					if(publishingDate != null && Instant.now().isAfter(publishingDate.toInstant()) && (unpublishingDate == null || Instant.now().isBefore(unpublishingDate.toInstant()))){
 						sEdit.setPublished(true);	//publish right now if we're between the dates, or without unpublishing
-					} else {
-                        publishingSiteScheduleService.schedulePublishing(publishingDate.toInstant(), sEdit.getId());	//make future publishing event
+					} else if(publishingDate != null) {
+						publishingSiteScheduleService.schedulePublishing(publishingDate.toInstant(), sEdit.getId());	//make future publishing event
 					}
-                    if(unpublishingDate!=null) {
+					if(unpublishingDate!=null) {
 						if (Instant.now().isAfter(unpublishingDate.toInstant())) {
 							sEdit.setPublished(false);    //unpublish now if it's after the closing date
 						} else {
@@ -11663,6 +11775,13 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 						if (!existing.contains(g))
 							newGroups.add(g);
 					}
+				}
+
+				if (memoryService != null) {
+					Cache gradebookGroupEnabledCache = memoryService.getCache("org.sakaiproject.tool.gradebook.group.enabled");
+					Cache gradebookGroupInstancesCache = memoryService.getCache("org.sakaiproject.tool.gradebook.group.instances");
+					if (gradebookGroupEnabledCache != null) gradebookGroupEnabledCache.clear();
+					if (gradebookGroupInstancesCache != null) gradebookGroupInstancesCache.clear();
 				}
 			}else if (choice.equals(TOOL_ID_SITEINFO)) {
 				hasSiteInfo = true;

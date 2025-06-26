@@ -27,6 +27,7 @@ $Id: evaluationHeadings.jsp 6643 2006-03-13 19:38:07Z hquinn@stanford.edu $
                 <span>
                     <h:commandLink title="#{generalMessages.t_assessment}" action="author" immediate="true"  rendered="#{authorization.adminAssessment}">
                         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
+                        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetResultsCalculatedListener" />
                         <h:outputText value="#{generalMessages.assessment}" />
                     </h:commandLink>
                 </span>

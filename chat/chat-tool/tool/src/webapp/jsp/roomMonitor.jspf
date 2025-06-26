@@ -78,7 +78,6 @@
 </ul>
 
 <script type="text/javascript">
-    //set for the chatscript.js
     deleteMsg = "<h:outputText value="#{msgs['list.del']}" />";
     deleteUrl = "<h:outputText value="#{ChatTool.toolContext}/sakai.chat.deleteMessage.helper/deleteMessageConfirm?session.current_message=" />";
     chat2_shownMessages = ${serial};

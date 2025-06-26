@@ -68,7 +68,7 @@
   color: var(--top-header-text-color);
 }
 
-@media (min-width: 768px) {
+@include media-breakpoint-up(md) {
   .portal-header .portal-header-breadcrumb {
       display: flex !important;
       margin: 0 1rem;
@@ -78,7 +78,7 @@
   }
 }
 
-@media (max-width: 767px) {
+@include media-breakpoint-down(md) {
   .portal-header .portal-header-breadcrumb {
       display: none !important;
   }
@@ -117,6 +117,11 @@
 
 .portal-header-hamburger-button {
   color: var(--top-header-text-color) !important;
+  &:hover,
+  &:focus {
+    border: solid 1px transparent !important;
+    box-shadow: none !important;
+  }
 }
 /* 
  * WARNING: This CSS uses deprecated properties because there's currently no alternative way
@@ -129,7 +134,7 @@
  * These may break in future browser versions, so monitor this and update if a more standardized 
  * approach becomes available.
  */
- @media (min-width: 767px) {
+@include media-breakpoint-up(md) {
   .sidebar-site-title {
     width: 128px;
     display: -webkit-box;  /* Deprecated, but necessary for multi-line text truncation */
@@ -155,7 +160,7 @@
 }
 
 // Responsive header for mobile
-@media (max-width: 767px) {
+@include media-breakpoint-down(md) {
   .portal-header {
     justify-content: space-between !important;
     box-shadow: none !important;
@@ -305,7 +310,7 @@
   display: inline-block;
   max-height: var(--logo-height);
   min-height: var(--logo-height);
-  width: var(--logo-width)
+  width: var(--logo-width);
 }
 .portal-header-logo .btn:hover {
   border-color: transparent !important;
@@ -377,6 +382,30 @@
   cursor: move;
   background: var(--sakai-modal-header-bg) !important;
   color: var(--sakai-modal-header-color) !important;
+}
+
+.portal-nav-sidebar-icon {
+  &::before {
+    content: "\f479";
+  }
+  &:hover::before {
+    content: "\f1c2";
+  }
+}
+
+.portal-nav-sidebar-icon-collapsed {
+  &::before {
+    content: "\f479";
+  }
+  &:hover::before {
+    content: "\f1c3";
+  }
+}
+
+.portal-nav-sidebar-icon-hover {
+  &::before {
+    content: "\f1c2";
+  }
 }
 
 #portal-nav-sidebar {
@@ -509,9 +538,33 @@
     position: sticky;
     top: 0;
     scrollbar-width: none;
-    &:hover,
-    &:focus {
-      scrollbar-width: auto;
+  }
+
+  @include media-breakpoint-up(md) {
+    .sakai-sitesAndToolsNav {
+      &:hover,
+      &:focus {
+        & .site-list-item {
+          margin-right: 0.14rem !important;
+        }
+      }
+    }
+  }
+
+  .sakai-sitesAndToolsNav:hover,
+  .sakai-sitesAndToolsNav:focus {
+    scrollbar-width: auto;
+
+    &::-webkit-scrollbar-track,
+    &::-webkit-scrollbar-corner {
+      background: var(--sakai-background-color-1);
+    }
+
+    &::-webkit-scrollbar-thumb {
+      border: solid 4px var(--sakai-background-color-1);
+    }
+    &::-webkit-scrollbar-thumb:hover {
+      border: solid 4px var(--sakai-background-color-1);
     }
   }
 
@@ -704,7 +757,7 @@
     color: var(--sticky-foooter-color-hover);
   }
 
-  @media (max-width: 767px) {
+  @include media-breakpoint-down(md) {
     background-color: var(--sakai-background-color-5);
     padding-left: var(--bs-offcanvas-padding-x) !important;
     padding-right: var(--bs-offcanvas-padding-x) !important;

@@ -120,24 +120,20 @@ export class SakaiAddTopic extends SakaiElement {
 
     this.topic.draft = draft;
 
-    const lightTopic = {};
-    Object.assign(lightTopic, this.topic);
-    lightTopic.posts = [];
+    const lightTopic = { ...this.topic, posts: [] };
 
-    if (!draft) {
-      const itemAssociation = this.querySelector("sakai-grading-item-association");
-      if (itemAssociation?.useGrading) {
-        lightTopic.graded = true;
-        lightTopic.createGradingItem = !!itemAssociation.createGradingItem;
-        lightTopic.gradingCategory = itemAssociation.category ? Number(itemAssociation.category) : -1;
-        lightTopic.gradingItemId = itemAssociation.gradingItemId ? Number(itemAssociation.gradingItemId) : -1;
-        lightTopic.gradingPoints = itemAssociation.points ? Number(itemAssociation.points) : -1;
+    const itemAssociation = this.querySelector("sakai-grading-item-association");
+    lightTopic.graded = itemAssociation?.useGrading;
+    if (itemAssociation?.useGrading) {
+      lightTopic.createGradingItem = !!itemAssociation.createGradingItem;
+      lightTopic.gradingCategory = itemAssociation.category ? Number(itemAssociation.category) : -1;
+      lightTopic.gradingItemId = itemAssociation.gradingItemId ? Number(itemAssociation.gradingItemId) : -1;
+      lightTopic.gradingPoints = itemAssociation.points ? Number(itemAssociation.points) : -1;
 
-        if (lightTopic.createGradingItem && lightTopic.gradingPoints === -1) {
-          console.warn("No grading points specified");
-          itemAssociation.focusPoints();
-          return;
-        }
+      if (lightTopic.createGradingItem && lightTopic.gradingPoints === -1) {
+        console.warn("No grading points specified");
+        itemAssociation.focusPoints();
+        return;
       }
     }
 
@@ -192,12 +188,12 @@ export class SakaiAddTopic extends SakaiElement {
 
     !this.topic.tags && (this.topic.tags = []);
 
-    const existingIndex = this.topic.tags.findIndex(t => t.id == tagId);
+    const existingIndex = this.topic.tags.findIndex(t => t?.id == tagId);
     if (existingIndex !== -1) {
       this.topic.tags.splice(existingIndex, 1);
     } else {
-      const tag = this.tags.find(t => t.id == tagId);
-      this.topic.tags.push(tag);
+      const tag = this.tags.find(t => t?.id == tagId);
+      tag && this.topic.tags.push(tag);
     }
 
     this._saveWip();

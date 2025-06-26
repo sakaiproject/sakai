@@ -2788,7 +2788,8 @@ public class DiscussionForumTool {
 				  }
 				  if(message != null && message.getCreatedBy().equals(userId) && 
 						  !message.getDraft() && 
-						  ((message.getApproved() != null && message.getApproved()) || !topic.getModerated()) &&
+						  ((message.getApproved() != null && message.getApproved()) || !topic.getModerated() ||
+								  message.getCreatedBy().equals(userId)) &&
 						  !message.getDeleted()){
 					  needToPost = false;
 					  break;
@@ -8265,12 +8266,12 @@ public class DiscussionForumTool {
       }
 	}
 
-	// Add the attachments
+	// Add the attachments - create true copies of the files, not just references
 	List fromTopicAttach = forumManager.getTopicByIdWithAttachments(originalTopicId).getAttachments();
 	if (fromTopicAttach != null && !fromTopicAttach.isEmpty()) {
 		for (int topicAttach=0; topicAttach < fromTopicAttach.size(); topicAttach++) {
 			Attachment thisAttach = (Attachment)fromTopicAttach.get(topicAttach);
-			Attachment thisDFAttach = forumManager.createDFAttachment(
+			Attachment thisDFAttach = forumManager.createDuplicateDFAttachment(
 					thisAttach.getAttachmentId(),
 					thisAttach.getAttachmentName());
 			newTopic.addAttachment(thisDFAttach);
@@ -8379,7 +8380,7 @@ public class DiscussionForumTool {
 		if (fromForumAttach != null && !fromForumAttach.isEmpty()) {
 			for (int topicAttach=0; topicAttach < fromForumAttach.size(); topicAttach++) {
 				Attachment thisAttach = (Attachment)fromForumAttach.get(topicAttach);
-				Attachment thisDFAttach = forumManager.createDFAttachment(
+				Attachment thisDFAttach = forumManager.createDuplicateDFAttachment(
 						thisAttach.getAttachmentId(),
 						thisAttach.getAttachmentName());
 				forum.addAttachment(thisDFAttach);

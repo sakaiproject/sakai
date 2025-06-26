@@ -83,24 +83,64 @@ public class PermissionsController extends AbstractSakaiApiController {
 
         Site site = getSiteById(siteId);
 
+        // Get the site's AuthzGroup once for potential reuse
+        AuthzGroup siteAuthzGroup;
+        try {
+            siteAuthzGroup = authzGroupService.getAuthzGroup(siteRef);
+        } catch (GroupNotDefinedException ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No site realm defined for ref " + siteRef);
+        }
+
         AuthzGroup authzGroup;
         try {
             authzGroup = authzGroupService.getAuthzGroup(ref);
         } catch (GroupNotDefinedException e) {
             // Instructor editing a folder that doesn't have a realm yet
-            try {
-                authzGroup = authzGroupService.getAuthzGroup(siteRef);
-            } catch (GroupNotDefinedException ex) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No realm defined for ref " + siteRef);
-            }
+            authzGroup = siteAuthzGroup;
         }
 
         AuthzGroup overrideAuthzGroup = null;
         if (StringUtils.isNotBlank(overrideRef)) {
-            try {
-                overrideAuthzGroup = authzGroupService.getAuthzGroup(overrideRef);
-            } catch (GroupNotDefinedException e) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No realm defined for override ref " + overrideRef);
+            String tempOverrideRef = overrideRef;
+            boolean done = false;
+            // We need to make sure the ref is for a content folder in this site
+            if (tempOverrideRef.matches("^/content/(group|group-user)/" + siteId + "/.*")) {
+                // Keep trying parent folders until we find one with permissions or reach site level
+                while (!done) {
+                    try {
+                        overrideAuthzGroup = authzGroupService.getAuthzGroup(tempOverrideRef);
+                        done = true;
+                    } catch (GroupNotDefinedException e) {
+                        // Try parent folder - first check if we're already at site level
+                        String siteRoot = "/content/group/" + siteId + "/";
+                        String siteUserRoot = "/content/group-user/" + siteId + "/";
+                        if (tempOverrideRef.equals(siteRoot) || tempOverrideRef.equals(siteUserRoot)) {
+                            // At site level, use site's AuthzGroup
+                            overrideAuthzGroup = siteAuthzGroup;
+                            done = true;
+                        } else {
+                            // Remove the last folder segment but preserve trailing slash
+                            String path = tempOverrideRef.substring(0, tempOverrideRef.length() - 1); // remove trailing slash
+                            int lastSlash = path.lastIndexOf('/');
+                            if (lastSlash > 0) {
+                                tempOverrideRef = path.substring(0, lastSlash + 1); // restore trailing slash
+                                log.debug("Trying parent folder for permissions: {}", tempOverrideRef);
+                            } else {
+                                // Shouldn't happen with our path pattern, but just in case
+                                overrideAuthzGroup = siteAuthzGroup;
+                                done = true;
+                            }
+                        }
+                    }
+                }
+            } else {
+                // Not a content path, try it directly once
+                try {
+                    overrideAuthzGroup = authzGroupService.getAuthzGroup(tempOverrideRef);
+                } catch (GroupNotDefinedException e) {
+                    // Use site's AuthzGroup
+                    overrideAuthzGroup = siteAuthzGroup;
+                }
             }
         }
 

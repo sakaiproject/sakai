@@ -24,7 +24,6 @@ import org.sakaiproject.profile2.hbm.model.ProfileImageExternal;
 import org.sakaiproject.profile2.hbm.model.ProfileImageOfficial;
 import org.sakaiproject.profile2.hbm.model.ProfileImageUploaded;
 import org.sakaiproject.profile2.model.ExternalIntegrationInfo;
-import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.SocialNetworkingInfo;
 
 import javax.persistence.TypedQuery;
@@ -130,32 +129,6 @@ public class ProfileDaoImpl implements ProfileDao {
             return true;
         } catch (Exception e) {
             log.warn("save external image failed, {}", e.toString());
-        }
-        return false;
-    }
-
-    @Override
-    public ProfilePreferences addNewPreferencesRecord(final ProfilePreferences prefs) {
-        try {
-            getSession().persist(prefs);
-        } catch (Exception e) {
-            log.warn("create default preferences record failed, {}", e.toString());
-        }
-        return prefs;
-    }
-
-    @Override
-    public ProfilePreferences getPreferencesRecordForUser(final String userId) {
-        return getSession().get(ProfilePreferences.class, userId);
-    }
-
-    @Override
-    public boolean savePreferencesRecord(final ProfilePreferences prefs) {
-        try {
-            getSession().merge(prefs);
-            return true;
-        } catch (Exception e) {
-            log.warn("save preferences record failed, {}", e.toString());
         }
         return false;
     }

@@ -17,7 +17,6 @@ package org.sakaiproject.profile2.logic;
 
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfileImage;
-import org.sakaiproject.profile2.model.ProfilePreferences;
 
 /**
  * An interface for dealing with images in Profile2
@@ -57,7 +56,7 @@ public interface ProfileImageLogic {
 	 * @param size
 	 * @return
 	 */
-	public ProfileImage getProfileImage(String userUuid, ProfilePreferences prefs, int size);
+	public ProfileImage getProfileImage(String userUuid, int size);
 	
 	/**
 	 * Gets the official profile image for a user.
@@ -75,7 +74,7 @@ public interface ProfileImageLogic {
 	 * @param siteId - optional siteid to check if the current user has permissions in this site to see the target user's image (PRFL-411)
 	 * @return
 	 */
-	public ProfileImage getProfileImage(String userUuid, ProfilePreferences prefs, int size, String siteId);
+	public ProfileImage getProfileImage(String userUuid, int size, String siteId);
 
 	
 	/**
@@ -87,7 +86,7 @@ public interface ProfileImageLogic {
 	public ProfileImage getProfileImage(Person person, int size);
 	
 	/**
-	 * Get the profile image for a user. See getProfileImage(String, ProfilePreferences int);
+	 * Get the profile image for a user.
 	 * @param person	Person object that contains all info about a user
 	 * @param size		size of image to return.
 	 * @param siteId - optional siteid to check if the current user has permissions in this site to see the target user's image (PRFL-411)
@@ -151,17 +150,6 @@ public interface ProfileImageLogic {
 	 * @param size		size of image, from ProfileConstants
 	 */
 	public String getProfileImageEntityUrl(String userUuid, int size);
-	
-	/**
-	 * Generate a gravatar URL for a user
-	 * 
-	 * <p>URLs are of the form http://www.gravatar.com/avatar/HASH?s=200 where HASH is an MD5 hash of the user's email address and s is the size.
-	 * We always use the larger size (200) and then scale it in the markup where required, to take advantage of caching.</p>
-	 * <p>If no email address for the user, returns null.</p>
-	 * @param userUuid	uuid for the user
-	 * @return gravatar URL or null
-	 */
-	public String getGravatarUrl(final String userUuid);
 	
 	/**
 	 * Reset the profile image for a user

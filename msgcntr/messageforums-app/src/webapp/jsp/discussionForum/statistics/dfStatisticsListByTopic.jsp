@@ -428,7 +428,7 @@
 						<f:param value="dialogDiv" name="dialogDivId"/>
 						<f:param value="dialogFrame" name="frameId"/>
 						<f:param value="gradesSavedDiv" name="gradesSavedDiv"/>
-						<h:graphicImage value="/../../library/image/silk/award_star_gold_1.png" alt="#{msgs.cdfm_button_bar_grade}" />
+						<span class="bi bi-star-fill" aria-hidden="true"></span>
 						<h:outputText value=" #{msgs.cdfm_button_bar_grade}" />
 					</h:outputLink>
   			</h:column>

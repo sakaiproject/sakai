@@ -45,16 +45,11 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RedirectDefinable;
 import org.sakaiproject.entitybroker.entityprovider.extension.TemplateMap;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
-
-
-
-
+import org.sakaiproject.samigo.util.SamigoConstants;
 
 import java.lang.IllegalArgumentException;
 import java.lang.SecurityException;
 import java.lang.IllegalStateException;
-
-
 
 /**
  * Entity Provider impl for samigo PublishedAssessments
@@ -67,8 +62,6 @@ import java.lang.IllegalStateException;
 public class PublishedAssessmentEntityProviderImpl implements PublishedAssessmentEntityProvider,
       CoreEntityProvider, AutoRegisterEntityProvider, PropertyProvideable,  BrowseSearchable, RESTful, Outputable, RedirectDefinable {
 
-  private static final String CAN_TAKE = "assessment.takeAssessment";
-  private static final String CAN_PUBLISH = "assessment.publishAssessment.any";
   private PublishedAssessmentFacadeQueriesAPI publishedAssessmentFacadeQueries;
   private SecurityService securityService;
   private GradingServiceAPI gradingService = null;
@@ -120,7 +113,7 @@ public class PublishedAssessmentEntityProviderImpl implements PublishedAssessmen
     String orderBy = "title";
 
     // Check what the user can do
-    if (securityService.unlock(CAN_PUBLISH, "/site/"+siteId)) {
+    if (securityService.unlock(SamigoConstants.CAN_PUBLISH, "/site/"+siteId)) {
       publishedAssessmentFacadeQueries.
         getBasicInfoOfAllActivePublishedAssessments(orderBy, siteId, true);
       assessments = publishedAssessmentFacadeQueries
@@ -129,7 +122,7 @@ public class PublishedAssessmentEntityProviderImpl implements PublishedAssessmen
         .getBasicInfoOfAllActivePublishedAssessments(orderBy, siteId, true));
       canPublish = true;
     }
-    else if (securityService.unlock(CAN_TAKE, "/site/"+siteId)) {
+    else if (securityService.unlock(SamigoConstants.CAN_TAKE, "/site/" + siteId)) {
       assessments = publishedAssessmentFacadeQueries
         .getBasicInfoOfAllActivePublishedAssessments(orderBy, siteId, true);
     }
@@ -182,7 +175,7 @@ public class PublishedAssessmentEntityProviderImpl implements PublishedAssessmen
 	   Date currentDate = new Date();
 
 	    // Check what the user can do
-	    if (securityService.unlock(CAN_PUBLISH, "/site/"+siteId)) {
+	    if (securityService.unlock(SamigoConstants.CAN_PUBLISH, "/site/"+siteId)) {
 	      publishedAssessmentFacadeQueries.
 	        getBasicInfoOfAllActivePublishedAssessments(orderBy, siteId, true);
 	      assessments = publishedAssessmentFacadeQueries
@@ -191,7 +184,7 @@ public class PublishedAssessmentEntityProviderImpl implements PublishedAssessmen
 	        .getBasicInfoOfAllActivePublishedAssessments(orderBy, siteId, true));
 	      canPublish = true;
 	    }
-	    else if (securityService.unlock(CAN_TAKE, "/site/"+siteId)) {
+	    else if (securityService.unlock(SamigoConstants.CAN_TAKE, "/site/"+siteId)) {
 	      assessments = publishedAssessmentFacadeQueries
 	        .getBasicInfoOfAllActivePublishedAssessments(orderBy, siteId, true);
 	    }
@@ -239,7 +232,7 @@ public class PublishedAssessmentEntityProviderImpl implements PublishedAssessmen
 	   Date currentDate = new Date();
 
 	    // Check what the user can do
-	    if (securityService.unlock(CAN_PUBLISH, "/site/"+siteId)) {
+	    if (securityService.unlock(SamigoConstants.CAN_PUBLISH, "/site/"+siteId)) {
 	      publishedAssessmentFacadeQueries.
 	        getBasicInfoOfAllActivePublishedAssessments(orderBy, siteId, true);
 	      assessments = publishedAssessmentFacadeQueries
@@ -248,7 +241,7 @@ public class PublishedAssessmentEntityProviderImpl implements PublishedAssessmen
 	        .getBasicInfoOfAllActivePublishedAssessments(orderBy, siteId, true));
 	      canPublish = true;
 	    }
-	    else if (securityService.unlock(CAN_TAKE, "/site/"+siteId)) {
+	    else if (securityService.unlock(SamigoConstants.CAN_TAKE, "/site/"+siteId)) {
 	      assessments = publishedAssessmentFacadeQueries
 	        .getBasicInfoOfAllActivePublishedAssessments(orderBy, siteId, true);
 	    }

@@ -107,12 +107,6 @@ public final class AssignmentServiceConstants {
     // SAK-33971 Property for enable/disable the group filter
     public static final String PROP_ASSIGNMENT_GROUP_FILTER_ENABLED = "assignment.group.filter.enabled";
 
-    /**
-     * The configuration choice of with grading option or not
-     */
-    public static final String GRADEBOOK_PERMISSION_GRADE_ALL = "gradebook.gradeAll";
-    public static final String GRADEBOOK_PERMISSION_EDIT_ASSIGNMENTS = "gradebook.editAssignments";
-
     public static final Set<String> PROPERTIES_EXCLUDED_FROM_DUPLICATE_ASSIGNMENTS =
             Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
                     AssignmentConstants.NEW_ASSIGNMENT_DUE_DATE_SCHEDULED,
