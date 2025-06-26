@@ -9755,16 +9755,16 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 					}
 					if(state.getAttribute(SITE_UNPUBLISH_DATE) != null){
 						unpublishingDate = sdf.parse(String.valueOf(state.getAttribute(SITE_UNPUBLISH_DATE)));
-						if(unpublishingDate.toInstant().isBefore(publishingDate.toInstant())){	//make sure unpublish date is actually after publish date
+						if(publishingDate != null && unpublishingDate.toInstant().isBefore(publishingDate.toInstant())){	//make sure unpublish date is actually after publish date
 							addAlert(state, rb.getString("ediacc.errorafter"));
 						}
 					}
-                    if(Instant.now().isAfter(publishingDate.toInstant()) && (unpublishingDate == null || Instant.now().isBefore(unpublishingDate.toInstant()))){
+					if(publishingDate != null && Instant.now().isAfter(publishingDate.toInstant()) && (unpublishingDate == null || Instant.now().isBefore(unpublishingDate.toInstant()))){
 						sEdit.setPublished(true);	//publish right now if we're between the dates, or without unpublishing
-					} else {
-                        publishingSiteScheduleService.schedulePublishing(publishingDate.toInstant(), sEdit.getId());	//make future publishing event
+					} else if(publishingDate != null) {
+						publishingSiteScheduleService.schedulePublishing(publishingDate.toInstant(), sEdit.getId());	//make future publishing event
 					}
-                    if(unpublishingDate!=null) {
+					if(unpublishingDate!=null) {
 						if (Instant.now().isAfter(unpublishingDate.toInstant())) {
 							sEdit.setPublished(false);    //unpublish now if it's after the closing date
 						} else {
@@ -11775,6 +11775,13 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 						if (!existing.contains(g))
 							newGroups.add(g);
 					}
+				}
+
+				if (memoryService != null) {
+					Cache gradebookGroupEnabledCache = memoryService.getCache("org.sakaiproject.tool.gradebook.group.enabled");
+					Cache gradebookGroupInstancesCache = memoryService.getCache("org.sakaiproject.tool.gradebook.group.instances");
+					if (gradebookGroupEnabledCache != null) gradebookGroupEnabledCache.clear();
+					if (gradebookGroupInstancesCache != null) gradebookGroupInstancesCache.clear();
 				}
 			}else if (choice.equals(TOOL_ID_SITEINFO)) {
 				hasSiteInfo = true;

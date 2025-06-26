@@ -10,7 +10,6 @@
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{sectionActivityMessages.section_activity_report}"/></title>
       <script src="/samigo-app/js/eventInfo.js"></script>
-      <link rel="stylesheet" type="text/css" href="/samigo-app/css/tool_sam.css">
       </head>
     <body onload="<%= request.getAttribute("html.body.onload") %>">
 

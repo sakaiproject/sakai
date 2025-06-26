@@ -22,6 +22,7 @@ sakai-course-card {
     padding: 1rem;
     border-top-left-radius: var(--bs-border-radius);
     border-top-right-radius: var(--bs-border-radius);
+    border: solid 1px var(--sakai-border-color);
 
     a {
       color: var(--sakai-text-color-inverse, white);

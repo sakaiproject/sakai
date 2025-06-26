@@ -114,7 +114,11 @@ export class SakaiRubricsManager extends RubricsElement {
             </div>
             <div class="actions">${this.tr("actions")}</div>
           </div>
-          <sakai-rubrics-list id="sakai-rubrics" site-id="${this.siteId}" @sharing-change="${this.handleSharingChange}" @copy-share-site="${this.copyShareSite}" ?enable-pdf-export=${this.enablePdfExport}></sakai-rubrics-list>
+          <sakai-rubrics-list site-id="${this.siteId}"
+              @sharing-change=${this.handleSharingChange}
+              @copy-share-site=${this.handleRubricList}
+              ?enable-pdf-export=${this.enablePdfExport}>
+          </sakai-rubrics-list>
         </div>
       
         <hr>
@@ -173,7 +177,12 @@ export class SakaiRubricsManager extends RubricsElement {
               <div class="actions">${this.tr("actions")}</div>
             </div>
             <br>
-            <sakai-rubrics-shared-list id="sakai-rubrics-shared-list" site-id="${this.siteId}" @copy-share-site="${this.copyShareSite}" @update-rubric-list="${this.handleRubricList}" ?enable-pdf-export=${this.enablePdfExport} ?is-super-user=${this.isSuperUser}></sakai-rubrics-shared-list>
+            <sakai-rubrics-shared-list site-id="${this.siteId}"
+                @copy-share-site=${this.handleRubricList}
+                @update-rubric-list=${this.handleRubricList}
+                ?enable-pdf-export=${this.enablePdfExport}
+                ?is-super-user=${this.isSuperUser}>
+            </sakai-rubrics-shared-list>
           </div>
         </div>
       </div>
@@ -182,12 +191,7 @@ export class SakaiRubricsManager extends RubricsElement {
 
   handleSharingChange() {
 
-    document.getElementById("sakai-rubrics-shared-list").refresh();
-  }
-
-  copyShareSite() {
-
-    this.querySelector("sakai-rubrics-list").refresh();
+    this.querySelector("sakai-rubrics-shared-list").refresh();
   }
 
   handleRubricList() {

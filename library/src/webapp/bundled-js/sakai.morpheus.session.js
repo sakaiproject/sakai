@@ -51,7 +51,6 @@ function createDHTMLMask(callback) {
   portalMask.style.justifyContent = 'center';
 
   portalMask.addEventListener('click', function (event) {
-    closeDrawer();
     event.stopPropagation();
   });
 

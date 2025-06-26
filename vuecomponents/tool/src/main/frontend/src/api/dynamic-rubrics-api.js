@@ -5,7 +5,7 @@ export async function getRubricElement(url) {
     headers: { "Content-Type": "application/json" },
   });
   if (response.ok) {
-    return await response.json();
+    return (response.status !== 204)?await response.json():null;
   } else {
     console.error("Server error while getting rubric element from url ", url, response.statusText);
     return null;

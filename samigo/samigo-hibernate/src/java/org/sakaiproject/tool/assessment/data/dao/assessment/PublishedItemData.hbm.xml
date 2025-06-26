@@ -37,8 +37,13 @@
     <property name="hash" type="string" column="HASH" not-null="false" />
     <property name="itemHash" type="string" column="ITEMHASH" not-null="false" />
     <property name="isExtraCredit" type="boolean" column="ISEXTRACREDIT" not-null="false" />
-    <property name="cancellation" type="integer" column="CANCELLATION" not-null="true" />
-    <property name="isFixed" type="boolean" column="isFixed" not-null="true" />
+    <property name="cancellation" type="integer" not-null="true">
+      <column name="CANCELLATION" default="0"/>
+    </property>
+    <property name="isFixed" type="boolean" not-null="true">
+      <column name="isFixed" default="false" />
+    </property>
+
     <set name="itemTextSet" table="SAM_PUBLISHEDITEMTEXT_T" cascade="all-delete-orphan" order-by="sequence asc" inverse="true" lazy="false" batch-size="50">
        <key column="ITEMID"/>
        <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText"/>
@@ -73,7 +78,9 @@
     <property name="sequence" type="long" column="SEQUENCE" not-null="true" />
     <property name="text" type="materialized_clob" column="TEXT" not-null="false" />
 	<property name="requiredOptionsCount" type="integer" column="REQUIRED_OPTIONS_COUNT" not-null="false" />
-    <property name="addedButNotExtracted" type="boolean" column="ADDEDBUTNOTEXTRACTED" not-null="false" />
+    <property name="addedButNotExtracted" type="boolean" not-null="true">
+       <column name="ADDEDBUTNOTEXTRACTED" default="false"/>
+    </property>
     <set name="answerSet" table="SAM_PUBLISHEDANSWER_T" cascade="all-delete-orphan" inverse="true" lazy="false" batch-size="50" order-by="sequence asc">
        <key column="ITEMTEXTID"/>
        <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer"/>

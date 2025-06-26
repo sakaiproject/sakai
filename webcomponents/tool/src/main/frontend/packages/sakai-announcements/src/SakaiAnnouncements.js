@@ -116,7 +116,7 @@ export class SakaiAnnouncements extends SakaiPageableElement {
         </div>
         ` : nothing }
         <div id="sorting">
-          <select aria-label="${this._i18n.announcement_sort_label}" @change=${this._sortChanged}>
+          <select class="w-100 mb-3" aria-label="${this._i18n.announcement_sort_label}" @change=${this._sortChanged}>
             <option value="${EARLIEST_FIRST}">${this._i18n.earliest_first}</option>
             <option value="${LATEST_FIRST}">${this._i18n.latest_first}</option>
             <option value="${TITLE_A_TO_Z}">${this._i18n.title_a_to_z}</option>
@@ -188,15 +188,13 @@ export class SakaiAnnouncements extends SakaiPageableElement {
       }
 
       #site-filter {
-      margin-bottom: 12px;
+        margin-bottom: 0.25rem;
+      }
+      #site-filter sakai-site-picker::part(select) {
+        width: 100%;
       }
       #filter {
         flex: 1;
-      }
-      #filter-and-sort-block {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 6px;
       }
       #sorting {
         margin-left: auto;

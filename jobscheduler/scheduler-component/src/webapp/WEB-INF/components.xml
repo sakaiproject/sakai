@@ -321,7 +321,7 @@
 
     <!-- global quartz scheduler proxy bean -->
     <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.CourseSiteRemovalJob"
-          class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+          class="org.sakaiproject.component.app.scheduler.jobs.SpringStatefulJobBeanWrapper"
           init-method="init">
         <property name="beanId"          ><value>org.sakaiproject.component.app.scheduler.jobs.coursepublish.CourseSiteRemovalJob</value></property>
         <property name="jobName"         ><value>Course Site Removal</value>                                     </property>
@@ -335,14 +335,14 @@
         <property name="courseSiteRemovalService"  ><ref bean="org.sakaiproject.coursemanagement.api.CourseSiteRemovalService"/></property>
         <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"   /></property>
         <property name="sessionManager"            ><ref bean="org.sakaiproject.tool.api.SessionManager"                    /></property>
-
+        <property name="eventTrackingService"      ><ref bean="org.sakaiproject.event.api.EventTrackingService"             /></property>
     </bean>
 
 
 
     <!-- global quartz scheduler proxy bean -->
     <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.CourseSitePublishJob"
-          class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+          class="org.sakaiproject.component.app.scheduler.jobs.SpringStatefulJobBeanWrapper"
            init-method="init">
         <property name="beanId"          ><value>org.sakaiproject.component.app.scheduler.jobs.coursepublish.CourseSitePublishJob</value></property>
         <property name="jobName"         ><value>Course Site Publish</value>                                     </property>
@@ -356,6 +356,7 @@
         <property name="courseSitePublishService"  ><ref bean="org.sakaiproject.coursemanagement.api.CourseSitePublishService"/></property>
         <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"   /></property>
         <property name="sessionManager"            ><ref bean="org.sakaiproject.tool.api.SessionManager"                    /></property>
+        <property name="eventTrackingService"      ><ref bean="org.sakaiproject.event.api.EventTrackingService"             /></property>
     </bean>
 
     <!-- Hide LB-CSS folder from access user-->

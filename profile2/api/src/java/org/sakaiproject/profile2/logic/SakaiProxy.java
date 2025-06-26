@@ -15,7 +15,6 @@
  */
 package org.sakaiproject.profile2.logic;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -436,16 +435,16 @@ public interface SakaiProxy {
 	/**
 	 * Get the profile2.picture.type setting in sakai.properties
 	 * <p>
-	 * Possible values for the sakai property are 'upload', 'url', 'official' and 'gravatar'. If not set, defaults to 'upload'.
+	 * Possible values for the sakai property are 'upload', 'url' and 'official'. If not set, defaults to 'upload'.
 	 * </p>
 	 * <p>
 	 * This returns an int which matches one of: ProfileConstants.PICTURE_SETTING_UPLOAD, ProfileConstants.PICTURE_SETTING_URL,
-	 * ProfileConstants.PICTURE_SETTING_OFFICIAL, ProfileConstants.PICTURE_SETTINGS_GRAVATAR.
+	 * ProfileConstants.PICTURE_SETTING_OFFICIAL.
 	 * </p>
 	 *
 	 * <p>
 	 * Depending on this setting, Profile2 will decide how it retrieves a user's profile image, and the method by which users can add their
-	 * own image. ie by uploading their own image, providing a URL, not at all (for official), or creating a gravatar URL
+	 * own image. ie by uploading their own image, providing a URL, or not at all (for official)
 	 * </p>
 	 *
 	 * @return
@@ -646,13 +645,6 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	public boolean checkForSite(String siteId);
-
-	/**
-	 * Is profile2.gravatar.image.enabled true? If so, allow use of this image and preference.
-	 *
-	 * @return
-	 */
-	public boolean isGravatarImageEnabledGlobally();
 
 	/**
 	 * Does user have site.add permission?

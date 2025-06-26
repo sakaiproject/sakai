@@ -78,7 +78,7 @@
     background: none;
     position: relative;
     &:before {
-      content: "\F259"; /* save */
+      content: "\F7D8"; /* floppy */
       font-family: "bootstrap-icons";
       position: absolute;
       top: 50%;
@@ -90,7 +90,7 @@
     background: none;
     position: relative;
     &:before {
-      content: "\F5FC"; /* type-bold */
+      content: "\F5F0"; /* type-bold */
       font-family: "bootstrap-icons";
       position: absolute;
       top: 50%;
@@ -102,7 +102,7 @@
     background: none;
     position: relative;
     &:before {
-      content: "\F5FD"; /* type-italic */
+      content: "\F5F4"; /* type-italic */
       font-family: "bootstrap-icons";
       position: absolute;
       top: 50%;
@@ -114,7 +114,7 @@
     background: none;
     position: relative;
     &:before {
-      content: "\F607"; /* type-h1 */
+      content: "\F849"; /* superscript */
       font-family: "bootstrap-icons";
       position: absolute;
       top: 50%;
@@ -126,7 +126,7 @@
     background: none;
     position: relative;
     &:before {
-      content: "\F607"; /* type-h2 */
+      content: "\F848"; /* subscript */
       font-family: "bootstrap-icons";
       position: absolute;
       top: 50%;
@@ -139,7 +139,7 @@
     background: none;
     position: relative;
     &:before {
-      content: "\F564"; /* table */
+      content: "\F5AA"; /* table */
       font-family: "bootstrap-icons";
       position: absolute;
       top: 50%;
@@ -151,7 +151,7 @@
     background: none;
     position: relative;
     &:before {
-      content: "\F341"; /* link */
+      content: "\F470"; /* link-45deg */
       font-family: "bootstrap-icons";
       position: absolute;
       top: 50%;
@@ -163,7 +163,7 @@
     background: none;
     position: relative;
     &:before {
-      content: "\F302"; /* image */
+      content: "\F42A"; /* image */
       font-family: "bootstrap-icons";
       position: absolute;
       top: 50%;
@@ -207,7 +207,7 @@
   }
   .previewToolBarContainer select { zoom: 1; font-size: .9em; border: 1px solid #efeffe }
   .autosaveToolBarContainer input { zoom: 1; font-size: .9em; border: 1px solid #efeffe }
-  a.anchorpoint { vertical-align: top }
+  a.anchorpoint { vertical-align: top; text-decoration: none; }
   .publicview { padding: 10px 10px 10px 30px }
   /* head is the edit page headder */
   #rwiki_head{ background-color: var(--sakai-background-color-2); height: 100%; overflow: hidden }
@@ -370,7 +370,7 @@
       margin:0;
       position: relative;
       &:before {
-        content: "\F0F6"; /* file-text */
+        content: "\F38B"; /* file-earmark-text */
         font-family: "bootstrap-icons";
         position: absolute;
         left: 5px;
