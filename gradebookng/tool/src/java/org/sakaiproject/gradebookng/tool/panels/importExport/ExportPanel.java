@@ -471,6 +471,19 @@ public class ExportPanel extends BasePanel {
 					if (isCustomExport && this.includePoints) {
 						line.add(FormatHelper.formatGradeForDisplay(FormatHelper.formatDoubleToDecimal(courseGrade.getPointsEarned())));
 					}
+					if (isCustomExport && this.includeCourseGrade) {
+						line.add(courseGrade.getMappedGrade());
+					}
+					if (isCustomExport && this.includeCalculatedGrade) {
+						line.add(FormatHelper.formatGradeForDisplay(courseGrade.getCalculatedGrade()));
+					}
+					if (isCustomExport && this.includeGradeOverride) {
+						if (courseGrade.getEnteredGrade() != null) {
+							line.add(courseGrade.getEnteredGrade());
+						} else {
+							line.add(null);
+						}
+					}
 					if (isCustomExport && this.includeLastLogDate) {
 						if (courseGrade.getDateRecorded() == null) {
 							line.add(null);
