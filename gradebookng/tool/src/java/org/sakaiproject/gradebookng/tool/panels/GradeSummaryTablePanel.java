@@ -356,7 +356,8 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 							// Don't show the relative weight as it's confusing to students
 							gradeScore.add(new Label("grade",
 									new StringResourceModel("label.percentage.valued")
-											.setParameters(FormatHelper.formatGrade(rawGrade))) {
+											.setParameters(StringUtils.isNotBlank(rawGrade) ? 
+												FormatHelper.formatDoubleToDecimal(Double.valueOf(rawGrade)) : "")) {
 								@Override
 								public boolean isVisible() {
 									return StringUtils.isNotBlank(rawGrade);
