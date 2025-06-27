@@ -55,16 +55,6 @@ public class GradebookRepositoryImpl extends SpringCrudRepositoryImpl<Gradebook,
         return session.createQuery(delete).executeUpdate();
     }
 
-    @Transactional(readOnly = true)
-    public boolean isGradebookDefined(final String gradebookUid) {
-        Session session = sessionFactory.getCurrentSession();
-        CriteriaBuilder cb = session.getCriteriaBuilder();
-        CriteriaQuery<Gradebook> query = cb.createQuery(Gradebook.class);
-        Root<Gradebook> gradebook = query.from(Gradebook.class);
-        query.where(cb.equal(gradebook.get("uid"), gradebookUid));
-        return session.createQuery(query).uniqueResultOptional().isPresent();
-    }
-
     @Transactional
     public int deleteSpreadsheetsForGradebook(final Long id) {
         Session session = sessionFactory.getCurrentSession();

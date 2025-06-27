@@ -27,6 +27,5 @@ public interface GradebookRepository extends SpringCrudRepository<Gradebook, Lon
     Optional<Gradebook> findByUid(String uid);
     int deleteByUid(String uid);
 
-    public boolean isGradebookDefined(final String gradebookUid);
     public int deleteSpreadsheetsForGradebook(final Long id);
 }

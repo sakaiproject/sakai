@@ -5840,9 +5840,7 @@ public class GradingServiceImpl implements GradingService {
 
     public void hardDeleteGradebook(String siteId) {
         try {
-            if (gradingPersistenceManager.isGradebookDefined(siteId)) {
-                deleteGradebook(siteId);
-            }
+            deleteGradebook(siteId);
         } catch (Exception e) {
             log.warn("Could not hard delete gradebook for context {}", siteId, e);
         }
