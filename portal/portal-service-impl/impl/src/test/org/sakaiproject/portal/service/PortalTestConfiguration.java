@@ -20,6 +20,7 @@ import javax.annotation.Resource;
 import static org.mockito.Mockito.*;
 
 import org.sakaiproject.alias.api.AliasService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
 import org.sakaiproject.test.SakaiTestConfiguration;
@@ -68,5 +69,13 @@ public class PortalTestConfiguration extends SakaiTestConfiguration {
     @Bean(name = "org.sakaiproject.thread_local.api.ThreadLocalManager")
     public ThreadLocalManager threadLocalManager() {
         return mock(ThreadLocalManager.class);
+    }
+
+    @Bean(name = "org.sakaiproject.component.api.ServerConfigurationService")
+    public ServerConfigurationService serverConfigurationService() {
+        ServerConfigurationService mock = mock(ServerConfigurationService.class);
+        when(mock.getInt("portal.max.recent.sites", PortalServiceImpl.DEFAULT_MAX_RECENT_SITES))
+            .thenReturn(PortalServiceImpl.DEFAULT_MAX_RECENT_SITES);
+        return mock;
     }
 }
