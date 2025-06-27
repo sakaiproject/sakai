@@ -18,7 +18,7 @@
   <!-- Project versions -->
   <properties>
     <commons-betwixt.version>0.8</commons-betwixt.version>
-    <fop.version>1.0</fop.version>
+    <fop.version>2.11</fop.version>
     <jfreechart.version>1.5.3</jfreechart.version>
     <sst.wicket.version>9.20.0</sst.wicket.version>
   </properties>
@@ -78,6 +78,17 @@
       <dependency>
         <groupId>org.apache.xmlgraphics</groupId>
         <artifactId>fop</artifactId>
+        <version>${fop.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.xmlgraphics</groupId>
+        <artifactId>xmlgraphics-commons</artifactId>
         <version>${fop.version}</version>
         <exclusions>
           <exclusion>

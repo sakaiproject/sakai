@@ -16,11 +16,14 @@
 package org.sakaiproject.calendar.impl;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.MalformedURLException;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.time.Instant;
@@ -48,14 +51,15 @@ import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import org.xml.sax.SAXException;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.fop.apps.FOPException;
 import org.apache.fop.apps.Fop;
 import org.apache.fop.apps.FopFactory;
 import org.apache.fop.apps.FopFactoryBuilder;
 import org.apache.fop.apps.MimeConstants;
-import org.apache.fop.configuration.ConfigurationException;
-import org.apache.fop.configuration.DefaultConfigurationBuilder;
+// Removed unused configuration imports
 import org.apache.xmlgraphics.io.Resource;
 import org.apache.xmlgraphics.io.ResourceResolver;
 import org.sakaiproject.calendar.api.CalendarEvent;
@@ -158,10 +162,6 @@ public class PDFExportService {
     // Misc.
     private static final String HOUR_MINUTE_SEPARATOR = ":";
 
-    // FOP Configuration
-    private final static String FOP_USERCONFIG = "fonts/fop.xml";
-    private final static String FOP_FONTBASEDIR = "fonts";
-
     private TimeService timeService;
     private TransformerFactory transformerFactory;
     private ResourceLoader rb;
@@ -172,19 +172,23 @@ public class PDFExportService {
         this.rb = rb;
 
         transformerFactory = TransformerFactory.newInstance();
-        transformerFactory.setURIResolver( new MyURIResolver(getClass().getClassLoader()) );
+        transformerFactory.setURIResolver(new MyURIResolver(getClass().getClassLoader()));
+        
+        // Create a FOP factory with system fonts (auto-detect)
         try {
-
-            URI baseDir = getClass().getClassLoader().getResource(FOP_FONTBASEDIR).toURI();
-            FopFactoryBuilder builder = new FopFactoryBuilder(baseDir, new ClassPathResolver());
-            InputStream userConfig = getClass().getClassLoader().getResourceAsStream(FOP_USERCONFIG);
-            fopFactory = builder.setConfiguration(new DefaultConfigurationBuilder().build(userConfig)).build();
-
-        } catch (URISyntaxException | ConfigurationException e) {
-            // We won't be able to do anything if we can't create a FopFactory so may as well get caller to handle.
+            // Create default FOP factory with auto-detection of system fonts
+            FopFactoryBuilder builder = new FopFactoryBuilder(new File(".").toURI());
+            
+            // Enable auto-detection of system fonts
+            fopFactory = builder.build();
+            
+            // Log success message
+            log.debug("PDF export initialized with system fonts");
+            
+        } catch (Exception e) {
+            // We won't be able to do anything if we can't create a FopFactory
             throw new RuntimeException("Failed to setup Apache FOP for calendar PDF exports.", e);
         }
-
     }
 
     /**
@@ -1328,24 +1332,6 @@ public class PDFExportService {
             return (Source)(new StreamSource(in));
         }
 
-    }
-
-    /**
-     * This is a hack to get fonts to load out of the classpath in both tests and production. Tomcat has a URI
-     * handler for classpath: but this doesn't exist when running in tests.
-     */
-    private static final class ClassPathResolver implements ResourceResolver {
-        @Override
-        public OutputStream getOutputStream(URI uri) throws IOException {
-            return getClass().getResource(uri.toString()).openConnection()
-                    .getOutputStream();
-        }
-
-        @Override
-        public Resource getResource(URI uri) throws IOException {
-            InputStream inputStream = getClass().getResourceAsStream(uri.getPath());
-            return new Resource(inputStream);
-        }
     }
 
     private List<TimeRange> makeDayTimeRangeList(LocalDateTime value) {
