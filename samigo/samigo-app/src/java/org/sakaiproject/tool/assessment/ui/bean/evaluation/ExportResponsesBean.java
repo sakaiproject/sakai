@@ -247,7 +247,8 @@ public class ExportResponsesBean extends SpringBeanAutowiringSupport implements 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
         StringBuilder fileName = new StringBuilder(ContextUtil.getLocalizedString(MSG_BUNDLE,"assessment"));
         if(StringUtils.trimToNull(assessmentName) != null) {
-        	assessmentName = assessmentName.replaceAll("\\s", "_"); // replace whitespace with '_'
+        	// Sanitize filename: replace problematic characters with underscore
+        	assessmentName = assessmentName.replaceAll("[\\s<>&;\"'\\\\/:*?|]", "_");
             fileName.append("-");
             fileName.append(assessmentName);
         }
