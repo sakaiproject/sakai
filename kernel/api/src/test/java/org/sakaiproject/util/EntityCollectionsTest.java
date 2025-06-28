@@ -184,10 +184,71 @@ public class EntityCollectionsTest {
 		assertTrue(refernces.contains("/ref/e2"));
 	}
 
-	// @Test
-	// Why......
+	@Test
 	public void testComputeAddedRemovedEntityRefsFromNewEntitiesOldRefs() {
+		Entity e1 = mock(Entity.class);
+		when(e1.getReference()).thenReturn("/ref/e1");
+		Entity e2 = mock(Entity.class);
+		when(e2.getReference()).thenReturn("/ref/e2");
+		Entity e3 = mock(Entity.class);
+		when(e3.getReference()).thenReturn("/ref/e3");
 
+		// Test case: some added, some removed
+		ArrayList<String> addedEntities = new ArrayList<String>();
+		ArrayList<String> removedEntities = new ArrayList<String>();
+		computeAddedRemovedEntityRefsFromNewEntitiesOldRefs(
+				addedEntities, 
+				removedEntities,
+				Arrays.asList(new Entity[] { e1, e3 }), 
+				Arrays.asList(new String[] { "/ref/e1", "/ref/e2" }));
+
+		assertTrue(addedEntities.contains("/ref/e3"));
+		assertFalse(addedEntities.contains("/ref/e1"));
+		assertFalse(addedEntities.contains("/ref/e2"));
+
+		assertTrue(removedEntities.contains("/ref/e2"));
+		assertFalse(removedEntities.contains("/ref/e1"));
+		assertFalse(removedEntities.contains("/ref/e3"));
+
+		// Test case: all new entities
+		addedEntities.clear();
+		removedEntities.clear();
+		computeAddedRemovedEntityRefsFromNewEntitiesOldRefs(
+				addedEntities, 
+				removedEntities,
+				Arrays.asList(new Entity[] { e1, e2, e3 }), 
+				Arrays.asList(new String[] {}));
+
+		assertTrue(addedEntities.contains("/ref/e1"));
+		assertTrue(addedEntities.contains("/ref/e2"));
+		assertTrue(addedEntities.contains("/ref/e3"));
+		assertTrue(removedEntities.isEmpty());
+
+		// Test case: all entities removed
+		addedEntities.clear();
+		removedEntities.clear();
+		computeAddedRemovedEntityRefsFromNewEntitiesOldRefs(
+				addedEntities, 
+				removedEntities,
+				Arrays.asList(new Entity[] {}), 
+				Arrays.asList(new String[] { "/ref/e1", "/ref/e2", "/ref/e3" }));
+
+		assertTrue(addedEntities.isEmpty());
+		assertTrue(removedEntities.contains("/ref/e1"));
+		assertTrue(removedEntities.contains("/ref/e2"));
+		assertTrue(removedEntities.contains("/ref/e3"));
+
+		// Test case: no changes
+		addedEntities.clear();
+		removedEntities.clear();
+		computeAddedRemovedEntityRefsFromNewEntitiesOldRefs(
+				addedEntities, 
+				removedEntities,
+				Arrays.asList(new Entity[] { e1, e2 }), 
+				Arrays.asList(new String[] { "/ref/e1", "/ref/e2" }));
+
+		assertTrue(addedEntities.isEmpty());
+		assertTrue(removedEntities.isEmpty());
 	}
 
 }
