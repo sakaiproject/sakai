@@ -53,7 +53,7 @@ import org.sakaiproject.tool.api.Breakdownable.BreakdownableSize;
  * session.cluster.minSecsBetweenStores=10
  * session.cluster.minSecsAfterRebuild=30
  *
- * NOTE that org.sakaiproject.tool.impl.RebuildBreakdownService.cache must be set to a distributed store (like terracotta)
+ * NOTE that org.sakaiproject.tool.impl.RebuildBreakdownService.cache must be set to a distributed store
  */
 @Slf4j
 public class RebuildBreakdownServiceImpl implements RebuildBreakdownService {
