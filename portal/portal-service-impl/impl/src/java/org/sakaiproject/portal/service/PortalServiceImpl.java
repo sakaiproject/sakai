@@ -958,7 +958,7 @@ public class PortalServiceImpl implements PortalService, Observer
 			return;
 		}
 
-		recentSiteRepository.deleteByUserIdAndSiteId(userId, siteId);
+		removeRecentSite(userId, siteId);
 
 		List<String> current = new ArrayList<>(getRecentSites(userId));
 
