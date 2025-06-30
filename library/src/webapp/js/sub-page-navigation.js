@@ -1,6 +1,11 @@
 class SubPageNavigation {
 
   constructor(data) {
+    if (!data) {
+      console.warn('No data provided for SubPageNavigation');
+      return;
+    }
+
     if (!data.hasOwnProperty('pages')) {
       console.warn('No page data for SubPageNavigation');
       return;
