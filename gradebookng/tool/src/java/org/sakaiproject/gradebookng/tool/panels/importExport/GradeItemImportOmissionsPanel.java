@@ -82,43 +82,8 @@ public class GradeItemImportOmissionsPanel extends Panel
         unknownUsersHeader = new Label( "unknownUsersHeader", new StringResourceModel( unknownUsersHeaderMsgKey ).setParameters( numUnknownUsers ) );
         unknownUsersInfo = new Label( "unknownUsersInfo", new StringResourceModel( unknownUsersInfoMsgKey ) );
 
-        // Missing users accordion and collapse/expand behaviour
         final WebMarkupContainer missingUsersContainer = new WebMarkupContainer( "missingUsersContainer" );
-        missingUsersContainer.add( new AjaxEventBehavior( "shown.bs.collapse" )
-        {
-            @Override
-            protected void onEvent( final AjaxRequestTarget ajaxRequestTarget )
-            {
-                missingUsersContainer.add( new AttributeModifier( "class", "panel-collapse collapse in" ) );
-            }
-        });
-        missingUsersContainer.add( new AjaxEventBehavior( "hidden.bs.collapse" )
-        {
-            @Override
-            protected void onEvent( final AjaxRequestTarget ajaxRequestTarget )
-            {
-                missingUsersContainer.add( new AttributeModifier( "class", "panel-collapse collapse" ) );
-            }
-        });
-
-        // Unknown users accordion and collapse/expand behaviour
         final WebMarkupContainer unknownUsersContainer = new WebMarkupContainer( "unknownUsersContainer" );
-        unknownUsersContainer.add( new AjaxEventBehavior( "shown.bs.collapse" )
-        {
-            @Override
-            protected void onEvent( final AjaxRequestTarget ajaxRequestTarget )
-            {
-                unknownUsersContainer.add( new AttributeModifier( "class", "panel-collapse collapse in" ) );
-            }
-        });
-        unknownUsersContainer.add( new AjaxEventBehavior( "hidden.bs.collapse" )
-        {
-            @Override
-            protected void onEvent( final AjaxRequestTarget ajaxRequestTarget )
-            {
-                unknownUsersContainer.add( new AttributeModifier( "class", "panel-collapse collapse" ) );
-            }
-        });
 
         // Sort the omission lists alphabetically
         List<GbUser> missingUsersSorted = new ArrayList<>( report.getMissingUsers() );

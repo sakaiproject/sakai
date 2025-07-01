@@ -2,50 +2,45 @@
 <html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd">
     <body>
         <wicket:panel>
-            <div wicket:id="omissionsContainer">
-                <div wicket:id="missingUsersContainer">
-                    <div class="card">
-                        <div class="card text-center" role="tab" id="missingUsersHeader">
-                            <h3 class="panel-title">
-                                <a role="button" data-bs-toggle="collapse" href="#missingUsers" aria-expanded="false" aria-controls="missingUsers">
-                                    <wicket:message wicket:id="missingUsersHeader">{0} students were found in the Gradebook who are missing from the import file</wicket:message>
-                                </a>
-                            </h3>
-                        </div>
-                        <div id="missingUsers" class="panel-collapse collapse" role="tabpanel" aria-labelledby="missingUsersHeader">
-                            <div class="card-body">
-                                <ul id="missingUsersContent">
-                                    <li wicket:id="missingUsers">
-                                        <span wicket:id="missingUser">student0001 (firstName lastName)</span>
-                                    </li>
-                                </ul>
-                            </div>
+            <div wicket:id="omissionsContainer" class="accordion" id="omissionsContainer">
+
+                <div wicket:id="missingUsersContainer" class="accordion-item">
+                    <h2 id="missingUsersHeader" class="accordion-header">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#missingUsers" aria-expanded="true" aria-controls="missingUsers">
+                            <wicket:message wicket:id="missingUsersHeader">{0} students were found in the Gradebook who are missing from the import file</wicket:message>
+                        </button>
+                    </h2>
+                    <div id="missingUsers" class="accordion-collapse collapse" aria-labelledby="missingUsersHeader" data-bs-parent="#omissionsContainer">
+                        <div class="accordion-body">
+                            <ul id="missingUsersContent">
+                                <li wicket:id="missingUsers">
+                                    <span wicket:id="missingUser">student0001 (firstName lastName)</span>
+                                </li>
+                            </ul>
                         </div>
                     </div>
                 </div>
-                <div wicket:id="unknownUsersContainer">
-                    <div class="card">
-                        <div class="card text-center" role="tab" id="unknownUsersHeader">
-                            <h3 class="panel-title">
-                                <a role="button" data-bs-toggle="collapse" href="#unknownUsers" aria-expanded="false" aria-controls="unknownUsers">
-                                    <wicket:message wicket:id="unknownUsersHeader">{0} students in the import file could not be found in the Gradebook</wicket:message>
-                                </a>
-                            </h3>
-                        </div>
-                        <div id="unknownUsers" class="panel-collapse collapse" role="tabpanel" aria-labelledby="unknownUsersHeader">
-                            <div class="card-body">
+
+                <div wicket:id="unknownUsersContainer" class="accordion-item">
+                    <h2 id="unknownUsersHeader" class="accordion-header">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#unknownUsers" aria-expanded="true" aria-controls="unknownUsers">
+                            <wicket:message wicket:id="unknownUsersHeader">{0} students in the import file could not be found in the Gradebook</wicket:message>
+                        </button>
+                    </h2>
+                    <div id="unknownUsers" class="accordion-collapse collapse" aria-labelledby="unknownUsersHeader" data-bs-parent="#omissionsContainer">
+                        <div class="accordion-body">
+                            <ul id="unknownUsersContent">
                                 <p class="sak-banner-info">
                                     <wicket:message wicket:id="unknownUsersInfo">Grade entries for these students will not be imported.</wicket:message>
                                 </p>
-                                <ul id="unknownUsersContent">
-                                    <li wicket:id="unknownUsers">
-                                        <span wicket:id="unknownUser">student0001</span>
-                                    </li>
-                                </ul>
-                            </div>
+                                <li wicket:id="unknownUsers">
+                                    <span wicket:id="unknownUser">student0001</span>
+                                </li>
+                            </ul>
                         </div>
                     </div>
                 </div>
+
             </div>
         </wicket:panel>
     </body>
