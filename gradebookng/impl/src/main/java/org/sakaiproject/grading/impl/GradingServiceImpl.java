@@ -5837,4 +5837,12 @@ public class GradingServiceImpl implements GradingService {
 
         return null;
     }
+
+    public void hardDeleteGradebook(String siteId) {
+        try {
+            deleteGradebook(siteId);
+        } catch (Exception e) {
+            log.warn("Could not hard delete gradebook for context {}", siteId, e);
+        }
+    }
 }

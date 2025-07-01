@@ -27,6 +27,7 @@ import java.util.Optional;
 import org.springframework.transaction.annotation.Transactional;
 
 import org.sakaiproject.grading.api.model.Gradebook;
+import org.sakaiproject.grading.api.model.Spreadsheet;
 import org.sakaiproject.grading.api.repository.GradebookRepository;
 import org.sakaiproject.springframework.data.SpringCrudRepositoryImpl;
 
@@ -53,4 +54,17 @@ public class GradebookRepositoryImpl extends SpringCrudRepositoryImpl<Gradebook,
         delete.where(cb.equal(gradebook.get("uid"), uid));
         return session.createQuery(delete).executeUpdate();
     }
+
+    @Transactional
+    public int deleteSpreadsheetsForGradebook(final Long id) {
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaDelete<Spreadsheet> delete = cb.createCriteriaDelete(Spreadsheet.class);
+        Root<Spreadsheet> spreadsheet = delete.from(Spreadsheet.class);
+        delete.where(cb.equal(spreadsheet.get("gradebook").get("id"), id));
+        return session.createQuery(delete).executeUpdate();
+    }
+
+
+
 }
