@@ -229,6 +229,13 @@ public abstract class BaseSessionComponentTest extends MockObjectTestCase {
 		}});
 	}
 	
+	protected void allowEmptyToolCheck() {
+		checking(new Expectations() {{
+			allowing(toolManager).getCurrentTool();
+			will(returnValue(null));
+		}});
+	}
+	
 	protected Matcher<Session> sessionHavingId(final String toMatch, final SessionHolder matchedSessionHolder) {
 		return new TypeSafeMatcher<Session>() {
 
