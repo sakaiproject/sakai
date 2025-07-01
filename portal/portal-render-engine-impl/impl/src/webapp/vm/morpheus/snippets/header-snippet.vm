@@ -2,6 +2,7 @@
 
 <header class="portal-header d-flex align-items-center justify-content-between" role="banner">
 
+  #if (${userIsLoggedIn})
   <button class="btn icon-button m-1 d-md-none btn-sidebar-collapse responsive-sidebar-button"
       data-bs-toggle="offcanvas"
       data-bs-target="#portal-nav-sidebar"
@@ -11,10 +12,11 @@
       title="$rloader.sit_navigation">
     <span class="bi bi-list"></span>
   </button>
+  #end
 
   <div class="d-flex align-items-center">
     <div id="logoWrapper" class="portal-header-logo d-flex align-items-center justify-content-between bg-primary">
-      <a class="px-3 btn" href="/portal" title="$rloader.portal_home">
+      <a class="btn" href="/portal" title="$rloader.portal_home">
         <button class="btn icon-button btn-logo-button" type="button">
           <img src="/library/skin/$!{pageSkin}/images/sakaiLogo.png" alt="Sakai Logo">
         </button>
