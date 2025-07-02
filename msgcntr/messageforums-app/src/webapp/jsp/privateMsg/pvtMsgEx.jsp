@@ -58,10 +58,10 @@
 		  </h:column>
 		  <h:column>
 		    <f:facet name="header">
-		        <h:outputText value="" styleClass="bi bi-flag-fill" escape="false" />
+		        <h:outputText value="" styleClass="bi bi-reply-fill" escape="false" />
 				<h:outputText value="#{msgs.pvt_msgs_replied}" styleClass="sr-only" />
 			</f:facet>
-			<h:outputText value="" styleClass="bi bi-flag-fill" escape="false" rendered="#{rcvdItems.replied}" />
+			<h:outputText value="" styleClass="bi bi-reply-fill" escape="false" rendered="#{rcvdItems.replied}" />
 		  </h:column>
 		  <h:column>
 		    <f:facet name="header">
