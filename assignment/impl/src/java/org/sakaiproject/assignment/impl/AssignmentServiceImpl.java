@@ -2475,7 +2475,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         if (submission == null) return false; // false if submission is null
 
         // check that a submission has been submitted
-        if (submission.getSubmitted() && submission.getDateSubmitted() != null) {
+        if (submission.getDateSubmitted() != null) {
             // get the resubmit settings from submission object first
             String allowResubmitNumString = submission.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER);
             String allowResubmitCloseTimeString = submission.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME);
