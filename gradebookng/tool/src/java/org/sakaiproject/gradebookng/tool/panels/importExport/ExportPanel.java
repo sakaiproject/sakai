@@ -95,6 +95,7 @@ public class ExportPanel extends BasePanel {
 	boolean includeLastLogDate = false;
 	boolean includeCalculatedGrade = false;
 	boolean includeGradeOverride = false;
+	boolean stuNumVisible = false;
 	GbGroup group;
 
 	private Component customDownloadLink;
@@ -137,7 +138,7 @@ public class ExportPanel extends BasePanel {
 			}
 		});
 		
-		final boolean stuNumVisible = businessService.isStudentNumberVisible(currentSiteId);
+		this.stuNumVisible = businessService.isStudentNumberVisible(currentSiteId);
 		add(new AjaxCheckBox("includeStudentNumber", Model.of(this.includeStudentNumber)) {
 			private static final long serialVersionUID = 1L;
 
@@ -150,7 +151,7 @@ public class ExportPanel extends BasePanel {
 			@Override
 			public boolean isVisible()
 			{
-				return stuNumVisible;
+				return ExportPanel.this.stuNumVisible;
 			}
 		});
 
@@ -353,11 +354,26 @@ public class ExportPanel extends BasePanel {
 				if (isCustomExport && this.includeStudentDisplayId) {
 					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.studentDisplayId")));
 				}
-				if (!isCustomExport || this.includeStudentNumber) {
+				if (this.stuNumVisible && (!isCustomExport || this.includeStudentNumber)) {
 					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.studentNumber")));
 				}
 				if (isCustomExport && this.includeSectionMembership) {
 					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("column.header.section")));
+				}
+				if (isCustomExport && this.includePoints) {
+					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.points")));
+				}
+				if (isCustomExport && this.includeCourseGrade) {
+					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.courseGrade")));
+				}
+				if (isCustomExport && this.includeCalculatedGrade) {
+					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.calculatedGrade")));
+				}
+				if (isCustomExport && this.includeGradeOverride) {
+					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.gradeOverride")));
+				}
+				if (isCustomExport && this.includeLastLogDate) {
+					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.lastLogDate")));
 				}
 
 				// get list of assignments. this allows us to build the columns and then fetch the grades for each student for each assignment from the map
@@ -370,15 +386,13 @@ public class ExportPanel extends BasePanel {
 
 				// no assignments, give a template
 				if (assignments.isEmpty()) {
-					// with points
-					header.add(String.join(" ", getString("importExport.export.csv.headers.example.points"), "[100]"));
-					
-					// no points
-					header.add(getString("importExport.export.csv.headers.example.nopoints"));
-					
-					// points and comments
-					header.add(String.join(" ", COMMENTS_COLUMN_PREFIX, getString("importExport.export.csv.headers.example.pointscomments"), "[50]"));
-					
+					if (!isCustomExport || this.includeGradeItemScores) {
+						header.add(String.join(" ", getString("importExport.export.csv.headers.example.points"), "[100]"));
+					}
+					if (!isCustomExport || this.includeGradeItemComments) {
+						header.add(getString("importExport.export.csv.headers.example.nopoints"));
+						header.add(String.join(" ", COMMENTS_COLUMN_PREFIX, getString("importExport.export.csv.headers.example.pointscomments"), "[50]"));
+					}
 					// ignore
 					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.example.ignore")));
 				}
@@ -418,23 +432,11 @@ public class ExportPanel extends BasePanel {
 					}
 				}
 
+				// Add ignore column header when assignments exist to match data alignment
+				if (!assignments.isEmpty()) {
+					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.example.ignore")));
+				}
 
-				if (isCustomExport && this.includePoints) {
-					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.points")));
-				}
-				if (isCustomExport && this.includeCalculatedGrade) {
-					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.calculatedGrade")));
-				}
-				if (isCustomExport && this.includeCourseGrade) {
-					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.courseGrade")));
-				}
-				if (isCustomExport && this.includeGradeOverride) {
-					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.gradeOverride")));
-				}
-				if (isCustomExport && this.includeLastLogDate) {
-					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.lastLogDate")));
-				}
-				
 				csvWriter.writeNext(header.toArray(new String[] {}));
 
 				// apply section/group filter
@@ -459,7 +461,7 @@ public class ExportPanel extends BasePanel {
 					if (isCustomExport && this.includeStudentDisplayId) {
 						line.add(studentGradeInfo.getStudentDisplayId());
 					}
-					if (!isCustomExport || this.includeStudentNumber)
+					if (this.stuNumVisible && (!isCustomExport || this.includeStudentNumber))
 					{
 						line.add(studentGradeInfo.getStudentNumber());
 					}
@@ -467,57 +469,21 @@ public class ExportPanel extends BasePanel {
 					if (isCustomExport && this.includeSectionMembership) {
 						line.add((userSections.size() > 0) ? userSections.get(0) : getString("sections.label.none"));
 					}
-					if (!isCustomExport || this.includeGradeItemScores || this.includeGradeItemComments || this.includeCategoryAverages) {
-						final Map<Long, Double> categoryAverages = studentGradeInfo.getCategoryAverages();
-
-						for (int i = 0; i < assignments.size(); i++) {
-							final Assignment a1 = assignments.get(i);
-							final Assignment a2 = ((i + 1) < assignments.size()) ? assignments.get(i + 1) : null;
-							final GbGradeInfo gradeInfo = studentGradeInfo.getGrades().get(a1.getId());
-
-							if (gradeInfo != null) {
-								if (!isCustomExport || this.includeGradeItemScores) {
-									String grade = FormatHelper.formatGradeForDisplay(gradeInfo.getGrade());
-									line.add(StringUtils.removeEnd(grade, formattedText.getDecimalSeparator() + "0"));
-								}
-								if (!isCustomExport || this.includeGradeItemComments) {
-									line.add(gradeInfo.getGradeComment());
-								}
-							} else {
-								// Need to account for no grades
-								if (!isCustomExport || this.includeGradeItemScores) {
-									line.add(null);
-								}
-								if (!isCustomExport || this.includeGradeItemComments) {
-									line.add(null);
-								}
-							}
-
-							if (isCustomExport && this.includeCategoryAverages
-									&& a1.getCategoryId() != null && (a2 == null || !a1.getCategoryId().equals(a2.getCategoryId()))) {
-								final Double average = categoryAverages.get(a1.getCategoryId());
-								
-								final String formattedAverage = FormatHelper.formatGradeForDisplay(average);
-								line.add(StringUtils.removeEnd(formattedAverage, formattedText.getDecimalSeparator() + "0"));
-							}
-
-						}
-					}
 
 					final CourseGradeTransferBean courseGrade = studentGradeInfo.getCourseGrade();
 
 					if (isCustomExport && this.includePoints) {
 						line.add(FormatHelper.formatGradeForDisplay(FormatHelper.formatDoubleToDecimal(courseGrade.getPointsEarned())));
 					}
-					if (isCustomExport && this.includeCalculatedGrade) {
-						line.add(FormatHelper.formatGradeForDisplay(courseGrade.getCalculatedGrade()));
-					}
 					if (isCustomExport && this.includeCourseGrade) {
 						line.add(courseGrade.getMappedGrade());
 					}
+					if (isCustomExport && this.includeCalculatedGrade) {
+						line.add(FormatHelper.formatGradeForDisplay(courseGrade.getCalculatedGrade()));
+					}
 					if (isCustomExport && this.includeGradeOverride) {
 						if (courseGrade.getEnteredGrade() != null) {
-							line.add(FormatHelper.formatGradeForDisplay(courseGrade.getEnteredGrade()));
+							line.add(courseGrade.getEnteredGrade());
 						} else {
 							line.add(null);
 						}
@@ -530,6 +496,63 @@ public class ExportPanel extends BasePanel {
 						}
 					}
 
+					if (!isCustomExport || this.includeGradeItemScores || this.includeGradeItemComments || this.includeCategoryAverages) {
+						if (assignments.isEmpty()) {
+							// Add empty values for example columns
+							if (!isCustomExport || this.includeGradeItemScores) {
+								line.add(null);
+							}
+							if (!isCustomExport || this.includeGradeItemComments) {
+								line.add(null);
+								line.add(null);
+							}
+							// Add ignore column value to match template header
+							line.add(null);
+						}
+						else {
+							final Map<Long, Double> categoryAverages = studentGradeInfo.getCategoryAverages();
+
+							for (int i = 0; i < assignments.size(); i++) {
+								final Assignment a1 = assignments.get(i);
+								final Assignment a2 = ((i + 1) < assignments.size()) ? assignments.get(i + 1) : null;
+								final GbGradeInfo gradeInfo = studentGradeInfo.getGrades().get(a1.getId());
+
+								if (gradeInfo != null) {
+									if (!isCustomExport || this.includeGradeItemScores) {
+										String grade = FormatHelper.formatGradeForDisplay(gradeInfo.getGrade());
+										line.add(StringUtils.removeEnd(grade, formattedText.getDecimalSeparator() + "0"));
+									}
+									if (!isCustomExport || this.includeGradeItemComments) {
+										line.add(gradeInfo.getGradeComment());
+									}
+								}
+							 	else {
+									// Need to account for no grades
+									if (!isCustomExport || this.includeGradeItemScores) {
+										line.add(null);
+									}
+									if (!isCustomExport || this.includeGradeItemComments) {
+										line.add(null);
+									}
+								}
+
+							if (isCustomExport && this.includeCategoryAverages
+									&& a1.getCategoryId() != null && (a2 == null || !a1.getCategoryId().equals(a2.getCategoryId()))) {
+								final Double average = categoryAverages.get(a1.getCategoryId());
+								
+								final String formattedAverage = FormatHelper.formatGradeForDisplay(average);
+								line.add(StringUtils.removeEnd(formattedAverage, formattedText.getDecimalSeparator() + "0"));
+								}
+							}
+						}
+					}
+
+					// Add the "ignore" column value to keep alignment, but only if assignments exist
+					// (when assignments are empty, the template already includes an ignore column)
+					if (!assignments.isEmpty()) {
+						line.add(null); // for the ignore column
+					}
+					
 					csvWriter.writeNext(line.toArray(new String[] {}));
 				});
 				csvWriter.close();

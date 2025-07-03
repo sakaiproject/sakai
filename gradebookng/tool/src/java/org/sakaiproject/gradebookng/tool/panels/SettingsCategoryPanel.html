@@ -43,48 +43,56 @@
 						<div><wicket:message key="settingspage.categories.instructions.applydropkeep" /></div>
 					</div>
 
-					<table class="table table-striped table-bordered table-hover" id="table-categories">
+					<span id="sort-instructions" class="sr-only">
+						<wicket:message key="sortgradeitems.instructions">
+								Instructions for sorting categories will go here.
+						</wicket:message>
+					</span>
+
+					<table class="table table-striped table-bordered table-hover" id="table-categories" role="grid" aria-describedby="sort-instructions">
 						<thead>
-						<tr>
-							<th class="gb-category-sort-column"></th>
-							<th><wicket:message key="settingspage.categories.categorycolhead" /></th>
-							<th class="gb-category-weight"><wicket:message key="settingspage.categories.weightcolhead" /></th>
-							<th class="gb-category-extracredit"><wicket:message key="settingspage.categories.extracreditcolhead" /></th>
-							<th><wicket:message key="settingspage.categories.itemscolhead" /></th>
-							<th class="gb-category-drophighest"><wicket:message key="settingspage.categories.drophighestcolhead" /></th>
-							<th class="gb-category-droplowest"><wicket:message key="settingspage.categories.droplowestcolhead" /></th>
-							<th class="gb-category-keephighest"><wicket:message key="settingspage.categories.keephighestcolhead" /></th>
-							<th class="gb-category-equalweight"><wicket:message key="settingspage.categories.equalweighthead" /></th>
-							<th><wicket:message key="settingspage.categories.removecolhead" /></th>
+						<tr role="row">
+							<th class="gb-category-sort-column" role="columnheader"></th>
+							<th role="columnheader"><wicket:message key="settingspage.categories.categorycolhead" /></th>
+							<th class="gb-category-weight" role="columnheader"><wicket:message key="settingspage.categories.weightcolhead" /></th>
+							<th class="gb-category-extracredit" role="columnheader"><wicket:message key="settingspage.categories.extracreditcolhead" /></th>
+							<th role="columnheader"><wicket:message key="settingspage.categories.itemscolhead" /></th>
+							<th class="gb-category-drophighest" role="columnheader"><wicket:message key="settingspage.categories.drophighestcolhead" /></th>
+							<th class="gb-category-droplowest" role="columnheader"><wicket:message key="settingspage.categories.droplowestcolhead" /></th>
+							<th class="gb-category-keephighest" role="columnheader"><wicket:message key="settingspage.categories.keephighestcolhead" /></th>
+							<th class="gb-category-equalweight" role="columnheader"><wicket:message key="settingspage.categories.equalweighthead" /></th>
+							<th role="columnheader"><wicket:message key="settingspage.categories.removecolhead" /></th>
 						</tr>
 						</thead>
 						<tfoot>
-							<tr class="gb-category-runningtotal">
-								<td><span class="pull-right"><wicket:message key="settingspage.categories.total" /></span></td>
-								<td><span wicket:id="runningTotal">100%</span></td>
-								<td colspan="6"><span wicket:id="runningTotalMessage" class="sak-banner-error-inline"><wicket:message key="settingspage.categories.runningtotalerror" /></span></td>
+							<tr class="gb-category-runningtotal" role="row">
+								<td role="gridcell"><span class="pull-right"><wicket:message key="settingspage.categories.total" /></span></td>
+								<td role="gridcell"><span wicket:id="runningTotal">100%</span></td>
+								<td colspan="6" role="gridcell"><span wicket:id="runningTotalMessage" class="sak-banner-error-inline"><wicket:message key="settingspage.categories.runningtotalerror" /></span></td>
 							</tr>
 						</tfoot>
 						<tbody>
-							<tr wicket:id="categoriesView" class="gb-category-row">
-								<td>
-									<a href="javascript:void(0);"
-											class="gb-category-sort-handle ui-sortable-handle"
-											wicket:message="title:sortgradeitems.sort_category_label,aria-label:sortgradeitems.sort_category_label">
-									</a>
+							<tr wicket:id="categoriesView" class="gb-category-row" role="row">
+								<td role="gridcell">
+									<button wicket:id="handle"
+											type="button"
+											class="btn-transparent gb-category-sort-handle ui-sortable-handle"
+											aria-pressed="false"
+											aria-describedby="sort-instructions">
+									</button>
 									<input wicket:id="categoryOrder" class="gb-category-order-field" type="hidden" />
 								</td>
-								<td>
+								<td role="gridcell">
 									<input wicket:id="name" type="text" class="form-control" />
 								</td>
-								<td class="gb-category-weight"><input wicket:id="weight" type="text" size="5" class="form-control" /></td>
-								<td class="gb-category-extracredit"><input wicket:id="extraCredit" type="checkbox" /></td>
-								<td><span wicket:id="numItems">0 items(s)</span></td>
-								<td class="gb-category-drophighest"><input wicket:id="categoryDropHighest" type="text" size="5" class="form-control" /></td>
-								<td class="gb-category-droplowest"><input wicket:id="categoryDropLowest" type="text" size="5" class="form-control" /></td>
-								<td class="gb-category-keephighest"><input wicket:id="categoryKeepHighest" type="text" size="5" class="form-control" /></td>
-								<td class="gb-category-equalweight"><input wicket:id="equalWeight" type="checkbox" /></td>
-								<td><button wicket:id="remove" type="button" class="btn btn-outline-secondary"><wicket:message key="button.remove" /></button></td>
+								<td class="gb-category-weight" role="gridcell"><input wicket:id="weight" type="text" size="5" class="form-control" /></td>
+								<td class="gb-category-extracredit" role="gridcell"><input wicket:id="extraCredit" type="checkbox" /></td>
+								<td role="gridcell"><span wicket:id="numItems">0 items(s)</span></td>
+								<td class="gb-category-drophighest" role="gridcell"><input wicket:id="categoryDropHighest" type="text" size="5" class="form-control" /></td>
+								<td class="gb-category-droplowest" role="gridcell"><input wicket:id="categoryDropLowest" type="text" size="5" class="form-control" /></td>
+								<td class="gb-category-keephighest" role="gridcell"><input wicket:id="categoryKeepHighest" type="text" size="5" class="form-control" /></td>
+								<td class="gb-category-equalweight" role="gridcell"><input wicket:id="equalWeight" type="checkbox" /></td>
+								<td role="gridcell"><button wicket:id="remove" type="button" class="btn btn-outline-secondary"><wicket:message key="button.remove" /></button></td>
 							</tr>
 						</tbody>
 					</table>

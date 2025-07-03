@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.Getter;
@@ -61,7 +62,7 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 
 	/** Event Registry members */
 	private Set<String>				toolEventIds				= null;
-	private Set<String>				anonymousToolEventIds		= null;
+	private volatile Set<String>	anonymousToolEventIds		= null;
 	private Map<String, ToolInfo>	eventIdToolMap				= null;
 	private Map<String, EventInfo>	eventIdEventMap				= null;
 	private Map<String, String>		toolIdIconMap				= null;
@@ -115,21 +116,25 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 		}
 		return toolEventIds;
 	}
-	
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.impl.event.EventRegistryService#getAnonymousEventIds()
-	 */
+
+	@Override
 	public Set<String> getAnonymousEventIds() {
-		if(anonymousToolEventIds == null){
-			anonymousToolEventIds = new HashSet<String>();
-			for(ToolInfo ti : getEventRegistry()){
-				for(EventInfo ei : ti.getEvents()){
-					if(ei.isAnonymous()){
-						anonymousToolEventIds.add(ei.getEventId());
-					}
+		// because the Set is built in a getter, it is important to consider thread safety
+		// implements double check locking to prevent more than one thread from creating the Set
+		if (anonymousToolEventIds == null) {
+			synchronized (this) {
+				if (anonymousToolEventIds == null) {
+					Set<String> toolEventIds = getEventRegistry().stream()
+							.flatMap(t -> t.getEvents().stream())
+							.filter(EventInfo::isAnonymous)
+							.map(EventInfo::getEventId)
+							.collect(Collectors.toSet());
+
+					anonymousToolEventIds = toolEventIds.isEmpty()
+							? Collections.emptySet()
+							: Collections.unmodifiableSet(toolEventIds);
 				}
 			}
-			anonymousToolEventIds = Collections.unmodifiableSet(anonymousToolEventIds);
 		}
 		return anonymousToolEventIds;
 	}

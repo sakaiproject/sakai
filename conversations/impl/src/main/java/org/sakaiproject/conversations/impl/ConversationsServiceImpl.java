@@ -35,6 +35,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
+import org.sakaiproject.util.comparator.AlphaNumericComparator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -603,7 +604,6 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
 
         String topicRef = ConversationsReferenceReckoner.reckoner().topic(topic).reckon().getReference();
         if (params.graded) {
-            String topicUrl = getTopicPortalUrl(params.id).orElse("");
 
             if (isNew) {
                 if (params.createGradingItem) {
@@ -619,6 +619,8 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
                     log.warn("When grading a topic, either create grading item should be specified, or an existing item should have been selected");
                 }
             } else {
+                String topicUrl = getTopicPortalUrl(params.id).orElse("");
+
                 if (params.createGradingItem) {
                     if (existingGradingItemId != null && gradingService.isExternalAssignmentDefined(params.siteId, topicRef)) {
                         gradingService.updateExternalAssessment(params.siteId, topicRef, topicUrl, null,
@@ -820,8 +822,10 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
 
         String currentUserId = getCheckedCurrentUserId();
 
-        // Using our safer method to handle concurrent creation/update
-        TopicStatus topicStatus = topicStatusRepository.saveTopicStatus(topicId, currentUserId, false);
+        ConversationsTopic topic = topicRepository.getReferenceById(topicId);
+
+        TopicStatus topicStatus = topicStatusRepository.findByTopicIdAndUserId(topicId, currentUserId)
+            .orElseGet(() -> new TopicStatus(topic, currentUserId));
         topicStatus.setBookmarked(bookmarked);
         topicStatusRepository.save(topicStatus);
     }
@@ -1099,8 +1103,8 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
             topicRepository.save(topic);
         }
 
-        // Using the safer method to handle concurrent updates
-        TopicStatus topicStatus = topicStatusRepository.saveTopicStatus(topic.getId(), currentUserId, false);
+        TopicStatus topicStatus = topicStatusRepository.findByTopicIdAndUserId(topic.getId(), currentUserId)
+            .orElse(new TopicStatus(topic, currentUserId));
         topicStatus.setPosted(true);
         boolean topicWasViewed = topicStatus.getViewed();
         topicStatusRepository.save(topicStatus);
@@ -1672,8 +1676,15 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
             .findByTopicIdAndUserIdAndViewed(topicId, currentUserId, true).stream().count();
         long numberOfUnreadPosts = numberOfPosts - read;
 
-        // Using the new method that handles concurrent updates with a safer approach
-        topicStatusRepository.saveTopicStatus(topicId, currentUserId, numberOfUnreadPosts == 0L);
+        TopicStatus topicStatus = topicStatusRepository.findByTopicIdAndUserId(topicId, currentUserId)
+            .orElseGet(() -> new TopicStatus(topic, currentUserId));
+        topicStatus.setViewed(numberOfUnreadPosts == 0L);
+        try {
+            topicStatusRepository.save(topicStatus);
+        } catch (PersistenceException pe) {
+            log.debug("Caught an exception while saving topic status. This can happen "
+                    + "due to the way the client detects posts scrolling into view", pe);
+        }
 
         Map<String, Map<String, Object>> topicCache = postsCache.get(topicId);
         if (topicCache != null) topicCache.remove(currentUserId);
@@ -1826,15 +1837,11 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         topicBean.canModerate = securityService.unlock(Permissions.MODERATE.label, siteRef);
 
         if (topic != null) {
-            topicBean.tags = topic.getTagIds().stream().map(tagId -> {
 
-                Optional<Tag> optTag = tagRepository.findById(tagId);
-                if (optTag.isPresent()) {
-                    return optTag.get();
-                } else {
-                    return null;
-                }
-            }).collect(Collectors.toList());
+            topicBean.tags = topic.getTagIds().stream()
+                    .map(id -> tagRepository.findById(id).orElse(null))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
 
             topicStatusRepository.findByTopicIdAndUserId(topic.getId(), currentUserId)
                 .ifPresent(s -> {
@@ -2169,6 +2176,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         return tags.stream().map(tagRepository::save).collect(Collectors.toList());
     }
 
+    @Override
     @Transactional(readOnly = true)
     public List<Tag> getTagsForSite(String siteId) throws ConversationsPermissionsException {
 
@@ -2182,10 +2190,11 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
 
         List<Tag> tags = tagRepository.findBySiteId(siteId);
         // Sort tags alphabetically by label
-        tags.sort((tag1, tag2) -> tag1.getLabel().compareToIgnoreCase(tag2.getLabel()));
+        tags.sort(Comparator.comparing(Tag::getLabel, new AlphaNumericComparator()));
         return tags;
     }
 
+    @Override
     public void deleteTag(Long tagId) throws ConversationsPermissionsException {
 
         getCheckedCurrentUserId();
@@ -2201,7 +2210,10 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
 
             tagRepository.deleteById(tagId);
 
-            topicRepository.findByTags_Id(tagId).forEach(t -> t.getTagIds().remove(tagId));
+            // Update the topics that were using this tag
+            List<ConversationsTopic> topicsToUpdate = topicRepository.findByTags_Id(tagId);
+            topicsToUpdate.forEach(t -> t.getTagIds().remove(tagId));
+            topicRepository.saveAll(topicsToUpdate);
         } else {
             throw new IllegalArgumentException("No tag with id " + tagId);
         }
@@ -2698,6 +2710,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
             topicEl.setAttribute("visibility", topic.getVisibility().name());
             topicEl.setAttribute("creator", topic.getMetadata().getCreator());
             topicEl.setAttribute("created", Long.toString(topic.getMetadata().getCreated().getEpochSecond()));
+            topicEl.setAttribute("graded", Boolean.toString(topic.getGraded()));
 
             if (topic.getShowDate() != null) {
               topicEl.setAttribute("show-date", Long.toString(topic.getShowDate().getEpochSecond()));
@@ -2760,6 +2773,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
             topicBean.draft = true;
             topicBean.pinned = Boolean.parseBoolean(topicEl.getAttribute("pinned"));
             topicBean.visibility = topicEl.getAttribute("visibility");
+            topicBean.graded = Boolean.parseBoolean(topicEl.getAttribute("graded"));
 
             topicBean.showDate = topicEl.hasAttribute("show-date") ? Instant.ofEpochSecond(Long.parseLong(topicEl.getAttribute("show-date"))) : null;
             topicBean.hideDate = topicEl.hasAttribute("hide-date") ? Instant.ofEpochSecond(Long.parseLong(topicEl.getAttribute("hide-date"))) : null;

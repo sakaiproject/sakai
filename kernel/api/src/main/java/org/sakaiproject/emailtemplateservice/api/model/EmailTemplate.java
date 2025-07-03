@@ -62,7 +62,7 @@ public class EmailTemplate implements java.io.Serializable, PersistableEntity<Lo
     @Id
     @Column(name = "ID")
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "email_template_item_id_sequence")
-    @SequenceGenerator(name = "email_template_item_id_sequence", sequenceName = "EMAIL_TEMPLATE_ITEM_SEQ")
+    @SequenceGenerator(name = "email_template_item_id_sequence", sequenceName = "EMAILTEMPLATE_ITEM_SEQ")
     private Long id;
 
     @Column(name = "LAST_MODIFIED", nullable = false)

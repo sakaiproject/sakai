@@ -155,19 +155,16 @@ public class SettingsCategoryPanel extends BasePanel {
 		final WebMarkupContainer settingsCategoriesAccordionButton = new WebMarkupContainer("settingsCategoriesAccordionButton");
 		final WebMarkupContainer settingsCategoriesPanel = new WebMarkupContainer("settingsCategoriesPanel");
 		
-		// Set up accordion behavior
-		setupAccordionBehavior(settingsCategoriesAccordionButton, settingsCategoriesPanel, this.expanded, 
-			new AccordionStateUpdater() {
-				@Override
-				public void updateState(boolean newState) {
-					SettingsCategoryPanel.this.expanded = newState;
-				}
-				
-				@Override
-				public boolean getState() {
-					return SettingsCategoryPanel.this.expanded;
-				}
-			});
+		// Set initial state for Bootstrap accordion (no AJAX behavior)
+		if (this.expanded) {
+			settingsCategoriesPanel.add(new AttributeModifier("class", "accordion-collapse collapse show"));
+			settingsCategoriesAccordionButton.add(new AttributeModifier("class", "accordion-button fw-bold"));
+			settingsCategoriesAccordionButton.add(new AttributeModifier("aria-expanded", "true"));
+		} else {
+			settingsCategoriesPanel.add(new AttributeModifier("class", "accordion-collapse collapse"));
+			settingsCategoriesAccordionButton.add(new AttributeModifier("class", "accordion-button collapsed fw-bold"));
+			settingsCategoriesAccordionButton.add(new AttributeModifier("aria-expanded", "false"));
+		}
 		
 		add(settingsCategoriesPanel);
 		add(settingsCategoriesAccordionButton);
@@ -401,6 +398,9 @@ public class SettingsCategoryPanel extends BasePanel {
 					}
 				});
 				item.add(name);
+
+				// Proper label for the drag handle (for screen readers)
+				item.add(new WebMarkupContainer("handle").add(new AttributeModifier("aria-label", new PropertyModel<>(category, "name"))));
 
 				// weight
 				final TextField<Double> weight = new TextField<Double>("weight", new PropertyModel<Double>(category, "weight")) {

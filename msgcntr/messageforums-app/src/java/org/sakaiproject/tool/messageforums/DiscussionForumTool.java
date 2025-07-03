@@ -2788,7 +2788,8 @@ public class DiscussionForumTool {
 				  }
 				  if(message != null && message.getCreatedBy().equals(userId) && 
 						  !message.getDraft() && 
-						  ((message.getApproved() != null && message.getApproved()) || !topic.getModerated()) &&
+						  ((message.getApproved() != null && message.getApproved()) || !topic.getModerated() ||
+								  message.getCreatedBy().equals(userId)) &&
 						  !message.getDeleted()){
 					  needToPost = false;
 					  break;

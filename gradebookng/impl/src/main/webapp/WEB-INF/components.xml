@@ -110,8 +110,8 @@
     </bean>
 
     <bean id="org.sakaiproject.grading.api.GradingService"
-        class="org.sakaiproject.grading.impl.GradingServiceImpl">
-        <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
+          class="org.sakaiproject.grading.impl.GradingServiceImpl"
+          init-method="init">
     </bean>
 
 </beans>
