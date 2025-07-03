@@ -148,6 +148,9 @@
                             <li><a href="javascript:void(0);" class="gb-quick-entry dropdown-item"><wicket:message key="link.quickentry" /></a></li>
                         {/if}
                         <li><a href="javascript:void(0);" class="gb-view-statistics dropdown-item"><wicket:message key="assignment.option.viewgradestatistics" /></a></li>
+                        {if hasAssociatedRubric && !externallyMaintained}
+                        <li><a href="javascript:void(0);" class="b-move-left gb-rubric-export dropdown-item"><wicket:message key="export.zip.template.button" /></a></li>
+                        {/if}
                         {if settings.isUserAbleToEditAssessments}
                             <li><a href="javascript:void(0);" class="gb-move-left dropdown-item"><wicket:message key="assignment.option.moveleft" /></a></li>
                             <li><a href="javascript:void(0);" class="gb-move-right dropdown-item"><wicket:message key="assignment.option.moveright" /></a></li>
@@ -369,6 +372,7 @@
                             </div>
                             <div>
                                 <a href="javascript:void(0);" class="gb-view-grade-summary" tabindex="-1">
+                                    <input type="hidden" value="${userId}" class="userIds">
                                     {if settings.isStudentOrderedByLastName}
                                         <div>
                                             <span class="gb-last-name">${lastName}</span>,
