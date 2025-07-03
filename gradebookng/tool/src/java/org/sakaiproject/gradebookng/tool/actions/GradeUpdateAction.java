@@ -38,6 +38,8 @@ import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.tool.model.GbGradebookData;
 import org.sakaiproject.grading.api.CategoryScoreData;
 import org.sakaiproject.grading.api.CourseGradeTransferBean;
+import org.sakaiproject.grading.api.GradebookInformation;
+import org.sakaiproject.grading.api.GradeType;
 import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.grading.api.model.CourseGrade;
 import org.sakaiproject.util.NumberUtil;
@@ -136,11 +138,19 @@ public class GradeUpdateAction extends InjectableAction implements Serializable 
 			rawNewGrade = "0" + rawNewGrade;  // prepend a 0 so this passes validation (ie. ".1 " becomes "0.1")
 		}
 
-		if (StringUtils.isNotBlank(rawNewGrade)
-				&& (!NumberUtil.isValidLocaleDouble(rawNewGrade) || FormatHelper.validateDouble(rawNewGrade) < 0)) {
-			target.add(page.updateLiveGradingMessage(page.getString("feedback.error")));
+		if (StringUtils.isNotBlank(rawNewGrade)) {
+			GradebookInformation settings = businessService.getGradebookSettings(currentGradebookUid, currentSiteId);
+			if (settings.getGradeType() != GradeType.LETTER && (!NumberUtil.isValidLocaleDouble(rawNewGrade) || FormatHelper.validateDouble(rawNewGrade) < 0)) {
+				target.add(page.updateLiveGradingMessage(page.getString("feedback.error")));
+				return new ArgumentErrorResponse("Grade not valid");
+			}
 
-			return new ArgumentErrorResponse("Grade not valid");
+			if (settings.getGradeType() == GradeType.LETTER) {
+				if (!settings.getSelectedGradingScaleBottomPercents().keySet().contains(rawNewGrade)) {
+					target.add(page.updateLiveGradingMessage(page.getString("feedback.error")));
+					return new ArgumentErrorResponse("Grade not valid");
+				}
+			}
 		}
 
 		final String oldGrade = FormatHelper.formatGradeFromUserLocale(rawOldGrade);

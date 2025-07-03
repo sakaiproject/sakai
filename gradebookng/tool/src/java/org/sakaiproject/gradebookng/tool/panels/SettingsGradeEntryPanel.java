@@ -26,6 +26,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.sakaiproject.gradebookng.tool.model.GbSettings;
+import org.sakaiproject.grading.api.GradeType;
 import org.sakaiproject.grading.api.GradingConstants;
 
 public class SettingsGradeEntryPanel extends BasePanel {
@@ -70,8 +71,9 @@ public class SettingsGradeEntryPanel extends BasePanel {
 		final RadioGroup<Integer> gradeEntry = new RadioGroup<>("gradeEntry",
                 new PropertyModel<>(this.model, "gradebookInformation.gradeType"));
 
-		gradeEntry.add(new Radio<>("points", Model.of(GradingConstants.GRADE_TYPE_POINTS)));
-		gradeEntry.add(new Radio<>("percentages", Model.of(GradingConstants.GRADE_TYPE_PERCENTAGE)));
+		gradeEntry.add(new Radio<>("points", Model.of(GradeType.POINTS)));
+		gradeEntry.add(new Radio<>("percentages", Model.of(GradeType.PERCENTAGE)));
+		gradeEntry.add(new Radio<>("letter", Model.of(GradeType.LETTER)));
 		settingsGradeEntryPanel.add(gradeEntry);
 	}
 
