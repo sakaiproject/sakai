@@ -5,7 +5,7 @@
 <body>
 
 <wicket:extend>
-  <form wicket:id="form" id="gradebookSpreadsheet">
+  <form wicket:id="form" id="gradebookSpreadsheet" class="container-fluid px-0">
     <div id="gbConnectionTimeoutFeedback" class="sak-banner-warn" style="display:none;">
         <wicket:message key="feedback.connectiontimeout" />
     </div>
@@ -34,7 +34,7 @@
     </script>
     <div wicket:id="rubricGradeWindow" />
 
-    <div wicket:id="gradeTableArea">
+    <div wicket:id="gradeTableArea" class="w-100">
         <div wicket:id="noAssignments" class="gb-noGbItems">
             <i class="fa fa-fw fa-table" aria-hidden="true"></i>
             <wicket:message key="no-assignments.label" />
@@ -45,7 +45,7 @@
             </div>
         </div>
 
-        <div id="grades-toolbar-1" class="gradesToolbar1 mb-2">
+        <div id="grades-toolbar-1" class="gradesToolbar1 mb-2 d-flex flex-wrap justify-content-between align-items-center">
             <div>
                 <button wicket:id="addGradeItem" class="button_color gb-add-gradebook-item-button">
                     <wicket:message key="button.addgradeitem" />
@@ -55,7 +55,7 @@
             <div class="captionToggleContainer">
                 <wicket:enclosure>
                     <label for="filterByGroup" class="sr-only"><wicket:message key="filter.groups" /></label>
-                    <select id="filterByGroup" wicket:id="groupFilter">
+                    <select id="filterByGroup" wicket:id="groupFilter" class="form-select">
                         <option value="1">Section 1</option>
                         <option value="2">Section 2</option>
                     </select>
@@ -68,44 +68,46 @@
             </div>
         </div>
 
-        <div wicket:id="toolbar" id="gradebookGradesToolbar" class="btn-toolbar gradesToolbar2">
-            <ul class="gb-toolbar-left my-2 pe-2">
-                <wicket:enclosure>
-                <li>
-                    <div class="gb-student-filter">
-                        <label for="studentFilterInput" class="sr-only"><wicket:message key="filter.students"/></label>
-                        <input type="text" id="studentFilterInput" class="form-control" aria-controls="gradeTable" wicket:id="studentFilter" wicket:message="placeholder:filter.students" accesskey="f" />
-                        <a class="gb-student-filter-clear-button" wicket:message="title:filter.studentsclear" href="javascript:void(0)">
-                            <i class="fa fa-times-circle" aria-hidden="true"></i>
-                        </a>
-                    </div>
-                </li>
-                </wicket:enclosure>
-                <wicket:enclosure>
-                <li><span wicket:id="groupFilterOnlyOne" class="gb-group-title" role="status">Section 001</span></li>
-                </wicket:enclosure>
-                <li class="gb-student-summary"><!-- Populated by JavaScript --></li>
-            </ul>
-            <ul wicket:id="gbToolbarColumnTools" class="gb-toolbar-right my-2 end-0 position-absolute">
-                <li class="gb-grade-item-summary"><!-- Populated by JavaScript --></li>
-                <li>
-                    <button wicket:id="toggleGradeItemsToolbarItem" id="toggleGradeItemsToolbarItem" class="button" aria-popup="true" aria-controls="gradeItemsTogglePanel"><wicket:message key="label.toolbar.toggleitems"/></button>
-                </li>
-                <li>
-                    <button wicket:id="sortGradeItemsToolbarItem" id="sortGradeItemsToolbarItem" class="button" aria-popup="true"><wicket:message key="label.toolbar.sortgradeitems"/></button>
-                </li>
-                <wicket:enclosure>
-                <li>
-                    <button wicket:id="toggleCategoriesToolbarItem" id="toggleCategoriesToolbarItem" class="btn-link si" aria-controls="gradeTable"><wicket:message key="label.toolbar.togglecategories"/></button>
-                </li>
-                </wicket:enclosure>
-                <li>
-                    <button wicket:id="bulkEditItemsToolbarItem" id="bulkEditItemsToolbarItem" class="button" aria-popup="true"><wicket:message key="label.toolbar.bulkedit"/></button>
-                </li>
-            </ul>
+        <div wicket:id="toolbar" id="gradebookGradesToolbar" class="btn-toolbar gradesToolbar2 position-relative">
+            <div class="d-flex flex-wrap w-100 justify-content-between">
+                <ul class="gb-toolbar-left my-2 pe-2 d-flex flex-wrap list-unstyled align-items-center">
+                    <wicket:enclosure>
+                    <li class="me-2 mb-1">
+                        <div class="gb-student-filter">
+                            <label for="studentFilterInput" class="sr-only"><wicket:message key="filter.students"/></label>
+                            <input type="text" id="studentFilterInput" class="form-control" aria-controls="gradeTable" wicket:id="studentFilter" wicket:message="placeholder:filter.students" accesskey="f" />
+                            <a class="gb-student-filter-clear-button" wicket:message="title:filter.studentsclear" href="javascript:void(0)">
+                                <i class="fa fa-times-circle" aria-hidden="true"></i>
+                            </a>
+                        </div>
+                    </li>
+                    </wicket:enclosure>
+                    <wicket:enclosure>
+                    <li class="me-2 mb-1"><span wicket:id="groupFilterOnlyOne" class="gb-group-title" role="status">Section 001</span></li>
+                    </wicket:enclosure>
+                    <li class="gb-student-summary"><!-- Populated by JavaScript --></li>
+                </ul>
+                <ul wicket:id="gbToolbarColumnTools" class="gb-toolbar-right my-2 d-flex flex-wrap list-unstyled align-items-center">
+                    <li class="gb-grade-item-summary me-2 mb-1"><!-- Populated by JavaScript --></li>
+                    <li class="me-2 mb-1">
+                        <button wicket:id="toggleGradeItemsToolbarItem" id="toggleGradeItemsToolbarItem" class="button" aria-popup="true" aria-controls="gradeItemsTogglePanel"><wicket:message key="label.toolbar.toggleitems"/></button>
+                    </li>
+                    <li class="me-2 mb-1">
+                        <button wicket:id="sortGradeItemsToolbarItem" id="sortGradeItemsToolbarItem" class="button" aria-popup="true"><wicket:message key="label.toolbar.sortgradeitems"/></button>
+                    </li>
+                    <wicket:enclosure>
+                    <li class="me-2 mb-1">
+                        <button wicket:id="toggleCategoriesToolbarItem" id="toggleCategoriesToolbarItem" class="btn-link si" aria-controls="gradeTable"><wicket:message key="label.toolbar.togglecategories"/></button>
+                    </li>
+                    </wicket:enclosure>
+                    <li class="me-2 mb-1">
+                        <button wicket:id="bulkEditItemsToolbarItem" id="bulkEditItemsToolbarItem" class="button" aria-popup="true"><wicket:message key="label.toolbar.bulkedit"/></button>
+                    </li>
+                </ul>
+            </div>
         </div>
 
-        <div class="gradeTableOuterWrapper">
+        <div class="gradeTableOuterWrapper table-responsive">
             <h2 class="sr-only"><wicket:message key="gradetable.caption.summaryheader" /></h2>
             <div wicket:id="gradeTable" />
             <div wicket:id="noStudents" class="gb-noStudents">
