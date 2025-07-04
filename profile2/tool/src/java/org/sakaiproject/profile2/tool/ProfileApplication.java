@@ -18,12 +18,7 @@ package org.sakaiproject.profile2.tool;
 import java.util.Locale;
 
 import org.apache.wicket.Component;
-import org.apache.wicket.core.request.mapper.CryptoMapper;
-import org.apache.wicket.core.util.crypt.KeyInSessionSunJceCryptFactory;
 import org.apache.wicket.protocol.http.WebApplication;
-import org.apache.wicket.request.IRequestHandler;
-import org.apache.wicket.request.IRequestMapper;
-import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.resource.loader.IStringResourceLoader;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
 import org.sakaiproject.profile2.tool.pages.MyProfile;

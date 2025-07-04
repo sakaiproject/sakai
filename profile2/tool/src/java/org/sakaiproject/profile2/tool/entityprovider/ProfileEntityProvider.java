@@ -49,7 +49,6 @@ import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 import org.sakaiproject.profile2.logic.ProfileImageLogic;
-import org.sakaiproject.profile2.logic.ProfileLinkLogic;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.MimeTypeByteArray;
@@ -305,7 +304,4 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 	
 	@Setter	
 	private ProfileImageLogic imageLogic;
-	
-	@Setter	
-	private ProfileLinkLogic linkLogic;
 }

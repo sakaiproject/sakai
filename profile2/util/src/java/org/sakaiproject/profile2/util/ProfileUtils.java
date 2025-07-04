@@ -21,15 +21,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
-import java.text.DateFormatSymbols;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -38,11 +32,7 @@ import java.util.UUID;
 
 import javax.imageio.ImageIO;
 
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DateUtils;
-import org.apache.commons.text.WordUtils;
 import org.imgscalr.Scalr;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.util.ResourceLoader;
@@ -53,83 +43,38 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ProfileUtils {
 
-	/**
-	 * Check content type against allowed types. only JPEG,GIF and PNG are support at the moment
-	 *
-	 * @param contentType		string of the content type determined by some image parser
-	 */
-	public static boolean checkContentTypeForProfileImage(String contentType) {
-		
-		ArrayList<String> allowedTypes = new ArrayList<String>();
-		allowedTypes.add("image/jpeg");
-		allowedTypes.add("image/gif");
-		allowedTypes.add("image/png");
-		//Adding MIME types that Internet Explorer returns PRFL-98
-		allowedTypes.add("image/x-png");
-		allowedTypes.add("image/pjpeg");
-		allowedTypes.add("image/jpg");
-		
-		//add more here as required, BUT also add them below. 
-		//You will need to check ImageIO for the informal names.
+	private static Map<String, String> formats = Map.of(
+		"image/jpeg", "jpg",
+		"image/gif", "gif",
+		"image/png", "png",
+		"image/x-png", "png",
+		"image/pjpeg", "jpg",
+		"image/jpg", "jpg"
+	);
 
-		if(allowedTypes.contains(contentType)) {
-			return true;
-		}
-		
-		return false;
+	private static String getInformalFormatForMimeType(String mimeType) {
+
+		String format = ProfileUtils.formats.get(mimeType);
+		return format != null ? format : "jpg";
 	}
-	
-	/**
-	 * Helper to get the informal format name that is used by ImageIO.
-	 * We have access to the mimetype so we can map them.
-	 * 
-	 * <p>If no valid mapping is found, it will default to "jpg".
-	 * 
-	 * @param mimeType the mimetype of the original image, eg image/jpeg
-	 */
-	public static String getInformalFormatForMimeType(String mimeType){
-		Map<String,String> formats = new HashMap<String,String>();
-		formats.put("image/jpeg", "jpg");
-		formats.put("image/gif", "gif");
-		formats.put("image/png", "png");
-		formats.put("image/x-png", "png");
-		formats.put("image/pjpeg", "jpg");
-		formats.put("image/jpg", "jpg");
-		
-		String format = formats.get(mimeType);
-		
-		if(format != null) {
-			return format;
-		}
-		return "jpg";
-	}
-	
-	
+
 	public static byte[] scaleImage(byte[] imageData, int maxSize, String mimeType) {
-		InputStream in = null;
-		try {
-			in = new ByteArrayInputStream(imageData);
+
+		try (InputStream in = new ByteArrayInputStream(imageData)) {
 			return scaleImage(in, maxSize, mimeType);
-			
-		} finally {
-			if (in != null) {
-				try {
-					in.close();
-					log.debug("Image stream closed."); 
-				}
-				catch (IOException e) {
-					log.error("Error closing image stream: ", e); 
-				}
-			}
+		} catch (IOException e) {
+			log.error("Error scaling image: ", e.toString());
 		}
+		return null;
 	}
+
 	/**
 	 * Scale an image so it is fit within a give width and height, whilst maintaining its original proportions 
 	 *
 	 * @param imageData		bytes of the original image
 	 * @param maxSize		maximum dimension in px
 	 */
-	public static byte[] scaleImage(InputStream in, int maxSize, String mimeType) {
+	private static byte[] scaleImage(InputStream in, int maxSize, String mimeType) {
 		
 		byte[] scaledImageBytes = null;
 		try {
@@ -206,163 +151,6 @@ public class ProfileUtils {
 		return dateStr;
 	}
 	
-	
-	/**
-	 * Convert a string into a Date object (reverse of above
-	 *
-	 * @param dateStr		date string to convert
-	 * @param format		format of the input date in SimpleDateFormat syntax
-	 */
-	public static Date convertStringToDate(String dateStr, String format) {
-		if("".equals(dateStr) || "".equals(format)) {  
-			throw new IllegalArgumentException("Null Argument in Profile.convertStringToDate()");	 
-		}
-		
-		SimpleDateFormat dateFormat = new SimpleDateFormat(format);
-		 
-		try {
-			Date date = dateFormat.parse(dateStr);
-			
-	        log.debug("Profile.convertStringToDate(): Input date string: " + dateStr); 
-	        log.debug("Profile.convertStringToDate(): Converted date: " + date.toString()); 
-			return date;
-		} catch (ParseException e) {
-			log.error("Profile.convertStringToDate() failed. " + e.getClass() + ": " + e.getMessage());  
-			return null;
-		}       
-	}
-	
-	/**
-	 * Strip the year from a given date (actually just sets it to 1)
-	 * 
-	 * @param date	original date
-	 * @return
-	 */
-	public static Date stripYear(Date date){
-		return DateUtils.setYears(date, 1);
-	}
-	
-	/**
-	 * Get the localised name of the day (ie Monday for en, Maandag for nl)
-	 * @param day		int according to Calendar.DAY_OF_WEEK
-	 * @param locale	locale to render dayname in
-	 * @return
-	 */
-	public static String getDayName(int day, Locale locale) {
-		
-		//localised daynames
-		String dayNames[] = new DateFormatSymbols(locale).getWeekdays();
-		String dayName = null;
-		
-		try {
-			dayName = dayNames[day];
-		} catch (Exception e) {
-			log.error("Profile.getDayName() failed. " + e.getClass() + ": " + e.getMessage());
-		}
-		return dayName;
-	}
-	
-	
-	/**
-	 * Convert a string to propercase. ie This Is Proper Text
-	 * @param input		string to be formatted
-	 * @return
-	 */
-	public static String toProperCase(String input) {
-		return WordUtils.capitalizeFully(input);
-	}
-	
-	
-	/**
-	 * Convert a date into a field like "just then, 2 minutes ago, 4 hours ago, yesterday, on sunday, etc"
-	 *
-	 * @param date		date to convert
-	 */
-	public static String convertDateForStatus(Date date) {
-
-		//current time
-		Calendar currentCal = Calendar.getInstance();
-		long currentTimeMillis = currentCal.getTimeInMillis();
-		
-		//posting time
-		long postingTimeMillis = date.getTime();
-		
-		//difference
-		int diff = (int)(currentTimeMillis - postingTimeMillis);
-		
-		Locale locale = getUserPreferredLocale();
-		
-		//log.info("currentDate:" + currentTimeMillis);
-		//log.info("postingDate:" + postingTimeMillis);
-		//log.info("diff:" + diff);
-		
-		int MILLIS_IN_SECOND = 1000;
-		int MILLIS_IN_MINUTE = 1000 * 60;
-		int MILLIS_IN_HOUR = 1000 * 60 * 60;
-		int MILLIS_IN_DAY = 1000 * 60 * 60 * 24;
-		int MILLIS_IN_WEEK = 1000 * 60 * 60 * 24 * 7;
-				
-		if(diff < MILLIS_IN_SECOND) {
-			//less than a second
-			return Messages.getString("Label.just_then"); 
-		} else if (diff < MILLIS_IN_MINUTE) {
-			//less than a minute, calc seconds
-			int numSeconds = diff/MILLIS_IN_SECOND;
-			if(numSeconds == 1) {
-				//one sec
-				return Messages.getString("Label.second_ago", new Object[] {numSeconds}); 
-			} else {
-				//more than one sec
-				return Messages.getString("Label.seconds_ago", new Object[] {numSeconds}); 
-			}
-		} else if (diff < MILLIS_IN_HOUR) {
-			//less than an hour, calc minutes
-			int numMinutes = diff/MILLIS_IN_MINUTE;
-			if(numMinutes == 1) {
-				//one minute
-				return Messages.getString("Label.minute_ago", new Object[] {numMinutes}); 
-			} else {
-				//more than one minute
-				return Messages.getString("Label.minutes_ago", new Object[] {numMinutes}); 
-			}
-		} else if (diff < MILLIS_IN_DAY) {
-			//less than a day, calc hours
-			int numHours = diff/MILLIS_IN_HOUR;
-			if(numHours == 1) {
-				//one hour
-				return Messages.getString("Label.hour_ago", new Object[] {numHours}); 
-			} else {
-				//more than one hour
-				return Messages.getString("Label.hours_ago", new Object[] {numHours}); 
-			}
-		} else if (diff < MILLIS_IN_WEEK) {
-			//less than a week, calculate days
-			int numDays = diff/MILLIS_IN_DAY;
-			
-			//now calculate which day it was
-			if(numDays == 1) {
-				return Messages.getString("Label.yesterday"); 
-			} else {
-				//set calendar and get day of week
-				Calendar postingCal = Calendar.getInstance();
-				postingCal.setTimeInMillis(postingTimeMillis);
-				
-				int postingDay = postingCal.get(Calendar.DAY_OF_WEEK);
-
-				//set to localised value: 'on Wednesday' for example
-				String dayName = getDayName(postingDay,locale);
-				if(dayName != null) {
-					return Messages.getString("Label.on", new Object[] {toProperCase(dayName)});
-				}
-			}
-			
-		} else {
-			//over a week ago, we want it blank though.
-		}
-
-		return null;
-	}
-	
 	/**
 	 * Gets the users preferred locale, either from the user's session or Sakai preferences and returns it
 	 * This depends on Sakai's ResourceLoader.
@@ -383,15 +171,6 @@ public class ProfileUtils {
 	public static String getUserPreferredOrientation() {
 		ResourceLoader rl = new ResourceLoader();
 		return rl.getOrientation(rl.getLocale());
-	}
-	
-	/**
-	 * Creates a full profile event reference for a given reference
-	 * @param ref
-	 * @return
-	 */
-	public static String createEventRef(String ref) {
-		return "/profile/"+ref;
 	}
 	
 	/**
@@ -426,48 +205,6 @@ public class ProfileUtils {
 	}
 	
 	/**
-	 * Strips string of HTML and returns plain text.
-	 * 
-	 * @param s
-	 * @return
-	 */
-	public static String stripHtml(String s) {
-		return ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(s);
-	}
-	
-	/**
-	 * Strips string of HTML, escaping anything that is left to return plain text.
-	 * 
-	 * <p>Deals better with poorly formed HTML than just stripHtml and is best for XSS protection, not for storing actual data.
-	 * 
-	 * @param s The string to process
-	 * @return
-	 */
-	public static String stripAndCleanHtml(String s) {
-		//Attempt to strip HTML. This doesn't work on poorly formatted HTML though
-		String stripped = ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(s);
-		
-		//so we escape anything that is left
-		return StringEscapeUtils.escapeHtml4(stripped);
-	}
-
-	/**
-	 * Strips html/xml tags from a string and returns the cleaned version.
-	 *
-	 * @param text any text (if this is null or empty then the input text is returned unchanged)
-	 * @param smartSpacing if true then try to make the text represent the intent of the html,
-	 *                     trims out duplicate spaces, converts block type html into a space, etc.,
-	 *                     else just removes html tags and leaves all other parts of the string intact,
-	 *                     NOTE: false is also slightly faster
-	 * @param stripEscapeSequences if true, strips out any escape sequences such as '&nbsp;'
-	 * @return the cleaned string
-	 * @see #convertFormattedTextToPlaintext(String) for alternative mechanism
-	 */
-	public static String stripHtmlFromText(String text, boolean smartSpacing, boolean stripEscapeSequences) {
-		return ComponentManager.get(FormattedText.class).stripHtmlFromText(text, smartSpacing, stripEscapeSequences);
-	}
-
-	/**
 	 * Trims text to the given maximum number of displayed characters.
 	 * Supports HTML and preserves formatting. 
 	 * 
@@ -495,46 +232,6 @@ public class ProfileUtils {
 	}
 	
 	/**
-	 * Trims and abbreviates text to the given maximum number of displayed
-	 * characters (less 3 characters, in case "..." must be appended).
-	 * Supports HTML and preserves formatting.
-	 * 
-	 * @param s				 the string
-	 * @param maxNumOfChars	 num chars to keep. If HTML, it's the number of content chars, ignoring tags.
-	 * @param isHtml		 is the string HTML?
-	 * @return
-	 */
-	public static String truncateAndAbbreviate(String s, int maxNumOfChars, boolean isHtml) {
-		
-		if (StringUtils.isBlank(s)) {
-			return "";
-		}
-		
-		//html
-		if(isHtml) {
-			StringBuilder trimmedHtml = new StringBuilder();
-		
-			boolean trimmed = ComponentManager.get(FormattedText.class).trimFormattedText(s, maxNumOfChars - 3, trimmedHtml);
-		
-			if (trimmed) {
-				int index = trimmedHtml.lastIndexOf("</");
-				if (-1 != index) {
-					trimmedHtml.insert(index, "...");
-				} else {
-					trimmedHtml.append("...");
-				}
-			}
-			return trimmedHtml.toString();
-		}
-		
-		//plain text
-		return StringUtils.abbreviate(s, maxNumOfChars);
-		
-	}
-	
-	
-	
-	/**
 	 * Generate a UUID
 	 * @return
 	 */
@@ -543,54 +240,6 @@ public class ProfileUtils {
         return uuid.toString();
     }
 			
-	/**
-	 * Returns the SkypeMe URL for the specified Skype username.
-	 * 
-	 * @param skypeUsername
-	 * @return the SkypeMe URL for the specified Skype username.
-	 */
-	public static String getSkypeMeURL(String skypeUsername) {
-		return "skype:" + skypeUsername + "?call";
-	}
-		
-	/**
-	 * Remove duplicates from a list, order is not retained.
-	 * 
-	 * @param list	list of objects to clean
-	 */
-	public static <T> void removeDuplicates(List<T> list){
-		Set<T> set = new HashSet<T>();
-		set.addAll(list);
-		list.clear();
-		list.addAll(set);
-	}
-	
-	/**
-	 * Remove duplicates from a list, order is retained.
-	 *
-	 * @param list	list of objects to clean
-	 */
-	public static <T> void removeDuplicatesWithOrder(List<T> list) {
-		Set<T> set = new HashSet<T> ();
-		List<T> newList = new ArrayList<T>();
-		for(T e: list) {
-			if (set.add(e)) {
-				newList.add(e);
-	    	}
-		}
-	    list.clear();
-	    list.addAll(newList);
-	}
-	
-	/**
-	 * Calculate an MD5 hash of a string
-	 * @param s	String to hash
-	 * @return	MD5 hash as a String
-	 */
-	public static String calculateMD5(String s){
-		return DigestUtils.md5Hex(s);
-	}
-	
 	/**
 	 * Creates a square avatar image by taking a segment out of the centre of the original image and resizing to the appropriate dimensions
 	 * 

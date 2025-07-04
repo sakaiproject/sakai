@@ -71,7 +71,6 @@
         </div> <!-- portletBody -->
 
         <script>includeLatestJQuery("roster");</script>
-        <script src="/profile2-tool/javascript/profile2-eb.js${portalCDNQuery}"></script>
         <script>includeWebjarLibrary("handlebars");</script>
         <script>includeWebjarLibrary("select2");</script>
         <script src="/sakai-roster2-tool/templates.js${portalCDNQuery}"></script>

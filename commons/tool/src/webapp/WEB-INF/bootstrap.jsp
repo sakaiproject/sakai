@@ -30,7 +30,6 @@
         <script src="/commons-tool/lib/autosize.min.js${portalCDNQuery}"></script>
         <script src="/commons-tool/js/commons_utils.js${portalCDNQuery}"></script>
         <script src="/commons-tool/js/commons_permissions.js${portalCDNQuery}"></script>
-        <script src="/profile2-tool/javascript/profile2-eb.js${portalCDNQuery}"></script>
 
         <div id="Mrphs-sakai-commons" class="portletBody commons-portletBody">
 

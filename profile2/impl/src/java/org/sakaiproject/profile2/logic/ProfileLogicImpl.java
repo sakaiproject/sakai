@@ -282,7 +282,4 @@ public class ProfileLogicImpl implements ProfileLogic {
 
 	@Setter
 	private ProfileImageLogic imageLogic;
-
-	@Setter
-	private ProfileLinkLogic linkLogic;
 }

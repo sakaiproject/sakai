@@ -72,9 +72,6 @@
             moment.locale(window.portal.locale);
         </script>
         #parse("/vm/morpheus/snippets/portalScripts-snippet.vm")
-    #if ($useBullhornAlerts)
-        <script src="/profile2-tool/javascript/profile2-eb.js$!{portalCDNQuery}"></script>
-    #end
 
         <!-- inlined tool header contribution -->
         ## if any of the tools requested an inline render, their header content gets aggregated here
