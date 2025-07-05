@@ -287,8 +287,9 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
         });
 
         this._gradeSubmitted = true;
-        !this.post.grade && (this.post.grade = {});
+        this.post.grade ??= {};
         this.post.grade.grade = this._gradePoints;
+        this.dispatchEvent(new CustomEvent("post-updated", { detail: { post: this.post }, bubbles: true }));
         setTimeout(() => {
 
           bootstrap.Dropdown.getInstance(this.querySelector(".dropdown-toggle")).hide();
