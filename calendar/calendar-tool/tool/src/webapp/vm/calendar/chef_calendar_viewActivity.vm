@@ -89,20 +89,20 @@
 							#if (!$props)
 									#if ($size > 0) #set ($size = $size - 1) #end
 							#else
-								
+
 								#if ($props.getBooleanProperty($props.NamePropIsCollection))
 									<li><img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="folder" />
 								#else
 									<li><img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$formattedText.escapeHtml($props.getProperty($props.NamePropContentType))" />
 								#end
-								
+
 								#set ($copyflag = false)
 								#if ($props.getProperty("CHEF:copyrightalert"))
 									#if ($props.getBooleanProperty("CHEF:copyrightalert"))
 										#set ($copyflag = true)
 									#end
 								#end
-	
+
 								#if ($copyflag)
 									## if there is a copyright alert, show the alert page first
 									<a href="" onclick="openCopyrightWindow('${attachment.url}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false">
@@ -111,7 +111,7 @@
 									<a href="$attachment.Url" target="_blank">
 									$formattedText.escapeHtml($attachment.Properties.getPropertyFormatted("DAV:displayname"))</a>
 								#end
-								
+
 								#if (!$props.getBooleanProperty($props.NamePropIsCollection))
 									($props.getPropertyFormatted($props.NamePropContentLength))
 								#end
@@ -180,19 +180,29 @@
 				<td>$formattedText.escapeHtml($event.getField($fieldEntry))</td>
 			</tr>
 			#end
-			
+
 			#if ($!groupRange && !($!groupRange == ""))
 			<tr>
 				<th class="chefLabel">$tlang.getString("groups")</th>
 				<td>$formattedText.escapeHtml($!groupRange)</td>
 			</tr>
 			#end
-			#if($assignmenturl && $assignmenturl !="")
+   			#if($assignmenturl && $assignmenturl !="")
 			<tr>
 				<th>$tlang.getString("gen.assignmentlink")</th>
 				<td>
 					<a href="javascript:change_parent_url('$assignmenturl');">
 						$formattedText.escapeHtml($validator.limit($!assignmentTitle, 40))
+					</a>
+				</td>
+			</tr>
+			#end
+			#if($assessmentUrl && $assessmentUrl !="")
+			<tr>
+				<th>$tlang.getString("gen.assessmentlink")</th>
+				<td>
+					<a href="javascript:change_parent_url('$assessmentUrl');">
+						$formattedText.escapeHtml($validator.limit($!assessmentTitle, 40))
 					</a>
 				</td>
 			</tr>
