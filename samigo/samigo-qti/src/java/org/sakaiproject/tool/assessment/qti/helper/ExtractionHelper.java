@@ -484,7 +484,7 @@ public class ExtractionHelper
         if (assessment.getAssessmentMetaDataByLabel("EXIT_PASSWARD") != null || 
         		!((String) assessment.getAssessmentMetaDataByLabel("EXIT_PASSWARD")).trim().equals("") ) {
         	String encryptedPassword = secureDeliveryService.encryptPassword( assessmentSettings.getSecureDeliveryModule(), assessment.getAssessmentMetaDataByLabel("EXIT_PASSWARD"));
-        	assessment.updateAssessmentMetaData(SecureDeliveryServiceAPI.EXITPWD_KEY, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(encryptedPassword ));
+        	assessment.updateAssessmentMetaData(SecureDeliveryServiceAPI.EXITPWD_KEY, encryptedPassword);
         }
     	
         assessment.updateAssessmentMetaData(SecureDeliveryServiceAPI.TITLE_DECORATION, assessment.getTitle());
