@@ -75,9 +75,6 @@ export class SakaiRubricEdit extends RubricsElement {
               <button class="btn btn-primary" type="button" @click=${this._saveEdit} data-rubric-id="${this.rubric.id}">
                 ${this._i18n.save}
               </button>
-              <button class="btn btn-secondary" id="rubric-cancel-${this.rubric.id}" type="button" data-bs-dismiss="modal" @click=${this._cancelEdit}>
-                ${this._i18n.cancel}
-              </button>
             </div>
           </div>
         </div>
@@ -93,9 +90,4 @@ export class SakaiRubricEdit extends RubricsElement {
     bootstrap.Modal.getInstance(this.querySelector("div.modal")).hide();
   }
 
-  _cancelEdit() {
-
-    //Reset input values, in case they were changed
-    this.querySelector("input[type='text']").value = this.rubric.title;
-  }
 }
