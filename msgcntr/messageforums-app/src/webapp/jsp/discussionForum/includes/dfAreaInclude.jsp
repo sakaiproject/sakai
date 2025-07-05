@@ -239,7 +239,7 @@ $(document).ready(function() {
                             
                             <%-- Show warning icon for topics in draft forums instead of regular folder icon --%>
                             <h:panelGroup rendered="#{forum.forum.draft == 'true'}">
-                                <span class="bi bi-exclamation-triangle topicIcon text-warning" style="margin-right:.5em" aria-hidden="true"></span>
+                                <span class="bi bi-exclamation-triangle topicIcon" style="margin-right:.5em; color: var(--bs-warning);" aria-hidden="true"></span>
                                 <span class="sr-only"><h:outputText value="#{msgs.cdfm_forum_draft_topic_unavailable}" escape="false" /></span>
                             </h:panelGroup>
                             <h:panelGroup rendered="#{forum.forum.draft != 'true'}">
