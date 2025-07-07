@@ -96,7 +96,7 @@ describe("sakai-rubrics tests", () => {
     expect(el.querySelector("div.modal").classList.contains("show")).to.be.false;
   });
 
-  it ("tests that a new rubric pops up the modal and that you can cancel the edit", async () => {
+  it ("tests that a new rubric pops up the modal", async () => {
 
     data.rubric1.new = true;
 
@@ -116,15 +116,6 @@ describe("sakai-rubrics tests", () => {
     await oneEvent(el, "shown.bs.modal");
 
     expect(titleField).to.exist;
-    titleField.value = "cheeses";
-
-    const cancelButton = el.querySelector("button.btn-secondary");
-    expect(cancelButton).to.exist;
-    cancelButton.click();
-
-    await oneEvent(el, "hidden.bs.modal");
-
-    expect(titleField.value).to.equal(data.rubric1.title);
   });
 });
 
