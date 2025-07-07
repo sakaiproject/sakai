@@ -9,7 +9,7 @@ class Submission {
 
       if (init.properties) {
         // Extract log entries and sort them chronologically by their numeric suffix
-        const logEntries = Object.keys(init.properties)
+        this.submissionLog = Object.keys(init.properties)
           .filter(p => p.startsWith("log"))
           .map(p => ({
             key: p,
@@ -18,8 +18,6 @@ class Submission {
           }))
           .sort((a, b) => a.index - b.index) // Sort by numeric index to maintain chronological order
           .map(entry => entry.value);
-
-        this.submissionLog = logEntries;
       } else {
         this.submissionLog = init.submissionLog || [];
       }
