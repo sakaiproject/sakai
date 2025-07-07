@@ -8,8 +8,18 @@ class Submission {
       this.id = init.id;
 
       if (init.properties) {
-        this.submissionLog = Object.keys(init.properties).filter(p => p.startsWith("log"))
-          .map(p => init.properties[p]);
+        // Extract log entries and sort them chronologically by their numeric suffix
+        const logEntries = Object.keys(init.properties)
+          .filter(p => p.startsWith("log"))
+          .map(p => ({
+            key: p,
+            index: parseInt(p.substring(3)), // Extract numeric part after "log"
+            value: init.properties[p]
+          }))
+          .sort((a, b) => a.index - b.index) // Sort by numeric index to maintain chronological order
+          .map(entry => entry.value);
+
+        this.submissionLog = logEntries;
       } else {
         this.submissionLog = init.submissionLog || [];
       }
