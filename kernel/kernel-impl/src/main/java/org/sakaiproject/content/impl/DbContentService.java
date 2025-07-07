@@ -1945,7 +1945,7 @@ public class DbContentService extends BaseContentService
 							boolean singleInstanceStore = serverConfigurationService.getBoolean(PROP_SINGLE_INSTANCE, PROP_SINGLE_INSTANCE_DEFAULT);
 							if (singleInstanceStore) {
 								filePath = ((BaseResourceEdit) edit).m_filePath;
-								log.debug("Getting reference ("+edit.getId()+") content: "+bodyPath+" file:"+filePath);
+								log.debug("Getting reference ({}) content: {} file: {}", edit.getId(), bodyPath, filePath);
 								String statement = contentServiceSql.getCountFilePath(resourceTableName);
 								try {
 									references = countQuery(statement, filePath);
