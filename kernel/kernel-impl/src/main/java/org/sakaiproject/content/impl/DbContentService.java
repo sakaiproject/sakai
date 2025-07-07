@@ -1940,15 +1940,18 @@ public class DbContentService extends BaseContentService
 				   {
 					   // if we have been configured to use an external file system
 					   if (removeContent) {
-							String filePath = ((BaseResourceEdit) edit).m_filePath;
-							log.debug("Removing resource ("+edit.getId()+") content: "+bodyPath+" file:"+filePath);
-
-							String statement = contentServiceSql.getCountFilePath(resourceTableName);
 							int references = -1;
-							try {
-								references = countQuery(statement, filePath);
-							} catch ( IdUnusedException e ) {
-								log.warn("Unexpected error {}", e.getMessage());
+							String filePath = "";
+							boolean singleInstanceStore = serverConfigurationService.getBoolean(PROP_SINGLE_INSTANCE, PROP_SINGLE_INSTANCE_DEFAULT);
+							if (singleInstanceStore) {
+								filePath = ((BaseResourceEdit) edit).m_filePath;
+								log.debug("Getting reference ("+edit.getId()+") content: "+bodyPath+" file:"+filePath);
+								String statement = contentServiceSql.getCountFilePath(resourceTableName);
+								try {
+									references = countQuery(statement, filePath);
+								} catch ( IdUnusedException e ) {
+									log.warn("Unexpected error {}", e.getMessage());
+								}
 							}
 
 							if ( references > 1 ) {
