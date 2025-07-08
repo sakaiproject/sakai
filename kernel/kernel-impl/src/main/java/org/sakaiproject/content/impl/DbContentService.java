@@ -1950,7 +1950,7 @@ public class DbContentService extends BaseContentService
 								try {
 									references = countQuery(statement, filePath);
 								} catch ( IdUnusedException e ) {
-									log.warn("Unexpected error {}", e.getMessage());
+									log.warn("missing id during countQuery,  {}", e.toString());
 								}
 							}
 
