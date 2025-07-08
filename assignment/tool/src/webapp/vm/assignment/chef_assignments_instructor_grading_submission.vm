@@ -97,7 +97,7 @@
         </div>
         #if( $allowAddAssignment && $showStudentPhoto )
 	        #if (!$!assignment.IsGroup && !$value_CheckAnonymousGrading)
-                <span class="student-picture" role="presentation" style="background-image:url('/direct/profile/$!submitterId/image/official?siteId=$!assignment.Context');"></span>
+                <span class="student-picture" role="presentation" style="background-image:url('/api/users/$!submitterId/profile/image/official?siteId=$!assignment.Context');"></span>
 	        #end
         #end
         ## 1- text only; 2-attachment only; 3-text and attachment; 4-Non-electronic

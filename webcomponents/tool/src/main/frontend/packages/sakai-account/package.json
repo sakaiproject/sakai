@@ -1,0 +1,40 @@
+{
+  "name": "@sakai-ui/sakai-account",
+  "version": "3.0.6",
+  "description": "",
+  "license": "ECL-2.0",
+  "author": "The Sakai Project <sakai.user.interface@gmail.com>",
+  "homepage": "https://github.com/sakaiproject/sakai-ui/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sakaiproject/sakai-ui",
+    "directory": "packages/sakai-account"
+  },
+  "main": "index.js",
+  "module": "index.js",
+  "files": [
+    "*.js",
+    "src"
+  ],
+  "scripts": {
+    "lint:fix": "eslint src --fix",
+    "test": "wtr",
+    "test:dev": "cd ../../ && npm run test:dev"
+  },
+  "keywords": [
+    "Sakai"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    ".": "./index.js",
+    "./sakai-account.js": "./sakai-account.js"
+  },
+  "devDependencies": {
+    "@sakai-ui/sakai-audio-recorder": "file:../sakai-audio-recorder"
+  },
+  "dependencies": {
+    "validator": "^13.15.15"
+  }
+}

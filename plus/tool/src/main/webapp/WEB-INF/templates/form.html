@@ -19,14 +19,14 @@
         </p>
         <form class="form-horizontal" action="#" th:action="@{/tenant}" method="post" th:object="${tenant}">
         <input th:if="${doUpdate}" type="hidden" th:field="*{id}" />
-        <div id="title-group" class="form-group form-control-required">
-          <label for="plus-title" class="form-control-label" th:text="#{plus.tool.title}">Value</label>
+        <div id="title-group" class="form-group">
+          <label for="plus-title" class="form-control-label required" th:text="#{plus.tool.title}">Value</label>
           <div>
             <input type="text" class="form-control" id="plus-title" th:value="${tenant.title}" th:field="*{title}" required />
           </div>
         </div>
-        <div id="issuer-group" class="form-group form-control-required">
-          <label for="issuer" class="form-control-label" th:text="#{plus.tool.issuer}">Value</label>
+        <div id="issuer-group" class="form-group">
+          <label for="issuer" class="form-control-label required" th:text="#{plus.tool.issuer}">Value</label>
           <div>
             <input type="text" class="form-control" id="issuer" th:value="${tenant.issuer}" th:field="*{issuer}" pattern="https?://[^\s\/]+(?:\/[^\/\s]+)*$" th:attr="title=#{plus.tenant.issuer.error.slash}" required aria-describedby="issuer-input-error" />
             <span id="issuer-input-error" class="sr-only"></span>
