@@ -91,8 +91,8 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.memory.api.SimpleConfiguration;
-import org.sakaiproject.profile2.logic.ProfileLogic;
-import org.sakaiproject.profile2.util.ProfileConstants;
+import org.sakaiproject.profile2.api.ProfileService;
+import org.sakaiproject.profile2.api.ProfileConstants;
 import org.sakaiproject.roster.api.RosterEnrollment;
 import org.sakaiproject.roster.api.RosterFunctions;
 import org.sakaiproject.roster.api.RosterGroup;
@@ -145,7 +145,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
     @Resource private PrivacyManager privacyManager;
     @Resource private MemoryService memoryService;
-    @Resource private ProfileLogic profileLogic;
+    @Resource private ProfileService profileService;
     @Resource private SakaiPersonManager sakaiPersonManager;
     @Resource private SecurityService securityService;
     @Resource private ServerConfigurationService serverConfigurationService;
@@ -498,7 +498,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
                     path.append(phoneticPronunciation);
                     path.append("</span>");
                 }
-                if (profileLogic.getUserNamePronunciation(user.getId()) != null) {
+                if (profileService.getUserNamePronunciation(user.getId()) != null) {
                     path.append("<sakai-pronunciation-player user-id=\"").append(userId).append("\" />");
                 }
                 pronounceMap.put(user.getId(), path.toString());
@@ -524,16 +524,10 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
         Map<String, User> userMap = getUserMap(membership);
 
-        // Audio URL for how to pronounce each name
-        Map<String, String> pronounceMap = new HashMap<>();
-        if (this.getViewUserNamePronunciation()) {
-            pronounceMap = getPronunciationMap(userMap);
-        }
-
         Collection<Group> groups = site.getGroups();
         for (Member member : membership) {
             try {
-                RosterMember rosterMember = getRosterMember(userMap, groups, member, site, pronounceMap);
+                RosterMember rosterMember = getRosterMember(userMap, groups, member, site);
                 rosterMembers.put(rosterMember.getEid(), rosterMember);
             } catch (UserNotDefinedException e) {
                 log.warn("user not found: {}" + e.getId());
@@ -596,10 +590,6 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
         for (RosterMember m : filtered) {
             if (check.add(m.getUserId())) {
                 cleanedMembers.add(m);
-
-                // Apply a unique profile link to each user outside of the caching layer
-                // e.g., /portal/site/~current-user-id/tool/profile2tooluuid/otherUserId
-                m.setProfileLink(getProfileToolLink(m.getUserId(), site.getId()));
 
                 // Now strip out any unauthorised info
                 if (!isAllowed(currentUserId, RosterFunctions.ROSTER_FUNCTION_VIEWEMAIL, site.getReference())) {
@@ -693,7 +683,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
         return membership;
     }
 
-    private RosterMember getRosterMember(Map<String, User> userMap, Collection<Group> groups, Member member, Site site, Map<String, String> pronounceMap)
+    private RosterMember getRosterMember(Map<String, User> userMap, Collection<Group> groups, Member member, Site site)
         throws UserNotDefinedException {
 
         String userId = member.getUserId();
@@ -721,13 +711,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
             rosterMember.setNickname(sakaiPerson.getNickname());
         }
 
-        // See if there is a pronunciation available for the user
-        String pronunciation = pronounceMap.get(user.getId());
-        //Try by email instead of Id
-        if (StringUtils.isEmpty(pronunciation)) {
-            pronunciation = pronounceMap.get(user.getEmail());
-        }
-        rosterMember.setPronunciation(pronunciation);
+        rosterMember.setHasPronunciationRecording(profileService.hasPronunciationRecording(userId));
 
         Map<String, String> userPropertiesMap = new HashMap<>();
         ResourceProperties props = user.getProperties();
@@ -841,7 +825,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
             for (Member member : membership) {
 
                 try {
-                    RosterMember rosterMember = getRosterMember(userMap, groups, member, site, pronounceMap);
+                    RosterMember rosterMember = getRosterMember(userMap, groups, member, site);
 
                     siteMembers.add(rosterMember);
                     String memberRoleId = rosterMember.getRole();

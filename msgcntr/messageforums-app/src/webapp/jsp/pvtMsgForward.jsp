@@ -114,7 +114,7 @@
 		 <div class="composeForm">
 				<div class="row d-flex">
 					<div class="col-xs-12 col-sm-2">
-						<h:panelGroup styleClass="shorttext required form-control-label">
+						<h:panelGroup styleClass="shorttext form-control-label">
 							<h:outputLabel for="list1">
 								<h:outputText value="#{msgs.pvt_star}" styleClass="reqStar"/>
 								<h:outputText value="#{msgs.pvt_select_forward_recipients}"/>
@@ -183,7 +183,7 @@
 				</div>
 				<div class="row d-flex">
 					<div class="col-xs-12 col-sm-2">
-						<h:panelGroup styleClass="shorttext required form-control-label">
+						<h:panelGroup styleClass="shorttext form-control-label">
 							<h:outputLabel for="subject" >
 								<h:outputText value="#{msgs.pvt_star}" styleClass="reqStar"/>
 								<h:outputText value="#{msgs.pvt_subject}"  />
