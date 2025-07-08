@@ -104,3 +104,4 @@
 - **Progressive Enhancement**: Detect browser capabilities and adjust UX accordingly
 - **Graceful Degradation**: Provide fallbacks for unsupported browsers
 - **Token Management**: Handle subscription updates and expirations properly
+- **Internationalization**: PWA installation messages use `sakai-notifications.properties` for translations

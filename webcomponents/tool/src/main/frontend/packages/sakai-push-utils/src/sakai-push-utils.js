@@ -94,32 +94,20 @@ export const getOptimalPermissionTiming = () => {
   return PERMISSION_TIMING.AFTER_USER_ENGAGEMENT;
 };
 
-// Default messages - can be overridden by calling setPWAMessages()
-let pwaMessages = {
-  iosTitle: "Install as Web App",
-  iosInstructions: "To receive push notifications, add this site to your home screen:\n1. Tap the Share button\n2. Select 'Add to Home Screen'\n3. Tap 'Add'",
-  defaultTitle: "Push Notifications",
-  defaultMessage: "Push notifications are available for this site"
-};
-
-export const setPWAMessages = (messages) => {
-  pwaMessages = { ...pwaMessages, ...messages };
-};
-
-export const getPWAInstallationMessage = () => {
+export const getPWAInstallationMessage = (i18n = {}) => {
   const browserInfo = getBrowserInfo();
 
   if (browserInfo.platform === "ios") {
     return {
-      title: pwaMessages.iosTitle,
-      message: pwaMessages.iosInstructions,
+      title: i18n.pwa_install_title || "Install as Web App",
+      message: i18n.pwa_install_instructions || "To receive push notifications, add this site to your home screen:\n1. Tap the Share button\n2. Select 'Add to Home Screen'\n3. Tap 'Add'",
       canInstall: browserInfo.requiresPWA && !isPWA()
     };
   }
 
   return {
-    title: pwaMessages.defaultTitle,
-    message: pwaMessages.defaultMessage,
+    title: i18n.pwa_notifications_title || "Push Notifications",
+    message: i18n.pwa_notifications_available || "Push notifications are available for this site",
     canInstall: false
   };
 };
