@@ -170,7 +170,7 @@ public class DbContentService extends BaseContentService
 
     /** Property name used in sakai.properties to turn on/off Content Hosting Handler support */
     private static final String PROP_SINGLE_INSTANCE = "content.singleInstanceStore";
-    private static final boolean PROP_SINGLE_INSTANCE_DEFAULT = true;
+    private static final boolean PROP_SINGLE_INSTANCE_DEFAULT = false;
 
     /*************************************************************************************************************************************************
      * Constructors, Dependencies and their setter methods
