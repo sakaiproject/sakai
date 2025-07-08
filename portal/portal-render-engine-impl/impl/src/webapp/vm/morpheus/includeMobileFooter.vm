@@ -5,10 +5,17 @@
     <li>
       <button class="btn icon-button responsive-allsites-button"
           data-bs-toggle="offcanvas"
+          #if (${userIsLoggedIn})
           data-bs-target="#select-site-sidebar"
-          aria-label="$rloader.sit_allsites"
           aria-controls="select-site-sidebar"
+          aria-label="$rloader.sit_allsites"
           title="$rloader.sit_allsites">
+          #else
+          data-bs-target="#portal-nav-sidebar"
+          aria-controls="portal-nav-sidebar"
+          aria-label="$rloader.sit_navigation"
+          title="$rloader.sit_navigation">
+          #end
           <i class="si si-all-sites"></i>
       </button>
     </li>
