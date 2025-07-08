@@ -30,7 +30,7 @@
 	</div>
 	
 		  <h:panelGrid styleClass="jsfFormTable" columns="2">
-			  <h:panelGroup styleClass="shorttext required form-control-label">
+			  <h:panelGroup styleClass="shorttext form-control-label">
 				  <h:outputLabel for="revised_title">
 				  <h:outputText value="#{msgs.pvt_star}" styleClass="reqStar"/>
 				  <h:outputText value="#{msgs.pvt_folder_title} #{msgs.pvt_colon}"/>

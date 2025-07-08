@@ -45,16 +45,16 @@
 
         <%-- CONTENT START --%>
 
-        <h:panelGroup styleClass="form-control-required mb-3" layout="block">
-            <h:outputLabel for="title" styleClass="form-label">
+        <h:panelGroup styleClass="mb-3" layout="block">
+            <h:outputLabel for="title" styleClass="required">
                 <h:outputText value="#{msgs.pvt_title}" />
             </h:outputLabel>
             <h:inputText id="title" value="#{mfPublishToFaqBean.title}" styleClass="form-control" >
                 <f:validateLength maximum="255" />
             </h:inputText>
         </h:panelGroup>
-        <h:panelGroup styleClass="form-control-required mb-3" layout="block">
-            <h:outputLabel for="question" styleClass="form-label">
+        <h:panelGroup styleClass="mb-3" layout="block">
+            <h:outputLabel for="question" styleClass="required">
                 <h:outputText value="#{msgs.pvt_question}" />
             </h:outputLabel>
             <sakai:inputRichText id="question" value="#{mfPublishToFaqBean.question}" textareaOnly="#{PrivateMessagesTool.mobileSession}"

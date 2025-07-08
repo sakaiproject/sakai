@@ -353,7 +353,6 @@ public class DiscussionForumTool {
   private boolean showShortDescription = true;
   private boolean collapsePermissionPanel = false;
   private boolean showProfileInfo = false;
-  private boolean showProfileLink = false;
 
   // compose
   @ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.MessageForumsMessageManager\"]}")
@@ -527,7 +526,6 @@ public class DiscussionForumTool {
     showShortDescription = ServerConfigurationService.getBoolean("mc.showShortDescription", true);
     collapsePermissionPanel = ServerConfigurationService.getBoolean("mc.collapsePermissionPanel", false);
     showProfileInfo = ServerConfigurationService.getBoolean("msgcntr.forums.showProfileInfo", true);
-    showProfileLink = showProfileInfo && ServerConfigurationService.getBoolean("profile2.profile.link.enabled", true);
   }
 
   protected GradingService getGradingService() {
@@ -8807,9 +8805,6 @@ public class DiscussionForumTool {
 	    return showProfileInfo;
 	}
 	
-	public boolean getShowProfileLink() {
-		return showProfileLink;
-	}
 	public Locale getUserLocale(){
 		return new ResourceLoader().getLocale();
 	}
