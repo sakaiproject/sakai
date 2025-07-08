@@ -3,15 +3,31 @@ import { getUserId } from "@sakai-ui/sakai-portal-utils";
 
 export const NOT_PUSH_CAPABLE = "NOT_PUSH_CAPABLE";
 
+// Push permission states
+const PUSH_PERMISSION_STATES = {
+  PWA_REQUIRED: "pwa_required",
+  NOT_SUPPORTED: "not_supported",
+  ERROR: "error"
+};
+
+// Permission timing strategies  
+const PERMISSION_TIMING = {
+  AFTER_PWA_INSTALL: "after_pwa_install",
+  AFTER_USER_ENGAGEMENT: "after_user_engagement"
+};
+
 const pushCallbacks = new Map();
 
+// Get user agent once and reuse
+const getUserAgent = () => navigator.userAgent;
+
 export const isIOSSafari = () => {
-  const ua = navigator.userAgent;
+  const ua = getUserAgent();
   return /iPad|iPhone|iPod/.test(ua) && /Safari/.test(ua) && !/Chrome/.test(ua);
 };
 
 export const isAndroid = () => {
-  return /Android/.test(navigator.userAgent);
+  return /Android/.test(getUserAgent());
 };
 
 export const isPWA = () => {
@@ -19,7 +35,7 @@ export const isPWA = () => {
 };
 
 export const getBrowserInfo = () => {
-  const ua = navigator.userAgent;
+  const ua = getUserAgent();
 
   if (isIOSSafari()) {
     return { platform: "ios", browser: "safari", requiresPWA: true };
@@ -68,14 +84,26 @@ export const getOptimalPermissionTiming = () => {
   const browserInfo = getBrowserInfo();
 
   if (browserInfo.platform === "ios") {
-    return "after_pwa_install";
+    return PERMISSION_TIMING.AFTER_PWA_INSTALL;
   }
 
   if (browserInfo.platform === "android") {
-    return "after_user_engagement";
+    return PERMISSION_TIMING.AFTER_USER_ENGAGEMENT;
   }
 
-  return "after_user_engagement";
+  return PERMISSION_TIMING.AFTER_USER_ENGAGEMENT;
+};
+
+// Default messages - can be overridden by calling setPWAMessages()
+let pwaMessages = {
+  iosTitle: "Install as Web App",
+  iosInstructions: "To receive push notifications, add this site to your home screen:\n1. Tap the Share button\n2. Select 'Add to Home Screen'\n3. Tap 'Add'",
+  defaultTitle: "Push Notifications",
+  defaultMessage: "Push notifications are available for this site"
+};
+
+export const setPWAMessages = (messages) => {
+  pwaMessages = { ...pwaMessages, ...messages };
 };
 
 export const getPWAInstallationMessage = () => {
@@ -83,15 +111,15 @@ export const getPWAInstallationMessage = () => {
 
   if (browserInfo.platform === "ios") {
     return {
-      title: "Install as Web App",
-      message: "To receive push notifications, add this site to your home screen:\n1. Tap the Share button\n2. Select 'Add to Home Screen'\n3. Tap 'Add'",
+      title: pwaMessages.iosTitle,
+      message: pwaMessages.iosInstructions,
       canInstall: browserInfo.requiresPWA && !isPWA()
     };
   }
 
   return {
-    title: "Push Notifications",
-    message: "Push notifications are available for this site",
+    title: pwaMessages.defaultTitle,
+    message: pwaMessages.defaultMessage,
     canInstall: false
   };
 };
@@ -157,10 +185,10 @@ export const subscribeIfPermitted = reg => {
 
     if (browserInfo.requiresPWA) {
       console.debug("PWA installation required for push notifications");
-      return Promise.resolve("pwa_required");
+      return Promise.resolve(PUSH_PERMISSION_STATES.PWA_REQUIRED);
     }
 
-    return Promise.resolve("not_supported");
+    return Promise.resolve(PUSH_PERMISSION_STATES.NOT_SUPPORTED);
   }
 
   document.body?.querySelectorAll(".portal-notifications-indicator")
@@ -194,11 +222,11 @@ export const subscribeIfPermitted = reg => {
         })
         .catch (error => {
           console.error("Error requesting notification permission:", error);
-          resolve("error");
+          resolve(PUSH_PERMISSION_STATES.ERROR);
         });
       } catch (err) {
         console.error("Exception requesting notification permission:", err);
-        resolve("error");
+        resolve(PUSH_PERMISSION_STATES.ERROR);
       }
     } else {
       console.debug(`Permission already ${Notification?.permission}`);
@@ -305,12 +333,12 @@ export const callSubscribeIfPermitted = async () => {
   // Provide platform-specific guidance
   if (browserInfo.requiresPWA && !isPWA()) {
     console.debug("PWA installation required before subscribing to push notifications");
-    return Promise.resolve("pwa_required");
+    return Promise.resolve(PUSH_PERMISSION_STATES.PWA_REQUIRED);
   }
 
   // Check optimal timing based on platform
   const timing = getOptimalPermissionTiming();
-  if (timing === "after_user_engagement") {
+  if (timing === PERMISSION_TIMING.AFTER_USER_ENGAGEMENT) {
     console.debug("Consider requesting push permission after user engagement rather than immediately");
   }
 
