@@ -42,6 +42,10 @@ export class SakaiUserPhoto extends SakaiElement {
     this.profilePopup = SakaiUserPhoto.OFF;
   }
 
+  refresh() {
+    this.url = `/api/users/${this.userId}/profile/image/${this.official ? "official" : "thumb"}?_=${Date.now()}`;
+  }
+
   close() {
     bootstrap.Popover.getInstance(this.querySelector("div"))?.hide();
   }
@@ -50,9 +54,9 @@ export class SakaiUserPhoto extends SakaiElement {
 
     if (changedProperties.has("userId") || changedProperties.has("official") || changedProperties.has("blank")) {
       if (this.blank) {
-        this.url = "/direct/profile/blank/image";
+        this.url = "/api/users/blank/profile/image";
       } else {
-        this.url = `/direct/profile/${this.userId}/image/${this.official ? "official" : "thumb"}`
+        this.url = `/api/users/${this.userId}/profile/image/${this.official ? "official" : "thumb"}`
                     + (getSiteId() ? `?siteId=${getSiteId()}` : "");
       }
     }

@@ -44,8 +44,6 @@
             ## Header
             #parse("/vm/morpheus/snippets/header-snippet.vm")
 
-            #parse("/vm/morpheus/snippets/picture-changer-snippet.vm")
-
             #parse("/vm/morpheus/moresites.vm")
 
             ## Sites sidebar
