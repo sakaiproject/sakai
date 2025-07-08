@@ -94,20 +94,20 @@ export const getOptimalPermissionTiming = () => {
   return PERMISSION_TIMING.AFTER_USER_ENGAGEMENT;
 };
 
-export const getPWAInstallationMessage = (i18n = {}) => {
+export const getPWAInstallationMessage = (i18n) => {
   const browserInfo = getBrowserInfo();
 
   if (browserInfo.platform === "ios") {
     return {
-      title: i18n.pwa_install_title || "Install as Web App",
-      message: i18n.pwa_install_instructions || "To receive push notifications, add this site to your home screen:\n1. Tap the Share button\n2. Select 'Add to Home Screen'\n3. Tap 'Add'",
+      title: i18n.pwa_install_title,
+      message: i18n.pwa_install_instructions,
       canInstall: browserInfo.requiresPWA && !isPWA()
     };
   }
 
   return {
-    title: i18n.pwa_notifications_title || "Push Notifications",
-    message: i18n.pwa_notifications_available || "Push notifications are available for this site",
+    title: i18n.pwa_notifications_title,
+    message: i18n.pwa_notifications_available,
     canInstall: false
   };
 };
