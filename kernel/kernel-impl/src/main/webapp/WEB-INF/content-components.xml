@@ -72,6 +72,7 @@
               <entry key="oracle" ><ref bean="org.sakaiproject.content.impl.ContentServiceSqlOracle" /></entry>
            </map>
         </property>
+        <property name="fileSystemHandler"><ref bean="org.sakaiproject.content.api.FileSystemHandler"/></property>
     </bean>
 
     <bean id="org.sakaiproject.content.api.FileSystemHandler.file" class="org.sakaiproject.content.impl.DefaultFileSystemHandler">
