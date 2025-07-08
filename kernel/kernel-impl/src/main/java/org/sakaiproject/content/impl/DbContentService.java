@@ -1992,7 +1992,7 @@ public class DbContentService extends BaseContentService
 											references - deletedReferences, deletedReferences, filePath);
 									}
 								} catch ( IdUnusedException e ) {
-									log.warn("Unexpected error {}", e.getMessage());
+									log.warn("missing id during countQuery,  {}", e.toString());
 								}
 
 								if ( references > 1 ) {
