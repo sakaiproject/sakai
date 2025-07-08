@@ -184,7 +184,7 @@ public class DbContentService extends BaseContentService
      * The Default is DefaultFileSystemHandler.
      */
     @Setter
-    private FileSystemHandler fileSystemHandler = new DefaultFileSystemHandler();
+    private FileSystemHandler fileSystemHandler;
 
     @Autowired
     protected LockManager lockManager = null;
