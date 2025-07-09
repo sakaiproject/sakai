@@ -1180,11 +1180,12 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
     }
 
     @Override
-    public Map<String, String> getSearchIndex(String siteId, String userId, String groupId, String roleId, String enrollmentSetId, String enrollmentStatus) {
+    public List<Map<String, String>> getSearchIndex(String siteId, String userId, String groupId, String roleId, String enrollmentSetId, String enrollmentStatus) {
 
         return getMembership(userId, siteId, groupId, roleId, enrollmentSetId, enrollmentStatus)
                 .stream()
-                .collect(Collectors.toMap(RosterMember::getUserId, RosterMember::getDisplayName));
+                .map(m -> Map.of("id", m.getUserId(), "eid", m.getEid(), "displayName", m.getDisplayName()))
+                .collect(Collectors.toList());
     }
 
     @Override
