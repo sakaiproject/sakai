@@ -19,6 +19,7 @@ export class SakaiNotifications extends SakaiElement {
     _state: { state: true },
     _highlightTestButton: { state: true },
     _browserInfoUrl: { state: true },
+    pushEnabled: { state: true },
   };
 
   constructor() {
@@ -29,6 +30,7 @@ export class SakaiNotifications extends SakaiElement {
 
     this._filteredNotifications = new Map();
     this._i18nLoaded = this.loadTranslations("sakai-notifications");
+    this.pushEnabled = false; // Default to false, will be set in _registerForNotifications
   }
 
   connectedCallback() {
@@ -83,6 +85,8 @@ export class SakaiNotifications extends SakaiElement {
 
     pushSetupComplete.then(() => {
 
+      this.pushEnabled = true;
+
       if (Notification.permission !== "granted") return;
 
       registerPushCallback("notifications", message => {
@@ -94,6 +98,8 @@ export class SakaiNotifications extends SakaiElement {
       });
     })
     .catch(error => {
+
+      this.pushEnabled = false;
 
       if (error === NOT_PUSH_CAPABLE) {
         this._state = PUSH_SETUP_INFO;
