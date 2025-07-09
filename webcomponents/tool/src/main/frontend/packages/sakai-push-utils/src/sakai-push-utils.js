@@ -10,7 +10,7 @@ const PUSH_PERMISSION_STATES = {
   ERROR: "error"
 };
 
-// Permission timing strategies  
+// Permission timing strategies
 const PERMISSION_TIMING = {
   AFTER_PWA_INSTALL: "after_pwa_install",
   AFTER_USER_ENGAGEMENT: "after_user_engagement"
@@ -94,7 +94,7 @@ export const getOptimalPermissionTiming = () => {
   return PERMISSION_TIMING.AFTER_USER_ENGAGEMENT;
 };
 
-export const getPWAInstallationMessage = (i18n) => {
+export const getPWAInstallationMessage = i18n => {
   const browserInfo = getBrowserInfo();
 
   if (browserInfo.platform === "ios") {
