@@ -31,14 +31,30 @@ export const isAndroid = () => {
 };
 
 export const isPWA = () => {
-  return window.matchMedia("(display-mode: standalone)").matches;
+  // Check for PWA display mode
+  const standaloneMode = window.matchMedia("(display-mode: standalone)").matches;
+  
+  // Additional iOS Safari PWA detection
+  const iosPWA = window.navigator.standalone === true;
+  
+  const isPwaMode = standaloneMode || iosPWA;
+  
+  console.debug("PWA detection:", { standaloneMode, iosPWA, isPwaMode, userAgent: getUserAgent() });
+  
+  return isPwaMode;
 };
 
 export const getBrowserInfo = () => {
   const ua = getUserAgent();
+  
+  const isIOS = isIOSSafari();
+  const isAndroidDevice = isAndroid();
+  const pwaMode = isPWA();
 
-  if (isIOSSafari()) {
-    return { platform: "ios", browser: "safari", requiresPWA: true };
+  if (isIOS) {
+    const browserInfo = { platform: "ios", browser: "safari", requiresPWA: true };
+    console.debug("iOS Safari detected:", browserInfo, "PWA mode:", pwaMode);
+    return browserInfo;
   }
 
   if (isAndroid()) {
@@ -271,6 +287,8 @@ export const pushSetupComplete = new Promise((resolve, reject) => {
     console.debug("iOS Safari detected without PWA installation - push notifications require PWA");
     reject(PUSH_PERMISSION_STATES.PWA_REQUIRED);
     return;
+  } else if (browserInfo.platform === "ios" && isPWA()) {
+    console.debug("iOS Safari PWA detected - push notifications should work with user interaction");
   }
 
   navigator.serviceWorker.register(serviceWorkerPath).then(reg => {
