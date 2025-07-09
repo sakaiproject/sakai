@@ -1739,7 +1739,6 @@ public class DbContentService extends BaseContentService
            }
        }
 
-       /** return deleted resource for the given  id */ 
        public void removeDeletedResource(ContentResourceEdit edit)
        {
            // delete the body
@@ -1756,7 +1755,40 @@ public class DbContentService extends BaseContentService
                    // if we have been configured to use an external file system
                    if (bodyPath != null)
                    {
-                       delResourceBodyFilesystem(bodyPathDeleted, edit);
+                       boolean singleInstanceStore = serverConfigurationService.getBoolean(PROP_SINGLE_INSTANCE, PROP_SINGLE_INSTANCE_DEFAULT);
+                       String filePath = ((BaseResourceEdit) edit).m_filePath;
+                       if (singleInstanceStore)
+                       {
+                           // Count references in both main table and deleted table for singleInstanceStore
+                           String statement = contentServiceSql.getCountFilePath(resourceTableName);
+                           int references = -1;
+                           try {
+                               references = countQuery(statement, filePath);
+
+                               // Also count references in deleted table if it exists
+                               if (references <= 1 && resourceDeleteTableName != null) {
+                                   String deleteStatement = contentServiceSql.getCountFilePath(resourceDeleteTableName);
+                                   int deletedReferences = countQuery(deleteStatement, filePath);
+                                   references += deletedReferences;
+                                   log.debug("Found {} references in main table and {} in deleted table for file: {}", 
+                                       references - deletedReferences, deletedReferences, filePath);
+                               }
+                           } catch ( IdUnusedException e ) {
+                               log.warn("missing id during countQuery,  {}", e.toString());
+                           }
+
+                           if ( references > 1 ) {
+                               log.debug("Retaining file blob for deleted resource_id={} because {} total reference(s)", edit.getId(), references);
+                           } else {
+                               log.debug("Removing deleted resource ({}) content: {} file:{}", edit.getId(), bodyPathDeleted, filePath);
+                               delResourceBodyFilesystem(bodyPathDeleted, edit);
+                           }
+                       }
+                       else
+                       {
+                           log.debug("Removing deleted resource ({}) content: {} file:{}", edit.getId(), bodyPathDeleted, filePath);
+                           delResourceBodyFilesystem(bodyPathDeleted, edit);
+                       }
                    }
 
                    // otherwise use the database
@@ -1940,25 +1972,42 @@ public class DbContentService extends BaseContentService
 				   {
 					   // if we have been configured to use an external file system
 					   if (removeContent) {
+							boolean singleInstanceStore = serverConfigurationService.getBoolean(PROP_SINGLE_INSTANCE, PROP_SINGLE_INSTANCE_DEFAULT);
 							String filePath = ((BaseResourceEdit) edit).m_filePath;
-							log.debug("Removing resource ("+edit.getId()+") content: "+bodyPath+" file:"+filePath);
+							if (singleInstanceStore)
+							{
+								// Count references in both main table and deleted table for singleInstanceStore
+								String statement = contentServiceSql.getCountFilePath(resourceTableName);
+								int references = -1;
+								try {
+									references = countQuery(statement, filePath);
 
-							String statement = contentServiceSql.getCountFilePath(resourceTableName);
-							int references = -1;
-							try {
-								references = countQuery(statement, filePath);
-							} catch ( IdUnusedException e ) {
-								log.warn("Unexpected error {}", e.getMessage());
+									// Also count references in deleted table if it exists
+									if (references <= 1 && resourceDeleteTableName != null) {
+										String deleteStatement = contentServiceSql.getCountFilePath(resourceDeleteTableName);
+										int deletedReferences = countQuery(deleteStatement, filePath);
+										references += deletedReferences;
+										log.debug("Found {} references in main table and {} in deleted table for file: {}", 
+											references - deletedReferences, deletedReferences, filePath);
+									}
+								} catch ( IdUnusedException e ) {
+									log.warn("missing id during countQuery,  {}", e.toString());
+								}
+
+								if ( references > 1 ) {
+									log.debug("Retaining file blob for resource_id={} because {} total reference(s)", edit.getId(), references);
+								} else {
+									log.debug("Removing resource ({}) content: {} file:{}", edit.getId(), bodyPath, filePath);
+									delResourceBodyFilesystem(bodyPath, edit);
+								}
 							}
-
-							if ( references > 1 ) {
-								log.debug("Retaining file blob for resource_id={} because {} reference(s)", edit.getId(), references);
-							} else {
-								log.debug("Removing resource ("+edit.getId()+") content: "+bodyPath+" file:"+filePath);
+							else
+							{
+								log.debug("Removing resource ({}) content: {} file:{}", edit.getId(), bodyPath, filePath);
 								delResourceBodyFilesystem(bodyPath, edit);
 							}
 					   } else {
-							log.debug("Removing original resource reference ("+edit.getId()+") without removing the actual content: "+bodyPath);
+							log.debug("Removing original resource reference ({}) without removing the actual content: {}", edit.getId(), bodyPath);
 					   }
 				   }
 				   else
@@ -1966,9 +2015,9 @@ public class DbContentService extends BaseContentService
 					   // otherwise use the database
 					   if (removeContent) {
 						   delResourceBodyDb(edit, resourceBodyTableName);
-						   log.debug("Removing resource ("+edit.getId()+") DB content");
+						   log.debug("Removing resource ({}) DB content", edit.getId());
 					   } else {
-						   log.debug("Removing original resource reference ("+edit.getId()+") without removing the actual DB content");
+						   log.debug("Removing original resource reference ({}) without removing the actual DB content", edit.getId());
 					   }
 				   }
 
