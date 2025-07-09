@@ -4,7 +4,7 @@ import { getUserId } from "@sakai-ui/sakai-portal-utils";
 export const NOT_PUSH_CAPABLE = "NOT_PUSH_CAPABLE";
 
 // Push permission states
-const PUSH_PERMISSION_STATES = {
+export const PUSH_PERMISSION_STATES = {
   PWA_REQUIRED: "pwa_required",
   NOT_SUPPORTED: "not_supported",
   ERROR: "error"
@@ -262,6 +262,14 @@ export const pushSetupComplete = new Promise((resolve, reject) => {
   if (!navigator.serviceWorker || !window.Notification) {
     console.error("Service worker not supported");
     reject(NOT_PUSH_CAPABLE);
+    return;
+  }
+
+  // Check if this is iOS Safari without PWA mode
+  const browserInfo = getBrowserInfo();
+  if (browserInfo.requiresPWA && !isPWA()) {
+    console.debug("iOS Safari detected without PWA installation - push notifications require PWA");
+    reject(PUSH_PERMISSION_STATES.PWA_REQUIRED);
     return;
   }
 

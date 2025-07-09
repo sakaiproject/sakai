@@ -2,9 +2,9 @@ import { SakaiElement } from "@sakai-ui/sakai-element";
 import { html, nothing } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import "@sakai-ui/sakai-user-photo/sakai-user-photo.js";
-import { callSubscribeIfPermitted, NOT_PUSH_CAPABLE, pushSetupComplete, registerPushCallback } from "@sakai-ui/sakai-push-utils";
+import { callSubscribeIfPermitted, NOT_PUSH_CAPABLE, pushSetupComplete, registerPushCallback, PUSH_PERMISSION_STATES } from "@sakai-ui/sakai-push-utils";
 import { getServiceName } from "@sakai-ui/sakai-portal-utils";
-import { NOTIFICATIONS, PUSH_DENIED_INFO, PUSH_INTRO, PUSH_SETUP_INFO } from "./states.js";
+import { NOTIFICATIONS, PUSH_DENIED_INFO, PUSH_INTRO, PUSH_SETUP_INFO, PWA_INSTALL_INFO } from "./states.js";
 import { markNotificationsViewed } from "./utils.js";
 
 export class SakaiNotifications extends SakaiElement {
@@ -97,6 +97,8 @@ export class SakaiNotifications extends SakaiElement {
 
       if (error === NOT_PUSH_CAPABLE) {
         this._state = PUSH_SETUP_INFO;
+      } else if (error === PUSH_PERMISSION_STATES.PWA_REQUIRED) {
+        this._state = PWA_INSTALL_INFO;
       }
     });
   }
@@ -432,6 +434,18 @@ export class SakaiNotifications extends SakaiElement {
             <a href="${this._browserInfoUrl}" class="sakai-notifications__title" target="_blank">${this._i18n.browser_info_link_text}</a>
           </div>
           ` : nothing}
+        </div>
+        <div class="text-center">
+          <button @click=${this._showNotifications} class="btn btn-primary mt-4">${this._i18n.show_notifications}</button>
+        </div>
+      ` : nothing}
+
+      ${this._state === PWA_INSTALL_INFO ? html`
+        <div class="sak-banner-info sakai-notifications__banner-info">
+          <div>
+            <div class="fw-bold mb-2">${this._i18n.pwa_install_title}</div>
+            <div class="mb-1">${this._i18n.pwa_install_instructions}</div>
+          </div>
         </div>
         <div class="text-center">
           <button @click=${this._showNotifications} class="btn btn-primary mt-4">${this._i18n.show_notifications}</button>
