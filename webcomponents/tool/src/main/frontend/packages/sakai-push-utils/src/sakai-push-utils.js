@@ -33,22 +33,21 @@ export const isAndroid = () => {
 export const isPWA = () => {
   // Check for PWA display mode
   const standaloneMode = window.matchMedia("(display-mode: standalone)").matches;
-  
+
   // Additional iOS Safari PWA detection
   const iosPWA = window.navigator.standalone === true;
-  
+
   const isPwaMode = standaloneMode || iosPWA;
-  
+
   console.debug("PWA detection:", { standaloneMode, iosPWA, isPwaMode, userAgent: getUserAgent() });
-  
+
   return isPwaMode;
 };
 
 export const getBrowserInfo = () => {
   const ua = getUserAgent();
-  
+
   const isIOS = isIOSSafari();
-  const isAndroidDevice = isAndroid();
   const pwaMode = isPWA();
 
   if (isIOS) {
@@ -141,6 +140,8 @@ const subscribe = (reg, resolve) => {
   console.debug(`Fetching the push key from ${pushKeyUrl} ...`);
   fetch(pushKeyUrl).then(r => r.text()).then(key => {
 
+    console.debug("Push key received, subscribing to push manager...");
+
     // Subscribe with the public key
     reg.pushManager.subscribe({
       userVisibleOnly: true,
@@ -148,7 +149,9 @@ const subscribe = (reg, resolve) => {
     })
     .then(sub => {
 
-      console.debug("Subscribed. Sending details to Sakai ...");
+      console.debug("Push subscription created:", sub);
+      console.debug("Subscription endpoint:", sub.endpoint);
+      console.debug("Sending details to Sakai ...");
 
       const params = {
         endpoint: sub.endpoint,
@@ -156,6 +159,8 @@ const subscribe = (reg, resolve) => {
         userKey: sub.toJSON().keys.p256dh,
         browserFingerprint: getBrowserFingerprint(),
       };
+
+      console.debug("Subscription params:", params);
 
       const url = "/api/users/me/pushEndpoint";
       fetch(url, {
@@ -166,14 +171,25 @@ const subscribe = (reg, resolve) => {
       .then(r => {
 
         if (!r.ok) {
+          console.error(`Push endpoint registration failed with status ${r.status}: ${r.statusText}`);
           throw new Error(`Network error while posting push endpoint: ${url}`);
         }
 
-        console.debug("Subscription details sent successfully");
+        console.debug("Subscription details sent successfully to backend");
       })
-      .catch (error => console.error(error))
+      .catch (error => {
+        console.error("Error sending subscription to backend:", error);
+      })
       .finally(() => resolve("granted"));
+    })
+    .catch(error => {
+      console.error("Push subscription failed:", error);
+      resolve("error");
     });
+  })
+  .catch(error => {
+    console.error("Error fetching push key:", error);
+    resolve("error");
   });
 }; // subscribe
 
