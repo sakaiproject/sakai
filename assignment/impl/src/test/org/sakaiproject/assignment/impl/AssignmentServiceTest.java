@@ -1569,6 +1569,27 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             // Should not allow submission since both deadlines passed
             Assert.assertFalse(assignmentService.canSubmit(assignment));
 
+            // test submission that is not submitted, resubmission allowed, no extension
+            assignment.setOpenDate(now.minus(Period.ofDays(3)));
+            assignment.setCloseDate(now.minus(Period.ofDays(1)));
+            submission.setSubmitted(false);
+            submission.setDateSubmitted(null);
+            submission.setUserSubmission(false);
+            submission.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, Integer.toString(1));
+            submission.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME, Long.toString(now.plus(Period.ofDays(1)).toEpochMilli()));
+            submission.getProperties().remove(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME);
+            assignmentService.updateSubmission(submission);
+            // Should not allow submission since a resubmission is only allowed after the first submission has occurred
+            Assert.assertFalse(assignmentService.canSubmit(assignment));
+
+            // test submission that is submitted, resubmission allowed, no extension
+            submission.setSubmitted(true);
+            submission.setDateSubmitted(now.minus(1, ChronoUnit.DAYS));
+            submission.setUserSubmission(true);
+            assignmentService.updateSubmission(submission);
+            // Should allow submission since both submitted=true and dateSubmitted is not null
+            Assert.assertTrue(assignmentService.canSubmit(assignment));
+
             // test assignment closed, empty submission with both extension and resubmission in past
             assignment.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, Integer.toString(1));
             assignment.getProperties().put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME, Long.toString(now.minus(Period.ofDays(1)).toEpochMilli()));

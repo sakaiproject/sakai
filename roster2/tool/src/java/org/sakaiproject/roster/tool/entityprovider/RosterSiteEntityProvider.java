@@ -52,6 +52,7 @@ import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomActi
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
+import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
@@ -319,15 +320,15 @@ public class RosterSiteEntityProvider extends AbstractEntityProvider implements
     }
 
     @EntityCustomAction(action = "get-search-index", viewKey = EntityView.VIEW_SHOW)
-    public Object getSearchIndex(final EntityReference reference, final Map<String, Object> actionParams) {
+    public ActionReturn getSearchIndex(EntityReference reference, Map<String, Object> actionParams) {
 
-        final String siteId = reference.getId();
+        String siteId = reference.getId();
 
         if (null == siteId || DEFAULT_ID.equals(siteId)) {
             throw new EntityException(ERROR_INVALID_SITE, reference.getReference());
         }
 
-        final String userId = developerHelperService.getCurrentUserId();
+        String userId = developerHelperService.getCurrentUserId();
         String groupId = null;
         String roleId = null;
         String enrollmentSetId = null;
@@ -341,7 +342,7 @@ public class RosterSiteEntityProvider extends AbstractEntityProvider implements
                 enrollmentStatus = (String) actionParams.get(KEY_ENROLLMENT_STATUS);
             }
         }
-        return sakaiProxy.getSearchIndex(siteId, userId, groupId, roleId, enrollmentSetId, enrollmentStatus);
+        return new ActionReturn(sakaiProxy.getSearchIndex(siteId, userId, groupId, roleId, enrollmentSetId, enrollmentStatus));
     }
 
     @Override

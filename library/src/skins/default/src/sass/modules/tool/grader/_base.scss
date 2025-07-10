@@ -155,7 +155,8 @@ sakai-grader {
 
     background-color: var(--sakai-title-bar-bg-color);
 
-    #grader-rubric-block {
+    #grader-rubric-block,
+    #student-rubric-block {
       container-type: inline-size; /* Force the rubrics to display in rows */
     }
 
