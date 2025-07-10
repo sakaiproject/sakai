@@ -37,6 +37,7 @@ export class SakaiDatePicker extends SakaiElement {
     super();
 
     this.hiddenPrefix = "";
+    this.addEventListener('paste', this._handlePaste.bind(this));
   }
 
   set epochMillis(value) {
@@ -83,8 +84,12 @@ export class SakaiDatePicker extends SakaiElement {
   }
 
   dateSelected(e) {
+    this._dateSelectedImpl(e.target.value);
+  }
 
-    const temporalObj = Temporal.PlainDateTime.from(e.target.value);
+  _dateSelectedImpl(value) {
+
+    const temporalObj = Temporal.PlainDateTime.from(value);
     const zonedDateTime = temporalObj.toZonedDateTime(getTimezone());
     const epochMillis = zonedDateTime.toInstant().epochMilliseconds;
 
@@ -115,6 +120,52 @@ export class SakaiDatePicker extends SakaiElement {
       default:
         return "na";
     }
+  }
+
+  _handlePaste(event) {
+
+     if (event.clipboardData && event.clipboardData.getData('text/plain')) {
+         const iso = this._parsePastedDate(event.clipboardData.getData('text/plain'));
+         if (iso != null) {
+           this._dateSelectedImpl(iso);
+         }
+     }
+  }
+
+  _parsePastedDate(dateString) {
+
+    if (dateString == null || typeof dateString !== 'string') {
+      return null;
+    }
+
+    const parts = dateString.match(/(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2}) (AM|PM)/i);
+
+    if (!parts && parts.length != 6) {
+      return null; // Invalid date string format
+    }
+
+    const month = parts[1]; // Month is 0-indexed in Date object
+    const day = parts[2];
+    const year = parts[3];
+    let h = parseInt(parts[4], 10);
+    const minutes = parts[5];
+    const ampm = parts[6].toLowerCase();
+
+    // Adjust hours for PM
+    if (ampm === 'pm' && h < 12) {
+      h += 12;
+    }
+    // Adjust hours for 12 AM (midnight)
+    if (ampm === 'am' && h === 12) {
+      h = 0;
+    }
+
+    let hours = h.toString();
+    if (h < 10) {
+      hours = "0" + hours;
+    }
+
+    return year + "-" + month + "-" + day + "T" + hours + ":" + minutes;
   }
 
   render() {
