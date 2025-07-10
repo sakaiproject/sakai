@@ -327,15 +327,22 @@ export class SakaiNotifications extends SakaiElement {
 
     this._highlightTestButton = false;
 
+    console.debug("Sending test notification...");
+
     const url = "/api/users/me/notifications/test";
     fetch(url, { method: "POST" })
     .then(r => {
 
       if (!r.ok) {
+        console.error(`Test notification request failed with status ${r.status}: ${r.statusText}`);
         throw Error(`Network error while sending test notification at ${url}`);
       }
+
+      console.debug("Test notification request sent successfully");
     })
-    .catch(error => console.error(error));
+    .catch(error => {
+      console.error("Test notification error:", error);
+    });
   }
 
   shouldUpdate() {
@@ -447,14 +454,11 @@ export class SakaiNotifications extends SakaiElement {
       ` : nothing}
 
       ${this._state === PWA_INSTALL_INFO ? html`
-        <div class="sak-banner-info sakai-notifications__banner-info">
+        <div class="sak-banner-info sakai-notifications__banner-info mb-3">
           <div>
             <div class="fw-bold mb-2">${this._i18n.pwa_install_title}</div>
             <div class="mb-1">${this._i18n.pwa_install_instructions}</div>
           </div>
-        </div>
-        <div class="text-center">
-          <button @click=${this._showNotifications} class="btn btn-primary mt-4">${this._i18n.show_notifications}</button>
         </div>
       ` : nothing}
 
@@ -470,7 +474,7 @@ export class SakaiNotifications extends SakaiElement {
         </div>
       ` : nothing}
 
-      ${this._state === NOTIFICATIONS ? html`
+      ${this._state === NOTIFICATIONS || this._state === PWA_INSTALL_INFO ? html`
         ${Notification.permission !== "granted" && this._online && this.pushEnabled ? html`
           <div class="alert alert-warning">
             <span class="me-1">${this._i18n.push_not_enabled}</span>
