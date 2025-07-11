@@ -828,10 +828,8 @@ public class AssignmentToolUtils {
     }
 
     public boolean isDraftSubmission(AssignmentSubmission s) {
-
-        return (!s.getSubmitted()
-            && ((s.getSubmittedText() != null && s.getSubmittedText().length() > 0)
-            || (s.getAttachments() != null && s.getAttachments().size() > 0)));
+        return !s.getSubmitted() &&
+                (StringUtils.isNotEmpty(s.getSubmittedText()) || !s.getAttachments().isEmpty());
     }
 
     private String displayGrade(String grade, Integer factor) {

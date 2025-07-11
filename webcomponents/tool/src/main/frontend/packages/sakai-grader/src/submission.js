@@ -37,14 +37,12 @@ class Submission {
       }
 
       this.peerReviews = init.peerReviews;
-
       this.hasRubricEvaluation = init.hasRubricEvaluation;
-      this.showExtension = true;
+      this.hasSubmittedDate = Boolean(init.dateSubmittedEpochSeconds);
 
-      if (init.dateSubmitted) {
+      if (this.hasSubmittedDate) {
         this.submittedTime = init.dateSubmitted;
         this.submittedText = init.submittedText;
-        this.showExtension = false;
       } else if (init.draft && init.visible) {
         this.submittedTime = i18n.draft_not_submitted;
         this.submittedText = init.submittedText;

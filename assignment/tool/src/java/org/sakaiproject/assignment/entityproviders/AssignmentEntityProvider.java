@@ -724,27 +724,24 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                 submission.put("draft", draft);
             }
 
+            Instant now = Instant.now();
             Instant due = simpleAssignment.getDueTime();
             Instant close = simpleAssignment.getCloseTime();
-            boolean visible = as.getSubmitted() || (Instant.now().isAfter(Optional.ofNullable(due).orElse(Instant.now()))
-                && Instant.now().isAfter(Optional.ofNullable(close).orElse(Instant.now())));
-
+            boolean visible = !draft || (close != null ? now.isAfter(close) : due != null && now.isAfter(due));
             submission.put("visible", visible);
 
-            if (as.getSubmitted() || (draft && visible)) {
+            if (as.getDateSubmitted() != null || (draft && visible)) {
 
                 String submittedText = as.getSubmittedText();
                 if (StringUtils.isNotBlank(submittedText)) {
                     submission.put("submittedText", submittedText);
                 }
-                if (as.getSubmitted()) {
+                if (as.getDateSubmitted() != null) {
+                    submission.put("dateSubmittedEpochSeconds", as.getDateSubmitted().getEpochSecond());
                     String dateSubmitted = userTimeService.dateTimeFormat(as.getDateSubmitted(), null, null);
                     if (StringUtils.isNotBlank(dateSubmitted)) {
                         submission.put("dateSubmitted", dateSubmitted);
-                        submission.put("dateSubmittedEpochSeconds", as.getDateSubmitted() != null ? as.getDateSubmitted().getEpochSecond() : 0);
                     }
-                }
-                if (as.getDateSubmitted() != null) {
                     submission.put("late", as.getDateSubmitted().compareTo(as.getAssignment().getDueDate()) > 0);
                 }
 
@@ -2119,7 +2116,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             Instant close = sa.getCloseTime();
             this.visible = Instant.now().isAfter(Optional.ofNullable(due).orElse(Instant.now()))
                 && Instant.now().isAfter(Optional.ofNullable(close).orElse(Instant.now()));
-            if (this.submitted || (this.draft && this.visible)) {
+            if (this.getDateSubmitted() != null || (this.draft && this.visible)) {
                 this.submittedText = as.getSubmittedText();
                 if (this.submitted) {
                     this.dateSubmitted
