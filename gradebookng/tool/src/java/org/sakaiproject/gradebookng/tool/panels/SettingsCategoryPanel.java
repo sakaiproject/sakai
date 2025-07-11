@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *             http://opensource.org/licenses/ecl2
+ *			   http://opensource.org/licenses/ecl2
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -65,6 +65,7 @@ import org.sakaiproject.gradebookng.tool.pages.SettingsPage;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.grading.api.GradebookInformation;
+import org.sakaiproject.grading.api.GradeType;
 import org.sakaiproject.grading.api.GradingConstants;
 
 public class SettingsCategoryPanel extends BasePanel {
@@ -90,7 +91,7 @@ public class SettingsCategoryPanel extends BasePanel {
 	}
 
 	@Getter
-    private enum DropKeepUsage {
+	private enum DropKeepUsage {
 		CATEGORY("settingspage.categories.instructions.applydropkeep"),
 		EXCLUSIVE("settingspage.categories.hover.dropkeepusage");
 
@@ -100,7 +101,7 @@ public class SettingsCategoryPanel extends BasePanel {
 			this.message = message;
 		}
 
-    }
+	}
 
 	@Override
 	public void onInitialize() {
@@ -108,8 +109,10 @@ public class SettingsCategoryPanel extends BasePanel {
 
 		final SettingsPage settingsPage = (SettingsPage) getPage();
 
+		GradebookInformation settings = model.getObject().getGradebookInformation();
+
 		// get categories, passed in
-		final List<CategoryDefinition> categories = this.model.getObject().getGradebookInformation().getCategories();
+		final List<CategoryDefinition> categories = settings.getCategories();
 
 		// parse the categories
 		// 1. see if we have any drophighest/lowest/keep highest and set the flags for the checkboxes to use
@@ -136,9 +139,12 @@ public class SettingsCategoryPanel extends BasePanel {
 			final Set<BigDecimal> points = new HashSet<>();
 			if (!category.getEqualWeight()) {
 				for (Assignment a : category.getAssignmentList()) {
-					// Possible for some tools to send a big floating point double here so round it
-					final BigDecimal roundedPoints = new BigDecimal(a.getPoints()).setScale(2, RoundingMode.HALF_DOWN);
-					points.add(roundedPoints);
+					if (settings.getGradeType() != GradeType.LETTER) {
+						// Possible for some tools to send a big floating point double here so round it
+						points.add(new BigDecimal(a.getPoints()).setScale(2, RoundingMode.HALF_DOWN));
+					} else {
+						points.add(BigDecimal.valueOf(gradingService.getMaxPoints(settings.getSelectedGradingScaleBottomPercents()).orElse(0D)));
+					}
 				}
 			}
 
@@ -147,9 +153,9 @@ public class SettingsCategoryPanel extends BasePanel {
 		}
 
 		// if categories enabled but we don't have any yet, add a default one
-		if (!Objects.equals(this.model.getObject().getGradebookInformation().getCategoryType(), GradingConstants.CATEGORY_TYPE_NO_CATEGORY)
+		if (!Objects.equals(settings.getCategoryType(), GradingConstants.CATEGORY_TYPE_NO_CATEGORY)
 				&& categories.isEmpty()) {
-			this.model.getObject().getGradebookInformation().getCategories().add(stubCategoryDefinition());
+			settings.getCategories().add(stubCategoryDefinition());
 		}
 
 		final WebMarkupContainer settingsCategoriesAccordionButton = new WebMarkupContainer("settingsCategoriesAccordionButton");
@@ -171,7 +177,7 @@ public class SettingsCategoryPanel extends BasePanel {
 
 		// category types (note categoriesAndWeighting treated differently due to inter panel updates)
 		final RadioGroup<Integer> categoryType = new RadioGroup<>("categoryType",
-                new PropertyModel<>(this.model, "gradebookInformation.categoryType"));
+				new PropertyModel<>(this.model, "gradebookInformation.categoryType"));
 		final Radio<Integer> none = new Radio<>("none", new Model<>(GradingConstants.CATEGORY_TYPE_NO_CATEGORY));
 		final Radio<Integer> categoriesOnly = new Radio<>("categoriesOnly", new Model<>(GradingConstants.CATEGORY_TYPE_ONLY_CATEGORY));
 		this.categoriesAndWeighting = new Radio<>("categoriesAndWeighting", new Model<>(GradingConstants.CATEGORY_TYPE_WEIGHTED_CATEGORY));
@@ -193,7 +199,6 @@ public class SettingsCategoryPanel extends BasePanel {
 			@Override
 			public boolean isVisible() {
 				// don't show if 'no categories'
-				final GradebookInformation settings = SettingsCategoryPanel.this.model.getObject().getGradebookInformation();
 				return !Objects.equals(settings.getCategoryType(), GradingConstants.CATEGORY_TYPE_NO_CATEGORY);
 			}
 
@@ -213,7 +218,7 @@ public class SettingsCategoryPanel extends BasePanel {
 
 				// reset
 				if (!SettingsCategoryPanel.this.isDropHighest) {
-					for (final CategoryDefinition c : SettingsCategoryPanel.this.model.getObject().getGradebookInformation()
+					for (final CategoryDefinition c : settings
 							.getCategories()) {
 						c.setDropHighest(0);
 					}
@@ -237,7 +242,7 @@ public class SettingsCategoryPanel extends BasePanel {
 
 				// reset
 				if (!SettingsCategoryPanel.this.isDropLowest) {
-					for (final CategoryDefinition c : SettingsCategoryPanel.this.model.getObject().getGradebookInformation()
+					for (final CategoryDefinition c : settings
 							.getCategories()) {
 						c.setDropLowest(0);
 					}
@@ -260,7 +265,7 @@ public class SettingsCategoryPanel extends BasePanel {
 
 				// reset
 				if (!SettingsCategoryPanel.this.isKeepHighest) {
-					for (final CategoryDefinition c : SettingsCategoryPanel.this.model.getObject().getGradebookInformation()
+					for (final CategoryDefinition c : settings
 							.getCategories()) {
 						c.setKeepHighest(0);
 					}
@@ -283,7 +288,7 @@ public class SettingsCategoryPanel extends BasePanel {
 
 				// reset
 				if (!SettingsCategoryPanel.this.isEqualWeight) {
-					for (final CategoryDefinition c : SettingsCategoryPanel.this.model.getObject().getGradebookInformation()
+					for (final CategoryDefinition c : settings
 							.getCategories()) {
 						c.setEqualWeight(false);
 					}

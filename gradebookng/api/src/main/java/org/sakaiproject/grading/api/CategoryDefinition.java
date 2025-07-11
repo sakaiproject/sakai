@@ -18,8 +18,10 @@ package org.sakaiproject.grading.api;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -47,7 +49,7 @@ public class CategoryDefinition implements Serializable {
     private Boolean equalWeight;
     private Integer categoryOrder;
     private Boolean dropKeepEnabled;
-    private List<Assignment> assignmentList;
+    private List<Assignment> assignmentList = new ArrayList<>();
     public static Comparator<CategoryDefinition> orderComparator;
 
     public CategoryDefinition() { }
@@ -86,15 +88,13 @@ public class CategoryDefinition implements Serializable {
      *
      * @return the sum of all assignment totals associated with this category
      */
-    public Double getTotalPoints() {
-        BigDecimal totalPoints = new BigDecimal(0);
+    public Double getTotalPoints(GradeType gradeType, Double maxPoints) {
 
-        if (getAssignmentList() != null) {
-            for (final Assignment assignment : getAssignmentList()) {
-                totalPoints = totalPoints.add(BigDecimal.valueOf(assignment.getPoints()));
-            }
+        if (gradeType != GradeType.LETTER) {
+            return getAssignmentList().stream().collect(Collectors.summingDouble(Assignment::getPoints));
+        } else {
+            return getAssignmentList().size() * maxPoints;
         }
-        return totalPoints.doubleValue();
     }
 
     public boolean isAssignmentInThisCategory(String assignmentId) {

@@ -478,7 +478,7 @@ public interface GradingService extends EntityProducer {
      *         validating a list of student/grade pairs for a single gradebook (more efficient than calling gradeIsValid repeatedly).
      *         returns empty list if all grades are valid
      */
-    public List<String> identifyStudentsWithInvalidGrades(String gradebookUid, Map<String, String> studentIdToGradeMap);
+    public Set<String> identifyStudentsWithInvalidGrades(String gradebookUid, Map<String, String> studentIdToGradeMap);
 
     /**
      * Save a student score and comment for a gradebook item. The input score must be valid according to the given gradebook's grade entry
@@ -521,7 +521,7 @@ public interface GradingService extends EntityProducer {
      * @param gradebookUid
      * @return the constant representation of the grade entry type (ie points, %, letter grade)
      */
-    public Integer getGradeEntryType(String gradebookUid);
+    public GradeType getGradeEntryType(String gradebookUid);
 
     /**
      * Get student's assignment's score as string.
@@ -587,12 +587,11 @@ public interface GradingService extends EntityProducer {
      * @param studentUuid uuid of the student
      * @param categoryId id of category
      * @param isInstructor will determine whether category score includes non-released items
-     * @param categoryType category type of the gradebook
      * @param equalWeightAssignments whether category is equal-weighting regardless of points
      * @return percentage and dropped items, or empty if no calculations were made
      *
      */
-    Optional<CategoryScoreData> calculateCategoryScore(Long gradebookId, String studentUuid, Long categoryId, boolean includeNonReleasedItems, Integer categoryType, Boolean equalWeightAssignments);
+    Optional<CategoryScoreData> calculateCategoryScore(Long gradebookId, String studentUuid, Long categoryId, boolean includeNonReleasedItems, Boolean equalWeightAssignments);
 
     /**
      * Calculate the category score for the given gradebook, category, assignments in the category and grade map. This doesn't do any
@@ -607,7 +606,7 @@ public interface GradingService extends EntityProducer {
      * @param includeNonReleasedItems relevant for student view
      * @return percentage and dropped items, or empty if no calculations were made
      */
-    Optional<CategoryScoreData> calculateCategoryScore(Object gradebook, String studentUuid, CategoryDefinition category,
+    Optional<CategoryScoreData> calculateCategoryScore(Gradebook gradebook, String studentUuid, CategoryDefinition category,
             final List<Assignment> categoryAssignments, Map<Long, String> gradeMap, boolean includeNonReleasedItems);
 
     /**
@@ -1003,4 +1002,19 @@ public interface GradingService extends EntityProducer {
     public void initializeGradebooksForSite(String siteId);
     public Double convertStringToDouble(final String doubleAsString);
 
+    /**
+     * Get the maximum letter grade for the given grade mapping
+     *
+     * @param gradeMap
+     * @return An optional containing the maximum letter grade
+     */
+    public Optional<String> getMaxLetterGrade(Map<String, Double> gradeMap);
+
+    /**
+     * Get the maximum points for the given grade mapping
+     *
+     * @param gradeMap
+     * @return An optional containing the maximum points
+     */
+    public Optional<Double> getMaxPoints(Map<String, Double> gradeMap);
 }
