@@ -710,7 +710,7 @@ export const graderRenderingMixin = Base => class extends Base {
 
             <div class="text-feedback">
             </div>
-            ${this._submission.submittedTime && !this._submission.showExtension ? html`
+            ${this._submission.submittedTime ? html`
               <div class="resubmission-checkbox">
                 <label>
                   <input type="checkbox" .checked=${this._showResubmission} @change="${this._toggleResubmissionBlock}"/>
@@ -736,7 +736,7 @@ export const graderRenderingMixin = Base => class extends Base {
                 </div>
               ` : nothing }
             ` : nothing }
-            ${this._submission.showExtension ? html`
+            ${!this._submission.submittedTime ? html`
               <div id="grader-extension-section" class="mt-2">
                 <input type="checkbox" .checked=${this._allowExtension} id="allowExtensionToggle" name="allowExtensionToggle" @change=${this._toggleExtensionBlock} />
                 <label for="allowExtensionToggle" >${this._i18n.allowExtension}</label>
@@ -883,4 +883,3 @@ export const graderRenderingMixin = Base => class extends Base {
     `;
   }
 };
-

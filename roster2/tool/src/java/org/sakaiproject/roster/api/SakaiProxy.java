@@ -280,7 +280,7 @@ public interface SakaiProxy {
 	/**
 	 * Attempts to retrieve the search index for the specified site.
 	 */
-    public Map<String, String> getSearchIndex(String siteId, String userId, String groupId, String roleId, String enrollmentSetId, String enrollmentStatus);
+    public List<Map<String, String>> getSearchIndex(String siteId, String userId, String groupId, String roleId, String enrollmentSetId, String enrollmentStatus);
 
     public Map<String, SitePresenceTotal> getPresenceTotalsForSite(String siteId);
 

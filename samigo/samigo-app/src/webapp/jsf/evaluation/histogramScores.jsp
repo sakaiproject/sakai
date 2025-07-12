@@ -100,25 +100,27 @@ $Id$
               </h:selectOneMenu>
             </label>
           </h:panelGroup>
-          <div class="dropdown">
-            <button class="btn btn-link dropdown-toggle" name="Export Button" type="button" data-bs-toggle="dropdown">
-              <h:outputText value="#{evaluationMessages.export}" />
-              <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu row">
-              <li>
-                <h:outputLink value="#{histogramScores.exportStatisticsPdf}" styleClass="d-block" title="#{evaluationMessages.export_as_pdf}" target="_blank">
-                  <h:outputText value="#{evaluationMessages.export_pdf}" />
-                </h:outputLink>
-              </li>
-              <li>
-                <h:outputLink value="#{histogramScores.exportStatisticsXlsx}" styleClass="d-block" title="#{evaluationMessages.export_as_xlsx}" target="_blank">
-                  <h:outputText value="#{evaluationMessages.export_xlsx}" />
-                </h:outputLink>
-              </li>
-            </ul>
-          </div>
+          <h:panelGroup rendered="#{authorization.gradeAnyAssessment or authorization.gradeOwnAssessment}">
+            <div class="dropdown">
+              <button class="btn btn-link dropdown-toggle" name="Export Button" type="button" data-bs-toggle="dropdown">
+                <h:outputText value="#{evaluationMessages.export}" />
+                <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu row">
+                <li>
+                  <h:outputLink value="#{histogramScores.exportStatisticsPdf}" styleClass="d-block" title="#{evaluationMessages.export_as_pdf}" target="_blank">
+                    <h:outputText value="#{evaluationMessages.export_pdf}" />
+                  </h:outputLink>
+                </li>
+                <li>
+                  <h:outputLink value="#{histogramScores.exportStatisticsXlsx}" styleClass="d-block" title="#{evaluationMessages.export_as_xlsx}" target="_blank">
+                    <h:outputText value="#{evaluationMessages.export_xlsx}" />
+                  </h:outputLink>
+                </li>
+              </ul>
+            </div>
           </h:panelGroup>
+        </h:panelGroup>
 
           <script type="text/javascript" src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
 

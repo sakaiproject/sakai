@@ -95,6 +95,7 @@ public class ExportPanel extends BasePanel {
 	boolean includeLastLogDate = false;
 	boolean includeCalculatedGrade = false;
 	boolean includeGradeOverride = false;
+	boolean stuNumVisible = false;
 	GbGroup group;
 
 	private Component customDownloadLink;
@@ -137,7 +138,7 @@ public class ExportPanel extends BasePanel {
 			}
 		});
 		
-		final boolean stuNumVisible = businessService.isStudentNumberVisible(currentSiteId);
+		this.stuNumVisible = businessService.isStudentNumberVisible(currentSiteId);
 		add(new AjaxCheckBox("includeStudentNumber", Model.of(this.includeStudentNumber)) {
 			private static final long serialVersionUID = 1L;
 
@@ -150,7 +151,7 @@ public class ExportPanel extends BasePanel {
 			@Override
 			public boolean isVisible()
 			{
-				return stuNumVisible;
+				return ExportPanel.this.stuNumVisible;
 			}
 		});
 
@@ -353,7 +354,7 @@ public class ExportPanel extends BasePanel {
 				if (isCustomExport && this.includeStudentDisplayId) {
 					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.studentDisplayId")));
 				}
-				if (this.includeStudentNumber) {
+				if (this.stuNumVisible && (!isCustomExport || this.includeStudentNumber)) {
 					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.studentNumber")));
 				}
 				if (isCustomExport && this.includeSectionMembership) {
@@ -460,7 +461,7 @@ public class ExportPanel extends BasePanel {
 					if (isCustomExport && this.includeStudentDisplayId) {
 						line.add(studentGradeInfo.getStudentDisplayId());
 					}
-					if (this.includeStudentNumber)
+					if (this.stuNumVisible && (!isCustomExport || this.includeStudentNumber))
 					{
 						line.add(studentGradeInfo.getStudentNumber());
 					}
