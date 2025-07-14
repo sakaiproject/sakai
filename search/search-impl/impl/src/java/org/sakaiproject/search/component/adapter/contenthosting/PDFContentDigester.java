@@ -64,8 +64,6 @@ public class PDFContentDigester extends BaseContentDigester
 				
 				// Include the literal filename at the beginning of the indexed content
 				cw.write(fileName + "\n");
-
-				System.out.println("content: " + cw.toString());
 				
 				stripper.writeText(pddoc, cw);
 				return SearchUtils.appendCleanString(cw.toCharArray(),null).toString();
