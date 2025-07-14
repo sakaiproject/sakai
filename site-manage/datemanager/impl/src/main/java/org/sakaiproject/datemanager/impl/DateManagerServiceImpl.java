@@ -802,7 +802,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 							}
 						}
 					}
-					gbitem = gradingService.getAssignmentById(groupId, itemId);
+					gbitem = gradingService.getAssignment(groupId, getCurrentSiteId(), itemId);
 				} else {
 					gbitem = gradingService.getAssignment(getCurrentSiteId(), getCurrentSiteId(), itemId);
 				}
