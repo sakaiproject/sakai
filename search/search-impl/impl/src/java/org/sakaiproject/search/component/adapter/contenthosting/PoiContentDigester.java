@@ -30,6 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.extractor.ExtractorFactory;
 import org.apache.poi.extractor.POITextExtractor;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.entity.api.ResourceProperties;
 
 /**
  * @author ieb
@@ -67,10 +68,19 @@ public class PoiContentDigester extends BaseContentDigester
 
 		try
 		{
+			// Get the literal filename with extension
+			ResourceProperties props = contentResource.getProperties();
+			String fileName = props.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+			
 			contentStream = contentResource.streamContent();			
 			POITextExtractor DocExt = ExtractorFactory.createExtractor(contentStream);
+			
+			// Include the filename at the start of the indexed content
+			StringBuilder sb = new StringBuilder();
+			sb.append(fileName).append("\n");
+			sb.append(DocExt.getText());
 
-			return DocExt.getText();
+			return sb.toString();
 		}
 		catch (Exception e)
 		{
