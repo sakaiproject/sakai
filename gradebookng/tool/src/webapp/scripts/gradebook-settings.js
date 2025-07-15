@@ -149,7 +149,7 @@ window.addEventListener("DOMContentLoaded", e => {
   const triggers = document.querySelectorAll("#gradebookSettings .accordion-collapse");
 
   document.getElementById("gb-settings-expand-all")?.addEventListener("click", e => {
-		triggers.forEach(el => bootstrap.Collapse.getOrCreateInstance(el)?.show());
+    triggers.forEach(el => bootstrap.Collapse.getOrCreateInstance(el)?.show());
   });
 
   document.getElementById("gb-settings-collapse-all")?.addEventListener("click", e => {
