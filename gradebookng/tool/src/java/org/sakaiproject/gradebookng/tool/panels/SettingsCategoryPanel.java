@@ -56,6 +56,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.util.convert.ConversionException;
 import org.apache.wicket.util.convert.IConverter;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
@@ -155,16 +156,27 @@ public class SettingsCategoryPanel extends BasePanel {
 		final WebMarkupContainer settingsCategoriesAccordionButton = new WebMarkupContainer("settingsCategoriesAccordionButton");
 		final WebMarkupContainer settingsCategoriesPanel = new WebMarkupContainer("settingsCategoriesPanel");
 		
-		// Set initial state for Bootstrap accordion (no AJAX behavior)
-		if (this.expanded) {
-			settingsCategoriesPanel.add(new AttributeModifier("class", "accordion-collapse collapse show"));
-			settingsCategoriesAccordionButton.add(new AttributeModifier("class", "accordion-button fw-bold"));
-			settingsCategoriesAccordionButton.add(new AttributeModifier("aria-expanded", "true"));
-		} else {
-			settingsCategoriesPanel.add(new AttributeModifier("class", "accordion-collapse collapse"));
-			settingsCategoriesAccordionButton.add(new AttributeModifier("class", "accordion-button collapsed fw-bold"));
-			settingsCategoriesAccordionButton.add(new AttributeModifier("aria-expanded", "false"));
-		}
+		// Set up accordion behavior
+		setupAccordionBehavior(settingsCategoriesAccordionButton, settingsCategoriesPanel, this.expanded, 
+			new AccordionStateUpdater() {
+				@Override
+				public void updateState(boolean newState) {
+					SettingsCategoryPanel.this.expanded = newState;
+					
+					// When expanding the panel, reinitialize the drag functionality
+					if (newState) {
+						AjaxRequestTarget target = RequestCycle.get().find(AjaxRequestTarget.class).orElse(null);
+						if (target != null) {
+							target.appendJavaScript("sakai.gradebookng.settings.categories = new GradebookCategorySettings($('#settingsCategories'));");
+						}
+					}
+				}
+				
+				@Override
+				public boolean getState() {
+					return SettingsCategoryPanel.this.expanded;
+				}
+			});
 		
 		add(settingsCategoriesPanel);
 		add(settingsCategoriesAccordionButton);
