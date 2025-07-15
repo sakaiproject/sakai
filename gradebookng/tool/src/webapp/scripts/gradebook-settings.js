@@ -153,6 +153,6 @@ window.addEventListener("DOMContentLoaded", e => {
   });
 
   document.getElementById("gb-settings-collapse-all")?.addEventListener("click", e => {
-		triggers.forEach(el => bootstrap.Collapse.getOrCreateInstance(el)?.hide());
+    triggers.forEach(el => bootstrap.Collapse.getOrCreateInstance(el)?.hide());
   });
 });
