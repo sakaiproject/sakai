@@ -87,12 +87,8 @@ public class SanslanContentDigester extends BaseContentDigester {
                 }
                 log.debug("got metadata: {}", sb.toString());
                 return sb.toString();
-            } catch (ImagingException e) {
-                log.error(e.getMessage(), e);
-                // Even if we can't get metadata, return the filename for searchability
-                return sb.toString();
-            } catch (IOException e) {
-                log.error(e.getMessage(), e);
+            } catch (ImagingException | IOException e) {
+                log.error("Failed to extract metadata from image file {}, returning only filename for searchability", fileName, e);
                 // Even if we can't get metadata, return the filename for searchability
                 return sb.toString();
             }
