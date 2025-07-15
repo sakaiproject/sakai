@@ -159,7 +159,7 @@
 }
 
 .Mrphs-sakai-forums #msgForum a.button.markAsReadIcon::before{
-	content: "\F132";
+	content: "\F32C";
 	font-family: bootstrap-icons;
 	position: absolute;
 	top: 50%;
@@ -168,7 +168,7 @@
 }
 
 .Mrphs-sakai-forums #msgForum a.markAsReadIcon:hover::before{
-	content: "\F133";
+	content: "\F32D";
 	font-family: bootstrap-icons;
 }
 .messagesFlat,.messagesThreaded{
@@ -649,4 +649,19 @@ img.authorImage {
 
 .openDateSpan {
 	display: block;
+}
+
+/* Draft forum topic styling - topics in draft forums appear unavailable to students */
+.draft-forum-topic {
+	color: #666;
+	opacity: 0.6;
+}
+
+.draft-forum-topic a {
+	color: #666 !important;
+	text-decoration: none;
+}
+
+.draft-forum-topic a:hover {
+	color: #333 !important;
 }

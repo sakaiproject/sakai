@@ -15,15 +15,11 @@
  */
 package org.sakaiproject.profile2.logic;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.profile2.model.MimeTypeByteArray;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SiteService.SiteTitleValidationStatus;
-import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.user.api.User;
 
 /**
@@ -35,32 +31,11 @@ import org.sakaiproject.user.api.User;
 public interface SakaiProxy {
 
 	/**
-	 * Get current siteid
-	 *
-	 * @return
-	 */
-	public String getCurrentSiteId();
-
-	/**
 	 * Get current user id
 	 *
 	 * @return
 	 */
 	public String getCurrentUserId();
-
-	/**
-	 * Get current user
-	 *
-	 * @return
-	 */
-	public User getCurrentUser();
-
-	/**
-	 * Convert internal userid to eid (jsmith26)
-	 *
-	 * @return
-	 */
-	public String getUserEid(String userId);
 
 	/**
 	 * Convert eid to internal userid
@@ -96,22 +71,6 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	public String getUserEmail(String userId);
-
-	/**
-	 * Check if a user with the given internal id (ie 6ec73d2a-b4d9-41d2-b049-24ea5da03fca) exists
-	 *
-	 * @param userId
-	 * @return
-	 */
-	public boolean checkForUser(String userId);
-
-	/**
-	 * Check if a user with the given eid (ie jsmith26) exists
-	 *
-	 * @param userId
-	 * @return
-	 */
-	public boolean checkForUserByEid(String eid);
 
 	/**
 	 * Is the current user a superUser? (anyone in admin realm)
@@ -164,55 +123,12 @@ public interface SakaiProxy {
 	public User getUserQuietly(String userId);
 
 	/**
-	 * Get the title of the current tool. If no current tool is set, returns 'Profile'.
-	 *
-	 * @return
-	 */
-	public String getCurrentToolTitle();
-
-	/**
-	 * Get a list of Users for the given userIds
-	 *
-	 * @param userUuids uuids
-	 * @return List<User>
-	 */
-	public List<User> getUsers(List<String> userUuids);
-
-	/**
-	 * Get a list of uuids for each of the given Users
-	 *
-	 * @param users Users
-	 * @return List<String> of uuids
-	 */
-	public List<String> getUuids(List<User> users);
-
-	/**
 	 * Get a SakaiPerson for a user
 	 *
 	 * @param userId
 	 * @return
 	 */
 	public SakaiPerson getSakaiPerson(String userId);
-
-	/**
-	 * Get a SakaiPerson Jpeg photo for a user. Checks UserMutableType record first, then goes for SystemMutableType if none.
-	 * <p>
-	 * Returns null if nothing found.
-	 *
-	 * @param userId
-	 * @return
-	 */
-	public byte[] getSakaiPersonJpegPhoto(String userId);
-
-	/**
-	 * Get a SakaiPerson image URL for a user. Checks UserMutableType record first, then goes for SystemMutableType if none.
-	 * <p>
-	 * Returns null if nothing found.
-	 *
-	 * @param userId
-	 * @return
-	 */
-	public String getSakaiPersonImageUrl(String userId);
 
 	/**
 	 * Get a SakaiPerson prototype if they don't have a profile.
@@ -246,13 +162,6 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	public boolean updateSakaiPerson(SakaiPerson sakaiPerson);
-
-	/**
-	 * Get the maximum filesize that can be uploaded (profile2.picture.max=2)
-	 *
-	 * @return
-	 */
-	public int getMaxProfilePictureSize();
 
 	/**
 	 * Get the location for a profileImage given the user and type
@@ -301,55 +210,11 @@ public interface SakaiProxy {
 	public void postEvent(String event, String reference, boolean modify);
 
 	/**
-	 * Get the name of this Sakai installation (ie Sakai@Lancs)
-	 *
-	 * @return
-	 */
-	public String getServiceName();
-
-	/**
-	 * Gets the portalUrl configuration parameter (ie http://sakai.lancs.ac.uk/portal) Will not work outside of /portal context (ie won't
-	 * work from an entityprovider)
-	 *
-	 * @return
-	 */
-	public String getPortalUrl();
-
-	/**
 	 * Gets the serverUrl configuration parameter (http://sakai.lancs.ac.uk:8080)
 	 *
 	 * @return
 	 */
 	public String getServerUrl();
-
-	/**
-	 * Get the DNS name of this Sakai server (ie sakai.lancs.ac.uk)
-	 *
-	 * @return
-	 */
-	public String getServerName();
-
-	/**
-	 * Get the URL to the current user's my workspace
-	 *
-	 * @return
-	 */
-	public String getUserHomeUrl();
-
-	/**
-	 * Gets the portal path, generally /portal unless override in sakai.properties
-	 *
-	 * @return
-	 */
-	public String getPortalPath();
-
-	/**
-	 * Are we using the normal /portal? Deep links are broken in xsl-portal, so we need a workaround to drop the toolstate param. See
-	 * PRFL-264
-	 *
-	 * @return
-	 */
-	public boolean isUsingNormalPortal();
 
 	/**
 	 * Gets the full portal url by adding getServerUrl() and getPortalPath() together This WILL work outside the portal context so safe to
@@ -375,17 +240,6 @@ public interface SakaiProxy {
 	 * @param email
 	 */
 	public void updateNameForUser(String userId, String firstName, String lastName);
-
-	/**
-	 * Creates a direct URL to a user's profile page on their My Workspace Any other parameters supplied in string are appended and encoded.
-	 *
-	 * @param userId uuid of the user
-	 * @param extraParams any extra params to add to the query string
-	 * @return
-	 * @deprecated
-	 */
-	@Deprecated
-	public String getDirectUrlToUserProfile(String userId, String extraParams);
 
 	/**
 	 * Creates a direct URL to a component (profile, messages etc) of a user's profile page on their My Workspace
@@ -436,37 +290,21 @@ public interface SakaiProxy {
 	/**
 	 * Get the profile2.picture.type setting in sakai.properties
 	 * <p>
-	 * Possible values for the sakai property are 'upload', 'url', 'official' and 'gravatar'. If not set, defaults to 'upload'.
+	 * Possible values for the sakai property are 'upload', 'url' and 'official'. If not set, defaults to 'upload'.
 	 * </p>
 	 * <p>
 	 * This returns an int which matches one of: ProfileConstants.PICTURE_SETTING_UPLOAD, ProfileConstants.PICTURE_SETTING_URL,
-	 * ProfileConstants.PICTURE_SETTING_OFFICIAL, ProfileConstants.PICTURE_SETTINGS_GRAVATAR.
+	 * ProfileConstants.PICTURE_SETTING_OFFICIAL.
 	 * </p>
 	 *
 	 * <p>
 	 * Depending on this setting, Profile2 will decide how it retrieves a user's profile image, and the method by which users can add their
-	 * own image. ie by uploading their own image, providing a URL, not at all (for official), or creating a gravatar URL
+	 * own image. ie by uploading their own image, providing a URL, or not at all (for official)
 	 * </p>
 	 *
 	 * @return
 	 */
 	public int getProfilePictureType();
-
-	/**
-	 * Gets the profile2.profile.entity.set.academic list of properties that should be used in the academic profile view. Returns default
-	 * list of ProfileConstants.ENTITY_SET_ACADEMIC if none.
-	 *
-	 * @return
-	 */
-	public List<String> getAcademicEntityConfigurationSet();
-
-	/**
-	 * Gets the profile2.profile.entity.set.minimal list of properties that should be used in the minimal profile view. Returns default list
-	 * of ProfileConstants.ENTITY_SET_MINIMAL if none.
-	 *
-	 * @return
-	 */
-	public List<String> getMinimalEntityConfigurationSet();
 
 	/**
 	 * Convenience method to ensure the given userId(eid or internal id) is returned as a valid uuid.
@@ -479,21 +317,6 @@ public interface SakaiProxy {
 	 * @return uuid or null
 	 */
 	public String ensureUuid(String userId);
-
-	/**
-	 * Convenience method to check if the user making a request is the same as the current user
-	 *
-	 * @param userUuid uuid to check against current user
-	 * @return
-	 */
-	public boolean currentUserMatchesRequest(String userUuid);
-
-	/**
-	 * Gets the profile2.invisible.users List for user's that should never show in searches or connection lists
-	 *
-	 * @return
-	 */
-	public List<String> getInvisibleUsers();
 
 	/**
 	 * Toggle a profile's locked status.
@@ -574,45 +397,6 @@ public interface SakaiProxy {
 	public String getOfficialImageAttribute();
 
 	/**
-	 * Get a UUID from the IdManager
-	 *
-	 * @return
-	 */
-	public String createUuid();
-
-	/**
-	 * Does the user have a current Sakai session
-	 *
-	 * @param userUuid user to check
-	 * @return true/false
-	 */
-	public boolean isUserActive(String userUuid);
-
-	/**
-	 * Get the list of users with active Sakai sessions, given the supplied list of userIds.
-	 *
-	 * @param userUuids List of users to check
-	 * @return List of userUuids that have active Sakai sessions
-	 */
-	public List<String> getActiveUsers(List<String> userUuids);
-
-	/**
-	 * Get the last event time for the user.
-	 *
-	 * @param userUuid user to check
-	 * @return Long of time in milliseconds since epoch, or null if no event.
-	 */
-	public Long getLastEventTimeForUser(String userUuid);
-
-	/**
-	 * Get the last event time for each of the given users
-	 *
-	 * @param userUuids users to check
-	 * @return Map of userId to Long of time in milliseconds since epoch, or null if no event.
-	 */
-	public Map<String, Long> getLastEventTimeForUsers(List<String> userUuids);
-
-	/**
 	 * Generic method to get a configuration parameter from sakai.properties
 	 *
 	 * @param key key of property
@@ -648,95 +432,11 @@ public interface SakaiProxy {
 	public boolean checkForSite(String siteId);
 
 	/**
-	 * Is profile2.gravatar.image.enabled true? If so, allow use of this image and preference.
-	 *
-	 * @return
-	 */
-	public boolean isGravatarImageEnabledGlobally();
-
-	/**
-	 * Does user have site.add permission?
-	 *
-	 * @return <code>true</code> if user allowed to create worksites, else <code>false</code>.
-	 */
-	public boolean isUserAllowedAddSite(String userUuid);
-
-	/**
-	 * Add a new site.
-	 *
-	 * @param id the id of the site.
-	 * @param type the type of the site e.g. project.
-	 * @return a reference to the new site or <code>null</code> if there is a problem creating the site.
-	 */
-	public Site addSite(String id, String type);
-
-	/**
-	 * Save an existing site.
-	 *
-	 * @param site a reference to the site to save.
-	 * @return <code>true</code> if successful, otherwise <code>false</code>.
-	 */
-	public boolean saveSite(Site site);
-
-	/**
-	 * Return a reference to the specified site.
-	 *
-	 * @param siteId
-	 * @return a reference to the specified site.
-	 */
-	public Site getSite(String siteId);
-
-	/**
-	 * Return all user sites for the current user (i.e. worksites that the user has at least 'access' permission to).
-	 *
-	 * @return all user sites for the current user.
-	 */
-	public List<Site> getUserSites();
-
-	/**
-	 * Returns a reference to the specified Sakai tool.
-	 *
-	 * @param id the id of the tool required.
-	 * @return a reference to the specified Sakai tool or <code>null</code> if a reference cannot be obtained.
-	 */
-	public Tool getTool(String id);
-
-	/**
-	 * Returns a list of the tool types required for the specified site type.
-	 *
-	 * @param category the type of site e.g. 'project'
-	 * @return a list of the tool types required for the specified site type
-	 */
-	public List<String> getToolsRequired(String category);
-
-	/**
-	 * Is the profile2.integration.google.enabled flag set to true in sakai.properties? If not set, defaults to false
-	 *
-	 * <p>
-	 * Depending on this setting, the UI will allow a user to add their Google account. For institutions to use this there additional setup
-	 * required.
-	 * </p>
-	 *
-	 * @return
-	 */
-	public boolean isGoogleIntegrationEnabledGlobally();
-
-	/**
 	 * Helper to check if the current user is logged in
 	 *
 	 * @return
 	 */
 	public boolean isLoggedIn();
-
-	/**
-	 * Is the profile2.profile.fields.enabled flag set in sakai.properties? If not set, defaults to true.
-	 *
-	 * <p>
-	 * This setting controls the display of the profile fields.
-	 *
-	 * @return true or false.
-	 */
-	public boolean isProfileFieldsEnabled();
 
 	/**
 	 * Is the profile2.profile.social.enabled flag set in sakai.properties? If not set, defaults to true.
@@ -763,25 +463,6 @@ public interface SakaiProxy {
 	 * @return <code>true</code> if the profile2.menu.enabled flag is set, otherwise returns <code>false</code>.
 	 */
 	public boolean isMenuEnabledGlobally();
-
-	/**
-	 * Is the profile2.preference.enabled flag set in sakai.properties? If not set, defaults to true.
-	 *
-	 * <p>
-	 * If enabled, the ability to modify one's preferences within profile will be available.
-	 * </p>
-	 *
-	 * @return <code>true</code> if the profile2.preference.enabled flag is set, otherwise returns <code>false</code>.
-	 */
-	public boolean isPreferenceEnabledGlobally();
-
-	/**
-	 * Given the original and stripped site titles, determine that validation status of the stripped string.
-	 * @param orig the original, unaltered text as input by the user
-	 * @param stripped the HTML stripped text
-	 * @return {@link SiteTitleValidationStatus}
-	 */
-	public SiteTitleValidationStatus validateSiteTitle(String orig, String stripped);
 
 	/**
 	 * Returns the name pronunciation examples link

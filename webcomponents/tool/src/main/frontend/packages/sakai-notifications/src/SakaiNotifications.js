@@ -476,7 +476,7 @@ export class SakaiNotifications extends SakaiElement {
         ` : nothing}
 
         <div class="d-flex justify-content-between my-2">
-          ${this._online && Notification.permission === "granted" ? html`
+          ${this._online && this.pushEnabled && Notification.permission === "granted" ? html`
             <div>
               <button class="btn ${this._highlightTestButton ? "btn-primary" : "btn-secondary"} btn-sm"
                   @click=${this._sendTestNotification}>

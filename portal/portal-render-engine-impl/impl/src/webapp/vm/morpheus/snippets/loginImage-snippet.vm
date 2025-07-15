@@ -2,11 +2,11 @@
 
     #if (${loginHasImage1})
 
-        <a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" class="btn btn-dark btn-outline-light mb-1 p-3 my-1" role="button" data-warning="${logoutWarningMessage}"><img src="${loginImage1}" alt="${loginMessage}"></a>
+        <a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" class="btn btn-dark btn-primary mb-1 p-3 my-1" role="button" data-warning="${logoutWarningMessage}"><img src="${loginImage1}" alt="${loginMessage}"></a>
 
     #else
 
-        <a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" class="btn btn-dark btn-outline-light mb-1 p-3 my-1" role="button" data-warning="${logoutWarningMessage}">
+        <a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" class="btn btn-dark btn-primary mb-1 p-3 my-1" role="button" data-warning="${logoutWarningMessage}">
             <i class="login-Icon"></i>
             <span>${loginMessage}</span>
         </a>
@@ -17,11 +17,11 @@
 
         #if (${loginHasImage2})
 
-            <a href="${loginLogInOutUrl2}" title="${loginMessage2}" id="loginLink2" class="btn btn-dark btn-outline-light mb-1 p-3 my-1" role="button"><img src="${loginImage2}" alt="${loginMessage2}"></a>
+            <a href="${loginLogInOutUrl2}" title="${loginMessage2}" id="loginLink2" class="btn btn-dark btn-primary mb-1 p-3 my-1" role="button"><img src="${loginImage2}" alt="${loginMessage2}"></a>
 
         #else
 
-            <a href="${loginLogInOutUrl2}" title="${loginMessage2}" id="loginLink2" class="btn btn-dark btn-outline-light mb-1 p-3 my-1" role="button">
+            <a href="${loginLogInOutUrl2}" title="${loginMessage2}" id="loginLink2" class="btn btn-dark btn-primary mb-1 p-3 my-1" role="button">
                 <i class="login-Icon"></i>
                 <span>${loginMessage2}</span>
             </a>

@@ -45,21 +45,12 @@
     	init-method="init">
     	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
     	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
-    	<property name="preferencesLogic" ref="org.sakaiproject.profile2.logic.ProfilePreferencesLogic" />
     	<property name="imageLogic" ref="org.sakaiproject.profile2.logic.ProfileImageLogic" />
-    	<property name="linkLogic" ref="org.sakaiproject.profile2.logic.ProfileLinkLogic" />
 	</bean>
 	
 	<!-- ProfileLinkLogic -->
 	<bean id="org.sakaiproject.profile2.logic.ProfileLinkLogic"
     	class="org.sakaiproject.profile2.logic.ProfileLinkLogicImpl">
-    	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
-    </bean>
-    
-    <!-- ProfilePreferencesLogic -->
-	<bean id="org.sakaiproject.profile2.logic.ProfilePreferencesLogic"
-    	class="org.sakaiproject.profile2.logic.ProfilePreferencesLogicImpl">
-    	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
     	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
     </bean>
     
@@ -69,7 +60,6 @@
     	init-method="init">
     	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
     	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
-    	<property name="preferencesLogic" ref="org.sakaiproject.profile2.logic.ProfilePreferencesLogic" />
     	<property name="cacheManager" ref="org.sakaiproject.profile2.cache.CacheManager" />
     	<property name="profileLogic" ref="org.sakaiproject.profile2.logic.ProfileLogic" />
     </bean>
@@ -97,7 +87,6 @@
 	       	<value>org/sakaiproject/profile2/hbm/ProfileImageExternal.hbm.xml</value>
 	        <value>org/sakaiproject/profile2/hbm/ProfileImageOfficial.hbm.xml</value>
 	       	<value>org/sakaiproject/profile2/hbm/ProfileImageUploaded.hbm.xml</value>
-	       	<value>org/sakaiproject/profile2/hbm/ProfilePreferences.hbm.xml</value>
 	       	<value>org/sakaiproject/profile2/hbm/SakaiPersonMeta.hbm.xml</value>
 	        <value>org/sakaiproject/profile2/hbm/SocialNetworkingInfo.hbm.xml</value>
 	      </list>

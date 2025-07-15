@@ -15,10 +15,7 @@
  */
 package org.sakaiproject.profile2.logic;
 
-import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,21 +36,16 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.ActivityService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
-import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
-import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.profile2.model.MimeTypeByteArray;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.site.api.SiteService.SelectionType;
-import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -73,29 +65,8 @@ public class SakaiProxyImpl implements SakaiProxy {
 	private static ResourceLoader rb = new ResourceLoader("ProfileApplication");
 
 	@Override
-	public String getCurrentSiteId() {
-		return this.toolManager.getCurrentPlacement().getContext();
-	}
-
-	@Override
 	public String getCurrentUserId() {
 		return this.sessionManager.getCurrentSessionUserId();
-	}
-
-	@Override
-	public User getCurrentUser() {
-		return this.userDirectoryService.getCurrentUser();
-	}
-
-	@Override
-	public String getUserEid(final String userId) {
-		String eid = null;
-		try {
-			eid = this.userDirectoryService.getUser(userId).getEid();
-		} catch (final UserNotDefinedException e) {
-			log.warn("Cannot get eid for id: " + userId + " : " + e.getClass() + " : " + e.getMessage());
-		}
-		return eid;
 	}
 
 	@Override
@@ -154,34 +125,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 	}
 
 	@Override
-	public boolean checkForUser(final String userId) {
-		User u = null;
-		try {
-			u = this.userDirectoryService.getUser(userId);
-			if (u != null) {
-				return true;
-			}
-		} catch (final UserNotDefinedException e) {
-			log.info("User with id: " + userId + " does not exist : " + e.getClass() + " : " + e.getMessage());
-		}
-		return false;
-	}
-
-	@Override
-	public boolean checkForUserByEid(final String eid) {
-		User u = null;
-		try {
-			u = this.userDirectoryService.getUserByEid(eid);
-			if (u != null) {
-				return true;
-			}
-		} catch (final UserNotDefinedException e) {
-			log.info("User with eid: " + eid + " does not exist : " + e.getClass() + " : " + e.getMessage());
-		}
-		return false;
-	}
-
-	@Override
 	public boolean isSuperUser() {
 		return this.securityService.isSuperUser();
 	}
@@ -231,36 +174,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 	}
 
 	@Override
-	public String getCurrentToolTitle() {
-		final Tool tool = this.toolManager.getCurrentTool();
-		if (tool != null) {
-			return tool.getTitle();
-		} else {
-			return "Profile";
-		}
-	}
-
-	@Override
-	public List<User> getUsers(final List<String> userIds) {
-		List<User> rval = new ArrayList<>();
-		try {
-			rval = this.userDirectoryService.getUsers(userIds);
-		} catch (final Exception e) {
-			// I've seen an NPE in the logs from this call...
-		}
-		return rval;
-	}
-
-	@Override
-	public List<String> getUuids(final List<User> users) {
-		final List<String> uuids = new ArrayList<String>();
-		for (final User u : users) {
-			uuids.add(u.getId());
-		}
-		return uuids;
-	}
-
-	@Override
 	public SakaiPerson getSakaiPerson(final String userId) {
 
 		SakaiPerson sakaiPerson = null;
@@ -271,60 +184,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 			log.error("Couldn't get SakaiPerson for userId {}: ", userId, e.toString());
 		}
 		return sakaiPerson;
-	}
-
-	@Override
-	public byte[] getSakaiPersonJpegPhoto(final String userId) {
-
-		SakaiPerson sakaiPerson = null;
-		byte[] image = null;
-
-		try {
-			// try normal user type
-			sakaiPerson = this.sakaiPersonManager.getSakaiPerson(userId, this.sakaiPersonManager.getUserMutableType());
-			if (sakaiPerson != null) {
-				image = sakaiPerson.getJpegPhoto();
-			}
-			// if null try system user type as a profile might have been created with this type
-			if (image == null) {
-				sakaiPerson = this.sakaiPersonManager.getSakaiPerson(userId, this.sakaiPersonManager.getSystemMutableType());
-				if (sakaiPerson != null) {
-					image = sakaiPerson.getJpegPhoto();
-				}
-			}
-
-		} catch (final Exception e) {
-			log.error("SakaiProxy.getSakaiPersonJpegPhoto(): Couldn't get SakaiPerson Jpeg photo for: " + userId + " : " + e.getClass()
-					+ " : " + e.getMessage());
-		}
-		return image;
-	}
-
-	@Override
-	public String getSakaiPersonImageUrl(final String userId) {
-
-		SakaiPerson sakaiPerson = null;
-		String url = null;
-
-		try {
-			// try normal user type
-			sakaiPerson = this.sakaiPersonManager.getSakaiPerson(userId, this.sakaiPersonManager.getUserMutableType());
-			if (sakaiPerson != null) {
-				url = sakaiPerson.getPictureUrl();
-			}
-			// if null try system user type as a profile might have been created with this type
-			if (StringUtils.isBlank(url)) {
-				sakaiPerson = this.sakaiPersonManager.getSakaiPerson(userId, this.sakaiPersonManager.getSystemMutableType());
-				if (sakaiPerson != null) {
-					url = sakaiPerson.getPictureUrl();
-				}
-			}
-
-		} catch (final Exception e) {
-			log.error("SakaiProxy.getSakaiPersonImageUrl(): Couldn't get SakaiPerson image URL for: " + userId + " : " + e.getClass()
-					+ " : " + e.getMessage());
-		}
-		return url;
 	}
 
 	@Override
@@ -365,11 +224,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 			log.error("SakaiProxy.updateSakaiPerson(): Couldn't update SakaiPerson: " + e.getClass() + " : " + e.getMessage());
 		}
 		return false;
-	}
-
-	@Override
-	public int getMaxProfilePictureSize() {
-		return this.serverConfigurationService.getInt("profile2.picture.max", ProfileConstants.MAX_IMAGE_UPLOAD_SIZE);
 	}
 
 	@Override
@@ -487,43 +341,13 @@ public class SakaiProxyImpl implements SakaiProxy {
 	}
 
 	@Override
-	public String getServerName() {
-		return this.serverConfigurationService.getServerName();
-	}
-
-	@Override
-	public String getPortalUrl() {
-		return this.serverConfigurationService.getPortalUrl();
-	}
-
-	@Override
 	public String getServerUrl() {
 		return this.serverConfigurationService.getServerUrl();
 	}
 
 	@Override
 	public String getFullPortalUrl() {
-		return getServerUrl() + getPortalPath();
-	}
-
-	@Override
-	public String getPortalPath() {
-		return this.serverConfigurationService.getString("portalPath", "/portal");
-	}
-
-	@Override
-	public boolean isUsingNormalPortal() {
-		return StringUtils.equals(getPortalPath(), "/portal");
-	}
-
-	@Override
-	public String getUserHomeUrl() {
-		return this.serverConfigurationService.getUserHomeUrl();
-	}
-
-	@Override
-	public String getServiceName() {
-		return this.serverConfigurationService.getString("ui.service", ProfileConstants.SAKAI_PROP_SERVICE_NAME);
+		return getServerUrl() + this.serverConfigurationService.getString("portalPath", "/portal");
 	}
 
 	@Override
@@ -553,53 +377,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 		} catch (final Exception e) {
 			log.error("SakaiProxy.updateNameForUser() failed for userId: " + userId + " : " + e.getClass() + " : " + e.getMessage());
 		}
-	}
-
-	@Override
-	@Deprecated
-	public String getDirectUrlToUserProfile(final String userId, final String extraParams) {
-		final String portalUrl = getFullPortalUrl();
-		final String siteId = getUserMyWorkspace(userId);
-
-		final ToolConfiguration toolConfig = getFirstInstanceOfTool(siteId, ProfileConstants.TOOL_ID);
-		if (toolConfig == null) {
-			// if the user doesn't have the Profile2 tool installed in their My Workspace,
-			log.warn("SakaiProxy.getDirectUrlToUserProfile() failed to find " + ProfileConstants.TOOL_ID
-					+ " installed in My Workspace for userId: " + userId);
-
-			// just return a link to their My Workspace
-			final StringBuilder url = new StringBuilder();
-			url.append(portalUrl);
-			url.append("/site/");
-			url.append(siteId);
-			return url.toString();
-
-		}
-
-		final String pageId = toolConfig.getPageId();
-		final String placementId = toolConfig.getId();
-
-		try {
-			final StringBuilder url = new StringBuilder();
-			url.append(portalUrl);
-			url.append("/site/");
-			url.append(siteId);
-			url.append("/page/");
-			url.append(pageId);
-			// only if we have params to add
-			if (StringUtils.isNotBlank(extraParams)) {
-				url.append("?toolstate-");
-				url.append(placementId);
-				url.append("=");
-				url.append(URLEncoder.encode(extraParams, "UTF-8"));
-			}
-
-			return url.toString();
-		} catch (final Exception e) {
-			log.error("SakaiProxy.getDirectUrl():" + e.getClass() + ":" + e.getMessage());
-			return null;
-		}
-
 	}
 
 	@Override
@@ -710,38 +487,10 @@ public class SakaiProxyImpl implements SakaiProxy {
 		else if (StringUtils.equals(pictureType, ProfileConstants.PICTURE_SETTING_OFFICIAL_PROP)) {
 			return ProfileConstants.PICTURE_SETTING_OFFICIAL;
 		}
-		// gravatar is not an enforceable setting, hence no block here. it is purely a user preference.
-		// but can be disabled
-
 		// otherwise return default
 		else {
 			return ProfileConstants.PICTURE_SETTING_DEFAULT;
 		}
-	}
-
-	@Override
-	public List<String> getAcademicEntityConfigurationSet() {
-
-		final String configuration = this.serverConfigurationService.getString("profile2.profile.entity.set.academic",
-				ProfileConstants.ENTITY_SET_ACADEMIC);
-		final String[] parameters = StringUtils.split(configuration, ',');
-
-		final List<String> tempList = Arrays.asList(parameters);
-		final List<String> list = new ArrayList<String>(tempList);
-
-		return list;
-	}
-
-	@Override
-	public List<String> getMinimalEntityConfigurationSet() {
-		final String configuration = this.serverConfigurationService.getString("profile2.profile.entity.set.minimal",
-				ProfileConstants.ENTITY_SET_MINIMAL);
-		final String[] parameters = StringUtils.split(configuration, ',');
-
-		final List<String> tempList = Arrays.asList(parameters);
-		final List<String> list = new ArrayList<String>(tempList);
-
-		return list;
 	}
 
 	@Override
@@ -769,27 +518,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 
 		log.error("User: " + userId + " could not be found in any lookup by either id or eid");
 		return null;
-	}
-
-	@Override
-	public boolean currentUserMatchesRequest(final String userUuid) {
-
-		// get current user
-		final String currentUserUuid = getCurrentUserId();
-
-		// check match
-		if (StringUtils.equals(currentUserUuid, userUuid)) {
-			return true;
-		}
-
-		return false;
-	}
-
-	@Override
-	public List<String> getInvisibleUsers() {
-		final String config = this.serverConfigurationService.getString("profile2.invisible.users",
-				ProfileConstants.SAKAI_PROP_INVISIBLE_USERS);
-		return ProfileUtils.getListFromString(config, ProfileConstants.SAKAI_PROP_LIST_SEPARATOR);
 	}
 
 	@Override
@@ -849,31 +577,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 	}
 
 	@Override
-	public String createUuid() {
-		return this.idManager.createUuid();
-	}
-
-	@Override
-	public boolean isUserActive(final String userUuid) {
-		return this.activityService.isUserActive(userUuid);
-	}
-
-	@Override
-	public List<String> getActiveUsers(final List<String> userUuids) {
-		return this.activityService.getActiveUsers(userUuids);
-	}
-
-	@Override
-	public Long getLastEventTimeForUser(final String userUuid) {
-		return this.activityService.getLastEventTimeForUser(userUuid);
-	}
-
-	@Override
-	public Map<String, Long> getLastEventTimeForUsers(final List<String> userUuids) {
-		return this.activityService.getLastEventTimeForUsers(userUuids);
-	}
-
-	@Override
 	public String getServerConfigurationParameter(final String key, final String def) {
 		return this.serverConfigurationService.getString(key, def);
 	}
@@ -904,106 +607,13 @@ public class SakaiProxyImpl implements SakaiProxy {
 	}
 
 	@Override
-	public boolean isGravatarImageEnabledGlobally() {
-		return this.serverConfigurationService.getBoolean("profile2.gravatar.image.enabled",
-				ProfileConstants.SAKAI_PROP_PROFILE2_GRAVATAR_IMAGE_ENABLED);
-	}
-
-	@Override
-	public boolean isUserAllowedAddSite(final String userUuid) {
-		return this.siteService.allowAddSite(userUuid);
-	}
-
-	@Override
-	public Site addSite(final String id, final String type) {
-		Site site = null;
-		try {
-			site = this.siteService.addSite(id, type);
-		} catch (final IdInvalidException e) {
-			log.error(e.getMessage(), e);
-		} catch (final IdUsedException e) {
-			log.error(e.getMessage(), e);
-		} catch (final PermissionException e) {
-			log.error(e.getMessage(), e);
-		}
-
-		return site;
-	}
-
-	@Override
-	public boolean saveSite(final Site site) {
-		try {
-			this.siteService.save(site);
-		} catch (final IdUnusedException e) {
-			log.error(e.getMessage(), e);
-			return false;
-		} catch (final PermissionException e) {
-			log.error(e.getMessage(), e);
-			return false;
-		}
-		return true;
-	}
-
-	@Override
-	public Site getSite(final String siteId) {
-		try {
-			return this.siteService.getSite(siteId);
-		} catch (final IdUnusedException e) {
-			log.error(e.getMessage(), e);
-			return null;
-		}
-	}
-
-	@Override
-	public List<Site> getUserSites() {
-		return this.siteService.getSites(SelectionType.ACCESS, null, null, null, SortType.TITLE_ASC, null);
-	}
-
-	@Override
-	public Tool getTool(final String id) {
-		return this.toolManager.getTool(id);
-	}
-
-	@Override
-	public List<String> getToolsRequired(final String category) {
-		return this.serverConfigurationService.getToolsRequired(category);
-	}
-
-	@Override
-	public boolean isGoogleIntegrationEnabledGlobally() {
-		return this.serverConfigurationService.getBoolean("profile2.integration.google.enabled",
-				ProfileConstants.SAKAI_PROP_PROFILE2_GOOGLE_INTEGRATION_ENABLED);
-	}
-
-	@Override
 	public boolean isLoggedIn() {
 		return StringUtils.isNotBlank(getCurrentUserId());
 	}
 
 	@Override
-	public boolean isProfileFieldsEnabled() {
-		return this.serverConfigurationService.getBoolean("profile2.profile.fields.enabled",
-				ProfileConstants.SAKAI_PROP_PROFILE2_PROFILE_FIELDS_ENABLED);
-	}
-
-	@Override
 	public boolean isMenuEnabledGlobally() {
 		return this.serverConfigurationService.getBoolean("profile2.menu.enabled", ProfileConstants.SAKAI_PROP_PROFILE2_MENU_ENABLED);
-	}
-
-	@Override
-	public boolean isPreferenceEnabledGlobally() {
-		if (!isMenuEnabledGlobally()) {
-			return false;
-		} else {
-			return this.serverConfigurationService.getBoolean("profile2.preference.enabled",
-					ProfileConstants.SAKAI_PROP_PROFILE2_PREFERENCE_ENABLED);
-		}
-	}
-
-	@Override
-	public SiteService.SiteTitleValidationStatus validateSiteTitle(String orig, String stripped) {
-		return this.siteService.validateSiteTitle(orig, stripped);
 	}
 
 	// PRIVATE METHODS FOR SAKAIPROXY

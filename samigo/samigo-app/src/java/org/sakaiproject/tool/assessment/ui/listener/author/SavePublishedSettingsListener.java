@@ -230,7 +230,7 @@ implements ActionListener
 	    SecureDeliveryServiceAPI secureDeliveryService = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
 	    assessment.updateAssessmentMetaData(SecureDeliveryServiceAPI.MODULE_KEY, assessmentSettings.getSecureDeliveryModule() );
 	    String encryptedPassword = secureDeliveryService.encryptPassword( assessmentSettings.getSecureDeliveryModule(), assessmentSettings.getSecureDeliveryModuleExitPassword() );
-	    assessment.updateAssessmentMetaData(SecureDeliveryServiceAPI.EXITPWD_KEY, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(encryptedPassword ));
+	    assessment.updateAssessmentMetaData(SecureDeliveryServiceAPI.EXITPWD_KEY, encryptedPassword);
 
         if (SecureDeliverySeb.MODULE_NAME.equals(assessmentSettings.getSecureDeliveryModule())) {
             ConfigMode sebConfigMode = ConfigMode.valueOf(assessmentSettings.getSebConfigMode());
@@ -582,30 +582,6 @@ implements ActionListener
 				String str_err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","feedback_score_threshold_required");
 				context.addMessage(null,new FacesMessage(str_err));
 			}
-		}
-		
-		// check secure delivery exit password
-		SecureDeliveryServiceAPI secureDeliveryService = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
-		if ( secureDeliveryService.isSecureDeliveryAvaliable() ) {
-			
-			String moduleId = assessmentSettings.getSecureDeliveryModule();
-			if ( ! SecureDeliveryServiceAPI.NONE_ID.equals( moduleId ) ) {
-			
-				String exitPassword = assessmentSettings.getSecureDeliveryModuleExitPassword(); 
-				if ( exitPassword != null && exitPassword.length() > 0 ) {
-					
-					for ( int i = 0; i < exitPassword.length(); i++ ) {
-						
-						char c = exitPassword.charAt(i);
-						if ( ! (( c >= 'a' && c <= 'z' ) || ( c >= 'A' && c <= 'Z' ) || ( c >= '0' && c <= '9' )) ) {
-							error = true;
-							String  submission_err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","exit_password_error");
-							context.addMessage(null,new FacesMessage(submission_err));
-							break;
-						}
-					}					
-				}
-			}			
 		}
 
 		org.sakaiproject.grading.api.GradingService gradingService =

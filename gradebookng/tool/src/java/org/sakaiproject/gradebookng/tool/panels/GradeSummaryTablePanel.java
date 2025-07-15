@@ -106,6 +106,14 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 		final ModalWindow compareGradesWindow = new ModalWindow("compareGradesWindow");
 		addOrReplace(compareGradesWindow);
 
+		// Cache user role to avoid repeated calls
+		final GbRole userRole = this.getUserRole();
+		final boolean isInstructorOrTA = userRole == GbRole.INSTRUCTOR || userRole == GbRole.TA;
+		
+		// Cache frequently accessed values to avoid repeated calls
+		final String currentSiteId = getCurrentSiteId();
+		final GradebookInformation gbSettings = getSettings();
+
 		if (getPage() instanceof GradebookPage) {
 			final GradebookPage page = (GradebookPage) getPage();
 			final GradebookUiSettings settings = page.getUiSettings();
@@ -303,15 +311,13 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 							@Override
 							public boolean isVisible() {
 								return GradeSummaryTablePanel.
-										this.
-										serverConfigService.
-										getBoolean("gradebookng.allowStudentsToCompareGradesWithClassmates", false) &&
-										getSettings().getAllowStudentsToCompareGrades() &&
+										this.serverConfigService.getBoolean("gradebookng.allowStudentsToCompareGradesWithClassmates", false) &&
+										gbSettings.getAllowStudentsToCompareGrades() &&
 										// Inlcuding all assigments that doesn't count if this property is set
-										(getSettings().getComparingIncludeAllGrades() || assignment.getCounted())
+										(gbSettings.getComparingIncludeAllGrades() || assignment.getCounted())
 										&&
 										// Only show this to students because this panel is also accesible for instructors
-										GradeSummaryTablePanel.this.getUserRole() == GbRole.STUDENT;
+										userRole == GbRole.STUDENT;
 							}
 						};
 						assignmentItem.add(compareLink);
@@ -346,29 +352,33 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 
 						final WebMarkupContainer gradeScore = new WebMarkupContainer("gradeScore");
 						if (Objects.equals(GradingConstants.GRADE_TYPE_PERCENTAGE, gradeType)) {
+							// For percentage gradebooks, show just the percentage (e.g., "80%")
+							// Don't show the relative weight as it's confusing to students
 							gradeScore.add(new Label("grade",
 									new StringResourceModel("label.percentage.valued")
-											.setParameters(FormatHelper.formatGrade(rawGrade))) {
+											.setParameters(StringUtils.isNotBlank(rawGrade) ? 
+												FormatHelper.formatDoubleToDecimal(Double.valueOf(rawGrade)) : "")) {
 								@Override
 								public boolean isVisible() {
 									return StringUtils.isNotBlank(rawGrade);
 								}
 							});
 
+							// Hide the "/22" relative weight part for percentage gradebooks
 							gradeScore.add(new Label("outOf").setVisible(false));
 
 							final WebMarkupContainer sakaiRubricButton = new WebMarkupContainer("sakai-rubric-student-button");
 							sakaiRubricButton.add(AttributeModifier.append("display", "icon"));
-							sakaiRubricButton.add(AttributeModifier.append("site-id", getCurrentSiteId()));
+							sakaiRubricButton.add(AttributeModifier.append("site-id", currentSiteId));
 							sakaiRubricButton.add(AttributeModifier.append("tool-id", RubricsConstants.RBCS_TOOL_GRADEBOOKNG));
 							sakaiRubricButton.add(AttributeModifier.append("evaluated-item-id", assignment.getId() + "." + studentUuid));
 							sakaiRubricButton.add(AttributeModifier.append("evaluated-item-owner-id", studentUuid));
 							sakaiRubricButton.setVisible(false);
 
-							addInstructorAttributeOrHide(sakaiRubricButton, assignment, studentUuid, showingStudentView);
+							configureRubricButton(sakaiRubricButton, assignment, studentUuid, showingStudentView, isInstructorOrTA, gradeInfo);
 
 							Optional<AssociationTransferBean> optAssociation
-								= rubricsService.getAssociationForToolAndItem(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, assignment.getId().toString(), getCurrentSiteId());
+								= rubricsService.getAssociationForToolAndItem(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, assignment.getId().toString(), currentSiteId);
 							if (optAssociation.isPresent()) {
 								sakaiRubricButton.add(AttributeModifier.append("rubric-id", optAssociation.get().getRubricId()));
 								sakaiRubricButton.setVisible(true);
@@ -380,6 +390,9 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 
 							gradeScore.add(sakaiRubricButton);
 						} else {
+							// For points/letter gradebooks, show grade with "out of" points
+							log.debug("POINTS PATH: gradeType={}, rawGrade={}, assignment.getPoints()={}", 
+								gradeType, rawGrade, assignment.getPoints());
 							gradeScore.add(
 									new Label("grade", FormatHelper.convertEmptyGradeToDash(FormatHelper.formatGradeForDisplay(rawGrade))));
 							gradeScore.add(new Label("outOf",
@@ -387,13 +400,13 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 
 							final WebMarkupContainer sakaiRubricButton = new WebMarkupContainer("sakai-rubric-student-button");
 							sakaiRubricButton.add(AttributeModifier.append("display", "icon"));
-							sakaiRubricButton.add(AttributeModifier.append("site-id", getCurrentSiteId()));
+							sakaiRubricButton.add(AttributeModifier.append("site-id", currentSiteId));
 							sakaiRubricButton.setVisible(false);
 
-							addInstructorAttributeOrHide(sakaiRubricButton, assignment, studentUuid, showingStudentView);
+							configureRubricButton(sakaiRubricButton, assignment, studentUuid, showingStudentView, isInstructorOrTA, gradeInfo);
 
 							Optional<AssociationTransferBean> optAssociation
-								= rubricsService.getAssociationForToolAndItem(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, assignment.getId().toString(), getCurrentSiteId());
+								= rubricsService.getAssociationForToolAndItem(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, assignment.getId().toString(), currentSiteId);
 							if (optAssociation.isPresent()) {
 								sakaiRubricButton.add(AttributeModifier.append("rubric-id", optAssociation.get().getRubricId()));
 								sakaiRubricButton.setVisible(true);
@@ -428,12 +441,12 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 											}
 											sakaiRubricButton.add(AttributeModifier.append("entity-id", assignmentId));
 	
-											String submissionId = rubricsService.getRubricEvaluationObjectId(assignmentId, ownerId, AssignmentConstants.TOOL_ID, getCurrentSiteId());
+											String submissionId = rubricsService.getRubricEvaluationObjectId(assignmentId, ownerId, AssignmentConstants.TOOL_ID, currentSiteId);
 	                                        if (submissionId != null) {
 											    sakaiRubricButton.add(AttributeModifier.append("evaluated-item-id", submissionId));
 	                                        }
 	
-											rubricsService.getAssociationForToolAndItem(AssignmentConstants.TOOL_ID, assignmentId, getCurrentSiteId())
+											rubricsService.getAssociationForToolAndItem(AssignmentConstants.TOOL_ID, assignmentId, currentSiteId)
 												.ifPresent(assoc -> {
 														sakaiRubricButton.add(AttributeModifier.append("rubric-id", assoc.getRubricId()));
 														sakaiRubricButton.setVisible(true);
@@ -492,14 +505,17 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 		super.onBeforeRender();
 	}
 
-	private void addInstructorAttributeOrHide(WebMarkupContainer sakaiRubricButton, Assignment assignment, String studentId, boolean showingStudentView) {
+	/**
+	 * Optimized version of addInstructorAttributeOrHide that accepts pre-computed user role
+	 * to avoid repeated getUserRole() calls and reduce database lookups.
+	 */
+	private void configureRubricButton(WebMarkupContainer sakaiRubricButton, Assignment assignment, 
+			String studentId, boolean showingStudentView, boolean isInstructorOrTA, GbGradeInfo gradeInfo) {
 
-		if (!showingStudentView && (GradeSummaryTablePanel.this.getUserRole() == GbRole.INSTRUCTOR
-					|| GradeSummaryTablePanel.this.getUserRole() == GbRole.TA)) {
+		if (!showingStudentView && isInstructorOrTA) {
 			sakaiRubricButton.add(AttributeModifier.append("instructor", true));
 		} else {
-			GradeDefinition gradeDefinition = businessService.getGradeForStudentForItem(currentGradebookUid, currentSiteId, studentId, assignment.getId());
-			if (assignment.getExternallyMaintained() && gradeDefinition.getGrade() == null) {
+			if (assignment.getExternallyMaintained() && (gradeInfo == null || gradeInfo.getGrade() == null)) {
 				sakaiRubricButton.add(AttributeModifier.replace("force-preview", true));
 			}
 		}

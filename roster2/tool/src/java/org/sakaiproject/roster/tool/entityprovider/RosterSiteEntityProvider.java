@@ -52,6 +52,7 @@ import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomActi
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
+import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
@@ -75,39 +76,37 @@ import org.springframework.beans.factory.annotation.Qualifier;
  */
 @Slf4j
 public class RosterSiteEntityProvider extends AbstractEntityProvider implements
-		AutoRegisterEntityProvider, ActionsExecutable, Outputable {
+        AutoRegisterEntityProvider, ActionsExecutable, Outputable {
 
-	public final static String ENTITY_PREFIX		= "roster-membership";
-	public final static String DEFAULT_ID			= ":ID:";
-	
-	public final static String ERROR_INVALID_SITE	= "Invalid site ID";
-	
-	// key passed as parameters
-	public final static String KEY_GROUP_ID						= "groupId";
-	public final static String KEY_ROLE_ID						= "roleId";
-	public final static String KEY_USER_IDS					    = "userIds";
-	public final static String KEY_PAGE                         = "page";
-	public final static String KEY_ALL                          = "all";
-	public final static String KEY_ENROLLMENT_SET_ID			= "enrollmentSetId";
-	public final static String KEY_ENROLLMENT_STATUS			= "enrollmentStatus";
-	public final static String KEY_PAGE_SIZE					= "pageSize";
+    public final static String ENTITY_PREFIX        = "roster-membership";
+    public final static String DEFAULT_ID           = ":ID:";
+
+    public final static String ERROR_INVALID_SITE   = "Invalid site ID";
+
+    // key passed as parameters
+    public final static String KEY_GROUP_ID                     = "groupId";
+    public final static String KEY_ROLE_ID                      = "roleId";
+    public final static String KEY_USER_IDS                     = "userIds";
+    public final static String KEY_PAGE                         = "page";
+    public final static String KEY_ALL                          = "all";
+    public final static String KEY_ENROLLMENT_SET_ID            = "enrollmentSetId";
+    public final static String KEY_ENROLLMENT_STATUS            = "enrollmentStatus";
+    public final static String KEY_PAGE_SIZE                    = "pageSize";
 
     @Resource
-	private SakaiProxy sakaiProxy;
+    private SakaiProxy sakaiProxy;
 
-	@Autowired
-	@Qualifier("org.sakaiproject.time.api.UserTimeService")
-	private UserTimeService userTimeService;
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public String getEntityPrefix() {
-		return ENTITY_PREFIX;
-	}
-	
-	@EntityCustomAction(action = "get-membership", viewKey = EntityView.VIEW_SHOW)
-	public Object getMembership(EntityReference reference, Map<String, Object> parameters) {
+    @Autowired
+    @Qualifier("org.sakaiproject.time.api.UserTimeService")
+    private UserTimeService userTimeService;
+
+    @Override
+    public String getEntityPrefix() {
+        return ENTITY_PREFIX;
+    }
+
+    @EntityCustomAction(action = "get-membership", viewKey = EntityView.VIEW_SHOW)
+    public Object getMembership(EntityReference reference, Map<String, Object> parameters) {
 
         String userId = developerHelperService.getCurrentUserId();
 
@@ -117,52 +116,52 @@ public class RosterSiteEntityProvider extends AbstractEntityProvider implements
 
         String siteId = reference.getId();
 
-		if (null == siteId || DEFAULT_ID.equals(siteId)) {
-			throw new EntityException(ERROR_INVALID_SITE, reference.getReference());
-		}
-
-		String groupId = null;
-		if (parameters.containsKey(KEY_GROUP_ID)) {
-			groupId = parameters.get(KEY_GROUP_ID).toString();
-		}
-
-		String roleId = null;
-		if (parameters.containsKey(KEY_ROLE_ID)) {
-			roleId = parameters.get(KEY_ROLE_ID).toString();
-		}
-
-		String enrollmentSetId = null;
-		if (parameters.containsKey(KEY_ENROLLMENT_SET_ID)) {
-			enrollmentSetId = parameters.get(KEY_ENROLLMENT_SET_ID).toString();
-		}
-
-        if (groupId != null && enrollmentSetId != null) {
-			throw new EntityException("You can't specify a groupId AND an enrollmentSetId. One or the other, not both.", reference.getReference());
+        if (null == siteId || DEFAULT_ID.equals(siteId)) {
+            throw new EntityException(ERROR_INVALID_SITE, reference.getReference());
         }
 
-		String enrollmentStatus = null;
-		if (parameters.containsKey(KEY_ENROLLMENT_STATUS)) {
-			enrollmentStatus = parameters.get(KEY_ENROLLMENT_STATUS).toString();
-		}
+        String groupId = null;
+        if (parameters.containsKey(KEY_GROUP_ID)) {
+            groupId = parameters.get(KEY_GROUP_ID).toString();
+        }
 
-		int page = 0;
-		if (parameters.containsKey(KEY_PAGE)) {
+        String roleId = null;
+        if (parameters.containsKey(KEY_ROLE_ID)) {
+            roleId = parameters.get(KEY_ROLE_ID).toString();
+        }
+
+        String enrollmentSetId = null;
+        if (parameters.containsKey(KEY_ENROLLMENT_SET_ID)) {
+            enrollmentSetId = parameters.get(KEY_ENROLLMENT_SET_ID).toString();
+        }
+
+        if (groupId != null && enrollmentSetId != null) {
+            throw new EntityException("You can't specify a groupId AND an enrollmentSetId. One or the other, not both.", reference.getReference());
+        }
+
+        String enrollmentStatus = null;
+        if (parameters.containsKey(KEY_ENROLLMENT_STATUS)) {
+            enrollmentStatus = parameters.get(KEY_ENROLLMENT_STATUS).toString();
+        }
+
+        int page = 0;
+        if (parameters.containsKey(KEY_PAGE)) {
             String pageString = parameters.get(KEY_PAGE).toString();
             try {
-			    page = Integer.parseInt(pageString);
+                page = Integer.parseInt(pageString);
             } catch (NumberFormatException nfe) {
                 log.error("Invalid page number " + pageString + " supplied. The first page will be returned ...");
             }
-		}
+        }
 
-        boolean returnAll = Boolean.valueOf((String)parameters.get(KEY_ALL));
+        boolean returnAll = Boolean.valueOf((String) parameters.get(KEY_ALL));
 
-		List<RosterMember> membership
+        List<RosterMember> membership
             = sakaiProxy.getMembership(userId, siteId, groupId, roleId, enrollmentSetId, enrollmentStatus);
 
-		if (null == membership) {
-			throw new EntityException("Unable to retrieve membership", reference.getReference());
-		}
+        if (null == membership) {
+            throw new EntityException("Unable to retrieve membership", reference.getReference());
+        }
 
         int membershipsSize = membership.size();
         log.debug("memberships.size(): {}", membershipsSize);
@@ -240,116 +239,114 @@ public class RosterSiteEntityProvider extends AbstractEntityProvider implements
         data.setRoleCounts(roleCounts);
 
         return data;
-	}
+    }
 
     @EntityCustomAction(action = "get-users", viewKey = EntityView.VIEW_SHOW)
-	public Object getUsers(EntityReference reference, Map<String, Object> parameters) {
+    public Object getUsers(EntityReference reference, Map<String, Object> parameters) {
 
-		String siteId = reference.getId();
+        String siteId = reference.getId();
 
-		if (null == siteId || DEFAULT_ID.equals(siteId)) {
-			throw new EntityException(ERROR_INVALID_SITE, reference.getReference());
-		}
+        if (null == siteId || DEFAULT_ID.equals(siteId)) {
+            throw new EntityException(ERROR_INVALID_SITE, reference.getReference());
+        }
 
-		String[] userIds = null;
-		if (parameters.containsKey(KEY_USER_IDS)) {
-			userIds = parameters.get(KEY_USER_IDS).toString().split(",");
-		}
+        String[] userIds = null;
+        if (parameters.containsKey(KEY_USER_IDS)) {
+            userIds = parameters.get(KEY_USER_IDS).toString().split(",");
+        }
 
-		if (null == userIds) {
-			throw new EntityException("No user ids supplied", reference.getReference());
-		}
+        if (null == userIds) {
+            throw new EntityException("No user ids supplied", reference.getReference());
+        }
 
-		String enrollmentSetId = null;
-		if (parameters.containsKey(KEY_ENROLLMENT_SET_ID)) {
-			enrollmentSetId = parameters.get(KEY_ENROLLMENT_SET_ID).toString();
-		}
-		
-		String groupId = null;
-		if (parameters.containsKey(KEY_GROUP_ID)) {
-			groupId = parameters.get(KEY_GROUP_ID).toString();
-		}
-		
-		String roleId = null;
-		if (parameters.containsKey(KEY_ROLE_ID)) {
-			roleId = parameters.get(KEY_ROLE_ID).toString();
-		}
+        String enrollmentSetId = null;
+        if (parameters.containsKey(KEY_ENROLLMENT_SET_ID)) {
+            enrollmentSetId = parameters.get(KEY_ENROLLMENT_SET_ID).toString();
+        }
 
-		List<RosterMember> membership = new ArrayList<>();
-		Map<String, Integer> roleCounts = new HashMap<>(1);
+        String groupId = null;
+        if (parameters.containsKey(KEY_GROUP_ID)) {
+            groupId = parameters.get(KEY_GROUP_ID).toString();
+        }
 
-		for (String userId : userIds) {
-			RosterMember member = sakaiProxy.getMember(siteId, userId, groupId, enrollmentSetId);
-			if (member != null) {
-				if(roleId != null) {
-					if(StringUtils.equals(member.getRole(), roleId)) {
-						membership.add(member);
-					}
-				} else {
-					membership.add(member);
-				}
+        String roleId = null;
+        if (parameters.containsKey(KEY_ROLE_ID)) {
+            roleId = parameters.get(KEY_ROLE_ID).toString();
+        }
 
-				String role = member.getRole();
-				if (!roleCounts.containsKey(role)) {
-					roleCounts.put(role, 1);
-				} else {
-					roleCounts.put(role, roleCounts.get(role) + 1);
-				}
-			}
-		}
+        List<RosterMember> membership = new ArrayList<>();
+        Map<String, Integer> roleCounts = new HashMap<>(1);
 
-		if (CollectionUtils.isEmpty(membership)) {
-			throw new EntityException("Unable to retrieve membership", reference.getReference());
-		}
+        for (String userId : userIds) {
+            RosterMember member = sakaiProxy.getMember(siteId, userId, groupId, enrollmentSetId);
+            if (member != null) {
+                if(roleId != null) {
+                    if(StringUtils.equals(member.getRole(), roleId)) {
+                        membership.add(member);
+                    }
+                } else {
+                    membership.add(member);
+                }
 
-		RosterData data = new RosterData();
-		data.setMembers(membership);
-		data.setMembersTotal(membership.size());
-		data.setRoleCounts(roleCounts);
+                String role = member.getRole();
+                if (!roleCounts.containsKey(role)) {
+                    roleCounts.put(role, 1);
+                } else {
+                    roleCounts.put(role, roleCounts.get(role) + 1);
+                }
+            }
+        }
 
-		return data;
-	}
+        if (CollectionUtils.isEmpty(membership)) {
+            throw new EntityException("Unable to retrieve membership", reference.getReference());
+        }
 
-	@EntityCustomAction(action = "get-site", viewKey = EntityView.VIEW_SHOW)
-	public Object getSite(EntityReference reference) {
-		
-		if (null == reference.getId() || DEFAULT_ID.equals(reference.getId())) {
-			throw new EntityException(ERROR_INVALID_SITE, reference.getReference());
-		}
-		
-		return sakaiProxy.getRosterSite(reference.getId());
-	}
+        RosterData data = new RosterData();
+        data.setMembers(membership);
+        data.setMembersTotal(membership.size());
+        data.setRoleCounts(roleCounts);
 
-	@EntityCustomAction(action = "get-search-index", viewKey = EntityView.VIEW_SHOW)
-	public Object getSearchIndex(final EntityReference reference, final Map<String, Object> actionParams) {
+        return data;
+    }
 
-		final String siteId = reference.getId();
+    @EntityCustomAction(action = "get-site", viewKey = EntityView.VIEW_SHOW)
+    public Object getSite(EntityReference reference) {
 
-		if (null == siteId || DEFAULT_ID.equals(siteId)) {
-			throw new EntityException(ERROR_INVALID_SITE, reference.getReference());
-		}
+        if (null == reference.getId() || DEFAULT_ID.equals(reference.getId())) {
+            throw new EntityException(ERROR_INVALID_SITE, reference.getReference());
+        }
 
-		final String userId = developerHelperService.getCurrentUserId();
-		String groupId = null;
-		String roleId = null;
-		String enrollmentSetId = null;
-		String enrollmentStatus = "all";
-		
-		if(actionParams != null){
-			groupId = (String) actionParams.get(KEY_GROUP_ID);
-			roleId = (String) actionParams.get(KEY_ROLE_ID);
-			enrollmentSetId = (String) actionParams.get(KEY_ENROLLMENT_SET_ID);
-			if(actionParams.get(KEY_ENROLLMENT_STATUS) != null) {
-				enrollmentStatus = (String) actionParams.get(KEY_ENROLLMENT_STATUS);
-			}
-		}
-		return sakaiProxy.getSearchIndex(siteId, userId, groupId, roleId, enrollmentSetId, enrollmentStatus);
-	}
+        return sakaiProxy.getRosterSite(reference.getId());
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public String[] getHandledOutputFormats() {
-		return new String[] { Formats.JSON };
-	}
+    @EntityCustomAction(action = "get-search-index", viewKey = EntityView.VIEW_SHOW)
+    public ActionReturn getSearchIndex(EntityReference reference, Map<String, Object> actionParams) {
+
+        String siteId = reference.getId();
+
+        if (null == siteId || DEFAULT_ID.equals(siteId)) {
+            throw new EntityException(ERROR_INVALID_SITE, reference.getReference());
+        }
+
+        String userId = developerHelperService.getCurrentUserId();
+        String groupId = null;
+        String roleId = null;
+        String enrollmentSetId = null;
+        String enrollmentStatus = "all";
+
+        if(actionParams != null){
+            groupId = (String) actionParams.get(KEY_GROUP_ID);
+            roleId = (String) actionParams.get(KEY_ROLE_ID);
+            enrollmentSetId = (String) actionParams.get(KEY_ENROLLMENT_SET_ID);
+            if(actionParams.get(KEY_ENROLLMENT_STATUS) != null) {
+                enrollmentStatus = (String) actionParams.get(KEY_ENROLLMENT_STATUS);
+            }
+        }
+        return new ActionReturn(sakaiProxy.getSearchIndex(siteId, userId, groupId, roleId, enrollmentSetId, enrollmentStatus));
+    }
+
+    @Override
+    public String[] getHandledOutputFormats() {
+        return new String[] { Formats.JSON };
+    }
 }
