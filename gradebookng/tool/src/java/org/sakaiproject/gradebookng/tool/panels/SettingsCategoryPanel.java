@@ -56,6 +56,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.util.convert.ConversionException;
 import org.apache.wicket.util.convert.IConverter;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
@@ -161,6 +162,14 @@ public class SettingsCategoryPanel extends BasePanel {
 				@Override
 				public void updateState(boolean newState) {
 					SettingsCategoryPanel.this.expanded = newState;
+					
+					// When expanding the panel, reinitialize the drag functionality
+					if (newState) {
+						AjaxRequestTarget target = RequestCycle.get().find(AjaxRequestTarget.class).orElse(null);
+						if (target != null) {
+							target.appendJavaScript("sakai.gradebookng.settings.categories = new GradebookCategorySettings($('#settingsCategories'));");
+						}
+					}
 				}
 				
 				@Override
