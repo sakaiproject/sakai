@@ -146,7 +146,7 @@ $(function() {
 
 window.addEventListener("DOMContentLoaded", e => {
 
-	const triggers = document.querySelectorAll("#gradebookSettings .accordion-collapse");
+  const triggers = document.querySelectorAll("#gradebookSettings .accordion-collapse");
 
   document.getElementById("gb-settings-expand-all")?.addEventListener("click", e => {
 		triggers.forEach(el => bootstrap.Collapse.getOrCreateInstance(el)?.show());
