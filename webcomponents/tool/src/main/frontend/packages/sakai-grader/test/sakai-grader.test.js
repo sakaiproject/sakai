@@ -40,7 +40,9 @@ describe("sakai-grader tests", () => {
     const submissions = Array.from({ length: 10 }, () => generateSubmission());
 
     const selectedSubmission = submissions[0];
-    selectedSubmission.dateSubmitted = faker.date.past().getTime();
+    const past = faker.date.past();
+    selectedSubmission.dateSubmittedEpochSeconds = past.getTime() / 1000;
+    selectedSubmission.dateSubmitted = past.toDateString();
     selectedSubmission.submittedText = faker.lorem.paragraph(4);
     selectedSubmission.submitted = true;
     const firstSubmitterId = selectedSubmission.submitters[0].id;
