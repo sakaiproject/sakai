@@ -862,7 +862,7 @@ public class SiteManageServiceImpl implements SiteManageService {
         } catch (IdUnusedException e) {
             log.warn("Could not find site when copying permissions: {}", e.getMessage());
         } catch (Exception e) {
-            log.error("Could not copy tool permissions from site {} to site {}", fromSiteId, toSiteId, e);
+            log.error("Could not copy tool permissions from site {} to site {}", fromSiteId, toSiteId, e.toString());
         }
     }
 }
