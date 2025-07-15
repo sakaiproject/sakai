@@ -19,7 +19,7 @@ export class SakaiNotifications extends SakaiElement {
     _state: { state: true },
     _highlightTestButton: { state: true },
     _browserInfoUrl: { state: true },
-    pushEnabled: { state: true },
+    _pushEnabled: { state: true },
   };
 
   constructor() {
@@ -30,7 +30,7 @@ export class SakaiNotifications extends SakaiElement {
 
     this._filteredNotifications = new Map();
     this._i18nLoaded = this.loadTranslations("sakai-notifications");
-    this.pushEnabled = false; // Default to false, will be set in _registerForNotifications
+    this._pushEnabled = false; // Default to false, will be set in _registerForNotifications
   }
 
   connectedCallback() {
@@ -85,7 +85,7 @@ export class SakaiNotifications extends SakaiElement {
 
     pushSetupComplete.then(() => {
 
-      this.pushEnabled = true;
+      this._pushEnabled = true;
 
       if (Notification.permission !== "granted") return;
 
@@ -99,7 +99,7 @@ export class SakaiNotifications extends SakaiElement {
     })
     .catch(error => {
 
-      this.pushEnabled = false;
+      this._pushEnabled = false;
 
       if (error === NOT_PUSH_CAPABLE) {
         this._state = PUSH_SETUP_INFO;
@@ -475,7 +475,7 @@ export class SakaiNotifications extends SakaiElement {
       ` : nothing}
 
       ${this._state === NOTIFICATIONS || this._state === PWA_INSTALL_INFO ? html`
-        ${Notification.permission !== "granted" && this._online && this.pushEnabled ? html`
+        ${Notification.permission !== "granted" && this._online && this._pushEnabled ? html`
           <div class="alert alert-warning">
             <span class="me-1">${this._i18n.push_not_enabled}</span>
             <button type="button"

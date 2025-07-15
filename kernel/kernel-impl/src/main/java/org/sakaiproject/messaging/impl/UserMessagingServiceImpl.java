@@ -189,7 +189,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
                     }
 
                     pushService = new PushService(publicKeyBase64, privateKeyBase64);
-                    String defaultSubject = "https://" + serverConfigurationService.getServerName();
+                    String defaultSubject = serverConfigurationService.getServerUrl();
                     String pushSubject = serverConfigurationService.getString("portal.notifications.push.subject", defaultSubject);
                     pushService.setSubject(pushSubject);
                     log.info("Push service configured with VAPID subject: {}", pushSubject);
