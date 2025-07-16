@@ -573,13 +573,9 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
      * Removes all the push subscription for the given userId
      */
     private void clearUserPushSubscription(String userId) {
-        try {
-            for (PushSubscription subscription : pushSubscriptionRepository.findByUser(userId)) {
-                pushSubscriptionRepository.delete(subscription);
-                log.debug("Removed invalid push subscription {} for user {}", subscription.getEndpoint(), userId);
-            }
-        } catch (Exception e) {
-            log.error("Failed to clear push subscription for user {}: {}", userId, e.toString());
+        for (PushSubscription subscription : pushSubscriptionRepository.findByUser(userId)) {
+            pushSubscriptionRepository.delete(subscription);
+            log.debug("Removed invalid push subscription {} for user {}", subscription.getEndpoint(), userId);
         }
     }
 
