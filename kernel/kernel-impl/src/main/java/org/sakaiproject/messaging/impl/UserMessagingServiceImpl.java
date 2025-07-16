@@ -557,7 +557,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
                         log.info("Removing invalid push subscription for user {} due to status {}", 
                                 un.getToUser(), statusCode);
                         // Clear the invalid subscription
-                        clearUserPushSubscription(un.getToUser());
+                        clearPushSubscription(pushSubscription);
                     } else if (statusCode == 403) {
                         log.warn("Push authentication failed (403) - check VAPID configuration");
                     }
@@ -570,13 +570,11 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
     }
 
     /**
-     * Removes all the push subscription for the given userId
+     * Removes the specific push subscription
      */
-    private void clearUserPushSubscription(String userId) {
-        for (PushSubscription subscription : pushSubscriptionRepository.findByUser(userId)) {
-            pushSubscriptionRepository.delete(subscription);
-            log.debug("Removed invalid push subscription {} for user {}", subscription.getEndpoint(), userId);
-        }
+    private void clearPushSubscription(PushSubscription subscription) {
+        pushSubscriptionRepository.delete(subscription);
+        log.info("Removed invalid push subscription {} for user {}", subscription.getEndpoint(), subscription.getUserId());
     }
 
     /**
