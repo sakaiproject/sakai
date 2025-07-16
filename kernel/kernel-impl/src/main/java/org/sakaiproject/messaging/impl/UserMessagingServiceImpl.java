@@ -570,7 +570,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
     }
 
     /**
-     * Clear invalid push subscription for a user when push service returns permanent failure
+     * Removes all the push subscription for the given userId
      */
     private void clearUserPushSubscription(String userId) {
         try {
