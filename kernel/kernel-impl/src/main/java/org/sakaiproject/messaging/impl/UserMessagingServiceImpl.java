@@ -574,8 +574,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
      */
     private void clearUserPushSubscription(String userId) {
         try {
-            List<PushSubscription> subscriptions = pushSubscriptionRepository.findByUser(userId);
-            for (PushSubscription subscription : subscriptions) {
+            for (PushSubscription subscription : pushSubscriptionRepository.findByUser(userId)) {
                 pushSubscriptionRepository.delete(subscription);
                 log.debug("Removed invalid push subscription {} for user {}", subscription.getEndpoint(), userId);
             }
