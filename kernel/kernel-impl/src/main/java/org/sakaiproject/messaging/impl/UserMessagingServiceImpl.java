@@ -157,8 +157,8 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
 
             if (Files.exists(privateKeyPath) && Files.exists(publicKeyPath)) {
                 try {
-                    String publicKey = String.join("", Files.readAllLines(Paths.get(home, publicKeyFileName)));
-                    String privateKey = String.join("", Files.readAllLines(Paths.get(home, privateKeyFileName)));
+                    String publicKey = String.join("", Files.readAllLines(publicKeyPath));
+                    String privateKey = String.join("", Files.readAllLines(privateKeyPath));
                     pushService = new PushService(publicKey, privateKey);
                 } catch (Exception e) {
                     log.error("Failed to setup push service: {}", e.toString());
