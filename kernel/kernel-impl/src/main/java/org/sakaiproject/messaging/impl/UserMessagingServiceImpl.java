@@ -160,10 +160,6 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
                     String publicKey = String.join("", Files.readAllLines(Paths.get(home, publicKeyFileName)));
                     String privateKey = String.join("", Files.readAllLines(Paths.get(home, privateKeyFileName)));
                     pushService = new PushService(publicKey, privateKey);
-                    String defaultSubject = "https://" + serverConfigurationService.getServerName();
-                    String pushSubject = serverConfigurationService.getString("portal.notifications.push.subject", defaultSubject);
-                    pushService.setSubject(pushSubject);
-                    log.info("Push service configured with VAPID subject: {}", pushSubject);
                 } catch (Exception e) {
                     log.error("Failed to setup push service: {}", e.toString());
                 }
@@ -189,13 +185,16 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
                     }
 
                     pushService = new PushService(publicKeyBase64, privateKeyBase64);
-                    String defaultSubject = serverConfigurationService.getServerUrl();
-                    String pushSubject = serverConfigurationService.getString("portal.notifications.push.subject", defaultSubject);
-                    pushService.setSubject(pushSubject);
-                    log.info("Push service configured with VAPID subject: {}", pushSubject);
                 } catch (Exception e) {
                     log.error("Failed to generate key pair: {}", e.toString());
                 }
+            }
+
+            if (pushService != null) {
+                String defaultSubject = serverConfigurationService.getServerUrl();
+                String pushSubject = serverConfigurationService.getString("portal.notifications.push.subject", defaultSubject);
+                pushService.setSubject(pushSubject);
+                log.info("Push service configured with VAPID subject: {}", pushSubject);
             }
         }
     }
