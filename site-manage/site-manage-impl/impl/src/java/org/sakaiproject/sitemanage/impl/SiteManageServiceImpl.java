@@ -815,7 +815,7 @@ public class SiteManageServiceImpl implements SiteManageService {
     private void copyToolPermissions(String fromSiteId, String toSiteId) {
         try {
             // Get the source site
-            log.info("Starting tool permissions copy from site {} to site {}", fromSiteId, toSiteId);
+            log.debug("Starting tool permissions copy from site {} to site {}", fromSiteId, toSiteId);
             Site fromSite = siteService.getSite(fromSiteId);
             // Get the destination site
             Site toSite = siteService.getSite(toSiteId);
