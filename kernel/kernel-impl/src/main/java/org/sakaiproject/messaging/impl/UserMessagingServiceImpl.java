@@ -157,11 +157,9 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
 
             if (Files.exists(privateKeyPath) && Files.exists(publicKeyPath)) {
                 try {
-                    String publicKey = String.join("", Files.readAllLines(Paths.get(home, publicKeyFileName)));
-                    String privateKey = String.join("", Files.readAllLines(Paths.get(home, privateKeyFileName)));
+                    String publicKey = String.join("", Files.readAllLines(publicKeyPath));
+                    String privateKey = String.join("", Files.readAllLines(privateKeyPath));
                     pushService = new PushService(publicKey, privateKey);
-                    String pushSubject = serverConfigurationService.getString("portal.notifications.push.subject", "");
-                    pushService.setSubject(pushSubject);
                 } catch (Exception e) {
                     log.error("Failed to setup push service: {}", e.toString());
                 }
@@ -187,11 +185,16 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
                     }
 
                     pushService = new PushService(publicKeyBase64, privateKeyBase64);
-                    String pushSubject = serverConfigurationService.getString("portal.notifications.push.subject", "");
-                    pushService.setSubject(pushSubject);
                 } catch (Exception e) {
                     log.error("Failed to generate key pair: {}", e.toString());
                 }
+            }
+
+            if (pushService != null) {
+                String defaultSubject = serverConfigurationService.getServerUrl();
+                String pushSubject = serverConfigurationService.getString("portal.notifications.push.subject", defaultSubject);
+                pushService.setSubject(pushSubject);
+                log.info("Push service configured with VAPID subject: {}", pushSubject);
             }
         }
     }
@@ -547,16 +550,33 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
                     log.debug("Successfully sent push notification to {} with status {}", 
                             pushEndpoint, statusCode);
                 } else {
+                    String reason = pushResponse.getStatusLine().getReasonPhrase();
                     log.warn("Push notification to {} failed with status {} and reason {}", 
-                            pushEndpoint, 
-                            statusCode,
-                            pushResponse.getStatusLine().getReasonPhrase());
+                            pushEndpoint, statusCode, reason);
+                    
+                    // Handle subscription cleanup for permanent failures
+                    if (statusCode == 410 || statusCode == 404 || statusCode == 400) {
+                        log.info("Removing invalid push subscription for user {} due to status {}", 
+                                un.getToUser(), statusCode);
+                        // Clear the invalid subscription
+                        clearPushSubscription(pushSubscription);
+                    } else if (statusCode == 403) {
+                        log.warn("Push authentication failed (403) - check VAPID configuration");
+                    }
                 }
             } catch (Exception e) {
                 log.error("Failed to serialize notification for push: {}", e.toString());
                 log.debug("Stacktrace", e);
             }
         });
+    }
+
+    /**
+     * Removes the specific push subscription
+     */
+    private void clearPushSubscription(PushSubscription subscription) {
+        pushSubscriptionRepository.delete(subscription);
+        log.info("Removed invalid push subscription {} for user {}", subscription.getEndpoint(), subscription.getUserId());
     }
 
     /**
