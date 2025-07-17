@@ -22,6 +22,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
+import org.sakaiproject.grading.api.GradeType;
 import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.gradebookng.business.GradeSaveResponse;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
@@ -59,7 +60,7 @@ public class QuickEntryPage extends BasePage {
     public void onInitialize() {
         super.onInitialize();
 
-        Integer gradeType = this.businessService.getGradebookSettings(gradebookUid, siteId).getGradeType();
+        GradeType gradeType = this.businessService.getGradebookSettings(gradebookUid, siteId).getGradeType();
 
         SortType sortBy = SortType.SORT_BY_NAME;
         final List<Assignment> assignments = this.businessService.getGradebookAssignments(gradebookUid, siteId, sortBy);
@@ -211,7 +212,7 @@ public class QuickEntryPage extends BasePage {
             }
             form.add(new Label("itemtitle", assignmentNow.getName()));
             String localePoints = FormatHelper.formatGradeForDisplay(assignmentNow.getPoints());
-            String itemdetails = " - " + (Objects.equals(GradingConstants.GRADE_TYPE_PERCENTAGE, gradeType) ? getString("quickentry.percentages") : getString("quickentry.points")) + ": " + localePoints;
+            String itemdetails = " - " + (gradeType == GradeType.PERCENTAGE ? getString("quickentry.percentages") : getString("quickentry.points")) + ": " + localePoints;
             if(assignmentNow.getExternallyMaintained()){
                 itemdetails = itemdetails + " - " + MessageFormat.format(getString("quickentry.externally"),assignmentNow.getExternalAppName());
             }
