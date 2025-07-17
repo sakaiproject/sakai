@@ -204,7 +204,6 @@ public class SiteManageServiceImpl implements SiteManageService {
             List<SitePage> pageList = site.getPages();
             Set<String> toolsCopied = new HashSet<>();
 
-            System.out.println("Copying tool permissions from site " + oSiteId + " to site " + nSiteId);
 
             Map<String, String> transversalMap = new HashMap<>();
             
