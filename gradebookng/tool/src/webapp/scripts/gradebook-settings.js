@@ -146,13 +146,15 @@ $(function() {
 
 window.addEventListener("DOMContentLoaded", e => {
 
-  const triggers = document.querySelectorAll("#gradebookSettings .accordion-collapse");
-
   document.getElementById("gb-settings-expand-all")?.addEventListener("click", e => {
-    triggers.forEach(el => bootstrap.Collapse.getOrCreateInstance(el)?.show());
+    // Trigger all collapsed accordion buttons to expand
+    const collapsedButtons = document.querySelectorAll("#gradebookSettings .accordion-button.collapsed");
+    collapsedButtons.forEach(button => button.click());
   });
 
   document.getElementById("gb-settings-collapse-all")?.addEventListener("click", e => {
-    triggers.forEach(el => bootstrap.Collapse.getOrCreateInstance(el)?.hide());
+    // Trigger all expanded accordion buttons to collapse
+    const expandedButtons = document.querySelectorAll("#gradebookSettings .accordion-button:not(.collapsed)");
+    expandedButtons.forEach(button => button.click());
   });
 });
