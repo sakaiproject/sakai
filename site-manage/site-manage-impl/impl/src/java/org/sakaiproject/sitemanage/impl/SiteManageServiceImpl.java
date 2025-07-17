@@ -857,7 +857,7 @@ public class SiteManageServiceImpl implements SiteManageService {
             
             // Save the destination site with the updated permissions
             siteService.save(toSite);
-            log.info("Successfully copied all tool permissions from site {} to site {}", fromSiteId, toSiteId);
+            log.debug("Successfully copied all tool permissions from site {} to site {}", fromSiteId, toSiteId);
             
         } catch (IdUnusedException e) {
             log.warn("Could not find site when copying permissions: {}", e.getMessage());
