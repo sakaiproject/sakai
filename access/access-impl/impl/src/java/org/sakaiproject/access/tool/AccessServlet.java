@@ -32,8 +32,7 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import lombok.extern.slf4j.Slf4j;
+import javax.servlet.http.HttpServletResponseWrapper;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -43,19 +42,19 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityAccessOverloadException;
 import org.sakaiproject.entity.api.EntityCopyrightException;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityNotDefinedException;
 import org.sakaiproject.entity.api.EntityPermissionException;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.tool.api.ActiveTool;
+import org.sakaiproject.tool.api.ActiveToolManager;
 import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolException;
-import org.sakaiproject.tool.api.ActiveToolManager;
-import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.util.BaseResourceProperties;
 import org.sakaiproject.util.BasicAuth;
 import org.sakaiproject.util.ParameterParser;
@@ -64,6 +63,8 @@ import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.util.api.EncryptionUtilityService;
 import org.sakaiproject.util.api.FormattedText;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
@@ -392,7 +393,9 @@ public class AccessServlet extends VmServlet
 							securityService.pushAdvisor(securityAdvisor);
 							ResourceProperties props = ref.getProperties();
 							if (props.get(ResourceProperties.PROP_SECURED) != null) {
-								access.handleAccess(req, res, ref, accepted);
+								// Wrap the response to ensure UTF-8 charset is set for text files
+								HttpServletResponse wrappedResponse = createEncodingAwareResponse(res);
+								access.handleAccess(req, wrappedResponse, ref, accepted);
 								return;
 							}
 						} catch (Exception e) {
@@ -408,7 +411,9 @@ public class AccessServlet extends VmServlet
 			}
 
 			// let the helper do the work
-			access.handleAccess(req, res, ref, accepted);
+			// Wrap the response to ensure UTF-8 charset is set for text files
+			HttpServletResponse wrappedResponse = createEncodingAwareResponse(res);
+			access.handleAccess(req, wrappedResponse, ref, accepted);
 		}
 		catch (EntityNotDefinedException e)
 		{
@@ -674,6 +679,47 @@ public class AccessServlet extends VmServlet
 			}
 			return rv;
 		}
+	}
+
+	/**
+	 * Creates a response wrapper that ensures UTF-8 charset is set for text files
+	 *
+	 * @param response The original HttpServletResponse
+	 * @return A wrapped response that handles UTF-8 encoding for text files
+	 */
+	protected HttpServletResponse createEncodingAwareResponse(HttpServletResponse response) {
+		return new HttpServletResponseWrapper(response) {
+
+			private String addCharsetToContentType(String type) {
+				if (type != null && type.startsWith("text/") && !type.contains("charset")) {
+					// Always add UTF-8 charset to text MIME types
+					return type + "; charset=UTF-8";
+				}
+				return type;
+			}
+
+			@Override
+			public void setContentType(String type) {
+				String modifiedType = addCharsetToContentType(type);
+				super.setContentType(modifiedType);
+			}
+
+			@Override
+			public void setHeader(String name, String value) {
+				if ("Content-Type".equalsIgnoreCase(name)) {
+					value = addCharsetToContentType(value);
+				}
+				super.setHeader(name, value);
+			}
+
+			@Override
+			public void addHeader(String name, String value) {
+				if ("Content-Type".equalsIgnoreCase(name)) {
+					value = addCharsetToContentType(value);
+				}
+				super.addHeader(name, value);
+			}
+		};
 	}
 
 }
