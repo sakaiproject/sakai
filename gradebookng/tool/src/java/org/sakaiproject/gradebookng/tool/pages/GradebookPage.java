@@ -239,7 +239,7 @@ public class GradebookPage extends BasePage {
 		if (settings.isCategoriesEnabled() && settings.isGroupedByCategory()) {
 			// Pre-sort assignments by the categorized sort order
 			sortBy = SortType.SORT_BY_CATEGORY;
-			this.form.add(new AttributeAppender("class", "gb-grouped-by-category"));
+			this.form.add(new AttributeAppender("class", "gb-grouped-by-category", " "));
 		}
 		// section and group dropdown
 		final List<GbGroup> groups = this.businessService.getSiteSectionsAndGroups(gradebookUid, siteId);
