@@ -63,7 +63,13 @@ public class DefaultContentDigester implements ContentDigester
 		{
 			ResourceProperties  rp  = contentResource.getProperties();
 			StringBuilder sb = new StringBuilder();
-			sb.append(rp.getProperty(ResourceProperties.PROP_DISPLAY_NAME)).append(" ");
+			
+			// Add the literal filename to improve searchability
+			String fileName = rp.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+			sb.append(fileName).append("\n");
+			
+			// Add the display name and description (as before)
+			sb.append(fileName).append(" ");
 			sb.append(rp.getProperty(ResourceProperties.PROP_DESCRIPTION)).append(" ");
 			
 			if ( !isBinary(contentResource) && contentResource.getContentLength() < maxDigestSize ) {

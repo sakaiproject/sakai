@@ -54,9 +54,13 @@ public class SanslanContentDigester extends BaseContentDigester {
             contentStream = contentResource.streamContent();
             ResourceProperties resourceProperties = contentResource.getProperties();
             String fileName = resourceProperties.getProperty(resourceProperties.getNamePropDisplayName());
+            
+            // Start with a StringBuffer that includes the filename for searching
+            StringBuffer sb = new StringBuffer();
+            sb.append(fileName).append("\n");
+            
             try {
                 metadata = Imaging.getMetadata(contentStream, fileName);
-                StringBuffer sb = new StringBuffer();
                 if (metadata instanceof JpegImageMetadata) {
                     JpegImageMetadata jpegMetadata = (JpegImageMetadata) metadata;
                     sb.append(getFieldValue(jpegMetadata, TiffTagConstants.TIFF_TAG_MAKE));
@@ -79,20 +83,18 @@ public class SanslanContentDigester extends BaseContentDigester {
                         } catch (ImagingException e) {
                             log.error(e.getMessage(), e);
                         }
-
                     }    
                 }
                 log.debug("got metadata: {}", sb.toString());
                 return sb.toString();
-            } catch (ImagingException e) {
-                log.error(e.getMessage(), e);
             } catch (IOException e) {
-                log.error(e.getMessage(), e);
+                log.error("Failed to extract metadata from image file {}, returning only filename for searchability", fileName, e);
+                // Even if we can't get metadata, return the filename for searchability
+                return sb.toString();
             }
         } catch (ServerOverloadException e) {
             log.error(e.getMessage(), e);
         }
-        
         
         return null;
     }
