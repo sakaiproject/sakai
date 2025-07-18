@@ -173,7 +173,18 @@ public abstract class GradableObject implements Serializable {
                 } else if (two.getMean() == null) {
                     return -1;
                 } else {
-                    return one.getMean().compareTo(two.getMean());
+                    // Handle NaN values to ensure consistent comparator contract
+                    Double meanOne = one.getMean();
+                    Double meanTwo = two.getMean();
+                    if (meanOne.isNaN() && meanTwo.isNaN()) {
+                        return nameComparator.compare(one, two);
+                    } else if (meanOne.isNaN()) {
+                        return 1;
+                    } else if (meanTwo.isNaN()) {
+                        return -1;
+                    } else {
+                        return meanOne.compareTo(meanTwo);
+                    }
                 }
             }
 
