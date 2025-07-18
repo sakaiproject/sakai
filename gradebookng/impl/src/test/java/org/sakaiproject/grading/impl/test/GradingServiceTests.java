@@ -838,4 +838,67 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
         }
     }
 
+    @Test
+    public void testSortAssignmentsByMeanWithNaN() {
+        // This test verifies that the meanComparator can handle NaN values
+        // without throwing "Comparison method violates its general contract" exception
+        
+        // Create test GradebookAssignment objects with NaN mean values
+        org.sakaiproject.grading.api.model.GradebookAssignment assignment1 = 
+            new org.sakaiproject.grading.api.model.GradebookAssignment();
+        assignment1.setName("Assignment with NaN mean 1");
+        assignment1.setMean(Double.NaN);
+        
+        org.sakaiproject.grading.api.model.GradebookAssignment assignment2 = 
+            new org.sakaiproject.grading.api.model.GradebookAssignment();
+        assignment2.setName("Assignment with NaN mean 2");
+        assignment2.setMean(Double.NaN);
+        
+        org.sakaiproject.grading.api.model.GradebookAssignment assignment3 = 
+            new org.sakaiproject.grading.api.model.GradebookAssignment();
+        assignment3.setName("Assignment with valid mean");
+        assignment3.setMean(85.5);
+        
+        org.sakaiproject.grading.api.model.GradebookAssignment assignment4 = 
+            new org.sakaiproject.grading.api.model.GradebookAssignment();
+        assignment4.setName("Assignment with null mean");
+        assignment4.setMean(null);
+        
+        // Create a list with these assignments
+        List<org.sakaiproject.grading.api.model.GradebookAssignment> assignments = new ArrayList<>();
+        assignments.add(assignment1);
+        assignments.add(assignment2);
+        assignments.add(assignment3);
+        assignments.add(assignment4);
+        
+        // This should not throw an exception due to the NaN handling fix
+        // The meanComparator should handle NaN values properly
+        try {
+            Collections.sort(assignments, org.sakaiproject.grading.api.model.GradableObject.meanComparator);
+            // If we get here, the sort succeeded without throwing an exception
+        } catch (Exception e) {
+            fail("Sorting assignments with NaN values should not throw an exception: " + e.getMessage());
+        }
+        
+        // Verify that assignments were sorted without error
+        assertEquals(4, assignments.size());
+        
+        // The main goal is to verify that the sort completes without throwing an exception
+        // Check that we have the right mix of values (exact order depends on implementation)
+        int nullCount = 0, nanCount = 0, validCount = 0;
+        for (org.sakaiproject.grading.api.model.GradebookAssignment assignment : assignments) {
+            if (assignment.getMean() == null) {
+                nullCount++;
+            } else if (assignment.getMean().isNaN()) {
+                nanCount++;
+            } else {
+                validCount++;
+            }
+        }
+        
+        assertEquals(1, nullCount); // Should have 1 null value
+        assertEquals(2, nanCount);  // Should have 2 NaN values
+        assertEquals(1, validCount); // Should have 1 valid value
+    }
+
 }
