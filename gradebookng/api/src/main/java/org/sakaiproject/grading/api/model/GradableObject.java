@@ -130,9 +130,9 @@ public abstract class GradableObject implements Serializable {
             public int compare(final GradableObject one, final GradableObject two) {
                 if (one.getId() == null && two.getId() == null) {
                     return 0;
-                } else if (one.getName() == null) {
+                } else if (one.getId() == null) {
                     return 1;
-                } else if (two.getName() == null) {
+                } else if (two.getId() == null) {
                     return -1;
                 } else {
                     return one.getId().compareTo(two.getId());
