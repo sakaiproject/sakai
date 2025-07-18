@@ -28,6 +28,7 @@ import java.io.Reader;
 
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.search.api.SearchUtils;
 
 /**
@@ -47,7 +48,16 @@ public class DefaultFullContentDigester extends DefaultContentDigester
 
 		try
 		{
-			return SearchUtils.appendCleanString(new String(contentResource.getContent(),"UTF-8"), null).toString();
+			// Get the literal filename with extension
+			ResourceProperties props = contentResource.getProperties();
+			String fileName = props.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+			
+			// Include both the filename and content for searchability
+			StringBuilder sb = new StringBuilder();
+			sb.append(fileName).append("\n");
+			sb.append(SearchUtils.appendCleanString(new String(contentResource.getContent(),"UTF-8"), null).toString());
+			
+			return sb.toString();
 		}
 		catch (Exception e)
 		{

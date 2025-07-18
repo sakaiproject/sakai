@@ -34,6 +34,7 @@ import org.apache.tika.parser.Parser;
 import org.apache.tika.sax.BodyContentHandler;
 
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.entity.api.ResourceProperties;
 
 /**
  * @author stephen.marquard@uct.ac.za
@@ -59,6 +60,10 @@ public class TikaContentDigester extends BaseContentDigester
 
 		try
 		{
+			// Get the literal filename with extension
+			ResourceProperties props = contentResource.getProperties();
+			String fileName = props.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+			
 			contentStream = contentResource.streamContent();			
 			
 			Metadata metadata = new Metadata();
@@ -68,7 +73,13 @@ public class TikaContentDigester extends BaseContentDigester
 			Parser parser = new AutoDetectParser();
 				
 			parser.parse(contentStream, handler, metadata, new ParseContext());
-			return handler.toString();
+			
+			// Combine the filename and content for searchability
+			StringBuilder sb = new StringBuilder();
+			sb.append(fileName).append("\n");
+			sb.append(handler.toString());
+			
+			return sb.toString();
 		}
 		catch (Exception e)
 		{

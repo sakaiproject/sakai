@@ -32,6 +32,7 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.search.api.SearchUtils;
 
@@ -54,9 +55,17 @@ public class PDFContentDigester extends BaseContentDigester
 			contentStream = contentResource.streamContent();
 			pddoc = PDDocument.load(contentStream);
 			if (pddoc != null) {
+				// Get the literal filename with extension
+				ResourceProperties props = contentResource.getProperties();
+				String fileName = props.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+				
 				PDFTextStripper stripper = new PDFTextStripper();
 				stripper.setLineSeparator("\n");		
 				CharArrayWriter cw = new CharArrayWriter();
+				
+				// Include the literal filename at the beginning of the indexed content
+				cw.write(fileName + "\n");
+				
 				stripper.writeText(pddoc, cw);
 				return SearchUtils.appendCleanString(cw.toCharArray(),null).toString();
 			}
