@@ -634,3 +634,23 @@
 .handsontable.ht_master thead {
     visibility: hidden;
 }
+
+#gradeTableCaption .dl-horizontal {
+  margin-bottom: 1rem;
+}
+
+#gradeTableCaption .dl-horizontal dt {
+  float: left;
+  width: 160px;
+  overflow: hidden;
+  clear: left;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: bold;
+}
+
+#gradeTableCaption .dl-horizontal dd {
+  margin-left: 180px;
+  margin-bottom: 5px;
+}
