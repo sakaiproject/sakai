@@ -10,6 +10,15 @@
  */
 ;(function($) {
 
+// Compatibility shim for $.handleError which was removed in jQuery 1.5.0
+if (!$.handleError) {
+	$.handleError = function(opts, xhr, status, e) {
+		if (opts.error) {
+			opts.error.call(opts.context || opts, xhr, status, e);
+		}
+	};
+}
+
 /*
 	Usage Note:
 	-----------
