@@ -58,6 +58,7 @@ import org.sakaiproject.datemanager.api.DateManagerConstants;
 import org.sakaiproject.datemanager.api.DateManagerService;
 import org.sakaiproject.datemanager.api.model.DateManagerError;
 import org.sakaiproject.datemanager.api.model.DateManagerValidation;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -103,6 +104,9 @@ public class MainController {
     
     @Autowired
     private PreferencesService preferencesService;
+    
+    @Autowired
+    private ServerConfigurationService serverConfigurationService;
 
     private ArrayList<String[]> toolsInfoArray;
 
@@ -292,7 +296,8 @@ public class MainController {
 		} catch (Exception e) {
 			log.error("Cannot create the csv file", e);
 		}
-		char csvSep = ';';
+		String csvSeparatorStr = serverConfigurationService.getString("csv.separator", ",");
+		char csvSep = csvSeparatorStr.charAt(0);
 		CSVWriter gradesBuffer = new CSVWriter(osw, csvSep, CSVWriter.DEFAULT_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.RFC4180_LINE_END);
 		this.addRow(gradesBuffer, "Date Manager");
 		
