@@ -23,7 +23,6 @@ import com.opencsv.CSVReaderBuilder;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -78,15 +77,21 @@ import org.sakaiproject.util.ResourceLoader;
 @Controller
 public class MainController {
 
-    private static final String BOM = "\uFEFF";
+	private static class ToolImportData {
+		String toolId;
+		int index;
+		String[] columns;
+	}
 
-    private String[] columnsCsvStrings = {"id", "title", "open.date.required", "open.date.optional", "available.date", "available.date.required", 
+	private static final String BOM = "\uFEFF";
+
+	private final String[] columnsCsvStrings = {"id", "title", "open.date.required", "open.date.optional", "available.date", "available.date.required",
             "start.date", "start.date.required", "start.date.optional", "show.from.date.optional","hide.until.optional", "due.date",
 			"due.date.required", "due.date.optional", "end.date", "end.date.required", "end.date.optional", "assessments.accept.until",
             "accept.until.required", "show.until.optional", "close.date.optional", "feedback.start.date","feedback.end.date", "signup.begins.date",
 			"signup.deadline.date", "extra.info"};
 
-    private String[][] columnsNames = {{"id", "title", "open_date", "due_date", "accept_until"},
+    private final String[][] columnsNames = {{"id", "title", "open_date", "due_date", "accept_until"},
              {"id", "title", "open_date", "due_date", "accept_until", "feedback_start", "feedback_end"},
              {"id", "title", "due_date"}, 
              {"id", "title", "open_date", "due_date", "signup_begins", "signup_deadline"},
@@ -110,7 +115,7 @@ public class MainController {
     @Autowired
     private ServerConfigurationService serverConfigurationService;
 
-    private List<String[]> toolsInfoArray;
+    private List<ToolImportData> toolsToImport;
 
     private List<List<Object>> tools;
 
@@ -519,7 +524,7 @@ public class MainController {
 	@PostMapping(value = {"/import/dates"}, consumes = "multipart/form-data")
 	public String importDates(Model model, HttpServletRequest request, HttpServletResponse response) {
 		FileItem uploadedFileItem = (FileItem) request.getAttribute("file");
-		toolsInfoArray = new ArrayList<>();
+		toolsToImport = new ArrayList<>();
 		try (
 			// Create CSVReader with the configured separator
 			InputStreamReader inputReader = new InputStreamReader(uploadedFileItem.getInputStream(), StandardCharsets.UTF_8);
@@ -587,14 +592,11 @@ public class MainController {
 							isChanged = false;
 						}
 						if (isChanged) {
-							// Store original line info for later processing in confirmUpdate
-							StringBuilder csvLine = new StringBuilder();
-							for (int i = 0; i < nextLine.length; i++) {
-								if (i > 0) csvLine.append(getCsvSeparator());
-								csvLine.append("\"").append(nextLine[i]).append("\"");
-							}
-							String[] toolInfoArray = {currentToolId, String.valueOf(idx), csvLine.toString(), String.valueOf(nextLine.length)};
-							toolsInfoArray.add(toolInfoArray);
+							ToolImportData data = new ToolImportData();
+							data.toolId = currentToolId;
+							data.index = idx;
+							data.columns = nextLine;
+							toolsToImport.add(data);
 						}
 					}
 					
@@ -644,7 +646,7 @@ public class MainController {
 	@GetMapping(value = {"/date-manager/page/import/confirm"}) 
 	public String showConfirmImport(Model model, HttpServletRequest request, HttpServletResponse response) {
 		model = getModelWithLocale(model, request, response);
-		if (toolsInfoArray.size() > 0) {
+		if (toolsToImport.size() > 0) {
 			model.addAttribute("tools", tools);
 			return "confirm_import";
 		} else {
@@ -665,24 +667,10 @@ public class MainController {
 	public String confirmUpdate(Model model, HttpServletRequest request, HttpServletResponse response) {
 		List<List<Object>> errors = new ArrayList<>();
 		List<List<Object>> dateValidationsByToolId = new ArrayList<>();
-		for (String[] toolInfoArray : toolsInfoArray) {
-			String currentToolId = toolInfoArray[0];
-			int idx = Integer.parseInt(toolInfoArray[1]);
-			String csvLine = toolInfoArray[2];
-			
-			// Parse the CSV line properly using CSVReader
-			String[] toolColumnsAux;
-			try (
-				StringReader stringReader = new StringReader(csvLine);
-				CSVReader lineReader = new CSVReaderBuilder(stringReader)
-					.withCSVParser(new CSVParserBuilder().withSeparator(getCsvSeparatorChar()).build())
-					.build()
-			) {
-				toolColumnsAux = lineReader.readNext();
-			} catch (Exception e) {
-				log.error("Error parsing CSV line: {}", csvLine, e);
-				continue;
-			}
+		for (ToolImportData data : toolsToImport) {
+			String currentToolId = data.toolId;
+			int idx = data.index;
+			String[] toolColumnsAux = data.columns;
 			
 			DateManagerValidation dateValidation = dateManagerService.validateTool(currentToolId, idx, columnsNames, toolColumnsAux);
 			if (dateValidation != null) {
