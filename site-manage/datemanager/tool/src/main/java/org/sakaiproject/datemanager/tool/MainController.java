@@ -110,10 +110,18 @@ public class MainController {
     @Autowired
     private ServerConfigurationService serverConfigurationService;
 
-    private ArrayList<String[]> toolsInfoArray;
+    private List<String[]> toolsInfoArray;
 
-    private ArrayList tools;
+    private List<List<Object>> tools;
 
+    /**
+     * Sets the locale for the current site and user in the model.
+     *
+     * @param model    The model.
+     * @param request  The HTTP request.
+     * @param response The HTTP response.
+     * @return The updated model.
+     */
     public Model getModelWithLocale(Model model, HttpServletRequest request, HttpServletResponse response) {
         final Locale loc = dateManagerService.getLocaleForCurrentSiteAndUser();
         LocaleResolver localeResolver = RequestContextUtils.getLocaleResolver(request);
@@ -128,6 +136,15 @@ public class MainController {
         return model;
     }
 
+    /**
+     * Shows the main page, listing all the items with dates for the current site.
+     *
+     * @param code     Optional request parameter.
+     * @param model    The model.
+     * @param request  The HTTP request.
+     * @param response The HTTP response.
+     * @return The name of the index view.
+     */
     @GetMapping(value = {"/", "/index"})
     public String showIndex(@RequestParam(required=false) String code, Model model, HttpServletRequest request, HttpServletResponse response) {
 		String siteId = dateManagerService.getCurrentSiteId();
@@ -191,6 +208,14 @@ public class MainController {
 		return "index";
 	}
 
+	/**
+	 * Handles the update of dates from the main UI.
+	 *
+	 * @param req           The HTTP request.
+	 * @param model         The model.
+	 * @param requestString The JSON string with the date updates.
+	 * @return A JSON string with the status of the operation.
+	 */
 	@RequestMapping(value = {"/date-manager/update"}, method = RequestMethod.POST, produces = "application/json")
 	public @ResponseBody String dateManagerUpdate(HttpServletRequest req, Model model, @RequestBody String requestString) {
 		String jsonResponse = "";
@@ -284,7 +309,10 @@ public class MainController {
 	}
 
 	/**
-	 * Function that export the current information into a csv file
+	 * Exports the current date information into a CSV file.
+	 *
+	 * @param req The HTTP request.
+	 * @return A {@link ResponseEntity} containing the CSV file as a byte array.
 	 */
 	@GetMapping(value = {"/date-manager/export"})
 	public ResponseEntity<byte[]> exportCsv(HttpServletRequest req) {
@@ -387,41 +415,41 @@ public class MainController {
     }
 	
 	/**
-	 * Void function to add a row to a csv file using the sent values
-	 * 
-	 * @param gradesBuffer - CSVWriter - csv 'file'
-	 * @param values - String (single and array) - values to add
+	 * Adds a row to a CSV file using the provided values.
+	 *
+	 * @param gradesBuffer The CSV writer.
+	 * @param values The values to add to the row.
 	 */
 	public void addRow(CSVWriter gradesBuffer, String... values) {
 		gradesBuffer.writeNext(values);
 	}
 	
 	/**
-	 * Helper method to get the configured CSV separator
-	 * 
-	 * @return String - the CSV separator character as string
+	 * Helper method to get the configured CSV separator.
+	 *
+	 * @return The configured CSV separator character as a string.
 	 */
 	private String getCsvSeparator() {
 		return serverConfigurationService.getString("csv.separator", ",");
 	}
 	
 	/**
-	 * Helper method to get the configured CSV separator as char
-	 * 
-	 * @return char - the CSV separator character
+	 * Helper method to get the configured CSV separator as a char.
+	 *
+	 * @return The configured CSV separator character.
 	 */
 	private char getCsvSeparatorChar() {
 		return getCsvSeparator().charAt(0);
 	}
 
 	/**
-	 * Void function to add a section of rows to a csv file using the sent values
-	 * 
-	 * @param gradesBuffer - CSVWriter - csv 'file'
-	 * @param toolId - String - the toolId
-	 * @param columnsIndex - int[] - the indexes to get the "columnsCsvStrings" String of the Resource Loader of the Title
-	 * @param toolJson - JSONArray - tool information
-	 * @param columnsNames - String[] - the 'indexes' to get the information from the toolJson
+	 * Adds a section of rows to a CSV file for a specific tool.
+	 *
+	 * @param gradesBuffer The CSV writer.
+	 * @param toolId The ID of the tool.
+	 * @param columnsIndex The indices of the columns to include in the export.
+	 * @param toolJson The JSON array of tool data.
+	 * @param columnsNames The names of the columns to extract from the JSON data.
 	 */
 	public void createCsvSection(CSVWriter gradesBuffer, String toolId, int[] columnsIndex, JSONArray toolJson, String[] columnsNames) {
 		String toolTitle = dateManagerService.getToolTitle(toolId);
@@ -463,13 +491,12 @@ public class MainController {
 	}
 
 	/**
-	 * Function to show the import page
-	 * 
-	 * @param Model - model
-	 * @param HttpServletRequest - request
-	 * @param HttpServletResponse - response
-	 * 
-	 * @return String - the page to show
+	 * Shows the import page.
+	 *
+	 * @param model The model.
+	 * @param request The HTTP request.
+	 * @param response The HTTP response.
+	 * @return The name of the import page view.
 	 */
 	@GetMapping(value = {"/date-manager/page/import"})
 	public String showImportPage(Model model, HttpServletRequest request, HttpServletResponse response) {
@@ -482,18 +509,17 @@ public class MainController {
 	}
 
 	/**
-	 * Function to import the sent Dates using the sent csv file content
-	 * 
-	 * @param String - requestCsvContent - the csv file content
-	 * @param Model - model
-	 * @param HttpServletRequest - request
-	 * 
-	 * @return ResponseEntity<String> - the status code and String (only fo the failed cases)
+	 * Imports dates from the provided CSV file content.
+	 *
+	 * @param model The model.
+	 * @param request The HTTP request containing the uploaded file.
+	 * @param response The HTTP response.
+	 * @return The name of the view to show (confirmation or back to import page with errors).
 	 */
 	@PostMapping(value = {"/import/dates"}, consumes = "multipart/form-data")
 	public String importDates(Model model, HttpServletRequest request, HttpServletResponse response) {
 		FileItem uploadedFileItem = (FileItem) request.getAttribute("file");
-		toolsInfoArray = new ArrayList<String[]>();
+		toolsInfoArray = new ArrayList<>();
 		try (
 			// Create CSVReader with the configured separator
 			InputStreamReader inputReader = new InputStreamReader(uploadedFileItem.getInputStream(), StandardCharsets.UTF_8);
@@ -503,9 +529,9 @@ public class MainController {
 		) {
 			tools = new ArrayList<>();
 			
-			ArrayList tool = new ArrayList<>();
-			ArrayList toolHeader = new ArrayList<>();
-			ArrayList toolContent = new ArrayList<>();
+			List<Object> tool = new ArrayList<>();
+			List<String[]> toolHeader = new ArrayList<>();
+			List<String[]> toolContent = new ArrayList<>();
 	
 			boolean isHeader = false;
 			boolean hasChanged = false;
@@ -546,7 +572,7 @@ public class MainController {
 				
 				// Handle data rows (header or content)
 				if (nextLine.length > 1) {
-					String[] toolColumns = new String[nextLine.length - 1]; // Skip first column (ID)
+					String[] toolColumns;
 					
 					// Copy all columns except the first (ID column)
 					toolColumns = Arrays.copyOfRange(nextLine, 1, nextLine.length);
@@ -608,12 +634,12 @@ public class MainController {
 	}
 
 	/**
-	 * Function to show the confirm import page
-	 * 
-	 * @param Model - model
-	 * @param HttpServletRequest - request
-	 * 
-	 * @return String - the page to show
+	 * Shows the import confirmation page.
+	 *
+	 * @param model The model.
+	 * @param request The HTTP request.
+	 * @param response The HTTP response.
+	 * @return The name of the confirmation page view.
 	 */
 	@GetMapping(value = {"/date-manager/page/import/confirm"}) 
 	public String showConfirmImport(Model model, HttpServletRequest request, HttpServletResponse response) {
@@ -628,18 +654,17 @@ public class MainController {
 	}
 
 	/**
-	 * Function to update the information of the sent tools
-	 * 
-	 * @param Model - model
-	 * @param HttpServletRequest - request
-	 * @param HttpServletResponse - response
-	 * 
-	 * @return String - the page to show
+	 * Updates the dates for the tools based on the imported and confirmed data.
+	 *
+	 * @param model The model.
+	 * @param request The HTTP request.
+	 * @param response The HTTP response.
+	 * @return The name of the view to show (main index or back to confirmation page with errors).
 	 */
 	@PostMapping(value = {"/import/dates/confirm"})
 	public String confirmUpdate(Model model, HttpServletRequest request, HttpServletResponse response) {
-		List errors = new ArrayList<>();
-		ArrayList dateValidationsByToolId = new ArrayList<>();
+		List<List<Object>> errors = new ArrayList<>();
+		List<List<Object>> dateValidationsByToolId = new ArrayList<>();
 		for (String[] toolInfoArray : toolsInfoArray) {
 			String currentToolId = toolInfoArray[0];
 			int idx = Integer.parseInt(toolInfoArray[1]);
@@ -662,7 +687,7 @@ public class MainController {
 			DateManagerValidation dateValidation = dateManagerService.validateTool(currentToolId, idx, columnsNames, toolColumnsAux);
 			if (dateValidation != null) {
 				if (!dateValidation.getErrors().isEmpty()) {
-					List error = new ArrayList<>();
+					List<Object> error = new ArrayList<>();
 					String id = toolColumnsAux[0];
 					String title = toolColumnsAux[1];
 					error.add(dateValidation);
@@ -670,7 +695,7 @@ public class MainController {
 					error.add(title);
 					errors.add(error);
 				} else {
-					ArrayList dateValidationArray = new ArrayList<>();
+					List<Object> dateValidationArray = new ArrayList<>();
 					dateValidationArray.add(currentToolId);
 					dateValidationArray.add(dateValidation);
 					dateValidationsByToolId.add(dateValidationArray);
@@ -680,9 +705,9 @@ public class MainController {
 		
 		model = getModelWithLocale(model, request, response);
 		if (errors.isEmpty()){
-			for (Object dateValidationObject : dateValidationsByToolId) {
-				String currentToolId = (String) ((ArrayList) dateValidationObject).get(0);
-				DateManagerValidation dateValidation = (DateManagerValidation) ((ArrayList) dateValidationObject).get(1);
+			for (List<Object> dateValidationObject : dateValidationsByToolId) {
+				String currentToolId = (String) dateValidationObject.get(0);
+				DateManagerValidation dateValidation = (DateManagerValidation) dateValidationObject.get(1);
 				
 				dateManagerService.updateTool(currentToolId, dateValidation);
 			}
