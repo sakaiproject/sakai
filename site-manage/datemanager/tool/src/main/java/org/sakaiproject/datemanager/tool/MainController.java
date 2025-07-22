@@ -418,17 +418,6 @@ public class MainController {
 	private char getCsvSeparatorChar() {
 		return getCsvSeparator().charAt(0);
 	}
-	
-	/**
-	 * Helper method to escape the CSV separator for regex use
-	 * 
-	 * @return String - properly escaped separator for regex
-	 */
-	private String getEscapedCsvSeparator() {
-		String separator = getCsvSeparator();
-		// For regex, we only need to escape special characters. Comma and semicolon don't need escaping
-		return separator.equals(",") || separator.equals(";") ? separator : "\\" + separator;
-	}
 
 	/**
 	 * Void function to add a section of rows to a csv file using the sent values
@@ -512,7 +501,7 @@ public class MainController {
 		toolsInfoArray = new ArrayList<String[]>();
 		try {
 			// Create CSVReader with the configured separator
-			InputStreamReader inputReader = new InputStreamReader(uploadedFileItem.getInputStream(), StandardCharsets.UTF_8.name());
+			InputStreamReader inputReader = new InputStreamReader(uploadedFileItem.getInputStream(), StandardCharsets.UTF_8);
 			CSVReader reader = new CSVReaderBuilder(inputReader)
 				.withCSVParser(new CSVParserBuilder().withSeparator(getCsvSeparatorChar()).build())
 				.build();
@@ -536,7 +525,7 @@ public class MainController {
 				// Handle empty lines (tool separators)
 				if (nextLine.length == 1 && StringUtils.isBlank(nextLine[0])) {
 					// Empty line indicates new tool section
-					if (hasChanged && toolHeader.size() > 0 && toolContent.size() > 0) {
+					if (hasChanged && !toolHeader.isEmpty() && !toolContent.isEmpty()) {
 						tool.add(dateManagerService.getToolTitle(currentToolId));
 						tool.add(toolHeader);
 						tool.add(toolContent);
@@ -602,7 +591,7 @@ public class MainController {
 			}
 			
 			// Handle the last tool if it exists
-			if (hasChanged && toolHeader.size() > 0 && toolContent.size() > 0) {
+			if (hasChanged && !toolHeader.isEmpty() && !toolContent.isEmpty()) {
 				tool.add(dateManagerService.getToolTitle(currentToolId));
 				tool.add(toolHeader);
 				tool.add(toolContent);
@@ -613,7 +602,7 @@ public class MainController {
 			log.error("Cannot identify the file received", ex);
 		}
 		model = getModelWithLocale(model, request, response);
-		if (tools.size() > 0) {
+		if (!tools.isEmpty()) {
 			model.addAttribute("tools", tools);
 			return "confirm_import";
 		} else {
