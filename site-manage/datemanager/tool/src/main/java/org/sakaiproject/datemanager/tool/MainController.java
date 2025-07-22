@@ -24,14 +24,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.List;
 import java.util.Arrays;
-import java.util.regex.Pattern;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -290,89 +288,86 @@ public class MainController {
 	 */
 	@GetMapping(value = {"/date-manager/export"})
 	public ResponseEntity<byte[]> exportCsv(HttpServletRequest req) {
-		
+
 		String siteId = req.getRequestURI().split("/")[3];
 
 		ByteArrayOutputStream gradesBAOS = new ByteArrayOutputStream();
-		OutputStreamWriter osw = new OutputStreamWriter(gradesBAOS, Charset.forName("UTF-8"));
-		try {
-			osw.write(BOM);
-		} catch (Exception e) {
-			log.error("Cannot create the csv file", e);
-		}
 		char csvSep = getCsvSeparatorChar();
-		CSVWriter gradesBuffer = new CSVWriter(osw, csvSep, CSVWriter.DEFAULT_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.RFC4180_LINE_END);
-		this.addRow(gradesBuffer, "Date Manager");
-		
-		if (dateManagerService.currentSiteContainsTool(DateManagerConstants.COMMON_ID_ASSIGNMENTS)) {
-			JSONArray assignmentsJson = dateManagerService.getAssignmentsForContext(siteId);
-			if (assignmentsJson.size() > 0) {
-				int[] columnsIndex = {0, 1, 2, 12, 18};
-				this.createCsvSection(gradesBuffer, DateManagerConstants.COMMON_ID_ASSIGNMENTS, columnsIndex, assignmentsJson, columnsNames[0]);
+		try (
+			OutputStreamWriter osw = new OutputStreamWriter(gradesBAOS, StandardCharsets.UTF_8);
+			CSVWriter gradesBuffer = new CSVWriter(osw, csvSep, CSVWriter.DEFAULT_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.RFC4180_LINE_END)
+		) {
+			osw.write(BOM);
+			this.addRow(gradesBuffer, "Date Manager");
+
+			if (dateManagerService.currentSiteContainsTool(DateManagerConstants.COMMON_ID_ASSIGNMENTS)) {
+				JSONArray assignmentsJson = dateManagerService.getAssignmentsForContext(siteId);
+				if (assignmentsJson.size() > 0) {
+					int[] columnsIndex = {0, 1, 2, 12, 18};
+					this.createCsvSection(gradesBuffer, DateManagerConstants.COMMON_ID_ASSIGNMENTS, columnsIndex, assignmentsJson, columnsNames[0]);
+				}
 			}
-		}
-		if (dateManagerService.currentSiteContainsTool(DateManagerConstants.COMMON_ID_ASSESSMENTS)) {
-			JSONArray assessmentsJson = dateManagerService.getAssessmentsForContext(siteId);
-			if (assessmentsJson.size() > 0) {
-				int[] columnsIndex = {0, 1, 5, 11, 17, 21, 22};
-				this.createCsvSection(gradesBuffer, DateManagerConstants.COMMON_ID_ASSESSMENTS, columnsIndex, assessmentsJson, columnsNames[1]);
+			if (dateManagerService.currentSiteContainsTool(DateManagerConstants.COMMON_ID_ASSESSMENTS)) {
+				JSONArray assessmentsJson = dateManagerService.getAssessmentsForContext(siteId);
+				if (assessmentsJson.size() > 0) {
+					int[] columnsIndex = {0, 1, 5, 11, 17, 21, 22};
+					this.createCsvSection(gradesBuffer, DateManagerConstants.COMMON_ID_ASSESSMENTS, columnsIndex, assessmentsJson, columnsNames[1]);
+				}
 			}
-		}
-		if (dateManagerService.currentSiteContainsTool(DateManagerConstants.COMMON_ID_GRADEBOOK)) {
-			JSONArray gradebookItemsJson = dateManagerService.getGradebookItemsForContext(siteId);
-			if (gradebookItemsJson.size() > 0) {
-				int[] columnsIndex = {0, 1, 13};
-				this.createCsvSection(gradesBuffer, DateManagerConstants.COMMON_ID_GRADEBOOK, columnsIndex, gradebookItemsJson, columnsNames[2]);
+			if (dateManagerService.currentSiteContainsTool(DateManagerConstants.COMMON_ID_GRADEBOOK)) {
+				JSONArray gradebookItemsJson = dateManagerService.getGradebookItemsForContext(siteId);
+				if (gradebookItemsJson.size() > 0) {
+					int[] columnsIndex = {0, 1, 13};
+					this.createCsvSection(gradesBuffer, DateManagerConstants.COMMON_ID_GRADEBOOK, columnsIndex, gradebookItemsJson, columnsNames[2]);
+				}
 			}
-		}
-		if (dateManagerService.currentSiteContainsTool(DateManagerConstants.COMMON_ID_SIGNUP)) {
-			JSONArray signupMeetingsJson = dateManagerService.getSignupMeetingsForContext(siteId);
-			if (signupMeetingsJson.size() > 0) {
-				int[] columnsIndex = {0, 1, 6, 14, 23, 24};
-				this.createCsvSection(gradesBuffer, DateManagerConstants.COMMON_ID_SIGNUP, columnsIndex, signupMeetingsJson, columnsNames[3]);
+			if (dateManagerService.currentSiteContainsTool(DateManagerConstants.COMMON_ID_SIGNUP)) {
+				JSONArray signupMeetingsJson = dateManagerService.getSignupMeetingsForContext(siteId);
+				if (signupMeetingsJson.size() > 0) {
+					int[] columnsIndex = {0, 1, 6, 14, 23, 24};
+					this.createCsvSection(gradesBuffer, DateManagerConstants.COMMON_ID_SIGNUP, columnsIndex, signupMeetingsJson, columnsNames[3]);
+				}
 			}
-		}
-		if (dateManagerService.currentSiteContainsTool(DateManagerConstants.COMMON_ID_RESOURCES)) {
-			JSONArray resourcesJson = dateManagerService.getResourcesForContext(siteId);
-			if (resourcesJson.size() > 0) {
-				int[] columnsIndex = {0, 1, 9, 19, 25};
-				this.createCsvSection(gradesBuffer, DateManagerConstants.COMMON_ID_RESOURCES, columnsIndex, resourcesJson, columnsNames[5]);
+			if (dateManagerService.currentSiteContainsTool(DateManagerConstants.COMMON_ID_RESOURCES)) {
+				JSONArray resourcesJson = dateManagerService.getResourcesForContext(siteId);
+				if (resourcesJson.size() > 0) {
+					int[] columnsIndex = {0, 1, 9, 19, 25};
+					this.createCsvSection(gradesBuffer, DateManagerConstants.COMMON_ID_RESOURCES, columnsIndex, resourcesJson, columnsNames[5]);
+				}
 			}
-		}
-		if (dateManagerService.currentSiteContainsTool(DateManagerConstants.COMMON_ID_CALENDAR)) {
-			JSONArray calendarJson = dateManagerService.getCalendarEventsForContext(siteId);
-			if (calendarJson.size() > 0) {
-				int[] columnsIndex = {0, 1, 7, 15};
-				this.createCsvSection(gradesBuffer, DateManagerConstants.COMMON_ID_CALENDAR, columnsIndex, calendarJson, columnsNames[4]);
+			if (dateManagerService.currentSiteContainsTool(DateManagerConstants.COMMON_ID_CALENDAR)) {
+				JSONArray calendarJson = dateManagerService.getCalendarEventsForContext(siteId);
+				if (calendarJson.size() > 0) {
+					int[] columnsIndex = {0, 1, 7, 15};
+					this.createCsvSection(gradesBuffer, DateManagerConstants.COMMON_ID_CALENDAR, columnsIndex, calendarJson, columnsNames[4]);
+				}
 			}
-		}
-		if (dateManagerService.currentSiteContainsTool(DateManagerConstants.COMMON_ID_FORUMS)) {
-			JSONArray forumsJson = dateManagerService.getForumsForContext(siteId);
-			if (forumsJson.size() > 0) {
-				int[] columnsIndex = {0, 1, 3, 20, 25};
-				this.createCsvSection(gradesBuffer, DateManagerConstants.COMMON_ID_FORUMS, columnsIndex, forumsJson, columnsNames[5]);
+			if (dateManagerService.currentSiteContainsTool(DateManagerConstants.COMMON_ID_FORUMS)) {
+				JSONArray forumsJson = dateManagerService.getForumsForContext(siteId);
+				if (forumsJson.size() > 0) {
+					int[] columnsIndex = {0, 1, 3, 20, 25};
+					this.createCsvSection(gradesBuffer, DateManagerConstants.COMMON_ID_FORUMS, columnsIndex, forumsJson, columnsNames[5]);
+				}
 			}
-		}
-		if (dateManagerService.currentSiteContainsTool(DateManagerConstants.COMMON_ID_ANNOUNCEMENTS)) {
-			JSONArray announcementsJson = dateManagerService.getAnnouncementsForContext(siteId);
-			if (announcementsJson.size() > 0) {
-				int[] columnsIndex = {0, 1, 8, 16};
-				this.createCsvSection(gradesBuffer, DateManagerConstants.COMMON_ID_ANNOUNCEMENTS, columnsIndex, announcementsJson, columnsNames[4]);
+			if (dateManagerService.currentSiteContainsTool(DateManagerConstants.COMMON_ID_ANNOUNCEMENTS)) {
+				JSONArray announcementsJson = dateManagerService.getAnnouncementsForContext(siteId);
+				if (announcementsJson.size() > 0) {
+					int[] columnsIndex = {0, 1, 8, 16};
+					this.createCsvSection(gradesBuffer, DateManagerConstants.COMMON_ID_ANNOUNCEMENTS, columnsIndex, announcementsJson, columnsNames[4]);
+				}
 			}
-		}
-		if (dateManagerService.currentSiteContainsTool(DateManagerConstants.COMMON_ID_LESSONS)) {
-			JSONArray lessonsJson = dateManagerService.getLessonsForContext(siteId);
-			if (lessonsJson.size() > 0) {
-				int[] columnsIndex = {0, 1, 10};
-				this.createCsvSection(gradesBuffer, DateManagerConstants.COMMON_ID_LESSONS, columnsIndex, lessonsJson, columnsNames[6]);
+			if (dateManagerService.currentSiteContainsTool(DateManagerConstants.COMMON_ID_LESSONS)) {
+				JSONArray lessonsJson = dateManagerService.getLessonsForContext(siteId);
+				if (lessonsJson.size() > 0) {
+					int[] columnsIndex = {0, 1, 10};
+					this.createCsvSection(gradesBuffer, DateManagerConstants.COMMON_ID_LESSONS, columnsIndex, lessonsJson, columnsNames[6]);
+				}
 			}
+		} catch (Exception ex) {
+			log.error("Cannot create the csv file", ex);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		}
 
-		try {
-			gradesBuffer.close();
-		} catch(Exception ex) {
-			log.error("Cannot close the gradesBuffer", ex);
-		}
 		HttpHeaders headers = new HttpHeaders();
 		String siteName;
 		try {
@@ -499,12 +494,13 @@ public class MainController {
 	public String importDates(Model model, HttpServletRequest request, HttpServletResponse response) {
 		FileItem uploadedFileItem = (FileItem) request.getAttribute("file");
 		toolsInfoArray = new ArrayList<String[]>();
-		try {
+		try (
 			// Create CSVReader with the configured separator
 			InputStreamReader inputReader = new InputStreamReader(uploadedFileItem.getInputStream(), StandardCharsets.UTF_8);
 			CSVReader reader = new CSVReaderBuilder(inputReader)
 				.withCSVParser(new CSVParserBuilder().withSeparator(getCsvSeparatorChar()).build())
-				.build();
+				.build()
+		) {
 			tools = new ArrayList<>();
 			
 			ArrayList tool = new ArrayList<>();
@@ -553,8 +549,8 @@ public class MainController {
 					String[] toolColumns = new String[nextLine.length - 1]; // Skip first column (ID)
 					
 					// Copy all columns except the first (ID column)
-					System.arraycopy(nextLine, 1, toolColumns, 0, nextLine.length - 1);
-					
+					toolColumns = Arrays.copyOfRange(nextLine, 1, nextLine.length);
+
 					// Check if this row has changes (skip for header rows)
 					boolean isChanged = true;
 					if (!isHeader) {
@@ -644,7 +640,6 @@ public class MainController {
 	public String confirmUpdate(Model model, HttpServletRequest request, HttpServletResponse response) {
 		List errors = new ArrayList<>();
 		ArrayList dateValidationsByToolId = new ArrayList<>();
-		String csvSeparator = getCsvSeparator();
 		for (String[] toolInfoArray : toolsInfoArray) {
 			String currentToolId = toolInfoArray[0];
 			int idx = Integer.parseInt(toolInfoArray[1]);
@@ -652,15 +647,15 @@ public class MainController {
 			
 			// Parse the CSV line properly using CSVReader
 			String[] toolColumnsAux;
-			try {
+			try (
 				StringReader stringReader = new StringReader(csvLine);
 				CSVReader lineReader = new CSVReaderBuilder(stringReader)
 					.withCSVParser(new CSVParserBuilder().withSeparator(getCsvSeparatorChar()).build())
-					.build();
+					.build()
+			) {
 				toolColumnsAux = lineReader.readNext();
-				lineReader.close();
 			} catch (Exception e) {
-				log.error("Error parsing CSV line: " + csvLine, e);
+				log.error("Error parsing CSV line: {}", csvLine, e);
 				continue;
 			}
 			
@@ -684,7 +679,7 @@ public class MainController {
 		}
 		
 		model = getModelWithLocale(model, request, response);
-		if (errors.size() == 0){
+		if (errors.isEmpty()){
 			for (Object dateValidationObject : dateValidationsByToolId) {
 				String currentToolId = (String) ((ArrayList) dateValidationObject).get(0);
 				DateManagerValidation dateValidation = (DateManagerValidation) ((ArrayList) dateValidationObject).get(1);
