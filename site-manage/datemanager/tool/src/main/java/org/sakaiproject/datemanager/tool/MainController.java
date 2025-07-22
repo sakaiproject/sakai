@@ -17,10 +17,13 @@ package org.sakaiproject.datemanager.tool;
 
 import com.opencsv.CSVWriter;
 import com.opencsv.CSVReader;
+import com.opencsv.CSVParserBuilder;
+import com.opencsv.CSVReaderBuilder;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
@@ -28,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 import java.util.List;
 import java.util.Arrays;
+import java.util.regex.Pattern;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -296,8 +300,7 @@ public class MainController {
 		} catch (Exception e) {
 			log.error("Cannot create the csv file", e);
 		}
-		String csvSeparatorStr = serverConfigurationService.getString("csv.separator", ",");
-		char csvSep = csvSeparatorStr.charAt(0);
+		char csvSep = getCsvSeparatorChar();
 		CSVWriter gradesBuffer = new CSVWriter(osw, csvSep, CSVWriter.DEFAULT_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.RFC4180_LINE_END);
 		this.addRow(gradesBuffer, "Date Manager");
 		
@@ -397,6 +400,35 @@ public class MainController {
 	public void addRow(CSVWriter gradesBuffer, String... values) {
 		gradesBuffer.writeNext(values);
 	}
+	
+	/**
+	 * Helper method to get the configured CSV separator
+	 * 
+	 * @return String - the CSV separator character as string
+	 */
+	private String getCsvSeparator() {
+		return serverConfigurationService.getString("csv.separator", ",");
+	}
+	
+	/**
+	 * Helper method to get the configured CSV separator as char
+	 * 
+	 * @return char - the CSV separator character
+	 */
+	private char getCsvSeparatorChar() {
+		return getCsvSeparator().charAt(0);
+	}
+	
+	/**
+	 * Helper method to escape the CSV separator for regex use
+	 * 
+	 * @return String - properly escaped separator for regex
+	 */
+	private String getEscapedCsvSeparator() {
+		String separator = getCsvSeparator();
+		// For regex, we only need to escape special characters. Comma and semicolon don't need escaping
+		return separator.equals(",") || separator.equals(";") ? separator : "\\" + separator;
+	}
 
 	/**
 	 * Void function to add a section of rows to a csv file using the sent values
@@ -479,85 +511,84 @@ public class MainController {
 		FileItem uploadedFileItem = (FileItem) request.getAttribute("file");
 		toolsInfoArray = new ArrayList<String[]>();
 		try {
-			CSVReader reader = new CSVReader(new InputStreamReader(uploadedFileItem.getInputStream(), StandardCharsets.UTF_8.name()));
+			// Create CSVReader with the configured separator
+			InputStreamReader inputReader = new InputStreamReader(uploadedFileItem.getInputStream(), StandardCharsets.UTF_8.name());
+			CSVReader reader = new CSVReaderBuilder(inputReader)
+				.withCSVParser(new CSVParserBuilder().withSeparator(getCsvSeparatorChar()).build())
+				.build();
 			tools = new ArrayList<>();
-			// We ignore the first line because the first line it is the "Date Manager" title and it is unneceseary to show
+			
 			ArrayList tool = new ArrayList<>();
 			ArrayList toolHeader = new ArrayList<>();
 			ArrayList toolContent = new ArrayList<>();
 	
 			boolean isHeader = false;
-			boolean isAnotherTool = false;
 			boolean hasChanged = false;
 			String currentToolId = "";
 			int idx = 0;
 
 			String[] nextLine;
-			boolean nextLineIsHeader = false;
+			
+			// Skip the first line ("Date Manager" title)
+			reader.readNext();
+			
 			while ((nextLine = reader.readNext()) != null) {
-				String csvLine = nextLine[0];
-				if (!csvLine.contains("\"")) {
-					if (csvLine.matches(";+") || csvLine.matches(",+")) {
-						nextLineIsHeader = true;
+				// Handle empty lines (tool separators)
+				if (nextLine.length == 1 && StringUtils.isBlank(nextLine[0])) {
+					// Empty line indicates new tool section
+					if (hasChanged && toolHeader.size() > 0 && toolContent.size() > 0) {
+						tool.add(dateManagerService.getToolTitle(currentToolId));
+						tool.add(toolHeader);
+						tool.add(toolContent);
+						tools.add(tool);
 					}
-					if (nextLineIsHeader) {
-						csvLine = csvLine.replaceAll(";", "");
-						csvLine = csvLine.replaceAll(",", "");
-					}
-					else {
-						csvLine = csvLine.replaceAll(";", "\";\"");
-						csvLine = csvLine.replaceAll(",", "\";\"");
-					}
+					
+					// Reset for next tool
+					tool = new ArrayList<>();
+					toolHeader = new ArrayList<>();
+					toolContent = new ArrayList<>();
+					hasChanged = false;
+					continue;
 				}
-				if (csvLine.indexOf(";") == -1) {
-					if (csvLine.length() > 0) {
-						String toolId = csvLine.indexOf("(") != -1? csvLine.substring(0, csvLine.indexOf("(")).replaceAll("\"", "") : csvLine;
-						currentToolId = toolId;
-						isHeader = true;
-						isAnotherTool = false;
-						nextLineIsHeader = false;
-					} else {
-						isAnotherTool = true;
-					}
-				} else {
-					if (!csvLine.contains("\"")) {
-						if (csvLine.contains(";")) {
-							csvLine = csvLine.replaceAll(";", "\";\"");
-						} else {
-							csvLine = csvLine.replaceAll(",", "\",\"");
-						}
-					}
-					String[] toolColumnsAux = csvLine.split(";\"");
-					int toolColumnsAuxSize = (toolHeader.size() > 0? ((String[]) toolHeader.get(0)).length : toolColumnsAux.length - 1);
-					String[] toolColumns = new String[toolColumnsAuxSize];
+				
+				// Handle tool title lines (e.g., "sakai.assignment(Assignments)")
+				if (nextLine.length == 1 && nextLine[0].contains("(") && nextLine[0].contains(")")) {
+					String toolLine = nextLine[0];
+					currentToolId = toolLine.substring(0, toolLine.indexOf("("));
+					isHeader = true;
+					continue;
+				}
+				
+				// Handle data rows (header or content)
+				if (nextLine.length > 1) {
+					String[] toolColumns = new String[nextLine.length - 1]; // Skip first column (ID)
 					
-					if (toolColumnsAux.length < toolColumnsAuxSize + 1) {
-						int toolColumnsAuxPreviusSize = toolColumnsAux.length;
-						toolColumnsAux = Arrays.copyOf(toolColumnsAux, toolColumnsAuxSize + 1);
-						for (int i = toolColumnsAuxPreviusSize; i < toolColumnsAuxSize + 1; i++) {
-							toolColumnsAux[i] = "";
-						}
-					}
+					// Copy all columns except the first (ID column)
+					System.arraycopy(nextLine, 1, toolColumns, 0, nextLine.length - 1);
 					
-					// We ignore here the first column because it is the id, and it will not shown
+					// Check if this row has changes (skip for header rows)
 					boolean isChanged = true;
 					if (!isHeader) {
 						try {
-							isChanged = dateManagerService.isChanged(currentToolId, toolColumnsAux);
+							isChanged = dateManagerService.isChanged(currentToolId, nextLine);
 						} catch (Exception ex) {
 							log.error("Cannot identify if it is changed or not in {}", currentToolId);
 							isChanged = false;
 						}
 						if (isChanged) {
-							String[] toolInfoArray = {currentToolId, String.valueOf(idx), csvLine, String.valueOf(toolColumnsAuxSize)};
+							// Store original line info for later processing in confirmUpdate
+							StringBuilder csvLine = new StringBuilder();
+							for (int i = 0; i < nextLine.length; i++) {
+								if (i > 0) csvLine.append(getCsvSeparator());
+								csvLine.append("\"").append(nextLine[i]).append("\"");
+							}
+							String[] toolInfoArray = {currentToolId, String.valueOf(idx), csvLine.toString(), String.valueOf(nextLine.length)};
 							toolsInfoArray.add(toolInfoArray);
 						}
 					}
+					
 					idx++;
 					if (isChanged) {
-						for (int j = 1; j < toolColumnsAux.length; j++) {
-							toolColumns[j-1] = toolColumnsAux[j].replaceAll("\"", "");
-						}
 						if (isHeader) {
 							isHeader = false;
 							toolHeader = new ArrayList<>();
@@ -568,22 +599,10 @@ public class MainController {
 						}
 					}
 				}
-				if (isAnotherTool) {
-					if (hasChanged && toolHeader.size() > 0 && toolContent.size() > 0) {
-						tool.add(dateManagerService.getToolTitle(currentToolId));
-						tool.add(toolHeader);
-						tool.add(toolContent);
-						tools.add(tool);
-					}
-
-					tool = new ArrayList<>();
-					toolHeader = new ArrayList<>();
-					toolContent = new ArrayList<>();
-					hasChanged = false;
-					isAnotherTool = false;
-				}
 			}
-			if (hasChanged) {
+			
+			// Handle the last tool if it exists
+			if (hasChanged && toolHeader.size() > 0 && toolContent.size() > 0) {
 				tool.add(dateManagerService.getToolTitle(currentToolId));
 				tool.add(toolHeader);
 				tool.add(toolContent);
@@ -636,13 +655,26 @@ public class MainController {
 	public String confirmUpdate(Model model, HttpServletRequest request, HttpServletResponse response) {
 		List errors = new ArrayList<>();
 		ArrayList dateValidationsByToolId = new ArrayList<>();
+		String csvSeparator = getCsvSeparator();
 		for (String[] toolInfoArray : toolsInfoArray) {
 			String currentToolId = toolInfoArray[0];
 			int idx = Integer.parseInt(toolInfoArray[1]);
-			String[] toolColumnsAux = new String[Integer.parseInt(toolInfoArray[3]) + 1];
-			for (int j = 0; j < toolInfoArray[2].split(";\"").length; j++) {
-				toolColumnsAux[j] = toolInfoArray[2].split(";\"")[j].replaceAll("\"", "");
+			String csvLine = toolInfoArray[2];
+			
+			// Parse the CSV line properly using CSVReader
+			String[] toolColumnsAux;
+			try {
+				StringReader stringReader = new StringReader(csvLine);
+				CSVReader lineReader = new CSVReaderBuilder(stringReader)
+					.withCSVParser(new CSVParserBuilder().withSeparator(getCsvSeparatorChar()).build())
+					.build();
+				toolColumnsAux = lineReader.readNext();
+				lineReader.close();
+			} catch (Exception e) {
+				log.error("Error parsing CSV line: " + csvLine, e);
+				continue;
 			}
+			
 			DateManagerValidation dateValidation = dateManagerService.validateTool(currentToolId, idx, columnsNames, toolColumnsAux);
 			if (dateValidation != null) {
 				if (!dateValidation.getErrors().isEmpty()) {
