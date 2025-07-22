@@ -1252,8 +1252,8 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       action: "viewStatistics",
       assignmentId: cellElement.data("assignment-id"),
     });
-  })
-  .on("click", ".gb-dropdown-menu .gb-course-grade-override", function () {
+  }).
+  on("click", ".gb-dropdown-menu .gb-course-grade-override", function () {
     const cellElement = $(this).closest(".tabulator-cell, .tabulator-col");
 
     GbGradeTable.ajax({
@@ -1418,6 +1418,22 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     GbGradeTable.ajax({
       action: "viewCourseGradeBreakdown",
       siteId: GbGradeTable.container.dataset.siteId,
+    });
+  })
+  .on("click", ".gb-dropdown-menu .gb-rubric-export", function () {
+    const cellElement = $(this).closest(".tabulator-cell, .tabulator-col");
+
+    let userIds = document.getElementsByClassName("userIds");
+
+    let userIdsSt = "";
+    for (let index = 0; index < userIds.length; index++) {
+      userIdsSt = ((index != 0) ? userIdsSt + "," : "") + userIds[index].value;
+    }
+
+    GbGradeTable.ajax({
+      action: "exportRubricAssignmentAction",
+      assignmentId: cellElement.data("assignment-id"),
+      userIds: userIdsSt
     });
   });
   

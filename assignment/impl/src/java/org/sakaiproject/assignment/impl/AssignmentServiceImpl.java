@@ -20,6 +20,8 @@ import static org.sakaiproject.assignment.api.AssignmentServiceConstants.*;
 import static org.sakaiproject.assignment.api.model.Assignment.Access.*;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -89,6 +91,7 @@ import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemAttachment;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemService;
+import org.sakaiproject.assignment.api.model.PeerAssessmentItem;
 import org.sakaiproject.assignment.api.persistence.AssignmentRepository;
 import org.sakaiproject.assignment.api.reminder.AssignmentDueReminderService;
 import org.sakaiproject.assignment.api.taggable.AssignmentActivityProducer;
@@ -150,6 +153,7 @@ import org.sakaiproject.messaging.api.Message;
 import org.sakaiproject.messaging.api.MessageMedium;
 import org.sakaiproject.messaging.api.UserMessagingService;
 import org.sakaiproject.rubrics.api.RubricsService;
+import org.sakaiproject.rubrics.api.beans.AssociationTransferBean;
 import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.site.api.Group;
@@ -634,6 +638,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             } else {
                 // determine the type of download to create using the reference that was requested
                 AssignmentReferenceReckoner.AssignmentReference refReckoner = AssignmentReferenceReckoner.reckoner().reference(ref.getReference()).reckon();
+
                 if (REFERENCE_ROOT.equals("/" + refReckoner.getType())) {
                     // don't process any references that are not of type assignment
                     switch (refReckoner.getSubtype()) {
@@ -2283,6 +2288,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         boolean withFeedbackText = false;
         boolean withFeedbackComment = false;
         boolean withFeedbackAttachment = false;
+        boolean withRubrics = false;
         boolean withoutFolders = false;
         boolean includeNotSubmitted = false;
         String gradeFileFormat = "csv";
@@ -2322,6 +2328,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 } else if (token.contains("feedbackAttachments")) {
                     // feedback attachment
                     withFeedbackAttachment = true;
+                } else if (token.contains("rubrics")) {
+                    withRubrics = true;
                 } else if (token.contains("withoutFolders")) {
                     // feedback attachment
                     withoutFolders = true;
@@ -2389,6 +2397,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                 withFeedbackText,
                                 withFeedbackComment,
                                 withFeedbackAttachment,
+                                withRubrics,
                                 gradeFileFormat,
                                 includeNotSubmitted);
 
@@ -2430,6 +2439,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                 withFeedbackText,
                                 withFeedbackComment,
                                 withFeedbackAttachment,
+                                withRubrics,
                                 withoutFolders,
                                 gradeFileFormat,
                                 includeNotSubmitted,
@@ -3485,7 +3495,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     // TODO zipSubmissions and zipGroupSubmissions should be combined
-    private void zipSubmissions(String assignmentReference, String assignmentTitle, Assignment.GradeType gradeType, Assignment.SubmissionType typeOfSubmission, Iterator submissions, OutputStream outputStream, StringBuilder exceptionMessage, boolean withStudentSubmissionText, boolean withStudentSubmissionAttachment, boolean withGradeFile, boolean withFeedbackText, boolean withFeedbackComment, boolean withFeedbackAttachment, boolean withoutFolders, String gradeFileFormat, boolean includeNotSubmitted, String siteId) {
+    private void zipSubmissions(String assignmentReference, String assignmentTitle, Assignment.GradeType gradeType, Assignment.SubmissionType typeOfSubmission, Iterator submissions, OutputStream outputStream, StringBuilder exceptionMessage, boolean withStudentSubmissionText, boolean withStudentSubmissionAttachment, boolean withGradeFile, boolean withFeedbackText, boolean withFeedbackComment, boolean withFeedbackAttachment, boolean withRubrics, boolean withoutFolders, String gradeFileFormat, boolean includeNotSubmitted, String siteId) {
         ZipOutputStream out = null;
 
         boolean isAdditionalNotesEnabled = false;
@@ -3640,7 +3650,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
                                 // record submission timestamp
                                 if (!withoutFolders && s.getSubmitted() && s.getDateSubmitted() != null) {
-                                    final String zipEntryName = submittersName + "timestamp.txt";
+                                    final String zipEntryName = submittersName + resourceLoader.getString("zip.timestamp") + AssignmentConstants.ZIP_COMMENT_FILE_TYPE;
                                     final String textEntryString = s.getDateSubmitted().toString();
                                     createTextZipEntry(out, zipEntryName, textEntryString);
                                 }
@@ -3663,7 +3673,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                     // include student submission feedback text
                                     if (withFeedbackText) {
                                         // create a feedbackText file into zip
-                                    	final String zipEntryName = submittersName + "feedbackText.html";
+                                    	final String zipEntryName = submittersName + resourceLoader.getString("zip.feedback_text") + AssignmentConstants.ZIP_SUBMITTED_TEXT_FILE_TYPE;
                                         final String textEntryString = s.getFeedbackText();
                                         createTextZipEntry(out, zipEntryName, textEntryString);
                                     }
@@ -3691,7 +3701,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
                                 if (withFeedbackComment) {
                                     // the comments.txt file to show instructor's comments
-                                	final String zipEntryName = submittersName + "comments" + AssignmentConstants.ZIP_COMMENT_FILE_TYPE;
+                                	final String zipEntryName = submittersName + resourceLoader.getString("zip.comments") + AssignmentConstants.ZIP_COMMENT_FILE_TYPE;
                                     final String textEntryString = formattedText.encodeUnicode(s.getFeedbackComment());
                                     createTextZipEntry(out, zipEntryName, textEntryString);
                                 }
@@ -3709,6 +3719,19 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
                                     // add all feedback attachment folder
                                     zipAttachments(out, submittersName, feedbackSubAttachmentFolder, s.getFeedbackAttachments());
+                                }
+
+                                String assignmentId = s.getAssignment().getId();
+
+                                Optional<AssociationTransferBean> optAssociation = rubricsService.getAssociationForToolAndItem(AssignmentConstants.TOOL_ID, assignmentId, siteId);
+
+                                if (withRubrics && optAssociation.isPresent()) {
+                                    byte[] pdf = rubricsService.createPdf(siteId, optAssociation.get().getRubricId(), AssignmentServiceConstants.ASSIGNMENT_TOOL_ID, assignmentId, s.getId());
+
+                                    final ZipEntry zipEntryPdf = new ZipEntry(submittersName + resourceLoader.getString("zip.rubrics") + AssignmentConstants.ZIP_PDF_FILE_TYPE);
+
+                                    out.putNextEntry(zipEntryPdf);
+                                    out.write(pdf);
                                     out.closeEntry();
                                 }
                             } // if
@@ -3801,7 +3824,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     // TODO zipSubmissions and zipGroupSubmissions should be combined
-    protected void zipGroupSubmissions(String assignmentReference, String assignmentTitle, String gradeTypeString, Assignment.SubmissionType typeOfSubmission, Iterator submissions, OutputStream outputStream, StringBuilder exceptionMessage, boolean withStudentSubmissionText, boolean withStudentSubmissionAttachment, boolean withGradeFile, boolean withFeedbackText, boolean withFeedbackComment, boolean withFeedbackAttachment, String gradeFileFormat, boolean includeNotSubmitted) {
+    protected void zipGroupSubmissions(String assignmentReference, String assignmentTitle, String gradeTypeString, Assignment.SubmissionType typeOfSubmission, Iterator submissions, OutputStream outputStream, StringBuilder exceptionMessage, boolean withStudentSubmissionText, boolean withStudentSubmissionAttachment, boolean withGradeFile, boolean withFeedbackText, boolean withFeedbackComment, boolean withFeedbackAttachment, boolean withRubrics, String gradeFileFormat, boolean includeNotSubmitted) {
         ZipOutputStream out = null;
         try {
             out = new ZipOutputStream(outputStream);
@@ -3882,7 +3905,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
                             // record submission timestamp
                             if (s.getSubmitted() && s.getDateSubmitted() != null) {
-                            	createTextZipEntry(out, submittersName + "timestamp.txt", s.getDateSubmitted().toString());
+                            	createTextZipEntry(out, submittersName + resourceLoader.getString("zip.timestamp") + AssignmentConstants.ZIP_COMMENT_FILE_TYPE, s.getDateSubmitted().toString());
                             }
 
                             // create the folder structure - named after the submitter's name
@@ -3897,7 +3920,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                 // include student submission feedback text
                                 if (withFeedbackText) {
                                     // create a feedbackText file into zip
-                                	createTextZipEntry(out, submittersName + "feedbackText.html", s.getFeedbackText());
+                                	createTextZipEntry(out, submittersName + resourceLoader.getString("zip.feedback_text") + AssignmentConstants.ZIP_SUBMITTED_TEXT_FILE_TYPE, s.getFeedbackText());
                                 }
                             }
 
@@ -3914,7 +3937,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
                             if (withFeedbackComment) {
                                 // the comments.txt file to show instructor's comments
-                            	final String zipEntryName = submittersName + "comments" + AssignmentConstants.ZIP_COMMENT_FILE_TYPE;
+                                final String zipEntryName = submittersName + resourceLoader.getString("zip.comments") + AssignmentConstants.ZIP_COMMENT_FILE_TYPE;
                             	final String textEntryString = formattedText.encodeUnicode(s.getFeedbackComment());
                             	createTextZipEntry(out, zipEntryName, textEntryString);
                             }
@@ -3929,9 +3952,25 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                 out.closeEntry();
                             }
 
+                            Assignment assignment = s.getAssignment();
+                            String assignmentId = assignment.getId();
+                            String siteId = assignment.getContext();
+
+                            Optional<AssociationTransferBean> optAssociation = rubricsService.getAssociationForToolAndItem(AssignmentConstants.TOOL_ID, assignmentId, siteId);
+
+                            if (withRubrics && optAssociation.isPresent()) {
+                                byte[] pdf = rubricsService.createPdf(siteId, optAssociation.get().getRubricId(), AssignmentServiceConstants.ASSIGNMENT_TOOL_ID, assignmentId, s.getId());
+
+                                final ZipEntry zipEntryPdf = new ZipEntry(submittersName + resourceLoader.getString("zip.rubrics") + AssignmentConstants.ZIP_PDF_FILE_TYPE);
+
+                                out.putNextEntry(zipEntryPdf);
+                                out.write(pdf);
+                                out.closeEntry();
+                            }
+
                             if (!submittersString.toString().trim().isEmpty()) {
                                 // the comments.txt file to show instructor's comments
-                            	final String zipEntryName = submittersName + "members" + AssignmentConstants.ZIP_COMMENT_FILE_TYPE;
+                                final String zipEntryName = submittersName + resourceLoader.getString("zip.comments") + AssignmentConstants.ZIP_COMMENT_FILE_TYPE;
                             	final String textEntryString = formattedText.encodeUnicode(submittersString.toString());
                             	createTextZipEntry(out, zipEntryName, textEntryString);
                             }
