@@ -1415,7 +1415,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		Set<String> keysGroupIdsMap = new HashSet<>();
 		try {
 			site = siteService.getSite(siteAgentId);
-			if (service.isUserAbleToGradeAll(site.getId(), userId)) {
+			if (service.isUserInstructor(site.getId(), userId) && service.isUserAbleToGradeAll(site.getId(), userId)) {
 				siteGroups = site.getGroups();
 			} else {
 				siteGroups = site.getGroupsWithMember(userId);

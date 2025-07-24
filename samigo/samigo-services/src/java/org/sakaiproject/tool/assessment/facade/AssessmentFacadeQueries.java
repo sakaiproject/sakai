@@ -726,7 +726,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		Set<String> keysGroupIdsMap = new HashSet<>();
 		try {
 			site = SiteService.getSite(siteAgentId);
-			if (service.isUserAbleToGradeAll(site.getId(), userId)) {
+			if (service.isUserInstructor(site.getId(), userId) && service.isUserAbleToGradeAll(site.getId(), userId)) {
 				siteGroups = site.getGroups();
 			} else {
 				siteGroups = site.getGroupsWithMember(userId);
