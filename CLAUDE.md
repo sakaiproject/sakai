@@ -68,3 +68,40 @@
 - **Tests**: Include tests where sensible/possible
 - **Java Version**: Java 17 for trunk (Java 11 was used for Sakai 22 and Sakai 23)
 - **Pull Request Workflow**: "Squash and Merge" for single issues, "Rebase and Merge" for multiple issues
+
+## Push Notifications
+
+### Platform Support
+- **Android**: Full Web Push support through Chrome, Firefox, and Edge browsers
+- **iOS**: Web Push support requires Progressive Web App (PWA) installation (iOS 16.4+)
+- **Desktop**: Full Web Push support across all major browsers
+
+### Implementation Architecture
+- **Backend**: Uses Web Push Protocol with VAPID authentication in `UserMessagingServiceImpl.java`
+- **Frontend**: Browser-specific handling in `sakai-push-utils.js`
+- **Service Worker**: Background push handling in `sakai-service-worker.js`
+
+### Platform-Specific Requirements
+
+#### iOS Safari (iOS 16.4+)
+- **PWA Required**: Users must add site to home screen before push notifications work
+- **Web App Manifest**: Must serve `/manifest.json` with PWA configuration
+- **User Interaction**: Permission requests require direct user interaction
+- **Protocol**: Uses standard Web Push Protocol (no APNs certificate needed)
+
+#### Android Chrome/Firefox
+- **No PWA Required**: Can request push permissions immediately
+- **Background Support**: Full background push notification support
+- **Protocol**: Uses Web Push Protocol with VAPID keys
+- **FCM Integration**: Chrome uses Firebase Cloud Messaging behind the scenes
+
+#### Desktop Browsers
+- **Universal Support**: Chrome, Firefox, Safari, Edge all support Web Push
+- **Standard Implementation**: Uses Web Push Protocol with VAPID authentication
+
+### Development Guidelines
+- **Permission Timing**: Request push permissions after user engagement, not immediately on page load
+- **Progressive Enhancement**: Detect browser capabilities and adjust UX accordingly
+- **Graceful Degradation**: Provide fallbacks for unsupported browsers
+- **Token Management**: Handle subscription updates and expirations properly
+- **Internationalization**: PWA installation messages use `sakai-notifications.properties` for translations
