@@ -14204,7 +14204,7 @@ public class AssignmentAction extends PagedResourceActionII {
     }
 
     /**
-     * return returns groups in a site where current user is member
+     * return groups in a site where current user is member
      *
      * @param contextString
      * @return
