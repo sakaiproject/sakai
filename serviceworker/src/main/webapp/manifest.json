@@ -1,0 +1,29 @@
+{
+  "name": "Sakai LMS",
+  "short_name": "Sakai",
+  "description": "Sakai Learning Management System",
+  "id": "/portal",
+  "start_url": "/portal",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0073e6",
+  "orientation": "any",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/library/icon/apple-touch-icon.png",
+      "sizes": "57x57",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/library/icon/sakai_logo_144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["education", "productivity"],
+  "lang": "en-US",
+  "dir": "ltr"
+}
