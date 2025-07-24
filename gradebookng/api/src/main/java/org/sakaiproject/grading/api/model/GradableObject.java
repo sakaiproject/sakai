@@ -130,9 +130,9 @@ public abstract class GradableObject implements Serializable {
             public int compare(final GradableObject one, final GradableObject two) {
                 if (one.getId() == null && two.getId() == null) {
                     return 0;
-                } else if (one.getName() == null) {
+                } else if (one.getId() == null) {
                     return 1;
-                } else if (two.getName() == null) {
+                } else if (two.getId() == null) {
                     return -1;
                 } else {
                     return one.getId().compareTo(two.getId());
@@ -173,7 +173,18 @@ public abstract class GradableObject implements Serializable {
                 } else if (two.getMean() == null) {
                     return -1;
                 } else {
-                    return one.getMean().compareTo(two.getMean());
+                    // Handle NaN values to ensure consistent comparator contract
+                    Double meanOne = one.getMean();
+                    Double meanTwo = two.getMean();
+                    if (meanOne.isNaN() && meanTwo.isNaN()) {
+                        return nameComparator.compare(one, two);
+                    } else if (meanOne.isNaN()) {
+                        return 1;
+                    } else if (meanTwo.isNaN()) {
+                        return -1;
+                    } else {
+                        return meanOne.compareTo(meanTwo);
+                    }
                 }
             }
 

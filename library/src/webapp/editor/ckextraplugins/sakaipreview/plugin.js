@@ -80,7 +80,7 @@
             $iframe.attr('srcdoc', html);
             $iframe.attr('frameborder', '0');
             $iframe.attr('width', '100%');
-            $iframe.attr('height', $PBJQ(window).height() - 240 + "px");
+            $iframe.attr('height', $PBJQ(window).height() - 200 + "px");
             return $iframe;
         }
 
@@ -118,16 +118,19 @@
 				return false;
 
             // Let's try and open a modal!
-            if ($PBJQ.fn.modal) {
-                var $modal = $PBJQ('<div class="modal fade" id="ckeditorPreview" tabindex="-1" role="dialog">'+
-                                     '<div class="modal-dialog" role="document">'+
+            if ($PBJQ && typeof window.bootstrap !== 'undefined' && window.bootstrap.Modal) {
+                var modalId = 'ckeditorPreview' + Date.now();
+                var $modal = $PBJQ('<div class="modal fade" id="' + modalId + '" tabindex="-1" aria-hidden="true">'+
+                                     '<div class="modal-dialog modal-xl">'+
                                        '<div class="modal-content">'+
                                          '<div class="modal-header">'+
-                                           '<button type="button" class="button pull-right sakaipreview-close" data-dismiss="modal"></button>'+
-                                           '<button type="button" class="button pull-right sakaipreview-print"></button>'+
-                                           '<h4 class="modal-title">'+editor.lang.sakaipreview.preview+'</h4>'+
+                                           '<h5 class="modal-title">'+editor.lang.sakaipreview.preview+'</h5>'+
+                                           '<button type="button" class="btn btn-transparent text-white sakaipreview-print ms-2 me-auto">'+
+                                             '<span class="bi bi-printer" aria-hidden="true"></span>'+
+                                           '</button>'+
+                                           '<button type="button" class="btn-close ms-0 me-1" data-bs-dismiss="modal" aria-label="Close"></button>'+
                                          '</div>'+
-                                         '<div class="modal-body"></div>'+
+                                         '<div class="modal-body p-0"></div>'+
                                        '</div>'+
                                      '</div>'+
                                    '</div>');
@@ -179,10 +182,15 @@
                   }, 3000);
                 });
 
-                $modal.modal();
+                var modalInstance = new window.bootstrap.Modal($modal[0], {
+                    backdrop: true,
+                    keyboard: true
+                });
+                modalInstance.show();
 
                 $modal.find(".modal-body").append(getIframe(sHTML));
-                $modal.on("hidden.bs.modal", function() {
+                
+                $modal[0].addEventListener('hidden.bs.modal', function() {
                     $modal.remove();
                 });
 

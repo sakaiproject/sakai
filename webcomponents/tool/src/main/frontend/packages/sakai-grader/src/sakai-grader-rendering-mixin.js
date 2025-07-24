@@ -157,14 +157,14 @@ export const graderRenderingMixin = Base => class extends Base {
           </sakai-lti-iframe>
         ` : nothing }
         ${this._submission.ltiSubmissionLaunch ? nothing : html`
-          ${this._submission.submittedTime || (this._submission.draft && this._submission.visible) ? html`
+          ${this._submission.hasSubmittedDate || (this._submission.draft && this._submission.visible) ? html`
             <h3 class="d-inline-block">${this._i18n["gen.subm"]}</h3>
           ` : html`
             <h3 class="d-inline-block">${this._i18n.no_submission}</h3>
           `}
           ${this._renderGraderLinkBlock()}
         `}
-        ${this._submission.submittedTime || (this._submission.draft && this._submission.visible) ? html`
+        ${this._submission.hasSubmittedDate || (this._submission.draft && this._submission.visible) ? html`
           ${this._submittedTextMode ? html`
             <div>
               <div class="sak-banner-info">${unsafeHTML(this._i18n.inline_feedback_instruction)}</div>
@@ -710,7 +710,7 @@ export const graderRenderingMixin = Base => class extends Base {
 
             <div class="text-feedback">
             </div>
-            ${this._submission.submittedTime && !this._submission.showExtension ? html`
+            ${this._submission.hasSubmittedDate ? html`
               <div class="resubmission-checkbox">
                 <label>
                   <input type="checkbox" .checked=${this._showResubmission} @change="${this._toggleResubmissionBlock}"/>
@@ -736,7 +736,7 @@ export const graderRenderingMixin = Base => class extends Base {
                 </div>
               ` : nothing }
             ` : nothing }
-            ${this._submission.showExtension ? html`
+            ${!this._submission.hasSubmittedDate ? html`
               <div id="grader-extension-section" class="mt-2">
                 <input type="checkbox" .checked=${this._allowExtension} id="allowExtensionToggle" name="allowExtensionToggle" @change=${this._toggleExtensionBlock} />
                 <label for="allowExtensionToggle" >${this._i18n.allowExtension}</label>
@@ -807,10 +807,10 @@ export const graderRenderingMixin = Base => class extends Base {
                 <span class="submitter-name">
                   ${this._getSubmitter(this._submission)}
                 </span>
-                ${this._submission.draft && this._submission.visible ? html`
-                <span class="draft-submission">(${this._i18n.draft_submission})</span>
+                ${this._submission.draft ? html`
+                <span class="draft-submission">${this._i18n.draft_submission}</span>
                 ` : html`
-                  ${this._submission.submittedTime ? html`
+                  ${this._submission.hasSubmittedDate ? html`
                   <div id="grader-submitted-label">${this._i18n.submitted}</div>
                   ` : nothing }
                 `}
@@ -823,7 +823,7 @@ export const graderRenderingMixin = Base => class extends Base {
                 <div class="ms-2"><span class="grader-returned fa fa-eye" title="${this._i18n.returned_tooltip}"></span></div>
               ` : nothing }
             </div>
-            ${this._submission.groupId && this._submission.submittedTime ? html`<div class="grader-group-members">${this._submission.groupMembers}</div>` : nothing }
+            ${this._submission.groupId && this._submission.hasSubmittedDate ? html`<div class="grader-group-members">${this._submission.groupMembers}</div>` : nothing }
             <div class="attachments">
               ${this._submission.submittedText
                   && this._submission.visible
@@ -883,4 +883,3 @@ export const graderRenderingMixin = Base => class extends Base {
     `;
   }
 };
-

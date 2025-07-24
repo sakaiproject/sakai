@@ -160,10 +160,10 @@
 		  </h:column>
 		  <h:column>
 		    <f:facet name="header">
-	        	<h:outputText value="" styleClass="bi bi-flag-fill" escape="false" />
+	        	<h:outputText value="" styleClass="bi bi-reply-fill" escape="false" />
 				<h:outputText value="#{msgs.pvt_msgs_replied}" styleClass="sr-only" />
 			</f:facet>
-			<h:outputText value="" styleClass="bi bi-flag-fill" escape="false" rendered="#{rcvdItems.replied}" />
+			<h:outputText value="" styleClass="bi bi-reply-fill" escape="false" rendered="#{rcvdItems.replied}" />
 		  </h:column>
 		  <h:column>
 		    <f:facet name="header">
@@ -275,10 +275,10 @@
 			</h:column>
 			<h:column>
 				<f:facet name="header">
-		        	<span class="bi bi-flag-fill" aria-hidden="true"></span>
+		        	<span class="bi bi-reply-fill" aria-hidden="true"></span>
 					<h:outputText value="#{msgs.pvt_msgs_replied}" styleClass="sr-only" />
 				</f:facet>
-				<h:outputText value="" styleClass="bi bi-flag-fill" escape="false" rendered="#{rcvdItems.replied}" />
+				<h:outputText value="" styleClass="bi bi-reply-fill" escape="false" rendered="#{rcvdItems.replied}" />
 		  	</h:column>
 			<h:column id="_msg_subject">
 		    <f:facet name="header">

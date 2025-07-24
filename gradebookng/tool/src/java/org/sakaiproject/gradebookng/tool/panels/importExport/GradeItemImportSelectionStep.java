@@ -188,7 +188,7 @@ public class GradeItemImportSelectionStep extends BasePanel {
 
 				// Create the previous panel
 				final Component previousPanel = new GradeImportUploadStep(GradeItemImportSelectionStep.this.panelId);
-				((CreateGradeItemStep)previousPanel).setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
+				((GradeImportUploadStep)previousPanel).setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
 				previousPanel.setOutputMarkupId(true);
 
 				// AJAX the previous panel into place

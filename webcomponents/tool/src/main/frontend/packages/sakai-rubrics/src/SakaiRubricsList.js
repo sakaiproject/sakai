@@ -2,6 +2,7 @@ import { RubricsElement } from "./RubricsElement.js";
 import { html } from "lit";
 import { repeat } from "lit-html/directives/repeat.js";
 import "../sakai-rubric.js";
+import "@sakai-ui/sakai-pager/sakai-pager.js";
 import { SharingChangeEvent } from "./SharingChangeEvent.js";
 
 const rubricName = "name";
@@ -17,7 +18,23 @@ export class SakaiRubricsList extends RubricsElement {
     enablePdfExport: { attribute: "enable-pdf-export", type: Boolean },
 
     _rubrics: { state: true },
+    _currentPage: { state: true },
+    _itemsPerPage: { state: true },
+    _searchTerm: { state: true },
+    _lastSortType: { state: true },
+    _lastSortAscending: { state: true },
+    _lastCreatedRubricId: { state: true },
+    _paginatedRubrics: { state: true },
   };
+
+  constructor() {
+
+    super();
+
+    this._currentPage = 1;
+    this._itemsPerPage = 20;
+    this._lastSortAscending = true;
+  }
 
   set siteId(value) {
 
@@ -27,13 +44,41 @@ export class SakaiRubricsList extends RubricsElement {
 
   get siteId() { return this._siteId; }
 
-  search(search) {
+  search(term) {
 
-    this.querySelectorAll("sakai-rubric, sakai-rubric-readonly").forEach(rubric => {
+    this._searchTerm = term;
+    this._currentPage = 1;
+    this._lastCreatedRubricId = null;
+    this.repage();
+  }
 
-      rubric.classList.remove("d-none");
-      rubric.classList.toggle("d-none", !rubric.matches(search));
-    });
+  _getFilteredRubrics() {
+
+    if (!this._rubrics) return [];
+    if (!this._searchTerm) return this._rubrics;
+    const term = this._searchTerm.toLowerCase();
+    return this._rubrics.filter(r =>
+      (r.id === this?._lastCreatedRubricId) ||
+      (r?.title.toLowerCase().includes(term)) ||
+      (r?.siteTitle.toLowerCase().includes(term)) ||
+      (r?.creatorDisplayName.toLowerCase().includes(term))
+    );
+  }
+
+  _onPageSelected(e) {
+
+    this._currentPage = e.detail.page;
+    this.repage();
+  }
+
+  repage() {
+
+    const filteredRubrics = this._getFilteredRubrics();
+    const filteredRubricTotal = filteredRubrics.length;
+    this._totalPages = Math.ceil(filteredRubricTotal / this._itemsPerPage);
+    const start = (this._currentPage - 1) * this._itemsPerPage;
+    const end = start + this._itemsPerPage;
+    this._paginatedRubrics = filteredRubrics.slice(start, end);
   }
 
   render() {
@@ -47,7 +92,7 @@ export class SakaiRubricsList extends RubricsElement {
     return html`
       <div role="presentation">
         <div role="tablist">
-        ${repeat(this._rubrics, r => r.id, r => html`
+        ${repeat(this._paginatedRubrics || [], r => r.id, r => html`
           <sakai-rubric site-id="${this.siteId}"
               @clone-rubric=${this.cloneRubric}
               @delete-item=${this._rubricDeleted}
@@ -57,6 +102,12 @@ export class SakaiRubricsList extends RubricsElement {
         `)}
         </div>
       </div>
+      <sakai-pager
+        .current=${this._currentPage}
+        .count=${this._totalPages}
+        @page-selected=${this._onPageSelected}
+        ?hidden=${this._totalPages <= 1}>
+      </sakai-pager>
       <br>
       <div class="act">
         <button type="button" class="active add-rubric" @click=${this.createNewRubric}>
@@ -68,6 +119,7 @@ export class SakaiRubricsList extends RubricsElement {
   }
 
   refresh() {
+
     this.getRubrics();
   }
 
@@ -84,7 +136,11 @@ export class SakaiRubricsList extends RubricsElement {
       }
       throw new Error(`Network error while loading rubrics at ${url}`);
     })
-    .then(rubrics => this._rubrics = rubrics)
+    .then(rubrics => {
+      this._rubrics = rubrics;
+      this._currentPage = 1;
+      this.repage();
+    })
     .catch (error => console.error(error));
   }
 
@@ -100,7 +156,18 @@ export class SakaiRubricsList extends RubricsElement {
 
     this._rubrics.push(nr);
 
-    this.requestUpdate();
+    if (this._lastSortType) {
+      this.sortRubrics(this._lastSortType, this._lastSortAscending);
+    }
+
+    this._lastCreatedRubricId = nr.id;
+
+    const index = this._getFilteredRubrics().findIndex(r => r.id === nr.id);
+    if (index !== -1) {
+      this._currentPage = Math.floor(index / this._itemsPerPage) + 1;
+    }
+
+    this.repage();
   }
 
   _rubricDeleted(e) {
@@ -114,7 +181,11 @@ export class SakaiRubricsList extends RubricsElement {
 
     this.dispatchEvent(new SharingChangeEvent());
 
-    this.requestUpdate();
+    this.repage();
+    if (this._currentPage > this._totalPages) {
+      this._currentPage = Math.max(1, this._totalPages);
+      this.repage();
+    }
   }
 
   cloneRubric(e) {
@@ -155,6 +226,9 @@ export class SakaiRubricsList extends RubricsElement {
 
   sortRubrics(rubricType, ascending) {
 
+    this._lastSortType = rubricType;
+    this._lastSortAscending = ascending;
+
     switch (rubricType) {
       case rubricName:
         this._rubrics.sort((a, b) => ascending ? a.title.localeCompare(b.title) : b.title.localeCompare(a.title));
@@ -169,6 +243,6 @@ export class SakaiRubricsList extends RubricsElement {
         this._rubrics.sort((a, b) => ascending ? a.modified - b.modified : b.modified - a.modified);
         break;
     }
-    this.requestUpdate("_rubrics");
+    this.repage();
   }
 }

@@ -113,7 +113,7 @@
 							<h:outputText escape="false" value="#{msgDecorateBean.message.body}"/>
 						</span>	
 						<span>
-							<span class="fa fa-plus-square" aria-hidden="true"></span>
+							<span class="bi bi-plus-square-fill" aria-hidden="true"></span>
 						</span>
 						<h:outputText value="#{msgs.cdfm_message_count}: " escape="false" />
 						<span id="wordCountSpan<h:outputText value="#{stat.msgId}"/>"> </span>

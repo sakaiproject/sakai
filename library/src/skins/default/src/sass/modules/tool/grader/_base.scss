@@ -141,6 +141,12 @@ sakai-grader {
       margin-top: 5px;
       color: var(--successBanner-color);
     }
+
+    .draft-submission {
+      display: block;
+      margin-top: 5px;
+      color: var(--errorBanner-color);
+    }
   }
 
   .grader-photo {
@@ -155,13 +161,9 @@ sakai-grader {
 
     background-color: var(--sakai-title-bar-bg-color);
 
-    #grader-rubric-block {
+    #grader-rubric-block,
+    #student-rubric-block {
       container-type: inline-size; /* Force the rubrics to display in rows */
-    }
-
-    .draft-submission {
-        margin-left: 8px;
-        color: var(--errorBanner-color);
     }
 
     .rubric-active {
