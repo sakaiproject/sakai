@@ -52,7 +52,7 @@ import java.util.Date;
 import java.util.TimeZone;
 import java.util.UUID;
 
-import org.apache.commons.fileupload.FileItem;
+import java.io.InputStream;
 
 import static org.mockito.Mockito.when;
 
@@ -211,17 +211,17 @@ public class DateManagerServiceTest {
     }
 
     @Test
-    public void testImportFromCsvWithNullFile() {
-        // Given: Null file input
-        FileItem nullFile = null;
+    public void testImportFromCsvWithNullInputStream() {
+        // Given: Null InputStream input
+        InputStream nullInputStream = null;
 
         // When: Import CSV
-        String result = dateManagerService.importFromCsv(nullFile);
+        String result = dateManagerService.importFromCsv(nullInputStream);
 
         // Then: Should return import_page
         Assert.assertEquals("import_page", result);
 
-        log.info("Null file import test completed successfully");
+        log.info("Null InputStream import test completed successfully");
     }
 
 }

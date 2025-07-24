@@ -450,8 +450,18 @@ public class MainController {
 		FileItem uploadedFileItem = (FileItem) request.getAttribute("file");
 		model = getModelWithLocale(model, request, response);
 
-		// Delegate CSV processing to service
-		String result = dateManagerService.importFromCsv(uploadedFileItem);
+		// Extract InputStream from FileItem and delegate to service
+		String result;
+		try {
+			if (uploadedFileItem == null || uploadedFileItem.getSize() == 0) {
+				result = "import_page";
+			} else {
+				result = dateManagerService.importFromCsv(uploadedFileItem.getInputStream());
+			}
+		} catch (Exception e) {
+			log.error("Error processing file upload", e);
+			result = "import_page";
+		}
 
 		if ("confirm_import".equals(result)) {
 			model.addAttribute("tools", tools);

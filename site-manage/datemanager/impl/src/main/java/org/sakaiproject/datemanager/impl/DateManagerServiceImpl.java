@@ -111,7 +111,7 @@ import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVWriter;
-import org.apache.commons.fileupload.FileItem;
+import java.io.InputStream;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -2321,15 +2321,15 @@ public class DateManagerServiceImpl implements DateManagerService {
 	}
 
 	@Override
-	public String importFromCsv(FileItem csvFile) {
-		if (csvFile == null || csvFile.getSize() == 0) {
+	public String importFromCsv(InputStream csvInputStream) {
+		if (csvInputStream == null) {
 			return "import_page";
 		}
 
 		String siteId = getCurrentSiteId();
 		Locale userLocale = getLocaleForCurrentSiteAndUser();
 
-		try (InputStreamReader inputReader = new InputStreamReader(csvFile.getInputStream(), StandardCharsets.UTF_8);
+		try (InputStreamReader inputReader = new InputStreamReader(csvInputStream, StandardCharsets.UTF_8);
 			 CSVReader reader = new CSVReaderBuilder(inputReader)
 				.withCSVParser(new CSVParserBuilder().withSeparator(getCsvSeparatorChar()).build())
 				.build()) {

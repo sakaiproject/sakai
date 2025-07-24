@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.datemanager.api;
 
+import java.io.InputStream;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -91,5 +92,5 @@ public interface DateManagerService {
 
 	// CSV methods
 	public byte[] exportToCsv(String siteId);
-	public String importFromCsv(org.apache.commons.fileupload.FileItem csvFile);
+	public String importFromCsv(InputStream csvInputStream);
 }
