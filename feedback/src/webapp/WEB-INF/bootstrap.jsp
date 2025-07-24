@@ -79,7 +79,6 @@
     <script>includeLatestJQuery("feedback");</script>
     <script>includeWebjarLibrary("multifile");</script>
     <script>includeWebjarLibrary("handlebars");</script>
-    <script src="/library/js/jquery/form/2.43/jquery.form-2.43.js"></script>
     <script src="/feedback-tool/templates/all.handlebars.js"></script>
 
     <c:if test="${recaptchaEnabled}">
