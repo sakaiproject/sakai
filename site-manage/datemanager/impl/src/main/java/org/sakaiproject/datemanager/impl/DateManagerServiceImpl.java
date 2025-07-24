@@ -15,6 +15,11 @@
  */
 package org.sakaiproject.datemanager.impl;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -100,6 +105,17 @@ import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+
+import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
+import com.opencsv.CSVParserBuilder;
+import com.opencsv.CSVWriter;
+import org.apache.commons.fileupload.FileItem;
+import javax.servlet.http.HttpServletRequest;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -2163,5 +2179,253 @@ public class DateManagerServiceImpl implements DateManagerService {
 			jsonObject.put(columnsNames[i], columns[i]);
 		}
 		return  jsonObject;
+	}
+
+	// CSV Processing Methods
+
+	/**
+	 * Helper method to get the configured CSV separator string.
+	 *
+	 * @return The configured CSV separator (defaults to comma).
+	 */
+	private String getCsvSeparator() {
+		if (serverConfigurationService != null) {
+			String separator = serverConfigurationService.getString("csv.separator", ",");
+			return separator != null ? separator : ",";
+		}
+		return ","; // Default to comma for testing
+	}
+
+	/**
+	 * Helper method to get the configured CSV separator as a char.
+	 *
+	 * @return The configured CSV separator character.
+	 */
+	private char getCsvSeparatorChar() {
+		String separator = getCsvSeparator();
+		return (separator != null && !separator.isEmpty()) ? separator.charAt(0) : ',';
+	}
+
+	/**
+	 * Adds a row to a CSV file using the provided values.
+	 *
+	 * @param csvWriter The CSV writer.
+	 * @param values The values to add to the row.
+	 */
+	private void addRow(CSVWriter csvWriter, String... values) {
+		csvWriter.writeNext(values);
+	}
+
+	@Override
+	public ResponseEntity<byte[]> exportToCsv(HttpServletRequest request) {
+		String siteId = getCurrentSiteId();
+
+		ByteArrayOutputStream csvOutputStream = new ByteArrayOutputStream();
+
+		try (OutputStreamWriter csvOutputWriter = new OutputStreamWriter(csvOutputStream, StandardCharsets.UTF_8);
+			 CSVWriter csvWriter = new CSVWriter(csvOutputWriter, getCsvSeparatorChar(), CSVWriter.DEFAULT_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.RFC4180_LINE_END)) {
+
+			// Add BOM for Excel compatibility
+			csvOutputStream.write(0xEF);
+			csvOutputStream.write(0xBB);
+			csvOutputStream.write(0xBF);
+
+			// Add site title header
+			addRow(csvWriter, getMessage("datemanager.export.title"));
+			addRow(csvWriter); // Empty row
+
+			// Export each tool's data
+			createCsvSection(csvWriter, "sakai.assignment", siteId);
+			createCsvSection(csvWriter, "sakai.samigo", siteId);
+			createCsvSection(csvWriter, "sakai.gradebookng", siteId);
+			createCsvSection(csvWriter, "sakai.signup", siteId);
+			createCsvSection(csvWriter, "sakai.resources", siteId);
+			createCsvSection(csvWriter, "sakai.schedule", siteId);
+			createCsvSection(csvWriter, "sakai.forums", siteId);
+			createCsvSection(csvWriter, "sakai.announcements", siteId);
+			createCsvSection(csvWriter, "sakai.lessonbuildertool", siteId);
+
+		} catch (IOException ex) {
+			log.error("Cannot create the csv file", ex);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+		}
+
+		HttpHeaders headers = new HttpHeaders();
+		String siteName;
+		try {
+			Optional<Site> siteOpt = getCurrentSite();
+			siteName = siteOpt.map(Site::getTitle).orElse("");
+		} catch (Exception e) {
+			siteName = "";
+		}
+		String name = siteName + "_date_manager_export.csv";
+		headers.setContentDispositionFormData("filename", name.replaceAll(" ", "_"));
+
+		return ResponseEntity
+				.ok()
+				.contentType(MediaType.valueOf("text/csv"))
+				.headers(headers)
+				.body(csvOutputStream.toByteArray());
+	}
+
+	/**
+	 * Adds a section of rows to a CSV file for a specific tool.
+	 *
+	 * @param csvWriter The CSV writer.
+	 * @param toolId The ID of the tool.
+	 * @param siteId The ID of the site.
+	 */
+	private void createCsvSection(CSVWriter csvWriter, String toolId, String siteId) {
+		if (!currentSiteContainsTool(toolId)) {
+			return;
+		}
+
+		String toolTitle = getToolTitle(toolId);
+		addRow(csvWriter, toolId + "(" + toolTitle + ")");
+
+		JSONArray items = getItemsForTool(toolId, siteId);
+		if (items != null && !items.isEmpty()) {
+			JSONObject firstItem = (JSONObject) items.get(0);
+
+			// Create header row from first item's keys
+			Object[] keyObjects = firstItem.keySet().toArray();
+			String[] headers = new String[keyObjects.length];
+			for (int i = 0; i < keyObjects.length; i++) {
+				headers[i] = keyObjects[i].toString();
+			}
+			addRow(csvWriter, headers);
+
+			// Add data rows
+			for (Object item : items) {
+				JSONObject jsonItem = (JSONObject) item;
+				String[] values = new String[headers.length];
+				for (int i = 0; i < headers.length; i++) {
+					Object value = jsonItem.get(headers[i]);
+					values[i] = value != null ? value.toString() : "";
+				}
+				addRow(csvWriter, values);
+			}
+		}
+		addRow(csvWriter); // Empty row after each section
+	}
+
+	/**
+	 * Gets items for a specific tool.
+	 *
+	 * @param toolId The tool ID.
+	 * @param siteId The site ID.
+	 * @return JSONArray of items for the tool.
+	 */
+	private JSONArray getItemsForTool(String toolId, String siteId) {
+		switch (toolId) {
+			case "sakai.assignment":
+				return getAssignmentsForContext(siteId);
+			case "sakai.samigo":
+				return getAssessmentsForContext(siteId);
+			case "sakai.gradebookng":
+				return getGradebookItemsForContext(siteId);
+			case "sakai.signup":
+				return getSignupMeetingsForContext(siteId);
+			case "sakai.resources":
+				return getResourcesForContext(siteId);
+			case "sakai.schedule":
+				return getCalendarEventsForContext(siteId);
+			case "sakai.forums":
+				return getForumsForContext(siteId);
+			case "sakai.announcements":
+				return getAnnouncementsForContext(siteId);
+			case "sakai.lessonbuildertool":
+				return getLessonsForContext(siteId);
+			default:
+				return new JSONArray();
+		}
+	}
+
+	@Override
+	public String importFromCsv(FileItem csvFile) {
+		if (csvFile == null || csvFile.getSize() == 0) {
+			return "import_page";
+		}
+
+		String siteId = getCurrentSiteId();
+		Locale userLocale = getLocaleForCurrentSiteAndUser();
+
+		try (InputStreamReader inputReader = new InputStreamReader(csvFile.getInputStream(), StandardCharsets.UTF_8);
+			 CSVReader reader = new CSVReaderBuilder(inputReader)
+				.withCSVParser(new CSVParserBuilder().withSeparator(getCsvSeparatorChar()).build())
+				.build()) {
+
+			String[] line;
+			String currentTool = "";
+			String[][] toolColumns = new String[1000][50];
+			String[] toolColumnsAux = new String[50];
+			int toolColumnIndex = 0;
+
+			while ((line = reader.readNext()) != null) {
+				if (line.length == 0) continue;
+
+				String firstCell = line[0].trim();
+				if (firstCell.isEmpty()) continue;
+
+				// Check if this line indicates a tool section
+				if (firstCell.contains("(") && firstCell.contains(")")) {
+					// Process previous tool if exists
+					if (!currentTool.isEmpty() && toolColumnIndex > 1) {
+						processToolImport(currentTool, toolColumns, toolColumnsAux, toolColumnIndex);
+					}
+
+					// Start new tool section
+					currentTool = firstCell.substring(0, firstCell.indexOf("("));
+					toolColumnIndex = 0;
+					continue;
+				}
+
+				// Skip the "Date Manager" header
+				if (firstCell.equals(getMessage("datemanager.export.title"))) {
+					continue;
+				}
+
+				// Process data rows
+				if (!currentTool.isEmpty()) {
+					for (int i = 0; i < line.length && i < 50; i++) {
+						toolColumns[toolColumnIndex][i] = line[i];
+						if (toolColumnIndex == 0) {
+							toolColumnsAux[i] = line[i]; // Store headers
+						}
+					}
+					toolColumnIndex++;
+				}
+			}
+
+			// Process the last tool
+			if (!currentTool.isEmpty() && toolColumnIndex > 1) {
+				processToolImport(currentTool, toolColumns, toolColumnsAux, toolColumnIndex);
+			}
+
+			return "confirm_import";
+
+		} catch (Exception ex) {
+			log.error("Error processing CSV import", ex);
+			return "import_page";
+		}
+	}
+
+	/**
+	 * Processes import data for a specific tool.
+	 *
+	 * @param toolId The tool ID.
+	 * @param toolColumns The data columns.
+	 * @param toolColumnsAux The header columns.
+	 * @param rowCount The number of rows.
+	 */
+	private void processToolImport(String toolId, String[][] toolColumns, String[] toolColumnsAux, int rowCount) {
+		try {
+			DateManagerValidation validation = validateTool(toolId, rowCount - 1, toolColumns, toolColumnsAux);
+			if (validation != null && isChanged(toolId, toolColumnsAux)) {
+				updateTool(toolId, validation);
+			}
+		} catch (Exception e) {
+			log.error("Error processing tool import for " + toolId, e);
+		}
 	}
 }

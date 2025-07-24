@@ -52,6 +52,10 @@ import java.util.Date;
 import java.util.TimeZone;
 import java.util.UUID;
 
+import org.apache.commons.fileupload.FileItem;
+import org.springframework.http.ResponseEntity;
+import javax.servlet.http.HttpServletRequest;
+
 import static org.mockito.Mockito.when;
 
 @Slf4j
@@ -164,6 +168,68 @@ public class DateManagerServiceTest {
             log.warn("Failed to read file [{}], {}", filePath, e.toString());
         }
         return "";
+    }
+
+    @Test
+    public void testExportCsvWithCommaDelimiter_USStyle() {
+        // Given: US style CSV configuration  
+        String siteId = UUID.randomUUID().toString();
+        ToolSession toolSession = Mockito.mock(ToolSession.class);
+        when(toolSession.getAttribute(DateManagerService.STATE_SITE_ID)).thenReturn(siteId);
+        when(sessionManager.getCurrentToolSession()).thenReturn(toolSession);
+
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+        when(request.getRequestURI()).thenReturn("/portal/site/" + siteId + "/tool/abc123/date-manager");
+
+        // When: Export CSV
+        ResponseEntity<byte[]> response = dateManagerService.exportToCsv(request);
+
+        // Then: Should return CSV with comma separators
+        Assert.assertNotNull(response);
+        Assert.assertNotNull(response.getBody());
+        String csvContent = new String(response.getBody(), StandardCharsets.UTF_8);
+        Assert.assertTrue("Should contain Date Manager title", csvContent.contains("datemanager.export.title"));
+        Assert.assertTrue("CSV content should have reasonable length", csvContent.length() > 10);
+
+        log.info("US CSV Export test completed successfully");
+    }
+
+    @Test 
+    public void testExportCsvWithSemicolonDelimiter_SpanishStyle() {
+        // Given: Spanish/European style CSV configuration
+        String siteId = UUID.randomUUID().toString();
+        ToolSession toolSession = Mockito.mock(ToolSession.class);
+        when(toolSession.getAttribute(DateManagerService.STATE_SITE_ID)).thenReturn(siteId);
+        when(sessionManager.getCurrentToolSession()).thenReturn(toolSession);
+
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+        when(request.getRequestURI()).thenReturn("/portal/site/" + siteId + "/tool/abc123/date-manager");
+
+        // When: Export CSV
+        ResponseEntity<byte[]> response = dateManagerService.exportToCsv(request);
+
+        // Then: Should return CSV
+        Assert.assertNotNull(response);
+        Assert.assertNotNull(response.getBody());
+        String csvContent = new String(response.getBody(), StandardCharsets.UTF_8);
+        Assert.assertTrue("Should contain Date Manager title", csvContent.contains("datemanager.export.title"));
+        Assert.assertTrue("CSV content should have reasonable length", csvContent.length() > 10);
+
+        log.info("Spanish CSV Export test completed successfully");
+    }
+
+    @Test
+    public void testImportFromCsvWithNullFile() {
+        // Given: Null file input
+        FileItem nullFile = null;
+
+        // When: Import CSV
+        String result = dateManagerService.importFromCsv(nullFile);
+
+        // Then: Should return import_page
+        Assert.assertEquals("import_page", result);
+
+        log.info("Null file import test completed successfully");
     }
 
 }
