@@ -53,8 +53,6 @@ import java.util.TimeZone;
 import java.util.UUID;
 
 import org.apache.commons.fileupload.FileItem;
-import org.springframework.http.ResponseEntity;
-import javax.servlet.http.HttpServletRequest;
 
 import static org.mockito.Mockito.when;
 
@@ -178,16 +176,13 @@ public class DateManagerServiceTest {
         when(toolSession.getAttribute(DateManagerService.STATE_SITE_ID)).thenReturn(siteId);
         when(sessionManager.getCurrentToolSession()).thenReturn(toolSession);
 
-        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
-        when(request.getRequestURI()).thenReturn("/portal/site/" + siteId + "/tool/abc123/date-manager");
-
         // When: Export CSV
-        ResponseEntity<byte[]> response = dateManagerService.exportToCsv(request);
+        byte[] csvData = dateManagerService.exportToCsv(siteId);
 
         // Then: Should return CSV with comma separators
-        Assert.assertNotNull(response);
-        Assert.assertNotNull(response.getBody());
-        String csvContent = new String(response.getBody(), StandardCharsets.UTF_8);
+        Assert.assertNotNull(csvData);
+        Assert.assertTrue("CSV data should not be empty", csvData.length > 0);
+        String csvContent = new String(csvData, StandardCharsets.UTF_8);
         Assert.assertTrue("Should contain Date Manager title", csvContent.contains("datemanager.export.title"));
         Assert.assertTrue("CSV content should have reasonable length", csvContent.length() > 10);
 
@@ -202,16 +197,13 @@ public class DateManagerServiceTest {
         when(toolSession.getAttribute(DateManagerService.STATE_SITE_ID)).thenReturn(siteId);
         when(sessionManager.getCurrentToolSession()).thenReturn(toolSession);
 
-        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
-        when(request.getRequestURI()).thenReturn("/portal/site/" + siteId + "/tool/abc123/date-manager");
-
         // When: Export CSV
-        ResponseEntity<byte[]> response = dateManagerService.exportToCsv(request);
+        byte[] csvData = dateManagerService.exportToCsv(siteId);
 
         // Then: Should return CSV
-        Assert.assertNotNull(response);
-        Assert.assertNotNull(response.getBody());
-        String csvContent = new String(response.getBody(), StandardCharsets.UTF_8);
+        Assert.assertNotNull(csvData);
+        Assert.assertTrue("CSV data should not be empty", csvData.length > 0);
+        String csvContent = new String(csvData, StandardCharsets.UTF_8);
         Assert.assertTrue("Should contain Date Manager title", csvContent.contains("datemanager.export.title"));
         Assert.assertTrue("CSV content should have reasonable length", csvContent.length() > 10);
 

@@ -321,9 +321,28 @@ public class MainController {
 	 */
 	@GetMapping(value = {"/date-manager/export"})
 	public ResponseEntity<byte[]> exportCsv(HttpServletRequest req) {
-		return dateManagerService.exportToCsv(req);
-    }
-	
+		String siteId = dateManagerService.getCurrentSiteId();
+
+		byte[] csvData = dateManagerService.exportToCsv(siteId);
+
+		HttpHeaders headers = new HttpHeaders();
+		String siteName;
+		try {
+			Site site = siteService.getSite(siteId);
+			siteName = site.getTitle();
+		} catch (Exception e) {
+			siteName = "";
+		}
+		String filename = siteName + "_date_manager_export.csv";
+		headers.setContentDispositionFormData("filename", filename.replaceAll(" ", "_"));
+
+		return ResponseEntity
+				.ok()
+				.contentType(MediaType.valueOf("text/csv"))
+				.headers(headers)
+				.body(csvData);
+		}
+
 	/**
 	 * Adds a row to a CSV file using the provided values.
 	 *

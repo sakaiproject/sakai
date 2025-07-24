@@ -19,8 +19,6 @@ import java.util.Locale;
 import java.util.Optional;
 
 import org.json.simple.JSONArray;
-import org.springframework.http.ResponseEntity;
-import javax.servlet.http.HttpServletRequest;
 import org.sakaiproject.datemanager.api.model.DateManagerValidation;
 import org.sakaiproject.site.api.Site;
 
@@ -92,6 +90,6 @@ public interface DateManagerService {
 	public boolean isChanged(String toolId, String[] columns);
 
 	// CSV methods
-	public ResponseEntity<byte[]> exportToCsv(HttpServletRequest request);
+	public byte[] exportToCsv(String siteId);
 	public String importFromCsv(org.apache.commons.fileupload.FileItem csvFile);
 }

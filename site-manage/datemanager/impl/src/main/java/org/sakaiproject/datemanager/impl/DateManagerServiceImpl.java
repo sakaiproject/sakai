@@ -105,17 +105,13 @@ import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVWriter;
 import org.apache.commons.fileupload.FileItem;
-import javax.servlet.http.HttpServletRequest;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -2217,9 +2213,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 	}
 
 	@Override
-	public ResponseEntity<byte[]> exportToCsv(HttpServletRequest request) {
-		String siteId = getCurrentSiteId();
-
+	public byte[] exportToCsv(String siteId) {
 		ByteArrayOutputStream csvOutputStream = new ByteArrayOutputStream();
 
 		try (OutputStreamWriter csvOutputWriter = new OutputStreamWriter(csvOutputStream, StandardCharsets.UTF_8);
@@ -2247,25 +2241,10 @@ public class DateManagerServiceImpl implements DateManagerService {
 
 		} catch (IOException ex) {
 			log.error("Cannot create the csv file", ex);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+			throw new RuntimeException("Failed to generate CSV", ex);
 		}
 
-		HttpHeaders headers = new HttpHeaders();
-		String siteName;
-		try {
-			Optional<Site> siteOpt = getCurrentSite();
-			siteName = siteOpt.map(Site::getTitle).orElse("");
-		} catch (Exception e) {
-			siteName = "";
-		}
-		String name = siteName + "_date_manager_export.csv";
-		headers.setContentDispositionFormData("filename", name.replaceAll(" ", "_"));
-
-		return ResponseEntity
-				.ok()
-				.contentType(MediaType.valueOf("text/csv"))
-				.headers(headers)
-				.body(csvOutputStream.toByteArray());
+		return csvOutputStream.toByteArray();
 	}
 
 	/**
