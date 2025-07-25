@@ -458,11 +458,13 @@ public class PublishedAssessmentSettingsBean extends SpringBeanAutowiringSupport
         if (evaluation.getAnonymousGrading()!=null)
           this.anonymousGrading = evaluation.getAnonymousGrading().toString().equals("1");
 
-        if (evaluation.getToGradeBook() != null ) {
-            this.setToDefaultGradebook(evaluation.getToGradeBook());
-            if (EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString().equals(evaluation.getToGradeBook())) {
-                this.setGradebookName(assessment.getAssessmentToGradebookNameMetaData());
-            }
+        if (evaluation.getToGradeBook() == null) {
+          this.setToDefaultGradebook(EvaluationModelIfc.NOT_TO_GRADEBOOK.toString());
+        } else {
+          this.setToDefaultGradebook(evaluation.getToGradeBook());
+          if (EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString().equals(evaluation.getToGradeBook())) {
+            this.setGradebookName(assessment.getAssessmentToGradebookNameMetaData());
+          }
         }
 
         if (evaluation.getScoringType()!=null)
