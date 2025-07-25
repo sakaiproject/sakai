@@ -15,20 +15,9 @@
  */
 package org.sakaiproject.datemanager.tool;
 
-import com.opencsv.CSVWriter;
-import com.opencsv.CSVReader;
-import com.opencsv.CSVParserBuilder;
-import com.opencsv.CSVReaderBuilder;
-
-import java.io.ByteArrayOutputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.List;
-import java.util.Arrays;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -41,7 +30,6 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -59,7 +47,6 @@ import org.sakaiproject.datemanager.api.DateManagerConstants;
 import org.sakaiproject.datemanager.api.DateManagerService;
 import org.sakaiproject.datemanager.api.model.DateManagerError;
 import org.sakaiproject.datemanager.api.model.DateManagerValidation;
-import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -77,28 +64,6 @@ import org.sakaiproject.util.ResourceLoader;
 @Controller
 public class MainController {
 
-	private static class ToolImportData {
-		String toolId;
-		int index;
-		String[] columns;
-	}
-
-	private static final String BOM = "\uFEFF";
-
-	private final String[] columnsCsvStrings = {"id", "title", "open.date.required", "open.date.optional", "available.date", "available.date.required",
-            "start.date", "start.date.required", "start.date.optional", "show.from.date.optional","hide.until.optional", "due.date",
-			"due.date.required", "due.date.optional", "end.date", "end.date.required", "end.date.optional", "assessments.accept.until",
-            "accept.until.required", "show.until.optional", "close.date.optional", "feedback.start.date","feedback.end.date", "signup.begins.date",
-			"signup.deadline.date", "extra.info"};
-
-    private final String[][] columnsNames = {{"id", "title", "open_date", "due_date", "accept_until"},
-             {"id", "title", "open_date", "due_date", "accept_until", "feedback_start", "feedback_end"},
-             {"id", "title", "due_date"}, 
-             {"id", "title", "open_date", "due_date", "signup_begins", "signup_deadline"},
-             {"id", "title", "open_date", "due_date"},
-             {"id", "title", "open_date", "due_date", "extraInfo"},
-             {"id", "title", "open_date"}};
-    
     private static final ResourceLoader rb = new ResourceLoader("Messages");
 
     @Inject private DateManagerService dateManagerService;
@@ -111,13 +76,7 @@ public class MainController {
     
     @Autowired
     private PreferencesService preferencesService;
-    
-    @Autowired
-    private ServerConfigurationService serverConfigurationService;
 
-    private List<ToolImportData> toolsToImport;
-
-    private List<List<Object>> tools;
 
     /**
      * Sets the locale for the current site and user in the model.
@@ -344,82 +303,6 @@ public class MainController {
 		}
 
 	/**
-	 * Adds a row to a CSV file using the provided values.
-	 *
-	 * @param gradesBuffer The CSV writer.
-	 * @param values The values to add to the row.
-	 */
-	public void addRow(CSVWriter gradesBuffer, String... values) {
-		gradesBuffer.writeNext(values);
-	}
-	
-	/**
-	 * Helper method to get the configured CSV separator.
-	 *
-	 * @return The configured CSV separator character as a string.
-	 */
-	private String getCsvSeparator() {
-		return serverConfigurationService.getString("csv.separator", ",");
-	}
-	
-	/**
-	 * Helper method to get the configured CSV separator as a char.
-	 *
-	 * @return The configured CSV separator character.
-	 */
-	private char getCsvSeparatorChar() {
-		return getCsvSeparator().charAt(0);
-	}
-
-	/**
-	 * Adds a section of rows to a CSV file for a specific tool.
-	 *
-	 * @param gradesBuffer The CSV writer.
-	 * @param toolId The ID of the tool.
-	 * @param columnsIndex The indices of the columns to include in the export.
-	 * @param toolJson The JSON array of tool data.
-	 * @param columnsNames The names of the columns to extract from the JSON data.
-	 */
-	public void createCsvSection(CSVWriter gradesBuffer, String toolId, int[] columnsIndex, JSONArray toolJson, String[] columnsNames) {
-		String toolTitle = dateManagerService.getToolTitle(toolId);
-		this.addRow(gradesBuffer, "");
-		this.addRow(gradesBuffer, toolId + "(" + toolTitle + ")");
-		String[] columnsStringArray = new String[columnsIndex.length];
-		for (int i = 0; i < columnsIndex.length; i++) {
-			String columnMessage = rb.getString("column." + columnsCsvStrings[columnsIndex[i]]);
-			columnsStringArray[i] = columnMessage;
-		}
-		this.addRow(gradesBuffer, columnsStringArray);
-		for (int i = 0; i < toolJson.size(); i++) {
-			String[] toolColumns = new String[columnsIndex.length];
-			for (int j = 0; j < columnsNames.length; j++){
-				Object toolInfoObject = ((JSONObject) toolJson.get(i)).get(columnsNames[j]);
-				if (toolInfoObject != null && toolInfoObject.getClass().getName().equals("java.lang.Long")) {
-					String toolInfoString = String.valueOf(toolInfoObject);
-					toolColumns[j] = toolInfoString;
-				} else if (toolInfoObject instanceof Timestamp){
-					String toolInfoString = ((Timestamp) toolInfoObject).toString();
-					toolColumns[j] = toolInfoString != null? toolInfoString : "";
-				} else {
-					String toolInfoString = ((String) toolInfoObject);
-					if (columnsNames[j].equals("title")) {
-						toolInfoString = toolInfoString.replaceAll("[;,\"]", "_");
-					}
-					String extraInfo = (String) ((JSONObject) toolJson.get(i)).get(DateManagerConstants.JSON_EXTRAINFO_PARAM_NAME);
-					if (columnsNames[j].equals("title") && extraInfo != null && extraInfo.contains(rb.getString("itemtype.draft"))) {
-						toolInfoString += " (" + rb.getString("itemtype.draft") + ")";
-					}
-					if (DateManagerConstants.COMMON_ID_GRADEBOOK.equals(toolId) && !columnsNames[j].equals("title")) {
-						toolInfoString = toolInfoString.split("T")[0];
-					}
-					toolColumns[j] = toolInfoString != null? toolInfoString : "";
-				}
-			}
-			this.addRow(gradesBuffer, toolColumns);
-		}
-	}
-
-	/**
 	 * Shows the import page.
 	 *
 	 * @param model The model.
@@ -464,84 +347,12 @@ public class MainController {
 		}
 
 		if ("confirm_import".equals(result)) {
-			model.addAttribute("tools", tools);
-			return "confirm_import";
+			return this.showIndex("", model, request, response);
 		} else {
 			model.addAttribute("errorMessage", rb.getString("page.import.error.any.date"));
 			return "import_page";
 		}
 	}
 
-	/**
-	 * Shows the import confirmation page.
-	 *
-	 * @param model The model.
-	 * @param request The HTTP request.
-	 * @param response The HTTP response.
-	 * @return The name of the confirmation page view.
-	 */
-	@GetMapping(value = {"/date-manager/page/import/confirm"}) 
-	public String showConfirmImport(Model model, HttpServletRequest request, HttpServletResponse response) {
-		model = getModelWithLocale(model, request, response);
-		if (toolsToImport.size() > 0) {
-			model.addAttribute("tools", tools);
-			return "confirm_import";
-		} else {
-			model.addAttribute("errorMessage", rb.getString("page.import.error.no.file"));
-			return "import_page";
-		}
-	}
-
-	/**
-	 * Updates the dates for the tools based on the imported and confirmed data.
-	 *
-	 * @param model The model.
-	 * @param request The HTTP request.
-	 * @param response The HTTP response.
-	 * @return The name of the view to show (main index or back to confirmation page with errors).
-	 */
-	@PostMapping(value = {"/import/dates/confirm"})
-	public String confirmUpdate(Model model, HttpServletRequest request, HttpServletResponse response) {
-		List<List<Object>> errors = new ArrayList<>();
-		List<List<Object>> dateValidationsByToolId = new ArrayList<>();
-		for (ToolImportData data : toolsToImport) {
-			String currentToolId = data.toolId;
-			int idx = data.index;
-			String[] toolColumnsAux = data.columns;
-			
-			DateManagerValidation dateValidation = dateManagerService.validateTool(currentToolId, idx, columnsNames, toolColumnsAux);
-			if (dateValidation != null) {
-				if (!dateValidation.getErrors().isEmpty()) {
-					List<Object> error = new ArrayList<>();
-					String id = toolColumnsAux[0];
-					String title = toolColumnsAux[1];
-					error.add(dateValidation);
-					error.add(id);
-					error.add(title);
-					errors.add(error);
-				} else {
-					List<Object> dateValidationArray = new ArrayList<>();
-					dateValidationArray.add(currentToolId);
-					dateValidationArray.add(dateValidation);
-					dateValidationsByToolId.add(dateValidationArray);
-				}
-			}
-		}
-		
-		model = getModelWithLocale(model, request, response);
-		if (errors.isEmpty()){
-			for (List<Object> dateValidationObject : dateValidationsByToolId) {
-				String currentToolId = (String) dateValidationObject.get(0);
-				DateManagerValidation dateValidation = (DateManagerValidation) dateValidationObject.get(1);
-				
-				dateManagerService.updateTool(currentToolId, dateValidation);
-			}
-			return this.showIndex("", model, request, response);
-		} else {
-			model.addAttribute("errors", errors);
-			model.addAttribute("warn_message", rb.getString("warn.message"));
-			return "confirm_import";
-		}
-	}
 	
 }
