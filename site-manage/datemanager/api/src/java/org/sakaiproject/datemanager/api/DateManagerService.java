@@ -21,6 +21,7 @@ import java.util.Optional;
 
 import org.json.simple.JSONArray;
 import org.sakaiproject.datemanager.api.model.DateManagerValidation;
+import org.sakaiproject.datemanager.api.model.ImportPreviewResult;
 import org.sakaiproject.site.api.Site;
 
 public interface DateManagerService {
@@ -92,5 +93,6 @@ public interface DateManagerService {
 
 	// CSV methods
 	public byte[] exportToCsv(String siteId);
+	public ImportPreviewResult previewCsvImport(String siteId, InputStream csvInputStream);
 	public String importFromCsv(InputStream csvInputStream);
 }

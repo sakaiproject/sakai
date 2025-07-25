@@ -16,8 +16,10 @@
 package org.sakaiproject.datemanager.tool;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.List;
+import java.util.Map;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -47,6 +49,7 @@ import org.sakaiproject.datemanager.api.DateManagerConstants;
 import org.sakaiproject.datemanager.api.DateManagerService;
 import org.sakaiproject.datemanager.api.model.DateManagerError;
 import org.sakaiproject.datemanager.api.model.DateManagerValidation;
+import org.sakaiproject.datemanager.api.model.ImportPreviewResult;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -76,6 +79,8 @@ public class MainController {
     
     @Autowired
     private PreferencesService preferencesService;
+
+    private Map<String, List<String[]>> toolsToImport = new HashMap<>();
 
 
     /**
@@ -333,22 +338,107 @@ public class MainController {
 		FileItem uploadedFileItem = (FileItem) request.getAttribute("file");
 		model = getModelWithLocale(model, request, response);
 
-		// Extract InputStream from FileItem and delegate to service
-		String result;
 		try {
 			if (uploadedFileItem == null || uploadedFileItem.getSize() == 0) {
-				result = "import_page";
-			} else {
-				result = dateManagerService.importFromCsv(uploadedFileItem.getInputStream());
+				model.addAttribute("errorMessage", rb.getString("page.import.error.any.date"));
+				return "import_page";
 			}
+
+			String siteId = dateManagerService.getCurrentSiteId();
+			ImportPreviewResult previewResult = dateManagerService.previewCsvImport(siteId, uploadedFileItem.getInputStream());
+			
+			if (previewResult.hasErrors()) {
+				model.addAttribute("errorMessage", previewResult.getErrorMessage());
+				return "import_page";
+			}
+			
+			if (!previewResult.hasChanges()) {
+				model.addAttribute("errorMessage", rb.getString("page.import.error.any.date"));
+				return "import_page";
+			}
+			
+			// Store the import data for confirmation
+			toolsToImport = previewResult.getToolsToImport();
+			
+			// Show confirmation page
+			return showConfirmImport(model, request, response);
+			
 		} catch (Exception e) {
 			log.error("Error processing file upload", e);
-			result = "import_page";
+			model.addAttribute("errorMessage", rb.getString("page.import.error.any.date"));
+			return "import_page";
 		}
+	}
 
-		if ("confirm_import".equals(result)) {
+	/**
+	 * Shows the confirmation page for CSV import.
+	 *
+	 * @param model The model.
+	 * @param request The HTTP request.
+	 * @param response The HTTP response.
+	 * @return The name of the confirmation view.
+	 */
+	public String showConfirmImport(Model model, HttpServletRequest request, HttpServletResponse response) {
+		model = getModelWithLocale(model, request, response);
+		
+		List<ToolImportData> importDataList = new ArrayList<>();
+		for (Map.Entry<String, List<String[]>> entry : toolsToImport.entrySet()) {
+			importDataList.add(new ToolImportData(entry.getKey(), entry.getValue()));
+		}
+		
+		model.addAttribute("toolsToImport", importDataList);
+		
+		return "confirm_import";
+	}
+
+	/**
+	 * Confirms and applies the CSV import changes.
+	 *
+	 * @param model The model.
+	 * @param request The HTTP request.
+	 * @param response The HTTP response.
+	 * @return The name of the view to show after confirmation.
+	 */
+	@PostMapping(value = {"/confirm/update"})
+	public String confirmUpdate(Model model, HttpServletRequest request, HttpServletResponse response) {
+		model = getModelWithLocale(model, request, response);
+		
+		try {
+			// Apply the import using the stored toolsToImport data
+			for (Map.Entry<String, List<String[]>> entry : toolsToImport.entrySet()) {
+				String toolId = entry.getKey();
+				List<String[]> toolData = entry.getValue();
+				
+				if (toolData.size() > 1) { // Must have header + data rows
+					// Convert to array format expected by service
+					String[][] toolColumns = new String[toolData.size()][50];
+					String[] toolColumnsAux = new String[50];
+					
+					for (int i = 0; i < toolData.size(); i++) {
+						String[] row = toolData.get(i);
+						for (int j = 0; j < row.length && j < 50; j++) {
+							toolColumns[i][j] = row[j];
+							if (i == 0) {
+								toolColumnsAux[j] = row[j]; // Store headers
+							}
+						}
+					}
+					
+					// Validate and update the tool
+					DateManagerValidation validation = dateManagerService.validateTool(toolId, toolData.size() - 1, toolColumns, toolColumnsAux);
+					if (validation != null) {
+						dateManagerService.updateTool(toolId, validation);
+					}
+				}
+			}
+			
+			// Clear the import data
+			toolsToImport.clear();
+			
 			return this.showIndex("", model, request, response);
-		} else {
+			
+		} catch (Exception e) {
+			log.error("Error confirming CSV import", e);
 			model.addAttribute("errorMessage", rb.getString("page.import.error.any.date"));
 			return "import_page";
 		}

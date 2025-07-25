@@ -74,6 +74,7 @@ import org.sakaiproject.datemanager.api.DateManagerService;
 import org.sakaiproject.datemanager.api.model.DateManagerError;
 import org.sakaiproject.datemanager.api.model.DateManagerUpdate;
 import org.sakaiproject.datemanager.api.model.DateManagerValidation;
+import org.sakaiproject.datemanager.api.model.ImportPreviewResult;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.grading.api.GradingService;
@@ -2199,7 +2200,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 	 */
 	private char getCsvSeparatorChar() {
 		String separator = getCsvSeparator();
-		return (separator != null && !separator.isEmpty()) ? separator.charAt(0) : ',';
+		return !separator.isEmpty() ? separator.charAt(0) : ',';
 	}
 
 	/**
@@ -2321,13 +2322,92 @@ public class DateManagerServiceImpl implements DateManagerService {
 	}
 
 	@Override
+	public ImportPreviewResult previewCsvImport(String siteId, InputStream csvInputStream) {
+		if (csvInputStream == null) {
+			return new ImportPreviewResult("Error: No file provided");
+		}
+
+		Map<String, List<String[]>> toolsToImport = new HashMap<>();
+		boolean hasChanges = false;
+
+		try (InputStreamReader inputReader = new InputStreamReader(csvInputStream, StandardCharsets.UTF_8);
+			 CSVReader reader = new CSVReaderBuilder(inputReader)
+				.withCSVParser(new CSVParserBuilder().withSeparator(getCsvSeparatorChar()).build())
+				.build()) {
+
+			String[] line;
+			String currentTool = "";
+			List<String[]> currentToolData = new ArrayList<>();
+			String[] toolColumnsAux = new String[50];
+
+			while ((line = reader.readNext()) != null) {
+				if (line.length == 0) continue;
+
+				String firstCell = line[0].trim();
+				if (firstCell.isEmpty()) continue;
+
+				// Check if this line indicates a tool section
+				if (firstCell.contains("(") && firstCell.contains(")")) {
+					// Store previous tool data if exists
+					if (!currentTool.isEmpty() && !currentToolData.isEmpty()) {
+						// Check if any rows would result in changes
+						for (int i = 1; i < currentToolData.size(); i++) { // Skip header row
+							if (isChanged(currentTool, currentToolData.get(i))) {
+								hasChanges = true;
+								break;
+							}
+						}
+						toolsToImport.put(currentTool, new ArrayList<>(currentToolData));
+					}
+
+					// Start new tool section
+					currentTool = firstCell.substring(0, firstCell.indexOf("("));
+					currentToolData.clear();
+					continue;
+				}
+
+				// Skip the "Date Manager" header
+				if (firstCell.equals(getMessage("datemanager.export.title"))) {
+					continue;
+				}
+
+				// Store data rows
+				if (!currentTool.isEmpty()) {
+					String[] rowData = Arrays.copyOf(line, line.length);
+					currentToolData.add(rowData);
+					
+					// Store headers for the first row
+					if (currentToolData.size() == 1) {
+						System.arraycopy(line, 0, toolColumnsAux, 0, Math.min(line.length, 50));
+					}
+				}
+			}
+
+			// Process the last tool
+			if (!currentTool.isEmpty() && !currentToolData.isEmpty()) {
+				// Check if any rows would result in changes
+				for (int i = 1; i < currentToolData.size(); i++) { // Skip header row
+					if (isChanged(currentTool, currentToolData.get(i))) {
+						hasChanges = true;
+						break;
+					}
+				}
+				toolsToImport.put(currentTool, currentToolData);
+			}
+
+			return new ImportPreviewResult(hasChanges, toolsToImport);
+
+		} catch (Exception ex) {
+			log.error("Error previewing CSV import", ex);
+			return new ImportPreviewResult("Error processing CSV file: " + ex.getMessage());
+		}
+	}
+
+	@Override
 	public String importFromCsv(InputStream csvInputStream) {
 		if (csvInputStream == null) {
 			return "import_page";
 		}
-
-		String siteId = getCurrentSiteId();
-		Locale userLocale = getLocaleForCurrentSiteAndUser();
 
 		try (InputStreamReader inputReader = new InputStreamReader(csvInputStream, StandardCharsets.UTF_8);
 			 CSVReader reader = new CSVReaderBuilder(inputReader)
