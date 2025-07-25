@@ -106,7 +106,6 @@ import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
-import org.springframework.http.HttpStatus;
 
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
@@ -2378,7 +2377,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 					
 					// Store headers for the first row
 					if (currentToolData.size() == 1) {
-						System.arraycopy(line, 0, toolColumnsAux, 0, Math.min(line.length, 50));
+						toolColumnsAux = Arrays.copyOf(line, Math.min(line.length, 50));
 					}
 				}
 			}

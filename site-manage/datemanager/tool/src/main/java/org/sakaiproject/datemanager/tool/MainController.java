@@ -16,6 +16,7 @@
 package org.sakaiproject.datemanager.tool;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.List;
@@ -411,16 +412,14 @@ public class MainController {
 				
 				if (toolData.size() > 1) { // Must have header + data rows
 					// Convert to array format expected by service
-					String[][] toolColumns = new String[toolData.size()][50];
+					String[][] toolColumns = new String[toolData.size()][];
 					String[] toolColumnsAux = new String[50];
 					
 					for (int i = 0; i < toolData.size(); i++) {
 						String[] row = toolData.get(i);
-						for (int j = 0; j < row.length && j < 50; j++) {
-							toolColumns[i][j] = row[j];
-							if (i == 0) {
-								toolColumnsAux[j] = row[j]; // Store headers
-							}
+						toolColumns[i] = Arrays.copyOf(row, Math.max(row.length, 50));
+						if (i == 0) {
+							toolColumnsAux = Arrays.copyOf(row, Math.min(row.length, 50));
 						}
 					}
 					
