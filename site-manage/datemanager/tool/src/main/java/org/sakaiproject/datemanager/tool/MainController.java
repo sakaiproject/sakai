@@ -382,12 +382,32 @@ public class MainController {
 	public String showConfirmImport(Model model, HttpServletRequest request, HttpServletResponse response) {
 		model = getModelWithLocale(model, request, response);
 		
-		List<ToolImportData> importDataList = new ArrayList<>();
+		List<List<Object>> tools = new ArrayList<>();
 		for (Map.Entry<String, List<String[]>> entry : toolsToImport.entrySet()) {
-			importDataList.add(new ToolImportData(entry.getKey(), entry.getValue()));
+			String toolId = entry.getKey();
+			List<String[]> toolData = entry.getValue();
+			
+			if (toolData.size() > 1) { // Must have headers + data
+				List<Object> toolEntry = new ArrayList<>();
+				toolEntry.add(toolId); // Tool title (index 0)
+				
+				// Headers (index 1) - array of column headers
+				String[][] headerArray = new String[1][];
+				headerArray[0] = toolData.get(0);
+				toolEntry.add(headerArray);
+				
+				// Data rows (index 2) - all data rows except header
+				List<String[]> dataRows = new ArrayList<>();
+				for (int i = 1; i < toolData.size(); i++) {
+					dataRows.add(toolData.get(i));
+				}
+				toolEntry.add(dataRows);
+				
+				tools.add(toolEntry);
+			}
 		}
 		
-		model.addAttribute("toolsToImport", importDataList);
+		model.addAttribute("tools", tools);
 		
 		return "confirm_import";
 	}

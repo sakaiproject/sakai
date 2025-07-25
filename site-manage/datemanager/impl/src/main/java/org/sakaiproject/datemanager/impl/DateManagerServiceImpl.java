@@ -2337,7 +2337,6 @@ public class DateManagerServiceImpl implements DateManagerService {
 			String[] line;
 			String currentTool = "";
 			List<String[]> currentToolData = new ArrayList<>();
-			String[] toolColumnsAux = new String[50];
 
 			while ((line = reader.readNext()) != null) {
 				if (line.length == 0) continue;
@@ -2348,14 +2347,10 @@ public class DateManagerServiceImpl implements DateManagerService {
 				// Check if this line indicates a tool section
 				if (firstCell.contains("(") && firstCell.contains(")")) {
 					// Store previous tool data if exists
-					if (!currentTool.isEmpty() && !currentToolData.isEmpty()) {
-						// Check if any rows would result in changes
-						for (int i = 1; i < currentToolData.size(); i++) { // Skip header row
-							if (isChanged(currentTool, currentToolData.get(i))) {
-								hasChanges = true;
-								break;
-							}
-						}
+					if (!currentTool.isEmpty() && !currentToolData.isEmpty() && currentToolData.size() > 1) {
+						// For preview, we'll assume there are changes if there's valid data
+						// The detailed validation will happen during actual import
+						hasChanges = true;
 						toolsToImport.put(currentTool, new ArrayList<>(currentToolData));
 					}
 
@@ -2374,23 +2369,14 @@ public class DateManagerServiceImpl implements DateManagerService {
 				if (!currentTool.isEmpty()) {
 					String[] rowData = Arrays.copyOf(line, line.length);
 					currentToolData.add(rowData);
-					
-					// Store headers for the first row
-					if (currentToolData.size() == 1) {
-						toolColumnsAux = Arrays.copyOf(line, Math.min(line.length, 50));
-					}
 				}
 			}
 
 			// Process the last tool
-			if (!currentTool.isEmpty() && !currentToolData.isEmpty()) {
-				// Check if any rows would result in changes
-				for (int i = 1; i < currentToolData.size(); i++) { // Skip header row
-					if (isChanged(currentTool, currentToolData.get(i))) {
-						hasChanges = true;
-						break;
-					}
-				}
+			if (!currentTool.isEmpty() && !currentToolData.isEmpty() && currentToolData.size() > 1) {
+				// For preview, we'll assume there are changes if there's valid data
+				// The detailed validation will happen during actual import
+				hasChanges = true;
 				toolsToImport.put(currentTool, currentToolData);
 			}
 
