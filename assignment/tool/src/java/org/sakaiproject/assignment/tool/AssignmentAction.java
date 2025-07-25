@@ -14215,7 +14215,7 @@ public class AssignmentAction extends PagedResourceActionII {
             Site site = siteService.getSite(contextString);
             groups = (securityService.unlock(userDirectoryService.getCurrentUser(), SECURE_ALL_GROUPS, siteService.siteReference(site.getId())))?site.getGroups():site.getGroupsWithMember(userDirectoryService.getCurrentUser().getId());
         } catch (IdUnusedException e) {
-            log.warn("Problem getting current user groups for site: {}, {}", contextString, e.getMessage());
+            log.warn("Could not fetch site: {}, {}", contextString, e.toString());
         }
         return groups;
     }
