@@ -5972,7 +5972,7 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("viewGroup", state.getAttribute(VIEW_SUBMISSION_LIST_OPTION));
         context.put("searchString", state.getAttribute(VIEW_SUBMISSION_SEARCH) != null ? state.getAttribute(VIEW_SUBMISSION_SEARCH) : "");
         context.put("showSubmissionByFilterSearchOnly", state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null ? (Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY) : Boolean.FALSE);
-        Collection groups = getCurrentUserGroupsInSite(contextString);
+        Collection<Group> groups = getCurrentUserGroupsInSite(contextString);
         context.put("groups", new SortedIterator(groups.iterator(), new AssignmentComparator(state, SORTED_BY_GROUP_TITLE, Boolean.TRUE.toString())));
 
 
