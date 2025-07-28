@@ -4089,8 +4089,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         realName = candidateName;
                         done.put(candidateName, 1);
                     } else {
-                        String fileName = FilenameUtils.removeExtension(candidateName);
-                        String fileExt = org.springframework.util.StringUtils.getFilenameExtension(candidateName);
+String fileName = org.springframework.util.StringUtils.stripFilenameExtension(candidateName);
+String fileExt = org.springframework.util.StringUtils.getFilenameExtension(candidateName);
                         realName = fileExt != null
                                 ?  fileName + "+" + already + "." + fileExt
                                 :  fileName + "+" + already;
