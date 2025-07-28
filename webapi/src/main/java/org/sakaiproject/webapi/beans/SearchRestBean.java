@@ -49,9 +49,14 @@ public class SearchRestBean {
         bean.creatorDisplayName = searchResult.getCreatorDisplayName();
 
         try {
-            Site site = siteService.getSite(searchResult.getSiteId());
-            bean.siteTitle = site.getTitle();
-            bean.siteUrl = site.getUrl();
+            String siteId = searchResult.getSiteId();
+            if (siteId != null && !siteId.isEmpty()) {
+                Site site = siteService.getSite(siteId);
+                bean.siteTitle = site.getTitle();
+                bean.siteUrl = site.getUrl();
+            } else {
+                log.debug("No site ID found for search result with reference {}", searchResult.getReference());
+            }
         } catch (IdUnusedException e) {
             log.error("No site found for id {}", searchResult.getSiteId());
         }
