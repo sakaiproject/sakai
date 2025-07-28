@@ -35,6 +35,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpHeaders;
+import org.apache.http.protocol.HTTP;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.cheftool.VmServlet;
@@ -691,9 +693,9 @@ public class AccessServlet extends VmServlet
 		return new HttpServletResponseWrapper(response) {
 
 			private String addCharsetToContentType(String type) {
-				if (type != null && type.startsWith("text/") && !type.contains("charset")) {
+				if (type != null && type.startsWith("text/") && !type.contains(HTTP.CHARSET_PARAM)) {
 					// Always add UTF-8 charset to text MIME types
-					return type + "; charset=UTF-8";
+					return type + "; " + HTTP.CHARSET_PARAM + "=" + HTTP.UTF_8;
 				}
 				return type;
 			}
@@ -706,7 +708,7 @@ public class AccessServlet extends VmServlet
 
 			@Override
 			public void setHeader(String name, String value) {
-				if ("Content-Type".equalsIgnoreCase(name)) {
+				if (HttpHeaders.CONTENT_TYPE.equalsIgnoreCase(name)) {
 					value = addCharsetToContentType(value);
 				}
 				super.setHeader(name, value);
@@ -714,7 +716,7 @@ public class AccessServlet extends VmServlet
 
 			@Override
 			public void addHeader(String name, String value) {
-				if ("Content-Type".equalsIgnoreCase(name)) {
+				if (HttpHeaders.CONTENT_TYPE.equalsIgnoreCase(name)) {
 					value = addCharsetToContentType(value);
 				}
 				super.addHeader(name, value);
