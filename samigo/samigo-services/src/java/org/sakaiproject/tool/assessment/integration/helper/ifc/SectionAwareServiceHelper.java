@@ -37,6 +37,7 @@ public interface SectionAwareServiceHelper{
 	public boolean isUserAbleToGradeSection(String sectionUid, String userUid);
 	public boolean isUserAbleToEdit(String siteid, String userUid);
 	public boolean isUserGradable(String siteid, String userUid);
+	public boolean isUserInstructor(String uid, String userUid);
 
 	/**
 	 * @return
