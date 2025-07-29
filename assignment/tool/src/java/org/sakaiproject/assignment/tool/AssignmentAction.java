@@ -6065,7 +6065,7 @@ public class AssignmentAction extends PagedResourceActionII {
         Boolean showSubmissionByFilterSearchOnly = state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE : Boolean.FALSE;
         context.put("showSubmissionByFilterSearchOnly", showSubmissionByFilterSearchOnly);
 
-        Collection groups = getAllGroupsInSite(contextString);
+        Collection<Group> groups = getCurrentUserGroupsInSite(contextString);
         context.put("groups", new SortedIterator(groups.iterator(), new AssignmentComparator(state, SORTED_BY_GROUP_TITLE, Boolean.TRUE.toString())));
 
         add2ndToolbarFields(data, context);
