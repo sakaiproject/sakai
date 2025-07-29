@@ -554,6 +554,7 @@ roster.search = function (query) {
     }
 
     if (userIds.length > 0) {
+      roster.noParticipants = false;
       roster.userIds = userIds;
       roster.renderMembership({ replace: true });
     } else {
