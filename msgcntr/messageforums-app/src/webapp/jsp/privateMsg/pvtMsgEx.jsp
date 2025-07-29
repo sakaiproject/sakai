@@ -16,18 +16,18 @@
 		<script src="/messageforums-tool/js/sak-10625.js"></script>
 		<script src="/messageforums-tool/js/forum.js"></script>
 		<script src="/messageforums-tool/js/messages.js"></script>
-        <script>
-            $(document).ready(function() {
-                var menuLink = $('#messagesMainMenuLink');
-                var menuLinkSpan = menuLink.closest('span');
-                menuLinkSpan.addClass('current');
-                menuLinkSpan.html(menuLink.text());
-            });
+		<script>
+				$(document).ready(function() {
+						var menuLink = $('#messagesMainMenuLink');
+						var menuLinkSpan = menuLink.closest('span');
+						menuLinkSpan.addClass('current');
+						menuLinkSpan.html(menuLink.text());
+				});
 
 			<f:verbatim rendered="#{PrivateMessagesTool.canUseTags}">
 					initTagSelector("prefs_pvt_form");
 			</f:verbatim>
-	</script>
+		</script>
 		<script>includeWebjarLibrary('datatables');</script>
 
 		<script>
