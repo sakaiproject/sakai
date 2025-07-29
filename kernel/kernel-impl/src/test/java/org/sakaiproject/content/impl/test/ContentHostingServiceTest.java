@@ -285,7 +285,7 @@ public class ContentHostingServiceTest extends SakaiKernelTestBase {
 			put("LSNBLDR-359-snippet.html", "text/html");
 			put("testCSS.css", "text/css");
 			put("testHTMLbody.html", "text/html");
-			put("jquery-1.6.1.min.js", "application/javascript");
+			put("jquery-1.6.1.min.js", "text/javascript");
 		}};
 		//Set the mime magic to be true
 		ServerConfigurationService serv = getService(ServerConfigurationService.class);
