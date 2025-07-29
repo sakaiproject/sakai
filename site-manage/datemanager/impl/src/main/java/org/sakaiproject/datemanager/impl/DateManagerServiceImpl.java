@@ -136,6 +136,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 	private final DateTimeFormatter inputDateTimeFormatter;
 	private final DateTimeFormatter outputDateFormatter;
 	private final DateTimeFormatter outputDatePickerFormat;
+	private static final String TYPE_FORUMS = "forums";
 
 	public DateManagerServiceImpl() {
 		inputDateFormatter = new DateTimeFormatterBuilder()
@@ -1398,7 +1399,8 @@ public class DateManagerServiceImpl implements DateManagerService {
 
                                 String entityType = (String)jsonForum.get(DateManagerConstants.JSON_EXTRAINFO_PARAM_NAME);
                                 DateManagerUpdate update;
-                                if(resourceLoader.getString("itemtype.forum").equals(entityType)) {
+								String normalizedType = (entityType == null) ? "unknown" : entityType.toLowerCase();						
+								if (normalizedType.startsWith(TYPE_FORUMS)) {
                                         BaseForum forum = forumManager.getForumById(true, forumId);
                                         if (forum == null) {
                                                 errors.add(new DateManagerError("forum", resourceLoader.getFormattedMessage("error.item.not.found", resourceLoader.getString("tool.forums.item.name")), "forums", toolTitle, idx));
@@ -1457,7 +1459,7 @@ public class DateManagerServiceImpl implements DateManagerService {
                                                 forum.setCloseDate(closeDateTemp);
                                         }
                                 }
-                                forumManager.saveDiscussionForum(forum);
+								forumManager.saveDiscussionForum(forum, forum.getDraft());
                         } else {
                                 DiscussionTopic topic = (DiscussionTopic) update.object;
                                 if(topic.getAvailabilityRestricted()) {
