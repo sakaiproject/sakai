@@ -518,11 +518,11 @@
                     </f:facet>
 
                     <h:panelGroup rendered="#{assessment['class'].simpleName == 'PublishedAssessmentFacade'}">
-                        <h:panelGroup rendered="#{assessment.submittedCount==0 or !(authorization.gradeAnyAssessment or authorization.gradeOwnAssessment)}">
+                        <h:panelGroup rendered="#{!(authorization.gradeAnyAssessment or authorization.gradeOwnAssessment)}">
                             <h:outputText value="#{assessment.submittedCount}"/>
                         </h:panelGroup>
 
-                        <h:panelGroup rendered="#{assessment.submittedCount>0 and (authorization.gradeAnyAssessment or authorization.gradeOwnAssessment)}">
+                        <h:panelGroup rendered="#{(authorization.gradeAnyAssessment or authorization.gradeOwnAssessment)}">
                             <f:verbatim><span aria-label="</f:verbatim>
                                 <h:outputText value="#{assessment.submittedCount} #{authorFrontDoorMessages.assessment_submissions}" />
                             <f:verbatim>" role="link" tabindex="0"></f:verbatim>
