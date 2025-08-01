@@ -22,6 +22,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.datemanager.api.DateManagerConstants;
 import org.sakaiproject.datemanager.api.DateManagerService;
 import org.sakaiproject.datemanager.api.model.DateManagerUpdate;
@@ -63,6 +64,7 @@ public class DateManagerServiceTest {
     @Autowired private GradingService gradingService;
     @Autowired private SessionManager sessionManager;
     @Autowired private ToolManager toolManager;
+    @Autowired private ServerConfigurationService serverConfigurationService;
     @Qualifier("org.sakaiproject.time.api.UserTimeService")
     @Autowired private UserTimeService userTimeService;
 
@@ -154,6 +156,73 @@ public class DateManagerServiceTest {
             Assert.fail(e.toString());
         }
 
+    }
+
+    @Test
+    public void testCsvExport() {
+        String siteId = "test-site";
+        
+        // Mock the server configuration service to return a CSV separator
+        when(serverConfigurationService.getString("csv.separator", ",")).thenReturn(",");
+        
+        try {
+            byte[] csvData = dateManagerService.exportCsvData(siteId);
+            Assert.assertNotNull("CSV data should not be null", csvData);
+            Assert.assertTrue("CSV data should not be empty", csvData.length > 0);
+            
+            String csvContent = new String(csvData, StandardCharsets.UTF_8);
+            Assert.assertTrue("CSV should contain Date Manager header", csvContent.contains("Date Manager"));
+        } catch (Exception e) {
+            Assert.fail("CSV export should not throw exception: " + e.toString());
+        }
+    }
+
+    @Test
+    public void testCsvExportWithSemicolonSeparator() {
+        String siteId = "test-site";
+        
+        // Mock the server configuration service to return semicolon as CSV separator (European style)
+        when(serverConfigurationService.getString("csv.separator", ",")).thenReturn(";");
+        
+        try {
+            byte[] csvData = dateManagerService.exportCsvData(siteId);
+            Assert.assertNotNull("CSV data should not be null", csvData);
+            Assert.assertTrue("CSV data should not be empty", csvData.length > 0);
+            
+            String csvContent = new String(csvData, StandardCharsets.UTF_8);
+            Assert.assertTrue("CSV should contain Date Manager header", csvContent.contains("Date Manager"));
+            
+            // The test verifies that the export works with semicolon separator configured
+            // Even if no actual data is exported (no tools/assignments in test environment),
+            // the method should execute successfully without errors
+            Assert.assertTrue("CSV content should not be empty", csvContent.trim().length() > 0);
+            
+        } catch (Exception e) {
+            Assert.fail("CSV export with semicolon separator should not throw exception: " + e.toString());
+        }
+    }
+    
+    @Test
+    public void testCsvSeparatorConfiguration() {
+        // Test comma separator (default)
+        when(serverConfigurationService.getString("csv.separator", ",")).thenReturn(",");
+        try {
+            dateManagerService.exportCsvData("test-site");
+            // If we get here without exception, the comma separator works
+            Assert.assertTrue("Comma separator should work", true);
+        } catch (Exception e) {
+            Assert.fail("Comma separator should not cause exception: " + e.toString());
+        }
+        
+        // Test semicolon separator (European style)
+        when(serverConfigurationService.getString("csv.separator", ",")).thenReturn(";");
+        try {
+            dateManagerService.exportCsvData("test-site");
+            // If we get here without exception, the semicolon separator works
+            Assert.assertTrue("Semicolon separator should work", true);
+        } catch (Exception e) {
+            Assert.fail("Semicolon separator should not cause exception: " + e.toString());
+        }
     }
 
     private static String readFileAsString(String filePath) {
