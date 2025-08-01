@@ -101,6 +101,11 @@ import org.sakaiproject.search.model.SearchBuilderItem;
 import org.springframework.util.Assert;
 
 import lombok.extern.slf4j.Slf4j;
+import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.exception.ServerOverloadException;
 
 /**
  *
@@ -130,6 +135,8 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
     protected SecurityService securityService;
     protected ServerConfigurationService serverConfigurationService;
     protected EventTrackingService eventTrackingService;
+    protected ContentHostingService contentHostingService;
+    protected EntityManager entityManager;
 
 
     /**
@@ -183,6 +190,18 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
      * to share the load.
      */
     protected int contentIndexBatchSize = 500;
+
+    /**
+     * Maximum total size in bytes for documents to index in a single batch (defaults to 10MB).
+     * This helps prevent memory issues when indexing very large documents.
+     */
+    protected long contentIndexBatchMaxSizeBytes = 10 * 1024 * 1024; // 10MB default
+
+    /**
+     * Whether to prioritize smaller documents first when indexing (defaults to true).
+     * This can help maintain responsiveness by processing smaller documents before larger ones.
+     */
+    protected boolean prioritizeSmallDocuments = true;
 
     /**
      * Number of actions to send in one elasticsearch bulk index call
@@ -478,30 +497,135 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
         SearchHit[] hits = response.getHits().getHits();
         List<NoContentException> noContentExceptions = new ArrayList<>();
         log.debug("{} pending docs for index builder [{}]", getPendingDocuments(), getName());
+        
+        // Log the batch size configuration
+        log.info("Size-based indexing configuration: maxDocs={}, maxSizeBytes={}MB, prioritizeSmall={}", 
+                contentIndexBatchSize, 
+                String.format("%.2f", contentIndexBatchMaxSizeBytes / (1024.0 * 1024.0)),
+                prioritizeSmallDocuments);
 
-        BulkRequest bulkRequest = new BulkRequest();
-
-        for (SearchHit hit : hits) {
-
-            if (bulkRequest.numberOfActions() < bulkRequestSize) {
-                try {
-                    processContentQueueEntry(hit, bulkRequest);
-                } catch ( NoContentException e ) {
-                    noContentExceptions.add(e);
+        // Sort documents by size if prioritization is enabled
+        if (prioritizeSmallDocuments && hits.length > 1) {
+            log.info("Sorting {} documents by size before processing", hits.length);
+            
+            // Log a sample of documents before sorting
+            if (log.isDebugEnabled() && hits.length > 0) {
+                int sampleSize = Math.min(5, hits.length);
+                log.debug("Document order before sorting (showing {} of {}):", sampleSize, hits.length);
+                for (int i = 0; i < sampleSize; i++) {
+                    String ref = getFieldFromSearchHit(SearchService.FIELD_REFERENCE, hits[i]);
+                    log.debug("  [{}] {}", i, ref);
                 }
-            } else {
-                executeBulkRequest(bulkRequest);
-                bulkRequest = new BulkRequest();
+            }
+            
+            Arrays.sort(hits, (hit1, hit2) -> {
+                // Estimate size based on reference length as a simple heuristic
+                // More sophisticated size estimation could be implemented here
+                String ref1 = getFieldFromSearchHit(SearchService.FIELD_REFERENCE, hit1);
+                String ref2 = getFieldFromSearchHit(SearchService.FIELD_REFERENCE, hit2);
+                
+                EntityContentProducer ecp1 = newEntityContentProducer(ref1);
+                EntityContentProducer ecp2 = newEntityContentProducer(ref2);
+                
+                long size1 = (ecp1 != null) ? estimateDocumentSize(ref1, ecp1) : Long.MAX_VALUE;
+                long size2 = (ecp2 != null) ? estimateDocumentSize(ref2, ecp2) : Long.MAX_VALUE;
+                
+                return Long.compare(size1, size2);
+            });
+            
+            // Log a sample of documents after sorting
+            if (log.isDebugEnabled() && hits.length > 0) {
+                int sampleSize = Math.min(5, hits.length);
+                log.debug("Document order after sorting (showing {} of {}):", sampleSize, hits.length);
+                for (int i = 0; i < sampleSize; i++) {
+                    String ref = getFieldFromSearchHit(SearchService.FIELD_REFERENCE, hits[i]);
+                    EntityContentProducer ecp = newEntityContentProducer(ref);
+                    long size = (ecp != null) ? estimateDocumentSize(ref, ecp) : -1;
+                    log.debug("  [{}] {} (size: {}KB)", i, ref, size / 1024);
+                }
             }
         }
 
-        // execute any remaining bulks requests not executed yet
+        BulkRequest bulkRequest = new BulkRequest();
+        long currentBatchSizeBytes = 0;
+        int batchCount = 1;
+        int docsInCurrentBatch = 0;
+
+        log.info("Starting batch #{} processing", batchCount);
+        
+        for (SearchHit hit : hits) {
+            String reference = getFieldFromSearchHit(SearchService.FIELD_REFERENCE, hit);
+            EntityContentProducer ecp = newEntityContentProducer(reference);
+            
+            if (ecp == null) {
+                try {
+                    noContentProducerForContentQueueEntry(hit, reference);
+                } catch (NoContentException e) {
+                    noContentExceptions.add(e);
+                }
+                log.debug("No content producer for {}, skipping", reference);
+                continue;
+            }
+            
+            // Estimate the size of this document
+            long docSizeEstimate = estimateDocumentSize(reference, ecp);
+            log.debug("Document {} size: {}KB", reference, docSizeEstimate / 1024);
+            
+            // Check if adding this document would exceed our batch size limits
+            boolean bulkSizeLimitReached = bulkRequest.numberOfActions() >= bulkRequestSize;
+            boolean batchSizeLimitReached = currentBatchSizeBytes + docSizeEstimate > contentIndexBatchMaxSizeBytes;
+            
+            // If either limit is reached, execute the current bulk request and start a new one
+            if (bulkSizeLimitReached || batchSizeLimitReached) {
+                if (bulkRequest.numberOfActions() > 0) {
+                    log.info("Batch #{} limit reached: docs={}, size={}MB, reason={}", 
+                            batchCount, 
+                            docsInCurrentBatch,
+                            String.format("%.2f", currentBatchSizeBytes / (1024.0 * 1024.0)),
+                            bulkSizeLimitReached ? "document count" : "batch size");
+                            
+                    executeBulkRequest(bulkRequest);
+                    bulkRequest = new BulkRequest();
+                    currentBatchSizeBytes = 0;
+                    docsInCurrentBatch = 0;
+                    batchCount++;
+                    log.info("Starting batch #{} processing", batchCount);
+                }
+                
+                // If this single document is larger than our max batch size, log a message
+                // We'll still process it - this is just informational for monitoring purposes
+                if (docSizeEstimate > contentIndexBatchMaxSizeBytes) {
+                    log.info("Large document detected: {} (size: {}MB, batch limit: {}MB) - processing as separate batch", 
+                             reference, String.format("%.2f", docSizeEstimate / (1024.0 * 1024.0)), 
+                             String.format("%.2f", contentIndexBatchMaxSizeBytes / (1024.0 * 1024.0)));
+                }
+            }
+
+            // Process the document
+            try {
+                processContentQueueEntry(hit, bulkRequest);
+                currentBatchSizeBytes += docSizeEstimate;
+                docsInCurrentBatch++;
+                log.debug("Added document {} to batch #{} (current batch: {} docs, {}MB)", 
+                        reference, batchCount, docsInCurrentBatch, 
+                        String.format("%.2f", currentBatchSizeBytes / (1024.0 * 1024.0)));
+            } catch (NoContentException e) {
+                noContentExceptions.add(e);
+                log.debug("No content for {}, skipping", reference);
+            }
+        }
+
+        // Execute any remaining bulk requests not executed yet
         if (bulkRequest.numberOfActions() > 0) {
+            log.info("Processing final batch #{}: {} docs, {}MB", 
+                    batchCount, docsInCurrentBatch,
+                    String.format("%.2f", currentBatchSizeBytes / (1024.0 * 1024.0)));
             executeBulkRequest(bulkRequest);
         }
 
-        // remove any docs without content, so we don't try to index them again
+        // Remove any docs without content, so we don't try to index them again
         if (!noContentExceptions.isEmpty()) {
+            log.info("Removing {} documents with no content", noContentExceptions.size());
             for (NoContentException noContentException : noContentExceptions) {
                 deleteDocument(noContentException);
             }
@@ -510,9 +634,9 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
         lastLoad = System.currentTimeMillis();
 
         if (hits.length > 0) {
-            log.info("Finished indexing {} docs in {}ms for index builder {}", hits.length, ((lastLoad - startTime)), getName());
+            log.info("Finished indexing {} docs in {}ms across {} batches for index builder {}", 
+                    hits.length, ((lastLoad - startTime)), batchCount, getName());
         }
-
     }
 
     protected void processContentQueueEntry(SearchHit hit, BulkRequest bulkRequest) throws NoContentException {
@@ -1670,4 +1794,90 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
         }
     }
 
+    /**
+     * Gets the actual size of a document in bytes.
+     * Uses direct access to content resources where possible for accuracy.
+     * 
+     * @param reference The document reference
+     * @param ecp The EntityContentProducer for this document
+     * @return Actual size in bytes
+     */
+    protected long getDocumentSize(String reference, EntityContentProducer ecp) {
+        // Try to get size directly from ContentHostingService for content resources
+        if (reference != null && reference.startsWith("/content")) {
+            try {
+                Reference ref = entityManager.newReference(reference);
+                String contentId = ref.getId();
+                
+                if (contentId != null) {
+                    try {
+                        ContentResource resource = contentHostingService.getResource(contentId);
+                        long actualSize = resource.getContentLength();
+                        log.debug("Document {} exact content size from ContentHostingService: {}KB", 
+                                reference, actualSize / 1024);
+                        return actualSize + 1024; // Add some overhead for metadata
+                    } catch (Exception e) {
+                        log.debug("Could not get content size from ContentHostingService for {}: {}", 
+                                reference, e.getMessage());
+                        // Continue with fallback approach
+                    }
+                }
+            } catch (Exception e) {
+                // Continue with fallback approach
+            }
+        }
+        
+        // Fallback size calculation for non-content resources or when ContentHostingService fails
+        long size = 0;
+        
+        try {
+            // Get the actual content and measure its size in bytes
+            String content = ecp.getContent(reference);
+            if (content != null) {
+                size = content.getBytes("UTF-8").length;
+                log.debug("Document {} content size from content string: {}KB", reference, size / 1024);
+            } else {
+                log.debug("Document {} has null content, using default size", reference);
+                size = 100 * 1024; // Default to 100KB for null content
+            }
+            
+            // Add fixed overhead for document structure and metadata
+            size += 1024;
+            
+        } catch (Exception e) {
+            log.debug("Error calculating document size for {}: {}", reference, e.getMessage());
+            return 100 * 1024; // Default to 100KB if we can't calculate
+        }
+        
+        return Math.max(1024, size); // Minimum 1KB
+    }
+
+    /**
+     * Estimates the size of a document in bytes.
+     * This is a heuristic approach - for more accurate sizing, use getDocumentSize().
+     * 
+     * @param reference The document reference
+     * @param ecp The EntityContentProducer for this document
+     * @return Estimated size in bytes
+     */
+    protected long estimateDocumentSize(String reference, EntityContentProducer ecp) {
+        // Use the more accurate method if possible
+        return getDocumentSize(reference, ecp);
+    }
+
+    public void setContentIndexBatchMaxSizeBytes(long contentIndexBatchMaxSizeBytes) {
+        this.contentIndexBatchMaxSizeBytes = contentIndexBatchMaxSizeBytes;
+    }
+
+    public void setPrioritizeSmallDocuments(boolean prioritizeSmallDocuments) {
+        this.prioritizeSmallDocuments = prioritizeSmallDocuments;
+    }
+
+    public void setContentHostingService(ContentHostingService contentHostingService) {
+        this.contentHostingService = contentHostingService;
+    }
+
+    public void setEntityManager(EntityManager entityManager) {
+        this.entityManager = entityManager;
+    }
 }
