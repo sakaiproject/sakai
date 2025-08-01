@@ -245,42 +245,94 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
 
             long start = System.currentTimeMillis();
             int numberOfDocs = 0;
+            int batchCount = 1;
 
             BulkRequest bulkRequest = new BulkRequest();
+            long currentBatchSizeBytes = 0;
+            int docsInCurrentBatch = 0;
+            
+            log.info("Site '{}' indexing - batch configuration: maxDocs={}, maxSizeBytes={}MB", 
+                    siteId, bulkRequestSize, String.format("%.2f", contentIndexBatchMaxSizeBytes / (1024.0 * 1024.0)));
+            log.info("Starting batch #{} for site '{}'", batchCount, siteId);
 
             for (final EntityContentProducer ecp : producers) {
-            	Iterator<String> i = ecp.getSiteContentIterator(siteId);
+                log.debug("Processing content from producer: {}", ecp.getClass().getName());
+                Iterator<String> i = ecp.getSiteContentIterator(siteId);
+                int producerDocCount = 0;
 
-                while ( i != null && i.hasNext() ) {
-
-                    if (bulkRequest.numberOfActions() < bulkRequestSize) {
-                        String reference = i.next();
-
-                        if (StringUtils.isNotBlank(ecp.getContent(reference))) {
-                            //updating was causing issues without a _source, so doing delete and re-add
-                            try {
-                                deleteDocument(ecp.getId(reference), ecp.getSiteId(reference));
-                                bulkRequest.add(prepareIndex(reference, ecp, true));
-                                numberOfDocs++;
-                            } catch (Exception e) {
-                                log.error(e.getMessage(), e);
-                            }
+                while (i != null && i.hasNext()) {
+                    String reference = i.next();
+                    producerDocCount++;
+                    
+                    // Estimate the size of this document
+                    long docSizeEstimate = estimateDocumentSize(reference, ecp);
+                    log.debug("Document {} size: {}KB", reference, docSizeEstimate / 1024);
+                    
+                    // Check if adding this document would exceed our batch size limits
+                    boolean bulkSizeLimitReached = bulkRequest.numberOfActions() >= bulkRequestSize;
+                    boolean batchSizeLimitReached = currentBatchSizeBytes + docSizeEstimate > contentIndexBatchMaxSizeBytes;
+                    
+                    // If either limit is reached, execute the current bulk request and start a new one
+                    if (bulkSizeLimitReached || batchSizeLimitReached) {
+                        if (bulkRequest.numberOfActions() > 0) {
+                            log.info("Batch #{} limit reached for site '{}': docs={}, size={}MB, reason={}", 
+                                    batchCount, siteId, docsInCurrentBatch,
+                                    String.format("%.2f", currentBatchSizeBytes / (1024.0 * 1024.0)),
+                                    bulkSizeLimitReached ? "document count" : "batch size");
+                                    
+                            executeBulkRequest(bulkRequest);
+                            bulkRequest = new BulkRequest();
+                            currentBatchSizeBytes = 0;
+                            docsInCurrentBatch = 0;
+                            batchCount++;
+                            log.info("Starting batch #{} for site '{}'", batchCount, siteId);
                         }
+                        
+                        // If this single document is larger than our max batch size, log a message
+                        // We'll still process it - this is just informational for monitoring purposes
+                        if (docSizeEstimate > contentIndexBatchMaxSizeBytes) {
+                            log.info("Large document detected in site '{}': {} (size: {}MB, batch limit: {}MB) - processing as separate batch", 
+                                     siteId, reference, String.format("%.2f", docSizeEstimate / (1024.0 * 1024.0)), 
+                                     String.format("%.2f", contentIndexBatchMaxSizeBytes / (1024.0 * 1024.0)));
+                        }
+                    }
 
+                    if (StringUtils.isNotBlank(ecp.getContent(reference))) {
+                        //updating was causing issues without a _source, so doing delete and re-add
+                        try {
+                            deleteDocument(ecp.getId(reference), ecp.getSiteId(reference));
+                            bulkRequest.add(prepareIndex(reference, ecp, true));
+                            currentBatchSizeBytes += docSizeEstimate;
+                            docsInCurrentBatch++;
+                            numberOfDocs++;
+                            log.debug("Added document {} to batch #{} for site '{}' (current batch: {} docs, {}MB)", 
+                                    reference, batchCount, siteId, docsInCurrentBatch, 
+                                    String.format("%.2f", currentBatchSizeBytes / (1024.0 * 1024.0)));
+                        } catch (Exception e) {
+                            log.error(e.getMessage(), e);
+                        }
                     } else {
-                        executeBulkRequest(bulkRequest);
-                        bulkRequest = new BulkRequest();
+                        log.debug("Skipping document {} - no content", reference);
                     }
                 }
+                
+                log.debug("Processed {} documents from producer {}", producerDocCount, ecp.getClass().getName());
 
                 // execute any remaining bulks requests not executed yet
                 if (bulkRequest.numberOfActions() > 0) {
+                    log.info("Processing final batch #{} for site '{}': {} docs, {}MB", 
+                            batchCount, siteId, docsInCurrentBatch,
+                            String.format("%.2f", currentBatchSizeBytes / (1024.0 * 1024.0)));
                     executeBulkRequest(bulkRequest);
+                    bulkRequest = new BulkRequest();
+                    currentBatchSizeBytes = 0;
+                    docsInCurrentBatch = 0;
                 }
-
             }
 
-            log.info("Queued " + numberOfDocs + " docs for indexing from site: " + siteId + " in " + (System.currentTimeMillis() - start) + " ms");
+            long duration = System.currentTimeMillis() - start;
+            log.info("Queued {} docs for indexing from site '{}' in {} ms across {} batches", 
+                    numberOfDocs, siteId, duration, batchCount);
 
         } catch (Exception e) {
             log.error("An exception occurred while rebuilding the index of '" + siteId + "'", e);
