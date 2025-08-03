@@ -9211,6 +9211,31 @@ public class AssignmentAction extends PagedResourceActionII {
                     addtoGradebook, gradebookItemKeys, allowResubmitNumber,
                     aProperties, post, resubmitCloseTime, checkAnonymousGrading);
 
+                // Store category information in assignment properties for drafts
+                // so it can be restored when editing the assignment later
+                if (!post && GRADEBOOK_INTEGRATION_ADD.equals(addtoGradebook)) {
+                    if (isGradebookGroupEnabled) {
+                        String categoriesString = (String) state.getAttribute(NEW_ASSIGNMENT_CATEGORY);
+                        if (categoriesString != null && !categoriesString.isEmpty() && !"-1".equals(categoriesString)) {
+                            aProperties.put(NEW_ASSIGNMENT_CATEGORY, categoriesString);
+                        }
+                        else {
+                            aProperties.remove(NEW_ASSIGNMENT_CATEGORY);
+                        }
+                    } else {
+                        Object categoryObj = state.getAttribute(NEW_ASSIGNMENT_CATEGORY);
+                        if (categoryObj != null && !"-1".equals(categoryObj.toString())) {
+                            aProperties.put(NEW_ASSIGNMENT_CATEGORY, categoryObj.toString());
+                        }
+                        else {
+                            aProperties.remove(NEW_ASSIGNMENT_CATEGORY);
+                        }
+                    }
+                } else if (post) {
+                    // Remove category from properties when publishing, as it will be managed by gradebook
+                    aProperties.remove(NEW_ASSIGNMENT_CATEGORY);
+                }
+
                 //TODO: ADD_DUE_DATE
                 if (state.getAttribute(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION) != null) {
                     aProperties.put(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION, (String) state.getAttribute(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION));
@@ -10713,7 +10738,11 @@ public class AssignmentAction extends PagedResourceActionII {
                 state.setAttribute(NEW_ASSIGNMENT_SECTION, a.getSection());
 
                 state.setAttribute(NEW_ASSIGNMENT_SUBMISSION_TYPE, a.getTypeOfSubmission().ordinal());
-                state.setAttribute(NEW_ASSIGNMENT_CATEGORY, 0);
+                
+                // Load current category from gradebook
+                String siteId = a.getContext();
+                loadCurrentAssignmentCategory(state, a, siteId);
+                
                 state.setAttribute(NEW_ASSIGNMENT_GRADE_TYPE, a.getTypeOfGrade().ordinal());
                 if (a.getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE) {
                     state.setAttribute(NEW_ASSIGNMENT_GRADE_POINTS, a.getMaxGradePoint().toString());
@@ -13400,6 +13429,43 @@ public class AssignmentAction extends PagedResourceActionII {
             catTable.put(-1L, rb.getString("grading.unassigned"));
         }
         return catTable;
+    }
+
+    /**
+     * Load the current category for an existing assignment from assignment properties (for draft assignments)
+     */
+    private void loadCurrentAssignmentCategory(SessionState state, Assignment assignment, String siteId) {
+        boolean isGradebookGroupEnabled = gradingService.isGradebookGroupEnabled(siteId);
+
+        try {
+            Map<String, String> properties = assignment.getProperties();
+            String storedCategory = properties.get(NEW_ASSIGNMENT_CATEGORY);
+
+            if (storedCategory != null && !storedCategory.isEmpty()) {
+                if (isGradebookGroupEnabled) {
+                    state.setAttribute(NEW_ASSIGNMENT_CATEGORY, storedCategory);
+                } else {
+                    try {
+                        Long categoryId = Long.parseLong(storedCategory);
+                        state.setAttribute(NEW_ASSIGNMENT_CATEGORY, categoryId);
+                    } catch (NumberFormatException e) {
+                        state.setAttribute(NEW_ASSIGNMENT_CATEGORY, -1L);
+                    }
+                }
+            }
+            else if (isGradebookGroupEnabled) {
+                state.setAttribute(NEW_ASSIGNMENT_CATEGORY, "-1");
+            } else {
+                state.setAttribute(NEW_ASSIGNMENT_CATEGORY, -1L);
+            }
+        } catch (Exception e) {
+            log.warn("Error loading category for assignment: " + assignment.getId(), e);
+            if (isGradebookGroupEnabled) {
+                state.setAttribute(NEW_ASSIGNMENT_CATEGORY, "-1");
+            } else {
+                state.setAttribute(NEW_ASSIGNMENT_CATEGORY, -1L);
+            }
+        }
     }
 
     /**
