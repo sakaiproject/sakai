@@ -22,6 +22,11 @@
 		@extend .bs-callout-info;
 	}
 
+	.jumpToNew.specialLink a.button {
+		padding-left: 2rem !important;
+		padding-right: 1.5rem !important;
+	}
+
 	.permissionRow{
 		span.ui-accordion-header {
 			@media #{$phone}{
@@ -78,6 +83,9 @@
 			
 			> .button:first-child {
 				margin-right: $standard-space;	// space the buttons out
+			}
+			a {
+				background-color: var(--sakai-background-color-1);
 			}
 		}
 		.specialLink{

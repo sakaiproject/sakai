@@ -802,7 +802,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 							}
 						}
 					}
-					gbitem = gradingService.getAssignmentById(groupId, itemId);
+					gbitem = gradingService.getAssignment(groupId, getCurrentSiteId(), itemId);
 				} else {
 					gbitem = gradingService.getAssignment(getCurrentSiteId(), getCurrentSiteId(), itemId);
 				}
@@ -1526,7 +1526,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 
 		String anncRef = announcementService.channelReference(siteId, SiteService.MAIN_CONTAINER);
 		String toolTitle = toolManager.getTool(DateManagerConstants.COMMON_ID_ANNOUNCEMENTS).getTitle();
-		AnnouncementMessageEdit announcement = null;
+		AnnouncementMessage announcement;
 		for (int i = 0; i < announcements.size(); i++) {
 			JSONObject jsonAnnouncement = (JSONObject)announcements.get(i);
 			int idx = Integer.parseInt(jsonAnnouncement.get(DateManagerConstants.JSON_IDX_PARAM_NAME).toString());
@@ -1562,7 +1562,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 				}
 
 				AnnouncementChannel aChannel = announcementService.getAnnouncementChannel(anncRef);
-				announcement = aChannel.editAnnouncementMessage(announcementId);
+				announcement = aChannel.getAnnouncementMessage(announcementId);
 				if (announcement == null) {
 					errors.add(new DateManagerError("announcement", resourceLoader.getFormattedMessage("error.item.not.found", resourceLoader.getString("tool.announcements.item.name")), "announcements", toolTitle, idx));
 					continue;
@@ -1572,11 +1572,6 @@ public class DateManagerServiceImpl implements DateManagerService {
 			} catch(Exception e) {
 				errors.add(new DateManagerError(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, resourceLoader.getString("error.uncaught"), "announcements", toolTitle, idx));
 				log.error("Error trying to validate Announcements {}", e.toString());
-
-				// Clear out the lock
-				if (announcement != null) {
-					announcementService.cancelMessage(announcement);
-				}
 			}
 		}
 		announcementValidate.setErrors(errors);
@@ -1595,29 +1590,40 @@ public class DateManagerServiceImpl implements DateManagerService {
                 }
 	}
 
-	@Override
-	public void updateAnnouncements(DateManagerValidation announcementValidate) {
-		String anncRef = announcementService.channelReference(getCurrentSiteId(), SiteService.MAIN_CONTAINER);
-                try {
-                        AnnouncementChannel aChannel = announcementService.getAnnouncementChannel(anncRef);
-                        for (DateManagerUpdate update : announcementValidate.getUpdates()) {
-                                AnnouncementMessageEdit msg = (AnnouncementMessageEdit) update.object;
-                                if (update.openDate != null) {				
-                                        msg.getPropertiesEdit().addProperty(AnnouncementService.RELEASE_DATE, timeService.newTime(Date.from(update.openDate).getTime()).toString());
-                                } else {
-                                        msg.getPropertiesEdit().removeProperty(AnnouncementService.RELEASE_DATE);
-                                }	
-                                if (update.dueDate != null) {
-                                        msg.getPropertiesEdit().addProperty(AnnouncementService.RETRACT_DATE, timeService.newTime(Date.from(update.dueDate).getTime()).toString());
-                                } else {
-                                        msg.getPropertiesEdit().removeProperty(AnnouncementService.RETRACT_DATE);		
-                                }				
-                                aChannel.commitMessage(msg, NotificationService.NOTI_IGNORE);
-                        }
-                } catch (Exception e) {
-                        log.warn("Announcement channel {} doesn't exist. {}", anncRef, e.toString());
+    @Override
+    public void updateAnnouncements(DateManagerValidation announcementValidate) {
+        String anncRef = announcementService.channelReference(getCurrentSiteId(), SiteService.MAIN_CONTAINER);
+
+        AnnouncementChannel aChannel;
+        try {
+            aChannel = announcementService.getAnnouncementChannel(anncRef);
+        } catch (Exception e) {
+            log.warn("Could not get announcement channel for update, {}", e.toString());
+            return;
+        }
+
+        for (DateManagerUpdate update : announcementValidate.getUpdates()) {
+            AnnouncementMessage announcement = (AnnouncementMessage) update.object;
+            AnnouncementMessageEdit edit = null;
+            try {
+                edit = aChannel.editAnnouncementMessage(announcement.getId());
+                if (update.openDate != null) {
+                    edit.getPropertiesEdit().addProperty(AnnouncementService.RELEASE_DATE, timeService.newTime(Date.from(update.openDate).getTime()).toString());
+                } else {
+                    edit.getPropertiesEdit().removeProperty(AnnouncementService.RELEASE_DATE);
                 }
-	}
+                if (update.dueDate != null) {
+                    edit.getPropertiesEdit().addProperty(AnnouncementService.RETRACT_DATE, timeService.newTime(Date.from(update.dueDate).getTime()).toString());
+                } else {
+                    edit.getPropertiesEdit().removeProperty(AnnouncementService.RETRACT_DATE);
+                }
+                aChannel.commitMessage(edit, NotificationService.NOTI_IGNORE);
+            } catch (Exception e) {
+                log.warn("Could not update announcement message {}, {}", announcement.getId(), e.toString());
+                if (edit != null) aChannel.cancelMessage(edit);
+            }
+        }
+    }
 
 	@Override
 	public JSONArray getLessonsForContext(String siteId) {

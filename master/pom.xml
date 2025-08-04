@@ -23,9 +23,9 @@
     <sakai.version>26-SNAPSHOT</sakai.version>
     <!-- Standard dependency versions -->
     <sakai.commons-httpclient.version>3.1</sakai.commons-httpclient.version>
-    <sakai.commons-io.version>2.19.0</sakai.commons-io.version>
+    <sakai.commons-io.version>2.20.0</sakai.commons-io.version>
     <sakai.commons.lang.version>2.6</sakai.commons.lang.version>
-    <sakai.commons.lang3.version>3.17.0</sakai.commons.lang3.version>
+    <sakai.commons.lang3.version>3.18.0</sakai.commons.lang3.version>
     <sakai.commons.fileupload.version>1.6.0</sakai.commons.fileupload.version>
     <sakai.commons-math3.version>3.6.1</sakai.commons-math3.version>
     <sakai.commons-text.version>1.13.1</sakai.commons-text.version>
@@ -786,7 +786,7 @@
       <dependency>
         <groupId>commons-codec</groupId>
         <artifactId>commons-codec</artifactId>
-        <version>1.18.0</version>
+        <version>1.19.0</version>
         <scope>provided</scope>
       </dependency>
       <dependency>

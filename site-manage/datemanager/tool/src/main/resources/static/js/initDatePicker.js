@@ -45,6 +45,11 @@ DTMN.initShifter = function(updates, notModified) {
   DTMN.shiftAllBtn = document.getElementById("shiftAllDates");
   DTMN.shiftVisibleBtn = document.getElementById("shiftVisibleDates");
 
+  // Add event listener to the submit button to clear visual indication
+  $('#modal-btn-confirm').on('click', function() {
+    DTMN.clearChangedDateIndication();
+  });
+
   DTMN.shiftInput.addEventListener("input", () => DTMN.validateShiftInput(), false);
 
   DTMN.shiftAllBtn.addEventListener("click", function() {
@@ -122,12 +127,15 @@ DTMN.attachDatePicker = function (selector, updates, notModified) {
                  $(this).attr('data-null-date', true);
         }
         $('#submit-form-button').prop('disabled', false);
+
+        // Add visual indication that the field has been changed
+        $(this).siblings('input.datepicker').addClass('border-warning');
       }
       notModified.push(tool + idx + field);
     });
 
     $hidden.attr('id', 'hidden_datepicker_' + DTMN.nextIndex);
-    var dateFormat = 'YYYY-MM-DD HH:mm:ss';
+    var dateFormat = 'YYYY-MM-DDTHH:mm:ss';
     var toolTime = 1;
     if(dataTool === 'gradebookItems') {
       dateFormat = 'YYYY-MM-DD';
@@ -257,37 +265,73 @@ DTMN.enableShiftControls = function(button)
   DTMN.shiftInput.disabled = false;
 };
 
-DTMN.shiftDates = function(updates, notModified, rootElementId, button, enableButton)
-{
+DTMN.clearChangedDateIndication = function() {
+  $('.datepicker').removeClass('border-warning');
+};
+
+DTMN.shiftDates = function (updates, notModified, rootElementId, button, enableButton) {
+
   // validate input again just in case
-  if (!DTMN.shiftInput.value.match(DTMN.validShiftRegex))
-  {
+  if (!DTMN.shiftInput.value.match(DTMN.validShiftRegex)) {
     DTMN.showShiftError();
     DTMN.disableShiftButtons();
     return;
   }
 
-  const days = parseInt(DTMN.shiftInput.value);
-
-  // attach any missing datepickers
+  const days = parseInt(DTMN.shiftInput.value, 10);
   const rootElement = "#" + rootElementId;
+
   DTMN.attachDatePicker(rootElement + " .datepicker:not(.hasDatepicker)", updates, notModified);
 
-  $(rootElement + " .datepicker.hasDatepicker").each(function()
-  {
-    const pickerDate = $(this).datepicker("getDate");
-    if (pickerDate !== null)
-    {
-      const newDate = new Date(Number(pickerDate));
-      newDate.setDate(newDate.getDate() + days);
-      $(this).datepicker("setDate", newDate);
+  const datepickers = document.querySelectorAll(rootElement + " .datepicker.hasDatepicker");
 
-      // setDate doesn't cause the hidden field that stores the date to update, so we have to do it ourselves
-      // find the associated hidden field, set it, trigger the onchange event manually
-      const $td = $(this).closest('td');
-      const $hidden = $td.find('input[type=hidden]');
-      $hidden.val(moment(newDate).format());
-      $hidden.change();
+  datepickers.forEach(function (datepicker) {
+    const dateValue = datepicker.value;
+
+    if (!dateValue) {
+      return;
+    }
+
+    // Find the associated hidden field using modern DOM traversal
+    const td = datepicker.closest('td');
+    const hiddenField = td.querySelector('input[type=hidden]');
+
+    if (!hiddenField) {
+      console.warn('No hidden field found for datepicker', datepicker);
+      return;
+    }
+
+    const dataTool = hiddenField.dataset.tool;
+
+    // Determine the correct date format based on the tool type
+    const dateFormat = (dataTool === 'gradebookItems') ? 'YYYY-MM-DD' : 'YYYY-MM-DDTHH:mm:ss';
+    const displayFormat = (dataTool === 'gradebookItems') ? "YYYY-MM-DD" : "YYYY-MM-DD HH:mm:ss";
+
+    try {
+      // Parse the date string and add days
+      const currentDate = moment(dateValue, dateFormat);
+
+      if (!currentDate.isValid()) {
+        console.warn('Invalid date format:', dateValue);
+        return;
+      }
+
+      const newDate = currentDate.clone().add(days, 'days');
+
+      // Update the hidden field with the formatted date
+      hiddenField.value = newDate.format(dateFormat);
+
+      // Trigger change event on the hidden field
+      hiddenField.dispatchEvent(new Event('change', {bubbles: true}));
+
+      // Update the visible input field
+      datepicker.value = newDate.format(displayFormat);
+
+      // Add visual indication that the field has been changed
+      datepicker.classList.add('border-warning');
+
+    } catch (error) {
+      console.error('Error processing date:', dateValue, error);
     }
   });
 

@@ -146,37 +146,15 @@ $(function() {
 
 window.addEventListener("DOMContentLoaded", e => {
 
-  const triggers = document.querySelectorAll("#gradebookSettings .accordion-collapse");
-
   document.getElementById("gb-settings-expand-all")?.addEventListener("click", e => {
-    triggers.forEach(el => bootstrap.Collapse.getOrCreateInstance(el)?.show());
+    // Trigger all collapsed accordion buttons to expand
+    const collapsedButtons = document.querySelectorAll("#gradebookSettings .accordion-button.collapsed");
+    collapsedButtons.forEach(button => button.click());
   });
 
   document.getElementById("gb-settings-collapse-all")?.addEventListener("click", e => {
-    triggers.forEach(el => bootstrap.Collapse.getOrCreateInstance(el)?.hide());
-  });
-
-  // Persist accordion state in localStorage
-  const accordions = document.querySelectorAll("#gradebookSettings .accordion-collapse");
-
-  accordions.forEach(accordion => {
-    const storageKey = `gradebook-settings-${accordion.id}`;
-
-    // Restore saved state on page load
-    const savedState = localStorage.getItem(storageKey);
-    if (savedState === 'show') {
-      bootstrap.Collapse.getOrCreateInstance(accordion).show();
-    } else if (savedState === 'hide') {
-      bootstrap.Collapse.getOrCreateInstance(accordion).hide();
-    }
-
-    // Save state when accordion changes
-    accordion.addEventListener('shown.bs.collapse', () => {
-      localStorage.setItem(storageKey, 'show');
-    });
-
-    accordion.addEventListener('hidden.bs.collapse', () => {
-      localStorage.setItem(storageKey, 'hide');
-    });
+    // Trigger all expanded accordion buttons to collapse
+    const expandedButtons = document.querySelectorAll("#gradebookSettings .accordion-button:not(.collapsed)");
+    expandedButtons.forEach(button => button.click());
   });
 });

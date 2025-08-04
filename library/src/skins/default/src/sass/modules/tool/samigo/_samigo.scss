@@ -1144,7 +1144,6 @@
 			& > span {
 				margin: 0 .3em;
 				display: inline-block;
-				float: left;
 				&::after {
 					content: "|";
 					margin: 0 0 0 1px;
@@ -1243,255 +1242,6 @@
 	.body {
 		overflow: auto;
 		height: 100%;
-	}
-	[class^=audioRecordingPopup].featherlight-inner {
-		display: block !important;
-	}
-	.featherlight {
-		.featherlight-content {
-			max-width: initial !important;
-			max-height: 95% !important;
-			background-color: var(--sakai-background-color-1) !important;
-		}
-		.featherlight-close-icon {
-			color: var(--sakai-text-color-1) !important;
-		}
-	}
-	.audio-recorder-header {
-		text-align: center;
-		border-bottom: 1px solid var(--sakai-border-color);
-		font-size: 1.1em;
-		padding: 4px 0;
-		margin-bottom: 8px;
-	}
-	.audio-recorder-container {
-		padding: 0 8px;
-	}
-	.audio-popup-question {
-		font-size: 1.1em;
-		font-weight: bold;
-		padding-bottom: 12px;
-	}
-	.audio-popup-question-text {
-		padding-bottom: 12px;
-	}
-	.audio-recorder-intro {
-		div {
-			padding-bottom: 12px;
-		}
-	}
-	.audio-visual-container {
-		width: 778px;
-		padding: 2px;
-		border: 1px solid var(--sakai-border-color);
-		background-color: var(--sakai-background-color-2);
-		.audio-upload {
-			margin-left: 50px;
-			width: 140px;
-			border-radius: 5px;
-			height: 40px;
-			padding: 0;
-			margin-top: 8px;
-			vertical-align: top;
-		}
-	}
-	.audio-analyzer {
-		height: 128px;
-		width: 100%;
-		background-color: black;
-	}
-	.playback-analyzer {
-		height: 128px;
-		width: 100%;
-		background-color: var(--sakai-color-black);
-	}
-	.audio-timer-wrapper {
-		width: auto;
-		height: 60px;
-		background-color: var(--sakai-color-gray--darker-4);
-		margin: 0 auto;
-		position: relative;
-		color: var(--sakai-color-white);
-	}
-	.audio-scrubber {
-		width: 704px;
-		height: 12px;
-		border-radius: 4px;
-		background-color: var(--sakai-color-gray--lighter-2);
-		border: 1px solid var(--sakai-color-gray);
-		position: absolute;
-		top: 30px;
-		right: 50px;
-	}
-	.audio-timer {
-		position: absolute;
-		top: 10px;
-		left: 12px;
-		width: 30px;
-		height: 20px;
-		background-color: var(--sakai-color-gray--darker-2);
-		border: 1px solid var(--sakai-color-gray--darker-4);
-		border-radius: 3px;
-		text-align: center;
-		font-size: 0.9em;
-		z-index: 999;
-		&:after {
-			border-color: transparent;
-			border-top-color: var(--sakai-color-gray--darker-2);
-			border-width: 4px;
-			left: 50%;
-			margin-left: -4px;
-		}
-		&:before {
-			border-color: transparent;
-			border-top-color: var(--sakai-color-gray--darker-2);
-			border-width: 5px;
-			left: 50%;
-			margin-left: -5px;
-		}
-	}
-	.audio-timer:after, .audio-timer:before {
-		top: 100%;
-		border: solid transparent;
-		content: " ";
-		height: 0;
-		width: 0;
-		position: absolute;
-		pointer-events: none;
-		margin-top: 1px;
-	}
-	.audio-max-time {
-		position: absolute;
-		right: 8px;
-		top: 30px;
-		width: 30px;
-		text-align: right;
-		font-size: 0.9em;
-	}
-	div.audio-controls button.audio-record, div.audio-controls button.audio-record:hover {
-		background: transparent url(/library/image/record.png) no-repeat center 2px;
-	}
-	div.audio-controls button.audio-stop, div.audio-controls button.audio-stop:hover {
-		background: transparent url(/library/image/stop.png) no-repeat center 2px;
-	}
-	div.audio-controls button.audio-play, div.audio-controls button.audio-play:hover {
-		background: transparent url(/library/image/play.png) no-repeat center 2px;
-	}
-	.audio-posting, .audio-finished, .audio-browser-plea {
-		font-size: 28px;
-		font-weight: bold;
-		text-align: center;
-		margin-bottom: 15px;
-		width: 100%;
-	}
-	.audio-mic-check {
-		padding: 8px 0;
-	}
-	.audio-last-attempt {
-		font-style: italic;
-		font-weight: normal;
-		padding-left: 100px;
-	}
-	#mic-check {
-		background: transparent url(/library/image/mic-check.png) no-repeat center center;
-	}
-	#squaresWaveG {
-		position: relative;
-		width: 124px;
-		height: 15px;
-		margin-left: auto;
-		margin-right: auto;
-	}
-	.squaresWaveG {
-		position: absolute;
-		top: 0;
-		background-color: var(--errorBanner-color);
-		width: 15px;
-		height: 15px;
-		-moz-animation-name: bounce_squaresWaveG;
-		-moz-animation-duration: 1.9s;
-		-moz-animation-iteration-count: infinite;
-		-moz-animation-direction: linear;
-		-webkit-animation-name: bounce_squaresWaveG;
-		-webkit-animation-duration: 1.9s;
-		-webkit-animation-iteration-count: infinite;
-		-webkit-animation-direction: linear;
-		-ms-animation-name: bounce_squaresWaveG;
-		-ms-animation-duration: 1.9s;
-		-ms-animation-iteration-count: infinite;
-		-ms-animation-direction: linear;
-		-o-animation-name: bounce_squaresWaveG;
-		-o-animation-duration: 1.9s;
-		-o-animation-iteration-count: infinite;
-		-o-animation-direction: linear;
-		animation-name: bounce_squaresWaveG;
-		animation-duration: 1.9s;
-		animation-iteration-count: infinite;
-		animation-direction: linear;
-	}
-	#squaresWaveG_1 {
-		left: 0;
-		-moz-animation-delay: 0.76s;
-		-webkit-animation-delay: 0.76s;
-		-ms-animation-delay: 0.76s;
-		-o-animation-delay: 0.76s;
-		animation-delay: 0.76s;
-	}
-	#squaresWaveG_2 {
-		left: 16px;
-		-moz-animation-delay: 0.95s;
-		-webkit-animation-delay: 0.95s;
-		-ms-animation-delay: 0.95s;
-		-o-animation-delay: 0.95s;
-		animation-delay: 0.95s;
-	}
-	#squaresWaveG_3 {
-		left: 32px;
-		-moz-animation-delay: 1.14s;
-		-webkit-animation-delay: 1.14s;
-		-ms-animation-delay: 1.14s;
-		-o-animation-delay: 1.14s;
-		animation-delay: 1.14s;
-	}
-	#squaresWaveG_4 {
-		left: 48px;
-		-moz-animation-delay: 1.33s;
-		-webkit-animation-delay: 1.33s;
-		-ms-animation-delay: 1.33s;
-		-o-animation-delay: 1.33s;
-		animation-delay: 1.33s;
-	}
-	#squaresWaveG_5 {
-		left: 64px;
-		-moz-animation-delay: 1.52s;
-		-webkit-animation-delay: 1.52s;
-		-ms-animation-delay: 1.52s;
-		-o-animation-delay: 1.52s;
-		animation-delay: 1.52s;
-	}
-	#squaresWaveG_6 {
-		left: 80px;
-		-moz-animation-delay: 1.71s;
-		-webkit-animation-delay: 1.71s;
-		-ms-animation-delay: 1.71s;
-		-o-animation-delay: 1.71s;
-		animation-delay: 1.71s;
-	}
-	#squaresWaveG_7 {
-		left: 96px;
-		-moz-animation-delay: 1.9s;
-		-webkit-animation-delay: 1.9s;
-		-ms-animation-delay: 1.9s;
-		-o-animation-delay: 1.9s;
-		animation-delay: 1.9s;
-	}
-	#squaresWaveG_8 {
-		left: 112px;
-		-moz-animation-delay: 2.09s;
-		-webkit-animation-delay: 2.09s;
-		-ms-animation-delay: 2.09s;
-		-o-animation-delay: 2.09s;
-		animation-delay: 2.09s;
 	}
 	.downloanQuestionDescription {
 		vertical-align: top;
@@ -1752,6 +1502,7 @@
 		color: var(--sakai-text-color-1);
 		white-space: nowrap;
 		margin-top: 154px;
+		transform: rotate(-90deg);
 		-webkit-transform: rotate(-90deg);
 		-moz-transform: rotate(-90deg);
 		-ms-transform: rotate(-90deg);
@@ -1971,4 +1722,264 @@
 		font-size: 14px;
 	}
 	
+}
+
+/*
+SAK-51750 - Since featherlight is no longer inside sakai-samigo namespace
+we check if body has a children with samigo class and apply it then.
+*/
+body:has(.#{$namespace}sakai-samigo) {
+	[class^=audioRecordingPopup].featherlight-inner {
+		display: block !important;
+	}
+	.featherlight {
+		.featherlight-content {
+			max-width: initial !important;
+			max-height: 95% !important;
+			background-color: var(--sakai-background-color-1) !important;
+		}
+		.featherlight-close-icon {
+			color: var(--sakai-text-color-1) !important;
+		}
+	}
+	.audio-recorder-header {
+		text-align: center;
+		border-bottom: 1px solid var(--sakai-border-color);
+		font-size: 1.1em;
+		padding: 4px 0;
+		margin-bottom: 8px;
+	}
+	.audio-recorder-container {
+		padding: 0 8px;
+	}
+	.audio-popup-question {
+		font-size: 1.1em;
+		font-weight: bold;
+		padding-bottom: 12px;
+	}
+	.audio-popup-question-text {
+		padding-bottom: 12px;
+	}
+	.audio-recorder-intro {
+		div {
+			padding-bottom: 12px;
+		}
+	}
+	.audio-visual-container {
+		width: 778px;
+		padding: 2px;
+		border: 1px solid var(--sakai-border-color);
+		background-color: var(--sakai-background-color-2);
+		.audio-upload {
+			background-color: var(--sakai-active-color-3);
+			margin-left: 50px;
+			width: 140px;
+			border-radius: 5px;
+			height: 40px;
+			padding: 0;
+			margin-top: 8px;
+			vertical-align: top;
+		}
+	}
+	.audio-analyzer {
+		height: 128px;
+		width: 100%;
+		background-color: black;
+	}
+	.playback-analyzer {
+		height: 128px;
+		width: 100%;
+		background-color: var(--sakai-color-black);
+	}
+	.audio-timer-wrapper {
+		width: auto;
+		height: 60px;
+		background-color: var(--sakai-color-gray--darker-4);
+		margin: 0 auto;
+		position: relative;
+		color: var(--sakai-color-white);
+	}
+	.audio-scrubber {
+		width: 704px;
+		height: 12px;
+		border-radius: 4px;
+		background-color: var(--sakai-color-gray--lighter-2);
+		border: 1px solid var(--sakai-color-gray);
+		position: absolute;
+		top: 30px;
+		right: 50px;
+	}
+	.audio-timer {
+		position: absolute;
+		top: 10px;
+		left: 12px;
+		width: 30px;
+		height: 20px;
+		background-color: var(--sakai-color-gray--darker-2);
+		border: 1px solid var(--sakai-color-gray--darker-4);
+		border-radius: 3px;
+		text-align: center;
+		font-size: 0.9em;
+		z-index: 999;
+		&:after {
+			border-color: transparent;
+			border-top-color: var(--sakai-color-gray--darker-2);
+			border-width: 4px;
+			left: 50%;
+			margin-left: -4px;
+		}
+		&:before {
+			border-color: transparent;
+			border-top-color: var(--sakai-color-gray--darker-2);
+			border-width: 5px;
+			left: 50%;
+			margin-left: -5px;
+		}
+	}
+	.audio-timer:after, .audio-timer:before {
+		top: 100%;
+		border: solid transparent;
+		content: " ";
+		height: 0;
+		width: 0;
+		position: absolute;
+		pointer-events: none;
+		margin-top: 1px;
+	}
+	.audio-max-time {
+		position: absolute;
+		right: 8px;
+		top: 30px;
+		width: 30px;
+		text-align: right;
+		font-size: 0.9em;
+	}
+	div.audio-controls button {
+		padding-top: 2.25rem;
+	}
+	div.audio-controls button.audio-record, div.audio-controls button.audio-record:hover {
+		background: transparent url(/library/image/record.png) no-repeat center 2px;
+	}
+	div.audio-controls button.audio-stop, div.audio-controls button.audio-stop:hover {
+		background: transparent url(/library/image/stop.png) no-repeat center 2px;
+	}
+	div.audio-controls button.audio-play, div.audio-controls button.audio-play:hover {
+		background: transparent url(/library/image/play.png) no-repeat center 2px;
+	}
+	.audio-posting, .audio-finished, .audio-browser-plea {
+		font-size: 28px;
+		font-weight: bold;
+		text-align: center;
+		margin-bottom: 15px;
+		width: 100%;
+	}
+	.audio-mic-check {
+		padding: 8px 0;
+	}
+	.audio-last-attempt {
+		font-style: italic;
+		font-weight: normal;
+		padding-left: 100px;
+	}
+	#mic-check {
+		background: transparent url(/library/image/mic-check.png) no-repeat center center;
+	}
+	#squaresWaveG {
+		position: relative;
+		width: 124px;
+		height: 15px;
+		margin-left: auto;
+		margin-right: auto;
+	}
+	.squaresWaveG {
+		position: absolute;
+		top: 0;
+		background-color: var(--errorBanner-color);
+		width: 15px;
+		height: 15px;
+		-moz-animation-name: bounce_squaresWaveG;
+		-moz-animation-duration: 1.9s;
+		-moz-animation-iteration-count: infinite;
+		-moz-animation-direction: linear;
+		-webkit-animation-name: bounce_squaresWaveG;
+		-webkit-animation-duration: 1.9s;
+		-webkit-animation-iteration-count: infinite;
+		-webkit-animation-direction: linear;
+		-ms-animation-name: bounce_squaresWaveG;
+		-ms-animation-duration: 1.9s;
+		-ms-animation-iteration-count: infinite;
+		-ms-animation-direction: linear;
+		-o-animation-name: bounce_squaresWaveG;
+		-o-animation-duration: 1.9s;
+		-o-animation-iteration-count: infinite;
+		-o-animation-direction: linear;
+		animation-name: bounce_squaresWaveG;
+		animation-duration: 1.9s;
+		animation-iteration-count: infinite;
+		animation-direction: linear;
+	}
+	#squaresWaveG_1 {
+		left: 0;
+		-moz-animation-delay: 0.76s;
+		-webkit-animation-delay: 0.76s;
+		-ms-animation-delay: 0.76s;
+		-o-animation-delay: 0.76s;
+		animation-delay: 0.76s;
+	}
+	#squaresWaveG_2 {
+		left: 16px;
+		-moz-animation-delay: 0.95s;
+		-webkit-animation-delay: 0.95s;
+		-ms-animation-delay: 0.95s;
+		-o-animation-delay: 0.95s;
+		animation-delay: 0.95s;
+	}
+	#squaresWaveG_3 {
+		left: 32px;
+		-moz-animation-delay: 1.14s;
+		-webkit-animation-delay: 1.14s;
+		-ms-animation-delay: 1.14s;
+		-o-animation-delay: 1.14s;
+		animation-delay: 1.14s;
+	}
+	#squaresWaveG_4 {
+		left: 48px;
+		-moz-animation-delay: 1.33s;
+		-webkit-animation-delay: 1.33s;
+		-ms-animation-delay: 1.33s;
+		-o-animation-delay: 1.33s;
+		animation-delay: 1.33s;
+	}
+	#squaresWaveG_5 {
+		left: 64px;
+		-moz-animation-delay: 1.52s;
+		-webkit-animation-delay: 1.52s;
+		-ms-animation-delay: 1.52s;
+		-o-animation-delay: 1.52s;
+		animation-delay: 1.52s;
+	}
+	#squaresWaveG_6 {
+		left: 80px;
+		-moz-animation-delay: 1.71s;
+		-webkit-animation-delay: 1.71s;
+		-ms-animation-delay: 1.71s;
+		-o-animation-delay: 1.71s;
+		animation-delay: 1.71s;
+	}
+	#squaresWaveG_7 {
+		left: 96px;
+		-moz-animation-delay: 1.9s;
+		-webkit-animation-delay: 1.9s;
+		-ms-animation-delay: 1.9s;
+		-o-animation-delay: 1.9s;
+		animation-delay: 1.9s;
+	}
+	#squaresWaveG_8 {
+		left: 112px;
+		-moz-animation-delay: 2.09s;
+		-webkit-animation-delay: 2.09s;
+		-ms-animation-delay: 2.09s;
+		-o-animation-delay: 2.09s;
+		animation-delay: 2.09s;
+	}
 }
