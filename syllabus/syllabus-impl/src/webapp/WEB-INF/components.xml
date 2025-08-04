@@ -77,6 +77,39 @@
 		<property name="ltiService" ref="org.sakaiproject.lti.api.LTIService"/>
 	</bean>
 
+	<bean id="syllabusSearchAdapter"
+		class="org.sakaiproject.component.app.syllabus.SyllabusContentProducer"
+		init-method="init" destroy-method="destroy">
+		<property name="addEvents">
+			<list>
+				<value>syllabus.post.new</value>
+				<value>syllabus.post.change</value>
+				<value>syllabus.draft.new</value>
+				<value>syllabus.draft.change</value>
+			</list>
+		</property>
+		<property name="removeEvents">
+			<list>
+				<value>syllabus.delete</value>
+			</list>
+		</property>
+		<property name="entityManager">
+			<ref bean="org.sakaiproject.entity.api.EntityManager"/>
+		</property>
+		<property name="syllabusManager">
+			<ref bean="org.sakaiproject.api.app.syllabus.SyllabusManager"/>
+		</property>
+		<property name="searchService">
+			<ref bean="org.sakaiproject.search.api.SearchService" />
+		</property>
+		<property name="searchIndexBuilder">
+			<ref bean="org.sakaiproject.search.api.SearchIndexBuilder" />
+		</property>
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+	</bean>
+
 	<bean id="FixPublicSyllabusAttachmentsJob"
 		  class="org.sakaiproject.component.app.syllabus.FixPublicSyllabusAttachmentsJob">
  		<property name="syllabusManager">
