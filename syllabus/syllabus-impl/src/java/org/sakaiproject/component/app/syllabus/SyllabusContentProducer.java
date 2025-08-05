@@ -129,13 +129,20 @@ public class SyllabusContentProducer implements EntityContentProducer {
 		SyllabusData syllabusData = getSyllabusData(ref);
 		if (syllabusData == null) return false;
 		
-		// Check if syllabus is posted (not draft) and user has read permission
+		// Check if syllabus is posted (not draft)
 		if (!SyllabusData.ITEM_POSTED.equals(syllabusData.getStatus())) {
 			return false;
 		}
 		
 		String siteId = syllabusData.getSyllabusItem().getContextId();
-		return securityService.unlock(SyllabusService.SECURE_ADD_ITEM, siteService.siteReference(siteId));
+		try {
+			// Check if user can access the site - this is how syllabus tool checks access
+			siteService.getSiteVisit(siteId);
+			return true;
+		} catch (Exception e) {
+			// User cannot access the site
+			return false;
+		}
 	}
 
 	@Override
@@ -190,7 +197,7 @@ public class SyllabusContentProducer implements EntityContentProducer {
 			SearchUtils.appendCleanString(asset, sb);
 		}
 		
-		log.debug("Syllabus Content for {} is {}", ref.getReference(), sb.toString());
+		log.debug("Syllabus Content for reference: {} is: {}", ref.getReference(), sb.toString());
 		return sb.toString();
 	}
 
@@ -207,7 +214,7 @@ public class SyllabusContentProducer implements EntityContentProducer {
 				return reference.getId();
 			}
 		} catch (Exception e) {
-			log.debug("Error getting id for reference: " + ref, e);
+			log.debug("Error getting id for reference: {}", ref, e);
 		}
 		return "";
 	}
@@ -227,7 +234,7 @@ public class SyllabusContentProducer implements EntityContentProducer {
 				}
 			}
 		} catch (Exception e) {
-			log.warn("Error getting site content for context: " + context, e);
+			log.warn("Error getting site content for context: {}", context, e);
 		}
 		
 		return rv;
@@ -326,7 +333,7 @@ public class SyllabusContentProducer implements EntityContentProducer {
 				return syllabusManager.getSyllabusData(id);
 			}
 		} catch (Exception e) {
-			log.debug("Error getting SyllabusData for reference: " + ref.getReference(), e);
+			log.debug("Error getting SyllabusData for reference: {}", ref.getReference(), e);
 		}
 		return null;
 	}
