@@ -65,6 +65,9 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.entity.api.EntityManager;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -76,6 +79,8 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
 
     private SiteService siteService;
     private UserDirectoryService userDirectoryService;
+    private ContentHostingService contentHostingService;
+    private EntityManager entityManager;
 
     private boolean useSiteFilters = false;
 
@@ -245,42 +250,54 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
 
             long start = System.currentTimeMillis();
             int numberOfDocs = 0;
+            int batchCount = 1;
 
             BulkRequest bulkRequest = new BulkRequest();
+            long currentBatchSizeBytes = 0;
+            
+            log.info("Site '{}' indexing with batch limits: maxDocs={}, maxSize={}MB", 
+                    siteId, bulkRequestSize, String.format("%.2f", contentIndexBatchMaxSizeBytes / (1024.0 * 1024.0)));
 
             for (final EntityContentProducer ecp : producers) {
             	Iterator<String> i = ecp.getSiteContentIterator(siteId);
 
-                while ( i != null && i.hasNext() ) {
-
-                    if (bulkRequest.numberOfActions() < bulkRequestSize) {
+                while (i != null && i.hasNext()) {
                         String reference = i.next();
+                    
+                    // Get document size
+                    long docSize = getDocumentSize(reference, ecp);
+                    
+                    // Check batch limits and execute if needed
+                    if (bulkRequest.numberOfActions() >= bulkRequestSize || 
+                        currentBatchSizeBytes + docSize > contentIndexBatchMaxSizeBytes) {
+                        executeBulkRequest(bulkRequest);
+                        bulkRequest = new BulkRequest();
+                        currentBatchSizeBytes = 0;
+                        batchCount++;
+                    }
 
                         if (StringUtils.isNotBlank(ecp.getContent(reference))) {
-                            //updating was causing issues without a _source, so doing delete and re-add
                             try {
                                 deleteDocument(ecp.getId(reference), ecp.getSiteId(reference));
                                 bulkRequest.add(prepareIndex(reference, ecp, true));
+                                currentBatchSizeBytes += docSize;
                                 numberOfDocs++;
                             } catch (Exception e) {
                                 log.error(e.getMessage(), e);
                             }
-                        }
-
-                    } else {
-                        executeBulkRequest(bulkRequest);
-                        bulkRequest = new BulkRequest();
                     }
                 }
 
-                // execute any remaining bulks requests not executed yet
+                // Execute any remaining bulk requests
                 if (bulkRequest.numberOfActions() > 0) {
                     executeBulkRequest(bulkRequest);
+                    bulkRequest = new BulkRequest();
+                    currentBatchSizeBytes = 0;
                 }
-
             }
 
-            log.info("Queued " + numberOfDocs + " docs for indexing from site: " + siteId + " in " + (System.currentTimeMillis() - start) + " ms");
+                    log.info("Queued {} docs for indexing from site '{}' in {} ms across {} batches", 
+                    numberOfDocs, siteId, (System.currentTimeMillis() - start), batchCount);
 
         } catch (Exception e) {
             log.error("An exception occurred while rebuilding the index of '" + siteId + "'", e);
@@ -569,9 +586,32 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
         this.userDirectoryService = userDirectoryService;
     }
 
+    public void setContentHostingService(ContentHostingService contentHostingService) {
+        this.contentHostingService = contentHostingService;
+    }
+
+    public void setEntityManager(EntityManager entityManager) {
+        this.entityManager = entityManager;
+    }
+
     @Override
     public String getEventResourceFilter() {
         return "/";
+    }
+
+    // Getter methods for testing
+    public long getContentIndexBatchMaxSizeBytes() {
+        return contentIndexBatchMaxSizeBytes;
+    }
+    
+    public boolean isPrioritizeSmallDocuments() {
+        return prioritizeSmallDocuments;
+    }
+
+    // Make getDocumentSize public for testing
+    @Override
+    public long getDocumentSize(String reference, EntityContentProducer ecp) {
+        return super.getDocumentSize(reference, ecp);
     }
 
 }

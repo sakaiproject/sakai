@@ -101,6 +101,11 @@ import org.sakaiproject.search.model.SearchBuilderItem;
 import org.springframework.util.Assert;
 
 import lombok.extern.slf4j.Slf4j;
+import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.exception.ServerOverloadException;
 
 /**
  *
@@ -126,10 +131,22 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
     protected final static SecurityAdvisor allowAllAdvisor =
             (userId, function, reference) -> SecurityAdvisor.SecurityAdvice.ALLOWED;
 
+    /**
+     * Default overhead added to content size calculations (1KB)
+     */
+    protected static final long CONTENT_SIZE_OVERHEAD_BYTES = 1024;
+    
+    /**
+     * Default document size when unable to calculate actual size (100KB)
+     */
+    protected static final long DEFAULT_DOCUMENT_SIZE_BYTES = 100 * 1024;
+
 
     protected SecurityService securityService;
     protected ServerConfigurationService serverConfigurationService;
     protected EventTrackingService eventTrackingService;
+    protected ContentHostingService contentHostingService;
+    protected EntityManager entityManager;
 
 
     /**
@@ -183,6 +200,18 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
      * to share the load.
      */
     protected int contentIndexBatchSize = 500;
+
+    /**
+     * Maximum total size in bytes for documents to index in a single batch (defaults to 10MB).
+     * This helps prevent memory issues when indexing very large documents.
+     */
+    protected long contentIndexBatchMaxSizeBytes = 10 * 1024 * 1024; // 10MB default
+
+    /**
+     * Whether to prioritize smaller documents first when indexing (defaults to true).
+     * This can help maintain responsiveness by processing smaller documents before larger ones.
+     */
+    protected boolean prioritizeSmallDocuments = true;
 
     /**
      * Number of actions to send in one elasticsearch bulk index call
@@ -474,45 +503,89 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
         }
 
         SearchResponse response = findContentQueue();
-
         SearchHit[] hits = response.getHits().getHits();
-        List<NoContentException> noContentExceptions = new ArrayList<>();
-        log.debug("{} pending docs for index builder [{}]", getPendingDocuments(), getName());
+        
+        if (hits.length == 0) {
+            return;
+        }
+        
+        log.info("Processing {} documents with batch limits: maxDocs={}, maxSize={}MB", 
+                hits.length, bulkRequestSize, String.format("%.2f", contentIndexBatchMaxSizeBytes / (1024.0 * 1024.0)));
 
+        // Pre-calculate sizes if prioritization is enabled
+        Map<String, Long> sizeCache = new HashMap<>();
+        if (prioritizeSmallDocuments && hits.length > 1) {
+            for (SearchHit hit : hits) {
+                String ref = getFieldFromSearchHit(SearchService.FIELD_REFERENCE, hit);
+                EntityContentProducer ecp = newEntityContentProducer(ref);
+                long size = (ecp != null) ? getDocumentSize(ref, ecp) : Long.MAX_VALUE;
+                sizeCache.put(hit.getId(), size);
+            }
+            
+            Arrays.sort(hits, (hit1, hit2) -> {
+                Long size1 = sizeCache.get(hit1.getId());
+                Long size2 = sizeCache.get(hit2.getId());
+                return Long.compare(size1, size2);
+            });
+        }
+
+        List<NoContentException> noContentExceptions = new ArrayList<>();
         BulkRequest bulkRequest = new BulkRequest();
+        long currentBatchSizeBytes = 0;
+        int batchCount = 1;
 
         for (SearchHit hit : hits) {
-
-            if (bulkRequest.numberOfActions() < bulkRequestSize) {
+            String reference = getFieldFromSearchHit(SearchService.FIELD_REFERENCE, hit);
+            EntityContentProducer ecp = newEntityContentProducer(reference);
+            
+            if (ecp == null) {
                 try {
-                    processContentQueueEntry(hit, bulkRequest);
-                } catch ( NoContentException e ) {
+                    noContentProducerForContentQueueEntry(hit, reference);
+                } catch (NoContentException e) {
                     noContentExceptions.add(e);
                 }
+                continue;
+            }
+            
+            // Get document size - use cached value if available, otherwise calculate
+            long docSize;
+            if (prioritizeSmallDocuments && sizeCache.containsKey(hit.getId())) {
+                docSize = sizeCache.get(hit.getId());
             } else {
+                docSize = getDocumentSize(reference, ecp);
+            }
+            
+            // Check batch limits and execute if needed
+            if (bulkRequest.numberOfActions() >= bulkRequestSize || 
+                currentBatchSizeBytes + docSize > contentIndexBatchMaxSizeBytes) {
                 executeBulkRequest(bulkRequest);
                 bulkRequest = new BulkRequest();
+                currentBatchSizeBytes = 0;
+                batchCount++;
+            }
+
+            // Process the document
+            try {
+                processContentQueueEntry(hit, bulkRequest);
+                currentBatchSizeBytes += docSize;
+            } catch (NoContentException e) {
+                noContentExceptions.add(e);
             }
         }
 
-        // execute any remaining bulks requests not executed yet
+        // Execute any remaining bulk requests
         if (bulkRequest.numberOfActions() > 0) {
             executeBulkRequest(bulkRequest);
         }
 
-        // remove any docs without content, so we don't try to index them again
-        if (!noContentExceptions.isEmpty()) {
-            for (NoContentException noContentException : noContentExceptions) {
-                deleteDocument(noContentException);
-            }
+        // Remove any docs without content
+        for (NoContentException noContentException : noContentExceptions) {
+            deleteDocument(noContentException);
         }
 
         lastLoad = System.currentTimeMillis();
-
-        if (hits.length > 0) {
-            log.info("Finished indexing {} docs in {}ms for index builder {}", hits.length, ((lastLoad - startTime)), getName());
-        }
-
+        log.info("Finished indexing {} docs in {}ms across {} batches", 
+        hits.length, ((lastLoad - startTime)), batchCount);
     }
 
     protected void processContentQueueEntry(SearchHit hit, BulkRequest bulkRequest) throws NoContentException {
@@ -1670,4 +1743,65 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
         }
     }
 
+    public void setContentHostingService(ContentHostingService contentHostingService) {
+        this.contentHostingService = contentHostingService;
+    }
+
+    public void setEntityManager(EntityManager entityManager) {
+        this.entityManager = entityManager;
+    }
+
+    public void setContentIndexBatchMaxSizeBytes(long contentIndexBatchMaxSizeBytes) {
+        this.contentIndexBatchMaxSizeBytes = contentIndexBatchMaxSizeBytes;
+    }
+
+    public void setPrioritizeSmallDocuments(boolean prioritizeSmallDocuments) {
+        this.prioritizeSmallDocuments = prioritizeSmallDocuments;
+    }
+
+    /**
+     * Gets the actual size of a document in bytes.
+     * Uses direct access to content resources where possible for accuracy.
+     * 
+     * @param reference The document reference
+     * @param ecp The EntityContentProducer for this document
+     * @return Actual size in bytes
+     */
+    public long getDocumentSize(String reference, EntityContentProducer ecp) {
+        // Fast path for content resources with proper security check
+        if (reference != null && reference.startsWith("/content")) {
+            try {
+                String contentId = entityManager.newReference(reference).getId();
+                // Check if user has read access before getting resource metadata
+                if (ecp.canRead(reference)) {
+                    ContentResource resource = contentHostingService.getResource(contentId);
+                    return resource.getContentLength() + CONTENT_SIZE_OVERHEAD_BYTES;
+                } else {
+                    log.debug("User does not have read access to {}, using fallback size calculation", reference);
+                }
+            } catch (Exception e) {
+                // Log the error and fall through to backup method
+                log.debug("Could not get content size directly for {}: {}", reference, e.getMessage());
+            }
+        }
+        
+        // Backup method for non-content resources
+        try {
+            String content = ecp.getContent(reference);
+            return content != null ? content.getBytes("UTF-8").length + CONTENT_SIZE_OVERHEAD_BYTES : DEFAULT_DOCUMENT_SIZE_BYTES;
+        } catch (Exception e) {
+            log.debug("Could not calculate content size for {}: {}", reference, e.getMessage());
+            return DEFAULT_DOCUMENT_SIZE_BYTES;
+        }
+    }
+
+    // Getters for constants used in tests
+    public static long getContentSizeOverheadBytes() {
+        return CONTENT_SIZE_OVERHEAD_BYTES;
+    }
+    
+    public static long getDefaultDocumentSizeBytes() {
+        return DEFAULT_DOCUMENT_SIZE_BYTES;
+    }
 }
+

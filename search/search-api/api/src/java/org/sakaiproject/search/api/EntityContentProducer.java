@@ -253,4 +253,17 @@ public interface EntityContentProducer
 	default String getContainer(String ref) {
 		return "";
 	}
+	
+	/**
+	 * Get a hint about the size of the content in bytes if known.
+	 * This can be used to help optimize indexing by batching documents by size.
+	 * Note that this is only used as a hint - the actual size will always be
+	 * calculated directly from the content when possible.
+	 * 
+	 * @param reference The reference to the content
+	 * @return The approximate size in bytes, or -1 if the size is unknown
+	 */
+	default long getContentSize(String reference) {
+		return -1; // Unknown size by default
+	}
 }
