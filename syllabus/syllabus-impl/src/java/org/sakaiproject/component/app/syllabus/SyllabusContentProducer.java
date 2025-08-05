@@ -43,7 +43,9 @@ import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.SearchUtils;
 import org.sakaiproject.search.model.SearchBuilderItem;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -292,7 +294,22 @@ public class SyllabusContentProducer implements EntityContentProducer {
 		if (syllabusData == null) return "";
 		
 		String siteId = syllabusData.getSyllabusItem().getContextId();
-		// Return URL to the syllabus tool in the site
+		Long syllabusId = syllabusData.getSyllabusId();
+		
+		// Use direct access to the syllabus entity
+		try {
+			Site site = siteService.getSite(siteId);
+			ToolConfiguration toolConfig = site.getToolForCommonId("sakai.syllabus");
+			if (toolConfig != null) {
+				// Use direct tool URL approach
+				return "/portal/directtool/" + toolConfig.getId() + 
+					   "?itemId=" + syllabusId + "&action=read_item";
+			}
+		} catch (Exception e) {
+			log.debug("Error getting tool configuration for site: {}", siteId, e);
+		}
+		
+		// Fallback to regular site URL
 		return "/portal/site/" + siteId + "/tool/sakai.syllabus";
 	}
 
