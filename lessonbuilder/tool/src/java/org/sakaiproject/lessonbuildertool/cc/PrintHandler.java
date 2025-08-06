@@ -420,9 +420,29 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
           Element resourcesElement = manifest.getChild("resources", manifest.getNamespace());
           if (resourcesElement != null) {
               List<Element> resources = resourcesElement.getChildren("resource", manifest.getNamespace());
+              
+              // First pass: collect all discussion dependency resource IDs
+              Set<String> discussionDependencies = new HashSet<String>();
+              for (Element resource : resources) {
+                  String resourceType = resource.getAttributeValue("type");
+                  if (resourceType != null && resourceType.equals("imsdt_xmlv1p1")) {
+                      // This is a Canvas discussion - find its dependencies
+                      List<Element> dependencies = resource.getChildren("dependency", manifest.getNamespace());
+                      for (Element dependency : dependencies) {
+                          String dependencyId = dependency.getAttributeValue("identifierref");
+                          if (dependencyId != null) {
+                              discussionDependencies.add(dependencyId);
+                              log.debug("Found discussion dependency: {}", dependencyId);
+                          }
+                      }
+                  }
+              }
+              
+              // Second pass: mark Canvas entities for exclusion
               for (Element resource : resources) {
                   String resourceType = resource.getAttributeValue("type");
                   String intendedUse = resource.getAttributeValue("intendeduse");
+                  String resourceId = resource.getAttributeValue("identifier");
                   
                   boolean isCanvasEntity = false;
                   
@@ -441,6 +461,12 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
                   // Check for Canvas syllabus (intendeduse="syllabus")
                   if (intendedUse != null && intendedUse.equals("syllabus")) {
                       isCanvasEntity = true;
+                  }
+                  
+                  // Check for Canvas discussion dependencies
+                  if (resourceId != null && discussionDependencies.contains(resourceId)) {
+                      isCanvasEntity = true;
+                      log.debug("Marking discussion dependency as Canvas entity: {}", resourceId);
                   }
                   
                   // Note: Canvas discussions (imsdt_xmlv1p1) should NOT be excluded as entities
