@@ -226,8 +226,7 @@ public class Ns  {
 	// 2 seems to have used v1p1
 	resourceTypes.put("imsbasiclti_xmlv1p3", BLTI);
 	resourceTypes.put("assignment_xmlv1p0", ASSIGNMENT);
-	// Canvas assignment - learning application resource containing assignment_settings.xml
-	resourceTypes.put("associatedcontent/imscc_xmlv1p1/learning-application-resource", CANVAS_ASSIGNMENT);
+	// Note: Canvas assignments are learning-application-resource type but are detected by content, not type
     }
 
     public String normType(String type) {

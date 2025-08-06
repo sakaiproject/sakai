@@ -193,6 +193,8 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 
     // this is the CC file name for all files added
   private Set<String> filesAdded = new HashSet<String>();
+    // Track files that are part of Canvas entities and should not be imported as resources
+  private Set<String> canvasEntityFiles = new HashSet<String>();
     // This keeps track of what files are added to what (possibly truncated) name, this is pre-populated
   private Map<String,String> fileNames = new HashMap<String,String>();
     // this is the CC file name (of the XML file) -> Sakaiid for non-file items
@@ -399,6 +401,64 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
       return false;
   }
 
+  /**
+   * Identify Canvas entity files early in the process so they can be excluded from resource processing
+   */
+  private void identifyCanvasEntityFiles(Element manifest) {
+      try {
+          Element resourcesElement = manifest.getChild("resources", manifest.getNamespace());
+          if (resourcesElement != null) {
+              List<Element> resources = resourcesElement.getChildren("resource", manifest.getNamespace());
+              for (Element resource : resources) {
+                  String resourceType = resource.getAttributeValue("type");
+                  if (resourceType != null && resourceType.contains("learning-application-resource")) {
+                      // Check if this resource contains Canvas entity files
+                      List<Element> files = resource.getChildren("file", manifest.getNamespace());
+                      boolean isCanvasEntity = false;
+                      
+                      for (Element file : files) {
+                          String fileHref = file.getAttributeValue("href");
+                          if (fileHref != null && isCanvasEntityFile(fileHref)) {
+                              isCanvasEntity = true;
+                              break;
+                          }
+                      }
+                      
+                      // If this is a Canvas entity resource, mark all its files for exclusion
+                      if (isCanvasEntity) {
+                          for (Element file : files) {
+                              String fileHref = file.getAttributeValue("href");
+                              if (fileHref != null) {
+                                  canvasEntityFiles.add(fileHref);
+                                  log.debug("Marking Canvas entity file for exclusion: {}", fileHref);
+                              }
+                          }
+                      }
+                  }
+              }
+          }
+      } catch (Exception e) {
+          log.warn("Error identifying Canvas entity files: {}", e.getMessage());
+      }
+  }
+  
+  /**
+   * Check if a file is a Canvas entity file that should not be imported as a resource
+   */
+  private boolean isCanvasEntityFile(String fileHref) {
+      return fileHref.endsWith("assignment_settings.xml") ||
+             fileHref.endsWith("course_settings.xml") ||
+             fileHref.endsWith("assignment_groups.xml") ||
+             fileHref.endsWith("files_meta.xml") ||
+             fileHref.endsWith("late_policy.xml") ||
+             fileHref.endsWith("context.xml") ||
+             fileHref.endsWith("media_tracks.xml") ||
+             fileHref.endsWith("canvas_export.txt") ||
+             fileHref.endsWith("module_meta.xml") ||
+             fileHref.contains("discussion_settings.xml") ||
+             fileHref.contains("assessment_settings.xml") ||
+             fileHref.contains("quiz_settings.xml");
+  }
 
   public String getGroupForRole(String role) {
       // if group already exists, this will return the existing one
@@ -993,7 +1053,8 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
                       log.warn("failure importing LTI resource [{}]", bltiTitle);
                   }
               }
-          } else if (resourceType.equals(CANVAS_ASSIGNMENT) && isCanvasAssignment(resourceXml)) {
+          } else if (resourceType.equals(LAR) && isCanvasAssignment(resourceXml)) {
+              // Handle Canvas assignments (learning-application-resource containing assignment_settings.xml)
               // Handle Canvas learning application resources with assignment_settings.xml
               if (assigntool != null) {
                   String canvasResourceId = resourceXml.getAttributeValue(IDENTIFIER);
@@ -1219,6 +1280,9 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   public void setManifestXml(Element the_xml) {
       manifestXml = the_xml;
       log.debug("manifest xml: {}", the_xml);
+      
+      // Identify Canvas entity files early so they can be excluded from resource processing
+      identifyCanvasEntityFiles(the_xml);
   }
 
   public void setCanvasModuleMetaXml(Element the_xml) {
@@ -1310,6 +1374,12 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 
       if (filesAdded.contains(the_file_id))
 	  return;
+      
+      // Skip files that are part of Canvas entities - they should not be imported as resources
+      if (canvasEntityFiles.contains(the_file_id)) {
+          log.debug("Skipping Canvas entity file from resource import: {}", the_file_id);
+          return;
+      }
 
       InputStream infile = null;
       for (int tries = 1; tries < 3; tries++) {
