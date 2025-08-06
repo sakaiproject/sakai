@@ -107,6 +107,12 @@ import org.sakaiproject.lessonbuildertool.service.ForumInterface;
 import org.sakaiproject.lessonbuildertool.service.GroupPermissionsService;
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
 import org.sakaiproject.lessonbuildertool.service.QuizEntity;
+import org.sakaiproject.api.app.syllabus.SyllabusManager;
+import org.sakaiproject.api.app.syllabus.SyllabusItem;
+import org.sakaiproject.api.app.syllabus.SyllabusData;
+import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
+import org.sakaiproject.api.app.messageforums.DiscussionForum;
+import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.api.FormattedText;
 
@@ -181,6 +187,8 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   private LessonEntity topictool = null;
   private LessonEntity bltitool = null;
   private LessonEntity assigntool = null;
+  private SyllabusManager syllabusManager = null;
+  private MessageForumsForumManager forumManager = null;
   private Set<String>roles = null;
   boolean usesRole = false;
   boolean usesPatternMatch = false;
@@ -237,6 +245,9 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
     	  this.assigntool = a;
     	  this.assigntool.setSimplePageBean(bean);
       }
+      // Initialize Syllabus and Forum services
+      this.syllabusManager = (SyllabusManager) ComponentManager.get("org.sakaiproject.api.app.syllabus.SyllabusManager");
+      this.forumManager = (MessageForumsForumManager) ComponentManager.get("org.sakaiproject.api.app.messageforums.MessageForumsForumManager");
       this.importtop = itop;
 	  this.forceInline = ServerConfigurationService.getBoolean("lessonbuilder.cc.import.forceinline", false);
   }
@@ -411,11 +422,13 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
               List<Element> resources = resourcesElement.getChildren("resource", manifest.getNamespace());
               for (Element resource : resources) {
                   String resourceType = resource.getAttributeValue("type");
+                  String intendedUse = resource.getAttributeValue("intendeduse");
+                  
+                  boolean isCanvasEntity = false;
+                  
+                  // Check for Canvas assignments (learning-application-resource with Canvas files)
                   if (resourceType != null && resourceType.contains("learning-application-resource")) {
-                      // Check if this resource contains Canvas entity files
                       List<Element> files = resource.getChildren("file", manifest.getNamespace());
-                      boolean isCanvasEntity = false;
-                      
                       for (Element file : files) {
                           String fileHref = file.getAttributeValue("href");
                           if (fileHref != null && isCanvasEntityFile(fileHref)) {
@@ -423,15 +436,26 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
                               break;
                           }
                       }
-                      
-                      // If this is a Canvas entity resource, mark all its files for exclusion
-                      if (isCanvasEntity) {
-                          for (Element file : files) {
-                              String fileHref = file.getAttributeValue("href");
-                              if (fileHref != null) {
-                                  canvasEntityFiles.add(fileHref);
-                                  log.debug("Marking Canvas entity file for exclusion: {}", fileHref);
-                              }
+                  }
+                  
+                  // Check for Canvas syllabus (intendeduse="syllabus")
+                  if (intendedUse != null && intendedUse.equals("syllabus")) {
+                      isCanvasEntity = true;
+                  }
+                  
+                  // Check for Canvas discussions (imsdt_xmlv1p1 type)
+                  if (resourceType != null && resourceType.contains("imsdt_xmlv1p1")) {
+                      isCanvasEntity = true;
+                  }
+                  
+                  // If this is a Canvas entity resource, mark all its files for exclusion
+                  if (isCanvasEntity) {
+                      List<Element> files = resource.getChildren("file", manifest.getNamespace());
+                      for (Element file : files) {
+                          String fileHref = file.getAttributeValue("href");
+                          if (fileHref != null) {
+                              canvasEntityFiles.add(fileHref);
+                              log.debug("Marking Canvas entity file for exclusion: {}", fileHref);
                           }
                       }
                   }
@@ -1133,6 +1157,105 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
                       simplePageBean.saveItem(item);
                       if (!roles.isEmpty()) simplePageBean.setItemGroups(item, roles.toArray(new String[0]));
                       sequences.set(top, seq + 1);
+                  }
+              }
+          } else if (resourceType.equals("webcontent") && "syllabus".equals(resourceXml.getAttributeValue(INTENDEDUSE))) {
+              // Handle Canvas syllabus import
+              if (syllabusManager != null) {
+                  try {
+                      String syllabusResourceId = resourceXml.getAttributeValue(IDENTIFIER);
+                      String syllabusTitle = itemXml != null ? itemXml.getChildText(CC_ITEM_TITLE, ns.getNs()) : "Canvas Syllabus";
+                      if (syllabusTitle == null) syllabusTitle = "Canvas Syllabus";
+                      
+                      // Find HTML file in resource
+                      String syllabusContent = "";
+                      List<Element> files = resourceXml.getChildren(FILE, ns.getNs());
+                      for (Element file : files) {
+                          String fileHref = file.getAttributeValue(HREF);
+                          if (fileHref != null && fileHref.endsWith(".html")) {
+                              try {
+                                  InputStream htmlStream = loader.getFile(fileHref);
+                                  if (htmlStream != null) {
+                                      byte[] buffer = new byte[8096];
+                                      StringBuilder sb = new StringBuilder();
+                                      int n;
+                                      while ((n = htmlStream.read(buffer)) > 0) {
+                                          sb.append(new String(buffer, 0, n, StandardCharsets.UTF_8));
+                                      }
+                                      syllabusContent = sb.toString();
+                                      htmlStream.close();
+                                      break;
+                                  }
+                              } catch (Exception e) {
+                                  log.warn("Failed to load syllabus HTML: {}", fileHref, e);
+                              }
+                          }
+                      }
+                      
+                      // Create or get syllabus item for site
+                      SyllabusItem syllabusItem = syllabusManager.getSyllabusItemByContextId(siteId);
+                      if (syllabusItem == null) {
+                          syllabusItem = syllabusManager.createSyllabusItem(simplePageBean.getCurrentUserId(), siteId, null);
+                      }
+                      
+                      // Create syllabus data entry
+                      int position = syllabusManager.findLargestSyllabusPosition(syllabusItem) + 1;
+                      SyllabusData syllabusData = syllabusManager.createSyllabusDataObject(syllabusTitle, position, 
+                              syllabusContent, "yes", SyllabusData.ITEM_POSTED, "none", null, null, false, null, null, syllabusItem);
+                      
+                      log.debug("Created Canvas syllabus entry: {}", syllabusTitle);
+                      
+                  } catch (Exception e) {
+                      log.warn("Failed to import Canvas syllabus: {}", e.getMessage(), e);
+                  }
+              }
+          } else if (resourceType.equals("imsdt_xmlv1p1") || resourceType.contains("imsdt_xmlv1p1")) {
+              // Handle Canvas discussion import
+              if (forumManager != null && topictool != null) {
+                  try {
+                      String discussionResourceId = resourceXml.getAttributeValue(IDENTIFIER);
+                      
+                      // Find the discussion XML file
+                      String discussionXmlFile = null;
+                      List<Element> files = resourceXml.getChildren(FILE, ns.getNs());
+                      for (Element file : files) {
+                          String fileHref = file.getAttributeValue(HREF);
+                          if (fileHref != null && fileHref.endsWith(".xml")) {
+                              discussionXmlFile = fileHref;
+                              break;
+                          }
+                      }
+                      
+                      if (discussionXmlFile != null) {
+                          Element discussionXml = parser.getXML(loader, discussionXmlFile);
+                          if (discussionXml != null) {
+                              // Get discussion title and text from Canvas XML
+                              String discussionTitle = discussionXml.getChildText("title");
+                              if (discussionTitle == null) discussionTitle = "Canvas Discussion";
+                              
+                              Element textElement = discussionXml.getChild("text");
+                              String discussionText = "";
+                              if (textElement != null) {
+                                  discussionText = textElement.getText();
+                                  if (discussionText == null) discussionText = "";
+                              }
+                              
+                              // Import using existing discussion tool
+                              ForumInterface f = (ForumInterface) topictool;
+                              String sakaiForumId = f.importObject(discussionTitle, discussionTitle, discussionText, true, baseUrl, baseName, siteId, new ArrayList<String>(), false);
+                              
+                              if (sakaiForumId != null && !noPage) {
+                                  SimplePageItem item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.FORUM, sakaiForumId, discussionTitle);
+                                  simplePageBean.saveItem(item);
+                                  if (!roles.isEmpty()) simplePageBean.setItemGroups(item, roles.toArray(new String[0]));
+                                  sequences.set(top, seq + 1);
+                                  log.debug("Created Canvas discussion: {}", discussionTitle);
+                              }
+                          }
+                      }
+                      
+                  } catch (Exception e) {
+                      log.warn("Failed to import Canvas discussion: {}", e.getMessage(), e);
                   }
               }
           } else if (resourceType.equals(ASSIGNMENT)) {
