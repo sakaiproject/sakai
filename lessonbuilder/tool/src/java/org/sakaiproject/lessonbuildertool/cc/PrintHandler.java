@@ -457,21 +457,33 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
                           }
                       }
                   }
-                  
+
                   // Check for Canvas syllabus (intendeduse="syllabus")
                   if (intendedUse != null && intendedUse.equals("syllabus")) {
                       isCanvasEntity = true;
                   }
-                  
+
+                  // Check for Canvas wiki content (webcontent with wiki_content/ path)
+                  if (resourceType != null && resourceType.equals("webcontent")) {
+                      String href = resource.getAttributeValue("href");
+                      if (href != null && href.contains("wiki_content/")) {
+                          isCanvasEntity = true;
+                          log.debug("Marking Canvas wiki content as entity: {}", resourceId);
+                      }
+                  }
+
                   // Check for Canvas discussion dependencies
                   if (resourceId != null && discussionDependencies.contains(resourceId)) {
                       isCanvasEntity = true;
                       log.debug("Marking discussion dependency as Canvas entity: {}", resourceId);
                   }
-                  
-                  // Note: Canvas discussions (imsdt_xmlv1p1) should NOT be excluded as entities
-                  // They should be processed normally by the existing TOPIC handler
-                  
+
+                  // Check for Canvas discussions (imsdt_xmlv1p1) - exclude XML files from Resources
+                  if (resourceType != null && resourceType.equals("imsdt_xmlv1p1")) {
+                      isCanvasEntity = true;
+                      log.debug("Marking Canvas discussion as entity: {}", resourceId);
+                  }
+
                   // If this is a Canvas entity resource, mark all its files for exclusion
                   if (isCanvasEntity) {
                       List<Element> files = resource.getChildren("file", manifest.getNamespace());
@@ -1231,6 +1243,77 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
                       
                   } catch (Exception e) {
                       log.warn("Failed to import Canvas syllabus: {}", e.getMessage(), e);
+                  }
+              }
+          } else if (resourceType.equals("webcontent")) {
+              // Handle Canvas wiki content import as Lessons pages
+              String href = resourceXml.getAttributeValue(HREF);
+              if (href != null && href.contains("wiki_content/")) {
+                  try {
+                      String wikiResourceId = resourceXml.getAttributeValue(IDENTIFIER);
+                      
+                      // Extract page title from href (remove wiki_content/ prefix and .html suffix)
+                      String pageTitle = href.substring(href.lastIndexOf("/") + 1);
+                      if (pageTitle.endsWith(".html")) {
+                          pageTitle = pageTitle.substring(0, pageTitle.length() - 5);
+                      }
+                      // Convert filename to readable title
+                      pageTitle = pageTitle.replace("-", " ").replace("_", " ");
+                      // Capitalize first letter of each word
+                      StringBuilder titleBuilder = new StringBuilder();
+                      boolean capitalizeNext = true;
+                      for (char c : pageTitle.toCharArray()) {
+                          if (Character.isWhitespace(c)) {
+                              capitalizeNext = true;
+                              titleBuilder.append(c);
+                          } else if (capitalizeNext) {
+                              titleBuilder.append(Character.toUpperCase(c));
+                              capitalizeNext = false;
+                          } else {
+                              titleBuilder.append(c);
+                          }
+                      }
+                      pageTitle = titleBuilder.toString();
+                      
+                      // Load HTML content
+                      String wikiContent = "";
+                      try {
+                          InputStream htmlStream = loader.getFile(href);
+                          if (htmlStream != null) {
+                              byte[] buffer = new byte[8096];
+                              StringBuilder sb = new StringBuilder();
+                              int n;
+                              while ((n = htmlStream.read(buffer)) > 0) {
+                                  sb.append(new String(buffer, 0, n, StandardCharsets.UTF_8));
+                              }
+                              wikiContent = sb.toString();
+                              htmlStream.close();
+                          }
+                      } catch (Exception e) {
+                          log.warn("Failed to load Canvas wiki content: {}", href, e);
+                      }
+                      
+                      if (!wikiContent.isEmpty() && !noPage) {
+                          // Create a new Lessons page for this wiki content
+                          SimplePage wikiPage = simplePageToolDao.makePage(simplePageBean.getCurrentSiteId(), simplePageBean.getCurrentTool("sakai.lessonbuildertool"), pageTitle, null, null);
+                          simplePageToolDao.saveItem(wikiPage, new ArrayList<String>(), "Unable to save wiki page", false);
+                          
+                          // Add the HTML content as a text item on the page
+                          SimplePageItem textItem = simplePageToolDao.makeItem(wikiPage.getPageId(), 1, SimplePageItem.TEXT, null, pageTitle);
+                          textItem.setHtml(wikiContent);
+                          simplePageBean.saveItem(textItem);
+                          
+                          // Add the wiki page as a subpage item to the main lesson
+                          SimplePageItem pageItem = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.PAGE, Long.toString(wikiPage.getPageId()), pageTitle);
+                          simplePageBean.saveItem(pageItem);
+                          if (!roles.isEmpty()) simplePageBean.setItemGroups(pageItem, roles.toArray(new String[0]));
+                          sequences.set(top, seq + 1);
+                          
+                          log.debug("Created Canvas wiki page: {}", pageTitle);
+                      }
+                      
+                  } catch (Exception e) {
+                      log.warn("Failed to import Canvas wiki content: {}", e.getMessage(), e);
                   }
               }
           } else if (resourceType.equals(ASSIGNMENT)) {
