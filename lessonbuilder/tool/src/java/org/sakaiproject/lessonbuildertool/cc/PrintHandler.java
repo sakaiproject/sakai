@@ -443,10 +443,8 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
                       isCanvasEntity = true;
                   }
                   
-                  // Check for Canvas discussions (imsdt_xmlv1p1 type)
-                  if (resourceType != null && resourceType.contains("imsdt_xmlv1p1")) {
-                      isCanvasEntity = true;
-                  }
+                  // Note: Canvas discussions (imsdt_xmlv1p1) should NOT be excluded as entities
+                  // They should be processed normally by the existing TOPIC handler
                   
                   // If this is a Canvas entity resource, mark all its files for exclusion
                   if (isCanvasEntity) {
@@ -1207,55 +1205,6 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
                       
                   } catch (Exception e) {
                       log.warn("Failed to import Canvas syllabus: {}", e.getMessage(), e);
-                  }
-              }
-          } else if (resourceType.equals("imsdt_xmlv1p1") || resourceType.contains("imsdt_xmlv1p1")) {
-              // Handle Canvas discussion import
-              if (forumManager != null && topictool != null) {
-                  try {
-                      String discussionResourceId = resourceXml.getAttributeValue(IDENTIFIER);
-                      
-                      // Find the discussion XML file
-                      String discussionXmlFile = null;
-                      List<Element> files = resourceXml.getChildren(FILE, ns.getNs());
-                      for (Element file : files) {
-                          String fileHref = file.getAttributeValue(HREF);
-                          if (fileHref != null && fileHref.endsWith(".xml")) {
-                              discussionXmlFile = fileHref;
-                              break;
-                          }
-                      }
-                      
-                      if (discussionXmlFile != null) {
-                          Element discussionXml = parser.getXML(loader, discussionXmlFile);
-                          if (discussionXml != null) {
-                              // Get discussion title and text from Canvas XML
-                              String discussionTitle = discussionXml.getChildText("title");
-                              if (discussionTitle == null) discussionTitle = "Canvas Discussion";
-                              
-                              Element textElement = discussionXml.getChild("text");
-                              String discussionText = "";
-                              if (textElement != null) {
-                                  discussionText = textElement.getText();
-                                  if (discussionText == null) discussionText = "";
-                              }
-                              
-                              // Import using existing discussion tool
-                              ForumInterface f = (ForumInterface) topictool;
-                              String sakaiForumId = f.importObject(discussionTitle, discussionTitle, discussionText, true, baseUrl, baseName, siteId, new ArrayList<String>(), false);
-                              
-                              if (sakaiForumId != null && !noPage) {
-                                  SimplePageItem item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.FORUM, sakaiForumId, discussionTitle);
-                                  simplePageBean.saveItem(item);
-                                  if (!roles.isEmpty()) simplePageBean.setItemGroups(item, roles.toArray(new String[0]));
-                                  sequences.set(top, seq + 1);
-                                  log.debug("Created Canvas discussion: {}", discussionTitle);
-                              }
-                          }
-                      }
-                      
-                  } catch (Exception e) {
-                      log.warn("Failed to import Canvas discussion: {}", e.getMessage(), e);
                   }
               }
           } else if (resourceType.equals(ASSIGNMENT)) {
