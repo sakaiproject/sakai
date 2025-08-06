@@ -58,7 +58,6 @@ package org.sakaiproject.lessonbuildertool.cc;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -145,15 +144,14 @@ public class Parser extends AbstractParser {
       Element manifest=this.getXML(utils, IMS_MANIFEST);
       processManifest(manifest, canvas_module_meta, the_handler);
     } catch (Exception e) {
-	the_handler.getSimplePageBean().setErrKey("simplepage.cc-error", "");
-	log.info("parse error, stack trace follows " + e);
+      the_handler.getSimplePageBean().setErrKey("simplepage.cc-error", "");
+      log.info("parse error, stack trace follows", e);
     }
   }
-
   
   private void
   processManifest(Element the_manifest, Element the_canvas_module_meta, DefaultHandler the_handler) throws ParseException {
-    log.debug("the_manifest {} the_canvas_module_meta {} the_handler", the_manifest, the_canvas_module_meta, the_handler);
+    log.debug("the_manifest {} the_canvas_module_meta {} the_handler {}", the_manifest, the_canvas_module_meta, the_handler);
     ns = new Ns();
     the_handler.setNs(ns);
     // figure out which version we have, and set up ns to know about it
