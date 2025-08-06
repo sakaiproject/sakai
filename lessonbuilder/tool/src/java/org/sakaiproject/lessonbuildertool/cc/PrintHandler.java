@@ -156,6 +156,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   private static final String QUESTIONS="questestinterop";
   private static final String ASSESSMENT="assessment";
   private static final String ASSIGNMENT="assignment";
+  private static final String CANVAS_ASSIGNMENT="canvas_assignment";
   private static final String QUESTION_BANK="question-bank";
   private static final String CART_LTI_LINK="cartridge_basiclti_link";
   private static final String BLTI="basiclti";
@@ -382,6 +383,22 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	  }
 	  return href;
   }
+
+  /**
+   * Check if a resource represents a Canvas assignment
+   */
+  private boolean isCanvasAssignment(Element resource) {
+      // Check if this is a Canvas learning application resource that contains assignment_settings.xml
+      List<Element> files = resource.getChildren(FILE, ns.getNs());
+      for (Element file : files) {
+          String fileHref = file.getAttributeValue(HREF);
+          if (fileHref != null && fileHref.endsWith("assignment_settings.xml")) {
+              return true;
+          }
+      }
+      return false;
+  }
+
 
   public String getGroupForRole(String role) {
       // if group already exists, this will return the existing one
@@ -976,6 +993,87 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
                       log.warn("failure importing LTI resource [{}]", bltiTitle);
                   }
               }
+          } else if (resourceType.equals(CANVAS_ASSIGNMENT) && isCanvasAssignment(resourceXml)) {
+              // Handle Canvas learning application resources with assignment_settings.xml
+              if (assigntool != null) {
+                  String canvasResourceId = resourceXml.getAttributeValue(IDENTIFIER);
+                  String canvasAssignmentId = assignsAdded.get(canvasResourceId);
+                  
+                  if (canvasAssignmentId == null) {
+                      try {
+                          // Find assignment_settings.xml file in this resource
+                          String assignmentSettingsFile = null;
+                          String instructionsFile = null;
+                          
+                          List<Element> files = resourceXml.getChildren(FILE, ns.getNs());
+                          for (Element file : files) {
+                              String fileHref = file.getAttributeValue(HREF);
+                              if (fileHref != null) {
+                                  if (fileHref.endsWith("assignment_settings.xml")) {
+                                      assignmentSettingsFile = fileHref;
+                                  } else if (fileHref.endsWith(".html")) {
+                                      instructionsFile = fileHref;
+                                  }
+                              }
+                          }
+                          
+                          if (assignmentSettingsFile != null) {
+                              // Load the Canvas assignment XML
+                              Element canvasAssignmentXml = parser.getXML(loader, assignmentSettingsFile);
+                              
+                              // Load instructions from HTML file if available
+                              String instructions = "";
+                              if (instructionsFile != null) {
+                                  try {
+                                      InputStream instructionsStream = loader.getFile(instructionsFile);
+                                      if (instructionsStream != null) {
+                                          byte[] buffer = new byte[8096];
+                                          StringBuilder sb = new StringBuilder();
+                                          int n;
+                                          while ((n = instructionsStream.read(buffer)) > 0) {
+                                              sb.append(new String(buffer, 0, n));
+                                          }
+                                          instructions = sb.toString();
+                                          instructionsStream.close();
+                                      }
+                                  } catch (Exception e) {
+                                      log.warn("Failed to load Canvas assignment instructions: {}", instructionsFile);
+                                  }
+                              }
+                              
+                              AssignmentInterface a = (AssignmentInterface) assigntool;
+                              canvasAssignmentId = a.importCanvasAssignment(canvasAssignmentXml, instructions, noPage);
+                              if (canvasAssignmentId != null) {
+                                  assignsAdded.put(canvasResourceId, canvasAssignmentId);
+                                  log.debug("Created Canvas assignment from resource: {}", canvasResourceId);
+                              }
+                          }
+                      } catch (Exception e) {
+                          log.warn("Failed to process Canvas assignment resource: {}", canvasResourceId, e);
+                      }
+                  }
+                  
+                  if (canvasAssignmentId != null && !noPage) {
+                      String canvasTitle = itemXml != null ? itemXml.getChildText(CC_ITEM_TITLE, ns.getNs()) : "Canvas Assignment";
+                      if (canvasTitle == null) {
+                          // Try to get title from the main HTML file name
+                          String href = resourceXml.getAttributeValue(HREF);
+                          if (href != null && href.contains("/")) {
+                              canvasTitle = href.substring(href.lastIndexOf("/") + 1);
+                              if (canvasTitle.endsWith(".html")) {
+                                  canvasTitle = canvasTitle.substring(0, canvasTitle.length() - 5);
+                              }
+                              canvasTitle = canvasTitle.replace("-", " ").replace("_", " ");
+                          }
+                      }
+                      if (canvasTitle == null) canvasTitle = "Canvas Assignment";
+                      
+                      SimplePageItem item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.ASSIGNMENT, canvasAssignmentId, canvasTitle);
+                      simplePageBean.saveItem(item);
+                      if (!roles.isEmpty()) simplePageBean.setItemGroups(item, roles.toArray(new String[0]));
+                      sequences.set(top, seq + 1);
+                  }
+              }
           } else if (resourceType.equals(ASSIGNMENT)) {
               Element assignXml = null;
               String filename = getFileName(resourceXml);
@@ -1127,6 +1225,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
       canvasModuleMeta = the_xml;
       log.debug("canvas_meta_module xml: {}", the_xml);
   }
+
 
   public void endManifest() {
 	  log.debug("end manifest");

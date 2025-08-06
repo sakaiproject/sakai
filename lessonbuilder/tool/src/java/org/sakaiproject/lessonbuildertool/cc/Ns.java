@@ -194,6 +194,7 @@ public class Ns  {
     private static final String QUESTION_BANK="question-bank";
     private static final String BLTI="basiclti";
     private static final String ASSIGNMENT="assignment"; // version 1.3 extended type
+    private static final String CANVAS_ASSIGNMENT="canvas_assignment"; // Canvas assignment_settings.xml
     private static final String UNKNOWN="unknown";
 
 
@@ -225,6 +226,8 @@ public class Ns  {
 	// 2 seems to have used v1p1
 	resourceTypes.put("imsbasiclti_xmlv1p3", BLTI);
 	resourceTypes.put("assignment_xmlv1p0", ASSIGNMENT);
+	// Canvas assignment - learning application resource containing assignment_settings.xml
+	resourceTypes.put("associatedcontent/imscc_xmlv1p1/learning-application-resource", CANVAS_ASSIGNMENT);
     }
 
     public String normType(String type) {
