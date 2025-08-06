@@ -184,7 +184,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   private LessonEntity bltitool = null;
   private LessonEntity assigntool = null;
   private SyllabusManager syllabusManager = null;
-    private Set<String>roles = null;
+  private Set<String>roles = null;
   boolean usesRole = false;
   boolean usesPatternMatch = false;
   boolean usesCurriculum = false;
@@ -194,13 +194,13 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   Element canvasModuleMeta = null;
   boolean forceInline;
 
-    // this is the CC file name for all files added
+  // this is the CC file name for all files added
   private Set<String> filesAdded = new HashSet<String>();
-    // Track files that are part of Canvas entities and should not be imported as resources
+  // Track files that are part of Canvas entities and should not be imported as resources
   private Set<String> canvasEntityFiles = new HashSet<String>();
-    // This keeps track of what files are added to what (possibly truncated) name, this is pre-populated
+  // This keeps track of what files are added to what (possibly truncated) name, this is pre-populated
   private Map<String,String> fileNames = new HashMap<String,String>();
-    // this is the CC file name (of the XML file) -> Sakaiid for non-file items
+  // this is the CC file name (of the XML file) -> Sakaiid for non-file items
   private Map<String,String> itemsAdded = new HashMap<String,String>();
   private Map<String, Map<String, String>> itemsMetaDataAdded = new HashMap<>();
   private Map<String,String> assignsAdded = new HashMap<String,String>();
@@ -414,7 +414,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
           Element resourcesElement = manifest.getChild("resources", manifest.getNamespace());
           if (resourcesElement != null) {
               List<Element> resources = resourcesElement.getChildren("resource", manifest.getNamespace());
-              
+
               // First pass: collect all discussion dependency resource IDs
               Set<String> discussionDependencies = new HashSet<String>();
               for (Element resource : resources) {
@@ -431,15 +431,15 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
                       }
                   }
               }
-              
+
               // Second pass: mark Canvas entities for exclusion
               for (Element resource : resources) {
                   String resourceType = resource.getAttributeValue("type");
                   String intendedUse = resource.getAttributeValue("intendeduse");
                   String resourceId = resource.getAttributeValue("identifier");
-                  
+
                   boolean isCanvasEntity = false;
-                  
+
                   // Check for Canvas assignments (learning-application-resource with Canvas files)
                   if (resourceType != null && resourceType.contains("learning-application-resource")) {
                       List<Element> files = resource.getChildren("file", manifest.getNamespace());
@@ -493,7 +493,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
           log.warn("Error identifying Canvas entity files: {}", e.getMessage());
       }
   }
-  
+
   /**
    * Check if a file is a Canvas entity file that should not be imported as a resource
    */
@@ -1446,7 +1446,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   public void setManifestXml(Element the_xml) {
       manifestXml = the_xml;
       log.debug("manifest xml: {}", the_xml);
-      
+
       // Identify Canvas entity files early so they can be excluded from resource processing
       identifyCanvasEntityFiles(the_xml);
   }
