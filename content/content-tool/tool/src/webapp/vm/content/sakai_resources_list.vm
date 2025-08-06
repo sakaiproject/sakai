@@ -361,9 +361,9 @@
 				
 				#set ($width = "$!{item.depth}$unit")
 				#if ($item.depth==0)
-					#set ($margin="0.5")
+					#set ($marginIcon="0.5")
 				#else
-					#set($margin = $item.depth + 1)
+					#set($marginIcon = $item.depth + 1)
 				#end
 				#if ($item.depth!=0)
 					#set ($marginAction="ps-5")
@@ -386,7 +386,7 @@
 							<input type="hidden" name="itemCanRevise" id="itemCanRevise" value="$item.canRevise" />
 						#end
 					</td>
-					<td style="padding-left:$!{margin}rem;" class="specialLink title d-table-cell align-middle" scope="row">
+					<td style="padding-left:$!{marginIcon}rem;" class="specialLink title d-table-cell align-middle" scope="row">
 					<div class="d-flex align-items-center gap-2">
 					#if($item.isHot("$!dropboxHighlight")) #set($iconDecor="recentItem") #set($newNote="new") #else  #set($iconDecor="nil")  #set($newNote="")#end 
 
@@ -643,9 +643,9 @@
 					#set ($width = "$!{item.depth}$unit")
 						#set ($width = "$!{item.depth}$unit")
 						#if ($item.depth==0)
-							#set ($margin="0.5")
+							#set ($marginIcon="0.5")
 						#else
-							#set($margin = $item.depth * 1)
+							#set($marginIcon = $item.depth * 1)
 						#end
 						#if ($item.depth!=0)
 							#set ($marginAction="ps-5")
@@ -665,7 +665,7 @@
 									#foreach($key in $item.multipleItemActions.keySet())$counter.increment("$key") $counter.increment("selectall")#if($selectedItems.contains($item.id))$counter.increment("${key}selected")#end#end
 								#end
 							</td>
-							<th headers="title" style="text-indent:$width; padding-left:$!{margin}rem;" class="specialLink" scope="row">
+							<th headers="title" style="text-indent:$width; padding-left:$!{marginIcon}rem;" class="specialLink" scope="row">
 						#if($item.isHot("$!dropboxHighlight")) #set($iconDecor="recentItem") #set($newNote="new") #else  #set($iconDecor="nil")  #set($newNote="")#end 
 									#if ($item.canRead())
 										#if($item.isCollection())
