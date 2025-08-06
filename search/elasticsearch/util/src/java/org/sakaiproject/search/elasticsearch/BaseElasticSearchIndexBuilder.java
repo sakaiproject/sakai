@@ -1794,14 +1794,5 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
             return DEFAULT_DOCUMENT_SIZE_BYTES;
         }
     }
-
-    // Getters for constants used in tests
-    public static long getContentSizeOverheadBytes() {
-        return CONTENT_SIZE_OVERHEAD_BYTES;
-    }
-    
-    public static long getDefaultDocumentSizeBytes() {
-        return DEFAULT_DOCUMENT_SIZE_BYTES;
-    }
 }
 
