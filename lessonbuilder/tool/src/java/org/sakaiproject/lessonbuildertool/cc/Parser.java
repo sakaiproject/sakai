@@ -58,6 +58,7 @@ package org.sakaiproject.lessonbuildertool.cc;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -148,6 +149,7 @@ public class Parser extends AbstractParser {
 	log.info("parse error, stack trace follows " + e);
     }
   }
+
   
   private void
   processManifest(Element the_manifest, Element the_canvas_module_meta, DefaultHandler the_handler) throws ParseException {

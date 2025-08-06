@@ -26,6 +26,7 @@ package org.sakaiproject.lessonbuildertool.service;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -697,6 +698,133 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	    log.info("can't create assignment " + e);
 	};
 	return null;
+    }
+
+    /**
+     * Import a Canvas assignment from Canvas assignment_settings.xml format
+     */
+    public String importCanvasAssignment(Element assignmentXml, String instructions, boolean hide) {
+        String context = ToolManager.getCurrentPlacement().getContext();
+        try {
+            Assignment a = assignmentService.addAssignment(context);
+            
+            // Parse Canvas assignment XML with Canvas namespace
+            Namespace canvasNs = assignmentXml.getNamespace();
+            
+            // Title
+            String title = assignmentXml.getChildText("title", canvasNs);
+            if (title != null) {
+                a.setTitle(title.trim());
+            } else {
+                a.setTitle("Untitled Assignment");
+            }
+            
+            // Instructions - use HTML instructions from Canvas assignment
+            if (instructions != null && !instructions.trim().isEmpty()) {
+                // Clean up HTML - remove DOCTYPE, html, head, body tags but keep content formatting
+                String cleanInstructions = instructions.replaceAll("<!DOCTYPE[^>]*>", "")
+                    .replaceAll("<html[^>]*>", "").replaceAll("</html>", "")
+                    .replaceAll("<head[^>]*>.*?</head>", "")
+                    .replaceAll("<body[^>]*>", "").replaceAll("</body>", "")
+                    .trim();
+                a.setInstructions(cleanInstructions);
+            } else {
+                a.setInstructions("");
+            }
+            a.setHonorPledge(false);
+            
+            // Parse submission types
+            String submissionTypes = assignmentXml.getChildText("submission_types", canvasNs);
+            Assignment.SubmissionType submitType = Assignment.SubmissionType.TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION; // default
+            if (submissionTypes != null) {
+                if ("not_graded".equals(submissionTypes)) {
+                    submitType = Assignment.SubmissionType.ASSIGNMENT_SUBMISSION_TYPE_NONE;
+                } else if (submissionTypes.contains("online_text_entry") && submissionTypes.contains("online_upload")) {
+                    submitType = Assignment.SubmissionType.TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION;
+                } else if (submissionTypes.contains("online_text_entry")) {
+                    submitType = Assignment.SubmissionType.TEXT_ONLY_ASSIGNMENT_SUBMISSION;
+                } else if (submissionTypes.contains("online_upload")) {
+                    submitType = Assignment.SubmissionType.ATTACHMENT_ONLY_ASSIGNMENT_SUBMISSION;
+                }
+            }
+            a.setTypeOfSubmission(submitType);
+            
+            // Parse grading type and points
+            String gradingType = assignmentXml.getChildText("grading_type", canvasNs);
+            String pointsPossible = assignmentXml.getChildText("points_possible", canvasNs);
+            
+            if ("not_graded".equals(gradingType)) {
+                a.setTypeOfGrade(Assignment.GradeType.UNGRADED_GRADE_TYPE);
+            } else if ("points".equals(gradingType) && pointsPossible != null) {
+                try {
+                    Double pointsDouble = Double.parseDouble(pointsPossible);
+                    // Sakai stores points scaled by 10
+                    int points = (int) Math.round(pointsDouble * 10);
+                    if (points < 1) points = 1000; // default minimum
+                    a.setMaxGradePoint(points);
+                    a.setTypeOfGrade(Assignment.GradeType.SCORE_GRADE_TYPE);
+                } catch (NumberFormatException e) {
+                    log.warn("Invalid points_possible value: {}", pointsPossible);
+                    a.setTypeOfGrade(Assignment.GradeType.UNGRADED_GRADE_TYPE);
+                }
+            } else {
+                a.setTypeOfGrade(Assignment.GradeType.UNGRADED_GRADE_TYPE);
+            }
+            
+            // Parse dates
+            Instant now = Instant.now();
+            a.setOpenDate(now);
+            
+            // Due date
+            String dueDateStr = assignmentXml.getChildText("due_at", canvasNs);
+            Instant dueDate = now.plus(365, ChronoUnit.DAYS); // default to 1 year from now
+            if (dueDateStr != null && !dueDateStr.trim().isEmpty()) {
+                try {
+                    // Canvas uses ISO 8601 format: 2025-05-10T04:59:59
+                    dueDate = Instant.parse(dueDateStr.trim() + "Z"); // Add Z for UTC if not present
+                } catch (Exception e) {
+                    log.warn("Failed to parse Canvas due date: {}, using default", dueDateStr);
+                }
+            }
+            a.setDueDate(dueDate);
+            
+            // Close date - use due date as close date
+            a.setCloseDate(dueDate);
+            
+            // Unlock date  
+            String unlockDateStr = assignmentXml.getChildText("unlock_at", canvasNs);
+            if (unlockDateStr != null && !unlockDateStr.trim().isEmpty()) {
+                try {
+                    Instant unlockDate = Instant.parse(unlockDateStr.trim() + "Z");
+                    a.setOpenDate(unlockDate);
+                } catch (Exception e) {
+                    log.warn("Failed to parse Canvas unlock date: {}, using current time", unlockDateStr);
+                }
+            }
+            
+            // Draft status - Canvas workflow_state
+            String workflowState = assignmentXml.getChildText("workflow_state", canvasNs);
+            boolean isDraft = !"published".equals(workflowState) || hide;
+            a.setDraft(isDraft);
+            
+            // Standard assignment settings
+            a.setAllowAttachments(true);
+            a.setContext(context);
+            a.setTypeOfAccess(Assignment.Access.SITE);
+            a.setGroups(new HashSet<>());
+            a.setSection("");
+            a.setContentReview(false);
+            
+            // Save the assignment
+            assignmentService.updateAssignment(a);
+            
+            log.info("Created Canvas assignment: {} with ID: {}", title, a.getId());
+            return "/assignment/" + a.getId();
+            
+        } catch (Exception e) {
+            log.error("Failed to create Canvas assignment", e);
+            return null;
+        }
     }
 
     public String removeDotDot(String s) {
