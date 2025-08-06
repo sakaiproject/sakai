@@ -7141,11 +7141,6 @@ public class SimplePageBean {
 		    return;
 		}
 		long length = importCcFromStream(fis);
-		ToolSession toolSession = sessionManager.getCurrentToolSession();
-		if ( length > 0 && toolSession != null) {
-			String successMessage = messageLocator.getMessage("simplepage.cc-import-success-length").replace("{}", length+"");
-			toolSession.setAttribute("lessonbuilder.fileImportDone", successMessage);
-		}
 		setTopRefresh();
 	    }
 	}
