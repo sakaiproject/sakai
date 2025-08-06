@@ -194,7 +194,6 @@ public class Ns  {
     private static final String QUESTION_BANK="question-bank";
     private static final String BLTI="basiclti";
     private static final String ASSIGNMENT="assignment"; // version 1.3 extended type
-    private static final String CANVAS_ASSIGNMENT="canvas_assignment"; // Canvas assignment_settings.xml
     private static final String UNKNOWN="unknown";
 
 
