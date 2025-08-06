@@ -457,13 +457,11 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
                       isCanvasEntity = true;
                   }
 
-                  // Check for Canvas wiki content (webcontent with wiki_content/ path)
-                  if (resourceType != null && resourceType.equals("webcontent")) {
-                      String href = resource.getAttributeValue("href");
-                      if (href != null && href.contains("wiki_content/")) {
-                          isCanvasEntity = true;
-                          log.debug("Marking Canvas wiki content as entity: {}", resourceId);
-                      }
+                  // Check for Canvas wiki content (webcontent with wiki_content/)
+                  String href = resource.getAttributeValue(HREF);
+                  if (href != null && href.contains("wiki_content/")) {
+                      isCanvasEntity = true;
+                      log.debug("Marking Canvas wiki content as entity: {}", href);
                   }
 
                   // Check for Canvas discussion dependencies
@@ -897,7 +895,9 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
               } else {
                   // Handle Canvas wiki content import as Lessons pages
                   String href = resourceXml.getAttributeValue(HREF);
+                  log.debug("Canvas webcontent handler: href={}, noPage={}", href, noPage);
                   if (href != null && href.contains("wiki_content/")) {
+                      log.debug("Processing Canvas wiki content import for: {}", href);
                       try {
                           // Extract page title from href (remove wiki_content/ prefix and .html suffix)
                           String pageTitle = href.substring(href.lastIndexOf("/") + 1);
@@ -940,22 +940,15 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
                               log.warn("Failed to load Canvas wiki content: {}", href, e);
                           }
                           
-                          if (!wikiContent.isEmpty() && !noPage) {
+                          if (!wikiContent.isEmpty()) {
                               // Create a new Lessons page for this wiki content
-                              SimplePage wikiPage = simplePageToolDao.makePage(simplePageBean.getCurrentSiteId(), simplePageBean.getCurrentTool("sakai.lessonbuildertool"), pageTitle, null, null);
-                              simplePageToolDao.saveItem(wikiPage, new ArrayList<String>(), "Unable to save wiki page", false);
+                              SimplePage wikiPage = simplePageBean.addPage(pageTitle, false);
                               
                               // Add the HTML content as a text item on the page
                               SimplePageItem textItem = simplePageToolDao.makeItem(wikiPage.getPageId(), 1, SimplePageItem.TEXT, null, pageTitle);
                               textItem.setHtml(wikiContent);
                               simplePageBean.saveItem(textItem);
-                              
-                              // Add the wiki page as a subpage item to the main lesson
-                              SimplePageItem pageItem = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.PAGE, Long.toString(wikiPage.getPageId()), pageTitle);
-                              simplePageBean.saveItem(pageItem);
-                              if (!roles.isEmpty()) simplePageBean.setItemGroups(pageItem, roles.toArray(new String[0]));
-                              sequences.set(top, seq + 1);
-                              
+
                               log.debug("Created Canvas wiki page: {}", pageTitle);
                           }
                           
