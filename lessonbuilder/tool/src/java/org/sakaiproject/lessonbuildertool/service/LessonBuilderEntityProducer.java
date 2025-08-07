@@ -57,11 +57,13 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.Queue;
 import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
@@ -563,12 +565,31 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	@Override
 	public String archive(String siteId, Document doc, Stack stack, String archivePath, List attachments)
 	{
-		//prepare the buffer for the results log
+		return archive(siteId, doc, stack, archivePath, attachments, null);
+	}
+
+	public String archive(String siteId, Document doc, Stack stack, String archivePath, List attachments, List<String> selectedIds)
+	{
+		// prepare the buffer for the results log
 		StringBuilder results = new StringBuilder();
 
 		// Orphaned pages need not apply!
 		SimplePageBean simplePageBean = makeSimplePageBean(siteId);
 		OrphanPageFinder orphanFinder = simplePageBean.getOrphanFinder(siteId);
+
+		Set<Long> selectedPageIds = new HashSet<>();
+		boolean hasSelection = selectedIds != null && !selectedIds.isEmpty();
+		if (hasSelection) {
+			for (String idStr : selectedIds) {
+				try {
+					selectedPageIds.add(Long.valueOf(idStr));
+				} catch (NumberFormatException e) {
+					log.warn("Invalid page Id: {}", idStr);
+				}
+			}
+			// Expand selection to include all descendant pages
+			selectedPageIds = expandSelectionToIncludeDescendants(selectedPageIds, siteId);
+		}
 
 		try
 		{
@@ -582,56 +603,75 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			Element lessonbuilder = doc.createElement(LESSONBUILDER);
 
 			int orphansSkipped = 0;
+			int selectionSkipped = 0;
 
 			List<SimplePage> sitePages = simplePageToolDao.getSitePages(siteId);
 			if (sitePages != null && !sitePages.isEmpty()) {
 				for (SimplePage page: sitePages) {
-					if (!orphanFinder.isOrphan(page.getPageId())) {
-						addPage(doc, lessonbuilder, page, site, attachments);
-					} else {
+					if (orphanFinder.isOrphan(page.getPageId())) {
 						orphansSkipped++;
+						continue;
+					}
+					if (hasSelection && !selectedPageIds.contains(Long.valueOf(page.getPageId()))) {
+						selectionSkipped++;
+						continue;
+					}
+					addPage(doc, lessonbuilder, page, site, attachments);
+				}
+			}
+
+			log.info("Skipped {} orphaned pages and {} non-selected pages while archiving site {}", orphansSkipped, selectionSkipped, siteId);
+
+			int count = 0;
+			if (hasSelection) {
+				Set<Long> topLevelSelectedPages = findTopLevelSelectedPages(selectedPageIds, siteId);
+
+				for (Long topLevelPageId : topLevelSelectedPages) {
+					SimplePage topLevelPage = simplePageToolDao.getPage(topLevelPageId);
+					if (topLevelPage != null) {
+						element = doc.createElement(LESSONBUILDER);
+						addAttr(doc, element, "toolid", topLevelPageId.toString());
+						addAttr(doc, element, "name", topLevelPage.getTitle());
+						addAttr(doc, element, "pagePosition", String.valueOf(count));
+						addAttr(doc, element, "functions.require", "");
+						addAttr(doc, element, "pageVisibility", "true");
+						addAttr(doc, element, "pageId", Long.toString(topLevelPageId));
+
+						lessonbuilder.appendChild(element);
+						count++;
+					}
+				}
+			} else {
+				Collection<ToolConfiguration> tools = site.getTools(myToolIds());
+				if (tools != null && !tools.isEmpty())
+				{
+					for (ToolConfiguration config: tools) {
+						element = doc.createElement(LESSONBUILDER);
+
+						addAttr(doc, element, "toolid", config.getPageId());
+						addAttr(doc, element, "name" , config.getContainingPage().getTitle());
+						addAttr(doc, element, "pagePosition" , config.getContainingPage().getPosition() + "");
+
+						Properties props = config.getPlacementConfig();
+						String roleList = StringUtils.trimToEmpty(props.getProperty("functions.require"));
+						String pageVisibility = StringUtils.trimToEmpty(props.getProperty(ToolManager.PORTAL_VISIBLE));
+
+						addAttr(doc, element, "functions.require", roleList);
+						addAttr(doc, element, "pageVisibility" , pageVisibility);
+
+						// should be impossible for these nulls, but we've seen it
+						if (simplePageToolDao.getTopLevelPageId(config.getPageId()) != null)
+							addAttr(doc, element, "pageId", Long.toString(simplePageToolDao.getTopLevelPageId(config.getPageId())));
+						else
+							log.warn("archive site {} tool page {} null lesson", siteId, config.getPageId());
+
+						lessonbuilder.appendChild(element);
+						count++;
 					}
 				}
 			}
 
-			log.info("Skipped over {} orphaned pages while archiving site {} ", orphansSkipped, siteId);
-
-			Collection<ToolConfiguration> tools = site.getTools(myToolIds());
-			int count = 0;
-			if (tools != null && !tools.isEmpty())
-			{
-				for (ToolConfiguration config: tools) {
-					element = doc.createElement(LESSONBUILDER);
-
-					addAttr(doc, element, "toolid", config.getPageId());
-					addAttr(doc, element, "name" , config.getContainingPage().getTitle());
-					addAttr(doc, element, "pagePosition" , config.getContainingPage().getPosition() + "");
-
-					Properties props = config.getPlacementConfig();
-					String roleList = StringUtils.trimToEmpty(props.getProperty("functions.require"));
-					String pageVisibility = StringUtils.trimToEmpty(props.getProperty(ToolManager.PORTAL_VISIBLE));
-
-					addAttr(doc, element, "functions.require", roleList);
-					addAttr(doc, element, "pageVisibility" , pageVisibility);
-
-					// should be impossible for these nulls, but we've seen it
-					if (simplePageToolDao.getTopLevelPageId(config.getPageId()) != null)
-						addAttr(doc, element, "pageId", Long.toString(simplePageToolDao.getTopLevelPageId(config.getPageId())));
-					else
-						log.warn("archive site {} tool page {} null lesson", siteId, config.getPageId());
-					// addPage(doc, element,  simplePageToolDao.getTopLevelPageId(config.getPageId()));
-
-					lessonbuilder.appendChild(element);
-					count++;
-				}
-
-				results.append("archiving " + count + " LessonBuilder instances.\n");
-
-			}
-			else
-			{
-				results.append("archiving no LessonBuilder instances.\n");
-			}
+			results.append("archiving " + count + " LessonBuilder instances.\n");
 
 			((Element) stack.peek()).appendChild(lessonbuilder);
 			stack.push(lessonbuilder);
@@ -646,6 +686,65 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		stack.pop();
 
 		return results.toString();
+	}
+
+	/**
+	 * Expands the selected page IDs to include all descendant pages
+	 */
+	private Set<Long> expandSelectionToIncludeDescendants(Set<Long> selectedPageIds, String siteId) {
+		if (selectedPageIds.isEmpty()) return selectedPageIds;
+
+		Set<Long> expandedIds = new HashSet<>(selectedPageIds);
+		List<SimplePage> allPages = simplePageToolDao.getSitePages(siteId);
+
+		if (allPages == null || allPages.isEmpty()) return expandedIds;
+
+		Map<Long, List<Long>> parentToChildren = new HashMap<>();
+		for (SimplePage page : allPages) {
+			Long parentId = page.getParent();
+			if (parentId != null) {
+				parentToChildren.computeIfAbsent(parentId, k -> new ArrayList<>())
+					.add(page.getPageId());
+			}
+		}
+
+		Queue<Long> toProcess = new LinkedList<>(selectedPageIds);
+
+		while (!toProcess.isEmpty()) {
+			Long currentPageId = toProcess.poll();
+			List<Long> children = parentToChildren.get(currentPageId);
+
+			if (children != null) {
+				for (Long childId : children) {
+					if (!expandedIds.contains(childId)) {
+						expandedIds.add(childId);
+						toProcess.offer(childId);
+					}
+				}
+			}
+		}
+
+		return expandedIds;
+	}
+
+	/**
+	 * Finds the top-level pages that should become new Lessons from the selected pages
+	 */
+	private Set<Long> findTopLevelSelectedPages(Set<Long> selectedPageIds, String siteId) {
+		Set<Long> topLevelPages = new HashSet<>();
+
+		for (Long pageId : selectedPageIds) {
+			SimplePage page = simplePageToolDao.getPage(pageId);
+			if (page == null) continue;
+
+			// If this page has no parent or its parent is not selected, it's a top-level page
+			Long parentId = page.getParent();
+			if (parentId == null || !selectedPageIds.contains(parentId)) {
+				topLevelPages.add(pageId);
+			}
+		}
+
+		return topLevelPages;
 	}
 
 	@Override
@@ -1914,7 +2013,15 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 			stack.push(root);
 
-			archive(fromContext, doc, stack, "/tmp/archive", null);
+			if (ids != null && !ids.isEmpty()) {
+				List<String> stringIds = new ArrayList<>();
+				for (Object id : ids) {
+					stringIds.add(id.toString());
+				}
+				archive(fromContext, doc, stack, "/tmp/archive", null, stringIds);
+			} else {
+				archive(fromContext, doc, stack, "/tmp/archive", null);
+			}
 
 			stack.pop();
 
