@@ -633,23 +633,24 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	    a.setContentReview(false);
 
 	    String gradable = resource.getChildText("gradable", ns);
-	    if (gradable == null || "false".equals(gradable))
+	    if (gradable == null || "false".equals(gradable)) {
 		a.setTypeOfGrade(Assignment.GradeType.UNGRADED_GRADE_TYPE);   // ungraded
+	    }
 	    else {
 		Element gradeElement = resource.getChild("gradable", ns);
 		String pointString = gradeElement.getAttributeValue("points_possible");
 		Double pointF = 100.0;
-		int points = 1000;
+		Integer scaleFactor = assignmentService.getScaleFactor();
+		int points = scaleFactor * 100; // default to 100 points scaled appropriately
 		if (pointString != null) {
 		    try {
 			pointF = Double.parseDouble(pointString);
-		    } catch (Exception ignore) {
-		    }
-		    // points is scaled by 10
-		    points = (int)Math.round(pointF * 10);
-		    if (points < 1)
-			points = 1000;
+		    } catch (Exception ignore) { }
+		    // points is scaled by the configured scale factor
+		    points = (int)Math.round(pointF * scaleFactor);
+		    if (points < 1) points = scaleFactor * 100; // default to 100 points scaled appropriately
 		}
+		a.setScaleFactor(scaleFactor);
 		a.setTypeOfGrade(Assignment.GradeType.SCORE_GRADE_TYPE);   // points
 		a.setMaxGradePoint(points);
 	    }
@@ -698,7 +699,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 
 	    return "/assignment/" + a.getId();
 	} catch (Exception e) {
-	    log.info("can't create assignment " + e);
+	    log.info("can't create assignment", e);
 	};
 	return null;
     }
@@ -734,7 +735,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
                     a.setInstructions(instructions.trim());
                 }
             } else {
-                a.setInstructions("");
+                a.setInstructions("<p></p>");
             }
             a.setHonorPledge(false);
             
@@ -767,7 +768,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
                     Integer scaleFactor = assignmentService.getScaleFactor();
                     a.setScaleFactor(scaleFactor);
                     int points = (int) Math.round(pointsDouble * scaleFactor);
-                    if (points < 1) points = scaleFactor; // default minimum scaled appropriately
+                    if (points < 1) points = 100 * scaleFactor;
                     a.setMaxGradePoint(points);
                     a.setTypeOfGrade(Assignment.GradeType.SCORE_GRADE_TYPE);
                 } catch (NumberFormatException e) {
@@ -784,7 +785,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
             
             // Due date
             String dueDateStr = assignmentXml.getChildText("due_at", canvasNs);
-            Instant dueDate = now.plus(365, ChronoUnit.DAYS); // default to 1 year from now
+            Instant dueDate = now.plus(30, ChronoUnit.DAYS); // default to 1 month from now
             if (dueDateStr != null && !dueDateStr.trim().isEmpty()) {
                 try {
                     // Canvas uses ISO 8601 format: 2025-05-10T04:59:59
@@ -818,9 +819,6 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
             a.setAllowAttachments(true);
             a.setContext(context);
             a.setTypeOfAccess(Assignment.Access.SITE);
-            a.setGroups(new HashSet<>());
-            a.setSection("");
-            a.setContentReview(false);
             
             // Save the assignment
             assignmentService.updateAssignment(a);
