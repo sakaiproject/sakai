@@ -35,6 +35,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
 import org.jdom2.Element;
 import org.jdom2.Namespace;
 import org.sakaiproject.assignment.api.AssignmentService;
@@ -721,13 +724,15 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
             
             // Instructions - use HTML instructions from Canvas assignment
             if (instructions != null && !instructions.trim().isEmpty()) {
-                // Clean up HTML - remove DOCTYPE, html, head, body tags but keep content formatting
-                String cleanInstructions = instructions.replaceAll("<!DOCTYPE[^>]*>", "")
-                    .replaceAll("<html[^>]*>", "").replaceAll("</html>", "")
-                    .replaceAll("<head[^>]*>.*?</head>", "")
-                    .replaceAll("<body[^>]*>", "").replaceAll("</body>", "")
-                    .trim();
-                a.setInstructions(cleanInstructions);
+                // Use JSoup to extract the body content and clean up HTML
+                try {
+                    Document doc = Jsoup.parse(instructions);
+                    String cleanInstructions = doc.body().html().trim();
+                    a.setInstructions(cleanInstructions);
+                } catch (Exception e) {
+                    // Fallback to original content if JSoup parsing fails
+                    a.setInstructions(instructions.trim());
+                }
             } else {
                 a.setInstructions("");
             }
@@ -757,10 +762,12 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
                 a.setTypeOfGrade(Assignment.GradeType.UNGRADED_GRADE_TYPE);
             } else if ("points".equals(gradingType) && pointsPossible != null) {
                 try {
-                    Double pointsDouble = Double.parseDouble(pointsPossible);
-                    // Sakai stores points scaled by 10
-                    int points = (int) Math.round(pointsDouble * 10);
-                    if (points < 1) points = 1000; // default minimum
+                    double pointsDouble = Double.parseDouble(pointsPossible);
+                    // Use the proper scale factor from assignment service
+                    Integer scaleFactor = assignmentService.getScaleFactor();
+                    a.setScaleFactor(scaleFactor);
+                    int points = (int) Math.round(pointsDouble * scaleFactor);
+                    if (points < 1) points = scaleFactor; // default minimum scaled appropriately
                     a.setMaxGradePoint(points);
                     a.setTypeOfGrade(Assignment.GradeType.SCORE_GRADE_TYPE);
                 } catch (NumberFormatException e) {
