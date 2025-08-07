@@ -6197,8 +6197,6 @@ public class AssignmentAction extends PagedResourceActionII {
         state.removeAttribute(SEARCH_ASSIGNMENTS);
     }
 
-
-
     /**
      * Filter the assignments list by AssignmentFilter
      */
