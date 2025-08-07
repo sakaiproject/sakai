@@ -6197,18 +6197,7 @@ public class AssignmentAction extends PagedResourceActionII {
         state.removeAttribute(SEARCH_ASSIGNMENTS);
     }
 
-    /**
-     * Clear search form - used by doView method
-     */
-    public void doSearch_clear(RunData data, Context context) {
-        SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-    
-        state.removeAttribute(SEARCH_ASSIGNMENTS);
-        state.removeAttribute(VIEW_SUBMISSION_SEARCH);
-        state.removeAttribute(STATE_SEARCH);
-        state.removeAttribute(TAG_SELECTOR);
-        state.removeAttribute(GB_SELECTOR);
-    }
+
 
     /**
      * Filter the assignments list by AssignmentFilter
@@ -13931,6 +13920,8 @@ public class AssignmentAction extends PagedResourceActionII {
 
             // clear search form
             doSearch_clear(data, null);
+            
+            state.removeAttribute(TAG_SELECTOR);
 
             String viewMode = data.getParameters().getString("view");
             state.setAttribute(STATE_SELECTED_VIEW, viewMode);
