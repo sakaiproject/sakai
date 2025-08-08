@@ -464,6 +464,7 @@ public class SamLiteServiceImpl implements SamLiteService {
 		buildMetaDataField(sectionMetaData, "SECTION_OBJECTIVE", "");
 		buildMetaDataField(sectionMetaData, "SECTION_KEYWORD", "");
 		buildMetaDataField(sectionMetaData, "SECTION_RUBRIC", "");
+		buildMetaDataField(sectionMetaData, "AUTHOR_TYPE", "");
 		
 		PresentationMaterialType sectionPresentationMaterial = section.addNewPresentationMaterial();
 		FlowMatType spFlowMat = sectionPresentationMaterial.addNewFlowMat();
