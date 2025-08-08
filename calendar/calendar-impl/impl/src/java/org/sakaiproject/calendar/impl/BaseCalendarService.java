@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.Collator;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -70,7 +71,6 @@ import org.sakaiproject.calendar.api.*;
 import org.sakaiproject.calendar.api.CalendarEvent.EventAccess;
 import org.sakaiproject.calendar.api.ExternalCalendarSubscriptionService;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
@@ -157,7 +157,9 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	@Setter protected LinkMigrationHelper linkMigrationHelper;
    	private PDFExportService pdfExportService;
 
-	private GroupComparator groupComparator = new GroupComparator();
+	private final Comparator<Group> groupComparator = (g1, g2) -> Collator
+			.getInstance(rb.getLocale())
+			.compare(g1.getTitle(), g2.getTitle());
 	
 	public static final String UI_SERVICE = "ui.service";
 	
@@ -334,9 +336,9 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	} // eventSubscriptionReference
 
 	@Override
-	public CalendarEventVector getEvents(List references, TimeRange range, boolean reverseOrder) {
+	public CalendarEventList getEvents(List references, TimeRange range, boolean reverseOrder) {
 
-		CalendarEventVector calendarEventVector = null;
+		CalendarEventList calendarEventList = null;
 
 		if (references != null) {
 			if (range == null) {
@@ -381,7 +383,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 						continue;
 					}
 
-					allEvents.addAll(new CalendarEventVector(calEvent));
+					allEvents.addAll(new CalendarEventList(calEvent));
 				}
 			}
 
@@ -392,10 +394,10 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			}
 
 			// Build up a CalendarEventVector and return it.
-			calendarEventVector = new CalendarEventVector(allEvents.iterator());
+			calendarEventList = new CalendarEventList(allEvents.iterator());
 		}
 
-		return calendarEventVector;
+		return calendarEventList;
 	}
 
 	private List<CalendarEvent> getEvents(List<String> references, TimeRange range, boolean reverseOrder, Integer limit) {
@@ -431,7 +433,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	}
 	
 	@Override
-	public CalendarEventVector getEvents(List references, TimeRange range)
+	public CalendarEventList getEvents(List references, TimeRange range)
 	{
 		return this.getEvents(references, range, false);
 	}
@@ -2279,37 +2281,34 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		 * @exception PermissionException
 		 *            if the user does not have read permission to the calendar.
 		 */
-		public List getEvents(TimeRange range, Filter filter) throws PermissionException {
+		@Override
+		public List<CalendarEvent> getEvents(TimeRange range, Filter filter) throws PermissionException {
 			return getEvents(range, filter, null);
 		}
 
-		public List getEvents(TimeRange range, Filter filter, Integer limit) throws PermissionException {
+		@Override
+		public List<CalendarEvent> getEvents(TimeRange range, Filter filter, Integer limit) throws PermissionException {
 
 			// check security (throws if not permitted)
 			unlock(AUTH_READ_CALENDAR, getReference());
 
-			List events = m_storage.getEvents(this, range, limit);
+			List<CalendarEvent> events = m_storage.getEvents(this, range, limit);
 
 			// now filter out the events to just those in the range
 			// Note: if no range, we won't filter, which means we don't expand recurring events, but just
 			// return it as a single event. This is very good for an archive... -ggolden
-			if (range != null)
-			{
+			if (range != null) {
 				events = filterEvents(events, range);
 			}
 
-			if (events.size() == 0) return events;
+			if (events.isEmpty()) return events;
 
 			// filter out based on the filter
-			if (filter != null)
-			{
-				List filtered = new Vector();
-				for (int i = 0; i < events.size(); i++)
-				{
-					Event event = (Event) events.get(i);
-					if (filter.accept(event)) filtered.add(event);
-				}
-				if (filtered.size() == 0) return filtered;
+			if (filter != null) {
+				List<CalendarEvent> filtered = events.stream()
+						.filter(filter::accept)
+						.collect(Collectors.toList());
+                if (filtered.isEmpty()) return filtered;
 				events = filtered;
 			}
 
@@ -2349,21 +2348,12 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		 *        The time range.
 		 * @return A list of events from the incoming list that overlap the given time range.
 		 */
-		protected List filterEvents(List events, TimeRange range)
-		{
-			List filtered = new Vector();
-			for (int i = 0; i < events.size(); i++)
-			{
-				CalendarEvent event = (CalendarEvent) events.get(i);
-
-				// resolve the event to the list of events in this range
-				List resolved = ((BaseCalendarEventEdit) event).resolve(range);
-				filtered.addAll(resolved);
-			}
-
-			return filtered;
-
-		} // filterEvents
+		protected List<CalendarEvent> filterEvents(List<CalendarEvent> events, TimeRange range) {
+            return events.stream()
+                    .map(event -> ((BaseCalendarEventEdit) event).resolve(range))
+                    .flatMap(Collection::stream)
+                    .collect(Collectors.toList());
+		}
 
 		/**
 		 * Return a specific calendar event, as specified by event id.
@@ -3240,77 +3230,59 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			m_active = false;
 
 		} // closeEdit
-		
+
 		@Override
-		public Collection getGroupsAllowAddEvent() 
-		{
+		public Collection<Group> getGroupsAllowAddEvent() {
 			return getGroupsAllowFunction(AUTH_ADD_CALENDAR);
 		}
 
 		@Override
-		public Collection getGroupsAllowGetEvent() 
-		{
+		public Collection<Group> getGroupsAllowGetEvent() {
 			return getGroupsAllowFunction(AUTH_READ_CALENDAR);
 		}
-		
+
 		@Override
-		public Collection getGroupsAllowRemoveEvent( boolean own ) 
-		{
-         return getGroupsAllowFunction(own ? AUTH_REMOVE_CALENDAR_OWN : AUTH_REMOVE_CALENDAR_ANY );
+		public Collection<Group> getGroupsAllowRemoveEvent(boolean own) {
+			return getGroupsAllowFunction(own ? AUTH_REMOVE_CALENDAR_OWN : AUTH_REMOVE_CALENDAR_ANY);
 		}
 
 		/**
 		 * Get the groups of this channel's contex-site that the end user has permission to "function" in.
 		 * @param function The function to check
 		 */
-		protected Collection getGroupsAllowFunction(String function)
-		{
-			Vector rv = new Vector();
+		protected Collection<Group> getGroupsAllowFunction(String function) {
+			// get the channel's site's groups
+			Collection<Group> groups;
+            try {
+                Site site = siteService.getSite(m_context);
+                groups = site.getGroups();
+            } catch (IdUnusedException e) {
+				return Collections.emptyList();
+            }
 
-			try
-			{
-				// get the channel's site's groups
-				Site site = siteService.getSite(m_context);
-				Collection groups = site.getGroups();
+			// If the user has SECURE_ALL_GROUPS permission in the site context and calendar function permission,
+			if (securityService.isSuperUser() ||
+					(securityService.unlock(sessionManager.getCurrentSessionUserId(), SECURE_ALL_GROUPS, siteService.siteReference(m_context))
+							&& unlockCheck(function, getReference()))) {
 
-				// if the user has SECURE_ALL_GROUPS in the context (site), and the function for the calendar (calendar,site), select all site groups
-				if ((securityService.isSuperUser()) || (securityService.unlock(sessionManager.getCurrentSessionUserId(), SECURE_ALL_GROUPS, siteService.siteReference(m_context))
-						&& unlockCheck(function, getReference())))
-				{
-					rv.addAll( groups );
-					Collections.sort( rv, groupComparator );
-					return (Collection)rv;
-				}
-	
-				// otherwise, check the groups for function
-
-				// get a list of the group refs, which are authzGroup ids
-				Collection groupRefs = new Vector();
-				for (Iterator i = groups.iterator(); i.hasNext();)
-				{
-					Group group = (Group) i.next();
-					groupRefs.add(group.getReference());
-				}
-			
-				// ask the authzGroup service to filter them down based on function
-				groupRefs = authzGroupService.getAuthzGroupsIsAllowed(sessionManager.getCurrentSessionUserId(), function, groupRefs);
-
-				// pick the Group objects from the site's groups to return, those that are in the groupRefs list
-				for (Iterator i = groups.iterator(); i.hasNext();)
-				{
-					Group group = (Group) i.next();
-					if (groupRefs.contains(group.getReference()))
-					{
-						rv.add(group);
-					}
-				}
+				// return all site groups sorted by the group comparator
+				return groups.stream()
+						.sorted(groupComparator)
+						.collect(Collectors.toList());
 			}
-			catch (IdUnusedException ignore) {}
+			// otherwise, check the groups for function
+			Collection<String> groupRefs = groups.stream()
+					.map(Group::getReference)
+					.collect(Collectors.toSet());
+			// ask the authzGroup service to filter them down based on function
+			Collection<String> filteredGroupRefs = authzGroupService.getAuthzGroupsIsAllowed(sessionManager.getCurrentSessionUserId(), function, groupRefs);
 
-			Collections.sort( rv, groupComparator );
-			return (Collection)rv;
-			
-		} // getGroupsAllowFunction
+			// pick the Group objects from the site's groups to return, those that are in the groupRefs list
+			return groups.stream()
+					.filter(group -> filteredGroupRefs.contains(group.getReference()))
+					.sorted(groupComparator)
+					.collect(Collectors.toList());
+		}
 
 		/******************************************************************************************************************************************************************************************************************************************************
 		 * SessionBindingListener implementation
@@ -3411,7 +3383,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		protected boolean m_active = false;
 		
 		/** The Collection of groups (authorization group id strings). */
-		protected Collection m_groups = new Vector();
+		protected Collection<String> m_groups = new ArrayList<>();
 		
 		/** The message access. */
 		protected EventAccess m_access = EventAccess.SITE;
@@ -3638,7 +3610,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			m_properties.addAll(other.getProperties());
 			
 			m_access = other.getAccess();
-			m_groups = new Vector();
+			m_groups = new ArrayList<>();
 			m_groups.addAll(other.getGroups());
 
 			// copy the attachments
@@ -3668,7 +3640,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			m_properties.addAll(other.getProperties());
 			
 			m_access = other.getAccess();
-			m_groups = new Vector();
+			m_groups = new ArrayList<>();
 			m_groups.addAll(other.getGroups());
 			
 			// copy the attachments
@@ -3871,55 +3843,34 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		 *        The time range bounds for the events returned.
 		 * @return a List (CalendarEvent) of all events and recurrences within the time range, including this, possibly empty.
 		 */
-		protected List resolve(TimeRange range)
-		{
-			List rv = new Vector();
+		protected List<CalendarEvent> resolve(TimeRange range) {
+			List<CalendarEvent> rv = new ArrayList<>();
 
 			// for no rules, use the event if it's in range
-			if (m_singleRule == null)
-			{
+			if (m_singleRule == null) {
 				// the actual event
-				if (range.overlaps(getRange()))
-				{
+				if (range.overlaps(getRange())) {
 					rv.add(this);
 				}
-			}
-
-			// for rules...
-			else
-			{
-				
+			} else {
 				// for a re-occurring event, the time zone where the first event is created
 				// is passed as a parameter (timezone) to correctly generate the instances 
 				String timeZoneID = this.getField("createdInTimeZone");
-				TimeZone timezone = null;
-				if (timeZoneID.equals(""))
-				{
-					timezone = timeService.getLocalTimeZone();
-				}
-				else
-				{
-					timezone = TimeZone.getTimeZone(timeZoneID);
-				}
-				List instances = m_singleRule.generateInstances(this.getRange(), range, timezone);
+				TimeZone timezone = timeZoneID == null || timeZoneID.isEmpty() 
+						? timeService.getLocalTimeZone() 
+						: TimeZone.getTimeZone(timeZoneID);
+				List<RecurrenceInstance> instances = m_singleRule.generateInstances(this.getRange(), range, timezone);
 
 				// remove any excluded
 				getExclusionRule().excludeInstances(instances);
 
-				for (Iterator iRanges = instances.iterator(); iRanges.hasNext();)
-				{
-					RecurrenceInstance ri = (RecurrenceInstance) iRanges.next();
-
-					// generate an event object that is exactly like me but with this range and no rules
-					CalendarEvent clone = new BaseCalendarEventEdit(this, ri);
-
-					rv.add(clone);
-				}
+                // generate an event object that is exactly like me but with this range and no rules
+                rv = instances.stream()
+						.map(ri -> new BaseCalendarEventEdit(this, ri))
+						.collect(Collectors.toList());
 			}
-
 			return rv;
-
-		} // resolve
+		}
 
 		/**
 		 * Get the value of an "extra" event field.
@@ -4398,37 +4349,20 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		}
 		
 		@Override
-		public Collection getGroups() 
-		{
-			return new Vector(m_groups);
+		public Collection<String> getGroups() {
+			return new ArrayList<>(m_groups);
 		}
 
 		@Override
-		public Collection getGroupObjects()
-		{
-			Vector rv = new Vector();
-			if (m_groups != null)
-			{
-				for (Iterator i = m_groups.iterator(); i.hasNext();)
-				{
-					String groupId = (String) i.next();
-					Group group = siteService.findGroup(groupId);
-					if (group != null)
-					{
-						rv.add(group);
-					}
-				}
-			}
-
-			return rv;
+		public Collection<Group> getGroupObjects() {
+			if (m_groups == null) return Collections.emptyList();
+			return m_groups.stream().map(g -> siteService.findGroup(g)).filter(Objects::nonNull).toList();
 		}
 
 		@Override
-		public void setGroupAccess(Collection groups, boolean own) throws PermissionException
-		{
+		public void setGroupAccess(Collection<Group> groups, boolean own) throws PermissionException {
 			// convenience (and what else are we going to do?)
-			if ((groups == null) || (groups.size() == 0))
-			{
+			if (groups == null || (groups.isEmpty())) {
 				clearGroupAccess();
 				return;
 			}
@@ -4437,44 +4371,34 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			if ((m_access == EventAccess.GROUPED) && (EntityCollections.isEqualEntityRefsToEntities(m_groups, groups))) return;
 
 			// isolate any groups that would be removed or added
-			Collection addedGroups = new Vector();
-			Collection removedGroups = new Vector();
+			Collection<String> addedGroups = new ArrayList<>();
+			Collection<String> removedGroups = new ArrayList<>();
 			EntityCollections.computeAddedRemovedEntityRefsFromNewEntitiesOldRefs(addedGroups, removedGroups, groups, m_groups);
 
 			// verify that the user has permission to remove
-			if (removedGroups.size() > 0)
-			{
+			if (!removedGroups.isEmpty()) {
 				// the Group objects the user has remove permission
-				Collection allowedGroups = m_calendar.getGroupsAllowRemoveEvent(own);
+				Collection<Group> allowedGroups = m_calendar.getGroupsAllowRemoveEvent(own);
 
-				for (Iterator i = removedGroups.iterator(); i.hasNext();)
-				{
-					String ref = (String) i.next();
-
-					// is ref a group the user can remove from?
-					if ( !EntityCollections.entityCollectionContainsRefString(allowedGroups, ref) )
-					{
-						throw new PermissionException(sessionManager.getCurrentSessionUserId(), "access:group:remove", ref);
-					}
-				}
+                for (String ref : removedGroups) {
+                    // is ref a group the user can remove from?
+                    if (!EntityCollections.entityCollectionContainsRefString(allowedGroups, ref)) {
+                        throw new PermissionException(sessionManager.getCurrentSessionUserId(), "access:group:remove", ref);
+                    }
+                }
 			}
 			
 			// verify that the user has permission to add in those contexts
-			if (addedGroups.size() > 0)
-			{
+			if (!addedGroups.isEmpty()) {
 				// the Group objects the user has add permission
-				Collection allowedGroups = m_calendar.getGroupsAllowAddEvent();
+				Collection<Group> allowedGroups = m_calendar.getGroupsAllowAddEvent();
 
-				for (Iterator i = addedGroups.iterator(); i.hasNext();)
-				{
-					String ref = (String) i.next();
-
-					// is ref a group the user can remove from?
-					if (!EntityCollections.entityCollectionContainsRefString(allowedGroups, ref))
-					{
-						throw new PermissionException(sessionManager.getCurrentSessionUserId(), "access:group:add", ref);
-					}
-				}
+                for (String ref : addedGroups) {
+                    // is ref a group the user can remove from?
+                    if (!EntityCollections.entityCollectionContainsRefString(allowedGroups, ref)) {
+                        throw new PermissionException(sessionManager.getCurrentSessionUserId(), "access:group:add", ref);
+                    }
+                }
 			}
 			
 			// we are clear to perform this
@@ -5069,8 +4993,8 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		TimeRange currentTimeRange = getICalTimeRange();
 
 		// Get a list of events.
-		CalendarEventVector calendarEventVector = getEvents(calRefs, currentTimeRange);
-		Iterator itEvent = calendarEventVector.iterator();
+		CalendarEventList calendarEventList = getEvents(calRefs, currentTimeRange);
+		Iterator itEvent = calendarEventList.iterator();
 
 		// Generate XML for all the events.
 		while (itEvent.hasNext())
@@ -5432,14 +5356,6 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		return transversalMap;
 	}
 
-	/** 
-	 ** Comparator for sorting Group objects
-	 **/
-	private class GroupComparator implements Comparator {
-		public int compare(Object o1, Object o2) {
-			return ((Group)o1).getTitle().compareToIgnoreCase( ((Group)o2).getTitle() );
-		}
-	}
 	
 	public String calendarOpaqueUrlReference(Reference ref)
 	{
