@@ -28,10 +28,10 @@
     <sakai.commons.lang3.version>3.18.0</sakai.commons.lang3.version>
     <sakai.commons.fileupload.version>1.6.0</sakai.commons.fileupload.version>
     <sakai.commons-math3.version>3.6.1</sakai.commons-math3.version>
-    <sakai.commons-text.version>1.13.1</sakai.commons-text.version>
+    <sakai.commons-text.version>1.14.0</sakai.commons-text.version>
     <sakai.commons-validator.version>1.7</sakai.commons-validator.version>
     <sakai.commons.configuration2.version>2.12.0</sakai.commons.configuration2.version>
-    <sakai.commons.net>3.11.1</sakai.commons.net>
+    <sakai.commons.net>3.12.0</sakai.commons.net>
     <sakai.ehcache.groupId>net.sf.ehcache</sakai.ehcache.groupId>
     <sakai.ehcache.artifactId>ehcache-core</sakai.ehcache.artifactId>
     <sakai.ehcache.version>2.6.11</sakai.ehcache.version>
@@ -792,13 +792,13 @@
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-compress</artifactId>
-        <version>1.27.1</version>
+        <version>1.28.0</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>commons-beanutils</groupId>
         <artifactId>commons-beanutils</artifactId>
-        <version>1.10.1</version>
+        <version>1.11.0</version>
         <scope>provided</scope>
         <exclusions>
           <exclusion>
