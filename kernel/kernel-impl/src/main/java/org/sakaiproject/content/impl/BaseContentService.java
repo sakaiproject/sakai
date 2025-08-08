@@ -6521,14 +6521,15 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 					disposition = Web.buildContentDisposition(fileName, true);
 				}
 
-				// NOTE: Only set the encoding on the content we have to.
-				// Files uploaded by the user may have been created with different encodings, such as ISO-8859-1;
-				// rather than (sometimes wrongly) saying its UTF-8, let the browser auto-detect the encoding.
-				// If the content was created through the WYSIWYG editor, the encoding does need to be set (UTF-8).
+				// Set UTF-8 encoding for text-based files to fix display of non-ASCII characters
 				String encoding = resource.getProperties().getProperty(ResourceProperties.PROP_CONTENT_ENCODING);
 				if (encoding != null && encoding.length() > 0)
 				{
 					contentType = contentType + "; charset=" + encoding;
+				}
+				else if (contentType.startsWith("text/"))
+				{
+					contentType = contentType + "; charset=UTF-8";
 				}
 
 				// KNL-1316 let's see if the user already has a cached copy. Code copied and modified from Tomcat DefaultServlet.java
