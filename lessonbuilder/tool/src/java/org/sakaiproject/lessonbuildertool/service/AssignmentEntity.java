@@ -26,6 +26,7 @@ package org.sakaiproject.lessonbuildertool.service;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -33,6 +34,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
 import org.jdom2.Element;
 import org.jdom2.Namespace;
@@ -629,23 +633,24 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	    a.setContentReview(false);
 
 	    String gradable = resource.getChildText("gradable", ns);
-	    if (gradable == null || "false".equals(gradable))
+	    if (gradable == null || "false".equals(gradable)) {
 		a.setTypeOfGrade(Assignment.GradeType.UNGRADED_GRADE_TYPE);   // ungraded
+	    }
 	    else {
 		Element gradeElement = resource.getChild("gradable", ns);
 		String pointString = gradeElement.getAttributeValue("points_possible");
 		Double pointF = 100.0;
-		int points = 1000;
+		Integer scaleFactor = assignmentService.getScaleFactor();
+		int points = scaleFactor * 100; // default to 100 points scaled appropriately
 		if (pointString != null) {
 		    try {
 			pointF = Double.parseDouble(pointString);
-		    } catch (Exception ignore) {
-		    }
-		    // points is scaled by 10
-		    points = (int)Math.round(pointF * 10);
-		    if (points < 1)
-			points = 1000;
+		    } catch (Exception ignore) { }
+		    // points is scaled by the configured scale factor
+		    points = (int)Math.round(pointF * scaleFactor);
+		    if (points < 1) points = scaleFactor * 100; // default to 100 points scaled appropriately
 		}
+		a.setScaleFactor(scaleFactor);
 		a.setTypeOfGrade(Assignment.GradeType.SCORE_GRADE_TYPE);   // points
 		a.setMaxGradePoint(points);
 	    }
@@ -694,9 +699,137 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 
 	    return "/assignment/" + a.getId();
 	} catch (Exception e) {
-	    log.info("can't create assignment " + e);
+	    log.info("can't create assignment", e);
 	};
 	return null;
+    }
+
+    /**
+     * Import a Canvas assignment from Canvas assignment_settings.xml format
+     */
+    public String importCanvasAssignment(Element assignmentXml, String instructions, boolean hide) {
+        String context = ToolManager.getCurrentPlacement().getContext();
+        try {
+            Assignment a = assignmentService.addAssignment(context);
+            
+            // Parse Canvas assignment XML with Canvas namespace
+            Namespace canvasNs = assignmentXml.getNamespace();
+            
+            // Title
+            String title = assignmentXml.getChildText("title", canvasNs);
+            if (title != null) {
+                a.setTitle(title.trim());
+            } else {
+                a.setTitle("Untitled Assignment");
+            }
+            
+            // Instructions - use HTML instructions from Canvas assignment
+            if (instructions != null && !instructions.trim().isEmpty()) {
+                // Use JSoup to extract the body content and clean up HTML
+                try {
+                    Document doc = Jsoup.parse(instructions);
+                    String cleanInstructions = doc.body().html().trim();
+                    a.setInstructions(cleanInstructions);
+                } catch (Exception e) {
+                    // Fallback to original content if JSoup parsing fails
+                    a.setInstructions(instructions.trim());
+                }
+            } else {
+                a.setInstructions("<p></p>");
+            }
+            a.setHonorPledge(false);
+            
+            // Parse submission types
+            String submissionTypes = assignmentXml.getChildText("submission_types", canvasNs);
+            Assignment.SubmissionType submitType = Assignment.SubmissionType.TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION; // default
+            if (submissionTypes != null) {
+                if ("not_graded".equals(submissionTypes)) {
+                    submitType = Assignment.SubmissionType.ASSIGNMENT_SUBMISSION_TYPE_NONE;
+                } else if (submissionTypes.contains("online_text_entry") && submissionTypes.contains("online_upload")) {
+                    submitType = Assignment.SubmissionType.TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION;
+                } else if (submissionTypes.contains("online_text_entry")) {
+                    submitType = Assignment.SubmissionType.TEXT_ONLY_ASSIGNMENT_SUBMISSION;
+                } else if (submissionTypes.contains("online_upload")) {
+                    submitType = Assignment.SubmissionType.ATTACHMENT_ONLY_ASSIGNMENT_SUBMISSION;
+                }
+            }
+            a.setTypeOfSubmission(submitType);
+            
+            // Parse grading type and points
+            String gradingType = assignmentXml.getChildText("grading_type", canvasNs);
+            String pointsPossible = assignmentXml.getChildText("points_possible", canvasNs);
+            
+            if ("not_graded".equals(gradingType)) {
+                a.setTypeOfGrade(Assignment.GradeType.UNGRADED_GRADE_TYPE);
+            } else if ("points".equals(gradingType) && pointsPossible != null) {
+                try {
+                    double pointsDouble = Double.parseDouble(pointsPossible);
+                    // Use the proper scale factor from assignment service
+                    Integer scaleFactor = assignmentService.getScaleFactor();
+                    a.setScaleFactor(scaleFactor);
+                    int points = (int) Math.round(pointsDouble * scaleFactor);
+                    if (points < 1) points = 100 * scaleFactor;
+                    a.setMaxGradePoint(points);
+                    a.setTypeOfGrade(Assignment.GradeType.SCORE_GRADE_TYPE);
+                } catch (NumberFormatException e) {
+                    log.warn("Invalid points_possible value: {}", pointsPossible);
+                    a.setTypeOfGrade(Assignment.GradeType.UNGRADED_GRADE_TYPE);
+                }
+            } else {
+                a.setTypeOfGrade(Assignment.GradeType.UNGRADED_GRADE_TYPE);
+            }
+            
+            // Parse dates
+            Instant now = Instant.now();
+            a.setOpenDate(now);
+            
+            // Due date
+            String dueDateStr = assignmentXml.getChildText("due_at", canvasNs);
+            Instant dueDate = now.plus(30, ChronoUnit.DAYS); // default to 1 month from now
+            if (dueDateStr != null && !dueDateStr.trim().isEmpty()) {
+                try {
+                    // Canvas uses ISO 8601 format: 2025-05-10T04:59:59
+                    dueDate = Instant.parse(dueDateStr.trim() + "Z"); // Add Z for UTC if not present
+                } catch (Exception e) {
+                    log.warn("Failed to parse Canvas due date: {}, using default", dueDateStr);
+                }
+            }
+            a.setDueDate(dueDate);
+            
+            // Close date - use due date as close date
+            a.setCloseDate(dueDate);
+            
+            // Unlock date  
+            String unlockDateStr = assignmentXml.getChildText("unlock_at", canvasNs);
+            if (unlockDateStr != null && !unlockDateStr.trim().isEmpty()) {
+                try {
+                    Instant unlockDate = Instant.parse(unlockDateStr.trim() + "Z");
+                    a.setOpenDate(unlockDate);
+                } catch (Exception e) {
+                    log.warn("Failed to parse Canvas unlock date: {}, using current time", unlockDateStr);
+                }
+            }
+            
+            // Draft status - Canvas workflow_state
+            String workflowState = assignmentXml.getChildText("workflow_state", canvasNs);
+            boolean isDraft = !"published".equals(workflowState) || hide;
+            a.setDraft(isDraft);
+            
+            // Standard assignment settings
+            a.setAllowAttachments(true);
+            a.setContext(context);
+            a.setTypeOfAccess(Assignment.Access.SITE);
+            
+            // Save the assignment
+            assignmentService.updateAssignment(a);
+            
+            log.info("Created Canvas assignment: {} with ID: {}", title, a.getId());
+            return "/assignment/" + a.getId();
+            
+        } catch (Exception e) {
+            log.error("Failed to create Canvas assignment", e);
+            return null;
+        }
     }
 
     public String removeDotDot(String s) {
