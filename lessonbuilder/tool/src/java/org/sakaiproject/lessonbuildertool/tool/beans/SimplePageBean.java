@@ -977,8 +977,16 @@ public class SimplePageBean {
                 date = date.substring(0,19);
                 this.releaseDate = isoDateFormat.parse(date);
             } catch (Exception e) {
-                log.error("{}bad format releasedate {}", e, date);
-                this.releaseDate = null;
+                log.warn("{}bad format releasedate {}", e, date);
+                try {
+                    DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
+                    TimeZone tz = userTimeService.getLocalTimeZone();
+                    format.setTimeZone(tz);
+                    this.releaseDate = format.parse(date);
+                } catch (Exception e2) {
+                    log.warn("{}bad format releasedate {}", e2, date);
+                    this.releaseDate = null;
+                }
             }
         }
     }
