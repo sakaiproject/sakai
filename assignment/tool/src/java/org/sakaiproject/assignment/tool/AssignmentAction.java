@@ -14241,9 +14241,20 @@ public class AssignmentAction extends PagedResourceActionII {
      */
     protected List<AssignmentSubmission> getFilteredSubmitters(SessionState state, String aRef) {
         String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
-        String allOrOneGroup = (String) state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
         String search = (String) state.getAttribute(VIEW_SUBMISSION_SEARCH);
-        Boolean searchFilterOnly = (state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE : Boolean.FALSE);
+
+        Assignment assignment = getAssignment(aRef, "getFilteredSubmitters", state);
+        Boolean searchFilterOnly;
+        String allOrOneGroup;
+        if (assignment != null && assignment.getIsGroup()) {
+            // For group assignments, ignore SUBMISSIONS_SEARCH_ONLY filter since group filtering/search is not available
+            // Also ensure allOrOneGroup is "all"
+            searchFilterOnly = Boolean.FALSE;
+            allOrOneGroup = "all";
+        } else {
+            searchFilterOnly = (state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE : Boolean.FALSE);
+            allOrOneGroup = (String) state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
+        }
 
         Map<User, AssignmentSubmission> submitters = assignmentService.getSubmitterMap(searchFilterOnly.toString(), allOrOneGroup, search, aRef, contextString);
 
