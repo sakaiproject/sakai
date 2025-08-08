@@ -22,6 +22,7 @@ export class SakaiSearch extends SakaiElement {
     this.iconMapping = {
       "announcement": "si si-sakai-announcements",
       "assignments": "si si-sakai-assignment-grades",
+      "calendar": "si si-sakai-schedule",
       "chat": "si si-sakai-chat",
       "sakai.conversations": "si si-sakai-conversations",
       "forums": "si si-sakai-forums",
@@ -37,6 +38,7 @@ export class SakaiSearch extends SakaiElement {
       this.toolNameMapping = {
         "announcement": this._i18n.toolname_announcement,
         "assignments": this._i18n.toolname_assignment,
+        "calendar": this._i18n.toolname_calendar,
         "chat": this._i18n.toolname_chat,
         "sakai.conversations": this._i18n.toolname_conversations,
         "forums": this._i18n.toolname_forum,

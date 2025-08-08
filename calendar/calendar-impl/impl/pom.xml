@@ -181,6 +181,14 @@
             <version>${sakai.powermock.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.search</groupId>
+            <artifactId>search-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.search</groupId>
+            <artifactId>search-util</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
