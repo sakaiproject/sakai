@@ -2,6 +2,9 @@
 
 <script> ## This needs to be closed in order for the loads to happen before we use "$"
 includeLatestJQuery('sakai_filepicker_attach.vm');
+if (window.location !== window.parent.location) {
+  includeWebjarLibrary('bootstrap', {includeCss: true});
+}
 </script>
 
 <script type="text/javascript">
