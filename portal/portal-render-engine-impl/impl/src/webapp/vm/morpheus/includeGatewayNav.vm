@@ -10,7 +10,7 @@
                     </a>
                     <a class="Mrphs-sitesNav__dropdown" href="#" data-site-id="${site.siteId}" aria-haspopup="true" title="$rloader.getFormattedMessage("sit_open_menu", $site.fullTitle)"></a>
                 </li>
-            #end ## END of FOREACH ( $site in $tabsSites.tabsSites )
+            #end
         </ul>
     </div>
 </nav> <!-- /Mrphs-sitesNav -->
