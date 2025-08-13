@@ -54,6 +54,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -625,8 +626,19 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			int count = 0;
 			if (hasSelection) {
 				Set<Long> topLevelSelectedPages = findTopLevelSelectedPages(selectedPageIds, siteId);
+				// Filter out top-level selections that are orphans (not exported as pages)
+				List<Long> orderedTopLevelPages = new ArrayList<>();
+				for (Long id : topLevelSelectedPages) {
+					if (orphanFinder.isOrphan(id)) {
+						selectionSkipped++;
+						continue;
+					}
+					orderedTopLevelPages.add(id);
+				}
+				// Ensure deterministic ordering of placements
+				Collections.sort(orderedTopLevelPages);
 
-				for (Long topLevelPageId : topLevelSelectedPages) {
+				for (Long topLevelPageId : orderedTopLevelPages) {
 					SimplePage topLevelPage = simplePageToolDao.getPage(topLevelPageId);
 					if (topLevelPage != null) {
 						element = doc.createElement(LESSONBUILDER);
