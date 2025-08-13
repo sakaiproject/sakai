@@ -823,7 +823,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
             // Save the assignment
             assignmentService.updateAssignment(a);
             
-            log.info("Created Canvas assignment: {} with ID: {}", title, a.getId());
+            log.debug("Created Canvas assignment: {} with ID: {}", title, a.getId());
             return "/assignment/" + a.getId();
             
         } catch (Exception e) {
