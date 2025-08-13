@@ -84,6 +84,10 @@
             <artifactId>messageforums-hbm</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject</groupId>
+            <artifactId>sakai-syllabus-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.sakaiproject.samigo</groupId>
             <artifactId>samigo-hibernate</artifactId>
         </dependency>
