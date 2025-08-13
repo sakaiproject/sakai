@@ -897,13 +897,16 @@ public class PortalServiceImpl implements PortalService, Observer
 	public void reorderPinnedSites(String userId, List<String> siteIds) {
 		if (StringUtils.isBlank(userId)) return;
 
+		List<String> reversedSiteIds = new ArrayList<>(siteIds);
+		Collections.reverse(reversedSiteIds);
+
 		pinnedSiteRepository.deleteByUserId(userId);
 
-		for (int i = 0; i < siteIds.size(); i++) {
+		for (int i = 0; i < reversedSiteIds.size(); i++) {
 
 			PinnedSite pin = new PinnedSite();
 			pin.setUserId(userId);
-			pin.setSiteId(siteIds.get(i));
+			pin.setSiteId(reversedSiteIds.get(i));
 			pin.setPosition(i);
 			pinnedSiteRepository.save(pin);
 		}
@@ -919,9 +922,12 @@ public class PortalServiceImpl implements PortalService, Observer
 	public List<String> getPinnedSites(String userId) {
 		if (StringUtils.isBlank(userId)) return Collections.emptyList();
 
-		return pinnedSiteRepository.findByUserIdOrderByPosition(userId).stream()
+		List<String> pinnedSites = pinnedSiteRepository.findByUserIdOrderByPosition(userId).stream()
 				.map(PinnedSite::getSiteId)
-				.collect(Collectors.toUnmodifiableList());
+				.collect(Collectors.toList());
+
+		Collections.reverse(pinnedSites);
+		return Collections.unmodifiableList(pinnedSites);
 	}
 
 	@Override
