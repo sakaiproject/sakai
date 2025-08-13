@@ -93,8 +93,14 @@
   gap: 0rem 0.5rem;
 }
 
-.portal-header-breadcrumb-separator, .portal-header-breadcrumb-item > a {
+.portal-header-breadcrumb-separator,
+.portal-header-breadcrumb > a,
+.portal-header-breadcrumb-item > a {
   color: var(--sakai-text-color-2) !important;
+}
+
+.portal-header-breadcrumb-separator,
+.portal-header-breadcrumb-item > a {
   text-decoration: none;
   font-weight: 600;
   &:hover {
