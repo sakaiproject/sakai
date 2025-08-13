@@ -15,11 +15,7 @@
  ***************************************************************************** */
 package org.sakaiproject.resetpass.controller;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-import java.util.Random;
+import java.util.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -57,6 +53,7 @@ import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserEdit;
+import org.sakaiproject.site.api.SiteService;
 
 @Slf4j
 @Controller
@@ -92,6 +89,9 @@ public class MainController {
     @Autowired
     private SecurityService securityService;
 
+    @Autowired
+    private SiteService siteService;
+
     private Locale userLocale;
     private static final String SECURE_UPDATE_USER_ANY = org.sakaiproject.user.api.UserDirectoryService.SECURE_UPDATE_USER_ANY;
     private static final String MAX_PASSWORD_RESET_MINUTES = "accountValidator.maxPasswordResetMinutes";
@@ -101,7 +101,19 @@ public class MainController {
     private Locale localeResolver(HttpServletRequest request, HttpServletResponse response) {
 
         String userId = sessionManager.getCurrentSessionUserId();
-        final Locale loc = StringUtils.isNotBlank(userId) ? preferencesService.getLocale(userId) : Locale.getDefault();
+        Placement placement = toolManager.getCurrentPlacement();
+        String context = placement != null ? placement.getContext() : null;
+
+        Locale loc = null;
+        if (StringUtils.isNotBlank(context)) {
+            loc = siteService.getSiteLocale(context).orElse(null);
+        }
+        if (loc == null && StringUtils.isNotBlank(userId)) {
+            loc = preferencesService.getLocale(userId);
+        }
+        if (loc == null) {
+            loc = Locale.getDefault();
+        }
         LocaleResolver localeResolver = RequestContextUtils.getLocaleResolver(request);
         localeResolver.setLocale(request, response, loc);
 
