@@ -301,6 +301,8 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
     });
 
     this.updateTotalPoints(false);
+
+    this.querySelectorAll("sakai-rubric-grading-comment").forEach(gc => gc.requestUpdate());
   }
 
   fineTuneRating(e) {
