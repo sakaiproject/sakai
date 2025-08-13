@@ -715,7 +715,6 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
             // Parse Canvas assignment XML with Canvas namespace
             Namespace canvasNs = assignmentXml.getNamespace();
             
-            // Title
             String title = assignmentXml.getChildText("title", canvasNs);
             if (title != null) {
                 a.setTitle(title.trim());
