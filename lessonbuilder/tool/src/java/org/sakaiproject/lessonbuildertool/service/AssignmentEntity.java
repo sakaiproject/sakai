@@ -699,7 +699,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 
 	    return "/assignment/" + a.getId();
 	} catch (Exception e) {
-	    log.info("can't create assignment", e);
+	    log.warn("can't create assignment", e);
 	};
 	return null;
     }
