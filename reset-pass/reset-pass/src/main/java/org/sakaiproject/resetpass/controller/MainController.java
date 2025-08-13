@@ -277,7 +277,7 @@ public class MainController {
                 String productionSiteName = serverConfigurationService.getString("reset-pass.productionSiteName", "");
 
                 if (productionSiteName == null || productionSiteName.isEmpty()) {
-                    productionSiteName = serverConfigurationService.getString("ui.service", "");
+                    productionSiteName = serverConfigurationService.getString("ui.service", "Sakai");
                 }
 
                 StringBuilder buff = new StringBuilder();
