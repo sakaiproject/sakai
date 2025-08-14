@@ -16,11 +16,13 @@
 package org.sakaiproject.grading.impl;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import org.sakaiproject.grading.api.GradeType;
 import org.sakaiproject.grading.api.GradingPersistenceManager;
 import org.sakaiproject.grading.api.model.AssignmentGradeRecord;
 import org.sakaiproject.grading.api.model.Category;
@@ -365,8 +367,18 @@ public class GradingPersistenceManagerImpl implements GradingPersistenceManager 
 
     public List<AssignmentGradeRecord> getAllAssignmentGradeRecordsForAssignment(Long assignmentId) {
 
-        return assignmentGradeRecordRepository
-            .findByGradableObject_IdAndGradableObject_RemovedOrderByPointsEarned(assignmentId, false);
+        GradeType gradeType = gradebookAssignmentRepository.findById(assignmentId).map(a -> a.getGradebook().getGradeType()).orElse(GradeType.POINTS);
+        switch (gradeType) {
+            case PERCENTAGE:
+            case POINTS:
+                return assignmentGradeRecordRepository
+                    .findByGradableObject_IdAndGradableObject_RemovedOrderByPointsEarned(assignmentId, false);
+            case LETTER:
+                return assignmentGradeRecordRepository
+                    .findByGradableObject_IdAndGradableObject_Removed(assignmentId, false);
+            default:
+                return Collections.<AssignmentGradeRecord>emptyList();
+        }
     }
 
     public AssignmentGradeRecord getAssignmentGradeRecordForAssignmentAndStudent(Long assignmentId, String studentUid) {
