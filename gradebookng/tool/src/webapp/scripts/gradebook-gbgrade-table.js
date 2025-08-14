@@ -1370,8 +1370,9 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     });
   })
   .on("click", ".gb-dropdown-menu .gb-hide-column", function (event) {
-    const cellElement = $(this).closest(".tabulator-cell, .tabulator-col");
+    event.preventDefault();
 
+    const cellElement = $(this).closest(".tabulator-cell, .tabulator-col");
     const $togglePanel = $("#gradeItemsTogglePanel");
     const assignmentId = cellElement.data("assignment-id");
     const categoryId = cellElement.data("category-id");
@@ -1381,13 +1382,14 @@ GbGradeTable.renderTable = function (elementId, tableData) {
         .find(`.gb-item-filter :checkbox[value='${assignmentId}']`)
         .trigger("click");
     } else if (categoryId) {
-      const colIndex = GbGradeTable.colForCategoryScore(categoryId);
-      const col = GbGradeTable.instance.getColumns()[colIndex].getDefinition();
+      const column = GbGradeTable.colModelForCategoryId(categoryId);
+      if (column && column.categoryName) {
       $togglePanel
         .find(
-          `.gb-item-category-score-filter :checkbox[value="${col.categoryName}"]`
+          `.gb-item-category-score-filter :checkbox[value="${column.categoryName}"]`
         )
         .trigger("click");
+      }
     }
   })
   .on("click", ".gb-dropdown-menu .gb-message-students", function (event) {
