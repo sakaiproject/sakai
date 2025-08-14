@@ -681,7 +681,7 @@ function includeLatestJQuery(where) {
 }
 
 function includeWebjarLibrary(library, options = {}) {
-	let webjars = (window.portal && window.portal.pageWebjarsPath) ? window.portal.pageWebjarsPath : '/library/webjars/';
+	let webjars = (window.portal && window.portal.pageWebjarsPath) ? window.portal.pageWebjarsPath : '/library/webjars';
 	let ver = (window.portal && window.portal.portalCDNQuery) ? window.portal.portalCDNQuery : '';
 	let libraryVersion = '';
 	const jsReferences = [];
@@ -809,9 +809,9 @@ function includeWebjarLibrary(library, options = {}) {
 			break;
 		default:
 			if (library.endsWith(".js")) {
-				document.write('\x3Cscript src="' + webjars + library + ver + '">' + '\x3C/script>');
+				document.write('\x3Cscript src="' + webjars + '/' + library + ver + '">' + '\x3C/script>');
 			} else if (library.endsWith(".css")) {
-				document.write('\x3Clink rel="stylesheet" type="text/css" href="' + webjars + library + ver + '" />');
+				document.write('\x3Clink rel="stylesheet" type="text/css" href="' + webjars + '/' + library + ver + '" />');
 			}
 	}
 
