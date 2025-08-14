@@ -155,6 +155,7 @@
             <activation>
                 <property>
                     <name>skipTests</name>
+                    <value>true</value>
                 </property>
             </activation>
             <properties>
@@ -166,6 +167,7 @@
             <activation>
                 <property>
                     <name>maven.test.skip</name>
+                    <value>true</value>
                 </property>
             </activation>
             <properties>
