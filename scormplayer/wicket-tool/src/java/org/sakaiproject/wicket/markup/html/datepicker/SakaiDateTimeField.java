@@ -58,7 +58,7 @@ public class SakaiDateTimeField extends TextField<ZonedDateTime>
 
 	// JavaScript references
 	private static final String						JS_JQUERY_UI	= "/library/webjars/jquery-ui/1.12.1/jquery-ui.min.js";
-	private static final String						JS_MOMENT		= "/library/webjars/momentjs/2.24.0/min/moment-with-locales.min.js";
+	private static final String						JS_MOMENT		= "/library/webjars/momentjs/2.29.1/min/moment-with-locales.min.js";
 	private static final String						JS_DATEPICKER	= "/library/js/lang-datepicker/lang-datepicker.js";
 	private static final PackageResourceReference	JS_FIELD		= new PackageResourceReference(SakaiDateTimeField.class, "res/SakaiDateTimeField.js");
 
