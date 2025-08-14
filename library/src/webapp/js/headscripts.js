@@ -715,7 +715,7 @@ function includeWebjarLibrary(library, options = {}) {
 			cssReferences.push('/release/featherlight.min.css');
 			break;
 		case 'momentjs':
-			libraryVersion = "2.29.1";
+			libraryVersion = "2.29.4";
 			jsReferences.push('/min/moment-with-locales.min.js');
 			break;
 		case 'dropzone':
