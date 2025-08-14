@@ -24,6 +24,7 @@ import java.util.TimeZone;
 import java.util.Vector;
 import java.util.List;
 
+import org.sakaiproject.calendar.api.RecurrenceInstance;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.cover.TimeService;
