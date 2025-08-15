@@ -2011,8 +2011,10 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
   }
 
     public List<SelectItem> getExistingGradebook() {
-        this.setExistingGradebook(this.populateExistingGradebookItems());
-        return this.existingGradebook;
+        if (existingGradebook == null || existingGradebook.isEmpty()) {
+            existingGradebook = populateExistingGradebookItems();
+        }
+        return existingGradebook;
     }
 
     // This method builds the gradebook assignment selector in the assessment settings.
@@ -2066,11 +2068,9 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 
             List<Assignment> gradebookAssignmentList = gradingService.getAssignments(AgentFacade.getCurrentSiteId(), AgentFacade.getCurrentSiteId(), SortType.SORT_BY_NONE);
             for (Assignment gradebookAssignment : gradebookAssignmentList) {
-                boolean isExternallyMaintained = gradebookAssignment.getExternallyMaintained();
-                boolean isDefaultSamigoGradebookAssociation = isExternallyMaintained && StringUtils.equals("sakai.samigo", gradebookAssignment.getExternalAppName());
-                if (!isExternallyMaintained || isDefaultSamigoGradebookAssociation) {
+                if (!gradebookAssignment.getExternallyMaintained()) {
                     // If the gradebook item is external use the externalId, otherwise use the gradebook item id.
-                    String gradebookItemId = gradebookAssignment.getExternallyMaintained() ? gradebookAssignment.getExternalId() : String.valueOf(gradebookAssignment.getId());
+                    String gradebookItemId = String.valueOf(gradebookAssignment.getId());
                     // The label is just the gradebook assignment name.
                     String label = gradebookAssignment.getName();
                     if (gAssignmentIdTitles.get(gradebookItemId) != null) {
