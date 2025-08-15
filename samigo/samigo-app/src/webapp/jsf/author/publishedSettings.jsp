@@ -767,6 +767,7 @@
       <h:panelGroup layout="block" id="toGradebookSelected" style="#{publishedSettings.toDefaultGradebook == 3 ? 'display:block;' : 'display:none;'}" styleClass="col-md-10 col-md-offset-2">
         <h:panelGroup rendered="#{!publishedSettings.gradebookGroupEnabled}">
           <h:selectOneMenu id="toGradebookName" value="#{publishedSettings.gradebookName}" rendered="#{publishedSettings.firstTargetSelected != 'Anonymous Users'}">
+            <f:selectItem itemValue="" itemLabel="#{assessmentSettingsMessages.gradebook_item_select}" />
             <f:selectItems value="#{publishedSettings.existingGradebook}" />
           </h:selectOneMenu>
         </h:panelGroup>

@@ -770,6 +770,7 @@
       <h:panelGroup layout="block" id="toGradebookSelected" style="#{assessmentSettings.toDefaultGradebook == 3 ? 'display:block;' : 'display:none;'}" styleClass="col-md-10 col-md-offset-2">
         <h:panelGroup rendered="#{!assessmentSettings.gradebookGroupEnabled}">
           <h:selectOneMenu id="toGradebookName" value="#{assessmentSettings.gradebookName}">
+            <f:selectItem itemValue="" itemLabel="#{assessmentSettingsMessages.gradebook_item_select}" />
             <f:selectItems value="#{assessmentSettings.existingGradebook}" />
           </h:selectOneMenu>
         </h:panelGroup>
