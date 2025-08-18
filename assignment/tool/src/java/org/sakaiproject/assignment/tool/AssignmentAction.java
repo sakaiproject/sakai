@@ -6035,7 +6035,7 @@ public class AssignmentAction extends PagedResourceActionII {
         Boolean showSubmissionByFilterSearchOnly = state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE : Boolean.FALSE;
         context.put("showSubmissionByFilterSearchOnly", showSubmissionByFilterSearchOnly);
 
-        Collection groups = getAllGroupsInSite(contextString);
+        Collection<Group> groups = getCurrentUserGroupsInSite(contextString);
         context.put("groups", new SortedIterator(groups.iterator(), new AssignmentComparator(state, SORTED_BY_GROUP_TITLE, Boolean.TRUE.toString())));
 
         add2ndToolbarFields(data, context);
@@ -13237,6 +13237,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         state.removeAttribute(NEW_ASSIGNMENT_SECTION);
         state.removeAttribute(NEW_ASSIGNMENT_SUBMISSION_TYPE);
+        state.removeAttribute(NEW_ASSIGNMENT_CATEGORY);
         state.removeAttribute(NEW_ASSIGNMENT_GRADE_TYPE);
         state.removeAttribute(NEW_ASSIGNMENT_GRADE_TYPE_SWITCHING);
         state.removeAttribute(NEW_ASSIGNMENT_GRADE_TYPE_SWITCH_CONFIRM);
@@ -13918,6 +13919,8 @@ public class AssignmentAction extends PagedResourceActionII {
 
             // clear search form
             doSearch_clear(data, null);
+            
+            state.removeAttribute(TAG_SELECTOR);
 
             String viewMode = data.getParameters().getString("view");
             state.setAttribute(STATE_SELECTED_VIEW, viewMode);

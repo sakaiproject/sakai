@@ -1062,7 +1062,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 			CriteriaBuilder cb = session.getCriteriaBuilder();
 			CriteriaQuery<SimplePageImpl> query = cb.createQuery(SimplePageImpl.class);
 			Root<SimplePageImpl> root = query.from(SimplePageImpl.class);
-			query.select(root).where(cb.equal(root.get("toolId"), toolId));
+			query.select(root).where(cb.and(cb.equal(root.get("toolId"), toolId),cb.isNull(root.get("parent"))));
 			List<SimplePageImpl> result = session.createQuery(query).getResultList();
 			return (result != null && !result.isEmpty()) ? result.get(0) : null;
 		});

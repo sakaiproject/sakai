@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.datemanager.api;
 
+import java.io.InputStream;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -88,4 +90,14 @@ public interface DateManagerService {
 	public void updateTool(String toolId, DateManagerValidation dateManagerValidation);
 
 	public boolean isChanged(String toolId, String[] columns);
+
+	// CSV export/import methods
+	public byte[] exportCsvData(String siteId) throws Exception;
+	public List<List<Object>> importCsvData(InputStream csvInputStream, String siteId) throws Exception;
+	public static class ToolImportData {
+		public String toolId;
+		public int index;
+		public String[] columns;
+	}
+	public List<ToolImportData> getToolsToImport();
 }
