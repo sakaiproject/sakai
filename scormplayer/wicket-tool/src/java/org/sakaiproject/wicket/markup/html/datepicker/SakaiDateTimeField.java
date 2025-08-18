@@ -36,6 +36,7 @@ import org.apache.wicket.util.convert.ConversionException;
 import org.apache.wicket.util.convert.IConverter;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.wicket.util.DateFormatterUtil;
 import org.sakaiproject.wicket.util.Utils;
 
@@ -57,10 +58,10 @@ public class SakaiDateTimeField extends TextField<ZonedDateTime>
 	private static final String DATEPICKER_FORMAT_DATE_ONLY	= "yyyy-MM-dd";
 
 	// JavaScript references
-	private static final String						JS_JQUERY_UI	= "/library/webjars/jquery-ui/1.12.1/jquery-ui.min.js";
-	private static final String						JS_MOMENT		= "/library/webjars/momentjs/2.24.0/min/moment-with-locales.min.js";
-	private static final String						JS_DATEPICKER	= "/library/js/lang-datepicker/lang-datepicker.js";
-	private static final PackageResourceReference	JS_FIELD		= new PackageResourceReference(SakaiDateTimeField.class, "res/SakaiDateTimeField.js");
+    private static final String JS_JQUERY_UI = "/library/webjars/jquery-ui/1.12.1/jquery-ui.min.js" + PortalUtils.getCDNQuery();
+    private static final String JS_MOMENT = PortalUtils.getWebjarsPath() + "momentjs/" + PortalUtils.MOMENTJS_VERSION + "/min/moment-with-locales.min.js" + PortalUtils.getCDNQuery();
+    private static final String JS_DATEPICKER = "/library/js/lang-datepicker/lang-datepicker.js" + PortalUtils.getCDNQuery();
+    private static final PackageResourceReference JS_FIELD = new PackageResourceReference(SakaiDateTimeField.class, "res/SakaiDateTimeField.js");
 
 	private boolean useTime = true;
 	private boolean allowEmptyDate;
