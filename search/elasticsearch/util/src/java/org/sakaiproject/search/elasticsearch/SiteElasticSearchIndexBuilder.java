@@ -79,8 +79,6 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
 
     private SiteService siteService;
     private UserDirectoryService userDirectoryService;
-    private ContentHostingService contentHostingService;
-    private EntityManager entityManager;
 
     private boolean useSiteFilters = false;
 
@@ -262,37 +260,42 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
             	Iterator<String> i = ecp.getSiteContentIterator(siteId);
 
                 while (i != null && i.hasNext()) {
-                        String reference = i.next();
+                    String reference = i.next();
                     
-                    // Get document size
+                    // First check if document should be indexed (skip content checks early)
+                    if (StringUtils.isBlank(ecp.getContent(reference))) {
+                        continue;
+                    }
+                    
+                    // Only get document size when we intend to add the doc to the bulk
                     long docSize = getDocumentSize(reference, ecp);
                     
                     // Check batch limits and execute if needed
                     if (bulkRequest.numberOfActions() >= bulkRequestSize || 
                         currentBatchSizeBytes + docSize > contentIndexBatchMaxSizeBytes) {
-                        executeBulkRequest(bulkRequest);
+                        // Only flush if there are actions to execute
+                        if (bulkRequest.numberOfActions() > 0) {
+                            executeBulkRequest(bulkRequest);
+                            batchCount++;
+                        }
                         bulkRequest = new BulkRequest();
                         currentBatchSizeBytes = 0;
-                        batchCount++;
                     }
 
-                        if (StringUtils.isNotBlank(ecp.getContent(reference))) {
-                            try {
-                                deleteDocument(ecp.getId(reference), ecp.getSiteId(reference));
-                                bulkRequest.add(prepareIndex(reference, ecp, true));
-                                currentBatchSizeBytes += docSize;
-                                numberOfDocs++;
-                            } catch (Exception e) {
-                                log.error(e.getMessage(), e);
-                            }
+                    try {
+                        deleteDocument(ecp.getId(reference), ecp.getSiteId(reference));
+                        bulkRequest.add(prepareIndex(reference, ecp, true));
+                        currentBatchSizeBytes += docSize;
+                        numberOfDocs++;
+                    } catch (Exception e) {
+                        log.error(e.getMessage(), e);
                     }
                 }
 
                 // Execute any remaining bulk requests
                 if (bulkRequest.numberOfActions() > 0) {
                     executeBulkRequest(bulkRequest);
-                    bulkRequest = new BulkRequest();
-                    currentBatchSizeBytes = 0;
+                    batchCount++;
                 }
             }
 
@@ -587,11 +590,11 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
     }
 
     public void setContentHostingService(ContentHostingService contentHostingService) {
-        this.contentHostingService = contentHostingService;
+        super.setContentHostingService(contentHostingService);
     }
 
     public void setEntityManager(EntityManager entityManager) {
-        this.entityManager = entityManager;
+        super.setEntityManager(entityManager);
     }
 
     @Override
