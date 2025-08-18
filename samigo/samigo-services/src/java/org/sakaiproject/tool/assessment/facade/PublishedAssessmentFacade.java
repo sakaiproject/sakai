@@ -1011,7 +1011,7 @@ public class PublishedAssessmentFacade
   // Refactor these methods and separate them from getAssessmentMetaDataByLabel and updateAssessmentMetaData to improve migration processes.
   public String getAssessmentToGradebookNameMetaData() {
     String label = AssessmentMetaDataIfc.TO_GRADEBOOK_ID;
-    return this.publishedMetaDataMap.get(label) != null ? (String) this.publishedMetaDataMap.get(label) : "";
+    return this.publishedMetaDataMap.get(label) != null ? this.publishedMetaDataMap.get(label) : "";
   }
 
   public void updateAssessmentToGradebookNameMetaData(String entry) {
