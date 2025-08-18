@@ -8,7 +8,7 @@
                     <a class="link-container" href="${site.siteUrl}" title="${site.fullTitle}">
                         <span>#if ( ( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ) )${site.shortDescription}#else${site.siteTitleTrunc}#end</span>
                     </a>
-                    <a class="Mrphs-sitesNav__dropdown" href="#" data-site-id="${site.siteId}" aria-haspopup="true" title="$rloader.getFormattedMessage("sit_open_menu", $site.fullTitle)"></a>
+                    <a class="Mrphs-sitesNav__dropdown" href="#" data-site-id="${site.siteId}" aria-haspopup="true" aria-expanded="false" title="$rloader.getFormattedMessage("sit_open_menu", $site.fullTitle)"></a>
                 </li>
             #end
         </ul>
