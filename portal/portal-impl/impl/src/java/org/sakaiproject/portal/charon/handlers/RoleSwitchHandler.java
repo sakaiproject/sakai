@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.api.UsageSessionService;
@@ -32,8 +33,10 @@ import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.portal.util.URLUtils;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.ToolManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
@@ -55,12 +58,15 @@ public class RoleSwitchHandler extends BasePortalHandler
 	private String portalUrl;
 	private String externalRoles;
 
+	private ToolManager toolManager;
+
 	public RoleSwitchHandler() {
 		SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
 		setUrlFragment(RoleSwitchHandler.URL_FRAGMENT);
 		portalUrl = serverConfigurationService.getPortalUrl();
 		// get the roles that can be swapped to from sakai.properties
 		externalRoles = serverConfigurationService.getString("studentview.roles");
+		toolManager = ComponentManager.get(ToolManager.class);
 	}
 
 	@Override
@@ -128,6 +134,24 @@ public class RoleSwitchHandler extends BasePortalHandler
 					.peek(tool -> log.debug("Resetting state for site: " + activeSite.getId() + " tool: " + tool.getId()))
 					.forEach(tool -> session.getToolSession(tool.getId()).clearAttributes()); // reset each tool
 
+				boolean isToolHidden=false;
+				for (SitePage page : activeSite.getPages()) {
+					for (ToolConfiguration tool : page.getTools()) {
+						//check if the active tool is hidden
+						if (tool.getId().equals(parts[4]) && toolManager.isHidden(tool)) {
+							isToolHidden=true;
+						}
+					}
+				}
+
+				if (isToolHidden) {
+					if (!homePageIsHidden(activeSite)) {
+						url = portalUrl + "/site/" + parts[2] + "/tool/" + activeSite.getPages().get(0).getId() + "/";
+					} else {
+						url = portalUrl;
+					}
+				}
+
 				portalService.setResetState("true"); // flag the portal to reset
 				
 				// Change to role view
@@ -149,6 +173,10 @@ public class RoleSwitchHandler extends BasePortalHandler
 		{
 			return NEXT;
 		}
+	}
+
+	private boolean homePageIsHidden(Site activeSite) {
+		return (activeSite.getPages().size()>=1 && activeSite.getPages().get(0).isHomePage() && toolManager.isHidden(activeSite.getPages().get(0).getTools().get(0)));
 	}
 
 }
