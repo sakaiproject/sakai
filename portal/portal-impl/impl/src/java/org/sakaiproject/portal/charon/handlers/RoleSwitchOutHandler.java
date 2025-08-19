@@ -88,7 +88,7 @@ public class RoleSwitchOutHandler extends BasePortalHandler
 
 				//my personal site
 				String userUrlId="~"+session.getUserId();
-				if (activeSite.getPages().size()>=1 && activeSite.getId().equals(userUrlId)) {
+				if (!activeSite.getPages().isEmpty() && activeSite.getId().equals(userUrlId)) {
 					roleExitUrl = ServerConfigurationService.getPortalUrl();
 				}
 

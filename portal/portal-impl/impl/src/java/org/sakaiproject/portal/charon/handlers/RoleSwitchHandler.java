@@ -146,7 +146,7 @@ public class RoleSwitchHandler extends BasePortalHandler
 
 				if (isToolHidden) {
 					if (!homePageIsHidden(activeSite)) {
-						url = portalUrl + "/site/" + parts[2] + "/tool/" + activeSite.getPages().get(0).getId() + "/";
+						url = portalUrl + "/site/" + parts[2] + "/";
 					} else {
 						url = portalUrl;
 					}
@@ -176,7 +176,10 @@ public class RoleSwitchHandler extends BasePortalHandler
 	}
 
 	private boolean homePageIsHidden(Site activeSite) {
-		return (activeSite.getPages().size()>=1 && activeSite.getPages().get(0).isHomePage() && toolManager.isHidden(activeSite.getPages().get(0).getTools().get(0)));
+		return (!activeSite.getPages().isEmpty() &&
+				activeSite.getPages().get(0).isHomePage() &&
+				!activeSite.getPages().get(0).getTools().isEmpty() &&
+				toolManager.isHidden(activeSite.getPages().get(0).getTools().get(0)));
 	}
 
 }
