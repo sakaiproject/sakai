@@ -17,6 +17,7 @@ package org.sakaiproject.portal.charon.handlers;
 
 import java.util.Collection;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -34,6 +35,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.ToolManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
@@ -51,6 +53,8 @@ public class RoleSwitchHandler extends BasePortalHandler
 	private ServerConfigurationService serverConfigurationService;
 	@Autowired @Qualifier("org.sakaiproject.site.api.SiteService")
 	private SiteService siteService;
+	@Autowired @Qualifier("org.sakaiproject.tool.api.ToolManager")
+	private ToolManager toolManager;
 
 	private String portalUrl;
 	private String externalRoles;
@@ -122,11 +126,17 @@ public class RoleSwitchHandler extends BasePortalHandler
 			{
 				String url = portalUrl + "/site/" + parts[2] + "/tool/" + parts[4] + "/";
 
+				AtomicBoolean isToolHidden = new AtomicBoolean(false);
 				activeSite.getPages().stream() // get all pages in site
 					.map(SitePage::getTools) // tools for each page
 					.flatMap(Collection::stream) // combine all tool lists
-					.peek(tool -> log.debug("Resetting state for site: " + activeSite.getId() + " tool: " + tool.getId()))
-					.forEach(tool -> session.getToolSession(tool.getId()).clearAttributes()); // reset each tool
+					.peek(tool -> log.debug("Resetting state for site: {} tool: {}", activeSite.getId(), tool.getId()))
+					.forEach(tool -> {
+						session.getToolSession(tool.getId()).clearAttributes(); // reset each tool
+						if (tool.getId().equals(parts[4]) && toolManager.isHidden(tool)) { isToolHidden.set(true); } //check if the active tool is hidden
+					});
+
+				if (isToolHidden.get()) { url = (!homePageIsHidden(activeSite)) ? portalUrl + "/site/" + parts[2] + "/" : portalUrl; }
 
 				portalService.setResetState("true"); // flag the portal to reset
 				
@@ -149,6 +159,13 @@ public class RoleSwitchHandler extends BasePortalHandler
 		{
 			return NEXT;
 		}
+	}
+
+	private boolean homePageIsHidden(Site activeSite) {
+		return (!activeSite.getPages().isEmpty() &&
+				activeSite.getPages().get(0).isHomePage() &&
+				!activeSite.getPages().get(0).getTools().isEmpty() &&
+				toolManager.isHidden(activeSite.getPages().get(0).getTools().get(0)));
 	}
 
 }

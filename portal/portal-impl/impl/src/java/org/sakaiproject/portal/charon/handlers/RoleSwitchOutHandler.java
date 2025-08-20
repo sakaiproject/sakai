@@ -86,6 +86,12 @@ public class RoleSwitchOutHandler extends BasePortalHandler
 						.peek(tool -> log.debug("Resetting state for site: " + activeSite.getId() + " tool: " + tool.getId()))
 						.forEach(tool -> session.getToolSession(tool.getId()).clearAttributes()); // reset each tool
 
+				//my personal site
+				String userUrlId="~"+session.getUserId();
+				if (!activeSite.getPages().isEmpty() && activeSite.getId().equals(userUrlId)) {
+					roleExitUrl = ServerConfigurationService.getPortalUrl();
+				}
+
 				portalService.setResetState("true"); // flag the portal to reset
 				
 				// Post an event
