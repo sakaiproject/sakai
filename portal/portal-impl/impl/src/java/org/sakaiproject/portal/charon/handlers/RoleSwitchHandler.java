@@ -17,13 +17,13 @@ package org.sakaiproject.portal.charon.handlers;
 
 import java.util.Collection;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.api.UsageSessionService;
@@ -33,7 +33,6 @@ import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.portal.util.URLUtils;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
-import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolManager;
@@ -54,11 +53,11 @@ public class RoleSwitchHandler extends BasePortalHandler
 	private ServerConfigurationService serverConfigurationService;
 	@Autowired @Qualifier("org.sakaiproject.site.api.SiteService")
 	private SiteService siteService;
+	@Autowired @Qualifier("org.sakaiproject.tool.api.ToolManager")
+	private ToolManager toolManager;
 
 	private String portalUrl;
 	private String externalRoles;
-
-	private ToolManager toolManager;
 
 	public RoleSwitchHandler() {
 		SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
@@ -66,7 +65,6 @@ public class RoleSwitchHandler extends BasePortalHandler
 		portalUrl = serverConfigurationService.getPortalUrl();
 		// get the roles that can be swapped to from sakai.properties
 		externalRoles = serverConfigurationService.getString("studentview.roles");
-		toolManager = ComponentManager.get(ToolManager.class);
 	}
 
 	@Override
@@ -128,29 +126,17 @@ public class RoleSwitchHandler extends BasePortalHandler
 			{
 				String url = portalUrl + "/site/" + parts[2] + "/tool/" + parts[4] + "/";
 
+				AtomicBoolean isToolHidden = new AtomicBoolean(false);
 				activeSite.getPages().stream() // get all pages in site
 					.map(SitePage::getTools) // tools for each page
 					.flatMap(Collection::stream) // combine all tool lists
-					.peek(tool -> log.debug("Resetting state for site: " + activeSite.getId() + " tool: " + tool.getId()))
-					.forEach(tool -> session.getToolSession(tool.getId()).clearAttributes()); // reset each tool
+					.peek(tool -> log.debug("Resetting state for site: {} tool: {}", activeSite.getId(), tool.getId()))
+					.forEach(tool -> {
+						session.getToolSession(tool.getId()).clearAttributes(); // reset each tool
+						if (tool.getId().equals(parts[4]) && toolManager.isHidden(tool)) { isToolHidden.set(true); } //check if the active tool is hidden
+					});
 
-				boolean isToolHidden=false;
-				for (SitePage page : activeSite.getPages()) {
-					for (ToolConfiguration tool : page.getTools()) {
-						//check if the active tool is hidden
-						if (tool.getId().equals(parts[4]) && toolManager.isHidden(tool)) {
-							isToolHidden=true;
-						}
-					}
-				}
-
-				if (isToolHidden) {
-					if (!homePageIsHidden(activeSite)) {
-						url = portalUrl + "/site/" + parts[2] + "/";
-					} else {
-						url = portalUrl;
-					}
-				}
+				if (isToolHidden.get()) { url = (!homePageIsHidden(activeSite)) ? portalUrl + "/site/" + parts[2] + "/" : portalUrl; }
 
 				portalService.setResetState("true"); // flag the portal to reset
 				
