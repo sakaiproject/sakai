@@ -13237,6 +13237,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         state.removeAttribute(NEW_ASSIGNMENT_SECTION);
         state.removeAttribute(NEW_ASSIGNMENT_SUBMISSION_TYPE);
+        state.removeAttribute(NEW_ASSIGNMENT_CATEGORY);
         state.removeAttribute(NEW_ASSIGNMENT_GRADE_TYPE);
         state.removeAttribute(NEW_ASSIGNMENT_GRADE_TYPE_SWITCHING);
         state.removeAttribute(NEW_ASSIGNMENT_GRADE_TYPE_SWITCH_CONFIRM);
@@ -13918,6 +13919,8 @@ public class AssignmentAction extends PagedResourceActionII {
 
             // clear search form
             doSearch_clear(data, null);
+            
+            state.removeAttribute(TAG_SELECTOR);
 
             String viewMode = data.getParameters().getString("view");
             state.setAttribute(STATE_SELECTED_VIEW, viewMode);
