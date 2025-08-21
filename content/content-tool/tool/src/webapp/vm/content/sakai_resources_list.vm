@@ -361,7 +361,7 @@
 				
 				#set ($width = "$!{item.depth}$unit")
 				#if ($item.depth==0)
-					#set ($marginIcon="0.5")
+					#set ($marginIcon=0.5)
 				#else
 					#set($marginIcon = $item.depth + 1)
 				#end
@@ -640,12 +640,11 @@
 						#set($qid=$item.id.replaceAll("'","\\'").replaceAll("\"", "&quot;"))
 						#set($dqid=$item.id.replaceAll("\"", "&quot;"))
 						############################### Show top level folder #################
-					#set ($width = "$!{item.depth}$unit")
 						#set ($width = "$!{item.depth}$unit")
 						#if ($item.depth==0)
-							#set ($marginIcon="0.5")
+							#set ($marginIcon=0.5)
 						#else
-							#set($marginIcon = $item.depth * 1)
+							#set($marginIcon = $item.depth + 1)
 						#end
 						#if ($item.depth!=0)
 							#set ($marginAction="ps-5")
