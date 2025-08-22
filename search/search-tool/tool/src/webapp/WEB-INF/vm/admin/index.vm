@@ -18,7 +18,7 @@
         <div class="row">
             <div class="col-md-12">
                 #if ( ${adminModel.enabled} )
-                    <div class="card">
+                    <div class="card mt-3">
                         <div class="card-header">
                             <h3 class="card-title">${rlb.searchadmin_index_site_functions}</h3>
                         </div>
@@ -38,17 +38,17 @@
                         </div>
                         <div class="card-body">
                             <div class="alert alert-info">
-                                <h4><i class="fa fa-info-circle"></i> Index Types</h4>
-                                <p><strong>Default Index:</strong> Contains general site content including resources, announcements, forums, wikis, lessons, and other course materials.</p>
-                                <p><strong>Questions Index:</strong> Contains only assessment content from Tests &amp; Quizzes, including question text, answers, question pools, and published assessments. This is useful for faculty searching through their question banks.</p>
+                                <h4><i class="fa fa-info-circle"></i> ${rlb.searchadmin_index_types_title}</h4>
+                                <p><strong>${rlb.searchadmin_default_index_title}:</strong> ${rlb.searchadmin_default_index_description}</p>
+                                <p><strong>${rlb.searchadmin_questions_index_title}:</strong> ${rlb.searchadmin_questions_index_description}</p>
                             </div>
                             <form method="GET">
                                 <div class="form-group">
-                                    <label for="indexbuildername">Select Index Type:</label>
+                                    <label for="indexbuildername">${rlb.searchadmin_select_index_type}</label>
                                     <div class="input-group">
                                         <select name="indexbuildername" id="indexbuildername" class="form-control me-1 rounded">
                                             #foreach( $iName in ${adminModel.indexBuilderNames} )
-                                                <option value="${iName}">#if($iName == "default")Default (General Content)#elseif($iName == "questions")Questions (Tests &amp; Quizzes)#{else}${iName}#end</option>
+                                                <option value="${iName}">#if($iName == "default")${rlb.searchadmin_default_index_label}#elseif($iName == "questions")${rlb.searchadmin_questions_index_label}#{else}${iName}#end</option>
                                             #end
                                         </select>
                                         <div class="input-group-btn">
