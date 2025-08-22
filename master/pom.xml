@@ -168,6 +168,7 @@
               <groupId>org.codehaus.mojo</groupId>
               <artifactId>flatten-maven-plugin</artifactId>
               <version>1.7.2</version>
+              <inherited>true</inherited>
               <configuration>
                 <updatePomFile>true</updatePomFile>
                 <flattenMode>ossrh</flattenMode>
@@ -2773,7 +2774,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
-        <version>3.3.0</version>
+        <version>3.5.0</version>
         <executions>
           <execution>
             <id>enforce-versions</id>
@@ -2783,7 +2784,7 @@
             <configuration>
               <rules>
                 <requireMavenVersion>
-                  <version>3.1.1</version>
+                  <version>3.8.6</version>
                 </requireMavenVersion>
                 <requireJavaVersion>
                   <version>${sakai.jdk.version}</version>
