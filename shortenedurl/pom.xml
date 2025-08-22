@@ -32,12 +32,6 @@
 		<dependencies>
 			
 			<!-- internal dependencies -->
-			<dependency>
-		      	<groupId>${project.groupId}</groupId>
-		      	<artifactId>shortenedurl-api</artifactId>
-		      	<version>${project.version}</version>
-		      	<scope>provided</scope>
-		    </dependency>
 		    <dependency>
 	        	<groupId>${project.groupId}</groupId>
 	         	<artifactId>shortenedurl-impl</artifactId>

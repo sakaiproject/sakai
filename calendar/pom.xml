@@ -32,21 +32,10 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>sakai-calendar-api</artifactId>
-                <version>${project.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
                 <groupId>org.sakaiproject.calendar</groupId>
                 <artifactId>sakai-calendar-hbm</artifactId>
                 <version>${project.version}</version>
                 <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>sakai-calendar-util</artifactId>
-                <version>${project.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

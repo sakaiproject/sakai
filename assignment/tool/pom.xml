@@ -98,7 +98,6 @@
         <dependency>
             <groupId>org.sakaiproject.lti</groupId>
             <artifactId>lti-common</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.lti</groupId>
