@@ -438,12 +438,13 @@ export class SakaiAddTopic extends SakaiElement {
         `}
 
         <div class="add-topic-block">
-          <div id="summary-label" class="add-topic-label">${this._i18n.summary} *</div>
+          <div id="summary-label" class="add-topic-label required">${this._i18n.summary}</div>
           <input id="summary"
             @change=${this._updateSummary}
             aria-labelledby="summary-label"
-            .value="${this.topic.title}" />
-          <div class="required">
+            .value="${this.topic.title}"
+            required />
+          <div class="required-info">
             <span>* ${this._i18n.required}</span>
             <span>(${this._i18n.min_title_characters_info})</span>
           </div>
