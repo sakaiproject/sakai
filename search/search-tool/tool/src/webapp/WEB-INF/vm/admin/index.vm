@@ -32,11 +32,11 @@
                             </div>
                         </div>
                     </div>
-                    <div class="panel panel-default mt-3">
-                        <div class="panel-heading">
-                            <h3 class="panel-title">${rlb.searchadmin_index_functions}</h3>
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h3 class="card-title">${rlb.searchadmin_index_functions}</h3>
                         </div>
-                        <div class="panel-body">
+                        <div class="card-body">
                             <div class="alert alert-info">
                                 <h4><i class="fa fa-info-circle"></i> Index Types</h4>
                                 <p><strong>Default Index:</strong> Contains general site content including resources, announcements, forums, wikis, lessons, and other course materials.</p>
