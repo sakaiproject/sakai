@@ -1787,7 +1787,6 @@
         <groupId>org.sakaiproject.lti</groupId>
         <artifactId>lti-util</artifactId>
         <version>${sakai.version}</version>
-        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.lti</groupId>
@@ -1840,7 +1839,7 @@
       <dependency>
         <groupId>org.sakaiproject.calendar</groupId>
         <artifactId>sakai-calendar-util</artifactId>
-        <version>26-SNAPSHOT</version>
+        <version>${sakai.version}</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.calendaring</groupId>
@@ -2528,6 +2527,7 @@
           <artifactId>maven-javadoc-plugin</artifactId>
           <version>3.11.3</version>
           <configuration>
+            <source>${sakai.jdk.version}</source>
             <links>
               <link>https://docs.oracle.com/en/java/javase/17/</link>
               <link>https://commons.apache.org/proper/commons-lang/javadocs/api-release/</link>

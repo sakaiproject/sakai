@@ -35,14 +35,6 @@
   <!-- Project related dependencies -->
   <dependencyManagement>
     <dependencies>
-      <!-- SiteStats -->
-      <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>sitestats-api</artifactId>
-        <version>${project.version}</version>
-        <type>jar</type>
-        <scope>provided</scope>
-      </dependency>
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>sitestats-bundle</artifactId>
