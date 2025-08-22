@@ -501,7 +501,6 @@ public class SearchAdminBeanImpl implements SearchAdminBean
     public List<AdminOption> getDefaultOptions() {
 		List<AdminOption> o  = new ArrayList<AdminOption>();
 		o.add(new AdminOptionImpl(COMMAND_REBUILDSITE, Messages.getString("searchadmin_cmd_rebuildsiteind"),"" ));
-		// Removed the Refresh Site Index option as requested
 		return o;
 	}
 
@@ -510,7 +509,6 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 		List<AdminOption> o  = new ArrayList<AdminOption>();
 		if (superUser) {
 			o.add(new AdminOptionImpl(REBUILDINSTANCE, Messages.getString("searchadmin_cmd_rebuildind"),"" ));
-			// Removed the Refresh Whole Index option as requested
 		}
 		return o;
     }
