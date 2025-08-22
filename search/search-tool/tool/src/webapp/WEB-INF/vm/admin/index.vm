@@ -38,13 +38,18 @@
                             <h3 class="panel-title">${rlb.searchadmin_index_functions}</h3>
                         </div>
                         <div class="panel-body">
-                            <p class="instruction">${rlb.searchadmin_index_functions_explanation}</p>
+                            <div class="alert alert-info">
+                                <h4><i class="fa fa-info-circle"></i> Index Types</h4>
+                                <p><strong>Default Index:</strong> Contains general site content including resources, announcements, forums, wikis, lessons, and other course materials.</p>
+                                <p><strong>Questions Index:</strong> Contains only assessment content from Tests &amp; Quizzes, including question text, answers, question pools, and published assessments. This is useful for faculty searching through their question banks.</p>
+                            </div>
                             <form method="GET">
                                 <div class="form-group">
+                                    <label for="indexbuildername">Select Index Type:</label>
                                     <div class="input-group">
-                                        <select name="indexbuildername" class="form-control">
+                                        <select name="indexbuildername" id="indexbuildername" class="form-control me-1 rounded">
                                             #foreach( $iName in ${adminModel.indexBuilderNames} )
-                                                <option value="${iName}">${iName}</option>
+                                                <option value="${iName}">#if($iName == "default")Default (General Content)#elseif($iName == "questions")Questions (Tests &amp; Quizzes)#{else}${iName}#end</option>
                                             #end
                                         </select>
                                         <div class="input-group-btn">
