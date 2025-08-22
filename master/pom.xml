@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
+
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xmlns="http://maven.apache.org/POM/4.0.0"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.sakaiproject</groupId>
@@ -93,6 +94,10 @@
     <sakai.build.directory>target</sakai.build.directory>
     <maven.test.redirectTestOutputToFile>false</maven.test.redirectTestOutputToFile>
 
+    <!-- Reproducible builds: UTC ISO-8601 timestamp or use SOURCE_DATE_EPOCH -->
+    <project.build.outputTimestamp>${maven.build.timestamp}</project.build.outputTimestamp>
+    <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ss'Z'</maven.build.timestamp.format>
+
     <!-- Default empty unless profile activation -->
     <random-source></random-source>
 
@@ -109,7 +114,7 @@
   <licenses>
     <license>
       <name>Educational Community License, Version 2.0</name>
-      <url>http://www.opensource.org/licenses/ecl2.txt</url>
+      <url>https://opensource.org/licenses/ECL-2.0</url>
       <distribution>repo</distribution>
     </license>
   </licenses>
@@ -132,8 +137,9 @@
 
   <scm>
     <url>https://github.com/sakaiproject/sakai</url>
-    <connection>scm:git:git://github.com/sakaiproject/sakai.git</connection>
+    <connection>scm:git:https://github.com/sakaiproject/sakai.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/sakaiproject/sakai.git</developerConnection>
+    <tag>HEAD</tag>
   </scm>
 
   <profiles>
@@ -170,7 +176,7 @@
               <version>1.7.2</version>
               <inherited>true</inherited>
               <configuration>
-                <updatePomFile>true</updatePomFile>
+                <updatePomFile>false</updatePomFile>
                 <flattenMode>ossrh</flattenMode>
                 <pomElements>
                   <parent>expand</parent>
@@ -181,7 +187,7 @@
               <executions>
                 <execution>
                   <id>flatten</id>
-                  <phase>process-resources</phase>
+                  <phase>verify</phase>
                   <goals>
                     <goal>flatten</goal>
                   </goals>
