@@ -36,7 +36,7 @@
             <td class="actions">
               <a href="{{{actionURL this 'tagcollections' this.tagCollectionId "edit"}}}" class="btn btn-primary btn-xs">{{{t this "Edit"}}}</a>           
               <a href="{{{actionURL this 'tagsintagcollection' this.tagCollectionId "manage"}}}" class="btn btn-primary btn-xs">{{{t this "Manage Tags"}}}</a>
-              <a href="{{{actionURL this 'tagcollections' this.tagCollectionId "delete"}}}" class="btn btn-warning btn-xs tagservice-delete-btn" data-record-type="tagcollection"><span class="glyphicon glyphicon-trash"></span></a>
+              <a href="{{{actionURL this 'tagcollections' this.tagCollectionId "delete"}}}" class="btn btn-warning btn-xs tagservice-delete-btn" data-record-type="tagcollection" aria-label="{{{t this "Delete Tag Collection"}}}" title="{{{t this "Delete Tag Collection"}}}"><span class="fa fa-trash" aria-hidden="true"></span></a>
             </td>
           </tr>
           {{/each}}

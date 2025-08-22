@@ -481,12 +481,8 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
         if (evaluation.getAnonymousGrading()!=null)
           this.anonymousGrading = evaluation.getAnonymousGrading().toString().equals("1");
 
-        if (evaluation.getToGradeBook() != null) {
-            this.setToDefaultGradebook(evaluation.getToGradeBook());
-            if (EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString().equals(evaluation.getToGradeBook())) {
-                this.setGradebookName(assessment.getAssessmentToGradebookNameMetaData());
-            }
-        }
+        this.toDefaultGradebook = evaluation.getToGradeBook() != null ? evaluation.getToGradeBook() : EvaluationModelIfc.NOT_TO_GRADEBOOK.toString();
+        this.gradebookName = EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString().equals(this.toDefaultGradebook) ? assessment.getAssessmentToGradebookNameMetaData() : "";
 
         if (evaluation.getScoringType()!=null)
           this.scoringType = evaluation.getScoringType().toString();
@@ -2200,11 +2196,9 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
 
             List<Assignment> gradebookAssignmentList = gradingService.getAssignments(AgentFacade.getCurrentSiteId(), AgentFacade.getCurrentSiteId(), SortType.SORT_BY_NONE);
             for (Assignment gradebookAssignment : gradebookAssignmentList) {
-                boolean isExternallyMaintained = gradebookAssignment.getExternallyMaintained();
-                boolean isDefaultSamigoGradebookAssociation = isExternallyMaintained && StringUtils.equals("sakai.samigo", gradebookAssignment.getExternalAppName());
-                if (!isExternallyMaintained || isDefaultSamigoGradebookAssociation) {
+                if (!gradebookAssignment.getExternallyMaintained()) {
                     // If the gradebook item is external use the externalId, otherwise use the gradebook item id.
-                    String gradebookItemId = isExternallyMaintained ? gradebookAssignment.getExternalId() : String.valueOf(gradebookAssignment.getId());
+                    String gradebookItemId = String.valueOf(gradebookAssignment.getId());
                     // The label is just the gradebook assignment name.
                     String label = gradebookAssignment.getName();
                     // If the assignment is associated with a gradebook item id add a label to reflect it's already associated.
@@ -2226,13 +2220,15 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
 
         return target;
       } else {
-        return new ArrayList<SelectItem>();
+        return new ArrayList<>();
       }
     }
 
     public List<SelectItem> getExistingGradebook() {
-        this.setExistingGradebook(this.populateExistingGradebookItems());
-        return this.existingGradebook;
+        if (existingGradebook == null || existingGradebook.isEmpty()) {
+            existingGradebook = populateExistingGradebookItems();
+        }
+        return existingGradebook;
     }
   
     public boolean getGradebookGroupEnabled() {

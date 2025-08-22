@@ -1729,7 +1729,7 @@ $(document).ready(function () {
         } else {
           $("#page-releasedate2").prop('checked', true);
           $("#releaseDate2ISO8601").val(sbpgreleasedate);
-          $("#release_date2").val(moment(sbpgreleasedate).format('L LT'));
+          $("#release_date2").val(moment(sbpgreleasedate).format('YYYY-MM-DDTHH:mm'));
         }
 
         let pagenext = row.find(".page-next").text();
@@ -3121,13 +3121,32 @@ function checkEditItemForm() {
     $('#edit-item-error-container').show();
     return false;
   } else {
-    if ($("#page-releasedate2").prop('checked'))
-      $("#release_date2").val($("#releaseDate2ISO8601").val());
-    else
+    if ($("#page-releasedate2").prop('checked')) {
+      const releaseDate2ISO8601Value = $("#releaseDate2ISO8601").val();
+      const localFormatValue = convertISO8601ToLocal(releaseDate2ISO8601Value);
+      $("#release_date2").val(localFormatValue);
+      $("#sbReleaseDate").text(releaseDate2ISO8601Value);
+    }
+    else {
       $("#release_date2").val('');
+      $("#sbReleaseDate").text('');
+    }
     $('#edit-item-error-container').hide();
     return true;
   }
+}
+
+function convertISO8601ToLocal(iso8601String) {
+    if (!iso8601String) return '';
+
+    const date = new Date(iso8601String);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
 }
 
 function checkSubpageForm() {

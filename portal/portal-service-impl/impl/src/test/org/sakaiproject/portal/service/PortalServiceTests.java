@@ -209,9 +209,9 @@ public class PortalServiceTests extends SakaiTests {
         List<String> pinnedSites = portalService.getPinnedSites(user1);
         Assert.assertEquals(3, pinnedSites.size());
 
-        Assert.assertEquals(site1Id, pinnedSites.get(0));
+        Assert.assertEquals(site3Id, pinnedSites.get(0));
         Assert.assertEquals(site2Id, pinnedSites.get(1));
-        Assert.assertEquals(site3Id, pinnedSites.get(2));
+        Assert.assertEquals(site1Id, pinnedSites.get(2));
 
         portalService.removePinnedSite(user1, site2Id);
         pinnedSites = portalService.getPinnedSites(user1);
