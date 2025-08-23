@@ -30,6 +30,9 @@
     "url": "https://github.com/sakaiproject/sakai-ui/issues"
   },
   "homepage": "https://github.com/sakaiproject/sakai-ui#readme",
+  "dependencies": {
+    "ckeditor5": "^42.0.1"
+  },
   "exports": {
     ".": "./index.js",
     "./define": "./index.js",
