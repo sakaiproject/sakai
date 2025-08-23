@@ -44,7 +44,9 @@ import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.grading.api.CourseGradeTransferBean;
 import org.sakaiproject.grading.api.GradebookInformation;
+import org.sakaiproject.grading.api.GradeType;
 import org.sakaiproject.grading.api.GradingConstants;
+import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.util.ResourceLoader;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -85,6 +87,7 @@ public class GbGradebookData {
 	private final Map<Long, CategoryDefinition> categoryMap = new HashMap<>();
 
 	private final Component parent;
+	private final GradingService gradingService;
 
 	@Data
 	private class StudentDefinition {
@@ -115,6 +118,7 @@ public class GbGradebookData {
 		private String title;
 		private String abbrevTitle;
 		private String points;
+		private String letter;
 		private String dueDate;
 
 		private boolean isReleased;
@@ -232,8 +236,9 @@ public class GbGradebookData {
 		}
 	}
 
-	public GbGradebookData(final GbGradeTableData gbGradeTableData, final Component parentComponent) {
+	public GbGradebookData(final GbGradeTableData gbGradeTableData, final Component parentComponent, GradingService gradingService) {
 		this.parent = parentComponent;
+		this.gradingService = gradingService;
 		this.categories = gbGradeTableData.getCategories();
 		buildCategoryMap();
 
@@ -315,11 +320,12 @@ public class GbGradebookData {
 	}
 
 	private String serializeLargeGrades(final List<Score> gradeList) {
-		final List<Double> scores = gradeList.stream().map(score -> score.isNull() ? null : score.getScore()).collect(Collectors.toList());
 
 		try {
 			final ObjectMapper mapper = new ObjectMapper();
-			return mapper.writeValueAsString(scores);
+			return mapper.writeValueAsString(settings.getGradeType() == GradeType.LETTER
+					? gradeList.stream().map(score -> score.getLetter()).collect(Collectors.toList())
+					: gradeList.stream().map(score -> score.getScore()).collect(Collectors.toList()));
 		} catch (final JsonProcessingException e) {
 			throw new RuntimeException(e);
 		}
@@ -408,8 +414,9 @@ public class GbGradebookData {
 		result.put("isCourseLetterGradeDisplayed", this.settings.getCourseLetterGradeDisplayed());
 		result.put("isCourseAverageDisplayed", this.settings.getCourseAverageDisplayed());
 		result.put("isCoursePointsDisplayed", this.settings.getCoursePointsDisplayed());
-		result.put("isPointsGradeEntry", Objects.equals(GradingConstants.GRADE_TYPE_POINTS, this.settings.getGradeType()));
-		result.put("isPercentageGradeEntry", Objects.equals(GradingConstants.GRADE_TYPE_PERCENTAGE, this.settings.getGradeType()));
+		result.put("isPointsGradeEntry", GradeType.POINTS == this.settings.getGradeType());
+		result.put("isPercentageGradeEntry", GradeType.PERCENTAGE == this.settings.getGradeType());
+		result.put("isLetterGradeEntry", GradeType.LETTER == this.settings.getGradeType());
 		result.put("isCategoriesEnabled", !Objects.equals(this.settings.getCategoryType(), GradingConstants.CATEGORY_TYPE_NO_CATEGORY));
 		result.put("isCategoryTypeWeighted", Objects.equals(this.settings.getCategoryType(), GradingConstants.CATEGORY_TYPE_WEIGHTED_CATEGORY));
 		result.put("isStudentOrderedByLastName", this.uiSettings.getNameSortOrder() == GbStudentNameSortOrder.LAST_NAME);
@@ -428,6 +435,7 @@ public class GbGradebookData {
 		result.put("isSectionsVisible", this.isSectionsVisible && ServerConfigurationService.getBoolean("gradebookng.showSections", true));
 		result.put("isSetUngradedToZeroEnabled", ServerConfigurationService.getBoolean(SAK_PROP_SHOW_SET_ZERO_SCORE, SAK_PROP_SHOW_SET_ZERO_SCORE_DEFAULT));
 		result.put("isShowDisplayCourseGradeToStudentEnabled", ServerConfigurationService.getBoolean(SAK_PROP_SHOW_COURSE_GRADE_STUDENT, SAK_PROP_SHOW_COURSE_GRADE_STUDENT_DEFAULT));
+		result.put("letterGrades", this.settings.getSelectedGradingScaleBottomPercents().keySet());
 		result.put("gUid", this.gUid);
 
 		return result;
@@ -561,12 +569,13 @@ public class GbGradebookData {
 			if (!Objects.equals(this.settings.getCategoryType(), GradingConstants.CATEGORY_TYPE_NO_CATEGORY) && a1.getCategoryId() == null) {
 				counted = false;
 			}
+
 			result.add(new AssignmentDefinition(a1.getId(),
 					FormatHelper.stripLineBreaks(a1.getName()),
 					a1.getName(),
 					FormatHelper.formatDoubleToDecimal(a1.getPoints()),
+					settings.getGradeType() == GradeType.LETTER ? gradingService.getMaxLetterGrade(courseGradeMap).orElse("N/A") : null,
 					FormatHelper.formatDate(a1.getDueDate(), getString("label.studentsummary.noduedate")),
-
 					a1.getReleased(),
 					counted,
 					a1.getExtraCredit(),
@@ -623,7 +632,7 @@ public class GbGradebookData {
 							(new StringResourceModel("label.gradeitem.categoryaverage").setParameters(category.getName()))
 									.getString(),
 							nullable(categoryWeight),
-							category.getTotalPoints(),
+							category.getTotalPoints(settings.getGradeType(), gradingService.getMaxPoints(courseGradeMap).orElse(0D)),
 							category.getExtraCredit(),
 							category.getEqualWeight(),
 							userSettings.getCategoryColor(category.getName()),
@@ -639,7 +648,7 @@ public class GbGradebookData {
 	private Double getCategoryPoints(final Long categoryId) {
 		final CategoryDefinition category = this.categoryMap.get(categoryId);
 		if (category != null) {
-			return category.getTotalPoints();
+			return category.getTotalPoints(settings.getGradeType(), gradingService.getMaxPoints(courseGradeMap).orElse(0D));
 		}
 		return Double.valueOf(0);
 	}
@@ -691,9 +700,13 @@ public class GbGradebookData {
 
 		abstract boolean canEdit();
 
+		public String getLetter() {
+			return this.score;
+		};
+
 		// We assume you'll check isNull() prior to calling this
 		public double getScore() {
-			return Double.valueOf(this.score);
+			return this.score == null ? null : Double.valueOf(this.score);
 		};
 
 		public boolean isNull() {
@@ -701,7 +714,7 @@ public class GbGradebookData {
 		}
 
 		public boolean isPackable() {
-			return isNull() || (Double.valueOf(this.score) >= 0 && Double.valueOf(this.score) < 16384);
+			return settings.getGradeType() != GradeType.LETTER && (isNull() || settings.getGradeType() == GradeType.LETTER || (Double.valueOf(this.score) >= 0 && Double.valueOf(this.score) < 16384));
 		}
 
         public boolean isExcused() {

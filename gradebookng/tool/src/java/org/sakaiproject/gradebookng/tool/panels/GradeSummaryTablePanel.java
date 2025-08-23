@@ -50,7 +50,7 @@ import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.BasePage;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
-import org.sakaiproject.grading.api.GradingConstants;
+import org.sakaiproject.grading.api.GradeType;
 import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.beans.AssociationTransferBean;
@@ -96,7 +96,7 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 		final boolean categoriesEnabled = (boolean) data.get("categoriesEnabled");
 		final boolean isCategoryWeightEnabled = (boolean) data.get("isCategoryWeightEnabled");
 		final boolean showingStudentView = (boolean) data.get("showingStudentView");
-		final Integer gradeType = (Integer) data.get("gradeType");
+		final GradeType gradeType = (GradeType) data.get("gradeType");
 		final String studentUuid = (String) data.get("studentUuid");
 		this.isGroupedByCategory = (boolean) data.get("isGroupedByCategory");
 		final Map<String, CategoryDefinition> categoriesMap = (Map<String, CategoryDefinition>) data.get("categoriesMap");
@@ -351,7 +351,7 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 						assignmentItem.add(dueDate);
 
 						final WebMarkupContainer gradeScore = new WebMarkupContainer("gradeScore");
-						if (Objects.equals(GradingConstants.GRADE_TYPE_PERCENTAGE, gradeType)) {
+						if (GradeType.PERCENTAGE == gradeType) {
 							// For percentage gradebooks, show just the percentage (e.g., "80%")
 							// Don't show the relative weight as it's confusing to students
 							gradeScore.add(new Label("grade",
