@@ -48,6 +48,8 @@
         <property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService" /></property>
         <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
         <property name="filter"><ref bean="org.sakaiproject.search.elasticsearch.filter.impl.SearchSecurityFilter"/></property>
+        <property name="contentHostingService"><ref bean="org.sakaiproject.content.api.ContentHostingService" /></property>
+        <property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager" /></property>
     </bean>
 
     <!-- To avoid changing the way legacy searchable content producer register themselves, we need the default index

@@ -21,6 +21,30 @@ Indexing happens in one of three ways:
 
 Each of the above operations execute fairly quickly as they do not fully digest content, but rather put placeholder documents into ES to act as a sort of indexing queue. A bulk indexer thread then runs and queries for documents that have not been indexed and performs the more heavy weight content digestion (turning bytes into text strings). Using this mechanism we allow every node in the cluster to share in the indexing load, which prevents any one node from being consumed by bulk indexing work, and speeds up full indexing time. For each ElasticSearchIndexBuilder there are configuration options that control how often this thread runs and how big the batch size is and how big each individual bulk request to ES is. These options are explained in more detail in the configuration section. The bulk index thread runs at a lower priority than user requests so even when bulk indexing is occurring it will not put an unreasonable amount of load on the system while user requests will be serviced first.
 
+## Size-Based Indexing
+
+The search indexing system uses a hybrid approach for batching documents during indexing:
+
+1. **Count-Based Limit**: A maximum number of documents per batch (controlled by `contentIndexBatchSize`)
+2. **Size-Based Limit**: A maximum total size in bytes per batch (controlled by `contentIndexBatchMaxSizeBytes`)
+3. **Document Prioritization**: Optionally sorts documents by estimated size to process smaller documents first (controlled by `prioritizeSmallDocuments`)
+
+### Document Size Calculation
+
+Document sizes are determined directly and accurately for all documents:
+1. For content resources, getting the exact file size directly from ContentHostingService
+2. For other resources, calculating the byte size of content using UTF-8 encoding
+3. Adding a fixed overhead for document metadata (1KB)
+4. Using a default size (100KB) only if all other methods fail
+
+This hybrid approach provides several benefits:
+- Prevents memory issues when indexing very large documents
+- Ensures more consistent performance across batches
+- Improves responsiveness by optionally prioritizing smaller documents
+- Handles exceptionally large documents gracefully by processing them in separate batches
+
+If a single document exceeds the size limit, it will still be processed in its own batch to ensure all content is eventually indexed.
+
 The site and installation index mechanisms are triggered from within the search admin tool. As shown in the screenshot below, site-level reindexing affects all indexes containing site-scoped data for the current site, whereas installation-wide reindexing requires selection of specific index to target.
 
 ![Admin index management options](sakai-search-admin-marked-up.png "Admin index management options")
@@ -102,6 +126,8 @@ Property | Short Bean Name | Type | Default |
 ---|---|---|---
  bulkRequestSize | ElasticSearchIndexBuilder | int | 10 (code)
  contentIndexBatchSize | ElasticSearchIndexBuilder | int | 500 (code)
+ contentIndexBatchMaxSizeBytes | ElasticSearchIndexBuilder | long | 10485760 (10MB) (code)
+ prioritizeSmallDocuments | ElasticSearchIndexBuilder | boolean | true (code)
  clientNode | ElasticSearchService | boolean | `false` (code)
  defaultIndexSettingsResource | ElasticSearchIndexBuilder | String | '/org/sakaiproject/search/elastic/bundle/indexSettings.json' (code)
  defaultMappingResource | ElasticSearchIndexBuilder | String | '/org/sakaiproject/search/elastic/bundle/mapping.json' (code)
