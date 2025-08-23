@@ -22,7 +22,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.sakaiproject.calendar.api.CalendarEvent;
-import org.sakaiproject.calendar.api.CalendarEventVector;
+import org.sakaiproject.calendar.api.CalendarEventList;
 import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.api.TimeService;
@@ -113,7 +113,7 @@ public class PDFExportServiceTest {
         // One week.
         TimeRange range = newTimeRange("2007-12-03T00:00:00.00Z", "P7D");
         List<String> calendarReferenceList = Collections.singletonList("/calendar/1");
-        CalendarEventVector events = new CalendarEventVector();
+        CalendarEventList events = new CalendarEventList();
         CalendarEvent event = mock(CalendarEvent.class);
         TimeRange eventTimeRange = newTimeRange("2007-12-03T10:30:00.00Z", "PT1H");
         when(event.getRange()).thenReturn(eventTimeRange);
@@ -143,14 +143,14 @@ public class PDFExportServiceTest {
         // One week.
         TimeRange range = newTimeRange("2007-12-03T00:00:00.00Z", "P7D");
         List<String> calendarReferenceList = Collections.singletonList("/calendar/1");
-        CalendarEventVector events = new CalendarEventVector();
+        CalendarEventList events = new CalendarEventList();
         CalendarEvent event = mock(CalendarEvent.class);
         TimeRange eventTimeRange = newTimeRange("2007-12-03T10:30:00.00Z", "PT1H");
         when(event.getRange()).thenReturn(eventTimeRange);
         when(event.getDisplayName()).thenReturn("Test Event");
         events.add(event);
 
-        when(baseCalendarService.getEvents(eq(calendarReferenceList), any(TimeRange.class))).thenReturn(new CalendarEventVector());
+        when(baseCalendarService.getEvents(eq(calendarReferenceList), any(TimeRange.class))).thenReturn(new CalendarEventList());
         when(baseCalendarService.getEvents(eq(calendarReferenceList), argThat(arg -> arg.contains(eventTimeRange)))).thenReturn(events);
 
         Path file = Files.createTempFile("calendar", ".pdf");
@@ -173,14 +173,14 @@ public class PDFExportServiceTest {
         // One week.
         TimeRange range = newTimeRange("2007-12-03T00:00:00.00Z", "P7D");
         List<String> calendarReferenceList = Collections.singletonList("/calendar/1");
-        CalendarEventVector events = new CalendarEventVector();
+        CalendarEventList events = new CalendarEventList();
         CalendarEvent event = mock(CalendarEvent.class);
         TimeRange eventTimeRange = newTimeRange("2007-12-03T10:30:00.00Z", "PT1H");
         when(event.getRange()).thenReturn(eventTimeRange);
         when(event.getDisplayName()).thenReturn("Test Event");
         events.add(event);
 
-        when(baseCalendarService.getEvents(eq(calendarReferenceList), any(TimeRange.class), any(boolean.class))).thenReturn(new CalendarEventVector());
+        when(baseCalendarService.getEvents(eq(calendarReferenceList), any(TimeRange.class), any(boolean.class))).thenReturn(new CalendarEventList());
         when(baseCalendarService.getEvents(eq(calendarReferenceList), any(TimeRange.class))).thenReturn(events);
 
         Path file = Files.createTempFile("calendar", ".pdf");
@@ -203,14 +203,14 @@ public class PDFExportServiceTest {
         // One week.
         TimeRange range = newTimeRange("2007-11-03T00:00:00.00Z", "P7D");
         List<String> calendarReferenceList = Collections.singletonList("/calendar/1");
-        CalendarEventVector events = new CalendarEventVector();
+        CalendarEventList events = new CalendarEventList();
         CalendarEvent event = mock(CalendarEvent.class);
         TimeRange eventTimeRange = newTimeRange("2007-11-03T10:30:00.00Z", "PT1H");
         when(event.getRange()).thenReturn(eventTimeRange);
         when(event.getDisplayName()).thenReturn("Test Event");
         events.add(event);
 
-        when(baseCalendarService.getEvents(eq(calendarReferenceList), any(TimeRange.class))).thenReturn(new CalendarEventVector());
+        when(baseCalendarService.getEvents(eq(calendarReferenceList), any(TimeRange.class))).thenReturn(new CalendarEventList());
         when(baseCalendarService.getEvents(eq(calendarReferenceList), argThat(arg -> arg.contains(eventTimeRange)))).thenReturn(events);
 
         Path file = Files.createTempFile("calendar", ".pdf");
