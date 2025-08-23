@@ -1915,7 +1915,7 @@ public class AssignmentAction extends PagedResourceActionII {
         initViewSubmissionListOption(state);
         String allOrOneGroup = (String) state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
         String search = (String) state.getAttribute(VIEW_SUBMISSION_SEARCH);
-        Boolean searchFilterOnly = (state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE : Boolean.FALSE);
+        Boolean searchFilterOnly = Boolean.TRUE.equals(state.getAttribute(SUBMISSIONS_SEARCH_ONLY));
 
         // if the instructor is allowed to submit assignment on behalf of student, add the student list to the page
         User student = (User) state.getAttribute("student");
@@ -5909,7 +5909,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         initViewSubmissionListOption(state);
         String allOrOneGroup = (String) state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
-        Boolean searchFilterOnly = (state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE : Boolean.FALSE);
+        Boolean searchFilterOnly = Boolean.TRUE.equals(state.getAttribute(SUBMISSIONS_SEARCH_ONLY));
 
         String accessPointUrl = serverConfigurationService.getAccessUrl() +
                 AssignmentReferenceReckoner.reckoner().context(contextString).reckon().getReference() +
@@ -13718,7 +13718,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 initViewSubmissionListOption(state);
                 String allOrOneGroup = (String) state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
                 String search = (String) state.getAttribute(VIEW_SUBMISSION_SEARCH);
-                Boolean searchFilterOnly = (state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE : Boolean.FALSE);
+                Boolean searchFilterOnly = Boolean.TRUE.equals(state.getAttribute(SUBMISSIONS_SEARCH_ONLY));
 
                 Boolean has_multiple_groups_for_user = false;
                 List<SubmitterSubmission> submissions = new ArrayList<>();
@@ -13811,7 +13811,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 String allOrOneGroup = (String) state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
                 String search = (String) state.getAttribute(VIEW_SUBMISSION_SEARCH);
                 String aRef = (String) state.getAttribute(EXPORT_ASSIGNMENT_REF);
-                Boolean searchFilterOnly = (state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE : Boolean.FALSE);
+                Boolean searchFilterOnly = Boolean.TRUE.equals(state.getAttribute(SUBMISSIONS_SEARCH_ONLY));
 
                 Assignment assignment = null;
                 assignment = getAssignment(aRef, "sizeResources", state);
@@ -14241,9 +14241,20 @@ public class AssignmentAction extends PagedResourceActionII {
      */
     protected List<AssignmentSubmission> getFilteredSubmitters(SessionState state, String aRef) {
         String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
-        String allOrOneGroup = (String) state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
         String search = (String) state.getAttribute(VIEW_SUBMISSION_SEARCH);
-        Boolean searchFilterOnly = (state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE : Boolean.FALSE);
+
+        Assignment assignment = getAssignment(aRef, "getFilteredSubmitters", state);
+        Boolean searchFilterOnly;
+        String allOrOneGroup;
+        if (assignment != null && assignment.getIsGroup()) {
+            // For group assignments, ignore SUBMISSIONS_SEARCH_ONLY filter since group filtering/search is not available
+            // Also ensure allOrOneGroup is "all"
+            searchFilterOnly = Boolean.FALSE;
+            allOrOneGroup = AssignmentConstants.ALL;
+        } else {
+            searchFilterOnly = Boolean.TRUE.equals(state.getAttribute(SUBMISSIONS_SEARCH_ONLY));
+            allOrOneGroup = (String) state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
+        }
 
         Map<User, AssignmentSubmission> submitters = assignmentService.getSubmitterMap(searchFilterOnly.toString(), allOrOneGroup, search, aRef, contextString);
 
