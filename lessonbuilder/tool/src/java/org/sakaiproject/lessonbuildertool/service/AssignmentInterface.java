@@ -38,5 +38,6 @@ public interface AssignmentInterface {
 
     public String importObject(String title, String href, String mime, boolean hide);
     public String importObject(Element e, Namespace ns, String base, String baseDir, List<String>attachments, boolean hide);
+    public String importCanvasAssignment(Element assignmentXml, String instructions, boolean hide);
 
 }
