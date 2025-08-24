@@ -66,6 +66,7 @@ import org.sakaiproject.content.api.LockManager;
 import org.sakaiproject.content.impl.serialize.impl.conversion.Type1BlobCollectionConversionHandler;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
+import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entity.api.serialize.EntityParseException;
@@ -501,6 +502,35 @@ public class DbContentService extends BaseContentService
         List list = sqlService.dbRead(sql, fields, null);
 
 		if ( list == null ) return null;
+
+        Iterator iter = list.iterator();
+        while (iter.hasNext())
+        {
+            try
+            {
+                String val = (String) iter.next();
+                if ( val != null ) return val;
+            }
+            catch (Exception ignore)
+            {
+                continue;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Execute SQL query with two parameters and return single column from first row
+     */
+    protected String twoColumnSingleRow(String sql, String param1, String param2)
+    {
+        Object[] fields = new Object[2];
+        fields[0] = param1;
+        fields[1] = param2;
+
+        List list = sqlService.dbRead(sql, fields, null);
+
+        if ( list == null ) return null;
 
         Iterator iter = list.iterator();
         while (iter.hasNext())
@@ -2421,15 +2451,31 @@ public class DbContentService extends BaseContentService
                 // Check if there already is an identical file (most recent if there is > 1)
                 boolean singleInstanceStore = serverConfigurationService.getBoolean(PROP_SINGLE_INSTANCE, PROP_SINGLE_INSTANCE_DEFAULT);
                 if ( singleInstanceStore && bodyPath != null && bodyPath.equals(rootFolder)) {
-                    String statement = contentServiceSql.getOnlyOneFilePath(resourceTableName);
-                    String duplicateFilePath = singleColumnSingleRow(statement, hex);
+                    // Extract context from resource for security-aware deduplication
+                    String resourceContext = null;
+                    try {
+                        Reference ref = DbContentService.this.entityManager.newReference(DbContentService.this.getReference(resource.getId()));
+                        if (ref != null) {
+                            resourceContext = ref.getContext();
+                        }
+                    } catch (Exception e) {
+                        log.warn("Failed to extract context from resource {}: {}", resource.getId(), e.getMessage());
+                    }
+                    
+                    // Only deduplicate files within the same context for security
+                    if (resourceContext != null) {
+                        String statement = contentServiceSql.getOnlyOneFilePath(resourceTableName);
+                        String duplicateFilePath = twoColumnSingleRow(statement, hex, resourceContext);
 
-                    if ( duplicateFilePath != null ) {
-                        delResourceBodyFilesystem(rootFolder, resource);
-                        ((BaseResourceEdit) resource).m_filePath = duplicateFilePath;
-                        log.debug("Duplicate body found path={}",duplicateFilePath);
+                        if ( duplicateFilePath != null ) {
+                            delResourceBodyFilesystem(rootFolder, resource);
+                            ((BaseResourceEdit) resource).m_filePath = duplicateFilePath;
+                            log.debug("Duplicate body found in same context path={}",duplicateFilePath);
+                        } else {
+                            log.debug("Content body is unique within context, id={}",resource.getId());
+                        }
                     } else {
-                        log.debug("Content body us unique id={}",resource.getId());
+                        log.debug("Could not determine resource context, skipping deduplication for security, id={}",resource.getId());
                     }
                 }
 

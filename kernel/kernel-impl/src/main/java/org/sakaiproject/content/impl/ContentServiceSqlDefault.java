@@ -236,10 +236,10 @@ public class ContentServiceSqlDefault implements ContentServiceSql {
     }
 
     /**
-     * return only one file_path from the content_resource table.
+     * return only one file_path from the content_resource table within the same context.
      */
     public String getOnlyOneFilePath(String resourceTableName) {
-        return "select file_path from " + resourceTableName + " where resource_sha256 = ? order by file_path desc limit 1";
+        return "select file_path from " + resourceTableName + " where resource_sha256 = ? and context = ? order by file_path desc limit 1";
     }
 
     /**
