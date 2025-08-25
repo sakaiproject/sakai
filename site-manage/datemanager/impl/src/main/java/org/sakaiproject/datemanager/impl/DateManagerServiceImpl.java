@@ -2220,9 +2220,9 @@ public class DateManagerServiceImpl implements DateManagerService {
 			try {
 				LocalDate dateOnly = LocalDate.parse(dateString, inputDateFormatter);
 				return Date.from(dateOnly.atStartOfDay(zone).toInstant());
-			} catch (DateTimeParseException ignored) {
-				log.warn("Unable to parse '{}' with either datetime or date-only formats", dateString, e);
-				throw e;
+			} catch (DateTimeParseException e2) {
+				log.warn("Unable to parse '{}' with either datetime or date-only formats", dateString, e2);
+				throw e2;
 			}
 		}
 	}
