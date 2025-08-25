@@ -2213,8 +2213,13 @@ public class DateManagerServiceImpl implements DateManagerService {
 	public Date stringToDate(String dateString) {
 		ZoneId zone = userTimeService.getLocalTimeZone().toZoneId();
 		try {
-			LocalDateTime localDateTime = LocalDateTime.parse(dateString, inputDateTimeFormatter);
-			return Date.from(localDateTime.atZone(zone).toInstant());
+			if (dateString.endsWith("Z") || dateString.matches(".*[+-]\\d{2}:?\\d{2}$")) {
+				java.time.OffsetDateTime odt = java.time.OffsetDateTime.parse(dateString, inputDateTimeFormatter);
+				return Date.from(odt.toInstant());
+			} else {
+				LocalDateTime localDateTime = LocalDateTime.parse(dateString, inputDateTimeFormatter);
+				return Date.from(localDateTime.atZone(zone).toInstant());
+			}
 		} catch (DateTimeParseException e) {
 			// Fallback: parse as date-only (no time) using inputDateFormatter
 			try {
