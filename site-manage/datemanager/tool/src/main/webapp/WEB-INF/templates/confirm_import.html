@@ -72,8 +72,8 @@
 			</div>
 			<div class="act">
 				<input type="submit" class="active" th:value="#{button.save}" id="submit-form-button" th:if="${errors == null}">
-				<a th:href="@{/}" id="datemanager-cancel" class="btn btn-default" th:text="#{button.cancel}" th:if="${errors == null}">Cancel</a>
-				<a th:href="@{/}" id="datemanager-cancel" class="btn btn-default" th:text="#{button.start.again}" th:if="${errors != null}">Start again</a>
+				<a th:href="@{/}" id="datemanager-cancel" class="btn btn-secondary" th:text="#{button.cancel}" th:if="${errors == null}">Cancel</a>
+				<a th:href="@{/}" id="datemanager-cancel" class="btn btn-primary" th:text="#{button.start.again}" th:if="${errors != null}">Start again</a>
 			</div>
 		</form>
 		<script th:inline="javascript">
