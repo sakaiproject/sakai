@@ -2183,8 +2183,8 @@ public class DateManagerServiceImpl implements DateManagerService {
 					Date formattedOriginalDate = this.stringToDate(this.formatToUserDateFormat(date));
 					isDifferent = csvDate.compareTo(formattedOriginalDate) != 0;
 				} catch (Exception e) {
-					log.error("Error comparing dates. Original date: '{}', CSV date string: '{}', Error: {}", 
-							this.formatToUserDateFormat(date), dateString, e.getMessage());
+					log.warn("Error comparing dates. Original date: '{}', CSV date string: '{}'", 
+							this.formatToUserDateFormat(date), dateString, e);
 					// If we can't parse the date, assume it's different to be safe
 					isDifferent = true;
 				}
@@ -2212,8 +2212,14 @@ public class DateManagerServiceImpl implements DateManagerService {
 			LocalDateTime localDateTime = LocalDateTime.parse(dateString, inputDateTimeFormatter);
 			return Date.from(localDateTime.atZone(zone).toInstant());
 		} catch (DateTimeParseException e) {
-			log.error("Failed to parse date string '{}' with format 'yyyy-MM-dd'T'HH:mm:ss[+HH:MM]': {}", dateString, e.getMessage());
-			throw e;
+			// Fallback: parse as date-only (no time) using inputDateFormatter
+			try {
+				LocalDate dateOnly = LocalDate.parse(dateString, inputDateFormatter);
+				return Date.from(dateOnly.atStartOfDay(zone).toInstant());
+			} catch (DateTimeParseException ignored) {
+				log.warn("Unable to parse '{}' with either datetime or date-only formats", dateString, e);
+				throw e;
+			}
 		}
 	}
 
@@ -2481,17 +2487,17 @@ public class DateManagerServiceImpl implements DateManagerService {
 
 					// Check if this row has changes (skip for header rows and empty rows)
 					log.debug("Processing data row: isHeader={}, firstCol='{}', toolId='{}'", isHeader, nextLine[0], currentToolId);
-					boolean isChanged = false;
+					boolean rowChanged = false;
 					if (!isHeader && StringUtils.isNotBlank(nextLine[0])) {
 						try {
-							isChanged = isChanged(currentToolId, nextLine);
-							log.debug("Change detection for tool '{}', id '{}': {}", currentToolId, nextLine[0], isChanged);
+							rowChanged = isChanged(currentToolId, nextLine);
+							log.debug("Change detection for tool '{}', id '{}': {}", currentToolId, nextLine[0], rowChanged);
 						} catch (Exception ex) {
 							log.error("Cannot identify if it is changed or not in {} for id '{}': {}", currentToolId, nextLine[0], ex.getMessage());
-							isChanged = false;
+							rowChanged = false;
 						}
 						
-						if (isChanged) {
+						if (rowChanged) {
 							ToolImportData data = new ToolImportData();
 							data.toolId = currentToolId;
 							data.index = idx;
@@ -2508,7 +2514,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 						isHeader = false;
 						toolHeader = new ArrayList<>();
 						toolHeader.add(toolColumns);
-					} else if (isChanged) {
+					} else if (rowChanged) {
 						// This is a data row with changes
 						hasChanged = true;
 						toolContent.add(toolColumns);
