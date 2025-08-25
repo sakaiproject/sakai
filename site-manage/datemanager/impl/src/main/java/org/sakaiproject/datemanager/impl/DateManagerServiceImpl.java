@@ -2498,7 +2498,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 							rowChanged = isChanged(currentToolId, nextLine);
 							log.debug("Change detection for tool '{}', id '{}': {}", currentToolId, nextLine[0], rowChanged);
 						} catch (Exception ex) {
-							log.error("Cannot identify if it is changed or not in {} for id '{}': {}", currentToolId, nextLine[0], ex.getMessage());
+							log.error("Cannot identify if it is changed or not in {} for id '{}'", currentToolId, nextLine[0], ex);
 							rowChanged = false;
 						}
 						
