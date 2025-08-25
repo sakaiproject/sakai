@@ -2400,7 +2400,8 @@ public class DateManagerServiceImpl implements DateManagerService {
 						toolInfoString += " (" + resourceLoader.getString("itemtype.draft") + ")";
 					}
 					if (DateManagerConstants.COMMON_ID_GRADEBOOK.equals(toolId) && !columnsNames[j].equals("title") && toolInfoString != null) {
-						toolInfoString = toolInfoString.split("T")[0];
+						int t = toolInfoString.indexOf('T');
+						toolInfoString = t > 0 ? toolInfoString.substring(0, t) : toolInfoString;
 					}
 					toolColumns[j] = toolInfoString != null? toolInfoString : "";
 				}
