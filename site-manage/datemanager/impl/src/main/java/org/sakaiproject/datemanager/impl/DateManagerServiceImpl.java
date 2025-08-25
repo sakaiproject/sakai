@@ -2015,17 +2015,21 @@ public class DateManagerServiceImpl implements DateManagerService {
 		if (DateManagerConstants.COMMON_ID_ASSIGNMENTS.equals(toolId.replaceAll("\"", ""))) {
 			try {
 				Assignment assignment = assignmentService.getAssignment(id);
-				boolean openChanged = this.compareDates(Date.from(assignment.getOpenDate()), columns[2]);
-				boolean dueChanged = this.compareDates(Date.from(assignment.getDueDate()), columns[3]);
-				boolean closeChanged = this.compareDates(Date.from(assignment.getCloseDate()), columns[4]);
+				Date openDate  = assignment.getOpenDate()  != null ? Date.from(assignment.getOpenDate())  : null;
+				Date dueDate   = assignment.getDueDate()   != null ? Date.from(assignment.getDueDate())   : null;
+				Date closeDate = assignment.getCloseDate() != null ? Date.from(assignment.getCloseDate()) : null;
+
+				boolean openChanged  = this.compareDates(openDate, columns[2]);
+				boolean dueChanged   = this.compareDates(dueDate, columns[3]);
+				boolean closeChanged = this.compareDates(closeDate, columns[4]);
 				changed = openChanged || dueChanged || closeChanged;
 				
-				log.debug("Assignment '{}' change details: open={} (DB: '{}' vs CSV: '{}'), due={} (DB: '{}' vs CSV: '{}'), close={} (DB: '{}' vs CSV: '{}')", 
-					id, openChanged, this.formatToUserDateFormat(Date.from(assignment.getOpenDate())), columns[2],
-					dueChanged, this.formatToUserDateFormat(Date.from(assignment.getDueDate())), columns[3],
-					closeChanged, this.formatToUserDateFormat(Date.from(assignment.getCloseDate())), columns[4]);
+				log.debug("Assignment '{}' change details: open={} (DB: '{}' vs CSV: '{}'), due={} (DB: '{}' vs CSV: '{}'), close={} (DB: '{}' vs CSV: '{}')",
+					id, openChanged, this.formatToUserDateFormat(openDate), columns[2],
+					dueChanged, this.formatToUserDateFormat(dueDate), columns[3],
+					closeChanged, this.formatToUserDateFormat(closeDate), columns[4]);
 			} catch (Exception ex) {
-				log.error("Cannot identify the tool Content received for assignment id '{}': {}", id, ex.getMessage());
+				log.error("Cannot identify the tool content for assignment id '{}'", id, ex);
 			}
 		} else if (DateManagerConstants.COMMON_ID_ASSESSMENTS.equals(toolId.replaceAll("\"", ""))) {
 			if (pubAssessmentServiceQueries.isPublishedAssessmentIdValid(Long.parseLong(id))) {
