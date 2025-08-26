@@ -1996,7 +1996,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 				this.updateLessons(dateManagerValidation);
 			}
 		} catch (Exception ex) {
-			log.error("Cannot update the tool {} received", toolId, ex); 
+			log.error("Cannot update tool '{}'", toolId, ex); 
 		}
 	}
 
@@ -2034,19 +2034,21 @@ public class DateManagerServiceImpl implements DateManagerService {
 		} else if (DateManagerConstants.COMMON_ID_ASSESSMENTS.equals(toolId.replaceAll("\"", ""))) {
 			if (pubAssessmentServiceQueries.isPublishedAssessmentIdValid(Long.parseLong(id))) {
 				PublishedAssessmentFacade pubAssessment = pubAssessmentServiceQueries.getPublishedAssessment(Long.parseLong(id));
-				boolean startChanged = this.compareDates(pubAssessment.getStartDate(), columns[2]);
+				final String startCsv = (columns.length > 2 ? columns[2] : "");
+				boolean startChanged = this.compareDates(pubAssessment.getStartDate(), startCsv);
 				boolean dueChanged = this.compareDates(pubAssessment.getDueDate(), (columns.length > 3? columns[3] : ""));
 				boolean retractChanged = this.compareDates(pubAssessment.getRetractDate(), (columns.length > 4? columns[4] : ""));
 				changed = startChanged || dueChanged || retractChanged;
 				
 				log.debug("Published Assessment '{}' change details: start={} (DB: '{}' vs CSV: '{}'), due={} (DB: '{}' vs CSV: '{}'), retract={} (DB: '{}' vs CSV: '{}')", 
-					id, startChanged, this.formatToUserDateFormat(pubAssessment.getStartDate()), columns[2],
+					id, startChanged, this.formatToUserDateFormat(pubAssessment.getStartDate()), startCsv,
 					dueChanged, this.formatToUserDateFormat(pubAssessment.getDueDate()), (columns.length > 3? columns[3] : ""),
 					retractChanged, this.formatToUserDateFormat(pubAssessment.getRetractDate()), (columns.length > 4? columns[4] : ""));
 			} else {
 				AssessmentData assesmentData = assessmentServiceQueries.loadAssessment(Long.parseLong(id));
 				AssessmentAccessControlIfc control = assesmentData.getAssessmentAccessControl();
-				boolean startChanged = this.compareDates(control.getStartDate(), columns[2]);
+				final String startCsv = (columns.length > 2 ? columns[2] : "");
+				boolean startChanged = this.compareDates(control.getStartDate(), startCsv);
 				boolean dueChanged = this.compareDates(control.getDueDate(), (columns.length > 3? columns[3] : ""));
 				boolean retractChanged = this.compareDates(control.getRetractDate(), (columns.length > 4? columns[4] : ""));
 				boolean feedbackStartChanged = this.compareDates(control.getFeedbackDate(), (columns.length > 5? columns[5] : ""));
@@ -2054,7 +2056,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 				changed = startChanged || dueChanged || retractChanged || feedbackStartChanged || feedbackEndChanged;
 				
 				log.debug("Draft Assessment '{}' change details: start={} (DB: '{}' vs CSV: '{}'), due={} (DB: '{}' vs CSV: '{}'), retract={} (DB: '{}' vs CSV: '{}'), feedbackStart={} (DB: '{}' vs CSV: '{}'), feedbackEnd={} (DB: '{}' vs CSV: '{}')", 
-					id, startChanged, this.formatToUserDateFormat(control.getStartDate()), columns[2],
+					id, startChanged, this.formatToUserDateFormat(control.getStartDate()), startCsv,
 					dueChanged, this.formatToUserDateFormat(control.getDueDate()), (columns.length > 3? columns[3] : ""),
 					retractChanged, this.formatToUserDateFormat(control.getRetractDate()), (columns.length > 4? columns[4] : ""),
 					feedbackStartChanged, this.formatToUserDateFormat(control.getFeedbackDate()), (columns.length > 5? columns[5] : ""),
@@ -2482,7 +2484,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 				// Handle tool title lines (e.g., "sakai.assignment(Assignments)")
 				// Tool headers may have multiple columns but only first column contains the tool info
 				if (nextLine.length >= 1 && nextLine[0].contains("(") && nextLine[0].contains(")")) {
-					String toolLine = nextLine[0];
+					String toolLine = nextLine[0].trim();
 					currentToolId = toolLine.substring(0, toolLine.indexOf("(")).trim();
 					log.debug("Found tool header: '{}', extracted toolId: '{}'", toolLine, currentToolId);
 					isHeader = true;
@@ -2499,7 +2501,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 					// Check if this row has changes (skip for header rows and empty rows)
 					log.debug("Processing data row: isHeader={}, firstCol='{}', toolId='{}'", isHeader, nextLine[0], currentToolId);
 					boolean rowChanged = false;
-					if (!isHeader && StringUtils.isNotBlank(nextLine[0])) {
+					if (!isHeader && StringUtils.isNotBlank(nextLine[0]) && StringUtils.isNotBlank(currentToolId)) {
 						try {
 							rowChanged = isChanged(currentToolId, nextLine);
 							log.debug("Change detection for tool '{}', id '{}': {}", currentToolId, nextLine[0], rowChanged);
