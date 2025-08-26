@@ -26,7 +26,7 @@ import org.sakaiproject.site.api.Site;
 
 public interface DateManagerService {
 
-	public final String STATE_SITE_ID = "site.instance.id";
+	public static final String STATE_SITE_ID = "site.instance.id";
 	public static final String TOOLS_TO_IMPORT_SESSION_KEY = "datemanager.toolsToImport";
 
 	// Global methods
@@ -34,7 +34,7 @@ public interface DateManagerService {
 	public String getCurrentSiteId();
 	public Optional<Site> getCurrentSite();
 	public Locale getUserLocale();
-        public Locale getLocaleForCurrentSiteAndUser();
+	public Locale getLocaleForCurrentSiteAndUser();
 	public String getMessage(String messageId);
 	public boolean currentSiteContainsTool(String commonId);
 	public String getToolTitle(String commonId);
