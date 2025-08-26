@@ -30,7 +30,6 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -321,9 +320,6 @@ public class MainController {
 	 */
     @GetMapping(value = {"/date-manager/page/import"})
     public String showImportPage(Model model, HttpServletRequest request, HttpServletResponse response) {
-        String siteId = dateManagerService.getCurrentSiteId();
-        String userId = sessionManager.getCurrentSessionUserId();
-
         model = getModelWithLocale(model, request, response);
 
         // Ensure a fresh start on reload by clearing any cached import list
