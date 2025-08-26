@@ -2019,15 +2019,19 @@ public class DateManagerServiceImpl implements DateManagerService {
 				Date dueDate   = assignment.getDueDate()   != null ? Date.from(assignment.getDueDate())   : null;
 				Date closeDate = assignment.getCloseDate() != null ? Date.from(assignment.getCloseDate()) : null;
 
-				boolean openChanged  = this.compareDates(openDate, columns[2]);
-				boolean dueChanged   = this.compareDates(dueDate, columns[3]);
-				boolean closeChanged = this.compareDates(closeDate, columns[4]);
+				String openCsv  = (columns.length > 2 ? columns[2] : "");
+				String dueCsv   = (columns.length > 3 ? columns[3] : "");
+				String closeCsv = (columns.length > 4 ? columns[4] : "");
+
+				boolean openChanged  = this.compareDates(openDate, openCsv);
+				boolean dueChanged   = this.compareDates(dueDate, dueCsv);
+				boolean closeChanged = this.compareDates(closeDate, closeCsv);
 				changed = openChanged || dueChanged || closeChanged;
 				
 				log.debug("Assignment '{}' change details: open={} (DB: '{}' vs CSV: '{}'), due={} (DB: '{}' vs CSV: '{}'), close={} (DB: '{}' vs CSV: '{}')",
-					id, openChanged, this.formatToUserDateFormat(openDate), columns[2],
-					dueChanged, this.formatToUserDateFormat(dueDate), columns[3],
-					closeChanged, this.formatToUserDateFormat(closeDate), columns[4]);
+					id, openChanged, this.formatToUserDateFormat(openDate), openCsv,
+					dueChanged, this.formatToUserDateFormat(dueDate), dueCsv,
+					closeChanged, this.formatToUserDateFormat(closeDate), closeCsv);
 			} catch (Exception ex) {
 				log.error("Cannot identify the tool content for assignment id '{}'", id, ex);
 			}
