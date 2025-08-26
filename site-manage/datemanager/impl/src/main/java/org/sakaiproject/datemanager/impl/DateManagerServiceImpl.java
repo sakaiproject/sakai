@@ -1996,7 +1996,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 				this.updateLessons(dateManagerValidation);
 			}
 		} catch (Exception ex) {
-			log.error("Cannot update the tool {} receibed", toolId, ex); 
+			log.error("Cannot update the tool {} received", toolId, ex); 
 		}
 	}
 
@@ -2184,8 +2184,9 @@ public class DateManagerServiceImpl implements DateManagerService {
 			if (date != null) {
 				try {
 					Date csvDate = this.stringToDate(dateString.replaceAll("\"", ""));
-					Date formattedOriginalDate = this.stringToDate(this.formatToUserDateFormat(date));
-					isDifferent = csvDate.compareTo(formattedOriginalDate) != 0;
+					String csvNorm = this.formatToUserDateFormat(csvDate);
+					String dbNorm  = this.formatToUserDateFormat(date);
+					isDifferent = !Objects.equals(csvNorm, dbNorm);
 				} catch (Exception e) {
 					log.warn("Error comparing dates. Original date: '{}', CSV date string: '{}'", 
 							this.formatToUserDateFormat(date), dateString, e);
