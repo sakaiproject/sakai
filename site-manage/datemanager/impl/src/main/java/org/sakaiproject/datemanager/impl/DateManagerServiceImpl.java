@@ -151,7 +151,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 
 	private final String[] columnsCsvStrings;
 	private final String[][] columnsNames;
-	private List<ToolImportData> toolsToImport;
+	private static final String TOOLS_TO_IMPORT_SESSION_KEY = "datemanager.toolsToImport";
 
 	public DateManagerServiceImpl() {
 		inputDateFormatter = new DateTimeFormatterBuilder()
@@ -186,7 +186,6 @@ public class DateManagerServiceImpl implements DateManagerService {
 				{"id", "title", "open_date", "due_date"},
 				{"id", "title", "open_date", "due_date", "extraInfo"},
 				{"id", "title", "open_date"}};
-		toolsToImport = new ArrayList<>();
     }
 
 	public void init() {
@@ -2431,7 +2430,13 @@ public class DateManagerServiceImpl implements DateManagerService {
 	 */
 	@Override
 	public List<List<Object>> importCsvData(InputStream csvInputStream, String siteId) throws Exception {
-		toolsToImport = new ArrayList<>();
+		// Build list locally to avoid shared mutable state across requests
+		List<ToolImportData> importList = new ArrayList<>();
+		// Clear any previous per-session cache to avoid cross-request leakage
+		ToolSession tsImport = sessionManager.getCurrentToolSession();
+		if (tsImport != null) {
+			tsImport.setAttribute(TOOLS_TO_IMPORT_SESSION_KEY, new ArrayList<>(importList));
+		}
         List<List<Object>> tools;
         try (
 			// Create CSVReader with the configured separator
@@ -2519,7 +2524,12 @@ public class DateManagerServiceImpl implements DateManagerService {
 							data.toolId = currentToolId;
 							data.index = idx;
 							data.columns = nextLine;
-							toolsToImport.add(data);
+							importList.add(data);
+							// Persist per session to avoid cross-request leakage
+							ToolSession ts = sessionManager.getCurrentToolSession();
+							if (ts != null) {
+								ts.setAttribute(TOOLS_TO_IMPORT_SESSION_KEY, new ArrayList<>(importList));
+							}
 						}
 					} else {
 						log.debug("Skipping row: isHeader={}, firstCol='{}', toolId='{}'", isHeader, nextLine[0], currentToolId);
@@ -2561,6 +2571,17 @@ public class DateManagerServiceImpl implements DateManagerService {
 	 */
 	@Override
 	public List<ToolImportData> getToolsToImport() {
-		return toolsToImport;
+        ToolSession ts = sessionManager.getCurrentToolSession();
+        Object v = ts != null ? ts.getAttribute(TOOLS_TO_IMPORT_SESSION_KEY) : null;
+        if (v instanceof List) {
+            try {
+                @SuppressWarnings("unchecked")
+                List<ToolImportData> list = (List<ToolImportData>) v;
+                return list;
+            } catch (ClassCastException e) {
+                // fall through to empty
+            }
+        }
+        return List.of();
 	}
 }

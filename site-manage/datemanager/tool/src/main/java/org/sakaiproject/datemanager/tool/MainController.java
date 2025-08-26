@@ -287,7 +287,7 @@ public class MainController {
 		String siteId = req.getRequestURI().split("/")[3];
 
 		try {
-			byte[] csvData = dateManagerService.exportCsvData(siteId);
+			byte[] csvData     = dateManagerService.exportCsvData(siteId);
 
 			HttpHeaders headers = new HttpHeaders();
 			String siteName;
@@ -319,15 +319,20 @@ public class MainController {
 	 * @param response The HTTP response.
 	 * @return The name of the import page view.
 	 */
-	@GetMapping(value = {"/date-manager/page/import"})
-	public String showImportPage(Model model, HttpServletRequest request, HttpServletResponse response) {
-		String siteId = dateManagerService.getCurrentSiteId();
-		String userId = sessionManager.getCurrentSessionUserId();
+    @GetMapping(value = {"/date-manager/page/import"})
+    public String showImportPage(Model model, HttpServletRequest request, HttpServletResponse response) {
+        String siteId = dateManagerService.getCurrentSiteId();
+        String userId = sessionManager.getCurrentSessionUserId();
 
-		model = getModelWithLocale(model, request, response);
+        model = getModelWithLocale(model, request, response);
 
-		return "import_page";
-	}
+        // Ensure a fresh start on reload by clearing any cached import list
+        if (sessionManager != null && sessionManager.getCurrentToolSession() != null) {
+            sessionManager.getCurrentToolSession().removeAttribute("datemanager.toolsToImport");
+        }
+
+        return "import_page";
+    }
 
 	/**
 	 * Imports dates from the provided CSV file content.
@@ -437,6 +442,10 @@ public class MainController {
 				DateManagerValidation dateValidation = (DateManagerValidation) dateValidationObject.get(1);
 				
 				dateManagerService.updateTool(currentToolId, dateValidation);
+			}
+			// Clear per-session cached tools to import after successful confirmation
+			if (sessionManager != null && sessionManager.getCurrentToolSession() != null) {
+				sessionManager.getCurrentToolSession().removeAttribute("datemanager.toolsToImport");
 			}
 			return this.showIndex("", model, request, response);
 		} else {
