@@ -151,7 +151,6 @@ public class DateManagerServiceImpl implements DateManagerService {
 
 	private final String[] columnsCsvStrings;
 	private final String[][] columnsNames;
-	private static final String TOOLS_TO_IMPORT_SESSION_KEY = "datemanager.toolsToImport";
 
 	public DateManagerServiceImpl() {
 		inputDateFormatter = new DateTimeFormatterBuilder()
@@ -2437,10 +2436,10 @@ public class DateManagerServiceImpl implements DateManagerService {
 		// Clear any previous per-session cache to avoid cross-request leakage
 		ToolSession tsImport = sessionManager.getCurrentToolSession();
 		if (tsImport != null) {
-			tsImport.setAttribute(TOOLS_TO_IMPORT_SESSION_KEY, new ArrayList<>(importList));
+			tsImport.setAttribute(DateManagerService.TOOLS_TO_IMPORT_SESSION_KEY, new ArrayList<>(importList));
 		}
-        List<List<Object>> tools;
-        try (
+		List<List<Object>> tools;
+		try (
 			// Create CSVReader with the configured separator
 			InputStreamReader inputReader = new InputStreamReader(csvInputStream, StandardCharsets.UTF_8);
 			CSVReader reader = new CSVReaderBuilder(inputReader)
@@ -2530,7 +2529,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 							// Persist per session to avoid cross-request leakage
 							ToolSession ts = sessionManager.getCurrentToolSession();
 							if (ts != null) {
-								ts.setAttribute(TOOLS_TO_IMPORT_SESSION_KEY, new ArrayList<>(importList));
+								ts.setAttribute(DateManagerService.TOOLS_TO_IMPORT_SESSION_KEY, new ArrayList<>(importList));
 							}
 						}
 					} else {
@@ -2573,17 +2572,17 @@ public class DateManagerServiceImpl implements DateManagerService {
 	 */
 	@Override
 	public List<ToolImportData> getToolsToImport() {
-        ToolSession ts = sessionManager.getCurrentToolSession();
-        Object v = ts != null ? ts.getAttribute(TOOLS_TO_IMPORT_SESSION_KEY) : null;
-        if (v instanceof List) {
-            try {
-                @SuppressWarnings("unchecked")
-                List<ToolImportData> list = (List<ToolImportData>) v;
-                return list;
-            } catch (ClassCastException e) {
-                // fall through to empty
-            }
-        }
-        return List.of();
+		ToolSession ts = sessionManager.getCurrentToolSession();
+		Object v = ts != null ? ts.getAttribute(DateManagerService.TOOLS_TO_IMPORT_SESSION_KEY) : null;
+		if (v instanceof List) {
+			try {
+				@SuppressWarnings("unchecked")
+				List<ToolImportData> list = (List<ToolImportData>) v;
+				return list;
+			} catch (ClassCastException e) {
+				// fall through to empty
+			}
+		}
+		return List.of();
 	}
 }

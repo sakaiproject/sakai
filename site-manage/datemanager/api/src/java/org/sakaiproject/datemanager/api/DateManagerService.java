@@ -27,6 +27,7 @@ import org.sakaiproject.site.api.Site;
 public interface DateManagerService {
 
 	public final String STATE_SITE_ID = "site.instance.id";
+	public static final String TOOLS_TO_IMPORT_SESSION_KEY = "datemanager.toolsToImport";
 
 	// Global methods
 	public String getCurrentUserId();

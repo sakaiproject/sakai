@@ -67,9 +67,6 @@ public class MainController {
 
 	private static final ResourceLoader rb = new ResourceLoader("Messages");
 
-    // Session attribute key for the list of tools pending CSV import confirmation
-    private static final String DM_ATTR_TOOLS_TO_IMPORT = "datemanager.toolsToImport";
-
 	@Inject private DateManagerService dateManagerService;
 
 	@Autowired
@@ -321,17 +318,17 @@ public class MainController {
 	 * @param response The HTTP response.
 	 * @return The name of the import page view.
 	 */
-    @GetMapping(value = {"/date-manager/page/import"})
-    public String showImportPage(Model model, HttpServletRequest request, HttpServletResponse response) {
-        model = getModelWithLocale(model, request, response);
+	@GetMapping(value = {"/date-manager/page/import"})
+	public String showImportPage(Model model, HttpServletRequest request, HttpServletResponse response) {
+		model = getModelWithLocale(model, request, response);
 
-        // Ensure a fresh start on reload by clearing any cached import list
-        if (sessionManager != null && sessionManager.getCurrentToolSession() != null) {
-            sessionManager.getCurrentToolSession().removeAttribute(DM_ATTR_TOOLS_TO_IMPORT);
-        }
+		// Ensure a fresh start on reload by clearing any cached import list
+		if (sessionManager != null && sessionManager.getCurrentToolSession() != null) {
+			sessionManager.getCurrentToolSession().removeAttribute(DateManagerService.TOOLS_TO_IMPORT_SESSION_KEY);
+		}
 
-        return "import_page";
-    }
+		return "import_page";
+	}
 
 	/**
 	 * Imports dates from the provided CSV file content.
@@ -373,19 +370,19 @@ public class MainController {
 	 * @param response The HTTP response.
 	 * @return The name of the confirmation page view.
 	 */
-    @GetMapping(value = {"/date-manager/page/import/confirm"}) 
-    public String showConfirmImport(Model model, HttpServletRequest request, HttpServletResponse response) {
-        model = getModelWithLocale(model, request, response);
-        List<DateManagerService.ToolImportData> toolsToImport = dateManagerService.getToolsToImport();
-        if (!toolsToImport.isEmpty()) {
-            // populate the model so confirm_import.html can render the list
-            model.addAttribute("tools", toolsToImport);
-            return "confirm_import";
-        } else {
-            model.addAttribute("errorMessage", rb.getString("page.import.error.no.file"));
-            return "import_page";
-        }
-    }
+	@GetMapping(value = {"/date-manager/page/import/confirm"}) 
+	public String showConfirmImport(Model model, HttpServletRequest request, HttpServletResponse response) {
+		model = getModelWithLocale(model, request, response);
+		List<DateManagerService.ToolImportData> toolsToImport = dateManagerService.getToolsToImport();
+		if (!toolsToImport.isEmpty()) {
+			// populate the model so confirm_import.html can render the list
+			model.addAttribute("tools", toolsToImport);
+			return "confirm_import";
+		} else {
+			model.addAttribute("errorMessage", rb.getString("page.import.error.no.file"));
+			return "import_page";
+		}
+	}
 
 	/**
 	 * Updates the dates for the tools based on the imported and confirmed data.
@@ -444,7 +441,7 @@ public class MainController {
 			}
 			// Clear per-session cached tools to import after successful confirmation
 			if (sessionManager != null && sessionManager.getCurrentToolSession() != null) {
-				sessionManager.getCurrentToolSession().removeAttribute(DM_ATTR_TOOLS_TO_IMPORT);
+				sessionManager.getCurrentToolSession().removeAttribute(DateManagerService.TOOLS_TO_IMPORT_SESSION_KEY);
 			}
 			return this.showIndex("", model, request, response);
 		} else {
