@@ -374,19 +374,19 @@ public class MainController {
 	 * @param response The HTTP response.
 	 * @return The name of the confirmation page view.
 	 */
-	@GetMapping(value = {"/date-manager/page/import/confirm"}) 
-	public String showConfirmImport(Model model, HttpServletRequest request, HttpServletResponse response) {
-		model = getModelWithLocale(model, request, response);
-		List<DateManagerService.ToolImportData> toolsToImport = dateManagerService.getToolsToImport();
-		if (toolsToImport.size() > 0) {
-			// Note: tools would need to be stored in session or retrieved again
-			model.addAttribute("errorMessage", rb.getString("page.import.error.no.file"));
-			return "import_page";
-		} else {
-			model.addAttribute("errorMessage", rb.getString("page.import.error.no.file"));
-			return "import_page";
-		}
-	}
+    @GetMapping(value = {"/date-manager/page/import/confirm"}) 
+    public String showConfirmImport(Model model, HttpServletRequest request, HttpServletResponse response) {
+        model = getModelWithLocale(model, request, response);
+        List<DateManagerService.ToolImportData> toolsToImport = dateManagerService.getToolsToImport();
+        if (!toolsToImport.isEmpty()) {
+            // populate the model so confirm_import.html can render the list
+            model.addAttribute("tools", toolsToImport);
+            return "confirm_import";
+        } else {
+            model.addAttribute("errorMessage", rb.getString("page.import.error.no.file"));
+            return "import_page";
+        }
+    }
 
 	/**
 	 * Updates the dates for the tools based on the imported and confirmed data.

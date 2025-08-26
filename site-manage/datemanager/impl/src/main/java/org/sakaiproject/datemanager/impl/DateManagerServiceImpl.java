@@ -195,7 +195,9 @@ public class DateManagerServiceImpl implements DateManagerService {
 
 	private String getCurrentToolSessionAttribute(String name) {
 		ToolSession session = sessionManager.getCurrentToolSession();
-		return session != null ? session.getAttribute(name).toString() : "";
+		if (session == null) return "";
+		Object v = session.getAttribute(name);
+		return v != null ? v.toString() : "";
 	}
 
 	@Override
