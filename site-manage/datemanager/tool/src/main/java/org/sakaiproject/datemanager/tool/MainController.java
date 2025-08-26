@@ -67,6 +67,9 @@ public class MainController {
 
 	private static final ResourceLoader rb = new ResourceLoader("Messages");
 
+    // Session attribute key for the list of tools pending CSV import confirmation
+    private static final String DM_ATTR_TOOLS_TO_IMPORT = "datemanager.toolsToImport";
+
 	@Inject private DateManagerService dateManagerService;
 
 	@Autowired
@@ -324,7 +327,7 @@ public class MainController {
 
         // Ensure a fresh start on reload by clearing any cached import list
         if (sessionManager != null && sessionManager.getCurrentToolSession() != null) {
-            sessionManager.getCurrentToolSession().removeAttribute("datemanager.toolsToImport");
+            sessionManager.getCurrentToolSession().removeAttribute(DM_ATTR_TOOLS_TO_IMPORT);
         }
 
         return "import_page";
@@ -441,7 +444,7 @@ public class MainController {
 			}
 			// Clear per-session cached tools to import after successful confirmation
 			if (sessionManager != null && sessionManager.getCurrentToolSession() != null) {
-				sessionManager.getCurrentToolSession().removeAttribute("datemanager.toolsToImport");
+				sessionManager.getCurrentToolSession().removeAttribute(DM_ATTR_TOOLS_TO_IMPORT);
 			}
 			return this.showIndex("", model, request, response);
 		} else {
