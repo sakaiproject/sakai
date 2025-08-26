@@ -2397,7 +2397,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 					String toolInfoString = toolInfoObject.toString();
 					toolColumns[j] = toolInfoString != null? toolInfoString : "";
 				} else {
-					String toolInfoString = ((String) toolInfoObject);
+					String toolInfoString = toolInfoObject != null ? toolInfoObject.toString() : null;
 					if (columnsNames[j].equals("title") && toolInfoString != null) {
 						toolInfoString = toolInfoString.replaceAll("[;,\"]", "_");
 					}
@@ -2483,7 +2483,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 				// Tool headers may have multiple columns but only first column contains the tool info
 				if (nextLine.length >= 1 && nextLine[0].contains("(") && nextLine[0].contains(")")) {
 					String toolLine = nextLine[0];
-					currentToolId = toolLine.substring(0, toolLine.indexOf("("));
+					currentToolId = toolLine.substring(0, toolLine.indexOf("(")).trim();
 					log.debug("Found tool header: '{}', extracted toolId: '{}'", toolLine, currentToolId);
 					isHeader = true;
 					continue;
