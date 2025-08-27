@@ -196,13 +196,8 @@ public class AssignmentDueReminderServiceImpl implements AssignmentDueReminderSe
         String submitterUserId = submitter.getUserId();
         ResourceLoader rl = new ResourceLoader(submitterUserId, "assignment");
 
-        String assignmentTitle = assignment.getTitle();
-        if (assignment.getTitle().length() > 11) {
-            assignmentTitle = assignment.getTitle().substring(0, 11) + "[...]";
-        }
-
         replacements.put("url", getAssignmentUrl(assignment));
-        replacements.put("title", assignmentTitle);
+        replacements.put("title", assignment.getTitle());
 
         replacements.put("siteUrl", site.getUrl());
         replacements.put("siteTitle", site.getTitle());
