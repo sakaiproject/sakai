@@ -2430,15 +2430,16 @@ public class DateManagerServiceImpl implements DateManagerService {
 	 * @return The list of tools with their data for confirmation display.
 	 */
 	@Override
-	public List<List<Object>> importCsvData(InputStream csvInputStream, String siteId) throws Exception {
-		// Build list locally to avoid shared mutable state across requests
-		List<ToolImportData> importList = new ArrayList<>();
-		// Clear any previous per-session cache to avoid cross-request leakage
-		ToolSession tsImport = sessionManager.getCurrentToolSession();
-		if (tsImport != null) {
-			tsImport.setAttribute(DateManagerService.TOOLS_TO_IMPORT_SESSION_KEY, new ArrayList<>(importList));
-		}
-		List<List<Object>> tools;
+    public List<List<Object>> importCsvData(InputStream csvInputStream, String siteId) throws Exception {
+        // Build list locally to avoid shared mutable state across requests
+        List<ToolImportData> importList = new ArrayList<>();
+        // Clear any previous per-session cache to avoid cross-request leakage
+        ToolSession tsImport = sessionManager.getCurrentToolSession();
+        if (tsImport != null) {
+            tsImport.setAttribute(DateManagerService.TOOLS_TO_IMPORT_SESSION_KEY, new ArrayList<>(importList));
+            tsImport.removeAttribute(DateManagerService.TOOLS_CSV_PREVIEW_SESSION_KEY);
+        }
+        List<List<Object>> tools;
 		try (
 			// Create CSVReader with the configured separator
 			InputStreamReader inputReader = new InputStreamReader(csvInputStream, StandardCharsets.UTF_8);
@@ -2561,28 +2562,83 @@ public class DateManagerServiceImpl implements DateManagerService {
 			log.error("Cannot identify the file received", ex);
 			throw new Exception("Error processing CSV file", ex);
 		}
-		
-		return tools;
-	}
+        // Store preview structure for confirm page (PRG compatibility)
+        setToolsCsvPreview(tools);
+        return tools;
+    }
 
 	/**
 	 * Gets the tools to import data for processing.
 	 *
 	 * @return The list of tools to import.
 	 */
-	@Override
-	public List<ToolImportData> getToolsToImport() {
-		ToolSession ts = sessionManager.getCurrentToolSession();
-		Object v = ts != null ? ts.getAttribute(DateManagerService.TOOLS_TO_IMPORT_SESSION_KEY) : null;
-		if (v instanceof List) {
-			try {
-				@SuppressWarnings("unchecked")
-				List<ToolImportData> list = (List<ToolImportData>) v;
-				return list;
-			} catch (ClassCastException e) {
-				// fall through to empty
-			}
-		}
-		return List.of();
-	}
+    @Override
+    public List<ToolImportData> getToolsToImport() {
+        ToolSession ts = sessionManager.getCurrentToolSession();
+        Object v = ts != null ? ts.getAttribute(DateManagerService.TOOLS_TO_IMPORT_SESSION_KEY) : null;
+        if (v instanceof List) {
+            try {
+                @SuppressWarnings("unchecked")
+                List<ToolImportData> list = (List<ToolImportData>) v;
+                return list;
+            } catch (ClassCastException e) {
+                // fall through to empty
+            }
+        }
+        return List.of();
+    }
+
+    @Override
+    public List<List<Object>> getToolsCsvPreview() {
+        ToolSession ts = sessionManager.getCurrentToolSession();
+        Object v = ts != null ? ts.getAttribute(DateManagerService.TOOLS_CSV_PREVIEW_SESSION_KEY) : null;
+        if (v instanceof List) {
+            try {
+                @SuppressWarnings("unchecked")
+                List<List<Object>> preview = (List<List<Object>>) v;
+                return preview;
+            } catch (ClassCastException e) {
+                // fall through
+            }
+        }
+        return List.of();
+    }
+
+    @Override
+    public void setToolsToImport(List<ToolImportData> tools) {
+        ToolSession ts = sessionManager.getCurrentToolSession();
+        if (ts == null) return;
+        if (tools == null || tools.isEmpty()) {
+            ts.removeAttribute(DateManagerService.TOOLS_TO_IMPORT_SESSION_KEY);
+        } else {
+            ts.setAttribute(DateManagerService.TOOLS_TO_IMPORT_SESSION_KEY, new ArrayList<>(tools));
+        }
+    }
+
+    @Override
+    public void clearToolsToImport() {
+        ToolSession ts = sessionManager.getCurrentToolSession();
+        if (ts != null) {
+            ts.removeAttribute(DateManagerService.TOOLS_TO_IMPORT_SESSION_KEY);
+        }
+    }
+
+    @Override
+    public void setToolsCsvPreview(List<List<Object>> preview) {
+        ToolSession ts = sessionManager.getCurrentToolSession();
+        if (ts == null) return;
+        if (preview == null || preview.isEmpty()) {
+            ts.removeAttribute(DateManagerService.TOOLS_CSV_PREVIEW_SESSION_KEY);
+        } else {
+            ts.setAttribute(DateManagerService.TOOLS_CSV_PREVIEW_SESSION_KEY, new ArrayList<>(preview));
+        }
+    }
+
+    @Override
+    public void clearToolsCsvPreview() {
+        ToolSession ts = sessionManager.getCurrentToolSession();
+        if (ts != null) {
+            ts.removeAttribute(DateManagerService.TOOLS_CSV_PREVIEW_SESSION_KEY);
+        }
+    }
 }

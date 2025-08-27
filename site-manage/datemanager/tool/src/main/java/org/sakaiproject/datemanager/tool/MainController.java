@@ -322,10 +322,9 @@ public class MainController {
 	public String showImportPage(Model model, HttpServletRequest request, HttpServletResponse response) {
 		model = getModelWithLocale(model, request, response);
 
-		// Ensure a fresh start on reload by clearing any cached import list
-		if (sessionManager != null && sessionManager.getCurrentToolSession() != null) {
-			sessionManager.getCurrentToolSession().removeAttribute(DateManagerService.TOOLS_TO_IMPORT_SESSION_KEY);
-		}
+		// Ensure a fresh start on reload by clearing any cached import list and preview
+		dateManagerService.clearToolsToImport();
+		dateManagerService.clearToolsCsvPreview();
 
 		return "import_page";
 	}
@@ -348,8 +347,8 @@ public class MainController {
 			
 			model = getModelWithLocale(model, request, response);
 			if (!tools.isEmpty()) {
-				model.addAttribute("tools", tools);
-				return "confirm_import";
+				// Store preview handled by service; redirect to GET to unify model shape (PRG)
+				return "redirect:/date-manager/page/import/confirm";
 			} else {
 				model.addAttribute("errorMessage", rb.getString("page.import.error.any.date"));
 				return "import_page";
@@ -373,10 +372,10 @@ public class MainController {
 	@GetMapping(value = {"/date-manager/page/import/confirm"}) 
 	public String showConfirmImport(Model model, HttpServletRequest request, HttpServletResponse response) {
 		model = getModelWithLocale(model, request, response);
-		List<DateManagerService.ToolImportData> toolsToImport = dateManagerService.getToolsToImport();
-		if (!toolsToImport.isEmpty()) {
+		List<List<Object>> preview = dateManagerService.getToolsCsvPreview();
+		if (!preview.isEmpty()) {
 			// populate the model so confirm_import.html can render the list
-			model.addAttribute("tools", toolsToImport);
+			model.addAttribute("tools", preview);
 			return "confirm_import";
 		} else {
 			model.addAttribute("errorMessage", rb.getString("page.import.error.no.file"));
@@ -439,10 +438,9 @@ public class MainController {
 				
 				dateManagerService.updateTool(currentToolId, dateValidation);
 			}
-			// Clear per-session cached tools to import after successful confirmation
-			if (sessionManager != null && sessionManager.getCurrentToolSession() != null) {
-				sessionManager.getCurrentToolSession().removeAttribute(DateManagerService.TOOLS_TO_IMPORT_SESSION_KEY);
-			}
+			// Clear per-session cached tools to import and preview after successful confirmation
+			dateManagerService.clearToolsToImport();
+			dateManagerService.clearToolsCsvPreview();
 			return this.showIndex("", model, request, response);
 		} else {
 			model.addAttribute("errors", errors);
