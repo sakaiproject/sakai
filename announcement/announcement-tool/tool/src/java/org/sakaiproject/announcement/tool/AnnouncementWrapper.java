@@ -90,7 +90,8 @@ public class AnnouncementWrapper implements AnnouncementMessage
 		this.announcementMessage = message;
 
 		// This message is editable only if the site matches.
-		this.editable = message.getOriginChannel().equals(hostingChannel.getReference());
+		String originChannel = message.getOriginChannel();
+		this.editable = originChannel != null && originChannel.equals(hostingChannel.getReference());
 
 		Site site = null;
 

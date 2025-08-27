@@ -238,15 +238,21 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 		//for each channel
 		for (String channel : channels) {
 			try {
-				announcements.addAll(announcementService.getMessages(channel, new ViewableFilter(null, t, numberOfAnnouncements, announcementService), announcementSortAsc, false));
+				List<AnnouncementMessage> channelMessages = announcementService.getMessages(channel, new ViewableFilter(null, t, numberOfAnnouncements, announcementService), announcementSortAsc, false);
+				// Filter out draft messages explicitly since ViewableFilter might not be doing it properly for instructors
+				for (AnnouncementMessage msg : channelMessages) {
+					if (!msg.getHeader().getDraft()) {
+						announcements.add(msg);
+					}
+				}
 			} catch (PermissionException | IdUnusedException | NullPointerException ex) {
 				//user may not have access to view the channel but get all public messages in this channel
 				AnnouncementChannel announcementChannel = (AnnouncementChannel) announcementService.getChannelPublic(channel);
 				if (announcementChannel != null) {
 					List<Message> publicMessages = announcementChannel.getMessagesPublic(null, true);
 					for (Message message : publicMessages) {
-						//Add message only if it is within the time range
-						if (isMessageWithinPastNDays(message, numberOfDaysInThePast) && announcementService.isMessageViewable((AnnouncementMessage) message)) {
+						//Add message only if it is within the time range and not a draft
+						if (isMessageWithinPastNDays(message, numberOfDaysInThePast) && announcementService.isMessageViewable((AnnouncementMessage) message) && !((AnnouncementMessage) message).getHeader().getDraft()) {
 							announcements.add(message);
 						}
 					}
