@@ -403,6 +403,29 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
             });
         }
 
+        // Ensure a top-level SimplePageItem exists for every top-level Lessons page
+        // This addresses cases (e.g., some imports) where the top-level page exists
+        // but the vestigial top-level item was not created yet, causing pages to
+        // appear under "not in use" on the Index of Pages until first visit.
+        final List<SimplePage> allPagesInSite = simplePageToolDao.getSitePages(siteId);
+        if (allPagesInSite != null && !allPagesInSite.isEmpty()) {
+            for (SimplePage p : allPagesInSite) {
+                // Only consider true top-level pages that correspond to actual site placements
+                if (p.getParent() == null
+                        && p.getToolId() != null
+                        && existingSitePageToolIds.contains(p.getToolId())
+                        && !simplePageBean.isStudentPage(p)) {
+                    SimplePageItem topLevelItem = simplePageToolDao.findTopLevelPageItemBySakaiId(Long.toString(p.getPageId()));
+                    if (topLevelItem == null) {
+                        SimplePageItem item = simplePageToolDao.makeItem(0, 0, SimplePageItem.PAGE, Long.toString(p.getPageId()), p.getTitle());
+                        if (!simplePageToolDao.quickSaveItem(item)) {
+                            log.warn("Failed to create vestigial top-level item for page {} in site {}", p.getPageId(), siteId);
+                        }
+                    }
+                }
+            }
+        }
+
 		final List<SimplePageItem> sitePages = simplePageToolDao.getOrderedTopLevelPageItems(siteId);
 
         final Set<Long> topLevelPages
