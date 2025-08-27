@@ -2424,12 +2424,39 @@ public class DbContentService extends BaseContentService
                     String statement = contentServiceSql.getOnlyOneFilePath(resourceTableName);
                     String duplicateFilePath = singleColumnSingleRow(statement, hex);
 
+                    System.out.println("duplicateFilePath: " + duplicateFilePath);
+
                     if ( duplicateFilePath != null ) {
-                        delResourceBodyFilesystem(rootFolder, resource);
-                        ((BaseResourceEdit) resource).m_filePath = duplicateFilePath;
-                        log.debug("Duplicate body found path={}",duplicateFilePath);
+                        try {
+                            System.out.println("duplicateFilePath222: " + duplicateFilePath);
+                            // Count how many resources currently reference the existing file path
+                            String countStatement = contentServiceSql.getCountFilePath(resourceTableName);
+                            int references = countQuery(countStatement, duplicateFilePath);
+                            
+                            // Check if this resource already exists (content update vs new upload)
+                            String checkResourceStatement = "SELECT COUNT(*) FROM " + resourceTableName + " WHERE RESOURCE_ID = ?";
+                            int existingResource = countQuery(checkResourceStatement, resource.getId());
+                            
+                            if (existingResource > 0 && references > 1) {
+                                // This is a content update and other resources point to the existing file
+                                // Use copy-on-write: don't reuse the file path to prevent cross-contamination
+                                log.debug("Content update detected with {} other references to existing file, using new path for security: {}", references - 1, resource.getId());
+                            } else {
+                                // Either new upload OR content update with no other references - safe to deduplicate
+                                delResourceBodyFilesystem(rootFolder, resource);
+                                ((BaseResourceEdit) resource).m_filePath = duplicateFilePath;
+                                if (existingResource > 0) {
+                                    log.debug("Content update with exclusive reference, safe to reuse file path: {}", duplicateFilePath);
+                                } else {
+                                    log.debug("New upload with duplicate content, reusing file path: {}", duplicateFilePath);
+                                }
+                            }
+                        } catch (IdUnusedException e) {
+                            log.warn("Error checking file references for deduplication: {}", e.getMessage());
+                            // Safe fallback: don't deduplicate if we can't verify safety
+                        }
                     } else {
-                        log.debug("Content body us unique id={}",resource.getId());
+                        log.debug("Content body is unique, id: {}", resource.getId());
                     }
                 }
 
