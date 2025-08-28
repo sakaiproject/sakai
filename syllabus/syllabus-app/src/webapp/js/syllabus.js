@@ -114,17 +114,19 @@ function setupAccordion(iframId, isInstructor, msgs, openDataId){
 		setTimeout(function() {
 			// First close all accordions
 			$('#accordion > span > div.ui-accordion').each(function(){
-				if($(this).find(".ui-accordion-content:first").is(":visible")){
+				if ($(this).find(".ui-accordion-content:first").is(":visible")) {
 					$(this).find(".ui-accordion-header:first").click();
 				}
 			});
 			
 			// Then open only the target accordion
-			const targetHeader = $( "#accordion div[syllabusItem=" + itemId + "].group .ui-accordion-header");
+			const esc = (window.CSS && CSS.escape) ? CSS.escape : (s => s.replace(/(["\\`])/g, '\\$1'));
+			const safeItemId = esc(itemId);
+			const targetHeader = $(`#accordion div[syllabusItem="${safeItemId}"].group .ui-accordion-header`);
 			if (targetHeader.length > 0) {
 				targetHeader.click().focus();
 				// Scroll to the item
-				const targetDiv = $('div[syllabusItem="' + itemId + '"].group');
+				const targetDiv = $(`div[syllabusItem="${safeItemId}"].group`);
 				if (targetDiv.length > 0) {
 					$('html, body').animate({
 						scrollTop: targetDiv.offset().top - 100
