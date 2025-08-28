@@ -712,7 +712,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			return "lti_error";
 		}
 
-		Long launchType = LTIUtil.toLongNull( (Integer) tool.get(LTIService.LTI13) );
+		Long launchType = LTIUtil.toLongNull(tool.get(LTIService.LTI13));
 		context.put("launchType", launchType);
 		context.put("isAdmin", ltiService.isAdmin(getSiteId(state)) ? Boolean.TRUE : Boolean.FALSE);
 

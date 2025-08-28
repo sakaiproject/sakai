@@ -13919,6 +13919,8 @@ public class AssignmentAction extends PagedResourceActionII {
 
             // clear search form
             doSearch_clear(data, null);
+            
+            state.removeAttribute(TAG_SELECTOR);
 
             String viewMode = data.getParameters().getString("view");
             state.setAttribute(STATE_SELECTED_VIEW, viewMode);

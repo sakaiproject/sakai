@@ -20,8 +20,6 @@ package org.sakaiproject.sitestats.tool.wicket.pages;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -618,9 +616,7 @@ public class ReportDataPage extends BasePage {
 		RequestCycle.get().scheduleRequestHandlerAfterCurrent(new EmptyRequestHandler());
 		WebResponse response = (WebResponse) getResponse();
 		response.setContentType("application/vnd.ms-excel");
-		fileName = fileName + ".xls";
-		// Filename has to be encoded because the siteId can contain non utf-8 chars.
-		response.setAttachmentHeader(this.encodeFileName(fileName));
+		response.setAttachmentHeader(fileName + ".xls");
 		response.setHeader("Cache-Control", "max-age=0");
 		response.setContentLength(hssfWorkbookBytes.length);
 		OutputStream out = null;
@@ -646,9 +642,7 @@ public class ReportDataPage extends BasePage {
 		RequestCycle.get().scheduleRequestHandlerAfterCurrent(new EmptyRequestHandler());
 		WebResponse response = (WebResponse) getResponse();
 		response.setContentType("text/comma-separated-values");
-		fileName = fileName + ".csv";
-		// Filename has to be encoded because the siteId can contain non utf-8 chars.
-		response.setAttachmentHeader(this.encodeFileName(fileName));
+		response.setAttachmentHeader(fileName + ".csv");
 		response.setHeader("Cache-Control", "max-age=0");
 		response.setContentLength(csvString.length());
 		OutputStream out = null;
@@ -674,9 +668,7 @@ public class ReportDataPage extends BasePage {
 		RequestCycle.get().scheduleRequestHandlerAfterCurrent(new EmptyRequestHandler());
 		WebResponse response = (WebResponse) getResponse();
 		response.setContentType("application/pdf");
-		fileName = fileName + ".pdf";
-		// Filename has to be encoded because the siteId can contain non utf-8 chars.
-		response.setAttachmentHeader(this.encodeFileName(fileName));
+		response.setAttachmentHeader(fileName + ".pdf");
 		response.setHeader("Cache-Control", "max-age=0");
 		response.setContentLength(pdf.length);
 		OutputStream out = null;
@@ -767,14 +759,6 @@ public class ReportDataPage extends BasePage {
 	
 	public String getReportUserSelection() {
 		return Locator.getFacade().getReportManager().getReportFormattedParams().getReportUserSelection(report);
-	}
-
-	private String encodeFileName(String fileName) {
-		try {
-			return URLEncoder.encode(fileName, StandardCharsets.UTF_8.displayName()); 
-		} catch (Exception ex) {
-			return fileName;
-		}
 	}
 
 }
