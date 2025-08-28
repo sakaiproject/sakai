@@ -179,7 +179,8 @@ sakai-grader {
         position: relative;
         max-height: 100px;
         overflow: hidden;
-        
+        &:has(.fade-overlay.d-none) { max-height: unset }
+
         &::after {
           content: "";
           position: absolute;
