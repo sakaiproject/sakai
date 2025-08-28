@@ -8098,6 +8098,29 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		{
 			ContentResourceEdit edit = contentHostingService.editResource(entity.getId());
 			ResourcePropertiesEdit props = edit.getPropertiesEdit();
+			
+			// SAK-51763 Force new file path for content replacement to prevent file contamination
+			// When replacing/uploading new version, ensure it gets a unique file path to avoid serving
+			// wrong content to other sites due to single instance store deduplication
+			try {
+				// Use reflection to access the protected setFilePath method and m_filePath field
+				TimeService timeService = (TimeService) ComponentManager.get(TimeService.class);
+				java.lang.reflect.Method setFilePathMethod = edit.getClass().getDeclaredMethod("setFilePath", 
+					org.sakaiproject.time.api.Time.class);
+				setFilePathMethod.setAccessible(true);
+				setFilePathMethod.invoke(edit, timeService.newTime());
+				
+				// Get the new file path for logging
+				java.lang.reflect.Field filePathField = edit.getClass().getDeclaredField("m_filePath");
+				filePathField.setAccessible(true);
+				String newFilePath = (String) filePathField.get(edit);
+				
+				log.info("Forced new file path for upload new version: {} -> {}", 
+					edit.getId(), newFilePath);
+			} catch (Exception e) {
+				log.warn("Could not force new file path for replace operation: {}", e.getMessage());
+			}
+			
 			// update content
 			extractContent(pipe, edit);
 			
