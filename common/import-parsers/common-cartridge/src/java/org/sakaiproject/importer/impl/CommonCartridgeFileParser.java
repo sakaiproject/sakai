@@ -50,6 +50,7 @@ import org.sakaiproject.importer.impl.importables.Folder;
 import org.sakaiproject.importer.impl.translators.CCAssessmentTranslator;
 import org.sakaiproject.importer.impl.translators.CCDiscussionTopicTranslator;
 import org.sakaiproject.importer.impl.translators.CCLearningApplicationResourceTranslator;
+import org.sakaiproject.importer.impl.translators.CCQTITranslator;
 import org.sakaiproject.importer.impl.translators.CCWebContentTranslator;
 import org.sakaiproject.importer.impl.translators.CCWebLinkTranslator;
 
@@ -60,6 +61,7 @@ public class CommonCartridgeFileParser extends IMSFileParser {
 	public CommonCartridgeFileParser() {
 		// add resource translators here
 		addResourceTranslator(new CCAssessmentTranslator());
+		addResourceTranslator(new CCQTITranslator()); // Handle Canvas QTI files (.xml.qti) before generic learning resources
 		addResourceTranslator(new CCWebLinkTranslator());
 		addResourceTranslator(new CCWebContentTranslator());
 		addResourceTranslator(new CCDiscussionTopicTranslator());

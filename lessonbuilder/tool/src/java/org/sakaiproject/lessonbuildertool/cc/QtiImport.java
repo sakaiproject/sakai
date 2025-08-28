@@ -1748,7 +1748,29 @@ public class QtiImport {
 	    NodeList sections = null;
 	    if (isBank) {
 		sections = document.getElementsByTagName("objectbank");
-		title = "Imported Pool";
+		title = "Imported Pool"; // default fallback
+		
+		// Extract Canvas bank_title from objectbank qtimetadata
+		if (sections.getLength() > 0) {
+		    Node objectbank = sections.item(0);
+		    Node md = getFirstByName(objectbank, "qtimetadata");
+		    if (md != null) {
+			NodeList mds = ((Element)md).getElementsByTagName("qtimetadatafield");
+			for (int n = 0; n < mds.getLength(); n++) {
+			    Node item = mds.item(n);
+			    Node l = getFirstByName(item, "fieldlabel");
+			    String label = (l == null ? null : getNodeText(l));
+			    if ("bank_title".equals(label)) {
+				Node e = getFirstByName(item, "fieldentry");
+				String entry = (e == null ? null : getNodeText(e));
+				if (entry != null && !entry.trim().isEmpty()) {
+				    title = entry.trim();
+				    break;
+				}
+			    }
+			}
+		    }
+		}
 	    } else {
 		NodeList assessments = document.getElementsByTagName("assessment");
 		Node assessment = assessments.item(0);

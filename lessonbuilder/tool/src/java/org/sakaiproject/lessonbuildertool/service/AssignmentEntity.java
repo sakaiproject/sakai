@@ -643,6 +643,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 		String pointString = gradeElement.getAttributeValue("points_possible");
 		double pointF = 100.0;
 		Integer scaleFactor = assignmentService.getScaleFactor();
+		if (scaleFactor == null || scaleFactor <= 0) scaleFactor = 100;
 		int points = scaleFactor * 100; // default to 100 points scaled appropriately
 		if (pointString != null) {
 		    try {
@@ -752,7 +753,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
             } else {
                 a.setTitle("Untitled Assignment");
             }
-            
+
             // Instructions - use HTML instructions from Canvas assignment
             if (instructions != null && !instructions.trim().isEmpty()) {
                 // Use JSoup to extract the body content and clean up HTML
@@ -768,7 +769,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
                 a.setInstructions("<p></p>");
             }
             a.setHonorPledge(false);
-            
+
             // Parse submission types
             String submissionTypes = assignmentXml.getChildText("submission_types", canvasNs);
             Assignment.SubmissionType submitType = Assignment.SubmissionType.TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION; // default
@@ -784,21 +785,21 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
                 }
             }
             a.setTypeOfSubmission(submitType);
-            
+
             // Parse grading type and points
             String gradingType = assignmentXml.getChildText("grading_type", canvasNs);
             String pointsPossible = assignmentXml.getChildText("points_possible", canvasNs);
-            
+
             if ("not_graded".equals(gradingType)) {
                 a.setTypeOfGrade(Assignment.GradeType.UNGRADED_GRADE_TYPE);
             } else if ("points".equals(gradingType)) {
                 // Use the proper scale factor from assignment service with null-safety
                 Integer scaleFactor = assignmentService.getScaleFactor();
-                if (scaleFactor == null) {
-                    scaleFactor = 1;
+                if (scaleFactor == null || scaleFactor <= 0) {
+                    scaleFactor = 100;
                 }
                 a.setScaleFactor(scaleFactor);
-                
+
                 int points;
                 if (pointsPossible != null) {
                     try {

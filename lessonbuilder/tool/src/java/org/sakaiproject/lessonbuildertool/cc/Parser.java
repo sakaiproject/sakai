@@ -176,15 +176,14 @@ public class Parser extends AbstractParser {
 	return;
     }
 
-    log.debug("Found version " + ns.getNs());
+    log.debug("Found version {}", ns.getNs());
 
     the_handler.startManifest();
     the_handler.setManifestXml(the_manifest);
     if ( the_canvas_module_meta != null && the_handler instanceof org.sakaiproject.lessonbuildertool.cc.PrintHandler) {
         ((org.sakaiproject.lessonbuildertool.cc.PrintHandler)the_handler).setCanvasModuleMetaXml(the_canvas_module_meta);
     }
-    if (processAuthorization(the_manifest, the_handler))
-	return; // don't process CCs with authorization
+    if (processAuthorization(the_manifest, the_handler)) return; // don't process CCs with authorization
     processManifestMetadata(the_manifest, the_handler);
     preProcessResources(the_manifest.getChild(CC_RESOURCES, ns.getNs()), the_handler);
     XPath path=null;
