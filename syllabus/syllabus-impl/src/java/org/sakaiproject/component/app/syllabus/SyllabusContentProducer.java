@@ -199,9 +199,8 @@ public class SyllabusContentProducer implements EntityContentProducer {
 			SearchUtils.appendCleanString(asset, sb);
 		}
 		
-		log.debug("Syllabus Content for reference: {} is: {}", ref.getReference(), sb.toString());
-		return sb.toString();
-	}
+ 		return sb.toString();
+ 	}
 
 	@Override
 	public Reader getContentReader(String reference) {
