@@ -149,7 +149,7 @@ export default [
       "prefer-regex-literals": "error",
       "prefer-rest-params": "error",
       "prefer-spread": "error",
-      quotes: [ "error", "double" ],
+      quotes: [ "warn", "double" ],
       "require-atomic-updates": "error",
       semi: [ "warn", "always" ],
       "space-infix-ops": "error",
