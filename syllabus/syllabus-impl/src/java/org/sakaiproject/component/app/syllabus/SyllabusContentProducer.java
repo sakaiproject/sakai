@@ -87,7 +87,6 @@ public class SyllabusContentProducer implements EntityContentProducer {
 	private ServerConfigurationService serverConfigurationService;
 
 	protected void init() throws Exception {
-		log.info("init()");
 		
 		if ("true".equals(serverConfigurationService.getString("search.enable", "false"))) {
 			for (Iterator<String> i = addEvents.iterator(); i.hasNext();) {
@@ -98,13 +97,6 @@ public class SyllabusContentProducer implements EntityContentProducer {
 			}
 			getSearchIndexBuilder().registerEntityContentProducer(this);
 		}
-	}
-
-	/**
-	 * Destroy
-	 */
-	protected void destroy() {
-		log.info("destroy()");
 	}
 
 	private Reference getReference(String reference) {
@@ -152,14 +144,12 @@ public class SyllabusContentProducer implements EntityContentProducer {
 		String evt = event.getEvent();
 		if (evt == null) return SearchBuilderItem.ACTION_UNKNOWN;
 		
-		for (Iterator<String> i = addEvents.iterator(); i.hasNext();) {
-			String match = (String) i.next();
+		for (String match : addEvents) {
 			if (evt.equals(match)) {
 				return SearchBuilderItem.ACTION_ADD;
 			}
 		}
-		for (Iterator<String> i = removeEvents.iterator(); i.hasNext();) {
-			String match = (String) i.next();
+		for (String match : removeEvents) {
 			if (evt.equals(match)) {
 				return SearchBuilderItem.ACTION_DELETE;
 			}

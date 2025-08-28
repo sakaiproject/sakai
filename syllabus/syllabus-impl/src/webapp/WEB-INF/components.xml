@@ -81,29 +81,20 @@
 		class="org.sakaiproject.component.app.syllabus.SyllabusContentProducer"
 		init-method="init" destroy-method="destroy">
 		<property name="addEvents">
-     <property name="addEvents">
-       <list>
-         <value>syllabus.post.new</value>
-         <value>syllabus.post.change</value>
-       </list>
-     </property>
-     <property name="removeEvents">
-       <list>
-         <value>syllabus.delete</value>
-       </list>
-     </property>
-		<property name="entityManager">
-			<ref bean="org.sakaiproject.entity.api.EntityManager"/>
+			<list>
+				<value>syllabus.post.new</value>
+				<value>syllabus.post.change</value>
+			</list>
 		</property>
-		<property name="syllabusManager">
-			<ref bean="org.sakaiproject.api.app.syllabus.SyllabusManager"/>
+		<property name="removeEvents">
+			<list>
+				<value>syllabus.delete</value>
+			</list>
 		</property>
-		<property name="searchService">
-			<ref bean="org.sakaiproject.search.api.SearchService" />
-		</property>
-		<property name="searchIndexBuilder">
-			<ref bean="org.sakaiproject.search.api.SearchIndexBuilder" />
-		</property>
+		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
+		<property name="syllabusManager" ref="org.sakaiproject.api.app.syllabus.SyllabusManager"/>
+		<property name="searchService" ref="org.sakaiproject.search.api.SearchService"/>
+		<property name="searchIndexBuilder" ref="org.sakaiproject.search.api.SearchIndexBuilder"/>
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
 		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
