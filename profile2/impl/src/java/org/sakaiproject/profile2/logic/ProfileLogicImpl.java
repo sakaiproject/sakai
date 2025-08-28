@@ -79,7 +79,7 @@ public class ProfileLogicImpl implements ProfileLogic {
 		}
 
 		//transform
-		p = transformSakaiPersonToUserProfile(p, sakaiPerson);
+		p = transformSakaiPersonToUserProfile(p, sakaiPerson, Boolean.TRUE.equals(sakaiProxy.getViewPronouns()));
 
 		if(StringUtils.equals(userUuid, currentUserUuid) || sakaiProxy.isSuperUser()) {
 			p.setEmail(u.getEmail());
@@ -209,7 +209,7 @@ public class ProfileLogicImpl implements ProfileLogic {
 	 * @param sp 		input SakaiPerson
 	 * @return			returns a UserProfile representation of the SakaiPerson object
 	 */
-	private UserProfile transformSakaiPersonToUserProfile(UserProfile p, SakaiPerson sp) {
+	private UserProfile transformSakaiPersonToUserProfile(UserProfile p, SakaiPerson sp, boolean showPronouns) {
 
 		//map fields from SakaiPerson to UserProfile
 
@@ -219,6 +219,14 @@ public class ProfileLogicImpl implements ProfileLogic {
 
 		//contact info
 		p.setMobilephone(sp.getMobile());
+
+		// Display pronouns if sakai.properties has this enabled
+		if (showPronouns) {
+			final String pronouns = StringUtils.trimToNull(sp.getPronouns());
+			if (pronouns != null) {
+				p.setPronouns(pronouns);
+			}
+		}
 
 		return p;
 	}

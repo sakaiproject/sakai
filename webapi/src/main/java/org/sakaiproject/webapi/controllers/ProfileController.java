@@ -70,7 +70,9 @@ public class ProfileController extends AbstractSakaiApiController {
             return ResponseEntity.noContent().build();
         }
 
-        UserProfile userProfile = (UserProfile) profileLogic.getUserProfile(userId);
+        UserProfile userProfile = StringUtils.isBlank(siteId)
+		? profileLogic.getUserProfile(userId)
+		: profileLogic.getUserProfile(userId, siteId);
 
         if (userProfile == null) {
             return ResponseEntity.badRequest().build();
