@@ -856,8 +856,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
                           for (Element file : files) {
                               String fileHref = file.getAttributeValue(HREF);
                               if (fileHref != null && fileHref.endsWith(".html")) {
-                                  try {
-                                      InputStream htmlStream = loader.getFile(fileHref);
+                                  try (InputStream htmlStream = loader.getFile(fileHref)) {
                                       if (htmlStream != null) {
                                           byte[] buffer = new byte[8096];
                                           StringBuilder sb = new StringBuilder();
@@ -866,7 +865,6 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
                                               sb.append(new String(buffer, 0, n, StandardCharsets.UTF_8));
                                           }
                                           syllabusContent = sb.toString();
-                                          htmlStream.close();
                                           break;
                                       }
                                   } catch (Exception e) {
@@ -924,17 +922,9 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
                           
                           // Load HTML content
                           String wikiContent = "";
-                          try {
-                              InputStream htmlStream = loader.getFile(href);
+                          try (InputStream htmlStream = loader.getFile(href)) {
                               if (htmlStream != null) {
-                                  byte[] buffer = new byte[8096];
-                                  StringBuilder sb = new StringBuilder();
-                                  int n;
-                                  while ((n = htmlStream.read(buffer)) > 0) {
-                                      sb.append(new String(buffer, 0, n, StandardCharsets.UTF_8));
-                                  }
-                                  wikiContent = sb.toString();
-                                  htmlStream.close();
+                                  wikiContent = new String(htmlStream.readAllBytes(), StandardCharsets.UTF_8);
                               }
                           } catch (Exception e) {
                               log.warn("Failed to load Canvas wiki content: {}", href, e);
@@ -1251,17 +1241,9 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
                               // Load instructions from HTML file if available
                               String instructions = "";
                               if (instructionsFile != null) {
-                                  try {
-                                      InputStream instructionsStream = loader.getFile(instructionsFile);
+                                  try (InputStream instructionsStream = loader.getFile(instructionsFile)) {
                                       if (instructionsStream != null) {
-                                          byte[] buffer = new byte[8096];
-                                          StringBuilder sb = new StringBuilder();
-                                          int n;
-                                          while ((n = instructionsStream.read(buffer)) > 0) {
-                                              sb.append(new String(buffer, 0, n));
-                                          }
-                                          instructions = sb.toString();
-                                          instructionsStream.close();
+                                          instructions = new String(instructionsStream.readAllBytes(), StandardCharsets.UTF_8);
                                       }
                                   } catch (Exception e) {
                                       log.warn("Failed to load Canvas assignment instructions: {}", instructionsFile);

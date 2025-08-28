@@ -145,7 +145,7 @@ public class Parser extends AbstractParser {
       processManifest(manifest, canvas_module_meta, the_handler);
     } catch (Exception e) {
       the_handler.getSimplePageBean().setErrKey("simplepage.cc-error", "");
-      log.info("parse error, stack trace follows", e);
+        log.warn("Failed to parse {}.", IMS_MANIFEST, e);
     }
   }
   

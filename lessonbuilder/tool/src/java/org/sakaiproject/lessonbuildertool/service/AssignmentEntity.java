@@ -25,6 +25,8 @@ package org.sakaiproject.lessonbuildertool.service;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -639,13 +641,15 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	    else {
 		Element gradeElement = resource.getChild("gradable", ns);
 		String pointString = gradeElement.getAttributeValue("points_possible");
-		Double pointF = 100.0;
+		double pointF = 100.0;
 		Integer scaleFactor = assignmentService.getScaleFactor();
 		int points = scaleFactor * 100; // default to 100 points scaled appropriately
 		if (pointString != null) {
 		    try {
 			pointF = Double.parseDouble(pointString);
-		    } catch (Exception ignore) { }
+		    } catch (Exception e) {
+                log.debug("can't parse points_possible {}", pointString);
+			}
 		    // points is scaled by the configured scale factor
 		    points = (int)Math.round(pointF * scaleFactor);
 		    if (points < 1) points = scaleFactor * 100; // default to 100 points scaled appropriately
@@ -705,6 +709,33 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
     }
 
     /**
+     * Parse Canvas date string robustly, handling both timezone-aware and timezone-naive formats
+     * @param dateStr the Canvas date string to parse
+     * @return parsed Instant or null if parsing fails
+     */
+    private Instant parseCanvasDate(String dateStr) {
+        if (dateStr == null || dateStr.trim().isEmpty()) {
+            return null;
+        }
+        
+        String trimmed = dateStr.trim();
+        try {
+            // Check if the string already contains timezone information
+            if (trimmed.endsWith("Z") || trimmed.matches(".*[+-]\\d{2}:?\\d{2}$")) {
+                // Already has timezone, parse directly
+                return Instant.parse(trimmed);
+            } else {
+                // No timezone info, treat as LocalDateTime and convert to UTC
+                LocalDateTime localDateTime = LocalDateTime.parse(trimmed);
+                return localDateTime.toInstant(ZoneOffset.UTC);
+            }
+        } catch (Exception e) {
+            log.debug("Failed to parse Canvas date: {}", dateStr, e);
+            return null;
+        }
+    }
+
+    /**
      * Import a Canvas assignment from Canvas assignment_settings.xml format
      */
     public String importCanvasAssignment(Element assignmentXml, String instructions, boolean hide) {
@@ -760,20 +791,31 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
             
             if ("not_graded".equals(gradingType)) {
                 a.setTypeOfGrade(Assignment.GradeType.UNGRADED_GRADE_TYPE);
-            } else if ("points".equals(gradingType) && pointsPossible != null) {
-                try {
-                    double pointsDouble = Double.parseDouble(pointsPossible);
-                    // Use the proper scale factor from assignment service
-                    Integer scaleFactor = assignmentService.getScaleFactor();
-                    a.setScaleFactor(scaleFactor);
-                    int points = (int) Math.round(pointsDouble * scaleFactor);
-                    if (points < 1) points = 100 * scaleFactor;
-                    a.setMaxGradePoint(points);
-                    a.setTypeOfGrade(Assignment.GradeType.SCORE_GRADE_TYPE);
-                } catch (NumberFormatException e) {
-                    log.warn("Invalid points_possible value: {}", pointsPossible);
-                    a.setTypeOfGrade(Assignment.GradeType.UNGRADED_GRADE_TYPE);
+            } else if ("points".equals(gradingType)) {
+                // Use the proper scale factor from assignment service with null-safety
+                Integer scaleFactor = assignmentService.getScaleFactor();
+                if (scaleFactor == null) {
+                    scaleFactor = 1;
                 }
+                a.setScaleFactor(scaleFactor);
+                
+                int points;
+                if (pointsPossible != null) {
+                    try {
+                        double pointsDouble = Double.parseDouble(pointsPossible);
+                        points = (int) Math.round(pointsDouble * scaleFactor);
+                        if (points < 1) points = 100 * scaleFactor;
+                    } catch (NumberFormatException e) {
+                        log.warn("Invalid points_possible value: {}, using default 100 points", pointsPossible);
+                        points = 100 * scaleFactor;
+                    }
+                } else {
+                    log.debug("Missing points_possible for points grading, using default 100 points");
+                    points = 100 * scaleFactor;
+                }
+                
+                a.setMaxGradePoint(points);
+                a.setTypeOfGrade(Assignment.GradeType.SCORE_GRADE_TYPE);
             } else {
                 a.setTypeOfGrade(Assignment.GradeType.UNGRADED_GRADE_TYPE);
             }
@@ -784,12 +826,10 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
             
             // Due date
             String dueDateStr = assignmentXml.getChildText("due_at", canvasNs);
-            Instant dueDate = now.plus(30, ChronoUnit.DAYS); // default to 1 month from now
-            if (dueDateStr != null && !dueDateStr.trim().isEmpty()) {
-                try {
-                    // Canvas uses ISO 8601 format: 2025-05-10T04:59:59
-                    dueDate = Instant.parse(dueDateStr.trim() + "Z"); // Add Z for UTC if not present
-                } catch (Exception e) {
+            Instant dueDate = parseCanvasDate(dueDateStr);
+            if (dueDate == null) {
+                dueDate = now.plus(30, ChronoUnit.DAYS); // default to 1 month from now
+                if (dueDateStr != null && !dueDateStr.trim().isEmpty()) {
                     log.warn("Failed to parse Canvas due date: {}, using default", dueDateStr);
                 }
             }
@@ -800,13 +840,11 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
             
             // Unlock date  
             String unlockDateStr = assignmentXml.getChildText("unlock_at", canvasNs);
-            if (unlockDateStr != null && !unlockDateStr.trim().isEmpty()) {
-                try {
-                    Instant unlockDate = Instant.parse(unlockDateStr.trim() + "Z");
-                    a.setOpenDate(unlockDate);
-                } catch (Exception e) {
-                    log.warn("Failed to parse Canvas unlock date: {}, using current time", unlockDateStr);
-                }
+            Instant unlockDate = parseCanvasDate(unlockDateStr);
+            if (unlockDate != null) {
+                a.setOpenDate(unlockDate);
+            } else if (unlockDateStr != null && !unlockDateStr.trim().isEmpty()) {
+                log.warn("Failed to parse Canvas unlock date: {}, using current time", unlockDateStr);
             }
             
             // Draft status - Canvas workflow_state
