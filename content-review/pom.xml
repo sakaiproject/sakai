@@ -23,12 +23,6 @@
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-				<groupId>org.sakaiproject.contentreview</groupId>
-				<artifactId>content-review-api</artifactId>
-				<version>${project.version}</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
 				<groupId>org.sakaiproject.contentreview.dao</groupId>
 				<artifactId>content-review-dao-impl</artifactId>
 				<version>${project.version}</version>

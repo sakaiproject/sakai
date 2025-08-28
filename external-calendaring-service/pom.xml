@@ -38,30 +38,4 @@
         <module>impl</module>
     </modules>
     
-	
-	<dependencyManagement>
-		<dependencies>	
-			<!-- project dependencies -->
-            <dependency>
-                <groupId>org.sakaiproject.calendar</groupId>
-                <artifactId>sakai-calendar-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-            </dependency>
-			<dependency>
-      			<groupId>org.sakaiproject.calendaring</groupId>
-      			<artifactId>external-calendaring-service-api</artifactId>
-      			<version>${project.version}</version>
-      			<scope>provided</scope>
-    		</dependency>
-    		<dependency>
-      			<groupId>org.sakaiproject.calendaring</groupId>
-      			<artifactId>external-calendaring-service-impl</artifactId>
-      			<version>${project.version}</version>
-      			<scope>runtime</scope>
-    		</dependency>
-			
-		</dependencies>
-	</dependencyManagement>	
-	
 </project>
