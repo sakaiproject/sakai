@@ -46,6 +46,8 @@ public interface GradingSectionAwareServiceAPI
 
   public boolean isUserGradable(String siteId, String userUid);
 
+  public boolean isUserInstructor(String siteId, String userUid);
+
 
   /**
   * @return
