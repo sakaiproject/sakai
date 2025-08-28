@@ -81,18 +81,17 @@
 		class="org.sakaiproject.component.app.syllabus.SyllabusContentProducer"
 		init-method="init" destroy-method="destroy">
 		<property name="addEvents">
-			<list>
-				<value>syllabus.post.new</value>
-				<value>syllabus.post.change</value>
-				<value>syllabus.draft.new</value>
-				<value>syllabus.draft.change</value>
-			</list>
-		</property>
-		<property name="removeEvents">
-			<list>
-				<value>syllabus.delete</value>
-			</list>
-		</property>
+     <property name="addEvents">
+       <list>
+         <value>syllabus.post.new</value>
+         <value>syllabus.post.change</value>
+       </list>
+     </property>
+     <property name="removeEvents">
+       <list>
+         <value>syllabus.delete</value>
+       </list>
+     </property>
 		<property name="entityManager">
 			<ref bean="org.sakaiproject.entity.api.EntityManager"/>
 		</property>
