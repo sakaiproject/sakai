@@ -24,7 +24,6 @@ package org.sakaiproject.announcement.entityprovider;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -55,7 +54,6 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityPermissionException;
 import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
@@ -238,15 +236,22 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 		//for each channel
 		for (String channel : channels) {
 			try {
-				announcements.addAll(announcementService.getMessages(channel, new ViewableFilter(null, t, numberOfAnnouncements, announcementService), announcementSortAsc, false));
+				List<AnnouncementMessage> channelMessages = announcementService.getMessages(channel, new ViewableFilter(null, t, numberOfAnnouncements, announcementService), announcementSortAsc, false);
+				// Filter out draft messages explicitly since ViewableFilter might not be doing it properly for instructors
+				for (AnnouncementMessage msg : channelMessages) {
+					if (!msg.getHeader().getDraft()) {
+						announcements.add(msg);
+					}
+				}
 			} catch (PermissionException | IdUnusedException | NullPointerException ex) {
+				log.warn("Falling back to public messages for channel {} due to {}: {}", channel, ex.getClass().getSimpleName(), ex.getMessage(), ex);
 				//user may not have access to view the channel but get all public messages in this channel
 				AnnouncementChannel announcementChannel = (AnnouncementChannel) announcementService.getChannelPublic(channel);
 				if (announcementChannel != null) {
 					List<Message> publicMessages = announcementChannel.getMessagesPublic(null, true);
 					for (Message message : publicMessages) {
-						//Add message only if it is within the time range
-						if (isMessageWithinPastNDays(message, numberOfDaysInThePast) && announcementService.isMessageViewable((AnnouncementMessage) message)) {
+						//Add message only if it is within the time range and not a draft
+						if (isMessageWithinPastNDays(message, numberOfDaysInThePast) && announcementService.isMessageViewable((AnnouncementMessage) message) && !((AnnouncementMessage) message).getHeader().getDraft()) {
 							announcements.add(message);
 						}
 					}
