@@ -574,11 +574,13 @@ export const graderRenderingMixin = Base => class extends Base {
                     class="card ms-3 mt-2 ${this._feedbackCommentEditorShowing ? "d-none" : "d-block"}">
                   <div class="card-body">
                     ${unsafeHTML(this._submission.feedbackComment)}
+                    <div class="fade-overlay ${!this._showingFullFeedbackComment ? "d-block" : "d-none"}">
+                    </div>
                   </div>
                   <div class="card-footer bg-transparent">
                     <button class="btn btn-link p-0"
-                        @click=${this._toggleFeedbackCommentEditor}>
-                      ${this._i18n.edit}
+                        @click=${this._toggleFullFeedbackComment}>
+                      ${this._showingFullFeedbackComment ? this._i18n.show_less : this._i18n.show_all}
                     </button>
                   </div>
                 </div>
@@ -681,11 +683,13 @@ export const graderRenderingMixin = Base => class extends Base {
                 <div id="private-notes-snippet" class="card ms-3 mt-2 ${this._privateNotesEditorShowing ? "d-none" : "d-block"}">
                   <div class="card-body">
                     ${unsafeHTML(this._submission.privateNotes)}
+                    <div class="fade-overlay ${!this._showingFullPrivateNotes ? "d-block" : "d-none"}">
+                    </div>
                   </div>
                   <div class="card-footer bg-transparent">
                     <button class="btn btn-link p-0"
-                        @click=${this._togglePrivateNotesEditor}>
-                      ${this._i18n.edit}
+                        @click=${this._toggleFullPrivateNotes}>
+                      ${this._showingFullPrivateNotes ? this._i18n.show_less : this._i18n.show_all}
                     </button>
                   </div>
                 </div>
