@@ -23,18 +23,13 @@ package org.sakaiproject.importer.impl.translators;
 
 import static org.junit.Assert.*;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.junit.Test;
 import org.sakaiproject.importer.api.Importable;
-import org.sakaiproject.importer.impl.importables.Assessment;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 public class CCQTITranslatorTest {
 

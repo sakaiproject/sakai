@@ -444,64 +444,80 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
           
           String sakaiId = null;
           String base = baseUrl;
+          boolean isBank = false;
           
           // Check if already added
           if (itemsAdded.get(qtiFileName) == null) {
               itemsAdded.put(qtiFileName, SimplePageItem.DUMMY); // don't add the same test more than once
               
-              InputStream instream = utils.getFile(qtiFileName);
-              base = baseUrl + qtiFileName;
-              int slash = base.lastIndexOf("/");
-              if (slash >= 0) base = base.substring(0, slash + 1); // include trailing slash
-              
-              // Determine if this is a question bank or assessment by examining the QTI structure
-              boolean isBank = isQTIQuestionBank(instream);
-              
-              // Reset input stream for processing
-              instream = utils.getFile(qtiFileName);
-              
-              File qtitemp = File.createTempFile("ccqti", "txt");
-              PrintWriter outwriter = new PrintWriter(qtitemp);
-              
-              QtiImport imp = new QtiImport();
+              File qtitemp = null;
               try {
-                  boolean thisUsesPattern = imp.mainproc(instream, outwriter, isBank, base, siteId, simplePageBean, null);
-                  if (thisUsesPattern) usesPatternMatch = true;
-                  if (imp.getUsesCurriculum()) usesCurriculum = true;
-              } catch (Exception e) {
-                  log.error("Error processing Canvas QTI file: " + e.getMessage(), e);
+                  base = baseUrl + qtiFileName;
+                  int slash = base.lastIndexOf("/");
+                  if (slash >= 0) base = base.substring(0, slash + 1); // include trailing slash
+                  
+                  // Determine if this is a question bank or assessment by examining the QTI structure
+                  try (InputStream instream = utils.getFile(qtiFileName)) {
+                      if (instream != null) {
+                          isBank = isQTIQuestionBank(instream);
+                      }
+                  }
+                  
+                  qtitemp = File.createTempFile("ccqti", "txt");
+                  
+                  // Process the QTI file
+                  try (InputStream instream = utils.getFile(qtiFileName);
+                       PrintWriter outwriter = new PrintWriter(qtitemp)) {
+                      
+                      if (instream != null) {
+                          QtiImport imp = new QtiImport();
+                          try {
+                              boolean thisUsesPattern = imp.mainproc(instream, outwriter, isBank, base, siteId, simplePageBean, null);
+                              if (thisUsesPattern) usesPatternMatch = true;
+                              if (imp.getUsesCurriculum()) usesCurriculum = true;
+                          } catch (Exception e) {
+                              log.error("Error processing Canvas QTI file: {}", qtiFileName, e);
+                          }
+                      }
+                  }
+                  
+                  // Parse the processed QTI
+                  try (InputStream inputStream = new FileInputStream(qtitemp)) {
+                      DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+                      builderFactory.setNamespaceAware(true);
+                      builderFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+                      builderFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+                      DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
+                      org.w3c.dom.Document document = documentBuilder.parse(inputStream);
+                      
+                      QuizEntity q = (QuizEntity) quiztool;
+                      sakaiId = q.importObject(document, isBank, siteId, noPage);
+                      if (sakaiId == null) sakaiId = SimplePageItem.DUMMY;
+                      
+                      itemsAdded.put(qtiFileName, sakaiId); // Update with actual sakaiId
+                  } catch (Exception e) {
+                      log.warn("Canvas QTI import could not create or parse QTI file: {}", qtiFileName, e);
+                      simplePageBean.setErrKey("simplepage.create.object.failed", e.toString());
+                  }
+                  
+              } finally {
+                  // Clean up temp file
+                  if (qtitemp != null) {
+                      qtitemp.delete();
+                  }
               }
-              
-              outwriter.close();
-              InputStream inputStream = new FileInputStream(qtitemp);
-              
-              try {
-                  DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
-                  builderFactory.setNamespaceAware(true);
-                  builderFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
-                  builderFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-                  DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
-                  org.w3c.dom.Document document = documentBuilder.parse(inputStream);
-                  
-                  QuizEntity q = (QuizEntity) quiztool;
-                  sakaiId = q.importObject(document, isBank, siteId, noPage);
-                  if (sakaiId == null) sakaiId = SimplePageItem.DUMMY;
-                  
-                  itemsAdded.put(qtiFileName, sakaiId); // Update with actual sakaiId
-                  
-              } catch (Exception e) {
-                  log.warn("Canvas QTI import could not create or parse QTI file {}, {}", qtiFileName, e.toString());
-                  simplePageBean.setErrKey("simplepage.create.object.failed", e.toString());
-              }
-              
-              inputStream.close();
-              qtitemp.delete();
           } else {
               sakaiId = itemsAdded.get(qtiFileName);
+              // Need to determine isBank for existing items too
+              try (InputStream instream = utils.getFile(qtiFileName)) {
+                  if (instream != null) {
+                      isBank = isQTIQuestionBank(instream);
+                  }
+              }
           }
           
           // Question banks don't appear on the page, only assessments do
-          if (!isQTIQuestionBank(utils.getFile(qtiFileName)) && !noPage) {
+          if (!isBank && !noPage) {
               String title = getQTITitle(resourceXml, qtiFileName);
               SimplePageItem item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.ASSESSMENT, 
                   (sakaiId == null ? SimplePageItem.DUMMY : sakaiId), title);
@@ -511,7 +527,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
           }
           
       } catch (Exception e) {
-          log.error("Error handling Canvas QTI resource: " + e.getMessage(), e);
+          log.error("Error handling Canvas QTI resource", e);
       }
   }
   
@@ -530,7 +546,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
           return objectbanks.getLength() > 0;
           
       } catch (Exception e) {
-          log.warn("Error determining QTI type, assuming assessment: " + e.getMessage());
+          log.warn("Error determining QTI type, assuming assessment", e);
           return false; // Default to assessment
       }
   }
@@ -541,39 +557,43 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   private String getQTITitle(Element resourceXml, String qtiFileName) {
       try {
           // Try to get title from QTI file itself
-          InputStream qtiStream = utils.getFile(qtiFileName);
-          DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-          factory.setNamespaceAware(true);
-          DocumentBuilder builder = factory.newDocumentBuilder();
-          org.w3c.dom.Document doc = builder.parse(qtiStream);
-          
-          // Look for bank_title in QTI metadata
-          org.w3c.dom.NodeList metadataFields = doc.getElementsByTagName("qtimetadatafield");
-          for (int i = 0; i < metadataFields.getLength(); i++) {
-              org.w3c.dom.Element field = (org.w3c.dom.Element) metadataFields.item(i);
-              org.w3c.dom.NodeList labels = field.getElementsByTagName("fieldlabel");
-              org.w3c.dom.NodeList entries = field.getElementsByTagName("fieldentry");
-              
-              if (labels.getLength() > 0 && entries.getLength() > 0) {
-                  String label = labels.item(0).getTextContent().trim();
-                  if ("bank_title".equals(label)) {
-                      return entries.item(0).getTextContent().trim();
+          try (InputStream qtiStream = utils.getFile(qtiFileName)) {
+              if (qtiStream == null) {
+                  log.debug("Could not get QTI file stream for: " + qtiFileName);
+              } else {
+                  DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                  factory.setNamespaceAware(true);
+                  DocumentBuilder builder = factory.newDocumentBuilder();
+                  org.w3c.dom.Document doc = builder.parse(qtiStream);
+                  
+                  // Look for bank_title in QTI metadata
+                  org.w3c.dom.NodeList metadataFields = doc.getElementsByTagName("qtimetadatafield");
+                  for (int i = 0; i < metadataFields.getLength(); i++) {
+                      org.w3c.dom.Element field = (org.w3c.dom.Element) metadataFields.item(i);
+                      org.w3c.dom.NodeList labels = field.getElementsByTagName("fieldlabel");
+                      org.w3c.dom.NodeList entries = field.getElementsByTagName("fieldentry");
+                      
+                      if (labels.getLength() > 0 && entries.getLength() > 0) {
+                          String label = labels.item(0).getTextContent().trim();
+                          if ("bank_title".equals(label)) {
+                              return entries.item(0).getTextContent().trim();
+                          }
+                      }
+                  }
+                  
+                  // Look for assessment title
+                  org.w3c.dom.NodeList assessments = doc.getElementsByTagName("assessment");
+                  if (assessments.getLength() > 0) {
+                      org.w3c.dom.Element assessment = (org.w3c.dom.Element) assessments.item(0);
+                      String title = assessment.getAttribute("title");
+                      if (title != null && !title.isEmpty()) {
+                          return title;
+                      }
                   }
               }
           }
-          
-          // Look for assessment title
-          org.w3c.dom.NodeList assessments = doc.getElementsByTagName("assessment");
-          if (assessments.getLength() > 0) {
-              org.w3c.dom.Element assessment = (org.w3c.dom.Element) assessments.item(0);
-              String title = assessment.getAttribute("title");
-              if (title != null && !title.isEmpty()) {
-                  return title;
-              }
-          }
-          
       } catch (Exception e) {
-          log.debug("Could not extract title from QTI file: " + e.getMessage());
+          log.debug("Could not extract title from QTI file", e);
       }
       
       // Fallback to filename
@@ -592,9 +612,9 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
    */
   private void identifyCanvasEntityFiles(Element manifest) {
       try {
-          Element resourcesElement = manifest.getChild("resources", manifest.getNamespace());
+          Element resourcesElement = manifest.getChild(RESOURCES, ns.cc_ns());
           if (resourcesElement != null) {
-              List<Element> resources = resourcesElement.getChildren("resource", manifest.getNamespace());
+              List<Element> resources = resourcesElement.getChildren(RESOURCE, ns.cc_ns());
 
               // First pass: collect all discussion dependency resource IDs
               Set<String> discussionDependencies = new HashSet<String>();
@@ -602,7 +622,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
                   String resourceType = resource.getAttributeValue("type");
                   if (resourceType != null && resourceType.startsWith("imsdt_xmlv1p")) {
                       // This is a Canvas discussion - find its dependencies
-                      List<Element> dependencies = resource.getChildren("dependency", manifest.getNamespace());
+                      List<Element> dependencies = resource.getChildren("dependency", ns.cc_ns());
                       for (Element dependency : dependencies) {
                           String dependencyId = dependency.getAttributeValue("identifierref");
                           if (dependencyId != null) {
@@ -659,9 +679,9 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 
                   // If this is a Canvas entity resource, mark all its files for exclusion
                   if (isCanvasEntity) {
-                      List<Element> files = resource.getChildren("file", manifest.getNamespace());
+                      List<Element> files = resource.getChildren(FILE, ns.cc_ns());
                       for (Element file : files) {
-                          String fileHref = file.getAttributeValue("href");
+                          String fileHref = file.getAttributeValue(HREF);
                           if (fileHref != null) {
                               canvasEntityFiles.add(fileHref);
                               log.debug("Marking Canvas entity file for exclusion: {}", fileHref);
