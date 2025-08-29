@@ -820,7 +820,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				while(matcher.find()) {
 					String urlFirstPart = matcher.group(1);
 					Long ltiContentId = Long.valueOf(matcher.group(2));
-					log.info("Updating reference: {}", matcher.group(0));
+					log.debug("Updating reference: {}", matcher.group(0));
 					foundLtiLink = true;
 					try {
 						Map<String, Object> ltiContent = ltiService.getContentDao(ltiContentId, oldSiteId, securityService.isSuperUser());
@@ -829,10 +829,10 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 						String[] bltiId = sakaiId.split("/");
 						ltiContentId = Long.valueOf(bltiId[2]);
 					} catch (Exception e) {
-						log.warn("Unable to import LTI tool to new site: {}", e);
+						log.warn("Failed to import LTI tool [contentId: {}, fromSite: {}, toSite: {}]: {}. Tool will be skipped.", ltiContentId, oldSiteId, siteId, e.toString());
 					} finally {
 						String updatedReference = urlFirstPart + "/" + siteId + "/content:" + ltiContentId;
-						log.info("New reference: {}", updatedReference);
+						log.debug("New reference: {}", updatedReference);
 						matcher.appendReplacement(sb, Matcher.quoteReplacement(updatedReference));
 					}
 				}
@@ -840,7 +840,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				if(foundLtiLink) {
 					matcher.appendTail(sb);
 					explanation = sb.toString();
-					log.info("Updated at least one LTI reference lesson HTML");
+					log.debug("Updated at least one LTI reference lesson HTML");
 				}
 			} else if (type == SimplePageItem.PAGE) {
 				// sakaiId should be the new page ID
