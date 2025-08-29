@@ -37,6 +37,11 @@ import org.w3c.dom.Element;
 public class MockFormattedText implements FormattedText {
     private static final String WARNING = "Using MOCK FormattedText: all values just pass through and are not processed: FOR TESTING ONLY (if this is live there is a big problem)";
 
+    @Override
+    public boolean containsSecurityViolations(String content, Level level) {
+        return false;
+    }
+
     public String processFormattedText(String strFromBrowser, StringBuffer errorMessages) {
         log.warn(WARNING);
         return strFromBrowser;

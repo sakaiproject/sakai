@@ -58,6 +58,38 @@ public interface FormattedText {
         NONE
     }
 
+
+    /**
+     * Scans content using OWASP AntiSamy to detect security policy violations.
+     * <p>
+     * This method performs security scanning of HTML content to identify potentially
+     * malicious elements, scripts, or other content that violates the configured
+     * security policies. The scan is performed using OWASP AntiSamy with either
+     * high or low security policy enforcement.
+     * </p>
+     * <p>
+     * Note: if scanning cannot be performed due to initialization failures,
+     * policy errors, or unexpected exceptions, the method returns {@code false}.
+     * </p>
+     *
+     * @param content the HTML content to scan for security violations;
+     *                null, empty, or whitespace-only content is considered safe
+     * @param level the security level to apply during scanning:
+     *              {@link Level#HIGH} for strict policy enforcement,
+     *              {@link Level#LOW} for relaxed policy enforcement,
+     *              or {@code null} to default to {@link Level#HIGH}
+     *
+     * @return {@code true} if the content contains security policy violations,
+     *         scanner initialization failed, or scanning encountered errors;
+     *         {@code false} if the content passed security validation or is blank
+     *
+     * @see Level#HIGH
+     * @see Level#LOW
+     * @see org.owasp.validator.html.AntiSamy
+     * @see org.owasp.validator.html.CleanResults
+     */
+    boolean containsSecurityViolations(String content, Level level);
+
     /**
      * This is maintained for backwards compatibility
      * @see #processFormattedText(String, StringBuilder)

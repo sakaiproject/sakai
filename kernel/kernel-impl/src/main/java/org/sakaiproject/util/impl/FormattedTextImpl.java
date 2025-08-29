@@ -1449,6 +1449,23 @@ public class FormattedTextImpl implements FormattedText
         return makeShortText(text, cutMethod, maxLength, separator);
     }
 
+    @Override
+    public boolean containsSecurityViolations(String content, Level level) {
+        if (content == null || content.isEmpty()) return false;
+
+        Level scanLevel = (level != null) ? level : Level.HIGH;
+        AntiSamy scanner = scanLevel == Level.LOW ? antiSamyLow : antiSamyHigh;
+        try {
+            CleanResults results = scanner.scan(content);
+            boolean hasViolations = results.getNumberOfErrors() > 0;
+            log.debug("AntiSamy found {} violations in content: {}", results.getNumberOfErrors(), StringUtils.truncate(content, 128));
+            return hasViolations;
+        } catch (Exception e) {
+            log.warn("Could not scan content {}, {}", StringUtils.truncate(content, 128), e.toString());
+        }
+        return false;
+    }
+
     /**
      * TESTING ONLY
      * SAK-23567 Gets an array with 2 int values {left,right}

@@ -1561,4 +1561,63 @@ public class FormattedTextTest {
         }
     }
 
+    @Test
+    public void testContainsSecurityViolations() {
+        // Test null input - should return false
+        boolean result = formattedText.containsSecurityViolations(null, Level.HIGH);
+        Assert.assertFalse("Null content should not contain violations", result);
+        
+        // Test empty input - should return false
+        result = formattedText.containsSecurityViolations("", Level.HIGH);
+        Assert.assertFalse("Empty content should not contain violations", result);
+        
+        // Test whitespace-only input - should return false
+        result = formattedText.containsSecurityViolations("   \n\t   ", Level.HIGH);
+        Assert.assertFalse("Whitespace-only content should not contain violations", result);
+        
+        // Test safe HTML content - should return false
+        result = formattedText.containsSecurityViolations("<p>This is safe content</p>", Level.HIGH);
+        Assert.assertFalse("Safe HTML content should not contain violations", result);
+        
+        // Test plain text - should return false
+        result = formattedText.containsSecurityViolations("This is plain text with no HTML", Level.HIGH);
+        Assert.assertFalse("Plain text should not contain violations", result);
+        
+        // Test potentially dangerous script tag - should return true
+        result = formattedText.containsSecurityViolations("<script>alert('xss')</script>", Level.HIGH);
+        Assert.assertTrue("Script tags should be detected as violations", result);
+        
+        // Test JavaScript in onclick attribute - should return true
+        result = formattedText.containsSecurityViolations("<div onclick=\"alert('xss')\">Click me</div>", Level.HIGH);
+        Assert.assertTrue("JavaScript in event handlers should be detected as violations", result);
+        
+        // Test iframe tag - should return true
+        result = formattedText.containsSecurityViolations("<iframe src=\"http://evil.com\"></iframe>", Level.HIGH);
+        Assert.assertTrue("Iframe tags should be detected as violations", result);
+        
+        // Test object/embed tags - should return true
+        result = formattedText.containsSecurityViolations("<object data=\"evil.swf\"></object>", Level.HIGH);
+        Assert.assertTrue("Object tags should be detected as violations", result);
+        
+        // Test with null level (should default to HIGH)
+        result = formattedText.containsSecurityViolations("<script>alert('test')</script>", null);
+        Assert.assertTrue("Null level should default to HIGH and detect violations", result);
+
+        // Test complex mixed content
+        String mixedContent = "<div><p>Safe content</p><script>alert('unsafe')</script></div>";
+        result = formattedText.containsSecurityViolations(mixedContent, Level.HIGH);
+        Assert.assertTrue("Mixed content with violations should be detected", result);
+        
+        // Test content with JavaScript protocol
+        result = formattedText.containsSecurityViolations("<a href=\"javascript:alert('xss')\">Link</a>", Level.HIGH);
+        Assert.assertTrue("JavaScript protocol should be detected as violation", result);
+        
+        // Test form elements that might be restricted
+        result = formattedText.containsSecurityViolations("<form><input type=\"text\"></form>", Level.HIGH);
+        // Note: Whether forms are violations depends on AntiSamy policy
+        
+        // Test with DEFAULT level
+        result = formattedText.containsSecurityViolations("<script>alert('test')</script>", Level.DEFAULT);
+        Assert.assertTrue("DEFAULT level should detect script violations", result);
+    }
 }
