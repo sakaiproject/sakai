@@ -813,6 +813,35 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				String html = itemElement.getAttribute("html");
 				explanation = ltiService.fixLtiLaunchUrls(html, siteId, mcx);
 				explanation = linkMigrationHelper.migrateLinksInMergedRTE(siteId, mcx, explanation);
+				Pattern idPattern = Pattern.compile("(https?://[^/]+/access/(?:basic)?lti/site)/" + Pattern.quote(oldSiteId) + "/content:([0-9]+)");
+				Matcher matcher = idPattern.matcher(html);
+				StringBuffer sb = new StringBuffer();
+				boolean foundLtiLink = false;
+				while(matcher.find()) {
+					String urlFirstPart = matcher.group(1);
+					Long ltiContentId = Long.valueOf(matcher.group(2));
+					log.debug("Updating reference: {}", matcher.group(0));
+					foundLtiLink = true;
+					try {
+						Map<String, Object> ltiContent = ltiService.getContentDao(ltiContentId, oldSiteId, securityService.isSuperUser());
+						String newSakaiId = copyLTIContent(ltiContent, siteId, oldSiteId);
+						if ( newSakaiId != null ) sakaiId = newSakaiId;
+						String[] bltiId = sakaiId.split("/");
+						ltiContentId = Long.valueOf(bltiId[2]);
+					} catch (Exception e) {
+						log.warn("Failed to import LTI tool [contentId: {}, fromSite: {}, toSite: {}]: {}. Tool will be skipped.", ltiContentId, oldSiteId, siteId, e.toString());
+					} finally {
+						String updatedReference = urlFirstPart + "/" + siteId + "/content:" + ltiContentId;
+						log.debug("New reference: {}", updatedReference);
+						matcher.appendReplacement(sb, Matcher.quoteReplacement(updatedReference));
+					}
+				}
+
+				if(foundLtiLink) {
+					matcher.appendTail(sb);
+					explanation = sb.toString();
+					log.debug("Updated at least one LTI reference lesson HTML");
+				}
 			} else if (type == SimplePageItem.PAGE) {
 				// sakaiId should be the new page ID
 				Long newPageId = pageMap.get(Long.valueOf(sakaiId));
