@@ -25,7 +25,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -1442,6 +1441,23 @@ public class FormattedTextImpl implements FormattedText
             cutMethod = serverConfigurationService.getString("site.title.cut.method", "100:0");
         }
         return makeShortText(text, cutMethod, maxLength, separator);
+    }
+
+    @Override
+    public boolean containsSecurityViolations(String content, Level level) {
+        if (content == null || content.isEmpty()) return false;
+
+        Level scanLevel = (level != null) ? level : Level.HIGH;
+        AntiSamy scanner = scanLevel == Level.LOW ? antiSamyLow : antiSamyHigh;
+        try {
+            CleanResults results = scanner.scan(content);
+            boolean hasViolations = results.getNumberOfErrors() > 0;
+            log.debug("AntiSamy found {} violations in content: {}", results.getNumberOfErrors(), StringUtils.truncate(content, 128));
+            return hasViolations;
+        } catch (Exception e) {
+            log.warn("Could not scan content {}, {}", StringUtils.truncate(content, 128), e.toString());
+        }
+        return false;
     }
 
     /**
