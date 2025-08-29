@@ -48,10 +48,12 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
+import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.services.SectionService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.services.qti.QTIService;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.event.cover.EventTrackingService;
@@ -78,6 +80,14 @@ public class SamigoAssessmentHandler implements HandlesImportable {
 	public void handle(Importable thing, String siteId) {
 		Assessment importAssessment = (Assessment)thing;
 		AssessmentFacade assessment = null;
+		
+		// Check if this assessment has a QTI document - if so, use QTI import
+		if (importAssessment.getQti() != null) {
+			handleQTIAssessment(importAssessment, siteId);
+			return;
+		}
+		
+		// Otherwise, use the legacy question-by-question import
 		try {
 			assessment = as.createAssessmentWithoutDefaultSection(
 					importAssessment.getTitle(), importAssessment.getDescription(), SamigoAssessmentHandler.QUIZ_TYPE, SamigoAssessmentHandler.QUIZ_TEMPLATE, siteId);
@@ -264,6 +274,40 @@ public class SamigoAssessmentHandler implements HandlesImportable {
 		}
 		return rv;
 		
+	}
+	
+	/**
+	 * Handle QTI-based assessment import using Samigo's QTI import service
+	 */
+	private void handleQTIAssessment(Assessment importAssessment, String siteId) {
+		try {
+			QTIService qtiService = new QTIService();
+			
+			// Determine QTI version - Canvas uses QTI 1.2
+			int qtiVersion = QTIVersion.VERSION_1_2;
+			if ("2.0".equals(importAssessment.getVersion())) {
+				qtiVersion = QTIVersion.VERSION_2_0;
+			}
+			
+			// Import the assessment using Samigo's QTI service
+			AssessmentFacade assessment = qtiService.createImportedAssessment(
+				importAssessment.getQti(), 
+				qtiVersion, 
+				null, // unzipLocation - not needed for single file
+				SamigoAssessmentHandler.QUIZ_TEMPLATE, // templateId
+				siteId,
+				null // MergeConfig - not needed for basic import
+			);
+			
+			if (assessment != null) {
+				log.info("Successfully imported QTI assessment: {}", importAssessment.getTitle());
+			} else {
+				log.warn("QTI assessment import returned null for: {}", importAssessment.getTitle());
+			}
+			
+		} catch (Exception e) {
+			log.error("Error importing QTI assessment {}: {}", importAssessment.getTitle(), e.getMessage(), e);
+		}
 	}
 	
 	protected String contextualizeUrls(String text, String siteId) {

@@ -212,6 +212,11 @@ public class Ns  {
 	resourceTypes.put("imsdt_v1p1", TOPIC);
 	resourceTypes.put("imsdt_v1p2", TOPIC);
 	resourceTypes.put("imsdt_v1p3", TOPIC);
+	// Canvas uses xmlv1p1 format for discussions
+	resourceTypes.put("imsdt_xmlv1p0", TOPIC);
+	resourceTypes.put("imsdt_xmlv1p1", TOPIC);
+	resourceTypes.put("imsdt_xmlv1p2", TOPIC);
+	resourceTypes.put("imsdt_xmlv1p3", TOPIC);
 	resourceTypes.put("imsqti_xmlv1p2/imscc_xmlv1p0/assessment", ASSESSMENT);
 	resourceTypes.put("imsqti_xmlv1p2/imscc_xmlv1p1/assessment", ASSESSMENT);
 	resourceTypes.put("imsqti_xmlv1p2/imscc_xmlv1p2/assessment", ASSESSMENT);
@@ -225,6 +230,7 @@ public class Ns  {
 	// 2 seems to have used v1p1
 	resourceTypes.put("imsbasiclti_xmlv1p3", BLTI);
 	resourceTypes.put("assignment_xmlv1p0", ASSIGNMENT);
+	// Note: Canvas assignments are learning-application-resource type but are detected by content, not type
     }
 
     public String normType(String type) {
