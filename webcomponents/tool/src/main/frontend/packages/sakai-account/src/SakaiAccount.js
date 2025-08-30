@@ -3,7 +3,9 @@ import { SakaiElement } from "@sakai-ui/sakai-element";
 import "@sakai-ui/sakai-picture-changer/sakai-picture-changer.js";
 import "@sakai-ui/sakai-audio-recorder/sakai-audio-recorder.js";
 import "@sakai-ui/sakai-pronunciation-player/sakai-pronunciation-player.js";
-import { isEmail, isMobilePhone } from "validator";
+import isEmail from "validator/es/lib/isEmail.js";
+import isMobilePhone from "validator/es/lib/isMobilePhone.js";
+import { SocialLinks } from "social-links";
 
 export class SakaiAccount extends SakaiElement {
 
@@ -27,6 +29,9 @@ export class SakaiAccount extends SakaiElement {
     _displaySocialInfoErrorBanner: { state: true },
     _emailInvalid: { state: true },
     _mobileInvalid: { state: true },
+    _facebookUrlInvalid: { state: true },
+    _linkedinUrlInvalid: { state: true },
+    _instagramUrlInvalid: { state: true },
     _currentError: { state: true },
   };
 
@@ -189,6 +194,7 @@ export class SakaiAccount extends SakaiElement {
       this._displayContactInfoErrorBanner = true;
       this._mobileInvalid = true;
       mobile.scrollIntoView();
+      return;
     }
 
     const patch = [
@@ -199,6 +205,7 @@ export class SakaiAccount extends SakaiElement {
     this._patchProfile(patch).then(() => {
 
       this._editingContactInfo = false;
+      this._clearContactError();
       this._displayContactInfoUpdatedBanner = true;
       setTimeout(() => this._displayContactInfoUpdatedBanner = false, 3000);
     })
@@ -212,23 +219,58 @@ export class SakaiAccount extends SakaiElement {
   _resetContactInfo() {
 
     this._editingContactInfo = false;
+    this._clearContactError();
+  }
+
+  _clearContactError() {
+
     this._displayContactInfoErrorBanner = false;
-    this._currentError = null;
     this._emailInvalid = false;
     this._mobileInvalid = false;
   }
 
   _saveSocialInfo() {
 
+    const facebookUrl = this.renderRoot.querySelector("#facebook-input");
+    const instagramUrl = this.renderRoot.querySelector("#instagram-input");
+    const linkedinUrl = this.renderRoot.querySelector("#linkedin-input");
+
+    const socialLinks = new SocialLinks();
+
+    if (!socialLinks.isValid("facebook", facebookUrl.value)) {
+      this._currentError = this._i18n.invalid_facebook;
+      this._displaySocialInfoErrorBanner = true;
+      this._facebookUrlInvalid = true;
+      facebookUrl.scrollIntoView();
+      return;
+    }
+
+    if (!socialLinks.isValid("instagram", instagramUrl.value)) {
+      this._currentError = this._i18n.invalid_instagram;
+      this._displaySocialInfoErrorBanner = true;
+      this._instagramUrlInvalid = true;
+      instagramUrl.scrollIntoView();
+      return;
+    }
+
+    if (!socialLinks.isValid("linkedin", linkedinUrl.value)) {
+      this._currentError = this._i18n.invalid_linkedin;
+      this._displaySocialInfoErrorBanner = true;
+      this._linkedinUrlInvalid = true;
+      linkedinUrl.scrollIntoView();
+      return;
+    }
+
     const patch = [
-      { op: "replace", path: "/facebookUrl", value: this.renderRoot.querySelector("#facebook-input").value },
-      { op: "replace", path: "/instagramUrl", value: this.renderRoot.querySelector("#instagram-input").value },
-      { op: "replace", path: "/linkedinUrl", value: this.renderRoot.querySelector("#linkedin-input").value },
+      { op: "replace", path: "/facebookUrl", value: facebookUrl.value },
+      { op: "replace", path: "/instagramUrl", value: instagramUrl.value },
+      { op: "replace", path: "/linkedinUrl", value: linkedinUrl.value },
     ];
 
     this._patchProfile(patch).then(() => {
 
       this._editingSocialInfo = false;
+      this._clearSocialError();
       this._displaySocialInfoUpdatedBanner = true;
       setTimeout(() => this._displaySocialInfoUpdatedBanner = false, 3000);
     })
@@ -242,7 +284,16 @@ export class SakaiAccount extends SakaiElement {
   _resetSocialInfo() {
 
     this._editingSocialInfo = false;
+    this._clearSocialError();
+  }
+
+  _clearSocialError() {
+
+    this._currentError = null;
     this._displaySocialInfoErrorBanner = false;
+    this._facebookUrlInvalid = false;
+    this._linkedinUrlInvalid = false;
+    this._instagramUrlInvalid = false;
   }
 
   _recordingComplete(e) {
@@ -656,7 +707,7 @@ export class SakaiAccount extends SakaiElement {
               <td class="content">
                 <input type="text"
                     id="facebook-input"
-                    class="formInputField"
+                    class="formInputField ${this._facebookUrlInvalid ? "bg-danger" : ""}"
                     aria-label="${this._i18n.facebook_label}"
                     .value=${this._profile.facebookUrl || ""} />
                 <span id="facebookToolTip"></span>
@@ -670,7 +721,7 @@ export class SakaiAccount extends SakaiElement {
               <td class="content">
                 <input type="text"
                     id="linkedin-input"
-                    class="formInputField"
+                    class="formInputField ${this._linkedinUrlInvalid ? "bg-danger" : ""}"
                     aria-label="${this._i18n.linkedin_label}"
                     .value=${this._profile.linkedinUrl || ""} />
                 <span id="linkedinToolTip"></span>
@@ -684,7 +735,7 @@ export class SakaiAccount extends SakaiElement {
               <td class="content">
                 <input type="text"
                     id="instagram-input"
-                    class="formInputField"
+                    class="formInputField ${this._instagramUrlInvalid ? "bg-danger" : ""}"
                     aria-label="${this._i18n.instagram_label}"
                     .value=${this._profile.instagramUrl || ""} />
                 <span id="instagramToolTip"></span>
@@ -698,7 +749,7 @@ export class SakaiAccount extends SakaiElement {
             <button type="button" id="social-info-cancel-button" class="btn btn-secondary" @click=${this._resetSocialInfo}>${this._i18n.cancel}</button>
           </div>
           ${this._displaySocialInfoErrorBanner ? html`
-          <div class="sak-banner-error">${this._i18n.social_info_error}</div>
+          <div class="sak-banner-error">${this._i18n.current_error}</div>
           ` : nothing}
         </div>
       </div>
