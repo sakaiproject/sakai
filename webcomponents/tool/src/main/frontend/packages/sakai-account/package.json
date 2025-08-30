@@ -17,9 +17,7 @@
     "src"
   ],
   "scripts": {
-    "lint:fix": "eslint src --fix",
-    "test": "wtr",
-    "test:dev": "cd ../../ && npm run test:dev"
+    "lint:fix": "eslint src --fix"
   },
   "keywords": [
     "Sakai"
