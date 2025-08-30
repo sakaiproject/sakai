@@ -2399,8 +2399,27 @@ public class DbContentService extends BaseContentService
         {
             try
             {
+                // CRITICAL FIX: Prevent file overwrite when content changes
+                byte[] streamBytes = stream.readAllBytes();
+                MessageDigest preDigest = MessageDigest.getInstance("SHA-256");
+                preDigest.update(streamBytes);
+                String newSha256 = StorageUtils.bytesToHex(preDigest.digest());
+                
+                // Check if this is an update with different content
+                try {
+                    String existingSha256 = singleColumnSingleRow("SELECT resource_sha256 FROM " + resourceTableName + " WHERE resource_id = ?", resource.getId());
+                    if (existingSha256 != null && !existingSha256.equals(newSha256)) {
+                        // Content changed - generate new filePath to prevent overwrite
+                        ((BaseResourceEdit) resource).m_filePath = null;
+                        ((BaseResourceEdit) resource).setFilePath(timeService.newTime());
+                        System.out.println("Content changed - generated new filePath: " + ((BaseResourceEdit) resource).m_filePath);
+                    }
+                } catch (Exception e) {
+                    log.info("Exception querying existing SHA256 for resource: " + resource.getId(), e);
+                }
+
                 MessageDigest digest = MessageDigest.getInstance("SHA-256");
-                DigestInputStream dstream = new DigestInputStream(stream, digest);
+                DigestInputStream dstream = new DigestInputStream(new ByteArrayInputStream(streamBytes), digest);
 
                 String filePath = ((BaseResourceEdit) resource).m_filePath;
                 long byteCount = fileSystemHandler.saveInputStream(((BaseResourceEdit) resource).m_id, rootFolder, filePath, dstream);
@@ -2420,18 +2439,26 @@ public class DbContentService extends BaseContentService
 
                 // Check if there already is an identical file (most recent if there is > 1)
                 boolean singleInstanceStore = serverConfigurationService.getBoolean(PROP_SINGLE_INSTANCE, PROP_SINGLE_INSTANCE_DEFAULT);
+                System.out.println("=== SINGLE INSTANCE DEDUPLICATION ===");
+                System.out.println("Resource: " + resource.getId() + ", SHA256: " + hex);
+                System.out.println("FilePath: " + ((BaseResourceEdit) resource).m_filePath);
+                
+                // Since we already handled contentChanged above, this logic is now simpler
                 if ( singleInstanceStore && bodyPath != null && bodyPath.equals(rootFolder)) {
                     String statement = contentServiceSql.getOnlyOneFilePath(resourceTableName);
                     String duplicateFilePath = singleColumnSingleRow(statement, hex);
 
                     if ( duplicateFilePath != null ) {
+                        System.out.println("Reusing existing file: " + duplicateFilePath);
                         delResourceBodyFilesystem(rootFolder, resource);
                         ((BaseResourceEdit) resource).m_filePath = duplicateFilePath;
                         log.debug("Duplicate body found path={}",duplicateFilePath);
                     } else {
+                        System.out.println("Keeping unique file: " + ((BaseResourceEdit) resource).m_filePath);
                         log.debug("Content body us unique id={}",resource.getId());
                     }
                 }
+                System.out.println("=== END SINGLE INSTANCE ===");
 
                 return true;
             }
