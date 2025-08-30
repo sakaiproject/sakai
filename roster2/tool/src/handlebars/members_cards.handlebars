@@ -44,11 +44,14 @@
             {{#if ../viewProfile}}
                 <div class="roster-card-label">{{tr 'facet_profile_link'}}</div>
                 <div class="roster-card-value">
-                    <a href="{{{profileLink}}}"
-                            title="{{tr 'profile_link_text'}} : {{tr 'profile_link_tooltip'}} {{displayName}}"
-                            aria-label="{{tr 'profile_link_tooltip'}} {{displayName}}">
-                        {{tr 'profile_link_text'}}
-                    </a>
+                    <button class="btn btn-sm"
+                        type="button"
+                        data-user-id="{{userId}}"
+                        onclick="portal.displayProfile(event);"
+                        title="{{tr 'profile_link_text'}} : {{tr 'profile_link_tooltip'}} {{displayName}}"
+                        aria-label="{{tr 'profile_link_tooltip'}} {{displayName}}">
+                      {{tr 'profile_link_text'}}
+                    </button>
                 </div>
             {{/if}}
 
@@ -65,8 +68,8 @@
             <div class="roster-card-label">{{tr 'facet_user_name_pronunciation'}}</div>
             <div class="roster-card-value namePronunciation">
                 <span class="namePronunciation">
-                {{#if pronunciation}}
-                    {{{pronunciation}}}
+                {{#if hasPronunciationRecording}}
+                    <sakai-pronunciation-player user-id="{{userId}}"></sakai-pronunciation-player>
                 {{else}}
                     {{#ifCond ../currentUserId userId}}
                         {{#if ../profileNamePronunciationLink}}

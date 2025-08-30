@@ -381,7 +381,7 @@ public class LTIConstants {
 	public static final String USER_ID = "user_id";
 
 	/**
-	 * user_image=http://my.sakai.org/direct/profile/0ae836b9-7fc9-4060-006f-27b2066ac545/image
+	 * user_image=http://my.sakai.org/api/users/0ae836b9-7fc9-4060-006f-27b2066ac545/profile/image
 	 * <p>
 	 * This attribute specifies the URI for an image of the user who launched this request.
 	 * This image is suitable for use as a "profile picture" or an avatar representing the user.
