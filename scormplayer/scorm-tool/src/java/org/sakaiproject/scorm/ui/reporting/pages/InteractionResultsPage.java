@@ -84,7 +84,7 @@ public class InteractionResultsPage extends BaseResultsPage
 
 			IModel breadcrumbModel = new StringResourceModel("uberuberparent.breadcrumb", this, new Model(contentPackage));
 			addBreadcrumb(breadcrumbModel, ResultsListPage.class, uberuberparentParams, true);	
-			addBreadcrumb(new Model(learner.getDisplayName()), LearnerResultsPage.class, parentParams, true);
+			addBreadcrumb(new Model(learner.getSortName()), LearnerResultsPage.class, parentParams, true);
 			addBreadcrumb(new Model(interaction.getActivityTitle()), ScoResultsPage.class, pageParams, true);
 			addBreadcrumb(new Model(interaction.getInteractionId()), InteractionResultsPage.class, pageParams, false);
 

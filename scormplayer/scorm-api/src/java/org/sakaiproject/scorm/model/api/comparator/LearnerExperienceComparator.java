@@ -19,6 +19,7 @@ import java.io.Serializable;
 import java.util.Comparator;
 
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.scorm.model.api.LearnerExperience;
 
@@ -59,7 +60,33 @@ public class LearnerExperienceComparator implements Comparator<LearnerExperience
         {
             case Learner:
             {
-                return le1.getLearnerName().compareTo( le2.getLearnerName() );
+                // Use proper sorting logic similar to UserSortNameComparator
+                String sortName1 = le1.getSortName();
+                String sortName2 = le2.getSortName();
+                
+                if (sortName1 != null && sortName2 != null) {
+                    // Replace spaces to handle sorting scenarios where surname has space
+                    String prop1 = StringUtils.replace(sortName1, " ", "+");
+                    String prop2 = StringUtils.replace(sortName2, " ", "+");
+                    
+                    // Primary comparison on sort name
+                    int result = prop1.compareToIgnoreCase(prop2);
+                    if (result == 0) {
+                        // Secondary comparison on displayId if sort names are identical (matches UserSortNameComparator behavior)
+                        String displayId1 = le1.getDisplayId();
+                        String displayId2 = le2.getDisplayId();
+                        if (displayId1 != null && displayId2 != null) {
+                            result = displayId1.compareToIgnoreCase(displayId2);
+                        } else {
+                            // Fall back to learner name if displayIds are not available
+                            result = le1.getLearnerName().compareToIgnoreCase(le2.getLearnerName());
+                        }
+                    }
+                    return result;
+                }
+                
+                // Fall back to learner name comparison if sort names are not available
+                return le1.getLearnerName().compareToIgnoreCase(le2.getLearnerName());
             }
             case AttemptDate:
             {

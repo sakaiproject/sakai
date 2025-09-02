@@ -121,7 +121,7 @@ public class ResultsListPage extends ConsoleBasePage
 				}
 				catch( IOException ex )
 				{
-					log.error( "Could not generate results export: {}", ex );
+					log.error( "Could not generate results export", ex );
 				}
 
 				return tempFile;
@@ -146,6 +146,8 @@ public class ResultsListPage extends ConsoleBasePage
 			addBreadcrumb(new Model(contentPackage.getTitle()), ResultsListPage.class, new PageParameters(), false);
 
 			SakaiDataTable table = new SakaiDataTable("resultsTable", getColumns(), dataProvider, true);
+			// Default to 200 learners per page
+			table.setItemsPerPage(200);
 			add(table);
 
 			add(new ContentPackageDetailPanel("details", contentPackage));
@@ -400,11 +402,11 @@ public class ResultsListPage extends ConsoleBasePage
 			// Sort using the comparator in the direction requested
 			if( sortAsc )
 			{
-				Collections.sort( learnerExperiences, comp );
+				learnerExperiences.sort(comp);
 			}
 			else
 			{
-				Collections.sort( learnerExperiences, Collections.reverseOrder( comp ) );
+				learnerExperiences.sort(Collections.reverseOrder(comp));
 			}
 
 			// Return sub list of sorted collection
