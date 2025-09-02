@@ -223,6 +223,7 @@ public class PortalServiceTests extends SakaiTests {
 
         when(serverConfigurationService.getBoolean("portal.new.pinned.sites.top", false)).thenReturn(false);
 
+        siteIds.clear();
         siteIds.add(site1Id);
         siteIds.add(site2Id);
         siteIds.add(site3Id);
