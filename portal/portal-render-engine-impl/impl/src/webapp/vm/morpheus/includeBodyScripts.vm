@@ -289,12 +289,11 @@ if ( ! (self == top) ) {
 
 <script>
   document.addEventListener('DOMContentLoaded', function () {
-    const dropdownToggle = document.querySelector('.dropdown-toggle');
     const navIntraTool = document.querySelector('.navIntraTool');
-    const dropdownNavIntraTool = document.querySelector('.dropdown-navIntraTool');
+    const dropdownNavIntraTool = document.querySelector('.dropdown-toggle.dropdown-navIntraTool');
 
     if (dropdownNavIntraTool) {
-      dropdownToggle.addEventListener('click', function () {
+      dropdownNavIntraTool.addEventListener('click', function () {
         navIntraTool.classList.toggle('dropdown-active');
       });
     }
