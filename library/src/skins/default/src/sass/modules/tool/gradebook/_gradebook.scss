@@ -1448,6 +1448,16 @@ div.wicket-mask-transparent, div.wicket-mask-dark {
   z-index: 998 !important;
 }
 
+/* Placing Grade Rubric modal */
+.gb-rubric-grading-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  max-width: 1100px;
+}
+
 .gb-input {
   padding-top: 0;
   padding-bottom: 1px
