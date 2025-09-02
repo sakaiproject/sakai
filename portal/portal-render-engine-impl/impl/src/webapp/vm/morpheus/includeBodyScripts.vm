@@ -294,7 +294,7 @@ if ( ! (self == top) ) {
       dropdownNavIntraTool.addEventListener('click', function (e) {
         e.preventDefault();
         // If multiple dropdowns exist, target the closest .navIntraTool instead of a global reference.
-        const container = this.closest('.navIntraTool');
+        const container = e.target.closest('.navIntraTool');
         if (!container) return;
         const expanded = container.classList.toggle('dropdown-active');
         this.setAttribute('aria-expanded', `${expanded}`);
