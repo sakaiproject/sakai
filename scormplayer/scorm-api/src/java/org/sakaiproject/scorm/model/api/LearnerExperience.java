@@ -38,7 +38,8 @@ public class LearnerExperience implements Serializable
 
 	public LearnerExperience(Learner learner, long contentPackageId)
 	{
-		this.learnerName = new StringBuilder(learner.getDisplayName()).append(" (").append(learner.getDisplayId()).append(")").toString();
+		// Display learner as "Surname, Firstname (displayId)" to match other tools
+		this.learnerName = new StringBuilder(learner.getSortName()).append(" (").append(learner.getDisplayId()).append(")").toString();
 		this.learnerId = learner.getId();
 		this.contentPackageId = contentPackageId;
 		this.numberOfAttempts = 0;
