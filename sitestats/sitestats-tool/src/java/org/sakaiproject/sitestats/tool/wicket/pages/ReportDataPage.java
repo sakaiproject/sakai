@@ -101,14 +101,6 @@ public class ReportDataPage extends BasePage {
 	private int							selectedWidth		= 0;
 	private int							selectedHeight		= 0;
 
-	public ReportDataPage(final ReportDefModel reportDef) {
-		this(reportDef, null, null);
-	}
-
-	public ReportDataPage(final ReportDefModel reportDef, final PageParameters pageParameters) {
-		this(reportDef, pageParameters, null);
-	}
-
 	public ReportDataPage(final ReportDefModel reportDef, final PageParameters pageParameters, final WebPage returnPage) {
 		this.reportDefModel = reportDef;
 		realSiteId = Locator.getFacade().getToolManager().getCurrentPlacement().getContext();
@@ -120,7 +112,7 @@ public class ReportDataPage extends BasePage {
 			siteId = realSiteId;
 		}
 		if(returnPage == null) {
-			this.returnPage = new ReportsPage(pageParameters);			
+			this.returnPage = new ReportsPage(pageParameters);
 		}else{
 			this.returnPage = returnPage;
 		}
@@ -184,8 +176,8 @@ public class ReportDataPage extends BasePage {
 				PageParameters params = new PageParameters();
 				params.set("printVersion", "true");
 				params.set("siteId", siteId);
-				setResponsePage(new ReportDataPage(reportDefModel, params));
-			}			
+				setResponsePage(new ReportDataPage(reportDefModel, params, getWebPage()));
+			}
 		};
 		printLink.setVersioned(false);
 		toPrintVersion.add(printLink);
@@ -280,7 +272,7 @@ public class ReportDataPage extends BasePage {
 				setResponsePage(returnPage);
 				super.onSubmit();
 			}
-		}.setVisible(!inPrintVersion));
+		});
 		form.add(new Button("export") {
 			@Override
 			public void onSubmit() {
