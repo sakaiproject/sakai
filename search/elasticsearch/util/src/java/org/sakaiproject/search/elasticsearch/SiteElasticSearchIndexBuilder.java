@@ -65,6 +65,9 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.entity.api.EntityManager;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -245,42 +248,59 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
 
             long start = System.currentTimeMillis();
             int numberOfDocs = 0;
+            int batchCount = 1;
 
             BulkRequest bulkRequest = new BulkRequest();
+            long currentBatchSizeBytes = 0;
+            
+            log.info("Site '{}' indexing with batch limits: maxDocs={}, maxSize={}MB", 
+                    siteId, bulkRequestSize, String.format("%.2f", contentIndexBatchMaxSizeBytes / (1024.0 * 1024.0)));
 
             for (final EntityContentProducer ecp : producers) {
             	Iterator<String> i = ecp.getSiteContentIterator(siteId);
 
-                while ( i != null && i.hasNext() ) {
-
-                    if (bulkRequest.numberOfActions() < bulkRequestSize) {
-                        String reference = i.next();
-
-                        if (StringUtils.isNotBlank(ecp.getContent(reference))) {
-                            //updating was causing issues without a _source, so doing delete and re-add
-                            try {
-                                deleteDocument(ecp.getId(reference), ecp.getSiteId(reference));
-                                bulkRequest.add(prepareIndex(reference, ecp, true));
-                                numberOfDocs++;
-                            } catch (Exception e) {
-                                log.error(e.getMessage(), e);
-                            }
+                while (i != null && i.hasNext()) {
+                    String reference = i.next();
+                    
+                    // First check if document should be indexed (skip content checks early)
+                    if (StringUtils.isBlank(ecp.getContent(reference))) {
+                        continue;
+                    }
+                    
+                    // Only get document size when we intend to add the doc to the bulk
+                    long docSize = getDocumentSize(reference, ecp);
+                    
+                    // Check batch limits and execute if needed
+                    if (bulkRequest.numberOfActions() >= bulkRequestSize || 
+                        currentBatchSizeBytes + docSize > contentIndexBatchMaxSizeBytes) {
+                        // Only flush if there are actions to execute
+                        if (bulkRequest.numberOfActions() > 0) {
+                            executeBulkRequest(bulkRequest);
+                            batchCount++;
                         }
-
-                    } else {
-                        executeBulkRequest(bulkRequest);
                         bulkRequest = new BulkRequest();
+                        currentBatchSizeBytes = 0;
+                    }
+
+                    try {
+                        deleteDocument(ecp.getId(reference), ecp.getSiteId(reference));
+                        bulkRequest.add(prepareIndex(reference, ecp, true));
+                        currentBatchSizeBytes += docSize;
+                        numberOfDocs++;
+                    } catch (Exception e) {
+                        log.error(e.getMessage(), e);
                     }
                 }
 
-                // execute any remaining bulks requests not executed yet
+                // Execute any remaining bulk requests
                 if (bulkRequest.numberOfActions() > 0) {
                     executeBulkRequest(bulkRequest);
+                    batchCount++;
                 }
-
             }
 
-            log.info("Queued " + numberOfDocs + " docs for indexing from site: " + siteId + " in " + (System.currentTimeMillis() - start) + " ms");
+                    log.info("Queued {} docs for indexing from site '{}' in {} ms across {} batches", 
+                    numberOfDocs, siteId, (System.currentTimeMillis() - start), batchCount);
 
         } catch (Exception e) {
             log.error("An exception occurred while rebuilding the index of '" + siteId + "'", e);
@@ -569,9 +589,32 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
         this.userDirectoryService = userDirectoryService;
     }
 
+    public void setContentHostingService(ContentHostingService contentHostingService) {
+        super.setContentHostingService(contentHostingService);
+    }
+
+    public void setEntityManager(EntityManager entityManager) {
+        super.setEntityManager(entityManager);
+    }
+
     @Override
     public String getEventResourceFilter() {
         return "/";
+    }
+
+    // Getter methods for testing
+    public long getContentIndexBatchMaxSizeBytes() {
+        return contentIndexBatchMaxSizeBytes;
+    }
+    
+    public boolean isPrioritizeSmallDocuments() {
+        return prioritizeSmallDocuments;
+    }
+
+    // Make getDocumentSize public for testing
+    @Override
+    public long getDocumentSize(String reference, EntityContentProducer ecp) {
+        return super.getDocumentSize(reference, ecp);
     }
 
 }
