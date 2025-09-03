@@ -34,6 +34,6 @@ public class LearnerDetailsPanel extends Panel
 	private void initPanel(Learner object)
 	{
 		add(new Label("id", object.getDisplayId()));
-		add(new Label("name", object.getDisplayName()));
+		add(new Label("name", object.getSortName()));
 	}
 }
