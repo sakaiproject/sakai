@@ -3541,13 +3541,19 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		log.debug("ResourcesAction.reviseContent()");
 		ResourceToolAction action = pipe.getAction();
 		ContentEntity entity = pipe.getContentEntity();
+		
 		try
 		{
+			// Edit the existing resource in-place - this preserves the filename and RESOURCE_ID
+			// while allowing single-instance store to update SHA256 and FILE_PATH as needed
 			ContentResourceEdit edit = contentHostingService.editResource(entity.getId());
-			ResourcePropertiesEdit props = edit.getPropertiesEdit();
-			// update content
+			
+			// Set new content 
 			extractContent(pipe, edit);
-			// update properties
+			edit.setContentType(pipe.getRevisedMimeType());
+			edit.setResourceType(action.getTypeId());
+			
+			// Update properties from pipe
 			if(action instanceof InteractionAction)
 			{
 				InteractionAction iAction = (InteractionAction) action;
@@ -3555,6 +3561,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				List propkeys = iAction.getRequiredPropertyKeys();
 				if(propkeys != null)
 				{
+					ResourcePropertiesEdit props = edit.getPropertiesEdit();
 					Iterator keyIt = propkeys.iterator();
 					while(keyIt.hasNext())
 					{
@@ -3566,46 +3573,38 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 						}
 						else
 						{
-							// should we support multivalued properties?
 							props.addProperty(key, value);
 						}
 					}
 				}
 			}
-			// update mimetype
-			edit.setContentType(pipe.getRevisedMimeType());
+			
+			// Commit the edited resource - single-instance store will handle SHA256 and FILE_PATH updates
 			contentHostingService.commitResource(edit, pipe.getNotification());
 		}
 		catch (PermissionException e)
 		{
-			addAlert(trb.getString("alert.noperm"));
-			// TODO Auto-generated catch block
-			log.warn("PermissionException ", e);
+			addAlert(trb.getString("alert.perm"));
 		}
 		catch (IdUnusedException e)
 		{
-			// TODO Auto-generated catch block
-			log.warn("IdUnusedException ", e);
-		}
-		catch (TypeException e)
-		{
-			// TODO Auto-generated catch block
-			log.warn("TypeException ", e);
-		}
-		catch (InUseException e)
-		{
-			// TODO Auto-generated catch block
-			log.warn("InUseException ", e);
+			addAlert(trb.getString("alert.unknown"));
 		}
 		catch (OverQuotaException e)
 		{
-			addAlert(trb.getString("alert.quota"));
-			log.warn("OverQuotaException ", e);
+			addAlert(trb.getString("alert.overquota"));
 		}
 		catch (ServerOverloadException e)
 		{
-			addAlert(rb.getString("failed"));
-			log.warn("ServerOverloadException ", e);
+			addAlert(trb.getString("alert.unable"));
+		}
+		catch (TypeException e)
+		{
+			addAlert(trb.getString("alert.unknown"));
+		}
+		catch (InUseException e)
+		{
+			addAlert(trb.getString("alert.unknown"));
 		}
 	}
 
@@ -8095,46 +8094,16 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		ResourceToolAction action = pipe.getAction();
 		ContentEntity entity = pipe.getContentEntity();
 
-		// Get old resource info before creating new one
-		String oldResourceId = entity.getId();
-		String collectionId = isolateContainingId(oldResourceId);
-		String filename = isolateName(oldResourceId);
-
 		try
 		{
-			// Parse filename exactly like createResources() does  
-			String basename = FilenameUtils.getBaseName(filename);
-			String extension = FilenameUtils.getExtension(filename);
-
-			// Create brand new resource exactly like normal upload - this allows single-instance store to work correctly
-			ContentResourceEdit newResource = contentHostingService.addResource(collectionId, 
-				Validator.escapeResourceName(basename), 
-				Validator.escapeResourceName(extension), 
-				MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
-
-			// Copy relevant properties from old resource to new resource
-			ContentResource oldResource = (ContentResource) entity;
-			ResourceProperties oldProps = oldResource.getProperties();
-			ResourcePropertiesEdit newProps = newResource.getPropertiesEdit();
-
-			for(Iterator<String> propIt = oldProps.getPropertyNames(); propIt.hasNext();)
-			{
-				String propName = propIt.next();
-				// Skip system properties that will be set automatically
-				if(!propName.startsWith("DAV:") && 
-				   !propName.equals(ResourceProperties.PROP_CREATION_DATE) &&
-				   !propName.equals(ResourceProperties.PROP_MODIFIED_DATE) &&
-				   !propName.equals(ResourceProperties.PROP_CONTENT_LENGTH) &&
-				   !propName.equals(ResourceProperties.PROP_CONTENT_SHA256))
-				{
-					newProps.addProperty(propName, oldProps.getProperty(propName));
-				}
-			}
-
-			// Set content exactly like createResources() does
-			extractContent(pipe, newResource);
-			newResource.setContentType(pipe.getRevisedMimeType());
-			newResource.setResourceType(action.getTypeId());
+			// Edit the existing resource in-place - this preserves the filename and RESOURCE_ID
+			// while allowing single-instance store to update SHA256 and FILE_PATH as needed
+			ContentResourceEdit edit = contentHostingService.editResource(entity.getId());
+			
+			// Set new content 
+			extractContent(pipe, edit);
+			edit.setContentType(pipe.getRevisedMimeType());
+			edit.setResourceType(action.getTypeId());
 
 			// Update properties from pipe
 			if(action instanceof InteractionAction)
@@ -8144,6 +8113,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				List propkeys = iAction.getRequiredPropertyKeys();
 				if(propkeys != null)
 				{
+					ResourcePropertiesEdit props = edit.getPropertiesEdit();
 					Iterator keyIt = propkeys.iterator();
 					while(keyIt.hasNext())
 					{
@@ -8151,11 +8121,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 						String value = (String) revprops.get(key);
 						if(value == null)
 						{
-							newProps.removeProperty(key);
+							props.removeProperty(key);
 						}
 						else
 						{
-							newProps.addProperty(key, value);
+							props.addProperty(key, value);
 						}
 					}
 				}
@@ -8166,14 +8136,12 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			if(obj instanceof ListItem)
 			{
 				notification = ((ListItem) obj).getNotification();
-				((ListItem) obj).updateContentResourceEdit(newResource);
+				((ListItem) obj).updateContentResourceEdit(edit);
 			}
 
-			// Commit new resource first
-			contentHostingService.commitResource(newResource, notification);
+			// Commit the edited resource - single-instance store will handle SHA256 and FILE_PATH updates
+			contentHostingService.commitResource(edit, notification);
 
-			// Delete old resource after successfully creating new one
-			contentHostingService.removeResource(oldResourceId);
 		}
 		catch (PermissionException e)
 		{
@@ -8184,21 +8152,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		{
 			pipe.setErrorEncountered(true);
 			pipe.setErrorMessage(trb.getString("alert.unknown"));
-		}
-		catch (IdInvalidException e)
-		{
-			pipe.setErrorEncountered(true);
-			pipe.setErrorMessage(trb.getString("alert.invalid-name"));
-		}
-		catch (IdUniquenessException e)
-		{
-			pipe.setErrorEncountered(true);
-			pipe.setErrorMessage(trb.getString("alert.name-already-used"));
-		}
-		catch (IdLengthException e)
-		{
-			pipe.setErrorEncountered(true);
-			pipe.setErrorMessage(trb.getString("alert.name-too-long"));
 		}
 		catch (OverQuotaException e)
 		{

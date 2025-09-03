@@ -2391,6 +2391,34 @@ public class DbContentService extends BaseContentService
         }
 
         /**
+         * Generate a hierarchical file path for storing content files.
+         * Creates paths like: /2025/246/20/5ada9b63-4baa-4f54-a3c1-4fe26522738a
+         * This matches the format used in BaseResourceEdit.setFilePath()
+         * 
+         * @return A properly formatted hierarchical file path
+         */
+        private String generateFilePath()
+        {
+            // Use current time for path generation
+            Time now = timeService.newTime();
+            
+            // Compute volume prefix if body volumes are configured
+            String volume = "/";
+            if ((m_bodyVolumes != null) && (m_bodyVolumes.length > 0))
+            {
+                volume += m_bodyVolumes[(int) (Math.abs(now.getTime()) % ((long) m_bodyVolumes.length))];
+                volume += "/";
+            }
+            
+            // Get IdManager to create UUID
+            IdManager uuidManager = (IdManager) ComponentManager.get(IdManager.class);
+            
+            // Generate path: /volume/yyyy/DDD/HH/uuid
+            // toStringFilePath() creates the year/day-of-year/hour structure
+            return volume + now.toStringFilePath() + uuidManager.createUuid();
+        }
+
+        /**
          * @param edit
          * @param stream
          * @return true if the resource body is written successfully, false otherwise.
@@ -2399,15 +2427,61 @@ public class DbContentService extends BaseContentService
         {
             try
             {
+                byte[] buffer;
+                
+                // Use try-with-resources to ensure stream is always closed
+                try (InputStream inputStream = stream) {
+                    // Buffer the stream so we can calculate SHA256 and save
+                    buffer = inputStream.readAllBytes();
+                }
+                
+                // Calculate SHA256 FIRST before deciding where to save
                 MessageDigest digest = MessageDigest.getInstance("SHA-256");
-                DigestInputStream dstream = new DigestInputStream(stream, digest);
-
-                String filePath = ((BaseResourceEdit) resource).m_filePath;
-                long byteCount = fileSystemHandler.saveInputStream(((BaseResourceEdit) resource).m_id, rootFolder, filePath, dstream);
-
-                MessageDigest md2 = dstream.getMessageDigest();
-                String hex = StorageUtils.bytesToHex(md2.digest());
-
+                digest.update(buffer);
+                String hex = StorageUtils.bytesToHex(digest.digest());
+                long byteCount = buffer.length;
+                
+                // Store old file path for potential cleanup
+                String oldFilePath = ((BaseResourceEdit) resource).m_filePath;
+                boolean isReplacement = (oldFilePath != null);
+                
+                // Determine target file path based on single-instance store logic
+                String targetFilePath = null;
+                
+                // Check if there already is an identical file (most recent if there is > 1)
+                boolean singleInstanceStore = serverConfigurationService.getBoolean(PROP_SINGLE_INSTANCE, PROP_SINGLE_INSTANCE_DEFAULT);
+                if (singleInstanceStore && bodyPath != null && bodyPath.equals(rootFolder)) {
+                    String statement = contentServiceSql.getOnlyOneFilePath(resourceTableName);
+                    String duplicateFilePath = singleColumnSingleRow(statement, hex);
+                    
+                    if (duplicateFilePath != null) {
+                        // Found duplicate - but only reuse if this is NOT a replacement from same file
+                        if (!isReplacement || !duplicateFilePath.equals(oldFilePath)) {
+                            targetFilePath = duplicateFilePath;
+                            log.debug("Duplicate body found, will reuse path={}", duplicateFilePath);
+                        } else {
+                            // This is a replacement and duplicate is our own old file - need new path
+                            log.debug("Replacement operation, generating new path even though content exists");
+                        }
+                    }
+                }
+                
+                // If no duplicate found or we need a new path, generate one
+                if (targetFilePath == null) {
+                    targetFilePath = generateFilePath();
+                    log.debug("Content body is unique or replacement needed, new path={}", targetFilePath);
+                    
+                    // Save the content to the new file path with proper stream handling
+                    try (ByteArrayInputStream bis = new ByteArrayInputStream(buffer)) {
+                        fileSystemHandler.saveInputStream(((BaseResourceEdit) resource).m_id, rootFolder, targetFilePath, bis);
+                    }
+                }
+                // else: duplicate exists, no need to save file again
+                
+                // Update resource with new file path
+                ((BaseResourceEdit) resource).m_filePath = targetFilePath;
+                
+                // Set resource properties
                 resource.setContentLength(byteCount);
                 resource.setContentSha256(hex);
                 ResourcePropertiesEdit props = resource.getPropertiesEdit();
@@ -2417,19 +2491,37 @@ public class DbContentService extends BaseContentService
                 {
                     props.addProperty(ResourceProperties.PROP_CONTENT_TYPE, resource.getContentType());
                 }
-
-                // Check if there already is an identical file (most recent if there is > 1)
-                boolean singleInstanceStore = serverConfigurationService.getBoolean(PROP_SINGLE_INSTANCE, PROP_SINGLE_INSTANCE_DEFAULT);
-                if ( singleInstanceStore && bodyPath != null && bodyPath.equals(rootFolder)) {
-                    String statement = contentServiceSql.getOnlyOneFilePath(resourceTableName);
-                    String duplicateFilePath = singleColumnSingleRow(statement, hex);
-
-                    if ( duplicateFilePath != null ) {
-                        delResourceBodyFilesystem(rootFolder, resource);
-                        ((BaseResourceEdit) resource).m_filePath = duplicateFilePath;
-                        log.debug("Duplicate body found path={}",duplicateFilePath);
+                
+                // Clean up old file if it's different from new path and was a replacement
+                if (isReplacement && !oldFilePath.equals(targetFilePath)) {
+                    // Check if old file is still referenced by other resources
+                    if (singleInstanceStore) {
+                        // Need to check if other resources still reference this file
+                        String countStatement = contentServiceSql.getCountFilePath(resourceTableName);
+                        boolean othersUseOldFile = false;
+                        try {
+                            // Count how many resources use this file path
+                            int references = countQuery(countStatement, oldFilePath);
+                            // If more than 1 reference (the current one being updated), others still use it
+                            othersUseOldFile = (references > 1);
+                        } catch (Exception e) {
+                            log.debug("Error checking old file references", e);
+                        }
+                        
+                        if (!othersUseOldFile) {
+                            BaseResourceEdit tempResource = new BaseResourceEdit(resource.getId());
+                            tempResource.m_filePath = oldFilePath;
+                            delResourceBodyFilesystem(rootFolder, tempResource);
+                            log.debug("Cleaned up old file path: {}", oldFilePath);
+                        } else {
+                            log.debug("Old file path {} still referenced by other resources, not deleting", oldFilePath);
+                        }
                     } else {
-                        log.debug("Content body us unique id={}",resource.getId());
+                        // Single-instance store disabled, safe to delete old file
+                        BaseResourceEdit tempResource = new BaseResourceEdit(resource.getId());
+                        tempResource.m_filePath = oldFilePath;
+                        delResourceBodyFilesystem(rootFolder, tempResource);
+                        log.debug("Cleaned up old file path: {}", oldFilePath);
                     }
                 }
 
