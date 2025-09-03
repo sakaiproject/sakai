@@ -8094,14 +8094,49 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		log.debug("{}.replaceContent()", this);
 		ResourceToolAction action = pipe.getAction();
 		ContentEntity entity = pipe.getContentEntity();
+
+		// Get old resource info before creating new one
+		String oldResourceId = entity.getId();
+		String collectionId = isolateContainingId(oldResourceId);
+		String filename = isolateName(oldResourceId);
+
 		try
 		{
-			ContentResourceEdit edit = contentHostingService.editResource(entity.getId());
-			ResourcePropertiesEdit props = edit.getPropertiesEdit();
-			// update content
-			extractContent(pipe, edit);
-			
-			// update properties
+			// Parse filename exactly like createResources() does  
+			String basename = FilenameUtils.getBaseName(filename);
+			String extension = FilenameUtils.getExtension(filename);
+
+			// Create brand new resource exactly like normal upload - this allows single-instance store to work correctly
+			ContentResourceEdit newResource = contentHostingService.addResource(collectionId, 
+				Validator.escapeResourceName(basename), 
+				Validator.escapeResourceName(extension), 
+				MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
+
+			// Copy relevant properties from old resource to new resource
+			ContentResource oldResource = (ContentResource) entity;
+			ResourceProperties oldProps = oldResource.getProperties();
+			ResourcePropertiesEdit newProps = newResource.getPropertiesEdit();
+
+			for(Iterator<String> propIt = oldProps.getPropertyNames(); propIt.hasNext();)
+			{
+				String propName = propIt.next();
+				// Skip system properties that will be set automatically
+				if(!propName.startsWith("DAV:") && 
+				   !propName.equals(ResourceProperties.PROP_CREATION_DATE) &&
+				   !propName.equals(ResourceProperties.PROP_MODIFIED_DATE) &&
+				   !propName.equals(ResourceProperties.PROP_CONTENT_LENGTH) &&
+				   !propName.equals(ResourceProperties.PROP_CONTENT_SHA256))
+				{
+					newProps.addProperty(propName, oldProps.getProperty(propName));
+				}
+			}
+
+			// Set content exactly like createResources() does
+			extractContent(pipe, newResource);
+			newResource.setContentType(pipe.getRevisedMimeType());
+			newResource.setResourceType(action.getTypeId());
+
+			// Update properties from pipe
 			if(action instanceof InteractionAction)
 			{
 				InteractionAction iAction = (InteractionAction) action;
@@ -8116,41 +8151,64 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 						String value = (String) revprops.get(key);
 						if(value == null)
 						{
-							props.removeProperty(key);
+							newProps.removeProperty(key);
 						}
 						else
 						{
-							// should we support multivalued properties?
-							props.addProperty(key, value);
+							newProps.addProperty(key, value);
 						}
 					}
 				}
 			}
-			
+
 			int notification = NotificationService.NOTI_NONE;
 			Object obj = pipe.getRevisedListItem();
 			if(obj instanceof ListItem)
 			{
 				notification = ((ListItem) obj).getNotification();
+				((ListItem) obj).updateContentResourceEdit(newResource);
 			}
-			
-			// update mimetype
-			edit.setContentType(pipe.getRevisedMimeType());
-			contentHostingService.commitResource(edit, notification);
+
+			// Commit new resource first
+			contentHostingService.commitResource(newResource, notification);
+
+			// Delete old resource after successfully creating new one
+			contentHostingService.removeResource(oldResourceId);
 		}
 		catch (PermissionException e)
 		{
 			pipe.setErrorEncountered(true);
-			pipe.setErrorMessage(trb.getString("alert.noperm"));
-			addAlert(pipe.getErrorMessage());
-			log.warn("PermissionException {}", (Object) e);
+			pipe.setErrorMessage(trb.getString("alert.perm"));
 		}
 		catch (IdUnusedException e)
 		{
 			pipe.setErrorEncountered(true);
 			pipe.setErrorMessage(trb.getString("alert.unknown"));
-			addAlert(pipe.getErrorMessage());
-			log.warn("IdUnusedException ", e);
+		}
+		catch (IdInvalidException e)
+		{
+			pipe.setErrorEncountered(true);
+			pipe.setErrorMessage(trb.getString("alert.invalid-name"));
+		}
+		catch (IdUniquenessException e)
+		{
+			pipe.setErrorEncountered(true);
+			pipe.setErrorMessage(trb.getString("alert.name-already-used"));
+		}
+		catch (IdLengthException e)
+		{
+			pipe.setErrorEncountered(true);
+			pipe.setErrorMessage(trb.getString("alert.name-too-long"));
+		}
+		catch (OverQuotaException e)
+		{
+			pipe.setErrorEncountered(true);
+			pipe.setErrorMessage(trb.getString("alert.overquota"));
+		}
+		catch (ServerOverloadException e)
+		{
+			pipe.setErrorEncountered(true);
+			pipe.setErrorMessage(trb.getString("alert.unable"));
 		}
 		catch (TypeException e)
 		{
@@ -8163,22 +8221,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		{
 			pipe.setErrorEncountered(true);
 			pipe.setErrorMessage(trb.getString("alert.unknown"));
-			addAlert(pipe.getErrorMessage());
-			log.warn("InUseException ", e);
-		}
-		catch (OverQuotaException e)
-		{
-			pipe.setErrorEncountered(true);
-			pipe.setErrorMessage(trb.getString("alert.quota"));
-			addAlert(trb.getString("alert.quota"));
-			log.warn("OverQuotaException {}", (Object) e);
-		}
-		catch (ServerOverloadException e)
-		{
-			pipe.setErrorEncountered(true);
-			pipe.setErrorMessage(trb.getString("alert.unable"));
-			addAlert(trb.getString("alert.unable"));
-			log.warn("ServerOverloadException ", e);
 		}
 		catch (VirusFoundException e) {
 			pipe.setErrorEncountered(true);
