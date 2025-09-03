@@ -63,6 +63,10 @@ public class GradingSectionAwareServiceImpl implements GradingSectionAwareServic
     return helper.isUserGradable(Uid, userUid);
   }
 
+  public boolean isUserInstructor(String siteId, String userUid){
+    return helper.isUserInstructor(siteId, userUid);
+  }
+
 
   /**
   * @return
