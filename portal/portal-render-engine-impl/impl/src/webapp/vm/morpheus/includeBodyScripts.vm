@@ -293,10 +293,9 @@ if ( ! (self == top) ) {
     if (dropdownNavIntraTool) {
       dropdownNavIntraTool.addEventListener('click', function (e) {
         e.preventDefault();
-        // If multiple dropdowns exist, target the closest .navIntraTool instead of a global reference.
-        const container = e.target.closest('.navIntraTool');
-        if (!container) return;
-        const expanded = container.classList.toggle('dropdown-active');
+        const navIntraToolMobile = document.querySelector('ul.navIntraTool.navIntraToolMobile');
+        if (!navIntraToolMobile) return;
+        const expanded = navIntraToolMobile.classList.toggle('dropdown-active');
         this.setAttribute('aria-expanded', `${expanded}`);
       });
     }
