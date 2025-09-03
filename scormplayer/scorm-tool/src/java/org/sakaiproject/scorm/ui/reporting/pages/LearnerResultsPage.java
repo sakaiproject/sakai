@@ -101,7 +101,7 @@ public class LearnerResultsPage extends BaseResultsPage
 					addBreadcrumb(breadcrumbModel, PackageListPage.class, uberparentParams, true);
 				}
 			}
-			addBreadcrumb(new Model(learner.getDisplayName()), LearnerResultsPage.class, parentParams, false);
+			addBreadcrumb(new Model(learner.getSortName()), LearnerResultsPage.class, parentParams, false);
 
 			List<ActivitySummary> summaries = resultService.getActivitySummaries(contentPackage.getContentPackageId(), learner.getId(), attemptNumber);
 			SummaryProvider dataProvider = new SummaryProvider(summaries);
