@@ -307,6 +307,11 @@ public interface SakaiProxy {
 	public int getProfilePictureType();
 
 	/**
+	 * @return the value of the <code>roster.display.pronouns</code> Sakai property.
+	 */
+	public Boolean getViewPronouns();
+
+	/**
 	 * Convenience method to ensure the given userId(eid or internal id) is returned as a valid uuid.
 	 *
 	 * <p>
