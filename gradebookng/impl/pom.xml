@@ -90,14 +90,10 @@
         <dependency>
             <groupId>org.sakaiproject.lti</groupId>
             <artifactId>lti-api</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.lti</groupId>
             <artifactId>lti-util</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
