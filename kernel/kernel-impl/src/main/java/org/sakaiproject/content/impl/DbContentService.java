@@ -25,7 +25,10 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -2426,21 +2429,28 @@ public class DbContentService extends BaseContentService
          */
         private boolean putResourceBodyFilesystem(ContentResourceEdit resource, InputStream stream, String rootFolder)
         {
+            Path tempFile = null;
             try
             {
-                byte[] buffer;
+                // Create a temporary file to stream content to while calculating SHA256
+                tempFile = Files.createTempFile("sakai-upload-", ".tmp");
+                String hex;
+                long byteCount;
                 
-                // Use try-with-resources to ensure stream is always closed
-                try (InputStream inputStream = stream) {
-                    // Buffer the stream so we can calculate SHA256 and save
-                    buffer = inputStream.readAllBytes();
+                // Stream content to temp file while calculating SHA256
+                try (InputStream inputStream = stream;
+                     OutputStream tempOut = Files.newOutputStream(tempFile)) {
+                    
+                    // Wrap input in DigestInputStream to calculate SHA256 while streaming
+                    MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                    DigestInputStream digestStream = new DigestInputStream(inputStream, digest);
+                    
+                    // Stream from input to temp file
+                    byteCount = digestStream.transferTo(tempOut);
+                    
+                    // Get the calculated hash
+                    hex = StorageUtils.bytesToHex(digest.digest());
                 }
-                
-                // Calculate SHA256 FIRST before deciding where to save
-                MessageDigest digest = MessageDigest.getInstance("SHA-256");
-                digest.update(buffer);
-                String hex = StorageUtils.bytesToHex(digest.digest());
-                long byteCount = buffer.length;
                 
                 // Store old file path for potential cleanup
                 String oldFilePath = ((BaseResourceEdit) resource).m_filePath;
@@ -2488,9 +2498,9 @@ public class DbContentService extends BaseContentService
                     targetFilePath = generateFilePath();
                     log.debug("Content body is unique or replacement needed, new path={}", targetFilePath);
                     
-                    // Save the content to the new file path with proper stream handling
-                    try (ByteArrayInputStream bis = new ByteArrayInputStream(buffer)) {
-                        fileSystemHandler.saveInputStream(((BaseResourceEdit) resource).m_id, rootFolder, targetFilePath, bis);
+                    // Save the content from temp file to the new file path
+                    try (InputStream tempIn = Files.newInputStream(tempFile)) {
+                        fileSystemHandler.saveInputStream(((BaseResourceEdit) resource).m_id, rootFolder, targetFilePath, tempIn);
                     }
                 }
                 // else: duplicate exists, no need to save file again
@@ -2545,6 +2555,17 @@ public class DbContentService extends BaseContentService
             {
                 log.error("NoSuchAlgorithmException", e);
                 return false;
+            }
+            finally
+            {
+                // Clean up temporary file
+                if (tempFile != null) {
+                    try {
+                        Files.deleteIfExists(tempFile);
+                    } catch (IOException e) {
+                        log.warn("Failed to delete temporary file: {}", tempFile, e);
+                    }
+                }
             }
         }
 
