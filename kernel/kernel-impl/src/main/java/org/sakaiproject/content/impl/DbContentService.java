@@ -2457,8 +2457,24 @@ public class DbContentService extends BaseContentService
                     if (duplicateFilePath != null) {
                         // Found duplicate - but only reuse if this is NOT a replacement from same file
                         if (!isReplacement || !duplicateFilePath.equals(oldFilePath)) {
-                            targetFilePath = duplicateFilePath;
-                            log.debug("Duplicate body found, will reuse path={}", duplicateFilePath);
+                            // Verify the duplicate file actually exists on disk before reusing
+                            boolean fileExists = false;
+                            try (InputStream testStream = fileSystemHandler.getInputStream(
+                                    ((BaseResourceEdit) resource).m_id, rootFolder, duplicateFilePath)) {
+                                fileExists = true;
+                                log.debug("Verified duplicate file exists at path={}", duplicateFilePath);
+                            } catch (IOException e) {
+                                log.warn("Duplicate file path {} found in DB but missing from filesystem, will create new file", 
+                                        duplicateFilePath);
+                            }
+                            
+                            if (fileExists) {
+                                targetFilePath = duplicateFilePath;
+                                log.debug("Duplicate body found and verified, will reuse path={}", duplicateFilePath);
+                            } else {
+                                // File is missing, need to create a new one
+                                log.debug("Duplicate file missing, will create new file despite SHA256 match");
+                            }
                         } else {
                             // This is a replacement and duplicate is our own old file - need new path
                             log.debug("Replacement operation, generating new path even though content exists");

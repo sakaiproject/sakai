@@ -12,7 +12,7 @@
 
 ### What is Single-Instance Store?
 
-Single-Instance Store is a content deduplication feature in Sakai's Content Hosting system that eliminates duplicate file storage by sharing identical files across different sites, users, and contexts. When multiple users upload the exact same file (identical content), only one copy is physically stored on disk, significantly reducing storage requirements.
+Single-Instance Store is a content deduplication feature in Sakai's Content Hosting system that eliminates duplicate file storage by sharing identical files across different sites, users, and contexts. When multiple users upload an identical file (identical content), only one copy is physically stored on disk, significantly reducing storage requirements.
 
 ### Purpose and Benefits
 
@@ -114,31 +114,12 @@ ORDER BY file_path DESC
 LIMIT 1
 ```
 
-**Implementation in `DbContentService.putResourceBodyFilesystem()`**:
-
-```java
-boolean singleInstanceStore = serverConfigurationService.getBoolean(PROP_SINGLE_INSTANCE, true);
-if (singleInstanceStore && bodyPath != null && bodyPath.equals(rootFolder)) {
-    String statement = contentServiceSql.getOnlyOneFilePath(resourceTableName);
-    String duplicateFilePath = singleColumnSingleRow(statement, hex);
-    
-    if (duplicateFilePath != null) {
-        // Reuse existing file instead of creating new one
-        delResourceBodyFilesystem(rootFolder, resource);
-        ((BaseResourceEdit) resource).m_filePath = duplicateFilePath;
-        log.debug("Duplicate body found path={}", duplicateFilePath);
-    } else {
-        log.debug("Content body is unique id={}", resource.getId());
-    }
-}
-```
-
 ## Operational Flow
 
 ### New File Upload Process
 
 1. **User uploads file** via Sakai interface
-2. **Temporary storage**: File initially saved with unique path
+2. **Temporary staging**: File is streamed to a temporary location while SHA-256 is computed
 3. **Hash calculation**: SHA-256 computed during upload stream
 4. **Deduplication check**: Query database for existing files with same hash
 5. **Decision point**:
@@ -182,7 +163,7 @@ if (singleInstanceStore && bodyPath != null && bodyPath.equals(rootFolder)) {
 
 ### The Content Leakage Vulnerability (Fixed)
 
-**Historical Issue**: Prior to recent fixes, the "Upload New Version" functionality could cause content leakage between sites.
+**Historical Issue**: Before recent fixes, the "Upload New Version" functionality could cause content leakage between sites.
 
 **Root Cause**: "Upload New Version" reused existing database records instead of creating new ones, causing file path reuse without proper content verification.
 
@@ -241,12 +222,16 @@ LIMIT 10;
 
 ```sql
 -- Calculate approximate storage savings
-SELECT 
-    SUM(FILE_SIZE) as total_logical_size,
-    SUM(DISTINCT FILE_SIZE) as actual_physical_size,
-    SUM(FILE_SIZE) - SUM(DISTINCT FILE_SIZE) as space_saved
-FROM CONTENT_RESOURCE 
-WHERE FILE_PATH IS NOT NULL;
+WITH blobs AS (
+  SELECT FILE_PATH, MAX(FILE_SIZE) AS blob_size
+  FROM CONTENT_RESOURCE
+  WHERE FILE_PATH IS NOT NULL
+  GROUP BY FILE_PATH
+)
+SELECT
+  (SELECT SUM(FILE_SIZE) FROM CONTENT_RESOURCE WHERE FILE_PATH IS NOT NULL) AS total_logical_size,
+  (SELECT SUM(blob_size) FROM blobs) AS actual_physical_size,
+  (SELECT SUM(FILE_SIZE) FROM CONTENT_RESOURCE WHERE FILE_PATH IS NOT NULL) - (SELECT SUM(blob_size) FROM blobs) AS space_saved;
 ```
 
 ### Common Issues and Solutions
@@ -270,7 +255,7 @@ WHERE FILE_PATH IS NOT NULL;
 
 Look for these log messages in Sakai logs:
 
-```
+```text
 DEBUG: Duplicate body found path=/content/shared/abc123.bin
 DEBUG: Content body is unique id=/group/site1/resource123
 ```
