@@ -2312,15 +2312,7 @@ public class DbContentService extends BaseContentService
 		        MessageDigest md2 = dstream.getMessageDigest();
 				String hex = StorageUtils.bytesToHex(md2.digest());
 
-                edit.setContentLength(byteCount);
-                edit.setContentSha256(hex);
-                ResourcePropertiesEdit props = edit.getPropertiesEdit();
-                props.addProperty(ResourceProperties.PROP_CONTENT_LENGTH, Long.toString(byteCount));
-                props.addProperty(ResourceProperties.PROP_CONTENT_SHA256, hex);
-                if (edit.getContentType() != null)
-                {
-                    props.addProperty(ResourceProperties.PROP_CONTENT_TYPE, edit.getContentType());
-                }
+                setContentProperties(edit, byteCount, hex);
             }
             catch (IOException e)
             {
@@ -2372,6 +2364,7 @@ public class DbContentService extends BaseContentService
          */
         private int countTotalFileReferences(String filePath)
         {
+            if (filePath == null || filePath.isEmpty()) return 0;
             String statement = contentServiceSql.getCountFilePath(resourceTableName);
             int references = 0;
             
@@ -2397,29 +2390,51 @@ public class DbContentService extends BaseContentService
         /**
          * Generate a hierarchical file path for storing content files.
          * Creates paths like: /2025/246/20/5ada9b63-4baa-4f54-a3c1-4fe26522738a
-         * This matches the format used in BaseResourceEdit.setFilePath()
+         * Uses the single source of truth for file path generation.
          * 
-         * @return A properly formatted hierarchical file path
+         * @return A properly formatted file path with leading slash (as it has been for 20 years)
          */
         private String generateFilePath()
         {
-            // Use current time for path generation
-            Time now = timeService.newTime();
-            
-            // Compute volume prefix if body volumes are configured
-            String volume = "/";
-            if ((m_bodyVolumes != null) && (m_bodyVolumes.length > 0))
+            // Use the single source of truth for file path generation
+            // Keep the leading slash - this is how it's been stored for 20 years
+            return generateStorageFilePath();
+        }
+
+        /**
+         * Delete a file at the specified path.
+         * Helper method to avoid code duplication when cleaning up old files.
+         * 
+         * @param resourceId The resource ID
+         * @param filePath The file path to delete
+         * @param rootFolder The root folder for file storage
+         */
+        private void deleteFileAtPath(String resourceId, String filePath, String rootFolder)
+        {
+            BaseResourceEdit tempResource = new BaseResourceEdit(resourceId);
+            tempResource.m_filePath = filePath;
+            delResourceBodyFilesystem(rootFolder, tempResource);
+        }
+
+        /**
+         * Set content properties on a resource.
+         * Helper method to avoid code duplication when setting content length, SHA256, and content type.
+         * 
+         * @param resource The resource to update
+         * @param byteCount The content length in bytes
+         * @param sha256 The SHA256 hash of the content
+         */
+        private void setContentProperties(ContentResourceEdit resource, long byteCount, String sha256)
+        {
+            resource.setContentLength(byteCount);
+            resource.setContentSha256(sha256);
+            ResourcePropertiesEdit props = resource.getPropertiesEdit();
+            props.addProperty(ResourceProperties.PROP_CONTENT_LENGTH, Long.toString(byteCount));
+            props.addProperty(ResourceProperties.PROP_CONTENT_SHA256, sha256);
+            if (resource.getContentType() != null)
             {
-                volume += m_bodyVolumes[(int) (Math.abs(now.getTime()) % ((long) m_bodyVolumes.length))];
-                volume += "/";
+                props.addProperty(ResourceProperties.PROP_CONTENT_TYPE, resource.getContentType());
             }
-            
-            // Get IdManager to create UUID
-            IdManager uuidManager = (IdManager) ComponentManager.get(IdManager.class);
-            
-            // Generate path: /volume/yyyy/DDD/HH/uuid
-            // toStringFilePath() creates the year/day-of-year/hour structure
-            return volume + now.toStringFilePath() + uuidManager.createUuid();
         }
 
         /**
@@ -2509,15 +2524,7 @@ public class DbContentService extends BaseContentService
                 ((BaseResourceEdit) resource).m_filePath = targetFilePath;
                 
                 // Set resource properties
-                resource.setContentLength(byteCount);
-                resource.setContentSha256(hex);
-                ResourcePropertiesEdit props = resource.getPropertiesEdit();
-                props.addProperty(ResourceProperties.PROP_CONTENT_LENGTH, Long.toString(byteCount));
-                props.addProperty(ResourceProperties.PROP_CONTENT_SHA256, hex);
-                if (resource.getContentType() != null)
-                {
-                    props.addProperty(ResourceProperties.PROP_CONTENT_TYPE, resource.getContentType());
-                }
+                setContentProperties(resource, byteCount, hex);
                 
                 // Clean up old file if it's different from new path and was a replacement
                 if (isReplacement && !oldFilePath.equals(targetFilePath)) {
@@ -2528,18 +2535,14 @@ public class DbContentService extends BaseContentService
                         boolean othersUseOldFile = (references > 1);
                         
                         if (!othersUseOldFile) {
-                            BaseResourceEdit tempResource = new BaseResourceEdit(resource.getId());
-                            tempResource.m_filePath = oldFilePath;
-                            delResourceBodyFilesystem(rootFolder, tempResource);
+                            deleteFileAtPath(resource.getId(), oldFilePath, rootFolder);
                             log.debug("Cleaned up old file path: {}", oldFilePath);
                         } else {
                             log.debug("Old file path {} still referenced by other resources, not deleting", oldFilePath);
                         }
                     } else {
                         // Single-instance store disabled, safe to delete old file
-                        BaseResourceEdit tempResource = new BaseResourceEdit(resource.getId());
-                        tempResource.m_filePath = oldFilePath;
-                        delResourceBodyFilesystem(rootFolder, tempResource);
+                        deleteFileAtPath(resource.getId(), oldFilePath, rootFolder);
                         log.debug("Cleaned up old file path: {}", oldFilePath);
                     }
                 }

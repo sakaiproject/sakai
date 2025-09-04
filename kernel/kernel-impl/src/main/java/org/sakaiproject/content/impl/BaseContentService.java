@@ -6362,6 +6362,29 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		return "content";
 	}
 
+	/**
+	 * Generate a file path for storing content on the filesystem.
+	 * This is the single source of truth for file path generation in the content hosting service.
+	 * 
+	 * @return A file path in the format: /[volume]/yyyy/DDD/HH/uuid
+	 */
+	public String generateStorageFilePath()
+	{
+		Time time = timeService.newTime();
+		
+		// compute file path: use now in ms mod m_bodyVolumes.length to pick a volume from m_bodyVolumes (if defined)
+		// add /yyyy/DDD/HH year / day of year / hour / and a unique id for the final file name.
+		// Don't include the body path.
+		String volume = "/";
+		if ((m_bodyVolumes != null) && (m_bodyVolumes.length > 0))
+		{
+			volume += m_bodyVolumes[(int) (Math.abs(time.getTime()) % ((long) m_bodyVolumes.length))];
+			volume += "/";
+		}
+
+		return volume + time.toStringFilePath() + idManager.createUuid();
+	}
+
 	public boolean willArchiveMerge()
 	{
 		return true;
@@ -11707,21 +11730,12 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		 * Set the file path for this resource
 		 * 
 		 * @param time
-		 *        The time on which to based the path.
+		 *        The time on which to based the path (currently unused as generateStorageFilePath creates its own timestamp)
 		 */
 		protected void setFilePath(Time time)
 		{
-			// compute file path: use now in ms mod m_bodyVolumes.length to pick a volume from m_bodyVolumes (if defined)
-			// add /yyyy/DDD/HH year / day of year / hour / and a unique id for the final file name.
-			// Don't include the body path.
-			String volume = "/";
-			if ((m_bodyVolumes != null) && (m_bodyVolumes.length > 0))
-			{
-				volume += m_bodyVolumes[(int) (Math.abs(time.getTime()) % ((long) m_bodyVolumes.length))];
-				volume += "/";
-			}
-
-			m_filePath = volume + time.toStringFilePath() + idManager.createUuid();
+			// Use the single source of truth for file path generation
+			m_filePath = generateStorageFilePath();
 		}
 
 		/**
