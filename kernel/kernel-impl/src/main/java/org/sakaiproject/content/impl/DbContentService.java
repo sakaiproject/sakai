@@ -51,6 +51,14 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.tika.detect.Detector;
+import org.apache.tika.io.TikaInputStream;
+import org.apache.tika.metadata.Metadata;
+import org.apache.tika.metadata.TikaCoreProperties;
+import org.apache.tika.parser.txt.CharsetDetector;
+import org.apache.tika.parser.txt.CharsetMatch;
+
 import org.sakaiproject.util.StorageUtils;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
@@ -2438,6 +2446,14 @@ public class DbContentService extends BaseContentService
         }
 
         /**
+         * Get the TIKA detector for content type detection.
+         * @return the TIKA detector or null if not available
+         */
+        private Detector getTikaDetector() {
+            return tikaDetector;
+        }
+        
+        /**
          * @param edit
          * @param stream
          * @return true if the resource body is written successfully, false otherwise.
@@ -2471,6 +2487,56 @@ public class DbContentService extends BaseContentService
                     
                     // Get the calculated hash
                     hex = StorageUtils.bytesToHex(digest.digest());
+                }
+                
+                // Now detect content type from the temp file
+                String contentType = null;
+                String encoding = null;
+                
+                // Use TIKA to detect content type from the temp file
+                Detector detector = getTikaDetector();
+                if (detector != null) {
+                    try (TikaInputStream tikaStream = TikaInputStream.get(tempFile)) {
+                        Metadata metadata = new Metadata();
+                        // Set the resource name as hint for better detection
+                        metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, resource.getId());
+                        
+                        // Detect content type
+                        org.apache.tika.mime.MediaType mediaType = detector.detect(tikaStream, metadata);
+                        if (mediaType != null) {
+                            contentType = mediaType.toString();
+                            
+                            // If it's text, also detect charset
+                            if (contentType != null && contentType.startsWith("text/")) {
+                                // Read a portion of the file for charset detection
+                                byte[] charsetBuffer = new byte[8192];
+                                try (InputStream charsetStream = Files.newInputStream(tempFile)) {
+                                    int bytesForCharset = charsetStream.read(charsetBuffer);
+                                    if (bytesForCharset > 0) {
+                                        CharsetDetector charsetDetector = new CharsetDetector();
+                                        charsetDetector.setText(bytesForCharset < charsetBuffer.length ? 
+                                            Arrays.copyOf(charsetBuffer, bytesForCharset) : charsetBuffer);
+                                        CharsetMatch match = charsetDetector.detect();
+                                        if (match != null && match.getConfidence() > 50) {
+                                            encoding = match.getName();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } catch (IOException e) {
+                        log.warn("Failed to detect content type from temp file", e);
+                    }
+                }
+                
+                // Update resource with detected content type and encoding if available
+                if (contentType != null) {
+                    ((BaseResourceEdit) resource).m_contentType = contentType;
+                }
+                if (encoding != null) {
+                    ResourcePropertiesEdit props = resource.getPropertiesEdit();
+                    props.removeProperty(ResourceProperties.PROP_CONTENT_ENCODING);
+                    props.addProperty(ResourceProperties.PROP_CONTENT_ENCODING, encoding);
                 }
                 
                 // Store old file path for potential cleanup
