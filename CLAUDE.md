@@ -105,3 +105,46 @@
 - **Graceful Degradation**: Provide fallbacks for unsupported browsers
 - **Token Management**: Handle subscription updates and expirations properly
 - **Internationalization**: PWA installation messages use `sakai-notifications.properties` for translations
+
+## File Upload and Stream Processing
+
+### Background
+File uploads in Sakai are handled by Apache Commons FileUpload via `RequestFilter`. Understanding the stream lifecycle is critical for maintaining efficient file handling.
+
+### Upload Stream Flow
+1. **HTTP Upload → DiskFileItem**: Apache Commons FileUpload automatically creates temp files for uploads > 1KB (configured via `m_uploadThreshold` in RequestFilter)
+2. **DiskFileItem → Stream**: The `getInputStream()` returns a `FileInputStream` to the temp file (not in-memory)
+3. **Stream → Storage**: The stream flows through content detection and hashing before storage
+
+### Stream Processing Architecture (DbContentService)
+The `putResourceBodyFilesystem` method uses efficient stream chaining to avoid creating additional temp files:
+
+```
+Original InputStream 
+→ BufferedInputStream (64KB buffer for mark/reset)
+→ TIKA detection (mark/read/reset - only reads first portion)
+→ DigestInputStream (SHA256 calculation while streaming)
+→ CountingInputStream (tracks bytes)
+→ FileSystemHandler.saveInputStream()
+```
+
+### Important Design Decisions
+- **NO EXTRA TEMP FILES**: The upload already creates a temp file via DiskFileItem. Creating another temp file is redundant.
+- **Stream Chaining**: Use DigestInputStream and CountingInputStream to calculate hash and size while streaming
+- **TIKA with mark/reset**: TIKA detection uses BufferedInputStream with mark/reset to avoid consuming the stream
+- **Single-Instance Store**: For deduplication, we must buffer content to calculate SHA256 before checking for duplicates
+- **Multipart Upload for S3**: BlobStoreFileSystemHandler uses jclouds multipart upload API to avoid needing content-length upfront
+
+### Critical Implementation Notes
+1. **Never create temp files for stream processing** - DiskFileItem already handles this
+2. **Use BufferedInputStream for mark/reset** - 64KB buffer is sufficient for TIKA detection
+3. **Chain streams for single-pass processing** - DigestInputStream + CountingInputStream
+4. **S3/Cloud storage uses multipart upload** - Eliminates need to know file size before upload
+5. **Memory efficiency** - Only buffer when absolutely necessary (e.g., for SHA256 deduplication check)
+
+### Common Mistakes to Avoid
+- ❌ Creating a temp file to "simplify" stream handling - the stream is already from a temp file!
+- ❌ Reading the stream multiple times - use stream chaining instead
+- ❌ Buffering entire file in memory - use streaming APIs
+- ❌ Using `readAllBytes()` for large files - will cause OutOfMemoryError
+- ❌ Calculating content-length by reading stream twice - use CountingInputStream or multipart upload

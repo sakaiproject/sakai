@@ -60,24 +60,6 @@ public interface FileSystemHandler {
     public long saveInputStream(String id, String root, String filePath, InputStream stream) throws IOException;
 
     /**
-     * Save the file from the input stream to the path with a known content length.
-     * This method is preferred when the content length is already known (e.g., from a previous calculation)
-     * to avoid having to read the stream twice for cloud storage providers that require Content-Length headers.
-     * 
-     * @param id The id of the resource. Will not be null or empty.
-     * @param root The root of the storage. Could be null or empty.
-     * @param filePath The path to save the file to. Will not be null or empty.
-     * @param stream The stream to read the file from.
-     * @param contentLength The size of the content in bytes. Use -1 if unknown.
-     * @return The content size.
-     * @throws IOException If the file could not be saved.
-     */
-    public default long saveInputStream(String id, String root, String filePath, InputStream stream, long contentLength) throws IOException {
-        // Default implementation ignores contentLength for backward compatibility
-        return saveInputStream(id, root, filePath, stream);
-    }
-
-    /**
      * Delete the file from the path.
      * 
      * @param id The id of the resource. Will not be null or empty.

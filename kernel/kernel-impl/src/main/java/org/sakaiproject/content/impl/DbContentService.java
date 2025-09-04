@@ -21,6 +21,7 @@
 
 package org.sakaiproject.content.impl;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -52,6 +53,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.io.input.CountingInputStream;
 import org.apache.tika.detect.Detector;
 import org.apache.tika.io.TikaInputStream;
 import org.apache.tika.metadata.Metadata;
@@ -2460,95 +2462,96 @@ public class DbContentService extends BaseContentService
          */
         private boolean putResourceBodyFilesystem(ContentResourceEdit resource, InputStream stream, String rootFolder)
         {
-            Path tempFile = null;
             try
             {
-                // Create a temporary file to stream content to while calculating SHA256
-                tempFile = Files.createTempFile("sakai-upload-", ".tmp");
-                String hex;
-                long byteCount;
-                
-                // Stream content to temp file while calculating SHA256 and byte count in ONE PASS
-                try (InputStream inputStream = stream;
-                     OutputStream tempOut = Files.newOutputStream(tempFile)) {
-                    
-                    // Calculate SHA256 while streaming to temp file
-                    MessageDigest digest = MessageDigest.getInstance("SHA-256");
-                    
-                    // Stream from input to temp file, calculating hash and counting bytes
-                    byte[] buffer = new byte[8192];
-                    int bytesRead;
-                    byteCount = 0;
-                    while ((bytesRead = inputStream.read(buffer)) != -1) {
-                        digest.update(buffer, 0, bytesRead);
-                        tempOut.write(buffer, 0, bytesRead);
-                        byteCount += bytesRead;
-                    }
-                    
-                    // Get the calculated hash
-                    hex = StorageUtils.bytesToHex(digest.digest());
+                if (stream == null) {
+                    return true; // No content to save
                 }
                 
-                // Now detect content type from the temp file
+                // Buffer size for mark/reset support - 64KB should be enough for TIKA detection
+                final int MARK_BUFFER_SIZE = 64 * 1024;
+                
+                // Wrap stream in BufferedInputStream for mark/reset support
+                BufferedInputStream bufferedStream = new BufferedInputStream(stream, MARK_BUFFER_SIZE);
+                
+                // First pass: TIKA content type detection (uses only first portion of stream)
                 String contentType = null;
                 String encoding = null;
                 
-                // Use TIKA to detect content type from the temp file
                 Detector detector = getTikaDetector();
                 if (detector != null) {
-                    try (TikaInputStream tikaStream = TikaInputStream.get(tempFile)) {
+                    try {
+                        // Mark the stream so we can reset after TIKA detection
+                        bufferedStream.mark(MARK_BUFFER_SIZE);
+                        
                         Metadata metadata = new Metadata();
-                        // Set the resource name as hint for better detection
                         metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, resource.getId());
                         
-                        // Detect content type
-                        org.apache.tika.mime.MediaType mediaType = detector.detect(tikaStream, metadata);
+                        // Detect content type (TIKA will only read what it needs)
+                        org.apache.tika.mime.MediaType mediaType = detector.detect(bufferedStream, metadata);
                         if (mediaType != null) {
                             contentType = mediaType.toString();
-                            
-                            // If it's text, also detect charset
-                            if (contentType != null && contentType.startsWith("text/")) {
-                                // Read a portion of the file for charset detection
-                                byte[] charsetBuffer = new byte[8192];
-                                try (InputStream charsetStream = Files.newInputStream(tempFile)) {
-                                    int bytesForCharset = charsetStream.read(charsetBuffer);
-                                    if (bytesForCharset > 0) {
-                                        CharsetDetector charsetDetector = new CharsetDetector();
-                                        charsetDetector.setText(bytesForCharset < charsetBuffer.length ? 
-                                            Arrays.copyOf(charsetBuffer, bytesForCharset) : charsetBuffer);
-                                        CharsetMatch match = charsetDetector.detect();
-                                        if (match != null && match.getConfidence() > 50) {
-                                            encoding = match.getName();
-                                        }
-                                    }
-                                }
-                            }
                         }
+                        
+                        // Reset stream back to beginning for SHA256 calculation
+                        bufferedStream.reset();
+                        
+                        // If it's text, detect charset (we'll do this after SHA256 to avoid another reset)
+                        
                     } catch (IOException e) {
-                        log.warn("Failed to detect content type from temp file", e);
+                        log.warn("Failed to detect content type from stream", e);
+                        // Reset stream anyway to ensure we can continue
+                        try {
+                            bufferedStream.reset();
+                        } catch (IOException resetEx) {
+                            log.error("Failed to reset stream after TIKA detection error", resetEx);
+                        }
                     }
                 }
                 
-                // Update resource with detected content type and encoding if available
+                // Update resource with detected content type if available
                 if (contentType != null) {
                     ((BaseResourceEdit) resource).m_contentType = contentType;
                 }
-                if (encoding != null) {
-                    ResourcePropertiesEdit props = resource.getPropertiesEdit();
-                    props.removeProperty(ResourceProperties.PROP_CONTENT_ENCODING);
-                    props.addProperty(ResourceProperties.PROP_CONTENT_ENCODING, encoding);
-                }
+                
+                // Second pass: Calculate SHA256 and count bytes while streaming to storage
+                String hex;
+                long byteCount;
+                
+                // Create digest for SHA256 calculation
+                MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                
+                // Wrap in DigestInputStream to calculate hash while reading
+                DigestInputStream digestStream = new DigestInputStream(bufferedStream, digest);
+                
+                // Wrap in CountingInputStream to track bytes
+                CountingInputStream countingStream = new CountingInputStream(digestStream);
                 
                 // Store old file path for potential cleanup
                 String oldFilePath = ((BaseResourceEdit) resource).m_filePath;
                 boolean isReplacement = (oldFilePath != null);
                 
-                // Determine target file path based on single-instance store logic
-                String targetFilePath = null;
-                
-                // Check if there already is an identical file (most recent if there is > 1)
+                // For single-instance store, we need to calculate SHA256 first before saving
+                // So we'll buffer the content if it's small enough, otherwise do two passes
                 boolean singleInstanceStore = serverConfigurationService.getBoolean(PROP_SINGLE_INSTANCE, PROP_SINGLE_INSTANCE_DEFAULT);
+                
                 if (singleInstanceStore && bodyPath != null && bodyPath.equals(rootFolder)) {
+                    // For single-instance store, we need SHA256 before saving
+                    // Buffer the content for deduplication check
+                    byte[] buffer = new byte[8192];
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    int bytesRead;
+                    
+                    while ((bytesRead = countingStream.read(buffer)) != -1) {
+                        baos.write(buffer, 0, bytesRead);
+                    }
+                    
+                    // Get the SHA256 hash
+                    hex = StorageUtils.bytesToHex(digest.digest());
+                    byteCount = countingStream.getByteCount();
+                    
+                    // Now check for duplicates
+                    String targetFilePath = null;
                     String statement = contentServiceSql.getOnlyOneFilePath(resourceTableName);
                     String duplicateFilePath = singleColumnSingleRow(statement, hex);
                     
@@ -2578,29 +2581,44 @@ public class DbContentService extends BaseContentService
                             log.debug("Replacement operation, generating new path even though content exists");
                         }
                     }
-                }
-                
-                // If no duplicate found or we need a new path, generate one
-                if (targetFilePath == null) {
-                    targetFilePath = generateFilePath();
-                    log.debug("Content body is unique or replacement needed, new path={}", targetFilePath);
                     
-                    // Save the content from temp file to the new file path WITH KNOWN SIZE
-                    // This avoids re-reading the stream for cloud storage providers that require Content-Length
-                    try (InputStream tempIn = Files.newInputStream(tempFile)) {
-                        fileSystemHandler.saveInputStream(((BaseResourceEdit) resource).m_id, rootFolder, targetFilePath, tempIn, byteCount);
+                    // If no duplicate found or we need a new path, save the content
+                    if (targetFilePath == null) {
+                        targetFilePath = generateFilePath();
+                        log.debug("Content body is unique or replacement needed, new path={}", targetFilePath);
+                        
+                        // Save the buffered content to storage
+                        try (ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray())) {
+                            fileSystemHandler.saveInputStream(((BaseResourceEdit) resource).m_id, rootFolder, targetFilePath, bais);
+                        }
                     }
+                    // else: duplicate exists, no need to save file again
+                    
+                    // Update resource with new file path
+                    ((BaseResourceEdit) resource).m_filePath = targetFilePath;
+                    
+                } else {
+                    // Non-single-instance store or different root folder
+                    // Stream directly to storage without buffering
+                    String targetFilePath = generateFilePath();
+                    log.debug("Streaming content to new path={}", targetFilePath);
+                    
+                    // Stream directly through the digest and counting streams to storage
+                    fileSystemHandler.saveInputStream(((BaseResourceEdit) resource).m_id, rootFolder, targetFilePath, countingStream);
+                    
+                    // Get the SHA256 hash after streaming
+                    hex = StorageUtils.bytesToHex(digest.digest());
+                    byteCount = countingStream.getByteCount();
+                    
+                    // Update resource with new file path
+                    ((BaseResourceEdit) resource).m_filePath = targetFilePath;
                 }
-                // else: duplicate exists, no need to save file again
-                
-                // Update resource with new file path
-                ((BaseResourceEdit) resource).m_filePath = targetFilePath;
                 
                 // Set resource properties
                 setContentProperties(resource, byteCount, hex);
                 
                 // Clean up old file if it's different from new path and was a replacement
-                if (isReplacement && !oldFilePath.equals(targetFilePath)) {
+                if (isReplacement && !oldFilePath.equals(((BaseResourceEdit) resource).m_filePath)) {
                     // Check if old file is still referenced by other resources
                     if (singleInstanceStore) {
                         // Count total references across both tables
@@ -2631,17 +2649,6 @@ public class DbContentService extends BaseContentService
             {
                 log.error("NoSuchAlgorithmException", e);
                 return false;
-            }
-            finally
-            {
-                // Clean up temporary file
-                if (tempFile != null) {
-                    try {
-                        Files.deleteIfExists(tempFile);
-                    } catch (IOException e) {
-                        log.warn("Failed to delete temporary file: {}", tempFile, e);
-                    }
-                }
             }
         }
 

@@ -1,6 +1,5 @@
 package coza.opencollab.sakai.cloudcontent;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -9,6 +8,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -17,7 +20,10 @@ import org.jclouds.aws.s3.AWSS3ProviderMetadata;
 import org.jclouds.blobstore.BlobStore;
 import org.jclouds.blobstore.BlobStoreContext;
 import org.jclouds.blobstore.domain.Blob;
+import org.jclouds.blobstore.domain.MultipartPart;
+import org.jclouds.blobstore.domain.MultipartUpload;
 import org.jclouds.blobstore.domain.StorageMetadata;
+import org.jclouds.blobstore.options.PutOptions;
 import org.jclouds.http.HttpRequest;
 import org.jclouds.io.Payload;
 import org.jclouds.io.Payloads;
@@ -109,17 +115,6 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
      * Default is null.
      */
     private String invalidCharactersRegex = "[:*?<|>]";
-
-    /**
-     * The maximum buffer size, which dictates the maximum file upload.
-     *
-     * Because services like S3 require a known size at the beginning of an
-     * upload, we buffer the InputStream to get its size. This is not
-     * the default size of the buffer, but the maximum. The
-     * content.upload.ceiling property is almost certainly lower than the 1GB
-     * set here, meaning that the buffer should be bounded on it instead.
-     */
-    private static final int MAX_UPLOAD_BYTES = 1024 * 1024 * 1024;
 
     /**
      * This is how long we want the signed URL to be valid for.
@@ -217,7 +212,7 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
         StorageMetadata metadata = blob.getMetadata();
         Long size = metadata.getSize();
 
-        if (size != null && size.longValue() > maxBlobStreamSize) {
+        if (size != null && size > maxBlobStreamSize) {
             return streamFromTempFile(blob, size);
         } else {
             // SAK-30325: why can't we just send the stream straight back: blob.getPayload().openStream() ?
@@ -275,95 +270,80 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
             ContainerAndName can = getContainerAndName(id, root, filePath);
             createContainerIfNotExist(can.container);
 
-            InputStream in = markableInputStream(stream);
-            long size = markableStreamLength(in);
+            // Use multipart upload for streaming without knowing content length upfront
+            BlobStore store = getBlobStore();
+            String asciiID = Base64.encodeBase64String(id.getBytes(StandardCharsets.UTF_8));
 
-            Payload payload = Payloads.newInputStreamPayload(in);
+            // Use multipart upload to avoid having to know the content length
+            // This allows streaming directly without buffering or double-reading
+            store.blobBuilder(can.name)
+                .userMetadata(ImmutableMap.of("id", asciiID, "path", filePath))
+                .build();
+
+            // Initiate multipart upload
+            MultipartUpload mpu = store.initiateMultipartUpload(
+                can.container,
+                store.blobBuilder(can.name)
+                    .userMetadata(ImmutableMap.of("id", asciiID, "path", filePath))
+                    .build().getMetadata(),
+                PutOptions.NONE
+            );
+
+            List<MultipartPart> parts = new ArrayList<>();
+            long totalSize = 0;
+            int partNumber = 1;
+
+            // Stream chunks of 5MB minimum (S3 requirement)
+            final int CHUNK_SIZE = 5 * 1024 * 1024; // 5MB chunks
+            byte[] buffer = new byte[CHUNK_SIZE];
+            int bytesRead;
 
             try {
-                BlobStore store = getBlobStore();
-                String asciiID = Base64.encodeBase64String(id.getBytes("UTF8"));
+                while ((bytesRead = readFully(stream, buffer)) > 0) {
+                    // Create a payload for this part
+                    Payload partPayload = Payloads.newByteArrayPayload(Arrays.copyOf(buffer, bytesRead));
 
-                Blob blob = store.blobBuilder(can.name)
-                    .payload(payload)
-                    .contentLength(size)
-                    .userMetadata(ImmutableMap.of("id", asciiID, "path", filePath))
-                    .build();
-                store.putBlob(can.container, blob);
+                    // Upload this part
+                    MultipartPart part = store.uploadMultipartPart(
+                        mpu,
+                        partNumber,
+                        partPayload
+                    );
+                    parts.add(part);
+                    totalSize += bytesRead;
+                    partNumber++;
+                    
+                    partPayload.release();
+                }
+
+                // Complete the multipart upload
+                store.completeMultipartUpload(mpu, parts);
+
+            } catch (Exception e) {
+                // Abort the multipart upload on error
+                store.abortMultipartUpload(mpu);
+                throw new IOException("Multipart upload failed", e);
             } finally {
-                payload.release();
                 Closeables.close(stream, true);
-                Closeables.close(in, true);
             }
 
-            return size;
+            return totalSize;
         }
-        
+
         /**
-         * Save input stream with known content length - avoids re-reading the stream.
-         * This is the preferred method when content length is already known.
+         * Helper method to read fully into buffer
          */
-        public long saveInputStream(String id, String root, String filePath, InputStream stream, long contentLength) throws IOException {
-            if(stream == null){
-                return 0L;
+        private int readFully(InputStream stream, byte[] buffer) throws IOException {
+            int totalRead = 0;
+            while (totalRead < buffer.length) {
+                int read = stream.read(buffer, totalRead, buffer.length - totalRead);
+                if (read == -1) {
+                    break;
+                }
+                totalRead += read;
             }
-            
-            // If content length is unknown, fall back to the old method
-            if (contentLength < 0) {
-                return saveInputStream(id, root, filePath, stream);
-            }
-            
-            ContainerAndName can = getContainerAndName(id, root, filePath);
-            createContainerIfNotExist(can.container);
-
-            // No need to wrap in markable stream or count bytes - we already know the size!
-            Payload payload = Payloads.newInputStreamPayload(stream);
-
-            try {
-                BlobStore store = getBlobStore();
-                String asciiID = Base64.encodeBase64String(id.getBytes("UTF8"));
-
-                Blob blob = store.blobBuilder(can.name)
-                    .payload(payload)
-                    .contentLength(contentLength)  // Use the provided content length
-                    .userMetadata(ImmutableMap.of("id", asciiID, "path", filePath))
-                    .build();
-                store.putBlob(can.container, blob);
-            } finally {
-                payload.release();
-                Closeables.close(stream, true);
-            }
-
-            return contentLength;
+            return totalRead;
         }
-
-    /**
-     * Get a markable version of an InputStream, wrapping it if necessary.
-     *
-     * This method will return the passed stream if it is already markable,
-     * otherwise wrapping it in a BufferedInputStream to support mark/reset
-     * for computing length and rereading.
-     */
-    private InputStream markableInputStream(InputStream stream) {
-        if (stream.markSupported()) {
-            return stream;
-        } else {
-            return new BufferedInputStream(stream);
-        }
-    }
-
-    /**
-     * Get the length of a markable InputStream.
-     */
-    private long markableStreamLength(InputStream stream) throws IOException {
-        long size = 0;
-        stream.mark(MAX_UPLOAD_BYTES);
-        while (stream.read() != -1) {
-            size += 1;
-        }
-        stream.reset();
-        return size;
-    }
 
     /**
      * {@inheritDoc}
@@ -410,10 +390,10 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
      * a IllegalArgumentException.
      */
     private ContainerAndName getContainerAndName(String id, String root, String filePath) throws IllegalArgumentException {
-        if (id == null || id.trim().length() == 0) {
+        if (id == null || id.trim().isEmpty()) {
             throw new IllegalArgumentException("The id cannot be null or empty!");
         }
-        if (filePath == null || filePath.trim().length() == 0) {
+        if (filePath == null || filePath.trim().isEmpty()) {
             throw new IllegalArgumentException("The path cannot be null or empty!");
         }
         String path = (useIdForPath?id:filePath);
