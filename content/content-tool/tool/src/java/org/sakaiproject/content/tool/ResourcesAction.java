@@ -3606,6 +3606,10 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		{
 			addAlert(trb.getString("alert.unknown"));
 		}
+		catch (VirusFoundException e)
+		{
+			addAlert(trb.getFormattedMessage("alert.virusfound", new Object[]{e.getMessage()}));
+		}
 	}
 
 	/**
