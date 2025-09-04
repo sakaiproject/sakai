@@ -298,6 +298,44 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
 
             return size;
         }
+        
+        /**
+         * Save input stream with known content length - avoids re-reading the stream.
+         * This is the preferred method when content length is already known.
+         */
+        public long saveInputStream(String id, String root, String filePath, InputStream stream, long contentLength) throws IOException {
+            if(stream == null){
+                return 0L;
+            }
+            
+            // If content length is unknown, fall back to the old method
+            if (contentLength < 0) {
+                return saveInputStream(id, root, filePath, stream);
+            }
+            
+            ContainerAndName can = getContainerAndName(id, root, filePath);
+            createContainerIfNotExist(can.container);
+
+            // No need to wrap in markable stream or count bytes - we already know the size!
+            Payload payload = Payloads.newInputStreamPayload(stream);
+
+            try {
+                BlobStore store = getBlobStore();
+                String asciiID = Base64.encodeBase64String(id.getBytes("UTF8"));
+
+                Blob blob = store.blobBuilder(can.name)
+                    .payload(payload)
+                    .contentLength(contentLength)  // Use the provided content length
+                    .userMetadata(ImmutableMap.of("id", asciiID, "path", filePath))
+                    .build();
+                store.putBlob(can.container, blob);
+            } finally {
+                payload.release();
+                Closeables.close(stream, true);
+            }
+
+            return contentLength;
+        }
 
     /**
      * Get a markable version of an InputStream, wrapping it if necessary.

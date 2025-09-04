@@ -2452,16 +2452,22 @@ public class DbContentService extends BaseContentService
                 String hex;
                 long byteCount;
                 
-                // Stream content to temp file while calculating SHA256
+                // Stream content to temp file while calculating SHA256 and byte count in ONE PASS
                 try (InputStream inputStream = stream;
                      OutputStream tempOut = Files.newOutputStream(tempFile)) {
                     
-                    // Wrap input in DigestInputStream to calculate SHA256 while streaming
+                    // Calculate SHA256 while streaming to temp file
                     MessageDigest digest = MessageDigest.getInstance("SHA-256");
-                    DigestInputStream digestStream = new DigestInputStream(inputStream, digest);
                     
-                    // Stream from input to temp file
-                    byteCount = digestStream.transferTo(tempOut);
+                    // Stream from input to temp file, calculating hash and counting bytes
+                    byte[] buffer = new byte[8192];
+                    int bytesRead;
+                    byteCount = 0;
+                    while ((bytesRead = inputStream.read(buffer)) != -1) {
+                        digest.update(buffer, 0, bytesRead);
+                        tempOut.write(buffer, 0, bytesRead);
+                        byteCount += bytesRead;
+                    }
                     
                     // Get the calculated hash
                     hex = StorageUtils.bytesToHex(digest.digest());
@@ -2513,9 +2519,10 @@ public class DbContentService extends BaseContentService
                     targetFilePath = generateFilePath();
                     log.debug("Content body is unique or replacement needed, new path={}", targetFilePath);
                     
-                    // Save the content from temp file to the new file path
+                    // Save the content from temp file to the new file path WITH KNOWN SIZE
+                    // This avoids re-reading the stream for cloud storage providers that require Content-Length
                     try (InputStream tempIn = Files.newInputStream(tempFile)) {
-                        fileSystemHandler.saveInputStream(((BaseResourceEdit) resource).m_id, rootFolder, targetFilePath, tempIn);
+                        fileSystemHandler.saveInputStream(((BaseResourceEdit) resource).m_id, rootFolder, targetFilePath, tempIn, byteCount);
                     }
                 }
                 // else: duplicate exists, no need to save file again
