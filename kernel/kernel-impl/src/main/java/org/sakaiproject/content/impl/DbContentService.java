@@ -1760,23 +1760,8 @@ public class DbContentService extends BaseContentService
                        String filePath = ((BaseResourceEdit) edit).m_filePath;
                        if (singleInstanceStore)
                        {
-                           // Count references in both main table and deleted table for singleInstanceStore
-                           String statement = contentServiceSql.getCountFilePath(resourceTableName);
-                           int references = -1;
-                           try {
-                               references = countQuery(statement, filePath);
-
-                               // Also count references in deleted table if it exists
-                               if (references <= 1 && resourceDeleteTableName != null) {
-                                   String deleteStatement = contentServiceSql.getCountFilePath(resourceDeleteTableName);
-                                   int deletedReferences = countQuery(deleteStatement, filePath);
-                                   references += deletedReferences;
-                                   log.debug("Found {} references in main table and {} in deleted table for file: {}", 
-                                       references - deletedReferences, deletedReferences, filePath);
-                               }
-                           } catch ( IdUnusedException e ) {
-                               log.warn("missing id during countQuery,  {}", e.toString());
-                           }
+                           // Count total references across both tables
+                           int references = countTotalFileReferences(filePath);
 
                            if ( references > 1 ) {
                                log.debug("Retaining file blob for deleted resource_id={} because {} total reference(s)", edit.getId(), references);
@@ -1977,23 +1962,8 @@ public class DbContentService extends BaseContentService
 							String filePath = ((BaseResourceEdit) edit).m_filePath;
 							if (singleInstanceStore)
 							{
-								// Count references in both main table and deleted table for singleInstanceStore
-								String statement = contentServiceSql.getCountFilePath(resourceTableName);
-								int references = -1;
-								try {
-									references = countQuery(statement, filePath);
-
-									// Also count references in deleted table if it exists
-									if (references <= 1 && resourceDeleteTableName != null) {
-										String deleteStatement = contentServiceSql.getCountFilePath(resourceDeleteTableName);
-										int deletedReferences = countQuery(deleteStatement, filePath);
-										references += deletedReferences;
-										log.debug("Found {} references in main table and {} in deleted table for file: {}", 
-											references - deletedReferences, deletedReferences, filePath);
-									}
-								} catch ( IdUnusedException e ) {
-									log.warn("missing id during countQuery,  {}", e.toString());
-								}
+								// Count total references across both tables
+								int references = countTotalFileReferences(filePath);
 
 								if ( references > 1 ) {
 									log.debug("Retaining file blob for resource_id={} because {} total reference(s)", edit.getId(), references);
@@ -2391,6 +2361,37 @@ public class DbContentService extends BaseContentService
         }
 
         /**
+         * Count total references to a file path across both main and deleted tables.
+         * Used to determine if a physical file can be safely deleted from the filesystem.
+         * 
+         * @param filePath The file path to check for references
+         * @return Total number of references across both tables (main + deleted)
+         */
+        private int countTotalFileReferences(String filePath)
+        {
+            String statement = contentServiceSql.getCountFilePath(resourceTableName);
+            int references = 0;
+            
+            try {
+                // Count references in main table
+                references = countQuery(statement, filePath);
+                
+                // Also count references in deleted table if exists and main table has ≤1 reference
+                if (references <= 1 && resourceDeleteTableName != null) {
+                    String deleteStatement = contentServiceSql.getCountFilePath(resourceDeleteTableName);
+                    int deletedReferences = countQuery(deleteStatement, filePath);
+                    references += deletedReferences;
+                    log.debug("Found {} references in main table and {} in deleted table for file: {}", 
+                        references - deletedReferences, deletedReferences, filePath);
+                }
+            } catch (IdUnusedException e) {
+                log.warn("Error during reference counting for file {}: {}", filePath, e.toString());
+            }
+            
+            return references;
+        }
+
+        /**
          * Generate a hierarchical file path for storing content files.
          * Creates paths like: /2025/246/20/5ada9b63-4baa-4f54-a3c1-4fe26522738a
          * This matches the format used in BaseResourceEdit.setFilePath()
@@ -2512,17 +2513,9 @@ public class DbContentService extends BaseContentService
                 if (isReplacement && !oldFilePath.equals(targetFilePath)) {
                     // Check if old file is still referenced by other resources
                     if (singleInstanceStore) {
-                        // Need to check if other resources still reference this file
-                        String countStatement = contentServiceSql.getCountFilePath(resourceTableName);
-                        boolean othersUseOldFile = false;
-                        try {
-                            // Count how many resources use this file path
-                            int references = countQuery(countStatement, oldFilePath);
-                            // If more than 1 reference (the current one being updated), others still use it
-                            othersUseOldFile = (references > 1);
-                        } catch (Exception e) {
-                            log.debug("Error checking old file references", e);
-                        }
+                        // Count total references across both tables
+                        int references = countTotalFileReferences(oldFilePath);
+                        boolean othersUseOldFile = (references > 1);
                         
                         if (!othersUseOldFile) {
                             BaseResourceEdit tempResource = new BaseResourceEdit(resource.getId());
