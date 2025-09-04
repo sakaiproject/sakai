@@ -935,18 +935,15 @@ public class PortalServiceImpl implements PortalService, Observer
 	public List<String> getPinnedSites(String userId) {
 		if (StringUtils.isBlank(userId)) return Collections.emptyList();
 
-		if(!serverConfigurationService.getBoolean("portal.new.pinned.sites.top", false)) {
-			return pinnedSiteRepository.findByUserIdOrderByPosition(userId).stream()
-					.map(PinnedSite::getSiteId)
-					.collect(Collectors.toUnmodifiableList());
-		} else {
-			List<String> pinnedSites = pinnedSiteRepository.findByUserIdOrderByPosition(userId).stream()
-					.map(PinnedSite::getSiteId)
-					.collect(Collectors.toList());
-
-			Collections.reverse(pinnedSites);
-			return Collections.unmodifiableList(pinnedSites);
+		List<String> pinned = pinnedSiteRepository
+				.findByUserIdAndHasBeenUnpinnedOrderByPosition(userId, false)
+				.stream()
+				.map(PinnedSite::getSiteId)
+				.collect(Collectors.toList());
+		if (serverConfigurationService.getBoolean("portal.new.pinned.sites.top", false)) {
+			Collections.reverse(pinned);
 		}
+		return Collections.unmodifiableList(pinned);
 	}
 
 	@Override
