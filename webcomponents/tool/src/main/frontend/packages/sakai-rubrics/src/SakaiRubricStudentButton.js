@@ -14,6 +14,7 @@ export class SakaiRubricStudentButton extends rubricsApiMixin(RubricsElement) {
     evaluatedItemOwnerId: { attribute: "evaluated-item-owner-id", type: String },
     forcePreview: { attribute: "force-preview", type: Boolean },
     instructor: { type: Boolean },
+    icon: { type: String },
   };
 
   constructor() {
@@ -21,6 +22,7 @@ export class SakaiRubricStudentButton extends rubricsApiMixin(RubricsElement) {
     super();
 
     this.forcePreview = false;
+    this.icon = "si si-sakai-rubrics";
   }
 
   set siteId(value) {
@@ -48,7 +50,7 @@ export class SakaiRubricStudentButton extends rubricsApiMixin(RubricsElement) {
 
     return html`
       <a @click=${this.showRubric} href="javascript:;" title="${this._i18n.preview_rubric}">
-        <span class="si si-sakai-rubrics"></span>
+        <span class="${this.icon}"></span>
       </a>
     `;
   }
@@ -58,11 +60,16 @@ export class SakaiRubricStudentButton extends rubricsApiMixin(RubricsElement) {
     this.apiGetAssociation()
       .then(association => {
 
-        if (association && !association.parameters.hideStudentPreview) {
-          this._rubricId = association.rubricId;
+        if (association) {
+          if (this.instructor || !association.parameters.hideStudentPreview) {
+            this._rubricId = association.rubricId;
+            if (this.instructor && association.parameters.hideStudentPreview) {
+              this.icon = "si si-sakai-rubrics-hidden";
+            }
+          }
         }
       })
-    .catch(error => console.error(error));
+      .catch(error => console.error(error));
   }
 
   showRubric() {
