@@ -2306,10 +2306,7 @@ public class DbContentService extends BaseContentService
             // Do not process resources with zero length bodies
             if (stream == null) return true;
 
-            try {
-                // Use TikaInputStream for robust mark/reset support with large files
-                TikaInputStream tikaStream = TikaInputStream.get(stream);
-                
+            try (TikaInputStream tikaStream = TikaInputStream.get(stream)) {
                 // Mark the stream so we can reset after calculating SHA-256
                 tikaStream.mark(Integer.MAX_VALUE);
                 
@@ -2339,7 +2336,7 @@ public class DbContentService extends BaseContentService
                 // Store content using streaming database API - no memory buffering
                 String sql = contentServiceSql.getInsertContentSql(resourceBodyTableName);
                 Object[] fields = {edit.getId(), hex};
-                boolean success = sqlService.dbWriteBinaryStream(sql, fields, (InputStream) tikaStream, byteCount);
+                boolean success = sqlService.dbWriteBinaryStream(sql, fields, tikaStream, byteCount);
                 
                 if (success) {
                     // Set resource properties with calculated values
@@ -2354,12 +2351,6 @@ public class DbContentService extends BaseContentService
             } catch (Exception e) {
                 log.error("Error storing resource body in database for resource: {}", edit.getId(), e);
                 return false;
-            } finally {
-                try {
-                    stream.close();
-                } catch (IOException e) {
-                    log.error("Error closing stream for resource: {}", edit.getId(), e);
-                }
             }
         }
 
