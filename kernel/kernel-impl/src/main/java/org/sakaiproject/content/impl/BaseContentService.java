@@ -80,6 +80,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.detect.DefaultDetector;
 import org.apache.tika.detect.Detector;
+import org.apache.tika.io.TikaInputStream;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.metadata.TikaCoreProperties;
 import org.apache.tika.mime.MediaType;
@@ -5610,27 +5611,62 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 			return;
 		}
 		
-        // Content type detection from file content is now done in putResourceBodyFilesystem in DbContentService
-        // where it's performed from the temp file to avoid multiple stream reads.
-        // Here we only do name-based detection as a fallback if no content type was set.
-        
         String currentContentType = edit.getContentType();
-        
-        // Only do name-based detection if we don't have a content type
-        if (!hasContentType(edit.getId()) && StringUtils.isBlank(currentContentType)) {
+        String detectedByName = "";
+        String detectedByMagic = "";
+
+        if (!hasContentType(edit.getId())) {
+            // this might not want to be set as it would advise the detector
             final Metadata metadata = new Metadata();
             metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, edit.getId());
+            metadata.set(Metadata.CONTENT_TYPE, currentContentType);
 
-            // tika name detection only as fallback
+            // tika name detection
             try {
-                String detectedByName = tikaDetector.detect(null, metadata).toString();
-                if (StringUtils.isNotBlank(detectedByName)) {
-                    log.debug("setting content type for [{}] to [{}] based on name detection", edit.getId(), detectedByName);
-                    edit.setContentType(detectedByName);
-                }
+                detectedByName = tikaDetector.detect(null, metadata).toString();
             } catch (IOException e) {
                 log.debug("performing tika name detection for resource [{}], {}", edit.getId(), e.toString());
             }
+
+            // tika magic and name detection
+            if (m_useMimeMagic
+                    && !m_ignoreExtensions.contains(org.springframework.util.StringUtils.getFilenameExtension(edit.getId()))
+                    && !CollectionUtils.containsAny(m_ignoreMimeTypes, currentContentType, detectedByName)) {
+                try {
+                    // Use TikaInputStream for proper mark/reset support
+                    InputStream stream = TikaInputStream.get(edit.streamContent());
+                    edit.setContent(stream);
+                    detectedByMagic = tikaDetector.detect(stream, metadata).toString();
+                } catch (Exception e) {
+                    log.warn("tika mimetype detection failed when trying to get the resource data: {}", e.toString());
+                }
+            }
+        }
+
+        // detection order preference is
+        // 1. tika magic and name detection
+        //    magic detection may give a false mimetype if the file is unknown and has plain text
+        // 2. tika name only detection
+        //    name only is more reliable if magic fails
+        // 3. resources default content type
+        String newContentType = "";
+        if (StringUtils.isNotBlank(detectedByMagic)) {
+            // if magic chose text/plain this is a default for text files returned by TextDetector
+            if (MediaType.TEXT_PLAIN.toString().equals(detectedByMagic)
+                    && !MediaType.TEXT_PLAIN.toString().equals(detectedByName)) {
+                newContentType = detectedByName;
+            } else {
+                newContentType = detectedByMagic;
+            }
+        } else if (StringUtils.isNotBlank(detectedByName)) {
+            newContentType = detectedByName;
+        } else if (StringUtils.isNotBlank(currentContentType)) {
+            newContentType = currentContentType;
+        }
+
+        if (StringUtils.isNotBlank(newContentType)) {
+            log.debug("setting content type for [{}] to [{}]", edit.getId(), newContentType);
+            edit.setContentType(newContentType);
         }
         commitResourceEdit(edit, priority);
 

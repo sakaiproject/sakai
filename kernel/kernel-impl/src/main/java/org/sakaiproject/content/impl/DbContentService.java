@@ -21,7 +21,6 @@
 
 package org.sakaiproject.content.impl;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -2462,57 +2461,16 @@ public class DbContentService extends BaseContentService
          */
         private boolean putResourceBodyFilesystem(ContentResourceEdit resource, InputStream stream, String rootFolder)
         {
+            TikaInputStream tikaStream = null;
             try
             {
                 if (stream == null) {
                     return true; // No content to save
                 }
                 
-                // Buffer size for mark/reset support - 64KB should be enough for TIKA detection
-                final int MARK_BUFFER_SIZE = 64 * 1024;
-                
-                // Wrap stream in BufferedInputStream for mark/reset support
-                BufferedInputStream bufferedStream = new BufferedInputStream(stream, MARK_BUFFER_SIZE);
-                
-                // First pass: TIKA content type detection (uses only first portion of stream)
-                String contentType = null;
-                String encoding = null;
-                
-                Detector detector = getTikaDetector();
-                if (detector != null) {
-                    try {
-                        // Mark the stream so we can reset after TIKA detection
-                        bufferedStream.mark(MARK_BUFFER_SIZE);
-                        
-                        Metadata metadata = new Metadata();
-                        metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, resource.getId());
-                        
-                        // Detect content type (TIKA will only read what it needs)
-                        org.apache.tika.mime.MediaType mediaType = detector.detect(bufferedStream, metadata);
-                        if (mediaType != null) {
-                            contentType = mediaType.toString();
-                        }
-                        
-                        // Reset stream back to beginning for SHA256 calculation
-                        bufferedStream.reset();
-                        
-                        // If it's text, detect charset (we'll do this after SHA256 to avoid another reset)
-                        
-                    } catch (IOException e) {
-                        log.warn("Failed to detect content type from stream", e);
-                        // Reset stream anyway to ensure we can continue
-                        try {
-                            bufferedStream.reset();
-                        } catch (IOException resetEx) {
-                            log.error("Failed to reset stream after TIKA detection error", resetEx);
-                        }
-                    }
-                }
-                
-                // Update resource with detected content type if available
-                if (contentType != null) {
-                    ((BaseResourceEdit) resource).m_contentType = contentType;
-                }
+                // Use TikaInputStream for robust mark/reset support
+                // TikaInputStream handles large files efficiently by using temp files internally when needed
+                tikaStream = TikaInputStream.get(stream);
                 
                 // Store old file path for potential cleanup
                 String oldFilePath = ((BaseResourceEdit) resource).m_filePath;
@@ -2526,19 +2484,19 @@ public class DbContentService extends BaseContentService
                 String targetFilePath;
                 
                 if (singleInstanceStore && bodyPath != null && bodyPath.equals(rootFolder)) {
-                    // For single-instance store: calculate SHA256 FIRST by reading entire stream
-                    // This works because the stream is already from a temp file (DiskFileItem)
+                    // For single-instance store, we need to read the stream twice
+                    // TikaInputStream handles this efficiently with mark/reset
                     
-                    // Mark stream with MAX_VALUE to allow reading entire file
-                    bufferedStream.mark(Integer.MAX_VALUE);
+                    // Mark the stream so we can reset after calculating SHA256
+                    tikaStream.mark(Integer.MAX_VALUE);
                     
-                    // Read entire stream to calculate SHA256
+                    // Calculate SHA256 by reading entire stream
                     MessageDigest digest = MessageDigest.getInstance("SHA-256");
                     byte[] buffer = new byte[8192];
                     int bytesRead;
                     byteCount = 0;
                     
-                    while ((bytesRead = bufferedStream.read(buffer)) != -1) {
+                    while ((bytesRead = tikaStream.read(buffer)) != -1) {
                         digest.update(buffer, 0, bytesRead);
                         byteCount += bytesRead;
                     }
@@ -2547,7 +2505,7 @@ public class DbContentService extends BaseContentService
                     hex = StorageUtils.bytesToHex(digest.digest());
                     
                     // Reset stream back to beginning for potential save
-                    bufferedStream.reset();
+                    tikaStream.reset();
                     
                     // Now check for duplicates BEFORE saving
                     targetFilePath = null;
@@ -2586,13 +2544,16 @@ public class DbContentService extends BaseContentService
                         targetFilePath = generateFilePath();
                         log.debug("Content body is unique or replacement needed, new path={}", targetFilePath);
                         
-                        // Save from the reset stream
-                        fileSystemHandler.saveInputStream(((BaseResourceEdit) resource).m_id, rootFolder, targetFilePath, bufferedStream);
+                        // Save from the reset TikaInputStream
+                        fileSystemHandler.saveInputStream(((BaseResourceEdit) resource).m_id, rootFolder, targetFilePath, tikaStream);
                     }
                     // else: duplicate exists, no need to save file again
                     
                     // Update resource with new file path
                     ((BaseResourceEdit) resource).m_filePath = targetFilePath;
+                    
+                    // Set resource properties
+                    setContentProperties(resource, byteCount, hex);
                     
                 } else {
                     // Non-single-instance store or different root folder
@@ -2604,7 +2565,7 @@ public class DbContentService extends BaseContentService
                     MessageDigest digest = MessageDigest.getInstance("SHA-256");
                     
                     // Wrap in DigestInputStream to calculate hash while streaming
-                    DigestInputStream digestStream = new DigestInputStream(bufferedStream, digest);
+                    DigestInputStream digestStream = new DigestInputStream(tikaStream, digest);
                     
                     // Wrap in CountingInputStream to track bytes
                     CountingInputStream countingStream = new CountingInputStream(digestStream);
@@ -2655,6 +2616,17 @@ public class DbContentService extends BaseContentService
             {
                 log.error("NoSuchAlgorithmException", e);
                 return false;
+            }
+            finally
+            {
+                // Close TikaInputStream - this will also clean up any temp files it created internally
+                if (tikaStream != null) {
+                    try {
+                        tikaStream.close();
+                    } catch (IOException e) {
+                        log.warn("Failed to close TikaInputStream", e);
+                    }
+                }
             }
         }
 
