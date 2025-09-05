@@ -344,10 +344,18 @@ public interface SqlService
 	 * Uses JDBC streaming to avoid loading entire content into memory.
 	 * This method is preferred over dbWriteBinary(byte[]) for large files to prevent OutOfMemoryError.
 	 * 
+	 * <p><strong>Stream Ownership:</strong> The caller retains ownership of binaryStream.
+	 * This method will NOT close the stream - caller is responsible for stream lifecycle management.</p>
+	 * 
+	 * <p><strong>Stream Length:</strong> streamLength must be >= 0 and represent the exact number of bytes
+	 * available in the stream. If length is unknown, the stream should be wrapped or buffered to determine
+	 * the size before calling this method. For very large streams (> Integer.MAX_VALUE), the implementation
+	 * may use JDBC setBinaryStream() without length parameter for better memory efficiency.</p>
+	 * 
 	 * @param sql The sql statement with ? placeholders
 	 * @param fields The array of fields for parameters (except the final binary parameter)
-	 * @param binaryStream The InputStream for the final binary parameter
-	 * @param streamLength The length of the stream in bytes (used for JDBC parameter)
+	 * @param binaryStream The InputStream for the final binary parameter (caller-owned, will not be closed)
+	 * @param streamLength The exact length of the stream in bytes (must be >= 0)
 	 * @return true if successful, false if not
 	 */
 	boolean dbWriteBinaryStream(String sql, Object[] fields, InputStream binaryStream, long streamLength);
@@ -357,11 +365,19 @@ public interface SqlService
 	 * Uses JDBC streaming to avoid loading entire content into memory.
 	 * This method is preferred over dbWriteBinary(byte[]) for large files to prevent OutOfMemoryError.
 	 * 
+	 * <p><strong>Stream Ownership:</strong> The caller retains ownership of binaryStream.
+	 * This method will NOT close the stream - caller is responsible for stream lifecycle management.</p>
+	 * 
+	 * <p><strong>Stream Length:</strong> streamLength must be >= 0 and represent the exact number of bytes
+	 * available in the stream. If length is unknown, the stream should be wrapped or buffered to determine
+	 * the size before calling this method. For very large streams (> Integer.MAX_VALUE), the implementation
+	 * may use JDBC setBinaryStream() without length parameter for better memory efficiency.</p>
+	 * 
 	 * @param connection The database connection to use
 	 * @param sql The sql statement with ? placeholders  
 	 * @param fields The array of fields for parameters (except the final binary parameter)
-	 * @param binaryStream The InputStream for the final binary parameter
-	 * @param streamLength The length of the stream in bytes (used for JDBC parameter)
+	 * @param binaryStream The InputStream for the final binary parameter (caller-owned, will not be closed)
+	 * @param streamLength The exact length of the stream in bytes (must be >= 0)
 	 * @return true if successful, false if not
 	 */
 	boolean dbWriteBinaryStream(Connection connection, String sql, Object[] fields, InputStream binaryStream, long streamLength);

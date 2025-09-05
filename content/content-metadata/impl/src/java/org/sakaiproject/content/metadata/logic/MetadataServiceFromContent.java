@@ -79,14 +79,9 @@ public class MetadataServiceFromContent implements MetadataService
 			//TODO find a way to filter based on resourceType (should be in an AbstractMetadataService?)
 			return parser.parse(is);
 		}
-		catch (IdUnusedException e)
+		catch (IdUnusedException | TypeException e)
 		{
-			log.debug("The metadata configuration file doesn't exist", e);
-			return Collections.emptyList();
-		}
-		catch (TypeException e)
-		{
-			log.debug("The metadata configuration file doesn't exist", e);
+			log.debug("The metadata configuration file doesn't exist: {}", e.toString());
 			return Collections.emptyList();
 		}
 		catch (Exception e)
