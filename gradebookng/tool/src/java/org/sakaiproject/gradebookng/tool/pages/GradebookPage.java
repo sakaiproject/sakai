@@ -440,7 +440,6 @@ public class GradebookPage extends BasePage {
 
 				window.setTitle(getString("sortgradeitems.heading"));
 				SortGradeItemsPanel sgip = new SortGradeItemsPanel(window.getContentId(), Model.ofMap(model), window);
-				sgip.setCurrentGradebookAndSite(gradebookUid, siteId);
 				window.setContent(sgip);
 				window.setComponentToReturnFocusTo(this);
 				window.show(target);
@@ -461,7 +460,6 @@ public class GradebookPage extends BasePage {
 
 				window.setTitle(getString("bulkedit.heading"));
 				BulkEditItemsPanel panel = new BulkEditItemsPanel(window.getContentId(), window);
-				panel.setCurrentGradebookAndSite(gradebookUid, siteId);
 				window.setContent(panel.setOutputMarkupId(true));
 				window.setComponentToReturnFocusTo(this);
 				window.show(target);
@@ -735,7 +733,6 @@ public class GradebookPage extends BasePage {
 			window.setTitle(getString("heading.addgradeitem"));
 			window.setComponentToReturnFocusTo(this);
 			AddOrEditGradeItemPanel aegip = new AddOrEditGradeItemPanel(window.getContentId(), window, null);
-			aegip.setCurrentGradebookAndSite(gradebookUid, siteId);
 			window.setContent(aegip);
 			window.show(target);
 		}

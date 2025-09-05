@@ -125,6 +125,7 @@ public class GradeUpdateAction extends InjectableAction implements Serializable 
 	@Override
 	public ActionResponse handleEvent(final JsonNode params, final AjaxRequestTarget target) {
 		final GradebookPage page = (GradebookPage) target.getPage();
+		setCurrentGradebookAndSite(page.getCurrentGradebookUid(), page.getCurrentSiteId());
 
 		// clear the feedback message at the top of the page
 		target.addChildren(page, FeedbackPanel.class);
