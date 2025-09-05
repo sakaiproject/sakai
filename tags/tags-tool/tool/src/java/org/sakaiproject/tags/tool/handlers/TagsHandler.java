@@ -37,6 +37,7 @@ import org.sakaiproject.tags.api.TagCollection;
 import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.tags.api.Tag;
 import org.sakaiproject.tags.tool.forms.TagForm;
+import org.sakaiproject.util.api.FormattedText;
 
 /**
  * A handler for creating and updating tags in the Tags Service administration tool.
@@ -46,9 +47,11 @@ public class TagsHandler extends CrudHandler {
 
     private static final int TAGSERVICE_URL_TAGSINTAGCOLLECTION_PREFIX_LENGTH = 20;
     private final TagService tagService;
+    private final FormattedText formattedText;
 
-    public TagsHandler(TagService tagService) {
+    public TagsHandler(TagService tagService, FormattedText formattedText) {
         this.tagService = tagService;
+        this.formattedText = formattedText;
     }
 
     @Override
@@ -138,7 +141,7 @@ public class TagsHandler extends CrudHandler {
         String uuid = extractId(request);
         TagForm tagForm = TagForm.fromRequest(uuid, request);
 
-        this.addErrors(tagForm.validate(mode));
+        this.addErrors(tagForm.validate(formattedText, mode));
 
         if (hasErrors()) {
             showEditForm(tagForm, context, mode);

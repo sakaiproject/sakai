@@ -48,13 +48,18 @@
       <artifactId>json-simple</artifactId>
       <version>${json.simple.version}</version>
     </dependency>
-
     <dependency>
       <groupId>org.sakaiproject.tags</groupId>
       <artifactId>tags-api</artifactId>
     </dependency>
-
-
+      <dependency>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-web</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-beans</artifactId>
+      </dependency>
   </dependencies>
 
 
