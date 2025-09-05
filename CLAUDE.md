@@ -109,7 +109,7 @@
 ## File Upload and Stream Processing
 
 ### Background
-File uploads in Sakai are handled by Apache Commons FileUpload via `RequestFilter`. Understanding the stream lifecycle is critical for maintaining efficient file handling.
+File uploads in Sakai are handled by Apache Commons FileUpload via `RequestFilter`. Understanding the stream lifecycle is critical for efficient file handling.
 
 ### Upload Stream Flow
 1. **HTTP Upload → DiskFileItem**: Apache Commons FileUpload creates temp files for uploads > 1KB (configured via `m_uploadThreshold` in RequestFilter)
@@ -122,7 +122,7 @@ The `putResourceBodyFilesystem` method uses TikaInputStream for robust mark/rese
 ```text
 Original InputStream 
 → TikaInputStream.get() (robust mark/reset for large files)
-→ TIKA detection (mark/read/reset - only reads first portion)
+→ Tika detection (mark/read/reset - only reads first portion)
 
 For single-instance store deduplication (two-pass read):
 Pass 1: SHA256 calculation
@@ -137,7 +137,7 @@ Pass 2: Storage (only if not duplicate)
 ```
 
 ### Important Design Decisions
-- **NO EXTRA TEMP FILES**: The upload already creates a temp file via DiskFileItem. Creating another temp file is redundant.
+- **No Extra Temp Files**: The upload already creates a temp file via DiskFileItem. Creating another temp file is redundant.
 - **TikaInputStream for mark/reset**: Handles large file mark/reset operations efficiently, creating internal temp files only when needed
 - **Two-pass read for single-instance store**: First pass calculates SHA256 for deduplication, second pass saves to storage after reset
 - **Single-pass for non-deduplication**: When single-instance store is disabled, streams directly to storage

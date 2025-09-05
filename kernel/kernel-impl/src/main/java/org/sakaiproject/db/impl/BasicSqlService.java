@@ -1042,6 +1042,10 @@ public abstract class BasicSqlService implements SqlService
 	}
 
 	/**
+	 * Writes a binary parameter from an InputStream using JDBC streaming.
+	 * The caller retains ownership of binaryStream (not closed here).
+	 * Use streamLength < 0 when unknown; otherwise the driver may optimize with a known length.
+	 * 
 	 * @see org.sakaiproject.db.api.SqlService#dbWriteBinaryStream(String, Object[], InputStream, long)
 	 */
 	public boolean dbWriteBinaryStream(String sql, Object[] fields, InputStream binaryStream, long streamLength)
@@ -1050,6 +1054,10 @@ public abstract class BasicSqlService implements SqlService
 	}
 
 	/**
+	 * Writes a binary parameter from an InputStream using JDBC streaming with a specific connection.
+	 * The caller retains ownership of binaryStream (not closed here).
+	 * Use streamLength < 0 when unknown; otherwise the driver may optimize with a known length.
+	 * 
 	 * @see org.sakaiproject.db.api.SqlService#dbWriteBinaryStream(Connection, String, Object[], InputStream, long)
 	 */
 	public boolean dbWriteBinaryStream(Connection callerConnection, String sql, Object[] fields, InputStream binaryStream, long streamLength)
@@ -1105,12 +1113,12 @@ public abstract class BasicSqlService implements SqlService
 			int pos = prepareStatement(pstmt, fields);
 
 			// last, put in the binary stream
-			if (streamLength > Integer.MAX_VALUE) {
-				// For very large streams, use setBinaryStream without length parameter
+			if (streamLength < 0) {
+				// Unknown length - let JDBC driver handle it
 				pstmt.setBinaryStream(pos, binaryStream);
 			} else {
-				// For smaller streams, provide the length for better performance
-				pstmt.setBinaryStream(pos, binaryStream, (int) streamLength);
+				// Known length - prefer long overload to avoid narrowing casts
+				pstmt.setBinaryStream(pos, binaryStream, streamLength);
 			}
 
 			pstmt.executeUpdate();

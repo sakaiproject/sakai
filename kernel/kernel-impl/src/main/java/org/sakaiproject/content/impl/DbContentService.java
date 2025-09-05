@@ -2355,11 +2355,12 @@ public class DbContentService extends BaseContentService
         }
 
         /**
-         * Count total references to a file path across both main and deleted tables.
-         * Used to determine if a physical file can be safely deleted from the filesystem.
+         * Count total references to a file path, used to determine if a physical file can be safely deleted.
+         * For performance optimization, only checks deleted table if main table has ≤1 reference,
+         * since files with >1 main references are definitely not safe to delete.
          * 
          * @param filePath The file path to check for references
-         * @return Total number of references across both tables (main + deleted)
+         * @return Number of references (main table count + deleted table count if main ≤ 1)
          */
         private int countTotalFileReferences(String filePath)
         {
@@ -2482,7 +2483,7 @@ public class DbContentService extends BaseContentService
                     
                     // Calculate SHA256 by reading entire stream
                     MessageDigest digest = MessageDigest.getInstance("SHA-256");
-                    byte[] buffer = new byte[8192];
+                    byte[] buffer = new byte[STREAM_BUFFER_SIZE];
                     int bytesRead;
                     byteCount = 0;
                     
