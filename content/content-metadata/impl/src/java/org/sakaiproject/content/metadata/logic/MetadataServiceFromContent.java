@@ -75,9 +75,10 @@ public class MetadataServiceFromContent implements MetadataService
 	{
 		try
 		{
-			InputStream is = forceAccessResource(getGlobalMetaContent()).streamContent();
-			//TODO find a way to filter based on resourceType (should be in an AbstractMetadataService?)
-			return parser.parse(is);
+			try (InputStream is = forceAccessResource(getGlobalMetaContent()).streamContent()) {
+				//TODO find a way to filter based on resourceType (should be in an AbstractMetadataService?)
+				return parser.parse(is);
+			}
 		}
 		catch (IdUnusedException | TypeException e)
 		{
@@ -99,10 +100,10 @@ public class MetadataServiceFromContent implements MetadataService
 
 		try
 		{
-			InputStream is = forceAccessResource(getSiteMetadataConfigFile(siteId)).streamContent();
-			//TODO find a way to filter based on resourceType (should be in an AbstractMetadataService?)
-
-			metadataTypes.addAll(parser.parse(is));
+			try (InputStream is = forceAccessResource(getSiteMetadataConfigFile(siteId)).streamContent()) {
+				//TODO find a way to filter based on resourceType (should be in an AbstractMetadataService?)
+				metadataTypes.addAll(parser.parse(is));
+			}
 		}
 		catch (IdUnusedException e)
 		{
