@@ -2514,44 +2514,43 @@ public class DbContentService extends BaseContentService
                     ((BaseResourceEdit) resource).m_contentType = contentType;
                 }
                 
-                // Second pass: Calculate SHA256 and count bytes while streaming to storage
-                String hex;
-                long byteCount;
-                
-                // Create digest for SHA256 calculation
-                MessageDigest digest = MessageDigest.getInstance("SHA-256");
-                
-                // Wrap in DigestInputStream to calculate hash while reading
-                DigestInputStream digestStream = new DigestInputStream(bufferedStream, digest);
-                
-                // Wrap in CountingInputStream to track bytes
-                CountingInputStream countingStream = new CountingInputStream(digestStream);
-                
                 // Store old file path for potential cleanup
                 String oldFilePath = ((BaseResourceEdit) resource).m_filePath;
                 boolean isReplacement = (oldFilePath != null);
                 
-                // For single-instance store, we need to calculate SHA256 first before saving
-                // So we'll buffer the content if it's small enough, otherwise do two passes
+                // Check if single-instance store is enabled
                 boolean singleInstanceStore = serverConfigurationService.getBoolean(PROP_SINGLE_INSTANCE, PROP_SINGLE_INSTANCE_DEFAULT);
                 
+                String hex;
+                long byteCount;
+                String targetFilePath;
+                
                 if (singleInstanceStore && bodyPath != null && bodyPath.equals(rootFolder)) {
-                    // For single-instance store, we need SHA256 before saving
-                    // Buffer the content for deduplication check
-                    byte[] buffer = new byte[8192];
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    int bytesRead;
+                    // For single-instance store: calculate SHA256 FIRST by reading entire stream
+                    // This works because the stream is already from a temp file (DiskFileItem)
                     
-                    while ((bytesRead = countingStream.read(buffer)) != -1) {
-                        baos.write(buffer, 0, bytesRead);
+                    // Mark stream with MAX_VALUE to allow reading entire file
+                    bufferedStream.mark(Integer.MAX_VALUE);
+                    
+                    // Read entire stream to calculate SHA256
+                    MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                    byte[] buffer = new byte[8192];
+                    int bytesRead;
+                    byteCount = 0;
+                    
+                    while ((bytesRead = bufferedStream.read(buffer)) != -1) {
+                        digest.update(buffer, 0, bytesRead);
+                        byteCount += bytesRead;
                     }
                     
                     // Get the SHA256 hash
                     hex = StorageUtils.bytesToHex(digest.digest());
-                    byteCount = countingStream.getByteCount();
                     
-                    // Now check for duplicates
-                    String targetFilePath = null;
+                    // Reset stream back to beginning for potential save
+                    bufferedStream.reset();
+                    
+                    // Now check for duplicates BEFORE saving
+                    targetFilePath = null;
                     String statement = contentServiceSql.getOnlyOneFilePath(resourceTableName);
                     String duplicateFilePath = singleColumnSingleRow(statement, hex);
                     
@@ -2587,10 +2586,8 @@ public class DbContentService extends BaseContentService
                         targetFilePath = generateFilePath();
                         log.debug("Content body is unique or replacement needed, new path={}", targetFilePath);
                         
-                        // Save the buffered content to storage
-                        try (ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray())) {
-                            fileSystemHandler.saveInputStream(((BaseResourceEdit) resource).m_id, rootFolder, targetFilePath, bais);
-                        }
+                        // Save from the reset stream
+                        fileSystemHandler.saveInputStream(((BaseResourceEdit) resource).m_id, rootFolder, targetFilePath, bufferedStream);
                     }
                     // else: duplicate exists, no need to save file again
                     
@@ -2599,9 +2596,18 @@ public class DbContentService extends BaseContentService
                     
                 } else {
                     // Non-single-instance store or different root folder
-                    // Stream directly to storage without buffering
-                    String targetFilePath = generateFilePath();
+                    // Stream directly to storage while calculating SHA256
+                    targetFilePath = generateFilePath();
                     log.debug("Streaming content to new path={}", targetFilePath);
+                    
+                    // Create digest for SHA256 calculation
+                    MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                    
+                    // Wrap in DigestInputStream to calculate hash while streaming
+                    DigestInputStream digestStream = new DigestInputStream(bufferedStream, digest);
+                    
+                    // Wrap in CountingInputStream to track bytes
+                    CountingInputStream countingStream = new CountingInputStream(digestStream);
                     
                     // Stream directly through the digest and counting streams to storage
                     fileSystemHandler.saveInputStream(((BaseResourceEdit) resource).m_id, rootFolder, targetFilePath, countingStream);

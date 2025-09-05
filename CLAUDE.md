@@ -119,7 +119,7 @@ File uploads in Sakai are handled by Apache Commons FileUpload via `RequestFilte
 ### Stream Processing Architecture (DbContentService)
 The `putResourceBodyFilesystem` method uses efficient stream chaining to avoid creating additional temp files:
 
-```
+```text
 Original InputStream 
 → BufferedInputStream (64KB buffer for mark/reset)
 → TIKA detection (mark/read/reset - only reads first portion)
@@ -142,9 +142,45 @@ Original InputStream
 4. **S3/Cloud storage uses multipart upload** - Eliminates need to know file size before upload
 5. **Memory efficiency** - Only buffer when absolutely necessary (e.g., for SHA256 deduplication check)
 
+### Single-Instance Store Deduplication
+When single-instance store is enabled, deduplication requires calculating SHA256 before saving:
+1. **Use mark/reset on existing stream**: Since DiskFileItem provides a FileInputStream from a temp file, we can use mark(Integer.MAX_VALUE) and reset()
+2. **Calculate SHA256 first**: Read through the entire stream to calculate the hash
+3. **Reset and save**: Reset the stream to the beginning, then save only if not a duplicate
+4. **No temp files or memory buffering**: The mark/reset approach avoids both OOM risk and unnecessary temp files
+
+Example implementation:
+```java
+// Wrap with BufferedInputStream for mark/reset
+BufferedInputStream bufferedStream = new BufferedInputStream(inputStream, 64 * 1024);
+
+// Mark with MAX_VALUE to allow reading entire file
+bufferedStream.mark(Integer.MAX_VALUE);
+
+// Calculate SHA256 by reading entire stream
+MessageDigest digest = MessageDigest.getInstance("SHA-256");
+byte[] buffer = new byte[8192];
+int bytesRead;
+long byteCount = 0;
+while ((bytesRead = bufferedStream.read(buffer)) != -1) {
+    digest.update(buffer, 0, bytesRead);
+    byteCount += bytesRead;
+}
+String hash = bytesToHex(digest.digest());
+
+// Reset stream to beginning
+bufferedStream.reset();
+
+// Check for duplicate and save if needed
+if (!isDuplicate(hash)) {
+    saveInputStream(bufferedStream);
+}
+```
+
 ### Common Mistakes to Avoid
 - ❌ Creating a temp file to "simplify" stream handling - the stream is already from a temp file!
-- ❌ Reading the stream multiple times - use stream chaining instead
-- ❌ Buffering entire file in memory - use streaming APIs
+- ❌ Reading the stream multiple times without mark/reset - will fail on second read
+- ❌ Buffering entire file in memory (ByteArrayOutputStream) - use mark/reset instead
 - ❌ Using `readAllBytes()` for large files - will cause OutOfMemoryError
 - ❌ Calculating content-length by reading stream twice - use CountingInputStream or multipart upload
+- ❌ Creating temp files for deduplication - use mark/reset on the existing stream
