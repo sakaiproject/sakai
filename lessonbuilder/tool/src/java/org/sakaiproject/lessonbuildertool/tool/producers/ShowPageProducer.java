@@ -4492,7 +4492,20 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		UISelect buttonColors = UISelect.make(form, "btncolor", SimplePageBean.NewColors, simplePageBean.getNewColorLabelsI18n(), "#{simplePageBean.buttonColor}", SimplePageBean.NewColors[0]);
 
-		UIBoundBoolean.make(form, "hide2", "#{simplePageBean.hidePage}", (currentPage.isHidden()));
+		// Determine current visibility state
+		String currentVisibility2 = "visible";
+		if (currentPage.isHidden()) {
+			currentVisibility2 = "hide";
+		} else if (currentPage.isHiddenFromNavigation()) {
+			currentVisibility2 = "hideFromNav";
+		}
+
+		UISelect visibilityRadios2 = UISelect.make(form, "visibility-select-2",
+			new String[] {"visible", "hide", "hideFromNav"}, 
+			"#{simplePageBean.visibilityChoice2}", currentVisibility2);
+		UISelectChoice.make(form, "visibility-visible-2", visibilityRadios2.getFullID(), 0);
+		UISelectChoice.make(form, "visibility-hide-2", visibilityRadios2.getFullID(), 1);
+		UISelectChoice.make(form, "visibility-hideFromNav-2", visibilityRadios2.getFullID(), 2);
 		UIBoundBoolean.make(form, "page-releasedate2", "#{simplePageBean.hasReleaseDate}", Boolean.FALSE);
 
 		String releaseDateString = "";
@@ -4905,7 +4918,21 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		if (!simplePageBean.isStudentPage(page)) {
 			UIOutput.make(tofill, "hideContainer");
-			UIBoundBoolean.make(form, "hide", "#{simplePageBean.hidePage}", (page.isHidden()));
+
+			// Determine current visibility state
+			String currentVisibility = "visible";
+			if (page.isHidden()) {
+				currentVisibility = "hide";
+			} else if (page.isHiddenFromNavigation()) {
+				currentVisibility = "hideFromNav";
+			}
+
+			UISelect visibilityRadios = UISelect.make(form, "visibility-select",
+				new String[] {"visible", "hide", "hideFromNav"}, 
+				"#{simplePageBean.visibilityChoice}", currentVisibility);
+			UISelectChoice.make(form, "visibility-visible", visibilityRadios.getFullID(), 0);
+			UISelectChoice.make(form, "visibility-hide", visibilityRadios.getFullID(), 1);
+			UISelectChoice.make(form, "visibility-hideFromNav", visibilityRadios.getFullID(), 2);
 
 			Date releaseDate = page.getReleaseDate();
 

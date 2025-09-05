@@ -388,7 +388,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		if (parent != null)
 			addAttr(doc, pageElement, "topparent", parent.toString());
 
-		addAttr(doc, pageElement, "hidden", page.isHidden() ? "true" : "false");
+		addAttr(doc, pageElement, "hidden", page.isHidden() || page.isHiddenFromNavigation() ? "true" : "false");
+		addAttr(doc, pageElement, "hiddenfromnavigation", page.isHiddenFromNavigation() ? "true" : "false");
 		// we don't read this on input, as copying typically assumes you'll want new release dates
 		Date releaseDate = page.getReleaseDate();
 		if (releaseDate != null)
@@ -1680,6 +1681,9 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				//get new page's Hidden property
 				String hiddenString = pageElement.getAttribute("hidden");
 				if (StringUtils.isNotEmpty(hiddenString)) page.setHidden(Boolean.valueOf(hiddenString));
+
+				String hiddenFromNavigationString = pageElement.getAttribute("hiddenfromnavigation");
+				if (StringUtils.isNotEmpty(hiddenFromNavigationString)) page.setHiddenFromNavigation(Boolean.valueOf(hiddenFromNavigationString));
 
 				// Carry over the custom CSS sheet if present. These are of the form
 				// "/group/SITEID/LB-CSS/whatever.css", so we need to map the SITEID
