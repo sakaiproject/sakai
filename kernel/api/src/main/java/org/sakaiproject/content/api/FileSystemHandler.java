@@ -55,6 +55,7 @@ public interface FileSystemHandler {
      * @param filePath The path to save the file to. Will not be null or empty.
      * @param stream The stream to read the file from.
      * @return The content size.
+     * @throws IOException If the file could not be saved.
      */
     public long saveInputStream(String id, String root, String filePath, InputStream stream) throws IOException;
 

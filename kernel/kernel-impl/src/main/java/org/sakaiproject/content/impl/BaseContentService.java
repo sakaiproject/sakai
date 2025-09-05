@@ -80,6 +80,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.detect.DefaultDetector;
 import org.apache.tika.detect.Detector;
+import org.apache.tika.io.TikaInputStream;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.metadata.TikaCoreProperties;
 import org.apache.tika.mime.MediaType;
@@ -276,7 +277,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 	private List<String> m_ignoreExtensions;
 	private List<String> m_ignoreMimeTypes;
 
-	private Detector tikaDetector;
+	protected Detector tikaDetector;
 	
 	// This is the date format for Last-Modified header
 	public static final String RFC1123_DATE = "EEE, dd MMM yyyy HH:mm:ss zzz";
@@ -5632,8 +5633,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
                     && !m_ignoreExtensions.contains(org.springframework.util.StringUtils.getFilenameExtension(edit.getId()))
                     && !CollectionUtils.containsAny(m_ignoreMimeTypes, currentContentType, detectedByName)) {
                 try {
-                    // tika detect doesn't modify the original stream but stream must support reset
-                    InputStream stream = new BufferedInputStream(edit.streamContent());
+                    // Use TikaInputStream for proper mark/reset support
+                    InputStream stream = TikaInputStream.get(edit.streamContent());
                     edit.setContent(stream);
                     detectedByMagic = tikaDetector.detect(stream, metadata).toString();
                 } catch (Exception e) {
@@ -5657,14 +5658,14 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
             } else {
                 newContentType = detectedByMagic;
             }
-        } else if (StringUtils.isNotBlank(detectedByName)
-                && !detectedByName.equals(currentContentType)) {
+        } else if (StringUtils.isNotBlank(detectedByName)) {
             newContentType = detectedByName;
+        } else if (StringUtils.isNotBlank(currentContentType)) {
+            newContentType = currentContentType;
         }
 
-        // change the content type
         if (StringUtils.isNotBlank(newContentType)) {
-            log.debug("setting content type for [{}] from [{}] to [{}]", edit.getId(), currentContentType, newContentType);
+            log.debug("setting content type for [{}] to [{}]", edit.getId(), newContentType);
             edit.setContentType(newContentType);
         }
         commitResourceEdit(edit, priority);
@@ -6360,6 +6361,29 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 	public String getLabel()
 	{
 		return "content";
+	}
+
+	/**
+	 * Generate a file path for storing content on the filesystem.
+	 * This is the single source of truth for file path generation in the content hosting service.
+	 * 
+	 * @return A file path in the format: /[volume]/yyyy/DDD/HH/uuid
+	 */
+	public String generateStorageFilePath()
+	{
+		Time time = timeService.newTime();
+		
+		// compute file path: use now in ms mod m_bodyVolumes.length to pick a volume from m_bodyVolumes (if defined)
+		// add /yyyy/DDD/HH year / day of year / hour / and a unique id for the final file name.
+		// Don't include the body path.
+		String volume = "/";
+		if ((m_bodyVolumes != null) && (m_bodyVolumes.length > 0))
+		{
+			volume += m_bodyVolumes[(int) (Math.abs(time.getTime()) % ((long) m_bodyVolumes.length))];
+			volume += "/";
+		}
+
+		return volume + time.toStringFilePath() + idManager.createUuid();
 	}
 
 	public boolean willArchiveMerge()
@@ -11707,21 +11731,12 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		 * Set the file path for this resource
 		 * 
 		 * @param time
-		 *        The time on which to based the path.
+		 *        The time on which to based the path (currently unused as generateStorageFilePath creates its own timestamp)
 		 */
 		protected void setFilePath(Time time)
 		{
-			// compute file path: use now in ms mod m_bodyVolumes.length to pick a volume from m_bodyVolumes (if defined)
-			// add /yyyy/DDD/HH year / day of year / hour / and a unique id for the final file name.
-			// Don't include the body path.
-			String volume = "/";
-			if ((m_bodyVolumes != null) && (m_bodyVolumes.length > 0))
-			{
-				volume += m_bodyVolumes[(int) (Math.abs(time.getTime()) % ((long) m_bodyVolumes.length))];
-				volume += "/";
-			}
-
-			m_filePath = volume + time.toStringFilePath() + idManager.createUuid();
+			// Use the single source of truth for file path generation
+			m_filePath = generateStorageFilePath();
 		}
 
 		/**

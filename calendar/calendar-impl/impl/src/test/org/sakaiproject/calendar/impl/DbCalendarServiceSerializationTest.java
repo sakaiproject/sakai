@@ -273,6 +273,16 @@ public class DbCalendarServiceSerializationTest extends TestCase
 				return -1;
 			}
 
+			public boolean dbWriteBinaryStream(String sql, Object[] fields, java.io.InputStream binaryStream, long streamLength)
+			{
+				throw new UnsupportedOperationException("dbWriteBinaryStream not implemented in test stub");
+			}
+
+			public boolean dbWriteBinaryStream(Connection connection, String sql, Object[] fields, java.io.InputStream binaryStream, long streamLength)
+			{
+				throw new UnsupportedOperationException("dbWriteBinaryStream not implemented in test stub");
+			}
+
 			
 		};
 		timeService = new TimeService() {

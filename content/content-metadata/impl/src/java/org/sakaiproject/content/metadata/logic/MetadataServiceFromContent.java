@@ -75,18 +75,14 @@ public class MetadataServiceFromContent implements MetadataService
 	{
 		try
 		{
-			InputStream is = forceAccessResource(getGlobalMetaContent()).streamContent();
-			//TODO find a way to filter based on resourceType (should be in an AbstractMetadataService?)
-			return parser.parse(is);
+			try (InputStream is = forceAccessResource(getGlobalMetaContent()).streamContent()) {
+				//TODO find a way to filter based on resourceType (should be in an AbstractMetadataService?)
+				return parser.parse(is);
+			}
 		}
-		catch (IdUnusedException e)
+		catch (IdUnusedException | TypeException e)
 		{
-			log.debug("The metadata configuration file doesn't exist", e);
-			return Collections.emptyList();
-		}
-		catch (TypeException e)
-		{
-			log.debug("The metadata configuration file doesn't exist", e);
+			log.debug("The metadata configuration file doesn't exist: {}", e.toString());
 			return Collections.emptyList();
 		}
 		catch (Exception e)
@@ -104,10 +100,10 @@ public class MetadataServiceFromContent implements MetadataService
 
 		try
 		{
-			InputStream is = forceAccessResource(getSiteMetadataConfigFile(siteId)).streamContent();
-			//TODO find a way to filter based on resourceType (should be in an AbstractMetadataService?)
-
-			metadataTypes.addAll(parser.parse(is));
+			try (InputStream is = forceAccessResource(getSiteMetadataConfigFile(siteId)).streamContent()) {
+				//TODO find a way to filter based on resourceType (should be in an AbstractMetadataService?)
+				metadataTypes.addAll(parser.parse(is));
+			}
 		}
 		catch (IdUnusedException e)
 		{
