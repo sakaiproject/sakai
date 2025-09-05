@@ -112,68 +112,77 @@
 File uploads in Sakai are handled by Apache Commons FileUpload via `RequestFilter`. Understanding the stream lifecycle is critical for maintaining efficient file handling.
 
 ### Upload Stream Flow
-1. **HTTP Upload → DiskFileItem**: Apache Commons FileUpload automatically creates temp files for uploads > 1KB (configured via `m_uploadThreshold` in RequestFilter)
-2. **DiskFileItem → Stream**: The `getInputStream()` returns a `FileInputStream` to the temp file (not in-memory)
+1. **HTTP Upload → DiskFileItem**: Apache Commons FileUpload creates temp files for uploads > 1KB (configured via `m_uploadThreshold` in RequestFilter)
+2. **DiskFileItem → Stream**: `getInputStream()` returns a `FileInputStream` to the temp file (not in-memory)
 3. **Stream → Storage**: The stream flows through content detection and hashing before storage
 
 ### Stream Processing Architecture (DbContentService)
-The `putResourceBodyFilesystem` method uses efficient stream chaining to avoid creating additional temp files:
+The `putResourceBodyFilesystem` method uses TikaInputStream for robust mark/reset operations:
 
 ```text
 Original InputStream 
-→ BufferedInputStream (64KB buffer for mark/reset)
+→ TikaInputStream.get() (robust mark/reset for large files)
 → TIKA detection (mark/read/reset - only reads first portion)
-→ DigestInputStream (SHA256 calculation while streaming)
+
+For single-instance store deduplication (two-pass read):
+Pass 1: SHA256 calculation
+→ TikaInputStream.mark(Integer.MAX_VALUE)
+→ DigestInputStream (SHA256 calculation)
 → CountingInputStream (tracks bytes)
-→ FileSystemHandler.saveInputStream()
+→ Read entire stream to completion
+→ TikaInputStream.reset()
+
+Pass 2: Storage (only if not duplicate)
+→ FileSystemHandler.saveInputStream(resetStream)
 ```
 
 ### Important Design Decisions
 - **NO EXTRA TEMP FILES**: The upload already creates a temp file via DiskFileItem. Creating another temp file is redundant.
-- **Stream Chaining**: Use DigestInputStream and CountingInputStream to calculate hash and size while streaming
-- **TIKA with mark/reset**: TIKA detection uses BufferedInputStream with mark/reset to avoid consuming the stream
-- **Single-Instance Store**: For deduplication, we must buffer content to calculate SHA256 before checking for duplicates
+- **TikaInputStream for mark/reset**: Handles large file mark/reset operations efficiently, creating internal temp files only when needed
+- **Two-pass read for single-instance store**: First pass calculates SHA256 for deduplication, second pass saves to storage after reset
+- **Single-pass for non-deduplication**: When single-instance store is disabled, streams directly to storage
 - **Multipart Upload for S3**: BlobStoreFileSystemHandler uses jclouds multipart upload API to avoid needing content-length upfront
 
 ### Critical Implementation Notes
 1. **Never create temp files for stream processing** - DiskFileItem already handles this
-2. **Use BufferedInputStream for mark/reset** - 64KB buffer is sufficient for TIKA detection
-3. **Chain streams for single-pass processing** - DigestInputStream + CountingInputStream
+2. **Use TikaInputStream for mark/reset** - Handles large files efficiently without memory limits
+3. **Two-pass processing for deduplication** - Hash calculation pass, then reset and save pass
 4. **S3/Cloud storage uses multipart upload** - Eliminates need to know file size before upload
-5. **Memory efficiency** - Only buffer when absolutely necessary (e.g., for SHA256 deduplication check)
+5. **Memory efficiency** - TikaInputStream manages internal temp files automatically for large mark/reset operations
 
 ### Single-Instance Store Deduplication
-When single-instance store is enabled, deduplication requires calculating SHA256 before saving:
-1. **Use mark/reset on existing stream**: Since DiskFileItem provides a FileInputStream from a temp file, we can use mark(Integer.MAX_VALUE) and reset()
-2. **Calculate SHA256 first**: Read through the entire stream to calculate the hash
-3. **Reset and save**: Reset the stream to the beginning, then save only if not a duplicate
-4. **No temp files or memory buffering**: The mark/reset approach avoids both OOM risk and unnecessary temp files
+When single-instance store is enabled, deduplication requires a two-pass read:
+1. **Use TikaInputStream.mark()**: Supports mark/reset for files of any size by using internal temp files when needed
+2. **Pass 1 - Calculate SHA256**: Read through entire stream with DigestInputStream + CountingInputStream to calculate hash and size
+3. **Reset stream**: Use TikaInputStream.reset() to return to the beginning
+4. **Pass 2 - Save if unique**: Save to storage only if the SHA256 hash indicates it's not a duplicate
+5. **No additional temp files**: TikaInputStream handles internal temp file management when mark buffer exceeds memory
 
 Example implementation:
 ```java
-// Wrap with BufferedInputStream for mark/reset
-BufferedInputStream bufferedStream = new BufferedInputStream(inputStream, 64 * 1024);
+// Use TikaInputStream for robust mark/reset
+TikaInputStream tikaStream = TikaInputStream.get(inputStream);
 
-// Mark with MAX_VALUE to allow reading entire file
-bufferedStream.mark(Integer.MAX_VALUE);
+// Mark with MAX_VALUE for large file support
+tikaStream.mark(Integer.MAX_VALUE);
 
-// Calculate SHA256 by reading entire stream
+// Pass 1: Calculate SHA256 and count bytes
 MessageDigest digest = MessageDigest.getInstance("SHA-256");
+DigestInputStream digestStream = new DigestInputStream(tikaStream, digest);
+CountingInputStream countingStream = new CountingInputStream(digestStream);
 byte[] buffer = new byte[8192];
-int bytesRead;
-long byteCount = 0;
-while ((bytesRead = bufferedStream.read(buffer)) != -1) {
-    digest.update(buffer, 0, bytesRead);
-    byteCount += bytesRead;
+while (countingStream.read(buffer) != -1) {
+    // Consume stream to calculate hash and count
 }
 String hash = bytesToHex(digest.digest());
+long byteCount = countingStream.getByteCount();
 
 // Reset stream to beginning
-bufferedStream.reset();
+tikaStream.reset();
 
-// Check for duplicate and save if needed
+// Pass 2: Check for duplicate and save if needed
 if (!isDuplicate(hash)) {
-    saveInputStream(bufferedStream);
+    saveInputStream(tikaStream);
 }
 ```
 

@@ -273,6 +273,16 @@ public class DbCalendarServiceSerializationTest extends TestCase
 				return -1;
 			}
 
+			public boolean dbWriteBinaryStream(String sql, Object[] fields, java.io.InputStream binaryStream, long streamLength)
+			{
+				return false;
+			}
+
+			public boolean dbWriteBinaryStream(Connection connection, String sql, Object[] fields, java.io.InputStream binaryStream, long streamLength)
+			{
+				return false;
+			}
+
 			
 		};
 		timeService = new TimeService() {

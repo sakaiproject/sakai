@@ -2252,13 +2252,14 @@ public class DbContentService extends BaseContentService
         }
 
         /**
-         * Write the resource body to the database table.
+         * Store resource body content in database from byte array.
+         * This method is used when content is already loaded in memory as a byte array.
+         * For large files, prefer the streaming version putResourceBodyDb(InputStream) to avoid memory issues.
          * 
-         * @param resource
-         *        The resource whose body is being written.
-         * @param body
-         *        The body bytes to write. If there is no body or the body is zero bytes, no entry is inserted into the table.
-         * @return true if the resource body is written successfully, false otherwise.
+         * @param resource The resource whose body is being written
+         * @param body The body bytes to write. If null or zero bytes, no entry is inserted into the table
+         * @param resourceBodyTableName The database table name for storing the body content  
+         * @return true if the resource body is written successfully, false otherwise
          */
         protected boolean putResourceBodyDb(ContentResourceEdit resource, byte[] body, String resourceBodyTableName)
         {
@@ -2291,77 +2292,75 @@ public class DbContentService extends BaseContentService
         }
 
         /**
-         * @param edit
-         * @param stream
-         * @return true if the resource body is written successfully, false otherwise.
+         * Store resource body content in database using streaming to avoid memory buffering.
+         * This method calculates SHA-256 hash while streaming content directly to the database,
+         * preventing OutOfMemoryError for large files by avoiding ByteArrayOutputStream buffering.
+         * 
+         * @param edit The content resource being edited
+         * @param stream The input stream containing the resource content
+         * @param resourceBodyTableName The database table name for storing the body content
+         * @return true if the resource body is written successfully, false otherwise
          */
         protected boolean putResourceBodyDb(ContentResourceEdit edit, InputStream stream, String resourceBodyTableName)
         {
-            // Do not create the files for resources with zero length bodies
-            if ((stream == null)) return true;
+            // Do not process resources with zero length bodies
+            if (stream == null) return true;
 
-            ByteArrayOutputStream bstream = new ByteArrayOutputStream();
-
-            long byteCount = 0;
-
-            // chunk
-            byte[] chunk = new byte[STREAM_BUFFER_SIZE];
-            int lenRead;
-            try
-            {
-		        MessageDigest digest = MessageDigest.getInstance("SHA-256");
-		        DigestInputStream dstream = new DigestInputStream(stream, digest);
-
-                while ((lenRead = dstream.read(chunk)) != -1)
-                {
-                    bstream.write(chunk, 0, lenRead);
-                    byteCount += lenRead;
+            try {
+                // Use TikaInputStream for robust mark/reset support with large files
+                TikaInputStream tikaStream = TikaInputStream.get(stream);
+                
+                // Mark the stream so we can reset after calculating SHA-256
+                tikaStream.mark(Integer.MAX_VALUE);
+                
+                // Calculate SHA-256 and count bytes in single pass - no memory buffering
+                MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                DigestInputStream digestStream = new DigestInputStream(tikaStream, digest);
+                CountingInputStream countingStream = new CountingInputStream(digestStream);
+                
+                // Read entire stream to calculate hash and size
+                byte[] buffer = new byte[STREAM_BUFFER_SIZE];
+                while (countingStream.read(buffer) != -1) {
+                    // Just consume the stream to calculate hash and count
                 }
-
-		        MessageDigest md2 = dstream.getMessageDigest();
-				String hex = StorageUtils.bytesToHex(md2.digest());
-
-                setContentProperties(edit, byteCount, hex);
-            }
-            catch (IOException e)
-            {
-                // TODO Auto-generated catch block
-                log.error("IOException ", e);
-            }
-            catch (NoSuchAlgorithmException e)
-            {
-                // Unlikely
-                log.error("NoSuchAlgorithmException ", e);
-            }
-            finally
-            {
-                if (stream != null)
-                {
-                    try
-                    {
-                        stream.close();
-                    }
-                    catch (IOException e)
-                    {
-                        // TODO Auto-generated catch block
-                        log.error("IOException ", e);
-                    }
+                
+                long byteCount = countingStream.getByteCount();
+                String hex = StorageUtils.bytesToHex(digest.digest());
+                
+                // Check database size limit (2GB)
+                if (byteCount > Integer.MAX_VALUE) {
+                    log.warn("Attempted to write file of size > 2G to database content store: {} bytes", byteCount);
+                    return false;
                 }
-            }
-
-            if (byteCount > Integer.MAX_VALUE)
-            {
-                log.warn("Attempted to write file of size > 2G to database content store");
+                
+                // Reset stream to beginning for database storage
+                tikaStream.reset();
+                
+                // Store content using streaming database API - no memory buffering
+                String sql = contentServiceSql.getInsertContentSql(resourceBodyTableName);
+                Object[] fields = {edit.getId(), hex};
+                boolean success = sqlService.dbWriteBinaryStream(sql, fields, (InputStream) tikaStream, byteCount);
+                
+                if (success) {
+                    // Set resource properties with calculated values
+                    setContentProperties(edit, byteCount, hex);
+                    log.debug("Successfully stored resource body in database: {} bytes, SHA-256: {}", byteCount, hex);
+                } else {
+                    log.error("Failed to store resource body in database for resource: {}", edit.getId());
+                }
+                
+                return success;
+                
+            } catch (Exception e) {
+                log.error("Error storing resource body in database for resource: {}", edit.getId(), e);
                 return false;
+            } finally {
+                try {
+                    stream.close();
+                } catch (IOException e) {
+                    log.error("Error closing stream for resource: {}", edit.getId(), e);
+                }
             }
-
-            boolean ok = true;
-            if (bstream != null && bstream.size() > 0)
-            {
-                ok = putResourceBodyDb(edit, bstream.toByteArray(), resourceBodyTableName);
-            }
-
-            return ok;
         }
 
         /**
@@ -2426,12 +2425,14 @@ public class DbContentService extends BaseContentService
         }
 
         /**
-         * Set content properties on a resource.
-         * Helper method to avoid code duplication when setting content length, SHA256, and content type.
+         * Set content metadata properties on a resource after processing.
+         * Updates both the resource object and its ResourceProperties with calculated values
+         * including content length, SHA-256 hash, and content type. This method is called after
+         * content has been processed and stored (either in database or filesystem).
          * 
-         * @param resource The resource to update
-         * @param byteCount The content length in bytes
-         * @param sha256 The SHA256 hash of the content
+         * @param resource The content resource to update with metadata
+         * @param byteCount The actual content length in bytes (calculated during processing)
+         * @param sha256 The SHA-256 hash of the content (calculated during processing)
          */
         private void setContentProperties(ContentResourceEdit resource, long byteCount, String sha256)
         {
@@ -2445,19 +2446,17 @@ public class DbContentService extends BaseContentService
                 props.addProperty(ResourceProperties.PROP_CONTENT_TYPE, resource.getContentType());
             }
         }
-
-        /**
-         * Get the TIKA detector for content type detection.
-         * @return the TIKA detector or null if not available
-         */
-        private Detector getTikaDetector() {
-            return tikaDetector;
-        }
         
         /**
-         * @param edit
-         * @param stream
-         * @return true if the resource body is written successfully, false otherwise.
+         * Store resource body content in filesystem using efficient streaming.
+         * This method uses TikaInputStream for robust mark/reset operations and implements
+         * single-instance store deduplication when enabled. Content is streamed directly
+         * to the filesystem without memory buffering, preventing OutOfMemoryError for large files.
+         * 
+         * @param resource The content resource being stored
+         * @param stream The input stream containing the resource content
+         * @param rootFolder The filesystem root folder where content should be stored
+         * @return true if the resource body is written successfully, false otherwise
          */
         private boolean putResourceBodyFilesystem(ContentResourceEdit resource, InputStream stream, String rootFolder)
         {
@@ -2552,9 +2551,6 @@ public class DbContentService extends BaseContentService
                     // Update resource with new file path
                     ((BaseResourceEdit) resource).m_filePath = targetFilePath;
                     
-                    // Set resource properties
-                    setContentProperties(resource, byteCount, hex);
-                    
                 } else {
                     // Non-single-instance store or different root folder
                     // Stream directly to storage while calculating SHA256
@@ -2628,24 +2624,6 @@ public class DbContentService extends BaseContentService
                     }
                 }
             }
-        }
-
-        /**
-         * Write the resource body to the external file system. The file name is the bodyPath with the resource id appended.
-         * 
-         * @param resource
-         *        The resource whose body is being written.
-         * @param body
-         *        The body bytes to write. If there is no body or the body is zero bytes, no entry is inserted into the filesystem.
-         * @return true if the resource body is written successfully, false otherwise.
-         */
-        protected boolean putResourceBodyFilesystem(ContentResourceEdit resource, byte[] body)
-        {
-            // Do not create the files for resources with zero length bodies
-            if (body == null) return true;
-
-			return putResourceBodyFilesystem(resource, new ByteArrayInputStream(body), bodyPath);
-
         }
 
         /*

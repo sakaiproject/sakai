@@ -1042,6 +1042,143 @@ public abstract class BasicSqlService implements SqlService
 	}
 
 	/**
+	 * @see org.sakaiproject.db.api.SqlService#dbWriteBinaryStream(String, Object[], InputStream, long)
+	 */
+	public boolean dbWriteBinaryStream(String sql, Object[] fields, InputStream binaryStream, long streamLength)
+	{
+		return dbWriteBinaryStream(null, sql, fields, binaryStream, streamLength);
+	}
+
+	/**
+	 * @see org.sakaiproject.db.api.SqlService#dbWriteBinaryStream(Connection, String, Object[], InputStream, long)
+	 */
+	public boolean dbWriteBinaryStream(Connection callerConnection, String sql, Object[] fields, InputStream binaryStream, long streamLength)
+	{
+		if (log.isDebugEnabled())
+		{
+			log.debug("dbWriteBinaryStream(Connection " + callerConnection + ", String " + sql + ", Object[] " + Arrays.toString(fields) + ", InputStream " + binaryStream + ", long " + streamLength + ")");
+		}
+
+		// for DEBUG
+		long start = 0;
+		long connectionTime = 0;
+
+		if (log.isDebugEnabled())
+		{
+			String userId = usageSessionService().getSessionId();
+			log.debug("Sql.dbWriteBinaryStream(): " + userId + "\n" + sql + "  size:" + streamLength);
+		}
+
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		boolean autoCommit = false;
+		boolean resetAutoCommit = false;
+		boolean success = false;
+		boolean closeConn = false;
+
+		try
+		{
+			if (callerConnection != null)
+			{
+				conn = callerConnection;
+			}
+			else
+			{
+				if (m_showSql) start = System.currentTimeMillis();
+				conn = borrowConnection();
+				if (m_showSql) connectionTime = System.currentTimeMillis() - start;
+				closeConn = true;
+
+				// make sure we do not have auto commit - will change and reset if needed
+				autoCommit = conn.getAutoCommit();
+				if (autoCommit)
+				{
+					conn.setAutoCommit(false);
+					resetAutoCommit = true;
+				}
+			}
+
+			if (m_showSql) start = System.currentTimeMillis();
+			pstmt = conn.prepareStatement(sql);
+
+			// put in all the fields
+			int pos = prepareStatement(pstmt, fields);
+
+			// last, put in the binary stream
+			if (streamLength > Integer.MAX_VALUE) {
+				// For very large streams, use setBinaryStream without length parameter
+				pstmt.setBinaryStream(pos, binaryStream);
+			} else {
+				// For smaller streams, provide the length for better performance
+				pstmt.setBinaryStream(pos, binaryStream, (int) streamLength);
+			}
+
+			pstmt.executeUpdate();
+
+			// commit and indicate success (only if we own the connection)
+			if (closeConn) {
+				conn.commit();
+			}
+			success = true;
+		}
+		catch (SQLException e)
+		{
+			// Handle MySQL specific errors for large packets
+			if ("mysql".equals(m_vendor) && (e.getErrorCode() == 1105 || e.getErrorCode() == 1118)) {
+				log.warn("SQL '{}' failed with large binary stream, consider useServerPrepStmts=true on JDBC connection.", sql, e);
+			}
+			log.warn("Sql.dbWriteBinaryStream(): " + e);
+			return false;
+		}
+		catch (Exception e)
+		{
+			log.warn("Sql.dbWriteBinaryStream(): " + e);
+			return false;
+		}
+		finally
+		{
+			if (null != pstmt)
+			{
+				try {
+					pstmt.close();
+				} catch (SQLException e) {
+					log.warn("Sql.dbWriteBinaryStream(): " + e);
+				}
+			}
+
+			// Only manage connection lifecycle if we borrowed it
+			if (closeConn && null != conn)
+			{
+				// rollback on failure
+				if (!success)
+				{
+					try {
+						conn.rollback();
+					} catch (SQLException e) {
+						log.warn("Sql.dbWriteBinaryStream(): " + e);
+					}
+				}
+
+				// if we changed the auto commit, reset here
+				if (resetAutoCommit)
+				{
+					try {
+						conn.setAutoCommit(autoCommit);
+					} catch (SQLException e) {
+						log.warn("Sql.dbWriteBinaryStream(): " + e);
+					}
+				}
+				returnConnection(conn);
+			}
+		}
+
+		if (m_showSql)
+			debug("sql write binary stream: len: " + streamLength + "  time: " + connectionTime + " / " + (System.currentTimeMillis() - start), sql, fields);
+
+		return success;
+	}
+
+	/**
 	 * Execute the "write" sql - no response, using a set of fields from an array plus one more as params.
 	 * 
 	 * @param sql

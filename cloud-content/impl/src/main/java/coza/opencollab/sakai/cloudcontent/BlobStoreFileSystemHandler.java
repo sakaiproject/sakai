@@ -89,7 +89,6 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
 
     /**
      * The base container/bucket to use.
-     *
      * Default is not set, but it is required for e.g., S3.
      */
     private String baseContainer;
@@ -97,14 +96,12 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
     /**
      * Whether to delete empty containers after a resource delete and there
      * is no more resources in the container.
-     *
      * The Default is false.
      */
     private boolean deleteEmptyContainers = false;
 
     /**
      * Whether to use the id for the resource path.
-     *
      * The default is false, so the filePath will be used.
      */
     private boolean useIdForPath = false;
@@ -120,6 +117,11 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
      * This is how long we want the signed URL to be valid for.
      */
     private static final int SIGNED_URL_VALIDITY_SECONDS = 10 * 60;
+
+    /**
+     * Stream chunks of 5MB minimum (S3 requirement)
+     */
+    private static final int MULTIPART_MIN_PART_BYTES = 5 * 1024 * 1024; // 5MB chunks
 
     /**
      * The largest a blob can be before we write it to temp file to avoid OOMing Tomcat
@@ -274,12 +276,6 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
             BlobStore store = getBlobStore();
             String asciiID = Base64.encodeBase64String(id.getBytes(StandardCharsets.UTF_8));
 
-            // Use multipart upload to avoid having to know the content length
-            // This allows streaming directly without buffering or double-reading
-            store.blobBuilder(can.name)
-                .userMetadata(ImmutableMap.of("id", asciiID, "path", filePath))
-                .build();
-
             // Initiate multipart upload
             MultipartUpload mpu = store.initiateMultipartUpload(
                 can.container,
@@ -293,9 +289,7 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
             long totalSize = 0;
             int partNumber = 1;
 
-            // Stream chunks of 5MB minimum (S3 requirement)
-            final int CHUNK_SIZE = 5 * 1024 * 1024; // 5MB chunks
-            byte[] buffer = new byte[CHUNK_SIZE];
+            byte[] buffer = new byte[MULTIPART_MIN_PART_BYTES];
             int bytesRead;
 
             try {

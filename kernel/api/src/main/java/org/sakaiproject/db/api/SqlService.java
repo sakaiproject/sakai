@@ -340,6 +340,33 @@ public interface SqlService
 	void dbCancel(Connection conn);
 
 	/**
+	 * Execute "write" sql with binary stream - efficient for large binary data.
+	 * Uses JDBC streaming to avoid loading entire content into memory.
+	 * This method is preferred over dbWriteBinary(byte[]) for large files to prevent OutOfMemoryError.
+	 * 
+	 * @param sql The sql statement with ? placeholders
+	 * @param fields The array of fields for parameters (except the final binary parameter)
+	 * @param binaryStream The InputStream for the final binary parameter
+	 * @param streamLength The length of the stream in bytes (used for JDBC parameter)
+	 * @return true if successful, false if not
+	 */
+	boolean dbWriteBinaryStream(String sql, Object[] fields, InputStream binaryStream, long streamLength);
+
+	/**
+	 * Execute "write" sql with binary stream using a specific connection.
+	 * Uses JDBC streaming to avoid loading entire content into memory.
+	 * This method is preferred over dbWriteBinary(byte[]) for large files to prevent OutOfMemoryError.
+	 * 
+	 * @param connection The database connection to use
+	 * @param sql The sql statement with ? placeholders  
+	 * @param fields The array of fields for parameters (except the final binary parameter)
+	 * @param binaryStream The InputStream for the final binary parameter
+	 * @param streamLength The length of the stream in bytes (used for JDBC parameter)
+	 * @return true if successful, false if not
+	 */
+	boolean dbWriteBinaryStream(Connection connection, String sql, Object[] fields, InputStream binaryStream, long streamLength);
+
+	/**
 	 * @return a string indicating the database vendor - "oracle" or "mysql" or "hsqldb".
 	 */
 	String getVendor();
