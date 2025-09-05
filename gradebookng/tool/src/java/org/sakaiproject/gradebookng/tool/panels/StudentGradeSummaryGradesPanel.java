@@ -180,7 +180,6 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 				return tableModel;
 			}
 		});
-		gstp.setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
 		addOrReplace(gstp.setVisible(this.isAssignmentsDisplayed && this.someAssignmentsReleased));
 
 		// no assignments message
@@ -219,7 +218,6 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 			public void onClick(final AjaxRequestTarget target) {
 
 				StudentCourseGradeStatisticsPanel scgsp = new StudentCourseGradeStatisticsPanel(statsWindow.getContentId(), statsWindow, courseGrade);
-				scgsp.setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
 				statsWindow.setContent(scgsp);
 				statsWindow.show(target);
 			}

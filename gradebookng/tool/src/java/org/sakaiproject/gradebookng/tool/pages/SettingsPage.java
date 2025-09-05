@@ -114,7 +114,6 @@ public class SettingsPage extends BasePage {
 		this.statisticsPanel = new SettingsStatisticsPanel("statisticsPanel", formModel, this.statisticsExpanded);
 		this.categoryPanel = new SettingsCategoryPanel("categoryPanel", formModel, this.categoryExpanded);
 		this.gradingSchemaPanel = new SettingsGradingSchemaPanel("gradingSchemaPanel", formModel, this.gradingSchemaExpanded);
-		gradingSchemaPanel.setCurrentGradebookAndSite(gradebookUid, siteId);
 
 		// Hide the panel if not showing to non admins and user is not admin
 		if (!this.showGradeEntryToNonAdmins && !this.businessService.isSuperUser()) {

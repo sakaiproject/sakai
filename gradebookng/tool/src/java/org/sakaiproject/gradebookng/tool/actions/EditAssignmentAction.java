@@ -47,7 +47,6 @@ public class EditAssignmentAction extends InjectableAction implements Serializab
 		AddOrEditGradeItemPanel aegip = new AddOrEditGradeItemPanel(window.getContentId(),
 				window,
 				Model.of(Long.valueOf(assignmentId)));
-		aegip.setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
 		window.setContent(aegip);
 		window.showUnloadConfirmation(false);
 		window.show(target);

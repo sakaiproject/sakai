@@ -39,7 +39,6 @@ public class ViewCourseGradeStatisticsAction extends InjectableAction implements
 		final GbModalWindow window = gradebookPage.getGradeLogWindow();
 
 		CourseGradeStatisticsPanel cgsp = new CourseGradeStatisticsPanel(window.getContentId(), window);
-		cgsp.setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
 		window.setContent(cgsp);
 		window.show(target);
 

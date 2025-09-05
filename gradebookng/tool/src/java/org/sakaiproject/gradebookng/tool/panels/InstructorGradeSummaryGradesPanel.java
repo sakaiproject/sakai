@@ -145,7 +145,6 @@ public class InstructorGradeSummaryGradesPanel extends BasePanel {
 				return tableModel;
 			}
 		});
-		gstp.setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
 		addOrReplace(gstp);
 
 		// course grade, via the formatter

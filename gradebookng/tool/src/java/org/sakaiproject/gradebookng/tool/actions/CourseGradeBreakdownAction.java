@@ -26,7 +26,6 @@ public class CourseGradeBreakdownAction extends InjectableAction implements Seri
         final GbModalWindow window = gradebookPage.getGradeLogWindow();
         window.setTitle("Course Grade Breakdown");
         CourseGradeBreakdownPanel cgbp = new CourseGradeBreakdownPanel(window.getContentId(), window);
-        cgbp.setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
         window.setContent(cgbp);
         window.show(target);
 

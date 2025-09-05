@@ -42,6 +42,7 @@ public class MoveAssignmentAction extends InjectableAction implements Serializab
 
 	public ActionResponse handleEvent(final JsonNode params, final AjaxRequestTarget target) {
 		final GradebookPage gradebookPage = (GradebookPage) target.getPage();
+		setCurrentGradebookAndSite(gradebookPage.getCurrentGradebookUid(), gradebookPage.getCurrentSiteId());
 
 		final Long assignmentId = Long.valueOf(params.get("assignmentId").asText());
 

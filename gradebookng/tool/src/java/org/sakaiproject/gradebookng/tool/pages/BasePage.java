@@ -343,7 +343,7 @@ public class BasePage extends WebPage {
 		}
 	}
 
-	protected String getCurrentSiteId() {
+	public String getCurrentSiteId() {
 		try {
 			return this.toolManager.getCurrentPlacement().getContext();
 		} catch (final Exception e) {
@@ -351,7 +351,7 @@ public class BasePage extends WebPage {
 		}
 	}
 
-	protected String getCurrentGradebookUid() {
+	public String getCurrentGradebookUid() {
 		String gradebookUid = getCurrentSiteId();
 		Placement placement = toolManager.getCurrentPlacement();
 		Properties props = placement.getPlacementConfig();
