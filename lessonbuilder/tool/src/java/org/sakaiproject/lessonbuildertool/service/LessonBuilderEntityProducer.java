@@ -1984,9 +1984,18 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 	@Override
 	public List<Map<String, String>> getEntityMap(String fromContext) {
-
-		return simplePageToolDao.getSitePages(fromContext).stream()
-			.map(p -> Map.of("id", Long.toString(p.getPageId()), "title", p.getTitle())).collect(Collectors.toList());
+		try {
+			Set<String> navigationToolIds = siteService.getSite(fromContext).getOrderedPages()
+				.stream().map(SitePage::getId).collect(Collectors.toSet());
+			
+			return simplePageToolDao.getSitePages(fromContext).stream()
+				.filter(page -> navigationToolIds.contains(page.getToolId()))
+				.map(p -> Map.of("id", Long.toString(p.getPageId()), "title", p.getTitle()))
+				.collect(Collectors.toList());
+		} catch (IdUnusedException e) {
+			log.warn("Could not find site {}: {}", fromContext, e);
+			return Collections.emptyList();
+		}
 	}
 
 	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> options) {
