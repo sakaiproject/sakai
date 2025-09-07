@@ -420,6 +420,15 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
       }
       return false;
   }
+  
+  /**
+   * Check if a resource represents a Canvas syllabus
+   */
+  private boolean isCanvasSyllabus(Element resource) {
+      // Check if this is a Canvas learning application resource with intendeduse="syllabus"
+      String intendedUse = resource.getAttributeValue(INTENDEDUSE);
+      return intendedUse != null && "syllabus".equals(intendedUse.toLowerCase());
+  }
 
   /**
    * Handle Canvas QTI files from learning-application-resource types
@@ -806,6 +815,8 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
               pages != null && !pages.isEmpty() ? pages.get(pages.size() - 1).getTitle() : null);
 
       String resourceType = ns.normType(resourceXml.getAttributeValue(TYPE));
+      String intendedUse = resourceXml != null ? resourceXml.getAttributeValue(INTENDEDUSE) : null;
+      System.out.println("PrintHandler: Processing resource - type=" + resourceType + ", intendedUse=" + intendedUse + ", noPage=" + noPage);
       boolean isBank = resourceType.equals(QUESTION_BANK);
 
       // first question: is this the resource we want to use, or is there are preferable variant?
@@ -952,7 +963,6 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
               String sakaiId = baseName + href;
               String extension = Validator.getFileExtension(sakaiId);
               String mime = ContentTypeImageService.getContentType(extension);
-              String intendedUse = resourceXml.getAttributeValue(INTENDEDUSE);
               SimplePageItem item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.RESOURCE, sakaiId, title);
               item.setHtml(mime);
               item.setSameWindow(open_same_window);
@@ -1028,7 +1038,6 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
               }
               sequences.set(top, seq + 1);
           } else if (resourceType.equals(CC_WEBCONTENT) || resourceType.equals(UNKNOWN)) { // i.e. hidden. if it's an assignment have to load it
-              String intendedUse = resourceXml.getAttributeValue(INTENDEDUSE);
               if (assigntool != null && intendedUse != null && intendedUse.equals("assignment")) {
                   String fileName = getFileName(resourceXml);
                   if (itemsAdded.get(fileName) == null) {
@@ -1489,6 +1498,47 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
                       sequences.set(top, seq + 1);
                   }
               }
+          } else if (resourceType.equals(LAR) && isCanvasSyllabus(resourceXml)) {
+              // Handle Canvas syllabus (learning-application-resource with intendeduse="syllabus")  
+              if (syllabusManager != null) {
+                  try {
+                      String syllabusTitle = itemXml != null ? itemXml.getChildText(CC_ITEM_TITLE, ns.getNs()) : null;
+                      if (syllabusTitle == null) syllabusTitle = "Canvas Syllabus";
+                      
+                      // Find HTML file in resource
+                      String syllabusContent = "";
+                      List<Element> files = resourceXml.getChildren(FILE, ns.getNs());
+                      for (Element file : files) {
+                          String fileHref = file.getAttributeValue(HREF);
+                          if (fileHref != null && fileHref.endsWith(".html")) {
+                              try (InputStream htmlStream = loader.getFile(fileHref)) {
+                                  if (htmlStream != null) {
+                                      syllabusContent = new String(htmlStream.readAllBytes(), StandardCharsets.UTF_8);
+                                      break;
+                                  }
+                              } catch (Exception e) {
+                                  log.warn("Failed to load Canvas syllabus HTML: {}", fileHref, e);
+                              }
+                          }
+                      }
+                      
+                      // Create or get syllabus item for site
+                      SyllabusItem syllabusItem = syllabusManager.getSyllabusItemByContextId(siteId);
+                      if (syllabusItem == null) {
+                          syllabusItem = syllabusManager.createSyllabusItem(simplePageBean.getCurrentUserId(), siteId, null);
+                      }
+                      
+                      // Create syllabus data entry
+                      int position = syllabusManager.findLargestSyllabusPosition(syllabusItem) + 1;
+                      syllabusManager.createSyllabusDataObject(syllabusTitle, position,
+                              syllabusContent, "yes", SyllabusData.ITEM_POSTED, "none", null, null, false, null, null, syllabusItem);
+                      
+                      log.debug("Created Canvas syllabus entry: {}", syllabusTitle);
+                      
+                  } catch (Exception e) {
+                      log.warn("Failed to import Canvas syllabus: {}", e.getMessage(), e);
+                  }
+              }
           } else if (resourceType.equals(ASSIGNMENT)) {
               Element assignXml = null;
               String filename = getFileName(resourceXml);
@@ -1554,6 +1604,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 
           } else if (((resourceType.equals(CC_WEBCONTENT) || (resourceType.equals(UNKNOWN))) && noPage) || resourceType.equals(LAR)) {
               // handled elsewhere
+              System.out.println("PrintHandler: Resource marked as 'handled elsewhere' - type=" + resourceType + ", intendedUse=" + intendedUse + ", noPage=" + noPage);
           }
           if (resourceType.equals(UNKNOWN)) {
               badTypes.add(resourceXml.getAttributeValue(TYPE));
