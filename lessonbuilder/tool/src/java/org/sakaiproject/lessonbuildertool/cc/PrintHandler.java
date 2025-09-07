@@ -815,8 +815,6 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
               pages != null && !pages.isEmpty() ? pages.get(pages.size() - 1).getTitle() : null);
 
       String resourceType = ns.normType(resourceXml.getAttributeValue(TYPE));
-      String intendedUse = resourceXml != null ? resourceXml.getAttributeValue(INTENDEDUSE) : null;
-      System.out.println("PrintHandler: Processing resource - type=" + resourceType + ", intendedUse=" + intendedUse + ", noPage=" + noPage);
       boolean isBank = resourceType.equals(QUESTION_BANK);
 
       // first question: is this the resource we want to use, or is there are preferable variant?
@@ -963,6 +961,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
               String sakaiId = baseName + href;
               String extension = Validator.getFileExtension(sakaiId);
               String mime = ContentTypeImageService.getContentType(extension);
+              String intendedUse = resourceXml.getAttributeValue(INTENDEDUSE);
               SimplePageItem item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.RESOURCE, sakaiId, title);
               item.setHtml(mime);
               item.setSameWindow(open_same_window);
@@ -1038,6 +1037,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
               }
               sequences.set(top, seq + 1);
           } else if (resourceType.equals(CC_WEBCONTENT) || resourceType.equals(UNKNOWN)) { // i.e. hidden. if it's an assignment have to load it
+              String intendedUse = resourceXml.getAttributeValue(INTENDEDUSE);
               if (assigntool != null && intendedUse != null && intendedUse.equals("assignment")) {
                   String fileName = getFileName(resourceXml);
                   if (itemsAdded.get(fileName) == null) {
@@ -1604,7 +1604,6 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 
           } else if (((resourceType.equals(CC_WEBCONTENT) || (resourceType.equals(UNKNOWN))) && noPage) || resourceType.equals(LAR)) {
               // handled elsewhere
-              System.out.println("PrintHandler: Resource marked as 'handled elsewhere' - type=" + resourceType + ", intendedUse=" + intendedUse + ", noPage=" + noPage);
           }
           if (resourceType.equals(UNKNOWN)) {
               badTypes.add(resourceXml.getAttributeValue(TYPE));
