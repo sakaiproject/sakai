@@ -79,11 +79,11 @@ USER.validatePassword = function () {
 // Verify the passwords match
 USER.verifyPasswordsMatch = function () {
 
-  const pass = USER.get("user_pw")?.value;
+  const pass = USER.get("user_pw")?.value ?? null;
   USER.passwordsMatch = false;
 
   if (pass !== null) {
-    const verPass = USER.get("user_pw0")?.value;
+    const verPass = USER.get("user_pw0")?.value ?? null;
     USER.passwordsMatch = pass === verPass;
 
     const matchMsg = USER.get("matchMsg");
