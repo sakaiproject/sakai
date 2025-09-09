@@ -279,7 +279,6 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 														.getContentId(),
 												Model.of(assignment),
 												assignmentStatsWindow, rawGrade);
-								sasp.setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
 								assignmentStatsWindow.setContent(sasp);
 								assignmentStatsWindow.show(target);
 
@@ -303,7 +302,6 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 												Model.of(assignment),
 												compareGradesWindow
 								);
-								scgp.setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
 								compareGradesWindow.setContent(scgp);
 								compareGradesWindow.show(target);
 							}
