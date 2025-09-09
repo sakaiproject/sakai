@@ -58,7 +58,7 @@ export class SakaiCourseCard extends SakaiElement {
 
     return html`
       <div class="info-block"
-          style="background: linear-gradient(var(--sakai-course-card-gradient-start), var(--sakai-course-card-gradient-end)), url(${ifDefined(this.courseData.image)})">
+          style="background-image: linear-gradient(var(--sakai-course-card-gradient-start), var(--sakai-course-card-gradient-end)), url(${ifDefined(this.courseData.image)})">
         <div>
           <a class="${!this.courseData.image ? "no-background" : ""}"
               href="${this.courseData.url}"
