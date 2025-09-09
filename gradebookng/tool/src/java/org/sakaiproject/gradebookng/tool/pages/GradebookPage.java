@@ -111,7 +111,6 @@ public class GradebookPage extends BasePage {
 	GbModalWindow gradeCommentWindow;
 	GbModalWindow deleteItemWindow;
 	GbModalWindow assignmentStatisticsWindow;
-	GbModalWindow exportToZipWindow;
 	GbModalWindow updateCourseGradeDisplayWindow;
 	GbModalWindow sortGradeItemsWindow;
 	GbModalWindow courseGradeStatisticsWindow;
@@ -222,8 +221,6 @@ public class GradebookPage extends BasePage {
 		this.assignmentStatisticsWindow = new GbModalWindow("gradeStatisticsWindow");
 		this.form.add(this.assignmentStatisticsWindow);
 
-		this.exportToZipWindow = new GbModalWindow("exportZipWindow");
-		this.form.add(this.exportToZipWindow);
 
 		this.updateCourseGradeDisplayWindow = new GbModalWindow("updateCourseGradeDisplayWindow");
 		this.form.add(this.updateCourseGradeDisplayWindow);
@@ -597,9 +594,6 @@ public class GradebookPage extends BasePage {
 		return this.assignmentStatisticsWindow;
 	}
 
-	public GbModalWindow getExportToZipWindow() {
-		return this.exportToZipWindow;
-	}
 
 	public GbModalWindow getUpdateCourseGradeDisplayWindow() {
 		return this.updateCourseGradeDisplayWindow;
