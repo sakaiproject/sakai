@@ -64,7 +64,7 @@ public class TagServiceImpl implements TagService {
     private static final String SAKAI_DB_VENDOR_PROPERTY =  "vendor@org.sakaiproject.db.api.SqlService";
     private static final String TAGSERVICE_MAXPAGESIZE =  "tagservice.maxpagesize";
     private static final String TAGSERVICE_ENABLED =  "tagservice.enabled";
-    private static final Boolean TAGSERVICE_ENABLED_DEFAULT_VALUE =  true;
+    private static final Boolean TAGSERVICE_ENABLED_DEFAULT_VALUE =  false;
     private static final int TAGSERVICE_MAXPAGESIZE_DEFAULT_VALUE = 200;
     private static final int TAG_MAX_LABEL = 255;
 

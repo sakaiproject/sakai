@@ -35,7 +35,7 @@ public interface TagService {
     public static final String TOOL_PRIVATE_MESSAGES = "privatemessages";
     
     public static final String TAGSERVICE_ENABLED_INTEGRATION_PROP = "tagservice.enable.integrations";
-    public static final boolean TAGSERVICE_ENABLED_INTEGRATION_DEFAULT = true;
+    public static final boolean TAGSERVICE_ENABLED_INTEGRATION_DEFAULT = false;
 
     public void init();
 

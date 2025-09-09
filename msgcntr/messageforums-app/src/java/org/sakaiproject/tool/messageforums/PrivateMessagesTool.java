@@ -3275,7 +3275,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 
   private void manageTagAssociation(Long msgId) {
     log.debug("msgId " + msgId + " - selectedTags " + selectedTags);
-    if (msgId != null && ServerConfigurationService.getBoolean("tagservice.enable.integrations", true) && isInstructor() && selectedTags != null) {
+    if (msgId != null && ServerConfigurationService.getBoolean("tagservice.enable.integrations", false) && isInstructor() && selectedTags != null) {
       List<String> tagIds = Arrays.asList(selectedTags.split(","));
       tagService.updateTagAssociations(getUserId(), String.valueOf(msgId), tagIds, false);
       selectedTags = String.join(",", tagService.getTagAssociationIds(getUserId(), String.valueOf(msgId)));
