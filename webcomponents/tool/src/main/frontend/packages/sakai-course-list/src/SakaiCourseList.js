@@ -113,23 +113,22 @@ export class SakaiCourseList extends SakaiElement {
           return a.title.localeCompare(b.title);
         case "title_z_to_a":
           return b.title.localeCompare(a.title);
-        // Repurpose former "code" sort to sort by short description (if set),
-        // falling back to title for sites without a short description.
+        // Sort by shortDescription (trimmed). Empty values sort last. No title fallback.
         case "description_a_to_z": {
-          const aKey = (a.shortDescription && a.shortDescription.trim()) ? a.shortDescription.trim() : "";
-          const bKey = (b.shortDescription && b.shortDescription.trim()) ? b.shortDescription.trim() : "";
-          if (aKey === "" && bKey === "") return 0;
-          if (aKey === "") return 1; // push empties to the end
-          if (bKey === "") return -1;
-          return aKey.localeCompare(bKey);
+          const aKey = (a.shortDescription ?? "").trim();
+          const bKey = (b.shortDescription ?? "").trim();
+          if (!aKey && !bKey) return 0;
+          if (!aKey) return 1; // empties to the end
+          if (!bKey) return -1;
+          return aKey.localeCompare(bKey, undefined, { sensitivity: "base" });
         }
         case "description_z_to_a": {
-          const aKey = (a.shortDescription && a.shortDescription.trim()) ? a.shortDescription.trim() : "";
-          const bKey = (b.shortDescription && b.shortDescription.trim()) ? b.shortDescription.trim() : "";
-          if (aKey === "" && bKey === "") return 0;
-          if (aKey === "") return 1; // empties to the end
-          if (bKey === "") return -1;
-          return bKey.localeCompare(aKey);
+          const aKey = (a.shortDescription ?? "").trim();
+          const bKey = (b.shortDescription ?? "").trim();
+          if (!aKey && !bKey) return 0;
+          if (!aKey) return 1; // empties to the end
+          if (!bKey) return -1;
+          return bKey.localeCompare(aKey, undefined, { sensitivity: "base" });
         }
         default:
           return 0;

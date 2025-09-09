@@ -79,8 +79,11 @@ public class SitesController extends AbstractSakaiApiController {
                     Map<String, Object> site = new HashMap<>();
                     site.put("siteId", s.getId());
                     site.put("title", s.getTitle());
-                    // Include short description for sorting/display where needed
-                    site.put("shortDescription", s.getShortDescription());
+                    // Include short description for sorting/display (trimmed; omit if blank)
+                    String sd = StringUtils.trimToNull(s.getShortDescription());
+                    if (sd != null) {
+                        site.put("shortDescription", sd);
+                    }
                     site.put("url", s.getUrl());
                     site.put("pinned", pinnedSites.contains(s.getId()));
 

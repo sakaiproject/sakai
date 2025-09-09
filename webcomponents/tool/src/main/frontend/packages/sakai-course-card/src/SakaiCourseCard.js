@@ -69,10 +69,10 @@ export class SakaiCourseCard extends SakaiElement {
         ${this.courseData.shortDescription && this.courseData.shortDescription.trim() ? html`
           <a href="${this.courseData.url}" title="${this._i18n.visit} ${this.courseData.title}">
             <div
-              class="code-block"
-              title="${this.courseData.shortDescription}"
+              class="code-block description-block"
+              title="${this.courseData.shortDescription.trim()}"
               style="display: -webkit-box; -webkit-line-clamp: var(--sakai-course-card-description-lines, 2); -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis;">
-              ${this.courseData.shortDescription}
+              ${this.courseData.shortDescription.trim()}
             </div>
           </a>
         ` : nothing}
