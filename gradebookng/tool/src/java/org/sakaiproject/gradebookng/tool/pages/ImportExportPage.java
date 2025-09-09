@@ -65,7 +65,6 @@ public class ImportExportPage extends BasePage {
 		container = new WebMarkupContainer("gradebookImportExportContainer");
 		container.setOutputMarkupId(true);
 		GradeImportUploadStep gius = new GradeImportUploadStep("wizard");
-		gius.setCurrentGradebookAndSite(gradebookUid, siteId);
 		container.add(gius);
 		add(container);
 

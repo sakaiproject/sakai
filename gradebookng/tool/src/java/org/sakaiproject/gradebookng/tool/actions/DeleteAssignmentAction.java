@@ -44,7 +44,6 @@ public class DeleteAssignmentAction extends InjectableAction implements Serializ
 				window.getContentId(),
 				Model.of(Long.valueOf(assignmentId)),
 				window);
-		content.setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
 		window.setContent(content);
 		window.showUnloadConfirmation(false);
 		window.show(target);

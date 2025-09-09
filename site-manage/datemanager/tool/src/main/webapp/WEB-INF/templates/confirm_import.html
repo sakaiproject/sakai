@@ -72,12 +72,12 @@
 			</div>
 			<div class="act">
 				<input type="submit" class="active" th:value="#{button.save}" id="submit-form-button" th:if="${errors == null}">
-				<a th:href="@{/}" id="datemanager-cancel" class="btn btn-default" th:text="#{button.cancel}" th:if="${errors == null}">Cancel</a>
-				<a th:href="@{/}" id="datemanager-cancel" class="btn btn-default" th:text="#{button.start.again}" th:if="${errors != null}">Start again</a>
+				<a th:href="@{/}" id="datemanager-cancel" class="btn btn-secondary datemanager-nav" role="button" th:text="#{button.cancel}" th:if="${errors == null}">Cancel</a>
+				<a th:href="@{/}" id="datemanager-start-again" class="btn btn-primary datemanager-nav" role="button" th:text="#{button.start.again}" th:if="${errors != null}">Start again</a>
 			</div>
 		</form>
 		<script th:inline="javascript">
-			$('#datemanager-cancel').click(function(e) {
+			$(document).on('click', '.datemanager-nav', function(e) {
 				e.preventDefault();
 				window.location = window.location.href.replace('/import/dates', '/').replace('/confirm', '');
 			});

@@ -159,7 +159,6 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 
 		// add the common components
 		AddOrEditGradeItemPanelContent aegipc = new AddOrEditGradeItemPanelContent("subComponents", formModel, this.mode);
-		aegipc.setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
 		form.add(aegipc);
 
 		// feedback panel
@@ -289,7 +288,6 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 
 					if (createAnother) {
 						final Component newFormPanel = new AddOrEditGradeItemPanel(this.window.getContentId(), this.window, null, true);
-						((AddOrEditGradeItemPanel)newFormPanel).setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
 						AddOrEditGradeItemPanel.this.replaceWith(newFormPanel);
 						this.window.setAssignmentToReturnFocusTo(String.valueOf(assignmentId));
 						this.window.clearWindowClosedCallbacks();
