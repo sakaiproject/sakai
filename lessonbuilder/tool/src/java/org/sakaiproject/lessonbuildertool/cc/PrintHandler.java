@@ -420,6 +420,15 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
       }
       return false;
   }
+  
+  /**
+   * Check if a resource represents a Canvas syllabus
+   */
+  private boolean isCanvasSyllabus(Element resource) {
+      // Check if this is a Canvas learning application resource with intendeduse="syllabus"
+      String intendedUse = resource.getAttributeValue(INTENDEDUSE);
+      return intendedUse != null && "syllabus".equals(intendedUse.toLowerCase());
+  }
 
   /**
    * Handle Canvas QTI files from learning-application-resource types
@@ -1487,6 +1496,47 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
                       simplePageBean.saveItem(item);
                       if (!roles.isEmpty()) simplePageBean.setItemGroups(item, roles.toArray(new String[0]));
                       sequences.set(top, seq + 1);
+                  }
+              }
+          } else if (resourceType.equals(LAR) && isCanvasSyllabus(resourceXml)) {
+              // Handle Canvas syllabus (learning-application-resource with intendeduse="syllabus")  
+              if (syllabusManager != null) {
+                  try {
+                      String syllabusTitle = itemXml != null ? itemXml.getChildText(CC_ITEM_TITLE, ns.getNs()) : null;
+                      if (syllabusTitle == null) syllabusTitle = "Canvas Syllabus";
+                      
+                      // Find HTML file in resource
+                      String syllabusContent = "";
+                      List<Element> files = resourceXml.getChildren(FILE, ns.getNs());
+                      for (Element file : files) {
+                          String fileHref = file.getAttributeValue(HREF);
+                          if (fileHref != null && fileHref.endsWith(".html")) {
+                              try (InputStream htmlStream = loader.getFile(fileHref)) {
+                                  if (htmlStream != null) {
+                                      syllabusContent = new String(htmlStream.readAllBytes(), StandardCharsets.UTF_8);
+                                      break;
+                                  }
+                              } catch (Exception e) {
+                                  log.warn("Failed to load Canvas syllabus HTML: {}", fileHref, e);
+                              }
+                          }
+                      }
+                      
+                      // Create or get syllabus item for site
+                      SyllabusItem syllabusItem = syllabusManager.getSyllabusItemByContextId(siteId);
+                      if (syllabusItem == null) {
+                          syllabusItem = syllabusManager.createSyllabusItem(simplePageBean.getCurrentUserId(), siteId, null);
+                      }
+                      
+                      // Create syllabus data entry
+                      int position = syllabusManager.findLargestSyllabusPosition(syllabusItem) + 1;
+                      syllabusManager.createSyllabusDataObject(syllabusTitle, position,
+                              syllabusContent, "yes", SyllabusData.ITEM_POSTED, "none", null, null, false, null, null, syllabusItem);
+                      
+                      log.debug("Created Canvas syllabus entry: {}", syllabusTitle);
+                      
+                  } catch (Exception e) {
+                      log.warn("Failed to import Canvas syllabus: {}", e.getMessage(), e);
                   }
               }
           } else if (resourceType.equals(ASSIGNMENT)) {
