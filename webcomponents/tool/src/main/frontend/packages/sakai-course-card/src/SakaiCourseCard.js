@@ -1,4 +1,4 @@
-import { html } from "lit";
+import { html, nothing } from "lit";
 import { ifDefined } from "lit-html/directives/if-defined.js";
 import { SakaiElement } from "@sakai-ui/sakai-element";
 import { pushSetupComplete, registerPushCallback } from "@sakai-ui/sakai-push-utils";
@@ -66,9 +66,16 @@ export class SakaiCourseCard extends SakaiElement {
             <div class="ms-2">${this.courseData.title}</div>
           </a>
         </div>
-        <a href="${this.courseData.url}" title="${this._i18n.visit} ${this.courseData.title}">
-          <div class="code-block">${this.courseData.code}</div>
-        </a>
+        ${this.courseData.shortDescription && this.courseData.shortDescription.trim() ? html`
+          <a href="${this.courseData.url}" title="${this._i18n.visit} ${this.courseData.title}">
+            <div
+              class="code-block"
+              title="${this.courseData.shortDescription}"
+              style="display: -webkit-box; -webkit-line-clamp: var(--sakai-course-card-description-lines, 2); -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis;">
+              ${this.courseData.shortDescription}
+            </div>
+          </a>
+        ` : nothing}
       </div>
 
       <div class="tool-alerts-block">

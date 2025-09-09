@@ -113,10 +113,24 @@ export class SakaiCourseList extends SakaiElement {
           return a.title.localeCompare(b.title);
         case "title_z_to_a":
           return b.title.localeCompare(a.title);
-        case "code_a_to_z":
-          return a.code.localeCompare(b.code);
-        case "code_z_to_a":
-          return b.code.localeCompare(a.code);
+        // Repurpose former "code" sort to sort by short description (if set),
+        // falling back to title for sites without a short description.
+        case "description_a_to_z": {
+          const aKey = (a.shortDescription && a.shortDescription.trim()) ? a.shortDescription.trim() : "";
+          const bKey = (b.shortDescription && b.shortDescription.trim()) ? b.shortDescription.trim() : "";
+          if (aKey === "" && bKey === "") return 0;
+          if (aKey === "") return 1; // push empties to the end
+          if (bKey === "") return -1;
+          return aKey.localeCompare(bKey);
+        }
+        case "description_z_to_a": {
+          const aKey = (a.shortDescription && a.shortDescription.trim()) ? a.shortDescription.trim() : "";
+          const bKey = (b.shortDescription && b.shortDescription.trim()) ? b.shortDescription.trim() : "";
+          if (aKey === "" && bKey === "") return 0;
+          if (aKey === "") return 1; // empties to the end
+          if (bKey === "") return -1;
+          return bKey.localeCompare(aKey);
+        }
         default:
           return 0;
       }
@@ -157,8 +171,8 @@ export class SakaiCourseList extends SakaiElement {
         <select class="w-100" aria-label="${this._i18n.course_sort_label}" @change=${this._siteSortChanged} ?disabled=${this.sites.length === 0}>
           <option value="title_a_to_z">${this._i18n.title_a_to_z}</option>
           <option value="title_z_to_a">${this._i18n.title_z_to_a}</option>
-          <option value="code_a_to_z">${this._i18n.code_a_to_z}</option>
-          <option value="code_z_to_a">${this._i18n.code_z_to_a}</option>
+          <option value="description_a_to_z">${this._i18n.description_a_to_z}</option>
+          <option value="description_z_to_a">${this._i18n.description_z_to_a}</option>
         </select>
       </div>
       <div>
