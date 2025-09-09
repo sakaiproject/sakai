@@ -144,7 +144,6 @@ public class CreateGradeItemStep extends BasePanel {
 		form.add(new Label("createItemHeader",
 				new StringResourceModel("importExport.createItem.heading").setParameters(step, importWizardModel.getTotalSteps())));
 		AddOrEditGradeItemPanelContent aegipc = new AddOrEditGradeItemPanelContent("subComponents", assignmentModel, UiMode.ADD);
-		aegipc.setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
 		form.add(aegipc);
 		this.previewGradesPanel = new PreviewImportedGradesPanel("previewGradesPanel", this.model);
 		form.add(this.previewGradesPanel);
@@ -188,11 +187,9 @@ public class CreateGradeItemStep extends BasePanel {
 				if (step < importWizardModel.getTotalSteps()) {
 					importWizardModel.setStep(step + 1);
 					newPanel = new CreateGradeItemStep(CreateGradeItemStep.this.panelId, Model.of(importWizardModel));
-					((CreateGradeItemStep)newPanel).setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
 				} else {
 					// If not, continue on in the wizard
 					newPanel = new GradeImportConfirmationStep(CreateGradeItemStep.this.panelId, Model.of(importWizardModel));
-					((GradeImportConfirmationStep)newPanel).setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
 				}
 			}
 			else // back
@@ -200,14 +197,12 @@ public class CreateGradeItemStep extends BasePanel {
 				if (step > 1) {
 					importWizardModel.setStep(step - 1);
 					newPanel = new CreateGradeItemStep(CreateGradeItemStep.this.panelId, Model.of(importWizardModel));
-					((CreateGradeItemStep)newPanel).setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
 				} else {
 					// Reload everything. Rationale: final step can have partial success and partial failure. If content was imported from
 					// the spreadsheet, the item selection page should reflect this when we return to it
 					ImportGradesHelper.setupImportWizardModelForSelectionStep(page, CreateGradeItemStep.this, importWizardModel,
 							CreateGradeItemStep.this.businessService, target, currentGradebookUid, currentSiteId);
 					newPanel = new GradeItemImportSelectionStep(CreateGradeItemStep.this.panelId, Model.of(importWizardModel));
-					((GradeItemImportSelectionStep)newPanel).setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
 				}
 			}
 

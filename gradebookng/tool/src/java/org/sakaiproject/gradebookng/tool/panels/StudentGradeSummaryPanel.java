@@ -80,7 +80,6 @@ public class StudentGradeSummaryPanel extends BasePanel {
 			@Override
 			public Panel getPanel(final String panelId) {
 				InstructorGradeSummaryGradesPanel igsgp = new InstructorGradeSummaryGradesPanel(panelId, (IModel<Map<String, Object>>) getDefaultModel());
-				igsgp.setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
 				return igsgp;
 			}
 		});
@@ -94,7 +93,6 @@ public class StudentGradeSummaryPanel extends BasePanel {
 				@Override
 				public Panel getPanel(final String panelId) {
 					StudentGradeSummaryGradesPanel sgsgp = new StudentGradeSummaryGradesPanel(panelId, (IModel<Map<String, Object>>) getDefaultModel());
-					sgsgp.setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
 					return sgsgp;
 				}
 			});
