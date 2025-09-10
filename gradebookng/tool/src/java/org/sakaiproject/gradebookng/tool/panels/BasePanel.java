@@ -95,6 +95,11 @@ public abstract class BasePanel extends Panel {
 		super(id, model);
 	}
 
+	public void onInitialize() {
+		super.onInitialize();
+		setCurrentGradebookAndSite(getCurrentGradebookUid(), getCurrentSiteId());
+	}
+
 	/**
 	 * Helper to get the user role, via the business service. Handles the Access Denied scenario.
 	 *

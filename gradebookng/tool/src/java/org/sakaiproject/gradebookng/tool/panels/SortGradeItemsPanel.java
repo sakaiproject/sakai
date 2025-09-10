@@ -154,7 +154,6 @@ public class SortGradeItemsPanel extends BasePanel {
 				@Override
 				public Panel getPanel(final String panelId) {
 					SortGradeItemsByCategoryPanel sgibcip = new SortGradeItemsByCategoryPanel(panelId, (IModel<Map<String, Object>>) getDefaultModel());
-					sgibcip.setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
 					return sgibcip;
 				}
 			});
@@ -167,7 +166,6 @@ public class SortGradeItemsPanel extends BasePanel {
 			@Override
 			public Panel getPanel(final String panelId) {
 				SortGradeItemsByGradeItemPanel sgibgip = new SortGradeItemsByGradeItemPanel(panelId);
-				sgibgip.setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
 				return sgibgip;
 			}
 		});
