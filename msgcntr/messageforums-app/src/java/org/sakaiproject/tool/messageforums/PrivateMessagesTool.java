@@ -1163,12 +1163,15 @@ public void processChangeSelectView(ValueChangeEvent eve)
 
   public String calculateColumnClass() {
 	String columnClasses = "check,attach,reply,specialLink,date,dateScheduler,created,addressee,priority,taglist hidden-xs";
-	if (selectedTopic.getTopic().getTitle().equals("pvt_received")) {
-		columnClasses = "check,attach,reply,specialLink,date,created,priority,taglist hidden-xs";
-	} else if (selectedTopic.getTopic().getTitle().equals("pvt_sent")) {
-		columnClasses = "check,attach,reply,specialLink,date,dateScheduler,addressee,priority,taglist hidden-xs";
-	} else if (selectedTopic.getTopic().getTitle().equals("pvt_drafts") || selectedTopic.getTopic().getTitle().equals("pvt_deleted") || selectedTopic.getTopic().getTitle().equals("pvt_scheduler")) {
-		columnClasses = "check,attach,reply,specialLink,date,dateScheduler,created,priority,taglist hidden-xs";
+	if (selectedTopic != null && selectedTopic.getTopic() != null) {
+		final String topicTitle = selectedTopic.getTopic().getTitle();
+		if (PVTMSG_MODE_RECEIVED.equals(topicTitle)) {
+			columnClasses = "check,attach,reply,specialLink,date,created,priority,taglist hidden-xs";
+		} else if (PVTMSG_MODE_SENT.equals(topicTitle)) {
+			columnClasses = "check,attach,reply,specialLink,date,dateScheduler,addressee,priority,taglist hidden-xs";
+		} else if (PVTMSG_MODE_DRAFT.equals(topicTitle) || PVTMSG_MODE_DELETE.equals(topicTitle) || PVTMSG_MODE_SCHEDULER.equals(topicTitle)) {
+			columnClasses = "check,attach,reply,specialLink,date,dateScheduler,created,priority,taglist hidden-xs";
+		}
 	}
 	return columnClasses;
   }
