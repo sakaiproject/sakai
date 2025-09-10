@@ -494,6 +494,11 @@ public class SakaiProxyImpl implements SakaiProxy {
 	}
 
 	@Override
+	public Boolean getViewPronouns() {
+		return this.serverConfigurationService.getBoolean("roster.display.user.pronouns", false);
+	}
+
+	@Override
 	public String ensureUuid(final String userId) {
 
 		// check for userId
