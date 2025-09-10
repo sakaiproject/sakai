@@ -1,5 +1,5 @@
 import { html, nothing } from "lit";
-import { ifDefined } from "lit-html/directives/if-defined.js";
+import { styleMap } from "lit/directives/style-map.js";
 import { SakaiElement } from "@sakai-ui/sakai-element";
 import { pushSetupComplete, registerPushCallback } from "@sakai-ui/sakai-push-utils";
 import { markNotificationsViewed } from "@sakai-ui/sakai-notifications";
@@ -57,8 +57,13 @@ export class SakaiCourseCard extends SakaiElement {
   render() {
 
     return html`
-      <div class="info-block"
-          style="background: linear-gradient(var(--sakai-course-card-gradient-start), var(--sakai-course-card-gradient-end)), url(${ifDefined(this.courseData.image)})">
+      <div
+          class="info-block"
+          style=${styleMap({
+      backgroundImage: this.courseData.image
+        ? `linear-gradient(var(--sakai-course-card-gradient-start), var(--sakai-course-card-gradient-end)), url(${this.courseData.image})`
+        : "linear-gradient(var(--sakai-course-card-gradient-start), var(--sakai-course-card-gradient-end))"
+    })}>
         <div>
           <a class="${!this.courseData.image ? "no-background" : ""}"
               href="${this.courseData.url}"
