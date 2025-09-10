@@ -20,6 +20,7 @@ import java.util.Properties;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.Strings;
 
 public class Learner implements Serializable, Comparable<Learner>
 {
@@ -46,6 +47,9 @@ public class Learner implements Serializable, Comparable<Learner>
 	@Override
 	public int compareTo(Learner learner)
 	{
-		return sortName.compareTo(learner.sortName);
+		// Replace spaces to handle sorting scenarios where surname has space
+		String prop1 = Strings.CS.replace(sortName, " ", "+");
+		String prop2 = Strings.CS.replace(learner.sortName, " ", "+");
+		return prop1.compareTo(prop2);
 	}
 }

@@ -360,10 +360,12 @@
 				#set ($actionCount=($actionCount - 1))
 				
 				#set ($width = "$!{item.depth}$unit")
-				#if ($item.depth==0)	
-					#set ($margin="ps-0")
+				#if ($item.depth==0)
+					#set ($marginIcon=0.5)
 				#else
-					#set ($margin="ps-3")
+					#set($marginIcon = $item.depth + 1)
+				#end
+				#if ($item.depth!=0)
 					#set ($marginAction="ps-5")
 				#end
 				############################### Show top level folder #################
@@ -384,7 +386,7 @@
 							<input type="hidden" name="itemCanRevise" id="itemCanRevise" value="$item.canRevise" />
 						#end
 					</td>
-					<td class="specialLink title $margin d-table-cell align-middle" scope="row">
+					<td style="padding-left:$!{marginIcon}rem;" class="specialLink title d-table-cell align-middle" scope="row">
 					<div class="d-flex align-items-center gap-2">
 					#if($item.isHot("$!dropboxHighlight")) #set($iconDecor="recentItem") #set($newNote="new") #else  #set($iconDecor="nil")  #set($newNote="")#end 
 
@@ -638,11 +640,13 @@
 						#set($qid=$item.id.replaceAll("'","\\'").replaceAll("\"", "&quot;"))
 						#set($dqid=$item.id.replaceAll("\"", "&quot;"))
 						############################### Show top level folder #################
-					#set ($width = "$!{item.depth}$unit")
-						#if ($item.depth==0)	
-							#set ($margin="ps-0")
+						#set ($width = "$!{item.depth}$unit")
+						#if ($item.depth==0)
+							#set ($marginIcon=0.5)
 						#else
-							#set ($margin="ps-3")
+							#set($marginIcon = $item.depth + 1)
+						#end
+						#if ($item.depth!=0)
 							#set ($marginAction="ps-5")
 						#end
 						############################### Show top level folder #################
@@ -660,7 +664,7 @@
 									#foreach($key in $item.multipleItemActions.keySet())$counter.increment("$key") $counter.increment("selectall")#if($selectedItems.contains($item.id))$counter.increment("${key}selected")#end#end
 								#end
 							</td>
-							<th headers="title" style="text-indent:$width" class="specialLink $margin" scope="row">
+							<th headers="title" style="text-indent:$width; padding-left:$!{marginIcon}rem;" class="specialLink" scope="row">
 						#if($item.isHot("$!dropboxHighlight")) #set($iconDecor="recentItem") #set($newNote="new") #else  #set($iconDecor="nil")  #set($newNote="")#end 
 									#if ($item.canRead())
 										#if($item.isCollection())
