@@ -22,11 +22,11 @@
 						var menuLinkSpan = menuLink.closest('span');
 						menuLinkSpan.addClass('current');
 						menuLinkSpan.html(menuLink.text());
-				});
 
-			<f:verbatim rendered="#{PrivateMessagesTool.canUseTags}">
-					initTagSelector("prefs_pvt_form");
-			</f:verbatim>
+						<f:verbatim rendered="#{PrivateMessagesTool.canUseTags}">
+							initTagSelector("prefs_pvt_form");
+						</f:verbatim>
+				});
 		</script>
 		<script>includeWebjarLibrary('datatables');</script>
 
