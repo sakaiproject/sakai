@@ -17,30 +17,33 @@
 	src="/library/webjars/jquery-migrate/1.4.1/jquery-migrate.min.js"
 	rsf:id="scr=contribute-script"></script>
 <script type="text/javascript"
-	src="/library/webjars/momentjs/2.29.1/min/moment-with-locales.min.js"
+	src="/library/webjars/momentjs/2.29.4/min/moment-with-locales.min.js"
 	rsf:id="scr=contribute-script"></script>
 <script type="text/javascript"
 	src="/library/js/lang-datepicker/lang-datepicker.js"
 	rsf:id="scr=contribute-script"></script>
 <script type="text/javascript" rsf:id="scr=contribute-script">
-	// Simple wrapper to make it easy to call from RSF.
-	var rsfDatePicker = function(id, hidden, time) {
-		// jQuery selectors need colons escaped.
-		id = "#" + id.replace(/:/g, "\\:");
-		hidden = hidden.replace(/:/g, "\\:");
-		// Load plugin on DOM ready.
-		$(function() {
-			$(id).sakaiDateTimePicker({
-				input : id,
-				useTime : time,
-				parseFormat : 'YYYY-MM-DD HH:mm:ss',
-				val : document.getElementById(hidden) ? document.getElementById(hidden).value : "",
-				ashidden : {
-					iso8601 : hidden
-				}
+	// Simple wrapper to make it easy to call from RSF, now using the
+	// modern SakaiDateTimePicker class instead of the old jQuery plugin.
+	const rsfDatePicker = function(id, hidden, time) {
+		// Preserve raw ids for getElementById/ashidden; escape only for selector usage.
+		const rawId = id;
+		const rawHidden = hidden;
+		const selector = "#" + rawId.replace(/:/g, "\\:");
+
+		// Initialize on DOM ready without jQuery
+		document.addEventListener('DOMContentLoaded', () => {
+			const initialVal = document.getElementById(rawHidden) ? document.getElementById(rawHidden).value : "";
+			new SakaiDateTimePicker({
+				input: selector,
+				useTime: time,
+				val: initialVal,
+				ashidden: { iso8601: rawHidden }
 			});
 		});
 	};
+	// Ensure global access for the inline init script
+	window.rsfDatePicker = rsfDatePicker;
 </script>
 </head>
 

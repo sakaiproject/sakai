@@ -15,6 +15,12 @@
  */
 package org.sakaiproject.datemanager.impl;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -37,6 +43,12 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.opencsv.CSVReader;
+import com.opencsv.CSVWriter;
+import com.opencsv.CSVParserBuilder;
+import com.opencsv.CSVReaderBuilder;
+
+import org.apache.commons.io.ByteOrderMark;
 import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -137,6 +149,9 @@ public class DateManagerServiceImpl implements DateManagerService {
 	private final DateTimeFormatter outputDateFormatter;
 	private final DateTimeFormatter outputDatePickerFormat;
 
+	private final String[] columnsCsvStrings;
+	private final String[][] columnsNames;
+
 	public DateManagerServiceImpl() {
 		inputDateFormatter = new DateTimeFormatterBuilder()
 				.appendOptional(DateTimeFormatter.ofPattern("M/d/yyyy"))
@@ -155,7 +170,22 @@ public class DateManagerServiceImpl implements DateManagerService {
 				.toFormatter();
 		outputDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 		outputDatePickerFormat = DateTimeFormatter.ofPattern(DateManagerConstants.DATEPICKER_DATETIME_FORMAT);
-	}
+
+		columnsCsvStrings = new String[]{"id", "title", "open.date.required", "open.date.optional", "available.date",
+				"available.date.required", "start.date", "start.date.required", "start.date.optional",
+				"show.from.date.optional", "hide.until.optional", "due.date", "due.date.required", "due.date.optional",
+				"end.date", "end.date.required", "end.date.optional", "assessments.accept.until",
+				"accept.until.required", "show.until.optional", "close.date.optional", "feedback.start.date",
+				"feedback.end.date", "signup.begins.date", "signup.deadline.date", "extra.info"};
+		columnsNames = new String[][]{
+				{"id", "title", "open_date", "due_date", "accept_until"},
+				{"id", "title", "open_date", "due_date", "accept_until", "feedback_start", "feedback_end"},
+				{"id", "title", "due_date"},
+				{"id", "title", "open_date", "due_date", "signup_begins", "signup_deadline"},
+				{"id", "title", "open_date", "due_date"},
+				{"id", "title", "open_date", "due_date", "extraInfo"},
+				{"id", "title", "open_date"}};
+    }
 
 	public void init() {
 		setAssessmentServiceQueries(assessmentPersistenceService.getAssessmentFacadeQueries());
@@ -164,7 +194,9 @@ public class DateManagerServiceImpl implements DateManagerService {
 
 	private String getCurrentToolSessionAttribute(String name) {
 		ToolSession session = sessionManager.getCurrentToolSession();
-		return session != null ? session.getAttribute(name).toString() : "";
+		if (session == null) return "";
+		Object v = session.getAttribute(name);
+		return v != null ? v.toString() : "";
 	}
 
 	@Override
@@ -1526,7 +1558,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 
 		String anncRef = announcementService.channelReference(siteId, SiteService.MAIN_CONTAINER);
 		String toolTitle = toolManager.getTool(DateManagerConstants.COMMON_ID_ANNOUNCEMENTS).getTitle();
-		AnnouncementMessageEdit announcement = null;
+		AnnouncementMessage announcement;
 		for (int i = 0; i < announcements.size(); i++) {
 			JSONObject jsonAnnouncement = (JSONObject)announcements.get(i);
 			int idx = Integer.parseInt(jsonAnnouncement.get(DateManagerConstants.JSON_IDX_PARAM_NAME).toString());
@@ -1562,7 +1594,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 				}
 
 				AnnouncementChannel aChannel = announcementService.getAnnouncementChannel(anncRef);
-				announcement = aChannel.editAnnouncementMessage(announcementId);
+				announcement = aChannel.getAnnouncementMessage(announcementId);
 				if (announcement == null) {
 					errors.add(new DateManagerError("announcement", resourceLoader.getFormattedMessage("error.item.not.found", resourceLoader.getString("tool.announcements.item.name")), "announcements", toolTitle, idx));
 					continue;
@@ -1572,11 +1604,6 @@ public class DateManagerServiceImpl implements DateManagerService {
 			} catch(Exception e) {
 				errors.add(new DateManagerError(DateManagerConstants.JSON_OPENDATE_PARAM_NAME, resourceLoader.getString("error.uncaught"), "announcements", toolTitle, idx));
 				log.error("Error trying to validate Announcements {}", e.toString());
-
-				// Clear out the lock
-				if (announcement != null) {
-					announcementService.cancelMessage(announcement);
-				}
 			}
 		}
 		announcementValidate.setErrors(errors);
@@ -1595,29 +1622,40 @@ public class DateManagerServiceImpl implements DateManagerService {
                 }
 	}
 
-	@Override
-	public void updateAnnouncements(DateManagerValidation announcementValidate) {
-		String anncRef = announcementService.channelReference(getCurrentSiteId(), SiteService.MAIN_CONTAINER);
-                try {
-                        AnnouncementChannel aChannel = announcementService.getAnnouncementChannel(anncRef);
-                        for (DateManagerUpdate update : announcementValidate.getUpdates()) {
-                                AnnouncementMessageEdit msg = (AnnouncementMessageEdit) update.object;
-                                if (update.openDate != null) {				
-                                        msg.getPropertiesEdit().addProperty(AnnouncementService.RELEASE_DATE, timeService.newTime(Date.from(update.openDate).getTime()).toString());
-                                } else {
-                                        msg.getPropertiesEdit().removeProperty(AnnouncementService.RELEASE_DATE);
-                                }	
-                                if (update.dueDate != null) {
-                                        msg.getPropertiesEdit().addProperty(AnnouncementService.RETRACT_DATE, timeService.newTime(Date.from(update.dueDate).getTime()).toString());
-                                } else {
-                                        msg.getPropertiesEdit().removeProperty(AnnouncementService.RETRACT_DATE);		
-                                }				
-                                aChannel.commitMessage(msg, NotificationService.NOTI_IGNORE);
-                        }
-                } catch (Exception e) {
-                        log.warn("Announcement channel {} doesn't exist. {}", anncRef, e.toString());
+    @Override
+    public void updateAnnouncements(DateManagerValidation announcementValidate) {
+        String anncRef = announcementService.channelReference(getCurrentSiteId(), SiteService.MAIN_CONTAINER);
+
+        AnnouncementChannel aChannel;
+        try {
+            aChannel = announcementService.getAnnouncementChannel(anncRef);
+        } catch (Exception e) {
+            log.warn("Could not get announcement channel for update, {}", e.toString());
+            return;
+        }
+
+        for (DateManagerUpdate update : announcementValidate.getUpdates()) {
+            AnnouncementMessage announcement = (AnnouncementMessage) update.object;
+            AnnouncementMessageEdit edit = null;
+            try {
+                edit = aChannel.editAnnouncementMessage(announcement.getId());
+                if (update.openDate != null) {
+                    edit.getPropertiesEdit().addProperty(AnnouncementService.RELEASE_DATE, timeService.newTime(Date.from(update.openDate).getTime()).toString());
+                } else {
+                    edit.getPropertiesEdit().removeProperty(AnnouncementService.RELEASE_DATE);
                 }
-	}
+                if (update.dueDate != null) {
+                    edit.getPropertiesEdit().addProperty(AnnouncementService.RETRACT_DATE, timeService.newTime(Date.from(update.dueDate).getTime()).toString());
+                } else {
+                    edit.getPropertiesEdit().removeProperty(AnnouncementService.RETRACT_DATE);
+                }
+                aChannel.commitMessage(edit, NotificationService.NOTI_IGNORE);
+            } catch (Exception e) {
+                log.warn("Could not update announcement message {}, {}", announcement.getId(), e.toString());
+                if (edit != null) aChannel.cancelMessage(edit);
+            }
+        }
+    }
 
 	@Override
 	public JSONArray getLessonsForContext(String siteId) {
@@ -1958,7 +1996,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 				this.updateLessons(dateManagerValidation);
 			}
 		} catch (Exception ex) {
-			log.error("Cannot update the tool {} receibed", toolId, ex); 
+			log.error("Cannot update tool '{}'", toolId, ex); 
 		}
 	}
 
@@ -1977,26 +2015,56 @@ public class DateManagerServiceImpl implements DateManagerService {
 		if (DateManagerConstants.COMMON_ID_ASSIGNMENTS.equals(toolId.replaceAll("\"", ""))) {
 			try {
 				Assignment assignment = assignmentService.getAssignment(id);
-				changed = this.compareDates(Date.from(assignment.getOpenDate()), columns[2]) 
-						|| this.compareDates(Date.from(assignment.getDueDate()), columns[3])
-						|| this.compareDates(Date.from(assignment.getCloseDate()), columns[4]);
+				Date openDate  = assignment.getOpenDate()  != null ? Date.from(assignment.getOpenDate())  : null;
+				Date dueDate   = assignment.getDueDate()   != null ? Date.from(assignment.getDueDate())   : null;
+				Date closeDate = assignment.getCloseDate() != null ? Date.from(assignment.getCloseDate()) : null;
+
+				String openCsv  = (columns.length > 2 ? columns[2] : "");
+				String dueCsv   = (columns.length > 3 ? columns[3] : "");
+				String closeCsv = (columns.length > 4 ? columns[4] : "");
+
+				boolean openChanged  = this.compareDates(openDate, openCsv);
+				boolean dueChanged   = this.compareDates(dueDate, dueCsv);
+				boolean closeChanged = this.compareDates(closeDate, closeCsv);
+				changed = openChanged || dueChanged || closeChanged;
+				
+				log.debug("Assignment '{}' change details: open={} (DB: '{}' vs CSV: '{}'), due={} (DB: '{}' vs CSV: '{}'), close={} (DB: '{}' vs CSV: '{}')",
+					id, openChanged, this.formatToUserDateFormat(openDate), openCsv,
+					dueChanged, this.formatToUserDateFormat(dueDate), dueCsv,
+					closeChanged, this.formatToUserDateFormat(closeDate), closeCsv);
 			} catch (Exception ex) {
-				log.error("Cannot identify the tool Content received", ex);
+				log.error("Cannot identify the tool content for assignment id '{}'", id, ex);
 			}
 		} else if (DateManagerConstants.COMMON_ID_ASSESSMENTS.equals(toolId.replaceAll("\"", ""))) {
 			if (pubAssessmentServiceQueries.isPublishedAssessmentIdValid(Long.parseLong(id))) {
 				PublishedAssessmentFacade pubAssessment = pubAssessmentServiceQueries.getPublishedAssessment(Long.parseLong(id));
-				changed = this.compareDates(pubAssessment.getStartDate(), columns[2])
-						|| this.compareDates(pubAssessment.getDueDate(), (columns.length > 3? columns[3] : ""))
-						|| this.compareDates(pubAssessment.getRetractDate(), (columns.length > 4? columns[4] : ""));
+				final String startCsv = (columns.length > 2 ? columns[2] : "");
+				boolean startChanged = this.compareDates(pubAssessment.getStartDate(), startCsv);
+				boolean dueChanged = this.compareDates(pubAssessment.getDueDate(), (columns.length > 3? columns[3] : ""));
+				boolean retractChanged = this.compareDates(pubAssessment.getRetractDate(), (columns.length > 4? columns[4] : ""));
+				changed = startChanged || dueChanged || retractChanged;
+				
+				log.debug("Published Assessment '{}' change details: start={} (DB: '{}' vs CSV: '{}'), due={} (DB: '{}' vs CSV: '{}'), retract={} (DB: '{}' vs CSV: '{}')", 
+					id, startChanged, this.formatToUserDateFormat(pubAssessment.getStartDate()), startCsv,
+					dueChanged, this.formatToUserDateFormat(pubAssessment.getDueDate()), (columns.length > 3? columns[3] : ""),
+					retractChanged, this.formatToUserDateFormat(pubAssessment.getRetractDate()), (columns.length > 4? columns[4] : ""));
 			} else {
 				AssessmentData assesmentData = assessmentServiceQueries.loadAssessment(Long.parseLong(id));
 				AssessmentAccessControlIfc control = assesmentData.getAssessmentAccessControl();
-				changed = this.compareDates(control.getStartDate(), columns[2])
-						|| this.compareDates(control.getDueDate(), (columns.length > 3? columns[3] : ""))
-						|| this.compareDates(control.getRetractDate(), (columns.length > 4? columns[4] : ""))
-						|| this.compareDates(control.getFeedbackDate(), (columns.length > 5? columns[5] : ""))
-						|| this.compareDates(control.getFeedbackEndDate(), (columns.length > 6? columns[6] : ""));
+				final String startCsv = (columns.length > 2 ? columns[2] : "");
+				boolean startChanged = this.compareDates(control.getStartDate(), startCsv);
+				boolean dueChanged = this.compareDates(control.getDueDate(), (columns.length > 3? columns[3] : ""));
+				boolean retractChanged = this.compareDates(control.getRetractDate(), (columns.length > 4? columns[4] : ""));
+				boolean feedbackStartChanged = this.compareDates(control.getFeedbackDate(), (columns.length > 5? columns[5] : ""));
+				boolean feedbackEndChanged = this.compareDates(control.getFeedbackEndDate(), (columns.length > 6? columns[6] : ""));
+				changed = startChanged || dueChanged || retractChanged || feedbackStartChanged || feedbackEndChanged;
+				
+				log.debug("Draft Assessment '{}' change details: start={} (DB: '{}' vs CSV: '{}'), due={} (DB: '{}' vs CSV: '{}'), retract={} (DB: '{}' vs CSV: '{}'), feedbackStart={} (DB: '{}' vs CSV: '{}'), feedbackEnd={} (DB: '{}' vs CSV: '{}')", 
+					id, startChanged, this.formatToUserDateFormat(control.getStartDate()), startCsv,
+					dueChanged, this.formatToUserDateFormat(control.getDueDate()), (columns.length > 3? columns[3] : ""),
+					retractChanged, this.formatToUserDateFormat(control.getRetractDate()), (columns.length > 4? columns[4] : ""),
+					feedbackStartChanged, this.formatToUserDateFormat(control.getFeedbackDate()), (columns.length > 5? columns[5] : ""),
+					feedbackEndChanged, this.formatToUserDateFormat(control.getFeedbackEndDate()), (columns.length > 6? columns[6] : ""));
 			}
 		} else if (DateManagerConstants.COMMON_ID_GRADEBOOK.equals(toolId.replaceAll("\"", ""))) {
 			org.sakaiproject.grading.api.Assignment gbitem = gradingService.getAssignment(getCurrentSiteId(), getCurrentSiteId(), Long.parseLong(id));
@@ -2120,12 +2188,24 @@ public class DateManagerServiceImpl implements DateManagerService {
 		boolean isDifferent = false;
 		if (dateString != null && StringUtils.isNotBlank(dateString.replaceAll("\"", ""))) {
 			if (date != null) {
-				isDifferent = this.stringToDate(dateString.replaceAll("\"", "")).compareTo(this.stringToDate(this.formatToUserDateFormat(date))) != 0;
+				try {
+					Date csvDate = this.stringToDate(dateString.replaceAll("\"", ""));
+					String csvNorm = this.formatToUserDateFormat(csvDate);
+					String dbNorm  = this.formatToUserDateFormat(date);
+					isDifferent = !Objects.equals(csvNorm, dbNorm);
+				} catch (Exception e) {
+					log.warn("Error comparing dates. Original date: '{}', CSV date string: '{}'", 
+							this.formatToUserDateFormat(date), dateString, e);
+					// If we can't parse the date, assume it's different to be safe
+					isDifferent = true;
+				}
 			} else {
 				isDifferent = true;
 			}
 		} else if (date != null) {
-			isDifferent = true;
+			// CSV has empty/blank date but DB has a date - treat as unchanged
+			// This handles cases where the CSV export intentionally omits certain dates
+			isDifferent = false;
 		}
 		return isDifferent;
 	}
@@ -2139,8 +2219,24 @@ public class DateManagerServiceImpl implements DateManagerService {
 	 */
 	public Date stringToDate(String dateString) {
 		ZoneId zone = userTimeService.getLocalTimeZone().toZoneId();
-		LocalDateTime localDateTime = LocalDateTime.parse(dateString, inputDateTimeFormatter);
-		return Date.from(localDateTime.atZone(zone).toInstant());
+		try {
+			if (dateString.endsWith("Z") || dateString.matches(".*[+-]\\d{2}:?\\d{2}$")) {
+				java.time.OffsetDateTime odt = java.time.OffsetDateTime.parse(dateString, inputDateTimeFormatter);
+				return Date.from(odt.toInstant());
+			} else {
+				LocalDateTime localDateTime = LocalDateTime.parse(dateString, inputDateTimeFormatter);
+				return Date.from(localDateTime.atZone(zone).toInstant());
+			}
+		} catch (DateTimeParseException e) {
+			// Fallback: parse as date-only (no time) using inputDateFormatter
+			try {
+				LocalDate dateOnly = LocalDate.parse(dateString, inputDateFormatter);
+				return Date.from(dateOnly.atStartOfDay(zone).toInstant());
+			} catch (DateTimeParseException e2) {
+				log.warn("Unable to parse '{}' with either datetime or date-only formats", dateString, e2);
+				throw e2;
+			}
+		}
 	}
 
 	/**
@@ -2160,4 +2256,389 @@ public class DateManagerServiceImpl implements DateManagerService {
 		}
 		return  jsonObject;
 	}
+
+	/**
+	 * Exports the current date information into a CSV file.
+	 *
+	 * @param siteId The site ID to export data for.
+	 * @return A byte array containing the CSV file content.
+	 */
+	@Override
+	public byte[] exportCsvData(String siteId) throws Exception {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		baos.write(ByteOrderMark.UTF_8.getBytes());
+
+		try (
+			OutputStreamWriter osw = new OutputStreamWriter(baos, StandardCharsets.UTF_8);
+			CSVWriter gradesBuffer = new CSVWriter(osw, getCsvSeparatorChar(), CSVWriter.DEFAULT_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.RFC4180_LINE_END)
+		) {
+			this.addRow(gradesBuffer, "Date Manager");
+
+			if (currentSiteContainsTool(DateManagerConstants.COMMON_ID_ASSIGNMENTS)) {
+				JSONArray assignmentsJson = getAssignmentsForContext(siteId);
+				if (!assignmentsJson.isEmpty()) {
+					int[] columnsIndex = {0, 1, 2, 12, 18};
+					this.createCsvSection(gradesBuffer, DateManagerConstants.COMMON_ID_ASSIGNMENTS, columnsIndex, assignmentsJson, columnsNames[0]);
+				}
+			}
+			if (currentSiteContainsTool(DateManagerConstants.COMMON_ID_ASSESSMENTS)) {
+				JSONArray assessmentsJson = getAssessmentsForContext(siteId);
+				if (!assessmentsJson.isEmpty()) {
+					int[] columnsIndex = {0, 1, 5, 11, 17, 21, 22};
+					this.createCsvSection(gradesBuffer, DateManagerConstants.COMMON_ID_ASSESSMENTS, columnsIndex, assessmentsJson, columnsNames[1]);
+				}
+			}
+			if (currentSiteContainsTool(DateManagerConstants.COMMON_ID_GRADEBOOK)) {
+				JSONArray gradebookItemsJson = getGradebookItemsForContext(siteId);
+				if (!gradebookItemsJson.isEmpty()) {
+					int[] columnsIndex = {0, 1, 13};
+					this.createCsvSection(gradesBuffer, DateManagerConstants.COMMON_ID_GRADEBOOK, columnsIndex, gradebookItemsJson, columnsNames[2]);
+				}
+			}
+			if (currentSiteContainsTool(DateManagerConstants.COMMON_ID_SIGNUP)) {
+				JSONArray signupMeetingsJson = getSignupMeetingsForContext(siteId);
+				if (!signupMeetingsJson.isEmpty()) {
+					int[] columnsIndex = {0, 1, 6, 14, 23, 24};
+					this.createCsvSection(gradesBuffer, DateManagerConstants.COMMON_ID_SIGNUP, columnsIndex, signupMeetingsJson, columnsNames[3]);
+				}
+			}
+			if (currentSiteContainsTool(DateManagerConstants.COMMON_ID_RESOURCES)) {
+				JSONArray resourcesJson = getResourcesForContext(siteId);
+				if (!resourcesJson.isEmpty()) {
+					int[] columnsIndex = {0, 1, 9, 19, 25};
+					this.createCsvSection(gradesBuffer, DateManagerConstants.COMMON_ID_RESOURCES, columnsIndex, resourcesJson, columnsNames[5]);
+				}
+			}
+			if (currentSiteContainsTool(DateManagerConstants.COMMON_ID_CALENDAR)) {
+				JSONArray calendarJson = getCalendarEventsForContext(siteId);
+				if (!calendarJson.isEmpty()) {
+					int[] columnsIndex = {0, 1, 7, 15};
+					this.createCsvSection(gradesBuffer, DateManagerConstants.COMMON_ID_CALENDAR, columnsIndex, calendarJson, columnsNames[4]);
+				}
+			}
+			if (currentSiteContainsTool(DateManagerConstants.COMMON_ID_FORUMS)) {
+				JSONArray forumsJson = getForumsForContext(siteId);
+				if (!forumsJson.isEmpty()) {
+					int[] columnsIndex = {0, 1, 3, 20, 25};
+					this.createCsvSection(gradesBuffer, DateManagerConstants.COMMON_ID_FORUMS, columnsIndex, forumsJson, columnsNames[5]);
+				}
+			}
+			if (currentSiteContainsTool(DateManagerConstants.COMMON_ID_ANNOUNCEMENTS)) {
+				JSONArray announcementsJson = getAnnouncementsForContext(siteId);
+				if (!announcementsJson.isEmpty()) {
+					int[] columnsIndex = {0, 1, 8, 16};
+					this.createCsvSection(gradesBuffer, DateManagerConstants.COMMON_ID_ANNOUNCEMENTS, columnsIndex, announcementsJson, columnsNames[4]);
+				}
+			}
+			if (currentSiteContainsTool(DateManagerConstants.COMMON_ID_LESSONS)) {
+				JSONArray lessonsJson = getLessonsForContext(siteId);
+				if (!lessonsJson.isEmpty()) {
+					int[] columnsIndex = {0, 1, 10};
+					this.createCsvSection(gradesBuffer, DateManagerConstants.COMMON_ID_LESSONS, columnsIndex, lessonsJson, columnsNames[6]);
+				}
+			}
+		} catch (Exception e) {
+			log.warn("Could not create csv for site [{}]", siteId, e);
+			throw new RuntimeException("Could not create csv for site " + siteId, e);
+		}
+
+		return baos.toByteArray();
+	}
+
+	/**
+	 * Adds a row to a CSV file using the provided values.
+	 *
+	 * @param gradesBuffer The CSV writer.
+	 * @param values The values to add to the row.
+	 */
+	public void addRow(CSVWriter gradesBuffer, String... values) {
+		gradesBuffer.writeNext(values);
+	}
+
+	/**
+	 * Helper method to get the configured CSV separator.
+	 *
+	 * @return The configured CSV separator character as a string.
+	 */
+	private String getCsvSeparator() {
+		return serverConfigurationService.getString("csv.separator", ",");
+	}
+
+	/**
+	 * Helper method to get the configured CSV separator as a char.
+	 *
+	 * @return The configured CSV separator character.
+	 */
+	private char getCsvSeparatorChar() {
+		return getCsvSeparator().charAt(0);
+	}
+
+	/**
+	 * Adds a section of rows to a CSV file for a specific tool.
+	 *
+	 * @param gradesBuffer The CSV writer.
+	 * @param toolId The ID of the tool.
+	 * @param columnsIndex The indices of the columns to include in the export.
+	 * @param toolJson The JSON array of tool data.
+	 * @param columnsNames The names of the columns to extract from the JSON data.
+	 */
+	public void createCsvSection(CSVWriter gradesBuffer, String toolId, int[] columnsIndex, JSONArray toolJson, String[] columnsNames) {
+		String toolTitle = getToolTitle(toolId);
+		this.addRow(gradesBuffer, "");
+		this.addRow(gradesBuffer, toolId + "(" + toolTitle + ")");
+		String[] columnsStringArray = new String[columnsIndex.length];
+		for (int i = 0; i < columnsIndex.length; i++) {
+			String columnMessage = resourceLoader.getString("column." + columnsCsvStrings[columnsIndex[i]]);
+			columnsStringArray[i] = columnMessage;
+		}
+		this.addRow(gradesBuffer, columnsStringArray);
+		for (int i = 0; i < toolJson.size(); i++) {
+			String[] toolColumns = new String[columnsIndex.length];
+			for (int j = 0; j < columnsNames.length; j++){
+				Object toolInfoObject = ((JSONObject) toolJson.get(i)).get(columnsNames[j]);
+				if (toolInfoObject != null && toolInfoObject.getClass().getName().equals("java.lang.Long")) {
+					String toolInfoString = String.valueOf(toolInfoObject);
+					toolColumns[j] = toolInfoString;
+				} else if (toolInfoObject instanceof Timestamp){
+					String toolInfoString = toolInfoObject.toString();
+					toolColumns[j] = toolInfoString != null? toolInfoString : "";
+				} else {
+					String toolInfoString = toolInfoObject != null ? toolInfoObject.toString() : null;
+					if (columnsNames[j].equals("title") && toolInfoString != null) {
+						toolInfoString = toolInfoString.replaceAll("[;,\"]", "_");
+					}
+					String extraInfo = (String) ((JSONObject) toolJson.get(i)).get(DateManagerConstants.JSON_EXTRAINFO_PARAM_NAME);
+					if (columnsNames[j].equals("title") && toolInfoString != null && extraInfo != null && extraInfo.contains(resourceLoader.getString("itemtype.draft"))) {
+						toolInfoString += " (" + resourceLoader.getString("itemtype.draft") + ")";
+					}
+					if (DateManagerConstants.COMMON_ID_GRADEBOOK.equals(toolId) && !columnsNames[j].equals("title") && toolInfoString != null) {
+						int t = toolInfoString.indexOf('T');
+						toolInfoString = t > 0 ? toolInfoString.substring(0, t) : toolInfoString;
+					}
+					toolColumns[j] = toolInfoString != null? toolInfoString : "";
+				}
+			}
+			this.addRow(gradesBuffer, toolColumns);
+		}
+	}
+
+	/**
+	 * Imports dates from the provided CSV file content.
+	 *
+	 * @param csvInputStream The input stream of the CSV file.
+	 * @param siteId The site ID for validation.
+	 * @return The list of tools with their data for confirmation display.
+	 */
+	@Override
+    public List<List<Object>> importCsvData(InputStream csvInputStream, String siteId) throws Exception {
+        // Build list locally to avoid shared mutable state across requests
+        List<ToolImportData> importList = new ArrayList<>();
+        // Clear any previous per-session cache to avoid cross-request leakage
+        ToolSession tsImport = sessionManager.getCurrentToolSession();
+        if (tsImport != null) {
+            tsImport.setAttribute(DateManagerService.TOOLS_TO_IMPORT_SESSION_KEY, new ArrayList<>(importList));
+            tsImport.removeAttribute(DateManagerService.TOOLS_CSV_PREVIEW_SESSION_KEY);
+        }
+        List<List<Object>> tools;
+		try (
+			// Create CSVReader with the configured separator
+			InputStreamReader inputReader = new InputStreamReader(csvInputStream, StandardCharsets.UTF_8);
+			CSVReader reader = new CSVReaderBuilder(inputReader)
+				.withCSVParser(new CSVParserBuilder().withSeparator(getCsvSeparatorChar()).build())
+				.build()
+		) {
+			tools = new ArrayList<>();
+			
+			List<Object> tool = new ArrayList<>();
+			List<String[]> toolHeader = new ArrayList<>();
+			List<String[]> toolContent = new ArrayList<>();
+	
+			boolean isHeader = false;
+			boolean hasChanged = false;
+			String currentToolId = "";
+			int idx = 0;
+
+			String[] nextLine;
+			
+			// Skip the first line ("Date Manager" title)
+			reader.readNext();
+			
+			while ((nextLine = reader.readNext()) != null) {
+				log.debug("Processing CSV line: {} columns, content: {}", nextLine.length, Arrays.toString(nextLine));
+				
+				// Handle empty lines (tool separators)
+				// Empty lines can have multiple columns with all blank values
+				boolean isEmptyLine = true;
+				for (String cell : nextLine) {
+					if (StringUtils.isNotBlank(cell)) {
+						isEmptyLine = false;
+						break;
+					}
+				}
+				if (isEmptyLine) {
+					// Empty line indicates new tool section
+					if (hasChanged && !toolHeader.isEmpty() && !toolContent.isEmpty()) {
+						tool.add(getToolTitle(currentToolId));
+						tool.add(toolHeader);
+						tool.add(toolContent);
+						tools.add(tool);
+					}
+					
+					// Reset for next tool
+					tool = new ArrayList<>();
+					toolHeader = new ArrayList<>();
+					toolContent = new ArrayList<>();
+					hasChanged = false;
+					continue;
+				}
+				
+				// Handle tool title lines (e.g., "sakai.assignment(Assignments)")
+				// Tool headers may have multiple columns but only first column contains the tool info
+				if (nextLine.length >= 1 && nextLine[0].contains("(") && nextLine[0].contains(")")) {
+					String toolLine = nextLine[0].trim();
+					currentToolId = toolLine.substring(0, toolLine.indexOf("(")).trim();
+					log.debug("Found tool header: '{}', extracted toolId: '{}'", toolLine, currentToolId);
+					isHeader = true;
+					continue;
+				}
+				
+				// Handle data rows (header or content)
+				if (nextLine.length > 1) {
+					String[] toolColumns;
+					
+					// Copy all columns except the first (ID column)
+					toolColumns = Arrays.copyOfRange(nextLine, 1, nextLine.length);
+
+					// Check if this row has changes (skip for header rows and empty rows)
+					log.debug("Processing data row: isHeader={}, firstCol='{}', toolId='{}'", isHeader, nextLine[0], currentToolId);
+					boolean rowChanged = false;
+					if (!isHeader && StringUtils.isNotBlank(nextLine[0]) && StringUtils.isNotBlank(currentToolId)) {
+						try {
+							rowChanged = isChanged(currentToolId, nextLine);
+							log.debug("Change detection for tool '{}', id '{}': {}", currentToolId, nextLine[0], rowChanged);
+						} catch (Exception ex) {
+							log.error("Cannot identify if it is changed or not in {} for id '{}'", currentToolId, nextLine[0], ex);
+							rowChanged = false;
+						}
+						
+						if (rowChanged) {
+							ToolImportData data = new ToolImportData();
+							data.toolId = currentToolId;
+							data.index = idx;
+							data.columns = nextLine;
+							importList.add(data);
+							// Persist per session to avoid cross-request leakage
+							ToolSession ts = sessionManager.getCurrentToolSession();
+							if (ts != null) {
+								ts.setAttribute(DateManagerService.TOOLS_TO_IMPORT_SESSION_KEY, new ArrayList<>(importList));
+							}
+						}
+					} else {
+						log.debug("Skipping row: isHeader={}, firstCol='{}', toolId='{}'", isHeader, nextLine[0], currentToolId);
+					}
+					
+					idx++;
+					if (isHeader) {
+						// This is the column header row, reset isHeader for subsequent data rows
+						isHeader = false;
+						toolHeader = new ArrayList<>();
+						toolHeader.add(toolColumns);
+					} else if (rowChanged) {
+						// This is a data row with changes
+						hasChanged = true;
+						toolContent.add(toolColumns);
+					}
+				}
+			}
+			
+			// Handle the last tool if it exists
+			if (hasChanged && !toolHeader.isEmpty() && !toolContent.isEmpty()) {
+				tool.add(getToolTitle(currentToolId));
+				tool.add(toolHeader);
+				tool.add(toolContent);
+				tools.add(tool);
+			}
+		} catch (Exception ex) {
+			log.error("Cannot identify the file received", ex);
+			throw new Exception("Error processing CSV file", ex);
+		}
+        // Store preview structure for confirm page (PRG compatibility)
+        setToolsCsvPreview(tools);
+        return tools;
+    }
+
+	/**
+	 * Gets the tools to import data for processing.
+	 *
+	 * @return The list of tools to import.
+	 */
+    @Override
+    public List<ToolImportData> getToolsToImport() {
+        ToolSession ts = sessionManager.getCurrentToolSession();
+        Object v = ts != null ? ts.getAttribute(DateManagerService.TOOLS_TO_IMPORT_SESSION_KEY) : null;
+        if (v instanceof List) {
+            try {
+                @SuppressWarnings("unchecked")
+                List<ToolImportData> list = (List<ToolImportData>) v;
+                return list;
+            } catch (ClassCastException e) {
+                // fall through to empty
+            }
+        }
+        return List.of();
+    }
+
+    @Override
+    public List<List<Object>> getToolsCsvPreview() {
+        ToolSession ts = sessionManager.getCurrentToolSession();
+        Object v = ts != null ? ts.getAttribute(DateManagerService.TOOLS_CSV_PREVIEW_SESSION_KEY) : null;
+        if (v instanceof List) {
+            try {
+                @SuppressWarnings("unchecked")
+                List<List<Object>> preview = (List<List<Object>>) v;
+                return preview;
+            } catch (ClassCastException e) {
+                // fall through
+            }
+        }
+        return List.of();
+    }
+
+    @Override
+    public void setToolsToImport(List<ToolImportData> tools) {
+        ToolSession ts = sessionManager.getCurrentToolSession();
+        if (ts == null) return;
+        if (tools == null || tools.isEmpty()) {
+            ts.removeAttribute(DateManagerService.TOOLS_TO_IMPORT_SESSION_KEY);
+        } else {
+            ts.setAttribute(DateManagerService.TOOLS_TO_IMPORT_SESSION_KEY, new ArrayList<>(tools));
+        }
+    }
+
+    @Override
+    public void clearToolsToImport() {
+        ToolSession ts = sessionManager.getCurrentToolSession();
+        if (ts != null) {
+            ts.removeAttribute(DateManagerService.TOOLS_TO_IMPORT_SESSION_KEY);
+        }
+    }
+
+    @Override
+    public void setToolsCsvPreview(List<List<Object>> preview) {
+        ToolSession ts = sessionManager.getCurrentToolSession();
+        if (ts == null) return;
+        if (preview == null || preview.isEmpty()) {
+            ts.removeAttribute(DateManagerService.TOOLS_CSV_PREVIEW_SESSION_KEY);
+        } else {
+            ts.setAttribute(DateManagerService.TOOLS_CSV_PREVIEW_SESSION_KEY, new ArrayList<>(preview));
+        }
+    }
+
+    @Override
+    public void clearToolsCsvPreview() {
+        ToolSession ts = sessionManager.getCurrentToolSession();
+        if (ts != null) {
+            ts.removeAttribute(DateManagerService.TOOLS_CSV_PREVIEW_SESSION_KEY);
+        }
+    }
 }

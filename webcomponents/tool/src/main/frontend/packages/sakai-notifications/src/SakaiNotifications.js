@@ -2,9 +2,9 @@ import { SakaiElement } from "@sakai-ui/sakai-element";
 import { html, nothing } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import "@sakai-ui/sakai-user-photo/sakai-user-photo.js";
-import { callSubscribeIfPermitted, NOT_PUSH_CAPABLE, pushSetupComplete, registerPushCallback } from "@sakai-ui/sakai-push-utils";
+import { callSubscribeIfPermitted, NOT_PUSH_CAPABLE, pushSetupComplete, registerPushCallback, PUSH_PERMISSION_STATES } from "@sakai-ui/sakai-push-utils";
 import { getServiceName } from "@sakai-ui/sakai-portal-utils";
-import { NOTIFICATIONS, PUSH_DENIED_INFO, PUSH_INTRO, PUSH_SETUP_INFO } from "./states.js";
+import { NOTIFICATIONS, PUSH_DENIED_INFO, PUSH_INTRO, PUSH_SETUP_INFO, PWA_INSTALL_INFO } from "./states.js";
 import { markNotificationsViewed } from "./utils.js";
 
 export class SakaiNotifications extends SakaiElement {
@@ -19,6 +19,7 @@ export class SakaiNotifications extends SakaiElement {
     _state: { state: true },
     _highlightTestButton: { state: true },
     _browserInfoUrl: { state: true },
+    _pushEnabled: { state: true },
   };
 
   constructor() {
@@ -29,6 +30,7 @@ export class SakaiNotifications extends SakaiElement {
 
     this._filteredNotifications = new Map();
     this._i18nLoaded = this.loadTranslations("sakai-notifications");
+    this._pushEnabled = false; // Default to false, will be set in _registerForNotifications
   }
 
   connectedCallback() {
@@ -83,6 +85,8 @@ export class SakaiNotifications extends SakaiElement {
 
     pushSetupComplete.then(() => {
 
+      this._pushEnabled = true;
+
       if (Notification.permission !== "granted") return;
 
       registerPushCallback("notifications", message => {
@@ -95,8 +99,12 @@ export class SakaiNotifications extends SakaiElement {
     })
     .catch(error => {
 
+      this._pushEnabled = false;
+
       if (error === NOT_PUSH_CAPABLE) {
         this._state = PUSH_SETUP_INFO;
+      } else if (error === PUSH_PERMISSION_STATES.PWA_REQUIRED) {
+        this._state = PWA_INSTALL_INFO;
       }
     });
   }
@@ -319,15 +327,22 @@ export class SakaiNotifications extends SakaiElement {
 
     this._highlightTestButton = false;
 
+    console.debug("Sending test notification...");
+
     const url = "/api/users/me/notifications/test";
     fetch(url, { method: "POST" })
     .then(r => {
 
       if (!r.ok) {
+        console.error(`Test notification request failed with status ${r.status}: ${r.statusText}`);
         throw Error(`Network error while sending test notification at ${url}`);
       }
+
+      console.debug("Test notification request sent successfully");
     })
-    .catch(error => console.error(error));
+    .catch(error => {
+      console.error("Test notification error:", error);
+    });
   }
 
   shouldUpdate() {
@@ -438,6 +453,15 @@ export class SakaiNotifications extends SakaiElement {
         </div>
       ` : nothing}
 
+      ${this._state === PWA_INSTALL_INFO ? html`
+        <div class="sak-banner-info sakai-notifications__banner-info mb-3">
+          <div>
+            <div class="fw-bold mb-2">${this._i18n.pwa_install_title}</div>
+            <div class="mb-1">${this._i18n.pwa_install_instructions}</div>
+          </div>
+        </div>
+      ` : nothing}
+
       ${this._state === PUSH_INTRO ? html`
         <div class="sak-banner-info sakai-notifications__banner-info">
           <div>
@@ -450,8 +474,8 @@ export class SakaiNotifications extends SakaiElement {
         </div>
       ` : nothing}
 
-      ${this._state === NOTIFICATIONS ? html`
-        ${Notification.permission !== "granted" && this._online && this.pushEnabled ? html`
+      ${this._state === NOTIFICATIONS || this._state === PWA_INSTALL_INFO ? html`
+        ${Notification.permission !== "granted" && this._online && this._pushEnabled ? html`
           <div class="alert alert-warning">
             <span class="me-1">${this._i18n.push_not_enabled}</span>
             <button type="button"

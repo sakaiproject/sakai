@@ -10,7 +10,6 @@
     </parent>
     <name>Content Review API</name>
     <artifactId>content-review-api</artifactId>
-    <description />
     <packaging>jar</packaging>
     <properties>
         <deploy.target>shared</deploy.target>

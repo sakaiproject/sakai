@@ -42,7 +42,6 @@ public class SetScoreForUngradedAction extends InjectableAction implements Seria
 				Model.of(Long.valueOf(assignmentId)),
 				window);
 
-		panel.setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
 		window.setTitle(gradebookPage.getString("heading.updateungradeditems"));
 		window.setAssignmentToReturnFocusTo(assignmentId);
 		window.setContent(panel);

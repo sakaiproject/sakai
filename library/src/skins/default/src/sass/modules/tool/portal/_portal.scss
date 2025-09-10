@@ -93,8 +93,14 @@
   gap: 0rem 0.5rem;
 }
 
-.portal-header-breadcrumb-separator, .portal-header-breadcrumb-item > a {
+.portal-header-breadcrumb-separator,
+.portal-header-breadcrumb > a,
+.portal-header-breadcrumb-item > a {
   color: var(--sakai-text-color-2) !important;
+}
+
+.portal-header-breadcrumb-separator,
+.portal-header-breadcrumb-item > a {
   text-decoration: none;
   font-weight: 600;
   &:hover {
@@ -537,35 +543,6 @@
     overflow-y: scroll;
     position: sticky;
     top: 0;
-    scrollbar-width: none;
-  }
-
-  @include media-breakpoint-up(md) {
-    .sakai-sitesAndToolsNav {
-      &:hover,
-      &:focus {
-        & .site-list-item {
-          margin-right: 0.14rem !important;
-        }
-      }
-    }
-  }
-
-  .sakai-sitesAndToolsNav:hover,
-  .sakai-sitesAndToolsNav:focus {
-    scrollbar-width: auto;
-
-    &::-webkit-scrollbar-track,
-    &::-webkit-scrollbar-corner {
-      background: var(--sakai-background-color-1);
-    }
-
-    &::-webkit-scrollbar-thumb {
-      border: solid 4px var(--sakai-background-color-1);
-    }
-    &::-webkit-scrollbar-thumb:hover {
-      border: solid 4px var(--sakai-background-color-1);
-    }
   }
 
   .btn-nav {

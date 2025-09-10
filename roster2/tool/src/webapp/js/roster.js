@@ -573,6 +573,7 @@ roster.search = function (query) {
     }
 
     if (userIds.length) {
+      roster.noParticipants = false;
       roster.userIds = userIds;
       roster.renderMembership({ replace: true });
     } else {

@@ -35,6 +35,7 @@ import org.mockito.Mockito;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.exception.IdUnusedException;
@@ -66,6 +67,7 @@ public class PortalServiceTests extends SakaiTests {
     @Autowired private PreferencesService preferencesService;
     @Autowired private SecurityService securityService;
     @Autowired private SessionManager sessionManager;
+    @Autowired private ServerConfigurationService serverConfigurationService;
 
     private static boolean isWindowsOS = false;
     @BeforeClass
@@ -199,6 +201,8 @@ public class PortalServiceTests extends SakaiTests {
         String site3Id = "site3";
         String site4Id = "site4";
 
+        when(serverConfigurationService.getBoolean("portal.new.pinned.sites.top", false)).thenReturn(true);
+
         List<String> siteIds = new ArrayList<>();
         siteIds.add(site1Id);
         siteIds.add(site2Id);
@@ -207,6 +211,26 @@ public class PortalServiceTests extends SakaiTests {
         portalService.savePinnedSites(user1, siteIds);
 
         List<String> pinnedSites = portalService.getPinnedSites(user1);
+        Assert.assertEquals(3, pinnedSites.size());
+
+        Assert.assertEquals(site3Id, pinnedSites.get(0));
+        Assert.assertEquals(site2Id, pinnedSites.get(1));
+        Assert.assertEquals(site1Id, pinnedSites.get(2));
+
+        portalService.removePinnedSite(user1, site1Id);
+        portalService.removePinnedSite(user1, site2Id);
+        portalService.removePinnedSite(user1, site3Id);
+
+        when(serverConfigurationService.getBoolean("portal.new.pinned.sites.top", false)).thenReturn(false);
+
+        siteIds.clear();
+        siteIds.add(site1Id);
+        siteIds.add(site2Id);
+        siteIds.add(site3Id);
+
+        portalService.savePinnedSites(user1, siteIds);
+
+        pinnedSites = portalService.getPinnedSites(user1);
         Assert.assertEquals(3, pinnedSites.size());
 
         Assert.assertEquals(site1Id, pinnedSites.get(0));
