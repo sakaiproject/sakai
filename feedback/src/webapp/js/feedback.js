@@ -191,7 +191,7 @@ class Feedback {
                 $('#feedback-siteupdaters-wrapper').show();
             }
 
-            $('#feedback-form').ajaxForm(this.getFormOptions(this.feedback.userId.length > 0));
+            this.setupFormSubmission(this.feedback.userId.length > 0);
             $('#feedback-max-attachments-mb').html(this.feedback.maxAttachmentsMB);
             $('#feedback-attachment').MultiFile({
                 max: 5,
@@ -241,7 +241,7 @@ class Feedback {
             }
 
             this.fitFrame();
-            $('#feedback-form').ajaxForm(this.getFormOptions(this.feedback.userId.length > 0));
+            this.setupFormSubmission(this.feedback.userId.length > 0);
             $('#feedback-max-attachments-mb').html(this.feedback.maxAttachmentsMB);
             $('#feedback-attachment').MultiFile({
                 max: 5,
@@ -319,35 +319,65 @@ class Feedback {
         });
     }
 
-    getFormOptions(loggedIn) {
-        return {
-            dataType: 'html',
-            iframe: true,
-            timeout: 30000,
-            success: (responseText, statusText, xhr) => {
+    setupFormSubmission(loggedIn) {
+        $('#feedback-form').on('submit', (e) => {
+            e.preventDefault();
+            
+            const form = e.target;
+            const formData = new FormData(form);
+            
+            // Validation
+            if (!this.validateForm(formData, loggedIn)) {
+                return false;
+            }
+            
+            // Submit with fetch
+            fetch(form.action, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(responseText => {
                 if (responseText === Feedback.SUCCESS) {
                     this.switchState(Feedback.HOME);
                 } else {
                     this.displayError(responseText);
                 }
-            },
-            beforeSubmit: (formArray, $form, options) => {
-                for (let i = 0, j = formArray.length; i < j; i++) {
-                    let el = formArray[i];
-                    if (el.name === 'title' && el.value.length < 1) {
-                        this.displayError(Feedback.BAD_TITLE);
-                        return false;
-                    } else if (el.name === 'description' && el.value.length < 1) {
-                        this.displayError(Feedback.BAD_DESCRIPTION);
-                        return false;
-                    } else if (!loggedIn && el.name === 'senderaddress' && (el.value.length === 0 || !this.validateEmail(el.value))) {
-                        this.displayError(el.value.length === 0 ? Feedback.NO_SENDER_ADDRESS : Feedback.BAD_SENDER_ADDRESS);
-                        return false;
-                    }
-                }
-                return true;
+            })
+            .catch(error => {
+                console.error('Form submission error:', error);
+                this.displayError(Feedback.BAD_REQUEST);
+            });
+        });
+    }
+
+    validateForm(formData, loggedIn) {
+        const title = formData.get('title');
+        const description = formData.get('description');
+        const senderAddress = formData.get('senderaddress');
+        
+        if (!title || title.length < 1) {
+            this.displayError(Feedback.BAD_TITLE);
+            return false;
+        }
+        
+        if (!description || description.length < 1) {
+            this.displayError(Feedback.BAD_DESCRIPTION);
+            return false;
+        }
+        
+        if (!loggedIn) {
+            if (!senderAddress || senderAddress.length === 0) {
+                this.displayError(Feedback.NO_SENDER_ADDRESS);
+                return false;
             }
-        };
+            if (!this.validateEmail(senderAddress)) {
+                this.displayError(Feedback.BAD_SENDER_ADDRESS);
+                return false;
+            }
+        }
+        
+        return true;
     }
 
     validateEmail(email) {

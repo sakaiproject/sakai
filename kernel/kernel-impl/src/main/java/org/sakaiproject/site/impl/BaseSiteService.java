@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -1467,8 +1468,10 @@ public abstract class BaseSiteService implements SiteService, Observer
 			//made it verbose for logging purposes
 			if(isUserSite(site.getId())) {
 				log.debug("Site: {} is user site and will be hard deleted.", site.getId());
+				isHardDelete = true;
 			} else if (isSpecialSite(site.getId())) {
 				log.debug("Site: {} is special site and will be hard deleted.", site.getId());
+				isHardDelete = true;
 			} else {
 				log.debug("Site: {} is not user or special site and will be soft deleted.", site.getId());
 			
@@ -2951,6 +2954,9 @@ public abstract class BaseSiteService implements SiteService, Observer
 		} catch (UserNotDefinedException e) {
 			mockUser = addMockUserInSite(null, siteReference, eid, role);
 		}
+
+		addMockUserToCurrentUserGroups(mockUser, siteReference);
+
 		return mockUser;
 	}
 
@@ -2992,6 +2998,97 @@ public abstract class BaseSiteService implements SiteService, Observer
             }
         }
         return newUser;
+    }
+
+    /**
+     * Synchronizes the mock user's group membership to match the current user who is activating the role view.
+     * This ensures that the role view reflects the group membership context of the actual user each time it's activated.
+     *
+     * @param mockUser The mock user to synchronize
+     * @param siteReference The site reference
+     */
+    private void addMockUserToCurrentUserGroups(User mockUser, String siteReference) {
+        try {
+            String currentUserId = sessionManager().getCurrentSessionUserId();
+            if (currentUserId == null) {
+                log.debug("No current user found, skipping group membership synchronization for mock user");
+                return;
+            }
+
+            String siteId = siteId(siteReference);
+            Site site = getSite(siteId);
+
+            // Get all groups where the current user is a member
+            Collection<Group> currentUserGroups = site.getGroupsWithMember(currentUserId);
+
+            // Get all groups where the mock user is currently a member
+            Collection<Group> mockUserGroups = site.getGroupsWithMember(mockUser.getId());
+
+            // Get the role of the mock user in the site
+            Member mockUserSiteMember = site.getMember(mockUser.getId());
+            String mockUserRole = mockUserSiteMember != null ? mockUserSiteMember.getRole().getId() : null;
+
+            if (mockUserRole == null) {
+                log.warn("Mock user [{}] has no role in site [{}], skipping group synchronization", mockUser.getEid(), siteId);
+                return;
+            }
+
+            Set<String> currentUserGroupIds = new HashSet<>();
+            if (currentUserGroups != null) {
+                for (Group group : currentUserGroups) {
+                    currentUserGroupIds.add(group.getId());
+                }
+            }
+
+            Set<String> mockUserGroupIds = new HashSet<>();
+            if (mockUserGroups != null) {
+                for (Group group : mockUserGroups) {
+                    mockUserGroupIds.add(group.getId());
+                }
+            }
+
+            // Remove mock user from groups where current user is no longer a member
+            if (mockUserGroups != null) {
+                for (Group group : mockUserGroups) {
+                    if (!currentUserGroupIds.contains(group.getId())) {
+                        try {
+                            AuthzGroup groupRealm = authzGroupService().getAuthzGroup(group.getReference());
+                            if (groupRealm != null && groupRealm.getMember(mockUser.getId()) != null) {
+                                groupRealm.removeMember(mockUser.getId());
+                                authzGroupService().save(groupRealm);
+                                log.debug("Removed mock user [{}] from group [{}]", mockUser.getEid(), group.getId());
+                            }
+                        } catch (Exception e) {
+                            log.warn("Could not remove mock user [{}] from group [{}]: {}", mockUser.getEid(), group.getId(), e.getMessage());
+                        }
+                    }
+                }
+            }
+
+            // Add mock user to groups where current user is a member but mock user is not
+            if (currentUserGroups != null) {
+                for (Group group : currentUserGroups) {
+                    if (!mockUserGroupIds.contains(group.getId())) {
+                        try {
+                            AuthzGroup groupRealm = authzGroupService().getAuthzGroup(group.getReference());
+                            if (groupRealm != null) {
+                                groupRealm.addMember(mockUser.getId(), mockUserRole, true, false);
+                                authzGroupService().save(groupRealm);
+                                log.debug("Added mock user [{}] to group [{}] with role [{}]", mockUser.getEid(), group.getId(), mockUserRole);
+                            }
+                        } catch (Exception e) {
+                            log.warn("Could not add mock user [{}] to group [{}]: {}", mockUser.getEid(), group.getId(), e.getMessage());
+                        }
+                    }
+                }
+            }
+
+            log.debug("Group synchronization completed for mock user [{}] in site [{}]", mockUser.getEid(), siteId);
+
+        } catch (Exception e) {
+            log.warn("Error synchronizing mock user [{}] groups in site [{}]: {}", 
+                    mockUser.getEid(), siteReference, e.getMessage());
+        }
     }
 
 	/**********************************************************************************************************************************************************************************************************************************************************

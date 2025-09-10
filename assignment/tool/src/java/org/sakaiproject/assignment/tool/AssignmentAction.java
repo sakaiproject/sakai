@@ -124,16 +124,20 @@ import org.sakaiproject.assignment.api.model.AssignmentSupplementItemWithAttachm
 import org.sakaiproject.assignment.api.model.PeerAssessmentAttachment;
 import org.sakaiproject.assignment.api.model.PeerAssessmentItem;
 import org.sakaiproject.assignment.api.reminder.AssignmentDueReminderService;
+import org.sakaiproject.assignment.api.sort.AssignmentComparator;
 import org.sakaiproject.assignment.api.taggable.AssignmentActivityProducer;
 import org.sakaiproject.assignment.taggable.tool.DecoratedTaggingProvider;
 import org.sakaiproject.assignment.taggable.tool.DecoratedTaggingProvider.Pager;
 import org.sakaiproject.assignment.taggable.tool.DecoratedTaggingProvider.Sort;
+import org.sakaiproject.assignment.tool.AssignmentAction.SubmitterSubmission;
+import org.sakaiproject.assignment.tool.AssignmentAction.UploadGradeWrapper;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.authz.api.SecurityService;
 import org.tsugi.lti.LTIUtil;
 import org.tsugi.lti13.LTICustomVars;
@@ -1911,7 +1915,7 @@ public class AssignmentAction extends PagedResourceActionII {
         initViewSubmissionListOption(state);
         String allOrOneGroup = (String) state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
         String search = (String) state.getAttribute(VIEW_SUBMISSION_SEARCH);
-        Boolean searchFilterOnly = (state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE : Boolean.FALSE);
+        Boolean searchFilterOnly = Boolean.TRUE.equals(state.getAttribute(SUBMISSIONS_SEARCH_ONLY));
 
         // if the instructor is allowed to submit assignment on behalf of student, add the student list to the page
         User student = (User) state.getAttribute("student");
@@ -5100,6 +5104,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 // append the group info to the end
                 accessPointUrl = accessPointUrl.concat(view);
             }
+
             context.put("accessPointUrl", accessPointUrl);
 
             state.setAttribute(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING, assignmentService.assignmentUsesAnonymousGrading(assignment));
@@ -5904,7 +5909,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         initViewSubmissionListOption(state);
         String allOrOneGroup = (String) state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
-        Boolean searchFilterOnly = (state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE : Boolean.FALSE);
+        Boolean searchFilterOnly = Boolean.TRUE.equals(state.getAttribute(SUBMISSIONS_SEARCH_ONLY));
 
         String accessPointUrl = serverConfigurationService.getAccessUrl() +
                 AssignmentReferenceReckoner.reckoner().context(contextString).reckon().getReference() +
@@ -5933,11 +5938,19 @@ public class AssignmentAction extends PagedResourceActionII {
                 .findAny()
                 .isEmpty();
 
-        AuthzGroup groupSelection = StringUtils.isBlank(allOrOneGroup) || AssignmentConstants.ALL.equals(allOrOneGroup)
-                ? site
-                : site.getGroup(allOrOneGroup);
+        Set<String> groupUsers = Collections.emptySet();
 
-        Map<String, User> studentMembers = groupSelection.getUsers().stream()
+        if (StringUtils.isBlank(allOrOneGroup) || AssignmentConstants.ALL.equals(allOrOneGroup)) {
+            if (securityService.unlock(userDirectoryService.getCurrentUser(), SECURE_ALL_GROUPS, siteService.siteReference(site.getId()))){
+                groupUsers = site.getUsers();
+            } else {
+                groupUsers = site.getGroupsWithMember(userDirectoryService.getCurrentUser().getId()).stream().map(Group::getUsers).flatMap(Set::stream).collect(Collectors.toSet());
+            }
+        } else {
+            groupUsers = site.getGroup(allOrOneGroup).getUsers();
+        }
+
+        Map<String, User> studentMembers = groupUsers.stream()
                     .filter(isNonSubmitter)
                     .map(userDirectoryService::getOptionalUser)
                     .flatMap(Optional::stream)
@@ -5964,7 +5977,7 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("viewGroup", state.getAttribute(VIEW_SUBMISSION_LIST_OPTION));
         context.put("searchString", state.getAttribute(VIEW_SUBMISSION_SEARCH) != null ? state.getAttribute(VIEW_SUBMISSION_SEARCH) : "");
         context.put("showSubmissionByFilterSearchOnly", state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null ? (Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY) : Boolean.FALSE);
-        Collection groups = getAllGroupsInSite(contextString);
+        Collection<Group> groups = getCurrentUserGroupsInSite(contextString);
         context.put("groups", new SortedIterator(groups.iterator(), new AssignmentComparator(state, SORTED_BY_GROUP_TITLE, Boolean.TRUE.toString())));
 
 
@@ -6022,7 +6035,7 @@ public class AssignmentAction extends PagedResourceActionII {
         Boolean showSubmissionByFilterSearchOnly = state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE : Boolean.FALSE;
         context.put("showSubmissionByFilterSearchOnly", showSubmissionByFilterSearchOnly);
 
-        Collection groups = getAllGroupsInSite(contextString);
+        Collection<Group> groups = getCurrentUserGroupsInSite(contextString);
         context.put("groups", new SortedIterator(groups.iterator(), new AssignmentComparator(state, SORTED_BY_GROUP_TITLE, Boolean.TRUE.toString())));
 
         add2ndToolbarFields(data, context);
@@ -6083,7 +6096,11 @@ public class AssignmentAction extends PagedResourceActionII {
 
         String assignmentRef = (String) state.getAttribute(EXPORT_ASSIGNMENT_REF);
         Assignment a = getAssignment(assignmentRef, "build_instructor_download_upload_all", state);
+
         if (a != null) {
+            Optional<AssociationTransferBean> optAssociation = rubricsService.getAssociationForToolAndItem(AssignmentConstants.TOOL_ID, a.getId(), a.getContext());
+            context.put("hasRubric", optAssociation.isPresent() && optAssociation.get().getRubricId() != null);
+
             context.put("accessPointUrl", serverConfigurationService.getAccessUrl().concat(assignmentRef));
 
             Assignment.SubmissionType submissionType = a.getTypeOfSubmission();
@@ -9194,6 +9211,37 @@ public class AssignmentAction extends PagedResourceActionII {
                     addtoGradebook, gradebookItemKeys, allowResubmitNumber,
                     aProperties, post, resubmitCloseTime, checkAnonymousGrading);
 
+                // Store category information in assignment properties for drafts
+                // so it can be restored when editing the assignment later
+                if (!post) {
+                    // On draft saves, only persist category when adding to gradebook; otherwise remove to prevent stale state
+                    if (GRADEBOOK_INTEGRATION_ADD.equals(addtoGradebook)) {
+                        if (isGradebookGroupEnabled) {
+                            String categoriesString = (String) state.getAttribute(NEW_ASSIGNMENT_CATEGORY);
+                            if (categoriesString != null && !(categoriesString = categoriesString.trim()).isEmpty() && !"-1".equals(categoriesString)) {
+                                aProperties.put(NEW_ASSIGNMENT_CATEGORY, categoriesString);
+                            }
+                            else {
+                                aProperties.remove(NEW_ASSIGNMENT_CATEGORY);
+                            }
+                        } else {
+                            Object categoryObj = state.getAttribute(NEW_ASSIGNMENT_CATEGORY);
+                            String categoryStr = (categoryObj != null) ? categoryObj.toString().trim() : null;
+                            if (categoryStr != null && !categoryStr.isEmpty() && !"-1".equals(categoryStr)) {
+                                aProperties.put(NEW_ASSIGNMENT_CATEGORY, categoryStr);
+                            }
+                            else {
+                                aProperties.remove(NEW_ASSIGNMENT_CATEGORY);
+                            }
+                        }
+                    } else {
+                        aProperties.remove(NEW_ASSIGNMENT_CATEGORY);
+                    }
+                } else if (post) {
+                    // Remove category from properties when publishing, as it will be managed by gradebook
+                    aProperties.remove(NEW_ASSIGNMENT_CATEGORY);
+                }
+
                 //TODO: ADD_DUE_DATE
                 if (state.getAttribute(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION) != null) {
                     aProperties.put(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION, (String) state.getAttribute(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION));
@@ -10696,7 +10744,11 @@ public class AssignmentAction extends PagedResourceActionII {
                 state.setAttribute(NEW_ASSIGNMENT_SECTION, a.getSection());
 
                 state.setAttribute(NEW_ASSIGNMENT_SUBMISSION_TYPE, a.getTypeOfSubmission().ordinal());
-                state.setAttribute(NEW_ASSIGNMENT_CATEGORY, 0);
+
+                // Load current category from assignment properties (drafts); published items default to "no category"
+                String siteId = a.getContext();
+                loadCurrentAssignmentCategory(state, a, siteId);
+
                 state.setAttribute(NEW_ASSIGNMENT_GRADE_TYPE, a.getTypeOfGrade().ordinal());
                 if (a.getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE) {
                     state.setAttribute(NEW_ASSIGNMENT_GRADE_POINTS, a.getMaxGradePoint().toString());
@@ -13220,6 +13272,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         state.removeAttribute(NEW_ASSIGNMENT_SECTION);
         state.removeAttribute(NEW_ASSIGNMENT_SUBMISSION_TYPE);
+        state.removeAttribute(NEW_ASSIGNMENT_CATEGORY);
         state.removeAttribute(NEW_ASSIGNMENT_GRADE_TYPE);
         state.removeAttribute(NEW_ASSIGNMENT_GRADE_TYPE_SWITCHING);
         state.removeAttribute(NEW_ASSIGNMENT_GRADE_TYPE_SWITCH_CONFIRM);
@@ -13382,6 +13435,45 @@ public class AssignmentAction extends PagedResourceActionII {
             catTable.put(-1L, rb.getString("grading.unassigned"));
         }
         return catTable;
+    }
+
+    /**
+     * Load the current category for an existing assignment from assignment properties (for draft assignments)
+     */
+    private void loadCurrentAssignmentCategory(SessionState state, Assignment assignment, String siteId) {
+        boolean isGradebookGroupEnabled = gradingService.isGradebookGroupEnabled(siteId);
+
+        try {
+            Map<String, String> properties = assignment.getProperties();
+            String storedCategory = properties.get(NEW_ASSIGNMENT_CATEGORY);
+            if (storedCategory != null) storedCategory = storedCategory.trim();
+
+            if (storedCategory != null && !storedCategory.isEmpty()) {
+                if (isGradebookGroupEnabled) {
+                    state.setAttribute(NEW_ASSIGNMENT_CATEGORY, storedCategory);
+                } else {
+                    String normalized = storedCategory.trim();
+                    try {
+                        Long.parseLong(normalized);
+                        state.setAttribute(NEW_ASSIGNMENT_CATEGORY, normalized);
+                    } catch (NumberFormatException e) {
+                        state.setAttribute(NEW_ASSIGNMENT_CATEGORY, "-1");
+                    }
+                }
+            }
+            else if (isGradebookGroupEnabled) {
+                state.setAttribute(NEW_ASSIGNMENT_CATEGORY, "-1");
+            } else {
+                state.setAttribute(NEW_ASSIGNMENT_CATEGORY, -1L);
+            }
+        } catch (Exception e) {
+            log.warn("Error loading category for assignment {} in site {}", assignment.getId(), siteId, e);
+            if (isGradebookGroupEnabled) {
+                state.setAttribute(NEW_ASSIGNMENT_CATEGORY, "-1");
+            } else {
+                state.setAttribute(NEW_ASSIGNMENT_CATEGORY, -1L);
+            }
+        }
     }
 
     /**
@@ -13700,7 +13792,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 initViewSubmissionListOption(state);
                 String allOrOneGroup = (String) state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
                 String search = (String) state.getAttribute(VIEW_SUBMISSION_SEARCH);
-                Boolean searchFilterOnly = (state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE : Boolean.FALSE);
+                Boolean searchFilterOnly = Boolean.TRUE.equals(state.getAttribute(SUBMISSIONS_SEARCH_ONLY));
 
                 Boolean has_multiple_groups_for_user = false;
                 List<SubmitterSubmission> submissions = new ArrayList<>();
@@ -13793,7 +13885,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 String allOrOneGroup = (String) state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
                 String search = (String) state.getAttribute(VIEW_SUBMISSION_SEARCH);
                 String aRef = (String) state.getAttribute(EXPORT_ASSIGNMENT_REF);
-                Boolean searchFilterOnly = (state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE : Boolean.FALSE);
+                Boolean searchFilterOnly = Boolean.TRUE.equals(state.getAttribute(SUBMISSIONS_SEARCH_ONLY));
 
                 Assignment assignment = null;
                 assignment = getAssignment(aRef, "sizeResources", state);
@@ -13901,6 +13993,8 @@ public class AssignmentAction extends PagedResourceActionII {
 
             // clear search form
             doSearch_clear(data, null);
+            
+            state.removeAttribute(TAG_SELECTOR);
 
             String viewMode = data.getParameters().getString("view");
             state.setAttribute(STATE_SELECTED_VIEW, viewMode);
@@ -14196,6 +14290,23 @@ public class AssignmentAction extends PagedResourceActionII {
     }
 
     /**
+     * return groups in a site where current user is member
+     *
+     * @param contextString
+     * @return
+     */
+    private Collection<Group> getCurrentUserGroupsInSite(String contextString) {
+        Collection<Group> groups = new ArrayList<>();
+        try {
+            Site site = siteService.getSite(contextString);
+            groups = (securityService.unlock(userDirectoryService.getCurrentUser(), SECURE_ALL_GROUPS, siteService.siteReference(site.getId())))?site.getGroups():site.getGroupsWithMember(userDirectoryService.getCurrentUser().getId());
+        } catch (IdUnusedException e) {
+            log.warn("Could not fetch site: {}, {}", contextString, e.toString());
+        }
+        return groups;
+    }
+
+    /**
      * return list of submission object based on the group filter/search result
      *
      * @param state
@@ -14204,9 +14315,20 @@ public class AssignmentAction extends PagedResourceActionII {
      */
     protected List<AssignmentSubmission> getFilteredSubmitters(SessionState state, String aRef) {
         String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
-        String allOrOneGroup = (String) state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
         String search = (String) state.getAttribute(VIEW_SUBMISSION_SEARCH);
-        Boolean searchFilterOnly = (state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE : Boolean.FALSE);
+
+        Assignment assignment = getAssignment(aRef, "getFilteredSubmitters", state);
+        Boolean searchFilterOnly;
+        String allOrOneGroup;
+        if (assignment != null && assignment.getIsGroup()) {
+            // For group assignments, ignore SUBMISSIONS_SEARCH_ONLY filter since group filtering/search is not available
+            // Also ensure allOrOneGroup is "all"
+            searchFilterOnly = Boolean.FALSE;
+            allOrOneGroup = AssignmentConstants.ALL;
+        } else {
+            searchFilterOnly = Boolean.TRUE.equals(state.getAttribute(SUBMISSIONS_SEARCH_ONLY));
+            allOrOneGroup = (String) state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
+        }
 
         Map<User, AssignmentSubmission> submitters = assignmentService.getSubmitterMap(searchFilterOnly.toString(), allOrOneGroup, search, aRef, contextString);
 

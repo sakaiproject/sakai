@@ -1758,9 +1758,14 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 						int index = Integer.parseInt(parserTip.getIndex());
 						return eventRef.split(parserTip.getSeparator())[index];
 					}else if(statsManager.isEventContextSupported()) {
-						log.info("Context information unavailable for event: " + eventId + " (ignoring)");
+						// Change log level from info to debug for search.query events to reduce log noise
+						if ("search.query".equals(eventId)) {
+							log.debug("Context information unavailable for event: {} (ignoring)", eventId);
+						} else {
+							log.info("Context information unavailable for event: {} (ignoring)", eventId);
+						}
 					}else{
-						log.info("<eventParserTip> is mandatory when Event.getContext() is unsupported! Ignoring event: " + eventId);
+						log.info("<eventParserTip> is mandatory when Event.getContext() is unsupported! Ignoring event: {}", eventId);
 						// try with most common syntax (/abc/cde/SITE_ID/...)
 						// return eventRef.split("/")[3];
 					}

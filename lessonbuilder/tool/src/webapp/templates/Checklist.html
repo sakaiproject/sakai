@@ -66,9 +66,9 @@
                         <label for="checklist-item-name" ></label><span rsf:id="msg=simplepage.checklist-item-name" id="checklist-item-name" class="lb-offscreen"></span>
                         <input type="text" rsf:id="checklist-item-name" name="checklist-item-name" class="checklist-item-name" />
                         <div class="actionContainer">
-                            <a href="#" id="external-link-" class="external-link"><span class="fa fa-link"><span class="sr-only" rsf:id="msg=simplepage.checklist.external.link" /></span></a>
-                            <a href="#" id="external-link-unlink-" class="external-unlink"><span class="fa fa-chain-broken"><span class="sr-only" rsf:id="msg=simplepage.checklist.external.unlink" /></span></a>
-                            <a href="#" class="deleteItemLink"><img src="$context/images/delete.png" rsf:id="checklist-item-del" /></a>
+                            <button type="button" id="external-link-" class="btn btn-transparent external-link"><span class="fa fa-link"><span class="sr-only" rsf:id="msg=simplepage.checklist.external.link" /></span></button>
+                            <button type="button" id="external-link-unlink-" class="btn btn-transparent external-unlink"><span class="fa fa-chain-broken"><span class="sr-only" rsf:id="msg=simplepage.checklist.external.unlink" /></span></button>
+                            <button type="button" class="btn btn-transparent deleteItemLink"><span class="fa fa-trash" aria-hidden="true" rsf:id="checklist-item-del"></span></button>
                         </div>
                     </li>
                     <ul id="createdChecklistItems"></ul>

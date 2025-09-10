@@ -65,7 +65,7 @@ public class AnnouncementsController extends AbstractSakaiApiController {
                     try {
                         Site site = siteService.getSite(siteId);
 
-                        return announcementService.getMessages(announcementService.channelReference(siteId, SiteService.MAIN_CONTAINER), filter, true, false)
+                        return announcementService.getMessages(announcementService.channelReference(siteId, SiteService.MAIN_CONTAINER), filter, false, false)
                             .stream()
                             .map(am -> {
                                 Optional<String> optionalUrl = entityManager.getUrl(am.getReference(), Entity.UrlType.PORTAL);
@@ -79,6 +79,7 @@ public class AnnouncementsController extends AbstractSakaiApiController {
                         return Stream.<AnnouncementRestBean>empty();
                     }
                 })
+                .sorted((a1, a2) -> Long.compare(a2.getDate(), a1.getDate()))
                 .collect(Collectors.toList());
 
             return Map.of("announcements", announcements, "sites", getPinnedSiteList());
@@ -101,7 +102,7 @@ public class AnnouncementsController extends AbstractSakaiApiController {
             ToolConfiguration placement = site.getToolForCommonId(AnnouncementService.SAKAI_ANNOUNCEMENT_TOOL_ID);
             String mergedChannels = placement.getPlacementConfig().getProperty(AnnouncementService.PORTLET_CONFIG_PARM_MERGED_CHANNELS);
 
-            return Map.of("announcements", announcementService.getChannelMessages(channelRef, null, true, mergedChannels, false, false, siteId, 10)
+            return Map.of("announcements", announcementService.getChannelMessages(channelRef, null, false, mergedChannels, false, false, siteId, 10)
                 .stream()
                 .filter(announcementService::isMessageViewable)
                 .map(am -> {
