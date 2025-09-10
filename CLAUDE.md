@@ -105,3 +105,91 @@
 - **Graceful Degradation**: Provide fallbacks for unsupported browsers
 - **Token Management**: Handle subscription updates and expirations properly
 - **Internationalization**: PWA installation messages use `sakai-notifications.properties` for translations
+
+## File Upload and Stream Processing
+
+### Background
+File uploads in Sakai are handled by Apache Commons FileUpload via `RequestFilter`. Understanding the stream lifecycle is critical for efficient file handling.
+
+### Upload Stream Flow
+1. **HTTP Upload → DiskFileItem**: Apache Commons FileUpload creates temp files for uploads > 1KB (configured via `m_uploadThreshold` in RequestFilter)
+2. **DiskFileItem → Stream**: `getInputStream()` returns a `FileInputStream` to the temp file (not in-memory)
+3. **Stream → Storage**: The stream flows through content detection and hashing before storage
+
+### Stream Processing Architecture (DbContentService)
+The `putResourceBodyFilesystem` method uses TikaInputStream for robust mark/reset operations:
+
+```text
+Original InputStream 
+→ TikaInputStream.get() (robust mark/reset for large files)
+→ Tika detection (mark/read/reset - only reads first portion)
+
+For single-instance store deduplication (two-pass read):
+Pass 1: SHA256 calculation
+→ TikaInputStream.mark(Integer.MAX_VALUE)
+→ DigestInputStream (SHA256 calculation)
+→ CountingInputStream (tracks bytes)
+→ Read entire stream to completion
+→ TikaInputStream.reset()
+
+Pass 2: Storage (only if not duplicate)
+→ FileSystemHandler.saveInputStream(resetStream)
+```
+
+### Important Design Decisions
+- **No Extra Temp Files**: The upload already creates a temp file via DiskFileItem. Creating another temp file is redundant.
+- **TikaInputStream for mark/reset**: Handles large file mark/reset operations efficiently, creating internal temp files only when needed
+- **Two-pass read for single-instance store**: First pass calculates SHA256 for deduplication, second pass saves to storage after reset
+- **Single-pass for non-deduplication**: When single-instance store is disabled, streams directly to storage
+- **Multipart Upload for S3**: BlobStoreFileSystemHandler uses jclouds multipart upload API to avoid needing content-length upfront
+
+### Critical Implementation Notes
+1. **Never create temp files for stream processing** - DiskFileItem already handles this
+2. **Use TikaInputStream for mark/reset** - Handles large files efficiently without memory limits
+3. **Two-pass processing for deduplication** - Hash calculation pass, then reset and save pass
+4. **S3/Cloud storage uses multipart upload** - Eliminates need to know file size before upload
+5. **Memory efficiency** - TikaInputStream manages internal temp files automatically for large mark/reset operations
+
+### Single-Instance Store Deduplication
+When single-instance store is enabled, deduplication requires a two-pass read:
+1. **Use TikaInputStream.mark()**: Supports mark/reset for files of any size by using internal temp files when needed
+2. **Pass 1 - Calculate SHA256**: Read through entire stream with DigestInputStream + CountingInputStream to calculate hash and size
+3. **Reset stream**: Use TikaInputStream.reset() to return to the beginning
+4. **Pass 2 - Save if unique**: Save to storage only if the SHA256 hash indicates it's not a duplicate
+5. **No additional temp files**: TikaInputStream handles internal temp file management when mark buffer exceeds memory
+
+Example implementation:
+```java
+// Use TikaInputStream for robust mark/reset
+TikaInputStream tikaStream = TikaInputStream.get(inputStream);
+
+// Mark with MAX_VALUE for large file support
+tikaStream.mark(Integer.MAX_VALUE);
+
+// Pass 1: Calculate SHA256 and count bytes
+MessageDigest digest = MessageDigest.getInstance("SHA-256");
+DigestInputStream digestStream = new DigestInputStream(tikaStream, digest);
+CountingInputStream countingStream = new CountingInputStream(digestStream);
+byte[] buffer = new byte[8192];
+while (countingStream.read(buffer) != -1) {
+    // Consume stream to calculate hash and count
+}
+String hash = bytesToHex(digest.digest());
+long byteCount = countingStream.getByteCount();
+
+// Reset stream to beginning
+tikaStream.reset();
+
+// Pass 2: Check for duplicate and save if needed
+if (!isDuplicate(hash)) {
+    saveInputStream(tikaStream);
+}
+```
+
+### Common Mistakes to Avoid
+- ❌ Creating a temp file to "simplify" stream handling - the stream is already from a temp file!
+- ❌ Reading the stream multiple times without mark/reset - will fail on second read
+- ❌ Buffering entire file in memory (ByteArrayOutputStream) - use mark/reset instead
+- ❌ Using `readAllBytes()` for large files - will cause OutOfMemoryError
+- ❌ Calculating content-length by reading stream twice - use CountingInputStream or multipart upload
+- ❌ Creating temp files for deduplication - use mark/reset on the existing stream

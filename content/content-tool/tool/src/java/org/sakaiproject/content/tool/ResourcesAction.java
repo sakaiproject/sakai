@@ -3541,13 +3541,19 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		log.debug("ResourcesAction.reviseContent()");
 		ResourceToolAction action = pipe.getAction();
 		ContentEntity entity = pipe.getContentEntity();
+		
 		try
 		{
+			// Edit the existing resource in-place - this preserves the filename and RESOURCE_ID
+			// while allowing single-instance store to update SHA256 and FILE_PATH as needed
 			ContentResourceEdit edit = contentHostingService.editResource(entity.getId());
-			ResourcePropertiesEdit props = edit.getPropertiesEdit();
-			// update content
+			
+			// Set new content 
 			extractContent(pipe, edit);
-			// update properties
+			edit.setContentType(pipe.getRevisedMimeType());
+			edit.setResourceType(action.getTypeId());
+			
+			// Update properties from pipe
 			if(action instanceof InteractionAction)
 			{
 				InteractionAction iAction = (InteractionAction) action;
@@ -3555,6 +3561,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				List propkeys = iAction.getRequiredPropertyKeys();
 				if(propkeys != null)
 				{
+					ResourcePropertiesEdit props = edit.getPropertiesEdit();
 					Iterator keyIt = propkeys.iterator();
 					while(keyIt.hasNext())
 					{
@@ -3566,46 +3573,42 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 						}
 						else
 						{
-							// should we support multivalued properties?
 							props.addProperty(key, value);
 						}
 					}
 				}
 			}
-			// update mimetype
-			edit.setContentType(pipe.getRevisedMimeType());
+			
+			// Commit the edited resource - single-instance store will handle SHA256 and FILE_PATH updates
 			contentHostingService.commitResource(edit, pipe.getNotification());
 		}
 		catch (PermissionException e)
 		{
-			addAlert(trb.getString("alert.noperm"));
-			// TODO Auto-generated catch block
-			log.warn("PermissionException ", e);
+			addAlert(trb.getString("alert.perm"));
 		}
 		catch (IdUnusedException e)
 		{
-			// TODO Auto-generated catch block
-			log.warn("IdUnusedException ", e);
-		}
-		catch (TypeException e)
-		{
-			// TODO Auto-generated catch block
-			log.warn("TypeException ", e);
-		}
-		catch (InUseException e)
-		{
-			// TODO Auto-generated catch block
-			log.warn("InUseException ", e);
+			addAlert(trb.getString("alert.unknown"));
 		}
 		catch (OverQuotaException e)
 		{
-			addAlert(trb.getString("alert.quota"));
-			log.warn("OverQuotaException ", e);
+			addAlert(trb.getString("alert.overquota"));
 		}
 		catch (ServerOverloadException e)
 		{
-			addAlert(rb.getString("failed"));
-			log.warn("ServerOverloadException ", e);
+			addAlert(trb.getString("alert.unable"));
+		}
+		catch (TypeException e)
+		{
+			addAlert(trb.getString("alert.unknown"));
+		}
+		catch (InUseException e)
+		{
+			addAlert(trb.getString("alert.unknown"));
+		}
+		catch (VirusFoundException e)
+		{
+			addAlert(trb.getFormattedMessage("alert.virusfound", new Object[]{e.getMessage()}));
 		}
 	}
 
@@ -8094,14 +8097,19 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		log.debug("{}.replaceContent()", this);
 		ResourceToolAction action = pipe.getAction();
 		ContentEntity entity = pipe.getContentEntity();
+
 		try
 		{
+			// Edit the existing resource in-place - this preserves the filename and RESOURCE_ID
+			// while allowing single-instance store to update SHA256 and FILE_PATH as needed
 			ContentResourceEdit edit = contentHostingService.editResource(entity.getId());
-			ResourcePropertiesEdit props = edit.getPropertiesEdit();
-			// update content
-			extractContent(pipe, edit);
 			
-			// update properties
+			// Set new content 
+			extractContent(pipe, edit);
+			edit.setContentType(pipe.getRevisedMimeType());
+			edit.setResourceType(action.getTypeId());
+
+			// Update properties from pipe
 			if(action instanceof InteractionAction)
 			{
 				InteractionAction iAction = (InteractionAction) action;
@@ -8109,6 +8117,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				List propkeys = iAction.getRequiredPropertyKeys();
 				if(propkeys != null)
 				{
+					ResourcePropertiesEdit props = edit.getPropertiesEdit();
 					Iterator keyIt = propkeys.iterator();
 					while(keyIt.hasNext())
 					{
@@ -8120,37 +8129,43 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 						}
 						else
 						{
-							// should we support multivalued properties?
 							props.addProperty(key, value);
 						}
 					}
 				}
 			}
-			
+
 			int notification = NotificationService.NOTI_NONE;
 			Object obj = pipe.getRevisedListItem();
 			if(obj instanceof ListItem)
 			{
 				notification = ((ListItem) obj).getNotification();
+				((ListItem) obj).updateContentResourceEdit(edit);
 			}
-			
-			// update mimetype
-			edit.setContentType(pipe.getRevisedMimeType());
+
+			// Commit the edited resource - single-instance store will handle SHA256 and FILE_PATH updates
 			contentHostingService.commitResource(edit, notification);
+
 		}
 		catch (PermissionException e)
 		{
 			pipe.setErrorEncountered(true);
-			pipe.setErrorMessage(trb.getString("alert.noperm"));
-			addAlert(pipe.getErrorMessage());
-			log.warn("PermissionException {}", (Object) e);
+			pipe.setErrorMessage(trb.getString("alert.perm"));
 		}
 		catch (IdUnusedException e)
 		{
 			pipe.setErrorEncountered(true);
 			pipe.setErrorMessage(trb.getString("alert.unknown"));
-			addAlert(pipe.getErrorMessage());
-			log.warn("IdUnusedException ", e);
+		}
+		catch (OverQuotaException e)
+		{
+			pipe.setErrorEncountered(true);
+			pipe.setErrorMessage(trb.getString("alert.overquota"));
+		}
+		catch (ServerOverloadException e)
+		{
+			pipe.setErrorEncountered(true);
+			pipe.setErrorMessage(trb.getString("alert.unable"));
 		}
 		catch (TypeException e)
 		{
@@ -8163,22 +8178,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		{
 			pipe.setErrorEncountered(true);
 			pipe.setErrorMessage(trb.getString("alert.unknown"));
-			addAlert(pipe.getErrorMessage());
-			log.warn("InUseException ", e);
-		}
-		catch (OverQuotaException e)
-		{
-			pipe.setErrorEncountered(true);
-			pipe.setErrorMessage(trb.getString("alert.quota"));
-			addAlert(trb.getString("alert.quota"));
-			log.warn("OverQuotaException {}", (Object) e);
-		}
-		catch (ServerOverloadException e)
-		{
-			pipe.setErrorEncountered(true);
-			pipe.setErrorMessage(trb.getString("alert.unable"));
-			addAlert(trb.getString("alert.unable"));
-			log.warn("ServerOverloadException ", e);
 		}
 		catch (VirusFoundException e) {
 			pipe.setErrorEncountered(true);

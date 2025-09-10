@@ -25,7 +25,10 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -47,6 +50,15 @@ import java.security.NoSuchAlgorithmException;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.io.input.CountingInputStream;
+import org.apache.tika.detect.Detector;
+import org.apache.tika.io.TikaInputStream;
+import org.apache.tika.metadata.Metadata;
+import org.apache.tika.metadata.TikaCoreProperties;
+import org.apache.tika.parser.txt.CharsetDetector;
+import org.apache.tika.parser.txt.CharsetMatch;
 
 import org.sakaiproject.util.StorageUtils;
 import org.slf4j.Marker;
@@ -1760,23 +1772,8 @@ public class DbContentService extends BaseContentService
                        String filePath = ((BaseResourceEdit) edit).m_filePath;
                        if (singleInstanceStore)
                        {
-                           // Count references in both main table and deleted table for singleInstanceStore
-                           String statement = contentServiceSql.getCountFilePath(resourceTableName);
-                           int references = -1;
-                           try {
-                               references = countQuery(statement, filePath);
-
-                               // Also count references in deleted table if it exists
-                               if (references <= 1 && resourceDeleteTableName != null) {
-                                   String deleteStatement = contentServiceSql.getCountFilePath(resourceDeleteTableName);
-                                   int deletedReferences = countQuery(deleteStatement, filePath);
-                                   references += deletedReferences;
-                                   log.debug("Found {} references in main table and {} in deleted table for file: {}", 
-                                       references - deletedReferences, deletedReferences, filePath);
-                               }
-                           } catch ( IdUnusedException e ) {
-                               log.warn("missing id during countQuery,  {}", e.toString());
-                           }
+                           // Count total references across both tables
+                           int references = countTotalFileReferences(filePath);
 
                            if ( references > 1 ) {
                                log.debug("Retaining file blob for deleted resource_id={} because {} total reference(s)", edit.getId(), references);
@@ -1977,23 +1974,8 @@ public class DbContentService extends BaseContentService
 							String filePath = ((BaseResourceEdit) edit).m_filePath;
 							if (singleInstanceStore)
 							{
-								// Count references in both main table and deleted table for singleInstanceStore
-								String statement = contentServiceSql.getCountFilePath(resourceTableName);
-								int references = -1;
-								try {
-									references = countQuery(statement, filePath);
-
-									// Also count references in deleted table if it exists
-									if (references <= 1 && resourceDeleteTableName != null) {
-										String deleteStatement = contentServiceSql.getCountFilePath(resourceDeleteTableName);
-										int deletedReferences = countQuery(deleteStatement, filePath);
-										references += deletedReferences;
-										log.debug("Found {} references in main table and {} in deleted table for file: {}", 
-											references - deletedReferences, deletedReferences, filePath);
-									}
-								} catch ( IdUnusedException e ) {
-									log.warn("missing id during countQuery,  {}", e.toString());
-								}
+								// Count total references across both tables
+								int references = countTotalFileReferences(filePath);
 
 								if ( references > 1 ) {
 									log.debug("Retaining file blob for resource_id={} because {} total reference(s)", edit.getId(), references);
@@ -2270,13 +2252,14 @@ public class DbContentService extends BaseContentService
         }
 
         /**
-         * Write the resource body to the database table.
+         * Store resource body content in database from byte array.
+         * This method is used when content is already loaded in memory as a byte array.
+         * For large files, prefer the streaming version putResourceBodyDb(InputStream) to avoid memory issues.
          * 
-         * @param resource
-         *        The resource whose body is being written.
-         * @param body
-         *        The body bytes to write. If there is no body or the body is zero bytes, no entry is inserted into the table.
-         * @return true if the resource body is written successfully, false otherwise.
+         * @param resource The resource whose body is being written
+         * @param body The body bytes to write. If null or zero bytes, no entry is inserted into the table
+         * @param resourceBodyTableName The database table name for storing the body content  
+         * @return true if the resource body is written successfully, false otherwise
          */
         protected boolean putResourceBodyDb(ContentResourceEdit resource, byte[] body, String resourceBodyTableName)
         {
@@ -2309,127 +2292,304 @@ public class DbContentService extends BaseContentService
         }
 
         /**
-         * @param edit
-         * @param stream
-         * @return true if the resource body is written successfully, false otherwise.
+         * Store resource body content in database using streaming to avoid memory buffering.
+         * This method calculates SHA-256 hash while streaming content directly to the database,
+         * preventing OutOfMemoryError for large files by avoiding ByteArrayOutputStream buffering.
+         * 
+         * @param edit The content resource being edited
+         * @param stream The input stream containing the resource content
+         * @param resourceBodyTableName The database table name for storing the body content
+         * @return true if the resource body is written successfully, false otherwise
          */
         protected boolean putResourceBodyDb(ContentResourceEdit edit, InputStream stream, String resourceBodyTableName)
         {
-            // Do not create the files for resources with zero length bodies
-            if ((stream == null)) return true;
+            // Do not process resources with zero length bodies
+            if (stream == null) return true;
 
-            ByteArrayOutputStream bstream = new ByteArrayOutputStream();
-
-            long byteCount = 0;
-
-            // chunk
-            byte[] chunk = new byte[STREAM_BUFFER_SIZE];
-            int lenRead;
-            try
-            {
-		        MessageDigest digest = MessageDigest.getInstance("SHA-256");
-		        DigestInputStream dstream = new DigestInputStream(stream, digest);
-
-                while ((lenRead = dstream.read(chunk)) != -1)
-                {
-                    bstream.write(chunk, 0, lenRead);
-                    byteCount += lenRead;
+            try (TikaInputStream tikaStream = TikaInputStream.get(stream)) {
+                // Mark the stream so we can reset after calculating SHA-256
+                tikaStream.mark(Integer.MAX_VALUE);
+                
+                // Calculate SHA-256 and count bytes in single pass - no memory buffering
+                MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                DigestInputStream digestStream = new DigestInputStream(tikaStream, digest);
+                CountingInputStream countingStream = new CountingInputStream(digestStream);
+                
+                // Read entire stream to calculate hash and size
+                byte[] buffer = new byte[STREAM_BUFFER_SIZE];
+                while (countingStream.read(buffer) != -1) {
+                    // Just consume the stream to calculate hash and count
                 }
-
-		        MessageDigest md2 = dstream.getMessageDigest();
-				String hex = StorageUtils.bytesToHex(md2.digest());
-
-                edit.setContentLength(byteCount);
-                edit.setContentSha256(hex);
-                ResourcePropertiesEdit props = edit.getPropertiesEdit();
-                props.addProperty(ResourceProperties.PROP_CONTENT_LENGTH, Long.toString(byteCount));
-                props.addProperty(ResourceProperties.PROP_CONTENT_SHA256, hex);
-                if (edit.getContentType() != null)
-                {
-                    props.addProperty(ResourceProperties.PROP_CONTENT_TYPE, edit.getContentType());
+                
+                long byteCount = countingStream.getByteCount();
+                String hex = StorageUtils.bytesToHex(digest.digest());
+                
+                // Check database size limit (2GB)
+                if (byteCount > Integer.MAX_VALUE) {
+                    log.warn("Attempted to write file of size > 2G to database content store: {} bytes", byteCount);
+                    return false;
                 }
-            }
-            catch (IOException e)
-            {
-                // TODO Auto-generated catch block
-                log.error("IOException ", e);
-            }
-            catch (NoSuchAlgorithmException e)
-            {
-                // Unlikely
-                log.error("NoSuchAlgorithmException ", e);
-            }
-            finally
-            {
-                if (stream != null)
-                {
-                    try
-                    {
-                        stream.close();
-                    }
-                    catch (IOException e)
-                    {
-                        // TODO Auto-generated catch block
-                        log.error("IOException ", e);
-                    }
+                
+                // Reset stream to beginning for database storage
+                tikaStream.reset();
+                
+                // Store content using streaming database API - no memory buffering
+                String sql = contentServiceSql.getInsertContentSql(resourceBodyTableName);
+                Object[] fields = {edit.getId(), hex};
+                boolean success = sqlService.dbWriteBinaryStream(sql, fields, tikaStream, byteCount);
+                
+                if (success) {
+                    // Set resource properties with calculated values
+                    setContentProperties(edit, byteCount, hex);
+                    log.debug("Successfully stored resource body in database: {} bytes, SHA-256: {}", byteCount, hex);
+                } else {
+                    log.error("Failed to store resource body in database for resource: {}", edit.getId());
                 }
-            }
-
-            if (byteCount > Integer.MAX_VALUE)
-            {
-                log.warn("Attempted to write file of size > 2G to database content store");
+                
+                return success;
+                
+            } catch (Exception e) {
+                log.error("Error storing resource body in database for resource: {}", edit.getId(), e);
                 return false;
             }
-
-            boolean ok = true;
-            if (bstream != null && bstream.size() > 0)
-            {
-                ok = putResourceBodyDb(edit, bstream.toByteArray(), resourceBodyTableName);
-            }
-
-            return ok;
         }
 
         /**
-         * @param edit
-         * @param stream
-         * @return true if the resource body is written successfully, false otherwise.
+         * Count total references to a file path, used to determine if a physical file can be safely deleted.
+         * For performance optimization, only checks deleted table if main table has ≤1 reference,
+         * since files with >1 main references are definitely not safe to delete.
+         * 
+         * @param filePath The file path to check for references
+         * @return Number of references (main table count + deleted table count if main ≤ 1)
+         */
+        private int countTotalFileReferences(String filePath)
+        {
+            if (filePath == null || filePath.isEmpty()) return 0;
+            String statement = contentServiceSql.getCountFilePath(resourceTableName);
+            int references = 0;
+            
+            try {
+                // Count references in main table
+                references = countQuery(statement, filePath);
+                
+                // Also count references in deleted table if exists and main table has ≤1 reference
+                if (references <= 1 && resourceDeleteTableName != null) {
+                    String deleteStatement = contentServiceSql.getCountFilePath(resourceDeleteTableName);
+                    int deletedReferences = countQuery(deleteStatement, filePath);
+                    references += deletedReferences;
+                    log.debug("Found {} references in main table and {} in deleted table for file: {}", 
+                        references - deletedReferences, deletedReferences, filePath);
+                }
+            } catch (IdUnusedException e) {
+                log.warn("Error during reference counting for file {}: {}", filePath, e.toString());
+            }
+            
+            return references;
+        }
+
+        /**
+         * Generate a hierarchical file path for storing content files.
+         * Creates paths like: /2025/246/20/5ada9b63-4baa-4f54-a3c1-4fe26522738a
+         * Uses the single source of truth for file path generation.
+         * 
+         * @return A properly formatted file path with leading slash (as it has been for 20 years)
+         */
+        private String generateFilePath()
+        {
+            // Use the single source of truth for file path generation
+            // Keep the leading slash - this is how it's been stored for 20 years
+            return generateStorageFilePath();
+        }
+
+        /**
+         * Delete a file at the specified path.
+         * Helper method to avoid code duplication when cleaning up old files.
+         * 
+         * @param resourceId The resource ID
+         * @param filePath The file path to delete
+         * @param rootFolder The root folder for file storage
+         */
+        private void deleteFileAtPath(String resourceId, String filePath, String rootFolder)
+        {
+            BaseResourceEdit tempResource = new BaseResourceEdit(resourceId);
+            tempResource.m_filePath = filePath;
+            delResourceBodyFilesystem(rootFolder, tempResource);
+        }
+
+        /**
+         * Set content metadata properties on a resource after processing.
+         * Updates both the resource object and its ResourceProperties with calculated values
+         * including content length, SHA-256 hash, and content type. This method is called after
+         * content has been processed and stored (either in database or filesystem).
+         * 
+         * @param resource The content resource to update with metadata
+         * @param byteCount The actual content length in bytes (calculated during processing)
+         * @param sha256 The SHA-256 hash of the content (calculated during processing)
+         */
+        private void setContentProperties(ContentResourceEdit resource, long byteCount, String sha256)
+        {
+            resource.setContentLength(byteCount);
+            resource.setContentSha256(sha256);
+            ResourcePropertiesEdit props = resource.getPropertiesEdit();
+            props.addProperty(ResourceProperties.PROP_CONTENT_LENGTH, Long.toString(byteCount));
+            props.addProperty(ResourceProperties.PROP_CONTENT_SHA256, sha256);
+            if (resource.getContentType() != null)
+            {
+                props.addProperty(ResourceProperties.PROP_CONTENT_TYPE, resource.getContentType());
+            }
+        }
+        
+        /**
+         * Store resource body content in filesystem using efficient streaming.
+         * This method uses TikaInputStream for robust mark/reset operations and implements
+         * single-instance store deduplication when enabled. Content is streamed directly
+         * to the filesystem without memory buffering, preventing OutOfMemoryError for large files.
+         * 
+         * @param resource The content resource being stored
+         * @param stream The input stream containing the resource content
+         * @param rootFolder The filesystem root folder where content should be stored
+         * @return true if the resource body is written successfully, false otherwise
          */
         private boolean putResourceBodyFilesystem(ContentResourceEdit resource, InputStream stream, String rootFolder)
         {
+            TikaInputStream tikaStream = null;
             try
             {
-                MessageDigest digest = MessageDigest.getInstance("SHA-256");
-                DigestInputStream dstream = new DigestInputStream(stream, digest);
-
-                String filePath = ((BaseResourceEdit) resource).m_filePath;
-                long byteCount = fileSystemHandler.saveInputStream(((BaseResourceEdit) resource).m_id, rootFolder, filePath, dstream);
-
-                MessageDigest md2 = dstream.getMessageDigest();
-                String hex = StorageUtils.bytesToHex(md2.digest());
-
-                resource.setContentLength(byteCount);
-                resource.setContentSha256(hex);
-                ResourcePropertiesEdit props = resource.getPropertiesEdit();
-                props.addProperty(ResourceProperties.PROP_CONTENT_LENGTH, Long.toString(byteCount));
-                props.addProperty(ResourceProperties.PROP_CONTENT_SHA256, hex);
-                if (resource.getContentType() != null)
-                {
-                    props.addProperty(ResourceProperties.PROP_CONTENT_TYPE, resource.getContentType());
+                if (stream == null) {
+                    return true; // No content to save
                 }
-
-                // Check if there already is an identical file (most recent if there is > 1)
+                
+                // Use TikaInputStream for robust mark/reset support
+                // TikaInputStream handles large files efficiently by using temp files internally when needed
+                tikaStream = TikaInputStream.get(stream);
+                
+                // Store old file path for potential cleanup
+                String oldFilePath = ((BaseResourceEdit) resource).m_filePath;
+                boolean isReplacement = (oldFilePath != null);
+                
+                // Check if single-instance store is enabled
                 boolean singleInstanceStore = serverConfigurationService.getBoolean(PROP_SINGLE_INSTANCE, PROP_SINGLE_INSTANCE_DEFAULT);
-                if ( singleInstanceStore && bodyPath != null && bodyPath.equals(rootFolder)) {
+                
+                String hex;
+                long byteCount;
+                String targetFilePath;
+                
+                if (singleInstanceStore && bodyPath != null && bodyPath.equals(rootFolder)) {
+                    // For single-instance store, we need to read the stream twice
+                    // TikaInputStream handles this efficiently with mark/reset
+                    
+                    // Mark the stream so we can reset after calculating SHA256
+                    tikaStream.mark(Integer.MAX_VALUE);
+                    
+                    // Calculate SHA256 by reading entire stream
+                    MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                    byte[] buffer = new byte[STREAM_BUFFER_SIZE];
+                    int bytesRead;
+                    byteCount = 0;
+                    
+                    while ((bytesRead = tikaStream.read(buffer)) != -1) {
+                        digest.update(buffer, 0, bytesRead);
+                        byteCount += bytesRead;
+                    }
+                    
+                    // Get the SHA256 hash
+                    hex = StorageUtils.bytesToHex(digest.digest());
+                    
+                    // Reset stream back to beginning for potential save
+                    tikaStream.reset();
+                    
+                    // Now check for duplicates BEFORE saving
+                    targetFilePath = null;
                     String statement = contentServiceSql.getOnlyOneFilePath(resourceTableName);
                     String duplicateFilePath = singleColumnSingleRow(statement, hex);
-
-                    if ( duplicateFilePath != null ) {
-                        delResourceBodyFilesystem(rootFolder, resource);
-                        ((BaseResourceEdit) resource).m_filePath = duplicateFilePath;
-                        log.debug("Duplicate body found path={}",duplicateFilePath);
+                    
+                    if (duplicateFilePath != null) {
+                        // Found duplicate - but only reuse if this is NOT a replacement from same file
+                        if (!isReplacement || !duplicateFilePath.equals(oldFilePath)) {
+                            // Verify the duplicate file actually exists on disk before reusing
+                            boolean fileExists = false;
+                            try (InputStream testStream = fileSystemHandler.getInputStream(
+                                    ((BaseResourceEdit) resource).m_id, rootFolder, duplicateFilePath)) {
+                                fileExists = true;
+                                log.debug("Verified duplicate file exists at path={}", duplicateFilePath);
+                            } catch (IOException e) {
+                                log.warn("Duplicate file path {} found in DB but missing from filesystem, will create new file", 
+                                        duplicateFilePath);
+                            }
+                            
+                            if (fileExists) {
+                                targetFilePath = duplicateFilePath;
+                                log.debug("Duplicate body found and verified, will reuse path={}", duplicateFilePath);
+                            } else {
+                                // File is missing, need to create a new one
+                                log.debug("Duplicate file missing, will create new file despite SHA256 match");
+                            }
+                        } else {
+                            // This is a replacement and duplicate is our own old file - need new path
+                            log.debug("Replacement operation, generating new path even though content exists");
+                        }
+                    }
+                    
+                    // If no duplicate found or we need a new path, save the content
+                    if (targetFilePath == null) {
+                        targetFilePath = generateFilePath();
+                        log.debug("Content body is unique or replacement needed, new path={}", targetFilePath);
+                        
+                        // Save from the reset TikaInputStream
+                        fileSystemHandler.saveInputStream(((BaseResourceEdit) resource).m_id, rootFolder, targetFilePath, tikaStream);
+                    }
+                    // else: duplicate exists, no need to save file again
+                    
+                    // Update resource with new file path
+                    ((BaseResourceEdit) resource).m_filePath = targetFilePath;
+                    
+                } else {
+                    // Non-single-instance store or different root folder
+                    // Stream directly to storage while calculating SHA256
+                    targetFilePath = generateFilePath();
+                    log.debug("Streaming content to new path={}", targetFilePath);
+                    
+                    // Create digest for SHA256 calculation
+                    MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                    
+                    // Wrap in DigestInputStream to calculate hash while streaming
+                    DigestInputStream digestStream = new DigestInputStream(tikaStream, digest);
+                    
+                    // Wrap in CountingInputStream to track bytes
+                    CountingInputStream countingStream = new CountingInputStream(digestStream);
+                    
+                    // Stream directly through the digest and counting streams to storage
+                    fileSystemHandler.saveInputStream(((BaseResourceEdit) resource).m_id, rootFolder, targetFilePath, countingStream);
+                    
+                    // Get the SHA256 hash after streaming
+                    hex = StorageUtils.bytesToHex(digest.digest());
+                    byteCount = countingStream.getByteCount();
+                    
+                    // Update resource with new file path
+                    ((BaseResourceEdit) resource).m_filePath = targetFilePath;
+                }
+                
+                // Set resource properties
+                setContentProperties(resource, byteCount, hex);
+                
+                // Clean up old file if it's different from new path and was a replacement
+                if (isReplacement && !oldFilePath.equals(((BaseResourceEdit) resource).m_filePath)) {
+                    // Check if old file is still referenced by other resources
+                    if (singleInstanceStore) {
+                        // Count total references across both tables
+                        int references = countTotalFileReferences(oldFilePath);
+                        boolean othersUseOldFile = (references > 1);
+                        
+                        if (!othersUseOldFile) {
+                            deleteFileAtPath(resource.getId(), oldFilePath, rootFolder);
+                            log.debug("Cleaned up old file path: {}", oldFilePath);
+                        } else {
+                            log.debug("Old file path {} still referenced by other resources, not deleting", oldFilePath);
+                        }
                     } else {
-                        log.debug("Content body us unique id={}",resource.getId());
+                        // Single-instance store disabled, safe to delete old file
+                        deleteFileAtPath(resource.getId(), oldFilePath, rootFolder);
+                        log.debug("Cleaned up old file path: {}", oldFilePath);
                     }
                 }
 
@@ -2445,24 +2605,17 @@ public class DbContentService extends BaseContentService
                 log.error("NoSuchAlgorithmException", e);
                 return false;
             }
-        }
-
-        /**
-         * Write the resource body to the external file system. The file name is the bodyPath with the resource id appended.
-         * 
-         * @param resource
-         *        The resource whose body is being written.
-         * @param body
-         *        The body bytes to write. If there is no body or the body is zero bytes, no entry is inserted into the filesystem.
-         * @return true if the resource body is written successfully, false otherwise.
-         */
-        protected boolean putResourceBodyFilesystem(ContentResourceEdit resource, byte[] body)
-        {
-            // Do not create the files for resources with zero length bodies
-            if (body == null) return true;
-
-			return putResourceBodyFilesystem(resource, new ByteArrayInputStream(body), bodyPath);
-
+            finally
+            {
+                // Close TikaInputStream - this will also clean up any temp files it created internally
+                if (tikaStream != null) {
+                    try {
+                        tikaStream.close();
+                    } catch (IOException e) {
+                        log.warn("Failed to close TikaInputStream", e);
+                    }
+                }
+            }
         }
 
         /*

@@ -176,6 +176,22 @@ public class SqlService
 		return service.dbWriteBinary(param0, param1, param2, param3, param4);
 	}
 
+	public static boolean dbWriteBinaryStream(java.lang.String param0, java.lang.Object[] param1, java.io.InputStream param2, long param3)
+	{
+		org.sakaiproject.db.api.SqlService service = getInstance();
+		if (service == null) return false;
+
+		return service.dbWriteBinaryStream(param0, param1, param2, param3);
+	}
+
+	public static boolean dbWriteBinaryStream(java.sql.Connection param0, java.lang.String param1, java.lang.Object[] param2, java.io.InputStream param3, long param4)
+	{
+		org.sakaiproject.db.api.SqlService service = getInstance();
+		if (service == null) return false;
+
+		return service.dbWriteBinaryStream(param0, param1, param2, param3, param4);
+	}
+
 	public static boolean dbWriteFailQuiet(java.sql.Connection param0, java.lang.String param1, java.lang.Object[] param2)
 	{
 		org.sakaiproject.db.api.SqlService service = getInstance();
