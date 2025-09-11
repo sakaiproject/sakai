@@ -13,15 +13,15 @@ This document outlines how to migrate Sakai's cloud-content storage from the dep
 
 - Remove Content-Length counting: stream unknown-length uploads using multipart (`stream(in, -1, partSize)`).
 - Lower memory: no `mark/reset` over entire stream; memory bounded by part size and HTTP buffers.
-- Faster single-pass uploads: compute SHA-256 and byte count while streaming.
+- Faster single-pass uploads: stream uploads while kernel computes SHA-256 and byte count.
 - Simpler deps: drop jclouds + OSGi metadata registries for one small SDK.
 - Clearer errors/retries: MinIO surfaces S3 errors and supports multipart retries.
 
 ## Proposed Architecture
 
 - Keep `org.sakaiproject.content.api.FileSystemHandler` as the integration seam.
-- Add `MinioFileSystemHandler` under `cloud-content/impl` and wire via Spring alias.
-- Uploads: wrap the incoming stream to compute SHA-256 and total bytes inline, while MinIO streams to the bucket using multipart with unknown total length.
+- Replace the jclouds `BlobStoreFileSystemHandler` with a MinIO-backed implementation but retain the same Spring bean id and configuration keys for drop-in compatibility.
+- Uploads: stream the incoming data while kernel's DigestInputStream computes SHA-256 and the handler counts bytes, allowing MinIO to upload multipart data without a known total length.
 - Direct links: use presigned URLs from MinIO SDK.
 - Downloads: stream directly from MinIO; optionally spill to temp file above a size threshold (parity with current behavior).
 - Metadata: continue to set `id`/`path` metadata if needed for parity.
@@ -32,9 +32,9 @@ This document outlines how to migrate Sakai's cloud-content storage from the dep
    - Add to `cloud-content/impl/pom.xml`:
      - `io.minio:minio` (8.x+)
 
-2. Implement `MinioFileSystemHandler`
+2. Implement `BlobStoreFileSystemHandler` (MinIO-backed)
    - Implement `FileSystemHandler` methods using MinIO client:
-     - saveInputStream: stream unknown-length uploads; compute hash/length inline.
+     - saveInputStream: stream unknown-length uploads and count bytes (kernel supplies SHA-256).
      - getInputStream: `getObject` stream; keep temp-file spill logic/config.
      - getAssetDirectLink: presigned GET with configurable expiry.
      - delete: `removeObject`.
@@ -44,13 +44,11 @@ This document outlines how to migrate Sakai's cloud-content storage from the dep
 ```java
 MinioClient client = MinioClient.builder()
     .endpoint(endpoint)
-    .credentials(accessKey, secretKey)
+    .credentials(identity, credential)
     .build();
 
 int partSize = Math.max(5 * 1024 * 1024, configuredPartSize); // >= 5 MiB
-MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
-try (DigestInputStream dis = new DigestInputStream(stream, sha256);
-     CountingInputStream cis = new CountingInputStream(dis)) {
+try (CountingInputStream cis = new CountingInputStream(stream)) {
 
   client.putObject(
       PutObjectArgs.builder()
@@ -61,8 +59,7 @@ try (DigestInputStream dis = new DigestInputStream(stream, sha256);
           .build()
   );
 
-  long bytes = cis.getCount();
-  String hex = bytesToHex(sha256.digest()); // record length + sha256
+  long bytes = cis.getCount(); // kernel's DigestInputStream computes SHA-256
 }
 ```
 
@@ -90,31 +87,26 @@ String url = client.getPresignedObjectUrl(
 - `client.removeObject(RemoveObjectArgs.builder().bucket(bucket).`object`(key).build())`.
 
 7. Wire Spring configuration
-- Add bean: `org.sakaiproject.content.api.FileSystemHandler.minio`.
-- In `sakai-configuration.xml` set alias:
+- Bean id remains `org.sakaiproject.content.api.FileSystemHandler.blobstore`.
+- In `sakai-configuration.xml` ensure the alias still points to `org.sakaiproject.content.api.FileSystemHandler.blobstore`.
 
-```xml
-<alias name="org.sakaiproject.content.api.FileSystemHandler.minio"
-       alias="org.sakaiproject.content.api.FileSystemHandler" />
-```
-
-8. Configuration keys (proposed)
+8. Configuration keys
 
 - MinIO handler properties (example in `local.properties`):
 
 ```
-endpoint@org.sakaiproject.content.api.FileSystemHandler.minio     = https://minio.example.edu
-accessKey@org.sakaiproject.content.api.FileSystemHandler.minio    = <ACCESS_KEY>
-secretKey@org.sakaiproject.content.api.FileSystemHandler.minio    = <SECRET_KEY>
-baseContainer@org.sakaiproject.content.api.FileSystemHandler.minio= sakai-content
-useIdForPath@org.sakaiproject.content.api.FileSystemHandler.minio = true
+endpoint@org.sakaiproject.content.api.FileSystemHandler.blobstore     = https://minio.example.edu
+identity@org.sakaiproject.content.api.FileSystemHandler.blobstore     = <ACCESS_KEY>
+credential@org.sakaiproject.content.api.FileSystemHandler.blobstore   = <SECRET_KEY>
+baseContainer@org.sakaiproject.content.api.FileSystemHandler.blobstore= sakai-content
+useIdForPath@org.sakaiproject.content.api.FileSystemHandler.blobstore = true
 cloud.content.signedurl.expiry                                     = 600   # seconds
 cloud.content.multipart.partsize.mb                                = 10    # >= 5
 cloud.content.maxblobstream.size                                   = 104857600
 cloud.content.temporary.directory                                  = /var/tmp/sakai-blobs
 ```
 
-- Backward-compat: accept old S3/Swift keys and log a deprecation warning when MinIO is active.
+- Backward-compat: `accessKey`/`secretKey` are still accepted as synonyms for `identity`/`credential`.
 
 ## Deprecation Plan (jclouds S3 + Swift)
 
@@ -145,8 +137,8 @@ cloud.content.temporary.directory                                  = /var/tmp/sa
 
 ## Rollout
 
-1. Ship MinIO handler alongside jclouds (default remains jclouds) and gather feedback.
-2. Switch default alias to MinIO for new installs; emit deprecation warnings when old handlers are used.
+1. Ship MinIO-backed handler alongside jclouds (default remains jclouds) and gather feedback.
+2. Switch default alias to the MinIO-backed handler for new installs; emit deprecation warnings when old handlers are used.
 3. Remove jclouds S3 + Swift after one release cycle; provide a migration guide and property mapping.
 
 ## Appendix: Property Mapping
@@ -156,12 +148,12 @@ cloud.content.temporary.directory                                  = /var/tmp/sa
 - Old (Swift via jclouds)
   - `endpoint@...swift`, `identity@...swift`, `credential@...swift`, `region@...swift`.
 - New (MinIO)
-  - `endpoint@...minio`, `accessKey@...minio`, `secretKey@...minio`, `baseContainer@...minio`.
+  - `endpoint@...blobstore`, `identity@...blobstore`, `credential@...blobstore`, `baseContainer@...blobstore`.
 
 ## FAQ
 
 - Why remove Content-Length counting?
-  - With jclouds BlobStore we pre-read streams to get a length for `contentLength(size)`. MinIO supports streaming unknown-length data using multipart, so we can upload in a single pass and compute SHA-256 and size on the fly.
+  - With jclouds BlobStore we pre-read streams to get a length for `contentLength(size)`. MinIO supports streaming unknown-length data using multipart, so uploads happen in a single pass while the kernel computes SHA-256 and size concurrently.
 
 - Should we remove the old Swift BlobStore?
   - Recommendation: yes, deprecate now and remove next major unless active Swift users are identified. S3 compatibility has effectively won, and Swift often exposes S3 endpoints.

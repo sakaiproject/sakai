@@ -14,8 +14,8 @@
   <packaging>sakai-component</packaging>
 
   <properties>
-    <jclouds.version>2.5.0</jclouds.version>
     <deploy.target>components</deploy.target>
+    <minio.version>8.5.9</minio.version>
   </properties>
 
   <dependencies>
@@ -41,28 +41,11 @@
       <artifactId>jakarta.xml.bind-api</artifactId>
     </dependency>
 
-    <!-- jclouds dependencies -->
-    <!-- Package these directly in the impl/component -->
+    <!-- MinIO SDK -->
     <dependency>
-      <groupId>org.apache.jclouds.driver</groupId>
-      <artifactId>jclouds-slf4j</artifactId>
-      <version>${jclouds.version}</version>
-    </dependency>
-    <!-- jclouds-sl4j needs jclouds-core which needs guice which needs aopalliance which is already provided in lib -->
-    <dependency>
-      <groupId>org.apache.jclouds.api</groupId>
-      <artifactId>openstack-swift</artifactId>
-      <version>${jclouds.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.jclouds</groupId>
-      <artifactId>jclouds-blobstore</artifactId>
-      <version>${jclouds.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.jclouds.provider</groupId>
-      <artifactId>aws-s3</artifactId>
-      <version>${jclouds.version}</version>
+      <groupId>io.minio</groupId>
+      <artifactId>minio</artifactId>
+      <version>${minio.version}</version>
     </dependency>
   </dependencies>
 
