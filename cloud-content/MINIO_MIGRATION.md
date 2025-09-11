@@ -53,7 +53,7 @@ try (CountingInputStream cis = new CountingInputStream(stream)) {
   client.putObject(
       PutObjectArgs.builder()
           .bucket(bucket)
-          .`object`(objectKey)
+          .object(objectKey)
           .stream(cis, -1, partSize)         // -1 = unknown total size
           .contentType(contentType)
           .build()
@@ -73,18 +73,18 @@ String url = client.getPresignedObjectUrl(
     GetPresignedObjectUrlArgs.builder()
         .method(Method.GET)
         .bucket(bucket)
-        .`object`(objectKey)
-        .expiry(expiryMinutes, TimeUnit.MINUTES)
+        .object(objectKey)
+        .expiry(expirySeconds, TimeUnit.SECONDS)
         .build()
 );
 ```
 
 5. Downloads
-- Use `client.getObject(GetObjectArgs.builder().bucket(bucket).`object`(key).build())`.
+- Use `client.getObject(GetObjectArgs.builder().bucket(bucket).object(key).build())`.
 - For large objects, optionally copy to a temp file first (retain `cloud.content.maxblobstream.size`).
 
 6. Deletes
-- `client.removeObject(RemoveObjectArgs.builder().bucket(bucket).`object`(key).build())`.
+- `client.removeObject(RemoveObjectArgs.builder().bucket(bucket).object(key).build())`.
 
 7. Wire Spring configuration
 - Bean id remains `org.sakaiproject.content.api.FileSystemHandler.blobstore`.
@@ -94,7 +94,7 @@ String url = client.getPresignedObjectUrl(
 
 - MinIO handler properties (example in `local.properties`):
 
-```
+```properties
 endpoint@org.sakaiproject.content.api.FileSystemHandler.blobstore     = https://minio.example.edu
 identity@org.sakaiproject.content.api.FileSystemHandler.blobstore     = <ACCESS_KEY>
 credential@org.sakaiproject.content.api.FileSystemHandler.blobstore   = <SECRET_KEY>
