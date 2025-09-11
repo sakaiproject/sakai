@@ -32,49 +32,49 @@ public interface SakaiProxy {
 	 *
 	 * @return
 	 */
-	public String getCurrentUserId();
+	String getCurrentUserId();
 
 	/**
 	 * Convert eid to internal userid
 	 *
 	 * @return
 	 */
-	public String getUserIdForEid(String eid);
+	String getUserIdForEid(String eid);
 
 	/**
 	 * Get displayname of a given userid (internal id)
 	 *
 	 * @return
 	 */
-	public String getUserDisplayName(String userId);
+	String getUserDisplayName(String userId);
 
 	/**
 	 * Get firstname of a given userid (internal id)
 	 *
 	 * @return
 	 */
-	public String getUserFirstName(String userId);
+	String getUserFirstName(String userId);
 
 	/**
 	 * Get lastname of a given userid (internal id)
 	 *
 	 * @return
 	 */
-	public String getUserLastName(String userId);
+	String getUserLastName(String userId);
 
 	/**
 	 * Get email address for a given userid (internal id)
 	 *
 	 * @return
 	 */
-	public String getUserEmail(String userId);
+	String getUserEmail(String userId);
 
 	/**
 	 * Is the current user a superUser? (anyone in admin realm)
 	 *
 	 * @return
 	 */
-	public boolean isSuperUser();
+	boolean isSuperUser();
 
 	/**
 	 * Is the current user a superUser and are they performing an action on another user's profile?
@@ -82,14 +82,14 @@ public interface SakaiProxy {
 	 * @param userId - userId of other user
 	 * @return
 	 */
-	public boolean isSuperUserAndProxiedToUser(String userId);
+	boolean isSuperUserAndProxiedToUser(String userId);
 
 	/**
 	 * Is the current user viewing the site as another role via View Site As
 	 *
 	 * @return
 	 */
-	public boolean isUserRoleSwapped();
+	boolean isUserRoleSwapped();
 
 	/**
 	 * Get the type of this user's account
@@ -97,7 +97,7 @@ public interface SakaiProxy {
 	 * @param userId
 	 * @return
 	 */
-	public String getUserType(String userId);
+	String getUserType(String userId);
 
 	/**
 	 * Get a user
@@ -105,7 +105,7 @@ public interface SakaiProxy {
 	 * @param userId internal user id
 	 * @return
 	 */
-	public User getUserById(String userId);
+	User getUserById(String userId);
 
 	/**
 	 * Get the User object for the given userId.
@@ -117,7 +117,7 @@ public interface SakaiProxy {
 	 * @param userId
 	 * @return
 	 */
-	public User getUserQuietly(String userId);
+	User getUserQuietly(String userId);
 
 	/**
 	 * Get a SakaiPerson for a user
@@ -125,7 +125,7 @@ public interface SakaiProxy {
 	 * @param userId
 	 * @return
 	 */
-	public SakaiPerson getSakaiPerson(String userId);
+	SakaiPerson getSakaiPerson(String userId);
 
 	/**
 	 * Get a SakaiPerson prototype if they don't have a profile.
@@ -136,7 +136,7 @@ public interface SakaiProxy {
 	 * @param userId
 	 * @return
 	 */
-	public SakaiPerson getSakaiPersonPrototype();
+	SakaiPerson getSakaiPersonPrototype();
 
 	/**
 	 * Create a new persistable SakaiPerson object for a user
@@ -144,7 +144,7 @@ public interface SakaiProxy {
 	 * @param userId
 	 * @return
 	 */
-	public SakaiPerson createSakaiPerson(String userId);
+	SakaiPerson createSakaiPerson(String userId);
 
 	/**
 	 * Update a SakaiPerson object in the db.
@@ -158,7 +158,7 @@ public interface SakaiProxy {
 	 * @param sakaiPerson
 	 * @return
 	 */
-	public boolean updateSakaiPerson(SakaiPerson sakaiPerson);
+	boolean updateSakaiPerson(SakaiPerson sakaiPerson);
 
 	/**
 	 * Get the location for a profileImage given the user and type
@@ -167,7 +167,7 @@ public interface SakaiProxy {
 	 * @param type
 	 * @return
 	 */
-	public String getProfileImageResourcePath(String userId, int type);
+	String getProfileImageResourcePath(String userId, int type);
 
 	/**
 	 * Save a file to CHS
@@ -179,16 +179,16 @@ public interface SakaiProxy {
 	 * @param fileData
 	 * @return
 	 */
-	public boolean saveFile(String fullResourceId, String userId, String fileName, String mimeType, byte[] fileData);
+	boolean saveFile(String fullResourceId, String userId, String fileName, String mimeType, byte[] fileData);
 
-  	public boolean resourceExists(String resourceId);
+  	boolean resourceExists(String resourceId);
 
 	/**
 	 * Retrieve a resource from ContentHosting with byte[] and mimetype
 	 *
 	 * @param resourceId the full resourceId of the file
 	 */
-	public MimeTypeByteArray getResource(String resourceId);
+	MimeTypeByteArray getResource(String resourceId);
 
 	/**
 	 * Removes the specified resource.
@@ -196,7 +196,7 @@ public interface SakaiProxy {
 	 * @param resourceId the ID of the resource to remove.
 	 * @return <code>true</code> if the resource is successfully removed, <code>false</code> if the remove operation fails.
 	 */
-	public boolean removeResource(String resourceId);
+	boolean removeResource(String resourceId);
 
 	/**
 	 * Post an event to Sakai
@@ -206,14 +206,14 @@ public interface SakaiProxy {
 	 * @param modify true if something changed, false if just access
 	 *
 	 */
-	public void postEvent(String event, String reference, boolean modify);
+	void postEvent(String event, String reference, boolean modify);
 
 	/**
 	 * Gets the serverUrl configuration parameter (http://sakai.lancs.ac.uk:8080)
 	 *
 	 * @return
 	 */
-	public String getServerUrl();
+	String getServerUrl();
 
 	/**
 	 * Gets the full portal url by adding getServerUrl() and getPortalPath() together This WILL work outside the portal context so safe to
@@ -221,7 +221,7 @@ public interface SakaiProxy {
 	 *
 	 * @return
 	 */
-	public String getFullPortalUrl();
+	String getFullPortalUrl();
 
 	/**
 	 * Updates a user's email address If the user is a provided user (ie from LDAP) this will probably fail so only internal accounts can be
@@ -230,7 +230,7 @@ public interface SakaiProxy {
 	 * @param userId uuid of the user
 	 * @param email
 	 */
-	public void updateEmailForUser(String userId, String email);
+	void updateEmailForUser(String userId, String email);
 
 	/**
 	 * Updates a user's name If the user is a provided user (ie from LDAP) this will probably fail so only internal accounts can be updated.
@@ -238,7 +238,7 @@ public interface SakaiProxy {
 	 * @param userId uuid of the user
 	 * @param email
 	 */
-	public void updateNameForUser(String userId, String firstName, String lastName);
+	void updateNameForUser(String userId, String firstName, String lastName);
 
 	/**
 	 * Check if a user is allowed to update their account. The User could come from LDAP so updates not allowed. This will check if any
@@ -250,7 +250,7 @@ public interface SakaiProxy {
 	 * @param userId
 	 * @return
 	 */
-	public boolean isAccountUpdateAllowed(String userId);
+	boolean isAccountUpdateAllowed(String userId);
 
 	/**
 	 * Is the profile2.picture.change.enabled flag set in sakai.properties? If not set, defaults to true
@@ -262,7 +262,7 @@ public interface SakaiProxy {
 	 *
 	 * @return
 	 */
-	public boolean isProfilePictureChangeEnabled();
+	boolean isProfilePictureChangeEnabled();
 
 	/**
 	 * Get the profile2.picture.type setting in sakai.properties
@@ -281,7 +281,7 @@ public interface SakaiProxy {
 	 *
 	 * @return
 	 */
-	public int getProfilePictureType();
+	int getProfilePictureType();
 
 	/**
 	 * Convenience method to ensure the given userId(eid or internal id) is returned as a valid uuid.
@@ -293,7 +293,7 @@ public interface SakaiProxy {
 	 * @param userId
 	 * @return uuid or null
 	 */
-	public String ensureUuid(String userId);
+	String ensureUuid(String userId);
 
 	/**
 	 * Toggle a profile's locked status.
@@ -302,21 +302,21 @@ public interface SakaiProxy {
 	 * @param locked
 	 * @return
 	 */
-	public boolean toggleProfileLocked(String userId, boolean locked);
+	boolean toggleProfileLocked(String userId, boolean locked);
 
 	/**
 	 * Is profile2.official.image.enabled true? If so, allow use of this image and preference.
 	 *
 	 * @return
 	 */
-	public boolean isOfficialImageEnabledGlobally();
+	boolean isOfficialImageEnabledGlobally();
 
 	/**
 	 * Checks if profile2.picture.type=official 
 	 *
 	 * @return
 	 */
-	public boolean isUsingOfficialImage();
+	boolean isUsingOfficialImage();
 
 	/**
 	 * Gets the value of the profile2.official.image.source attribute from sakai.properties. If not set, defaults to
@@ -326,7 +326,7 @@ public interface SakaiProxy {
 	 *
 	 * @return
 	 */
-	public String getOfficialImageSource();
+	String getOfficialImageSource();
 
 	/**
 	 * Gets the value of the profile2.official.image.directory attribute from sakai.properties. If not set, defaults to /official-photos
@@ -335,7 +335,7 @@ public interface SakaiProxy {
 	 *
 	 * @return The root directory where official images are stored
 	 */
-	public String getOfficialImagesDirectory();
+	String getOfficialImagesDirectory();
 
 	/**
 	 * Get the value of the profile2.official.image.directory.pattern attribute from sakai.properties. If not set, defaults to TWO_DEEP.
@@ -354,7 +354,7 @@ public interface SakaiProxy {
 	 *
 	 * @return
 	 */
-	public String getOfficialImagesFileSystemPattern();
+	String getOfficialImagesFileSystemPattern();
 
 	/**
 	 * Gets the value of the profile2.official.image.attribute from sakai.properties If not set, defaults to
@@ -364,7 +364,7 @@ public interface SakaiProxy {
 	 *
 	 * @return
 	 */
-	public String getOfficialImageAttribute();
+	String getOfficialImageAttribute();
 
 	/**
 	 * Generic method to get a configuration parameter from sakai.properties
@@ -373,7 +373,7 @@ public interface SakaiProxy {
 	 * @param def default value
 	 * @return value or default if none
 	 */
-	public String getServerConfigurationParameter(String key, String def);
+	String getServerConfigurationParameter(String key, String def);
 
 	/**
 	 * Check if specified site is a My Workspace site
@@ -381,7 +381,7 @@ public interface SakaiProxy {
 	 * @param siteId id of site
 	 * @return true if site is a My Workspace site, false otherwise.
 	 */
-	public boolean isUserMyWorkspace(String siteId);
+	boolean isUserMyWorkspace(String siteId);
 
 	/**
 	 * Generic method to check if user has permission in site
@@ -391,33 +391,33 @@ public interface SakaiProxy {
 	 * @param siteId site id
 	 * @return
 	 */
-	public boolean isUserAllowedInSite(String userId, String permission, String siteId);
+	boolean isUserAllowedInSite(String userId, String permission, String siteId);
 
 	/**
 	 * Is the profile2.profile.social.enabled flag set in sakai.properties? If not set, defaults to true.
 	 *
 	 * @return <code>true</code> if the profile2.profile.social.enabled flag is set, otherwise returns <code>false</code>.
 	 */
-	public boolean isSocialProfileEnabled();
+	boolean isSocialProfileEnabled();
 
 	/**
 	 * Is the profile2.profile.name.pronunciation.enabled flag set in sakai.properties? If not set, defaults to true
 	 *
 	 * @return <code>true</code> if the profile2.profile.name.pronunciation.enabled flag is set, otherwise returns <code>false</code>.
 	 */
-	public boolean isNamePronunciationProfileEnabled();
+	boolean isNamePronunciationProfileEnabled();
 
 	/**
 	 * Returns the name pronunciation examples link
 	 * @return the name pronunciation examples link, empty if it is not configured in sakai.properties
 	 */
-	public String getNamePronunciationExamplesLink();
+	String getNamePronunciationExamplesLink();
 
 	/**
 	 * Returns the name pronunciation duration in seconds
 	 * @return the name pronunciation duration in seconds. 10 seconds if it is not configured in sakai.properties
 	 */
-	public int getNamePronunciationDuration();
+	int getNamePronunciationDuration();
 
 	/**
 	 * Check if a user is member of a site
@@ -426,7 +426,7 @@ public interface SakaiProxy {
 	 * @param siteId id of site
 	 * @return true if the user is member of that site
 	 */
-	public boolean isUserMemberOfSite(String userId, String siteId);
+	boolean isUserMemberOfSite(String userId, String siteId);
 
 	/**
 	 * Check if two users have any site membership in common
@@ -435,5 +435,5 @@ public interface SakaiProxy {
 	 * @param userId2 userId of user to check membership
 	 * @return true if both users are members of one common site
 	 */
-	public boolean areUsersMembersOfSameSite(String userId1, String userId2);
+	boolean areUsersMembersOfSameSite(String userId1, String userId2);
 }
