@@ -66,7 +66,6 @@ export class SakaiAccount extends SakaiElement {
   _loadUser() {
 
     const url = `/api/users/${this.userId}/profile`;
-    console.log(url);
     fetch(url)
     .then(r => {
 
@@ -237,7 +236,7 @@ export class SakaiAccount extends SakaiElement {
 
     const socialLinks = new SocialLinks();
 
-    if (!socialLinks.isValid("facebook", facebookUrl.value)) {
+    if (facebookUrl.value && !socialLinks.isValid("facebook", facebookUrl.value)) {
       this._currentError = this._i18n.invalid_facebook;
       this._displaySocialInfoErrorBanner = true;
       this._facebookUrlInvalid = true;
@@ -245,7 +244,7 @@ export class SakaiAccount extends SakaiElement {
       return;
     }
 
-    if (!socialLinks.isValid("instagram", instagramUrl.value)) {
+    if (instagramUrl.value && !socialLinks.isValid("instagram", instagramUrl.value)) {
       this._currentError = this._i18n.invalid_instagram;
       this._displaySocialInfoErrorBanner = true;
       this._instagramUrlInvalid = true;
@@ -253,7 +252,7 @@ export class SakaiAccount extends SakaiElement {
       return;
     }
 
-    if (!socialLinks.isValid("linkedin", linkedinUrl.value)) {
+    if (linkedinUrl.value && !socialLinks.isValid("linkedin", linkedinUrl.value)) {
       this._currentError = this._i18n.invalid_linkedin;
       this._displaySocialInfoErrorBanner = true;
       this._linkedinUrlInvalid = true;
@@ -749,7 +748,7 @@ export class SakaiAccount extends SakaiElement {
             <button type="button" id="social-info-cancel-button" class="btn btn-secondary" @click=${this._resetSocialInfo}>${this._i18n.cancel}</button>
           </div>
           ${this._displaySocialInfoErrorBanner ? html`
-          <div class="sak-banner-error">${this._i18n.current_error}</div>
+          <div class="sak-banner-error">${this._currentError}</div>
           ` : nothing}
         </div>
       </div>

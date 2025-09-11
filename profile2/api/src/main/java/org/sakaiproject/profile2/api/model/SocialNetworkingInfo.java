@@ -30,7 +30,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
-@Table(name = "SOCIAL_NETWORKING_INFO_T")
+@Table(name = "PROFILE_SOCIAL_INFO_T")
 public class SocialNetworkingInfo implements PersistableEntity<String> {
 
 	@EqualsAndHashCode.Include
@@ -38,13 +38,13 @@ public class SocialNetworkingInfo implements PersistableEntity<String> {
     @Column(name = "USER_ID", length = 99)
 	private String userId;
 
-    @Column(name = "FACEBOOK_URL", length = 4000)
+    @Column(name = "FACEBOOK_URL", length = 255)
 	private String facebookUrl;
 
-    @Column(name = "LINKEDIN_URL", length = 4000)
+    @Column(name = "LINKEDIN_URL", length = 255)
 	private String linkedinUrl;
 
-    @Column(name = "INSTAGRAM_URL", length = 4000)
+    @Column(name = "INSTAGRAM_URL", length = 255)
 	private String instagramUrl;
 	
 	// additional constructor
